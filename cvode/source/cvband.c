@@ -2,7 +2,7 @@
  *                                                                *
  * File          : cvband.c                                       *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 11 January 2002                                *
+ * Version of    : 1 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the CVODE band linear      *
  * solver, CVBAND.                                                *
@@ -22,7 +22,7 @@
 
 /* Error Messages */
 
-#define CVBAND      "CVBand-- "
+#define CVBAND      "CVBand/CVReInitBand-- "
   
 #define MSG_MEM_FAIL     CVBAND "A memory request failed.\n\n"
 
@@ -76,7 +76,7 @@ typedef struct {
 } CVBandMemRec, *CVBandMem;
 
 
-/* CVBAND linit, lsetup, lsolve, and lfree routines */
+/* CVBAND linit, lsetup, lsolve, lfree and DQJac routines */
 
 static int CVBandInit(CVodeMem cv_mem);
 
@@ -88,6 +88,12 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                        N_Vector fcur);
 
 static void CVBandFree(CVodeMem cv_mem);
+
+static void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
+                 RhsFn f, void *f_data, real t, N_Vector y, N_Vector fy,
+                 N_Vector ewt, real h, real uround, void *jac_data,
+                 long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
+                 N_Vector vtemp3);
 
 
 /*************** CVBandDQJac *****************************************
@@ -101,7 +107,7 @@ static void CVBandFree(CVodeMem cv_mem);
 
 **********************************************************************/
 
-void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
+static void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
                  RhsFn f, void *f_data, real tn, N_Vector y,
                  N_Vector fy, N_Vector ewt, real h, real uround,
                  void *jac_data, long int *nfePtr, N_Vector vtemp1,
@@ -291,6 +297,62 @@ int CVBand(void *cvode_mem, integer mupper, integer mlower, CVBandJacFn bjac,
     BandFreeMat(savedJ);
     return(LMEM_FAIL);
   }
+
+  return(SUCCESS);
+}
+
+/*************** CVReInitBand****************************************
+
+ This routine resets the link between the main CVODE module and the
+ band linear solver module CVBand.  No memory freeing or allocation
+ operations are done, as the existing linear solver memory is assumed
+ sufficient.  All other initializations are the same as in CVBand.
+ The return value is SUCCESS=0, LMEM_FAIL=-1, or LIN_ILL_INPUT=-2.
+
+**********************************************************************/
+
+int CVReInitBand(void *cvode_mem, integer mupper, integer mlower,
+                 CVBandJacFn bjac, void *jac_data)
+{
+  CVodeMem cv_mem;
+  CVBandMem cvband_mem;
+  
+  /* Return immediately if cvode_mem is NULL */
+  cv_mem = (CVodeMem) cvode_mem;
+  if (cv_mem == NULL) {               /* CVode reports this error */
+    fprintf(errfp, MSG_CVMEM_NULL);
+    return(LMEM_FAIL);
+  }
+
+  /* Set four main function fields in cv_mem */  
+  linit  = CVBandInit;
+  lsetup = CVBandSetup;
+  lsolve = CVBandSolve;
+  lfree  = CVBandFree;
+
+  cvband_mem = lmem;   /* Use existing linear solver memory pointer */
+  
+/* Set Jacobian routine field, J_data, and setupNonNull */
+  if (bjac == NULL) {
+    jac = CVBandDQJac;
+  } else {
+    jac = bjac;
+  }
+  J_data = jac_data;
+  setupNonNull = TRUE;
+  
+  /* Load half-bandwiths in cvband_mem */
+  ml = mlower;
+  mu = mupper;
+
+  /* Test ml and mu for legality */
+  if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
+    fprintf(errfp, MSG_BAD_SIZES, ml, mu, N-1);
+    return(LIN_ILL_INPUT);
+  }
+
+  /* Set extended upper half-bandwith for M (required for pivoting) */
+  storage_mu = MIN(N-1, mu + ml);
 
   return(SUCCESS);
 }
