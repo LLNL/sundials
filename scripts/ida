@@ -24,6 +24,11 @@ tar uf $tarfile $distrobase/ida/source/idadense.c
 tar uf $tarfile $distrobase/ida/source/idaband.c
 tar uf $tarfile $distrobase/ida/source/idaspgmr.c
 tar uf $tarfile $distrobase/ida/source/idabbdpre.c
+tar uf $tarfile $distrobase/ida/source/ida_impl.h
+tar uf $tarfile $distrobase/ida/source/idadense_impl.h
+tar uf $tarfile $distrobase/ida/source/idaband_impl.h
+tar uf $tarfile $distrobase/ida/source/idaspgmr_impl.h
+tar uf $tarfile $distrobase/ida/source/idabbdpre_impl.h
 
 tar uf $tarfile $distrobase/ida/examples_ser/README
 tar uf $tarfile $distrobase/ida/examples_ser/Makefile.in
