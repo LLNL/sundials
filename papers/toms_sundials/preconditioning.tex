@@ -6,7 +6,7 @@ in order to obtain acceptable efficiency.  To be effective, the
 preconditioner matrix must in some sense approximate the relevant
 matrix (Jacobian matrix or Newton matrix), and yet be reasonably
 efficient to evaluate and solve.  Typical preconditioners used with
-SUNDIALS solvers are based on approximations to the Jacobian matrices
+the solvers in SUNDIALS are based on approximations to the Jacobian matrices
 of the systems involved.  Because the Krylov iteration occurs within a
 Newton iteration, and often also within a time integration, and each
 of these iterations has its own test for convergence, the
@@ -25,7 +25,7 @@ preconditioner matrix $P$ in two separate phases:
 \item a setup phase: evaluate and preprocess $P$ (done infrequently), and
 \item a solve phase: solve systems $Px = b$ (done frequently).
 \end{itemize}
-Accordingly, the user of each SUNDIALS solver must supply two separate
+Accordingly, the user of each solver must supply two separate
 routines for these operations.  The setup of $P$ is generally more
 expensive than the solve operation, and so it is done as infrequently
 as possible, with updates to $P$ dictated primarily by convergence

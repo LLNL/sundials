@@ -48,8 +48,9 @@ mathematical operations are also included.
 \label{fig-sunorg}
 \end{figure}
 
-A number of necessary and optional user-supplied routines for the SUNDIALS
-solvers are not shown in \mbox{Figure \ref{fig-sunorg}}. The user must
+A number of necessary and optional user-supplied routines for the solvers 
+in SUNDIALS
+are not shown in \mbox{Figure \ref{fig-sunorg}}. The user must
 provide a routine for the evaluation of $f$ (CVODE) or $F$ (KINSOL and
 IDA). The user-provided routines may include, depending on the options
 chosen, routines for Jacobian evaluation (direct cases) or Jacobian-vector
@@ -81,7 +82,8 @@ structure specification, a data-independent NVECTOR type, a set of abstract
 vector operations, and a set of wrappers for accessing the actual vector
 operations of the implementation under which an NVECTOR was created. Because
 details of vector operations are thus encapsulated within each specific
-NVECTOR implementation, SUNDIALS solvers are now independent of a specific
+NVECTOR implementation, the solvers in SUNDIALS 
+are now independent of a specific
 implementation. This allows the solvers to be precompiled as binary
 libraries and allows more than one NVECTOR implementation to be used within
 a single program.
