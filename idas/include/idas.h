@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-10-14 22:17:02 $
+ * $Revision: 1.23 $
+ * $Date: 2004-10-21 15:59:06 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -99,13 +99,13 @@ extern "C" {
 #define IDA_STAGGERED1   3
 
 /******************************************************************
- * Type : ResFn                                                   *
+ * Type : IDAResFn                                                   *
  *----------------------------------------------------------------*        
  * The F function which defines the DAE system   F(t,y,y')=0      *
- * must have type ResFn.                                          *
+ * must have type IDAResFn.                                          *
  * Symbols are as follows: t  <-> tres     y <-> yy               *
- *                         y' <-> yp       F <-> res (type ResFn) *
- * A ResFn takes as input the independent variable value tres,    *
+ *                         y' <-> yp       F <-> res (type IDAResFn) *
+ * A IDAResFn takes as input the independent variable value tres,    *
  * the dependent variable vector yy, and the derivative (with     *
  * respect to t) of the yy vector, yp.  It stores the result of   *
  * F(t,y,y') in the vector resval. The yy, yp, and resval         *
@@ -115,7 +115,7 @@ extern "C" {
  * to the user's res function every time it is called, to provide *
  * access in res to user data.                                    *
  *                                                                *
- * A ResFn res will return the value ires, which has possible     *
+ * A IDAResFn res will return the value ires, which has possible     *
  * values RES_ERROR_RECVR = 1, RES_ERROR_NONRECVR = -1,           *
  * and SUCCESS = 0. The file idas.h may be used to obtain these   *
  * values but is not required; returning 0, +1, or -1 suffices.   *
@@ -125,42 +125,42 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-typedef int (*ResFn)(realtype tres, 
-                     N_Vector yy, N_Vector yp, N_Vector resval, 
-                     void *rdata);
+typedef int (*IDAResFn)(realtype tres, 
+                        N_Vector yy, N_Vector yp, N_Vector resval, 
+                        void *rdata);
 
 /******************************************************************
- * Type : SensResFn                                               *
+ * Type : IDASensResFn                                               *
  *----------------------------------------------------------------* 
  *                                                                *
- * A SensResFn resS will return the value ires, which has         *
+ * A IDASensResFn resS will return the value ires, which has         *
  * possible values RES_ERROR_RECVR = 1, RES_ERROR_NONRECVR = -1,  *
  * and SUCCESS = 0 (defined above).                               *
  *                                                                *
  ******************************************************************/
 
-typedef int (*SensResFn)(int Ns, realtype tres, 
-                         N_Vector yy, N_Vector yp, N_Vector resval,
-                         N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
-                         void *rdataS,
-                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+typedef int (*IDASensResFn)(int Ns, realtype tres, 
+                            N_Vector yy, N_Vector yp, N_Vector resval,
+                            N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
+                            void *rdataS,
+                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /******************************************************************
- * Type : SensRes1Fn                                              *
+ * Type : IDASensRes1Fn                                              *
  *----------------------------------------------------------------* 
  *                                                                *
- * A SensRes1Fn resS1 will return the value ires, which has       *
+ * A IDASensRes1Fn resS1 will return the value ires, which has       *
  * possible values RES_ERROR_RECVR = 1, RES_ERROR_NONRECVR = -1,  *
  * and SUCCESS = 0 (defined above).                               *
  *                                                                *
  ******************************************************************/
 
-typedef int (*SensRes1Fn)(int Ns, realtype tres, 
-                          N_Vector yy, N_Vector yp, N_Vector resval,
-                          int iS,
-                          N_Vector yyS, N_Vector ypS, N_Vector resvalS,
-                          void *rdataS,
-                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+typedef int (*IDASensRes1Fn)(int Ns, realtype tres, 
+                             N_Vector yy, N_Vector yp, N_Vector resval,
+                             int iS,
+                             N_Vector yyS, N_Vector ypS, N_Vector resvalS,
+                             void *rdataS,
+                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /******************************************************************
  * Type : QuadRhsFn                                               *
@@ -168,10 +168,10 @@ typedef int (*SensRes1Fn)(int Ns, realtype tres,
  *                                                                *
  ******************************************************************/
 
-typedef void (*QuadRhsFn)(realtype tres, 
-                          N_Vector yy, N_Vector yp,
-                          N_Vector ypQ,
-                          void *rdataQ);
+typedef void (*IDAQuadRhsFn)(realtype tres, 
+                             N_Vector yy, N_Vector yp,
+                             N_Vector ypQ,
+                             void *rdataQ);
 
 /*================================================================*
  *                                                                *
@@ -363,7 +363,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints);
  * error flags defined below.                                     *
  ******************************************************************/
 
-int IDAMalloc(void *ida_mem, ResFn res,
+int IDAMalloc(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector y0, N_Vector yp0, 
               int itol, realtype *reltol, void *abstol);
 
@@ -409,7 +409,7 @@ enum {IDAM_NO_MEM = -1, IDAM_MEM_FAIL=-2, IDAM_ILL_INPUT = -2};
  * In case of an error return, an error message is also printed.  *
  ******************************************************************/
 
-int IDAReInit(void *ida_mem, ResFn res,
+int IDAReInit(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector y0, N_Vector yp0,
               int itol, realtype *reltol, void *abstol);
  
@@ -469,7 +469,7 @@ int IDASetQuadTolerances(void *ida_mem, int itolQ,
  * of the error flags defined below.                              *
  *----------------------------------------------------------------*/
 
-int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0);
+int IDAQuadMalloc(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0);
 
 /*----------------------------------------------------------------*
  * Function : IDAQuadReInit                                       *
@@ -487,7 +487,7 @@ int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0);
  *                                                                *
  *----------------------------------------------------------------*/
 
-int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0);
+int IDAQuadReInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0);
 
 /*----------------------------------------------------------------*
  * Forward sensitivity optional input specification functions     *
@@ -550,8 +550,8 @@ int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0);
  * defined for the IDASet* routines.                              *
  *----------------------------------------------------------------*/
 
-int IDASetSensResFn(void *ida_mem, SensResFn resS);
-int IDASetSensRes1Fn(void *ida_mem, SensRes1Fn resS);
+int IDASetSensResFn(void *ida_mem, IDASensResFn resS);
+int IDASetSensRes1Fn(void *ida_mem, IDASensRes1Fn resS);
 int IDASetSensErrCon(void *ida_mem, booleantype errconS);
 int IDASetSensRho(void *ida_mem, realtype rho);
 int IDASetSensPbar(void *ida_mem, realtype *pbar);
@@ -742,47 +742,6 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  * return value.  If IFACalcIC failed, y0 and yp0 contain         *
  * (possibly) altered values, computed during the attempt.        *
  *                                                                *
- * SUCCESS             IDACalcIC was successful.  The corrected   *
- *                     initial value vectors are in y0 and yp0.   * 
- *                                                                *
- * IC_IDA_NO_MEM       The argument ida_mem was NULL.             *
- *                                                                *
- * IC_ILL_INPUT        One of the input arguments was illegal.    *
- *                     See printed message.                       *
- *                                                                *
- * IC_LINIT_FAIL       The linear solver's init routine failed.   *
- *                                                                *
- * IC_BAD_EWT          Some component of the error weight vector  *
- *                     is zero (illegal), either for the input    *
- *                     value of y0 or a corrected value.          *
- *                                                                *
- * RES_NONRECOV_ERR    The user's ResFn residual routine returned *
- *                     a non-recoverable error flag.              *
- *                                                                *
- * IC_FIRST_RES_FAIL   The user's ResFn residual routine returned *
- *                     a recoverable error flag on the first call,*
- *                     but IDACalcIC was unable to recover.       *
- *                                                                *
- * SETUP_FAILURE       The linear solver's setup routine had a    *
- *                     non-recoverable error.                     *
- *                                                                *
- * SOLVE_FAILURE       The linear solver's solve routine had a    *
- *                     non-recoverable error.                     *
- *                                                                *
- * IC_NO_RECOVERY      The user's residual routine, or the linear *
- *                     solver's setup or solve routine had a      *
- *                     recoverable error, but IDACalcIC was       *
- *                     unable to recover.                         *
- *                                                                *
- * IC_FAILED_CONSTR    IDACalcIC was unable to find a solution    *
- *                     satisfying the inequality constraints.     *
- *                                                                *
- * IC_FAILED_LINESRCH  The Linesearch algorithm failed to find a  *
- *                     solution with a step larger than steptol   *
- *                     in weighted RMS norm.                      *
- *                                                                *
- * IC_CONV_FAILURE     IDACalcIC failed to get convergence of the *
- *                     Newton iterations.                         *
  ******************************************************************/
 
 int IDACalcIC (void *ida_mem, int icopt, realtype tout1); 
@@ -828,59 +787,6 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1);
  * The return values for IDASolve are described below.            *
  * (The numerical return values are defined above in this file.)  *
  * All unsuccessful returns give a negative return value.         *
- *                                                                *
- * NORMAL_RETURN      : IDASolve succeeded.                       *
- *                                                                *
- * INTERMEDIATE_RETURN: IDASolve returns computed results for the *
- *                  last single step (itask = ONE_STEP).          *
- *                                                                *
- * TSTOP_RETURN       : IDASolve returns computed results for the *
- *                  independent variable value tstop. That is,    *
- *                  tstop was reached.                            *
- *                                                                *
- * IDA_NO_MEM         : The IDA_mem argument was NULL.            *
- *                                                                *
- * ILL_INPUT          : One of the inputs to IDASolve is illegal. *
- *                 This includes the situation when a component   *
- *                 of the error weight vectors becomes < 0 during *
- *                 internal stepping. The ILL_INPUT flag          *
- *                 will also be returned if the linear solver     *
- *                 routine IDA--- (called by the user after       *
- *                 calling IDACreate) failed to set one of the    *
- *                 linear solver-related fields in IDA_mem or     *
- *                 if the linear solver's init routine failed. In *
- *                 any case, the user should see the printed      *
- *                 error message for more details.                *
- *                                                                *
- * TOO_MUCH_WORK      : The solver took mxstep internal steps but *
- *                 could not reach tout. The default value for    *
- *                 mxstep is MXSTEP_DEFAULT = 500.                *
- *                                                                *
- * TOO_MUCH_ACC       : The solver could not satisfy the accuracy *
- *                 demanded by the user for some internal step.   *
- *                                                                *
- * ERR_FAILURE        : Error test failures occurred too many     *
- *                 times (=MXETF = 10) during one internal step.  *
- *                                                                *
- * CONV_FAILURE       : Convergence test failures occurred too    *
- *                 many times (= MXNCF = 10) during one internal  * 
- *                 step.                                          *
- *                                                                *
- * SETUP_FAILURE      : The linear solver's setup routine failed  *
- *                 in an unrecoverable manner.                    *
- *                                                                *
- * SOLVE_FAILURE      : The linear solver's solve routine failed  *
- *                 in an unrecoverable manner.                    *
- *                                                                *
- * CONSTR_FAILURE     : The inequality constraints were violated, *
- *                  and the solver was unable to recover.         *
- *                                                                *
- * REP_RES_REC_ERR    : The user's residual function repeatedly   *
- *                  returned a recoverable error flag, but the    *
- *                  solver was unable to recover.                 *
- *                                                                *
- * RES_NONRECOV_ERR   : The user's residual function returned a   *
- *                  nonrecoverable error flag.                    *
  *                                                                *
  ******************************************************************/
 

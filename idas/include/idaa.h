@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-07-22 23:05:08 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-21 15:59:06 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -30,25 +30,25 @@ extern "C" {
   
   /******************************************************************
    *                                                                *
-   * Type : ResFnB                                                  *
+   * Type : IDAResFnB                                                  *
    *----------------------------------------------------------------*
    *                                                                *
    ******************************************************************/
   
-  typedef int (*ResFnB)(realtype t, N_Vector yy, N_Vector yp,
+  typedef int (*IDAResFnB)(realtype t, N_Vector yy, N_Vector yp,
                         N_Vector yyB, N_Vector ypB, N_Vector resvalB,
                         void *rdataB);
 
   /******************************************************************
    *                                                                *
-   * Type : QuadRhsFnB                                              *
+   * Type : IDAQuadRhsFnB                                              *
    *----------------------------------------------------------------*
    * The fQB function which defines the quadratures to be integrated*
-   * backwards must have type QuadRhsFnB.                           *
+   * backwards must have type IDAQuadRhsFnB.                           *
    *                                                                *
    ******************************************************************/
   
-  typedef void (*QuadRhsFnB)(realtype t, N_Vector yy, N_Vector yp, 
+  typedef void (*IDAQuadRhsFnB)(realtype t, N_Vector yy, N_Vector yp, 
                              N_Vector yyB, N_Vector ypB,
                              N_Vector ypQB, void *rdataQB);
   
@@ -220,11 +220,11 @@ extern "C" {
   int IDASetIdB(void *idaadj_mem, N_Vector idB);
   int IDASetConstraintsB(void *idaadj_mem, N_Vector constraintsB);
 
-  int IDAMallocB(void *idaadj_mem, ResFnB resB,
+  int IDAMallocB(void *idaadj_mem, IDAResFnB resB,
                  realtype tB0, N_Vector yyB0, N_Vector ypB0, 
                  int itolB, realtype *reltolB, void *abstolB);
   
-  int IDAReInitB(void *idaadj_mem, ResFnB resB,
+  int IDAReInitB(void *idaadj_mem, IDAResFnB resB,
                  realtype tB0, N_Vector yyB0, N_Vector ypB0,
                  int itolB, realtype *reltolB, void *abstolB);
 
@@ -260,7 +260,7 @@ extern "C" {
   int IDASetQuadTolerancesB(void *idaadj_mem, int itolQB, 
                             realtype *reltolQB, void *abstolQB);
 
-  int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, N_Vector yQB0);
+  int IDAQuadMallocB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0);
 
   /* IDAQuadMallocB return values */
   /* SUCCESS=0                    */
@@ -276,7 +276,7 @@ extern "C" {
    *                                                                *
    ******************************************************************/
 
-  int IDAQuadReInitB(void *idaadj_mem, QuadRhsFnB rhsQB, N_Vector yQB0);
+  int IDAQuadReInitB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0);
 
   /******************************************************************
    *                                                                *
