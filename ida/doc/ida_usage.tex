@@ -19,7 +19,7 @@ The {\idadense} and {\idaband} modules can only be used with {\nvecs}.
 The preconditioner module {\idabbdpre} can only be used with {\nvecp}. 
 
 %%===================================================================================
-\section{Data Types}\label{s:types}
+\section{Data types}\label{s:types}
 %%===================================================================================
 \input{types}
 
@@ -152,7 +152,7 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
 \item\label{i:ida_create} 
   {\bf Create {\ida} object}
 
-  Call \id{ida\_mem = }\id{IDACreate}\id{(...);} 
+  Call \id{ida\_mem = }\id{IDACreate}\id{();} 
   to create the {\ida} memory block.
   \id{IDACreate} returns a pointer to the {\ida} memory structure.
   See \S\ref{sss:idamalloc} for details.
@@ -246,18 +246,19 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
 \label{ss:ida_fct_sim}
 %%===================================================================================
 
-This section describes the {\ida} functions that are called by the user to set up 
-and solve a DAE. Some of these are required. However, starting with \S\ref{ss:optional_input},
-the functions listed involve optional inputs/outputs or restarting, and those paragraphs can 
-be skipped for a casual use of {\ida}. In any case, refer to \S\ref{ss:skeleton_sim} for
-the correct order of these calls.
+This section describes the {\ida} functions that are called by the
+user to set up and solve a DAE. Some of these are required. However,
+starting with \S\ref{ss:optional_input}, the functions listed involve
+optional inputs/outputs or restarting, and those paragraphs can be
+skipped for a casual use of {\ida}. In any case, refer to
+\S\ref{ss:skeleton_sim} for the correct order of these calls.
 
 \subsection{IDA initialization and deallocation functions}
 \label{sss:idamalloc}
 %%
-The following three functions must be called in the order listed. The last one is to be 
-called only after the DAE solution is complete, as it frees the {\ida} memory block
-created and allocated by the first two calls.
+The following three functions must be called in the order listed. The last one is to
+be called only after the DAE solution is complete, as it frees the {\ida} memory
+block created and allocated by the first two calls.
 %%
 \ucfunction{IDACreate}
 {
@@ -384,7 +385,7 @@ In each case the linear
 solver module used by {\ida} is actually built on top of a generic
 linear system solver, which may be of interest in itself.  These
 generic solvers, denoted {\dense}, {\band}, and {\spgmr}, are described
-separately in \S\ref{s:gen_linsolv}.
+separately in Chapter \ref{s:gen_linsolv}.
 \index{IDA@{\ida} linear solvers!built on generic solvers|)}
 %%
 %%
@@ -554,13 +555,13 @@ for the given problem.
   \item[icopt] (\id{int})
     is the option of IDACalcIC to be used.
     
-    \id{icopt}$=$\ID{CALC\_YA\_YDP\_INIT} directs \id{IDACalcIC} to compute 
+    \id{icopt}$=$\ID{IDA\_YA\_YDP\_INIT} directs \id{IDACalcIC} to compute 
     the algebraic components of $y$ and differential components of $y^\prime$, 
     given the differential components of $y$.  
     This option requires that the \id{N\_Vector} \id{id} was set through 
     \id{IDASetId}, specifying the differential and algebraic components.  
     
-    \id{icopt}$=$\ID{CALC\_Y\_INIT} directs \id{IDACalcIC} to compute all  
+    \id{icopt}$=$\ID{IDA\_Y\_INIT} directs \id{IDACalcIC} to compute all  
     components of $y$, given $y^\prime$.  \id{id} is not required.
 
   \item[tout1] (\id{realtype})
@@ -771,7 +772,7 @@ Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & \id{IDASetMa
 Initial step size & \id{IDASetInitStep} & estimated \\
 Maximum absolute step size & \id{IDASetMaxStep} & $\infty$ \\
 Value of $t_{stop}$ & \id{IDASetStopTime} & $\infty$ \\
-Maximum no. of error test failures & \id{IDAMaxErrTestFails} & 10 \\
+Maximum no. of error test failures & \id{IDASetMaxErrTestFails} & 10 \\
 Maximum no. of nonlinear iterations & \id{IDASetMaxNonlinIters} & 4 \\
 Maximum no. of convergence failures & \id{IDASetMaxConvFails} & 10 \\
 Maximum no. of error test failures & \id{IDASetMaxErrTestFails} & 7 \\
@@ -805,7 +806,8 @@ Data for Jacobian function & \id{IDABandSetJacData} & NULL \\
 Preconditioner solve function & \id{IDASpgmrSetPrecSolveFn} & NULL \\
 Preconditioner setup function & \id{IDASpgmrSetPrecSetupFn} & NULL \\
 Data for preconditioner functions & \id{IDASpgmrSetPrecData} & NULL \\
-Jacobian times vector function & \id{IDASpgmrSetJacTimesVecFn} & NULL \\
+Jacobian times vector function & \id{IDASpgmrSetJacTimesVecFn} &
+internal DQ \\
 Data for Jacobian times vector function &\id{IDASpgmrSetJacData} & NULL \\ 
 Type of Gram-Schmidt orthogonalization & \id{IDASpgmrSetGSType} & classical GS \\
 Maximum no. of restarts & \id{IDASpgmrSetMaxRestarts} & 5 \\
@@ -888,10 +890,10 @@ flag = IDASetErrFile(ida\_mem, errfp);
 %%
 \ucfunction{IDASetMaxOrd}
 {
-flag = IDASetMaxOrder(ida\_mem, maxord);
+flag = IDASetMaxOrd(ida\_mem, maxord);
 }
 {
-  The function \ID{IDASetMaxOrder} specifies the maximum order of the 
+  The function \ID{IDASetMaxOrd} specifies the maximum order of the 
   linear multistep method.
 }
 {
@@ -929,7 +931,7 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
 {
   The function \ID{IDASetMaxNumSteps} specifies the maximum number
   of steps to be taken by the solver in its attempt to reach 
-  the final time.
+  the next output time.
 }
 {
   \begin{args}[ida\_mem]
@@ -1079,7 +1081,7 @@ flag = IDASetStopTime(ida\_mem, tstop);
   \end{args}
 }
 {
-  The default value is $\infty$.
+  The default, if this routine is not called, is that no stop time is imposed.
 }
 %%
 %%
@@ -1180,8 +1182,8 @@ flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
 }
 {
   The function \ID{IDASetNonlinConvCoef} specifies the safety factor
-  in the nonlinear convergence test 
-  (see \S\ref{s:math}, eq. \ref{e:DAE_nls_test}).
+  in the nonlinear convergence test;
+  see Chapter \ref{s:math}, Eq. (\ref{e:DAE_nls_test}).
 }
 {
   \begin{args}[ida\_mem]
@@ -1252,7 +1254,8 @@ flag = IDASetId(ida\_mem, id);
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[id] (\id{N\_Vector})
-    state vector. A value of $1.0$ indicates an algebraic variable.
+    state vector. A value of $1.0$ indicates a differential variable, while
+    $0.0$ indicates an algebraic variable.
   \end{args}
 }
 {
@@ -1267,7 +1270,7 @@ flag = IDASetId(ida\_mem, id);
 {
   The vector \id{id} is required if the algebraic variables are to be 
   suppressed from the local error test (see \id{IDASetSuppressAlg}) or
-  if \id{IDACalcIC} is to be called with \id{icopt} $=$ \id{CALC\_YA\_YDP\_INIT}
+  if \id{IDACalcIC} is to be called with \id{icopt} $=$ \id{IDA\_YA\_YDP\_INIT}
   (see \S\ref{ss:idacalcic}).
 }
 %%
@@ -1288,10 +1291,10 @@ flag = IDASetConstraints(ida\_mem, constraints);
     vector of constraint flags. If \id{constraints[i]} is
     \begin{itemize}    
     \item[$0.0$] then no constraint is imposed on $y_i$. 
-    \item[$1.0$] then $y_i$ will be constrained to be $y_i > 0.0$.
-    \item[$-1.0$] then $y_i$ will be constrained to be $y_i < 0.0$.
-    \item[$2.0$] then $y_i$ will be constrained to be $y_i \ge 0.0$.
-    \item[$-2.0$] then $y_i$ will be constrained to be $y_i \le 0.0$.
+    \item[$1.0$] then $y_i$ will be constrained to be $y_i \ge 0.0$.
+    \item[$-1.0$] then $y_i$ will be constrained to be $y_i \le 0.0$.
+    \item[$2.0$] then $y_i$ will be constrained to be $y_i > 0.0$.
+    \item[$-2.0$] then $y_i$ will be constrained to be $y_i < 0.0$.
     \end{itemize}
   \end{args}
 }
@@ -1321,8 +1324,8 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[itol] (\id{int}) 
-    is either \ID{IDA\_SS} or \ID{IDA\_SV}, where \ID{itol}$=$\id{IDA\_SS} indicates scalar
-    relative error tolerance and scalar absolute error tolerance, while
+    is either \ID{IDA\_SS} or \ID{IDA\_SV}, where \ID{itol}$=$\id{IDA\_SS} indicates
+    scalar relative error tolerance and scalar absolute error tolerance, while
     \id{itol}$=$\id{IDA\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
     error tolerance needs to be different for each component of the DAE. 
@@ -1346,10 +1349,9 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
 }
 {
   The integration tolerances are initially specified in the call
-  to \id{IDAMalloc} (see \S\ref{sss:idamalloc}). This function call 
-  (to IDASetTolerances) is
-  needed only if the tolerances are being changed from their values between
-  succesive calls to \id{IDASolve}.
+  to \id{IDAMalloc} (see \S\ref{sss:idamalloc}). This function call
+  to \id{IDASetTolerances} is needed only if the tolerances are being changed
+  from their values between successive calls to \id{IDASolve}.
 }
 %%
 \index{optional input!solver|)}
@@ -1549,12 +1551,9 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
 \index{optional input!iterative linear solver|(}
 \index{IDASPGMR@{\idaspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
-The call to \id{IDASpgmr} is used to communicate the maximum dimension of 
-the Krylov subspace to be used (\id{maxl}). 
-
-If preconditioning is to be done within the {\spgmr} method,
-then the user must supply a preconditioner solve function \id{psolve}
-and specify it through a call to \id{IDASpgmrSetPrecSolveFn}.
+If preconditioning is to be done within the {\spgmr} method, then the user
+must supply a preconditioner solve function, \id{psolve}, and specify its
+name through a call to \id{IDASpgmrSetPrecSolveFn}.
 \index{IDASPGMR@{\idaspgmr} linear solver!preconditioner solve function}
 %%
 The evaluation and preprocessing of any Jacobian-related data needed
@@ -1921,8 +1920,8 @@ conditions calculations.
 flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
 }
 {
-  The function \ID{IDASetNonlinConvCoefIC} specifies the positive
-  coefficient in the Newton initial condition test.
+  The function \ID{IDASetNonlinConvCoefIC} specifies the positive constant in
+  the Newton iteration convergence test within the initial condition calculation.
 }
 {
   \begin{args}[ida\_mem]
@@ -1948,7 +1947,8 @@ flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
 
   This test uses a weighted RMS norm (with weights defined by the tolerances).
   For new initial value vectors $y$ and $y^\prime$ to be accepted, the norm
-  of $J^{-1}F(t_0, y, y^\prime) \le $\id{epiccon}, where $J$ is the system Jacobian.
+  of $J^{-1}F(t_0, y, y^\prime)$ must be $\le$ \id{epiccon}, where $J$ is the
+  system Jacobian.
 }
 %%
 \ucfunction{IDASetMaxNumStepsIC}
@@ -1957,9 +1957,9 @@ flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
 }
 {
   The function \ID{IDASetMaxNumStepsIC} specifies the maximum number
-  of steps allowed when \id{icopt}$=$\id{CALC\_YA\_YDP\_INIT}
+  of steps allowed when \id{icopt}$=$\id{IDA\_YA\_YDP\_INIT}
   in \id{IDACalcIC}, where $h$ appears in the system Jacobian,
-  $J = dF / dy + (1/h) \cdot dF / dy^\prime$.
+  $J = \partial F / \partial y + (1/h) \partial F / \partial y^\prime$.
 }
 {
   \begin{args}[ida\_mem]
@@ -2110,7 +2110,7 @@ flag = IDASetStepToleranceIC(ida\_mem, steptol);
   \end{args}
 }
 {
-  The default value is $\sqrt{(\text{unit roundoff})^3}$.
+  The default value is (unit roundoff)$^{2/3}$.
 }
 %%
 \index{optional input!initial condition calculation|)}
@@ -2122,10 +2122,10 @@ flag = IDASetStepToleranceIC(ida\_mem, steptol);
 \subsection{Interpolated output function}\label{ss:optional_dky}
 \index{optional output!interpolated solution}
 
-An optional function \ID{IDAGetSolution} is available to obtain additional output values.  
-This function must be called after a successful return from \id{IDASolve} and provides 
-interpolated values of $y$ and $y'$ for any value of $t$ in the last internal step 
-taken by {\ida}.
+An optional function \ID{IDAGetSolution} is available to obtain additional output
+values.  This function must be called after a successful return from \id{IDASolve}
+and provides interpolated values of $y$ and $y'$ for any value of $t$ in the last
+internal step taken by {\ida}.
 
 The call to the \id{IDAGetSolution} function has the following form:
 %%
@@ -2136,6 +2136,9 @@ The call to the \id{IDAGetSolution} function has the following form:
 {
   The function \ID{IDAGetSolution} computes the interpolated values of 
   $y$ and $y'$ for any value of $t$ in the last internal step taken by {\ida}.
+  The value of $t$ must satisfy $t_n - h_u \le t \le t_n$, where $t_n$ denotes
+  the current internal time reached, and $h_u$ is the last internal step size
+  used successfully.
 }
 {
   \begin{args}[ida\_mem]
@@ -2162,7 +2165,8 @@ The call to the \id{IDAGetSolution} function has the following form:
 }
 {
   It is only legal to call the function \id{IDAGetSolution} after a 
-  successful return from \id{IDASolve}. 
+  successful return from \id{IDASolve}. See \id{IDAGetCurrentTime} and
+  \id{IDAGetLastStep} for access to $t_n$ and $h_u$.
 }
 
 %%
@@ -2774,7 +2778,7 @@ These optional output functions are described next.
   flag = IDAGetNonlinSolvStats(ida\_mem, \&nniters, \&nncfails);
 }
 {
-  The function \ID{IDAGetNonlinSolvStats} returns the the
+  The function \ID{IDAGetNonlinSolvStats} returns the
   {\ida} nonlinear solver statistics as a group.
 }
 {
@@ -3001,7 +3005,7 @@ and last return value from a {\idaband} function.
 }
 {
   In terms of the problem size $N$ and Jacobian half-bandwidths, 
-  the actual size of the real workspace
+  the actual size of the real workspace is
   $N\,(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)$ \id{realtype} words.
 
   In terms of the problem size $N$, the actual size of the integer workspace
@@ -3093,7 +3097,7 @@ and last return value from a {\idaband} function.
   \begin{args}[IDABAND\_LMEM\_NULL]
   \item[\Id{IDABAND\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{IDaBAND\_MEM\_NULL}]
+  \item[\Id{IDABAND\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDABAND\_LMEM\_NULL}]
     The {\idaband} linear solver has not been initialized.
@@ -3129,7 +3133,7 @@ and last return value from an {\idaspgmr} function.
   flag = IDASpgmrGetWorkSpace(ida\_mem, \&lenrwSG, \&leniwSG);
 }
 {
-  The function \ID{IDASpgmrGetWorkSpace} returns the sizes of
+  The function \ID{IDASpgmrGetWorkSpace} returns the global sizes of
   the {\idaspgmr} real and integer workspaces.
 }
 {
@@ -3137,9 +3141,9 @@ and last return value from an {\idaspgmr} function.
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[lenrwSG] (\id{long int})
-    the number of real values in the {\idaspgmr} workspace.
+    global number of real values in the {\idaspgmr} workspace.
   \item[leniwSG] (\id{long int})
-    the number of integer values in the {\idaspgmr} workspace.
+    global number of integer values in the {\idaspgmr} workspace.
   \end{args}
 }
 {
@@ -3380,23 +3384,21 @@ and last return value from an {\idaspgmr} function.
   \id{flag} contains the return value of the preconditioner 
   setup function \id{psetup}.
 
-  If the {\idaspgmr} solve function failed (\id{IDASolve} 
-  returned \id{IDA\_LSETUP\_FAIL}),
-  \id{flag} contains the error return flag from \id{SpgmrSolve} and will be one
-  of: \id{SPGMR\_CONV\_FAIL} indicating a failure to 
-  converge, \id{SPGMR\_QRFACT\_FAIL}
-  indicating a singular matrix found during the QR 
-  factorization, \id{SPGMR\_PSOLVE\_FAIL\_REC}
-  indicating that the preconditioner solve function \id{psolve} 
-  failed recoverably,
-  \id{SPGMR\_MEM\_NULL} indicating that the {\spgmr} memory 
-  is \id{NULL}, \id{SPGMR\_ATIMES\_FAIL},
-  indicating a failure in the Jacobian times vector 
-  function, \id{SPGMR\_PSOLVE\_FAIL\_UNREC}
-  indicating that the preconditioner solve function \id{psolve} 
-  failed unrecoverably,
-  \id{SPGMR\_GS\_FAIL} indicating a failure in the Gram-Schmidt procedure, 
-  or \id{SPGMR\_QRSOL\_FAIL} indicating that the matrix $R$ was found to 
+  If the {\idaspgmr} solve function failed (\id{IDASolve} returned 
+  \id{IDA\_LSETUP\_FAIL}), \id{flag} contains the error return flag from
+  \id{SpgmrSolve} and will be one of:
+  \id{SPGMR\_CONV\_FAIL}, indicating a failure to converge;
+  \id{SPGMR\_QRFACT\_FAIL}, indicating a singular matrix found during the
+  QR factorization;
+  \id{SPGMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve
+  function \id{psolve} failed recoverably;
+  \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
+  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector 
+  function;
+  \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
+  function \id{psolve} failed unrecoverably;
+  \id{SPGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure;
+  or \id{SPGMR\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to 
   be singular during the QR solve phase.
 }
 %%
@@ -3421,6 +3423,10 @@ The use of \id{IDAReInit} requires that the maximum method order,
 specified in the last call to \id{IDAMalloc}.  In addition, the same
 {\nvector} module set for the previous problem
 will be reused for the new problem.
+
+If there are changes to the linear solver specifications, make the
+appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
+
 %%
 %%
 \ucfunction{IDAReInit}
@@ -3493,8 +3499,8 @@ that define the preconditioner for use in the {\spgmr} algorithm.
 The user must provide a function of type \ID{IDAResFn} defined as follows:
 \usfunction{IDAResFn}
 {
-  typedef void (*IDAResFn)(&realtype tt, N\_Vector yy, N\_Vector yp,  \\
-                           &N\_Vector rr, void *res\_data);
+  typedef int (*IDAResFn)(&realtype tt, N\_Vector yy, N\_Vector yp,  \\
+                          &N\_Vector rr, void *res\_data);
 }
 {
   This function computes the problem residual for given values
@@ -3597,8 +3603,8 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
   references to the underlying representation of the \id{DenseMat}
   type. \id{DENSE\_ELEM(Jac, i, j)} references the (\id{i}, \id{j})-th
   element of the dense matrix \id{Jac} (\id{i}, \id{j}$= 0\ldots$ \id{Neq}$-1$).
-  This macro is for use in small problems in which efficiency of access is not a major
-  concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
+  This macro is for use in small problems in which efficiency of access is not a
+  major concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
   \id{Neq}, the Jacobian element $J_{m,n}$ can be loaded with the statement
   \id{DENSE\_ELEM(Jac, m-1, n-1) =} $J_{m,n}$.  Alternatively,
   \id{DENSE\_COL(Jac, j)} returns a pointer to the storage for
@@ -3617,8 +3623,9 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
   If the user's \id{IDADenseJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{IDAGet*} functions 
-  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed through
-  the macro \id{DBL\_EPSILON} defined in \id{float.h}.
+  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
 %%
@@ -3722,8 +3729,9 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
   If the user's \id{IDABandJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{IDAGet*} functions 
-  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed through
-  the macro \id{DBL\_EPSILON} defined in \id{float.h}.
+  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
@@ -3775,13 +3783,16 @@ of type \ID{IDASpgmrJacTimesVecFn} in the following form:
   \end{args}
 }
 {  
-  The value to be returned by the Jacobian times vector function should be
-  $0$ if successful. 
-  A positive value indicates that a recoverable error occured, while a negative 
-  value indicates that a nonrecoverable error occured. 
+  The value to be returned by the Jacobian times vector function should be 0 if
+  successful.  A nonzero value indicates that a nonrecoverable error occurred. 
 
-  In the case of a recoverable eror return, the integrator will attempt to recover 
-  by reducing the stepsize, and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
+  If the user's \id{IDASpgmrJacTimesVecFn} function uses difference quotient
+  approximations, it may need to access quantities not in the call
+  list. These include the current stepsize, the error weights, etc.
+  To obtain these, use the \id{IDAGet*} functions described in
+  \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+
 }
 {}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
@@ -3913,7 +3924,15 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
   
   This function is not called in advance of every call to the preconditioner solve
   function, but rather is called only as often as needed to achieve convergence in the
-  Newton iteration. 
+  Newton iteration.
+
+  If the user's \id{IDASpgmrPrecSetupFn} function uses difference quotient
+  approximations, it may need to access quantities not in the call
+  list. These include the current stepsize, the error weights, etc.
+  To obtain these, use the \id{IDAGet*} functions described in
+  \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+
 }
 
 %%===================================================================================
@@ -3979,10 +3998,19 @@ upper and lower half-bandwidths \id{mudq} and \id{mldq} defined as
 the number of non-zero diagonals above and below the main diagonal,
 respectively. The difference quotient approximation is computed using
 \id{mudq} $+$ \id{mldq} $+ 2$ evaluations of $G_m$, but only a matrix
-of bandwidth \id{mukeep} $+$ \id{mlkeep} $+ 1$ is retained. 
-Neither pair of parameters need be the true half-bandwidths of the Jacobians of the
-local block of $G$, if smaller values provide a more efficient
-preconditioner. The solution of the complete linear system
+of bandwidth \id{mukeep} $+$ \id{mlkeep} $+ 1$ is retained.
+
+Neither pair of parameters need be the true half-bandwidths of the Jacobians
+of the local block of $G$, if smaller values provide a more efficient
+preconditioner.  Such an efficiency gain may occur if the couplings
+in the DAE system outside a certain bandwidth are considerably weaker than
+those within the band.  Reducing \id{mukeep} and \id{mlkeep} while keeping
+\id{mudq} and \id{mldq} at their true values, discards the elements
+outside the narrower band.  Reducing both pairs has the additional
+effect of lumping the outer Jacobian elements into the computed elements
+within the band, and requires more caution and experimentation.
+
+The solution of the complete linear system
 \begin{equation}
   Px = b
 \end{equation}
@@ -3993,6 +4021,10 @@ reduces to solving each of the equations
 and this is done by banded LU factorization of $P_m$ followed by a banded
 backsolve.
 \index{IDABBDPRE@{\idabbdpre} preconditioner!description|)}
+
+Similar block-diagonal preconditioners could be considered with different
+treatment of the blocks $P_m$. For example, incomplete LU factorization or
+an iterative method could be used instead of banded LU factorization.
 
 %%
 %%------------------------------------------------------------------------------------
@@ -4246,9 +4278,10 @@ next.
   If an error occurred, \id{IDABBDPrecAlloc} returns \id{NULL}.
 }
 {
-  If one of the half-bandwidth \id{mudq} or \id{mldq} to be used in the 
+  If one of the half-bandwidths \id{mudq} or \id{mldq} to be used in the 
   difference-quotient calculation of the approximate Jacobian is negative or 
-  exceeds the value \id{Nlocal}$-1$, it is replaced with \id{Nlocal}$-1$.
+  exceeds the value \id{Nlocal}$-1$, it is replaced by 0 or \id{Nlocal}$-1$
+  accordingly.
 
   The half-bandwidths \id{mudq} and \id{mldq} need not be the true 
   half-bandwidths of the Jacobian of the local block of $G$,    
@@ -4357,8 +4390,9 @@ used in the difference-quotient Jacobian approximations, the relative increment
   The return value of \id{IDABBDPrecReInit} is always \Id{IDA\_SUCCESS}.
 }
 {
-  If one of the half-bandwidth \id{mudq} or \id{mldq} is negative or
-  exceeds the value \id{Nlocal}$-1$, it is replaced with \id{Nlocal}$-1$.
+  If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or
+  exceeds the value \id{Nlocal}$-1$, it is replaced by 0 or \id{Nlocal}$-1$,
+  accordingly.
 }
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-callable functions|)}
@@ -4376,7 +4410,7 @@ the {\idabbdpre} module:
   flag = IDABBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
 }
 {
-  The function \ID{IDABBDPrecGetWorkSpace} returns the sizes
+  The function \ID{IDABBDPrecGetWorkSpace} returns the local sizes
   of the {\idabbdpre} real and integer workspaces.
 }
 {
@@ -4384,9 +4418,9 @@ the {\idabbdpre} module:
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
   \item[lenrwBBDP] (\id{long int})
-    the number of real values in the {\idabbdpre} workspace.
+    local number of real values in the {\idabbdpre} workspace.
   \item[leniwBBDP] (\id{long int})
-    the number of integer values in the {\idabbdpre} workspace.
+    local number of integer values in the {\idabbdpre} workspace.
   \end{args}
 }
 {
@@ -4446,9 +4480,3 @@ The costs associated with {\idabbdpre} also include \id{nlinsetups} LU
 factorizations, \id{nlinsetups} calls to \id{Gcomm}, and \id{npsolves} banded
 backsolve calls, where \id{nlinsetups} and \id{npsolves} are optional {\ida}
 outputs (see \S\ref{ss:optional_output}).
-
-Similar block-diagonal preconditioners could be considered with different
-treatment of the blocks $P_m$. For example, incomplete LU factorization or
-an iterative method could be used instead of banded LU factorization.
-
-
