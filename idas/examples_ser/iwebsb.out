@@ -1,55 +1,42 @@
+
 iwebsb: Predator-prey DAE serial example problem for IDA 
 
 Number of species ns: 2     Mesh dimensions: 20 x 20     System size: 800
 Tolerance parameters:  rtol = 1e-05   atol = 1e-05
 Linear solver: IDABAND,  Band parameters mu = 40, ml = 40
-CalcIC called to correct initial predator concentrations 
+CalcIC called to correct initial predator concentrations.
 
+-----------------------------------------------------------
+  t        bottom-left  top-right    | nst  k      h
+-----------------------------------------------------------
 
-TIME t = 0.000000e+00.     NST = 0, k = 0, h = 1.631027e-08
-NRE = 11, NRE_B = 162, NNI = 9, NJE = 2
-At bottom left:  c1, c2 = 1.000000e+01 9.999900e+04 
-At top right:    c1, c2 = 1.000000e+01 9.994900e+04 
+0.00e+00   1.0000e+01   9.9949e+04   |   0  0   1.6310e-08
+           9.9999e+04   9.9949e+04   |
 
+1.00e-03   1.0318e+01   1.0822e+05   |  32  4   1.0823e-04
+           1.0319e+05   1.0822e+05   |
 
-TIME t = 1.000000e-03.     NST = 32, k = 4, h = 1.082270e-04
-NRE = 54, NRE_B = 972, NNI = 52, NJE = 12
-At bottom left:  c1, c2 = 1.031832e+01 1.031874e+05 
-At top right:    c1, c2 = 1.082683e+01 1.082224e+05 
+1.00e-02   1.6189e+02   1.9735e+06   | 135  4   1.7964e-04
+           1.6189e+06   1.9735e+06   |
 
+1.00e-01   2.4019e+02   2.7072e+06   | 230  1   4.4077e-02
+           2.4019e+06   2.7072e+06   |
 
-TIME t = 1.000000e-02.     NST = 135, k = 4, h = 1.796435e-04
-NRE = 238, NRE_B = 1782, NNI = 236, NJE = 22
-At bottom left:  c1, c2 = 1.618917e+02 1.618932e+06 
-At top right:    c1, c2 = 1.973559e+02 1.973523e+06 
+4.00e-01   2.4019e+02   2.7072e+06   | 232  1   1.7631e-01
+           2.4019e+06   2.7072e+06   |
 
+7.00e-01   2.4019e+02   2.7072e+06   | 233  1   3.5261e-01
+           2.4019e+06   2.7072e+06   |
 
-TIME t = 1.000000e-01.     NST = 231, k = 1, h = 4.421250e-02
-NRE = 399, NRE_B = 2592, NNI = 397, NJE = 32
-At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
-At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
+1.00e+00   2.4019e+02   2.7072e+06   | 234  1   7.0522e-01
+           2.4019e+06   2.7072e+06   |
 
-
-TIME t = 4.000000e-01.     NST = 233, k = 1, h = 1.768500e-01
-NRE = 401, NRE_B = 2754, NNI = 399, NJE = 34
-At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
-At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
-
-
-TIME t = 7.000000e-01.     NST = 234, k = 1, h = 3.537000e-01
-NRE = 402, NRE_B = 2835, NNI = 400, NJE = 35
-At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
-At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
-
-
-TIME t = 1.000000e+00.     NST = 235, k = 1, h = 7.074000e-01
-NRE = 403, NRE_B = 2916, NNI = 401, NJE = 36
-At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
-At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
-
-
+-----------------------------------------------------------
 Final run statistics: 
 
-NST  =   235     NRE  =  3319 
-NNI  =   401     NJE  =    36 
-NETF =     5     NCFN =     0 
+Number of steps                    = 234
+Number of residual evaluations     = 3317
+Number of Jacobian evaluations     = 36
+Number of nonlinear iterations     = 399
+Number of error test failures      = 6
+Number of nonlinear conv. failures = 0
