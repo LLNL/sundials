@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-22 19:49:53 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-25 23:13:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -35,11 +35,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include "sundialstypes.h"
-#include "sundialsmath.h"
 #include "nvector_serial.h"
 #include "ida.h"
 #include "idaspgmr.h"
-#include "iterative.h"
 
 #define NOUT  11
 #define MGRID 10
@@ -338,18 +336,18 @@ int resHeat(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
 /*
  * PsetupHeat: setup for diagonal preconditioner for iheatsk.   
  *                                                                 
- * The optional user-supplied functions PrecondHeateq and          
- * PSolveHeateq together must define the left preconditoner        
+ * The optional user-supplied functions PsetupHeat and          
+ * PsolveHeat together must define the left preconditoner        
  * matrix P approximating the system Jacobian matrix               
  *                   J = dF/du + cj*dF/du'                         
  * (where the DAE system is F(t,u,u') = 0), and solve the linear   
  * systems P z = r.   This is done in this case by keeping only    
  * the diagonal elements of the J matrix above, storing them as    
- * inverses in a vector pp, when computed in PrecondHeateq, for    
- * subsequent use in PSolveHeateq.                                 
+ * inverses in a vector pp, when computed in PsetupHeat, for    
+ * subsequent use in PsolveHeat.                                 
  *                                                                 
  * In this instance, only cj and data (user data structure, with    
- * pp etc.) are used from the PrecondHeateq argument list.         
+ * pp etc.) are used from the PsetupdHeat argument list.         
  */
   
 int PsetupHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, 
