@@ -114,7 +114,7 @@ extern "C" {
  ******************************************************************/
 
 
-typedef struct {
+typedef struct _BandMat {
   integer size;
   integer mu, ml, smu;
   real **data;

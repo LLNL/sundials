@@ -116,7 +116,7 @@ extern "C" {
  *                                                                *
  ******************************************************************/
   
-typedef struct {
+typedef struct _SpgmrMemRec {
 
   integer N;
   int l_max;

@@ -65,7 +65,7 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-typedef struct {
+typedef struct _DenseMat {
   integer size;
   real  **data;
 } *DenseMat;
