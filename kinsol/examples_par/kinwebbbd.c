@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-08 23:25:12 $
+ * $Revision: 1.14 $
+ * $Date: 2004-10-18 22:15:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -267,11 +267,12 @@ int main(int argc, char *argv[])
   
   /* Call KINBBDPrecAlloc to initialize and allocate memory for the
      band-block-diagonal preconditioner, and specify the local and
-     communication functions fcalcprpr and ccomm. */
+     communication functions fcalcprpr and gcomm=NULL (all communication
+     needed for the fcalcprpr is already done in funcprpr). */
   dq_rel_uu = ZERO;
   mu = ml = 2*NUM_SPECIES - 1;
 
-  pdata = KINBBDPrecAlloc(kmem, Nlocal, mu, ml, dq_rel_uu, fcalcprpr, ccomm);
+  pdata = KINBBDPrecAlloc(kmem, Nlocal, mu, ml, dq_rel_uu, fcalcprpr, NULL);
   if (check_flag((void *)pdata, "KINBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call KINBBDSpgmr to specify the linear solver KINSPGMR 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-10-11 16:40:41 $
+ * $Revision: 1.19 $
+ * $Date: 2004-10-18 22:16:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -120,7 +120,9 @@ extern "C" {
  * Each call to the KINCommFn is preceded by a call to the system
  * function func at the current iterate uu. Thus functions of the
  * type KINCommFn can omit any communications done by f (func) if
- * relevant to the evaluation of the KINLocalFn function.
+ * relevant to the evaluation of the KINLocalFn function. If all
+ * necessary communication was done in func, the user can pass
+ * NULL for gcomm in the call to KINBBDPrecAlloc (see below).
  * -----------------------------------------------------------------
  */
 

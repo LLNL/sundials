@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-10-11 16:40:35 $
+ * $Revision: 1.21 $
+ * $Date: 2004-10-18 22:16:04 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -457,7 +457,8 @@ static void KBBDDQJac(KBBDPrecData pdata,
 
   /* call gcomm and gloc to get base value of g(uu) */
 
-  gcomm(Nlocal, uu, f_data);
+  if (gcomm != NULL)
+    gcomm(Nlocal, uu, f_data);
   gloc(Nlocal, uu, gu, f_data);
 
   /* set bandwidth and number of column groups for band differencing */
