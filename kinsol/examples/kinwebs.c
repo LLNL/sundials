@@ -1,9 +1,9 @@
 /*************************************************************************
  * File        : kinwebs.c                                               *
  * Programmers : Allan G. Taylor and Alan C. Hindmarsh @ LLNL            *
- * Version of  : 27 June 2002                                            *
+ * Version of  : 26 July 2002                                            *
  *-----------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial nvector (7/3/2002)      *
+ * Modified by R. Serban to work with new serial NVECTOR 7 March 2002.   *
  *-----------------------------------------------------------------------*
  * Example problem for KINSol, serial machine version.
  * This example solves a nonlinear system that arises from a system of  
@@ -41,18 +41,19 @@
  *  The various scalar parameters are set using define's 
  *  or in routine InitUserData.
  *  The boundary conditions are: normal derivative  =  0.
- *  The initial guess is constant in x and y, although the final
- *  solution is not.
+ *  The initial guess is constant in x and y, but the final solution is not.
  *
  *  The PDEs are discretized by central differencing on a MX by MY mesh.
  * 
  *  The nonlinear system is solved by KINSOL using the method specified in
- *  local variable globalstrat .
+ *  local variable globalstrat.
  *
  *  The preconditioner matrix is a block-diagonal matrix based on the
  *  partial derivatives of the interaction terms f only.
- * 
- * 
+ *
+ *  Constraints are imposed to make all components of the solution positive.
+ *
+ *
  * References:
  *
  * 1. Peter N. Brown and Youcef Saad,
@@ -70,13 +71,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definitions of realtype, integertype, booleantype */
-#include "kinsol.h"         /* main KINSOL header file                           */
-#include "iterativ.h"       /* contains the enum for types of preconditioning    */
-#include "kinspgmr.h"       /* use KINSPGMR linear solver                        */
-#include "smalldense.h"     /* use generic DENSE solver for preconditioning      */
-#include "nvector_serial.h" /* definitions of type N_Vector and access macros    */
-#include "sundialsmath.h"   /* contains RSqrt and UnitRoundoff routines          */
+#include "sundialstypes.h"  /* def's of realtype, integertype, booleantype    */
+#include "kinsol.h"         /* main KINSOL header file                        */
+#include "iterativ.h"       /* contains the enum for types of preconditioning */
+#include "kinspgmr.h"       /* use KINSPGMR linear solver                     */
+#include "smalldense.h"     /* use generic DENSE solver for preconditioning   */
+#include "nvector_serial.h" /* definitions of type N_Vector and access macros */
+#include "sundialsmath.h"   /* contains RSqrt and UnitRoundoff routines       */
 
 /* Problem Constants */
 
@@ -148,13 +149,14 @@ static realtype DotProd(integertype size, realtype *x1, realtype *x2);
 
 static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data);
 
-static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale, N_Vector fval,
-                     N_Vector fscale, N_Vector vtemp1, N_Vector vtemp2, 
-                     SysFn func, realtype uround, long int *nfePtr, void *P_data);
+static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale,
+                     N_Vector fval, N_Vector fscale, N_Vector vtemp1,
+                     N_Vector vtemp2, SysFn func, realtype uround,
+                     long int *nfePtr, void *P_data);
 
 static int PSolvebd(integertype Neq, N_Vector cc, N_Vector cscale,
                     N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
-                    SysFn func, realtype uround, long int *nfePtr, void *P_data); 
+                    SysFn func, realtype uround, long int *nfePtr,void *P_data);
 
 
 /***************************** Main Program ******************************/
@@ -169,8 +171,7 @@ int main()
   UserData data;
   int flag, maxl, maxlrst;
   booleantype optIn;
-  void *mem;
-  KINMem kmem;
+  void *kmem;
 
   /* Initialize serial machine environment */
   machEnv = M_EnvInit_Serial(Neq);
@@ -185,10 +186,10 @@ int main()
 
   cc = N_VNew(Neq, machEnv);
   sc = N_VNew(Neq, machEnv);
-  data->rates=N_VNew(Neq, machEnv);
+  data->rates= N_VNew(Neq, machEnv);
 
   constraints = N_VNew(Neq, machEnv);
-  N_VConst(0.,constraints);
+  N_VConst(1.0,constraints);
   
   SetInitialProfiles(cc, sc);
 
@@ -198,18 +199,17 @@ int main()
      Neq      is the number of equations in the system being solved
      NULL     directs error messages to stdout
      machEnv  the machEnv pointer used in the serial version
-     A pointer to KINSOL problem memory is returned and stored in kinsol_mem.*/
+     A pointer to KINSOL problem memory is returned and stored in kmem. */
 
-  mem = KINMalloc(Neq, NULL, machEnv);
-  if (mem == NULL) { printf("KINMalloc failed."); return(1); }
-  kmem = (KINMem)mem;
+  kmem = KINMalloc(Neq, NULL, machEnv);
+  if (kmem == NULL) { printf("KINMalloc failed."); return(1); }
 
   /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
      routines Precondbd and PSolvebd, and the pointer to the user block data. */
 
   maxl = 15; maxlrst = 2;
   flag = KINSpgmr(kmem,
-                  maxl,      /*  max. dimension of the Krylov subspace in SPGMR */
+                  maxl,      /*  max. dimension of the SPGMR Krylov subspace */
                   maxlrst,   /*  max number of SPGMR restarts */
                   0,         /*  0 forces use of default for msbpre, the max.
                                  number of nonlinear steps between calls to the
@@ -237,16 +237,17 @@ int main()
   printf("Preconditioning uses interaction-only block-diagonal matrix\n");
   printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
          fnormtol, scsteptol);
+  printf("Positivity constraints imposed on all components \n");
 
   printf("\nInitial profile of concentration\n");
   printf("At all mesh points:  %g %g %g   %g %g %g\n", PREYIN,PREYIN,PREYIN,
          PREDIN,PREDIN,PREDIN);
   
   /* Call KINSol and print output concentration profile */
-  
+
   flag = KINSol(kmem,           /* KINSol memory block */
                 Neq,            /* system size -- number of equations  */
-                cc,             /* solution vector, and initial guess on input */
+                cc,             /* initial guess on input; solution vector */
                 funcprpr,       /* function describing the system equations */
                 globalstrategy, /* global stragegy choice */
                 sc,             /* scaling vector, for the variable cc */
@@ -403,11 +404,11 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
   realtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
   
   /* Initialize arrays ctemp and stemp used in the loading process */
-  for(i=0;i<NUM_SPECIES/2;i++) {
+  for(i=0; i<NUM_SPECIES/2; i++) {
     ctemp[i] = PREYIN;
     stemp[i] = ONE;
   }
-  for(i=NUM_SPECIES/2;i<NUM_SPECIES;i++) {
+  for(i=NUM_SPECIES/2; i<NUM_SPECIES; i++) {
     ctemp[i] = PREDIN;
     stemp[i] = 0.00001;
   }
@@ -417,7 +418,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
     for (jx=0; jx < MX; jx++) {
       cloc = IJ_Vptr(cc,jx,jy);
       sloc = IJ_Vptr(sc,jx,jy);
-      for(i=0;i<NUM_SPECIES;i++){
+      for(i=0;i<NUM_SPECIES;i++) {
         cloc[i] = ctemp[i];
         sloc[i] = stemp[i];
       }
@@ -479,7 +480,7 @@ static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
   integertype jx, jy, is, idyu, idyl, idxr, idxl;
   UserData data;
   
-  data=(UserData)f_data;
+  data = (UserData)f_data;
   delx = data->dx;
   dely = data->dy;
   
@@ -506,7 +507,7 @@ static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
       /* Get species interaction rate array at (xx,yy) */
       WebRate(xx, yy, cxy, rxy, f_data);
       
-      for(is=0; is<NUM_SPECIES; is++){
+      for(is=0; is<NUM_SPECIES; is++) {
         
         /* Differencing in x direction */
         dcyli = *(cxy+is) - *(cxy - idyl + is) ;
@@ -534,7 +535,7 @@ static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
 static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale,
                      N_Vector fval, N_Vector fscale,
                      N_Vector vtemp1, N_Vector vtemp2, 
-                     SysFn func, realtype uround, long int *nfePtr, void *P_data)
+                     SysFn func, realtype uround, long int *nfePtr,void *P_data)
 {
   realtype r, r0, sqruround, xx, yy, delx, dely, csave, fac;
   realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
