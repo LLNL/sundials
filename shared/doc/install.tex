@@ -1,16 +1,3 @@
-\documentclass[10pt]{report}
-\setlength{\oddsidemargin}{0in}
-\setlength{\evensidemargin}{0in}
-\setlength{\textwidth}{6.5in}
-\setlength{\textheight}{8.5in}
-\pagenumbering{arabic}
-\pagestyle{plain}
-\begin{document}
-\begin{center}
-\textbf{\Large SUNDIALS Installation Guide}
-\end{center}
-\setlength{\parindent}{0.5cm}
-
 Generally speaking, the installation procedure outlined below will work on commodity \small LINUX\normalsize/\small UNIX \normalsize systems without modification, and so the typical user may certainly opt to just skip to the step-by-step installation instructions given below.  Users are still encouraged, however, to carefully read the entire installation guide before attempting to install the \small SUNDIALS \normalsize suite.  In lieu of reading the installation guide, the user may invoke the configuration utility script with the help flag to view a complete listing of available optional parameters which may be done by issuing \texttt{\textbf{./configure --help}} from a shell command prompt.
 \\
 
@@ -191,4 +178,3 @@ By default, \small SUNDIALS \normalsize will define a real number (internally re
 
 The \texttt{\textbf{--with-f77underscore}} flag deals with the Fortran-to-C interface (Fortran/C interoperability) and is used to specify the number of underscores to append to function names so Fortran routines can link with the associated \small SUNDIALS \normalsize libraries.
 
-\end{document}
