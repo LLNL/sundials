@@ -112,8 +112,6 @@ tar uf $tarfile $distrobase/Makefile.in
 tar uf $tarfile $distrobase/INSTALL
 tar uf $tarfile $distrobase/README
 
-tar uf $tarfile $distrobase/doc/Readme
-
 # Add SHARED module
 #------------------
 
