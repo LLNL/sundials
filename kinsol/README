@@ -17,13 +17,12 @@ by linking with the appropriate library of NVECTOR functions.  In the
 parallel version, communication between processes is done via the MPI 
 (Message Passage Interface) system.
 
-Throughout this document, we will refer to the combination of KINSOL with
-the serial implementation of the NVECTOR module as "the serial version
-of KINSOL".  Similarly, the combination of KINSOL with the parallel 
-implementation of the NVECTOR module will be called "the parallel version 
-of KINSOL".  Note that the KINSOL package also contains a preconditioner 
-module called KINBBDPRE, which provides a band-block-diagonal preconditioner 
-for use with the parallel version only.
+When used with the parallel NVECTOR module, KINSOL provides a
+preconditioner module called KINBBDPRE, which provides a
+band-block-diagonal preconditioner for use with the Krylov linear
+solver.  However, within KINSOL any NVECTOR module may be combined
+with an appropriate user-supplied preconditioning module for
+acceleration of the Krylov solver.
 
 KINSOL is part of a software family called SUNDIALS: SUite of Nonlinear
 and DIfferential/ALgebraic equation Solvers.  This suite consists of
