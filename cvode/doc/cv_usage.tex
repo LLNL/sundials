@@ -358,8 +358,8 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol}$=$\id{SS} indicates scalar
-    relative error tolerance and scalar absolute error tolerance, while
+    is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol}$=$\id{SS} indicates
+    scalar relative error tolerance and scalar absolute error tolerance, while
     \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
     error tolerance needs to be different for each component of the ODE. 
@@ -1323,8 +1323,8 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[itol] (\id{int}) 
-    is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol}$=$\id{CV\_SS} indicates scalar
-    relative error tolerance and scalar absolute error tolerance, while
+    is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol}$=$\id{CV\_SS} indicates
+    scalar relative error tolerance and scalar absolute error tolerance, while
     \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
     error tolerance needs to be different for each component of the ODE. 
@@ -3059,12 +3059,13 @@ finite-difference Jacobian approximation, and last return value from a
 \noindent\paragraph{\bf SPGMR Linear solver.}
 \index{optional output!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|(} 
-The following optional outputs are available from the {\cvspgmr} module:
-workspace requirements, number of linear iterations,
-number of linear convergence failures, number of calls to the preconditioner
-setup and solve routines, number of calls to the Jacobian-vector product routine, number of 
-calls to the right-hand side routine for finite-difference Jacobian-vector product approximation,
-and last return value from a {\cvspgmr} function.
+The following optional outputs are available from the {\cvspgmr}
+module: workspace requirements, number of linear iterations, number of
+linear convergence failures, number of calls to the preconditioner
+setup and solve routines, number of calls to the Jacobian-vector
+product routine, number of calls to the right-hand side routine for
+finite-difference Jacobian-vector product approximation, and last
+return value from a {\cvspgmr} function.
 %%
 \index{CVSPGMR@{\cvspgmr} linear solver!memory requirements|(} 
 \index{memory requirements!CVSPGMR@{\cvspgmr} linear solver|(}
@@ -4866,7 +4867,7 @@ This package provides the necessary interface to {\cvode} for both the
 serial and the parallel {\nvector} implementations.
 
 %%==============================================================================
-\subsection{FCVODE routines}
+\subsection{FCVODE routines}\label{sss:fcvroutines}
 %%==============================================================================
 
 \index{FCVODE@{\fcvode} interface module!user-callable functions|(}
@@ -5462,9 +5463,10 @@ apply to {\nvecp}.
   correspond to the \id{CVode} returns (see \S\ref{sss:cvode}) as follows:
   $0$: \Id{CV\_SUCCESS}, $1$: \Id{CV\_TSTOP\_RETURN}, $2$: \Id{CV\_ROOT\_RETURN},
   $-1$: \Id{CV\_MEM\_NULL}, $-2$: \Id{Cv\_ILL\_INPUT}, $-3$: \Id{CV\_NO\_MALLOC}
-  $-4$: \Id{CV\_TOO\_MUCH\_WORK}, $-5$: \Id{CV\_TOO\_MUCH\_ACC}, $-6$: \Id{CV\_ERR\_FAILURE},
-  $-7$: \Id{CV\_CONV\_FAILURE}, $-8$: \Id{CV\_LINIT\_FAIL}, $-9$: \Id{CV\_LSETUP\_FAIL}, 
-  and $-10$: \Id{CV\_LSOLVE\_FAIL} from \id{CVode} (see \S\ref{sss:cvode}).
+  $-4$: \Id{CV\_TOO\_MUCH\_WORK}, $-5$: \Id{CV\_TOO\_MUCH\_ACC},
+  $-6$: \Id{CV\_ERR\_FAILURE}, $-7$: \Id{CV\_CONV\_FAILURE},
+  $-8$: \Id{CV\_LINIT\_FAIL}, $-9$: \Id{CV\_LSETUP\_FAIL}, and
+  $-10$: \Id{CV\_LSOLVE\_FAIL} from \id{CVode} (see \S\ref{sss:cvode}).
   The current values of the optional outputs are available in \id{IOPT} and
   \id{ROPT} (see Table~\ref{t:fcvode_io}).
   
@@ -5735,10 +5737,9 @@ type within {\cvbbdpre} or {\cvode}):
 \end{center}
 As with the rest of the {\fcvode} routines, the names of all user-supplied routines 
 here are fixed, in order to maximize portability for the resulting mixed-language
-program.  Additionally, based on the flags \Id{SUNDIALS\_CASE\_*} and 
-\Id{SUNDIALS\_UNDERSCORE\_*}, the names of the user-supplied routines 
-are mapped to actual values through a series of definitions in the header file 
-\id{fcvbbd.h}.
+program.  Additionally, based on flags discussed above in \S\ref{sss:fcvroutines},
+the names of the user-supplied routines are mapped to actual values
+through a series of definitions in the header file \id{fcvbbd.h}.
 
 The following is a summary of the usage of this module. Steps that are unchanged
 from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
