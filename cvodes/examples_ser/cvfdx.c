@@ -97,8 +97,8 @@ static void Jac(integertype N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data, 
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static void fS(integertype Ns, realtype t, N_Vector y, N_Vector ydot, 
-               integertype iS, N_Vector yS, N_Vector ySdot, 
+static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
+               int iS, N_Vector yS, N_Vector ySdot, 
                void *fS_data, N_Vector tmp1, N_Vector tmp2);
 
 /***************************** Main Program ******************************/
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   int iout, flag;
 
   realtype pbar[NP];
-  integertype is, *plist; 
+  int is, *plist; 
   N_Vector *yS=NULL;
   booleantype sensi=FALSE;
   int sensi_meth=-1, err_con=-1;
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
     pbar[0] = data->p[0];
     pbar[1] = data->p[1];
     pbar[2] = data->p[2];
-    plist = (integertype *) malloc(NS * sizeof(integertype));
+    plist = (int *) malloc(NS * sizeof(int));
     for(is=0;is<NS;is++) plist[is] = is+1;
 
     yS = N_VNew_S(NS, nvSpec);
@@ -425,8 +425,8 @@ static void Jac(integertype N, DenseMat J, realtype t,
 /* ======================================================================= */
 /* fS routine. Compute sensitivity r.h.s. */
 
-static void fS(integertype Ns, realtype t, N_Vector y, N_Vector ydot, 
-               integertype iS, N_Vector yS, N_Vector ySdot, 
+static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
+               int iS, N_Vector yS, N_Vector ySdot, 
                void *fS_data, N_Vector tmp1, N_Vector tmp2)
 {
   UserData data;

@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
   int iout, flag;
 
   realtype *pbar;
-  integertype is, *plist;
+  int is, *plist;
   N_Vector *uS=NULL;
   booleantype sensi=FALSE;
   int sensi_meth=-1, err_con=-1;
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
   if(sensi) {
     pbar = (realtype *) malloc(NP*sizeof(realtype));
     for(is=0; is<NP; is++) pbar[is] = data->p[is];
-    plist = (integertype *) malloc(NS * sizeof(integertype));
+    plist = (int *) malloc(NS * sizeof(int));
     for(is=0; is<NS; is++) plist[is] = is+1;
 
     uS = N_VNew_S(NS, nvSpec);
@@ -653,8 +653,8 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 {
   realtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
   realtype **(*P)[MZ], **(*Jbd)[MZ];
-  integertype *(*pivot)[MZ], ier;
-  int jx, jz;
+  integertype *(*pivot)[MZ];
+  int ier, jx, jz;
   realtype *ydata, **a, **j;
   UserData data;
   realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;

@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
   int iout, flag;
 
   realtype *pbar;
-  integertype is, *plist;
+  int is, *plist;
   N_Vector *uS=NULL;
   booleantype sensi=FALSE;
   int sensi_meth=-1, err_con=-1;
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
     pbar  = (realtype *) malloc(NP * sizeof(realtype));
     pbar[0] = 1.0;
     pbar[1] = 0.5;
-    plist = (integertype *) malloc(NS * sizeof(integertype));
+    plist = (int *) malloc(NS * sizeof(int));
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 

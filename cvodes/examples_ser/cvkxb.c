@@ -160,7 +160,6 @@ int main()
   if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
   
   /* Call CVodeMalloc to initialize CVODES memory: 
-
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      y       is the initial dependent variable vector
@@ -173,18 +172,11 @@ int main()
   ml = mu = 2;
   bpdata = CVBandPrecAlloc (cvode_mem, NEQ, mu, ml);
 
-  /* Call CVSpgmr to specify the CVODE linear solver CVSPGMR 
+  /* Call CVBPSpgmr to specify the CVODE linear solver CVSPGMR 
      with left preconditioning and the maximum Krylov dimension maxl */
-  flag = CVSpgmr(cvode_mem, LEFT, 0);
-  if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
+  flag = CVBPSpgmr(cvode_mem, LEFT, 0, bpdata);
+  if (flag != SUCCESS) { printf("CVBPSpgmr failed."); return(1); }
 
-  /* Set modified Gram-Schmidt orthogonalization, preconditioner 
-     setup and solve routines, and the pointer to the user data */
-  flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
-  flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBandPrecSetup);
-  flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBandPrecSolve);
-  flag = CVSpgmrSetPrecData(cvode_mem, bpdata);
-  
   printf("2-species diurnal advection-diffusion problem, %d by %d mesh\n",
          MX, MZ);
   printf("SPGMR solver; band preconditioner; mu = %d, ml = %d\n\n",
@@ -203,7 +195,7 @@ int main()
       flag = CVodeReInit(cvode_mem, f, T0, y, SS, &reltol, &abstol);
       if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
       
-      flag = CVSpgmrSetPrecType(cvode_mem, RIGHT);
+      flag = CVSpgmrResetPrecType(cvode_mem, RIGHT);
       
       printf("\n\n-------------------------------------------------------");
       printf("------------\n");

@@ -272,7 +272,7 @@ int main()
         flag = CVodeReInit(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
         if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
 
-        flag = CVSpgmrSetPrecType(cvode_mem, jpre);
+        flag = CVSpgmrResetPrecType(cvode_mem, jpre);
         flag = CVSpgmrSetGSType(cvode_mem, gstype);
 
       }
