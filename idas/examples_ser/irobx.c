@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-07-22 23:01:56 $
+ * $Revision: 1.8 $
+ * $Date: 2004-10-08 15:28:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -75,7 +75,7 @@ int main(void)
   atval = NV_DATA_S(avtol);
   t0   = 0.0;
   t1   = 0.4;
-  itol = SV;  /* scalar relative tolerance, vector absolute tolerance. */
+  itol = IDA_SV;  /* scalar relative tolerance, vector absolute tolerance. */
   rtol = 1.e-4;
   atval[0] = 1.e-6;
   atval[1] = 1.e-10;
@@ -86,7 +86,7 @@ int main(void)
   ypval[0]  = -0.04;
   ypval[1]  = +0.04;
   ypval[2]  =   0.;  
-  itask = NORMAL;
+  itask = IDA_NORMAL;
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
@@ -173,7 +173,7 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
   rval[0] -=  ypval[0];
   rval[2]  =  yval[0] + yval[1] + yval[2] - 1.0;
 
-  return(SUCCESS);
+  return(0);
 
 }
 
@@ -200,7 +200,7 @@ int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
   IJth(JJ,2,3) = -1.e4*yval[1];
   IJth(JJ,3,3) =  1.;
 
-  return(SUCCESS);
+  return(0);
 
 }
 

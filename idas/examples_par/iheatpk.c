@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-07-22 23:02:06 $
+ * $Revision: 1.9 $
+ * $Date: 2004-10-08 15:28:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
   
   /* Scalar relative and absolute tolerance. */
 
-  itol = SS;
+  itol = IDA_SS;
   rtol = 0.0;
   atol = 1.e-3;
 
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
 
   /* Loop over tout, call IDASolve, print output. */
 
-  itask = NORMAL;
+  itask = IDA_NORMAL;
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
     
     ier = IDASolve(mem, tout, &tret, uu, up, itask);
@@ -401,7 +401,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   /* Copy -res into up to get correct initial up values. */
   N_VScale(-ONE, res, up);
   
-  return(SUCCESS);
+  return(0);
 
 }
 
@@ -748,7 +748,7 @@ int PrecondHeateq(realtype tt, N_Vector yy,
     }
   }
 
-  return(SUCCESS);
+  return(0);
 
 }
 
@@ -771,7 +771,7 @@ int PSolveHeateq(realtype tt, N_Vector uu,
   
   N_VProd(data->pp,rvec, zvec);
 
-  return(SUCCESS);
+  return(0);
 
 }
 

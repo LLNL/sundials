@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-07-22 23:01:56 $
+ * $Revision: 1.8 $
+ * $Date: 2004-10-08 15:28:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -213,7 +213,9 @@ int main()
   /* Set remaining inputs to IDAMalloc. */
   
   t0 = ZERO;
-  itol = SS; rtol = RTOL; atol = ATOL;
+  itol = IDA_SS; 
+  rtol = RTOL; 
+  atol = ATOL;
 
   /* Call IDACreate and IDAMalloc to initialize IDA. */
   
@@ -238,7 +240,7 @@ int main()
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = 0.001;
-  retval = IDACalcIC(mem, CALC_YA_YDP_INIT, tout);
+  retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
   if(check_flag(&retval, "IDACalcIC", 1)) return(1);
   
   /* Print heading, basic parameters, and initial values. */
@@ -255,7 +257,7 @@ int main()
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
   
-  itask = NORMAL;
+  itask = IDA_NORMAL;
   for (iout = 1; iout <= NOUT; iout++) {
     
     flag = IDASolve(mem, tout, &tret, cc, cp, itask);

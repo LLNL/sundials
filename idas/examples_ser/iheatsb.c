@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-07-22 23:01:56 $
+ * $Revision: 1.8 $
+ * $Date: 2004-10-08 15:28:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -106,10 +106,10 @@ int main(void)
   /* Set remaining input parameters. */
   t0   = ZERO;
   t1   = 0.01;
-  itol = SS;    /* Specify scalar relative and absolute tolerance. */
+  itol = IDA_SS;    /* Specify scalar relative and absolute tolerance. */
   rtol = ZERO;
   atol = 1.0e-3;
-  itask = NORMAL;
+  itask = IDA_NORMAL;
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
@@ -130,7 +130,7 @@ int main(void)
  
   /* Call IDACalcIC to correct the initial values. */
   
-  ier = IDACalcIC(mem, CALC_YA_YDP_INIT, t1);
+  ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
   if(check_flag(&ier, "IDACalcIC", 1)) return(1);
 
   /* Print output heading. */
@@ -268,7 +268,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
     }
   }
   
-  return(SUCCESS);
+  return(0);
 
 }
 
@@ -307,7 +307,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
     }
   }
   
-  return(SUCCESS);
+  return(0);
 
 }
 

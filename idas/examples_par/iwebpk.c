@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-07-22 23:02:06 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-08 15:28:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -102,7 +102,7 @@
 #include <math.h>
 #include "sundialstypes.h"     /* Definition of realtype                        */
 #include "iterative.h"         /* Contains the types of preconditioning         */
-#include "idas.h"              /* Main IDA header file                          */
+#include "idas.h"               /* Main IDA header file                          */
 #include "idaspgmr.h"          /* Use IDASPGMR linear solver                    */
 #include "nvector_parallel.h"  /* Definitions of type N_Vector, macro NV_DATA_P */
 #include "sundialsmath.h"      /* Contains RSqrt routine                        */
@@ -246,7 +246,6 @@ int main(int argc, char *argv[])
   N_Vector cc, cp, res, id;
   UserData webdata;
   int maxl, iout, flag, retval, itol, itask;
-  booleantype optIn;
   void *mem;
   MPI_Comm comm;
 
@@ -303,8 +302,9 @@ int main(int argc, char *argv[])
   /* Set remaining inputs to IDAMalloc. */
 
   t0 = ZERO;
-  itol = SS; rtol = RTOL; atol = ATOL;
-  optIn = FALSE;
+  itol = IDA_SS; 
+  rtol = RTOL; 
+  atol = ATOL;
   
   /* Call IDACreate and IDAMalloc to initialize IDA.
      First NULL argument  = constraints vector, not used here.
@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = 0.001;
-  retval = IDACalcIC(mem, CALC_YA_YDP_INIT, tout);
+  retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
   if (check_flag(&retval, "IDACalcIC", 1, thispe)) 
     MPI_Abort(comm, 1);
 
@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
 
-  itask = NORMAL;
+  itask = IDA_NORMAL;
   for (iout = 1; iout <= NOUT; iout++) {
     
     flag = IDASolve(mem, tout, &tret, cc, cp, itask);
