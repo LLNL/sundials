@@ -4332,10 +4332,10 @@ backsolve.
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!description|)}
 
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-supplied functions|(}
-To use this {\cvbbdpre} module, the user must supply two functions which the
-module calls to construct $P$: a function \id{gloc} (of type \id{CVLocalFn}) 
+The {\cvbbdpre} module calls two user-provided functions to construct $P$: 
+a required function \id{gloc} (of type \id{CVLocalFn}) 
 which approximates the right-hand side function $g(t,y) \approx f(t,y)$ and which 
-is computed locally, and a function \id{cfn} (of type \id{CVCommFn}) which performs 
+is computed locally, and an optional function \id{cfn} (of type \id{CVCommFn}) which performs 
 all inter-process communication necessary to evaluate the approximate right-hand
 side $g$.  These are in addition to the user-supplied right-hand side function
 \id{f}.  Both functions take as input the same pointer \id{f\_data} as that passed
@@ -4415,6 +4415,8 @@ then used by \id{gloc}, which is not expected to do any communication.
   Each call to the \id{cfn} function is preceded by a call to the right-hand side
   function \id{f} with the same (\id{t}, \id{y}) arguments.  Thus \id{cfn} can omit 
   any communications done by \id{f} if relevant to the evaluation of \id{glocal}.
+  If all necessary comunication was done in \id{f}, then \id{cfn} $=$ \id{NULL}
+  can be passed in the call to \id{CVBBDPrecAlloc} (see below).
 }
 %%
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-supplied functions|)}
@@ -4552,7 +4554,7 @@ next.
   \item[gloc] (\id{CVLocalFn})
     the {\C} function which computes the approximation $g(t,y) \approx f(t,y)$. 
   \item[cfn] (\id{CVCommFn})
-    the {\C} function which performs all inter-process communication required for
+    the optional {\C} function which performs all inter-process communication required for
     the computation of $g(t,y)$.
   \end{args}
 }
@@ -4669,7 +4671,7 @@ used in the difference-quotient Jacobian approximations, the relative increment
   \item[gloc] (\id{CVLocalFn})
     the {\C} function which computes the approximation $g(t,y) \approx f(t,y)$. 
   \item[cfn] (\id{CVCommFn})
-    the {\C} function which performs all inter-process communication required for
+    the optional {\C} function which performs all inter-process communication required for
     the computation of $g(t,y)$.
   \end{args}
 }
