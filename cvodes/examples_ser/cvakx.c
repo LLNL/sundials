@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16.2.3 $
- * $Date: 2005-04-01 21:55:27 $
+ * $Revision: 1.16.2.4 $
+ * $Date: 2005-04-06 23:33:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -269,12 +269,8 @@ int main(int argc, char *argv[])
   /* Call CVSpgmr for forward run */
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
-  flag = CVSpgmrSetPrecData(cvode_mem, wdata);
-  if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
-  flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
-  if(check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1)) return(1);
-  flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
-  if(check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1)) return(1);
+  flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, wdata);
+  if(check_flag(&flag, "CVSpgmrSetPreconditioner", 1)) return(1);
 
   /* Set-up adjoint calculations */
 
@@ -320,12 +316,8 @@ int main(int argc, char *argv[])
   /* Call CVSpgmr */
   flag = CVSpgmrB(cvadj_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmrB", 1)) return(1);
-  flag = CVSpgmrSetPrecDataB(cvadj_mem, wdata);
-  if(check_flag(&flag, "CVSpgmrSetPrecDataB", 1)) return(1);
-  flag = CVSpgmrSetPrecSetupFnB(cvadj_mem, PrecondB);
-  if(check_flag(&flag, "CVSpgmrSetPrecSetupFnB", 1)) return(1);
-  flag = CVSpgmrSetPrecSolveFnB(cvadj_mem, PSolveB);
-  if(check_flag(&flag, "CVSpgmrSetPrecSolveFnB", 1)) return(1);
+  flag = CVSpgmrSetPreconditionerB(cvadj_mem, PrecondB, PSolveB, wdata);
+  if(check_flag(&flag, "CVSpgmrSetPreconditionerB", 1)) return(1);
 
   /* Perform backward integration */
 
@@ -790,7 +782,7 @@ static WebData AllocUserData(void)
     (wdata->P)[i] = denalloc(ns);
     (wdata->pivot)[i] = denallocpiv(ns);
   }
-  wdata->rewt = N_VNew_Serial(NEQ);
+  wdata->rewt = N_VNew_Serial(NEQ+1);
   return(wdata);
 }
 

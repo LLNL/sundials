@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16.2.2 $
- * $Date: 2005-04-01 21:51:55 $
+ * $Revision: 1.16.2.3 $
+ * $Date: 2005-04-06 23:33:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -608,12 +608,12 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
       flag = CVDense(cvode_mem, P1_NEQ);
       check_flag(&flag, "CVDense", 1);
       if(flag != CV_SUCCESS) break;
-      flag = CVDenseSetJacFn(cvode_mem, Jac1);
+      flag = CVDenseSetJacFn(cvode_mem, Jac1, NULL);
       check_flag(&flag, "CVDenseSetJacFn", 1);
       break;
     case DENSE_DQ   : 
       printf("Dense, Difference Quotient Jacobian\n");
-      flag = CVDenseSetJacFn(cvode_mem, NULL);
+      flag = CVDenseSetJacFn(cvode_mem, NULL, NULL);
       check_flag(&flag, "CVDenseSetJacFn", 1);
       break;
     case DIAG       : 
@@ -626,12 +626,12 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
       flag = CVBand(cvode_mem, P2_NEQ, mu, ml);
       check_flag(&flag, "CVBand", 1);
       if(flag != CV_SUCCESS) break;
-      flag = CVBandSetJacFn(cvode_mem, Jac2);
+      flag = CVBandSetJacFn(cvode_mem, Jac2, NULL);
       check_flag(&flag, "CVBandSetJacFn", 1);
       break;
     case BAND_DQ  :   
       printf("Band, Difference Quotient Jacobian\n");
-      flag = CVBandSetJacFn(cvode_mem, NULL);
+      flag = CVBandSetJacFn(cvode_mem, NULL, NULL);
       check_flag(&flag, "CVBandSetJacFn", 1);
       break;    
     }

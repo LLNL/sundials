@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16.2.3 $
- * $Date: 2005-04-04 22:36:46 $
+ * $Revision: 1.16.2.4 $
+ * $Date: 2005-04-06 23:34:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -162,14 +162,8 @@ int main()
   ier = IDASpgmr(mem, 0);
   if(check_flag(&ier, "IDASpgmr", 1)) return(1);
 
-  ier = IDASpgmrSetPrecSetupFn(mem, PsetupHeat);
-  if(check_flag(&ier, "IDASpgmrSetPrecSetupFn", 1)) return(1);
-
-  ier = IDASpgmrSetPrecSolveFn(mem, PsolveHeat);
-  if(check_flag(&ier, "IDASpgmrSetPrecSolveFn", 1)) return(1);
-
-  ier = IDASpgmrSetPrecData(mem, data);
-  if(check_flag(&ier, "IDASpgmrSetPrecData", 1)) return(1);
+  ier = IDASpgmrSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
+  if(check_flag(&ier, "IDASpgmrSetPreconditioner", 1)) return(1);
 
   /* Print output heading. */
   PrintHeader(rtol, atol);

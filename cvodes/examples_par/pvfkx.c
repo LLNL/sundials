@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20.2.2 $
- * $Date: 2005-04-01 21:55:24 $
+ * $Revision: 1.20.2.3 $
+ * $Date: 2005-04-06 23:34:05 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -281,14 +281,8 @@ int main(int argc, char *argv[])
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if (check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
-  if (check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1, my_pe)) MPI_Abort(comm, 1);
-
-  flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
-  if (check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1, my_pe)) MPI_Abort(comm, 1);
-
-  flag = CVSpgmrSetPrecData(cvode_mem, predata);
-  if (check_flag(&flag, "CVSpgmrSetPrecData", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, predata);
+  if (check_flag(&flag, "CVSpgmrSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   if(my_pe == 0)
     printf("\n2-species diurnal advection-diffusion problem\n");

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19.2.2 $
- * $Date: 2005-04-01 21:51:56 $
+ * $Revision: 1.19.2.3 $
+ * $Date: 2005-04-06 23:33:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -166,7 +166,7 @@ int main()
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
-  flag = CVodeRootInit(cvode_mem, g, 2);
+  flag = CVodeRootInit(cvode_mem, 2, g, NULL);
   if (check_flag(&flag, "CVodeRootInit", 1)) return(1);
 
   /* Call CVDense to specify the CVDENSE dense linear solver */
@@ -174,7 +174,7 @@ int main()
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
   /* Set the Jacobian routine to Jac (user-supplied) */
-  flag = CVDenseSetJacFn(cvode_mem, Jac);
+  flag = CVDenseSetJacFn(cvode_mem, Jac, NULL);
   if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.

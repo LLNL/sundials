@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21.2.2 $
- * $Date: 2005-04-01 21:55:27 $
+ * $Revision: 1.21.2.3 $
+ * $Date: 2005-04-06 23:33:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -176,11 +176,8 @@ int main(int argc, char *argv[])
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
-  flag = CVDenseSetJacFn(cvode_mem, Jac);
+  flag = CVDenseSetJacFn(cvode_mem, Jac, data);
   if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
-
-  flag = CVDenseSetJacData(cvode_mem, data);
-  if (check_flag(&flag, "CVDenseSetJacData", 1)) return(1);
 
   printf("\n3-species chemical kinetics problem\n");
 

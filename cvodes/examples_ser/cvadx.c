@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18.2.2 $
- * $Date: 2005-04-01 21:55:27 $
+ * $Revision: 1.18.2.3 $
+ * $Date: 2005-04-06 23:33:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -202,10 +202,8 @@ int main(int argc, char *argv[])
 
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
-  flag = CVDenseSetJacFn(cvode_mem, Jac);
+  flag = CVDenseSetJacFn(cvode_mem, Jac, data);
   if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
-  flag = CVDenseSetJacData(cvode_mem, data);
-  if (check_flag(&flag, "CVDenseSetJacData", 1)) return(1);
 
   flag = CVodeQuadMalloc(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadMalloc", 1)) return(1);
@@ -274,10 +272,8 @@ int main(int argc, char *argv[])
 
   flag = CVDenseB(cvadj_mem, NEQ);
   if (check_flag(&flag, "CVDenseB", 1)) return(1);
-  flag = CVDenseSetJacFnB(cvadj_mem, JacB);
+  flag = CVDenseSetJacFnB(cvadj_mem, JacB, data);
   if (check_flag(&flag, "CVDenseSetJacFnB", 1)) return(1);
-  flag = CVDenseSetJacDataB(cvadj_mem, data);
-  if (check_flag(&flag, "CVDenseSetJacDataB", 1)) return(1);
 
   flag = CVodeQuadMallocB(cvadj_mem, fQB, qB);
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);

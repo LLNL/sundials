@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16.2.3 $
- * $Date: 2005-04-04 22:36:47 $
+ * $Revision: 1.16.2.4 $
+ * $Date: 2005-04-06 23:34:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -125,7 +125,7 @@ int main(void)
 
   retval = IDADense(mem, NEQ);
   if(check_flag(&retval, "IDADense", 1)) return(1);
-  retval = IDADenseSetJacFn(mem, jacrob);
+  retval = IDADenseSetJacFn(mem, jacrob, NULL);
   if(check_flag(&retval, "IDADenseSetJacFn", 1)) return(1);
 
   /* Loop over tout values and call IDASolve. */

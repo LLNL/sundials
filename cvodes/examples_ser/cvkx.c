@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16.2.2 $
- * $Date: 2005-04-01 21:55:27 $
+ * $Revision: 1.16.2.3 $
+ * $Date: 2005-04-06 23:33:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -207,14 +207,8 @@ int main()
   flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
   if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
 
-  flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
-  if(check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1)) return(1);
-
-  flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
-  if(check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1)) return(1);
-
-  flag = CVSpgmrSetPrecData(cvode_mem, data);
-  if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
+  flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, data);
+  if(check_flag(&flag, "CVSpgmrSetPreconditioner", 1)) return(1);
 
   /* In loop over output points, call CVode, print results, test for error */
   printf(" \n2-species diurnal advection-diffusion problem\n\n");
