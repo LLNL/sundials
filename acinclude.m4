@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2004-10-21 20:28:50 $
+# $Revision: 1.2 $
+# $Date: 2004-10-28 00:07:53 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -736,8 +736,8 @@ if test "X${CXX_ENABLED}" = "Xyes"; then
   CXX_OK="yes"
 
   # CXX and CCC are common so check both
-  if "X${CXX}" = "X"; then
-    if "X${CCC}" = "X"; then
+  if test "X${CXX}" = "X"; then
+    if test "X${CCC}" = "X"; then
       USER_CXX=""
     else
       USER_CXX="${CCC}"
@@ -815,7 +815,7 @@ fi
 # DEFAULT CXXFLAGS
 #------------------------------------------------------------------
 
-AC_DEFUN([SUNDIALS_PROG_CXXFLAGS],
+AC_DEFUN([SUNDIALS_DEFAULT_CXXFLAGS],
 [
 
 # Specify "-ffloat-store" flag if using g++ on an IA-32 system (recommended)
