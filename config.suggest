@@ -75,10 +75,6 @@ frost_xlc_ibmmpi) # Frost with IBM compilers and IBM-MPI
 echo 'CC=xlc F77=xlf --with-cflags="-qarch=pwr3 -qtune=pwr3 -qmaxmem=8192" --with-fflags="-qarch=pwr3 -qtune=pwr3 -qmaxmem=8192" --with-mpicc=mpcc --with-mpif77=mpxlf --with-f77underscore=none'
 ;;
 
-blue_xlc_ibmmpi) # Blue with IBM compilers and IBM-MPI
-echo 'CC=xlc F77=xlf --with-cflags="-qarch=604 -qtune=604 -qmaxmem=8192" --with-fflags="-qarch=604 -qtune=604 -qmaxmem=8192" --with-mpicc=mpcc --with-mpif77=mpxlf --with-f77underscore=none'
-;;
-
 gps_cc_compaqmpi) # GPS with Compaq compilers and Compaq-MPI
 echo 'CC=cc F77=f77 --with-cflags="-arch ev6 -om" --with-fflags="-arch ev6" --with-mpicc=no --with-mpif77=no --with-mpi-incdir=/usr/include --with-mpi-libdir=/usr/lib --with-mpi-libs="-lfmpi -lmpi"'
 ;;
