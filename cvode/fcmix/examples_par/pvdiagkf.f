@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.9 $
-C     $Date: 2004-07-22 22:56:13 $
+C     $Revision: 1.10 $
+C     $Date: 2004-08-05 21:29:23 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
@@ -265,7 +265,7 @@ C
       RETURN
       END
 
-      SUBROUTINE FCVPSOL(T, Y, FY, VT, GAMMA, EWT, DELTA, H,
+      SUBROUTINE FCVPSOL(T, Y, FY, VT, GAMMA, EWT, DELTA,
      1                  R, LR, Z, IER)
 C Routine to solve preconditioner linear system
 C This routine uses a diagonal preconditioner P = I - gamma*J,

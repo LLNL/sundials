@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.10 $
-C     $Date: 2004-07-22 22:55:16 $
+C     $Revision: 1.11 $
+C     $Date: 2004-08-05 21:29:36 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
@@ -312,7 +312,7 @@ C
       RETURN
       END
 
-      SUBROUTINE FCVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, H, DELTA,
+      SUBROUTINE FCVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, DELTA,
      1                    R, LR, Z, IER)
 C Routine to solve preconditioner linear system.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
