@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-06-18 21:33:49 $
+ * $Revision: 1.10 $
+ * $Date: 2004-07-22 22:54:43 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -27,7 +27,7 @@
 
 /* Prototype of the Fortran routine */
 void FCV_PSOL(realtype*, realtype*, realtype*, realtype*, 
-              realtype*, realtype*, realtype*, 
+              realtype*, realtype*, realtype*, realtype*, 
               realtype*, int*, realtype*, int*);
 
 /***************************************************************************/
@@ -54,21 +54,21 @@ int FCVPSol(realtype t, N_Vector y, N_Vector fy,
 {
   N_Vector ewt;
   realtype *ydata, *fydata, *vtdata, *ewtdata, *rdata, *zdata;
+  realtype h;
   int ier = 0;
 
   CVodeGetErrWeights(CV_cvodemem, &ewt);
+  CVodeGetLastStep(CV_cvodemem, &h);
 
-  ydata   = (realtype *) N_VGetData(y);
-  fydata  = (realtype *) N_VGetData(fy);
-  vtdata  = (realtype *) N_VGetData(vtemp);
-  ewtdata = (realtype *) N_VGetData(ewt);
-  rdata   = (realtype *) N_VGetData(r);
-  zdata   = (realtype *) N_VGetData(z);
+  ydata   = N_VGetArrayPointer(y);
+  fydata  = N_VGetArrayPointer(fy);
+  vtdata  = N_VGetArrayPointer(vtemp);
+  ewtdata = N_VGetArrayPointer(ewt);
+  rdata   = N_VGetArrayPointer(r);
+  zdata   = N_VGetArrayPointer(z);
 
-  FCV_PSOL(&t, ydata, fydata, vtdata, &gamma, ewtdata, &delta,
+  FCV_PSOL(&t, ydata, fydata, vtdata, &gamma, ewtdata, &h, &delta,
            rdata, &lr, zdata, &ier);
-
-  N_VSetData((void *)zdata, z);
 
   return(ier);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-06-21 23:07:12 $
+ * $Revision: 1.7 $
+ * $Date: 2004-07-22 22:54:43 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -27,7 +27,8 @@
 /* Prototype of the Fortran routine */
 void FCV_BJAC(long int*, long int*, long int*, long int*, 
               realtype*, realtype*, realtype*, realtype*,
-              realtype*, realtype*, realtype*, realtype*);
+              realtype*, realtype*, 
+              realtype*, realtype*, realtype*);
 
 
 /***************************************************************************/
@@ -56,16 +57,18 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
 {
   N_Vector ewt;
   realtype *ydata, *fydata, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
+  realtype h;
   long int eband;
 
   CVodeGetErrWeights(CV_cvodemem, &ewt);
+  CVodeGetLastStep(CV_cvodemem, &h);
 
-  ydata   = (realtype *) N_VGetData(y);
-  fydata  = (realtype *) N_VGetData(fy);
-  v1data  = (realtype *) N_VGetData(vtemp1);
-  v2data  = (realtype *) N_VGetData(vtemp2);
-  v3data  = (realtype *) N_VGetData(vtemp3);
-  ewtdata = (realtype *) N_VGetData(ewt);
+  ydata   = N_VGetArrayPointer(y);
+  fydata  = N_VGetArrayPointer(fy);
+  v1data  = N_VGetArrayPointer(vtemp1);
+  v2data  = N_VGetArrayPointer(vtemp2);
+  v3data  = N_VGetArrayPointer(vtemp3);
+  ewtdata = N_VGetArrayPointer(ewt);
 
   eband = (J->smu) + mlower + 1;
   jacdata = BAND_COL(J,0) - mupper;
@@ -73,6 +76,6 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
 
   FCV_BJAC(&N, &mupper, &mlower, &eband, 
            &t, ydata, fydata, jacdata, 
-           ewtdata, v1data, v2data, v3data);
+           ewtdata, &h, v1data, v2data, v3data);
 
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-06-21 23:07:12 $
+ * $Revision: 1.20 $
+ * $Date: 2004-07-22 22:54:43 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -34,9 +34,8 @@
  * The user-callable functions, with the corresponding CVODE functions,
  * are as follows:
  * 
- *   FNVINITS and FNVINITP interface to NV_SpecInit_Serial and
- *              NV_SpecInitParallel (defined by nvector_serial
- *              and nvector_parallel, respectively)
+ *   FNVINITS and FNVINITP initialize serial and parallel vector
+ *              computations, respectively
  * 
  *   FCVMALLOC  interfaces to CVodeCreate, CVodeSet*, and CVodeMalloc
  * 
@@ -48,8 +47,7 @@
  * 
  *   FCVBAND    interfaces to CVBand
  * 
- *   FCVSPGMR, FCVSPGMRREINIT
- *              interface to CVSpgmr 
+ *   FCVSPGMR, FCVSPGMRREINIT interface to CVSpgmr
  * 
  *   FCVODE     interfaces to CVode and CVodeGet*
  * 
@@ -57,9 +55,8 @@
  * 
  *   FCVFREE    interfaces to CVodeFree
  * 
- *   FNVFREES and FNVFREEP interface to NV_SpecFree_Serial and
- *              NV_SpecFree_parallel(defined by nvector_serial
- *              and nvector_parallel, respectively)
+ *   FNVFREES and FNVFREEP finalize serial and parallel vector
+ *              computations, respectively
  * 
  * The user-supplied functions, each listed with the corresponding interface
  * function which calls it (and its type within CVODE), are as follows:
@@ -113,7 +110,7 @@
  * As an option when using the DENSE linear solver, the user may supply a
  * routine that computes a dense approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
- *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, EWT, WK1, WK2, WK3)
+ *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, EWT, H, WK1, WK2, WK3)
  *       DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
  * the Jacobian and store it columnwise in DJAC.
@@ -123,7 +120,7 @@
  * routine that computes a band approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
  *       SUBROUTINE FCVBJAC (NEQ, MU, ML, MDIM, T, Y, FY,
- *      1                    BJAC, EWT, WK1, WK2, WK3)
+ *      1                    BJAC, EWT, H, WK1, WK2, WK3)
  *       DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. 
  * It must load the MDIM by N array BJAC with the Jacobian matrix at the
@@ -134,7 +131,7 @@
  * As an option when using the SPGMR linear solver, the user may supply a 
  * routine that computes the product of the system Jacobian J = df/dy and 
  * a given vector v.  If supplied, it must have the following form:
- *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, WORK, IER)
+ *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, H, WORK, IER)
  *       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
  * Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
  * compute the product vector Jv, where the vector v is stored in V, and store
@@ -289,7 +286,7 @@
  *       CALL FCVSPGMRSETPSOL(FLAG, IER)
  * where FLAG=0 indicates no FCVPSOL (default) and FLAG=1 specifies using FCVPSOL.
  * The user-supplied routine FCVPSOL must be of the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT,DELTA, NFE, R, LR, Z, IER)
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, H, DELTA, NFE, R, LR, Z, IER)
  *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
@@ -344,7 +341,7 @@
  * (8) Computing solution derivatives: FCVDKY
  * To obtain a derivative of the solution, of order up to the current method
  * order, make the following call:
- *       CALL FCVDKY (T, K, DKY, IER
+ *       CALL FCVDKY (T, K, DKY, IER)
  * The arguments are:
  * T   = value of t at which solution derivative is desired
  * K   = derivative order (0 .le. K .le. QU)
@@ -475,10 +472,10 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
 
 /* Declarations for global variables, shared among various routines */
 
-extern NV_Spec F2C_nvspec;
+extern N_Vector F2C_vec;
 
 void *CV_cvodemem;
-N_Vector CV_yvec;
+N_Vector CV_yvec, CV_atolvec;
 booleantype CV_optin;
 long int *CV_iopt;
 realtype *CV_ropt;

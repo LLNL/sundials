@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-06-21 23:07:12 $
+ * $Revision: 1.26 $
+ * $Date: 2004-07-22 22:54:43 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,17 +43,33 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
                 int *ier)
 {
   int lmm, iter, itol;
-  N_Vector atolvec;
   void *atolptr;
 
-  CV_yvec = N_VMake((void *)y0, F2C_nvspec);
+  CV_yvec = N_VCloneEmpty(F2C_vec);
+
+  if(CV_yvec->ops->nvcloneempty      == NULL ||
+     CV_yvec->ops->nvdestroyempty    == NULL ||
+     CV_yvec->ops->nvgetarraypointer == NULL ||
+     CV_yvec->ops->nvsetarraypointer == NULL) {
+    ier = -1;
+    printf("A required vector operation is not implemented.\n\n");
+    return;
+  }
+
+  N_VSetArrayPointer(y0, CV_yvec);
+
   lmm = (*meth == 1) ? ADAMS : BDF;
   iter = (*itmeth == 1) ? FUNCTIONAL : NEWTON;
-  if (*iatol == 1)
-    { itol = SS; atolptr = atol; }
-  else
-    { atolvec = N_VMake((void *)atol, F2C_nvspec);
-      itol = SV; atolptr = atolvec; }
+  if (*iatol == 1) {
+    CV_atolvec = NULL;
+    itol = SS; 
+    atolptr = atol; 
+  } else { 
+    CV_atolvec = N_VCloneEmpty(F2C_vec);
+    N_VSetArrayPointer(atol, CV_atolvec);
+    itol = SV; 
+    atolptr = (void *) CV_atolvec; 
+  }
 
   /* 
      Call CVodeCreate, CVodeSet*, and CVodeMalloc to initialize CVODE: 
@@ -98,7 +114,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   }
 
   *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, CV_yvec,
-                     itol, rtol, atolptr, F2C_nvspec);
+                     itol, rtol, atolptr);
 
   /* Store the unit roundoff in ropt for user access */
   ropt[9] = UNIT_ROUNDOFF;
@@ -120,13 +136,18 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
   N_Vector atolvec;
   void *atolptr;
 
-  N_VSetData((void *)y0, CV_yvec);
+  N_VSetArrayPointer(y0, CV_yvec);
 
-  if (*iatol == 1)
-    { itol = SS; atolptr = atol; }
-  else
-    { atolvec = N_VMake((void *)atol, F2C_nvspec);
-      itol = SV; atolptr = atolvec; }
+  if (*iatol == 1) { 
+    itol = SS; 
+    atolptr = atol; 
+  } else { 
+    if (CV_atolvec != NULL)
+      CV_atolvec = N_VCloneEmpty(F2C_vec);
+    N_VSetArrayPointer(atol, CV_atolvec);
+    itol = SV; 
+    atolptr = atolvec; 
+  }
 
   /* 
      Call CVodeSet* and CVReInit to re-initialize CVODE: 
@@ -271,7 +292,7 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   *ier = CVode(CV_cvodemem, *tout, CV_yvec, t, *itask);
   if (*ier < 0) return;
 
-  y = (realtype *) N_VGetData(CV_yvec);
+  y = N_VGetArrayPointer(CV_yvec);
 
   /* CVode() succeeded and found at least one root */
   if (*ier == ROOT_RETURN) {
@@ -355,7 +376,7 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 
   *ier = CVodeGetDky(CV_cvodemem, *t, *k, CV_yvec);
 
-  dky = (realtype *) N_VGetData(CV_yvec);
+  dky = N_VGetArrayPointer(CV_yvec);
 
 }
 
@@ -364,6 +385,8 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 void FCV_FREE ()
 {
   CVodeFree(CV_cvodemem);
+  N_VDestroyEmpty(CV_yvec);
+  if (CV_atolvec != NULL) N_VDestroyEmpty(CV_atolvec);
 }
 
 /***************************************************************************/
@@ -371,7 +394,7 @@ void FCV_FREE ()
 /* 
    C function CVf to interface between CVODE and a Fortran subroutine CVFUN.
    Addresses of t, y, and ydot are passed to CVFUN, using the
-   routine N_VGetData from the NVECTOR module.
+   routine N_VGetArrayPointer from the NVECTOR module.
    Auxiliary data is assumed to be communicated by Common. 
 */
 
@@ -379,12 +402,10 @@ void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype *ydata, *dydata;
 
-  ydata  = (realtype *) N_VGetData(y);
-  dydata = (realtype *) N_VGetData(ydot);
+  ydata  = N_VGetArrayPointer(y);
+  dydata = N_VGetArrayPointer(ydot);
 
   FCV_FUN(&t, ydata, dydata);
-
-  N_VSetData((void *)dydata, ydot);
 
 }
 

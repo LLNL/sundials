@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-06-18 21:33:49 $
+ * $Revision: 1.11 $
+ * $Date: 2004-07-22 22:54:43 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -27,7 +27,7 @@
 
 /* Prototype of the Fortran routine */
 void FCV_PSET(realtype*, realtype*, realtype*, booleantype*, 
-              booleantype*, realtype*, realtype*, realtype*, realtype*, 
+              booleantype*, realtype*, realtype*, realtype*,
               realtype*, realtype*, realtype*, int*);
 
 /***************************************************************************/
@@ -45,7 +45,7 @@ void FCV_SPGMRSETPSET(int *flag, int *ier)
    FCVPSET for setup of a Krylov preconditioner.
    Addresses of Nlocal, t, jok, gamma, h, uround, y, fy, ewt, vtemp1, vtemp2, 
    vtemp3, and the address jcurPtr are passed to FCVPSET, using
-   the routine N_VGetData from NVECTOR.  A return flag ier from FCVPSET
+   the routine N_VGetArrayPointer from NVECTOR.  A return flag ier from FCVPSET
    is returned by FCVPSet.
    Auxiliary data is assumed to be communicated by common blocks. */
 
@@ -55,23 +55,22 @@ int FCVPSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   N_Vector ewt;
-  realtype h, uround;
+  realtype h;
   realtype *ydata, *fydata, *ewtdata, *v1data, *v2data, *v3data;
   int ier = 0;
 
   CVodeGetErrWeights(CV_cvodemem, &ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
-  uround = UNIT_ROUNDOFF;
 
-  ydata   = (realtype *) N_VGetData(y);
-  fydata  = (realtype *) N_VGetData(fy);
-  ewtdata = (realtype *) N_VGetData(ewt);
-  v1data  = (realtype *) N_VGetData(vtemp1);
-  v2data  = (realtype *) N_VGetData(vtemp2);
-  v3data  = (realtype *) N_VGetData(vtemp3);
+  ydata   = N_VGetArrayPointer(y);
+  fydata  = N_VGetArrayPointer(fy);
+  ewtdata = N_VGetArrayPointer(ewt);
+  v1data  = N_VGetArrayPointer(vtemp1);
+  v2data  = N_VGetArrayPointer(vtemp2);
+  v3data  = N_VGetArrayPointer(vtemp3);
 
   FCV_PSET(&t, ydata, fydata, &jok, jcurPtr, &gamma, ewtdata,
-           &h, &uround, v1data, v2data, v3data, &ier);
+           &h, v1data, v2data, v3data, &ier);
 
   return(ier);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-06-18 21:33:49 $
+ * $Revision: 1.15 $
+ * $Date: 2004-07-22 22:54:43 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -108,12 +108,10 @@ void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
 {
   realtype *yloc_data, *gloc_data;
   
-  yloc_data = (realtype *) N_VGetData(yloc);
-  gloc_data = (realtype *) N_VGetData(gloc);
+  yloc_data = N_VGetArrayPointer(yloc);
+  gloc_data = N_VGetArrayPointer(gloc);
 
   FCV_GLOCFN(&Nloc, &t, yloc_data, gloc_data);
-
-  N_VSetData((void *)gloc_data, gloc);
 
 }
 
@@ -127,12 +125,9 @@ void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data)
 {
   realtype *yloc;
 
-  yloc = (realtype *) N_VGetData(y);
+  yloc = N_VGetArrayPointer(y);
 
   FCV_COMMFN(&Nloc, &t, yloc);
-
-  /* Note: there is no need to use N_VSetData here because the data in
-     the N_Vector y is input only to FCV_COMMFN.  */
 
 }
 
