@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.48 $
- * $Date: 2005-01-25 18:16:47 $
+ * $Revision: 1.49 $
+ * $Date: 2005-03-02 22:48:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1399,7 +1399,6 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if(errfp!=NULL) fprintf(errfp, MSGCVS_TRET_NULL);
     return (CV_ILL_INPUT);
   }
-  tretlast = *tret = tn;
 
   /* Check for valid itask */
   if ((itask != CV_NORMAL)       && 
@@ -1545,7 +1544,6 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       ier = CVRcheck2(cv_mem);
       
       if (ier == CLOSERT) {
-        tretlast = *tret = tlo;
         fprintf(errfp, MSGCVS_CLOSE_ROOTS, tlo);
         return(CV_ILL_INPUT);
       }
@@ -1722,10 +1720,11 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       
       ier = CVRcheck3(cv_mem);
       
-      if (ier == RTFOUND) {  /* a new root was found */
+      if (ier == RTFOUND) {  /* A new root was found */
         irfnd = 1;
+        istate = CV_ROOT_RETURN;
         tretlast = *tret = tlo;
-        return(CV_ROOT_RETURN);
+        break;
       }
     }
 
