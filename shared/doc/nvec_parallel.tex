@@ -63,7 +63,7 @@ NV_SpecFree_Parallel(nvspec);
 In addition to these two routines, {\nvecp} defines MPI\index{MPI} implementations of all 
 vector kernels listed in Table \ref{t:nvecops}, as well as the following macros
 that can be used to access the contents of \id{NV\_Spec} and \id{N\_Vector}
-or to create and destroy \id{N\_Vector}'s with component array data allocated
+or to create and destroy \id{N\_Vector}s with component array data allocated
 by the user. The suffix \id{\_P} in the names denotes parallel version.
 
 \begin{itemize}
@@ -137,12 +137,12 @@ by the user. The suffix \id{\_P} in the names denotes parallel version.
 \item \ID{NVS\_MAKE\_P}, \ID{NVS\_DISPOSE\_P}
                              
       These companion macros are used to create and destroy  
-      an array of \id{N\_Vector}'s with component array \id{vs\_data} 
+      an array of \id{N\_Vector}s with component array \id{vs\_data} 
       (of type \id{realtype **}) allocated by the user, for use
       in sensitivity calculations.
                                                                
       The call \id{NVS\_MAKE\_P(vs,vs\_data,ns,nvspec)} makes   
-      \id{vs} an array of \id{ns} \id{N\_Vector}'s, with \id{vs[i]} having
+      \id{vs} an array of \id{ns} \id{N\_Vector}s, with \id{vs[i]} having
       local component array pointer \id{vs\_data[i]} and local and global lengths taken 
       from \id{nvspec}.    
       \id{NVS\_MAKE\_P} stores the pointers \id{vs\_data[i]} so that        
