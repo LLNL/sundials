@@ -163,6 +163,9 @@ tar uf $filename sundials/cvodes/source/cvsspgmr.c
 tar uf $filename sundials/cvodes/source/cvsbandpre.c
 tar uf $filename sundials/cvodes/source/cvsbbdpre.c
 
+tar uf $filename sundials/cvodes/doc/cvs_guide.ps
+tar uf $filename sundials/cvodes/doc/cvs_guide.pdf
+
 tar uf $filename sundials/cvodes/lib/.dontremove
 
 tar uf $filename sundials/cvodes/examples/Makefile
