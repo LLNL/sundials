@@ -1496,8 +1496,9 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
 The call to \id{CVSpgmr} is used to communicate the type of preconditioning 
-(\id{pretype}) and the maximum dimension of the Krylov subspace to be used (\id{maxl}). 
-The \id{pretype} parameter can be \id{PREC\_NONE}, \id{PREC\_LEFT}, \id{PREC\_RIGHT}, or \id{PREC\_BOTH}.
+(\id{pretype}) and the maximum dimension of the Krylov subspace to be used
+(\id{maxl}).  The \id{pretype} parameter can be \id{PREC\_NONE},
+\id{PREC\_LEFT}, \id{PREC\_RIGHT}, or \id{PREC\_BOTH}.
 If no preconditioning is desired, pass \id{PREC\_NONE} for \id{pretype}.
 Otherwise, a preconditioner solve function \id{psolve} is required.  
 Regardless of the type of preconditioning, a preconditioner setup function 
@@ -1538,8 +1539,8 @@ can be specified through a call to \id{CVSpgmrSetJacTimesVecFn}
 As with the preconditioner user data structure \id{P\_data}, 
 the user can specify, through a call to \id{CVSpgmrSetJacData}, a pointer to a 
 user-defined data structure, \id{jac\_data}, which
-the {\cvspgmr} solver passes to the Jacobian times vector function \id{jtimes} each
-time it is called.  
+the {\cvspgmr} solver passes to the Jacobian times vector function \id{jtimes}
+each time it is called.  
 The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 %%
@@ -1827,11 +1828,11 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%==============================================================================
 \index{optional output!interpolated solution}
 
-An optional function \ID{CVodeGetDky} is available to obtain additional output values.  
-This function must be called after a successful return from \id{CVode} and provides 
-interpolated values of $y$ or its derivatives, up to the current order of the 
-integration method, interpolated to any value of $t$ in the last internal step 
-taken by {\cvode}.
+An optional function \ID{CVodeGetDky} is available to obtain additional output
+values.  This function must be called after a successful return from \id{CVode}
+and provides interpolated values of $y$ or its derivatives, up to the current
+order of the integration method, interpolated to any value of $t$ in the last
+internal step taken by {\cvode}.
 
 The call to the \id{CVodeGetDky} function has the following form:
 %%
@@ -3254,20 +3255,26 @@ to access these are described below.
   \end{args}
 }
 {
-  If the {\cvspgmr} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
-  \id{flag} contains the return value of the preconditioner setup function \id{psetup}.
+  If the {\cvspgmr} setup function failed (\id{CVode} returned
+  \id{CV\_LSETUP\_FAIL}), \id{flag} contains the return value of the
+  preconditioner setup function \id{psetup}.
 
-  If the {\cvspgmr} solve function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
-  \id{flag} contains the error return flag from \id{SpgmrSolve} and will be one
-  of: \id{SPGMR\_CONV\_FAIL} indicating a failure to converge, \id{SPGMR\_QRFACT\_FAIL}
-  indicating a singular matrix foud during the QR factorization, \id{SPGMR\_PSOLVE\_FAIL\_REC}
-  indicating that the preconditioner solve function \id{psolve} failed recoverably,
-  \id{SPGMR\_MEM\_NULL} indicating that the {\spgmr} memory is \id{NULL}, \id{SPGMR\_ATIMES\_FAIL},
-  indicating a failure in the Jacobian times vector function, \id{SPGMR\_PSOLVE\_FAIL\_UNREC}
-  indicating that the preconditioner solve function \id{psolve} failed unrecoverably,
-  \id{SPGMR\_GS\_FAIL} indicating a failure in the Gram-Schmidt procedure, 
-  or \id{SPGMR\_QRSOL\_FAIL} indicating that the matrix $R$ was found to be singular during
-  the QR solve phase.
+  If the {\cvspgmr} solve function failed (\id{CVode} returned
+  \id{CV\_LSETUP\_FAIL}), \id{flag} contains the error return flag from
+  \id{SpgmrSolve} and will be one of:
+ \id{SPGMR\_CONV\_FAIL}, indicating a failure to converge;
+ \id{SPGMR\_QRFACT\_FAIL}, indicating a singular matrix found during the QR
+  factorization;
+ \id{SPGMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve function
+ \id{psolve} failed recoverably;
+  \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
+  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector
+  function;
+  \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
+  function \id{psolve} failed unrecoverably;
+  \id{SPGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure; 
+  or \id{SPGMR\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to be
+  singular during the QR solve phase.
 }
 %%
 %%
@@ -3319,8 +3326,8 @@ appropriate \id{Set} or \id{Reset} calls, as described in
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \Id{CV\_SS} or \Id{CV\_SV}, where \Id{itol}$=$\id{SS} indicates scalar
-    relative error tolerance and scalar absolute error tolerance, while
+    is either \Id{CV\_SS} or \Id{CV\_SV}, where \Id{itol}$=$\id{SS} indicates
+    scalar relative error tolerance and scalar absolute error tolerance, while
     \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
     error tolerance needs to be different for each component of the ODE. 
@@ -3355,7 +3362,7 @@ appropriate \id{Set} or \id{Reset} calls, as described in
 %%==============================================================================
 
 The user-supplied functions consist of one function defining the ODE, 
-(optionally) a function that provides Jacobian related information for the linear 
+(optionally) a function that provides Jacobian related information for the linear
 solver (if Newton iteration is chosen), and (optionally) one or two functions 
 that define the preconditioner for use in the {\spgmr} algorithm. 
 
@@ -3388,7 +3395,7 @@ The user must provide a function of type \ID{RhsFn} defined as follows:
   \end{args}
 }
 {
-  A \id{RhsFn} function type does not have a return value.                        
+  A \id{RhsFn} function type does not have a return value.
 }
 {
 Allocation of memory for \id{ydot} is handled within {\cvode}.
@@ -3560,8 +3567,8 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   \id{BAND\_ELEM}.  As in the dense case, these macros all number rows
   and columns starting from $0$, not $1$.  
 
-  The \id{BandMat} type and the accessor macros \id{BAND\_ELEM}, \id{BAND\_COL}, and
-  \id{BAND\_COL\_ELEM} are documented in \S\ref{ss:band}.
+  The \id{BandMat} type and the accessor macros \id{BAND\_ELEM}, \id{BAND\_COL},
+  and \id{BAND\_COL\_ELEM} are documented in \S\ref{ss:band}.
 
   If the user's \id{CVBandJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
@@ -3934,7 +3941,7 @@ the user must supply a {\C} function of type \id{RootFn}, defined as follows:
                          &void *g\_data);
 }
 {
-  This function computes a vector-valued function $g(t,y)$ such that the roots of 
+  This function computes a vector-valued function $g(t,y)$ such that the roots of
   the \id{nrtfn} components $g_i(t,y)$ are to be found during the integration.
 }
 {
@@ -3951,7 +3958,7 @@ the user must supply a {\C} function of type \id{RootFn}, defined as follows:
   \end{args}
 }
 {
-  A \id{RootFn} function type does not have a return value.                        
+  A \id{RootFn} function type does not have a return value.
 }
 {
   Allocation of memory for \id{gout} is handled within {\cvode}.
@@ -3982,8 +3989,8 @@ sub-diagonals ($m_l$, the lower half-bandwidth) are specified by
 the user and uses this to form a preconditioner for use with the Krylov
 linear solver in {\cvspgmr}.  Although this matrix is intended
 to approximate the Jacobian $\partial f / \partial y$, 
-it may be a very crude approximation.  The true Jacobian need not be banded, or its
-true bandwidth may be larger than $m_l + m_u + 1$, as long as the
+it may be a very crude approximation.  The true Jacobian need not be banded,
+or its true bandwidth may be larger than $m_l + m_u + 1$, as long as the
 banded approximation generated here is sufficiently accurate
 to speed convergence as a preconditioner. 
 
@@ -3996,7 +4003,7 @@ Besides the header files required for the integration of the ODE problem
 must include the header file \id{cvbandpre.h} which declares the needed
 function prototypes.\index{header files}
 %%
-The following is a summary of the usage of this module and describes the sequence 
+The following is a summary of the usage of this module and describes the sequence
 of calls in the user main program. Steps that are unchanged from the user main
 program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 %%
@@ -4049,7 +4056,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
-  Note that the user should not overwrite the preconditioner data, setup function, 
+  Note that the user should not overwrite the preconditioner data, setup function,
   or solve function through calls to {\cvspgmr} optional input functions.
 
 \item
@@ -4310,8 +4317,8 @@ the number of non-zero diagonals above and below the main diagonal,
 respectively. The difference quotient approximation is computed using
 \id{mudq} $+$ \id{mldq} $+ 2$ evaluations of $g_m$, but only a matrix
 of bandwidth \id{mu} $+$ \id{ml} $+ 1$ is retained. 
-Neither pair of parameters need be the true half-bandwidths of the Jacobian of the
-local block of $g$, if smaller values provide a more efficient
+Neither pair of parameters need be the true half-bandwidths of the Jacobian of
+the local block of $g$, if smaller values provide a more efficient
 preconditioner. The solution of the complete linear system
 \begin{equation}
   Px = b
@@ -4407,7 +4414,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 
   Each call to the \id{cfn} function is preceded by a call to the right-hand side
   function \id{f} with the same (\id{t}, \id{y}) arguments.  Thus \id{cfn} can omit 
-  any communications done by \id{f} if relevant to the evaluation of \id{glocal}.  
+  any communications done by \id{f} if relevant to the evaluation of \id{glocal}.
 }
 %%
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-supplied functions|)}
@@ -4419,7 +4426,7 @@ Besides the header files required for the integration of the ODE problem
 must include the header file \id{cvbbdpre.h} which declares the needed
 function prototypes.\index{header files}
 
-The following is a summary of the usage of this module and describes the sequence 
+The following is a summary of the usage of this module and describes the sequence
 of calls in the user main program. Steps that are unchanged from the user main
 program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 %%
@@ -4481,7 +4488,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
-  Note that the user should not overwrite the preconditioner data, setup function, 
+  Note that the user should not overwrite the preconditioner data, setup function,
   or solve function through calls to {\cvspgmr} optional input functions.
 
 \item
@@ -4786,13 +4793,13 @@ are as follows:
   Interface to the {\nvector} modules
   \begin{itemize}
   \item \id{FNVINITS} (defined by {\nvecs}) 
-    interfaces to \id{NV\_NewEmpty\_Serial}.
+    interfaces to \id{NV\_New\_Serial}.
   \item \id{FNVINITP} (defined by {\nvecp}) 
-    interfaces to \id{NV\_NewEmpty\_Parallel}.
+    interfaces to \id{NV\_New\_Parallel}.
   \item \id{FNVFREES} (defined by {\nvecs})
-    interface to \id{NV\_DestroyEmpty\_Serial}.
+    interface to \id{NV\_Destroy\_Serial}.
   \item \id{FNVFREEP}  (defined by {\nvecp})
-    interfaces to \id{NV\_DestroyEmpty\_Parallel}.
+    interfaces to \id{NV\_Destroy\_Parallel}.
   \end{itemize}
 \item Interface to the main {\cvode} module
   \begin{itemize}
@@ -4863,11 +4870,11 @@ In this package, the names of the interface functions, and the names of
 the {\F} user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
 header files \id{fcvode.h} and \id{fcvbbd.h}.  
-Those mapping definitions depend in turn on a set of parameters --- 
+Those mapping definitions depend in turn on a set of flags --- 
 \Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},
 \Id{SUNDIALS\_UNDERSCORE\_NONE}, \Id{SUNDIALS\_UNDERSCORE\_TWO},
 which can be set when configuring {\sundials} (see Chapter \ref{s:install}).
-Depending on these parameters, the names into which the dummy names are mapped
+Depending on these flags, the names into which the dummy names are mapped
 are in upper or lower case and have up to two underscores appended.
 
 The user must also ensure that variables in the user {F} code are
@@ -5282,7 +5289,7 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVSPGMRSETPSOL(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG}$\neq 0$, and the user program must include the following routine 
+  with \id{FLAG}$\neq 0$, and the user program must include the following routine
   for solution of the preconditioner linear system:
   \index{FCVPSOL@\texttt{FCVPSOL}}
 \begin{verbatim}
@@ -5321,9 +5328,9 @@ apply to {\nvecp}.
 \end{verbatim}
   It must perform any evaluation of Jacobian-related data and preprocessing needed
   for the solution of the preconditioner linear systems by \id{FCVPSOL}.
-  The input argument \id{JOK} allows for Jacobian data to be saved and reused:  If 
-  \id{JOK=0}, this data should be recomputed from scratch. If \id{JOK=1}, a saved
-  copy of it may be reused, and the preconditioner constructed from it.
+  The input argument \id{JOK} allows for Jacobian data to be saved and reused:
+  If \id{JOK=0}, this data should be recomputed from scratch. If \id{JOK=1},
+  a saved copy of it may be reused, and the preconditioner constructed from it.
   On return, set \id{JCUR=1} if Jacobian data was computed, and \id{0} otherwise.
   Also on return, set \id{IER=0} if \id{FCVPSET} was successful, set \id{IER}
   positive if a recoverable error occurred, and set \id{IER} negative if a 
@@ -5371,8 +5378,8 @@ apply to {\nvecp}.
   $-4$: \Id{CV\_TOO\_MUCH\_WORK}, $-5$: \Id{CV\_TOO\_MUCH\_ACC}, $-6$: \Id{CV\_ERR\_FAILURE},
   $-7$: \Id{CV\_CONV\_FAILURE}, $-8$: \Id{CV\_LINIT\_FAIL}, $-9$: \Id{CV\_LSETUP\_FAIL}, 
   and $-10$: \Id{CV\_LSOLVE\_FAIL} from \id{CVode} (see \S\ref{sss:cvode}).
-  The current values of the optional outputs are available in \id{IOPT} and \id{ROPT}
-  (see Table~\ref{t:fcvode_io}).
+  The current values of the optional outputs are available in \id{IOPT} and
+  \id{ROPT} (see Table~\ref{t:fcvode_io}).
   
 \item {\bf Additional solution output}
 
@@ -5406,12 +5413,13 @@ apply to {\nvecp}.
 
 \item {\bf Memory deallocation}
 
-  To free the internal memory created by the call to \id{FCVMALLOC} call
+  To free the internal memory created by the call to \id{FCVMALLOC},
+  make the call
   \index{FCVFREE@\texttt{FCVFREE}}
 \begin{verbatim}
       CALL FCVFREE
 \end{verbatim}
-  and then, depending on the {\nvector} version (serial or parallel), call
+  and then, depending on the {\nvector} version (serial or parallel), either
   \index{FNVFREES@\texttt{FNVFREES}}
 \begin{verbatim}
       CALL FNVFREES
@@ -5519,12 +5527,12 @@ The user-callable functions in this package, with the corresponding
   interfaces to \id{CVBandPrecFree}.
 \end{itemize}
 
-As with the rest of the {\fcvode} routines, the names of the user-supplied routines 
-are mapped to actual values through a series of definitions in the header file 
-\id{fcvbp.h}.
+As with the rest of the {\fcvode} routines, the names of the user-supplied
+routines are mapped to actual values through a series of definitions in the
+header file \id{fcvbp.h}.
 
-The following is a summary of the usage of this module. Steps that are unchanged from 
-the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
+The following is a summary of the usage of this module. Steps that are unchanged
+from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 \index{User main program!FCVBP@{\fcvbp} usage}
 \begin{Steps}
@@ -5589,8 +5597,8 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   
 \item {\bf Memory deallocation}
 
-  To free the internal memory created by the call to \id{FCVBPINIT}, before calling
-  \id{FCVFREE} and \id{FNVFREEP}, the user must call
+  To free the internal memory created by the call to \id{FCVBPINIT}, before
+  calling \id{FCVFREE} and \id{FNVFREEP}, the user must call
   \index{FCVBPFREE@\texttt{FCVBPFREE}}
 \begin{verbatim}
       CALL FCVBPFREE
@@ -5640,8 +5648,8 @@ type within {\cvbbdpre} or {\cvode}):
 \end{center}
 As with the rest of the {\fcvode} routines, the names of all user-supplied routines 
 here are fixed, in order to maximize portability for the resulting mixed-language
-program.  Additionally, based on the \Id{SUNDIALS\_UNDERSCORE\_NONE} and 
-\Id{SUNDIALS\_UNDERSCORE\_TWO} parameters, the names of the user-supplied routines 
+program.  Additionally, based on the flags \Id{SUNDIALS\_CASE\_*} and 
+\Id{SUNDIALS\_UNDERSCORE\_*}, the names of the user-supplied routines 
 are mapped to actual values through a series of definitions in the header file 
 \id{fcvbbd.h}.
 
@@ -5676,8 +5684,8 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   These may be smaller than \id{MUDQ} and \id{MLDQ}.
   \id{DQRELY} is the relative increment factor in $y$ for difference quotients
   (optional).  A value of $0.0$ indicates the default, $\sqrt{\text{unit roundoff}}$.
-  \id{IER} is a return completion flag.  A value of $0$ indicates success, while a
-  value of $-1$ indicates that a memory failure occurred or that an input had
+  \id{IER} is a return completion flag.  A value of $0$ indicates success, while
+  a value of $-1$ indicates that a memory failure occurred or that an input had
   an illegal value.
   
   To specify the {\spgmr} linear system solver and use the {\cvbbdpre}
@@ -5715,8 +5723,8 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   The arguments returned are as follows.
   \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
   words.  This size is local to the current processor.
-  \id{LENIPW} is the length of integer preconditioner work space, in integer words.
-  This size is local to the current processor.
+  \id{LENIPW} is the length of integer preconditioner work space, in integer
+  words.  This size is local to the current processor.
   \id{NGE} is the number of $g(t,y)$ evaluations (calls to \id{FCVLOCFN}) so far.
   
 \item {\bf Problem reinitialization}
@@ -5743,8 +5751,8 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   
 \item {\bf Memory deallocation}
 
-  To free the internal memory created by the call to \id{FCVBBDINIT}, before calling
-  \id{FCVFREE} and \id{FNVFREEP}, the user must call
+  To free the internal memory created by the call to \id{FCVBBDINIT}, before
+  calling \id{FCVFREE} and \id{FNVFREEP}, the user must call
   \index{FCVBBDFREE@\texttt{FCVBBDFREE}}
 \begin{verbatim}
       CALL FCVBBDFREE
