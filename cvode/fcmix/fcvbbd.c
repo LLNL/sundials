@@ -67,6 +67,8 @@ void FCV_BBDIN(integertype *Nloc, integertype *mudq, integertype *mldq,
   *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
   if (*ier != 0) return;
 
+  CV_ls = 4;
+
 }
 
 /***************************************************************************/
@@ -100,6 +102,8 @@ void FCV_REINBBD(integertype *Nloc, integertype *mudq, integertype *mldq,
 
   *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
   if (*ier != 0) return;
+
+  CV_ls = 4;
 
 }
 
