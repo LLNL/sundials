@@ -101,7 +101,7 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
 \item 
   {\bf {\p} Initialize MPI}
 
-  \id{MPI\_Init(\&argc, \&argv);} to initialize MPI if used by
+  Call \id{MPI\_Init(\&argc, \&argv);} to initialize MPI if used by
   the user's program, aside from the internal use in {\nvecp}.  
   Here \id{argc} and \id{argv} are the command line argument 
   counter and array received by \id{main}.
@@ -235,6 +235,8 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
 \item 
   {\bf {\p} Finalize MPI}
   
+  Call \id{MPI\_Finalize();} to terminate MPI.
+
 \end{Steps}
 
 %%===================================================================================
