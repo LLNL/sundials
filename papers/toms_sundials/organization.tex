@@ -3,22 +3,22 @@
 
 The writing of CVODE from the Fortran solvers VODE and VODPK initiated a
 complete redesign and reorganization of the existing LLNL  solver coding.
-This was done to: exploit features of C not present in Fortran;
-achieve a more object-oriented design; maximize the reuse of code
-modules; and, facilitate the extension from a serial to a parallel
+This was done to: exploit features of C not present in Fortran,
+achieve a more object-oriented design, maximize the reuse of code
+modules, and facilitate the extension from a serial to a parallel
 implementation.
 
 The features of the design of CVODE include the following:
 \begin{itemize}
-\item Memory allocation is heavily used;
+\item Memory allocation is heavily used.
 \item The linear solver modules are separate from the core integrator,
 so that the latter is independent of the method for solving linear
-systems;
-\item Each linear solver module contains  a generic solver, which is independent 
-of the ODE context, together with an interface to the CVODE core
-integrator module; and, 
+systems.
+\item Each linear solver module contains  a generic solver, which is
+independent of the ODE context, together with an interface to the CVODE core
+integrator module, and 
 \item The vector operations  (linear sums, dot products, norms, etc.) on
-$N-$vectors are isolated in a separate ``NVECTOR'' module.
+$N$-vectors are isolated in a separate ``NVECTOR'' module.
 \end{itemize}
 
 The process of modularization has continued with the development of CVODE,
