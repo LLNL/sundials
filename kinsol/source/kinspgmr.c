@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-08-18 19:35:23 $
+ * $Revision: 1.16 $
+ * $Date: 2004-08-26 20:15:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -146,7 +146,7 @@ static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
  * SPGMR. In summary, KINSpgmr sets the following fields in the
  * KINSpgmrMemRec structure: 
  *                         
- *  pretype   = NONE
+ *  pretype   = PREC_NONE
  *  gstype    = MODIFIED_GS
  *  g_maxl    = KINSPGMR_MAXL  if maxl <= 0             
  *            = maxl           if maxl > 0   
@@ -204,7 +204,7 @@ int KINSpgmr(void *kinmem, int maxl)
 
   /* set default values for the rest of the SPGMR parameters */
 
-  kinspgmr_mem->g_pretype = NONE;
+  kinspgmr_mem->g_pretype = PREC_NONE;
   kinspgmr_mem->g_gstype  = MODIFIED_GS;
   kinspgmr_mem->g_maxlrst = 0;
   kinspgmr_mem->g_P_data  = NULL;
@@ -690,9 +690,9 @@ static int KINSpgmrInit(KINMem kin_mem)
   /* set preconditioner type */
 
   if (psolve != NULL) {
-    pretype = RIGHT;
+    pretype = PREC_RIGHT;
   } else {
-    pretype = NONE;
+    pretype = PREC_NONE;
   }
   
   /* set setupNonNull to TRUE iff there is preconditioning with setup */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-07-22 23:01:09 $
+ * $Revision: 1.17 $
+ * $Date: 2004-08-26 20:15:48 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -848,7 +848,7 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   rcur = rnow;
 
   /* Set SpgmrSolve inputs pretype and initial guess xx = 0. */  
-  pretype = (psolve == NULL) ? NONE : LEFT;
+  pretype = (psolve == NULL) ? PREC_NONE : PREC_LEFT;
   N_VConst(ZERO, xx);
   
   /* Call SpgmrSolve and copy xx to bb. */
