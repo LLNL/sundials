@@ -2,7 +2,7 @@
  * File          : idabbdpre.h                                    *
  * Programmers   : Allan G. Taylor, Alan C Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 2 July 2002                                    *
+ * Version of    : 11 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the IDABBDPRE module, for a        *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -276,10 +276,10 @@ IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
  * The return value of IDAReInitBBD is 0, indicating success.     *
  ******************************************************************/
 
-int IDAReInitBBD(IBBDData p_data, integertype Nlocal, integertype mudq, integertype mldq, 
-                   integertype mukeep, integertype mlkeep, realtype dq_rel_yy, 
-                   IDALocalFn glocal, IDACommFn gcomm, 
-                   void *idamem, void *res_data);
+int IDAReInitBBD(IBBDData p_data, integertype Nlocal, integertype mudq,
+                 integertype mldq, integertype mukeep, integertype mlkeep,
+                 realtype dq_rel_yy, IDALocalFn glocal, IDACommFn gcomm, 
+                 void *idamem, void *res_data);
 
 
 /******************************************************************
@@ -294,8 +294,8 @@ void IBBDFree(IBBDData p_data);
 /* Prototypes of IBDPrecon and IBBDPSol */
 
 int IBBDPrecon(integertype Neq, realtype tt, N_Vector yy,
-               N_Vector yp, N_Vector rr, realtype cj, ResFn res, 
-               void *res_data, void *P_data, N_Vector ewt, N_Vector constraints, 
+               N_Vector yp, N_Vector rr, realtype cj, ResFn res,
+               void *res_data, void *P_data, N_Vector ewt, N_Vector constraints,
                realtype hh, realtype uround, long int *nrePtr,
                N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
  
@@ -308,7 +308,3 @@ int IBBDPSol(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
 #ifdef __cplusplus
 }
 #endif
-
-
-
-
