@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.16 $
-# $Date: 2005-01-25 23:51:49 $
+# $Revision: 1.17 $
+# $Date: 2005-03-19 00:09:45 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 # ------------------------------------------------------------------------
 
 # Initialize configure
-AC_INIT(SUNDIALS, 2.0.1, radu@llnl.gov)
+AC_INIT(SUNDIALS, 2.0.2, radu@llnl.gov)
 
 # Display greeting
 SUNDIALS_GREETING
@@ -66,6 +66,7 @@ AC_SUBST(MPIF77)
 AC_SUBST(MPI_INC_DIR)
 AC_SUBST(MPI_LIB_DIR)
 AC_SUBST(MPI_LIBS)
+AC_SUBST(MPI_FLAGS)
 AC_SUBST(MODULES)
 AC_SUBST(NVEC_MODULES)
 AC_SUBST(EXAMPLE_MODULES)

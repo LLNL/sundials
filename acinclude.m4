@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2005-02-24 20:09:31 $
+# $Revision: 1.15 $
+# $Date: 2005-03-19 00:09:44 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -1171,6 +1171,18 @@ MPI_LIBS="${withval}"
 MPI_LIBS=""
 ])
 
+# MPI flags
+AC_ARG_WITH(mpi-flags,
+[AC_HELP_STRING([--with-mpi-flags],[MPI-specific flags])],
+[
+MPI_FLAGS="${withval}"
+MPI_FLAGS_OK="yes"
+],
+[
+MPI_FLAGS=""
+MPI_FLAGS_OK="no"
+])
+
 # MPI-C compiler
 AC_ARG_WITH(mpicc,
 [AC_HELP_STRING([--with-mpicc[[[[=ARG]]]]],[specify MPI-C compiler to use @<:@mpicc@:>@],
@@ -1330,6 +1342,12 @@ if test "X${MPI_INC_DIR}" = "X"; then
     else
       CPPFLAGS="${CPPFLAGS} -I${MPI_INC_DIR}"
     fi
+    # Add MPI_FLAGS if non-empty
+    if test "X${MPI_FLAGS}" = "X"; then
+      CPPFLAGS="${CPPFLAGS}"
+    else
+      CPPFLAGS="${CPPFLAGS} ${MPI_FLAGS}"
+    fi
   fi
 # MPI include directory was specified so update CPPFLAGS
 else
@@ -1337,6 +1355,12 @@ else
     CPPFLAGS="-I${MPI_INC_DIR}"
   else
     CPPFLAGS="${CPPFLAGS} -I${MPI_INC_DIR}"
+  fi
+  # Add MPI_FLAGS if non-empty
+  if test "X${MPI_FLAGS}" = "X"; then
+    CPPFLAGS="${CPPFLAGS}"
+  else
+    CPPFLAGS="${CPPFLAGS} ${MPI_FLAGS}"
   fi
 fi
 
@@ -2343,6 +2367,11 @@ fi
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_ENABLED}" = "Xyes" && test "X${MPI_F77_COMP_OK}" = "Xyes"; then
 echo "  
   MPI-F77:                 ${MPIF77}"
+fi
+
+if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes" && test "X${MPI_FLAGS_OK}" = "Xyes"; then
+echo "
+  MPI Flags:               ${MPI_FLAGS}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes" && test "X${USE_MPICC_SCRIPT}" = "Xno"; then
