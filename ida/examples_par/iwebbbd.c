@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-08 15:28:04 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-18 22:08:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
   mudq = mldq = NSMXSUB;
   mukeep = mlkeep = 2;
   P_data = IDABBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
-                         ZERO, reslocal, rescomm);
+                         ZERO, reslocal, NULL);
   if(check_flag((void *)P_data, "IDABBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDABBDSpgmr to specify the IDA linear solver IDASPGMR and specify

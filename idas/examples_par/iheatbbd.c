@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-08 15:28:30 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-18 22:09:05 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 
   /* Call IDABBDPrecAlloc to initialize BBD preconditioner. */
   P_data = IDABBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
-                         ZERO, reslocal, rescomm);
+                         ZERO, reslocal, NULL);
   if(check_flag((void *)P_data, "IDABBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDSpgmr to specify the linear solver. */
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
   if(check_flag(&ier, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDPrecReInit to re-initialize BBD preconditioner. */
-  ier = IDABBDPrecReInit(P_data, mudq, mldq, ZERO, reslocal, rescomm);
+  ier = IDABBDPrecReInit(P_data, mudq, mldq, ZERO, reslocal, NULL);
   if(check_flag(&ier, "IDABBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Compute the max norm of uu. */

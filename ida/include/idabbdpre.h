@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-10-11 17:01:09 $
+ * $Revision: 1.22 $
+ * $Date: 2004-10-18 22:08:49 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -143,7 +143,7 @@ typedef int (*IDALocalFn)(long int Nlocal, realtype tt,
  * -----------------------------------------------------------------
  * Type : IDACommFn                                               
  *----------------------------------------------------------------
- * The user must supply a function of type IDACommFn which        
+ * The user may supply a function of type IDACommFn which        
  * performs all inter-processor communication necessary to        
  * evaluate the approximate system function described above.      
  *                                                                
@@ -162,6 +162,8 @@ typedef int (*IDALocalFn)(long int Nlocal, realtype tt,
  * function res with the same vectors yy and yp. Thus the         
  * IDACommFn gcomm can omit any communications done by res if     
  * relevant to the evaluation of the local function glocal.       
+ * A NULL communication function can be passed to IDABBDPrecAlloc
+ * if all necessary communication was done by res.
  * -----------------------------------------------------------------
  */
 

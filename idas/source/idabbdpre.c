@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-10-11 16:02:09 $
+ * $Revision: 1.8 $
+ * $Date: 2004-10-18 22:09:10 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -428,8 +428,10 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
   /* Call gcomm and glocal to get base value of G(t,y,y'). */
 
-  retval = gcomm(Nlocal, tt, yy, yp, res_data);
-  if (retval != 0) return(retval);
+  if (gcomm != NULL) {
+    retval = gcomm(Nlocal, tt, yy, yp, res_data);
+    if (retval != 0) return(retval);
+  }
 
   retval = glocal(Nlocal, tt, yy, yp, gref, res_data); 
   nge++;
