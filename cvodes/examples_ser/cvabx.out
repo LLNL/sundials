@@ -8,10 +8,10 @@ Allocate global memory
 Forward integration
 
 List of Check Points (ncheck = 3)
-Check point  3  addr: 8130b90  time = [ 3.238223e-01 1.034871e+00 ]  next: 8127300
-Check point  2  addr: 8127300  time = [ 4.721844e-02 3.238223e-01 ]  next: 811da70
-Check point  1  addr: 811da70  time = [ 5.428972e-03 4.721844e-02 ]  next: 8074f80
-Check point  0  addr: 8074f80  time = [ 0.000000e+00 5.428972e-03 ]  next: 0
+Check point  3  addr: 0x8130bc8  time = [ 3.238223e-01 1.034871e+00 ]  next: 0x8127330
+Check point  2  addr: 0x8127330  time = [ 4.721844e-02 3.238223e-01 ]  next: 0x811da98
+Check point  1  addr: 0x811da98  time = [ 5.428972e-03 4.721844e-02 ]  next: 0x8074fa0
+Check point  0  addr: 0x8074fa0  time = [ 0.000000e+00 5.428972e-03 ]  next: (nil)
 
 Create and allocate CVODES memory for backward run
 
