@@ -1,7 +1,7 @@
 #--------------------------------------------------------------------------
 # File        : Makefile
 # Programmers : Radu Serban @ LLNL
-# Version of  : 22 July 2002
+# Version of  : 28 August 2002
 #--------------------------------------------------------------------------
 # Makefile for FCVODE, the Fortran interface package for CVODE and the
 # associated examples.
