@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.15 $
-C     $Date: 2004-10-15 00:25:21 $
+C     $Revision: 1.16 $
+C     $Date: 2004-10-15 17:07:34 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -167,7 +167,7 @@ C
 C
       TEMP = 0.0D0
       DO 10 I = 1, N
-         TEMP = MAX(DABS(U(I)), TEMP)
+         TEMP = DMAX1(DABS(U(I)), TEMP)
  10   CONTINUE
       UNORM = TEMP
       RETURN
