@@ -93,8 +93,8 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 
 /***************************************************************************/
 
-void FCV_REINIT(realtype *t0, realtype *y0, integertype *iatol, realtype *rtol,
-                realtype *atol, integertype *optin, int *iopt,
+void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
+                realtype *atol, int *optin, int *iopt,
                 realtype *ropt, int *ier)
 {
   int itol;
@@ -102,6 +102,7 @@ void FCV_REINIT(realtype *t0, realtype *y0, integertype *iatol, realtype *rtol,
   void *atolptr;
 
   N_VSetData(y0, CV_yvec);
+
   if (*iatol == 1)
     { itol = SS; atolptr = atol; }
   else
@@ -131,6 +132,9 @@ void FCV_REINIT(realtype *t0, realtype *y0, integertype *iatol, realtype *rtol,
 
   *ier = CVodeReInit(CV_cvodemem, CVf, *t0, CV_yvec,
                      itol, rtol, atolptr);
+
+  CV_iopt = iopt;
+  CV_ropt = ropt;
 
   return;
 }
