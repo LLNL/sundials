@@ -10,8 +10,8 @@
  * All rights reserved                                             *
  * For details, see sundials/shared/LICENSE                        *
  *-----------------------------------------------------------------*
- * This is the header file for a parallel MPI implementation of    *
- * NVECTOR package.                                                *
+ * This is the header file for a parallel MPI (Message Passing     *
+ * Interface)implementation of NVECTOR package.                    *
  *                                                                 *
  * Part I of this file contains declarations which are specific    *
  * to the particular vector specification in which this version    *
@@ -46,12 +46,6 @@
  *         N_VLinearSum_Serial(a,x,b,y,y);   y <- ax+by            *
  * is legal.                                                       *
  *                                                                 * 
- * This version of nvector is for the MPI (Message Passing         *
- * Interface) machine environment. In the documentation given      *
- * below, N is the local length of all N_Vector parameters and     *
- * x[i] denotes the ith component of the local part of the         *
- * distributed N_Vector x,  where 0 <= i <= N-1.                   *
- *                                                                 *
  *******************************************************************/
 
 

@@ -46,11 +46,6 @@
  *         N_VLinearSum_Serial(a,x,b,y,y);   y <- ax+by            *
  * is legal.                                                       *
  *                                                                 * 
- * This version of nvector is for the ordinary sequential          *
- * vector specification. In the documentation given below, N is    *
- * the length of all N_Vector parameters and x[i] denotes the      *
- * ith component of the N_Vector x, where 0 <= i <= N-1.           *
- *                                                                 *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */

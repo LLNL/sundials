@@ -38,6 +38,10 @@
  * 'content' field and links the defined vector kernel routines    *
  * into the 'ops' field).                                          *
  *                                                                 *
+ * In the documentation given below, N is the length of all        *
+ * N_Vector parameters and x[i] denotes the ith component of the   *
+ * N_Vector x, where 0 <= i <= N-1.                                *
+ *                                                                 *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */

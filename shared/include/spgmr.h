@@ -2,7 +2,7 @@
  * File          : spgmr.h                                         *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 March 2003                                   *
+ * Version of    : 13 August 2003                                  *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -14,7 +14,7 @@
  * Scaled Preconditioned GMRES (Generalized Minimal Residual)      *
  * method.                                                         *
  *                                                                 *
- * The SPGMR algorithm solves a N by N linear system A x = b.      *
+ * The SPGMR algorithm solves a linear system A x = b.             *
  * Preconditioning is allowed on the left, right, or both.         *
  * Scaling is allowed on both sides, and restarts are also allowed.*
  * We denote the preconditioner and scaling matrices as follows:   *
@@ -53,7 +53,7 @@
  *    psolve (P_data, x, y, lr)                                    *
  *                to solve P1 x = y or P2 x = y for x, given y.    *
  * The three user calls are:                                       *
- *    mem  = SpgmrMalloc(N, lmax, NVSpec);                         *
+ *    mem  = SpgmrMalloc(lmax, NVSpec);                            *
  *           to initialize memory,                                 *
  *    flag = SpgmrSolve(mem,A_data,x,b,...,                        *
  *                      P_data,s1,s2,atimes,psolve,...);           *
@@ -87,16 +87,13 @@ extern "C" {
  * in subsequent calls to SpgmrSolve. The SpgmrFree routine frees *
  * the memory allocated by SpgmrMalloc.                           *
  *                                                                *
- * N is the linear system size.                                   *
- *                                                                *
  * l_max is the maximum Krylov dimension that SpgmrSolve will be  *
  * permitted to use.                                              *
  *                                                                *
  * V is the array of Krylov basis vectors v_1, ..., v_(l_max+1),  *
  * stored in V[0], ..., V[l_max], where l_max is the second       *
- * parameter to SpgmrMalloc. Each v_i is a length N vector of     *
- * type N_Vector. (N is the first parameter to SpgmrMalloc and    *
- * represents the size of the linear system.)                     *
+ * parameter to SpgmrMalloc. Each v_i is a vector of type         *
+ * N_Vector.                                                      *
  *                                                                *
  * Hes is the (l_max+1) x l_max Hessenberg matrix. It is stored   *
  * row-wise so that the (i,j)th element is given by Hes[i][j].    *
@@ -116,14 +113,14 @@ extern "C" {
  * givens[0]=c_0, givens[1]=s_0, givens[2]=c_1, givens[3]=s_1,    *
  * ..., givens[2j]=c_j, givens[2j+1]=s_j.                         *
  *                                                                *
- * xcor is a length N vector (type N_Vector) which holds the      *
- * scaled, preconditioned correction to the initial guess.        *
+ * xcor is a vector (type N_Vector) which holds the scaled,       *
+ * preconditioned correction to the initial guess.                *
  *                                                                *
  * yg is a length (l_max+1) array of realtype used to hold "short"*
  * vectors (e.g. y and g).                                        *
  *                                                                *
- * vtemp is a length N vector (type N_Vector) used as temporary   *
- * vector storage during calculations.                            *
+ * vtemp is a vector (type N_Vector) used as temporary vector     *
+ * storage during calculations.                                   *
  *                                                                *
  ******************************************************************/
   
@@ -153,6 +150,9 @@ typedef struct _SpgmrMemRec {
  * structure of vector specification information. This routine    *
  * returns NULL if there is a memory request failure.             *
  *                                                                *
+ * For more information on the NVSpec structure see the           *
+ * description in the file nvector.h.                             *
+ *                                                                *
  ******************************************************************/
 
 SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec);
@@ -165,9 +165,7 @@ SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec);
  * SpgmrSolve solves the linear system Ax = b using the SPGMR     *
  * method. The return values are given by the symbolic constants  *
  * below. The first SpgmrSolve parameter is a pointer to memory   *
- * allocated by a prior call to SpgmrMalloc. The system size N    *
- * passed in the call to SpgmrMalloc should be the same as the    *
- * length of all N_Vector arguments passed to SpgmrSolve.         *
+ * allocated by a prior call to SpgmrMalloc.                      *
  *                                                                *
  * mem is the pointer returned by SpgmrMalloc to the structure    *
  * containing the memory needed by SpgmrSolve.                    *
