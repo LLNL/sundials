@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-05-26 18:37:39 $
+ * $Revision: 1.12 $
+ * $Date: 2004-06-09 18:54:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -308,14 +308,14 @@ int main(int argc, char *argv[])
 
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB1);
-  flag = CVodeB(cvadj_mem, yB);
+  flag = CVodeB(cvadj_mem, T0, yB, &time, NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
   printf("--------------------------------------------------------\n");
-  printf("tB0:        %12.4e \n",TB1);
+  printf("tB0:        %12.4e\n",TB1);
   printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
   printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
 
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB2);
-  flag = CVodeB(cvadj_mem, yB);
+  flag = CVodeB(cvadj_mem, T0, yB, &time, NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);

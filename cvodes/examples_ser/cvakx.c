@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-05-26 18:37:40 $
+ * $Revision: 1.10 $
+ * $Date: 2004-06-09 18:54:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
   /*----------------------*/
 
   printf("\nBackward integration\n");
-  flag = CVodeB(cvadj_mem, cB);
+  flag = CVodeB(cvadj_mem, T0, cB, &t, NORMAL);
   if(check_flag(&flag, "CVodeB", 1)) return(1);
 
   PrintAllSpecies(outfile,cB, NS, MXNS);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-05-26 18:37:39 $
+ * $Revision: 1.8 $
+ * $Date: 2004-06-09 18:54:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
   /*----------------------*/
 
   printf("\nBackward integration\n");
-  flag = CVodeB(cvadj_mem, uB);
+  flag = CVodeB(cvadj_mem, T0, uB, &t, NORMAL);
   if(check_flag(&flag, "CVodeB", 1)) return(1);
 
   WriteLambda(uB);

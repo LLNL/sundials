@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-05-26 18:37:58 $
+ * $Revision: 1.9 $
+ * $Date: 2004-06-09 18:54:53 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeMallocB", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to T0 */
-  flag = CVodeB(cvadj_mem, uB);
+  flag = CVodeB(cvadj_mem, T0, uB, &t, NORMAL);
   if (check_flag(&flag, "CVodeB", 1, my_pe)) MPI_Abort(comm, 1);
 
   /*-------------------------------------------------------
