@@ -19,14 +19,6 @@ directory, the following four serial examples (using the {\nvecs} module):
   The problem is solved with the {\idadense} linear solver using
   a user-supplied Jacobian.
 
-\item \id{iwebsb}
-  solves a system of PDEs modelling a food web problem, with predator-prey
-  interaction and diffusion, on the unit square in 2-D.
-
-  The PDEs are discretized in space to a system of DAEs which are solved
-  using the {\idaband} linear solver with the default difference-quotient 
-  Jacobian approximation.
-
 \item \id{iheatsb}
   solves a 2-D heat equation, semidiscretized to a DAE on the unit square.
 
@@ -41,6 +33,14 @@ directory, the following four serial examples (using the {\nvecs} module):
   {\idaspgmr}. The preconditioner uses only the diagonal elements of the 
   Jacobian.
 
+\item \id{iwebsb}
+  solves a system of PDEs modelling a food web problem, with predator-prey
+  interaction and diffusion, on the unit square in 2-D.
+
+  The PDEs are discretized in space to a system of DAEs which are solved
+  using the {\idaband} linear solver with the default difference-quotient 
+  Jacobian approximation.
+
 \end{itemize}
 
 In the \id{sundials/ida/examples\_par} directory, the {\ida} 
@@ -49,11 +49,16 @@ distribution contains the following four parallel examples
 %%
 \begin{itemize}
 
-\item \id{iwebbbd}
-  is a parallel implementation of the predator-prey problem.
+\item \id{iheatpk}
+  solves the same problem as \id{iheatbbd} with a user-supplied preconditioner
+  which uses the diagonal elements of the Jacobian only.
+  
+\item \id{iheatbbd}
+  is a parallel implementation of the 2-D heat equation.
 
-  The problem is solved in parallel using the {\idaspgmr} linear
-  solver and the {\idabbdpre} preconditioner.
+  This program solves the problem in parallel, using the Krylov linear solver
+  {\idaspgmr} and the band-block diagonal preconditioner {\idabbdpre} with
+  half-bandwidths equal to $1$.
 
 \item \id{iwebpk}
   solves the same problem as \id{iwebbbd} with a user-supplied preconditioner.
@@ -62,17 +67,12 @@ distribution contains the following four parallel examples
   the Jacobian with $n_s \times n_s$ blocks arising from the reaction terms only
   ($n_s$ is the number of species in the model).
 
-\item \id{iheatbbd}
-  is a parallel implementation of the 2-D heat equation.
+\item \id{iwebbbd}
+  is a parallel implementation of the predator-prey problem.
 
-  This program solves the problem in parallel, using the Krylov linear solver
-  {\idaspgmr} and the band-block diagonal preconditioner {\idabbdpre} with
-  half-bandwidths equal to $1$.
+  The problem is solved in parallel using the {\idaspgmr} linear
+  solver and the {\idabbdpre} preconditioner.
 
-\item \id{iheatpk}
-  solves the same problem as \id{iheatbbd} with a user-supplied preconditioner
-  which uses the diagonal elements of the Jacobian only.
-  
 \end{itemize}
 
 \vspace{0.2in}\noindent 

@@ -2,6 +2,36 @@
 \section{Parallel example problems}\label{s:ex_parallel}
 %===================================================================================
 
+\subsection{A user preconditioner example: \id{iheatpk}}\label{ss:iheatpk}
+
+As an example of using {\ida} with the parallel MPI {\nvecp} module and the Krylov 
+linear solver {\idaspgmr} with user-defined preconditioner, we provide the example
+\id{iheatpk} which solves the same 2-D heat PDE problem as \id{iheatsk}. 
+
+The preconditioner (\id{PsolveHeat} and \id{PsetupHeat}) uses the diagonal 
+elements of the Jacobian only and therefore involves only local calculations. 
+The residual is formed on submeshes with an \id{MXSUB} $\times$ \id{MYSUB} mesh 
+on each of the \id{NPEX} $\times$ \id{NPEY} processors. 
+The MPI communication (implemented in \id{rescomm}) is basically the same
+as for the \id{iwebbbd} example described above and uses the \id{uext} array
+to collect ghost cell data from neighboring processes.
+
+As in \id{iheatsk}, constraints are passed to {\ida} through
+the \id{N\_Vector} \id{constraints} and the function \id{IDASetConstraints}.
+All components of \id{constraints} are set to $1.0$ indicating that non-negativity
+constraints are to be imposed on each solutin component.
+In addition, for illustration purposes, \id{iheatsk} also excludes the algebraic 
+components of the solution (specified through the \id{N\_Vector} \id{id}) from the 
+error test by calling \id{IDASetsuppressAlg} with a flag \id{TRUE}.
+
+The source is listed in Appendix \ref{s:iheatpk_c}.
+Sample output from \id{iheatpk} follows.
+%%
+\includeOutput{iheatpk}{../examples_par/iheatpk.out}
+%%
+
+%-----------------------------------------------------------------------------------
+
 \subsection{An IDABBDPRE preconditioner example: \id{iwebbbd}}\label{ss:iwebbbd}
 
 In this example, \id{iwebbbd}, we solve the same food web problem as with
@@ -72,35 +102,5 @@ freeing memory, and finalizing MPI.
 Sample output from \id{iwebbbd} follows.
 %%
 \includeOutput{iwebbbd}{../examples_par/iwebbbd.out}
-%%
-
-%-----------------------------------------------------------------------------------
-
-\subsection{A user preconditioner example: \id{iheatpk}}\label{ss:iheatpk}
-
-As an example of using {\ida} with the parallel MPI {\nvecp} module and the Krylov 
-linear solver {\idaspgmr} with user-defined preconditioner, we provide the example
-\id{iheatpk} which solves the same 2-D heat PDE problem as \id{iheatsk}. 
-
-The preconditioner (\id{PsolveHeat} and \id{PsetupHeat}) uses the diagonal 
-elements of the Jacobian only and therefore involves only local calculations. 
-The residual is formed on submeshes with an \id{MXSUB} $\times$ \id{MYSUB} mesh 
-on each of the \id{NPEX} $\times$ \id{NPEY} processors. 
-The MPI communication (implemented in \id{rescomm}) is basically the same
-as for the \id{iwebbbd} example described above and uses the \id{uext} array
-to collect ghost cell data from neighboring processes.
-
-As in \id{iheatsk}, constraints are passed to {\ida} through
-the \id{N\_Vector} \id{constraints} and the function \id{IDASetConstraints}.
-All components of \id{constraints} are set to $1.0$ indicating that non-negativity
-constraints are to be imposed on each solutin component.
-In addition, for illustration purposes, \id{iheatsk} also excludes the algebraic 
-components of the solution (specified through the \id{N\_Vector} \id{id}) from the 
-error test by calling \id{IDASetsuppressAlg} with a flag \id{TRUE}.
-
-The source is listed in Appendix \ref{s:iheatpk_c}.
-Sample output from \id{iheatpk} follows.
-%%
-\includeOutput{iheatpk}{../examples_par/iheatpk.out}
 %%
 
