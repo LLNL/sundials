@@ -16,7 +16,7 @@ We have found that the combination of a preconditioner with the
 Newton-Krylov iteration, using even a fairly poor approximation to
 the Jacobian, can be surprisingly superior to using the same matrix
 without Krylov acceleration (i.e. a modified Newton iteration), as
-well to using the Newton-Krylov method with no preconditioning.
+well as to using the Newton-Krylov method with no preconditioning.
 
 We further exploit this nested iteration setting, and differences in
 the costs of the various preconditioner operations, by treating the
@@ -61,7 +61,7 @@ SUNDIALS.
 \subsection{Preconditioners for CVODE}
 
 Assuming that the CVODE user has chosen one of the stiff system
-options, recall from Eq. (\ref{Newtonmat}) that the Newton matrix for
+options, recall from (\ref{Newtonmat}) that the Newton matrix for
 the nonlinear iteration has the form $I - \gamma J$, where $J$ is the
 ODE system Jacobian $J = \partial f / \partial y$.  Therefore, a
 typical choice for the preconditioner matrix $P$ is
@@ -77,7 +77,7 @@ decomposition, suitable for later use in the solve phase.  Within the
 setup routine, the user can save and reuse the relevant parts of the
 approximate Jacobian $\tilde{J}$, as directed by CVODE (in its call to
 the user routine), so as to further reduce costs when the scalar
-$\gamma$ has changed since the last setup call.  This requires the
+$\gamma$ has changed since the last setup call.  This option requires the
 user to manage the storage of the saved data involved.  But this
 tradeoff of storage for potential savings in computation may be
 beneficial if the cost of evaluating $\tilde{J}$ is significant in
@@ -97,7 +97,7 @@ approximates $J$ sufficiently well.
 Extending this idea to the parallel setting, CVODE also includes a
 module, called CVBBDPRE, that generates a band-block-diagonal
 preconditioner.  It is designed for PDE-based problems, and uses the
-idea of Domain Decomposition, as follows.  Suppose that a
+idea of domain decomposition, as follows.  Suppose that a
 time-dependent PDE system, with the spatial operators suitably
 discretized, yields the ODE system $\dot{y} = f(t,y)$.  Now consider a
 decomposition of the (discretized) spatial domain into $M$
@@ -114,11 +114,12 @@ include only the diagonal blocks $\partial f_m / \partial y_m$.  In
 addition, it may be cost-effective to exclude from $P$ some parts of
 the function $f$.  Thus for the computation of these blocks, we
 replace $f$ by a function $g \approx f$ (and $g = f$ is certainly
-allowed).  For example, $g$ may be chosen to have smaller set of ghost
+allowed).  For example, $g$ may be chosen to have a smaller set of ghost
 cell data than $f$.  In the CVBBDPRE module, the matrix blocks
 $\partial g_m/\partial y_m$ are approximated by band matrices $J_m$,
 again exploiting the local spatial coupling, and on processor $m$
-these are computed by a difference quotient scheme.  Then the complete
+these matrices
+are computed by a difference quotient scheme.  Then the complete
 preconditioner is given by
 \begin{equation*}
   P = diag[P_1,\ldots,P_M] \, , \quad 
@@ -130,19 +131,20 @@ evaluation and banded LU decomposition of $P_m$, and the solve phase
 consists of a banded backsolve operation.
 
 In order to minimize costs in the difference quotient scheme, the
-function $g$ is supplied by the user in the form of two routines: One
+function $g$ is supplied by the user in the form of two routines.  One
 routine, called once per $P$ evaluation, performs inter-processor
 communication of data needed to evaluate the $g_m$.  The other routine
 evaluates $g_m$ on processor $m$, assuming that the communication
 routine has already been called.  The banded structure of the problem
 is exploited in two different ways.  First, the user supplies a pair of
-half-bandwidths --- {\tt ml, mu} --- that define the shape of the
+half-bandwidths, {\tt ml} and {\tt mu}, that define the shape of the
 matrix $J_m$.  But the user also supplies a second pair of
-half-bandwidths --- {\tt mldq,mudq} --- for use in the difference
+half-bandwidths, {\tt mldq} and {\tt mudq}, for use in the difference
 quotient scheme, in which $J_m$ is computed by way of 
-{\tt mldq+mudq+2} evaluations of $g_m$.  The values {\tt ml, mu} may be
-smaller than {\tt mldq, mudq} --- trading lower matrix costs for slower
-convergence.  Thus for example, a matrix based on 5-point coupling in
+{\tt mldq+mudq+2} evaluations of $g_m$.  The values {\tt ml} and {\tt mu} 
+may be smaller than {\tt mldq} and {\tt mudq} giving a tradeoff between
+lower matrix costs and slower convergence.  Thus, for example, a matrix 
+based on 5-point coupling in
 2D ({\tt mldq = mudq = } mesh dimension) might be well approximated by
 a tridiagonal matrix ({\tt ml = mu = 1}).  In any case, for the sake
 of efficiency, both pairs of half-bandwidths may be less than the true
@@ -151,8 +153,9 @@ $m$.
 
 \subsection{Preconditioners for KINSOL and IDA}
 
-The parallel version of the KINSOL package includes a module, called
-KINBBDPRE, that provides a band-block-diagonal preconditioner,
+The KINSOL package includes a module, called
+KINBBDPRE, that provides a band-block-diagonal preconditioner
+for use in parallel environments,
 analogous to that of the CVODE module CVBBDPRE.  Here the problem to
 be solved is $F(u) = 0$, and the preconditioner is constructed by way
 of a function $g \approx F$.  Namely, it is defined as
