@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-08-25 16:18:34 $
+ * $Revision: 1.17 $
+ * $Date: 2004-09-14 18:52:33 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -170,7 +170,7 @@ int CVBand(void *cvode_mem, long int N,
  * CVBandSetJacData specifies a pointer to user data which is     
  *         passed to the bjac routine every time it is called.    
  *
- * The return value of CVDenseSet* is one of:
+ * The return value of CVBandSet* is one of:
  *    CVBAND_SUCCESS   if successful
  *    CVBAND_MEM_NULL  if the cvode memory was NULL
  *    CVBAND_LMEM_NULL if the cvband memory was NULL
@@ -194,7 +194,7 @@ int CVBandSetJacData(void *cvode_mem, void *jac_data);
  * CVBandGetLastFlag returns the last error flag set by any of
  *     the CVBAND interface functions.
  *
- * The return value of CVDenseGet* is one of:
+ * The return value of CVBandGet* is one of:
  *    CVBAND_SUCCESS   if successful
  *    CVBAND_MEM_NULL  if the cvode memory was NULL
  *    CVBAND_LMEM_NULL if the cvband memory was NULL
