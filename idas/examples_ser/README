@@ -1,0 +1,8 @@
+List of serial IDAS examples
+
+1. Simulation
+
+  irobx    :  3-species Robertson kinetics system
+  iheatsb  :  2-D heat equation, banded Jacobian
+  iheatsk  :  2-D heat equation, diagonal preconditioner
+  iwebsb   :  2-D food web system, banded Jacobian
