@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9.2.1 $
-# $Date: 2005-02-14 23:15:17 $
+# $Revision: 1.9.2.2 $
+# $Date: 2005-03-18 23:30:46 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -33,9 +33,11 @@ LDFLAGS     = @LDFLAGS@
 LIBS        = @LIBS@
 FLIBS       = @FLIBS@
 MPIF77      = @MPIF77@
+MPICC       = @MPICC@
 MPI_INC_DIR = @MPI_INC_DIR@
 MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
 
 COMPILER_PREFIX = @COMPILER_PREFIX@
 LINKER_PREFIX   = @LINKER_PREFIX@
@@ -52,8 +54,8 @@ fortran_update.sh:
 
 kindiagpf: $(srcdir)/kindiagpf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} kindiagpf.f
-	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/kindiagpf-updated.f
-	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/kindiagpf $(builddir)/kindiagpf-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS) 
+	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/kindiagpf-updated.f
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/kindiagpf $(builddir)/kindiagpf-updated.o $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS) 
 
 clean:
 	rm -rf .libs
