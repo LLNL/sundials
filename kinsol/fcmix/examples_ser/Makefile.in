@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2004-11-04 16:36:21 $
+# $Revision: 1.9 $
+# $Date: 2004-11-06 00:02:02 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -42,12 +42,12 @@ SUNDIALS_LIBS    = -lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecserial -
 
 EXEC_FILES = kindiagsf
 
-all: update $(EXEC_FILES)
+all: $(EXEC_FILES)
 
-update:
+fortran_update.sh:
 	@${INSTALL} ${top_builddir}/config/fortran_update ${builddir}/fortran_update.sh
 
-kindiagsf: $(srcdir)/kindiagsf.f
+kindiagsf: $(srcdir)/kindiagsf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} kindiagsf.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/kindiagsf-updated.f
 	$(LINKER_PREFIX) $(F77) -o $(builddir)/kindiagsf $(builddir)/kindiagsf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)

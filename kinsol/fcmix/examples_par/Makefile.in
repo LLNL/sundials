@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2004-11-04 16:36:25 $
+# $Revision: 1.9 $
+# $Date: 2004-11-06 00:01:59 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -45,12 +45,12 @@ SUNDIALS_LIBS    = -lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel
 
 EXEC_FILES = kindiagpf
 
-all: update $(EXEC_FILES)
+all: $(EXEC_FILES)
 
-update:
+fortran_update.sh:
 	@${INSTALL} ${top_builddir}/config/fortran_update ${builddir}/fortran_update.sh
 
-kindiagpf: $(srcdir)/kindiagpf.f
+kindiagpf: $(srcdir)/kindiagpf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} kindiagpf.f
 	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/kindiagpf-updated.f
 	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/kindiagpf $(builddir)/kindiagpf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
