@@ -49,6 +49,14 @@ FFLAGS  = -L$(LIB_DIR) -L$(MPI_LIB)
 
 
 #==========================================================================
+# Common libraries
+#==========================================================================
+
+LIBS = -lfkinsol.$(ARCH) -lkinsol.$(ARCH) \
+       -lfnvecparallel.$(ARCH) -lnvecparallel.$(ARCH) \
+       -lshared.$(ARCH) 
+
+#==========================================================================
 # Make rules
 #==========================================================================
 
@@ -58,7 +66,7 @@ all:
 
 kindiagpf: 
 	@echo '...Compile kindiagpf...'
-	@$(FC) $(FFLAGS) -o kindiagpf kindiagpf.f -lkinsol.$(ARCH) -lshared.$(ARCH) -lnvecparallel.$(ARCH)
+	@$(FC) $(FFLAGS) -o kindiagpf kindiagpf.f $(LIBS)
 	@rm -f kindiagpf.o
 
 examples: kindiagpf

@@ -19,7 +19,7 @@ KINSOL_INC_DIR  = ../include
 # KINSOL library name and location
 ARCH           = `uname -s`.`uname -m`
 KINSOL_LIB_DIR  = ../lib
-KINSOL_LIB_NAME = libkinsol.$(ARCH).a
+FKINSOL_LIB_NAME = libfkinsol.$(ARCH).a
 
 # Source and object files
 SRC = fkinsol.c fkinspgmr01.c fkinspgmr10.c fkinspgmr11.c \
@@ -40,9 +40,9 @@ all:
 	@(echo)
 	@(echo 'Makefile for FKINSOL module')
 	@(echo)
-	@(echo 'Usage: make lib       - append Fortran interface to KINSOL library')
+	@(echo 'Usage: make lib       - create Fortran interface KINSOL library')
 	@(echo)
-	@(echo '       make purge     - remove Fortran interface from KINSOL library')
+	@(echo '       make purge     - remove Fortran interface KINSOL library')
 	@(echo)
 	@(echo '       make <ex>      - make example <ex>')
 	@(echo '       make fkinx_ser - make all serial FKINSOL examples')
@@ -60,25 +60,19 @@ all:
 
 lib:
 	@(echo 'FKINSOL MODULE')
-	@(if test -f $(KINSOL_LIB_DIR)/$(KINSOL_LIB_NAME); \
-		then \
-			echo '...Compile object files...'; \
-			$(CC) $(CFLAGS) -c $(SRC); \
-			echo '...Append to KINSOL library...'; \
-			ar rc $(KINSOL_LIB_DIR)/$(KINSOL_LIB_NAME) $(OBJ); \
-			rm -f $(OBJ); \
-		else \
-			echo 'ERROR: Library KINSOL does not exist'; \
-			echo '       Make the KINSOL library first'; \
-	fi)
+	@(echo '...Compile object files...')
+	@($(CC) $(CFLAGS) -c $(SRC))
+	@(echo '...Create library file...')
+	@(ar rc $(KINSOL_LIB_DIR)/$(FKINSOL_LIB_NAME) $(OBJ))
+	@(rm -f $(OBJ))
+	@(echo '...Create symbolic links...')
+	@(cd ../../lib; rm -f $(FKINSOL_LIB_NAME); ln -s ../kinsol/lib/$(FKINSOL_LIB_NAME) .)
 
 purge:
 	@(echo 'FKINSOL MODULE')
-	@(if test -f $(KINSOL_LIB_DIR)/$(KINSOL_LIB_NAME); \
-		then \
-			echo '...Remove fkinsol objects from kinsol library...'; \
-			ar d $(KINSOL_LIB_DIR)/$(KINSOL_LIB_NAME) $(OBJ); \
-	fi)
+	@(echo '...Remove library file...')
+	@(rm -f $(KINSOL_LIB_DIR)/$(FKINSOL_LIB_NAME))
+	@(cd ../../lib; rm -f $(FKINSOL_LIB_NAME))
 
 #-----------------------------------------------------------------
 # FKINSOL Examples

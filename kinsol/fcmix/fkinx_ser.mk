@@ -41,6 +41,14 @@ FC      = f77
 FFLAGS  = -L$(LIB_DIR)
 
 #==========================================================================
+# Common libraries
+#==========================================================================
+
+LIBS = -lfkinsol.$(ARCH) -lkinsol.$(ARCH) \
+       -lfnvecserial.$(ARCH) -lnvecserial.$(ARCH) \
+       -lshared.$(ARCH) 
+
+#==========================================================================
 # Make rules
 #==========================================================================
 
@@ -50,7 +58,7 @@ all:
 
 kindiagsf:
 	@echo '...Compile kindiagsf...'
-	@$(FC) $(FFLAGS) -o kindiagsf kindiagsf.f -lkinsol.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH)
+	@$(FC) $(FFLAGS) -o kindiagsf kindiagsf.f $(LIBS)
 	@rm -f kindiagsf.o
 
 examples: kindiagsf
