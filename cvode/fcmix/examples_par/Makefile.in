@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2004-10-28 00:36:09 $
+# $Revision: 1.6 $
+# $Date: 2004-11-03 23:22:24 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,7 +43,7 @@ LINKER_PREFIX   = @LINKER_PREFIX@
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_fcvode -lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel -lsundials_shared
 
-EXEC_FILES   = pvdiagnf pvdiagkf pvdiagkbf
+EXEC_FILES = pvdiagnf pvdiagkf pvdiagkbf
 
 all: update $(EXEC_FILES)
 
@@ -52,16 +52,16 @@ update:
 
 pvdiagnf: $(srcdir)/pvdiagnf.f
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} pvdiagnf.f
-	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagnf-updated.f
-	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagnf $(builddir)/pvdiagnf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagnf.f
+	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagnf $(builddir)/pvdiagnf.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 pvdiagkf: $(srcdir)/pvdiagkf.f
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} pvdiagkf.f
-	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagkf-updated.f
-	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagkf $(builddir)/pvdiagkf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagkf.f
+	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagkf $(builddir)/pvdiagkf.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 pvdiagkbf: $(srcdir)/pvdiagkbf.f
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} pvdiagkbf.f
-	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagkbf-updated.f
-	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagkbf $(builddir)/pvdiagkbf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagkbf.f
+	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagkbf $(builddir)/pvdiagkbf.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 
 clean:
 	rm -rf .libs
