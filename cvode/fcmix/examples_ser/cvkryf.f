@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.9 $
-C     $Date: 2004-04-29 22:23:33 $
+C     $Revision: 1.10 $
+C     $Date: 2004-07-22 22:55:16 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
@@ -254,7 +254,7 @@ C Load all terms into YDOT.
       RETURN
       END
 
-      SUBROUTINE FCVPSET (T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UR,
+      SUBROUTINE FCVPSET (T, Y, FY, JOK, JCUR, GAMMA, EWT, H,
      1                    V1, V2, V3, IER)
 C Routine to set and preprocess block-diagonal preconditioner.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
@@ -312,8 +312,8 @@ C
       RETURN
       END
 
-      SUBROUTINE FCVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, DELTA,
-     1                   R, LR, Z, IER)
+      SUBROUTINE FCVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, H, DELTA,
+     1                    R, LR, Z, IER)
 C Routine to solve preconditioner linear system.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
       DOUBLE PRECISION R(*), Z(2,*)
