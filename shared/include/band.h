@@ -2,8 +2,9 @@
 /******************************************************************
  *                                                                *
  * File          : band.h                                         *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 5 May 1998                                     *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 5 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for a generic BAND linear solver       *
  * package. There are two sets of band solver routines listed in  *
@@ -34,12 +35,6 @@
  * BandAllocPiv is deallocated by the routines BandFreeMat and    *
  * BandFreePiv, respectively. The BandFactor and BandBacksolve    *
  * routines perform the actual solution of a band linear system.  *
- * Note that the BandBacksolve routine has a parameter b of type  *
- * N_Vector. The current implementation makes use of a machine    *
- * environment specific macro (N_VDATA) which may not exist for   *
- * other implementations of the type N_Vector. Thus, the          *
- * implementation of BandBacksolve may need to change if the      *
- * type N_Vector is changed.                                      *
  *                                                                * 
  * Routines that work with real ** begin with "band" (except for  *
  * the factor and solve routines which are called gbfa and gbsl,  *
@@ -56,7 +51,6 @@ extern "C" {
 #define _band_h
 
 #include "llnltyps.h"
-#include "nvector.h"
 
  
 /******************************************************************
@@ -280,7 +274,7 @@ integer BandFactor(BandMat A, integer *p);
  *                                                                *
  ******************************************************************/
 
-void BandBacksolve(BandMat A, integer *p, N_Vector b);
+void BandBacksolve(BandMat A, integer *p, real *b);
 
 
 /******************************************************************

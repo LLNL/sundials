@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : band.c                                         *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 25 February 2000                               *
+ * Programmers   : Scott D. Cohen and Alan C. Hindmarsh, and      *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 5 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for a generic BAND linear      *
  * solver package.                                                *
@@ -13,7 +14,6 @@
 #include <stdlib.h>
 #include "band.h"
 #include "llnltyps.h"
-#include "nvector.h"
 #include "llnlmath.h"
 
 
@@ -63,9 +63,9 @@ integer BandFactor(BandMat A, integer *p)
 }
 
 
-void BandBacksolve(BandMat A, integer *p, N_Vector b)
+void BandBacksolve(BandMat A, integer *p, real *b)
 {
-  gbsl(A->data, A->size, A->smu, A->ml, p, N_VDATA(b));
+  gbsl(A->data, A->size, A->smu, A->ml, p, b);
 }
 
 void BandZero(BandMat A)
