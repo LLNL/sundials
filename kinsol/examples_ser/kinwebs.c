@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-11-04 20:42:20 $
+ * $Revision: 1.12 $
+ * $Date: 2004-11-08 19:47:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -93,7 +93,7 @@
 #define NUM_SPECIES     6  /* must equal 2*(number of prey or predators)
                               number of prey = number of predators       */ 
 
-#define PI       3.1415926535898   /* pi */ 
+#define PI       RCONST(3.1415926535898)   /* pi */ 
 
 #define MX          8              /* MX = number of x mesh points */
 #define MY          8              /* MY = number of y mesh points */
@@ -113,6 +113,7 @@
 #define THOUSAND    RCONST(1000.0) /* one thousand */
 #define ZERO        RCONST(0.)     /* 0. */
 #define ONE         RCONST(1.0)    /* 1. */
+#define TWO         RCONST(2.0)    /* 2. */
 #define PREYIN      RCONST(1.0)    /* initial guess for prey concentrations. */
 #define PREDIN      RCONST(30000.0)/* initial guess for predator concs.      */
 
@@ -204,7 +205,7 @@ int main()
 
   constraints = N_VNew_Serial(NEQ);
   if (check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
-  N_VConst(2.0, constraints);
+  N_VConst(TWO, constraints);
 
   SetInitialProfiles(cc, sc);
 
@@ -517,9 +518,9 @@ static UserData AllocUserData(void)
 
 static void InitUserData(UserData data)
 {
-  int i, j, np;
+  long int i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
-  
+
   data->mx = MX;
   data->my = MY;
   data->ns = NUM_SPECIES;
@@ -530,7 +531,7 @@ static void InitUserData(UserData data)
   data->dy = (data->ay)/(MY-1);
   data->uround = UNIT_ROUNDOFF;
   data->sqruround = RSqrt(data->uround);
-  
+
   /* Set up the coefficients a and b plus others found in the equations */
   np = data->np;
 
@@ -549,17 +550,17 @@ static void InitUserData(UserData data)
       *a3++ = ZERO;
       *a4++ = ZERO;
     }
-    
+
     /* and then change the diagonal elements of acoef to -AA */
     acoef[i][i]=-AA;
     acoef[i+np][i+np] = -AA;
-    
+
     bcoef[i] = BB;
     bcoef[i+np] = -BB;
-    
+
     cox[i]=DPREY/dx2;
     cox[i+np]=DPRED/dx2;
-    
+
     coy[i]=DPREY/dy2;
     coy[i+np]=DPRED/dy2;
   }  
@@ -604,7 +605,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
   }
   for (i = NUM_SPECIES/2; i < NUM_SPECIES; i++) {
     ctemp[i] = PREDIN;
-    stemp[i] = 0.00001;
+    stemp[i] = RCONST(0.00001);
   }
 
   /* Load initial profiles into cc and sc vector from ctemp and stemp. */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-04 20:42:18 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-08 19:47:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -98,7 +98,7 @@
 #define NUM_SPECIES     6  /*  must equal 2*(number of prey or predators)
                                number of prey =  number of predators      */
 
-#define PI       3.1415926535898   /* pi */ 
+#define PI       RCONST(3.1415926535898)   /* pi */ 
 
 #define NPEX        2            /* number of processors in the x-direction */
 #define NPEY        2            /* number of processors in the y-direction */
@@ -121,7 +121,7 @@
 #define FTOL        RCONST(1.e-7)  /*  ftol tolerance */
 #define STOL        RCONST(1.e-13) /*  stol tolerance */
 #define THOUSAND    RCONST(1000.0) /* one thousand */
-#define ZERO        RCONST(0.)     /* 0. */
+#define ZERO        RCONST(0.0)    /* 0. */
 #define ONE         RCONST(1.0)    /* 1. */
 #define PREYIN      RCONST(1.0)    /* initial guess for prey concentrations. */
 #define PREDIN      RCONST(30000.0)/* initial guess for predator concs.      */
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
   if (check_flag((void *)data->rates, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   constraints = N_VNew_Parallel(comm, Nlocal, NEQ);
   if (check_flag((void *)constraints, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
-  N_VConst(0.,constraints);
+  N_VConst(ZERO, constraints);
   
   SetInitialProfiles(cc, sc);
 
@@ -563,7 +563,7 @@ static UserData AllocUserData(void)
 
 static void InitUserData(long int my_pe, long int Nlocal, MPI_Comm comm, UserData data)
 {
-  int i, j, np;
+  long int i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   data->mx = MX;
@@ -649,7 +649,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
   }
   for (i = NUM_SPECIES/2; i < NUM_SPECIES; i++) {
     ctemp[i] = PREDIN;
-    stemp[i] = 0.00001;
+    stemp[i] = RCONST(0.00001);
   }
 
   /* Load initial profiles into cc and sc vector from ctemp and stemp. */
