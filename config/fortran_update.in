@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2004-10-26 18:02:21 $
+# $Revision: 1.3 $
+# $Date: 2004-11-03 23:19:14 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -32,11 +32,14 @@
 #      --with-fflags.
 # -----------------------------------------------------------------
 
+SAVED_LC_ALL="${LC_ALL}"
+LC_ALL="C"
+
 abs_top_builddir="@abs_top_builddir@"
 prefix="@prefix@"
 includedir="@includedir@"
 
-F77_FLOAT_TYPE="@F77_FLOAT_TYPE@"
+FLOAT_TYPE="@FLOAT_TYPE@"
 
 MPI_INC_DIR="@MPI_INC_DIR@"
 
@@ -87,7 +90,7 @@ else
 fi
 F77_LONG_INT_UPPER="INTEGER\*${LONG_INT_BYTES}"
 F77_LONG_INT_LOWER="integer\*${LONG_INT_BYTES}"
-if test "X${F77_FLOAT_TYPE}" = "Xsingle"; then
+if test "X${FLOAT_TYPE}" = "Xsingle"; then
   TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 4" ${includedir}/sundials_config.h`
   if test "X${TEMP_A}" = "X"; then
     TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 8" ${includedir}/sundials_config.h`
@@ -104,7 +107,7 @@ if test "X${F77_FLOAT_TYPE}" = "Xsingle"; then
   else
     FLOAT_BYTES="4"
   fi
-elif test "X${F77_FLOAT_TYPE}" = "Xdouble"; then
+elif test "X${FLOAT_TYPE}" = "Xdouble"; then
   TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 4" ${includedir}/sundials_config.h`
   if test "X${TEMP_A}" = "X"; then
     TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 8" ${includedir}/sundials_config.h`
@@ -121,7 +124,7 @@ elif test "X${F77_FLOAT_TYPE}" = "Xdouble"; then
   else
     FLOAT_BYTES="4"
   fi
-elif test "X${F77_FLOAT_TYPE}" = "Xextended"; then
+elif test "X${FLOAT_TYPE}" = "Xextended"; then
   TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 4" ${includedir}/sundials_config.h`
   if test "X${TEMP_A}" = "X"; then
     TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 8" ${includedir}/sundials_config.h`
@@ -139,18 +142,18 @@ elif test "X${F77_FLOAT_TYPE}" = "Xextended"; then
     FLOAT_BYTES="4"
   fi
 fi
-if test "X${FLOAT_BYTES}" = "X" || test "X${F77_FLOAT_TYPE}" = "Xdouble"; then
+if test "X${FLOAT_BYTES}" = "X" || test "X${FLOAT_TYPE}" = "Xdouble"; then
   F77_FLOAT_UPPER=""
   F77_FLOAT_LOWER=""
-elif test "X${F77_FLOAT_TYPE}" = "Xsingle" || test "X${F77_FLOAT_TYPE}" = "Xextended"; then
+elif test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xextended"; then
   F77_FLOAT_UPPER="REAL\*${FLOAT_BYTES}"
   F77_FLOAT_LOWER="real\*${FLOAT_BYTES}"
 fi
-if test "X${F77_FLOAT_TYPE}" = "Xsingle"; then
+if test "X${FLOAT_TYPE}" = "Xsingle"; then
   C_FLOAT_TYPE="float"
-elif test "X${F77_FLOAT_TYPE}" = "Xdouble"; then
+elif test "X${FLOAT_TYPE}" = "Xdouble"; then
   C_FLOAT_TYPE="double"
-elif test "X${F77_FLOAT_TYPE}" = "Xextended"; then
+elif test "X${FLOAT_TYPE}" = "Xextended"; then
   C_FLOAT_TYPE="long double"
 fi
 TEMP_A=`echo "${srcdir}" | ${FGREP} "examples_par"`
@@ -230,9 +233,9 @@ if test -f ${srcdir}/${SOURCE_FILE} ; then
       ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
     fi
   done
-  if test "X${F77_FLOAT_TYPE}" = "Xdouble" || test "X${FLOAT_BYTES}" = "X"; then
+  if test "X${FLOAT_TYPE}" = "Xdouble" || test "X${FLOAT_BYTES}" = "X"; then
     :
-  elif test "X${F77_FLOAT_TYPE}" = "Xsingle"; then
+  elif test "X${FLOAT_TYPE}" = "Xsingle"; then
     CONTINUE="yes"
     while test "X${CONTINUE}" = "Xyes" ; do
       TEMP_A=`${FGREP} "DOUBLE PRECISION" ${builddir}/temp1.f`
@@ -349,7 +352,7 @@ if test -f ${srcdir}/${SOURCE_FILE} ; then
         fi
       done
     done
-  elif test "X${F77_FLOAT_TYPE}" = "Xextended"; then
+  elif test "X${FLOAT_TYPE}" = "Xextended"; then
     CONTINUE="yes"
     while test "X${CONTINUE}" = "Xyes" ; do
       TEMP_A=`${FGREP} "DOUBLE PRECISION" ${builddir}/temp1.f`
@@ -430,8 +433,8 @@ if test -f ${srcdir}/${SOURCE_FILE} ; then
       done
     fi
   fi
-  SOURCE_FILE=`echo "${SOURCE_FILE}" | cut -d'.' -f1`
-  SOURCE_FILE="${SOURCE_FILE}-updated.f"
   ${CP_FILE} ${builddir}/temp1.f ${builddir}/${SOURCE_FILE}
   rm -f ${builddir}/temp1.f ${builddir}/temp2.f
 fi
+
+LC_ALL="${SAVED_LC_ALL}"
