@@ -1,10 +1,5 @@
 Krylov example problem: Kinetics-transport, NEQ =  200
 
-1
-2
-3
-4
-5
 
  t =  0.72E+04     no. steps =  190   order =  5   stepsize =  0.16E+03
   c1 (bot.left/middle/top rt.) =   0.105E+05   0.296E+05   0.112E+05
