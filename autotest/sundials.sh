@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.1 $
-# $Date: 2004-04-02 21:18:20 $
+# $Revision: 1.2 $
+# $Date: 2004-04-27 22:11:40 $
 ############################################################################
 #
 # Filename: sundials.sh
@@ -1414,7 +1414,18 @@ if [ "${ERROR_FLAG}" = "yes" ]; then
     echo -e "Error Message: ${LOG_DIR}/archive/${MAIL_FILE}-${LOG_FILE}\n"
   fi
 else
-  rm -f "${LOG_DIR}/${MAIL_FILE}"
+  echo -n "E-mailing test completion notification to: ${MAIL_RECIPIENTS}..."
+  MAIL_SUBJECT="Autotest Message (${PROJECT_NAME}): OK"
+  echo "No errors were detected :-)" >> "${LOG_DIR}/${MAIL_FILE}"
+  STATUS=`"${MAIL_CMD}" -s "${MAIL_SUBJECT}" "${MAIL_RECIPIENTS}" < "${LOG_DIR}/${MAIL_FILE}"`
+  if [ "${STATUS}" = "" ]; then
+    rm -f "${LOG_DIR}/${MAIL_FILE}"
+    echo -e "[DONE]\n"
+  else
+    mv -f "${LOG_DIR}/${MAIL_FILE}" "${LOG_DIR}/archive/${MAIL_FILE}-${LOG_FILE}"
+    echo -e "[FAILED]\n"
+    echo -e "Status Message: ${LOG_DIR}/archive/${MAIL_FILE}-${LOG_FILE}\n"
+  fi
 fi
 
 echo -e "Finished :-)\n"
