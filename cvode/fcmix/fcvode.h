@@ -346,7 +346,7 @@ the following calls, in this order:
 
 /* Definitions of interface function names */
 
-#if SUNDIALS_UNDERSCORE_NONE
+#if defined(SUNDIALS_UNDERSCORE_NONE)
 
 #define FCV_MALLOC      fcvmalloc
 #define FCV_REINIT      fcvreinit
@@ -370,7 +370,7 @@ the following calls, in this order:
 #define FCV_PRECO       cvpreco
 #define FCV_JTIMES      cvjtimes
 
-#elif SUNDIALS_UNDERSCORE_TWO
+#elif defined(SUNDIALS_UNDERSCORE_TWO)
 
 #define FCV_MALLOC      fcvmalloc__
 #define FCV_REINIT      fcvreinit__

@@ -266,7 +266,7 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 
 /* Definitions of interface function names */
 
-#if SUNDIALS_UNDERSCORE_NONE
+#if defined(SUNDIALS_UNDERSCORE_NONE)
 
 #define FCV_BBDIN     fcvbbdin
 #define FCV_REINBBD   fcvreinbbd
@@ -275,7 +275,7 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 #define FCV_GLOCFN    cvlocfn
 #define FCV_COMMFN    cvcommf
 
-#elif SUNDIALS_UNDERSCORE_TWO
+#elif defined(SUNDIALS_UNDERSCORE_TWO)
 
 #define FCV_BBDIN     fcvbbdin__
 #define FCV_REINBBD   fcvreinbbd__
