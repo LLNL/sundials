@@ -793,7 +793,6 @@ typedef struct IDAMemRec {
   /* N_Vectors */
 
   N_Vector ida_ewt;         /* error weight vector                           */
-  N_Vector ida_mskewt;      /* masked error weight vector (uses ID)          */
   N_Vector ida_y0;          /* initial y vector (user-supplied)              */
   N_Vector ida_yp0;         /* initial y' vector (user-supplied)             */
   N_Vector ida_yy;          /* work space for y vector (= user's yret)       */

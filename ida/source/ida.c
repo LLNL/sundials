@@ -254,8 +254,6 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_MISSING_ID      IDAIS "id = NULL but suppressalg option on.\n\n"
 
-#define MSG_BAD_ID          IDAIS "illegal values in id vector.\n\n"
-
 #define MSG_BAD_EWT         IDAIS "Some initial ewt component = 0.0 illegal.\n\n"
 
 #define MSG_BAD_CONSTRAINTS IDAIS "illegal values in constraints vector.\n\n"
@@ -434,7 +432,6 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval);
 static int IDAInitialSetup(IDAMem IDA_mem);
 
 static booleantype IDAEwtSet(IDAMem IDA_mem, N_Vector ycur);
-static booleantype IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur);
 static booleantype IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur);
 static booleantype IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur);
 
@@ -456,6 +453,8 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
 static int IDACompleteStep(IDAMem IDA_mem, realtype *est, 
                            realtype *terk, realtype *terkm1, realtype *erkm1);
 
+static realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, 
+                            booleantype mask);
 
 /**************************************************************/
 /********** END Private Helper Functions Prototypes ***********/
@@ -1299,7 +1298,6 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 #define gamma    (IDA_mem->ida_gamma)
 #define setupNonNull (IDA_mem->ida_setupNonNull) 
 #define constraintsSet (IDA_mem->ida_constraintsSet)
-#define mskewt   (IDA_mem->ida_mskewt)
 
 /**************************************************************/
 /***************** END Readability Constants ******************/
@@ -1409,7 +1407,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 
   /* Set hic, hh, cj, and mxnh. */
   hic = PT001*tdist;
-  ypnorm = N_VWrmsNorm (yp0, mskewt);
+  ypnorm = IDAWrmsNorm(IDA_mem, yp0, ewt, suppressalg);
   if (ypnorm > HALF/hic) hic = HALF/ypnorm;
   if( tout1 < tn) hic = -hic;
   hh = hic;
@@ -1421,9 +1419,6 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
     cj = ZERO;
     mxnh = 1;
   }
-
-  /* If suppressalg is on, reset id to bit vector form. */
-  if (suppressalg) N_VOneMask (id);
 
   /* Loop over nwt = number of evaluations of ewt vector. */
 
@@ -1452,16 +1447,13 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 
     /* Break on failure; else reset ewt, save y0,yp0 in phi, and loop. */
     if (retval != SUCCESS) break;
-    ewtsetOK = IDAEwtSet0(IDA_mem, y0);
+    ewtsetOK = IDAEwtSet(IDA_mem, y0);
     if (!ewtsetOK) { retval = IC_BAD_EWT; break; }
     N_VScale (ONE, y0,  phi[0]);
     N_VScale (ONE, yp0, phi[1]);
 
   }   /* End of nwt loop */
 
-
-  /* If suppressalg is on, reset mskewt. */
-  if (suppressalg) N_VProd (id, ewt, mskewt);
 
   /* Load the optional outputs. */
   if (icopt == CALC_YA_YDP_INIT)   hused = hic;
@@ -1512,7 +1504,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
   int nstloc, sflag, istate, ier;
-  realtype tdist, troundoff, ypnorm, rh;
+  realtype tdist, troundoff, ypnorm, rh, nrm;
   booleantype istop, ewtsetOK;
   IDAMem IDA_mem;
 
@@ -1596,7 +1588,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     if (hh == ZERO) {
       hh = PT001*tdist;
-      ypnorm = N_VWrmsNorm(phi[1], mskewt);
+      ypnorm = IDAWrmsNorm(IDA_mem, phi[1], ewt, suppressalg);
       if (ypnorm > HALF/hh) hh = HALF/ypnorm;
       if(tout < tn) hh = -hh;
     }
@@ -1653,7 +1645,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     if (lperf != NULL) lperf(IDA_mem, 1);
 
-    /* Reset and check ewt and mskewt (if not first call). */
+    /* Reset and check ewt (if not first call). */
 
     if (nst > 0) {
       ewtsetOK = IDAEwtSet(IDA_mem, phi[0]);
@@ -1668,7 +1660,9 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     
     /* Check for too much accuracy requested. */
     
-    if ((tolsf = uround * N_VWrmsNorm(phi[0], ewt)) > ONE) {
+    nrm = IDAWrmsNorm(IDA_mem, phi[0], ewt, suppressalg);
+    tolsf = uround * nrm;
+    if (tolsf > ONE) {
       tolsf *= TEN;
       fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
       istate = TOO_MUCH_ACC;
@@ -2380,7 +2374,7 @@ static int IDANewtonIC (IDAMem IDA_mem)
   if(retval > 0) return(IC_FAIL_RECOV);
 
   /* Compute the norm of the step; return now if this is small. */
-  fnorm = N_VWrmsNorm (delta, ewt);
+  fnorm = IDAWrmsNorm(IDA_mem, delta, ewt, FALSE);
   if (sysindex == 0) fnorm *= tscale*abs(cj);
   if (fnorm <= epsNewt) return(SUCCESS);
   fnorm0 = fnorm;
@@ -2543,7 +2537,7 @@ static int IDAfnorm (IDAMem IDA_mem, realtype *fnorm)
   if(retval > 0) return(IC_FAIL_RECOV);
 
   /* Compute the WRMS-norm; rescale if index = 0. */
-  *fnorm = N_VWrmsNorm (delnew, ewt);
+  *fnorm = IDAWrmsNorm(IDA_mem, delnew, ewt, FALSE);
   if (sysindex == 0) (*fnorm) *= tscale*abs(cj);
 
   return(SUCCESS);
@@ -2672,7 +2666,6 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval)
 static int IDAInitialSetup(IDAMem IDA_mem)
 {
   realtype temptest;
-  N_Vector local_mskewt;
   booleantype ewtsetOK, conOK;
   
   /* Test id vector for legality */
@@ -2681,21 +2674,7 @@ static int IDAInitialSetup(IDAMem IDA_mem)
     fprintf(errfp, MSG_MISSING_ID); 
     return(ILL_INPUT); 
   }
-  if(suppressalg) {
-    temptest = N_VMin(id);
-    if(temptest < ZERO){ 
-      fprintf(errfp, MSG_BAD_ID); 
-      return(ILL_INPUT); 
-    }
-  }
 
-  /* Set the mskewt vector */
-  
-  if (suppressalg) local_mskewt = id;
-  else local_mskewt = ewt;
-  
-  mskewt = local_mskewt;
-  
   /* Load ewt */
 
   ewtsetOK = IDAEwtSet(IDA_mem, y0);
@@ -2766,15 +2745,11 @@ static int IDAInitialSetup(IDAMem IDA_mem)
  (2) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + atol[i]), i=0,...,Neq-1
      if itol = SV
 
-  It also loads the masked error weight vector mskewt if the 
-  suppressalg option is on.
-
   IDAEwtSet returns TRUE if ewt is successfully set as above to a
   positive vector and FALSE otherwise. In the latter case, ewt is
   considered undefined after the FALSE return from IDAEwtSet.
 
-  All the real work is done in the routines IDAEwtSetSS, IDAEwtSetSV,
-  N_VOneMask, N_VProd.
+  All the real work is done in the routines IDAEwtSetSS, IDAEwtSetSV.
  
 ***********************************************************************/
 
@@ -2790,52 +2765,8 @@ static booleantype IDAEwtSet(IDAMem IDA_mem, N_Vector ycur)
     ewtsetOK = IDAEwtSetSV(IDA_mem, ycur); 
     break;
   }
-  if(!ewtsetOK) return(FALSE);
-  if(suppressalg) {
-    N_VOneMask(mskewt);  
-    /* Note: mskewt is identical to id, so the vector id
-       of the next line is what was just processed by N_VOneMask. It is called
-       id below to emphasize that it now has been restored to its original
-       settings (1.0 or 0.0) as received (id) in preparation to recreating 
-       vector mskewt */
-    N_VProd(ewt, id, mskewt);
-   }
-  return(TRUE);
-}
-
-
-/*********************** IDAEwtSet0 *************************************
-  
- This routine is responsible for loading the error weight vector
- ewt, according to itol, as follows:
- (1) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + *atol), i=0,...,Neq-1
-     if itol = SS
- (2) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + atol[i]), i=0,...,Neq-1
-     if itol = SV
-
-  IDAEwtSet0 returns TRUE if ewt is successfully set as above to a
-  positive vector and FALSE otherwise. In the latter case, ewt is
-  considered undefined after the FALSE return from IDAEwtSet0.
-
-  All the real work is done in the routines IDAEwtSetSS, IDAEwtSetSV.
- 
-***********************************************************************/
-
-static booleantype IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur)
-{
-  booleantype ewtsetOK=TRUE;
-
-  switch(itol) {
-  case SS: 
-    ewtsetOK = IDAEwtSetSS(IDA_mem, ycur); 
-    break;
-  case SV: 
-    ewtsetOK = IDAEwtSetSV(IDA_mem, ycur); 
-    break;
-  }
   return(ewtsetOK);
 }
-
 
 /*********************** IDAEwtSetSS *********************************
 
@@ -3155,7 +3086,6 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
         may be required. 
  hh  -- Appropriate step size for next step.
  ewt -- Vector of weights used in all convergence tests.
- mskewt -- Masked vector of weights used in error test.
  phi -- Array of divided differences used by IDAStep. This array is composed 
        of  (maxord+1) nvectors (each of size Neq). (maxord+1) is the maximum 
        order for the problem, maxord, plus 1.
@@ -3387,7 +3317,7 @@ static int IDAnls(IDAMem IDA_mem)
       N_VDiv(tempv1, ewt, tempv1);                /* a * c * wt */
       N_VLinearSum(ONE, yy, -PT1, tempv1, tempv1);/* y - 0.1 * a * c * wt */
       N_VProd(tempv1, mm, tempv1);               /*  v = mm*(y-.1*a*c*wt) */
-      vnorm = N_VWrmsNorm(tempv1, ewt);          /*  ||v|| */
+      vnorm = IDAWrmsNorm(IDA_mem, tempv1, ewt, FALSE); /*  ||v|| */
       
       /* If vector v of constraint corrections is small
          in norm, correct and accept this step */      
@@ -3474,7 +3404,7 @@ static int IDANewtonIter(IDAMem IDA_mem)
     N_VLinearSum(ONE, yy, -ONE, delta, yy);
     N_VLinearSum(ONE, ee, -ONE, delta, ee);
     N_VLinearSum(ONE, yp, -cj,  delta, yp);
-    delnrm = N_VWrmsNorm(delta, ewt);
+    delnrm = IDAWrmsNorm(IDA_mem, delta, ewt, FALSE);
 
     /* Test for convergence, first directly, then with rate estimate. */
 
@@ -3527,7 +3457,7 @@ static int IDATestError(IDAMem IDA_mem, realtype *ck, realtype *est,
   realtype erk, erkm2;
 
   /* Compute error for order k. */
-  enorm = N_VWrmsNorm(ee, mskewt);
+  enorm = IDAWrmsNorm(IDA_mem, ee, ewt, suppressalg);
   erk = sigma[kk] * enorm;
   *terk = (kk+1) * erk;
   *est = erk;
@@ -3538,12 +3468,12 @@ static int IDATestError(IDAMem IDA_mem, realtype *ck, realtype *est,
   
   if(kk > 1){
     N_VLinearSum(ONE, phi[kk], ONE, ee, delta);
-    *erkm1 = sigma[kk-1] * N_VWrmsNorm(delta, mskewt);
+    *erkm1 = sigma[kk-1] * IDAWrmsNorm(IDA_mem, delta, ewt, suppressalg);
     *terkm1 = kk * *erkm1;
     {
       if(kk > 2){
         N_VLinearSum(ONE, phi[kk-1], ONE, delta, delta);
-        erkm2 = sigma[kk-2] * N_VWrmsNorm(delta, mskewt);
+        erkm2 = sigma[kk-2] * IDAWrmsNorm(IDA_mem, delta, ewt, suppressalg);
         terkm2 = (kk-1) * erkm2;
         if(MAX(*terkm1, terkm2) > *terk) goto evaltest;
       }
@@ -3734,7 +3664,7 @@ static int IDACompleteStep(IDAMem IDA_mem, realtype *est,
        been constant, or order was just raised. */
     
     N_VLinearSum (ONE, ee, -ONE, phi[kk+1], delta);
-    terkp1 = N_VWrmsNorm(delta, mskewt);
+    terkp1 = IDAWrmsNorm(IDA_mem, delta, ewt, suppressalg);
     erkp1= terkp1/(kk+2);
     
     /* Choose among orders k-1, k, k+1 using local truncation error norms. */
@@ -3788,6 +3718,30 @@ static int IDACompleteStep(IDAMem IDA_mem, realtype *est,
   return (SUCCESS);
 }
 
+/*-----------------------  IDAWrmsNorm   --------------------------*/
+/*
+  Returns the WRMS norm of vector x with weights w.
+  If mask = TRUE, the weight vector w is masked by id, i.e.,
+      nrm = N_VWrmsNormMask(x,w,id);
+  Otherwise,
+      nrm = N_VWrmsNorm(x,w);
+  
+  mask = FALSE       when the call is made from the nonlinear solver.
+  mask = suppressalg otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+static realtype IDAWrmsNorm(IDAMem IDA_mem, 
+                            N_Vector x, N_Vector w, 
+                            booleantype mask)
+{
+  realtype nrm;
+
+  if (mask) nrm = N_VWrmsNormMask(x, w, id);
+  else      nrm = N_VWrmsNorm(x, w);
+
+  return(nrm);
+}
 
 /********************************************************************/
 /********* END Private Helper Functions Implementation **************/
