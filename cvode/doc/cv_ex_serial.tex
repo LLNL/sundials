@@ -341,7 +341,7 @@ represent a simplified model for the transport, production, and loss
 of ozone and the oxygen singlet in the upper atmosphere.  The problem
 includes nonlinear diurnal kinetics, horizontal advection and diffusion, 
 and nonuniform vertical diffusion.  The PDEs can be written as
-\begin{equation}\label{e:cvkx:pde}
+\begin{equation}\label{cvkxpde}
   \frac{\partial c^i}{\partial t}=K_h\frac{\partial^2 c^i}{\partial x^2}
   +V \frac{\partial c^i}{\partial x}
   + \frac{\partial} {\partial y} K_v(y) \frac{\partial c^i}{\partial y}
@@ -355,17 +355,17 @@ species, and where the reaction terms are given by
   R^2(c^1,c^2,t) & = q_1c^1c^3-q_2c^1c^2-q_4(t)c^2 ~.
 \end{split}
 \end{equation}
-The spatial domain is $0 \leq x \leq 20,\;30 \leq y \leq 50$. The constants
-and parameters for this problem are as follows: $K_h=4.0\cdot 10^{-6},
+The spatial domain is $0 \leq x \leq 20,\;30 \leq y \leq 50$ (in {\it km}). 
+The various constants and parameters are: $K_h=4.0\cdot 10^{-6},
 ~ V=10^{-3},~ K_v=10^{-8}\exp (y/5),~ q_1=1.63\cdot 10^{-16},
 ~ q_2=4.66\cdot 10^{-16},~ c^3=3.7\cdot 10^{16},$ and the diurnal
-rate constants are defined as follows: 
+rate constants are defined as:
 \begin{equation*}
 q_i(t) = 
-\begin{cases}
-  \exp [-a_i/\sin \omega t], & \mbox{for }\sin \omega t>0 \\
-  0, & \mbox{for }\sin \omega t\leq 0
-  \end{cases} ~~~(i=3,4) ~,
+\left\{ \begin{array}{ll}
+  \exp [-a_i/\sin \omega t], & \mbox{for } \sin \omega t>0 \\
+  0, & \mbox{for } \sin \omega t\leq 0
+  \end{array} \right\} ~~~(i=3,4) ~,
 \end{equation*}
 where $\omega =\pi /43200, ~ a_3=22.62,~ a_4=7.601.$  The time interval of
 integration is $[0, 86400]$, representing 24 hours measured in seconds.
@@ -379,7 +379,7 @@ c^{1}(x,y,0) &=&10^{6}\alpha (x)\beta (y) ~,~~~
 \beta (y) &=&1-(0.1y-4)^{2}+(0.1y-4)^{4}/2 ~.
 \end{eqnarray*}
 
-For the \id{cvkx} example, the equations are discretized spatially
+For this example, the equations (\ref{cvkxpde}) are discretized spatially
 with standard central finite differences on a $10 \times 10$ mesh,
 giving an ODE system of size $200$.
 
