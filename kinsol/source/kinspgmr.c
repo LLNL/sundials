@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-09-21 21:34:14 $
+ * $Revision: 1.18 $
+ * $Date: 2004-09-22 21:24:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -169,7 +169,7 @@ int KINSpgmr(void *kinmem, int maxl)
 
   if (kinmem == NULL){
     fprintf(stderr, MSG_KINMEM_NULL);
-    return(KIN_MEM_NULL);  
+    return(KINSPGMR_KIN_MEM_NULL);  
   }
   kin_mem = (KINMem) kinmem;
 

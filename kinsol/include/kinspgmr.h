@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-06-30 17:52:45 $
+ * $Revision: 1.15 $
+ * $Date: 2004-09-22 21:24:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                 Radu Serban @ LLNL
@@ -19,13 +19,13 @@
 extern "C" {
 #endif
 
-#ifndef _kinspgmr_h
-#define _kinspgmr_h
+#ifndef _KINSPGMR_H
+#define _KINSPGMR_H
 
 #include "kinsol.h"
+#include "nvector.h"
 #include "spgmr.h"
 #include "sundialstypes.h"
-#include "nvector.h"
 
 /*
  * -----------------------------------------------------------------
@@ -189,15 +189,15 @@ int KINSpgmr(void *kinmem, int maxl);
  * The possible return values for the KINSpgmr subroutine are the
  * following:
  *
- * SUCCESS : means the KINSPGMR linear solver module (implementation
- *           of the GMRES method) was successfully initialized -
- *           allocated system memory and set shared variables to
- *           default values [0]
+ * KIN_SUCCESS : means the KINSPGMR linear solver module (implementation
+ *               of the GMRES method) was successfully initialized -
+ *               allocated system memory and set shared variables to
+ *               default values [0]
  *
- * KIN_MEM_NULL : means a NULL KINSOL memory block pointer was given
- *                (must call the KINCreate and KINMalloc memory
- *                allocation subroutines prior to calling KINSpgmr)
- *                [-1]
+ * KINSPGMR_KIN_MEM_NULL : means a NULL KINSOL memory block pointer
+ *                         was given (must call the KINCreate and
+ *                         KINMalloc memory allocation subroutines
+ *                         prior to calling KINSpgmr) [-1]
  *
  * KINSPGMR_MEM_FAIL : means sufficient system resources were not
  *                     available to allocate memory for the main
@@ -211,9 +211,9 @@ int KINSpgmr(void *kinmem, int maxl);
  * -----------------------------------------------------------------
  */
 
-/* Note: SUCCESS = 0 */
+/* Note: KIN_SUCCESS = 0 */
 
-enum { KIN_MEM_NULL = -1, KINSPGMR_MEM_FAIL = -2, SPGMR_MEM_FAIL = -3 };
+enum { KINSPGMR_KIN_MEM_NULL = -1, KINSPGMR_MEM_FAIL = -2, SPGMR_MEM_FAIL = -3 };
 
 /*
  * -----------------------------------------------------------------
@@ -270,16 +270,21 @@ int KINSpgmrSetJacData(void *kinmem, void *J_data);
  * KINSpgmrSet* Return Values
  * -----------------------------------------------------------------
  * The possible return values for the KINSpgmrSet* subroutines
- * are the following (all but SUCCESS are prefixed by "LIN_"):
+ * are the following:
  *
- * SUCCESS : means the associated variable was successfully set [0]
+ * KIN_SUCCESS : means the associated variable was successfully
+ *               set [0]
  *
- * NO_MEM : means a NULL KINSOL memory block pointer was given [-1]
+ * KIN_LIN_ILL_INPUT : means the supplied parameter was invalid
+ *                     (check error message) [-1]
  *
- * ILL_INPUT : means the supplied parameter was invalid (check error
- *             message) [-2]
+ * KIN_LIN_NO_MEM : means a NULL KINSOL memory block pointer
+ *                  was given [-2]
+ *
+ * KIN_LIN_NO_LMEM : means system memory has not yet been allocated
+ *                   (lmem == NULL) [-3]
  * -----------------------------------------------------------------
-*/
+ */
 
 /*
  * -----------------------------------------------------------------
@@ -345,19 +350,20 @@ int KINSpgmrGetNumFuncEvals(void *kinmem, long int *nfevalsSG);
  * KINSpgmrGet* Return Values
  * -----------------------------------------------------------------
  * The possible return values for the KINSpgmrGet* subroutines
- * are the following (all but OKAY are prefixed by "LIN_"):
+ * are the following:
  *
- * OKAY : means the routine exited normally [0]
+ * KING_OKAY : means the routine exited normally [0]
  *
- * NO_MEM : means a NULL KINSOL memory block pointer was given [-2]
+ * KIN_LIN_ILL_INPUT : means at least one input parameter was
+ *                     invalid (check error message(s)) [-1]
  *
- * ILL_INPUT : means at least one input parameter was invalid (check
- *             error message(s)) [-1]
+ * KIN_LIN_NO_MEM : means a NULL KINSOL memory block pointer was
+ *                  given [-2]
  *
- * NO_LMEM : means a NULL KINSPGMR memory block pointer was given
- *           [-3]
+ * KIN_LIN_NO_LMEM : means a NULL KINSPGMR memory block pointer was
+ *                   given [-3]
  * -----------------------------------------------------------------
-*/
+ */
 
 #endif
 
