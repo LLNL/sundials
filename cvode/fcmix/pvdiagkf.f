@@ -5,8 +5,7 @@ C Version of 27 March 2002
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
-C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI_MAX,
-C                                     MPI_DOUBLE_PRECISION
+C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
       INCLUDE "mpif.h"
 C
       INTEGER*4 IOPT(40)
@@ -82,7 +81,7 @@ C
         ENDIF
 C
       CALL FCVMALLOC(NEQ, T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1       INOPT, IOPT, ROPT, IER)
+     1               INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -122,7 +121,7 @@ C Get max. absolute error in the local vector.
   75    ERMAX = MAX(ERMAX,ABS(ERRI))
 C Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
-     1       0, MPI_COMM_WORLD, IER)
+     1                0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,80) IER
   80    FORMAT(///' MPI_REDUCE returned IER =',I5)
@@ -164,7 +163,7 @@ C
  111  FORMAT(///'Case 2: preconditioning on right')
 C
       CALL FCVREINIT(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1     INOPT, IOPT, ROPT, IER)
+     1               INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,130) IER
@@ -175,7 +174,7 @@ C
       CALL FCVREINSPGMR10(IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,135) IER
- 135    FORMAT(///' FCVSPGMR10 returned IER =',I5)
+ 135    FORMAT(///' FCVREINSPGMR10 returned IER =',I5)
         STOP
         ENDIF
 C
@@ -202,7 +201,7 @@ C Get max. absolute error in the local vector.
  175    ERMAX = MAX(ERMAX,ABS(ERRI))
 C Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
-     1       0, MPI_COMM_WORLD, IER)
+     1                0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,80) IER
         STOP

@@ -4,7 +4,7 @@ C Version of 27 March 2002
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
-C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI_REAL, MPI_MAX
+C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
       INCLUDE "mpif.h"
 C
       INTEGER*4 IOPT(40)
@@ -72,7 +72,7 @@ C
         ENDIF
 C
       CALL FCVMALLOC(NEQ, T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1       INOPT, IOPT, ROPT, IER)
+     1               INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER

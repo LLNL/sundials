@@ -6,8 +6,8 @@ C Version of 27 March 2002
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
-C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI_MAX,
-C                                     MPI_DOUBLE_PRECISION
+C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
+
       INCLUDE "mpif.h"
 C
       INTEGER*4 IOPT(40)
@@ -74,7 +74,7 @@ C
         ENDIF
 C
       CALL FCVMALLOC(NEQ, T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1       INOPT, IOPT, ROPT, IER)
+     1               INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -87,7 +87,7 @@ C
       MU = 0
       ML = 0
       CALL FCVBBDIN0(NLOCAL, MUDQ, MLDQ, MU,ML, 0.0D0, 
-     1     IPRE, IGS, 0, 0.0D0, IER)
+     1               IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,35) IER
  35     FORMAT(///' FCVBBDIN0 returned IER =',I5)
@@ -126,7 +126,7 @@ C Get max. absolute error in the local vector.
  65     CONTINUE
 C Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
-     1       0, MPI_COMM_WORLD, IER)
+     1                0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,70) IER
  70     FORMAT(///' MPI_REDUCE returned IER =',I5)
@@ -170,7 +170,7 @@ C Otherwise jump to final block.
       DO 90 I = 1,NLOCAL
  90      Y(I) = 1.0D0
       CALL FCVREINIT(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1        INOPT, IOPT, ROPT, IER)
+     1               INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,91) IER
  91     FORMAT(///' FCVREINIT returned IER =',I5)
@@ -178,7 +178,7 @@ C Otherwise jump to final block.
         ENDIF
       IPRE = 2
       CALL FCVREINBBD0(NLOCAL, MUDQ, MLDQ, MU,ML, 0.0D0, 
-     1     IPRE,IGS, 0,0.0D0, IER)
+     1                 IPRE,IGS, 0,0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,92) IER
  92     FORMAT(///' FCVREINBBD0 returned IER =',I5)
