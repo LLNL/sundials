@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-15 19:01:40 $
+ * $Revision: 1.17 $
+ * $Date: 2004-11-23 21:35:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -115,11 +115,10 @@ int main(int argc, char *argv[])
   realtype reltol, abstol;
 
   N_Vector uB;
-  realtype *uBdata;
 
   realtype dx, t, g_val;
   int flag, my_pe, nprocs, npes, ncheck;
-  long int local_N=0, nperpe, nrem, my_base=0, i;
+  long int local_N=0, nperpe, nrem, my_base=0;
 
   MPI_Comm comm;
 

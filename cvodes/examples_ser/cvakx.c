@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-15 19:01:35 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-23 21:35:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
   N_Vector c;
   WebData wdata;
   void *cvode_mem;
-  int iout, flag;
+  int flag;
 
   void *cvadj_mem;
   int ncheck;

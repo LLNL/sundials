@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-15 21:24:59 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-23 21:35:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -264,13 +264,13 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   retval = IDAGetLastStep(mem, &hused);
   check_flag(&retval, "IDAGetLastStep", 1);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("%8.2Le %12.4Le %12.4Le %12.4Le | %3d  %1d %12.4Le\n", 
+  printf("%8.2Le %12.4Le %12.4Le %12.4Le | %3ld  %1d %12.4Le\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("%8.2le %12.4le %12.4le %12.4le | %3d  %1d %12.4le\n", 
+  printf("%8.2le %12.4le %12.4le %12.4le | %3ld  %1d %12.4le\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #else
-  printf("%8.2e %12.4e %12.4e %12.4e | %3d  %1d %12.4e\n", 
+  printf("%8.2e %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #endif
 }

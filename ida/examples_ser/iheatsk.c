@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-15 21:24:59 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-23 21:35:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -94,7 +94,7 @@ int main()
   UserData data;
   N_Vector uu, up, constraints, id, res;
   int ier, iout;
-  realtype rtol, atol, t0, t1, tout, tret, umax;
+  realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
 
   mem = NULL;
