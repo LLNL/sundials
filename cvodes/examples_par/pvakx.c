@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-11-15 19:01:40 $
+ * $Revision: 1.11 $
+ * $Date: 2004-11-22 20:50:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -694,7 +694,6 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   f_local(l_neq, t, y, ydot, f_data);
 }
 
-
 static void f_local(long int Nlocal, realtype t, N_Vector y, 
                     N_Vector ydot, void *f_data)
 {
@@ -925,8 +924,7 @@ static void fB_local(long int NlocalB, realtype t,
  *------------------------------------------------------------------
  */
 
-static void fQB(realtype t, N_Vector y, 
-		N_Vector yB, N_Vector qBdot, 
+static void fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, 
 		void *fQ_dataB)
 {
   ProblemData d;
@@ -959,7 +957,6 @@ static void Load_yext(realtype *src, ProblemData d)
 	IJth_ext(d->y_ext, i) = IJth(src, i);
 }
 
-
 /*
  *------------------------------------------------------------------
  * PrintHeader:
@@ -969,7 +966,6 @@ static void Load_yext(realtype *src, ProblemData d)
 
 static void PrintHeader()
 {
-
     printf("\nParallel Krylov adjoint sensitivity analysis example\n");
     printf("%1dD Advection diffusion PDE with homogeneous Neumann B.C.\n",DIM);
     printf("Computes gradient of G = int_t_Omega ( c_i^2 ) dt dOmega\n");
@@ -1183,5 +1179,4 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
 #endif
     fclose(fid);
   }
-    
 }

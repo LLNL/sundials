@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-15 19:01:36 $
+ * $Revision: 1.17 $
+ * $Date: 2004-11-22 20:50:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -489,19 +489,25 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
+            funcname);
     return(1); }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      fprintf(stderr, 
+              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
+              funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, 
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
+            funcname);
     return(1); }
 
   return(0);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-11-15 19:01:40 $
+ * $Revision: 1.20 $
+ * $Date: 2004-11-22 20:50:33 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -235,7 +235,8 @@ int main(int argc, char *argv[])
 
   if (npes != NPEX*NPEY) {
     if (my_pe == 0)
-      fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
+      fprintf(stderr, 
+              "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
 	      npes, NPEX*NPEY);
     MPI_Finalize();
     return(1);
@@ -1278,7 +1279,8 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }
 
@@ -1286,13 +1288,15 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
+      fprintf(stderr, 
+              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
 	      id, funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, 
+            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }
 
