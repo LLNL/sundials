@@ -9,7 +9,7 @@ functions, and user-supplied functions.
 
 This usage is essentially equivalent to using {\cvode}~\cite{cvode2.2.0_ug}.
 The listings of the sample programs in the companion document \cite{cvode2.2.0_ex} 
-may also be helpful.  Those codes are intended to serve as templates and are included 
+may also be helpful.  Those codes may be used as templates and are included 
 in the {\cvodes} package.
 
 The user should be aware that not all linear solver modules are compatible 
@@ -378,7 +378,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   file specified by the optional input \id{errfp}.
 
   The tolerance values in \id{reltol} and \id{abstol} may be changed between
-  calls to \id{CVode} (see \id{CVodesetTolerances} in \S\ref{ss:optional_input}).
+  calls to \id{CVode} (see \id{CVodeSetTolerances} in \S\ref{ss:optional_input}).
 }
 %%
 %%
@@ -4988,9 +4988,8 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 \usfunction{CVLocalFn}
 {
-  typedef void (*CVLocalFn)(&long int Nlocal, realtype t,  \\
-                            &N\_Vector y, N\_Vector glocal, \\
-                            &void *f\_data);
+  typedef void (*CVLocalFn)(&long int Nlocal, realtype t, N\_Vector y, \\
+                            &N\_Vector glocal, void *f\_data);
 }
 {
   This function computes $g(t,y)$. It loads the vector
