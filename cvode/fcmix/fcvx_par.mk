@@ -48,6 +48,13 @@ MPI_LIBLIST =
 FC      = mpif77
 FFLAGS  = -L$(LIB_DIR) -L$(MPI_LIB)
 
+#==========================================================================
+# Common libraries
+#==========================================================================
+
+LIBS = -lfcvode.$(ARCH) -lcvode.$(ARCH) \
+       -lfnvecparallel.$(ARCH) -lnvecparallel.$(ARCH) \
+       -lshared.$(ARCH) 
 
 #==========================================================================
 # Make rules
@@ -61,17 +68,17 @@ all:
 
 pvdiagnf: 
 	@echo '...Compile pvdiagnf...'
-	@$(FC) $(FFLAGS) -o pvdiagnf pvdiagnf.f -lcvode.$(ARCH) -lshared.$(ARCH) -lnvecparallel.$(ARCH)
+	@$(FC) $(FFLAGS) -o pvdiagnf pvdiagnf.f $(LIBS)
 	@rm -f pvdiagnf.o
 
 pvdiagkf: 
 	@echo '...Compile pvdiagkf...'
-	@$(FC) $(FFLAGS) -o pvdiagkf pvdiagkf.f -lcvode.$(ARCH) -lshared.$(ARCH) -lnvecparallel.$(ARCH)
+	@$(FC) $(FFLAGS) -o pvdiagkf pvdiagkf.f $(LIBS)
 	@rm -f pvdiagkf.o
 
 pvdiagkbf: 
 	@echo '...Compile pvdiagkbf...'
-	@$(FC) $(FFLAGS) -o pvdiagkbf pvdiagkbf.f -lcvode.$(ARCH) -lshared.$(ARCH) -lnvecparallel.$(ARCH)
+	@$(FC) $(FFLAGS) -o pvdiagkbf pvdiagkbf.f $(LIBS)
 	@rm -f pvdiagkbf.o
 
 examples: pvdiagnf pvdiagkf pvdiagkbf

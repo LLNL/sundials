@@ -19,7 +19,7 @@ CVODE_INC_DIR  = ../include
 # CVODE library name and location
 ARCH           = `uname -s`.`uname -m`
 CVODE_LIB_DIR  = ../lib
-CVODE_LIB_NAME = libcvode.$(ARCH).a
+FCVODE_LIB_NAME = libfcvode.$(ARCH).a
 
 # Source and object files
 SRC = fcvode.c fcvpreco.c fcvpsol.c fcvjtimes.c fcvbbd.c fcvbbdin1.c \
@@ -40,9 +40,9 @@ all:
 	@(echo)
 	@(echo 'Makefile for FCVODE module')
 	@(echo)
-	@(echo 'Usage: make lib       - append Fortran interface to CVODE library')
+	@(echo 'Usage: make lib       - create Fortran interface CVODE library')
 	@(echo)
-	@(echo '       make purge     - remove Fortran interface from CVODE library')
+	@(echo '       make purge     - remove Fortran interface CVODE library')
 	@(echo)
 	@(echo '       make <ex>      - make example <ex>')
 	@(echo '       make fcvx_ser  - make all serial FCVODE examples')
@@ -60,25 +60,19 @@ all:
 
 lib:
 	@(echo 'FCVODE MODULE')
-	@(if test -f $(CVODE_LIB_DIR)/$(CVODE_LIB_NAME); \
-		then \
-			echo '...Compile object files...'; \
-			$(CC) $(CFLAGS) -c $(SRC); \
-			echo '...Append to CVODE library...'; \
-			ar rc $(CVODE_LIB_DIR)/$(CVODE_LIB_NAME) $(OBJ); \
-			rm -f $(OBJ); \
-		else \
-			echo 'ERROR: Library CVODE does not exist'; \
-			echo '       Make the CVODE library first'; \
-	fi)
+	@(echo '...Compile object files...')
+	@($(CC) $(CFLAGS) -c $(SRC))
+	@(echo '...Create library file...')
+	@(ar rc $(CVODE_LIB_DIR)/$(FCVODE_LIB_NAME) $(OBJ))
+	@(rm -f $(OBJ))
+	@(echo '...Create symbolic links...')
+	@(cd ../../lib; rm -f $(FCVODE_LIB_NAME); ln -fs ../cvode/lib/$(FCVODE_LIB_NAME) .)
 
 purge:
 	@(echo 'FCVODE MODULE')
-	@(if test -f $(CVODe_LIB_DIR)/$(CVODE_LIB_NAME); \
-		then \
-			echo '...Remove fcvode objects from cvode library...'; \
-			ar d $(CVODE_LIB_DIR)/$(CVODE_LIB_NAME) $(OBJ); \
-	fi)
+	@(echo '...Remove library file...')
+	@(rm -f $(CVODE_LIB_DIR)/$(FCVODE_LIB_NAME))
+	@(cd ../../lib; rm -f $(FCVODE_LIB_NAME))
 
 #-----------------------------------------------------------------
 # FCVODE Examples
