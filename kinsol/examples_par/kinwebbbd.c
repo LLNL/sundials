@@ -1,73 +1,84 @@
- /************************************************************************
- * File        : kinwebbbd.d                                             *
- * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL  *
- * Version of  : 5 August 2003                                           *
- *-----------------------------------------------------------------------*
- * Example problem for KINSol, parallel machine case, BBD preconditioner.
- * This example solves a nonlinear system that arises from a system of  
- * partial differential equations. The PDE system is a food web         
- * population model, with predator-prey interaction and diffusion on the
- * unit square in two dimensions. The dependent variable vector is      
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.11 $
+ * $Date: 2004-05-03 21:36:42 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Allan Taylor, Alan Hindmarsh and
+ *                Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Example problem for KINSol (parallel machine case) using the BBD
+ * preconditioner.
+ *
+ * This example solves a nonlinear system that arises from a system
+ * of partial differential equations. The PDE system is a food web
+ * population model, with predator-prey interaction and diffusion on
+ * the unit square in two dimensions. The dependent variable vector
+ * is the following:
  * 
  *       1   2         ns
- * c = (c , c ,  ..., c  )              (denoted by the variable cc)
- * 
+ * c = (c , c ,  ..., c  )     (denoted by the variable cc)
+ *
  * and the PDE's are as follows:
  *
- *                    i       i      
+ *                    i       i
  *         0 = d(i)*(c     + c    )  +  f  (x,y,c)   (i=1,...,ns)
  *                    xx      yy         i
  *
  *   where
  *
- *                   i             ns         j  
+ *                   i             ns         j
  *   f  (x,y,c)  =  c  * (b(i)  + sum a(i,j)*c )
  *    i                           j=1
  *
- * The number of species is ns = 2 * np, with the first np being prey and
- * the last np being predators. The number np is both the number of prey and
- * predator species. The coefficients a(i,j), b(i), d(i) are
+ * The number of species is ns = 2 * np, with the first np being
+ * prey and the last np being predators. The number np is both the
+ * number of prey and predator species. The coefficients a(i,j),
+ * b(i), d(i) are:
  *
- *   a(i,i) = -AA  (all i)
- *   a(i,j) = -GG  (i <= np , j >  np)
- *   a(i,j) =  EE  (i >  np,  j <= np)
- *   b(i) = BB * (1 + alpha * x * y)  (i <= np)
- *   b(i) =-BB * (1 + alpha * x * y)  (i >  np)
- *   d(i) = DPREY  (i <= np)
- *   d(i) = DPRED  ( i > np)
+ *   a(i,i) = -AA   (all i)
+ *   a(i,j) = -GG   (i <= np , j >  np)
+ *   a(i,j) =  EE   (i >  np,  j <= np)
+ *   b(i) = BB * (1 + alpha * x * y)   (i <= np)
+ *   b(i) =-BB * (1 + alpha * x * y)   (i >  np)
+ *   d(i) = DPREY   (i <= np)
+ *   d(i) = DPRED   ( i > np)
  *
- *  The various scalar parameters are set using define's 
- *  or in routine InitUserData.
- *  The boundary conditions are: normal derivative  =  0.
- *  The initial guess is constant in x and y, although the final
- *  solution is not.
+ * The various scalar parameters are set using define's or in
+ * routine InitUserData.
  *
- *  The PDEs are discretized by central differencing on a MX by MY mesh.
- * 
- *  The nonlinear system is solved by KINSOL using the method specified in
- *  local variable globalstrat .
+ * The boundary conditions are: normal derivative = 0, and the
+ * initial guess is constant in x and y, although the final
+ * solution is not.
  *
- *  The preconditioner matrix is a band-block-diagonal matrix using the
- *  KINBBDPRE module.  The half-bandwidths are ml = mu = 2*ns - 1.
- * 
- * 
+ * The PDEs are discretized by central differencing on a MX by
+ * MY mesh.
+ *
+ * The nonlinear system is solved by KINSOL using the method
+ * specified in the local variable globalstrat.
+ *
+ * The preconditioner matrix is a band-block-diagonal matrix
+ * using the KINBBDPRE module. The half-bandwidths are:
+ *
+ *   ml = mu = 2*ns - 1
+ * -----------------------------------------------------------------
  * References:
  *
  * 1. Peter N. Brown and Youcef Saad,
  *    Hybrid Krylov Methods for Nonlinear Systems of Equations
  *    LLNL report UCRL-97645, November 1987.
- *  
+ *
  * 2. Peter N. Brown and Alan C. Hindmarsh,
  *    Reduced Storage Matrix Methods in Stiff ODE systems,
- *    Lawrence Livermore National Laboratory Report  UCRL-95088, Rev. 1,
- *    June 1987, and  Journal of Applied Mathematics and Computation, Vol. 31
- *    (May 1989), pp. 40-91. (Presents a description of the time-dependent
- *    version of this test problem.)
- *
- *
+ *    Lawrence Livermore National Laboratory Report  UCRL-95088,
+ *    Rev. 1, June 1987, and  Journal of Applied Mathematics and
+ *    Computation, Vol. 31 (May 1989), pp. 40-91. (Presents a
+ *    description of the time-dependent version of this
+ *    test problem.)
+ * -----------------------------------------------------------------
  *  Run command line: mpirun -np N -machinefile machines kinwebbbd
- *      where N = NPEX * NPEY  is the number of processors (see below)
- ************************************************************************/
+ *  where N = NPEX * NPEY is the number of processors.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -289,7 +300,7 @@ int main(int argc, char *argv[])
     printf("Total system size = %d\n\n", NEQ);
     printf("Subgrid dimensions = %d X %d\n", MXSUB, MYSUB);
     printf("Processor array is %d X %d\n\n", NPEX, NPEY);
-    printf("Flag globalstrategy = %d (0 = Inex. Newton, 1 = Linesearch)\n",
+    printf("Flag globalstrategy = %d (1 = Inex. Newton, 2 = Linesearch)\n",
            globalstrategy);
     printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
            maxl, maxlrst);
@@ -878,7 +889,7 @@ static realtype DotProd(long int size, realtype *x1, realtype *x2)
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
      opt == 1 means SUNDIALS function returns a flag so check if
-              flag == SUCCESS
+              flag >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
@@ -892,10 +903,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 	    id, funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
 	      id, funcname, *errflag);
       return(1); }}

@@ -1,16 +1,25 @@
       program kindiagpf
+c     ----------------------------------------------------------------
+c     $Revision: 1.7 $
+c     $Date: 2004-05-03 21:36:47 $
+c     ----------------------------------------------------------------
+c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
+c                    Radu Serban @ LLNL
+c     ----------------------------------------------------------------
+c     Simple diagonal test with Fortran interface, using
+c     user-supplied preconditioner setup and solve routines (supplied
+c     in Fortran, below).
 c
-c    File        : kindiagpf.f                                               
-c    Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL    
-c    Version of  : 27 January 2004
-c      Simple diagonal test with Fortran interface, using user-supplied      
-c      preconditioner setup and solve routines (supplied in Fortran, below). 
-c      This example does a basic test of the solver by solving the system    
-c                           f(u) = 0   for                                   
-c                           f(u) = u(i)^2 - i^2 .                            
-c      No scaling is done.                                                   
-c      An approximate diagonal preconditioner is used.                       
-c      Execute line:  mpirun -np 4 kindiagpf                                 
+c     This example does a basic test of the solver by solving the
+c     system:
+c               f(u) = 0  for
+c               f(u) = u(i)^2 - i^2
+c
+c      No scaling is done.
+c      An approximate diagonal preconditioner is used.
+c
+c      Execution command: mpirun -np 4 kindiagpf
+c     ----------------------------------------------------------------
 c
       include "mpif.h"
 
@@ -29,7 +38,7 @@ c
 
       nlocal = localsize
       neq = 4*nlocal
-      globalstrat = 0
+      globalstrat = 1
       fnormtol = 0.00001
       scsteptol = 0.0001
       inopt = 0
@@ -114,8 +123,8 @@ c     number of this process.
      3       ' interface'/' in a parallel environment.'/
      4       ' globalstrategy = INEXACT_NEWTON'/)
 
-      call fkinsol(uu, 0, scale, scale, ier)
-      if (ier .ne. 0) then
+      call fkinsol(uu, globalstrat, scale, scale, ier)
+      if (ier .lt. 0) then
          write(6,1242) ier
  1242    format('SUNDIALS_ERROR: FKINSOL returned IER =',i2)
          call mpi_abort(MPI_COMM_WORLD, 1, ier)
