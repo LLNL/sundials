@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.18 $
-C     $Date: 2004-10-15 00:25:22 $
+C     $Revision: 1.19 $
+C     $Date: 2004-10-21 20:58:41 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
@@ -226,10 +226,10 @@ C
       COMMON /PCOM/ HDCO, VDCO, HACO, MX, MY, MM
 C
 C Set diurnal rate coefficients.
-      S = DSIN(OM * T)
+      S = SIN(OM * T)
       IF (S .GT. 0.0D0) THEN
-        Q3 = DEXP(-A3 / S)
-        Q4 = DEXP(-A4 / S)
+        Q3 = EXP(-A3 / S)
+        Q4 = EXP(-A4 / S)
       ELSE
         Q3 = 0.0D0
         Q4 = 0.0D0
@@ -239,8 +239,8 @@ C Loop over all grid points.
       DO 20 JY = 1, MY
         YDN = 30.0D0 + (JY - 1.5D0) * DY
         YUP = YDN + DY
-        CYDN = VDCO * DEXP(0.2D0 * YDN)
-        CYUP = VDCO * DEXP(0.2D0 * YUP)
+        CYDN = VDCO * EXP(0.2D0 * YDN)
+        CYUP = VDCO * EXP(0.2D0 * YUP)
         IBLOK0 = (JY - 1) * MX
         IDN = -MX
         IF (JY .EQ. 1) IDN = MX
@@ -319,8 +319,8 @@ C   (using q4 value computed on last FCVFUN call).
       DO 20 JY = 1, MY
         YDN = 30.0D0 + (JY - 1.5D0) * DY
         YUP = YDN + DY
-        CYDN = VDCO * DEXP(0.2D0 * YDN)
-        CYUP = VDCO * DEXP(0.2D0 * YUP)
+        CYDN = VDCO * EXP(0.2D0 * YDN)
+        CYUP = VDCO * EXP(0.2D0 * YUP)
         DIAG = -(CYDN + CYUP + 2.0D0 * HDCO)
         IBLOK0 = (JY - 1) * MX
         DO 10 JX = 1, MX
@@ -773,23 +773,23 @@ c
 c        code for increment not equal to 1
 c
       ix = 1
-      dmax = dabs(dx(1))
+      dmax = abs(dx(1))
       ix = ix + incx
       do 10 i = 2, n
-         if (dabs(dx(ix)) .le. dmax) go to 5
+         if (abs(dx(ix)) .le. dmax) go to 5
          idamax = i
-         dmax = dabs(dx(ix))
+         dmax = abs(dx(ix))
     5    ix = ix + incx
    10 continue
       return
 c
 c        code for increment equal to 1
 c
-   20 dmax = dabs(dx(1))
+   20 dmax = abs(dx(1))
       do 30 i = 2, n
-         if (dabs(dx(i)) .le. dmax) go to 30
+         if (abs(dx(i)) .le. dmax) go to 30
          idamax = i
-         dmax = dabs(dx(i))
+         dmax = abs(dx(i))
    30 continue
       return
       end
