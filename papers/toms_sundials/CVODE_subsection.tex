@@ -143,7 +143,10 @@ right, or both, with user-supplied routines for the preconditioning
 setup and solve operations, and optionally also for the matrix-vector
 products $Jv$ required.  If a routine for $Jv$ is not supplied, these
 products are computed as
-\[ Jv = [f(t,y+\sigma v) - f(t,y)]/\sigma ~. \]
+\begin{equation}
+Jv = [f(t,y+\sigma v) - f(t,y)]/\sigma ~. 
+\label{jacobv}
+\end{equation}
 The increment $\sigma$ is $1/\|v\|_{WRMS}$, where $\|\cdot\|_{WRMS}$
 is the weighted RMS norm involving the error weights $W_j$.
 
