@@ -752,7 +752,7 @@ For the most casual use of {\cvode}, the reader can skip to \S\ref{ss:user_fct_s
 We note that, on error return, all these functions also print an error message
 to \id{stderr} (or to the file pointed to by \id{errfp} if already specified).
 \index{error message}
-We also note that all error return values are negative, so a test \id{flag}$==0$
+We also note that all error return values are negative, so a test \id{flag}$<0$
 will catch any error.
 
 \begin{table}
@@ -905,7 +905,7 @@ flag = CVodeResetIterType(cvode\_mem, iter);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_ILL\_INPUT]
+  \begin{args}[CV\_MEM\_NULL]
   \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
