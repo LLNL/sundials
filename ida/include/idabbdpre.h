@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-10-18 22:08:49 $
+ * $Revision: 1.23 $
+ * $Date: 2004-10-21 15:57:40 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -110,13 +110,13 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Type : IDALocalFn                                              
+ * Type : IDABBDLocalFn                                              
  *----------------------------------------------------------------*        
  * The user must supply a function G(t,y,y') which approximates   
  * the function F for the system F(t,y,y') = 0, and which is      
  * computed locally (without inter-processor communication).      
  * (The case where G is mathematically identical to F is allowed.)
- * The implementation of this function must have type IDALocalFn. 
+ * The implementation of this function must have type IDABBDLocalFn. 
  *                                                                
  * This function takes as input the independent variable value tt,
  * the current solution vector yy, the current solution           
@@ -130,20 +130,20 @@ extern "C" {
  * parameter is the same as that passed by the user to the        
  * IDAMalloc routine.                                             
  *                                                                
- * A IDALocalFn glocal is to return an int, defined in the same   
+ * A IDABBDLocalFn glocal is to return an int, defined in the same   
  * way as for the residual function: 0 (success), +1 or -1 (fail).
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDALocalFn)(long int Nlocal, realtype tt, 
-                          N_Vector yy, N_Vector yp, N_Vector gval, 
-                          void *res_data);
+typedef int (*IDABBDLocalFn)(long int Nlocal, realtype tt, 
+                             N_Vector yy, N_Vector yp, N_Vector gval, 
+                             void *res_data);
  
 /*
  * -----------------------------------------------------------------
- * Type : IDACommFn                                               
+ * Type : IDABBDCommFn                                               
  *----------------------------------------------------------------
- * The user may supply a function of type IDACommFn which        
+ * The user may supply a function of type IDABBDCommFn which        
  * performs all inter-processor communication necessary to        
  * evaluate the approximate system function described above.      
  *                                                                
@@ -152,24 +152,24 @@ typedef int (*IDALocalFn)(long int Nlocal, realtype tt,
  * res_data parameter is the same as that passed by the user to   
  * the IDAMalloc routine.                                         
  *                                                                
- * The IDACommFn gcomm is expected to save communicated data in   
+ * The IDABBDCommFn gcomm is expected to save communicated data in   
  * space defined with the structure *res_data.                    
  *                                                                
- * A IDACommFn gcomm returns an int value equal to 0 (success),   
+ * A IDABBDCommFn gcomm returns an int value equal to 0 (success),   
  * > 0 (recoverable error), or < 0 (unrecoverable error).         
  *                                                                
- * Each call to the IDACommFn is preceded by a call to the system 
+ * Each call to the IDABBDCommFn is preceded by a call to the system 
  * function res with the same vectors yy and yp. Thus the         
- * IDACommFn gcomm can omit any communications done by res if     
+ * IDABBDCommFn gcomm can omit any communications done by res if     
  * relevant to the evaluation of the local function glocal.       
  * A NULL communication function can be passed to IDABBDPrecAlloc
  * if all necessary communication was done by res.
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDACommFn)(long int Nlocal, realtype tt, 
-                         N_Vector yy, N_Vector yp, 
-                         void *res_data);
+typedef int (*IDABBDCommFn)(long int Nlocal, realtype tt, 
+                            N_Vector yy, N_Vector yp, 
+                            void *res_data);
 
 /*
  * -----------------------------------------------------------------
@@ -216,7 +216,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 		      long int mudq, long int mldq, 
 		      long int mukeep, long int mlkeep, 
 		      realtype dq_rel_yy, 
-		      IDALocalFn glocal, IDACommFn gcomm);
+		      IDABBDLocalFn glocal, IDABBDCommFn gcomm);
 
 /*
  * -----------------------------------------------------------------
@@ -272,7 +272,7 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data);
 int IDABBDPrecReInit(void *p_data, 
 		     long int mudq, long int mldq,
 		     realtype dq_rel_yy, 
-		     IDALocalFn glocal, IDACommFn gcomm); 
+		     IDABBDLocalFn glocal, IDABBDCommFn gcomm); 
 
 /*
  * -----------------------------------------------------------------

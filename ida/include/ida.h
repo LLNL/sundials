@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-10-11 15:59:21 $
+ * $Revision: 1.24 $
+ * $Date: 2004-10-21 15:57:40 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -39,13 +39,14 @@ extern "C" {
 
 /*
  * ----------------------------------------------------------------
- * Type : ResFn                                                   
+ * Type : IDAResFn                                                   
  * ----------------------------------------------------------------
  * The F function which defines the DAE system   F(t,y,y')=0      
- * must have type ResFn.                                          
- * Symbols are as follows: t  <-> tres     y <-> yy               
- *                         y' <-> yp       F <-> res (type ResFn) 
- * A ResFn takes as input the independent variable value tres,    
+ * must have type IDAResFn.                                          
+ * Symbols are as follows: 
+ *                  t  <-> tres     y <-> yy               
+ *                  y' <-> yp       F <-> res (type IDAResFn) 
+ * A IDAResFn takes as input the independent variable value tres,    
  * the dependent variable vector yy, and the derivative (with     
  * respect to t) of the yy vector, yp.  It stores the result of   
  * F(t,y,y') in the vector resval. The yy, yp, and resval         
@@ -55,7 +56,7 @@ extern "C" {
  * to the user's res function every time it is called, to provide 
  * access in res to user data.                                    
  *                                                                
- * A ResFn res will return the value ires, which has possible     
+ * A IDAResFn res will return the value ires, which has possible     
  * values RES_ERROR_RECVR = 1, RES_ERROR_NONRECVR = -1,           
  * and SUCCESS = 0. The file ida.h may be used to obtain these    
  * values but is not required; returning 0, +1, or -1 suffices.   
@@ -65,8 +66,8 @@ extern "C" {
  * ----------------------------------------------------------------
  */
 
-typedef int (*ResFn)(realtype tres, N_Vector yy, N_Vector yp, 
-                     N_Vector resval, void *rdata);
+typedef int (*IDAResFn)(realtype tres, N_Vector yy, N_Vector yp, 
+                        N_Vector resval, void *rdata);
  
 /*
  * ----------------------------------------------------------------
@@ -287,7 +288,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints);
  * ----------------------------------------------------------------
  */
 
-int IDAMalloc(void *ida_mem, ResFn res,
+int IDAMalloc(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector y0, N_Vector yp0, 
               int itol, realtype *rtol, void *atol);
 
@@ -331,7 +332,7 @@ int IDAMalloc(void *ida_mem, ResFn res,
  * ----------------------------------------------------------------
  */                                                                
 
-int IDAReInit(void *ida_mem, ResFn res,
+int IDAReInit(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector y0, N_Vector yp0,
               int itol, realtype *rtol, void *atol);
  
@@ -465,10 +466,10 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  *                     is zero (illegal), either for the input    
  *                     value of y0 or a corrected value.          
  *                                                                
- * IDA_RES_FAIL        The user's ResFn residual routine returned 
+ * IDA_RES_FAIL        The user's residual routine returned 
  *                     a non-recoverable error flag.              
  *                                                                
- * IDA_FIRST_RES_FAIL  The user's ResFn residual routine returned 
+ * IDA_FIRST_RES_FAIL  The user's residual routine returned 
  *                     a recoverable error flag on the first call,
  *                     but IDACalcIC was unable to recover.       
  *                                                                
