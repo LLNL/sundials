@@ -68,8 +68,14 @@ all:
 	@(echo 'List of parallel adjoint CVODES examples (using the parallel NVECTOR module):')
 	@(echo)
 
-examples:
+examples: pvanx
+
+pvanx:
+	@echo '...Compile pvanx...'
+	@$(CC) $(CFLAGS) -o pvanx pvanx.c -lcvodes.$(ARCH) -lnvecparallel.$(ARCH) -lshared.$(ARCH) -lm
+	@rm -f pvanx.o
 
 purge:
+	@(rm -f pvanx)
 
 #---End of cvax_par.mk---
