@@ -199,12 +199,12 @@ $y = j \Delta y$. The ODEs are
 \frac{dv_{ij}}{dt} = f_{ij} =
          \frac{v_{i-1,j} - 2 v_{ij} + v_{i+1,j}}{(\Delta x)^2}
        + .5  \frac{v_{i+1,j} - v_{i-1,j}}{2 \Delta x}
-       + \frac{v_{i,j-1} - 2 v_{ij} + v_{i,j+1}}{(\Delta y)^2},
+       + \frac{v_{i,j-1} - 2 v_{ij} + v_{i,j+1}}{(\Delta y)^2} \, ,
 \end{equation}
 where $1 \leq i \leq $\id{MX} and $1 \leq j \leq $\id{MY}.  The boundary
 conditions are imposed by taking $v_{ij} = 0$ above if $i = 0$
 or \id{MX}$ + 1$, or if $j = 0$ or \id{MY}$ + 1$. 
-If we set $u_{(j-1)+(i-1)*\id{MY}} = v_{ij}$, so that the ODE system is
+If we set $u_{(j-1)+(i-1)*MY} = v_{ij}$, so that the ODE system is
 $\dot{u} = f(u)$, then the system Jacobian $J = \partial f / \partial u$ is
 a band matrix with upper and lower half-bandwidths both equal to \id{MY}.
 In the example, we take \id{MX} $= 10$ and \id{MY} $= 5$.
