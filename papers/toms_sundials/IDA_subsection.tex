@@ -17,7 +17,7 @@ are given.  (Often $t$ is time, but it certainly need not be.)
 
 % Initial condition calculation
 %------------------------------
-An important requirement before integrating a DAE initial-value problem
+Prior to integrating a DAE initial-value problem, an important requirement 
 is that the pair of vectors $y_0$ and ${\dot y_0}$ are both initialized to
 satisfy the DAE residual $F(t_0,y_0, {\dot y}_0) = 0$.
 For a class of problems that includes so-called
@@ -97,7 +97,7 @@ so that GMRES is applied to systems $(P^{-1}J)\Delta y = -P^{-1}F$.
 
 % Newton iteration
 %-----------------
-In the cases of a direct linear solver (dense or bande), the nonlinear 
+In the cases of a direct linear solver (dense or band), the nonlinear 
 iteration (\ref{e:DAE_Newtoncorr}) is a Modified Newton iteration, in
 that the Jacobian $J$ is fixed (and usually out of date), with
 relaxation with respect to $\bar\alpha \neq \alpha$ in $J$. When using
@@ -128,13 +128,13 @@ R = \left( \frac{\delta_m}{\delta_1} \right)^{\frac{1}{m-1}} \, ,
 \end{equation*}
 where the $\delta_m = y_{n(m)} - y_{n(m-1)}$ is the correction at
 iteration $m=1,2,\ldots$. The Newton iteration is halted if $R>0.9$.
-The convergence test, at the $m$-th iteration is then
+The convergence test at the $m$-th iteration is then
 \begin{equation}\label{e:DAE_nls_test}
 S \| \delta_m \| < 0.33 \, ,
 \end{equation}
-where $S = R/(R-1)$, whenever $m>1$ and $R\le 0.9$. The user has the
+where $S = R/(R-1)$ whenever $m>1$ and $R\le 0.9$. The user has the
 option of changing the constant in the convergence test from its default 
-value of $0.3$
+value of $0.3$.
 %
 The quantity $S$ is set to $S=20$ initially and whenever $J$ or $P$ is
 updated, and is reset to $S=100$ on a step with $\alpha \neq \bar\alpha$.
