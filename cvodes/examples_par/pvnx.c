@@ -32,14 +32,13 @@
 
 /* CVODE header files with a description of contents used here */
 
-#include "sundialstypes.h"     /* definitions of realtype, integertype        */
-#include "cvodes.h"           /* prototypes for CVodeMalloc, CVode, and      */
+#include "sundialstypes.h"     /* definition of realtype                      */
+#include "cvodes.h"           /* prototypes for CVodeMalloc, CVode, and       */
                                /* CVodeFree, constants OPT_SIZE, FUNCTIONAL,  */
                                /* ADAMS, SS, SUCCESS, NST,NFE, NNI, NCFN,NETF */
 #include "nvector_parallel.h"  /* definitions of type N_Vector and vector     */
                                /* macros, prototypes for N_Vector functions   */
 #include "mpi.h"               /* for MPI constants and types                 */
-
 
 /* Problem Constants */
 
@@ -52,22 +51,20 @@
 #define DTOUT 0.5          /* output time increment     */
 #define NOUT  10           /* number of output times    */
 
-
 /* Type : UserData 
    contains grid constants, parallel machine parameters, work array. */
 
 typedef struct {
   realtype dx, hdcoef, hacoef;
-  integertype npes, my_pe;
+  long int npes, my_pe;
   MPI_Comm comm;
   realtype z[100];
 } *UserData;
 
-
 /* Private Helper Functions */
 
-static void SetIC(N_Vector u, realtype dx, integertype my_length,
-                  integertype my_base);
+static void SetIC(N_Vector u, realtype dx, long int my_length,
+                  long int my_base);
 
 static void PrintFinalStats(void *cvode_mem);
 
@@ -75,6 +72,9 @@ static void PrintFinalStats(void *cvode_mem);
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 /***************************** Main Program ******************************/
 
@@ -85,10 +85,14 @@ int main(int argc, char *argv[])
   N_Vector u;
   UserData data;
   void *cvode_mem;
-  int iout, flag, my_pe, npes, nst;
-  integertype local_N, nperpe, nrem, my_base;
-
+  int iout, flag, my_pe, npes;
+  long int local_N, nperpe, nrem, my_base, nst;
   MPI_Comm comm;
+
+  nvSpec = NULL;
+  u = NULL;
+  data = NULL;
+  cvode_mem = NULL;
 
   /* Get processor number, total number of pe's, and my_pe. */
   MPI_Init(&argc, &argv);
@@ -103,14 +107,20 @@ int main(int argc, char *argv[])
   my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
 
   data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
+  if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
   data->comm = comm;
   data->npes = npes;
   data->my_pe = my_pe;
 
   nvSpec = NV_SpecInit_Parallel(comm, local_N, NEQ, &argc, &argv);
+  if(nvSpec == NULL) {
+    if(my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
+    MPI_Finalize();
+    return(1); }
 
   u = N_VNew(nvSpec);    /* Allocate u vector */
+  if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
 
   reltol = 0.0;           /* Set the tolerances */
   abstol = ATOL;
@@ -131,16 +141,10 @@ int main(int argc, char *argv[])
   */
 
   cvode_mem = CVodeCreate(ADAMS, FUNCTIONAL);
-  if (cvode_mem == NULL) { 
-    if (my_pe == 0) printf("CVodeCreate failed.\n"); 
-    return(1); 
-  }
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVodeSetFdata(cvode_mem, data);
-  if (flag != SUCCESS) { 
-    if (my_pe == 0) printf("CVodeSetFdata failed.\n"); 
-    return(1); 
-  }
+  if(check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* 
      Call CVodeMalloc to initialize CVODES memory: 
@@ -155,10 +159,7 @@ int main(int argc, char *argv[])
   */
 
   flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
-  if (flag != SUCCESS) { 
-    if (my_pe == 0) printf("CVodeMalloc failed.\n"); 
-    return(1); 
-  }
+  if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) {
     printf("\n 1-D advection-diffusion equation, mesh size =%3d \n", MX);
@@ -173,14 +174,12 @@ int main(int argc, char *argv[])
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
-    if (flag != SUCCESS) { 
-      if (my_pe == 0) printf("CVode failed, flag=%d.\n", flag); 
-      break; 
-    }
+    if(check_flag(&flag, "CVode", 1, my_pe)) break;
     umax = N_VMaxNorm(u);
     flag = CVodeGetNumSteps(cvode_mem, &nst);
+    check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
     if (my_pe == 0) 
-      printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4d \n", t,umax,nst);
+      printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4ld \n", t,umax,nst);
   }
 
   if (my_pe == 0) 
@@ -190,21 +189,21 @@ int main(int argc, char *argv[])
   CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
   free(data);                  /* Free user data */
   NV_SpecFree_Parallel(nvSpec);
+
   MPI_Finalize();
 
   return(0);
 }
 
-
 /************************ Private Helper Functions ***********************/
 
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, realtype dx, integertype my_length,
-                  integertype my_base)
+static void SetIC(N_Vector u, realtype dx, long int my_length,
+                  long int my_base)
 {
   int i;
-  integertype iglobal;
+  long int iglobal;
   realtype x;
   realtype *udata;
 
@@ -225,19 +224,24 @@ static void SetIC(N_Vector u, realtype dx, integertype my_length,
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  int nst, nfe, nni, ncfn, netf;
-  
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  CVodeGetNumErrTestFails(cvode_mem, &netf);
-  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  long int nst, nfe, nni, ncfn, netf;
+  int flag;
+
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("nst = %-6d  nfe  = %-6d  ", nst, nfe);
-  printf("nni = %-6d  ncfn = %-6d  netf = %d\n \n", nni, ncfn, netf);
+  printf("nst = %-6ld  nfe  = %-6ld  ", nst, nfe);
+  printf("nni = %-6ld  ncfn = %-6ld  netf = %ld\n \n", nni, ncfn, netf);
 }
-
 
 /***************** Function Called by the CVODE Solver ******************/
 
@@ -306,4 +310,33 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     hadv = horac*(urt - ult);
     dudata[i-1] = hdiff + hadv;
   }
+}
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    return(1); }
+
+  return(0);
 }
