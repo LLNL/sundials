@@ -212,7 +212,7 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
 
   For each point at which output is desired, call
   \id{ier = }\Id{CVode}\id{(cvode\_mem, tout, yout, \&tret, itask);}
-  Set \id{itask} to specify the return mode.
+  Set \Id{itask} to specify the return mode.
   The vector \id{y} (which can be the same as
   the vector \id{y0} above) will contain $y(t)$.
   See \S\ref{sss:cvode} for details.
@@ -283,12 +283,12 @@ created and allocated by the first two calls.
   \begin{args}[iter]
   \item[lmm] (\id{int})
     specifies the linear multistep method and may be one of two
-    possible values: \Id{ADAMS} or \Id{BDF}.     
+    possible values: \ID{ADAMS} or \ID{BDF}.     
   \item[iter] (\id{int})
     specifies the type of nonlinear solver iteration and may be
-    either \Id{NEWTON} or \Id{FUNCTIONAL}. 
+    either \ID{NEWTON} or \ID{FUNCTIONAL}. 
   \end{args}
-  The recommended choices for (\Id{lmm}, \Id{iter}) are
+  The recommended choices for (\ID{lmm}, \ID{iter}) are
   (\id{ADAMS}, \id{FUNCTIONAL}) for nonstiff problems and
   (\id{BDF}, \id{NEWTON}) for stiff problems.
 }
@@ -321,7 +321,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \Id{SS} or \Id{SV}, where \Id{itol}$=$\id{SS} indicates scalar relative error 
+    is either \ID{SS} or \ID{SV}, where \ID{itol}$=$\id{SS} indicates scalar relative error 
     tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{SV} indicates scalar
     relative error tolerance and vector absolute error tolerance. 
     The latter choice is important when the absolute error tolerance needs to
@@ -559,7 +559,7 @@ separately in \S\ref{s:gen_linsolv}.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
-    \index{pretype@\texttt{pretype}}
+    \index{pretype@\texttt{pretype}|textbf}
     preconditioning type. Can be one of: \Id{NONE}, \Id{LEFT}, \Id{RIGHT}, or \Id{BOTH}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
@@ -595,7 +595,7 @@ separately in \S\ref{s:gen_linsolv}.
   rather than using one factor on each side. For specification of preconditioner,
   see \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
 
-  If preconditioning is done, user-supplied routines define left and right 
+  If preconditioning is done, user-supplied functionss define left and right 
   preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity matrix),
   such that the product $P_1 P_2$ approximates the Newton matrix $M=I-\gamma J$ of 
   (\ref{e:Newtonmat}).
@@ -627,7 +627,7 @@ of the IVP.
   \item[tret] (\id{realtype *})
     the time reached by the solver.
   \item[itask] (\id{int})
-    \index{itask@\texttt{itask}}
+    \index{itask@\texttt{itask}|textbf}
     a flag indicating the job of the solver for the next user step. 
     The \Id{NORMAL} task is to have the solver take internal steps until   
     it has reached or just passed the user specified \id{tout}
@@ -725,13 +725,13 @@ will catch any error.
 \label{t:optional_input}
 \medskip
 \begin{tabular}{|l|l|l|}\hline
-{\bf Optional input} & {\bf Routine name} & {\bf Default} \\
+{\bf Optional input} & {\bf Function name} & {\bf Default} \\
 \hline
 \multicolumn{3}{|c|}{\bf CVODE main solver} \\
 \hline
 Pointer to an error file & \id{CVodeSetErrFile} & \id{stderr}  \\
 Nonlinear iteration type & \id{CVodeResetIterType} & none \\
-Data for right-hand side routine & \id{CVodeSetFdata} & NULL \\
+Data for right-hand side function & \id{CVodeSetFdata} & NULL \\
 Maximum order for BDF method & \id{CVodeSetMaxOrd} & 5 \\
 Maximum order for Adams method & \id{CVodeSetMaxOrd} & 12  \\
 Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & \id{CVodeSetMaxNumSteps} & 500 \\
@@ -749,21 +749,21 @@ Data for rootfinding function & \id{CVodeSetGdata} & NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf CVDENSE linear solver} \\
 \hline
-Dense Jacobian routine & \id{CVDenseSetJacFn} & internal DQ \\
-Data for Jacobian routine & \id{CVDenseSetJacData} & NULL \\
+Dense Jacobian function & \id{CVDenseSetJacFn} & internal DQ \\
+Data for Jacobian function & \id{CVDenseSetJacData} & NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf CVBAND linear solver} \\
 \hline
-Band Jacobian routine & \id{CVBandSetJacFn} & internal DQ \\
-Data for Jacobian routine & \id{CVBandSetJacData} & NULL \\
+Band Jacobian function & \id{CVBandSetJacFn} & internal DQ \\
+Data for Jacobian function & \id{CVBandSetJacData} & NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPGMR linear solver} \\
 \hline
-Preconditioner solve routine & \id{CVSpgmrSetPrecSolveFn} & NULL \\
-Preconditioner setup routine & \id{CVSpgmrSetPrecSetupFn} & NULL \\
-Data for preconditioner routines & \id{CVSpgmrSetPrecData} & NULL \\
-Jacobian times vector routine & \id{CVSpgmrSetJacTimesVecFn} & NULL \\
-Data for Jacobian times vector routine &\id{CVSpgmrSetJacData} & NULL \\ 
+Preconditioner solve function & \id{CVSpgmrSetPrecSolveFn} & NULL \\
+Preconditioner setup function & \id{CVSpgmrSetPrecSetupFn} & NULL \\
+Data for preconditioner functions & \id{CVSpgmrSetPrecData} & NULL \\
+Jacobian times vector function & \id{CVSpgmrSetJacTimesVecFn} & NULL \\
+Data for Jacobian times vector function &\id{CVSpgmrSetJacData} & NULL \\ 
 Type of Gram-Schmidt orthogonalization & \id{CVSpgmrSetGSType} & classical GS \\
 Ratio between linear and nonlinear tolerances & \id{CVSpgmrSetDelt} & 0.05 \\
 Preconditioning type & \id{CVSpgmrResetPrecType} & none \\
@@ -852,7 +852,7 @@ flag = CVodeResetIterType(cvode\_mem, iter);
   flag = CVodeSetFdata(cvode\_mem, f\_data);
 }
 {
-  The function \ID{CVodeSetFdata} specifies the user data block \Id{f\_data}
+  The function \ID{CVodeSetFdata} specifies the user data block \ID{f\_data}
   for use by the user right-hand side function $f$ and attaches it to the main 
   {\cvode} memory block.
 }
@@ -911,7 +911,7 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
   The default value is \Id{ADAMS\_Q\_MAX}$= 12$ for
   the Adams-Moulton method and \Id{BDF\_Q\_MAX}$= 5$
   for the BDF method.
-  Since \id{maxord} affects the memory requirements
+  Since \ID{maxord} affects the memory requirements
   for the internal {\cvode} memory block, its value
   can not be increased past its previous value.
 }
@@ -1863,7 +1863,7 @@ which are then described in detail in the remainder of this section.
 \label{t:optional_output}
 \medskip
 \begin{tabular}{|l|l|}\hline
-{\bf Optional output} & {\bf Routine name} \\
+{\bf Optional output} & {\bf Function name} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVODE main solver} \\
 \hline
@@ -1871,7 +1871,7 @@ Size of {\cvode} integer workspace & \id{CVodeGetIntWorkSpace} \\
 Size of {\cvode} real workspace & \id{CVodeGetRealWorkSpace} \\
 Cumulative number of internal steps & \id{CVodeGetNumSteps} \\
 No. of calls to r.h.s. function & \id{CVodeGetNumRhsEvals} \\
-No. of calls to linear solver setup routine & \id{CVodeGetNumLinSolvSetups} \\
+No. of calls to linear solver setup function & \id{CVodeGetNumLinSolvSetups} \\
 No. of local error test failures that have occurred & \id{CVodeGetNumErrTestFails} \\
 Order used during the last step & \id{CVodeGetLastOrder} \\
 Order to be attempted on the next step & \id{CVodeGetCurrentOrder} \\
@@ -1958,7 +1958,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1985,7 +1985,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2015,7 +2015,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2044,7 +2044,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2072,7 +2072,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2098,13 +2098,13 @@ These optional output functions are described next.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[nlinsetups] (\id{long int *})
-    number of calls made to the linear solver setup routine.
+    number of calls made to the linear solver setup function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2132,7 +2132,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2160,7 +2160,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2188,7 +2188,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2216,7 +2216,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2244,7 +2244,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2272,7 +2272,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2306,7 +2306,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2335,7 +2335,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SLDET]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2368,7 +2368,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2396,7 +2396,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2427,7 +2427,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2459,7 +2459,7 @@ These optional output functions are described next.
   \item[nfevals] (\id{long int *})
     number of calls to the user's \id{f} function.
   \item[nlinsetups] (\id{long int *})
-    number of calls made to the linear solver setup routine.
+    number of calls made to the linear solver setup function.
   \item[netfails] (\id{long int *})
     number of error test failures.
   \item[qlast] (\id{int *})
@@ -2479,7 +2479,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     the optional output values have been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     the \id{cvode\_mem} pointer is \id{NULL}.
@@ -2507,7 +2507,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2535,7 +2535,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2565,7 +2565,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2609,7 +2609,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2641,7 +2641,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2677,7 +2677,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2708,7 +2708,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2753,7 +2753,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2785,7 +2785,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2822,7 +2822,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2853,7 +2853,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2898,7 +2898,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2927,7 +2927,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2964,7 +2964,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -3010,7 +3010,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -3039,7 +3039,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -3076,7 +3076,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -3106,7 +3106,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -3137,7 +3137,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -3168,7 +3168,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -3199,7 +3199,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -3230,7 +3230,7 @@ to access these are described below.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -3290,9 +3290,9 @@ will be reused for the new problem.
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \Id{SS} or \Id{SV}, where \id{SS} indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{SV} indicates scalar
-    relative error tolerance and vector absolute error tolerance. 
+    is either \Id{SS} or \Id{SV}, where \Id{itol}$=$\id{SS} indicates scalar relative error 
+    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{SV} 
+    indicates scalar relative error tolerance and vector absolute error tolerance. 
     The latter choice is important when the absolute error tolerance needs to
     be different for each component of the ODE. 
   \item[reltol] (\id{realtype *})
@@ -3791,7 +3791,7 @@ There is one optional input function associated with rootfinding.
   flag = CVodeSetGdata(cvode\_mem, g\_data);
 }
 {
-  The function \ID{CVodeSetGdata} specifies the user data block \Id{g\_data}
+  The function \ID{CVodeSetGdata} specifies the user data block \ID{g\_data}
   for use by the user's root function $g$.
 }
 {
@@ -3841,7 +3841,7 @@ There are two optional output functions associated with rootfinding.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output values have been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -3869,7 +3869,7 @@ There are two optional output functions associated with rootfinding.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -4164,7 +4164,7 @@ the {\cvbandpre} module:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BP\_NO\_DATA]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{BP\_NO\_DATA}]
     The {\cvbandpre} preconditioner has not been initialized.
@@ -4195,7 +4195,7 @@ the {\cvbandpre} module:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BP\_NO\_DATA]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{BP\_NO\_DATA}]
     The {\cvbandpre} preconditioner has not been initialized.
@@ -4230,7 +4230,7 @@ the {\cvbandpre} module:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BP\_NO\_DATA]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{BP\_NO\_DATA}]
     The {\cvbandpre} preconditioner has not been initialized.
@@ -4370,7 +4370,7 @@ then used by \id{gloc}, which is not expected to do any communication.
   A \id{CVLocalFn} function type does not have a return value.
 }
 {
-  This routine assumes that all inter-processor communication of data needed to 
+  This function assumes that all inter-processor communication of data needed to 
   calculate \id{glocal} has already been done, and this data is accessible within
   \id{f\_data}.
 
@@ -4644,7 +4644,7 @@ next.
 }
 {}
 %%
-The {\cvbbdpre} module also provides a reinitialization routine to allow
+The {\cvbbdpre} module also provides a reinitialization function to allow
 solving  a sequence of problems of the same size with {\cvspgmr}/{\cvbbdpre},
 provided there is no change in \id{local\_N}, \id{mukeep}, or \id{mlkeep}.
 After solving one problem, and after calling \id{CVodeReInit} to re-initialize 
@@ -4716,7 +4716,7 @@ the {\cvbbdpre} module:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BBDP\_NO\_DATA]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{BBDP\_NO\_DATA}]
     The {\cvbbdpre} preconditioner has not been initialized.
@@ -4747,7 +4747,7 @@ the {\cvbbdpre} module:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BBDP\_NO\_DATA]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{BBDP\_NO\_DATA}]
     The {\cvbbdpre} preconditioner has not been initialized.
@@ -4782,7 +4782,7 @@ the {\cvbbdpre} module:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BBDP\_NO\_DATA]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{BBDP\_NO\_DATA}]
     The {\cvbbdpre} preconditioner has not been initialized.
@@ -4841,14 +4841,14 @@ are as follows:
 \item Interface to the main {\cvode} module
   \begin{itemize}
   \item \id{FCVMALLOC}
-    interfaces to \id{CVodeCreate}, \id{CVodeSet*} routines, and \id{CVodeMalloc}.
+    interfaces to \id{CVodeCreate}, \id{CVodeSet*} functions, and \id{CVodeMalloc}.
   \item \id{FCVREINIT}  
-    interfaces to \id{CVodeReInit} and \id{CVodeSet*} routines.
+    interfaces to \id{CVodeReInit} and \id{CVodeSet*} functions.
   \item \id{FCVODE}
-    interfaces to \id{CVode}, \id{CVodeGet*} routines, and to the optional output routines 
+    interfaces to \id{CVode}, \id{CVodeGet*} functions, and to the optional output functions 
     for the selected linear solver module.
   \item \id{FCVDKY}     
-    interfaces to the interpolated output routine \id{CVodeGetDky}.
+    interfaces to the interpolated output function \id{CVodeGetDky}.
   \item \id{FCVFREE}    
     interfaces to \id{CVodeFree}.
   \end{itemize}  
@@ -4865,9 +4865,9 @@ are as follows:
   \item \id{FCVBANDSETJAC}
     interfaces to \id{CVBandSetJac}.
   \item \id{FCVSPGMR}
-    interfaces to \id{CVSpgmr} and {\spgmr} optional input routines.
+    interfaces to \id{CVSpgmr} and {\spgmr} optional input functions.
   \item \id{FCVSPGMRREINIT} 
-    interfaces to {\spgmr} optional input routines.
+    interfaces to {\spgmr} optional input functions.
   \item \id{FCVSPGMRSETJAC}
    interfaces to \id{CVSpgmrSetJacTimesVecFn}.
  \item \id{FCVSPGMRSETPSOL}
@@ -4885,7 +4885,7 @@ function which calls it (and its type within {\cvode}), are as follows:
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
-{\fcvode} routine ({\F})  &  {\cvode} routine ({\C}) & {\cvode} function type \\\hline
+{\fcvode} routine ({\F})  &  {\cvode} function ({\C}) & {\cvode} function type \\\hline
 \id{FCVFUN}    & \id{FCVf}        & \id{RhsFn} \\
 \id{FCVDJAC}   & \id{FCVDenseJac} & \id{CVDenseJacFn} \\
 \id{FCVBJAC}   & \id{FCVBandJac}  & \id{CVBandJacFn} \\
@@ -4898,7 +4898,8 @@ In contrast to the case of direct use of {\cvode}, and of most {\F} ODE
 solvers, the names of all user-supplied routines here are fixed, in
 order to maximize portability for the resulting mixed-language program.
 
-{\em Important note on portability}.
+\subsubsection{Important note on portability}
+\index{portability!Fortran}
 In this package, the names of the interface functions, and the names of
 the {\F} user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
@@ -4909,20 +4910,28 @@ which can be set when configuring {\sundials} (see \S\ref{s:install}).
 The names into which the dummy names are mapped have one, two, or no underscore
 appended, depending on these parameters.
 
+The user must also ensure that variables in the user {F} code are
+declared in a manner consistent with their counterparts in {\cvode}.
+All real variables must be declared as \id{REAL} or \id{DOUBLE PRECISION},
+depending on whether {\cvode} was built in single or double precision 
+(see \S\ref{s:install}). Moreover, some of the {\F} integer variables
+must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
+{\C} type \id{long int}. This integer variables are: the array
+of integer optional inputs and outputs (\id{IOPT}), problem dimensions (\id{NEQ},
+\id{NLOCAL}, \id{NGLOBAL}), and Jacobian bandwidths (\id{MU}, \id{ML},
+\id{MUDQ}, and \id{MLDQ}). This is particularly important when using
+{\cvode} and the {\fcvode} package on 64-bit architectures.
+
 \subsection{FCVODE optional input and output}
 
 \index{FCVODE@{\fcvode} interface module!optional input and output}
 In order to keep the number of user-callable {\fcvode} interface routines to
 a minimum, optional inputs and outputs to the {\cvode} solver and to related 
-modules are not accessed through individual routines, but rather through a
+modules are not accessed through individual functions, but rather through a
 pair of arrays, \Id{IOPT} of integer type and \Id{ROPT} of real type.
-Note that \id{IOPT} must be declared as \id{INTEGER*4} or \id{INTEGER*8}
-according to the {\C} type \id{long int}, while \id{ROPT} must be declared
-as \id{REAL} or \id{DOUBLE PRECISION} depending on whether {\cvode} was
-built in single or double precision (see \S\ref{s:install}).
 Table \ref{t:fcvode_io} lists the entries in these two arrays and specifies the
 {\fcvode} user-callable routine which sets/accesses the corresponding optional
-variable, as well as the {\cvode} optional routine which is actually called.
+variable, as well as the {\cvode} optional function which is actually called.
 For more details on the optional inputs and outputs, see \S\ref{ss:optional_input}
 and \S\ref{ss:optional_output}.
 
@@ -4945,7 +4954,7 @@ $0$ if \id{EWT} was successfully set and non-zero if an error occured.
 \begin{tabular}{|l|c|l|l|}
 \multicolumn{4}{c}{Integer input-output array \id{IOPT}}\\
 \hline
-{\bf Index} & {\bf I/O} & {\fcvode} {\bf routine} & {\cvode} {\bf routine} \\ 
+{\bf Index} & {\bf I/O} & {\fcvode} {\bf routine} & {\cvode} {\bf function} \\ 
 \hline
 \multicolumn{4}{|c|}{{\cvode} main solver}\\
 \hline
@@ -5017,7 +5026,7 @@ $0$ if \id{EWT} was successfully set and non-zero if an error occured.
 \hline
 \multicolumn{4}{c}{}\\
 \multicolumn{4}{c}{Real input-output array \id{ROPT}}\\\hline
-{\bf Index} & {\bf I/O} & {\fcvode} {\bf routine} & {\cvode} {\bf routine} \\ 
+{\bf Index} & {\bf I/O} & {\fcvode} {\bf routine} & {\cvode} {\bf function} \\ 
 \hline
 %
 1 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetInitStep} \\
@@ -5053,7 +5062,7 @@ functions, depending on the method options selected, and one or more
 user-supplied routines which define the problem to be solved.  These
 function calls and user routines are summarized separately below.
 Some details are omitted, and the user is referred to the description
-of the corresponding {\cvode} routines for information on the arguments 
+of the corresponding {\cvode} functions for information on the arguments 
 of any given user-callable interface routine, or of a given user-supplied 
 function called by an interface function.
 The usage of {\fcvode} with preconditioner modules is described in later
@@ -5089,7 +5098,7 @@ apply to {\nvecp}.
   if a failure occured.
   
   {\p} To initialize the parallel vector module, the user must make the following call:
-  \index{FNVINITP\@texttt{FNVINITP}}
+  \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
       CALL FNVINITP(NLOCAL, NGLOBAL, IER)
 \end{verbatim}
@@ -5182,7 +5191,7 @@ apply to {\nvecp}.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success , $-1$ if a memory allocation failure occured, or $-2$ for illegal input. 
   
-  \index{Jacobian approximation routine!dense!use in {\fcvode}}
+  \index{Jacobian approximation function!dense!use in {\fcvode}}
   As an option when using the {\dense} linear solver, the user may supply a
   routine that computes a dense approximation of the system Jacobian 
   $J = \partial f / \partial y$. If supplied, it must have the following form:
@@ -5229,7 +5238,7 @@ apply to {\nvecp}.
   $0$ for success , $-1$ if a memory allocation failure occured, or $-2$ 
   in case an input has an illegal value.     
   
-  \index{Jacobian approximation routine!band!use in {\fcvode}}
+  \index{Jacobian approximation function!band!use in {\fcvode}}
   As an option when using the {\band} linear solver, the user may supply a
   routine that computes a band approximation of the system Jacobian 
   $J = \partial f / \partial y$. If supplied, it must have the following form:
@@ -5286,7 +5295,7 @@ apply to {\nvecp}.
   \id{IER} is an error return flag which can be $0$ to indicate success, 
   $-1$ if a memory allocation failure occured, or $-2$ to indicate an illegal input.
   
-  \index{Jacobian approximation routine!Jacobian times vector!use in {\fcvode}}
+  \index{Jacobian approximation function!Jacobian times vector!use in {\fcvode}}
   As an option when using the {\spgmr} linear solver, the user may supply a 
   routine that computes the product of the system Jacobian 
   $J = \partial f / \partial y$ 
@@ -5478,7 +5487,7 @@ The user-callable functions constituting the {\fcvroot}, with the corresponding
 \end{itemize}
 %%
 In order to use the rootfinding feature of the {\cvode} package the user must
-define the following subroutine:
+define the following routine:
 \begin{verbatim}
       SUBROUTINE FCVROOTFN (T, Y, G)
       DIMENSION Y(*), G(*)
@@ -5529,11 +5538,11 @@ The user-callable functions in this package, with the corresponding
 \item \id{FCVBPINIT}
   interfaces to \id{CVBandPrecAlloc}.
 \item \id{FCVBPSPGMR}
-  interfaces to \id{CVBPSpgmr} and {\spgmr} optional input routines.
+  interfaces to \id{CVBPSpgmr} and {\spgmr} optional input functions.
 \item \id{FCVBPREINIT}
   interfaces to \id{CVBandPrecReInit}.
 \item \id{FCVBPOPT}
-  interfaces to {\cvbandpre} optional output routines.
+  interfaces to {\cvbandpre} optional output functions.
 \item \id{FCVBPFREE}
   interfaces to \id{CVBandPrecFree}.
 \end{itemize}
@@ -5637,11 +5646,11 @@ The user-callable functions in this package, with the corresponding
 \item \id{FCVBBDINIT}
   interfaces to \id{CVBBDPrecAlloc}.
 \item \id{FCVBBDSPGMR}
-  interfaces to \id{CVBBDSpgmr} and {\spgmr} optional input routines.
+  interfaces to \id{CVBBDSpgmr} and {\spgmr} optional input functions.
 \item \id{FCVBBDREINIT}
   interfaces to \id{CVBBDPrecReInit}.
 \item \id{FCVBBDOPT}
-  interfaces to {\cvbbdpre} optional output routines.
+  interfaces to {\cvbbdpre} optional output functions.
 \item \id{FCVBBDFREE}
   interfaces to \id{CVBBDPrecFree}.
 \end{itemize}
@@ -5653,7 +5662,7 @@ type within {\cvbbdpre} or {\cvode}):
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
-{\fcvbbd} routine ({\F})  &  {\cvode} routine ({\C}) & {\cvode} function type \\\hline
+{\fcvbbd} routine ({\F})  &  {\cvode} function ({\C}) & {\cvode} function type \\\hline
 \id{FCVLOCFN}  & \id{FCVgloc}     & \id{CVLocalFn} \\
 \id{FCVCOMMF}  & \id{FCVcfn}      & \id{CVCommFn} \\
 \id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpgmrJacTimesVecFn} \\ \hline
