@@ -40,4 +40,6 @@ functions.  (Our example programs use both \id{realtype} and
 \id{RCONST}.)  Users can, however, use the type \id{double}, \id{float}, or
 \id{long double} in their code (assuming the typedef for \id{realtype} matches
 this choice).  Thus, a previously existing piece of ANSI {\C} code can use
-{\sundials} without modifying the codes to use \id{realtype}.
+{\sundials} without modifying the codes to use \id{realtype}, so long
+as the {\sundials} libraries have been installed to use the
+corresponding precision (for details see \S\ref{ss:configuration_options}).
