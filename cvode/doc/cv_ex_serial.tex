@@ -1,6 +1,6 @@
-%===================================================================================
+%===============================================================================
 \section{Serial example problems}\label{s:ex_serial}
-%===================================================================================
+%===============================================================================
 
 \subsection{A dense example: \id{cvdx}}\label{ss:cvdx}
 
@@ -8,25 +8,22 @@ As an initial illustration of the use of the {\cvode} package for the
 integration of IVP ODEs, the following is a sample program provided as part 
 of the package.  It uses the {\cvode} dense linear solver module {\cvdense} 
 and the {\nvecs} module (which provides a serial implementation of {\nvector})
-in the solution of a small chemical kinetics problem
-For the source listed in \A\ref{ss:cvdx}, we give a rather detailed explanation of 
-the parts of the program and their interaction with {\cvode}.
+in the solution of a small chemical kinetics problem.
+For the source listed in Appendix A, we give a rather detailed explanation
+of the parts of the program and their interaction with {\cvode}.
 
 Following the initial comment block, this program has a number
 of \id{\#include} lines, which allow access to useful items in {\cvode}
 header files.  The \id{sundialstypes.h} file provides the definition of the
 type \id{realtype} (see \S\ref{s:types} in the user guide for
 details).  For now, it suffices to read \id{realtype} as \id{double}.
-The \id{cvodes.h} file provides prototypes for the three {\cvode}
+The \id{cvode.h} file provides prototypes for the {\cvode}
 functions to be called (excluding the linear solver selection
 function), and also a number of constants that are to be used in
-dimensioning, setting input arguments, testing the return value of
-\id{CVode}, and accessing the integer optional outputs.
-The \id{cvdense.h} file provides the prototype for the \id{CVDense} 
-function, and a constant \id{DENSE\_NJE} for accessing optional output 
-specific to {\cvdense}.  
-The \id{nvector\_serial.h} file is the header file for the serial implementation
-of the {\nvector} module and includes definitions of the 
+setting input arguments and testing the return value of \id{CVode}.
+The \id{cvdense.h} file provides the prototype for the \id{CVDense} function.
+The \id{nvector\_serial.h} file is the header file for the serial
+implementation of the {\nvector} module and includes definitions of the 
 \id{N\_Vector} type, a macro to access vector components, and prototypes 
 for the serial implementation specific machine environment memory allocation
 and freeing functions.
@@ -35,120 +32,133 @@ matrix type \id{DenseMat} and a macro for accessing matrix elements.
 We have explicitly included \id{dense.h}, but this is not necessary because 
 it is included by \id{cvdense.h}.
 
-This program includes two user-defined accessor macros,
-\id{Ith} and \id{IJth}
-that are useful in writing the problem functions in a form closely
-matching the mathematical description of the ODE system, i.e. with
-components numbered from 1 instead of from 0. 
-The \id{Ith} macro is used to access components of a vector of type \id{N\_Vector}
-with a serial implementation. 
-It is defined using the {\nvecs} accessor macro \id{NV\_Ith\_S} which numbers components 
-starting with 0. The \id{IJth} macro is used to access elements of a dense matrix of
-type \id{DenseMat}. It is defined using the {\dense} accessor macro \id{DENSE\_ELEM}
-which numbers matrix rows and columns starting with 0. The macros
-\id{NV\_Ith\_S} and \id{DENSE\_ELEM} are fully described in  \S\ref{ss:nvec_ser} and
-\S\ref{ss:djacFn} of the user guide, respectively.
+This program includes two user-defined accessor macros, \id{Ith} and
+\id{IJth} that are useful in writing the problem functions in a form
+closely matching the mathematical description of the ODE system,
+i.e. with components numbered from 1 instead of from 0.  The \id{Ith}
+macro is used to access components of a vector of type \id{N\_Vector}
+with a serial implementation.  It is defined using the {\nvecs}
+accessor macro \id{NV\_Ith\_S} which numbers components starting with
+0. The \id{IJth} macro is used to access elements of a dense matrix of
+type \id{DenseMat}. It is defined using the {\dense} accessor macro
+\id{DENSE\_ELEM} which numbers matrix rows and columns starting with
+0. The macros \id{NV\_Ith\_S} and \id{DENSE\_ELEM} are fully described
+in \S\ref{ss:nvec_ser} and \S\ref{ss:djacFn} of the user guide,
+respectively.
 
 Next, the program includes some problem-specific constants, which are
-isolated to this early location to make it easy to change them as
-needed.
-The program prologue ends with the prototype of a private helper
-function and the two user-supplied functions that are called by
-{\cvode}.
+isolated to this early location to make it easy to change them as needed.  
+The program prologue ends with prototypes of two private helper
+functions and the three user-supplied functions that are called by {\cvode}.
 
-The \id{main} function begins with some dimensions and type
-declarations.  These make use of the constant \id{OPT\_SIZE} and the
-type \id{N\_Vector}.  The first line initializes the serial machine environment
-by calling the \id{M\_EnvInit\_Serial} routine implemented by {\nvecs}
-(see \S\ref{ss:nvec_ser} in the user guide). The next two lines allocate memory for the
-\id{y} and \id{abstol} vectors using \id{N\_VNew} with a length
-argument of \id{NEQ} ($= 3$). The next several lines load the initial
-values of the dependendent variable vector into \id{y} and set the
-absolute tolerance vector \id{abstol} using the \id{Ith} macro.
+The \id{main} program begins with some dimensions and type declarations,
+including use of the type \id{N\_Vector}.  The next several lines
+allocate memory for the \id{y} and \id{abstol} vectors using
+\id{N\_VNew\_Serial} with a length argument of \id{NEQ} ($= 3$). The
+lines following that load the initial values of the dependendent
+variable vector into \id{y} and set the absolute tolerance vector
+\id{abstol} using the \id{Ith} macro.
 
-The call to \id{CVodeMalloc} specifies the \id{BDF} integration
-method with \id{NEWTON} iteration.  The \id{SV} argument specifies
-a vector of absolute tolerances, and this is followed by the
-address of the relative tolerance \id{reltol} and the absolute
-tolerance vector \id{abstol}.
-The \id{FALSE} argument indicates that no optional inputs are present
-in \id{iopt} or \id{ropt}.
-The two \id{NULL} actual parameters in the \id{CVodeMalloc} call 
-are for features that are not used in this example. 
-The first one is passed for the \id{CVodeMalloc} formal parameter 
-\id{f\_data}.  This pointer is passed to \id{f} every time \id{f}
-is called, and is intended to point to user problem data that might be
-needed in \id{f}.  The second \id{NULL} forces {\cvode} error messages to
-be sent to standard output; a file pointer (of type \id{FILE*}) may be
-given in this position otherwise.  
-The return value of \id{CVodeMalloc} is a pointer to a
-{\cvode} solver memory block for the problem and solver options specified
-by the inputs.  In the case of failure, the return value is \id{NULL}.
-This pointer must be passed in the remaining calls to {\cvode} functions. 
-See \S\ref{sss:cvodemalloc} for full details of the call to \id{CVodeMalloc}.
+The calls to \id{N\_VNEW\_Serial}, and also later calls to \id{CVode***}
+functions, make use of a private function, \id{check\_flag}, which examines
+the return value and terminates the run if there was a failure.  The
+\id{check\_flag} function was written to be used for any \id{SUNDIALS}
+application.
 
-The call to \id{CVDense} with a non-\id{NULL} Jacobian function 
-\id{Jac} specifies the {\cvdense} linear solver with an analytic
-Jacobian supplied by the user-supplied function \id{Jac}. 
-The \id{NULL} argument is passed for the \id{CVDense} 
-formal parameter \id{jac\_data}.  In a role similar to \id{f\_data},
-this pointer is passed to \id{Jac} every time \id{Jac} is called, 
-and is intended to point to user problem data that might be needed 
-in \id{Jac}.  See \S\ref{sss:lin_solv_init} for full details of the call
-to \id{CVDense}.
+The call to \id{CVodeCreate} creates the {\cvode} solver memory block,
+specifying the \id{BDF} integration method with \id{NEWTON} iteration.
+The return value of is a pointer to that memory block for this
+problem.  In the case of failure, the return value is \id{NULL}.  This
+pointer must be passed in the remaining calls to {\cvode} functions.
 
-The actual solution of the ODE initial value problem is accomplished
-in the loop over values of \id{tout}.  For each value, the program
-calls \id{CVode} in the \id{NORMAL} mode, meaning that the integrator
-takes steps until it overshoots \id{tout} and then interpolates to 
-$t = $\id{tout}, putting the computed value of $y$(\id{tout}) into
-\id{y}.  The program prints \id{t} and \id{y}, and tests for a 
-return value other than \id{SUCCESS} by \id{CVode}.  See 
-\S\ref{sss:cvode} for full details of the call to \id{CVode}.
+The call to \id{CVodeMalloc} allocates the solver memory block.
+Its arguments include the name of the C function \id{f} defining the
+right-hand side function $f(t,y)$, and the initial conditions $(t_0,y_0)$.
+The argument \id{SV} specifies a vector of absolute tolerances, and
+this is followed by the address of the relative tolerance \id{reltol}
+and the absolute tolerance vector \id{abstol}.
+See \S\ref{sss:cvodemalloc} for full details of this call.
 
-Finally, the main program calls \id{NV\_Free} to free the vectors
-\id{y} and \id{abstol}, calls \id{CVodeFree} to free the {\cvode}
-memory block, calls \id{M\_EnvFree\_Serial} to free the serial machine
-environment memory block, and prints all of the statistical quantities in the
-private helper function \id{PrintFinalStats}.
-See \S\ref{ss:nvec_ser} in the user guide for details on \id{M\_EnvFree\_Serial}.
+The call to \id{CVodeRootInit} specifies that a rootfinding problem
+is to be solved along with the integration of the ODE system, that the
+root functions are specified in the function \id{g}, and that there are
+two such functions.  Specifically, they are set so as to find the points
+where the first and last dependent variables achieve the values $0.0001$
+ and $0.01$, respectively.
+See \S\ref{ss:root_uc} for a detailed description of this call.
+
+The calls to \id{CVDense} and \id{CVDenseJacFn} specify the {\cvdense}
+linear solver with an analytic Jacobian supplied by the user-supplied
+function \id{Jac}.  See \S\ref{sss:lin_solv_init} and \S\ref{ss:djacFn}
+for full details of these two calls.
+
+The actual solution of the ODE initial value problem is accomplished in
+the loop over values of the output time \id{tout}.  In each pass of the
+loop, the program calls \id{CVode} in the \id{NORMAL} mode, meaning that
+the integrator is to take steps until it overshoots \id{tout} and then
+interpolate to $t = $\id{tout}, putting the computed value of $y$(\id{tout})
+into \id{y}, with \id{t} = \id{tout}.  The return value in this case is
+\id{CV\_SUCCESS}.  However, if \id{CVode} finds a root before reaching the next
+value of \id{tout}, it returns \id{CV\_ROOT\_RETURN} and stores the root
+location in \id{t} and the solution there in \id{y}.  In either case, the
+program prints \id{t} and \id{y}.  In the case of a root, it calls
+\id{CVodeGetRootInfo} to get a length-2 array \id{rootsfound} of bits showing
+which root function was found to have a root.  If \id{CVode} returned any
+negative value (indicating a failure), the program breaks out of the loop.  
+In the case of a \id{CV\_SUCCESS} return, the value of \id{tout} is
+advanced (multiplied by 10) and a counter (\id{iout}) is advanced, so
+that the loop can be ended when that counter reaches the preset number
+of output times, \id{NOUT} = 12.  See \S\ref{sss:cvode} for full
+details of the call to \id{CVode}.
+
+Finally, the main program calls \id{PrintFinalStats} to get and print
+all of the relevant statistical quantities.  It then calls \id{NV\_Destroy}
+to free the vectors \id{y} and \id{abstol}, and \id{CVodeFree} to free the 
+{\cvode} memory block.
 
 The function \id{PrintFinalStats} used here is actually suitable for
 general use in connection with the use of {\cvode} for any problem with 
-a dense Jacobian.  It prints the cumulative number of steps
-(\id{nst}), the number of \id{f} evaluations (\id{nfe}), 
-the number of matrix factorizations (\id{nsetups}), 
-the number of \id{Jac} evaluations (\id{nje}), 
-the number of nonlinear iterations (\id{nni}), 
-the number of nonlinear convergence failures (\id{ncnf}), and 
-the number of local error test failures (\id{netf}).
-These optional outputs are described in \S\ref{ss:optional_input},
-except for \id{nje = iopt[DENSE\_NJE]}, which is described in 
-\S\ref{sss:lin_solv_init}.
+a dense Jacobian.  It prints the cumulative number of steps (\id{nst}), 
+the number of \id{f} evaluations (\id{nfe}) (excluding those for
+difference-quotient Jacobian evaluations),
+the number of matrix factorizations (\id{nsetups}),
+the number of \id{f} evaluations for Jacobian evaluations (\id{nfeD}
+= 0 here),
+the number of Jacoobian evaluations (\id{njeD}),
+the number of nonlinear (Newton) iterations (\id{nni}),
+the number of nonlinear convergence failures (\id{ncfn}),
+the number of local error test failures (\id{netf}), and
+the number of \id{g} (root function) evaluations (\id{nge}).
+These optional outputs are described in \S\ref{ss:optional_output}.
 
 The function \id{f} is a straightforward expression of the ODEs. 
-It uses the user-defined macro \id{Ith}
-to extract the components of \id{y} and load the components of \id{ydot}.
-See \S\ref{ss:user_fct_sim} for a detailed specification of \id{f}.
+It uses the user-defined macro \id{Ith} to extract the components of \id{y}
+and to load the components of \id{ydot}.
+See \S\ref{ss:rhsFn} for a detailed specification of \id{f}.
 
-The function \id{Jac} sets the nonzero elements of the Jacobian
-as a dense matrix.  (Zero elements need not be set because \id{J}
-is preset to zero.)  It uses the user-defined macro
-\id{IJth}
-to reference the elements of a dense matrix of type \id{DenseMat}.
-Here the problem size is small, so we need not worry about the
-inefficiency of using \id{NV\_Ith\_S} and \id{DENSE\_ELEM} to do
-\id{N\_Vector} and \id{DenseMat} element accesses.
-Note that in this example \id{Jac} only accesses the \id{y} and \id{J} arguments.
-See \S\ref{ss:user_fct_sim} for a detailed description of the dense \id{Jac} function.
+Similarly, the function \id{g} defines the two functions, $g_0$ and $g_1$,
+whose roots are to be found.  See \S\ref{ss:root_us} for a detailed description
+of the \id{g} function.
 
-The output generated by \id{cvdx} is shown below.
+The function \id{Jac} sets the nonzero elements of the Jacobian as a
+dense matrix.  (Zero elements need not be set because \id{J} is preset
+to zero.)  It uses the user-defined macro \id{IJth} to reference the
+elements of a dense matrix of type \id{DenseMat}.  Here the problem
+size is small, so we need not worry about the inefficiency of using
+\id{NV\_Ith\_S} and \id{DENSE\_ELEM} to access \id{N\_Vector} and
+\id{DenseMat} elements.  Note that in this example, \id{Jac}
+only accesses the \id{y} and \id{J} arguments.  See \S\ref{ss:djacFn}
+for a detailed description of the dense \id{Jac} function.
+
+The output generated by \id{cvdx} is shown below.  It shows the output
+values at the 12 preset values of \id{tout}.  It also shows the two root
+locations found, first at a root of $g_1$, and then at a root of $g_0$.
 %%
-\VerbatimInput[frame=single,framesep=0.1in,label={\tt cvdx} sample output,fontsize=\small]
-{../examples_ser/cvdx.out}
+\VerbatimInput[frame=single,framesep=0.1in,label={\tt cvdx} sample output,
+  fontsize=\small]{../examples_ser/cvdx.out}
 %%
 
-%-----------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
 
 \subsection{A banded example: \id{cvbx}}\label{ss:cvbx}
 
