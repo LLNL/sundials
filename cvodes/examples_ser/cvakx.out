@@ -9,51 +9,15 @@ Forward integration
 
 
 List of Check Points (ncheck = 8)
-Check point 8
-  address   852f538
-  t0        8.954906
-  t1        10.011853
-  next      851c6d8
-Check point 7
-  address   851c6d8
-  t0        7.303428
-  t1        8.954906
-  next      8509878
-Check point 6
-  address   8509878
-  t0        5.651949
-  t1        7.303428
-  next      84f6a18
-Check point 5
-  address   84f6a18
-  t0        4.000470
-  t1        5.651949
-  next      84e3bb8
-Check point 4
-  address   84e3bb8
-  t0        2.348991
-  t1        4.000470
-  next      84d0d58
-Check point 3
-  address   84d0d58
-  t0        0.689793
-  t1        2.348991
-  next      84b93c8
-Check point 2
-  address   84b93c8
-  t0        0.163578
-  t1        0.689793
-  next      849cf08
-Check point 1
-  address   849cf08
-  t0        0.000046
-  t1        0.163578
-  next      80cf688
-Check point 0
-  address   80cf688
-  t0        0.000000
-  t1        0.000046
-  next      0
+Check point  8  addr: 854bec0  time = [ 8.954906e+00 1.001185e+01 ]  next: 8534530
+Check point  7  addr: 8534530  time = [ 7.303428e+00 8.954906e+00 ]  next: 851cba0
+Check point  6  addr: 851cba0  time = [ 5.651949e+00 7.303428e+00 ]  next: 8505210
+Check point  5  addr: 8505210  time = [ 4.000470e+00 5.651949e+00 ]  next: 84ed880
+Check point  4  addr: 84ed880  time = [ 2.348991e+00 4.000470e+00 ]  next: 84d5ef0
+Check point  3  addr: 84d5ef0  time = [ 6.897934e-01 2.348991e+00 ]  next: 84b9a30
+Check point  2  addr: 84b9a30  time = [ 1.635784e-01 6.897934e-01 ]  next: 849d570
+Check point  1  addr: 849d570  time = [ 4.612494e-05 1.635784e-01 ]  next: 80cfcf0
+Check point  0  addr: 80cfcf0  time = [ 0.000000e+00 4.612494e-05 ]  next: 0
 
 Create and allocate CVODES memory for backward run
 

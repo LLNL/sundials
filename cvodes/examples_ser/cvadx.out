@@ -15,6 +15,11 @@ Find dG/dp for
 Create and allocate CVODES memory for forward runs
 Allocate global memory
 Forward integration ... ncheck = 2
+
+List of Check Points (ncheck = 2)
+Check point  2  addr: 8067fc8  time = [ 2.225355e+04 4.229660e+07 ]  next: 8067ce8
+Check point  1  addr: 8067ce8  time = [ 6.699067e+01 2.225355e+04 ]  next: 8061e00
+Check point  0  addr: 8061e00  time = [ 0.000000e+00 6.699067e+01 ]  next: 0
 Create and allocate CVODES memory for backward run
 Integrate backwards from tB0 =   4.0000e+07
 
