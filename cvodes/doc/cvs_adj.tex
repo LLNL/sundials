@@ -1848,7 +1848,7 @@ block being a band matrix and can be used with the Krylov linear solver in {\cvs
 and the parallel vector module {\nvecp}.
 
 In order to use the {\cvbbdpre} module in the solution of the backward problem,
-the user must define two additional functions, described at the end of this section. 
+the user must define one or two additional functions, described at the end of this section. 
 
 \subsubsection{Usage of {\cvbbdpre} for the backward problem}
 %%
@@ -1888,7 +1888,7 @@ The {\cvbbdpre} module is initialized by calling
     the {\C} function which computes the approximation $g_B(t,y)$ to the right-hand
     side of the backward problem. 
   \item[cfnB] (\id{CVCommFnB})
-    the {\C} function which performs all inter-process communication required for
+    the optional {\C} function which performs all inter-process communication required for
     the computation of $g_B(t,y)$.
   \end{args}
 }
@@ -1979,7 +1979,7 @@ call the following function:
     the {\C} function which computes the approximation $g_B(t,y)$  to the right-hand
     side of the backward problem. 
   \item[cfnB] (\id{CVCommFnB})
-    the {\C} function which performs all inter-process communication required for
+    the optional {\C} function which performs all inter-process communication required for
     the computation of $g_B(t,y)$.
   \end{args}
 }
@@ -2000,10 +2000,10 @@ by the function \id{CVadjFree}.
 For more details on {\cvbbdpre}, see \S\ref{sss:cvbbdpre}.
 
 \subsubsection{User-supplied functions for {\cvbbdpre}}
-To use the {\cvbbdpre} module, the user must supply two functions which the
-module calls to construct the preconditioner: a function \id{glocB} 
+To use the {\cvbbdpre} module, the user must supply one or two functions which the
+module calls to construct the preconditioner: a required function \id{glocB} 
 (of type \id{CVLocalFnB}) which approximates the right-hand side of the backward
-problem and which is computed locally, and a function \id{cfnB} 
+problem and which is computed locally, and an optional function \id{cfnB} 
 (of type \id{CVCommFnB}) which performs all inter-process communication necessary 
 to evaluate this approximate right-hand side (see \S\ref{sss:cvbbdpre}).
 The prototypes for these two functions are described below.
@@ -2079,8 +2079,9 @@ The prototypes for these two functions are described below.
   structure \id{f\_dataB}. 
 
   Each call to the \id{cfnB} function is preceded by a call to the function that 
-  evaluates the right-hand side of the backward problem
-  with the same \id{t}, \id{y}, and \id{yB} arguments.
+  evaluates the right-hand side of the backward problem with the same \id{t}, \id{y}, 
+  and \id{yB} arguments. If there is no additional communication needed, then pass
+  \id{cfnB} $=$ \id{NULL} to \id{CVBBDPrecAllocB}.
 }
 %%
 %%
