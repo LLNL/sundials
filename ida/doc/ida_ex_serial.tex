@@ -25,7 +25,7 @@ explanation of the parts of the program and their interaction with {\ida}.
 Following the initial comment block, this program has a number
 of \id{\#include} lines, which allow access to useful items in {\ida}
 header files.  The \id{sundialstypes.h} file provides the definition of the
-type \id{realtype} (see \S\ref{s:types} in the user guide \cite{ida2.2.0_ug}
+type \id{realtype} (see \ugref{s:types} in the user guide \cite{ida2.2.0_ug}
 for details).  For now, it suffices to read \id{realtype} as \id{double}.
 The \id{ida.h} file provides prototypes for the {\ida}
 functions to be called (excluding the linear solver selection
@@ -48,8 +48,7 @@ i.e. with components numbered from 1 instead of from 0.
 The \id{IJth} macro is used to access elements of a dense matrix of
 type \id{DenseMat}. It is defined using the {\dense} accessor macro
 \id{DENSE\_ELEM} which numbers matrix rows and columns starting with
-0. The macro \id{DENSE\_ELEM} is fully described in \S\ref{ss:djacFn} 
-of the user guide.
+0. The macro \id{DENSE\_ELEM} is fully described in \ugref{ss:djacFn}.
 
 The program prologue ends with prototypes of the two user-supplied functions 
 that are called by {\ida} and the prototype of the private function
@@ -82,12 +81,12 @@ residual function $T(t,y,y')$, and the initial values of $t$, $y$, and $y'$.
 The argument \id{IDA\_SV} specifies a vector of absolute tolerances, and
 this is followed by the address of the relative tolerance \id{rtol}
 and the absolute tolerance vector \id{avtol}.
-See \S\ref{sss:idamalloc} for full details of this call.
+See \ugref{sss:idamalloc} for full details of this call.
 
-The calls to \id{IDADense} and \id{IDADenseSetJacFn} specify the {\idadense}
+The calls to \id{IDADense} (see \ugref{sss:lin_solv_init}) and 
+\id{IDADenseSetJacFn} (see \ugref{ss:optional_input}) specify the {\idadense}
 linear solver with an analytic Jacobian supplied by the user-supplied function
-\id{jacrob}.  See \S\ref{sss:lin_solv_init} and \S\ref{ss:optional_input}
-for full details of these two calls.
+\id{jacrob}.
 
 The actual solution of the DAE initial value problem is accomplished in
 the loop over values of the output time \id{tout}.  In each pass of the
@@ -110,8 +109,7 @@ to free the vectors \id{yy}, \id{yp}, and \id{avtol}.
 The functions \id{resrob} (of type \id{IDAResFn}) and \id{jacrob} (of type \id{IDADenseJacFn}) 
 are straightforward expressions of the DAE system. 
 The function \id{jacrob} makes use of the macro \id{IJth} discussed above.
-See \S\ref{ss:resFn} and \S\ref{ss:djacFn} for detailed specifications of \id{IDAResFn} and 
-\id{IDADenseJacFn}, respectively.
+See \ugref{ss:resFn} for detailed specifications of \id{IDAResFn}.
 
 Sample output from \id{irobx} follows.
 %%
@@ -207,7 +205,7 @@ includes the file \id{idaband.h} in order to use the {\idaband} linear solver.
 This file contains the prototype for the \id{IDABand} routine,
 the definition for the band matrix type \id{BandMat}, and the
 \id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
-elements. See \S\ref{ss:band} of the user guide.
+elements. See \ugref{ss:band}.
 The main {\ida} header file \id{ida.h} is included for the prototypes of the
 solver user-callable functions and {\ida} constants, while the file \id{nvector\_serial.h}
 is included for the definition of the serial \id{N\_Vector} type.
@@ -266,7 +264,7 @@ the number of Jacobian evaluations (\id{njeB}),
 the number of nonlinear (Newton) iterations (\id{nni}),
 the number of local error test failures (\id{netf}),
 and the number of nonlinear convergence failures (\id{ncfn}).
-These optional outputs are described in \S\ref{ss:optional_output}.
+These optional outputs are described in \ugref{ss:optional_output}.
 
 The function \id{resweb} is a direct translation of the residual of (\ref{e:iwebsb_PDE}).
 It first calls the private function \id{Fweb} to initialize the residual vector
