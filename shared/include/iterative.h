@@ -1,24 +1,20 @@
-/*******************************************************************
- *                                                                 *
- * File          : iterative.h                                     *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 June 2002                                    *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This header file contains declarations intended for use by      *
- * generic iterative solvers of Ax = b. The enumeration gives      *
- * symbolic names for the type  of preconditioning to be used.     *
- * The function type declarations give the prototypes for the      *
- * functions to be called within an iterative linear solver, that  *
- * are responsible for                                             *
- *    multiplying A by a given vector v (ATimesFn), and            *
- *    solving the preconditioner equation Pz = r (PSolveFn).       *
- *                                                                 * 
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.2 $
+ * $Date: 2004-04-29 22:24:45 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL
+ * -----------------------------------------------------------------
+ * This header file contains declarations intended for use by
+ * generic iterative solvers of Ax = b. The enumeration gives
+ * symbolic names for the type  of preconditioning to be used.
+ * The function type declarations give the prototypes for the
+ * functions to be called within an iterative linear solver, that
+ * are responsible for
+ *    multiplying A by a given vector v (ATimesFn), and
+ *    solving the preconditioner equation Pz = r (PSolveFn).
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -66,7 +62,7 @@ enum { NONE, LEFT, RIGHT, BOTH };
  *                                                                *
  ******************************************************************/
 
-enum { MODIFIED_GS, CLASSICAL_GS };
+enum { MODIFIED_GS=1, CLASSICAL_GS=2 };
 
 
 /******************************************************************
