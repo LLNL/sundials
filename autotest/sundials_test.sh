@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.1 $
-# $Date: 2004-04-02 21:18:20 $
+# $Revision: 1.2 $
+# $Date: 2004-10-22 00:12:40 $
 ############################################################################
 #
 # Filename: sundials_test.sh
@@ -220,10 +220,18 @@ run_examples()
               echo "exit 0" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
 	    # normal examples do not require command-line options
             else
-              echo "#PSUB -ln 1 -g 4" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${TEMP_EXAMPLE_FILE}" = "pvakx" ]; then
+                echo "#PSUB -ln 1 -g 8" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                PSUB_WAIT_TIME=$((${WAIT_TIME} * 4))
+              elif [ "${TEMP_EXAMPLE_FILE}" = "pvakx3D" ]; then
+                echo "#PSUB -ln 1 -g 16" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                PSUB_WAIT_TIME=$((${WAIT_TIME} * 8))
+              else
+                echo "#PSUB -ln 1 -g 4" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                PSUB_WAIT_TIME="${WAIT_TIME}"
+              fi
               echo "#PSUB -c pbatch,${LOCAL_MACHINE}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "#PSUB -s /usr/local/bin/bash" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-	      PSUB_WAIT_TIME="${WAIT_TIME}"
               echo "#PSUB -tM ${PSUB_WAIT_TIME}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
