@@ -75,7 +75,7 @@
 typedef struct {
   realtype *p;
   realtype dx;
-  integertype npes, my_pe;
+  int npes, my_pe;
   MPI_Comm comm;
   realtype z[100];
 } *UserData;
@@ -83,10 +83,10 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static void WrongArgs(integertype my_pe, char *argv[]);
+static void WrongArgs(int my_pe, char *argv[]);
 static void SetIC(N_Vector u, realtype dx, integertype my_length, integertype my_base);
-static void PrintOutput(void *cvode_mem, integertype my_pe, realtype t, N_Vector u);
-static void PrintOutputS(integertype my_pe, N_Vector *uS);
+static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u);
+static void PrintOutputS(int my_pe, N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi, 
                             int sensi_meth, int err_con);
 
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
   integertype local_N, nperpe, nrem, my_base;
 
   realtype *pbar;
-  integertype is, *plist;
+  int is, *plist;
   N_Vector *uS=NULL;
   booleantype sensi=FALSE;
   int sensi_meth=-1, err_con=-1;
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
     pbar  = (realtype *) malloc(NP * sizeof(realtype));
     pbar[0] = 1.0;
     pbar[1] = 0.5;
-    plist = (integertype *) malloc(NS * sizeof(integertype));
+    plist = (int *) malloc(NS * sizeof(int));
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 /* ======================================================================= */
 /* Check arguments */
 
-static void WrongArgs(integertype my_pe, char *argv[])
+static void WrongArgs(int my_pe, char *argv[])
 {
   if (my_pe == 0) {
     printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",argv[0]);
@@ -318,7 +318,7 @@ static void SetIC(N_Vector u, realtype dx, integertype my_length,
 /* ======================================================================= */
 /* Print current t, step count, order, stepsize, and max norm of solution  */
 
-static void PrintOutput(void *cvode_mem, integertype my_pe, realtype t, N_Vector u)
+static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
 {
   int nst, qu;
   realtype hu, umax;
@@ -339,7 +339,7 @@ static void PrintOutput(void *cvode_mem, integertype my_pe, realtype t, N_Vector
 /* ======================================================================= */
 /* Print max norm of sensitivities */
 
-static void PrintOutputS(integertype my_pe, N_Vector *uS)
+static void PrintOutputS(int my_pe, N_Vector *uS)
 {
   realtype smax;
 

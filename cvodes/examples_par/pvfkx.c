@@ -144,20 +144,20 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static void WrongArgs(integertype my_pe, char *argv[]);
+static void WrongArgs(int my_pe, char *argv[]);
 static PreconData AllocPreconData(UserData data);
-static void InitUserData(integertype my_pe, MPI_Comm comm, UserData data);
+static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void FreePreconData(PreconData pdata);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
+static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         realtype t, N_Vector u);
-static void PrintOutputS(integertype my_pe, MPI_Comm comm, N_Vector *uS);
+static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi, 
                             int sensi_meth, int err_con);
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, 
+static void BSend(MPI_Comm comm, int my_pe, integertype isubx, 
                   integertype isuby, integertype dsizex, 
                   integertype dsizey, realtype udata[]);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
                       integertype isubx, integertype isuby,
                       integertype dsizex, integertype dsizey,
                       realtype uext[], realtype buffer[]);
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
 
   realtype *pbar;
-  integertype is, *plist;
+  int is, *plist;
   N_Vector *uS=NULL;
   booleantype sensi=FALSE;
   int sensi_meth=-1, err_con=-1;
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
   if(sensi) {
     pbar = (realtype *) malloc(NP*sizeof(realtype));
     for(is=0; is<NP; is++) pbar[is] = data->p[is];
-    plist = (integertype *) malloc(NS * sizeof(integertype));
+    plist = (int *) malloc(NS * sizeof(int));
     for(is=0; is<NS; is++) plist[is] = is+1;
 
     uS = N_VNew_S(NS, nvSpec);
@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
 /* ======================================================================= */
 /* Exit if arguments are incorrect */
 
-static void WrongArgs(integertype my_pe, char *argv[])
+static void WrongArgs(int my_pe, char *argv[])
 {
   if (my_pe == 0) {
     printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",argv[0]);
@@ -410,7 +410,7 @@ static PreconData AllocPreconData(UserData fdata)
 /* ======================================================================= */
 /* Load constants in data */
 
-static void InitUserData(integertype my_pe, MPI_Comm comm, UserData data)
+static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 {
   integertype isubx, isuby;
   realtype KH, VEL, KV0;
@@ -508,7 +508,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 /* ======================================================================= */
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
+static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         realtype t, N_Vector u)
 {
   int nst, qu;
@@ -550,7 +550,7 @@ static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
 /* ======================================================================= */
 /* Print sampled sensitivity values */
 
-static void PrintOutputS(integertype my_pe, MPI_Comm comm, N_Vector *uS)
+static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
 {
   realtype *sdata, temps[2];
   integertype npelast, i0, i1;
@@ -669,7 +669,7 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi,
 /* ======================================================================= */
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, 
+static void BSend(MPI_Comm comm, int my_pe, integertype isubx, 
                   integertype isuby, integertype dsizex, integertype dsizey, 
                   realtype udata[])
 {
@@ -719,7 +719,7 @@ static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
                       integertype isubx, integertype isuby,
                       integertype dsizex, integertype dsizey,
                       realtype uext[], realtype buffer[])
@@ -816,7 +816,8 @@ static void ucomm(realtype t, N_Vector u, UserData data)
 {
   realtype *udata, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
-  integertype my_pe, isubx, isuby, nvmxsub, nvmysub;
+  int my_pe;
+  integertype isubx, isuby, nvmxsub, nvmysub;
   MPI_Request request[4];
 
   udata = NV_DATA_P(u);
@@ -1006,7 +1007,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
-  integertype nvmxsub, *(*pivot)[MYSUB], ier, offset;
+  int ier;
+  integertype nvmxsub, *(*pivot)[MYSUB], offset;
   int lx, ly, jx, jy, isubx, isuby;
   realtype *udata, **a, **j;
   PreconData predata;
