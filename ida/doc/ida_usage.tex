@@ -981,9 +981,8 @@ flag = IDASetInitStep(ida\_mem, hin);
 }
 {
   By default, {\ida} estimates the initial step as the solution of 
-  $\| 0.5 h^2 \ddot y \|_{\mbox{\scriptsize WRMS}} = 1$,
-  where $\ddot y$ is an estimated second derivative of the solution at the
-  initial time.
+  $\|h y' \|_{\mbox{\scriptsize WRMS}} = 1/2$, with an added restriction
+  that $|h| \leq .001|$\id{tout - t0}$|$.
 }
 %%
 %%
@@ -3438,7 +3437,7 @@ will be reused for the new problem.
     pointer to the {\ida} memory block.
   \item[res] (\Id{IDAResFn})
     is the {\C} function which computes $F$. This function has the form 
-    \id{f(N, t, y, ydot, resval, res\_data)} (for full details see \S\ref{ss:user_fct_sim}).
+    \id{f(t, y, yp, r, res\_data)} (for full details see \S\ref{ss:user_fct_sim}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
@@ -3525,7 +3524,7 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
   If a recoverable error occured, the integrator will attempt to correct and retry.
 }
 {
-  Allocation of memory for \id{ydot} is handled within {\ida}.
+  Allocation of memory for \id{yp} is handled within {\ida}.
 }
 %%
 %%--------------
