@@ -80,6 +80,9 @@ then
     tar uf $tarfile $distrobase/cvodes/examples_par/README
     tar uf $tarfile $distrobase/cvodes/examples_par/Makefile.in
 
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvakx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvakx.out
+
     tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.c
     tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.out
     tar uf $tarfile $distrobase/cvodes/examples_par/pvkx.c

@@ -44,10 +44,14 @@ function create_file
     cd ..
 
     if [ $par = "F" ];   then
+        aclocal
         autoconf -f -o configure configure-rel-serial.ac
+        autoheader
         tail="_ser.tar"
     else
+        aclocal
         autoconf -f -o configure configure-rel-full.ac
+        autoheader
         tail=".tar"
     fi
 
