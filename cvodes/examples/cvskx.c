@@ -1,9 +1,9 @@
 /************************************************************************
  *                                                                      *
- * File: cvkx.c                                                         *
+ * File       : cvskx.c                                                 *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh and                *
  *              Radu Serban @ LLNL                                      *
- * Version of 14 November 2001                                          *
+ * Version of : 20 MArch 2002                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -47,14 +47,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
-#include "llnltyps.h"  /* definitions of real, integer, boole, TRUE,FALSE */
-#include "cvodes.h"    /* main CVODE header file                          */
-#include "iterativ.h"  /* contains the enum for types of preconditioning  */
-#include "cvsspgmr.h"  /* use CVSPGMR linear solver each internal step    */
-#include "dense.h"     /* use generic DENSE solver for preconditioning    */
-#include "nvector.h"   /* definitions of type N_Vector, macro N_VDATA     */
-#include "llnlmath.h"  /* contains SQR macro                              */
+#include "llnltyps.h"          /* definitions of real, integer, boole, TRUE,FALSE */
+#include "cvodes.h"            /* main CVODE header file                          */
+#include "iterativ.h"          /* contains the enum for types of preconditioning  */
+#include "cvsspgmr.h"          /* use CVSPGMR linear solver each internal step    */
+#include "smalldense.h"        /* use generic DENSE solver for preconditioning    */
+#include "nvector_serial.h"    /* definitions of type N_Vector, macro NV_DATA_S   */
+#include "llnlmath.h"          /* contains SQR macro                              */
 
 /* Problem Constants */
 
@@ -104,7 +105,7 @@
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MZ-1. The vdata array is obtained via
-   the macro call vdata = N_VDATA(v), where v is an N_Vector. 
+   the macro call vdata = NV_DATA_S(v), where v is an N_Vector. 
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
@@ -156,15 +157,15 @@ static int PSolve(integer N, real tn, N_Vector y, N_Vector fy, N_Vector vtemp,
 
 /***************************** Main Program ******************************/
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+  M_Env machEnv;  
   real abstol, reltol, t, tout, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector y;
   UserData data;
   void *cvode_mem;
   int iout, flag, i;
-  machEnvType machEnv;
 
   real *pbar, rhomax;
   integer is, *plist;
@@ -207,8 +208,8 @@ main(int argc, char *argv[])
 
   }
 
-  /* Set machine environment to NULL */
-  machEnv = NULL;
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);
 
   /* PROBLEM PARAMETERS */
   data = AllocUserData();
@@ -248,7 +249,7 @@ main(int argc, char *argv[])
     plist = (integer *) malloc(NS * sizeof(integer));
     for(is=0; is<NS; is++) plist[is] = is+1;
 
-    uS = N_VNew_S(NS,NEQ,machEnv);
+    uS = N_VNew_S(NS, NEQ, machEnv);
     for(is=0;is<NS;is++)
       N_VConst(ZERO,uS[is]);
 
@@ -257,8 +258,8 @@ main(int argc, char *argv[])
     ifS = ALLSENS;
     if(sensi_meth==STAGGERED1) ifS = ONESENS;
 
-    flag = CVodeSensMalloc(cvode_mem,NS,sensi_meth,data->p,pbar,plist,
-                           ifS,NULL,err_con,rhomax,uS,NULL,NULL);
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, pbar, plist,
+                           ifS, NULL, err_con, rhomax, uS, NULL, NULL);
     if (flag != SUCCESS) {printf("CVodeSensMalloc failed, flag=%d\n",flag);return(1);}
 
   }
@@ -292,13 +293,14 @@ main(int argc, char *argv[])
   }
 
   /* Print final statistics */
-  PrintFinalStats(sensi,sensi_meth,err_con,iopt);
+  PrintFinalStats(sensi, sensi_meth, err_con, iopt);
 
   /* Free memory */
   N_VFree(y);
   if(sensi) N_VFree_S(NS, uS);
   FreeUserData(data);
   CVodeFree(cvode_mem);
+  M_EnvFree_Serial(machEnv);
 
   return(0);
 }
@@ -406,7 +408,7 @@ static void SetInitialProfiles(N_Vector y, real dx, real dz)
 
   /* Set pointer to data array in vector y. */
 
-  ydata = N_VDATA(y);
+  ydata = NV_DATA_S(y);
 
   /* Load initial profiles of c1 and c2 into y vector */
 
@@ -431,9 +433,9 @@ static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector y)
 {
   real *ydata;
 
-  ydata = N_VDATA(y);
+  ydata = NV_DATA_S(y);
   
-  printf("%8.3e %2d  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
+  printf("%8.3e %2ld  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
   printf("                                Solution       ");
   printf("%12.4e %12.4e \n", IJKth(ydata,1,0,0), IJKth(ydata,1,MX-1,MZ-1)); 
   printf("                                               ");
@@ -448,7 +450,7 @@ static void PrintOutputS(N_Vector *uS)
 {
   real *sdata;
 
-  sdata = N_VDATA(uS[0]);
+  sdata = NV_DATA_S(uS[0]);
 
   printf("                                ----------------------------------------\n"); 
   printf("                                Sensitivity 1  ");
@@ -456,7 +458,7 @@ static void PrintOutputS(N_Vector *uS)
   printf("                                               ");
   printf("%12.4e %12.4e \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
 
-  sdata = N_VDATA(uS[1]);
+  sdata = NV_DATA_S(uS[1]);
 
   printf("                                ----------------------------------------\n"); 
   printf("                                Sensitivity 2  ");
@@ -525,8 +527,8 @@ static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
   real Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
   data = (UserData) f_data;
-  ydata = N_VDATA(y);
-  dydata = N_VDATA(ydot);
+  ydata = NV_DATA_S(y);
+  dydata = NV_DATA_S(ydot);
 
   /* Load problem coefficients and parameters */
 
@@ -634,7 +636,7 @@ static int Precond(integer N, real tn, N_Vector y, N_Vector fy, boole jok,
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  ydata = N_VDATA(y);
+  ydata = NV_DATA_S(y);
 
   /* Load problem coefficients and parameters */
   Q1 = data->p[0];
@@ -732,7 +734,7 @@ static int PSolve(integer N, real tn, N_Vector y, N_Vector fy, N_Vector vtemp,
   data = (UserData) P_data;
   P = data->P;
   pivot = data->pivot;
-  zdata = N_VDATA(z);
+  zdata = NV_DATA_S(z);
 
   N_VScale(1.0, r, z);
 

@@ -1,9 +1,9 @@
 /************************************************************************
  *                                                                      *
- * File: pvnx.c                                                         *
+ * File       : cvsnx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne, and *
  *              Radu Serban @ LLNL                                      *
- * Version of 14 November 2001                                          *
+ * Version of : 20 March 2002                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -42,10 +42,12 @@
  ************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "llnltyps.h"
 #include "cvodes.h"
-#include "nvector.h"
+#include "nvector_serial.h"
 
 /* Problem Constants */
 #define XMAX  2.0          /* domain boundary           */
@@ -86,15 +88,15 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
 
 /***************************** Main Program ******************************/
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+  M_Env machEnv;
   real ropt[OPT_SIZE], dx, reltol, abstol, t, tout;
   long int iopt[OPT_SIZE];
   N_Vector u;
   UserData data;
   void *cvode_mem;
   int iout, flag;
-  machEnvType machEnv;
 
   real *pbar, rhomax;
   integer is, *plist;
@@ -136,7 +138,8 @@ main(int argc, char *argv[])
 
   }
 
-  machEnv = NULL;
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);  
 
   /* USER DATA STRUCTURE */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
@@ -170,15 +173,15 @@ main(int argc, char *argv[])
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 
-    uS = N_VNew_S(NS,NEQ,machEnv);
+    uS = N_VNew_S(NS, NEQ, machEnv);
     for(is=0;is<NS;is++)
-      N_VConst(0.0,uS[is]);
+      N_VConst(0.0, uS[is]);
 
     rhomax = ZERO;
     ifS = ALLSENS;
     if(sensi_meth==STAGGERED1) ifS = ONESENS;
-    flag = CVodeSensMalloc(cvode_mem,NS,sensi_meth,data->p,pbar,plist,
-                           ifS,NULL,err_con,rhomax,uS,NULL,NULL);
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, pbar, plist,
+                           ifS, NULL, err_con, rhomax, uS, NULL, NULL);
     if (flag != SUCCESS) {
       printf("CVodeSensMalloc failed, flag=%d\n",flag);
       return(1);
@@ -219,6 +222,7 @@ main(int argc, char *argv[])
   free(data->p);               /* Free the p vector             */
   free(data);                  /* Free block of UserData        */
   CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
+  M_EnvFree_Serial(machEnv);   /* Free the machine environment memory */
 
   return(0);
 }
@@ -248,7 +252,7 @@ static void SetIC(N_Vector u, real dx, integer N)
   real *udata;
 
   /* Set pointer to data array and get local length of u. */
-  udata = N_VDATA(u);
+  udata = NV_DATA_S(u);
 
   /* Load initial profile into u vector */
   for (i=0; i<N; i++) {
@@ -263,7 +267,7 @@ static void SetIC(N_Vector u, real dx, integer N)
 static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector u)
 {
   
-  printf("%8.3e %2d  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
+  printf("%8.3e %2ld  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
   printf("                                Solution       ");
   printf("%12.4e \n", N_VMaxNorm(u));
   
@@ -333,8 +337,8 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
   int i;
   UserData data;
 
-  udata = N_VDATA(u);
-  dudata = N_VDATA(udot);
+  udata = NV_DATA_S(u);
+  dudata = NV_DATA_S(udot);
 
   /* Extract needed problem constants from data */
   data = (UserData) f_data;

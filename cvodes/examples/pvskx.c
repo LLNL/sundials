@@ -1,9 +1,9 @@
 /************************************************************************
  *                                                                      *
- * File: pvkx.c                                                         *
+ * File       : pvskx.c                                                 *
  * Programmers: S. D. Cohen, A. C. Hindmarsh, Radu Serban, and          *
  *              M. R. Wittman @ LLNL                                    *
- * Version of 14 November 2001                                          *
+ * Version of : 21 March 2002                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -22,13 +22,13 @@
  * The PDE system is treated by central differences on a uniform        *
  * mesh, with simple polynomial initial profiles.                       *
  *                                                                      *
- * The problem is solved by PVODE on NPE processors, treated as a       *
+ * The problem is solved by CVODES on NPE processors, treated as a      *
  * rectangular process grid of size NPEX by NPEY, with NPE = NPEX*NPEY. *
  * Each processor contains a subgrid of size MXSUB by MYSUB of the      *
  * (x,y) mesh.  Thus the actual mesh sizes are MX = MXSUB*NPEX and      *
  * MY = MYSUB*NPEY, and the ODE system size is neq = 2*MX*MY.           *
  *                                                                      *
- * The solution with PVODE is done with the BDF/GMRES method (i.e.      *
+ * The solution with CVODE is done with the BDF/GMRES method (i.e.      *
  * using the CVSPGMR linear solver) and the block-diagonal part of the  *
  * Newton matrix as a left preconditioner. A copy of the block-diagonal *
  * part of the Jacobian is saved and conditionally reused within the    *
@@ -37,7 +37,7 @@
  * Performance data and sampled solution values are printed at selected *
  * output times, and all performance counters are printed on completion.*
  *                                                                      *
- * Optionally, PVODES can compute sensitivities with respect to the     *
+ * Optionally, CVODES can compute sensitivities with respect to the     *
  * problem parameters q1 and q2.                                        *
  * Any of three sensitivity methods (SIMULTANEOUS, STAGGERED, and       *
  * STAGGERED1) can be used and sensitivities may be included in the     *
@@ -46,7 +46,7 @@
  *                                                                      *
  * Execution:                                                           *
  *                                                                      *
- * NOTE: This version uses MPI for user routines, and the MPI_PVODE     *
+ * NOTE: This version uses MPI for user routines, and the CVODES        *
  *       solver. In what follows, N is the number of processors,        *
  *       N = NPEX*NPEY (see constants below) and it is assumed that     *
  *       the MPI script mpirun is used to run a paralles application.   *
@@ -62,12 +62,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "llnltyps.h"   /* definitions of real, integer, boole, TRUE,FALSE */
 #include "cvodes.h"     /* main CVODE header file                          */
 #include "iterativ.h"   /* contains the enum for types of preconditioning  */
 #include "cvsspgmr.h"   /* use CVSPGMR linear solver each internal step    */
 #include "smalldense.h" /* use generic DENSE solver in preconditioning     */
-#include "nvector.h"    /* definitions of type N_Vector, macro N_VDATA     */
+#include "nvector_parallel.h"    /* definitions of type N_Vector, macro N_VDATA     */
 #include "llnlmath.h"   /* contains SQR macro                              */
 #include "mpi.h"
 
@@ -89,8 +90,8 @@
 #define YMIN         30.0          /* grid boundaries in y                 */
 #define YMAX         50.0
 
-#define NPEX         3              /* no. PEs in x direction of PE array  */
-#define NPEY         3              /* no. PEs in y direction of PE array  */
+#define NPEX         2              /* no. PEs in x direction of PE array  */
+#define NPEY         2              /* no. PEs in y direction of PE array  */
                                     /* Total no. PEs = NPEX*NPEY           */
 #define MXSUB        5              /* no. x points per subgrid            */
 #define MYSUB        5              /* no. y points per subgrid            */
@@ -182,8 +183,9 @@ static int PSolve(integer N, real tn, N_Vector u, N_Vector fu, N_Vector vtemp,
 
 /***************************** Main Program ******************************/
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+  M_Env machEnv;
   real abstol, reltol, t, tout, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector u;
@@ -192,7 +194,6 @@ main(int argc, char *argv[])
   void *cvode_mem;
   int iout, flag, my_pe, npes;
   integer neq, local_N;
-  machEnvType machEnv;
   MPI_Comm comm;
 
   real *pbar, rhomax;
@@ -260,7 +261,7 @@ main(int argc, char *argv[])
   predata = AllocPreconData (data);
 
   /* Set machEnv block */
-  machEnv = PVecInitMPI(comm, local_N, neq, &argc, &argv);
+  machEnv = M_EnvInit_Parallel(comm, local_N, neq, &argc, &argv);
   if (machEnv == NULL) return(1);
 
   /* Allocate u, and set initial values and tolerances */ 
@@ -351,7 +352,7 @@ main(int argc, char *argv[])
   free(data);
   FreePreconData(predata);
   CVodeFree(cvode_mem);
-  PVecFreeMPI(machEnv);
+  M_EnvFree_Parallel(machEnv);
   MPI_Finalize();
 
   return(0);
@@ -477,7 +478,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u */
 
-  udata = N_VDATA(u);
+  udata = NV_DATA_P(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
 
@@ -519,7 +520,7 @@ static void PrintOutput(integer my_pe, MPI_Comm comm, long int iopt[],
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
-  udata = N_VDATA(u);
+  udata = NV_DATA_P(u);
 
   /* Send c at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -539,7 +540,7 @@ static void PrintOutput(integer my_pe, MPI_Comm comm, long int iopt[],
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
 
-    printf("%8.3e %2d  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
+    printf("%8.3e %2ld  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
     printf("                                Solution       ");
     printf("%12.4e %12.4e \n", udata[0], tempu[0]); 
     printf("                                               ");
@@ -559,7 +560,7 @@ static void PrintOutputS(integer my_pe, MPI_Comm comm, N_Vector *uS)
 
   npelast = NPEX*NPEY - 1;
 
-  sdata = N_VDATA(uS[0]);
+  sdata = NV_DATA_P(uS[0]);
   /* Send s1 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
     i0 = NVARS*MXSUB*MYSUB - 2;
@@ -582,7 +583,7 @@ static void PrintOutputS(integer my_pe, MPI_Comm comm, N_Vector *uS)
     printf("%12.4e %12.4e \n", sdata[1], temps[1]);
   }
 
-  sdata = N_VDATA(uS[1]);
+  sdata = NV_DATA_P(uS[1]);
   /* Send s2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
     i0 = NVARS*MXSUB*MYSUB - 2;
@@ -805,8 +806,7 @@ static void ucomm(integer N, real t, N_Vector u, UserData data)
   integer my_pe, isubx, isuby, nvmxsub, nvmysub;
   MPI_Request request[4];
 
-  udata = N_VDATA(u);
-
+  udata = NV_DATA_P(u);
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
 
@@ -999,8 +999,8 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
   real *udata, *dudata;
   UserData data;
 
-  udata = N_VDATA(u);
-  dudata = N_VDATA(udot);
+  udata = NV_DATA_P(u);
+  dudata = NV_DATA_P(udot);
   data = (UserData) f_data;
 
 
@@ -1040,7 +1040,7 @@ static int Precond(integer N, real tn, N_Vector u, N_Vector fu, boole jok,
   P = predata->P;
   Jbd = predata->Jbd;
   pivot = predata->pivot;
-  udata = N_VDATA(u);
+  udata = NV_DATA_P(u);
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
@@ -1154,7 +1154,7 @@ static int PSolve(integer N, real tn, N_Vector u, N_Vector fu, N_Vector vtemp,
   N_VScale(1.0, r, z);
 
   nvmxsub = data->nvmxsub;
-  zdata = N_VDATA(z);
+  zdata = NV_DATA_P(z);
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {

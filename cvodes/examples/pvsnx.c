@@ -1,13 +1,13 @@
 /************************************************************************
  *                                                                      *
- * File: pvnx.c                                                         *
+ * File       : pvsnx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne, and *
  *              Radu Serban @ LLNL                                      *
- * Version of 14 November 2001                                          *
+ * Version of : 21 March 2002                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
- * solution by PVODES.  The problem is the semi-discrete form of the    *
+ * solution by CVODES.  The problem is the semi-discrete form of the    *
  * advection-diffusion equation in 1-D:                                 *
  *   du/dt = q1 * d^2 u / dx^2 + q2 * du/dx                             *
  * on the interval 0 <= x <= 2, and the time interval 0 <= t <= 5.      *
@@ -23,7 +23,7 @@
  * Output is printed at t = .5, 1.0, ..., 5.                            *
  * Run statistics (optional outputs) are printed at the end.            *
  *                                                                      *
- * Optionally, PVODES can compute sensitivities with respect to the     *
+ * Optionally, CVODES can compute sensitivities with respect to the     *
  * problem parameters q1 and q2.                                        *
  * Any of three sensitivity methods (SIMULTANEOUS, STAGGERED, and       *
  * STAGGERED1) can be used and sensitivities may be included in the     *
@@ -32,7 +32,7 @@
  *                                                                      *
  * Execution:                                                           *
  *                                                                      *
- * NOTE: This version uses MPI for user routines, and the MPI_PVODE     *
+ * NOTE: This version uses MPI for user routines, and the CVODES        *
  *       solver. In what follows, N is the number of processors,        *
  *       N = NPEX*NPEY (see constants below) and it is assumed that     *
  *       the MPI script mpirun is used to run a paralles application.   *
@@ -46,10 +46,12 @@
  ************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "llnltyps.h"
 #include "cvodes.h"
-#include "nvector.h"
+#include "nvector_parallel.h"
 #include "mpi.h"
 
 /* Problem Constants */
@@ -94,8 +96,9 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
 
 /***************************** Main Program ******************************/
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+  M_Env machEnv;
   real ropt[OPT_SIZE], dx, reltol, abstol, t, tout, umax;
   long int iopt[OPT_SIZE];
   N_Vector u;
@@ -103,7 +106,6 @@ main(int argc, char *argv[])
   void *cvode_mem;
   int iout, flag, my_pe, npes;
   integer local_N, nperpe, nrem, my_base;
-  machEnvType machEnv;
 
   real *pbar, rhomax;
   integer is, *plist;
@@ -170,7 +172,7 @@ main(int argc, char *argv[])
   data->p[1] = 0.5;
 
   /* SET machEnv BLOCK */
-  machEnv = PVecInitMPI(comm, local_N, NEQ, &argc, &argv);
+  machEnv = M_EnvInit_Parallel(comm, local_N, NEQ, &argc, &argv);
   if (machEnv == NULL) return(1);
 
   /* INITIAL STATES */
@@ -197,15 +199,15 @@ main(int argc, char *argv[])
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 
-    uS = N_VNew_S(NS,NEQ,machEnv);
+    uS = N_VNew_S(NS, NEQ, machEnv);
     for(is=0;is<NS;is++)
       N_VConst(0.0,uS[is]);
 
     rhomax = ZERO;
     ifS = ALLSENS;
     if(sensi_meth==STAGGERED1) ifS = ONESENS;
-    flag = CVodeSensMalloc(cvode_mem,NS,sensi_meth,data->p,pbar,plist,
-                           ifS,NULL,err_con,rhomax,uS,NULL,NULL);
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, pbar, plist,
+                           ifS, NULL, err_con, rhomax, uS, NULL, NULL);
     if (flag != SUCCESS) {
       if (my_pe == 0) printf("CVodeSensMalloc failed, flag=%d\n",flag);
       return(1);
@@ -266,7 +268,7 @@ main(int argc, char *argv[])
   free(data->p);               /* Free the p vector             */
   free(data);                  /* Free block of UserData        */
   CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
-  PVecFreeMPI(machEnv);
+  M_EnvFree_Parallel(machEnv);
 
   MPI_Finalize();
 
@@ -301,8 +303,8 @@ static void SetIC(N_Vector u, real dx, integer my_length, integer my_base)
   real *udata;
 
   /* Set pointer to data array and get local length of u. */
-  udata = N_VDATA(u);
-  my_length = N_VLOCLENGTH(u);
+  udata = NV_DATA_P(u);
+  my_length = NV_LOCLENGTH_P(u);
 
   /* Load initial profile into u vector */
   for (i=1; i<=my_length; i++) {
@@ -321,7 +323,7 @@ static void PrintOutput(integer my_pe, long int iopt[], real ropt[], real t, N_V
 
   umax = N_VMaxNorm(u);
   if (my_pe == 0) {
-    printf("%8.3e %2d  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
+    printf("%8.3e %2ld  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
     printf("                                Solution       ");
     printf("%12.4e \n", umax);
   }  
@@ -404,8 +406,8 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
   MPI_Status status;
   MPI_Comm comm;
 
-  udata = N_VDATA(u);
-  dudata = N_VDATA(udot);
+  udata = NV_DATA_P(u);
+  dudata = NV_DATA_P(udot);
 
   /* Extract needed problem constants from data */
   data  = (UserData) f_data;
@@ -417,7 +419,7 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
   comm = data->comm;
   npes = data->npes;           /* Number of processes. */ 
   my_pe = data->my_pe;         /* Current process number. */
-  my_length = N_VLOCLENGTH(u); /* Number of local elements of u. */ 
+  my_length = NV_LOCLENGTH_P(u); /* Number of local elements of u. */ 
   z = data->z;
 
   /* Compute related parameters. */

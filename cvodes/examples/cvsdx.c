@@ -1,9 +1,9 @@
 /************************************************************************
  *                                                                      *
- * File: cvdx.c                                                         *
+ * File       : cvdx.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and Radu Serban      * 
  *              @ LLNL                                                  *
- * Version of 15 January 2002                                           *
+ * Version of : 20 March 2002                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the coding           *
@@ -41,18 +41,20 @@
  ************************************************************************/
 
 #include <stdio.h>
-#include "llnltyps.h" /* definitions of types real (set to double) and     */
-                      /* integer (set to int), and the constant FALSE      */
-#include "cvodes.h"   /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
-                      /* constants OPT_SIZE, BDF, NEWTON, SV, SUCCESS,     */
-                      /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
-#include "cvsdense.h" /* prototype for CVDense, constant DENSE_NJE         */
-#include "nvector.h"  /* definitions of type N_Vector and macro N_VIth,    */
-                      /* prototypes for N_VNew, N_VFree                    */
-#include "dense.h"    /* definitions of type DenseMat, macro DENSE_ELEM    */
+#include <stdlib.h>
+#include <string.h>
+#include "llnltyps.h"        /* definitions of types real (set to double) and     */
+                             /* integer (set to int), and the constant FALSE      */
+#include "cvodes.h"          /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
+                             /* constants OPT_SIZE, BDF, NEWTON, SV, SUCCESS,     */
+                             /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
+#include "cvsdense.h"        /* prototype for CVDense, constant DENSE_NJE         */
+#include "nvector_serial.h"  /* definitions of type N_Vector and macro NV_Ith_S,  */
+                             /* prototypes for N_VNew, N_VFree                    */
+#include "dense.h"           /* definitions of type DenseMat, macro DENSE_ELEM    */
 
 
-#define Ith(v,i)    N_VIth(v,i-1)         /* Ith numbers components 1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
 
 /* Problem Constants */
@@ -97,8 +99,9 @@ static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
 
 /***************************** Main Program ******************************/
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+  M_Env machEnv;
   UserData data;
   real ropt[OPT_SIZE], reltol, t, tout;
   long int iopt[OPT_SIZE];
@@ -146,6 +149,9 @@ main(int argc, char *argv[])
 
   }
 
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);
+
   /* USER DATA STRUCTURE */
   data = (UserData) malloc(sizeof *data);
   data->p[0] = 0.04;
@@ -153,11 +159,11 @@ main(int argc, char *argv[])
   data->p[2] = 3.0e7;
 
   /* INITIAL STATES */
-  y = N_VNew(NEQ, NULL); 
-  abstol = N_VNew(NEQ, NULL); 
+  y = N_VNew(NEQ, machEnv);
+  abstol = N_VNew(NEQ, machEnv);
 
   /* Initialize y */
-  Ith(y,1) = Y1;                
+  Ith(y,1) = Y1;
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
 
@@ -171,7 +177,7 @@ main(int argc, char *argv[])
 
   /* CVODE_MALLOC */
   cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
-                          data, NULL, FALSE, iopt, ropt, NULL);
+                          data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { 
     printf("CVodeMalloc failed.\n"); 
     return(1); 
@@ -189,16 +195,16 @@ main(int argc, char *argv[])
     plist = (integer *) malloc(NS * sizeof(integer));
     for(is=0;is<NS;is++) plist[is] = is+1;
 
-    yS = N_VNew_S(NS,NEQ,NULL);
+    yS = N_VNew_S(NS, NEQ, machEnv);
     for(is=0;is<NS;is++)
-      N_VConst(0.0,yS[is]);
+      N_VConst(0.0, yS[is]);
 
     ifS = ALLSENS;
     if(sensi_meth==STAGGERED1) ifS = ONESENS;
 
     rhomax = ZERO;
-    flag = CVodeSensMalloc(cvode_mem,NS,sensi_meth,data->p,pbar,plist,
-                           ifS,NULL,err_con,rhomax,yS,NULL,NULL);
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, pbar, plist,
+                           ifS, NULL, err_con, rhomax, yS, NULL, NULL);
     if (flag != SUCCESS) {
       printf("CVodeSensMalloc failed, flag=%d\n",flag);
       return(1);
@@ -231,14 +237,15 @@ main(int argc, char *argv[])
   }
 
   /* Print final statistics */
-  PrintFinalStats(sensi,sensi_meth,err_con,iopt);       /* Print some final statistics   */
+  PrintFinalStats(sensi,sensi_meth,err_con,iopt);
 
   /* Free memory */
-  N_VFree(y);                  /* Free the y and abstol vectors */
+  N_VFree(y);                  /* Free the y and abstol vectors       */
   N_VFree(abstol);   
-  if(sensi) N_VFree_S(NS, yS); /* Free the yS vectors           */
-  free(data);
-  CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
+  if(sensi) N_VFree_S(NS, yS); /* Free the yS vectors                 */
+  free(data);                  /* Free user data                      */
+  CVodeFree(cvode_mem);        /* Free the CVODE problem memory       */
+  M_EnvFree_Serial(machEnv);   /* Free the machine environment memory */
 
   return(0);
 }
@@ -266,9 +273,9 @@ static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector u)
 
   real *udata;
   
-  udata = N_VDATA(u);
+  udata = NV_DATA_S(u);
 
-  printf("%8.3e %2d  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
+  printf("%8.3e %2ld  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
   printf("                                Solution       ");
   printf("%12.4e %12.4e %12.4e \n", udata[0], udata[1], udata[2]);
   
@@ -281,15 +288,15 @@ static void PrintOutputS(N_Vector *uS)
 
   real *sdata;
 
-  sdata = N_VDATA(uS[0]);
+  sdata = NV_DATA_S(uS[0]);
   printf("                                Sensitivity 1  ");
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
   
-  sdata = N_VDATA(uS[1]);
+  sdata = NV_DATA_S(uS[1]);
   printf("                                Sensitivity 2  ");
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 
-  sdata = N_VDATA(uS[2]);
+  sdata = NV_DATA_S(uS[2]);
   printf("                                Sensitivity 3  ");
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 
