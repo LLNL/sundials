@@ -2,7 +2,7 @@
  *                                                                *
  * File          : cvdense.h                                      *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 8 January 2002                                 *
+ * Version of    : 1 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVODE dense linear solver,     *
  * CVDENSE.                                                       *
@@ -175,17 +175,27 @@ int CVDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data);
 
 /******************************************************************
  *                                                                *
- * Function : CVDenseDQJac                                        *
- *----------------------------------------------------------------*  
- * This routine generates a dense difference quotient             *
- * approximation to the Jacobian of f(t,y).                       *
+ * Function : CVReInitDense                                       *
+ *----------------------------------------------------------------*
+ * A call to the CVReInitDense function resets the link between   *
+ * the main CVODE integrator and the CVDENSE linear solver.       *
+ * After solving one problem using CVDENSE, call CVReInit and then*
+ * CVReInitDense to solve another problem of the same size, if    *
+ * there is a change in the CVDense parameters djac or jac_data.  *
+ * If there is no change in parameters, it is not necessary to    *
+ * call either CVReInitDense or CVDense for the new problem.      *
+ *                                                                *
+ * All arguments to CVReInitDense have the same names and meanings*
+ * as those of CVDense.  The cvode_mem argument must be identical *
+ * to its value in the previous CVDense call.                     *
+ *                                                                *
+ * The return values of CVReInitDense are:                        *
+ *   SUCCESS   = 0      if successful, or                         *
+ *   LMEM_FAIL = -1     if the cvode_mem argument is NULL         *
  *                                                                *
  ******************************************************************/
-
-void CVDenseDQJac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
-                  N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
-                  void *jac_data, long int *nfePtr, N_Vector vtemp1,
-                  N_Vector vtemp2, N_Vector vtemp3);
+  
+int CVReInitDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data);
 
 
 #endif

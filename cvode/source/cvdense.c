@@ -2,7 +2,7 @@
  *                                                                *
  * File          : cvdense.c                                      *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 11 January 2002                                *
+ * Version of    : 1 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the CVODE dense linear     *
  * solver, CVDENSE.                                               *
@@ -22,7 +22,7 @@
 
 /* Error Messages */
 
-#define CVDENSE  "CVDense-- "
+#define CVDENSE  "CVDense/CVReInitDense-- "
 
 #define MSG_CVMEM_NULL  CVDENSE "CVode Memory is NULL.\n\n"
 
@@ -65,7 +65,7 @@ typedef struct {
 } CVDenseMemRec, *CVDenseMem;
 
 
-/* CVDENSE linit, lsetup, lsolve, and lfree routines */
+/* CVDENSE linit, lsetup, lsolve, lfree, and DQJac routines */
  
 static int CVDenseInit(CVodeMem cv_mem);
 
@@ -77,6 +77,11 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                         N_Vector fcur);
 
 static void CVDenseFree(CVodeMem cv_mem);
+
+static void CVDenseDQJac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
+                  N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+                  void *jac_data, long int *nfePtr, N_Vector vtemp1,
+                  N_Vector vtemp2, N_Vector vtemp3);
 
 
 /*************** CVDenseDQJac ****************************************
@@ -92,7 +97,7 @@ static void CVDenseFree(CVodeMem cv_mem);
 
 **********************************************************************/
  
-void CVDenseDQJac(integer N, DenseMat J, RhsFn f, void *f_data, real tn,
+static void CVDenseDQJac(integer N, DenseMat J, RhsFn f, void *f_data, real tn,
                   N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
                   void *jac_data, long int *nfePtr, N_Vector vtemp1,
                   N_Vector vtemp2, N_Vector vtemp3)
@@ -246,6 +251,48 @@ int CVDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data)
     DenseFreeMat(savedJ);
     return(LMEM_FAIL);
   }
+
+  return(SUCCESS);
+}
+
+/*************** CVReInitDense****************************************
+
+ This routine resets the link between the main CVODE module and the
+ dense linear solver module CVDENSE.  No memory freeing or allocation
+ operations are done, as the existing linear solver memory is assumed
+ sufficient.  All other initializations are the same as in CVDense.
+ The return value is SUCCESS = 0, or LMEM_FAIL = -1.
+
+**********************************************************************/
+
+int CVReInitDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data)
+{
+  CVodeMem cv_mem;
+  CVDenseMem cvdense_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  cv_mem = (CVodeMem) cvode_mem;
+  if (cv_mem == NULL) {                   /* CVode reports this error */
+    fprintf(errfp, MSG_CVMEM_NULL);
+    return(LMEM_FAIL);
+  }
+
+  cvdense_mem = lmem;   /* Use existing linear solver memory pointer */
+
+  /* Set four main function fields in cv_mem */
+  linit  = CVDenseInit;
+  lsetup = CVDenseSetup;
+  lsolve = CVDenseSolve;
+  lfree  = CVDenseFree;
+
+  /* Set Jacobian routine field, J_data, and setupNonNull */
+  if (djac == NULL) {
+    jac = CVDenseDQJac;
+  } else {
+    jac = djac;
+  }
+  J_data = jac_data;
+  setupNonNull = TRUE;
 
   return(SUCCESS);
 }
