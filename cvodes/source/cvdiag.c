@@ -1,10 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-05-26 18:37:07 $
+ * $Revision: 1.5 $
+ * $Date: 2004-07-22 21:24:25 $
  * ----------------------------------------------------------------- 
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
- *                 Radu Serban @ LLNL
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
+ *              Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California
  * Produced at the Lawrence Livermore National Laboratory
@@ -27,6 +27,8 @@
 #define CVDIAG   "CVDiag-- "
 
 #define MSG_CVMEM_NULL  CVDIAG "Integrator memory is NULL.\n\n"
+
+#define MSG_BAD_NVECTOR CVDIAG "A required vector operation is not implemented.\n\n"
 
 #define MSG_MEM_FAIL  CVDIAG "A memory request failed.\n\n"
 
@@ -52,7 +54,6 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static void CVDiagFree(CVodeMem cv_mem);
 
-
 /* Readability Replacements */
 
 #define lrw1      (cv_mem->cv_lrw1)
@@ -73,7 +74,7 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define lsolve    (cv_mem->cv_lsolve)
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
-#define nvspec    (cv_mem->cv_nvspec)
+#define vec_tmpl  (cv_mem->cv_tempv)
 #define setupNonNull   (cv_mem->cv_setupNonNull)
 
 #define gammasv   (cvdiag_mem->di_gammasv)
@@ -95,7 +96,8 @@ static void CVDiagFree(CVodeMem cv_mem);
  * CVDiagMemRec and sets the cv_lmem field in (*cvode_mem) to the
  * address of this structure.  It sets setupNonNull in (*cvode_mem) to
  * TRUE.  Finally, it allocates memory for M, bit, and bitcomp.
- * The CVDiag return value is SUCCESS = 0, or LMEM_FAIL = -1.
+ * The CVDiag return value is SUCCESS = 0, LMEM_FAIL = -1, or 
+ * LIN_ILL_INPUT=-2.
  * -----------------------------------------------------------------
  */
   
@@ -111,7 +113,14 @@ int CVDiag(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (lfree !=NULL) lfree(cv_mem);
+  /* Check if N_VCompare and N_VInvTest are present */
+  if(vec_tmpl->ops->nvcompare == NULL ||
+     vec_tmpl->ops->nvinvtest == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    return(LIN_ILL_INPUT);
+  }
+
+  if (lfree != NULL) lfree(cv_mem);
   
   /* Set four main function fields in cv_mem */
   linit  = CVDiagInit;
@@ -131,22 +140,22 @@ int CVDiag(void *cvode_mem)
 
   /* Allocate memory for M, bit, and bitcomp */
     
-  M = N_VNew(nvspec);
+  M = N_VClone(vec_tmpl);
   if (M == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
-  bit = N_VNew(nvspec);
+  bit = N_VClone(vec_tmpl);
   if (bit == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    N_VFree(M);
+    N_VDestroy(M);
     return(LMEM_FAIL);
   }
-  bitcomp = N_VNew(nvspec);
+  bitcomp = N_VClone(vec_tmpl);
   if (bitcomp == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    N_VFree(M);
-    N_VFree(bit);
+    N_VDestroy(M);
+    N_VDestroy(bit);
     return(LMEM_FAIL);
   }
 
@@ -356,8 +365,8 @@ static void CVDiagFree(CVodeMem cv_mem)
   
   cvdiag_mem = (CVDiagMem) lmem;
 
-  N_VFree(M);
-  N_VFree(bit);
-  N_VFree(bitcomp);
+  N_VDestroy(M);
+  N_VDestroy(bit);
+  N_VDestroy(bitcomp);
   free(cvdiag_mem);
 }

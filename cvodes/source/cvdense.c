@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-06-18 21:35:02 $
+ * $Revision: 1.6 $
+ * $Date: 2004-07-22 21:24:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -31,6 +31,8 @@
 #define CVDENSE               "CVDense-- "
 
 #define MSG_CVMEM_NULL        CVDENSE "Integrator memory is NULL.\n\n"
+
+#define MSG_BAD_NVECTOR       CVDENSE "A required vector operation is not implemented.\n\n"
 
 #define MSG_MEM_FAIL          CVDENSE "A memory request failed.\n\n"
 
@@ -85,8 +87,8 @@ static void CVDenseDQJac(long int n, DenseMat J, realtype t,
 #define lsolve    (cv_mem->cv_lsolve)
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
+#define vec_tmpl     (cv_mem->cv_tempv)
 #define setupNonNull (cv_mem->cv_setupNonNull)
-#define nvspec    (cv_mem->cv_nvspec)
 
 #define n         (cvdense_mem->d_n)
 #define jac       (cvdense_mem->d_jac)
@@ -115,12 +117,11 @@ static void CVDenseDQJac(long int n, DenseMat J, realtype t,
  * Finally, it allocates memory for M, savedJ, and pivots.
  * The return value is SUCCESS = 0, or LMEM_FAIL = -1.
  *
- * NOTE: The band linear solver assumes a serial implementation
+ * NOTE: The dense linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, CVDense will first 
  *       test for compatible a compatible N_Vector internal
- *       representation by checking (1) the vector specification
- *       ID tag and (2) that the functions N_VMake, N_VDispose,
- *       N_VGetData, and N_VSetData are implemented.
+ *       representation by checking that N_VGetArrayPointer and
+ *       N_VSetArrayPointer exist.
  * -----------------------------------------------------------------
  */
 
@@ -137,12 +138,9 @@ int CVDense(void *cvode_mem, long int N)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
-  if ((strcmp(nvspec->tag,"serial")) ||
-      nvspec->ops->nvmake    == NULL ||
-      nvspec->ops->nvdispose == NULL ||
-      nvspec->ops->nvgetdata == NULL || 
-      nvspec->ops->nvsetdata == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
+  if (vec_tmpl->ops->nvgetarraypointer == NULL ||
+      vec_tmpl->ops->nvsetarraypointer == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
     return(LIN_ILL_INPUT);
   }
 
@@ -169,7 +167,7 @@ int CVDense(void *cvode_mem, long int N)
 
   /* Set problem dimension */
   n = N;
-  
+
   /* Allocate memory for M, savedJ, and pivot array */
   
   M = DenseAllocMat(N);
@@ -473,9 +471,9 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   cvdense_mem = (CVDenseMem) lmem;
   
-  bd = (realtype *) N_VGetData(b);
+  bd = N_VGetArrayPointer(b);
+
   DenseBacksolve(M, pivots, bd);
-  N_VSetData((void *)bd, b);
 
   /* If BDF, scale the correction to account for change in gamma */
   if ((lmm == BDF) && (gamrat != ONE)) {
@@ -513,10 +511,10 @@ static void CVDenseFree(CVodeMem cv_mem)
  * the Jacobian of f(t,y). It assumes that a dense matrix of type
  * DenseMat is stored column-wise, and that elements within each column
  * are contiguous. The address of the jth column of J is obtained via
- * the macro DENSE_COL and an N_Vector with the jth column as the
- * component array is created using N_VMake and N_VData. Finally, the
- * actual computation of the jth column of the Jacobian is done with a
- * call to N_VLinearSum.
+ * the macro DENSE_COL and this pointer is associated with an N_Vector
+ * using the N_VGetArrayPointer/N_VSetArrayPointer functions. 
+ * Finally, the actual computation of the jth column of the Jacobian is 
+ * done with a call to N_VLinearSum.
  * -----------------------------------------------------------------
  */
  
@@ -525,7 +523,7 @@ static void CVDenseDQJac(long int N, DenseMat J, realtype t,
                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
-  realtype *y_data, *ewt_data;
+  realtype *tmp2_data, *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
   long int j;
 
@@ -536,11 +534,16 @@ static void CVDenseDQJac(long int N, DenseMat J, realtype t,
   cv_mem = (CVodeMem) jac_data;
   cvdense_mem = (CVDenseMem) lmem;
 
-  ftemp = tmp1; /* Rename work vector for use as f vector value */
+  /* Save pointer to the array in tmp2 */
+  tmp2_data = N_VGetArrayPointer(tmp2);
+
+  /* Rename work vectors for readibility */
+  ftemp = tmp1; 
+  jthCol = tmp2;
 
   /* Obtain pointers to the data for ewt, y */
-  ewt_data   = (realtype *) N_VGetData(ewt);
-  y_data     = (realtype *) N_VGetData(y);
+  ewt_data = N_VGetArrayPointer(ewt);
+  y_data   = N_VGetArrayPointer(y);
 
   /* Set minimum increment based on uround and norm of f */
   srur = RSqrt(uround);
@@ -548,31 +551,29 @@ static void CVDenseDQJac(long int N, DenseMat J, realtype t,
   minInc = (fnorm != ZERO) ?
            (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
 
-  /* j loop overwrites this data address */
-  jthCol = N_VMake((void *)DENSE_COL(J,0), nvspec);
+  /* This is the only for loop for 0..N-1 in CVODE */
 
-  /* This is the only for loop for 0..N-1 in CVODES */
   for (j = 0; j < N; j++) {
 
     /* Generate the jth col of J(tn,y) */
-    
-    N_VSetData((void *)DENSE_COL(J,j), jthCol);
+
+    N_VSetArrayPointer(DENSE_COL(J,j), jthCol);
+
     yjsaved = y_data[j];
     inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
-    N_VSetData((void *)y_data, y);
     f(tn, y, ftemp, f_data);
+    y_data[j] = yjsaved;
+
     inc_inv = ONE/inc;
     N_VLinearSum(inc_inv, ftemp, -inc_inv, fy, jthCol);
-    DENSE_COL(J,j) = (realtype *) N_VGetData(jthCol);
-    y_data[j] = yjsaved;
+
+    DENSE_COL(J,j) = N_VGetArrayPointer(jthCol);
   }
 
-  N_VSetData((void *)y_data, y);
-
-  N_VDispose(jthCol);
+  /* Restore original array pointer in tmp2 */
+  N_VSetArrayPointer(tmp2_data, tmp2);
 
   /* Increment counter nfeD */
   nfeD += N;
 }
-

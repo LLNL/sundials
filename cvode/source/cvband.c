@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-06-18 21:33:52 $
+ * $Revision: 1.15 $
+ * $Date: 2004-07-22 21:25:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -36,9 +36,11 @@
 #define MSG_BAD_SIZES_3       "Must have 0 <=  ml, mu <= N-1=%ld.\n\n"
 #define MSG_BAD_SIZES         MSG_BAD_SIZES_1 MSG_BAD_SIZES_2 MSG_BAD_SIZES_3
 
-#define MSG_CVMEM_NULL        CVBAND "Integrator memory is NULL.\n\n"
+#define MSG_BAD_NVECTOR       CVBAND "A required vector operation is not implemented.\n\n"
 
 #define MSG_WRONG_NVEC        CVBAND "Incompatible NVECTOR implementation.\n\n"
+
+#define MSG_CVMEM_NULL        CVBAND "Integrator memory is NULL.\n\n"
 
 #define MSG_SETGET_CVMEM_NULL "CVBandSet*/CVBandGet*-- Integrator memory is NULL. \n\n"
 
@@ -71,7 +73,6 @@ static void CVBandDQJac(long int n, long int mupper, long int mlower,
                         N_Vector y, N_Vector fy, void *jac_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-
 /* Readability Replacements */
 
 #define lmm       (cv_mem->cv_lmm)
@@ -92,8 +93,8 @@ static void CVBandDQJac(long int n, long int mupper, long int mlower,
 #define lsolve    (cv_mem->cv_lsolve)
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
+#define vec_tmpl      (cv_mem->cv_tempv)
 #define setupNonNull  (cv_mem->cv_setupNonNull)
-#define nvspec    (cv_mem->cv_nvspec)
 
 #define n          (cvband_mem->b_n)
 #define jac        (cvband_mem->b_jac)
@@ -129,9 +130,8 @@ static void CVBandDQJac(long int n, long int mupper, long int mlower,
  * NOTE: The band linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, CVBand will first 
  *       test for compatible a compatible N_Vector internal
- *       representation by checking (1) the vector specification
- *       ID tag and (2) that the functions N_VGetData, and N_VSetData 
- *       are implemented.
+ *       representation by checking that the function 
+ *       N_VGetArrayPointer exists.
  * -----------------------------------------------------------------
  */
                   
@@ -140,7 +140,7 @@ int CVBand(void *cvode_mem, long int N,
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
-  
+
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_CVMEM_NULL);
@@ -149,10 +149,8 @@ int CVBand(void *cvode_mem, long int N,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
-  if ((strcmp(nvspec->tag,"serial")) || 
-      nvspec->ops->nvgetdata == NULL || 
-      nvspec->ops->nvsetdata == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
+  if (vec_tmpl->ops->nvgetarraypointer == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
     return(LIN_ILL_INPUT);
   }
 
@@ -495,9 +493,9 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   cvband_mem = (CVBandMem) lmem;
 
-  bd = (realtype *) N_VGetData(b);
+  bd = N_VGetArrayPointer(b);
+
   BandBacksolve(M, pivots, bd);
-  N_VSetData((void *)bd, b);
 
   /* If BDF, scale the correction to account for change in gamma */
   if ((lmm == BDF) && (gamrat != ONE)) {
@@ -562,11 +560,11 @@ static void CVBandDQJac(long int N, long int mupper, long int mlower,
   ytemp = tmp2;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp */
-  ewt_data   = (realtype *) N_VGetData(ewt);
-  fy_data    = (realtype *) N_VGetData(fy);
-  ftemp_data = (realtype *) N_VGetData(ftemp);
-  y_data     = (realtype *) N_VGetData(y);
-  ytemp_data = (realtype *) N_VGetData(ytemp);
+  ewt_data   = N_VGetArrayPointer(ewt);
+  fy_data    = N_VGetArrayPointer(fy);
+  ftemp_data = N_VGetArrayPointer(ftemp);
+  y_data     = N_VGetArrayPointer(y);
+  ytemp_data = N_VGetArrayPointer(ytemp);
 
   /* Load ytemp with y = predicted y vector */
   N_VScale(ONE, y, ytemp);
@@ -590,9 +588,8 @@ static void CVBandDQJac(long int N, long int mupper, long int mlower,
     }
 
     /* Evaluate f with incremented y */
-    N_VSetData((void *)ytemp_data, ytemp);
+
     f(tn, ytemp, ftemp, f_data);
-    ftemp_data = (realtype *) N_VGetData(ftemp);
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < N; j+=width) {
@@ -611,4 +608,3 @@ static void CVBandDQJac(long int N, long int mupper, long int mlower,
   /* Increment counter nfeB */
   nfeB += ngroups;
 }
-

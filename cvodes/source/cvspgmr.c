@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-05-26 18:37:07 $
+ * $Revision: 1.5 $
+ * $Date: 2004-07-22 21:24:26 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
  *                 Radu Serban @ LLNL
@@ -15,7 +15,6 @@
  * preconditioned GMRES linear solver, CVSPGMR.
  * -----------------------------------------------------------------
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,6 +38,8 @@
 #define MSG_BAD_PRETYPE       MSG_BAD_PRETYPE1 MSG_BAD_PRETYPE2 MSG_BAD_PRETYPE3
 
 #define MSG_PSOLVE_REQ        CVSPGMR "pretype!=NONE, but PSOLVE=NULL is illegal. \n\n"
+
+#define MSG_BAD_NVECTOR       CVSPGMR "A required vector operation is not implemented.\n\n"
 
 #define MSG_SETGET_CVMEM_NULL "CVSpgmrSet*/CVSpgmrGet*-- Integrator memory is NULL. \n\n"
 
@@ -85,7 +86,6 @@ static int CVSpgmrPSolve(void *cv_mem, N_Vector r, N_Vector z, int lr);
 static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                            N_Vector y, N_Vector fy, void *jac_data,
                            N_Vector work);
-
 /* Readability Replacements */
 
 #define lrw1    (cv_mem->cv_lrw1)
@@ -109,7 +109,7 @@ static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define lsolve  (cv_mem->cv_lsolve)
 #define lfree   (cv_mem->cv_lfree)
 #define lmem    (cv_mem->cv_lmem)
-#define nvspec  (cv_mem->cv_nvspec)
+#define vec_tmpl     (cv_mem->cv_tempv)
 #define setupNonNull (cv_mem->cv_setupNonNull)
 
 #define sqrtN   (cvspgmr_mem->g_sqrtN)   
@@ -172,6 +172,12 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  /* Check if N_VDotProd is present */
+  if(vec_tmpl->ops->nvdotprod == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    return(LIN_ILL_INPUT);
+  }
+
   if (lfree != NULL) lfree(cv_mem);
 
   /* Set four main function fields in cv_mem */
@@ -211,15 +217,15 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   }
 
   /* Allocate memory for ytemp and x */
-  ytemp = N_VNew(nvspec);
+  ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
-  x = N_VNew(nvspec);
+  x = N_VClone(vec_tmpl);
   if (x == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    N_VFree(ytemp);
+    N_VDestroy(ytemp);
     return(LMEM_FAIL);
   }
 
@@ -228,11 +234,11 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   sqrtN = RSqrt( N_VDotProd(ytemp, ytemp) );
 
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
-  spgmr_mem = SpgmrMalloc(mxl, nvspec);
+  spgmr_mem = SpgmrMalloc(mxl, vec_tmpl);
   if (spgmr_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    N_VFree(ytemp);
-    N_VFree(x);
+    N_VDestroy(ytemp);
+    N_VDestroy(x);
     return(LMEM_FAIL);
   }
   
@@ -910,8 +916,8 @@ static void CVSpgmrFree(CVodeMem cv_mem)
 
   cvspgmr_mem = (CVSpgmrMem) lmem;
   
-  N_VFree(ytemp);
-  N_VFree(x);
+  N_VDestroy(ytemp);
+  N_VDestroy(x);
   SpgmrFree(spgmr_mem);
   free(cvspgmr_mem);
 }

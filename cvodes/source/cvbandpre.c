@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-06-18 21:35:02 $
+ * $Revision: 1.8 $
+ * $Date: 2004-07-22 21:24:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -35,6 +35,9 @@
 
 #define CVBALLOC        "CVBandPreAlloc-- "
 #define MSG_CVMEM_NULL  CVBALLOC "Integrator memory is NULL.\n\n"
+
+#define MSG_BAD_NVECTOR CVBALLOC "A required vector operation is not implemented.\n\n"
+
 #define MSG_WRONG_NVEC  CVBALLOC "Incompatible NVECTOR implementation.\n\n"
 
 #define MSG_PDATA_NULL "CVBandPrecGet*-- BandPrecData is NULL. \n\n"
@@ -58,10 +61,9 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 static void CVBandPDQJac(CVBandPrecData pdata, 
                          realtype t, N_Vector y, N_Vector fy, 
                          N_Vector ftemp, N_Vector ytemp);
-
 /* Redability replacements */
-#define nvspec (cv_mem->cv_nvspec)
-#define errfp  (cv_mem->cv_errfp)
+#define vec_tmpl (cv_mem->cv_tempv)
+#define errfp    (cv_mem->cv_errfp)
 
 /*
  * -----------------------------------------------------------------
@@ -69,9 +71,8 @@ static void CVBandPDQJac(CVBandPrecData pdata,
  * NOTE: The band linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, CVBandPrecAlloc will 
  *       first test for compatible a compatible N_Vector internal
- *       representation by checking (1) the vector specification
- *       ID tag and (2) that the functions N_VGetData, and N_VSetData 
- *       are implemented.
+ *       representation by checking that the function 
+ *       N_VGetArrayPointer exists
  * -----------------------------------------------------------------
  */
 
@@ -89,10 +90,8 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND preconditioner */
-  if ((strcmp(nvspec->tag,"serial")) || 
-      nvspec->ops->nvgetdata == NULL || 
-      nvspec->ops->nvsetdata == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
+  if(vec_tmpl->ops->nvgetarraypointer == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
     return(NULL);
   }
 
@@ -360,9 +359,9 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
   N_VScale(ONE, r, z);
 
   /* Do band backsolve on the vector z. */
-  zd = (realtype *) N_VGetData(z);
+  zd = N_VGetArrayPointer(z);
+
   BandBacksolve(savedP, pivots, zd);
-  N_VSetData((void *)zd, z);
 
   return(0);
 }
@@ -398,11 +397,11 @@ static void CVBandPDQJac(CVBandPrecData pdata,
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
-  ewt_data   = (realtype *) N_VGetData(ewt);
-  fy_data    = (realtype *) N_VGetData(fy);
-  ftemp_data = (realtype *) N_VGetData(ftemp);
-  y_data     = (realtype *) N_VGetData(y);
-  ytemp_data = (realtype *) N_VGetData(ytemp);
+  ewt_data   = N_VGetArrayPointer(ewt);
+  fy_data    = N_VGetArrayPointer(fy);
+  ftemp_data = N_VGetArrayPointer(ftemp);
+  y_data     = N_VGetArrayPointer(y);
+  ytemp_data = N_VGetArrayPointer(ytemp);
 
   /* Load ytemp with y = predicted y vector. */
   N_VScale(ONE, y, ytemp);
@@ -426,10 +425,9 @@ static void CVBandPDQJac(CVBandPrecData pdata,
     }
 
     /* Evaluate f with incremented y. */
-    N_VSetData((void *)ytemp_data, ytemp);
+
     f(t, ytemp, ftemp, f_data);
     nfeBP++;
-    ftemp_data = (realtype *) N_VGetData(ftemp);
 
     /* Restore ytemp, then form and load difference quotients. */
     for (j = group-1; j < N; j += width) {
@@ -445,3 +443,4 @@ static void CVBandPDQJac(CVBandPrecData pdata,
     }
   }
 }
+

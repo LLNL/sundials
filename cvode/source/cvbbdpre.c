@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-06-18 21:33:52 $
+ * $Revision: 1.18 $
+ * $Date: 2004-07-22 21:25:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -35,7 +35,11 @@
 /* Error Messages */
 #define CVBBDALLOC     "CVBBDAlloc-- "
 #define MSG_CVMEM_NULL CVBBDALLOC "Integrator memory is NULL.\n\n"
+
+#define MSG_BAD_NVECTOR CVBBDALLOC "A required vector operation is not implemented.\n\n"
+
 #define MSG_WRONG_NVEC CVBBDALLOC "Incompatible NVECTOR implementation.\n\n"
+
 #define MSG_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL. \n\n"
 
 #define MSG_NO_PDATA   "CVBBDSpgmr-- BBDPrecData is NULL. \n\n"
@@ -58,11 +62,10 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
                        N_Vector y, N_Vector gy, 
                        N_Vector ytemp, N_Vector gtemp);
 
-
 /* Redability replacements */
-#define nvspec (cv_mem->cv_nvspec)
-#define errfp  (cv_mem->cv_errfp)
-#define uround (cv_mem->cv_uround)
+#define errfp    (cv_mem->cv_errfp)
+#define uround   (cv_mem->cv_uround)
+#define vec_tmpl (cv_mem->cv_tempv)
 
 /*
  * -----------------------------------------------------------------
@@ -87,8 +90,8 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BLOCK BAND preconditioner */
-  if (nvspec->ops->nvgetdata == NULL || nvspec->ops->nvsetdata == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
+  if(vec_tmpl->ops->nvgetarraypointer == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
     return(NULL);
   }
 
@@ -398,9 +401,9 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   /* Copy r to z, then do backsolve and return */
   N_VScale(ONE, r, z);
   
-  zd = (realtype *) N_VGetData(z);
+  zd = N_VGetArrayPointer(z);
+
   BandBacksolve(savedP, pivots, zd);
-  N_VSetData((void *)zd, z);
 
   return(0);
 }
@@ -438,18 +441,19 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  /* Obtain pointers to the data for the y and ewt vectors */
-  y_data     = (realtype *) N_VGetData(y);
-  ewt_data   = (realtype *) N_VGetData(ewt);
-
   /* Load ytemp with y = predicted solution vector */
   N_VScale(ONE, y, ytemp);
-  ytemp_data = (realtype *) N_VGetData(ytemp);
 
   /* Call cfn and gloc to get base value of g(t,y) */
   cfn (Nlocal, t, y, f_data);
   gloc(Nlocal, t, ytemp, gy, f_data);
-  gy_data    = (realtype *) N_VGetData(gy);
+
+  /* Obtain pointers to the data for various vectors */
+  y_data     =  N_VGetArrayPointer(y);
+  gy_data    =  N_VGetArrayPointer(gy);
+  ewt_data   =  N_VGetArrayPointer(ewt);
+  ytemp_data =  N_VGetArrayPointer(ytemp);
+  gtemp_data =  N_VGetArrayPointer(gtemp);
 
   /* Set minimum increment based on uround and norm of g */
   gnorm = N_VWrmsNorm(gy, ewt);
@@ -470,9 +474,7 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
     }
 
     /* Evaluate g with incremented y */
-    N_VSetData((void *)ytemp_data, ytemp);
     gloc(Nlocal, t, ytemp, gtemp, f_data);
-    gtemp_data = (realtype *) N_VGetData(gtemp);
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < Nlocal; j+=width) {
@@ -488,4 +490,3 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
     }
   }
 }
-

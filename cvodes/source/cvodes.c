@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2004-06-09 18:47:08 $
+ * $Revision: 1.34 $
+ * $Date: 2004-07-22 21:24:25 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -258,6 +258,8 @@
 
 #define MSG_BAD_ABSTOL      CVM "Some abstol component < 0.0 illegal.\n\n"
 
+#define MSG_BAD_NVECTOR     CVM "A required vector operation is not implemented.\n\n"
+
 #define MSG_MEM_FAIL        CVM "A memory request failed.\n\n"
 
 #define MSG_CVREI_NO_MALLOC "CVodeReInit-- Attempt to call before CVodeMalloc. \n\n"
@@ -306,7 +308,7 @@
 
 #define MSG_SCVM_MEM_FAIL SCVM "A memory request failed.\n\n"
 
-#define MSG_BAD_NS      SCVM "NS=%d<0 illegal.\n\n"
+#define MSG_BAD_NS      SCVM "NS=%d non-positive illegal.\n\n"
 
 #define MSG_P_NULL      SCVM "p=NULL illegal.\n\n"
 
@@ -512,9 +514,11 @@
 /*BEGIN        Private Helper Functions Prototypes                 */
 /*=================================================================*/
 
+static booleantype CVCheckNvector(N_Vector tmpl);
+
 static int CVInitialSetup(CVodeMem cv_mem);
 
-static booleantype CVAllocVectors(CVodeMem cv_mem);
+static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void  CVFreeVectors(CVodeMem cv_mem);
 
 static booleantype CVEwtSet(CVodeMem cv_mem, N_Vector ycur);
@@ -582,7 +586,7 @@ static int CVRootfind(CVodeMem cv_mem);
 
 /*----------------*/
 
-static booleantype CVQuadAllocVectors(CVodeMem cv_mem);
+static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static booleantype CVQuadEwtSet(CVodeMem cv_mem, N_Vector qcur);
 static booleantype CVQuadEwtSetSS(CVodeMem cv_mem, N_Vector qcur);
 static booleantype CVQuadEwtSetSV(CVodeMem cv_mem, N_Vector qcur);
@@ -614,7 +618,7 @@ static booleantype CVSensSetAtolSV(CVodeMem cv_mem, N_Vector *atolS);
 
 /*----------------*/
 
-static booleantype CVSensAllocVectors(CVodeMem cv_mem);
+static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void CVSensFreeVectors(CVodeMem cv_mem);
 
 /*----------------*/
@@ -1177,10 +1181,10 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
 /*-----------------------------------------------------------------*/
 
 int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0, 
-                int itol, realtype *reltol, void *abstol, NV_Spec nvspec)
+                int itol, realtype *reltol, void *abstol)
 {
   CVodeMem cv_mem;
-  booleantype allocOK, neg_abstol;
+  booleantype nvectorOK, allocOK, neg_abstol;
   long int lrw1, liw1;
   int i,k;
   
@@ -1233,14 +1237,20 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
     return(CVM_ILL_INPUT);
   }
 
+  /* Test if all required vector operations are implemented */
+  nvectorOK = CVCheckNvector(y0);
+  if(!nvectorOK) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    return(CVM_ILL_INPUT);
+  }
+
   /* Set space requirements for one N_Vector */
-  N_VSpace(nvspec, &lrw1, &liw1);
+  N_VSpace(y0, &lrw1, &liw1);
   cv_mem->cv_lrw1 = lrw1;
   cv_mem->cv_liw1 = liw1;
 
-  /* Allocate the vectors */
-  cv_mem->cv_nvspec = nvspec;
-  allocOK = CVAllocVectors(cv_mem);
+  /* Allocate the vectors (using y0 as a template) */
+  allocOK = CVAllocVectors(cv_mem, y0);
   if (!allocOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(CVM_MEM_FAIL);
@@ -1451,8 +1461,6 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
 #define itol   (cv_mem->cv_itol)         
 #define reltol (cv_mem->cv_reltol)       
 #define abstol (cv_mem->cv_abstol)     
-#define nvspec (cv_mem->cv_nvspec)
-
 
 #define gfun   (cv_mem->cv_gfun)
 #define glo    (cv_mem->cv_glo)
@@ -1665,7 +1673,7 @@ int CVodeSetQuadTolerances(void *cvode_mem, int itolQ,
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, NV_Spec nvspecQ)
+int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0)
 {
   CVodeMem cv_mem;
   booleantype allocOK;
@@ -1679,23 +1687,22 @@ int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, NV_Spec nvspecQ)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Set space requirements for one N_Vector */
-  N_VSpace(nvspecQ, &lrw1Q, &liw1Q);
+  N_VSpace(yQ0, &lrw1Q, &liw1Q);
   cv_mem->cv_lrw1Q = lrw1Q;
   cv_mem->cv_liw1Q = liw1Q;
 
-  /* Allocate the vectors */
-  cv_mem->cv_nvspecQ = nvspecQ;
-  allocOK = CVQuadAllocVectors(cv_mem);
+  /* Allocate the vectors (using yQ0 as a template) */
+  allocOK = CVQuadAllocVectors(cv_mem, yQ0);
   if (!allocOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_QCVM_MEM_FAIL);
     return(QCVM_MEM_FAIL);
   }
 
   /* Initialize znQ[0] in the history array */
-  N_VConst(ZERO, cv_mem->cv_znQ[0]);
+  N_VScale(ONE, yQ0, cv_mem->cv_znQ[0]);
 
   /* Copy the input parameters into CVODES state */
-  cv_mem->cv_fQ    = fQ;
+  cv_mem->cv_fQ = fQ;
 
   /* Initialize counters */
   cv_mem->cv_nfQe  = 0;
@@ -1722,7 +1729,7 @@ int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, NV_Spec nvspecQ)
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ)
+int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0)
 {
   CVodeMem cv_mem;
 
@@ -1740,10 +1747,10 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ)
   }
 
   /* Initialize znQ[0] in the history array */
-  N_VConst(ZERO, cv_mem->cv_znQ[0]);
+  N_VScale(ONE, yQ0, cv_mem->cv_znQ[0]);
 
   /* Copy the input parameters into CVODE state */
-  cv_mem->cv_fQ    = fQ;
+  cv_mem->cv_fQ = fQ;
 
   /* Initialize counters */
   cv_mem->cv_nfQe  = 0;
@@ -1756,7 +1763,6 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ)
   return(SUCCESS);
 }
 
-#define nvspecQ (cv_mem->cv_nvspecQ)
 #define fQ      (cv_mem->cv_fQ)
 
 /*=================================================================*/
@@ -2011,7 +2017,7 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Check if Ns is legal */
-  if (Ns<0) {
+  if (Ns<=0) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_NS,Ns);
     return(SCVM_ILL_INPUT);
   }
@@ -2052,8 +2058,8 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
     stgr1alloc = FALSE;
   }
 
-  /* Allocate the vectors */
-  allocOK = CVSensAllocVectors(cv_mem);
+  /* Allocate the vectors (using yS0[0] as a template) */
+  allocOK = CVSensAllocVectors(cv_mem, yS0[0]);
   if (!allocOK) {
     if (stgr1alloc) {
       free(ncfS1);
@@ -3945,6 +3951,34 @@ void CVodeSensFree(void *cvode_mem)
 /*BEGIN        PRIVATE FUNCTIONS IMPLEMENTATION                    */
 /*=================================================================*/
 
+/*------------------   CVCheckNvector    --------------------------*/
+/*
+  This routine checks if all required vector operations are present.
+  If any of them is missing it returns FALSE.
+*/
+/*-----------------------------------------------------------------*/
+
+static booleantype CVCheckNvector(N_Vector tmpl)
+{
+  if((tmpl->ops->nvclone     == NULL) ||
+     (tmpl->ops->nvdestroy   == NULL) ||
+     (tmpl->ops->nvspace     == NULL) ||
+     (tmpl->ops->nvlinearsum == NULL) ||
+     (tmpl->ops->nvconst     == NULL) ||
+     (tmpl->ops->nvprod      == NULL) ||
+     (tmpl->ops->nvdiv       == NULL) ||
+     (tmpl->ops->nvscale     == NULL) ||
+     (tmpl->ops->nvabs       == NULL) ||
+     (tmpl->ops->nvinv       == NULL) ||
+     (tmpl->ops->nvaddconst  == NULL) ||
+     (tmpl->ops->nvmaxnorm   == NULL) ||
+     (tmpl->ops->nvwrmsnorm  == NULL) ||
+     (tmpl->ops->nvmin       == NULL))
+    return(FALSE);
+  else
+    return(TRUE);
+}
+
 /*------------------   CVAllocVectors    --------------------------*/
 /*
   This routine allocates the CVODE vectors ewt, acor, tempv, ftemp, and
@@ -3959,43 +3993,43 @@ void CVodeSensFree(void *cvode_mem)
 */
 /*-----------------------------------------------------------------*/
 
-static booleantype CVAllocVectors(CVodeMem cv_mem)
+static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
   int i, j;
 
   /* Allocate ewt, acor, tempv, ftemp */
   
-  ewt = N_VNew(nvspec);
+  ewt = N_VClone(tmpl);
   if (ewt == NULL) return (FALSE);
-  acor = N_VNew(nvspec);
+  acor = N_VClone(tmpl);
   if (acor == NULL) {
-    N_VFree(ewt);
+    N_VDestroy(ewt);
     return (FALSE);
   }
-  tempv = N_VNew(nvspec);
+  tempv = N_VClone(tmpl);
   if (tempv == NULL) {
-    N_VFree(ewt);
-    N_VFree(acor);
+    N_VDestroy(ewt);
+    N_VDestroy(acor);
     return (FALSE);
   }
-  ftemp = N_VNew(nvspec);
+  ftemp = N_VClone(tmpl);
   if (ftemp == NULL) {
-    N_VFree(tempv);
-    N_VFree(ewt);
-    N_VFree(acor);
+    N_VDestroy(tempv);
+    N_VDestroy(ewt);
+    N_VDestroy(acor);
     return (FALSE);
   }
 
   /* Allocate zn[0] ... zn[maxord] */
 
   for (j=0; j <= qmax; j++) {
-    zn[j] = N_VNew(nvspec);
+    zn[j] = N_VClone(tmpl);
     if (zn[j] == NULL) {
-      N_VFree(ewt);
-      N_VFree(acor);
-      N_VFree(tempv);
-      N_VFree(ftemp);
-      for (i=0; i < j; i++) N_VFree(zn[i]);
+      N_VDestroy(ewt);
+      N_VDestroy(acor);
+      N_VDestroy(tempv);
+      N_VDestroy(ftemp);
+      for (i=0; i < j; i++) N_VDestroy(zn[i]);
       return (FALSE);
     }
   }
@@ -4018,11 +4052,11 @@ static void CVFreeVectors(CVodeMem cv_mem)
 {
   int j;
   
-  N_VFree(ewt);
-  N_VFree(acor);
-  N_VFree(tempv);
-  N_VFree(ftemp);
-  for (j=0; j <= qmax; j++) N_VFree(zn[j]);
+  N_VDestroy(ewt);
+  N_VDestroy(acor);
+  N_VDestroy(tempv);
+  N_VDestroy(ftemp);
+  for (j=0; j <= qmax; j++) N_VDestroy(zn[j]);
 }
 
 
@@ -4258,50 +4292,50 @@ static booleantype CVEwtSetSV(CVodeMem cv_mem, N_Vector ycur)
 */
 /*-----------------------------------------------------------------*/
 
-static booleantype CVQuadAllocVectors(CVodeMem cv_mem) 
+static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl) 
 {
   int i, j;
 
   /* Allocate ewtQ */
-  ewtQ = N_VNew(nvspecQ);
+  ewtQ = N_VClone(tmpl);
   if (ewtQ == NULL) {
     return (FALSE);
   }
   
   /* Allocate acorQ */
-  acorQ = N_VNew(nvspecQ);
+  acorQ = N_VClone(tmpl);
   if (acorQ == NULL) {
-    N_VFree(ewtQ);
+    N_VDestroy(ewtQ);
     return (FALSE);
   }
 
   /* Allocate yQ */
-  yQ = N_VNew(nvspecQ);
+  yQ = N_VClone(tmpl);
   if (yQ == NULL) {
-    N_VFree(ewtQ);
-    N_VFree(acorQ);
+    N_VDestroy(ewtQ);
+    N_VDestroy(acorQ);
     return (FALSE);
   }
 
   /* Allocate tempvQ */
-  tempvQ = N_VNew(nvspecQ);
+  tempvQ = N_VClone(tmpl);
   if (tempvQ == NULL) {
-    N_VFree(ewtQ);
-    N_VFree(acorQ);
-    N_VFree(yQ);
+    N_VDestroy(ewtQ);
+    N_VDestroy(acorQ);
+    N_VDestroy(yQ);
     return (FALSE);
   }
 
   /* Allocate zQn[0] ... zQn[maxord] */
 
   for (j=0; j <= qmax; j++) {
-    znQ[j] = N_VNew(nvspecQ);
+    znQ[j] = N_VClone(tmpl);
     if (znQ[j] == NULL) {
-      N_VFree(ewtQ);
-      N_VFree(acorQ);
-      N_VFree(yQ);
-      N_VFree(tempvQ);
-      for (i=0; i < j; i++) N_VFree(znQ[i]);
+      N_VDestroy(ewtQ);
+      N_VDestroy(acorQ);
+      N_VDestroy(yQ);
+      N_VDestroy(tempvQ);
+      for (i=0; i < j; i++) N_VDestroy(znQ[i]);
       return (FALSE);
     }
   }
@@ -4376,12 +4410,12 @@ static void CVQuadFreeVectors(CVodeMem cv_mem)
 {
   int j;
   
-  N_VFree(ewtQ);
-  N_VFree(acorQ);
-  N_VFree(yQ);
-  N_VFree(tempvQ);
+  N_VDestroy(ewtQ);
+  N_VDestroy(acorQ);
+  N_VDestroy(yQ);
+  N_VDestroy(tempvQ);
   
-  for (j=0; j<=qmax; j++) N_VFree(znQ[j]);
+  for (j=0; j<=qmax; j++) N_VDestroy(znQ[j]);
   
 }
 
@@ -4416,11 +4450,12 @@ static booleantype CVSensTestAtol(CVodeMem cv_mem, void *atolS)
   
 }
 
-/*------------------   CVSensAllocAtol   --------------------------*/
 /*
-  (here, itolS=itol)
-*/
-/*-----------------------------------------------------------------*/
+ * CVSensAllocAtol
+ *
+ * Allocate space for the forward sensitivity absolute tolerances
+ * If needed, use the N_Vector 'tempv' as a template
+ */
 
 static booleantype CVSensAllocAtol(CVodeMem cv_mem, void **atolSPtr)
 {
@@ -4430,7 +4465,7 @@ static booleantype CVSensAllocAtol(CVodeMem cv_mem, void **atolSPtr)
     *atolSPtr = (void *)malloc(Ns*sizeof(realtype));
     break;
   case SV:
-    *atolSPtr = (void *)N_VNew_S(Ns, nvspec);
+    *atolSPtr = (void *)N_VCloneVectorArray(Ns, tempv);
     break;
   }
   
@@ -4452,7 +4487,7 @@ static void CVSensFreeAtol(CVodeMem cv_mem, void *atolS)
     free((realtype*)atolS);
     break;
   case SV:
-    N_VFree_S(Ns,(N_Vector *)atolS);
+    N_VDestroyVectorArray((N_Vector *)atolS, Ns);
     break;
   }
 
@@ -4536,52 +4571,56 @@ static booleantype CVSensSetAtolSV(CVodeMem cv_mem, N_Vector *atolS)
   return (TRUE);
 }
 
-/*------------------  CVSensAllocVectors --------------------------*/
-/*-----------------------------------------------------------------*/
+/*
+ * CVSensAllocVectors
+ *
+ * Create (through duplication) N_Vectors used for sensitivity analysis, 
+ * using the N_Vector 'tmpl' as a template.
+ */
 
-static booleantype CVSensAllocVectors(CVodeMem cv_mem) 
+static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl) 
 {
   int i, j;
   
   /* Allocate ewtS */
-  ewtS  = N_VNew_S(Ns, nvspec);
+  ewtS = N_VCloneVectorArray(Ns, tmpl);
   if (ewtS == NULL) {
     return (FALSE);
   }
   
   /* Allocate acorS */
-  acorS = N_VNew_S(Ns, nvspec);
+  acorS = N_VCloneVectorArray(Ns, tmpl);
   if (acorS == NULL) {
-    N_VFree_S(Ns,ewtS);
+    N_VDestroyVectorArray(ewtS, Ns);
     return (FALSE);
   }
   
   /* Allocate tempvS */
-  tempvS = N_VNew_S(Ns, nvspec);
+  tempvS = N_VCloneVectorArray(Ns, tmpl);
   if (tempvS == NULL) {
-    N_VFree_S(Ns,ewtS);
-    N_VFree_S(Ns,acorS);
+    N_VDestroyVectorArray(ewtS, Ns);
+    N_VDestroyVectorArray(acorS, Ns);
     return (FALSE);
   }
     
   /* Allocate ftempS */
-  ftempS = N_VNew_S(Ns, nvspec);
+  ftempS = N_VCloneVectorArray(Ns, tmpl);
   if (ftempS == NULL) {
-    N_VFree_S(Ns,ewtS);
-    N_VFree_S(Ns,acorS);
-    N_VFree_S(Ns,tempvS);
+    N_VDestroyVectorArray(ewtS, Ns);
+    N_VDestroyVectorArray(acorS, Ns);
+    N_VDestroyVectorArray(tempvS, Ns);
     return (FALSE);
   }
   
   /* Allocate znS */
   for (j=0; j<=qmax; j++) {
-    znS[j] = N_VNew_S(Ns, nvspec);
+    znS[j] = N_VCloneVectorArray(Ns, tmpl);
     if (znS[j] == NULL) {
-      N_VFree_S(Ns,ewtS);
-      N_VFree_S(Ns,acorS);
-      N_VFree_S(Ns,tempvS);
-      N_VFree_S(Ns,ftempS);
-      for (i=0; i<j; i++) N_VFree_S(Ns,znS[i]);
+      N_VDestroyVectorArray(ewtS, Ns);
+      N_VDestroyVectorArray(acorS, Ns);
+      N_VDestroyVectorArray(tempvS, Ns);
+      N_VDestroyVectorArray(ftempS, Ns);
+      for (i=0; i<j; i++) N_VDestroyVectorArray(znS[i], Ns);
       return (FALSE);
     }
   }
@@ -4593,19 +4632,22 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem)
   return (TRUE);
 }
 
-/*------------------  CVSensFreeVectors  --------------------------*/
-/*-----------------------------------------------------------------*/
+/*
+ * CVSensFreeVectors
+ *
+ * Frees all N_Vectors allocated for sensitivity analysis
+ */
 
 static void CVSensFreeVectors(CVodeMem cv_mem) 
 {
   int j;
   
-  N_VFree_S(Ns,ewtS);
-  N_VFree_S(Ns,acorS);
-  N_VFree_S(Ns,tempvS);
-  N_VFree_S(Ns,ftempS);
+  N_VDestroyVectorArray(ewtS, Ns);
+  N_VDestroyVectorArray(acorS, Ns);
+  N_VDestroyVectorArray(tempvS, Ns);
+  N_VDestroyVectorArray(ftempS, Ns);
   
-  for (j=0; j<=qmax; j++) N_VFree_S(Ns,znS[j]);
+  for (j=0; j<=qmax; j++) N_VDestroyVectorArray(znS[j], Ns);
   
 }
 

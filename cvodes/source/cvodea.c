@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-06-18 19:37:30 $
+ * $Revision: 1.27 $
+ * $Date: 2004-07-22 21:24:25 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -153,7 +153,6 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
 #define l          (cv_mem->cv_l)
 #define saved_tq5  (cv_mem->cv_saved_tq5)
 #define forceSetup (cv_mem->cv_forceSetup)
-#define nvspec     (cv_mem->cv_nvspec)
 #define f          (cv_mem->cv_f)
 #define lmm        (cv_mem->cv_lmm)
 #define iter       (cv_mem->cv_iter)
@@ -170,7 +169,8 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
 #define reltolQ    (cv_mem->cv_reltolQ)
 #define abstolQ    (cv_mem->cv_abstolQ)
 #define fQ         (cv_mem->cv_fQ)
-#define nvspecQ    (cv_mem->cv_nvspecQ)
+#define tempv      (cv_mem->cv_tempv)
+#define tempvQ     (cv_mem->cv_tempvQ)
 
 #define t0_        (ck_mem->ck_t0)
 #define t1_        (ck_mem->ck_t1)
@@ -254,7 +254,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   }
 
   /* Workspace memory */
-  Y0 = N_VNew(nvspec);
+  Y0 = N_VClone(tempv);
   if (Y0 == NULL) {
     CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
@@ -263,9 +263,9 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     return(NULL);
   }
 
-  Y1 = N_VNew(nvspec);
+  Y1 = N_VClone(tempv);
   if (Y1 == NULL) {
-    N_VFree(Y0);
+    N_VDestroy(Y0);
     CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
@@ -273,10 +273,10 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     return(NULL);
   }
 
-  ytmp = N_VNew(nvspec);
+  ytmp = N_VClone(tempv);
   if (ytmp == NULL) {
-    N_VFree(Y0);
-    N_VFree(Y1);
+    N_VDestroy(Y0);
+    N_VDestroy(Y1);
     CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
@@ -294,6 +294,14 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
 
   /* Initialize backward cvode memory to NULL */
   ca_mem->cvb_mem = NULL;
+
+  ca_mem->ca_f_dataB = NULL;
+  ca_mem->ca_fQ_dataB = NULL;
+  ca_mem->ca_jac_dataB = NULL;
+  ca_mem->ca_P_dataB = NULL;
+  ca_mem->ca_bp_dataB = NULL;
+  ca_mem->ca_bbd_dataB = NULL;
+  
 
   return((void *)ca_mem);
 } 
@@ -586,8 +594,7 @@ int CVodeSetMaxStepB(void *cvadj_mem, realtype hmaxB)
 
 int CVodeMallocB(void *cvadj_mem, RhsFnB fB, 
                  realtype tB0, N_Vector yB0,
-                 int itolB, realtype *reltolB, void *abstolB, 
-                 NV_Spec nvspecB)
+                 int itolB, realtype *reltolB, void *abstolB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -606,7 +613,7 @@ int CVodeMallocB(void *cvadj_mem, RhsFnB fB,
   cvode_mem = (void *) ca_mem->cvb_mem;
 
   flag = CVodeMalloc(cvode_mem, CVArhs, tB0, yB0,
-                     itolB, reltolB, abstolB, nvspecB);
+                     itolB, reltolB, abstolB);
 
   if (flag != SUCCESS) return(flag);
 
@@ -696,7 +703,7 @@ int CVodeSetQuadTolerancesB(void *cvadj_mem, int itolQB,
 
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, NV_Spec nvspecQB)
+int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, N_Vector yQB0)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -710,7 +717,7 @@ int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, NV_Spec nvspecQB)
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVodeQuadMalloc(cvode_mem, CVArhsQ, nvspecQB);
+  flag = CVodeQuadMalloc(cvode_mem, CVArhsQ, yQB0);
   if (flag != SUCCESS) return(flag);
 
   flag = CVodeSetQuadFdata(cvode_mem, cvadj_mem);
@@ -721,7 +728,7 @@ int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, NV_Spec nvspecQB)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB)
+int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB, N_Vector yQB0)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -735,7 +742,7 @@ int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB)
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVodeQuadReInit(cvode_mem, CVArhsQ);
+  flag = CVodeQuadReInit(cvode_mem, CVArhsQ, yQB0);
 
   return(flag);
 
@@ -1254,9 +1261,9 @@ void CVadjFree(void *cvadj_mem)
   free(ca_mem->dt_mem);
 
   /* Free vectors in ca_mem */
-  N_VFree(Y0);
-  N_VFree(Y1);
-  N_VFree(ytmp);
+  N_VDestroy(Y0);
+  N_VDestroy(Y1);
+  N_VDestroy(ytmp);
 
   /* Free CVODES memory for backward run */
   CVodeFree(ca_mem->cvb_mem);
@@ -1448,11 +1455,8 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
   /* Allocate space for ckdata */
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
 
-  zn_[0] = N_VNew(nvspec);
-  zn_[1] = N_VNew(nvspec);
-
-  /* Do we need to carry quadratures */
-  quad_ = quad && errconQ;
+  zn_[0] = N_VClone(tempv);
+  zn_[1] = N_VClone(tempv);
 
   /* zn_[qmax] was not allocated */
   zqm_ = 0;
@@ -1464,6 +1468,14 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
   /* Compute zn_[1] by calling the user f routine */
   f(t0_, zn_[0], zn_[1], f_data);
   
+  /* Do we need to carry quadratures */
+  quad_ = quad && errconQ;
+
+  if (quad_) {
+    znQ_[0] = N_VClone(tempvQ);
+    N_VScale(ONE, znQ[0], znQ_[0]);
+  }
+
   /* Next in list */
   next_  = NULL;
 
@@ -1495,12 +1507,12 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
   zqm_ = (q < qmax) ? qmax : 0;
 
   for (j=0; j<=q; j++) {
-    zn_[j] = N_VNew(nvspec);
+    zn_[j] = N_VClone(tempv);
     if(zn_[j] == NULL) return(NULL);
   }
 
   if ( q < qmax) {
-    zn_[qmax] = N_VNew(nvspec);
+    zn_[qmax] = N_VClone(tempv);
     if ( zn_[qmax] == NULL ) return(NULL);
   }
 
@@ -1509,12 +1521,12 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
 
   if (quad_) {
     for (j=0; j<=q; j++) {
-      znQ_[j] = N_VNew(nvspecQ);
+      znQ_[j] = N_VClone(tempvQ);
       if(znQ_[j] == NULL) return(NULL);
     }
 
     if ( q < qmax) {
-      znQ_[qmax] = N_VNew(nvspecQ);
+      znQ_[qmax] = N_VClone(tempvQ);
       if ( znQ_[qmax] == NULL ) return(NULL);
     }
   }
@@ -1569,16 +1581,19 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
     *ck_memPtr = (*ck_memPtr)->ck_next;
 
     /* free N_Vectors in tmp */
-    for (j=0;j<=tmp->ck_q;j++) N_VFree(tmp->ck_zn[j]);
-    if (tmp->ck_zqm != 0) N_VFree(tmp->ck_zn[tmp->ck_zqm]);
+    for (j=0;j<=tmp->ck_q;j++) N_VDestroy(tmp->ck_zn[j]);
+    if (tmp->ck_zqm != 0) N_VDestroy(tmp->ck_zn[tmp->ck_zqm]);
 
-    /* free N_Vectors for quadratures in tmp,
-       unless tmp is the check point at t_initial where 
-       znQ_ was not allocated */
-    if(tmp->ck_quad && (tmp->ck_next != NULL)) {
-      for (j=0;j<=tmp->ck_q;j++) N_VFree(tmp->ck_znQ[j]);
-      if (tmp->ck_zqm != 0) N_VFree(tmp->ck_znQ[tmp->ck_zqm]);
-    }
+    /* free N_Vectors for quadratures in tmp 
+     Note that at the check point at t_initial, only znQ_[0] 
+     was allocated*/
+    if(tmp->ck_quad) 
+      if(tmp->ck_next != NULL) {
+        for (j=0;j<=tmp->ck_q;j++) N_VDestroy(tmp->ck_znQ[j]);
+        if (tmp->ck_zqm != 0) N_VDestroy(tmp->ck_znQ[tmp->ck_zqm]);
+      } else {
+        N_VDestroy(tmp->ck_znQ[0]);
+      }
 
     free(tmp);
 
@@ -1604,8 +1619,8 @@ static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, long int steps)
 
   for (i=0; i<=steps; i++) {
     dt_mem[i] = (DtpntMem)malloc(sizeof(struct DtpntMemRec));
-    dt_mem[i]->y  = N_VNew(nvspec);
-    dt_mem[i]->yd = N_VNew(nvspec);
+    dt_mem[i]->y  = N_VClone(tempv);
+    dt_mem[i]->yd = N_VClone(tempv);
   } 
 
   return(dt_mem);
@@ -1623,8 +1638,8 @@ static void CVAdataFree(DtpntMem *dt_mem, long int steps)
   long int i;
 
   for (i=0; i<=steps; i++) {
-    N_VFree(dt_mem[i]->y);
-    N_VFree(dt_mem[i]->yd);
+    N_VDestroy(dt_mem[i]->y);
+    N_VDestroy(dt_mem[i]->yd);
     free(dt_mem[i]);
   }
 
@@ -1708,7 +1723,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     if (flag != SUCCESS) return(flag);
 
     if(quad_) {
-      flag = CVodeQuadReInit(cv_mem, fQ);
+      flag = CVodeQuadReInit(cv_mem, fQ, znQ_[0]);
       if (flag != SUCCESS) return(flag);
     }
 

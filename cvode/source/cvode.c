@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-05-26 19:54:25 $
+ * $Revision: 1.29 $
+ * $Date: 2004-07-22 21:25:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -16,10 +16,9 @@
  * -----------------------------------------------------------------
  */
 
-
-/************************************************************/
-/******************* BEGIN Imports **************************/
-/************************************************************/
+/*
+ * Header files
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,28 +27,15 @@
 
 #include "sundialsmath.h"
 
-/************************************************************/
-/******************** END Imports ***************************/
-/************************************************************/
-
-
-/***************************************************************/
-/*********************** BEGIN Macros **************************/
-/***************************************************************/
-
-/* Macro: loop */
+/* 
+ * Macro: loop 
+*/
 
 #define loop for(;;)
 
-/***************************************************************/
-/************************ END Macros ***************************/
-/***************************************************************/
-
-
-
-/************************************************************/
-/************** BEGIN CVODE Private Constants ***************/
-/************************************************************/
+/*
+ * BEGIN CVODE Private Constants
+ */
 
 #define ZERO   RCONST(0.0)   /* real 0.0   */
 #define TINY   RCONST(1.0e-10) /* small number */
@@ -64,9 +50,9 @@
 #define TWELVE RCONST(12.0)  /* real 12.0  */
 #define HUN    RCONST(100.0) /* real 100.0 */
 
-/***************************************************************/
-/************** BEGIN Default Constants ************************/
-/***************************************************************/
+/*
+ * BEGIN Default Constants
+ */
 
 #define HMIN_DEFAULT     ZERO    /* hmin default value     */
 #define HMAX_INV_DEFAULT ZERO    /* hmax_inv default value */
@@ -74,14 +60,9 @@
 #define MXSTEP_DEFAULT   500     /* mxstep default value   */
 
 
-/***************************************************************/
-/*************** END Default Constants *************************/
-/***************************************************************/
-
-
-/***************************************************************/
-/************ BEGIN Routine-Specific Constants *****************/
-/***************************************************************/
+/*
+ * BEGIN Routine-Specific Constants
+ */
 
 /* CVodeGetDky */
 
@@ -178,17 +159,11 @@
 #define CLOSERT  -2
 #define RTFOUND   1
 
+/*
+ * BEGIN Error Messages
+ */
 
-/***************************************************************/
-/*************** END Routine-Specific Constants  ***************/
-/***************************************************************/
-
-
-/***************************************************************/
-/***************** BEGIN Error Messages ************************/
-/***************************************************************/
-
-/* CvodeCreate Error Messages             */
+/* CvodeCreate Error Messages */
 
 #define CVC                "CVodeCreate-- "
 
@@ -253,6 +228,8 @@
 #define MSG_ABSTOL_NULL     CVM "abstol=NULL illegal.\n\n"
 
 #define MSG_BAD_ABSTOL      CVM "Some abstol component < 0.0 illegal.\n\n"
+
+#define MSG_BAD_NVECTOR     CVM "A required vector operation is not implemented.\n\n"
 
 #define MSG_MEM_FAIL        CVM "A memory request failed.\n\n"
 
@@ -376,22 +353,14 @@
 #define MSG_CVG_NO_SLDET2   "to call without enabling SLDET.\n\n"
 #define MSG_CVG_NO_SLDET    MSG_CVG_NO_SLDET1 MSG_CVG_NO_SLDET2
 
-/***************************************************************/
-/****************** END Error Messages *************************/
-/***************************************************************/
+/*
+ * BEGIN Private Helper Functions Prototypes
+ */
 
-
-/************************************************************/
-/*************** END CVODE Private Constants ****************/
-/************************************************************/
-
-
-/**************************************************************/
-/********* BEGIN Private Helper Functions Prototypes **********/
-/**************************************************************/
+static booleantype CVCheckNvector(N_Vector tmpl);
 
 static booleantype CVAllocVectors(CVodeMem cv_mem, int maxord,
-                                  NV_Spec NVSpec);
+                                  N_Vector tmpl);
 static void CVFreeVectors(CVodeMem cv_mem, int maxord);
 
 static booleantype CVEwtSet(CVodeMem cv_mem, N_Vector ycur);
@@ -456,26 +425,22 @@ static int CVRcheck2(CVodeMem cv_mem);
 static int CVRcheck3(CVodeMem cv_mem);
 static int CVRootfind(CVodeMem cv_mem);
 
-
-/**************************************************************/
-/********** END Private Helper Functions Prototypes ***********/
-/**************************************************************/
-
-
-/*=================================================================*/
-/*BEGIN        EXPORTED FUNCTIONS IMPLEMENTATION                   */
-/*=================================================================*/
-
-/*------------------     CVodeCreate     --------------------------*/
 /* 
-   CVodeCreate creates an internal memory block for a problem to 
-   be solved by CVODE.
-   If successful, CVodeCreate returns a pointer to the problem memory. 
-   This pointer should be passed to CVodeMalloc.  
-   If an initialization error occurs, CVodeCreate prints an error 
-   message to standard err and returns NULL. 
-*/
-/*-----------------------------------------------------------------*/
+ * =================================================================
+ * BEGIN        EXPORTED FUNCTIONS IMPLEMENTATION
+ * =================================================================
+ */
+
+/* 
+ * CVodeCreate
+ *
+ * CVodeCreate creates an internal memory block for a problem to 
+ * be solved by CVODE.
+ * If successful, CVodeCreate returns a pointer to the problem memory. 
+ * This pointer should be passed to CVodeMalloc.  
+ * If an initialization error occurs, CVodeCreate prints an error 
+ * message to standard err and returns NULL. 
+ */
 
 void *CVodeCreate(int lmm, int iter)
 {
@@ -536,15 +501,17 @@ void *CVodeCreate(int lmm, int iter)
 
 #define lmm (cv_mem->cv_lmm) 
 
-/*=================================================================*/
-/*BEGIN        INTEGRATOR OPTIONAL INPUT FUNCTIONS                 */
-/*=================================================================*/
+/*
+ * =================================================================
+ * BEGIN        INTEGRATOR OPTIONAL INPUT FUNCTIONS
+ * =================================================================
+ */
 
-/*------------------  CVodeSetErrFile    --------------------------*/
 /* 
-   Specifies the FILE pointer for output (NULL means no messages)
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetErrFile
+ *
+ * Specifies the FILE pointer for output (NULL means no messages)
+ */
 
 int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
 {
@@ -564,11 +531,11 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
 
 #define errfp (cv_mem->cv_errfp)
 
-/*------------------  CVodeResetIterType   --------------------------*/
 /* 
-   Specifies the iteration type (FUNCTIONAL or NEWTON)
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeResetIterType
+ *
+ * Specifies the iteration type (FUNCTIONAL or NEWTON)
+ */
 
 int CVodeResetIterType(void *cvode_mem, int iter)
 {
@@ -593,11 +560,11 @@ int CVodeResetIterType(void *cvode_mem, int iter)
 
 #define iter   (cv_mem->cv_iter)        
 
-/*------------------  CVodeSetFdata      --------------------------*/
 /* 
-   Specifies the user data pointer for f
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetFdata
+ *
+ * Specifies the user data pointer for f
+ */
 
 int CVodeSetFdata(void *cvode_mem, void *f_data)
 {
@@ -617,11 +584,11 @@ int CVodeSetFdata(void *cvode_mem, void *f_data)
 
 #define f_data (cv_mem->cv_f_data)    
 
-/*------------------  CVodeSetGdata      --------------------------*/
 /* 
-   Specifies the user data pointer for g
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetGdata
+ *
+ * Specifies the user data pointer for g
+ */
 
 int CVodeSetGdata(void *cvode_mem, void *g_data)
 {
@@ -641,11 +608,11 @@ int CVodeSetGdata(void *cvode_mem, void *g_data)
 
 #define g_data (cv_mem->cv_g_data)    
 
-/*------------------   CVodeSetMaxOrd    --------------------------*/
 /* 
-   Specifies the maximum method order
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetMaxOrd
+ *
+ * Specifies the maximum method order
+ */
 
 int CVodeSetMaxOrd(void *cvode_mem, int maxord)
 {
@@ -675,11 +642,11 @@ int CVodeSetMaxOrd(void *cvode_mem, int maxord)
 
 #define qmax (cv_mem->cv_qmax) 
 
-/*------------------  CVodeSetMaxNumSteps -------------------------*/
 /* 
-   Specifies the maximum number of integration steps
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetMaxNumSteps
+ *
+ * Specifies the maximum number of integration steps
+ */
 
 int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
 {
@@ -704,11 +671,11 @@ int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
 
 #define mxstep (cv_mem->cv_mxstep)
 
-/*------------------ CVodeSetMaxHnilWarns -------------------------*/
 /* 
-   Specifies the maximum number of warnings for small h
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetMaxHnilWarns
+ *
+ * Specifies the maximum number of warnings for small h
+ */
 
 int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil)
 {
@@ -728,11 +695,11 @@ int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil)
 
 #define mxhnil (cv_mem->cv_mxhnil)
 
-/*------------------ CVodeSetStabLimDet  --------------------------*/
 /* 
-   Turns on/off the stability limit detection algorithm
-*/
-/*-----------------------------------------------------------------*/
+ *CVodeSetStabLimDet
+ *
+ * Turns on/off the stability limit detection algorithm
+ */
 
 int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
 {
@@ -757,11 +724,11 @@ int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
 
 #define sldeton (cv_mem->cv_sldeton)
 
-/*------------------ CVodeSetInitStep    --------------------------*/
 /* 
-   Specifies the initial step size
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetInitStep
+ *
+ * Specifies the initial step size
+ */
 
 int CVodeSetInitStep(void *cvode_mem, realtype hin)
 {
@@ -781,11 +748,11 @@ int CVodeSetInitStep(void *cvode_mem, realtype hin)
 
 #define hin (cv_mem->cv_hin)
 
-/*------------------   CVodeSetMinStep   --------------------------*/
 /* 
-   Specifies the minimum step size
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetMinStep
+ *
+ * Specifies the minimum step size
+ */
 
 int CVodeSetMinStep(void *cvode_mem, realtype hmin)
 {
@@ -817,11 +784,11 @@ int CVodeSetMinStep(void *cvode_mem, realtype hmin)
 
 #define hmin (cv_mem->cv_hmin)
 
-/*------------------  CVodeSetMaxStep    --------------------------*/
 /* 
-   Specifies the maximum step size
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetMaxStep
+ *
+ * Specifies the maximum step size
+ */
 
 int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
 {
@@ -853,12 +820,12 @@ int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
 
 #define hmax_inv (cv_mem->cv_hmax_inv)
 
-/*------------------  CVodeSetStopTime   --------------------------*/
 /* 
-   Specifies the time beyond which the integration is not to
-   proceed
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetStopTime
+ *
+ * Specifies the time beyond which the integration is not to
+ * proceed
+ */
 
 int CVodeSetStopTime(void *cvode_mem, realtype tstop)
 {
@@ -880,12 +847,12 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
 #define tstop    (cv_mem->cv_tstop)
 #define tstopset (cv_mem->cv_tstopset)
 
-/*------------------  CVodeSetMaxErrTestFails   -------------------*/
 /* 
-   Specifies the maximum number of error test failures during one
-   step try.
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetMaxErrTestFails
+ *
+ * Specifies the maximum number of error test failures during one
+ * step try.
+ */
 
 int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef)
 {
@@ -905,12 +872,12 @@ int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef)
 
 #define maxnef (cv_mem->cv_maxnef)
 
-/*------------------  CVodeSetMaxConvFails  -----------------------*/
 /* 
-   Specifies the maximum number of nonlinear convergence failures 
-   during one step try.
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetMaxConvFails
+ *
+ * Specifies the maximum number of nonlinear convergence failures 
+ * during one step try.
+ */
 
 int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
 {
@@ -930,12 +897,12 @@ int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
 
 #define maxncf (cv_mem->cv_maxncf)
 
-/*------------------  CVodeSetMaxNonlinIters  ---------------------*/
 /* 
-   Specifies the maximum number of nonlinear iterations during
-   one solve.
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetMaxNonlinIters
+ *
+ * Specifies the maximum number of nonlinear iterations during
+ * one solve.
+ */
 
 int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
 {
@@ -955,12 +922,12 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
 
 #define maxcor (cv_mem->cv_maxcor)
 
-/*------------------ CVodeSetNonlinConvCoef -----------------------*/
 /* 
-   Specifies the coeficient in the nonlinear solver convergence
-   test
-*/
-/*-----------------------------------------------------------------*/
+ * CVodeSetNonlinConvCoef
+ *
+ * Specifies the coeficient in the nonlinear solver convergence
+ * test
+ */
 
 int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
 {
@@ -980,9 +947,11 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
 
 #define nlscoef (cv_mem->cv_nlscoef)
 
-/*=================================================================*/
-/*END        INTEGRATOR OPTIONAL INPUT FUNCTIONS                   */
-/*=================================================================*/
+/*
+ * =================================================================
+ * END        INTEGRATOR OPTIONAL INPUT FUNCTIONS
+ * =================================================================
+ */
 
 /*------------------     CVodeMalloc     --------------------------*/
 /* 
@@ -994,10 +963,10 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
 /*-----------------------------------------------------------------*/
 
 int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0, 
-                int itol, realtype *reltol, void *abstol, NV_Spec nvspec)
+                int itol, realtype *reltol, void *abstol)
 {
   CVodeMem cv_mem;
-  booleantype allocOK, neg_abstol, ewtsetOK;
+  booleantype nvectorOK, allocOK, neg_abstol, ewtsetOK;
   long int lrw1, liw1;
   int i,k;
   
@@ -1050,13 +1019,20 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
     return(CVM_ILL_INPUT);
   }
 
+  /* Test if all required vector operations are implemented */
+  nvectorOK = CVCheckNvector(y0);
+  if(!nvectorOK) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    return(CVM_ILL_INPUT);
+  }
+
   /* Set space requirements for one N_Vector */
-  N_VSpace(nvspec, &lrw1, &liw1);
+  N_VSpace(y0, &lrw1, &liw1);
   cv_mem->cv_lrw1 = lrw1;
   cv_mem->cv_liw1 = liw1;
 
-  /* Allocate the vectors */
-  allocOK = CVAllocVectors(cv_mem, qmax, nvspec);
+  /* Allocate the vectors (using y0 as a template) */
+  allocOK = CVAllocVectors(cv_mem, qmax, y0);
   if (!allocOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(CVM_MEM_FAIL);
@@ -1076,7 +1052,6 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   /* All error checking is complete at this point */
 
   /* Copy the input parameters into CVODE state */
-  cv_mem->cv_nvspec = nvspec;
   cv_mem->cv_f  = f;
   cv_mem->cv_tn = t0;
 
@@ -1272,7 +1247,6 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
 #define itol   (cv_mem->cv_itol)         
 #define reltol (cv_mem->cv_reltol)       
 #define abstol (cv_mem->cv_abstol)     
-#define nvspec (cv_mem->cv_nvspec)
 #define gfun   (cv_mem->cv_gfun)
 #define glo    (cv_mem->cv_glo)
 #define ghi    (cv_mem->cv_ghi)
@@ -2487,6 +2461,32 @@ void CVodeFree(void *cvode_mem)
 /******** BEGIN Private Helper Functions Implementation ************/
 /*******************************************************************/
  
+/****************** CVCheckNvector ***********************************
+ This routine checks if all required vector operations are present.
+ If any of them is missing it returns FALSE.
+**********************************************************************/
+
+static booleantype CVCheckNvector(N_Vector tmpl)
+{
+  if((tmpl->ops->nvclone     == NULL) ||
+     (tmpl->ops->nvdestroy   == NULL) ||
+     (tmpl->ops->nvspace     == NULL) ||
+     (tmpl->ops->nvlinearsum == NULL) ||
+     (tmpl->ops->nvconst     == NULL) ||
+     (tmpl->ops->nvprod      == NULL) ||
+     (tmpl->ops->nvdiv       == NULL) ||
+     (tmpl->ops->nvscale     == NULL) ||
+     (tmpl->ops->nvabs       == NULL) ||
+     (tmpl->ops->nvinv       == NULL) ||
+     (tmpl->ops->nvaddconst  == NULL) ||
+     (tmpl->ops->nvmaxnorm   == NULL) ||
+     (tmpl->ops->nvwrmsnorm  == NULL) ||
+     (tmpl->ops->nvmin       == NULL))
+    return(FALSE);
+  else
+    return(TRUE);
+}
+
 /****************** CVAllocVectors ***********************************
 
  This routine allocates the CVODE vectors ewt, acor, tempv, ftemp, and
@@ -2502,43 +2502,43 @@ void CVodeFree(void *cvode_mem)
 **********************************************************************/
 
 static booleantype CVAllocVectors(CVodeMem cv_mem, int maxord, 
-                                  NV_Spec NVSpec)
+                                  N_Vector tmpl)
 {
   int i, j;
 
   /* Allocate ewt, acor, tempv, ftemp */
   
-  ewt = N_VNew(NVSpec);
+  ewt = N_VClone(tmpl);
   if (ewt == NULL) return(FALSE);
-  acor = N_VNew(NVSpec);
+  acor = N_VClone(tmpl);
   if (acor == NULL) {
-    N_VFree(ewt);
+    N_VDestroy(ewt);
     return(FALSE);
   }
-  tempv = N_VNew(NVSpec);
+  tempv = N_VClone(tmpl);
   if (tempv == NULL) {
-    N_VFree(ewt);
-    N_VFree(acor);
+    N_VDestroy(ewt);
+    N_VDestroy(acor);
     return(FALSE);
   }
-  ftemp = N_VNew(NVSpec);
+  ftemp = N_VClone(tmpl);
   if (ftemp == NULL) {
-    N_VFree(tempv);
-    N_VFree(ewt);
-    N_VFree(acor);
+    N_VDestroy(tempv);
+    N_VDestroy(ewt);
+    N_VDestroy(acor);
     return(FALSE);
   }
 
   /* Allocate zn[0] ... zn[maxord] */
 
   for (j=0; j <= maxord; j++) {
-    zn[j] = N_VNew(NVSpec);
+    zn[j] = N_VClone(tmpl);
     if (zn[j] == NULL) {
-      N_VFree(ewt);
-      N_VFree(acor);
-      N_VFree(tempv);
-      N_VFree(ftemp);
-      for (i=0; i < j; i++) N_VFree(zn[i]);
+      N_VDestroy(ewt);
+      N_VDestroy(acor);
+      N_VDestroy(tempv);
+      N_VDestroy(ftemp);
+      for (i=0; i < j; i++) N_VDestroy(zn[i]);
       return(FALSE);
     }
   }
@@ -2561,11 +2561,11 @@ static void CVFreeVectors(CVodeMem cv_mem, int maxord)
 {
   int j;
   
-  N_VFree(ewt);
-  N_VFree(acor);
-  N_VFree(tempv);
-  N_VFree(ftemp);
-  for(j=0; j <= maxord; j++) N_VFree(zn[j]);
+  N_VDestroy(ewt);
+  N_VDestroy(acor);
+  N_VDestroy(tempv);
+  N_VDestroy(ftemp);
+  for(j=0; j <= maxord; j++) N_VDestroy(zn[j]);
 }
 
 /*********************** CVEwtSet **************************************
