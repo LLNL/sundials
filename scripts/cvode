@@ -7,10 +7,12 @@ par=$3
 echo "  Add cvode module"
 
 tar uf $tarfile $distrobase/cvode/LICENSE
+tar uf $tarfile $distrobase/cvode/README
 
-tar uf $tarfile $distrobase/cvode/doc/cvreadme
-#tar uf $tarfile $distrobase/cvode/doc/cvudoc.ps
-#tar uf $tarfile $distrobase/cvode/doc/cvudoc.pdf
+#tar uf $tarfile $distrobase/cvode/doc/cv_guide.ps
+#tar uf $tarfile $distrobase/cvode/doc/cv_guide.pdf
+#tar uf $tarfile $distrobase/cvode/doc/cv_examples.ps
+#tar uf $tarfile $distrobase/cvode/doc/cv_examples.pdf
 
 tar uf $tarfile $distrobase/cvode/include/cvode.h
 tar uf $tarfile $distrobase/cvode/include/cvdense.h

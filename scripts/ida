@@ -7,10 +7,12 @@ par=$3
 echo "  Add ida module"
 
 tar uf $tarfile $distrobase/ida/LICENSE
+tar uf $tarfile $distrobase/ida/README
 
-tar uf $tarfile $distrobase/ida/doc/idareadme
-#tar uf $tarfile $distrobase/ida/doc/idaudoc.ps
-#tar uf $tarfile $distrobase/ida/doc/idaudoc.pdf
+#tar uf $tarfile $distrobase/ida/doc/ida_guide.ps
+#tar uf $tarfile $distrobase/ida/doc/ida_guide.pdf
+#tar uf $tarfile $distrobase/ida/doc/ida_examples.ps
+#tar uf $tarfile $distrobase/ida/doc/ida_examples.pdf
 
 tar uf $tarfile $distrobase/ida/include/ida.h
 tar uf $tarfile $distrobase/ida/include/idadense.h
