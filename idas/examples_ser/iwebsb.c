@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-26 20:20:01 $
+ * $Revision: 1.10 $
+ * $Date: 2004-11-08 17:41:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -151,6 +151,7 @@ static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval,
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
+static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol);
 static void PrintOutput(void *mem, N_Vector c, realtype t);
 static void PrintFinalStats(void *mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
@@ -233,18 +234,7 @@ int main()
   
   /* Print heading, basic parameters, and initial values. */
 
-  printf("\niwebsb: Predator-prey DAE serial example problem for IDA \n\n");
-  printf("Number of species ns: %d", NUM_SPECIES);
-  printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     System size: %ld\n",NEQ);
-  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
-  printf("Linear solver: IDABAND,  Band parameters mu = %ld, ml = %ld\n",mu,ml);
-  printf("CalcIC called to correct initial predator concentrations.\n\n");
-  printf("-----------------------------------------------------------\n");
-  printf("  t        bottom-left  top-right");
-  printf("    | nst  k      h\n");
-  printf("-----------------------------------------------------------\n\n");
-  
+  PrintHeader(mu, ml, rtol, atol);
   PrintOutput(mem, cc, ZERO);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
@@ -262,7 +252,6 @@ int main()
   
   /* Print final statistics and free memory. */  
   
-  printf("-----------------------------------------------------------\n");
   PrintFinalStats(mem);
 
   /* Free memory */
@@ -448,6 +437,30 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
   }
 }
 
+/*
+ * Print first lines of output (problem description)
+ */
+
+static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol)
+{
+  printf("\niwebsb: Predator-prey DAE serial example problem for IDA \n\n");
+  printf("Number of species ns: %d", NUM_SPECIES);
+  printf("     Mesh dimensions: %d x %d", MX, MY);
+  printf("     System size: %ld\n",NEQ);
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+#else
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+#endif
+  printf("Linear solver: IDABAND,  Band parameters mu = %ld, ml = %ld\n",mu,ml);
+  printf("CalcIC called to correct initial predator concentrations.\n\n");
+  printf("-----------------------------------------------------------\n");
+  printf("  t        bottom-left  top-right");
+  printf("    | nst  k      h\n");
+  printf("-----------------------------------------------------------\n\n");
+  
+}
+
 /* 
  * PrintOutput: Print output values at output time t = tt.
  * Selected run statistics are printed.  Then values of the concentrations
@@ -470,10 +483,18 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
   c_bl = IJ_Vptr(c,0,0);
   c_tr = IJ_Vptr(c,MX-1,MY-1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+  printf("%8.2Le %12.4Le %12.4Le   | %3d  %1d %12.4Le\n", 
+         t, c_bl[0], c_tr[1], nst, kused, hused);
+  for (i=1;i<NUM_SPECIES;i++)
+    printf("         %12.4Le %12.4Le   |\n",c_bl[i],c_tr[i]);
+#else
   printf("%8.2e %12.4e %12.4e   | %3d  %1d %12.4e\n", 
          t, c_bl[0], c_tr[1], nst, kused, hused);
   for (i=1;i<NUM_SPECIES;i++)
     printf("         %12.4e %12.4e   |\n",c_bl[i],c_tr[i]);
+#endif
+
   printf("\n");
 }
 
@@ -501,6 +522,7 @@ static void PrintFinalStats(void *mem)
   flag = IDABandGetNumResEvals(mem, &nreB);
   check_flag(&flag, "IDABandGetNumResEvals", 1);
 
+  printf("-----------------------------------------------------------\n");
   printf("Final run statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);
   printf("Number of residual evaluations     = %ld\n", nre+nreB);

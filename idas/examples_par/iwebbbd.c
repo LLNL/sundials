@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-26 20:19:56 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-08 17:41:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -207,6 +207,11 @@ static void InitUserData(UserData webdata, int thispe, int npes,
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector scrtch, UserData webdata);
 
+static void PrintHeader(long int SystemSize, int maxl, 
+                        long int mudq, long int mldq, 
+                        long int mukeep, long int mlkeep,
+                        realtype rtol, realtype atol);
+
 static void PrintOutput(void *mem, N_Vector cc, realtype time,
                         UserData webdata, MPI_Comm comm);
 
@@ -222,15 +227,13 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 int main(int argc, char *argv[])
 {
-  int thispe, npes;
+  MPI_Comm comm;
+  void *mem, *P_data;
+  UserData webdata;
   long int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
-  UserData webdata;
-  int maxl, iout, retval;
-  void *mem;
-  MPI_Comm comm;
-  void *P_data;
+  int thispe, npes, maxl, iout, retval;
 
   cc = cp = res = id = NULL;
   webdata = NULL;
@@ -330,26 +333,9 @@ int main(int argc, char *argv[])
   
   /* On PE 0, print heading, basic parameters, initial values. */
  
-  if (thispe == 0) {
-    printf("\niwebbbd: Predator-prey DAE parallel example problem for IDA \n\n");
-    printf("Number of species ns: %d", NUM_SPECIES);
-    printf("     Mesh dimensions: %d x %d", MX, MY);
-    printf("     Total system size: %ld\n",SystemSize);
-    printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
-    printf("     Processor array: %d x %d\n", NPEX, NPEY);
-    printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
-    printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n",
-           maxl);
-    printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
-    printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
-           mudq, mldq, mukeep, mlkeep);
-    printf("CalcIC called to correct initial predator concentrations \n\n");
-    printf("-----------------------------------------------------------\n");
-    printf("  t        bottom-left  top-right");
-    printf("    | nst  k      h\n");
-    printf("-----------------------------------------------------------\n\n");
-  }
-
+  if (thispe == 0) PrintHeader(SystemSize, maxl, 
+                               mudq, mldq, mukeep, mlkeep,
+                               rtol, atol);
   PrintOutput(mem, cc, t0, webdata, comm);
 
   /* Call IDA in tout loop, normal mode, and print selected output. */
@@ -368,10 +354,7 @@ int main(int argc, char *argv[])
   
   /* On PE 0, print final set of statistics. */
   
-  if (thispe == 0) {
-    printf("-----------------------------------------------------------\n");
-    PrintFinalStats(mem, P_data);
-  }
+  if (thispe == 0)  PrintFinalStats(mem, P_data);
 
   /* Free memory. */
 
@@ -518,6 +501,39 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
 }
 
 /*
+ * Print first lines of output (problem description)
+ * and table headerr
+ */
+
+static void PrintHeader(long int SystemSize, int maxl, 
+                        long int mudq, long int mldq, 
+                        long int mukeep, long int mlkeep,
+                        realtype rtol, realtype atol)
+{
+  printf("\niwebbbd: Predator-prey DAE parallel example problem for IDA \n\n");
+  printf("Number of species ns: %d", NUM_SPECIES);
+  printf("     Mesh dimensions: %d x %d", MX, MY);
+  printf("     Total system size: %ld\n",SystemSize);
+  printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
+  printf("     Processor array: %d x %d\n", NPEX, NPEY);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+#else
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+#endif
+  printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
+  printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
+  printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
+         mudq, mldq, mukeep, mlkeep);
+  printf("CalcIC called to correct initial predator concentrations \n\n");
+  printf("-----------------------------------------------------------\n");
+  printf("  t        bottom-left  top-right");
+  printf("    | nst  k      h\n");
+  printf("-----------------------------------------------------------\n\n");
+}
+
+
+/*
  * PrintOutput: Print output values at output time t = tt.
  * Selected run statistics are printed.  Then values of c1 and c2
  * are printed for the bottom left and top right grid points only.
@@ -531,7 +547,8 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
   long int nst;
   int i, kused, flag, thispe, npelast, ilast;;
 
-  thispe = webdata->thispe; npelast = webdata->npes - 1;
+  thispe = webdata->thispe; 
+  npelast = webdata->npes - 1;
   cdata = NV_DATA_P(cc);
   
   /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
@@ -557,10 +574,17 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
     flag = IDAGetLastStep(mem, &hused);
     check_flag(&flag, "IDAGetLastStep", 1, thispe);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%8.2Le %12.4Le %12.4Le   | %3d  %1d %12.4Le\n", 
+         tt, cdata[0], clast[0], nst, kused, hused);
+    for (i=1;i<NUM_SPECIES;i++)
+      printf("         %12.4Le %12.4Le   |\n",cdata[i],clast[i]);
+#else
     printf("%8.2e %12.4e %12.4e   | %3d  %1d %12.4e\n", 
          tt, cdata[0], clast[0], nst, kused, hused);
     for (i=1;i<NUM_SPECIES;i++)
       printf("         %12.4e %12.4e   |\n",cdata[i],clast[i]);
+#endif
     printf("\n");
 
   }
@@ -601,6 +625,7 @@ static void PrintFinalStats(void *mem, void *P_data)
   flag = IDABBDPrecGetNumGfnEvals(P_data, &nge);
   check_flag(&flag, "IDABBDPrecGetNumGfnEvals", 1, 0);
 
+  printf("-----------------------------------------------------------\n");
   printf("\nFinal statistics: \n\n");
 
   printf("Number of steps                    = %ld\n", nst);

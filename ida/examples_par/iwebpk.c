@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-10-26 20:16:13 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-08 17:40:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -170,23 +170,22 @@ typedef struct {
 } *UserData;
 
 
-/* Prototypes for private Helper Functions. */
+/* Prototypes for user-supplied and supporting functions. */
 
-static UserData AllocUserData(MPI_Comm comm, long int local_N, 
-                              long int SystemSize);
+static int resweb(realtype time, 
+                  N_Vector cc, N_Vector cp, N_Vector resval, 
+                  void *rdata);
 
-static void InitUserData(UserData webdata, int thispe, int npes, 
-                         MPI_Comm comm);
+static int Precondbd(realtype tt, 
+                     N_Vector cc, N_Vector cp, N_Vector rr, 
+                     realtype cj, void *Pdata,
+                     N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-static void FreeUserData(UserData webdata);
-
-static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
-                               N_Vector scrtch, UserData webdata);
-
-static void PrintOutput(void *mem, N_Vector cc, realtype time,
-                        UserData webdata, MPI_Comm comm);
-
-static void PrintFinalStats(void *mem);
+static int PSolvebd(realtype tt, 
+                    N_Vector cc, N_Vector cp, N_Vector rr, 
+                    N_Vector rvec, N_Vector zvec,
+                    realtype cj, realtype delta, void *Pdata, 
+                    N_Vector tempv);
 
 static int rescomm(N_Vector cc, N_Vector cp, void *rdata);
 
@@ -209,45 +208,44 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
 
 static realtype dotprod(long int size, realtype *x1, realtype *x2);
 
+/* Prototypes for private Helper Functions. */
 
-/* Prototypes for functions called by the IDA Solver. */
+static UserData AllocUserData(MPI_Comm comm, long int local_N, 
+                              long int SystemSize);
 
-static int resweb(realtype time, 
-                  N_Vector cc, N_Vector cp, N_Vector resval, 
-                  void *rdata);
+static void InitUserData(UserData webdata, int thispe, int npes, 
+                         MPI_Comm comm);
 
-static int Precondbd(realtype tt, 
-                     N_Vector cc, N_Vector cp, N_Vector rr, 
-                     realtype cj, void *Pdata,
-                     N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+static void FreeUserData(UserData webdata);
 
-static int PSolvebd(realtype tt, 
-                    N_Vector cc, N_Vector cp, N_Vector rr, 
-                    N_Vector rvec, N_Vector zvec,
-                    realtype cj, realtype delta, void *Pdata, 
-                    N_Vector tempv);
+static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
+                               N_Vector scrtch, UserData webdata);
 
-/* Private function to check function return values */
+static void PrintHeader(long int SystemSize, int maxl, 
+                        realtype rtol, realtype atol);
+
+static void PrintOutput(void *mem, N_Vector cc, realtype time,
+                        UserData webdata, MPI_Comm comm);
+
+static void PrintFinalStats(void *mem);
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
-
 /*
- * ----------------------------
- * Main program
- * ----------------------------
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
  */
 
 int main(int argc, char *argv[])
 {
-  int thispe, npes;
+  MPI_Comm comm;
+  void *mem;
+  UserData webdata;
   long int SystemSize, local_N;
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
-  UserData webdata;
-  int maxl, iout, flag, retval, itol, itask;
-  void *mem;
-  MPI_Comm comm;
+  int thispe, npes, maxl, iout, flag;
 
   cc = cp = res = id = NULL;
   webdata = NULL;
@@ -262,7 +260,8 @@ int main(int argc, char *argv[])
 
   if (npes != NPEX*NPEY) {
     if (thispe == 0)
-      fprintf(stderr, "\nMPI_ERROR(0): npes = %d not equal to NPEX*NPEY = %d\n",
+      fprintf(stderr, 
+              "\nMPI_ERROR(0): npes = %d not equal to NPEX*NPEY = %d\n",
 	      npes, NPEX*NPEY);
     MPI_Finalize();
     return(1); 
@@ -302,75 +301,57 @@ int main(int argc, char *argv[])
   /* Set remaining inputs to IDAMalloc. */
 
   t0 = ZERO;
-  itol = IDA_SS; 
   rtol = RTOL; 
   atol = ATOL;
   
   /* Call IDACreate and IDAMalloc to initialize IDA.
-     First NULL argument  = constraints vector, not used here.
-     Second NULL argument = file pointer for error messages (sent to stdout).
-     A pointer to IDA problem memory is returned and stored in idamem.      */
+     A pointer to IDA problem memory is returned and stored in idamem. */
 
   mem = IDACreate();
   if (check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
-  retval = IDASetRdata(mem, webdata);
-  if (check_flag(&retval, "IDASetRdata", 1, thispe)) MPI_Abort(comm, 1);
-  retval = IDASetId(mem, id);
-  if (check_flag(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol);
-  if (check_flag(&retval, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
+
+  flag = IDASetRdata(mem, webdata);
+  if (check_flag(&flag, "IDASetRdata", 1, thispe)) MPI_Abort(comm, 1);
+
+  flag = IDASetId(mem, id);
+  if (check_flag(&flag, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
+
+  flag = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, &rtol, &atol);
+  if (check_flag(&flag, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
 
   webdata->ida_mem = mem;
 
   /* Call IDASpgmr to specify the IDA linear solver IDASPGMR and specify
      the preconditioner routines supplied (Precondbd and PSolvebd).
-     maxl (max. Krylov subspace dim.) is set to 15.                      */
+     maxl (max. Krylov subspace dim.) is set to 15. */
 
   maxl = 15;
-  retval = IDASpgmr(mem, maxl);
-  if (check_flag(&retval, "IDASpgmr", 1, thispe)) 
+  flag = IDASpgmr(mem, maxl);
+  if (check_flag(&flag, "IDASpgmr", 1, thispe)) 
     MPI_Abort(comm, 1);
 
-  retval = IDASpgmrSetPrecSetupFn(mem, Precondbd);
-  if (check_flag(&retval, "IDASpgmrSetPrecSetupFn", 1, thispe)) 
+  flag = IDASpgmrSetPrecSetupFn(mem, Precondbd);
+  if (check_flag(&flag, "IDASpgmrSetPrecSetupFn", 1, thispe)) 
     MPI_Abort(comm, 1);
 
-  retval = IDASpgmrSetPrecSolveFn(mem, PSolvebd);
-  if (check_flag(&retval, "IDASpgmrSetPrecSolveFn", 1, thispe)) 
+  flag = IDASpgmrSetPrecSolveFn(mem, PSolvebd);
+  if (check_flag(&flag, "IDASpgmrSetPrecSolveFn", 1, thispe)) 
     MPI_Abort(comm, 1);
 
-  retval = IDASpgmrSetPrecData(mem, webdata);
-  if (check_flag(&retval, "IDASpgmrSetPrecData", 1, thispe)) 
+  flag = IDASpgmrSetPrecData(mem, webdata);
+  if (check_flag(&flag, "IDASpgmrSetPrecData", 1, thispe)) 
     MPI_Abort(comm, 1);
   
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = 0.001;
-  retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
-  if (check_flag(&retval, "IDACalcIC", 1, thispe)) 
+  flag = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
+  if (check_flag(&flag, "IDACalcIC", 1, thispe)) 
     MPI_Abort(comm, 1);
 
   /* On PE 0, print heading, basic parameters, initial values. */
 
-  if (thispe == 0) {
-    printf("\niwebpk: Predator-prey DAE parallel example problem for IDA \n\n");
-    printf("Number of species ns: %d", NUM_SPECIES);
-    printf("     Mesh dimensions: %d x %d", MX, MY);
-    printf("     Total system size: %ld\n",SystemSize);
-    printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
-    printf("     Processor array: %d x %d\n", NPEX, NPEY);
-    printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
-    printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n",
-           maxl);
-    printf("Preconditioner: block diagonal, block size ns,"); 
-    printf(" via difference quotients\n");
-    printf("CalcIC called to correct initial predator concentrations \n\n");
-    printf("-----------------------------------------------------------\n");
-    printf("  t        bottom-left  top-right");
-    printf("    | nst  k      h\n");
-    printf("-----------------------------------------------------------\n\n");    
-  }
-
+  if (thispe == 0) PrintHeader(SystemSize, maxl, rtol, atol);
   PrintOutput(mem, cc, t0, webdata, comm);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
@@ -385,13 +366,10 @@ int main(int argc, char *argv[])
     if (iout < 3) tout *= TMULT; 
     else          tout += TADD;
     
-  } /* End of iout loop. */
+  }
   
   /* On PE 0, print final set of statistics. */
-  if (thispe == 0) {
-    printf("-----------------------------------------------------------\n");
-    PrintFinalStats(mem);
-  }
+  if (thispe == 0) PrintFinalStats(mem);
 
   /* Free memory. */
 
@@ -408,6 +386,12 @@ int main(int argc, char *argv[])
   return(0);
 
 }
+
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
 
 /* 
  * AllocUserData: Allocate memory for data structure of type UserData.   
@@ -573,6 +557,35 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
 }
 
 /*
+ * Print first lines of output (problem description)
+ */
+
+static void PrintHeader(long int SystemSize, int maxl, 
+                        realtype rtol, realtype atol)
+{
+  printf("\niwebpk: Predator-prey DAE parallel example problem for IDA \n\n");
+  printf("Number of species ns: %d", NUM_SPECIES);
+  printf("     Mesh dimensions: %d x %d", MX, MY);
+  printf("     Total system size: %ld\n",SystemSize);
+  printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
+  printf("     Processor array: %d x %d\n", NPEX, NPEY);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+#else
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+#endif
+  printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
+  printf("Preconditioner: block diagonal, block size ns,"); 
+  printf(" via difference quotients\n");
+  printf("CalcIC called to correct initial predator concentrations \n\n");
+
+  printf("-----------------------------------------------------------\n");
+  printf("  t        bottom-left  top-right");
+  printf("    | nst  k      h\n");
+  printf("-----------------------------------------------------------\n\n");    
+}
+
+/*
  * PrintOutput: Print output values at output time t = tt.
  * Selected run statistics are printed.  Then values of c1 and c2
  * are printed for the bottom left and top right grid points only.
@@ -587,7 +600,8 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
   long int nst;
   int i, kused, flag, thispe, npelast, ilast;;
 
-  thispe = webdata->thispe; npelast = webdata->npes - 1;
+  thispe = webdata->thispe; 
+  npelast = webdata->npes - 1;
   cdata = NV_DATA_P(cc);
   
   /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
@@ -613,10 +627,17 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
     flag = IDAGetLastStep(mem, &hused);
     check_flag(&flag, "IDAGetLastStep", 1, thispe);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%8.2Le %12.4Le %12.4Le   | %3d  %1d %12.4Le\n", 
+         tt, cdata[0], clast[0], nst, kused, hused);
+    for (i=1;i<NUM_SPECIES;i++)
+      printf("         %12.4Le %12.4Le   |\n",cdata[i],clast[i]);
+#else
     printf("%8.2e %12.4e %12.4e   | %3d  %1d %12.4e\n", 
          tt, cdata[0], clast[0], nst, kused, hused);
     for (i=1;i<NUM_SPECIES;i++)
       printf("         %12.4e %12.4e   |\n",cdata[i],clast[i]);
+#endif
     printf("\n");
 
   }
@@ -653,6 +674,7 @@ static void PrintFinalStats(void *mem)
   flag = IDASpgmrGetNumResEvals(mem, &nreS);
   check_flag(&flag, "IDASpgmrGetNumResEvals", 1, 0);
 
+  printf("-----------------------------------------------------------\n");
   printf("\nFinal statistics: \n\n");
 
   printf("Number of steps                    = %ld\n", nst);
@@ -670,6 +692,52 @@ static void PrintFinalStats(void *mem)
 }
 
 /*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+{
+  int *errflag;
+
+  if (opt == 0 && flagvalue == NULL) {
+    /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
+            id, funcname);
+    return(1); 
+  } else if (opt == 1) {
+    /* Check if flag < 0 */
+    errflag = flagvalue;
+    if (*errflag < 0) {
+      fprintf(stderr, 
+              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", 
+              id, funcname, *errflag);
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) {
+    /* Check if function returned NULL pointer - no memory allocated */
+    fprintf(stderr, 
+            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
+            id, funcname);
+    return(1); 
+  }
+
+  return(0);
+}
+
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY IDA & SUPPORTING FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+/*
  * resweb: System residual function for predator-prey system.
  * To compute the residual function F, this routine calls:
  *    rescomm, for needed communication, and then
@@ -679,16 +747,16 @@ static void PrintFinalStats(void *mem)
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *rdata)
 {
-  int retval;
+  int flag;
   UserData webdata;
   
   webdata = (UserData)rdata;
   
   /* Call rescomm to do inter-processor communication. */
-  retval = rescomm(cc, cp, webdata);
+  flag = rescomm(cc, cp, webdata);
   
   /* Call reslocal to calculate the local portion of residual vector. */
-  retval = reslocal(tt, cc, cp, res, webdata);
+  flag = reslocal(tt, cc, cp, res, webdata);
 
   return(0);
  
@@ -1155,44 +1223,4 @@ static int PSolvebd(realtype tt, N_Vector cc,
   
   return(0);
   
-}
-
-/*
- * Check function return value...
- *   opt == 0 means SUNDIALS function allocates memory so check if
- *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
- *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
- */
-
-static int check_flag(void *flagvalue, char *funcname, int opt, int id)
-{
-  int *errflag;
-
-  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, 
-            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
-	    id, funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
-    errflag = flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, 
-              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-	      id, funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, 
-            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
-	    id, funcname);
-    return(1); }
-
-  return(0);
 }

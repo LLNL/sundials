@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-26 20:15:56 $
+ * $Revision: 1.12 $
+ * $Date: 2004-11-08 17:40:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -31,6 +31,8 @@
 #include "ida.h"
 #include "idadense.h"
 
+/* Problem Constants */
+
 #define NEQ   3
 #define NOUT  12
 
@@ -38,7 +40,7 @@
 
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
 
-/* functions called by IDA */
+/* Prototypes of functions called by IDA */
 
 int resrob(realtype tres, N_Vector yy, N_Vector yp, 
            N_Vector resval, void *rdata);
@@ -47,8 +49,10 @@ int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
            N_Vector resvec, realtype cj, void *jdata, DenseMat JJ,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-/* Private function to check function return values */
-
+/* Prototypes of private functions */
+static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y);
+static void PrintOutput(void *mem, realtype t, N_Vector y);
+static void PrintFinalStats(void *mem);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
@@ -62,9 +66,8 @@ int main(void)
   void *mem;
   N_Vector yy, yp, avtol;
   realtype rtol, *yval, *ypval, *atval;
-  realtype t0, t1, tout, tret, hused;
-  int iout, retval, kused;
-  long int nst, nni, nje, nre, nreD, netf, ncfn;
+  realtype t0, t1, tout, tret;
+  int iout, retval;
 
   mem = NULL;
   yy = yp = avtol = NULL;
@@ -117,54 +120,17 @@ int main(void)
   retval = IDADenseSetJacFn(mem, jacrob);
   if(check_flag(&retval, "IDADenseSetJacFn", 1)) return(1);
 
-  printf("\nirobx: Robertson kinetics DAE serial example problem for IDA \n");
-  printf("       Three equation chemical kinetics problem. \n\n");
-  printf("Linear solver: IDADENSE, with user-supplied Jacobian.\n");
-  printf("Tolerance parameters:  rtol = %g   atol = %g %g %g \n",
-         rtol, atval[0],atval[1],atval[2]);
-  printf("Initial conditions y0 = (%g %g %g)\n",yval[0], yval[1], yval[2]);
-  printf("Constraints and id not used.\n\n");
-  printf("---------------------------------------------------------------------\n");
-  printf("  t           y1           y2           y3");
-  printf("      | nst  k      h\n");
-  printf("---------------------------------------------------------------------\n");
-
   /* Loop over tout values and call IDASolve. */
+
+  PrintHeader(rtol, avtol, yy);
 
   for (tout = t1, iout = 1; iout <= NOUT ; iout++, tout *= 10.0) {
     retval=IDASolve(mem, tout, &tret, yy, yp, IDA_NORMAL);
     if(check_flag(&retval, "IDASolve", 1)) return(1);
-
-    retval = IDAGetLastOrder(mem, &kused);
-    check_flag(&retval, "IDAGetLastOrder", 1);
-    retval = IDAGetNumSteps(mem, &nst);
-    check_flag(&retval, "IDAGetNumSteps", 1);
-    retval = IDAGetLastStep(mem, &hused);
-    check_flag(&retval, "IDAGetLastStep", 1);
-
-    printf("%8.2e %12.4e %12.4e %12.4e | %3d  %1d %12.4e\n", 
-           tret, yval[0], yval[1], yval[2], nst, kused, hused);
+    PrintOutput(mem,tret,yy);
   }
 
-  retval = IDAGetNumResEvals(mem, &nre);
-  check_flag(&retval, "IDAGetNumResEvals", 1);
-  retval = IDADenseGetNumJacEvals(mem, &nje);
-  check_flag(&retval, "IDADenseGetNumJacEvals", 1);
-  retval = IDAGetNumNonlinSolvIters(mem, &nni);
-  check_flag(&retval, "IDAGetNumNonlinSolvIters", 1);
-  retval = IDAGetNumErrTestFails(mem, &netf);
-  check_flag(&retval, "IDAGetNumErrTestFails", 1);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  check_flag(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  retval = IDADenseGetNumResEvals(mem, &nreD);
-  check_flag(&retval, "IDADenseGetNumResEvals", 1);
-
-  printf("\nFinal Run Statistics: \n\n");
-  printf("Number of steps                    = %ld\n", nst);
-  printf("Number of residual evaluations     = %ld\n", nre+nreD);
-  printf("Number of Jacobian evaluations     = %ld\n", nje);
-  printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+  PrintFinalStats(mem);
 
   /* Free memory */
 
@@ -237,6 +203,99 @@ int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
  *--------------------------------------------------------------------
  */
 
+/* 
+ * Print first lines of output (problem description)
+ */
+
+static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
+{
+  realtype *atval, *yval;
+
+  atval  = NV_DATA_S(avtol);
+  yval  = NV_DATA_S(y);
+
+  printf("\nirobx: Robertson kinetics DAE serial example problem for IDA \n");
+  printf("       Three equation chemical kinetics problem. \n\n");
+  printf("Linear solver: IDADENSE, with user-supplied Jacobian.\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg %Lg %Lg \n",
+         rtol, atval[0],atval[1],atval[2]);
+  printf("Initial conditions y0 = (%Lg %Lg %Lg)\n",
+         yval[0], yval[1], yval[2]);
+#else
+  printf("Tolerance parameters:  rtol = %g   atol = %g %g %g \n",
+         rtol, atval[0],atval[1],atval[2]);
+  printf("Initial conditions y0 = (%g %g %g)\n",
+         yval[0], yval[1], yval[2]);
+#endif
+  printf("Constraints and id not used.\n\n");
+  printf("---------------------------------------------------------------------\n");
+  printf("  t           y1           y2           y3");
+  printf("      | nst  k      h\n");
+  printf("---------------------------------------------------------------------\n");
+
+}
+
+/*
+ * Print Output
+ */
+
+static void PrintOutput(void *mem, realtype t, N_Vector y)
+{
+  realtype *yval;
+  int retval, kused;
+  long int nst;
+  realtype hused;
+
+  yval  = NV_DATA_S(y);
+
+  retval = IDAGetLastOrder(mem, &kused);
+  check_flag(&retval, "IDAGetLastOrder", 1);
+  retval = IDAGetNumSteps(mem, &nst);
+  check_flag(&retval, "IDAGetNumSteps", 1);
+  retval = IDAGetLastStep(mem, &hused);
+  check_flag(&retval, "IDAGetLastStep", 1);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%8.2Le %12.4Le %12.4Le %12.4Le | %3d  %1d %12.4Le\n", 
+         t, yval[0], yval[1], yval[2], nst, kused, hused);
+#else
+  printf("%8.2e %12.4e %12.4e %12.4e | %3d  %1d %12.4e\n", 
+         t, yval[0], yval[1], yval[2], nst, kused, hused);
+#endif
+}
+
+/*
+ * Print final integrator statistics
+ */
+
+static void PrintFinalStats(void *mem)
+{
+  int retval;
+  long int nst, nni, nje, nre, nreD, netf, ncfn;
+
+  retval = IDAGetNumResEvals(mem, &nre);
+  check_flag(&retval, "IDAGetNumResEvals", 1);
+  retval = IDADenseGetNumJacEvals(mem, &nje);
+  check_flag(&retval, "IDADenseGetNumJacEvals", 1);
+  retval = IDAGetNumNonlinSolvIters(mem, &nni);
+  check_flag(&retval, "IDAGetNumNonlinSolvIters", 1);
+  retval = IDAGetNumErrTestFails(mem, &netf);
+  check_flag(&retval, "IDAGetNumErrTestFails", 1);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  check_flag(&retval, "IDAGetNumNonlinSolvConvFails", 1);
+  retval = IDADenseGetNumResEvals(mem, &nreD);
+  check_flag(&retval, "IDADenseGetNumResEvals", 1);
+
+  printf("\nFinal Run Statistics: \n\n");
+  printf("Number of steps                    = %ld\n", nst);
+  printf("Number of residual evaluations     = %ld\n", nre+nreD);
+  printf("Number of Jacobian evaluations     = %ld\n", nje);
+  printf("Number of nonlinear iterations     = %ld\n", nni);
+  printf("Number of error test failures      = %ld\n", netf);
+  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+
+}
+
 /*
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
@@ -250,29 +309,28 @@ int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
   int *errflag;
-
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, 
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
             funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
+    return(1);
+  } else if (opt == 1) {
+    /* Check if flag < 0 */
     errflag = flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, 
               "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
               funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) {
+    /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
             funcname);
-    return(1); }
+    return(1);
+  }
 
   return(0);
 }

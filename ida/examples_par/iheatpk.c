@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-26 20:16:13 $
+ * $Revision: 1.13 $
+ * $Date: 2004-11-08 17:40:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -111,7 +111,11 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
 
-static void PrintOutput(void *mem, realtype t, N_Vector uu, int thispe);
+static void PrintHeader(long int Neq, realtype rtol, realtype atol);
+
+static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
+
+static void PrintFinalStats(void *mem);
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
@@ -125,13 +129,11 @@ int main(int argc, char *argv[])
 {
   MPI_Comm comm;
   void *mem;
-  int iout, itol, itask, thispe, ier, kused, npes;
-  long int Neq, local_N;
-  realtype rtol, atol;
-  realtype t0, t1, tout, tret, umax, hused;
   UserData data;
+  int iout, thispe, ier, npes;
+  long int Neq, local_N;
+  realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
-  long int nst, nni, nre, netf, ncfn, ncfl, nli, npe, nps, nreS;
 
   mem = NULL;
   data = NULL;
@@ -204,7 +206,6 @@ int main(int argc, char *argv[])
   
   /* Scalar relative and absolute tolerance. */
 
-  itol = IDA_SS;
   rtol = 0.0;
   atol = 1.e-3;
 
@@ -225,7 +226,7 @@ int main(int argc, char *argv[])
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDAMalloc(mem, resHeat, t0, uu, up, itol, &rtol, &atol);
+  ier = IDAMalloc(mem, resHeat, t0, uu, up, IDA_SS, &rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDASpgmr to specify the linear solver. */
@@ -242,62 +243,25 @@ int main(int argc, char *argv[])
   ier = IDASpgmrSetPrecData(mem, data);
   if(check_flag(&ier, "IDASpgmrSetPrecData", 1, thispe)) MPI_Abort(comm, 1);
   
-  /* Compute the max norm of uu. */
-
-  umax = N_VMaxNorm(uu);
+  /* Print output heading (on processor 0 only) and intial solution  */
   
-  /* Print output heading (on processor 0 only). */
+  if (thispe == 0) PrintHeader(Neq, rtol, atol);
+  PrintOutput(thispe, mem, t0, uu); 
   
-  if (thispe == 0) { 
-    printf("\niheatpk: Heat equation, parallel example problem for IDA \n");
-    printf("         Discretized heat equation on 2D unit square. \n");
-    printf("         Zero boundary conditions,");
-    printf(" polynomial initial conditions.\n");
-    printf("         Mesh dimensions: %d x %d", MX, MY);
-    printf("        Total system size: %ld\n\n", Neq);
-    printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
-    printf("        Processor array: %d x %d\n", NPEX, NPEY);
-    printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
-    printf("Constraints set to force all solution components >= 0. \n");
-    printf("SUPPRESSALG = TRUE to suppress local error testing on ");
-    printf("all boundary components. \n");
-    printf("Linear solver: IDASPGMR  ");
-    printf("Preconditioner: diagonal elements only.\n"); 
-
-    /* Print output table heading and initial line of table. */
-    printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-    printf("  time     umax       k  nst  nni  nli   nre   nreS     h      npe nps\n");
-    printf("----------------------------------------------------------------------\n");
-
-    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e  %3d %3d\n",
-           t0, umax, 0, 0, 0, 0, 0, 0, 0.0, 0, 0);
-  }
-
   /* Loop over tout, call IDASolve, print output. */
 
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
+
     ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
-    PrintOutput(mem, tret, uu, thispe);
+
+    PrintOutput(thispe, mem, tret, uu);
+
   }
   
-  /* Print remaining counters and free memory. */
+  /* Print remaining counters. */
 
-  if (thispe == 0) {
-
-    ier = IDAGetNumErrTestFails(mem, &netf);
-    check_flag(&ier, "IDAGetNumErrTestFails", 1, thispe);
-    
-    ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-    check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1, thispe);
-    
-    ier = IDASpgmrGetNumConvFails(mem, &ncfl);
-    check_flag(&ier, "IDASpgmrGetNumConvFails", 1, thispe);
-   
-    printf("\nError test failures            = %ld\n", netf);
-    printf("Nonlinear convergence failures = %ld\n", ncfn);
-    printf("Linear convergence failures    = %ld\n", ncfl);
-  }
+  if (thispe == 0) PrintFinalStats(mem);
 
   /* Free memory */
 
@@ -791,10 +755,41 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 }
 
 /*
+ * Print first lines of output and table heading
+ */
+
+static void PrintHeader(long int Neq, realtype rtol, realtype atol)
+{ 
+  printf("\niheatpk: Heat equation, parallel example problem for IDA \n");
+  printf("         Discretized heat equation on 2D unit square. \n");
+  printf("         Zero boundary conditions,");
+  printf(" polynomial initial conditions.\n");
+  printf("         Mesh dimensions: %d x %d", MX, MY);
+  printf("        Total system size: %ld\n\n", Neq);
+  printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
+  printf("        Processor array: %d x %d\n", NPEX, NPEY);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+#else
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+#endif
+  printf("Constraints set to force all solution components >= 0. \n");
+  printf("SUPPRESSALG = TRUE to suppress local error testing on ");
+  printf("all boundary components. \n");
+  printf("Linear solver: IDASPGMR  ");
+  printf("Preconditioner: diagonal elements only.\n"); 
+  
+  /* Print output table heading and initial line of table. */
+  printf("\n   Output Summary (umax = max-norm of solution) \n\n");
+  printf("  time     umax       k  nst  nni  nli   nre   nreS     h      npe nps\n");
+  printf("----------------------------------------------------------------------\n");
+}
+
+/*
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(void *mem, realtype t, N_Vector uu, int thispe)
+static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 {
   realtype hused, umax;
   long int nst, nni, nje, nre, nreS, nli, npe, nps;
@@ -802,32 +797,55 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu, int thispe)
 
   umax = N_VMaxNorm(uu);
 
-  if (thispe == 0) {
+  if (id == 0) {
 
     ier = IDAGetLastOrder(mem, &kused);
-    check_flag(&ier, "IDAGetLastOrder", 1, thispe);
+    check_flag(&ier, "IDAGetLastOrder", 1, id);
     ier = IDAGetNumSteps(mem, &nst);
-    check_flag(&ier, "IDAGetNumSteps", 1, thispe);
+    check_flag(&ier, "IDAGetNumSteps", 1, id);
     ier = IDAGetNumNonlinSolvIters(mem, &nni);
-    check_flag(&ier, "IDAGetNumNonlinSolvIters", 1, thispe);
+    check_flag(&ier, "IDAGetNumNonlinSolvIters", 1, id);
     ier = IDAGetNumResEvals(mem, &nre);
-    check_flag(&ier, "IDAGetNumResEvals", 1, thispe);
+    check_flag(&ier, "IDAGetNumResEvals", 1, id);
     ier = IDAGetLastStep(mem, &hused);
-    check_flag(&ier, "IDAGetLastStep", 1, thispe);
+    check_flag(&ier, "IDAGetLastStep", 1, id);
     ier = IDASpgmrGetNumJtimesEvals(mem, &nje);
-    check_flag(&ier, "IDASpgmrGetNumJtimesEvals", 1, thispe);
+    check_flag(&ier, "IDASpgmrGetNumJtimesEvals", 1, id);
     ier = IDASpgmrGetNumLinIters(mem, &nli);
-    check_flag(&ier, "IDASpgmrGetNumLinIters", 1, thispe);
+    check_flag(&ier, "IDASpgmrGetNumLinIters", 1, id);
     ier = IDASpgmrGetNumResEvals(mem, &nreS);
-    check_flag(&ier, "IDASpgmrGetNumResEvals", 1, thispe);
+    check_flag(&ier, "IDASpgmrGetNumResEvals", 1, id);
     ier = IDASpgmrGetNumPrecEvals(mem, &npe);
-    check_flag(&ier, "IDASpgmrGetPrecEvals", 1, thispe);
+    check_flag(&ier, "IDASpgmrGetPrecEvals", 1, id);
     ier = IDASpgmrGetNumPrecSolves(mem, &nps);
-    check_flag(&ier, "IDASpgmrGetNumPrecSolves", 1, thispe);
-    
+    check_flag(&ier, "IDASpgmrGetNumPrecSolves", 1, id);
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)  
+    printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
+           t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+#else
     printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
            t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+#endif
+
   }
+}
+
+/*
+ * Print some final integrator statistics
+ */
+
+static void PrintFinalStats(void *mem)
+{
+  long int netf, ncfn, ncfl;
+
+  IDAGetNumErrTestFails(mem, &netf);
+  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  IDASpgmrGetNumConvFails(mem, &ncfl);
+
+  printf("\nError test failures            = %ld\n", netf);
+  printf("Nonlinear convergence failures = %ld\n", ncfn);
+  printf("Linear convergence failures    = %ld\n", ncfl);
 }
 
 /*

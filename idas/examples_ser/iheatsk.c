@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-26 20:20:01 $
+ * $Revision: 1.11 $
+ * $Date: 2004-11-08 17:41:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -39,6 +39,8 @@
 #include "idas.h"
 #include "idaspgmr.h"
 
+/* Problem Constants */
+
 #define NOUT  11
 #define MGRID 10
 #define NEQ   (MGRID*MGRID)
@@ -56,7 +58,7 @@ typedef struct {
   N_Vector pp;  /* vector of prec. diag. elements */
 } *UserData;
 
-/* Prototypes for functions called by the IDA solver */
+/* Prototypes for functions called by IDA */
 
 int resHeat(realtype tres, N_Vector uu, N_Vector up,
             N_Vector resval, void *rdata);
@@ -76,6 +78,7 @@ int PsolveHeat(realtype tt,
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res);
+static void PrintHeader(realtype rtol, realtype atol);
 static void PrintOutput(void *mem, realtype t, N_Vector uu);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
@@ -174,16 +177,7 @@ int main()
   if(check_flag(&ier, "IDASpgmrSetPrecData", 1)) return(1);
 
   /* Print output heading. */
-  
-  printf("\niheatsk: Heat equation, serial example problem for IDA \n");
-  printf("         Discretized heat equation on 2D unit square. \n");
-  printf("         Zero boundary conditions,");
-  printf(" polynomial initial conditions.\n");
-  printf("         Mesh dimensions: %d x %d", MGRID, MGRID);
-  printf("        Total system size: %d\n\n", NEQ);
-  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
-  printf("Constraints set to force all solution components >= 0. \n");
-  printf("Linear solver: IDASPGMR, preconditioner using diagonal elements. \n");
+  PrintHeader(rtol, atol);
   
   /* 
    * -------------------------------------------------------------------------
@@ -197,10 +191,7 @@ int main()
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreS     h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
-  umax = N_VMaxNorm(uu);
-  
-  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e  %3d %3d\n",
-         t0, umax, 0, 0, 0, 0, 0, 0, 0.0, 0, 0);
+  PrintOutput(mem,t0,uu);
 
   /* Loop over output times, call IDASolve, and print results. */
 
@@ -249,9 +240,7 @@ int main()
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreS     h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
-  umax = N_VMaxNorm(uu);
-  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e  %3d %3d\n",
-         t0, umax, 0, 0, 0, 0, 0, 0, 0.0, 0, 0);
+  PrintOutput(mem,t0,uu);
 
   /* Loop over output times, call IDASolve, and print results. */
 
@@ -469,6 +458,27 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   }
 
 /*
+ * Print first lines of output (problem description)
+ */
+
+static void PrintHeader(realtype rtol, realtype atol)
+{
+  printf("\niheatsk: Heat equation, serial example problem for IDA \n");
+  printf("         Discretized heat equation on 2D unit square. \n");
+  printf("         Zero boundary conditions,");
+  printf(" polynomial initial conditions.\n");
+  printf("         Mesh dimensions: %d x %d", MGRID, MGRID);
+  printf("        Total system size: %d\n\n", NEQ);
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+#else
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+#endif
+  printf("Constraints set to force all solution components >= 0. \n");
+  printf("Linear solver: IDASPGMR, preconditioner using diagonal elements. \n");
+}
+
+/*
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
@@ -501,8 +511,13 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   ier = IDASpgmrGetNumPrecSolves(mem, &nps);
   check_flag(&ier, "IDASpgmrGetNumPrecSolves", 1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+  printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
+         t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+#else
   printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
          t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+#endif
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-26 20:20:01 $
+ * $Revision: 1.10 $
+ * $Date: 2004-11-08 17:41:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -40,20 +40,7 @@
 #include "idas.h"
 #include "idaband.h"
 
-typedef struct {
-  long int    mm;
-  realtype       dx;
-  realtype       coeff;
-} *UserData;
-
-static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
-                             N_Vector id, N_Vector res);
-
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *rdata);
-
-/* Private function to check function return values */
-
-static int check_flag(void *flagvalue, char *funcname, int opt);
+/* Problem Constants */
 
 #define NOUT  11
 #define MGRID 10
@@ -63,17 +50,42 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 #define TWO   RCONST(2.0)
 #define BVAL  RCONST(0.1)
 
+/* Type: UserData */
+
+typedef struct {
+  long int    mm;
+  realtype       dx;
+  realtype       coeff;
+} *UserData;
+
+/* Prototypes of functions called by IDA */
+
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *rdata);
+
+/* Prototypes of private functions */
+
+static void PrintHeader(realtype rtol, realtype atol);
+static void PrintOutput(void *mem, realtype t, N_Vector u);
+static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
+                             N_Vector id, N_Vector res);
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
+
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
+
 int main(void)
 {
   void *mem;
   UserData data;
   N_Vector uu, up, constraints, id, res;
-  int ier, iout, itol, itask;
-  long int mu, ml;
-  realtype rtol, atol, t0, t1, tout, tret, umax, hused;
-  long int nst, nni, nje, nre, nreB, netf, ncfn;
-  int kused;
-
+  int ier, iout;
+  long int mu, ml, netf, ncfn;
+  realtype rtol, atol, t0, t1, tout, tret;
+  
   mem = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
@@ -106,10 +118,8 @@ int main(void)
   /* Set remaining input parameters. */
   t0   = ZERO;
   t1   = 0.01;
-  itol = IDA_SS;    /* Specify scalar relative and absolute tolerance. */
   rtol = ZERO;
   atol = 1.0e-3;
-  itask = IDA_NORMAL;
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
@@ -120,7 +130,7 @@ int main(void)
   if(check_flag(&ier, "IDASetId", 1)) return(1);
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
-  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol);
+  ier = IDAMalloc(mem, heatres, t0, uu, up, IDA_SS, &rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1)) return(1);
 
   /* Call IDABand to specify the linear solver. */
@@ -134,71 +144,21 @@ int main(void)
   if(check_flag(&ier, "IDACalcIC", 1)) return(1);
 
   /* Print output heading. */
-
-  printf("iheatsb: Heat equation, serial example problem for IDA \n");
-  printf("         Discretized heat equation on 2D unit square. \n");
-  printf("         Zero boundary conditions,");
-  printf(" polynomial initial conditions.\n");
-  printf("         Mesh dimensions: %d x %d", MGRID, MGRID);
-  printf("        Total system size: %d\n\n", NEQ);
-  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
-  printf("Constraints set to force all solution components >= 0. \n");
-  printf("Linear solver: IDABAND, banded direct solver \n");
-  printf("       difference quotient Jacobian, half-bandwidths = %d \n",MGRID);
-  printf("IDACalcIC called with input boundary values = %g \n",BVAL);
-
-  /* Print output table heading and initial line of table. */
-  printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time       umax     k  nst  nni  nje   nre   nreB     h      \n" );
-  printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
-
-  umax = N_VMaxNorm(uu);
+  PrintHeader(rtol, atol);
   
-  ier = IDAGetLastOrder(mem, &kused);
-  check_flag(&ier, "IDAGetLastOrder", 1);
-  ier = IDAGetNumSteps(mem, &nst);
-  check_flag(&ier, "IDAGetNumSteps", 1);
-  ier = IDAGetNumNonlinSolvIters(mem, &nni);
-  check_flag(&ier, "IDAGetNumNonlinSolvIters", 1);
-  ier = IDAGetNumResEvals(mem, &nre);
-  check_flag(&ier, "IDAGetNumResEvals", 1);
-  ier = IDAGetLastStep(mem, &hused);
-  check_flag(&ier, "IDAGetLastStep", 1);
-  ier = IDABandGetNumJacEvals(mem, &nje);
-  check_flag(&ier, "IDABandGetNumJacEvals", 1);
-  ier = IDABandGetNumResEvals(mem, &nreB);
-  check_flag(&ier, "IDABandGetNumResEvals", 1);
+  PrintOutput(mem, t0, uu);
 
-  printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n",
-         t0, umax, kused, nst, nni, nje, nre, nreB, hused);
 
   /* Loop over output times, call IDASolve, and print results. */
   
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
     
-    ier = IDASolve(mem, tout, &tret, uu, up, itask);
+    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1)) return(1);
 
-    umax = N_VMaxNorm(uu);
-    ier = IDAGetLastOrder(mem, &kused);
-    check_flag(&ier, "IDAGetLastOrder", 1);
-    ier = IDAGetNumSteps(mem, &nst);
-    check_flag(&ier, "IDAGetNumSteps", 1);
-    ier = IDAGetNumNonlinSolvIters(mem, &nni);
-    check_flag(&ier, "IDAGetNumNonlinSolvIters", 1);
-    ier = IDAGetNumResEvals(mem, &nre);
-    check_flag(&ier, "IDAGetNumResEvals", 1);
-    ier = IDAGetLastStep(mem, &hused);
-    check_flag(&ier, "IDAGetLastStep", 1);
-    ier = IDABandGetNumJacEvals(mem, &nje);
-    check_flag(&ier, "IDABandGetNumJacEvals", 1);
-    ier = IDABandGetNumResEvals(mem, &nreB);
-    check_flag(&ier, "IDABandGetNumResEvals", 1);
-
-    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n",
-           tret, umax, kused, nst, nni, nje, nre, nreB, hused);
-
-  } /* End of tout loop. */
+    PrintOutput(mem, tret, uu);
+  
+  }
   
   /* Print remaining counters and free memory. */
   ier = IDAGetNumErrTestFails(mem, &netf);
@@ -217,6 +177,57 @@ int main(void)
 
   return(0);
 }
+
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY KINSOL
+ *--------------------------------------------------------------------
+ */
+
+/*
+ * heatres: heat equation system residual function                       
+ * This uses 5-point central differencing on the interior points, and    
+ * includes algebraic equations for the boundary values.                 
+ * So for each interior point, the residual component has the form       
+ *    res_i = u'_i - (central difference)_i                              
+ * while for each boundary point, it is res_i = u_i.                     
+ */
+
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
+            void *rdata)
+{
+  long int mm, i, j, offset, loc;
+  realtype *uv, *upv, *resv, coeff;
+  UserData data;
+  
+  uv = NV_DATA_S(uu); upv = NV_DATA_S(up); resv = NV_DATA_S(resval);
+
+  data = (UserData)rdata;
+  mm = data->mm;
+  coeff = data->coeff;
+  
+  /* Initialize resval to uu, to take care of boundary equations. */
+  N_VScale(ONE, uu, resval);
+  
+  /* Loop over interior points; set res = up - (central difference). */
+  for (j = 1; j < mm-1; j++) {
+    offset = mm*j;
+    for (i = 1; i < mm-1; i++) {
+      loc = offset + i;
+      resv[loc] = upv[loc] - coeff * 
+           (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - 4.0*uv[loc]);
+    }
+  }
+  
+  return(0);
+
+}
+
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
 
 /*
  * SetInitialProfile: routine to initialize u, up, and id vectors.       
@@ -272,42 +283,72 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 }
 
-/*
- * heatres: heat equation system residual function                       
- * This uses 5-point central differencing on the interior points, and    
- * includes algebraic equations for the boundary values.                 
- * So for each interior point, the residual component has the form       
- *    res_i = u'_i - (central difference)_i                              
- * while for each boundary point, it is res_i = u_i.                     
+/* 
+ * Print first lines of output (problem description)
  */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
-            void *rdata)
+static void PrintHeader(realtype rtol, realtype atol)
 {
-  long int mm, i, j, offset, loc;
-  realtype *uv, *upv, *resv, coeff;
-  UserData data;
-  
-  uv = NV_DATA_S(uu); upv = NV_DATA_S(up); resv = NV_DATA_S(resval);
+  printf("iheatsb: Heat equation, serial example problem for IDA \n");
+  printf("         Discretized heat equation on 2D unit square. \n");
+  printf("         Zero boundary conditions,");
+  printf(" polynomial initial conditions.\n");
+  printf("         Mesh dimensions: %d x %d", MGRID, MGRID);
+  printf("        Total system size: %d\n\n", NEQ);
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+#else
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+#endif
+  printf("Constraints set to force all solution components >= 0. \n");
+  printf("Linear solver: IDABAND, banded direct solver \n");
+  printf("       difference quotient Jacobian, half-bandwidths = %d \n",MGRID);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("IDACalcIC called with input boundary values = %Lg \n",BVAL);
+#else
+  printf("IDACalcIC called with input boundary values = %g \n",BVAL);
+#endif
+  /* Print output table heading and initial line of table. */
+  printf("\n   Output Summary (umax = max-norm of solution) \n\n");
+  printf("  time       umax     k  nst  nni  nje   nre   nreB     h      \n" );
+  printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n");
+}
 
-  data = (UserData)rdata;
-  mm = data->mm;
-  coeff = data->coeff;
+/*
+ * Print Output
+ */
+
+static void PrintOutput(void *mem, realtype t, N_Vector uu)
+{
+  int ier;
+  realtype umax, hused;
+  long int nst, nni, nje, nre, nreB;
+  int kused;
+
+  umax = N_VMaxNorm(uu);
   
-  /* Initialize resval to uu, to take care of boundary equations. */
-  N_VScale(ONE, uu, resval);
-  
-  /* Loop over interior points; set res = up - (central difference). */
-  for (j = 1; j < mm-1; j++) {
-    offset = mm*j;
-    for (i = 1; i < mm-1; i++) {
-      loc = offset + i;
-      resv[loc] = upv[loc] - coeff * 
-           (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - 4.0*uv[loc]);
-    }
-  }
-  
-  return(0);
+  ier = IDAGetLastOrder(mem, &kused);
+  check_flag(&ier, "IDAGetLastOrder", 1);
+  ier = IDAGetNumSteps(mem, &nst);
+  check_flag(&ier, "IDAGetNumSteps", 1);
+  ier = IDAGetNumNonlinSolvIters(mem, &nni);
+  check_flag(&ier, "IDAGetNumNonlinSolvIters", 1);
+  ier = IDAGetNumResEvals(mem, &nre);
+  check_flag(&ier, "IDAGetNumResEvals", 1);
+  ier = IDAGetLastStep(mem, &hused);
+  check_flag(&ier, "IDAGetLastStep", 1);
+  ier = IDABandGetNumJacEvals(mem, &nje);
+  check_flag(&ier, "IDABandGetNumJacEvals", 1);
+  ier = IDABandGetNumResEvals(mem, &nreB);
+  check_flag(&ier, "IDABandGetNumResEvals", 1);
+
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+  printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le \n",
+         t, umax, kused, nst, nni, nje, nre, nreB, hused);
+#else
+  printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n",
+         t, umax, kused, nst, nni, nje, nre, nreB, hused);
+#endif
 
 }
 
@@ -327,20 +368,26 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
+            funcname);
+    return(1);
+  } else if (opt == 1) {
+    /* Check if flag < 0 */
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
-    return(1); }
+      fprintf(stderr, 
+              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
+              funcname, *errflag);
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) {
+    /* Check if function returned NULL pointer - no memory allocated */
+    fprintf(stderr, 
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
+            funcname);
+    return(1);
+  }
 
   return(0);
 }
