@@ -51,9 +51,9 @@
  *       N = NPEX*NPEY (see constants below) and it is assumed that     *
  *       the MPI script mpirun is used to run a paralles application.   *
  * If no sensitivities are desired:                                     *
- *    % mpirun -np N pvskx -nosensi                                     *
+ *    % mpirun -np N pvfkx -nosensi                                     *
  * If sensitivities are to be computed:                                 *
- *    % mpirun -np N pvskx -sensi sensi_meth err_con                    *
+ *    % mpirun -np N pvfkx -sensi sensi_meth err_con                    *
  * where sensi_meth is one of {sim, stg, stg1} and err_con is one of    *
  * {full, partial}.                                                     *
  *                                                                      *
@@ -101,17 +101,16 @@
                                     /* Spatial mesh is MX by MY            */
 /* CVodeMalloc Constants */
 
-#define RTOL    1.0e-5            /* scalar relative tolerance             */
-#define FLOOR   100.0             /* value of C1 or C2 at which tolerances */
-                                  /* change from relative to absolute      */
-#define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance             */
+#define RTOL         1.0e-5         /* scalar relative tolerance            */
+#define FLOOR        100.0          /* value of C1 or C2 at which tols.     */
+                                    /* change from relative to absolute     */
+#define ATOL         (RTOL*FLOOR)   /* scalar absolute tolerance            */
 
 /* Sensitivity constants */
-#define NP    8                   /* number of problem parameters          */
-#define NS    2                   /* number of sensitivities               */
+#define NP           8              /* number of problem parameters         */
+#define NS           2              /* number of sensitivities              */
 
-#define ZERO  RCONST(0.0)
-
+#define ZERO         RCONST(0.0)
 
 /* User-defined matrix accessor macro: IJth */
 
@@ -124,7 +123,6 @@
    arrays are indexed starting at 0, not 1. */
 
 #define IJth(a,i,j)        (a[j-1][i-1])
-
 
 /* Type : UserData 
    contains problem constants, preconditioner blocks, pivot arrays, 
@@ -143,7 +141,6 @@ typedef struct {
   real **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
   integer *pivot[MXSUB][MYSUB];
 } *PreconData;
-
 
 /* Private Helper Functions */
 
@@ -179,7 +176,6 @@ static int Precond(integer N, real tn, N_Vector u, N_Vector fu, boole jok,
 static int PSolve(integer N, real tn, N_Vector u, N_Vector fu, N_Vector vtemp,
                   real gamma, N_Vector ewt, real delta, long int *nfePtr,
                   N_Vector r, int lr, void *P_data, N_Vector z);
-
 
 /***************************** Main Program ******************************/
 
@@ -299,7 +295,6 @@ int main(int argc, char *argv[])
       N_VConst(ZERO,uS[is]);
 
     rhomax = ZERO;
-
     ifS = ALLSENS;
     if(sensi_meth==STAGGERED1) ifS = ONESENS;
 
@@ -309,7 +304,6 @@ int main(int argc, char *argv[])
       if (my_pe == 0) printf("CVodeSensMalloc failed, flag=%d\n",flag);
       return(1);
     }
-
   }
 
   if (my_pe == 0) {
@@ -335,10 +329,8 @@ int main(int argc, char *argv[])
       }
       PrintOutputS(my_pe, comm, uS);
     }
-
     if (my_pe == 0)
       printf("------------------------------------------------------------------------\n");
-
   }
 
   /* Print final statistics */  
@@ -385,7 +377,6 @@ static PreconData AllocPreconData(UserData fdata)
   PreconData pdata;
 
   pdata = (PreconData) malloc(sizeof *pdata);
-
   pdata->f_data = fdata;
 
   for (lx = 0; lx < MXSUB; lx++) {
@@ -405,17 +396,17 @@ static PreconData AllocPreconData(UserData fdata)
 static void InitUserData(integer my_pe, MPI_Comm comm, UserData data)
 {
   integer isubx, isuby;
-  real Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+  real KH, VEL, KV0;
 
   /* Set problem parameters */
-  Q1 = 1.63e-16; /* Q1  coefficients q1, q2, c3             */
-  Q2 = 4.66e-16; /* Q2                                      */
-  C3 = 3.7e16;   /* C3                                      */
-  A3 = 22.62;    /* A3  coefficient in expression for q3(t) */
-  A4 = 7.601;    /* A4  coefficient in expression for q4(t) */
-  KH = 4.0e-6;   /* KH  horizontal diffusivity Kh           */ 
-  VEL = 0.001;   /* VEL advection velocity V                */
-  KV0 = 1.0e-8;  /* KV0 coefficient in Kv(z)                */ 
+  data->p[0]  = 1.63e-16;       /* Q1  coeffs. q1, q2, c3             */
+  data->p[1]  = 4.66e-16;       /* Q2                                 */
+  data->p[2]  = 3.7e16;         /* C3                                 */
+  data->p[3]  = 22.62;          /* A3  coeff. in expression for q3(t) */
+  data->p[4]  = 7.601;          /* A4  coeff. in expression for q4(t) */
+  KH  = data->p[5]  = 4.0e-6;   /* KH  horizontal diffusivity Kh      */ 
+  VEL = data->p[6]  = 0.001;    /* VEL advection velocity V           */
+  KV0 = data->p[7]  = 1.0e-8;   /* KV0 coeff. in Kv(z)                */ 
 
   /* Set problem constants */
   data->om = PI/HALFDAY;
@@ -424,16 +415,6 @@ static void InitUserData(integer my_pe, MPI_Comm comm, UserData data)
   data->hdco = KH/SQR(data->dx);
   data->haco = VEL/(2.0*data->dx);
   data->vdco = (1.0/SQR(data->dy))*KV0;
-
-  /* Problem parameters */
-  data->p[0] = Q1;
-  data->p[1] = Q2;
-  data->p[2] = C3;
-  data->p[3] = A3;
-  data->p[4] = A4;
-  data->p[5] = KH;
-  data->p[6] = VEL;
-  data->p[7] = KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -477,11 +458,9 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   real *udata;
 
   /* Set pointer to data array in vector u */
-
   udata = NV_DATA_P(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
-
   dx = data->dx;         dy = data->dy;
   isubx = data->isubx;   isuby = data->isuby;
 
@@ -545,7 +524,6 @@ static void PrintOutput(integer my_pe, MPI_Comm comm, long int iopt[],
     printf("%12.4e %12.4e \n", udata[0], tempu[0]); 
     printf("                                               ");
     printf("%12.4e %12.4e \n", udata[1], tempu[1]);
-
   }
 }
 
@@ -632,10 +610,6 @@ static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int i
   }
 
   printf("\n\n");
-  /*
-  printf("lenrw   = %5ld    leniw = %5ld\n", iopt[LENRW], iopt[LENIW]);
-  printf("llrw    = %5ld    lliw  = %5ld\n", iopt[SPGMR_LRW], iopt[SPGMR_LIW]);
-  */
   printf("nst     = %5ld                \n\n", iopt[NST]);
   printf("nfe     = %5ld    nfSe  = %5ld  \n", iopt[NFE],  iopt[NFSE]);
   printf("nni     = %5ld    nniS  = %5ld  \n", iopt[NNI],  iopt[NNIS]);
@@ -660,19 +634,16 @@ static void BSend(MPI_Comm comm, integer my_pe, integer isubx, integer isuby,
   real bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
-
   if (isuby != 0)
     MPI_Send(&udata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
 
   /* If isuby < NPEY-1, send data from top x-line of u */
-
   if (isuby != NPEY-1) {
     offsetu = (MYSUB-1)*dsizex;
     MPI_Send(&udata[offsetu], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
   }
 
   /* If isubx > 0, send data from left y-line of u (via bufleft) */
-
   if (isubx != 0) {
     for (ly = 0; ly < MYSUB; ly++) {
       offsetbuf = ly*NVARS;
@@ -684,7 +655,6 @@ static void BSend(MPI_Comm comm, integer my_pe, integer isubx, integer isuby,
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
-
   if (isubx != NPEX-1) {
     for (ly = 0; ly < MYSUB; ly++) {
       offsetbuf = ly*NVARS;
@@ -800,7 +770,6 @@ static void BRecvWait(MPI_Request request[], integer isubx, integer isuby,
 
 static void ucomm(integer N, real t, N_Vector u, UserData data)
 {
-
   real *udata, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
   integer my_pe, isubx, isuby, nvmxsub, nvmysub;
@@ -809,7 +778,6 @@ static void ucomm(integer N, real t, N_Vector u, UserData data)
   udata = NV_DATA_P(u);
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
-
   comm = data->comm;  my_pe = data->my_pe;
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
@@ -817,19 +785,13 @@ static void ucomm(integer N, real t, N_Vector u, UserData data)
   uext = data->uext;
 
   /* Start receiving boundary data from neighboring PEs */
-
   BRecvPost(comm, request, my_pe, isubx, isuby, nvmxsub, nvmysub, uext, buffer);
 
   /* Send data from boundary of local grid to neighboring PEs */
-
   BSend(comm, my_pe, isubx, isuby, nvmxsub, nvmysub, udata);
 
   /* Finish receiving boundary data from neighboring PEs */
-
   BRecvWait(request, isubx, isuby, nvmxsub, uext, buffer);
-
-
-
 }
 
 /* ======================================================================= */
@@ -849,24 +811,21 @@ static void fcalc(integer N, real t, real udata[], real dudata[], UserData data)
   real Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
   /* Get subgrid indices, data sizes, extended work array uext */
-
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub; nvmxsub2 = data->nvmxsub2;
   uext = data->uext;
 
   /* Load problem coefficients and parameters */
-
-  Q1 = data->p[0];
-  Q2 = data->p[1];
-  C3 = data->p[2];
-  A3 = data->p[3];
-  A4 = data->p[4];
-  KH = data->p[5];
+  Q1  = data->p[0];
+  Q2  = data->p[1];
+  C3  = data->p[2];
+  A3  = data->p[3];
+  A4  = data->p[4];
+  KH  = data->p[5];
   VEL = data->p[6];
   KV0 = data->p[7];
 
   /* Copy local segment of u vector into the working extended array uext */
-
   offsetu = 0;
   offsetue = nvmxsub2 + NVARS;
   for (ly = 0; ly < MYSUB; ly++) {
@@ -909,15 +868,13 @@ static void fcalc(integer N, real t, real udata[], real dudata[], UserData data)
   }
 
   /* Make local copies of problem variables, for efficiency */
-
-  dely = data->dy;
+  dely   = data->dy;
   verdco = data->vdco;
-  hordco  = data->hdco;
-  horaco  = data->haco;
+  hordco = data->hdco;
+  horaco = data->haco;
 
   /* Set diurnal rate coefficients as functions of t, and save q4 in 
   data block for use by preconditioner evaluation routine */
-
   s = sin((data->om)*t);
   if (s > 0.0) {
     q3 = exp(-A3/s);
@@ -928,25 +885,17 @@ static void fcalc(integer N, real t, real udata[], real dudata[], UserData data)
   }
   data->q4 = q4coef;
 
-
   /* Loop over all grid points in local subgrid */
-
   for (ly = 0; ly < MYSUB; ly++) {
-
     jy = ly + isuby*MYSUB;
-
     /* Set vertical diffusion coefficients at jy +- 1/2 */
-
     ydn = YMIN + (jy - .5)*dely;
     yup = ydn + dely;
     cydn = verdco*exp(0.2*ydn);
     cyup = verdco*exp(0.2*yup);
     for (lx = 0; lx < MXSUB; lx++) {
-
       jx = lx + isubx*MXSUB;
-
       /* Extract c1 and c2, and set kinetic rate terms */
-
       offsetue = (lx+1)*NVARS + (ly+1)*nvmxsub2;
       c1 = uext[offsetue];
       c2 = uext[offsetue+1];
@@ -956,18 +905,14 @@ static void fcalc(integer N, real t, real udata[], real dudata[], UserData data)
       qq4 = q4coef*c2;
       rkin1 = -qq1 - qq2 + 2.0*qq3 + qq4;
       rkin2 = qq1 - qq2 - qq4;
-
       /* Set vertical diffusion terms */
-
       c1dn = uext[offsetue-nvmxsub2];
       c2dn = uext[offsetue-nvmxsub2+1];
       c1up = uext[offsetue+nvmxsub2];
       c2up = uext[offsetue+nvmxsub2+1];
       vertd1 = cyup*(c1up - c1) - cydn*(c1 - c1dn);
       vertd2 = cyup*(c2up - c2) - cydn*(c2 - c2dn);
-
       /* Set horizontal diffusion and advection terms */
-
       c1lt = uext[offsetue-2];
       c2lt = uext[offsetue-1];
       c1rt = uext[offsetue+2];
@@ -976,9 +921,7 @@ static void fcalc(integer N, real t, real udata[], real dudata[], UserData data)
       hord2 = hordco*(c2rt - 2.0*c2 + c2lt);
       horad1 = horaco*(c1rt - c1lt);
       horad2 = horaco*(c2rt - c2lt);
-
       /* Load all terms into dudata */
-
       offsetu = lx*NVARS + ly*nvmxsub;
       dudata[offsetu]   = vertd1 + hord1 + horad1 + rkin1; 
       dudata[offsetu+1] = vertd2 + hord2 + horad2 + rkin2;
@@ -986,7 +929,6 @@ static void fcalc(integer N, real t, real udata[], real dudata[], UserData data)
   }
 
 }
-
 
 /***************** Functions Called by the CVODES Solver ******************/
 
@@ -1003,17 +945,12 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
   dudata = NV_DATA_P(udot);
   data = (UserData) f_data;
 
-
   /* Call ucomm to do inter-processor communicaiton */
-
   ucomm (N, t, u, data);
 
   /* Call fcalc to calculate all right-hand sides */
-
   fcalc (N, t, udata, dudata, data);
-
 }
-
 
 /* ======================================================================= */
 /* Preconditioner setup routine. Generate and preprocess P. */
@@ -1034,7 +971,6 @@ static int Precond(integer N, real tn, N_Vector u, N_Vector fu, boole jok,
 
   /* Make local copies of pointers in P_data, pointer to u's data,
      and PE index pair */
-
   predata = (PreconData) P_data;
   data = (UserData) (predata->f_data);
   P = predata->P;
@@ -1054,32 +990,23 @@ static int Precond(integer N, real tn, N_Vector u, N_Vector fu, boole jok,
   VEL = data->p[6];
   KV0 = data->p[7];
 
-  if (jok) {
-
-  /* jok = TRUE: Copy Jbd to P */
+  if (jok) {  /* jok = TRUE: Copy Jbd to P */
 
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
         dencopy(Jbd[lx][ly], P[lx][ly], NVARS);
+    *jcurPtr = FALSE;
 
-  *jcurPtr = FALSE;
+  } else {    /* jok = FALSE: Generate Jbd from scratch and copy to P */
 
-  }
-
-  else {
-
-  /* jok = FALSE: Generate Jbd from scratch and copy to P */
-
-  /* Make local copies of problem variables, for efficiency */
-
-  q4coef = data->q4;
-  dely = data->dy;
-  verdco = data->vdco;
-  hordco  = data->hdco;
-
-  /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
-     computed on the last f call).  Load into P. */
-
+    /* Make local copies of problem variables, for efficiency */
+    q4coef = data->q4;
+    dely = data->dy;
+    verdco = data->vdco;
+    hordco  = data->hdco;
+    
+    /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
+       computed on the last f call).  Load into P. */
     for (ly = 0; ly < MYSUB; ly++) {
       jy = ly + isuby*MYSUB;
       ydn = YMIN + (jy - .5)*dely;
@@ -1101,19 +1028,17 @@ static int Precond(integer N, real tn, N_Vector u, N_Vector fu, boole jok,
         dencopy(j, a, NVARS);
       }
     }
-
-  *jcurPtr = TRUE;
+    
+    *jcurPtr = TRUE;
 
   }
 
   /* Scale by -gamma */
-
-    for (ly = 0; ly < MYSUB; ly++)
-      for (lx = 0; lx < MXSUB; lx++)
-        denscale(-gamma, P[lx][ly], NVARS);
-
+  for (ly = 0; ly < MYSUB; ly++)
+    for (lx = 0; lx < MXSUB; lx++)
+      denscale(-gamma, P[lx][ly], NVARS);
+  
   /* Add identity matrix and do LU decompositions on blocks in place */
-
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       denaddI(P[lx][ly], NVARS);
@@ -1121,7 +1046,7 @@ static int Precond(integer N, real tn, N_Vector u, N_Vector fu, boole jok,
       if (ier != 0) return(1);
     }
   }
-
+  
   return(0);
 }
 
@@ -1141,7 +1066,6 @@ static int PSolve(integer N, real tn, N_Vector u, N_Vector fu, N_Vector vtemp,
   UserData data;
 
   /* Extract the P and pivot arrays from P_data */
-
   predata = (PreconData) P_data;
   data = (UserData) (predata->f_data);
   P = predata->P;
@@ -1150,7 +1074,6 @@ static int PSolve(integer N, real tn, N_Vector u, N_Vector fu, N_Vector vtemp,
   /* Solve the block-diagonal system Px = r using LU factors stored
      in P and pivot data in pivot, and return the solution in z.
      First copy vector r to z. */
-
   N_VScale(1.0, r, z);
 
   nvmxsub = data->nvmxsub;
