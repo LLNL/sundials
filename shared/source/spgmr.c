@@ -15,7 +15,7 @@
 #include "spgmr.h"
 #include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 
 
 #define ZERO RCONST(0.0)
