@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-05-26 18:35:41 $
+ * $Revision: 1.8 $
+ * $Date: 2004-07-22 21:19:23 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -38,7 +38,7 @@
  *   void *cvode_mem;                                              
  *   void *bbd_data;                                                 
  *   ...                                                           
- *   nvspec = NV_SpecInit_Parallel(...);                           
+ *   y0 = N_VNew_Parallel(...);                           
  *   ...                                                           
  *   cvode_mem = CVodeCreate(...);                                 
  *   ier = CVodeMalloc(...);                                       
@@ -53,7 +53,7 @@
  *   ...                                                           
  *   CVodeFree(...);                                               
  *                                                                 
- *   NV_SpecFree_Parallel(nvspec);                                 
+ *   N_VDestroy_Parallel(y0);                                 
  *                                                                 
  *                                                                 
  * The user-supplied routines required are:                        

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-05-26 18:35:41 $
+ * $Revision: 1.7 $
+ * $Date: 2004-07-22 21:19:23 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -40,10 +40,9 @@
  *   #include "cvbandpre.h"                                        
  *   #include "nvector_serial.h"                                   
  *   ...                                                           
- *   NV_Spec nvspec;                                               
  *   void *bp_data;                                                
  *   ...                                                           
- *   nvspec = NV_SpecInit_Serial(...);                             
+ *   y0 = N_VNew_Serial(...);                             
  *   ...                                                           
  *   cvode_mem = CVodeCreate(...);                                 
  *   ier = CVodeMalloc(...);                                       
@@ -56,7 +55,7 @@
  *   ...                                                           
  *   CVBandPrecFree(bp_data);                                      
  *   ...                                                           
- *   NV_SpecFree_Serial(nvspec);                                   
+ *   N_VDestroy_Serial(y0);                                   
  *   ...                                                           
  *   CVodeFree(cvode_mem);                                         
  *                                                                 
