@@ -108,7 +108,7 @@ In the latter case, CVODES offers both forward and central finite
 difference approximations. 
 %
 We use increments that take into account several problem-related features;
-namely, the relative ODE error tolerance $rtol$, 
+namely, the relative ODE error tolerance {\sc rtol}, 
 the machine unit roundoff $U$,
 scale factors $\bar p$ for the problem parameters $p$, 
 and the weighted root-mean-square norm of the sensitivity vector $s_i$.
@@ -121,8 +121,8 @@ can be evaluated separately:
     f(t, y-\sigma_y s_i, p)}{2\,\sigma_y} \, , \label{e:fd2} \\
   {\partial f}/{\partial p_i} \approx \frac{f(t,y,p + \sigma_i e_i)-
     f(t,y,p - \sigma_i e_i)}{2\,\sigma_i} \, , \tag{\ref{e:fd2}'} \\
-  \sigma_i = |{\bar p}_i| \sqrt{\max(rtol, U)} \, , \quad
-  \sigma_y = \frac{1}{\max(1/\sigma_i, \|s_i\|_{WRMS} / |{\bar p}_i|)} \, , \nonumber
+  \sigma_i = |{\bar p}_i| \sqrt{\max(\mbox{\sc rtol}, U)} \, , \quad
+  \sigma_y = \frac{1}{\max(1/\sigma_i, \|s_i\|_{\mbox{\scriptsize WRMS}} / |{\bar p}_i|)} \, , \nonumber
 \end{gather}
 simultaneously:
 \begin{gather}
