@@ -55,15 +55,17 @@
 
 typedef struct {
 
-    IDADenseJacFn d_jac;   /* jac = Jacobian routine to be called  */
+  integertype d_Neq;     /* Neq = problem dimension              */
 
-    DenseMat d_J;          /* J = dF/dy + cj*dF/dy'                */
-
-    integertype *d_pivots; /* pivots = pivot array for PJ = LU     */
-
-    long int d_nje;        /* nje = no. of calls to jac            */
-
-    void *d_jdata;         /* jdata is passed to jac               */
+  IDADenseJacFn d_jac;   /* jac = Jacobian routine to be called  */
+  
+  DenseMat d_J;          /* J = dF/dy + cj*dF/dy'                */
+  
+  integertype *d_pivots; /* pivots = pivot array for PJ = LU     */
+  
+  long int d_nje;        /* nje = no. of calls to jac            */
+  
+  void *d_jdata;         /* jdata is passed to jac               */
 
 } IDADenseMemRec, *IDADenseMem;
 
@@ -81,103 +83,14 @@ static int IDADenseSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
 
 static int IDADenseFree(IDAMem ida_mem);
 
-static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
-                      realtype cj, N_Vector constraints, ResFn res, void *rdata,
-                      void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
-                      realtype uround, DenseMat JJ, long int *nrePtr,
-                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+static int IDADenseDQJac(integertype neq, realtype tt, N_Vector yy, N_Vector yp,
+                         realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
+                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-
-/*************** IDADenseDQJac ****************************************
-
- This routine generates a dense difference quotient approximation JJ to
- the DAE system Jacobian J.  It assumes that a dense matrix of type
- DenseMat is stored column-wise, and that elements within each column
- are contiguous.  The address of the jth column of JJ is obtained via
- the macro DENSE_COL and an N_Vector jthCol with the jth column as the
- component array is created using N_VMake and N_VGetData.  The jth column
- of the Jacobian is constructed using a call to the res routine, and
- a call to N_VLinearSum.
- The return value is either SUCCESS = 0, or the nonzero value returned
- by the res routine, if any.
-
-**********************************************************************/
-
-static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
-                      realtype cj, N_Vector constraints, ResFn res, void *rdata,
-                      void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
-                      realtype uround, DenseMat JJ, long int *nrePtr,
-                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
- 
-{
-  realtype inc, inc_inv, yj, ypj, srur, conj;
-  realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
-  N_Vector rtemp, jthCol;
-  M_Env machEnv;
-  integertype j;
-  int retval;
-
-  machEnv = yy->menv; /* Get machine environment */
-
-  rtemp = tempv1; /* Rename work vector for use as residual value. */
-
-  /* Obtain pointers to the data for ewt, yy, yp. */
-  ewt_data = N_VGetData(ewt);
-  y_data   = N_VGetData(yy);
-  yp_data  = N_VGetData(yp);
-  if(constraints!=NULL) cns_data = N_VGetData(constraints);
-
-  srur = RSqrt(uround);
-
-  jthCol = N_VMake(Neq, NULL, machEnv); /* j loop overwrites this data address */
-
-  for (j=0; j < Neq; j++) {
-
-    /* Generate the jth col of J(tt,yy,yp) as delta(F)/delta(y_j). */
-
-    /* Set data address of jthCol, and save y_j and yp_j values. */
-    N_VSetData(DENSE_COL(JJ,j), jthCol);
-    yj = y_data[j];
-    ypj = yp_data[j];
-
-    /* Set increment inc to y_j based on sqrt(uround)*abs(y_j), with
-    adjustments using yp_j and ewt_j if this is small, and a further
-    adjustment to give it the same sign as hh*yp_j. */
-
-    inc = srur*MAX(ABS(yj),MAX( ABS(hh*ypj), ONE/ewt_data[j]));
-    if (hh*ypj < ZERO) inc = -inc;
-    inc = (yj + inc) - yj;
-
-    /* Adjust sign(inc) again if y_j has an inequality constraint. */
-    if (constraints != NULL) {
-      conj = cns_data[j];
-      if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-      else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
-    }
-
-    /* Increment y_j and yp_j, call res, and break on error return. */
-    y_data[j] += inc;
-    yp_data[j] += cj*inc;
-    (*nrePtr)++;
-    retval = res(Neq, tt, yy, yp, rtemp, rdata);
-    if (retval != SUCCESS) break;
-
-    /* Construct difference quotient in jthCol, and reset y_j, yp_j. */ 
-    inc_inv = ONE/inc;
-    N_VLinearSum(inc_inv, rtemp, -inc_inv, resvec, jthCol);
-    y_data[j] = yj;
-    yp_data[j] = ypj;
-  }
-
-  N_VDispose(jthCol);
-  return(retval);
-
-}
 
 
 /* Readability Replacements */
 
-#define Neq         (ida_mem->ida_Neq)
 #define res         (ida_mem->ida_res)
 #define rdata       (ida_mem->ida_rdata)
 #define uround      (ida_mem->ida_uround)
@@ -199,6 +112,7 @@ static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
 #define machenv     (ida_mem->ida_machenv)
 #define setupNonNull  (ida_mem->ida_setupNonNull)
 
+#define Neq         (idadense_mem->d_Neq)
 #define jac         (idadense_mem->d_jac)
 #define JJ          (idadense_mem->d_J)
 #define pivots      (idadense_mem->d_pivots)
@@ -233,7 +147,7 @@ static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
 
 **********************************************************************/
 
-int IDADense(void *IDA_mem, IDADenseJacFn djac, void *jdata)
+int IDADense(void *IDA_mem, integertype neq, IDADenseJacFn djac, void *jdata)
 {
   IDAMem ida_mem;
   IDADenseMem idadense_mem;
@@ -273,10 +187,17 @@ int IDADense(void *IDA_mem, IDADenseJacFn djac, void *jdata)
   }
 
   /* Set Jacobian routine field to user's djac or IDADenseDQJac. */
-  if (djac == NULL) jac = IDADenseDQJac;
-  else jac = djac;
+  if (djac == NULL) {
+    jac = IDADenseDQJac;
+    jacdata = IDA_mem;
+  } else {
+    jac = djac;
+    jacdata = jdata;
+  }
   setupNonNull = TRUE;
-  jacdata = jdata;
+
+  /* Store problem size */
+  Neq = neq;
 
   /* Allocate memory for JJ and pivot array. */
   JJ = DenseAllocMat(Neq);
@@ -336,10 +257,14 @@ int IDAReInitDense(void *IDA_mem, IDADenseJacFn djac, void *jdata)
   idadense_mem = lmem;  /* Use existing linear solver memory pointer. */
 
   /* Set Jacobian routine field to user's djac or IDADenseDQJac. */
-  if (djac == NULL) jac = IDADenseDQJac;
-  else jac = djac;
+  if (djac == NULL) {
+    jac = IDADenseDQJac;
+    jacdata = IDA_mem;
+  } else {
+    jac = djac;
+    jacdata = jdata;
+  }
   setupNonNull = TRUE;
-  jacdata = jdata;
 
   return(SUCCESS);
 }
@@ -398,8 +323,8 @@ static int IDADenseSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
 
   /* Zero out JJ; call Jacobian routine jac; return if it failed. */
   DenseZero(JJ);
-  retval = jac(Neq, tn, yyp, ypp, cj, constraints, res, rdata, jacdata,
-               resp, ewt, hh, uround, JJ, &nre, tempv1, tempv2, tempv3);
+  retval = jac(Neq, tn, yyp, ypp, cj, jacdata, resp, JJ, 
+               tempv1, tempv2, tempv3);
   if (retval < 0) return(LSETUP_ERROR_NONRECVR);
   if (retval > 0) return(LSETUP_ERROR_RECVR);
 
@@ -455,3 +380,94 @@ static int IDADenseFree(IDAMem ida_mem)
   return(0);
 
 }
+
+#undef cj
+#undef JJ
+
+
+/*************** IDADenseDQJac ****************************************
+
+ This routine generates a dense difference quotient approximation JJ to
+ the DAE system Jacobian J.  It assumes that a dense matrix of type
+ DenseMat is stored column-wise, and that elements within each column
+ are contiguous.  The address of the jth column of JJ is obtained via
+ the macro DENSE_COL and an N_Vector jthCol with the jth column as the
+ component array is created using N_VMake and N_VGetData.  The jth column
+ of the Jacobian is constructed using a call to the res routine, and
+ a call to N_VLinearSum.
+ The return value is either SUCCESS = 0, or the nonzero value returned
+ by the res routine, if any.
+
+**********************************************************************/
+
+static int IDADenseDQJac(integertype neq, realtype tt, N_Vector yy, N_Vector yp,
+                         realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
+                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+ 
+{
+  realtype inc, inc_inv, yj, ypj, srur, conj;
+  realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
+  N_Vector rtemp, jthCol;
+  integertype j;
+  int retval;
+
+  IDAMem ida_mem;
+
+  /* jdata points to IDA_mem */
+  ida_mem = (IDAMem) jdata;
+
+  rtemp = tempv1; /* Rename work vector for use as residual value. */
+
+  /* Obtain pointers to the data for ewt, yy, yp. */
+  ewt_data = N_VGetData(ewt);
+  y_data   = N_VGetData(yy);
+  yp_data  = N_VGetData(yp);
+  if(constraints!=NULL) cns_data = N_VGetData(constraints);
+
+  srur = RSqrt(uround);
+
+  jthCol = N_VMake(NULL, machenv); /* j loop overwrites this data address */
+
+  for (j=0; j < neq; j++) {
+
+    /* Generate the jth col of J(tt,yy,yp) as delta(F)/delta(y_j). */
+
+    /* Set data address of jthCol, and save y_j and yp_j values. */
+    N_VSetData(DENSE_COL(JJ,j), jthCol);
+    yj = y_data[j];
+    ypj = yp_data[j];
+
+    /* Set increment inc to y_j based on sqrt(uround)*abs(y_j), with
+    adjustments using yp_j and ewt_j if this is small, and a further
+    adjustment to give it the same sign as hh*yp_j. */
+
+    inc = srur*MAX(ABS(yj),MAX( ABS(hh*ypj), ONE/ewt_data[j]));
+    if (hh*ypj < ZERO) inc = -inc;
+    inc = (yj + inc) - yj;
+
+    /* Adjust sign(inc) again if y_j has an inequality constraint. */
+    if (constraints != NULL) {
+      conj = cns_data[j];
+      if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
+      else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
+    }
+
+    /* Increment y_j and yp_j, call res, and break on error return. */
+    y_data[j] += inc;
+    yp_data[j] += cj*inc;
+    retval = res(tt, yy, yp, rtemp, rdata);
+    nre++;
+    if (retval != SUCCESS) break;
+
+    /* Construct difference quotient in jthCol, and reset y_j, yp_j. */ 
+    inc_inv = ONE/inc;
+    N_VLinearSum(inc_inv, rtemp, -inc_inv, resvec, jthCol);
+    y_data[j] = yj;
+    yp_data[j] = ypj;
+  }
+
+  N_VDispose(jthCol);
+  return(retval);
+
+}
+
