@@ -59,10 +59,10 @@ C. References
 -------------
 
 [1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.2.0," 
-    LLLNL technical report UCRL-MA-xxxxxx, November 2004.
+    LLLNL technical report UCRL-SM-208108, November 2004.
 
 [2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v2.2.0," 
-    LLNL technical report UCRL-MA-xxxxxx, November 2004.
+    LLNL technical report UCRL-SM-208110, November 2004.
 
 [3] S.D. Cohen and A.C. Hindmarsh, "CVODE, a Stiff/nonstiff ODE Solver in C,"
     Computers in Physics, 10(2), pp. 138-143, 1996.
