@@ -24,7 +24,7 @@ struct _generic_NV_Spec {
 
 The generic \ID{N\_Vector} type is a pointer to a structure that has an 
 implementation-dependent {\em content} field containing the 
-description and actual data of the vector and a {\em menv} field 
+description and actual data of the vector and a {\em nvspec} field 
 pointing to the \id{NV\_Spec} structure that was used in constructing the
 vector.
 The type \id{N\_Vector} is defined as
@@ -37,7 +37,8 @@ struct _generic_N_Vector {
 };
 \end{verbatim}
 
-The \id{\_generic\_N\_Vector\_Ops} structure is defined as
+The \id{\_generic\_N\_Vector\_Ops} structure is essentially a list of pointers to
+the various actual vector kernels, and is defined as
 \begin{verbatim}
 struct _generic_N_Vector_Ops {
   N_Vector    (*nvnew)(NV_Spec);
@@ -82,7 +83,7 @@ vector \id{x} by a scalar \id{c}:
 \begin{verbatim}
 void N_VScale(realtype c, N_Vector x, N_Vector z) 
 {
-   z->menv->ops->nvscale(c, x, z);
+   z->nvspec->ops->nvscale(c, x, z);
 }
 \end{verbatim}
 Table \ref{t:nvecops} contains a complete list of all vector operations defined
@@ -131,25 +132,25 @@ of the newly defined \id{N\_Vector}.
 \tablelasttail{\hline}
 \begin{supertabular}{|p{\colone}|p{\coltwo}|}
 %
-\id{N\_VNew} & \id{v = N\_VNew(machEnv);} \\ 
-& Returns a new \id{N\_Vector} build with information in \id{machEnv}. 
+\id{N\_VNew} & \id{v = N\_VNew(nvSpec);} \\ 
+& Returns a new \id{N\_Vector} built with information in \id{nvSpec}. 
 If there is not enough memory for a new \id{N\_Vector}, then \id{N\_VNew} 
 returns \id{NULL}.
 \\
 %
-\id{N\_VSpace} & \id{N\_VSpace(machEnv, \&lrw, \&liw);} \\
+\id{N\_VSpace} & \id{N\_VSpace(nvSpec, \&lrw, \&liw);} \\
 & Returns storage requirements for one \id{N\_Vector}.
 \id{lrw} contains the number of \id{realtype} words and \id{liw}
 contains the number of \id{integertype} words.
 \\
 %
-\id{N\_VNew\_S} & \id{vs = N\_VNew\_S(ns, machEnv);} \\
+\id{N\_VNew\_S} & \id{vs = N\_VNew\_S(ns, nvSpec);} \\
 & Returns an array of \id{ns} new \id{N\_Vector}'s.
-The parameter \id{machEnv} is a pointer to machine environment 
+The parameter \id{nvSpec} is a pointer to machine environment 
 specific information. If there is not enough memory for a new array 
 of \id{N\_Vector}'s or for one of the components, then \id{N\_VNew\_S}
 returns \id{NULL}. Note that this routine is common to all {\nvector}
-implementations as it's based on the routine \id{N\_VNew}. A new {\nvector}
+implementations as it is based on the routine \id{N\_VNew}. A new {\nvector}
 implementation need not implement this routine.
 \\
 %
@@ -166,7 +167,7 @@ implementations as it's based on the routine \id{N\_VNew}. A new {\nvector}
 implementation need not implement this routine.
 \\
 %
-\id{N\_VMake} & \id{v = N\_VMake(vdata, machEnv);} \\
+\id{N\_VMake} & \id{v = N\_VMake(vdata, nvSpec);} \\
 & Creates an \id{N\_Vector} with component array data 
 \id{vdata} allocated by the user.
 \\
@@ -187,43 +188,44 @@ It is the user's responsability to free the memory allocated for the data array.
 \id{N\_VLinearSum} & \id{N\_VLinearSum(a, x, b, y, z);} \\
 & Performs the operation $z = a x + b y$, where $a$ and $b$ are scalars
 and $x$ and $y$ are \id{N\_Vector}'s:
-$z_i = a x_i + b y_i, \: i=0,1,\ldots,n-1$.
+$z_i = a x_i + b y_i, \: i=0,\ldots,n-1$.
 \\
 %
 \id{N\_VConst} & \id{N\_VConst(c, z);} \\
 & Initializes all components of the \id{N\_Vector} \id{z} to \id{c}:
-$z_i = c,\: i=0,1,\ldots,n-1$.
+$z_i = c,\: i=0,\ldots,n-1$.
 \\
 %
 \id{N\_VProd} & \id{N\_VProd(x, y, z);} \\
 & Sets the \id{N\_Vector} \id{z} to be the component-wise product of the
 \id{N\_Vector}'s \id{x} and \id{y}:
-$z_i = x_i y_i,\: i=0,1,\ldots,n-1$.
+$z_i = x_i y_i,\: i=0,\ldots,n-1$.
 \\
 %
 \id{N\_VDiv} & \id{N\_VDiv(x, y, z);} \\
 & Sets the \id{N\_Vector} \id{z} to be the component-wise ratio of the
 \id{N\_Vector}'s \id{x} and \id{y}:
-$z_i = x_i / y_i,\: i=0,1,\ldots,n-1$. The $y_i$ may not be tested 
-for $0$ values.
+$z_i = x_i / y_i,\: i=0,\ldots,n-1$. The $y_i$ may not be tested 
+for $0$ values. It should only be called with an \id{x} that is
+guaranteed to have all nonzero components.
 \\
 %
 \id{N\_VScale} & \id{N\_VScale(c, x, z);} \\
 & Scales the \id{N\_Vector} \id{x} by the scalar \id{c} and returns
 the result in \id{z}:
-$z_i = c x_i , \: i=0,1,\ldots,n-1$.
+$z_i = c x_i , \: i=0,\ldots,n-1$.
 \\
 %
 \id{N\_VAbs} & \id{N\_VAbs(x, y);} \\
 & Sets the components of the \id{N\_Vector} \id{y} to be the absolute
 values of the components of the \id{N\_Vector} \id{x}:
-$y_i = | x_i | , \: i=0,1,\ldots,n-1$.
+$y_i = | x_i | , \: i=0,\ldots,n-1$.
 \\
 %
 \id{N\_VInv} & \id{N\_VInv(x, z);} \\
 & Sets the components of the \id{N\_Vector} \id{z} to be the inverses
 of the components of the \id{N\_Vector} \id{x}:
-$z_i = 1.0 /  x_i  , \: i=0,1,\ldots,n-1$. This routine
+$z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$. This routine
 may not check for division by $0$. It should be called only with an 
 \id{x} which is guaranteed to have all non-zero components.
 \\
@@ -231,7 +233,7 @@ may not check for division by $0$. It should be called only with an
 \id{N\_VAddConst} & \id{N\_VAddConst(x, b, z);} \\
 & Adds the scalar \id{b} to all components of \id{x} and returns the
 result in the \id{N\_Vector} \id{z}:
-$z_i = x_i + b , \: i=0,1,\ldots,n-1$.
+$z_i = x_i + b , \: i=0,\ldots,n-1$.
 \\
 %
 \id{N\_VDotProd} & \id{d = N\_VDotProd(x, y);} \\
@@ -281,15 +283,16 @@ $z_i = 1.0$ if $| x_i | \ge c$ and $z_i = 0.0$ otherwise.
 %
 \id{N\_VInvTest} & \id{t = N\_VInvTest(x, z);} \\
 & Sets the components of the \id{N\_Vector} \id{z} to be the inverses
-of the components of the \id{N\_Vector} \id{x}:
-$z_i = 1.0 /  x_i  , \: i=0,1,\ldots,n-1$.
+of the components of the \id{N\_Vector} \id{x}, with prior testing
+for zero values:
+$z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$.
 This routine returns \id{TRUE} if all components of \id{x} are
 non-zero (successful inversion) and returns \id{FALSE} otherwise.  
 \\
 %
 \id{N\_VConstrProdPos} & \id{t = N\_VConstrProdPos(c, x);} \\
 & Returns a boolean equal to \id{FALSE} if, for some
-$i=0,1,\ldots,n-1$, 
+$i=0,\ldots,n-1$, 
 $c_i \ne 0.0$ and $x_i c_i \le 0.0$, and \id{TRUE} otherwise.
 This routine is used for constraint checking.
 \\
@@ -300,6 +303,7 @@ $x_i > 0$ if $c_i=2$,
 $x_i \ge 0$ if $c_i=1$,
 $x_i \le 0$ if $c_i=-1$,
 $x_i < 0$ if $c_i=-2$.
+There is no constraint on $x_i$ if $c_i=0$.
 This routine returns \id{FALSE} if any element failed
 the constraint test, \id{TRUE} if all passed.  It also sets a
 mask vector \id{m}, with elements equal to $1.0$ where the
@@ -310,7 +314,7 @@ This routine is used only for constraint checking.
 %
 \id{N\_VMinQuotient} & \id{minq = N\_VMinQuotient(num, denom);} \\
 & This routine returns the minimum of the quotients obtained   
-by term-wise dividing \id{num[i]} by \id{denom[i]}. 
+by term-wise dividing \id{num}$_i$ by \id{denom}$_i$. 
 A zero element in \id{denom} will be skipped. 
 If no such quotients are found, then the large value $10^{99}$ is returned. 
 \\

@@ -14,7 +14,7 @@ struct _NV_SpecContent_Parallel {
 };
 \end{verbatim}
 The {\em tag} field of \id{NV\_Spec} is set to \id{parallel}.
-The content field of \id{N\_Vector} is defined to be a structure containing
+The {\em content} field of \id{N\_Vector} is defined to be a structure containing
 the global and local lengths of the vector and a pointer to the beginning 
 of a contiguous local data array:
 \begin{verbatim} 
@@ -71,7 +71,7 @@ by the user. The suffix \id{\_P} in the names denotes parallel version.
 \item \ID{NS\_CONTENT\_P}, \ID{NV\_CONTENT\_P}
 
       These macros give access to the contents of the parallel
-      vector specification object and \id{N\_Vector}, respectively.           
+      vector specification object and the parallel \id{N\_Vector}, respectively.           
                                                                
       The assignment \id{ns\_cont = NS\_CONTENT\_P(nvspec)} sets       
       \id{ns\_cont} to be a pointer to the parallel vector
@@ -87,7 +87,7 @@ by the user. The suffix \id{\_P} in the names denotes parallel version.
       the content of a parallel \id{N\_Vector}.                        
                                                                
       The assignment \id{v\_data = NV\_DATA\_P(v)} sets \id{v\_data} to be     
-      a pointer to the first component of the local data for the vector \id{v}. 
+      a pointer to the first component of the local data for the \id{N\_Vector} \id{v}. 
       The assignment \id{NV\_DATA\_P(v) = v\_data} sets the component array of 
       \id{v} to be \id{v\_data} by storing the pointer \id{v\_data}.                   
                                                                
@@ -112,14 +112,16 @@ by the user. The suffix \id{\_P} in the names denotes parallel version.
       sets the value of the \id{i}-th component of the local part of \id{v} 
       to be \id{r}.        
 
+      Here $i$ ranges from $0$ to $n-1$, where $n$ is the local length.
+
 \item \ID{NV\_MAKE\_P}, \ID{NV\_DISPOSE\_P}
 
       These companion macros are used to create and          
-      destroy an \id{N\_Vector} with a component array vdata        
+      destroy an \id{N\_Vector} with a component array \id{vdata}        
       allocated by the user.                                   
                                                                
       The call \id{NV\_MAKE\_P(v,v\_data,nvspec)} makes \id{v} an        
-      \id{N\_Vector} with local component array \id{v\_data}. 
+      \id{N\_Vector} with local component array pointer \id{v\_data}. 
       The local and global lengths of the  
       vector \id{v} is taken from \id{nvspec}.                             
       \id{NV\_MAKE\_P} stores the pointer \id{v\_data} so that changes      
@@ -136,11 +138,12 @@ by the user. The suffix \id{\_P} in the names denotes parallel version.
                              
       These companion macros are used to create and destroy  
       an array of \id{N\_Vector}'s with component \id{vs\_data} 
-      (of type \id{realtype **}) allocated by the user.                                                
+      (of type \id{realtype **}) allocated by the user, for use
+      in sensitivity calculations.
                                                                
       The call \id{NVS\_MAKE\_P(vs,vs\_data,ns,nvspec)} makes   
       \id{vs} an array of \id{ns} \id{N\_Vector}'s, with \id{vs[i]} having
-      local component array \id{vs\_data[i]} and local and global lengths taken 
+      local component array pointer \id{vs\_data[i]} and local and global lengths taken 
       from \id{nvspec}.    
       \id{NVS\_MAKE\_P} stores the pointers \id{vs\_data[i]} so that        
       changes made by the user to the elements of \id{vs\_data} are  
@@ -169,8 +172,9 @@ by the user. The suffix \id{\_P} in the names denotes parallel version.
   \id{v\_data = NV\_DATA\_P(v)} and then access \id{v\_data[i]} within the     
   loop than it is to use \id{NV\_Ith\_P(v,i)} within the loop.        
                                                                
+\item
   \id{NV\_MAKE\_P} and \id{NV\_DISPOSE\_P} are similar to \id{N\_VNew} and  
-  \id{N\_VFree} implemented by {\nvecp}, while \id{NVS\_MAKE\_P} and 
+  \id{N\_VFree} in this {\nvector} implementation, while \id{NVS\_MAKE\_P} and 
   \id{NVS\_DISPOSE\_P}  are      
   similar to  \id{N\_VNew\_S} and \id{N\_VFree\_S}. The        
   difference is one of responsibility for component memory     

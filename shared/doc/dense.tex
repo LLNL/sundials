@@ -88,12 +88,12 @@ The following functions for small dense matrices are available in the
   of the matrix \id{a}, $0 \le$ \id{i}, \id{j} $\le$ \id{n}$-1$, and \id{a[j]} 
   is a pointer to the first element in the \id{j}-th column of \id{a}. 
   The location \id{a[0]} contains a pointer to \id{n}$^2$ contiguous locations which contain   
-  the elements of \id{a};
+  the elements of \id{a}.
 
 \item \ID{denallocpiv}
   \par \id{denallocpiv(n)} allocates an array of \id{n} integers. 
   It returns a pointer to the first element in the array if successful. 
-  It returns \id{NULL} if the memory request could not be satisfied;
+  It returns \id{NULL} if the memory request could not be satisfied.
 
 \item \ID{gefa}
   \par \id{gefa(a,n,p)} factors the \id{n} by \id{n} dense matrix \id{a}. 
@@ -113,19 +113,19 @@ The following functions for small dense matrices are available in the
     matrix with all $1$'s on the diagonal, and $U$ is an upper     
     triangular matrix, then the upper triangular part of \id{a}     
     (including its diagonal) contains $U$ and the strictly lower 
-    triangular part of \id{a} contains the multipliers, $I-L$;       
+    triangular part of \id{a} contains the multipliers, $I-L$. 
                                                                   
     \id{gefa} returns 0 if successful. Otherwise it encountered a zero  
     diagonal element during the factorization. In this case it     
     returns the column index (numbered from one) at which it       
-    encountered the zero;
+    encountered the zero.
     \end{enumerate}
 
 \item \ID{gesl}
   \par \id{gesl(a,n,p,b)} solves the \id{n} by \id{n} linear system $ax = b$. 
-  It assumes that \id{a} has been LU factored and the pivot array \id{p} has  
+  It assumes that \id{a} has been LU-factored and the pivot array \id{p} has  
   been set by a successful call to \id{gefa(a,n,p)}. The solution $x$   
-  is written into the \id{b} array;
+  is written into the \id{b} array.
 
 \item \ID{denzero}
   \par \id{denzero(a,n)} sets all the elements of the \id{n} by \id{n} dense matrix

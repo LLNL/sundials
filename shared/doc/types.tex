@@ -13,11 +13,10 @@ using single or double precision arithmetic. The type \id{realtype} can be
 \id{double} or \id{float} and the type \id{integertype} can be \id{int} or
 \id{long int}. The default settings are \id{double} and \id{long int}.
 
-\section{Changing Type \id{realtype}}
+\section{Changing type \id{realtype}}
 
 The user can change the precision of the {\sundials} solvers arithmetic from double to single
-by changing the typedef \id{typedef double realtype;} to \id{typedef float realtype;}
-and by changing in \id{sundialstypes.h} the definitions
+by changing in \id{sundialstypes.h} the definitions
 \begin{verbatim}
 #define SUNDIALS_FLOAT  0
 #define SUNDIALS_DOUBLE 1
@@ -27,9 +26,8 @@ to
 #define SUNDIALS_FLOAT  1
 #define SUNDIALS_DOUBLE 0
 \end{verbatim}
-%\id{\#define SUNDIALS\_FLOAT  0} to \id{\#define SUNDIALS\_FLOAT  1}
-%and \id{\#define SUNDIALS\_DOUBLE 1} to \id{\#define SUNDIALS\_DOUBLE 0}
-%in \id{sundialstypes.h}.
+which will also result in changing the typedef \id{typedef double realtype;} to 
+\id{typedef float realtype;}
 These macro definitions are used to enable \id{sundiastypes.h} to branch on
 the setting of \id{realtype} at compile time. 
 
@@ -66,15 +64,14 @@ functions.  (Our demonstration programs use \id{realtype} but not
 this choice).  Thus, a previously existing piece of ANSI {\C} code can use
 {\sundials} without modifying the codes to use \id{realtype}.
 
-\section{Changing Type \id{integertype}}
+\section{Changing type \id{integertype}}
 
 {\sundials} uses the type \id{integertype} for all quantities related to problem
 size.  On some machines the size of an \id{int} and a \id{long int}
 are the same, but this is not always the case. 
 If \id{int} is sufficiently large on a given machine, and the user wishes
-to make \id{int} the \id{integertype} type, change the typedef
-\id{typedef long int integertype;} to \id{typedef int integertype;}
-and the macro definitions in \id{sundialstypes.h}
+to make \id{int} the \id{integertype} type, change the macro definitions in 
+\id{sundialstypes.h}
 \begin{verbatim}
 #define SUNDIALS_INT      0
 #define SUNDIALS_LONG_INT 1
@@ -84,10 +81,9 @@ to
 #define SUNDIALS_INT      1
 #define SUNDIALS_LONG_INT 0
 \end{verbatim}
-%\id{\#define SUNDIALS\_INT 0} to \id{\#define SUNDIALS\_INT 1}
-%and
-%\id{\#define SUNDIALS\_LONG\_INT 1} to \id{\#define SUNDIALS\_LONG\_INT 0}
-%in \id{sundialstypes.h}.
+which will also result in changing the typedef \id{typedef long int integertype;} 
+to \id{typedef int integertype;}
+
 In terms of the problem size $N$, and the bandwidths \id{ml} and \id{mu} 
 in the case of the band module {\band}, the largest integer that must be 
 accommodated by the \id{integertype} type is $N + $ \id{ml} + \id{mu} in the 
