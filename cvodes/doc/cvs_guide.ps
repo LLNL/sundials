@@ -11,7 +11,7 @@
 %DVIPSWebPage: (www.radicaleye.com)
 %DVIPSCommandLine: dvips -Ppdf -t letter -o cvs_guide.ps cvs_guide
 %DVIPSParameters: dpi=8000, compressed
-%DVIPSSource:  TeX output 2002.07.03:1103
+%DVIPSSource:  TeX output 2002.08.01:1751
 %%BeginProcSet: tex.pro
 %!
 /TeXDict 300 dict def TeXDict begin/N{def}def/B{bind def}N/S{exch}N/X{S
@@ -7031,7 +7031,7 @@ b(.)f(.)h(.)g(.)g(.)f(.)h(.)g(.)g(.)f(.)h(.)g(.)g(.)f(.)h(.)g(.)g(.)f
 b(89)1818 43526 y(10.3)633 b(Changing)406 b(T)-34 b(yp)34
 b(e)404 b Fr(integertype)855 b Fv(.)606 b(.)g(.)g(.)f(.)h(.)g(.)g(.)f
 (.)h(.)g(.)g(.)f(.)h(.)g(.)g(.)f(.)h(.)g(.)g(.)f(.)h(.)g(.)g(.)f(.)h(.)
-g(.)g(.)f(.)h(.)g(.)1125 b(89)0 46243 y Ft(11)424 b(Description)465
+g(.)g(.)f(.)h(.)g(.)1125 b(90)0 46243 y Ft(11)424 b(Description)465
 b(of)g(the)g Fs(nvector)i Ft(Concept)26688 b(91)1818
 47749 y Fv(11.1)633 b(The)405 b Fs(nvector)p 12272 47749
 403 45 v 484 w(serial)g Fv(Implemen)-34 b(tation)406
@@ -13633,11 +13633,11 @@ b(useful)568 b(during)g(the)g(solution)g(of)f(a)h(sequence)f(of)g
 (problems)h(of)g(same)f(size,)0 22072 y(reinitializes)519
 b(the)j(sensitivit)-34 b(y)521 b(related)g(in)-34 b(ternal)521
 b(memory)g(and)h(m)-34 b(ust)522 b(follo)-34 b(w)522
-b(a)f(call)f(to)i Fr(CVodeSensMalloc)0 23578 y Fv(\(and)424
-b(ma)-34 b(yb)34 b(e)422 b(a)h(call)f(to)h Fr(CVReInit)p
-Fv(.)597 b(The)423 b(n)-34 b(um)g(b)34 b(er)423 b Fr(Ns)h
-Fv(of)f(sensitivities)f(is)g(assumed)i(to)f(b)34 b(e)422
-b(unc)-34 b(hanged)424 b(since)0 25083 y(the)405 b(call)e(to)h
+b(a)f(call)f(to)i Fr(CVodeSensMalloc)0 23578 y Fv(\(and)396
+b(ma)-34 b(yb)34 b(e)395 b(a)g(call)g(to)g Fr(CVReInit)p
+Fv(\).)539 b(The)395 b(n)-34 b(um)g(b)34 b(er)397 b Fr(Ns)e
+Fv(of)h(sensitivities)e(is)h(assumed)h(to)g(b)34 b(e)394
+b(unc)-34 b(hanged)397 b(since)0 25083 y(the)405 b(call)e(to)h
 Fr(CVodeSensMalloc)p Fv(.)1882 26589 y(The)g(call)g(to)g(the)h
 Fr(CVSensReInit)j Fv(function)d(has)g(the)g(form)0 29090
 y Fr(ier)637 b(=)g(CVSensReInit\(cvode_mem,)645 b(ism,)637
@@ -17136,118 +17136,115 @@ Fv(or)f Fr(float)h Fv(and)f(the)g(t)-34 b(yp)34 b(e)422
 b Fr(integertype)j Fv(can)d(b)34 b(e)421 b Fr(int)i Fv(or)e
 Fr(long)638 b(int)p Fv(.)591 b(The)0 16617 y(default)405
 b(settings)g(are)f Fr(double)i Fv(and)f Fr(long)637 b(int)p
-Fv(.)0 19784 y Fq(10.2)1495 b(Changing)500 b(T)-42 b(yp)42
-b(e)498 b Fb(realtype)0 22072 y Fv(The)282 b(user)g(can)g(c)-34
-b(hange)282 b(the)g(precision)g(of)g(the)g Fs(sundials)h
-Fv(solv)-34 b(ers)281 b(arithmetic)h(from)g(double)g(to)g(single)g(b)
--34 b(y)282 b(c)-34 b(hang-)0 23578 y(ing)462 b(the)g(t)-34
-b(yp)34 b(edef)462 b Fr(typedef)639 b(double)g(realtype;)493
-b Fv(to)462 b Fr(typedef)639 b(float)f(realtype;)494
-b Fv(and)463 b(b)-34 b(y)462 b(c)-34 b(hanging)462 b(the)0
-25083 y(de\257nitions)271 b Fr(#define)639 b(SUNDIALS)p
-15986 25083 382 45 v 461 w(FLOAT)f(0)269 b Fv(to)h Fr(#define)639
-b(SUNDIALS)p 32696 25083 V 461 w(FLOAT)f(1)270 b Fv(and)g
-Fr(#define)639 b(SUNDIALS)p 50282 25083 V 461 w(DOUBLE)0
-26589 y(1)294 b Fv(to)f Fr(#define)639 b(SUNDIALS)p 12555
-26589 V 461 w(DOUBLE)g(0)293 b Fv(in)h Fr(sundialstypes.h)p
-Fv(.)506 b(These)294 b(macro)f(de\257nitions)i(are)d(used)i(to)g
-(enable)0 28094 y Fr(sundiastypes.h)409 b Fv(to)c(branc)-34
-b(h)405 b(on)f(the)h(setting)f(of)h Fr(realtype)i Fv(at)d(compile)g
-(time.)1882 29600 y(Changing)494 b(from)f(double)g(precision)g(to)g
-(single)f(precision)h(arithmetic)f(also)h(requires)f(minor)g(c)-34
-b(hanges)494 b(in)0 31105 y(the)483 b(implemen)-34 b(tation)483
+Fv(.)0 19863 y Fq(10.2)1495 b(Changing)500 b(T)-42 b(yp)42
+b(e)498 b Fb(realtype)0 22151 y Fv(The)532 b(user)g(can)g(c)-34
+b(hange)532 b(the)g(precision)g(of)g(the)g Fs(sundials)h
+Fv(solv)-34 b(ers)531 b(arithmetic)h(from)g(double)g(to)g(single)g(b)
+-34 b(y)0 23657 y(c)g(hanging)351 b(the)f(t)-34 b(yp)34
+b(edef)350 b Fr(typedef)639 b(double)f(realtype;)371
+b Fv(to)350 b Fr(typedef)639 b(float)f(realtype;)371
+b Fv(and)350 b(b)-34 b(y)350 b(c)-34 b(hanging)0 25162
+y(in)404 b Fr(sundialstypes.h)410 b Fv(the)404 b(de\257nitions)0
+27664 y Fr(#define)639 b(SUNDIALS_FLOAT)1278 b(0)0 29169
+y(#define)639 b(SUNDIALS_DOUBLE)j(1)0 31671 y Fv(to)0
+34173 y Fr(#define)d(SUNDIALS_FLOAT)1278 b(1)0 35678
+y(#define)639 b(SUNDIALS_DOUBLE)j(0)0 38180 y Fv(These)398
+b(macro)g(de\257nitions)h(are)f(used)h(to)f(enable)g
+Fr(sundiastypes.h)403 b Fv(to)c(branc)-34 b(h)399 b(on)f(the)h(setting)
+g(of)f Fr(realtype)0 39686 y Fv(at)404 b(compile)g(time.)1882
+41191 y(Changing)494 b(from)f(double)g(precision)g(to)g(single)f
+(precision)h(arithmetic)f(also)h(requires)f(minor)g(c)-34
+b(hanges)494 b(in)0 42697 y(the)483 b(implemen)-34 b(tation)483
 b(\257le)f Fr(sundialsmath.c)487 b Fv(for)c(the)f Fs(sundialsma)-81
 b(th)485 b Fv(mo)34 b(dule)483 b(whic)-34 b(h)483 b Fs(sundials)g
-Fv(solv)-34 b(ers)0 32610 y(use.)917 b(The)531 b Fr(RPowerR)i
+Fv(solv)-34 b(ers)0 44202 y(use.)917 b(The)531 b Fr(RPowerR)i
 Fv(and)e Fr(RSqrt)h Fv(functions)g(compute)f(a)g(real)e(n)-34
 b(um)g(b)34 b(er)532 b(raised)e(to)g(a)h(real)e(p)34
-b(o)-34 b(w)g(er)531 b(and)g(the)0 34116 y(square)383
+b(o)-34 b(w)g(er)531 b(and)g(the)0 45707 y(square)383
 b(ro)34 b(ot)384 b(of)g(a)f(n)-34 b(um)g(b)34 b(er,)389
 b(resp)34 b(ectiv)-34 b(ely)-101 b(.)530 b(The)384 b(default)g
 (implemen)-34 b(tation)385 b(of)f(these)g(routines)g(calls)e(standard)0
-35621 y Fs(C)413 b Fv(math)h(library)e(functions)i(whic)-34
+47213 y Fs(C)413 b Fv(math)h(library)e(functions)i(whic)-34
 b(h)414 b(do)f(double)h(precision)f(arithmetic.)565 b(These)413
-b(implemen)-34 b(tations)414 b(should)g(b)34 b(e)0 37127
+b(implemen)-34 b(tations)414 b(should)g(b)34 b(e)0 48718
 y(c)-34 b(hanged)405 b(to)g(call)e(single)h(precision)f(routines)i
 (whic)-34 b(h)405 b(are)e(a)-34 b(v)-67 b(ailable)404
-b(on)g(the)h(user's)e(mac)-34 b(hine.)1882 38632 y(Within)380
+b(on)g(the)h(user's)e(mac)-34 b(hine.)1882 50224 y(Within)380
 b Fs(sundials)p Fv(,)385 b(real)379 b(constan)-34 b(ts)381
 b(are)e(set)g(b)-34 b(y)380 b(w)-34 b(a)g(y)380 b(of)g(a)f(macro)g
 (called)g Fr(RCONST)p Fv(.)i(It)f(is)f(this)h(macro)f(that)0
-40138 y(needs)370 b(the)f(abilit)-34 b(y)369 b(to)h(branc)-34
+51729 y(needs)370 b(the)f(abilit)-34 b(y)369 b(to)h(branc)-34
 b(h)370 b(on)g(the)g(setting)g(for)f Fr(realtype)p Fv(.)530
 b(In)369 b(ANSI)h Fs(C)p Fv(,)e(a)i(\260oating)g(p)34
-b(oin)-34 b(t)370 b(constan)-34 b(t)371 b(with)0 41643
+b(oin)-34 b(t)370 b(constan)-34 b(t)371 b(with)0 53235
 y(no)356 b(su\261x)g(is)f(stored)h(as)f(a)h Fr(double)p
 Fv(.)524 b(Placing)355 b(the)h(su\261x)f(\\F")h(at)g(the)g(end)g(of)g
 (a)f(\260oating)h(p)34 b(oin)-34 b(t)357 b(constan)-34
-b(t)357 b(mak)-34 b(es)0 43149 y(it)404 b(a)g Fr(float)p
-Fv(.)540 b(F)-101 b(or)405 b(example,)0 45231 y Fr(#define)639
-b(A)e(1.0)0 46736 y(#define)i(B)e(1.0F)0 48819 y Fv(de\257nes)295
+b(t)357 b(mak)-34 b(es)0 54740 y(it)404 b(a)g Fr(float)p
+Fv(.)540 b(F)-101 b(or)405 b(example,)0 57242 y Fr(#define)639
+b(A)e(1.0)0 58747 y(#define)i(B)e(1.0F)0 61249 y Fv(de\257nes)295
 b Fr(A)f Fv(to)h(b)34 b(e)293 b(a)i Fr(double)h Fv(constan)-34
 b(t)296 b(1.0)e(and)g Fr(B)h Fv(to)f(b)34 b(e)294 b(a)g
 Fr(float)i Fv(constan)-34 b(t)296 b(1)p Fn(:)p Fv(0.)501
-b(The)295 b(macro)f(call)f Fr(RCONST\(1.0\))0 50324 y
+b(The)295 b(macro)f(call)f Fr(RCONST\(1.0\))0 62755 y
 Fv(expands)359 b(to)f Fr(1.0)h Fv(if)f Fr(realtype)i
 Fv(is)e Fr(double)i Fv(and)e(it)g(expands)h(to)f Fr(1.0F)h
 Fv(if)f Fr(realtype)j Fv(is)d Fr(float)p Fv(.)524 b Fs(sundials)360
-b Fv(uses)0 51830 y(the)405 b Fr(RCONST)h Fv(macro)d(for)i(all)e(its)h
+b Fv(uses)0 64260 y(the)405 b Fr(RCONST)h Fv(macro)d(for)i(all)e(its)h
 (\260oating)i(p)34 b(oin)-34 b(t)405 b(constan)-34 b(ts.)1882
-53335 y(A)417 b(user)h(program)f(whic)-34 b(h)418 b(uses)g(the)g(t)-34
+65766 y(A)417 b(user)h(program)f(whic)-34 b(h)418 b(uses)g(the)g(t)-34
 b(yp)34 b(e)417 b Fr(realtype)j Fv(and)f(the)e Fr(RCONST)j
 Fv(macro)d(to)h(handle)g(\260oating)g(p)34 b(oin)-34
-b(t)0 54841 y(constan)g(ts)383 b(is)f(precision-indep)34
+b(t)0 67271 y(constan)g(ts)383 b(is)f(precision-indep)34
 b(enden)-34 b(t)383 b(except)e(for)g(an)-34 b(y)382 b(calls)f(to)h
 (single)f(or)h(double)g(precision)f(standard)i(math)0
-56346 y(library)279 b(functions.)498 b(\(Our)280 b(demonstration)h
+68777 y(library)279 b(functions.)498 b(\(Our)280 b(demonstration)h
 (programs)e(use)h Fr(realtype)i Fv(but)f(not)f Fr(RCONST)p
-Fv(.\))i(Users)d(can,)305 b(ho)-34 b(w)g(ev)g(er,)0 57851
-y(use)289 b(the)f(t)-34 b(yp)34 b(e)289 b Fr(double)h
-Fv(or)e Fr(float)j Fv(in)d(their)g(co)34 b(de)288 b(\(assuming)i(the)f
-(t)-34 b(yp)34 b(edef)289 b(for)f Fr(realtype)j Fv(matc)-34
-b(hes)289 b(this)g(c)-34 b(hoice\).)0 59357 y(Th)g(us,)441
-b(a)433 b(previously)f(existing)g(piece)g(of)h(ANSI)g
-Fs(C)g Fv(co)34 b(de)432 b(can)h(use)g Fs(sundials)h
-Fv(without)g(mo)34 b(difying)433 b(the)g(co)34 b(des)0
-60862 y(to)404 b(use)h Fr(realtype)p Fv(.)0 64029 y Fq(10.3)1495
-b(Changing)500 b(T)-42 b(yp)42 b(e)498 b Fb(integertype)0
-66317 y Fs(sundials)383 b Fv(uses)e(the)h(t)-34 b(yp)34
-b(e)381 b Fr(integertype)386 b Fv(for)381 b(all)g(quan)-34
-b(tities)382 b(related)f(to)g(problem)h(size.)530 b(On)381
-b(some)g(mac)-34 b(hines)0 67823 y(the)474 b(size)f(of)h(an)g
-Fr(int)h Fv(and)g(a)f Fr(long)637 b(int)475 b Fv(are)e(the)i(same,)490
-b(but)475 b(this)g(is)e(not)i(alw)-34 b(a)g(ys)474 b(the)g(case.)747
-b(If)474 b Fr(int)h Fv(is)e(su\261-)0 69328 y(cien)-34
-b(tly)420 b(large)g(on)h(a)f(giv)-34 b(en)420 b(mac)-34
-b(hine,)425 b(and)c(the)g(user)f(wishes)h(to)g(mak)-34
-b(e)420 b Fr(int)i Fv(the)f Fr(integertype)j Fv(t)-34
-b(yp)34 b(e,)424 b(c)-34 b(hange)25394 72649 y(89)p eop
+Fv(.\))i(Users)d(can,)305 b(ho)-34 b(w)g(ev)g(er,)25394
+72649 y(89)p eop
 %%Page: 90 98
-90 97 bop 0 2546 a Fv(the)338 b(t)-34 b(yp)34 b(edef)339
-b Fr(typedef)639 b(long)f(int)f(integertype;)365 b Fv(to)338
-b Fr(typedef)639 b(int)e(integertype;)364 b Fv(and)339
-b(the)g(macro)e(def-)0 4051 y(initions)373 b Fr(#define)639
-b(SUNDIALS)p 14540 4051 382 45 v 461 w(INT)e(0)373 b
-Fv(to)f Fr(#define)639 b(SUNDIALS)p 30183 4051 V 461
-w(INT)f(1)372 b Fv(and)h Fr(#define)639 b(SUNDIALS)p
-46702 4051 V 461 w(LONG)p 49707 4051 V 460 w(INT)0 5557
-y(1)491 b Fv(to)h Fr(#define)639 b(SUNDIALS)p 12951 5557
-V 461 w(LONG)p 15956 5557 V 459 w(INT)f(0)491 b Fv(in)h
-Fr(sundialstypes.h)p Fv(.)804 b(In)492 b(terms)f(of)g(the)h(problem)f
-(size)g Fn(N)132 b Fv(,)512 b(and)0 7062 y(the)418 b(bandwidths)i
-Fr(ml)e Fv(and)h Fr(mu)f Fv(in)f(the)h(case)f(of)h(the)g(band)h(mo)34
-b(dule)418 b Fs(band)p Fv(,)j(the)d(largest)f(in)-34
-b(teger)418 b(that)g(m)-34 b(ust)419 b(b)34 b(e)0 8568
-y(accommo)g(dated)344 b(b)-34 b(y)344 b(the)h Fr(integertype)i
-Fv(t)-34 b(yp)34 b(e)344 b(is)g Fn(N)132 b Fv(+)343 b
-Fr(ml)h Fv(+)g Fr(mu)g Fv(in)g(the)g(band)h(case,)355
-b(and)345 b Fn(N)476 b Fv(in)343 b(all)h(other)g(cases.)0
-10073 y(The)388 b(user)f(can)h(use)g(the)g(t)-34 b(yp)34
-b(e)387 b Fr(int)i Fv(or)e Fr(long)638 b(int)388 b Fv(in)g(his/her)f
-(co)34 b(de)387 b(instead)i(of)e Fr(integertype)392 b
-Fv(\(assuming)c(the)0 11579 y(t)-34 b(yp)34 b(edef)405
-b(for)f Fr(integertype)k Fv(matc)-34 b(hes)405 b(this)f(c)-34
-b(hoice\).)25394 72649 y(90)p eop
+90 97 bop 0 2546 a Fv(use)289 b(the)f(t)-34 b(yp)34 b(e)289
+b Fr(double)h Fv(or)e Fr(float)j Fv(in)d(their)g(co)34
+b(de)288 b(\(assuming)i(the)f(t)-34 b(yp)34 b(edef)289
+b(for)f Fr(realtype)j Fv(matc)-34 b(hes)289 b(this)g(c)-34
+b(hoice\).)0 4051 y(Th)g(us,)441 b(a)433 b(previously)f(existing)g
+(piece)g(of)h(ANSI)g Fs(C)g Fv(co)34 b(de)432 b(can)h(use)g
+Fs(sundials)h Fv(without)g(mo)34 b(difying)433 b(the)g(co)34
+b(des)0 5557 y(to)404 b(use)h Fr(realtype)p Fv(.)0 8803
+y Fq(10.3)1495 b(Changing)500 b(T)-42 b(yp)42 b(e)498
+b Fb(integertype)0 11091 y Fs(sundials)383 b Fv(uses)e(the)h(t)-34
+b(yp)34 b(e)381 b Fr(integertype)386 b Fv(for)381 b(all)g(quan)-34
+b(tities)382 b(related)f(to)g(problem)h(size.)530 b(On)381
+b(some)g(mac)-34 b(hines)0 12597 y(the)331 b(size)f(of)h(an)g
+Fr(int)h Fv(and)f(a)g Fr(long)638 b(int)332 b Fv(are)e(the)h(same,)345
+b(but)332 b(this)f(is)f(not)i(alw)-34 b(a)g(ys)331 b(the)g(case.)514
+b(If)331 b Fr(int)g Fv(is)g(su\261cien)-34 b(tly)0 14102
+y(large)269 b(on)i(a)f(giv)-34 b(en)270 b(mac)-34 b(hine,)298
+b(and)271 b(the)f(user)g(wishes)h(to)g(mak)-34 b(e)270
+b Fr(int)h Fv(the)g Fr(integertype)j Fv(t)-34 b(yp)34
+b(e,)297 b(c)-34 b(hange)271 b(the)f(t)-34 b(yp)34 b(edef)0
+15607 y Fr(typedef)639 b(long)f(int)f(integertype;)600
+b Fv(to)533 b Fr(typedef)639 b(int)e(integertype;)600
+b Fv(and)533 b(the)g(macro)f(de\257nitions)h(in)0 17113
+y Fr(sundialstypes.h)0 19615 y(#define)639 b(SUNDIALS_INT)3822
+b(0)0 21120 y(#define)639 b(SUNDIALS_LONG_INT)j(1)0 23622
+y Fv(to)0 26124 y Fr(#define)d(SUNDIALS_INT)3822 b(1)0
+27629 y(#define)639 b(SUNDIALS_LONG_INT)j(0)0 30131 y
+Fv(In)490 b(terms)f(of)i(the)f(problem)g(size)e Fn(N)132
+b Fv(,)511 b(and)491 b(the)f(bandwidths)i Fr(ml)f Fv(and)f
+Fr(mu)h Fv(in)e(the)h(case)g(of)g(the)g(band)h(mo)34
+b(dule)0 31636 y Fs(band)p Fv(,)469 b(the)455 b(largest)g(in)-34
+b(teger)456 b(that)g(m)-34 b(ust)457 b(b)34 b(e)455 b(accommo)34
+b(dated)456 b(b)-34 b(y)456 b(the)f Fr(integertype)460
+b Fv(t)-34 b(yp)34 b(e)455 b(is)g Fn(N)132 b Fv(+)455
+b Fr(ml)h Fv(+)f Fr(mu)0 33142 y Fv(in)415 b(the)g(band)h(case,)h(and)e
+Fn(N)547 b Fv(in)415 b(all)f(other)h(cases.)570 b(The)415
+b(user)g(can)g(use)g(the)g(t)-34 b(yp)34 b(e)415 b Fr(int)h
+Fv(or)e Fr(long)638 b(int)416 b Fv(in)f(his/her)0 34647
+y(co)34 b(de)404 b(instead)g(of)h Fr(integertype)j Fv(\(assuming)d(the)
+g(t)-34 b(yp)34 b(edef)405 b(for)f Fr(integertype)k Fv(matc)-34
+b(hes)405 b(this)f(c)-34 b(hoice\).)25394 72649 y(90)p
+eop
 %%Page: 91 99
 91 98 bop 0 2546 a Fu(11)1793 b(Description)600 b(of)d(the)i
 Ff(nvector)e Fu(Concept)0 5252 y Fv(The)563 b Fs(sundials)g
