@@ -217,7 +217,7 @@
 \newenvironment{Ventry}[1][\quad]
 {\begin{list}{}{
       \setlength{\rightmargin}{0em}
-      \setlength{\topsep}{0.15in}
+      \setlength{\topsep}{0.05in}
       \setlength{\itemsep}{0em}
       \renewcommand{\makelabel}[1]{##1\hfill}
       \settowidth{\labelwidth}{#1}
@@ -239,8 +239,8 @@
 %% User-callable function
 %%---------------------------------
 \newcommand{\ucfunction}[6]{
+  \noindent\paragraph{\fbox{\id{#1}}}
   \begin{Ventry}[Return value]
-  \item[\fbox{\id{#1}}]{}
   \item[Call]{\id{#2}}
   \item[Description]{#3}
   \item[Arguments]{#4}
@@ -252,8 +252,8 @@
 %% User-supplied function
 %%---------------------------------
 \newcommand{\usfunction}[6]{
+  \noindent\paragraph{\fbox{\id{#1}}}
   \begin{Ventry}[Return value]
-  \item[\fbox{\id{#1}}]{}
   \item[Definition]{\id{\begin{tabular}[t]{@{}r@{}l@{}}#2\end{tabular}}}
   \item[Purpose]{#3}
   \item[Arguments]{#4}
