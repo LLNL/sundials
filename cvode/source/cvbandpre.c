@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-10-11 15:51:01 $
+ * $Revision: 1.22 $
+ * $Date: 2004-10-11 22:45:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -185,7 +185,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
   ml  = pdata->ml;
   smu = MIN( N-1, mu + ml);
 
-  *leniwBP = pdata->N;
+  *leniwBP = N;
   *lenrwBP = N * ( 2*ml + smu + mu + 2 );
 
   return(CV_SUCCESS);
