@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-08-25 16:23:14 $
+ * $Revision: 1.10 $
+ * $Date: 2004-08-31 22:55:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -9,7 +9,7 @@
  * Example problem:
  *
  * The following is a simple example problem, with the program for
- * its solution by CVODE/CVODES. The problem is the semi-discrete
+ * its solution by CVODE. The problem is the semi-discrete
  * form of the advection-diffusion equation in 1-D:
  *   du/dt = d^2 u / dx^2 + .5 du/dx
  * on the interval 0 <= x <= 2, and the time interval 0 <= t <= 5.
@@ -33,11 +33,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-#include "sundialstypes.h"
-#include "cvode.h"
-#include "nvector_parallel.h"
-#include "mpi.h"
+#include "sundialstypes.h"     /* definition of realtype                      */
+#include "cvode.h"             /* prototypes for CVode***, various constants  */
+#include "nvector_parallel.h"  /* definitions of type N_Vector and vector     */
+                               /* macros, prototypes for N_Vector functions   */
+#include "mpi.h"               /* for MPI constants and types                 */
 
 /* Problem Constants */
 
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
   umax = N_VMaxNorm(u);
 
   if (my_pe == 0) 
-    printf("At t = %4.2f    max.norm(u) =%14.6e \n", T0,umax);
+    printf("At t = %4.2f  max.norm(u) =%14.6e \n", T0,umax);
 
   /* In loop over output points, call CVode, print results, test for error */
 
@@ -315,19 +315,22 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+            id, funcname);
     return(1); }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
+              id, funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+            id, funcname);
     return(1); }
 
   return(0);
