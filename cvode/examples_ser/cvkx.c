@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-08-30 22:57:07 $
+ * $Revision: 1.15 $
+ * $Date: 2004-08-31 22:53:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -11,14 +11,14 @@
  * An ODE system is generated from the following 2-species diurnal
  * kinetics advection-diffusion PDE system in 2 space dimensions:
  *
- * dc(i)/dt = Kh*(d/dx)^2 c(i) + V*dc(i)/dx + (d/dz)(Kv(z)*dc(i)/dz)
+ * dc(i)/dt = Kh*(d/dx)^2 c(i) + V*dc(i)/dx + (d/dy)(Kv(y)*dc(i)/dy)
  *                 + Ri(c1,c2,t)      for i = 1,2,   where
  *   R1(c1,c2,t) = -q1*c1*c3 - q2*c1*c2 + 2*q3(t)*c3 + q4(t)*c2 ,
  *   R2(c1,c2,t) =  q1*c1*c3 - q2*c1*c2 - q4(t)*c2 ,
- *   Kv(z) = Kv0*exp(z/5) ,
+ *   Kv(y) = Kv0*exp(y/5) ,
  * Kh, V, Kv0, q1, q2, and c3 are constants, and q3(t) and q4(t)
  * vary diurnally. The problem is posed on the square
- *   0 <= x <= 20,    30 <= z <= 50   (all in km),
+ *   0 <= x <= 20,    30 <= y <= 50   (all in km),
  * with homogeneous Neumann boundary conditions, and for time t in
  *   0 <= t <= 86400 sec (1 day).
  * The PDE system is treated by central differences on a uniform
@@ -47,7 +47,7 @@
 #define NUM_SPECIES  2             /* number of species         */
 #define KH           4.0e-6        /* horizontal diffusivity Kh */
 #define VEL          0.001         /* advection velocity V      */
-#define KV0          1.0e-8        /* coefficient in Kv(z)      */
+#define KV0          1.0e-8        /* coefficient in Kv(y)      */
 #define Q1           1.63e-16      /* coefficients q1, q2, c3   */ 
 #define Q2           4.66e-16
 #define C3           3.7e16
@@ -64,15 +64,15 @@
 
 #define XMIN          0.0          /* grid boundaries in x  */
 #define XMAX         20.0           
-#define ZMIN         30.0          /* grid boundaries in z  */
-#define ZMAX         50.0
-#define XMID         10.0          /* grid midpoints in x,z */          
-#define ZMID         40.0
+#define YMIN         30.0          /* grid boundaries in y  */
+#define YMAX         50.0
+#define XMID         10.0          /* grid midpoints in x,y */          
+#define YMID         40.0
 
 #define MX           10             /* MX = number of x mesh points */
-#define MZ           10             /* MZ = number of z mesh points */
+#define MY           10             /* MY = number of y mesh points */
 #define NSMX         20             /* NSMX = NUM_SPECIES*MX */
-#define MM           (MX*MZ)        /* MM = MX*MZ */
+#define MM           (MX*MY)        /* MM = MX*MY */
 
 /* CVodeMalloc Constants */
 
@@ -92,7 +92,7 @@
    
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
-   0 <= j <= MX-1, 0 <= k <= MZ-1. The vdata array is obtained via
+   0 <= j <= MX-1, 0 <= k <= MY-1. The vdata array is obtained via
    the macro call vdata = NV_DATA_S(v), where v is an N_Vector. 
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
@@ -109,9 +109,9 @@
    contains preconditioner blocks, pivot arrays, and problem constants */
 
 typedef struct {
-  realtype **P[MX][MZ], **Jbd[MX][MZ];
-  long int *pivot[MX][MZ];
-  realtype q4, om, dx, dz, hdco, haco, vdco;
+  realtype **P[MX][MY], **Jbd[MX][MY];
+  long int *pivot[MX][MY];
+  realtype q4, om, dx, dy, hdco, haco, vdco;
 } *UserData;
 
 /* Private Helper Functions */
@@ -119,21 +119,21 @@ typedef struct {
 static UserData AllocUserData(void);
 static void InitUserData(UserData data);
 static void FreeUserData(UserData data);
-static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
-static void PrintOutput(void *cvode_mem, N_Vector y, realtype t);
+static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy);
+static void PrintOutput(void *cvode_mem, N_Vector u, realtype t);
 static void PrintFinalStats(void *cvode_mem);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Functions Called by the Solver */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static int Precond(realtype tn, N_Vector y, N_Vector fy,
+static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
                    void *P_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3);
 
-static int PSolve(realtype tn, N_Vector y, N_Vector fy,
+static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
                   int lr, void *P_data, N_Vector vtemp);
@@ -148,22 +148,22 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
 int main()
 {
   realtype abstol, reltol, t, tout;
-  N_Vector y;
+  N_Vector u;
   UserData data;
   void *cvode_mem;
   int iout, flag;
 
-  y = NULL;
+  u = NULL;
   data = NULL;
   cvode_mem = NULL;
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
-  y = N_VNew_Serial(NEQ);
-  if(check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  u = N_VNew_Serial(NEQ);
+  if(check_flag((void *)u, "N_VNew_Serial", 0)) return(1);
   data = AllocUserData();
   if(check_flag((void *)data, "AllocUserData", 2)) return(1);
   InitUserData(data);
-  SetInitialProfiles(y, data->dx, data->dz);
+  SetInitialProfiles(u, data->dx, data->dy);
   abstol=ATOL; 
   reltol=RTOL;
 
@@ -182,12 +182,12 @@ int main()
 
   /* Call CVodeMalloc to initialize the integrator memory: 
 
-     f       is the user's right hand side function in y'=f(t,y)
+     f       is the user's right hand side function in u'=f(t,u)
      T0      is the initial time
-     y       is the initial dependent variable vector
+     u       is the initial dependent variable vector
      CV_SS   specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances      */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVSpgmr to specify the linear solver CVSPGMR 
@@ -213,15 +213,15 @@ int main()
   /* In loop over output points, call CVode, print results, test for error */
   printf(" \n2-species diurnal advection-diffusion problem\n\n");
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
-    flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    PrintOutput(cvode_mem, y, t);
+    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    PrintOutput(cvode_mem, u, t);
     if(check_flag(&flag, "CVode", 1)) break;
   }
 
   PrintFinalStats(cvode_mem);
 
   /* Free memory */
-  N_VDestroy(y);
+  N_VDestroy(u);
   FreeUserData(data);
   CVodeFree(cvode_mem);
 
@@ -238,16 +238,16 @@ int main()
 
 static UserData AllocUserData(void)
 {
-  int jx, jz;
+  int jx, jy;
   UserData data;
 
   data = (UserData) malloc(sizeof *data);
 
   for (jx=0; jx < MX; jx++) {
-    for (jz=0; jz < MZ; jz++) {
-      (data->P)[jx][jz] = denalloc(NUM_SPECIES);
-      (data->Jbd)[jx][jz] = denalloc(NUM_SPECIES);
-      (data->pivot)[jx][jz] = denallocpiv(NUM_SPECIES);
+    for (jy=0; jy < MY; jy++) {
+      (data->P)[jx][jy] = denalloc(NUM_SPECIES);
+      (data->Jbd)[jx][jy] = denalloc(NUM_SPECIES);
+      (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
     }
   }
 
@@ -260,67 +260,67 @@ static void InitUserData(UserData data)
 {
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/(MX-1);
-  data->dz = (ZMAX-ZMIN)/(MZ-1);
+  data->dy = (YMAX-YMIN)/(MY-1);
   data->hdco = KH/SQR(data->dx);
   data->haco = VEL/(2.0*data->dx);
-  data->vdco = (1.0/SQR(data->dz))*KV0;
+  data->vdco = (1.0/SQR(data->dy))*KV0;
 }
 
 /* Free data memory */
 
 static void FreeUserData(UserData data)
 {
-  int jx, jz;
+  int jx, jy;
 
   for (jx=0; jx < MX; jx++) {
-    for (jz=0; jz < MZ; jz++) {
-      denfree((data->P)[jx][jz]);
-      denfree((data->Jbd)[jx][jz]);
-      denfreepiv((data->pivot)[jx][jz]);
+    for (jy=0; jy < MY; jy++) {
+      denfree((data->P)[jx][jy]);
+      denfree((data->Jbd)[jx][jy]);
+      denfreepiv((data->pivot)[jx][jy]);
     }
   }
 
   free(data);
 }
 
-/* Set initial conditions in y */
+/* Set initial conditions in u */
 
-static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
+static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 {
-  int jx, jz;
-  realtype x, z, cx, cz;
-  realtype *ydata;
+  int jx, jy;
+  realtype x, y, cx, cy;
+  realtype *udata;
 
-  /* Set pointer to data array in vector y. */
+  /* Set pointer to data array in vector u. */
 
-  ydata = NV_DATA_S(y);
+  udata = NV_DATA_S(u);
 
-  /* Load initial profiles of c1 and c2 into y vector */
+  /* Load initial profiles of c1 and c2 into u vector */
 
-  for (jz=0; jz < MZ; jz++) {
-    z = ZMIN + jz*dz;
-    cz = SQR(0.1*(z - ZMID));
-    cz = 1.0 - cz + 0.5*SQR(cz);
+  for (jy=0; jy < MY; jy++) {
+    y = YMIN + jy*dy;
+    cy = SQR(0.1*(y - YMID));
+    cy = 1.0 - cy + 0.5*SQR(cy);
     for (jx=0; jx < MX; jx++) {
       x = XMIN + jx*dx;
       cx = SQR(0.1*(x - XMID));
       cx = 1.0 - cx + 0.5*SQR(cx);
-      IJKth(ydata,1,jx,jz) = C1_SCALE*cx*cz; 
-      IJKth(ydata,2,jx,jz) = C2_SCALE*cx*cz;
+      IJKth(udata,1,jx,jy) = C1_SCALE*cx*cy; 
+      IJKth(udata,2,jx,jy) = C2_SCALE*cx*cy;
     }
   }
 }
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(void *cvode_mem, N_Vector y,realtype t)
+static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 {
   long int nst;
   int qu, flag;
-  realtype hu, *ydata;
-  int mxh = MX/2 - 1, mzh = MZ/2 - 1, mx1 = MX - 1, mz1 = MZ - 1;
+  realtype hu, *udata;
+  int mxh = MX/2 - 1, myh = MY/2 - 1, mx1 = MX - 1, my1 = MY - 1;
 
-  ydata = NV_DATA_S(y);
+  udata = NV_DATA_S(u);
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);
@@ -332,9 +332,9 @@ static void PrintOutput(void *cvode_mem, N_Vector y,realtype t)
   printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
          t, nst, qu, hu);
   printf("c1 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n",
-         IJKth(ydata,1,0,0), IJKth(ydata,1,mxh,mzh), IJKth(ydata,1,mx1,mz1));
+         IJKth(udata,1,0,0), IJKth(udata,1,mxh,myh), IJKth(udata,1,mx1,my1));
   printf("c2 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n\n",
-         IJKth(ydata,2,0,0), IJKth(ydata,2,mxh,mzh), IJKth(ydata,2,mx1,mz1));
+         IJKth(udata,2,0,0), IJKth(udata,2,mxh,myh), IJKth(udata,2,mx1,my1));
 }
 
 /* Get and print final statistics */
@@ -427,21 +427,21 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
  *-------------------------------
  */
 
-/* f routine. Compute f(t,y). */
+/* f routine. Compute RHS function f(t,u). */
 
-static void f(realtype t, N_Vector y,N_Vector ydot, void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
-  realtype c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;
-  realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, zdn, zup;
-  realtype q4coef, delz, verdco, hordco, horaco;
-  realtype *ydata, *dydata;
-  int jx, jz, idn, iup, ileft, iright;
+  realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
+  realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
+  realtype q4coef, dely, verdco, hordco, horaco;
+  realtype *udata, *dudata;
+  int jx, jy, idn, iup, ileft, iright;
   UserData data;
 
   data = (UserData) f_data;
-  ydata = NV_DATA_S(y);
-  dydata = NV_DATA_S(ydot);
+  udata = NV_DATA_S(u);
+  dudata = NV_DATA_S(udot);
 
   /* Set diurnal rate coefficients. */
 
@@ -457,29 +457,29 @@ static void f(realtype t, N_Vector y,N_Vector ydot, void *f_data)
   /* Make local copies of problem variables, for efficiency. */
 
   q4coef = data->q4;
-  delz = data->dz;
+  dely = data->dy;
   verdco = data->vdco;
   hordco  = data->hdco;
   horaco  = data->haco;
 
   /* Loop over all grid points. */
 
-  for (jz=0; jz < MZ; jz++) {
+  for (jy=0; jy < MY; jy++) {
 
-    /* Set vertical diffusion coefficients at jz +- 1/2 */
+    /* Set vertical diffusion coefficients at jy +- 1/2 */
 
-    zdn = ZMIN + (jz - .5)*delz;
-    zup = zdn + delz;
-    czdn = verdco*exp(0.2*zdn);
-    czup = verdco*exp(0.2*zup);
-    idn = (jz == 0) ? 1 : -1;
-    iup = (jz == MZ-1) ? -1 : 1;
+    ydn = YMIN + (jy - .5)*dely;
+    yup = ydn + dely;
+    cydn = verdco*exp(0.2*ydn);
+    cyup = verdco*exp(0.2*yup);
+    idn = (jy == 0) ? 1 : -1;
+    iup = (jy == MY-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
 
       /* Extract c1 and c2, and set kinetic rate terms. */
 
-      c1 = IJKth(ydata,1,jx,jz); 
-      c2 = IJKth(ydata,2,jx,jz);
+      c1 = IJKth(udata,1,jx,jy); 
+      c2 = IJKth(udata,2,jx,jy);
       qq1 = Q1*c1*C3;
       qq2 = Q2*c1*c2;
       qq3 = q3*C3;
@@ -489,30 +489,30 @@ static void f(realtype t, N_Vector y,N_Vector ydot, void *f_data)
 
       /* Set vertical diffusion terms. */
 
-      c1dn = IJKth(ydata,1,jx,jz+idn);
-      c2dn = IJKth(ydata,2,jx,jz+idn);
-      c1up = IJKth(ydata,1,jx,jz+iup);
-      c2up = IJKth(ydata,2,jx,jz+iup);
-      vertd1 = czup*(c1up - c1) - czdn*(c1 - c1dn);
-      vertd2 = czup*(c2up - c2) - czdn*(c2 - c2dn);
+      c1dn = IJKth(udata,1,jx,jy+idn);
+      c2dn = IJKth(udata,2,jx,jy+idn);
+      c1up = IJKth(udata,1,jx,jy+iup);
+      c2up = IJKth(udata,2,jx,jy+iup);
+      vertd1 = cyup*(c1up - c1) - cydn*(c1 - c1dn);
+      vertd2 = cyup*(c2up - c2) - cydn*(c2 - c2dn);
 
       /* Set horizontal diffusion and advection terms. */
 
       ileft = (jx == 0) ? 1 : -1;
       iright =(jx == MX-1) ? -1 : 1;
-      c1lt = IJKth(ydata,1,jx+ileft,jz); 
-      c2lt = IJKth(ydata,2,jx+ileft,jz);
-      c1rt = IJKth(ydata,1,jx+iright,jz);
-      c2rt = IJKth(ydata,2,jx+iright,jz);
+      c1lt = IJKth(udata,1,jx+ileft,jy); 
+      c2lt = IJKth(udata,2,jx+ileft,jy);
+      c1rt = IJKth(udata,1,jx+iright,jy);
+      c2rt = IJKth(udata,2,jx+iright,jy);
       hord1 = hordco*(c1rt - 2.0*c1 + c1lt);
       hord2 = hordco*(c2rt - 2.0*c2 + c2lt);
       horad1 = horaco*(c1rt - c1lt);
       horad2 = horaco*(c2rt - c2lt);
 
-      /* Load all terms into ydot. */
+      /* Load all terms into udot. */
 
-      IJKth(dydata, 1, jx, jz) = vertd1 + hord1 + horad1 + rkin1; 
-      IJKth(dydata, 2, jx, jz) = vertd2 + hord2 + horad2 + rkin2;
+      IJKth(dudata, 1, jx, jy) = vertd1 + hord1 + horad1 + rkin1; 
+      IJKth(dudata, 2, jx, jy) = vertd2 + hord2 + horad2 + rkin2;
     }
   }
 
@@ -520,33 +520,33 @@ static void f(realtype t, N_Vector y,N_Vector ydot, void *f_data)
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(realtype tn, N_Vector y, N_Vector fy,
+static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
                    void *P_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3)
 {
-  realtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
-  realtype **(*P)[MZ], **(*Jbd)[MZ];
-  long int *(*pivot)[MZ], ier;
-  int jx, jz;
-  realtype *ydata, **a, **j;
+  realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
+  realtype **(*P)[MY], **(*Jbd)[MY];
+  long int *(*pivot)[MY], ier;
+  int jx, jy;
+  realtype *udata, **a, **j;
   UserData data;
   
-  /* Make local copies of pointers in P_data, and of pointer to y's data */
+  /* Make local copies of pointers in P_data, and of pointer to u's data */
   
   data = (UserData) P_data;
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  ydata = NV_DATA_S(y);
+  udata = NV_DATA_S(u);
   
   if (jok) {
     
     /* jok = TRUE: Copy Jbd to P */
     
-    for (jz=0; jz < MZ; jz++)
+    for (jy=0; jy < MY; jy++)
       for (jx=0; jx < MX; jx++)
-        dencopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES);
+        dencopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES);
     
     *jcurPtr = FALSE;
     
@@ -558,24 +558,24 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy,
     /* Make local copies of problem variables, for efficiency. */
     
     q4coef = data->q4;
-    delz = data->dz;
+    dely = data->dy;
     verdco = data->vdco;
     hordco  = data->hdco;
     
     /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
        computed on the last f call).  Load into P. */
     
-    for (jz=0; jz < MZ; jz++) {
-      zdn = ZMIN + (jz - .5)*delz;
-      zup = zdn + delz;
-      czdn = verdco*exp(0.2*zdn);
-      czup = verdco*exp(0.2*zup);
-      diag = -(czdn + czup + 2.0*hordco);
+    for (jy=0; jy < MY; jy++) {
+      ydn = YMIN + (jy - .5)*dely;
+      yup = ydn + dely;
+      cydn = verdco*exp(0.2*ydn);
+      cyup = verdco*exp(0.2*yup);
+      diag = -(cydn + cyup + 2.0*hordco);
       for (jx=0; jx < MX; jx++) {
-        c1 = IJKth(ydata,1,jx,jz);
-        c2 = IJKth(ydata,2,jx,jz);
-        j = Jbd[jx][jz];
-        a = P[jx][jz];
+        c1 = IJKth(udata,1,jx,jy);
+        c2 = IJKth(udata,2,jx,jy);
+        j = Jbd[jx][jy];
+        a = P[jx][jy];
         IJth(j,1,1) = (-Q1*C3 - Q2*c2) + diag;
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
@@ -590,16 +590,16 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy,
   
   /* Scale by -gamma */
   
-  for (jz=0; jz < MZ; jz++)
+  for (jy=0; jy < MY; jy++)
     for (jx=0; jx < MX; jx++)
-      denscale(-gamma, P[jx][jz], NUM_SPECIES);
+      denscale(-gamma, P[jx][jy], NUM_SPECIES);
   
   /* Add identity matrix and do LU decompositions on blocks in place. */
   
   for (jx=0; jx < MX; jx++) {
-    for (jz=0; jz < MZ; jz++) {
-      denaddI(P[jx][jz], NUM_SPECIES);
-      ier = gefa(P[jx][jz], NUM_SPECIES, pivot[jx][jz]);
+    for (jy=0; jy < MY; jy++) {
+      denaddI(P[jx][jy], NUM_SPECIES);
+      ier = gefa(P[jx][jy], NUM_SPECIES, pivot[jx][jy]);
       if (ier != 0) return(1);
     }
   }
@@ -609,14 +609,14 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy,
 
 /* Preconditioner solve routine */
 
-static int PSolve(realtype tn, N_Vector y, N_Vector fy,
+static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
                   int lr, void *P_data, N_Vector vtemp)
 {
-  realtype **(*P)[MZ];
-  long int *(*pivot)[MZ];
-  int jx, jz;
+  realtype **(*P)[MY];
+  long int *(*pivot)[MY];
+  int jx, jy;
   realtype *zdata, *v;
   UserData data;
 
@@ -633,9 +633,9 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
      in P and pivot data in pivot, and return the solution in z. */
   
   for (jx=0; jx < MX; jx++) {
-    for (jz=0; jz < MZ; jz++) {
-      v = &(IJKth(zdata, 1, jx, jz));
-      gesl(P[jx][jz], NUM_SPECIES, pivot[jx][jz], v);
+    for (jy=0; jy < MY; jy++) {
+      v = &(IJKth(zdata, 1, jx, jy));
+      gesl(P[jx][jy], NUM_SPECIES, pivot[jx][jy], v);
     }
   }
 
