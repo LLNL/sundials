@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-04-04 22:53:21 $
+ * $Revision: 1.9 $
+ * $Date: 2005-04-05 01:59:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -46,6 +46,11 @@ int CVEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
 #define Q_MAX  ADAMS_Q_MAX /* max value of q for either lmm       */
 #define L_MAX  (Q_MAX+1)   /* max value of L for either lmm       */
 #define NUM_TESTS    5     /* number of error test quantities     */
+
+#define HMIN_DEFAULT     RCONST(0.0)    /* hmin default value     */
+#define HMAX_INV_DEFAULT RCONST(0.0)    /* hmax_inv default value */
+#define MXHNIL_DEFAULT   10             /* mxhnil default value   */
+#define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
 /*
  * -----------------------------------------------------------------
@@ -320,15 +325,15 @@ typedef struct CVodeMemRec {
 #define MSGCV_SET_BAD_MAXORD2 "maximum method order.\n\n"
 #define MSGCV_SET_BAD_MAXORD  MSGCV_SET_BAD_MAXORD1 MSGCV_SET_BAD_MAXORD2 
 
-#define MSGCV_SET_NEG_MXSTEPS "CVodeSetMaxNumSteps-- mxsteps <= 0 illegal.\n\n"
+#define MSGCV_SET_NEG_MXSTEPS "CVodeSetMaxNumSteps-- mxsteps < 0 illegal.\n\n"
 
 #define MSGCV_SET_SLDET1 "CVodeSetStabLimDet-- Attempt to use stability "
 #define MSGCV_SET_SLDET2 "limit detection with the CV_ADAMS method illegal.\n\n"
 #define MSGCV_SET_SLDET  MSGCV_SET_SLDET1 MSGCV_SET_SLDET2
 
-#define MSGCV_SET_NEG_HMIN "CVodeSetMinStep-- hmin <= 0 illegal.\n\n"
+#define MSGCV_SET_NEG_HMIN "CVodeSetMinStep-- hmin < 0 illegal.\n\n"
 
-#define MSGCV_SET_NEG_HMAX "CVodeSetMaxStep-- hmax <= 0 illegal.\n\n"
+#define MSGCV_SET_NEG_HMAX "CVodeSetMaxStep-- hmax < 0 illegal.\n\n"
 
 #define MSGCV_SET_BAD_HMM1      "CVodeSetMinStep/CVodeSetMaxStep-- Inconsistent \n"
 #define MSGCV_SET_BAD_HMM2      "step size limits: hmin > hmax.\n\n"

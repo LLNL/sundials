@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-04-04 22:53:21 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-05 01:59:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -174,12 +174,16 @@ int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (mxsteps<=0) {
+  if (mxsteps < 0) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_SET_NEG_MXSTEPS);
     return(CV_ILL_INPUT);
   }
 
-  cv_mem->cv_mxstep = mxsteps;
+  /* Passing 0 sets the default */
+  if (mxsteps == 0)
+    cv_mem->cv_mxstep = MXSTEP_DEFAULT;
+  else
+    cv_mem->cv_mxstep = mxsteps;
 
   return(CV_SUCCESS);
 }
@@ -273,9 +277,15 @@ int CVodeSetMinStep(void *cvode_mem, realtype hmin)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (hmin<=0) {
+  if (hmin<0) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_SET_NEG_HMIN);
     return(CV_ILL_INPUT);
+  }
+
+  /* Passing 0 sets hmin = zero */
+  if (hmin == ZERO) {
+    cv_mem->cv_hmin = HMIN_DEFAULT;
+    return(CV_SUCCESS);
   }
 
   if (hmin * cv_mem->cv_hmax_inv > ONE) {
@@ -307,9 +317,15 @@ int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (hmax <= 0) {
+  if (hmax < 0) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_SET_NEG_HMAX);
     return(CV_ILL_INPUT);
+  }
+
+  /* Passing 0 sets hmax = infinity */
+  if (hmax == ZERO) {
+    cv_mem->cv_hmax_inv = HMAX_INV_DEFAULT;
+    return(CV_SUCCESS);
   }
 
   hmax_inv = ONE/hmax;

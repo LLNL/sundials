@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.40 $
- * $Date: 2005-04-04 22:58:48 $
+ * $Revision: 1.41 $
+ * $Date: 2005-04-05 01:59:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,8 +51,6 @@
  * -----------------------------------------------------------------
  */
 
-#define MXSTEP_DEFAULT 500  /* mxstep default value */
-#define MAXORD_DEFAULT   5  /* maxord default value */
 #define MXNCF           10  /* max number of convergence failures allowed */
 #define MXNEF           10  /* max number of error test failures allowed  */
 #define MAXNH            5  /* max. number of h tries in IC calc. */
@@ -177,7 +175,7 @@ void *IDACreate(void)
   IDA_mem->ida_errfp       = stderr;
   IDA_mem->ida_maxord      = MAXORD_DEFAULT;
   IDA_mem->ida_mxstep      = MXSTEP_DEFAULT;
-  IDA_mem->ida_hmax_inv    = ZERO;
+  IDA_mem->ida_hmax_inv    = HMAX_INV_DEFAULT;
   IDA_mem->ida_hin         = ZERO;
   IDA_mem->ida_epcon       = EPCON;
   IDA_mem->ida_maxnef      = MXNEF;

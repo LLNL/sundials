@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.50 $
- * $Date: 2005-04-04 23:07:06 $
+ * $Revision: 1.51 $
+ * $Date: 2005-04-05 01:59:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,15 +50,6 @@
 #define FIVE   RCONST(5.0)     /* real 5.0     */
 #define TWELVE RCONST(12.0)    /* real 12.0    */
 #define HUN    RCONST(100.0)   /* real 100.0   */
-
-/*=================================================================*/
-/*             CVODES Default Constants                            */
-/*=================================================================*/
-
-#define HMIN_DEFAULT     ZERO    /* hmin default value     */
-#define HMAX_INV_DEFAULT ZERO    /* hmax_inv default value */
-#define MXHNIL_DEFAULT   10      /* mxhnil default value   */
-#define MXSTEP_DEFAULT   500     /* mxstep default value   */
 
 /*=================================================================*/
 /*             CVODES Routine-Specific Constants                   */

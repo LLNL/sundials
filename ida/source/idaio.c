@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-04-04 22:58:48 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-05 01:59:56 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -107,12 +107,16 @@ int IDASetMaxNumSteps(void *ida_mem, long int mxsteps)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (mxsteps <= 0) {
+  if (mxsteps < 0) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_MXSTEPS);
     return(IDA_ILL_INPUT);
   }
 
-  IDA_mem->ida_mxstep = mxsteps;
+  /* Passing 0 sets the default */
+  if (mxsteps == 0)
+    IDA_mem->ida_mxstep = MXSTEP_DEFAULT;
+  else
+    IDA_mem->ida_mxstep = mxsteps;
 
   return(IDA_SUCCESS);
 }
@@ -148,9 +152,15 @@ int IDASetMaxStep(void *ida_mem, realtype hmax)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (hmax <= 0) {
+  if (hmax < 0) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_HMAX);
     return(IDA_ILL_INPUT);
+  }
+
+  /* Passing 0 sets hmax = infinity */
+  if (hmax == ZERO) {
+    IDA_mem->ida_hmax_inv = HMAX_INV_DEFAULT;
+    return(IDA_SUCCESS);
   }
 
   IDA_mem->ida_hmax_inv = ONE/hmax;

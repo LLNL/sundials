@@ -125,6 +125,9 @@ v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
      for the N_Vector in which error weights will be copied.
    - IDACalcIC takes as additional arguments (t0,y0,yp0). As a consequence,
      it can be called at any time to correct a pair (y,y').
+   - Passing a value of 0 for the maximum step size or for maxsteps results 
+     in the solver using the corresponding default value (infinity, and 500, 
+     respectively)
 
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------
