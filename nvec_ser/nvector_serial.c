@@ -1,22 +1,20 @@
-/*******************************************************************
- *                                                                 *
- * File          : nvector_serial.c                                *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
- *                 Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the implementation file for a serial implementation     *
- * of the NVECTOR package. It contains the implementation of       *
- * the serial vector specification intialization and free          *
- * routines (and of the Fortran callable interfaces to them)       *
- * and of the N_Vector kernels listed in nvector_serial.h.         *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.9 $
+ * $Date: 2004-07-22 21:10:21 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
+ *              Radu Serban, LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/shared/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for a serial implementation
+ * of the NVECTOR package.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,8 +28,7 @@
 #define ONE  RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
-
-/* Private Helper Prototypes */
+/* Private function prototypes */
 /* z=x */
 static void VCopy_Serial(N_Vector x, N_Vector z);
 /* z=x+y */
@@ -53,177 +50,265 @@ static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y);
 /* x <- ax */
 static void VScaleBy_Serial(realtype a, N_Vector x);
 
-/********************* Exported Functions ************************/
+/*
+ * -----------------------------------------------------------------
+ * Exported functions
+ * -----------------------------------------------------------------
+ */
 
-/* Serial implementation of the vector specification 
-   initialization routine */
+/* Function to create a new empty serial vector */
 
-NV_Spec NV_SpecInit_Serial(long int vec_length)
-{
-  NV_Spec nvspec;
-
-  /* Create vector specification structure */
-  nvspec = (NV_Spec) malloc(sizeof *nvspec);
-  if (nvspec == NULL) return(NULL);
-
-  /* Create serial content of vector specification structure */
-  nvspec->content = (NV_SpecContent_Serial) malloc(sizeof(struct _NV_SpecContent_Serial));
-  if (nvspec->content == NULL) {
-    free(nvspec);
-    return(NULL);
-  }
-
-  /* Load serial content of vector specification structure */
-  NS_CONTENT_S(nvspec)->length = vec_length;
-
-  /* Attach vector operations */
-  nvspec->ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (nvspec->ops == NULL) {
-    free(nvspec->content);
-    free(nvspec);
-    return(NULL);
-  }
-
-  nvspec->ops->nvnew           = N_VNew_Serial;
-  nvspec->ops->nvfree          = N_VFree_Serial;
-  nvspec->ops->nvspace         = N_VSpace_Serial;
-  nvspec->ops->nvmake          = N_VMake_Serial;
-  nvspec->ops->nvdispose       = N_VDispose_Serial;
-  nvspec->ops->nvgetdata       = N_VGetData_Serial;
-  nvspec->ops->nvsetdata       = N_VSetData_Serial;
-  nvspec->ops->nvlinearsum     = N_VLinearSum_Serial;
-  nvspec->ops->nvconst         = N_VConst_Serial;
-  nvspec->ops->nvprod          = N_VProd_Serial;
-  nvspec->ops->nvdiv           = N_VDiv_Serial;
-  nvspec->ops->nvscale         = N_VScale_Serial;
-  nvspec->ops->nvabs           = N_VAbs_Serial;
-  nvspec->ops->nvinv           = N_VInv_Serial;
-  nvspec->ops->nvaddconst      = N_VAddConst_Serial;
-  nvspec->ops->nvdotprod       = N_VDotProd_Serial;
-  nvspec->ops->nvmaxnorm       = N_VMaxNorm_Serial;
-  nvspec->ops->nvwrmsnormmask  = N_VWrmsNormMask_Serial;
-  nvspec->ops->nvwrmsnorm      = N_VWrmsNorm_Serial;
-  nvspec->ops->nvmin           = N_VMin_Serial;
-  nvspec->ops->nvwl2norm       = N_VWL2Norm_Serial;
-  nvspec->ops->nvl1norm        = N_VL1Norm_Serial;
-  nvspec->ops->nvcompare       = N_VCompare_Serial;
-  nvspec->ops->nvinvtest       = N_VInvTest_Serial;
-  nvspec->ops->nvconstrmask    = N_VConstrMask_Serial;
-  nvspec->ops->nvminquotient   = N_VMinQuotient_Serial;
-  nvspec->ops->nvprint         = N_VPrint_Serial;
-
-  /* Attach ID tag */
-  nvspec->tag = ID_TAG_S;
-
-  return(nvspec);
-
-}
- 
-/* Serial implementation of the vector specification
-   free routine */
-
-void NV_SpecFree_Serial(NV_Spec nvspec)
-{
-  if (nvspec == NULL) return;
-
-  free(nvspec->content);
-  free(nvspec->ops);
-  free(nvspec);
-}
-
-/***************************************************************************/
-
-/* BEGIN implementation of vector operations */
-
-N_Vector N_VNew_Serial(NV_Spec nvspec)
+N_Vector N_VNewEmpty_Serial(long int length)
 {
   N_Vector v;
-  long int length;
+  N_Vector_Ops ops;
+  N_VectorContent_Serial content;
 
-  if (nvspec == NULL) return(NULL);
-
+  /* Create vector */
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
-  v->content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
-  if (v->content == NULL) {
-    free(v);
-    return(NULL);
-  }
+  /* Create vector operation structure */
+  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
+  if (ops == NULL) {free(v);return(NULL);}
 
-  length = NS_CONTENT_S(nvspec)->length;
+  ops->nvclone           = N_VClone_Serial;
+  ops->nvdestroy         = N_VDestroy_Serial;
+  ops->nvspace           = N_VSpace_Serial;
+  ops->nvgetarraypointer = N_VGetArrayPointer_Serial;
+  ops->nvsetarraypointer = N_VSetArrayPointer_Serial;
+  ops->nvlinearsum       = N_VLinearSum_Serial;
+  ops->nvconst           = N_VConst_Serial;
+  ops->nvprod            = N_VProd_Serial;
+  ops->nvdiv             = N_VDiv_Serial;
+  ops->nvscale           = N_VScale_Serial;
+  ops->nvabs             = N_VAbs_Serial;
+  ops->nvinv             = N_VInv_Serial;
+  ops->nvaddconst        = N_VAddConst_Serial;
+  ops->nvdotprod         = N_VDotProd_Serial;
+  ops->nvmaxnorm         = N_VMaxNorm_Serial;
+  ops->nvwrmsnormmask    = N_VWrmsNormMask_Serial;
+  ops->nvwrmsnorm        = N_VWrmsNorm_Serial;
+  ops->nvmin             = N_VMin_Serial;
+  ops->nvwl2norm         = N_VWL2Norm_Serial;
+  ops->nvl1norm          = N_VL1Norm_Serial;
+  ops->nvcompare         = N_VCompare_Serial;
+  ops->nvinvtest         = N_VInvTest_Serial;
+  ops->nvconstrmask      = N_VConstrMask_Serial;
+  ops->nvminquotient     = N_VMinQuotient_Serial;
 
-  NV_CONTENT_S(v)->data = (realtype *) malloc(length * sizeof(realtype));
-  if(NV_CONTENT_S(v)->data == NULL) {
-    free(v->content);
-    free(v);
-    return(NULL);
-  }
+  /* Create content */
+  content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
+  if (content == NULL) {free(ops);free(v);return(NULL);}
 
-  NV_CONTENT_S(v)->length = length;
+  content->length = length;
+  content->data = NULL;
 
-  v->nvspec = nvspec;
+  /* Attach content and ops */
+  v->content = content;
+  v->ops = ops;
 
   return(v);
 }
 
-void N_VSpace_Serial(NV_Spec nvspec, long int *lrw, long int *liw)
+/* Function to create a new serial vector */
+
+N_Vector N_VNew_Serial(long int length)
 {
-  *lrw = NS_CONTENT_S(nvspec)->length;
-  *liw = 1;
+  N_Vector v;
+  realtype *data;
+
+  v = N_VNewEmpty_Serial(length);
+  if (v == NULL) return(NULL);
+
+  /* Create data */
+  data = (realtype *) malloc(length * sizeof(realtype));
+  if(data == NULL) {N_VDestroyEmpty_Serial(v);return(NULL);}
+
+  /* Attach data */
+  NV_DATA_S(v) = data;
+
+  return(v);
 }
 
-void N_VFree_Serial(N_Vector v)
+/* Function to create a serial N_Vector with user data component */
+
+N_Vector N_VMake_Serial(long int length, realtype *v_data)
 {
-  free(NV_DATA_S(v));
-  free(NV_CONTENT_S(v));
+  N_Vector v;
+  realtype *data;
+
+  v = N_VNewEmpty_Serial(length);
+  if (v == NULL) return(NULL);
+
+  /* Attach data */
+  NV_DATA_S(v) = v_data;
+
+  return(v);
+}
+
+/* Function to create an array of new serial vectors. */
+
+N_Vector *N_VNewVectorArray_Serial(int count, long int length)
+{
+  N_Vector *vs;
+  int j;
+
+  if (count <= 0) return(NULL);
+
+  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  for (j=0; j<count; j++) {
+    vs[j] = N_VNew_Serial(length);
+    if (vs[j] == NULL) {
+      N_VDestroyVectorArray(vs, j-1);
+      return(NULL);
+    }
+  }
+
+  return(vs);
+}
+
+/* Function to free an N_Vector created with N_VNewEmpty_Serial
+   N_VCloneEmpty_Serial */
+
+void N_VDestroyEmpty_Serial(N_Vector v)
+{
+  free(v->content);
+  free(v->ops);
   free(v);
 }
 
-
-N_Vector N_VMake_Serial(void *v_data, NV_Spec nvspec)
-{
-  N_Vector v;
-  long int length;
-
-  if (nvspec == NULL) return(NULL);
-
-  v = (N_Vector) malloc(sizeof *v);
-  if (v == NULL) return(NULL);
-  
-  v->content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
-  if (v->content == NULL) {
-    free(v);
-    return(NULL);
-  }
-
-  length = NS_CONTENT_S(nvspec)->length;
-
-  NV_CONTENT_S(v)->data = (realtype *)v_data;
-
-  NV_CONTENT_S(v)->length = length;
-
-  v->nvspec = nvspec;
-
-  return(v);
-}
+/* Function to free an N_Vector created with N_VMake_Serial */
 
 void N_VDispose_Serial(N_Vector v)
 {
-  free(NV_CONTENT_S(v));
-  free(v);
+  N_VDestroyEmpty_Serial(v);
 }
 
-void *N_VGetData_Serial(N_Vector v)
+/* Function to print the a serial vector */
+ 
+void N_VPrint_Serial(N_Vector x)
+{
+  long int i, N;
+  realtype *xd;
+
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+
+  for (i=0; i < N; i++) printf("%11.8g\n", *xd++);
+
+  printf("\n");
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * Implementation of vector operations
+ * -----------------------------------------------------------------
+ */
+
+N_Vector N_VCloneEmpty_Serial(N_Vector w)
+{
+  N_Vector v;
+  N_Vector_Ops ops;
+  N_VectorContent_Serial content;
+
+  if (w == NULL) return(NULL);
+
+  /* Create vector */
+  v = (N_Vector) malloc(sizeof *v);
+  if (v == NULL) return(NULL);
+
+  /* Create vector operation structure */
+  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
+  if (ops == NULL) {free(v);return(NULL);}
+  
+  ops->nvclone           = w->ops->nvclone;
+  ops->nvdestroy         = w->ops->nvdestroy;
+  ops->nvspace           = w->ops->nvspace;
+  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
+  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvlinearsum       = w->ops->nvlinearsum;
+  ops->nvconst           = w->ops->nvconst;  
+  ops->nvprod            = w->ops->nvprod;   
+  ops->nvdiv             = w->ops->nvdiv;
+  ops->nvscale           = w->ops->nvscale; 
+  ops->nvabs             = w->ops->nvabs;
+  ops->nvinv             = w->ops->nvinv;
+  ops->nvaddconst        = w->ops->nvaddconst;
+  ops->nvdotprod         = w->ops->nvdotprod;
+  ops->nvmaxnorm         = w->ops->nvmaxnorm;
+  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
+  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
+  ops->nvmin             = w->ops->nvmin;
+  ops->nvwl2norm         = w->ops->nvwl2norm;
+  ops->nvl1norm          = w->ops->nvl1norm;
+  ops->nvcompare         = w->ops->nvcompare;    
+  ops->nvinvtest         = w->ops->nvinvtest;
+  ops->nvconstrmask      = w->ops->nvconstrmask;
+  ops->nvminquotient     = w->ops->nvminquotient;
+
+  /* Create content */
+  content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
+  if (content == NULL) {free(ops);free(v);return(NULL);}
+
+  content->length = NV_LENGTH_S(w);
+  content->data = NULL;
+
+  /* Attach content and ops */
+  v->content = content;
+  v->ops = ops;
+
+  return(v);
+}
+
+N_Vector N_VClone_Serial(N_Vector w)
+{
+  N_Vector v;
+  realtype *data;
+  long int length;
+
+  v = N_VCloneEmpty_Serial(w);
+  if (v == NULL) return(NULL);
+
+  length = NV_LENGTH_S(w);
+
+  /* Create data */
+  data = (realtype *) malloc(length * sizeof(realtype));
+  if(data == NULL) {N_VDestroyEmpty_Serial(v);return(NULL);}
+
+  /* Attach data */
+  NV_DATA_S(v) = data;
+
+  return(v);
+}
+
+void N_VDestroy_Serial(N_Vector v)
+{
+  free(NV_DATA_S(v));
+  N_VDestroyEmpty_Serial(v);
+}
+
+void N_VSpace_Serial(N_Vector v, long int *lrw, long int *liw)
+{
+  *lrw = NV_LENGTH_S(v);
+  *liw = 1;
+}
+
+realtype *N_VGetArrayPointer_Serial(N_Vector v)
 {
   realtype *v_data;
-  v_data = NV_CONTENT_S(v)->data;
-  return((void *)v_data);
+
+  v_data = NV_DATA_S(v);
+
+  return(v_data);
 }
 
-void N_VSetData_Serial(void *v_data, N_Vector v)
+void N_VSetArrayPointer_Serial(realtype *v_data, N_Vector v)
 {
-  NV_CONTENT_S(v)->data = (realtype *)v_data;
+  NV_DATA_S(v) = v_data;
 }
 
 void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
@@ -644,23 +729,11 @@ realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
   return(min);
 }
 
- 
-void N_VPrint_Serial(N_Vector x)
-{
-  long int i, N;
-  realtype *xd;
-
-  N  = NV_LENGTH_S(x);
-  xd = NV_DATA_S(x);
-
-  for (i=0; i < N; i++) printf("%11.8g\n", *xd++);
-
-  printf("\n");
-}
-
-
-/***************** Private Helper Functions **********************/
-
+/*
+ * -----------------------------------------------------------------
+ * Private functions
+ * -----------------------------------------------------------------
+ */
 
 static void VCopy_Serial(N_Vector x, N_Vector z)
 {

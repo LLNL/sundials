@@ -1,52 +1,47 @@
-/*******************************************************************
- *                                                                 *
- * File          : nvector_serial.h                                *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
- *               : Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the header file for a serial implementation of the      *
- * NVECTOR package.                                                *
- *                                                                 *
- * Part I of this file contains declarations which are specific    *
- * to the particular machine environment in which this version     *
- * of the vector package is to be used. This includes the          *
- * typedef for the 'content' fields of the structures NV_Spec and  *
- * N_Vector (NV_SpecContent_Serial and N_VectorContent_Serial,     *
- * respectively).                                                  *
- *                                                                 *
- * Part II of this file defines accessor macros that allow the     *
- * user to use efficiently the type N_Vector without making        *
- * explicit references to its underlying representation.           *
- *                                                                 *
- * Part III of this file contains the prototype for the            *
- * initialization routine specific to this implementation          *
- * (NV_SpecInit_Serial) as well as prototypes for the vector       *
- * kernels which operate on the serial N_Vector. These             *
- * prototypes are unique to this particular implementation of      *
- * the vector package.                                             *
- *                                                                 *
- * NOTES:                                                          *
- *                                                                 *
- * The definitions of the generic NV_Spec and N_Vector structures  *
- * are in the header file nvector.h.                               *
- *                                                                 *
- * The definition of the type realtype is in the header file       *
- * sundialstypes.h and it may be changed (at the configuration     *
- * stage) according to the user's needs. The sundialstypes.h file  *
- * also contains the definition for the type booleantype.          *
- *                                                                 *
- * N_Vector arguments to arithmetic kernels need not be            *
- * distinct. Thus, for example, the call                           *
- *         N_VLinearSum_Serial(a,x,b,y,y);   y <- ax+by            *
- * is legal.                                                       *
- *                                                                 * 
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.10 $
+ * $Date: 2004-07-22 21:10:21 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
+ *              Radu Serban, LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/shared/LICENSE
+ * -----------------------------------------------------------------
+ * This is the header file for a serial implementation of the    
+ * NVECTOR package.                                              
+ *                                                               
+ * Part I of this file contains declarations which are specific  
+ * to the particular serial implementation.                      
+ *                                                               
+ * Part II of this file defines accessor macros that allow the   
+ * user to use efficiently the type N_Vector without making      
+ * explicit references to its underlying representation.         
+ *                                                               
+ * Part III of this file contains the prototype for the constructor 
+ * N_VNew_Serial, as well as prototypes for the vector kernels which 
+ * operate on the serial N_Vector. These prototypes are unique to this 
+ * particular implementation of the vector package.
+ *
+ * NOTES:                                                        
+ *                                                               
+ * The definition of the generic N_Vector structure is in the header 
+ * file nvector.h.                             
+ *                                                               
+ * The definition of the type realtype is in the header file     
+ * sundialstypes.h and it may be changed (at the configuration   
+ * stage) according to the user's needs. The sundialstypes.h file
+ * also contains the definition for the type booleantype.        
+ *                                                               
+ * N_Vector arguments to arithmetic kernels need not be          
+ * distinct. Thus, for example, the call                         
+ *         N_VLinearSum_Serial(a,x,b,y,y);   y <- ax+by          
+ * is legal.                                                     
+ * -----------------------------------------------------------------
+ */
 
 #ifndef included_nvector_serial_h
 #define included_nvector_serial_h
@@ -58,28 +53,18 @@
 extern "C" {
 #endif
 
+/*
+ * -----------------------------------------------------------------
+ * PART I:                                                    
+ * Serial implementation of N_Vector               
+ * -----------------------------------------------------------------
+ */
 
-/****************************************************************
- * PART I:                                                      *
- * Serial implementaion of NV_Spec and N_Vector                 *
- ****************************************************************/
-
-/* The serial implementation of the vector specification has 
-   ID tag 'serial' */
-#define ID_TAG_S "serial"
-
-/* The serial implementation of the vector specification 'content'
-   structure contains the length of vectors */
-
-struct _NV_SpecContent_Serial {
-  long int length;
-};
-
-typedef struct _NV_SpecContent_Serial *NV_SpecContent_Serial;
-
-/* The serial implementation of the N_Vector 'content' 
-   structure contains the length of the vector and a pointer 
-   to an array of realtype components */
+/*
+ * The serial implementation of the N_Vector 'content' structure 
+ * contains the length of the vector and a pointer to an array of 
+ * realtype components 
+ */
 
 struct _N_VectorContent_Serial {
   long int length;
@@ -88,143 +73,57 @@ struct _N_VectorContent_Serial {
 
 typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
 
-/****************************************************************
- *                                                              *
- * PART II: Macros                                              *
- *    NV_MAKE_S, NV_DISPOSE_S, NVS_MAKE_S, NVS_DISPOSE_S        *
- *    ME_CONTENT_S, NV_CONTENT_S                                *
- *    NV_DATA_S, NV_LENGTH_S, NV_Ith_S                          *
- *--------------------------------------------------------------*
- * In the descriptions below, the following user declarations   *
- * are assumed:                                                 *
- *                                                              *
- * NV_Spec       nvSpec;                                        *
- * N_Vector      v, *vs;                                        *
- * realtype     *v_data, **vs_data, r;                          *
- * long int   v_len, s_len, i;                               *
- *                                                              *
- * (1) NV_MAKE_S, NV_DISPOSE_S                                  *
- *                                                              *
- *     These companion routines are used to create and          *
- *     destroy an N_Vector with a component array v_data        *
- *     allocated by the user.                                   *
- *                                                              *
- *     The call NV_MAKE_S(v, v_data, nvspec) makes v an         *
- *     N_Vector with component array v_data. The length of the  *
- *     array is taken from nvspec.                              *
- *     NV_MAKE_S stores the pointer v_data so that changes      *
- *     made by the user to the elements of v_data are           *
- *     simultaneously reflected in v. There is no copying of    *
- *     elements.                                                *
- *                                                              *
- *     The call NV_DISPOSE_S(v) frees all memory associated     *
- *     with v except for its component array. This memory was   *
- *     allocated by the user and, therefore, should be          *
- *     deallocated by the user.                                 *
- *                                                              *
- * (2) NVS_MAKE_S, NVS_DISPOSE_S                                *
- *                                                              *
- *     These companion routines are used to create and destroy  *
- *     an array of N_Vectors with component vs_data allocated   *
- *     by the user.                                             *
- *                                                              *
- *     The call NVS_MAKE_S(vs, vs_data, s_len, nvspec) makes    *
- *     vs an array of s_len N_Vectors, each with component      *
- *     array vs_data[i] and array length taken from nvspec.     *
- *     NVS_MAKE_S stores the pointers vs_data[i] so that        *
- *     changes made by the user to the elements of vs_data are  *
- *     simultaneously reflected in vs. There is no copying of   *
- *     elements.                                                *
- *                                                              *
- *     The call NVS_DISPOSE_S(vs) frees all memory associated   *
- *     with vs except for its components' component array.      *
- *     This memory was allocated by the user and, therefore,    *
- *     should be deallocated by the user.                       *
- *                                                              *
- * (3) NS_CONTENT_S, NV_CONTENT_S                               *
- *                                                              *
- *     These routines give access to the contents of the serial *
- *     vector specification and N_Vector, respectively.         * 
- *                                                              *
- *     The assignment ns_cont = NS_CONTENT_S(nvspec) sets       *
- *     ns_cont to be a pointer to the serial vector             *
- *     specification content structure.                         * 
- *                                                              *
- *     The assignment v_cont = NV_CONTENT_S(v) sets             *
- *     v_cont to be a pointer to the serial N_Vector content    *
- *     structure.                                               *
- *                                                              *
- * (4) NV_DATA_S, NV_LENGTH_S                                   *
- *                                                              *
- *     These routines give individual access to the parts of    *
- *     the content of a serial N_Vector.                        *
- *                                                              *
- *     The assignment v_data=NV_DATA_S(v) sets v_data to be     *
- *     a pointer to the first component of v. The assignment    *
- *     NV_DATA_S(v)=v_data sets the component array of v to     *
- *     be v_data by storing the pointer v_data.                 *  
- *                                                              *
- *     The assignment v_len=NV_LENGTH_S(v) sets v_len to be     *
- *     the length of v. The call NV_LENGTH_S(v)=len_v sets      *
- *     the length of v to be len_v.                             *
- *                                                              *
- * (5) NV_Ith_S                                                 *
- *                                                              *
- *     In the following description, the components of an       *
- *     N_Vector are numbered 0..N-1, where N is the length of   *
- *     v.                                                       *
- *                                                              *
- *     The assignment r=NV_Ith_S(v,i) sets r to be the value of *
- *     the ith component of v. The assignment NV_Ith_S(v,i)=r   *
- *     sets the value of the ith component of v to be r.        *
- *                                                              *
- * Notes..                                                      *
- *                                                              *
- * Users who use the macros (1) and/or (2) must                 *
- * #include<stdlib.h> since these macros expand to calls to     *
- * malloc and free.                                             *
- *                                                              *
- * When looping over the components of an N_Vector v, it is     *
- * more efficient to first obtain the component array via       *
- * v_data=NV_DATA_S(v) and then access v_data[i] within the     *
- * loop than it is to use NV_Ith_S(v,i) within the loop.        *
- *                                                              *
- * NV_MAKE_S and NV_DISPOSE_S are similar to N_VNew_Serial and  *
- * N_VFree_Serial, while NVS_MAKE_S and NVS_DISPOSE_S  are      *
- * similar to  N_VNew_S_Serial and N_VFree_S_Serial. The        *
- * difference is one of responsibility for component memory     *
- * allocation and deallocation. N_VNew_Serial allocates memory  *
- * for the N_Vector components and N_VFree_Serial frees the     *
- * component memory allocated by N_VNew_Serial. For NV_MAKE_S   *
- * and NV_DISPOSE_S, the component memory is allocated and      *
- * freed by the user of this package. Similar remarks hold for  *
- * NVS_MAKE_S,  NVS_DISPOSE_S and N_VNew_S_Serial,              *
- * N_VFree_S_Serial.                                            *
- *                                                              *
- ****************************************************************/ 
-
-#define NV_MAKE_S(v, v_data, nvspec) \
-        v = (N_Vector) malloc(sizeof(*v)); \
-        v->content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial)); \
-        v->content->data = v_data; \
-        v->content->length = nvspec->content->v_len; \
-        v->nvspec = nvspec
-
-#define NV_DISPOSE_S(v) \
-        free((N_VectorContent_Serial)(v->content)); \
-        free(v)
-
-#define NVS_MAKE_S(vs, vs_data, s_len, nvspec) \
-        vs = (N_Vector_S) malloc(s_len*sizeof(N_Vector *)); \
-        for ((int)is=0; is<s_len; is++) { \
-           NV_MAKE_S(vs[is], vs_data[is], nvspec); \
-        }
-
-#define NVS_DISPOSE_S(vs, s_len) \
-        for ((int)is=0; is<s_len; is++) NV_DISPOSE_S(vs[i]); \
-        free(vs);
-
-#define NS_CONTENT_S(s) ( (NV_SpecContent_Serial)(s->content) )
+/*
+ * -----------------------------------------------------------------
+ *                                                            
+ * PART II: Macros                                            
+ * NV_CONTENT_S, NV_DATA_S, NV_LENGTH_S, NV_Ith_S
+ * -----------------------------------------------------------------
+ * In the descriptions below, the following user declarations 
+ * are assumed:                                               
+ *                                                            
+ * N_Vector  v;
+ * long int  i;
+ *                                                            
+ * (1) NV_CONTENT_S                             
+ *                                                            
+ *     This routines gives access to the contents of the serial
+ *     vector N_Vector.
+ *                                                            
+ *     The assignment v_cont = NV_CONTENT_S(v) sets           
+ *     v_cont to be a pointer to the serial N_Vector content  
+ *     structure.                                             
+ *                                                            
+ * (2) NV_DATA_S, NV_LENGTH_S                                 
+ *                                                            
+ *     These routines give individual access to the parts of  
+ *     the content of a serial N_Vector.                      
+ *                                                            
+ *     The assignment v_data=NV_DATA_S(v) sets v_data to be   
+ *     a pointer to the first component of v. The assignment  
+ *     NV_DATA_S(v)=v_data sets the component array of v to   
+ *     be v_data by storing the pointer v_data.
+ *                                                            
+ *     The assignment v_len=NV_LENGTH_S(v) sets v_len to be   
+ *     the length of v. The call NV_LENGTH_S(v)=len_v sets    
+ *     the length of v to be len_v.                           
+ *                                                            
+ * (3) NV_Ith_S                                               
+ *                                                            
+ *     In the following description, the components of an     
+ *     N_Vector are numbered 0..N-1, where N is the length of v.
+ *                                                            
+ *     The assignment r=NV_Ith_S(v,i) sets r to be the value of
+ *     the ith component of v. The assignment NV_Ith_S(v,i)=r 
+ *     sets the value of the ith component of v to be r.      
+ *                                                            
+ * When looping over the components of an N_Vector v, it is   
+ * more efficient to first obtain the component array via     
+ * v_data=NV_DATA_S(v) and then access v_data[i] within the   
+ * loop than it is to use NV_Ith_S(v,i) within the loop.      
+ *                                                            
+ * -----------------------------------------------------------------
+ */                                                            
 
 #define NV_CONTENT_S(v) ( (N_VectorContent_Serial)(v->content) )
 
@@ -234,59 +133,96 @@ typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
 
 #define NV_Ith_S(v,i) ( NV_DATA_S(v)[i] )
 
+/*
+ * -----------------------------------------------------------------
+ * PART III: 
+ * Functions exported by nvector_serial
+ * -----------------------------------------------------------------
+ */
 
-/****************************************************************
- * PART III:                                                    *
- * Functions exported by nvector_serial                         *
- ****************************************************************/
+/*
+ * N_VNew_Serial
+ * 
+ * This function creates and allocates memory for a serial vector.
+ * Its only argument is the vector length.
+ */
 
-/*--------------------------------------------------------------*
- * Routine : NV_SpecInit_Serial                                 *
- *--------------------------------------------------------------*
- * This function sets the content field of the vector           *
- * specification for the serial implementation to a structure   *
- * of type _NV_SpecContent_Serial and attaches the vector       *
- * operations defined for this implementation.                  *
- *                                                              *
- * If successful, NV_SpecInit_Serial returns a pointer of type  *
- * NV_Spec. This pointer should in turn be passed in any user   *
- * calls to N_VNew, or uses of the macros NV_MAKE_S and         *
- * NVS_MAKE_S.                                                  *
- *                                                              *
- *--------------------------------------------------------------*
- *                                                              *
- * vec_length      is the length of the vector.                 *
- *                                                              *
- *--------------------------------------------------------------*/
+N_Vector N_VNew_Serial(long int vec_length);
 
-NV_Spec NV_SpecInit_Serial(long int vec_length);
+/*
+ * N_VNewEmpty_Serial
+ *
+ * This function creates a new serial N_Vector with an empty (NULL)
+ * data array.
+ */
 
-/*--------------------------------------------------------------*
- * Function NV_SpecFree_Serial                                  *
- *--------------------------------------------------------------*
- * Function to free the block of vector specification           *
- * information created by NV_SpecInit_Serial.                   *
- * Its only argument is the pointer nvspec returned by          *
- * NV_SpecInit_Serial.                                          *
- *                                                              *
- *--------------------------------------------------------------*/
+N_Vector N_VNewEmpty_Serial(long int vec_length);
 
-void NV_SpecFree_Serial(NV_Spec nvspec);
+/*
+ * N_VMake_Serial
+ *
+ * This function creates and allocates memory for a serial vector
+ * with user-provided data array.
+ */
 
-/*--------------------------------------------------------------*
- * Serial implementations of the vector operations              * 
- *                                                              *
- * For a complete description of each of the following routines *
- * see the header file nvector.h                                *
- *--------------------------------------------------------------*/
+N_Vector N_VMake_Serial(long int vec_length, realtype *v_data);
 
-N_Vector N_VNew_Serial(NV_Spec nvspec);
-void N_VSpace_Serial(NV_Spec nvspec, long int *lrw, long int *liw);
-void N_VFree_Serial(N_Vector v);
-N_Vector N_VMake_Serial(void *v_data, NV_Spec nvspec);
+/*
+ * N_VCloneEmpty_Serial
+ *
+ * This function creates a new serial vector of the same type as an 
+ * existing vector but with an empty (NULL) data array.
+ */
+
+N_Vector N_VCloneEmpty_Serial(N_Vector w);
+
+/*
+ * N_VNewVectorArray_Serial
+ *
+ * This function creates an array of 'count' serial vectors.
+ * This array of N_Vectors can be freed with N_VDestroyVectorArray
+ * (defined by the generic nvector module)
+ */
+
+N_Vector *N_VNewVectorArray_Serial(int count, long int vec_length);
+
+/*
+ * N_VDestroyEmpty_Serial
+ *
+ * This function frees an N_Vector created with N_VNewEmpty_Serial
+ * or N_VCloneEmpty_Serial.
+ */
+
+void N_VDestroyEmpty_Serial(N_Vector v);
+
+/*
+ * N_VDispose_Serial
+ *
+ * This function frees an N_Vector created with N_VMake_Serial.
+ * Note that deallocation of the 'data' array is the user's
+ * responsibility. In other words, N_VDispose_Serial is identitical
+ * to N_VDestroyEmpty_Serial.
+ */
+
 void N_VDispose_Serial(N_Vector v);
-void *N_VGetData_Serial(N_Vector v);
-void N_VSetData_Serial(void *v_data, N_Vector v);
+
+/*
+ * N_VPrint_Serial
+ * 
+ * This function prints the content of a serial vector to stdout.
+ */
+
+void N_VPrint_Serial(N_Vector v);
+
+/*
+ * Serial implementations of the vector operations
+ */
+
+N_Vector N_VClone_Serial(N_Vector w);
+void N_VDestroy_Serial(N_Vector v);
+void N_VSpace_Serial(N_Vector v, long int *lrw, long int *liw);
+realtype *N_VGetArrayPointer_Serial(N_Vector v);
+void N_VSetArrayPointer_Serial(realtype *v_data, N_Vector v);
 void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 void N_VConst_Serial(realtype c, N_Vector z);
 void N_VProd_Serial(N_Vector x, N_Vector y, N_Vector z);
@@ -304,9 +240,8 @@ realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w);
 realtype N_VL1Norm_Serial(N_Vector x);
 void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z);
 booleantype N_VInvTest_Serial(N_Vector x, N_Vector z);
-booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m);   
+booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m);
 realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom);
-void N_VPrint_Serial(N_Vector x);
 
 #ifdef __cplusplus
 }

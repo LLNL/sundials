@@ -1,23 +1,20 @@
-/*******************************************************************
- *                                                                 *
- * File          : nvector_parallel.c                              *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
- *                 Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the implementation file for a parallel implementation   *
- * of the NVECTOR package. It contains the implementation of       *
- * the parallel vector specification intialization and free        *
- * routines (and of the Fortran callable interfaces to them)       *
- * and of the N_Vector kernels listed in nvector_parallel.h.       *
- * It uses MPI for message-passing.                                *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.10 $
+ * $Date: 2004-07-22 21:10:40 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
+ *              Radu Serban, LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/shared/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for a parallel MPI implementation
+ * of the NVECTOR package.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,14 +30,14 @@
 
 /* Error message */
 
-#define BAD_N1  "NV_SpecInit_Parallel -- Sum of local vector lengths differs from "
+#define BAD_N1  "N_VNew_Parallel -- Sum of local vector lengths differs from "
 #define BAD_N2  "input global length. \n\n"
 #define BAD_N    BAD_N1 BAD_N2
 
-/* Private Helper Prototypes */
+/* Private function prototypes */
 
 /* Reduction operations add/max/min over the processor group */
-static realtype VAllReduce_Parallel(realtype d, int op, NV_Spec nvspec);
+static realtype VAllReduce_Parallel(realtype d, int op, MPI_Comm comm);
 /* z=x */
 static void VCopy_Parallel(N_Vector x, N_Vector z);
 /* z=x+y */
@@ -63,214 +60,293 @@ static void Vaxpy_Parallel(realtype a, N_Vector x, N_Vector y);
 static void VScaleBy_Parallel(realtype a, N_Vector x);
 
 
-/********************* Exported Functions ************************/
+/*
+ * -----------------------------------------------------------------
+ * Exported functions
+ * -----------------------------------------------------------------
+ */
 
-/* Parallel implementation of the vector specification
-   initialization routine */
+/* Function to create a new parallel vector */
 
-NV_Spec NV_SpecInit_Parallel(MPI_Comm comm,  long int local_vec_length, 
-                             long int global_vec_length, int *argc, char ***argv)
+N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, 
+                              long int local_length,
+                              long int global_length)
 {
-  NV_Spec nvspec;
-  int initflag, initerr;
+  N_Vector v;
+  N_Vector_Ops ops;
+  N_VectorContent_Parallel content;
   long int n, Nsum;
 
-  /* Create vector specification structure */
-  nvspec = (NV_Spec) malloc (sizeof *nvspec);
-  if (nvspec == NULL) return(NULL);
-  
-  /* Create parallel content of vector specification structure */
-  nvspec->content = (NV_SpecContent_Parallel) malloc(sizeof(struct _NV_SpecContent_Parallel));
-  if (nvspec->content == NULL) {
-    free(nvspec);
-    return(NULL);
-  }
-
-  /* Load parallel content of vector specification structure */
-  NS_CONTENT_P(nvspec)->local_vec_length = local_vec_length;
-  NS_CONTENT_P(nvspec)->global_vec_length = global_vec_length;
-  
-  MPI_Initialized(&initflag);
-  if (!initflag) {
-    initerr = MPI_Init(argc,argv);
-    if (initerr != MPI_SUCCESS) return(NULL);
-  }
-  NS_CONTENT_P(nvspec)->init_by_user = initflag;
-  
-  NS_CONTENT_P(nvspec)->comm = comm;
-  
-  /* Attach vector operations */
-  nvspec->ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (nvspec->ops == NULL) {
-    free(nvspec->content);
-    free(nvspec);
-    return(NULL);
-  }
-
-  nvspec->ops->nvnew           = N_VNew_Parallel;
-  nvspec->ops->nvfree          = N_VFree_Parallel;
-  nvspec->ops->nvspace         = N_VSpace_Parallel;
-  nvspec->ops->nvmake          = N_VMake_Parallel;
-  nvspec->ops->nvdispose       = N_VDispose_Parallel;
-  nvspec->ops->nvgetdata       = N_VGetData_Parallel;
-  nvspec->ops->nvsetdata       = N_VSetData_Parallel;
-  nvspec->ops->nvlinearsum     = N_VLinearSum_Parallel;
-  nvspec->ops->nvconst         = N_VConst_Parallel;
-  nvspec->ops->nvprod          = N_VProd_Parallel;
-  nvspec->ops->nvdiv           = N_VDiv_Parallel;
-  nvspec->ops->nvscale         = N_VScale_Parallel;
-  nvspec->ops->nvabs           = N_VAbs_Parallel;
-  nvspec->ops->nvinv           = N_VInv_Parallel;
-  nvspec->ops->nvaddconst      = N_VAddConst_Parallel;
-  nvspec->ops->nvdotprod       = N_VDotProd_Parallel;
-  nvspec->ops->nvmaxnorm       = N_VMaxNorm_Parallel;
-  nvspec->ops->nvwrmsnorm      = N_VWrmsNorm_Parallel;
-  nvspec->ops->nvwrmsnormmask  = N_VWrmsNormMask_Parallel;
-  nvspec->ops->nvmin           = N_VMin_Parallel;
-  nvspec->ops->nvwl2norm       = N_VWL2Norm_Parallel;
-  nvspec->ops->nvl1norm        = N_VL1Norm_Parallel;
-  nvspec->ops->nvcompare       = N_VCompare_Parallel;
-  nvspec->ops->nvinvtest       = N_VInvTest_Parallel;
-  nvspec->ops->nvconstrmask    = N_VConstrMask_Parallel;
-  nvspec->ops->nvminquotient   = N_VMinQuotient_Parallel;
-  nvspec->ops->nvprint         = N_VPrint_Parallel;
-
-  /* Attach ID tag */
-  nvspec->tag = ID_TAG_P;
-  
-  /* If local length is negative, return now */
-  if (local_vec_length < 0) return(nvspec);
-  
   /* Compute global length as sum of local lengths */
-  n = local_vec_length;
+  n = local_length;
   MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
-  NS_CONTENT_P(nvspec)->global_vec_length = Nsum;
-  
-  /* Check input global length against computed value */
-  if (Nsum != global_vec_length) {
+  if (Nsum != global_length) {
     printf(BAD_N);
-    NV_SpecFree_Parallel(nvspec);
     return(NULL);
   } 
 
-  /* Return the vector specification */
-  return(nvspec);
-}
-
-/* Parallel implementation of the vector specification
-   free routine */
-
-void NV_SpecFree_Parallel(NV_Spec nvspec)
-{
-  if (nvspec == NULL) return;
-
-  if (!(NS_CONTENT_P(nvspec)->init_by_user)) MPI_Finalize();
-
-  free(nvspec->content);
-  free(nvspec->ops);
-  free(nvspec);
-}
- 
-/***************************************************************************/
-
-/* BEGIN implementation of vector operations */
-
-N_Vector N_VNew_Parallel(NV_Spec nvspec)
-{
-  N_Vector v;
-  long int N_local, N_global;
-
-  if (nvspec == NULL) return(NULL);
-
+  /* Create vector */
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
-  v->content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
-  if (v->content == NULL) {
-    free(v);
-    return(NULL);
-  }
+  /* Create vector operation structure */
+  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
+  if (ops == NULL) {free(v);return(NULL);}
 
-  N_local  = NS_CONTENT_P(nvspec)->local_vec_length;
-  N_global = NS_CONTENT_P(nvspec)->global_vec_length;
+  ops->nvclone           = N_VClone_Parallel;
+  ops->nvdestroy         = N_VDestroy_Parallel;
+  ops->nvspace           = N_VSpace_Parallel;
+  ops->nvgetarraypointer = N_VGetArrayPointer_Parallel;
+  ops->nvsetarraypointer = N_VSetArrayPointer_Parallel;
+  ops->nvlinearsum       = N_VLinearSum_Parallel;
+  ops->nvconst           = N_VConst_Parallel;
+  ops->nvprod            = N_VProd_Parallel;
+  ops->nvdiv             = N_VDiv_Parallel;
+  ops->nvscale           = N_VScale_Parallel;
+  ops->nvabs             = N_VAbs_Parallel;
+  ops->nvinv             = N_VInv_Parallel;
+  ops->nvaddconst        = N_VAddConst_Parallel;
+  ops->nvdotprod         = N_VDotProd_Parallel;
+  ops->nvmaxnorm         = N_VMaxNorm_Parallel;
+  ops->nvwrmsnormmask    = N_VWrmsNormMask_Parallel;
+  ops->nvwrmsnorm        = N_VWrmsNorm_Parallel;
+  ops->nvmin             = N_VMin_Parallel;
+  ops->nvwl2norm         = N_VWL2Norm_Parallel;
+  ops->nvl1norm          = N_VL1Norm_Parallel;
+  ops->nvcompare         = N_VCompare_Parallel;
+  ops->nvinvtest         = N_VInvTest_Parallel;
+  ops->nvconstrmask      = N_VConstrMask_Parallel;
+  ops->nvminquotient     = N_VMinQuotient_Parallel;
 
-  if(N_local > 0) {
-    NV_CONTENT_P(v)->data = (realtype *) malloc(N_local * sizeof(realtype));
-    if (NV_CONTENT_P(v)->data == NULL) {
-      free(v->content);
-      free(v);
-      return(NULL);
-    }
-  } else {
-    NV_CONTENT_P(v)->data = NULL;
-  }
+  /* Create content */
+  content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
+  if (content == NULL) {free(ops);free(v);return(NULL);}
 
-  NV_CONTENT_P(v)->local_length  = N_local;
-  NV_CONTENT_P(v)->global_length = N_global;
+  /* Attach lengths and communicator */
+  content->local_length = local_length;
+  content->global_length = global_length;
+  content->comm = comm;
 
-  v->nvspec = nvspec;
-  
+  content->data = NULL;
+
+  /* Attach content and ops */
+  v->content = content;
+  v->ops = ops;
+
   return(v);
 }
 
-void N_VSpace_Parallel(NV_Spec nvspec, long int *lrw, long int *liw)
+N_Vector N_VNew_Parallel(MPI_Comm comm, 
+                         long int local_length,
+                         long int global_length)
 {
-  *lrw = NS_CONTENT_P(nvspec)->global_vec_length;
-  *liw = 2;
+  N_Vector v;
+  realtype *data;
+
+  v = N_VNewEmpty_Parallel(comm, local_length, global_length);
+  if (v == NULL) return(NULL);
+
+  /* Create data */
+  if(local_length > 0) {
+    data = (realtype *) malloc(local_length * sizeof(realtype));
+    if(data == NULL) {N_VDestroyEmpty_Parallel(v);return(NULL);}
+  }
+
+  /* Attach data */
+  NV_DATA_P(v) = data;
+
+  return(v);
 }
 
-void N_VFree_Parallel(N_Vector v)
+/* Function to create a parallel N_Vector with user data component */
+
+N_Vector N_VMake_Parallel(MPI_Comm comm, 
+                          long int local_length,
+                          long int global_length,
+                          realtype *v_data)
 {
-  if(NV_DATA_P(v) != NULL) free(NV_DATA_P(v));
-  free(NV_CONTENT_P(v));
+  N_Vector v;
+  realtype *data;
+
+  v = N_VNewEmpty_Parallel(comm, local_length, global_length);
+  if (v == NULL) return(NULL);
+
+  /* Attach data */
+  NV_DATA_P(v) = v_data;
+
+  return(v);
+}
+
+/* Function to create an array of new parallel vectors. */
+
+N_Vector *N_VNewVectorArray_Parallel(int count, 
+                                     MPI_Comm comm, 
+                                     long int local_length,
+                                     long int global_length)
+{
+  N_Vector *vs;
+  int j;
+
+  if (count <= 0) return(NULL);
+
+  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  for (j=0; j<count; j++) {
+    vs[j] = N_VNew_Parallel(comm, local_length, global_length);
+    if (vs[j] == NULL) {
+      N_VDestroyVectorArray(vs, j-1);
+      return(NULL);
+    }
+  }
+
+  return(vs);
+}
+
+/* Function to free an N_Vector created with N_VNewEmpty_Parallel
+   N_VCloneEmpty_Parallel */
+
+void N_VDestroyEmpty_Parallel(N_Vector v)
+{
+  free(v->content);
+  free(v->ops);
   free(v);
 }
 
-N_Vector N_VMake_Parallel(void *v_data, NV_Spec nvspec)
-{
-  N_Vector v;
-  long int N_local, N_global;
-
-  if (nvspec == NULL) return(NULL);
-
-  v = (N_Vector) malloc(sizeof *v);
-  if (v == NULL) return(NULL);
-  
-  v->content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
-  if (v->content == NULL) {
-    free(v);
-    return(NULL);
-  }
-
-  N_local  = NS_CONTENT_P(nvspec)->local_vec_length;
-  N_global = NS_CONTENT_P(nvspec)->global_vec_length;
-
-  NV_CONTENT_P(v)->data = (realtype *)v_data;
-
-  NV_CONTENT_P(v)->local_length  = N_local;
-  NV_CONTENT_P(v)->global_length = N_global;
-
-  v->nvspec = nvspec;
-  
-  return(v);
-}
+/* Function to deallocate an array created with N_VMake_Parallel */
 
 void N_VDispose_Parallel(N_Vector v)
 {
-  free(NV_CONTENT_P(v));
-  free(v);
+  N_VDestroyEmpty_Parallel(v);
 }
 
-void *N_VGetData_Parallel(N_Vector v)
+/* Function to print a parallel vector */
+
+void N_VPrint_Parallel(N_Vector x)
+{
+  long int i, N;
+  realtype *xd;
+
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+
+  for (i=0; i < N; i++) printf("%g\n", *xd++);
+
+  printf("\n");
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Implementation of vector operations
+ * -----------------------------------------------------------------
+ */
+
+N_Vector N_VCloneEmpty_Parallel(N_Vector w)
+{
+  N_Vector v;
+  N_Vector_Ops ops;
+  N_VectorContent_Parallel content;
+
+  if (w == NULL) return(NULL);
+
+  /* Create vector */
+  v = (N_Vector) malloc(sizeof *v);
+  if (v == NULL) return(NULL);
+  
+  /* Create vector operation structure */
+  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
+  if (ops == NULL) {free(v);return(NULL);}
+  
+  ops->nvclone           = w->ops->nvclone;
+  ops->nvdestroy         = w->ops->nvdestroy;
+  ops->nvspace           = w->ops->nvspace;
+  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
+  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvlinearsum       = w->ops->nvlinearsum;
+  ops->nvconst           = w->ops->nvconst;  
+  ops->nvprod            = w->ops->nvprod;   
+  ops->nvdiv             = w->ops->nvdiv;
+  ops->nvscale           = w->ops->nvscale; 
+  ops->nvabs             = w->ops->nvabs;
+  ops->nvinv             = w->ops->nvinv;
+  ops->nvaddconst        = w->ops->nvaddconst;
+  ops->nvdotprod         = w->ops->nvdotprod;
+  ops->nvmaxnorm         = w->ops->nvmaxnorm;
+  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
+  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
+  ops->nvmin             = w->ops->nvmin;
+  ops->nvwl2norm         = w->ops->nvwl2norm;
+  ops->nvl1norm          = w->ops->nvl1norm;
+  ops->nvcompare         = w->ops->nvcompare;    
+  ops->nvinvtest         = w->ops->nvinvtest;
+  ops->nvconstrmask      = w->ops->nvconstrmask;
+  ops->nvminquotient     = w->ops->nvminquotient;
+
+  /* Create content */  
+  content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
+  if (content == NULL) {free(ops);free(v);return(NULL);}
+
+  /* Attach lengths and communicator */
+  content->local_length  = NV_LOCLENGTH_P(w);
+  content->global_length = NV_GLOBLENGTH_P(w);
+  content->comm = NV_COMM_P(w);
+
+  content->data = NULL;
+
+  /* Attach content and ops */
+  v->content = content;
+  v->ops = ops;
+
+  return(v);
+}
+
+N_Vector N_VClone_Parallel(N_Vector w)
+{
+  N_Vector v;
+  realtype *data;
+  long int local_length;
+
+  v = N_VCloneEmpty_Parallel(w);
+  if (v == NULL) return(NULL);
+
+  local_length  = NV_LOCLENGTH_P(w);
+
+  /* Create data */
+  if(local_length > 0) {
+    data = (realtype *) malloc(local_length * sizeof(realtype));
+    if(data == NULL) {N_VDestroyEmpty_Parallel(v);return(NULL);}
+  }  
+
+  /* Attach data */
+  NV_DATA_P(v) = data;
+
+  return(v);
+}
+
+void N_VDestroy_Parallel(N_Vector v)
+{
+  if(NV_DATA_P(v) != NULL) free(NV_DATA_P(v));
+  N_VDestroyEmpty_Parallel(v);
+}
+
+void N_VSpace_Parallel(N_Vector v, long int *lrw, long int *liw)
+{
+  *lrw = NV_GLOBLENGTH_P(v);
+  *liw = 2;
+}
+
+realtype *N_VGetArrayPointer_Parallel(N_Vector v)
 {
   realtype *v_data;
-  v_data = NV_CONTENT_P(v)->data;
-  return((void *)v_data);
+
+  v_data = NV_DATA_P(v);
+
+  return(v_data);
 }
 
-void N_VSetData_Parallel(void *v_data, N_Vector v)
+void N_VSetArrayPointer_Parallel(realtype *v_data, N_Vector v)
 {
-  NV_CONTENT_P(v)->data = (realtype *)v_data;
+  NV_DATA_P(v) = v_data;
 }
 
 void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
@@ -469,16 +545,16 @@ realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
 {
   long int i, N;
   realtype sum = ZERO, *xd, *yd, gsum;
-  NV_Spec nvspec;
+  MPI_Comm comm;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   yd = NV_DATA_P(y);
-  nvspec = x->nvspec; 
+  comm = NV_COMM_P(x);
 
   for (i=0; i < N; i++) sum += xd[i] * yd[i];
 
-  gsum = VAllReduce_Parallel(sum, 1, nvspec);
+  gsum = VAllReduce_Parallel(sum, 1, comm);
   return(gsum);
 }
 
@@ -487,11 +563,11 @@ realtype N_VMaxNorm_Parallel(N_Vector x)
 {
   long int i, N;
   realtype max, *xd, gmax;
-  NV_Spec nvspec;
+  MPI_Comm comm;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
-  nvspec = x->nvspec;
+  comm = NV_COMM_P(x);
 
   max = ZERO;
 
@@ -499,7 +575,7 @@ realtype N_VMaxNorm_Parallel(N_Vector x)
     if (ABS(*xd) > max) max = ABS(*xd);
   }
    
-  gmax = VAllReduce_Parallel(max, 2, nvspec);
+  gmax = VAllReduce_Parallel(max, 2, comm);
   return(gmax);
 }
 
@@ -508,20 +584,20 @@ realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
 {
   long int i, N, N_global;
   realtype sum = ZERO, prodi, *xd, *wd, gsum;
-  NV_Spec nvspec;
+  MPI_Comm comm;
 
   N  = NV_LOCLENGTH_P(x);
   N_global = NV_GLOBLENGTH_P(x);
   xd = NV_DATA_P(x);
   wd = NV_DATA_P(w);
-  nvspec = x->nvspec;
+  comm = NV_COMM_P(x);
 
   for (i=0; i < N; i++) {
     prodi = (*xd++) * (*wd++);
     sum += prodi * prodi;
   }
 
-  gsum = VAllReduce_Parallel(sum, 1, nvspec);
+  gsum = VAllReduce_Parallel(sum, 1, comm);
   return(RSqrt(gsum / N_global));
 }
 
@@ -529,14 +605,14 @@ realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
 {
   long int i, N, N_global;
   realtype sum = ZERO, prodi, *xd, *wd, *idd, gsum;
-  NV_Spec nvspec;
+  MPI_Comm comm;
 
   N  = NV_LOCLENGTH_P(x);
   N_global = NV_GLOBLENGTH_P(x);
   xd = NV_DATA_P(x);
   wd = NV_DATA_P(w);
   idd = NV_DATA_P(id);
-  nvspec = x->nvspec;
+  comm = NV_COMM_P(x);
 
   for (i=0; i < N; i++) {
     if (idd[i] > ZERO) {
@@ -545,7 +621,7 @@ realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
     }
   }
 
-  gsum = VAllReduce_Parallel(sum, 1, nvspec);
+  gsum = VAllReduce_Parallel(sum, 1, comm);
   return(RSqrt(gsum / N_global));
 }
 
@@ -553,10 +629,10 @@ realtype N_VMin_Parallel(N_Vector x)
 {
   long int i, N;
   realtype min, *xd, gmin;
-  NV_Spec nvspec;
+  MPI_Comm comm;
 
   N  = NV_LOCLENGTH_P(x);
-  nvspec = x->nvspec;
+  comm = NV_COMM_P(x);
 
   min = BIG_REAL;
 
@@ -573,7 +649,7 @@ realtype N_VMin_Parallel(N_Vector x)
 
   }
     
-  gmin = VAllReduce_Parallel(min, 3, nvspec);
+  gmin = VAllReduce_Parallel(min, 3, comm);
   return(gmin);
 }
 
@@ -582,19 +658,19 @@ realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
 {
   long int i, N;
   realtype sum = ZERO, prodi, *xd, *wd, gsum;
-  NV_Spec nvspec;
+  MPI_Comm comm;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   wd = NV_DATA_P(w);
-  nvspec = x->nvspec;
+  comm = NV_COMM_P(x);
 
   for (i=0; i < N; i++) {
     prodi = (*xd++) * (*wd++);
     sum += prodi * prodi;
   }
 
-  gsum = VAllReduce_Parallel(sum, 1, nvspec);
+  gsum = VAllReduce_Parallel(sum, 1, comm);
   return(RSqrt(gsum));
 }
 
@@ -603,16 +679,16 @@ realtype N_VL1Norm_Parallel(N_Vector x)
 {
   long int i, N;
   realtype sum = ZERO, gsum, *xd;
-  NV_Spec nvspec;
+  MPI_Comm comm;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
-  nvspec = x->nvspec;
+  comm = NV_COMM_P(x);
 
   for (i=0; i<N; i++,xd++) 
     sum += ABS(*xd);
 
-  gsum = VAllReduce_Parallel(sum, 1, nvspec);
+  gsum = VAllReduce_Parallel(sum, 1, comm);
   return(gsum);
 }
 
@@ -636,12 +712,12 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd, val, gval;
-  NV_Spec nvspec;
+  MPI_Comm comm;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   zd = NV_DATA_P(z);
-  nvspec = x->nvspec; 
+  comm = NV_COMM_P(x);
 
   val = ONE;
   for (i=0; i < N; i++) {
@@ -651,7 +727,7 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
       *zd++ = ONE / (*xd++);
   }
 
-  gval = VAllReduce_Parallel(val, 3, nvspec);
+  gval = VAllReduce_Parallel(val, 3, comm);
   if (gval == ZERO)
     return(FALSE);
   else
@@ -664,13 +740,13 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
   long int i, N;
   booleantype test;
   realtype *cd, *xd, *md;
-  NV_Spec nvspec;
+  MPI_Comm comm;
  
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   cd = NV_DATA_P(c);
   md = NV_DATA_P(m);
-  nvspec = x->nvspec;
+  comm = NV_COMM_P(x);
 
   test = TRUE;
 
@@ -686,7 +762,7 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
     }
   }
 
-  return((booleantype)VAllReduce_Parallel((realtype)test, 3, nvspec));
+  return((booleantype)VAllReduce_Parallel((realtype)test, 3, comm));
 }
 
 
@@ -695,12 +771,12 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
   booleantype notEvenOnce;
   long int i, N;
   realtype *nd, *dd, min;
-  NV_Spec nvspec;
+  MPI_Comm comm;
 
   N  = NV_LOCLENGTH_P(num);
   nd = NV_DATA_P(num);
   dd = NV_DATA_P(denom);
-  nvspec = num->nvspec;
+  comm = NV_COMM_P(num);
 
   notEvenOnce = TRUE;
 
@@ -719,39 +795,26 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
   if (notEvenOnce) min = BIG_REAL;
   if (N==0)        min = BIG_REAL;
 
-  return(VAllReduce_Parallel(min, 3, nvspec));
+  return(VAllReduce_Parallel(min, 3, comm));
 }
 
- 
-void N_VPrint_Parallel(N_Vector x)
+/*
+ * -----------------------------------------------------------------
+ * Private functions
+ * -----------------------------------------------------------------
+ */
+
+static realtype VAllReduce_Parallel(realtype d, int op, MPI_Comm comm)
 {
-  long int i, N;
-  realtype *xd;
+  /* 
+   * This function does a global reduction.  The operation is
+   *   sum if op = 1,
+   *   max if op = 2,
+   *   min if op = 3.
+   * The operation is over all processors in the communicator 
+   */
 
-  N  = NV_LOCLENGTH_P(x);
-  xd = NV_DATA_P(x);
-
-  for (i=0; i < N; i++) printf("%g\n", *xd++);
-
-  printf("\n");
-}
-
-
-/***************** Private Helper Functions **********************/
-
-static realtype VAllReduce_Parallel(realtype d, int op, NV_Spec nvspec)
-{
-  /* This function does a global reduction.  The operation is
-       sum if op = 1,
-       max if op = 2,
-       min if op = 3.
-     The operation is over all processors in the group defined by
-     the parameters within nvspec. */
-
-  MPI_Comm comm;
   realtype out;
-
-  comm = NS_CONTENT_P(nvspec)->comm;
 
   switch (op) {
    case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
