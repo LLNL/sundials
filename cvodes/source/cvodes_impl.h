@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-05-26 18:37:07 $
+ * $Revision: 1.2 $
+ * $Date: 2004-07-22 21:20:41 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -323,20 +323,6 @@ typedef struct CVodeMemRec {
   ------------*/
 
   FILE *cv_errfp;             /* CVODE error messages are sent to errfp    */
-
-  /*-----------------------------------------------------
-    Pointer to the vector specification structure for
-    state N_Vectors
-  -----------------------------------------------------*/
-
-  NV_Spec cv_nvspec;
-
-  /*-----------------------------------------------------
-    Pointer to the vector specification structure for 
-    quadrature N_Vectors
-  -----------------------------------------------------*/
-
-  NV_Spec cv_nvspecQ;
 
   /*-------------------------
     Stability Limit Detection
