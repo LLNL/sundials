@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2004-10-28 00:35:53 $
+# $Revision: 1.8 $
+# $Date: 2004-11-23 22:13:43 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,9 +43,9 @@ SHARED_INC_DIR   = $(srcdir)/../../shared/include
 IDA_INC_DIR      = $(srcdir)/../include
 
 IDA_LIB       = libsundials_ida.la
-IDA_LIB_FILES = ida.lo idadense.lo idaband.lo idaspgmr.lo idabbdpre.lo
+IDA_LIB_FILES = ida.lo idaic.lo idaio.lo idadense.lo idaband.lo idaspgmr.lo idabbdpre.lo
 
-OBJECT_FILES = ida.o idadense.o idaband.o idaspgmr.o idabbdpre.o
+OBJECT_FILES = ida.o idaic.o idaio.o idadense.o idaband.o idaspgmr.o idabbdpre.o
 
 all: update $(IDA_LIB_FILES)
 
@@ -78,6 +78,10 @@ uninstall: clean
 
 ida.lo: $(srcdir)/ida.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/ida.c
+idaic.lo: $(srcdir)/idaic.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idaic.c
+idaio.lo: $(srcdir)/idaio.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idaio.c
 idadense.lo: $(srcdir)/idadense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idadense.c
 idaband.lo: $(srcdir)/idaband.c
