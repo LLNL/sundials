@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-21 20:44:41 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-26 18:05:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -19,9 +19,9 @@
 #ifndef _FNVECTOR_SERIAL_H
 #define _FNVECTOR_SERIAL_H
 
-#ifndef _CONFIG_H
-#define _CONFIG_H
-#include <config.h>
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
 #endif
 
 #if defined(F77_FUNC)
