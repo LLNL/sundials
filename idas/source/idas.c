@@ -1,23 +1,22 @@
 /*******************************************************************
- * File          : ida.c                                           *
+ * File          : idas.c                                          *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 18 July 2003                                    *
+ * Version of    : 12 August 2003                                  *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/ida/LICENSE                           *
+ * For details, see sundials/idas/LICENSE                          *
  *-----------------------------------------------------------------*
- * This is the implementation file for the main IDA solver.        *
+ * This is the implementation file for the main IDAS solver.       *
  * It is independent of the linear solver in use.                  *
  *                                                                 *
  *******************************************************************/
 
-
-/************************************************************/
-/******************* BEGIN Imports **************************/
-/************************************************************/
+/*=================================================================*/
+/*BEGIN        Import Header Files                                 */
+/*=================================================================*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,28 +25,24 @@
 #include "nvector.h"
 #include "sundialsmath.h"
 
-/************************************************************/
-/******************** END Imports ***************************/
-/************************************************************/
+/*=================================================================*/
+/*END          Import Header Files                                 */
+/*=================================================================*/
 
-
-/***************************************************************/
-/*********************** BEGIN Macros **************************/
-/**************************************************************/
+/*=================================================================*/
+/*BEGIN        Macros                                              */
+/*=================================================================*/
 
 /* Macro: loop */
-
 #define loop for(;;)
 
-/***************************************************************/
-/************************ END Macros ***************************/
-/***************************************************************/
+/*=================================================================*/
+/*END          Macros                                              */
+/*=================================================================*/
 
-
-
-/************************************************************/
-/************** BEGIN IDA Private Constants ***************/
-/************************************************************/
+/*=================================================================*/
+/*BEGIN        IDAS Private Constants                              */
+/*=================================================================*/
 
 #define ZERO       RCONST(0.0)    /* real 0.0    */
 #define HALF       RCONST(0.5)    /* real 0.5    */
@@ -68,9 +63,13 @@
 #define PT001      RCONST(0.001)  /* real 0.001  */
 #define PT0001     RCONST(0.0001) /* real 0.0001 */
 
-/***************************************************************/
-/************** BEGIN Default Constants ************************/
-/***************************************************************/
+/*=================================================================*/
+/*END          IDAS Private Constants                              */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        IDAS Default Constants                              */
+/*=================================================================*/
 
 #define MXSTEP_DEFAULT   500   /* mxstep default value   */
 #define MAXORD_DEFAULT   5     /* maxord default value   */
@@ -82,17 +81,16 @@
 #define MAXNJ      4    /* max. number of J tries in IC calc. */
 #define MAXNI      10   /* max. Newton iterations in IC calc. */
 
-/***************************************************************/
-/*************** END Default Constants *************************/
-/***************************************************************/
+/*=================================================================*/
+/*END        IDAS Default Constants                                */
+/*=================================================================*/
 
-
-/***************************************************************/
-/************ BEGIN Routine-Specific Constants *****************/
-/***************************************************************/
-
- /* IDASolve return values are defined by an enum statement in the 
-    include file ida.h.  They are: 
+/*=================================================================*/
+/*BEGIN        IDAS Routine-Specific Constants                     */
+/*=================================================================*/
+/* 
+   IDASolve return values are defined by an enum statement in the 
+   include file ida.h.  They are: 
  
        (successful returns:)
  
@@ -113,7 +111,7 @@
        CONSTR_FAILURE   
        REP_RES_REC_ERR
        RES_NONREC_ERR
-                       */
+*/
 
 /* IDAStep return values */
 
@@ -182,15 +180,20 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define XRATE                RCONST(0.25)        
 
+/* IDASensRes1DQ finite difference methods */
 
-/***************************************************************/
-/*************** END Routine-Specific Constants  ***************/
-/***************************************************************/
+#define CENTERED1  0
+#define CENTERED2  1
+#define FORWARD1   2
+#define FORWARD2   3
 
+/*=================================================================*/
+/*END          IDAS Routine-Specific Constants                     */
+/*=================================================================*/
 
-/***************************************************************/
-/***************** BEGIN Error Messages ************************/
-/***************************************************************/
+/*=================================================================*/
+/*BEGIN        IDAS Error Messages                                 */
+/*=================================================================*/
 
 /* IDACreate error messages */
 
@@ -222,6 +225,14 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_IDAS_BAD_STEPTOL "IDASetLineSearchOffIC-- steptol < 0.0 illegal.\n\n"
 
+#define MSG_IDAS_BAD_ECONQ1  "IDASetQuadErrCon-- errconQ=%d illegal.\n"
+#define MSG_IDAS_BAD_ECONQ2  "The legal values are FULL=%d and PARTIAL=%d.\n\n"
+#define MSG_IDAS_BAD_ECONQ   MSG_IDAS_BAD_ECONQ1 MSG_IDAS_BAD_ECONQ2
+
+#define MSG_IDAS_BAD_ECON1   "IDASetSensErrCon-- errcon=%d illegal.\n"
+#define MSG_IDAS_BAD_ECON2   "The legal values are FULL=%d and PARTIAL=%d.\n\n"
+#define MSG_IDAS_BAD_ECON    MSG_IDAS_BAD_ECON1 MSG_IDAS_BAD_ECON2
+
 /* IDAMalloc/IDAReInit error messages */
 
 #define IDAM               "IDAMalloc/IDAReInit-- "
@@ -237,17 +248,64 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_RES_NULL       IDAM "res = NULL illegal.\n\n"
 
-#define MSG_RTOL_NULL      IDAM "rtol = NULL illegal.\n\n"
+#define MSG_RELTOL_NULL      IDAM "reltol = NULL illegal.\n\n"
 
-#define MSG_BAD_RTOL       IDAM "*rtol = %g < 0 illegal.\n\n"
+#define MSG_BAD_RELTOL       IDAM "*reltol = %g < 0 illegal.\n\n"
 
-#define MSG_ATOL_NULL      IDAM "atol = NULL illegal.\n\n"
+#define MSG_ABSTOL_NULL      IDAM "abstol = NULL illegal.\n\n"
 
-#define MSG_BAD_ATOL       IDAM "Some atol component < 0.0 illegal.\n\n"
+#define MSG_BAD_ABSTOL       IDAM "Some abstol component < 0.0 illegal.\n\n"
 
 #define MSG_MEM_FAIL       IDAM "A memory request failed.\n\n"
 
 #define MSG_REI_NO_MALLOC  "IDAReInit-- Attempt to call before IDAMalloc. \n\n"
+
+/* IDAQuadMalloc/IDAQuadReInit error messages */
+
+#define QIDAM              "IDAQuadMalloc/IDAQuadReInit-- "
+
+#define MSG_QIDAM_NO_MEM   QIDAM "ida_mem=NULL illegal.\n\n"
+
+#define MSG_QIDAM_MEM_FAIL QIDAM "A memory request failed.\n\n"
+
+#define MSG_BAD_RHSQ       QIDAM "rhsQ=NULL illegal.\n\n"
+
+#define MSG_QREI_QUAD1     "IDAQuadReInit-- Illegal attempt to call before "
+#define MSG_QREI_QUAD2     "calling IDAQuadMalloc.\n\n"
+#define MSG_QREI_NO_QUAD   MSG_QREI_QUAD1 MSG_QREI_QUAD2
+
+/* IDASensMalloc/ IDASensReInit error messages */
+
+#define SIDAM            "IDASensMalloc/IDASensReInit-- "
+
+#define MSG_SIDAM_NO_MEM SIDAM "ida_mem=NULL illegal.\n\n"
+
+#define MSG_SIDAM_MEM_FAIL SIDAM "A memory request failed.\n\n"
+
+#define MSG_BAD_NS       SIDAM "NS=%ld<0 illegal.\n\n"
+
+#define MSG_P_NULL       SIDAM "p=NULL illegal.\n\n"
+#define MSG_PBAR_NULL    SIDAM "pbar is needed, but pbar=NULL illegal.\n\n"
+
+#define MSG_YS0_NULL     SIDAM "yS0=NULL illegal.\n\n"
+
+#define MSG_BAD_RELTOLS  SIDAM "*reltolS=%g < 0.0 illegal.\n\n"
+
+#define MSG_BAD_ABSTOLS  SIDAM "Some abstolS component < 0.0 illegal.\n\n"  
+
+#define MSG_BAD_ISM1     SIDAM "ism=%d illegal.\n"
+#define MSG_BAD_ISM2     "The legal values are: "
+#define MSG_BAD_ISM3     "SIMULTANEOUS=%d, STAGGERED=%d and STAGGERED1=%d.\n\n"
+#define MSG_BAD_ISM      MSG_BAD_ISM1 MSG_BAD_ISM2 MSG_BAD_ISM3
+
+#define MSG_BAD_ISM_IFS  SIDAM "Illegal combination ism=STAGGERED1 and ifS=ALLSENS.\n\n"
+
+#define MSG_BAD_PBAR     SIDAM "Some pbar component = 0.0 illegal.\n\n"
+
+#define MSG_SREI_SENSI1    "IDASensReInit-- Illegal attempt to call before "
+#define MSG_SREI_SENSI2    "calling IDASensMalloc.\n\n"
+#define MSG_SREI_NO_SENSI  MSG_SREI_SENSI1 MSG_SREI_SENSI2
+
 
 /* IDAInitialSetup error messages -- called from IDACalcIC or IDASolve */
 
@@ -262,6 +320,16 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_BAD_CONSTRAINTS IDAIS "illegal values in constraints vector.\n\n"
 
 #define MSG_Y0_FAIL_CONSTR  IDAIS "y0 fails to satisfy constraints.\n\n"
+
+#define MSG_BAD_ITOLQ1      IDAIS "itolQ=%d illegal.\n"
+#define MSG_BAD_ITOLQ2      "The legal values are SS=%d and SV=%d.\n\n"
+#define MSG_BAD_ITOLQ       MSG_BAD_ITOLQ1 MSG_BAD_ITOLQ2
+
+#define MSG_BAD_RELTOLQ     IDAIS "*reltolQ=%g < 0.0 illegal.\n\n"
+
+#define MSG_BAD_ABSTOLQ     IDAIS "Some abstolQ component < 0.0 illegal.\n\n"  
+
+#define MSG_BAD_EWTQ        IDAIS "Some initial ewtQ component = 0.0 illegal.\n\n"
 
 #define MSG_LINIT_NULL      IDAIS "The linear solver's init routine is NULL.\n\n"
 
@@ -355,6 +423,10 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_EWT_NOW_BAD2   "some ewt component has become <= 0.0.\n\n"
 #define MSG_EWT_NOW_BAD    MSG_EWT_NOW_BAD1 MSG_EWT_NOW_BAD2
 
+#define MSG_EWTQ_NOW_BAD1  IDASLV "At t=%g, "
+#define MSG_EWTQ_NOW_BAD2  "some ewtQ component has become <= 0.0.\n\n"
+#define MSG_EWTQ_NOW_BAD   MSG_EWTQ_NOW_BAD1 MSG_EWTQ_NOW_BAD2
+
 #define MSG_TOO_MUCH_ACC   IDASLV "At t=%g, too much accuracy requested.\n\n"
 
 #define MSG_ERR_FAILS1     IDASLV "At t=%g and step size h=%g, the error test\n"
@@ -383,6 +455,10 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_BAD_ITASK      IDASLV "itask=%d illegal.\n\n"
 
+#define MSG_NO_TSTOP1      IDASLV "itask = NORMAL_TSTOP or itask = ONE_STEP_TSTOP "
+#define MSG_NO_TSTOP2      "but tstop was not set.\n\n"
+#define MSG_NO_TSTOP       MSG_NO_TSTOP1 MSG_NO_TSTOP2
+
 #define MSG_REP_RES_ERR1   IDASLV "At t = %g, repeated recoverable error \n"
 #define MSG_REP_RES_ERR2   "returns from ResFn residual function. \n\n"
 #define MSG_REP_RES_ERR    MSG_REP_RES_ERR1 MSG_REP_RES_ERR2
@@ -397,27 +473,29 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 /* IDAGet Error Messages */
 
-#define MSG_IDAG_NO_MEM "ida_mem=NULL in an IDAGet routine illegal. \n\n"
+#define MSG_IDAG_NO_MEM    "ida_mem=NULL in an IDAGet routine illegal. \n\n"
 
-#define MSG_BAD_T1      "IDAGetSolution-- t=%g illegal.\n"
-#define MSG_BAD_T2      "t not in interval tcur-hu=%g to tcur=%g.\n\n"
-#define MSG_BAD_T       MSG_BAD_T1 MSG_BAD_T2
+#define MSG_BAD_T1         "IDAGetSolution/IDAGetQuad/IDAGetSens-- t=%g illegal.\n"
+#define MSG_BAD_T2         "t not in interval tcur-hu=%g to tcur=%g.\n\n"
+#define MSG_BAD_T          MSG_BAD_T1 MSG_BAD_T2
 
-/***************************************************************/
-/****************** END Error Messages *************************/
-/***************************************************************/
+#define MSG_IDAG_NO_QUAD1  "IDAGetQuad*-- Illegal attempt to call before "
+#define MSG_IDAG_NO_QUAD2  "calling IDAQuadMalloc.\n\n"
+#define MSG_IDAG_NO_QUAD   MSG_IDAG_NO_QUAD1 MSG_IDAG_NO_QUAD2
 
+#define MSG_IDAG_NO_SENSI1 "IDAGetSens*-- Illegal attempt to call before "
+#define MSG_IDAG_NO_SENSI2 "calling IDASensMalloc.\n\n"
+#define MSG_IDAG_NO_SENSI  MSG_IDAG_NO_SENSI1 MSG_IDAG_NO_SENSI2
 
-/************************************************************/
-/*************** END IDA Private Constants ****************/
-/************************************************************/
+/*=================================================================*/
+/*END          IDAS Error Messages                                 */
+/*=================================================================*/
 
+/*=================================================================*/
+/*BEGIN        Private Helper Functions Prototypes                 */
+/*=================================================================*/
 
-/**************************************************************/
-/********* BEGIN Private Helper Functions Prototypes **********/
-/**************************************************************/
-
-static booleantype IDAAllocVectors(IDAMem IDA_mem, NV_Spec NVSpec);
+static booleantype IDAAllocVectors(IDAMem IDA_mem);
 static void IDAFreeVectors(IDAMem IDA_mem);
 
 static int IDAnlsIC (IDAMem IDA_mem);
@@ -453,21 +531,65 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
 static int IDACompleteStep(IDAMem IDA_mem, realtype *est, 
                            realtype *terk, realtype *terkm1, realtype *erkm1);
 
+/*------------------*/
 
-/**************************************************************/
-/********** END Private Helper Functions Prototypes ***********/
-/**************************************************************/
+static booleantype IDAQuadAllocVectors(IDAMem IDA_mem);
+static void IDAQuadFreeVectors(IDAMem IDA_mem);
+static booleantype IDAQuadEwtSet(IDAMem ida_mem, N_Vector qcur);
+static booleantype IDAQuadEwtSetSS(IDAMem ida_mem, N_Vector qcur);
+static booleantype IDAQuadEwtSetSV(IDAMem ida_mem, N_Vector qcur);
 
+/*------------------*/
 
+static booleantype IDASensAllocAtol(IDAMem IDA_mem, void **atolSPtr);
+static void IDASensFreeAtol(IDAMem IDA_mem, void *atolS);
 
-/***************************************************************/
-/************* BEGIN IDA Implementation ************************/
-/***************************************************************/
+/*------------------*/
 
+static booleantype IDASensAllocVectors(IDAMem IDA_mem);
+static void IDASensFreeVectors(IDAMem IDA_mem);
 
-/***************************************************************/
-/********* BEGIN Exported Functions Implementation *************/
-/***************************************************************/
+/*------------------*/
+
+static realtype IDAQuadUpdateNorm(realtype old_nrm,
+                                  N_Vector xQ, N_Vector wQ);
+static realtype IDASensNorm(int Nsens, N_Vector *xS, N_Vector *wS);
+static realtype IDASensUpdateNorm(int Nsens, realtype old_nrm,
+                                  N_Vector *xS, N_Vector *wS);
+
+/*------------------*/
+
+static int IDASensRes(IDAMem IDA_mem, realtype time,
+                      N_Vector yycur, N_Vector ypcur, N_Vector resvalcur,
+                      N_Vector *yyScur, N_Vector *ypScur, N_Vector *resvalScur,
+                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+static int IDASensRes1(IDAMem IDA_mem, realtype time,
+                       N_Vector yycur, N_Vector ypcur, N_Vector resvalcur,
+                       int is,
+                       N_Vector yyScur, N_Vector ypScur, N_Vector resvalScur,
+                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+static int IDASensResDQ(int Ns, realtype t, 
+                        N_Vector yy, N_Vector yp, N_Vector resval,
+                        N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
+                        void *rdataS,
+                        N_Vector ytemp, N_Vector yptemp, N_Vector restemp);
+
+static int IDASensRes1DQ(int Ns, realtype t, 
+                         N_Vector yy, N_Vector yp, N_Vector resval,
+                         int iS,
+                         N_Vector yyS, N_Vector ypS, N_Vector resvalS,
+                         void *rdataS,
+                         N_Vector ytemp, N_Vector yptemp, N_Vector restemp);
+
+/*=================================================================*/
+/*END          Private Helper Functions Prototypes                 */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        EXPORTED FUNCTIONS IMPLEMENTATION                   */
+/*=================================================================*/
 
 /*------------------     IDACreate     --------------------------*/
 /* 
@@ -504,26 +626,44 @@ void *IDACreate(void)
   IDA_mem->ida_suppressalg = FALSE;
   IDA_mem->ida_id          = NULL;
   IDA_mem->ida_constraints = NULL;
+  IDA_mem->ida_tstopset    = FALSE;
 
-  IDA_mem->ida_istop       = FALSE;
+  /* Set default values for quad. optional inputs */
+  IDA_mem->ida_rdataQ      = NULL;
+  IDA_mem->ida_errconQ     = FULL;
+
+  /* Set defaull values for sensi. optional inputs */
+  IDA_mem->ida_rdataS      = (void *)IDA_mem;
+  IDA_mem->ida_resS        = IDASensResDQ;
+  IDA_mem->ida_resS1       = IDASensRes1DQ;
+  IDA_mem->ida_resSDQ      = TRUE;
+  IDA_mem->ida_iresS       = ONESENS;
+  IDA_mem->ida_errcon      = FULL;
+  IDA_mem->ida_rhomax      = ZERO;
+  IDA_mem->ida_pbar        = NULL;
+  IDA_mem->ida_reltolS     = NULL;
+  IDA_mem->ida_abstolS     = NULL;
 
   /* Set default values for IC optional inputs */
-  IDA_mem->ida_epicfac = EPICFAC;
-  IDA_mem->ida_maxnh   = MAXNH;
-  IDA_mem->ida_maxnj   = MAXNJ;
-  IDA_mem->ida_maxnit  = MAXNI;
-  IDA_mem->ida_lsoff   = FALSE;
-  IDA_mem->ida_steptol = RPowerR(IDA_mem->ida_uround, TWOTHIRDS);
+  IDA_mem->ida_epicfac     = EPICFAC;
+  IDA_mem->ida_maxnh       = MAXNH;
+  IDA_mem->ida_maxnj       = MAXNJ;
+  IDA_mem->ida_maxnit      = MAXNI;
+  IDA_mem->ida_lsoff       = FALSE;
+  IDA_mem->ida_steptol     = RPowerR(IDA_mem->ida_uround, TWOTHIRDS);
 
   /* No mallocs have been done yet */
-  IDA_mem->ida_MallocDone = FALSE;
+  IDA_mem->ida_MallocDone     = FALSE;
+  IDA_mem->ida_quadMallocDone = FALSE;
+  IDA_mem->ida_sensMallocDone = FALSE;
 
   /* Return pointer to IDA memory block */
   return((void *)IDA_mem);
 }
 
-
-/*-----------------------------------------------------------------*/
+/*=================================================================*/
+/*BEGIN        INTEGRATOR OPTIONAL INPUT FUNCTIONS                 */
+/*=================================================================*/
 
 int IDASetRdata(void *ida_mem, void *rdata)
 {
@@ -677,12 +817,13 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_tstop = tstop;
+  IDA_mem->ida_tstopset = TRUE;
 
   return(SUCCESS);
 }
 
-#define tstop (IDA_mem->ida_tstop)
-#define istop (IDA_mem->ida_istop)
+#define tstop    (IDA_mem->ida_tstop)
+#define tstopset (IDA_mem->ida_tstopset)
 
 /*-----------------------------------------------------------------*/
 
@@ -769,23 +910,27 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
 #define constraints (IDA_mem->ida_constraints)
 
-/******************** IDAMalloc *******************************
+/*=================================================================*/
+/*END        INTEGRATOR OPTIONAL INPUT FUNCTIONS                   */
+/*=================================================================*/
 
+/*------------------       IDAMalloc     --------------------------*/
+/*
  IDAMalloc allocates and initializes memory for a problem. All
  problem specification inputs are checked for errors. If any
  error occurs during initialization, it is reported to the file
  whose file pointer is errfp and an error flag is returned. 
- 
-*****************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 int IDAMalloc(void *ida_mem, ResFn res,
               realtype t0, N_Vector y0, N_Vector yp0, 
-              int itol, realtype *rtol, void *atol,
+              int itol, realtype *reltol, void *abstol,
               NV_Spec nvspec)
 {
   IDAMem IDA_mem;
-  booleantype allocOK, neg_atol;
-  integertype lrw1, liw1;
+  booleantype allocOK, neg_abstol;
+  long int lrw1, liw1;
 
   /* Check ida_mem */
   if (ida_mem == NULL) {
@@ -816,28 +961,28 @@ int IDAMalloc(void *ida_mem, ResFn res,
     return(IDAM_ILL_INPUT); 
   }
 
-  if (rtol == NULL) { 
-    fprintf(errfp, MSG_RTOL_NULL); 
+  if (reltol == NULL) { 
+    fprintf(errfp, MSG_RELTOL_NULL); 
     return(IDAM_ILL_INPUT); 
   }
 
-  if (*rtol < ZERO) { 
-    fprintf(errfp, MSG_BAD_RTOL, *rtol); 
+  if (*reltol < ZERO) { 
+    fprintf(errfp, MSG_BAD_RELTOL, *reltol); 
     return(IDAM_ILL_INPUT); 
   }
    
-  if (atol == NULL) { 
-    fprintf(errfp, MSG_ATOL_NULL); 
+  if (abstol == NULL) { 
+    fprintf(errfp, MSG_ABSTOL_NULL); 
     return(IDAM_ILL_INPUT); 
   }
 
   if (itol == SS) { 
-    neg_atol = (*((realtype *)atol) < ZERO); 
+    neg_abstol = (*((realtype *)abstol) < ZERO); 
   } else { 
-    neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
+    neg_abstol = (N_VMin((N_Vector)abstol) < ZERO); 
   }
-  if (neg_atol) { 
-    fprintf(errfp, MSG_BAD_ATOL); 
+  if (neg_abstol) { 
+    fprintf(errfp, MSG_BAD_ABSTOL); 
     return(IDAM_ILL_INPUT); 
   }
 
@@ -847,7 +992,8 @@ int IDAMalloc(void *ida_mem, ResFn res,
   IDA_mem->ida_liw1 = liw1;
 
   /* Allocate the vectors */
-  allocOK = IDAAllocVectors(IDA_mem, nvspec);
+  IDA_mem->ida_nvspec = nvspec;
+  allocOK = IDAAllocVectors(IDA_mem);
   if (!allocOK) {
     fprintf(errfp, MSG_MEM_FAIL);
     return(IDAM_MEM_FAIL);
@@ -856,14 +1002,13 @@ int IDAMalloc(void *ida_mem, ResFn res,
   /* All error checking is complete at this point */
 
   /* Copy the input parameters into IDA memory block */
-  IDA_mem->ida_nvspec = nvspec;
   IDA_mem->ida_res = res;
   IDA_mem->ida_tn = t0;
   IDA_mem->ida_y0  = y0;
   IDA_mem->ida_yp0 = yp0;
   IDA_mem->ida_itol = itol;
-  IDA_mem->ida_rtol = rtol;      
-  IDA_mem->ida_atol = atol;  
+  IDA_mem->ida_reltol = reltol;      
+  IDA_mem->ida_abstol = abstol;  
 
   /* Set the linear solver addresses to NULL, linitOK to FALSE */
   IDA_mem->ida_linit  = NULL;
@@ -898,8 +1043,8 @@ int IDAMalloc(void *ida_mem, ResFn res,
   return(SUCCESS);
 }
 
-/******************** IDAReInit ********************************
-
+/*---------------------- IDAReInit --------------------------------*/
+/*
  IDAReInit re-initializes IDA's memory for a problem, assuming
  it has already beeen allocated in a prior IDAMalloc call.
  All problem specification inputs are checked for errors.
@@ -909,15 +1054,15 @@ int IDAMalloc(void *ida_mem, ResFn res,
  the file whose file pointer is errfp.
  The return value is SUCCESS = 0 if no errors occurred, or
  a negative value otherwise.
- 
-*****************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 int IDAReInit(void *ida_mem, ResFn res,
               realtype t0, N_Vector y0, N_Vector yp0,
-              int itol, realtype *rtol, void *atol)
+              int itol, realtype *reltol, void *abstol)
 {
   IDAMem IDA_mem;
-  booleantype neg_atol;
+  booleantype neg_abstol;
 
   /* Check for legal input parameters */
   
@@ -956,28 +1101,28 @@ int IDAReInit(void *ida_mem, ResFn res,
     return(IDAREI_ILL_INPUT); 
   }
 
-  if (rtol == NULL) { 
-    fprintf(errfp, MSG_RTOL_NULL); 
+  if (reltol == NULL) { 
+    fprintf(errfp, MSG_RELTOL_NULL); 
     return(IDAREI_ILL_INPUT); 
   }
 
-  if (*rtol < ZERO) {
-    fprintf(errfp, MSG_BAD_RTOL, *rtol); 
+  if (*reltol < ZERO) {
+    fprintf(errfp, MSG_BAD_RELTOL, *reltol); 
     return(IDAREI_ILL_INPUT); 
   }
    
-  if (atol == NULL) { 
-    fprintf(errfp, MSG_ATOL_NULL); 
+  if (abstol == NULL) { 
+    fprintf(errfp, MSG_ABSTOL_NULL); 
     return(IDAREI_ILL_INPUT); 
   }
 
   if (itol == SS) { 
-    neg_atol = (*((realtype *)atol) < ZERO); 
+    neg_abstol = (*((realtype *)abstol) < ZERO); 
   } else { 
-    neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
+    neg_abstol = (N_VMin((N_Vector)abstol) < ZERO); 
   }
-  if (neg_atol) { 
-    fprintf(errfp, MSG_BAD_ATOL); 
+  if (neg_abstol) { 
+    fprintf(errfp, MSG_BAD_ABSTOL); 
     return(IDAREI_ILL_INPUT); 
   }
 
@@ -989,8 +1134,8 @@ int IDAReInit(void *ida_mem, ResFn res,
   IDA_mem->ida_yp0 = yp0;
   IDA_mem->ida_tn = t0;
   IDA_mem->ida_itol = itol;
-  IDA_mem->ida_rtol = rtol;      
-  IDA_mem->ida_atol = atol;  
+  IDA_mem->ida_reltol = reltol;      
+  IDA_mem->ida_abstol = abstol;  
 
   /* Set linitOK to FALSE */
   IDA_mem->ida_linitOK = FALSE;
@@ -1024,12 +1169,437 @@ int IDAReInit(void *ida_mem, ResFn res,
 #define y0     (IDA_mem->ida_y0)
 #define yp0    (IDA_mem->ida_yp0)
 #define itol   (IDA_mem->ida_itol)
-#define rtol   (IDA_mem->ida_rtol)
-#define atol   (IDA_mem->ida_atol)
+#define reltol (IDA_mem->ida_reltol)
+#define abstol (IDA_mem->ida_abstol)
 #define nvspec (IDA_mem->ida_nvspec)
 
+/*=================================================================*/
+/*BEGIN        QUADRATURE OPTIONAL INPUT FUNCTIONS                 */
+/*=================================================================*/
+
+int IDASetQuadErrCon(void *ida_mem, int errconQ)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return(IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if ((errconQ!=FULL) && (errconQ!=PARTIAL)) {
+    fprintf(errfp, MSG_IDAS_BAD_ECONQ, errconQ, FULL, PARTIAL);
+    return(IDAS_ILL_INPUT);
+  }
+
+  IDA_mem->ida_errconQ = errconQ;
+
+  return(SUCCESS);
+}
+
+#define errconQ (IDA_mem->ida_errconQ)
 
 /*-----------------------------------------------------------------*/
+
+int IDASetQuadRdata(void *ida_mem, void *rdataQ)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return(IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_rdataQ = rdataQ;
+
+  return(SUCCESS);
+}
+
+#define rdataQ (IDA_mem->ida_rdataQ)
+
+/*=================================================================*/
+/*END        QUADRATURE OPTIONAL INPUT FUNCTIONS                   */
+/*=================================================================*/
+
+/*--------------------   IDAQuadMalloc   --------------------------*/
+/*
+  IDAQuadMalloc allocates and initializes quadrature related 
+  memory for a problem. All problem specification inputs are 
+  checked for errors. If any error occurs during initialization, 
+  it is reported to the file whose file pointer is errfp. 
+  The return value is SUCCESS = 0 if no errors occurred, or
+  a negative value otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ,
+                  int itolQ, realtype *reltolQ, void *abstolQ,
+                  NV_Spec nvspecQ)
+{
+  IDAMem IDA_mem;
+  booleantype neg_abstol, allocOK;
+  long int lrw1Q, liw1Q;
+
+  /* Check ida_mem */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAM_NO_MEM);
+    return(IDAM_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (rhsQ == NULL) {
+    fprintf(errfp, MSG_BAD_RHSQ);
+    return(QIDAM_ILL_INPUT);
+  }
+
+  /* Set space requirements for one N_Vector */
+  N_VSpace(nvspecQ, &lrw1Q, &liw1Q);
+  IDA_mem->ida_lrw1Q = lrw1Q;
+  IDA_mem->ida_liw1Q = liw1Q;
+
+  /* Allocate the vectors */
+  IDA_mem->ida_nvspecQ = nvspecQ;
+  allocOK = IDAQuadAllocVectors(IDA_mem);
+  if (!allocOK) {
+    fprintf(errfp, MSG_QIDAM_MEM_FAIL);
+    return(QIDAM_MEM_FAIL);
+  }
+
+  /* Initialize phiQ in the history array */
+  N_VConst(ZERO, IDA_mem->ida_phiQ[0]);
+
+  /* Copy the input parameters into IDAS state */
+  IDA_mem->ida_itolQ   = itolQ;
+  IDA_mem->ida_reltolQ = reltolQ;
+  IDA_mem->ida_abstolQ = abstolQ;
+  IDA_mem->ida_rhsQ    = rhsQ;
+
+  /* Initialize counters */
+  IDA_mem->ida_nrQe  = 0;
+  IDA_mem->ida_netfQ   = 0;
+
+  /* Quadrature integration turned ON */
+  IDA_mem->ida_quad = TRUE;
+  IDA_mem->ida_quadMallocDone = TRUE;
+
+  /* Quadrature initialization was successfull */
+  return(SUCCESS);
+}
+
+/*------------------    IDAQuadReInit    --------------------------*/
+/*
+  IDAQuadReInit re-initializes IDAS' quadrature related memory 
+  for a problem, assuming it has already been allocated in prior 
+  calls to IDAMalloc and IDAQuadMalloc. 
+  All problem specification inputs are checked for errors.
+  If any error occurs during initialization, it is reported to the
+  file whose file pointer is errfp.
+  The return value is SUCCESS = 0 if no errors occurred, or
+  a negative value otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ,
+                  int itolQ, realtype *reltolQ, void *abstolQ)
+{
+  IDAMem IDA_mem;
+  booleantype neg_abstol;
+
+  /* Check ida_mem */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAM_NO_MEM);
+    return(IDAM_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* Check if quadrature was initialized */
+  if (IDA_mem->ida_quadMallocDone == FALSE) {
+    fprintf(errfp, MSG_QREI_NO_QUAD);
+    return(QIDAREI_NO_QUAD);
+  }
+
+  if (rhsQ == NULL) {
+    fprintf(errfp, MSG_BAD_RHSQ);
+    return(QIDAREI_ILL_INPUT);
+  }
+
+  /* Initialize phiQ in the history array */
+  N_VConst(ZERO, IDA_mem->ida_phiQ[0]);
+
+  /* Copy the input parameters into IDAS state */
+  IDA_mem->ida_itolQ   = itolQ;
+  IDA_mem->ida_reltolQ = reltolQ;
+  IDA_mem->ida_abstolQ = abstolQ;
+  IDA_mem->ida_rhsQ    = rhsQ;
+
+  /* Initialize counters */
+  IDA_mem->ida_nrQe  = 0;
+  IDA_mem->ida_netfQ   = 0;
+
+  /* Quadrature integration turned ON */
+  IDA_mem->ida_quad = TRUE;
+
+  /* Quadrature initialization was successfull */
+  return(SUCCESS);
+
+}
+
+#define nvspecQ (IDA_mem->ida_nvspecQ)
+#define rhsQ    (IDA_mem->ida_rhsQ)
+#define itolQ   (IDA_mem->ida_itolQ)
+#define reltolQ (IDA_mem->ida_reltolQ)
+#define abstolQ (IDA_mem->ida_abstolQ)
+
+/*=================================================================*/
+/*BEGIN        SENSITIVITY OPTIONAL INPUT FUNCTIONS                */
+/*=================================================================*/
+
+int IDASetSensResFn(void *ida_mem, SensResFn resS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return(IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_iresS = ALLSENS;
+
+  if (resS != NULL) {
+    IDA_mem->ida_resS   = resS;
+    IDA_mem->ida_resSDQ = FALSE;
+  } else {
+    IDA_mem->ida_resS   = IDASensResDQ;
+    IDA_mem->ida_rdataS = ida_mem;
+    IDA_mem->ida_resSDQ = TRUE;
+  }
+
+  return(SUCCESS);
+}
+
+#define resS (IDA_mem->ida_resS)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetSensRes1Fn(void *ida_mem, SensRes1Fn resS1)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return(IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_iresS = ONESENS;
+
+  if (resS != NULL) {
+    IDA_mem->ida_resS1  = resS1;
+    IDA_mem->ida_resSDQ = FALSE;
+  } else {
+    IDA_mem->ida_resS1  = IDASensRes1DQ;
+    IDA_mem->ida_rdataS = ida_mem;
+    IDA_mem->ida_resSDQ = TRUE;
+  }
+
+  return(SUCCESS);
+}
+
+#define resS1 (IDA_mem->ida_resS1)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetSensErrCon(void *ida_mem, int errconS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return(IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if ((errconS!=FULL) && (errconS!=PARTIAL)) {
+    fprintf(errfp, MSG_IDAS_BAD_ECON, errconS, FULL, PARTIAL);
+    return(IDAS_ILL_INPUT);
+  }
+
+  IDA_mem->ida_errcon = errconS;
+
+  return(SUCCESS);
+}
+
+#define errcon (IDA_mem->ida_errcon)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetSensRho(void *ida_mem, realtype rho)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return(IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_rhomax = rho;
+
+  return(SUCCESS);
+}
+
+#define rhomax (IDA_mem->ida_rhomax)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetSensPbar(void *ida_mem, realtype *pbar)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return(IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_pbar = pbar;
+
+  return(SUCCESS);
+}
+
+#define pbar (IDA_mem->ida_pbar)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetSensReltol(void *ida_mem, realtype *reltolS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return(IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_reltolS = reltolS;
+
+  return(SUCCESS);
+}
+
+#define reltolS (IDA_mem->ida_reltolS)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetSensAbstol(void *ida_mem, void *abstolS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return(IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_abstolS = abstolS;
+
+  return(SUCCESS);
+}
+
+#define abstolS (IDA_mem->ida_abstolS)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetSensRdata(void *ida_mem, void *rdataS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return(IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_rdataS = rdataS;
+
+  return(SUCCESS);
+}
+
+#define rdataS (IDA_mem->ida_rdataS)
+
+/*=================================================================*/
+/*END        SENSITIVITY OPTIONAL INPUT FUNCTIONS                  */
+/*=================================================================*/
+
+#define iresS        (IDA_mem->ida_iresS)
+#define resSDQ       (IDA_mem->ida_resSDQ)
+#define abstolSalloc (IDA_mem->ida_abstolSalloc)
+#define stgr1alloc   (IDA_mem->ida_stgr1alloc)
+#define nniS1        (IDA_mem->ida_nniS1)
+#define ncfnS1       (IDA_mem->ida_ncfnS1)
+#define ncfS1        (IDA_mem->ida_ncfS1)
+
+/*------------------     IDASensMalloc   --------------------------*/
+/*
+  IDASensMalloc allocates and initializes sensitivity related 
+  memory for a problem. All problem specification inputs are 
+  checked for errors. If any error occurs during initialization, 
+  it is reported to the file whose file pointer is errfp. 
+  The return value is SUCCESS = 0 if no errors occurred, or
+  a negative value otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+int IDASensMalloc(void *ida_mem, int Ns, int ism, 
+                  realtype *p, int *plist, 
+                  N_Vector *yS0, N_Vector *ypS0)
+{
+
+  return(SUCCESS);
+}
+
+/*------------------   IDASensReInit   --------------------------*/
+/*
+  IDASensReInit re-initializes IDAS' sensitivity related memory 
+  for a problem, assuming it has already been allocated in prior 
+  calls to IDAMalloc and IDASensMalloc. 
+  All problem specification inputs are checked for errors.
+  The number of sensitivities Ns is assumed to be unchanged since
+  the previous call to IDASensMalloc.
+  If any error occurs during initialization, it is reported to the
+  file whose file pointer is errfp.
+  The return value is SUCCESS = 0 if no errors occurred, or
+  a negative value otherwise.
+*/ 
+/*-----------------------------------------------------------------*/
+
+int IDASensReInit(void *ida_mem, int ism,
+                  realtype *p, int *plist, 
+                  N_Vector *yS0, N_Vector *ypS0)
+{
+
+  return(SUCCESS);
+}
+
+#define Ns      (IDA_mem->ida_Ns)
+#define ism     (IDA_mem->ida_ism)
+#define p       (IDA_mem->ida_p)
+#define plist   (IDA_mem->ida_plist)
+
+/*=================================================================*/
+/*BEGIN  INITIAL CONDITION CALCULATION OPTIONAL INPUT FUNCTIONS    */
+/*=================================================================*/
 
 int IDASetNlinConvFactorIC(void *ida_mem, realtype epicfac)
 {
@@ -1174,9 +1744,13 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 
 #define steptol   (IDA_mem->ida_steptol)
 
-/**************************************************************/
-/**************** BEGIN Readability Constants *****************/
-/**************************************************************/
+/*=================================================================*/
+/*END  INITIAL CONDITION CALCULATION OPTIONAL INPUT FUNCTIONS      */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        Readibility Constants                               */
+/*=================================================================*/
 
 #define uround   (IDA_mem->ida_uround)  
 #define phi      (IDA_mem->ida_phi) 
@@ -1235,12 +1809,34 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 #define constraintsSet (IDA_mem->ida_constraintsSet)
 #define mskewt   (IDA_mem->ida_mskewt)
 
-/**************************************************************/
-/***************** END Readability Constants ******************/
-/**************************************************************/
+#define sensi        (IDA_mem->ida_sensi)
+#define phiS         (IDA_mem->ida_phiS)
+#define ewtS         (IDA_mem->ida_ewtS)
+#define nrSe         (IDA_mem->ida_nrSe)
+#define nreS         (IDA_mem->ida_nreS)
+#define nniS         (IDA_mem->ida_nniS)
+#define ncfnS        (IDA_mem->ida_ncfnS)
+#define netfS        (IDA_mem->ida_netfS)
+#define nsetupsS     (IDA_mem->ida_nsetupsS)
+#define lsolveS      (IDA_mem->ida_lsolveS) 
+#define abstolSalloc (IDA_mem->ida_abstolSalloc)
+#define stgr1alloc   (IDA_mem->ida_stgr1alloc)
 
-/******************** IDACalcIC *********************************
+#define quad         (IDA_mem->ida_quad)
+#define phiQ         (IDA_mem->ida_phiQ)
+#define ewtQ         (IDA_mem->ida_ewtQ)
+#define nrQe         (IDA_mem->ida_nrQe)
+#define netfQ        (IDA_mem->ida_netfQ)
+#define lrw1Q        (IDA_mem->ida_lrw1Q)
+#define liw1Q        (IDA_mem->ida_liw1Q)
+#define tempvQ       (IDA_mem->ida_tempvQ)
 
+/*=================================================================*/
+/*END          Readibility Constants                               */
+/*=================================================================*/
+
+/*-------------------- IDACalcIC ----------------------------------*/
+/*
  IDACalcIC computes consistent initial conditions, given the 
  user's initial guess for unknown components of y0 and/or yp0.
 
@@ -1261,9 +1857,8 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
     IC_FAILED_CONSTR   the inequality constraints could not be met
     IC_FAILED_LINESRCH the linesearch failed (on steptol test)
     IC_CONV_FAILURE    the Newton iterations failed to converge
-
- 
-*****************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 {
@@ -1446,8 +2041,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
   int nstloc, sflag, istate, ier;
-  realtype tdist, troundoff, ypnorm, rh;
-  booleantype ewtsetOK;
+  realtype tdist, troundoff, ypnorm, rh, nrm;
+  booleantype istop, ewtsetOK, ewtQsetOK;
   IDAMem IDA_mem;
 
   /* Check for legal inputs in all cases. */
@@ -1485,17 +2080,23 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   }
   *tret = tretp = tn; /* Set tret now in case of illegal-input return. */
 
-  if ((itask < NORMAL) || (itask > ONE_STEP_TSTOP)) {
+  if ((itask != NORMAL)       && 
+      (itask != ONE_STEP)     &&
+      (itask != NORMAL_TSTOP) &&
+      (itask != ONE_STEP_TSTOP) ) {
     fprintf(errfp, MSG_BAD_ITASK, itask);
     return(ILL_INPUT);
   }
   
-  if ( (itask == NORMAL_TSTOP) || (itask == ONE_STEP_TSTOP) )
+  if ( (itask == NORMAL_TSTOP) || (itask == ONE_STEP_TSTOP) ) {
+    if ( tstopset == FALSE ) {
+      fprintf(errfp, MSG_NO_TSTOP);
+      return(ILL_INPUT);
+    }
     istop = TRUE;
-  else
+  } else {
     istop = FALSE;
-
-
+  }
 
   if (nst == 0) {       /* THIS IS THE FIRST CALL */
 
@@ -1506,6 +2107,10 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       if(ier != SUCCESS) return(ILL_INPUT);
       IDA_mem->ida_SetupDone = TRUE;
     }
+
+    /* Evaluate quadrature rhs and set phiQ[1] */
+
+    rhsQ(tn, phi[0], phi[1], phiQ[1], rdataQ);
 
     /* On the first call, check for tout - tn too small,
        set initial hh,
@@ -1527,6 +2132,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     if (hh == ZERO) {
       hh = PT001*tdist;
       ypnorm = N_VWrmsNorm(phi[1], mskewt);
+      if (quad && (errconQ == FULL))
+        ypnorm = IDAQuadUpdateNorm(ypnorm, phiQ[1], ewtQ);
       if (ypnorm > HALF/hh) hh = HALF/ypnorm;
       if(tout < tn) hh = -hh;
     }
@@ -1534,18 +2141,26 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     rh = ABS(hh)*hmax_inv;
     if (rh > ONE) hh /= rh;
 
+    /* On first call, check for approach to tstop */
+
     if(istop) {
       if ( (tstop - tn)*hh < ZERO) {
         fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
         return(ILL_INPUT);
       }
-      if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
+      if ( (tn + hh - tstop)*hh > ZERO) 
+        hh = tstop - tn;
     }
 
     h0u = hh;
 
     N_VScale(hh, phi[1], phi[1]);
-    kk = 0; kused = 0;  /* set in case of an error return before a step */
+
+    if (quad)
+      N_VScale(hh, phiQ[1], phiQ[1]);
+
+    kk = 0; 
+    kused = 0;  /* set in case of an error return before a step */
 
     /* Set the convergence test constants epsNewt and toldel */
 
@@ -1586,19 +2201,38 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     /* Reset and check ewt and mskewt (if not first call). */
 
     if (nst > 0) {
+
       ewtsetOK = IDAEwtSet(IDA_mem, phi[0]);
-      if (!ewtsetOK) {
-        fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+
+      if (quad && (errconQ == FULL))
+        ewtQsetOK = IDAQuadEwtSet(IDA_mem, phiQ[0]);
+      else
+        ewtQsetOK = TRUE;
+
+      if ( (!ewtsetOK) || (!ewtQsetOK) ) {
+
+        if(!ewtsetOK)  fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+        if(!ewtQsetOK) fprintf(errfp, MSG_EWTQ_NOW_BAD, tn);
+
         istate = ILL_INPUT;
         ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
         *tret = tretp = tn;
         break;
+
       }
+
     }
     
     /* Check for too much accuracy requested. */
     
-    if ((tolsf = uround * N_VWrmsNorm(phi[0], ewt)) > ONE) {
+    nrm = N_VWrmsNorm(phi[0], ewt);
+    if (quad && (errconQ == FULL)) {
+      nrm = IDAQuadUpdateNorm(nrm, phiQ[0], ewtQ); 
+    }
+
+    tolsf = uround * nrm;
+
+    if (tolsf > ONE) {
       tolsf *= TEN;
       fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
       istate = TOO_MUCH_ACC;
@@ -1659,8 +2293,8 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
     fprintf(stdout, MSG_IDAG_NO_MEM);
     return (IDAG_NO_MEM);
   }
-
   IDA_mem = (IDAMem) ida_mem; 
+
   /* Check t for legality.  Here tn - hused is t_{n-1}. */
  
   tfuzz = HUNDRED * uround * (tn + hh);
@@ -1674,9 +2308,10 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
 
   N_VScale (ONE, phi[0], yret);
   N_VConst (ZERO, ypret);
-  kord = kused; if (kused == 0 || t == tn) kord = 1;
+  kord = kused; 
+  if (kused == 0 || t == tn) kord = 1;
 
- /* Accumulate multiples of columns phi[j] into yret and ypret. */
+  /* Accumulate multiples of columns phi[j] into yret and ypret. */
 
   delt = t - tn;
   c = ONE; d = ZERO;
@@ -1688,6 +2323,7 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
     N_VLinearSum(ONE,  yret, c, phi[j],  yret);
     N_VLinearSum(ONE, ypret, d, phi[j], ypret);
   }
+
   return(OKAY);
 }
 
@@ -1837,7 +2473,7 @@ int IDAGetLastOrder(void *ida_mem, int *klast)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNextOrder(void *ida_mem, int *kcur)
+int IDAGetCurrentOrder(void *ida_mem, int *kcur)
 {
   IDAMem IDA_mem;
 
@@ -1891,7 +2527,7 @@ int IDAGetLastStep(void *ida_mem, realtype *hlast)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNextStep(void *ida_mem, realtype *hcur)
+int IDAGetCurrentStep(void *ida_mem, realtype *hcur)
 {
   IDAMem IDA_mem;
 
@@ -2064,6 +2700,152 @@ int IDAGetNonlinSolvStats(void *ida_mem, int *nniters, int *nncfails)
   return(OKAY);
 }
 
+/*-----------------------------------------------------------------*/
+/*-----------------------------------------------------------------*/
+
+int IDAGetQuad(void *ida_mem, realtype t, 
+               N_Vector yretQ, N_Vector ypretQ)
+{
+  IDAMem IDA_mem;
+  realtype tfuzz, tp, delt, c, d, gam;
+  int j, kord;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if(quad != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_QUAD);
+    return (IDAG_NO_QUAD);
+  }
+
+  /* Check t for legality.  Here tn - hused is t_{n-1}. */
+ 
+  tfuzz = HUNDRED * uround * (tn + hh);
+  tp = tn - hused - tfuzz;
+  if ( (t - tp)*hh < ZERO) {
+    fprintf(errfp, MSG_BAD_T, t, tn-hused, tn);
+    return(BAD_T);
+  }
+
+  /* Initialize yretQ = phiQ[0], ypret = 0, and kord = (kused or 1). */
+
+  N_VScale (ONE, phiQ[0], yretQ);
+  N_VConst (ZERO, ypretQ);
+  kord = kused; 
+  if (kused == 0 || t == tn) kord = 1;
+
+  /* Accumulate multiples of columns phi[j] into yretQ and ypretQ. */
+
+  delt = t - tn;
+  c = ONE; d = ZERO;
+  gam = delt/psi[0];
+  for (j=1; j <= kord; j++) {
+    d = d*gam + c/psi[j-1];
+    c = c*gam;
+    gam = (delt + psi[j-1])/psi[j];
+    N_VLinearSum(ONE,  yretQ, c, phiQ[j],  yretQ);
+    N_VLinearSum(ONE, ypretQ, d, phiQ[j], ypretQ);
+  }
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetNumQuadRhsEvals(void *ida_mem, int *nrhsQevals)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if(quad != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_QUAD);
+    return (IDAG_NO_QUAD);
+  }
+
+  *nrhsQevals = nrQe;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetNumQuadErrTestFails(void *ida_mem, int *nQetfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if(quad != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_QUAD);
+    return (IDAG_NO_QUAD);
+  }
+
+  *nQetfails = netfQ;
+
+  return(OKAY);
+
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetQuadErrWeights(void *ida_mem, N_Vector *eQweight)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if(quad != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_QUAD);
+    return (IDAG_NO_QUAD);
+  }
+
+  if(errconQ==FULL) *eQweight = ewtQ;
+  else              *eQweight = NULL;
+
+  return(OKAY);
+
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetQuadStats(void *ida_mem, int *nrhsQevals, int *nQetfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if(quad != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_QUAD);
+    return (IDAG_NO_QUAD);
+  }
+
+  *nrhsQevals = nrQe;
+  *nQetfails = netfQ;
+
+  return(OKAY);
+
+}
+
 /********************* IDAFree **********************************
 
  This routine frees the problem memory allocated by IDAMalloc
@@ -2082,19 +2864,71 @@ void IDAFree(void *ida_mem)
   IDA_mem = (IDAMem) ida_mem;
   
   IDAFreeVectors(IDA_mem);
+
+  IDAQuadFree(ida_mem);
+
+  IDASensFree(ida_mem);
+
   lfree(IDA_mem);
+
   free(IDA_mem);
 }
 
+/*------------------  IDAQuadFree      --------------------------*/
+/*
+  IDAQuadFree frees the problem memory in ida_mem allocated
+  for quadrature integration. Its only argument is the pointer
+  ida_mem returned by IDACreate. 
+*/
+/*-----------------------------------------------------------------*/
 
-/***************************************************************/
-/********** END Exported Functions Implementation **************/
-/***************************************************************/
+void IDAQuadFree(void *ida_mem)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem == NULL) return;
+  IDA_mem = (IDAMem) ida_mem;
 
+  if(quad) {
+    IDAQuadFreeVectors(IDA_mem);
+    quad = FALSE;
+  }
+}
 
-/*******************************************************************/
-/******** BEGIN Private Helper Functions Implementation ************/
-/*******************************************************************/
+/*------------------  IDASensFree      --------------------------*/
+/*
+  IDASensFree frees the problem memory in ida_mem allocated
+  for sensitivity analysis. Its only argument is the pointer
+  ida_mem returned by IDACreate. 
+*/
+/*-----------------------------------------------------------------*/
+
+void IDASensFree(void *ida_mem)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem == NULL) return;
+  IDA_mem = (IDAMem) ida_mem;
+
+  if(sensi) {
+    if (abstolSalloc) IDASensFreeAtol(IDA_mem, abstolS);
+    if (stgr1alloc) {
+      free(ncfS1);
+      free(ncfnS1);
+      free(nniS1);
+    }
+    IDASensFreeVectors(IDA_mem);
+    sensi = FALSE;
+  }
+}
+
+/*=================================================================*/
+/*END          EXPORTED FUNCTIONS IMPLEMENTATION                   */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        PRIVATE FUNCTIONS IMPLEMENTATION                    */
+/*=================================================================*/
  
 /****************** IDAAllocVectors ***********************************
 
@@ -2110,33 +2944,33 @@ void IDAFree(void *ida_mem)
 
 **********************************************************************/
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, NV_Spec NVSpec)
+static booleantype IDAAllocVectors(IDAMem IDA_mem)
 {
   int i, j, maxcol;
 
   /* Allocate ewt, ee, delta, tempv1, tempv2 */
   
-  ewt = N_VNew(NVSpec);
+  ewt = N_VNew(nvspec);
   if (ewt == NULL) return(FALSE);
-  ee = N_VNew(NVSpec);
+  ee = N_VNew(nvspec);
   if (ee == NULL) {
     N_VFree(ewt);
     return(FALSE);
   }
-  delta = N_VNew(NVSpec);
+  delta = N_VNew(nvspec);
   if (delta == NULL) {
     N_VFree(ewt);
     N_VFree(ee);
     return(FALSE);
   }
-  tempv1 = N_VNew(NVSpec);
+  tempv1 = N_VNew(nvspec);
   if (tempv1 == NULL) {
     N_VFree(ewt);
     N_VFree(ee);
     N_VFree(delta);
     return(FALSE);
   }
-  tempv2= N_VNew(NVSpec);
+  tempv2= N_VNew(nvspec);
   if (tempv2 == NULL) {
     N_VFree(ewt);
     N_VFree(ee);
@@ -2152,7 +2986,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, NV_Spec NVSpec)
 
   maxcol = MAX(maxord,3);
   for (j=0; j <= maxcol; j++) {
-    phi[j] = N_VNew(NVSpec);
+    phi[j] = N_VNew(nvspec);
     if (phi[j] == NULL) {
       N_VFree(ewt);
       N_VFree(ee);
@@ -2173,11 +3007,11 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, NV_Spec NVSpec)
 }
 
 
-/***************** IDAFreeVectors *********************************
-  
+/*---------------------- IDAFreeVectors  --------------------------*/
+/*  
  This routine frees the IDA vectors allocated in IDAAllocVectors.
-
-******************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 static void IDAFreeVectors(IDAMem IDA_mem)
 {
@@ -2192,10 +3026,95 @@ static void IDAFreeVectors(IDAMem IDA_mem)
   for(j=0; j <= maxcol; j++) N_VFree(phi[j]);
 }
 
+/*------------------ IDAQuadAllocVectors  --------------------------*/
+/*
+  NOTE: Space for ewtQ is allocated even when errconQ=PARTIAL, 
+  although in this case, ewtQ is never used. The reason for this
+  decision is to allow the user to re-initialize the quadrature
+  computation with errconQ=FULL, after an initialization with
+  errconQ=FALSE, without new memory allocation within 
+  IDAQuadReInit.
+*/
+/*-----------------------------------------------------------------*/
 
-/**************************************************************/
-/** BEGIN Support routines for Initial Conditions calculation */
-/**************************************************************/
+static booleantype IDAQuadAllocVectors(IDAMem IDA_mem)
+{
+  int i, j;
+
+  /* Allocate ewtQ */
+  ewtQ = N_VNew(nvspecQ);
+  if (ewtQ == NULL) {
+    return (FALSE);
+  }
+
+  /* Allocate tempvQ */
+  tempvQ = N_VNew(nvspecQ);
+  if (tempvQ == NULL) {
+    N_VFree(ewtQ);
+    return (FALSE);
+  }
+
+  for (j=0; j <= maxord; j++) {
+    phiQ[j] = N_VNew(nvspecQ);
+    if (phiQ[j] == NULL) {
+      N_VFree(ewtQ);
+      for (i=0; i < j; i++) N_VFree(phiQ[i]);
+      return(FALSE);
+    }
+  }
+
+  return(TRUE);
+}
+
+/*------------------ IDAQuadFreeVectors  --------------------------*/
+/*-----------------------------------------------------------------*/
+
+static void IDAQuadFreeVectors(IDAMem IDA_mem)
+{
+  int j;
+
+  N_VFree(ewtQ);
+  N_VFree(tempvQ);
+  for(j=0; j <= maxord; j++) N_VFree(phiQ[j]);
+}
+
+/*------------------ IDASensAllocVectors  -------------------------*/
+/*-----------------------------------------------------------------*/
+
+static booleantype IDASensAllocVectors(IDAMem IDA_mem)
+{
+
+  return(TRUE);
+}
+
+/*------------------ IDASensFreeVectors  --------------------------*/
+/*-----------------------------------------------------------------*/
+
+static void IDASensFreeVectors(IDAMem IDA_mem)
+{
+
+}
+
+/*-------------------- IDASensAllocAtol  --------------------------*/
+/*-----------------------------------------------------------------*/
+
+static booleantype IDASensAllocAtol(IDAMem IDA_mem, void **atolSPtr)
+{
+
+  return(TRUE);
+}
+
+/*--------------------- IDASensFreeAtol  --------------------------*/
+/*-----------------------------------------------------------------*/
+
+static void IDASensFreeAtol(IDAMem IDA_mem, void *atolS)
+{
+
+}
+
+/*=================================================================*/
+/*BEGIN SUPPORT ROUTINES FOR INITIAL CONDITIONS CALCULATION        */
+/*=================================================================*/
 
 #define icopt    (IDA_mem->ida_icopt)
 #define sysindex (IDA_mem->ida_sysindex)
@@ -2585,9 +3504,9 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval)
   return -99;
 }
 
-/**************************************************************/
-/** END Support routines for Initial Conditions calculation   */
-/**************************************************************/
+/*=================================================================*/
+/*END SUPPORT ROUTINES FOR INITIAL CONDITIONS CALCULATION          */
+/*=================================================================*/
 
 /********************** IDAInitialSetup *********************************
 
@@ -2595,7 +3514,7 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval)
  all checks on optional inputs and inputs to IDAMalloc/IDAReInit that
  could not be done before.
 
- If no merror is encountered, IDAInitialSetup returns SUCCESS. Otherwise,
+ If no error is encountered, IDAInitialSetup returns SUCCESS. Otherwise,
  it returns an error flag and prints a message to errfp.
 *************************************************************************/
 
@@ -2603,10 +3522,9 @@ static int IDAInitialSetup(IDAMem IDA_mem)
 {
   realtype temptest;
   N_Vector local_mskewt;
-  booleantype ewtsetOK, conOK;
+  booleantype ewtsetOK, conOK, neg_abstol;
   
   /* Test id vector for legality */
-  
   if(suppressalg && (id==NULL)){ 
     fprintf(errfp, MSG_MISSING_ID); 
     return(ILL_INPUT); 
@@ -2620,14 +3538,12 @@ static int IDAInitialSetup(IDAMem IDA_mem)
   }
 
   /* Set the mskewt vector */
-  
   if (suppressalg) local_mskewt = id;
-  else local_mskewt = ewt;
+  else             local_mskewt = ewt;
   
   mskewt = local_mskewt;
   
   /* Load ewt */
-
   ewtsetOK = IDAEwtSet(IDA_mem, y0);
   if (!ewtsetOK) {
     fprintf(errfp, MSG_BAD_EWT);
@@ -2635,7 +3551,6 @@ static int IDAInitialSetup(IDAMem IDA_mem)
   }
 
   /*  Check the constraints pointer and vector */
-  
   if (constraints == NULL) constraintsSet = FALSE;
   else {
     constraintsSet = TRUE;
@@ -2647,7 +3562,6 @@ static int IDAInitialSetup(IDAMem IDA_mem)
   }
 
   /* Check to see if y0 satisfies constraints. */
-
   if (constraintsSet) {
     conOK = N_VConstrMask (constraints, y0, tempv2);
     if (!conOK) { 
@@ -2656,8 +3570,35 @@ static int IDAInitialSetup(IDAMem IDA_mem)
     }
   }
 
-  /* Check linear solver functions and call linit function. */
+  /* Quadrature related set-up */
+  if (quad && (errconQ == FULL)) {
 
+    if ((itolQ != SS) && (itolQ != SV)) {
+      fprintf(errfp, MSG_BAD_ITOLQ, itolQ, SS, SV);
+      return(ILL_INPUT);
+    }
+    if (*reltolQ < ZERO) {
+      fprintf(errfp, MSG_BAD_RELTOLQ, *reltolQ);
+      return(ILL_INPUT);
+    }
+    if (itolQ == SS) {
+      neg_abstol = (*((realtype *)abstolQ) < ZERO);
+    } else {
+      neg_abstol = (N_VMin((N_Vector)abstolQ) < ZERO);
+    }
+    if (neg_abstol) {
+      fprintf(errfp, MSG_BAD_ABSTOLQ);
+      return(ILL_INPUT);
+    }
+
+    ewtsetOK = IDAQuadEwtSet(IDA_mem, phiQ[0]);
+    if (!ewtsetOK) {
+      fprintf(errfp, MSG_BAD_EWTQ);
+      return (ILL_INPUT);
+    }
+  }
+  
+  /* Check linear solver functions and call linit function. */
   if (linit == NULL) {
     fprintf(errfp, MSG_LINIT_NULL);
     return(ILL_INPUT);
@@ -2781,41 +3722,97 @@ static booleantype IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur)
 {
   realtype rtoli, *atoli;
   
-  rtoli = *rtol;
-  atoli = (realtype *)atol;
+  rtoli = *reltol;
+  atoli = (realtype *)abstol;
+
   N_VAbs(ycur, tempv1);
   N_VScale(rtoli, tempv1, tempv1);
   N_VAddConst(tempv1, *atoli, tempv1);
   if (N_VMin(tempv1) <= ZERO) return(FALSE);
   N_VInv(tempv1, ewt);
+
   return(TRUE);
 }
 
-/*********************** IDAEwtSetSV *********************************
-
+/*-------------------- IDAEwtSetSV --------------------------------*/
+/*
  This routine sets ewt as decribed above in the case itol=SV.
  It tests for non-positive components before inverting. IDAEwtSetSV
  returns TRUE if ewt is successfully set to a positive vector
  and FALSE otherwise. In the latter case, ewt is considered
  undefined after the FALSE return from IDAEwtSetSV.
-
-********************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 static booleantype IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur)
 {
   realtype rtoli;
   N_Vector atoli;
   
-  rtoli = *rtol;
-  atoli = (N_Vector)atol;
+  rtoli = *reltol;
+
+  atoli = (N_Vector)abstol;
   N_VAbs(ycur, tempv1);
   N_VLinearSum(rtoli, tempv1, ONE, atoli, tempv1);
   if (N_VMin(tempv1) <= ZERO) return(FALSE);
   N_VInv(tempv1, ewt);
+
   return(TRUE);
 }
 
+/*------------------  IDAQuadEwtSet      --------------------------*/
+/*-----------------------------------------------------------------*/
 
+static booleantype IDAQuadEwtSet(IDAMem IDA_mem, N_Vector qcur)
+{
+  booleantype ewtsetOK = TRUE;
+
+  switch (itolQ) {
+  case SS: 
+    ewtsetOK = IDAQuadEwtSetSS(IDA_mem, qcur);
+    break;
+  case SV: 
+    ewtsetOK = IDAQuadEwtSetSV(IDA_mem, qcur);
+    break;
+  }
+  return(ewtsetOK);
+}
+
+/*------------------  IDAQuadEwtSetSS    --------------------------*/
+/*-----------------------------------------------------------------*/
+
+static booleantype IDAQuadEwtSetSS(IDAMem IDA_mem, N_Vector qcur)
+{
+  realtype rtoli, atoli;
+  
+  rtoli = *reltolQ;
+  atoli = *((realtype *)abstolQ);
+
+  N_VAbs(qcur, tempvQ);
+  N_VScale(rtoli, tempvQ, tempvQ);
+  N_VAddConst(tempvQ, atoli, tempvQ);
+  if (N_VMin(tempvQ) <= ZERO) return (FALSE);
+  N_VInv(tempvQ, ewtQ);
+
+  return(TRUE);
+}
+
+/*------------------  IDAQuadEwtSetSV    --------------------------*/
+/*-----------------------------------------------------------------*/
+
+static booleantype IDAQuadEwtSetSV(IDAMem IDA_mem, N_Vector qcur)
+{
+  realtype rtoli;
+  
+  rtoli = *reltolQ;
+
+  N_VAbs(qcur, tempvQ);
+  N_VLinearSum(rtoli, tempvQ, ONE, (N_Vector)abstolQ, tempvQ);
+  if (N_VMin(tempvQ) <= ZERO) return (FALSE);
+  N_VInv(tempvQ, ewtQ);
+
+  return(TRUE);
+}
 
 /********************* IDAStopTest1 ********************************
 
@@ -3102,10 +4099,12 @@ static int IDAStep(IDAMem IDA_mem)
 {
   realtype saved_t, ck, est;
   realtype terk, terkm1, erkm1;
-  int ncf, nef, nflag, kflag;
+  int ncf, nef, nefQ, nflag, kflag;
   
   saved_t = tn;
   ncf = nef = 0;
+
+  if (quad) nefQ = 0;
 
   if(nst == ZERO){
     kk = 1;
@@ -3159,9 +4158,9 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
 {
   int i;
   realtype temp1, temp2, alpha0, alphas;
-
+  
   /* Set coefficients for the current stepsize h */
-
+  
   if(hh != hused || kk != kused) ns = 0;
   ns = MIN(ns+1,kused+2);
   if(kk+1 >= ns){
@@ -3178,7 +4177,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
       alpha[i] = hh / temp1;
       sigma[i] = i * sigma[i-1] * alpha[i]; 
       gamma[i] = gamma[i-1] + alpha[i-1] / hh;
-   }
+    }
     psi[kk] = temp1;
   }
   /* compute alphas, alpha0 */
@@ -3188,22 +4187,22 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
     alphas = alphas - ONE/(i+1);
     alpha0 = alpha0 - alpha[i];
   }
-
+  
   /* compute leading coefficient cj  */
   cjlast = cj;
   cj = -alphas/hh;
   
   /* compute variable stepsize error coefficient ck */
-
-    *ck = ABS(alpha[kk] + alphas - alpha0);
-    *ck = MAX(*ck, alpha[kk]);
-
- /* change phi to phi-star  */
-
+  
+  *ck = ABS(alpha[kk] + alphas - alpha0);
+  *ck = MAX(*ck, alpha[kk]);
+  
+  /* change phi to phi-star  */
+  
   for(i=ns;i<=kk;i++) N_VScale(beta[i], phi[i], phi[i]);
-
+  
   /* update independent variable */
-
+  
   tn = tn + hh;
 }
 
@@ -3263,7 +4262,6 @@ static int IDAnls(IDAMem IDA_mem)
      The second pass only occurs when the first pass had a recoverable
      failure with old Jacobian data */
   loop{
-
 
     /* Compute predicted values for yy and yp, and compute residual there. */
     ier = IDAPredict(IDA_mem);
@@ -3718,12 +4716,415 @@ static int IDACompleteStep(IDAMem IDA_mem, realtype *est,
   return (SUCCESS);
 }
 
+/*=================================================================*/
+/*BEGIN        Combined norms                                      */
+/*=================================================================*/
 
-/********************************************************************/
-/********* END Private Helper Functions Implementation **************/
-/********************************************************************/
+/*------------------  IDAQuadUpdateNorm   --------------------------*/
+/*
+  Updates the norm old_nrm to account for all quadratures.
+*/
+/*-----------------------------------------------------------------*/
+
+static realtype IDAQuadUpdateNorm(realtype old_nrm,
+                                  N_Vector xQ, N_Vector wQ)
+{
+  realtype qnrm;
+
+  qnrm = N_VWrmsNorm(xQ, wQ);
+  if (old_nrm > qnrm) return(old_nrm);
+  else                return(qnrm);
+}
+
+/*------------------   IDASensNorm        --------------------------*/
+/*
+  This routine returns the maximum over the weighted root mean 
+  square norm of xS with weight vectors wS:
+
+    max { wrms(xS[0],wS[0]) ... wrms(xS[Ns-1],wS[Ns-1]) }    
+
+  Called by IDASensUpdateNorm or directly in the STAGGERED approach 
+  during the NLS solution and before the error test.
+*/
+/*-----------------------------------------------------------------*/
+
+static realtype IDASensNorm(int Nsens, N_Vector *xS, N_Vector *wS)
+{
+  int is;
+  realtype nrm, snrm;
+
+  nrm = N_VWrmsNorm(xS[0],wS[0]);
+  for (is=1; is<Nsens; is++) {
+    snrm = N_VWrmsNorm(xS[is],wS[is]);
+    if ( snrm > nrm ) nrm = snrm;
+  }
+
+  return (nrm);
+}
+
+/*------------------  IDASensUpdateNorm   -------------------------*/
+/*
+  Updates the norm old_nrm to account for all sensitivities.
+*/
+/*-----------------------------------------------------------------*/
+
+static realtype IDASensUpdateNorm(int Nsens, realtype old_nrm,
+                                  N_Vector *xS, N_Vector *wS)
+{
+  realtype snrm;
+  
+  snrm = IDASensNorm(Nsens, xS, wS);
+  if (old_nrm > snrm) return(old_nrm);
+  else                return(snrm);
+}
+
+/*=================================================================*/
+/*END          Combined norms                                      */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        Sensitivity RHS Routines                            */
+/*=================================================================*/
+
+/*------------------    IDASensRhs       --------------------------*/
+/*
+  IDASensRhs is a high level routine that returns the residuals
+  of sensitivity equations. Depending on the 'iresS' flag, it either 
+  calls directly the resS routine (iresS=ALLSENS) or (if iresS=ONESENS) 
+  calls the resS1 routine in a loop over all sensitivities.
+
+  IDASensRhs is called:
+   (*) by Cvode at the first step
+   (*) by CVYddNorm if errcon=FULL
+   (*) by CVnlsFunctional, CVnlsNewton, and CVNewtonIteration
+       if ism=SIMULTANEOUS
+   (*) by CVDoErrorTest when restarting from scratch
+   (*) in the corrector loop if ism=STAGGERED
+   (*) by CVStgrDoErrorTest when restarting from scratch 
+*/
+/*-----------------------------------------------------------------*/
+
+static int IDASensRes(IDAMem IDA_mem, realtype time,
+                      N_Vector yycur, N_Vector ypcur, N_Vector resvalcur,
+                      N_Vector *yyScur, N_Vector *ypScur, N_Vector *resvalScur,
+                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  int ier=SUCCESS, is;
+
+  if (iresS==ALLSENS) {
+    ier = resS(Ns, time, 
+               yycur, ypcur, resvalcur, 
+               yyScur, ypScur, resvalScur, 
+               rdataS,
+               tmp1, tmp2, tmp3);
+    nrSe++;
+    if (ier != SUCCESS) return(ier);
+  } else {
+    for (is=0; is<Ns; is++) {
+      resS1(Ns, time, 
+            yycur, ypcur, resvalcur,
+            is, yyScur[is], ypScur[is], resvalScur[is], 
+            rdataS,
+            tmp1, tmp2, tmp3);
+      nrSe++;
+      if (ier != SUCCESS) return(ier);
+    }
+  }
+  return(SUCCESS);
+}
+
+/*------------------   IDASensRhs1       --------------------------*/
+/*
+  IDASensRhs1 is a high level routine that returns the residual
+  of the is-th sensitivity equation. 
+  
+  IDASensRhs1 is called only during the STAGGERED1 corrector loop
+  (iresS must be ONESENS, otherwise IDASensMalloc would have 
+  issued an error message).
+*/
+/*-----------------------------------------------------------------*/
+
+static int IDASensRes1(IDAMem IDA_mem, realtype time,
+                       N_Vector yycur, N_Vector ypcur, N_Vector resvalcur,
+                       int is,
+                       N_Vector yyScur, N_Vector ypScur, N_Vector resvalScur,
+                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  int ier=SUCCESS;
+
+  ier = resS1(Ns, time, 
+              yycur, ypcur, resvalcur, 
+              is, yyScur, ypScur, resvalScur, 
+              rdataS,
+              tmp1, tmp2, tmp3);
+  nrSe++;
+  if (ier != SUCCESS) return(ier);
+  return(SUCCESS);
+}
+
+/*=================================================================*/
+/*BEGIN        Undefine Readibility Constants                      */
+/*=================================================================*/
+
+#undef Ns
+#undef yy
+#undef yp
+#undef yyS
+#undef ypS
+#undef rdataS
+
+/*=================================================================*/
+/*END          Undefine Readibility Constants                      */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        DQ Approximations for Sensitivity RHS Routines      */
+/*=================================================================*/
+
+/*------------------   IDASensRhsDQ      --------------------------*/
+/*
+  IDASensRhsDQ computes the residuals of all sensitivity equations
+  by finite differences
+*/
+/*-----------------------------------------------------------------*/
+
+static int IDASensResDQ(int Ns, realtype t, 
+                        N_Vector yy, N_Vector yp, N_Vector resval,
+                        N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
+                        void *rdataS,
+                        N_Vector ytemp, N_Vector yptemp, N_Vector restemp)
+{
+  int ier=SUCCESS, is;
+  
+  for (is=0; is<Ns; is++) {
+    ier = IDASensRes1DQ(Ns, t, 
+                        yy, yp, resval, 
+                        is, yyS[is], ypS[is], resvalS[is], 
+                        rdataS,
+                        ytemp, yptemp, restemp);
+    if (ier != SUCCESS) return(ier);
+  }
+  return(SUCCESS);
+}
+
+/*------------------   IDASensRes1DQ     --------------------------*/
+/*
+  IDASensRes1DQ computes the residual of the is-th sensitivity 
+  equation by finite differences
+*/
+/*-----------------------------------------------------------------*/
+
+static int IDASensRes1DQ(int Ns, realtype t, 
+                         N_Vector yy, N_Vector yp, N_Vector resval,
+                         int is,
+                         N_Vector yyS, N_Vector ypS, N_Vector resvalS,
+                         void *rdataS,
+                         N_Vector ytemp, N_Vector yptemp, N_Vector restemp)
+{
+  IDAMem IDA_mem;
+  int method;
+  int nrel = 0;
+  int which;
+  int ier=SUCCESS;
+  booleantype skipFP;
+  realtype psave, pbari;
+  realtype del , rdel;
+  realtype Delp, rDelp, r2Delp;
+  realtype Dely, rDely, r2Dely;
+  realtype Del , rDel , r2Del ;
+  realtype norms, ratio;
+
+  /* rdataS points to IDA_mem */
+  IDA_mem = (IDAMem) rdataS;
+
+  /* Set base perturbation del */
+  del  = RSqrt(MAX(*reltol, uround));
+  rdel = ONE/del;
+
+  if (plist!=NULL) {
+    which   = abs(plist[is]) - 1;
+    skipFP  = (plist[is] < 0);
+  } else {
+    which  = is;
+    skipFP = FALSE;
+  }
+  psave   = p[which];
+  pbari   = ABS(pbar[which]);
+
+  Delp  = pbari * del;
+  rDelp = ONE/Delp;
+  norms = N_VWrmsNorm(yyS, ewt) * pbari;
+  rDely = MAX(norms, rdel) / pbari;
+  Dely  = ONE/rDely;
+
+  ratio = Dely * rDelp;
+
+  if ((MAX(ONE/ratio, ratio) <= ABS(rhomax)) || rhomax == ZERO)
+    method = (rhomax >= ZERO) ? CENTERED1 : FORWARD1; 
+  else
+    method = (rhomax > ZERO) ? CENTERED2 : FORWARD2;
 
 
-/********************************************************************/
-/************** END IDA Implementation ******************************/
-/********************************************************************/
+  switch (method) {
+
+  case CENTERED1:
+
+    Del = MIN(Dely, Delp);
+    r2Del = HALF/Del;
+
+    /* Forward perturb y, y' and parameter */
+    N_VLinearSum(Del, yyS, ONE, yy, ytemp);
+    N_VLinearSum(Del, ypS, ONE, yp, yptemp);
+    p[which] = psave + Del;
+
+    /* Save residual in resvalS */
+    ier = res(t, ytemp, yptemp, resvalS, rdata);
+    nrel++;
+    if (ier != 0) return(ier);
+    
+    /* Backward perturb y, y' and parameter */
+    N_VLinearSum(-Del, yyS, ONE, yy, ytemp);
+    N_VLinearSum(-Del, ypS, ONE, yp, yptemp);
+    p[which] = psave - Del;
+
+    /* Save residual in restemp */
+    ier = res(t, ytemp, yptemp, restemp, rdata);
+    nrel++;
+    if (ier != 0) return(ier);
+
+    /* Estimate the residual for the i-th sensitivity equation */
+    N_VLinearSum(r2Del, resvalS, -r2Del, restemp, resvalS);
+    
+    break;
+
+  case CENTERED2:
+
+    r2Delp = HALF/Delp;
+    r2Dely = HALF/Dely;
+
+    /* Forward perturb y and y' */
+    N_VLinearSum(Dely, yyS, ONE, yy, ytemp);
+    N_VLinearSum(Dely, ypS, ONE, yp, yptemp);
+    
+    /* Save residual in resvalS */
+    ier = res(t, ytemp, yptemp, resvalS, rdata);
+    nrel++;
+    if (ier != 0) return(ier);
+    
+    /* Backward perturb y and y' */
+    N_VLinearSum(-Dely, yyS, ONE, yy, ytemp);
+    N_VLinearSum(-Dely, ypS, ONE, yp, yptemp);
+
+    /* Save residual in restemp */
+    ier = res(t, ytemp, yptemp, restemp, rdata);
+    nrel++;
+    if (ier != 0) return(ier);
+
+    /* Save the first difference quotient in resvalS */
+    N_VLinearSum(r2Dely, resvalS, -r2Dely, restemp, resvalS);
+
+    if (!skipFP) {
+
+      /* Forward perturb parameter */
+      p[which] = psave + Delp;
+
+      /* Save residual in ytemp */
+      ier = res(t, yy, yp, ytemp, rdata);
+      nrel++;
+      if (ier != 0) return(ier);
+
+      /* Backward perturb parameter */
+      p[which] = psave - Delp;
+
+      /* Save residual in yptemp */
+      ier = res(t, yy, yp, yptemp, rdata);
+      nrel++;
+      if (ier != 0) return(ier);
+
+      /* Save the second difference quotient in restemp */
+      N_VLinearSum(r2Delp, ytemp, -r2Delp, yptemp, restemp);
+
+      /* Add the difference quotients for the sensitivity residual */
+      N_VLinearSum(ONE, resvalS, ONE, restemp, resvalS);
+
+    }
+
+    break;
+
+  case FORWARD1:
+
+    Del = MIN(Dely, Delp);
+    rDel = ONE/Del;
+
+    /* Forward perturb y, y' and parameter */
+    N_VLinearSum(Del, yyS, ONE, yy, ytemp);
+    N_VLinearSum(Del, ypS, ONE, yp, yptemp);
+    p[which] = psave + Del;
+
+    /* Save residual in resvalS */
+    ier = res(t, ytemp, yptemp, resvalS, rdata);
+    nrel++;
+    if (ier != 0) return(ier);
+
+    /* Estimate the residual for the i-th sensitivity equation */
+    N_VLinearSum(rDel, resvalS, -rDel, resval, resvalS);
+
+    break;
+
+  case FORWARD2:
+
+    /* Forward perturb y and y' */
+    N_VLinearSum(Dely, yyS, ONE, yy, ytemp);
+    N_VLinearSum(Dely, ypS, ONE, yp, yptemp);
+
+    /* Save residual in resvalS */
+    ier = res(t, ytemp, yptemp, resvalS, rdata);
+    nrel++;
+    if (ier != 0) return(ier);
+
+    /* Save the first difference quotient in resvalS */
+    N_VLinearSum(rDely, resvalS, -rDely, resval, resvalS);
+
+    if (!skipFP) {
+
+      /* Forward perturb parameter */
+      p[which] = psave + Delp;
+
+      /* Save residual in restemp */
+      ier = res(t, yy, yp, restemp, rdata);
+      nrel++;
+      if (ier != 0) return(ier);
+
+      /* Save the second difference quotient in restemp */
+      N_VLinearSum(rDelp, restemp, -rDelp, resval, restemp);
+
+      /* Add the difference quotients for the sensitivity residual */
+      N_VLinearSum(ONE, resvalS, ONE, restemp, resvalS);
+
+    }
+
+    break;
+
+  }
+
+  /* Restore original value of parameter */
+  p[which] = psave;
+  
+  /* Increment counter nfeS */
+  nreS += nrel;
+  
+  return(SUCCESS);
+
+}
+
+/*=================================================================*/
+/*END          DQ Approximations for Sensitivity RES Routines      */
+/*=================================================================*/
+
+/*=================================================================*/
+/*END          Sensitivity RES Routines                            */
+/*=================================================================*/
+
+/*=================================================================*/
+/*END          PRIVATE FUNCTIONS IMPLEMENTATION                    */
+/*=================================================================*/

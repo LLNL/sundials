@@ -2,7 +2,7 @@
  * File          : idas.h                                          *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 17 July 2003                                    *
+ * Version of    : 12 August 2003                                  *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -25,7 +25,6 @@ extern "C" {
 #include "nvector.h"
 
 /******************************************************************
- *                                                                *
  * IDAS is used to solve numerically the initial value problem    *
  * for the differential algebraic equation (DAE) system           *
  *   F(t,y,y') = 0,                                               *
@@ -33,7 +32,78 @@ extern "C" {
  *   y(t0) = y0,   y'(t0) = yp0.                                  *
  * Here y and F are vectors of length N.                          *
  *                                                                *
+ * Optionally, IDAS can perform forward sensitivity analysis      *
+ * to find sensitivities of the solution y with respect to        *
+ * parameters in the model function F and/or in the initial       *
+ * conditions y0, yp0.                                            * 
  ******************************************************************/
+
+/*----------------------------------------------------------------*
+ * Enumerations for inputs to IDAMalloc, IDAReInit, IDACalcIC,    *
+ * IDASolve, IDASensMalloc, IDASensReInit, IDAQuadMalloc,         *
+ * IDAQuadReInit, and IDASet*.                                    *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * itol:  This parameter specifies the relative and absolute      *
+ *        tolerance types to be used. The SS tolerance type means *
+ *        a scalar relative and absolute tolerance, while the SV  *
+ *        tolerance type means a scalar relative tolerance and a  *
+ *        vector absolute tolerance (a potentially different      *
+ *        absolute tolerance for each vector component).          *
+ *                                                                *
+ * itolQ: Same as itol for quadrature variables.                  *
+ *                                                                *
+ * ism:   This parameter specifies the sensitivity corrector type *
+ *        to be used. In the SIMULTANEOUS case, the nonlinear     *
+ *        systems for states and all sensitivities are solved     *
+ *        simultaneously. In the STAGGERED case, the nonlinear    *
+ *        system for states is solved first and then, the         *
+ *        nonlinear systems for all sensitivities are solved      *
+ *        at the same time. Finally, in the STAGGERED1 approach   *     
+ *        all nonlinear systems are solved in a sequence.         *
+ *                                                                *
+ * ifS:   Type of the function returning the sensitivity right    *
+ *        hand side. ifS can be either ALLSENS if the function    *
+ *        (of type SensResFn) returns residuals for all           *
+ *        sensitivity systems at once, or ONESENS if the function *
+ *        (of type SensRes1Fn) returns the residual of one        *
+ *        sensitivity system at a time.                           *
+ *                                                                *
+ * errcon:Error control flag for sensitivity variables. It can be *
+ *        either FULL if the sensitivity variables are to be      *
+ *        considered in the error test, or PARTIAL otherwise.     *
+ *        Note that, in either case, the sensitivity variables    *
+ *        are included in the convergence test.                   *
+ *                                                                *
+ * errconQ: same as errcon for quadrature variables.              *
+ *                                                                *
+ * itask: The itask input parameter to IDASolve indicates the job *
+ *        of the solver for the next user step. The NORMAL        *
+ *        itask is to have the solver take internal steps until   *
+ *        it has reached or just passed the user specified tout   *
+ *        parameter. The solver then interpolates in order to     *
+ *        return an approximate value of y(tout) and yp(tout).    *
+ *        The ONE_STEP option tells the solver to just take one   *
+ *        internal step and return the solution at the point      *
+ *        reached by that step.                                   *
+ *        The NORMAL_TSTOP and ONE_STEP_TSTOP modes are similar   *
+ *        to NORMAL and ONE_STEP, respectively, except that the   *
+ *        integration never proceeds past the value tstop         *
+ *        (specified through the routine IDASetStopTime).         *
+ *----------------------------------------------------------------*/
+
+enum { SS, SV };                                  /* itol, itolQ */
+
+enum { SIMULTANEOUS, STAGGERED, STAGGERED1 };             /* ism */
+
+enum { NORMAL, ONE_STEP, NORMAL_TSTOP, ONE_STEP_TSTOP}; /* itask */
+
+enum { ALLSENS, ONESENS };                                /* ifS */
+
+enum { FULL, PARTIAL };                       /* errcon, errconQ */
+
+enum { CALC_YA_YDP_INIT = 1 , CALC_Y_INIT = 2 };        /* icopt */
+
 
 /******************************************************************
  * Type : ResFn                                                   *
@@ -42,19 +112,19 @@ extern "C" {
  * must have type ResFn.                                          *
  * Symbols are as follows: t  <-> tres     y <-> yy               *
  *                         y' <-> yp       F <-> res (type ResFn) *
- * A ResFn takes as input the problem size Neq, the independent   *
- * variable value tres, the dependent variable vector yy, and the *
- * derivative (with respect to t) of the yy vector, yp.  It       *
- * stores the result of F(t,y,y') in the vector resval.  The      *
- * yy, yp, and resval arguments are of type N_Vector.             *
- * The rdata parameter is to be of the same type as the rdata     *
- * parameter passed by the user to the IDAMalloc routine. This    *
- * user-supplied pointer is passed to the user's res function     *
- * every time it is called, to provide access in res to user data.*
+ * A ResFn takes as input the independent variable value tres,    *
+ * the dependent variable vector yy, and the derivative (with     *
+ * respect to t) of the yy vector, yp.  It stores the result of   *
+ * F(t,y,y') in the vector resval. The yy, yp, and resval         *
+ * arguments are of type N_Vector. The rdata parameter is to be   *
+ * of the same type as the rdata parameter passed by the user to  *
+ * the IDASetRdata routine. This user-supplied pointer is passed  *
+ * to the user's res function every time it is called, to provide *
+ * access in res to user data.                                    *
  *                                                                *
  * A ResFn res will return the value ires, which has possible     *
  * values RES_ERROR_RECVR = 1, RES_ERROR_NONRECVR = -1,           *
- * and SUCCESS = 0. The file ida.h may be used to obtain these    *
+ * and SUCCESS = 0. The file idas.h may be used to obtain these   *
  * values but is not required; returning 0, +1, or -1 suffices.   *
  * RES_ERROR_NONRECVR will ensure that the program halts.         *
  * RES_ERROR_RECVR should be returned if, say, a yy or other input*
@@ -62,21 +132,45 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-typedef int (*ResFn)(realtype tres, N_Vector yy, N_Vector yp, 
-                     N_Vector resval, void *rdata);
- 
-/*----------------------------------------------------------------*
- * Inputs to IDAMalloc, IDAReInit, IDACalcIC, and IDASolve.       *
- *----------------------------------------------------------------*/
+typedef int (*ResFn)(realtype tres, 
+                     N_Vector yy, N_Vector yp, N_Vector resval, 
+                     void *rdata);
 
-/* itol */
-enum { SS, SV };
+/******************************************************************
+ * Type : SensResFn                                               *
+ *----------------------------------------------------------------* 
+ *                                                                *
+ ******************************************************************/
 
-/* itask */
-enum { NORMAL, ONE_STEP, NORMAL_TSTOP, ONE_STEP_TSTOP };
+typedef int (*SensResFn)(int Ns, realtype tres, 
+                         N_Vector yy, N_Vector yp, N_Vector resval,
+                         N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
+                         void *rdataS,
+                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-/* icopt */
-enum { CALC_YA_YDP_INIT = 1 , CALC_Y_INIT = 2 };
+/******************************************************************
+ * Type : SensRes1Fn                                              *
+ *----------------------------------------------------------------* 
+ *                                                                *
+ ******************************************************************/
+
+typedef int (*SensRes1Fn)(int Ns, realtype tres, 
+                          N_Vector yy, N_Vector yp, N_Vector resval,
+                          int iS,
+                          N_Vector yyS, N_Vector ypS, N_Vector resvalS,
+                          void *rdataS,
+                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+/******************************************************************
+ * Type : QuadRhsFn                                               *
+ *----------------------------------------------------------------* 
+ *                                                                *
+ ******************************************************************/
+
+typedef void (*QuadRhsFn)(realtype tres, 
+                          N_Vector yy, N_Vector yp,
+                          N_Vector ypQ,
+                          void *rdataQ);
 
 /*----------------------------------------------------------------*
  * Enumerations for res, lsetup and lsolve return values          *
@@ -114,7 +208,6 @@ void *IDACreate(void);
  * The following functions can be called to set optional inputs   *
  * to values other than the defaults given below:                 *
  *                                                                *
- *                      |                                         * 
  * Function             |  Optional input / [ default value ]     *
  *                      |                                         * 
  * -------------------------------------------------------------- *
@@ -137,7 +230,7 @@ void *IDACreate(void);
  *                      |                                         * 
  * IDASetMaxOrd         | maximum lmm order to be used by the     *
  *                      | solver.                                 *
- *                      | [5 (BDF)]                               * 
+ *                      | [5]                                     * 
  *                      |                                         * 
  * IDASetMaxNumSteps    | maximum number of internal steps to be  *
  *                      | taken by the solver in its attempt to   *
@@ -198,12 +291,10 @@ void *IDACreate(void);
  *                      | checking to be performed.               *
  *                      |                                         *
  * -------------------------------------------------------------- *
- *                                                                *
  * If successful, these functions return SUCCESS. If an argument  *
  * has an illegal value, they print an error message to the       *
  * file specified by errfp and return one of the error flags      *  
  * defined below.                                                 *
- *                                                                *
  *----------------------------------------------------------------*/
 
 int IDASetRdata(void *ida_mem, void *rdata);
@@ -242,39 +333,38 @@ enum {IDAS_NO_MEM = -1, IDAS_ILL_INPUT = -2};
  *               SV (scalar relative tolerance and vector         *
  *                   absolute tolerance).                         *
  *                                                                *
- * rtol    is a pointer to the relative tolerance scalar.         *
+ * reltol    is a pointer to the relative tolerance scalar.       *
  *                                                                *
- * atol    is a pointer (void) to the absolute tolerance scalar or*
- *            an N_Vector tolerance.                              *
+ * abstol    is a pointer (void) to the absolute tolerance scalar *
+ *            or an N_Vector tolerance.                           *
  * (ewt)                                                          *
- *         Both rtol and atol are used to compute the error weight*
+ *         Both reltol and abstol are used to compute the error   *
  *         vector, ewt. The error test required of a correction   *
  *         delta is that the weighted-RMS norm of delta be less   *
  *         than or equal to 1.0. Other convergence tests use the  *
  *         same norm. The weighting vector used in this norm is   *
  *         ewt. The components of ewt are defined by              *
- *         ewt[i] = 1.0/(rtol*yy[i] + atol[i]). Here, yy is the   *
- *         current approximate solution.  See the routine         *
+ *         ewt[i] = 1.0/(reltol*yy[i] + abstol[i]). Here, yy is   *
+ *         the current approximate solution.  See the routine     *
  *         N_VWrmsNorm for the norm used in this error test.      *
  *                                                                *
  * nvspec  is a pointer to a vector specification structure       * 
  *                                                                *
  * Note: The tolerance values may be changed in between calls to  *
  *       IDASolve for the same problem. These values refer to     *
- *       (*rtol) and either (*atol), for a scalar absolute        *
- *       tolerance, or the components of atol, for a vector       *
+ *       (*reltol) and either (*abstol), for a scalar absolute    *
+ *       tolerance, or the components of abstol, for a vector     *
  *       absolute tolerance.                                      *
  *                                                                * 
  * If successful, IDAMalloc returns SUCCESS.                      *
  * If an initialization error occurs, IDAMalloc prints an error   *
  * message to the file specified by errfp and returns one of the  *
  * error flags defined below.                                     *
- *                                                                *
  ******************************************************************/
 
 int IDAMalloc(void *ida_mem, ResFn res,
               realtype t0, N_Vector y0, N_Vector yp0, 
-              int itol, realtype *rtol, void *atol,
+              int itol, realtype *reltol, void *abstol,
               NV_Spec nvspec);
 
 /* Error return values for IDAMalloc */
@@ -287,7 +377,7 @@ enum {IDAM_NO_MEM = -1, IDAM_MEM_FAIL=-2, IDAM_ILL_INPUT = -2};
  * IDAReInit re-initializes IDAS for the solution of a problem,   *
  * where a prior call to IDAMalloc has been made.                 *
  * IDAReInit performs the same input checking and initializations *
- * that IDAMalloc does (except for Neq).                          *
+ * that IDAMalloc does.                                           *
  * But it does no memory allocation, assuming that the existing   *
  * internal memory is sufficient for the new problem.             *
  *                                                                *
@@ -317,16 +407,258 @@ enum {IDAM_NO_MEM = -1, IDAM_MEM_FAIL=-2, IDAM_ILL_INPUT = -2};
  *   IDAREI_ILL_INPUT  indicating an input argument was illegal   *
  *                     (including an attempt to increase maxord). *
  * In case of an error return, an error message is also printed.  *
- *                                                                *
  ******************************************************************/
 
 int IDAReInit(void *ida_mem, ResFn res,
               realtype t0, N_Vector y0, N_Vector yp0,
-              int itol, realtype *rtol, void *atol);
+              int itol, realtype *reltol, void *abstol);
  
 /* Error return values for IDAReInit */
 /* SUCCESS = 0 */ 
 enum {IDAREI_NO_MEM = -1, IDAREI_NO_MALLOC = -2, IDAREI_ILL_INPUT = -3};
+
+/*----------------------------------------------------------------*
+ * Quadrature optional input specification functions              *
+ *----------------------------------------------------------------*
+ * The following functions can be called to set optional inputs   *
+ * to values other than the defaults given below:                 *
+ *                                                                *
+ * Function             |  Optional input / [ default value ]     *
+ *                      |                                         * 
+ * -------------------------------------------------------------- *
+ *                      |                                         *
+ * IDASetQuadErrCon     | the type of error control. The legal    *
+ *                      | values are FULL and PARTIAL.            *
+ *                      | [FULL]                                  *
+ *                      |                                         *
+ * IDASetQuadRdata      | a pointer to user data that will be     *
+ *                      | passed to the user's rhsQ function      *
+ *                      | every time rhsQ is called.              *
+ *                      | [NULL]                                  *
+ *                      |                                         *
+ * -------------------------------------------------------------- *
+ * If successful, these functions return SUCCESS. If an argument  *
+ * has an illegal value, they print an error message to the       *
+ * file specified by errfp and return one of the error flags      *  
+ * defined for the IDASet* routines.                              *
+ *----------------------------------------------------------------*/
+
+int IDASetQuadErrCon(void *ida_mem, int errconQ);
+int IDASetQuadRdata(void *ida_mem, void *rdataQ);
+
+/*----------------------------------------------------------------*
+ * Function : IDAQuadMalloc                                       *
+ *----------------------------------------------------------------*
+ * IDAQuadMalloc allocates and initializes memory related to      *
+ * quadrature integration.                                        *
+ *                                                                *
+ * ida_mem is a pointer to IDAS memory returned by IDACreate      *
+ *                                                                *
+ * rhsQ    is the user-provided integrand routine.                *
+ *                                                                *
+ * itolQ   is the type of tolerances to be used.                  *
+ *            The legal values are:                               *
+ *               SS (scalar relative and absolute  tolerances),   *
+ *               SV (scalar relative tolerance and vector         *
+ *                   absolute tolerance).                         *
+ *                                                                *
+ * reltolQ   is a pointer to the quadrature relative tolerance    *
+ *           scalar.                                              *
+ *                                                                *
+ * abstolQ   is a pointer to the absolute tolerance scalar or     *
+ *           an N_Vector of absolute tolerances for quadrature    *
+ *           variables.                                           *
+ *                                                                *
+ * nvspecQ   is a pointer to a vector specification structure     *
+ *           for N_Vectors containing quadrature variables.       *
+ *                                                                *
+ *                                                                *
+ * If successful, IDAQuadMalloc returns SUCCESS.                  *
+ * If an initialization error occurs, CVodeQuadMalloc prints an   *
+ * error message to the file specified by errfp and returns one   *
+ * of the error flags defined below.                              *
+ *----------------------------------------------------------------*/
+
+int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ,
+                  int itolQ, realtype *reltolQ, void *abstolQ,
+                  NV_Spec nvspecQ);
+
+enum {QIDAM_NO_MEM = -1, QIDAM_ILL_INPUT = -2, QIDAM_MEM_FAIL = -3};
+
+/*----------------------------------------------------------------*
+ * Function : IDAQuadReInit                                       *
+ *----------------------------------------------------------------*
+ * IDAQuadReInit re-initializes IDAS's quadrature related         *
+ * memory for a problem, assuming it has already been allocated   *
+ * in prior calls to IDAMalloc and IDAQuadMalloc.                 *
+ *                                                                *
+ * All problem specification inputs are checked for errors.       *
+ * The number of quadratures Nq is assumed to be unchanged        *
+ * since the previous call to IDAQuadMalloc.                      *
+ * If any error occurs during initialization, it is reported to   *
+ * the file whose file pointer is errfp, and one of the error     *
+ * flags defined below is returned.                               *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ,
+                  int itolQ, realtype *reltolQ, void *abstolQ);
+
+enum {QIDAREI_NO_MEM = -1, QIDAREI_NO_QUAD = -2, QIDAREI_ILL_INPUT = -3};
+
+/*----------------------------------------------------------------*
+ * Forward sensitivity optional input specification functions     *
+ *----------------------------------------------------------------*
+ * The following functions can be called to set optional inputs   *
+ * to other values than the defaults given below:                 *
+ *                                                                *
+ * Function             |  Optional input / [ default value ]     *
+ *                      |                                         * 
+ * -------------------------------------------------------------- *
+ *                      |                                         *
+ * IDASetSensResFn      | sensitivity residual function.          *
+ *                      | This function must compute residuals    *
+ *                      | for all sensitivity equations.          *
+ *                      | [IDAS difference quotient approx.]      *
+ *                      |                                         *
+ * IDASetSensRes1Fn     | sensitivity residual function.          *
+ *                      | This function must compute the residual *
+ *                      | of one sensitivity equation at a time   *
+ *                      | [IDAS difference quotient approx.]      *
+ *                      |                                         *
+ * IDASetSensErrCon     | the type of error control. The legal    *
+ *                      | values are FULL and PARTIAL.            *
+ *                      | [FULL]                                  *
+ *                      |                                         *
+ * IDASetSensRho        | controls the selection of finite        *
+ *                      | difference schemes used in evaluating   *
+ *                      | the sensitivity right hand sides.       *
+ *                      | [0.0]                                   *
+ *                      |                                         *
+ * IDASetSensPbar       | a pointer to scaling factors used in    *
+ *                      | computing sensitivity absolute          *
+ *                      | tolerances as well as by the IDAS       *
+ *                      | difference quotient routines for        *
+ *                      | sensitivty right hand sides. pbar[i]    *
+ *                      | must give the order of magnitude of     *
+ *                      | parameter p[i]. Typically, if p[i] is   *
+ *                      | nonzero, pbar[i]=p[i].                  *
+ *                      | [NULL]                                  *
+ *                      |                                         *
+ * IDASetSensReltol     | a pointer to the sensitivity relative   *
+ *                      | tolerance scalar.                       *
+ *                      | [same as for states]                    *
+ *                      |                                         *
+ * IDASetSensAbstol     | a pointer to the array of sensitivity   *
+ *                      | absolute tolerance scalars or a pointer *
+ *                      | to the array of N_Vector sensitivity    *
+ *                      | absolute tolerances.                    *
+ *                      | [estimated by IDAS]                     *
+ *                      |                                         *
+ * IDASetSensRdata      | a pointer to user data that will be     *
+ *                      | passed to the user's resS function      *
+ *                      | every time resS is called.              *
+ *                      | [NULL]                                  *
+ *                      |                                         *
+ * -------------------------------------------------------------- *
+ * If successful, these functions return SUCCESS. If an argument  *
+ * has an illegal value, they print an error message to the       *
+ * file specified by errfp and return one of the error flags      *  
+ * defined for the IDASet* routines.                              *
+ *----------------------------------------------------------------*/
+
+int IDASetSensResFn(void *ida_mem, SensResFn resS);
+int IDASetSensRes1Fn(void *ida_mem, SensRes1Fn resS);
+int IDASetSensErrCon(void *ida_mem, int errconS);
+int IDASetSensRho(void *ida_mem, realtype rho);
+int IDASetSensPbar(void *ida_mem, realtype *pbar);
+int IDASetSensReltol(void *ida_mem, realtype *reltolS);
+int IDASetSensAbstol(void *ida_mem, void *abstolS);
+int IDASetSensRdata(void *ida_mem, void *rdataS);
+
+/*----------------------------------------------------------------*
+ * Function : IDASensMalloc                                       *
+ *----------------------------------------------------------------*
+ * IDASensMalloc allocates and initializes memory related to      *
+ * sensitivity computations.                                      *
+ *                                                                *
+ * ida_mem is a pointer to IDAS memory returned by IDAMalloc      *
+ *                                                                *
+ * Ns        is the number of sensitivities to be computed.       *
+ *                                                                *
+ * ism       is the type of corrector used in sensitivity         *
+ *           analysis. The legal values are: SIMULTANEOUS,        *
+ *           STAGGERED, and STAGGERED1 (see previous description) *
+ *                                                                *
+ * p         is a pointer to problem parameters with respect to   *
+ *           which sensitivities may be computed (see description *
+ *           of plist below). If the right hand sides of the      *
+ *           sensitivity equations are to be evaluated by the     *
+ *           difference quotient routines provided with IDAS,     *
+ *           then p must also be a field in the user data         *
+ *           structure pointed to by f_data.                      *
+ *                                                                *
+ * plist     is a pointer to a list of parameters with respect to *
+ *           which sensitivities are to be computed.              *
+ *           If plist[j]=i, then sensitivities with respect to    *
+ *           the i-th parameter (i.e. p[i-1]) will be computed.   *
+ *           A negative plist entry also indicates that the       *
+ *           corresponding parameter affects only the initial     *
+ *           conditions of the ODE and not its right hand side.   *
+ *                                                                *
+ * yS0       is the array of initial condition vectors for        *
+ *           sensitivity variables.                               * 
+ *                                                                *
+ * ypS0      is the array of initial condition vectors for        *
+ *           sensitivity derivatives.                             * 
+ *                                                                *
+ * If successful, IDASensMalloc returns SUCCESS. If an            *
+ * initialization error occurs, IDASensMalloc prints an error     *
+ * message to the file specified by errfp and returns one of      *
+ * the error flags defined below.                                 *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int IDASensMalloc(void *ida_mem, int Ns, int ism, 
+                  realtype *p, int *plist, 
+                  N_Vector *yS0, N_Vector *ypS0);
+    
+enum {SIDAM_NO_MEM = -1, SIDAM_ILL_INPUT = -2, SIDAM_MEM_FAIL = -3};
+
+/*----------------------------------------------------------------*
+ * Function : IDASensReInit                                       *
+ *----------------------------------------------------------------*
+ * IDASensReInit re-initializes CVODES's sensitivity related      *
+ * memory for a problem, assuming it has already been allocated   *
+ * in prior calls to IDAMalloc and CvodeSensMalloc.               *
+ *                                                                *
+ * All problem specification inputs are checked for errors.       *
+ * The number of sensitivities Ns is assumed to be unchanged      *
+ * since the previous call to IDASensMalloc.                      *
+ * If any error occurs during initialization, it is reported to   *
+ * the file whose file pointer is errfp.                          *
+ *                                                                *
+ * IDASensReInit potentially does some minimal memory allocation  *
+ * (for the sensitivity absolute tolerance and for arrays of      *
+ * counters used by the STAGGERED1 method).                       *
+ *                                                                *
+ * The return value is equal to SUCCESS = 0 if there were no      *
+ * errors; otherwise it is a negative int equal to:               *
+ *   SIDAREI_NO_MEM    indicating cvode_mem was NULL, or          *
+ *   SIDAREI_NO_SENSI  indicating there was not a prior call to   *
+ *                     IDASensMalloc.                             *
+ *   SIDAREI_ILL_INPUT indicating an input argument was illegal   *
+ *                    (including an attempt to increase maxord).  *
+ *   SIDAREI_MEM_FAIL  indicating a memory request failed.        *
+ * In case of an error return, an error message is also printed.  *
+ *----------------------------------------------------------------*/
+
+int IDASensReInit(void *ida_mem, int ism,
+                  realtype *p, int *plist, 
+                  N_Vector *yS0, N_Vector *ypS0);
+  
+enum {SIDAREI_NO_MEM    = -1, SIDAREI_NO_SENSI = -2, 
+      SIDAREI_ILL_INPUT = -3, SIDAREI_MEM_FAIL = -4};
 
 /*----------------------------------------------------------------*
  * Initial Conditions optional input specification functions      *
@@ -334,7 +666,6 @@ enum {IDAREI_NO_MEM = -1, IDAREI_NO_MALLOC = -2, IDAREI_ILL_INPUT = -3};
  * The following functions can be called to set optional inputs   *
  * to control the initial conditions calculations.                *
  *                                                                *
- *                        |                                       * 
  * Function               |  Optional input / [ default value ]   *
  *                        |                                       * 
  * -------------------------------------------------------------- *
@@ -374,7 +705,6 @@ enum {IDAREI_NO_MEM = -1, IDAREI_NO_MALLOC = -2, IDAREI_ILL_INPUT = -3};
  * IDASetStepToleranceIC  | positive lower bound on the norm of   *
  *                        | a Newton step.                        *
  *                        | [(unit roundoff)^(2/3)                *
- *                                                                *
  ******************************************************************/
 
 int IDASetNlinConvFactorIC(void *ida_mem, realtype epicfac);
@@ -477,7 +807,6 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  *                                                                *
  * IC_CONV_FAILURE     IDACalcIC failed to get convergence of the *
  *                     Newton iterations.                         *
- *                                                                *
  ******************************************************************/
 
 int IDACalcIC (void *ida_mem, int icopt, realtype tout1); 
@@ -629,7 +958,6 @@ int IDAGetSolution(void *ida_mem, realtype t,
 /*----------------------------------------------------------------*
  * Integrator optional output extraction functions                *
  *----------------------------------------------------------------*
- *                                                                *
  * The following functions can be called to get optional outputs  *
  * and statistics related to the main integrator.                 *
  * -------------------------------------------------------------- *
@@ -648,14 +976,14 @@ int IDAGetSolution(void *ida_mem, realtype t,
  *       operations done in the linesearch algorithm in IDACalcIC *
  * IDAGetLastOrder returns the order used during the last         *
  *       internal step                                            *
- * IDAGetNextOrder returns the order to be used on the next       *
+ * IDAGetCurrentOrder returns the order to be used on the next    *
  *       internal step                                            *
  * IDAGetActualInitStep returns the actual initial step size      *
  *       used by IDAS                                             *
  * IDAGetLastStep returns the step size for the last internal     *
  *       step (if from IDASolve), or the last value of the        *
  *       artificial step size h (if from IDACalcIC)               *
- * IDAGetNextStep returns the step size to be attempted on the    *
+ * IDAGetCurrentStep returns the step size to be attempted on the *
  *       next internal step                                       *
  * IDAGetCurrentTime returns the current internal time reached    *
  *       by the solver                                            *
@@ -666,7 +994,6 @@ int IDAGetSolution(void *ida_mem, realtype t,
  *       The user need not allocate space for ewt.                *
  * IDAGetEstLocalErrors returns the vector of estimated local     *
  *       errors. The user need not allocate space for ele.        *
- *                                                                *
  *----------------------------------------------------------------*/
 
 int IDAGetIntWorkSpace(void *ida_mem, long int *leniw);
@@ -677,10 +1004,10 @@ int IDAGetNumLinSolvSetups(void *ida_mem, int *nlinsetups);
 int IDAGetNumErrTestFails(void *ida_mem, int *netfails);
 int IDAGetNumBacktrackOps(void *ida_mem, int *nbacktr);
 int IDAGetLastOrder(void *ida_mem, int *klast);
-int IDAGetNextOrder(void *ida_mem, int *kcur);
+int IDAGetCurrentOrder(void *ida_mem, int *kcur);
 int IDAGetActualInitStep(void *ida_mem, realtype *hinused);
 int IDAGetLastStep(void *ida_mem, realtype *hlast);
-int IDAGetNextStep(void *ida_mem, realtype *hcur);
+int IDAGetCurrentStep(void *ida_mem, realtype *hcur);
 int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
 int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
 int IDAGetErrWeights(void *ida_mem, N_Vector *eweight);
@@ -699,7 +1026,6 @@ int IDAGetIntegratorStats(void *ida_mem, int *nsteps, int *nrevals,
 /*----------------------------------------------------------------*
  * Nonlinear solver optional output extraction functions          *
  *----------------------------------------------------------------*
- *                                                                *
  * The following functions can be called to get optional outputs  *
  * and statistics related to the nonlinear solver.                *
  * -------------------------------------------------------------- *
@@ -708,7 +1034,6 @@ int IDAGetIntegratorStats(void *ida_mem, int *nsteps, int *nrevals,
  *       solver iterations performed.                             *
  * IDAGetNumNonlinSolvConvFails returns the number of nonlinear   *
  *       convergence failures.                                    *
- *                                                                *
  *----------------------------------------------------------------*/
 
 int IDAGetNumNonlinSolvIters(void *ida_mem, int *nniters);
@@ -721,25 +1046,184 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, int *nncfails);
 
 int IDAGetNonlinSolvStats(void *ida_mem, int *nniters, int *nncfails);
 
-/* IDAGet* return values */
-enum { OKAY=0, IDAG_NO_MEM=-1, BAD_T=-2 };
+/*----------------------------------------------------------------*
+ * Quadrature integration solution extraction routines            *
+ *----------------------------------------------------------------*
+ * The following functions can be called to obtain the quadrature *
+ * variables after a successful integration step.                 *
+ *                                                                *
+ * Return values are similar to those of IDAGetSolution.          *
+ * Additionally, IDAGetQuad can return IDAG_NO_QUAD if quadratures*
+ * were not computed.                                             *
+ *----------------------------------------------------------------*/
 
-/******************************************************************
+int IDAGetQuad(void *ida_mem, realtype t, 
+               N_Vector yretQ, N_Vector ypretQ);
+
+/*----------------------------------------------------------------*
+ * Quadrature integration optional output extraction routines     *
+ *----------------------------------------------------------------*
+ * The following functions can be called to get optional outputs  *
+ * and statistics related to the integration of quadratures.      *
+ * -------------------------------------------------------------- *
+ *                                                                * 
+ * IDAGetNumQuadRhsEvals returns the number of calls to the       *
+ *      user function rhsQ defining the right hand side of the    *
+ *      quadrature variables.                                     *
+ * IDAGetNumQuadErrTestFails returns the number of local error    *
+ *      test failures for quadrature variables.                   *
+ * IDAGetQuadErrWeights returns the vector of error weights for   *
+ *      the quadrature variables. The user need not allocate      *
+ *      space for ewtQ.                                           *
+ *----------------------------------------------------------------*/
+
+int IDAGetNumQuadRhsEvals(void *ida_mem, int *nrhsQevals);
+int IDAGetNumQuadErrTestFails(void *ida_mem, int *nQetfails);
+int IDAGetQuadErrWeights(void *ida_mem, N_Vector *eQweight);
+
+/*----------------------------------------------------------------*
+ * As a convenience, the following function provides the          *
+ * optional outputs in a group.                                   *
+ *----------------------------------------------------------------*/
+
+int IDAGetQuadStats(void *ida_mem, int *nrhsQevals, int *nQetfails);
+
+/*----------------------------------------------------------------*
+ * Forward sensitivity solution extraction routines               *
+ *----------------------------------------------------------------*
+ * IDAGetSens returns sensitivities of the y function at          *
+ * the time t. The argument yS must be a pointer to N_Vector      *
+ * and must be allocated by the user to hold at least Ns vectors. *
+ *                                                                *
+ * Return values are similar to those of IDAGetSolution.          *
+ * Additionally, IDAGetSens can return IDAG_NO_SENSI if           *
+ * sensitivities were not computed and BAD_IS if                  *
+ * is < 0 or is >= Ns.                                            *
+ *----------------------------------------------------------------*/
+
+int IDAGetSens(void *ida_mem, realtype t, 
+               N_Vector *yretS, N_Vector *ypretS);
+
+/*----------------------------------------------------------------*
+ * Forward sensitivity optional output extraction routines        *
+ *----------------------------------------------------------------*
+ * The following functions can be called to get optional outputs  *
+ * and statistics related to the integration of sensitivities.    *
+ * -------------------------------------------------------------- *
+ *                                                                * 
+ * IDAGetNumSensResEvals returns the number of calls to the       *
+ *     sensitivity residual routine.                              *
+ * IDAGetNumResEvalsSens returns the number of calls to the       *
+ *     user res routine due to finite difference evaluations of   *
+ *     the sensitivity equations.                                 *
+ * IDAGetNumSensErrTestFails returns the number of local error    *
+ *     test failures for sensitivity variables.                   *
+ * IDAGetNumSensLinSolvSetups returns the number of calls made    *
+ *     to the linear solver's setup routine due to sensitivity    *
+ *     computations.                                              *
+ * IDAGetSensErrWeights returns the sensitivity error weight      *
+ *     vectors. The user need not allocate space for ewtS.        *
+ *----------------------------------------------------------------*/
+
+int IDAGetNumSensRhsEvals(void *ida_mem, int *nresSevals);
+int IDAGetNumRhsEvalsSens(void *ida_mem, int *nresevalsS);
+int IDAGetNumSensErrTestFails(void *ida_mem, int *nSetfails);
+int IDAGetNumSensLinSolvSetups(void *ida_mem, int *nlinsetupsS);
+int IDAGetSensErrWeights(void *ida_mem, N_Vector_S *eSweight);
+
+/*----------------------------------------------------------------*
+ * As a convenience, the following function provides the          *
+ * optional outputs in a group.                                   *
+ *----------------------------------------------------------------*/
+
+int IDAGetSensStats(void *ida_mem, int *nresSevals, int *nresevalsS, 
+                      int *nSetfails, int *nlinsetupsS);
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Sensitivity nonlinear solver optional output extraction        *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * The following functions can be called to get optional outputs  *
+ * and statistics related to the sensitivity nonlinear solver.    *
+ * -------------------------------------------------------------- *
+ *                                                                * 
+ * IDAGetNumSensNonlinSolvIters returns the total number of       *
+ *         nonlinear iterations for sensitivity variables.        *
+ * IDAGetNumSensNonlinSolvConvFails returns the total number of   *
+ *         nonlinear convergence failures for sensitivity         *
+ *         variables                                              *
+ * IDAGetNumStgrSensNonlinSolvIters returns a vector of Ns        *
+ *         nonlinear iteration counters for sensitivity variables *
+ *         in the STAGGERED1 method.                              *
+ * IDAGetNumStgrSensNonlinSolvConvFails returns a vector of Ns    *
+ *         nonlinear solver convergence failure counters for      *
+ *         sensitivity variables in the STAGGERED1 method.        *
+ *----------------------------------------------------------------*/
+
+int IDAGetNumSensNonlinSolvIters(void *ida_mem, int *nSniters);
+int IDAGetNumSensNonlinSolvConvFails(void *ida_mem, int *nSncfails);
+int IDAGetNumStgrSensNonlinSolvIters(void *ida_mem, int *nSTGR1niters);
+int IDAGetNumStgrSensNonlinSolvConvFails(void *ida_mem, int *nSTGR1ncfails);
+
+/*----------------------------------------------------------------*
+ * As a convenience, the following two functions provide the      *
+ * optional outputs in groups.                                    *
+ *----------------------------------------------------------------*/
+
+int IDAGetSensNonlinSolvStats(void *ida_mem, int *nSniters, int *nSncfails);
+int IDAGetStgrSensNonlinSolvStats(void *ida_mem, int *nSTGR1niters, 
+                                    int *nSTGR1ncfails);
+
+/* IDAGet* return values */
+enum { OKAY = 0, IDAG_NO_MEM = -1, BAD_T = -2, 
+       IDAG_NO_QUAD = -3, IDAG_NO_SENS = -4 };
+
+/*----------------------------------------------------------------*
  * Function : IDAFree                                             *
  *----------------------------------------------------------------*
  * IDAFree frees the problem memory IDA_mem allocated by          *
  * IDAMalloc.  Its only argument is the pointer idamem            *
  * returned by IDAMalloc.                                         *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
 void IDAFree(void *ida_mem);
 
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Function : IDAQuadFree                                         *
+ *----------------------------------------------------------------*
+ * IDAQuadFree frees the problem memory in ida_mem allocated      *
+ * for quadrature integration. Its only argument is the pointer   *
+ * ida_mem returned by IDACreate.                                 *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+void IDAQuadFree(void *ida_mem);
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Function : IDASensFree                                         *
+ *----------------------------------------------------------------*
+ * IDASensFree frees the problem memory in ida_mem allocated      *
+ * for sensitivity analysis. Its only argument is the pointer     *
+ * ida_mem returned by IDACreate.                                 *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+void IDASensFree(void *ida_mem);
+
+
+/*================================================================*
+ *                                                                *
+ *   M A I N    I N T E G R A T O R    M E M O R Y    B L O C K   *
+ *                                                                *
+ *================================================================*/
 
 /* Basic IDAS constants */
 
-#define MXORDP1       6     /* max value 'small' dimension for 
-                               phi array size   (other dimension is Neq)  */
+#define MXORDP1   6     /* max. number of N_Vectors kept in the phi array */
 
 /******************************************************************
  * Types : struct IDAMemRec, IDAMem                               *
@@ -753,20 +1237,56 @@ typedef struct IDAMemRec {
 
   realtype ida_uround;    /* machine unit roundoff */
 
-  /* Problem Specification Data */
+  /*--------------------------
+    Problem Specification Data 
+    --------------------------*/
 
   ResFn          ida_res;            /* F(t,y(t),y'(t))=0; the function F  */
   void          *ida_rdata;          /* user pointer passed to res         */
   int            ida_itol;           /* itol = SS or SV                    */
-  realtype      *ida_rtol;           /* ptr to relative tolerance          */
-  void          *ida_atol;           /* ptr to absolute tolerance          */  
+  realtype      *ida_reltol;         /* ptr to relative tolerance          */
+  void          *ida_abstol;         /* ptr to absolute tolerance          */  
   booleantype    ida_setupNonNull;   /* Does setup do something?           */
   booleantype    ida_constraintsSet; /* constraints vector present: 
                                         do constraints calc                */
   booleantype    ida_suppressalg;    /* true means suppress algebraic vars
                                         in local error tests               */
 
-  /* Divided differences array and associated minor arrays */
+  /*-----------------------
+    Quadrature Related Data 
+    -----------------------*/
+
+  booleantype    ida_quad;
+  QuadRhsFn      ida_rhsQ;
+  int            ida_itolQ;
+  realtype      *ida_reltolQ;
+  void          *ida_abstolQ;
+  int            ida_errconQ;
+  void          *ida_rdataQ;
+
+  /*------------------------
+    Sensitivity Related Data
+    ------------------------*/
+
+  booleantype    ida_sensi;
+  int            ida_Ns;
+  SensResFn      ida_resS;
+  SensRes1Fn     ida_resS1;
+  booleantype    ida_resSDQ;
+  int            ida_iresS;
+  int            ida_ism;
+  realtype      *ida_p;
+  realtype      *ida_pbar;
+  int           *ida_plist;
+  realtype      *ida_reltolS;
+  void          *ida_abstolS;
+  realtype       ida_rhomax;
+  int            ida_errcon;
+  void          *ida_rdataS;
+
+  /*-----------------------------------------------
+    Divided differences array and associated arrays
+    -----------------------------------------------*/
 
   N_Vector ida_phi[MXORDP1];   /* phi = (maxord+1) arrays of divided differences */
 
@@ -776,7 +1296,9 @@ typedef struct IDAMemRec {
   realtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
   realtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
 
-  /* Vectors of length Neq */
+  /*-------------------------
+    N_Vectors for integration
+    -------------------------*/
 
   N_Vector ida_ewt;         /* error weight vector                           */
   N_Vector ida_mskewt;      /* masked error weight vector (uses ID)          */
@@ -797,7 +1319,24 @@ typedef struct IDAMemRec {
   N_Vector ida_delnew;      /* work vector for delta in IDACalcIC (= phi[2]) */
   N_Vector ida_dtemp;       /* work vector in IDACalcIC (= phi[3])           */
 
-  /* Scalars for use by IDACalcIC*/
+  /*----------------------------
+    Quadrature Related N_Vectors 
+    ----------------------------*/
+
+  N_Vector ida_ewtQ;
+  N_Vector ida_phiQ[MXORDP1];
+  N_Vector ida_tempvQ;
+
+  /*---------------------------
+    Sensitivity Related Vectors 
+    ---------------------------*/
+
+  N_Vector *ida_ewtS;
+  N_Vector *ida_phiS[MXORDP1];
+
+  /*----------------------------
+    Scalars for use by IDACalcIC
+    ----------------------------*/
 
   int ida_icopt;            /* IC calculation user option                    */
   booleantype ida_lsoff;    /* IC calculation linesearch turnoff option      */
@@ -810,19 +1349,31 @@ typedef struct IDAMemRec {
   realtype ida_steptol;     /* minimum Newton step size in IC calculation    */
   realtype ida_tscale;      /* time scale factor = abs(tout1 - t0)           */
 
+  /*-------------------------------------------------
+    Does IDASensMalloc allocate additional space?
+  -------------------------------------------------*/  
+
+  booleantype ida_abstolSalloc; /* abstolS allocated by IDAS?                */
+  booleantype ida_stgr1alloc;   /* ncfS1,ncfnS1,and nniS1 allocated by IDAS? */
+
+
   /*-----------------
     Tstop information
   -------------------*/
-  booleantype ida_istop;
+  booleantype ida_tstopset;
   realtype ida_tstop;
 
-  /* Step Data */
+  /*---------
+    Step Data
+    ---------*/
 
   int ida_kk;        /* current BDF method order                          */
   int ida_kused;     /* method order used on last successful step         */
   int ida_knew;      /* order for next step from order decrease decision  */
   int ida_phase;     /* flag to trigger step doubling in first few steps  */
   int ida_ns;        /* counts steps at fixed stepsize and order          */
+  int  *ida_ncfS1;   /* Array of Ns local counters for conv. failures 
+                                (used in IDAStep for STAGGERED1)          */
 
   realtype ida_hin;      /* initial step                                      */
   realtype ida_h0u;      /* actual initial stepsize                           */
@@ -839,34 +1390,60 @@ typedef struct IDAMemRec {
   realtype ida_epsNewt;  /* test constant in Newton convergence test          */
   realtype ida_nconfac;  /* optional factor in Newton covergence test constant*/
   realtype ida_toldel;   /* tolerance in direct test on Newton corrections    */
+  
 
- /* Limits */
+  /*------
+    Limits
+    ------*/
 
   int ida_maxord;        /* max value of method order k:                      */
   int ida_mxstep;        /* max number of internal steps for one user call    */
   realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
 
-  /* Counters */
+  /*--------
+    Counters
+    --------*/
 
-  long int ida_nst;      /* number of internal steps taken                    */
-  long int ida_nre;      /* number of function (res) calls                    */
-  long int ida_ncfn;     /* number of corrector convergence failures          */
-  long int ida_netf;     /* number of error test failures                     */
-  long int ida_nni;      /* number of Newton iterations performed             */
-  long int ida_nsetups;  /* number of lsetup calls                            */
+  int ida_nst;           /* number of internal steps taken                    */
 
-  /* Space requirements for IDAS */
+  int ida_nre;           /* number of function (res) calls                    */
+  int ida_nrQe;
+  int ida_nrSe;
+  int ida_nreS;
+
+  int ida_ncfn;          /* number of corrector convergence failures          */
+  int ida_ncfnS;
+  int *ida_ncfnS1;
+
+  int ida_nni;           /* number of Newton iterations performed             */
+  int ida_nniS;
+  int *ida_nniS1;
+
+  int ida_netf;          /* number of error test failures                     */
+  int ida_netfQ;
+  int ida_netfS;
+
+  int ida_nsetups;       /* number of lsetup calls                            */
+  int ida_nsetupsS;
+  
+  /*---------------------------
+    Space requirements for IDAS
+    ---------------------------*/
 
   long int ida_lrw1;     /* no. of realtype words in 1 N_Vector               */
   long int ida_liw1;     /* no. of integertype words in 1 N_Vector            */
+  long int ida_lrw1Q;
+  long int ida_liw1Q;
   long int ida_lrw;      /* number of realtype words in IDAS work vectors     */
   long int ida_liw;      /* no. of integertype words in IDAS work vectors     */
 
   realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
-  FILE *ida_errfp;               /* IDAS error messages are sent to errfp    */
-
-  /* Flags to verify correct calling sequence */
+  /*-------------------------------------------------------
+    Flags to verify correct calling sequence
+    Turned ON by IDAMalloc, IDASensMalloc, and IDAQuadMalloc 
+    and read by IDAMalloc, IDASensReInit, and IDAQuadReInit
+    --------------------------------------------------------*/
 
   booleantype ida_SetupDone;     /* set to FALSE by IDAMalloc and IDAReInit */
                                  /* set to TRUE by IDACalcIC or IDASolve    */
@@ -875,7 +1452,19 @@ typedef struct IDAMemRec {
                                  /* set to TRUE by IDAMAlloc                */
                                  /* tested by IDAReInit and IDASolve        */
 
-  /* Linear Solver Data */
+  booleantype ida_sensMallocDone;
+
+  booleantype ida_quadMallocDone;
+  
+  /*-------------------------------------
+    IDAS error messages are sent to errfp
+    -------------------------------------*/
+
+  FILE *ida_errfp;
+
+  /*------------------
+    Linear Solver Data
+    ------------------*/
 
   /* Linear Solver functions to be called */
 
@@ -887,6 +1476,9 @@ typedef struct IDAMemRec {
 
   int (*ida_lsolve)(struct IDAMemRec *idamem, N_Vector b, N_Vector ycur,
                     N_Vector ypcur, N_Vector rescur);
+
+  int (*ida_lsolveS)(struct IDAMemRec *idamem, N_Vector b, N_Vector ycur,
+                     N_Vector ypcur, N_Vector rescur, int is);
 
   int (*ida_lperf)(struct IDAMemRec *idamem, int perftask);
 
@@ -900,10 +1492,19 @@ typedef struct IDAMemRec {
 
   booleantype ida_linitOK;
 
-
-  /* Pointer to Vector Sepcification Information   */
+  /*-------------------------------------------------
+    Pointer to the vector specification structure for
+    state N_Vectors
+    -------------------------------------------------*/
 
   NV_Spec ida_nvspec;
+
+  /*-------------------------------------------------
+    Pointer to the vector specification structure for 
+    quadrature N_Vectors
+    -------------------------------------------------*/
+
+  NV_Spec ida_nvspecQ;
 
 } *IDAMem;
 
@@ -972,8 +1573,8 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
 /*******************************************************************
  *                                                                 *
  * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,   *
- *                  N_Vector resp,                                 *
- *            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);  *
+ *                   N_Vector resp,                                *
+ *                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); *
  *-----------------------------------------------------------------*
  * The job of ida_lsetup is to prepare the linear solver for       *
  * subsequent calls to ida_lsolve. Its parameters are as follows:  *
@@ -990,8 +1591,8 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  *                                                                 *
  * resp  - F(tn, yyp, ypp).                                        *
  *                                                                 *
- * tempv1, tempv2, tempv3 - temporary N_Vectors provided for use   *
- *         by ida_lsetup.                                          *
+ * tmp1, tmp2, tmp3 - temporary N_Vectors provided for use by      *
+ *         ida_lsetup.                                             *
  *                                                                 *
  * The ida_lsetup routine should return SUCCESS (=0) if successful,*
  * the positive value LSETUP_ERROR_RECVR for a recoverable error,  *
@@ -1003,7 +1604,7 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
 /*******************************************************************
  *                                                                 *
  * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector ycur,    *
- *                 NPVector ypcur, N_Vector rescur);               *
+ *                   N_Vector ypcur, N_Vector rescur);             *
  *-----------------------------------------------------------------*
  * ida_lsolve must solve the linear equation P x = b, where        *
  * P is some approximation to the system Jacobian                  *
@@ -1019,6 +1620,13 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * value SUCCESS = 0. The code should include the file ida.h .     *
  *                                                                 *
  *******************************************************************/
+
+/*******************************************************************
+ *                                                                 *
+ * int (*ida_lsolveS)(IDAMem IDA_mem, N_Vector b, N_Vector ycur,   *
+ *                    N_Vector ypcur, N_Vector rescur, int is);    *
+ *******************************************************************/
+
 /*******************************************************************
  *                                                                 *
  * int (*ida_lperf)(IDAMem IDA_mem, int perftask);                 *

@@ -1,5 +1,4 @@
 /*******************************************************************
- *                                                                 *
  * File          : idasband.h                                      *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
@@ -67,12 +66,12 @@ extern "C" {
  *        given by F(t,y,y') = 0.  Jac is preset to zero, so only *
  *        the nonzero elements need to be loaded.  See note below.*
  *                                                                *
- * tempv1, tempv2, tempv3 are pointers to memory allocated for    *
+ * tmp1, tmp2, tmp3 are pointers to memory allocated for          *
  *        N_Vectors which can be used by an IDABandJacFn routine  *
  *        as temporary storage or work space.                     *
  *                                                                *
  *                                                                *
- * Note: The following are two efficient ways to load JJ:         *
+ * NOTE: The following are two efficient ways to load JJ:         *
  *                                                                *
  * (1) (with macros - no explicit data structure references)      *
  *    for (j=0; j < Neq; j++) {                                   *
@@ -92,6 +91,13 @@ extern "C" {
  *       }                                                        *
  *     }                                                          *
  *                                                                *
+ * NOTE: If the user's Jacobian routine needs other quantities,   *
+ *     they are accessible as follows: hcur (the current stepsize)*
+ *     and ewt (the error weight vector) are accessible through   *
+ *     IDAGetCurrentStep and IDAGetErrWeights, respectively (see  *
+ *     ida.h). The unit roundoff is available through a call to   *
+ *     UnitRoundoff.                                              *
+ *                                                                *
  * A third way, using the BAND_ELEM(A,i,j) macro, is much less    *
  * efficient in general.  It is only appropriate for use in small *
  * problems in which efficiency of access is NOT a major concern. *
@@ -108,8 +114,8 @@ typedef int (*IDABandJacFn)(integertype Neq, integertype mupper,
                             integertype mlower, realtype tt, 
                             N_Vector yy, N_Vector yp, realtype c_j, 
                             void *jdata, N_Vector resvec, BandMat Jac, 
-                            N_Vector tempv1, N_Vector tempv2, 
-                            N_Vector tempv3);
+                            N_Vector tmp1, N_Vector tmp2, 
+                            N_Vector tmp3);
  
 /******************************************************************
  *                                                                *
@@ -177,6 +183,41 @@ int IDABandGetIntWorkSpace(void *ida_mem, long int *leniwB);
 int IDABandGetRealWorkSpace(void *ida_mem, long int *lenrwB);
 int IDABandGetNumJacEvals(void *ida_mem, int *njevalsB);
 int IDABandGetNumResEvals(void *ida_mem, int *nrevalsB);
+
+/******************************************************************
+ *                                                                *           
+ * Types : IDABandMemRec, IDABandMem                              *
+ *----------------------------------------------------------------*
+ * The type IDABandMem is pointer to an IDABandMemRec. This       *
+ * structure contains IDABand solver-specific data.               *
+ *                                                                *
+ ******************************************************************/
+
+typedef struct {
+
+  integertype b_neq;        /* Neq = problem size                           */
+
+  IDABandJacFn b_jac;       /* jac = banded Jacobian routine to be called   */
+  
+  BandMat b_J;              /* J = dF/dy + cj*dF/dy', banded approximation. */
+  
+  integertype b_mupper;     /* mupper = upper bandwidth of Jacobian matrix. */
+  
+  integertype b_mlower;     /* mlower = lower bandwidth of Jacobian matrix. */
+  
+  integertype b_storage_mu; /* storage_mu = upper bandwidth with storage for
+                               factoring = min(Neq-1, mupper+mlower).       */
+  
+  integertype *b_pivots;    /* pivots = pivot array for PJ = LU             */
+  
+  int b_nje;                /* nje = no. of calls to jac                    */
+  
+  int b_nreB;               /* nreB = no. of calls to res due to 
+                               difference quotient Jacobian evaluation      */
+
+  void *b_jdata;            /* jdata = data structure required by jac.      */
+  
+} IDABandMemRec, *IDABandMem;
 
 #endif
 

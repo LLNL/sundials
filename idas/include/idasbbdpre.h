@@ -39,13 +39,9 @@
  *   ida_mem = IDACreate(...);                                     *
  *   ier = IDAMalloc(...);                                         *
  *   ...                                                           *
- *   p_data = IBBDAlloc(ida_mem, Nlocal, mudq, mldq,               *
+ *   p_data = IBBDPrecAlloc(ida_mem, Nlocal, mudq, mldq,           *
  *                      mukeep, mlkeep, dq_rel_yy, glocal, gcomm); *
- *   ...                                                           *
- *   ier = IDASpgmr(ida_mem, maxl);                                *
- *   ier = IDASpgmrSetPrecSetupFn(ida_mem, IDABBDPrecSetup);       *
- *   ier = IDASpgmrSetPrecSolveFn(ida_mem, IDABBDPrecSolve);       *
- *   ier = IDASpgmrSetPrecData(ida_mem, p_data);                   *
+ *   flag = IBBDSpgmr(cvode_mem, maxl, p_data);                    *
  *   ...                                                           *
  *   ier = IDASolve(...);                                          *
  *   ...                                                           *
@@ -70,9 +66,9 @@
  * Notes:                                                          *
  *                                                                 *
  * 1) This header file is included by the user for the definition  *
- *    of the IBBDData type and for needed function prototypes.     *
+ *    of the IBBDPrecData type and for needed function prototypes. *
  *                                                                 *
- * 2) The IBBDAlloc call includes half-bandwidths mudq and         *
+ * 2) The IBBDPrecAlloc call includes half-bandwidths mudq and     *
  *    mldq to be used in the approximate Jacobian.  They need      *
  *    not be the true half-bandwidths of the Jacobian of the       *
  *    local block of G, when smaller values may provide a greater  *
@@ -83,17 +79,13 @@
  *                                                                 *
  * 3) The actual name of the user's res function is passed to      *
  *    IDAMalloc, and the names of the user's glocal and gcomm      *
- *    functions are passed to IBBDAlloc.                           *
+ *    functions are passed to IBBDPrecAlloc.                       *
  *                                                                 *
  * 4) The pointer to the user-defined data block res_data, which   *
- *    is set through CVodeSetFdata is also available to the user   *
+ *    is set through IDASetRdata is also available to the user     *
  *    in glocal and gcomm.                                         *
  *                                                                 *
- * 5) The two functions IBBDPrecon and IBBDPSol are never called   *
- *    by the user explicitly; their names are simply passed to     *
- *    IDASpgmr as in the above.                                    *
- *                                                                 *
- * 6) Optional outputs specific to this module are available by    *
+ * 5) Optional outputs specific to this module are available by    *
  *    way of routines listed below. These include work space sizes *
  *    and the cumulative number of glocal calls.  The costs        *
  *    associated with this module also include nsetups banded LU   *
@@ -173,24 +165,25 @@ typedef int (*IDACommFn)(integertype Nlocal, realtype tt,
                          void *res_data);
 
 
-/*********************** Definition of IBBDData *****************/
+/*********************** Definition of IBBDPrecData *****************/
 
 typedef struct {
 
-  /* passed by user to IBBDAlloc, used by Precond/Psolve functions: */
+  /* passed by user to IBBDPrecAlloc, used by 
+     IBBDPrecSetup/IBBDPrecSolve functions: */
   integertype mudq, mldq, mukeep, mlkeep;
   realtype rel_yy;
   IDALocalFn glocal;
   IDACommFn gcomm;
 
- /* allocated for use by IBBDPrecon */
+ /* allocated for use by IBBDPrecSetup */
   N_Vector tempv4;
 
-  /* set by IBBDPrecon and used by IBBDPSol: */
+  /* set by IBBDPrecon and used by IBBDPrecSolve: */
   BandMat PP;
   integertype *pivots;
 
-  /* set by IBBDAlloc and used by IBBDPrecond */
+  /* set by IBBDPrecAlloc and used by IBBDPrecSetup */
   integertype n_local;
 
   /* available for optional output: */
@@ -207,9 +200,9 @@ typedef struct {
 /******************************************************************
  * Function : IBBDPrecAlloc                                       *
  *----------------------------------------------------------------*
- * IBBDPrecAlloc allocates and initializes an IBBDData structure  *
- * to be passed to IDASpgmr (and used by IBBDPrecSetup and        *
- * IBBDPrecSol).                                                  *
+ * IBBDPrecAlloc allocates and initializes an IBBDPrecData        *
+ * structure to be passed to IDASpgmr (and used by IBBDPrecSetup  *
+ * and IBBDPrecSol).                                              *
  *                                                                *
  * The parameters of IBBDPrecAlloc are as follows:                *
  *                                                                *
@@ -239,7 +232,7 @@ typedef struct {
  *         necessary inter-processor communication for the        *
  *         execution of glocal.                                   *
  *                                                                *
- * IBBDAlloc returns the storage allocated (type *void),          *
+ * IBBDPrecAlloc returns the storage allocated (type *void),      *
  * or NULL if the request for storage cannot be satisfied.        *
  ******************************************************************/
 
@@ -248,6 +241,35 @@ void *IBBDPrecAlloc(void *ida_mem, integertype Nlocal,
                     integertype mukeep, integertype mlkeep, 
                     realtype dq_rel_yy, 
                     IDALocalFn glocal, IDACommFn gcomm);
+
+/******************************************************************
+ * Function : IBBDSpgmr                                           *
+ *----------------------------------------------------------------*
+ * IBBDSpgmr links the IDASBBDPRE preconditioner to the           *
+ * IDASSPGMR linear solver. It performs the following actions:    *
+ *  1) Calls the IDASSPGMR specification routine and attaches the *
+ *     IDASSPGMR linear solver to the IDAS solver;                *
+ *  2) Sets the preconditioner data structure for IDASSPGMR       *
+ *  3) Sets the preconditioner setup routine for IDASSPGMR        *
+ *  4) Sets the preconditioner solve routine for IDASSPGMR        *
+ *                                                                *
+ * Its first 2 arguments are the same as for IDASpgmr (see        *
+ * idasspgmr.h). The last argument is the pointer to the          *
+ * IDASBBDPRE memory block returned by IDABBDPrecAlloc.           * 
+ * Note that the user need not call IDASpgmr anymore.             *
+ *                                                                *
+ * Possible return values are:                                    *
+ *   (from idas.h)   SUCCESS                                      *
+ *                   LIN_NO_MEM                                   *
+ *                   LMEM_FAIL                                    *
+ *                   LIN_NO_LMEM                                  *
+ *                   LIN_ILL_INPUT                                *
+ *   Additionaly, if IBBDPrecAlloc was not previously called,     *
+ *   IBBDSpgmr returns BBDP_NO_PDATA (defined below).             *
+ *                                                                *
+ ******************************************************************/
+
+int IBBDSpgmr(void *ida_mem, int maxl, void *p_data);
 
 /******************************************************************
  * Function : IBBDPrecReInit                                      *
@@ -263,8 +285,8 @@ void *IBBDPrecAlloc(void *ida_mem, integertype Nlocal,
  * made in its input parameters, before calling IDASolve.         *
  *                                                                *
  * The first argument to IBBDPrecReInit must be the pointer p_data*
- * that was returned by IBBDAlloc.  All other arguments have      *
- * the same names and meanings as those of IBBDAlloc.             *
+ * that was returned by IBBDPrecAlloc.  All other arguments have  *
+ * the same names and meanings as those of IBBDPrecAlloc.         *
  *                                                                *
  * The return value of IBBDPrecReInit is 0, indicating success.   *
  ******************************************************************/
@@ -278,14 +300,21 @@ int IBBDPrecReInit(void *p_data,
  * Function : IBBDPrecFree                                        *
  *----------------------------------------------------------------*
  * IBBDPrecFree frees the memory block p_data allocated by the    *
- * call to IBBDAlloc.                                             *
+ * call to IBBDPrecAlloc.                                         *
  ******************************************************************/
 
 void IBBDPrecFree(void *p_data);
 
 /******************************************************************
- * Function : IBBDPrecGet*                                        *
+ * Optional outputs for IBBDPRE                                   *
  *----------------------------------------------------------------*
+ *                                                                *
+ * IBBDPrecGetIntWorkSpace returns the integer workspace for      *
+ *    IBBDPRE.                                                    *
+ * IBBDPrecGetRealWorkSpace returns the real workspace for        *
+ *    IBBDPRE.                                                    *
+ * IBBDPrecGetNumGfnEvals returns the number of calls to the user *
+ *    glocal function.                                            *
  *                                                                *
  ******************************************************************/
 

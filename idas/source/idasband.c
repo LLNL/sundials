@@ -1,9 +1,8 @@
 /*******************************************************************
- *                                                                 *
  * File          : idasband.c                                      *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 23 July 2003                                    *
+ * Version of    : 12 August 2003                                  *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -19,7 +18,6 @@
  *                                                                 *
  *******************************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +27,6 @@
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
-
 
 /* Error Messages */
 
@@ -55,43 +52,6 @@
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
 
-
-
-/******************************************************************
- *                                                                *           
- * Types : IDABandMemRec, IDABandMem                              *
- *----------------------------------------------------------------*
- * The type IDABandMem is pointer to an IDABandMemRec. This       *
- * structure contains IDABand solver-specific data.               *
- *                                                                *
- ******************************************************************/
-
-typedef struct {
-
-  integertype b_neq;        /* Neq = problem size                           */
-
-  IDABandJacFn b_jac;       /* jac = banded Jacobian routine to be called   */
-  
-  BandMat b_J;              /* J = dF/dy + cj*dF/dy', banded approximation. */
-  
-  integertype b_mupper;     /* mupper = upper bandwidth of Jacobian matrix. */
-  
-  integertype b_mlower;     /* mlower = lower bandwidth of Jacobian matrix. */
-  
-  integertype b_storage_mu; /* storage_mu = upper bandwidth with storage for
-                               factoring = min(Neq-1, mupper+mlower).       */
-  
-  integertype *b_pivots;    /* pivots = pivot array for PJ = LU             */
-  
-  int b_nje;                /* nje = no. of calls to jac                    */
-  
-  int b_nreB;               /* nreB = no. of calls to res                   */
-
-  void *b_jdata;            /* jdata = data structure required by jac.      */
-  
-} IDABandMemRec, *IDABandMem;
-
-
 /* IDABAND linit, lsetup, lsolve, and lfree routines */
  
 static int IDABandInit(IDAMem IDA_mem);
@@ -102,6 +62,9 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
 static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
                         N_Vector ypcur, N_Vector rescur);
+
+static int IDABandSolveS(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
+                         N_Vector ypcur, N_Vector rescur, int is);
 
 static int IDABandFree(IDAMem IDA_mem);
 
@@ -127,6 +90,7 @@ static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
 #define linit       (IDA_mem->ida_linit)
 #define lsetup      (IDA_mem->ida_lsetup)
 #define lsolve      (IDA_mem->ida_lsolve)
+#define lsolveS     (IDA_mem->ida_lsolveS)
 #define lperf       (IDA_mem->ida_lperf)
 #define lfree       (IDA_mem->ida_lfree)
 #define lmem        (IDA_mem->ida_lmem)
@@ -144,7 +108,6 @@ static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
 #define nreB        (idaband_mem->b_nreB)
 #define jacdata     (idaband_mem->b_jdata)
  
-                  
 /*************** IDABand *********************************************
 
  This routine initializes the memory record and sets various function
@@ -198,12 +161,13 @@ int IDABand(void *ida_mem, integertype Neq,
 
   if (lfree != NULL) flag = lfree(ida_mem);
 
-  /* Set five main function fields in ida_mem. */
-  linit  = IDABandInit;
-  lsetup = IDABandSetup;
-  lsolve = IDABandSolve;
-  lperf  = NULL;
-  lfree  = IDABandFree;
+  /* Set six main function fields in ida_mem. */
+  linit   = IDABandInit;
+  lsetup  = IDABandSetup;
+  lsolve  = IDABandSolve;
+  lsolveS = IDABandSolveS;
+  lperf   = NULL;
+  lfree   = IDABandFree;
 
   /* Get memory for IDABandMemRec. */
   idaband_mem = (IDABandMem) malloc(sizeof(IDABandMemRec));
@@ -426,7 +390,6 @@ static int IDABandInit(IDAMem IDA_mem)
   return(LINIT_OK);
 }
 
-
 /*************** IDABandSetup ****************************************
 
  This routine does the setup operations for the IDABAND linear 
@@ -444,7 +407,7 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                         N_Vector tempv3)
 {
   int retval;
-  integertype retfac;
+  int retfac;
   IDABandMem idaband_mem;
   
   idaband_mem = (IDABandMem) lmem;
@@ -465,8 +428,6 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   if (retfac != SUCCESS) return(LSETUP_ERROR_RECVR);
   return(SUCCESS);
 }
-
-
 
 /*************** IDABandSolve ****************************************
 
@@ -494,7 +455,35 @@ static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
   return(SUCCESS);
 }
 
+/*************** IDABandSolveS ***************************************
 
+ This routine handles the solve operation for the IDABAND linear
+ solver module for sensitivity variables.  
+ It calls the band backsolve routine, scales the solution vector 
+ according to cjratio, then returns SUCCESS = 0.
+
+ NOTE: As for any direct linear solvers, this routine is identical to 
+ IDABandSolve (except for the additional argument is)
+
+**********************************************************************/
+
+static int IDABandSolveS(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
+                         N_Vector ypcur, N_Vector rescur, int is)
+{
+  IDABandMem idaband_mem;
+  realtype *bd;
+
+  idaband_mem = (IDABandMem) lmem;
+  
+  bd = N_VGetData(b);
+  BandBacksolve(JJ, pivots, bd);
+  N_VSetData(bd, b);
+
+  /* Scale the correction to account for change in cj. */
+  if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
+
+  return(SUCCESS);
+}
 
 /*************** IDABandFree *****************************************
 

@@ -1,9 +1,8 @@
 /*******************************************************************
- *                                                                 *
  * File          : idasdense.c                                     *
- * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
+ * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 July 2002                                    *
+ * Version of    : 12 August 2002                                  *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -15,7 +14,6 @@
  *                                                                 *
  *******************************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +23,6 @@
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
-
 
 /* Error Messages */
 
@@ -47,35 +44,6 @@
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
 
-
-/******************************************************************
- *                                                                *           
- * Types : IDADenseMemRec, IDADenseMem                            *
- *----------------------------------------------------------------*
- * The type IDADenseMem is pointer to an IDADenseMemRec. This     *
- * structure contains IDADense solver-specific data.              *
- *                                                                *
- ******************************************************************/
-
-typedef struct {
-
-  integertype d_neq;     /* Neq = problem dimension              */
-
-  IDADenseJacFn d_jac;   /* jac = Jacobian routine to be called  */
-  
-  DenseMat d_J;          /* J = dF/dy + cj*dF/dy'                */
-  
-  integertype *d_pivots; /* pivots = pivot array for PJ = LU     */
-  
-  int d_nje;             /* nje = no. of calls to jac            */
-  
-  int d_nreD;            /* nreD = no. of calls to res           */
-
-  void *d_jdata;         /* jdata is passed to jac               */
-
-} IDADenseMemRec, *IDADenseMem;
-
-
 /* IDADENSE linit, lsetup, lsolve, and lfree routines */
  
 static int IDADenseInit(IDAMem IDA_mem);
@@ -87,13 +55,14 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
                          N_Vector ypcur, N_Vector rescur);
 
+static int IDADenseSolveS(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
+                          N_Vector ypcur, N_Vector rescur, int is);
+
 static int IDADenseFree(IDAMem IDA_mem);
 
 static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
                          realtype c_j, void *jdata, N_Vector resvec, DenseMat Jac,
                          N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
-
-
 
 /* Readability Replacements */
 
@@ -112,6 +81,7 @@ static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
 #define linit        (IDA_mem->ida_linit)
 #define lsetup       (IDA_mem->ida_lsetup)
 #define lsolve       (IDA_mem->ida_lsolve)
+#define lsolveS      (IDA_mem->ida_lsolveS)
 #define lperf        (IDA_mem->ida_lperf)
 #define lfree        (IDA_mem->ida_lfree)
 #define lmem         (IDA_mem->ida_lmem)
@@ -126,7 +96,6 @@ static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
 #define nreD         (idadense_mem->d_nreD)
 #define jacdata      (idadense_mem->d_jdata)
  
-                  
 /*************** IDADense *********************************************
 
  This routine initializes the memory record and sets various function
@@ -179,12 +148,13 @@ int IDADense(void *ida_mem, integertype Neq)
 
   if (lfree != NULL) flag = lfree(IDA_mem);
 
-  /* Set five main function fields in IDA_mem. */
-  linit  = IDADenseInit;
-  lsetup = IDADenseSetup;
-  lsolve = IDADenseSolve;
-  lperf  = NULL;
-  lfree  = IDADenseFree;
+  /* Set six main function fields in IDA_mem. */
+  linit   = IDADenseInit;
+  lsetup  = IDADenseSetup;
+  lsolve  = IDADenseSolve;
+  lsolveS = IDADenseSolveS;
+  lperf   = NULL;
+  lfree   = IDADenseFree;
 
   /* Get memory for IDADenseMemRec. */
   idadense_mem = (IDADenseMem) malloc(sizeof(IDADenseMemRec));
@@ -414,7 +384,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector tempv3)
 {
   int retval;
-  integertype retfac;
+  int retfac;
   IDADenseMem idadense_mem;
   
   idadense_mem = (IDADenseMem) lmem;
@@ -446,6 +416,36 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
 static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
                          N_Vector ypcur, N_Vector rescur)
+{
+  IDADenseMem idadense_mem;
+  realtype *bd;
+  
+  idadense_mem = (IDADenseMem) lmem;
+  
+  bd = N_VGetData(b);
+  DenseBacksolve(JJ, pivots, bd);
+  N_VSetData(bd, b);
+
+  /* Scale the correction to account for change in cj. */
+  if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
+
+  return(SUCCESS);
+}
+
+/*************** IDADenseSolveS ***************************************
+
+ This routine handles the solve operation for the IDADENSE linear
+ solver module for sensitivity variables.  
+ It calls the dense backsolve routine, scales the solution vector 
+ according to cjratio, then returns SUCCESS = 0.
+
+ NOTE: As for any direct linear solvers, this routine is identical to 
+ IDADenseSolve (except for the additional argument is)
+
+**********************************************************************/
+
+static int IDADenseSolveS(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
+                          N_Vector ypcur, N_Vector rescur, int is)
 {
   IDADenseMem idadense_mem;
   realtype *bd;

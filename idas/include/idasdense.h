@@ -1,9 +1,8 @@
 /*******************************************************************
- *                                                                 *
  * File          : idasdense.h                                     *
- * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
- *                 Radu Serban @LLNL                               *
- * Version of    : 17 July 2003                                    *
+ * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 12 August 2003                                  *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -62,11 +61,11 @@ extern "C" {
  *        given by F(t,y,y') = 0.  Jac is preset to zero, so only *
  *        the nonzero elements need to be loaded.  See note below.*
  *                                                                *
- * tempv1, tempv2, tempv3 are pointers to memory allocated for    *
+ * tmp1, tmp2, tmp3 are pointers to memory allocated for          *
  *        N_Vectors which can be used by an IDADenseJacFn routine *
  *        as temporary storage or work space.                     *
  *                                                                *
- * Note: The following are two efficient ways to load JJ:         *
+ * NOTE: The following are two efficient ways to load JJ:         *
  * (1) (with macros - no explicit data structure references)      *
  *     for (j=0; j < Neq; j++) {                                  *
  *       col_j = DENSE_COL(JJ,j);                                 *
@@ -86,6 +85,13 @@ extern "C" {
  * A third way, using the DENSE_ELEM(A,i,j) macro, is much less   *
  * efficient in general.  It is only appropriate for use in small *
  * problems in which efficiency of access is NOT a major concern. *
+ *                                                                *
+ * NOTE: If the user's Jacobian routine needs other quantities,   *
+ *     they are accessible as follows: hcur (the current stepsize)*
+ *     and ewt (the error weight vector) are accessible through   *
+ *     IDAGetCurrentStep and IDAGetErrWeights, respectively (see  *
+ *     ida.h). The unit roundoff is available through a call to   *
+ *     UnitRoundoff.                                              *
  *                                                                *
  * The IDADenseJacFn should return                                *
  *     0 if successful,                                           *
@@ -164,6 +170,34 @@ int IDADenseGetIntWorkSpace(void *ida_mem, long int *leniwD);
 int IDADenseGetRealWorkSpace(void *ida_mem, long int *lenrwD);
 int IDADenseGetNumJacEvals(void *ida_mem, int *njevalsD);
 int IDADenseGetNumResEvals(void *ida_mem, int *nrevalsD);
+
+/******************************************************************
+ *                                                                *           
+ * Types : IDADenseMemRec, IDADenseMem                            *
+ *----------------------------------------------------------------*
+ * The type IDADenseMem is pointer to an IDADenseMemRec. This     *
+ * structure contains IDADense solver-specific data.              *
+ *                                                                *
+ ******************************************************************/
+
+typedef struct {
+
+  integertype d_neq;     /* Neq = problem dimension              */
+
+  IDADenseJacFn d_jac;   /* jac = Jacobian routine to be called  */
+  
+  DenseMat d_J;          /* J = dF/dy + cj*dF/dy'                */
+  
+  integertype *d_pivots; /* pivots = pivot array for PJ = LU     */
+  
+  int d_nje;             /* nje = no. of calls to jac            */
+  
+  int d_nreD;            /* nreD = no. of calls to res due to 
+                            difference quotient Jacobian evaluation */
+
+  void *d_jdata;         /* jdata is passed to jac               */
+
+} IDADenseMemRec, *IDADenseMem;
 
 #endif
 
