@@ -38,17 +38,19 @@
 #include "idaband.h"
 
 typedef struct {
-  integertype    mm;
+  long int    mm;
   realtype       dx;
   realtype       coeff;
 } *UserData;
-
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res);
 
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *rdata);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
 
 #define NOUT  11
 #define MGRID 10
@@ -58,29 +60,42 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *rdat
 #define TWO   RCONST(2.0)
 #define BVAL  RCONST(0.1)
 
-int main()
+int main(void)
 {
   void *mem;
   UserData data;
   NV_Spec nvSpec;
   N_Vector uu, up, constraints, id, res;
   int ier, iout, itol, itask;
-  integertype mu, ml;
+  long int mu, ml;
   realtype rtol, atol, t0, t1, tout, tret, umax, hused;
-  int kused, nst, nni, nje, nre, nreB, netf, ncfn;
+  long int nst, nni, nje, nre, nreB, netf, ncfn;
+  int kused;
+
+  mem = NULL;
+  data = NULL;
+  nvSpec = NULL;
+  uu = up = constraints = id = res = NULL;
 
   /* Initialize serial vector specification */
   nvSpec = NV_SpecInit_Serial(NEQ);
+  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
 
   /* Create vectors uu, up, res, constraints, id. */
-  uu = N_VNew(nvSpec); 
+  uu = N_VNew(nvSpec);
+  if(check_flag((void *)uu, "N_VNew", 0)) return(1);
   up = N_VNew(nvSpec);
+  if(check_flag((void *)up, "N_VNew", 0)) return(1);
   res = N_VNew(nvSpec);
+  if(check_flag((void *)res, "N_VNew", 0)) return(1);
   constraints = N_VNew(nvSpec);
+  if(check_flag((void *)constraints, "N_VNew", 0)) return(1);
   id = N_VNew(nvSpec);
+  if(check_flag((void *)id, "N_VNew", 0)) return(1);
 
   /* Create and load problem data block. */
   data = (UserData) malloc(sizeof *data);
+  if(check_flag((void *)data, "malloc", 2)) return(1);
   data->mm = MGRID;
   data->dx = ONE/(MGRID - ONE);
   data->coeff = ONE/( (data->dx) * (data->dx) );
@@ -101,25 +116,25 @@ int main()
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
-  if (mem == NULL) { printf("IDACreate failed."); return(1); }
+  if(check_flag((void *)mem, "IDACreate", 0)) return(1);
   ier = IDASetRdata(mem, data);
-  if (ier != SUCCESS) { printf("IDASetRdata failed. "); return(1); }
+  if(check_flag(&ier, "IDASetRdata", 1)) return(1);
   ier = IDASetId(mem, id);
-  if (ier != SUCCESS) { printf("IDASetId failed. "); return(1); }
+  if(check_flag(&ier, "IDASetId", 1)) return(1);
   ier = IDASetConstraints(mem, constraints);
-  if (ier != SUCCESS) { printf("IDASetConstraints failed. "); return(1); }
+  if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
   ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);
-  if (ier != SUCCESS) { printf("IDAMalloc failed. "); return(1); }
+  if(check_flag(&ier, "IDAMalloc", 1)) return(1);
 
   /* Call IDABand to specify the linear solver. */
   mu = MGRID; ml = MGRID;
   ier = IDABand(mem, NEQ, mu, ml);
-  if (ier != SUCCESS) { printf("IDABand failed."); return(1); }
+  if(check_flag(&ier, "IDABand", 1)) return(1);
  
   /* Call IDACalcIC to correct the initial values. */
   
   ier = IDACalcIC(mem, CALC_YA_YDP_INIT, t1);
-  if (ier != SUCCESS) { printf("IDACalcIC failed. "); return(1); }
+  if(check_flag(&ier, "IDACalcIC", 1)) return(1);
 
   /* Print output heading. */
 
@@ -142,15 +157,22 @@ int main()
 
   umax = N_VMaxNorm(uu);
   
-  IDAGetLastOrder(mem, &kused);
-  IDAGetNumSteps(mem, &nst);
-  IDAGetNumNonlinSolvIters(mem, &nni);
-  IDAGetNumResEvals(mem, &nre);
-  IDAGetLastStep(mem, &hused);
-  IDABandGetNumJacEvals(mem, &nje);
-  IDABandGetNumResEvals(mem, &nreB);
+  ier = IDAGetLastOrder(mem, &kused);
+  check_flag(&ier, "IDAGetLastOrder", 1);
+  ier = IDAGetNumSteps(mem, &nst);
+  check_flag(&ier, "IDAGetNumSteps", 1);
+  ier = IDAGetNumNonlinSolvIters(mem, &nni);
+  check_flag(&ier, "IDAGetNumNonlinSolvIters", 1);
+  ier = IDAGetNumResEvals(mem, &nre);
+  check_flag(&ier, "IDAGetNumResEvals", 1);
+  ier = IDAGetLastStep(mem, &hused);
+  check_flag(&ier, "IDAGetLastStep", 1);
+  ier = IDABandGetNumJacEvals(mem, &nje);
+  check_flag(&ier, "IDABandGetNumJacEvals", 1);
+  ier = IDABandGetNumResEvals(mem, &nreB);
+  check_flag(&ier, "IDABandGetNumResEvals", 1);
 
-  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e \n",
+  printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n",
          t0, umax, kused, nst, nni, nje, nre, nreB, hused);
 
   /* Loop over output times, call IDASolve, and print results. */
@@ -158,27 +180,35 @@ int main()
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
     
     ier = IDASolve(mem, tout, &tret, uu, up, itask);
-    
-    umax = N_VMaxNorm(uu);
-    IDAGetLastOrder(mem, &kused);
-    IDAGetNumSteps(mem, &nst);
-    IDAGetNumNonlinSolvIters(mem, &nni);
-    IDAGetNumResEvals(mem, &nre);
-    IDAGetLastStep(mem, &hused);
-    IDABandGetNumJacEvals(mem, &nje);
-    IDABandGetNumResEvals(mem, &nreB);
+    if(check_flag(&ier, "IDASolve", 1)) return(1);
 
-    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e \n",
+    umax = N_VMaxNorm(uu);
+    ier = IDAGetLastOrder(mem, &kused);
+    check_flag(&ier, "IDAGetLastOrder", 1);
+    ier = IDAGetNumSteps(mem, &nst);
+    check_flag(&ier, "IDAGetNumSteps", 1);
+    ier = IDAGetNumNonlinSolvIters(mem, &nni);
+    check_flag(&ier, "IDAGetNumNonlinSolvIters", 1);
+    ier = IDAGetNumResEvals(mem, &nre);
+    check_flag(&ier, "IDAGetNumResEvals", 1);
+    ier = IDAGetLastStep(mem, &hused);
+    check_flag(&ier, "IDAGetLastStep", 1);
+    ier = IDABandGetNumJacEvals(mem, &nje);
+    check_flag(&ier, "IDABandGetNumJacEvals", 1);
+    ier = IDABandGetNumResEvals(mem, &nreB);
+    check_flag(&ier, "IDABandGetNumResEvals", 1);
+
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n",
            tret, umax, kused, nst, nni, nje, nre, nreB, hused);
-    
-    if (ier < 0) { printf("IDASolve failed."); return(1); }
 
   } /* End of tout loop. */
   
   /* Print remaining counters and free memory. */
-  IDAGetNumErrTestFails(mem, &netf);
-  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  printf("\n netf = %d,   ncfn = %d \n", netf, ncfn);
+  ier = IDAGetNumErrTestFails(mem, &netf);
+  check_flag(&ier, "IDAGetNumErrTestFails", 1);
+  ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
+  printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   IDAFree(mem);
   N_VFree(uu);
@@ -190,9 +220,7 @@ int main()
   NV_SpecFree_Serial(nvSpec);
 
   return(0);
-
 } /* End of iheatsb main program. */
-
 
 /*************************************************************************
  * SetInitialProfile: routine to initialize u, up, and id vectors.       */
@@ -201,7 +229,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res)
 {
   realtype xfact, yfact, *udata, *updata, *iddata;
-  integertype mm, mm1, i, j, offset, loc;
+  long int mm, mm1, i, j, offset, loc;
   
   mm = data->mm;
   mm1 = mm - 1;
@@ -247,7 +275,6 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 } /* End of SetInitialProfiles */
 
-
 /*************************************************************************
  * heatres: heat equation system residual function                       *
  * This uses 5-point central differencing on the interior points, and    *
@@ -259,7 +286,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
             void *rdata)
 {
-  integertype mm, i, j, offset, loc;
+  long int mm, i, j, offset, loc;
   realtype *uv, *upv, *resv, coeff;
   UserData data;
   
@@ -285,3 +312,32 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
   return(SUCCESS);
 
 } /* End of residual function heatres. */
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  return(0);
+}

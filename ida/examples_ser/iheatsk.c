@@ -39,14 +39,12 @@
 #include "idaspgmr.h"
 #include "iterative.h"
 
-
 typedef struct {  
-  integertype mm; /* mm is the number of points in the grid. */
+  long int mm; /* mm is the number of points in the grid. */
   realtype    dx;
   realtype    coeff;
   N_Vector    pp; /* pp is the vector of diagonal preconditioner elements. */
 } *UserData;
-
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res);
@@ -65,6 +63,10 @@ int PSolveHeateq(realtype tt, N_Vector uu,
                  realtype cj, realtype delta,
                  void *pdata, N_Vector tempv);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
+
 #define NOUT  11
 #define MGRID 10
 #define NEQ   (MGRID*MGRID)
@@ -79,22 +81,35 @@ int main()
   NV_Spec nvSpec;
   UserData data;
   N_Vector uu, up, constraints, id, res;
-  int ier, iout, itol, itask;
+  int ier, iout, itol, itask, kused;
   realtype rtol, atol, t0, t1, tout, tret, umax, hused;
-  int kused, nst, nni, nje, nre, nreS, nli, npe, nps, netf, ncfn, ncfl;
+  long int nst, nni, nje, nre, nreS, nli, npe, nps, netf, ncfn, ncfl;
+
+  mem = NULL;
+  nvSpec = NULL;
+  data = NULL;
+  uu = up = constraints = id = res = NULL;
 
   /* Initialize serial vector specification */
   nvSpec = NV_SpecInit_Serial(NEQ);  
+  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
 
   /* Allocate N-vectors and the user data structure. */
 
-  uu = N_VNew(nvSpec); 
+  uu = N_VNew(nvSpec);
+  if(check_flag((void *)uu, "N_VNew", 0)) return(1);
   up = N_VNew(nvSpec);
+  if(check_flag((void *)up, "N_VNew", 0)) return(1);
   res = N_VNew(nvSpec);
+  if(check_flag((void *)res, "N_VNew", 0)) return(1);
   constraints = N_VNew(nvSpec);
+  if(check_flag((void *)constraints, "N_VNew", 0)) return(1);
   id = N_VNew(nvSpec);
+  if(check_flag((void *)id, "N_VNew", 0)) return(1);
 
   data = (UserData) malloc(sizeof *data);
+  data->pp = NULL;
+  if(check_flag((void *)data, "malloc", 2)) return(1);
 
   /* Assign parameters in the user data structure. */
 
@@ -102,6 +117,7 @@ int main()
   data->dx = ONE/(MGRID-ONE);
   data->coeff = ONE/(data->dx * data->dx);
   data->pp = N_VNew(nvSpec);
+  if(check_flag((void *)data->pp, "N_VNew", 0)) return(1);
 
   /* Initialize uu, up, id. */
   SetInitialProfile(data, uu, up, id, res);
@@ -119,26 +135,26 @@ int main()
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
-  if (mem == NULL) { printf("IDACreate failed."); return(1); }
+  if(check_flag((void *)mem, "IDACreate", 0)) return(1);
   ier = IDASetRdata(mem, data);
-  if (ier != SUCCESS) { printf("IDASetRdata failed. "); return(1); }
+  if(check_flag(&ier, "IDASetRdata", 1)) return(1);
   ier = IDASetId(mem, id);
-  if (ier != SUCCESS) { printf("IDASetId failed. "); return(1); }
+  if(check_flag(&ier, "IDASetId", 1)) return(1);
   ier = IDASetConstraints(mem, constraints);
-  if (ier != SUCCESS) { printf("IDASetConstraints failed. "); return(1); }
+  if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
   ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);
-  if (ier != SUCCESS) { printf("IDAMalloc failed. "); return(1); }
+  if(check_flag(&ier, "IDAMalloc", 1)) return(1);
 
   /* Call IDASpgmr to specify the linear solver. */
 
   ier = IDASpgmr(mem, 0.0);
-  if (ier != SUCCESS) {printf("IDASpgmr failed."); return(1); }
+  if(check_flag(&ier, "IDASpgmr", 1)) return(1);
   ier = IDASpgmrSetPrecSetupFn(mem, PrecondHeateq);
-  if (ier != SUCCESS) {printf("IDASpgmrSetPrecSetupFn failed."); return(1); }
+  if(check_flag(&ier, "IDASpgmrSetPrecSetupFn", 1)) return(1);
   ier = IDASpgmrSetPrecSolveFn(mem, PSolveHeateq);
-  if (ier != SUCCESS) {printf("IDASpgmrSetPrecSolveFn failed."); return(1); }
+  if(check_flag(&ier, "IDASpgmrSetPrecSolveFn", 1)) return(1);
   ier = IDASpgmrSetPrecData(mem, data);
-  if (ier != SUCCESS) {printf("IDASpgmrSetPrecData failed."); return(1); }
+  if(check_flag(&ier, "IDASpgmrSetPrecData", 1)) return(1);
 
   /* Print output heading. */
   
@@ -167,37 +183,48 @@ int main()
   /* Loop over output times, call IDASolve, and print results. */
 
   for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
-    
+
     ier = IDASolve(mem, tout, &tret, uu, up, itask);
-    
+    if(check_flag(&ier, "IDASolve", 1)) return(1);
+
     umax = N_VMaxNorm(uu);
-    
-    IDAGetLastOrder(mem, &kused);
-    IDAGetNumSteps(mem, &nst);
-    IDAGetNumNonlinSolvIters(mem, &nni);
-    IDAGetNumResEvals(mem, &nre);
-    IDAGetLastStep(mem, &hused);
-    IDASpgmrGetNumJtimesEvals(mem, &nje);
-    IDASpgmrGetNumLinIters(mem, &nli);
-    IDASpgmrGetNumResEvals(mem, &nreS);
-    IDASpgmrGetNumPrecEvals(mem, &npe);
-    IDASpgmrGetNumPrecSolves(mem, &nps);
 
-    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e  %3d %3d\n",
+    ier = IDAGetLastOrder(mem, &kused);
+    check_flag(&ier, "IDAGetLastOrder", 1);
+    ier = IDAGetNumSteps(mem, &nst);
+    check_flag(&ier, "IDAGetNumSteps", 1);
+    ier = IDAGetNumNonlinSolvIters(mem, &nni);
+    check_flag(&ier, "IDAGetNumNonlinSolvIters", 1);
+    ier = IDAGetNumResEvals(mem, &nre);
+    check_flag(&ier, "IDAGetNumResEvals", 1);
+    ier = IDAGetLastStep(mem, &hused);
+    check_flag(&ier, "IDAGetLastStep", 1);
+    ier = IDASpgmrGetNumJtimesEvals(mem, &nje);
+    check_flag(&ier, "IDASpgmrGetNumJtimesEvals", 1);
+    ier = IDASpgmrGetNumLinIters(mem, &nli);
+    check_flag(&ier, "IDASpgmrGetNumLinIters", 1);
+    ier = IDASpgmrGetNumResEvals(mem, &nreS);
+    check_flag(&ier, "IDASpgmrGetNumResEvals", 1);
+    ier = IDASpgmrGetNumPrecEvals(mem, &npe);
+    check_flag(&ier, "IDASpgmrGetNumPrecEvals", 1);
+    ier = IDASpgmrGetNumPrecSolves(mem, &nps);
+    check_flag(&ier, "IDASpgmrGetNumPrecSolves", 1);
+
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
            tret, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
-
-    if (ier < 0) {printf("IDASolve returned %d.\n",ier); return(1); }
 
     } /* End of tout loop. */
 
   /* Print remaining counters. */
 
-  IDAGetNumErrTestFails(mem, &netf);
-  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  IDASpgmrGetNumConvFails(mem, &ncfl);
-  printf("\n netf = %d,   ncfn = %d,   ncfl = %d \n", netf, ncfn, ncfl);
+  ier = IDAGetNumErrTestFails(mem, &netf);
+  check_flag(&ier, "IDAGetNumErrTestFails", 1);
+  ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
+  ier = IDASpgmrGetNumConvFails(mem, &ncfl);
+  check_flag(&ier, "IDASpgmrGetNumConvFails", 1);
+  printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", netf, ncfn, ncfl);
 
-  
   /* Case 2. */
 
   /* Re-initialize uu, up, id. */
@@ -205,10 +232,10 @@ int main()
   
   /* Re-initialize IDA and IDASPGMR */
   ier = IDAReInit(mem, heatres, t0, uu, up, itol, &rtol, &atol);
-  if (ier != SUCCESS) { printf("IDAReInit failed."); return(1); }
+  if(check_flag(&ier, "IDAReInit", 1)) return(1);
   
   ier = IDASpgmrSetGSType(mem, CLASSICAL_GS);
-  
+  if(check_flag(&ier, "IDASpgmrSetGSType",1)) return(1); 
   
   /* Print case number, output table heading, and initial line of table. */
   printf("\n\n\n\nCase 2: gstype = CLASSICAL_GS\n");
@@ -222,41 +249,51 @@ int main()
 
    
   /* Loop over output times, call IDASolve, and print results. */
-  
-  for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
-    
-    ier = IDASolve(mem, tout, &tret, uu, up, itask);
-    
-    umax = N_VMaxNorm(uu);
-    
-    IDAGetLastOrder(mem, &kused);
-    IDAGetNumSteps(mem, &nst);
-    IDAGetNumNonlinSolvIters(mem, &nni);
-    IDAGetNumResEvals(mem, &nre);
-    IDAGetLastStep(mem, &hused);
-    IDASpgmrGetNumJtimesEvals(mem, &nje);
-    IDASpgmrGetNumLinIters(mem, &nli);
-    IDASpgmrGetNumResEvals(mem, &nreS);
-    IDASpgmrGetNumPrecEvals(mem, &npe);
-    IDASpgmrGetNumPrecSolves(mem, &nps);
 
-    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e  %3d %3d\n",
+  for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
+
+    ier = IDASolve(mem, tout, &tret, uu, up, itask);
+    if(check_flag(&ier, "IDASolve", 1)) return(1);
+
+    umax = N_VMaxNorm(uu);
+
+    ier = IDAGetLastOrder(mem, &kused);
+    check_flag(&ier, "IDAGetLastOrder", 1);
+    ier = IDAGetNumSteps(mem, &nst);
+    check_flag(&ier, "IDAGetNumSteps", 1);
+    ier = IDAGetNumNonlinSolvIters(mem, &nni);
+    check_flag(&ier, "IDAGetNumNonlinSolvIters", 1);
+    ier = IDAGetNumResEvals(mem, &nre);
+    check_flag(&ier, "IDAGetNumResEvals", 1);
+    ier = IDAGetLastStep(mem, &hused);
+    check_flag(&ier, "IDAGetLastStep", 1);
+    ier = IDASpgmrGetNumJtimesEvals(mem, &nje);
+    check_flag(&ier, "IDASpgmrGetNumJtimesEvals", 1);
+    ier = IDASpgmrGetNumLinIters(mem, &nli);
+    check_flag(&ier, "IDASpgmrGetNumLinIters", 1);
+    ier = IDASpgmrGetNumResEvals(mem, &nreS);
+    check_flag(&ier, "IDASpgmrGetNumResEvals", 1);
+    ier = IDASpgmrGetNumPrecEvals(mem, &npe);
+    check_flag(&ier, "IDASpgmrGetPrecEvals", 1);
+    ier = IDASpgmrGetNumPrecSolves(mem, &nps);
+    check_flag(&ier, "IDASpgmrGetNumPrecSolves", 1);
+
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
            tret, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
 
-    if (ier < 0) {printf("IDASolve returned %d.\n",ier); return(1); }
-    
-    
   } /* End of tout loop. */
-  
+
   /* Print remaining counters. */
-  
-  IDAGetNumErrTestFails(mem, &netf);
-  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  IDASpgmrGetNumConvFails(mem, &ncfl);
-  printf("\n netf = %d,   ncfn = %d,   ncfl = %d \n", netf, ncfn, ncfl);
-  
+
+  ier = IDAGetNumErrTestFails(mem, &netf);
+  check_flag(&ier, "IDAGetNumErrTestFails", 1);
+  ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
+  ier = IDASpgmrGetNumConvFails(mem, &ncfl);
+  check_flag(&ier, "IDASpgmrGetNumConvFails", 1);
+  printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", netf, ncfn, ncfl);
+
   /* Free Memory */
-  
   IDAFree(mem);
   N_VFree(uu);
   N_VFree(up);
@@ -268,9 +305,7 @@ int main()
   NV_SpecFree_Serial(nvSpec);
 
   return(0);
-
 } /* End of iheatsk main program. */
-
 
 /*************************************************************************
  * SetInitialProfile: routine to initialize u, up, and id vectors.       */
@@ -278,7 +313,7 @@ int main()
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res)
 {
-  integertype mm, mm1, i, j, offset, loc;
+  long int mm, mm1, i, j, offset, loc;
   realtype xfact, yfact, *udata, *updata, *iddata;
 
   mm = data->mm;
@@ -325,7 +360,6 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   
 } /* End of SetInitialProfiles. */
 
-
 /* Routines called by IDASPGMR. */
 
 /*************************************************************************
@@ -338,7 +372,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
 {
-  integertype i, j, offset, loc, mm;
+  long int i, j, offset, loc, mm;
   realtype *uv, *upv, *resv, coeff;
   UserData data;
   
@@ -366,7 +400,6 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
 
  } /* End of residual function heatres. */
 
-
 /*******************************************************************
  * PrecondHeateq: setup for diagonal preconditioner for iheatsk.   *
  *                                                                 *
@@ -389,7 +422,7 @@ int PrecondHeateq(realtype tt, N_Vector uu,
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   
-  integertype i, j, offset, loc, mm;
+  long int i, j, offset, loc, mm;
   realtype *ppv, pelinv;
   UserData data;
   
@@ -417,7 +450,6 @@ int PrecondHeateq(realtype tt, N_Vector uu,
   
 } /* End of PrecondHeateq. */
 
-
 /******************************************************************
  * PSolveHeateq: solve preconditioner linear system.              *
  * This routine multiplies the input vector rvec by the vector pp *
@@ -439,3 +471,32 @@ int PSolveHeateq(realtype tt, N_Vector uu,
   return(SUCCESS);
 
 } /* End of PSolveHeateq. */
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  return(0);
+}

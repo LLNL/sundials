@@ -82,7 +82,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"   /* Definitions of realtype, integertype, booleantype*/
+#include "sundialstypes.h"   /* Definitions of realtype and booleantype          */
 #include "ida.h"             /* Main IDA header file.                            */
 #include "idaband.h"         /* Use IDABAND linear solver.                       */
 #include "nvector_serial.h"  /* Definitions of type N_Vector, macro NV_DATA_S.   */
@@ -119,7 +119,6 @@
 #define TMULT       RCONST(10.0)   /* Multiplier for tout values */
 #define TADD        RCONST(0.3)    /* Increment for tout values */
 
-
 /* User-defined vector and accessor macro: IJ_Vptr.
    IJ_Vptr is defined in order to express the underlying 3-D structure of the 
    dependent variable vector from its underlying 1-D storage (an N_Vector).
@@ -131,7 +130,7 @@
 /* Type: UserData.  Contains problem constants, etc. */
 
 typedef struct {
-  integertype Neq, ns, np, mx, my;
+  long int Neq, ns, np, mx, my;
   realtype dx, dy, **acoef;
   realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
   N_Vector rates;
@@ -150,13 +149,17 @@ static void PrintFinalStats(void *mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
-static realtype dotprod(integertype size, realtype *x1, realtype *x2);
+static realtype dotprod(long int size, realtype *x1, realtype *x2);
 
 
 /* Prototypes for functions called by the IDA Solver. */
 
 static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval, 
                   void *rdata);
+
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /***************************** Main Program ******************************/
 
@@ -167,15 +170,22 @@ int main()
   NV_Spec nvSpec;
   N_Vector cc, cp, id, res;
   int iout, flag, retval, itol, itask;
-  integertype SystemSize, mu, ml;
+  long int SystemSize, mu, ml;
   realtype rtol, atol, t0, tout, tret;
+
+  mem = NULL;
+  webdata = NULL;
+  nvSpec = NULL;
+  cc = cp = id = res = NULL;
 
   /* Initialize serial machine environment */
   nvSpec = NV_SpecInit_Serial(NEQ);
+  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
 
   /* Set up and load user data block webdata. */
   SystemSize = NEQ;
   webdata = AllocUserData(nvSpec);
+  if(check_flag((void *)webdata, "AllocUserData", 2)) return(1);
   InitUserData(webdata);
 
   /* Allocate N-vectors and initialize cc, cp, and id.
@@ -183,12 +193,17 @@ int main()
 
   SystemSize = NEQ;
   cc  = N_VNew(nvSpec);
+  if(check_flag((void *)cc, "N_VNew", 0)) return(1);
   cp  = N_VNew(nvSpec);
+  if(check_flag((void *)cp, "N_VNew", 0)) return(1);
   res = N_VNew(nvSpec);
+  if(check_flag((void *)res, "N_VNew", 0)) return(1);
   id  = N_VNew(nvSpec);
+  if(check_flag((void *)id, "N_VNew", 0)) return(1);
   
   SetInitialProfiles(cc, cp, id, webdata);
   N_VFree(res);
+  res = NULL;
   
   /* Set remaining inputs to IDAMalloc. */
   
@@ -198,31 +213,24 @@ int main()
   /* Call IDACreate and IDAMalloc to initialize IDA. */
   
   mem = IDACreate();
-  if (mem == NULL) { printf("IDACreate failed."); return(1); }
+  if(check_flag((void *)mem, "IDACreate", 0)) return(1);
   retval = IDASetRdata(mem, webdata);
-  if (retval != SUCCESS) { printf("IDASetRdata failed. "); return(1); }
+  if(check_flag(&retval, "IDASetRdata", 1)) return(1);
   retval = IDASetId(mem, id);
-  if (retval != SUCCESS) { printf("IDASetId failed. "); return(1); }
+  if(check_flag(&retval, "IDASetId", 1)) return(1);
   retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol, nvSpec);
-  if (retval != SUCCESS) { printf("IDAMalloc failed. "); return(1); }
+  if(check_flag(&retval, "IDAMalloc", 1)) return(1);
 
   /* Call IDABand to specify the IDA linear solver. */
   mu = ml = NSMX;
   retval = IDABand(mem, SystemSize, mu, ml);
-  if (retval != 0) {
-    printf("IDABand failed, returning %d \n",retval);
-    return(1); 
-  }
-  
+  if(check_flag(&retval, "IDABand", 1)) return(1);
+
   /* Call IDACalcIC (with default options) to correct the initial values. */
-  
+
   tout = 0.001;
   retval = IDACalcIC(mem, CALC_YA_YDP_INIT, tout);
-  
-  if (retval != SUCCESS) {
-    printf("IDACalcIC failed. retval = %d\n",retval);
-    return(1); 
-  }
+  if(check_flag(&retval, "IDACalcIC", 1)) return(1);
   
   /* Print heading, basic parameters, and initial values. */
 
@@ -242,10 +250,7 @@ int main()
   for (iout = 1; iout <= NOUT; iout++) {
     
     flag = IDASolve(mem, tout, &tret, cc, cp, itask);
-    
-    if(flag != SUCCESS) { 
-      printf("IDA failed, flag = %d.\n", flag); 
-      return(flag); }
+    if(check_flag(&flag, "IDASolve", 1)) return(flag);
     
     PrintOutput(mem, cc, tret, webdata);
     
@@ -257,18 +262,17 @@ int main()
   
   PrintFinalStats(mem);
 
-  N_VFree(cc); N_VFree(cp); N_VFree(id);
+  N_VFree(cc);
+  N_VFree(cp);
+  N_VFree(id);
   IDAFree(mem);
   FreeUserData(webdata);
   NV_SpecFree_Serial(nvSpec);
 
   return(0);
-
 }  /* End of iwebsb main program. */
 
-
 /*********************** Private Helper Functions ************************/
-
 
 /*************************************************************************/
 /* AllocUserData: Allocate memory for data structure of type UserData.   */
@@ -286,14 +290,12 @@ static UserData AllocUserData(NV_Spec nvSpec)
   return(webdata);
 }
 
-
 /* Define lines for readability in later routines */ 
 
 #define acoef  (webdata->acoef)
 #define bcoef  (webdata->bcoef)
 #define cox    (webdata->cox)
 #define coy    (webdata->coy)
-
 
 /*************************************************************************/
 /* InitUserData: Load problem constants in webdata (of type UserData).   */
@@ -339,7 +341,6 @@ static void InitUserData(UserData webdata)
   
 } /* End of InitUserData */
 
-
 /*************************************************************************/
 /* FreeUserData: Free webdata memory.                                    */
 
@@ -350,7 +351,6 @@ static void FreeUserData(UserData webdata)
   
   free(webdata);
 }
-
 
 /*************************************************************************/
 /* SetInitialProfiles: Set initial conditions in cc, cp, and id.
@@ -363,7 +363,7 @@ static void FreeUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
 {
-  integertype loc, yloc, is, jx, jy, np;
+  long int loc, yloc, is, jx, jy, np;
   realtype xx, yy, xyfactor, fac;
   realtype *ccv, *cpv, *idv;
   
@@ -411,31 +411,37 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
   }
 }  /* End of SetInitialProfiles. */
 
-
 /*************************************************************************/
 /* PrintOutput: Print output values at output time t = tt.
    Selected run statistics are printed.  Then values of c1 and c2
    are printed for the bottom left and top right grid points only.  
    (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         */
 
-
 static void PrintOutput(void *mem, N_Vector cc, realtype tt,
                         UserData webdata)
 {
-  int jx, jy, kused, nst, nni, nje, nre, nreB;
+  int jx, jy, kused, flag;
+  long int nst, nni, nje, nre, nreB;
   realtype *ct, hused;
+
+  flag = IDAGetLastOrder(mem, &kused);
+  check_flag(&flag, "IDAGetLastOrder", 1);
+  flag = IDAGetNumSteps(mem, &nst);
+  check_flag(&flag, "IDAGetNumSteps", 1);
+  flag = IDAGetNumNonlinSolvIters(mem, &nni);
+  check_flag(&flag, "IDAGetNumNonlinSolvIters", 1);
+  flag = IDAGetNumResEvals(mem, &nre);
+  check_flag(&flag, "IDAGetNumResEvals", 1);
+  flag = IDAGetLastStep(mem, &hused);
+  check_flag(&flag, "IDAGetLastStep", 1);
+  flag = IDABandGetNumJacEvals(mem, &nje);
+  check_flag(&flag, "IDABandGetNumJacEvals", 1);
+  flag = IDABandGetNumResEvals(mem, &nreB);
+  check_flag(&flag, "IDABandGetNumResEvals", 1);
   
-  IDAGetLastOrder(mem, &kused);
-  IDAGetNumSteps(mem, &nst);
-  IDAGetNumNonlinSolvIters(mem, &nni);
-  IDAGetNumResEvals(mem, &nre);
-  IDAGetLastStep(mem, &hused);
-  IDABandGetNumJacEvals(mem, &nje);
-  IDABandGetNumResEvals(mem, &nreB);
-  
-  printf("\nTIME t = %e.     NST = %d, k = %d, h = %e\n",
+  printf("\nTIME t = %e.     NST = %ld, k = %d, h = %e\n",
          tt, nst, kused, hused);
-  printf("NRE = %d, NRE_B = %d, NNI = %d, NJE = %d\n", 
+  printf("NRE = %ld, NRE_B = %ld, NNI = %ld, NJE = %ld\n", 
          nre, nreB, nni, nje);
   
   jx = 0;    jy = 0;    ct = IJ_Vptr(cc,jx,jy);
@@ -446,32 +452,37 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
   
 } /* End of PrintOutput. */
 
-
 /*************************************************************************/
 /* PrintFinalStats: Print final run data contained in iopt.              */
 
 static void PrintFinalStats(void *mem)
 { 
-  int nst, nre, nreB, nni, nje, netf, ncfn;
+  long int nst, nre, nreB, nni, nje, netf, ncfn;
+  int flag;
 
-  IDAGetNumSteps(mem, &nst);
-  IDAGetNumNonlinSolvIters(mem, &nni);
-  IDAGetNumResEvals(mem, &nre);
-  IDAGetNumErrTestFails(mem, &netf);
-  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  IDABandGetNumJacEvals(mem, &nje);
-  IDABandGetNumResEvals(mem, &nreB);
+  flag = IDAGetNumSteps(mem, &nst);
+  check_flag(&flag, "IDAGetNumSteps", 1);
+  flag = IDAGetNumNonlinSolvIters(mem, &nni);
+  check_flag(&flag, "IDAGetNumNonlinSolvIters", 1);
+  flag = IDAGetNumResEvals(mem, &nre);
+  check_flag(&flag, "IDAGetNumResEvals", 1);
+  flag = IDAGetNumErrTestFails(mem, &netf);
+  check_flag(&flag, "IDAGetNumErrTestFails", 1);
+  flag = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1);
+  flag = IDABandGetNumJacEvals(mem, &nje);
+  check_flag(&flag, "IDABandGetNumJacEvals", 1);
+  flag = IDABandGetNumResEvals(mem, &nreB);
+  check_flag(&flag, "IDABandGetNumResEvals", 1);
 
   printf("\nFinal run statistics: \n\n");
-  printf("NST  = %5d     NRE  = %5d \n", nst, nre+nreB);
-  printf("NNI  = %5d     NJE  = %5d \n", nni, nje);
-  printf("NETF = %5d     NCFN = %5d \n", netf, ncfn);
+  printf("NST  = %5ld     NRE  = %5ld \n", nst, nre+nreB);
+  printf("NNI  = %5ld     NJE  = %5ld \n", nni, nje);
+  printf("NETF = %5ld     NCFN = %5ld \n", netf, ncfn);
   
 } /* End of PrintFinalStats. */
 
-
 /*********** Functions called by IDA and supporting functions ************/
-
 
 /*************************************************************************/
 /* resweb: System residual function for predator-prey system.            */
@@ -482,7 +493,7 @@ static void PrintFinalStats(void *mem)
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *rdata)
 {
-  integertype jx, jy, is, yloc, loc, np;
+  long int jx, jy, is, yloc, loc, np;
   realtype *resv, *cpv;
   UserData webdata;
   
@@ -515,7 +526,6 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
   
 }  /* End of residual function resweb. */
 
-
 /*************************************************************************/
 /* Fweb: Rate function for the food-web problem.                         */
 /* This routine computes the right-hand sides of the system equations,   */
@@ -525,7 +535,7 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,  
                  UserData webdata)
 { 
-  integertype jx, jy, is, idyu, idyl, idxu, idxl;
+  long int jx, jy, is, idyu, idyl, idxu, idxl;
   realtype xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
   
   /* Loop over grid points, evaluate interaction vector (length ns),
@@ -568,7 +578,6 @@ static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,
   
 }  /* End of Fweb. */
 
-
 /*************************************************************************/
 /* WebRates: Evaluate reaction rates at a given spatial point.           */
 /* At a given (x,y), evaluate the array of ns reaction terms R.          */
@@ -589,13 +598,12 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
   
 } /* End of WebRates. */
 
-
 /*************************************************************************/
 /* dotprod: dot product routine for realtype arrays, for use by WebRates.    */
 
-static realtype dotprod(integertype size, realtype *x1, realtype *x2)
+static realtype dotprod(long int size, realtype *x1, realtype *x2)
 {
-  integertype i;
+  long int i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;
@@ -603,3 +611,32 @@ static realtype dotprod(integertype size, realtype *x1, realtype *x2)
   return(temp);
   
 } /* End of dotprod. */
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  return(0);
+}

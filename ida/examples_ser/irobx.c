@@ -33,30 +33,43 @@
 int resrob(realtype tres, N_Vector yy, N_Vector yp, 
            N_Vector resval, void *rdata);
 
-int jacrob(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
            realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
+
 #define NOUT  12
 
-int main()
+int main(void)
 {
   void *mem;
   NV_Spec nvSpec;
   N_Vector yy, yp, avtol;
-  integertype SystemSize = 3;
+  long int SystemSize = 3;
   realtype rtol, *yval, *ypval, *atval;
   realtype t0, t1, tout, tret, hused;
-  int iout, itol, itask;
-  int retval, kused, nst, nni, nje, nre, nreD, netf, ncfn;
+  int iout, itol, itask, retval, ier, kused;
+  long int nst, nni, nje, nre, nreD, netf, ncfn;
+
+  mem = NULL;
+  nvSpec = NULL;
+  yy = yp = avtol = NULL;
+  yval = ypval = atval = NULL;
 
   /* Initialize serial machine environment */
   nvSpec = NV_SpecInit_Serial(SystemSize);
+  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
 
   /* Allocate N-vectors. */
-  yy = N_VNew(nvSpec); 
+  yy = N_VNew(nvSpec);
+  if(check_flag((void *)yy, "N_VNew", 0)) return(1);
   yp = N_VNew(nvSpec);
+  if(check_flag((void *)yp, "N_VNew", 0)) return(1);
   avtol = N_VNew(nvSpec);
+  if(check_flag((void *)avtol, "N_VNew", 0)) return(1);
 
   /* Set various input parameters and initialize y and y'. */
   yval  = NV_DATA_S(yy);
@@ -79,15 +92,15 @@ int main()
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
-  if (mem == NULL) { printf("IDACreate failed."); return(1); }
+  if(check_flag((void *)mem, "IDACreate", 0)) return(1);
   retval = IDAMalloc(mem, resrob, t0, yy, yp, itol, &rtol, avtol, nvSpec);
-  if (retval != SUCCESS) {printf("IDAMalloc failed.\n"); return(1); }
+  if(check_flag(&retval, "IDAMalloc", 1)) return(1);
 
   /* Call IDADense and set up the linear solver package. */
   retval = IDADense(mem, SystemSize);
-  if (retval != SUCCESS) {printf("IDADense failed.\n"); return(1); }
+  if(check_flag(&retval, "IDADense", 1)) return(1);
   retval = IDADenseSetJacFn(mem, jacrob);
-  if (retval != SUCCESS) {printf("IDADenseSetJacFn failed.\n"); return(1); }
+  if(check_flag(&retval, "IDADenseSetJacFn", 1)) return(1);
 
   printf("irobx: Robertson kinetics DAE serial example problem for IDA \n");
   printf("       Three equation chemical kinetics problem. \n\n");
@@ -102,44 +115,51 @@ int main()
 
   for (tout = t1, iout = 1; iout <= NOUT ; iout++, tout *= 10.0) {
     retval=IDASolve(mem, tout, &tret, yy, yp, itask);
-    if (retval != SUCCESS) {printf("IDASolve returned %d\n",retval); return(1); }
-    
-    printf("\nt = %g,  y = (%g, %g, %g)\n", tret, yval[0],yval[1],yval[2]);
-    
-    IDAGetLastOrder(mem, &kused);
-    IDAGetNumSteps(mem, &nst);
-    IDAGetNumNonlinSolvIters(mem, &nni);
-    IDAGetNumResEvals(mem, &nre);
-    IDAGetLastStep(mem, &hused);
-    IDADenseGetNumJacEvals(mem, &nje);
-    IDADenseGetNumResEvals(mem, &nreD);
+    if(check_flag(&retval, "IDASolve", 1)) return(1);
 
-    printf("k = %d, nst = %d, nni = %d, nje = %d, nre = %d, nreD = %d  h = %g\n",
+    printf("\nt = %g,  y = (%g, %g, %g)\n", tret, yval[0],yval[1],yval[2]);
+
+    retval = IDAGetLastOrder(mem, &kused);
+    check_flag(&retval, "IDAGetLastOrder", 1);
+    retval = IDAGetNumSteps(mem, &nst);
+    check_flag(&retval, "IDAGetNumSteps", 1);
+    retval = IDAGetNumNonlinSolvIters(mem, &nni);
+    check_flag(&retval, "IDAGetNumNonlinSolvIters", 1);
+    retval = IDAGetNumResEvals(mem, &nre);
+    check_flag(&retval, "IDAGetNumResEvals", 1);
+    retval = IDAGetLastStep(mem, &hused);
+    check_flag(&retval, "IDAGetLastStep", 1);
+    retval = IDADenseGetNumJacEvals(mem, &nje);
+    check_flag(&retval, "IDADenseGetNumJacEvals", 1);
+    retval = IDADenseGetNumResEvals(mem, &nreD);
+    check_flag(&retval, "IDADenseGetNumResEvals", 1);
+
+    printf("k = %d, nst = %ld, nni = %ld, nje = %ld, nre = %ld, nreD = %ld  h = %g\n",
            kused, nst, nni, nje, nre, nreD, hused);
 
   } /* End of tout loop. */
 
-  IDAGetNumErrTestFails(mem, &netf);
-  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  retval = IDAGetNumErrTestFails(mem, &netf);
+  check_flag(&retval, "IDAGetNumErrTestFails", 1);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  check_flag(&retval, "IDAGetNumNonlinSolvConvFails", 1);
 
   printf("\nFinal Run Statistics: \n\n");
-  printf("Number of steps =                %d\n",nst);
-  printf("Number of residual evaluations = %d\n",nre+nreD);
-  printf("Number of Jacobian evaluations = %d\n",nje);
-  printf("Number of error test failures =  %d\n",netf);
-  printf("Number of nonlinear (corrector) convergence failures = %d\n",ncfn);
+  printf("Number of steps =                %ld\n",nst);
+  printf("Number of residual evaluations = %ld\n",nre+nreD);
+  printf("Number of Jacobian evaluations = %ld\n",nje);
+  printf("Number of error test failures =  %ld\n",netf);
+  printf("Number of nonlinear (corrector) convergence failures = %ld\n",ncfn);
 
   IDAFree(mem);
   N_VFree(yy);
   N_VFree(yp);
   N_VFree(avtol);
-  
   NV_SpecFree_Serial(nvSpec);
 
   return(0);
   
 } /* End of irobx main. */
-
 
 /**************************************************************************/
 
@@ -162,7 +182,7 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
 
 /* Define the Jacobian function jacrob. */
 
-int jacrob(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
            realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
@@ -184,3 +204,32 @@ int jacrob(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
   return(SUCCESS);
 
 } /* End of the Jacobian function jacrob. */
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  return(0);
+}

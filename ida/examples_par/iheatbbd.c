@@ -45,7 +45,6 @@
 #define ONE   RCONST(1.0)
 #define TWO   RCONST(2.0)
 
-
 #define NOUT         11             /* Number of output times */
 
 #define NPEX         2              /* No. PEs in x direction of PE array */
@@ -59,13 +58,12 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  integertype   thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
-  integertype   n_local;
+  long int   thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
+  long int   n_local;
   realtype      dx, dy, coeffx, coeffy, coeffxy;
   realtype      uext[(MXSUB+2)*(MYSUB+2)];
   MPI_Comm  comm;
 } *UserData;
-
 
 /* Prototypes of private helper functions */
 
@@ -74,31 +72,33 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
 
-
 /* User-supplied residual function and supporting routines */
 
 static int heatres(realtype tres, N_Vector uu, N_Vector up,
             N_Vector res, void *rdata);
 
-static int rescomm(integertype Nlocal, realtype tt, 
+static int rescomm(long int Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, void *rdata);
 
-static int reslocal(integertype Nlocal, realtype tres, 
+static int reslocal(long int Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *rdata);
 
-static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub,
-                 integertype jysub, integertype dsizex, integertype dsizey,
+static int BSend(MPI_Comm comm, long int thispe, long int ixsub,
+                 long int jysub, long int dsizex, long int dsizey,
                  realtype uarray[]);
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
-                     integertype ixsub, integertype jysub,
-                     integertype dsizex, integertype dsizey,
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
+                     long int ixsub, long int jysub,
+                     long int dsizex, long int dsizey,
                      realtype uext[], realtype buffer[]);
 
-static int BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub,
-                     integertype dsizex, realtype uext[], realtype buffer[]);
+static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
+                     long int dsizex, realtype uext[], realtype buffer[]);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 int main(int argc, char *argv[])
      
@@ -108,13 +108,18 @@ int main(int argc, char *argv[])
   void *mem;
   void *P_data;
   UserData data;
-  int npes, thispe, iout, itol, itask;
-  integertype Neq, local_N;
-  integertype mudq, mldq, mukeep, mlkeep;
+  int thispe, iout, itol, itask, ier, kused, npes;
+  long int Neq, local_N;
+  long int mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol;
   realtype t0, t1, tout, tret, umax, hused;
   N_Vector uu, up, constraints, id, res;
-  int ier, kused, nst, nni, nre, netf, ncfn, ncfl, nli, npe, nps, nreS;
+  long int nst, nni, nre, netf, ncfn, ncfl, nli, npe, nps, nreS;
+
+  nvSpec = NULL;
+  mem = P_data = NULL;
+  data = NULL;
+  uu = up = constraints = id = res = NULL;
 
   /* Get processor number and total number of pe's. */
   MPI_Init(&argc, &argv);
@@ -124,7 +129,8 @@ int main(int argc, char *argv[])
   
   if (npes != NPEX*NPEY) {
     if (thispe == 0)
-      printf("\n npes=%d is not equal to NPEX*NPEY=%d\n", npes,NPEX*NPEY);
+      fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n", npes,NPEX*NPEY);
+    MPI_Finalize();
     return(1);
   }
   
@@ -134,21 +140,30 @@ int main(int argc, char *argv[])
 
   /* Set nvSpec block. */
   nvSpec = NV_SpecInit_Parallel(comm, local_N, Neq, &argc, &argv);
-  if (nvSpec == NULL) return(1);
+  if (nvSpec == NULL) {
+    if(thispe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, thispe);
+    MPI_Finalize();
+    return(1); }
   
   /* Allocate N-vectors. */
-  uu = N_VNew(nvSpec); 
+  uu = N_VNew(nvSpec);
+  if(check_flag((void *)uu, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
   up = N_VNew(nvSpec);
+  if(check_flag((void *)up, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
   res = N_VNew(nvSpec);
+  if(check_flag((void *)res, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
   constraints = N_VNew(nvSpec);
+  if(check_flag((void *)constraints, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
   id = N_VNew(nvSpec);
+  if(check_flag((void *)id, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
 
   /* Allocate and initialize the data structure. */
   data = (UserData) malloc(sizeof *data);
-  ier = InitUserData(thispe, comm, data);
+  if(check_flag((void *)data, "malloc", 2, thispe)) MPI_Abort(comm, 1);
+  InitUserData(thispe, comm, data);
 
   /* Initialize the uu, up, id, and constraints profiles. */
-  ier = SetInitialProfile(uu, up, id, res, data);
+  SetInitialProfile(uu, up, id, res, data);
   N_VConst(ONE, constraints);
 
   t0 = 0.0; t1 = 0.01;
@@ -161,15 +176,18 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize solution */
 
   mem = IDACreate();
-  if (mem == NULL) {
-    if (thispe == 0) printf ("IDACreate failed.");
-    return(1); 
-  }
+  if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+
   ier = IDASetRdata(mem, data);
+  if(check_flag(&ier, "IDASetRdata", 1, thispe)) MPI_Abort(comm, 1);
   ier = IDASetSuppressAlg(mem, TRUE);
+  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
   ier = IDASetId(mem, id);
+  if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
   ier = IDASetConstraints(mem, constraints);
+  if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);
+  if(check_flag(&ier, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
 
   mudq = MXSUB;
   mldq = MXSUB;
@@ -181,13 +199,11 @@ int main(int argc, char *argv[])
   /* Call IBBDPrecAlloc to initialize BBD preconditioner. */
   P_data = IBBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
                          ZERO, reslocal, rescomm);
+  if(check_flag((void *)P_data, "IBBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
 
   /* Call IBBDSpgmr to specify the linear solver. */
   ier = IBBDSpgmr(mem, 0.0, P_data);
-  if (ier != SUCCESS) {
-    if (thispe == 0) printf("IBBDSpgmr failed, returning %d.\n",ier);
-    return(1);
-  }
+  if(check_flag(&ier, "IBBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Compute the max norm of uu. */
   umax = N_VMaxNorm(uu);
@@ -227,6 +243,7 @@ int main(int argc, char *argv[])
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
     
     ier = IDASolve(mem, tout, &tret, uu, up, itask);
+    if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
     umax = N_VMaxNorm(uu);
     if (thispe == 0) {
@@ -239,21 +256,19 @@ int main(int argc, char *argv[])
       IDASpgmrGetNumPrecEvals(mem, &npe);
       IDASpgmrGetNumPrecSolves(mem, &nps);
       IDASpgmrGetNumResEvals(mem, &nreS);
-      printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d %4d  %9.2e  %3d %3d\n",
+      printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld %4ld  %9.2e  %3ld %3ld\n",
              tret, umax, kused, nst, nni, nli, nre, nreS, hused, npe, nps);
     }
-    if (ier < 0) {
-      if (thispe == 0) printf("IDASolve returned %d.\n",ier);
-      return(1);
-    }
-    
   }  /* End of tout loop. */
   
   if (thispe == 0) {
-    IDAGetNumErrTestFails(mem, &netf);
-    IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-    IDASpgmrGetNumConvFails(mem, &ncfl);
-    printf("\n netf = %d,   ncfn = %d,   ncfl = %d \n", netf, ncfn, ncfl);
+    ier = IDAGetNumErrTestFails(mem, &netf);
+    check_flag(&ier, "IDAGetNumErrTestFails", 1, thispe);
+    ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+    check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1, thispe);
+    ier = IDASpgmrGetNumConvFails(mem, &ncfl);
+    check_flag(&ier, "IDASpgmrGetNumConvFails", 1, thispe);
+    printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", netf, ncfn, ncfl);
   }
 
   /* Case 2 -- mldq = mudq = 1 */
@@ -262,21 +277,15 @@ int main(int argc, char *argv[])
   mldq = 1;
 
   /* Re-initialize the uu and up profiles. */
-  ier = SetInitialProfile(uu, up, id, res, data);
+  SetInitialProfile(uu, up, id, res, data);
 
   /* Call IDAReInit to re-initialize IDA. */
   ier = IDAReInit(mem, heatres, t0, uu, up, itol, &rtol, &atol);
-  if (ier != SUCCESS) {
-    if (thispe == 0) printf ("IDAReInit failed.   ier =%d\n", ier);
-    return(1); 
-  }
+  if(check_flag(&ier, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IBBDPrecReInit to re-initialize BBD preconditioner. */
   ier = IBBDPrecReInit(P_data, mudq, mldq, ZERO, reslocal, rescomm);
-  if (ier != SUCCESS) {
-    if (thispe == 0) printf ("IDAReInitBBD failed.   ier =%d\n", ier);
-    return(1); 
-  }
+  if(check_flag(&ier, "IBBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Compute the max norm of uu. */
   umax = N_VMaxNorm(uu);
@@ -300,7 +309,8 @@ int main(int argc, char *argv[])
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
     
     ier = IDASolve(mem, tout, &tret, uu, up, itask);
-    
+    if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
+
     umax = N_VMaxNorm(uu);
     if (thispe == 0) {
       IDAGetLastOrder(mem, &kused);
@@ -312,25 +322,22 @@ int main(int argc, char *argv[])
       IDASpgmrGetNumPrecEvals(mem, &npe);
       IDASpgmrGetNumPrecSolves(mem, &nps);
       IDASpgmrGetNumResEvals(mem, &nreS);
-      printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d %4d  %9.2e  %3d %3d\n",
+      printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld %4ld  %9.2e  %3ld %3ld\n",
              tret, umax, kused, nst, nni, nli, nre, nreS, hused, npe, nps);
     }
-    if (ier < 0) {
-      if (thispe == 0) printf("IDASolve returned %d.\n",ier);
-      return(1);
-    }
-    
   }  /* End of tout loop. */
   
   if (thispe == 0) {
-    IDAGetNumErrTestFails(mem, &netf);
-    IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-    IDASpgmrGetNumConvFails(mem, &ncfl);
-    printf("\n netf = %d,   ncfn = %d,   ncfl = %d \n", netf, ncfn, ncfl);
+    ier = IDAGetNumErrTestFails(mem, &netf);
+    check_flag(&ier, "IDAGetNumErrTestFails", 1, thispe);
+    ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+    check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1, thispe);
+    ier = IDASpgmrGetNumConvFails(mem, &ncfl);
+    check_flag(&ier, "IDASpgmrGetNumConvFails", 1, thispe);
+    printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", netf, ncfn, ncfl);
   }
 
   /* Free Memory */
-
   IBBDPrecFree(P_data);
   IDAFree(mem);
   free(data);
@@ -340,12 +347,12 @@ int main(int argc, char *argv[])
   N_VFree(up);
   N_VFree(uu);
   NV_SpecFree_Parallel(nvSpec);
+
   MPI_Finalize();
 
   return(0);
 
 } /* End of iheatbbd main program. */
-
 
 /********************************************************/
 /* InitUserData initializes the user's data block data. */
@@ -379,8 +386,8 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id, 
                              N_Vector res, UserData data)
 {
-  integertype i, iloc, j, jloc, offset, loc, ixsub, jysub;
-  integertype ixbegin, ixend, jybegin, jyend;
+  long int i, iloc, j, jloc, offset, loc, ixsub, jysub;
+  long int ixbegin, ixend, jybegin, jyend;
   realtype xfact, yfact, *udata, *iddata, dx, dy;
   
   /* Initialize uu. */ 
@@ -431,9 +438,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   
 } /* End of SetInitialProfiles. */
 
-
 /***************** Functions called by the IDA solver ******************/
-
 
 /*************************************************************************
  * heatres: heat equation system residual function                       
@@ -455,7 +460,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
 {
   int retval;
   UserData data;
-  integertype Nlocal;
+  long int Nlocal;
   
   data = (UserData) rdata;
   
@@ -474,17 +479,16 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
 
 /*  Supporting functions for heatres. */
 
-
 /*********************************************************************/
 /* rescomm routine.  This routine performs all inter-processor
    communication of data in u needed to calculate G.                 */
-static int rescomm(integertype Nlocal, realtype tt, 
+static int rescomm(long int Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, void *rdata)
 {
   UserData data;
   realtype *uarray, *uext, buffer[2*MYSUB];
   MPI_Comm comm;
-  integertype thispe, ixsub, jysub, mxsub, mysub;
+  long int thispe, ixsub, jysub, mxsub, mysub;
   MPI_Request request[4];
 
   data = (UserData) rdata;
@@ -509,21 +513,20 @@ static int rescomm(integertype Nlocal, realtype tt,
 
 } /* End of rescomm. */
 
-
 /**************************************************************************/
 /* reslocal routine.  Compute res = F(t, uu, up).  This routine assumes
    that all inter-processor communication of data needed to calculate F
     has already been done, and that this data is in the work array uext.  */
 
-static int reslocal(integertype Nlocal, realtype tres, 
+static int reslocal(long int Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *rdata)
 {
   realtype *uext, *uuv, *upv, *resv;
   realtype termx, termy, termctr;
-  integertype lx, ly, offsetu, offsetue, locu, locue;
-  integertype ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
-  integertype ixbegin, ixend, jybegin, jyend;
+  long int lx, ly, offsetu, offsetue, locu, locue;
+  long int ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
+  long int ixbegin, ixend, jybegin, jyend;
   UserData data;
 
   /* Get subgrid indices, array sizes, extended work array uext. */
@@ -578,15 +581,14 @@ static int reslocal(integertype Nlocal, realtype tres,
 
 } /* End of reslocal. */
 
-
 /*************************************************************************/
 /* Routine to send boundary data to neighboring PEs.                     */
 
-static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub,
-                 integertype jysub, integertype dsizex, integertype dsizey,
+static int BSend(MPI_Comm comm, long int thispe, long int ixsub,
+                 long int jysub, long int dsizex, long int dsizey,
                  realtype uarray[])
 {
-  integertype ly, offsetu;
+  long int ly, offsetu;
   realtype bufleft[MYSUB], bufright[MYSUB];
   
   /* If jysub > 0, send data from bottom x-line of u. */
@@ -626,7 +628,6 @@ static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub,
 
 } /* End of BSend. */
 
-
 /**************************************************************/
 /* Routine to start receiving boundary data from neighboring PEs.
    Notes:
@@ -636,12 +637,12 @@ static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub,
    2) request should have 4 entries, and should be passed in 
    both calls also. */
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
-                     integertype ixsub, integertype jysub,
-                     integertype dsizex, integertype dsizey,
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
+                     long int ixsub, long int jysub,
+                     long int dsizex, long int dsizey,
                      realtype uext[], realtype buffer[])
 {
-  integertype offsetue;
+  long int offsetue;
   /* Have bufleft and bufright use the same buffer. */
   realtype *bufleft = buffer, *bufright = buffer+MYSUB;
   
@@ -673,7 +674,6 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
 
 } /* End of BRecvPost. */
 
-
 /****************************************************************/
 /* Routine to finish receiving boundary data from neighboring PEs.
    Notes:
@@ -683,11 +683,11 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
    2) request should have four entries, and should be passed in both 
       calls also. */
 
-static int BRecvWait(MPI_Request request[], integertype ixsub,
-                     integertype jysub, integertype dsizex, realtype uext[],
+static int BRecvWait(MPI_Request request[], long int ixsub,
+                     long int jysub, long int dsizex, realtype uext[],
                      realtype buffer[])
 {
-  integertype ly, dsizex2, offsetue;
+  long int ly, dsizex2, offsetue;
   realtype *bufleft = buffer, *bufright = buffer+MYSUB;
   MPI_Status status;
   
@@ -726,3 +726,32 @@ static int BRecvWait(MPI_Request request[], integertype ixsub,
   return(0);
 
 } /* End of BRecvWait. */
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    return(1); }
+
+  return(0);
+}
