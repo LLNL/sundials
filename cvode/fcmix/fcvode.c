@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2004-10-21 20:55:05 $
+ * $Revision: 1.36 $
+ * $Date: 2004-10-26 20:44:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -272,7 +272,7 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
      delt       the linear convergence tolerance factor 
   */
 
-  *ier = CVSpgmrResetPrecType(CV_cvodemem, *pretype);
+  *ier = CVSpgmrSetPrecType(CV_cvodemem, *pretype);
   if (*ier != CVSPGMR_SUCCESS) return;
 
   *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2004-10-26 20:13:21 $
+ * $Revision: 1.35 $
+ * $Date: 2004-10-26 20:47:40 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -892,7 +892,7 @@ int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   return(flag);
 }
 
-int CVSpgmrResetPrecTypeB(void *cvadj_mem, int pretypeB)
+int CVSpgmrSetPrecTypeB(void *cvadj_mem, int pretypeB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -903,7 +903,7 @@ int CVSpgmrResetPrecTypeB(void *cvadj_mem, int pretypeB)
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVSpgmrResetPrecType(cvode_mem, pretypeB);
+  flag = CVSpgmrSetPrecType(cvode_mem, pretypeB);
 
   return(flag);
 }

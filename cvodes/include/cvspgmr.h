@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-10-11 15:51:48 $
+ * $Revision: 1.7 $
+ * $Date: 2004-10-26 20:47:38 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -274,15 +274,15 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl);
 
 /*
  * -----------------------------------------------------------------
- * Function: CVSpgmrResetPrecType                                 
+ * Function: CVSpgmrSetPrecType                                 
  * -----------------------------------------------------------------
- * CVSpgmrResetPrecType resets the type of preconditioner, pretype,
+ * CVSpgmrSetPrecType resets the type of preconditioner, pretype,
  *     from the value set in a prior call to CVSpgmr.     
  *     This must be one of NONE, LEFT, RIGHT, or BOTH.            
  * -----------------------------------------------------------------
  */
 
-int CVSpgmrResetPrecType(void *cvode_mem, int pretype);
+int CVSpgmrSetPrecType(void *cvode_mem, int pretype);
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-08-25 16:19:23 $
+ * $Revision: 1.7 $
+ * $Date: 2004-10-26 20:47:40 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
  *                 Radu Serban @ LLNL
@@ -44,7 +44,7 @@
 
 #define MSG_SETGET_LMEM_NULL  "CVSpgmrSet*/CVSpgmrGet*-- cvspgmr memory is NULL. \n\n"
 
-#define MSG_CVS_BAD_PRETYPE1  "CVSpgmrResetPrecType-- pretype=%d illegal.\n"
+#define MSG_CVS_BAD_PRETYPE1  "CVSpgmrSetPrecType-- pretype=%d illegal.\n"
 #define MSG_CVS_BAD_PRETYPE2  "The legal values are PREC_NONE=%d, PREC_LEFT=%d, "
 #define MSG_CVS_BAD_PRETYPE3  "PREC_RIGHT=%d, and PREC_BOTH=%d.\n\n"
 #define MSG_CVS_BAD_PRETYPE   MSG_CVS_BAD_PRETYPE1 MSG_CVS_BAD_PRETYPE2 MSG_CVS_BAD_PRETYPE3
@@ -251,11 +251,11 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
 
 /*
  * -----------------------------------------------------------------
- * CVSpgmrResetPrecType
+ * CVSpgmrSetPrecType
  * -----------------------------------------------------------------
  */
 
-int CVSpgmrResetPrecType(void *cvode_mem, int pretype)
+int CVSpgmrSetPrecType(void *cvode_mem, int pretype)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
