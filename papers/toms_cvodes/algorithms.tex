@@ -43,6 +43,8 @@ where $J_n = {\partial f}/{\partial y}$ at $(t_n,y_n)$.
 
 CVODES also incorporates an algorithm for special treatment of
 quadratures depending on the solution $y$ of (\ref{e:ivp}).
+An efficient quadrature computation is needed in the context of
+adjoint sensitivity analysis (see Section~\ref{ss:adj_sensitivity}).
 Evaluation of integrals of the form
 $G = \int_{t_0}^{t_\mb{f}} g(t,y,p) dt$ can be done efficiently using the
 underlying linear multistep method interpolating polynomials by
@@ -55,9 +57,9 @@ the nonlinear system~(\ref{e:nonlinear}). CVODES allows the user to
 identify these equations separately from those in~(\ref{e:ivp}) and
 provides the option of including or excluding $\phi$ from the error
 control algorithm.
-The main reason for including this option in CVODES was the need for
-efficient quadrature computation in the context of adjoint sensitivity 
-analysis (see Section~\ref{ss:adj_sensitivity}).
+A similar treatment of quadratures is included in the DASPK3
+code~\cite{LiPe:00,LiPe:04}.
+
 
 A complete description of the CVODES integration algorithm, including 
 the nonlinear solver convergence, error control mechanism, and heuristics 
@@ -210,17 +212,18 @@ complex-step approximation, and finite differences (or directional derivatives).
 Since it allows for user-defined routines for the evaluation of any and all 
 derivative information, CVODES provides all the software hooks for implementing 
 interfaces to automatic differentiation or complex-step approximation. 
-We have prototyped an automated code generator tool (not included in the
-CVODES distribution) which parses C code and generates C++ code to perform
-complex arithmetic. The user's right-hand side routine can thus be transformed
-to allow for the automatic generation of derivative information using 
-complex-step approximations~\cite{MSA:03}. This approach allows for very accurate numerical
-estimation of derivatives as it circumvents the subtraction cancellation error 
-typical for finite difference methods. However, any code transformation approach
-to the automatic generation of derivative information from C functions 
-(another such example being ADIC~\cite{BRM:97}) has the disadvantage 
-of requiring transformations on the user's data structures, which are otherwise 
-treated as black boxes by CVODES. 
+We have prototyped an automated code generator tool (not included in
+the CVODES distribution) which parses C code and generates C++ code to
+perform complex arithmetic. The user's right-hand side routine can
+thus be transformed to allow for the automatic generation of
+derivative information using complex-step approximations~\cite{MSA:03}.
+This approach allows for very accurate numerical estimation of
+derivatives as it circumvents the subtraction cancellation error
+typical for finite difference methods. However, any code
+transformation approach to the automatic generation of derivative
+information from C functions (for example ADIC~\cite{BRM:97})
+has the disadvantage of requiring transformations on the user's data
+structures, which are otherwise treated as black boxes by CVODES.
 This makes the design of general interfaces a challenging task, but we 
 are investigating avenues to overcome this issue.
 
@@ -236,7 +239,7 @@ sensitivity vector $s_i$.
 
 Using central finite differences as an example, the two terms 
 $({\partial f}/{\partial y}) s_i$ 
-and ${\partial f}/{\partial p_i}$ in the right-hand side of (\ref{e:sens_eqns}) 
+and ${\partial f}/{\partial p_i}$ in the right-hand side of (\ref{e:sens_eqns})
 can be evaluated separately:
 \begin{gather}
   \frac{\partial f}{\partial y} s_i \approx \frac{f(t, y+\sigma_y s_i, p)-
@@ -244,7 +247,8 @@ can be evaluated separately:
   \frac{\partial f}{\partial p_i} \approx \frac{f(t,y,p + \sigma_i e_i)-
     f(t,y,p - \sigma_i e_i)}{2\,\sigma_i} \, , \tag{\ref{e:fd2}'} \\
   \sigma_i = |{\bar p}_i| \sqrt{\max( \mbox{\sc rtol} , U)} \, , \quad
-  \sigma_y = \frac{1}{\max(1/\sigma_i, \|s_i\|_{\mbox{\scriptsize WRMS}}/|{\bar p}_i|)} \, , \nonumber
+  \sigma_y = \frac{1}{\max(1/\sigma_i, \|s_i\|_{\mbox{\scriptsize WRMS}}
+                                          /|{\bar p}_i|)} \, , \nonumber
 \end{gather}
 simultaneously:
 \begin{gather}
@@ -257,7 +261,7 @@ or adaptively switching between (\ref{e:fd2})+(\ref{e:fd2}') and (\ref{e:dd2}),
 depending on the relative size of the estimated finite difference 
 increments $\sigma_i$ and $\sigma_y$.
 
-%-----------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
 
 \subsection{Adjoint Sensitivity Analysis}\label{ss:adj_sensitivity}
 
@@ -296,15 +300,17 @@ and $s(t_0) = \partial y_0 / \partial p$.
 The gradient of $g(t_\mb{f},y,p)$ with respect to $p$ can be then obtained
 by using the Leibnitz differentiation rule \cite{CLPS:03}.
 
-The first thing to notice about the adjoint system (\ref{e:adj_eqns}) is that there is 
-no explicit specification of the parameters $p$; this implies that, once the solution
-$\lambda$ is found, the formula (\ref{e:dGdp}) can then be used to find the gradient
-of $G$ with respect to any of the parameters $p$. 
-The second important remark is that the adjoint systems are terminal value problems 
-which depend on the solution $y(t)$ of the original IVP (\ref{e:ivp}). 
-Therefore, a procedure is needed for providing the states $y$ obtained during a forward 
-integration phase of (\ref{e:ivp}) to CVODES during the backward integration phase 
-of (\ref{e:adj_eqns}).
+The first thing to notice about the adjoint system (\ref{e:adj_eqns})
+is that there is no explicit specification of the parameters $p$; this
+implies that, once the solution $\lambda$ is found, the formula
+(\ref{e:dGdp}) can then be used to find the gradient of $G$ with
+respect to any of the parameters $p$.
+The second important remark is that the adjoint systems are terminal
+value problems which depend on the solution $y(t)$ of the original IVP
+(\ref{e:ivp}).  Therefore, a procedure is needed for providing the
+states $y$ obtained during a forward integration phase of
+(\ref{e:ivp}) to CVODES during the backward integration phase of
+(\ref{e:adj_eqns}).
 The approach adopted in CVODES, similar to that implemented
 in DASPKADJOINT \cite{LiPe:00}, is justified below.
 
@@ -322,9 +328,10 @@ need to be stored make this approach computationally intractable.
 CVODES settles for a compromise between storage space and execution time by
 implementing a check-pointing scheme which, at the cost of
 at most one additional forward integration, offers the best possible 
-estimate of memory requirements for adjoint sensitivity analysis.
-\footnote{Note that truly optimal checkpointing \cite{GrWa:00} cannot
-be used since the number of integration steps is not known apriori} 
+estimate of memory requirements for adjoint sensitivity
+analysis.\footnote{Note that truly optimal checkpointing \cite{GrWa:00}
+cannot be used since the number of integration steps is not known apriori}
+
 %% To begin with,
 %% based on the problem size $N$ and the available memory, the user decides on 
 %% the number $N_d$ of data pairs ($y$, ${\dot y}$) that can be kept in memory for 
