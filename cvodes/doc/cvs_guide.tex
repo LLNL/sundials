@@ -1,5 +1,5 @@
-%\documentclass[twoside,10pt]{report}
-\documentclass[10pt]{report}
+\documentclass[twoside,openright,10pt]{report}
+%\documentclass[openright,10pt]{report}
 
 % Package useful for debuging
 %\usepackage{showlabels}
@@ -29,10 +29,10 @@
 \begin{document}
 
 %Create the LLNL Cover Page
-\makeLLNLCover{\cvsucrl}%                           UCRL number
+\makeLLNLCover{\cvsucrl}%                        UCRL number
 {User Documentation for CVODES {\cvsrelease}}%   Title on cover page
-{Alan C. Hindmarsh and Radu Serban}%                Authors
-{\cvsdate}%                                         Date
+{Alan C. Hindmarsh and Radu Serban}%             Authors
+{\cvsdate}%                                      Date
 {0in}{0in}
 
 \frontug
@@ -42,40 +42,52 @@
 %===============================================================
 % Introduction
 \include{cvs_intro}
+\clearemptydoublepage
 %===============================================================
 % SUNDIALS installation procedure
 \include{cvs_install}
+\clearemptydoublepage
 %===============================================================
 % Mathematical Considerations
 \include{cvs_math}
+\clearemptydoublepage
 %===============================================================
 % CVODES Code Organization
 \include{cvs_org}
+\clearemptydoublepage
 %===============================================================
 % Using CVODES for IVP Solution
 \include{cvs_sim}
+\clearemptydoublepage
 %===============================================================
 % Using CVODES for Forward Sensitivity Analysis
 \include{cvs_fwd}
+\clearemptydoublepage
 %===============================================================
 % Using CVODES for Adjoint Sensitivity Analysis
 \include{cvs_adj}
+\clearemptydoublepage
 %===============================================================
 % Description of the NVECTOR Concept
 \include{cvs_nvec}
+\clearemptydoublepage
 %===============================================================
 % Providing a new linear solver module
 \include{cvs_newlinsolv}
+\clearemptydoublepage
 %===============================================================
 % Generic linear solvers
 \include{cvs_linsolv}
+\clearemptydoublepage
 %===============================================================
 % References
 \bibliographystyle{plain}
 \bibliography{biblio}
+\clearemptydoublepage
 %===============================================================
 % Index
 \printindex
+\clearemptydoublepage
 %===============================================================
 \makeLLNLBackCover
 %===============================================================

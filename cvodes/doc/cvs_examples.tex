@@ -1,4 +1,5 @@
-\documentclass[11pt]{article}
+\documentclass[twoside,titlepage,11pt]{article}
+%%\documentclass[titlepage,11pt]{article}
 
 \input{ug.tex}
 
@@ -8,7 +9,7 @@
 \externaldocument{cvs_fwd}
 \externaldocument{cvs_adj}
 \externaldocument{cvs_nvec}
-\externaldocument{cv_linsolv}
+\externaldocument{cvs_linsolv}
 
 
 \newcommand{\cvsucrl}{UCRL-SM-208115}
@@ -28,10 +29,10 @@
 \begin{document}
 
 %Create the LLNL Cover Page
-\makeLLNLCover{\cvsucrl}%                         UCRL number
+\makeLLNLCover{\cvsucrl}%                      UCRL number
 {Example Programs for CVODES {\cvsrelease}}%   Title on cover page
-{Alan C. Hindmarsh and Radu Serban}%              Authors
-{\cvsdate}%                                       Date
+{Alan C. Hindmarsh and Radu Serban}%           Authors
+{\cvsdate}%                                    Date
 {0in}{0in}
 
 \frontex
@@ -50,6 +51,7 @@
 \appendix
 \include{cvs_ex_codes}
 %===============================================================
+\clearemptydoublepage
 \makeLLNLBackCover
 %===============================================================
 \end{document}
