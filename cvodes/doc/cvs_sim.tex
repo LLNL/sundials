@@ -36,8 +36,8 @@ and data types can be used. The header file that is always required is:
 \end{itemize}
 %%
 Note that \id{cvodes.h} includes \Id{sundialstypes.h}, 
-which defines the types \id{realtype, integertype, booleantype}
-and constants \id{FALSE} and \id{TRUE}.
+which defines the types \id{realtype} and \id{booleantype}
+and the constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file
 (see \S\ref{s:nvector} for details).
@@ -409,7 +409,7 @@ separately in \S\ref{s:gen_linsolv}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[N] (\id{integertype})
+  \item[N] (\id{long int})
     problem dimension.
   \end{args}
 }
@@ -451,11 +451,11 @@ separately in \S\ref{s:gen_linsolv}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[N] (\id{integertype})
+  \item[N] (\id{long int})
     problem dimension.
-  \item[mupper] (\id{integertype})
+  \item[mupper] (\id{long int})
     upper half-bandwidth of the problem Jacobian (or of the approximation of it).
-  \item[mlower] (\id{integertype})
+  \item[mlower] (\id{long int})
     lower half-bandwidth of the problem Jacobian (or of the approximation of it).
   \end{args}
 }
@@ -1920,7 +1920,7 @@ These optional output functions are described next.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[leniw] (\id{long int *})
-    number of \id{integertype} values in the {\cvodes} workspace.
+    number of integer values in the {\cvodes} workspace.
   \end{args}
 }
 {
@@ -2571,7 +2571,7 @@ to access these are described below.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[leniwD] (\id{long int *})
-    the number of \id{integertype} values in the {\cvdense} workspace.
+    the number of integer values in the {\cvdense} workspace.
   \end{args}
 }
 {
@@ -2587,7 +2587,7 @@ to access these are described below.
 }
 {
   In terms of the problem size $N$, the actual size of the integer workspace
-  is $N$ \id{integertype} words.
+  is $N$ integer words.
 }
 %%
 \ucfunction{CVDenseGetRealWorkSpace}
@@ -2715,7 +2715,7 @@ to access these are described below.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[leniwB] (\id{long int *})
-    the number of \id{integertype} values in the {\cvband} workspace.
+    the number of integer values in the {\cvband} workspace.
   \end{args}
 }
 {
@@ -2731,7 +2731,7 @@ to access these are described below.
 }
 {
   In terms of the problem size $N$, the actual size of the integer workspace
-  is $N$ \id{integertype} words.
+  is $N$ integer words.
 }
 %%
 \ucfunction{CVBandGetRealWorkSpace}
@@ -2860,7 +2860,7 @@ to access these are described below.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[leniwDI] (\id{long int *})
-    the number of \id{integertype} values in the {\cvdiag} workspace.
+    the number of integer values in the {\cvdiag} workspace.
   \end{args}
 }
 {
@@ -2972,7 +2972,7 @@ to access these are described below.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[leniwSG] (\id{long int *})
-    the number of \id{integertype} values in the {\cvspgmr} workspace.
+    the number of integer values in the {\cvspgmr} workspace.
   \end{args}
 }
 {
@@ -3344,7 +3344,7 @@ If the direct linear solver with dense treatment of the Jacobian is used
 the user may provide a function of type \ID{CVDenseJacFn} defined by
 \usfunction{CVDenseJacFn}
 {
-  typedef void (*CVDenseJacFn)(&integertype N, DenseMat J, realtype t, \\
+  typedef void (*CVDenseJacFn)(&long int N, DenseMat J, realtype t, \\
                                &N\_Vector y, N\_Vector fy, void *jac\_data, \\
                                &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
@@ -3425,8 +3425,8 @@ If the direct linear solver with banded treatment of the Jacobian is used
 the user may provide a function of type \ID{CVBandJacFn} defined as follows:
 \usfunction{CVBandJacFn}
 {
- typedef void (*CVBandJacFn)(&integertype N, integertype mupper, \\
-                             &integertype mlower, BandMat J, realtype t, \\ 
+ typedef void (*CVBandJacFn)(&long int N, long int mupper, \\
+                             &long int mlower, BandMat J, realtype t, \\ 
                              &N\_Vector y, N\_Vector fy, void *jac\_data, \\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
@@ -3982,11 +3982,11 @@ in more detail below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[N] (\id{integertype})
+  \item[N] (\id{long int})
     problem dimension.
-  \item[mu] (\id{integertype})
+  \item[mu] (\id{long int})
     upper half-bandwidth of the problem Jacobian approximation.
-  \item[ml] (\id{integertype})
+  \item[ml] (\id{long int})
     lower half-bandwidth of the problem Jacobian approximation.
   \end{args}
 }
@@ -4082,7 +4082,7 @@ the {\cvbandpre} module:
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
   \item[leniwBP] (\id{long int *})
-    the number of \id{integertype} values in the {\cvbandpre} workspace.
+    the number of integer values in the {\cvbandpre} workspace.
   \end{args}
 }
 {
@@ -4096,7 +4096,7 @@ the {\cvbandpre} module:
 }
 {
   In terms of the problem size $N$, the actual sizes of the integer workspace
-  is $N$ \id{integertype} words.
+  is $N$ integer words.
 }
 %%
 %%
@@ -4147,7 +4147,7 @@ the {\cvbandpre} module:
   \begin{args}[nfevalsBP]
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
-  \item[nfevalsBP] (\id{long int *})
+  \item[nfevalsBP] (\id{int *})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -4267,7 +4267,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 \usfunction{CVLocalFn}
 {
-  typedef void (*CVLocalFn)(&integertype Nlocal, realtype t,  \\
+  typedef void (*CVLocalFn)(&long int Nlocal, realtype t,  \\
                             &N\_Vector y, N\_Vector glocal, \\
                             &void *f\_data);
 }
@@ -4304,7 +4304,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 \usfunction{CVCommFn}
 {
-  typedef void (*CVCommFn)(&integertype Nlocal, realtype t,  \\
+  typedef void (*CVCommFn)(&long int Nlocal, realtype t,  \\
                            &N\_Vector y, void *f\_data);
 }
 {
@@ -4465,15 +4465,15 @@ next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[local\_N] (\id{integertype})
+  \item[local\_N] (\id{long int})
     local vector dimension.
-  \item[mudq] (\id{integertype})
+  \item[mudq] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldq] (\id{integertype})
+  \item[mldq] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mukeep] (\id{integertype})
+  \item[mukeep] (\id{long int})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeep] (\id{integertype})
+  \item[mlkeep] (\id{long int})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dqrely] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
@@ -4587,9 +4587,9 @@ or one of the user-supplied functions \id{gloc} and \id{cfn}.
   \begin{args}[bbd\_data]
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
-  \item[mudq] (\id{integertype})
+  \item[mudq] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldq] (\id{integertype})
+  \item[mldq] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[dqrely] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
@@ -4633,7 +4633,7 @@ the {\cvbbdpre} module:
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
   \item[leniwBBDP] (\id{long int *})
-    the number of \id{integertype} values in the {\cvbbdpre} workspace.
+    the number of integer values in the {\cvbbdpre} workspace.
   \end{args}
 }
 {
@@ -4647,7 +4647,7 @@ the {\cvbbdpre} module:
 }
 {
   In terms of the local vector dimension $N_{l}$, the actual size of the integer workspace
-  is $N_l$ \id{integertype} words.
+  is $N_l$ integer words.
 }
 %%
 %%
@@ -4698,7 +4698,7 @@ the {\cvbbdpre} module:
   \begin{args}[ngevalsBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
-  \item[ngevalsBBDP] (\id{long int *})
+  \item[ngevalsBBDP] (\id{int *})
     the number of calls to the user \id{gloc} function.
   \end{args}
 }
