@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-12 21:59:29 $
+ * $Revision: 1.12 $
+ * $Date: 2004-08-17 18:44:38 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -143,7 +143,6 @@ N_Vector N_VNew_Serial(long int length)
 N_Vector N_VMake_Serial(long int length, realtype *v_data)
 {
   N_Vector v;
-  realtype *data;
 
   v = N_VNewEmpty_Serial(length);
   if (v == NULL) return(NULL);
