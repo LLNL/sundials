@@ -1,6 +1,6 @@
 \section{Introduction}\label{s:introduction}
 
-Fortran solvers for ODE initial value problems (IVP) are widespread and heavily used. 
+Fortran solvers for ODE initial value problems (IVPs) are widespread and heavily used. 
 Two solvers that have been written at LLNL in the past are VODE \cite{BBH:89} 
 and VODPK \cite{Byr:92}.
 %
@@ -18,7 +18,7 @@ preconditioner matrix~\cite{BrHi:89}.
 %
 The capabilities of both VODE and VODPK have been combined in the C-language 
 packages CVODE~\cite{CoHi:96} and PVODE~\cite{ByHi:99}, later merged under the
-suite SUNDIALS~\cite{HBGLSSW:03} into one solver, CVODE which runs on both
+suite SUNDIALS~\cite{HBGLSSW:03} into one solver, CVODE, which runs on both
 serial and parallel computers. Besides CVODE, the other two basic solvers in SUNDIALS
 are IDA, a solver for differential-algebraic equation (DAE) systems, and
 KINSOL, a Newton-Krylov (GMRES) solver for nonlinear algebraic systems.
@@ -39,7 +39,7 @@ needed.  However, for problems where the number of uncertain
 parameters is large, the forward sensitivity method becomes
 computationally intractable.  The {\em adjoint sensitivity method}, also called
 reverse method, is advantageous in the complementary situation where the sensitivities of
-a few quantities with respect to a large number of parameters is needed.
+a few quantities with respect to a large number of parameters are needed.
 
 SUNDIALS is currently expanded to include sensitivity-capable variants of all
 its basic solvers. The first one, CVODES, released in July 2002, 
@@ -61,7 +61,8 @@ is written in terms of abstract vector operations with the actual vector kernels
 by a particular implementation (such as serial or parallel). This allows
 writing the SUNDIALS solvers in a manner independent of the actual NVECTOR vector
 implementation (which can be user-supplied), as well as allowing more than one 
-NVECTOR module linked into an executable file. 
+NVECTOR module linked into an executable file. This feature is essential in certain
+sensitivity analysis computations.
 
 The rest of this paper is organized as follows. In Section~\ref{s:algorithms}, the
 algorithms implemented in CVODES for ODE integration and forward and adjoint 

@@ -5,14 +5,14 @@
 \usepackage{amsmath, amssymb}
 \usepackage{epsfig}
 \usepackage{tabularx}
-\usepackage{showlabels}
-
-\newcommand{\id}[1]{{\tt #1}}
+%\usepackage{showlabels}
 
 \newcommand{\dfdy}{\frac{\partial f}{\partial y}}
 \newcommand{\dfdyI}{\partial f / \partial y}
 \newcommand{\dfdpi}{\frac{\partial f}{\partial p_i}}
 \newcommand{\dfdpiI}{\partial f / \partial p_i}
+
+\newcommand{\mb}[1]{{\mbox{\scriptsize #1}}}
 
 \acmVolume{V}
 \acmNumber{N}
@@ -52,7 +52,7 @@ We describe the current capabilities of CVODES, its design principles
 and connection to the SUNDIALS suite, and the user interface. 
 Finally, we mention current and future development efforts for CVODES, 
 particularly in the direction of automatic generation of the sensitivity 
-right hand sides using automatic differentiation and/or complex-step 
+right-hand sides using automatic differentiation and/or complex-step 
 techniques.
 \end{abstract}
 

@@ -6,7 +6,7 @@ systems), and IDA (for DAE systems).
 In addition, variants of these which also do sensitivity analysis calculations are
 available (CVODES) or in development (IDAS and KINSOLS).
 %
-The overall organization of the CVODES package,a s well as its relationship
+The overall organization of the CVODES package, as well as its relationship
 to SUNDIALS, is shown in Fig.~\ref{f:cvsorg}.  
 The basic elements of the structure are a module for
 the basic integration algorithm (including forward sensitivity analysis),
@@ -104,7 +104,7 @@ routines for use with CVSPGMR. The second preconditioner module,
 CVBBDPRE, developed for parallel computers, generates a 
 preconditioner that is a block-diagonal matrix with each block being 
 a band matrix. A detailed description of these two modules, including
-usage guidlines, is given in ~\cite{HBGLSSW:03}.
+usage guidelines, is given in ~\cite{HBGLSSW:03}.
 
 All state information used by CVODES to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
@@ -143,7 +143,7 @@ NVECTOR implementation, CVODES is thus independent of a specific
 implementation. This allows the solver to be precompiled as a binary
 library and allows more than one NVECTOR implementation to be used within
 a single program. This feature is essential for the efficient integration of
-quadrature variables (see Section~\ref{ss:integration} as well as for
+quadrature variables (see Section~\ref{ss:integration}) as well as for
 adjoint sensitivity analysis when, for some problems, the adjoint variables
 are more conveniently organized in a structure different from that of
 the variables in the forward problem.

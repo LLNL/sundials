@@ -13,17 +13,18 @@ CVODES solver has been to allow user to transit from just integration
 of ODEs to performing sensitivity analysis in as rapid and seamless 
 manner as possible. To achieve this goal, we have opted not to 
 modify any of the CVODE user interface to account for the initialization
-and set-up of sensitivity analysis.
+and set up of sensitivity analysis.
 
 Instrumenting an existing user code for forward sensitivity analysis can 
 thus be done by only inserting a few calls to CVODES routines, additional
 to those required for setting up and solving the original ODE
 (steps \ref{i:sensi_set}, \ref{i:sensi_malloc}, \ref{i:getsensi}, 
 and \ref{i:sensi_get} below).
-The main steps required to set-up, initialize, and solve an IVP ODE and
-optionally perform forward sensitivity analysis with respect to some of
-the model parameters are given next. This sequence of calls is the most
-natural one, but the order of some of the steps below can be changed. 
+We give below the main steps required to set up, initialize, and solve an 
+IVP ODE, and optionally perform forward sensitivity analysis with respect 
+to some of the model parameters. 
+This sequence of calls is the most natural one, but the order of some of 
+the steps below can be changed. 
 For example, initialization and allocation for forward sensitivity analysis 
 could be performed before attaching and configuring the linear solver module.
 Similarly, changing optional inputs to the solver (step \ref{i:set}) could
