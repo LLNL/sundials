@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-07-22 22:21:59 $
+ * $Revision: 1.12 $
+ * $Date: 2004-08-12 21:59:26 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -91,7 +91,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   
   /* Create vector operation structure */
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) {free(v);return(NULL);}
+  if (ops == NULL) { free(v); return(NULL); }
 
   ops->nvclone           = N_VClone_Parallel;
   ops->nvdestroy         = N_VDestroy_Parallel;
@@ -122,7 +122,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
   /* Create content */
   content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
-  if (content == NULL) {free(ops);free(v);return(NULL);}
+  if (content == NULL) { free(ops); free(v); return(NULL); }
 
   /* Attach lengths and communicator */
   content->local_length = local_length;
@@ -150,12 +150,15 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
 
   /* Create data */
   if(local_length > 0) {
+
+    /* Allocate memory */
     data = (realtype *) malloc(local_length * sizeof(realtype));
     if(data == NULL) {N_VDestroyEmpty_Parallel(v);return(NULL);}
-  }
 
-  /* Attach data */
-  NV_DATA_P(v) = data;
+    /* Attach data */
+    NV_DATA_P(v) = data; 
+
+  }
 
   return(v);
 }
@@ -173,8 +176,10 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
   v = N_VNewEmpty_Parallel(comm, local_length, global_length);
   if (v == NULL) return(NULL);
 
-  /* Attach data */
-  NV_DATA_P(v) = v_data;
+  if (local_length > 0) {
+    /* Attach data */
+    NV_DATA_P(v) = v_data;
+  }
 
   return(v);
 }
@@ -247,7 +252,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
   
   /* Create vector operation structure */
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) {free(v);return(NULL);}
+  if (ops == NULL) { free(v); return(NULL); }
   
   ops->nvclone           = w->ops->nvclone;
   ops->nvdestroy         = w->ops->nvdestroy;
@@ -278,7 +283,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
 
   /* Create content */  
   content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
-  if (content == NULL) {free(ops);free(v);return(NULL);}
+  if (content == NULL) { free(ops); free(v); return(NULL); }
 
   /* Attach lengths and communicator */
   content->local_length  = NV_LOCLENGTH_P(w);
@@ -307,12 +312,14 @@ N_Vector N_VClone_Parallel(N_Vector w)
 
   /* Create data */
   if(local_length > 0) {
+
+    /* Allocate memory */
     data = (realtype *) malloc(local_length * sizeof(realtype));
     if(data == NULL) {N_VDestroyEmpty_Parallel(v);return(NULL);}
-  }  
 
-  /* Attach data */
-  NV_DATA_P(v) = data;
+    /* Attach data */
+    NV_DATA_P(v) = data;
+  }
 
   return(v);
 }
@@ -347,7 +354,7 @@ realtype *N_VGetArrayPointer_Parallel(N_Vector v)
 
 void N_VSetArrayPointer_Parallel(realtype *v_data, N_Vector v)
 {
-  NV_DATA_P(v) = v_data;
+  if (NV_LOCLENGTH_P(v) > 0) NV_DATA_P(v) = v_data;
 }
 
 void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)

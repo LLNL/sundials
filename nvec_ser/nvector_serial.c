@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-07-22 22:21:22 $
+ * $Revision: 1.11 $
+ * $Date: 2004-08-12 21:59:29 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -124,11 +124,16 @@ N_Vector N_VNew_Serial(long int length)
   if (v == NULL) return(NULL);
 
   /* Create data */
-  data = (realtype *) malloc(length * sizeof(realtype));
-  if(data == NULL) {N_VDestroyEmpty_Serial(v);return(NULL);}
+  if (length > 0) {
 
-  /* Attach data */
-  NV_DATA_S(v) = data;
+    /* Allocate memory */
+    data = (realtype *) malloc(length * sizeof(realtype));
+    if(data == NULL) {N_VDestroyEmpty_Serial(v);return(NULL);}
+
+    /* Attach data */
+    NV_DATA_S(v) = data;
+
+  }
 
   return(v);
 }
@@ -143,8 +148,10 @@ N_Vector N_VMake_Serial(long int length, realtype *v_data)
   v = N_VNewEmpty_Serial(length);
   if (v == NULL) return(NULL);
 
-  /* Attach data */
-  NV_DATA_S(v) = v_data;
+  if (length > 0) {
+    /* Attach data */
+    NV_DATA_S(v) = v_data;
+  }
 
   return(v);
 }
@@ -270,11 +277,16 @@ N_Vector N_VClone_Serial(N_Vector w)
   length = NV_LENGTH_S(w);
 
   /* Create data */
-  data = (realtype *) malloc(length * sizeof(realtype));
-  if(data == NULL) {N_VDestroyEmpty_Serial(v);return(NULL);}
+  if (length > 0) {
 
-  /* Attach data */
-  NV_DATA_S(v) = data;
+    /* Allocate memory */
+    data = (realtype *) malloc(length * sizeof(realtype));
+    if(data == NULL) {N_VDestroyEmpty_Serial(v);return(NULL);}
+
+    /* Attach data */
+    NV_DATA_S(v) = data;
+
+  }
 
   return(v);
 }
@@ -309,7 +321,7 @@ realtype *N_VGetArrayPointer_Serial(N_Vector v)
 
 void N_VSetArrayPointer_Serial(realtype *v_data, N_Vector v)
 {
-  NV_DATA_S(v) = v_data;
+  if (NV_LENGTH_S(v) > 0) NV_DATA_S(v) = v_data;
 }
 
 void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
