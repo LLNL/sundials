@@ -226,6 +226,9 @@ int CVReInitBBD(CVBBDData pdata, integertype Nlocal, integertype mudq,
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
   pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(UnitRoundoff());
 
+  /* Store Nlocal to be used in CVBBDPrecon */
+  pdata->n_local = Nlocal;
+
   /* Set work space sizes and initialize nge */
   pdata->rpwsize = Nlocal*(muk + 2*mlk + storage_mu + 2);
   pdata->ipwsize = Nlocal;
