@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-12-06 19:24:53 $
+ * $Revision: 1.2 $
+ * $Date: 2004-12-08 19:15:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Peter Brown and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -166,7 +166,6 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 #define SPBCG_ATIMES_FAIL       -2  /* atimes returned failure flag    */
 #define SPBCG_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably     */
 
-
 /*
  * -----------------------------------------------------------------
  * Function : SpbcgFree
@@ -177,6 +176,19 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
  */
 
 void SpbcgFree(SpbcgMem mem);
+
+/*
+ * -----------------------------------------------------------------
+ * Macro : SPBCG_VTEMP
+ * -----------------------------------------------------------------
+ * This macro provides access to the work vector vtemp in the
+ * memory block of the SPBCG module. The argument mem is the
+ * memory pointer returned by SpbcgMalloc, of type SpbcgMem,
+ * and the macro value is of type N_Vector.
+ * -----------------------------------------------------------------
+ */
+
+#define SPBCG_VTEMP(mem) (mem->vtemp)
 
 #endif
 
