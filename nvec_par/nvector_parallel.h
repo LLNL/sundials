@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-10-26 18:02:11 $
+ * $Revision: 1.15.2.1 $
+ * $Date: 2005-01-24 21:48:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -46,16 +46,11 @@
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #ifndef _NVECTOR_PARALLEL_H
 #define _NVECTOR_PARALLEL_H
 
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
 #endif
 
 #include <mpi.h>
