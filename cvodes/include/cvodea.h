@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-07-22 21:18:10 $
+ * $Revision: 1.24 $
+ * $Date: 2004-08-25 16:21:01 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -163,21 +163,6 @@ extern "C" {
                             void *f_dataB);
 
   /*
-   *----------------------------------------------------------------
-   * CVODEA return values
-   *----------------------------------------------------------------
-   */
-
-#define CVADJ_NO_ADJMEM   -101
-#define CVADJ_MEM_FAIL    -102
-#define CVADJ_BAD_TB0     -103
-#define CVADJ_NO_BCKMEM   -104
-#define CVADJ_REIFWD_FAIL -105
-#define CVADJ_FWD_FAIL    -106
-#define CVADJ_BAD_ITASK   -107
-#define CVADJ_BAD_TBOUT   -108
-
-  /*
    * Function : CVadjMalloc                                         
    *----------------------------------------------------------------
    * CVadjMalloc space for the global CVODEA memory structure.      
@@ -325,8 +310,6 @@ extern "C" {
   int CVBandPrecAllocB(void *cvadj_mem, long int nB, 
                        long int muB, long int mlB);
 
-#define CVADJ_BP_NULL -1
-
   int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
 
   /*
@@ -343,8 +326,6 @@ extern "C" {
                       long int mukeepB, long int mlkeepB, 
                       realtype dqrelyB,
                       CVLocalFnB glocB, CVCommFnB cfnB);
-
-#define CVADJ_BBD_NULL -1
 
   int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
 
@@ -411,9 +392,6 @@ extern "C" {
 
   int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y);
 
-  /* CVadjGetY return values */
-  enum { GETY_OK=0, GETY_BADT=-1 };
-
   /*
    *                                                                
    * Function : CVadjGetCheckPointsList                             
@@ -432,6 +410,30 @@ extern "C" {
 
   void CVadjGetStoredData(void *cvadj_mem, long int which, 
                           realtype *t, N_Vector yout, N_Vector ydout);
+
+
+
+  /*
+   *----------------------------------------------------------------
+   * CVODEA return values
+   *----------------------------------------------------------------
+   */
+
+#define CVADJ_NO_ADJMEM   -101
+#define CVADJ_MEM_FAIL    -102
+#define CVADJ_BAD_TB0     -103
+#define CVADJ_NO_BCKMEM   -104
+#define CVADJ_REIFWD_FAIL -105
+#define CVADJ_FWD_FAIL    -106
+#define CVADJ_BAD_ITASK   -107
+#define CVADJ_BAD_TBOUT   -108
+
+
+#define CVADJ_BP_NULL     -1
+#define CVADJ_BBD_NULL    -1
+
+#define CVADJ_GETY_BADT   -1
+
 
 
 #endif
