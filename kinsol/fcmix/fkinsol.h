@@ -266,7 +266,7 @@ The following optional outputs are specific to the SPGMR module:
 #define FKIN_SOL           fkinsol
 #define FKIN_FREE          fkinfree
 #define FK_FUN             fkfun
-#define FK_PSET            fkpreco
+#define FK_PSET            fkpset
 #define FK_PSOL            fkpsol
 #define FK_JTIMES          fkjtimes
 
