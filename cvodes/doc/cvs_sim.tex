@@ -760,7 +760,6 @@ will catch any error.
 \multicolumn{3}{|c|}{\bf CVODE main solver} \\
 \hline
 Pointer to an error file & \id{CVodeSetErrFile} & \id{stderr}  \\
-Nonlinear iteration type & \id{CVodeResetIterType} & none \\
 Data for right-hand side function & \id{CVodeSetFdata} & NULL \\
 Maximum order for BDF method & \id{CVodeSetMaxOrd} & 5 \\
 Maximum order for Adams method & \id{CVodeSetMaxOrd} & 12  \\
@@ -776,6 +775,8 @@ Maximum no. of nonlinear iterations & \id{CVodeSetMaxNonlinIters} & 3 \\
 Maximum no. of convergence failures & \id{CVodeSetMaxConvFails} & 10 \\
 Coefficient in the nonlinear convergence test & \id{CVodeSetNonlinConvCoef} & 0.1 \\
 Data for rootfinding function & \id{CVodeSetGdata} & NULL \\
+Nonlinear iteration type & \id{CVodeSetIterType} & none \\
+Integration tolerances & \id{CVodeSetTolerances} & none \\
 \hline
 \multicolumn{3}{|c|}{\bf CVDENSE linear solver} \\
 \hline
@@ -841,42 +842,6 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
 
   Passing a value of \id{NULL} disables all future error message output
   (except for the case in which the {\cvodes} memory pointer is \id{NULL}).
-}
-%%
-%%
-\ucfunction{CVodeResetIterType}
-{
-flag = CVodeResetIterType(cvode\_mem, iter);
-}
-{
-  The function \ID{CVodeResetIterType} resets the nonlinear solver
-  iteration type \Id{iter}.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[iter] (\id{int})
-    specifies the type of nonlinear solver iteration and may be
-    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}. 
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_ILL\_INPUT]
-  \item[\Id{CV\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CV\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CV\_ILL\_INPUT}]
-    The \id{iter} value passed is neither \Id{CV\_NEWTON} nor \Id{CV\_FUNCTIONAL}.
-  \end{args}
-}
-{
-  The nonlinear solver iteration type is initially specified in the call
-  to \id{CVodeCreate} (see \S\ref{sss:cvodemalloc}). This function call is
-  needed only if \id{iter} is being changed from its value in the prior call 
-  to \id{CVodeCreate}.
 }
 %%
 %%
@@ -1297,6 +1262,86 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
 {
   The default value is $0.1$.
 }
+%%
+\ucfunction{CVodeSetIterType}
+{
+flag = CVodeSetIterType(cvode\_mem, iter);
+}
+{
+  The function \ID{CVodeSetIterType} resets the nonlinear solver
+  iteration type \Id{iter}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[iter] (\id{int})
+    specifies the type of nonlinear solver iteration and may be
+    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}. 
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_ILL\_INPUT}]
+    The \id{iter} value passed is neither \Id{CV\_NEWTON} nor \Id{CV\_FUNCTIONAL}.
+  \end{args}
+}
+{
+  The nonlinear solver iteration type is initially specified in the call
+  to \id{CVodeCreate} (see \S\ref{sss:cvodemalloc}). This function call is
+  needed only if \id{iter} is being changed from its value in the prior call 
+  to \id{CVodeCreate}.
+}
+%%
+%%
+\ucfunction{CVodeSetTolerances}
+{
+flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
+}
+{
+  The function \ID{CVodeSetTolerances} resets the integration tolerances.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[itol] (\id{int}) 
+    is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol}$=$\id{SS} indicates scalar
+    relative error tolerance and scalar absolute error tolerance, while
+    \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
+    absolute error tolerance.  The latter choice is important when the absolute
+    error tolerance needs to be different for each component of the ODE. 
+  \item[reltol] (\id{realtype *})
+    \index{tolerances}
+    is a pointer to the relative error tolerance.
+  \item[abstol] (\id{void *})
+    is a pointer to the absolute error tolerance.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
+    The tolerances have been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_ILL\_INPUT}]
+    An input argument has an illegal value.
+  \end{args}
+}
+{
+  The integration tolerances are initially specified in the call
+  to \id{CVodeMalloc} (see \S\ref{sss:cvodemalloc}). This function call is
+  needed only if the tolerances are being changed from their values between
+  succesive calls to \id{CVode}.
+}
+%%
+
 \index{optional input!solver|)}
 
 %%==============================================================================
@@ -3288,8 +3333,7 @@ is unchanged (or changed from \Id{CV\_ADAMS} to \Id{CV\_BDF}) and the default
 value for \id{maxord} is specified.
 
 If there are changes to the linear solver specifications, make the
-appropriate \id{Set} or \id{Reset} calls, as described in
-\S\ref{sss:lin_solv_init}
+appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}
 
 %%
 %%

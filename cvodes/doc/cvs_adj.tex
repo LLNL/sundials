@@ -670,7 +670,7 @@ is the pointer to the adjoint memory block, \id{cvadj\_mem} of type \id{void *},
 returned by \id{CVadjMalloc}. 
 The optional input functions defined for the backward problem are:
 \begin{verbatim}
-  flag = CVodeResetIterTypeB(cvadj_mem, iterB);
+  flag = CVodeSetIterTypeB(cvadj_mem, iterB);
   flag = CVodeSetFdataB(cvadj_mem, f_dataB);
   flag = CVodeSetErrFileB(cvadj_mem, errfpB);
   flag = CVodeSetMaxOrdB(cvadj_mem, maxordB);
