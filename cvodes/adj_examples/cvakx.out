@@ -1,0 +1,53 @@
+Allocate CVODE memory for forward run
+
+Allocate global memory
+
+Forward integration
+
+   G = int_t int_x int_y c6(t,x,y) dx dy dt = 422296.195712 
+
+
+List of Check Points (ncheck = 5)
+Check point 5
+  address   4da448
+  t0        4.267907
+  t1        10.000000
+  next      4cc170
+Check point 4
+  address   4cc170
+  t0        1.345606
+  t1        4.267907
+  next      4b9360
+Check point 3
+  address   4b9360
+  t0        0.583955
+  t1        1.345606
+  next      4a1a68
+Check point 2
+  address   4a1a68
+  t0        0.163578
+  t1        0.583955
+  next      485660
+Check point 1
+  address   485660
+  t0        0.000046
+  t1        0.163578
+  next      bc9e0
+Check point 0
+  address   bc9e0
+  t0        0.000000
+  t1        0.000046
+  next      0
+
+Allocate CVODE memory for backward run
+
+Backward integration
+
+Lambda(0,x,y) written to file cvakx.lambda
+
+  int_x int_y lambda1(0,x,y) dx dy = 930.587145 
+  int_x int_y lambda2(0,x,y) dx dy = 905.789322 
+  int_x int_y lambda3(0,x,y) dx dy = 882.422801 
+  int_x int_y lambda4(0,x,y) dx dy = -0.002465 
+  int_x int_y lambda5(0,x,y) dx dy = -0.002399 
+  int_x int_y lambda6(0,x,y) dx dy = 0.161745 
