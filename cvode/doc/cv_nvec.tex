@@ -19,8 +19,9 @@ In Table \ref{t:nvecuse} below, we list the vector functions in the
 {\nvector} module within the {\cvode} package.
 The table also shows, for each function, which of the code modules uses
 the function. The {\cvode} column shows function usage within the main
-integrator module, while the remaining four columns show function usage
-within each of the four {\cvode} linear solvers. 
+integrator module, while the remaining seven columns show function usage
+within each of the four {\cvode} linear solvers, the {\cvbandpre} and
+{\cvbbdpre} preconditioner modules, and the {\fcvode} module.
 
 There is one subtlety in the {\cvspgmr} column hidden by the table. 
 The dot product function \id{N\_VDotProd} is called both within the 
