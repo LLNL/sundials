@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.8 $
-C     $Date: 2004-10-14 23:38:59 $
+C     $Revision: 1.9 $
+C     $Date: 2004-10-15 00:25:22 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -63,7 +63,8 @@ C     Set other input arguments.
       ITASK = 1
 C
       WRITE(6,10) NEQ
- 10   FORMAT('Krylov example problem: Kinetics-transport, NEQ = ', I4/)
+ 10   FORMAT('Krylov example problem:'//
+     1       ' Kinetics-transport, NEQ = ', I4/)
 C     
 C     Initialize vector specification
       CALL FNVINITS(NEQ, IER)
@@ -146,7 +147,7 @@ C     Print final statistics.
       NETF = IOPT(LNETF)
       WRITE(6,80) NST, NFE, NPSET, NPE, NPS, NNI, NLI, AVDIM, NCFN,
      1     NCFL, NETF
- 80   FORMAT(//'Final statistics..'/
+ 80   FORMAT(//'Final statistics:'//
      &   ' number of steps        = ', I5, 4X,
      &   ' number of f evals.     = ', I5/
      &   ' number of prec. setups = ', I5/

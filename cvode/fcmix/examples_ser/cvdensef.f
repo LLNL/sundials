@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.18 $
-C     $Date: 2004-10-14 23:38:59 $
+C     $Revision: 1.19 $
+C     $Date: 2004-10-15 00:25:21 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -60,7 +60,8 @@ C
       NOUT = 12
 C
       WRITE(6,10) NEQ
- 10   FORMAT('Dense example problem: Robertson kinetics, NEQ = ', I2//)
+ 10   FORMAT('Dense example problem:'//
+     1       ' Robertson kinetics, NEQ = ', I2//)
 C
       CALL FNVINITS(NEQ, IER)
       IF (IER .NE. 0) THEN
@@ -103,7 +104,7 @@ C
         CALL FCVODE(TOUT, T, Y, ITASK, IER)
 C
         WRITE(6,50) T, Y(1), Y(2), Y(3)
- 50     FORMAT('At t = ', E14.6, '   y = ', 3E14.6)
+ 50     FORMAT('At t = ', E12.4, '   y = ', 3E14.6)
 C
         IF (IER .LT. 0) THEN
            WRITE(6,60) IER, IOPT(26)
@@ -140,7 +141,7 @@ C
       CALL FCVDKY(T, 1, Y, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,80) IER
- 80      FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER = ', I5)
+ 80      FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER = ', I4)
          CALL FNVFREES
          CALL FCVROOTFREE
          CALL FCVFREE
@@ -151,12 +152,13 @@ C
 C
       WRITE(6,90) IOPT(LNST), IOPT(LNFE), IOPT(LNJE), IOPT(LNSETUP),
      1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF), IOPT(NGE)
- 90   FORMAT(//'No. steps = ', I4, '   No. f-s = ', I4,
-     1       '   No. J-s = ', I4, '   No. LU-s = ', I4/
-     2       'No. nonlinear iterations = ', I4/
-     3       'No. nonlinear convergence failures = ', I4/
-     4       'No. error test failures = ', I4/
-     5       'No. root function evals = ', I4)
+ 90   FORMAT(//'Final statistics:'//
+     1       ' No. steps = ', I4, '   No. f-s = ', I4,
+     2       '   No. J-s = ', I4, '   No. LU-s = ', I4/
+     3       ' No. nonlinear iterations = ', I4/
+     4       ' No. nonlinear convergence failures = ', I4/
+     5       ' No. error test failures = ', I4/
+     6       ' No. root function evals = ', I4)
 C
       CALL FCVROOTFREE
       CALL FCVFREE

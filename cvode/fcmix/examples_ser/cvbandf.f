@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.14 $
-C     $Date: 2004-10-14 23:38:59 $
+C     $Revision: 1.15 $
+C     $Date: 2004-10-15 00:25:21 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -52,7 +52,8 @@ C
       ITASK = 1
 C
       WRITE(6,10) NEQ
- 10   FORMAT('Band example problem: Advection-diffusion, NEQ = ', I2//)
+ 10   FORMAT('Band example problem:'//
+     1       ' Advection-diffusion, NEQ = ', I2//)
 C
       CALL FNVINITS(NEQ, IER)
       IF (IER .NE. 0) THEN
@@ -83,7 +84,7 @@ C
 C
       CALL MAXNORM(NEQ, U, UNORM)
       WRITE(6,45) T0, UNORM
- 45   FORMAT(' At t = ', E14.6, '  max.norm(u) = ', E14.6)
+ 45   FORMAT(' At t = ', F6.2, '  max.norm(u) = ', E14.6)
 C
       TOUT = DTOUT
       DO 70 IOUT = 1, 10
@@ -92,7 +93,7 @@ C
 C
         CALL MAXNORM(NEQ, U, UNORM)
         WRITE(6,50) T, UNORM, IOPT(LNST)
- 50     FORMAT(' At t = ', E14.6, '  max.norm(u) = ', E14.6,
+ 50     FORMAT(' At t = ', F6.2, '  max.norm(u) = ', E14.6,
      1         '  NST = ', I4)
 C
         IF (IER .NE. 0) THEN
@@ -109,11 +110,12 @@ C
 C
       WRITE(6,80) IOPT(LNST), IOPT(LNFE), IOPT(LNJE), IOPT(LNSETUP),
      1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF)
- 80   FORMAT(//' No. steps = ', I4, '  No. f-s = ', I4,
-     1       '  No. J-s = ', I4, '   No. LU-s = ', I4/
-     2       ' No. nonlinear iterations = ', I4/
-     3       ' No. nonlinear convergence failures = ', I4/
-     4       ' No. error test failures = ', I4)
+ 80   FORMAT(//'Final statistics:'//
+     1       ' No. steps = ', I4, '  No. f-s = ', I4,
+     2       '  No. J-s = ', I4, '   No. LU-s = ', I4/
+     3       ' No. nonlinear iterations = ', I4/
+     4       ' No. nonlinear convergence failures = ', I4/
+     5       ' No. error test failures = ', I4)
 C
       CALL FCVFREE
       CALL FNVFREES
