@@ -16,8 +16,8 @@ The user should be aware that not all linear solver modules are compatible
 with all {\nvector} implementations. 
 \index{CVODE@{\cvode} linear solvers!NVECTOR@{\nvector} compatibility}
 For example, {\nvecp} is not compatible with the direct dense or direct band 
-linear solvers since these linear solver modules need to form the system Jacobian.
-The following {\cvode} modules can only be used with {\nvecs}:
+linear solvers since these linear solver modules need to form the system
+Jacobian.  The following {\cvode} modules can only be used with {\nvecs}:
 {\cvdense}, {\cvband}, and {\cvbandpre}. The preconditioner module {\cvbbdpre}
 can only be used with {\nvecp}. 
 
@@ -91,10 +91,11 @@ the corresponding header files are:
 Note that both these files include in turn the header file \Id{nvector.h} which 
 defines the abstract \Id{N\_Vector} and \Id{N\_VSpec} types. 
 
-Finally, if the user chooses Newton iteration for the solution of the nonlinear systems,
-then a linear solver module header file will be required. 
+Finally, if the user chooses Newton iteration for the solution of the nonlinear
+systems, then a linear solver module header file will be required. 
 \index{CVODE@{\cvode} linear solvers!header files}
-The header files corresponding to the various linear solver options in {\cvode} are:
+The header files corresponding to the various linear solver options in
+{\cvode} are:
 %%
 \begin{itemize}
 \item \Id{cvdense.h}, 
@@ -114,9 +115,9 @@ The header files corresponding to the various linear solver options in {\cvode} 
   Gram-Schmidt process.
 \end{itemize}
 
-Other headers may be needed, according as to the choice of
-preconditioner, etc. In one of the examples in \cite{cvode2.1_ex}, preconditioning
-is done with a block-diagonal matrix. For this, the header
+Other headers may be needed, according as to the choice of preconditioner,
+etc. In one of the examples in \cite{cvode2.1_ex}, preconditioning is done
+with a block-diagonal matrix. For this, the header
 \id{smalldense.h} is included.
 
 %%==============================================================================
@@ -133,10 +134,11 @@ shown in Figure~\ref{f:sim_overview}.
 \end{figure}
 %%
 The following is a skeleton of the user's main program (or calling
-program) for the integration of an ODE IVP. Some steps are independent of the {\nvector}
-implementation used; where this is not the case, usage specifications are given for the
-two implementations provided with {\cvode}: Steps marked with {\p} correspond to 
-{\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
+program) for the integration of an ODE IVP. Some steps are independent
+of the {\nvector} implementation used; where this is not the case, usage
+specifications are given for the two implementations provided with {\cvode}:
+Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
+{\s} correspond to {\nvecs}.
 %%
 %%
 %%
@@ -175,8 +177,8 @@ two implementations provided with {\cvode}: Steps marked with {\p} correspond to
 \item
   {\bf Set initial values}
  
-  To set the vector \id{y0} of initial values, use macros defined by a particular 
-  {\nvector} implementation:
+  To set the vector \id{y0} of initial values, use macros defined by a
+  particular {\nvector} implementation:
 
   {\s} \id{NV\_MAKE\_S(y0, ydata, nvSpec);}
 
@@ -213,8 +215,8 @@ two implementations provided with {\cvode}: Steps marked with {\p} correspond to
   to provide required problem specifications,
   allocate internal memory for {\cvode}, 
   and initialize {\cvode}.
-  \id{CVodeMalloc} returns an error flag to indicate success or an illegal argument value.
-  See \S\ref{sss:cvodemalloc} for details.
+  \id{CVodeMalloc} returns an error flag to indicate success or an illegal
+  argument value.  See \S\ref{sss:cvodemalloc} for details.
   
 \item\label{i:lin_solver} 
   {\bf Attach linear solver module}
@@ -308,17 +310,17 @@ Calls related to rootfinding are described in \S\ref{s:using_rootfinding}.
 \label{sss:cvodemalloc}
 %%==============================================================================
 
-The following three functions must be called in the order listed. The last one is to be 
-called only after the IVP solution is complete, as it frees the {\cvode} memory block
-created and allocated by the first two calls.
+The following three functions must be called in the order listed. The last one
+is to be called only after the IVP solution is complete, as it frees the
+{\cvode} memory block created and allocated by the first two calls.
 %%
 \ucfunction{CVodeCreate}
 {
   cvode\_mem = CVodeCreate(lmm, iter);
 }
 {
-  The function \ID{CVodeCreate} instantiates a {\cvode} solver object and specifies 
-  the solution method.
+  The function \ID{CVodeCreate} instantiates a {\cvode} solver object and
+  specifies the solution method.
 }
 {
   \begin{args}[iter]
@@ -347,26 +349,26 @@ created and allocated by the first two calls.
 flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
 }
 {
-  The function \ID{CVodeMalloc} provides required problem and solution specifications, 
-  allocates internal memory, and initializes {\cvode}.
+  The function \ID{CVodeMalloc} provides required problem and solution
+  specifications, allocates internal memory, and initializes {\cvode}.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block returned by \id{CVodeCreate}.
   \item[f] (\Id{RhsFn})
-    is the {\C} function which computes $f$ in the ODE. This function has the form 
-    \id{f(t, y, ydot, f\_data)} (for full details see \S\ref{ss:rhsFn}).
+    is the {\C} function which computes $f$ in the ODE. This function has the 
+    form \id{f(t, y, ydot, f\_data)} (for full details see \S\ref{ss:rhsFn}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \ID{SS} or \ID{SV}, where \ID{itol}$=$\id{SS} indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{SV} indicates scalar
-    relative error tolerance and vector absolute error tolerance. 
-    The latter choice is important when the absolute error tolerance needs to
-    be different for each component of the ODE. 
+    is either \ID{SS} or \ID{SV}, where \ID{itol}$=$\id{SS} indicates scalar
+    relative error tolerance and scalar absolute error tolerance, while
+    \id{itol}$=$\id{SV} indicates scalar relative error tolerance and vector
+    absolute error tolerance.  The latter choice is important when the absolute
+    error tolerance needs to be different for each component of the ODE. 
   \item[reltol] (\id{realtype *})
     \index{tolerances}
     is a pointer to the relative error tolerance.
@@ -529,7 +531,8 @@ separately in Chapter \ref{s:gen_linsolv}.
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_ILL\_INPUT}]
     The {\cvband} solver is not compatible with the current {\nvector} module, or
-    one of the Jacobian half-bandwidths is outside its valid range ($0 \ldots$ \id{N}$-1$).
+    one of the Jacobian half-bandwidths is outside its valid range
+    ($0 \ldots$ \id{N}$-1$).
   \item[\Id{LMEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
@@ -575,11 +578,10 @@ separately in Chapter \ref{s:gen_linsolv}.
   \end{args}
 }
 {
-  The {\cvdiag} solver is the simplest of all the current {\cvode} linear
-  solvers. 
-  The {\cvdiag} solver uses an approximate diagonal Jacobian formed by way of a difference 
-  quotient. The user does {\em not} have the option to supply a function to compute
-  an approximate diagonal Jacobian.
+  The {\cvdiag} solver is the simplest of all the current {\cvode} linear solvers. 
+  The {\cvdiag} solver uses an approximate diagonal Jacobian formed by way of a
+  difference quotient. The user does {\em not} have the option to supply a
+  function to compute an approximate diagonal Jacobian.
 }
 %%
 %%
@@ -601,7 +603,8 @@ separately in Chapter \ref{s:gen_linsolv}.
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}|textbf}
-    preconditioning type. Can be one of: \Id{NONE}, \Id{LEFT}, \Id{RIGHT}, or \Id{BOTH}.
+    preconditioning type. Must be one of: \Id{NONE}, \Id{LEFT}, \Id{RIGHT},
+    or \Id{BOTH}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
@@ -637,9 +640,9 @@ separately in Chapter \ref{s:gen_linsolv}.
   see \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
 
   If preconditioning is done, user-supplied functions define left and right 
-  preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity matrix),
-  such that the product $P_1 P_2$ approximates the Newton matrix $M=I-\gamma J$ of 
-  (\ref{e:Newtonmat}).
+  preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity
+  matrix), such that the product $P_1 P_2$ approximates the Newton matrix
+  $M=I-\gamma J$ of (\ref{e:Newtonmat}).
   \index{preconditioning!advice on|)}
 }
 
@@ -755,8 +758,8 @@ Table \ref{t:optional_input} lists all optional input functions in {\cvode} whic
 are then described in detail in the remainder of this section.
 For the most casual use of {\cvode}, the reader can skip to \S\ref{ss:user_fct_sim}.
 
-We note that, on error return, all these functions also print an error message to \id{stderr} 
-(or to the file pointed to by \id{errfp} if already specified).
+We note that, on error return, all these functions also print an error message
+to \id{stderr} (or to the file pointed to by \id{errfp} if already specified).
 \index{error message}
 We also note that all error return values are negative, so a test \id{flag}$==0$
 will catch any error.
@@ -818,9 +821,9 @@ Preconditioning type & \id{CVSpgmrResetPrecType} & none \\
 %%==============================================================================
 \index{optional input!solver|(}
 
-The calls listed here can be executed in any order. However, if \id{CVodeSetErrFile} 
-is to be called, that call should be first, in order to take effect for any later 
-error message.
+The calls listed here can be executed in any order. However, if
+\id{CVodeSetErrFile} is to be called, that call should be first, in order to
+take effect for any later error message.
 
 \index{error message}
 \ucfunction{CVodeSetErrFile}
@@ -1000,8 +1003,8 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
 }
 {
-  The function \ID{CVodeSetMaxHnilWarns} specifies the maximum number of warning messages
-  issued by the solver that $t+h=t$ on the next internal step.
+  The function \ID{CVodeSetMaxHnilWarns} specifies the maximum number of warning
+  messages issued by the solver that $t+h=t$ on the next internal step.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1846,12 +1849,11 @@ The call to the \id{CVodeGetDky} function has the following form:
   flag = CVodeGetDky(cvode\_mem, t, k, dky);
 }
 {
-  The function \ID{CVodeGetDky} computes the \id{k}-th derivative of the \id{y} function at      
-  time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$ \id{t} $\le t_n$, 
-  $t_n$ denotes the current internal time reached, and $h_u$ is the 
-  last internal step size successfully used by the solver. 
-  The user may request \id{k} $= 0, 1, ..., q_u$, where $q_u$ is the 
-  current order. 
+  The function \ID{CVodeGetDky} computes the \id{k}-th derivative of the \id{y}
+  function at time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$
+  \id{t} $\le t_n$, $t_n$ denotes the current internal time reached, and $h_u$
+  is the  last internal step size successfully used by the solver.  The 
+  user may request \id{k} $= 0, 1, ..., q_u$, where $q_u$ is the current order. 
 }
 {
   \begin{args}[cvode\_mem]
@@ -1898,7 +1900,8 @@ which are then described in detail in the remainder of this section.
 
 \begin{table}
 \centering
-\caption{Optional outputs from {\cvode}, {\cvdense}, {\cvband}, {\cvdiag}, and {\cvspgmr}}
+\caption{Optional outputs from {\cvode}, {\cvdense}, {\cvband}, {\cvdiag}, and
+ {\cvspgmr}}
 \label{t:optional_output}
 \medskip
 \begin{tabular}{|l|l|}\hline
@@ -2491,8 +2494,8 @@ These optional output functions are described next.
   \end{tabular}
 }
 {
-  The function \ID{CVodeGetIntegratorStats} returns the {\cvode} integrator statistics
-  as a group.
+  The function \ID{CVodeGetIntegratorStats} returns the {\cvode} integrator
+  statistics as a group.
 }
 {
   \begin{args}[nlinsetups]
@@ -3333,11 +3336,11 @@ will be reused for the new problem.
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \Id{SS} or \Id{SV}, where \Id{itol}$=$\id{SS} indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{SV} 
-    indicates scalar relative error tolerance and vector absolute error tolerance. 
-    The latter choice is important when the absolute error tolerance needs to
-    be different for each component of the ODE. 
+    is either \Id{SS} or \Id{SV}, where \Id{itol}$=$\id{SS} indicates scalar
+    relative error tolerance and scalar absolute error tolerance, while
+    \id{itol}$=$\id{SV} indicates scalar relative error tolerance and vector
+    absolute error tolerance.  The latter choice is important when the absolute
+    error tolerance needs to be different for each component of the ODE. 
   \item[reltol] (\id{realtype *})
     is a pointer to the relative error tolerance.
   \item[abstol] (\id{void *})
@@ -3452,7 +3455,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
   \end{args}
 }
 {
-  A \id{CVDenseJacFn} function type does not have a return value.                        
+  A \id{CVDenseJacFn} function type does not have a return value.
 }
 {
   A user-supplied dense Jacobian function must load the \id{N} by \id{N}
@@ -3539,7 +3542,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   \end{args}
 }
 {
-  A \id{CVBandJacFn} function type does not have a return value.                        
+  A \id{CVBandJacFn} function type does not have a return value.
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{J}
@@ -3559,13 +3562,13 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   \id{mlower}, the Jacobian element $J_{m,n}$ can be loaded with the 
   statement \id{BAND\_ELEM(J, m-1, n-1) =} $J_{m,n}$. The elements within
   the band are those with \id{-mupper} $\le$ \id{m-n} $\le$ \id{mlower}.
-  Alternatively, \id{BAND\_COL(J, j)} returns a pointer to the diagonal element of the
-  \id{j}th column of \id{J}, and if we assign this address to 
+  Alternatively, \id{BAND\_COL(J, j)} returns a pointer to the diagonal element
+  of the \id{j}th column of \id{J}, and if we assign this address to 
   \id{realtype *col\_j}, then the \id{i}th element of the \id{j}th column is
   given by \id{BAND\_COL\_ELEM(col\_j, i, j)}, counting from $0$.
   Thus for $(m,n)$ within the band, $J_{m,n}$ can be loaded by setting 
-  \id{col\_n = BAND\_COL(J, n-1);} \id{BAND\_COL\_ELEM(col\_n, m-1, n-1) =} $J_{m,n}$.
-  The elements of the \id{j}th column can also be accessed
+  \id{col\_n = BAND\_COL(J, n-1);} \id{BAND\_COL\_ELEM(col\_n, m-1, n-1) =}
+  $J_{m,n}$.  The elements of the \id{j}th column can also be accessed
   via ordinary array indexing, but this approach requires knowledge of
   the underlying storage for a band matrix of type \id{BandMat}.  
   The array \id{col\_n} can be indexed from $-$\id{mupper} to \id{mlower}.
@@ -3579,8 +3582,8 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
 
   If the user's \id{CVBandJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
-  stepsize, the error weights, etc. To obtain these, use the \id{CVodeGet*} functions 
-  described in \S\ref{ss:optional_output}. The unit roundoff can be
+  stepsize, the error weights, etc. To obtain these, use the \id{CVodeGet*}
+  functions described in \S\ref{ss:optional_output}. The unit roundoff can be
   accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 }
 \index{half-bandwidths|)}
@@ -3697,8 +3700,8 @@ This function must be of type \ID{CVSpgmrPrecSolveFn}, defined as follows:
   \end{args}
 }
 {
-  The value to be returned by the preconditioner solve function is a flag indicating 
-  whether it was successful.  This value should be $0$ if successful, 
+  The value to be returned by the preconditioner solve function is a flag
+  indicating whether it was successful.  This value should be $0$ if successful, 
   positive for a recoverable error (in which case the step will be retried),     
   negative for an unrecoverable error (in which case the integration is halted). 
 }
@@ -3763,14 +3766,14 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
   \end{args}
 }
 {
-  The value to be returned by the preconditioner setup function is a flag indicating 
-  whether it was successful.  This value should be $0$ if successful, 
+  The value to be returned by the preconditioner setup function is a flag
+  indicating whether it was successful.  This value should be $0$ if successful, 
   positive for a recoverable error (in which case the step will be retried),     
   negative for an unrecoverable error (in which case the integration is halted). 
 }
 {
   The operations performed by this function might include forming a crude 
-  approximate Jacobian, and performing an LU factorization on the resulting            
+  approximate Jacobian, and performing an LU factorization on the resulting
   approximation to $M=I - \gamma J$.
 
   Each call to the preconditioner setup function is preceded by a call to     
@@ -3778,9 +3781,9 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
   Thus the preconditioner setup function can use any auxiliary data that is 
   computed and saved during the evaluation of the ODE right hand side.
   
-  This function is not called in advance of every call to the preconditioner solve
-  function, but rather is called only as often as needed to achieve convergence in the
-  Newton iteration. 
+  This function is not called in advance of every call to the preconditioner
+  solve function, but rather is called only as often as needed to achieve
+  convergence in the Newton iteration. 
 
   If the user's \id{CVSpgmrPrecSetupFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
@@ -4124,8 +4127,8 @@ in more detail below.
   If an error occurred, \id{CVBandPrecAlloc} returns \id{NULL}.
 }
 {
-  The banded approximate Jacobian will have nonzeros only in location $(i,j)$
-  with $-$\id{ml} $\leq j-i \leq$ \id{mu}.
+  The banded approximate Jacobian will have its nonzeros only in locations
+  $(i,j)$ with $-$\id{ml} $\leq j-i \leq$ \id{mu}.
 }
 %%
 %%
@@ -4144,7 +4147,7 @@ in more detail below.
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}}
-    preconditioning type. Can be one of \Id{LEFT} or \Id{RIGHT}.
+    preconditioning type. Must be one of \Id{LEFT} or \Id{RIGHT}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
@@ -4376,9 +4379,9 @@ To use this {\cvbbdpre} module, the user must supply two functions which the
 module calls to construct $P$: a function \id{gloc} (of type \id{CVLocalFn}) 
 which approximates the right-hand side function $g(t,y) \approx f(t,y)$ and which 
 is computed locally, and a function \id{cfn} (of type \id{CVCommFn}) which performs 
-all inter-process communication necessary to evaluate the approximate right-hand side $g$.
-These are in addition to the user-supplied right-hand side function \id{f}.
-Both functions take as input the same pointer \id{f\_data} as that passed
+all inter-process communication necessary to evaluate the approximate right-hand
+side $g$.  These are in addition to the user-supplied right-hand side function
+\id{f}.  Both functions take as input the same pointer \id{f\_data} as that passed
 by the user to \id{CVodeSetFdata} and passed to the user's function \id{f},
 and neither function has a return value. The user is responsible for
 providing space (presumably within \id{f\_data}) for components of \id{y}
@@ -4449,8 +4452,8 @@ then used by \id{gloc}, which is not expected to do any communication.
   A \id{CVCommFn} function type does not have a return value.
 }
 {
-  The \id{cfn} function is expected to save communicated data in space defined within the
-  structure \id{f\_data}. 
+  The \id{cfn} function is expected to save communicated data in space defined
+  within the structure \id{f\_data}. 
 
   Each call to the \id{cfn} function is preceded by a call to the right-hand side
   function \id{f} with the same (\id{t}, \id{y}) arguments.  Thus \id{cfn} can omit 
@@ -4508,8 +4511,8 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
    }
 
   to allocate memory for and initialize a data structure \id{bbd\_data} to be 
-  passed to the {\cvspgmr} linear solver. The last two arguments of \id{CVBBDPrecAlloc}
-  are the two mandatory user-supplied functions described above.
+  passed to the {\cvspgmr} linear solver. The last two arguments of
+  \id{CVBBDPrecAlloc} are the two mandatory user-supplied functions described above.
 
 \item \label{i:bbdpre_attach}
   {\bf Attach the {\cvspgmr} linear solver}
@@ -4593,8 +4596,8 @@ next.
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dqrely] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
-    approximations.  The default is \id{dqrely}$ = \sqrt{\text{unit roundoff}}$, which
-    can be specified by passing \id{dqrely}$ = 0.0$.
+    approximations.  The default is \id{dqrely}$ = \sqrt{\text{unit roundoff}}$,
+    which can be specified by passing \id{dqrely}$ = 0.0$.
   \item[gloc] (\id{CVLocalFn})
     the {\C} function which computes the approximation $g(t,y) \approx f(t,y)$. 
   \item[cfn] (\id{CVCommFn})
@@ -4641,7 +4644,7 @@ next.
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}}
-    preconditioning type. Can be one of \Id{LEFT} or \Id{RIGHT}.
+    preconditioning type. Must be one of \Id{LEFT} or \Id{RIGHT}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
@@ -4690,8 +4693,8 @@ provided there is no change in \id{local\_N}, \id{mukeep}, or \id{mlkeep}.
 After solving one problem, and after calling \id{CVodeReInit} to re-initialize 
 {\cvode} for a subsequent problem, a call to \id{CVBBDPrecReInit} can be made
 to change any of the following: the half-bandwidths \id{mudq} and \id{mldq} 
-used in the difference-quotient Jacobian approximations, the relative increment \id{dqrely}, 
-or one of the user-supplied functions \id{gloc} and \id{cfn}.
+used in the difference-quotient Jacobian approximations, the relative increment
+\id{dqrely}, or one of the user-supplied functions \id{gloc} and \id{cfn}.
 %%
 \ucfunction{CVBBDPrecReInit}
 {
@@ -4710,8 +4713,8 @@ or one of the user-supplied functions \id{gloc} and \id{cfn}.
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[dqrely] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
-    approximations.  The default is \id{dqrely} $= \sqrt{\text{unit roundoff}}$, which
-    can be specified by passing \id{dqrely} $= 0.0$.
+    approximations.  The default is \id{dqrely} $= \sqrt{\text{unit roundoff}}$,
+    which can be specified by passing \id{dqrely} $= 0.0$.
   \item[gloc] (\id{CVLocalFn})
     the {\C} function which computes the approximation $g(t,y) \approx f(t,y)$. 
   \item[cfn] (\id{CVCommFn})
@@ -4762,8 +4765,8 @@ the {\cvbbdpre} module:
   \end{args}
 }
 {
-  In terms of the local vector dimension $N_{l}$, the actual size of the integer workspace
-  is $N_l$ integer words.
+  In terms of the local vector dimension $N_{l}$, the actual size of the integer
+  workspace is $N_l$ integer words.
 }
 %%
 %%
@@ -4793,9 +4796,10 @@ the {\cvbbdpre} module:
   \end{args}
 }
 {
-  In terms of the local vector dimension $N_l$, the actual size of the real workspace is
-  $N_l \,(2$ \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2)$ \id{realtype} words,
-  where \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep} $+$ \id{mlkeep}$)$.
+  In terms of the local vector dimension $N_l$, the actual size of the real
+  workspace is $N_l \,(2$ \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2)$
+  \id{realtype} words, where \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep}
+  $+$ \id{mlkeep}$)$.
 }
 %%
 \index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner|)}
@@ -4978,7 +4982,8 @@ and \S\ref{ss:optional_output}.
 
 \begin{table}
 \centering
-\caption{Description of the {\fcvode} optional input-output arrays \Id{IOPT} and \Id{ROPT}}
+\caption{Description of the {\fcvode} optional input-output arrays \Id{IOPT} and
+         \Id{ROPT}}
 \label{t:fcvode_io}
 \medskip
 \begin{tabular}{|l|c|l|l|}
@@ -5119,7 +5124,8 @@ apply to {\nvecp}.
   
 \item  {\bf {\nvector} module initialization}
 
-  {\s} To initialize the serial {\nvector} module, the user must make the following call:
+  {\s} To initialize the serial {\nvector} module, the user must make the
+  following call:
   \index{FNVINITS@\texttt{FNVINITS}}
 \begin{verbatim}
       CALL FNVINITS(NEQ, IER)
@@ -5128,15 +5134,16 @@ apply to {\nvecp}.
   \id{IER} is a  return completion flag which is set to $0$ on success and $-1$ 
   if a failure occurred.
   
-  {\p} To initialize the parallel vector module, the user must make the following call:
+  {\p} To initialize the parallel vector module, the user must make the
+  following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
       CALL FNVINITP(NLOCAL, NGLOBAL, IER)
 \end{verbatim}
-  in which the arguments are: \id{NLOCAL} the local size of vectors on this processor,
-  \id{NGLOBAL} the system size (and the global size of vectors, that is the sum 
-  of all values of NLOCAL). The return completion flag \id{IER} is set on $0$ upon
-  successful return and on $-1$ otherwise.
+  in which the arguments are: \id{NLOCAL} the local size of vectors on this
+  processor, \id{NGLOBAL} the system size (and the global size of vectors, that
+  is the sum of all values of NLOCAL). The return completion flag \id{IER} is
+  set on $0$ upon successful return and on $-1$ otherwise.
   Note that if MPI was initialized by the user, the communicator must be
   set to \id{MPI\_COMM\_WORLD}.  If not, this routine initializes MPI and sets
   the communicator equal to \id{MPI\_COMM\_WORLD}.
@@ -5177,8 +5184,8 @@ apply to {\nvecp}.
     \end{args}
   }
   {
-    ~~\id{IER} is a return completion flag.  Values are $0$ for successful return and 
-    $-1$ otherwise. See printed message for details in case of failure.
+    ~~\id{IER} is a return completion flag.  Values are $0$ for successful return
+    and $-1$ otherwise. See printed message for details in case of failure.
   }
   {
     The optional inputs associated with \id{FCVMALLOC} are 
@@ -5231,9 +5238,8 @@ apply to {\nvecp}.
       CALL FCVDENSE(NEQ, IER)
 \end{verbatim}
   The argument \id{IER} is an error return flag which can be $0$ 
-  for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal input. 
-  
-  \index{Jacobian approximation function!dense!use in {\fcvode}}
+  for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal
+  input.  \index{Jacobian approximation function!dense!use in {\fcvode}}
   As an option when using the {\dense} linear solver, the user may supply a
   routine that computes a dense approximation of the system Jacobian 
   $J = \partial f / \partial y$. If supplied, it must have the following form:
@@ -5263,8 +5269,8 @@ apply to {\nvecp}.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
-  Optional outputs specific to the {\dense} case are \id{NJE}, \id{LRW}, and \id{LIW},
-  stored in \id{IOPT(16)}, \id{IOPT(17)}, and \id{IOPT(18)}, respectively.
+  Optional outputs specific to the {\dense} case are \id{NJE}, \id{LRW}, and
+  \id{LIW}, stored in \id{IOPT(16)}, \id{IOPT(17)}, and \id{IOPT(18)}, respectively.
   
   {\s} {\bf Band treatment of the linear system}
   \index{CVBAND@{\cvband} linear solver!use in {\fcvode}}
@@ -5291,11 +5297,12 @@ apply to {\nvecp}.
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{MU}, \id{ML}, \id{T}, 
   \id{Y}, and \id{BJAC}. 
-  It must load the \id{MDIM} by \id{N} array \id{BJAC} with the Jacobian matrix at the
-  current ($t$,$y$) in band form.  Store in \id{BJAC}(k,j) the Jacobian element $J_{i,j}$
-  with $k = i - j + MU + 1$, $k = 1 \cdots ML+MU+1$ and $j = 1 \cdots N$.
-  \id{FY} contains $f(t,y)$. The vectors \id{WK1}, \id{WK2}, and \id{WK3}
-  of length \id{NEQ} are provided as work space for use in \id{FCVBJAC}.
+  It must load the \id{MDIM} by \id{N} array \id{BJAC} with the Jacobian matrix
+  at the current ($t$,$y$) in band form.  Store in \id{BJAC}(k,j) the Jacobian
+  element $J_{i,j}$ with $k = i - j + MU + 1$, $k = 1 \cdots ML+MU+1$ and
+  $j = 1 \cdots N$. \id{FY} contains $f(t,y)$. The vectors \id{WK1}, \id{WK2},
+  and \id{WK3} of length \id{NEQ} are provided as work space for use in
+  \id{FCVBJAC}.
 
   If the user's \id{FCVBJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -5313,8 +5320,8 @@ apply to {\nvecp}.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
-  Optional outputs specific to the {\band} case are \id{NJE}, \id{LRW}, and \id{LIW},
-  stored in \id{IOPT(16)}, \id{IOPT(17)}, and \id{IOPT(18)}, respectively.
+  Optional outputs specific to the {\band} case are \id{NJE}, \id{LRW}, and
+  \id{LIW}, stored in \id{IOPT(16)}, \id{IOPT(17)}, and \id{IOPT(18)}, respectively.
   
   {\s}{\p} {\bf SPGMR treatment of the linear systems}
   \index{CVSPGMR@{\cvspgmr} linear solver!use in {\fcvode}}
@@ -5327,13 +5334,13 @@ apply to {\nvecp}.
 \end{verbatim}
   The arguments are as follows.
   \id{IPRETYPE} specifies the preconditioner type: 
-  $0$ for no preconditioning, $1$ for left only, $2$ for right only, or $3$ for both sides.
-  \id{IGSTYPE} indicates the Gram-Schmidt process type: 
+  $0$ for no preconditioning, $1$ for left only, $2$ for right only, or $3$ for
+  both sides. \id{IGSTYPE} indicates the Gram-Schmidt process type: 
   $0$ for modified G-S or  $1$ for classical G-S.
   \id{MAXL} is the maximum Krylov subspace dimension ($0$ indicates default).
   \id{DELT} is the linear convergence tolerance factor ($0.0$ indicates default).
-  \id{IER} is an error return flag which can be $0$ to indicate success, 
-  $-1$ if a memory allocation failure occurred, or $-2$ to indicate an illegal input.
+  \id{IER} is an error return flag which can be $0$ to indicate success, $-1$
+  if a memory allocation failure occurred, or $-2$ to indicate an illegal input.
   
   \index{Jacobian approximation function!Jacobian times vector!use in {\fcvode}}
   As an option when using the {\spgmr} linear solver, the user may supply a 
@@ -5345,10 +5352,10 @@ apply to {\nvecp}.
       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, H, WORK, IER)
       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
 \end{verbatim}
-  Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, \id{V}, and \id{FJV}.
-  It must compute the product vector $Jv$, where the vector $v$ is stored in \id{V}, 
-  and store the product in \id{FJV}.  On return, set \id{IER=0} if \id{FCVJTIMES}
-  was successful, and nonzero otherwise.
+  Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, \id{V}, and
+  \id{FJV}.  It must compute the product vector $Jv$, where the vector $v$ is
+  stored in \id{V}, and store the product in \id{FJV}.  On return, set
+  \id{IER=0} if \id{FCVJTIMES} was successful, and nonzero otherwise.
   \id{FY} contains $f(t,y)$. The vector \id{WORK}, of length \id{NEQ}, is
   provided as work space for use in \id{FCVJTIMES}.
 
@@ -5369,8 +5376,8 @@ apply to {\nvecp}.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
-  If preconditioning is to be done (\id{IPRETYPE}$\neq 0$), then, following the call 
-  to \id{FCVSPGMR}, the user must call
+  If preconditioning is to be done (\id{IPRETYPE}$\neq 0$), then, following the
+  call to \id{FCVSPGMR}, the user must call
   \index{FCVSPGMRSETPSOL@\texttt{FCVSPGMRSETPSOL}}
 \begin{verbatim}
       CALL FCVSPGMRSETPSOL(FLAG, IER)
@@ -5399,8 +5406,8 @@ apply to {\nvecp}.
   routine.
 
   If the user's preconditioner requires that any Jacobian related data be evaluated
-  or preprocessed, then, following the call to \id{FCVSPGMRSETPSOL}, the user must call
-  \index{FCVSPGMRSETPSET@\texttt{FCVSPGMRSETPSET}}
+  or preprocessed, then, following the call to \id{FCVSPGMRSETPSOL}, the user must
+  call \index{FCVSPGMRSETPSET@\texttt{FCVSPGMRSETPSET}}
 \begin{verbatim}
       CALL FCVSPGMRSETPSET(FLAG, IER)
 \end{verbatim}
@@ -5429,12 +5436,12 @@ apply to {\nvecp}.
   passed from the calling program to this routine using \id{COMMON}.
 
   Optional outputs specific to the {\spgmr} case are \id{NPE}, \id{NLI}, \id{NPS}, 
-  \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$ \id{IOPT(21)}, 
-  respectively (see Table~\ref{t:fcvode_io}).
+  \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$
+  \id{IOPT(21)}, respectively (see Table~\ref{t:fcvode_io}).
   
   If a sequence of problems of the same size is being solved using the {\spgmr}
-  linear solver, then following the call to \id{FCVREINIT} (see below), a call to the 
-  \id{FCVSPGMR} routine may or may not be needed.  
+  linear solver, then following the call to \id{FCVREINIT} (see below), a call
+  to the \id{FCVSPGMR} routine may or may not be needed.  
   If there is a change in input arguments other than \id{MAXL}, then the user 
   program should call the routine \id{FCVSPGMRREINIT} which
   reinitializes the {\spgmr} linear solver, but without reallocating its memory.
@@ -5458,15 +5465,15 @@ apply to {\nvecp}.
   (return after each internal step taken), to $3$ for normal mode with
   the additional \id{tstop} constraint, or to $4$ for one-step mode 
   with the additional constraint \id{tstop}.
-  \id{IER} is a completion flag and will be set to a positive value upon successful return
-  or to a negative value if an error occurred. These values correspond to the
-  \id{CVode} returns (see \S\ref{sss:cvode}) as follows:
+  \id{IER} is a completion flag and will be set to a positive value upon
+  successful return or to a negative value if an error occurred. These values
+  correspond to the \id{CVode} returns (see \S\ref{sss:cvode}) as follows:
   $0$: \Id{SUCCESS}, $1$: \Id{TSTOP\_RETURN}, $2$: \Id{ROOT\_RETURN},
   $-1$: \Id{CVODE\_NO\_MEM}, $-2$: \Id{CVODE\_NO\_MALLOC}, $-3$: \Id{ILL\_INPUT},
   $-4$: \Id{TOO\_MUCH\_WORK}, $-5$: \Id{TOO\_MUCH\_ACC}, $-6$: \Id{ERR\_FAILURE},
   $-7$: \Id{CONV\_FAILURE}, $-8$: \Id{SETUP\_FAILURE}, and $-9$: \Id{SOLVE\_FAILURE}
-  from \id{CVode} (see \S\ref{sss:cvode}) 
-  The current values of the optional outputs are available in \id{IOPT} and \id{ROPT}.
+  from \id{CVode} (see \S\ref{sss:cvode})   The current values of the optional
+  outputs are available in \id{IOPT} and \id{ROPT}.
   
 \item {\bf Additional solution output}
 
@@ -5533,6 +5540,7 @@ The user-callable functions in {\fcvroot}, with the corresponding
 {\cvode} functions, are as follows: 
 \begin{itemize}
   \item \id{FCVROOTINIT} interfaces to \id{CVodeRootInit}.
+  \item \id{FCVROOTINFO} interfaces to \id{CVodeGetRootInfo}.
   \item \id{FCVROOTFREE} interfaces to \id{CVodeRootInit}.
 \end{itemize}
 %%
@@ -5556,6 +5564,19 @@ define the following routine:
 It must set the \id{G} array, of length \id{NRTFN}, with components $g_i(t,y)$,
 as a function of \id{T}$=t$ and the array \id{Y}$=y$.  
 
+When making calls to \id{FCVODE} to solve the ODE system, the occurrence of
+a root is flagged by the return value \id{IER} = 2.  In that case, if
+\id{NRTFN} $> 1$, the functions $g_i$ which were found to have a root can
+be identified by making the following call:
+\begin{verbatim}
+      CALL FCVROOTINFO (NRTFN, INFO, IER)
+\end{verbatim}
+The arguments are as follows: \id{NRTFN} is the number of root functions.
+\id{INFO} is an integer array of length \id{NRTFN} with root information.
+\id{IER} is a return completion flag; its values are $0$ for success, 
+negative if there was a memory failure.  The returned values of \id{INFO(i)}
+(\id{i}$ = 1,\ldots,$ \id{NRTFN}) are 0 or 1, such that \id{INFO(i)} $ = 1$
+if $g_{\id{i}}$ was found to have a root, and \id{INFO(i)} $ = 0$ otherwise.
 
 The total number of calls made to the root function \id{FCVROOTFN},
 denoted \id{NGE}, can be obtained from \id{IOPT(25)}.
@@ -5624,8 +5645,8 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \end{verbatim}
   The arguments are as follows.
   \id{NEQ} is the problem size.
-  \id{MU} and \id{ML} are the upper and lower half-bandwidths of the band matrix that 
-  is retained as an approximation of the Jacobian.
+  \id{MU} and \id{ML} are the upper and lower half-bandwidths of the band matrix
+  that  is retained as an approximation of the Jacobian.
   \id{IER} is a return completion flag.  A value of $0$ indicates success, while 
   a value of $-1$ indicates that a memory failure occurred.
   
@@ -5652,9 +5673,9 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   
 \item {\bf {\cvbbdpre} Optional outputs}
   
-  Optional outputs specific to the {\spgmr} solver are \id{NPE}, \id{NLI}, \id{NPS}, 
-  \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$ \id{IOPT(21)}, 
-  respectively.
+  Optional outputs specific to the {\spgmr} solver are \id{NPE}, \id{NLI},
+  \id{NPS}, \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$
+  \id{IOPT(21)}, respectively.
   To obtain the optional outputs associated with the {\cvbandpre} module, make
   the following call:
   \index{FCVBPOPT@\texttt{FCVBPOPT}}
@@ -5662,10 +5683,10 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
        CALL FCVBPOPT(LENRPW, LENIPW, NFE)
 \end{verbatim}
   The arguments returned are as follows.
-  \id{LENRPW} is the length of real preconditioner work space, in \id{realtype} words.
-  \id{LENIPW} is the length of integer preconditioner work space, in integer words.
-  \id{NFE} is the number of $f(t,y)$ evaluations (calls to \id{FCVFUN}) for
-  finite difference banded Jacobian approximation.
+  \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
+  words. \id{LENIPW} is the length of integer preconditioner work space, in
+  integer words. \id{NFE} is the number of $f(t,y)$ evaluations (calls to
+  \id{FCVFUN}) for finite difference banded Jacobian approximation.
   
 \item {\bf Memory deallocation}
 
@@ -5719,14 +5740,14 @@ type within {\cvbbdpre} or {\cvode}):
 \end{tabular}
 \end{center}
 As with the rest of the {\fcvode} routines, the names of all user-supplied routines 
-here are fixed, in order to maximize portability for the resulting mixed-language program.
-Additionally, based on the \Id{SUNDIALS\_UNDERSCORE\_NONE} and 
+here are fixed, in order to maximize portability for the resulting mixed-language
+program.  Additionally, based on the \Id{SUNDIALS\_UNDERSCORE\_NONE} and 
 \Id{SUNDIALS\_UNDERSCORE\_TWO} parameters, the names of the user-supplied routines 
 are mapped to actual values through a series of definitions in the header file 
 \id{fcvbbd.h}.
 
-The following is a summary of the usage of this module. Steps that are unchanged from 
-the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
+The following is a summary of the usage of this module. Steps that are unchanged
+from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 \index{User main program!FCVBBD@{\fcvbbd} usage}
 \begin{Steps}
@@ -5751,14 +5772,14 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   These may be smaller than the true half-bandwidths of the
   Jacobian of the local block of $g$, when smaller values may
   provide greater efficiency.
-  \id{MU} and \id{ML} are the upper and lower half-bandwidths of the band matrix that 
-  is retained as an approximation of the local Jacobian block.
+  \id{MU} and \id{ML} are the upper and lower half-bandwidths of the band matrix
+  that  is retained as an approximation of the local Jacobian block.
   These may be smaller than \id{MUDQ} and \id{MLDQ}.
-  \id{DQRELY} is the relative increment factor in $y$ for difference quotients (optional). 
-  A value of $0.0$ indicates the default, $\sqrt{\text{unit roundoff}}$.
-  \id{IER} is a return completion flag.  A value of $0$ indicates success, a value of
-  $-1$ indicates that a memory failure occurred, and a value of $-2$ indicates an 
-  illegal input.
+  \id{DQRELY} is the relative increment factor in $y$ for difference quotients
+  (optional).  A value of $0.0$ indicates the default, $\sqrt{\text{unit roundoff}}$.
+  \id{IER} is a return completion flag.  A value of $0$ indicates success, a
+  value of $-1$ indicates that a memory failure occurred, and a value of $-2$
+  indicates an illegal input.
   
   To specify the {\spgmr} linear system solver and use the {\cvbbdpre}
   preconditioner, make the following call:
@@ -5783,9 +5804,9 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   
 \item {\bf {\cvbbdpre} Optional outputs}
   
-  Optional outputs specific to the {\spgmr} solver are \id{NPE}, \id{NLI}, \id{NPS}, 
-  \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$ \id{IOPT(21)}, 
-  respectively.
+  Optional outputs specific to the {\spgmr} solver are \id{NPE}, \id{NLI},
+  \id{NPS}, \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$
+  \id{IOPT(21)}, respectively.
   To obtain the optional outputs associated with the {\cvbbdpre} module, make
   the following call:
   \index{FCVBBDOPT@\texttt{FCVBBDOPT}}
@@ -5793,8 +5814,8 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
        CALL FCVBBDOPT(LENRPW, LENIPW, NGE)
 \end{verbatim}
   The arguments returned are as follows.
-  \id{LENRPW} is the length of real preconditioner work space, in \id{realtype} words.
-  This size is local to the current processor.
+  \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
+  words.  This size is local to the current processor.
   \id{LENIPW} is the length of integer preconditioner work space, in integer words.
   This size is local to the current processor.
   \id{NGE} is the number of $g(t,y)$ evaluations (calls to \id{FCVLOCFN}) so far.
@@ -5807,8 +5828,8 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   by calling \id{FCVREINIT}, following which, a call to \id{FCVBBDINIT} may or 
   may not be needed.
   If the input arguments are the same, no \id{FCVBBDINIT} call is needed.
-  If there is a change in input arguments other than \id{MU}, \id{ML}, or \id{MAXL}, 
-  then the user program should make the call 
+  If there is a change in input arguments other than \id{MU}, \id{ML}, or
+  \id{MAXL}, then the user program should make the call 
   \index{FCVBBDREINIT@\texttt{FCVBBDREINIT}}
 \begin{verbatim}
        CALL FCVBBDREINIT(NLOCAL, MUDQ, MLDQ, DQRELY, IER)
