@@ -4,7 +4,7 @@
 The new design and organization of SUNDIALS 
 as described in Section~\ref{s:organization}
 makes the codes surprisingly flexible and easy to use.
-This versatility is primarily due to the control that the user has
+This versatility is due primarily to the control that the user has
 over the modules that comprise SUNDIALS: the specification of vectors;
 the linear solver and preconditioner methods; the basic solvers; and,
 sensitivity analysis.
@@ -22,7 +22,7 @@ solution, solver statistics and other useful information from the codes.
 A general approach for using SUNDIALS is given below. 
 The outline conveys the basic elements of what is needed to properly
 specify and solve a problem, the order in which certain tasks must be
-done, indicates the opportunities for providing user-supplied
+done, the opportunities for providing user-supplied
 routines or input values, and so on.
 Complete details and additional examples are in the documentation that
 accompanies each solver in SUNDIALS.
@@ -44,27 +44,30 @@ solver methods to be used.
 The user must provide a function for evaluating the equations to be
 solved. Optionally, a user-defined data structure can be created and
 passed to this function. The user must also initialize the vector
-specification data structure, give the problem size and error
-tolerances, provide a suitable initial guess or initial values, along
-with other details for the problem.
+specification data structure so that new vectors can be created as needed.
+
+\item \label{sun_size}
+To completely specify the problem, the user must define the problem
+size, give whatever initial guesses and/or initial values that are
+needed, specify solution error tolerances, and so on. 
 
 \item \label{sun_create}
 The next step is to call a routine for initializing a block of memory
 that will be used in solving the problem. The memory block is created
 with certain default values for the solver, such as the use of
-standard output for writing warning and error messages, or {\tt NULL}
+standard output for writing warning and error messages, or NULL
 as a default value for the pointer to the user-specified data
 structure to be passed in evaluating the user's function.
 
 \item \label{sun_set}
 At this stage, the default values in the solver memory block can be
-changed if so desired. Choices and default values are given in the
-following subsections for each of the basic solvers.
+changed if so desired. Choices and default values are given in
+Table~\ref{t:optional_io} for each of the basic solvers.
 
 \item \label{sun_malloc}
 The user now calls the appropriate routine to perform any required
 memory allocation, after checking the initialized memory block for
-errors in the default or optional inputs.
+errors in the default or optional input values.
 
 \item \label{sun_linear}
 Typically, preconditioning and/or linear solver methods are needed for
@@ -72,37 +75,46 @@ solving the linear systems that may arise. These methods can now be
 attached to the block of memory allocated for the solver.
 
 \item \label{sun_solve}
-Solve the problem. Information and solver statistics are available
-through extraction functions.
+The appropriate routine is called to solve the problem according to
+the tolerances and other settings that have been specified.
 
-\item \label{sun_reinit}
-Re-initialization (SUNDIALS solver, linear solver)?
+\item \label{sun_get}
+To extract the solution, solver statistics, and other information,
+optional output extraction routines can be called. A listing of these
+get routines for the basic solvers is given in Table~\ref{t:optional_io}.
 
 \item \label{sun_finalize}
-To complete the process, the user must make the appropriate calls to
-free memory that was allocated in the previous steps.
+To end the process, the user must make the appropriate calls to
+free memory that was allocated in the previous steps. Otherwise, if
+applicable, a re-initialization routine can be called for solving
+additional problems.
 
 \end{enumerate}
 
-For a parallel machine environment, the appropriate header file for
-MPI must be specified in Step~\ref{sun_headers}; and, the MPI communicator,
-active set of processors, local and global vectors lengths must be
-initialized or given in Step~\ref{sun_problem}. Finally, in
-Step~\ref{sun_finalize}, memory allocated for MPI must be freed.
+In order to carry out sensitivity analysis, the above outline
+needs to be modified at several steps. For forward sensitivities,
+Step~\ref{sun_headers} requires that the appropriate header
+file for forward sensitivity analysis is used in place of the header
+file for the basic solver. At Step~\ref{sun_problem}, the user must
+create an array of real parameters upon which the solution depends,
+and attach a pointer to this array to the user-defined data structure
+that is passed to the user's function. Also, the user must specify the
+number of sensitivities to be computed, and provide an array to that
+indicates which solution sensitivities are to be
+computed. Step~\ref{sun_malloc} requires that the user call the memory
+allocation routine for the forward sensitivity version of the basic
+solver. As the solution and forward sensitivities are computed,
+these results and various solver statistics can be extracted as part
+of Steps~\ref{sun_solve}--\ref{sun_get}. Finally, memory space that
+has been allocated previously must be freed at
+Step~\ref{sun_finalize}. For complete details on performing forward or
+adjoint sensitivity analysis for CVODES, the reader is referred to~\cite{SeHi:03}.
 
-For forward sensitivity analysis, the appropriate forward sensitivity
-header file must be specified in Step~\ref{sun_headers} and the
-definition of the sensitivity problem must be given before
-Step~\ref{sun_solve}. To do so, the user must create an array of
-real parameters upon which the problem solution depends; attach a pointer to
-this array to the user-defined data structure f\_data; specify the
-number of sensitivities to be computed; and, provide an array to
-specify the parameters for which solution sensitivities are to be
-computed. Memory allocated for sensitivity analysis should be freed in
-Step~\ref{sun_finalize}.
-
-{\sf For adjoint sensitivity analysis, we refer the interested reader to
-the user's guide.}
+For a parallel machine environment, the MPI header file must be
+specified in Step~\ref{sun_headers} so that in the Step~\ref{sun_size}: the MPI
+communicator can be initialized, the set of active processors can be
+established; and, the global and local vector lengths can be set.
+In Step~\ref{sun_finalize}, memory allocated for MPI must be freed.
 
 \subsection{Optional inputs and outputs}\label{ss:optional_io}
 
@@ -112,23 +124,24 @@ codes.
 A key feature of SUNDIALS is that it provides a collection of optional
 input and output routines so that default settings can be changed, or
 various solver statistics and other information can be extracted.
-These routines are available for each of the solvers as noted, and for
-the linear solver and preconditioning methods that support them.
+These set and get routines are available for each of the solvers as
+noted, and for the linear solver and preconditioning methods that
+support them.
 
 \subsubsection*{Basic Solvers} 
 Table \ref{t:optional_io} lists in its top half the various optional 
-inputs that the user can change to control the basic SUNDIALS solvers.
+inputs that the user can set to control the basic SUNDIALS solvers.
 Under each solver column we give the default value for the optional 
 input. Inputs marked with a ``-'' are not applicable to that particular 
 solver. The bottom half of the table lists the various optional 
-outputs that the user can access to monitor solver performance.
-Optional outputs available for a solver are marked with a ``$\checkmark$''
+outputs that the user can get to monitor solver performance.
+Optional outputs available for a solver are marked with a ``$\surd$''
 and those not available are marked by a ``-''.
 
 \begin{table}[tp]
 \label{t:optional_io}
 \centering
-\caption{List of optional inputs and outputs for the basic solvers in SUNDIALS}
+\caption{Optional inputs and outputs for the basic solvers in SUNDIALS}
 \medskip
 \begin{tabular}{|p{2.75in}|c|c|c|}
 \hline
@@ -150,7 +163,7 @@ Maximum number of convergence failures & 10 & 10 & - \\
 Maximum number of error test failures & 7 & 10 & - \\
 Coefficient in the nonlinear convergence test & 0.1 & 0.33 & - \\
 Flag to exclude algebraic variables from error test & - & FALSE & - \\
-differential-algebraic identification vector & - & NULL & - \\
+Differential-algebraic identification vector & - & NULL & - \\
 Vector with additional constraints & - & NULL & NULL \\
 Level of printing & - & - & none \\
 Flag to skip initial linear solver setup call & - & - & FALSE \\
@@ -168,27 +181,27 @@ Stopping tolerance on max. scaled step & - & - & $U^{2/3}$ \\
 \hline
 {\bf Optional output} &  &  & \\
 \hline
-Size of workspace allocated by the solver & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-Cumulative number of internal steps taken & $\checkmark$ & $\checkmark$ & - \\
-Number of calls to the user's function & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-Number of calls to the linear solver's setup routine & $\checkmark$ & $\checkmark$ & - \\
-Number of local error test failures that have occurred & $\checkmark$ & $\checkmark$ & - \\
-Number of nonlinear solver iterations & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-Number of nonlinear convergence failures & $\checkmark$ & $\checkmark$ & - \\
-Order used during the last step & $\checkmark$ & $\checkmark$ & - \\
-Order to be attempted on the next step & $\checkmark$ & $\checkmark$ & - \\
-Order reductions due to stability limit detection & $\checkmark$ & - & - \\
-Actual initial step size used & $\checkmark$ & $\checkmark$ & - \\
-Step size used for the last step & $\checkmark$ & $\checkmark$ & - \\
-Step size to be attempted on the next step & $\checkmark$ & $\checkmark$ & - \\
-Current internal time reached by the solver & $\checkmark$ & $\checkmark$ & - \\
-%Suggested factor for tolerance scaling & $\checkmark$ & - & - \\
-Vector containing the error weights for state variables & $\checkmark$ & $\checkmark$ & - \\
-Vector containing the est. local errors & $\checkmark$ & - & - \\
-Number of backtrack operations during linesearch & - & $\checkmark$ & $\checkmark$ \\
-Number of times the $\beta$ condition could not & - & - & $\checkmark$ \\
-Scaled norm at a given iteration & - & - & $\checkmark$ \\
-Last step length in the global strategy routine & - & - & $\checkmark$ \\
+Size of workspace allocated by the solver & $\surd$ & $\surd$ & $\surd$ \\
+Cumulative number of internal steps taken & $\surd$ & $\surd$ & - \\
+Number of calls to the user's function & $\surd$ & $\surd$ & $\surd$ \\
+Number of calls to the linear solver's setup routine & $\surd$ & $\surd$ & - \\
+Number of local error test failures that have occurred & $\surd$ & $\surd$ & - \\
+Number of nonlinear solver iterations & $\surd$ & $\surd$ & $\surd$ \\
+Number of nonlinear convergence failures & $\surd$ & $\surd$ & - \\
+Order used during the last step & $\surd$ & $\surd$ & - \\
+Order to be attempted on the next step & $\surd$ & $\surd$ & - \\
+Order reductions due to stability limit detection & $\surd$ & - & - \\
+Actual initial step size used & $\surd$ & $\surd$ & - \\
+Step size used for the last step & $\surd$ & $\surd$ & - \\
+Step size to be attempted on the next step & $\surd$ & $\surd$ & - \\
+Current internal time reached by the solver & $\surd$ & $\surd$ & - \\
+%Suggested factor for tolerance scaling & $\surd$ & - & - \\
+Vector containing the error weights for state variables & $\surd$ & $\surd$ & - \\
+Vector containing the est. local errors & $\surd$ & - & - \\
+Number of backtrack operations during linesearch & - & $\surd$ & $\surd$ \\
+Number of times the $\beta$ condition could not & - & - & $\surd$ \\
+Scaled norm at a given iteration & - & - & $\surd$ \\
+Last step length in the global strategy routine & - & - & $\surd$ \\
 \hline
 \end{tabular}
 \end{table}
@@ -196,7 +209,7 @@ Last step length in the global strategy routine & - & - & $\checkmark$ \\
 \subsubsection*{Sensitivity Analysis}
 
 Each sensitivity solver (CVODES and IDAS) offers the complete list of
-optional inputs and outputs as the corresponding basic solver (CVODE
+optional set and get routines as the corresponding basic solver (CVODE
 and IDA, respectively). In addition, the user has control over various
 inputs that affect sensitivity calculations. 
 The following are examples of options that can be set by the user,
