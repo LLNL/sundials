@@ -16,10 +16,14 @@ The user should be aware that not all linear solver modules are compatible
 with all {\nvector} implementations. 
 \index{CVODE@{\cvode} linear solvers!NVECTOR@{\nvector} compatibility}
 For example, {\nvecp} is not compatible with the direct dense or direct band 
-linear solvers since these linear solver modules need to form the system
-Jacobian.  The following {\cvode} modules can only be used with {\nvecs}:
+linear solvers since these linear solver modules need to form the complete
+system Jacobian.  The following {\cvode} modules can only be used with {\nvecs}:
 {\cvdense}, {\cvband}, and {\cvbandpre}. The preconditioner module {\cvbbdpre}
 can only be used with {\nvecp}.
+
+{\cvode} uses various constants for both input and output.  These are
+defined as needed in this chapter, but for convenience are also listed
+separately in Chapter \ref{c:constants}.
 
 %%==============================================================================
 \section{Access to library and header files}\label{ss:file_access}
@@ -5457,7 +5461,7 @@ apply to {\nvecp}.
   successful return or to a negative value if an error occurred. These values
   correspond to the \id{CVode} returns (see \S\ref{sss:cvode}) as follows:
   $0$: \Id{CV\_SUCCESS}, $1$: \Id{CV\_TSTOP\_RETURN}, $2$: \Id{CV\_ROOT\_RETURN},
-  $-1$: \Id{CV\_MEM\_NULL}, $-2$: \Id{Cv\_ILL\_INPUT}, $-3$: \Id{CV\_NO\_MALLOC}
+  $-1$: \Id{CV\_MEM\_NULL}, $-2$: \Id{Cv\_ILL\_INPUT}, $-3$: \Id{CV\_NO\_MALLOC},
   $-4$: \Id{CV\_TOO\_MUCH\_WORK}, $-5$: \Id{CV\_TOO\_MUCH\_ACC},
   $-6$: \Id{CV\_ERR\_FAILURE}, $-7$: \Id{CV\_CONV\_FAILURE},
   $-8$: \Id{CV\_LINIT\_FAIL}, $-9$: \Id{CV\_LSETUP\_FAIL}, and
