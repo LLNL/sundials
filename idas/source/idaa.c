@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-06-18 21:37:59 $
+ * $Revision: 1.8 $
+ * $Date: 2004-07-22 23:10:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -75,9 +75,6 @@
 
 #define IDABQM               "IDAQuadMallocB-- "
 #define MSG_IDABQM_NO_MEM    IDABQM "idaadj_mem=NULL illegal.\n\n"
-#define MSG_BAD_ECONQB_1     IDABQM "errconQB=%d illegal.\n"
-#define MSG_BAD_ECONQB_2     "The legal values are FULL=%d and PARTIAL=%d.\n\n"
-#define MSG_BAD_ECONQB       MSG_BAD_ECONQB_1 MSG_BAD_ECONQB_2
 
 #define IDAB                 "IDASOLVEBB-- "
 #define MSG_IDASOLVEB_FWD    IDAB "an error occured during the forward phase.\n\n"
@@ -175,7 +172,6 @@ static int IDAAspgmrJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
 
 /* Forward IDAS memory block */
 
-#define nvspec     (IDA_mem->ida_nvspec)
 #define res        (IDA_mem->ida_res)
 #define itol       (IDA_mem->ida_itol)
 #define reltol     (IDA_mem->ida_reltol)
@@ -206,11 +202,14 @@ static int IDAAspgmrJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
 #define cjold      (IDA_mem->ida_cjold)
 #define cjratio    (IDA_mem->ida_cjratio) 
 
+#define tempv      (IDA_mem->ida_tempv1)
+
 #define quad       (IDA_mem->ida_quad)
 #define errconQ    (IDA_mem->ida_errconQ)
 #define phiQ       (IDA_mem->ida_phiQ)
 #define rhsQ       (IDA_mem->ida_rhsQ)
-#define nvspecQ    (IDA_mem->ida_nvspecQ)
+
+#define tempvQ     (IDA_mem->ida_eeQ)
 
 /* Checkpoint memory block */
 
@@ -298,7 +297,7 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
   }
 
   /* Workspace memory */
-  Y0 = N_VNew(nvspec);
+  Y0 = N_VClone(tempv);
   if (Y0 == NULL) {
     IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
@@ -307,9 +306,9 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
     return(NULL);
   }
 
-  Y1 = N_VNew(nvspec);
+  Y1 = N_VClone(tempv);
   if (Y1 == NULL) {
-    N_VFree(Y0);
+    N_VDestroy(Y0);
     IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
@@ -317,10 +316,10 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
     return(NULL);
   }
 
-  ytmp = N_VNew(nvspec);
+  ytmp = N_VClone(tempv);
   if (ytmp == NULL) {
-    N_VFree(Y1);
-    N_VFree(Y0);
+    N_VDestroy(Y1);
+    N_VDestroy(Y0);
     IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
@@ -328,11 +327,11 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
     return(NULL);
   }
 
-  yptmp = N_VNew(nvspec);
+  yptmp = N_VClone(tempv);
   if (yptmp == NULL) {
-    N_VFree(ytmp);
-    N_VFree(Y1);
-    N_VFree(Y0);
+    N_VDestroy(ytmp);
+    N_VDestroy(Y1);
+    N_VDestroy(Y0);
     IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
@@ -373,10 +372,10 @@ void IDAAdjFree(void *idaadj_mem)
   free(IDAADJ_mem->dt_mem);
 
   /* Free vectors in IDAADJ_mem */
-  N_VFree(Y0);
-  N_VFree(Y1);
-  N_VFree(ytmp);
-  N_VFree(yptmp);
+  N_VDestroy(Y0);
+  N_VDestroy(Y1);
+  N_VDestroy(ytmp);
+  N_VDestroy(yptmp);
 
   /* Free IDAS memory for backward run */
   IDAFree(IDAADJ_mem->IDAB_mem);
@@ -703,8 +702,7 @@ int IDASetConstraintsB(void *idaadj_mem, N_Vector constraintsB)
 
 int IDAMallocB(void *idaadj_mem, ResFnB resB,
                realtype tB0, N_Vector yyB0, N_Vector ypB0, 
-               int itolB, realtype *reltolB, void *abstolB,
-               NV_Spec nvspecB)
+               int itolB, realtype *reltolB, void *abstolB)
 {
   IDAadjMem IDAADJ_mem;
   void *ida_mem;
@@ -729,7 +727,7 @@ int IDAMallocB(void *idaadj_mem, ResFnB resB,
   IDASetRdata(ida_mem, idaadj_mem);
 
   flag = IDAMalloc(ida_mem, IDAAres, tB0, yyB0, ypB0,
-                   itolB, reltolB, abstolB, nvspecB);
+                   itolB, reltolB, abstolB);
 
   return(flag);
 
@@ -815,7 +813,7 @@ int IDASetQuadTolerancesB(void *idaadj_mem, int itolQB,
 
 /*-----------------------------------------------------------------*/
 
-int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, NV_Spec nvspecQB)
+int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, N_Vector yQB0)
 {
   IDAadjMem IDAADJ_mem;
   void *ida_mem;
@@ -832,9 +830,10 @@ int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, NV_Spec nvspecQB)
 
   ida_mem = (void *) IDAADJ_mem->IDAB_mem;
 
-  IDASetQuadRdata(ida_mem, idaadj_mem);
+  flag = IDAQuadMalloc(ida_mem, IDAArhsQ, yQB0); 
+  if (flag != SUCCESS) return(flag);
 
-  flag = IDAQuadMalloc(ida_mem, IDAArhsQ, nvspecQB); 
+  IDASetQuadRdata(ida_mem, idaadj_mem);
 
   return(flag);
 
@@ -842,7 +841,7 @@ int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, NV_Spec nvspecQB)
 
 /*-----------------------------------------------------------------*/
 
-int IDAQuadReInitB(void *idaadj_mem, QuadRhsFnB rhsQB)
+int IDAQuadReInitB(void *idaadj_mem, QuadRhsFnB rhsQB, N_Vector yQB0)
 {
   IDAadjMem IDAADJ_mem;
   void *ida_mem;
@@ -859,7 +858,7 @@ int IDAQuadReInitB(void *idaadj_mem, QuadRhsFnB rhsQB)
 
   ida_mem = (void *) IDAADJ_mem->IDAB_mem;
 
-  flag = IDAQuadReInit(ida_mem, IDAArhsQ);
+  flag = IDAQuadReInit(ida_mem, IDAArhsQ, yQB0);
 
   return(flag);
 
@@ -1302,11 +1301,8 @@ static CkpntMem IDAAckpntInit(IDAMem IDA_mem)
 
   /* Allocate space for ckdata */
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
-  phi_[0] = N_VNew(nvspec);
-  phi_[1] = N_VNew(nvspec);
-
-  /* Do we need to carry quadratures? */
-  quad_ = quad && errconQ;
+  phi_[0] = N_VClone(tempv);
+  phi_[1] = N_VClone(tempv);
 
   /* Load ckdata from IDA_mem 
      Note: phi[1] has not been scaled by the step size yet!!! */
@@ -1314,6 +1310,14 @@ static CkpntMem IDAAckpntInit(IDAMem IDA_mem)
   N_VScale(ONE, phi[1], phi_[1]);
   t0_    = tn;
   
+  /* Do we need to carry quadratures? */
+  quad_ = quad && errconQ;
+
+  if (quad_) {
+    phiQ_[0] = N_VClone(tempvQ);
+    N_VScale(ONE, phiQ[0], phiQ_[0]);
+  }
+
   /* Next in list */
   next_  = NULL;
 
@@ -1337,7 +1341,7 @@ static CkpntMem IDAAckpntNew(IDAMem IDA_mem)
   if (ck_mem == NULL) return(NULL);
 
   for (j=0; j<=kk; j++) {
-    phi_[j] = N_VNew(nvspec);
+    phi_[j] = N_VClone(tempv);
     if(phi_[j] == NULL)  return(NULL);
   }
 
@@ -1346,7 +1350,7 @@ static CkpntMem IDAAckpntNew(IDAMem IDA_mem)
 
   if(quad_) {
     for (j=0; j<=kk; j++) {
-      phiQ_[j] = N_VNew(nvspecQ);
+      phiQ_[j] = N_VClone(tempvQ);
       if(phiQ_[j] == NULL)  return(NULL);
     }
   }
@@ -1402,15 +1406,18 @@ static void IDAAckpntDelete(CkpntMem *ck_memPtr)
     *ck_memPtr = (*ck_memPtr)->ck_next;
 
     /* free N_Vectors in tmp */
-    for (j=0;j<=tmp->ck_kk;j++) N_VFree(tmp->ck_phi[j]);
+    for (j=0;j<=tmp->ck_kk;j++) N_VDestroy(tmp->ck_phi[j]);
 
     /* free N_Vectors for quadratures in tmp,
-       unless tmp is the check point at t_initial where 
-       znQ_ was not allocated */
-    if(tmp->ck_quad && (tmp->ck_next != NULL)) {
-      for (j=0;j<=tmp->ck_kk;j++) N_VFree(tmp->ck_phiQ[j]);
-    }
-
+       Note that at the check point at t_initial only phiQ_[0] 
+       was allocated */
+    if(tmp->ck_quad) 
+      if(tmp->ck_next != NULL) {
+        for (j=0;j<=tmp->ck_kk;j++) N_VDestroy(tmp->ck_phiQ[j]);
+      } else {
+        N_VDestroy(tmp->ck_phiQ[0]);
+      }
+    
     free(tmp);
   }
 }
@@ -1433,8 +1440,8 @@ static DtpntMem *IDAAdataMalloc(IDAMem IDA_mem, long int steps)
 
   for (i=0; i<=steps; i++) {
     dt_mem[i] = (DtpntMem)malloc(sizeof(struct DtpntMemRec));
-    dt_mem[i]->y  = N_VNew(nvspec);
-    dt_mem[i]->yd = N_VNew(nvspec);
+    dt_mem[i]->y  = N_VClone(tempv);
+    dt_mem[i]->yd = N_VClone(tempv);
   } 
 
   return(dt_mem);
@@ -1452,8 +1459,8 @@ static void IDAAdataFree(DtpntMem *dt_mem, long int steps)
   long int i;
 
   for (i=0; i<=steps; i++) {
-    N_VFree(dt_mem[i]->y);
-    N_VFree(dt_mem[i]->yd);
+    N_VDestroy(dt_mem[i]->y);
+    N_VDestroy(dt_mem[i]->yd);
     free(dt_mem[i]);
   }
 
@@ -1494,7 +1501,7 @@ int IDAAdataStore(IDAadjMem IDAADJ_mem, CkpntMem ck_mem)
     if (flag != SUCCESS) return(flag);
 
     if(quad_) {
-      flag = IDAQuadReInit(IDA_mem, rhsQ);
+      flag = IDAQuadReInit(IDA_mem, rhsQ, phiQ_[0]);
       if (flag != SUCCESS) return(flag);
     }
 
