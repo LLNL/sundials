@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-18 20:39:18 $
+ * $Revision: 1.12 $
+ * $Date: 2004-08-23 20:33:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -35,12 +35,13 @@
 
 #include "sundialstypes.h"   /* definitions of types realtype and             */
                              /* the constant FALSE                            */
-#include "cvode.h"           /* prototypes for CVode*** functions, and        */
-                             /* constants BDF, NEWTON, SV, SUCCESS            */
+#include "cvode.h"           /* prototypes for CVode*** functions; constants  */
+                             /* BDF, NEWTON, SV, NORMAL, CV_SUCCESS,          */
+                             /* CV_ROOT_RETURN                                */
 #include "cvdense.h"         /* prototype for CVDense                         */
-#include "nvector_serial.h"  /* definitions of type N_Vector and macro        */
-                             /* NV_Ith_S, prototypes for N_VNew_Serial and    */
-#include "dense.h"           /* N_VDestroy, type DenseMat, macro DENSE_ELEM   */
+#include "nvector_serial.h"  /* definitions of type N_Vector, macro NV_Ith_S, */
+                             /* prototypes for N_VNew_Serial and N_VDestroy   */
+#include "dense.h"           /* definition of type DenseMat, macro DENSE_ELEM */
 
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
@@ -182,14 +183,14 @@ int main()
     printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n",
            t, Ith(y,1), Ith(y,2), Ith(y,3));
 
-    if (flag == ROOT_RETURN) {
+    if (flag == CV_ROOT_RETURN) {
       flagr = CVodeGetRootInfo(cvode_mem, &rootsfound);
       check_flag(&flagr, "CVodeGetRootInfo", 1);
       printf("    rootsfound[] = %3d %3d\n",rootsfound[0],rootsfound[1]);
     }
 
     if (check_flag(&flag, "CVode", 1)) break;
-    if (flag == SUCCESS) {
+    if (flag == CV_SUCCESS) {
       iout++;
       tout *= TMULT;
     }
