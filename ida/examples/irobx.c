@@ -3,7 +3,7 @@
  * Written by : Allan G. Taylor and Alan C. Hindmarsh
  * Version of : 3 July 2002
  *----------------------------------------------------------------------
- * Modified by R. Serban to work with new serial nvector (7/3/2002)     
+ * Modified by R. Serban to work with new serial NVECTOR 8 March 2002.
  *----------------------------------------------------------------------
  *
  * This simple example problem for IDA, due to Robertson, is from

@@ -3,7 +3,7 @@
  * Written by : Allan G. Taylor and Alan C. Hindmarsh @ LLNL             *
  * Version of : 3 July 2002                                              *
  *-----------------------------------------------------------------------*
- * Modified by R. Serban to work with new parallel nvector (7/3/2002)    *
+ * Modified by R. Serban to work with new parallel NVECTOR 8 March 2002.
  *-----------------------------------------------------------------------*
  *
  * Example program for IDA: Food web, parallel, GMRES, user preconditioner.
