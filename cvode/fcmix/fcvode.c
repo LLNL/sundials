@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2004-09-21 22:57:52 $
+ * $Revision: 1.32 $
+ * $Date: 2004-09-22 00:15:44 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -287,7 +287,7 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
 void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
   realtype h0u;
-  int i, qu, qcur, flag;
+  int qu, qcur;
 
   /* 
      tout      is the t value where output is desired
