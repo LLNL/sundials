@@ -38,8 +38,10 @@
   FKFUN   is called by the interface function FKINfunc of type SysFn
   FJTIMES is called by the interface function FKINJtimes of type
           KINSpgmrJacTimesVecFn
-  FKPSOL  is called by the interface function FKINPSol of type KINSpgmrPrecSolveFn
-  FKPSET  is called by the interface function FKINPSet of type KINSpgmrPrecSetupFn
+  FKPSOL  is called by the interface function FKINPSol of type
+          KINSpgmrPrecSolveFn
+  FKPSET  is called by the interface function FKINPSet of type
+          KINSpgmrPrecSetupFn
  In contrast to the case of direct use of KINSOL, the names of all 
  user-supplied routines here are fixed, in order to maximize portability for
  the resulting mixed-language program.
@@ -192,6 +194,7 @@
  (5) The solver: FKINSOL
  Solving the nonlinear system is accomplished by making the following call:
       CALL FKINSOL (UU, GLOBALSTRAT, USCALE, FSCALE, IER)
+
  The arguments are:
  UU          = array containing the initial guess on input, and the solution
                on return
@@ -199,7 +202,8 @@
                0 = InexactNewton, 1 = LineSearch
  USCALE      = array of scaling factors for the UU vector
  FSCALE      = array of scaling factors for the FVAL (function) vector
- IER         = INTEGER error flag as returned by KINSOL: 1 means success,
+ IER         = INTEGER error flag as returned by KINSOL:
+               1 means success,
                2 means initial guess satisfies f(u) = 0 (approx.),
                3 means apparent stalling (small step),
                a value < 0 or > 3 means other error or failure.
@@ -225,7 +229,8 @@
  NO_MIN_EPS =      IOPT(9) = flag to suppress minimum tolerance (eps)
  MXNEWTSTEP = ROPT(1) = max size of Newton step
  RELFUNC =    ROPT(2) = relative error in computing f(u)
- ETACONST = ROPT(5), ETAGAMMA = ROPT(6), ETAALPHA = ROPT(7): constants in
+ RELU =       ROTP(3) = control on relative change in components of u per step
+ ETACONST = ROPT(6), ETAGAMMA = ROPT(7), ETAALPHA = ROPT(8): constants in
             optional choices of forcing terms.
 
  The optional outputs available by way of IOPT and ROPT have the following
@@ -236,8 +241,8 @@
  NFE  =   IOPT(5) = number of f evaluations
  NBCF =   IOPT(6) = number of Linesearch beta condition failures
  NBKTRK = IOPT(7) = number of Linesearch backtracks
- FNORM =  ROPT(3) = final scaled norm of f(u)
- STEPL =  ROPT(4) = scaled last step length
+ FNORM =  ROPT(4) = final scaled norm of f(u)
+ STEPL =  ROPT(5) = scaled last step length
 
 The following optional outputs are specific to the SPGMR module:
  NLI  = IOPT(11) = number of linear (Krylov) iterations
@@ -333,5 +338,6 @@ extern NV_Spec F2C_nvspec;
 void *KIN_mem;
 long int *KIN_iopt;
 realtype *KIN_ropt;
+int KIN_ls;  /* Linear Solver: 1 = SPGMR */
 
 #endif

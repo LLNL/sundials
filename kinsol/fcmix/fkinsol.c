@@ -75,6 +75,8 @@ void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
 {
   *ier = KINSpgmr(KIN_mem, *maxl);
   KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
+
+  KIN_ls = 1;
 }
 
 /***************************************************************************/
@@ -110,14 +112,18 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KIN_iopt[5] = nbcfails;
     KIN_iopt[6] = nbacktr;
 
-    KINGetFuncNorm(KIN_mem, &KIN_ropt[2]);
-    KINGetStepLength(KIN_mem, &KIN_ropt[3]);
-    
-    KINSpgmrGetNumLinIters(KIN_mem, &nliters);
-    KINSpgmrGetNumPrecEvals(KIN_mem, &npevals);
-    KINSpgmrGetNumPrecSolves(KIN_mem, &npsolves);
-    KINSpgmrGetNumConvFails(KIN_mem, &nlcfails);
-    
+    KINGetFuncNorm(KIN_mem, &KIN_ropt[3]);
+    KINGetStepLength(KIN_mem, &KIN_ropt[4]);
+
+    switch(KIN_ls) {
+    case 1:
+      KINSpgmrGetNumLinIters(KIN_mem, &nliters);
+      KINSpgmrGetNumPrecEvals(KIN_mem, &npevals);
+      KINSpgmrGetNumPrecSolves(KIN_mem, &npsolves);
+      KINSpgmrGetNumConvFails(KIN_mem, &nlcfails);
+      break;
+    }
+
     KIN_iopt[10] = nliters;
     KIN_iopt[11] = npevals;
     KIN_iopt[12] = npsolves;

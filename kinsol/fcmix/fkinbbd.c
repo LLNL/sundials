@@ -31,13 +31,16 @@ void FK_COMMFN(long int*, realtype*);
 
 /***************************************************************************/
 
-void FKIN_BBDINIT(long int *nlocal, int *maxl, int *maxlrst,
-                  long int *mu, long int *ml, int *ier)
+void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier)
 {
-
   KBBD_Data = KBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, 0.0, FKINgloc, FKINgcomm);
   if (KBBD_Data == NULL) { *ier = -1; return; }
+}
 
+/***************************************************************************/
+
+void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier)
+{
   *ier = KBBDSpgmr(KIN_mem, *maxl, KBBD_Data);
   if (*ier != 0) return;
 

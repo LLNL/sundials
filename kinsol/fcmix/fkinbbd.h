@@ -19,16 +19,17 @@
  with the FKINSOL Interface Package, support the use of the KINSOL solver 
  (parallel MPI version) with the KINBBDPRE preconditioner module,
  for the solution of nonlinear systems in a mixed Fortran/C setting.  The
- combination of KINSOL and KINBBDPRE solves systems f(u) = 0. with
+ combination of KINSOL and KINBBDPRE solves systems f(u) = 0 with
  the SPGMR (scaled preconditioned GMRES) method for the linear systems
- that arise, and with a preconditioner that is block-diagonal with
- banded blocks.  While KINSOL and KINBBDPRE are written in C, it is
- assumed here that the user's calling program and user-supplied
- problem-defining routines are written in Fortran. 
+ that arise, and with a preconditioner that is block-diagonal with banded
+ blocks.  While KINSOL and KINBBDPRE are written in C, it is assumed here
+ that the user's calling program and user-supplied problem-defining routines
+ are written in Fortran. 
 
  The user-callable functions in this package, with the corresponding
  KINSOL and KINBBDPRE functions, are as follows: 
-   FKINBBDINIT  interfaces to KBBDPrecAlloc and KINSpgmr
+   FKINBBDINIT  interfaces to KBBDPrecAlloc
+   FKINBBDSPGMR interfaces with KINSpgmr
    FKINBBDOPT   accesses optional outputs
    FKINBBDFREE  interfaces to KBBDPrecFree
 
@@ -119,7 +120,7 @@
  arguments.  Thus KCOMMFN can omit any communications done by KFUN
  if relevant to the evaluation of g.
 
- (4) Initialization:  FNVINITP, FKINMALLOC, and FKINBBDINIT.
+ (4) Initialization:  FNVINITP, FKINMALLOC, FKINBBDSPGMR, and FKINBBDINIT.
 
  (4.1) To initialize the parallel machine environment, the user must make 
  the following call:
@@ -148,10 +149,11 @@
                See printed message for details in case of failure.
 
 
- (4.3) To specify the SPGMR linear system solver, and to allocate memory 
+ (4.3.1) To specify the SPGMR linear system solver, and to allocate memory 
  and initialize data associated with the SPGMR method and the BBD
  preconditioner, make the following call:
-      CALL FKINBBDINIT (NLOCAL, MAXL, MAXLRST, MU, ML, IER)
+      CALL FKINBBDSPGMR (MAXL, MAXLRST, IER)
+      CALL FKINBBDINIT (NLOCAL, MU, ML, IER)
 
  The arguments are:
  NLOCAL   = local size of vectors on this processor
@@ -163,9 +165,10 @@
             when smaller values may provide greater efficiency.
  IER      = return completion flag.  Values are 0 = success, and -1 = failure.
 
- (5) Solver: FKINSOL
+ (5) Solver: FKINSPGMRSOL
  Solving of nonlinear system is accomplished by making the following call:
-      CALL FKINSOL (UU, GLOBALSTRAT, USCALE, FSCALE, IER)
+      CALL FKINSPGMRSOL (UU, GLOBALSTRAT, USCALE, FSCALE, IER)
+
  The arguments are:
  UU          = array containing the initial guess when called, returns the solution
  GLOBALSTRAT = (INTEGER) a number defining the global strategy choice:
@@ -202,6 +205,7 @@
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
 #define FKIN_BBDINIT    fkinbbdinit
+#define FKIN_BBDSPGMR   fkinbbdspgmr
 #define FKIN_BBDOPT     fkinbbdopt
 #define FKIN_BBDFREE    fkinbbdfree
 #define FK_COMMFN       fkcommfn
@@ -210,6 +214,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
 
 #define FKIN_BBDINIT    fkinbbdinit__
+#define FKIN_BBDSPGMR   fkinbbdspgmr__
 #define FKIN_BBDOPT     fkinbbdopt__
 #define FKIN_BBDFREE    fkinbbdfree__
 #define FK_COMMFN       fkcommfn__
@@ -218,6 +223,7 @@
 #else
 
 #define FKIN_BBDINIT    fkinbbdinit_
+#define FKIN_BBDSPGMR   fkinbbdspgmr_
 #define FKIN_BBDOPT     fkinbbdopt_
 #define FKIN_BBDFREE    fkinbbdfree_
 #define FK_COMMFN       fkcommfn_
