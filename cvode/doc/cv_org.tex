@@ -75,9 +75,8 @@ considerable assistance in building preconditioners.
 \index{CVODE@{\cvode} linear solvers!implementation details|(} 
 Each {\cvode} linear solver module consists of five routines, devoted to (1)
 memory allocation and initialization, (2) setup of the matrix data
-involved, (3) solution of the system, (4) solution of the system in the
-context of forward sensitivity analysis, and (5) freeing of memory.  The
-setup and solution phases are separate because the evaluation of
+involved, (3) solution of the system, and (4) freeing of memory.  
+The setup and solution phases are separate because the evaluation of
 Jacobians and preconditioners is done only periodically during the
 integration, as required to achieve convergence. The call list within
 the central {\cvode} module to each of the five associated functions is
