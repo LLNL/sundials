@@ -68,7 +68,7 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-#if SUNDIALS_SINGLE_PRECISION
+#if defined(SUNDIALS_SINGLE_PRECISION)
 
 typedef float realtype;
 typedef int integertype;
