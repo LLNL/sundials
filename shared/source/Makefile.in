@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2004-10-28 00:35:17 $
+# $Revision: 1.9 $
+# $Date: 2004-12-06 19:24:21 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,9 +41,9 @@ LIBS     = @LIBS@
 SHARED_INC_DIR   = $(srcdir)/../include
 
 SHARED_LIB       = libsundials_shared.la
-SHARED_LIB_FILES = band.lo dense.lo iterative.lo sundialsmath.lo nvector.lo smalldense.lo spgmr.lo
+SHARED_LIB_FILES = band.lo dense.lo iterative.lo sundialsmath.lo nvector.lo smalldense.lo spgmr.lo spbcg.lo
 
-OBJECT_FILES = band.o dense.o iterative.o sundialsmath.o nvector.o smalldense.o spgmr.o
+OBJECT_FILES = band.o dense.o iterative.o sundialsmath.o nvector.o smalldense.o spgmr.o spbcg.o
 
 all: update $(SHARED_LIB_FILES)
 
@@ -62,6 +62,7 @@ install: update $(SHARED_LIB_FILES)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/nvector.h $(includedir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/smalldense.h $(includedir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/spgmr.h $(includedir)
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/spbcg.h $(includedir)
 	$(INSTALL_HEADER) $(builddir)/sundials_config.h $(includedir)
 
 clean:
@@ -80,6 +81,7 @@ uninstall: clean
 	rm -f $(includedir)/nvector.h
 	rm -f $(includedir)/smalldense.h
 	rm -f $(includedir)/spgmr.h
+	rm -f $(includedir)/spbcg.h
 	@if test -f ${includedir}/sundials_config.h ; then \
 	   echo "rm -f $(includedir)/sundials_config.h" ;  \
 	   rm -f $(includedir)/sundials_config.h ;         \
@@ -101,6 +103,8 @@ smalldense.lo: $(srcdir)/smalldense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/smalldense.c
 spgmr.lo: $(srcdir)/spgmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/spgmr.c
+spbcg.lo: $(srcdir)/spbcg.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/spbcg.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \
