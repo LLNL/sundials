@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-06-09 15:52:19 $
+ * $Revision: 1.18 $
+ * $Date: 2004-06-29 23:07:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -1312,7 +1312,7 @@ static int KINSolInit(KINMem kin_mem)
 
   /* this value is always used for choice #1 */
 
-  if (etaflag == ETACHOICE1) ealpha = ONE + HALF * RSqrt(FIVE);
+  if (etaflag == ETACHOICE1) ealpha = (ONE + RSqrt(FIVE)) * HALF;
 
   /* initial value for eta set to 0.5 for other than the ETACONSTANT option */
 
@@ -1362,8 +1362,6 @@ static int KINSolInit(KINMem kin_mem)
 
 static int KINConstraint(KINMem kin_mem) 
 {
-  realtype mxchange;
-
   N_VLinearSum(ONE, uu, ONE, pp, vtemp1);
 
   /* if vtemp1[i] violates constraint[i] then vtemp2[i] = 1
@@ -1371,15 +1369,15 @@ static int KINConstraint(KINMem kin_mem)
 
   if(N_VConstrMask(constraints, vtemp1, vtemp2)) return(0);
 
-  /* find maximum relative change */
+  /* vtemp1[i] = ABS(pp[i]) */
 
-  N_VDiv(pp, uu, vtemp1);
+  N_VAbs(pp, vtemp1);
 
   /* consider vtemp1[i] only if vtemp2[i] = 1 (constraint violated) */
 
-  N_VProd(vtemp1, vtemp2, vtemp1);
-  mxchange = N_VMaxNorm(vtemp1);
-  stepmul = POINT9 / mxchange;
+  N_VProd(vtemp2, vtemp1, vtemp1);
+
+  stepmul = POINT9 * N_VMinQuotient(uu, vtemp1);
 
   return(1);
 }
