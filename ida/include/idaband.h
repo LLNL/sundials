@@ -1,10 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-04-28 15:23:16 $
+ * $Revision: 1.14 $
+ * $Date: 2004-04-29 22:45:52 $
  * ----------------------------------------------------------------- 
- * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
- *              Radu Serban @ LLNL
+ * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory

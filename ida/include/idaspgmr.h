@@ -1,16 +1,19 @@
-/*******************************************************************
- * File          : idaspgmr.h                                      *
- * Programmers   : Alan C. Hindmarsh and Allan G. Taylor           *
- * Version of    : 19 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * See sundials/ida/LICENSE or sundials/idas/LICENSE               *
- *-----------------------------------------------------------------*
- * This is the header file for the Scaled Preconditioned GMRES     *
- * linear solver module, IDASPGMR.                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.12 $
+ * $Date: 2004-04-29 22:45:52 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California  
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/ida/LICENSE
+ * -----------------------------------------------------------------
+ * This is the header file for the Scaled Preconditioned GMRES     
+ * linear solver module, IDASPGMR.                                 
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
