@@ -95,10 +95,8 @@ if test "X${CVODE_ENABLED}" = "Xyes"; then
   MODULES="$MODULES cvode/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/source/Makefile"
 
-  if test "X${F77_ENABLED}" = "Xyes"; then
-    MODULES="$MODULES cvode/fcmix"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
-  fi
+  MODULES="$MODULES cvode/fcmix"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes"; then
     EX_MODULES="$EX_MODULES cvode/examples_ser"
@@ -186,10 +184,8 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
   MODULES="$MODULES kinsol/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/source/Makefile"
 
-  if test "X${F77_ENABLED}" = "Xyes"; then
-    MODULES="$MODULES kinsol/fcmix"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
-  fi
+  MODULES="$MODULES kinsol/fcmix"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes"; then
     EX_MODULES="$EX_MODULES kinsol/examples_ser"
