@@ -174,7 +174,7 @@ at the user's option.  In the latter case, we use the usual
 approximation
 \[ J_{ij} = [f^i(t,y+\sigma_j e_j) - f^i(t,y)]/\sigma_j \, . \]
 The increments $\sigma_j$ are given by
-\[ \sigma_j = max\left\{\sqrt{U} |y^j| , \sigma_0 W_j \right\} \, , \]
+\[ \sigma_j = \max\left\{\sqrt{U} |y^j| , \sigma_0 W_j \right\} \, , \]
 where $U$ is the unit roundoff, $\sigma_0$ is a dimensionless value,
 and $W_j$ is the error weight of Eq. (\ref{errwt}).  In the dense
 case, this scheme requires $N$ evaluations of $f$, one for each column
@@ -244,7 +244,7 @@ asymptotically as $h^{q'+1}$.  With safety factors of 1/6 and
 and
 \[ h'/h = [1 / 10 \|LTE(q+1)| ]^{1/(q+2)} \equiv \eta_{q+1} \, . \]
 The new order and stepsize are then set according to
-\[ \eta = max\{\eta_{q-1},\eta_q,\eta_{q+1}\} ~,~~ h' = \eta h \, , \]
+\[ \eta = \max\{\eta_{q-1},\eta_q,\eta_{q+1}\} ~,~~ h' = \eta h \, , \]
 with $q'$ set to the index achieving the above maximum.
 However, if we find that $\eta < 1.5$, we do not bother with the
 change.  Also, $h'/h$ is always limited to 10, except on the first
