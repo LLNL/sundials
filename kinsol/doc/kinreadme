@@ -1,8 +1,8 @@
-                   KINSOL: Version of 21 December 2001
-                     Notes on Installation and Usage
+                   KINSOL: Version of 21 March 2002
+                   Notes on Installation and Usage
 
-		   Allan G. Taylor & Alan C. Hindmarsh
-              Center for Applied Scientific Computing, LLNL
+                  Allan G. Taylor & Alan C. Hindmarsh
+             Center for Applied Scientific Computing, LLNL
 
 
 KINSOL is a solver for nonlinear algebraic systems which can be
@@ -12,17 +12,24 @@ written by Brown and Saad.  In addition to the basic solver, this
 package includes a module called KINBBDPRE, which provides a
 band-block-diagonal preconditioner for the parallel version.
 
-KINSOL comes in two versions: one for serial and another for parallel
-computers. The versions differ only in one module, the NVECTOR module.
-Identical modules are used for compilation of either version except
-that the appropriate choice of 'make' commands will use the serial or
-parallel version of nvector.c/nvector.h.  In the parallel version,
-communication between processors is done with the MPI (Message Passage
-Interface) system.
+KINSOL can be used both on serial and parallel (MPI) computers.
+The difference is only in the NVECTOR module of vector kernels.
+The desired version is obtained when compiling the example files
+by linking the appropriate library of NVECTOR kernels. In the parallel 
+version, communication between processors is done with the MPI 
+(Message Passage Interface) system.
+
+Throughout this document, we will refer to the combination of KINSOL with
+the serial implementation of the NVECTOR module as "the serial version
+of KINSOL". Similarly, the combination of KINSOL with the parallel 
+implementation of the NVECTOR module will be called "the parallel version 
+of KINSOL". Note that the KINSOL package also contains a preconditioner 
+module called KINBBDPRE, which provides a band-block-diagonal preconditioner 
+for use with the parallel version only.
 
 KINSOL is part of a software family called SUNDIALS: SUite of Nonlinear
 and DIfferential/ALgebraic equation Solvers.  This suite consists of
-CVODE/PVODE, KINSOL, and IDA, and variants of these.  The directory
+CVODE, KINSOL, and IDA, and variants of these.  The directory
 structure of the package supplied reflects this family relationship.
 
 Several examples are included, all of which have been run on systems
@@ -49,30 +56,35 @@ A. Installation Notes for KINSOL
 
 1. A tar file kinsol.tar is provided.  To un-tar, type 'tar xvf kinsol.tar'
    in an appropriate working directory.  This generates a directory called
-   /SUNDIALS/, with subdirectories /shared/, /kinsol/, and /lib/.
+   /sundials/, with subdirectories /shared/, /kinsol/, /include/, and /lib/.
 
-2. /SUNDIALS/kinsol/doc/ contains this file, kinreadme, a PostScript file
+2. /sundials/kinsol/doc/ contains this file, kinreadme, a PostScript file
    kinudoc.ps for the KINSOL user documentation [2], and a file
    kinaddenda with corrections to the usage as given in [2].
 
-3. /SUNDIALS/shared/ contains files (header and source) that are shared
-   with other members of SUNDIALS.
+3. /sundials/shared/ contains files (header and source) that are shared
+   with other members of SUNDIALS. Typing 'make lib' in /sundials/shared/source
+   generates a library file /sundials/shared/lib/libshared.***.a (where *** 
+   is a machine dependent identifier), creates a symbolic link to this library in 
+   /sundials/lib/ and symbolic links to the SHARED header files in
+   /sundials/include/, then removes the object files.
 
-4. /SUNDIALS/kinsol/source/ contains source files for KINSOL, and a makefile.
-   Typing 'make kinsols' or 'make kinsolp' there compiles the serial or
-   parallel version of KINSOL, respectively.  This generates a library
-   file /SUNDIALS/lib/libkinsols.a or /SUNDIALS/lib/libkinsolp.a, and then
-   the associated object files are removed.
+4. /sundials/kinsol/source/ contains source files for KINSOL, and a makefile.
+   Typing 'make lib' there compiles generates a library
+   file /sundials/kinsol/lib/libkinsol.***.a (where *** is a machine
+   dependent identifier), creates a symbolic link to this library in 
+   /sundials/lib/ and symbolic links to the KINSOL header files in
+   /sundials/include/, then removes the object files.
 
-5. /SUNDIALS/kinsol/include/ contains all required header files for KINSOL.
+5. /sundials/kinsol/include/ contains all required header files for KINSOL.
 
-6. /SUNDIALS/kinsol/examples/ contains three example programs, and a
+6. /sundials/kinsol/examples/ contains three example programs, and a
    makefile.  The three programs -- kinxs, kinxp, and kinxbbd --
    each solve a predator-prey PDE system example problem.  
    (a) kinxs is a serial program, using a block-diagonal preconditioner.
    (b) kinxp is a parallel program, using a block-diagonal preconditioner.
    (c) kinxbbd is a parallel program, using the band-block-diagonal
-   conditioner module KINBBDPRE.
+       conditioner module KINBBDPRE.
      In all three examples, as the output from a large system such as
    these could be overwhelming, only the states for the 'bottom left'
    and 'top right' corners of the computational grid are printed.
@@ -85,33 +97,34 @@ A. Installation Notes for KINSOL
    another user (and run with the same number of processors) should agree
    with these, possibly with relatively small differences throughout.
 
-7. /SUNDIALS/kinsol/fcmix/ contains FKINSOL, package of Fortran/C interfaces
+7. /sundials/kinsol/fcmix/ contains FKINSOL, package of Fortran/C interfaces
    which allow a Fortran application to use KINSOL.  A makefile is supplied.
-   Typing 'make fkinsols' or 'make fkinsolp' adds the serial or parallel
-   version of FKINSOL to the corresponding library file. 
+   Typing 'make lib' adds the FKINSOL object files to the KINSOL library
+   in /sundials/kinsol/lib/. Note that the KINSOL library must have been
+   created before this.
       Usage documentation for FKINSOL is contained in [2], and also in
    the files fkinsol.h and fkinbbd.h (for use of KINSOL without and with
-   KINBBDPRE, respectively).  The header file fcmixpar.h contains two
-   machine-dependent parameters that are used to define interface
-   function names.  Check, and if necessary modify, those parameter
-   values for a given machine.
-      The subdirectory /SUNDIALS/kinsol/fcmix/ also contains two Fortran
-   examples, called kindiagsf and kindiagpf.  Type 'make fkinsolsx' or
-   'make fkinsolpx' to compile these examples.  A sample output for
+   KINBBDPRE, respectively).  The header file fcmixpar.h 
+   (in /sundials/shared/include/) contains two machine-dependent parameters 
+   that are used to define interface function names.  Check, and if necessary 
+   modify, those parameter values for a given machine.
+      The subdirectory /sundials/kinsol/fcmix/ also contains two Fortran
+   examples, called kindiagsf and kindiagpf.  Type 'make fkinx_ser' or
+   'make fkinx_par' to compile these examples.  A sample output for
    each is included.
       Note: the example programs are in double precision Fortran; for a
    long-wordlength machine, these should be converted to single precision.
 
 8. Installing and using KINSOL in a different environment requires only
    minor modifications to the various makefiles.  For the compilation of
-   KINSOL, check the files kinsols.mk and/or kinsolp.mk in
-   /SUNDIALS/kinsol/source/, and if necessary modify the compiler name,
-   and the path to MPI include files.
+   KINSOL, check the file Makefile in /sundials/kinsol/source/,
+   and if necessary modify the compiler name and flags, and the path to 
+   MPI include files.
       To run KINSOL on an application in a different directory location,
-   the makefiles in /SUNDIALS/kinsol/examples/ can be used with minor
-   changes.  In the files Makefile, kinxs.mk, and kinxp.mk, correct
-   the various paths involved -- paths to /SUNDIALS/shared/,
-   /SUNDIALS/kinsol/include/, /SUNDIALS/lib/, and to MPI include files.
+   the makefiles in /sundials/kinsol/examples/ can be used with minor
+   changes.  In the files Makefile, kinx_ser.mk, and kinx_par.mk, correct
+   the various paths involved -- path to the top of the SUNDIALS tree 
+   and to MPI include files.
    Also check and correct the compiler/linker names and flags.
    Similar remarks apply to the use of FKINSOL.
 
@@ -119,59 +132,62 @@ A. Installation Notes for KINSOL
 B.  Summary of Parallel Usage of KINSOL
 ---------------------------------------
 
-0.  msgfile = fopen("test.out","w");  /*  Open message file , if desired.
-                                       see #5, below */
+    #include "nvector_parallel"
 
-1.  MPI_Init();  /* As PVecInitMPI also calls MPI_Init, this call is only
-		    required if the user's program uses MPI before step 3 */
+0.  msgfile = fopen("test.out","w");  /*  Open message file , if desired.
+                                          see #5, below */
+
+1.  MPI_Init();  /* As M_EnvInit_Parallel also calls MPI_Init, this call is only
+		            required if the user's program uses MPI before step 3 */
 
 2.  Set local length n, global length Neq, and active set of processors
 
-3.  machEnv = PVecInitMPI(comm, n, Neq, &argc, &argv);
+3.  machEnv = M_EnvInit_Parallel(comm, n, Neq, &argc, &argv);
       /* comm = MPI communicator (if set up by user), or
          comm = MPI_COMM_WORLD (specifying all processors) */
     if (machEnv == NULL) return(1);
     ...
 
-4.  N_VMAKE(u, data, machEnv);     
+4.  NV_MAKE_P(u, udata, machEnv);   /* macro defined in nvector_parallel.h */     
       or
-    u = N_VNew(Neq,machEnv);  /* user sets up vectors, etc. */
+    u = N_VNew(Neq, machEnv);       /* user sets up vectors, etc. */
     ...
 
 5.  mem = KINMalloc( Neq, msgfile, machEnv);      /* initializes KINSOL */
     if (mem == NULL) return(1); 
- /* if stdout is to be used instead of a specific error message file, 
-           enter NULL in place of msgfile */
+    /* if stdout is to be used instead of a specific error message file, 
+       enter NULL in place of msgfile */
     ...
 
-6.  flag = KIN<linear solver choice>  /* e.g. KINSpgmr(... Precond, Psolve,...)
-		call the setup routine for the linear solver to be used--
-		however, only KINSpgmr is available to date.
-    Test flag for a successful call (0 means OK). */
+6.  flag = KIN<linear solver choice> 
+    /* e.g. KINSpgmr(... Precond, Psolve,...)
+       call the setup routine for the linear solver to be used--
+       however, only KINSpgmr is available to date.
+       Test flag for a successful call (0 means OK). */
     ...
 
 7.  flag= KINSol(mem, Neq, u, func, ... , machEnv);
-	/* call the KINSOL main routine -- can be called repetitively with
-	   different functions func and other options. The linear solver
-	   choice made in step 6, however, cannot be changed between 
-           KINSol calls. Instead, a KINFree and KINSpgmr call are required 
-    Test flag for a successful call (1 or 2 means OK).*/
+    /* call the KINSOL main routine -- can be called repetitively with
+       different functions func and other options. The linear solver
+       choice made in step 6, however, cannot be changed between 
+       KINSol calls. Instead, a KINFree and KINSpgmr call are required 
+       Test flag for a successful call (1 or 2 means OK).*/
     ...
 
 8.  KINFree(mem);       /* Free KINSOL memory independent of machine */
     ...
 
-9.  PVecFreeMPI(machEnv);     /* Free machine-dependent stuff */
+9.  M_EnvFree_Parallel(machEnv);     /* Free machine-dependent stuff */
 
 Usage Notes:
 
 (1) See [2] and the kinaddenda file for detailed user documentation. 
 
-(2) See the file nvector.h for documentation of PVecInitMPI, PVecFreeMPI,
-   and N_VMAKE (steps 3, 4, 9).
+(2) See the file nvector_parallel.h for documentation of M_EnvInit_Parallel, 
+    M_EnvFree_Parallel, and NV_MAKE_P (steps 3, 4, 9).
 
 (3) For further assistance with usage, see the example programs kinxs.c
-   and kinxp.c, which are heavily annotated.
+    and kinxp.c, which are heavily annotated.
 
 
 References
@@ -230,6 +246,8 @@ REVISION HISTORY (YYYYMMDD)
            (int to integer) of length arguments.
 20011221   In FKINSOL, corrected type (integer) for Neq in KINPreco, KINPSol.
 20020207   This file revised to reflect new package organization.
+20020313   Modified to work with new NVECTOR abstraction. (Radu Serban)
+           Revised this file to reflect new N_Vector usage. (Radu Serban)
 
 ..........................................................................
 

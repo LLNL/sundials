@@ -62,3 +62,28 @@ than the listing of this file included in the document.
 10. In the file llnltyps.h, the default for type 'integer' is now
 'long int' instead of 'int'.  The usage instructions for changing this
 type are given in that file.
+
+11. The NVECTOR module has been reorganized throughout SUNDIALS. For 
+more information, see the file idareadme and the files nvecreadme, 
+nvector.h, nvector_serial.h, and nvector_parallel.h in /sundials/shared/.
+A serial KINSOL example must include 'nvector_serial.h' and a parallel
+KINSOL example must include 'nvector_parallel.h'.
+
+12. Both the serial and parallel versions of KINSOL must now initialize the 
+machine environment through calls to M_EnvInit_Serial and M_EnvInit_Parallel
+(a rename of PVecInitMPI), respectively. As a consequence, the machine 
+environment argument to KINMalloc (last argument) cannot be NULL anymore
+in the serial version.
+
+13. Vector accessor macros now have implementation-dependent names, such
+as NV_DATA_S, NV_LENGTH_S, NV_Ith_S for the serial NVECTOR (nvector_serial.h)
+and NV_DATA_P, NV_LOCLENGTH_P, NV_GLOBLENGTH_P, NV_Ith_P for the parallel
+NVECTOR (nvector_parallel.h).
+
+14. In using the KINBBDPRE module, the argument machEnv (machine environment) in the
+call to KBBDAlloc has been removed.  (This quantity is available internally.)
+
+15. For uisers of the FKINSOL package, the first argument of the Fortran user
+routine for the system function F is now the problem size and not the local vector 
+length.
+ 
