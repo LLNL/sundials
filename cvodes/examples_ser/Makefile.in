@@ -1,0 +1,96 @@
+# File Makefile
+#--------------------------------------------------------------------------
+# Makefile for the CVODES examples using the serial N_Vector implementation.
+# @configure_input@
+#--------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# SUNDIALS library and include directories
+SUNDIALSINCLUDE = -I${includedir}
+SUNDIALSLIBDIRS = -L${libdir}
+SUNDIALSLIBS    = -lcvodes -lshared -lnvecserial
+
+# Include
+INCDIRS = ${SUNDIALSINCLUDE}
+
+# Libraries
+LIBDIRS = ${SUNDIALSLIBDIRS}
+LIBS    = ${SUNDIALSLIBS} -lm
+
+# Compiler and compiler options
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: cvdx cvbx cvkx cvkxb cvdemd cvdemk \
+     cvfnx cvfdx cvfkx \
+     cvadx cvabx cvakx cvakxb
+
+#-------
+
+cvdx: cvdx.o
+	${CC} ${CFLAGS} -o cvdx cvdx.o ${LIBDIRS} ${LIBS}
+
+cvbx: cvbx.o
+	${CC} ${CFLAGS} -o cvbx cvbx.o ${LIBDIRS} ${LIBS}
+
+cvkx: cvkx.o
+	${CC} ${CFLAGS} -o cvkx cvkx.o ${LIBDIRS} ${LIBS}
+
+cvkxb: cvkxb.o
+	${CC} ${CFLAGS} -o cvkxb cvkxb.o ${LIBDIRS} ${LIBS}
+
+cvdemd: cvdemd.o
+	${CC} ${CFLAGS} -o cvdemd cvdemd.o ${LIBDIRS} ${LIBS}
+
+cvdemk: cvdemk.o
+	${CC} ${CFLAGS} -o cvdemk cvdemk.o ${LIBDIRS} ${LIBS}
+
+#-------
+
+cvfnx: cvfnx.o
+	${CC} ${CFLAGS} -o cvfnx cvfnx.o ${LIBDIRS} ${LIBS}
+
+cvfdx: cvfdx.o
+	${CC} ${CFLAGS} -o cvfdx cvfdx.o ${LIBDIRS} ${LIBS}
+
+cvfkx: cvfkx.o
+	${CC} ${CFLAGS} -o cvfkx cvfkx.o ${LIBDIRS} ${LIBS}
+
+#-------
+
+cvadx: cvadx.o
+	${CC} ${CFLAGS} -o cvadx cvadx.o ${LIBDIRS} ${LIBS}
+
+cvabx: cvabx.o
+	${CC} ${CFLAGS} -o cvabx cvabx.o ${LIBDIRS} ${LIBS}
+
+cvakx: cvakx.o
+	${CC} ${CFLAGS} -o cvakx cvakx.o ${LIBDIRS} ${LIBS}
+
+cvakxb: cvakxb.o
+	${CC} ${CFLAGS} -o cvakxb cvakxb.o ${LIBDIRS} ${LIBS}
+
+#-------
+
+clean:
+	rm -f *.o
+	rm -f cvdx cvbx cvkx cvkxb cvdemd cvdemk
+	rm -f cvfnx cvfdx cvfkx
+	rm -f cvadx cvabx cvakx cvakxb
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCDIRS} $*.c
+
+#---End of Makefile---
