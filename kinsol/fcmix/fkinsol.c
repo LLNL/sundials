@@ -1,15 +1,18 @@
-/******************************************************************
- * File          : fkinsol.c                                      *
- * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
- *                 Radu Serban @ LLNL                             *
- * Version of    : 07 February 2004                               *
- *----------------------------------------------------------------*
- * This is the implementation file for the Fortran interface to   *
- * the KINSOL package. See fkinsol.h for usage.                   *
- * NOTE: some routines are necessarily stored elsewhere to avoid  *
- * linking problems. See also, therefore, fkinpreco.c, fkinpsol.c *
- * fkinuatimes.c, and fkinspgmr.c                                 *
- ******************************************************************/
+/*
+ *----------------------------------------------------------------
+ * $Revision: 1.16 $
+ * $Date: 2004-04-26 23:38:50 $
+ *----------------------------------------------------------------
+ * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and          
+ *                 Radu Serban @ LLNL                             
+ *----------------------------------------------------------------
+ * This is the implementation file for the Fortran interface to   
+ * the KINSOL package. See fkinsol.h for usage.                   
+ * NOTE: some routines are necessarily stored elsewhere to avoid  
+ * linking problems. See also, therefore, fkinpreco.c, fkinpsol.c 
+ * fkinuatimes.c, and fkinspgmr.c                                 
+ *----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -112,8 +115,8 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KIN_iopt[5] = nbcfails;
     KIN_iopt[6] = nbacktr;
 
-    KINGetFuncNorm(KIN_mem, &KIN_ropt[3]);
-    KINGetStepLength(KIN_mem, &KIN_ropt[4]);
+    KINGetFuncNorm(KIN_mem, &KIN_ropt[2]);
+    KINGetStepLength(KIN_mem, &KIN_ropt[3]);
 
     switch(KIN_ls) {
     case 1:
@@ -145,9 +148,9 @@ void FKIN_FREE()
 /***************************************************************************/
 
 
-/* C function KINfunc acts as an interface between KINSol and the Fortran 
-   user-supplied subroutine KFUN.
-   Addresses of Neq and the data for uu and fval are passed to KFUN,
+/* C function FKINfunc acts as an interface between KINSol and the Fortran 
+   user-supplied subroutine FKFUN.
+   Addresses of the data uu and fdata are passed to KFUN,
    using the routine N_VGetData from the NVECTOR module.
    The data in the returned N_Vector fval is set using N_VSetData. 
    Auxiliary data is assumed to be communicated by Common. */
