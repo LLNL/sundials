@@ -72,9 +72,9 @@ SpgmrMem SpgmrMalloc(integer N, int l_max, void *machEnv)
       return(NULL);
     }
   }
-
+  
   /* Get memory for Givens rotation components. */
-
+  
   givens = (real *) malloc(2*l_max*sizeof(real));
   if (givens == NULL) {
     for (i = 0; i <= l_max; i++) free(Hes[i]);
@@ -149,8 +149,8 @@ SpgmrMem SpgmrMalloc(integer N, int l_max, void *machEnv)
 
 int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
                int pretype, int gstype, real delta, int max_restarts,
-	       void *P_data, N_Vector s1, N_Vector s2, ATimesFn atimes,
-	       PSolveFn psolve, real *res_norm, int *nli, int *nps)
+               void *P_data, N_Vector s1, N_Vector s2, ATimesFn atimes,
+               PSolveFn psolve, real *res_norm, int *nli, int *nps)
 {
   N_Vector *V, xcor, vtemp;
   real **Hes, *givens, *yg;
@@ -159,6 +159,10 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   int i, j, k, l, l_plus_1, l_max, krydim, ier, ntries;
 
   if (mem == NULL) return(SPGMR_MEM_NULL);
+
+  /* Initialize some variables */
+  l_plus_1 = 0;
+  krydim = 0;
 
   /* Make local copies of mem variables. */
   l_max  = mem->l_max;
@@ -225,83 +229,83 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   /* Begin outer iterations: up to (max_restarts + 1) attempts. */
   
   for (ntries = 0; ntries <= max_restarts; ntries++) {
-
+    
     /* Initialize the Hessenberg matrix Hes and Givens rotation
        product.  Normalize the initial vector V[0].             */
-   
+    
     for (i = 0; i <= l_max; i++)
       for (j = 0; j < l_max; j++)
-	Hes[i][j] = ZERO;
-
+        Hes[i][j] = ZERO;
+    
     rotation_product = ONE;
     
     N_VScale(ONE/r_norm, V[0], V[0]);
-
+    
     /* Inner loop: generate Krylov sequence and Arnoldi basis. */
     
     for (l = 0; l < l_max; l++) {
-
+      
       (*nli)++;
-
+      
       krydim = l_plus_1 = l + 1;
       
       /* Generate A-tilde V[l], where A-tilde = s1 P1_inv A P2_inv s2_inv. */
-
+      
       /* Apply right scaling: vtemp = s2_inv V[l]. */
       if (scale2) N_VDiv(V[l], s2, vtemp);
-        else N_VScale(ONE, V[l], vtemp);
-
+      else N_VScale(ONE, V[l], vtemp);
+      
       /* Apply right preconditioner: vtemp = P2_inv s2_inv V[l]. */ 
       if (preOnRight) {
         N_VScale(ONE, vtemp, V[l_plus_1]);
-	ier = psolve(P_data, V[l_plus_1], vtemp, RIGHT);
-	(*nps)++;
-	if (ier != 0)
-	  return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
+        ier = psolve(P_data, V[l_plus_1], vtemp, RIGHT);
+        (*nps)++;
+        if (ier != 0)
+          return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
       }
-
+      
       /* Apply A: V[l+1] = A P2_inv s2_inv V[l]. */
       if (atimes(A_data, vtemp, V[l_plus_1] ) != 0)
-	return(SPGMR_ATIMES_FAIL);
-
+        return(SPGMR_ATIMES_FAIL);
+      
       /* Apply left preconditioning: vtemp = P1_inv A P2_inv s2_inv V[l]. */
       if (preOnLeft) {
-	ier = psolve(P_data, V[l_plus_1], vtemp, LEFT);
-	(*nps)++;
-	if (ier != 0)
-	  return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
+        ier = psolve(P_data, V[l_plus_1], vtemp, LEFT);
+        (*nps)++;
+        if (ier != 0)
+          return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
       } else {
-	N_VScale(ONE, V[l_plus_1], vtemp);
+        N_VScale(ONE, V[l_plus_1], vtemp);
       }
-
+      
       /* Apply left scaling: V[l+1] = s1 P1_inv A P2_inv s2_inv V[l]. */
       if (scale1) {
-	N_VProd(s1, vtemp, V[l_plus_1]);
+        N_VProd(s1, vtemp, V[l_plus_1]);
       } else {
-	N_VScale(ONE, vtemp, V[l_plus_1]);
+        N_VScale(ONE, vtemp, V[l_plus_1]);
       }
       
       /*  Orthogonalize V[l+1] against previous V[i]: V[l+1] = w_tilde. */
-
+      
       if (gstype == CLASSICAL_GS) {
-	if (ClassicalGS(V, Hes, l_plus_1, l_max, &(Hes[l_plus_1][l]),
-			vtemp, yg) != 0)
-	  return(SPGMR_GS_FAIL);
+        if (ClassicalGS(V, Hes, l_plus_1, l_max, &(Hes[l_plus_1][l]),
+                        vtemp, yg) != 0)
+          return(SPGMR_GS_FAIL);
       } else {
-	if (ModifiedGS(V, Hes, l_plus_1, l_max, &(Hes[l_plus_1][l])) != 0) 
-	  return(SPGMR_GS_FAIL);
+        if (ModifiedGS(V, Hes, l_plus_1, l_max, &(Hes[l_plus_1][l])) != 0) 
+          return(SPGMR_GS_FAIL);
       }
-
+      
       /*  Update the QR factorization of Hes. */
-
+      
       if(QRfact(krydim, Hes, givens, l) != 0 )
-	return(SPGMR_QRFACT_FAIL);
-
+        return(SPGMR_QRFACT_FAIL);
+      
       /*  Update residual norm estimate; break if convergence test passes. */
       
       rotation_product *= givens[2*l+1];
       *res_norm = rho = ABS(rotation_product*r_norm);
-    
+      
       if (rho <= delta) { converged = TRUE; break; }
       
       /* Normalize V[l+1] with norm value from the Gram-Schmidt routine. */
@@ -309,7 +313,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
     }
     
     /* Inner loop is done.  Compute the new correction vector xcor. */
-
+    
     /* Construct g, then solve for y. */
     yg[0] = r_norm;
     for (i = 1; i <= krydim; i++) yg[i]=ZERO;
@@ -319,32 +323,32 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
     /* Add correction vector V_l y to xcor. */
     for (k = 0; k < krydim; k++)
       N_VLinearSum(yg[k], V[k], ONE, xcor, xcor);
-
+    
     /* If converged, construct the final solution vector x and return. */
     if (converged) {
-     
+      
       /* Apply right scaling and right precond.: vtemp = P2_inv s2_inv xcor. */
-  
+      
       if (scale2) N_VDiv(xcor, s2, xcor);
       if (preOnRight) {
-	ier = psolve(P_data, xcor, vtemp, RIGHT);
-	(*nps)++;
-	if (ier != 0)
-	   return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
+        ier = psolve(P_data, xcor, vtemp, RIGHT);
+        (*nps)++;
+        if (ier != 0)
+          return((ier < 0) ? SPGMR_PSOLVE_FAIL_UNREC : SPGMR_PSOLVE_FAIL_REC);
       } else {
-	N_VScale(ONE, xcor, vtemp);
+        N_VScale(ONE, xcor, vtemp);
       }
-
+      
       /* Add vtemp to initial x to get final solution x, and return */
       N_VLinearSum(ONE, x, ONE, vtemp, x);
-
+      
       return(SPGMR_SUCCESS);
     }
-
+    
     /* Not yet converged; if allowed, prepare for restart. */
-
+    
     if (ntries == max_restarts) break;
-
+    
     /* Construct last column of Q in yg. */
     s_product = ONE;
     for (i = krydim; i > 0; i--) {
@@ -352,26 +356,26 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       s_product *= givens[2*i-1];
     }
     yg[0] = s_product;
-
+    
     /* Scale r_norm and yg. */
     r_norm *= s_product;
     for (i = 0; i <= krydim; i++)
       yg[i] *= r_norm;
     r_norm = ABS(r_norm);
-
+    
     /* Multiply yg by V_(krydim+1) to get last residual vector; restart. */
     N_VScale(yg[0], V[0], V[0]);
     for (k = 1; k <= krydim; k++)
       N_VLinearSum(yg[k], V[k], ONE, V[0], V[0]);
-
+    
   }
-
+  
   /* Failed to converge, even after allowed restarts.
      If the residual norm was reduced below its initial value, compute
      and return x anyway.  Otherwise return failure flag.              */
-
+  
   if (rho < beta) {
-
+    
     /* Apply right scaling and right precond.: vtemp = P2_inv s2_inv xcor. */
     
     if (scale2) N_VDiv(xcor, s2, xcor);
@@ -399,7 +403,7 @@ void SpgmrFree(SpgmrMem mem)
 {
   int i, l_max;
   real **Hes;
-
+  
   if (mem == NULL) return;
 
   l_max = mem->l_max;
