@@ -9,19 +9,20 @@ or through the DOE ACTS web site at
 \section{Conclusions}\label{s:conclusions}
 
 CVODES is the first in a series of new additions to SUNDIALS. The new codes,
-IDAS and KINSOLS, together with CVODES will provide sensitivity analysis
-for all the types of problems addressed by the basic SUNDIALS solvers.
-These new capabilities....
+IDAS and KINSOLS, together with CVODES, will provide sensitivity analysis
+for all the classes of problems addressed by the basic SUNDIALS solvers.
+These new capabilities extend the versatility and functionality of the SUNDIALS
+solvers in addressing new classes of applications, such as dynamically-constrained
+optimization, inversion, and uncertainty quantification.
 
-
-Like all of SUNDIALS, CVODES is under active development. Future work includes...
-
-- generation of the sensitivity equations (complex step - underway; incorporation
-of AD tools as they become available - especially important for adj. sensi where
-there is no other alternative to analytical formulas)
-
-- incorporation of language interoperability capabilities (Babel)
-
-- root-finding capabilities
-
-- application in inversion and dynamically-constrained optimization
+Like all of SUNDIALS, CVODES is under active development.
+An area of particular interest is in the automatic generation of the sensitivity 
+equations. A parser and code generator for the automatic generation of derivative
+approximations using the complex step method is underway.
+Automatic differentiation (AD) tools will be incorporated as they become available;
+we are especially interested in adding reverse AD capabilities to the SUNDIALS
+adjoint sensitivity solvers.
+Finally, to address language interoperability issues and thus facilitate the use
+of the SUNDIALS solvers for users of other programming languages, we plan to
+generate Babel~\cite{KKPR:01} wrappers for them.
+ 
