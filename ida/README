@@ -1,5 +1,5 @@
                                IDA
-                    Release 2.2.3, April 2005
+                    Release 2.3.0, April 2005
              Alan C. Hindmarsh, Allan G. Taylor, Radu Serban 
               Center for Applied Scientific Computing, LLNL
 
@@ -77,7 +77,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.2.3   - Apr. 2005
+v. 2.3.0   - Apr. 2005
 v. 2.2.2   - Mar. 2005
 v. 2.2.1   - Jan. 2005
 v. 2.2.0   - Dec. 2004
@@ -88,11 +88,12 @@ v. 1.0     - Feb. 1999 (date written)
 E. Revision History
 -------------------
 
-v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
+v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------
 
 - New features
    - added option for user-provided error weight computation function
+     (of type IDAEwtFn specified through IDASetEwtFn).
 
 - Changes to user interface
    - IDA now stores tolerances through values rather than references 
@@ -113,6 +114,10 @@ v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
    - Passing a value of 0 for the maximum step size or for maxsteps results 
      in the solver using the corresponding default value (infinity, and 500, 
      respectively)
+   - Several optional input functions were combined into a single one
+     (IDADenseSetJacFn and IDADenseSetJacData, IDABandSetJacFn and IDABandSetJacData, 
+     IDASpgmrSetPrecSolveFn and IDASpgmrSetPrecSetFn and IDASpgmrSetPrecData, 
+     IDASpgmrSetJacTimesVecFn and IDASpgmrSetJacData).
 
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------
