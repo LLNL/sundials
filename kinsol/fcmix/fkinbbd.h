@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-10-26 18:01:55 $
+ * $Revision: 1.21.2.1 $
+ * $Date: 2005-01-24 21:45:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -247,10 +247,14 @@
 #ifndef _FKINBBD_H
 #define _FKINBBD_H
 
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
+/*
+ * -----------------------------------------------------------------
+ * header files
+ * -----------------------------------------------------------------
+ */
+
+#include "nvector.h"        /* definition of type N_Vector */
+#include "sundialstypes.h"  /* definition of type realtype */
 
 /*
  * -----------------------------------------------------------------
@@ -322,15 +326,6 @@
 #define FK_LOCFN      FKLOCFN__
 
 #endif
-
-/*
- * -----------------------------------------------------------------
- * header files
- * -----------------------------------------------------------------
- */
-
-#include "nvector.h"        /* definition of type N_Vector */
-#include "sundialstypes.h"  /* definition of type realtype */
 
 /*
  * -----------------------------------------------------------------

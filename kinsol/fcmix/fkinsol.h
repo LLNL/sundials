@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-10-26 18:01:54 $
+ * $Revision: 1.25.2.1 $
+ * $Date: 2005-01-24 21:45:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -301,10 +301,14 @@
 #ifndef _FKINSOL_H
 #define _FKINSOL_H
 
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
+/*
+ * -----------------------------------------------------------------
+ * header files
+ * -----------------------------------------------------------------
+ */
+
+#include "nvector.h"        /* definition of type N_Vector */
+#include "sundialstypes.h"  /* definition of type realtype */
 
 /*
  * -----------------------------------------------------------------
@@ -411,15 +415,6 @@
 #define FK_JTIMES         FKJTIMES__
 
 #endif
-
-/*
- * -----------------------------------------------------------------
- * header files
- * -----------------------------------------------------------------
- */
-
-#include "nvector.h"        /* definition of type N_Vector */
-#include "sundialstypes.h"  /* definition of type realtype */
 
 /*
  * -----------------------------------------------------------------
