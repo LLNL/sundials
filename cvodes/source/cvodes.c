@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2004-05-26 18:37:07 $
+ * $Revision: 1.33 $
+ * $Date: 2004-06-09 18:47:08 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -1729,7 +1729,7 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ)
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
     fprintf(stderr, MSG_QCVM_NO_MEM);
-    return(QCVM_NO_MEM);
+    return(QCVREI_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
@@ -2551,6 +2551,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
           return (ILL_INPUT);
         }
         tretlast = *tret = tstop;
+        tn = tstop;
         return (TSTOP_RETURN);
       }
       
@@ -2678,6 +2679,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       if ( ABS(tn - tstop) <= troundoff) {
         (void) CVodeGetDky(cv_mem, tstop, 0, yout);
         tretlast = *tret = tstop;
+
+        tn = tstop;
+        
         istate = TSTOP_RETURN;
         break;
       }
