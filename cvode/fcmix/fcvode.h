@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-06-09 17:43:46 $
+ * $Revision: 1.18 $
+ * $Date: 2004-06-09 18:41:07 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -482,6 +482,7 @@ extern NV_Spec F2C_nvspec;
 
 void *CV_cvodemem;
 N_Vector CV_yvec;
+booleantype CV_optin;
 long int *CV_iopt;
 realtype *CV_ropt;
 int CV_nrtfn;

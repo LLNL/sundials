@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-06-09 18:10:06 $
+ * $Revision: 1.23 $
+ * $Date: 2004-06-09 18:41:07 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -80,6 +80,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   }
 
   if (*optin == 1) {
+    CV_optin = TRUE;
     if (iopt[0]>0)      CVodeSetMaxOrd(CV_cvodemem, (int)iopt[0]);
     if (iopt[1]>0)      CVodeSetMaxNumSteps(CV_cvodemem, iopt[1]);
     if (iopt[2]>0)      CVodeSetMaxHnilWarns(CV_cvodemem, (int)iopt[2]);
@@ -92,13 +93,15 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     if (ropt[2] > 0.0)  CVodeSetMinStep(CV_cvodemem, ropt[2]);
     if (ropt[7] != 0.0) CVodeSetStopTime(CV_cvodemem, ropt[7]);
     if (ropt[8] > 0.0)  CVodeSetNonlinConvCoef(CV_cvodemem, ropt[8]);
+  } else {
+    CV_optin = FALSE;
   }
 
   *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, CV_yvec,
                      itol, rtol, atolptr, F2C_nvspec);
 
   /* Store the unit roundoff in ropt for user access */
-  CV_ropt[9] = UNIT_ROUNDOFF;
+  ropt[9] = UNIT_ROUNDOFF;
 
   CV_iopt = iopt;
   CV_ropt = ropt;
@@ -137,6 +140,7 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
   */
 
   if (*optin == 1) {
+    CV_optin = TRUE;
     if (iopt[0]>0)      CVodeSetMaxOrd(CV_cvodemem, (int)iopt[0]);
     if (iopt[1]>0)      CVodeSetMaxNumSteps(CV_cvodemem, iopt[1]);
     if (iopt[2]>0)      CVodeSetMaxHnilWarns(CV_cvodemem, (int)iopt[2]);
@@ -149,7 +153,9 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
     if (ropt[2] > 0.0)  CVodeSetMinStep(CV_cvodemem, ropt[2]);
     if (ropt[7] != 0.0) CVodeSetStopTime(CV_cvodemem, ropt[7]);
     if (ropt[8] > 0.0)  CVodeSetNonlinConvCoef(CV_cvodemem, ropt[8]);
-  }  
+  } else {
+    CV_optin = FALSE;
+  }
 
 
   *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, CV_yvec,
@@ -305,7 +311,7 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     CVodeGetWorkSpace(CV_cvodemem, 
                       &CV_iopt[12],       /* LENIW */
                       &CV_iopt[11]);      /* LENRW */
-    if (CV_iopt[13]>0)
+    if ( CV_optin && (CV_iopt[13]>0) )
       CVodeGetNumStabLimOrderReds(CV_cvodemem, &CV_iopt[14]); /* NOR */
 
     switch(CV_ls) {
