@@ -1,7 +1,7 @@
 /*************************************************************************
  * File       : iwebbbd.c                                                *
  * Written by : Allan G. Taylor and Alan C. Hindmarsh @ LLNL             *
- * Version of : 3 July 2002                                              *
+ * Version of : 10 July 2002                                             *
  *-----------------------------------------------------------------------*
  * Modified by R. Serban to work with new parallel nvector (8/3/2002)    *
  *-----------------------------------------------------------------------*
@@ -68,10 +68,9 @@
  * The system is actually implemented on submeshes, processor by processor,
  * with an MXSUB by MYSUB mesh on each of NPEX * NPEY processors.
  * 
- * The DAE system is solved by IDA using the IDASPGMR linear solver, which
- * uses the preconditioned GMRES iterative method to solve linear systems.
- * The precondtioner supplied to IDASPGMR is the block-diagonal part of
- * the Jacobian with ns by ns blocks arising from the reaction terms only.
+ * The DAE system is solved by IDA using the IDASPGMR linear solver, in
+ * conjunction with the preconditioner module IDABBDPRE.  The preconditioner
+ * uses a 5-diagonal band-block-diagonal approximation (half-bandwidths = 2).
  * Output is printed at t = 0, .001, .01, .1, .4, .7, 1.
  *
  * References:
