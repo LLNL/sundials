@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-05-26 18:37:07 $
+ * $Revision: 1.25 $
+ * $Date: 2004-06-09 18:54:17 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -313,18 +313,45 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t, 
-           int itask, int *ncheckPtr)
+int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, 
+           realtype *tret, int itask, int *ncheckPtr)
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
   CkpntMem tmp;
   DtpntMem *dt_mem;
-  int flag;
+  int cv_itask, flag;
+  booleantype iret, istop;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
+
   cv_mem = ca_mem->cv_mem;
   dt_mem = ca_mem->dt_mem;
+
+  /* Interpret itask */
+  switch (itask) {
+  case NORMAL:
+    iret = FALSE;
+    istop = FALSE;
+    cv_itask = ONE_STEP;
+    break;
+  case ONE_STEP:
+    iret = TRUE;
+    istop = FALSE;
+    cv_itask = ONE_STEP;
+    break;
+  case NORMAL_TSTOP:
+    iret = FALSE;
+    istop = TRUE;
+    cv_itask = ONE_STEP_TSTOP;
+    break;
+  case ONE_STEP_TSTOP:
+    iret = TRUE;
+    istop = TRUE;
+    cv_itask = ONE_STEP_TSTOP;
+    break;
+  }
 
   /* On the first step, load dt_mem[0] */
   if ( nst == 0) {
@@ -333,20 +360,20 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
     N_VScale(ONE, ca_mem->ck_mem->ck_zn[1], dt_mem[0]->yd);
   }
 
-  /* Integrate to tout while loading check points */
+  /* Integrate to tout (in ONE_STEP mode) while loading check points */
 
   loop {
 
     /* Perform one step of the integration */
 
-    flag = CVode(cv_mem, tout, yout, t, ONE_STEP);
+    flag = CVode(cv_mem, tout, yout, tret, cv_itask);
     if (flag < 0) break;
 
     /* Test if a new check point is needed */
 
     if ( nst % nsteps == 0 ) {
 
-      ca_mem->ck_mem->ck_t1 = *t;
+      ca_mem->ck_mem->ck_t1 = *tret;
 
       /* Create a new check point, load it, and append it to the list */
       tmp = CVAckpntNew(cv_mem);
@@ -367,33 +394,32 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
     } else {
       
       /* Load next point in dt_mem */
-      dt_mem[nst%nsteps]->t = *t;
+      dt_mem[nst%nsteps]->t = *tret;
       N_VScale(ONE, yout, dt_mem[nst%nsteps]->y);
-      CVodeGetDky(cv_mem, *t, 1, dt_mem[nst%nsteps]->yd);
+      CVodeGetDky(cv_mem, *tret, 1, dt_mem[nst%nsteps]->yd);
 
     }
 
     /* Set t1 field of the current ckeck point structure
        for the case in which there will be no future
        check points */
-    ca_mem->ck_mem->ck_t1 = *t;
+    ca_mem->ck_mem->ck_t1 = *tret;
 
-    /* tfinal is now set to *t */
-    tfinal = *t;
+    /* tfinal is now set to *tret */
+    tfinal = *tret;
 
-    /* In ONE_STEP mode break from loop */
-    if (itask == ONE_STEP) break;
+    /* Return if in ONE_STEP mode */
+    if (iret) 
+      break;
 
-    /* In NORMAL mode and if we passed tout,
-       evaluate yout at tout, set t=tout,
-       then break from the loop */
-    if ( (itask == NORMAL) && (*t >= tout) ) {
-      *t = tout;
+    /* Return if tout reached */
+    if ( (*tret - tout)*h >= ZERO ) {
+      *tret = tout;
       CVodeGetDky(cv_mem, tout, 0, yout);
       break;
     }
 
-  }
+  } /* end of loop() */
 
   /* Get ncheck from ca_mem */ 
   *ncheckPtr = nckpnts;
@@ -565,13 +591,15 @@ int CVodeMallocB(void *cvadj_mem, RhsFnB fB,
 {
   CVadjMem ca_mem;
   void *cvode_mem;
-  int flag;
+  int sign, flag;
 
   if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
 
   ca_mem = (CVadjMem) cvadj_mem;
 
-  if ( (tB0 < tinitial) || (tB0 > tfinal) ) return(CVADJ_BAD_TB0);
+  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
+  if ( (sign*(tB0-tinitial) < ZERO) || (sign*(tfinal-tB0) < ZERO) )
+    return(CVADJ_BAD_TB0);
 
   f_B = fB;
 
@@ -597,14 +625,16 @@ int CVodeReInitB(void *cvadj_mem, RhsFnB fB,
 {
   CVadjMem ca_mem;
   void *cvode_mem;
-  int flag;
+  int sign, flag;
 
   if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
 
   ca_mem = (CVadjMem) cvadj_mem;
 
-  if ( (tB0 < tinitial) || (tB0 > tfinal) ) return(CVADJ_BAD_TB0);
-
+  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
+  if ( (sign*(tB0-tinitial) < ZERO) || (sign*(tfinal-tB0) < ZERO) )
+    return(CVADJ_BAD_TB0);
+  
   f_B  = fB;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -720,6 +750,7 @@ int CVDenseB(void *cvadj_mem, long int nB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -735,6 +766,7 @@ int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   djac_B     = djacB;
@@ -753,11 +785,31 @@ int CVDenseSetJacDataB(void *cvadj_mem, void *jac_dataB)
 {
   CVadjMem ca_mem;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   jac_data_B = jac_dataB;
 
   return(SUCCESS);
+}
+
+/*-----------------  CVDiagB    -----------------------------------*/
+/*-----------------------------------------------------------------*/
+
+int CVDiagB(void *cvadj_mem)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVDiag(cvode_mem);
+
+  return(flag);
 }
 
 /*-----------  CVBandB and CVBandSet*B      -----------------------*/
@@ -770,6 +822,7 @@ int CVBandB(void *cvadj_mem, long int nB,
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -785,6 +838,7 @@ int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   bjac_B     = bjacB;
@@ -803,6 +857,7 @@ int CVBandSetJacDataB(void *cvadj_mem, void *jac_dataB)
 { 
   CVadjMem ca_mem;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   jac_data_B = jac_dataB;
@@ -818,6 +873,7 @@ int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -833,6 +889,7 @@ int CVSpgmrResetPrecTypeB(void *cvadj_mem, int pretypeB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -848,6 +905,7 @@ int CVSpgmrSetGSTypeB(void *cvadj_mem, int gstypeB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -863,6 +921,7 @@ int CVSpgmrSetDeltB(void *cvadj_mem, realtype deltB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -878,6 +937,7 @@ int CVSpgmrSetPrecSetupFnB(void *cvadj_mem, CVSpgmrPrecSetupFnB psetB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   pset_B = psetB;
@@ -898,6 +958,7 @@ int CVSpgmrSetPrecSolveFnB(void *cvadj_mem, CVSpgmrPrecSolveFnB psolveB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   psolve_B = psolveB;
@@ -918,6 +979,7 @@ int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpgmrJacTimesVecFnB jtimesB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   jtimes_B = jtimesB;
@@ -936,6 +998,7 @@ int CVSpgmrSetPrecDataB(void *cvadj_mem, void *P_dataB)
 {
   CVadjMem ca_mem;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   P_data_B = P_dataB;
@@ -947,6 +1010,7 @@ int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB)
 {
   CVadjMem ca_mem;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   jac_data_B = jac_dataB;
@@ -964,6 +1028,7 @@ int CVBandPrecAllocB(void *cvadj_mem, long int nB,
   void *cvode_mem;
   void *bp_dataB;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -986,6 +1051,7 @@ int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -995,7 +1061,7 @@ int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   return(flag);
 }
 
-/*- CVBandPrecAllocB, CVBPSpgmrB, CVBandPrecFreeB                      -*/
+/*- CVBBDPrecAllocB, CVBPSpgmrB, CVBandPrecFreeB                       -*/
 /*----------------------------------------------------------------------*/
 
 int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB, 
@@ -1008,6 +1074,7 @@ int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
   void *cvode_mem;
   void *bbd_dataB;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -1036,6 +1103,7 @@ int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   void *cvode_mem;
   int flag;
   
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
   
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -1053,6 +1121,7 @@ int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem = (CVadjMem) cvadj_mem;
   
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -1068,54 +1137,76 @@ int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
 
 /*------------------     CVodeB          --------------------------*/
 /*
-  This routine performs the backward integration from tB0 
-  to tinitial through a sequence of forward-backward runs in
-  between consecutive check points. It returns the values of
-  the adjoint variables and any existing quadrature variables
-  at tinitial.
+  This routine performs the backward integration towards tBout. 
+  When necessary, it performs a forward integration between two 
+  consecutive check points to update interpolation data.
+  itask can be NORMAL or ONE_STEP only.
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeB(void *cvadj_mem, N_Vector yB)
+int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout, 
+           realtype *tBret, int itaskB)
 {
   CVadjMem ca_mem;
   CkpntMem ck_mem;
   CVodeMem cvb_mem;
-  int flag;
-  realtype tB0, t;
+  int sign, flag, cv_itask;
+  realtype tBn;
   
   if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem  = (CVadjMem) cvadj_mem;
-  ck_mem = ca_mem->ck_mem;
+
   cvb_mem = ca_mem->cvb_mem;
   if (cvb_mem == NULL) return(CVADJ_NO_BCKMEM);
 
-  /* First decide which check points tB0 falls in between */
-  tB0 = cvb_mem->cv_tn;
-  while ( tB0 <= t0_ ) ck_mem = next_;
-  
-  do {
+  if (itaskB == NORMAL)
+    cv_itask = NORMAL_TSTOP;
+  else if (itaskB == ONE_STEP)
+    cv_itask = ONE_STEP_TSTOP;
+  else
+    return(CVADJ_BAD_ITASK);
 
-    /* If data in dt_mem is not available for the 
-       current check point, compute it */
+  ck_mem = ca_mem->ck_mem;
+
+  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
+
+  if ( (sign*(tBout-tinitial) < ZERO) || (sign*(tfinal-tBout) < ZERO) )
+    return(CVADJ_BAD_TBOUT);
+
+  tBn = cvb_mem->cv_tn;
+  while ( sign*(tBn - t0_) <= ZERO ) ck_mem = next_;
+  
+  loop {
+
+    /* Store interpolation data if not available */
     if (ck_mem != ckpntData) {
       flag = CVAdataStore(ca_mem, ck_mem);
       if (flag != SUCCESS) return(flag);
     }
 
-    /* Propagate backward integration to next check point */
+    /* Backward integration */
     CVodeSetStopTime((void *)cvb_mem, t0_);
-    flag = CVode(cvb_mem, t0_, yB, &t, NORMAL_TSTOP);
+    flag = CVode(cvb_mem, tBout, yBout, tBret, cv_itask);
+
+    /* If an error occured, return now */
     if (flag < 0) return(flag);
+
+    /* Set the time at which CVodeGetQuadB will evaluate any quadratures */
+    t_for_quad = *tBret;
+
+    /* If in ONE_STEP mode, return now (flag=SUCCESS or flag=TSTOP_RETURN) */
+    if (itaskB == ONE_STEP) return(flag);
+
+    /* If succesfully reached tBout, return now */
+    if (*tBret == tBout) return(flag);
 
     /* Move check point in linked list to next one */
     ck_mem = next_;
 
-  } while (ck_mem != NULL);
+  } 
 
-  t_for_quad = t;
 
-  return(flag);
+  return(SUCCESS);
 
 }
 
@@ -1128,6 +1219,7 @@ int CVodeGetQuadB(void *cvadj_mem, N_Vector qB)
   void *cvode_mem;
   int flag;
   
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem  = (CVadjMem) cvadj_mem;
   cvode_mem = (void *) ca_mem->cvb_mem;
   
@@ -1192,6 +1284,7 @@ void *CVadjGetCVodeBmem(void *cvadj_mem)
   CVadjMem ca_mem;
   void *cvode_mem;
   
+  if (cvadj_mem == NULL) return(NULL);
   ca_mem  = (CVadjMem) cvadj_mem;
   cvode_mem = (void *) ca_mem->cvb_mem;
 
@@ -1216,11 +1309,14 @@ int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
   DtpntMem *dt_mem;
   static long int i;
   long int inew;
+  int sign;
   booleantype to_left, to_right;
   realtype troundoff;
 
   ca_mem = (CVadjMem) cvadj_mem;
   dt_mem = ca_mem->dt_mem;
+
+  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
 
   if ( newData ) {
     i = np-1;
@@ -1229,21 +1325,21 @@ int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
   }
 
   /* Search for inew starting from last i */ 
-  to_left  = ( t < dt_mem[i-1]->t );
-  to_right = ( t > dt_mem[i]->t );
+  to_left  = ( sign*(t - dt_mem[i-1]->t) < ZERO);
+  to_right = ( sign*(t - dt_mem[i]->t)   > ZERO);
   
   /* Test if t is beyond left limit */
   if ( (to_left) && (i==1) ) {
     /*troundoff = FUZZ_FACTOR*uround*(ABS(dt_mem[0]->t)+ABS(dt_mem[1]->t));*/
     troundoff = FUZZ_FACTOR*uround;
-    if ( ABS(t-dt_mem[0]->t) <= troundoff ) {
+    if ( ABS(t - dt_mem[0]->t) <= troundoff ) {
       N_VScale(ONE, dt_mem[0]->y, y);
       return(GETY_OK);
     }
     else {
       printf("\n TROUBLE IN GETY\n ");
       printf("%g = ABS(t-dt_mem[0]->t) > troundoff = %g  uround = %g\n",
-             ABS(t-dt_mem[0]->t), troundoff, uround);
+             ABS(t - dt_mem[0]->t), troundoff, uround);
       return(GETY_BADT);
     }
   }
@@ -1254,14 +1350,14 @@ int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
     inew--;
     loop {
       if ( inew == 1 ) break;
-      if ( t <= dt_mem[inew-1]->t ) inew--;
+      if ( sign*(t - dt_mem[inew-1]->t) <= ZERO) inew--;
       else                          break;
     }
   } else if ( to_right ) {
     /* Search to the right */
     inew++;
     loop {
-      if ( t > dt_mem[inew]->t ) inew++;
+      if ( sign*(t - dt_mem[inew]->t) > ZERO) inew++;
       else                       break;
     }
   }

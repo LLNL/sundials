@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-05-26 18:35:41 $
+ * $Revision: 1.22 $
+ * $Date: 2004-06-09 18:54:13 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -174,6 +174,8 @@ extern "C" {
 #define CVADJ_NO_BCKMEM   -104
 #define CVADJ_REIFWD_FAIL -105
 #define CVADJ_FWD_FAIL    -106
+#define CVADJ_BAD_ITASK   -107
+#define CVADJ_BAD_TBOUT   -108
 
   /*
    * Function : CVadjMalloc                                         
@@ -200,8 +202,8 @@ extern "C" {
    *    any CVode return value
    */
 
-  int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
-             int itask, int *ncheckPtr);
+  int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, 
+             realtype *tret, int itask, int *ncheckPtr);
 
   /*
    *                                                                
@@ -262,6 +264,17 @@ extern "C" {
 
   int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB);
   int CVDenseSetJacDataB(void *cvadj_mem, void *jac_dataB);
+
+  /*
+   *                                                                
+   * Function : CVDiagB
+   *----------------------------------------------------------------
+   * CVDiagB links the main CVODE integrator with the CVDIAG      
+   * linear solver for the backward integration.                    
+   *                                                                
+   */
+
+  int CVDiagB(void *cvadj_mem);
 
   /*
    *                                                                
@@ -351,7 +364,8 @@ extern "C" {
    *                                                                
    */
 
-  int CVodeB(void *cvadj_mem, N_Vector yB);
+  int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
+             realtype *tBret, int itaskB);
 
   /*
    *                                                                
