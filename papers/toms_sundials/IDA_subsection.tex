@@ -165,8 +165,8 @@ by difference quotients. In the latter case, we use the approximation
 \begin{gather*}
   J_{ij} = [F^i(t,y+\sigma_j e_j,{\dot y}+\alpha\sigma_j e_j) - 
   F^i(t,y,{\dot y})]/\sigma_j \, , \text{ with}\\
-  \sigma_j = \sqrt{U} max\left\{ |y^j|, max\left\{ |h{\dot y}^j|,W_j \right\}\right\}
-  sign(h {\dot y}^j)
+  \sigma_j = \sqrt{U} \max \left\{ |y^j|, 
+    \max \left\{ |h{\dot y}^j|,W_j \right\}\right\} sign(h {\dot y}^j)
 \end{gather*}
 where $U$ is the unit roundoff, $h$ is the current stepsize, and $W_j$ is 
 the error weight for $y^j$ set in terms of input tolerances. 
