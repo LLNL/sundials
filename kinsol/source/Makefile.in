@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2004-11-23 21:37:30 $
+# $Revision: 1.9 $
+# $Date: 2004-12-06 20:09:34 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,9 +43,9 @@ SHARED_INC_DIR   = $(srcdir)/../../shared/include
 KINSOL_INC_DIR   = $(srcdir)/../include
 
 KINSOL_LIB       = libsundials_kinsol.la
-KINSOL_LIB_FILES = kinsol.lo kinsolio.lo kinspgmr.lo kinbbdpre.lo
+KINSOL_LIB_FILES = kinsol.lo kinsolio.lo kinspgmr.lo kinspbcg.lo kinbbdpre.lo
 
-OBJECT_FILES = kinsol.o kinsolio.o kinspgmr.o kinbbdpre.o
+OBJECT_FILES = kinsol.o kinsolio.o kinspgmr.o kinspbcg.o kinbbdpre.o
 
 all: update $(KINSOL_LIB_FILES)
 
@@ -58,6 +58,7 @@ install: update $(KINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(KINSOL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinsol.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspgmr.h $(includedir)
+	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspbcg.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinbbdpre.h $(includedir)
 
 clean:
@@ -70,6 +71,7 @@ uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(KINSOL_LIB)
 	rm -f $(includedir)/kinsol.h
 	rm -f $(includedir)/kinspgmr.h
+	rm -f $(includedir)/kinspbcg.h
 	rm -f $(includedir)/kinbbdpre.h
 
 kinsol.lo: $(srcdir)/kinsol.c
@@ -78,6 +80,8 @@ kinsolio.lo: $(srcdir)/kinsolio.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsolio.c
 kinspgmr.lo: $(srcdir)/kinspgmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspgmr.c
+kinspbcg.lo: $(srcdir)/kinspbcg.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspbcg.c
 kinbbdpre.lo: $(srcdir)/kinbbdpre.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinbbdpre.c
 
