@@ -1,18 +1,19 @@
-/*******************************************************************
- *                                                                 *
- * File          : cvodec.h                                        *
- * Programmers   : Radu Serban @LLNL                               *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the interface file for CVODES derivative calculations   *
- * using the complex step method.                                  *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.4 $
+ * $Date: 2004-04-29 19:17:02 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Radu Serban @ LLNL                              
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California 
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvodes/LICENSE
+ * -----------------------------------------------------------------
+ * This is the interface file for CVODES derivative calculations
+ * using the complex step method.
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

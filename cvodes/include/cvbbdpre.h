@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-04-03 01:10:51 $
+ * $Revision: 1.5 $
+ * $Date: 2004-04-29 19:17:02 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -101,7 +101,6 @@
  *    integrator/CVSPGMR optional outputs.                         
  * -----------------------------------------------------------------
  */
-
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
