@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-08-25 16:23:40 $
+ * $Revision: 1.16 $
+ * $Date: 2004-10-18 23:19:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -48,19 +48,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sundialstypes.h"   /* definition of types realtype (set to double)      */
-                             /* and the constant FALSE                            */
-#include "cvodes.h"          /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
-                             /* constants OPT_SIZE, BDF, NEWTON, SV, SUCCESS,     */
-                             /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
-#include "cvdense.h"         /* prototype for CVDense, constant DENSE_NJE         */
-#include "nvector_serial.h"  /* definitions of type N_Vector and macro NV_Ith_S,  */
-                             /* prototypes for N_VNew, N_VFree                    */
-#include "dense.h"           /* definitions of type DenseMat, macro DENSE_ELEM    */
+#include "sundialstypes.h"   /* def. of type realtype */
+#include "cvodes.h"          /* prototypes for CVODES functions and constants */
+#include "cvdense.h"         /* prototype for CVDENSE functions and constants */
+#include "nvector_serial.h"  /* defs. of serial NVECTOR functions and macros */
+#include "dense.h"           /* defs. of type DenseMat, macro DENSE_ELEM */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
+/* Accessor macros */
 
+#define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component i=1..NEQ */
+#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* (i,j)-th matrix component i,j=1..NEQ */
 
 /* Problem Constants */
 
@@ -68,35 +65,25 @@
 #define Y1    1.0          /* initial y components */
 #define Y2    0.0
 #define Y3    0.0
-#define RTOL  1e-4         /* scalar relative tolerance            */
+#define RTOL  1e-4         /* scalar relative tolerance */
 #define ATOL1 1e-8         /* vector absolute tolerance components */
 #define ATOL2 1e-14
 #define ATOL3 1e-6
-#define T0    0.0          /* initial time           */
-#define T1    0.4          /* first output time      */
-#define TMULT 10.0         /* output time factor     */
+#define T0    0.0          /* initial time */
+#define T1    0.4          /* first output time */
+#define TMULT 10.0         /* output time factor */
 #define NOUT  12           /* number of output times */
 
-#define NP    3
-#define NS    3
+#define NP    3            /* number of problem parameters */
+#define NS    3            /* number of sensitivities computed */
 
 #define ZERO  0.0
 
 /* Type : UserData */
 
 typedef struct {
-  realtype p[3];
+  realtype p[3];           /* problem parameters */
 } *UserData;
-
-/* Private Helper Function */
-
-static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con);
-static void WrongArgs(char *name);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi);
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
-static void PrintOutputS(N_Vector *uS);
-
 
 /* Functions Called by the CVODES Solver */
 
@@ -110,13 +97,22 @@ static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
                int iS, N_Vector yS, N_Vector ySdot, 
                void *fS_data, N_Vector tmp1, N_Vector tmp2);
 
+/* Private Helper Function */
 
-/* Private function to check function return values */
-
+static void ProcessArgs(int argc, char *argv[],
+                        booleantype *sensi, int *sensi_meth, 
+                        booleantype *err_con);
+static void WrongArgs(char *name);
+static void PrintFinalStats(void *cvode_mem, booleantype sensi);
+static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
+static void PrintOutputS(N_Vector *uS);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
-
-/***************************** Main Program ******************************/
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
 
 int main(int argc, char *argv[])
 {
@@ -141,45 +137,43 @@ int main(int argc, char *argv[])
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
 
-  /* USER DATA STRUCTURE */
+  /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2)) return(1);
   data->p[0] = 0.04;
   data->p[1] = 1.0e4;
   data->p[2] = 3.0e7;
 
-  /* INITIAL STATES */
+  /* Initial conditions */
   y = N_VNew_Serial(NEQ);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
-  abstol = N_VNew_Serial(NEQ);
-  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
-  /* Initialize y */
   Ith(y,1) = Y1;
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
 
-  /* TOLERANCES */
-  /* Set the scalar relative tolerance */
+  /* Tolerances: 
+     scalar relative tolerance, vector absolute tolerance */
   reltol = RTOL;               
 
-  /* Set the vector absolute tolerance */
+  abstol = N_VNew_Serial(NEQ);
+  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
   Ith(abstol,1) = ATOL1;       
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
-  /* CVODE_CREATE */
+  /* Create CVODES object */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  /* CVODE_MALLOC */
+  /* Allocate space for CVODES */
   flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, &reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
-  /* CVDENSE */
+  /* Attach linear solver */
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
@@ -191,7 +185,7 @@ int main(int argc, char *argv[])
 
   printf("\n3-species chemical kinetics problem\n");
 
-  /* SENSITIVITY */
+  /* Sensitivity-related settings */
   if (sensi) {
 
     pbar[0] = data->p[0];
@@ -261,32 +255,118 @@ int main(int argc, char *argv[])
 
   /* Free memory */
 
-  /* Free y vector */
-  N_VDestroy(y);
-
-  /* Free abstol vector */
-  N_VDestroy(abstol);   
-
-  /* Free yS vector */
-  if (sensi) N_VDestroyVectorArray(yS, NS);
-
-  /* Free user data */
-  free(data);
-
-  /* Free CVODES problem memory */
-  CVodeFree(cvode_mem);
-
-  /* Free plist */
-  if (sensi) free(plist);
+  N_VDestroy_Serial(y);                    /* Free y vector */
+  N_VDestroy_Serial(abstol);               /* Free abstol vector */
+  if (sensi) {
+    N_VDestroyVectorArray_serial(yS, NS);  /* Free yS vector */
+    free(plist);                           /* Free plist */
+  }
+  free(data);                              /* Free user data */
+  CVodeFree(cvode_mem);                    /* Free CVODES memory */
 
   return(0);
 }
 
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY CVODES
+ *--------------------------------------------------------------------
+ */
 
-/************************ Private Helper Function ************************/
+/*
+ * f routine. Compute f(t,y). 
+ */
 
-/* ======================================================================= */
-/* Exit if arguments are incorrect */
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+{
+  realtype y1, y2, y3, yd1, yd3;
+  UserData data;
+  realtype p1, p2, p3;
+
+  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+  data = (UserData) f_data;
+  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
+
+  yd1 = Ith(ydot,1) = -p1*y1 + p2*y2*y3;
+  yd3 = Ith(ydot,3) = p3*y2*y2;
+        Ith(ydot,2) = -yd1 - yd3;
+}
+
+
+/* 
+ * Jacobian routine. Compute J(t,y). 
+ */
+
+static void Jac(long int N, DenseMat J, realtype t,
+                N_Vector y, N_Vector fy, void *jac_data, 
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  realtype y1, y2, y3;
+  UserData data;
+  realtype p1, p2, p3;
+ 
+  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+  data = (UserData) jac_data;
+  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
+ 
+  IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
+  IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
+                      IJth(J,3,2) = 2*p3*y2;
+}
+ 
+/* 
+ * fS routine. Compute sensitivity r.h.s. 
+ */
+
+static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
+               int iS, N_Vector yS, N_Vector ySdot, 
+               void *fS_data, N_Vector tmp1, N_Vector tmp2)
+{
+  UserData data;
+  realtype p1, p2, p3;
+  realtype y1, y2, y3;
+  realtype s1, s2, s3;
+  realtype sd1, sd2, sd3;
+
+  data = (UserData) fS_data;
+  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
+
+  y1 = Ith(y,1);  y2 = Ith(y,2);  y3 = Ith(y,3);
+  s1 = Ith(yS,1); s2 = Ith(yS,2); s3 = Ith(yS,3);
+
+  sd1 = -p1*s1 + p2*y3*s2 + p2*y2*s3;
+  sd3 = 2*p3*y2*s2;
+  sd2 = -sd1-sd3;
+
+  switch (iS) {
+  case 0:
+    sd1 += -y1;
+    sd2 +=  y1;
+    break;
+  case 1:
+    sd1 +=  y2*y3;
+    sd2 += -y2*y3;
+    break;
+  case 2:
+    sd2 += -y2*y2;
+    sd3 +=  y2*y2;
+    break;
+  }
+  
+  Ith(ySdot,1) = sd1;
+  Ith(ySdot,2) = sd2;
+  Ith(ySdot,3) = sd3;
+}
+
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+/*
+ * Process and verify arguments to cvfdx.
+ */
 
 static void ProcessArgs(int argc, char *argv[], 
                         booleantype *sensi, int *sensi_meth, booleantype *err_con)
@@ -337,8 +417,9 @@ static void WrongArgs(char *name)
     exit(0);
 }
 
-/* ======================================================================= */
-/* Print current t, step count, order, stepsize, and solution  */
+/*
+ * Print current t, step count, order, stepsize, and solution.
+ */
 
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
 {
@@ -360,8 +441,9 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
   printf("%12.4e %12.4e %12.4e \n", udata[0], udata[1], udata[2]);
 }
 
-/* ======================================================================= */
-/* Print sensitivities */
+/* 
+ * Print sensitivities.
+*/
 
 static void PrintOutputS(N_Vector *uS)
 {
@@ -380,8 +462,9 @@ static void PrintOutputS(N_Vector *uS)
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 }
 
-/* ======================================================================= */
-/* Print some final statistics located in the iopt array */
+/* 
+ * Print some final statistics from the CVODES memory.
+ */
 
 static void PrintFinalStats(void *cvode_mem, booleantype sensi)
 {
@@ -442,101 +525,15 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
 
 }
 
-
-/***************** Functions Called by the CVODES Solver ******************/
-
-/* ======================================================================= */
-/* f routine. Compute f(t,y). */
-
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
-{
-  realtype y1, y2, y3, yd1, yd3;
-  UserData data;
-  realtype p1, p2, p3;
-
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-  data = (UserData) f_data;
-  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
-
-  yd1 = Ith(ydot,1) = -p1*y1 + p2*y2*y3;
-  yd3 = Ith(ydot,3) = p3*y2*y2;
-        Ith(ydot,2) = -yd1 - yd3;
-}
-
-/* ======================================================================= */
-/* Jacobian routine. Compute J(t,y). */
-
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data, 
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype y1, y2, y3;
-  UserData data;
-  realtype p1, p2, p3;
- 
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-  data = (UserData) jac_data;
-  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
- 
-  IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
-  IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
-                      IJth(J,3,2) = 2*p3*y2;
-}
- 
-/* ======================================================================= */
-/* fS routine. Compute sensitivity r.h.s. */
-
-static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
-               int iS, N_Vector yS, N_Vector ySdot, 
-               void *fS_data, N_Vector tmp1, N_Vector tmp2)
-{
-  UserData data;
-  realtype p1, p2, p3;
-  realtype y1, y2, y3;
-  realtype s1, s2, s3;
-  realtype sd1, sd2, sd3;
-
-  data = (UserData) fS_data;
-  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
-
-  y1 = Ith(y,1);  y2 = Ith(y,2);  y3 = Ith(y,3);
-  s1 = Ith(yS,1); s2 = Ith(yS,2); s3 = Ith(yS,3);
-
-  sd1 = -p1*s1 + p2*y3*s2 + p2*y2*s3;
-  sd3 = 2*p3*y2*s2;
-  sd2 = -sd1-sd3;
-
-  switch (iS) {
-  case 0:
-    sd1 += -y1;
-    sd2 +=  y1;
-    break;
-  case 1:
-    sd1 +=  y2*y3;
-    sd2 += -y2*y3;
-    break;
-  case 2:
-    sd2 += -y2*y2;
-    sd3 +=  y2*y2;
-    break;
-  }
-  
-  Ith(ySdot,1) = sd1;
-  Ith(ySdot,2) = sd2;
-  Ith(ySdot,3) = sd3;
-}
-
-
-/************************ Private Helper Function ************************/
-
-/* ======================================================================= */
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/* 
+ * Check function return value.
+ *    opt == 0 means SUNDIALS function allocates memory so check if
+ *             returned NULL pointer
+ *    opt == 1 means SUNDIALS function returns a flag so check if
+ *             flag >= 0
+ *    opt == 2 means function allocates memory so check if returned
+ *             NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
