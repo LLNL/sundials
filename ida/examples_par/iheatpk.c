@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-22 20:44:57 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-26 20:16:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -71,12 +71,14 @@ typedef struct {
 
 /* User-supplied residual function and supporting routines */
 
-int resHeat(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata);
+int resHeat(realtype tt, 
+            N_Vector uu, N_Vector up, N_Vector rr, 
+            void *res_data);
 
-static int rescomm(N_Vector uu, N_Vector up, void *rdata);
+static int rescomm(N_Vector uu, N_Vector up, void *res_data);
 
-static int reslocal(realtype tres, N_Vector uu, N_Vector up, 
-                    N_Vector res,  void *rdata);
+static int reslocal(realtype tt, N_Vector uu, N_Vector up, 
+                    N_Vector res,  void *res_data);
 
 static int BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
                  long int dsizex, long int dsizey, realtype uarray[]);
@@ -91,16 +93,16 @@ static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
 
 /* User-supplied preconditioner routines */
 
-int PsolveHeat(realtype tt, N_Vector uu,
-               N_Vector up, N_Vector rr, 
+int PsolveHeat(realtype tt, 
+               N_Vector uu, N_Vector up, N_Vector rr, 
                N_Vector rvec, N_Vector zvec,
-               realtype cj, realtype delta,
-               void *pdata, N_Vector tempv);
+               realtype c_j, realtype delta, void *prec_data, 
+               N_Vector tmp);
 
-int PsetupHeat(realtype tt, N_Vector yy,
-               N_Vector yp, N_Vector rr, 
-               realtype cj, void *pdata,
-               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+int PsetupHeat(realtype tt, 
+               N_Vector yy, N_Vector yp, N_Vector rr, 
+               realtype c_j, void *prec_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
 
@@ -338,18 +340,17 @@ int main(int argc, char *argv[])
  * of uu required to calculate the residual. 
  */
 
-int resHeat(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
+int resHeat(realtype tt, 
+            N_Vector uu, N_Vector up, N_Vector rr, 
+            void *res_data)
 {
   int retval;
-  UserData data;
-  
-  data = (UserData) rdata;
   
   /* Call rescomm to do inter-processor communication. */
-  retval = rescomm(uu, up, data);
+  retval = rescomm(uu, up, res_data);
 
   /* Call reslocal to calculate res. */
-  retval = reslocal(tres, uu, up, res, data);
+  retval = reslocal(tt, uu, up, rr, res_data);
   
   return(0);
 
@@ -373,17 +374,17 @@ int resHeat(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
  *
  */
 
-int PsetupHeat(realtype tt, N_Vector yy,
-               N_Vector yp, N_Vector rr, 
-               realtype cj, void *pdata,
-               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+int PsetupHeat(realtype tt, 
+               N_Vector yy, N_Vector yp, N_Vector rr, 
+               realtype c_j, void *prec_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *ppv, pelinv;
   long int lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
   long int ixsub, jysub, npex, npey;
   UserData data;
 
-  data = (UserData) pdata;
+  data = (UserData) prec_data;
 
   ppv = NV_DATA_P(data->pp);
   ixsub = data->ixsub;
@@ -403,7 +404,7 @@ int PsetupHeat(realtype tt, N_Vector yy,
   jyend   = mysub-1;
   if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
   if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
-  pelinv = ONE/(cj + data->coeffxy); 
+  pelinv = ONE/(c_j + data->coeffxy); 
   
   /* Load the inverse of the preconditioner diagonal elements
      in loop over all the local subgrid. */
@@ -426,17 +427,17 @@ int PsetupHeat(realtype tt, N_Vector yy,
  * computed in PsetupHeat), returning the result in zvec.      
  */
 
-int PsolveHeat(realtype tt, N_Vector uu,
-               N_Vector up, N_Vector rr, 
+int PsolveHeat(realtype tt, 
+               N_Vector uu, N_Vector up, N_Vector rr, 
                N_Vector rvec, N_Vector zvec,
-               realtype cj, realtype delta,
-               void *pdata, N_Vector tempv)
+               realtype c_j, realtype delta, void *prec_data, 
+               N_Vector tmp)
 {
   UserData data;
 
-  data = (UserData) pdata;
+  data = (UserData) prec_data;
   
-  N_VProd(data->pp,rvec, zvec);
+  N_VProd(data->pp, rvec, zvec);
 
   return(0);
 
@@ -454,7 +455,7 @@ int PsolveHeat(realtype tt, N_Vector uu,
  * communication of data in u needed to calculate G.                 
  */
 
-static int rescomm(N_Vector uu, N_Vector up, void *rdata)
+static int rescomm(N_Vector uu, N_Vector up, void *res_data)
 {
   UserData data;
   realtype *uarray, *uext, buffer[2*MYSUB];
@@ -462,7 +463,7 @@ static int rescomm(N_Vector uu, N_Vector up, void *rdata)
   long int thispe, ixsub, jysub, mxsub, mysub;
   MPI_Request request[4];
   
-  data = (UserData) rdata;
+  data = (UserData) res_data;
   uarray = NV_DATA_P(uu);
   
   /* Get comm, thispe, subgrid indices, data sizes, extended array uext. */
@@ -490,8 +491,9 @@ static int rescomm(N_Vector uu, N_Vector up, void *rdata)
  * has already been done, and that this data is in the work array uext.  
  */
 
-static int reslocal(realtype tres, N_Vector uu, N_Vector up, N_Vector res,
-                    void *rdata)
+static int reslocal(realtype tt, 
+                    N_Vector uu, N_Vector up, N_Vector rr,
+                    void *res_data)
 {
   realtype *uext, *uuv, *upv, *resv;
   realtype termx, termy, termctr;
@@ -502,22 +504,22 @@ static int reslocal(realtype tres, N_Vector uu, N_Vector up, N_Vector res,
   
   /* Get subgrid indices, array sizes, extended work array uext. */
   
-  data = (UserData) rdata;
+  data = (UserData) res_data;
   uext = data->uext;
   uuv = NV_DATA_P(uu);
   upv = NV_DATA_P(up);
-  resv = NV_DATA_P(res);
+  resv = NV_DATA_P(rr);
   ixsub = data->ixsub; jysub = data->jysub;
   mxsub = data->mxsub; mxsub2 = data->mxsub + 2;
   mysub = data->mysub; npex = data->npex; npey = data->npey;
   
-  /* Initialize all elements of res to uu. This sets the boundary
+  /* Initialize all elements of rr to uu. This sets the boundary
      elements simply without indexing hassles. */
   
-  N_VScale(ONE, uu, res);
+  N_VScale(ONE, uu, rr);
   
   /* Copy local segment of u vector into the working extended array uext.
-     This completes uext prior to the computation of the res vector.     */
+     This completes uext prior to the computation of the rr vector.     */
   
   offsetu = 0;
   offsetue = mxsub2 + 1;

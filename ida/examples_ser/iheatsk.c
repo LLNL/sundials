@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-25 23:13:06 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-26 20:15:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -61,13 +61,16 @@ typedef struct {
 int resHeat(realtype tres, N_Vector uu, N_Vector up,
             N_Vector resval, void *rdata);
 
-int PsetupHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, 
-               realtype cj, void *pdata, 
-               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+int PsetupHeat(realtype tt, 
+               N_Vector uu, N_Vector up, N_Vector rr, 
+               realtype c_j, void *prec_data, 
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-int PsolveHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, 
-               N_Vector rvec, N_Vector zvec, realtype cj, realtype delta,
-               void *pdata, N_Vector tempv);
+int PsolveHeat(realtype tt, 
+               N_Vector uu, N_Vector up, N_Vector rr, 
+               N_Vector rvec, N_Vector zvec, 
+               realtype c_j, realtype delta, void *prec_data, 
+               N_Vector tmp);
 
 /* Prototypes for private functions */
 
@@ -304,29 +307,34 @@ int main()
  * while for each boundary point, it is res_i = u_i.                     
  */
 
-int resHeat(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
+int resHeat(realtype tt, 
+            N_Vector uu, N_Vector up, N_Vector rr, 
+            void *res_data)
 {
   long int i, j, offset, loc, mm;
-  realtype *uv, *upv, *resv, coeff;
+  realtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
   UserData data;
   
-  uv = NV_DATA_S(uu); upv = NV_DATA_S(up); resv = NV_DATA_S(res);
+  uu_data = NV_DATA_S(uu); 
+  up_data = NV_DATA_S(up); 
+  rr_data = NV_DATA_S(rr);
 
-  data = (UserData)rdata;
+  data = (UserData) res_data;
   
   coeff = data->coeff;
   mm    = data->mm;
   
-  /* Initialize res to uu, to take care of boundary equations. */
-  N_VScale(ONE, uu, res);
+  /* Initialize rr to uu, to take care of boundary equations. */
+  N_VScale(ONE, uu, rr);
   
   /* Loop over interior points; set res = up - (central difference). */
   for (j = 1; j < MGRID-1; j++) {
     offset = mm*j;
     for (i = 1; i < mm-1; i++) {
       loc = offset + i;
-      resv[loc]= upv[loc] - coeff * 
-       (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - 4*uv[loc]);
+      dif1 = uu_data[loc-1]  + uu_data[loc+1]  - 2 * uu_data[loc];
+      dif2 = uu_data[loc-mm] + uu_data[loc+mm] - 2 * uu_data[loc];
+      rr_data[loc]= up_data[loc] - coeff * ( dif1 + dif2 );
     }
   }
 
@@ -350,16 +358,17 @@ int resHeat(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
  * pp etc.) are used from the PsetupdHeat argument list.         
  */
   
-int PsetupHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, 
-               realtype cj, void *pdata, 
-               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+int PsetupHeat(realtype tt, 
+               N_Vector uu, N_Vector up, N_Vector rr, 
+               realtype c_j, void *prec_data, 
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   
   long int i, j, offset, loc, mm;
   realtype *ppv, pelinv;
   UserData data;
   
-  data = (UserData) pdata;
+  data = (UserData) prec_data;
   ppv = NV_DATA_S(data->pp);
   mm = data->mm;
 
@@ -368,7 +377,7 @@ int PsetupHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   N_VConst(ONE,data->pp);
   
   /* Compute the inverse of the preconditioner diagonal elements. */
-  pelinv = ONE/(cj + FOUR*data->coeff); 
+  pelinv = ONE/(c_j + FOUR*data->coeff); 
   
   for (j = 1; j < mm-1; j++) {
     offset = mm * j;
@@ -388,12 +397,14 @@ int PsetupHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
  * computed in PrecondHeateq), returning the result in zvec.      
  */
 
-int PsolveHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, 
-               N_Vector rvec, N_Vector zvec, realtype cj, realtype delta,
-               void *pdata, N_Vector tempv)
+int PsolveHeat(realtype tt, 
+               N_Vector uu, N_Vector up, N_Vector rr, 
+               N_Vector rvec, N_Vector zvec, 
+               realtype c_j, realtype delta, void *prec_data, 
+               N_Vector tmp)
 {
   UserData data;
-  data = (UserData) pdata;
+  data = (UserData) prec_data;
   N_VProd(data->pp, rvec, zvec);
   return(0);
 }

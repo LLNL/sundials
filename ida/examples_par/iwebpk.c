@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-25 19:47:32 $
+ * $Revision: 1.14 $
+ * $Date: 2004-10-26 20:16:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -212,20 +212,20 @@ static realtype dotprod(long int size, realtype *x1, realtype *x2);
 
 /* Prototypes for functions called by the IDA Solver. */
 
-static int resweb(realtype time, N_Vector cc, N_Vector cp,
-                  N_Vector resval, void *rdata);
+static int resweb(realtype time, 
+                  N_Vector cc, N_Vector cp, N_Vector resval, 
+                  void *rdata);
 
-static int Precondbd(realtype tt, N_Vector cc,
-                     N_Vector cp, N_Vector rr, 
+static int Precondbd(realtype tt, 
+                     N_Vector cc, N_Vector cp, N_Vector rr, 
                      realtype cj, void *Pdata,
                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-static int PSolvebd(realtype tt, N_Vector cc,
-                 N_Vector cp, N_Vector rr, 
-                 N_Vector rvec, N_Vector zvec,
-                 realtype cj, realtype delta,
-                 void *Pdata, N_Vector tempv);
-
+static int PSolvebd(realtype tt, 
+                    N_Vector cc, N_Vector cp, N_Vector rr, 
+                    N_Vector rvec, N_Vector zvec,
+                    realtype cj, realtype delta, void *Pdata, 
+                    N_Vector tempv);
 
 /* Private function to check function return values */
 

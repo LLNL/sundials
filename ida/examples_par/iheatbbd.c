@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-18 22:08:46 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-26 20:16:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -80,11 +80,13 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 
 /* User-supplied residual function and supporting routines */
 
-static int heatres(realtype tres, N_Vector uu, N_Vector up,
-            N_Vector res, void *rdata);
+static int heatres(realtype tres, 
+                   N_Vector uu, N_Vector up, N_Vector res, 
+                   void *rdata);
 
 static int rescomm(long int Nlocal, realtype tt, 
-                   N_Vector uu, N_Vector up, void *rdata);
+                   N_Vector uu, N_Vector up, 
+                   void *rdata);
 
 static int reslocal(long int Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
@@ -213,7 +215,7 @@ int main(int argc, char *argv[])
 
   /* Call IDABBDPrecAlloc to initialize BBD preconditioner. */
   P_data = IDABBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
-                         ZERO, reslocal, NULL);
+                           ZERO, reslocal, NULL);
   if(check_flag((void *)P_data, "IDABBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDSpgmr to specify the linear solver. */

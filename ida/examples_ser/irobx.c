@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-22 20:42:07 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-26 20:15:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -44,7 +44,7 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp,
            N_Vector resval, void *rdata);
 
 int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
-           realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
+           N_Vector resvec, realtype cj, void *jdata, DenseMat JJ,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Private function to check function return values */
@@ -209,7 +209,7 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
  */
 
 int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
-           realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
+           N_Vector resvec, realtype cj, void *jdata, DenseMat JJ,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
 

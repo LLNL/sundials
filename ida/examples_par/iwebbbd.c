@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-10-25 19:47:32 $
+ * $Revision: 1.16 $
+ * $Date: 2004-10-26 20:16:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -169,15 +169,17 @@ typedef struct {
 
 /* Prototypes for functions called by the IDA Solver. */
 
-static int resweb(realtype time, N_Vector cc, N_Vector cp,
-                  N_Vector resval, void *rdata);
+static int resweb(realtype tt, 
+                  N_Vector cc, N_Vector cp, N_Vector rr, 
+                  void *res_data);
 
 static int reslocal(long int Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector res, 
-                    void *rdata);
+                    void *res_data);
 
 static int rescomm(long int Nlocal, realtype tt,
-                   N_Vector cc, N_Vector cp, void *rdata);
+                   N_Vector cc, N_Vector cp, 
+                   void *res_data);
 
 /* Prototypes for supporting functions */
 
@@ -669,22 +671,23 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
  * reslocal, for computation of the residuals on this processor.      
  */
 
-static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
-                  N_Vector res,  void *rdata)
+static int resweb(realtype tt, 
+                  N_Vector cc, N_Vector cp, N_Vector rr, 
+                  void *res_data)
 {
   int retval;
   UserData webdata;
   long int Nlocal;
   
-  webdata = (UserData)rdata;
+  webdata = (UserData) res_data;
   
   Nlocal = webdata->n_local;
 
   /* Call rescomm to do inter-processor communication. */
-  retval = rescomm(Nlocal, tt, cc, cp, webdata);
+  retval = rescomm(Nlocal, tt, cc, cp, res_data);
   
   /* Call reslocal to calculate the local portion of residual vector. */
-  retval = reslocal(Nlocal, tt, cc, cp, res, webdata);
+  retval = reslocal(Nlocal, tt, cc, cp, rr, res_data);
   
   return(0);
 }
@@ -700,7 +703,8 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
  */
 
 static int rescomm(long int Nlocal, realtype tt, 
-                   N_Vector cc, N_Vector cp, void *rdata)
+                   N_Vector cc, N_Vector cp,
+                   void *res_data)
 {
 
   UserData webdata;
@@ -709,15 +713,19 @@ static int rescomm(long int Nlocal, realtype tt,
   MPI_Comm comm;
   MPI_Request request[4];
   
-  webdata = (UserData) rdata;
+  webdata = (UserData) res_data;
   cdata = NV_DATA_P(cc);
   
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */
   
-  comm = webdata->comm;     thispe = webdata->thispe;
-  ixsub = webdata->ixsub;   jysub = webdata->jysub;
+  comm = webdata->comm;     
+  thispe = webdata->thispe;
+
+  ixsub = webdata->ixsub;   
+  jysub = webdata->jysub;
   cext = webdata->cext;
-  nsmxsub = webdata->nsmxsub; nsmysub = (webdata->ns)*(webdata->mysub);
+  nsmxsub = webdata->nsmxsub; 
+  nsmysub = (webdata->ns)*(webdata->mysub);
   
   /* Start receiving boundary data from neighboring PEs. */
 
@@ -918,15 +926,15 @@ static void BSend(MPI_Comm comm, long int my_pe, long int ixsub, long int jysub,
  */
 
 static int reslocal(long int Nlocal, realtype tt, 
-                    N_Vector cc, N_Vector cp, N_Vector res,
-                    void *rdata)
+                    N_Vector cc, N_Vector cp, N_Vector rr,
+                    void *res_data)
 {
   realtype *cdata, *ratesxy, *cpxy, *resxy,
     xx, yy, dcyli, dcyui, dcxli, dcxui;
   long int ix, jy, is, i, locc, ylocce, locce;
   UserData webdata;
   
-  webdata = (UserData) rdata;
+  webdata = (UserData) res_data;
   
   /* Get data pointers, subgrid data, array sizes, work array cext. */
   
@@ -975,7 +983,7 @@ static int reslocal(long int Nlocal, realtype tt,
   }
 
   /* Loop over all grid points, setting local array rates to right-hand sides.
-     Then set res values appropriately for prey/predator components of F. */
+     Then set rr values appropriately for prey/predator components of F. */
 
   for (jy = 0; jy < mysub; jy++) {
     ylocce = (jy+1)*nsmxsub2;
@@ -988,7 +996,7 @@ static int reslocal(long int Nlocal, realtype tt,
       ratesxy = IJ_Vptr(rates,ix,jy);
       WebRates(xx, yy, &(cext[locce]), ratesxy, webdata);
 
-      resxy = IJ_Vptr(res,ix,jy); 
+      resxy = IJ_Vptr(rr,ix,jy); 
       cpxy = IJ_Vptr(cp,ix,jy); 
       
       for (is = 0; is < NUM_SPECIES; is++) {
