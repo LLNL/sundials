@@ -1380,7 +1380,7 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
 \index{Jacobian approximation function!dense!user-supplied}
 \ucfunction{IDADenseSetJacFn}
 {
-  flag = IDADenseSetJacFn(ida\_mem, IDADenseJacFn djac);
+  flag = IDADenseSetJacFn(ida\_mem, djac);
 }
 {
   The function \ID{IDADenseSetJacFn} specifies the dense Jacobian
@@ -1414,7 +1414,7 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
 %%
 \ucfunction{IDADenseSetJacData}
 {
-  flag = IDADenseSetJacData(ida\_mem, void *jac\_data);
+  flag = IDADenseSetJacData(ida\_mem, jac\_data);
 }
 {
   The function \ID{IDADenseSetJacData} specifies the data structure
@@ -1469,7 +1469,7 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
 \index{Jacobian approximation function!band!user-supplied}
 \ucfunction{IDABandSetJacFn}
 {
-  flag = IDABandSetJacFn(ida\_mem, IDABandJacFn bjac);
+  flag = IDABandSetJacFn(ida\_mem, bjac);
 }
 {
   The function \ID{IDABandSetJacFn} specifies the banded Jacobian
@@ -1503,7 +1503,7 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
 %%
 \ucfunction{IDABandSetJacData}
 {
-  flag = IDABandSetJacData(ida\_mem, void *jac\_data);
+  flag = IDABandSetJacData(ida\_mem, jac\_data);
 }
 {
   The function \ID{IDABandSetJacData} specifies the data structure
@@ -1584,7 +1584,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_d
 %%
 \ucfunction{IDASpgmrSetPrecSolveFn}
 {
-  flag = IDASpgmrSetPrecSolveFn(ida\_mem, IDASpgmrPrecSolveFn psolve);
+  flag = IDASpgmrSetPrecSolveFn(ida\_mem, psolve);
 }
 {
   The function \ID{IDASpgmrSet} specifies the preconditioner
@@ -1616,7 +1616,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_d
 %%
 \ucfunction{IDASpgmrSetPrecSetupFn}
 {
-  flag = IDASpgmrSetPrecSetupFn(ida\_mem, IDASpgmrPrecSetupFn psetup);
+  flag = IDASpgmrSetPrecSetupFn(ida\_mem, psetup);
 }
 {
   The function \ID{IDASpgmrSetPrecSetupFn} specifies the preconditioner
@@ -1648,7 +1648,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_d
 %%
 \ucfunction{IDASpgmrSetPrecData}
 {
-  flag = IDASpgmrSetPrecData(ida\_mem, void *prec\_data);
+  flag = IDASpgmrSetPrecData(ida\_mem, prec\_data);
 }
 {
   The function \ID{IDASpgmrSetPrecData} specifies the data structure
@@ -1681,7 +1681,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_d
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
 \ucfunction{IDASpgmrSetJacTimesVecFn}
 {
-  flag = IDASpgmrSetJacTimesVecFn(ida\_mem, IDASpgmrJacTimesVecFn jtimes);
+  flag = IDASpgmrSetJacTimesVecFn(ida\_mem, jtimes);
 }
 {
   The function \ID{IDASpgmrSetJacTimesFn} specifies the Jacobian-vector 
@@ -1716,7 +1716,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_d
 %%
 \ucfunction{IDASpgmrSetJacData}
 {
-  flag = IDASpgmrSetJacData(ida\_mem, void *jac\_data);
+  flag = IDASpgmrSetJacData(ida\_mem, jac\_data);
 }
 {
   The function \ID{IDASpgmrSetJacData} specifies the data structure
@@ -1747,7 +1747,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_d
 %%
 \ucfunction{IDASpgmrSetGSType}
 {
-  flag = IDASpgmrSetGSType(ida\_mem, int gstype);
+  flag = IDASpgmrSetGSType(ida\_mem, gstype);
 }
 {
   The function \ID{IDASpgmrSetGSType} specifies the 
@@ -1785,7 +1785,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_d
 %%
 \ucfunction{IDASpgmrSetMaxRestarts}
 {
-  flag = IDASpgmrSetMaxRestarts(ida\_mem, int maxrs);
+  flag = IDASpgmrSetMaxRestarts(ida\_mem, maxrs);
 }
 {
   The function \ID{IDASpgmrSetMaxRestarts} specifies the maximum number of 
@@ -1819,7 +1819,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_d
 %%
 \ucfunction{IDASpgmrSetEpslin}
 {
-  flag = IDASpgmrSetEpsLin(ida\_mem, realtype eplifac);
+  flag = IDASpgmrSetEpsLin(ida\_mem, eplifac);
 }
 {
   The function \ID{IDASpgmrSetEps} specifies the factor by

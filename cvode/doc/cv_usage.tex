@@ -1386,7 +1386,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{Jacobian approximation function!dense!user-supplied}
 \ucfunction{CVDenseSetJacFn}
 {
-  flag = CVDenseSetJacFn(cvode\_mem, CVDenseJacFn djac);
+  flag = CVDenseSetJacFn(cvode\_mem, djac);
 }
 {
   The function \ID{CVDenseSetJacFn} specifies the dense Jacobian
@@ -1420,7 +1420,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 %%
 \ucfunction{CVDenseSetJacData}
 {
-  flag = CVDenseSetJacData(cvode\_mem, void *jac\_data);
+  flag = CVDenseSetJacData(cvode\_mem, jac\_data);
 }
 {
   The function \ID{CVDenseSetJacData} specifies the data structure
@@ -1475,7 +1475,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{Jacobian approximation function!band!user-supplied}
 \ucfunction{CVBandSetJacFn}
 {
-  flag = CVBandSetJacFn(cvode\_mem, CVBandJacFn bjac);
+  flag = CVBandSetJacFn(cvode\_mem, bjac);
 }
 {
   The function \ID{CVBandSetJacFn} specifies the banded Jacobian
@@ -1509,7 +1509,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 %%
 \ucfunction{CVBandSetJacData}
 {
-  flag = CVBandSetJacData(cvode\_mem, void *jac\_data);
+  flag = CVBandSetJacData(cvode\_mem, jac\_data);
 }
 {
   The function \ID{CVBandSetJacData} specifies the data structure
@@ -1596,7 +1596,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 \ucfunction{CVSpgmrSetPrecSolveFn}
 {
-  flag = CVSpgmrSetPrecSolveFn(cvode\_mem, CVSpgmrPrecSolveFn psolve);
+  flag = CVSpgmrSetPrecSolveFn(cvode\_mem, psolve);
 }
 {
   The function \ID{CVSpgmrSet} specifies the preconditioner
@@ -1628,7 +1628,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 \ucfunction{CVSpgmrSetPrecSetupFn}
 {
-  flag = CVSpgmrSetPrecSetupFn(cvode\_mem, CVSpgmrPrecSetupFn psetup);
+  flag = CVSpgmrSetPrecSetupFn(cvode\_mem, psetup);
 }
 {
   The function \ID{CVSpgmrSetPrecSetupFn} specifies the preconditioner
@@ -1660,7 +1660,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 \ucfunction{CVSpgmrSetPrecData}
 {
-  flag = CVSpgmrSetPrecData(cvode\_mem, void *P\_data);
+  flag = CVSpgmrSetPrecData(cvode\_mem, P\_data);
 }
 {
   The function \ID{CVSpgmrSetPrecData} specifies the data structure
@@ -1693,7 +1693,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
 \ucfunction{CVSpgmrSetJacTimesVecFn}
 {
-  flag = CVSpgmrSetJacTimesVecFn(cvode\_mem, CVSpgmrJacTimesVecFn jtimes);
+  flag = CVSpgmrSetJacTimesVecFn(cvode\_mem, jtimes);
 }
 {
   The function \ID{CVSpgmrSetJacTimesFn} specifies the Jacobian-vector 
@@ -1728,7 +1728,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 \ucfunction{CVSpgmrSetJacData}
 {
-  flag = CVSpgmrSetJacData(cvode\_mem, void *jac\_data);
+  flag = CVSpgmrSetJacData(cvode\_mem, jac\_data);
 }
 {
   The function \ID{CVSpgmrSetJacData} specifies the data structure
@@ -1759,7 +1759,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 \ucfunction{CVSpgmrSetGSType}
 {
-  flag = CVSpgmrSetGSType(cvode\_mem, int gstype);
+  flag = CVSpgmrSetGSType(cvode\_mem, gstype);
 }
 {
   The function \ID{CVSpgmrSetGSType} specifies the 
@@ -1797,7 +1797,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 \ucfunction{CVSpgmrSetDelt}
 {
-  flag = CVSpgmrSetDelt(cvode\_mem, realtype delt);
+  flag = CVSpgmrSetDelt(cvode\_mem, delt);
 }
 {
   The function \ID{CVSpgmrSetDelt} specifies the factor by
@@ -1834,7 +1834,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 \ucfunction{CVSpgmrSetPrecType}
 {
-  flag = CVSpgmrSetPrecType(cvode\_mem, int pretype);
+  flag = CVSpgmrSetPrecType(cvode\_mem, pretype);
 }
 {
   The function \ID{CVSpgmrSetPrecType} resets the type
