@@ -989,37 +989,6 @@ flag = IDASetInitStep(ida\_mem, hin);
 %%
 %%
 \index{step size bounds|(}
-\ucfunction{IDASetMinStep}
-{
-flag = IDASetMinStep(ida\_mem, hmin);
-}
-{
-  The function \ID{IDASetMinStep} specifies the minimum absolute
-  value of the step size.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[hmin] (\id{realtype})
-    minimum absolute value of the step size.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_ILL\_INPUT]
-  \item[\Id{IDA\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}]
-    Either \id{hmin} is not positive or it is larger than the maximum allowable step.
-  \end{args}
-}
-{
-  The default value is $0.0$.
-}
-%%
 %%
 \ucfunction{IDASetMaxStep}
 {
