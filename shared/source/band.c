@@ -3,7 +3,7 @@
  * File          : band.c                                         *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh, and      *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 5 March 2002                                   *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for a generic BAND linear      *
  * solver package.                                                *
@@ -13,8 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "band.h"
-#include "llnltyps.h"
-#include "llnlmath.h"
+#include "sundialstypes.h"
+#include "sundialsmath.h"
 
 
 #define ZERO RCONST(0.0)
@@ -25,7 +25,8 @@
 
 /* Implementation */
 
-BandMat BandAllocMat(integer N, integer mu, integer ml, integer smu)
+BandMat BandAllocMat(integertype N, integertype mu, integertype ml, 
+                     integertype smu)
 {
   BandMat A;
 
@@ -49,21 +50,21 @@ BandMat BandAllocMat(integer N, integer mu, integer ml, integer smu)
 }
 
 
-integer *BandAllocPiv(integer N)
+integertype *BandAllocPiv(integertype N)
 {
   if (N <= 0) return(NULL);
   
-  return((integer *) malloc(N * sizeof(integer)));
+  return((integertype *) malloc(N * sizeof(integertype)));
 }
 
 
-integer BandFactor(BandMat A, integer *p)
+integertype BandFactor(BandMat A, integertype *p)
 {
   return(gbfa(A->data, A->size, A->mu, A->ml, A->smu, p));
 }
 
 
-void BandBacksolve(BandMat A, integer *p, real *b)
+void BandBacksolve(BandMat A, integertype *p, realtype *b)
 {
   gbsl(A->data, A->size, A->smu, A->ml, p, b);
 }
@@ -73,12 +74,13 @@ void BandZero(BandMat A)
   bandzero(A->data, A->size, A->mu, A->ml, A->smu);
 }
 
-void BandCopy(BandMat A, BandMat B, integer copymu, integer copyml)
+void BandCopy(BandMat A, BandMat B, integertype copymu, 
+              integertype copyml)
 {
   bandcopy(A->data, B->data, A->size, A->smu, B->smu, copymu, copyml);
 }
 
-void BandScale(real c, BandMat A)
+void BandScale(realtype c, BandMat A)
 {
   bandscale(c, A->data, A->size, A->mu, A->ml, A->smu);
 }
@@ -94,7 +96,7 @@ void BandFreeMat(BandMat A)
   free(A);
 }
 
-void BandFreePiv(integer *p)
+void BandFreePiv(integertype *p)
 { 
   free(p);
 }
@@ -105,18 +107,19 @@ void BandPrint(BandMat A)
 }
 
 
-real **bandalloc(integer n, integer smu, integer ml)
+realtype **bandalloc(integertype n, integertype smu, 
+                     integertype ml)
 {
-  real **a;
-  integer j, colSize;
+  realtype **a;
+  integertype j, colSize;
 
   if (n <= 0) return(NULL);
 
-  a = (real **) malloc(n * sizeof(real *));
+  a = (realtype **) malloc(n * sizeof(realtype *));
   if (a == NULL) return(NULL);
 
   colSize = smu + ml + 1;
-  a[0] = (real *) malloc(n * colSize * sizeof(real));
+  a[0] = (realtype *) malloc(n * colSize * sizeof(realtype));
   if (a[0] == NULL) {
     free(a);
     return(NULL);
@@ -127,22 +130,22 @@ real **bandalloc(integer n, integer smu, integer ml)
   return(a);
 }
 
-integer *bandallocpiv(integer n)
+integertype *bandallocpiv(integertype n)
 {
   if (n <= 0) return(NULL);
 
-  return((integer *) malloc(n * sizeof(integer)));
+  return((integertype *) malloc(n * sizeof(integertype)));
 }
 
 
-integer gbfa(real **a, integer n, integer mu, integer ml, integer smu,
-             integer *p)
+integertype gbfa(realtype **a, integertype n, integertype mu, 
+                 integertype ml, integertype smu, integertype *p)
 {
-  integer c, r, num_rows;
-  integer i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
-  real *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
-  real max, temp, mult, a_kj;
-  boole swap;
+  integertype c, r, num_rows;
+  integertype i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
+  realtype *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
+  realtype max, temp, mult, a_kj;
+  booleantype swap;
 
   /* zero out the first smu - mu rows of the rectangular array a */
 
@@ -242,11 +245,11 @@ integer gbfa(real **a, integer n, integer mu, integer ml, integer smu,
   return(0);
 }
 
-void gbsl(real **a, integer n, integer smu, integer ml, integer *p,
-	  real *b)
+void gbsl(realtype **a, integertype n, integertype smu, integertype ml, 
+          integertype *p, realtype *b)
 {
-  integer k, l, i, first_row_k, last_row_k;
-  real mult, *diag_k;
+  integertype k, l, i, first_row_k, last_row_k;
+  realtype mult, *diag_k;
   
   /* Solve Ly = Pb, store solution y in b */
   
@@ -275,10 +278,11 @@ void gbsl(real **a, integer n, integer smu, integer ml, integer *p,
   }
 }
 
-void bandzero(real **a, integer n, integer mu, integer ml, integer smu)
+void bandzero(realtype **a, integertype n, integertype mu, 
+              integertype ml, integertype smu)
 {
-  integer i, j, colSize;
-  real *col_j;
+  integertype i, j, colSize;
+  realtype *col_j;
 
   colSize = mu + ml + 1;
   for (j=0; j < n; j++) {
@@ -288,11 +292,11 @@ void bandzero(real **a, integer n, integer mu, integer ml, integer smu)
   }
 }
 
-void bandcopy(real **a, real **b, integer n, integer a_smu, integer b_smu,
-	      integer copymu, integer copyml)
+void bandcopy(realtype **a, realtype **b, integertype n, integertype a_smu, 
+              integertype b_smu, integertype copymu, integertype copyml)
 {
-  integer i, j, copySize;
-  real *a_col_j, *b_col_j;
+  integertype i, j, copySize;
+  realtype *a_col_j, *b_col_j;
 
   copySize = copymu + copyml + 1;
  
@@ -304,11 +308,11 @@ void bandcopy(real **a, real **b, integer n, integer a_smu, integer b_smu,
   }
 }
 
-void bandscale(real c, real **a, integer n, integer mu, integer ml,
-	       integer smu)
+void bandscale(realtype c, realtype **a, integertype n, integertype mu, 
+               integertype ml, integertype smu)
 {
-  integer i, j, colSize;
-  real *col_j;
+  integertype i, j, colSize;
+  realtype *col_j;
 
   colSize = mu + ml + 1;
 
@@ -319,28 +323,29 @@ void bandscale(real c, real **a, integer n, integer mu, integer ml,
   }
 }
 
-void bandaddI(real **a, integer n, integer smu)
+void bandaddI(realtype **a, integertype n, integertype smu)
 {
-  integer j;
+  integertype j;
  
   for(j=0; j < n; j++)
     a[j][smu] += ONE;
 }
 
-void bandfreepiv(integer *p)
+void bandfreepiv(integertype *p)
 {
   free(p);
 }
 
-void bandfree(real **a)
+void bandfree(realtype **a)
 {
   free(a[0]);
   free(a);
 }
 
-void bandprint(real **a, integer n, integer mu, integer ml, integer smu)
+void bandprint(realtype **a, integertype n, integertype mu, integertype ml, 
+               integertype smu)
 {
-  integer i, j, start, finish;
+  integertype i, j, start, finish;
  
   printf("\n");
   for (i=0; i < n; i++) {

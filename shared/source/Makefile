@@ -1,7 +1,7 @@
 #--------------------------------------------------------------------------------------
 # File        : Makefile
 # Programmers : Radu Serban @ LLNL
-# Version of  : 27 February 2002
+# Version of  : 26 June 2002
 #--------------------------------------------------------------------------------------
 # Makefile for the SHARED package.
 #
@@ -34,7 +34,7 @@ SHARED_LIB_DIR  = ../lib
 SHARED_LIB_NAME = libshared.$(ARCH).a
 
 # Source and object files
-SRC = band.c dense.c iterativ.c llnlmath.c \
+SRC = band.c dense.c iterativ.c sundialsmath.c \
       nvector.c smalldense.c spgmr.c
 
 OBJ = ${SRC:.c=.o}
@@ -75,15 +75,15 @@ lib:
 	@(rm -f $(OBJ))
 	@(echo '...Create symbolic links to SHARED...')
 	@(cd ../../lib;     rm -f $(SHARED_LIB_NAME); ln -fs ../shared/lib/$(SHARED_LIB_NAME) .)
-	@(cd ../../include; rm -f band.h;      ln -fs ../shared/include/band.h .)
-	@(cd ../../include; rm -f dense.h;     ln -fs ../shared/include/dense.h .)
-	@(cd ../../include; rm -f fcmixpar.h;  ln -fs ../shared/include/fcmixpar.h .)
-	@(cd ../../include; rm -f iterativ.h;  ln -fs ../shared/include/iterativ.h .)
-	@(cd ../../include; rm -f llnlmath.h;  ln -fs ../shared/include/llnlmath.h .)
-	@(cd ../../include; rm -f llnltyps.h;  ln -fs ../shared/include/llnltyps.h .)
-	@(cd ../../include; rm -f nvector.h;   ln -fs ../shared/include/nvector.h .)
-	@(cd ../../include; rm -f smalldense.h;ln -fs ../shared/include/smalldense.h .)
-	@(cd ../../include; rm -f spgmr.h;     ln -fs ../shared/include/spgmr.h .)
+	@(cd ../../include; rm -f band.h;             ln -fs ../shared/include/band.h .)
+	@(cd ../../include; rm -f dense.h;            ln -fs ../shared/include/dense.h .)
+	@(cd ../../include; rm -f fcmixpar.h;         ln -fs ../shared/include/fcmixpar.h .)
+	@(cd ../../include; rm -f iterativ.h;         ln -fs ../shared/include/iterativ.h .)
+	@(cd ../../include; rm -f sundialsmath.h;     ln -fs ../shared/include/sundialsmath.h .)
+	@(cd ../../include; rm -f sundialstypes.h;    ln -fs ../shared/include/sundialstypes.h .)
+	@(cd ../../include; rm -f nvector.h;          ln -fs ../shared/include/nvector.h .)
+	@(cd ../../include; rm -f smalldense.h;       ln -fs ../shared/include/smalldense.h .)
+	@(cd ../../include; rm -f spgmr.h;            ln -fs ../shared/include/spgmr.h .)
 
 nvecserial:
 	@if test -f nvecserial.mk; \
@@ -107,8 +107,8 @@ purge:
 	@(cd ../../include; rm -f dense.h;)
 	@(cd ../../include; rm -f fcmixpar.h;)
 	@(cd ../../include; rm -f iterativ.h;)
-	@(cd ../../include; rm -f llnlmath.h;)
-	@(cd ../../include; rm -f llnltyps.h;)
+	@(cd ../../include; rm -f sundialsmath.h;)
+	@(cd ../../include; rm -f sundialstypes.h;)
 	@(cd ../../include; rm -f nvector.h;)
 	@(cd ../../include; rm -f smalldense.h;)
 	@(cd ../../include; rm -f spgmr.h;)

@@ -3,7 +3,7 @@
  * File          : dense.c                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 4 March 2002                                   *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for a generic DENSE linear     *
  * solver package.                                                *
@@ -12,8 +12,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h"
-#include "llnlmath.h"
+#include "sundialstypes.h"
+#include "sundialsmath.h"
 #include "dense.h"
 #include "smalldense.h"
 
@@ -25,7 +25,7 @@
 /* Implementation */
 
 
-DenseMat DenseAllocMat(integer N)
+DenseMat DenseAllocMat(integertype N)
 {
   DenseMat A;
 
@@ -46,21 +46,21 @@ DenseMat DenseAllocMat(integer N)
 }
 
 
-integer *DenseAllocPiv(integer N)
+integertype *DenseAllocPiv(integertype N)
 {
   if (N <= 0) return(NULL);
 
-  return((integer *) malloc(N * sizeof(integer)));
+  return((integertype *) malloc(N * sizeof(integertype)));
 }
 
 
-integer DenseFactor(DenseMat A, integer *p)
+integertype DenseFactor(DenseMat A, integertype *p)
 {
   return(gefa(A->data, A->size, p));
 }
 
 
-void DenseBacksolve(DenseMat A, integer *p, real *b)
+void DenseBacksolve(DenseMat A, integertype *p, realtype *b)
 {
   gesl(A->data, A->size, p, b);
 }
@@ -76,7 +76,7 @@ void DenseCopy(DenseMat A, DenseMat B)
   dencopy(A->data, B->data, A->size);
 }
 
-void DenseScale(real c, DenseMat A)
+void DenseScale(realtype c, DenseMat A)
 {
   denscale(c, A->data, A->size);
 }
@@ -92,7 +92,7 @@ void DenseFreeMat(DenseMat A)
   free(A);
 }
 
-void DenseFreePiv(integer *p)
+void DenseFreePiv(integertype *p)
 {  
   free(p);
 }

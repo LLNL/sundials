@@ -1,8 +1,8 @@
 /******************************************************************
  *                                                                *
- * File          : llnlmath.c                                     *
+ * File          : sundialsmath.c                                 *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 1 September 1994                               *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for a C math library.          *
  *                                                                *
@@ -11,8 +11,8 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "llnlmath.h"
-#include "llnltyps.h"
+#include "sundialsmath.h"
+#include "sundialstypes.h"
 
 
 #define ZERO RCONST(0.0)
@@ -20,10 +20,10 @@
 #define TWO  RCONST(2.0)
 
 
-real UnitRoundoff(void)
+realtype UnitRoundoff(void)
 {
-  real u;
-  volatile real one_plus_u;
+  realtype u;
+  volatile realtype one_plus_u;
   
   u = ONE;
   one_plus_u = ONE + u;
@@ -37,10 +37,10 @@ real UnitRoundoff(void)
 }
 
 
-real RPowerI(real base, int exponent)
+realtype RPowerI(realtype base, int exponent)
 {
   int i, expt;
-  real prod;
+  realtype prod;
 
   prod = ONE;
   expt = ABS(exponent);
@@ -50,18 +50,18 @@ real RPowerI(real base, int exponent)
 }
 
 
-real RPowerR(real base, real exponent)
+realtype RPowerR(realtype base, realtype exponent)
 {
  
   if (base <= ZERO) return(ZERO);
 
-  return((real)pow((double)base,(double)exponent));
+  return((realtype)pow((double)base,(double)exponent));
 }
 
 
-real RSqrt(real x)
+realtype RSqrt(realtype x)
 {
   if (x <= ZERO) return(ZERO);
 
-  return((real) sqrt((double) x));
+  return((realtype) sqrt((double) x));
 }

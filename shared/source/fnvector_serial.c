@@ -2,7 +2,7 @@
  *                                                              *
  * File          : fnvector_serial.c                            *
  * Programmers   : Radu Serban @ LLNL                           *
- * Version of    : 29 March 2002                                *
+ * Version of    : 26 June 2002                                 *
  *                                                              *
  *--------------------------------------------------------------*
  * This file, companion of nvector_serial.c contains the        *
@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector_serial.h"
 #include "fnvector_serial.h"
 
@@ -22,7 +22,7 @@ M_Env F2C_machEnv;
 /* Fortran callable interfaces to M_EnvInit_Serial
    and M_EnvFree_Serial */
 
-void F_MENVINITS(integer *neq, int *ier)
+void F_MENVINITS(integertype *neq, int *ier)
 {
  F2C_machEnv = M_EnvInit_Serial(*neq);
 

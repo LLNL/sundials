@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : spgmr.c                                        *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 17 December 1999                               *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the scaled preconditioned  *
  * GMRES (SPGMR) iterative linear solver.                         *
@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "iterativ.h"
 #include "spgmr.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 #include "llnlmath.h"
 
@@ -32,11 +32,11 @@ static void FreeVectorArray(N_Vector *A, int indMax);
 
 /*************** SpgmrMalloc *****************************************/
 
-SpgmrMem SpgmrMalloc(integer N, int l_max, void *machEnv)
+SpgmrMem SpgmrMalloc(integertype N, int l_max, void *machEnv)
 {
   SpgmrMem mem;
   N_Vector *V, xcor, vtemp;
-  real **Hes, *givens, *yg;
+  realtype **Hes, *givens, *yg;
   int k, i;
  
   /* Check the input parameters. */
@@ -58,14 +58,14 @@ SpgmrMem SpgmrMalloc(integer N, int l_max, void *machEnv)
 
   /* Get memory for the Hessenberg matrix Hes. */
 
-  Hes = (real **) malloc((l_max+1)*sizeof(real *)); 
+  Hes = (realtype **) malloc((l_max+1)*sizeof(realtype *)); 
   if (Hes == NULL) {
     FreeVectorArray(V, l_max);
     return(NULL);
   }
 
   for (k = 0; k <= l_max; k++) {
-    Hes[k] = (real *) malloc(l_max*sizeof(real));
+    Hes[k] = (realtype *) malloc(l_max*sizeof(realtype));
     if (Hes[k] == NULL) {
       for (i = 0; i < k; i++) free(Hes[i]);
       FreeVectorArray(V, l_max);
@@ -75,7 +75,7 @@ SpgmrMem SpgmrMalloc(integer N, int l_max, void *machEnv)
   
   /* Get memory for Givens rotation components. */
   
-  givens = (real *) malloc(2*l_max*sizeof(real));
+  givens = (realtype *) malloc(2*l_max*sizeof(realtype));
   if (givens == NULL) {
     for (i = 0; i <= l_max; i++) free(Hes[i]);
     FreeVectorArray(V, l_max);
@@ -94,7 +94,7 @@ SpgmrMem SpgmrMalloc(integer N, int l_max, void *machEnv)
 
   /* Get memory to hold SPGMR y and g vectors. */
 
-  yg = (real *) malloc((l_max+1)*sizeof(real));
+  yg = (realtype *) malloc((l_max+1)*sizeof(realtype));
   if (yg == NULL) {
     N_VFree(xcor);
     free(givens);
@@ -148,14 +148,14 @@ SpgmrMem SpgmrMalloc(integer N, int l_max, void *machEnv)
 /*************** SpgmrSolve ******************************************/
 
 int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
-               int pretype, int gstype, real delta, int max_restarts,
+               int pretype, int gstype, realtype delta, int max_restarts,
                void *P_data, N_Vector s1, N_Vector s2, ATimesFn atimes,
-               PSolveFn psolve, real *res_norm, int *nli, int *nps)
+               PSolveFn psolve, realtype *res_norm, int *nli, int *nps)
 {
   N_Vector *V, xcor, vtemp;
-  real **Hes, *givens, *yg;
-  real beta, rotation_product, r_norm, s_product, rho;
-  boole preOnLeft, preOnRight, scale2, scale1, converged;
+  realtype **Hes, *givens, *yg;
+  realtype beta, rotation_product, r_norm, s_product, rho;
+  booleantype preOnLeft, preOnRight, scale2, scale1, converged;
   int i, j, k, l, l_plus_1, l_max, krydim, ier, ntries;
 
   if (mem == NULL) return(SPGMR_MEM_NULL);
@@ -402,7 +402,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
 void SpgmrFree(SpgmrMem mem)
 {
   int i, l_max;
-  real **Hes;
+  realtype **Hes;
   
   if (mem == NULL) return;
 

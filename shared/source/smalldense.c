@@ -2,7 +2,7 @@
  *                                                                *
  * File          : smalldense.c                                   *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 16 March 2000                                  *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for a generic DENSE linear     *
  * solver package, intended for small dense matrices.             *
@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "smalldense.h"
-#include "llnltyps.h"
-#include "llnlmath.h"
+#include "sundialstypes.h"
+#include "sundialsmath.h"
 
 
 #define ZERO RCONST(0.0)
@@ -23,17 +23,17 @@
 /* Implementation */
 
 
-real **denalloc(integer n)
+realtype **denalloc(integertype n)
 {
-  integer j;
-  real **a;
+  integertype j;
+  realtype **a;
 
   if (n <= 0) return(NULL);
 
-  a = (real **) malloc(n * sizeof(real *));
+  a = (realtype **) malloc(n * sizeof(realtype *));
   if (a == NULL) return(NULL);
 
-  a[0] = (real *) malloc(n * n * sizeof(real));
+  a[0] = (realtype *) malloc(n * n * sizeof(realtype));
   if (a[0] == NULL) {
     free(a);
     return(NULL);
@@ -44,19 +44,19 @@ real **denalloc(integer n)
   return(a);
 }
 
-integer *denallocpiv(integer n)
+integertype *denallocpiv(integertype n)
 {
   if (n <= 0) return(NULL);
 
-  return((integer *) malloc(n * sizeof(integer)));
+  return((integertype *) malloc(n * sizeof(integertype)));
 }
 
-integer gefa(real **a, integer n, integer *p)
+integertype gefa(realtype **a, integertype n, integertype *p)
 {
-  integer i, j, k, l;
-  real *col_j, *col_k, *diag_k;
-  real temp, mult, a_kj;
-  boole swap;
+  integertype i, j, k, l;
+  realtype *col_j, *col_k, *diag_k;
+  realtype temp, mult, a_kj;
+  booleantype swap;
 
   /* k = elimination step number */
 
@@ -131,10 +131,10 @@ integer gefa(real **a, integer n, integer *p)
   return(0);
 }
 
-void gesl(real **a, integer n, integer *p, real *b)
+void gesl(realtype **a, integertype n, integertype *p, realtype *b)
 {
-  integer k, l, i;
-  real mult, *col_k;
+  integertype k, l, i;
+  realtype mult, *col_k;
 
   /* Solve Ly = Pb, store solution y in b */
 
@@ -161,10 +161,10 @@ void gesl(real **a, integer n, integer *p, real *b)
   }
 }
 
-void denzero(real **a, integer n)
+void denzero(realtype **a, integertype n)
 {
-  integer i, j;
-  real *col_j;
+  integertype i, j;
+  realtype *col_j;
 
   for (j=0; j < n; j++) {
     col_j = a[j];
@@ -173,10 +173,10 @@ void denzero(real **a, integer n)
   }
 }
 
-void dencopy(real **a, real **b, integer n)
+void dencopy(realtype **a, realtype **b, integertype n)
 {
-  integer i, j;
-  real *a_col_j, *b_col_j;
+  integertype i, j;
+  realtype *a_col_j, *b_col_j;
 
   for (j=0; j < n; j++) {
     a_col_j = a[j];
@@ -187,10 +187,10 @@ void dencopy(real **a, real **b, integer n)
 
 }
 
-void denscale(real c, real **a, integer n)
+void denscale(realtype c, realtype **a, integertype n)
 {
-  integer i, j;
-  real *col_j;
+  integertype i, j;
+  realtype *col_j;
 
   for (j=0; j < n; j++) {
     col_j = a[j];
@@ -199,27 +199,27 @@ void denscale(real c, real **a, integer n)
   }
 }
 
-void denaddI(real **a, integer n)
+void denaddI(realtype **a, integertype n)
 {
-  integer i;
+  integertype i;
   
   for (i=0; i < n; i++) a[i][i] += ONE;
 }
 
-void denfreepiv(integer *p)
+void denfreepiv(integertype *p)
 {
   free(p);
 }
 
-void denfree(real **a)
+void denfree(realtype **a)
 {
   free(a[0]);
   free(a);
 }
 
-void denprint(real **a, integer n)
+void denprint(realtype **a, integertype n)
 {
-  integer i, j;
+  integertype i, j;
 
   printf("\n");
   for (i=0; i < n; i++) {

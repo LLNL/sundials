@@ -2,7 +2,7 @@
  *                                                              *
  * File          : fnvector_parallel.c                          *
  * Programmers   : Radu Serban @ LLNL                           *
- * Version of    : 29 March 2002                                *
+ * Version of    : 26 June 2002                                 *
  *                                                              *
  *--------------------------------------------------------------*
  * This file, companion of nvector_parallel.c contains the      *
@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector_parallel.h"
 #include "fnvector_parallel.h"
 #include "mpi.h"
@@ -23,7 +23,7 @@ M_Env F2C_machEnv;
 /* Fortran callable interfaces to M_EnvInit_Parallel
    and M_EnvFree_Parallel */
 
-void F_MENVINITP(integer *nlocal, integer *nglobal, int *ier)
+void F_MENVINITP(integertype *nlocal, integertype *nglobal, int *ier)
 {
   
   /* Call M_EnvInit_Parallel:

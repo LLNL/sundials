@@ -2,7 +2,7 @@
  *                                                                *
  * File          : iterativ.c                                     *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 16 January 1998                                *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the iterativ.h header      *
  * file. It contains the implementation of functions that may be  *
@@ -12,9 +12,9 @@
 
 
 #include "iterativ.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 
 
 #define FACTOR RCONST(1000.0)
@@ -27,10 +27,11 @@
  modified Gram-Schmidt routine (called mgs) written by Milo Dorr.
 *************************************************************************/
  
-int ModifiedGS(N_Vector *v, real **h, int k, int p, real *new_vk_norm)
+int ModifiedGS(N_Vector *v, realtype **h, int k, int p, 
+               realtype *new_vk_norm)
 {
   int  i, k_minus_1, i0;
-  real new_norm_2, new_product, vk_norm, temp;
+  realtype new_norm_2, new_product, vk_norm, temp;
   
   vk_norm = RSqrt(N_VDotProd(v[k],v[k]));
   k_minus_1 = k - 1;
@@ -80,11 +81,11 @@ int ModifiedGS(N_Vector *v, real **h, int k, int p, real *new_vk_norm)
  and Peter Brown.
 **********************************************************************/
 
-int ClassicalGS(N_Vector *v, real **h, int k, int p, real *new_vk_norm,
-		N_Vector temp, real *s)
+int ClassicalGS(N_Vector *v, realtype **h, int k, int p, 
+                realtype *new_vk_norm, N_Vector temp, realtype *s)
 {
   int  i, k_minus_1, i0;
-  real vk_norm;
+  realtype vk_norm;
 
   k_minus_1 = k - 1;
   
@@ -134,9 +135,9 @@ int ClassicalGS(N_Vector *v, real **h, int k, int p, real *new_vk_norm,
  routine (called qrfact) written by Milo Dorr.
 **********************************************************************/
 
-int QRfact(int n, real **h, real *q, int job)
+int QRfact(int n, realtype **h, realtype *q, int job)
 {
-  real c, s, temp1, temp2, temp3;
+  realtype c, s, temp1, temp2, temp3;
   int i, j, k, q_ptr, n_minus_1, code=0;
 
   switch (job) {
@@ -226,9 +227,9 @@ int QRfact(int n, real **h, real *q, int job)
  routine (called qrsol) written by Milo Dorr.
 **********************************************************************/
 
-int QRsol(int n, real **h, real *q, real *b)
+int QRsol(int n, realtype **h, realtype *q, realtype *b)
 {
-  real c, s, temp1, temp2;
+  realtype c, s, temp1, temp2;
   int i, k, q_ptr, code=0;
 
   /* Compute Q*b. */
