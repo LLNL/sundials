@@ -16,21 +16,6 @@
  * shhould be easily modifiable to work with different real or     *
  * integer types and use the exported names realtype and           *
  * integertype within such a file.                                 *
- * The types for realtype and integertype below have been set to   *
- * double and long int, respectively. A user should modify these   *
- * type declarations as he/she sees fit. For example, if a user    *
- * wants the work with type float because double precision         *
- * floating point arithmetic is too expensive on the user's        *
- * machine, then the definition below should be changed to:        *
- *                                                                 *
- * typedef float realtype;                                         *
- *                                                                 *
- * Similarly, if a user does not need to work with extremely large *
- * integers (see the system header file <limits.h> for the limits  *
- * on type int and long int on your machine), then the user        *
- * should change the definition below to:                          *
- *                                                                 *
- * typedef int integertype;                                        *
  *                                                                 *
  * The constants SUNDIALS_FLOAT, SUNDIALS_DOUBLE, SUNDIALS_INT,    *
  * SUNDIALS_LONG indicate the underlying types for realtype and    *
@@ -50,6 +35,7 @@
  *                                                                 *
  * Thus the legal types for realtype are float and double, while   *
  * the legal types for integertype are int and long int.           *
+ *                                                                 *
  * The macro RCONST gives a user a convenient way to define real   *
  * constants. To use the real constant 1.0, for example, the       *
  * user should write                                               *
@@ -69,6 +55,7 @@ extern "C" {
 #ifndef _sundialstypes_h
 #define _sundialstypes_h
 
+#include <float.h>
 
 /******************************************************************
  *                                                                *
@@ -81,25 +68,29 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-typedef double realtype;
-typedef long int integertype;
-
-#define SUNDIALS_FLOAT  0
 #define SUNDIALS_DOUBLE 1
+#define SUNDIALS_FLOAT  0
 
 #define SUNDIALS_LONG 1
 #define SUNDIALS_INT  0
 
-#if SUNDIALS_FLOAT
+/*-----------------------------*/
 
-#define RCONST(x) x##F
-
-#elif SUNDIALS_DOUBLE
-
+#if SUNDIALS_DOUBLE
+typedef double realtype;
 #define RCONST(x) x
-
+#define BIG_REAL DBL_MAX
+#else
+typedef float realtype;
+#define RCONST(x) x##F
+#define BIG_REAL FLT_MAX
 #endif
 
+#if SUNDIALS_LONG
+typedef long int integertype;
+#else
+typedef int integertype;
+#endif
 
 /******************************************************************
  *                                                                *
