@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2004-11-04 02:08:08 $
+ * $Revision: 1.34 $
+ * $Date: 2004-11-15 17:10:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -104,7 +104,6 @@ static realtype KINScFNorm(N_Vector vv , N_Vector scale , N_Vector wrkv);
 static realtype KINScSteplength(KINMem kin_mem, N_Vector ucur,
 				N_Vector ss, N_Vector usc);
 static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret);
-
 static void KINPrintInfo(KINMem kin_mem, char *funcname, int key,...);
 
 /* loop macro */
@@ -896,7 +895,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
     /* print the current nni, fnorm, and nfe values if printfl > 0 */
 
     if (printfl>0) 
-      KINPrintInfo(kin_mem, "KINSol",PRNT_NNI,nni,nfe,fnorm);
+      KINPrintInfo(kin_mem, "KINSol", PRNT_NNI, &nni, &nfe, &fnorm);
 
     if (ret != CONTINUE_ITERATIONS) break; 
 
@@ -905,7 +904,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
  }  /* end of loop so load optional outputs and return */
 
   if (printfl > 0)
-    KINPrintInfo(kin_mem, "KINSol",PRNT_RETVAL,ret);
+    KINPrintInfo(kin_mem, "KINSol", PRNT_RETVAL, &ret);
 
   fflush(infofp);
 
@@ -1259,7 +1258,7 @@ static int KINSolInit(KINMem kin_mem)
   /* all error checking is complete at this point */
 
   if (printfl > 0)
-    KINPrintInfo(kin_mem, "KINSolInit", PRNT_TOL, scsteptol, fnormtol);
+    KINPrintInfo(kin_mem, "KINSolInit", PRNT_TOL, &scsteptol, &fnormtol);
 
   /* calculate the default value for mxnewtstep (maximum Newton step) */
 
@@ -1302,7 +1301,7 @@ static int KINSolInit(KINMem kin_mem)
   f1norm = HALF * fnorm * fnorm;
 
   if (printfl > 0)
-    KINPrintInfo(kin_mem, "KINSolInit", PRNT_NNI, nni, nfe, fnorm);
+    KINPrintInfo(kin_mem, "KINSolInit", PRNT_NNI, &nni, &nfe, &fnorm);
 
   /* problem has now been successfully initialized */
 
@@ -1439,7 +1438,7 @@ static booleantype KINInitialStop(KINMem kin_mem)
   func(uu, fval, f_data); nfe++;
   fmax = KINScFNorm(fval, fscale, vtemp1);
   if (printfl > 1)
-    KINPrintInfo(kin_mem, "KINInitialStop", PRNT_FMAX, fmax);
+    KINPrintInfo(kin_mem, "KINInitialStop", PRNT_FMAX, &fmax);
 
   return(fmax <= (POINTOH1 * fnormtol));
 }
@@ -1472,7 +1471,7 @@ static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   }
 
   if (printfl > 0)
-    KINPrintInfo(kin_mem,"KINInexactNewton",PRNT_PNORM,pnorm);
+    KINPrintInfo(kin_mem, "KINInexactNewton", PRNT_PNORM, &pnorm);
 
   /* if constraints are active, then constrain the step accordingly */
 
@@ -1486,7 +1485,7 @@ static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       pnorm *= stepmul;
       stepl = pnorm;
       if (printfl > 0)
-        KINPrintInfo(kin_mem,"KINInexactNewton",PRNT_PNORM,pnorm);
+        KINPrintInfo(kin_mem, "KINInexactNewton", PRNT_PNORM, &pnorm);
       if (pnorm <= scsteptol) return(1);
     }
   }
@@ -1506,7 +1505,7 @@ static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   *fnormp = N_VWL2Norm(fval,fscale);
   *f1normp = HALF * (*fnormp) * (*fnormp);
   if (printfl > 1) 
-    KINPrintInfo(kin_mem,"KINInexactNewton",PRNT_FNORM,*fnormp);
+    KINPrintInfo(kin_mem, "KINInexactNewton", PRNT_FNORM, fnormp);
   if (pnorm > (POINT99 * mxnewtstep)) *maxStepTaken = TRUE; 
   return(0);
 
@@ -1584,7 +1583,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       pnorm *= stepmul;
       stepl = pnorm;
       if (printfl > 0)
-        KINPrintInfo(kin_mem,"KINLineSearch",PRNT_PNORM1,pnorm);
+        KINPrintInfo(kin_mem, "KINLineSearch", PRNT_PNORM1, &pnorm);
     }
   }
 
@@ -1594,7 +1593,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   rl = ONE;
 
   if (printfl > 2)
-    KINPrintInfo(kin_mem,"KINLineSearch",PRNT_LAM,rlmin,f1norm,pnorm);
+    KINPrintInfo(kin_mem, "KINLineSearch", PRNT_LAM, &rlmin, &f1norm, &pnorm);
 
   /* now begin the iteration to find an rl value which satisfies both the
      alpha and beta conditions */
@@ -1612,7 +1611,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
     alpha_cond = f1norm + (alpha * slpi * rl);
 
     if (printfl > 2 && rladjust > 0)
-      KINPrintInfo(kin_mem,"KINLinesearch",PRNT_ALPHA,*fnormp,*f1normp,alpha_cond,rl);
+      KINPrintInfo(kin_mem, "KINLinesearch", PRNT_ALPHA, fnormp, f1normp, &alpha_cond, &rl);
 
     if ((*f1normp) <= alpha_cond) break;
 
@@ -1687,7 +1686,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
         alpha_cond = f1norm + (alpha * slpi * rl);
         beta_cond = f1norm + (beta * slpi * rl);
         if (printfl > 2)
-          KINPrintInfo(kin_mem,"KINLineSearch",PRNT_BETA,*f1normp, beta_cond, rl);
+          KINPrintInfo(kin_mem, "KINLineSearch", PRNT_BETA, f1normp, &beta_cond, &rl);
       } while (((*f1normp) <= alpha_cond) && 
 	       ((*f1normp) < beta_cond) && (rl < rlmax));
     }
@@ -1707,7 +1706,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
         beta_cond = f1norm + (beta * slpi * rl);
         if ((printfl > 2) && (rladjust > 0))
           KINPrintInfo(kin_mem, "KINLineSearch", PRNT_ALPHABETA, 
-                       *f1normp, alpha_cond, beta_cond, rl);
+                       f1normp, &alpha_cond, &beta_cond, &rl);
         if ((*f1normp) > alpha_cond) rldiff = rlinc;
         else if (*f1normp < beta_cond) {
           rllo = rl;
@@ -1735,7 +1734,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
   nbktrk= nfe - nfesave;
   if ((printfl > 1) && (rladjust > 0))
-    KINPrintInfo(kin_mem, "KINLineSearch", PRNT_ADJ, rladjust);
+    KINPrintInfo(kin_mem, "KINLineSearch", PRNT_ADJ, &rladjust);
 
   /* scale these two expressions by rl * ratio for later use in KINForcingTerm */
 
@@ -1871,7 +1870,7 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret)
   fmax = KINScFNorm(fval, fscale, vtemp1);
 
   if (printfl > 1) 
-    KINPrintInfo(kin_mem, "KINStop", PRNT_FMAX, fmax);
+    KINPrintInfo(kin_mem, "KINStop", PRNT_FMAX, &fmax);
 
   if (fmax <= fnormtol) return(KIN_SUCCESS);
 
@@ -1930,18 +1929,21 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret)
 static void KINPrintInfo(KINMem kin_mem, char *funcname, int key,...)
 {
   va_list ap;
+  realtype rnum1, rnum2;
+  long int inum1, inum2;
   int ret;
 
   fprintf(infofp, "---%s\n   ", funcname);
 
   /* initialize argument processing */
+
   va_start(ap, key); 
 
   switch(key) {
 
   case PRNT_RETVAL:
-    ret = va_arg(ap,int);
-    fprintf(infofp,"return value: %d ",ret);
+    ret = *(va_arg(ap, int *));
+    fprintf(infofp,"return value: %d ", ret);
     switch(ret) {
     case KIN_SUCCESS:
       fprintf(infofp, "(KIN_SUCCESS)\n");
@@ -1974,119 +1976,170 @@ static void KINPrintInfo(KINMem kin_mem, char *funcname, int key,...)
     break;
 
   case PRNT_NNI:
-    fprintf(infofp, "nni = %4ld  ", va_arg(ap,long int));
-    fprintf(infofp, "nfe = %6ld  ", va_arg(ap,long int));
-          
+    inum1 = *(va_arg(ap, long int *));
+    inum2 = *(va_arg(ap, long int *));
+    rnum1 = *(va_arg(ap, realtype *));
+    fprintf(infofp, "nni = %4ld  ", inum1);
+    fprintf(infofp, "nfe = %6ld  ", inum2);
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "fnorm = %26.16Lg\n", va_arg(ap,realtype));
+    fprintf(infofp, "fnorm = %26.16Lg\n", rnum1);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "fnorm = %26.16lg\n", rnum1);
 #else
-    fprintf(infofp, "fnorm = %26.16g\n", va_arg(ap,realtype));
+    fprintf(infofp, "fnorm = %26.16g\n", rnum1);
 #endif
     break;
 
   case PRNT_TOL:
+    rnum1 = *(va_arg(ap, realtype *));
+    rnum2 = *(va_arg(ap, realtype *));
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "scsteptol = %12.3Lg  fnormtol = %12.3Lg\n", 
-            va_arg(ap,realtype), va_arg(ap,realtype));
+    fprintf(infofp, "scsteptol = %12.3Lg  fnormtol = %12.3Lg\n", rnum1, rnum2);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "scsteptol = %12.3lg  fnormtol = %12.3lg\n", rnum1, rnum2);
 #else
-    fprintf(infofp, "scsteptol = %12.3g  fnormtol = %12.3g\n", 
-            va_arg(ap,realtype), va_arg(ap,realtype));
+    fprintf(infofp, "scsteptol = %12.3g  fnormtol = %12.3g\n", rnum1, rnum2);
 #endif
     break;
     
   case PRNT_FMAX:
+    rnum1 = *(va_arg(ap, realtype *));
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "scaled f norm (for stopping) = %12.3Lg\n",
-            va_arg(ap,realtype));
+    fprintf(infofp, "scaled f norm (for stopping) = %12.3Lg\n", rnum1);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "scaled f norm (for stopping) = %12.3lg\n", rnum1);
 #else
-    fprintf(infofp, "scaled f norm (for stopping) = %12.3g\n",
-            va_arg(ap,realtype));
+    fprintf(infofp, "scaled f norm (for stopping) = %12.3g\n", rnum1);
 #endif
     break;
     
   case PRNT_PNORM:
+    rnum1 = *(va_arg(ap, realtype *));
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "pnorm = %12.4Le\n", va_arg(ap,realtype));
+    fprintf(infofp, "pnorm = %12.4Le\n", rnum1);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "pnorm = %12.4le\n", rnum1);
 #else
-    fprintf(infofp, "pnorm = %12.4e\n", va_arg(ap,realtype));
+    fprintf(infofp, "pnorm = %12.4e\n", rnum1);
 #endif
     break;
 
   case PRNT_PNORM1:
+    rnum1 = *(va_arg(ap, realtype *));
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "(ivio=1) pnorm = %12.4Le\n", va_arg(ap,realtype));
+    fprintf(infofp, "(ivio=1) pnorm = %12.4Le\n", rnum1);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "(ivio=1) pnorm = %12.4le\n", rnum1);
 #else
-    fprintf(infofp, "(ivio=1) pnorm = %12.4e\n", va_arg(ap,realtype));
+    fprintf(infofp, "(ivio=1) pnorm = %12.4e\n", rnum1);
 #endif
     break;
      
   case PRNT_FNORM:
+    rnum1 = *(va_arg(ap, realtype *));
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "fnorm(L2) = %20.8Le\n", va_arg(ap,realtype));
+    fprintf(infofp, "fnorm(L2) = %20.8Le\n", rnum1);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "fnorm(L2) = %20.8le\n", rnum1);
 #else
-    fprintf(infofp, "fnorm(L2) = %20.8e\n", va_arg(ap,realtype));
+    fprintf(infofp, "fnorm(L2) = %20.8e\n", rnum1);
 #endif
     break;
 
   case PRNT_LAM:
+    rnum1 = *(va_arg(ap, realtype *));
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "min_lam = %11.4Le  ", va_arg(ap,realtype));
-    fprintf(infofp, "f1norm = %11.4Le  ", va_arg(ap,realtype));
-    fprintf(infofp, "pnorm = %11.4Le\n", va_arg(ap,realtype));
+    fprintf(infofp, "min_lam = %11.4Le  ", rnum1);
+    fprintf(infofp, "f1norm = %11.4Le  ", rnum1);
+    fprintf(infofp, "pnorm = %11.4Le\n", rnum1);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "min_lam = %11.4le  ", rnum1);
+    fprintf(infofp, "f1norm = %11.4le  ", rnum1);
+    fprintf(infofp, "pnorm = %11.4le\n", rnum1);
 #else
-    fprintf(infofp, "min_lam = %11.4e  ", va_arg(ap,realtype));
-    fprintf(infofp, "f1norm = %11.4e  ", va_arg(ap,realtype));
-    fprintf(infofp, "pnorm = %11.4e\n", va_arg(ap,realtype));
+    fprintf(infofp, "min_lam = %11.4e  ", rnum1);
+    fprintf(infofp, "f1norm = %11.4e  ", rnum1);
+    fprintf(infofp, "pnorm = %11.4e\n", rnum1);
 #endif
     break;
 
   case PRNT_ALPHA:
+    rnum1 = *(va_arg(ap, realtype *));
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "fnorm = %15.8Le  ", va_arg(ap,realtype));
-    fprintf(infofp, "f1norm = %15.8Le  ", va_arg(ap,realtype));
-    fprintf(infofp, "alpha_cond = %15.8Le  ", va_arg(ap,realtype));
-    fprintf(infofp, "pnorm = %15.8Le\n", va_arg(ap,realtype));
+    fprintf(infofp, "fnorm = %15.8Le  ", rnum1);
+    fprintf(infofp, "f1norm = %15.8Le  ", rnum1);
+    fprintf(infofp, "alpha_cond = %15.8Le  ", rnum1);
+    fprintf(infofp, "pnorm = %15.8Le\n", rnum1);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "fnorm = %15.8le  ", rnum1);
+    fprintf(infofp, "f1norm = %15.8le  ", rnum1);
+    fprintf(infofp, "alpha_cond = %15.8le  ", rnum1);
+    fprintf(infofp, "pnorm = %15.8le\n", rnum1);
 #else
-    fprintf(infofp, "fnorm = %15.8e  ", va_arg(ap,realtype));
-    fprintf(infofp, "f1norm = %15.8e  ", va_arg(ap,realtype));
-    fprintf(infofp, "alpha_cond = %15.8e  ", va_arg(ap,realtype));
-    fprintf(infofp, "pnorm = %15.8e\n", va_arg(ap,realtype));
+    fprintf(infofp, "fnorm = %15.8e  ", rnum1);
+    fprintf(infofp, "f1norm = %15.8e  ", rnum1);
+    fprintf(infofp, "alpha_cond = %15.8e  ", rnum1);
+    fprintf(infofp, "pnorm = %15.8e\n", rnum1);
 #endif
     break;
 
   case PRNT_BETA:
+    rnum1 = *(va_arg(ap, realtype *));
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "f1norm = %15.8Le  ", va_arg(ap,realtype));
-    fprintf(infofp, "beta_cond = %15.8Le  ", va_arg(ap,realtype));
-    fprintf(infofp, "lam = %15.8Le\n", va_arg(ap,realtype));
+    fprintf(infofp, "f1norm = %15.8Le  ", rnum1);
+    fprintf(infofp, "beta_cond = %15.8Le  ", rnum1);
+    fprintf(infofp, "lam = %15.8Le\n", rnum1);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "f1norm = %15.8le  ", rnum1);
+    fprintf(infofp, "beta_cond = %15.8le  ", rnum1);
+    fprintf(infofp, "lam = %15.8le\n", rnum1);
 #else
-    fprintf(infofp, "f1norm = %15.8e  ", va_arg(ap,realtype));
-    fprintf(infofp, "beta_cond = %15.8e  ", va_arg(ap,realtype));
-    fprintf(infofp, "lam = %15.8e\n", va_arg(ap,realtype));
+    fprintf(infofp, "f1norm = %15.8e  ", rnum1);
+    fprintf(infofp, "beta_cond = %15.8e  ", rnum1);
+    fprintf(infofp, "lam = %15.8e\n", rnum1);
 #endif
     break;
 
   case PRNT_ALPHABETA:
+    rnum1 = *(va_arg(ap, realtype *));
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "f1norm = %15.8Le  ", va_arg(ap,realtype));
-    fprintf(infofp, "alpha_cond = %15.8Le  ", va_arg(ap,realtype));
-    fprintf(infofp, "beta_cond = %15.8Le  ", va_arg(ap,realtype));
-    fprintf(infofp, "lam = %15.8Le\n", va_arg(ap,realtype));
+    fprintf(infofp, "f1norm = %15.8Le  ", rnum1);
+    fprintf(infofp, "alpha_cond = %15.8Le  ", rnum1);
+    fprintf(infofp, "beta_cond = %15.8Le  ", rnum1);
+    fprintf(infofp, "lam = %15.8Le\n", rnum1);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "f1norm = %15.8le  ", rnum1);
+    fprintf(infofp, "alpha_cond = %15.8le  ", rnum1);
+    fprintf(infofp, "beta_cond = %15.8le  ", rnum1);
+    fprintf(infofp, "lam = %15.8Le\n", rnum1);
 #else
-    fprintf(infofp, "f1norm = %15.8e  ", va_arg(ap,realtype));
-    fprintf(infofp, "alpha_cond = %15.8e  ", va_arg(ap,realtype));
-    fprintf(infofp, "beta_cond = %15.8e  ", va_arg(ap,realtype));
-    fprintf(infofp, "lam = %15.8e\n", va_arg(ap,realtype));
+    fprintf(infofp, "f1norm = %15.8e  ", rnum1);
+    fprintf(infofp, "alpha_cond = %15.8e  ", rnum1);
+    fprintf(infofp, "beta_cond = %15.8e  ", rnum1);
+    fprintf(infofp, "lam = %15.8e\n", rnum1);
 #endif
     break;
 
   case PRNT_ADJ:
-    fprintf(infofp, "no. of lambda adjustments = %ld\n", va_arg(ap,long int));
+    inum1 = *(va_arg(ap, long int *));
+    fprintf(infofp, "no. of lambda adjustments = %ld\n", inum1);
     break;
 
   }
 
   /* finalize argument processing */
+
   va_end(ap);
 
+  return;
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-11-04 02:08:08 $
+ * $Revision: 1.22 $
+ * $Date: 2004-11-15 17:10:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -779,7 +779,7 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   nps = nps + (long int) nps_inc;
 
   if (printfl > 2) 
-    KINSpgmrPrintInfo(kin_mem, "KINSpgmrSolve", PRNT_NLI, nli_inc);
+    KINSpgmrPrintInfo(kin_mem, "KINSpgmrSolve", PRNT_NLI, &nli_inc);
 
   if (ret != 0) ncfl++;
 
@@ -800,7 +800,7 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   sfdotJp = N_VDotProd(fval, bb);
 
   if (printfl > 2)
-    KINSpgmrPrintInfo(kin_mem, "KINSpgmrSolve", PRNT_EPS, *res_norm, eps);
+    KINSpgmrPrintInfo(kin_mem, "KINSpgmrSolve", PRNT_EPS, res_norm, &eps);
 
   /* set return value to appropriate value */
 
@@ -972,31 +972,38 @@ static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
 static void KINSpgmrPrintInfo(KINMem kin_mem, char *funcname, int key,...)
 {
   va_list ap;
+  realtype rnum1, rnum2;
 
   fprintf(infofp, "---%s\n   ", funcname);
 
   /* initialize argument processing */
+
   va_start(ap, key); 
 
   switch(key) {
 
   case PRNT_NLI:
-    fprintf(infofp, "nli_inc = %d\n", va_arg(ap,int));
+    rnum1 = *(va_arg(ap, int *));
+    fprintf(infofp, "nli_inc = %d\n", rnum1);
     break;
     
   case PRNT_EPS:
+    rnum1 = *(va_arg(ap, realtype *));
+    rnum2 = *(va_arg(ap, realtype *));
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(infofp, "residual norm = %12.3Lg  eps = %12.3Lg\n", 
-            va_arg(ap,realtype), va_arg(ap,realtype));
+    fprintf(infofp, "residual norm = %12.3Lg  eps = %12.3Lg\n", rnum1, rnum2);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(infofp, "residual norm = %12.3lg  eps = %12.3lg\n", rnum1, rnum2);
 #else
-    fprintf(infofp, "residual norm = %12.3g  eps = %12.3g\n", 
-            va_arg(ap,realtype), va_arg(ap,realtype));
+    fprintf(infofp, "residual norm = %12.3g  eps = %12.3g\n", rnum1, rnum2);
 #endif
       break;
 
   }
 
   /* finalize argument processing */
+
   va_end(ap);
 
+  return;
 }
