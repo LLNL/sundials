@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-11-08 17:48:30 $
+# $Revision: 1.10 $
+# $Date: 2004-11-09 16:16:44 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -11,6 +11,8 @@
 # -----------------------------------------------------------------
 # Makefile for CVODE documents
 # -----------------------------------------------------------------
+
+QUIET =
 
 SHARED_DOC = ../../shared/doc
 
@@ -78,9 +80,7 @@ all:
 
 ug: 	copy_ug cv_guide.aux
 
-ug_pdf: ug 
-	dvips -Ppdf cv_guide
-	ps2pdf cv_guide.ps
+ug_pdf: ug cv_guide.ps
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -88,20 +88,17 @@ copy_ug:
 	done
 
 cv_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
-	latex cv_guide
-	latex cv_guide
-	bibtex cv_guide
-	makeindex -s cv_indx.ist cv_guide
-	latex cv_guide
-	latex cv_guide
+	texi2dvi ${QUIET} cv_guide.tex
+
+cv_guide.ps: cv_guide.dvi
+	dvips ${QUIET} -Ppdf cv_guide
+	ps2pdf cv_guide.ps
 
 #-------------------------------------------------------------------------------
 
 ex:	copy_ex cv_examples.aux
 
-ex_pdf: ex 
-	dvips -Ppdf cv_examples
-	ps2pdf cv_examples.ps
+ex_pdf: ex cv_examples.ps
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \
@@ -109,10 +106,11 @@ copy_ex:
 	done
 
 cv_examples.aux: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
-	latex cv_examples
-	bibtex cv_examples
-	latex cv_examples
-	latex cv_examples
+	texi2dvi ${QUIET} cv_examples.tex
+
+cv_examples.ps: cv_examples.dvi
+	dvips ${QUIET} -Ppdf cv_examples
+	ps2pdf cv_examples.ps
 
 #-------------------------------------------------------------------------------
 

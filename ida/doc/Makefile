@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2004-10-21 19:04:46 $
+# $Revision: 1.5 $
+# $Date: 2004-11-09 16:17:51 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -12,73 +12,111 @@
 # Makefile for IDA documents
 # -----------------------------------------------------------------
 
+QUIET =
+
 SHARED_DOC = ../../shared/doc
+
+UG_FILES = \
+ida_guide.tex \
+ida_intro.tex \
+ida_install.tex \
+ida_math.tex \
+ida_usage.tex \
+ida_nvec.tex \
+ida_org.tex \
+ida_newlinsolv.tex \
+ida_linsolv.tex
+
+UG_SHARED_FILES = \
+band.tex \
+install.tex \
+dense.tex \
+nvec_generic.tex \
+nvec_parallel.tex \
+nvec_serial.tex \
+spgmr.tex \
+sun_org.tex \
+types.tex \
+ug.tex \
+biblio.bib \
+bandmat.eps \
+sunorg1.eps \
+sunorg2.eps \
+llnlCoverPage.tex \
+Logo_for_papers.ps \
+Rule_and_address.ps \
+chngpage.sty
+
+EX_FILES = \
+ida_examples.tex \
+ida_ex_intro.tex \
+ida_ex_serial.tex \
+ida_ex_parallel.tex \
+ida_ex_codes.tex
+
+EX_SHARED_FILES = \
+llnlCoverPage.tex \
+Logo_for_papers.ps \
+Rule_and_address.ps \
+chngpage.sty \
+ug.tex \
+biblio.bib
+
+#-------------------------------------------------------------------------------
 
 all:
 	@echo "Usage:"
-	@echo "  make ug - compile LaTeX files to generate IDA User's Guide"
-	@echo "  make ex - compile LaTeX files to generate IDA Examples Guide"
-	@echo "  make clean - remove all files"
+	@echo "  make ug     - compile LaTeX files to generate DVI file for IDA User's Guide"
+	@echo "  make ug_pdf - compile LaTeX files to generate PS + PDF files for IDA User's Guide"
+	@echo "  make ex     - compile LaTeX files to generate DVI file for IDA Examples Guide"
+	@echo "  make ex_pdf - compile LaTeX files to generate PS + PDF files for IDA Examples Guide"
+	@echo "  make clean  - remove all temporary files"
+	@echo "  make purge  - remove temporary files + PS + PDF files"
 	@echo ""
 
-ug:
-	cp $(SHARED_DOC)/band.tex .
-	cp $(SHARED_DOC)/install.tex .
-	cp $(SHARED_DOC)/dense.tex .
-	cp $(SHARED_DOC)/nvec_generic.tex .
-	cp $(SHARED_DOC)/nvec_parallel.tex .
-	cp $(SHARED_DOC)/nvec_serial.tex .
-	cp $(SHARED_DOC)/spgmr.tex .
-	cp $(SHARED_DOC)/sun_org.tex .
-	cp $(SHARED_DOC)/types.tex .
-	cp $(SHARED_DOC)/ug.tex .
-	cp $(SHARED_DOC)/biblio.bib .
-	cp $(SHARED_DOC)/bandmat.eps .
-	cp $(SHARED_DOC)/sunorg1.eps .
-	cp $(SHARED_DOC)/sunorg2.eps .
-	cp $(SHARED_DOC)/llnlCoverPage.tex .
-	cp $(SHARED_DOC)/Logo_for_papers.ps .
-	cp $(SHARED_DOC)/Rule_and_address.ps .
-	cp $(SHARED_DOC)/chngpage.sty .
-	latex ida_guide
-	latex ida_guide
-	bibtex ida_guide
-	makeindex -s ida_indx.ist ida_guide
-	latex ida_guide
-	latex ida_guide
-#	dvips -Ppdf -o ida_guide.ps ida_guide
-#	ps2pdf ida_guide.ps ida_guide.pdf
+#-------------------------------------------------------------------------------
 
-ex:
-	cp $(SHARED_DOC)/llnlCoverPage.tex .
-	cp $(SHARED_DOC)/Logo_for_papers.ps .
-	cp $(SHARED_DOC)/Rule_and_address.ps .
-	cp $(SHARED_DOC)/chngpage.sty .
-	cp $(SHARED_DOC)/ug.tex .
-	cp $(SHARED_DOC)/biblio.bib .
-	latex ida_examples
-	bibtex ida_examples
-	latex ida_examples
-	latex ida_examples
-#	dvips -Ppdf -o ida_examples.ps ida_examples
-#	ps2pdf ida_examples.ps ida_examples.pdf
+ug: 	copy_ug ida_guide.aux
+
+ug_pdf: ug ida_guide.ps
+
+copy_ug:
+	@for i in ${UG_SHARED_FILES} ; do \
+	cp ${SHARED_DOC}/$${i} . ;\
+	done
+
+ida_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
+	texi2dvi ${QUIET} ida_guide.tex
+
+ida_guide.ps: ida_guide.dvi
+	dvips ${QUIET} -Ppdf ida_guide
+	ps2pdf ida_guide.ps
+
+#-------------------------------------------------------------------------------
+
+ex:	copy_ex ida_examples.aux
+
+ex_pdf: ex ida_examples.ps
+
+copy_ex:
+	@for i in ${EX_SHARED_FILES} ; do \
+	cp ${SHARED_DOC}/$${i} . ;\
+	done
+
+ida_examples.aux: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
+	texi2dvi ${QUIET} ida_examples.tex
+
+ida_examples.ps: ida_examples.dvi
+	dvips ${QUIET} -Ppdf ida_examples
+	ps2pdf ida_examples.ps
+
+#-------------------------------------------------------------------------------
 
 clean:
-	rm -f bandmat.eps
-	rm -f band.tex
-	rm -f biblio.bib
-	rm -f dense.tex
-	rm -f install.tex
-	rm -f nvec_generic.tex
-	rm -f nvec_parallel.tex
-	rm -f nvec_serial.tex
-	rm -f spgmr.tex
-	rm -f sunorg1.eps
-	rm -f sunorg2.eps
-	rm -f sun_org.tex
-	rm -f types.tex
-	rm -f ug.tex
-	rm -f llnlCoverPage.tex Logo_for_papers.ps Rule_and_address.ps chngpage.sty
+	rm -rf ${UG_SHARED_FILES}
+	rm -rf ${EX_SHARED_FILES}
 	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
+purge:  clean
 	rm -f ida_guide.ps ida_guide.pdf
 	rm -f ida_examples.ps ida_examples.pdf
+
