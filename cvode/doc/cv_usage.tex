@@ -7,10 +7,10 @@ of IVPs.  The following sections treat the header files, the layout of
 the user's main program, description of the {\cvode} user-callable
 functions, and user-supplied functions.  The final section describes
 the Fortran/C interface module, which supports users with applications
-written in Fortran77.  The listings of the sample programs in the
+written in Fortran77.  The listings of the example programs in the
 companion document \cite{cvode2.2.0_ex} may also be helpful.  Those
-codes are intended to serve as templates and are included in the
-{\cvode} package.
+codes may be used as templates (with the removal of some lines involved
+in testing), and are included in the {\cvode} package.
 
 The user should be aware that not all linear solver modules are compatible 
 with all {\nvector} implementations. 
@@ -19,7 +19,7 @@ For example, {\nvecp} is not compatible with the direct dense or direct band
 linear solvers since these linear solver modules need to form the system
 Jacobian.  The following {\cvode} modules can only be used with {\nvecs}:
 {\cvdense}, {\cvband}, and {\cvbandpre}. The preconditioner module {\cvbbdpre}
-can only be used with {\nvecp}. 
+can only be used with {\nvecp}.
 
 %%==============================================================================
 \section{Access to library and header files}\label{ss:file_access}
@@ -42,7 +42,7 @@ Chapter \ref{s:install}, the relevant library files are
 \item {\em build\_tree}\id{/lib/libsundials\_fnvec*.a} (up to two files),
 \end{itemize}
 where the file extension .{\em lib} is typically \id{.so} for shared libraries
-and \id{.a} for static libraries. All relevant header files are all located under
+and \id{.a} for static libraries. The relevant header files are all located in
 the subdirectory
 \begin{itemize}
 \item {\em build\_tree}\id{/include}
@@ -389,7 +389,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   file specified by the optional input \id{errfp}.
 
   The tolerance values in \id{reltol} and \id{abstol} may be changed between
-  calls to \id{CVode} (see \id{CVodesetTolerances} in \S\ref{ss:optional_input}).
+  calls to \id{CVode} (see \id{CVodeSetTolerances} in \S\ref{ss:optional_input}).
 }
 %%
 %%
@@ -4373,10 +4373,19 @@ upper and lower half-bandwidths \id{mudq} and \id{mldq} defined as
 the number of non-zero diagonals above and below the main diagonal,
 respectively. The difference quotient approximation is computed using
 \id{mudq} $+$ \id{mldq} $+ 2$ evaluations of $g_m$, but only a matrix
-of bandwidth \id{mu} $+$ \id{ml} $+ 1$ is retained. 
-Neither pair of parameters need be the true half-bandwidths of the Jacobian of
-the local block of $g$, if smaller values provide a more efficient
-preconditioner. The solution of the complete linear system
+of bandwidth \id{mu} $+$ \id{ml} $+ 1$ is retained.
+
+Neither pair of parameters need be the true half-bandwidths of the Jacobian
+of the local block of $g$, if smaller values provide a more efficient
+preconditioner.  Such an efficiency gain may occur if the couplings
+in the ODE system outside a certain bandwidth are considerably weaker than
+those within the band.  Reducing \id{mu} and \id{ml} while keeping
+\id{mudq} and \id{mldq} at their true values, discards the elements
+outside the narrower band.  Reducing both pairs has the additional
+effect of lumping the outer Jacobian elements into the computed elements
+within the band, and requires more caution and experimentation.
+
+The solution of the complete linear system
 \begin{equation}
   Px = b
 \end{equation}
@@ -4390,9 +4399,9 @@ backsolve.
 
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-supplied functions|(}
 The {\cvbbdpre} module calls two user-provided functions to construct $P$: 
-a required function \id{gloc} (of type \id{CVLocalFn}) 
-which approximates the right-hand side function $g(t,y) \approx f(t,y)$ and which 
-is computed locally, and an optional function \id{cfn} (of type \id{CVCommFn}) which performs 
+a required function \id{gloc} (of type \id{CVLocalFn}) which approximates
+the right-hand side function $g(t,y) \approx f(t,y)$ and which is computed
+locally, and an optional function \id{cfn} (of type \id{CVCommFn}) which performs 
 all inter-process communication necessary to evaluate the approximate right-hand
 side $g$.  These are in addition to the user-supplied right-hand side function
 \id{f}.  Both functions take as input the same pointer \id{f\_data} as that passed
@@ -4405,9 +4414,8 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 \usfunction{CVLocalFn}
 {
-  typedef void (*CVLocalFn)(&long int Nlocal, realtype t,  \\
-                            &N\_Vector y, N\_Vector glocal, \\
-                            &void *f\_data);
+  typedef void (*CVLocalFn)(&long int Nlocal, realtype t, N\_Vector y, \\
+                            &N\_Vector glocal, void *f\_data);
 }
 {
   This function computes $g(t,y)$. It loads the vector
