@@ -25,7 +25,7 @@ side, or on both sides, although we know of no situation where
 preconditioning on both sides is clearly superior to
 preconditioning on one side only (with the product $P_L P_R$).  In
 contrast, as noted in the previous section, KINSOL allows only
-right preconditioning, and IDA allows only left preconditioning.
+right preconditioning, while IDA and IDAS allow only left preconditioning.
 
 Typical preconditioners used with the solvers in SUNDIALS are based on
 approximations to the Jacobian matrices of the systems involved.
@@ -68,11 +68,11 @@ user-defined preconditioners in similar applications.  See
 reaction-transport systems.
 
 Second, the SUNDIALS package includes some extra preconditioner
-modules, for optional use with the solvers.  For the parallel version
-of each of the basic solvers, we provide a preconditioner module which
-generates a band-block-diagonal (BBD) preconditioner.  With serial
-CVODE/CVODES, we also supply a band preconditioner module.  These band
-and BBD preconditioners are described below.  Full details on the
+modules, for optional use with the solvers.  For parallel environments,
+each of the SUNDIALS solvers provides a preconditioner module which
+generates a band-block-diagonal (BBD) preconditioner.  For serial
+environments, CVODE and CVODES also supply a band preconditioner module.  
+These band and BBD preconditioners are described below.  Full details on the
 usage of these optional modules are given in the respective user
 guides --- \cite{HiSe:04cvode,HiSe:04cvodes,HSW:04kinsol,HiSe:04ida}.
 
@@ -106,7 +106,7 @@ tradeoff of storage for potential savings in computation may be
 beneficial if the cost of evaluating $\tilde{J}$ is significant in
 comparison with the other operations performed on $P$.
 
-With the serial version of CVODE, we supply a preconditioner module
+For serial environments, CVODE supplies a preconditioner module
 called CVBANDPRE, whose use is optional.  This preconditioner
 computes and solves a
 banded approximation $P$ to the Newton matrix, computed with
@@ -191,7 +191,7 @@ is banded and is computed using difference quotients, with user-supplied
 half-bandwidths for both the difference quotient scheme and the
 retained band matrix.
 
-Likewise, the parallel version of the IDA package includes a
+Likewise, the IDA package includes a
 band-block-diagonal preconditioner module, called IDABBDPRE.  For the
 problem $F(t,y,{\dot y}) = 0$, the preconditioner is defined by way of a
 function $G \approx F$.  Specifically, the preconditioner is
