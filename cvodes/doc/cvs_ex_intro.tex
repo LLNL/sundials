@@ -115,7 +115,7 @@ following thirteen serial examples (using the {\nvecs} module):
 
 \item[{\bf FSA}]
 
-\item{cvfdx}
+\item \id{cvfdx}
   solves a chemical kinetics problem consisting of three rate equations.
 
   {\cvodes} computes both its solution and solution sensitivities with respect
@@ -124,7 +124,7 @@ following thirteen serial examples (using the {\nvecs} module):
   iteration with the {\cvdense} linear solver, and a user-supplied    
   Jacobian routine.
 
-\item{cvfkx}
+\item \id{cvfkx}
   solves the semi-discrete form of a two-species diurnal kinetics
   advection-diffusion PDE system in 2-D space.
 
@@ -134,7 +134,7 @@ following thirteen serial examples (using the {\nvecs} module):
   using the {\cvspgmr} linear solver) and the block-diagonal part of the  
   Newton matrix as a left preconditioner.
 
-\item{cvfnx}
+\item \id{cvfnx}
   solves the semi-discrete form of an advection-diffusion equation in 1-D.
 
   {\cvodes} computes both its solution and solution sensitivities with respect
@@ -144,7 +144,7 @@ following thirteen serial examples (using the {\nvecs} module):
 
 \item[{\bf ASA}]
 
-\item{cvabx}
+\item \id{cvabx}
   solves the semi-discrete form of an advection-diffusion equation in 2-D.
 
   The adjoint capability of {\cvodes} is used to compute gradients
@@ -154,7 +154,7 @@ following thirteen serial examples (using the {\nvecs} module):
   Newton iteration with the {\cvband} linear solver, and user-supplied     
   Jacobian routines.
 
-\item{cvadx}
+\item \id{cvadx}
   solves a chemical kinetics problem consisting of three rate equations.
   
   The adjoint capability of {\cvodes} is used to compute gradients
@@ -164,7 +164,7 @@ following thirteen serial examples (using the {\nvecs} module):
   Newton iteration with the {\cvdense} linear solver, and user-supplied    
   Jacobian routines.
 
-\item{cvakx}
+\item \id{cvakx}
   solves a stiff ODE system that arises from a system     
   of partial differential equations.  The PDE system is a six-species
   food web population model, with predator-prey interaction and diffusion 
@@ -177,7 +177,7 @@ following thirteen serial examples (using the {\nvecs} module):
   (i.e. using the {\cvspgmr} linear solver) and the block-diagonal part of the  
   Newton matrix as a left preconditioner.
 
-\item{cvakxb}
+\item \id{cvakxb}
   solves the same problem as \id{cvakx}, but computes gradients
   of the average over space at the final time of the concentration of a selected species
   with respect to the initial conditions of all six species.
@@ -213,15 +213,15 @@ the following six parallel examples (using the {\nvecp} module):
 
 \item[{\bf FSA}]
 
-\item{pvfnx}
+\item \id{pvfnx}
   is the parallel version of \id{cvfnx}.
 
-\item{pvfkx}
+\item \id{pvfkx}
   is the parallel version of \id{cvfkx}.
 
 \item[{\bf ASA}]
 
-\item{pvanx}
+\item \id{pvanx}
   solves the semi-discrete form of an advection-diffusion equation in 1-D.
 
   The adjoint capability of {\cvodes} is used to compute gradients
@@ -230,6 +230,15 @@ the following six parallel examples (using the {\nvecp} module):
   diffusion coefficients in the model.
   This program solves both the forward and backward problems with the option 
   for nonstiff systems, i.e. Adams method and functional iteration.
+
+\item \id{pvakx}
+  solves an adjoint sensitivity problem for an advection-diffusion PDE in 2-D 
+  or 3-D using the BDF/GMRES method and the {\cvbbdpre} preconditioner module
+  on both the forward and backward phases.
+
+  The adjoint capability of {\cvodes} is used to compute the gradient of the
+  space-time average of the squared solution norm with respect to problem 
+  parameters which parametrize a distributed volume source.
 
 \end{itemize}
 %%
