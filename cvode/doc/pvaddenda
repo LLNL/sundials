@@ -1,7 +1,7 @@
 
                             ADDENDA TO 
   "User Documentation for PVODE, an ODE Solver for Parallel Computers"
-                          1 March 2002    
+                          6 March 2002    
 
 Since the publication of the PVODE User Documentation, several changes
 have been made in the PVODE package.  Those which affect the usage of
@@ -101,7 +101,7 @@ less argument.  See cvode.h for details.
 
 14. In the CVSPGMR module, a new routine has been written to
 reinitialize the linear solver module while allowing the existing
-linear solver memory to be reused when a sequence of problems is
+linear solver memory to be reused, when a sequence of problems is
 solved.  Following a call to CVReInit for a new problem, if there are
 no changes in the linear solver parameters, then no call to the linear
 solver specification routine CVSpgmr is needed.  If there are changes
@@ -122,3 +122,18 @@ above in these routines.  See fpvode.h for details.
 reinitialize the SPGMR linear solver module in the cases where the
 linear solver memory can be reused.  See fpvode.h for details.  The
 pvdiagkf example illustrates the use of one of the new routines.
+
+17. In the PVBBDPRE module, a new routine has been added to
+reinitialize this preconditioner module while allowing its existing
+memory to be reused, when a sequence of problems is being solved.
+Following a call to CVReInit for a new problem, if the preconditioner
+memory size is not changed, then a call to PVReInitBBD should be made,
+followed (possibly) by a call to CVSpgmr or CVReInitSpgmr.  The
+example pvkxb illustrates the use of CVReInit/PVReInitBBD/CVReInitSpgmr.
+
+18. In the FPVBBD interface package, there are two new routines that
+reinitialize the PVBBDPRE and SPGMR modules while allowing their
+existing memories to be reused, when a sequence of problems is being
+solved.  Following a call to FPVREINIT, if the preconditioner and
+SPGMR memory sizes are both unchanged, then a call to FPVREINBBD0 or
+FPVREINBBD1 should be made in place of the call to FPVBBDIN0/FPVBBDIN1.
