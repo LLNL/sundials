@@ -1,7 +1,7 @@
 /***************************************************************************
  * File        : fcvbbd.h                                                  *
  * Programmers : Alan C. Hindmarsh and Radu Serban @ LLNL                  *
- * Version of  : 26 June 2002                                              *
+ * Version of  : 18 July 2002                                              *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -66,7 +66,7 @@ routines which define the problem to be solved and indirectly define
 the preconditioner.  These function calls and user routines are
 summarized separately below.
 
-Some details are omitted, and the user is referred to the CVODE
+Some details are omitted, and the user is referred to the CVODE and PVODE
 user documents for more complete information.
 
 (1) User-supplied right-hand side routine: CVFUN
@@ -127,16 +127,16 @@ compute the product vector Jv, where the vector v is stored in V, and store
 the product in FJV.  On return, set IER = 0 if CVJTIMES was successful,
 and nonzero otherwise.
 
-(4) Initialization:  FMENVIINITP, FCVMALLOC, FCVBBDIN0/FCVBBDIN1.
+(4) Initialization:  FMENVINITP, FCVMALLOC, FCVBBDIN0/FCVBBDIN1.
 
 (4.1) To initialize the parallel machine environment, the user must make 
- the following call:
+the following call:
        CALL FMENVINITP (NLOCAL, NGLOBAL, IER)
- The arguments are:
- NLOCAL  = local size of vectors on this processor
- NGLOBAL = the system size, and the global size of vectors (the sum 
-           of all values of NLOCAL)
- IER     = return completion flag. Values are 0 = success, -1 = failure.
+The arguments are:
+NLOCAL  = local size of vectors on this processor
+NGLOBAL = the system size, and the global size of vectors (the sum 
+          of all values of NLOCAL)
+IER     = return completion flag. Values are 0 = success, -1 = failure.
 
 Note: If MPI was initialized by the user, the communicator must be
 set to MPI_COMM_WORLD.  If not, this routine initializes MPI and sets
@@ -172,14 +172,15 @@ IER    = return completion flag.  Values are 0 = success, and -1 = failure.
 (4.3) To specify the SPGMR linear system solver, and to allocate memory 
 and initialize data associated with the SPGMR method and the CVBBDPRE
 preconditioner, make one of the following calls:
-      CALL FCVBBDIN0 (MUDQ, MLDQ, MU, ML, DQRELY, IPRETYPE, IGSTYPE, MAXL,
-     1                DELT, IER)                
-if CVJTIMES is not supplied;
-      CALL FCVBBDIN1 (MUDQ, MLDQ, MU, ML, DQRELY, IPRETYPE, IGSTYPE, MAXL,
-     1                DELT, IER)
+      CALL FCVBBDIN0 (NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IPRETYPE, IGSTYPE,
+     1                MAXL, DELT, IER)
+if CVJTIMES is not supplied, or
+      CALL FCVBBDIN1 (NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IPRETYPE, IGSTYPE,
+     1                MAXL, DELT, IER)
 if CVJTIMES is supplied.
 
 In either case, the arguments are:
+NLOCAL    = local size of vectors on this processor
 MUDQ,MLDQ = upper and lower half-bandwidths to be used in the computation
             of the local Jacobian blocks by difference quotients.
             These may be smaller than the true half-bandwidths of the
@@ -315,7 +316,8 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
-void CVgloc(integertype Nloc, realtype t, realtype *yloc, realtype *gloc, void *f_data);
+void CVgloc(integertype Nloc, realtype t, realtype *yloc, realtype *gloc,
+            void *f_data);
 
 void CVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data);
 

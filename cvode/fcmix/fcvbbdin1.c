@@ -1,11 +1,11 @@
 /****************************************************************************
  * File         : fcvbbdin1.c                                               *
  * Programmers  : Alan C. Hindmarsh and Radu Serban @ LLNL                  * 
- * Version of   : 26 June 2002                                              *
+ * Version of   : 18 July 2002                                              *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- * Fortran/C and C/Fortran interface routine for use of CVODE with CVBBDPRE *
+ * Fortran/C interface routines for use of CVODE with the CVBBDPRE          *
  * preconditioner module, for the case of a user-supplied Jtimes routine.   *
  *                                                                          *
  ***************************************************************************/

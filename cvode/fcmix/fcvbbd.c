@@ -35,9 +35,8 @@ void FCV_COMMFN(integertype*, realtype*, realtype*);
 /***************************************************************************/
 
 void FCV_BBDIN0(integertype *Nloc, integertype *mudq, integertype *mldq, 
-                integertype *mu, integertype *ml,
-                realtype* dqrely, int *pretype, int *gstype, int *maxl,
-                realtype *delt, int *ier)
+                integertype *mu, integertype *ml, realtype* dqrely,
+                int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
 
   /* First call CVBBDAlloc to initialize CVBBDPRE module:
@@ -114,7 +113,8 @@ void FCV_REINBBD0(integertype *Nloc, integertype *mudq, integertype *mldq,
 /* C function CVgloc to interface between CVBBDPRE module and a Fortran 
    subroutine CVLOCFN. */
 
-void CVgloc(integertype Nloc, realtype t, realtype *yloc, realtype *gloc, void *f_data)
+void CVgloc(integertype Nloc, realtype t, realtype *yloc, realtype *gloc,
+            void *f_data)
 {
 
   FCV_GLOCFN(&Nloc, &t, yloc, gloc);
@@ -135,7 +135,8 @@ void CVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data)
 
   FCV_COMMFN(&Nloc, &t, yloc);
 
-  N_VSetData(yloc, y);
+  /* Note: there is no need to use N_VSetData here because the data in
+     the N_Vector y is input only to FCV_COMMFN.  */
 
 }
 
