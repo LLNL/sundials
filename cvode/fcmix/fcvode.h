@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2004-10-21 19:09:38 $
+ * $Revision: 1.33 $
+ * $Date: 2004-10-21 20:55:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -364,11 +364,38 @@
 #ifndef _FCVODE_H
 #define _FCVODE_H
 
+#ifndef _CONFIG_H
+#define _CONFIG_H
+#include <config.h>
+#endif
+
 /* Definitions of interface function names */
 
-#if defined(SUNDIALS_UNDERSCORE_NONE)
+#if defined(F77_FUNC)
 
-#if defined(SUNDIALS_CASE_LOWER)
+#define FCV_MALLOC       F77_FUNC(fcvmalloc, FCVMALLOC)
+#define FCV_REINIT       F77_FUNC(fcvreinit, FCVREINIT)
+#define FCV_DIAG         F77_FUNC(fcvdiag, FCVDIAG)
+#define FCV_DENSE        F77_FUNC(fcvdense, FCVDENSE)
+#define FCV_DENSESETJAC  F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
+#define FCV_BAND         F77_FUNC(fcvband, FCVBAND)
+#define FCV_BANDSETJAC   F77_FUNC(fcvbandsetjac, FCVBANDSETJAC)
+#define FCV_SPGMR        F77_FUNC(fcvspgmr, FCVSPGMR)
+#define FCV_SPGMRREINIT  F77_FUNC(fcvspgmrreinit, FCVSPGMRREINIT)
+#define FCV_SPGMRSETJAC  F77_FUNC(fcvspgmrsetjac, FCVSPGMRSETJAC)
+#define FCV_SPGMRSETPSOL F77_FUNC(fcvspgmrsetpsol, FCVSPGMRSETPSOL)
+#define FCV_SPGMRSETPSET F77_FUNC(fcvspgmrsetpset, FCVSPGMRSETPSET)
+#define FCV_CVODE        F77_FUNC(fcvode, FCVODE)
+#define FCV_DKY          F77_FUNC(fcvdky, FCVDKY)
+#define FCV_FREE         F77_FUNC(fcvfree, FCVFREE)
+#define FCV_FUN          F77_FUNC(fcvfun, FCVFUN)
+#define FCV_DJAC         F77_FUNC(fcvdjac, FCVDJAC)
+#define FCV_BJAC         F77_FUNC(fcvbjac, FCVBJAC)
+#define FCV_PSOL         F77_FUNC(fcvpsol, FCVPSOL)
+#define FCV_PSET         F77_FUNC(fcvpset, FCVPSET)
+#define FCV_JTIMES       F77_FUNC(fcvjtimes, FCVJTIMES)
+
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_MALLOC       fcvmalloc
 #define FCV_REINIT       fcvreinit
@@ -392,7 +419,7 @@
 #define FCV_PSET         fcvpset
 #define FCV_JTIMES       fcvjtimes
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_MALLOC       FCVMALLOC
 #define FCV_REINIT       FCVREINIT
@@ -416,11 +443,55 @@
 #define FCV_PSET         FCVPSET
 #define FCV_JTIMES       FCVJTIMES
 
-#endif
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#elif defined(SUNDIALS_UNDERSCORE_TWO)
+#define FCV_MALLOC       fcvmalloc_
+#define FCV_REINIT       fcvreinit_
+#define FCV_DIAG         fcvdiag_
+#define FCV_DENSE        fcvdense_
+#define FCV_DENSESETJAC  fcvdensesetjac_
+#define FCV_BAND         fcvband_
+#define FCV_BANDSETJAC   fcvbandsetjac_
+#define FCV_SPGMR        fcvspgmr_
+#define FCV_SPGMRREINIT  fcvspgmrreinit_
+#define FCV_SPGMRSETJAC  fcvspgmrsetjac_
+#define FCV_SPGMRSETPSOL fcvspgmrsetpsol_
+#define FCV_SPGMRSETPSET fcvspgmrsetpset_
+#define FCV_CVODE        fcvode_
+#define FCV_DKY          fcvdky_
+#define FCV_FREE         fcvfree_
+#define FCV_FUN          fcvfun_
+#define FCV_DJAC         fcvdjac_
+#define FCV_BJAC         fcvbjac_
+#define FCV_PSOL         fcvpsol_
+#define FCV_PSET         fcvpset_
+#define FCV_JTIMES       fcvjtimes_
 
-#if defined(SUNDIALS_CASE_LOWER)
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_MALLOC       FCVMALLOC_
+#define FCV_REINIT       FCVREINIT_
+#define FCV_DIAG         FCVDIAG_
+#define FCV_DENSE        FCVDENSE_
+#define FCV_DENSESETJAC  FCVDENSESETJAC_
+#define FCV_BAND         FCVBAND_
+#define FCV_BANDSETJAC   FCVBANDSETJAC_
+#define FCV_SPGMR        FCVSPGMR_
+#define FCV_SPGMRREINIT  FCVSPGMRREINIT_
+#define FCV_SPGMRSETJAC  FCVSPGMRSETJAC_
+#define FCV_SPGMRSETPSOL FCVSPGMRSETPSOL_
+#define FCV_SPGMRSETPSET FCVSPGMRSETPSET_
+#define FCV_CVODE        FCVODE_
+#define FCV_DKY          FCVDKY_
+#define FCV_FREE         FCVFREE_
+#define FCV_FUN          FCVFUN_
+#define FCV_DJAC         FCVDJAC_
+#define FCV_BJAC         FCVBJAC_
+#define FCV_PSOL         FCVPSOL_
+#define FCV_PSET         FCVPSET_
+#define FCV_JTIMES       FCVJTIMES_
+
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_MALLOC       fcvmalloc__
 #define FCV_REINIT       fcvreinit__
@@ -444,7 +515,7 @@
 #define FCV_PSET         fcvpset__
 #define FCV_JTIMES       fcvjtimes__
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_MALLOC       FCVMALLOC__
 #define FCV_REINIT       FCVREINIT__
@@ -470,64 +541,10 @@
 
 #endif
 
-#else
-
-#if defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_MALLOC       fcvmalloc_
-#define FCV_REINIT       fcvreinit_
-#define FCV_DIAG         fcvdiag_
-#define FCV_DENSE        fcvdense_
-#define FCV_DENSESETJAC  fcvdensesetjac_
-#define FCV_BAND         fcvband_
-#define FCV_BANDSETJAC   fcvbandsetjac_
-#define FCV_SPGMR        fcvspgmr_
-#define FCV_SPGMRREINIT  fcvspgmrreinit_
-#define FCV_SPGMRSETJAC  fcvspgmrsetjac_
-#define FCV_SPGMRSETPSOL fcvspgmrsetpsol_
-#define FCV_SPGMRSETPSET fcvspgmrsetpset_
-#define FCV_CVODE        fcvode_
-#define FCV_DKY          fcvdky_
-#define FCV_FREE         fcvfree_
-#define FCV_FUN          fcvfun_
-#define FCV_DJAC         fcvdjac_
-#define FCV_BJAC         fcvbjac_
-#define FCV_PSOL         fcvpsol_
-#define FCV_PSET         fcvpset_
-#define FCV_JTIMES       fcvjtimes_
-
-#elif defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_MALLOC       FCVMALLOC_
-#define FCV_REINIT       FCVREINIT_
-#define FCV_DIAG         FCVDIAG_
-#define FCV_DENSE        FCVDENSE_
-#define FCV_DENSESETJAC  FCVDENSESETJAC_
-#define FCV_BAND         FCVBAND_
-#define FCV_BANDSETJAC   FCVBANDSETJAC_
-#define FCV_SPGMR        FCVSPGMR_
-#define FCV_SPGMRREINIT  FCVSPGMRREINIT_
-#define FCV_SPGMRSETJAC  FCVSPGMRSETJAC_
-#define FCV_SPGMRSETPSOL FCVSPGMRSETPSOL_
-#define FCV_SPGMRSETPSET FCVSPGMRSETPSET_
-#define FCV_CVODE        FCVODE_
-#define FCV_DKY          FCVDKY_
-#define FCV_FREE         FCVFREE_
-#define FCV_FUN          FCVFUN_
-#define FCV_DJAC         FCVDJAC_
-#define FCV_BJAC         FCVBJAC_
-#define FCV_PSOL         FCVPSOL_
-#define FCV_PSET         FCVPSET_
-#define FCV_JTIMES       FCVJTIMES_
-
-#endif
-
-#endif
-
 /* header files  */
 
 #include "band.h"           /* definition of BandMat       */
-#include "cvode.h"          /* definition of type RHSFn    */
+#include "cvode.h"          /* definition of type CVRhsFn  */
 #include "dense.h"          /* definition of DenseMat      */
 #include "nvector.h"        /* definition of type N_Vector */
 #include "sundialstypes.h"  /* definition of type realtype */
@@ -559,7 +576,7 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
               void *jac_data, N_Vector work);
 
 
-/* Declarations for global variables, shared among various routines */
+/* Declarations for global variables shared amongst various routines */
 
 extern N_Vector F2C_vec;
 

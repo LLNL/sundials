@@ -1,9 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-21 19:09:38 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-21 20:55:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * The FCVROOT module contains the routines necessary to use
  * the rootfinding feature of the CVODE module and to interface
@@ -13,12 +18,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"  /* definition of SUNDIALS type realtype */
-#include "nvector.h"        /* definition of type N_Vector */
-#include "cvode.h"          /* CVODE constants and prototypes */
+
+#include "cvode.h"          /* CVODE constants and prototypes        */
 #include "fcvode.h"         /* actual function names, prototypes and
-			       global variables */
-#include "fcvroot.h"        /* prototypes of interfaces to CVROOT */
+			       global variables                      */
+#include "fcvroot.h"        /* prototypes of interfaces to CVROOT    */
+#include "nvector.h"        /* definition of type N_Vector           */
+#include "sundialstypes.h"  /* definition of SUNDIALS type realtype  */
 
 /***************************************************************************/
 

@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-08-09 21:06:35 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-21 20:55:05 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvode/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * The C function FCVJtimes is to interface between the CVSPGMR module
  * and the user-supplied Jacobian-times-vector routine FCVJTIMES.     
@@ -18,21 +18,24 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of type realtype                    */
-#include "nvector.h"       /* definitions of type N_Vector and vector macros  */
-#include "fcvode.h"        /* actual function names, prototypes, global vars. */
-#include "cvspgmr.h"       /* CVSpgmr prototype                               */
+
+#include "cvspgmr.h"        /* CVSpgmr prototype                              */
+#include "fcvode.h"         /* actual function names, prototypes and
+			       global variables                               */
+#include "nvector.h"        /* definitions of type N_Vector and vector macros */
+#include "sundialstypes.h"  /* definition of type realtype                    */
 
 /* Prototype of the Fortran routine */
-void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*, 
-                realtype*, realtype*, realtype*, realtype*, int*);
+extern void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*, 
+		       realtype*, realtype*, realtype*, realtype*,
+		       int*);
 
 /***************************************************************************/
 
 void FCV_SPGMRSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL);
-  else            CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes);
+  else CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes);
 }
 
 /***************************************************************************/
@@ -52,6 +55,7 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
   N_Vector ewt;
   realtype *vdata, *Jvdata, *ydata, *fydata, *ewtdata, *wkdata;
   realtype h;
+
   int ier = 0;
 
   CVodeGetErrWeights(CV_cvodemem, &ewt);

@@ -1,17 +1,19 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-09-21 22:58:59 $
+ * $Revision: 1.7 $
+ * $Date: 2004-10-21 20:55:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * This is the Fortran interface include file for the rootfinding
  * feature of CVODE.
  * -----------------------------------------------------------------
  */
-
-#ifndef _fcvroot_h
-#define _fcvroot_h
 
 /*
  * ==============================================================================
@@ -89,68 +91,71 @@
  * ==============================================================================
  */
 
+#ifndef _FCVROOT_H
+#define _FCVROOT_H
+
+#ifndef _CONFIG_H
+#define _CONFIG_H
+#include <config.h>
+#endif
+
 /* Definitions of interface function names */
 
-#if defined(SUNDIALS_UNDERSCORE_NONE)
+#if defined(F77_FUNC)
 
-#if defined(SUNDIALS_CASE_LOWER)
+#define FCV_ROOTINIT F77_FUNC(fcvrootinit, FCVROOTINIT)
+#define FCV_ROOTINFO F77_FUNC(fcvrootinfo, FCVROOTINFO)
+#define FCV_ROOTFREE F77_FUNC(fcvrootfree, FCVROOTFREE)
+#define FCV_ROOTFN   F77_FUNC(fcvrootfn, FCVROOTFN)
 
-#define FCV_ROOTINIT   fcvrootinit
-#define FCV_ROOTINFO   fcvrootinfo
-#define FCV_ROOTFREE   fcvrootfree
-#define FCV_ROOTFN     fcvrootfn
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#define FCV_ROOTINIT fcvrootinit
+#define FCV_ROOTINFO fcvrootinfo
+#define FCV_ROOTFREE fcvrootfree
+#define FCV_ROOTFN   fcvrootfn
 
-#define FCV_ROOTINIT   FCVROOTINIT
-#define FCV_ROOTINFO   FCVROOTINFO
-#define FCV_ROOTFREE   FCVROOTFREE
-#define FCV_ROOTFN     FCVROOTFN
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
-#endif
+#define FCV_ROOTINIT FCVROOTINIT
+#define FCV_ROOTINFO FCVROOTINFO
+#define FCV_ROOTFREE FCVROOTFREE
+#define FCV_ROOTFN   FCVROOTFN
 
-#elif defined(SUNDIALS_UNDERSCORE_TWO)
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#if defined(SUNDIALS_CASE_LOWER)
+#define FCV_ROOTINIT fcvrootinit_
+#define FCV_ROOTINFO fcvrootinfo_
+#define FCV_ROOTFREE fcvrootfree_
+#define FCV_ROOTFN   fcvrootfn_
 
-#define FCV_ROOTINIT   fcvrootinit__
-#define FCV_ROOTINFO   fcvrootinfo__
-#define FCV_ROOTFREE   fcvrootfree__
-#define FCV_ROOTFN     fcvrootfn__
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#define FCV_ROOTINIT FCVROOTINIT_
+#define FCV_ROOTINFO FCVROOTINFO_
+#define FCV_ROOTFREE FCVROOTFREE_
+#define FCV_ROOTFN   FCVROOTFN_
 
-#define FCV_ROOTINIT   FCVROOTINIT__
-#define FCV_ROOTINFO   FCVROOTINFO__
-#define FCV_ROOTFREE   FCVROOTFREE__
-#define FCV_ROOTFN     FCVROOTFN__
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
-#endif
+#define FCV_ROOTINIT fcvrootinit__
+#define FCV_ROOTINFO fcvrootinfo__
+#define FCV_ROOTFREE fcvrootfree__
+#define FCV_ROOTFN   fcvrootfn__
 
-#else
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
-#if defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_ROOTINIT   fcvrootinit_
-#define FCV_ROOTINFO   fcvrootinfo_
-#define FCV_ROOTFREE   fcvrootfree_
-#define FCV_ROOTFN     fcvrootfn_
-
-#elif defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_ROOTINIT   FCVROOTINIT_
-#define FCV_ROOTINFO   FCVROOTINFO_
-#define FCV_ROOTFREE   FCVROOTFREE_
-#define FCV_ROOTFN     FCVROOTFN_
+#define FCV_ROOTINIT FCVROOTINIT__
+#define FCV_ROOTINFO FCVROOTINFO__
+#define FCV_ROOTFREE FCVROOTFREE__
+#define FCV_ROOTFN   FCVROOTFN__
 
 #endif
 
-#endif
+/* header files */
 
-/* SUNDIALS header files */
-
+#include "nvector.h"        /* definition of type N_Vector          */
 #include "sundialstypes.h"  /* definition of SUNDIALS type realtype */
-#include "nvector.h"        /* definition of type N_Vector */
 
 /* Prototype of function called by CVROOT module */
 

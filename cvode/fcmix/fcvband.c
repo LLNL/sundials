@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-08-09 21:06:14 $
+ * $Revision: 1.9 $
+ * $Date: 2004-10-21 20:55:05 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvode/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * Fortran/C interface routines for CVODE/CVBAND, for the case of 
  * a user-supplied Jacobian approximation routine.                
@@ -17,18 +17,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of type realtype                   */
-#include "nvector.h"       /* definitions of type N_Vector and vector macros */
-#include "fcvode.h"        /* actual function names, prototypes, global vars.*/
-#include "cvband.h"        /* CVBand prototype                               */
+
+#include "cvband.h"         /* CVBand prototype                               */
+#include "fcvode.h"         /* actual function names, prototypes and
+			       global variables                               */
+#include "nvector.h"        /* definitions of type N_Vector and vector macros */
+#include "sundialstypes.h"  /* definition of type realtype                    */
 
 /******************************************************************************/
 
 /* Prototype of the Fortran routine */
-void FCV_BJAC(long int*, long int*, long int*, long int*, 
-              realtype*, realtype*, realtype*, realtype*,
-              realtype*, realtype*, 
-              realtype*, realtype*, realtype*);
+extern void FCV_BJAC(long int*, long int*, long int*, long int*, 
+		     realtype*, realtype*, realtype*, realtype*,
+		     realtype*, realtype*, realtype*, realtype*,
+		     realtype*);
 
 
 /***************************************************************************/
@@ -36,7 +38,7 @@ void FCV_BJAC(long int*, long int*, long int*, long int*,
 void FCV_BANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) CVBandSetJacFn(CV_cvodemem, NULL);
-  else            CVBandSetJacFn(CV_cvodemem, FCVBandJac);
+  else CVBandSetJacFn(CV_cvodemem, FCVBandJac);
 }
 
 /***************************************************************************/

@@ -1,17 +1,19 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-07-26 17:26:30 $
+ * $Revision: 1.6 $
+ * $Date: 2004-10-21 20:55:05 $
  * ----------------------------------------------------------------- 
- * Programmers: Radu Serban @ LLNL
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * This is the Fortran interface include file for the BAND
  * preconditioner (CVBANDPRE)
  * -----------------------------------------------------------------
  */
-
-#ifndef _fcvbp_h
-#define _fcvbp_h
 
 /*
  * ==============================================================================
@@ -189,36 +191,59 @@
  * ==============================================================================
  */
 
+#ifndef _FCVBP_H
+#define _FCVBP_H
+
+#ifndef _CONFIG_H
+#define _CONFIG_H
+#include <config.h>
+#endif
+
 /* Definitions of interface function names */
 
-#if defined(SUNDIALS_UNDERSCORE_NONE)
+#if defined(F77_FUNC)
 
-#if defined(SUNDIALS_CASE_LOWER)
+#define FCV_BPINIT  F77_FUNC(fcvbpinit, FCVBPINIT)
+#define FCV_BPSPGMR F77_FUNC(fcvbpspgmr, FCVBPSPGMR)
+#define FCV_BPOPT   F77_FUNC(fcvbpopt, FCVBPOPT)
+#define FCV_BPFREE  F77_FUNC(fcvbpfree, FCVBPFREE)
+
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BPINIT  fcvbpinit
 #define FCV_BPSPGMR fcvbpspgmr
 #define FCV_BPOPT   fcvbpopt
 #define FCV_BPFREE  fcvbpfree
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_BPINIT  FCVBPINIT
 #define FCV_BPSPGMR FCVBPSPGMR
 #define FCV_BPOPT   FCVBPOPT
 #define FCV_BPFREE  FCVBPFREE
 
-#endif
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#elif defined(SUNDIALS_UNDERSCORE_TWO)
+#define FCV_BPINIT  fcvbpinit_
+#define FCV_BPSPGMR fcvbpspgmr_
+#define FCV_BPOPT   fcvbpopt_
+#define FCV_BPFREE  fcvbpfree_
 
-#if defined(SUNDIALS_CASE_LOWER)
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_BPINIT  FCVBPINIT_
+#define FCV_BPSPGMR FCVBPSPGMR_
+#define FCV_BPOPT   FCVBPOPT_
+#define FCV_BPFREE  FCVBPFREE_
+
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BPINIT  fcvbpinit__
 #define FCV_BPSPGMR fcvbpspgmr__
 #define FCV_BPOPT   fcvbpopt__
 #define FCV_BPFREE  fcvbpfree__
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_BPINIT  FCVBPINIT__
 #define FCV_BPSPGMR FCVBPSPGMR__
@@ -227,36 +252,13 @@
 
 #endif
 
-#else
+/* header files  */
 
-#if defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_BPINIT  fcvbpinit_
-#define FCV_BPSPGMR fcvbpspgmr_
-#define FCV_BPOPT   fcvbpopt_
-#define FCV_BPFREE  fcvbpfree_
-
-#elif defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_BPINIT  FCVBPINIT_
-#define FCV_BPSPGMR FCVBPSPGMR_
-#define FCV_BPOPT   FCVBPOPT_
-#define FCV_BPFREE  FCVBPFREE_
-
-#endif
-
-#endif
-
-
-/* CVODE header files  */
-
-#include "sundialstypes.h" /* definitions of type realtype */
-#include "nvector.h"       /* definition of type N_Vector  */
-
+#include "nvector.h"       /* definition of type N_Vector */
+#include "sundialstypes.h" /* definition of type realtype */
 
 /* Declarations for global variables, shared among various routines */
 
 void *CVBP_Data;
-
 
 #endif

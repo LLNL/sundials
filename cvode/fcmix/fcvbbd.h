@@ -1,17 +1,20 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-07-26 17:26:30 $
+ * $Revision: 1.15 $
+ * $Date: 2004-10-21 20:55:05 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan Hindmarsh, Radu Serban and
+ *                Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * This is the Fortran interface include file for the BBD
  * preconditioner (CVBBDPRE)
  * -----------------------------------------------------------------
  */
-
-#ifndef _fcvbbd_h
-#define _fcvbbd_h
 
 /*
  * ==============================================================================
@@ -275,88 +278,92 @@
  * ==============================================================================
  */
 
+#ifndef _FCVBBD_H
+#define _FCVBBD_H
+
+#ifndef _CONFIG_H
+#define _CONFIG_H
+#include <config.h>
+#endif
+
 /* Definitions of interface function names */
 
-#if defined(SUNDIALS_UNDERSCORE_NONE)
+#if defined(F77_FUNC)
 
-#if defined(SUNDIALS_CASE_LOWER)
+#define FCV_BBDINIT   F77_FUNC(fcvbbdinit, FCVBBDINIT)
+#define FCV_BBDSPGMR  F77_FUNC(fcvbbdspgmr, FCVBBDSPGMR)
+#define FCV_BBDREINIT F77_FUNC(fcvbbdreinit, FCVBBDREINIT)
+#define FCV_BBDOPT    F77_FUNC(fcvbbdopt, FCVBBDOPT)
+#define FCV_BBDFREE   F77_FUNC(fcvbbdfree, FCVBBDFREE)
+#define FCV_GLOCFN    F77_FUNC(fcvglocfn, FCVGLOCFN)
+#define FCV_COMMFN    F77_FUNC(fcvcommfn, FCVCOMMFN)
+
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BBDINIT   fcvbbdinit
 #define FCV_BBDSPGMR  fcvbbdspgmr
 #define FCV_BBDREINIT fcvbbdreinit
 #define FCV_BBDOPT    fcvbbdopt
 #define FCV_BBDFREE   fcvbbdfree
-#define FCV_GLOCFN    fcvlocfn
-#define FCV_COMMFN    fcvcommf
+#define FCV_GLOCFN    fcvglocfn
+#define FCV_COMMFN    fcvcommfn
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_BBDINIT   FCVBBDINIT
 #define FCV_BBDSPGMR  FCVBBDSPGMR
 #define FCV_BBDREINIT FCVBBDREINIT
 #define FCV_BBDOPT    FCVBBDOPT
 #define FCV_BBDFREE   FCVBBDFREE
-#define FCV_GLOCFN    FCVLOCFN
-#define FCV_COMMFN    FCVCOMMF
+#define FCV_GLOCFN    FCVGLOCFN
+#define FCV_COMMFN    FCVCOMMFN
 
-#endif
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO)
-
-#if defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_BBDINIT   fcvbbdinit__
-#define FCV_BBDSPGMR  fcvbbdspgmr__
-#define FCV_BBDREINIT fcvbbdreinit__
-#define FCV_BBDOPT    fcvbbdopt__
-#define FCV_BBDFREE   fcvbbdfree__
-#define FCV_GLOCFN    fcvlocfn__
-#define FCV_COMMFN    fcvcommf__
-
-#elif defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_BBDINIT   FCVBBDINIT__
-#define FCV_BBDSPGMR  FCVBBDSPGMR__
-#define FCV_BBDREINIT FCVBBDREINIT__
-#define FCV_BBDOPT    FCVBBDOPT__
-#define FCV_BBDFREE   FCVBBDFREE__
-#define FCV_GLOCFN    FCVLOCFN__
-#define FCV_COMMFN    FCVCOMMF__
-
-#endif
-
-#else
-
-#if defined(SUNDIALS_CASE_LOWER)
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BBDINIT   fcvbbdinit_
 #define FCV_BBDSPGMR  fcvbbdspgmr_
 #define FCV_BBDREINIT fcvbbdreinit_
 #define FCV_BBDOPT    fcvbbdopt_
 #define FCV_BBDFREE   fcvbbdfree_
-#define FCV_GLOCFN    fcvlocfn_
-#define FCV_COMMFN    fcvcommf_
+#define FCV_GLOCFN    fcvglocfn_
+#define FCV_COMMFN    fcvcommfn_
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_BBDINIT   FCVBBDINIT_
 #define FCV_BBDSPGMR  FCVBBDSPGMR_
 #define FCV_BBDREINIT FCVBBDREINIT_
 #define FCV_BBDOPT    FCVBBDOPT_
 #define FCV_BBDFREE   FCVBBDFREE_
-#define FCV_GLOCFN    FCVLOCFN_
-#define FCV_COMMFN    FCVCOMMF_
+#define FCV_GLOCFN    FCVGLOCFN_
+#define FCV_COMMFN    FCVCOMMFN_
+
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
+
+#define FCV_BBDINIT   fcvbbdinit__
+#define FCV_BBDSPGMR  fcvbbdspgmr__
+#define FCV_BBDREINIT fcvbbdreinit__
+#define FCV_BBDOPT    fcvbbdopt__
+#define FCV_BBDFREE   fcvbbdfree__
+#define FCV_GLOCFN    fcvglocfn__
+#define FCV_COMMFN    fcvcommfn__
+
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_BBDINIT   FCVBBDINIT__
+#define FCV_BBDSPGMR  FCVBBDSPGMR__
+#define FCV_BBDREINIT FCVBBDREINIT__
+#define FCV_BBDOPT    FCVBBDOPT__
+#define FCV_BBDFREE   FCVBBDFREE__
+#define FCV_GLOCFN    FCVGLOCFN__
+#define FCV_COMMFN    FCVCOMMFN__
 
 #endif
 
-#endif
+/* header files  */
 
-
-/* CVODE header files  */
-
-#include "sundialstypes.h" /* definitions of type realtype */
-#include "nvector.h"       /* definition of type N_Vector  */
-
+#include "nvector.h"       /* definition of type N_Vector */
+#include "sundialstypes.h" /* definition of type realtype */
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
@@ -369,6 +376,5 @@ void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data);
 /* Declarations for global variables, shared among various routines */
 
 void *CVBBD_Data;
-
 
 #endif

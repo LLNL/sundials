@@ -1,9 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-08-25 16:22:25 $
+ * $Revision: 1.17 $
+ * $Date: 2004-10-21 20:55:05 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * This module contains the routines necessary to interface with the
  * CVBBDPRE module and user-supplied Fortran routines.
@@ -14,20 +19,22 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of type realtype                  */
-#include "nvector.h"       /* definitions of type N_Vector                  */
-#include "cvode.h"         /* CVODE constants and prototypes                */
-#include "fcvode.h"        /* actual function names, prototypes, global vars*/
-#include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE          */
-#include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines      */
-#include "cvbbdpre.h"      /* prototypes of CVBBDPRE functions, macros      */
+
+#include "cvbbdpre.h"      /* prototypes of CVBBDPRE functions and macros */
+#include "cvode.h"         /* CVODE constants and prototypes              */
+#include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines    */
+#include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE        */
+#include "fcvode.h"        /* actual function names, prototypes and
+			      global variables                            */
+#include "nvector.h"       /* definition of type N_Vector                 */
+#include "sundialstypes.h" /* definition of type realtype                 */
 
 /***************************************************************************/
 
 /* Prototypes of the Fortran routines */
 
-void FCV_GLOCFN(long int*, realtype*, realtype*, realtype*);
-void FCV_COMMFN(long int*, realtype*, realtype*);
+extern void FCV_GLOCFN(long int*, realtype*, realtype*, realtype*);
+extern void FCV_COMMFN(long int*, realtype*, realtype*);
 
 /***************************************************************************/
 
@@ -51,7 +58,6 @@ void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
   else                    *ier = 0;
 
   return; 
-
 }
 
 /***************************************************************************/
@@ -67,16 +73,15 @@ void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier
   */
 
   *ier = CVBBDSpgmr(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   CV_ls = 4;
-
 }
 
 /***************************************************************************/
@@ -95,7 +100,6 @@ void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq,
 
   *ier = CVBBDPrecReInit(CVBBD_Data, *mudq, *mldq,
                          *dqrely, FCVgloc, FCVcfn);
-
 }
 
 /***************************************************************************/
@@ -112,7 +116,6 @@ void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
   gloc_data = N_VGetArrayPointer(gloc);
 
   FCV_GLOCFN(&Nloc, &t, yloc_data, gloc_data);
-
 }
 
 /***************************************************************************/
@@ -139,7 +142,6 @@ void FCV_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 {
   CVBBDPrecGetWorkSpace(CVBBD_Data, lenrpw, lenipw);
   CVBBDPrecGetNumGfnEvals(CVBBD_Data, nge);
-
 }
 
 

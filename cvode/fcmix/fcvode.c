@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2004-10-12 20:11:13 $
+ * $Revision: 1.35 $
+ * $Date: 2004-10-21 20:55:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -11,11 +11,11 @@
  * All rights reserved.
  * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
- * This is the implementation file for the Fortran interface to   
- * the CVODE package.  See fcvode.h for usage.                    
- * NOTE: some routines are necessarily stored elsewhere to avoid  
- * linking problems.  Therefore, see also fcvpreco.c, fcvpsol.c,  
- * fcvjtimes.c, and fcvspgmr.c for all the options available.    
+ * This is the implementation file for the Fortran interface to
+ * the CVODE package.  See fcvode.h for usage.
+ * NOTE: some routines are necessarily stored elsewhere to avoid
+ * linking problems.  Therefore, see also fcvpreco.c, fcvpsol.c,
+ * fcvjtimes.c, and fcvspgmr.c for all the options available.
  * -----------------------------------------------------------------
  */
 
@@ -39,7 +39,7 @@
 /***************************************************************************/
 
 /* Prototypes of the Fortran routines */
-void FCV_FUN(realtype*, realtype*, realtype*);
+extern void FCV_FUN(realtype*, realtype*, realtype*);
 
 /**************************************************************************/
 
@@ -134,7 +134,6 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   CV_ropt = ropt;
 
   return;
-
 }
 
 /***************************************************************************/
@@ -189,7 +188,6 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
     CV_optin = FALSE;
   }
 
-
   *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, F2C_vec,
                      itol, rtol, atolptr);
 
@@ -208,7 +206,6 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
 
 void FCV_DIAG(int *ier)
 {
-
   *ier = CVDiag(CV_cvodemem);
 
   CV_ls = 3;
@@ -263,7 +260,6 @@ void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
   if (*ier != CVSPGMR_SUCCESS) return;
 
   CV_ls = 4;
-
 }
 
 /***************************************************************************/
@@ -286,7 +282,6 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
   if (*ier != CVSPGMR_SUCCESS) return;
 
   CV_ls = 4;
-
 }
 
 /***************************************************************************/
@@ -364,9 +359,7 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
       CVSpgmrGetLastFlag(CV_cvodemem, (int *) &CV_iopt[25]);  /* last linear solver flag */
       break;
     }
-
   }
-
 }
 
 /***************************************************************************/
@@ -382,7 +375,6 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
   *ier = CVodeGetDky(CV_cvodemem, *t, *k, F2C_vec);
 
   dky = N_VGetArrayPointer(F2C_vec);
-
 }
 
 /***************************************************************************/
@@ -417,6 +409,5 @@ void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   dydata = N_VGetArrayPointer(ydot);
 
   FCV_FUN(&t, ydata, dydata);
-
 }
 

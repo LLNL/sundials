@@ -1,9 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-08-25 16:22:25 $
+ * $Revision: 1.5 $
+ * $Date: 2004-10-21 20:55:05 $
  * ----------------------------------------------------------------- 
- * Programmers: Radu Serban @ LLNL
+ * Programmer(s): Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * This module contains the routines necessary to interface with the
  * CVBANDPRE module and user-supplied Fortran routines.
@@ -14,13 +19,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of type realtype                  */
-#include "nvector.h"       /* definitions of type N_Vector                  */
-#include "cvode.h"         /* CVODE constants and prototypes                */
-#include "fcvode.h"        /* actual function names, prototypes, global vars*/
-#include "fcvbp.h"         /* prototypes of interfaces to CVBANDPRE         */
-#include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines      */
-#include "cvbandpre.h"     /* prototypes of CVBANDPRE functions, macros     */
+
+#include "cvbandpre.h"      /* prototypes of CVBANDPRE functions and macros */
+#include "cvode.h"          /* CVODE constants and prototypes               */
+#include "cvspgmr.h"        /* prototypes of CVSPGMR interface routines     */
+#include "fcvbp.h"          /* prototypes of interfaces to CVBANDPRE        */
+#include "fcvode.h"         /* actual function names, prototypes and
+			       global variables                             */
+#include "nvector.h"        /* definition of type N_Vector                  */
+#include "sundialstypes.h"  /* definition of type realtype                  */
 
 /***************************************************************************/
 
@@ -37,8 +44,7 @@ void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
   if (CVBP_Data == NULL) *ier = -1; 
   else                   *ier = 0;
 
-  return; 
-
+  return;
 }
 
 /***************************************************************************/
@@ -55,16 +61,15 @@ void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
   */
 
   *ier = CVBPSpgmr(CV_cvodemem, *pretype, *maxl, CVBP_Data);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   CV_ls = 4;
-
 }
 
 /***************************************************************************/
@@ -75,7 +80,6 @@ void FCV_BPOPT(long int *lenrpw, long int *lenipw, long int *nfe)
 {
   CVBandPrecGetWorkSpace(CVBP_Data, lenrpw, lenipw);
   CVBandPrecGetNumRhsEvals(CVBP_Data, nfe);
-
 }
 
 /***************************************************************************/
