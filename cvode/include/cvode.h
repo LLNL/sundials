@@ -3,7 +3,7 @@
  * File          : cvode.h                                         *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 26 MArch 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -96,12 +96,11 @@ enum { NORMAL, ONE_STEP };     /* itask */
  *----------------------------------------------------------------*        
  * The f function which defines the right hand side of the ODE    *
  * system y' = f(t,y) must have type RhsFn.                       *
- * f takes as input the problem size N, the independent variable  *
- * value t, and the dependent variable vector y.  It stores the   * 
- * result of f(t,y) in the vector ydot.  The y and ydot arguments *
- * are of type N_Vector.                                          *
- * (Allocation of memory for ydot is handled within CVODE.)       *
- * The f_data parameter is the same as the f_data                 *
+ * f takes as input the independent variable value t, and the     *
+ * dependent variable vector y.  It stores the result of f(t,y)   *
+ * in the vector ydot.  The y and ydot arguments are of type      *
+ * N_Vector.(Allocation of memory for ydot is handled within      *
+ * CVODE). The f_data parameter is the same as the f_data         *
  * parameter passed by the user to the CVodeMalloc routine. This  *
  * user-supplied pointer is passed to the user's f function       *
  * every time it is called.                                       *
@@ -109,8 +108,8 @@ enum { NORMAL, ONE_STEP };     /* itask */
  *                                                                *
  ******************************************************************/
 
-typedef void (*RhsFn)(integertype N, realtype t, N_Vector y, 
-                      N_Vector ydot, void *f_data);
+typedef void (*RhsFn)(realtype t, N_Vector y, N_Vector ydot, 
+                      void *f_data);
  
  
 /******************************************************************
@@ -119,8 +118,6 @@ typedef void (*RhsFn)(integertype N, realtype t, N_Vector y,
  *----------------------------------------------------------------*
  * CVodeMalloc allocates and initializes memory for a problem to  *
  * to be solved by CVODE.                                         *
- *                                                                *
- * N       is the number of equations in the ODE system.          *
  *                                                                *
  * f       is the right hand side function in y' = f(t,y).        *          
  *                                                                *
@@ -153,7 +150,8 @@ typedef void (*RhsFn)(integertype N, realtype t, N_Vector y,
  *   ewt[i] = 1/(reltol*abs(y[i]) + abstol[i])   (if itol = SV).  *
  * This vector is used in all error and convergence tests, which  *
  * use a weighted RMS norm on all error-like vectors v:           *
- *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ).    *
+ *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),    *
+ * where N is the problem dimension.                              *
  *                                                                *
  * f_data  is a pointer to user data that will be passed to the   *
  *             user's f function every time f is called.          *
@@ -202,7 +200,7 @@ typedef void (*RhsFn)(integertype N, realtype t, N_Vector y,
  ******************************************************************/
 
 
-void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0, 
+void *CVodeMalloc(RhsFn f, realtype t0, N_Vector y0, 
                   int lmm, int iter, int itol, realtype *reltol, 
                   void *abstol, void *f_data, FILE *errfp, 
                   booleantype optIn, long int iopt[], realtype ropt[],
@@ -215,8 +213,8 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
  *----------------------------------------------------------------*
  * CVodeReInit re-initializes CVode for the solution of a problem,*
  * where a prior call to CVodeMalloc has been made with the same  *
- * problem size N.  CVodeReInit performs the same input checking  *
- * and initializations that CVodeMalloc does (except for N).      *
+ * problem size. CVodeReInit performs the same input checking and *
+ * initializations that CVodeMalloc does.                         *
  * But it does no memory allocation, assuming that the existing   *
  * internal memory is sufficient for the new problem.             *
  *                                                                *
@@ -406,8 +404,27 @@ int CVodeDky(void *cvode_mem, realtype t, int k, N_Vector dky);
 /* CVodeDky return values */
 
 enum { OKAY=0, BAD_K=-1, BAD_T=-2, BAD_DKY=-3, DKY_NO_MEM=-4 };
+
+/******************************************************************
+ *                                                                *
+ * Function : CVodeGetEwt                                         *
+ *----------------------------------------------------------------*
+ * This routine returns the weight vectors for states in weight   *
+ * It is provided for use in user-defined Jacobian routines       *
+ * routines based on finite differences. Note that the user need  *
+ * not allocate space for weight.                                 *
+ *                                                                *
+ ******************************************************************/
+
+int CVodeGetEwt(void *cvode_mem, N_Vector weight);
  
- 
+/* CVodeGetEwt return values */
+
+/* OKAY = 0  (Defined under CVodeDky return values but listed 
+              here also for compleetness)                         */
+
+enum {GEWT_NO_MEM=-1};
+
 /******************************************************************
  *                                                                *
  * Function : CVodeFree                                           *
@@ -567,7 +584,6 @@ typedef struct CVodeMemRec {
 
   /* Problem Specification Data */
 
-  integertype  cv_N;   /* ODE system size             */
   RhsFn cv_f;          /* y' = f(t,y(t))              */
   void *cv_f_data;     /* user pointer passed to f    */
   int cv_lmm;          /* lmm = ADAMS or BDF          */
@@ -583,7 +599,7 @@ typedef struct CVodeMemRec {
                           /* zn[j] = [1/factorial(j)] * h^j * (jth       */ 
                           /* derivative of the interpolating polynomial  */
 
-  /* Vectors of length N */
+  /* N_Vectors */
 
   N_Vector cv_ewt;     /* error weight vector                          */
   N_Vector cv_y;       /* y is used as temporary storage by the solver */
@@ -649,14 +665,19 @@ typedef struct CVodeMemRec {
   long int cv_nsetups;     /* number of setup calls                      */
   int cv_nhnil;            /* number of messages issued to the user that */
                            /* t + h == t for the next iternal step       */
-  long int cv_lrw;         /* number of realtype words in CVODE work vectors */
-  long int cv_liw;         /* no. of integertype words in CVODE work vectors */
   long int cv_nscon;       /* counter for STALD method                   */
 
   realtype cv_etaqm1;      /* ratio of new to old h for order q-1        */
   realtype cv_etaq;        /* ratio of new to old h for order q          */
   realtype cv_etaqp1;      /* ratio of new to old h for order q+1        */
   realtype cv_ssdat[6][4]; /* scaled data array for STALD                */
+
+  /* Space requirements for CVODE */
+
+  long int cv_lrw1;        /* no. of realtype words in 1 N_Vector            */ 
+  long int cv_liw1;        /* no. of integertype words in 1 N_Vector         */ 
+  long int cv_lrw;         /* no. of realtype words in CVODE work vectors    */
+  long int cv_liw;         /* no. of integertype words in CVODE work vectors */
 
   /* Linear Solver Data */
 

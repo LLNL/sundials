@@ -3,7 +3,7 @@
  * File          : cvode.c                                         *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban, *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 24 July 2002                                    *
+ * Version of    : 26 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -186,8 +186,6 @@
 
 #define MSG_Y0_NULL     CVM "y0=NULL illegal.\n\n"
 
-#define MSG_BAD_N       CVM "N=%ld < 1 illegal.\n\n"
-
 #define MSG_BAD_LMM_1   CVM "lmm=%d illegal.\n"
 #define MSG_BAD_LMM_2   "The legal values are ADAMS=%d and BDF=%d.\n\n"
 #define MSG_BAD_LMM     MSG_BAD_LMM_1 MSG_BAD_LMM_2
@@ -319,6 +317,11 @@
 
 #define MSG_BAD_DKY DKY "dky=NULL illegal.\n\n"
 
+/* CVodeGetEwt Error Messages */
+
+#define GEWT                "CVodeGetEwt-- "
+#define MSG_GEWT_NO_MEM     GEWT NO_MEM
+
 /***************************************************************/
 /****************** END Error Messages *************************/
 /***************************************************************/
@@ -333,7 +336,7 @@
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
 
-static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq, int maxord,
+static booleantype CVAllocVectors(CVodeMem cv_mem, int maxord,
                                   M_Env machEnv);
 static void CVFreeVectors(CVodeMem cv_mem, int maxord);
 
@@ -404,7 +407,6 @@ static int  CVHandleFailure(CVodeMem cv_mem,int kflag);
 /**************** BEGIN Readability Constants *****************/
 /**************************************************************/
 
-
 #define uround (cv_mem->cv_uround)  
 #define zn     (cv_mem->cv_zn) 
 #define ewt    (cv_mem->cv_ewt)  
@@ -450,6 +452,8 @@ static int  CVHandleFailure(CVodeMem cv_mem,int kflag);
 #define nni    (cv_mem-> cv_nni)
 #define nsetups (cv_mem->cv_nsetups)
 #define nhnil  (cv_mem->cv_nhnil)
+#define lrw1   (cv_mem->cv_lrw1)
+#define liw1   (cv_mem->cv_liw1)
 #define lrw    (cv_mem->cv_lrw)
 #define liw    (cv_mem->cv_liw)
 #define linit  (cv_mem->cv_linit)
@@ -492,7 +496,7 @@ static int  CVHandleFailure(CVodeMem cv_mem,int kflag);
  
 *****************************************************************/
 
-void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0, 
+void *CVodeMalloc(RhsFn f, realtype t0, N_Vector y0, 
                   int lmm, int iter, int itol, 
                   realtype *reltol, void *abstol,
                   void *f_data, FILE *errfp, booleantype optIn, 
@@ -513,11 +517,6 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
     return(NULL);
   }
   
-  if (N <= 0) {
-    fprintf(fp, MSG_BAD_N, N);
-    return(NULL);
-  }
-
   if ((lmm != ADAMS) && (lmm != BDF)) {
     fprintf(fp, MSG_BAD_LMM, lmm, ADAMS, BDF);
     return(NULL);
@@ -590,9 +589,13 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
     return(NULL);
   }
  
+  /* Set space requirements for one N_Vector */
+
+  N_VSpace(machEnv, &lrw1, &liw1);
+
   /* Allocate the vectors */
 
-  allocOK = CVAllocVectors(cv_mem, N, maxord, machEnv);
+  allocOK = CVAllocVectors(cv_mem, maxord, machEnv);
   if (!allocOK) {
     fprintf(fp, MSG_MEM_FAIL);
     free(cv_mem);
@@ -614,9 +617,9 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
   
   /* All error checking is complete at this point */
 
+
   /* Copy the remaining input parameters into CVODE memory */
 
-  cv_mem->cv_N = N;
   cv_mem->cv_f = f;
   cv_mem->cv_f_data = f_data;
   cv_mem->cv_lmm = lmm;    
@@ -839,6 +842,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   
   /* All error checking is complete at this point */
   
+
   /* Copy the remaining input parameters into CVODE memory */
 
   cv_mem->cv_f = f;
@@ -936,7 +940,6 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
 /************** BEGIN More Readability Constants **************/
 /**************************************************************/
 
-#define N      (cv_mem->cv_N)
 #define f      (cv_mem->cv_f)      
 #define f_data (cv_mem->cv_f_data)    
 #define lmm    (cv_mem->cv_lmm) 
@@ -1043,7 +1046,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* On the first call, call f at (t0,y0), set zn[1] = y'(t0), 
        set initial h (from H0 or CVHin), and scale zn[1] by h   */
     
-    f(N, tn, zn[0], zn[1], f_data); 
+    f(tn, zn[0], zn[1], f_data); 
     nfe = 1;
     h = ZERO;
     if (ropt != NULL) h = ropt[H0];
@@ -1257,7 +1260,28 @@ int CVodeDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   N_VScale(r, dky, dky);
   return(OKAY);
 }
+
+/********************* CVodeFree **********************************
+ This routine returns the current weight vector for y in weight.
+ Note that weight need not be allocated by the user.
+*******************************************************************/
  
+int CVodeGetEwt(void *cvode_mem, N_Vector weight)
+{
+  CVodeMem cv_mem;
+  
+  cv_mem = (CVodeMem) cvode_mem; 
+
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_GEWT_NO_MEM);
+    return (GEWT_NO_MEM);
+  }
+
+  weight = ewt;
+
+  return(OKAY);
+}
+
 /********************* CVodeFree **********************************
 
  This routine frees the problem memory allocated by CVodeMalloc.
@@ -1304,27 +1328,27 @@ void CVodeFree(void *cvode_mem)
 
 **********************************************************************/
 
-static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq, 
-                                  int maxord, M_Env machEnv)
+static booleantype CVAllocVectors(CVodeMem cv_mem, int maxord, 
+                                  M_Env machEnv)
 {
   int i, j;
 
   /* Allocate ewt, acor, tempv, ftemp */
   
-  ewt = N_VNew(neq, machEnv);
+  ewt = N_VNew(machEnv);
   if (ewt == NULL) return(FALSE);
-  acor = N_VNew(neq, machEnv);
+  acor = N_VNew(machEnv);
   if (acor == NULL) {
     N_VFree(ewt);
     return(FALSE);
   }
-  tempv = N_VNew(neq, machEnv);
+  tempv = N_VNew(machEnv);
   if (tempv == NULL) {
     N_VFree(ewt);
     N_VFree(acor);
     return(FALSE);
   }
-  ftemp = N_VNew(neq, machEnv);
+  ftemp = N_VNew(machEnv);
   if (ftemp == NULL) {
     N_VFree(tempv);
     N_VFree(ewt);
@@ -1335,7 +1359,7 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq,
   /* Allocate zn[0] ... zn[maxord] */
 
   for (j=0; j <= maxord; j++) {
-    zn[j] = N_VNew(neq, machEnv);
+    zn[j] = N_VNew(machEnv);
     if (zn[j] == NULL) {
       N_VFree(ewt);
       N_VFree(acor);
@@ -1348,8 +1372,8 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq,
 
   /* Set solver workspace lengths  */
 
-  lrw = (maxord + 5)*neq;
-  liw = 0;
+  lrw = (maxord + 5)*lrw1;
+  liw = (maxord + 5)*liw1;
 
   return(TRUE);
 }
@@ -1559,7 +1583,7 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   realtype yddnrm;
   
   N_VLinearSum(hg, zn[1], ONE, zn[0], y);
-  f(N, tn+hg, y, tempv, f_data);
+  f(tn+hg, y, tempv, f_data);
   nfe++;
   N_VLinearSum(ONE, tempv, -ONE, zn[1], tempv);
   N_VScale(ONE/hg, tempv, tempv);
@@ -2112,7 +2136,7 @@ static int CVnlsFunctional(CVodeMem cv_mem)
   
   crate = ONE;
   m = 0;
-  f(N, tn, zn[0], tempv, f_data);
+  f(tn, zn[0], tempv, f_data);
   nfe++;
   N_VConst(ZERO, acor);
 
@@ -2143,7 +2167,7 @@ static int CVnlsFunctional(CVodeMem cv_mem)
       return(CONV_FAIL);
     /* Save norm of correction, evaluate f, and loop again */
     delp = del;
-    f(N, tn, y, tempv, f_data);
+    f(tn, y, tempv, f_data);
     nfe++;
   }
 }
@@ -2186,7 +2210,7 @@ static int CVnlsNewton(CVodeMem cv_mem, int nflag)
   
   loop {
 
-    f(N, tn, zn[0], ftemp, f_data);
+    f(tn, zn[0], ftemp, f_data);
     nfe++; 
     
     if (callSetup) {
@@ -2291,7 +2315,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
     
     /* Save norm of correction, evaluate f, and loop again */
     delp = del;
-    f(N, tn, y, ftemp, f_data);
+    f(tn, y, ftemp, f_data);
     nfe++;
   }
 }
@@ -2445,7 +2469,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
   hscale = h;
   qwait = LONG_WAIT;
   nscon = 0;
-  f(N, tn, zn[0], tempv, f_data);
+  f(tn, zn[0], tempv, f_data);
   nfe++;
   N_VScale(h, tempv, zn[1]);
   return(FALSE);
@@ -2546,9 +2570,9 @@ static void CVSetEta(CVodeMem cv_mem)
     eta = MIN(eta, etamax);
     eta /= MAX(ONE, ABS(h)*hmax_inv*eta);
     hprime = h * eta;
-   if (qprime < q) nscon = 0;
+    if (qprime < q) nscon = 0;
   }
-
+  
   /* Reset etamax for the next step size change, and scale acor */
 }
 
@@ -2708,9 +2732,6 @@ void CVBDFStab(CVodeMem cv_mem)
         eta = eta/MAX(ONE,ABS(h)*hmax_inv*eta);
         hprime = h*eta;
         iopt[NOR] =iopt[NOR] + 1;
-     /* fprintf(errfp,
-        " Order reduced to %d by CVBDFStab at nst = %d,\n    h = %e hnew = %e\n",
-        qprime,nst,h,h*eta); */
       }
     }
   }
