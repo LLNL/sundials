@@ -1,38 +1,33 @@
-                             CVODES 
-                   Release 2.1.0, November 2004
-                  Alan C. Hindmarsh and Radu Serban
-              Center for Applied Scientific Computing, LLNL
+                           CVODES 
+                 Release 2.1.0, November 2004
+               Alan C. Hindmarsh and Radu Serban
+          Center for Applied Scientific Computing, LLNL
 
-CVODES is a solver for stiff and nonstiff ODE systems (initial value problem) 
-given in explicit form dy/dt = f(t,y) with sensitivity analysis capabilities 
-(both forward and adjoint modes). It is written in ANSI standard C.
+CVODES is a solver for stiff and nonstiff ODE systems (initial value 
+problem) given in explicit form y' = f(t,y,p) with sensitivity analysis 
+capabilities (both forward and adjoint modes). 
+It is written in ANSI standard C.
 
-CVODES can be used both on serial and parallel (MPI) computers.  The main
-difference is in the NVECTOR module of vector kernels.  The desired
-version is obtained when compiling the example files by linking the
+CVODES can be used both on serial and parallel (MPI) computers.  The 
+main difference is in the NVECTOR module of vector kernels.  The desired 
+version is obtained when compiling the example files by linking the 
 appropriate library of NVECTOR kernels.  In the parallel version,
 communication between processors is done with the MPI (Message Passage
-Interface) system.  Throughout this document, we will refer to the
-combination of CVODES with the serial implementation of the NVECTOR
-module as "the serial version of CVODES".  Similarly, the combination of
-CVODES with the parallel implementation of the NVECTOR module is called
-"the parallel version of CVODES".
+Interface) system.
 
-In addition, the two versions are different in the linear system
-solvers available.  With the serial version of CVODES, both direct
-(dense and band) solvers and a preconditioned Krylov (iterative)
-solver are available, but in the parallel version only the Krylov
-solver is available.  (An approximate diagonal Jacobian option is
-available with both versions.)  For the serial version, there is a
-banded preconditioner module called CVBANDPRE available for use with
-the Krylov solver, while for the parallel version there is a
-preconditioner module called CVBBDPRE which provides a
+When used with the serial NVECTOR module, CVODES provides both direct (dense 
+and band) and a preconditioned Krylov (iterative) linear solvers. When CVODES 
+is used with the parallel NVECTOR module, only the Krylov linear solver is 
+available. (An approximate diagonal Jacobian option is available with both 
+versions.)  For the serial version, there is a banded preconditioner module 
+called CVBANDPRE available for use with the Krylov solver, while for the parallel 
+version there is a preconditioner module called CVBBDPRE which provides a
 band-block-diagonal preconditioner.
 
-CVODES is part of a software family called SUNDIALS: SUite of Nonlinear
-and DIfferential/ALgebraic equation Solvers.  This suite consists of
-CVODE, KINSOL, and IDA, and variants of these.  The directory
-structure of the package supplied reflects this family relationship.
+CVODES is part of a software family called SUNDIALS: SUite of Nonlinear and 
+DIfferential/ALgebraic equation Solvers [4].  This suite consists of CVODE, 
+CVODES, IDA, and KINSOL.  The directory structure of the package supplied 
+reflects this family relationship.
 
 The notes below provide the location of documentation, directions for the 
 installation of the CVODES package, and relevant references. Following that 
@@ -41,9 +36,9 @@ is a brief history of revisions to the package.
 A. Documentation
 ----------------
 
-/sundials/cvodes/doc contains PostScript and PDF files for the 
-CVODES User Guide (cvs_guide.ps and cvs_guide.pdf) and the CVODES
-Examples (cvs_examples.ps and cvs_examples.pdf) documents.
+/sundials/cvodes/doc contains PostScript and PDF files for the CVODES User 
+Guide [1] (cvs_guide.ps and cvs_guide.pdf) and the CVODES Examples [2] 
+(cvs_examples.ps and cvs_examples.pdf) documents.
 
 B. Installation
 ---------------
@@ -69,7 +64,73 @@ C. References
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
     accepted, 2004.
 
-D. Revision History (YYYYMMDD)
-------------------------------
+D.1. Revision History since release 1.0 (July 2002)
+---------------------------------------------------
 
+- New features
+   - added quadrature integration capabilities.
+   - added root finding capabilities.
+   - added option for different user data structures for ODE r.h.s.
+     and sensitivity r.h.s.
+   - in adjoint module, added interface to CVBBDPRE for the backward 
+     phase.
+   - in adjoint module, added option for using CVDIAG during backward 
+     phase.
+   - in adjoint module, added option for ONE_STEP integration during 
+     backward phase.
+   - in adjoint module, added option to reinitialize the backward 
+     integration phase (and perform a new backward integration using
+     the same check points).
+   - in adjoint module, relaxed assumption that t_final > t_0 (now
+     accepts t_final < t_0).
+
+- Bug fixes
+   - fixed bug in adjustment of sensitivity Nordsieck history array on an
+     order decrease (when using BDF).
+   - in adjoint module, fixed a potential use of memory before being set.
+   - in adjoint module, fixed a bug related to data saved at check points.
+     This addresses the case in which an order increase is deemed necessary
+     at the very first step after a check-point.
+
+- Changes related to the NVECTOR module 
+  (see also the file sundials/shared/README)
+   - removed machEnv, redefined table of vector operations (now contained
+     in the N_Vector structure itself).
+   - all CVODES functions create new N_Vector variables through cloning, using
+     an N_Vector passed by the user as a template.
+
+- Changes to type names and CVODES constants
+   - removed type 'integertype'; instead use int or long int, as appropriate.
+   - restructured the list of return values from the various CVODEs functions.
+   - changed all CVODES constants (inputs and return values) to have the
+     prefix 'CV_' (e.g. CV_SUCCESS).
+   - renamed various function types to have the prefix 'CV' (e.g. CVRhsFn).
+
+- Changes to optional input/ouput
+   - added CVodeSet* and CVodeGet* functions for optional inputs/outputs, 
+     replacing the arrays iopt and ropt.
+   - added new optional inputs (e.g. maximum number of Newton iterations,
+     maximum number of convergence failures, etc).
+   - the value of the last return flag from any function within a linear
+     solver module can be obtained as an optional output (e.g. CVDenseGetLastFlag).
+  
+- Changes to user-callable functions
+   - renamed header files to have prefix 'cv' instead of 'cvs' (e.g. cvdense.h
+     replaces cvsdense.h).
+   - added new function CVodeCreate which initializes the CVODES solver
+     object and returns a pointer to the CVODES memory block.
+   - removed N (problem size) from all functions except the initialization
+     functions for the direct linear solvers (CVDense and CVBand).
+   - shortened argument lists of most CVODES functions (the arguments that
+     were dropped can now be specified through CVodeSet* functions).
+   - removed reinitialization functions for band/dense/SPGMR linear
+     solvers (same functionality can be obtained using CV*Set* functions).
+   - in CVBBDPRE, added a new function, CVBBDSpgmr to initialize the
+     SPGMR linear solver with the BBD preconditioner.
+   - function names changed in CVBANDPRE and CVBBDPRE for uniformity.
+
+- Changes to user-supplied functions
+   - removed N (probem dimension) from argument lists.
+   - shortened argument lists for user dense/band/SPGMR Jacobian routines.
+   - in CVSPGMR, shortened argument lists for user preconditioner functions.
 
