@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
     ifS = ONESENS;
     rhomax = ZERO; /* ignored, since we provide the sensitivity rhs */
     flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, pbar, plist,
-                           ifS, fS, err_con, rhomax, yS, NULL, NULL, data);
+                           ifS, (void *)fS, err_con, rhomax, yS, NULL, NULL, data);
     if (flag != SUCCESS) {
       printf("CVodeSensMalloc failed, flag=%d\n",flag);
       return(1);
@@ -337,17 +337,13 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con,
   }
 
   printf("\n\n");
-  /*
-  printf("lenrw   = %5ld    leniw = %5ld\n", iopt[LENRW], iopt[LENIW]);
-  printf("llrw    = %5ld    lliw  = %5ld\n", iopt[SPGMR_LRW], iopt[SPGMR_LIW]);
-  */
-  printf("nst     = %5ld                \n\n", iopt[NST]);
-  printf("nfe     = %5ld    nfSe  = %5ld  \n", iopt[NFE],  iopt[NFSE]);
-  printf("nni     = %5ld    nniS  = %5ld  \n", iopt[NNI],  iopt[NNIS]);
-  printf("ncfn    = %5ld    ncfnS = %5ld  \n", iopt[NCFN], iopt[NCFNS]);
-  printf("netf    = %5ld    netfS = %5ld\n\n", iopt[NETF], iopt[NETFS]);
-  printf("nsetups = %5ld                  \n", iopt[NSETUPS]);
-  printf("nje     = %5ld                  \n", iopt[DENSE_NJE]);
+  printf("nst     = %5ld\n\n", iopt[NST]);
+  printf("nfe     = %5ld    nfSe     = %5ld \n",   iopt[NFE],     iopt[NFSE]);
+  printf("nni     = %5ld    nniS     = %5ld \n",   iopt[NNI],     iopt[NNIS]);
+  printf("ncfn    = %5ld    ncfnS    = %5ld \n",   iopt[NCFN],    iopt[NCFNS]);
+  printf("netf    = %5ld    netfS    = %5ld \n",   iopt[NETF],    iopt[NETFS]);
+  printf("nsetups = %5ld    nsetupss = %5ld \n\n", iopt[NSETUPS], iopt[NSETUPSS]);
+  printf("nje     = %5ld\n", iopt[DENSE_NJE]);
 
   printf("========================================================\n");
 
