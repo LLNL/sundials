@@ -5,8 +5,8 @@
 
 \index{examples, forward sensitivity!list of|(}
 The {\cvodes} distribution contains, in the \id{sundials/cvodes/examples\_ser}
-directory, the following three serial examples for forward sensitivity analysis:
-
+directory, the following three serial examples (using the {\nvecs} module)
+for forward sensitivity analysis:
 \begin{itemize}
 \item \id{cvfnx}
   solves the semi-discrete form of an advection-diffusion equation in 1-D.
@@ -32,19 +32,18 @@ directory, the following three serial examples for forward sensitivity analysis:
   The problem is solved with the BDF/GMRES method (i.e.    
   using the {\cvspgmr} linear solver) and the block-diagonal part of the  
   Newton matrix as a left preconditioner;
-\end{itemize
+\end{itemize}
 
-The {\cvodes} distribution contains, in the \id{sundials/cvodes/examples\_par}
-directory, the following two parallel examples for forward sensitivity analysis:
-
+\noindent In the \id{sundials/cvodes/examples\_par} directory, the {\cvodes} distribution 
+contains the following two parallel examples for forward sensitivity analysis
+(using the {\nvecp} module):
 \begin{itemize}
 \item \id{pvfnx}
   is the parallel version of \id{cvfnx};
 \item \id{pvfkx}
   is the parallel version of \id{cvfkx}.
 \end{itemize}
-The first three are serial examples that use the {\nvecs} module and
-the last two are parallel examples using the {\nvecp} module.
+
 For all the above examples, any of three sensitivity methods (\id{SIMULTANEOUS}, 
 \id{STAGGERED}, and \id{STAGGERED1}) can be used and sensitivities may be 
 included in the error test or not (error control set on \id{FULL} or \id{PARTIAL},

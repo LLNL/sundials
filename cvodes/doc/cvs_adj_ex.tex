@@ -5,8 +5,8 @@
 
 \index{examples, adjoint sensitivity!list of|(}
 The {\cvodes} distribution contains, in the \id{sundials/cvodes/examples\_ser}
-directory, the following four serial examples for forward sensitivity analysis:
-
+directory, the following four serial examples (using the {\nvecs} module)
+for adjoint sensitivity analysis:
 \begin{itemize}
 \item \id{cvadx}
   solves a chemical kinetics problem consisting of three rate equations.
@@ -44,9 +44,9 @@ directory, the following four serial examples for forward sensitivity analysis:
   with respect to the initial conditions of all six species;
 \end{itemize}
 
-The {\cvodes} distribution contains, in the \id{sundials/cvodes/examples\_par}
-directory, the following parallel example for forward sensitivity analysis:
-
+\noindent In the \id{sundials/cvodes/examples\_par} directory, the {\cvodes} distribution 
+contains the following parallel example for adjoint sensitivity analysis
+(using the {\nvecp} module):
 \begin{itemize}
 \item \id{pvanx}
   solves the semi-discrete form of an advection-diffusion equation in 1-D.
@@ -58,8 +58,6 @@ directory, the following parallel example for forward sensitivity analysis:
   This program solves both the forward and backward problems with the option 
   for nonstiff systems, i.e. Adams method and functional iteration.
 \end{itemize}
-The first four are serial examples that use the {\nvecs} module and
-the last one is a parallel example using the {\nvecp} module.
 \index{examples, adjoint sensitivity!list of|)}
 
 The next two sections describe in detail a serial example (\id{cvadx}) and
