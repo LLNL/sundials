@@ -356,7 +356,7 @@
 #define MSG_BAD_TOUT_2      "tout too far back in direction of integration.\n\n"
 #define MSG_BAD_TOUT        MSG_BAD_TOUT_1 MSG_BAD_TOUT_2
 
-#define MSG_MAX_STEPS_1     CVODE "At t=%g, mxstep=%d steps taken on "
+#define MSG_MAX_STEPS_1     CVODE "At t=%g, mxstep=%ld steps taken on "
 #define MSG_MAX_STEPS_2     "this call before\nreaching tout=%g.\n\n"
 #define MSG_MAX_STEPS       MSG_MAX_STEPS_1 MSG_MAX_STEPS_2
 
