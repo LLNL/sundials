@@ -2,7 +2,7 @@
  * File          : fkinsol.c                                      *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                             *
- * Version of    : 30 July 2002                                   *
+ * Version of    : 31 March 2003                                  *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the KINSOL package. See fkinsol.h for usage.                   *
@@ -24,21 +24,20 @@
 /**************************************************************************/
 
 /* Prototype of the user-supplied Fortran routine */
-void K_FUN(integertype*, realtype*, realtype*);
+void K_FUN(realtype*, realtype*);
 
 /**************************************************************************/
 
-void F_KINMALLOC(integertype *neq, integertype *ier)
+void F_KINMALLOC(integertype *ier)
 {
 
   /* Call KINMalloc to initialize memory for KINSOL: 
-     *neq    is the problem size
      NULL    is the pointer to the error message file
      F2C_machEnv is the pointer to the machine environment block
 
      A pointer to KINSOL problem memory is returned and stored in KIN_kmem. */
 
-  KIN_kmem = KINMalloc(*neq,  NULL, F2C_machEnv);
+  KIN_kmem = KINMalloc(NULL, F2C_machEnv);
 
   *ier = (KIN_kmem == NULL) ? -1 : 0 ;
 }
@@ -67,7 +66,7 @@ void F_KINSPGMR00(int *maxl, int *maxlrst, int *msbpre, int *ier)
 
 /***************************************************************************/
 
-void F_KINSOL(int *Neq, realtype *uu, int *globalstrategy, 
+void F_KINSOL(realtype *uu, int *globalstrategy, 
               realtype *uscale , realtype *fscale, realtype *fnormtol, 
               realtype *scsteptol, realtype *constraints, int *inopt, 
               long int *iopt, realtype *ropt, int *ier)
@@ -78,15 +77,14 @@ void F_KINSOL(int *Neq, realtype *uu, int *globalstrategy,
 
   binopt = *inopt;
 
-  uuvec          = N_VMake(*Neq, uu, F2C_machEnv);
-  uscalevec      = N_VMake(*Neq, uscale, F2C_machEnv);
-  fscalevec      = N_VMake(*Neq, fscale, F2C_machEnv);
-  constraintsvec = N_VMake(*Neq, constraints, F2C_machEnv);
+  uuvec          = N_VMake(uu, F2C_machEnv);
+  uscalevec      = N_VMake(uscale, F2C_machEnv);
+  fscalevec      = N_VMake(fscale, F2C_machEnv);
+  constraintsvec = N_VMake(constraints, F2C_machEnv);
 
   /* Call KINSol:
 
   KIN_kmem is the pointer to the KINSOL memory block
-  Neq is the total system size
   uuvec is the N_Vector containing the solution found by KINSol
   KINfunc   is the standard interface function to the user-supplied KFUN
   globalstragegy is an integer defining the global strategy choice
@@ -103,7 +101,7 @@ void F_KINSOL(int *Neq, realtype *uu, int *globalstrategy,
   
   */
 
-  *ier = KINSol(KIN_kmem, *Neq, uuvec, KINfunc, *globalstrategy, 
+  *ier = KINSol(KIN_kmem, uuvec, KINfunc, *globalstrategy, 
                 uscalevec, fscalevec, *fnormtol, *scsteptol,
                 constraintsvec, binopt, iopt, ropt, NULL);
   
@@ -134,7 +132,7 @@ void F_KINFREE()
    The data in the returned N_Vector fval is set using N_VSetData. 
    Auxiliary data is assumed to be communicated by Common. */
 
-void KINfunc(integertype Neq, N_Vector uu, N_Vector fval, void *f_data)
+void KINfunc(N_Vector uu, N_Vector fval, void *f_data)
 {
   realtype *udata, *fdata;
 
@@ -143,7 +141,7 @@ void KINfunc(integertype Neq, N_Vector uu, N_Vector fval, void *f_data)
   udata = N_VGetData(uu);
   fdata = N_VGetData(fval);
 
-  K_FUN(&Neq, udata, fdata);
+  K_FUN(udata, fdata);
 
   N_VSetData(fdata, fval);
 

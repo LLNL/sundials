@@ -2,7 +2,7 @@
  *                                                                         *
  * File        : fkinbbd.h                                                 *
  * Programmers : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL *
- * Version of  : 27 June 2002                                              *
+ * Version of  : 31 March 2003                                             *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -134,9 +134,8 @@
  IER     = return completion flag. Values are 0 = success, -1 = failure.
 
  (4.2) To allocate internal memory for KINSOL, make the following call:
-      CALL FKINMALLOC(NEQ, IER)
+      CALL FKINMALLOC(IER)
  The arguments are:
- NEQ    = problem size (global).
  IER    = return completion flag.  Values are 0 = success, and -1 = failure.
           See printed message for details in case of failure.
 
@@ -162,10 +161,9 @@
 
  (5) Solver: FKINSOL
  Solving of nonlinear system is accomplished by making the following call:
-      CALL FKINSOL (NEQ, UU, GLOBALSTRAT, USCALE, FSCALE, FNORMTOL,
+      CALL FKINSOL (UU, GLOBALSTRAT, USCALE, FSCALE, FNORMTOL,
       SCSTEPTOL, CONSTRAINTS, OPTIN, IOPT,ROPT, IER)
  The arguments are:
- NEQ   = (INTEGER) global number of unknowns in the nonlinear system
  UU    = array containing the initial guess when called, returns the solution
  GLOBALSTRAT = (INTEGER) a number defining the global strategy choice:
           0 = InexactNewton, 1 = LineSearch .

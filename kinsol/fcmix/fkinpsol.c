@@ -3,7 +3,7 @@
  * File          : fkinpsol.c                                     *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                             *
- * Version of    : 29 July 2002                                   *
+ * Version of    : 31 MArch 2003                                  *
  *----------------------------------------------------------------*
  * This routine interfaces between KINSOL and a user-supplied     *
  * Fortran routine KPSOL for the various cases involving KINSpgmr.*
@@ -19,7 +19,7 @@
 /********************************************************************/
 
 /* Prototype of the user-supplied Fortran routine */
-void K_PSOL(integertype*, realtype*, realtype*, realtype*, realtype*, 
+void K_PSOL(realtype*, realtype*, realtype*, realtype*, 
             realtype*, realtype*, realtype*, long int*, int*);
 
 /********************************************************************/
@@ -27,7 +27,7 @@ void K_PSOL(integertype*, realtype*, realtype*, realtype*, realtype*,
 /* C function KINPSol to interface between KINSpgmr and KPSOL, the user-
   supplied Fortran preconditioner solve routine. */
 
-int KINPSol(integertype Neq, N_Vector uu, N_Vector uscale, 
+int KINPSol(N_Vector uu, N_Vector uscale, 
             N_Vector fval, N_Vector fscale,
             N_Vector vv, N_Vector ftem,
             SysFn func, realtype u_round,
@@ -43,7 +43,7 @@ int KINPSol(integertype Neq, N_Vector uu, N_Vector uscale,
   vvdata     = N_VGetData(vv);
   ftemdata   = N_VGetData(ftem);
   
-  K_PSOL(&Neq, udata, uscaledata, fdata, fscaledata, vvdata, ftemdata,
+  K_PSOL(udata, uscaledata, fdata, fscaledata, vvdata, ftemdata,
          &u_round, nfePtr,&retcode);
  
   N_VSetData(vvdata, vv);

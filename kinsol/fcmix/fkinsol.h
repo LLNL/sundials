@@ -76,7 +76,7 @@
 
  (1) User-supplied system routine: KFUN
  The user must in all cases supply the following Fortran routine
-       SUBROUTINE KFUN (NEQ, UU, FVAL)
+       SUBROUTINE KFUN (UU, FVAL)
        DIMENSION UU(*), FVAL(*)
  It must set the FVAL array to f(u), the system function, as a function 
  of the array UU = u.  Here UU and FVAL are arrays representing vectors,
@@ -118,9 +118,8 @@
 
  (3.2) To set various problem and solution parameters and allocate
  internal memory, make the following call:
-       CALL FKINMALLOC(NEQ, IER)
+       CALL FKINMALLOC(IER)
  The arguments are:
- NEQ    = the problem size
  IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
           See printed message for details in case of failure.
 
@@ -169,7 +168,7 @@
  the user program must include the following routine for solution of the 
  preconditioner linear system:
 
-      SUBROUTINE KPSOL (NEQ, UU, USCALE, FVAL, FSCALE, VTEM, FTEM, 
+      SUBROUTINE KPSOL (UU, USCALE, FVAL, FSCALE, VTEM, FTEM, 
                         UROUND, NFE, IER)
       DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEM(*), FTEM(*)
 
@@ -184,7 +183,7 @@
  include the following routine for the evaluation and preprocessing of the 
  preconditioner:
 
-      SUBROUTINE KPRECO (NEQ, UU, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2,
+      SUBROUTINE KPRECO (UU, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2,
                          UROUND, NFE, IER)
       DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEMP1(*), VTEMP2(*)
 
@@ -201,10 +200,9 @@
 
  (5) The solver: FKINSOL
  Solving the nonlinear system is accomplished by making the following call:
-      CALL FKINSOL (NEQ, UU, GLOBALSTRAT, USCALE, FSCALE, FNORMTOL,
+      CALL FKINSOL (UU, GLOBALSTRAT, USCALE, FSCALE, FNORMTOL,
                     SCSTEPTOL, CONSTRAINTS, INOPT, IOPT, ROPT, IER)
  The arguments are:
- NEQ         = (INTEGER) number of equations (unknowns) in the nonlinear system
  UU          = array containing the initial guess on input, and the solution
                on return
  GLOBALSTRAT = (INTEGER) a number defining the global strategy choice:
@@ -340,15 +338,15 @@ The following optional outputs are specific to the SPGMR module:
 
 /* Prototypes: Functions called by the solver */
 
-void KINfunc(integertype Neq, N_Vector uu, N_Vector fval, void *f_data);
+void KINfunc(N_Vector uu, N_Vector fval, void *f_data);
 
-int KINPreco(integertype Neq, N_Vector uu, N_Vector uscale, 
+int KINPreco(N_Vector uu, N_Vector uscale, 
              N_Vector fval, N_Vector fscale,
              N_Vector vtemp1, N_Vector vtemp2,
              SysFn func, realtype u_round,
              long int *nfePtr, void *P_data);
 
-int KINPSol(integertype Neq, N_Vector uu, N_Vector uscale, 
+int KINPSol(N_Vector uu, N_Vector uscale, 
             N_Vector fval, N_Vector fscale,
             N_Vector vtem, N_Vector ftem,
             SysFn func, realtype u_round,
