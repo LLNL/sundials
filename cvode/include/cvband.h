@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-05-26 19:54:10 $
+ * $Revision: 1.16 $
+ * $Date: 2004-08-25 16:18:34 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -145,10 +145,12 @@ typedef void (*CVBandJacFn)(long int N, long int mupper, long int mlower,
  * mlower is the lower bandwidth of the band Jacobian             
  *           approximation.                                       
  *                                                                
- * The return values of CVBand are:                               
- *   SUCCESS       = 0  if successful                             
- *   LMEM_FAIL     = -1 if there was a memory allocation failure. 
- *   LIN_ILL_INPUT = -2 if there was an illegal input.            
+ * The return value of CVBand is one of:                               
+ *    CVBAND_SUCCESS   if successful                                
+ *    CVBAND_MEM_NULL  if the cvode memory was NULL
+ *    CVBAND_MEM_FAIL  if there was a memory allocation failure     
+ *    CVBAND_ILL_INPUT if a required vector operation is missing or
+ *                     if a bandwidth has an illegal value.
  * -----------------------------------------------------------------
  */
 
@@ -167,6 +169,11 @@ int CVBand(void *cvode_mem, long int N,
  *         supplied with this solver is used.                     
  * CVBandSetJacData specifies a pointer to user data which is     
  *         passed to the bjac routine every time it is called.    
+ *
+ * The return value of CVDenseSet* is one of:
+ *    CVBAND_SUCCESS   if successful
+ *    CVBAND_MEM_NULL  if the cvode memory was NULL
+ *    CVBAND_LMEM_NULL if the cvband memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -178,22 +185,34 @@ int CVBandSetJacData(void *cvode_mem, void *jac_data);
  * Optional outputs from the CVBAND linear solver                 
  * -----------------------------------------------------------------
  *                                                                
- * CVBandGetIntWorkSpace returns the integer workspace used by    
- *     CVBAND.                                                    
- * CVBandGetRealWorkSpace returns the real workspace used by      
- *     CVBAND.                                                    
+ * CVBandGetWorkSpace returns the real and integer workspace used
+ *     by CVBAND.                                                    
  * CVBandGetNumJacEvals returns the number of calls made to the   
  *     Jacobian evaluation routine bjac.                          
  * CVBandGetNumRhsEvals returns the number of calls to the user   
  *     f routine due to finite difference Jacobian evaluation.    
+ * CVBandGetLastFlag returns the last error flag set by any of
+ *     the CVBAND interface functions.
+ *
+ * The return value of CVDenseGet* is one of:
+ *    CVBAND_SUCCESS   if successful
+ *    CVBAND_MEM_NULL  if the cvode memory was NULL
+ *    CVBAND_LMEM_NULL if the cvband memory was NULL
  * -----------------------------------------------------------------
  */
 
-int CVBandGetIntWorkSpace(void *cvode_mem, long int *leniwB);
-int CVBandGetRealWorkSpace(void *cvode_mem, long int *lenrwB);
+int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwB, long int *leniwB);
 int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB);
 int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB);
+  int CVBandGetLastFlag(void *cvode_mem, int *flag);
 
+/* CVBAND return values */
+
+#define CVBAND_SUCCESS     0
+#define CVBAND_MEM_NULL   -1 
+#define CVBAND_LMEM_NULL  -2 
+#define CVBAND_ILL_INPUT  -3
+#define CVBAND_MEM_FAIL   -4
 
 #endif
 

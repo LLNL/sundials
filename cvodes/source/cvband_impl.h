@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-07-22 21:21:16 $
+ * $Revision: 1.3 $
+ * $Date: 2004-08-25 16:19:23 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -65,6 +65,8 @@ typedef struct {
                              quotient band Jacobian approximation     */
 
   void *b_J_data;         /* J_data is passed to jac                  */
+
+  int b_last_flag;        /* last error return flag                   */
   
 } CVBandMemRec, *CVBandMem;
 

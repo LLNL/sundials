@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-07-22 21:19:24 $
+ * $Revision: 1.5 $
+ * $Date: 2004-08-25 16:18:49 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -119,10 +119,11 @@ typedef void (*CVDenseJacFn)(long int N, DenseMat J, realtype t,
  *                                                                
  * N is the size of the ODE system.                               
  *                                                                
- * The return values of CVDense are:                              
- *    SUCCESS       =  0 if successful                                
- *    LMEM_FAIL     = -1 if there was a memory allocation failure     
- *    LIN_ILL_INPUT = -2 if a required vector operation is missing
+ * The return value of CVDense is one of:                              
+ *    CVDENSE_SUCCESS   if successful                                
+ *    CVDENSE_MEM_NULL  if the cvode memory was NULL
+ *    CVDENSE_MEM_FAIL  if there was a memory allocation failure     
+ *    CVDENSE_ILL_INPUT if a required vector operation is missing
  * -----------------------------------------------------------------
  */                                                                
   
@@ -140,6 +141,11 @@ int CVDense(void *cvode_mem, long int N);
  *         supplied with this solver is used.                     
  * CVDenseSetJacData specifies a pointer to user data which is    
  *         passed to the djac routine every time it is called.    
+ *
+ * The return value of CVDenseSet* is one of:
+ *    CVDENSE_SUCCESS   if successful
+ *    CVDENSE_MEM_NULL  if the cvode memory was NULL
+ *    CVDENSE_LMEM_NULL if the cvdense memory was NULL
  * -----------------------------------------------------------------
  */                                                                
 
@@ -151,21 +157,34 @@ int CVDenseSetJacData(void *cvode_mem, void *jac_data);
  * Optional outputs from the CVDENSE linear solver                
  * -----------------------------------------------------------------
  *                                                                
- * CVDenseGetIntWorkSpace returns the integer workspace used by   
- *     CVDENSE.                                                   
- * CVDenseGetRealWorkSpace returns the real workspace used by     
- *     CVDENSE.                                                   
+ * CVDenseGetWorkSpace returns the real and integer workspace used
+ *     by CVDENSE.                                                   
  * CVDenseGetNumJacEvals returns the number of calls made to the  
  *     Jacobian evaluation routine djac.                          
  * CVDenseGetNumRhsEvals returns the number of calls to the user  
  *     f routine due to finite difference Jacobian evaluation.    
+ * CVDenseGetLastFlag returns the last error flag set by any of
+ *     the CVDENSE interface functions.
+ *
+ * The return value of CVDenseGet* is one of:
+ *    CVDENSE_SUCCESS   if successful
+ *    CVDENSE_MEM_NULL  if the cvode memory was NULL
+ *    CVDENSE_LMEM_NULL if the cvdense memory was NULL
  * -----------------------------------------------------------------
  */                                                                
 
-int CVDenseGetIntWorkSpace(void *cvode_mem, long int *leniwD);
-int CVDenseGetRealWorkSpace(void *cvode_mem, long int *lenrwD);
+int CVDenseGetWorkSpace(void *cvode_mem, long int *lenrwD, long int *leniwD);
 int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD);
 int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD);
+int CVDenseGetLastFlag(void *cvode_mem, int *flag);
+
+/* CVDENSE return values */
+
+#define CVDENSE_SUCCESS     0
+#define CVDENSE_MEM_NULL   -1 
+#define CVDENSE_LMEM_NULL  -2 
+#define CVDENSE_ILL_INPUT  -3
+#define CVDENSE_MEM_FAIL   -4
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-07-22 21:24:25 $
+ * $Revision: 1.7 $
+ * $Date: 2004-08-25 16:19:23 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -11,8 +11,7 @@
  * All rights reserved
  * For details, see sundials/cvodes/LICENSE
  * -----------------------------------------------------------------
- * This is the implementation file for the CVODES band linear
- * solver, CVBAND.
+ * This is the implementation file for the CVBAND linear solver.
  * -----------------------------------------------------------------
  */
 
@@ -108,7 +107,7 @@ static void CVBandDQJac(long int n, long int mupper, long int mlower,
 #define nje        (cvband_mem->b_nje)
 #define nfeB       (cvband_mem->b_nfeB)
 #define J_data     (cvband_mem->b_J_data)
-
+#define last_flag  (cvband_mem->b_last_flag)
 
 /*
  * -----------------------------------------------------------------
@@ -144,14 +143,14 @@ int CVBand(void *cvode_mem, long int N,
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
-    return(LIN_ILL_INPUT);
+    return(CVBAND_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(cv_mem);
@@ -166,12 +165,13 @@ int CVBand(void *cvode_mem, long int N,
   cvband_mem = (CVBandMem) malloc(sizeof(CVBandMemRec));
   if (cvband_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    return(LMEM_FAIL);
+    return(CVBAND_MEM_FAIL);
   }
   
   /* Set default Jacobian routine and Jacobian data */
   jac = CVBandDQJac;
   J_data = cvode_mem;
+  last_flag = CVBAND_SUCCESS;
 
   setupNonNull = TRUE;
   
@@ -185,7 +185,7 @@ int CVBand(void *cvode_mem, long int N,
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_SIZES, ml, mu, N-1);
-    return(LIN_ILL_INPUT);
+    return(CVBAND_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
@@ -195,26 +195,26 @@ int CVBand(void *cvode_mem, long int N,
   M = BandAllocMat(N, mu, ml, storage_mu);
   if (M == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    return(LMEM_FAIL);
+    return(CVBAND_MEM_FAIL);
   }
   savedJ = BandAllocMat(N, mu, ml, mu);
   if (savedJ == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     BandFreeMat(M);
-    return(LMEM_FAIL);
+    return(CVBAND_MEM_FAIL);
   }
   pivots = BandAllocPiv(N);
   if (pivots == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     BandFreeMat(M);
     BandFreeMat(savedJ);
-    return(LMEM_FAIL);
+    return(CVBAND_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = cvband_mem;
 
-  return(SUCCESS);
+  return(CVBAND_SUCCESS);
 }
 
 /*
@@ -231,19 +231,19 @@ int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
 
   jac = bjac;
 
-  return(SUCCESS);
+  return(CVBAND_SUCCESS);
 }
 
 /*
@@ -260,28 +260,28 @@ int CVBandSetJacData(void *cvode_mem, void *jac_data)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
 
   J_data = jac_data;
 
-  return(SUCCESS);
+  return(CVBAND_SUCCESS);
 }
 
 /*
  * -----------------------------------------------------------------
- * CVBandGewtIntWorkSpace
+ * CVBandGetWorkSpace
  * -----------------------------------------------------------------
  */
 
-int CVBandGetIntWorkSpace(void *cvode_mem, long int *leniwB)
+int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwB, long int *leniwB)
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -289,48 +289,20 @@ int CVBandGetIntWorkSpace(void *cvode_mem, long int *leniwB)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
-  }
-  cvband_mem = (CVBandMem) lmem;
-
-  *leniwB = n;
-
-  return(OKAY);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVBandGetRealWorkSpace
- * -----------------------------------------------------------------
- */
-
-int CVBandGetRealWorkSpace(void *cvode_mem, long int *lenrwB)
-{
-  CVodeMem cv_mem;
-  CVBandMem cvband_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
 
   *lenrwB = n*(storage_mu + mu + 2*ml + 2);
+  *leniwB = n;
 
-  return(OKAY);
+  return(CVBAND_SUCCESS);
 }
 
 /*
@@ -347,19 +319,19 @@ int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
 
   *njevalsB = nje;
 
-  return(OKAY);
+  return(CVBAND_SUCCESS);
 }
 
 /*
@@ -376,19 +348,48 @@ int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
 
   *nfevalsB = nfeB;
 
-  return(OKAY);
+  return(CVBAND_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * CVBandGetLastFlag
+ * -----------------------------------------------------------------
+ */
+
+int CVBandGetLastFlag(void *cvode_mem, int *flag)
+{
+  CVodeMem cv_mem;
+  CVBandMem cvband_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    return(CVBAND_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(CVBAND_LMEM_NULL);
+  }
+  cvband_mem = (CVBandMem) lmem;
+
+  *flag = last_flag;
+
+  return(CVBAND_SUCCESS);
 }
 
 /*
@@ -414,8 +415,9 @@ static int CVBandInit(CVodeMem cv_mem)
     jac = CVBandDQJac;
     J_data = cv_mem;
   }
-  
-  return(LINIT_OK);
+
+  last_flag = CVBAND_SUCCESS;
+  return(0);
 }
 
 /*
@@ -446,8 +448,8 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   dgamma = ABS((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlj + CVB_MSBJ) ||
-         ((convfail == FAIL_BAD_J) && (dgamma < CVB_DGMAX)) ||
-         (convfail == FAIL_OTHER);
+         ((convfail == CV_FAIL_BAD_J) && (dgamma < CVB_DGMAX)) ||
+         (convfail == CV_FAIL_OTHER);
   jok = !jbad;
   
   if (jok) {
@@ -472,7 +474,11 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   ier = BandFactor(M, pivots);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  if (ier > 0) return(1);
+  if (ier > 0) {
+    last_flag = ier;
+    return(1);
+  }
+  last_flag = CVBAND_SUCCESS;
   return(0);
 }
 
@@ -497,11 +503,12 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   BandBacksolve(M, pivots, bd);
 
-  /* If BDF, scale the correction to account for change in gamma */
-  if ((lmm == BDF) && (gamrat != ONE)) {
+  /* If CV_BDF, scale the correction to account for change in gamma */
+  if ((lmm == CV_BDF) && (gamrat != ONE)) {
     N_VScale(TWO/(ONE + gamrat), b, b);
   }
 
+  last_flag = CVBAND_SUCCESS;
   return(0);
 }
 

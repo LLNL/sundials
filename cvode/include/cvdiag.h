@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-07-22 21:14:47 $
+ * $Revision: 1.13 $
+ * $Date: 2004-08-25 16:18:34 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -38,10 +38,11 @@ extern "C" {
  * cvode_mem is the pointer to the integrator memory returned by  
  *              CVodeCreate.                                      
  *                                                                
- * The return values of CVDiag are:                               
- *    SUCCESS       =  0 if successful                                
- *    LMEM_FAIL     = -1 if there was a memory allocation failure     
- *    LIN_ILL_INPUT = -2 if a required vector operation is missing
+ * The return value of CVDiag is one of:                               
+ *    CVDIAG_SUCCESS   if successful                                
+ *    CVDIAG_MEM_NULL  if the cvode memory was NULL
+ *    CVDIAG_MEM_FAIL  if there was a memory allocation failure     
+ *    CVDIAG_ILL_INPUT if a required vector operation is missing
  * -----------------------------------------------------------------
  */                                                                
 
@@ -52,21 +53,34 @@ int CVDiag(void *cvode_mem);
  * Optional outputs from the CVDIAG linear solver                 
  * -----------------------------------------------------------------
  *                                                                
- * CVDiagGetIntWorkSpace returns the integer workspace used by    
- *     CVDIAG.                                                    
- * CVDiagGetRealWorkSpace returns the real workspace used by      
- *     CVDIAG.                                                    
+ * CVDiagGetWorkSpace returns the real and integer workspace used
+ *     by CVDIAG.                                                    
  * CVDiagGetNumRhsEvals returns the number of calls to the user   
  *     f routine due to finite difference Jacobian evaluation.    
- * Note: the number of diagonal approximate Jacobians formed is   
- * equal to the number of CVDiagSetup calls.                      
- * This number is available through CVodeGetNumLinSolvSetups.     
+ *     Note: the number of diagonal approximate Jacobians formed is   
+ *     equal to the number of CVDiagSetup calls.                      
+ *     This number is available through CVodeGetNumLinSolvSetups.     
+ * CVDiagGetLastFlag returns the last error flag set by any of
+ *     the CVDIAG interface functions.
+ *
+ * The return value of CVDenseGet* is one of:
+ *    CVDIAG_SUCCESS   if successful
+ *    CVDIAG_MEM_NULL  if the cvode memory was NULL
+ *    CVDIAG_LMEM_NULL if the cvdiag memory was NULL
  * -----------------------------------------------------------------
  */                                                                
 
-int CVDiagGetIntWorkSpace(void *cvode_mem, long int *leniwDI);
-int CVDiagGetRealWorkSpace(void *cvode_mem, long int *lenrwDI);
+int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwDI, long int *leniwDI);
 int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI);
+int CVDiagGetLastFlag(void *cvode_mem, int *flag);
+
+#define CVDIAG_SUCCESS     0
+#define CVDIAG_MEM_NULL   -1 
+#define CVDIAG_LMEM_NULL  -2 
+#define CVDIAG_ILL_INPUT  -3
+#define CVDIAG_MEM_FAIL   -4
+
+#define CVDIAG_INV_FAIL    1
 
 #endif
 

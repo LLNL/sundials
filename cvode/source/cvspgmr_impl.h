@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-05-26 19:54:26 $
+ * $Revision: 1.2 $
+ * $Date: 2004-08-25 16:19:33 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -80,6 +80,8 @@ typedef struct {
   CVSpgmrJacTimesVecFn g_jtimes;  
                         /* jtimes = Jacobian * vector routine           */
   void *g_j_data;       /* j_data is passed to jtimes                   */
+
+  int g_last_flag;      /* last error flag returned by any function     */
 
 } CVSpgmrMemRec, *CVSpgmrMem;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-07-22 21:24:25 $
+ * $Revision: 1.7 $
+ * $Date: 2004-08-25 16:19:23 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -11,8 +11,7 @@
  * All rights reserved
  * For details, see sundials/cvodes/LICENSE
  * -----------------------------------------------------------------
- * This is the implementation file for the CVODES dense linear 
- * solver, CVDENSE. 
+ * This is the implementation file for the CVDENSE linear solver.
  * -----------------------------------------------------------------
  */
 
@@ -99,7 +98,7 @@ static void CVDenseDQJac(long int n, DenseMat J, realtype t,
 #define nje       (cvdense_mem->d_nje)
 #define nfeD      (cvdense_mem->d_nfeD)
 #define J_data    (cvdense_mem->d_J_data)
-
+#define last_flag (cvdense_mem->d_last_flag)
                   
 /*
  * -----------------------------------------------------------------
@@ -133,7 +132,7 @@ int CVDense(void *cvode_mem, long int N)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
@@ -141,7 +140,7 @@ int CVDense(void *cvode_mem, long int N)
   if (vec_tmpl->ops->nvgetarraypointer == NULL ||
       vec_tmpl->ops->nvsetarraypointer == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
-    return(LIN_ILL_INPUT);
+    return(CVDENSE_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(cv_mem);
@@ -156,12 +155,13 @@ int CVDense(void *cvode_mem, long int N)
   cvdense_mem = (CVDenseMem) malloc(sizeof(CVDenseMemRec));
   if (cvdense_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    return(LMEM_FAIL);
+    return(CVDENSE_MEM_FAIL);
   }
 
   /* Set default Jacobian routine and Jacobian data */
   jac = CVDenseDQJac;
   J_data = cvode_mem;
+  last_flag = CVDENSE_SUCCESS;
 
   setupNonNull = TRUE;
 
@@ -173,26 +173,26 @@ int CVDense(void *cvode_mem, long int N)
   M = DenseAllocMat(N);
   if (M == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    return(LMEM_FAIL);
+    return(CVDENSE_MEM_FAIL);
   }
   savedJ = DenseAllocMat(N);
   if (savedJ == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     DenseFreeMat(M);
-    return(LMEM_FAIL);
+    return(CVDENSE_MEM_FAIL);
   }
   pivots = DenseAllocPiv(N);
   if (pivots == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     DenseFreeMat(M);
     DenseFreeMat(savedJ);
-    return(LMEM_FAIL);
+    return(CVDENSE_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = cvdense_mem;
 
-  return(SUCCESS);
+  return(CVDENSE_SUCCESS);
 }
 
 /*
@@ -209,19 +209,19 @@ int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
 
   jac = djac;
 
-  return(SUCCESS);
+  return(CVDENSE_SUCCESS);
 }
 
 /*
@@ -238,28 +238,28 @@ int CVDenseSetJacData(void *cvode_mem, void *jac_data)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
 
   J_data = jac_data;
 
-  return(SUCCESS);
+  return(CVDENSE_SUCCESS);
 }
 
 /*
  * -----------------------------------------------------------------
- * CVDenseGetIntWorkSpace
+ * CVDenseGetWorkSpace
  * -----------------------------------------------------------------
  */
 
-int CVDenseGetIntWorkSpace(void *cvode_mem, long int *leniwD)
+int CVDenseGetWorkSpace(void *cvode_mem, long int *lenrwD, long int *leniwD)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
@@ -267,48 +267,20 @@ int CVDenseGetIntWorkSpace(void *cvode_mem, long int *leniwD)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
-  }
-  cvdense_mem = (CVDenseMem) lmem;
-
-  *leniwD = n;
-
-  return(OKAY);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVDenseGetRealWorkSpace 
- * -----------------------------------------------------------------
- */
-
-int CVDenseGetRealWorkSpace(void *cvode_mem, long int *lenrwD)
-{
-  CVodeMem cv_mem;
-  CVDenseMem cvdense_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
 
   *lenrwD = 2*n*n;
+  *leniwD = n;
 
-  return(OKAY);
+  return(CVDENSE_SUCCESS);
 }
 
 /*
@@ -325,19 +297,19 @@ int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
 
   *njevalsD = nje;
 
-  return(OKAY);
+  return(CVDENSE_SUCCESS);
 }
 
 /*
@@ -354,19 +326,48 @@ int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
 
   *nfevalsD = nfeD;
 
-  return(OKAY);
+  return(CVDENSE_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * CVDenseGetLastFlag
+ * -----------------------------------------------------------------
+ */
+
+int CVDenseGetLastFlag(void *cvode_mem, int *flag)
+{
+  CVodeMem cv_mem;
+  CVDenseMem cvdense_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    return(CVDENSE_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(CVDENSE_LMEM_NULL);
+  }
+  cvdense_mem = (CVDenseMem) lmem;
+
+  *flag = last_flag;
+
+  return(CVDENSE_SUCCESS);
 }
 
 /*
@@ -393,7 +394,8 @@ static int CVDenseInit(CVodeMem cv_mem)
     J_data = cv_mem;
   }
 
-  return(LINIT_OK);
+  last_flag = CVDENSE_SUCCESS;
+  return(0);
 }
 
 /*
@@ -424,8 +426,8 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
  
   dgamma = ABS((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlj + CVD_MSBJ) ||
-         ((convfail == FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
-         (convfail == FAIL_OTHER);
+         ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
+         (convfail == CV_FAIL_OTHER);
   jok = !jbad;
  
   if (jok) {
@@ -448,8 +450,9 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   /* Do LU factorization of M */
   ier = DenseFactor(M, pivots); 
-  
+
   /* Return 0 if the LU was complete; otherwise return 1 */
+  last_flag = ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -475,11 +478,12 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   DenseBacksolve(M, pivots, bd);
 
-  /* If BDF, scale the correction to account for change in gamma */
-  if ((lmm == BDF) && (gamrat != ONE)) {
+  /* If CV_BDF, scale the correction to account for change in gamma */
+  if ((lmm == CV_BDF) && (gamrat != ONE)) {
     N_VScale(TWO/(ONE + gamrat), b, b);
   }
-
+  
+  last_flag = CVDENSE_SUCCESS;
   return(0);
 }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-07-22 21:21:26 $
+ * $Revision: 1.3 $
+ * $Date: 2004-08-25 16:19:33 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -51,6 +51,8 @@ typedef struct {
 
   long int di_nfeDI;   /* no. of calls to f due to difference 
                           quotient diagonal Jacobian approximation  */
+
+  int di_last_flag;    /* last error return flag                    */
 
 } CVDiagMemRec, *CVDiagMem;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-07-22 21:24:25 $
+ * $Revision: 1.6 $
+ * $Date: 2004-08-25 16:19:23 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -9,10 +9,9 @@
  * Copyright (c) 2002, The Regents of the University of California
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * For details, see sundials/cvode/LICENSE
  * -----------------------------------------------------------------
- * This is the implementation file for the CVODES diagonal linear
- * solver, CVDIAG.  
+ * This is the implementation file for the CVDIAG linear solver.  
  * -----------------------------------------------------------------
  */
 
@@ -82,6 +81,7 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define bit       (cvdiag_mem->di_bit)
 #define bitcomp   (cvdiag_mem->di_bitcomp)
 #define nfeDI     (cvdiag_mem->di_nfeDI)
+#define last_flag (cvdiag_mem->di_last_flag)
 
 /*
  * -----------------------------------------------------------------
@@ -109,7 +109,7 @@ int CVDiag(void *cvode_mem)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
@@ -117,7 +117,7 @@ int CVDiag(void *cvode_mem)
   if(vec_tmpl->ops->nvcompare == NULL ||
      vec_tmpl->ops->nvinvtest == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
-    return(LIN_ILL_INPUT);
+    return(CVDIAG_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(cv_mem);
@@ -132,8 +132,10 @@ int CVDiag(void *cvode_mem)
   cvdiag_mem = (CVDiagMem) malloc(sizeof(CVDiagMemRec));
   if (cvdiag_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    return(LMEM_FAIL);
+    return(CVDIAG_MEM_FAIL);
   }
+
+  last_flag = CVDIAG_SUCCESS;
 
   /* Set flag setupNonNull = TRUE */
   setupNonNull = TRUE;
@@ -143,70 +145,49 @@ int CVDiag(void *cvode_mem)
   M = N_VClone(vec_tmpl);
   if (M == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    return(LMEM_FAIL);
+    return(CVDIAG_MEM_FAIL);
   }
   bit = N_VClone(vec_tmpl);
   if (bit == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     N_VDestroy(M);
-    return(LMEM_FAIL);
+    return(CVDIAG_MEM_FAIL);
   }
   bitcomp = N_VClone(vec_tmpl);
   if (bitcomp == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     N_VDestroy(M);
     N_VDestroy(bit);
-    return(LMEM_FAIL);
+    return(CVDIAG_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = cvdiag_mem;
 
-  return(SUCCESS);
+  return(CVDIAG_SUCCESS);
 }
 
 /*
  * -----------------------------------------------------------------
- * CVDiagGetIntWorkSpace
+ * CVDiagGetWorkSpace
  * -----------------------------------------------------------------
  */
 
-int CVDiagGetIntWorkSpace(void *cvode_mem, long int *leniwDI)
+int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwDI, long int *leniwDI)
 {
   CVodeMem cv_mem;
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *leniwDI = 3*liw1;
-
-  return(OKAY);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVDiagGetRealWorkSpace
- * -----------------------------------------------------------------
- */
-
-int CVDiagGetRealWorkSpace(void *cvode_mem, long int *lenrwDI)
-{
-  CVodeMem cv_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   *lenrwDI = 3*lrw1;
+  *leniwDI = 3*liw1;
 
-  return(OKAY);
+  return(CVDIAG_SUCCESS);
 }
 
 /*
@@ -223,19 +204,48 @@ int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI)
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
     fprintf(stderr, MSG_SETGET_CVMEM_NULL);
-    return(LIN_NO_MEM);
+    return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(CVDIAG_LMEM_NULL);
   }
   cvdiag_mem = (CVDiagMem) lmem;
 
   *nfevalsDI = nfeDI;
 
-  return(OKAY);
+  return(CVDIAG_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * CVDiagGetLastFlag
+ * -----------------------------------------------------------------
+ */
+
+int CVDiagGetLastFlag(void *cvode_mem, int *flag)
+{
+  CVodeMem cv_mem;
+  CVDiagMem cvdiag_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    return(CVDIAG_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(CVDIAG_LMEM_NULL);
+  }
+  cvdiag_mem = (CVDiagMem) lmem;
+
+  *flag = last_flag;
+
+  return(CVDIAG_SUCCESS);
 }
 
 /*
@@ -254,7 +264,9 @@ static int CVDiagInit(CVodeMem cv_mem)
   cvdiag_mem = (CVDiagMem) lmem;
 
   nfeDI = 0;
-  return(LINIT_OK);
+
+  last_flag = CVDIAG_SUCCESS;
+  return(0);
 }
 
 /*
@@ -306,11 +318,15 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   /* Invert M with test for zero components */
   invOK = N_VInvTest(M, M);
-  if (!invOK) return(1);
+  if (!invOK) {
+    last_flag = CVDIAG_INV_FAIL;
+    return(1);
+  }
 
   /* Set jcur = TRUE, save gamma in gammasv, and return */
   *jcurPtr = TRUE;
   gammasv = gamma;
+  last_flag = CVDIAG_SUCCESS;
   return(0);
 }
 
@@ -341,13 +357,17 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     N_VScale(r, M, M);
     N_VAddConst(M, ONE, M);
     invOK = N_VInvTest(M, M);
-    if (!invOK) return (1);
-
+    if (!invOK) {
+      last_flag = CVDIAG_INV_FAIL;
+      return (1);
+    }
     gammasv = gamma;
   }
 
   /* Apply M-inverse to b */
   N_VProd(b, M, b);
+
+  last_flag = CVDIAG_SUCCESS;
   return(0);
 }
 
