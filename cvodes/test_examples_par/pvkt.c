@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-03-30 19:51:57 $
+ * $Revision: 1.2 $
+ * $Date: 2004-03-31 20:16:20 $
  * ----------------------------------------------------------------- 
  * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *              Radu Serban @ LLNL
@@ -494,13 +494,20 @@ static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
   long int nst;
-  int qu;
+  int qu, flag;
   realtype hu, *udata, tempu[2];
   long int npelast, i0, i1;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
   udata = NV_DATA_P(u);
+
+  CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1, (int)my_pe);
+  CVodeGetCurrentOrder(cvode_mem, &qu);
+  check_flag(&flag, "CVodeGetCurrentOrder", 1, (int)my_pe);
+  CVodeGetCurrentStep(cvode_mem, &hu);
+  check_flag(&flag, "CVodeGetCurrentStep", 1, (int)my_pe);
 
   /* Send c1,c2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
