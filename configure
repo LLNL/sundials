@@ -869,20 +869,31 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-examples       compile examples [no]
+
+  --disable-cvode         disable configuration of cvode
+  --disable-cvodes        disable configuration of cvodes
+  --disable-ida           disable configuration of ida
+  --disable-idas          disable configuration of idas
+  --disable-kinsol        disable configuration of kinsol
+
+  --disable-examples      disable configuration of examples
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+
   --with-cppflags         add extra preprocessor flags
   --with-cflags           add extra C compiler flags
-  --with-cxxflags         add extra C++ compiler flags
-  --with-fflags           add extra Fortran compiler flags
   --with-ldflags          add extra linker flags
-  --with-ar               specify archiver command ["ar rc"]
-  --with-mpi-comp=DIR     use MPI compilers mpicc, mpif77, and mpicxx (or
-                          mpiCC) in the specified path.
-  --with-mpi=MPIROOT      use MPI root directory
+
+  --with-cxx[=ARG]        force (ARG=yes) or skip (ARG=no) C++ check [ARG=yes]
+  --with-cxxflags         add extra C++ compiler flags
+  --with-f77[=ARG]        force (ARG=yes) or skip (ARG=no) F77 check [ARG=yes]
+  --with-fflags           add extra Fortran compiler flags
+
+  --with-mpi[=ARG]        force (ARG=yes) or skip (ARG=no) MPI check [ARG=yes]
+  --with-mpi-comp[=DIR]   use MPI compiler scripts from DIR [$PATH]
+  --with-mpi-root=MPIROOT use MPI root directory
   --with-mpi-incdir=DIR   MPI include directory [MPIROOT/include]
   --with-mpi-libdir=DIR   MPI library directory [MPIROOT/lib]
   --with-mpi-libs         MPI libraries ["-lmpi"]
@@ -1524,67 +1535,10 @@ if test -n "${FFLAGS}"; then
 fi
 
 # ------------------------------------------------------------------------
-# Checks for extra flags, etc
-# ------------------------------------------------------------------------
-
-
-# Check whether --with-cppflags or --without-cppflags was given.
-if test "${with_cppflags+set}" = set; then
-  withval="$with_cppflags"
-  EXTRA_CPPFLAGS=${withval}
-
-fi;
-
-
-# Check whether --with-cflags or --without-cflags was given.
-if test "${with_cflags+set}" = set; then
-  withval="$with_cflags"
-  EXTRA_CFLAGS=${withval}
-
-fi;
-
-
-# Check whether --with-cxxflags or --without-cxxflags was given.
-if test "${with_cxxflags+set}" = set; then
-  withval="$with_cxxflags"
-  EXTRA_CXXFLAGS=${withval}
-
-fi;
-
-
-# Check whether --with-fflags or --without-fflags was given.
-if test "${with_fflags+set}" = set; then
-  withval="$with_fflags"
-  EXTRA_FFLAGS=${withval}
-
-fi;
-
-
-# Check whether --with-ldflags or --without-ldflags was given.
-if test "${with_ldflags+set}" = set; then
-  withval="$with_ldflags"
-  EXTRA_LDFLAGS=${withval}
-
-fi;
-
-# ------------------------------------------------------------------------
 # Archiver
 # ------------------------------------------------------------------------
 
-
-# Check whether --with-ar or --without-ar was given.
-if test "${with_ar+set}" = set; then
-  withval="$with_ar"
-
-  echo "$as_me:$LINENO: checking user-defined archiver program" >&5
-echo $ECHO_N "checking user-defined archiver program... $ECHO_C" >&6
-  echo "$as_me:$LINENO: result: ${withval}" >&5
-echo "${ECHO_T}${withval}" >&6
-  AR=${withval}
-
-else
-
-  # Extract the first word of "ar", so it can be a program name with args.
+# Extract the first word of "ar", so it can be a program name with args.
 set dummy ar; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
@@ -1620,25 +1574,137 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-  if test "X${AR}" = "Xno"; then
-    { { echo "$as_me:$LINENO: error: cannot find an archiver" >&5
+if test "X${AR}" = "Xno"; then
+  { { echo "$as_me:$LINENO: error: cannot find an archiver" >&5
 echo "$as_me: error: cannot find an archiver" >&2;}
    { (exit 1); exit 1; }; }
-  else
-    AR="${AR} rc"
-  fi
+else
+  AR="${AR} rc"
+fi
+
+# ------------------------------------------------------------------------
+# Checks for extra flags, etc
+# ------------------------------------------------------------------------
+
+
+# Check whether --with- or --without- was given.
+if test "${with_+set}" = set; then
+  withval="$with_"
+
+fi;
+
+
+# Check whether --with-cppflags or --without-cppflags was given.
+if test "${with_cppflags+set}" = set; then
+  withval="$with_cppflags"
+  EXTRA_CPPFLAGS=${withval}
+
+fi;
+
+
+# Check whether --with-cflags or --without-cflags was given.
+if test "${with_cflags+set}" = set; then
+  withval="$with_cflags"
+  EXTRA_CFLAGS=${withval}
+
+fi;
+
+
+# Check whether --with-ldflags or --without-ldflags was given.
+if test "${with_ldflags+set}" = set; then
+  withval="$with_ldflags"
+  EXTRA_LDFLAGS=${withval}
 
 fi;
 
 # ------------------------------------------------------------------------
-# See whether we need a C++ compiler and MPI support
+# See whether we need a C++ compiler
 # ------------------------------------------------------------------------
 
-if test -d ${srcdir}/nvec_par; then
-  PARALLEL=yes
-else
-  PARALLEL=no
+
+# Check whether --with- or --without- was given.
+if test "${with_+set}" = set; then
+  withval="$with_"
+
+fi;
+
+CXX_ENABLED=no
+test -d ${srcdir}/xs4c && CXX_ENABLED=yes
+
+# Check whether --with-cxx or --without-cxx was given.
+if test "${with_cxx+set}" = set; then
+  withval="$with_cxx"
+
+  if test "X${withval}" = "Xno"; then
+    CXX_ENABLED=no
+  else
+    CXX_ENABLED=yes
+  fi
+
+fi;
+
+
+# Check whether --with-cxxflags or --without-cxxflags was given.
+if test "${with_cxxflags+set}" = set; then
+  withval="$with_cxxflags"
+  EXTRA_CXXFLAGS=${withval}
+
+fi;
+
+# ------------------------------------------------------------------------
+# See whether we need a Fortran compiler
+# ------------------------------------------------------------------------
+
+F77_ENABLED=no
+if test -d ${srcdir}/cvode || test -d ${srcdir}/kinsol ; then
+  F77_ENABLED=yes
 fi
+
+# Check whether --with-f77 or --without-f77 was given.
+if test "${with_f77+set}" = set; then
+  withval="$with_f77"
+
+  if test "X${withval}" = "Xno"; then
+    F77_ENABLED=no
+  else
+    F77_ENABLED=yes
+  fi
+
+fi;
+
+
+# Check whether --with-fflags or --without-fflags was given.
+if test "${with_fflags+set}" = set; then
+  withval="$with_fflags"
+  EXTRA_FFLAGS=${withval}
+
+fi;
+
+# ------------------------------------------------------------------------
+# See whether we need MPI support
+# ------------------------------------------------------------------------
+
+
+# Check whether --with- or --without- was given.
+if test "${with_+set}" = set; then
+  withval="$with_"
+
+fi;
+
+MPI_ENABLED=no
+test -d ${srcdir}/nvec_par && MPI_ENABLED=yes
+
+# Check whether --with-mpi or --without-mpi was given.
+if test "${with_mpi+set}" = set; then
+  withval="$with_mpi"
+
+  if test "X${withval}" = "Xno"; then
+    MPI_ENABLED=no
+  else
+    MPI_ENABLED=yes
+  fi
+
+fi;
 
 
 if test -d ${srcdir}/nvec_ser; then
@@ -1647,47 +1713,126 @@ else
   SERIAL=no
 fi
 
-if test -d ${srcdir}/xs4c; then
-  COMPLEX=yes
-else
-  COMPLEX=no
-fi
+# ------------------------------------------------------------------------
+# See what modules to configure
+# ------------------------------------------------------------------------
+
+# Check whether --enable- or --disable- was given.
+if test "${enable_+set}" = set; then
+  enableval="$enable_"
+
+fi;
+
+CVODE_ENABLED=no
+test -d ${srcdir}/cvode && CVODE_ENABLED=yes
+# Check whether --enable-cvode or --disable-cvode was given.
+if test "${enable_cvode+set}" = set; then
+  enableval="$enable_cvode"
+
+  if test "X${enableval}" = "Xno"; then
+    CVODE_ENABLED=no
+  fi
+
+fi;
+
+CVODES_ENABLED=no
+test -d ${srcdir}/cvodes && CVODES_ENABLED=yes
+# Check whether --enable-cvodes or --disable-cvodes was given.
+if test "${enable_cvodes+set}" = set; then
+  enableval="$enable_cvodes"
+
+  if test "X${enableval}" = "Xno"; then
+    CVODES_ENABLED=no
+  fi
+
+fi;
+
+IDA_ENABLED=no
+test -d ${srcdir}/ida && IDA_ENABLED=yes
+# Check whether --enable-ida or --disable-ida was given.
+if test "${enable_ida+set}" = set; then
+  enableval="$enable_ida"
+
+  if test "X${enableval}" = "Xno"; then
+    IDA_ENABLED=no
+  fi
+
+fi;
+
+IDAS_ENABLED=no
+test -d ${srcdir}/idas && IDAS_ENABLED=yes
+# Check whether --enable-idas or --disable-idas was given.
+if test "${enable_idas+set}" = set; then
+  enableval="$enable_idas"
+
+  if test "X${enableval}" = "Xno"; then
+    IDAS_ENABLED=no
+  fi
+
+fi;
+
+KINSOL_ENABLED=no
+test -d ${srcdir}/kinsol && KINSOL_ENABLED=yes
+# Check whether --enable-kinsol or --disable-kinsol was given.
+if test "${enable_kinsol+set}" = set; then
+  enableval="$enable_kinsol"
+
+  if test "X${enableval}" = "Xno"; then
+    KINSOL_ENABLED=no
+  fi
+
+fi;
 
 # ------------------------------------------------------------------------
 # See whether we will compile examples
 # ------------------------------------------------------------------------
 
+# Check whether --enable- or --disable- was given.
+if test "${enable_+set}" = set; then
+  enableval="$enable_"
+
+fi;
+
+EXAMPLES=yes
 # Check whether --enable-examples or --disable-examples was given.
 if test "${enable_examples+set}" = set; then
   enableval="$enable_examples"
-  EXAMPLES=yes
-else
-  EXAMPLES=no
+
+  if test "X${enableval}" = "Xno"; then
+    EXAMPLES=no
+  fi
+
 fi;
 
 CXX_EXAMPLES=no
-if test "X${EXAMPLES}" = "Xyes" && test "X${COMPLEX}" = "Xyes"; then
-  if test -d ${srcdir}/cvodes || test -d ${srcdir}/idas; then
+if test "X${EXAMPLES}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes"; then
+  if test "X${CVODES_ENABLED}" = "Xyes" || test "X${IDAS_ENABLED}" = "Xyes"; then
     CXX_EXAMPLES=yes
   fi
 fi
 
 F77_EXAMPLES=no;
-if test "X${EXAMPLES}" = "Xyes"; then
-  if test -d ${srcdir}/cvode || test -d ${srcdir}/kinsol; then
+if test "X${EXAMPLES}" = "Xyes" && test "X${F77_ENABLED}" = "Xyes"; then
+  if test "X${CVODE_ENABLED}" = "Xyes" || test "X${KINSOL_ENABLED}" = "Xyes"; then
     F77_EXAMPLES=yes
   fi
+fi
+
+if test "X${F77_EXAMPLES}" = "Xno"; then
+  F77_ENABLED=no
 fi
 
 # ------------------------------------------------------------------------
 # some initializations
 # ------------------------------------------------------------------------
+
 CC_OK=no
 CXX_OK=no
 F77_OK=no
 MPICC_OK=no
 MPICXX_OK=no
 MPIF77_OK=no
+
 # ------------------------------------------------------------------------
 # Check for preprocessor flags
 # ------------------------------------------------------------------------
@@ -1720,6 +1865,9 @@ if test "X${MY_CC}" = "Xnone"; then
 
   esac
 
+fi
+if test "X${MY_CC}" = "Xnone"; then
+  MY_CC=cc
 fi
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -3284,7 +3432,7 @@ fi
 # C++ compiler and flags
 # ------------------------------------------------------------------------
 
-if test "X${COMPLEX}" = "Xyes"; then
+if test "X${CXX_ENABLED}" = "Xyes"; then
 
   if test "X${MY_CXX}" = "Xnone"; then
 
@@ -3300,13 +3448,17 @@ if test "X${COMPLEX}" = "Xyes"; then
   esac
 
   fi
+
+  if test "X${MY_CXX}" = "Xnone"; then
+    MY_CXX=g++
+  fi
   ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 if test -n "$ac_tool_prefix"; then
-  for ac_prog in $CCC ${MY_CXX} CC g++ gcc c++ cxx
+  for ac_prog in $CCC ${MY_CXX} g++ CC gcc c++ cxx
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
@@ -3348,7 +3500,7 @@ fi
 fi
 if test -z "$CXX"; then
   ac_ct_CXX=$CXX
-  for ac_prog in $CCC ${MY_CXX} CC g++ gcc c++ cxx
+  for ac_prog in $CCC ${MY_CXX} g++ CC gcc c++ cxx
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -4058,7 +4210,6 @@ echo "$as_me: WARNING: no acceptable C++ compiler found" >&2;}
          Cannot find a working C++ compiler.
          Some modules will not be configured...
          "
-
   fi
 
 fi
@@ -4067,7 +4218,7 @@ fi
 # Fortran compiler and flags
 # ------------------------------------------------------------------------
 
-if test "X${F77_EXAMPLES}" = "Xyes"; then
+if test "X${F77_ENABLED}" = "Xyes"; then
 
   if test "X${MY_F77}" = "Xnone"; then
 
@@ -4082,6 +4233,10 @@ if test "X${F77_EXAMPLES}" = "Xyes"; then
 
   esac
 
+  fi
+
+  if test "X${MY_F77}" = "Xnone"; then
+    MY_F77=f77
   fi
   ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
@@ -4175,7 +4330,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:4178:" \
+echo "$as_me:4333:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -4382,7 +4537,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:4385: \"$ac_link\") >&5
+(eval echo $as_me:4540: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4462,7 +4617,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:4465: \"$ac_link\") >&5
+(eval echo $as_me:4620: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4662,7 +4817,7 @@ fi
 # Check for MPI
 # ------------------------------------------------------------------------
 
-if test "X${PARALLEL}" = "Xyes"; then
+if test "X${MPI_ENABLED}" = "Xyes"; then
 
   # Decide whether we use MPI compilers (mpicc, mpicxx, mpif77)
   # or if we use the compiler with special flags
@@ -4677,9 +4832,9 @@ if test "X${PARALLEL}" = "Xyes"; then
 if test "${with_mpi_comp+set}" = set; then
   withval="$with_mpi_comp"
 
-    if test X${withval} != Xno; then
+    if test "X${withval}" != "Xno"; then
       USE_MPI_COMPILERS=yes
-      if test X${withval} = Xyes; then
+      if test "X${withval}" = "Xyes"; then
         MPI_CC=mpicc
         MPI_F77=mpif77
         MPI_CXX=mpiCC
@@ -4847,7 +5002,7 @@ fi
 
 
 
-    if test "X${COMPLEX}" = "Xyes"; then
+    if test "X${CXX_ENABLED}" = "Xyes"; then
 
 
 # Test the MPICXX compiler
@@ -5096,7 +5251,7 @@ LIBS=${SAVED_LIBS}
 
 
 
-    if test "X${COMPLEX}" = "Xyes"; then
+    if test "X${CXX_ENABLED}" = "Xyes"; then
       MPICXX=${CXX}
 
 
@@ -5332,7 +5487,7 @@ echo $ECHO_N "checking whether we can build the serial C examples... $ECHO_C" >&
 echo "${ECHO_T}${SERIAL_C_EXAMPLES}" >&6
   fi
 
-  if test "X${PARALLEL}" = "Xyes"; then
+  if test "X${MPI_ENABLED}" = "Xyes"; then
     echo "$as_me:$LINENO: checking whether we can build the parallel C examples" >&5
 echo $ECHO_N "checking whether we can build the parallel C examples... $ECHO_C" >&6
     test "X${MPICC_OK}" = "Xyes" && PARALLEL_C_EXAMPLES=yes
@@ -5354,7 +5509,7 @@ echo $ECHO_N "checking whether we can build the serial C++ examples... $ECHO_C" 
 echo "${ECHO_T}${SERIAL_CXX_EXAMPLES}" >&6
   fi
 
-  if test "X${PARALLEL}" = "Xyes"; then
+  if test "X${MPI_ENABLED}" = "Xyes"; then
     echo "$as_me:$LINENO: checking whether we can build the parallel C++ examples" >&5
 echo $ECHO_N "checking whether we can build the parallel C++ examples... $ECHO_C" >&6
     test "X${MPICXX_OK}" = "Xyes" && PARALLEL_CXX_EXAMPLES=yes
@@ -5376,7 +5531,7 @@ echo $ECHO_N "checking whether we can build the serial Fortran examples... $ECHO
 echo "${ECHO_T}${SERIAL_F77_EXAMPLES}" >&6
   fi
 
-  if test "X${PARALLEL}" = "Xyes"; then
+  if test "X${MPI_ENABLED}" = "Xyes"; then
     echo "$as_me:$LINENO: checking whether we can build the parallel Fortran examples" >&5
 echo $ECHO_N "checking whether we can build the parallel Fortran examples... $ECHO_C" >&6
     test "X${MPIF77_OK}" = "Xyes" && PARALLEL_F77_EXAMPLES=yes
@@ -5455,10 +5610,15 @@ fi
 
 # CVODE module
 
-if test -d ${srcdir}/cvode; then
+if test "X${CVODE_ENABLED}" = "Xyes"; then
 
-  MODULES="$MODULES cvode/source cvode/fcmix"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/source/Makefile cvode/fcmix/Makefile"
+  MODULES="$MODULES cvode/source"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/source/Makefile"
+
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    MODULES="$MODULES cvode/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
+  fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes"; then
     EX_MODULES="$EX_MODULES cvode/examples_ser"
@@ -5484,7 +5644,7 @@ fi
 
 # CVODES module
 
-if test -d ${srcdir}/cvodes; then
+if test "X${CVODES_ENABLED}" = "Xyes"; then
 
   MODULES="$MODULES cvodes/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/source/Makefile"
@@ -5503,7 +5663,7 @@ fi
 
 # IDA module
 
-if test -d ${srcdir}/ida; then
+if test "X${IDA_ENABLED}" = "Xyes"; then
 
   MODULES="$MODULES ida/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/source/Makefile"
@@ -5522,7 +5682,7 @@ fi
 
 # IDAS module
 
-if test -d ${srcdir}/idas; then
+if test "X${IDAS_ENABLED}" = "Xyes"; then
 
   MODULES="$MODULES idas/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/source/Makefile"
@@ -5541,10 +5701,15 @@ fi
 
 # KINSOL module
 
-if test -d ${srcdir}/kinsol; then
+if test "X${KINSOL_ENABLED}" = "Xyes"; then
 
-  MODULES="$MODULES kinsol/source kinsol/fcmix"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/source/Makefile kinsol/fcmix/Makefile"
+  MODULES="$MODULES kinsol/source"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/source/Makefile"
+
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    MODULES="$MODULES kinsol/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
+  fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes"; then
     EX_MODULES="$EX_MODULES kinsol/examples_ser"
@@ -6549,6 +6714,26 @@ fi
 
 echo "
   Type 'make' and then 'make install' to build and install ${PACKAGE_STRING}"
+
+echo "
+Modules:
+--------
+"
+if test "X${CVODE_ENABLED}" = "Xyes"; then
+echo "  cvode"
+fi
+if test "X${CVODES_ENABLED}" = "Xyes"; then
+echo "  cvodes"
+fi
+if test "X${IDA_ENABLED}" = "Xyes"; then
+echo "  ida"
+fi
+if test "X${IDAS_ENABLED}" = "Xyes"; then
+echo "  idas"
+fi
+if test "X${KINSOL_ENABLED}" = "Xyes"; then
+echo "  kinsol"
+fi
 
 if test "X${EXAMPLES}" = "Xyes"; then
 echo "

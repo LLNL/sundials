@@ -155,10 +155,15 @@ fi
 
 # CVODE module
 
-if test -d ${srcdir}/cvode; then
+if test "X${CVODE_ENABLED}" = "Xyes"; then
 
-  MODULES="$MODULES cvode/source cvode/fcmix"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/source/Makefile cvode/fcmix/Makefile"
+  MODULES="$MODULES cvode/source"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/source/Makefile"
+
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    MODULES="$MODULES cvode/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
+  fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes"; then
     EX_MODULES="$EX_MODULES cvode/examples_ser"
@@ -184,7 +189,7 @@ fi
 
 # CVODES module
 
-if test -d ${srcdir}/cvodes; then
+if test "X${CVODES_ENABLED}" = "Xyes"; then
 
   MODULES="$MODULES cvodes/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/source/Makefile"
@@ -203,7 +208,7 @@ fi
 
 # IDA module
 
-if test -d ${srcdir}/ida; then
+if test "X${IDA_ENABLED}" = "Xyes"; then
 
   MODULES="$MODULES ida/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/source/Makefile"
@@ -222,7 +227,7 @@ fi
 
 # IDAS module
 
-if test -d ${srcdir}/idas; then
+if test "X${IDAS_ENABLED}" = "Xyes"; then
 
   MODULES="$MODULES idas/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/source/Makefile"
@@ -241,10 +246,15 @@ fi
 
 # KINSOL module
 
-if test -d ${srcdir}/kinsol; then
+if test "X${KINSOL_ENABLED}" = "Xyes"; then
 
-  MODULES="$MODULES kinsol/source kinsol/fcmix"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/source/Makefile kinsol/fcmix/Makefile"
+  MODULES="$MODULES kinsol/source"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/source/Makefile"
+
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    MODULES="$MODULES kinsol/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
+  fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes"; then
     EX_MODULES="$EX_MODULES kinsol/examples_ser"
@@ -282,12 +292,13 @@ AC_DEFUN(SUNDIALS_MPI_SPECIFY,
   # -------------
 
   AC_ARG_WITH(mpi-comp,
-  [AC_HELP_STRING([--with-mpi-comp=DIR], [use MPI compilers mpicc, mpif77, and mpicxx 
-                                          (or mpiCC) in the specified path.])],
+  [AC_HELP_STRING([--with-mpi-comp[[[[=DIR]]]]],
+                  [use MPI compiler scripts from DIR [$PATH]],
+                  [                                ])],
   [
-    if test X${withval} != Xno; then
+    if test "X${withval}" != "Xno"; then
       USE_MPI_COMPILERS=yes
-      if test X${withval} = Xyes; then
+      if test "X${withval}" = "Xyes"; then
         MPI_CC=mpicc
         MPI_F77=mpif77
         MPI_CXX=mpiCC
@@ -316,7 +327,7 @@ AC_DEFUN(SUNDIALS_MPI_SPECIFY,
   # ------------------
 
   AC_ARG_WITH(mpi,
-  [AC_HELP_STRING([--with-mpi=MPIROOT],[use MPI root directory])],
+  [AC_HELP_STRING([--with-mpi-root=MPIROOT],[use MPI root directory])],
   [
     USE_MPI_COMPILERS=no
     MPI_DIR=${withval}
