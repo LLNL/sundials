@@ -71,15 +71,14 @@ arguments.  The \id{main} program then calls a number of \id{KINSet*}
 routines to notify {\kinsol} of the function data pointer, the
 positivity constraints on the solution, and convergence tolerances on
 the system function and step size.
-It calls  \id{KINSpgmr} to specify the {\kinspgmr} linear solver, and
-passes a  value of $15$ as the maximum Krylov subspace dimension, \id{maxl}.
+It calls  \id{KINSpgmr} (see \ugref{ss:lin_solv_init}) to specify the {\kinspgmr} 
+linear solver, and passes a  value of $15$ as the maximum Krylov subspace dimension, \id{maxl}.
 Next, a maximum value of \id{maxlrst} $=2$ restarts is imposed and
 the user-supplied preconditioner setup and solve functions, \id{PrecSetupBD} and
 \id{PrecSolveBD}, are specified through calls to \id{KINSpgmrSetPrecSetupFn} and
-\id{KINSpgmrSetPrecSolveFn}, respectively. The \id{data} pointer passed to
-\id{KINSpgmrSetPrecData} is passed to \id{PrecSetupBD} and \id{PrecSolveBD} whenever
-these are called. See \S\ref{ss:lin_solv_init} and \S\ref{ss:optional_input} in
-the user guide for details on these calls.
+\id{KINSpgmrSetPrecSolveFn}, respectively (see \ugref{ss:optional_input}). 
+The \id{data} pointer passed to \id{KINSpgmrSetPrecData} is passed to \id{PrecSetupBD} 
+and \id{PrecSolveBD} whenever these are called. 
 
 Next, \id{KINSol} is called, the return value is tested for error conditions, and
 the approximate solution vector is printed via a call to \id{PrintOutput}.
@@ -90,7 +89,7 @@ of \id{func} evaluations (excluding those for $Jv$ product evaluations) (\id{nfe
 of \id{func} evaluations for $Jv$ evaluations (\id{nfeSG}), of linear (Krylov)
 iterations (\id{nli}), of preconditioner evaluations (\id{npe}), and of
 preconditioner solves (\id{nps}). All of these optional outputs and others are
-described in \S\ref{ss:optional_output}.
+described in \ugref{ss:optional_output}.
 
 Mathematically, the dependent variable has three dimensions: species
 number, $x$ mesh point, and $y$ mesh point.  But in {\nvecs}, a vector of
@@ -109,7 +108,7 @@ in (\ref{e:kinwebs_fterm}) and hence its  diagonal blocks are $n_s \times n_s$ m
 ($n_s = 6$).
 It is generated and factored in the \id{PrecSetupBD} routine and
 backsolved in the \id{PrecSolveBD} routine.  
-See \S\ref{ss:precondFn} and \S\ref{ss:psolveFn} for detailed descriptions
+See \ugref{ss:precondFn} for detailed descriptions
 of these preconditioner functions.
 
 The program \id{kinwebs.c} uses the ``small'' dense functions for all operations 
