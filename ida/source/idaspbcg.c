@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-12-08 19:32:40 $
+ * $Revision: 1.2 $
+ * $Date: 2005-03-21 17:24:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -165,7 +165,7 @@ int IDASpbcg(void *ida_mem, int maxl)
     return(IDASPBCG_ILL_INPUT);
   }
 
-  if (lfree != NULL) flag = lfree(ida_mem);
+  if (lfree != NULL) flag = lfree((IDAMem) ida_mem);
 
   /* Set five main function fields in ida_mem */
   linit  = IDASpbcgInit;

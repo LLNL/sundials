@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-11-23 18:48:22 $
+ * $Revision: 1.13 $
+ * $Date: 2005-03-21 17:28:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -169,7 +169,7 @@ int IDASpgmr(void *ida_mem, int maxl)
     return(IDASPGMR_ILL_INPUT);
   }
 
-  if (lfree != NULL) flag = lfree(ida_mem);
+  if (lfree != NULL) flag = lfree((IDAMem) ida_mem);
 
   /* Set five main function fields in ida_mem */
   linit  = IDASpgmrInit;

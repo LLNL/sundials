@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-11-24 23:03:44 $
+ * $Revision: 1.12 $
+ * $Date: 2005-03-21 17:27:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -135,7 +135,7 @@ int IDABand(void *ida_mem, long int Neq,
     return(IDABAND_ILL_INPUT);
   }
 
-  if (lfree != NULL) flag = lfree(ida_mem);
+  if (lfree != NULL) flag = lfree((IDAMem) ida_mem);
 
   /* Set five main function fields in ida_mem. */
   linit  = IDABandInit;
@@ -488,7 +488,7 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
 
   /* jac_data points to IDA_mem */
   IDA_mem = (IDAMem) jac_data;
-  idaband_mem = lmem;
+  idaband_mem = (IDABandMem) lmem;
 
   rtemp = tmp1; /* Rename work vector for use as the perturbed residual. */
 
