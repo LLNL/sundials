@@ -1,0 +1,6 @@
+List of parallel CVODE FCMIX examples
+
+  pvdiagnf  : Diagonal ODE example. Non-stiff case (ADAMS/FUNCTIONAL)
+  pvdiagkf  : Diagonal ODE example. Stiff case (BDF/SPGMR)
+  pvdiagkbf : Diagonal ODE example. Stiff case (BDF/SPGMR with 
+              FCVBBD preconditioner)

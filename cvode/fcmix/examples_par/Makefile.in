@@ -1,0 +1,56 @@
+# File Makefile
+#--------------------------------------------------------------------------
+# Makefile for the FCVODE examples using the parallel N_Vector implementation.
+# @configure_input@
+#--------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# SUNDIALS library directory
+SUNDIALSLIBDIRS = -L${libdir}
+SUNDIALSLIBS    = -lfcvode -lcvode -lfnvecparallel -lnvecparallel -lshared
+
+# MPI library and include directories
+MPILIBDIRS = @MPILIBDIRS@
+MPILIBS    = @MPILIBS@
+MPIFLAGS   = @MPIFLAGS@
+
+# Libraries
+LIBDIRS = ${SUNDIALSLIBDIRS} ${MPILIBDIRS}
+LIBS    = ${SUNDIALSLIBS} ${MPILIBS} -lm
+
+# Compiler and compiler options
+FC     = @MPIF77@
+FFLAGS = @FFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: pvdiagnf pvdiagkf pvdiagkbf
+
+pvdiagnf: pvdiagnf.o
+	${FC} ${FFLAGS} ${MPIFLAGS} -o pvdiagnf pvdiagnf.o ${LIBDIRS} ${LIBS}
+
+pvdiagkf: pvdiagkf.o
+	${FC} ${FFLAGS} ${MPIFLAGS} -o pvdiagkf pvdiagkf.o ${LIBDIRS} ${LIBS}
+
+pvdiagkbf: pvdiagkbf.o
+	${FC} ${FFLAGS} ${MPIFLAGS} -o pvdiagkbf pvdiagkbf.o ${LIBDIRS} ${LIBS}
+
+
+clean:
+	rm -f *.o
+	rm -f pvdiagnf pvdiagkf pvdiagkbf
+
+.f.o:
+	${FC} -c ${FFLAGS} $*.f
+
+#---End of Makefile---
