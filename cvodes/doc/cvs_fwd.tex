@@ -369,33 +369,16 @@ all sensitivities in the \id{STAGGERED1} case).
 \id{NETFS} &
 Number of error test failures for sensitivity variables.
 \\ \hline
+\id{NSETUPSS} &
+Number of calls to the linear solver's setup routine made during
+the nonlinear solver phase in the \id{STAGGERED} or \id{STAGGERED1} case.
+\\ \hline
+%
 %
 \end{tabular}
 \end{table}
 
 %------------------------
-\subsubsection{Additional Diagnostics Extraction Routine}\label{sss:more_diagnostics}
-
-In the \Id{STAGGERED1} approach, the correction and error test phases are done sequentially
-for each sensitivity parameter. In this case, {\cvodes} collects additional information 
-regarding the performance of the nonlinear solvers for the each individual sensitivity 
-system, in particular the number of nonlinear iterations and nonlinear 
-solver convergence failures for each sensitivity system.
-Upon return from \id{CVode}, the user can obtain this information 
-with a call to the function \ID{CVodeMemExtract}. 
-
-The call to \id{CVodeMemExtract} has the following form:
-\begin{verbatim}
-ier = CVodememExtract(cvode_mem, n_niS1, n_cfnS1);
-\end{verbatim}
-The vectors \id{n\_niS1} and \id{n\_cfnS1}, each of length \id{Ns} and type
-\id{long int *} must be allocated by the user if the corresponding information
-is desired. Upon a successful return, the return value is \Id{OKAY}, and
-\id{n\_niS1}, if non-\id{NULL}, contains the nonlinear iteration counts,
-while \id{n\_cfnS1}, if non-\id{NULL}, contains the nonlinear solver convergence failure counts.
-If \id{cvode\_mem} is \id{NULL}, \id{CVodememExtract} returns \Id{MEXT\_NO\_MEM}.
-
-%------------------------------
 \subsubsection{Interpolated Sensitivity Output Routines}
 \index{interpolated output}
 
@@ -471,6 +454,43 @@ if \id{atolS = NULL} is passed to \id{CVodeSensReInit}, in which case {\cvodes}
 must allocate and set its own internal absolute tolerances for the sensitivity
 varaiables, or if \id{ism = STAGGERED1}, in which case some internal counter
 arrays of length \id{Ns} are allocated by \id{CVodeSensReInit}.
+
+\subsubsection{Additional Extraction Routines}\label{sss:more_extraction}
+\index{access to additional data}
+
+For user-provided sensitivity right-hand side routines based on finite
+differences, additional quantities already available to {\cvodes} may
+be of interest. The machine unit roundoff and the vector of error weights
+for states can be accessed as described in \S\ref{sss:cvodegetewt}.
+The vectors of error weights for sensitivity variables can be extracted
+with a call to the function
+\begin{verbatim}
+ier = CVodeGetEwtS(cvode_mem, weightS);
+\end{verbatim}
+where \id{cvode\_mem} is the pointer to the {\cvodes} memory returned by 
+{\tt CVodeMalloc} and \id{weightS} is of type \id{N\_Vector *}. 
+The user need not allocate space \id{weightS}. The possible return
+values for \id{ier} are \Id{OKAY} on successful return or \Id{GEWT\_NO\_MEM}
+if \id{cvode\_mem} was \id{NULL}.
+
+In the \Id{STAGGERED1} approach, the correction and error test phases are done sequentially
+for each sensitivity parameter. In this case, {\cvodes} collects additional information 
+regarding the performance of the nonlinear solvers for the each individual sensitivity 
+system, in particular the number of nonlinear iterations and nonlinear 
+solver convergence failures for each sensitivity system.
+Upon return from \id{CVode}, the user can obtain this information 
+with a call to the function \ID{CVodeMemExtract}. 
+
+The call to \id{CVodeMemExtract} has the following form:
+\begin{verbatim}
+ier = CVodememExtract(cvode_mem, n_niS1, n_cfnS1);
+\end{verbatim}
+The vectors \id{n\_niS1} and \id{n\_cfnS1}, each of length \id{Ns} and type
+\id{long int *} must be allocated by the user if the corresponding information
+is desired. Upon a successful return, the return value is \Id{OKAY}, and
+\id{n\_niS1}, if non-\id{NULL}, contains the nonlinear iteration counts,
+while \id{n\_cfnS1}, if non-\id{NULL}, contains the nonlinear solver convergence failure counts.
+If \id{cvode\_mem} is \id{NULL}, \id{CVodememExtract} returns \Id{MEXT\_NO\_MEM}.
 
 %-------------------------------------------------------------------
 \subsection{User-Supplied Routines for Forward Sensitivity Analysis}\label{ss:user_fct_fwd}
@@ -566,19 +586,69 @@ typedef void (*SensRhs1Fn)(integertype Ns, realtype t,
 %
 \end{itemize}
 
-For user-provided sensitivity right-hand side routines based on finite
-differences, additional quantities already available to {\cvodes} may
-be of interest, such as the machine roundoff \id{uround} and error
-weights for states and sensitivities. The value \id{uround} used 
-internally by {\cvodes} can be obtained by calling the routine
-\Id{UnitRoundoff}() defined in \id{sundialsmath.c}. Error weight vectors
-can be obtained through the functions:
-\begin{verbatim}
-     CVodeGetEwt(cvode_mem, weight);
-     CVodeGetEwtS(cvode_mem, weightS);
-\end{verbatim}
-where \id{cvode\_mem} is the pointer to the {\cvodes} memory returned by 
-{\tt CVodeMalloc}, \id{weight} is of type \id{N\_Vector} and \id{weightS}
-is of type \id{N\_Vector *}. Note that the user need not allocate space 
-for either \id{weight} or \id{weightS} in \Id{CvodeGetEwt} and 
-\Id{CVodeGetEwtS}, respectivley.
+%-------------------------------------------------------------------
+\subsection{Note on Using \id{PARTIAL} Error Control}\label{ss:partial}
+%-------------------------------------------------------------------
+\index{partial error control!explanation of {\cvodes} behavior}
+For some problems, when sensitivities are excluded from the error control test, 
+the behavior of {\cvodes} may appear at first glance erroneous. One would
+expect that, in such cases, the sensitivity variables will not influence in
+any way the step size selection. A comparison of the solver diagnostics 
+reported for the \id{cvdx} example in \S\ref{ss:serial_sim_ex} and the
+second run of the \id{cvfdx} example in \S\ref{ss:serial_fwd_ex} indicates 
+that this may not always be the case.
+
+The short explanation of this behavior is that the step size selection
+implemented by the error control mechanism in {\cvodes} is based on the 
+magnitude of the correction calculated by the nonlinear solver. As mentioned
+in \S\ref{sss:cvodesensmalloc}, even with partial error control selected
+in the call to \id{CVodeSensMalloc}, the sensitivity variables are included
+in the convergence tests of the nonlinear solver.
+
+When using the simultaneous corrector method (\S\ref{ss:fwd_sensi}) 
+the nonlinear system that is solved at each step involves both the states
+and sensitivity equations. In this case, it is easy to see how the sensitivity 
+variables may affect the convergence rate of the nonlinear solver and therefore
+the step size selection. 
+The case of the staggered corrector approach is more subtle. 
+After all, in this case (\id{ism=STAGGERED} or \id{ism=STAGGERED1} in the call 
+to \id{CVodeSensMalloc}), the sensitivity variables at a given step are 
+computed only once the solver for the nonlinear state equations has converged.
+However, if the nonlinear system corresponding to the sensitivity equations
+has convergence problems, {\cvodes} will attempt to improve the initial guess
+by reducing the step size in order to provide a better prediction of the
+sensitivity variables. Moreover, even if there are no convergence failures in
+the solution of the sensitivity system, {\cvodes} may trigger a call to the
+linear solver's setup routine which typically involves re-evaluation of Jacobian
+information (Jacobian approximation in the case of {\cvdense} and {\cvband} or
+preconditioner data in the case of {\cvspgmr}). The new Jacobian information
+will be used by subsequent calls to the nonlinear solver for the state equations
+and, in this way, potentially affect the step size selection.
+
+When using the simultaneous corrector method it is not possible to decide whether 
+nonlinear solver convergence failures or calls to the linear solver setup routine
+have been triggered by convergence problems due to the state or the sensitivity 
+equations.
+When using one of the staggered corrector methods however, these situations can be 
+identified by carefully monitoring the diagnostic information provided through 
+the vector of optional outputs \id{iopt}. If there are no convergence
+failures in the sensitivity nonlinear solver (\id{iopt[NCFNS]=0}) and none
+of the calls to the linear solver setup routine were made by the sensitivity
+nonlinear solver (\id{iopt[NSETUPSS]=0}) then the step size selection is
+not affected by the sensitivity variables.
+
+Finally, the user must be warned that the effect of appending sensitivity 
+equations to a given system of ODEs on the step size selection 
+(through the mechanisms described above) is problem-dependent and can therefore
+lead to either an increase or decrease of the total number of steps that {\cvodes} takes
+to complete the simulation. At first glance, one would expect that the impact
+of the sensitivity variables, if any, will be in the direction of increasing the
+step size and therefore reducing the total number of steps. The argument for this
+is that the presence of the sensitivity variables in the convergence test of the
+nonlinear solver can only lead to additional iterations (and therefore a smaller
+final correction) or to additional calls to the linear solver setup routine
+(and therefore more up-to-date Jacobain information), both of which will lead
+to larger steps being taken by {\cvodes}. However, this is true only locally.
+Overall, a larger integration step taken at a given time may lead to 
+step size reductions at later times (due to either nonlinear solver convergence
+failures or error test failures).
