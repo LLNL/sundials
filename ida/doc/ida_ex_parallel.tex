@@ -7,24 +7,53 @@
 As an example of using {\ida} with the parallel MPI {\nvecp} module and the Krylov 
 linear solver {\idaspgmr} with user-defined preconditioner, we provide the example
 \id{iheatpk} which solves the same 2-D heat PDE problem as \id{iheatsk}. 
+The source is listed in Appendix \ref{s:iheatpk_c}.
+
+In the parallel setting, we can think of the processors as being laid out
+in a grid of size \id{NPEX} $\times$ \id{NPEY}, with each processor computing
+a subset of the solution vector on a submesh of size \id{MXSUB} $\times$
+\id{MYSUB}.  As a consequence, the computation of the residual
+vector requires that each processor exchange boundary information
+(namely the components at all interior subgrid boundaries) with its
+neighboring processors.  The message-passing (implemented in the
+function \id{rescomm}) uses blocking sends, non-blocking receives, and
+receive-waiting, in routines \id{BSend}, \id{BRecvPost}, and
+\id{BRecvWait}, respectively.  The data received from each neighboring
+processor is then loaded into a work array, \id{uext}, which contains
+this ghost cell data along with the local portion of the solution.
+
+The local portion of the residual vector is then computed in the
+routine \id{reslocal}, which assumes that all inter-processor
+communication of data needed to calculate \id{rr} has already been
+done.  Components at interior subgrid boundaries are assumed to be in
+the work array \id{uext}.  The local portion of the solution vector
+\id{uu} is first copied into \id{uext}.  The diffusion terms are
+evaluated in terms of the \id{uext} array, and the residuals are
+formed.  The zero Dirichlet boundary conditions are handled here by
+including the boundary components in the residual, giving algebraic
+equations for the discrete boundary conditions.
 
 The preconditioner (\id{PsolveHeat} and \id{PsetupHeat}) uses the diagonal 
-elements of the Jacobian only and therefore involves only local calculations. 
-The residual is formed on submeshes with an \id{MXSUB} $\times$ \id{MYSUB} mesh 
-on each of the \id{NPEX} $\times$ \id{NPEY} processors. 
-The MPI communication (implemented in \id{rescomm}) is basically the same
-as for the \id{iwebbbd} example described above and uses the \id{uext} array
-to collect ghost cell data from neighboring processes.
+elements of the Jacobian only and therefore involves only local calculations.
 
-As in \id{iheatsk}, constraints are passed to {\ida} through
-the \id{N\_Vector} \id{constraints} and the function \id{IDASetConstraints}.
-All components of \id{constraints} are set to $1.0$ indicating that non-negativity
-constraints are to be imposed on each solutin component.
-In addition, for illustration purposes, \id{iheatsk} also excludes the algebraic 
-components of the solution (specified through the \id{N\_Vector} \id{id}) from the 
-error test by calling \id{IDASetsuppressAlg} with a flag \id{TRUE}.
+The \id{iheatpk} main program begins with MPI calls to initialize MPI and to
+set multi-processor environment parameters \id{npes} (number of processes) and
+\id{thispe} (local process index).  Then the local and global vector lengths
+are set, the user-data structure \id{Userdata} is created and initialized, and
+\id{N\_Vector} variables are created and initialized for the initial conditions
+(\id{uu} and \id{up}), for the vector \id{id} specifying the differential 
+and algebraic components of the solution vector, and for the preconditioner
+(\id{pp}).  As in \id{iheatsk}, constraints are passed to {\ida} through the
+\id{N\_Vector} \id{constraints} and the function \id{IDASetConstraints}.  
+A temporary \id{N\_Vector} \id{res} is also created here, for use only in
+\id{SetInitialProfiles}.
+All components of \id{constraints} are set to $1.0$ indicating that
+non-negativity constraints are to be imposed on each solution component.  
+In addition, for illustration purposes, \id{iheatsk} also excludes the
+algebraic components of the solution (specified through the \id{N\_Vector}
+\id{id}) from the error test by calling \id{IDASetSuppressAlg} with a
+flag \id{TRUE}.
 
-The source is listed in Appendix \ref{s:iheatpk_c}.
 Sample output from \id{iheatpk} follows.
 %%
 \includeOutput{iheatpk}{../examples_par/iheatpk.out}
@@ -37,61 +66,40 @@ Sample output from \id{iheatpk} follows.
 In this example, \id{iwebbbd}, we solve the same food web problem as with
 \id{iwebsb}, but in parallel and with the {\idaspgmr} linear solver and
 using the {\idabbdpre} module, which generates and uses a band-block-diagonal 
-preconditioner.  
-The half-bandwidths of the Jacobian block on each processor are both equal to
-$\id{NUM\_SPECIES}\cdot\id{MXSUB}$, and that is the value supplied as \id{mudq} and \id{mldq}
-in the call to \id{IDABBDPrecAlloc}.  But in order to reduce storage and computation
-costs for preconditioning, we supply the values \id{mukeep} = \id{mlkeep} = 2
-(= \id{NUM\_SPECIES}) as the half-bandwidths of the retained band matrix blocks.
-This means that the Jacobian elements are computed with a difference quotient
-scheme using the true bandwidth of the block, but only a narrow band matrix
-(bandwidth 5) is kept as the preconditioner.  The source is listed in
-Appendix \ref{s:iwebbbd_c}. 
+preconditioner.  The source is listed in Appendix \ref{s:iwebbbd_c}.
 
-In the parallel setting, we can think of the processors as being laid out
-in a grid \id{NPEX} $\times$ \id{NPEY}, with each processor computing its
-contiguous subset of the solution vector. As a consequence, the computation 
-of the residual vector requires that each processor exchange boundary information
-(namely the components at all interior subgrid boundaries) with its neighboring processors.
-The message-passing (implemented in the function \id{rescomm}) uses blocking sends, 
-non-blocking receives, and receive-waiting, in routines \id{BSend}, \id{BRecvPost},
-and \id{BRecvWait}, respectively.
-%%
-The data received from each neighboring processor is then loaded into a work array,
-\id{cext}, which contains this ghost cell data and the local portion of the solution.
-
-The local portion of the residual vector is then computed in \id{reslocal} which
-assumes that all inter-processor communication of data
-needed to calculate \id{rr} has already been done.  Components at interior
-subgrid boundaries are assumed to be in the work array \id{cext}.
-The local portion of the solution vector \id{cc} is first copied into \id{cext}.
+As with \id{iheatpk}, we use a \id{NPEX} $\times$ \id{NPEY} processor grid,
+with an \id{MXSUB} $\times$ \id{MYSUB} submesh on each.  Again, the residual
+evaluation begins with the communication of ghost data (in \id{rescomm}),
+followed by computation using an extended local array, \id{cext}, in the
+\id{reslocal} routine.
 The exterior Neumann boundary conditions are explicitly handled here
 by copying data from the first interior mesh line to the ghost cell
 locations in \id{cext}.  Then the reaction and diffusion terms are
 evaluated in terms of the \id{cext} array, and the residuals are formed.
-The reaction terms are saved separately in the vector \id{rates} in the user-data
-structure \id{webdata} for use by the preconditioner setup routine. 
+
+The Jacobian block on each processor is banded, and the half-bandwidths of
+that block are both equal to $\id{NUM\_SPECIES}\cdot\id{MXSUB}$.
+That is the value supplied as \id{mudq} and \id{mldq} in the call to
+\id{IDABBDPrecAlloc}.  But in order to reduce storage and computation costs for
+preconditioning, we supply the values \id{mukeep} = \id{mlkeep} = 2
+(= \id{NUM\_SPECIES}) as the half-bandwidths of the retained band matrix blocks.
+This means that the Jacobian elements are computed with a difference quotient
+scheme using the true bandwidth of the block, but only a narrow band
+matrix (bandwidth 5) is kept as the preconditioner.
 
 The function \id{reslocal} is also passed to the {\idabbdpre} preconditioner
 as the \id{Gres} argument, while a \id{NULL} pointer is passed for the \id{Gcomm}
 argument (since all required communication for the evaluation of \id{Gres} was
 already done for \id{resweb}).
 
-The main program begins with MPI calls to initialize MPI and to set
-multi-processor environment parameters \id{npes} (number of processes) and
-\id{thispe} (local process index).  Then the local and global vector lengths
-are set, the user-data structure \id{webdata} is created and initialized, and
-\id{N\_Vector} variables are created and initialized for the initial conditions
-(\id{cc} and \id{cp}) and for the vector \id{id} specifying the differential 
-and algebraic components of the solution vector. The \id{id} vector is used
-in \id{IDACalcIC} which corrects the initial values so that they are
-consistent with the DAE algebraic constraints.
-A temporary \id{N\_Vector} \id{res} is also created here and destroyed after
-its use in \id{SetInitialProfiles}.
-
-The main program continues by creating and allocating the {\ida} memory
-block, initializing the {\idabbdpre} preconditioner, and attaching the
-{\idaspgmr} linear solver to the {\ida} solver.
+In the \id{iwebbbd} main program, following MPI initializations and
+creation of user data block \id{webdata} and \id{N\_Vector} variables,
+the initial profiles are set, the {\ida} memory block is created and
+allocated, and the {\idabbdpre} preconditioner is initialized, and the
+{\idaspgmr} linear solver is attached to the {\ida} solver.
+The call to \id{IDACalcIC} corrects the initial values so that they are
+consistent with the DAE algebraic constraints.  
 
 In a loop over the desired output times, the main solver function \id{IDASolve}
 is called, and selected solution components (at the bottom-left and top-right
