@@ -3022,8 +3022,15 @@ apply to {\nvecp}.
   \id{IER} is an integer completion flag and will have one of the following values:
   $0$ to indicate success,
   $1$ to indicate that the initial guess satisfies $F(u) = 0$ within tolerances,
-  $2$ to indicate apparent stalling (small step), or
-  a negative value to indicate an error or failure.
+  $2$ to indicate apparent stalling (small step), or a negative value to indicate
+  an error or failure.  The possible negative return values and the
+  corresponding \id{KINSol} return values (see \S\ref{ss:kinsol}) are:
+  -1: \id{KIN\_MEM\_NULL}, -2: \id{KIN\_ILL\_INPUT}, -3: \id{KIN\_NO\_MALLOC},
+  -4: \id{KIN\_MEM\_FAIL}, -5: \id{KIN\_LINESEARCH\_NONCONV},
+  -6: \id{KIN\_MAXITER\_REACHED}, -7: \id{KIN\_MXNEWT\_5X\_EXCEEDED},
+  -8: \id{KIN\_LINESEARCH\_BCFAIL}, -9: \id{KIN\_LINSOLV\_NO\_RECOVERY},
+  -10: \id{KIN\_LINIT\_FAIL}, -11: \id{KIN\_LSETUP\_FAIL},
+  -12: \id{KIN\_LSOLVE\_FAIL}, and -13: \id{KIN\_PDATA\_NULL}.
   
   The current values of the optional outputs are available in \id{IOPT} and
   \id{ROPT} (see Table~\ref{t:fkinsol_io}).
