@@ -1,43 +1,34 @@
 %===================================================================================
-\chapter{Using {\cvodes} for IVP Solution}\label{c:simulation}
+\chapter{Using {\kinsol}}\label{c:usage}
 %===================================================================================
 
-This section is concerned with the use of {\cvodes} for the integration of IVPs.
+This section is concerned with the use of {\kinsol} for the solution of nonlinear systems.
 The following subsections treat the header files, the layout of the user's main
-program, description of the {\cvodes} user-callable routines, and user-supplied functions 
-or routines. 
-The listings of the sample programs in the companion document \cite{} may also be helpful. 
-Those codes are intended to serve as templates and are included in the {\cvodes} package.
-
-The user should be aware that not all linear solver modules are compatible 
-with all {\nvector} implementations. 
-\index{CVODES@{\cvodes} linear solvers!NVECTOR@{\nvector} compatibility}
-For example, {\nvecp} is not compatible with the direct dense or direct band 
-linear solvers since these linear solver modules need to form the system Jacobian.
-The following {\cvodes} modules can only be used with {\nvecs}:
-{\cvdense}, {\cvband}, and {\cvbandpre}. The preconditioner module {\cvbbdpre}
-can only be used with {\nvecp}. 
+program, description of the {\kinsol} user-callable routines, and user-supplied functions.
+The listings of the sample programs in the companion document \cite{kin2.2.0_ex} may also 
+be helpful. Those codes are intended to serve as templates and are included in the 
+{\kinsol} package.
 
 %------------------------
-\section{Header Files}\label{s:header_sim}
+\section{Header Files}\label{s:headers_sol}
 %------------------------
 
 The calling program must include several header files so that various macros
 and data types can be used. The header file that is always required is:
 %
 \begin{itemize}
-\item  \Id{cvodes.h}, 
-  the header file for {\cvodes}, which defines the several
+\item  \Id{kinsol.h}, 
+  the header file for {\kinsol}, which defines the several
   types and various constants, and includes function prototypes.
 \end{itemize}
 %
-Note that \id{cvodes.h} also includes \Id{sundialstypes.h}, 
-which defines the types \id{realtype, integertype, booleantype}
+Note that \id{kinsol.h} also includes \Id{sundialstypes.h}, 
+which defines the types \id{realtype}, and \id{ booleantype}
 and constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file
 (see \S\ref{s:nvector} for details).
-For the two {\nvector} implementations that are included in the {\cvodes} package,
+For the two {\nvector} implementations that are included in the {\kinsol} package,
 the corresponding header files are:
 %
 \begin{itemize}
@@ -48,52 +39,39 @@ the corresponding header files are:
 \end{itemize}
 %
 Note that both these files include in turn the header file \Id{nvector.h} which 
-defines the abstract \Id{N\_Vector} and \Id{M\_Env} types. 
+defines the abstract \Id{N\_Vector} type. 
 
-Finally, if the user chooses Newton iteration for the solution of the nonlinear systems,
-then a linear solver module header file will be required. 
-\index{CVODES@{\cvodes} linear solvers!header files}
-The header files corresponding to the various linear solver options in {\cvodes} are:
-%
-\begin{itemize}
-\item \Id{cvsdense.h}, 
-  which is used with the dense direct linear solver in 
-  the context of {\cvodes}. This in turn includes a header file (\id{dense.h})
-  which defines the \Id{DenseMat} type and corresponding accessor macros; 
-\item \Id{cvsband.h}, 
-  which is used with the band direct linear solver in the
-  context of {\cvodes}. This in turn includes a header file (\id{band.h})
-  which defines the \Id{BandMat} type and corrsponding accessor macros;
-\item \Id{cvsdiag.h}, which is used with a diagonal linear solver in the
-  context of {\cvodes};
-\item \Id{cvsspgmr.h}, 
-  which is used with the Krylov solver {\spgmr} in the
-  context of {\cvodes}. This in turn includes a header file (\id{iterative.h})
-  which enumerates the kind of preconditioning and the choices for the
-  Gram-Schmidt process.
-\end{itemize}
+Finally, a linear solver module header file is required. 
+\index{KINSOL@{\kinsol} linear solvers!header files}
+At the present time, {\kinsol} offers only a Krylov linear solver, {\kinspgmr},
+whose corrsponding header file is \Id{kinspgmr.h}, 
+This in turn includes a header file (\id{iterative.h})
+which enumerates the kind of preconditioning and the choices for the
+Gram-Schmidt process.
 
 Other headers may be needed, according as to the choice of
-preconditioner, etc. In one of the examples in \cite{}, preconditioning
-is done with a block-diagonal matrix. For this, the header
+preconditioner, etc. In the \id{kinwebs} example~\cite{kin2.20_ex}, 
+preconditioning is done with a block-diagonal matrix. For this, the header
 \id{smalldense.h} is included.
 
-
 %-------------------------------------------------
-\section{A Skeleton of the User's Main Program}\label{s:skeleton_sim}
+\section{A Skeleton of the User's Main Program}\label{s:skeleton_sol}
 %-------------------------------------------------
 
-A high-level view of the combined user program and {\cvodes} package is
+A high-level view of the combined user program and {\kinsol} package is
 shown in Figure~\ref{f:sim_overview}.
-%% \begin{figure}
-%% \centerline{\psfig{figure=cvssim.eps,width=\textwidth}}
-%% \caption {Diagram of the user program and 
-%%   {\cvodes} package for integration of IVP}\label{f:sim_overview}
-%% \end{figure}
+%%
+\begin{figure}
+\centerline{\psfig{figure=kinsim.eps,width=\textwidth}}
+\caption {Diagram of the user program and 
+  {\kinsol} package for the solution of nonlinear systems}\label{f:sim_overview}
+\end{figure}
+%%
 The following is a skeleton of the user's main program (or calling
-program) for the integration of an ODE IVP. Most steps are independent of the {\nvector}
-implementation used; where this is not the case, usage specifications are given for the
-two implementations provided with {\cvodes}: steps marked with {\p} correspond to 
+program) for the solution of a nonlinear problem. 
+Most steps are independent of the {\nvector} implementation used; 
+where this is not the case, usage specifications are given for the two implementations 
+provided with {\kinsol}: steps marked with {\p} correspond to 
 {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
 %
 \begin{Steps}
@@ -117,1535 +95,1849 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   and the active set of processors.
   
 \item
-  {\bf Initialize vector specification}
+  {\bf Set vector with intial guess}
+ 
+  To set the vector \id{y} of initial values, use functions defined by a
+  particular {\nvector} implementation.  If a \id{realtype} array  \id{ydata}
+  already exists, containing the initial guess of $y$, make the call:
 
-  {\s} \id{nvSpec = }\Id{NV\_SpecInit\_Serial}\id{(N);}
+  {\s} \id{y = NV\_Make\_Serial(N, ydata);}
 
-  {\p} \id{nvSpec = }\Id{NV\_SpecInit\_Parallel}\id{(comm, Nlocal, N, \&argc, \&argv);}
+  {\p} \id{y = NV\_Make\_Parallel(comm, Nlocal, N, ydata);}
+
+  Otherwise, make the call:
+
+  {\s} \id{y = NV\_New\_Serial(N);}
+
+  {\p} \id{y = NV\_New\_Parallel(comm, Nlocal, N);}
+
+  and load initial values into the structure defined by:
+
+  {\s} \id{NV\_DATA\_S(y)}
+
+  {\p} \id{NV\_DATA\_P(y)}
+
   Here \id{comm} is the MPI communicator, set in one of two ways: 
   If a proper subset of active processors is to be used, \id{comm} 
   must be set by suitable MPI calls. Otherwise, to specify that all 
   processors are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
   
-\item
-  {\bf Set intial values}
- 
-  To set the vector \id{y0} of initial values, use macros defined by a particular 
-  {\nvector} implementation:
+\item\label{i:kinsol_create} 
+  {\bf Create {\kinsol} object}
 
-  {\s} \id{NV\_MAKE\_S(y0, ydata, machEnv);}
-
-  {\p} \id{NV\_MAKE\_P(y0, ydata, machEnv);}
-
-  if an existing real array \id{ydata} contains the initial values of $y$.  
-  Otherwise, make the call \id{y0 = }\Id{N\_VNew}\id{(machEnv);} and load 
-  initial values into the real array defined by:
-
-  {\s} \id{NV\_DATA\_S(y0)}
-
-  {\p} \id{NV\_DATA\_P(y0)}
-  
-\item\label{i:cvode_create} 
-  {\bf Create {\cvodes} object}
-
-  Call \id{cvode\_mem = }\id{CVodeCreate}\id{(...);} 
-  to create the {\cvodes} memory block and specify the solution method
-  (linear multistep method and nonlinear solver iteration type).
-  \id{CVodeCreate} returns a pointer to the {\cvodes} memory structure.
+  Call \id{kin\_mem = KINCreate();} 
+  to create the {\kinsol} memory bloc.
+  \id{KINCreate} returns a pointer to the {\kinsol} memory structure.
 
 \item
   {\bf Set optional inputs}
 
-  Call \id{CVodeSet*} routines to change from their default values any
-  optional inputs that control the behavior of {\cvodes}.
+  Call \id{KINSet*} routines to change from their default values any
+  optional inputs that control the behavior of {\kinsol}.
 
-\item\label{i:cvode_malloc} 
+\item\label{i:kinsol_malloc} 
   {\bf Allocate internal memory}
 
-  Call \id{cvode\_mem = }\id{CVodeMalloc}\id{(...);} 
-  to provide required problem specifications,
-  allocate internal memory for {\cvodes}, 
-  and initialize {\cvodes}.
-  \id{CVodeMalloc} returns an error flag to indicate success or an illegal argument value.
-  
+  Call \id{KINMalloc(...);} 
+  to specify the problem defining function $F$,
+  allocate internal memory for {\kinsol}, 
+  and initialize {\kinsol}.
+  \id{KINMalloc} returns an error flag to indicate success or an illegal argument value
+  (for details see \S\ref{ss:kinmalloc}).
+
 \item\label{i:lin_solver} 
   {\bf Attach linear solver module}
 
-  If Newton iteration is chosen, initialize the linear solver module
-  with one of the following calls (for details see \S\ref{sss:lin_solv_init}):
+  Initialize the linear solver module by calling \id{KINSpgmr(...);}
+  to spcify the maximum dimensino of the Krylov subspace.
 
-  {\s} \id{ier = }\Id{CVDense}\id{(...);}
-
-  {\s} \id{ier = }\Id{CVBand}\id{(...);}
-
-  \id{ier = }\Id{CVDiag}\id{(...);}
-
-  \id{ier = }\Id{CVSpgmr}\id{(...);}
-  
 \item
   {\bf Set linear solver optional inputs}
 
-  Call \id{CV*Set*} routines from the selected linear solver module to
-  change optional inputs specific to that linear solver.
+  Call \id{KINSpgmrSet*} routines to change optional inputs  
+  for the {\kinspgmr} linear solver.
 
 \item
-  {\bf Advance solution in time}
+  {\bf Solve problem}
 
-  For each point at which output is desired, call
-  \id{ier = }\Id{CVode}\id{(cvode\_mem, tout, yout, \&tret, itask);}
-  Set \id{itask} to specify the return mode.
-  The vector \id{y} (which can be the same as
-  the vector \id{y0} above) will contain $y(t)$.
-  
+  Call \id{KINSol(...);} to solve the nonlinear problem for a given
+  initial guess (see \S\ref{sss:kinsol} for details).
+
+\item
+  {\bf Get optional outputs}
+
+  Call \id{KINGet*} functions to obtain optional output from {\kinsol}
+  and \id{KINSpgmrGet*} functinos for optional outputs from {\kinspgmr}.
+  See \S\ref{ss:optional_output}.
+
 \item
   {\bf Deallocate memory for solution vector}
 
-  Upon completion of the integration, deallocate memory for the vector \id{y}
-  by either calling a macro defined by the {\nvector} implementation:
+  Upon completion of the solution, deallocate memory for the vector \id{y}
+  by calling the destructor function defined by the {\nvector} implementation:
 
-  {\s} \id{NV\_DISPOSE\_S(y);}
+  {\s} \id{NV\_Destroy\_Serial(y);}
 
-  {\p} \id{NV\_DISPOSE\_P(y);}
-
-  if \id{y} was created from \id{ydata}, or by making the call 
-  \Id{N\_VFree}\id{(y);} if \id{y} was created by a call to \id{N\_VNew}.
+  {\p} \id{NV\_Destroy\_Parallel(y);}
   
 \item
   {\bf Free solver memory}
 
-  \Id{CVodeFree}\id{(cvode\_mem);} to free the memory allocated for {\cvodes}.
+  Call \id{KINFree(kin\_mem);} to free the memory allocated for {\kinsol}.
   
-\item
-  {\bf Free vector specification memory}
+\item 
+  {\bf {\p} Finalize MPI}
 
-  {\s} \Id{NV\_SpecFree\_Serial}\id{(nvSpec);}
-
-  {\p} \Id{NV\_SpecFree\_Parallel}\id{(nvSpec);}
+  Call \id{MPI\_Finalize();} to terminate MPI.
   
 \end{Steps}
 
-%-------------------------------------------------------
-\section{User-Callable Routines for IVP Solution}
-\label{s:cvodes_fct_sim}
-%-------------------------------------------------------
+%%==============================================================================
 
-\subsection{{\cvodes} Initialization Routines}\label{sss:cvodemalloc}
+\section{User-callable functions}\label{s:kinsol_fct_sol}
 
+This section describes the {\kinsol} functions that are called by the
+user to set up and solve a nonl;inear problem. Some of these are required. However,
+starting with \S\ref{ss:optional_input}, the functions listed involve
+optional inputs/outputs or restarting, and those paragraphs can be
+skipped for a casual use of {\kinsol}. In any case, refer to
+\S\ref{s:skeleton_sol} for the correct order of these calls.
+
+%%-------------------------------------------------------------------------------
+
+\subsection{{\kinsol} initialization and deallocation functions}\label{ss:kinmalloc}
+
+The following three functions must be called in the order listed. The last one
+is to be called only after the problem solution complete, as it frees the
+{\kinsol} memory block created and allocated by the first two calls.
 %%
-%% CVodeCreate
-%%
-
-\ucfunction{CVodeCreate}
+\ucfunction{KINCreate}
 {
-  cvode\_mem = CVodeCreate(lmm, iter);
+  kin\_mem = KINCreate();
 }
 {
-  Instantiates a {\cvodes} solver object and specifies the solution method.
+  The function \ID{KINCreate} instantiates a {\kinsol} solver object.
 }
 {
-  \begin{args}[iter]
-  \item[lmm] (\id{int})
-    specifies the linear multistep method and may be one of two
-    possible values: \Id{ADAMS} or \Id{BDF}.     
-  \item[iter] (\id{int})
-    specifies the type of nonlinear solver iteration and may be
-    either \Id{NEWTON} or \Id{FUNCTIONAL}. 
-  \end{args}
-  The typical choices for (\id{lmm}, \id{iter}) are
-  (\id{ADAMS}, \id{FUNCTIONAL}) for nonstiff problems and
-  (\id{BDF}, \id{NEWTON}) for stiff problems.
+  This function has no arguments.
 }
 {
-  If successful, \id{CVodeCreate} returns a pointer to the newly created 
-  {\cvodes} memory block.
-  If an error occured, \id{CVodeCreate} prints an error message \id{stdout}
+  If successful, \id{KINCreate} returns a pointer to the newly created 
+  {\kinsol} memory block (of type \id{void *}).
+  If an error occurred, \id{KINCreate} prints an error message to \id{stderr}
   and returns \id{NULL}.
 }
 {}
-
 %%
-%%  CVodeMalloc
 %%
-
-\ucfunction{CVodeMalloc}
+\ucfunction{KINMalloc}
 {
-  flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
+flag = KINMalloc(kin\_mem, f, tmpl);
 }
 {
-  Provide required problem specifications, allocate internal memory,
-  and initialize {\cvodes}.
+  The function \ID{KINMalloc} specifies the problem-defining
+  funciton, allocates internal memory, and initializes {\kinsol}.
 }
 {
-  \begin{args}[abstol]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[f] (\Id{RhsFn})
-    is the C function to compute $f$ in the ODE. \id{f} has the form 
-    \id{f(N, t, y, ydot, f\_data)} (for full details see \S\ref{ss:user_fct_sim}).
-  \item[t0] (\id{realtype})
-    is the initial value of $t$
-  \item[y0] (\id{N\_Vector})
-    is the initial value of $y$. 
-  \item[itol] (\id{int}) 
-    is either \Id{SS} or \Id{SV}, where \id{SS} indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{SV} indicates scalar
-    relative error tolerance and vector absolute error tolerance. 
-    The latter choice is important when the absolute error tolerance needs to
-    be different for each component of the ODE. 
-  \item[reltol] (\id{realtype *})
-    is a pointer to the relative error tolerance
-  \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance
-  \item[nvSpec] (\id{NV\_Spec})
-    is a pointer to the vector specification structure
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block returned by \id{KINCreate}.
+  \item[f] (\Id{KINSysFn})
+    is the {\C} function which computes $F$ in the nonlinear problem. 
+    This function has the form \id{f(y, fval, f\_data)} 
+    (for full details see \S\ref{ss:sysFn}).
+  \item[tmpl] (\id{N\_Vector})
+    is an \id{N\_Vector} which is used as a template to create (by cloning)
+    necessary vectors in \id{kin\_mem}.
   \end{args}
 }
 {
-  If successful, \id{CVodeMalloc} returns \id{SUCCESS}.
-  If an error occured, \id{CVodeMalloc} prints an error message to the
-  file specified by \id{errfp} and returns one of the error flags
-  defined below:
-  \begin{args}[\id{CVM\_ILL\_INPUT}]
-  \item[CVM\_NO\_MEM] 
-    The {\cvodes} memory block was not initialized through a previous call to \id{CVodecreate};
-  \item[CVM\_MEM\_FAIL] 
-    A memory allocation request has failed;
-  \item[CVM\_ILL\_INPUT] 
-    An input argument to \id{CVodeMalloc} has an illegal value.
+  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  \begin{args}[KIN\_ILL\_INPUT]
+  \item[\Id{KIN\_SUCCESS}]
+    The call to \id{KINMalloc} was successful.
+  \item[\Id{KIN\_MEM\_NULL}] 
+    The {kinsol} memory block was not initialized through a previous call
+    to \id{KINCreate}.
+  \item[\Id{KIN\_MEM\_FAIL}] 
+    A memory allocation request has failed.
+  \item[\Id{KIN\_ILL\_INPUT}] 
+    An input argument to \id{KINMalloc} has an illegal value.
   \end{args}
+}
+{
+  If an error occurred, \id{KINMalloc} also prints an error message to the
+  file specified by the optional input \id{errfp}.
+}
+%%
+%%
+\ucfunction{KINFree}
+{
+  KINFree(kin\_mem);
+}
+{
+  The function \ID{KINFree} frees the pointer allocated by
+  a previous call to \id{KINMalloc}.
+}
+{
+  The argument is the pointer to the {\kinsol} memory block (of type \id{void *}).
+}
+{
+  The function \id{KINFree} has no return value.
 }
 {}
+%%
 
-\subsection{Linear Solver Specification Routines}\label{ss:lin_solv_init}
+%%-------------------------------------------------------------------------------
+
+\subsection{Linear solver specification function}\label{ss:lin_solv_init}
 
 As previously explained, Newton iteration requires the solution of
-linear systems of the form (\ref{e:Newton}).  There are four {\cvodes} linear
-solvers currently available for this task: {\cvdense}, {\cvband}, {\cvdiag},
-and {\cvspgmr}.  The first three are direct solvers and derive their name
-from the type of approximation used for the Jacobian 
-$J = \partial{f}/\partial{y}$.  {\cvdense}, {\cvband}, and {\cvdiag} work with
-dense, banded, and diagonal approximations to $J$, respectively.  The
-fourth {\cvodes} linear solver, {\cvspgmr}, is an iterative solver.  The {\spgmr}
-in the name indicates that it uses a scaled preconditioned
+linear systems of the form (\ref{e:Newton}).  At the present time
+there is only one solver available for this task, {\kinspgmr}. 
+This is an iterative solver that uses a scaled preconditioned
 GMRES method.
 
-\index{CVODES@{\cvodes} linear solvers!selecting one|(} 
-To specify a {\cvodes} linear solver, after the call to \id{CVodeCreate}
-but before any calls to \id{CVode}, the user's program must call one
-of the functions \Id{CVDense}, \Id{CVBand}, \Id{CVDiag}, \Id{CVSpgmr},
-as documented below. The first argument passed to these functions is the {\cvodes}
-memory pointer returned by \id{CVodeCreate}.  A call to one of these
-functions links the main {\cvodes} integrator to a linear solver and
-allows the user to specify parameters which are specific to a
-particular solver, such as the bandwidths in the {\cvband} case.
+\index{KINSOL{\kinsol} linear solvers!selecting|(} 
+To attch the {\kinspgmr} linear solver, after the call to \id{KINCreate}
+but before any call to \id{KINSol}, the user's program must call  \Id{KINSpgmr},
+as documented below. The first argument passed to this function is the {\kinsol}
+memory pointer returned by \id{KINCreate}.  The call to this
+function links the linear solver to the main {\kinsol} memory block and
+allows the user to specify parameters for {\kinspgmr}
 %%
-The use of each of the linear solvers involves certain constants and possibly 
-some macros, that are likely to be needed in the user code.  These are
-available in the corresponding header file associated with the linear
-solver, as specified below.
-\index{CVODES@{\cvodes} linear solvers!selecting one|)}
 
-\index{CVODES@{\cvodes} linear solvers!built on generic solvers|(} 
-In each case except the diagonal approximation case {\cvdiag}, the linear
-solver module used by {\cvodes} is actually built on top of a generic
-linear system solver, which may be of interest in itself.  These
-generic solvers, denoted {\dense}, {\band}, and {\spgmr}, are described
-separately in \S\ref{s:gen_linsolv}.
-\index{CVODES@{\cvodes} linear solvers!built on generic solvers|)}
-%%
-%%
-%%
-\index{CVODES@{\cvodes} linear solvers!CVDENSE@{\cvdense}}
-\ucfunction{CVDense}
-{flag = CVDense(cvode\_mem, N);}
-{
-  \index{CVDENSE@{\cvdense} linear solver!selection of}
-  The function \ID{CVDense} selects the {\cvdense} linear solver. 
+\index{KINSOL@{\kinsol} linear solvers!built on generic solvers} 
+The {\kinspgmr} linear solver is actually built on top of a generic
+linear system solver, which may be of interest in itself.  This
+generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
 
-  The user's main function must include the \id{cvsdense.h} header file.
+\index{KINSOL@{\kinsol} linear solvers!KINSPGMR@{\kinspgmr}}
+\ucfunction{KINSpgmr}
+{
+  flag = KINSpgmr(kin\_mem, maxl);
 }
 {
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[N] (\id{integertype})
-    problem dimension.
-  \end{args}
+  \index{KINSPGMR@{\kinspgmr} linear solver!selection of} 
+  The function \ID{KINSpgmr} selects the {\kinspgmr} linear solver. 
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the {\cvdense} initialization was successful.
-  \item[LIN\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[LIN\_ILL\_INPUT]
-    the {\cvdense} solver is not compatible with the current {\nvector} module.
-  \item[LMEM\_FAIL]
-    a memory allocation request failed.
-  \end{args}
-}
-{
-  \index{CVDENSE@{\cvdense} linear solver!NVECTOR@{\nvector} compatibility}
-  The {\cvdense} linear solver may not be compatible with a particular
-  implementation of the {\nvector} module. Of the two {\nvector} modules 
-  provided by {\sundials}, only {\nvecs} is compatible, while {\nvecp} is not.
-}
-%%
-%%
-%%
-\index{CVODES@{\cvodes} linear solvers!CVBAND@{\cvband}}
-\ucfunction{CVBand}
-{flag = CVBand(cvode\_mem, N, mupper, mlower);}
-{
-  \index{CVBAND@{\cvband} linear solver!selection of}
-  The function \ID{CVBand} selects the {\cvband} linear solver. 
-
-  The user's main function must include the \id{cvsband.h} header file.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[N] (\id{integertype})
-    problem dimension.
-  \item[mupper] (\id{integertype})
-    upper half-bandwidth of the problem Jacobian ((or of the approximation of it).
-  \item[mlower] (\id{integertype})
-    lower half-bandwidth of the problem Jacobian ((or of the approximation of it).
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the {\cvband} initialization was successful.
-  \item[LIN\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[LIN\_ILL\_INPUT]
-    the {\cvband} solver is not compatible with the current {\nvector} module, or
-    one of the Jacobian half-bandwidths is outside its valid range ($0 \ldots$ \id{N}).
-  \item[LMEM\_FAIL]
-    a memory allocation request failed.
-  \end{args}
-}
-{
-  \index{CVBAND@{\cvband} linear solver!NVECTOR@{\nvector} compatibility}
-  The {\cvband} linear solver may not be compatible with a particular
-  implementation of the {\nvector} module. Of the two {\nvector} modules 
-  provided by {\sundials}, only {\nvecs} is compatible, while {\nvecp} is not.
-}
-%%
-%%
-%%
-\index{CVODES@{\cvodes} linear solvers!CVDIAG@{\cvdiag}}
-\ucfunction{CVDiag}
-{
-  flag = CVDiag(cvode\_mem);
-}
-{
-  \index{CVDIAG@{\cvdiag} linear solver!selection of}
-  The function \ID{CVDiag} selects the {\cvdiag} linear solver. 
-
-  The user's main function must include the \id{cvsdiag.h} header file.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LMEM\_FAIL]
-  \item[SUCCESS]
-    the {\cvdiag} initialization was successful.
-  \item[LIN\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[LMEM\_FAIL]
-    a memory allocation request failed.
-  \end{args}
-}
-{
-  The {\cvdiag} solver is the simplest of all the current {\cvodes} linear
-  solvers. The \index{CVDIAG@{\cvdiag} linear solver!Jacobian approximation used by}
-  {\cvdiag} solver uses an approximate diagonal Jacobian formed by way of a difference 
-  quotient. The user does {\em not} have the option to supply a routine to compute
-  an approximate diagonal Jacobian.
-}
-%%
-%%
-%%
-\index{CVODES@{\cvodes} linear solvers!CVSPGMR@{\cvspgmr}}
-\ucfunction{CVSpgmr}
-{
-  flag = CVSpgmr(cvode\_mem, pretype, maxl);
-}
-{
-  \index{CVSPGMR@{\cvspgmr} linear solver!selection of} 
-  The function \ID{CVSpgmr} selects the {\cvspgmr} linear solver. 
-
-  The user's main function must include the \id{cvsspgmr.h} header file.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[pretype] (\id{int})
-    preconditioning type. Can be one of: \Id{NONE}, \Id{LEFT}, \Id{RIGHT}, or \Id{BOTH}.
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
   \item[maxl] (\id{int})
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{CVSPGMR\_MAXL}$=5$.
+    default value \id{KINSPGMR\_MAXL}$=5$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the {\cvspgmr} initialization was successful.
-  \item[LIN\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[LIN\_ILL\_INPUT]
-    the preconditioner type \id{pretype} is not valid.
-  \item[LMEM\_FAIL]
-    a memory allocation request failed.
+  \begin{args}[KINSPGMR\_ILL\_INPUT]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The {\kinspgmr} initialization was successful.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_ILL\_INPUT}]
+    The {\nvector} module used does not implement a required operation.
+  \item[\Id{KINSPGMR\_MEM\_FAIL}]
+    A memory allocation request failed.
   \end{args}
 }
 {
-  The {\cvspgmr} solver uses a scaled preconditioned GMRES\index{GMRES method}
-  iterative method to solve the linear system (\ref{e:Newton}).\\
-  \index{preconditioning!advice on|(}With this {\spgmr} method, preconditioning 
-  can be done on the left only, on the right only, on both the left and the right, 
-  or not at all.  For a given preconditioner matrix, the merits of left vs. right
-  preconditioning are unclear in general, and the user should experiment
-  with both choices.  Performance will differ because the inverse of the
-  left preconditioner is included in the linear system residual whose
-  norm is being tested in the {\spgmr} algorithm.  As a rule, however, if
-  the preconditioner is the product of two matrices, we recommend that
-  preconditioning be done either on the left only or the right only,
-  rather than using one factor on each side.
-  \index{preconditioning!advice on|)}
+  The {\kinspgmr} solver uses a scaled preconditioned GMRES\index{GMRES method}
+  iterative method to solve the linear system (\ref{e:Newton}).
+
+  Within {\kinsol}, preconditioning can be done on the right only.
+  For specification of preconditioner,
+  see \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
+
+  If preconditioning is done, user-supplied functions define the right 
+  preconditioner matrices $P$ which approximates the Newton matrix
+  of (\ref{e:Newton}).
 }
 
 %--------------------------------------------------------------------
-\subsection{{\cvodes} Solver Routine}\label{sss:cvode}
+\subsection{{\kinsol} solver function}\label{ss:kinsol}
 
-\ucfunction{CVode}
+\ucfunction{KINSol}
 {
-  flag = CVode(cvode\_mem, tout, y, t, itask);
+  flag = KINSol(kin\_mem, y, strategy, y\_scale, f\_scale);
 }
 {
-  The function \ID{CVode} advances the solution ...
+  The function \ID{KINSol} computes an approximate solution of the nonlinear
+  system.
 }
 {
-In addition to the {\cvodes} memory pointer \id{cvode\_mem}, it specifies only two
-inputs: (1) a flag \id{itask} showing whether the integration is to be done in
-the ``normal mode'' or in the ``one-step mode'' and (2) a value,
-\id{tout}, of the independent variable $t$ at which a computed
-solution is desired.  In the normal mode, the integration proceeds in
-steps (with stepsizes determined internally) up to and past \id{tout},
-and \id{CVode} interpolates $y$ at $t = $\id{tout}. In the one-step
-mode, \id{CVode} takes only one step in the desired direction and
-returns to the calling program.  In the one-step mode, \id{tout} is
-required on the first call only, to get the direction and rough scale
-of the independent variable.  On return, \id{CVode} returns a vector
-\id{y} and a corresponding independent variable value
-$t=$\id{*t}, such that \id{y} is the computed value of $y(t)$.
-In the normal mode, with no failures, \id{*t} will be equal to
-\id{tout}.
-
-Note that the vector \id{y} can be the same as the \id{y0} vector of 
-initial conditions that was passed to \id{CVodeMalloc}. 
+  \begin{args}[strategy]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[y] (\id{N\_Vector})
+    vector set to initial guess by user before calling \id{KINSol},
+    but which upon return contains an approximate solution of
+    the nonlinear system $F(y) = 0$ the computed solution vector.
+  \item[strategy]
+    global strategy applied to Newton step if unsatisfactory.
+    It must be one of \ID{KIN\_INEXACT\_NEWTON} or \ID{KIN\_LINESEARCH}.
+  \item[y\_scale]
+    vector containing diagonal elements of scaling matrix for vector \id{y}
+    chosen so that the components of \id{y\_scale}$\cdot$\id{y}
+    (as a matrix multiplication) all have about the same magnitude when 
+    \id{y} is close to a root of $F(y)$.
+  \item[f\_scale]
+    vector containing diagonal elements of scaling matrix for $F(y)$ chosen 
+    so that the components of \id{f\_scale}$\cdot F($\id{y}$)$ 
+    (as a matrix multiplication) all have roughly the same magnitude when 
+    \id{y} is not too near a root of $F(y)$.
+  \end{args}
 }
 {
-The return value \id{flag} (of type \id{int}) will be one of the following:
-\begin{args}[SOLVER\_FAILURE]
-\item[\Id{SUCCESS}]
-  \id{CVode} succeeded;
-\item[\Id{TSTOP\_RETURN}]
-  \id{CVode} succeeded by reaching the stopping point specified through
-  the optional inputs \id{iopt[ISTOP]} and \id{ropt[TSTOP]} 
-  (see \S\ref{sss:optional_io});
-\item[\Id{CVODE\_NO\_MEM}]
-  The \id{cvode\_mem} argument was \id{NULL};
-\item[\Id{ILL\_INPUT}]
-  One of the inputs to CVode is illegal. This includes the situation when a 
-  component of the error weight vectors becomes negative during internal 
-  time-stepping. The \id{ILL\_INPUT} flag will also be returned if the linear 
-  solver routine initialization (called by the user after calling 
-  \id{CVodeMalloc}) failed to set one of the linear solver-related fields 
-  in \id{cvode\_mem} or if the linear solver's initialization routine failed. 
-  In any case, the user should see the printed error message for more details;
-\item[\Id{TOO\_MUCH\_WORK}] 
-  The solver took mxstep internal steps but could not reach tout. 
-  The default value for mxstep is \id{MXSTEP\_DEFAULT = 500};      
-\item[\Id{TOO\_MUCH\_ACC}] 
-  The solver could not satisfy the accuracy demanded by the user for some 
-  internal step;
-\item[\Id{ERR\_FAILURE}]
-  Error test failures occurred too many times (\id{MXNEF = 7}) during one 
-  internal time step or occurred with $|h| = h_{min}$;
-\item[\Id{CONV\_FAILURE}] 
-  Convergence test failures occurred too many times (\id{MXNCF = 10}) during 
-  one internal time step or occurred with $|h| = h_{min}$;             
-\item[\Id{SETUP\_FAILURE}] 
-  The linear solver's setup routine failed in an unrecoverable manner;
-\item[\Id{SOLVE\_FAILURE}] 
-  The linear solver's solve routine failed in an unrecoverable manner.
-\end{args} 
-All failure return values are negative and therefore a test \id{ier < 0}
-will trap all \id{CVode} failures.
+  On return, \id{KINSol} returns the approximate solution in the vector \id{y}.
+  The return value \id{flag} (of type \id{int}) will be one of the following:
+  \begin{args}[a]
+
+  \item[\Id{KIN\_SUCCESS}]\rule{0pt}{0pt}
+
+    \id{KINSol} succeeded.
+
+  \item[\Id{KIN\_INITIAL\_GUESS\_OK}]\rule{0pt}{0pt}
+
+    The guess \id{y} satisfied the system $F(y)=0$
+    within the tolerances specified.
+
+  \item[\Id{KIN\_STEP\_LT\_STPTOL}]\rule{0pt}{0pt}
+
+    {\kinsol} stopped based on scaled step length.
+    This means that the current iterate may be an approximate solution of the given
+    nonlinear system, but it is also quite possible that the algorithm is "stalled" 
+    (making insufficient progress) near an invalid solution, or that the 
+    scalar \id{scsteptol} is too large (see \id{KINSetScaledStepTol} in 
+    \S\ref{ss:optional_input} to change \id{scsteptol} from its default value).
+
+  \item[\Id{KIN\_MEM\_NULL}]\rule{0pt}{0pt}
+
+    The {\kinsol} memory block pointer was \id{NULL}.
+ 
+  \item[\Id{KIN\_ILL\_INPUT}]\rule{0pt}{0pt}
+
+    An input parameter was invalid.
+
+  \item[\Id{KIN\_NO\_MALLOC}]\rule{0pt}{0pt}
+
+    The {\kinsol} memory was not allocated by a call to \id{KINMalloc}.
+
+  \item[\Id{KIN\_LINESEARCH\_NONCONV}]\rule{0pt}{0pt}
+
+    The line search algorithm was unable
+    to find an iterate sufficiently distinct
+    from the current iterate
+    
+    Failure to satisfy the sufficient decrease
+    condition could mean the current iterate is
+    "close" to an approximate solution of the given
+    nonlinear system, the finite-difference
+    approximation of the matrix-vector product
+    $J(u) v$ is inaccurate, or the real scalar
+    \id{scsteptol} is too large.
+ 
+  \item[\Id{KIN\_MAXITER\_REACHED}] \rule{0pt}{0pt}
+
+    The maximum number of nonlinear iterations
+    has been reached.
+ 
+  \item[\Id{KIN\_MXNEWT\_5X\_EXCEEDED}]\rule{0pt}{0pt}
+    
+    Five consecutive steps have been taken
+    that satisfy the inequality
+    $\|u_{scale} p\|_{L2} > 0.99 mxnewtstep$,
+    where $p$ denotes the current step and
+    $mxnewtstep$ is a scalar upper bound
+    on the scaled step length.
+    
+    Such a failure may mean that $\|f_{scale} F(y)\|_{L2}$
+    asymptotes from above to a finite value, or
+    the real scalar \id{mxnewtstep} is too small.
+ 
+  \item[\Id{KIN\_LINESEARCH\_BCFAIL}]\rule{0pt}{0pt}
+
+    The line search algorithm
+    was unable to satisfy the
+    ``beta-condition'' for \id{MXNBCF} $+ 1$ nonlinear
+    iterations (not necessarily consecutive),
+    which may indicate the algorithm is making
+    poor progress.
+ 
+  \item[\Id{KIN\_LINSOLV\_NO\_RECOVERY}]\rule{0pt}{0pt}
+
+    The user-supplied routine \id{psolve}
+    encountered a recoverable error, but
+    the preconditioner is already current.
+ 
+  \item[\Id{KIN\_LINIT\_FAIL}]\rule{0pt}{0pt}
+
+    The linear solver initialization routine (\id{linit})
+    encountered an error.
+ 
+  \item[\Id{KIN\_LSETUP\_FAIL}]\rule{0pt}{0pt}
+
+    The user-supplied routine \id{pset} (used to compute
+    the preconditioner) encountered an unrecoverable
+    error.
+ 
+  \item[\Id{KIN\_LSOLVE\_FAIL}]\rule{0pt}{0pt}
+
+    Tither the user-supplied routine \id{psolve} (used to
+    to solve the preconditioned linear system) encountered
+    an unrecoverable error, or the linear solver routine
+    (\id{lsolve}) encountered an error condition.
+ 
+  \end{args}
 }
-{}
+{
+  The components of vectors \id{y\_scale} and \id{f\_scale} should be positive.
+  
+  \id{KIN\_SUCCESS} $=0$, \id{KIN\_INITIAL\_GUESS\_OK} $=1$, and 
+  \id{KIN\_STEP\_LT\_STPTOL} $=2$.
+  %%
+  All remaining return values are negative and therefore a test \id{flag}$< 0$
+  will trap all \id{KINSol} failures.
+}
 
-%--------------------------------------------------------------------
-\subsection{Optional Input Routines}\label{sss:optional_io}
 
-- on error return, a message is printed to \id{stdout} (or to
-the file pointed to by \id{errfp} if already specified).
+%%==============================================================================
+\subsection{Optional input functions}\label{ss:optional_input}
+%%==============================================================================
 
-- all error return values are negative, so a test \id{flag}$==0$
+{\kinsol} provides an extensive list of functions that can be used to change
+from their default values various optional input parameters that control the
+behavior of the {\kinsol} solver. 
+Table \ref{t:optional_input} lists all optional input functions in {\kinsol} which 
+are then described in detail in the remainder of this section.
+For the most casual use of {\kinsol}, the reader can skip to \S\ref{ss:user_fct_sol}.
+
+We note that, on error return, all these functions also print an error message
+to \id{stderr} (or to the file pointed to by \id{errfp} if already specified).
+\index{error message}
+We also note that all error return values are negative, so a test \id{flag}$<0$
 will catch any error.
 
+\begin{table}
+\centering
+\caption{Optional inputs for {\kinsol} and {\kinspgmr}}
+\label{t:optional_input}
+\medskip
+\begin{tabular}{|l|l|l|}\hline
+{\bf Optional input} & {\bf Function name} & {\bf Default} \\
+\hline
+\multicolumn{3}{|c|}{\bf KINSOL main solver} \\
+\hline
+Pointer to an error file & \id{KINSetErrFile} & \id{stderr}  \\
+Pointer to an info file & \id{KINSetInfofile} & \id{stdout} \\
+Data for problem-defining function & \id{KINSetFdata} & NULL \\
+Verbosity level of output & \id{KINSetPrintLevel} & 0 \\
+Max. number of nonlinear iterations & \id{KINSetNumMaxIters} & 200 \\
+No initial preconditioner setup & \id{KINSetNoPrecInit} & \id{FALSE} \\
+Max. iterations without prec. setup & \id{KINSetMaxprecCalls} & 10 \\
+Form of $\eta$ coefficient & \id{KINSetEtaform} &  \id{KIN\_ETACHOICE1}\\
+Constant value of $\eta$ & \id{KINSetEtaconstValue} &  0.1 \\
+Values of $\gamma$ and $\alpha$ & \id{KINSetEtaParams} & 0.9 and 2.0 \\
+Lower bound on $\epsilon$ & \id{KINSetNoMinEps} & \id{FALSE} \\
+Max. scaled length of Newton step & \id{KINSetMaxNewtonStep} & $1000 \| u_{scale} y_0 \|_{L_2}$ \\
+Rel. error for F.D. $Jv$ & \id{KINSetRelerrFunc} & $\sqrt{\text{uround}}$ \\
+Function-norm stopping tolerance & \id{KINSetFuncNormTol} & $\sqrt[3]{\text{uround}}$ \\
+Scaled-step stopping tolerance & \id{KINSetScaledSteptol} & $\sqrt[3]{\text{uround}^2}$ \\
+Inequality constraints on solution & \id{KINSetConstraints} & \id{NULL} \\
+\hline
+\multicolumn{3}{|c|}{\bf KINSPGMR linear solver} \\
+\hline
+Max. number of restarts & \id{KINSpgmrSetMaxRestarts} & 0 \\
+Preconditioner solve function & \id{KINSpgmrSetPrecSolveFn} & NULL \\
+Preconditioner setup function & \id{KINSpgmrSetPrecSetupFn} & NULL \\
+Data for preconditioner functions & \id{KINSpgmrSetPrecData} & NULL \\
+Jacobian times vector function & \id{KINSpgmrSetJacTimesVecFn} & internal DQ \\
+Data for Jacobian times vector function &\id{KINSpgmrSetJacData} & NULL \\ 
+\hline
+\end{tabular}
+\end{table}
 
-
-\ucfunction{CVodeSet}
+\subsubsection{Main solver optional input functions}
+\index{optional input!solver|(}
+The calls listed here can be executed in any order. However, if \id{KINSetErrFile} 
+is to be called, that call should be first, in order to take effect for any later 
+error message.
+%%
+%%
+\index{error message}
+\ucfunction{KINSetErrFile}
 {
-  flag = CVodeSetFdata(cvode\_mem, f\_data);
+flag = KINSetErrFile(kin\_mem, errfp);
 }
 {
-  The function \ID{CVodeSet} specifies the user data block
-  and attaches it to the main {\cvodes} memory block.
+  The function \ID{KINSetErrFile} specifies the pointer to the file
+  where all {\kinsol} messages should be directed.
 }
 {
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[f\_data] (\id{void *})
-    pointer to the user data.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the optional value has been successfuly set.
-  \item[CVS\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{
-  If \id{f\_data} is not specified, a \id{NULL} pointer is
-  passed to all user routines that have it as an argument.
-}
-
-
-\ucfunction{CVodeSetErrFile}
-{
-  flag = CVodeSetErrFile(cvode\_mem, errfp);
-}
-{
-  The function \ID{CVodeSet} specifies the pointer to the file
-  where all {\cvodes} messages should be directed.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
   \item[errfp] (\id{FILE *})
     pointer to output file.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the optional value has been successfuly set.
-  \item[CVS\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
-  The default value for \id{errfp} is \id{NULL}, in which case
-  all output is directed to \id{stdout}.
+  The default value for \id{errfp} is \id{stderr}.
+
+  Passing a value \id{NULL} disables all future error message output
+  (except for the case in which the {\kinsol} memory pointer is \id{NULL}).
 }
 %%
-%%
-\ucfunction{CVodeSetMaxOrd}
+\ucfunction{KINSet}
 {
-flag = CVodeSetMaxOrder(cvode\_mem, maxord);
+flag = KINSet(kin\_mem, );
 }
 {
-  The function \ID{CVodeSet} specifies the maximum order of the 
-  linear multistep method.
+  The function \ID{KINSet}
 }
 {
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[maxord] (\id{int})
-    value of the maximum method order.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the optional value has been successfuly set.
-  \item[CVS\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[CVS\_ILL\_INPUT]
-    the specified value \id{maxord} is negative, or larger than 
-    its previous value.
-  \end{args}
-}
-{
-  The default value is \Id{ADAMS\_Q\_MAX}$= 12$ for
-  the Adams-Moulton method and \Id{BDF\_Q\_Max}$= 5$
-  for the BDF method.
-  Since \id{maxord} affects the memory requirements
-  for the internal {\cvodes} memory block, its value
-  can not be increased past its previous value.
-}
-%%
-%%
-\ucfunction{CVodeSetMaxNumSteps}
-{
-flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
-}
-{
-  The function \ID{CVodeSet} specifies the maximum number
-  of steps to be taken by the solver in its attemt to reach 
-  the final time.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[mxsteps] (\id{int})
-    maximum allowed number of steps.
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
+
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the optional value has been successfuly set.
-  \item[CVS\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[CVS\_ILL\_INPUT]
-    \id{mxsteps} is non-positive.
-  \end{args}
-}
-{
-  The default value is \Id{MXSTEP\_DEFAULT}$= 500$.
-}
-%%
-%%
-\ucfunction{CVodeSetMaxHnilWarns}
-{
-flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
-}
-{
-  The function \ID{CVodeSet} specifies the maximum number of warning messages
-  issued by the solver that $t+h=t$ on the next internal step.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[mxhnil] (\id{int})
-    maximum number of warning messages
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the optional value has been successfuly set.
-  \item[CVS\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{
-  The default value is \Id{MXHNIL\_DEFAULT}$= 10$.
-  A negative \id{mshnil} value indicates that no warning messages should
-  be issued.
-}
-%%
-%%
-\ucfunction{CVodeSet}
-{
-flag = CVodeSet(cvode\_mem, );
-}
-{
-  The function \ID{CVodeSet} specifies the
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[]
-    
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the optional value has been successfuly set.
-  \item[CVS\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[CVS\_ILL\_INPUT]
-    
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {}
 %%
 %%
-\ucfunction{CVodeSet}
+\ucfunction{KINSet}
 {
-flag = CVodeSet(cvode\_mem, );
+flag = KINSet(kin\_mem, );
 }
 {
-  The function \ID{CVodeSet} specifies the
+  The function \ID{KINSet}
 }
 {
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[]
-    
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
+
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the optional value has been successfuly set.
-  \item[CVS\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[CVS\_ILL\_INPUT]
-    
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {}
 %%
 %%
-\ucfunction{CVodeSet}
+\ucfunction{KINSet}
 {
-flag = CVodeSet(cvode\_mem, );
+flag = KINSet(kin\_mem, );
 }
 {
-  The function \ID{CVodeSet} specifies the
+  The function \ID{KINSet}
 }
 {
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[]
-    
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
+
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the optional value has been successfuly set.
-  \item[CVS\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[CVS\_ILL\_INPUT]
-    
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {}
 %%
 %%
-\ucfunction{CVodeSet}
+\ucfunction{KINSet}
 {
-flag = CVodeSet(cvode\_mem, );
+flag = KINSet(kin\_mem, );
 }
 {
-  The function \ID{CVodeSet} specifies the
+  The function \ID{KINSet}
 }
 {
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[]
-    
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
+
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the optional value has been successfuly set.
-  \item[CVS\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[CVS\_ILL\_INPUT]
-    
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {}
 %%
 %%
-\ucfunction{CVodeSet}
+\ucfunction{KINSet}
 {
-flag = CVodeSet(cvode\_mem, );
+flag = KINSet(kin\_mem, );
 }
 {
-  The function \ID{CVodeSet} specifies the
+  The function \ID{KINSet}
 }
 {
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[]
-    
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
+
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[SUCCESS] 
-    the optional value has been successfuly set.
-  \item[CVS\_NO\_MEM]
-    the \id{cvode\_mem} pointer is \id{NULL}.
-  \item[CVS\_ILL\_INPUT]
-    
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {}
+%%
+%%
+\ucfunction{KINSet}
+{
+flag = KINSet(kin\_mem, );
+}
+{
+  The function \ID{KINSet}
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-In order to change some of the {\cvodes} constants (such as the maximum method order) 
-or if additional diagnostic output values are desired, tthe user should declare two 
-arrays for optional input and output, an \ID{iopt} array for optional integer 
-input and output and an \ID{ropt} array for optional real input and output. 
-The size of both these arrays should be \id{OPT\_SIZE}.
-So the user's declarations should look like:
-\begin{verbatim}
-long int iopt[OPT_SIZE];
-realtype     ropt[OPT_SIZE];
-\end{verbatim}
-Tables \ref{t:iopt} and \ref{t:ropt} contain 
-detailed descriptions of the optional integer and real input-output arrays,
-respectively. Only locations corresponding to the main {\cvodes} solver are 
-given in these tables. Locations beyond \id{CVODE\_IOPT\_SIZE} and
-\id{CVODE\_ROPT\_SIZE} in \id{iopt} and \id{ropt}, respectively, are used
-by the linear solvers and are described in \S\ref{sss:lin_solv_init}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSet}
+{
+flag = KINSet(kin\_mem, );
+}
+{
+  The function \ID{KINSet}
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-Default values of the optional inputs are obtained by setting the corresponding
-entry to 0. If \id{FALSE} is passed for \id{optIn} in the call to \id{CVodeMalloc},
-no optional input is examined.
-Note also that when computing forward sensitivities, {\cvodes} loads some
-additional optional output entries in \id{iopt}. 
-These are described in \S\ref{sss:more_optional_io}.
-%--------------------------------------------------------------------
-\subsection{{\cvodes} Reinitialization Routine}\label{sss:cvreinit}
-\index{reinitialization}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSet}
+{
+flag = KINSet(kin\_mem, );
+}
+{
+  The function \ID{KINSet}
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-The function \ID{CVodeReInit} reinitializes the main {\cvodes} solver for
-the solution of a problem, where a prior call to \Id{CVodeMalloc} has
-been made with the same problem size \id{N}. \id{CVodeReInit} performs the 
-same input checking and initializations that \id{CVodeMalloc} does 
-(except for \id{N}), but does no memory allocation, assuming that the 
-existing internal memory is sufficient for the new problem.             
-                                                                 
-The use of \id{CVodeReInit} requires that the maximum method order,    
-\Id{maxord}, is no larger for the new problem than for the problem  
-specified in the last call to \id{CVodeMalloc}.  This condition is  
-automatically fulfilled if the multistep method parameter \id{lmm}  
-is unchanged (or changed from \Id{ADAMS} to \Id{BDF}) and the default    
-value for \id{maxord} is specified.                                 
-                                                                 
-If \id{iter = }\Id{NEWTON}, then following the call to \id{CVodeReInit}, a call  
-to the linear solver specification routine is necessary if a   
-different linear solver is chosen, but may not be otherwise.   
-If the same linear solver is chosen, and there are no changes  
-in the input parameters to the specification routine, then no  
-call to that routine is needed.                                
-If there are changes in parameters, but they do not increase   
-the linear solver memory size, then a call to the corresponding
-\id{CVReInit<linsol>} routine must made to communicate the new      
-parameters (see \S\ref{sss:lin_solv_reinit}); 
-in that case the linear solver memory is reused.   
-If the parameter changes do increase the linear solver memory  
-size, then the main linear solver specification routine must be
-called (\S\ref{sss:lin_solv_init}).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSet}
+{
+flag = KINSet(kin\_mem, );
+}
+{
+  The function \ID{KINSet}
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-The call to the \id{CVodeReInit} function has the form
-\begin{verbatim}
-ier = CVodeReInit(cvode_mem, f, t0, y0, lmm, iter, itol, &rtol, 
-                  atol, f_data, errfp, optIn, iopt, ropt, machEnv);
-\end{verbatim}
-Its first argument, \id{cvode\_mem} is the pointer to the {\cvodes}
-memory returned by \id{CVodeMalloc}.
-All the remaining arguments to \id{CVodeReInit} have names and         
-meanings identical to those of \id{CVodeMalloc}.  Note that the     
-problem size \id{N} is not passed as an argument to \id{CVodeReInit},       
-as that is assumed to be unchanged since the \id{CVodeMalloc} call. 
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSet}
+{
+flag = KINSet(kin\_mem, );
+}
+{
+  The function \ID{KINSet}
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-The return value \id{ier} of \id{CVodeReInit} is equal to: 
-\begin{itemize}
-\item \id{SUCCESS}=0 if there were no errors; 
-\item \id{CVREI\_NO\_MEM} if \id{cvode\_mem} was NULL;
-\item \id{CVREI\_ILL\_INPUT} if an input argument was illegal    
-      (including an attempt to increase \id{maxord}).
-\end{itemize}
-In case of an error return, an error message is also printed.  
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSet}
+{
+flag = KINSet(kin\_mem, );
+}
+{
+  The function \ID{KINSet}
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-Finally, note that the reported workspace sizes \Id{iopt}\id{[LENRW]} 
-and \Id{iopt}\id{[LENIW]} are left unchanged from the values computed 
-by \id{CVodeMalloc}, and so may be larger than would be computed for 
-the new problem.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSet}
+{
+flag = KINSet(kin\_mem, );
+}
+{
+  The function \ID{KINSet}
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-%--------------------------------------------------------------------
-\subsection{Linear Solver Reinitialization Routines}\label{sss:lin_solv_reinit}
-\index{reinitialization}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSet}
+{
+flag = KINSet(kin\_mem, );
+}
+{
+  The function \ID{KINSet}
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-\index{CVODES@{\cvodes} linear solvers!reinitializing one|(} 
-Linear solver reinitialization routines reset the link between the main {\cvodes}
-integrator and the linear solver module. Such a routine must be called after a call
-to \Id{CVodeReInit} to solve another problem of the same size if there is a change
-in some of the linear solver parameters (such as the Jacobian data approximation
-routine or the user-defined data structure). Reinitialization routines exist for
-all but the {\cvdiag} linear solver.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSet}
+{
+flag = KINSet(kin\_mem, );
+}
+{
+  The function \ID{KINSet}
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-\begin{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSet}
+{
+flag = KINSet(kin\_mem, );
+}
+{
+  The function \ID{KINSet}
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-\item {\em Dense linear solver reinitialization} 
-  \index{CVODES@{\cvodes} linear solvers!CVDENSE@{\cvdense}}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
 
-  \index{CVDENSE@{\cvdense} linear solver!reinitialization|(}
-  A call to the \ID{CVReInitDense} function resets the link between   
-  the main {\cvodes} integrator and the {\cvdense} linear solver.       
-  After solving one problem using {\cvdense}, call \id{CVodeReInit} and then
-  \id{CVReInitDense} to solve another problem of the same size, if    
-  there is a change in the \id{CVDense} parameters \id{djac} or \id{jac\_data}.  
-  If there is no change in parameters, it is not necessary to    
-  call either \id{CVReInitDense} or \id{CVDense} for the new problem.  
 
-  The call to the {\cvdense} reinitialization routine has the following form:
-\begin{verbatim}
-ier = CVReInitDense(cvode_mem, djac, jac_data);
-\end{verbatim}
-  All arguments to \id{CVReInitDense} have the same names and meanings
-  as those of \id{CVDense}.  The \id{cvode\_mem} argument must be identical 
-  to its value in the previous \id{CVDense} call.                     
-  
-  The return values of \id{CVReInitDense} are:
-  \begin{itemize}
-  \item \Id{SUCCESS} if successful;
-  \item \Id{LMEM\_FAIL} if the \id{cvode\_mem} argument is \id{NULL}.
-  \end{itemize}         
-  
-  Note that \id{CVReInitDense} performs the same tests for a compatible {\nvector} 
-  \index{CVDENSE@{\cvdense} linear solver!NVECTOR@{\nvector} compatibility} 
-  module as \id{CVDense}.
-  \index{CVDENSE@{\cvdense} linear solver!reinitialization|)}
-  
-\item {\em Banded linear solver reinitialization}
-  \index{CVODES@{\cvodes} linear solvers!CVBAND@{\cvband}}
-  
-  \index{CVBAND@{\cvband} linear solver!reinitialization|(}
-  A call to the \ID{CVReInitBand} function resets the link between    
-  the main {\cvodes} integrator and the {\cvband} linear solver.        
-  After solving one problem using {\cvband}, call \id{CVodeReInit} and then 
-  \id{CVReInitBand} to solve another problem of the same size, if     
-  there is a change in the \id{CVBand} parameters \id{bjac} or \id{jac\_data},   
-  but no change in \id{mupper} or \id{mlower}.  If there is a change in    
-  \id{mupper} or \id{mlower}, then \id{CVBand} must be called again, and the    
-  linear solver memory will be reallocated.                      
-  If there is no change in parameters, it is not necessary to    
-  call either \id{CVReInitBand} or \id{CVBand} for the new problem.
+%%===================================================================================
+%%
+\subsubsection{Linear solver optional input functions}
+%%
+The {\kinspgmr} linear solver module allows for various optional 
+inputs, which are described here.
+\index{optional input!iterative linear solver|(}
+\index{KINSPGMR@{\kinspgmr} linear solver!optional input|(}
+\index{preconditioning!user-supplied|(}
+The call to \id{KINSpgmr} is used to communicate the maximum dimension of the
+Krylov subspace to be used (\id{maxl}). 
 
-  The call to the {\cvband} reinitialization routine has the following form:
-\begin{verbatim}
-ier = CVReInitBand(cvode_mem, mupper, mlower, bjac, jac_data);
-\end{verbatim}
-  All arguments to \id{CVReInitBand} have the same names and meanings
-  as those of \id{CVBand}.  The \id{cvode\_mem} argument must be identical 
-  to its value in the previous \id{CVBand} call.                     
-  
-  The return values of \id{CVReInitBand} are:
-  \begin{itemize}
-  \item \Id{SUCCESS} if successful;
-  \item \Id{LMEM\_FAIL} if the \id{cvode\_mem} argument is \id{NULL};
-  \item \Id{LIN\_ILL\_INPUT} if there was an illegal input.
-  \end{itemize}         
-  
-  Note that \id{CVReInitBand} performs the same tests for a compatible {\nvector} 
-  \index{CVBAND@{\cvband} linear solver!NVECTOR@{\nvector} compatibility} 
-  module as \id{CVBand}.  
-  \index{CVBAND@{\cvband} linear solver!reinitialization|)}
+If preconditioning is to be done within the {\spgmr} method,
+then the user must supply a preconditioner solve function \id{psolve}
+and specify it through a call to \id{KINSpgmrSetPrecSolveFn}.
+\index{KINSPGMR@{\kinspgmr} linear solver!preconditioner solve function}
+%%
+The evaluation and preprocessing of any Jacobian-related data needed
+by the user's preconditioner solve function is done in the optional
+user-supplied function \id{psetup}. Both of these functions are
+fully specified in \S\ref{ss:user_fct_sim}.
+If used, the \id{psetup} function should be specified through a call to
+\id{KINSpgmrSetPrecSetupFn}.
+\index{KINSPGMR@{\kinspgmr} linear solver!preconditioner setup function}
+%%
+Optionally, the {\kinspgmr} solver passes the pointer it receives through 
+\id{KINSpgmrSetPrecData} to the preconditioner setup and solve functions.  
+This allows the user to create an arbitrary structure with relevant problem data 
+and access it during the execution of the user-supplied preconditioner functions
+without using global data in the program.  
+The pointer \id{prec\_data} may be identical to \id{f\_data}, if the latter was 
+specified through \id{KINSetFdata}.
 
-\item {\em {\spgmr} linear solver reinitialization}
-  \index{CVODES@{\cvodes} linear solvers!CVSPGMR@{\cvspgmr}}
-  
-  \index{CVSPGMR@{\cvspgmr} linear solver!reinitialization|(}
-  A call to the \ID{CVReInitSpgmr} function resets the link between   
-  the main {\cvodes} integrator and the {\cvspgmr} linear solver.       
-  After solving one problem using {\cvspgmr}, call \id{CVodeReInit} and then
-  \id{CVReInitSpgmr} to solve another problem of the same size, if    
-  there is a change in the \id{CVSpgmr} parameters \id{pretype}, \id{gstype},   
-  \id{delt}, \id{precond}, \id{psolve}, \id{P\_data}, \id{jtimes}, or 
-  \id{jac\_data}, but not in \id{maxl}.  
-  If there is a change in \id{maxl}, then \id{CVSpgmr} must be      
-  called again, and the linear solver memory will be reallocated.
-  If there is no change in parameters, it is not necessary to    
-  call either \id{CVReInitSpgmr} or \id{CVSpgmr} for the new problem.
+The \index{KINSPGMR@{\kinspgmr} linear solver!Jacobian approximation used by}
+{\kinspgmr} solver requires a function to compute an approximation to the
+product between the Jacobian matrix $J(t,y)$ and a vector $v$.
+The user can supply his/her own Jacobian times vector approximation function, 
+or use the difference quotient function \Id{KINSpgmrDQJtimes} 
+\index{Jacobian approximation function!Jacobian times vector!difference quotient}
+that comes with the {\kinspgmr} solver.
+A user-defined Jacobian-vector function must be of type \id{KINSpgmrJtimesFn} and 
+can be specified through a call to \id{KINSpgmrSetJacTimesVecFn} 
+(see \S\ref{ss:user_fct_sim} for specification details).
+%%
+As with the preconditioner user data structure \id{prec\_data}, 
+the user can specify, through a call to \id{KINSpgmrSetJacData}, a pointer to a 
+user-defined data structure, \id{jac\_data}, which
+the {\kinspgmr} solver passes to the Jacobian times vector function \id{jtimes} each
+time it is called.  
+The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_data}.
+%%
+%%
+\ucfunction{KINSpgmrSetMaxRestarts}
+{
+  flag = KINSpgmrSetMaxRestarts(kin\_mem, maxrs);
+}
+{
+  The function \ID{KINSpgmrSetMaxRestarts} specifies the maximum
+  number of times the {\spgmr} linear solver can be restarted.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[maxrs] (\id{int})
+    maximum number of restarts
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_ILL\_INPUT]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{KINSPGMR\_ILL\_INPUT}]
+    The maximum number of restarts specified is negative.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSpgmrSetPrecSolveFn}
+{
+  flag = KINSpgmrSetPrecSolveFn(kin\_mem, psolve);
+}
+{
+  The function \ID{KINSpgmrSet} specifies the preconditioner
+  solve function.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[psolve] (\id{KINSpgmrPrecSolveFn})
+    user-defined preconditioner solve function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+   The function type \id{KINSpgmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+}
+%%
+%%
+\ucfunction{KINSpgmrSetPrecSetupFn}
+{
+  flag = KINSpgmrSetPrecSetupFn(kin\_mem, psetup);
+}
+{
+  The function \ID{KINSpgmrSetPrecSetupFn} specifies the preconditioner
+  preprocessing function.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[psetup] (\id{KINSpgmrPrecSetupFn})
+    user-defined preconditioner setup function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+   The function type \id{KINSpgmrPrecSetupFn} is described in \S\ref{ss:precondFn}.
+}
+%%
+%%
+\ucfunction{KINSpgmrSetPrecData}
+{
+  flag = KINSpgmrSetPrecData(kin\_mem, prec\_data);
+}
+{
+  The function \ID{KINSpgmrSetPrecData} specifies the data structure
+  to be passed to the user supplied preconditioner setup and solve
+  functions each time they are called.
+}
+{
+  \begin{args}[prec\_data]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[prec\_data] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+\index{preconditioning!user-supplied|)}
+%%
+\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+\ucfunction{KINSpgmrSetJacTimesVecFn}
+{
+  flag = KINSpgmrSetJacTimesVecFn(kin\_mem, jtimes);
+}
+{
+  The function \ID{KINSpgmrSetJacTimesFn} specifies the Jacobian-vector 
+  function to be used.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[jtimes] (\id{KINSpgmrJacTimesVecFn})
+    user-defined Jacobian-vector product function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  By default, {\kinspgmr} uses the difference quotient function \id{KINSpgmrDQJtimes}.
+  If \id{NULL} is passed to \id{jtimes}, this default function is used.
 
-  The call to the {\cvspgmr} reinitialization routine has the following form:
-\begin{verbatim}
-ier = CVReInitSpgmr(cvode_mem, pretype, gstype, maxl, delt, Precond, 
-                    PSolve, P_data, jtimes, jac_data);
-\end{verbatim}
-  All arguments to \id{CVReInitSpgmr} have the same names and meanings
-  as those of \id{CVSpgmr}.  The \id{cvode\_mem} argument must be identical 
-  to its value in the previous \id{CVSpgmr} call.                     
-  
-  The return values of \id{CVReInitSpgmr} are:
-  \begin{itemize}
-  \item \Id{SUCCESS} if successful;
-  \item \Id{LMEM\_FAIL} if the \id{cvode\_mem} argument is \id{NULL};
-  \item \Id{LIN\_ILL\_INPUT} if there was an illegal input.
-  \end{itemize}         
-  \index{CVSPGMR@{\cvspgmr} linear solver!reinitialization|)}
+  The function type \id{KINSpgmrJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+}
+%%
+%%
+\ucfunction{KINSpgmrSetJacData}
+{
+  flag = KINSpgmrSetJacData(kin\_mem, jac\_data);
+}
+{
+  The function \ID{KINSpgmrSetJacData} specifies the data structure
+  to be passed to the user supplied Jacobian-vector
+  function each time it is called.
+}
+{
+  \begin{args}[jac\_data]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[jac\_data] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
 
-\end{itemize}
 
-%--------------------------------------------------------------------
-\subsection{Additional Extraction Routines}\label{sss:cvodegetewt}
-\index{access to additional data}
+%%==============================================================================
+\subsection{Optional output functions}\label{ss:optional_output}
+%%==============================================================================
 
-Users that wish to supply thier own finite-difference based Jacobian routines
-(see \S\ref{ss:user_fct_sim}) may find it useful to have access to the
-vector of error weights that is already available in the {\cvodes} internal 
-memory block. This information can be extracted with a call to the function
-\ID{CVodeGetEwt}.
-The call to this function has the form
-\begin{verbatim}
-ier = CVodeGetEwt(cvode_mem, weight);
-\end{verbatim}
-where \id{cvode\_mem} is the pointer to the {\cvodes} memory returned by
-\id{CVodeMalloc} and \id{weight} is an {\nvector} wich will contain
-the solution error weights at the current time. Note that the user need not
-allocate space for \id{weight}. The possible return
-values for \id{ier} are \Id{OKAY} on successful return or \Id{GEWT\_NO\_MEM}
-if \id{cvode\_mem} was \id{NULL}.
+{\kinsol} provides an extensive list of functions that can be used to obtain
+solver performance information.
+Table \ref{t:optional_output} lists all optional output functions in {\kinsol},
+which are then described in detail in the remainder of this section.
 
-Additionally, the machine unit roundoff can be obtained by calling
-\begin{verbatim}
-uround = UnitRoundoff();
-\end{verbatim}
-The function \Id{UnitRoundoff}, defined in \id{sundialsmath}, returns a
-\id{realtype} value equal to the machine unit roundoff.
+\begin{table}
+\centering
+\caption{Optional outputs from {\kinsol} and {\kinspgmr}}
+\label{t:optional_output}
+\medskip
+\begin{tabular}{|l|l|}\hline
+{\bf Optional output} & {\bf Function name} \\
+\hline
+\multicolumn{2}{|c|}{\bf KINSOL main solver} \\
+\hline
+Size of {\kinsol} real and integer workspaces & \id{KINGetWorkSpace} \\
+Niumber of function evaluations  & \id{KINGetNumFuncEvals} \\
+Number of nonlinar iterations & \id{KINGetNumnolinSolvIters} \\
+Number of $\beta$-condition failures & \id{KINGetNumBetacondFails} \\
+Number of backtrack operations & \id{KINGetNumBacktrackOps} \\
+Scaled norm of $F$ & \id{KINGetFuncNorm} \\
+Scaled norm of the step & \id{KINGetStepLength} \\
+\hline
+\multicolumn{2}{|c|}{\bf KINSPGMR linear solver} \\
+\hline
+Size of {\kinspgmr} real and integer workspaces & \id{KINSpgmrGetWorkSpace} \\
+No. of linear iterations & \id{KINSpgmrGetNumLinIters} \\
+No. of linear convergence failures & \id{KINSpgmrGetNumConvFails} \\
+No. of preconditioner evaluations & \id{KINSpgmrGetNumPrecEvals} \\
+No. of preconditioner solves & \id{KINSpgmrGetNumPrecSolves} \\
+No. of Jacobian-vector product evaluations & \id{KINSpgmrGetNumJtimesEvals} \\
+No. of fct. calls for finite diff. Jacobian-vector evals. & \id{KINSpgmrGetNumRhsEvals} \\ 
+Last return from a {\kinspgmr} function & \id{KINSpgmrGetLastFlag} \\ 
+\hline
+\end{tabular}
+\end{table}
 
-%----------------------------------
-\section{User-Supplied Routines for IVP Solution}\label{ss:user_fct_sim}
-%----------------------------------
 
-The user-supplied routines consist of one function defining the ODE, 
-(optionally) a function that provides Jacobian related information for the linear 
-solver (if Newton iteration is chosen), and (optionally) one or two functions 
-that define the preconditioner for use in the {\spgmr} algorithm. 
+%%==============================================================================
+\subsubsection{Main solver optional output functions}
+%%==============================================================================
+\index{optional output!solver|(}
+%%
+{\kinsol} provides several user-callable functions that can be used to obtain
+different quantities that may be of interest to the user, such as solver workspace
+requirements and solver performance statistics.
+These optional output functions are described next.
+%%
+\index{memory requirements!KINSOL@{\kinsol} solver}
+%%
+\ucfunction{KINGetWorkSpace}
+{
+  flag = KINGetWorkSpace(kin\_mem, \&lenrw, \&leniw);
+}
+{
+  The function \ID{KINGetWorkSpace} returns the
+  {\kinsol} integer and real workspace sizes.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[lenrw] (\id{long int})
+    the number of \id{realtype} values in the {\kinsol} workspace.
+  \item[leniw] (\id{long int})
+    the number of integer values in the {\kinsol} workspace.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  In terms of the problem size $N$ the actual size of the real workspace 
+  is $5 N$ \id{realtype} words.
+}
+%%
+%%
+\ucfunction{KINGet}
+{
+  flag = KINGet(kin\_mem, \&);
+}
+{
+  The function \ID{KINGetWorkSpace} returns the
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-\begin{itemize}
-%
-%--------------
-%
-\item {\em ODE right hand side}
-  \index{right hand side function!initial value problem|(}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINGet}
+{
+  flag = KINGet(kin\_mem, \&);
+}
+{
+  The function \ID{KINGetWorkSpace} returns the
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-  The user must provide a function of type \ID{RhsFn} defined by
-\begin{verbatim}
-typedef void (*RhsFn)(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-\end{verbatim}
-  to compute the right hand side of the ODE system.
-  
-  This function takes as input the independent variable  
-  value \id{t} and the dependent variable vector \id{y}.  It must store the    
-  result of $f(t,y)$ in the vector \id{ydot}.  The \id{y} and \id{ydot} arguments 
-  are of type \id{N\_Vector}. Allocation of memory for \id{ydot} is handled within {\cvodes}.
-  The \id{f\_data} parameter is the same as the \id{f\_data} parameter passed by 
-  the user to the \id{CVodeMalloc} routine. This user-supplied pointer is passed to 
-  the user's \id{f} function every time it is called.                                       
-  A \id{RhsFn} function type does not have a return value.                        
-  \index{right hand side function!initial value problem|)}
-%
-%--------------
-%
-\item {\em Jacobian information (direct method with dense Jacobian)}
-  \label{p:djac}
-  \index{Jacobian approximation routine!dense!user-supplied|(}
-  
-  If the direct linear solver with dense treatment of the Jacobian is used 
-  (i.e. \Id{CVDense} is called in step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
-  the user may provide a function of type \ID{CVDenseJacFn} defined by
-\begin{verbatim}
-typedef void (*CVDenseJacFn)(integertype N, DenseMat J, realtype t, 
-                             N_Vector y, N_Vector fy, void *jac_data,
-                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-\end{verbatim}
-  to compute the dense Jacobian $J = \partial f / \partial y$ (or an approximation to it).
-  
-  A user-supplied dense Jacobian routine must load the \id{N} by \id{N}
-  dense matrix \id{J} with an approximation to the Jacobian matrix $J$
-  at the point (\id{t},\id{y}).  Only nonzero elements need to be loaded
-  into \id{J} because \id{J} is set to the zero matrix before the call
-  to the Jacobian routine. The type of \id{J} is \Id{DenseMat}. The
-  accessor macros \Id{DENSE\_ELEM} and \Id{DENSE\_COL} allow the user to
-  read and write dense matrix elements without making explicit
-  references to the underlying representation of the \id{DenseMat}
-  type. \id{DENSE\_ELEM(A,i,j)} references the (\id{i},\id{j})th
-  element of the dense matrix \id{A} (\id{i},\id{j} = 0..N-1). This macro
-  is for use in small problems in which efficiency of access is not a major
-  concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
-  $N$, the Jacobian element $J_{m,n}$ can be loaded with the statement
-  \id{DENSE\_ELEM(A,m-1,n-1) =} $J_{m,n}$.  Alternatively,
-  \id{DENSE\_COL(A,j)} returns a pointer to the storage for
-  the \id{j}th column of \id{A}, and the elements of the \id{j}th column
-  are then accessed via ordinary array indexing.  Thus $J_{m,n}$ can be 
-  loaded with the statements \id{col\_n = DENSE\_COL(J,n-1);}
-  \id{col\_n[m-1] =} $J_{m,n}$.  For large problems, it is more 
-  efficient to use \id{DENSE\_COL} than to use \id{DENSE\_ELEM}. 
-  Note that both of these macros number rows and columns
-  starting from $0$, not $1$.  The \id{DenseMat} type and the accessor
-  macros \id{DENSE\_ELEM} and \id{DENSE\_COL} are documented in
-  \S\ref{ss:dense}.
-  
-  The arguments \id{tmp1}, \id{tmp2}, and \id{tmp3} are pointers to 
-  memory allocated for vectors of length N which can be used 
-  as temporary storage or work space.
-  \index{Jacobian approximation routine!dense!user-supplied|)}
-%
-%--------------
-%
-\item {\em Jacobian information (direct method with banded Jacobian)}
-  \label{p:bjac}
-  \index{Jacobian approximation routine!band!user-supplied|(}
-  
-  If the direct linear solver with banded treatment of the Jacobian is used 
-  (i.e. \Id{CVBand} is called in step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
-  the user may provide a function of type \ID{CVBandJacFn} defined by
-\begin{verbatim}
-typedef void (*CVBandJacFn)(integertype N, integertype mupper, 
-                            integertype mlower, BandMat J, realtype t, 
-                            N_Vector y, N_Vector fy, void *jac_data,
-                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-\end{verbatim}
-  to generate the banded Jacobian $J = \partial f / \partial y$ 
-  (or a banded approximation to it).
-  
-  A user-supplied band Jacobian routine must load the band matrix \id{J}
-  of type \Id{BandMat} with the elements of the Jacobian $J(t,y)$ at the
-  point (\id{t},\id{y}).  Only nonzero elements need to be loaded into
-  \id{J} because \id{J} is preset to zero before the call to the
-  Jacobian routine.  The accessor macros \Id{BAND\_ELEM},
-  \Id{BAND\_COL}, and \Id{BAND\_COL\_ELEM} allow the user to read and 
-  write band matrix elements without making specific references to the 
-  underlying representation of the \id{BandMat} type.
-  \id{BAND\_ELEM(A,i,j)} references the (\id{i},\id{j})th element of the band matrix \id{A}.
-  This macro is for use in small problems in which efficiency of access is not
-  a major concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
-  $N$ with $(m,n)$ within the band defined by \id{mupper} and
-  \id{mlower}, the Jacobian element $J_{m,n}$ can be loaded with the 
-  statement \id{BAND\_ELEM(A,m-1,n-1) =} $J_{m,n}$. The elements within
-  the band are those with \id{-mupper} $\le$ \id{m-n} $\le$ \id{mlower}.
-  Alternatively, \id{BAND\_COL(A,j)} returns a pointer to the diagonal element of the
-  \id{j}th column of \id{A}, and if we assign this address to 
-  \id{realtype *col\_j}, then the \id{i}th element of the \id{j}th column is
-  given by \id{BAND\_COL\_ELEM(col\_j,i,j)}.
-  Thus for $(m,n)$ within the band, \\ $J_{m,n}$ can be loaded by setting 
-  \id{col\_n = BAND\_COL(J,n-1);} \id{BAND\_COL\_ELEM(col\_n,m-1,n-1) =} $J_{m,n}$.
-  The elements of the \id{j}th column can also be accessed
-  via ordinary array indexing, but this approach requires knowledge of
-  the underlying storage for a band matrix of type \id{BandMat}.  
-  The array \id{col\_n} can be indexed from $-$\id{mupper} to \id{mlower}.
-  For large problems, it is more efficient to use the combination of
-  \id{BAND\_COL} and \id{BAND\_COL\_ELEM} than to use the
-  \id{BAND\_ELEM}.  As in the dense case, these macros all number rows
-  and columns starting from $0$, not $1$.  The \id{BandMat} type and the
-  accessor macros \id{BAND\_ELEM}, \id{BAND\_COL}, and
-  \id{BAND\_COL\_ELEM} are documented in \S\ref{ss:band}.
-  
-  The arguments \id{tmp1}, \id{tmp2}, and \id{tmp3} are pointers to 
-  memory allocated for vectors of length N which can be used 
-  as temporary storage or work space.
-  \index{Jacobian approximation routine!band!user-supplied|)}
-%
-%----------------
-%
-\item {\em Jacobian information ({\spgmr} case)}
-  \label{p:jtimes}
-  \index{Jacobian approximation routine!Jacobian times vector!user-supplied|(}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINGet}
+{
+  flag = KINGet(kin\_mem, \&);
+}
+{
+  The function \ID{KINGetWorkSpace} returns the
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-  If an iterative {\spgmr} linear solver is selected (\id{CVSpgmr} is called in step 
-  \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}) the user may provide a function
-  of type \ID{CVSpgmrJtimesFn} in the form 
-\begin{verbatim}
-typedef int (*CVSpgmrJtimesFn)(N_Vector v, N_Vector Jv, realtype t,
-                               N_Vector y, N_Vector fy, void *jac_data,
-                               N_Vector work);
-\end{verbatim} 
-  to compute the product $J v = (\partial f / \partial y) v$ (or an approximation to it).
-  
-  A user-supplied Jacobian-times-vector routine must load the vector \id{Jv}
-  with the result of the product between the Jacobian $J(t,y)$ at the
-  point (\id{t},\id{y}) and the vector \id{v} of dimension \id{N}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINGet}
+{
+  flag = KINGet(kin\_mem, \&);
+}
+{
+  The function \ID{KINGetWorkSpace} returns the
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-  The argument \id{work} is a pointer to 
-  memory allocated for a vector of length N which can be used 
-  as temporary storage or work space.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINGet}
+{
+  flag = KINGet(kin\_mem, \&);
+}
+{
+  The function \ID{KINGetWorkSpace} returns the
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-  The value to be returned by the Jacobian times vector routine should be
-  $0$ if successful. Any other return value will result in an unrecoverable
-  error of the {\spgmr} generic solver, in which case the integration is halted.
-  
-  \index{Jacobian approximation routine!Jacobian times vector!user-supplied|)}
-%
-%--------------
-%
-\item {\em Preconditioning (linear system solution)}
-  \label{p:psolve}
-  \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner solve routine}
-  
-  If preconditioning is used, then the user must provide a {\C} function to
-  solve the linear system $Pz = r$ where $P$ may be either a left or a
-  right preconditioner matrix.
-  This function must be of type \ID{CVSpgmrPSolveFn} defined by
-\begin{verbatim}
-typedef int (*CVSpgmrPSolveFn)(realtype t, N_Vector y, 
-                            N_Vector fy, N_Vector vtemp, realtype gamma, 
-                            N_Vector ewt, realtype delta, long int *nfePtr, 
-                            N_Vector r, int lr, void *P_data, N_Vector z);
-\end{verbatim}
-  
-  Its parameters are as follows:
-  \begin{itemize}
-  \item 
-    \id{t} is the current value of the independent variable;       
-  \item 
-    \id{y} is the current value of the dependent variable vector;  
-  \item 
-    \id{fy} is the vector $f(t,y)$;    
-  \item 
-    \id{vtemp} is a pointer to memory allocated for a vector of        
-    length \id{N} which can be used for work space;    
-  \item 
-    \id{gamma} is the scalar appearing in the Newton matrix;         
-  \item 
-    \id{ewt} is the error weight vector (input). See \id{delta} below;   
-  \item 
-    \id{delta} is an input tolerance to be use if an iterative method 
-    is employed in the solution.  In that case, the residual 
-    vector $Res = r - P z$ of the system should be made less than 
-    \id{delta} in weighted $l_2$ norm,     
-    i.e., $\sqrt{\sum_i (Res_i \cdot ewt_i)^2 } < delta$;       
-  \item 
-    \id{nfePtr} is a pointer to the memory location containing the      
-    {\cvodes} problem data \id{nfe} = number of calls to \id{f}. 
-    The preconditioner solve routine should update this counter by 
-    adding on the number of \id{f} calls made in order to carry out     
-    the solution, if any.  For example, if the routine      
-    calls \id{f} a total of W times, then the update is          
-    \id{*nfePtr += W;};         
-  \item 
-    \id{r} is the right-hand side vector of the linear system;     
-  \item 
-    \id{lr} is an input flag indicating whether the preconditioner solve
-    routine is to use the left preconditioner (\id{lr=1}) or 
-    the right preconditioner (\id{lr=2});
-  \item 
-    \id{P\_data} is a pointer to user data - the same as the \id{P\_data}      
-    parameter passed to \id{CVSpgmr};                         
-  \item 
-    \id{z} is the output vector computed.                
-  \end{itemize}
-  
-  The value to be returned by the preconditioner solve function is a flag indicating 
-  whether it was successful.  This value should be $0$ if successful, 
-  positive for a recoverable error (in which case the step will be retried),     
-  negative for an unrecoverable error (in which case the integration is halted). 
-%
-%-----------------
-%
-\item {\em Preconditioning (Jacobian data)}
-  \label{p:precond}
-  \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner setup routine}
-  
-  If the user's preconditioner requires that any Jacobian related data
-  be evaluated or preprocessed, then this needs to be done in a
-  user-supplied {\C} function of type \ID{CVSpgmrPrecondFn} as defined by
-\begin{verbatim}
-typedef int (*CVSpgmrPrecondFn)(realtype t, N_Vector y, 
-                                N_Vector fy, booleantype jok, 
-                                booleantype *jcurPtr, realtype gamma, 
-                                N_Vector ewt, realtype h, realtype uround, 
-                                long int *nfePtr, void *P_data, 
-                                N_Vector vtemp1, N_Vector vtemp2,
-                                N_Vector vtemp3);
-\end{verbatim}
-  
-  The operations performed by such a routine might include forming a crude 
-  approximate Jacobian, and performing an LU factorization on the resulting            
-  approximation to $M=I - \gamma J$.
-  
-  This routine is not called in advance of every call to the preconditioner solve
-  routine, but rather is called only as often as needed to achieve convergence in the
-  Newton iteration. 
-  
-  The \id{jok} argument provides for the re-use of
-  Jacobian data in the preconditioner solve routine.  When \id{jok == FALSE}, 
-  Jacobian data should be computed from scratch, but when \id{jok == TRUE}, 
-  Jacobian data saved earlier can be retrieved and used to form the 
-  preconditioner matrices (with the current $\gamma =$ \id{gamma}).
-  Each call to the preconditioner setup function is preceded by a call to     
-  the \id{RhsFn} user routine with the same \id{(t,y)} arguments.  
-  Thus the preconditoner setup function can use any auxiliary data that is 
-  computed and saved during the evaluation of the ODE right hand side.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINGet}
+{
+  flag = KINGet(kin\_mem, \&);
+}
+{
+  The function \ID{KINGetWorkSpace} returns the
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[] (\id{})
 
-  The error weight vector \id{ewt}, step size \id{h}, and unit roundoff    
-  \id{uround} are provided for possible use   
-  in approximating Jacobian data, e.g. by difference quotients.
-  
-  The arguments of a \id{CVSpgmrPrecondFn} are as follows:
-  \begin{itemize}
-  \item 
-    \id{t} is the current value of the independent variable;
-  \item 
-    \id{y} is the current value of the dependent variable vector, 
-    namely the predicted value of $y(t)$;
-  \item 
-    \id{fy} is the vector $f(t,y)$;                                  
-  \item 
-    \id{jok} is an input flag indicating whether Jacobian-related   
-    data needs to be recomputed.
-    \id{jok == FALSE} means that Jacobian-related data   
-    must be recomputed from scratch.                                 
-    \id{jok == TRUE}  means that Jacobian data, if saved from 
-    the previous Precond call, can be reused      
-    (with the current value of \id{gamma}).            
-    A call with \id{jok == TRUE} can only occur after   
-    a call with \id{jok == FALSE};
-  \item 
-    \id{jcurPtr} is a pointer to an output integer flag which is        
-    to be set to \id{TRUE} if Jacobian data was recomputed or   
-    to \id{FALSE} if Jacobian data was not           
-    recomputed, but saved data was reused;
-  \item 
-    \id{gamma} is the scalar appearing in the Newton matrix;
-  \item 
-    \id{ewt} is the error weight vector;                  
-  \item 
-    \id{h} is a tentative step size in t;
-  \item 
-    \id{uround} is the machine unit roundoff;
-  \item 
-    \id{nfePtr} is a pointer to the memory location containing the      
-    {\cvodes} problem data \id{nfe} = number of calls to \id{f}. 
-    The preconditioner solve routine should update this counter by 
-    adding on the number of \id{f} calls made in order to carry out     
-    the solution, if any.  For example, if the routine      
-    calls \id{f} a total of W times, then the update is          
-    \id{*nfePtr += W;};
-  \item 
-    \id{P\_data} is a pointer to user data, the same as the \id{P\_data}      
-    parameter passed to \id{CVSpgmr};
-  \item 
-    \id{vtemp1}, \id{vtemp2}, and \id{vtemp3} are pointers to memory allocated    
-    for vectors of length \id{N} which can be used by           
-    \id{CVSpgmrPrecondFn} as temporary storage or work space.    
-  \end{itemize}
-  
-  The value to be returned by the preconditioner setup function is a flag indicating 
-  whether it was successful.  This value should be $0$ if successful, 
-  positive for a recoverable error (in which case the step will be retried),     
-  negative for an unrecoverable error (in which case the integration is halted). 
-  
-\end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+%%==============================================================================
+\subsubsection{Linear solver optional output functions}\label{sss:linsolv_io}
+%%==============================================================================
+The functions available to access various optional outputs that describe the 
+performance of the {\kinspgmr} module are described below.
 
-%------------------------------------------
-\section{{\cvodes} Preconditioner Modules}\label{ss:preconds}
-%------------------------------------------
+\noindent{\bf SPGMR Linear solver.}
+\index{optional output!iterative linear solver|(}
+\index{KINSPGMR@{\kinspgmr} linear solver!optional output|(} 
+%%
+\index{KINSPGMR@{\kinspgmr} linear solver!memory requirements|(} 
+\index{memory requirements!KINSPGMR@{\kinspgmr} linear solver|(}
+%%
+\ucfunction{KINSpgmrGetWorkSpace}
+{
+  flag = KINSpgmrGetWorkSpace(kin\_mem, \&lenrwSG, \&leniwSG);
+}
+{
+  The function \ID{KINSpgmrGetWorkSpace} returns the
+  {\kinspgmr} real and integer workspace sizes.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[lenrwSG] (\id{long int})
+    the number of \id{realtype} values in the {\kinspgmr} workspace.
+  \item[leniwSG] (\id{long int})
+    the number of integer values in the {\kinspgmr} workspace.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
+  the actual size of the real workspace is
+  (\id{maxl}$+ 5)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ \id{realtype}
+  words.  (In a parallel setting, this value is global --- summed over
+  all processors.)
+}
+%%
+\index{KINSPGMR@{\kinspgmr} linear solver!memory requirements|)} 
+\index{memory requirements!KINSPGMR@{\kinspgmr} linear solver|)}
+%%
+%%
+\ucfunction{KINSpgmrGetNumLinIters}
+{
+  flag = KINSpgmrGetNumLinIters(kin\_mem, \&nliters);
+}
+{
+  The function \ID{KINSpgmrGetNumLinIters} returns the
+  cumulative number of linear iterations.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[nliters] (\id{long int})
+    the current number of linear iterations.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSpgmrGetNumConvFails}
+{
+  flag = KINSpgmrGetNumConvFails(kin\_mem, \&nlcfails);
+}
+{
+  The function \ID{KINSpgmrGetNumConvFails} returns the
+  cumulative number of linear convergence failures.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[nlcfails] (\id{long int})
+    the current number of linear convergence failures.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSpgmrGetNumPrecEvals}
+{
+  flag = KINSpgmrGetNumPrecEvals(kin\_mem, \&npevals);
+}
+{
+  The function \ID{KINSpgmrGetNumPrecEvals} returns the
+  number of preconditioner evaluations, i.e., the number of 
+  calls made to \id{psetup} with \id{jok=FALSE}.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[npevals] (\id{long int})
+    the current number of calls to \id{psetup}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSpgmrGetNumPrecSolves}
+{
+  flag = KINSpgmrGetNumPrecSolves(kin\_mem, \&npsolves);
+}
+{
+  The function \ID{KINSpgmrGetNumPrecSolves} returns the
+  cumulative number of calls made to the preconditioner 
+  solve function, \id{psolve}.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[npsolves] (\id{long int})
+    the current number of calls to \id{psolve}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSpgmrGetNumJtimesEvals}
+{
+  flag = KINSpgmrGetNumJtimesEvals(kin\_mem, \&njvevals);
+}
+{
+  The function \ID{KINSpgmrGetNumJtimesEvals} returns the
+  cumulative number made to the Jacobian-vector function,
+  \id{jtimes}.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[njvevals] (\id{long int})
+    the current number of calls to \id{jtimes}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINSpgmrGetNumRhsEvals}
+{
+  flag = KINSpgmrGetNumRhsEvals(kin\_mem, \&nfevalsSG);
+}
+{
+  The function \ID{KINSpgmrGetNumRhsEvals} returns the
+  number of calls to the user right-hand side function for
+  finite difference Jacobian-vector product approximation.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[nfevalsSG] (\id{long int})
+    the number of calls to the user right-hand side function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  The value \id{nfevalsSG} is incremented only if the default 
+  \id{KINSpgmrDQJtimes} difference quotient function is used.
+}
+%%
+%%
+\ucfunction{KINSpgmrGetLastFlag}
+{
+  flag = KINSpgmrGetLastFlag(kin\_mem, \&flag);
+}
+{
+  The function \ID{KINSpgmrGetLastFlag} returns the
+  last return value from a {\kinspgmr} routine. 
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[flag] (\id{int})
+    the value of the last return flag from a {\kinspgmr} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_LMEM\_NULL]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_LMEM\_NULL}]
+    The {\kinspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\kinspgmr} setup function failed (\id{KINode} returned
+  \id{KIN\_LSETUP\_FAIL}), \id{flag} contains the return value of the
+  preconditioner setup function \id{psetup}.
 
-%-------------------------------------------------------
+  If the {\kinspgmr} solve function failed (\id{KINode} returned
+  \id{KIN\_LSETUP\_FAIL}), \id{flag} contains the error return flag from
+  \id{SpgmrSolve} and will be one of:
+ \id{SPGMR\_CONV\_FAIL}, indicating a failure to converge;
+ \id{SPGMR\_QRFACT\_FAIL}, indicating a singular matrix found during the QR
+  factorization;
+ \id{SPGMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve function
+ \id{psolve} failed recoverably;
+  \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
+  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector
+  function;
+  \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
+  function \id{psolve} failed unrecoverably;
+  \id{SPGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure; 
+  or \id{SPGMR\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to be
+  singular during the QR solve phase.
+}
+%%
+%%
+\index{KINSPGMR@{\kinspgmr} linear solver!optional output|)} 
+\index{optional output!iterative linear solver|)}
 
-\subsection{A Parallel Band-Block-Diagonal Preconditioner Module}\label{sss:cvbbdpre}
+%%==============================================================================
+\section{User-supplied functions}\label{ss:user_fct_sol}
+%%==============================================================================
 
-A principal reason for using a parallel ODE solver such as {\cvodes} lies
-in the solution of partial differential equations (PDEs).  Moreover,
-the use of a Krylov iterative method for the solution of many such
-problems is motivated by the nature of the underlying linear system of
-equations (\ref{e:Newton}) that must be solved at each time step.  The
-linear algebraic system is large, sparse, and structured. However, if
-a Krylov iterative method is to be effective in this setting, then a
-nontrivial preconditioner needs to be used.  Otherwise, the rate of
-convergence of the Krylov iterative method is usually unacceptably
-slow.  Unfortunately, an effective preconditioner tends to be
-problem-specific.
+The user-supplied functions consist of one function defining the nonlinear system, 
+(optionally) a function that provides Jacobian related information for the linear
+solver, and (optionally) one or two functions that define the preconditioner for 
+use in the {\spgmr} algorithm. 
 
-However, we have developed one type of preconditioner that treats a
-rather broad class of PDE-based problems.  It has been successfully
-used for several realistic, large-scale problems \cite{HiTa:98} and is
-included in a software module within the {\cvodes} package. This module
-works with the parallel vector module {\nvecp} and 
-generates a preconditioner that is a block-diagonal matrix with each
-block being a band matrix. The blocks need not have the same number of
-super- and sub-diagonals and these numbers may vary from block to
-block. This Band-Block-Diagonal Preconditioner module is called
-{\cvbbdpre}.
+%%==============================================================================
+\subsection{Problem-defining function} \label{ss:sysFn}
+%%==============================================================================
+\index{problem-defining function}
 
-\index{CVBBDPRE@{\cvbbdpre} preconditioner!description|(}
-One way to envision these preconditioners is to think of the domain of
-the computational PDE problem as being subdivided into $M$ non-overlapping
-subdomains.  Each of these subdomains is then assigned to one of the
-$M$ processors to be used to solve the ODE system. The basic idea is
-to isolate the preconditioning so that it is local to each processor,
-and also to use a (possibly cheaper) approximate right-hand side
-function. This requires the definition of a new function $g(t,y)$
-which approximates the function $f(t, y)$ in the definition of the ODE
-system (\ref{e:ivp}). However, the user may set $g = f$.  Corresponding
-to the domain decomposition, there is a decomposition of the solution
-vector $y$ into $M$ disjoint blocks $y_m$, and a decomposition of $g$
-into blocks $g_m$.  The block $g_m$ depends on $y_m$ and also on
-components of blocks $y_{m'}$ associated with neighboring subdomains
-(so-called ghost-cell data).  Let $\bar{y}_m$ denote $y_m$ augmented
-with those other components on which $g_m$ depends.  Then we have
-\begin{equation}
-g(t,y) = [g_1(t,\bar{y}_1), g_2(t,\bar{y}_2), \ldots, g_M(t,\bar{y}_M)]^T
-\end{equation}
-and each of the blocks $g_m(t, \bar{y}_m)$ is uncoupled from the others.
+The user must provide a function of type \ID{KINSysFn} defined as follows:
+\usfunction{KINSysFn}
+{
+  typedef void (*KINSysFn)(N\_Vector y, N\_Vector fval, void *f\_data );
+}
+{
+  This function computes $F(y)$ for a given value of the vector $y$.
+}
+{
+  \begin{args}[f\_data]
+  \item[y]
+    is the current value of the variable vector, $y$.
+  \item[fval]
+    is the output vector $F(y)$.
+  \item[f\_data]
+    is a pointer to user data --- the same as the \Id{f\_data}      
+    parameter passed to \id{KINSetFdata}.   
+  \end{args}
+}
+{
+  A \id{KINSysFn} function type does not have a return value.
+}
+{
+Allocation of memory for \id{fval} is handled within {\kinsol}.
+}
 
-The preconditioner associated with this decomposition has the form 
-\begin{equation}
-P= diag[P_1, P_2, \ldots, P_M]
-\end{equation}
-where 
-\begin{equation}
-P_m \approx I - \gamma J_m
-\end{equation}
-and $J_m$ is a difference quotient approximation to 
-$\partial g_m/\partial y_m$. This matrix is taken to be banded, with
-upper and lower half-bandwidths \id{mudq} and \id{mldq} defined as
-the number of non-zero diagonals above and below the main diagonal,
-respectively. The difference quotient approximation is computed using
-\id{mudq} $+$ \id{mldq} $+ 2$ evaluations of $g_m$, but only a matrix
-of bandwidth \id{mu} $+$ \id{ml} $+ 1$ is retained. 
-Neither pair of parameters need be the true half-bandwidths of the Jacobian of the
-local block of $g$, if smaller values provide a more efficient
-preconditioner. The solution of the complete linear system
-\begin{equation}
-Px = b
-\end{equation}
-reduces to solving each of the equations 
-\begin{equation}
-P_m x_m = b_m
-\end{equation}
-and this is done by banded LU factorization of $P_m$ followed by a banded
-backsolve.
-\index{CVBBDPRE@{\cvbbdpre} preconditioner!description|)}
 
-\index{CVBBDPRE@{\cvbbdpre} preconditioner!additional user-supplied functions|(}
-To use this {\cvbbdpre} module, the user must supply two functions which the
-module calls to construct $P$. These are in addition to the user-supplied
-right-hand side function \id{f}.
-\begin{itemize}
-\item A function \id{gloc(Nlocal,t,ylocal,glocal,f\_data)} must
-  be supplied by the user to compute $g(t,y)$. It loads the realtype array
-  \id{glocal} as a function of \id{t} and \id{ylocal}.  
-  Both \id{glocal} and \id{ylocal} are of length \id{Nlocal}, the
-  local vector length.
-\item  A function \id{cfn(Nlocal,t,y,f\_data)} which must be supplied to
-  perform all inter-processor communications necessary for the execution of
-  the \id{gloc} function, using the input vector \id{y} of type 
-  \id{N\_Vector}.
-\end{itemize}
-Both functions take as input the same pointer \id{f\_data} as that passed
-by the user to \id{CVodeMalloc} and passed to the user's function \id{f},
-and neither function has a return value. The user is responsible for
-providing space (presumably within \id{f\_data}) for components of \id{y}
-that are communicated by \id{cfn} from the other processors, and that are
-then used by \id{gloc}, which is not expected to do any communication.
-\index{CVBBDPRE@{\cvbbdpre} preconditioner!additional user-supplied functions|)}
 
-\index{CVBBDPRE@{\cvbbdpre} preconditioner!usage|(}
-The user's calling program should include the following elements:
-\begin{itemize}
-  
-\item  \id{\#include "cvsbbdpre.h"} 
-  for needed function prototypes and for type \id{CVBBDData};
-  
-\item \id{\#include "nvector\_parallel.h"} 
-  for the parallel {\nvector} module;
-  
-\item  \id{CVBBDData p\_data};
-  
-\item  \id{machEnv = M\_EnvInit\_Parallel(comm, Nlocal, N, argc, argv)};
+%%==============================================================================
+\subsection{Jacobian information (SPGMR matrix-vector product)}
+\label{ss:jtimesFn}
+%%==============================================================================
 
-\item  \id{y = N\_VNew(machEnv)};
+%%==============================================================================
+\subsection{Preconditioning (SPGMR linear system solution)} \label{ss:psolveFn}
+%%==============================================================================
 
-\item  \id{cvode\_mem = CVodeMaloc(f, \ldots )};
+%%==============================================================================
+\subsection{Preconditioning (SPGMR Jacobian data)}\label{ss:precondFn}
+%%==============================================================================
 
-\item  \id{p\_data = }\Id{CVBBDAlloc}\id{(Nlocal, mudq, mldq, mukeep, mlkeep,}
-  \newline\hspace*{1in}\id{dqrely, gloc, cfn, f\_data, cvode\_mem)};
+%%==============================================================================
+\section{Preconditioner modules}\label{ss:preconds}
+%%==============================================================================
+The efficiency of Krylov iterative methods for the solution of linear systems 
+can be greatly enhanced through preconditioning. For problems in which the 
+user cannot define a more effective, problem-specific preconditioner,
+{\kinsol} provides a band-block-diagonal preconditioner module {\kinbbdpre}.
 
-  where \id{gloc} and \id{cfn} are names of user-supplied
-  functions; \id{f\_data} is a pointer to private data; and \id{cvode\_malloc}
-  is the pointer to {\cvodes} memory returned by \id{CVodeMalloc}.
-  The \id{CVBBDAlloc} call includes half-bandwiths \id{mudq} and \id{mldq}   
-  to be used in the difference-quotient calculation of the    
-  approximate Jacobian.  They need not be the true            
-  half-bandwidths of the Jacobian of the local block of $g$,    
-  when smaller values may provide a greater efficiency.       
-  Also, the half-bandwidths \id{mukeep} and \id{mlkeep} of the retained 
-  banded approximate Jacobian block may be even smaller,      
-  to reduce storage and computation costs further.            
-  For all four half-bandwidths, the values need not be the    
-  same on every processor.
-  
-\item  \id{ier = CVSpgmr(cvode\_mem, pretype, gstype, maxl, delt,}
-  \newline\hspace*{1in}\id{CVBBDPrecon, CVBBDPSol, p\_data)}; 
+%%==============================================================================
+\subsection{A parallel band-block-diagonal preconditioner module}
+\label{sss:kinbbdpre}
+%%==============================================================================
+.......
+.......
+......
 
-  with the pointers \id{cvode\_mem} and \id{p\_data} returned by the two previous calls,
-  the four {\spgmr} parameters (\id{pretype, gstype, maxl, delt}) and the
-  names of the preconditioner routines (\Id{CVBBDPrecon}, \Id{CVBBDPSol})
-  supplied with the {\cvbbdpre} module;
-  
-\item  \id{ier = CVode(cvode\_mem, tout, y, \&t, itask);} 
-  to carry out the integration;
-  
-\item  \Id{CVBBDFree}\id{(p\_data);} 
-  to free the {\cvbbdpre} memory block;
-  
-\item  \id{CVodeFree(cvode\_mem);} 
-  to free the {\cvodes} memory block;
-  
-\item  \id{M\_EnvFree\_Parallel(machEnv);}
-  to free the machine environment memory block.
+%%==============================================================================
+\section{FKINSOL, a {\F}-{\C} interface module}\label{ss:fcmix}
+%%==============================================================================
 
-\end{itemize}
-\index{CVBBDPRE@{\cvbbdpre} preconditioner!usage|)}
+The {\fkinsol} interface module is a package of {\C} functions which support
+the use of the {\kinsol} solver, for the solution nonlinear systems
+$F(y)=0$, in a mixed {\F}/{\C} setting.  While {\kinsol} is written
+in {\C}, it is assumed here that the user's calling program and
+user-supplied problem-defining routines are written in {\F}.
+This package provides the necessary interface to {\kinsol} for both the
+serial and the parallel {\nvector} implementations.
 
-\noindent Three optional outputs associated with this module are available by way of
-macros\index{CVBBDPRE@{\cvbbdpre} preconditioner!optional output}. 
-These are:
-\begin{itemize}
-\item  \Id{CVBBD\_RPWSIZE}\id{(p\_data)} the size of the real workspace (local to
-  the current processor) used by {\cvbbdpre}.
-\item  \Id{CVBBD\_IPWSIZE}\id{(p\_data)} the size of the integer workspace (local to
-  the current processor) used by {\cvbbdpre}.
-\item  \Id{CVBBD\_NGE}\id{(p\_data)} the cumulative number of $g$ evaluations (calls
-  to \id{gloc}) so far.
-\end{itemize}
+%%==============================================================================
+\subsection{FKINSOL routines}
+%%==============================================================================
 
-The costs associated with {\cvbbdpre} also include \id{nsetups} LU
-factorizations, \id{nsetups} calls to \id{cfn}, and \id{nps} banded
-backsolve calls, where \id{nsetups} and \id{nps} are optional {\cvodes}
-outputs.
 
-Similar block-diagonal preconditioners could be considered with different
-treatment of the blocks $P_m$. For example, incomplete LU factorization or
-an iterative method could be used instead of banded LU factorization.
 
+%%==============================================================================
+\subsubsection{Important note on portability}
+%%==============================================================================
+\index{portability!Fortran}
+
+In this package, the names of the interface functions, and the names of
+the {\F} user routines called by them, appear as dummy names
+which are mapped to actual values by a series of definitions in the
+header files \id{fkinsol.h} and \id{fkinbbd.h}.
+By default, those mapping definitions depend in turn on the {\C} macro
+\id{F77\_FUNC} defined in the header file \id{config.h} by \id{configure}. However,
+the set of flags --- \Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},
+\Id{SUNDIALS\_UNDERSCORE\_NONE}, \Id{SUNDIALS\_UNDERSCORE\_ONE}, and
+\Id{SUNDIALS\_UNDERSCORE\_TWO} can be explicitly defined in \id{config.h} when
+configuring {\sundials} via the \id{--with-f77underscore} and
+\id{--with-f77case} options to override the default behavior if necessary
+(see Chapter \ref{s:install}). Either way, the names into which the dummy names
+are mapped are in upper or lower case and have up to two underscores appended.
+
+The user must also ensure that variables in the user {\F} code are
+declared in a manner consistent with their counterparts in {\kinsol}.
+All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
+or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
+depending on whether {\kinsol} was built in single, double or extended precision 
+(see Chapter \ref{s:install}). Moreover, some of the {\F} integer variables
+must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
+{\C} type \id{long int}. These integer variables include: the array
+of integer optional inputs and outputs (\id{IOPT}), problem dimensions (\id{NEQ},
+\id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU}, \id{ML},
+\id{MUDQ}, and \id{MLDQ}). This is particularly important when using
+{\kinsol} and the {\fkinsol} package on 64-bit architectures.
+
+
+%%==============================================================================
+\subsection{FKINSOL optional input and output}
+%%==============================================================================
+\index{FKINSOL@{\fkinsol} interface module!optional input and output}
+
+In order to keep the number of user-callable {\fkinsol} interface routines to
+a minimum, optional inputs and outputs to the {\kinsol} solver and to related 
+modules are not accessed through individual functions, but rather through a
+pair of arrays, \Id{IOPT} of integer type and \Id{ROPT} of real type.
+Table \ref{t:fkinsol_io} lists the entries in these two arrays and specifies the
+{\fkinsol} user-callable routine which sets/accesses the corresponding optional
+variable, as well as the {\kinsol} optional function which is actually called.
+For more details on the optional inputs and outputs, see \S\ref{ss:optional_input}
+and \S\ref{ss:optional_output}.
+
+%%==============================================================================
+\subsection{Usage of the FKINSOL interface module}\label{ss:fkinsol_usage}
+%%==============================================================================
+
+%%==============================================================================
+\subsection{Usage of the FKINBBD interface to KINBBDPRE}
+%%==============================================================================
