@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-09-15 22:05:13 $
+ * $Revision: 1.6 $
+ * $Date: 2004-09-21 22:58:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -63,14 +63,23 @@
  * 3. After calling FCVODE, to see whether a root was found, test the FCVODE
  * return flag IER.  The value IER = 2 means one or more roots were found.
  *
- * 4. The total number of calls made to the root function (FCVROOTFN)
+ * 4. If a root was found, and if NRTFN > 1, then to determine which root
+ * functions G(*) were found to have a root, make the following call:
+ *     CALL FCVROOTINFO (NRTFN, INFO, IER)
+ * The arguments are:
+ *   NRTFN = total number of root functions  [input]
+ *   INFO  = integer array of length NRTFN, with values 0 or 1 [output]
+ *           For i = 1,...,NRTFN, G(i) was found to have a root if INFO(i) = 1.
+ *   IER   = completion flag (0 = success,  negative = failure)
+ *
+ * 5. The total number of calls made to the root function (FCVROOTFN)
  * can be obtained from IOPT[]
  *
  * If the FCVODE/CVODE memory block is reinitialized to solve a different
  * problem via a call to FCVREINIT, then the counter variable NGE is cleared
  * (reset to zero).
  *
- * 5. To free the memory resources allocated by a prior call to FCVROOTINIT make
+ * 6. To free the memory resources allocated by a prior call to FCVROOTINIT make
  * the following call:
  *
  *   CALL FCVROOTFREE
@@ -87,12 +96,14 @@
 #if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_ROOTINIT   fcvrootinit
+#define FCV_ROOTINFO   fcvrootinfo
 #define FCV_ROOTFREE   fcvrootfree
 #define FCV_ROOTFN     fcvrootfn
 
 #elif defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_ROOTINIT   FCVROOTINIT
+#define FCV_ROOTINFO   FCVROOTINFO
 #define FCV_ROOTFREE   FCVROOTFREE
 #define FCV_ROOTFN     FCVROOTFN
 
@@ -103,12 +114,14 @@
 #if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_ROOTINIT   fcvrootinit__
+#define FCV_ROOTINFO   fcvrootinfo__
 #define FCV_ROOTFREE   fcvrootfree__
 #define FCV_ROOTFN     fcvrootfn__
 
 #elif defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_ROOTINIT   FCVROOTINIT__
+#define FCV_ROOTINFO   FCVROOTINFO__
 #define FCV_ROOTFREE   FCVROOTFREE__
 #define FCV_ROOTFN     FCVROOTFN__
 
@@ -119,12 +132,14 @@
 #if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_ROOTINIT   fcvrootinit_
+#define FCV_ROOTINFO   fcvrootinfo_
 #define FCV_ROOTFREE   fcvrootfree_
 #define FCV_ROOTFN     fcvrootfn_
 
 #elif defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_ROOTINIT   FCVROOTINIT_
+#define FCV_ROOTINFO   FCVROOTINFO_
 #define FCV_ROOTFREE   FCVROOTFREE_
 #define FCV_ROOTFN     FCVROOTFN_
 
