@@ -1,0 +1,68 @@
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+#--------------------------------------------------------------------------------
+# Makefile for the IDA package.
+# @configure_input@
+#--------------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# IDA and SHARED include directories
+SHARED_INC_DIR = ../../shared/include
+IDA_INC_DIR  = ../include
+
+# IDA library name
+IDA_LIB = libida.a
+
+# Source and object files
+SRC    = idaband.c idadense.c ida.c idaspgmr.c idabbdpre.c
+OBJ = ${SRC:.c=.o}
+
+# Includes
+SHAREDINCLUDE = -I${SHARED_INC_DIR}
+IDAINCLUDE = -I${IDA_INC_DIR}
+INCS =  ${IDAINCLUDE} ${SHAREDINCLUDE}
+
+# Compiler and compiler options
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: ${OBJ}
+
+install:
+	ar rc ${IDA_LIB} ${OBJ}
+	cp ${IDA_LIB} ${libdir}
+	cp ${IDA_INC_DIR}/ida.h       ${includedir}
+	cp ${IDA_INC_DIR}/idadense.h  ${includedir}
+	cp ${IDA_INC_DIR}/idaband.h   ${includedir}
+	cp ${IDA_INC_DIR}/idaspgmr.h  ${includedir}
+	cp ${IDA_INC_DIR}/idabbdpre.h ${includedir}
+
+clean:
+	rm -f ${OBJ}
+	rm -f ${IDA_LIB}
+
+uninstall:
+	rm -f ${libdir}/${IDA_LIB}
+	rm -f ${includedir}/ida.h
+	rm -f ${includedir}/idadense.h
+	rm -f ${includedir}/idaband.h
+	rm -f ${includedir}/idaspgmr.h
+	rm -f ${includedir}/idabbdpre.h
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCS} $*.c
+
+#---End of Makefile---

@@ -1,0 +1,61 @@
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+# Version of  : 
+#--------------------------------------------------------------------------------
+# Makefile for the FKINSOL package.
+# @configure_input@
+#--------------------------------------------------------------------------------
+
+# Shell
+SHELL = /bin/sh
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+libdir = @libdir@
+
+# KINSOL and SHARED include directories
+SHARED_INC_DIR = ../../shared/include
+KINSOL_INC_DIR  = ../include
+
+# FKINSOL library name
+FKINSOL_LIB = libfkinsol.a
+
+# Source and object files
+SRC = fkinsol.c fkinspgmr01.c fkinspgmr10.c fkinspgmr11.c \
+      fkinspgmr20.c fkinspgmr21.c fkinpreco.c fkinpsol.c \
+      fkinuatimes.c fkinbbd.c fkinbbdinit1.c
+
+OBJ = ${SRC:.c=.o}
+
+# Includes
+SHAREDINCLUDE = -I${SHARED_INC_DIR}
+KINSOLINCLUDE  = -I${KINSOL_INC_DIR}
+INCS =  -I. ${KINSOLINCLUDE} ${SHAREDINCLUDE}
+
+# Compiler and compiler options
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: ${OBJ}
+
+install:
+	ar rc ${FKINSOL_LIB} ${OBJ}
+	cp ${FKINSOL_LIB} ${libdir}
+
+clean:
+	rm -f ${OBJ}
+	rm -f ${FKINSOL_LIB}
+
+uninstall:
+	rm -f ${libdir}/${FKINSOL_LIB}
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCS} $*.c
+
+#---End of Makefile---

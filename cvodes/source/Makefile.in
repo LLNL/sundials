@@ -1,0 +1,77 @@
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+#--------------------------------------------------------------------------------
+# Makefile for the CVODES package.
+# @configure_input@
+#--------------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# CVODES and SHARED include directories
+SHARED_INC_DIR = ../../shared/include
+CVODES_INC_DIR = ../include
+
+# CVODES library name
+CVODES_LIB = libcvodes.a
+
+# Source and object files
+SRC    = cvodes.c cvodea.c \
+         cvsdense.c cvsband.c cvsdiag.c \
+         cvsspgmr.c cvsbandpre.c cvsbbdpre.c
+
+OBJ = ${SRC:.c=.o}
+
+# Includes
+SHAREDINCLUDE = -I${SHARED_INC_DIR}
+CVODESINCLUDE = -I${CVODES_INC_DIR}
+INCS =  ${CVODESINCLUDE} ${SHAREDINCLUDE}
+
+# Compiler and compiler options
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: ${OBJ}
+
+install:
+	ar rc ${CVODES_LIB} ${OBJ}
+	cp ${CVODES_LIB} ${libdir}
+	cp ${CVODES_INC_DIR}/cvodes.h     ${includedir}
+	cp ${CVODES_INC_DIR}/cvodea.h     ${includedir}
+	cp ${CVODES_INC_DIR}/cvsdense.h   ${includedir}
+	cp ${CVODES_INC_DIR}/cvsband.h    ${includedir}
+	cp ${CVODES_INC_DIR}/cvsdiag.h    ${includedir}
+	cp ${CVODES_INC_DIR}/cvsspgmr.h   ${includedir}
+	cp ${CVODES_INC_DIR}/cvsbandpre.h ${includedir}
+	cp ${CVODES_INC_DIR}/cvsbbdpre.h  ${includedir}
+
+clean:
+	rm -f ${OBJ}
+	rm -f ${CVODES_LIB}
+
+uninstall:
+	rm -f ${libdir}/${CVODES_LIB}
+	rm -f ${includedir}/cvodes.h
+	rm -f ${includedir}/cvodea.h
+	rm -f ${includedir}/cvsdense.h
+	rm -f ${includedir}/cvsband.h
+	rm -f ${includedir}/cvsdiag.h
+	rm -f ${includedir}/cvsspgmr.h
+	rm -f ${includedir}/cvsbandpre.h
+	rm -f ${includedir}/cvsbbdpre.h
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCS} $*.c
+
+#---End of Makefile---

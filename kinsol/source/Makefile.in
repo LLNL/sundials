@@ -1,0 +1,64 @@
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+#--------------------------------------------------------------------------------
+# Makefile for the KINSOL package.
+# @configure_input@
+#--------------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# KINSOL and SHARED include directories
+SHARED_INC_DIR = ../../shared/include
+KINSOL_INC_DIR  = ../include
+
+# KINSOL library name
+KINSOL_LIB = libkinsol.a
+
+# Source and object files
+SRC = kinbbdpre.c kinsol.c kinspgmr.c
+OBJ = ${SRC:.c=.o}
+
+# Includes
+SHAREDINCLUDE = -I${SHARED_INC_DIR}
+KINSOLINCLUDE = -I${KINSOL_INC_DIR}
+INCS =  ${KINSOLINCLUDE} ${SHAREDINCLUDE}
+
+# Compiler and compiler options
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: ${OBJ}
+
+install:
+	ar rc ${KINSOL_LIB} ${OBJ}
+	cp ${KINSOL_LIB} ${libdir}
+	cp ${KINSOL_INC_DIR}/kinsol.h    ${includedir}
+	cp ${KINSOL_INC_DIR}/kinspgmr.h  ${includedir}
+	cp ${KINSOL_INC_DIR}/kinbbdpre.h ${includedir}
+
+clean:
+	rm -f ${OBJ}
+	rm -f ${KINSOL_LIB}
+
+uninstall:
+	rm -f ${libdir}/${KINSOL_LIB}
+	rm -f ${includedir}/kinsol.h
+	rm -f ${includedir}/kinspgmr.h
+	rm -f ${includedir}/kinbbdpre.h
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCS} $*.c
+
+#---End of Makefile---
