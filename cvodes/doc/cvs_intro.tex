@@ -80,7 +80,10 @@ and the greater ease of interfacing the solver to applications written
 in extended {\F}.
 \index{CVODES@{\cvodes}!motivation for writing in C|)}
 
-\section{Changes in {\cvsrelease}}
+\section{Changes from previous versions}
+
+\subsection*{Changes in v2.1.0}
+
 The major changes from the previous version involve a redesign of the
 user interface across the entire {\sundials} suite. We have eliminated the
 mechanism of providing optional inputs and extracting optional statistics 
@@ -102,6 +105,18 @@ functions.
 
 Installation of {\cvodes} (and all of {\sundials}) has been completely 
 redesigned and is now based on a configure script.
+
+\subsection*{Changes in v2.1.1}
+
+This {\cvodes} release includes bug fixes related to forward sensitivity
+computations (possible loss of accuray on a BDF order increase and incorrect
+logic in testing user-supplied absolute tolerances). 
+In addition, we have added the option of activating and deactivating
+forward sensitivity calculations on successive {\cvodes} runs without memory
+allocation/deallocation.
+
+Other changes in this minor {\sundials} release affect the build system.
+
 
 \section{Reading this user guide}\label{ss:reading}
 
