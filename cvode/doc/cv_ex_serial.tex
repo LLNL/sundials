@@ -445,7 +445,7 @@ saved matrix $J_{bd}$ and factored.  (A call to \id{Precond} with
 \id{jok}\id{ == TRUE} can only occur after a prior call with
 \id{jok}\id{ == FALSE}.)  The \id{Precond} routine must also set the value
 of \id{jcur}, i.e. \id{*jcurPtr}, to \id{TRUE} when $J_{bd}$ is re-evaluated,
-and \id{FALSE} otherwise, to inform CVSPGMR of the status of Jacobian data.
+and \id{FALSE} otherwise, to inform {\cvspgmr} of the status of Jacobian data.
 See \S\ref{ss:precondFn} and \S\ref{ss:psolveFn} for detailed descriptions
 of these preconditioner functions.
 
