@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : cvsbandpre.c                                   *
- * Programmers   : Michael Wittman and Alan C. Hindmarsh @ LLNL   *
- * Version of    : 23 March 2000                                  *
+ * Programmers   : Michael Wittman, Alan C. Hindmarsh, and        *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 20 March 2002                                  *
  *----------------------------------------------------------------*
  * This file contains implementations of the banded difference    *
  * quotient Jacobian-based preconditioner and solver routines for *
@@ -10,7 +11,9 @@
  *                                                                *
  ******************************************************************/
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cvsbandpre.h"
 #include "cvodes.h"
 #include "llnltyps.h"
@@ -22,6 +25,12 @@
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 
+/* Error Messages */
+
+#define CVBALLOC       "CVBandPreAlloc-- "
+#define MSG_CVMEM_NULL CVBALLOC "CVode Memory is NULL.\n\n"
+#define MSG_WRONG_NVEC CVBALLOC "Incompatible NVECTOR implementation.\n\n"
+
 /* Prototype for difference quotient Jacobian calculation routine */
 
 static void CVBandPDQJac(integer N, integer mupper, integer mlower, BandMat J,
@@ -30,13 +39,34 @@ static void CVBandPDQJac(integer N, integer mupper, integer mlower, BandMat J,
                          N_Vector ftemp, N_Vector ytemp);
 
 
-/********************** Malloc and Free Functions **********************/
+/* Redability replacements */
+#define machenv  (cv_mem->cv_machenv)
+#define errfp    (cv_mem->cv_errfp)
+
+/**************  Malloc, ReInit, and Free Functions **********************/
 
 CVBandPreData CVBandPreAlloc(integer N, RhsFn f, void *f_data,
-                             integer mu, integer ml)
+                             integer mu, integer ml, void *cvode_mem)
 {
+  CVodeMem cv_mem;
   CVBandPreData pdata;
   integer mup, mlp, storagemu;
+
+  cv_mem = (CVodeMem) cvode_mem;
+  if (cvode_mem == NULL) {
+    fprintf(errfp, MSG_CVMEM_NULL);
+    return(NULL);
+  }
+
+  /* Test if the NVECTOR package is compatible with the BAND preconditioner */
+  if ((strcmp(machenv->tag,"serial")) || 
+      machenv->ops->nvmake    == NULL || 
+      machenv->ops->nvdispose == NULL ||
+      machenv->ops->nvgetdata == NULL || 
+      machenv->ops->nvsetdata == NULL) {
+    fprintf(errfp, MSG_WRONG_NVEC);
+    return(NULL);
+  }
 
   pdata = (CVBandPreData) malloc(sizeof *pdata);  /* Allocate data memory */
   if (pdata == NULL) return(NULL);
@@ -73,6 +103,18 @@ CVBandPreData CVBandPreAlloc(integer N, RhsFn f, void *f_data,
   }
 
   return(pdata);
+}
+
+int CVReInitBandPre(CVBandPreData pdata, integer N, RhsFn f, void *f_data,
+                    integer mu, integer ml)
+{
+  /* Load pointers and bandwidths into pdata block. */
+  pdata->f = f;
+  pdata->f_data = f_data;
+  pdata->mu = MIN( N-1, MAX(0,mu) );
+  pdata->ml = MIN( N-1, MAX(0,ml) );
+
+  return(0);
 }
 
 void CVBandPreFree(CVBandPreData pdata)
@@ -225,6 +267,7 @@ int CVBandPSolve(integer N, real t, N_Vector y, N_Vector fy,
                  int lr, void *bp_data, N_Vector z)
 {
   CVBandPreData pdata;
+  real *zd;
 
   /* Assume matrix and pivots have already been allocated. */
   pdata = (CVBandPreData) bp_data;
@@ -233,8 +276,10 @@ int CVBandPSolve(integer N, real t, N_Vector y, N_Vector fy,
   N_VScale(ONE, r, z);
 
   /* Do band backsolve on the vector z. */
-  BandBacksolve(savedP, pivots, z);
- 
+  zd = N_VGetData(z);
+  BandBacksolve(savedP, pivots, zd);
+  N_VSetData(zd, z);
+
   return(0);
 }
 
@@ -271,11 +316,11 @@ static void CVBandPDQJac(integer N, integer mupper, integer mlower, BandMat J,
   real *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
-  ewt_data   = N_VDATA(ewt);
-  fy_data    = N_VDATA(fy);
-  ftemp_data = N_VDATA(ftemp);
-  y_data     = N_VDATA(y);
-  ytemp_data = N_VDATA(ytemp);
+  ewt_data   = N_VGetData(ewt);
+  fy_data    = N_VGetData(fy);
+  ftemp_data = N_VGetData(ftemp);
+  y_data     = N_VGetData(y);
+  ytemp_data = N_VGetData(ytemp);
 
   /* Load ytemp with y = predicted y vector. */
   N_VScale(ONE, y, ytemp);
