@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2004-11-15 17:10:20 $
+ * $Revision: 1.35 $
+ * $Date: 2004-11-23 17:29:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -2121,7 +2121,7 @@ static void KINPrintInfo(KINMem kin_mem, char *funcname, int key,...)
     fprintf(infofp, "f1norm = %15.8le  ", rnum1);
     fprintf(infofp, "alpha_cond = %15.8le  ", rnum1);
     fprintf(infofp, "beta_cond = %15.8le  ", rnum1);
-    fprintf(infofp, "lam = %15.8Le\n", rnum1);
+    fprintf(infofp, "lam = %15.8le\n", rnum1);
 #else
     fprintf(infofp, "f1norm = %15.8e  ", rnum1);
     fprintf(infofp, "alpha_cond = %15.8e  ", rnum1);
