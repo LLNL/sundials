@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-11-24 23:03:32 $
+ * $Revision: 1.3 $
+ * $Date: 2005-02-14 20:32:11 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -316,10 +316,10 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
  *                     (failed the convergence test, but showed
  *                     norm reduction or convergence rate < 1)
  * The error return values (negative) considered non-recoverable are:
- *  IDA_RES_FAIL   if res had a non-recoverable error
- *  IDA_FIRST_RES_FAIL  if res failed recoverably on the first call
- *  SETUP_FAILURE      if lsetup had a non-recoverable error
- *  IDA_LSOLVE_FAIL      if lsolve had a non-recoverable error
+ *  IDA_RES_FAIL       if res had a non-recoverable error
+ *  IDA_FIRST_RES_FAIL if res failed recoverably on the first call
+ *  IDA_LSETUP_FAIL    if lsetup had a non-recoverable error
+ *  IDA_LSOLVE_FAIL    if lsolve had a non-recoverable error
  * -----------------------------------------------------------------
  */
 
