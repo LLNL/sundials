@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2005-03-19 00:10:45 $
+ * $Revision: 1.32 $
+ * $Date: 2005-04-05 21:23:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -95,7 +95,6 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
     return;
   }
 
-
   /* set pointer data_F2C_vec to point to data array from global F2C_vec
      and then overwrite it with the user-supplied constraints */
 
@@ -126,8 +125,14 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 
   *ier = KINMalloc(KIN_mem, FKINfunc, F2C_vec);
 
+  /* reset data pointer */
+
+  N_VSetArrayPointer(data_F2C_vec, F2C_vec);
+
   KIN_iopt = iopt;
   KIN_ropt = ropt;
+
+  return;
 }
 
 /*
@@ -155,6 +160,8 @@ void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
   KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
 
   KIN_ls = KIN_SPGMR;
+
+  return;
 }
 
 /*
@@ -173,7 +180,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   N_Vector uuvec, uscalevec, fscalevec;
   realtype *data_uuvec, *data_uscalevec, *data_fscalevec;
 
-  uuvec = N_VClone(F2C_vec);
+  uuvec = F2C_vec;
   data_uuvec = N_VGetArrayPointer(uuvec);
   N_VSetArrayPointer(uu, uuvec);
 
@@ -188,7 +195,6 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   *ier = KINSol(KIN_mem, uuvec, *globalstrategy, uscalevec, fscalevec);
 
   N_VSetArrayPointer(data_uuvec, uuvec);
-  N_VDestroy(uuvec);
 
   N_VSetArrayPointer(data_uscalevec, uscalevec);
   N_VDestroy(uscalevec);
@@ -239,6 +245,8 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KIN_iopt[13] = nlcfails;
     KIN_iopt[14] = lsflag;
   }
+
+  return;
 }
 
 /*
@@ -257,6 +265,8 @@ void FKIN_FREE(void)
   /* restore data array in F2C_vec */
 
   N_VSetArrayPointer(data_F2C_vec, F2C_vec);
+
+  return;
 }
 
 
@@ -281,4 +291,6 @@ void FKINfunc(N_Vector uu, N_Vector fval, void *f_data)
   fdata = N_VGetArrayPointer(fval);
 
   FK_FUN(udata, fdata);
+
+  return;
 }

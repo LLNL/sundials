@@ -126,6 +126,12 @@ v. 2.2.3 (Apr. 2005) --->
      and the retained matrix (mukeep, mlkeep).
    - added support for KINSPBCG/SPBCG (added FKIN*SPBCG* functions).
 
+v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
+----------------------------------------------
+
+- Changes to user interface
+   - KINSOL now stores an actual copy of the constraints vector rather than
+     just a pointer
 
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------

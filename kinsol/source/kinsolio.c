@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-03-02 17:53:47 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-05 21:23:21 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -509,7 +509,12 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
   }
 
   kin_mem = (KINMem) kinmem;
-  kin_mem->kin_constraints = constraints;
+
+  if (!kin_mem->kin_constraintsSet) {
+    kin_mem->kin_constraints = N_VClone(constraints);
+    N_VScale(ONE, constraints, kin_mem->kin_constraints);
+  }
+  else N_VScale(ONE, constraints, kin_mem->kin_constraints);
 
   return(KIN_SUCCESS);
 }

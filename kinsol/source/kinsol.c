@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2005-03-02 17:53:47 $
+ * $Revision: 1.38 $
+ * $Date: 2005-04-05 21:23:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -130,28 +130,31 @@ void *KINCreate(void)
   
   /* set default values for solver optional inputs */
 
-  kin_mem->kin_func         = NULL;
-  kin_mem->kin_f_data       = NULL;
-  kin_mem->kin_constraints  = NULL;
-  kin_mem->kin_errfp        = stderr;
-  kin_mem->kin_infofp       = stdout;
-  kin_mem->kin_printfl      = PRINTFL_DEFAULT;
-  kin_mem->kin_mxiter       = MXITER_DEFAULT;
+  kin_mem->kin_func           = NULL;
+  kin_mem->kin_f_data         = NULL;
+  kin_mem->kin_constraints    = NULL;
+  kin_mem->kin_uscale         = NULL;
+  kin_mem->kin_fscale         = NULL;
+  kin_mem->kin_constraintsSet = FALSE;
+  kin_mem->kin_errfp          = stderr;
+  kin_mem->kin_infofp         = stdout;
+  kin_mem->kin_printfl        = PRINTFL_DEFAULT;
+  kin_mem->kin_mxiter         = MXITER_DEFAULT;
   kin_mem->kin_noInitSetup  = FALSE;
   kin_mem->kin_msbset       = MSBSET_DEFAULT;
   kin_mem->kin_mxnbcf       = MXNBCF_DEFAULT;
-  kin_mem->kin_sthrsh       = TWO;
-  kin_mem->kin_noMinEps     = FALSE;
-  kin_mem->kin_mxnewtstep   = ZERO;
-  kin_mem->kin_sqrt_relfunc = RSqrt(uround);
-  kin_mem->kin_scsteptol    = RPowerR(uround,TWOTHIRDS);
-  kin_mem->kin_fnormtol     = RPowerR(uround,ONETHIRD);
-  kin_mem->kin_etaflag      = KIN_ETACHOICE1;
-  kin_mem->kin_eta          = POINT1;  /* default for KIN_ETACONSTANT */
-  kin_mem->kin_eta_alpha    = TWO;     /* default for KIN_ETACHOICE2  */
-  kin_mem->kin_eta_gamma    = POINT9;  /* default for KIN_ETACHOICE2  */
-  kin_mem->kin_MallocDone   = FALSE;
-  kin_mem->kin_setupNonNull = FALSE;
+  kin_mem->kin_sthrsh         = TWO;
+  kin_mem->kin_noMinEps       = FALSE;
+  kin_mem->kin_mxnewtstep     = ZERO;
+  kin_mem->kin_sqrt_relfunc   = RSqrt(uround);
+  kin_mem->kin_scsteptol      = RPowerR(uround,TWOTHIRDS);
+  kin_mem->kin_fnormtol       = RPowerR(uround,ONETHIRD);
+  kin_mem->kin_etaflag        = KIN_ETACHOICE1;
+  kin_mem->kin_eta            = POINT1;  /* default for KIN_ETACONSTANT */
+  kin_mem->kin_eta_alpha      = TWO;  /* default for KIN_ETACHOICE2 */
+  kin_mem->kin_eta_gamma      = POINT9;  /* default for KIN_ETACHOICE2 */
+  kin_mem->kin_MallocDone     = FALSE;
+  kin_mem->kin_setupNonNull   = FALSE;
 
   return((void *) kin_mem);
 }
@@ -825,6 +828,7 @@ static void KINFreeVectors(KINMem kin_mem)
   N_VDestroy(pp);
   N_VDestroy(vtemp1);
   N_VDestroy(vtemp2);
+  N_VDestroy(constraints);
 }
 
 
