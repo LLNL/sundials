@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : cvodea.c                                        *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 25 March 2003                                   *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -46,7 +46,7 @@
 #define ZERO        RCONST(0.0)     /* real 0.0 */
 #define ONE         RCONST(1.0)     /* real 1.0 */
 #define TWO         RCONST(2.0)     /* real 2.0 */
-#define FUZZ_FACTOR RCONST(10000.0) /* fuzz factor for CVadjGetY */
+#define FUZZ_FACTOR RCONST(1000000.0)  /* fuzz factor for CVadjGetY */
 
 /*=================================================================*/
 /*END               CVODEA Private Constants                       */
@@ -71,11 +71,9 @@
 
 #define CVBQM               "CVodeQuadMallocB-- "
 #define MSG_CVBQM_NO_MEM    CVBQM "cvadj_mem=NULL illegal.\n\n"
-#define MSG_BAD_NQB         CVBQM "NqB=%ld<0 illegal.\n\n"
 #define MSG_BAD_ECONQB_1    CVBQM "errconQB=%d illegal.\n"
 #define MSG_BAD_ECONQB_2    "The legal values are FULL=%d and PARTIAL=%d.\n\n"
 #define MSG_BAD_ECONQB      MSG_BAD_ECONQB_1 MSG_BAD_ECONQB_2
-
 
 #define CVB                 "CVodeB-- "
 #define MSG_CVODEB_FWD      CVB "an error occured during the forward phase.\n\n"
@@ -103,41 +101,33 @@ static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem,
 static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
                                   long int i, realtype t, N_Vector y);
 
-static void CVArhs(integertype NB, realtype t, N_Vector yB, 
+static void CVArhs(realtype t, N_Vector yB, 
                    N_Vector yBdot, void *passed_data);
-static void CVAdenseJac(integertype NB, DenseMat JB, RhsFn fB, 
-                        void *cvadj_mem, realtype t, 
-                        N_Vector yB, N_Vector fyB, N_Vector ewtB,
-                        realtype hB, realtype uroundB, void *cvadj_mem_bis,
-                        long int *nfePtrB, N_Vector vtemp1B,
-                        N_Vector vtemp2B, N_Vector vtemp3B);
-static void CVAbandJac(integertype NB, integertype mupperB, integertype mlowerB,
-                       BandMat JB, RhsFn fB, void *cvadj_mem, realtype t,
-                       N_Vector yB, N_Vector fyB, N_Vector ewtB, 
-                       realtype hB, realtype uroundB, void *cvadj_mem_bis, 
-                       long int *nfePtrB, N_Vector vtemp1B, 
-                       N_Vector vtemp2B, N_Vector vtemp3B);
-static int CVAspgmrPrecond(integertype NB, realtype t, N_Vector yB, 
+static void CVAdenseJac(integertype nB, DenseMat JB, realtype t, 
+                        N_Vector yB, N_Vector fyB, void *cvadj_mem,
+                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+static void CVAbandJac(integertype nB, integertype mupperB, 
+                       integertype mlowerB, BandMat JB, realtype t, 
+                       N_Vector yB, N_Vector fyB, void *cvadj_mem, 
+                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+static int CVAspgmrPrecond(realtype t, N_Vector yB, 
                            N_Vector fyB, booleantype jokB, 
                            booleantype *jcurPtrB, realtype gammaB,
                            N_Vector ewtB, realtype hB, realtype uroundB,
                            long int *nfePtrB, void *cvadj_mem,
                            N_Vector vtemp1B, N_Vector vtemp2B,
                            N_Vector vtemp3B);
-static int CVAspgmrPsolve(integertype NB, realtype t, N_Vector yB, 
+static int CVAspgmrPsolve(realtype t, N_Vector yB, 
                           N_Vector fyB, N_Vector vtempB, 
                           realtype gammaB, N_Vector ewtB,
                           realtype deltaB, long int *nfePtrB, 
                           N_Vector rB, int lrB, void *cvadj_mem, 
                           N_Vector zB);
-static int CVAspgmrJtimes(integertype NB, N_Vector vB, N_Vector JvB, 
-                          RhsFn fB, void *cvadj_mem, realtype t, 
-                          N_Vector yB, N_Vector fyB,
-                          realtype vnrmB, N_Vector ewtB, realtype hB, 
-                          realtype uroundB, void *cvadj_mem_bis, 
-                          long int *nfePtrB, N_Vector workB);
-static void CVArhsQ(integertype NqB, integertype NB, realtype t, 
-                    N_Vector yB, N_Vector qBdot, void *passed_data);
+static int CVAspgmrJtimes(N_Vector vB, N_Vector JvB, realtype t, 
+                          N_Vector yB, N_Vector fyB, 
+                          void *cvadj_mem, N_Vector workB);
+static void CVArhsQ(realtype t, N_Vector yB, 
+                    N_Vector qBdot, void *passed_data);
 /*=================================================================*/
 /*END               Private Functions Prototypes                   */
 /*=================================================================*/
@@ -171,8 +161,8 @@ static void CVArhsQ(integertype NqB, integertype NB, realtype t,
 #define roptBalloc (ca_mem->ca_roptBalloc)
 #define fQ_B       (ca_mem->ca_fQB)
 #define fQ_data_B  (ca_mem->ca_fQ_dataB)
+#define t_for_quad (ca_mem->ca_t_for_quad)
 
-#define N          (cv_mem->cv_N)
 #define zn         (cv_mem->cv_zn)
 #define nst        (cv_mem->cv_nst)
 #define q          (cv_mem->cv_q)
@@ -205,12 +195,10 @@ static void CVArhsQ(integertype NqB, integertype NB, realtype t,
 #define ropt       (cv_mem->cv_ropt) 
 #define h0u        (cv_mem->cv_h0u)
 
-#define N_B        (cvb_mem->cv_N)
 #define machenv_B  (cvb_mem->cv_machenv)
 #define optIn_B    (cvb_mem->cv_iopt)
 #define iopt_B     (cvb_mem->cv_iopt)
 #define ropt_B     (cvb_mem->cv_ropt)
-#define Nq_B       (cvb_mem->cv_Nq)
 #define errconQ_B  (cvb_mem->cv_errconQ)
 #define machenvQ_B (cvb_mem->cv_machenvQ)
 
@@ -293,7 +281,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   }
 
   /* Workspace memory */
-  Y0 = N_VNew(N,machenv);
+  Y0 = N_VNew(machenv);
   if (Y0 == NULL) {
     CVAdataFree(ca_mem->dt_mem, nsteps);
     CVAckpntDelete(&(ca_mem->ck_mem));
@@ -302,7 +290,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     return(NULL);
   }
 
-  Y1 = N_VNew(N,machenv);
+  Y1 = N_VNew(machenv);
   if (Y1 == NULL) {
     N_VFree(Y0);
     CVAdataFree(ca_mem->dt_mem, nsteps);
@@ -312,7 +300,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     return(NULL);
   }
 
-  ytmp = N_VNew(N,machenv);
+  ytmp = N_VNew(machenv);
   if (ytmp == NULL) {
     N_VFree(Y0);
     N_VFree(Y1);
@@ -461,7 +449,7 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB, 
+int CVodeMallocB(void *cvadj_mem, RhsFnB fB, 
                  realtype tB0, N_Vector yB0, int lmmB, int iterB, int itolB, 
                  realtype *reltolB, void *abstolB, void *f_dataB, 
                  FILE *errfpB, booleantype optInB, 
@@ -512,7 +500,7 @@ int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB,
   ioptB[MXHNIL] = -1;
   ioptB[ISTOP]  =  1;
 
-  cvode_mem = CVodeMalloc(NB, CVArhs, tB0, yB0, lmmB, iterB, 
+  cvode_mem = CVodeMalloc(CVArhs, tB0, yB0, lmmB, iterB, 
                           itolB, reltolB, abstolB, cvadj_mem,
                           errfpB, optInB, ioptB, roptB, machEnvB);
 
@@ -612,7 +600,7 @@ int CVodeReInitB(void *cvadj_mem, RhsFnB fB,
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadMallocB(void *cvadj_mem, integertype NqB, QuadRhsFnB fQB,
+int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB,
                      int errconQB, realtype *reltolQB, void *abstolQB,
                      void *fQ_dataB, M_Env machEnvQB)
 {
@@ -630,19 +618,13 @@ int CVodeQuadMallocB(void *cvadj_mem, integertype NqB, QuadRhsFnB fQB,
   cvb_mem = ca_mem->cvb_mem;
   fp = cvb_mem->cv_errfp;
 
-  /* Check if NqB is legal */
-  if (NqB<0) {
-    fprintf(fp, MSG_BAD_NQB,NqB);
-    return (CVBM_ILL_INPUT);
-  }
-
   /* Check if errcon is legal */
   if ((errconQB!=FULL) && (errconQB!=PARTIAL)) {
     fprintf(fp, MSG_BAD_ECONQB,errconQB,FULL,PARTIAL);
     return (CVBM_ILL_INPUT);
   }
 
-  flag = CVodeQuadMalloc(cvb_mem, NqB, CVArhsQ, errconQB, 
+  flag = CVodeQuadMalloc(cvb_mem, CVArhsQ, errconQB, 
                          reltolQB, abstolQB, cvadj_mem, machEnvQB);
 
   if (flag != SUCCESS)
@@ -705,7 +687,7 @@ int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB,
 */
 /*-----------------------------------------------------------------*/
 
-int CVDenseB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB)
+int CVDenseB(void *cvadj_mem, integertype nB, CVDenseJacFnB djacB, void *jac_dataB)
 {
   CVadjMem ca_mem;
   CVodeMem cvb_mem;
@@ -715,17 +697,15 @@ int CVDenseB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB)
   cvb_mem = ca_mem->cvb_mem;
   
   if (djacB == NULL) {
-    flag = CVDense(cvb_mem, NULL, NULL);
+    flag = CVDense(cvb_mem, nB, NULL, NULL);
   } else {
-    flag = CVDense(cvb_mem, CVAdenseJac, cvadj_mem);
+    flag = CVDense(cvb_mem, nB, CVAdenseJac, cvadj_mem);
     djac_B     = djacB;
     jac_data_B = jac_dataB;
   }
 
   return(flag);
-
 }
-
 
 /*------------------     CVBandB         --------------------------*/
 /*
@@ -734,7 +714,8 @@ int CVDenseB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB)
 */
 /*-----------------------------------------------------------------*/
 
-int CVBandB(void *cvadj_mem, integertype mupperB, integertype mlowerB,
+int CVBandB(void *cvadj_mem, integertype nB, 
+            integertype mupperB, integertype mlowerB,
             CVBandJacFnB bjacB, void *jac_dataB)
 {
   CVadjMem ca_mem;
@@ -745,15 +726,14 @@ int CVBandB(void *cvadj_mem, integertype mupperB, integertype mlowerB,
   cvb_mem = ca_mem->cvb_mem;
   
   if (bjacB == NULL) {
-    flag = CVBand(cvb_mem, mupperB, mlowerB, NULL, NULL);
+    flag = CVBand(cvb_mem, nB, mupperB, mlowerB, NULL, NULL);
   } else {
-    flag = CVBand(cvb_mem, mupperB, mlowerB, CVAbandJac, cvadj_mem);
+    flag = CVBand(cvb_mem, nB, mupperB, mlowerB, CVAbandJac, cvadj_mem);
     bjac_B     = bjacB;
     jac_data_B = jac_dataB;
   }
 
   return(flag);
-
 }
 
 /*------------------   CVBandPreAllocB   --------------------------*/
@@ -766,7 +746,7 @@ int CVBandB(void *cvadj_mem, integertype mupperB, integertype mlowerB,
 */
 /*-----------------------------------------------------------------*/
 
-CVBandPreData CVBandPreAllocB(void *cvadj_mem, integertype NB, 
+CVBandPreData CVBandPreAllocB(void *cvadj_mem, integertype nB, 
                               integertype muB, integertype mlB)
 {
   CVadjMem ca_mem;
@@ -776,14 +756,14 @@ CVBandPreData CVBandPreAllocB(void *cvadj_mem, integertype NB,
   ca_mem = (CVadjMem) cvadj_mem;
   cvb_mem = ca_mem->cvb_mem;
 
-  bpdata = CVBandPreAlloc(NB, CVArhs, cvadj_mem, muB, mlB, cvb_mem);
+  bpdata = CVBandPreAlloc(nB, CVArhs, cvadj_mem, muB, mlB, cvb_mem);
   return(bpdata);
 }
 
 /*------------------    CVBandPrecondB   --------------------------*/
 /*-----------------------------------------------------------------*/
 
-int CVBandPrecondB(integertype NB, realtype t, N_Vector y, 
+int CVBandPrecondB(realtype t, N_Vector y, 
                    N_Vector yB, N_Vector fyB, booleantype jokB, 
                    booleantype *jcurPtrB, realtype gammaB,
                    N_Vector ewtB, realtype hB, realtype uroundB,
@@ -792,7 +772,7 @@ int CVBandPrecondB(integertype NB, realtype t, N_Vector y,
                    N_Vector vtemp3B)
 {
   int flag;
-  flag = CVBandPrecond(NB, t, yB, fyB, jokB, jcurPtrB, gammaB,
+  flag = CVBandPrecond(t, yB, fyB, jokB, jcurPtrB, gammaB,
                        ewtB, hB, uroundB, nfePtrB, P_dataB,
                        vtemp1B, vtemp2B, vtemp3B);
   return(flag);
@@ -801,7 +781,7 @@ int CVBandPrecondB(integertype NB, realtype t, N_Vector y,
 /*------------------     CVBandPSolveB   --------------------------*/
 /*-----------------------------------------------------------------*/
 
-int CVBandPSolveB(integertype NB, realtype t, N_Vector y, 
+int CVBandPSolveB(realtype t, N_Vector y, 
                   N_Vector yB, N_Vector fyB, 
                   N_Vector vtempB,  realtype gammaB, 
                   N_Vector ewtB, realtype deltaB, 
@@ -809,7 +789,7 @@ int CVBandPSolveB(integertype NB, realtype t, N_Vector y,
                   int lrB, void *P_dataB, N_Vector zB)
 {
   int flag;
-  flag = CVBandPSolve(NB, t, yB, fyB, vtempB, gammaB, ewtB, 
+  flag = CVBandPSolve(t, yB, fyB, vtempB, gammaB, ewtB, 
                       deltaB, nfePtrB, rB, lrB, P_dataB, zB);
   return(flag);
 }
@@ -919,8 +899,30 @@ int CVodeB(void *cvadj_mem, N_Vector yB)
 
   } while (ck_mem != NULL);
 
+  t_for_quad = t;
+
   return(flag);
 
+}
+
+/*------------------  CVodeQuadExtractB  --------------------------*/
+/*
+  This routine extracts values of the quadrature variables
+*/
+/*-----------------------------------------------------------------*/
+
+int CVodeQuadExtractB(void *cvadj_mem, N_Vector qB)
+{
+  CVadjMem ca_mem;
+  CVodeMem cvb_mem;
+  int flag;
+  
+  ca_mem  = (CVadjMem) cvadj_mem;
+  cvb_mem = ca_mem->cvb_mem;
+  
+  flag = CVodeQuadExtract(cvb_mem, t_for_quad, qB);
+
+  return(flag);
 }
 
 /*=================================================================*/
@@ -1008,7 +1010,7 @@ int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
       return(GETY_OK);
     }
     else {
-      printf("\n TROUBLE IN GETY \n ");
+      printf("\n TROUBLE IN GETY\n ");
       printf("%g = ABS(t-dt_mem[0]->t) > troundoff = %g  uround = %g\n",
              ABS(t-dt_mem[0]->t), troundoff, uround);
       return(GETY_BADT);
@@ -1121,15 +1123,15 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 
   /* Allocate space for ckdata */
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
-  zn_[0] = N_VNew(N,machenv);
-  zn_[1] = N_VNew(N,machenv);
+  zn_[0] = N_VNew(machenv);
+  zn_[1] = N_VNew(machenv);
 
   /* Load ckdata from cv_mem */
   N_VScale(ONE, zn[0], zn_[0]);
   t0_    = tn;
   q_     = 1;
   /* Compute zn_[1] by calling the user f routine */
-  f(N, t0_, zn_[0], zn_[1], f_data);
+  f(t0_, zn_[0], zn_[1], f_data);
   
   /* Next in list */
   next_  = NULL;
@@ -1154,7 +1156,7 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
   if (ck_mem == NULL) return(NULL);
 
   for (j=0; j<=q; j++) {
-    zn_[j] = N_VNew(N,machenv);
+    zn_[j] = N_VNew(machenv);
     if(zn_[j] == NULL) {
       for(jj=0; jj<j; jj++) N_VFree(zn_[jj]);
       return(NULL);
@@ -1223,8 +1225,8 @@ static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, long int steps)
 
   for (i=0; i<=steps; i++) {
     dt_mem[i] = (DtpntMem)malloc(sizeof(struct DtpntMemRec));
-    dt_mem[i]->y  = N_VNew(N,machenv);
-    dt_mem[i]->yd = N_VNew(N,machenv);
+    dt_mem[i]->y  = N_VNew(machenv);
+    dt_mem[i]->yd = N_VNew(machenv);
   } 
 
   return(dt_mem);
@@ -1356,7 +1358,6 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
   }
 
   return(0);
-    
 }
 
 /*------------------   CVAhermitePrepare --------------------------*/
@@ -1428,7 +1429,7 @@ static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
 */
 /*-----------------------------------------------------------------*/
 
-static void CVArhs(integertype NB, realtype t, N_Vector yB, 
+static void CVArhs(realtype t, N_Vector yB, 
                    N_Vector yBdot, void *cvadj_mem)
 {
   CVadjMem ca_mem;
@@ -1444,7 +1445,7 @@ static void CVArhs(integertype NB, realtype t, N_Vector yB,
   }
 
   /* Call user's adjoint RHS routine */
-  f_B(NB, t, ytmp, yB, yBdot, f_data_B);
+  f_B(t, ytmp, yB, yBdot, f_data_B);
 
 }
 
@@ -1455,8 +1456,8 @@ static void CVArhs(integertype NB, realtype t, N_Vector yB,
 */
 /*-----------------------------------------------------------------*/
 
-static void CVArhsQ(integertype NqB, integertype NB, realtype t, 
-                    N_Vector yB, N_Vector qBdot, void *cvadj_mem)
+static void CVArhsQ(realtype t, N_Vector yB, 
+                    N_Vector qBdot, void *cvadj_mem)
 {
   CVadjMem ca_mem;
   int flag;
@@ -1471,7 +1472,7 @@ static void CVArhsQ(integertype NqB, integertype NB, realtype t,
   }
 
   /* Call user's adjoint RHS routine */
-  fQ_B(NqB, NB, t, ytmp, yB, qBdot, fQ_data_B);
+  fQ_B(t, ytmp, yB, qBdot, fQ_data_B);
 
 }
 
@@ -1482,12 +1483,9 @@ static void CVArhsQ(integertype NqB, integertype NB, realtype t,
 */
 /*-----------------------------------------------------------------*/
 
-static void CVAdenseJac(integertype NB, DenseMat JB, RhsFn fB, 
-                        void *cvadj_mem, realtype t, 
-                        N_Vector yB, N_Vector fyB, N_Vector ewtB,
-                        realtype hB, realtype uroundB, void *cvadj_mem_bis,
-                        long int *nfePtrB, N_Vector vtemp1B,
-                        N_Vector vtemp2B, N_Vector vtemp3B)
+static void CVAdenseJac(integertype nB, DenseMat JB, realtype t, 
+                        N_Vector yB, N_Vector fyB, void *cvadj_mem,
+                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   CVadjMem ca_mem;
   int flag;
@@ -1502,8 +1500,8 @@ static void CVAdenseJac(integertype NB, DenseMat JB, RhsFn fB,
   }
 
   /* Call user's adjoint dense djacB routine */
-  djac_B(NB, JB, f_B, f_data_B, t, ytmp, yB, fyB, ewtB, hB,
-         uroundB, jac_data_B, nfePtrB, vtemp1B, vtemp2B, vtemp3B);
+  djac_B(nB, JB, t, ytmp, yB, fyB, jac_data_B, 
+         tmp1B, tmp2B, tmp3B);
 
 }
 
@@ -1514,12 +1512,10 @@ static void CVAdenseJac(integertype NB, DenseMat JB, RhsFn fB,
 */
 /*-----------------------------------------------------------------*/
 
-static void CVAbandJac(integertype NB, integertype mupperB, integertype mlowerB,
-                       BandMat JB, RhsFn fB, void *cvadj_mem, realtype t,
-                       N_Vector yB, N_Vector fyB, N_Vector ewtB, 
-                       realtype hB, realtype uroundB, void *cvadj_mem_bis, 
-                       long int *nfePtrB, N_Vector vtemp1B, 
-                       N_Vector vtemp2B, N_Vector vtemp3B)
+static void CVAbandJac(integertype nB, integertype mupperB, 
+                       integertype mlowerB, BandMat JB, realtype t, 
+                       N_Vector yB, N_Vector fyB, void *cvadj_mem, 
+                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   CVadjMem ca_mem;
   int flag;
@@ -1534,9 +1530,8 @@ static void CVAbandJac(integertype NB, integertype mupperB, integertype mlowerB,
   }
 
   /* Call user's adjoint band bjacB routine */
-  bjac_B(NB, mupperB, mlowerB, JB, f_B, f_data_B, t, ytmp, 
-         yB, fyB, ewtB, hB, uroundB, jac_data_B, nfePtrB, 
-         vtemp1B, vtemp2B, vtemp3B);
+  bjac_B(nB, mupperB, mlowerB, JB, t, ytmp, yB, fyB, jac_data_B,
+         tmp1B, tmp2B, tmp3B);
 
 }
 
@@ -1547,7 +1542,7 @@ static void CVAbandJac(integertype NB, integertype mupperB, integertype mlowerB,
 */
 /*-----------------------------------------------------------------*/
 
-static int CVAspgmrPrecond(integertype NB, realtype t, N_Vector yB, 
+static int CVAspgmrPrecond(realtype t, N_Vector yB, 
                            N_Vector fyB, booleantype jokB, 
                            booleantype *jcurPtrB, realtype gammaB,
                            N_Vector ewtB, realtype hB, realtype uroundB,
@@ -1568,7 +1563,7 @@ static int CVAspgmrPrecond(integertype NB, realtype t, N_Vector yB,
   } 
 
   /* Call user's adjoint precondB routine */
-  flag = precond_B(NB, t, ytmp, yB, fyB, jokB, jcurPtrB, gammaB, ewtB, hB, 
+  flag = precond_B(t, ytmp, yB, fyB, jokB, jcurPtrB, gammaB, ewtB, hB, 
                    uroundB, nfePtrB, P_data_B, vtemp1B, vtemp2B, vtemp3B);
 
   return(flag);
@@ -1581,7 +1576,7 @@ static int CVAspgmrPrecond(integertype NB, realtype t, N_Vector yB,
 */
 /*-----------------------------------------------------------------*/
 
-static int CVAspgmrPsolve(integertype NB, realtype t, N_Vector yB, 
+static int CVAspgmrPsolve(realtype t, N_Vector yB, 
                           N_Vector fyB, N_Vector vtempB, 
                           realtype gammaB, N_Vector ewtB,
                           realtype deltaB, long int *nfePtrB, 
@@ -1601,7 +1596,7 @@ static int CVAspgmrPsolve(integertype NB, realtype t, N_Vector yB,
   } 
 
   /* Call user's adjoint psolveB routine */
-  flag = psolve_B(NB, t, ytmp, yB, fyB, vtempB, gammaB, ewtB, deltaB, 
+  flag = psolve_B(t, ytmp, yB, fyB, vtempB, gammaB, ewtB, deltaB, 
                   nfePtrB, rB, lrB, P_data_B, zB);
 
   return(flag);
@@ -1614,12 +1609,9 @@ static int CVAspgmrPsolve(integertype NB, realtype t, N_Vector yB,
 */
 /*-----------------------------------------------------------------*/
 
-static int CVAspgmrJtimes(integertype NB, N_Vector vB, N_Vector JvB, 
-                          RhsFn fB, void *cvadj_mem, realtype t, 
-                          N_Vector yB, N_Vector fyB,
-                          realtype vnrmB, N_Vector ewtB, realtype hB, 
-                          realtype uroundB, void *cvadj_mem_bis, 
-                          long int *nfePtrB, N_Vector workB)
+static int CVAspgmrJtimes(N_Vector vB, N_Vector JvB, realtype t, 
+                          N_Vector yB, N_Vector fyB, 
+                          void *cvadj_mem, N_Vector workB)
 {
   CVadjMem ca_mem;
   int flag;
@@ -1634,8 +1626,7 @@ static int CVAspgmrJtimes(integertype NB, N_Vector vB, N_Vector JvB,
   } 
 
   /* Call user's adjoint jtimesB routine */
-  flag = jtimes_B(NB, vB, JvB, f_B, f_data_B, t, ytmp, yB, fyB, vnrmB,
-                  ewtB, hB, uroundB, jac_data_B, nfePtrB, workB);
+  flag = jtimes_B(vB, JvB, t, ytmp, yB, fyB, jac_data_B, workB);
 
   return(flag);
 }
