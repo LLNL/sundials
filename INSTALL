@@ -375,6 +375,7 @@ This example again builds sundials using gcc as the serial C compiler, but the
 --with-mpicc=no option explicitly disables the use of the corresponding MPI compiler script. 
 In addition, since the --with-mpi-root option is given, the compilation flags
 -I/usr/apps/mpich/1.2.4/include and -L/usr/apps/mpich/1.2.4/lib are passed to gcc when 
-compiling the mpi-enabled functions. The --with-mpi-libs option is still needed so that the 
-configure script can check if gcc can link with the appropriate MPI library as -lmpi is 
-the internal default.
+compiling the MPI-enabled functions. The --disable-examples option disables the examples
+(which means a Fortran compiler is not required). The --with-mpi-libs option is still needed
+so that the configure script can check if gcc can link with the appropriate MPI library as
+-lmpi is the internal default.
