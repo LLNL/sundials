@@ -78,7 +78,7 @@ Two methods of applying a computed step $\delta_n$ to the previously computed
 approximate solution vector are implemented.  The 
 first and simplest is the Inexact Newton strategy which applies step 2(b) 
 as above.  
-The other method is a 'global strategy',
+The other method is a global strategy,
 which attempts to use the direction implied by $\delta_n$ 
 in the most efficient way for furthering convergence of the nonlinear problem. 
 This technique 
@@ -109,8 +109,8 @@ Three options for stopping criteria for the linear system solve are
 implemented, including the two 
 algorithms of Eisenstat and Walker \cite{EiWa:96}.
 The Krylov iteration must pass a stopping test,
-\[ \|J \delta_n + F\|_{D_F} < (\eta_k + U) \|F\|_{D_F} \, , \]
-where $\eta_k$ is one of:
+\[ \|J \delta_n + F\|_{D_F} < (\eta_n + U) \|F\|_{D_F} \, , \]
+where $\eta_n$ is one of:
 \begin{itemize}
 \item Eisenstat and Walker Choice 1
   \[ 
