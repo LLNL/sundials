@@ -17,6 +17,7 @@ libdir      = @libdir@
 
 # Path to sources
 srcdir = @srcdir@
+VPATH  = @srcdir@
 
 # Archiver program
 AR = @AR@
@@ -77,19 +78,7 @@ uninstall:
 	rm -f ${includedir}/cvbandpre.h
 	rm -f ${includedir}/cvbbdpre.h
 
-cvode.o : ${srcdir}/cvode.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvband.o : ${srcdir}/cvband.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvdense.o : ${srcdir}/cvdense.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvdiag.o : ${srcdir}/cvdiag.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvspgmr.o : ${srcdir}/cvspgmr.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvbandpre.o : ${srcdir}/cvbandpre.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvbbdpre.o : ${srcdir}/cvbbdpre.c
+.c.o:
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

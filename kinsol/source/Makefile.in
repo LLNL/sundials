@@ -17,6 +17,7 @@ libdir      = @libdir@
 
 # Path to sources
 srcdir = @srcdir@
+VPATH  = @srcdir@
 
 # Archiver program
 AR = @AR@
@@ -65,11 +66,7 @@ uninstall:
 	rm -f ${includedir}/kinspgmr.h
 	rm -f ${includedir}/kinbbdpre.h
 
-kinsol.o : ${srcdir}/kinsol.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-kinspgmr.o : ${srcdir}/kinspgmr.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-kinbbdpre.o : ${srcdir}/kinbbdpre.c
+.c.o:
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

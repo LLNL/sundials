@@ -17,6 +17,7 @@ libdir      = @libdir@
 
 # Path to sources
 srcdir = @srcdir@
+VPATH  = @srcdir@
 
 # Archiver program
 AR = @AR@
@@ -70,9 +71,7 @@ uninstall:
 	rm -f ${includedir}/nvector_parallel.h
 	rm -f ${includedir}/fnvector_parallel.h
 
-nvector_parallel.o : ${srcdir}/nvector_parallel.c
+.c.o:
 	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fnvector_parallel.o : ${srcdir}/fnvector_parallel.c
-	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS} -o $@ $<
 
 #---End of Makefile---

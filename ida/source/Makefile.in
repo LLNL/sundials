@@ -17,6 +17,7 @@ libdir      = @libdir@
 
 # Path to sources
 srcdir = @srcdir@
+VPATH  = @srcdir@
 
 # Archiver program
 AR = @AR@
@@ -71,15 +72,7 @@ uninstall:
 	rm -f ${includedir}/idaspgmr.h
 	rm -f ${includedir}/idabbdpre.h
 
-ida.o : ${srcdir}/ida.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-idaband.o : ${srcdir}/idaband.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-idadense.o : ${srcdir}/idadense.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-idaspgmr.o : ${srcdir}/idaspgmr.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-idabbdpre.o : ${srcdir}/idabbdpre.c
+.c.o:
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

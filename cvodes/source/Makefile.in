@@ -17,6 +17,7 @@ libdir      = @libdir@
 
 # Path to sources
 srcdir = @srcdir@
+VPATH  = @srcdir@
 
 # Archiver program
 AR = @AR@
@@ -83,23 +84,7 @@ uninstall:
 	rm -f ${includedir}/cvsbandpre.h
 	rm -f ${includedir}/cvsbbdpre.h
 
-cvodes.o : ${srcdir}/cvodes.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvodea.o : ${srcdir}/cvodea.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvsband.o : ${srcdir}/cvsband.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvsdense.o : ${srcdir}/cvsdense.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvsdiag.o : ${srcdir}/cvsdiag.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvsspgmr.o : ${srcdir}/cvsspgmr.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvsbandpre.o : ${srcdir}/cvsbandpre.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvsbbdpre.o : ${srcdir}/cvsbbdpre.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-cvodec.o : ${srcdir}/cvodec.c
+.c.o:
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---
