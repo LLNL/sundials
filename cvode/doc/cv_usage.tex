@@ -345,7 +345,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block returned by \id{CVodeCreate}.
-  \item[f] (\Id{RhsFn})
+  \item[f] (\Id{CVRhsFn})
     is the {\C} function which computes $f$ in the ODE. This function has the 
     form \id{f(t, y, ydot, f\_data)} (for full details see \S\ref{ss:rhsFn}).
   \item[t0] (\id{realtype})
@@ -3318,7 +3318,7 @@ appropriate \id{Set} or \id{Reset} calls, as described in
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[f] (\Id{RhsFn})
+  \item[f] (\Id{CVRhsFn})
     is the {\C} function which computes $f$ in the ODE. This function has the form 
     \id{f(N, t, y, ydot, f\_data)} (for full details see \S\ref{ss:user_fct_sim}).
   \item[t0] (\id{realtype})
@@ -3371,11 +3371,11 @@ that define the preconditioner for use in the {\spgmr} algorithm.
 %%==============================================================================
 \index{right-hand side function}
 
-The user must provide a function of type \ID{RhsFn} defined as follows:
-\usfunction{RhsFn}
+The user must provide a function of type \ID{CVRhsFn} defined as follows:
+\usfunction{CVRhsFn}
 {
-  typedef void (*RhsFn)(&realtype t, N\_Vector y, N\_Vector ydot, \\
-                        &void *f\_data);
+  typedef void (*CVRhsFn)(&realtype t, N\_Vector y, N\_Vector ydot, \\
+                          &void *f\_data);
 }
 {
   This function computes the ODE right-hand side for a given value
@@ -3395,7 +3395,7 @@ The user must provide a function of type \ID{RhsFn} defined as follows:
   \end{args}
 }
 {
-  A \id{RhsFn} function type does not have a return value.
+  A \id{CVRhsFn} function type does not have a return value.
 }
 {
 Allocation of memory for \id{ydot} is handled within {\cvode}.
@@ -3767,7 +3767,7 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
   approximation to $M=I - \gamma J$.
 
   Each call to the preconditioner setup function is preceded by a call to     
-  the \id{RhsFn} user function with the same \id{(t,y)} arguments.  
+  the \id{CVRhsFn} user function with the same \id{(t,y)} arguments.  
   Thus the preconditioner setup function can use any auxiliary data that is 
   computed and saved during the evaluation of the ODE right hand side.
   
@@ -3810,7 +3810,7 @@ required additional user-supplied function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block returned by \id{CVodeCreate}.
-  \item[g] (\id{RootFn})
+  \item[g] (\id{CVRootFn})
     is the {\C} function which defines the \id{nrtfn} functions $g_i(t,y)$
     whose roots are sought. See \S\ref{ss:root_us} for details.
   \item[nrtfn] (\id{int})
@@ -3933,12 +3933,12 @@ There are two optional output functions associated with rootfinding.
 %%==============================================================================
 
 If a rootfinding problem is to be solved during the integration of the ODE system,
-the user must supply a {\C} function of type \id{RootFn}, defined as follows:
+the user must supply a {\C} function of type \ID{CVRootFn}, defined as follows:
 %%
-\usfunction{RootFn}
+\usfunction{CVRootFn}
 {
-  typedef void (*RootFn)(&realtype t, N\_Vector y, realtype *gout, \\
-                         &void *g\_data);
+  typedef void (*CVRootFn)(&realtype t, N\_Vector y, realtype *gout, \\
+                           &void *g\_data);
 }
 {
   This function computes a vector-valued function $g(t,y)$ such that the roots of
@@ -3958,7 +3958,7 @@ the user must supply a {\C} function of type \id{RootFn}, defined as follows:
   \end{args}
 }
 {
-  A \id{RootFn} function type does not have a return value.
+  A \id{CVRootFn} function type does not have a return value.
 }
 {
   Allocation of memory for \id{gout} is handled within {\cvode}.
@@ -4468,7 +4468,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 
   to allocate memory for and initialize a data structure \id{bbd\_data} to be 
   passed to the {\cvspgmr} linear solver. The last two arguments of
-  \id{CVBBDPrecAlloc} are the two mandatory user-supplied functions described above.
+  \id{CVBBDPrecAlloc} are the two user-supplied functions described above.
 
 \item \label{i:bbdpre_attach}
   {\bf Attach the {\cvspgmr} linear solver}
@@ -4691,7 +4691,7 @@ used in the difference-quotient Jacobian approximations, the relative increment
 The following three optional output functions are available for use with
 the {\cvbbdpre} module:
 %%
-\index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner|(}
+\index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner}
 \ucfunction{CVBBDPrecGetWorkSpace}
 {
   flag = CVBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
@@ -4728,7 +4728,6 @@ the {\cvbbdpre} module:
   \id{local\_N} integer words.  These values are local to the current processor.
 }
 %%
-\index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner|)}
 %%
 \ucfunction{CVBBDPrecGetNumGfnEvals}
 {
@@ -4851,7 +4850,7 @@ function which calls it (and its type within {\cvode}), are as follows:
 \begin{tabular}{|l|l|l|}
 \hline
 {\fcvode} routine ({\F})  &  {\cvode} function ({\C}) & {\cvode} function type \\\hline
-\id{FCVFUN}    & \id{FCVf}        & \id{RhsFn} \\
+\id{FCVFUN}    & \id{FCVf}        & \id{CVRhsFn} \\
 \id{FCVDJAC}   & \id{FCVDenseJac} & \id{CVDenseJacFn} \\
 \id{FCVBJAC}   & \id{FCVBandJac}  & \id{CVBandJacFn} \\
 \id{FCVPSOL}   & \id{FCVPSol}     & \id{CVSpgmrPrecSolveFn} \\
