@@ -414,7 +414,7 @@ enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
  ******************************************************************/
 
 int CVodeQuadMalloc(void *cvode_mem, 
-                    void *fQ, int errconQ,
+                    QuadRhsFn fQ, int errconQ,
                     realtype *reltolQ, void *abstolQ,
                     void *fQ_data, M_Env machEnvQ);
     
@@ -550,7 +550,7 @@ enum {SCVREI_NO_MEM    = -1, SCVREI_NO_SENSI = -2,
  *                                                                *
  ******************************************************************/
 
-int CVodeQuadReInit(void *cvode_mem, void *fQ, int errconQ,
+int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, int errconQ,
                     realtype *reltolQ, void *abstolQ, 
                     void *fQ_data, M_Env machEnvQ);
 
@@ -893,18 +893,22 @@ void CVodeFree(void *cvode_mem);
  *                 r.h.s. evaluation routine. Optional output.    *
  *                                                                *
  * iopt[NNIS]    : number of Newton iterations performed during   *
- *                 sensitivity corrections (sum over all          *
- *                 sensitivities in the STAGGERED1 case).         *
- *                 Optional output.                               *
- *                                                                *
- * iopt[NCFNS]   : number of nonlinear convergence failures       *
- *                 during the sensitivity corrections (sum over   *
+ *                 staggered sensitivity corrections (sum over    *
  *                 all sensitivities in the STAGGERED1 case).     *
  *                 Optional output.                               *
  *                                                                *
+ * iopt[NCFNS]   : number of nonlinear convergence failures       *
+ *                 during the staggered sensitivity corrections   *
+ *                 sum over all sensitivities in the STAGGERED1   *
+ *                 cse). Optional output.                         *
+ *                                                                *
  * iopt[NETFS]   : number of error test failures for sensitivity  *
- *                 variables.                                     *
+ *                 variables (staggered approach).                *
  *                 Optional output.                               *
+ *                                                                *
+ * iopt[NSETUPSS]: number of calls made to the linear solver's    *
+ *                 setup routine due only to sensitivities in the *
+ *                 staggered approach. Optional output.           *
  *                                                                *
  * iopt[NFQE]    : number of calls made to the quadrature         *
  *                 integrand evaluation routine. Optional output. *
@@ -959,14 +963,14 @@ void CVodeFree(void *cvode_mem);
  * actually accessed in cvode.c.  The locations beyond these      *
  * values are used by the linear solvers.                         */
 
-#define CVODE_IOPT_SIZE 22
+#define CVODE_IOPT_SIZE 23
 #define CVODE_ROPT_SIZE  9
 
 /* iopt indices */
 enum { MAXORD, MXSTEP, MXHNIL,
        NST, NFE, NSETUPS, NNI, NCFN, NETF, QU, QCUR,
        LENRW, LENIW, SLDET, ISTOP, NOR, 
-       NFSE, NNIS, NCFNS, NETFS, NFQE, NETFQ};
+       NFSE, NNIS, NCFNS, NETFS, NSETUPSS, NFQE, NETFQ};
 
 /* ropt indices */
 
@@ -1121,7 +1125,8 @@ typedef struct CVodeMemRec {
   realtype cv_gammap;          /* gamma at the last setup call             */
   realtype cv_gamrat;          /* gamma / gammap                           */
 
-  realtype cv_crate;           /* estimated corrector convergence rate     */
+  realtype cv_crate;           /* est. corrector conv. rate in Nls         */
+  realtype cv_crateS;          /* est. corrector conv. rate in NlsStgr     */
   realtype cv_acnrm;           /* | acor |                                 */
   realtype cv_acnrmS;          /* | acorS |                                */
   realtype cv_acnrmQ;          /* | acorQ |                                */
@@ -1169,6 +1174,8 @@ typedef struct CVodeMemRec {
   long int cv_netfQ;       /* number of quadr. error test failures         */
 
   long int cv_nsetups;     /* number of setup calls                        */
+  long int cv_nsetupss;    /* number of setup calls due to sensitivities   */
+
   int      cv_nhnil;       /* number of messages issued to the user that
                               t + h == t for the next iternal step         */
 
