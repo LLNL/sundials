@@ -295,7 +295,7 @@ created and allocated by the first two calls.
 {
   If successful, \id{CVodeCreate} returns a pointer to the newly created 
   {\cvode} memory block (of type \id{void *}).
-  If an error occured, \id{CVodeCreate} prints an error message to \id{stdout}
+  If an error occured, \id{CVodeCreate} prints an error message to \id{stderr}
   and returns \id{NULL}.
 }
 {}
@@ -713,7 +713,7 @@ Table \ref{t:optional_input} lists all optional input functions in {\cvode} whic
 are then described in detail in the remainder of this section.
 For the most casual use of {\cvode}, the reader can skip to \S\ref{ss:user_fct_sim}.
 
-We note that, on error return, all these functions also print an error message to \id{stdout} 
+We note that, on error return, all these functions also print an error message to \id{stderr} 
 (or to the file pointed to by \id{errfp} if already specified).
 \index{error message}
 We also note that all error return values are negative, so a test \id{flag}$==0$
@@ -729,7 +729,7 @@ will catch any error.
 \hline
 \multicolumn{3}{|c|}{\bf CVODE main solver} \\
 \hline
-Pointer to an error file & \id{CVodeSetErrFile} & NULL  \\
+Pointer to an error file & \id{CVodeSetErrFile} & \id{stderr}  \\
 Nonlinear iteration type & \id{CVodeResetIterType} & none \\
 Data for right-hand side routine & \id{CVodeSetFdata} & NULL \\
 Maximum order for BDF method & \id{CVodeSetMaxOrd} & 5 \\
@@ -804,8 +804,10 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
   \end{args}
 }
 {
-  The default value for \id{errfp} is \id{NULL}, in which case
-  all output is directed to \id{stdout}.
+  The default value for \id{errfp} is \id{stderr}. 
+
+  Passing a value of \id{NULL} disables all future error message output
+  (except for the case in which the {\cvode} memory pointer is \id{NULL}).
 }
 %%
 %%

@@ -238,7 +238,7 @@ The form of the call to this function is
   doesn't need to access this memory block but must pass it to other adjoint module
   user-callable functions. In case of failure (\id{cvode\_mem} is \id{NULL}, \id{Nd} is
   non-positive, or a memory request fails), \id{CVadjMalloc} prints an error
-  message to the standard output stream \id{stdout} and returns \id{NULL}.
+  message to the standard output stream \id{stderr} and returns \id{NULL}.
 }
 {
   The user must set \id{Nd} so that all data needed for interpolation of the 
@@ -352,7 +352,7 @@ The call to this function has the form
   All failure return values are negative and therefore a test \id{flag}$< 0$
   will trap all \id{CVodeF} failures.
 
-  Note that, at this time, \id{CVodeF} stores check point information into memory
+  At this time, \id{CVodeF} stores check point information into memory
   only. Future versions will provide for a safe-guard option of dumping check point
   data to a temporary file as needed. The data stored at each check point is basically
   a snapshot of the {\cvodes} internal memory block and contains enough information
@@ -363,6 +363,11 @@ The call to this function has the form
   so that, at the end of this first forward integration phase, information for the Hermite 
   interpolation is already available from the last check point forward. In particular,
   if no check points were necessary there is no need for the second forward integration phase.
+
+  Although it is legal to define a value for \id{tstop} and then call \id{CVodeF}
+  with \id{itask}$=$\id{NORMAL\_TSTOP} or \id{itask}$=$\id{ONE\_STEP\_TSTOP}, after
+  a return with \id{flag}$=$\id{TSTOP\_RETURN}, the integration should not be 
+  continued (no \id{tstop} information is stored at checkpoints).
 }  
 
 %%---------------------------------------------------------------------
