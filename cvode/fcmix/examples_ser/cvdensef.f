@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.8 $
-C     $Date: 2004-04-29 15:32:32 $
+C     $Revision: 1.9 $
+C     $Date: 2004-04-29 22:23:33 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -45,7 +45,7 @@ C
       ATOL(3) = 1.D-6
       INOPT = 0
       TOUT = 0.4D0
-      ITASK = 0
+      ITASK = 1
 C
       WRITE(6,10) NEQ
  10   FORMAT('Dense example problem: Robertson kinetics, NEQ = ',I2//)

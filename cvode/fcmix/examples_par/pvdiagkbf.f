@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.8 $
-C     $Date: 2004-03-29 20:32:02 $
+C     $Revision: 1.9 $
+C     $Date: 2004-04-29 22:23:29 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -52,9 +52,9 @@ C     Set input arguments.
       ITMETH = 2
       IATOL = 1
       INOPT = 0
-      ITASK = 0
+      ITASK = 1
       IPRE = 1
-      IGS = 0
+      IGS = 1
 C     Set parameter alpha
       ALPHA  = 10.0D0
 C     

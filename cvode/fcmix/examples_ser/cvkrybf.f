@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.2 $
-C     $Date: 2004-03-29 20:32:04 $
+C     $Revision: 1.3 $
+C     $Date: 2004-04-29 22:23:33 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -34,7 +34,7 @@ C
       DOUBLE PRECISION Y(2,10,10), ROPT(40)
       INTEGER IOPT(40)
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
-     1     JPRETYPE/1/, IGSTYPE/0/, MAXL/0/, DELT/0.0D0/
+     1     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
      1     LQ/11/, LH/5/, LNPE/18/, LNLI/19/, LNPS/20/, LNCFL/21/
       INTEGER NEQ
@@ -53,7 +53,7 @@ C     Set other input arguments.
       IATOL = 1
       ATOL = RTOL*FLOOR
       INOPT = 0
-      ITASK = 0
+      ITASK = 1
 C
       WRITE(6,10)NEQ
  10   FORMAT('Krylov example problem: Kinetics-transport, NEQ = ',I4/)

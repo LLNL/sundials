@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.8 $
-C     $Date: 2004-04-29 15:32:32 $
+C     $Revision: 1.9 $
+C     $Date: 2004-04-29 22:23:33 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -43,7 +43,7 @@ C
       MU = MY
       ML = MY
       DTOUT = 0.1D0
-      ITASK = 0
+      ITASK = 1
 C
       WRITE(6,10)NEQ
  10   FORMAT('Band example problem: Advection-diffusion, NEQ = ',I2//)

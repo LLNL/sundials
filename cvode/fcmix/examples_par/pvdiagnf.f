@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.6 $
-C     $Date: 2004-04-29 15:32:36 $
+C     $Revision: 1.7 $
+C     $Date: 2004-04-29 22:23:29 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
 C     ----------------------------------------------------------------
@@ -47,7 +47,7 @@ C Set input arguments.
       ITMETH = 1
       IATOL = 1
       INOPT = 0
-      ITASK = 0
+      ITASK = 1
 c Set parameter ALPHA
       ALPHA  = 10.0D0/NEQ
 C

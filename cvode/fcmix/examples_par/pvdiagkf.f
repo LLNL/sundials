@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.7 $
-C     $Date: 2004-04-29 15:32:36 $
+C     $Revision: 1.8 $
+C     $Date: 2004-04-29 22:23:29 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
@@ -50,9 +50,9 @@ C Set input arguments.
       ITMETH = 2
       IATOL = 1
       INOPT = 0
-      ITASK = 0
+      ITASK = 1
       IPRE = 1
-      IGS = 0
+      IGS = 1
 C Set parameter alpha.
       ALPHA  = 10.0D0
 C
