@@ -18,7 +18,7 @@ systems.
 independent of the ODE context, together with an interface to the CVODE core
 integrator module. 
 \item The vector operations  (linear sums, dot products, norms, etc.) on
-$N$-vectors are isolated in a separate ``NVECTOR'' module.
+$N$-vectors are isolated in a separate NVECTOR module.
 \end{itemize}
 
 The process of modularization has continued with the development of CVODE,
@@ -99,3 +99,27 @@ If neither the serial nor parallel package NVECTOR implementation is
 suitable, the user can provide one or more NVECTOR implementations.  For
 example, it might (and has been) more practical to substitute a more complex
 data structure in a parallel implementation.
+
+\subsection{User Interface Design}
+
+When CVODE was initially developed from VODE and VODPK, its user
+interface was completely redesigned, and the same design principles
+were adopted when the other solvers were added to the suite.  Further
+changes in the interface design were made more recently.  Unlike the
+typical Fortran solver, where the interface consists of one callable
+routine with many arguments, the user interface to each of the
+SUNDIALS solvers involves many callable routines, each with only a few
+arguments.  The various routines specify the various aspects of the
+problem to be solved and of the solution method to be used, or
+retrieve information about the solution.  For each solver, there are
+separate (required) calls that initialize (and allocate memory for)
+the NVECTOR module, the problem solver, and the linear system solver
+it will use.  Then there are optional calls to specify various
+optional inputs (ranging from scalars like maximum method order to the
+user-supplied Jacobian routine), and optional calls to obtain optional
+outputs (mostly performance statistics).  Finally, there is a call to
+restart the solver, when a new problem of the same size is to be
+solved, but possibly with different initial conditions or a different
+right-hand side function.  The interface design is intended to be
+fairly simple for the casual user, but also suitably rich and flexible
+for the more expert user.
