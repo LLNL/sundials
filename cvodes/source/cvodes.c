@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-04-03 00:27:46 $
+ * $Revision: 1.24 $
+ * $Date: 2004-04-08 21:37:12 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -426,9 +426,9 @@
 #define MSG_BAD_DKY         DKY "dky=NULL illegal.\n\n"
 
 
-/* CVodeGetSens, CVodeGetSensDkyAll, CVodeGetSensDky Error Messages */
+/* CVodeGetSens, CVodeGetSens1, CVodeGetSensDky1, CVodeGetSensDky Error Messages */
 
-#define SDKY                "CVodeGetSens/CVodeGetSensDkyAll/CVodeGetSensDky-- "
+#define SDKY                "CVodeGetSens/CVodeGetSens1/CVodeGetSensDky/CVodeGetSensDky1-- "
 
 #define MSG_SDKY_NO_MEM     SDKY "cvode_mem=NULL illegal.\n\n"
 
@@ -3112,25 +3112,37 @@ int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals, long int *nQetfails)
 /*------------------    CVodeGetSens     --------------------------*/
 /* 
    This routine extracts sensitivity solution into ySout.
-   This is just a wrapper that calls CvodeSensDkyAll with k=0                    
+   This is just a wrapper that calls CvodeSensDky with k=0                    
 */
 /*-----------------------------------------------------------------*/
  
 int CVodeGetSens(void *cvode_mem, realtype t, N_Vector *ySout)
 {
-  return (CVodeGetSensDkyAll(cvode_mem,t,0,ySout));
+  return (CVodeGetSensDky(cvode_mem,t,0,ySout));
 }
     
-/*------------------  CVodeGetSensDkyAll   ------------------------*/
+/*------------------    CVodeGetSens1    --------------------------*/
+/* 
+   This routine extracts the is-th sensitivity solution into ySout.
+   This is just a wrapper that calls CvodeSensDky1 with k=0                    
+*/
+/*-----------------------------------------------------------------*/
+ 
+int CVodeGetSens1(void *cvode_mem, realtype t, int is, N_Vector ySout)
+{
+  return (CVodeGetSensDky1(cvode_mem,t,0,is,ySout));
+}
+    
+/*------------------  CVodeGetSensDky      ------------------------*/
 /*
-  If the user calls directly CVodeSensDkyAll then s must be allocated
-  prior to this call. When CVodeSensDkyAll is called by 
-  CVodeSensExtract, only ier=OKAY, ier=DKY_NO_SENSI, or 
+  If the user calls directly CVodeSensDky then s must be allocated
+  prior to this call. When CVodeSensDky is called by 
+  CVodeGetSens, only ier=OKAY, ier=CVG_NO_SENS, or 
   ier=BAD_T are possible.
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeGetSensDkyAll(void *cvode_mem, realtype t, int k, N_Vector *dkyA)
+int CVodeGetSensDky(void *cvode_mem, realtype t, int k, N_Vector *dkyS)
 {
   int ier=OKAY;
   int is;
@@ -3142,22 +3154,22 @@ int CVodeGetSensDkyAll(void *cvode_mem, realtype t, int k, N_Vector *dkyA)
   }
   cv_mem = (CVodeMem) cvode_mem;  
   
-  if (dkyA == NULL) {
+  if (dkyS == NULL) {
     fprintf(errfp, MSG_SBAD_DKYA);
     return (BAD_DKY);
   }
   
   for (is=0; is<Ns; is++) {
-    ier = CVodeGetSensDky(cvode_mem,t,k,is+1,dkyA[is]);
+    ier = CVodeGetSensDky1(cvode_mem,t,k,is+1,dkyS[is]);
     if (ier!=OKAY) break;
   }
   
   return (ier);
 }
     
-/*------------------   CVodeGetSensDky   --------------------------*/
+/*------------------   CVodeGetSensDky1  --------------------------*/
 /*
-  CVodeSensDky computes the kth derivative of the yS[is] function at
+  CVodeSensDky1 computes the kth derivative of the yS[is] function at
   time t, where tn-hu <= t <= tn, tn denotes the current         
   internal time reached, and hu is the last internal step size   
   successfully used by the solver. The user may request 
@@ -3169,8 +3181,8 @@ int CVodeGetSensDkyAll(void *cvode_mem, realtype t, int k, N_Vector *dkyA)
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeGetSensDky(void *cvode_mem, realtype t, int k, int is, 
-                    N_Vector dky)
+int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is, 
+                     N_Vector dkyS)
 { 
   realtype s, c, r;
   realtype tfuzz, tp, tn1;
@@ -3190,7 +3202,7 @@ int CVodeGetSensDky(void *cvode_mem, realtype t, int k, int is,
     return (CVG_NO_SENS);
   }
 
-  if (dky == NULL) {
+  if (dkyS == NULL) {
     fprintf(errfp, MSG_SBAD_DKY);
     return (BAD_DKY);
   }
@@ -3224,14 +3236,14 @@ int CVodeGetSensDky(void *cvode_mem, realtype t, int k, int is,
     c = ONE;
     for (i=j; i >= j-k+1; i--) c *= i;
     if (j == q) {
-      N_VScale(c, znS[q][is], dky);
+      N_VScale(c, znS[q][is], dkyS);
     } else {
-      N_VLinearSum(c, znS[j][is], s, dky, dky);
+      N_VLinearSum(c, znS[j][is], s, dkyS, dkyS);
     }
   }
   if (k == 0) return (OKAY);
   r = RPowerI(h,-k);
-  N_VScale(r, dky, dky);
+  N_VScale(r, dkyS, dkyS);
   return (OKAY);
   
 }

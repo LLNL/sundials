@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-04-03 00:28:06 $
+ * $Revision: 1.20 $
+ * $Date: 2004-04-08 21:37:10 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -943,7 +943,7 @@ int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals, long int *nQetfails);
 /*----------------------------------------------------------------*
  * Forward sensitivity solution extraction routines               *
  *----------------------------------------------------------------*
- * CVodeGetSensDky computes the kth derivative of the is-th       *
+ * CVodeGetSensDky1 computes the kth derivative of the is-th      *
  * sensitivity (is=1, 2, ..., Ns) of the y function at time t,    *
  * where tn-hu <= t <= tn, tn denotes the current internal time   *
  * reached, and hu is the last internal step size successfully    *
@@ -955,14 +955,18 @@ int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals, long int *nQetfails);
  * with sensitivty computations enabled.                          *
  * Arguments have the same meaning as in CVodeDky.                *
  *                                                                * 
- * CVodeGetSensDkyAll computes the k-th derivative of all         *
+ * CVodeGetSensDky computes the k-th derivative of all            *
  * sensitivities of the y function at time t. It repeatedly calls *
  * CVodeGetSensDky. The argument dkyA must be a pointer to        *
  * N_Vector and must be allocated by the user to hold at least Ns *
  * vectors.                                                       *
  *                                                                * 
+ * CVodeGetSens1 returns the is-th sensitivity of the y function  *
+ * at the time t. The argument ySout must be an N_Vector and must *
+ * be allocated by the user.                                      *
+ *                                                                *
  * CVodeGetSens returns sensitivities of the y function at        *
- * the time t. The argument yS must be a pointer to N_Vector      *
+ * the time t. The argument ySout must be a pointer to N_Vector   *
  * and must be allocated by the user to hold at least Ns vectors. *
  *                                                                *
  * Return values are similar to those of CVodeDky. Additionally,  *
@@ -971,10 +975,11 @@ int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals, long int *nQetfails);
  *----------------------------------------------------------------*/
 
 int CVodeGetSens(void *cvode_mem, realtype t, N_Vector *ySout);
+int CVodeGetSens1(void *cvode_mem, realtype t, int is, N_Vector ySout);
 int CVodeGetSensDky(void *cvode_mem, realtype t, int k, 
-                    int is, N_Vector dky);
-int CVodeGetSensDkyAll(void *cvode_mem, realtype t, int k, 
-                       N_Vector *dkyA);
+                    N_Vector *dkyA);
+int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, 
+                     int is, N_Vector dky);
 
 /*----------------------------------------------------------------*
  * Forward sensitivity optional output extraction routines        *
