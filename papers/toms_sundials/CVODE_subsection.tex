@@ -2,9 +2,9 @@
 
 CVODE solves ODE initial value problems in real $N$-space, which we
 write in the abstract form
-\begin{equation}
+\begin{equation}\label{ODE} 
   \dot{y} = f(t,y),~~ y(t_0) = y_0,~~ y \in \mbox{\bf R}^N ~.
-\label{ODE} \end{equation}
+\end{equation}
 Here we use $\dot{y}$ to denote $dy/dt$.  While we use $t$ to denote
 the independent variable, and usually this is time, it certainly need
 not be.  CVODE solves both stiff and nonstiff systems.  Roughly
@@ -14,10 +14,10 @@ scale of the solution itself.
 
 The methods used in CVODE are variable-order, variable-step multistep
 methods, based on formulas of the form
-\begin{equation}
+\begin{equation}\label{LMM} 
  \sum_{i = 0}^{K_1} \alpha_{n,i} y_{n-i} + 
      h_n \sum_{i = 0}^{K_2} \beta_{n,i} \dot{y}_{n-i} = 0 ~.
-\label{LMM} \end{equation}
+\end{equation}
 Here the $y_n$ are computed approximations to $y(t_n)$, and
 $h_n = t_n - t_{n-1}$ is the step size.  The user of CVODE must choose
 appropriately one of two multistep methods: For nonstiff problems,
@@ -31,22 +31,23 @@ order, the recent history of the stepsizes, and the normalization
 $\alpha_{n,0} = -1$.
 
 For either choice of formula, the nonlinear system
-\begin{equation}
-G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0
-  \mbox{~,~~~where~~~} a_n \equiv  
-  \sum_{i>0}(\alpha_{n,i} y_{n-i} + h_n \beta_{n,i} \dot{y}_{n-i}),
-\label{NLS} \end{equation}
+\begin{equation}\label{NLS}
+  G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0,
+\end{equation}
+where $a_n \equiv \sum_{i>0}(\alpha_{n,i} y_{n-i} + h_n \beta_{n,i} \dot{y}_{n-i})$ 
 must be solved (approximately) at each time step.  For this, CVODE
 offers the choice of either {\em functional iteration}, suitable only
 for nonstiff systems, and various versions of {\em Newton iteration}.
 Functional iteration involves evaluations of $f$ only, while Newton
 iteration requires the solution of linear systems
-\begin{equation} M (y_{n(m+1)} - y_{n(m)}) = -G(y_{n(m)}) ~,
-\label{Newtoncorr} \end{equation}
+\begin{equation}\label{Newtoncorr}
+  M (y_{n(m+1)} - y_{n(m)}) = -G(y_{n(m)}) ~,
+\end{equation}
 in which
-\begin{equation} M \approx I - \gamma J, ~~~J = \partial f / \partial y 
-                 ~~~ \mbox{and} ~~~\gamma = h_n \beta_{n,0} ~. 
-\label{Newtonmat} \end{equation}
+\begin{equation}\label{Newtonmat} 
+  M \approx I - \gamma J, ~~~J = \partial f / \partial y 
+  ~~~ \mbox{and} ~~~\gamma = h_n \beta_{n,0} ~. 
+\end{equation}
 For the Newton corrections, CVODE provides a choice of four methods:
 \begin{itemize}
 \item a dense direct solver (serial version only),
@@ -113,7 +114,7 @@ Therefore the convergence (stopping) test is
 We allow at most 3 Newton iterations, and declare the iteration
 diverged if any $\|\delta_m\| / \|\delta_{m-1}\| > 2$.  If convergence
 fails with $J$ or $P$ current, we are forced to reduce the stepsize
-$h$, and we replace $h$ by $h/4$.
+$h_n$, and we replace $h_n$ by $h_n/4$.
 
 When SPGMR is used to solve the linear system, its errors must also be
 controlled, and this also involves the local error test constant.  The
