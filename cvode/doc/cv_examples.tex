@@ -12,7 +12,7 @@
 \newcommand{\cvdate}{February 2004}
 \newcommand{\cvrelease}{v2.1}
 
-\title{Example Programs for \cvode \\ \cvrelease}
+\title{Example Programs for {\cvode} {\cvrelease}}
 \author{
   Alan C. Hindmarsh and Radu Serban\\
   {\em Center for Applied Scientific Computing} \\
@@ -26,7 +26,7 @@
 
 %Create the LLNL Cover Page
 \makeLLNLCover{\cvucrl}%                              UCRL number
-{Example Programs for {\cvode} {\cvrelease}}%   Title on cover page
+{Example Programs for \\ {\cvode} {\cvrelease}}%   Title on cover page
 {Alan C. Hindmarsh and Radu Serban}%                   Authors
 {\cvdate}%                                            Date
 {0in}{0in}
@@ -34,12 +34,14 @@
 \frontex
 
 %===============================================================
-% Example Problems
-\include{cv_sim_ex}
+\include{cv_ex_intro}
+\include{cv_ex_serial}
+\include{cv_ex_parallel}
+\include{cv_ex_fortran}
 %===============================================================
 % Start appendices
 \appendix
-\include{cv_sim_codes}
+\include{cv_ex_codes}
 %===============================================================
 \makeLLNLBackCover
 %===============================================================

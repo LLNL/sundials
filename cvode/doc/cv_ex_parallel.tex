@@ -1,0 +1,170 @@
+%===================================================================================
+\section{Parallel example problems}\label{s:ex_parallel}
+%===================================================================================
+
+\subsection{A nonstiff example: \id{pvnx}}\label{ss:pvnx}
+
+This problem begins with a prototypical diffusion-advection equation
+for $u=u(t,x)$
+\begin{equation}
+\frac{\partial u}{\partial t}=\frac{\partial ^{2}u}{\partial x^{2}}
+   + 0.5\frac{\partial u}{\partial x}  \label{PDE1}
+\end{equation}
+for $0 \leq t \leq 5, ~~ 0\leq x \leq 2$, and subject to homogeneous
+Dirichlet boundary conditions and initial values given by 
+\begin{eqnarray}
+u(t,0) &=& 0  \label{BCIC1} \\
+u(t,2) &=& 0  \nonumber \\
+u(0,x) &=& x(2-x)\exp (2x)  \nonumber
+\end{eqnarray}
+A system of $MX$ ODEs is obtained by discretizing the $x$-axis with $MX+2$
+grid points and replacing the first and second order spatial derivatives
+with their central difference approximations. Since the value of $u$ is
+constant at the two endpoints, the semi-discrete equations for those points
+can be eliminated. The resulting system of ODEs can now be written
+with $u_{i}$ the approximation to $u(t,x_{i})$, $x_{i}=i(\Delta x)$,
+and $\Delta x=2/(MX+1)$:
+\begin{equation}
+\dot{u}_i=\frac{u_{i+1}-2u_{i}+u_{i-1}}{(\Delta x)^{2}}
+  + 0.5 \frac{u_{i+1}-u_{i-1}}{2(\Delta x)}  \label{sd1}
+\end{equation}
+The above equation holds for $i=1,2,\ldots ,MX$ with the understanding
+that $u_{0}=u_{MX+1}=0.$
+
+In the parallel processing environment, we may think of
+the several processors as being laid out on a straight line with each
+processor to compute its contiguous subset of the solution vector.
+Consequently the computation of the right hand side of (\ref{sd1}) requires
+that each interior processor must pass the first component of its block of
+the solution vector to its left-hand neighbor, acquire the last component of
+that neighbor's block, pass the last component of its block of the solution
+vector to its right-hand neighbor, and acquire the first component of that
+neighbor's block. If the processor is the first ($0$th) or last processor,
+then communication to the left or right (respectively) is not required.
+
+The file {\tt pvnx.c} is included in the PVODE package and is the code for
+this problem. It uses the Adams (non-stiff) integration formula and
+functional iteration. The intent of this problem is to illustrate the basic
+user-supplied code and to show that for a fixed problem size the number
+of processors can be varied. As it stands, it is an unrealistically small,
+simple problem. Using more than one processor simply demonstrates that this
+can be done. The output shown below is for 10 grid points and four
+processors. Varying the number of processors will alter the output,
+only because of roundoff-level differences in various vector operations.
+
+Sample output from \id{pvnx} follows.
+%%
+\VerbatimInput[frame=single,framesep=0.1in,label={\tt pvnx} sample output,fontsize=\small]
+{../examples_par/pvnx.out}
+%%
+
+%-----------------------------------------------------------------------------------
+
+\subsection{A user preconditioner example: \id{pvkx}}\label{ss:pvkx}
+
+As an example of using {\cvode} with the Krylov linear solver {\cvspgmr}
+and the parallel MPI {\nvecp} module, we describe 
+a test problem based on a two-dimensional system of two PDEs involving
+diurnal kinetics, advection, and diffusion. 
+These equations represent a simplified model for the transport, production,
+and loss of the oxygen singlet and ozone in the upper atmosphere.
+The PDEs can be written as 
+\begin{equation}\label{e:pvkx:pde}
+  \frac{\partial c^i}{\partial t}=K_h\frac{\partial^2 c^i}{\partial x^2}
+  +V \frac{\partial c^i}{\partial x}
+  + \frac{\partial} {\partial y} K_v(y) \frac{\partial c^i}{\partial y}
+  + R^i(c^1,c^2,t) \quad (i=1,2),
+\end{equation}
+where the superscripts $i$ are used to distinguish the chemical species, and
+where the reaction terms are given by 
+\begin{equation}\label{e:pvkx:r}
+\begin{split}
+  R^1(c^1,c^2,t) & = -q_1c^1c^3-q_2c^1c^2+2q_3(t)c^3+q_4(t)c^2 \\
+  R^2(c^1,c^2,t) & = q_1c^1c^3-q_2c^1c^2-q_4(t)c^2
+\end{split}
+\end{equation}
+The spatial domain is $0 \leq x \leq 20,\;30 \leq y \leq 50$. The constants
+and parameters for this problem are as follows: $K_h=4.0\times
+10^{-6},\;V=10^{-3},\;K_v=10^{-8}\exp (y/5),\;q_1=1.63\times
+10^{-16},\;q_2=4.66\times 10^{-16},\;c^3=3.7\times 10^{16},$ and the diurnal
+rate constants are defined as follows: 
+\begin{equation*}
+q_i(t) = 
+\begin{cases}
+\exp [-a_i/\sin \omega t], & \mbox{for }\sin \omega t>0 \\
+0, & \mbox{for }\sin \omega t\leq 0
+\end{cases}
+\end{equation*}
+where $i=3,4,\;\omega =\pi /43200,\;a_3=22.62,\;a_4=7.601.$
+The time interval of integration is $[0, 86400]$, representing 24
+hours measured in seconds.
+
+Homogeneous Neumann boundary conditions are imposed on each boundary and the
+initial conditions are 
+\begin{eqnarray*}
+c^{1}(x,z,0) &=&10^{6}\alpha (x)\beta (y),\;c^{2}(x,z,0)=10^{12}\alpha
+(x)\beta (y) \\
+\alpha (x) &=&1-(0.1x-1)^{2}+(0.1x-1)^{4}/2 \\
+\beta (y) &=&1-(0.1y-4)^{2}+(0.1y-4)^{4}/2
+\end{eqnarray*}
+
+We discretize the PDE system with central differencing, to obtain
+an ODE system $\dot{u} = f(t,u)$ representing (\ref{e:pvkx:pde}). For this
+example, we may think of the processors as being laid out in a rectangle,
+and each processor being assigned a subgrid of size \id{MXSUB}$\times$\id{MYSUB} of
+the $x-y$ grid. If there are \id{NPEX} processors in the $x$ direction and \id{NPEY}
+processors in the $y$ direction then the overall grid size is \id{MX}$\times$\id{MY}
+with \id{MX}$=$\id{NPEX}$\times$\id{MXSUB} and \id{MY}$=$\id{NPEY}$\times$\id{MYSUB}.
+There are $2\times$\id{MX}$\times$\id{MY} equations in this system of ODEs. 
+To compute $f$ in this setting, the processors pass and receive information as follows. 
+The solution components for the bottom row of grid points in the current
+processor are passed to the processor below it and the solution for the top
+row of grid points is received from the processor below the current
+processor. The solution for the top row of grid points for the current
+processor is sent to the processor above the current processor, while the
+solution for the bottom row of grid points is received from that processor
+by the current processor. Similarly the solution for the first column of
+grid points is sent from the current processor to the processor to its left
+and the last column of grid points is received from that processor by the
+current processor. The communication for the solution at the right edge of
+the processor is similar. If this is the last processor in a particular
+direction, then message passing and receiving are bypassed for that
+direction.
+
+The code listing for this example is given in \A\ref{ss:pvkx}. The purpose of this
+code is to provide a more complicated example than Example 1, and to provide
+a template for a stiff ODE system arising from a PDE system. The solution
+method is BDF with Newton iteration and {\spgmr}. The left preconditioner is
+the block-diagonal part of the Newton matrix, with $2 \times 2$ blocks, and
+the corresponding diagonal blocks of the Jacobian are saved each time the
+preconditioner is generated, for re-use later under certain conditions. 
+
+The organization of the \id{pvkx} program deserves some comments. The
+right-hand side routine \id{f} calls two other routines: \id{ucomm}, which
+carries out inter-processor communication; and \id{fcalc} which operates on
+local data only and contains the actual calculation of $f(t,u)$. The 
+\id{ucomm} function in turn calls three routines which do, respectively,
+non-blocking receive operations, blocking send operations, and
+receive-waiting. All three use MPI, and transmit data from the local \id{u}
+vector into a local working array \id{uext}, an extended copy of \id{u}.
+The \id{fcalc} function copies \id{u} into \id{uext}, so that the
+calculation of $f(t,u)$ can be done conveniently by operations on 
+\id{uext} only.
+
+Sample output from \id{pvkx} follows. The output will vary if the
+number of processors is changed. The output is for four processors 
+(in a $2 \times 2$ array) with a $5 \times 5$ subgrid on each processor.
+%%
+\VerbatimInput[frame=single,framesep=0.1in,label={\tt pvkx} sample output,fontsize=\small]
+{../examples_par/pvkx.out}
+%%
+
+%-----------------------------------------------------------------------------------
+
+\subsection{A CVBBDPRE preconditioner example: \id{pvkxb}}\label{ss:pvkxb}
+
+Sample output from \id{pvkxb} follows.
+%%
+\VerbatimInput[frame=single,framesep=0.1in,label={\tt pvkxb} sample output,fontsize=\small]
+{../examples_par/pvkxb.out}
+%%
