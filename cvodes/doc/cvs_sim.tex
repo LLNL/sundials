@@ -1353,7 +1353,8 @@ The linear solver modules, with one exception, allow for various optional
 inputs, which are described here. The diagonal linear solver module has no
 optional inputs.
 %%
-\paragraph\noindent{\bf Dense Linear solver.}
+
+\vspace{0.1in}\noindent{\bf Dense Linear solver.}
 \index{optional input!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional input|(}
 The \index{CVDENSE@{\cvdense} linear solver!Jacobian approximation used by}
@@ -1442,7 +1443,8 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 %%
 %%------------------------------------------------------------------------------
 %%
-\paragraph\noindent{\bf Band Linear solver.}
+
+\vspace{0.1 in}\noindent{\bf Band Linear solver.}
 \index{optional input!band linear solver|(}
 \index{CVBAND@{\cvband} linear solver!optional input|(}
 The \index{CVBAND@{\cvband} linear solver!Jacobian approximation used by}
@@ -1531,7 +1533,8 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 %%
 %%------------------------------------------------------------------------------
 %%
-\paragraph\noindent{\bf SPGMR Linear solver.}
+
+\vspace{0.1in}\noindent{\bf SPGMR Linear solver.}
 \index{optional input!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -1890,8 +1893,9 @@ The call to the \id{CVodeGetDky} function has the following form:
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[t] (\id{realtype})
-  \item[k] (\id{int})
+  \item[t] (\id{realtype})  the value of the independent variable at
+    which the derivative is requested.
+  \item[k] (\id{int}) the derivative order requested.
   \item[dky] (\id{N\_Vector})
     vector containing the derivative.
     This vector must be allocated by the caller. 

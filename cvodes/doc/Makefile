@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2004-11-09 16:17:39 $
+# $Revision: 1.12 $
+# $Date: 2004-11-11 01:27:03 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -40,6 +40,7 @@ spgmr.tex \
 sun_org.tex \
 types.tex \
 ug.tex \
+ug_html.tex \
 biblio.bib \
 bandmat.eps \
 sunorg1.eps \
@@ -63,6 +64,7 @@ Logo_for_papers.ps \
 Rule_and_address.ps \
 chngpage.sty \
 ug.tex \
+ug_html.tex \
 biblio.bib
 
 all:
@@ -81,6 +83,10 @@ ug: 	copy_ug cvs_guide.aux
 
 ug_pdf: ug cvs_guide.ps
 
+ug_html: ug
+	cp ug_html.tex ug.tex
+	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -local_icons -white cvs_guide.tex
+
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
 	cp ${SHARED_DOC}/$${i} . ;\
@@ -98,6 +104,10 @@ cvs_guide.ps: cvs_guide.dvi
 ex:	copy_ex cvs_examples.aux
 
 ex_pdf: ex cvs_examples.ps
+
+ex_html: ex
+	cp ug_html.tex ug.tex
+	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -local_icons -white cvs_examples.tex
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \

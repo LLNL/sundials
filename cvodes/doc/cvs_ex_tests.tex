@@ -50,15 +50,29 @@ and the ODE system size is $N = 2 N_x N_z$.
 %%
 Parallel performance tests were performed on ASCI Frost, a 68-node, 16-way SMP system
 with POWER3 375 MHz processors and 16 GB of memory per node.
-Speedup results for a global problem size of
-$N = 2 N_x N_y = 2 \cdot 1600 \cdot 400 = 1280000$ 
-shown in Fig.~\ref{f:pvfktTest}.
 We present timing results for the integration of only the state equations
 (column STATES), as well as for
 the computation of forward sensitivities with respect to the diffusion coefficients
 $K_h$ and $K_v$ using the staggered corrector method without and with 
 error control on the sensitivity variables (columns STG and
 STG\_FULL, respectively). 
+Speedup results for a global problem size of
+$N = 2 N_x N_y = 2 \cdot 1600 \cdot 400 = 1280000$ 
+shown in Fig.~\ref{f:pvfktTest} and listed below.
+
+\begin{center}
+  \begin{tabular}{cccc}\hline
+    $P$ &  STATES  &   STG   & STG\_FULL \\ \hline
+    4  &  460.31  &  1414.53  & 2208.14  \\
+    8  &  211.20  &   646.59  & 1064.94  \\
+    16  &   97.16  &   320.78  &  417.95  \\
+    32  &   42.78  &   137.51  &  210.84  \\
+    64  &   19.50  &    63.34  &   83.24  \\
+    128  &   13.78  &    42.71  &   55.17  \\
+    256  &    9.87  &    31.33  &   47.95  \\ \hline
+  \end{tabular}
+\end{center}
+
 %%
 We note that there was not enough memory to solve the problem (even without
 carrying sensitivities) on fewer processors.
@@ -70,34 +84,17 @@ a smaller and smaller fraction of the Jacobian and the cost of inter-process
 communication increases. On the other hand, decreasing the number of processors
 leads to an increase in the cost of the preconditioner setup phase and to a larger
 local problem size which can lead to a point where a node starts memory paging to disk.
-
 %%
 %%
 \begin{figure}
-  \begin{minipage}[c]{.5\textwidth}
-    \centering
-    \includegraphics[width=.85\textwidth]{pvfktTest.eps}
-  \end{minipage}
-  \begin{minipage}[c]{.5\textwidth}
-    \centering
-    \begin{tabularx}{\textwidth}{cccc}\hline
-      $P$ &  STATES  &   STG   & STG\_FULL \\ \hline
-      4  &  460.31  &  1414.53  & 2208.14  \\
-      8  &  211.20  &   646.59  & 1064.94  \\
-     16  &   97.16  &   320.78  &  417.95  \\
-     32  &   42.78  &   137.51  &  210.84  \\
-     64  &   19.50  &    63.34  &   83.24  \\
-     128  &   13.78  &    42.71  &   55.17  \\
-     256  &    9.87  &    31.33  &   47.95  \\ \hline
-   \end{tabularx}
- \end{minipage}
- \caption[Speedup results on a sensitivity problem]
- {Speedup results for the integration of the state equations only
-   (solid line and column 'STATES'), staggered sensitivity analysis without
-   error control on the sensitivity variables (dashed line and column 'STG'),
-   and staggered sensitivity analysis with full error control (dotted line and
-   column 'STG\_FULL')}
- \label{f:pvfktTest}
+%%  {\centerline{\psfig{figure=pvfktTest.eps,width=0.5\textwidth}}}
+  {\centerline{\epsfig{file=pvfktTest.eps,width=0.5\textwidth}}}
+  \caption[Speedup results on a sensitivity problem]
+  {Speedup results for the integration of the state equations only
+    (solid line and column 'STATES'), staggered sensitivity analysis without
+    error control on the sensitivity variables (dashed line and column 'STG'),
+    and staggered sensitivity analysis with full error control (dotted line and
+    column 'STG\_FULL')}
+  \label{f:pvfktTest}
 \end{figure}
-
 

@@ -32,8 +32,8 @@ explanation of the parts of the program and their interaction with {\cvode}.
 Following the initial comment block, this program has a number
 of \id{\#include} lines, which allow access to useful items in {\cvode}
 header files.  The \id{sundialstypes.h} file provides the definition of the
-type \id{realtype} (see \S\ref{s:types} in the user guide \cite{cvode2.2.0_ug}
-for details).  For now, it suffices to read \id{realtype} as \id{double}.
+type \id{realtype} (see \ugref{s:types} for details).  
+For now, it suffices to read \id{realtype} as \id{double}.
 The \id{cvode.h} file provides prototypes for the {\cvode}
 functions to be called (excluding the linear solver selection
 function), and also a number of constants that are to be used in
@@ -59,9 +59,9 @@ accessor macro \id{NV\_Ith\_S} which numbers components starting with
 0. The \id{IJth} macro is used to access elements of a dense matrix of
 type \id{DenseMat}. It is defined using the {\dense} accessor macro
 \id{DENSE\_ELEM} which numbers matrix rows and columns starting with
-0. The macros \id{NV\_Ith\_S} and \id{DENSE\_ELEM} are fully described
-in \S\ref{ss:nvec_ser} and \S\ref{ss:djacFn} of the user guide,
-respectively.
+0. 
+The macro \id{NV\_Ith\_S} is fully described in \ugref{ss:nvec_ser}.
+The macro \id{DENSE\_ELEM} is fully described in \ugref{ss:djacFn}.
 
 Next, the program includes some problem-specific constants, which are
 isolated to this early location to make it easy to change them as needed.  
@@ -94,19 +94,19 @@ right-hand side function $f(t,y)$, and the initial values of $t$ and $y$.
 The argument \id{CV\_SV} specifies a vector of absolute tolerances, and
 this is followed by the address of the relative tolerance \id{reltol}
 and the absolute tolerance vector \id{abstol}.
-See \S\ref{sss:cvodemalloc} for full details of this call.
+See \ugref{sss:cvodemalloc} for full details of this call.
 
 The call to \id{CVodeRootInit} specifies that a rootfinding problem
 is to be solved along with the integration of the ODE system, that the
 root functions are specified in the function \id{g}, and that there are
 two such functions.  Specifically, they are set to $y_1 - 0.0001$ and 
 $y_3 - 0.01$, respectively.
-See \S\ref{ss:root_uc} for a detailed description of this call.
+See \ugref{ss:root_uc} for a detailed description of this call.
 
-The calls to \id{CVDense} and \id{CVDenseSetJacFn} specify the {\cvdense}
+The calls to \id{CVDense} (see \ugref{sss:lin_solv_init}) and 
+\id{CVDenseSetJacFn} (see \ugref{ss:optional_input}) specify the {\cvdense}
 linear solver with an analytic Jacobian supplied by the user-supplied function
-\id{Jac}.  See \S\ref{sss:lin_solv_init} and \S\ref{ss:optional_input}
-for full details of these two calls.
+\id{Jac}.
 
 The actual solution of the ODE initial value problem is accomplished in
 the loop over values of the output time \id{tout}.  In each pass of the
@@ -124,7 +124,7 @@ negative value (indicating a failure), the program breaks out of the loop.
 In the case of a \id{CV\_SUCCESS} return, the value of \id{tout} is
 advanced (multiplied by 10) and a counter (\id{iout}) is advanced, so
 that the loop can be ended when that counter reaches the preset number
-of output times, \id{NOUT} = 12.  See \S\ref{sss:cvode} for full
+of output times, \id{NOUT} = 12.  See \ugref{sss:cvode} for full
 details of the call to \id{CVode}.
 
 Finally, the main program calls \id{PrintFinalStats} to get and print
@@ -147,15 +147,15 @@ the number of nonlinear (Newton) iterations (\id{nni}),
 the number of nonlinear convergence failures (\id{ncfn}),
 the number of local error test failures (\id{netf}), and
 the number of \id{g} (root function) evaluations (\id{nge}).
-These optional outputs are described in \S\ref{ss:optional_output}.
+These optional outputs are described in \ugref{ss:optional_output}.
 
 The function \id{f} is a straightforward expression of the ODEs. 
 It uses the user-defined macro \id{Ith} to extract the components of \id{y}
 and to load the components of \id{ydot}.
-See \S\ref{ss:rhsFn} for a detailed specification of \id{f}.
+See \ugref{ss:rhsFn} for a detailed specification of \id{f}.
 
 Similarly, the function \id{g} defines the two functions, $g_0$ and $g_1$,
-whose roots are to be found.  See \S\ref{ss:root_us} for a detailed description
+whose roots are to be found.  See \ugref{ss:root_us} for a detailed description
 of the \id{g} function.
 
 The function \id{Jac} sets the nonzero elements of the Jacobian as a
@@ -165,7 +165,7 @@ elements of a dense matrix of type \id{DenseMat}.  Here the problem
 size is small, so we need not worry about the inefficiency of using
 \id{NV\_Ith\_S} and \id{DENSE\_ELEM} to access \id{N\_Vector} and
 \id{DenseMat} elements.  Note that in this example, \id{Jac}
-only accesses the \id{y} and \id{J} arguments.  See \S\ref{ss:djacFn}
+only accesses the \id{y} and \id{J} arguments.  See \ugref{ss:djacFn}
 for a detailed description of the dense \id{Jac} function.
 
 The output generated by \id{cvdx} is shown below.  It shows the output
@@ -173,9 +173,7 @@ values at the 12 preset values of \id{tout}.  It also shows the two root
 locations found, first at a root of $g_1$, and then at a root of $g_0$.
 
 %%
-%\vspace{0.1in}
-\VerbatimInput[frame=single,framesep=0.1in,label={\tt cvdx} sample output,
-  fontsize=\small]{../examples_ser/cvdx.out}
+\includeOutput{cvdx}{../examples_ser/cvdx.out}
 %%
 
 %-------------------------------------------------------------------------------
@@ -206,7 +204,7 @@ $y = j \Delta y$. The ODEs are
 where $1 \leq i \leq $\id{MX} and $1 \leq j \leq $\id{MY}.  The boundary
 conditions are imposed by taking $v_{ij} = 0$ above if $i = 0$
 or \id{MX}$ + 1$, or if $j = 0$ or \id{MY}$ + 1$. 
-If we set $u_{(j-1)+(i-1)*\id{MY}} = v_{ij}$, so that the ODE system is
+If we set $u_{(j-1)+(i-1)}$*\id{MY} = $v_{ij}$, so that the ODE system is
 $\dot{u} = f(u)$, then the system Jacobian $J = \partial f / \partial u$ is
 a band matrix with upper and lower half-bandwidths both equal to \id{MY}.
 In the example, we take \id{MX} $= 10$ and \id{MY} $= 5$.
@@ -217,7 +215,7 @@ The \id{cvbx.c} program includes files \id{cvband.h} and
 file contains the prototype for the \id{CVBand} routine. The \id{band.h}
 file contains the definition for band matrix type \id{BandMat} and the
 \id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
-elements. See \S\ref{ss:bjacFn} of the user guide.
+elements (see \ugref{ss:bjacFn}).
 We have explicitly included \id{band.h}, but this is not necessary because
 it is included by \id{cvband.h}.  The file \id{nvector\_serial.h} is
 included for the definition of the serial \id{N\_Vector} type.
@@ -251,12 +249,13 @@ The \id{main} program is straightforward.  The \id{CVodeCreate} call
 specifies the \id{CV\_BDF} method with a \id{CV\_NEWTON} iteration. In the
 \id{CVodeMalloc} call, the parameter \id{SS} indicates scalar relative
 and absolute tolerances, and pointers \id{\&reltol} and \id{\&abstol} to
-these values are passed.  The call to \id{CVBand} specifies the {\cvband}
+these values are passed.  
+The call to \id{CVBand} (see \ugref{sss:lin_solv_init}) specifies the {\cvband}
 linear solver, and specifies that both half-bandwidths of the Jacobian
-are equal to \id{MY}.  The call to \id{CVBandSetJacFn} specifies
+are equal to \id{MY}.  
+The call to \id{CVBandSetJacFn} (see \ugref{ss:optional_input}) specifies
 that a user-supplied Jacobian function \id{Jac} is to be used.
-See \S\ref{sss:lin_solv_init} and \S\ref{ss:optional_input} for full details
-on these two calls.  The actual solution of the problem is performed by
+The actual solution of the problem is performed by
 the call to \id{CVode} within the loop over the output times \id{tout}.
 The max-norm of the solution vector (from a call to \id{N\_VMaxNorm}) and
 the cumulative number of time steps (from a call to \id{CVodeGetNumSteps}) are
@@ -274,7 +273,7 @@ printed include counters such as the total number of steps (\id{nst}),
 LU decompositions (\id{nsetups}), \id{f} evaluations for
 difference-quotient Jacobians (\id{nfeB} = 0 here),
 Jacobian evaluations (\id{njeB}), and nonlinear iterations (\id{nni}).
-These optional outputs are described in \S\ref{ss:optional_output}.
+These optional outputs are described in \ugref{ss:optional_output}.
 Note that \id{PrintFinalStats} is suitable for general use in applications
 of {\cvode} to any problem with a banded Jacobian.
 
@@ -318,15 +317,13 @@ via a call to the \id{BAND\_COL} macro and is stored in \id{kthCol} in
 the \id{Jac} function. When setting the components of $J$ we must be
 careful not to index out of bounds. The guards \id{(i != 1)} etc.
 in front of the calls to \id{BAND\_COL\_ELEM} prevent illegal indexing.
-See \S\ref{ss:bjacFn} for a detailed description of the banded \id{Jac}
+See \ugref{ss:bjacFn} for a detailed description of the banded \id{Jac}
 function.
 
 The output generated by \id{cvbx} is shown below.
 
 %%
-\vspace{0.1in}
-\VerbatimInput[frame=single,framesep=0.1in,label={\tt cvbx} sample output,
-  fontsize=\small]{../examples_ser/cvbx.out}
+\includeOutput{cvbx}{../examples_ser/cvbx.out}
 %%
 
 %-------------------------------------------------------------------------------
@@ -395,16 +392,16 @@ macro for the square of a \id{realtype} number.
 
 The \id{main} program calls \id{CVodeCreate} specifying the \id{CV\_BDF} method
 and \id{CV\_NEWTON} iteration, and then calls \id{CVodeMalloc} with scalar
-tolerances.   It calls  \id{CVSpgmr} to specify the {\cvspgmr} linear solver
-with left preconditioning, and the default value (indicated by a zero argument)
+tolerances.   
+It calls  \id{CVSpgmr} (see \ugref{sss:lin_solv_init}) to specify the {\cvspgmr} 
+linear solver with left preconditioning, and the default value (indicated by a zero argument)
 for \id{maxl}.  The Gram-Schmidt orthogonalization is set to \id{MODIFIED\_GS}
 through the function \id{CVSpgmrSetGSType}.  Next, user-supplied preconditioner
 setup and solve functions, \id{Precond} and \id{PSolve}, are specified through
 calls to \id{CVSpgmrSetPrecSetupFn} and \id{CVSpgmrSetPrecSolveFn}, respectively.
 The \id{data} pointer passed to \id{CVSpgmrSetPrecData} is passed to
 \id{Precond} and \id{PSolve} whenever these are called.  See
-\S\ref{sss:lin_solv_init} and \S\ref{ss:optional_input} in the user
-guide for details on these calls.
+\S\ref{ss:optional_input} for details on these \id{CVSpgmrSet*} functions.
 
 Then for a sequence of \id{tout} values, \id{CVode} is called in the
 \id{CV\_NORMAL} mode, sampled output is printed, and the return value is
@@ -420,7 +417,7 @@ of preconditioner setups (\id{nsetups}), of preconditioner evaluations
 Also printed are the lengths of the problem-dependent real and integer
 workspaces used by the main integrator \id{CVode}, denoted \id{lenrw} and
 \id{leniw}, and those used by {\cvspgmr}, denoted \id{llrw} and \id{lliw}.
-All of these optional outputs are described in \S\ref{ss:optional_output}.
+All of these optional outputs are described in \ugref{ss:optional_output}.
 The \id{PrintFinalStats} function is suitable for general use in applications
 of {\cvode} to any problem with the {\spgmr} linear solver.
 
@@ -436,8 +433,9 @@ a pointer to the first component of an \id{N\_Vector} which we pass to
 the \id{IJKth} macro to do an \id{N\_Vector} access.
 
 The preconditioner used here is the block-diagonal part of the true Newton
-matrix.  It is generated and factored in the \id{Precond} routine and
-backsolved in the \id{PSolve} routine.   Its diagonal blocks are $2 \times 2$
+matrix.  It is generated and factored in the \id{Precond} routine 
+(see \ugref{ss:precondFn}) and backsolved in the \id{PSolve} routine 
+(see \ugref{ss:psolveFn}). Its diagonal blocks are $2 \times 2$
 matrices that include the interaction Jacobian elements and the diagonal
 contribution of the diffusion Jacobian elements.  The block-diagonal part of
 the Jacobian itself, $J_{bd}$, is saved in separate storage each time it is
@@ -449,8 +447,6 @@ saved matrix $J_{bd}$ and factored.  (A call to \id{Precond} with
 \id{jok}\id{ == FALSE}.)  The \id{Precond} routine must also set the value
 of \id{jcur}, i.e. \id{*jcurPtr}, to \id{TRUE} when $J_{bd}$ is re-evaluated,
 and \id{FALSE} otherwise, to inform {\cvspgmr} of the status of Jacobian data.
-See \S\ref{ss:precondFn} and \S\ref{ss:psolveFn} for detailed descriptions
-of these preconditioner functions.
 
 We need to take a brief detour to explain one last important aspect of
 the \id{cvkx.c} program.  The generic {\dense} solver contains two
@@ -468,7 +464,7 @@ functions \id{denalloc}, \id{dencopy}, \id{denscale}, \id{denaddI},
 \id{IJth} defined near the top of the file is used to access
 individual elements in each preconditioner block, numbered from $1$.
 The small dense functions are available for {\cvode} user programs
-generally, and are documented in \S\ref{ss:dense}.
+generally, and are documented in \ugref{ss:dense}.
 
 In addition to the functions called by {\cvode}, \id{cvkx.c} includes
 definitions of several private functions.  These are: \id{AllocUserData}
@@ -485,9 +481,7 @@ the number of preconditioner setups, \id{nsetups}, as a result of the
 Jacobian re-use scheme.
 
 %%
-\vspace{0.1in}
-\VerbatimInput[frame=single,framesep=0.1in,label={\tt cvkx} sample output,
-  fontsize=\small]{../examples_ser/cvkx.out}
+\includeOutput{cvkx}{../examples_ser/cvkx.out}
 %%
 
 %-------------------------------------------------------------------------------
