@@ -62,8 +62,8 @@ A. Installation Notes for IDA
    there,  with subdirectories /shared/, /ida/, /include/, and /lib/.
 
 2. /sundials/ida/doc/ contains this file, called idareadme, a PostScript
-   file idaudoc.ps for the User Document [3], and a file idaaddenda
-   with corrections to the usage as given in [3].
+   file idaudoc.ps and a PDF file idaudoc.pdf for the User Document [3],
+   and a file idaaddenda with corrections to the usage as given in [3].
 
 3. /sundials/shared/ contains files (header and source) that are shared
    with other members of SUNDIALS.  Installation requires two steps:
@@ -301,33 +301,4 @@ D. Revision History (YYYYMMDD)
           examples iheatsk and iheatbbd illustrating reinitialization.
 20020705  Minor corrections to all example source files.
 20020711  Minor corrections throughout.
-
-......................................................................
-
-                            LEGAL NOTICES
-
-This work was performed at the University of California, Lawrence
-Livermore National Laboratory (UC LLNL) under contract No.
-W-7405-ENG-48 (Contract 48) between the U.S. Department of Energy
-(DOE) and The Regents of the University of California (the University)
-for the operation of UC LLNL.
-
-This work was prepared as an account of work sponsored by an agency of
-the United States Government.  Neither the United States Government
-nor the University of California nor any of their employees makes any
-warranty, express or implied, or assumes any liability or
-responsibility for the accuracy, completeness, or usefulness of any
-information, apparatus, product, or process disclosed, or represents
-that its use would not infringe privately owned rights.  Reference
-herein to any specific commercial products, process, or service by
-trade name, trademark, manufacturer, or otherwise, does not
-necessarily constitute or imply its endorsement, recommendation, or
-favoring by the United States Government or the University of
-California.  The views and opinions of authors expressed herein do not
-necessarily state or reflect those of the United States Government or
-the University of California, and shall not be used for advertising or
-product endorsement purposes.
-
-IDA has been declared to be in the Public Domain.
-
-......................................................................
+20020830  Minor revisions to this file idareadme.

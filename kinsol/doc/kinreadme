@@ -60,9 +60,8 @@ A. Installation Notes for KINSOL
    there,  with subdirectories /shared/, /kinsol/, /include/, and /lib/.
 
 2. /sundials/kinsol/doc/ contains this file, kinreadme, a PostScript file
-   kinudoc.ps for the KINSOL user documentation [2], and a file
-   kinaddenda with corrections to the usage as given in [2].
-
+   kinudoc.ps and a PDF file kinudoc.pdf for the KINSOL user documentation
+   [2], and a file kinaddenda with corrections to the usage as given in [2].
 
 3. /sundials/shared/ contains files (header and source) that are shared
    with other members of SUNDIALS.  Installation requires two steps:
@@ -291,33 +290,4 @@ REVISION HISTORY (YYYYMMDD)
            In FKINSOL module: corrected usage notes and other comments;
            added error return flag to all fkinspgmr** routines;
            upgraded both examples.
-
-..........................................................................
-
-                            LEGAL NOTICES
-
-This work was performed at the University of California, Lawrence
-Livermore National Laboratory (UC LLNL) under contract no.
-W-7405-ENG-48 (Contract 48) between the U.S. Department of Energy
-(DOE) and The Regents of the University of California (the University)
-for the operation of UC LLNL.
-
-This work was prepared as an account of work sponsored by an agency of
-the United States Government. Neither the United States Government
-nor the University of California nor any of their empolyees makes any
-warranty, express or implied, or assumes any liability or
-responsibility for the accuracy, completeness, or usefulness of any
-information, apparatus, product, or process disclosed, or represents
-that its use would not infringe privately owned rights. Reference
-herein to any specific commercial products, process, or service by
-trade name, trademark, manufacturer, or otherwise, does not
-necessarily constitute or imply its endorsement, recommendation, or
-favoring by the United States Government or the University of
-California. The views and opinions of authors expressed herein do not
-necessarily state or reflect those of the United States Government or
-the University of California, and shall not be used for advertising or
-product endorsement purposes.
-
-KINSOL has been declared to be in the Public Domain.
-
-..........................................................................
+20020830   Minor revisions to this file kinreadme.
