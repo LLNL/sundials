@@ -17,7 +17,7 @@ tar uf $tarfile $distrobase/config/fortran_update.in
 tar uf $tarfile $distrobase/Makefile.in
 tar uf $tarfile $distrobase/config.hin
 
-tar uf $tarfile $distrobase/INSTALL
+tar uf $tarfile $distrobase/INSTALL_NOTES
 tar uf $tarfile $distrobase/README
 
 echo ""
