@@ -49,16 +49,16 @@
  *******************************************************************/
 
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #ifndef included_nvector_parallel_h
 #define included_nvector_parallel_h
 
-#include "nvector.h"  /* Generic M_Env and N_Vector type definitions */
+#include "nvector.h"
 #include "sundialstypes.h"
 #include "mpi.h"
+
+#ifdef __cplusplus     /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 /****************************************************************
  * PART I:                                                      *
@@ -375,8 +375,8 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m);
 realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom);
 void N_VPrint_Parallel(N_Vector x);
 
-
-#endif
 #ifdef __cplusplus
 }
+#endif
+
 #endif
