@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-03-31 20:16:20 $
+ * $Revision: 1.3 $
+ * $Date: 2004-04-01 20:25:43 $
  * ----------------------------------------------------------------- 
  * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *              Radu Serban @ LLNL
@@ -502,13 +502,6 @@ static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
   npelast = NPEX*NPEY - 1;
   udata = NV_DATA_P(u);
 
-  CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1, (int)my_pe);
-  CVodeGetCurrentOrder(cvode_mem, &qu);
-  check_flag(&flag, "CVodeGetCurrentOrder", 1, (int)my_pe);
-  CVodeGetCurrentStep(cvode_mem, &hu);
-  check_flag(&flag, "CVodeGetCurrentStep", 1, (int)my_pe);
-
   /* Send c1,c2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
     i0 = NVARS*MXSUB*MYSUB - 2;
@@ -526,6 +519,14 @@ static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
   if (my_pe == 0) {
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
+
+    flag = CVodeGetNumSteps(cvode_mem, &nst);
+    check_flag(&flag, "CVodeGetNumSteps", 1, 0);
+    flag = CVodeGetCurrentOrder(cvode_mem, &qu);
+    check_flag(&flag, "CVodeGetCurrentOrder", 1, 0);
+    flag = CVodeGetCurrentStep(cvode_mem, &hu);
+    check_flag(&flag, "CVodeGetCurrentStep", 1, 0);
+
     printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
            t, nst, qu, hu);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", udata[0], udata[1]);
