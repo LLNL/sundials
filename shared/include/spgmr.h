@@ -53,7 +53,7 @@
  *    psolve (P_data, x, y, lr)                                    *
  *                to solve P1 x = y or P2 x = y for x, given y.    *
  * The three user calls are:                                       *
- *    mem  = SpgmrMalloc(N, lmax, machEnv);                        *
+ *    mem  = SpgmrMalloc(N, lmax, NVSpec);                         *
  *           to initialize memory,                                 *
  *    flag = SpgmrSolve(mem,A_data,x,b,...,                        *
  *                      P_data,s1,s2,atimes,psolve,...);           *
@@ -149,13 +149,13 @@ typedef struct _SpgmrMemRec {
  * returns a pointer of type SpgmrMem which the user of the       *
  * SPGMR package should pass to SpgmrSolve. The parameter l_max   *
  * is the maximum Krylov dimension that SpgmrSolve will be        *
- * permitted to use. The parameter machEnv is a pointer to        *
- * machine environment-specific information. This routine returns *
- * NULL if there is a memory request failure.                     *
+ * permitted to use. The parameter NVSpec is a pointer to a       *
+ * structure of vector specification information. This routine    *
+ * returns NULL if there is a memory request failure.             *
  *                                                                *
  ******************************************************************/
 
-SpgmrMem SpgmrMalloc(int l_max, void *machEnv);
+SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec);
 
 
 /******************************************************************

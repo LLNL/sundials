@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : nvector.h                                       *
  * Programmers   : Radu Serban, LLNL                               *
- * Version of    : 26 March 2003                                   *
+ * Version of    : 06 June 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -10,8 +10,8 @@
  * For details, see sundials/shared/LICENSE                        *
  *-----------------------------------------------------------------*
  * This is the header file for a generic NVECTOR package.          *
- * It defines the N_Vector and M_Env structures:                   *
- *   M_Env has an implementation-dependent 'content' field         *
+ * It defines the N_Vector and NV_Spec structures:                 *
+ *   NV_Spec has an implementation-dependent 'content' field       *
  *         which contains the data needed to generate a new        *
  *         nvector in that implementation and an 'ops' filed       *
  *         which is a structure listing operations acting on       *
@@ -22,19 +22,19 @@
  *         M_Env structure used in creating the nvector.           * 
  *                                                                 *
  * Part I of this file contains type declarations for the          *
- * the following structures: _generic_M_Env, _generic_N_Vector,    *
+ * the following structures: _generic_NV_Spec, _generic_N_Vector,  *
  * and _generic_N_Vector_Ops, as well as references to pointers    *
- * to such structures (M_Env and N_Vector).                        *
+ * to such structures (NV_Spec and N_Vector).                      *
  *                                                                 *
  * Part II of this file contains the prototypes for the vector     *
  * kernels which operate on N_Vector.                              * 
  *                                                                 *
  * A particular implementation of an NVECTOR package must then     *
- * specify the 'content' fields of M_Env and N_Vector, define      *
+ * specify the 'content' fields of NV_Spec and N_Vector, define    *
  * the propotypes for kernel operations on those N_Vectors         *
  * (NOTE: kernel routine names must be unique to that              *
  * implementation), and finally provide an initialization          *
- * routine (which generates an M_Env with that particular          *
+ * routine (which generates an NV_Spec with that particular        *
  * 'content' field and links the defined vector kernel routines    *
  * into the 'ops' field).                                          *
  *                                                                 *
@@ -56,8 +56,8 @@ extern "C" {
 /* Forward reference for pointer to N_Vector_Ops object */
 typedef struct _generic_N_Vector_Ops *N_Vector_Ops;
 
-/* Forward reference for pointer to M_Env object */
-typedef struct _generic_M_Env *M_Env;
+/* Forward reference for pointer to NV_Spec object */
+typedef struct _generic_NV_Spec *NV_Spec;
   
 /* Forward reference for pointer to N_Vector object */
 typedef struct _generic_N_Vector *N_Vector;
@@ -67,10 +67,10 @@ typedef N_Vector *N_Vector_S;
 
 /* Structure containing function pointers to vector operations  */  
 struct _generic_N_Vector_Ops {
-  N_Vector    (*nvnew)(M_Env);
+  N_Vector    (*nvnew)(NV_Spec);
   void        (*nvfree)(N_Vector);
-  void        (*nvspace)(M_Env, long int *, long int *);
-  N_Vector    (*nvmake)(realtype *, M_Env);
+  void        (*nvspace)(NV_Spec, long int *, long int *);
+  N_Vector    (*nvmake)(realtype *, NV_Spec);
   void        (*nvdispose)(N_Vector);
   realtype*   (*nvgetdata)(N_Vector);
   void        (*nvsetdata)(realtype *, N_Vector);
@@ -97,11 +97,11 @@ struct _generic_N_Vector_Ops {
   void        (*nvprint)(N_Vector);
 };
   
-/* A machine environment is a structure with an implementation
+/* An NV_Spec is a structure with an implementation
    dependent 'content' representation (used to generate a new vector
    in that implementation), a set of operations defined in the above 
    structure, and an ID tag */
-struct _generic_M_Env {
+struct _generic_NV_Spec {
   void *content;
   struct _generic_N_Vector_Ops *ops;
   char *tag;
@@ -112,7 +112,7 @@ struct _generic_M_Env {
    corresponding to that implementation */
 struct _generic_N_Vector {
   void *content;
-  struct _generic_M_Env *menv;
+  struct _generic_NV_Spec *nvspec;
 };
   
 /****************************************************************
@@ -121,37 +121,37 @@ struct _generic_N_Vector {
 
 /*--------------------------------------------------------------*
  * Function : N_VNew                                            *
- * Usage    : v = N_VNew(machEnv);                              *
+ * Usage    : v = N_VNew(nvSpec);                               *
  *--------------------------------------------------------------*
- * Returns a new N_Vector. The parameter machEnv is a pointer   *
- * to machine environment-specific information.                 *
+ * Returns a new N_Vector. The parameter nvSpec is a pointer    *
+ * to vector specification-specific information.                *
  * If there is not enough memory for a new N_Vector, then       *
  * N_VNew returns NULL.                                         *
  *--------------------------------------------------------------*/
   
-N_Vector N_VNew(M_Env machEnv);
+N_Vector N_VNew(NV_Spec nvSpec);
 
 /*--------------------------------------------------------------*
  * Function : N_VSpace                                          *
- * Usage    : N_VSpace(machEnv, lrw, liw);                      *
+ * Usage    : N_VSpace(nvSpec, lrw, liw);                       *
  *--------------------------------------------------------------*
  * Returns space requirements for one N_Vector (realtype in lrw *
  * and integertype in liw).                                     *
  *--------------------------------------------------------------*/
 
-void N_VSpace(M_Env machEnv, long int *lrw, long int *liw);
+void N_VSpace(NV_Spec nvSpec, long int *lrw, long int *liw);
 
 /*--------------------------------------------------------------*
  * Function : N_VNew_S                                          *
- * Usage    : v = N_VNew_S(ns, machEnv);                        *
+ * Usage    : v = N_VNew_S(ns, nvSpec);                         *
  *--------------------------------------------------------------*
- * Returns an array of ns new N_Vectors. The parameter machEnv  *
- * is a pointer to machine environment specific information.    *
+ * Returns an array of ns new N_Vectors. The parameter nvSpec   *
+ * is a pointer to vector specification specific information.   *
  * If there is not enough memory for a new array of N_Vectors   *
  * or for one of the components, then N_VNew_S returns NULL.    *
  *--------------------------------------------------------------*/
 
-N_Vector_S N_VNew_S(integertype ns, M_Env machEnv);
+N_Vector_S N_VNew_S(integertype ns, NV_Spec nvSpec);
 
 /*--------------------------------------------------------------*
  * Function : N_VFree                                           *
@@ -175,13 +175,13 @@ void N_VFree_S(integertype ns, N_Vector_S vs);
 
 /*--------------------------------------------------------------*
  * Function : N_VMake                                           *
- * Usage    : v = N_VMake(v_data, machEnv);                     *
+ * Usage    : v = N_VMake(v_data, nvSpec);                      *
  *--------------------------------------------------------------*
  * Creates an N_Vector with component array data allocated by   *
  * the user.                                                    *
  *--------------------------------------------------------------*/
 
-N_Vector N_VMake(realtype *v_data, M_Env machEnv);
+N_Vector N_VMake(realtype *v_data, NV_Spec nvSpec);
 
 /*--------------------------------------------------------------*
  * Function : N_VDispose                                        *

@@ -32,12 +32,12 @@
  *                                                                 *
  * Declarations:                                                   *
  *                                                                 *
- *   F2C_machEnv  A global variable used to communicate the        *
- *                machine environment structure among the various  *
- *                routine in a Fortran - C interface. It is        *
- *                declared extern here and must defined in the     *
- *                Fortran - C interface implementation file of the *
- *                NVECTOR module.                                  *
+ *   F2C_nvspec  A global variable used to communicate the         *
+ *               vector specification structure among the various  *
+ *               routine in a Fortran - C interface. It is         *
+ *               declared extern here and must defined in the      *
+ *               Fortran - C interface implementation file of the  *
+ *               NVECTOR module.                                   *
  *                                                                 *
  *******************************************************************/  
 
@@ -53,7 +53,7 @@ extern "C" {
 
 #include "nvector.h"
 
-extern M_Env F2C_machEnv;
+extern NV_Spec F2C_nvspec;
 
 #endif
 

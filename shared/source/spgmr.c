@@ -38,7 +38,7 @@ static void FreeVectorArray(N_Vector *A, int indMax);
 
 /*************** SpgmrMalloc *****************************************/
 
-SpgmrMem SpgmrMalloc(int l_max, void *machEnv)
+SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec)
 {
   SpgmrMem mem;
   N_Vector *V, xcor, vtemp;
@@ -55,7 +55,7 @@ SpgmrMem SpgmrMalloc(int l_max, void *machEnv)
   if (V == NULL) return(NULL);
 
   for (k = 0; k <= l_max; k++) {
-    V[k] = N_VNew(machEnv);
+    V[k] = N_VNew(NVSpec);
     if (V[k] == NULL) {
       FreeVectorArray(V, k-1);
       return(NULL);
@@ -90,7 +90,7 @@ SpgmrMem SpgmrMalloc(int l_max, void *machEnv)
 
   /* Get memory to hold the correction to z_tilde. */
 
-  xcor = N_VNew(machEnv);
+  xcor = N_VNew(NVSpec);
   if (xcor == NULL) {
     free(givens);
     for (i = 0; i <= l_max; i++) free(Hes[i]);
@@ -111,7 +111,7 @@ SpgmrMem SpgmrMalloc(int l_max, void *machEnv)
 
   /* Get an array to hold a temporary vector. */
 
-  vtemp = N_VNew(machEnv);
+  vtemp = N_VNew(NVSpec);
   if (vtemp == NULL) {
     free(yg);
     N_VFree(xcor);
