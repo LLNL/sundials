@@ -1,59 +1,104 @@
-# File Makefile.  Version of 15 January 2002
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+# Version of  : 11 March 2002
 #--------------------------------------------------------------------------
 # Makefile for FKINSOL, the Fortran interface package for KINSOL and the
 # associated examples.
 #
-# This makefile invokes fkinsols.mk, fkinsolp.mk, fkinsolsx.mk, or
-# fkinsolpx.mk.  In the first two cases, it adds to the library
-# file libkinsols.a or libkinsolp.a; it first copies the appropriate
-# version of the NVECTOR module files into place, then removes these files.
-# In the second two cases, it generates the example requested.
 #
 # Type 'make' to see usage instructions.
 #--------------------------------------------------------------------------
 
+SHELL = /bin/sh
 
-#---------------------
-# Path to shared files
-#---------------------
-SHARED_DIR = ../../shared
-INC_SHARED = $(SHARED_DIR)/include
-SRC_SHARED = $(SHARED_DIR)/source
+# Paths to header files
+SHARED_INC_DIR = ../../shared/include
+KINSOL_INC_DIR  = ../include
 
+# KINSOL library name and location
+ARCH           = `uname -s`.`uname -m`
+KINSOL_LIB_DIR  = ../lib
+KINSOL_LIB_NAME = libkinsol.$(ARCH).a
 
-#==========================================================================
+# Source and object files
+SRC = fkinsol.c fkinspgmr01.c fkinspgmr10.c fkinspgmr11.c \
+      fkinspgmr20.c fkinspgmr21.c fkinpreco.c fkinpsol.c \
+      fkinuatimes.c fkinbbd.c fkinbbdinit1.c
+
+OBJ = ${SRC:.c=.o}
+
+# Compiler and compiler options
+CC     = gcc
+CFLAGS = -Wall -ffloat-store -I$(KINSOL_INC_DIR) -I$(SHARED_INC_DIR)
+
+#--------------------------------------------------------------------------------
 # Make rules
-#==========================================================================
+#--------------------------------------------------------------------------------
 
 all:
 	@(echo)
-	@(echo 'Usage: make fkinsols - generate the serial FKINSOL')
-	@(echo '                       (libkinsols.a library)')
-	@(echo '       make fkinsolp - generate the parallel FKINSOL')
-	@(echo '                       (libkinsolp.a library)')
-	@(echo '       make fkinsolsx - generate the serial FKINSOL example')
-	@(echo '       make fkinsolpx - generate the parallel FKINSOL example')
-	@(echo '       make purge     - remove example executable files')
+	@(echo 'Makefile for FKINSOL module')
+	@(echo)
+	@(echo 'Usage: make lib       - append Fortran interface to KINSOL library')
+	@(echo)
+	@(echo '       make purge     - remove Fortran interface from KINSOL library')
+	@(echo)
+	@(echo '       make <ex>      - make example <ex>')
+	@(echo '       make fkinx_ser - make all serial FKINSOL examples')
+	@(echo '       make fkinx_par - make all parallel FKINSOL examples')
+	@(echo '       make examples  - make all FKINSOL examples')
+	@(echo '       make purgex    - remove example executables')
+	@(echo)
+	@(if test -f fkinx_ser.mk; then make -f fkinx_ser.mk; fi)
+	@(echo)
+	@(if test -f fkinx_par.mk; then make -f fkinx_par.mk; fi)
 	@(echo)
 
-fkinsols:
-	@(cp $(INC_SHARED)/nvector_serial.h $(INC_SHARED)/nvector.h)
-	@(cp $(SRC_SHARED)/nvector_serial.c $(SRC_SHARED)/nvector.c)
-	@(make -f fkinsols.mk)
-	@(rm $(INC_SHARED)/nvector.h $(SRC_SHARED)/nvector.c)
+#-----------------------------------------------------------------
+# FKINSOL library
 
-fkinsolp:
-	@(cp $(INC_SHARED)/nvector_parallel.h $(INC_SHARED)/nvector.h)
-	@(cp $(SRC_SHARED)/nvector_parallel.c $(SRC_SHARED)/nvector.c)
-	@(make -f fkinsolp.mk)
-	@(rm $(INC_SHARED)/nvector.h $(SRC_SHARED)/nvector.c)
-
-fkinsolsx:
-	@(make -f fkinsolsx.mk)
-
-fkinsolpx:
-	@(make -f fkinsolpx.mk)
+lib:
+	@(echo 'FKINSOL MODULE')
+	@(if test -f $(KINSOL_LIB_DIR)/$(KINSOL_LIB_NAME); \
+		then \
+			echo '...Compile object files...'; \
+			$(CC) $(CFLAGS) -c $(SRC); \
+			echo '...Append to KINSOL library...'; \
+			ar rc $(KINSOL_LIB_DIR)/$(KINSOL_LIB_NAME) $(OBJ); \
+			rm -f $(OBJ); \
+		else \
+			echo 'ERROR: Library KINSOL does not exist'; \
+			echo '       Make the KINSOL library first'; \
+	fi)
 
 purge:
-	@(rm -f kindiagsf)
-	@(rm -f kindiagpf)
+	@(echo 'FKINSOL MODULE')
+	@(if test -f $(KINSOL_LIB_DIR)/$(KINSOL_LIB_NAME); \
+		then \
+			echo '...Remove fkinsol objects from kinsol library...'; \
+			ar d $(KINSOL_LIB_DIR)/$(KINSOL_LIB_NAME) $(OBJ); \
+	fi)
+
+#-----------------------------------------------------------------
+# FKINSOL Examples
+
+examples: fkinx_ser fkinx_par
+
+fkinx_ser:
+	@(if test -f fkinx_ser.mk; then make -f fkinx_ser.mk examples; fi)
+
+fkinx_par:
+	@(if test -f fkinx_par.mk; then make -f fkinx_par.mk examples; fi)
+
+kindiagsf:
+	@(make -f fkinx_ser.mk $@)
+
+kindiagpf:
+	@(make -f fkinx_par.mk $@)
+
+purgex:
+	@(if test -f fkinx_ser.mk; then make -f fkinx_ser.mk purge; fi)
+	@(if test -f fkinx_par.mk; then make -f fkinx_par.mk purge; fi)
+
+#---End of Makefile---
