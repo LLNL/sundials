@@ -245,7 +245,9 @@ int main(int argc, char *argv[])
   Ith(yB,7) = 0.0;
 
   printf("Re-initialize CVODE memory for backward run\n");
-  flag = CVReInitB(cvadj_mem, TB2, yB);
+  flag = CVReInitB(cvadj_mem, fB, TB2, yB, BDF, NEWTON, SV, 
+                   &reltolB, abstolB, data, NULL, 
+                   FALSE, NULL, NULL, machEnvB);
   if (flag != SUCCESS) { printf("CVReInitB failed.\n"); return(1); }
 
   /* Backward Integration */
