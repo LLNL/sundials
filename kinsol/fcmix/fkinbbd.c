@@ -2,7 +2,7 @@
  *                                                                          *
  * File         : fkinbbd.c                                                 *
  * Programmers  : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL * 
- * Version of   : 27 June 2002                                              *
+ * Version of   : 29 July 2002                                              *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
@@ -28,7 +28,7 @@
 
 /***************************************************************************/
 
-/* Prototypes of the Fortran routines */
+/* Prototypes of the user-supplied Fortran routines */
 
 void K_LOCFN(integertype*, realtype*, realtype*);
 void K_COMMFN(integertype*, realtype*);
@@ -39,6 +39,7 @@ void F_KINBBDINIT0(integertype *nlocal, int *maxl, int *maxlrst, int *msbpre,
                    integertype *mu, integertype *ml, int *ier)
 {
   /* First call KBBDAlloc to initialize KINBBDPRE module:
+     *nlocal       is the local vector size
      *mu, *ml      are the half-bandwidths for the preconditioner blocks
      0.0           is the value for dq_rel_uu -- 0.0 triggers the default
      KINgloc       is a pointer to the KINLocalFn function
@@ -46,7 +47,8 @@ void F_KINBBDINIT0(integertype *nlocal, int *maxl, int *maxlrst, int *msbpre,
      NULL          is the pointer to f_data.  NULL is used here since handling
                    of local data in the func routines is done only in Fortran */
 
-  KBBD_Data = KBBDAlloc(*nlocal, *mu, *ml, 0.0, KINgloc, KINgcomm, NULL, KIN_kmem);
+  KBBD_Data = KBBDAlloc(*nlocal, *mu, *ml, 0.0, KINgloc, KINgcomm, NULL,
+                        KIN_kmem);
   if (KBBD_Data == NULL) { *ier = -1; return; }
 
   /* Call KINSpgmr to specify the SPGMR linear solver:
@@ -74,7 +76,7 @@ void KINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data)
   realtype *uloc, *gloc;
 
   uloc = N_VGetData(uu);
-  gloc = N_VGetData(gval) ;
+  gloc = N_VGetData(gval);
 
   K_LOCFN(&Nloc, uloc, gloc);
 

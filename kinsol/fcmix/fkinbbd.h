@@ -12,7 +12,7 @@
 #ifndef _fkinbbd_h
 #define _fkinbbd_h
 
-/***************************************************************************
+/*******************************************************************************
 
                   FKINBBD Interface Package
 
@@ -29,18 +29,18 @@
 
  The user-callable functions in this package, with the corresponding
  KINSOL and KINBBDPRE functions, are as follows: 
-  FKINBBDINIT0  interfaces to KBBDAlloc and KINSpgmr, internal ATimes routine
-  FKINBBDINIT1  interfaces to KBBDAlloc and KINSpgmr, external ATimes routine
-                (stored in the file fkinbbdinit1.c)
-  FKINBBDOPT    accesses optional outputs
-  FKINBBDFREE   interfaces to KBBDFree
+   FKINBBDINIT0  interfaces to KBBDAlloc and KINSpgmr, internal FATIMES routine
+   FKINBBDINIT1  interfaces to KBBDAlloc and KINSpgmr, external FATIMES routine
+                 (in the file fkinbbdinit1.c)
+   FKINBBDOPT    accesses optional outputs
+   FKINBBDFREE   interfaces to KBBDFree
 
  In addition to the Fortran system function KFUN, and optional Jacobian
  vector product routine FATIMES, the following are the user-supplied 
  functions required by this package, each with the corresponding
  interface function which calls it (and its type within KINBBDPRE):
-  KLOCFN is called by the interface function KINgloc of type KINLocalFn
-  KCOMMFN is called by the interface function KINgcomm of type KINCommFn
+   KLOCFN is called by the interface function KINgloc of type KINLocalFn
+   KCOMMFN is called by the interface function KINgcomm of type KINCommFn
  (The names of all user-supplied routines here are fixed, in order to
  maximize portability for the resulting mixed-language program.)
 
@@ -48,9 +48,9 @@
  The names used in this interface package make use of the preprocessor to
  expand them appropriately for different machines/platforms.
  Later in this file, each name is expanded appropriately for those platforms.
- An example:  F_KINSOL is replaced with either  KINSOL, kinsol_ or kinsol,
- depending on the platform.  See fcmixpar.h . This documentation, however, will
- simply assume the first form, for convenience. That is, KINSOL, etc.
+ An example:  F_KINSOL is replaced with either  FKINSOL, fkinsol_ or fkinsol,
+ depending on the platform.  See fcmixpar.h. This documentation, however,
+ will simply assume the first form, for convenience, that is, FKINSOL, etc.
 
  ==============================================================================
 
@@ -122,7 +122,7 @@
  arguments.  Thus KCOMMFN can omit any communications done by KFUN
  if relevant to the evaluation of g.
 
- (4) Initialization:  FMENVINITP , FKINMALLOC, and FKINBBDINIT0/FKINBBDINIT1.
+ (4) Initialization:  FMENVINITP, FKINMALLOC, and FKINBBDINIT0/FKINBBDINIT1.
 
  (4.1) To initialize the parallel machine environment, the user must make 
  the following call:
@@ -143,16 +143,17 @@
  (4.3) To specify the SPGMR linear system solver, and to allocate memory 
  and initialize data associated with the SPGMR method and the BBD
  preconditioner, make the following call:
-      CALL FKINBBDINIT0 (MAXL, MAXLRST, MSBPRE, MU, ML, IER)
+      CALL FKINBBDINIT0 (NLOCAL, MAXL, MAXLRST, MSBPRE, MU, ML, IER)
  if not supplying a routine FATIMES, or
-      CALL FKINBBDINIT1 (MAXL, MAXLRST, MSBPRE, MU, ML, IER) 
+      CALL FKINBBDINIT1 (NLOCAL, MAXL, MAXLRST, MSBPRE, MU, ML, IER) 
  if supplying a routine FATIMES for Jacobian-vector products.
 
  The arguments are:
+ NLOCAL   = local size of vectors on this processor
  MAXL     = maximum Krylov subspace dimension; 0 indicates default.
  MAXLRST  = maximum number of linear solver restarts.
- MSBPRE   = maximum number of preconditioner solve calls without a precondtioner
-            setup call.
+ MSBPRE   = maximum number of preconditioner solve calls without a
+            preconditioner setup call.
  MU, ML   = upper and lower half-bandwidths to be used in the computation
             of the local Jacobian blocks.  These may be smaller than the
             true half-bandwidths of the Jacobian of the local block of g,
@@ -160,10 +161,9 @@
  IER      = return completion flag.  Values are 0 = success, and -1 = failure.
 
  (5) Solver: FKINSOL
- Carrying out the solving of the nonlinear system is accomplished by making 
- calls as follows:
-       CALL FKINSOL (NEQ, UU, GLOBALSTRAT, USCALE, FSCALE, FNORMTOL,
-       SCSTEPTOL, CONSTRAINTS, OPTIN, IOPT,ROPT, IER)
+ Solving of nonlinear system is accomplished by making the following call:
+      CALL FKINSOL (NEQ, UU, GLOBALSTRAT, USCALE, FSCALE, FNORMTOL,
+      SCSTEPTOL, CONSTRAINTS, OPTIN, IOPT,ROPT, IER)
  The arguments are:
  NEQ   = (INTEGER) global number of unknowns in the nonlinear system
  UU    = array containing the initial guess when called, returns the solution
@@ -183,10 +183,9 @@
             for further information.
 
  (6) Optional outputs: FKINBBDOPT
- Optional outputs specific to the SPGMR solver are NPE, NLI, NPS, NCFL,
- LRW, and LIW, stored in IOPT(14) ... IOPT(19), respectively.
- To obtain the optional outputs associated with the KINBBDPRE module, make
- the following call:
+ In addition to the optional inputs and outputs available with the FKINSOL
+ interface package, there are optional outputs specific to the KINBBDPRE
+ module.  These are accessed by making the following call:
       CALL FKINBBDOPT (LENRPW, LENIPW, NGE)
  The arguments returned are:
  LENRPW = length of real preconditioner work space, in realtype words.
@@ -194,7 +193,6 @@
  LENIPW = length of integer preconditioner work space, in integertype words.
           This size is local to the current processor.
  NGE    = number of g(u) evaluations (calls to KLOCFN) so far.
-
 
  (7) Memory freeing: FKINBBDFREE, FKINFREE, and FMENVFREEP
  To the free the internal memory created by the calls to  
@@ -204,7 +202,7 @@
       CALL FKINFREE
       CALL FMENVFREEP
 
-****************************************************************************/
+*******************************************************************************/
 
 
 #include "fcmixpar.h"
@@ -242,7 +240,6 @@
 #endif
 
 
-
 /* KINSOL header files  */
 
 #include "sundialstypes.h"  /* definitions of types realtype and integertype */
@@ -256,7 +253,7 @@ void KINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data);
 void KINgcomm(integertype Nloc, realtype *uloc, void *f_data);
 
 
-/* Declarations for global variables, shared among various routines */
+/* Declaration for global variable shared among various routines */
 
 void *KBBD_Data;
 
