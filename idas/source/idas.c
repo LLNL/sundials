@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-10-08 23:01:22 $
+ * $Revision: 1.27 $
+ * $Date: 2004-10-08 23:45:31 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1878,7 +1878,7 @@ void IDAFree(void *ida_mem)
 
   IDASensFree(ida_mem);
 
-  lfree(IDA_mem);
+  if (lfree != NULL) lfree(IDA_mem);
 
   free(IDA_mem);
 }
