@@ -16,28 +16,24 @@
 \section{NVECTOR functions used by IDA}
 
 In Table \ref{t:nvecuse} below, we list the vector functions in the 
-{\nvector} module within the {\ida} package.
+{\nvector} module used by the {\ida} package.
 The table also shows, for each function, which of the code modules uses
 the function. The {\ida} column shows function usage within the main
-integrator module, while the remaining three columns show function usage
-within each of the three {\ida} linear solvers. 
+integrator module, while the remaining four columns show function usage
+within each of the three {\ida} linear solvers and the {\idabbdpre}
+preconditioner module. 
 
 There is one subtlety in the {\idaspgmr} column hidden by the table. 
-The \id{N\_VDotProd} function is called both from the 
-implementation file \id{idaspgmr.c} for the {\idaspgmr} solver and from
-the files \id{spgmr.c} and \id{iterative.c} for the generic {\spgmr} 
-solver upon which the {\idaspgmr} solver is implemented. 
-This is not the case with {\idadense} and {\idaband}
-because the generic {\dense} and {\band} solvers 
-do not make calls to any vector functions.
-
-The vector functions \id{N\_VMake}, \id{N\_VDispose}, \id{N\_VGetData}, and
-\id{N\_VSetData} are only called by the {\ida} direct linear solvers, 
-{\idadense} and {\idaband}, and by preconditioner solve routines that use a 
-direct linear solver ({\idabbdpre}). They duplicate 
-functionality provided by macros in particular implementations of {\nvector},
-but are part of the specifications of the generic {\nvector} module to insure 
-that the {\ida} package is not dependent on any particular {\nvector} implementation.
+The \id{N\_VDotProd} function is called both within the 
+implementation file \id{idaspgmr.c} for the {\idaspgmr} solver and within
+the implementation files \id{spgmr.c} and \id{iterative.c} for the generic
+{\spgmr} solver upon which the {\idaspgmr} solver is implemented. Also, although
+\id{N\_VDiv} and \id{N\_VProd} are not called within the implementation file
+\id{idaspgmr.c}, they are called within the implementation file
+\id{spgmr.c} and so are required by the {\idaspgmr} solver module.
+This issue does not arise for the other two {\ida} linear solvers because
+the generic {\dense} and {\band} solvers (used in the implementation of
+{\idadense} and {\idaband}) do not make calls to any vector functions.
 
 At this point, we should emphasize that the {\ida} user does not need to know 
 anything about the usage of vector functions by the {\ida} code modules in order 
@@ -59,11 +55,11 @@ interested reader.
 \id{N\_VDestroy}         & \cm &     &     & \cm & \cm \\ \hline
 \id{N\_VSpace}           & \cm &     &     &     &     \\ \hline
 \id{N\_VGetArrayPointer} &     & \cm & \cm &     & \cm \\ \hline
-\id{N\_VSetArrayPointer} &     & \cm & \cm &     & \cm \\ \hline
+\id{N\_VSetArrayPointer} &     & \cm &     &     &     \\ \hline
 \id{N\_VLinearSum}       & \cm & \cm &     & \cm &     \\ \hline
 \id{N\_VConst}           & \cm &     &     & \cm &     \\ \hline
-\id{N\_VProd}            & \cm &     &     &     &     \\ \hline
-\id{N\_VDiv}             & \cm &     &     &     &     \\ \hline
+\id{N\_VProd}            & \cm &     &     & \cm &     \\ \hline
+\id{N\_VDiv}             & \cm &     &     & \cm &     \\ \hline
 \id{N\_VScale}           & \cm & \cm & \cm & \cm & \cm \\ \hline
 \id{N\_VAbs}             & \cm &     &     &     &     \\ \hline
 \id{N\_VInv}             & \cm &     &     &     &     \\ \hline
@@ -79,7 +75,7 @@ interested reader.
 \end{tabular}
 \end{table}
 
-Two of the functions listed in Table \ref{t:nvecops}, \id{N\_VWL2Norm} and \id{N\_VL1Norm},
-are {\em not} used by {\ida}.
-Therefore a user-supplied {\nvector} module for {\ida} could omit these two functions.
+Three of the functions listed in Table \ref{t:nvecops}, \id{N\_VWL2Norm}, \id{N\_VL1Norm}
+and \id{N\_VInvTest} are {\em not} used by {\ida}. Therefore a user-supplied {\nvector}
+module for {\ida} could omit these three functions.
 %%
