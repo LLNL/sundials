@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46.2.1 $
- * $Date: 2005-01-18 23:20:52 $
+ * $Revision: 1.46.2.2 $
+ * $Date: 2005-01-19 16:44:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -377,7 +377,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_nlscoef  = CORTES;
 
   /* Set default values for quad. optional inputs */
-  cv_mem->cv_quad    = FALSE;
+  cv_mem->cv_quadr   = FALSE;
   cv_mem->cv_fQ      = NULL;
   cv_mem->cv_fQ_data = NULL;
   cv_mem->cv_errconQ = FALSE;
@@ -878,7 +878,7 @@ int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
   cv_mem->cv_netfQ = 0;
 
   /* Quadrature integration turned ON */
-  cv_mem->cv_quad = TRUE;
+  cv_mem->cv_quadr = TRUE;
   cv_mem->cv_quadMallocDone = TRUE;
 
   /* Quadrature initialization was successfull */
@@ -928,7 +928,7 @@ int CVodeQuadReInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
   cv_mem->cv_netfQ = 0;
 
   /* Quadrature integration turned ON */
-  cv_mem->cv_quad = TRUE;
+  cv_mem->cv_quadr = TRUE;
 
   /* Quadrature re-initialization was successfull */
   return(CV_SUCCESS);
@@ -1152,6 +1152,44 @@ int CVodeSensReInit(void *cvode_mem, int ism,
   return (CV_SUCCESS);
 }
 
+/*
+ * CVodeSensToggle
+ *
+ * CVodeSensToggle activates or deactivates sensitivity calculations.
+ * It does NOT deallocate sensitivity-related memory.
+ * It is allowed to set sensi=TRUE only if CVodeSensMalloc has been
+ * previously called.
+ */
+
+int CVodeSensToggle(void *cvode_mem, booleantype sensi)
+{
+  CVodeMem cv_mem;
+
+  /* Check cvode_mem */
+  if (cvode_mem==NULL) {
+    fprintf(stderr, MSGCVS_SCVT_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Disable sensitivities */
+  if (sensi == FALSE) {
+    cv_mem->cv_sensi = FALSE;
+    return (CV_SUCCESS);
+  }
+
+  /* Re-enable sensitivities */
+
+  if (cv_mem->cv_sensMallocDone == FALSE) {
+    if(errfp!=NULL) fprintf(errfp, MSGCVS_SCVT_NO_SENSI);
+    return(CV_NO_SENS);
+  } 
+
+  cv_mem->cv_sensi = TRUE;
+
+  return (CV_SUCCESS);
+}
+
 /*=================================================================*/
 /*             Readibility Constants                               */
 /*=================================================================*/
@@ -1288,8 +1326,9 @@ int CVodeSensReInit(void *cvode_mem, int ism,
 #define setSensTol     (cv_mem->cv_setSensTol)
 #define testSensTol    (cv_mem->cv_testSensTol)
 #define atolSallocated (cv_mem->cv_atolSallocated)
+#define sensMallocDone (cv_mem->cv_sensMallocDone)
 
-#define quad           (cv_mem->cv_quad)
+#define quadr          (cv_mem->cv_quadr)
 #define znQ            (cv_mem->cv_znQ)
 #define ewtQ           (cv_mem->cv_ewtQ)
 #define acorQ          (cv_mem->cv_acorQ)
@@ -1300,6 +1339,7 @@ int CVodeSensReInit(void *cvode_mem, int ism,
 #define netfQ          (cv_mem->cv_netfQ)
 #define lrw1Q          (cv_mem->cv_lrw1Q)
 #define liw1Q          (cv_mem->cv_liw1Q)
+#define quadMallocDone (cv_mem->cv_quadMallocDone)
 
 /*-----------------------------------------------------------------*/
 
@@ -1435,7 +1475,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       CVSensRhs(cv_mem, tn, zn[0], zn[1], znS[0], znS[1], tempv, ftemp);
     }    
 
-    if (quad) {
+    if (quadr) {
       fQ(tn, zn[0], znQ[1], fQ_data);
       nfQe++;
     }
@@ -1477,7 +1517,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       for (is=0; is<Ns; is++) 
         N_VScale(h, znS[1][is], znS[1][is]);
     
-    if (quad)
+    if (quadr)
       N_VScale(h, znQ[1], znQ[1]);
 
     if (nrtfn > 0) {
@@ -1601,7 +1641,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       else
         ewtSsetOK = TRUE;
 
-      if (quad && errconQ)
+      if (quadr && errconQ)
         ewtQsetOK = CVQuadEwtSet(cv_mem, znQ[0]);
       else
         ewtQsetOK = TRUE;
@@ -1634,7 +1674,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* Check for too much accuracy requested */
 
     nrm = N_VWrmsNorm(zn[0], ewt);
-    if (quad && errconQ) {
+    if (quadr && errconQ) {
       nrm = CVQuadUpdateNorm(cv_mem, nrm, znQ[0], ewtQ); 
     }
     if (sensi && errconS) {
@@ -1866,7 +1906,7 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dkyQ)
   }
   cv_mem = (CVodeMem) cvode_mem;  
 
-  if(quad != TRUE) {
+  if(quadr != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_QDKY_NO_QUAD);
     return (CV_NO_QUAD);
   }
@@ -2112,9 +2152,10 @@ void CVodeQuadFree(void *cvode_mem)
   if (cvode_mem == NULL) return;
   cv_mem = (CVodeMem) cvode_mem;
 
-  if(quad) {
+  if(quadMallocDone) {
     CVQuadFreeVectors(cv_mem);
-    quad = FALSE;
+    quadMallocDone = FALSE;
+    quadr = FALSE;
   }
 }
 
@@ -2135,15 +2176,19 @@ void CVodeSensFree(void *cvode_mem)
   if (cvode_mem == NULL) return;
   cv_mem = (CVodeMem) cvode_mem;
 
-  if(sensi) {
-    if (atolSallocated) 
+  if(sensMallocDone) {
+    if (atolSallocated) { 
       CVSensFreeAtol(cv_mem, abstolS);
+      atolSallocated = FALSE;
+    }
     if (stgr1alloc) {
       free(ncfS1);
       free(ncfnS1);
       free(nniS1);
+      stgr1alloc = FALSE;
     }
     CVSensFreeVectors(cv_mem);
+    sensMallocDone = FALSE;
     sensi = FALSE;
   }
 }
@@ -2287,7 +2332,7 @@ static int CVInitialSetup(CVodeMem cv_mem)
   
   /* Quadrature initial setup */
 
-  if (quad && errconQ) {
+  if (quadr && errconQ) {
 
     if ( (reltolQ == NULL) || (abstolQ == NULL) ) {
       if(errfp!=NULL) fprintf(errfp, MSGCVS_NO_QUADTOL);
@@ -2303,7 +2348,7 @@ static int CVInitialSetup(CVodeMem cv_mem)
 
   }
 
-  if (!quad) errconQ = FALSE;
+  if (!quadr) errconQ = FALSE;
 
   /* Forward sensitivity initial setup */
 
@@ -2985,7 +3030,7 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   N_VDiv(temp2, temp1, temp1);
   hub_inv = N_VMaxNorm(temp1);
   
-  if (quad && errconQ) {
+  if (quadr && errconQ) {
     vectorAtolQ = (itolQ == CV_SV);
     tempQ1 = tempvQ;
     tempQ2 = acorQ;
@@ -3056,7 +3101,7 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   f(tn+hg, y, tempv, f_data);
   nfe++;
 
-  if (quad && errconQ) {
+  if (quadr && errconQ) {
     fQ(tn+hg, y, tempvQ, fQ_data);
     nfQe++;
   }
@@ -3073,7 +3118,7 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   N_VLinearSum(ONE, tempv, -ONE, zn[1], tempv);
   N_VScale(ONE/hg, tempv, tempv);
   
-  if (quad && errconQ) {
+  if (quadr && errconQ) {
     N_VLinearSum(ONE, tempvQ, -ONE, znQ[1], tempvQ);
     N_VScale(ONE/hg, tempvQ, tempvQ);
   }
@@ -3087,7 +3132,7 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   /* Estimate ||y''|| */
   
   yddnrm = N_VWrmsNorm(tempv, ewt);
-  if (quad && errconQ) {
+  if (quadr && errconQ) {
     yddnrm = CVQuadUpdateNorm(cv_mem, yddnrm, tempvQ, ewtQ);
   }
   if (sensi && errconS) {
@@ -3130,7 +3175,7 @@ static int CVStep(CVodeMem cv_mem)
   ncf = nef = 0;
   nflag = FIRST_CALL;
 
-  if (quad) nefQ = 0;
+  if (quadr) nefQ = 0;
 
   /* Are we computing sensitivities with a staggered approach? */
   do_sensi_stg  = (sensi && (ism==CV_STAGGERED));
@@ -3174,7 +3219,7 @@ static int CVStep(CVodeMem cv_mem)
     /* passed = TRUE, kflag  = DO_ERROR_TEST, nflag  = SOLVED */
 
     /* Correct the quadrature variables */
-    if (quad) {
+    if (quadr) {
       /* Save quadrature correction in acorQ */
       fQ(tn, y, acorQ, fQ_data);
       N_VLinearSum(h, acorQ, -ONE, znQ[1], acorQ);
@@ -3264,7 +3309,7 @@ static int CVStep(CVodeMem cv_mem)
 
   N_VScale(ONE/tq[2], acor, acor);
 
-  if (quad)
+  if (quadr)
     N_VScale(ONE/tq[2], acorQ, acorQ);
 
   if (sensi)
@@ -3343,7 +3388,7 @@ static void CVAdjustAdams(CVodeMem cv_mem, int deltaq)
   
   if (deltaq==1) {
     N_VConst(ZERO, zn[L]);
-    if (quad)
+    if (quadr)
       N_VConst(ZERO, znQ[L]);
     if (sensi)
       for (is=0; is<Ns; is++)
@@ -3375,7 +3420,7 @@ static void CVAdjustAdams(CVodeMem cv_mem, int deltaq)
   for (j=2; j < q; j++)
     N_VLinearSum(-l[j], zn[q], ONE, zn[j], zn[j]);
 
-  if (quad)
+  if (quadr)
     for (j=2; j < q; j++)
       N_VLinearSum(-l[j], znQ[q], ONE, znQ[j], znQ[j]);
 
@@ -3458,7 +3503,7 @@ static void CVIncreaseBDF(CVodeMem cv_mem)
   for (j=2; j <= q; j++)
     N_VLinearSum(l[j], zn[L], ONE, zn[j], zn[j]);
 
-  if (quad) {
+  if (quadr) {
     N_VScale(A1, znQ[qmax], znQ[L]);
     for (j=2; j <= q; j++)
       N_VLinearSum(l[j], znQ[L], ONE, znQ[j], znQ[j]);
@@ -3504,7 +3549,7 @@ static void CVDecreaseBDF(CVodeMem cv_mem)
   for (j=2; j < q; j++)
     N_VLinearSum(-l[j], zn[q], ONE, zn[j], zn[j]);
 
-  if (quad) {
+  if (quadr) {
     for (j=2; j < q; j++)
       N_VLinearSum(-l[j], znQ[q], ONE, znQ[j], znQ[j]);
   }
@@ -3537,7 +3582,7 @@ static void CVRescale(CVodeMem cv_mem)
 
     N_VScale(factor, zn[j], zn[j]);
 
-    if (quad)
+    if (quadr)
       N_VScale(factor, znQ[j], znQ[j]);
 
     if (sensi)
@@ -3573,7 +3618,7 @@ static void CVPredict(CVodeMem cv_mem)
     for (j = q; j >= k; j--) 
       N_VLinearSum(ONE, zn[j-1], ONE, zn[j], zn[j-1]); 
 
-  if (quad) {
+  if (quadr) {
     for (k = 1; k <= q; k++)
       for (j = q; j >= k; j--) 
         N_VLinearSum(ONE, znQ[j-1], ONE, znQ[j], znQ[j-1]);
@@ -4317,7 +4362,7 @@ static void CVRestore(CVodeMem cv_mem, realtype saved_t)
     for (j = q; j >= k; j--)
       N_VLinearSum(ONE, zn[j-1], -ONE, zn[j], zn[j-1]);
 
-  if (quad) {
+  if (quadr) {
     for (k = 1; k <= q; k++)
       for (j = q; j >= k; j--)
         N_VLinearSum(ONE, znQ[j-1], -ONE, znQ[j], znQ[j-1]);
@@ -4417,7 +4462,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   nfe++;
   N_VScale(h, tempv, zn[1]);
 
-  if (quad) {
+  if (quadr) {
     fQ(tn, zn[0], tempvQ, fQ_data);
     nfQe++;
     N_VScale(h, tempvQ, znQ[1]);
@@ -5133,7 +5178,7 @@ static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   nfe++;
   N_VScale(h, tempv, zn[1]);
   
-  if (quad) {
+  if (quadr) {
     fQ(tn, zn[0], tempvQ, fQ_data);
     nfQe++;
     N_VScale(h, tempvQ, znQ[1]);
@@ -5184,7 +5229,7 @@ static void CVCompleteStep(CVodeMem cv_mem)
   for (j=0; j <= q; j++) 
     N_VLinearSum(l[j], acor, ONE, zn[j], zn[j]);
 
-  if (quad) {
+  if (quadr) {
     for (j=0; j <= q; j++) 
       N_VLinearSum(l[j], acorQ, ONE, znQ[j], znQ[j]);
   }
@@ -5206,7 +5251,7 @@ static void CVCompleteStep(CVodeMem cv_mem)
     
     N_VScale(ONE, acor, zn[qmax]);
     
-    if (quad)
+    if (quadr)
       N_VScale(ONE, acorQ, znQ[qmax]);
 
     if (sensi)
@@ -5309,7 +5354,7 @@ static realtype CVComputeEtaqm1(CVodeMem cv_mem)
 
     ddn = N_VWrmsNorm(zn[q], ewt);
 
-    if ( quad && errconQ) {
+    if ( quadr && errconQ) {
       ddn = CVQuadUpdateNorm(cv_mem, ddn, znQ[q], ewtQ);
     }
 
@@ -5350,7 +5395,7 @@ static realtype CVComputeEtaqp1(CVodeMem cv_mem)
 
     dup = N_VWrmsNorm(tempv, ewt);
 
-    if ( quad && errconQ ) {
+    if ( quadr && errconQ ) {
       N_VLinearSum(-cquot, znQ[qmax], ONE, acorQ, tempvQ);
       dup = CVQuadUpdateNorm(cv_mem, dup, tempvQ, ewtQ);
     }
@@ -5415,7 +5460,7 @@ static void CVChooseEta(CVodeMem cv_mem)
     
     N_VScale(ONE, acor, zn[qmax]);
     
-    if (quad && errconQ)
+    if (quadr && errconQ)
       N_VScale(ONE, acorQ, znQ[qmax]);
 
     if (sensi && errconS)

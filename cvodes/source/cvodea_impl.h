@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-11-06 01:02:03 $
+ * $Revision: 1.3.2.1 $
+ * $Date: 2005-01-19 16:44:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -57,7 +57,7 @@ typedef struct CkpntMemRec {
   N_Vector ck_znQ[L_MAX];
 
   /* Do we need to carry quadratures? */
-  booleantype ck_quad;
+  booleantype ck_quadr;
 
   /* Was ck_zn[qmax] allocated?
      ck_zqm = 0    - no
