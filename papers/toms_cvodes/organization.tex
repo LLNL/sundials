@@ -26,7 +26,7 @@ selection of stepsize and order, and interpolation to user output
 points, among other issues.  Although this module contains logic for
 the basic Newton iteration algorithm, it has no knowledge of the
 method being used to solve the linear systems that arise.  For any
-given user problem, one of the linear system modules is specified, and
+given user problem, one of the linear system modules is specified and
 is then invoked as needed during the integration. 
 
 In addition, if forward sensitivity analysis is turned on, the main module 
@@ -37,8 +37,8 @@ CVODES provides three different strategies of dealing with the correction
 stage for the sensitivity variables, simultaneous corrector and
 two variants of staggered corrector (see Section~\ref{ss:fwd_sensitivity}).
 The CVODES package includes an algorithm for the approximation of the sensitivity 
-equations right hand sides by difference quotients, but the user has the option of 
-supplying these right hand sides directly.
+equations right-hand sides by difference quotients, but the user has the option of 
+supplying these right-hand sides directly.
 
 The adjoint sensitivity module provides the infrastructure needed for the 
 integration backwards in time of any system of ODEs which depends on the solution 
@@ -66,7 +66,7 @@ CVSSPGMR method, the package includes and algorithm for the approximation
 by difference quotients of the product between the Jacobian matrix and
 a vector of appropriate length. Again, the user has the option of providing
 a routine for this operation.
-In the case of CVSPGMR, the preconditioning must be supplied by the user, 
+In the case of CVSPGMR, the preconditioning must be supplied by the user 
 in two phases: setup (preprocessing of Jacobian data) and solve.
 While there is no default choice of preconditioner analogous to the 
 difference quotient approximation in the direct case, the references
@@ -74,7 +74,7 @@ difference quotient approximation in the direct case, the references
 the example and demonstration programs included with CVODES, offer
 considerable assistance in building preconditioners.
 
-Each CVODES linear solver module consists of five routines, devoted to (1)
+Each CVODES linear solver module consists of five routines devoted to: (1)
 memory allocation and initialization, (2) setup of the matrix data
 involved, (3) solution of the system, (4) solution of the system in the
 context of forward sensitivity analysis, and (5) freeing of memory.  The
@@ -112,7 +112,7 @@ user.  There is no global data in the CVODES package, and so in this
 respect it is reentrant. State information specific to the linear
 solver is saved in a separate structure, a pointer to which resides in
 the CVODES memory structure. The reentrancy of CVODES was motivated
-by the anticipated multicomputer extension, but is also essential
+by the anticipated multicomputer extension but is also essential
 during adjoint sensitivity analysis where the check-pointing algorithm
 leads to interleaved forward and backward integration passes. 
 
@@ -154,7 +154,7 @@ must provide the following:
 (1) actual implementation of the routines for operations on N-vectors, 
 such as creation, destruction, summation, and dot product;
 (2) a routine to construct an NVECTOR specification structure
-for this particular implementation which defines the data necessary
+for this particular implementation, which defines the data necessary
 for constructing a new N-vector and attaches the vector operations
 to the new structure; and
 (3) a destructor for the NVECTOR specification structure.

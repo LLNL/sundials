@@ -2,7 +2,7 @@
 
 In this section we give an overview of the usage of CVODES for ODE integration, 
 forward sensitivity analysis, and adjoint sensitivity analysis. 
-Complete documentation of the code usage is gicen in~\cite{HiSe:02}.
+Complete documentation of the code usage is given in~\cite{HiSe:02}.
 
 %------------------------------------------------------
 % Integration and forward SA
@@ -10,7 +10,7 @@ Complete documentation of the code usage is gicen in~\cite{HiSe:02}.
 %
 One of the guiding principles in designing the user interface to the 
 CVODES solver has been to allow user to transit from just integration 
-of ODEs to performing sensitivity analysis in as rapid and seamless 
+of ODEs to performing sensitivity analysis in as rapid and seamless a 
 manner as possible. To achieve this goal, we have opted not to 
 modify any of the CVODE user interface to account for the initialization
 and set up of sensitivity analysis.
@@ -80,7 +80,7 @@ follow the memory allocation step \ref{i:malloc}.
 \item \label{i:solve}
   {\tt CVode} 
   solves the problem. 
-  The solver routine is tipically called in a loop over the desired output times.
+  The solver routine is typically called in a loop over the desired output times.
   The user can have the solver take internal steps until it has reached the
   user-specified $t_{\mbox{\scriptsize out}}$ or return control to the user's
   main program after taking one successful step. Additionally, the user can
@@ -120,14 +120,14 @@ follow the memory allocation step \ref{i:malloc}.
 If there are any quadrature equations that must also be integrated, the user's 
 main program must construct an additional NVECTOR specification object. 
 Integration of the quadrature variables is activated and initialized through a 
-call to the CVODES routine {\tt CVodeQuadMalloc} which must specify the
+call to the CVODES routine {\tt CVodeQuadMalloc}, which must specify the
 user-provided routine for the evaluation of the quadrature integrands and
 the integration tolerances for quadrature variables. As before, the user
 has the option of changing from their default values various quantities
 controlling the quadrature integration (see Table~\ref{t:optional_inputs}).
 All these calls must preceed any call to the main CVODES solver routine.
 After a successful return from {\tt CVode}, the quadrature variables are
-accessible through a call to {\tt CVodeGetQuad} and solver statistics related
+accessible through a call to {\tt CVodeGetQuad}, and solver statistics related
 to quadrature integration are available through the routines listed in
 Table~\ref{t:optional_outputs}.
 
@@ -146,13 +146,13 @@ The initialization and set-up of the forward phase is the same as above.
 Before calling the main solver for the forward integration, the user must 
 call the CVODES routine {\tt CVadjMalloc} to initialize and allocate memory 
 for the structure holding the check-pointing and interpolation data.
-The forward integration and check point generation is done through a call
+The forward integration and check-point generation is done through a call
 to {\tt CVodeF}, a wrapper around the {\tt CVode} routine in step 
 \ref{i:solve} above.
 %
 The initialization, set-up, and solution of the adjoint problem is then
 done in the same way as for a regular forward ODE integration but
-calling CVODES and linear solver wrapper routines which have the names 
+calling CVODES and linear solver wrapper routines that have the names 
 mentioned before with the suffix {\tt B} attached. Some examples of such
 CVODES routines are: {\tt CVodeCreateB}, {\tt CVodeSpgmrB}, {\tt CVodeMallocB},
 and {\tt CVodeB}.

@@ -14,7 +14,7 @@ function $f$. The vector $y$ will be referred to as the vector of
 state variables, to distinguish it from sensitivity variables introduced below.
 
 Additionally, if (\ref{e:ivp}) depends (through its right-hand side and/or its initial
-conditions) on some parameters $p \in {\bf R}^{N_p}$, i.e.
+conditions) on some parameters $p \in {\bf R}^{N_p}$, i.e.,
 \begin{equation}\label{e:ivp_p}
 \dot{y}  = f(t,\,y,\,p) \, , \quad y(t_0)  = y_0(p) \, ,
 \end{equation}
@@ -24,8 +24,8 @@ In the first case, CVODES computes the sensitivities of the solution with respec
 parameters $p$, while in the second case, CVODES computes the gradient of a 
 {\em derived function} with respect to the parameters $p$.
 
-In the remaining of this section we describe the algorithms implemented in CVODES,
-with emphasis on sensitivity analysis. In Section~\ref{ss:integration} we give only a 
+In the rest of this section we describe the algorithms implemented in CVODES,
+with emphasis on sensitivity analysis. We give only a 
 brief overview of the ODE integration algorithm to introduce some of the
 quantities needed in the sequel. 
 Since CVODES shares the main integration engine with CVODE, the interested reader is
@@ -97,7 +97,7 @@ integration will involve BDF and the Newton method coupled with one of the
 linear solver modules.
 
 The integrator computes an estimate $E_{n}$ of the local error at each time
-step, and strives to satisfy the following inequality
+step and strives to satisfy the following inequality
 \begin{equation*}
 \left\| E_n\right\|_{\mbox{\scriptsize WRMS}} < 1 ~,
 \end{equation*}
@@ -199,7 +199,7 @@ is not implemented in CVODES.
   information as the matrix $M$ in (\ref{e:N_Matrix}), it must be updated and factored 
   at every step of the integration, in contrast to $M$ which is updated only ocasionally. 
   The computational cost associated with these matrix updates and factorizations 
-  makes this method unattractive when compared with the methods described below, and 
+  makes this method unattractive when compared with the methods described below and 
   is therefore not implemented in CVODES.
   
 \item[{\em Simultaneous Corrector.}] 
@@ -304,11 +304,11 @@ of CVODES can provide different values as an option.
 \subsubsection{Evaluation of the sensitivity right-hand side}
 There are several methods for evaluating the right-hand side of the sensitivity 
 systems (\ref{e:sens_eqns}): analytic evaluation, automatic differentiation, 
-complex-step approximation, finite differences (or directional derivatives).
+complex-step approximation, and finite differences (or directional derivatives).
 CVODES provides all the software hooks for implementing interfaces to
-automatic differentiation or complex-step approximation and future versions
+automatic differentiation or complex-step approximation, and future versions
 will provide these capabilities.
-At the present time, besides the option for analytical sensitivity right hand 
+At the present time, besides the option for analytical sensitivity right-hand 
 sides (user-provided), CVODES can evaluate these quantities using various
 finite difference-based approximations to evaluate the terms $(\dfdyI) s_i$ 
 and $(\dfdpiI)$, or using directional derivatives to evaluate
@@ -414,7 +414,7 @@ integration phase of (\ref{e:ivp_p}) to CVODES during the backward integration p
 of (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}). 
 The approach adopted in CVODES, based on {\em check-pointing} is described next.
 
-During the backward integration, the evaluation of the right hand side 
+During the backward integration, the evaluation of the right-hand side 
 of the adjoint system requires, at the current time, the states $y$ which
 were computed in the forward integration phase.
 Since CVODES implements variable-stepsize integration formulas,
@@ -436,8 +436,8 @@ based on the problem size $N$ and the available memory, the user decides on
 the number $N_d$ of data pairs ($y$, ${\dot y}$) that can be kept in memory for 
 the purpose of interpolation. Then, during the first forward integration stage, 
 every $N_d$ integration steps a check point is formed by saving enough information
-(either in memory or on disk if needed) to allow for a hot restart, that is a restart
-which will exactly reproduce the forward integration. In order to avoid storing
+(either in memory or on disk if needed) to allow for a hot restart, that is, a restart
+that will exactly reproduce the forward integration. In order to avoid storing
 Jacobian-related data at each check point, a reevaluation of the iteration matrix
 is forced before each check point. At the end of this stage, we are left with $N_c$ 
 check points, including one at $t_0$.
@@ -459,12 +459,12 @@ This procedure is illustrated in Fig.~\ref{f:ckpnt}.
 This approach transfers the uncertainty in the number of integration
 steps in the forward integration phase to uncertainty in the final number of check 
 points. However, $N_c$ is much smaller than the number of steps taken during
-the forward integration and there is no major penalty for writting and then reading
+the forward integration, and there is no major penalty for writing and then reading
 check point data to/from a temporary file.
 %
 Note that, at the end of the first forward integration stage, data pairs 
 $y$-${\dot y}$ are available from the last check point to the end of the integration 
-interval. If no check points are necessary, i.e $N_d$ is larger than the 
+interval. If no check points are necessary, i.e., $N_d$ is larger than the 
 number of integration steps taken in the solution of (\ref{e:ivp_p}),
 the total cost of an adjoint sensitivity computation can be as low as one forward
 plus one backward integration.
