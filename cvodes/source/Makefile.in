@@ -23,7 +23,7 @@ CVODES_INC_DIR = ../include
 CVODES_LIB = libcvodes.a
 
 # Source and object files
-SRC    = cvodes.c cvodea.c \
+SRC    = cvodes.c cvodea.c cvodec.c \
          cvsdense.c cvsband.c cvsdiag.c \
          cvsspgmr.c cvsbandpre.c cvsbbdpre.c
 
@@ -49,6 +49,7 @@ install:
 	cp ${CVODES_LIB} ${libdir}
 	cp ${CVODES_INC_DIR}/cvodes.h     ${includedir}
 	cp ${CVODES_INC_DIR}/cvodea.h     ${includedir}
+	cp ${CVODES_INC_DIR}/cvodec.h     ${includedir}
 	cp ${CVODES_INC_DIR}/cvsdense.h   ${includedir}
 	cp ${CVODES_INC_DIR}/cvsband.h    ${includedir}
 	cp ${CVODES_INC_DIR}/cvsdiag.h    ${includedir}
@@ -64,6 +65,7 @@ uninstall:
 	rm -f ${libdir}/${CVODES_LIB}
 	rm -f ${includedir}/cvodes.h
 	rm -f ${includedir}/cvodea.h
+	rm -f ${includedir}/cvodec.h
 	rm -f ${includedir}/cvsdense.h
 	rm -f ${includedir}/cvsband.h
 	rm -f ${includedir}/cvsdiag.h
