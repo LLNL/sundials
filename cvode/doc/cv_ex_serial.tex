@@ -32,8 +32,8 @@ explanation of the parts of the program and their interaction with {\cvode}.
 Following the initial comment block, this program has a number
 of \id{\#include} lines, which allow access to useful items in {\cvode}
 header files.  The \id{sundialstypes.h} file provides the definition of the
-type \id{realtype} (see \S\ref{s:types} in the user guide for
-details).  For now, it suffices to read \id{realtype} as \id{double}.
+type \id{realtype} (see \S\ref{s:types} in the user guide \cite{cvode2.1_ug}
+for details).  For now, it suffices to read \id{realtype} as \id{double}.
 The \id{cvode.h} file provides prototypes for the {\cvode}
 functions to be called (excluding the linear solver selection
 function), and also a number of constants that are to be used in
@@ -372,13 +372,14 @@ integration is $[0, 86400]$, representing 24 hours measured in seconds.
 
 Homogeneous Neumann boundary conditions are imposed on each boundary, and the
 initial conditions are 
-\begin{eqnarray*}
-c^{1}(x,y,0) &=&10^{6}\alpha (x)\beta (y) ~,~~~ 
+\begin{equation} \label{cvkxic}
+  \begin{split}
+  c^{1}(x,y,0) &= 10^{6}\alpha (x)\beta (y) ~,~~~ 
                     c^{2}(x,y,0)=10^{12}\alpha(x)\beta (y) ~, \\
-\alpha (x) &=&1-(0.1x-1)^{2}+(0.1x-1)^{4}/2 ~, \\
-\beta (y) &=&1-(0.1y-4)^{2}+(0.1y-4)^{4}/2 ~.
-\end{eqnarray*}
-
+  \alpha (x) &= 1-(0.1x-1)^{2}+(0.1x-1)^{4}/2 ~, \\
+  \beta (y) &= 1-(0.1y-4)^{2}+(0.1y-4)^{4}/2 ~.
+  \end{split} 
+\end{equation}
 For this example, the equations (\ref{cvkxpde}) are discretized spatially
 with standard central finite differences on a $10 \times 10$ mesh,
 giving an ODE system of size $200$.
