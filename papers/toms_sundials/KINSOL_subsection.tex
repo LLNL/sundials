@@ -24,12 +24,13 @@ resulting in the following iteration:
       \end{itemize}
 \end{enumerate}
 Here, $J(u) = F'(u)$ is the system Jacobian. As this code module is
-anticipated for use on large systems, only iterative methods are provided 
-to solve the system in step 2(a). These solutions are only approximate. 
-At each stage in the iteration process, a multiple of the 
-approximate solution, $\delta_n$, is added 
-to the previously iterated approximate solution to produce a new 
-approximate solution. Convergence is tested before iteration continues. 
+anticipated for use on large systems, only iterative methods are
+provided to solve the system in step 2(a). These solutions are only
+approximate.  At each stage in the iteration process, a scalar
+multiple of the approximate solution, $\delta_n$, is added to the
+previous approximate solution, $u_n$, to produce a new approximate
+solution. A test for convergence is made before the iteration
+continues.
 
 The linear iterative method currently implemented is one of the class of 
 Krylov methods, GMRES \cite{BrHi:89,SaSc:86}, 
@@ -45,11 +46,11 @@ $u$ is the current approximation to a root of (\ref{nonlinear_system})
 and $\sigma$ is a scalar.  The choice of $\sigma$ is taken from 
 \cite{BrSa:90} and is given by,
 \begin{equation}\label{sigma_comp}
-  \sigma = \frac{\max \{|u^T v|, typ(u^T |v|)\}}{\|v\|_2} 
-  sign(u^T v) \sqrt{U} \, ,
+  \sigma = \frac{\max \{|u^T v|, \mbox{typ}u^T |v|\}}{\|v\|_2} 
+  \mbox{sign}(u^T v) \sqrt{U} \, ,
 \end{equation}
-where $typ(u)$ is a vector of typical values for the solution
-taken to be inverses of the scale factors given for $u$ (described 
+where $\mbox{typ}u$ is a vector of typical values for the solution (can be 
+taken to be inverses of the scale factors given for $u$ as described 
 below), and $U$ is unit roundoff.
 Convergence of the Newton method is maintained as long as the value
 of $\sigma$ remains appropriately small as shown in \cite{Bro:87}.
@@ -71,8 +72,6 @@ automatically incorporated into the calculation of $\sigma$ in
 Additionally, right preconditioning is provided if the preconditioning 
 setup and solve routines are supplied by the user.  In this case,
 GMRES is applied to the linear systems $(JP^{-1})(P\delta) = -F$.
-In most cases, performance of SPGMR is significantly improved by user-supplied 
-preconditioners.  
 
 Two methods of applying a computed step $\delta_n$ to the previously computed
 approximate solution vector are implemented.  The 
@@ -84,7 +83,7 @@ in the most efficient way for furthering convergence of the nonlinear problem.
 This technique 
 is implemented in the second strategy, called Linesearch.  This option
 employs both the $\alpha$ and $\beta$ conditions of the Goldstein-Armijo
-search given in \cite{DeSc:96} and changes step 2(b) to
+linesearch given in \cite{DeSc:96} and changes step 2(b) to
 \begin{enumerate}
   \addtocounter{enumi}{1}
 \item{(b)$\;$Set $u_{n+1} = u_n + \lambda \delta_n$},
@@ -97,12 +96,13 @@ close to the solution.
 Stopping criteria for the Newton method can be required for either or 
 both of the nonlinear residual and the step length.  For the former, 
 the Newton iteration must pass a stopping test,
-\[ \|F(u_n)\|_{D_F,max} < ftol \, , \]
-where $ftol$ is an input scalar tolerance with a default value of $U^{1/3}$.
+\[ \|F(u_n)\|_{D_F,\mbox{\scriptsize max}} < \mbox{\sc ftol} \, , \]
+where {\sc ftol} is an input scalar tolerance with a default value of
+$U^{1/3}$. 
 For the latter, the Newton method will terminate when the maximum scaled step
 is below a given tolerance,
-\[ \|\delta_n\|_{D_u,max} < steptol \, , \]
-where $steptol$ is an input scalar tolerance with a default value of 
+\[ \|\delta_n\|_{D_u,max} < \mbox{\sc steptol} \, , \]
+where {\sc steptol} is an input scalar tolerance with a default value of 
 $U^{2/3}$.
 
 Three options for stopping criteria for the linear system solve are
