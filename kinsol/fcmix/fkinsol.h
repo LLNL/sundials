@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2005-01-24 22:29:01 $
+ * $Revision: 1.28 $
+ * $Date: 2005-03-02 17:55:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -298,7 +298,7 @@
        UU          = array containing the initial guess on input, and the
                      solution on return
        GLOBALSTRAT = (INTEGER) a number defining the global strategy choice:
-                     1 = InexactNewton, 2 = LineSearch
+                     0 = No globalization, 1 = LineSearch
        USCALE      = array of scaling factors for the UU vector
        FSCALE      = array of scaling factors for the FVAL (function) vector
        IER         = INTEGER error flag as returned by KINSOL:

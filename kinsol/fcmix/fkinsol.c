@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2004-12-06 20:22:19 $
+ * $Revision: 1.30 $
+ * $Date: 2005-03-02 17:55:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -80,7 +80,7 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
   data_F2C_vec = N_VGetArrayPointer(F2C_vec);
   N_VSetArrayPointer(constraints, F2C_vec);
 
-  KINSetMaxPrecCalls(KIN_mem, *msbpre);
+  KINSetMaxSetupCalls(KIN_mem, *msbpre);
   KINSetFuncNormTol(KIN_mem, *fnormtol);
   KINSetScaledStepTol(KIN_mem, *scsteptol);
   KINSetConstraints(KIN_mem, F2C_vec);
@@ -89,7 +89,7 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 
     if (iopt[0] > 0) KINSetPrintLevel(KIN_mem, (int) iopt[0]);
     if (iopt[1] > 0) KINSetNumMaxIters(KIN_mem, iopt[1]);
-    if (iopt[2] > 0) KINSetNoPrecInit(KIN_mem, TRUE);
+    if (iopt[2] > 0) KINSetNoInitSetup(KIN_mem, TRUE);
     if (iopt[7] > 0) KINSetEtaForm(KIN_mem, (int) iopt[7]);
     if (iopt[8] > 0) KINSetNoMinEps(KIN_mem, TRUE);
 
