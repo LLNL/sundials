@@ -5,34 +5,34 @@
 IDA solves the initial-value problem for 
 a DAE system of the general form
 \begin{equation}\label{e:DAE}
-  F(t,y,{\dot y}) = 0 \, ,
-  \quad y(t_0) = y_0 \, ,~ {\dot y}(t_0) = {\dot y}_0 \, ,
+  F(t,y,y^\prime) = 0 \, ,
+  \quad y(t_0) = y_0 \, ,~ y^\prime(t_0) = y^\prime_0 \, ,
 \end{equation}
-where $y$, ${\dot y}$, and $F$ are vectors in ${\bf R}^N$, $t$ is the independent
-variable, ${\dot y} = dy/dt$, 
-and initial conditions $y(t_0) = y_0$, ${\dot y}(t_0) = {\dot y}_0$ 
+where $y$, $y^\prime$, and $F$ are vectors in ${\bf R}^N$, $t$ is the independent
+variable, $y^\prime = dy/dt$, 
+and initial conditions $y(t_0) = y_0$, $y^\prime(t_0) = y^\prime_0$ 
 are given.  (Often $t$ is time, but it certainly need not be.)
 
 % Initial condition calculation
 %------------------------------
 Prior to integrating a DAE initial-value problem, an important requirement 
-is that the pair of vectors $y_0$ and ${\dot y_0}$ are both initialized to
-satisfy the DAE residual $F(t_0,y_0, {\dot y}_0) = 0$.
+is that the pair of vectors $y_0$ and $y^\prime_0$ are both initialized to
+satisfy the DAE residual $F(t_0,y_0, y^\prime_0) = 0$.
 For a class of problems that includes so-called
 semi-explicit index-one systems, IDA provides a routine that computes
 consistent initial conditions from a user's initial guess~\cite{BHP:98}.  
 For this, the user must identify sub-vectors of $y$
 (not necessarily contiguous), denoted $y_d$ and $y_a$, which are its
 differential and algebraic parts, respectively, such that $F$ depends
-on ${\dot y}_d$ but not on any components of ${\dot y}_a$.  The assumption that
+on $y^\prime_d$ but not on any components of $y^\prime_a$.  The assumption that
 the system is ``index one'' means that for a given $t$ and $y_d$, the
-system $F(t,y,{\dot y}) = 0$ defines $y_a$ uniquely.  In this case, a solver
-within IDA computes $y_a$ and ${\dot y}_d$ at $t = t_0$, given $y_d$ and an
+system $F(t,y,y^\prime) = 0$ defines $y_a$ uniquely.  In this case, a solver
+within IDA computes $y_a$ and $y^\prime_d$ at $t = t_0$, given $y_d$ and an
 initial guess for $y_a$.  A second available option with this solver
-also computes all of $y(t_0)$ given ${\dot y}(t_0)$; this is intended mainly
-for quasi-steady-state problems, where ${\dot y}(t_0) = 0$ is given.
-In both cases, IDA solves the system $F(t_0,y_0, {\dot y}_0) = 0$ for the
-unknown components of $y_0$ and ${\dot y}_0$, using Newton iteration
+also computes all of $y(t_0)$ given $y^\prime(t_0)$; this is intended mainly
+for quasi-steady-state problems, where $y^\prime(t_0) = 0$ is given.
+In both cases, IDA solves the system $F(t_0,y_0, y^\prime_0) = 0$ for the
+unknown components of $y_0$ and $y^\prime_0$, using Newton iteration
 augmented with a line search global strategy.  In doing this, it makes
 use of the existing machinery that is to be used for solving the
 linear systems during the integration, in combination with certain
@@ -49,33 +49,33 @@ BDF, in fixed-leading-coefficient form~\cite{BCP:96}.
 The method order ranges from 1 to 5, with the BDF of order $q$
 given by the multistep formula
 \begin{equation}\label{e:BDF}
-  \sum_{i=0}^q \alpha_{n,i}y_{n-i} = h_n {\dot y}_n \, ,
+  \sum_{i=0}^q \alpha_{n,i}y_{n-i} = h_n y^\prime_n \, ,
 \end{equation}
-where $y_n$ and ${\dot y}_n$ are the computed approximations to $y(t_n)$
-and ${\dot y}(t_n)$, respectively, and the step size is $h_n = t_n - t_{n-1}$.  
+where $y_n$ and $y^\prime_n$ are the computed approximations to $y(t_n)$
+and $y^\prime(t_n)$, respectively, and the step size is $h_n = t_n - t_{n-1}$.  
 The coefficients $\alpha_{n,i}$ are uniquely determined by the order
 $q$, and the history of the step sizes.  The application of the BDF
 (\ref{e:BDF}) to the DAE system (\ref{e:DAE}) results in a nonlinear
 algebraic system to be solved at each step:
 \begin{equation}\label{e:DAE_nls}
-  G(y_n) \equiv 
-  F \left( t_n , \, y_n , \, 
-    h_n^{-1} \sum_{i=0}^q \alpha_{n,i}y_{n-i} \right) = 0 \, .
+  G(y^n) \equiv 
+  F \left( t_n , \, y^n , \, 
+    h_n^{-1} \sum_{i=0}^q \alpha_{n,i}y^{n-i} \right) = 0 \, .
 \end{equation}
 %
 Regardless of the method options, the solution of the nonlinear system
 (\ref{e:DAE_nls}) is accomplished with some form of Newton iteration.
 This leads to a linear system for each Newton correction, of the form
 \begin{equation}\label{e:DAE_Newtoncorr}
-  J [y_{n(m+1)} - y_{n(m)}] = -G(y_{n(m)})  \, , 
+  J [y^{n(m+1)} - y^{n(m)}] = -G(y^{n(m)})  \, , 
 \end{equation}
-where $y_{n(m)}$ is the $m$-th approximation to $y_n$. 
+where $y^{n(m)}$ is the $m$-th approximation to $y^n$. 
 %
 Here $J$ is some approximation to the system Jacobian
 \begin{equation}\label{e:DAE_Jacobian}
   J = \frac{\partial G}{\partial y}
   = \frac{\partial F}{\partial y} + 
-  \alpha\frac{\partial F}{\partial {\dot y}} \, ,
+  \alpha\frac{\partial F}{\partial y^\prime} \, ,
 \end{equation}
 where $\alpha = \alpha_{n,0}/h_n$.  The scalar $\alpha$ changes 
 whenever the step size or method order changes.
@@ -104,9 +104,9 @@ solution and on the relative and absolute tolerances input by the
 user, namely
 \index{tolerances}
 \begin{equation}\label{e:errwt}
- W_i = \mbox{\sc rtol} \cdot |y^i| + \mbox{\sc atol}_i \, .
+ W_i = \mbox{\sc rtol} \cdot |y_i| + \mbox{\sc atol}_i \, .
 \end{equation}
-Because $W_i$ represents a tolerance in the component $y^i$, a vector
+Because $W_i$ represents a tolerance in the component $y_i$, a vector
 whose norm is 1 is regarded as ``small.''  For brevity, we will
 usually drop the subscript WRMS on norms in what follows.
 \index{norm!weighted root-mean-square|)}
@@ -135,14 +135,14 @@ reevaluated from scratch.
 
 % Newton convergence test
 %------------------------
-Unlike the CVODE/CVODES case, the stopping test for the Newton iteration
-in IDA ensures that the iteration error $y_n - y_{n(m)}$ is small relative
+The stopping test for the Newton iteration
+in IDA ensures that the iteration error $y^n - y^{n(m)}$ is small relative
 to $y$ itself. For this, we estimate the linear convergence rate at all 
 iterations $m>1$ as
 \begin{equation*}
 R = \left( \frac{\delta_m}{\delta_1} \right)^{\frac{1}{m-1}} \, , 
 \end{equation*}
-where the $\delta_m = y_{n(m)} - y_{n(m-1)}$ is the correction at
+where the $\delta_m = y^{n(m)} - y^{n(m-1)}$ is the correction at
 iteration $m=1,2,\ldots$. The Newton iteration is halted if $R>0.9$.
 The convergence test at the $m$-th iteration is then
 \begin{equation}\label{e:DAE_nls_test}
@@ -182,24 +182,24 @@ cases, the Jacobian $J$ defined in (\ref{e:DAE_Jacobian})
 can be either supplied by the user or have IDA compute one internally 
 by difference quotients. In the latter case, we use the approximation
 \begin{gather*}
-  J_{ij} = [F^i(t,y+\sigma_j e_j,{\dot y}+\alpha\sigma_j e_j) - 
-            F^i(t,y,{\dot y})]/\sigma_j \, , \text{ with}\\
-  \sigma_j = \sqrt{U} \max \left\{ |y^j|, |h{\dot y}^j|,W_j \right\}
-             \mbox{sign}(h {\dot y}^j) \, ,
+  J_{ij} = [F_i(t,y+\sigma_j e_j,y^\prime+\alpha\sigma_j e_j) - 
+            F_i(t,y,y^\prime)]/\sigma_j \, , \text{ with}\\
+  \sigma_j = \sqrt{U} \max \left\{ |y_j|, |hy^\prime_j|,W_j \right\}
+             \mbox{sign}(h y^\prime_j) \, ,
 \end{gather*}
 where $U$ is the unit roundoff, $h$ is the current step size, and $W_j$ is 
-the error weight for $y^j$ defined by (\ref{e:errwt}).
+the error weight for $y_j$ defined by (\ref{e:errwt}).
 In the SPGMR case, if a routine for $Jv$ is not supplied, such products are
 approximated by
 \begin{equation*}
-Jv = [F(t,y+\sigma v,{\dot y}+\alpha\sigma v) - F(t,y,{\dot y})]/\sigma \, ,
+Jv = [F(t,y+\sigma v,y^\prime+\alpha\sigma v) - F(t,y,y^\prime)]/\sigma \, ,
 \end{equation*}
-where the increment $\sigma$ is $1/\|v\|$ (as with
-CVODE).\footnote{All vectors $v$ occurring here have been divided by
-the weights $W_i$ and then scaled so as to have $L_2$ norm equal to 1.
+where the increment $\sigma$ is $1/\|v\|$.\footnote{All vectors $v$ 
+occurring here have been divided by the weights $W_i$ and then scaled 
+so as to have $L_2$ norm equal to 1. 
 Thus, in fact $\sigma = 1/\|v\|_{\mbox{\scriptsize WRMS}}=\sqrt{N}$.}
-(As an option, the user can specify a constant factor that is inserted
-into this expression for $\sigma$).
+As an option, the user can specify a constant factor that is inserted
+into this expression for $\sigma$.
 
 % Error control
 %--------------
@@ -289,7 +289,7 @@ step size unless it can be doubled.  See \cite{BCP:96} for details.
 %---------------------------------------
 IDA permits the user to impose optional inequality constraints on individual 
 components of the solution vector $y$. Any of the following four constraints 
-can be imposed: $y^i > 0$, $y^i < 0$, $y^i \geq 0$, or $y^i \leq 0$. 
+can be imposed: $y_i > 0$, $y_i < 0$, $y_i \geq 0$, or $y_i \leq 0$. 
 The constraint satisfaction is tested after a successful nonlinear system solution. 
 If any constraint fails, we declare a convergence failure of the Newton iteration 
 and reduce the step size. Rather than cutting the step size by some arbitrary factor, 

@@ -523,7 +523,7 @@ system for a class of index-one problems of semi-implicit form.
 It uses Newton iteration combined with a linesearch algorithm.
 Calling \id{IDACalcIC} is optional. It is only necessary when the  
 initial conditions do not solve the given system;  i.e., if   
-\id{y0} and \id{yp0} are known to satisfy $F(t_0, y_0, {\dot y}_0) = 0$, 
+\id{y0} and \id{yp0} are known to satisfy $F(t_0, y_0, y^\prime_0) = 0$, 
 then a call to \id{IDACalcIC} is {\em not} necessary.
 
 A call to \id{IDACalcIC} must be preceded by successful calls to  
@@ -555,13 +555,13 @@ for the given problem.
     is the option of IDACalcIC to be used.
     
     \id{icopt}$=$\ID{CALC\_YA\_YDP\_INIT} directs \id{IDACalcIC} to compute 
-    the algebraic components of $y$ and differential components of ${\dot y}$, 
+    the algebraic components of $y$ and differential components of $y^\prime$, 
     given the differential components of $y$.  
     This option requires that the \id{N\_Vector} \id{id} was set through 
     \id{IDASetId}, specifying the differential and algebraic components.  
     
     \id{icopt}$=$\ID{CALC\_Y\_INIT} directs \id{IDACalcIC} to compute all  
-    components of $y$, given ${\dot y}$.  \id{id} is not required.
+    components of $y$, given $y^\prime$.  \id{id} is not required.
 
   \item[tout1] (\id{realtype})
     is the first value of $t$ at which a solution will be requested (from \id{IDASolve}).
@@ -1368,7 +1368,7 @@ described here.
 \index{IDADENSE@{\idadense} linear solver!optional input|(}
 The \index{IDADENSE@{\idadense} linear solver!Jacobian approximation used by}
 {\idadense} solver needs a function to compute a dense approximation to
-the Jacobian matrix $J(t,y)$.  
+the Jacobian matrix $J(t,y,y^\prime)$.  
 This function must be of type \id{IDADenseJacFn}. 
 The user can supply his/her own dense Jacobian function, or use the default 
 difference quotient function \Id{IDADenseDQJac} 
@@ -1461,7 +1461,7 @@ specified through \id{IDASetRdata}.
 \index{IDABAND@{\idaband} linear solver!optional input|(}
 The \index{IDABAND@{\idaband} linear solver!Jacobian approximation used by}
 {\idaband} solver needs a function to compute a banded approximation to
-the Jacobian matrix $J(t,y)$.  This function must be of type \id{IDABandJacFn}. 
+the Jacobian matrix $J(t,y,y^\prime)$.  This function must be of type \id{IDABandJacFn}. 
 The user can supply his/her own banded Jacobian approximation function, 
 or use the default difference quotient function \Id{IDABandDQJac} 
 \index{Jacobian approximation function!band!difference quotient}
@@ -1576,7 +1576,7 @@ specified through \id{IDASetRdata}.
 
 The \index{IDASPGMR@{\idaspgmr} linear solver!Jacobian approximation used by}
 {\idaspgmr} solver requires a function to compute an approximation to the
-product between the Jacobian matrix $J(t,y)$ and a vector $v$.
+product between the Jacobian matrix $J(t,y,y^\prime)$ and a vector $v$.
 The user can supply his/her own Jacobian times vector approximation function, 
 or use the difference quotient function \Id{IDASpgmrDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
@@ -1948,8 +1948,8 @@ flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
   The default value is $0.01 \cdot 0.33$.
 
   This test uses a weighted RMS norm (with weights defined by the tolerances).
-  For new initial value vectors $y$ and ${\dot y}$ to be accepted, the norm
-  of $J^{-1}F(t_0, y, {\dot y}) \le $\id{epiccon}, where $J$ is the system Jacobian.
+  For new initial value vectors $y$ and $y^\prime$ to be accepted, the norm
+  of $J^{-1}F(t_0, y, y^\prime) \le $\id{epiccon}, where $J$ is the system Jacobian.
 }
 %%
 \ucfunction{IDASetMaxNumStepsIC}
@@ -1960,7 +1960,7 @@ flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
   The function \ID{IDASetMaxNumStepsIC} specifies the maximum number
   of steps allowed when \id{icopt}$=$\id{CALC\_YA\_YDP\_INIT}
   in \id{IDACalcIC}, where $h$ appears in the system Jacobian,
-  $J = dF / dy + (1/h) \cdot dF / d{\dot y}$.
+  $J = dF / dy + (1/h) \cdot dF / dy^\prime$.
 }
 {
   \begin{args}[ida\_mem]
@@ -3499,7 +3499,7 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
 }
 {
   This function computes the problem residual for given values
-  of the independent variable $t$, state vector $y$, and derivative $\dot y$.
+  of the independent variable $t$, state vector $y$, and derivative $y^\prime$.
 }
 {
   \begin{args}[res\_data]
@@ -3554,7 +3554,7 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
   \item[Neq]
     is the problem size (number of equations).
   \item[tt]
-    is the current value of the independent variable.
+    is the current value of the independent variable $t$.
   \item[yy]
     is the current value of the dependent variable vector, $y(t)$.
   \item[yp]
@@ -3588,7 +3588,7 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
 {
   A user-supplied dense Jacobian function must load the \id{Neq} $\times$ \id{Neq}
   dense matrix \id{Jac} with an approximation to the Jacobian matrix $J$
-  at the point (\id{t}, \id{yy}, \id{yp}).  Only nonzero elements need to be loaded
+  at the point (\id{tt}, \id{yy}, \id{yp}).  Only nonzero elements need to be loaded
   into \id{Jac} because \id{Jac} is set to the zero matrix before the call
   to the Jacobian function. The type of \id{Jac} is \Id{DenseMat} 
   (described below and in \S\ref{ss:dense}). 
@@ -3686,8 +3686,8 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{Jac}
-  of type \Id{BandMat} with the elements of the Jacobian $J(t,y)$ at the
-  point (\id{tt},\id{yy},\id{yp}).  Only nonzero elements need to be loaded into
+  of type \Id{BandMat} with the elements of the Jacobian $J(t,y,y^\prime)$ at the
+  point (\id{tt}, \id{yy}, \id{yp}).  Only nonzero elements need to be loaded into
   \id{Jac} because \id{Jac} is preset to zero before the call to the
   Jacobian function.  
 
@@ -3908,7 +3908,7 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
   approximation.
 
   Each call to the preconditioner setup function is preceded by a call to     
-  the \id{IDAResFn} user function with the same (\id{tt},\id{yy},\id{yp}) arguments.  
+  the \id{IDAResFn} user function with the same (\id{tt}, \id{yy}, \id{yp}) arguments.  
   Thus the preconditioner setup function can use any auxiliary data that is 
   computed and saved during the evaluation of the DAE residual.
   
@@ -3952,8 +3952,8 @@ sub-domains.  Each of these sub-domains is then assigned to one of the
 $M$ processors to be used to solve the DAE system. The basic idea is
 to isolate the preconditioning so that it is local to each processor,
 and also to use a (possibly cheaper) approximate residual
-function. This requires the definition of a new function $G(t,y,{\dot y})$
-which approximates the function $F(t, y, {\dot y})$ in the definition of the DAE
+function. This requires the definition of a new function $G(t,y,y^\prime)$
+which approximates the function $F(t, y, y^\prime)$ in the definition of the DAE
 system (\ref{e:DAE}). However, the user may set $G = F$.  Corresponding
 to the domain decomposition, there is a decomposition of the solution
 vector $y$ into $M$ disjoint blocks $y_m$, and a decomposition of $G$
@@ -3973,7 +3973,7 @@ The preconditioner associated with this decomposition has the form
 where 
 \begin{equation}
   P_m \approx \partial G_m / \partial y_m
-  + \alpha \partial G_m / \partial {\dot y}_m
+  + \alpha \partial G_m / \partial y^\prime_m
 \end{equation}
 This matrix is taken to be banded, with
 upper and lower half-bandwidths \id{mudq} and \id{mldq} defined as
@@ -4023,7 +4023,7 @@ then used by \id{Gres}, which is not expected to do any communication.
                                 &void *res\_data);
 }
 {
-  This function computes $G(t,y,{\dot y})$. It loads the vector
+  This function computes $G(t,y,y^\prime)$. It loads the vector
   \id{gval} as a function of \id{tt}, \id{yy}, and \id{yp}.  
 }
 {
@@ -4235,10 +4235,10 @@ next.
     can be specified by passing \id{dq\_rel\_yy}$ = 0.0$.
   \item[Gres] (\id{IDABBDLocalFn})
     the {\C} function which computes the local residual approximation 
-    $G(t,y,{\dot y})$.
+    $G(t,y,y^\prime)$.
   \item[Gcomm] (\id{IDABBDCommFn})
     the optional {\C} function which performs all inter-process communication required for
-    the computation of $G(t,y,{\dot y})$.
+    the computation of $G(t,y,y^\prime)$.
   \end{args}
 }
 {
@@ -4252,7 +4252,7 @@ next.
   exceeds the value \id{Nlocal}$-1$, it is replaced with \id{Nlocal}$-1$.
 
   The half-bandwidths \id{mudq} and \id{mldq} need not be the true 
-  half-bandwidths of the Jacobian of the local block of $g$,    
+  half-bandwidths of the Jacobian of the local block of $G$,    
   when smaller values may provide a greater efficiency.       
 
   Also, the half-bandwidths \id{mukeep} and \id{mlkeep} of the retained 
@@ -4348,10 +4348,10 @@ used in the difference-quotient Jacobian approximations, the relative increment
     can be specified by passing \id{dq\_rel\_yy} $= 0.0$.
   \item[Gres] (\id{IDABBDLocalFn})
     the {\C} function which computes the local residual approximation 
-    $G(t,y,{\dot y})$.
+    $G(t,y,y^\prime)$.
   \item[Gcomm] (\id{IDABBDCommFn})
     the optional {\C} function which performs all inter-process communication required for
-    the computation of $G(t,y,{\dot y})$.
+    the computation of $G(t,y,y^\prime)$.
   \end{args}
 }
 {
