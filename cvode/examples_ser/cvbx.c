@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-08-30 22:56:50 $
+ * $Revision: 1.14 $
+ * $Date: 2004-10-13 20:38:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -345,7 +345,7 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVBandGetNumRhsEvals(cvode_mem, &nfeB);
   check_flag(&flag, "CVBandGetNumRhsEvals", 1);
 
-  printf("\nFinal Statistics.. \n\n");
+  printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeB = %-6ld njeB = %ld\n",
 	 nst, nfe, nsetups, nfeB, njeB);
   printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",

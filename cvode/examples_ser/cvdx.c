@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-08-30 22:56:34 $
+ * $Revision: 1.17 $
+ * $Date: 2004-10-13 20:38:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -297,7 +297,7 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumGEvals(cvode_mem, &nge);
   check_flag(&flag, "CVodeGetNumGEvals", 1);
 
-  printf("\nFinal Statistics.. \n\n");
+  printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeD = %-6ld njeD = %ld\n",
 	 nst, nfe, nsetups, nfeD, njeD);
   printf("nni = %-6ld ncfn = %-6ld netf = %-6ld nge = %ld\n \n",
