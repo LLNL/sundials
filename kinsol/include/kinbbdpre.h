@@ -173,7 +173,7 @@ typedef struct {
   /* available for optional output: */
   long int rpwsize;
   long int ipwsize;
-  long int nge;
+  int nge;
 
   /* Pointer to KINSOL memory */
   KINMem kin_mem;
