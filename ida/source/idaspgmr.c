@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-11-05 23:35:41 $
+ * $Revision: 1.24 $
+ * $Date: 2004-11-23 18:43:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -270,7 +270,7 @@ int IDASpgmrSetGSType(void *ida_mem, int gstype)
 
   /* Check for legal gstype */
   if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
-    if(errfp!=NULL) fprintf(errfp, MSGS_BAD_GSTYPE, gstype, MODIFIED_GS, CLASSICAL_GS);
+    if(errfp!=NULL) fprintf(errfp, MSGS_BAD_GSTYPE);
     return(IDASPGMR_ILL_INPUT);
   }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2004-11-05 23:35:41 $
+ * $Revision: 1.35 $
+ * $Date: 2004-11-23 18:43:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -790,7 +790,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
   }
 
   if (*rtol < ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL, *rtol); 
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL); 
     return(IDA_ILL_INPUT); 
   }
    
@@ -2654,7 +2654,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( (tn - tout)*hh >= ZERO) {
       ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
       if (ier != IDA_SUCCESS) {
-        if(errfp!=NULL) fprintf(errfp,MSG_BAD_TOUT, tout);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TOUT, tout);
         return(IDA_ILL_INPUT);
       }
       *tret = tretp = tout;
@@ -2674,7 +2674,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
   case IDA_NORMAL_TSTOP:
     /* Test for tn past tstop, tn = tretp, tn past tout, tn near tstop. */
     if ( (tn - tstop)*hh > ZERO) {
-      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
       return(IDA_ILL_INPUT);
     }
     if (tout == tretp) {
@@ -2694,7 +2694,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( ABS(tn - tstop) <= troundoff) {
       ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
       if (ier != IDA_SUCCESS) {
-        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+	  if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
         return(IDA_ILL_INPUT);
       }
       *tret = tretp = tstop;
@@ -2706,7 +2706,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
   case IDA_ONE_STEP_TSTOP:
     /* Test for tn past tstop, tn past tretp, and tn near tstop. */
     if ( (tn - tstop)*hh > ZERO) {
-      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
       return(IDA_ILL_INPUT);
     }
     if ( (tn - tretp)*hh > ZERO) {
@@ -2718,7 +2718,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( ABS(tn - tstop) <= troundoff) {
       ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
       if (ier != IDA_SUCCESS) {
-        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
         return(IDA_ILL_INPUT);
       }
       *tret = tretp = tstop;
@@ -2728,7 +2728,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     return(CONTINUE_STEPS);
     
   }
-  return -99;
+  return(-99);
 }
 
 /*
