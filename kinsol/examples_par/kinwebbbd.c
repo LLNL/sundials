@@ -262,20 +262,20 @@ int main(int argc, char *argv[])
   flag = KINSetScaledStepTol(kmem, scsteptol);
   if (check_flag(&flag, "KINSetScaledStepTol", 1, my_pe)) MPI_Abort(comm, 1);
   
-  /* Call KBBDAlloc to initialize and allocate memory for the band-block-
-     diagonal preconditioner, and specify the local and communication
-     functions fcalcprpr and ccomm. */
+  /* Call KINBBDPrecAlloc to initialize and allocate memory for the
+     band-block-diagonal preconditioner, and specify the local and
+     communication functions fcalcprpr and ccomm. */
   dq_rel_uu = ZERO;
   mu = ml = 2*NUM_SPECIES - 1;
 
-  pdata = KBBDPrecAlloc(kmem, Nlocal, mu, ml, dq_rel_uu, fcalcprpr, ccomm);
-  if (check_flag((void *)pdata, "KBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
+  pdata = KINBBDPrecAlloc(kmem, Nlocal, mu, ml, dq_rel_uu, fcalcprpr, ccomm);
+  if (check_flag((void *)pdata, "KINBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
 
-  /* Call KBBDSpgmr to specify the linear solver KINSPGMR 
+  /* Call KINBBDSpgmr to specify the linear solver KINSPGMR 
      with preconditioner KINBBDPRE */
   maxl = 20; maxlrst = 2;
-  flag = KBBDSpgmr(kmem, maxl, pdata);
-  if (check_flag(&flag, "KBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = KINBBDSpgmr(kmem, maxl, pdata);
+  if (check_flag(&flag, "KINBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
   if (check_flag(&flag, "KINSpgmrSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
   N_VFree(cc);
   N_VFree(sc);
   N_VFree(constraints);
-  KBBDPrecFree(pdata);
+  KINBBDPrecFree(pdata);
   KINFree(kmem);
   FreeUserData(data);
   NV_SpecFree_Parallel(nvSpec);
