@@ -103,6 +103,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 %%
 %%
 %%
+\index{User main program}
 \begin{Steps}
   
 \item 
@@ -257,7 +258,8 @@ created and allocated by the first two calls.
   cvode\_mem = CVodeCreate(lmm, iter);
 }
 {
-  Instantiates a {\cvodes} solver object and specifies the solution method.
+  The function \ID{CVodeCreate} instantiates a {\cvodes} solver object and specifies 
+  the solution method.
 }
 {
   \begin{args}[iter]
@@ -268,7 +270,7 @@ created and allocated by the first two calls.
     specifies the type of nonlinear solver iteration and may be
     either \Id{NEWTON} or \Id{FUNCTIONAL}. 
   \end{args}
-  The recommended choices for (\id{lmm}, \id{iter}) are
+  The recommended choices for (\Id{lmm}, \Id{iter}) are
   (\id{ADAMS}, \id{FUNCTIONAL}) for nonstiff problems and
   (\id{BDF}, \id{NEWTON}) for stiff problems.
 }
@@ -286,8 +288,8 @@ created and allocated by the first two calls.
 flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
 }
 {
-  Provides required problem and solution specifications, allocates internal memory,
-  and initializes {\cvodes}.
+  The function \ID{CVodeMalloc} provides required problem and solution specifications, 
+  allocates internal memory, and initializes {\cvodes}.
 }
 {
   \begin{args}[abstol]
@@ -301,8 +303,8 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \Id{SS} or \Id{SV}, where \id{SS} indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{SV} indicates scalar
+    is either \Id{SS} or \Id{SV}, where \Id{itol}$=$\id{SS} indicates scalar relative error 
+    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{SV} indicates scalar
     relative error tolerance and vector absolute error tolerance. 
     The latter choice is important when the absolute error tolerance needs to
     be different for each component of the ODE. 
@@ -537,8 +539,10 @@ separately in \S\ref{s:gen_linsolv}.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[pretype] (\id{int})
+    \index{pretype@\texttt{pretype}}
     preconditioning type. Can be one of: \Id{NONE}, \Id{LEFT}, \Id{RIGHT}, or \Id{BOTH}.
   \item[maxl] (\id{int})
+    \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
     default value \id{CVSPGMR\_MAXL}$=5$.
   \end{args}
@@ -603,6 +607,7 @@ of the IVP.
   \item[tret] (\id{realtype *})
     the time reached by the solver.
   \item[itask] (\id{int})
+    \index{itask@\texttt{itask}}
     a flag indicating the job of the solver for the next user step. 
     The \Id{NORMAL} task is to have the solver take internal steps until   
     it has reached or just passed the user specified \id{tout}
@@ -786,7 +791,7 @@ flag = CVodeResetIterType(cvode\_mem, iter);
 }
 {
   The function \ID{CVodeResetIterType} resets the nonlinear solver
-  iteration type.
+  iteration type \Id{iter}.
 }
 {
   \begin{args}[cvode\_mem]
@@ -821,7 +826,7 @@ flag = CVodeResetIterType(cvode\_mem, iter);
   flag = CVodeSetFdata(cvode\_mem, f\_data);
 }
 {
-  The function \ID{CVodeSetFdata} specifies the user data block
+  The function \ID{CVodeSetFdata} specifies the user data block \Id{f\_data}
   and attaches it to the main {\cvodes} memory block.
 }
 {
@@ -1722,6 +1727,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[pretype] (\id{int})
+    \index{pretype@\texttt{pretype}}
     specifies the type of prconditioning and may be
     \Id{NONE}, \Id{LEFT}, \Id{RIGHT}, or \Id{BOTH}.
   \end{args}
@@ -1769,7 +1775,7 @@ The call to the \id{CVodeGetDky} function has the following form:
   flag = CVodeDky(cvode\_mem, t, k, dky);
 }
 {
-  Computes the \id{k}-th derivative of the \id{y} function at      
+  The function \ID{CVodeDky} computes the \id{k}-th derivative of the \id{y} function at      
   time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$ \id{t} $\le t_n$, 
   $t_n$ denotes the current internal time reached, and $h_u$ is the 
   last internal step size successfully used by the solver. 
@@ -3224,7 +3230,7 @@ existing internal memory is sufficient for the new problem.
 The use of \id{CVodeReInit} requires that the maximum method order,    
 \Id{maxord}, is no larger for the new problem than for the problem  
 specified in the last call to \id{CVodeMalloc}.  This condition is  
-automatically fulfilled if the multistep method parameter \id{lmm}  
+automatically fulfilled if the multistep method parameter \Id{lmm}  
 is unchanged (or changed from \Id{ADAMS} to \Id{BDF}) and the default    
 value for \id{maxord} is specified.
 
@@ -3297,7 +3303,7 @@ that define the preconditioner for use in the {\spgmr} algorithm.
 %%
 \subsection{ODE right-hand side} 
 \label{ss:rhsFn}
-\index{right hand side function!initial value problem|(}
+\index{right-hand side function!initial value problem|(}
 The user must provide a function of type \ID{RhsFn} defined as follows:
 \usfunction{RhsFn}
 {
@@ -3316,7 +3322,7 @@ The user must provide a function of type \ID{RhsFn} defined as follows:
   \item[ydot]
     is the output vector $f(t,y)$.
   \item[f\_data]
-    is a pointer to user data - the same as the \id{f\_data}      
+    is a pointer to user data - the same as the \Id{f\_data}      
     parameter passed to \id{CVodeSetFdata}.   
   \end{args}
 }
@@ -3326,7 +3332,7 @@ The user must provide a function of type \ID{RhsFn} defined as follows:
 {
 Allocation of memory for \id{ydot} is handled within {\cvodes}.
 }
-\index{right hand side function!initial value problem|)}
+\index{right-hand side function!initial value problem|)}
 %%
 %%--------------
 %%
@@ -3683,7 +3689,7 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn} defined as follows:
   Each call to the preconditioner setup function is preceded by a call to     
   the \id{RhsFn} user function with the same \id{(t,y)} arguments.  
   Thus the preconditoner setup function can use any auxiliary data that is 
-  computed and saved during the evaluation of the ODE right hand side.
+  computed and saved during the evaluation of the ODE right-hand side.
   
   This function is not called in advance of every call to the preconditioner solve
   function, but rather is called only as often as needed to achieve convergence in the
@@ -3806,7 +3812,7 @@ In case of an error return, an error message is also printed.
 
 \subsection{User-supplied functions for quadrature integration}
 
-\index{right hand side function|quadarture equations|(}
+\index{right-hand side function|quadarture equations|(}
 For integration of quadrature equations, the user must provide a function of
 type \ID{QuadRhsFn} defined by
 \begin{verbatim}
@@ -3831,7 +3837,7 @@ provided with {\cvodes} do not perform any consistency checking for their
 \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
 
 A \id{QuadRhsFn} function type does not have a return value.
-\index{right hand side function|quadarture equations|)}
+\index{right-hand side function|quadarture equations|)}
 
 %%===================================================================================
 %%
@@ -3850,6 +3856,7 @@ a band-block-diagonal preconditioner module {\cvbbdpre}.
 %%===================================================================================
 
 \index{CVBANDPRE@{\cvbandpre} preconditioner!description}
+\index{preconditioning!banded}
 This preconditioner provides a band matrix preconditioner based on
 difference quotients of the ODE right-hand side function \id{f}.
 It generates a band matrix of bandwidth $m_l + m_u + 1$, where
@@ -3879,6 +3886,7 @@ of calls in the user main program. Steps that are unchanged from the user main
 program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 %%
 %%
+\index{User main program}
 \begin{Steps}
   
 \item
@@ -4007,8 +4015,10 @@ in more detail below.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[pretype] (\id{int})
+    \index{pretype@\texttt{pretype}}
     preconditioning type. Can be one of \Id{LEFT} or \Id{RIGHT}.
   \item[maxl] (\id{int})
+    \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
     default value \id{CVSPGMR\_MAXL}$=5$.
   \item[bp\_data] (\id{void *})
@@ -4186,6 +4196,7 @@ block. This Band-Block-Diagonal Preconditioner module is called
 {\cvbbdpre}.
 
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!description|(}
+\index{preconditioning!band-block diagonal}
 One way to envision these preconditioners is to think of the domain of
 the computational PDE problem as being subdivided into $M$ non-overlapping
 subdomains.  Each of these subdomains is then assigned to one of the
@@ -4275,7 +4286,7 @@ then used by \id{gloc}, which is not expected to do any communication.
   \item[glocal]
     is the output vector.
   \item[f\_data]
-    is a pointer to user data - the same as the \id{f\_data}      
+    is a pointer to user data - the same as the \Id{f\_data}      
     parameter passed to \id{CVodeSetFdata}.  
   \end{args}
 }
@@ -4309,7 +4320,7 @@ then used by \id{gloc}, which is not expected to do any communication.
   \item[y]
     is the dependent variable. 
   \item[f\_data]
-    is a pointer to user data - the same as the \id{f\_data}      
+    is a pointer to user data - the same as the \Id{f\_data}      
     parameter passed to \id{CVodeSetFdata}.  
   \end{args}
 }
@@ -4343,6 +4354,7 @@ of calls in the user main program. Steps that are unchanged from the user main
 program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 %%
 %%
+\index{User main program}
 \begin{Steps}
 \item 
   \textcolor{gray}{\bf Initialize MPI}
@@ -4511,8 +4523,10 @@ next.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[pretype] (\id{int})
+    \index{pretype@\texttt{pretype}}
     preconditioning type. Can be one of \Id{LEFT} or \Id{RIGHT}.
   \item[maxl] (\id{int})
+    \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
     default value \id{CVSPGMR\_MAXL}$=5$.
   \item[bbd\_data] (\id{void *})

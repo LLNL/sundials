@@ -219,7 +219,7 @@ ier = CVodeMallocB(cvadj_mem, fB, tB0, yB0, lmmB, iterB, itolB, &rtolB,
 and is essentially a call to \id{CVodeMalloc} with some particularization for 
 backward integration. First, \id{CVodeMallocB} takes as an argument 
 \id{cvadj\_mem}, the memory pointer returned by \id{CVadjMalloc}.
-Secondly, the argument \id{fB}, the {\C} function to compute the right hand side 
+Secondly, the argument \id{fB}, the {\C} function to compute the right-hand side 
 of the backward problem, must be of type \id{RhsFnB} and
 has the form \id{fB(t, y, yB, yBdot, f\_dataB)} 
 (see \S\ref{ss:user_fct_adj} for details). 
@@ -352,7 +352,7 @@ ier = CVodeQuadMallocB(cvadj_mem, fQB, errconQB, &rtolQB, atolQB,
 and is essentially a call to \id{CVodeQuadMalloc} with some particularization for 
 backward integration. First, \id{CVodeQuadMallocB} takes as an argument 
 \id{cvadj\_mem}, the memory pointer returned by \id{CVadjMalloc}.
-Secondly, the argument \id{fQB}, the {\C} function to compute the right hand side 
+Secondly, the argument \id{fQB}, the {\C} function to compute the right-hand side 
 of the backward problem, must be of type \id{QuadRhsFnB} and
 has the form \id{fQB(t, y, yB, yQBdot, fQ\_dataB)} 
 (see \S\ref{ss:user_fct_adj} for details). 
@@ -469,7 +469,7 @@ For a typical output of \id{CVadjCheckPointsList}, see \cite{cvodes1.1_ex}.
 \section{User-Supplied Routines for Adjoint Sensitivity Analysis}\label{ss:user_fct_adj}
 %-------------------------------------------------------------------
 
-In addition to the required ODE right hand side routine and any optional routines
+In addition to the required ODE right-hand side routine and any optional routines
 for the forward problem, when using the adjoint sensitivity module in {\cvodes},
 the user must supply one function defining the backward problem ODE and, optionally,
 routines to supply Jacobian related information (if Newton iteration is chosen) and
@@ -480,22 +480,22 @@ Type definitions for all these user-supplied routines are given below.
 
 \begin{itemize}
 
-\item{\em ODE right hand side for the backward problem}
-  \index{adjoint sensitivity analysis!right hand side evaluation|(}
-  \index{right hand side function!adjoint backward problem|(}
+\item{\em ODE right-hand side for the backward problem}
+  \index{adjoint sensitivity analysis!right-hand side evaluation|(}
+  \index{right-hand side function!adjoint backward problem|(}
 
   The user must provide a function of type \ID{RhsFnB} defined by
 \begin{verbatim}
 typedef void (*RhsFnB)(realtype t, N_Vector y, N_Vector yB, 
                        N_Vector yBdot, void *f_dataB);
 \end{verbatim}
-  to compute the right hand side of the backward problem ODE system.
+  to compute the right-hand side of the backward problem ODE system.
   This could be (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}).
 
   This function takes as input the 
   independent variable value \id{t} and the dependent variable vector \id{yB},
   as well as the solution of the original IVP \id{y} at time \id{t}.  
-  It must store the backward problem right hand side in the vector \id{yBdot}.  
+  It must store the backward problem right-hand side in the vector \id{yBdot}.  
   Allocation of memory for \id{yBdot} is handled within {\cvodes}.
   
   The \id{y}, \id{yB}, and \id{yBdot} arguments are all of type \id{N\_Vector},
@@ -512,23 +512,23 @@ typedef void (*RhsFnB)(realtype t, N_Vector y, N_Vector yB,
   the user's \id{fB} function every time it is called and can be the same as the 
   \id{f\_data} pointer used for the forward problem.
   A \id{RhsFnB} function type does not have a return value.
-  \index{right hand side function!adjoint backward problem|)}
-  \index{adjoint sensitivity analysis!right hand side evaluation|)}
+  \index{right-hand side function!adjoint backward problem|)}
+  \index{adjoint sensitivity analysis!right-hand side evaluation|)}
 
-\item{\em Quadrature right hand side for the backward problem}
-  \index{right hand side function!quadrature backward problem|(}
+\item{\em Quadrature right-hand side for the backward problem}
+  \index{right-hand side function!quadrature backward problem|(}
   \index{adjoint sensitivity analysis!quadrature evaluation|(}
   The user must provide a function of type \ID{QuadRhsFnB} defined by
 \begin{verbatim}
 typedef void (*QuadRhsFnB)(realtype t, N_Vector y, N_Vector yB, 
                            N_Vector yQBdot, void *fQ_dataB);
 \end{verbatim}
-  to compute the right hand side of the backward quadrature equations.
+  to compute the right-hand side of the backward quadrature equations.
 
   This function takes as input the 
   independent variable value \id{t} and the dependent variable vector \id{yB},
   as well as the solution of the original IVP \id{y} at time \id{t}.  
-  It must store the quadrature right hand side in the vector \id{yQBdot}.  
+  It must store the quadrature right-hand side in the vector \id{yQBdot}.  
   Allocation of memory for \id{yQBdot} is handled within {\cvodes}.
   
   The \id{y}, \id{yB}, and \id{yQBdot} arguments are all of type \id{N\_Vector},
@@ -545,7 +545,7 @@ typedef void (*QuadRhsFnB)(realtype t, N_Vector y, N_Vector yB,
   \id{f\_data} pointer used for the forward problem.
   A \id{QuadRhsFnB} function type does not have a return value.
   \index{adjoint sensitivity analysis!quadrature evaluation|)}
-  \index{right hand side function!quadrature backward problem|)}
+  \index{right-hand side function!quadrature backward problem|)}
 
 \item {\em Jacobian information for the backward problem
     (direct method with dense Jacobian)}
@@ -694,7 +694,7 @@ typedef int (*CVSpgmrPrecondFnB)(realtype t, N_Vector y,
 The adjoint sensitivity module in {\cvodes} offers an interface to the banded 
 preconditioner module {\cvbandpre} described in section \S\ref{sss:cvbandpre}.
 This preconditioner provides a band matrix preconditioner based on difference
-quotients of the backward problem right hand side function \id{fB}. It generates
+quotients of the backward problem right-hand side function \id{fB}. It generates
 a banded approximation to the Jacobian with $m_{lB}$ sub-diagonals and $m_{uB}$
 super-diagonals to be used with the Krylov linear solver in {\cvspgmr}.
 
