@@ -50,10 +50,10 @@ At bottom left:  c1, c2 =   -9.920e-11    3.352e+11
 At top right:    c1, c2 =   -1.133e-10    4.163e+11 
 
 
-Final Statistics.. 
+Final Statistics: 
 
-lenrw   =  2000     leniw =    20
-llrw    =  2046     lliw  =    20
+lenrw   =  2000     leniw =    80
+llrw    =  2046     lliw  =    80
 nst     =   483
 nfe     =   615     nfel  =   609
 nni     =   612     nli   =   609

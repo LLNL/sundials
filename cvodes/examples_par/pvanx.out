@@ -1,11 +1,11 @@
 (PE# 3) Number of check points: 6
- 6  addr: 0x80cac70  time = [ 2.241e+00 2.500e+00 ]  next: 0x80ca830
- 5  addr: 0x80ca830  time = [ 1.853e+00 2.241e+00 ]  next: 0x80ca3f0
- 4  addr: 0x80ca3f0  time = [ 1.464e+00 1.853e+00 ]  next: 0x80c9fb0
- 3  addr: 0x80c9fb0  time = [ 1.054e+00 1.464e+00 ]  next: 0x80c9b70
- 2  addr: 0x80c9b70  time = [ 6.938e-01 1.054e+00 ]  next: 0x80c9698
- 1  addr: 0x80c9698  time = [ 2.896e-01 6.938e-01 ]  next: 0x80b8cf0
- 0  addr: 0x80b8cf0  time = [ 0.000e+00 2.896e-01 ]  next: (nil)
+ 6  addr: 0x80cb850  time = [ 2.241e+00 2.500e+00 ]  next: 0x80cb430
+ 5  addr: 0x80cb430  time = [ 1.853e+00 2.241e+00 ]  next: 0x80cb010
+ 4  addr: 0x80cb010  time = [ 1.464e+00 1.853e+00 ]  next: 0x80cabf0
+ 3  addr: 0x80cabf0  time = [ 1.054e+00 1.464e+00 ]  next: 0x80ca7d0
+ 2  addr: 0x80ca7d0  time = [ 6.938e-01 1.054e+00 ]  next: 0x80ca320
+ 1  addr: 0x80ca320  time = [ 2.896e-01 6.938e-01 ]  next: 0x80ba630
+ 0  addr: 0x80ba630  time = [ 0.000e+00 2.896e-01 ]  next: (nil)
 
 g(tf) = 2.130309e-02
 

@@ -24,42 +24,42 @@ At top right:    c1, c2 =    2.397e+04    5.781e+11
 
 t = 4.32e+04   no. steps = 449   order = 3   stepsize = 7.59e+02
 At bottom left:  c1, c2 =    4.536e-07    3.285e+11 
-At top right:    c1, c2 =   -4.293e-08    5.781e+11 
+At top right:    c1, c2 =   -4.281e-08    5.781e+11 
 
 t = 5.04e+04   no. steps = 459   order = 3   stepsize = 7.59e+02
-At bottom left:  c1, c2 =    7.358e-07    3.284e+11 
-At top right:    c1, c2 =    6.065e-09    5.781e+11 
+At bottom left:  c1, c2 =    8.551e-07    3.284e+11 
+At top right:    c1, c2 =    1.690e-09    5.781e+11 
 
 t = 5.76e+04   no. steps = 468   order = 3   stepsize = 7.59e+02
-At bottom left:  c1, c2 =   -2.119e-06    3.283e+11 
-At top right:    c1, c2 =   -8.265e-09    5.780e+11 
+At bottom left:  c1, c2 =   -1.336e-06    3.283e+11 
+At top right:    c1, c2 =    2.165e-08    5.780e+11 
 
 t = 6.48e+04   no. steps = 478   order = 3   stepsize = 7.59e+02
-At bottom left:  c1, c2 =    1.425e-07    3.283e+11 
-At top right:    c1, c2 =   -2.323e-09    5.779e+11 
+At bottom left:  c1, c2 =    9.050e-08    3.283e+11 
+At top right:    c1, c2 =    2.923e-09    5.779e+11 
 
 t = 7.20e+04   no. steps = 487   order = 3   stepsize = 7.59e+02
-At bottom left:  c1, c2 =   -4.710e-08    3.283e+11 
-At top right:    c1, c2 =    6.561e-10    5.778e+11 
+At bottom left:  c1, c2 =   -2.514e-09    3.283e+11 
+At top right:    c1, c2 =   -1.065e-09    5.778e+11 
 
 t = 7.92e+04   no. steps = 497   order = 3   stepsize = 7.59e+02
-At bottom left:  c1, c2 =   -2.131e-08    3.283e+11 
-At top right:    c1, c2 =   -1.212e-11    5.776e+11 
+At bottom left:  c1, c2 =   -5.114e-09    3.283e+11 
+At top right:    c1, c2 =    1.199e-10    5.776e+11 
 
 t = 8.64e+04   no. steps = 506   order = 3   stepsize = 7.59e+02
-At bottom left:  c1, c2 =    4.520e-10    3.283e+11 
-At top right:    c1, c2 =   -1.335e-12    5.773e+11 
+At bottom left:  c1, c2 =    2.078e-10    3.283e+11 
+At top right:    c1, c2 =    5.651e-12    5.773e+11 
 
 
 Final Statistics.. 
 
-lenrw   = 200000     leniw =    20
-llrw    = 300141     lliw  =    30
+lenrw   = 200000     leniw =    80
+llrw    = 300141     lliw  =   120
 nst     =   506
-nfe     =   589     nfel  =  1294
-nni     =   586     nli   =  1294
+nfe     =   589     nfel  =  1298
+nni     =   586     nli   =  1298
 nsetups =    61     netf  =    15
-npe     =     9     nps   =  1848
+npe     =     9     nps   =  1852
 ncfn    =     0     ncfl  =     0
 
-seconds used: 11.396
+seconds used: 21.5959

@@ -1,34 +1,33 @@
 List of parallel CVODES examples
 
-1. Simulation
+(1) Simulation
 
-  pvnx: 1-D advection-diffusion; nonstiff
-  pvkx: 2-D 2-species diurnal advection-diffusion
-  pvkxb: pvkx problem with BBD preconditioner
-  pvkt: modified pvkx problem (upwind space discretization)
-
-
-2. Forward sensitivity
-
-  pvfnx: 1-D advection difusion PDE;
-         Adams with Functional iteration
-  pvfkx: 2-D 2-species diurnal advection-diffusion PDE;
-         BDF with Newton GMRES
+  pvnx  : 1-D advection-diffusion (nonstiff)
+  pvkx  : 2-D 2-species diurnal advection-diffusion
+  pvkxb : pvkx problem with BBD preconditioner
+  pvkt  : modified pvkx problem (upwind spacial discretization)
 
 
-3. Adjoint sensitivity
+(2) Forward sensitivity
 
-  pvanx: 1-D advection-diffusion; adjoint sensitivity
+  pvfnx : 1-D advection difusion PDE -
+          Adams with Functional iteration
+  pvfkx : 2-D 2-species diurnal advection-diffusion PDE -
+          BDF with Newton GMRES
+
+
+(3) Adjoint sensitivity
+
+  pvanx : 1-D advection-diffusion - adjoint sensitivity
 
 Sample results:
 
   SUNDIALS was built with the following options:
 
-  ./configure CC=gcc F77=g77 --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \
-  --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
+  ./configure CC=gcc F77=g77
 
   System Architecture: IA-32
   Processor Type: Intel Pentium 4 Xeon DP (i686)
   Operating System: Red Hat Enterprise Linux WS 3
-  C/Fortran Compilers: gcc/g77 v3.2.3-24 (Red Hat)
-  MPI Implementation: MPICH-MPI v1.2.4
+  C/Fortran Compilers: gcc/g77 v3.2.3-39 (Red Hat)
+  MPI Implementation: LAM-MPI v6.5.9
