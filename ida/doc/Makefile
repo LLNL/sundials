@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2005-01-26 21:35:43 $
+# $Revision: 1.10 $
+# $Date: 2005-02-11 17:32:42 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -25,7 +25,8 @@ ida_usage.tex \
 ida_nvec.tex \
 ida_org.tex \
 ida_newlinsolv.tex \
-ida_linsolv.tex
+ida_linsolv.tex \
+ida_constants.tex
 
 UG_SHARED_FILES = \
 band.tex \
