@@ -1,19 +1,20 @@
-/*******************************************************************
- * File          : spgmr.c                                         *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
- *                 Radu Seban @ LLNL                               *
- * Version of    : 26 March 2003                                   *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the implementation file for the scaled preconditioned   *
- * GMRES (SPGMR) iterative linear solver.                          *
- *                                                                 *
- *******************************************************************/
-
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.9 $
+ * $Date: 2004-07-22 20:33:54 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
+ *              Radu Serban, LLNL                               
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California 
+ * Produced at the Lawrence Livermore National Laboratory          
+ * All rights reserved                                             
+ * For details, see sundials/shared/LICENSE                        
+ * -----------------------------------------------------------------
+ * This is the implementation file for the scaled preconditioned   
+ * GMRES (SPGMR) iterative linear solver.                          
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,18 +28,11 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
+/*
+ * SpgmrMalloc 
+ */
 
-/*************** Private Helper Function Prototype *******************/
-
-static void FreeVectorArray(N_Vector *A, int indMax);
- 
-
-/* Implementation of SPGMR algorithm */
-
-
-/*************** SpgmrMalloc *****************************************/
-
-SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec)
+SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl)
 {
   SpgmrMem mem;
   N_Vector *V, xcor, vtemp;
@@ -50,23 +44,15 @@ SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec)
   if (l_max <= 0) return(NULL);
 
   /* Get memory for the Krylov basis vectors V[0], ..., V[l_max]. */
-  
-  V = (N_Vector *) malloc((l_max+1)*sizeof(N_Vector));
-  if (V == NULL) return(NULL);
 
-  for (k = 0; k <= l_max; k++) {
-    V[k] = N_VNew(NVSpec);
-    if (V[k] == NULL) {
-      FreeVectorArray(V, k-1);
-      return(NULL);
-    }
-  }
+  V = N_VCloneVectorArray(l_max+1, vec_tmpl);
+  if (V == NULL) return(NULL);
 
   /* Get memory for the Hessenberg matrix Hes. */
 
   Hes = (realtype **) malloc((l_max+1)*sizeof(realtype *)); 
   if (Hes == NULL) {
-    FreeVectorArray(V, l_max);
+    N_VDestroyVectorArray(V, l_max+1);
     return(NULL);
   }
 
@@ -74,7 +60,7 @@ SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec)
     Hes[k] = (realtype *) malloc(l_max*sizeof(realtype));
     if (Hes[k] == NULL) {
       for (i = 0; i < k; i++) free(Hes[i]);
-      FreeVectorArray(V, l_max);
+      N_VDestroyVectorArray(V, l_max+1);
       return(NULL);
     }
   }
@@ -84,17 +70,17 @@ SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec)
   givens = (realtype *) malloc(2*l_max*sizeof(realtype));
   if (givens == NULL) {
     for (i = 0; i <= l_max; i++) free(Hes[i]);
-    FreeVectorArray(V, l_max);
+    N_VDestroyVectorArray(V, l_max+1);
     return(NULL);
   }
 
   /* Get memory to hold the correction to z_tilde. */
 
-  xcor = N_VNew(NVSpec);
+  xcor = N_VClone(vec_tmpl);
   if (xcor == NULL) {
     free(givens);
     for (i = 0; i <= l_max; i++) free(Hes[i]);
-    FreeVectorArray(V, l_max);
+    N_VDestroyVectorArray(V, l_max+1);
     return(NULL);
   }
 
@@ -102,22 +88,22 @@ SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec)
 
   yg = (realtype *) malloc((l_max+1)*sizeof(realtype));
   if (yg == NULL) {
-    N_VFree(xcor);
+    N_VDestroy(xcor);
     free(givens);
     for (i = 0; i <= l_max; i++) free(Hes[i]);
-    FreeVectorArray(V, l_max);
+    N_VDestroyVectorArray(V, l_max+1);
     return(NULL);
   }
 
   /* Get an array to hold a temporary vector. */
 
-  vtemp = N_VNew(NVSpec);
+  vtemp = N_VClone(vec_tmpl);
   if (vtemp == NULL) {
     free(yg);
-    N_VFree(xcor);
+    N_VDestroy(xcor);
     free(givens);
     for (i = 0; i <= l_max; i++) free(Hes[i]);
-    FreeVectorArray(V, l_max);
+    N_VDestroyVectorArray(V, l_max+1);
     return(NULL);
   }
 
@@ -125,12 +111,12 @@ SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec)
 
   mem = (SpgmrMem) malloc(sizeof(SpgmrMemRec));
   if (mem == NULL) {
-    N_VFree(vtemp);
+    N_VDestroy(vtemp);
     free(yg);
-    N_VFree(xcor);
+    N_VDestroy(xcor);
     free(givens);
     for (i = 0; i <= l_max; i++) free(Hes[i]);
-    FreeVectorArray(V, l_max);
+    N_VDestroyVectorArray(V, l_max+1);
     return(NULL); 
   }
 
@@ -150,7 +136,9 @@ SpgmrMem SpgmrMalloc(int l_max, NV_Spec NVSpec)
 }
 
 
-/*************** SpgmrSolve ******************************************/
+/*
+ * SpgmrSolve 
+ */
 
 int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
                int pretype, int gstype, realtype delta, int max_restarts,
@@ -402,7 +390,9 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   return(SPGMR_CONV_FAIL); 
 }
 
-/*************** SpgmrFree *******************************************/
+/*
+ * SpgmrFree 
+ */
 
 void SpgmrFree(SpgmrMem mem)
 {
@@ -414,25 +404,13 @@ void SpgmrFree(SpgmrMem mem)
   l_max = mem->l_max;
   Hes = mem->Hes;
 
-  FreeVectorArray(mem->V, l_max);
+  N_VDestroyVectorArray(mem->V, l_max+1);
   for (i = 0; i <= l_max; i++) free(Hes[i]);
   free(Hes);
   free(mem->givens);
-  N_VFree(mem->xcor);
+  N_VDestroy(mem->xcor);
   free(mem->yg);
-  N_VFree(mem->vtemp);
+  N_VDestroy(mem->vtemp);
 
   free(mem);
-}
-
-
-/*************** Private Helper Function: FreeVectorArray ************/
-
-static void FreeVectorArray(N_Vector *A, int indMax)
-{
-  int j;
-
-  for (j = 0; j <= indMax; j++) N_VFree(A[j]);
-
-  free(A);
 }
