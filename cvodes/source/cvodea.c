@@ -52,8 +52,9 @@
 #define CVF                 "CVodeF-- "
 #define MSG_CVODEF_MEM_FAIL CVF "a memory request failed.\n\n"
 
-#define CVBM                "CVodeMallocB-- "
+#define CVBM                "CVodeMallocB/CVReInitB-- "
 #define MSG_CVBM_NO_MEM     CVBM "cvadj_mem=NULL illegal.\n\n"
+#define MSG_CVBM_BAD_TB0    CVBM "tB0 out of range.\n\n"
 #define MSG_CVBM_MEM_FAIL   CVBM "a memory request failed.\n\n"
 
 #define CVB                 "CVodeB-- "
@@ -66,18 +67,13 @@
 
 static CkpntMem CVAckpntInit(CVodeMem cv_mem);
 static CkpntMem CVAckpntNew(CVodeMem cv_mem);
-static int  CVAckpntAdd(CVadjMem ca_mem, realtype tout, N_Vector yout, 
-                        realtype *t, int itask);
 static void CVAckpntDelete(CkpntMem *ck_memPtr);
 
 static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, long int steps);
 static void CVAdataFree(DtpntMem *dt_mem, long int steps);
 
-static int  CVAdataStore(CVadjMem ca_mem, int icheck, 
-                         realtype *t0Ptr, realtype *t1Ptr, long int *npPtr);
-static int  CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem, 
-                        DtpntMem dt_mem, int ncheck, int icheck, 
-                        realtype *t0Ptr, realtype *t1Ptr);
+static int  CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem);
+static int  CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem); 
 static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, 
                               long int i);
 static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
@@ -127,6 +123,7 @@ static int CVAspgmrJtimes(integertype NB, N_Vector vB, N_Vector JvB,
 #define tfinal     (ca_mem->ca_tfinal)
 #define nckpnts    (ca_mem->ca_nckpnts)
 #define nsteps     (ca_mem->ca_nsteps)
+#define ckpntData  (ca_mem->ca_ckpntData)
 #define newData    (ca_mem->ca_newData)
 #define np         (ca_mem->ca_np)
 #define delta      (ca_mem->ca_delta)
@@ -316,20 +313,94 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
            int itask, int *ncheckPtr)
 {
   CVadjMem ca_mem;
+  CVodeMem cv_mem;
+  CkpntMem tmp;
+  DtpntMem *dt_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cv_mem = ca_mem->cv_mem;
+  dt_mem = ca_mem->dt_mem;
+
+  /* On the first step, load dt_mem[0] */
+  if ( nst == 0) {
+    dt_mem[0]->t = ca_mem->ck_mem->ck_t0;
+    N_VScale(ONE, ca_mem->ck_mem->ck_zn[0], dt_mem[0]->y);
+    N_VScale(ONE, ca_mem->ck_mem->ck_zn[1], dt_mem[0]->yd);
+  }
 
   /* Integrate to tout while loading check points */
-  flag = CVAckpntAdd(ca_mem, tout, yout, t, itask);
+
+  loop {
+
+    /* Perform one step of the integration */
+
+    flag = CVode(cv_mem, tout, yout, t, ONE_STEP);
+    if (flag < 0) break;
+
+    /* Test if a new check point is needed */
+
+    if ( nst % nsteps == 0 ) {
+
+      ca_mem->ck_mem->ck_t1 = *t;
+
+      /* Create a new check point, load it, and append it to the list */
+      tmp = CVAckpntNew(cv_mem);
+      if (tmp == NULL) {
+        flag = CVODEF_MEM_FAIL;
+        break;
+      }
+      tmp->ck_next = ca_mem->ck_mem;
+      ca_mem->ck_mem = tmp;
+      nckpnts++;
+      forceSetup = TRUE;
+      
+      /* Reset i=0 and load dt_mem[0] */
+      dt_mem[0]->t = ca_mem->ck_mem->ck_t0;
+      N_VScale(ONE, ca_mem->ck_mem->ck_zn[0], dt_mem[0]->y);
+      N_VScale(ONE, ca_mem->ck_mem->ck_zn[1], dt_mem[0]->yd);
+
+    } else {
+      
+      /* Load next point in dt_mem */
+      dt_mem[nst%nsteps]->t = *t;
+      N_VScale(ONE, yout, dt_mem[nst%nsteps]->y);
+      CVodeDky(cv_mem, *t, 1, dt_mem[nst%nsteps]->yd);
+
+    }
+
+    /* Set t1 field of the current ckeck point structure
+       for the case in which there will be no future
+       check points */
+    ca_mem->ck_mem->ck_t1 = *t;
+
+    /* tfinal is now set to *t */
+    tfinal = *t;
+
+    /* In ONE_STEP mode break from loop */
+    if (itask == ONE_STEP) break;
+
+    /* In NORMAL mode and if we passed tout,
+       evaluate yout at tout, set t=tout,
+       then break from the loop */
+    if ( (itask == NORMAL) && (*t >= tout) ) {
+      *t = tout;
+      CVodeDky(cv_mem, tout, 0, yout);
+      break;
+    }
+
+  }
+
   if (flag == CVODEF_MEM_FAIL) 
     fprintf(stdout, MSG_CVODEF_MEM_FAIL);
 
-  /* tfinal is now tout */
-  tfinal = tout;
-
   /* Get ncheck from ca_mem */ 
   *ncheckPtr = nckpnts;
+
+  /* Data is available for the last interval */
+  newData = TRUE;
+  ckpntData = ca_mem->ck_mem;
+  np = nst % nsteps + 1;
 
   return(flag);
 
@@ -350,14 +421,13 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
 --------------------------------------------------------------*/
 
 int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB, 
-                 N_Vector yB0, int lmmB, int iterB, int itolB, 
+                 realtype tB0, N_Vector yB0, int lmmB, int iterB, int itolB, 
                  realtype *reltolB, void *abstolB, void *f_dataB, 
                  FILE *errfpB, booleantype optInB, 
-                 long int ioptB[], realtype roptB[], M_Env machEnv)
+                 long int ioptB[], realtype roptB[], M_Env machEnvB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
-  realtype tout;
   int j;
 
   if (cvadj_mem == NULL) {
@@ -366,6 +436,11 @@ int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB,
   }
 
   ca_mem = (CVadjMem) cvadj_mem;
+
+  if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
+    fprintf(stdout, MSG_CVBM_BAD_TB0);
+    return(CVBM_BAD_TB0);
+  }
 
   if (ioptB == NULL) {
     ioptB = (long int *)malloc(OPT_SIZE*sizeof(long int));
@@ -396,11 +471,9 @@ int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB,
   ioptB[MXHNIL] = -1;
   ioptB[ISTOP]  =  1;
 
-  tout   = tfinal;
-
-  cvode_mem = CVodeMalloc(NB, CVArhs, tout, yB0, lmmB, iterB, 
+  cvode_mem = CVodeMalloc(NB, CVArhs, tB0, yB0, lmmB, iterB, 
                           itolB, reltolB, abstolB, cvadj_mem,
-                          errfpB, optInB, ioptB, roptB, machEnv);
+                          errfpB, optInB, ioptB, roptB, machEnvB);
 
   if (cvode_mem == NULL) {
     fprintf(stdout, MSG_CVBM_MEM_FAIL);
@@ -412,8 +485,63 @@ int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB,
   f_B      = fB;
   f_data_B = f_dataB;
 
-  return(0);
+  return(SUCCESS);
 
+}
+
+/*------------------------- CVReInitB ---------------------------
+ CVReInitB reinitializes the backward problem for a new 
+ integration using the same forward solution and hence check 
+ points. It sets a new final time and final conditions for the 
+ backward problem.
+--------------------------------------------------------------*/
+
+int CVReInitB(void *cvadj_mem, realtype tB0, N_Vector yB0)
+{
+  int flag;
+
+  CVadjMem ca_mem;
+  CVodeMem cvb_mem;
+
+  int lmmB, iterB, itolB;
+  realtype *reltolB, *roptB;
+  void *abstolB;
+  FILE *errfpB;
+  booleantype optInB;
+  long int *ioptB;
+  M_Env machEnvB;
+
+  if (cvadj_mem == NULL) {
+    fprintf(stdout, MSG_CVBM_NO_MEM);
+    return(CVBM_NO_MEM);
+  }
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
+    fprintf(stdout, MSG_CVBM_BAD_TB0);
+    return(CVBM_BAD_TB0);
+  }
+
+  cvb_mem = ca_mem->cvb_mem;
+
+  /* Most stuff is unchanged. Get it from cvb_mem */
+  lmmB = cvb_mem->cv_lmm;
+  iterB = cvb_mem->cv_iter;
+  itolB = cvb_mem->cv_itol;
+  reltolB = cvb_mem->cv_reltol;
+  abstolB = cvb_mem->cv_abstol;
+  errfpB = cvb_mem->cv_errfp;
+  optInB = cvb_mem->cv_optIn;
+  ioptB = cvb_mem->cv_iopt;
+  roptB = cvb_mem->cv_ropt;
+  machEnvB = cvb_mem->cv_machenv;
+
+  flag = CVReInit(cvb_mem, CVArhs, tB0, yB0, lmmB, iterB,
+                  itolB, reltolB, abstolB, cvadj_mem,
+                  errfpB, optInB, ioptB, roptB, machEnvB);
+
+  return(flag);
 }
 
 /*------------------------- CVDenseB ---------------------------
@@ -581,7 +709,7 @@ int CVSpgmrB(void *cvadj_mem, int pretypeB, int gstypeB,
 }
 
 /*------------------------- CVodeB ----------------------------
- This routine performs the backward integration from tfinal 
+ This routine performs the backward integration from tB0 
  to tinitial through a sequence of forward-backward runs in
  between consecutive check points. It returns the values of
  the adjoint variables and any existing quadrature variables
@@ -591,34 +719,43 @@ int CVSpgmrB(void *cvadj_mem, int pretypeB, int gstypeB,
 int CVodeB(void *cvadj_mem, N_Vector yB)
 {
   CVadjMem ca_mem;
+  CkpntMem ck_mem;
   CVodeMem cvb_mem;
-  int start, flag;
-  realtype t, t0, t1;
-  long int np_actual;
+  int flag;
+  realtype tB0, t;
   
   ca_mem  = (CVadjMem) cvadj_mem;
+  ck_mem = ca_mem->ck_mem;
   cvb_mem = ca_mem->cvb_mem;
 
-  for(start = nckpnts; start >= 0; start--) {
+  /* First decide which check points tB0 falls in between */
+  tB0 = cvb_mem->cv_tn;
+  while ( tB0 <= t0_ ) ck_mem = next_;
+  
+  do {
 
-    /* Rerun forward from check point 'start' */
-    flag = CVAdataStore(ca_mem, start, &t0, &t1, &np_actual);
-
-    if (flag < 0) {
-      fprintf(stdout, MSG_CVODEB_FWD);
-      return(flag);
+    /* If data in dt_mem is not available for the 
+       current check point, compute it */
+    if (ck_mem != ckpntData) {
+      flag = CVAdataStore(ca_mem, ck_mem);
+      if (flag < 0) {
+        fprintf(stdout, MSG_CVODEB_FWD);
+        return(flag);
+      }
     }
 
-    /* Run backwards */
-    ropt_B[TSTOP] = t0;
-    flag = CVode(cvb_mem, t0, yB, &t, NORMAL);
-
+    /* Propagate backward integration to next check point */
+    ropt_B[TSTOP] = t0_;
+    flag = CVode(cvb_mem, t0_, yB, &t, NORMAL);
     if (flag < 0) {
       fprintf(stdout, MSG_CVODEB_BCK);
       return(flag);
     }
 
-  } 
+    /* Move check point in linked list to next one */
+    ck_mem = next_;
+
+  } while (ck_mem != NULL);
 
   return(flag);
 
@@ -806,64 +943,19 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
   /* Allocate space for ckdata */
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
   zn_[0] = N_VNew(N,machenv);
+  zn_[1] = N_VNew(N,machenv);
 
   /* Load ckdata from cv_mem */
   N_VScale(ONE, zn[0], zn_[0]);
   t0_    = tn;
-  q_     = 0;
+  q_     = 1;
+  /* Compute zn_[1] by calling the user f routine */
+  f(N, t0_, zn_[0], zn_[1], f_data);
+  
   /* Next in list */
   next_  = NULL;
 
   return(ck_mem);
-
-}
-
-/*--------------------- CVAckpntAdd --------------------------
- This routine integrates the forward model from intial time to
- tout and stores check point information every 'steps'
- integration steps. It builds a linked list of check point 
- data structures with the head of the list being the last check
- point.
---------------------------------------------------------------*/
-
-static int CVAckpntAdd(CVadjMem ca_mem, realtype tout, N_Vector yout, 
-                       realtype *t, int itask) 
-{
-  CVodeMem cv_mem;
-  CkpntMem tmp;
-  int flag;
-
-  cv_mem = ca_mem->cv_mem;
-
-  loop {
-
-    flag = CVode(cv_mem, tout, yout, t, ONE_STEP);
-    if (flag < 0) break;
-
-    if ( nst % nsteps == 0 ) {
-      ca_mem->ck_mem->ck_t1 = *t;
-      tmp = CVAckpntNew(cv_mem);
-      if (tmp == NULL) return(CVODEF_MEM_FAIL);
-      tmp->ck_next = ca_mem->ck_mem;
-      ca_mem->ck_mem = tmp;
-      nckpnts++;
-      forceSetup = TRUE;
-    }
-
-    if (itask == ONE_STEP) {
-      ca_mem->ck_mem->ck_t1 = *t;
-      break;
-    }
-    if ((itask==NORMAL) && (*t >= tout)) {
-      CVodeDky(cv_mem, tout, 0, yout);
-      *t = tout;
-      ca_mem->ck_mem->ck_t1 = tout;
-      break;
-    }
-  }
-
-  return(flag);
- 
 }
 
 /*--------------------- CVAckpntNew ---------------------------
@@ -890,7 +982,7 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
     }
   }
 
-  /* Load ckdata from cv_mem */
+  /* Load check point data from cv_mem */
   for (j=0; j<=q; j++)         N_VScale(ONE, zn[j], zn_[j]);
   for (j=0; j<=L_MAX; j++)     tau_[j] = tau[j];
   for (j=0; j<=NUM_TESTS; j++) tq_[j] = tq[j];
@@ -973,56 +1065,42 @@ static void CVAdataFree(DtpntMem *dt_mem, long int steps)
 }
 
 /*--------------------- CVAdataStore --------------------------
- This routine integrates the forward model starting at check
- point icheck and stores y and yprime at all intermediate 
- steps. It returns an error flag and the integration interval 
- in t0Ptr and t1Ptr.
+ This routine integrates the forward model starting at the check
+ point ck_mem and stores y and yprime at all intermediate 
+ steps. It returns the error flag from CVode.
 --------------------------------------------------------------*/
 
-int CVAdataStore(CVadjMem ca_mem, int icheck, 
-                 realtype *t0Ptr, realtype *t1Ptr, long int *npPtr)
+int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
 {
   CVodeMem cv_mem;
-  CkpntMem ck_mem;
   DtpntMem *dt_mem;
-  N_Vector y, yd;
-  realtype t0, t1, t;
+  realtype t;
   long int i;
   int flag;
 
   cv_mem = ca_mem->cv_mem;
-  ck_mem = ca_mem->ck_mem;
   dt_mem = ca_mem->dt_mem;
 
-  /* Initialize cv_mem with check point (icheck) data from ck_mem
-     and set first structure in the dt_mem array */
-  flag = CVAckpntGet(cv_mem, ck_mem, dt_mem[0], nckpnts, icheck, &t0, &t1);
+  /* Initialize cv_mem with data from ck_mem */
+  flag = CVAckpntGet(cv_mem, ck_mem);
 
-  /* Run CVode to set following structures in dt_mem */
+  /* Set first structure in dt_mem[0] */
+  dt_mem[0]->t = t0_;
+  N_VScale(ONE, zn_[0], dt_mem[0]->y);
+  N_VScale(ONE, zn_[1], dt_mem[0]->yd);
+
+  /* Run CVode to set following structures in dt_mem[i] */
   i = 1;
   do {
-    y  = dt_mem[i]->y;
-    yd = dt_mem[i]->yd;
-    flag = CVode(cv_mem, t1, y, &t, ONE_STEP);
+    flag = CVode(cv_mem, t1_, dt_mem[i]->y, &t, ONE_STEP);
     if (flag < 0) return(flag);
     dt_mem[i]->t = t;
-    CVodeDky(cv_mem, t, 1, yd);
+    CVodeDky(cv_mem, t, 1, dt_mem[i]->yd);
     i++;
-  } while (t<t1);
+  } while (t<t1_);
 
-  /* Because CVode is called in ONE_STEP mode, we
-     might overshoot at TOUT. Here we take care of
-     that possibility... */
-  if ( t != t1 ) {
-    dt_mem[i-1]->t = t1;
-    CVodeDky(cv_mem, t1, 0, y);
-    CVodeDky(cv_mem, t1, 1, yd);
-  }
-
-  *t0Ptr = t0;
-  *t1Ptr = t1;
-  *npPtr = i;
-
+  /* New data is now available */
+  ckpntData = ck_mem;
   newData = TRUE;
   np  = i;
 
@@ -1031,36 +1109,20 @@ int CVAdataStore(CVadjMem ca_mem, int icheck,
 }
 
 /*--------------------- CVAckpntGet ---------------------------
- This routine extracts data from the 'icheck'-th check point
- structure in the linked list of check points and sets cv_mem
- for a hot start. In addition, it sets the first element of the
- array of data structures dt_mem.
+ This routine extracts data from the check point structure at 
+ ck_mem and sets cv_mem for a hot start.
 --------------------------------------------------------------*/
 
-static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem, 
-                       DtpntMem dt_mem, int ncheck, int icheck, 
-                       realtype *t0Ptr, realtype *t1Ptr)
+static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem) 
 {
   int j;
-  realtype t0;
-  N_Vector y0;
 
-  /* First, find the structure for desired check point */
-
-  for (j=ncheck; j>icheck; j--)
-    ck_mem = next_;
-
-  *t1Ptr = t1_;
-  *t0Ptr = t0_;
-
-  if (icheck == 0) {
+  if (next_ == NULL) {
 
     /* In this case, we just call the reinitialization routine,
        but make sure we use the same initial stepsize as on 
        the first run. */
 
-    t0 = t0_;
-    y0 = zn_[0];
     if (iopt == NULL)
       iopt = (long int *)malloc(OPT_SIZE*sizeof(long int));
     if (ropt == NULL)
@@ -1072,20 +1134,13 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem,
       }
     optIn = TRUE;
     ropt[H0] = h0u;
-    CVReInit(cv_mem, f, t0, y0,
+    CVReInit(cv_mem, f, t0_, zn_[0],
              lmm, iter, itol, reltol, abstol,
              f_data, errfp, optIn, iopt, ropt, machenv);
-
-    /* Load t, y, and yd members of dt_mem */
-
-    dt_mem->t = t0;
-    N_VScale(ONE, y0, dt_mem->y);
-    f(N, t0, y0, dt_mem->yd, f_data);
-
+    
   } else {
 
     /* Copy parameters from check point data structure */
-
     nst       = nst_;
     q         = q_;
     qprime    = qprime_;
@@ -1100,32 +1155,15 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem,
     tn        = t0_;
     saved_tq5 = saved_tq5_;
     
-    /* Copy the history array from check point data structure */
-    
-    for (j=0; j<=q; j++)
-      N_VScale(ONE, zn_[j], zn[j]);
-    
-    /* Copy other arrays from check point data structure */
-    
-    for (j=0; j<=L_MAX; j++)
-      tau[j] = tau_[j];
-    
-    for (j=0; j<=NUM_TESTS; j++)
-      tq[j] = tq_[j];
-    
-    for (j=0; j<=q; j++)
-      l[j] = l_[j];
+    /* Copy the arrays from check point data structure */
+    for (j=0; j<=q; j++)         N_VScale(ONE, zn_[j], zn[j]);
+    for (j=0; j<=L_MAX; j++)     tau[j] = tau_[j];
+    for (j=0; j<=NUM_TESTS; j++) tq[j] = tq_[j];
+    for (j=0; j<=q; j++)         l[j] = l_[j];
     
     /* Force a call to setup */
-    
     forceSetup = TRUE;
 
-    /* Load t, y, and yd members of dt_mem */
-
-    dt_mem->t = tn;
-    CVodeDky(cv_mem, tn, 0, dt_mem->y);
-    CVodeDky(cv_mem, tn, 1, dt_mem->yd);
-    
   }
 
   return(0);
