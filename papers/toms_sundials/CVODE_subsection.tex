@@ -132,7 +132,7 @@ iteration errors from interfering with local error control.  As
 described below, the final computed value $y_{n(m)}$ will have to
 satisfy a local error test $\|y_{n(m)} - y_{n(0)}\| \leq \epsilon$.
 Letting $y_n$ denote the exact solution of (\ref{NLS}), we want
-to insure that the iteration error $y_n - y_{n(m)}$ is small relative
+to ensure that the iteration error $y_n - y_{n(m)}$ is small relative
 to $\epsilon$, specifically that it is less than $0.1 \epsilon$.
 (The safety factor $0.1$ can be changed by the user.)  For this, we
 also estimate the linear convergence rate constant $R$ as follows.
@@ -162,8 +162,8 @@ but this can be changed by the user.
 When SPGMR is used to solve the linear system, its errors must also be
 controlled, and this also involves the local error test constant.  The
 linear iteration error in the solution vector $\delta_m$ is
-approximated by the preconditioned residual vector.  Thus to insure
-(or attempt to insure) that the linear iteration errors do not
+approximated by the preconditioned residual vector.  Thus to ensure
+(or attempt to ensure) that the linear iteration errors do not
 interfere with the nonlinear error and local integration error
 controls, we require that the norm of the preconditioned residual
 in SPGMR is less than $0.05 \cdot (0.1 \epsilon)$.
