@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11.2.1 $
- * $Date: 2005-01-24 21:49:02 $
+ * $Revision: 1.11.2.2 $
+ * $Date: 2005-03-18 21:31:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -19,6 +19,10 @@
 #ifndef _FNVECTOR_SERIAL_H
 #define _FNVECTOR_SERIAL_H
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+  
 #ifndef _SUNDIALS_CONFIG_H
 #define _SUNDIALS_CONFIG_H
 #include "sundials_config.h"
@@ -59,6 +63,16 @@
 #define FNV_INITS FNVINITS__
 #define FNV_FREES FNVFREES__
 
+#endif
+
+/* Prototypes of exported funcions */
+
+void FNV_INITS(long int *neq, int *ier);
+void FNV_FREES(void);
+
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
