@@ -8,7 +8,7 @@ the user's main program, description of the {\cvode} user-callable
 functions, and user-supplied functions.  The final section describes
 the Fortran/C interface module, which supports users with applications
 written in Fortran77.  The listings of the sample programs in the
-companion document \cite{cvode2.1_ex} may also be helpful.  Those
+companion document \cite{cvode2.2.0_ex} may also be helpful.  Those
 codes are intended to serve as templates and are included in the
 {\cvode} package.
 
@@ -116,7 +116,7 @@ The header files corresponding to the various linear solver options in
 \end{itemize}
 
 Other headers may be needed, according as to the choice of preconditioner,
-etc. In one of the examples in \cite{cvode2.1_ex}, preconditioning is done
+etc. In one of the examples in \cite{cvode2.2.0_ex}, preconditioning is done
 with a block-diagonal matrix. For this, the header
 \id{smalldense.h} is included.
 
@@ -266,20 +266,11 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
   {\bf Deallocate memory for solution vector}
 
   Upon completion of the integration, deallocate memory for the vector \id{y}
-  by calling a function defined by the {\nvector} implementation.  If
-  \id{y} was created from \id{ydata}, make the call:
-
-  {\s} \id{NV\_Dispose\_Serial(y);}
-
-  {\p} \id{NV\_Dispose\_Parallel(y);}
-
-  If \id{y} was created by a call to \id{N\_VNew\_Serial} or
-  \id{N\_VNew\_Parallel}, then make the call:
+  by calling the destructor function defined by the {\nvector} implementation:
 
   {\s} \id{NV\_Destroy\_Serial(y);}
 
   {\p} \id{NV\_Destroy\_Parallel(y);}
-
   
 \item
   {\bf Free solver memory}
@@ -323,7 +314,7 @@ is to be called only after the IVP solution is complete, as it frees the
 {
   \begin{args}[iter]
   \item[lmm] (\id{int})
-    specifies the linear multistep method and may be one of two
+    specifies the linear multistep method and must be one of two
     possible values: \ID{CV\_ADAMS} or \ID{CV\_BDF}.     
   \item[iter] (\id{int})
     specifies the type of nonlinear solver iteration and may be
@@ -601,8 +592,8 @@ separately in Chapter \ref{s:gen_linsolv}.
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}|textbf}
-    preconditioning type. Must be one of: \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT},
-    or \Id{PREC\_BOTH}.
+    specifies the preconditioning type and must be one of: 
+    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
@@ -1804,7 +1795,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}}
-    specifies the type of preconditioning and may be
+    specifies the type of preconditioning and must be one of:
     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \end{args}
 }
@@ -1997,9 +1988,9 @@ These optional output functions are described next.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[lenrw] (\id{long int})
-    the global number of \id{realtype} values in the {\cvode} workspace.
+    the number of \id{realtype} values in the {\cvode} workspace.
   \item[leniw] (\id{long int})
-    the global number of integer values in the {\cvode} workspace.
+    the number of integer values in the {\cvode} workspace.
   \end{args}
 }
 {
@@ -2899,9 +2890,9 @@ to access these are described below.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[lenrwDI] (\id{long int})
-    the global number of \id{realtype} values in the {\cvdiag} workspace.
+    the number of \id{realtype} values in the {\cvdiag} workspace.
   \item[leniwDI] (\id{long int})
-    the global number of integer values in the {\cvdiag} workspace.
+    the number of integer values in the {\cvdiag} workspace.
   \end{args}
 }
 {
@@ -3020,9 +3011,9 @@ to access these are described below.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[lenrwSG] (\id{long int})
-    global number of \id{realtype} values in the {\cvspgmr} workspace.
+    the number of \id{realtype} values in the {\cvspgmr} workspace.
   \item[leniwSG] (\id{long int})
-    global number of integer values in the {\cvspgmr} workspace.
+    the number of integer values in the {\cvspgmr} workspace.
   \end{args}
 }
 {
@@ -4912,103 +4903,101 @@ and \S\ref{ss:optional_output}.
          \Id{ROPT}}
 \label{t:fcvode_io}
 \medskip
-\begin{tabular}{|l|c|l|l|}
+\begin{tabular}{|r|c|c|l|}
 \multicolumn{4}{c}{Integer input-output array \id{IOPT}}\\
 \hline
-{\bf Index} & {\bf I/O} & {\fcvode} {\bf routine} & {\cvode} {\bf function} \\ 
+{\bf Index} & {\bf Optional input} & {\bf Optional output} & {\cvode} {\bf function} \\ 
 \hline
 \multicolumn{4}{|c|}{{\cvode} main solver}\\
 \hline
 %
-1 & I  & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetMaxOrd} \\
+1  & \id{MAXORD}          &  & \id{CVodeSetMaxOrd} \\
 %
-2 & I  & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetMaxNumSteps} \\
+2  & \id{MXSTEP}          &  & \id{CVodeSetMaxNumSteps} \\
 %
-3 & I  & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetMaxHnilWarns} \\
+3  & \id{MXHNIL}          &  & \id{CVodeSetMaxHnilWarns} \\
 %
-4 & O  & \id{FCVODE}                   & \id{CVodeGetNumSteps} \\
+4  &                      & \id{NST}               & \id{CVodeGetNumSteps} \\
 %                                                                
-5 & O  & \id{FCVODE}                   & \id{CVodeGetNumRhsEvals} \\
+5  &                      & \id{NFE}              & \id{CVodeGetNumRhsEvals} \\
 %
-6 & O  & \id{FCVODE}                   & \id{CVodeGetNumLinSolvSetups} \\
+6  &                      & \id{NSETUPS}                 & \id{CVodeGetNumLinSolvSetups} \\
 %
-7 & O  & \id{FCVODE}                   & \id{CVodeGetNumNonlinSolvIters} \\
+7  &                      & \id{NNI}                & \id{CVodeGetNumNonlinSolvIters} \\
 %
-8 & O  & \id{FCVODE}                   & \id{CVodeGetNumNonlinSolvConvFails} \\
+8  &                      & \id{NCFN}                 & \id{CVodeGetNumNonlinSolvConvFails} \\
 %
-9 & O  & \id{FCVODE}                   & \id{CVodeGetNumErrTestFails} \\
+9  &                      & \id{NETF}              & \id{CVodeGetNumErrTestFails} \\
 %
-10 & O & \id{FCVODE}                   & \id{CVodeGetLastOrder} \\
+10 &                      & \id{QU}            & \id{CVodeGetLastOrder} \\
 %
-11 & O & \id{FCVODE}                   & \id{CVodeGetCurrentOrder} \\
+11 &                      & \id{QCUR}                 & \id{CVodeGetCurrentOrder} \\
 %
-12 & O & \id{FCVODE}                   & \id{CVodeGetWorkSpace} [real] \\
+12, 13 &                  & \id{LENRW}, \id{LENIW}  & \id{CVodeGetWorkSpace} \\
 %
-13 & O & \id{FCVODE}                   & \id{CVodeGetWorkSpace} [integer] \\
+14 & \id{SLDET}           &  & \id{CVodeSetStabLimDet} \\
 %
-14 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetStabLimDet} \\
+15 &                      & \id{NOR}            & \id{CVodeGetNumStabLimOrderReds} \\ 
 %
-15 & O & \id{FCVODE}                   & \id{CVodeGetNumStabLimOrderReds} \\ 
+22 & \id{MAXERRTESTFAILS} & & \id{CVodeSetMaxErrTestFails} \\
 %
-22 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetMaxErrTestFails} \\
+23 & \id{MAXNONLINITERS}  & & \id{CVodeSetMaxNonlinIters} \\
 %
-23 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetMaxNonlinIters} \\
+24 & \id{MAXCONVFAILS}    & & \id{CVodeSetMaxConvFails} \\
 %
-24 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetMaxConvFails} \\
-%
-25 & O & \id{FCVODE}                   & \id{CVodeGetNumGEvals} \\ 
+25 &                      & \id{NGE}                 & \id{CVodeGetNumGEvals} \\ 
 %
 \hline
 \multicolumn{4}{|c|}{{\cvdense} linear solver}\\
 \hline
-16 & O & \id{FCVODE}                   & \id{CVDenseGetWorkSpace} [real] \\ 
-17 & O & \id{FCVODE}                   & \id{CVDenseGetWorkSpace} [integer]\\ 
-18 & O & \id{FCVODE}                   & \id{CVDenseGetNumJacEvals} \\ 
+16, 17 &  &  \id{LRW}, \id{LIW}             & \id{CVDenseGetWorkSpace} \\ 
+18 &  &       \id{NJE}             & \id{CVDenseGetNumJacEvals} \\ 
+26 &  &     \id{LS\_FLAG}               & \id{CVDenseGetLastFlag} \\ 
 \hline
 \multicolumn{4}{|c|}{{\cvband} linear solver}\\
 \hline
-16 & O & \id{FCVODE}                   & \id{CVBandGetWorkSpace} [real] \\ 
-17 & O & \id{FCVODE}                   & \id{CVBandGetWorkSpace} [integer] \\ 
-18 & O & \id{FCVODE}                   & \id{CVBandGetNumJacEvals} \\ 
+16, 17 &  &   \id{LRW}, \id{LIW}                  & \id{CVBandGetWorkSpace} \\ 
+18 &  &       \id{NJE}             & \id{CVBandGetNumJacEvals} \\ 
+26 &  &      \id{LS\_FLAG}              & \id{CVBandGetLastFlag} \\ 
 \hline
 \multicolumn{4}{|c|}{{\cvdiag} linear solver}\\
 \hline
-16 & O & \id{FCVODE}                   & \id{CVDiagGetWorkSpace} [real] \\ 
-17 & O & \id{FCVODE}                   & \id{CVDiagGetWorkSpace} [integer] \\ 
+16, 17 &  &  \id{LRW}, \id{LIW}                   & \id{CVDiagGetWorkSpace} \\ 
+26 &  &       \id{LS\_FLAG}             & \id{CVDiagGetLastFlag} \\ 
 \hline
 \multicolumn{4}{|c|}{{\cvspgmr} linear solver}\\
 \hline
-16 & O & \id{FCVODE}                   & \id{CVSpgmrGetWorkSpace} [real] \\ 
-17 & O & \id{FCVODE}                   & \id{CVSpgmrGetWorkSpace} [integer] \\ 
-18 & O & \id{FCVODE}                   & \id{CVSpgmrGetNumPrecEvals} \\ 
-19 & O & \id{FCVODE}                   & \id{CVSpgmrGetNumLinIters} \\ 
-20 & O & \id{FCVODE}                   & \id{CVSpgmrGetNumPrecSolves} \\ 
-21 & O & \id{FCVODE}                   & \id{CVSpgmrGetNumConvFails} \\
+16, 17 &  &   \id{LRW}, \id{LIW}                  & \id{CVSpgmrGetWorkSpace} \\ 
+18 &  &      \id{NPE}              & \id{CVSpgmrGetNumPrecEvals} \\ 
+19 &  &      \id{NLI}              & \id{CVSpgmrGetNumLinIters} \\ 
+20 &  &       \id{NPS}             & \id{CVSpgmrGetNumPrecSolves} \\ 
+21 &  &      \id{NCFL}              & \id{CVSpgmrGetNumConvFails} \\
+26 &  &      \id{LS\_FLAG}              & \id{CVSpgmrGetLastFlag} \\ 
 \hline
 \multicolumn{4}{c}{}\\
 \multicolumn{4}{c}{Real input-output array \id{ROPT}}\\\hline
-{\bf Index} & {\bf I/O} & {\fcvode} {\bf routine} & {\cvode} {\bf function} \\ 
+{\bf Index} & {\bf Optional input} & {\bf Optional output} & {\cvode} {\bf function} \\ 
 \hline
 %
-1 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetInitStep} \\
+1  & \id{H0}             &             & \id{CVodeSetInitStep} \\
 %
-2 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetMaxStep} \\
+2  & \id{HMAX}           &             & \id{CVodeSetMaxStep} \\
 %
-3 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetMinStep} \\
+3  & \id{HMIN}           &             & \id{CVodeSetMinStep} \\
 %
-4 & O & \id{FCVODE}                   & \id{CVodeGetLastStep} \\
+4  &                     & \id{HU}     & \id{CVodeGetLastStep} \\
 %
-5 & O & \id{FCVODE}                   & \id{CVodeGetCurrentStep} \\
+5  &                     & \id{HCUR}   & \id{CVodeGetCurrentStep} \\
 %
-6 & O & \id{FCVODE}                   & \id{CVodeGetCurrentTime} \\
+6  &                     & \id{TCUR}   & \id{CVodeGetCurrentTime} \\
 %
-7 & O & \id{FCVODE}                   & \id{CVodeGetTolScaleFactor} \\
+7  &                     & \id{TOLSF}  & \id{CVodeGetTolScaleFactor} \\
 %
-8 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetStopTime} \\
+8  & \id{TSTOP}          &             & \id{CVodeSetStopTime} \\
 %
-9 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetNonlinConvCoef} \\
+9  & \id{NONLINCONVCOEF} &             & \id{CVodeSetNonlinConvCoef} \\
 %
-10 & O & \id{FCVMALLOC}                & unit roundoff \\
+10 &                     & \id{UROUND} & unit roundoff \\
 \hline
 %
 \end{tabular}
@@ -5114,22 +5103,10 @@ apply to {\nvecp}.
     and $-1$ otherwise. See printed message for details in case of failure.
   }
   {
-    The optional inputs associated with \id{FCVMALLOC} are 
-    \id{MAXORD}, \id{MXSTEP}, \id{MXHNIL}, \id{SLDET},
-    \id{MAXERRTESTFAILS}, \id{MAXNONLINITERS}, \id{MAXCONVFAILS},
-    \id{H0}, \id{HMAX}, \id{HMIN}, \id{TSTOP}, and
-    \newline \id{NONLINCONVCOEF}, stored in \id{IOPT(1)}, \id{IOPT(2)},
-    \id{IOPT(3)}, \id{IOPT(14)}, \id{IOPT(22)},
-    \newline  \id{IOPT(23)}, \id{IOPT(24)},
-    \id{ROPT(1)}, \id{ROPT(2)}, \id{ROPT(3)}, \id{ROPT(8)}, \id{ROPT(9)},
-    respectively.  If any of these optional inputs are used, set the others
+    The optional inputs and outputs associated with the main {\cvode} integrator
+    are listed in Table~\ref{t:fcvode_io}.
+    If any of the optional inputs are used, the others must be set
     to zero to indicate default values.
-
-    The optional outputs are \id{NST}, \id{NFE}, \id{NSETUPS}, \id{NNI}, 
-    \id{NCFN}, \id{NETF}, \id{QU}, \id{QCUR}, \id{LENRW}, \id{LENIW},
-    \id{NOR}, \id{HU}, \id{HCUR}, \id{TCUR}, \id{TOLSF}, \id{UROUND},
-    stored in \id{IOPT(4)}, ..., \id{IOPT(13)}, \id{IOPT(15)},
-    \id{ROPT(4)}, ..., \id{ROPT(7)}, \id{ROPT(10)}, respectively.
   }
 
 \item\label{i:fcvode_lin_solv_spec} {\bf Linear solver specification} 
@@ -5152,8 +5129,7 @@ apply to {\nvecp}.
   \id{IER} is an error return flag set on $0$ on success or $-1$ if a memory 
   failure occurred.
   There is no additional user-supplied routine. Optional outputs specific
-  to the {\diag} case are \id{LRW} and \id{LIW}, stored in \id{IOPT(16)} 
-  and \id{IOPT(17)}, respectively.
+  to the {\diag} case listed in Table~\ref{t:fcvode_io}.
   
   {\s} {\bf Dense treatment of the linear system}
   \index{CVDENSE@{\cvdense} linear solver!use in {\fcvode}}
@@ -5195,12 +5171,8 @@ apply to {\nvecp}.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
-  Optional outputs specific to the {\dense} case are \id{NJE}, \id{LRW}, and
-  \id{LIW}, stored in \id{IOPT(16)}, \id{IOPT(17)}, and \id{IOPT(18)}, respectively.
+  Optional outputs specific to the {\dense} case are listed in Table~\ref{t:fcvode_io}.
 
-  In addition, \id{IOPT(26)} contains the last return value of a {\cvdense}
-  interface function (see \s\ref{sss:linsolv_io}).
-  
   {\s} {\bf Band treatment of the linear system}
   \index{CVBAND@{\cvband} linear solver!use in {\fcvode}}
   
@@ -5249,11 +5221,7 @@ apply to {\nvecp}.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
-  Optional outputs specific to the {\band} case are \id{NJE}, \id{LRW}, and
-  \id{LIW}, stored in \id{IOPT(16)}, \id{IOPT(17)}, and \id{IOPT(18)}, respectively.
-  
-  In addition, \id{IOPT(26)} contains the last return value of a {\cvband}
-  interface function (see \s\ref{sss:linsolv_io}).
+  Optional outputs specific to the {\band} case are listed in Table~\ref{t:fcvode_io}.
   
   {\s}{\p} {\bf SPGMR treatment of the linear systems}
   \index{CVSPGMR@{\cvspgmr} linear solver!use in {\fcvode}}
@@ -5367,12 +5335,7 @@ apply to {\nvecp}.
   roundoff, which can be obtained as the optional output \id{ROPT(10)},
   passed from the calling program to this routine using \id{COMMON}.
 
-  Optional outputs specific to the {\spgmr} case are \id{NPE}, \id{NLI}, \id{NPS}, 
-  \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$
-  \id{IOPT(21)}, respectively (see Table~\ref{t:fcvode_io}).
-  
-  In addition, \id{IOPT(26)} contains the last return value of a {\cvspgmr}
-  interface function (see \s\ref{sss:linsolv_io}).
+  Optional outputs specific to the {\spgmr} case are listed in Table~\ref{t:fcvode_io}.
   
   If a sequence of problems of the same size is being solved using the {\spgmr}
   linear solver, then following the call to \id{FCVREINIT} (see below), a call
@@ -5408,7 +5371,8 @@ apply to {\nvecp}.
   $-4$: \Id{CV\_TOO\_MUCH\_WORK}, $-5$: \Id{CV\_TOO\_MUCH\_ACC}, $-6$: \Id{CV\_ERR\_FAILURE},
   $-7$: \Id{CV\_CONV\_FAILURE}, $-8$: \Id{CV\_LINIT\_FAIL}, $-9$: \Id{CV\_LSETUP\_FAIL}, 
   and $-10$: \Id{CV\_LSOLVE\_FAIL} from \id{CVode} (see \S\ref{sss:cvode}).
-  The current values of the optional outputs are available in \id{IOPT} and \id{ROPT}.
+  The current values of the optional outputs are available in \id{IOPT} and \id{ROPT}
+  (see Table~\ref{t:fcvode_io}).
   
 \item {\bf Additional solution output}
 
