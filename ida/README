@@ -75,7 +75,22 @@ C. References
     SIAM J. Sci. Comp., 19 (1998), pp. 1495-1512.
 
 
-D.1. Revision history since release 2.0 (July 2002)
+D.1. Revision history since release 2.2.0 (December 2004)
+---------------------------------------------------------
+
+- New features
+   - added IDASPBCG interface module to allow IDA to interface with the
+     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
+   - added support for SPBCG to the IDABBDPRE preconditioner module.
+
+- Changes to user-callable functions
+   - added IDASPBCG module which defines appropriate IDSpbcg* functions to
+     allow IDA to interface with the shared SPBCG linear solver module.
+   - added IDABBDSpbcg function to IDABBDPRE module to support SPBCG linear
+     solver module.
+
+
+D.2. Revision history since release 2.0 (July 2002)
 ---------------------------------------------------
 
 - New features
@@ -131,7 +146,7 @@ D.1. Revision history since release 2.0 (July 2002)
      IDABBDLocalFn and IDABBDCommFn.
 
 
-D.2. Summary of previous revisions (YYYYMMDD) (significant revisions only)
+D.3. Summary of previous revisions (YYYYMMDD) (significant revisions only)
 --------------------------------------------------------------------------
 
 19990212  DATE WRITTEN; initial internal release (incomplete).
