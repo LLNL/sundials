@@ -29,7 +29,7 @@ integrator module.
 $N-$vectors are isolated in a separate NVECTOR module.
 \end{itemize}
 
-The following Fig. \ref{fig-cvorg} shows the overall structure of SUNDIALS
+The following Fig. \ref{fig-sunorg} shows the overall structure of SUNDIALS
 solvers, with the various separate modules.  The separation of the linear
 solvers from the core integrator allows for easy addition of other linear
 solver algorithms in the future.  At the bottom level are the NVECTOR
@@ -38,14 +38,13 @@ SUNDIALSTYPS and SUNDIALSMATH dealing with data types and elementary
 mathematical operations.
 
 \begin{figure}[tp]
-\centerline{\psfig{figure=cvorg.eps,height=6.5in}}
-\vspace{0.8in}
+\centerline{\psfig{figure=sunorg.eps,width=\textwidth}}
 \caption{Overall structure of the SUNDIALS  package.}
-\label{fig-cvorg}
+\label{fig-sunorg}
 \end{figure}
 
 A number of user-supplied routines for the SUNDIALS solvers are not shown in
-\ref{fig-cvorg}.  These routines must include a routine for the evaluation
+\ref{fig-sunorg}.  These routines must include a routine for the evaluation
 of $f$ (CVODE) or $F$ (KINSOL and IDA). The user provided routines may
 include, depending on the options chosen, routines for Jacobian evaluation
 (direct cases) or Jacobian-vector products (Krylov case), and the setup and
@@ -53,7 +52,7 @@ solution routines for the Krylov preconditioner.
 
 The evolution of SUNDIALS has been directed keeping the entire set of
 solvers in mind.  Thus CVODE, KINSOL and IDA all share many of the same
-modules, as can be seen in \ref{fig-cvorg}.
+modules, as can be seen in \ref{fig-sunorg}.
 
 The KINSOL solver, which includes only one linear system solver at present,
 sharing with CVODE and IDA the GMRES based SPGMR module, the NVECTOR module,
