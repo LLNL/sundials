@@ -3,7 +3,7 @@
  * File          : cvspgmr.c                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and          *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 14 January 2002                                *
+ * Version of    : 1 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the CVODE scaled,          *
  * preconditioned GMRES linear solver, CVSPGMR.                   *
@@ -24,7 +24,7 @@
 
 /* Error Messages */
 
-#define CVSPGMR            "CVSpgmr-- "
+#define CVSPGMR            "CVSpgmr/CVReInitSpgmr-- "
 
 #define MSG_CVMEM_NULL     CVSPGMR "CVode Memory is NULL.\n\n"
 
@@ -127,7 +127,7 @@ static int CVSpgmrDQJtimes(integer N, N_Vector v, N_Vector Jv, RhsFn f,
 
  This routine generates a difference quotient approximation to
  the Jacobian times vector f_y(t,y) * v. The approximation is 
- Jv = vnrm[f(y + v/vnrm) - f(y)], where vnmr = (WRMS norm of v) is
+ Jv = vnrm[f(y + v/vnrm) - f(y)], where vnrm = (WRMS norm of v) is
  input, i.e. the WRMS norm of v/vnrm is 1.
 
 **********************************************************************/
@@ -320,6 +320,84 @@ int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, real delt,
     N_VFree(x);
     return(LMEM_FAIL);
   }
+
+  return(SUCCESS);
+}
+
+
+/*************** CVReInitSpgmr****************************************
+
+ This routine resets the link between the main CVODE module and the
+ Spgmr linear solver module CVSPGMR.  No memory freeing or allocation
+ operations are done, as the existing linear solver memory is assumed
+ sufficient.  All other initializations are the same as in CVSpgmr.
+ The return value is SUCCESS=0, LMEM_FAIL=-1, or LIN_ILL_INPUT=-2.
+
+**********************************************************************/
+
+int CVReInitSpgmr(void *cvode_mem, int pretype, int gstype, int maxl,
+            real delt, CVSpgmrPrecondFn precond, CVSpgmrPSolveFn psolve,
+            void *P_data, CVSpgmrJtimesFn jtimes, void *jac_data)
+
+{
+  CVodeMem cv_mem;
+  CVSpgmrMem cvspgmr_mem;
+  int mxl;
+
+  /* Return immediately if cvode_mem is NULL */
+  cv_mem = (CVodeMem) cvode_mem;
+  if (cv_mem == NULL) {                /* CVode reports this error */
+    fprintf(errfp, MSG_CVMEM_NULL);
+    return(LMEM_FAIL);
+  }
+
+  /* Set four main function fields in cv_mem */
+  linit  = CVSpgmrInit;
+  lsetup = CVSpgmrSetup;
+  lsolve = CVSpgmrSolve;
+  lfree  = CVSpgmrFree;
+
+  cvspgmr_mem = lmem;   /* Use existing linear solver memory pointer */
+
+  /* Set Spgmr parameters that have been passed in call sequence */
+  cvspgmr_mem->g_pretype    = pretype;
+  cvspgmr_mem->g_gstype     = gstype;
+  mxl = cvspgmr_mem->g_maxl = (maxl <= 0) ? MIN(CVSPGMR_MAXL, N) : maxl;
+  cvspgmr_mem->g_delt       = (delt == ZERO) ? CVSPGMR_DELT : delt;
+  cvspgmr_mem->g_P_data     = P_data;
+  cvspgmr_mem->g_precond    = precond;
+  cvspgmr_mem->g_psolve     = psolve;
+
+  /* Set Jacobian times vector routine to user's jtimes or CVSpgmrDQJtimes */
+  if(jtimes == NULL) {
+    cvspgmr_mem->g_jtimes = CVSpgmrDQJtimes;
+  } else {
+    cvspgmr_mem->g_jtimes = jtimes;
+  }
+
+  /* Set Jacobian data */
+  cvspgmr_mem->g_j_data = jac_data;
+
+  /* Check for legal pretype, precond, and psolve */ 
+  if ((pretype != NONE) && (pretype != LEFT) &&
+      (pretype != RIGHT) && (pretype != BOTH)) {
+    fprintf(errfp, MSG_BAD_PRETYPE, pretype, NONE, LEFT, RIGHT, BOTH);
+    return(LIN_ILL_INPUT);
+  }
+  if ((pretype != NONE) && (psolve == NULL)) {
+    fprintf(errfp, MSG_PSOLVE_REQ);
+    return(LIN_ILL_INPUT);
+  }
+
+  /* Check for legal gstype */
+  if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
+    fprintf(errfp, MSG_BAD_GSTYPE, gstype, MODIFIED_GS, CLASSICAL_GS);
+    return(LIN_ILL_INPUT);
+  }
+
+  /* Set setupNonNull = TRUE iff there is preconditioning (pretype != NONE)
+     and there is a preconditioning setup phase (precond != NULL)          */
+  setupNonNull = (pretype != NONE) && (precond != NULL);
 
   return(SUCCESS);
 }

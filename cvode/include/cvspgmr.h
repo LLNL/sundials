@@ -3,7 +3,7 @@
  * File          : cvspgmr.h                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 9 January 2002                                 *
+ * Version of    : 1 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVODE scaled, preconditioned   *
  * GMRES linear solver, CVSPGMR.                                  *
@@ -329,6 +329,7 @@ typedef int (*CVSpgmrJtimesFn)(integer N, N_Vector v, N_Vector Jv,
                                real vnrm, N_Vector ewt, real h,
                                real uround, void *jac_data,
                                long int *nfePtr, N_Vector work);
+
  
 /******************************************************************
  *                                                                *
@@ -401,7 +402,7 @@ typedef int (*CVSpgmrJtimesFn)(integer N, N_Vector v, N_Vector Jv,
  * The return values of CVSpgmr are:                              *
  *   SUCCESS       = 0  if successful                             *
  *   LMEM_FAIL     = -1 if there was a memory allocation failure. *
- *   LIN_ILL_INPUT = -2 if there illegal input.                   *
+ *   LIN_ILL_INPUT = -2 if there was illegal input.               *
  *                                                                *
  ******************************************************************/
 
@@ -409,6 +410,38 @@ int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl,
             real delt, CVSpgmrPrecondFn precond, 
             CVSpgmrPSolveFn psolve, void *P_data,
             CVSpgmrJtimesFn jtimes, void *jac_data);
+
+
+/******************************************************************
+ *                                                                *
+ * Function : CVReInitSpgmr                                       *
+ *----------------------------------------------------------------*
+ * A call to the CVReInitSpgmr function resets the link between   *
+ * the main CVODE integrator and the CVSPGMR linear solver.       *
+ * After solving one problem using CVSPGMR, call CVReInit and then*
+ * CVReInitSpgmr to solve another problem of the same size, if    *
+ * there is a change in the CVSpgmr parameters pretype, gstype,   *
+ * delt, precond, psolve, P_data, jtimes, or jac_data, but not in *
+ * maxl.  If there is a change in maxl, then CVSpgmr must be      *
+ * called again, and the linear solver memory will be reallocated.*
+ * If there is no change in parameters, it is not necessary to    *
+ * call either CVReInitSpgmr or CVSpgmr for the new problem.      *
+ *                                                                *
+ * All arguments to CVReInitSpgmr have the same names and meanings*
+ * as those of CVSpgmr.  The cvode_mem argument must be identical *
+ * to its value in the previous CVSpgmr call.                     *
+ *                                                                *
+ * The return values of CVReInitSpgmr are:                        *
+ *   SUCCESS   = 0      if successful, or                         *
+ *   LMEM_FAIL = -1     if the cvode_mem argument is NULL         *
+ *   LIN_ILL_INPUT = -2 if there was illegal input.               *
+ *                                                                *
+ ******************************************************************/
+  
+int CVReInitSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, 
+                  real delt, CVSpgmrPrecondFn precond, 
+                  CVSpgmrPSolveFn psolve, void *P_data,
+                  CVSpgmrJtimesFn jtimes, void *jac_data);
 
 #endif
 
