@@ -101,7 +101,7 @@ D.1. Revision History since release 1.0 (July 2002)
 
 - Changes to type names and CVODES constants
    - removed type 'integertype'; instead use int or long int, as appropriate.
-   - restructured the list of return values from the various CVODEs functions.
+   - restructured the list of return values from the various CVODES functions.
    - changed all CVODES constants (inputs and return values) to have the
      prefix 'CV_' (e.g. CV_SUCCESS).
    - renamed various function types to have the prefix 'CV' (e.g. CVRhsFn).
