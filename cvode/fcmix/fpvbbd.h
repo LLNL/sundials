@@ -1,5 +1,5 @@
 /* File fpvbbd.h: Header file for the FPVBBD Interface Package
-   Version of 11 January 2002 */
+   Version of 5 March 2002 */
 
 #ifndef _fpvbbd_h
 #define _fpvbbd_h
@@ -22,6 +22,7 @@ problem-defining routines are written in Fortran.
 The user-callable functions in this package, with the corresponding
 CVODE/PVODE and PVBBDPRE functions, are as follows: 
   FPVBBDIN0 and FPVBBDIN1  interface to PVBBDAlloc and CVSpgmr 
+  FPVREINBBD0 and FPVREINBBD1 interface to PVReInitBBD and CVREInitSpgmr 
   FPVBBDOPT accesses optional outputs
   FPVBBDF   interfaces to PVBBDFree
 
@@ -185,7 +186,33 @@ DELT      = linear convergence tolerance factor; 0.0 indicates default.
 IER       = return completion flag.  Values are 0 = success, -1 = memory
             failure, -2 = illegal input.
 
-(5) The integrator: FCVODE
+(5) Re-initialization: FPVREINIT, FPVREINBBD0, FPVREINBBD1
+If a sequence of problems of the same size is being solved using the SPGMR
+linear solver in combination with the PVBBDPRE preconditioner, then the
+PVODE package can be re-initialized for the second and subsequent problems
+so as to avoid further memory allocation.  First, in place of the call
+to FPVMALLOC, make the following call:
+      CALL FPVREINIT(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, INOPT,
+     1               IOPT, ROPT, IER)
+The arguments have the same names and meanings as those of FPVMALLOC,
+except that NEQ has been omitted from the argument list (being unchanged
+for the new problem).  FPVREINIT performs the same initializations as
+FPVMALLOC, but does no memory allocation, using instead the existing
+internal memory created by the previous FPVMALLOC call.
+     Following the call to FPVREINIT, a call to either FPVBBDIN0 or FPVBBDIN1
+may or may not be needed.  First, if the choice between these two options is
+the same and the input arguments are the same, no FPVBBDIN* call is needed.
+If a different choice of options is desired, or there is a change in input
+arguments other than MU, ML or MAXL, then the user program should call one
+of the routines FPVREINBBD0 or FPVREINBBD1.  This reinitializes the SPGMR
+linear solver, but without reallocating its memory.  The arguments of each
+FPVREINBBD* routine have the same names and meanings as the corresponding
+FPVBBDIN* routine.  Finally, if the value of MU, ML, or MAXL is being
+changed, then a call to FPVBBDIN0 or FPVBBDIN1 must be made, where again a
+different choice of that routine is allowed; in this case the SPGMR memory
+is reallocated.
+
+(6) The integrator: FCVODE
 Carrying out the integration is accomplished by making calls as follows:
       CALL FCVODE (TOUT, T, Y, ITASK, IER)
 The arguments are:
@@ -198,7 +225,7 @@ IER   = completion flag: 0 = success, values -1 ... -8 are various
         failure modes (see CVODE User Guide).
 The current values of the optional outputs are available in IOPT and ROPT.
 
-(6) Optional outputs: FPVBBDOPT
+(7) Optional outputs: FPVBBDOPT
 Optional outputs specific to the SPGMR solver are NPE, NLI, NPS, NCFL,
 LRW, and LIW, stored in IOPT(16) ... IOPT(21), respectively.
 To obtain the optional outputs associated with the PVBBDPRE module, make
@@ -211,7 +238,7 @@ LENIPW = length of integer preconditioner work space, in integer words.
          This size is local to the current processor.
 NGE    = number of g(t,y) evaluations (calls to PVLOCFN) so far.
 
-(7) Computing solution derivatives: FCVDKY
+(8) Computing solution derivatives: FCVDKY
 To obtain a derivative of the solution (optionally), of order up to
 the current method order, make the following call:
       CALL FCVDKY (T, K, DKY)
@@ -220,7 +247,7 @@ T   = value of t at which solution derivative is desired
 K   = derivative order (0 .le. K .le. QU)
 DKY = array containing computed K-th derivative of y on return
 
-(8) Memory freeing: FPVBBDF, FCVFREE, and FPVFREEMPI
+(9) Memory freeing: FPVBBDF, FCVFREE, and FPVFREEMPI
 To the free the internal memory created by the calls to FPVINITMPI,
 FPVMALLOC, FPVBBDIN0, and FPVBBDIN1, make the following calls, in this order:
       CALL FPVBBDF
@@ -237,6 +264,8 @@ FPVMALLOC, FPVBBDIN0, and FPVBBDIN1, make the following calls, in this order:
 
 #define FPV_BBDIN0  FPVBBDIN0
 #define FPV_BBDIN1  FPVBBDIN1
+#define FPV_REINBBD0  FPVREINBBD0
+#define FPV_REINBBD1  FPVREINBBD1
 #define FPV_BBDOPT  FPVBBDOPT
 #define FPV_BBDF    FPVBBDF
 #define FPV_GLOCFN  PVLOCFN
@@ -246,6 +275,8 @@ FPVMALLOC, FPVBBDIN0, and FPVBBDIN1, make the following calls, in this order:
 
 #define FPV_BBDIN0  fpvbbdin0_
 #define FPV_BBDIN1  fpvbbdin1_
+#define FPV_REINBBD0  fpvreinbbd0_
+#define FPV_REINBBD1  fpvreinbbd1_
 #define FPV_BBDOPT  fpvbbdopt_
 #define FPV_BBDF    fpvbbdf_
 #define FPV_GLOCFN  pvlocfn_
@@ -255,6 +286,8 @@ FPVMALLOC, FPVBBDIN0, and FPVBBDIN1, make the following calls, in this order:
 
 #define FPV_BBDIN0  fpvbbdin0
 #define FPV_BBDIN1  fpvbbdin1
+#define FPV_REINBBD0  fpvreinbbd0
+#define FPV_REINBBD1  fpvreinbbd1
 #define FPV_BBDOPT  fpvbbdopt
 #define FPV_BBDF    fpvbbdf
 #define FPV_GLOCFN  pvlocfn
