@@ -68,7 +68,7 @@ The header files corresponding to the various linear solver options in {\cvodes}
 \item \Id{cvband.h}, 
   which is used with the band direct linear solver in the
   context of {\cvodes}. This in turn includes a header file (\id{band.h})
-  which defines the \Id{BandMat} type and corrsponding accessor macros;
+  which defines the \Id{BandMat} type and corresponding accessor macros;
 \item \Id{cvdiag.h}, which is used with a diagonal linear solver in the
   context of {\cvodes};
 \item \Id{cvspgmr.h}, 
@@ -186,13 +186,13 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   If Newton iteration is chosen, initialize the linear solver module
   with one of the following calls (for details see \S\ref{sss:lin_solv_init}):
 
-  {\s} \id{ier = }\Id{CVDense}\id{(...);}
+  {\s} \id{flag = }\Id{CVDense}\id{(...);}
 
-  {\s} \id{ier = }\Id{CVBand}\id{(...);}
+  {\s} \id{flag = }\Id{CVBand}\id{(...);}
 
-  \id{ier = }\Id{CVDiag}\id{(...);}
+  \id{flag = }\Id{CVDiag}\id{(...);}
 
-  \id{ier = }\Id{CVSpgmr}\id{(...);}
+  \id{flag = }\Id{CVSpgmr}\id{(...);}
   
 \item
   {\bf Set linear solver optional inputs}
@@ -212,7 +212,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   {\bf Advance solution in time}
 
   For each point at which output is desired, call
-  \id{ier = }\Id{CVode}\id{(cvode\_mem, tout, yout, \&tret, itask);}
+  \id{flag = }\Id{CVode}\id{(cvode\_mem, tout, yout, \&tret, itask);}
   Set \id{itask} to specify the return mode.
   The vector \id{y} (which can be the same as
   the vector \id{y0} above) will contain $y(t)$.
@@ -288,13 +288,13 @@ created and allocated by the first two calls.
     either \Id{NEWTON} or \Id{FUNCTIONAL}. 
   \end{args}
   The recommended choices for (\Id{lmm}, \Id{iter}) are
-  (\id{ADAMS}, \id{FUNCTIONAL}) for nonstiff problems and
+  (\id{ADAMS}, \id{FUNCTIONAL}) for non-stiff problems and
   (\id{BDF}, \id{NEWTON}) for stiff problems.
 }
 {
   If successful, \id{CVodeCreate} returns a pointer to the newly created 
   {\cvodes} memory block (of type \id{void *}).
-  If an error occured, \id{CVodeCreate} prints an error message to \id{stderr}
+  If an error occurred, \id{CVodeCreate} prints an error message to \id{stderr}
   and returns \id{NULL}.
 }
 {}
@@ -349,7 +349,7 @@ created and allocated by the first two calls.
   \end{args}
 }
 {
-  If an error occured, \id{CVodeMalloc} also prints an error message to the
+  If an error occurred, \id{CVodeMalloc} also prints an error message to the
   file specified by the optional input \id{errfp}.
 }
 %%
@@ -931,7 +931,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 }
 {
   The function \ID{CVodeSetMaxNumSteps} specifies the maximum number
-  of steps to be taken by the solver in its attemt to reach 
+  of steps to be taken by the solver in its attempt to reach 
   the final time.
 }
 {
@@ -1049,7 +1049,7 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
   \end{args}
 }
 {
-  By default, {\cvodes} estimates the inital step as solution of 
+  By default, {\cvodes} estimates the initial step as solution of 
   $\| 0.5 h^2 \ddot y \|_{\mbox{\scriptsize WRMS}} = 1$,
   where $\ddot y$ is an estimated second derivative of the solution at the
   initial time.
@@ -1296,7 +1296,7 @@ difference quotient function \Id{CVDenseDQJac}
 that comes with the {\cvdense} solver.
 To specify a user-supplied Jacobian function \id{djac} and associated user 
 data \id{jac\_data}, {\cvdense} provides the functions \id{CVDenseSetJacFn}
-and \id{CVDenseSetJacData}, respctively.
+and \id{CVDenseSetJacData}, respectively.
 The {\cvdense} solver passes the pointer it receives through \id{CVDenseSetJacData} 
 to its dense Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
@@ -1385,9 +1385,9 @@ or use the default difference quotient function \Id{CVBandDQJac}
 that comes with the {\cvband} solver.
 To specify a user-supplied Jacobian function \id{bjac} and associated user 
 data \id{jac\_data}, {\cvband} provides the functions \id{CVBandSetJacFn}
-and \id{CVBandSetJacData}, respctively.
+and \id{CVBandSetJacData}, respectively.
 The {\cvband} solver passes the pointer it receives through \id{CVBandSetJacData} 
-to its banded Jacobian approximaton function. This allows the user to
+to its banded Jacobian approximation function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  The pointer \id{jac\_data} may be
@@ -3482,7 +3482,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
     is the problem size.
   \item[mlower]
   \item[mupper]
-    are the lower and upper halh bandwidth of the Jacobian.
+    are the lower and upper half bandwidth of the Jacobian.
   \item[J]
     is the output Jacobian matrix.  
   \item[t]
@@ -3734,7 +3734,7 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
 
   Each call to the preconditioner setup function is preceded by a call to     
   the \id{RhsFn} user function with the same \id{(t,y)} arguments.  
-  Thus the preconditoner setup function can use any auxiliary data that is 
+  Thus the preconditioner setup function can use any auxiliary data that is 
   computed and saved during the evaluation of the ODE right-hand side.
   
   This function is not called in advance of every call to the preconditioner solve
@@ -3832,7 +3832,7 @@ grayed-out.
 \item
   {\bf Get quadrature optional outputs}
 
-  Call \id{CVodeGetQuad*} functions to obtain optional output realted to
+  Call \id{CVodeGetQuad*} functions to obtain optional output related to
   integration of quadratures.
   See \S\ref{ss:quad_optional_output} for details.
 
@@ -3976,7 +3976,7 @@ $y$ in \id{y}. Solution quadratures can be obtained through the function
   \item[t] (\id{realtype})
     specifies the time at which quadrature information is 
     requested. The time \id{t} must fall within the interval defined by the last 
-    succesful step taken by {\cvodes}.
+    successful step taken by {\cvodes}.
   \item[yQ] (\id{N\_Vector})
     the computed quadrature vector.
   \end{args}
@@ -4021,7 +4021,7 @@ directly by the user.
   \item[\id{t}] (\id{realtype})
     specifies the time at which quadrature information is 
     requested. The time \id{t} must fall within the interval defined by the last 
-    succesful step taken by {\cvodes}.
+    successful step taken by {\cvodes}.
   \item[\id{k}] (\id{int})
   \item[\id{dkyQ}] (\id{N\_Vector})
     the vector containing the derivative. This vector must be allocated by the user. 
@@ -4173,7 +4173,7 @@ of quadrature equations.
 \subsection{Optional outputs for quadrature integration}\label{ss:quad_optional_output}
 
 {\cvodes} provides the following functions that can be used to obtain solver
-performance information related to quadature integration.
+performance information related to quadrature integration.
 
 \ucfunction{CVodeGetQuadNumRhsEvals}
 {
@@ -4366,7 +4366,7 @@ user-supplied functions.
   flag = CVodeRootInit(cvode\_mem, g, nrtfn);
 }
 {
-  The function \ID{CVodeRootInit} specifies thaqt roots of a set of
+  The function \ID{CVodeRootInit} specifies that roots of a set of
   functions $g_i(t,y)$ are to be found while the IVP is being solved.
 }
 {
@@ -4384,7 +4384,7 @@ user-supplied functions.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVRT\_MEM\_FAIL]
   \item[SUCCESS]
-    The call to \id{CVodeRootInit} was successfull.
+    The call to \id{CVodeRootInit} was successful.
   \item[CVRT\_NO\_MEM]
     The \id{cvode\_mem} argument was \id{NULL}.
   \item[CVRT\_MEM\_FAIL]
@@ -4447,7 +4447,7 @@ There are two optional output functions associated with rootfinding.
     pointer to the {\cvodes} memory block.
   \item[rootsfound] (\id{int *})
     pointer to an array of \id{int} of length \id{nrtfn}, showing the
-    indeces of the user functions $g_i$ found to have a root. 
+    indices of the user functions $g_i$ found to have a root. 
     For $i=0,\ldots,$\id{nrtfn}$-1$, \id{rootsfound}[$i$]$=1$ if $g_i$
     has a root, and $=0$ if not.
   \end{args}
@@ -4493,7 +4493,7 @@ There are two optional output functions associated with rootfinding.
 %%
 %%
 
-\subsection{USer-supplied function for rootfinding}\label{ss:root_us}
+\subsection{User-supplied function for rootfinding}\label{ss:root_us}
 
 If a rootfinding problem is to be solved during the integration of the ODE system,
 the user must supply a {\C} function of type \id{RootFn}, defined as follows:
@@ -4554,7 +4554,7 @@ the user and uses this to form a preconditioner for use with the Krylov
 linear solver in {\cvspgmr}.  Although this matrix is intended
 to approximate the Jacobian $\partial f / \partial y$, 
 it may be a very crude approximation.  The true Jacobian need not be banded, or its
-true bandwith may be larger than $m_l + m_u + 1$, as long as the
+true bandwidth may be larger than $m_l + m_u + 1$, as long as the
 banded approximation generated here is sufficiently accurate
 to speed convergence as a preconditioner. 
 
@@ -4685,7 +4685,7 @@ in more detail below.
   If an error occured, \id{CVBandPrecAlloc} returns \id{NULL}.
 }
 {
-  The banded approximate Jacobian will have nonzeros only in location $(i,j)$
+  The banded approximate Jacobian will have non-zeros only in location $(i,j)$
   with $-$\id{ml} $\leq j-i \leq$ \id{mu}.
 }
 %%
@@ -4888,7 +4888,7 @@ block. This Band-Block-Diagonal Preconditioner module is called
 \index{preconditioning!band-block diagonal}
 One way to envision these preconditioners is to think of the domain of
 the computational PDE problem as being subdivided into $M$ non-overlapping
-subdomains.  Each of these subdomains is then assigned to one of the
+sub-domains.  Each of these sub-domains is then assigned to one of the
 $M$ processors to be used to solve the ODE system. The basic idea is
 to isolate the preconditioning so that it is local to each processor,
 and also to use a (possibly cheaper) approximate right-hand side
@@ -4898,7 +4898,7 @@ system (\ref{e:ivp}). However, the user may set $g = f$.  Corresponding
 to the domain decomposition, there is a decomposition of the solution
 vector $y$ into $M$ disjoint blocks $y_m$, and a decomposition of $g$
 into blocks $g_m$.  The block $g_m$ depends on $y_m$ and also on
-components of blocks $y_{m'}$ associated with neighboring subdomains
+components of blocks $y_{m'}$ associated with neighboring sub-domains
 (so-called ghost-cell data).  Let $\bar{y}_m$ denote $y_m$ augmented
 with those other components on which $g_m$ depends.  Then we have
 \begin{equation}
@@ -5186,7 +5186,7 @@ next.
   difference-quotient calculation of the approximate Jacobian is negative or 
   exceeds the value \id{local\_N}$-1$, it is replaced with 0 or \id{local\_N}$-1$.
 
-  The half-bandwiths \id{mudq} and \id{mldq} need not be the true 
+  The half-bandwidths \id{mudq} and \id{mldq} need not be the true 
   half-bandwidths of the Jacobian of the local block of $g$,    
   when smaller values may provide a greater efficiency.       
 
@@ -5381,7 +5381,7 @@ the {\cvbbdpre} module:
 {
   The function \ID{CVBBDPrecGetNumGfnEvals} returns the
   number of calls to the user \id{gloc} function due to the 
-  finite difference approximaton of the Jacobian blocks used within
+  finite difference approximation of the Jacobian blocks used within
   {\cvbbdpre}'s preconditioner setup function.
 }
 {

@@ -90,7 +90,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   \id{tout} or in \Id{ONE\_STEP} mode inside a loop (if intermediate
   solutions of the forward problem are desired (see \S\ref{sss:cvodef}).
   The final value of of \id{tret}, denoted \id{tfinal}, is then
-  the maximmum allowable value for the endpoint $t_1$.
+  the maximum allowable value for the endpoint $t_1$.
 
   \vspace{0.2in}\centerline{\bf Backward problem}
 
@@ -165,7 +165,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   function \id{CVode}, to integrate the backward problem from \id{tB0}
   (see \S\ref{sss:cvodeb}). This function can be called either in \id{NORMAL}
   or \id{ONE\_STEP} mode. Typically, \id{CVodeB} will be called in \id{NORMAL}
-  mode with an end time equal to the iitial time of the forward problem.
+  mode with an end time equal to the initial time of the forward problem.
 
 \item \label{i:back_end}
   {\bf Extract quadrature variables}
@@ -543,7 +543,7 @@ The call to the \id{CVodeReInitB} function has the form
 {}
 %%
 %%
-Note that memeory allocated by \id{CVodeMallocB} is deallocated by the function 
+Note that memory allocated by \id{CVodeMallocB} is deallocated by the function 
 \id{CVadjFree}.
 %%
 
@@ -1137,7 +1137,7 @@ this memory block:
 }
 {
   The function \ID{CvadjGetCVodeBmem} returns a pointer to the {\cvodes}
-  memeory block for the backward problem.
+  memory block for the backward problem.
 }
 {
   The argument \id{cvadj\_mem}, of type \id{void *} is the pointer to the
@@ -1267,7 +1267,7 @@ of \id{CVodeB}, {\cvodes} provides a wrapper around the function \ID{CVodeGetQua
     The {\cvodes} solver memory block was not created through a 
     previous call to \id{CVodeCreateB}.
   \item[CVG\_NO\_QUAD] 
-    Quadrature integration was not initialized throough a 
+    Quadrature integration was not initialized through a 
     previous call to \id{CVodeQuadMallocB}..
   \item[BAD\_DKY] 
     \id{yQB} is \id{NULL}.
@@ -1527,7 +1527,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVBandS
     is the backward problem size.
   \item[mlowerB]
   \item[mupperB]
-    are the lower and upper halh bandwidth of the Jacobian.
+    are the lower and upper half bandwidth of the Jacobian.
   \item[JB]
     is the output Jacobian matrix.  
   \item[t]
@@ -1689,7 +1689,7 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecondFnB} defined by
 %%
 \usfunction{CVSpgmrPrecSetupFnB}
 {
-  typedef int (*CVSpgmrPrecSetupFnB)(&realtype t, N\_Vector y, N\_Vecotr yB, \\ 
+  typedef int (*CVSpgmrPrecSetupFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\ 
                                      &N\_Vector fyB, booleantype jokB, \\
                                      &booleantype *jcurPtrB, \\
                                      &realtype gammaB, void *P\_dataB,\\
@@ -2025,7 +2025,7 @@ The prototypes for these two functions are described below.
 }
 {
   This function loads the vector
-  \id{glocalB} as a function of \id{t}, \id{y}, and \id{yB}.  
+  \id{gB} as a function of \id{t}, \id{y}, and \id{yB}.  
 }
 {
   \begin{args}[NlocalB]
@@ -2037,7 +2037,7 @@ The prototypes for these two functions are described below.
     is the current value of the forward solution vector.
   \item[yB]
     is the current value of the dependent variable vector.
-  \item[glocalB]
+  \item[gB]
     is the output vector.
   \item[f\_dataB]
     is a pointer to user data - the same as the \Id{f\_dataB}      
@@ -2049,7 +2049,7 @@ The prototypes for these two functions are described below.
 }
 {
   This routine assumes that all inter-processor communication of data needed to 
-  calculate \id{glocalB} has already been done, and this data is accessible within
+  calculate \id{gB} has already been done, and this data is accessible within
   \id{f\_dataB}.
 }
 %%

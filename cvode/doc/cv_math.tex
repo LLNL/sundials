@@ -12,7 +12,7 @@ write in the abstract form
 where $y \in \mbox{\bf R}^N$.
 Here we use $\dot{y}$ to denote $dy/dt$.  While we use $t$ to denote
 the independent variable, and usually this is time, it certainly need
-not be.  {\cvode} solves both stiff and nonstiff systems.  Roughly
+not be.  {\cvode} solves both stiff and non-stiff systems.  Roughly
 speaking, stiffness is characterized by the presence of at least one
 rapidly damped mode, whose time constant is small compared to the time
 scale of the solution itself.
@@ -31,12 +31,12 @@ methods, based on formulas of the form
 \end{equation}
 Here the $y_n$ are computed approximations to $y(t_n)$, and
 $h_n = t_n - t_{n-1}$ is the step size.  The user of {\cvode} must choose
-appropriately one of two multistep methods.  For nonstiff problems,
+appropriately one of two multistep methods.  For non-stiff problems,
 {\cvode} includes the Adams-Moulton formulas \index{Adams method},
 characterized by $K_1 = 1$
 and $K_2 = q$ above, where the order $q$ varies between $1$ and $12$.
 For stiff problems, {\cvode} includes the Backward Differentiation
-Formulas (BDFs)  \index{BDF method} 
+Formulas (BDF)  \index{BDF method} 
 in so-called fixed-leading coefficient form, given by
 $K_1 = q$ and $K_2 = 0$, with order $q$ varying between $1$ and $5$.
 The coefficients are uniquely determined by the method type, its
@@ -53,7 +53,7 @@ For either choice of formula, the nonlinear system
 where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i})$, 
 must be solved (approximately) at each integration step.  For this, {\cvode}
 offers the choice of either {\em functional iteration}, suitable only
-for nonstiff systems, and various versions of {\em Newton iteration}.
+for non-stiff systems, and various versions of {\em Newton iteration}.
 Functional iteration, given by
 \[ y_{n(m+1)} = h_n \beta_{n,0} f(t_n,y_{n(m)}) + a_n \, , \]
 involves evaluations of $f$ only.  In contrast, Newton iteration requires
@@ -447,7 +447,7 @@ is
 where $\alpha$ a weight parameter.  On the first two passes through
 the loop, $\alpha$ is set to $1$, making $t_{mid}$ the secant method
 value.  Thereafter, $\alpha$ is reset according to the side of the
-subinterval (low vs high, i.e. towards $t_{lo}$ vs towards $t_{hi}$)
+subinterval (low vs high, i.e. toward $t_{lo}$ vs toward $t_{hi}$)
 in which the sign change was found in the previous two passes.  If the
 two sides were opposite, $\alpha$ is set to 1.  If the two sides were
 the same, $\alpha$ is halved (if on the low side) or doubled (if on

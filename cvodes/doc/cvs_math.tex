@@ -12,7 +12,7 @@ write in the abstract form
 where $y \in \mbox{\bf R}^N$.
 Here we use $\dot{y}$ to denote $dy/dt$.  While we use $t$ to denote
 the independent variable, and usually this is time, it certainly need
-not be.  {\cvodes} solves both stiff and nonstiff systems.  Roughly
+not be.  {\cvodes} solves both stiff and non-stiff systems.  Roughly
 speaking, stiffness is characterized by the presence of at least one
 rapidly damped mode, whose time constant is small compared to the time
 scale of the solution itself.
@@ -44,12 +44,12 @@ methods, based on formulas of the form
 \end{equation}
 Here the $y_n$ are computed approximations to $y(t_n)$, and
 $h_n = t_n - t_{n-1}$ is the step size.  The user of {\cvodes} must choose
-appropriately one of two multistep methods.  For nonstiff problems,
+appropriately one of two multistep methods.  For non-stiff problems,
 {\cvodes} includes the Adams-Moulton formulas \index{Adams method},
 characterized by $K_1 = 1$
 and $K_2 = q$ above, where the order $q$ varies between $1$ and $12$.
 For stiff problems, {\cvodes} includes the Backward Differentiation
-Formulas (BDFs)  \index{BDF method} 
+Formulas (BDF)  \index{BDF method} 
 in so-called fixed-leading coefficient form, given by
 $K_1 = q$ and $K_2 = 0$, with order $q$ varying between $1$ and $5$.
 The coefficients are uniquely determined by the method type, its
@@ -66,7 +66,7 @@ For either choice of formula, the nonlinear system
 where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i})$, 
 must be solved (approximately) at each integration step.  For this, {\cvodes}
 offers the choice of either {\em functional iteration}, suitable only
-for nonstiff systems, and various versions of {\em Newton iteration}.
+for non-stiff systems, and various versions of {\em Newton iteration}.
 Functional iteration, given by
 \[ y_{n(m+1)} = h_n \beta_{n,0} f(t_n,y_{n(m)}) + a_n \, , \]
 involves evaluations of $f$ only.  In contrast, Newton iteration requires
@@ -368,7 +368,7 @@ is not implemented in {\cvodes}.
   after the (BDF or Adams) discretization is used to eliminate ${\dot s}_i$. 
   Although the system matrix of the above linear system is based on exactly the same 
   information as the matrix $M$ in (\ref{e:Newtonmat}), it must be updated and factored 
-  at every step of the integration, in contrast to $M$ which is updated only ocasionally. 
+  at every step of the integration, in contrast to $M$ which is updated only occasionally. 
   The computational cost associated with these matrix updates and factorizations 
   makes this method unattractive when compared with the methods described below and 
   is therefore not implemented in {\cvodes}.
@@ -437,7 +437,7 @@ staggered corrector method which differ only if the sensitivity variables are
 included in the error control test. \index{error control!sensitivity variables} 
 In the {\em full error control} case, 
 the first variant of the staggered corrector method requires the convergence of 
-the iterations (\ref{e:stgr_iterations}) for all $N_s$ sensitivity sytems and then 
+the iterations (\ref{e:stgr_iterations}) for all $N_s$ sensitivity systems and then 
 performs the error test on the sensitivity variables. The second variant of the method
 will perform the error test for each sensitivity vector $s_i$, ($i=1,2,\ldots,N_s$)
 individually, as they pass the convergence test. Differences in performance
@@ -654,12 +654,12 @@ the purpose of interpolation. Then, during the first forward integration stage,
 every $N_d$ integration steps a check point is formed by saving enough information
 (either in memory or on disk if needed) to allow for a hot restart, that is a restart
 which will exactly reproduce the forward integration. In order to avoid storing
-Jacobina-related data at each check point, a reevaluation of the iteration matrix
+Jacobian-related data at each check point, a reevaluation of the iteration matrix
 is forced before each check point. At the end of this stage, we are left with $N_c$ 
 check points, including one at $t_0$.
 During the backward integration stage, the adjoint variables are integrated
 from $t_1$ to $t_0$ going from one check point to the previous one.
-The backward integration from check point $i+1$ to check point $i$ is preceeded
+The backward integration from check point $i+1$ to check point $i$ is preceded
 by a forward integration from $i$ to $i+1$ during which $N_d$ data pairs 
 ($y$, ${\dot y}$) are generated and stored in memory for interpolation.
 (see Fig.~\ref{f:ckpnt}).
@@ -856,7 +856,7 @@ is
 where $\alpha$ a weight parameter.  On the first two passes through
 the loop, $\alpha$ is set to $1$, making $t_{mid}$ the secant method
 value.  Thereafter, $\alpha$ is reset according to the side of the
-subinterval (low vs high, i.e. towards $t_{lo}$ vs towards $t_{hi}$)
+subinterval (low vs high, i.e. toward $t_{lo}$ vs toward $t_{hi}$)
 in which the sign change was found in the previous two passes.  If the
 two sides were opposite, $\alpha$ is set to 1.  If the two sides were
 the same, $\alpha$ is halved (if on the low side) or doubled (if on
