@@ -29,6 +29,8 @@ tar uf $tarfile $distrobase/ida/include/idabbdpre.h
 
 tar uf $tarfile $distrobase/ida/source/Makefile.in
 tar uf $tarfile $distrobase/ida/source/ida.c
+tar uf $tarfile $distrobase/ida/source/idaio.c
+tar uf $tarfile $distrobase/ida/source/idaic.c
 tar uf $tarfile $distrobase/ida/source/idadense.c
 tar uf $tarfile $distrobase/ida/source/idaband.c
 tar uf $tarfile $distrobase/ida/source/idaspgmr.c

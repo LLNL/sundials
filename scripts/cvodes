@@ -32,6 +32,7 @@ tar uf $tarfile $distrobase/cvodes/include/cvbbdpre.h
 
 tar uf $tarfile $distrobase/cvodes/source/Makefile.in
 tar uf $tarfile $distrobase/cvodes/source/cvodes.c
+tar uf $tarfile $distrobase/cvodes/source/cvodesio.c
 tar uf $tarfile $distrobase/cvodes/source/cvodea.c
 tar uf $tarfile $distrobase/cvodes/source/cvdense.c
 tar uf $tarfile $distrobase/cvodes/source/cvband.c

@@ -78,6 +78,8 @@ function create_file
     if [ $what = "kinsol" -o $what = "sundials" ]; then
         $distrobase/scripts/kinsol $tarfile $distrobase $par 
     fi
+
+    gzip $tarfile
     
     cd $scriptdir
 }

@@ -27,6 +27,7 @@ tar uf $tarfile $distrobase/kinsol/include/kinbbdpre.h
 
 tar uf $tarfile $distrobase/kinsol/source/Makefile.in
 tar uf $tarfile $distrobase/kinsol/source/kinsol.c
+tar uf $tarfile $distrobase/kinsol/source/kinsolio.c
 tar uf $tarfile $distrobase/kinsol/source/kinspgmr.c
 tar uf $tarfile $distrobase/kinsol/source/kinbbdpre.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_impl.h
