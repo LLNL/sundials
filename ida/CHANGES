@@ -25,6 +25,11 @@ ida.h ida.c
   - removed Neq from all calls to res and N_VNew
   - work space requirements now use N_VSpace to get lrw1 and liw1
   - added IDAGetEwt accessor routine
+  - added the following user optional inputs
+    max number of Newton iterations (default 3)
+    max number of convergence failures (default 10)
+    constant in nonlinear solver convergence test (0.33)
+    max number of error test failures (default 10)
 
 examples_ser examples_par
   - updated to reflect changes to IDA

@@ -37,6 +37,11 @@ cvode.h cvode.c
   - removed N from all calls to f and N_VNew
   - work space requirements now use N_VSpace to get lrw1 and liw1
   - added CVodeGetEwt accessor routine
+  - added the following user optional inputs:
+    max number of Newton iterations (default 3) 
+    max number of convergence failures (default 10)
+    proportionality coefficient in the nonlinear convergence test (default 0.1)
+    max number of error test failures (default 7)
 
 fcmix
   - updated to new CVodeReInit name
