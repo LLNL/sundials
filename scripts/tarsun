@@ -242,6 +242,8 @@ tar uf $filename sundials/kinsol/source/kinsol.c
 tar uf $filename sundials/kinsol/source/kinspgmr.c
 tar uf $filename sundials/kinsol/source/kinbbdpre.c
 
+tar uf $filename sundials/kinsol/lib/.dontremove
+
 tar uf $filename sundials/kinsol/examples/Makefile
 
 tar uf $filename sundials/kinsol/fcmix/Makefile
@@ -304,6 +306,8 @@ tar uf $filename sundials/ida/source/idadense.c
 tar uf $filename sundials/ida/source/idaband.c
 tar uf $filename sundials/ida/source/idaspgmr.c
 tar uf $filename sundials/ida/source/idabbdpre.c
+
+tar uf $filename sundials/ida/lib/.dontremove
 
 tar uf $filename sundials/ida/examples/Makefile
 
