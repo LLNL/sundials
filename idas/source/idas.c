@@ -379,9 +379,11 @@
 #define MSG_IDAG_NO_QUAD2  "calling IDAQuadMalloc.\n\n"
 #define MSG_IDAG_NO_QUAD   MSG_IDAG_NO_QUAD1 MSG_IDAG_NO_QUAD2
 
-#define MSG_IDAG_NO_SENSI1 "IDAGetSens*-- Illegal attempt to call before "
-#define MSG_IDAG_NO_SENSI2 "calling IDASensMalloc.\n\n"
-#define MSG_IDAG_NO_SENSI  MSG_IDAG_NO_SENSI1 MSG_IDAG_NO_SENSI2
+#define MSG_IDAG_NO_SENS1  "IDAGetSens*-- Illegal attempt to call before "
+#define MSG_IDAG_NO_SENS2  "calling IDASensMalloc.\n\n"
+#define MSG_IDAG_NO_SENS   MSG_IDAG_NO_SENS1 MSG_IDAG_NO_SENS2
+
+#define MSG_BAD_IS         "IDAGetSens1-- is=%d illegal. \n\n"
 
 /*=================================================================*/
 /*END          IDAS Error Messages                                 */
@@ -1648,7 +1650,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 */
 /*-----------------------------------------------------------------*/
 
-int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
+int IDAGetSolution(void *ida_mem, realtype t, 
+                   N_Vector yret, N_Vector ypret)
 {
   IDAMem IDA_mem;
   realtype tfuzz, tp, delt, c, d, gam;
@@ -1685,7 +1688,7 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
     d = d*gam + c/psi[j-1];
     c = c*gam;
     gam = (delt + psi[j-1])/psi[j];
-    N_VLinearSum(ONE,  yret, c, phi[j],  yret);
+    N_VLinearSum(ONE,  yret, c, phi[j], yret);
     N_VLinearSum(ONE, ypret, d, phi[j], ypret);
   }
 
@@ -1693,6 +1696,14 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
 }
 
 /*-----------------------------------------------------------------*/
+/*
+  The following function can be called to obtain the quadrature 
+  variables after a successful integration step.                 
+  
+  Return values are similar to those of IDAGetSolution.         
+  Additionally, IDAGetQuad can return IDAG_NO_QUAD if quadratures
+  were not computed.                                             
+*/
 /*-----------------------------------------------------------------*/
 
 int IDAGetQuad(void *ida_mem, realtype t, N_Vector yretQ)
@@ -1727,7 +1738,7 @@ int IDAGetQuad(void *ida_mem, realtype t, N_Vector yretQ)
   kord = kused; 
   if (kused == 0 || t == tn) kord = 1;
 
-  /* Accumulate multiples of columns phi[j] into yretQ */
+  /* Accumulate multiples of columns phiQ[j] into yretQ */
 
   delt = t - tn;
   c = ONE;
@@ -1735,10 +1746,109 @@ int IDAGetQuad(void *ida_mem, realtype t, N_Vector yretQ)
   for (j=1; j <= kord; j++) {
     c = c*gam;
     gam = (delt + psi[j-1])/psi[j];
-    N_VLinearSum(ONE,  yretQ, c, phiQ[j],  yretQ);
+    N_VLinearSum(ONE,  yretQ, c, phiQ[j], yretQ);
   }
 
   return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+/*
+  IDAGetSens1 returns sensitivities of the y function at
+  the time t. The arguments yretS and ypretS must be pointers to 
+  arrays of N_Vector's and must be allocated by the user.
+  
+  Return values are similar to those of IDAGetSolution.
+  Additionally, IDAGetSens can return IDAG_NO_SENS if
+  sensitivities were not computed.
+*/
+/*-----------------------------------------------------------------*/
+
+int IDAGetSens(void *ida_mem, realtype t, 
+               N_Vector *yretS, N_Vector *ypretS)
+{
+  IDAMem IDA_mem;
+  int is, retval;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  for (is=0; is<Ns; is++) {
+    retval = IDAGetSens1(ida_mem, t, is, yretS[is], ypretS[is]);
+    if (retval != OKAY) return(retval);
+  }
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+/*
+  IDAGetSens1 returns the is-th sensitivity of the y function at
+  the time t. The arguments yretS and ypretS must be pointers to 
+  N_Vector's and must be allocated by the user.
+  
+  Return values are similar to those of IDAGetSolution.
+  Additionally, IDAGetSens1 can return IDAG_NO_SENS if
+  sensitivities were not computed and BAD_IS if 
+  is < 0 or is >= Ns.
+*/
+/*-----------------------------------------------------------------*/
+
+int IDAGetSens1(void *ida_mem, realtype t, int is, 
+                N_Vector yretS, N_Vector ypretS)
+{
+  IDAMem IDA_mem;
+  realtype tfuzz, tp, delt, c, d, gam;
+  int j, kord;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if(sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  if ( (is<0) || (is>=Ns) ) {
+    fprintf(errfp, MSG_BAD_IS);
+    return(BAD_IS);
+  }
+
+  /* Check t for legality.  Here tn - hused is t_{n-1}. */
+ 
+  tfuzz = HUNDRED * uround * (tn + hh);
+  tp = tn - hused - tfuzz;
+  if ( (t - tp)*hh < ZERO) {
+    fprintf(errfp, MSG_BAD_T, t, tn-hused, tn);
+    return(BAD_T);
+  }
+
+  /* Initialize yretS = phiS[0][is], ypretS = 0, and kord = (kused or 1). */
+
+  N_VScale(ONE, phiS[0][is], yretS);
+  N_VConst(ZERO, ypretS);
+  kord = kused; 
+  if (kused == 0 || t == tn) kord = 1;
+
+  /* Accumulate multiples of columns phiS[j][is] into yretS and ypretS. */
+
+  delt = t - tn;
+  c = ONE; d = ZERO;
+  gam = delt/psi[0];
+  for (j=1; j <= kord; j++) {
+    d = d*gam + c/psi[j-1];
+    c = c*gam;
+    gam = (delt + psi[j-1])/psi[j];
+    N_VLinearSum(ONE,  yretS, c, phiS[j][is], yretS);
+    N_VLinearSum(ONE, ypretS, d, phiS[j][is], ypretS);
+  }
+
+  return(OKAY);  
 }
 
 /********************* IDAFree **********************************

@@ -1096,13 +1096,15 @@ int IDAGetQuadStats(void *ida_mem, int *nrhsQevals, int *nQetfails);
  * and must be allocated by the user to hold at least Ns vectors. *
  *                                                                *
  * Return values are similar to those of IDAGetSolution.          *
- * Additionally, IDAGetSens can return IDAG_NO_SENSI if           *
+ * Additionally, IDAGetSens can return IDAG_NO_SENS if            *
  * sensitivities were not computed and BAD_IS if                  *
  * is < 0 or is >= Ns.                                            *
  *----------------------------------------------------------------*/
 
 int IDAGetSens(void *ida_mem, realtype t, 
                N_Vector *yretS, N_Vector *ypretS);
+int IDAGetSens1(void *ida_mem, realtype t, int is,
+                N_Vector yretS, N_Vector ypretS);
 
 /*----------------------------------------------------------------*
  * Forward sensitivity optional output extraction routines        *
@@ -1176,8 +1178,8 @@ int IDAGetStgrSensNonlinSolvStats(void *ida_mem, int *nSTGR1niters,
                                     int *nSTGR1ncfails);
 
 /* IDAGet* return values */
-enum { OKAY = 0, IDAG_NO_MEM = -1, BAD_T = -2, 
-       IDAG_NO_QUAD = -3, IDAG_NO_SENS = -4 };
+enum { OKAY = 0, IDAG_NO_MEM = -1, BAD_T = -2, BAD_IS = -3,
+       IDAG_NO_QUAD = -4, IDAG_NO_SENS = -5 };
 
 /*----------------------------------------------------------------*
  * Function : IDAFree                                             *
