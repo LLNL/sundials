@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-18 18:37:05 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-21 15:59:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -700,7 +700,7 @@ int IDASetConstraintsB(void *idaadj_mem, N_Vector constraintsB)
 
 /*-----------------------------------------------------------------*/
 
-int IDAMallocB(void *idaadj_mem, ResFnB resB,
+int IDAMallocB(void *idaadj_mem, IDAResFnB resB,
                realtype tB0, N_Vector yyB0, N_Vector ypB0, 
                int itolB, realtype *reltolB, void *abstolB)
 {
@@ -735,7 +735,7 @@ int IDAMallocB(void *idaadj_mem, ResFnB resB,
 
 /*-----------------------------------------------------------------*/
 
-int IDAReInitB(void *idaadj_mem, ResFnB resB,
+int IDAReInitB(void *idaadj_mem, IDAResFnB resB,
                realtype tB0, N_Vector yyB0, N_Vector ypB0,
                int itolB, realtype *reltolB, void *abstolB)
 {
@@ -813,7 +813,7 @@ int IDASetQuadTolerancesB(void *idaadj_mem, int itolQB,
 
 /*-----------------------------------------------------------------*/
 
-int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, N_Vector yQB0)
+int IDAQuadMallocB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0)
 {
   IDAadjMem IDAADJ_mem;
   void *ida_mem;
@@ -841,7 +841,7 @@ int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, N_Vector yQB0)
 
 /*-----------------------------------------------------------------*/
 
-int IDAQuadReInitB(void *idaadj_mem, QuadRhsFnB rhsQB, N_Vector yQB0)
+int IDAQuadReInitB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0)
 {
   IDAadjMem IDAADJ_mem;
   void *ida_mem;
@@ -1754,7 +1754,7 @@ static int IDAAres(realtype tres,
 
 /*------------------       IDAArhsQ       --------------------------*/
 /*
-  This routine interfaces to the QuadRhsFnB routine provided by
+  This routine interfaces to the IDAQuadRhsFnB routine provided by
   the user.
 */
 /*-----------------------------------------------------------------*/

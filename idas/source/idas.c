@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-10-14 22:17:06 $
+ * $Revision: 1.29 $
+ * $Date: 2004-10-21 15:59:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -324,11 +324,11 @@
 #define MSG_NO_TSTOP       MSG_NO_TSTOP1 MSG_NO_TSTOP2
 
 #define MSG_REP_RES_ERR1   IDASLV "At t = %g, repeated recoverable error \n"
-#define MSG_REP_RES_ERR2   "returns from ResFn residual function. \n\n"
+#define MSG_REP_RES_ERR2   "returns from residual function. \n\n"
 #define MSG_REP_RES_ERR    MSG_REP_RES_ERR1 MSG_REP_RES_ERR2
 
 #define MSG_RES_NONRECOV1  IDASLV "At t = %g, nonrecoverable error \n"
-#define MSG_RES_NONRECOV2  "return from ResFn residual function. \n\n"
+#define MSG_RES_NONRECOV2  "return from residual function. \n\n"
 #define MSG_RES_NONRECOV   MSG_RES_NONRECOV1 MSG_RES_NONRECOV2
 
 #define MSG_FAILED_CONSTR1 IDASLV "At t = %g, unable to satisfy \n"
@@ -591,7 +591,7 @@ void *IDACreate(void)
 */
 /*-----------------------------------------------------------------*/
 
-int IDAMalloc(void *ida_mem, ResFn res,
+int IDAMalloc(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector y0, N_Vector yp0, 
               int itol, realtype *reltol, void *abstol)
 {
@@ -742,7 +742,7 @@ int IDAMalloc(void *ida_mem, ResFn res,
 */
 /*-----------------------------------------------------------------*/
 
-int IDAReInit(void *ida_mem, ResFn res,
+int IDAReInit(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector y0, N_Vector yp0,
               int itol, realtype *reltol, void *abstol)
 {
@@ -871,7 +871,7 @@ int IDAReInit(void *ida_mem, ResFn res,
 */
 /*-----------------------------------------------------------------*/
 
-int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0)
+int IDAQuadMalloc(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
 {
   IDAMem IDA_mem;
   booleantype allocOK;
@@ -933,7 +933,7 @@ int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0)
 */
 /*-----------------------------------------------------------------*/
 
-int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0)
+int IDAQuadReInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
 {
   IDAMem IDA_mem;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-10-18 22:09:10 $
+ * $Revision: 1.9 $
+ * $Date: 2004-10-21 15:59:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -66,7 +66,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 		      long int mudq, long int mldq, 
 		      long int mukeep, long int mlkeep, 
 		      realtype dq_rel_yy, 
-		      IDALocalFn glocal, IDACommFn gcomm)
+		      IDABBDLocalFn glocal, IDABBDCommFn gcomm)
 {
   IDAMem IDA_mem;
   IBBDPrecData pdata;
@@ -167,7 +167,7 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data)
 int IDABBDPrecReInit(void *p_data,
 		     long int mudq, long int mldq, 
 		     realtype dq_rel_yy,  
-		     IDALocalFn glocal, IDACommFn gcomm)
+		     IDABBDLocalFn glocal, IDABBDCommFn gcomm)
 {
   IBBDPrecData pdata;
   IDAMem IDA_mem;

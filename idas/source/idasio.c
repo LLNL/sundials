@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-14 22:17:06 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-21 15:59:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -591,7 +591,7 @@ int IDASetQuadRdata(void *ida_mem, void *rdataQ)
 /*BEGIN        SENSITIVITY OPTIONAL INPUT FUNCTIONS                */
 /*=================================================================*/
 
-int IDASetSensResFn(void *ida_mem, SensResFn resS)
+int IDASetSensResFn(void *ida_mem, IDASensResFn resS)
 {
   IDAMem IDA_mem;
 
@@ -618,7 +618,7 @@ int IDASetSensResFn(void *ida_mem, SensResFn resS)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetSensRes1Fn(void *ida_mem, SensRes1Fn resS1)
+int IDASetSensRes1Fn(void *ida_mem, IDASensRes1Fn resS1)
 {
   IDAMem IDA_mem;
 

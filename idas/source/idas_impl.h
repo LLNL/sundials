@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-10-14 22:17:06 $
+ * $Revision: 1.4 $
+ * $Date: 2004-10-21 15:59:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -68,7 +68,7 @@ typedef struct IDAMemRec {
     Problem Specification Data 
     --------------------------*/
 
-  ResFn          ida_res;            /* F(t,y(t),y'(t))=0; the function F  */
+  IDAResFn       ida_res;            /* F(t,y(t),y'(t))=0; the function F  */
   void          *ida_rdata;          /* user pointer passed to res         */
   int            ida_itol;           /* itol = SS or SV                    */
   realtype      *ida_reltol;         /* ptr to relative tolerance          */
@@ -84,7 +84,7 @@ typedef struct IDAMemRec {
     -----------------------*/
 
   booleantype    ida_quad;
-  QuadRhsFn      ida_rhsQ;
+  IDAQuadRhsFn   ida_rhsQ;
   int            ida_itolQ;
   realtype      *ida_reltolQ;
   void          *ida_abstolQ;
@@ -97,8 +97,8 @@ typedef struct IDAMemRec {
 
   booleantype    ida_sensi;
   int            ida_Ns;
-  SensResFn      ida_resS;
-  SensRes1Fn     ida_resS1;
+  IDASensResFn   ida_resS;
+  IDASensRes1Fn  ida_resS1;
   booleantype    ida_resSDQ;
   int            ida_iresS;
   int            ida_ism;
