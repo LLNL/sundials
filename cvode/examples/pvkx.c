@@ -1,10 +1,9 @@
 /************************************************************************
- *                                                                      *
  * File       : pvkx.c                                                  *
  * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman @LLNL       *
- * Version of : 26 June 2002                                            *
+ * Version of : 17 July 2002                                            *
  *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new parallel nvector (6/3/2002)   *
+ * Modified by R. Serban to work with new parallel nvector 6 March 2002.*
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -45,13 +44,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"    /* definitions of realtype, integertype, booleantype */
-#include "cvode.h"            /* main CVODE header file                          */
-#include "iterativ.h"         /* contains the enum for types of preconditioning  */
-#include "cvspgmr.h"          /* use CVSPGMR linear solver each internal step    */
-#include "smalldense.h"       /* use generic DENSE solver in preconditioning     */
-#include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P   */
-#include "sundialsmath.h"     /* contains SQR macro                              */
+#include "sundialstypes.h"    /* definitions of realtype, integertype,        */
+			      /* booleantype                                  */
+#include "cvode.h"            /* main CVODE header file                       */
+#include "iterativ.h"         /* contains the enum for preconditioning types  */
+#include "cvspgmr.h"          /* use CVSPGMR linear solver each internal step */
+#include "smalldense.h"       /* use generic DENSE solver in preconditioning  */
+#include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P*/
+#include "sundialsmath.h"     /* contains SQR macro                           */
 #include "mpi.h"
 
 
@@ -138,29 +138,35 @@ static void SetInitialProfiles(N_Vector u, UserData data);
 static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[],
                         realtype ropt[], N_Vector u, realtype t);
 static void PrintFinalStats(long int iopt[]);
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, integertype isuby,
-                  integertype dsizex, integertype dsizey, realtype udata[]);
+static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
+                  integertype isuby, integertype dsizex, integertype dsizey,
+                  realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
 		      integertype isubx, integertype isuby,
 		      integertype dsizex, integertype dsizey,
 		      realtype uext[], realtype buffer[]);
-static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
-		      integertype dsizex, realtype uext[], realtype buffer[]);
+static void BRecvWait(MPI_Request request[], integertype isubx,
+		      integertype isuby, integertype dsizex, realtype uext[],
+                      realtype buffer[]);
 static void ucomm(integertype N, realtype t, N_Vector u, UserData data);
-static void fcalc(integertype N, realtype t, realtype udata[], realtype dudata[], UserData data);
+static void fcalc(integertype N, realtype t, realtype udata[],
+                  realtype dudata[], UserData data);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot,
+              void *f_data);
 
-static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
-                   realtype uround, long int *nfePtr, void *P_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu,
+                   booleantype jok, booleantype *jcurPtr, realtype gamma,
+                   N_Vector ewt, realtype h, realtype uround, long int *nfePtr,
+                   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   N_Vector vtemp3);
 
-static int PSolve(integertype N, realtype tn, N_Vector u, N_Vector fu, N_Vector vtemp,
-                  realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
-                  N_Vector r, int lr, void *P_data, N_Vector z);
+static int PSolve(integertype N, realtype tn, N_Vector u, N_Vector fu,
+                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
+                  long int *nfePtr, N_Vector r, int lr, void *P_data,
+                  N_Vector z);
 
 
 /***************************** Main Program ******************************/
@@ -437,8 +443,9 @@ static void PrintFinalStats(long int iopt[])
  
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, integertype isuby,
-                  integertype dsizex, integertype dsizey, realtype udata[])
+static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
+                  integertype isuby, integertype dsizex, integertype dsizey,
+                  realtype udata[])
 {
   int i, ly;
   integertype offsetu, offsetbuf;
@@ -531,8 +538,9 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
-		      integertype dsizex, realtype uext[], realtype buffer[])
+static void BRecvWait(MPI_Request request[], integertype isubx,
+		      integertype isuby, integertype dsizex, realtype uext[],
+                      realtype buffer[])
 {
   int i, ly;
   integertype dsizex2, offsetue, offsetbuf;
@@ -619,7 +627,8 @@ static void ucomm(integertype N, realtype t, N_Vector u, UserData data)
    between processors of data needed to calculate f has already been done,
    and this data is in the work array uext. */
 
-static void fcalc(integertype N, realtype t, realtype udata[], realtype dudata[], UserData data)
+static void fcalc(integertype N, realtype t, realtype udata[],
+                  realtype dudata[], UserData data)
 {
   realtype *uext;
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
@@ -763,7 +772,7 @@ static void fcalc(integertype N, realtype t, realtype udata[], realtype dudata[]
 /* f routine.  Evaluate f(t,y).  First call ucomm to do communication of 
    subgrid boundary data into uext.  Then calculate f by a call to fcalc. */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot,void *f_data)
 {
   realtype *udata, *dudata;
   UserData data;
@@ -786,10 +795,11 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
-                   realtype uround, long int *nfePtr, void *P_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu,
+                   booleantype jok, booleantype *jcurPtr, realtype gamma,
+                   N_Vector ewt, realtype h, realtype uround, long int *nfePtr,
+                   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   N_Vector vtemp3)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
@@ -885,9 +895,9 @@ static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu, booleant
 
 /* Preconditioner solve routine */
 
-static int PSolve(integertype N, realtype tn, N_Vector u, N_Vector fu, N_Vector vtemp,
-                  realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
-                  N_Vector r, int lr, void *P_data, N_Vector z)
+static int PSolve(integertype N, realtype tn, N_Vector u, N_Vector fu,
+                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
+                  long int *nfePtr, N_Vector r, int lr, void *P_data,N_Vector z)
 {
   realtype **(*P)[MYSUB];
   integertype nvmxsub, *(*pivot)[MYSUB];

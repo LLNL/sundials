@@ -1,10 +1,9 @@
 /************************************************************************
- *                                                                      *
  * File       : pvnx.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne      *
- * Version of : 26 June 2002                                            *
+ * Version of : 17 July 2002                                            *
  *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new parallel nvector (6/3/2002)   *
+ * Modified by R. Serban to work with new parallel nvector 6 March 2002.*
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -34,13 +33,13 @@
 
 /* CVODE header files with a description of contents used here */
 
-#include "sundialstypes.h"     /* definitions of realtype, integertype              */
-#include "cvode.h"             /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
-                               /* constants OPT_SIZE, ADAMS, FUNCTIONAL, SS,        */
-                               /* SUCCESS, NST, NFE, NNI, NCFN, NETF                */
-#include "nvector_parallel.h"  /* definitions of type N_Vector and vector macros,   */
-                               /* prototypes for N_Vector functions                 */
-#include "mpi.h"               /* for MPI constants and types                       */
+#include "sundialstypes.h"     /* definitions of realtype, integertype        */
+#include "cvode.h"             /* prototypes for CVodeMalloc, CVode, and      */
+                               /* CVodeFree, constants OPT_SIZE, FUNCTIONAL,  */
+                               /* ADAMS, SS, SUCCESS, NST,NFE, NNI, NCFN,NETF */
+#include "nvector_parallel.h"  /* definitions of type N_Vector and vector     */
+                               /* macros, prototypes for N_Vector functions   */
+#include "mpi.h"               /* for MPI constants and types                 */
 
 
 /* Problem Constants */
@@ -68,13 +67,15 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static void SetIC(N_Vector u, realtype dx, integertype my_length, integertype my_base);
+static void SetIC(N_Vector u, realtype dx, integertype my_length,
+                  integertype my_base);
 
 static void PrintFinalStats(long int iopt[]);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot,
+              void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -184,7 +185,8 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, realtype dx, integertype my_length, integertype my_base)
+static void SetIC(N_Vector u, realtype dx, integertype my_length,
+                  integertype my_base)
 {
   int i;
   integertype iglobal;
@@ -219,7 +221,7 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,u). */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot,void *f_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;

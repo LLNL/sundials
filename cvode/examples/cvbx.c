@@ -1,10 +1,9 @@
 /************************************************************************
- *                                                                      *
  * File        : cvbx.c                                                 *
  * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL            *
- * Version of  : 26 June 2002                                           *
+ * Version of  : 17 July 2002                                           *
  *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial nvector (5/3/2002)     *
+ * Modified by R. Serban to work with new serial nvector 5 March 2002.  *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem with a banded Jacobian,    *
@@ -33,14 +32,14 @@
 
 /* CVODE header files with a description of contents used in cvbx.c */
 
-#include "sundialstypes.h"  /* definitions of realtype, integertype              */
-#include "cvode.h"          /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
-                            /* constants OPT_SIZE, BDF, NEWTON, SS, SUCCESS,     */
-                            /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
-#include "cvband.h"         /* prototype for CVBand, constant BAND_NJE           */
-#include "nvector_serial.h" /* definitions of type N_Vector and macro NV_DATA_S, */
-                            /* prototypes for N_VNew, N_VFree, N_VMaxNorm        */
-#include "band.h"           /* definitions of type BandMat, macros               */
+#include "sundialstypes.h"  /* definitions of realtype, integertype           */
+#include "cvode.h"          /* prototypes for CVodeMalloc, CVode, CVodeFree,  */
+                            /* constants OPT_SIZE, BDF, NEWTON, SS, SUCCESS,  */
+                            /* NST, NFE, NSETUPS, NNI, NCFN, NETF             */
+#include "cvband.h"         /* prototype for CVBand, constant BAND_NJE        */
+#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S, */
+                            /* prototypes for N_VNew, N_VFree, N_VMaxNorm     */
+#include "band.h"           /* definitions of type BandMat, macros            */
 
 
 /* Problem Constants */
@@ -86,12 +85,14 @@ static void PrintFinalStats(long int iopt[]);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot,
+              void *f_data);
 
-static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
-                void *f_data, realtype t, N_Vector u, N_Vector fu, N_Vector ewt,
-                realtype h, realtype uround, void *jac_data, long int *nfePtr,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
+static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
+                RhsFn f, void *f_data, realtype t, N_Vector u, N_Vector fu,
+                N_Vector ewt, realtype h, realtype uround, void *jac_data,
+                long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
+                N_Vector vtemp3); 
 
 
 /***************************** Main Program ******************************/
@@ -221,7 +222,7 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,u). */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(integertype N, realtype t, N_Vector u,N_Vector udot, void *f_data)
 {
   realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
   realtype *udata, *dudata;
@@ -265,10 +266,11 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
 
 /* Jacobian routine. Compute J(t,u). */
 
-static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
-                void *f_data, realtype t, N_Vector u, N_Vector fu, N_Vector ewt,
-                realtype h, realtype uround, void *jac_data, long int *nfePtr,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
+                RhsFn f, void *f_data, realtype t, N_Vector u, N_Vector fu,
+                N_Vector ewt, realtype h, realtype uround, void *jac_data,
+                long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
+                N_Vector vtemp3)
 {
   integertype i, j, k;
   realtype *kthCol, hordc, horac, verdc;
@@ -304,4 +306,3 @@ static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn 
     }
   }
 }
- 

@@ -1,10 +1,9 @@
 /************************************************************************
- *                                                                      *
  * File: cvkxb.c                                                        *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 26 June 2002                                              *
+ * Version of 17 July 2002                                              *
  *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial nvector (7/3/2002)     *
+ * Modified by R. Serban to work with new serial nvector 7 March 2002.  *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -31,13 +30,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definitions of realtype, integertype            */
-#include "cvode.h"          /* main CVODE header file                          */
-#include "iterativ.h"       /* contains the enum for types of preconditioning  */
-#include "cvspgmr.h"        /* use CVSPGMR linear solver each internal step    */
-#include "cvbandpre.h"      /* band preconditioner function prototypes         */
-#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S   */
-#include "sundialsmath.h"    /* contains SQR macro                              */
+#include "sundialstypes.h"  /* definitions of realtype, integertype           */
+#include "cvode.h"          /* main CVODE header file                         */
+#include "iterativ.h"       /* contains the enum for types of preconditioning */
+#include "cvspgmr.h"        /* use CVSPGMR linear solver each internal step   */
+#include "cvbandpre.h"      /* band preconditioner function prototypes        */
+#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S  */
+#include "sundialsmath.h"   /* contains SQR macro                             */
 
 
 /* Problem Constants */
@@ -118,12 +117,14 @@ typedef struct {
 
 static void InitUserData(UserData data);
 static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
-static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y, realtype t);
+static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y,
+                        realtype t);
 static void PrintFinalStats(long int iopt[]);
 
 /* Function Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot,
+              void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -289,7 +290,7 @@ static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y, realtype t)
+static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y,realtype t)
 {
   realtype *ydata;
 
@@ -322,7 +323,7 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,y). */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot,void *f_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;

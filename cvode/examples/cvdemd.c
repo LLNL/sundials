@@ -1,10 +1,9 @@
 /**************************************************************************
- *                                                                        *
  * File        : cvdemd.c                                                 *
  * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL              *
- * Version of  : 26 June 2002                                             *
+ * Version of  : 17 July 2002                                             *
  *------------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial nvector (5/3/2002)       *
+ * Modified by R. Serban to work with new serial nvector 5 March 2002.    *
  *------------------------------------------------------------------------*
  *                                                                        *
  * Demonstration program for CVODE - direct linear solvers. Two           *
@@ -39,7 +38,7 @@
  * NV_DATA_S macro gives the user access to the memory used for the       *
  * component storage of an N_Vector. In the sequential case, the user     *
  * may assume that this is one contiguous array of reals. The NV_DATA_S   *
- * macro gives a more efficient (than the NV_Ith_S macro) means to access *
+ * macro gives a more efficient means (than the NV_Ith_S macro) to access *
  * the components of an N_Vector and should be used when the problem      *
  * size is large. The Problem 2 right hand side function f2 uses the      *
  * NV_DATA_S macro. The DENSE_ELEM macro used in Jac1 gives access to an  *
@@ -48,8 +47,8 @@
  * due to efficiency concerns. For larger problem sizes, the macro        *
  * DENSE_COL can be used in order to work directly with a column of a     *
  * DenseMat. The BAND_COL and BAND_COL_ELEM allow efficient columnwise    *
- * access to the the elements of a band matrix of type BandMat. These     *
- * macros are used in the Jac2 function.                                  *
+ * access to the elements of a band matrix of type BandMat. These macros  *
+ * are used in the Jac2 function.                                         *
  **************************************************************************/
 
 #include <stdio.h>
@@ -112,19 +111,22 @@ static void PrintFinalStats(long int iopt[], int miter, realtype ero);
 
 /* Functions Called by the CVODE Solver */
 
-static void f1(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static void f1(integertype N, realtype t, N_Vector y, N_Vector ydot,
+               void *f_data);
 
 static void Jac1(integertype N, DenseMat J, RhsFn f, void *f_data, realtype tn,
-                 N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
-                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
-                 N_Vector vtemp2, N_Vector vtemp3);
+                 N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
+                 realtype uround, void *jac_data, long int *nfePtr,
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static void f2(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static void f2(integertype N, realtype t, N_Vector y, N_Vector ydot,
+               void *f_data);
 
-static void Jac2(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
-                 void *f_data, realtype tn, N_Vector y, N_Vector fy, N_Vector ewt,
-                 realtype h, realtype uround, void *jac_data, long int *nfePtr,
-                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
+static void Jac2(integertype N, integertype mu, integertype ml, BandMat J,
+                 RhsFn f, void *f_data, realtype tn, N_Vector y, N_Vector fy,
+                 N_Vector ewt, realtype h, realtype uround, void *jac_data,
+                 long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
+                 N_Vector vtemp3);
 
 /* Implementation */
 
@@ -164,12 +166,12 @@ static int Problem1(void)
       
       firstrun = (lmm==ADAMS) && (miter==FUNC);
       if (firstrun) {
-        cvode_mem = CVodeMalloc(P1_NEQ, f1, P1_T0, y, lmm, iter, ITOL,
-                                &reltol, &abstol, NULL, ERRFP, OPTIN, iopt, ropt, machEnv);
+        cvode_mem = CVodeMalloc(P1_NEQ, f1, P1_T0, y, lmm, iter, ITOL, &reltol,
+                              &abstol, NULL, ERRFP, OPTIN, iopt, ropt, machEnv);
         if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
       } else {
-        flag = CVReInit(cvode_mem, f1, P1_T0, y, lmm, iter,
-                        ITOL, &reltol, &abstol, NULL, ERRFP, OPTIN, iopt, ropt, machEnv);
+        flag = CVReInit(cvode_mem, f1, P1_T0, y, lmm, iter, ITOL, &reltol,
+                        &abstol, NULL, ERRFP, OPTIN, iopt, ropt, machEnv);
         if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
       }
       
@@ -220,7 +222,8 @@ static void PrintIntro1(void)
 }
 
 
-static void f1(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static void f1(integertype N, realtype t, N_Vector y, N_Vector ydot,
+               void *f_data)
 {
   realtype y0, y1;
   
@@ -232,10 +235,10 @@ static void f1(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_dat
 } 
 
 static void Jac1(integertype N, DenseMat J, RhsFn f, void *f_data, realtype tn,
-                 N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
-                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
-                 N_Vector vtemp2, N_Vector vtemp3)
-{ 
+                 N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
+                 realtype uround, void *jac_data, long int *nfePtr,
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+{
   realtype y0, y1;
 
   y0 = NV_Ith_S(y,0);
@@ -328,7 +331,8 @@ static void PrintIntro2(void)
 }
 
 
-static void f2(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static void f2(integertype N, realtype t, N_Vector y, N_Vector ydot,
+               void *f_data)
 {
   integertype i, j, k;
   realtype d, *ydata, *dydata;
@@ -354,10 +358,11 @@ static void f2(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_dat
   }
 }
 
-static void Jac2(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
-                 void *f_data, realtype tn, N_Vector y, N_Vector fy, N_Vector ewt,
-                 realtype h, realtype uround, void *jac_data, long int *nfePtr,
-                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static void Jac2(integertype N, integertype mu, integertype ml, BandMat J,
+                 RhsFn f, void *f_data, realtype tn, N_Vector y, N_Vector fy,
+                 N_Vector ewt, realtype h, realtype uround, void *jac_data,
+                 long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
+                 N_Vector vtemp3)
 {
   integertype i, j, k;
   realtype *kthCol;
@@ -502,10 +507,3 @@ static void PrintFinalStats(long int iopt[], int miter, realtype ero)
   printf(" Error overrun = %.3f \n", ero);
   
 }
-
-
-
-
-
-
-
