@@ -635,7 +635,6 @@ static void CVSpgmrFree(CVodeMem cv_mem)
 
 static int CVSpgmrAtimes(void *cvode_mem, N_Vector v, N_Vector z)
 {
-  realtype rho;
   CVodeMem   cv_mem;
   CVSpgmrMem cvspgmr_mem;
   int jtflag;

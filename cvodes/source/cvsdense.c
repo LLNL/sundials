@@ -460,7 +460,6 @@ static void CVDenseDQJac(integertype n, DenseMat J, realtype t,
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
   realtype *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
-  M_Env machEnv;
   integertype j;
 
   CVodeMem cv_mem;
@@ -480,7 +479,7 @@ static void CVDenseDQJac(integertype n, DenseMat J, realtype t,
   minInc = (fnorm != ZERO) ?
            (MIN_INC_MULT * ABS(h) * uround * n * fnorm) : ONE;
 
-  jthCol = N_VMake(y_data, machEnv);  /* j loop overwrites this data address */
+  jthCol = N_VMake(y_data, machenv);  /* j loop overwrites this data address */
 
   /* This is the only for loop for 0..N-1 in CVODE */
   for (j = 0; j < n; j++) {
