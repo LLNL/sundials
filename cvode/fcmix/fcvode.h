@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-08-17 21:12:21 $
+ * $Revision: 1.27 $
+ * $Date: 2004-08-25 16:22:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -215,7 +215,7 @@
  * This choice is appropriate when the Jacobian can be well approximated by
  * a diagonal matrix.  The user must make the call:
  *       CALL FCVDIAG(IER)
- * IER is an error return flag: 0 = success, -1 = memory failure.
+ * IER is an error return flag: 0 = success, negative value = error.
  * There is no additional user-supplied routine.  Optional outputs specific
  * to the approximate diagonal Jacobian case are LRW and LIW, stored in
  * IOPT(16) and IOPT(17), respectively.  See the CVODE manual for descriptions.
@@ -224,8 +224,7 @@
  * The user must make the call
  *       CALL FCVDENSE(NEQ, IER)
  * The argument is:
- * IER = error return flag: 0 = success , -1 = memory allocation failure,
- *                         -2 = illegal input. 
+ * IER = error return flag: 0 = success , negative value = an error occured
  * 
  * If the user program includes the FCVDJAC routine for the evaluation of the 
  * dense approximation to the Jacobian, the following call must be made
@@ -244,8 +243,7 @@
  * The arguments are:
  * MU  = upper bandwidth
  * ML  = lower bandwidth
- * IER = error return flag: 0 = success , -1 = memory allocation failure,
- *                         -2 = illegal input.     
+ * IER = error return flag: 0 = success , negative value = an error occured
  * 
  * If the user program includes the FCVBJAC routine for the evaluation of the 
  * band approximation to the Jacobian, the following call must be made
@@ -273,10 +271,7 @@
  *              2 = classical G-S.
  * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
  * DELT     = linear convergence tolerance factor; 0.0 indicates default.
- * IER      = error return flag: 
- *              0 = success
- *             -1 = memory allocation failure
- *             -2 = illegal input
+ * IER      = error return flag: 0 = success; negative value = an error occured
  * 
  * If the user program includes the FCVJTIMES routine for the evaluation of the 
  * Jacobian vector product, the following call must be made
@@ -342,7 +337,7 @@
  *         3 = normal tstop mode (like 1, but integration never proceeds past 
  *             TSTOP, which must be specified through the user input ROPT(8))
  *         4 = one step tstop (like 2, but integration never goes past TSTOP)
- * IER   = completion flag: 0 = success, values -1 ... -9 are various
+ * IER   = completion flag: 0 = success, values -1 ... -10 are various
  *         failure modes (see CVODE manual).
  * The current values of the optional outputs are available in IOPT and ROPT.
  * 

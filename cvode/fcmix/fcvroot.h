@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-07-26 17:26:30 $
+ * $Revision: 1.4 $
+ * $Date: 2004-08-25 16:22:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -58,7 +58,7 @@
  * The arguments are:
  *   NRTFN = total number of root functions  [input]
  *   IER   = return completion flag (0 = success, -1 = CVODE memory NULL and
- *           -2 = memory allocation error)  [output]
+ *           -4 = memory allocation error)  [output]
  *
  * The total number of calls made to the root function (FCVROOTFN)
  * can be obtained from IOPT[]

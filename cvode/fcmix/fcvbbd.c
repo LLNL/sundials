@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-07-22 22:54:43 $
+ * $Revision: 1.16 $
+ * $Date: 2004-08-25 16:22:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -137,8 +137,7 @@ void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data)
 
 void FCV_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 {
-  CVBBDPrecGetIntWorkSpace(CVBBD_Data, lenipw);
-  CVBBDPrecGetRealWorkSpace(CVBBD_Data, lenrpw);
+  CVBBDPrecGetWorkSpace(CVBBD_Data, lenrpw, lenipw);
   CVBBDPrecGetNumGfnEvals(CVBBD_Data, nge);
 
 }

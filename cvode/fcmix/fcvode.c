@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2004-07-29 21:02:21 $
+ * $Revision: 1.30 $
+ * $Date: 2004-08-25 16:22:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -58,16 +58,16 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 
   N_VSetArrayPointer(y0, CV_yvec);
 
-  lmm = (*meth == 1) ? ADAMS : BDF;
-  iter = (*itmeth == 1) ? FUNCTIONAL : NEWTON;
+  lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
+  iter = (*itmeth == 1) ? CV_FUNCTIONAL : CV_NEWTON;
   if (*iatol == 1) {
     CV_atolvec = NULL;
-    itol = SS; 
+    itol = CV_SS; 
     atolptr = atol; 
   } else { 
     CV_atolvec = N_VCloneEmpty(F2C_vec);
     N_VSetArrayPointer(atol, CV_atolvec);
-    itol = SV; 
+    itol = CV_SV; 
     atolptr = (void *) CV_atolvec; 
   }
 
@@ -116,6 +116,11 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, CV_yvec,
                      itol, rtol, atolptr);
 
+  if(*ier != CV_SUCCESS) {
+    *ier = -1;
+    return;
+  }
+
   /* Store the unit roundoff in ropt for user access */
   ropt[9] = UNIT_ROUNDOFF;
 
@@ -138,13 +143,13 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
   N_VSetArrayPointer(y0, CV_yvec);
 
   if (*iatol == 1) { 
-    itol = SS; 
+    itol = CV_SS; 
     atolptr = atol; 
   } else { 
     if (CV_atolvec != NULL)
       CV_atolvec = N_VCloneEmpty(F2C_vec);
     N_VSetArrayPointer(atol, CV_atolvec);
-    itol = SV; 
+    itol = CV_SV; 
     atolptr = (void *) CV_atolvec; 
   }
 
@@ -180,6 +185,11 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
 
   *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, CV_yvec,
                      itol, rtol, atolptr);
+
+  if (*ier != CV_SUCCESS) {
+    *ier = -1;
+    return;
+  }
 
   CV_iopt = iopt;
   CV_ropt = ropt;
@@ -237,13 +247,13 @@ void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
   */
 
   *ier = CVSpgmr(CV_cvodemem, *pretype, *maxl);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   CV_ls = 4;
 
@@ -260,13 +270,13 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
   */
 
   *ier = CVSpgmrResetPrecType(CV_cvodemem, *pretype);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
-  if (*ier != 0) return;
+  if (*ier != CVSPGMR_SUCCESS) return;
 
   CV_ls = 4;
 
@@ -294,10 +304,10 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   y = N_VGetArrayPointer(CV_yvec);
 
   /* CVode() succeeded and found at least one root */
-  if (*ier == ROOT_RETURN) {
+  if (*ier == CV_ROOT_RETURN) {
     CVodeGetNumGEvals(CV_cvodemem, &CV_iopt[24]);
     flag = CVodeGetRootInfo(CV_cvodemem, &rootsfound);
-    if (flag == SUCCESS) {
+    if (flag == CV_SUCCESS) {
       printf("   rootsfound[] = ");
       for (i = 0; i < CV_nrtfn; ++i) printf("%d ", *(rootsfound + i));
       printf("\n");
@@ -329,29 +339,25 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                             &CV_iopt[6],  /* NNI */
                             &CV_iopt[7]); /* NCFN */
     CVodeGetWorkSpace(CV_cvodemem, 
-                      &CV_iopt[12],       /* LENIW */
-                      &CV_iopt[11]);      /* LENRW */
+                      &CV_iopt[11],       /* LENRW */
+                      &CV_iopt[12]);      /* LENIW */
     if ( CV_optin && (CV_iopt[13]>0) )
       CVodeGetNumStabLimOrderReds(CV_cvodemem, &CV_iopt[14]); /* NOR */
 
     switch(CV_ls) {
     case 1:
-      CVDenseGetRealWorkSpace(CV_cvodemem, &CV_iopt[15]); /* LRW */
-      CVDenseGetIntWorkSpace(CV_cvodemem, &CV_iopt[16]);  /* LIW */
+      CVDenseGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]); /* LRW and LIW */
       CVDenseGetNumJacEvals(CV_cvodemem, &CV_iopt[17]);   /* NJE */
       break;
     case 2:
-      CVBandGetRealWorkSpace(CV_cvodemem, &CV_iopt[15]);  /* LRW */
-      CVBandGetIntWorkSpace(CV_cvodemem, &CV_iopt[16]);   /* LIW */
+      CVBandGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]);  /* LRW and LIW */
       CVBandGetNumJacEvals(CV_cvodemem, &CV_iopt[17]);    /* NJE */
       break;
     case 3:
-      CVDiagGetRealWorkSpace(CV_cvodemem, &CV_iopt[15]);  /* LRW */
-      CVDiagGetIntWorkSpace(CV_cvodemem, &CV_iopt[16]);   /* LIW */
+      CVDiagGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]);  /* LRW and LIW */
       break;
     case 4:
-      CVSpgmrGetRealWorkSpace(CV_cvodemem, &CV_iopt[15]); /* LRW */
-      CVSpgmrGetIntWorkSpace(CV_cvodemem, &CV_iopt[16]);  /* LIW */
+      CVSpgmrGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]); /* LRW and LIW */
       CVSpgmrGetNumPrecEvals(CV_cvodemem, &CV_iopt[17]);  /* NPE */
       CVSpgmrGetNumLinIters(CV_cvodemem, &CV_iopt[18]);   /* NLI */
       CVSpgmrGetNumPrecSolves(CV_cvodemem, &CV_iopt[19]); /* NPS */

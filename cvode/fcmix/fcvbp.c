@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-04-29 22:23:21 $
+ * $Revision: 1.4 $
+ * $Date: 2004-08-25 16:22:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -73,8 +73,7 @@ void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 
 void FCV_BPOPT(long int *lenrpw, long int *lenipw, long int *nfe)
 {
-  CVBandPrecGetIntWorkSpace(CVBP_Data, lenipw);
-  CVBandPrecGetRealWorkSpace(CVBP_Data, lenrpw);
+  CVBandPrecGetWorkSpace(CVBP_Data, lenrpw, lenipw);
   CVBandPrecGetNumRhsEvals(CVBP_Data, nfe);
 
 }
