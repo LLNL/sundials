@@ -41,15 +41,13 @@ Max. absolute error is  0.28E-08
 Final statistics..
  number of steps        =  359     number of f evals.     =  405
  number of prec. setups =   38
- number of prec. evals. =*****     number of prec. solves =*****
- number of nonl. iters. =  402     number of lin. iters.  =*****
- average Krylov subspace dimension (NLI/NNI)  =********
- number of conv. failures..  nonlinear =  0  linear =***
+ number of prec. evals. =    7     number of prec. solves =   20
+ number of nonl. iters. =  402     number of lin. iters.  =  446
+ average Krylov subspace dimension (NLI/NNI)  =  1.1095
+ number of conv. failures..  nonlinear =  0  linear =  0
  number of error test failures =  5
 In CVBBDPRE: real/integer local work space sizes =   20   10
  number of g evals.     =   14
-CVodeMalloc/CVodeReInit-- Some abstol component < 0.0 illegal.
-
 
 
 
@@ -59,51 +57,38 @@ CVodeMalloc/CVodeReInit-- Some abstol component < 0.0 illegal.
 Preconditioning on right
 
 
-CVodeGetDky-- t=0.1 illegal.
-t not in interval tcur-hu=0.994891 to tcur=1.01736.
 
-CVode-- Trouble interpolating at tout = 0.1.
-tout too far back in direction of integration.
+ t =  0.10E+00     no. steps =  221   no. f-s =  261
 
+ t =  0.20E+00     no. steps =  265   no. f-s =  307
 
- t =  0.10E+00     no. steps =  359   no. f-s =  405
+ t =  0.30E+00     no. steps =  290   no. f-s =  333
 
+ t =  0.40E+00     no. steps =  306   no. f-s =  350
 
+ t =  0.50E+00     no. steps =  319   no. f-s =  364
 
- FCVODE returned IER =   -3
-CVodeMalloc/CVodeReInit-- Some abstol component < 0.0 illegal.
+ t =  0.60E+00     no. steps =  329   no. f-s =  374
 
-CVodeGetDky-- t=0.1 illegal.
-t not in interval tcur-hu=0.994891 to tcur=1.01736.
+ t =  0.70E+00     no. steps =  339   no. f-s =  385
 
-CVode-- Trouble interpolating at tout = 0.1.
-tout too far back in direction of integration.
+ t =  0.80E+00     no. steps =  345   no. f-s =  391
 
+ t =  0.90E+00     no. steps =  352   no. f-s =  398
 
-
-
- FCVODE returned IER =   -3
-CVodeMalloc/CVodeReInit-- Some abstol component < 0.0 illegal.
-
-CVodeGetDky-- t=0.1 illegal.
-t not in interval tcur-hu=0.994891 to tcur=1.01736.
-
-CVode-- Trouble interpolating at tout = 0.1.
-tout too far back in direction of integration.
+ t =  0.10E+01     no. steps =  359   no. f-s =  405
 
 
+Max. absolute error is  0.28E-08
 
 
- FCVODE returned IER =   -3
-CVodeMalloc/CVodeReInit-- Some abstol component < 0.0 illegal.
-
-CVodeGetDky-- t=0.1 illegal.
-t not in interval tcur-hu=0.994891 to tcur=1.01736.
-
-CVode-- Trouble interpolating at tout = 0.1.
-tout too far back in direction of integration.
-
-
-
-
- FCVODE returned IER =   -3
+Final statistics..
+ number of steps        =  359     number of f evals.     =  405
+ number of prec. setups =   38
+ number of prec. evals. =    7     number of prec. solves =   20
+ number of nonl. iters. =  402     number of lin. iters.  =  446
+ average Krylov subspace dimension (NLI/NNI)  =  1.1095
+ number of conv. failures..  nonlinear =  0  linear =  0
+ number of error test failures =  5
+In CVBBDPRE: real/integer local work space sizes =   20   10
+ number of g evals.     =   14

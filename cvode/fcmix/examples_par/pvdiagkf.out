@@ -39,9 +39,9 @@ Max. absolute error is  0.15E-07
  Final statistics..
  number of steps        =  355     number of f evals.     =  563
  number of prec. setups =    0
- number of prec. evals. =    0     number of prec. solves =  727
- number of nonl. iters. =  560     number of lin. iters.  =  367
- average Krylov subspace dimension (NLI/NNI)  =  0.6554
+ number of prec. evals. =    0     number of prec. solves =   20
+ number of nonl. iters. =  560     number of lin. iters.  =  446
+ average Krylov subspace dimension (NLI/NNI)  =  0.7964
  number of conv. failures..  nonlinear =  0  linear =  0
  number of error test failures =  5
 
@@ -76,8 +76,8 @@ Max. absolute error is  0.21E-08
  Final statistics..
  number of steps        =  358     number of f evals.     =  560
  number of prec. setups =    0
- number of prec. evals. =    0     number of prec. solves =  730
- number of nonl. iters. =  557     number of lin. iters.  =  367
- average Krylov subspace dimension (NLI/NNI)  =  0.6589
+ number of prec. evals. =    0     number of prec. solves =   20
+ number of nonl. iters. =  557     number of lin. iters.  =  446
+ average Krylov subspace dimension (NLI/NNI)  =  0.8007
  number of conv. failures..  nonlinear =  0  linear =  0
  number of error test failures =  5
