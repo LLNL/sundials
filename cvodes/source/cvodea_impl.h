@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-01-26 22:23:31 $
+ * $Revision: 1.7 $
+ * $Date: 2005-03-03 20:03:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -67,6 +67,7 @@ typedef struct CkpntMemRec {
 
   /* Step data */
   long int ck_nst;
+  realtype ck_tretlast;
   int      ck_q;
   int      ck_qprime;
   int      ck_qwait;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.40 $
- * $Date: 2005-01-27 17:44:00 $
+ * $Revision: 1.41 $
+ * $Date: 2005-03-03 20:03:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -157,6 +157,7 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
 #define eta        (cv_mem->cv_eta)
 #define etamax     (cv_mem->cv_etamax)
 #define tn         (cv_mem->cv_tn)
+#define tretlast   (cv_mem->cv_tretlast)
 #define tau        (cv_mem->cv_tau)
 #define tq         (cv_mem->cv_tq)
 #define l          (cv_mem->cv_l)
@@ -188,6 +189,7 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
 #define quadr_     (ck_mem->ck_quadr)
 #define zqm_       (ck_mem->ck_zqm)
 #define nst_       (ck_mem->ck_nst)
+#define tretlast_  (ck_mem->ck_tretlast)
 #define q_         (ck_mem->ck_q)
 #define qprime_    (ck_mem->ck_qprime)
 #define qwait_     (ck_mem->ck_qwait)
@@ -1748,6 +1750,7 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
   for (j=0; j<=NUM_TESTS; j++) tq_[j] = tq[j];
   for (j=0; j<=q; j++)         l_[j] = l[j];
   nst_       = nst;
+  tretlast_  = tretlast;
   q_         = q;
   qprime_    = qprime;
   qwait_     = qwait;
@@ -1933,6 +1936,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
 
     /* Copy parameters from check point data structure */
     nst       = nst_;
+    tretlast  = tretlast_;
     q         = q_;
     qprime    = qprime_;
     qwait     = qwait_;
