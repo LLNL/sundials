@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-03 23:14:40 $
+ * $Revision: 1.16 $
+ * $Date: 2004-12-03 21:39:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -303,11 +303,13 @@ void N_VPrint_Serial(N_Vector x)
   xd = NV_DATA_S(x);
 
   for (i=0; i < N; i++) {
-    #if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%11.8Lg\n", *xd++);
-    #else
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%11.8lg\n", *xd++);
+#else
     printf("%11.8g\n", *xd++);
-    #endif
+#endif
   }
   printf("\n");
 }

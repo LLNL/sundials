@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-12-01 18:37:11 $
+ * $Revision: 1.19 $
+ * $Date: 2004-12-03 21:39:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -341,11 +341,13 @@ void N_VPrint_Parallel(N_Vector x)
   xd = NV_DATA_P(x);
 
   for (i=0; i < N; i++) {
-    #if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%Lg\n", *xd++);
-    #else
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%lg\n", *xd++);
+#else
     printf("%g\n", *xd++);
-    #endif
+#endif
   }
   printf("\n");
 }
