@@ -44,10 +44,9 @@ SRC =	${srcdir}/cvodes.c \
 	${srcdir}/cvsdiag.c \
 	${srcdir}/cvsspgmr.c \
 	${srcdir}/cvsbandpre.c \
-	${srcdir}/cvsbbdpre.c \
-	${srcdir}/cvodec.c
+	${srcdir}/cvsbbdpre.c
 
-OBJ = cvodes.o cvodea.o cvsband.o cvsdense.o cvsdiag.o cvsspgmr.o cvsbandpre.o cvsbbdpre.o cvodec.o
+OBJ = cvodes.o cvodea.o cvsband.o cvsdense.o cvsdiag.o cvsspgmr.o cvsbandpre.o cvsbbdpre.o
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -60,7 +59,6 @@ install: ${OBJ}
 	cp ${CVODES_LIB} ${libdir}
 	cp ${CVODES_INC_DIR}/cvodes.h     ${includedir}
 	cp ${CVODES_INC_DIR}/cvodea.h     ${includedir}
-	cp ${CVODES_INC_DIR}/cvodec.h     ${includedir}
 	cp ${CVODES_INC_DIR}/cvsdense.h   ${includedir}
 	cp ${CVODES_INC_DIR}/cvsband.h    ${includedir}
 	cp ${CVODES_INC_DIR}/cvsdiag.h    ${includedir}
@@ -76,7 +74,6 @@ uninstall:
 	rm -f ${libdir}/${CVODES_LIB}
 	rm -f ${includedir}/cvodes.h
 	rm -f ${includedir}/cvodea.h
-	rm -f ${includedir}/cvodec.h
 	rm -f ${includedir}/cvsdense.h
 	rm -f ${includedir}/cvsband.h
 	rm -f ${includedir}/cvsdiag.h
