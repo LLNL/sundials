@@ -2,7 +2,7 @@
  * File          : kinsol.c                                        *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 4 August 2003                                   *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -668,7 +668,7 @@ int KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec)
 {
   KINMem kin_mem;
   booleantype allocOK;
-  integertype liw1, lrw1;
+  long int liw1, lrw1;
   
   /* Check kinmem */
   if (kinmem == NULL) {

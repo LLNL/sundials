@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : cvodec.h                                        *
  * Programmers   : Radu Serban @LLNL                               *
- * Version of    : 25 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -130,12 +130,12 @@ extern "C" {
                    void *fS_data,
                    N_Vector tmp1, N_Vector tmp2);
 
-  void CVDenseCSJac(integertype N, DenseMat J, realtype t, 
+  void CVDenseCSJac(long int N, DenseMat J, realtype t, 
                     N_Vector y, N_Vector fy, void *jac_data,
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
-  void CVBandCSJac(integertype N, integertype mupper, 
-                   integertype mlower, BandMat J, realtype t, 
+  void CVBandCSJac(long int N, long int mupper, 
+                   long int mlower, BandMat J, realtype t, 
                    N_Vector y, N_Vector fy, void *jac_data,
                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 

@@ -3,7 +3,7 @@
  * File          : idadense.h                                      *
  * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
  *                 Radu Serban @LLNL                               *
- * Version of    : 17 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -102,7 +102,7 @@ extern "C" {
  * recover by reducing the stepsize (which changes cj).           *
  ******************************************************************/
   
-typedef int (*IDADenseJacFn)(integertype Neq, realtype tt, N_Vector yy, 
+typedef int (*IDADenseJacFn)(long int Neq, realtype tt, N_Vector yy, 
                              N_Vector yp, realtype c_j, void *jdata, 
                              N_Vector resvec, DenseMat Jac, 
                              N_Vector tmp1, N_Vector tmp2, 
@@ -133,7 +133,7 @@ typedef int (*IDADenseJacFn)(integertype Neq, realtype tt, N_Vector yy,
  *                                                                *
  ******************************************************************/
 
-int IDADense(void *ida_mem, integertype Neq); 
+int IDADense(void *ida_mem, long int Neq); 
 
 /******************************************************************
  * Optional inputs to the IDADENSE linear solver                  *
@@ -183,13 +183,13 @@ int IDADenseGetNumResEvals(void *ida_mem, int *nrevalsD);
 
 typedef struct {
 
-  integertype d_neq;     /* Neq = problem dimension              */
+  long int d_neq;        /* Neq = problem dimension              */
 
   IDADenseJacFn d_jac;   /* jac = Jacobian routine to be called  */
   
   DenseMat d_J;          /* J = dF/dy + cj*dF/dy'                */
   
-  integertype *d_pivots; /* pivots = pivot array for PJ = LU     */
+  long int *d_pivots;    /* pivots = pivot array for PJ = LU     */
   
   int d_nje;             /* nje = no. of calls to jac            */
   

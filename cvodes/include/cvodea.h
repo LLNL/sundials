@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : cvodea.h                                        *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 14 July 2003                                    *
+ * Version of    : 07 January 2004                                 *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -90,7 +90,7 @@ typedef void (*QuadRhsFnB)(realtype t, N_Vector y,
  *                                                                *
  ******************************************************************/
 
-typedef void (*CVDenseJacFnB)(integertype nB, DenseMat JB, realtype t, 
+typedef void (*CVDenseJacFnB)(long int nB, DenseMat JB, realtype t, 
                               N_Vector y, N_Vector yB, N_Vector fyB,
                               void *jac_dataB, N_Vector tmp1B,
                               N_Vector tmp2B, N_Vector tmp3B);
@@ -104,8 +104,8 @@ typedef void (*CVDenseJacFnB)(integertype nB, DenseMat JB, realtype t,
  *                                                                *
  ******************************************************************/
 
-typedef void (*CVBandJacFnB)(integertype nB, integertype mupperB, 
-                             integertype mlowerB, BandMat JB,
+typedef void (*CVBandJacFnB)(long int nB, long int mupperB, 
+                             long int mlowerB, BandMat JB,
                              realtype t, N_Vector y, 
                              N_Vector yB, N_Vector fyB,
                              void *jac_dataB, N_Vector tmp1B, 
@@ -274,7 +274,7 @@ int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB,
  *                                                                *
  ******************************************************************/
 
-int CVDenseB(void *cvadj_mem, integertype nB);
+int CVDenseB(void *cvadj_mem, long int nB);
 
 int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB);
 int CVDenseSetJacDataB(void *cvadj_mem, void *jac_dataB);
@@ -288,8 +288,8 @@ int CVDenseSetJacDataB(void *cvadj_mem, void *jac_dataB);
  *                                                                *
  ******************************************************************/
 
-int CVBandB(void *cvadj_mem, integertype nB,
-            integertype mupperB, integertype mlowerB);
+int CVBandB(void *cvadj_mem, long int nB,
+            long int mupperB, long int mlowerB);
 
 int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB);
 int CVBandSetJacDataB(void *cvadj_mem, void *jac_dataB);
@@ -333,8 +333,8 @@ int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB);
  *                                                                *
  ******************************************************************/
 
-void *CVBandPrecAllocB(void *cvadj_mem, integertype nB, 
-                       integertype muB, integertype mlB);
+void *CVBandPrecAllocB(void *cvadj_mem, long int nB, 
+                       long int muB, long int mlB);
 
 void CVBandPrecFreeB(void *bp_dataB);
 

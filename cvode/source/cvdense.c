@@ -3,7 +3,7 @@
  * File          : cvdense.c                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 31 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -62,7 +62,7 @@ static void CVDenseFree(CVodeMem cv_mem);
 
 /* CVDENSE DQJac routine */
 
-static void CVDenseDQJac(integertype n, DenseMat J, realtype t, 
+static void CVDenseDQJac(long int n, DenseMat J, realtype t, 
                          N_Vector y, N_Vector fy, void *jac_data,
                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -115,7 +115,7 @@ static void CVDenseDQJac(integertype n, DenseMat J, realtype t,
 
 **********************************************************************/
 
-int CVDense(void *cvode_mem, integertype N)
+int CVDense(void *cvode_mem, long int N)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
@@ -380,7 +380,7 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  integertype ier;
+  long int ier;
   CVDenseMem cvdense_mem;
   
   cvdense_mem = (CVDenseMem) lmem;
@@ -477,14 +477,14 @@ static void CVDenseFree(CVodeMem cv_mem)
 
 **********************************************************************/
  
-static void CVDenseDQJac(integertype N, DenseMat J, realtype t, 
+static void CVDenseDQJac(long int N, DenseMat J, realtype t, 
                          N_Vector y, N_Vector fy, void *jac_data,
                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
   realtype *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
-  integertype j;
+  long int j;
 
   CVodeMem cv_mem;
   CVDenseMem  cvdense_mem;

@@ -2,7 +2,7 @@
  * File          : idasband.h                                      *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 August 2003                                  *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -95,8 +95,8 @@ extern "C" {
  *     they are accessible as follows: hcur (the current stepsize)*
  *     and ewt (the error weight vector) are accessible through   *
  *     IDAGetCurrentStep and IDAGetErrWeights, respectively (see  *
- *     ida.h). The unit roundoff is available through a call to   *
- *     UnitRoundoff.                                              *
+ *     ida.h). The unit roundoff is available as                  *
+ *     UNIT_ROUNDOFF defined in sundialstypes.h                   *
  *                                                                *
  * A third way, using the BAND_ELEM(A,i,j) macro, is much less    *
  * efficient in general.  It is only appropriate for use in small *
@@ -110,8 +110,8 @@ extern "C" {
  * to recover by reducing the stepsize (which changes cj).        *
  ******************************************************************/
   
-typedef int (*IDABandJacFn)(integertype Neq, integertype mupper, 
-                            integertype mlower, realtype tt, 
+typedef int (*IDABandJacFn)(long int Neq, long int mupper, 
+                            long int mlower, realtype tt, 
                             N_Vector yy, N_Vector yp, realtype c_j, 
                             void *jdata, N_Vector resvec, BandMat Jac, 
                             N_Vector tmp1, N_Vector tmp2, 
@@ -144,8 +144,8 @@ typedef int (*IDABandJacFn)(integertype Neq, integertype mupper,
  *                                                                *
  ******************************************************************/
 
-int IDABand(void *ida_mem, integertype Neq, 
-            integertype mupper, integertype mlower);
+int IDABand(void *ida_mem, long int Neq, 
+            long int mupper, long int mlower);
 
 /******************************************************************
  * Optional inputs to the IDABAND linear solver                   *
@@ -195,20 +195,20 @@ int IDABandGetNumResEvals(void *ida_mem, int *nrevalsB);
 
 typedef struct {
 
-  integertype b_neq;        /* Neq = problem size                           */
+  long int b_neq;           /* Neq = problem size                           */
 
   IDABandJacFn b_jac;       /* jac = banded Jacobian routine to be called   */
   
   BandMat b_J;              /* J = dF/dy + cj*dF/dy', banded approximation. */
   
-  integertype b_mupper;     /* mupper = upper bandwidth of Jacobian matrix. */
+  long int b_mupper;        /* mupper = upper bandwidth of Jacobian matrix. */
   
-  integertype b_mlower;     /* mlower = lower bandwidth of Jacobian matrix. */
+  long int b_mlower;        /* mlower = lower bandwidth of Jacobian matrix. */
   
-  integertype b_storage_mu; /* storage_mu = upper bandwidth with storage for
+  long int b_storage_mu;    /* storage_mu = upper bandwidth with storage for
                                factoring = min(Neq-1, mupper+mlower).       */
   
-  integertype *b_pivots;    /* pivots = pivot array for PJ = LU             */
+  long int *b_pivots;       /* pivots = pivot array for PJ = LU             */
   
   int b_nje;                /* nje = no. of calls to jac                    */
   

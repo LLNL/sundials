@@ -3,7 +3,7 @@
  * File          : cvdiag.h                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 31 July 2002                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -12,9 +12,6 @@
  *-----------------------------------------------------------------*
  * This is the header file for the CVODE diagonal linear solver,   *
  * CVDIAG.                                                         *
- *                                                                 *
- * Note: The type integertype must be large enough to store the    *
- * value of the linear system size N.                              * 
  *                                                                 *
  *******************************************************************/
 

@@ -2,7 +2,7 @@
  * File          : cvodes.h                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 06 June 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -1319,12 +1319,12 @@ typedef struct CVodeMemRec {
     Space requirements for CVODES 
   -------------------------------*/
 
-  long int cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */ 
-  long int cv_liw1;        /* no. of integertype words in 1 N_Vector y        */ 
-  long int cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */ 
-  long int cv_liw1Q;       /* no. of integertype words in 1 N_Vector yQ       */ 
-  long int cv_lrw;         /* no. of realtype words in CVODES work vectors    */
-  long int cv_liw;         /* no. of integertype words in CVODES work vectors */
+  long int cv_lrw1;        /* no. of realtype words in 1 N_Vector y        */ 
+  long int cv_liw1;        /* no. of integer words in 1 N_Vector y         */ 
+  long int cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ       */ 
+  long int cv_liw1Q;       /* no. of integer words in 1 N_Vector yQ        */ 
+  long int cv_lrw;         /* no. of realtype words in CVODES work vectors */
+  long int cv_liw;         /* no. of integer words in CVODES work vectors  */
 
   /*------------------
     Step size ratios

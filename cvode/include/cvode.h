@@ -3,7 +3,7 @@
  * File          : cvode.h                                         *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 31 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -744,10 +744,10 @@ typedef struct CVodeMemRec {
     Space requirements for CVODE 
   -------------------------------*/
 
-  long int cv_lrw1;        /* no. of realtype words in 1 N_Vector            */ 
-  long int cv_liw1;        /* no. of integertype words in 1 N_Vector         */ 
-  long int cv_lrw;         /* no. of realtype words in CVODE work vectors    */
-  long int cv_liw;         /* no. of integertype words in CVODE work vectors */
+  long int cv_lrw1;        /* no. of realtype words in 1 N_Vector         */ 
+  long int cv_liw1;        /* no. of integer words in 1 N_Vector          */ 
+  long int cv_lrw;         /* no. of realtype words in CVODE work vectors */
+  long int cv_liw;         /* no. of integer words in CVODE work vectors  */
 
   /*--------------------
     Linear Solver Data 

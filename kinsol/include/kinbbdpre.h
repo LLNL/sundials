@@ -2,7 +2,7 @@
  * File          : kinbbdpre.h                                     *
  * Programmers   : Allan Grant Taylor, Alan C Hindmarsh, and       *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 4 August 2003                                   *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -122,7 +122,7 @@ extern "C" {
  * relevant to the evaluation of the local function gloc.         *
  ******************************************************************/
 
-typedef void (*KINCommFn)(integertype Nlocal, N_Vector u, void *f_data);
+typedef void (*KINCommFn)(long int Nlocal, N_Vector u, void *f_data);
 
 /******************************************************************
  * Type : KINLocalFn                                              *
@@ -145,7 +145,7 @@ typedef void (*KINCommFn)(integertype Nlocal, N_Vector u, void *f_data);
  * A KINLocalFn gloc does not have a return value.                *
  ******************************************************************/
 
-typedef void (*KINLocalFn)(integertype Nlocal, N_Vector uu,
+typedef void (*KINLocalFn)(long int Nlocal, N_Vector uu,
                            N_Vector gval, void *f_data);
  
 /*********************** Definition of KBBDData *****************/
@@ -153,7 +153,7 @@ typedef void (*KINLocalFn)(integertype Nlocal, N_Vector uu,
 typedef struct {
 
   /* passed by user to KBBDPrecAlloc, used by Precond/Psolve functions: */
-  integertype ml, mu;
+  long int ml, mu;
   KINLocalFn gloc;
   KINCommFn gcomm;
 
@@ -165,15 +165,15 @@ typedef struct {
 
   /* set by KBBDPrecSetup and used by KBBDPrecSolve: */
   BandMat PP;
-  integertype *pivots;
+  long int *pivots;
 
   /* set by KBBDPrecAlloc and used by KBBDPrecSetup: */
-  integertype n_local;
+  long int n_local;
 
   /* available for optional output: */
-  integertype rpwsize;
-  integertype ipwsize;
-  integertype nge;
+  long int rpwsize;
+  long int ipwsize;
+  long int nge;
 
   /* Pointer to KINSOL memory */
   KINMem kin_mem;
@@ -216,8 +216,8 @@ typedef struct {
  * or NULL if the request for storage cannot be satisfied.        *
  ******************************************************************/
 
-void *KBBDPrecAlloc(void *kinmem, integertype Nlocal, 
-                    integertype mu, integertype ml,
+void *KBBDPrecAlloc(void *kinmem, long int Nlocal, 
+                    long int mu, long int ml,
                     realtype dq_rel_uu, 
                     KINLocalFn gloc, KINCommFn gcomm);
 

@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvode.c                                       *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 27 January 2004                                *
+ * Version of    : 07 February 2004                               *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the CVODE package.  See fcvode.h for usage.                    *
@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "sundialstypes.h" /* definitions of type realtype                    */
 #include "nvector.h"       /* definitions of type N_Vector and vector macros  */
 #include "cvode.h"         /* CVODE constants and prototypes                  */
 #include "cvdiag.h"        /* prototypes for CVDIAG interface routines        */
@@ -31,7 +31,8 @@ void FCV_FUN(realtype*, realtype*, realtype*);
 void FCV_MALLOC(realtype *t0, realtype *y0, 
                 int *meth, int *itmeth, int *iatol, 
                 realtype *rtol, realtype *atol,
-                int *optin, int *iopt, realtype *ropt, int *ier)
+                int *optin, long int *iopt, realtype *ropt, 
+                int *ier)
 {
   int lmm, iter, itol;
   N_Vector atolvec;
@@ -92,7 +93,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 /***************************************************************************/
 
 void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
-                realtype *atol, int *optin, int *iopt,
+                realtype *atol, int *optin, long int *iopt,
                 realtype *ropt, int *ier)
 {
   int itol;
@@ -151,7 +152,7 @@ void FCV_DIAG(int *ier)
 
 /***************************************************************************/
 
-void FCV_DENSE(integertype *neq, int *ier)
+void FCV_DENSE(long int *neq, int *ier)
 {
   /* Call CVDense:
      *neq        is the problem size
@@ -164,7 +165,7 @@ void FCV_DENSE(integertype *neq, int *ier)
 
 /***************************************************************************/
 
-void FCV_BAND(integertype *neq, integertype *mupper, integertype *mlower, int *ier)
+void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 {
   /* Call CVBand:
      CV_cvodemem is the pointer to the CVODE memory block 
@@ -228,7 +229,6 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
   CVodeMem CV_cvmem;
   realtype h0u;
-  integertype liw, lrw;
 
   /* Call CVode:
      CV_cvodemem is the pointer to the CVODE memory block
@@ -260,42 +260,34 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     CVodeGetNonlinSolvStats(CV_cvodemem,
                             &CV_iopt[6],  /* NNI */
                             &CV_iopt[7]); /* NCFN */
-    CVodeGetWorkSpace(CV_cvodemem, &liw, &lrw);
-    CV_iopt[11] = (int) lrw;              /* LENRW */
-    CV_iopt[12] = (int) liw;              /* LENIW */
+    CVodeGetWorkSpace(CV_cvodemem, 
+                      &CV_iopt[12],       /* LENIW */
+                      &CV_iopt[11]);      /* LENRW */
     if (CV_cvmem->cv_sldeton)
       CVodeGetNumStabLimOrderReds(CV_cvodemem, &CV_iopt[14]); /* NOR */
 
     switch(CV_ls) {
     case 1:
       CVDenseGetNumJacEvals(CV_cvodemem, &CV_iopt[15]);   /* NJE */
-      CVDenseGetRealWorkSpace(CV_cvodemem, &lrw); /* LRW */
-      CV_iopt[16] = (int) lrw;
-      CVDenseGetIntWorkSpace(CV_cvodemem, &liw);  /* LIW */
-      CV_iopt[17] = (int) liw;
+      CVDenseGetRealWorkSpace(CV_cvodemem, &CV_iopt[16]); /* LRW */
+      CVDenseGetIntWorkSpace(CV_cvodemem, &CV_iopt[17]);  /* LIW */
       break;
     case 2:
       CVBandGetNumJacEvals(CV_cvodemem, &CV_iopt[15]);    /* NJE */
-      CVBandGetRealWorkSpace(CV_cvodemem, &lrw); /* LRW */
-      CV_iopt[16] = (int) lrw;
-      CVBandGetIntWorkSpace(CV_cvodemem, &liw);  /* LIW */
-      CV_iopt[17] = (int) liw;
+      CVBandGetRealWorkSpace(CV_cvodemem, &CV_iopt[16]);  /* LRW */
+      CVBandGetIntWorkSpace(CV_cvodemem, &CV_iopt[17]);   /* LIW */
       break;
     case 3:
-      CVDiagGetRealWorkSpace(CV_cvodemem, &lrw); /* LRW */
-      CV_iopt[16] = (int) lrw;
-      CVDiagGetIntWorkSpace(CV_cvodemem, &liw);  /* LIW */
-      CV_iopt[17] = (int) liw;
+      CVDiagGetRealWorkSpace(CV_cvodemem, &CV_iopt[16]);  /* LRW */
+      CVDiagGetIntWorkSpace(CV_cvodemem, &CV_iopt[17]);   /* LIW */
       break;
     case 4:
       CVSpgmrGetNumPrecEvals(CV_cvodemem, &CV_iopt[15]);  /* NPE */
       CVSpgmrGetNumLinIters(CV_cvodemem, &CV_iopt[16]);   /* NLI */
       CVSpgmrGetNumPrecSolves(CV_cvodemem, &CV_iopt[17]); /* NPS */
       CVSpgmrGetNumConvFails(CV_cvodemem, &CV_iopt[18]);  /* NCFL */
-      CVSpgmrGetRealWorkSpace(CV_cvodemem, &lrw); /* LRW */
-      CV_iopt[19] = (int) lrw;
-      CVSpgmrGetIntWorkSpace(CV_cvodemem, &liw);  /* LIW */
-      CV_iopt[20] = (int) liw;
+      CVSpgmrGetRealWorkSpace(CV_cvodemem, &CV_iopt[16]); /* LRW */
+      CVSpgmrGetIntWorkSpace(CV_cvodemem, &CV_iopt[17]);  /* LIW */
       break;
     }
 

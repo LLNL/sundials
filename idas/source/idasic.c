@@ -148,7 +148,7 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval);
 /*BEGIN        Readibility Constants                               */
 /*=================================================================*/
 
-#define errfp     (IDA_mem->ida_errfp)
+#define errfp    (IDA_mem->ida_errfp)
 #define rdata    (IDA_mem->ida_rdata)
 #define res      (IDA_mem->ida_res)
 #define y0       (IDA_mem->ida_y0)

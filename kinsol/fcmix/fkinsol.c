@@ -2,7 +2,7 @@
  * File          : fkinsol.c                                      *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                             *
- * Version of    : 27 January 2004                                *
+ * Version of    : 07 February 2004                               *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the KINSOL package. See fkinsol.h for usage.                   *
@@ -13,11 +13,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of types realtype and integertype   */
-#include "nvector.h"       /* def's of type N_Vector and related routines     */
-#include "kinsol.h"        /* KINSOL constants and prototypes                 */
-#include "kinspgmr.h"      /* prototypes of KINSPGMR interface routines       */
-#include "fkinsol.h"       /* prototypes of interfaces, global variables      */
+#include "sundialstypes.h" /* definitions of type realtype                 */
+#include "nvector.h"       /* def's of type N_Vector and related routines  */
+#include "kinsol.h"        /* KINSOL constants and prototypes              */
+#include "kinspgmr.h"      /* prototypes of KINSPGMR interface routines    */
+#include "fkinsol.h"       /* prototypes of interfaces, global variables   */
 
 /**************************************************************************/
 
@@ -27,8 +27,9 @@ void FK_FUN(realtype*, realtype*);
 /**************************************************************************/
 
 void FKIN_MALLOC(int *msbpre, realtype *fnormtol, realtype *scsteptol,
-                 realtype *constraints, int *optin, int *iopt, realtype *ropt,
-                 integertype *ier)
+                 realtype *constraints, 
+                 int *optin, long int *iopt, realtype *ropt,
+                 int *ier)
 {
   N_Vector constr_vec;
 

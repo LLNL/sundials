@@ -3630,7 +3630,7 @@ void CVBDFStab(CVodeMem cv_mem)
 
 static int CVsldet(CVodeMem cv_mem)
 {
-  integertype i, k, j, it, kmin, kflag = 0;
+  int i, k, j, it, kmin, kflag = 0;
   realtype rat[5][4], rav[4], qkr[4], sigsq[4], smax[4], ssmax[4];
   realtype drr[4], rrc[4],sqmx[4], qjk[4][4], vrat[5], qc[6][4], qco[6][4];
   realtype rr, rrcut, vrrtol, vrrt2, sqtol, rrtol;

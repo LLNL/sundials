@@ -3,7 +3,7 @@
  * File          : cvsdense.h                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 June 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -12,9 +12,6 @@
  *-----------------------------------------------------------------*
  * This is the header file for the CVODES dense linear solver,     *
  * CVSDENSE.                                                       *
- *                                                                 *
- * Note: The type integertype must be large enough to store the    *
- * value of the linear system size N.                              *
  *                                                                 *
  *******************************************************************/
 
@@ -106,7 +103,7 @@ extern "C" {
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVDenseJacFn)(integertype N, DenseMat J, realtype t, 
+typedef void (*CVDenseJacFn)(long int N, DenseMat J, realtype t, 
                              N_Vector y, N_Vector fy, void *jac_data,
                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
  
@@ -129,7 +126,7 @@ typedef void (*CVDenseJacFn)(integertype N, DenseMat J, realtype t,
  *                                                                *
  ******************************************************************/
   
-int CVDense(void *cvode_mem, integertype N); 
+int CVDense(void *cvode_mem, long int N); 
 
 /******************************************************************
  * Optional inputs to the CVSDENSE linear solver                  *
@@ -179,13 +176,13 @@ int CVDenseGetNumRhsEvals(void *cvode_mem, int *nfevalsD);
 
 typedef struct {
 
-  integertype d_n;    /* problem dimension                      */
+  long int d_n;       /* problem dimension                      */
 
   CVDenseJacFn d_jac; /* jac = Jacobian routine to be called    */
 
   DenseMat d_M;       /* M = I - gamma J, gamma = h / l1        */
   
-  integertype *d_pivots;  /* pivots = pivot array for PM = LU   */
+  long int *d_pivots; /* pivots = pivot array for PM = LU   */
   
   DenseMat d_savedJ;  /* savedJ = old Jacobian                  */
   

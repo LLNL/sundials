@@ -1,8 +1,7 @@
 /***************************************************************************
- *                                                                         *
  * File        : fkinbbd.h                                                 *
  * Programmers : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL *
- * Version of  : 27 January 2004                                           *
+ * Version of  : 07 February 2004                                          *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -184,7 +183,7 @@
  The arguments returned are:
  LENRPW = length of real preconditioner work space, in realtype words.
           This size is local to the current processor.
- LENIPW = length of integer preconditioner work space, in integertype words.
+ LENIPW = length of integer preconditioner work space, in integer words.
           This size is local to the current processor.
  NGE    = number of g(u) evaluations (calls to KLOCFN) so far.
 
@@ -229,15 +228,15 @@
 
 /* KINSOL header files  */
 
-#include "sundialstypes.h"  /* definitions of types realtype and integertype */
-#include "nvector.h"        /* definition of type N_Vector                   */
+#include "sundialstypes.h"  /* definitions of type realtype */
+#include "nvector.h"        /* definition of type N_Vector  */
 
 
 /* Prototypes: Functions Called by the KINBBDPRE Module */
 
-void FKINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data);
+void FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data);
 
-void FKINgcomm(integertype Nloc, N_Vector uu, void *f_data);
+void FKINgcomm(long int Nloc, N_Vector uu, void *f_data);
 
 
 /* Declaration for global variable shared among various routines */

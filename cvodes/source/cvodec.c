@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : cvodec.cpp                                      *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 24 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -318,7 +318,7 @@ void CVSensRhsCS(int Ns, realtype t,
   CVodeMem cv_mem;
   CVCSMem cvcs_mem;
   N_Vector y_re, y_im, f_re, f_im;
-  integertype which;
+  int which;
 
   /* fS_data points to cvode_mem */
   cv_mem = (CVodeMem) fS_data;
@@ -357,7 +357,7 @@ void CVSensRhsCS(int Ns, realtype t,
 */
 /*-----------------------------------------------------------------*/
 
-void CVDenseCSJac(integertype N, DenseMat J, realtype t, 
+void CVDenseCSJac(long int N, DenseMat J, realtype t, 
                   N_Vector y, N_Vector fy, void *jac_data,
                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -365,7 +365,7 @@ void CVDenseCSJac(integertype N, DenseMat J, realtype t,
   CVCSMem cvcs_mem;
   N_Vector y_re, y_im, f_re, f_im, jthCol;
   realtype *ydata_im;
-  integertype j;
+  long int j;
 
   /* jac_data points to cvode_mem */
   cv_mem = (CVodeMem) jac_data;
@@ -405,15 +405,15 @@ void CVDenseCSJac(integertype N, DenseMat J, realtype t,
 */
 /*-----------------------------------------------------------------*/
 
-void CVBandCSJac(integertype N, integertype mupper, 
-                 integertype mlower, BandMat J, realtype t, 
+void CVBandCSJac(long int N, long int mupper, 
+                 long int mlower, BandMat J, realtype t, 
                  N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   CVodeMem cv_mem;
   CVCSMem cvcs_mem;
   N_Vector y_re, y_im, f_re, f_im;
-  integertype group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ydata_im, *fdata_im;
 
   /* jac_data points to cvode_mem */

@@ -3,7 +3,7 @@
  * File          : nvector_serial.h                                *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
  *               : Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 06 June 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -36,10 +36,10 @@
  * The definitions of the generic NV_Spec and N_Vector structures  *
  * are in the header file nvector.h.                               *
  *                                                                 *
- * The definitions of the types realtype and integertype are in    *
- * the header file sundialstypes.h and these may be changed        *
- * according to the user's needs. The sundialstypes.h file also    *
- * contains the definition for the type booleantype.               *
+ * The definition of the type realtype is in the header file       *
+ * sundialstypes.h and it may be changed (at the configuration     *
+ * stage) according to the user's needs. The sundialstypes.h file  *
+ * also contains the definition for the type booleantype.          *
  *                                                                 *
  * N_Vector arguments to arithmetic kernels need not be            *
  * distinct. Thus, for example, the call                           *
@@ -72,7 +72,7 @@ extern "C" {
    structure contains the length of vectors */
 
 struct _NV_SpecContent_Serial {
-  integertype length;
+  long int length;
 };
 
 typedef struct _NV_SpecContent_Serial *NV_SpecContent_Serial;
@@ -82,7 +82,7 @@ typedef struct _NV_SpecContent_Serial *NV_SpecContent_Serial;
    to an array of realtype components */
 
 struct _N_VectorContent_Serial {
-  integertype length;
+  long int length;
   realtype   *data;
 };
 
@@ -101,7 +101,7 @@ typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
  * NV_Spec       nvSpec;                                        *
  * N_Vector      v, *vs;                                        *
  * realtype     *v_data, **vs_data, r;                          *
- * integertype   v_len, s_len, i;                               *
+ * long int   v_len, s_len, i;                               *
  *                                                              *
  * (1) NV_MAKE_S, NV_DISPOSE_S                                  *
  *                                                              *
@@ -259,7 +259,7 @@ typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
  *                                                              *
  *--------------------------------------------------------------*/
 
-NV_Spec NV_SpecInit_Serial(integertype vec_length);
+NV_Spec NV_SpecInit_Serial(long int vec_length);
 
 /*--------------------------------------------------------------*
  * Function NV_SpecFree_Serial                                  *

@@ -1,8 +1,7 @@
 /****************************************************************************
  * File         : fcvbbd.c                                                  *
  * Programmers  : Alan C. Hindmarsh and Radu Serban @ LLNL                  * 
- * Version of   : 27 January 2004                                           *
- *                                                                          *
+ * Version of   : 07 February 2004                                          *
  ****************************************************************************
  *                                                                          *
  * This module contains the routines necessary to interface with the        *
@@ -14,25 +13,25 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of types realtype and integertype   */
-#include "nvector.h"       /* definitions of type N_Vector                    */
-#include "cvode.h"         /* CVODE constants and prototypes                  */
-#include "fcvode.h"        /* actual function names, prototypes, global vars. */
-#include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE            */
-#include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines        */
-#include "cvbbdpre.h"      /* prototypes of CVBBDPRE functions, macros        */
+#include "sundialstypes.h" /* definitions of type realtype                  */
+#include "nvector.h"       /* definitions of type N_Vector                  */
+#include "cvode.h"         /* CVODE constants and prototypes                */
+#include "fcvode.h"        /* actual function names, prototypes, global vars*/
+#include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE          */
+#include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines      */
+#include "cvbbdpre.h"      /* prototypes of CVBBDPRE functions, macros      */
 
 /***************************************************************************/
 
 /* Prototypes of the Fortran routines */
 
-void FCV_GLOCFN(integertype*, realtype*, realtype*, realtype*);
-void FCV_COMMFN(integertype*, realtype*, realtype*);
+void FCV_GLOCFN(long int*, realtype*, realtype*, realtype*);
+void FCV_COMMFN(long int*, realtype*, realtype*);
 
 /***************************************************************************/
 
-void FCV_BBDINIT(integertype *Nloc, integertype *mudq, integertype *mldq, 
-                 integertype *mu, integertype *ml, realtype* dqrely,
+void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq, 
+                 long int *mu, long int *ml, realtype* dqrely,
                  int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
 
@@ -70,7 +69,7 @@ void FCV_BBDINIT(integertype *Nloc, integertype *mudq, integertype *mldq,
 
 /***************************************************************************/
 
-void FCV_BBDREINIT(integertype *Nloc, integertype *mudq, integertype *mldq, 
+void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq, 
                    realtype* dqrely, int *pretype, int *gstype,
                    realtype *delt, int *ier)
 {
@@ -109,7 +108,7 @@ void FCV_BBDREINIT(integertype *Nloc, integertype *mudq, integertype *mldq,
 /* C function FCVgloc to interface between CVBBDPRE module and a Fortran 
    subroutine FCVLOCFN. */
 
-void FCVgloc(integertype Nloc, realtype t, N_Vector yloc, N_Vector gloc,
+void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
              void *f_data)
 {
   realtype *yloc_data, *gloc_data;
@@ -129,7 +128,7 @@ void FCVgloc(integertype Nloc, realtype t, N_Vector yloc, N_Vector gloc,
    subroutine FCVCOMMF. */
 
 
-void FCVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data)
+void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data)
 {
   realtype *yloc;
 
@@ -146,7 +145,7 @@ void FCVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data)
 
 /* C function FCVBBDOPT to access optional outputs from CVBBD_Data */
 
-void FCV_BBDOPT(integertype *lenrpw, integertype *lenipw, int *nge)
+void FCV_BBDOPT(long int *lenrpw, long int *lenipw, int *nge)
 {
   CVBBDPrecGetIntWorkSpace(CVBBD_Data, lenipw);
   CVBBDPrecGetRealWorkSpace(CVBBD_Data, lenrpw);

@@ -3,7 +3,7 @@
  * File          : idabbdpre.c                                     *
  * Programmers   : Allan G Taylor, Alan C Hindmarsh, and           *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 23 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -57,16 +57,16 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
 /*********** User-Callable Functions: malloc, reinit, and free *************/
 
-void *IBBDPrecAlloc(void *ida_mem, integertype Nlocal, 
-                    integertype mudq, integertype mldq, 
-                    integertype mukeep, integertype mlkeep, 
+void *IBBDPrecAlloc(void *ida_mem, long int Nlocal, 
+                    long int mudq, long int mldq, 
+                    long int mukeep, long int mlkeep, 
                     realtype dq_rel_yy, 
                     IDALocalFn glocal, IDACommFn gcomm)
 {
   IDAMem IDA_mem;
   IBBDPrecData pdata;
   N_Vector tempv4;
-  integertype muk, mlk, storage_mu;
+  long int muk, mlk, storage_mu;
 
   if (ida_mem == NULL) {
     fprintf(stdout, MSG_IDAMEM_NULL);
@@ -160,13 +160,13 @@ int IBBDSpgmr(void *ida_mem, int maxl, void *p_data)
 }
 
 int IBBDPrecReInit(void *p_data,
-                   integertype mudq, integertype mldq, 
+                   long int mudq, long int mldq, 
                    realtype dq_rel_yy,  
                    IDALocalFn glocal, IDACommFn gcomm)
 {
   IBBDPrecData pdata;
   IDAMem IDA_mem;
-  integertype Nlocal;
+  long int Nlocal;
 
   pdata =(IBBDPrecData) p_data;
   IDA_mem = pdata->IDA_mem;
@@ -310,7 +310,7 @@ int IBBDPrecSetup(realtype tt,
                   realtype cj, void *p_data,
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  integertype retfac;
+  long int retfac;
   int retval;
   IBBDPrecData pdata;
 
@@ -408,7 +408,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   IDAMem IDA_mem;
   realtype inc, inc_inv;
   int  retval;
-  integertype group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
   realtype *cnsdata = NULL, *ewtdata;
   realtype *col_j, conj, yj, ypj, ewtj;

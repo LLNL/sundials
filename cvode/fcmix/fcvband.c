@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvband.c                                      *
  * Programmers   : Radu Serban and Alan Hindmarsh @ LLNL          *
- * Version of    : 27 January 2004                                *
+ * Version of    : 07 February 2004                               *
  *----------------------------------------------------------------*
  *                                                                *
  * Fortran/C interface routines for CVODE/CVBAND, for the case of *
@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of types realtype and integertype  */
+#include "sundialstypes.h" /* definitions of type realtype                   */
 #include "nvector.h"       /* definitions of type N_Vector and vector macros */
 #include "fcvode.h"        /* actual function names, prototypes, global vars.*/
 #include "cvband.h"        /* CVBand prototype                               */
@@ -19,7 +19,7 @@
 /******************************************************************************/
 
 /* Prototype of the Fortran routine */
-void FCV_BJAC(integertype*, integertype*, integertype*, integertype*, 
+void FCV_BJAC(long int*, long int*, long int*, long int*, 
               realtype*, realtype*, realtype*, realtype*,
               realtype*, realtype*, realtype*);
 
@@ -43,13 +43,13 @@ void FCV_BANDSETJAC(int *flag, int *ier)
    passed as the column dimension of the corresponding array.
    Auxiliary data is assumed to be communicated by Common. */
 
-void FCVBandJac(integertype N, integertype mupper, integertype mlower,
+void FCVBandJac(long int N, long int mupper, long int mlower,
                 BandMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
-  integertype eband;
+  long int eband;
 
   ydata = N_VGetData(y);
   fydata = N_VGetData(fy);

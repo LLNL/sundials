@@ -1,9 +1,8 @@
- /******************************************************************
- *                                                                 *
+/*******************************************************************
  * File          : fkinsol.h                                       *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                              *
- * Version of    : 27 January 2004                                 *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  *  This is the header file for the FKINSOL Interface Package      *
  *  See below for usage details                                    *
@@ -304,9 +303,9 @@ The following optional outputs are specific to the SPGMR module:
 
 /* KINSOL header files  */
 
-#include "sundialstypes.h" /* definitions of types realtype and integertype */
-#include "kinsol.h"        /* definition of type SysFn                      */
-#include "nvector.h"       /* definition of type N_Vector, machEnvType      */
+#include "sundialstypes.h" /* definitions of type realtype         */
+#include "kinsol.h"        /* definition of type SysFn             */
+#include "nvector.h"       /* definition of type N_Vector, N_VSpec */
 
 
 /* Prototypes: Functions called by the solver */
@@ -333,7 +332,7 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
 extern NV_Spec F2C_nvspec;
 
 void *KIN_mem;
-int *KIN_iopt;
+long int *KIN_iopt;
 realtype *KIN_ropt;
 
 #endif

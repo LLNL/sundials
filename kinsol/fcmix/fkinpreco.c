@@ -1,9 +1,8 @@
 /*******************************************************************
- *                                                                 *
  * File          : fkinpreco.c                                     *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 27 January 2004                                 *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * This C function FKINPSet is to interface between KINSOL and the *
  * Fortran user-supplied preconditioner setup routine.             *
@@ -12,11 +11,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of types realtype and integertype */
-#include "nvector.h"       /* definitions of type N_Vector                  */
-#include "kinsol.h"        /* KINSOL constants and prototypes               */
+#include "sundialstypes.h" /* definitions of type realtype               */
+#include "nvector.h"       /* definitions of type N_Vector               */
+#include "kinsol.h"        /* KINSOL constants and prototypes            */
 #include "kinspgmr.h"      
-#include "fkinsol.h"       /* prototypes of interfaces, global variables    */
+#include "fkinsol.h"       /* prototypes of interfaces, global variables */
 
 /*********************************************************************/
 

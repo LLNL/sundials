@@ -1,7 +1,7 @@
 /***************************************************************************
  * File        : fcvbbd.h                                                  *
  * Programmers : Alan C. Hindmarsh and Radu Serban @ LLNL                  *
- * Version of  : 27 January 2004                                           *
+ * Version of  : 07 February 2004                                          *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -239,7 +239,7 @@ the following call:
 The arguments returned are:
 LENRPW = length of real preconditioner work space, in realtype words.
          This size is local to the current processor.
-LENIPW = length of integer preconditioner work space, in integertype words.
+LENIPW = length of integer preconditioner work space, in integer words.
          This size is local to the current processor.
 NGE    = number of g(t,y) evaluations (calls to CVLOCFN) so far.
 
@@ -295,16 +295,16 @@ FCVMALLOC, and FCVBBDINIT, make the following calls, in this order:
 
 /* CVODE header files  */
 
-#include "sundialstypes.h" /* definitions of types realtype and integertype */
-#include "nvector.h"       /* definition of type N_Vector                   */
+#include "sundialstypes.h" /* definitions of type realtype */
+#include "nvector.h"       /* definition of type N_Vector  */
 
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
-void FCVgloc(integertype Nloc, realtype t, N_Vector yloc, N_Vector gloc,
+void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
              void *f_data);
 
-void FCVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data);
+void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data);
 
 
 /* Declarations for global variables, shared among various routines */

@@ -2,7 +2,7 @@
  * File          : cvsbbdpre.h                                     *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 10 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -132,7 +132,7 @@ extern "C" {
  * A CVLocalFn gloc does not have a return value.                 *
  ******************************************************************/
 
-typedef void (*CVLocalFn)(integertype Nlocal, realtype t, 
+typedef void (*CVLocalFn)(long int Nlocal, realtype t, 
                           N_Vector y, N_Vector glocal, 
                           void *f_data);
 
@@ -157,7 +157,7 @@ typedef void (*CVLocalFn)(integertype Nlocal, realtype t,
  * communications done by f if relevant to the evaluation of g.   *
  ******************************************************************/
 
-typedef void (*CVCommFn)(integertype Nlocal, realtype t, N_Vector y,
+typedef void (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
                          void *f_data);
 
  
@@ -166,7 +166,7 @@ typedef void (*CVCommFn)(integertype Nlocal, realtype t, N_Vector y,
 typedef struct {
 
   /* passed by user to CVBBDPrecAlloc, used by PrecSetup/PrecSolve */
-  integertype mudq, mldq, mukeep, mlkeep;
+  long int mudq, mldq, mukeep, mlkeep;
   realtype dqrely;
   CVLocalFn gloc;
   CVCommFn cfn;
@@ -174,15 +174,15 @@ typedef struct {
   /* set by CVBBDPrecSetup and used by CVBBDPrecSolve */
   BandMat savedJ;
   BandMat savedP;
-  integertype *pivots;
+  long int *pivots;
 
   /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
-  integertype n_local;
+  long int n_local;
 
   /* available for optional output: */
-  integertype rpwsize;
-  integertype ipwsize;
-  integertype nge;
+  long int rpwsize;
+  long int ipwsize;
+  long int nge;
 
   /* Pointer to cvode_mem */
   CVodeMem cv_mem;
@@ -228,9 +228,9 @@ typedef struct {
  * or NULL if the request for storage cannot be satisfied.        *
  ******************************************************************/
 
-void *CVBBDPrecAlloc(void *cvode_mem, integertype Nlocal, 
-                     integertype mudq, integertype mldq, 
-                     integertype mukeep, integertype mlkeep, 
+void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal, 
+                     long int mudq, long int mldq, 
+                     long int mukeep, long int mlkeep, 
                      realtype dqrely,
                      CVLocalFn gloc, CVCommFn cfn);
 
@@ -283,7 +283,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
  ******************************************************************/
 
 int CVBBDPrecReInit(void *p_data, 
-                    integertype mudq, integertype mldq,
+                    long int mudq, long int mldq,
                     realtype dqrely,
                     CVLocalFn gloc, CVCommFn cfn);
 

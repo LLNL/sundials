@@ -1,7 +1,7 @@
 /*******************************************************************
  * File          : cvodea.c                                        *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 14 July 2003                                    *
+ * Version of    : 07 January 2004                                 *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -100,11 +100,11 @@ static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
 
 static void CVArhs(realtype t, N_Vector yB, 
                    N_Vector yBdot, void *passed_data);
-static void CVAdenseJac(integertype nB, DenseMat JB, realtype t, 
+static void CVAdenseJac(long int nB, DenseMat JB, realtype t, 
                         N_Vector yB, N_Vector fyB, void *cvadj_mem,
                         N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-static void CVAbandJac(integertype nB, integertype mupperB, 
-                       integertype mlowerB, BandMat JB, realtype t, 
+static void CVAbandJac(long int nB, long int mupperB, 
+                       long int mlowerB, BandMat JB, realtype t, 
                        N_Vector yB, N_Vector fyB, void *cvadj_mem, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 static int CVAspgmrPrecSetup(realtype t, N_Vector yB, 
@@ -731,7 +731,7 @@ int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB,
 /*---------  CVDenseB and CVdenseSet*B    -------------------------*/
 /*-----------------------------------------------------------------*/
 
-int CVDenseB(void *cvadj_mem, integertype nB)
+int CVDenseB(void *cvadj_mem, long int nB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -778,8 +778,8 @@ int CVDenseSetJacDataB(void *cvadj_mem, void *jac_dataB)
 /*-----------  CVBandB and CVBandSet*B      -----------------------*/
 /*-----------------------------------------------------------------*/
 
-int CVBandB(void *cvadj_mem, integertype nB, 
-            integertype mupperB, integertype mlowerB)
+int CVBandB(void *cvadj_mem, long int nB, 
+            long int mupperB, long int mlowerB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -964,8 +964,8 @@ int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB)
 /*- CVBandPrecAllocB,CVBandPrecFreeB,CVBandPrecSetupB,CVBandPrecSolveB -*/
 /*----------------------------------------------------------------------*/
 
-void *CVBandPrecAllocB(void *cvadj_mem, integertype nB, 
-                       integertype muB, integertype mlB)
+void *CVBandPrecAllocB(void *cvadj_mem, long int nB, 
+                       long int muB, long int mlB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -1665,7 +1665,7 @@ static void CVArhsQ(realtype t, N_Vector yB,
 */
 /*-----------------------------------------------------------------*/
 
-static void CVAdenseJac(integertype nB, DenseMat JB, realtype t, 
+static void CVAdenseJac(long int nB, DenseMat JB, realtype t, 
                         N_Vector yB, N_Vector fyB, void *cvadj_mem,
                         N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
@@ -1694,8 +1694,8 @@ static void CVAdenseJac(integertype nB, DenseMat JB, realtype t,
 */
 /*-----------------------------------------------------------------*/
 
-static void CVAbandJac(integertype nB, integertype mupperB, 
-                       integertype mlowerB, BandMat JB, realtype t, 
+static void CVAbandJac(long int nB, long int mupperB, 
+                       long int mlowerB, BandMat JB, realtype t, 
                        N_Vector yB, N_Vector fyB, void *cvadj_mem, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {

@@ -3,7 +3,7 @@
  * File          : nvector_parallel.c                              *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
  *                 Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 06 June 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -68,12 +68,12 @@ static void VScaleBy_Parallel(realtype a, N_Vector x);
 /* Parallel implementation of the vector specification
    initialization routine */
 
-NV_Spec NV_SpecInit_Parallel(MPI_Comm comm,  integertype local_vec_length, 
-                             integertype global_vec_length, int *argc, char ***argv)
+NV_Spec NV_SpecInit_Parallel(MPI_Comm comm,  long int local_vec_length, 
+                             long int global_vec_length, int *argc, char ***argv)
 {
   NV_Spec nvspec;
   int initflag, initerr;
-  integertype n, Nsum;
+  long int n, Nsum;
 
   /* Create vector specification structure */
   nvspec = (NV_Spec) malloc (sizeof *nvspec);
@@ -272,7 +272,7 @@ void N_VSetData_Parallel(realtype *v_data, N_Vector v)
 
 void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype c, *xd, *yd, *zd;
   N_Vector v1, v2;
   booleantype test;
@@ -356,7 +356,7 @@ void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
 
 void N_VConst_Parallel(realtype c, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *zd;
 
   N  = NV_LOCLENGTH_P(z);
@@ -369,7 +369,7 @@ void N_VConst_Parallel(realtype c, N_Vector z)
 
 void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *yd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -384,7 +384,7 @@ void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *yd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -399,7 +399,7 @@ void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VScale_Parallel(realtype c, N_Vector x, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *zd;
 
   if (z == x) {       /* BLAS usage: scale x <- cx */
@@ -423,7 +423,7 @@ void N_VScale_Parallel(realtype c, N_Vector x, N_Vector z)
 
 void N_VAbs_Parallel(N_Vector x, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -437,7 +437,7 @@ void N_VAbs_Parallel(N_Vector x, N_Vector z)
 
 void N_VInv_Parallel(N_Vector x, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -451,7 +451,7 @@ void N_VInv_Parallel(N_Vector x, N_Vector z)
 
 void N_VAddConst_Parallel(N_Vector x, realtype b, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *zd;
   
   N  = NV_LOCLENGTH_P(x);
@@ -464,7 +464,7 @@ void N_VAddConst_Parallel(N_Vector x, realtype b, N_Vector z)
 
 realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
 {
-  integertype i, N;
+  long int i, N;
   realtype sum = ZERO, *xd, *yd, gsum;
   NV_Spec nvspec;
 
@@ -482,7 +482,7 @@ realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
 
 realtype N_VMaxNorm_Parallel(N_Vector x)
 {
-  integertype i, N;
+  long int i, N;
   realtype max, *xd, gmax;
   NV_Spec nvspec;
 
@@ -503,7 +503,7 @@ realtype N_VMaxNorm_Parallel(N_Vector x)
 
 realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
 {
-  integertype i, N, N_global;
+  long int i, N, N_global;
   realtype sum = ZERO, prodi, *xd, *wd, gsum;
   NV_Spec nvspec;
 
@@ -524,7 +524,7 @@ realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
 {
-  integertype i, N, N_global;
+  long int i, N, N_global;
   realtype sum = ZERO, prodi, *xd, *wd, *idd, gsum;
   NV_Spec nvspec;
 
@@ -548,7 +548,7 @@ realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
 
 realtype N_VMin_Parallel(N_Vector x)
 {
-  integertype i, N;
+  long int i, N;
   realtype min, *xd, gmin;
   NV_Spec nvspec;
 
@@ -577,7 +577,7 @@ realtype N_VMin_Parallel(N_Vector x)
 
 realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
 {
-  integertype i, N;
+  long int i, N;
   realtype sum = ZERO, prodi, *xd, *wd, gsum;
   NV_Spec nvspec;
 
@@ -598,7 +598,7 @@ realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
 
 realtype N_VL1Norm_Parallel(N_Vector x)
 {
-  integertype i, N;
+  long int i, N;
   realtype sum = ZERO, gsum, *xd;
   NV_Spec nvspec;
 
@@ -616,7 +616,7 @@ realtype N_VL1Norm_Parallel(N_Vector x)
 
 void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *zd;
   
   N  = NV_LOCLENGTH_P(x);
@@ -631,7 +631,7 @@ void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *zd, val, gval;
   NV_Spec nvspec;
 
@@ -658,7 +658,7 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
 
 booleantype N_VConstrProdPos_Parallel(N_Vector c, N_Vector x)
 {
-  integertype i, N;
+  long int i, N;
   booleantype test;
   realtype  *xd, *cd;
   NV_Spec nvspec;
@@ -685,7 +685,7 @@ booleantype N_VConstrProdPos_Parallel(N_Vector c, N_Vector x)
 
 booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
 {
-  integertype i, N;
+  long int i, N;
   booleantype test;
   realtype *cd, *xd, *md;
   NV_Spec nvspec;
@@ -717,7 +717,7 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
 realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce;
-  integertype i, N;
+  long int i, N;
   realtype *nd, *dd, min;
   NV_Spec nvspec;
 
@@ -749,7 +749,7 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
  
 void N_VPrint_Parallel(N_Vector x)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -796,7 +796,7 @@ static realtype VAllReduce_Parallel(realtype d, int op, NV_Spec nvspec)
 
 static void VCopy_Parallel(N_Vector x, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -810,7 +810,7 @@ static void VCopy_Parallel(N_Vector x, N_Vector z)
 
 static void VSum_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *yd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -825,7 +825,7 @@ static void VSum_Parallel(N_Vector x, N_Vector y, N_Vector z)
 
 static void VDiff_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *yd, *zd;
  
   N  = NV_LOCLENGTH_P(x);
@@ -840,7 +840,7 @@ static void VDiff_Parallel(N_Vector x, N_Vector y, N_Vector z)
 
 static void VNeg_Parallel(N_Vector x, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -854,7 +854,7 @@ static void VNeg_Parallel(N_Vector x, N_Vector z)
 
 static void VScaleSum_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *yd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -869,7 +869,7 @@ static void VScaleSum_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
 
 static void VScaleDiff_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *yd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -884,7 +884,7 @@ static void VScaleDiff_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
 
 static void VLin1_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *yd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -899,7 +899,7 @@ static void VLin1_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
 
 static void VLin2_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *yd, *zd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -913,7 +913,7 @@ static void VLin2_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
 
 static void Vaxpy_Parallel(realtype a, N_Vector x, N_Vector y)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd, *yd;
 
   N  = NV_LOCLENGTH_P(x);
@@ -938,7 +938,7 @@ static void Vaxpy_Parallel(realtype a, N_Vector x, N_Vector y)
 
 static void VScaleBy_Parallel(realtype a, N_Vector x)
 {
-  integertype i, N;
+  long int i, N;
   realtype *xd;
 
   N  = NV_LOCLENGTH_P(x);

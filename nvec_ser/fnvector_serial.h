@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : fnvector_serial.h                               *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 27 January 2004                                 *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *

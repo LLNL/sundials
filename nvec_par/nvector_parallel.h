@@ -3,7 +3,7 @@
  * File          : nvector_parallel.h                              *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
  *               : Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 06 June 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -36,10 +36,10 @@
  * The definitions of the generic NV_Spec and N_Vector structures  *
  * are in the header file nvector.h.                               *
  *                                                                 *
- * The definitions of the types realtype and integertype are in    *
- * the header file sundialstypes.h and these may be changed        *
- * according to the user's needs. The sundialstypes.h file also    *
- * contains the definition for the type booleantype.               *
+ * The definition of the type realtype is in the header file       *
+ * sundialstypes.h and it may be changed (at the configuration     *
+ * stage) according to the user's needs. The sundialstypes.h file  *
+ * also contains the definition for the type booleantype.          *
  *                                                                 *
  * N_Vector arguments to arithmetic kernels need not be            *
  * distinct. Thus, for example, the call                           *
@@ -65,20 +65,17 @@ extern "C" {
  * Parallel MPI implementaion of NV_Spec and N_Vector           *
  ****************************************************************/
 
-/* Environment: MPI                                  */
-/* Set types realtype and integertype for MPI calls. */
+/* Environment: MPI                          */
+/* Set types real and integer for MPI calls. */
 
 #if defined(SUNDIALS_SINGLE_PRECISION)
-
 #define PVEC_REAL_MPI_TYPE MPI_FLOAT
-#define PVEC_INTEGER_MPI_TYPE MPI_INT
-
 #else
-
 #define PVEC_REAL_MPI_TYPE MPI_DOUBLE
+#endif
+
 #define PVEC_INTEGER_MPI_TYPE MPI_LONG
 
-#endif
 
 /* The parallel implementation of the machine environment has 
    ID tag 'parallel' */
@@ -91,8 +88,8 @@ extern "C" {
 
 struct _NV_SpecContent_Parallel {
   MPI_Comm comm;                 /* pointer to MPI communicator */
-  integertype local_vec_length;  /* local length of vectors */ 
-  integertype global_vec_length; /* global length of vectors */ 
+  long int local_vec_length;  /* local length of vectors */ 
+  long int global_vec_length; /* global length of vectors */ 
   int init_by_user;              /* flag showing if user called MPI_Init */
 };
 
@@ -103,8 +100,8 @@ typedef struct _NV_SpecContent_Parallel *NV_SpecContent_Parallel;
    and a pointer to an array of real components */
 
 struct _N_VectorContent_Parallel {
-  integertype local_length;  /* local vector length  */
-  integertype global_length; /* global vector length */
+  long int local_length;  /* local vector length  */
+  long int global_length; /* global vector length */
   realtype   *data;          /* local data array     */
 };
 
@@ -124,7 +121,7 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
  * NV_Spec      nvspec;                                         *
  * N_Vector     v, *vs;                                         *
  * realtype     *v_data, **vs_data, r;                          *
- * integertype  v_len, s_len, i;                                *
+ * long int  v_len, s_len, i;                                *
  *                                                              *
  * (1) NV_MAKE_P, NV_DISPOSE_P                                  *
  *                                                              *
@@ -321,8 +318,8 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
  *--------------------------------------------------------------*/
 
 NV_Spec NV_SpecInit_Parallel(MPI_Comm comm, 
-                             integertype local_vec_length,
-                             integertype global_vec_length, 
+                             long int local_vec_length,
+                             long int global_vec_length, 
                              int *argc, char ***argv);
 
 /*----------------------------------------------------------------*

@@ -1,9 +1,7 @@
 /****************************************************************************
- *                                                                          *
  * File         : fkinbbd.c                                                 *
  * Programmers  : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL * 
- * Version of   : 27 January 2004                                           *
- *                                                                          *
+ * Version of   : 07 February 2004                                          *
  ****************************************************************************
  *                                                                          *
  * This module contains the routines necessary to interface with the        *
@@ -16,25 +14,25 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of types realtype and integertype   */
-#include "nvector.h"   /* definitions of type N_Vector                        */
-#include "kinsol.h"    /* KINSOL constants and prototypes                     */
-#include "fkinsol.h"   /* prototypes of standard interfaces, global variables */
-#include "fkinbbd.h"   /* prototypes of interfaces to KINBBDPRE               */
-#include "kinspgmr.h"  /* prototypes of KINSPGMR interface routines           */
-#include "kinbbdpre.h" /* prototypes of KINBBDPRE functions, macros           */
+#include "sundialstypes.h" /* definitions of type realtype                        */
+#include "nvector.h"       /* definitions of type N_Vector                        */
+#include "kinsol.h"        /* KINSOL constants and prototypes                     */
+#include "fkinsol.h"       /* prototypes of standard interfaces, global variables */
+#include "fkinbbd.h"       /* prototypes of interfaces to KINBBDPRE               */
+#include "kinspgmr.h"      /* prototypes of KINSPGMR interface routines           */
+#include "kinbbdpre.h"     /* prototypes of KINBBDPRE functions, macros           */
 
 /***************************************************************************/
 
 /* Prototypes of the user-supplied Fortran routines */
 
-void FK_LOCFN(integertype*, realtype*, realtype*);
-void FK_COMMFN(integertype*, realtype*);
+void FK_LOCFN(long int*, realtype*, realtype*);
+void FK_COMMFN(long int*, realtype*);
 
 /***************************************************************************/
 
-void FKIN_BBDINIT(integertype *nlocal, int *maxl, int *maxlrst,
-                  integertype *mu, integertype *ml, int *ier)
+void FKIN_BBDINIT(long int *nlocal, int *maxl, int *maxlrst,
+                  long int *mu, long int *ml, int *ier)
 {
 
   KBBD_Data = KBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, 0.0, FKINgloc, FKINgcomm);
@@ -52,7 +50,7 @@ void FKIN_BBDINIT(integertype *nlocal, int *maxl, int *maxlrst,
 /* C function FKINgloc to interface between KINBBDPRE module and a Fortran 
    subroutine FKLOCFN. */
 
-void FKINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data)
+void FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data)
 {
   realtype *uloc, *gloc;
 
@@ -71,7 +69,7 @@ void FKINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data)
    subroutine FKCOMMFN. */
 
 
-void FKINgcomm(integertype Nloc, N_Vector uu, void *f_data)
+void FKINgcomm(long int Nloc, N_Vector uu, void *f_data)
 {
   realtype *uloc;
 
@@ -85,7 +83,7 @@ void FKINgcomm(integertype Nloc, N_Vector uu, void *f_data)
 
 /* C function FKINBBDOPT to access optional outputs from KBBD_Data */
 
-void FKIN_BBDOPT(integertype *lenrpw, integertype *lenipw, int *nge)
+void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, int *nge)
 {
   KBBDPrecGetIntWorkSpace(KBBD_Data, lenipw);
   KBBDPrecGetRealWorkSpace(KBBD_Data, lenrpw);

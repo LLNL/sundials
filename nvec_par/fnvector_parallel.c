@@ -2,8 +2,7 @@
  *                                                                 *
  * File          : fnvector_parallel.c                             *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 06 June 2003                                    *
- *                                                                 *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -29,7 +28,7 @@ NV_Spec F2C_nvspec;
 /* Fortran callable interfaces to NV_SpecInit_Parallel
    and NV_SpecFree_Parallel */
 
-void FNV_INITP(integertype *nlocal, integertype *nglobal, int *ier)
+void FNV_INITP(long int *nlocal, long int *nglobal, int *ier)
 {
   
   /* Call NV_SpecInit_Parallel:

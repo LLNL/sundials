@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : fnvector_serial.c                               *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 07 February 2004                                *
  *                                                                 *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
@@ -27,7 +27,7 @@ NV_Spec F2C_nvspec;
 /* Fortran callable interfaces to NV_SpecInit_Serial
    and NV_SpecFree_Serial */
 
-void FNV_INITS(integertype *neq, int *ier)
+void FNV_INITS(long int *neq, int *ier)
 {
  F2C_nvspec = NV_SpecInit_Serial(*neq);
 

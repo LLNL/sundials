@@ -2,7 +2,7 @@
  * File          : ida.c                                           *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 18 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -850,7 +850,7 @@ int IDAMalloc(void *ida_mem, ResFn res,
 {
   IDAMem IDA_mem;
   booleantype allocOK, neg_atol;
-  integertype lrw1, liw1;
+  long int lrw1, liw1;
 
   /* Check ida_mem */
   if (ida_mem == NULL) {

@@ -3,7 +3,7 @@
  * File          : idaband.c                                       *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 23 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -66,7 +66,7 @@ static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
 static int IDABandFree(IDAMem IDA_mem);
 
-static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
+static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
                         realtype tt, N_Vector yy, N_Vector yp, realtype c_j,
                         void *jdata, N_Vector resvec, BandMat Jac,
                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
@@ -133,8 +133,8 @@ static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
 
 **********************************************************************/
 
-int IDABand(void *ida_mem, integertype Neq, 
-            integertype mupper, integertype mlower)
+int IDABand(void *ida_mem, long int Neq, 
+            long int mupper, long int mlower)
 {
   IDAMem IDA_mem;
   IDABandMem idaband_mem;
@@ -405,7 +405,7 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                         N_Vector tempv3)
 {
   int retval;
-  integertype retfac;
+  long int retfac;
   IDABandMem idaband_mem;
   
   idaband_mem = (IDABandMem) lmem;
@@ -490,7 +490,7 @@ static int IDABandFree(IDAMem IDA_mem)
  by the res routine, if any.
 **********************************************************************/
 
-static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
+static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
                         realtype tt, N_Vector yy, N_Vector yp, realtype c_j,
                         void *jdata, N_Vector resvec, BandMat Jac,
                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
@@ -501,7 +501,7 @@ static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
   int group, ngroups;
   
   N_Vector rtemp, ytemp, yptemp;
-  integertype i, j, i1, i2, width;
+  long int i, j, i1, i2, width;
   int retval = SUCCESS;
 
   IDAMem IDA_mem;

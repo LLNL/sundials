@@ -3,7 +3,7 @@
  * File          : cvband.c                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 31 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -68,8 +68,8 @@ static void CVBandFree(CVodeMem cv_mem);
 
 /* CVBAND DQJac routine */
 
-static void CVBandDQJac(integertype n, integertype mupper, 
-                        integertype mlower, BandMat J, realtype t, 
+static void CVBandDQJac(long int n, long int mupper, long int mlower, 
+                        BandMat J, realtype t, 
                         N_Vector y, N_Vector fy, void *jac_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -135,8 +135,7 @@ static void CVBandDQJac(integertype n, integertype mupper,
 
 **********************************************************************/
                   
-int CVBand(void *cvode_mem, integertype N, 
-           integertype mupper, integertype mlower)
+int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -411,7 +410,7 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  integertype ier;
+  long int ier;
   CVBandMem cvband_mem;
   
   cvband_mem = (CVBandMem) lmem;
@@ -506,14 +505,14 @@ static void CVBandFree(CVodeMem cv_mem)
 
 **********************************************************************/
 
-static void CVBandDQJac(integertype N, integertype mupper, 
-                        integertype mlower, BandMat J, realtype t, 
+static void CVBandDQJac(long int N, long int mupper, long int mlower, 
+                        BandMat J, realtype t, 
                         N_Vector y, N_Vector fy, void *jac_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, srur;
   N_Vector ftemp, ytemp;
-  integertype group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
 
   CVodeMem cv_mem;

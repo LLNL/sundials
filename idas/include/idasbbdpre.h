@@ -2,7 +2,7 @@
  * File          : idasbbdpre.h                                    *
  * Programmers   : Allan G. Taylor, Alan C Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 23 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -131,7 +131,7 @@ extern "C" {
  * way as for the residual function: 0 (success), +1 or -1 (fail).*
  ******************************************************************/
 
-typedef int (*IDALocalFn)(integertype Nlocal, realtype tt, 
+typedef int (*IDALocalFn)(long int Nlocal, realtype tt, 
                           N_Vector yy, N_Vector yp, N_Vector gval, 
                           void *res_data);
  
@@ -160,7 +160,7 @@ typedef int (*IDALocalFn)(integertype Nlocal, realtype tt,
  * relevant to the evaluation of the local function glocal.       *
  ******************************************************************/
 
-typedef int (*IDACommFn)(integertype Nlocal, realtype tt, 
+typedef int (*IDACommFn)(long int Nlocal, realtype tt, 
                          N_Vector yy, N_Vector yp, 
                          void *res_data);
 
@@ -171,7 +171,7 @@ typedef struct {
 
   /* passed by user to IBBDPrecAlloc, used by 
      IBBDPrecSetup/IBBDPrecSolve functions: */
-  integertype mudq, mldq, mukeep, mlkeep;
+  long int mudq, mldq, mukeep, mlkeep;
   realtype rel_yy;
   IDALocalFn glocal;
   IDACommFn gcomm;
@@ -181,15 +181,15 @@ typedef struct {
 
   /* set by IBBDPrecon and used by IBBDPrecSolve: */
   BandMat PP;
-  integertype *pivots;
+  long int *pivots;
 
   /* set by IBBDPrecAlloc and used by IBBDPrecSetup */
-  integertype n_local;
+  long int n_local;
 
   /* available for optional output: */
-  integertype rpwsize;
-  integertype ipwsize;
-  integertype nge;
+  long int rpwsize;
+  long int ipwsize;
+  long int nge;
 
   /* Pointer to ida_mem */
   IDAMem IDA_mem;
@@ -236,9 +236,9 @@ typedef struct {
  * or NULL if the request for storage cannot be satisfied.        *
  ******************************************************************/
 
-void *IBBDPrecAlloc(void *ida_mem, integertype Nlocal, 
-                    integertype mudq, integertype mldq, 
-                    integertype mukeep, integertype mlkeep, 
+void *IBBDPrecAlloc(void *ida_mem, long int Nlocal, 
+                    long int mudq, long int mldq, 
+                    long int mukeep, long int mlkeep, 
                     realtype dq_rel_yy, 
                     IDALocalFn glocal, IDACommFn gcomm);
 
@@ -292,7 +292,7 @@ int IBBDSpgmr(void *ida_mem, int maxl, void *p_data);
  ******************************************************************/
 
 int IBBDPrecReInit(void *p_data, 
-                   integertype mudq, integertype mldq,
+                   long int mudq, long int mldq,
                    realtype dq_rel_yy, 
                    IDALocalFn glocal, IDACommFn gcomm); 
 

@@ -3,7 +3,7 @@
  * File          : cvsbandpre.h                                    *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 10 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -87,13 +87,13 @@ extern "C" {
 typedef struct {
 
   /* Data set by user in CVBandPrecAlloc: */
-  integertype N;
-  integertype ml, mu;
+  long int N;
+  long int ml, mu;
 
   /* Data set by CVBandPrecSetup: */
   BandMat savedJ;
   BandMat savedP;
-  integertype *pivots;
+  long int *pivots;
 
   /* Rhs calls */
   int nfeBP;
@@ -133,8 +133,8 @@ typedef struct {
  *                                                                *
  ******************************************************************/
 
-void *CVBandPrecAlloc(void *cvode_mem, integertype N,
-                      integertype mu, integertype ml);
+void *CVBandPrecAlloc(void *cvode_mem, long int N,
+                      long int mu, long int ml);
 
 /******************************************************************
  * Function : CVBPSpgmr                                           *

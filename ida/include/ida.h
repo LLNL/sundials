@@ -2,7 +2,7 @@
  * File          : ida.h                                           *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 17 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -830,11 +830,11 @@ typedef struct IDAMemRec {
 
   /* Step Data */
 
-  int ida_kk;        /* current BDF method order                          */
-  int ida_kused;     /* method order used on last successful step         */
-  int ida_knew;      /* order for next step from order decrease decision  */
-  int ida_phase;     /* flag to trigger step doubling in first few steps  */
-  int ida_ns;        /* counts steps at fixed stepsize and order          */
+  int ida_kk;        /* current BDF method order                              */
+  int ida_kused;     /* method order used on last successful step             */
+  int ida_knew;      /* order for next step from order decrease decision      */
+  int ida_phase;     /* flag to trigger step doubling in first few steps      */
+  int ida_ns;        /* counts steps at fixed stepsize and order              */
 
   realtype ida_hin;      /* initial step                                      */
   realtype ida_h0u;      /* actual initial stepsize                           */
@@ -874,9 +874,9 @@ typedef struct IDAMemRec {
   /* Space requirements for IDA */
 
   long int ida_lrw1;     /* no. of realtype words in 1 N_Vector               */
-  long int ida_liw1;     /* no. of integertype words in 1 N_Vector            */
+  long int ida_liw1;     /* no. of integer words in 1 N_Vector                */
   long int ida_lrw;      /* number of realtype words in IDA work vectors      */
-  long int ida_liw;      /* no. of integertype words in IDA work vectors      */
+  long int ida_liw;      /* no. of integer words in IDA work vectors          */
 
   realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
@@ -884,12 +884,12 @@ typedef struct IDAMemRec {
 
   /* Flags to verify correct calling sequence */
 
-  booleantype ida_SetupDone;     /* set to FALSE by IDAMalloc and IDAReInit */
-                                 /* set to TRUE by IDACalcIC or IDASolve    */
+  booleantype ida_SetupDone;     /* set to FALSE by IDAMalloc and IDAReInit   */
+                                 /* set to TRUE by IDACalcIC or IDASolve      */
 
-  booleantype ida_MallocDone;    /* set to FALSE by IDACreate               */
-                                 /* set to TRUE by IDAMAlloc                */
-                                 /* tested by IDAReInit and IDASolve        */
+  booleantype ida_MallocDone;    /* set to FALSE by IDACreate                 */
+                                 /* set to TRUE by IDAMAlloc                  */
+                                 /* tested by IDAReInit and IDASolve          */
 
   /* Linear Solver Data */
 

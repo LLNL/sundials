@@ -548,8 +548,8 @@ void *IDACreate(void)
     return (NULL);
   }
 
-  /* Compute unit roundoff and set it in IDA_mem */
-  IDA_mem->ida_uround = UnitRoundoff();
+  /* Set unit roundoff in IDA_mem */
+  IDA_mem->ida_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
   IDA_mem->ida_rdata       = NULL;
@@ -713,6 +713,7 @@ int IDAMalloc(void *ida_mem, ResFn res,
   IDA_mem->ida_lperf  = NULL;
   IDA_mem->ida_lfree  = NULL;
   IDA_mem->ida_lmem = NULL;
+  IDA_mem->ida_forceSetup = FALSE;
   IDA_mem->ida_linitOK = FALSE;
 
   /* Initialize the phi array */
@@ -839,7 +840,7 @@ int IDAReInit(void *ida_mem, ResFn res,
   IDA_mem->ida_reltol = reltol;      
   IDA_mem->ida_abstol = abstol;  
 
-  /* Set linitOK to FALSE */
+  IDA_mem->ida_forceSetup = FALSE;
   IDA_mem->ida_linitOK = FALSE;
 
   /* Initialize the phi array */
@@ -1294,7 +1295,6 @@ int IDASensReInit(void *ida_mem, int ism,
 #define lperf    (IDA_mem->ida_lperf)
 #define lfree    (IDA_mem->ida_lfree) 
 #define lmem     (IDA_mem->ida_lmem) 
-#define linitOK  (IDA_mem->ida_linitOK)
 #define knew     (IDA_mem->ida_knew)
 #define kused    (IDA_mem->ida_kused)          
 #define hused    (IDA_mem->ida_hused)        
@@ -1309,7 +1309,9 @@ int IDASensReInit(void *ida_mem, int ism,
 #define beta     (IDA_mem->ida_beta)
 #define sigma    (IDA_mem->ida_sigma)
 #define gamma    (IDA_mem->ida_gamma)
-#define setupNonNull (IDA_mem->ida_setupNonNull) 
+#define forceSetup     (IDA_mem->ida_forceSetup)
+#define linitOK        (IDA_mem->ida_linitOK)
+#define setupNonNull   (IDA_mem->ida_setupNonNull) 
 #define constraintsSet (IDA_mem->ida_constraintsSet)
 
 #define quad         (IDA_mem->ida_quad)
@@ -1670,6 +1672,7 @@ int IDAGetSolution(void *ida_mem, realtype t,
   IDAMem IDA_mem;
   realtype tfuzz, tp, delt, c, d, gam;
   int j, kord;
+  int is;
 
   if (ida_mem == NULL) {
     fprintf(stdout, MSG_IDAG_NO_MEM);
@@ -1691,10 +1694,10 @@ int IDAGetSolution(void *ida_mem, realtype t,
   N_VScale (ONE, phi[0], yret);
   N_VConst (ZERO, ypret);
   kord = kused; 
-  if (kused == 0 || t == tn) kord = 1;
+  if (kused == 0) kord = 1;
 
   /* Accumulate multiples of columns phi[j] into yret and ypret. */
-
+  
   delt = t - tn;
   c = ONE; d = ZERO;
   gam = delt/psi[0];
@@ -1750,7 +1753,8 @@ int IDAGetQuad(void *ida_mem, realtype t, N_Vector yretQ)
 
   N_VScale (ONE, phiQ[0], yretQ);
   kord = kused; 
-  if (kused == 0 || t == tn) kord = 1;
+  if (kused == 0) kord = 1;
+  /*if (kused == 0 || t == tn) kord = 1;*/
 
   /* Accumulate multiples of columns phiQ[j] into yretQ */
 
@@ -1847,7 +1851,8 @@ int IDAGetSens1(void *ida_mem, realtype t, int is,
   N_VScale(ONE, phiS[0][is], yretS);
   N_VConst(ZERO, ypretS);
   kord = kused; 
-  if (kused == 0 || t == tn) kord = 1;
+  if (kused == 0) kord = 1;
+  /*if (kused == 0 || t == tn) kord = 1;*/
 
   /* Accumulate multiples of columns phiS[j][is] into yretS and ypretS. */
 
@@ -3077,6 +3082,7 @@ static int IDAStep(IDAMem IDA_mem)
 
     IDASetCoeffs(IDA_mem, &ck);
 
+    
     /*-----------------------
       Advance state variables
       -----------------------*/
@@ -3279,6 +3285,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
     }
     psi[kk] = temp1;
   }
+
   /* compute alphas, alpha0 */
   alphas = ZERO;
   alpha0 = ZERO;
@@ -3365,6 +3372,7 @@ static int IDANls(IDAMem IDA_mem)
     temp1 = (ONE - XRATE) / (ONE + XRATE);
     temp2 = ONE/temp1;
     if(cjratio < temp1 || cjratio > temp2) callSetup = TRUE;
+    if(forceSetup) callSetup = TRUE;
     if(cj != cjlast) IDASetSS(IDA_mem, HUNDRED);
   }
 
@@ -3393,6 +3401,7 @@ static int IDANls(IDAMem IDA_mem)
     if(callSetup){
       retval = lsetup(IDA_mem, yy, yp, delta, tempv1, tempv2, tempv3);
       nsetups++;
+      forceSetup = FALSE;
       cjold = cj;
       cjratio = ONE;
       IDASetSS(IDA_mem, TWENTY);
@@ -3689,7 +3698,9 @@ static int IDANewtonIter(IDAMem IDA_mem)
 
     if (mnewt == 0) { 
        oldnrm = delnrm;
-       if (delnrm <= toldel) return(SUCCESS);
+       if (delnrm <= toldel) {
+         return(SUCCESS);
+       }
     }
     else {
       rate = RPowerR( delnrm/oldnrm, ONE/mnewt );
@@ -3697,7 +3708,9 @@ static int IDANewtonIter(IDAMem IDA_mem)
       ss = rate/(ONE - rate);
     }
 
-    if (ss*delnrm <= epsNewt) return(SUCCESS);
+    if (ss*delnrm <= epsNewt) {
+      return(SUCCESS);
+    }
 
     /* Not yet converged.  Increment mnewt and test for max allowed. */
     mnewt++;
@@ -3869,6 +3882,7 @@ static int IDAStgr1NewtonIter(IDAMem IDA_mem, int is)
 static void IDAPredict(IDAMem IDA_mem)
 {
   int j;
+  int is;
 
   N_VScale(ONE, phi[0], yy);
   N_VConst(ZERO, yp);
@@ -3877,7 +3891,6 @@ static void IDAPredict(IDAMem IDA_mem)
     N_VLinearSum(ONE,      phi[j], ONE, yy, yy);
     N_VLinearSum(gamma[j], phi[j], ONE, yp, yp);
   }
-
 }
 
 /*------------------ IDAQuadPredict -------------------------------*/
@@ -4464,14 +4477,18 @@ static void IDACompleteStep(IDAMem IDA_mem,
   /* For the first few steps, until either a step fails, or the order is 
   reduced, or the order reaches its maximum, we raise the order and double 
   the stepsize. During these steps, phase = 0. Thereafter, phase = 1, and
-  stepsize and order are set by the usual local error algorithm.         */
+  stepsize and order are set by the usual local error algorithm.         
+
+  Note that, after the first step, the order is not increased, as not all 
+  of the neccessary information is available yet.
+  */
   
   if (phase == 0) {
 
-    kk++;
+    if(nst>1) kk++;
     hnew = TWO * hh;
     hh = hnew;
-
+    
   } else {
 
     action = UNSET;
@@ -4587,7 +4604,8 @@ static void IDACompleteStep(IDAMem IDA_mem,
     }
 
   }
-  
+
+
 }
 
 /*=================================================================*/

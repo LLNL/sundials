@@ -1,13 +1,13 @@
 /*******************************************************************
- * File          : cvbbdpre.c                                     *
+ * File          : cvbbdpre.c                                      *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 31 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                        *
+ * For details, see sundials/cvode/LICENSE                         *
  *-----------------------------------------------------------------*
  * This file contains implementations of routines for a            *
  * band-block-diagonal preconditioner, i.e. a block-diagonal       *
@@ -49,15 +49,15 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 
 /*********** User-Callable Functions: malloc, reinit, and free ***************/
 
-void *CVBBDPrecAlloc(void *cvode_mem, integertype Nlocal, 
-                     integertype mudq, integertype mldq,
-                     integertype mukeep, integertype mlkeep, 
+void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal, 
+                     long int mudq, long int mldq,
+                     long int mukeep, long int mlkeep, 
                      realtype dqrely, 
                      CVLocalFn gloc, CVCommFn cfn)
 {
   CVodeMem cv_mem;
   CVBBDPrecData pdata;
-  integertype muk, mlk, storage_mu;
+  long int muk, mlk, storage_mu;
 
   if (cvode_mem == NULL) {
     fprintf(stdout, MSG_CVMEM_NULL);
@@ -145,13 +145,13 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
 }
 
 int CVBBDPrecReInit(void *p_data, 
-                    integertype mudq, integertype mldq, 
+                    long int mudq, long int mldq, 
                     realtype dqrely, 
                     CVLocalFn gloc, CVCommFn cfn)
 {
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
-  integertype Nlocal;
+  long int Nlocal;
 
   pdata = (CVBBDPrecData) p_data;
   cv_mem = pdata->cv_mem;
@@ -310,7 +310,7 @@ int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
                    realtype gamma, void *p_data, 
                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  integertype ier;
+  long int ier;
   CVBBDPrecData pdata;
 
   pdata = (CVBBDPrecData) p_data;
@@ -407,7 +407,7 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 {
   CVodeMem cv_mem;
   realtype    gnorm, minInc, inc, inc_inv;
-  integertype group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
 
   cv_mem = pdata->cv_mem;

@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvdense.c                                     *
  * Programmers   : Radu Serban  and Alan Hindmarsh@ LLNL          *
- * Version of    : 27 January 2004                                *
+ * Version of    : 07 February 2004                               *
  *----------------------------------------------------------------*
  *                                                                *
  * Fortran/C interface routines for CVODE/CVDENSE, for the case   *
@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "sundialstypes.h" /* definitions of type realtype                    */
 #include "nvector.h"       /* definitions of type N_Vector and vector macros  */
 #include "fcvode.h"        /* actual function names, prototypes, global vars. */
 #include "cvdense.h"       /* CVDense prototype, type DenseMat                */
@@ -19,7 +19,7 @@
 /***************************************************************************/
 
 /* Prototype of the Fortran routine */
-void FCV_DJAC(integertype*, realtype*, realtype*, realtype*, realtype*, 
+void FCV_DJAC(long int*, realtype*, realtype*, realtype*, realtype*, 
               realtype*, realtype*, realtype*);
 
 /***************************************************************************/
@@ -38,7 +38,7 @@ void FCV_DENSESETJAC(int *flag, int *ier)
    DENSE_COL from DENSE and the routine N_VGetData from NVECTOR.
    Auxiliary data is assumed to be communicated by Common. */
 
-void FCVDenseJac(integertype N, DenseMat J, realtype t, 
+void FCVDenseJac(long int N, DenseMat J, realtype t, 
                  N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {

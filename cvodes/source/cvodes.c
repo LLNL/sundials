@@ -3,7 +3,7 @@
  * File          : cvodes.c                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 07 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *

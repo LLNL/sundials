@@ -1,9 +1,8 @@
 /*******************************************************************
- *                                                                 *
  * File          : kinbbdpre.c                                     *
  * Programmers   : Allan G Taylor, Alan C Hindmarsh, and           *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 4 August 2003                                   *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -51,8 +50,8 @@ static void KBBDDQJac(KBBDPrecData pdata,
 
 /***************** User-Callable Functions: malloc and free ******************/
 
-void *KBBDPrecAlloc(void *kinmem, integertype Nlocal, 
-                    integertype mu, integertype ml,
+void *KBBDPrecAlloc(void *kinmem, long int Nlocal, 
+                    long int mu, long int ml,
                     realtype dq_rel_uu, 
                     KINLocalFn gloc, KINCommFn gcomm)
 {
@@ -273,7 +272,7 @@ int KBBDPrecSetup(N_Vector uu, N_Vector uscale,
                   void *p_data,
                   N_Vector vtemp1, N_Vector vtemp2)
 {
-  integertype ier;
+  long int ier;
   KBBDPrecData pdata;
   N_Vector vtemp3;
 
@@ -367,7 +366,7 @@ static void KBBDDQJac(KBBDPrecData pdata,
 {
   KINMem kin_mem;
   realtype inc, inc_inv;
-  integertype group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
 
   kin_mem = pdata->kin_mem;

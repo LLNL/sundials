@@ -342,7 +342,7 @@ int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetID(void *ida_mem, N_Vector id)
+int IDASetId(void *ida_mem, N_Vector id)
 {
   IDAMem IDA_mem;
 

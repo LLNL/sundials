@@ -3,7 +3,7 @@
  * File          : idadense.c                                      *
  * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 July 2002                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -58,7 +58,7 @@ static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
 static int IDADenseFree(IDAMem IDA_mem);
 
-static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
                          realtype c_j, void *jdata, N_Vector resvec, DenseMat Jac,
                          N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
@@ -121,7 +121,7 @@ static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
 
 **********************************************************************/
 
-int IDADense(void *ida_mem, integertype Neq)
+int IDADense(void *ida_mem, long int Neq)
 {
   IDAMem IDA_mem;
   IDADenseMem idadense_mem;
@@ -381,7 +381,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector tempv3)
 {
   int retval;
-  integertype retfac;
+  long int retfac;
   IDADenseMem idadense_mem;
   
   idadense_mem = (IDADenseMem) lmem;
@@ -464,7 +464,7 @@ static int IDADenseFree(IDAMem IDA_mem)
 
 **********************************************************************/
 
-static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
                          realtype c_j, void *jdata, N_Vector resvec, DenseMat Jac,
                          N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
  
@@ -472,7 +472,7 @@ static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
   realtype inc, inc_inv, yj, ypj, srur, conj;
   realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
-  integertype j;
+  long int j;
   int retval=0;
 
   IDAMem IDA_mem;

@@ -1,7 +1,7 @@
 /**********************************************************************
  * File          : fcvjtimes.c                                        *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL           *
- * Version of    : 27 January 2004                                    *
+ * Version of    : 07 February 2004                                   *
  *--------------------------------------------------------------------*
  * The C function FCVJtimes is to interface between the CVSPGMR module*
  * and the user-supplied Jacobian-times-vector routine FCVJTIMES.     *
@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "sundialstypes.h" /* definitions of type realtype                    */
 #include "nvector.h"       /* definitions of type N_Vector and vector macros  */
 #include "fcvode.h"        /* actual function names, prototypes, global vars. */
 #include "cvspgmr.h"       /* CVSpgmr prototype                               */

@@ -3,7 +3,7 @@
  * File          : cvband.h                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban  @ LLNL                             *
- * Version of    : 31 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -12,11 +12,6 @@
  *-----------------------------------------------------------------*
  * This is the header file for the CVODE band linear solver,       *
  * CVBAND.                                                         *
- *                                                                 *
- * Note: The type integertype must be large enough to store the    *
- * value N + mupper + mlower, where N is the linear system size    *
- * and mupper and mlower are the upper and lower bandwidths,       *
- * respectively, passed to CVBand.                                 *
  *                                                                 *
  *******************************************************************/
  
@@ -127,8 +122,8 @@ extern "C" {
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVBandJacFn)(integertype N, integertype mupper, 
-                            integertype mlower, BandMat J, realtype t, 
+typedef void (*CVBandJacFn)(long int N, long int mupper, long int mlower, 
+                            BandMat J, realtype t, 
                             N_Vector y, N_Vector fy, void *jac_data,
                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
  
@@ -158,8 +153,7 @@ typedef void (*CVBandJacFn)(integertype N, integertype mupper,
  *                                                                *
  ******************************************************************/
 
-int CVBand(void *cvode_mem, integertype N, 
-           integertype mupper, integertype mlower);
+int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower);
 
 /******************************************************************
  * Optional inputs to the CVBAND linear solver                    *
@@ -210,19 +204,19 @@ int CVBandGetNumRhsEvals(void *cvode_mem, int *nfevalsB);
 
 typedef struct {
 
-  integertype b_n;        /* N = problem dimension                    */
+  long int b_n;           /* N = problem dimension                    */
 
   CVBandJacFn b_jac;      /* jac = Jacobian routine to be called      */
 
-  integertype b_ml;       /* b_ml = lower bandwidth of savedJ         */
+  long int b_ml;          /* b_ml = lower bandwidth of savedJ         */
   
-  integertype b_mu;       /* b_mu = upper bandwidth of savedJ         */ 
+  long int b_mu;          /* b_mu = upper bandwidth of savedJ         */ 
   
-  integertype b_storage_mu; /* upper bandwith of M = MIN(N-1,b_mu+b_ml) */
+  long int b_storage_mu;  /* upper bandwith of M = MIN(N-1,b_mu+b_ml) */
   
   BandMat b_M;            /* M = I - gamma J, gamma = h / l1          */
   
-  integertype *b_pivots;  /* pivots = pivot array for PM = LU         */
+  long int *b_pivots;     /* pivots = pivot array for PM = LU         */
   
   BandMat b_savedJ;       /* savedJ = old Jacobian                    */
   

@@ -3,7 +3,7 @@
  * File          : cvsbandpre.c                                    *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 10 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -50,12 +50,12 @@ static void CVBandPDQJac(CVBandPrecData pdata,
 
 /*********************  Malloc, Free, and Get Functions  *******************/
 
-void *CVBandPrecAlloc(void *cvode_mem, integertype N, 
-                      integertype mu, integertype ml)
+void *CVBandPrecAlloc(void *cvode_mem, long int N, 
+                      long int mu, long int ml)
 {
   CVodeMem cv_mem;
   CVBandPrecData pdata;
-  integertype mup, mlp, storagemu;
+  long int mup, mlp, storagemu;
 
   if (cvode_mem == NULL) {
     fprintf(stdout, MSG_CVMEM_NULL);
@@ -168,7 +168,7 @@ int CVBandPrecGetIntWorkSpace(void *bp_data, long int *leniwBP)
 int CVBandPrecGetRealWorkSpace(void *bp_data, long int *lenrwBP)
 {
   CVBandPrecData pdata;
-  integertype N, ml, mu, smu;
+  long int N, ml, mu, smu;
 
   if ( bp_data == NULL ) {
     fprintf(stdout, MSG_PDATA_NULL);
@@ -270,7 +270,7 @@ int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
                     realtype gamma, void *bp_data,
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  integertype ier;
+  long int ier;
   CVBandPrecData pdata;
 
   /* Assume matrix and pivots have already been allocated. */
@@ -365,7 +365,7 @@ static void CVBandPDQJac(CVBandPrecData pdata,
 {
   CVodeMem cv_mem;
   realtype    fnorm, minInc, inc, inc_inv, srur;
-  integertype group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
 
   cv_mem = pdata->cv_mem;

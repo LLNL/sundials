@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvode.h                                       *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 27 January 2004                                *
+ * Version of    : 07 February 2004                               *
  *----------------------------------------------------------------*
  * This is the header file for FCVODE, the Fortran interface to   *
  * the CVODE package.                                             *
@@ -420,21 +420,21 @@ the following calls, in this order:
 
 /* CVODE header files  */
 
-#include "sundialstypes.h" /* definitions of types realtype and integertype */
-#include "cvode.h"         /* definition of type RHSFn                      */
-#include "nvector.h"       /* definition of type N_Vector, machEnvType      */
-#include "dense.h"         /* definition of DenseMat                        */
-#include "band.h"          /* definition of BandMat                         */
+#include "sundialstypes.h" /* definitions of type realtype         */
+#include "cvode.h"         /* definition of type RHSFn             */
+#include "nvector.h"       /* definition of type N_Vector, N_VSpec */
+#include "dense.h"         /* definition of DenseMat               */
+#include "band.h"          /* definition of BandMat                */
 
 /* Prototypes: Functions Called by the CVODE Solver */
   
 void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-void FCVDenseJac(integertype N, DenseMat J, realtype t, 
+void FCVDenseJac(long int N, DenseMat J, realtype t, 
                  N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-void FCVBandJac(integertype N, integertype mupper, integertype mlower,
+void FCVBandJac(long int N, long int mupper, long int mlower,
                 BandMat J, realtype t, N_Vector y, N_Vector fy,
                 void *jac_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
@@ -459,7 +459,7 @@ extern NV_Spec F2C_nvspec;
 
 void *CV_cvodemem;
 N_Vector CV_yvec;
-int *CV_iopt;
+long int *CV_iopt;
 realtype *CV_ropt;
 int CV_ls;    /* 1 = DENSE, 2 = BAND, 3 = DIAG, 4 = SPGMR */
 

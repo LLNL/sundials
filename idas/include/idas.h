@@ -2,7 +2,7 @@
  * File          : idas.h                                          *
  * Programmers   : Alan C. Hindmarsh, Radu Serban and              *
  *                 Allan G. Taylor @ LLNL                          *
- * Version of    : 18 September 2003                               *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -271,9 +271,9 @@ void *IDACreate(void);
  *                      | NOTE: if suppressed algebraic variables *
  *                      | is selected, the nvector 'id' must be   *
  *                      | supplied for identification of those    *
- *                      | algebraic components (see IDASetID).    *
+ *                      | algebraic components (see IDASetId).    *
  *                      |                                         * 
- * IDASetID             | an N_Vector, which states a given       *
+ * IDASetId             | an N_Vector, which states a given       *
  *                      | element to be either algebraic or       *
  *                      | differential.                           *
  *                      | A value of 1.0 indicates a differential *
@@ -319,7 +319,7 @@ int IDASetMaxErrTestFails(void *ida_mem, int maxnef);
 int IDASetMaxNonlinIters(void *ida_mem, int maxcor);
 int IDASetMaxConvFails(void *ida_mem, int maxncf);
 int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
-int IDASetID(void *ida_mem, N_Vector id);
+int IDASetId(void *ida_mem, N_Vector id);
 int IDASetConstraints(void *ida_mem, N_Vector constraints);
 
 /* Error return values for IDASet* functions */
@@ -1462,11 +1462,11 @@ typedef struct IDAMemRec {
     ---------------------------*/
 
   long int ida_lrw1;     /* no. of realtype words in 1 N_Vector               */
-  long int ida_liw1;     /* no. of integertype words in 1 N_Vector            */
+  long int ida_liw1;     /* no. of integer words in 1 N_Vector                */
   long int ida_lrw1Q;
   long int ida_liw1Q;
   long int ida_lrw;      /* number of realtype words in IDAS work vectors     */
-  long int ida_liw;      /* no. of integertype words in IDAS work vectors     */
+  long int ida_liw;      /* no. of integer words in IDAS work vectors         */
 
   realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
@@ -1515,6 +1515,10 @@ typedef struct IDAMemRec {
   /* Linear Solver specific memory */
 
   void *ida_lmem;           
+  
+  /* Flag to request a call to the setup routine */
+  
+  booleantype ida_forceSetup;
 
   /* Flag to indicate successful ida_linit call */
 

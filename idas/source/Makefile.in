@@ -37,6 +37,7 @@ IDAS_LIB = libidas.a
 
 # Source and object files
 SRC =	${srcdir}/idas.c \
+	${srcdir}/idaa.c \
 	${srcdir}/idasic.c \
 	${srcdir}/idasio.c \
 	${srcdir}/idasband.c \
@@ -44,7 +45,7 @@ SRC =	${srcdir}/idas.c \
 	${srcdir}/idasspgmr.c \
 	${srcdir}/idasbbdpre.c
 
-OBJ = idas.o idasic.o idasio.o idasband.o idasdense.o idasspgmr.o idasbbdpre.o
+OBJ = idas.o idaa.o idasic.o idasio.o idasband.o idasdense.o idasspgmr.o idasbbdpre.o
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -56,6 +57,7 @@ install: ${OBJ}
 	${AR} ${IDAS_LIB} ${OBJ}
 	cp ${IDAS_LIB} ${libdir}
 	cp ${IDAS_INC_DIR}/idas.h       ${includedir}
+	cp ${IDAS_INC_DIR}/idaa.h       ${includedir}
 	cp ${IDAS_INC_DIR}/idasdense.h  ${includedir}
 	cp ${IDAS_INC_DIR}/idasband.h   ${includedir}
 	cp ${IDAS_INC_DIR}/idasspgmr.h  ${includedir}
@@ -68,12 +70,27 @@ clean:
 uninstall:
 	rm -f ${libdir}/${IDAS_LIB}
 	rm -f ${includedir}/idas.h
+	rm -f ${includedir}/idaa.h
 	rm -f ${includedir}/idasdense.h
 	rm -f ${includedir}/idasband.h
 	rm -f ${includedir}/idasspgmr.h
 	rm -f ${includedir}/idasbbdpre.h
 
-${OBJ}: %.o : ${srcdir}/%.c
+idas.o: ${srcdir}/idas.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idaa.o: ${srcdir}/idaa.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idasic.o: ${srcdir}/idasic.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idasio.o: ${srcdir}/idasio.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idasband.o: ${srcdir}/idasband.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idasdense.o: ${srcdir}/idasdense.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idasspgmr.o: ${srcdir}/idasspgmr.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idasbbdpre.o: ${srcdir}/idasbbdpre.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

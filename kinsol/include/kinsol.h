@@ -2,7 +2,7 @@
  * File          : kinsol.h                                        *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 4 August 2003                                   *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -570,10 +570,10 @@ typedef struct KINMemRec {
 
   /*  Space requirements for KINSOL */ 
 
-  long int kin_lrw1;        /* no. of realtype words in 1 N_Vector             */ 
-  long int kin_liw1;        /* no. of integertype words in 1 N_Vector          */ 
-  long int kin_lrw;         /* no. of realtype words in KINSOL work vectors    */
-  long int kin_liw;         /* no. of integertype words in KINSOL work vectors */
+  long int kin_lrw1;        /* no. of realtype words in 1 N_Vector          */ 
+  long int kin_liw1;        /* no. of integer words in 1 N_Vector           */ 
+  long int kin_lrw;         /* no. of realtype words in KINSOL work vectors */
+  long int kin_liw;         /* no. of integer words in KINSOL work vectors  */
 
   /* Linear Solver Data */
  
