@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-06-18 21:37:59 $
+ * $Revision: 1.5 $
+ * $Date: 2004-07-22 23:09:01 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,10 +17,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "idaspgmr_impl.h"
 #include "idas_impl.h"
-
+#include "idaspgmr_impl.h"
+#include "spgmr.h"
+#include "iterative.h"
+#include "sundialstypes.h"
+#include "nvector.h"
 #include "sundialsmath.h"
 
 /* Error Messages */
@@ -30,6 +32,8 @@
 #define MSG_IDAMEM_NULL        IDASPGMR "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL           IDASPGMR "A memory request failed.\n\n"
+
+#define MSG_BAD_NVECTOR        IDASPGMR "A required vector operation is not implemented.\n\n"
 
 #define MSG_SETGET_IDAMEM_NULL "IDASpgmrSet*/IDASpgmrGet*-- Integrator memory is NULL. \n\n"
 
@@ -102,7 +106,6 @@ static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                             N_Vector yy, N_Vector yp, N_Vector rr,
                             realtype c_j, void *jac_data, 
                             N_Vector work1, N_Vector work2);
-
 /* Readability Replacements */
 
 #define lrw1    (IDA_mem->ida_lrw1)
@@ -125,8 +128,8 @@ static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define lmem    (IDA_mem->ida_lmem)
 #define nni     (IDA_mem->ida_nni)
 #define ncfn    (IDA_mem->ida_ncfn)
-#define setupNonNull  (IDA_mem->ida_setupNonNull)
-#define nvspec  (IDA_mem->ida_nvspec)
+#define setupNonNull (IDA_mem->ida_setupNonNull)
+#define vec_tmpl     (IDA_mem->ida_tempv1)
 
 #define sqrtN   (idaspgmr_mem->g_sqrtN)
 #define epslin  (idaspgmr_mem->g_epslin)
@@ -192,6 +195,7 @@ int IDASpgmr(void *ida_mem, int maxl)
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
   int flag, maxl1;
+  booleantype nvectorOK;
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
@@ -199,6 +203,12 @@ int IDASpgmr(void *ida_mem, int maxl)
     return(LMEM_FAIL);
   }
   IDA_mem = (IDAMem) ida_mem;
+
+  /* Check if N_VDotProd is present */
+  if(vec_tmpl->ops->nvdotprod == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    return(LIN_ILL_INPUT);
+  }
 
   if (lfree != NULL) flag = lfree(ida_mem);
 
@@ -235,22 +245,22 @@ int IDASpgmr(void *ida_mem, int maxl)
   setupNonNull = FALSE;
 
   /* Allocate memory for ytemp, yptemp, and xx */
-  ytemp = N_VNew(nvspec);
+  ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
-  yptemp = N_VNew(nvspec);
+  yptemp = N_VClone(vec_tmpl);
   if (yptemp == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    N_VFree(ytemp);
+    N_VDestroy(ytemp);
     return(LMEM_FAIL);
   }
-  xx = N_VNew(nvspec);
+  xx = N_VClone(vec_tmpl);
   if (xx == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    N_VFree(ytemp);
-    N_VFree(yptemp);
+    N_VDestroy(ytemp);
+    N_VDestroy(yptemp);
     return(LMEM_FAIL);
   }
 
@@ -259,12 +269,12 @@ int IDASpgmr(void *ida_mem, int maxl)
   sqrtN = RSqrt( N_VDotProd(ytemp, ytemp) );
 
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
-  spgmr_mem = SpgmrMalloc(maxl1, nvspec);
+  spgmr_mem = SpgmrMalloc(maxl1, vec_tmpl);
   if (spgmr_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    N_VFree(ytemp);
-    N_VFree(yptemp);
-    N_VFree(xx);
+    N_VDestroy(ytemp);
+    N_VDestroy(yptemp);
+    N_VDestroy(xx);
     return(LMEM_FAIL);
   }
 
@@ -921,8 +931,8 @@ static int IDASpgmrFree(IDAMem IDA_mem)
 
   idaspgmr_mem = (IDASpgmrMem) lmem;
   
-  N_VFree(ytemp);
-  N_VFree(xx);
+  N_VDestroy(ytemp);
+  N_VDestroy(xx);
   SpgmrFree(spgmr_mem);
   free(lmem);
 

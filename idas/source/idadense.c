@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-06-18 21:37:59 $
+ * $Revision: 1.5 $
+ * $Date: 2004-07-22 23:09:01 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -32,6 +32,8 @@
 #define MSG_IDAMEM_NULL        IDADENSE "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL           IDADENSE "A memory request failed.\n\n"
+
+#define MSG_BAD_NVECTOR        IDADENSE "A required vector operation is not implemented.\n\n"
 
 #define MSG_WRONG_NVEC         IDADENSE "Incompatible NVECTOR implementation.\n\n"
 
@@ -83,7 +85,7 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
 #define lfree        (IDA_mem->ida_lfree)
 #define lmem         (IDA_mem->ida_lmem)
 #define setupNonNull (IDA_mem->ida_setupNonNull)
-#define nvspec       (IDA_mem->ida_nvspec)
+#define vec_tmpl     (IDA_mem->ida_tempv1)
 
 #define neq          (idadense_mem->d_neq)
 #define jac          (idadense_mem->d_jac)
@@ -115,9 +117,8 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
  NOTE: The dense linear solver assumes a serial implementation
        of the NVECTOR package. Therefore, IDADense will first 
        test for compatible a compatible N_Vector internal
-       representation by checking (1) the vector specification
-       ID tag and (2) that the functions N_VMake, N_VDispose,
-       N_VGetData, and N_VSetData are implemented.
+       representation by checking that the functions N_VGetArrayPointer
+       and N_VSetArrayPointer exist.
 
 **********************************************************************/
 
@@ -135,12 +136,9 @@ int IDADense(void *ida_mem, long int Neq)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
-  if ((strcmp(nvspec->tag,"serial")) || 
-      nvspec->ops->nvmake    == NULL || 
-      nvspec->ops->nvdispose == NULL ||
-      nvspec->ops->nvgetdata == NULL || 
-      nvspec->ops->nvsetdata == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
+  if(vec_tmpl->ops->nvgetarraypointer == NULL ||
+     vec_tmpl->ops->nvsetarraypointer == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
     return(LIN_ILL_INPUT);
   }
 
@@ -419,9 +417,9 @@ static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   
   idadense_mem = (IDADenseMem) lmem;
   
-  bd = (realtype *) N_VGetData(b);
+  bd = N_VGetArrayPointer(b);
+
   DenseBacksolve(JJ, pivots, bd);
-  N_VSetData((void *)bd, b);
 
   /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
@@ -455,10 +453,10 @@ static int IDADenseFree(IDAMem IDA_mem)
  the DAE system Jacobian J.  It assumes that a dense matrix of type
  DenseMat is stored column-wise, and that elements within each column
  are contiguous.  The address of the jth column of JJ is obtained via
- the macro DENSE_COL and an N_Vector jthCol with the jth column as the
- component array is created using N_VMake and N_VGetData.  The jth column
- of the Jacobian is constructed using a call to the res routine, and
- a call to N_VLinearSum.
+ the macro DENSE_COL and this pointer is associated with an N_Vector
+ using the N_VGetArrayPointer/N_VSetArrayPointer functions. 
+ The jth column of the Jacobian is constructed using a call to the res 
+ routine, and a call to N_VLinearSum.
  The return value is either SUCCESS = 0, or the nonzero value returned
  by the res routine, if any.
 
@@ -470,7 +468,7 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
  
 {
   realtype inc, inc_inv, yj, ypj, srur, conj;
-  realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
+  realtype *tempv2_data, *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
   long int j;
   int retval=0;
@@ -482,24 +480,27 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
   IDA_mem = (IDAMem) jdata;
   idadense_mem = (IDADenseMem) lmem;
 
-  rtemp = tempv1; /* Rename work vector for use as residual value. */
+  /* Save pointer to the array in tempv2 */
+  tempv2_data = N_VGetArrayPointer(tempv2);
+
+  /* Rename work vectors for readibility */
+  rtemp = tempv1;
+  jthCol = tempv2;
 
   /* Obtain pointers to the data for ewt, yy, yp. */
-  ewt_data = (realtype *) N_VGetData(ewt);
-  y_data   = (realtype *) N_VGetData(yy);
-  yp_data  = (realtype *) N_VGetData(yp);
-  if(constraints!=NULL) cns_data = (realtype *) N_VGetData(constraints);
+  ewt_data = N_VGetArrayPointer(ewt);
+  y_data   = N_VGetArrayPointer(yy);
+  yp_data  = N_VGetArrayPointer(yp);
+  if(constraints!=NULL) cns_data = N_VGetArrayPointer(constraints);
 
   srur = RSqrt(uround);
-
-  jthCol = N_VMake(NULL, nvspec); /* j loop overwrites this data address */
 
   for (j=0; j < Neq; j++) {
 
     /* Generate the jth col of J(tt,yy,yp) as delta(F)/delta(y_j). */
 
     /* Set data address of jthCol, and save y_j and yp_j values. */
-    N_VSetData((void *)DENSE_COL(Jac,j), jthCol);
+    N_VSetArrayPointer(DENSE_COL(Jac,j), jthCol);
     yj = y_data[j];
     ypj = yp_data[j];
 
@@ -522,9 +523,6 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
     y_data[j] += inc;
     yp_data[j] += c_j*inc;
 
-    N_VSetData((void *)y_data, yy);
-    N_VSetData((void *)yp_data, yp);
-
     retval = res(tt, yy, yp, rtemp, rdata);
     nreD++;
     if (retval != SUCCESS) break;
@@ -532,15 +530,17 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
     /* Construct difference quotient in jthCol */
     inc_inv = ONE/inc;
     N_VLinearSum(inc_inv, rtemp, -inc_inv, resvec, jthCol);
-    DENSE_COL(Jac,j) = (realtype *) N_VGetData(jthCol);
+
+    DENSE_COL(Jac,j) = N_VGetArrayPointer(jthCol);
 
     /*  reset y_j, yp_j */     
     y_data[j] = yj;
     yp_data[j] = ypj;
   }
 
-  N_VDispose(jthCol);
+  /* Restore original array pointer in tempv2 */
+  N_VSetArrayPointer(tempv2_data, tempv2);
+
   return(retval);
 
 }
-

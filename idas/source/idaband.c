@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-06-18 21:37:59 $
+ * $Revision: 1.5 $
+ * $Date: 2004-07-22 23:09:01 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -41,6 +41,8 @@
 #define MSG_BAD_SIZES          MSG_BAD_SIZES_1 MSG_BAD_SIZES_2 MSG_BAD_SIZES_3
 
 #define MSG_MEM_FAIL           IDABAND "A memory request failed.\n\n"
+
+#define MSG_BAD_NVECTOR        IDABAND "A required vector operation is not implemented.\n\n"
 
 #define MSG_WRONG_NVEC         IDABAND "Incompatible NVECTOR implementation.\n\n"
 
@@ -92,7 +94,7 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
 #define lfree       (IDA_mem->ida_lfree)
 #define lmem        (IDA_mem->ida_lmem)
 #define setupNonNull (IDA_mem->ida_setupNonNull)
-#define nvspec      (IDA_mem->ida_nvspec)
+#define vec_tmpl     (IDA_mem->ida_tempv1)
 
 #define neq         (idaband_mem->b_neq)
 #define ml          (idaband_mem->b_mlower)
@@ -127,9 +129,8 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
  NOTE: The band linear solver assumes a serial implementation
        of the NVECTOR package. Therefore, IDABand will first 
        test for compatible a compatible N_Vector internal
-       representation by checking (1) the machine environment
-       ID tag and (2) that the functions N_VGetData, and N_VSetData 
-       are implemented.
+       representation by checking that the N_VGetArrayPointer
+       function exists
 
 **********************************************************************/
 
@@ -148,10 +149,8 @@ int IDABand(void *ida_mem, long int Neq,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
-  if ((strcmp(nvspec->tag,"serial")) || 
-      nvspec->ops->nvgetdata == NULL || 
-      nvspec->ops->nvsetdata == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
+  if(vec_tmpl->ops->nvgetarraypointer == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
     return(LIN_ILL_INPUT);
   }
 
@@ -443,9 +442,8 @@ static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
   idaband_mem = (IDABandMem) lmem;
   
-  bd = (realtype *) N_VGetData(b);
+  bd = N_VGetArrayPointer(b);
   BandBacksolve(JJ, pivots, bd);
-  N_VSetData((void *)bd, b);
 
   /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
@@ -518,16 +516,16 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
 
   /* Obtain pointers to the data for all eight vectors used.  */
 
-  ewt_data = (realtype *) N_VGetData(ewt);
-  r_data   = (realtype *) N_VGetData(resvec);
-  y_data   = (realtype *) N_VGetData(yy);
-  yp_data  = (realtype *) N_VGetData(yp);
+  ewt_data = N_VGetArrayPointer(ewt);
+  r_data   = N_VGetArrayPointer(resvec);
+  y_data   = N_VGetArrayPointer(yy);
+  yp_data  = N_VGetArrayPointer(yp);
 
-  rtemp_data  = (realtype *) N_VGetData(rtemp);
-  ytemp_data  = (realtype *) N_VGetData(ytemp);
-  yptemp_data = (realtype *) N_VGetData(yptemp);
+  rtemp_data  = N_VGetArrayPointer(rtemp);
+  ytemp_data  = N_VGetArrayPointer(ytemp);
+  yptemp_data = N_VGetArrayPointer(yptemp);
 
-  if (constraints != NULL) cns_data = (realtype *) N_VGetData(constraints);
+  if (constraints != NULL) cns_data = N_VGetArrayPointer(constraints);
 
   /* Initialize ytemp and yptemp. */
 
@@ -572,14 +570,10 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
     }
 
     /* Call res routine with incremented arguments. */
-    N_VSetData((void *)ytemp_data, ytemp);
-    N_VSetData((void *)yptemp_data, yptemp);
 
     retval = res(tt, ytemp, yptemp, rtemp, rdata);
     nreB++;
     if (retval != SUCCESS) break;
-
-    rtemp_data = (realtype *) N_VGetData(rtemp);
 
     /* Loop over the indices j in this group again. */
 
@@ -619,4 +613,3 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
   return(retval);
   
 }
-
