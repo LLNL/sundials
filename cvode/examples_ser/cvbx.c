@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-25 22:15:19 $
+ * $Revision: 1.12 $
+ * $Date: 2004-08-25 22:28:21 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -39,7 +39,7 @@
 #include "cvode.h"           /* prototypes for CVode*** functions; constants  */
                              /* CV_BDF, CV_NEWTON, CV_SS, CV_NORMAL,CV_SUCCESS*/
 #include "cvband.h"          /* prototype for CVBand                          */
-#include "nvector_serial.h"  /* definitions of type N_Vector, macro NV_Ith_S, */
+#include "nvector_serial.h"  /* definitions of type N_Vector, macro NV_DATA_S,*/
                              /* prototypes for N_VNew_Serial and N_VDestroy   */
 #include "band.h"            /* definition of type BandMat, macros            */
 
@@ -366,19 +366,22 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
     return(1); }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+              funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
     return(1); }
 
   return(0);
