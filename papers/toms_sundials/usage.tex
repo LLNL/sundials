@@ -8,11 +8,11 @@ This versatility is due primarily to the control that the user has
 over the modules that comprise SUNDIALS: the specification of vectors;
 the linear solver and preconditioner methods; the basic solvers; and
 sensitivity analysis.
-Default routines are provided for the vector specification and
-computing Jacobian-vector approximations, for example. But for these
-routines and other basic operations, SUNDIALS allows the user to provide
-their own variants that may be better suited to their problem-solving
-needs. 
+Default routines are provided for computing Jacobian-vector 
+approximations, or the right-hand side of the forward sensitivity
+systems, for example. But for these routines and other basic operations, 
+SUNDIALS allows the user to provide their own variants that may be better 
+suited to their problem-solving needs. 
 Additionally, SUNDIALS provides the user with a fine level of control
 over various algorithmic parameters, heuristic values, and data
 structure pointers contained within the codes.
@@ -33,9 +33,8 @@ accompanies each solver in SUNDIALS.
 SUNDIALS contains header files that define various constants,
 enumerations, macros, data types, and function prototypes.  At a
 minimum, the user must include header files that declare: the SUNDIALS
-data types for real, integer, and boolean variables; the content and
-operations that can be performed on vectors in either a serial or
-parallel environment; and the solver functions needed to
+data types for real, integer, and boolean variables; the NVECTOR
+implementation to be used; and the solver functions needed to
 set up and initialize the problem, compute, and extract the solution. 
 Typically, additional header files will be specified to declare the 
 preconditioning and/or linear solver methods to be used.
@@ -43,12 +42,11 @@ preconditioning and/or linear solver methods to be used.
 \item \label{sun_problem}
 The user must provide a function for evaluating the equations to be
 solved. Optionally, a user-defined data structure can be created and
-passed to this function. The user must also initialize the vector
-specification data structure so that new vectors can be created as needed.
+passed to this function. 
 
 \item \label{sun_size}
-To completely specify the problem, the user must define the problem
-size, give whatever initial guesses and/or initial values are
+To completely specify the problem, the user must 
+provide whatever initial guesses and/or initial values are
 needed, specify solution error tolerances, and so on. 
 
 \item \label{sun_create}
@@ -85,8 +83,8 @@ the tolerances and other settings that have been specified.
 
 \item \label{sun_get}
 To extract the solution, solver statistics, and other information,
-optional output extraction routines can be called. A listing of these
-``get'' routines for the basic solvers is given 
+optional output extraction routines can be called. 
+A listing of the optional outputs for the basic solvers is given 
 in Table~\ref{t:optional_output}.
 
 \item \label{sun_finalize}
@@ -116,7 +114,7 @@ has been allocated previously must be freed at
 Step~\ref{sun_finalize}. For complete details on performing forward or
 adjoint sensitivity analysis for CVODES, the reader is referred to~\cite{SeHi:03}.
 
-For a parallel machine environment, the MPI header file must be
+If using the parallel NVECTOR module in SUNDIALS, the MPI header file must be
 specified in Step~\ref{sun_headers} so that in Step~\ref{sun_size} the MPI
 communicator can be initialized, the set of active processors can be
 established, and the global and local vector lengths can be set.
@@ -230,8 +228,9 @@ to compute sensitivity ODEs or DAE sensitivity residuals (CVODES or
 IDAS difference quotient approximation); a pointer to user data that
 will be passed to this user-supplied ODE or DAE sensitivity routine (NULL); a
 pointer to the sensitivity relative error tolerance scalar (same value as
-for state variables); and the type of error control (FULL).
-For more options and details, see \cite{SeHi:03}, \cite{HiSe:04cvodes}.
+for state variables); and a boolean flag indicating whether the sensitivity
+variables are included in the error control mechanism (FALSE).
+For more options and details, see \cite{SeHi:03,HiSe:04cvodes}.
 
 \subsubsection*{Linear Solvers and Preconditioners}
 
@@ -276,5 +275,5 @@ main program and all user-supplied routines in Fortran, and then use
 either CVODE or KINSOL to solve the problem.  This mixed-language
 capability entails some compromises in portability, such as requiring
 fixed names for the user-supplied routines, but the restrictions are
-minor.  For complete details, see the user documentation for each of
-the solvers in SUNDIALS (\cite{HiSe:04cvode}, \cite{HSW:04kinsol}).
+minor. For complete details, see the CVODE and KINSOL user 
+documentation~(\cite{HiSe:04cvode,HSW:04kinsol}).
