@@ -24,7 +24,7 @@
  * In addition to the solution, sensitivities with respect to p1 and p2 *
  * as well as with respect to initial conditions are computed for the   *
  * quantity:                                                            *
- *    g(t, u, p) = u(t) at t = 5                                        *
+ *    g(t, u, p) = int_x u(x,t) at t = 5                                *
  * These sensitivities are obtained by solving the adjoint system:      *
  *    dv/dt = -p1 * d^2 v / dx^2 + p2 * dv / dx                         *
  * with homogeneous Ditrichlet boundary conditions and the final        *
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
   } else {
     for (i=1; i<=local_N; i++) {
       iglobal = my_base + i;
-      printf("    lambda(t0)[%2d] = %g\n", iglobal, uBdata[i-1]);
+      printf("    mu(t0)[%2d] = %g\n", iglobal, uBdata[i-1]);
     }
   }
 

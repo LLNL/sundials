@@ -259,7 +259,7 @@ static void SetIC(N_Vector u, UserData data)
     }
   }  
 
-  ff = fopen("ad_u0.dat","w");
+  ff = fopen("cvabx.u0","w");
 
   for(i=1; i<=MX+2; i++) fprintf(ff, "0.0 ");
   fprintf(ff,"\n");
@@ -274,6 +274,8 @@ static void SetIC(N_Vector u, UserData data)
   for(i=1; i<=MX+2; i++) fprintf(ff, "0.0 ");
   fprintf(ff,"\n");
   fclose(ff);
+
+  printf("\nInitial condition written to file cvabx.u0\n");
 
 }
 
@@ -450,7 +452,7 @@ static void WriteLambda(N_Vector uB)
   int i, j;
   FILE *ff;
 
-  ff = fopen("ad_lambda.dat","w");
+  ff = fopen("cvabx.lambda","w");
 
   uBdata = NV_DATA_S(uB);
   for(i=1; i<=MX+2; i++) fprintf(ff, "0.0 ");
@@ -466,5 +468,7 @@ static void WriteLambda(N_Vector uB)
   for(i=1; i<=MX+2; i++) fprintf(ff, "0.0 ");
   fprintf(ff,"\n");
   fclose(ff);
+
+  printf("\nLambda written to file cvabx.lambda\n");
 
 }

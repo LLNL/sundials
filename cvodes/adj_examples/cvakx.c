@@ -173,7 +173,6 @@ static void InitUserData(WebData wdata);
 static void SetGroups(int m, int ng, int jg[], int jig[], int jr[]);
 static void CInit(N_Vector c, WebData wdata);
 static void PrintAllSpecies(FILE *fout, N_Vector c, int ns, int mxns);
-static void PrintFinalStats(long int iopt[]);
 static void FreeUserData(WebData wdata);
 static void WebRates(real x, real y, real t, real c[], real rate[],
                      WebData wdata);
@@ -243,7 +242,7 @@ int main(int argc, char *argv[])
   /*----- OPEN FILE ----*/
   /*--------------------*/
 
-  outfile = fopen("food_output.dat","w");
+  outfile = fopen("cvakx.lambda","w");
   fprintf(outfile,"%f %f\n",AX,AY);
   fprintf(outfile,"%d %d\n\n", MX, MY);
 
@@ -293,7 +292,6 @@ int main(int argc, char *argv[])
   flag = CVodeF(cvadj_mem, TOUT, c, &t, NORMAL, &ncheck);
   if (flag != SUCCESS) { printf("CVode failed.\n"); return(1); }
 
-  PrintFinalStats(iopt);
   printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %f \n\n", 
          ISPEC, NV_DATA_S(c)[NEQ]);
 
@@ -337,8 +335,8 @@ int main(int argc, char *argv[])
   printf("\nBackward integration\n");
   flag = CVodeB(cvadj_mem, cB);
 
-  PrintFinalStats(ioptB);
   PrintAllSpecies(outfile,cB, NS, MXNS);
+  printf("\nLambda(0,x,y) written to file cvakx.lambda\n\n");
   for ( iout=1 ; iout <= NS ; iout++ )
     printf("  int_x int_y lambda%d(0,x,y) dx dy = %f \n",iout,doubleIntgr(cB,iout,wdata));
 
@@ -501,33 +499,6 @@ static void PrintAllSpecies(FILE *f, N_Vector c, int ns, int mxns)
     fprintf(f,"\n");
   }
 }
-
-static void PrintFinalStats(long int iopt[])
-{
-  long int nni, nli;
-  real avdim;
-
-  printf("\n Final statistics for this run:\n\n");
-  printf(" CVode real workspace length           = %4ld \n", iopt[LENRW]);
-  printf(" CVode integer workspace length        = %4ld \n", iopt[LENIW]);
-  printf(" CVSPGMR real workspace length         = %4ld \n", iopt[SPGMR_LRW]);
-  printf(" CVSPGMR integer workspace length      = %4ld \n", iopt[SPGMR_LIW]);
-  printf(" Number of steps                       = %4ld \n", iopt[NST]);
-  printf(" Number of f-s                         = %4ld \n", iopt[NFE]);
-  printf(" Number of setups                      = %4ld \n", iopt[NSETUPS]);
-  printf(" Number of nonlinear iterations        = %4ld \n", nni = iopt[NNI]);
-  printf(" Number of linear iterations           = %4ld \n", 
-	 nli = iopt[SPGMR_NLI]);
-  printf(" Number of preconditioner evaluations  = %4ld \n", iopt[SPGMR_NPE]);
-  printf(" Number of preconditioner solves       = %4ld \n", iopt[SPGMR_NPS]);
-  printf(" Number of error test failures         = %4ld \n", iopt[NETF]);
-  printf(" Number of nonlinear conv. failures    = %4ld \n", iopt[NCFN]);
-  printf(" Number of linear convergence failures = %4ld \n", iopt[SPGMR_NCFL]);
-  avdim = (nni > 0) ? ((real)nli)/((real)nni) : 0.0;
-  printf(" Average Krylov subspace dimension     = %.3f \n", avdim);
-  printf("\n-------------------------------------------------------------\n");
-}
-
 
 static real doubleIntgr(N_Vector c, int i, WebData wdata)
 {

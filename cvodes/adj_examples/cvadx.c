@@ -66,12 +66,13 @@
 #define ATOL2    1e-14
 #define ATOL3    1e-6
 
-#define ATOLq    1e-6         /* absolute tol. for quadratures        */
+#define ATOLl    1e-5         /* absolute tolerance for adjoint vars. */
+#define ATOLq    1e-6         /* absolute tolerance for quadratures   */
 
 #define T0       0.0          /* initial time                         */
 #define TOUT     4e7          /* final time                           */
 
-#define MAXSTP   150          /* number of steps between check points */
+#define STEPS   150          /* number of steps between check points */
 
 #define NP       3            /* number of problem parameters         */
 
@@ -111,8 +112,6 @@ int main(int argc, char *argv[])
   void *cvadj_mem;
   void *cvode_mem;
 
-  long int iopt[OPT_SIZE];
-  real ropt[OPT_SIZE];
   real reltol;
   N_Vector y, abstol;
 
@@ -120,7 +119,7 @@ int main(int argc, char *argv[])
   N_Vector yB, abstolB;
 
   real time;
-  int i, flag, ncheck;
+  int flag, ncheck;
 
 
   /* USER DATA STRUCTURE */
@@ -146,28 +145,23 @@ int main(int argc, char *argv[])
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
-  /* Optional I/O */
-  for(i=0; i<OPT_SIZE; i++) {
-    iopt[i] = 0;
-    ropt[i] = 0.0;
-  }
-
   /* Allocate CVODE memory for forward run */
   printf("\nAllocate CVODE memory for forward runs\n");
   cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
-                          data, NULL, TRUE, iopt, ropt, machEnvF);
+                          data, NULL, FALSE, NULL, NULL, machEnvF);
   flag = CVDense(cvode_mem, Jac, NULL);
   if (flag != SUCCESS) { printf("CVDense failed.\n"); return(1); }
 
   /* Allocate global memory */
   printf("\nAllocate global memory\n");
-  cvadj_mem = CVadjMalloc(cvode_mem, MAXSTP);
+  cvadj_mem = CVadjMalloc(cvode_mem, STEPS);
   if (cvadj_mem == NULL) { printf("CVadjMalloc failed.\n"); return(1); }
 
   /* Perform forward run */
   printf("\nForward integration\n");
   
   flag = CVodeF(cvadj_mem, TOUT, y, &time, NORMAL, &ncheck);
+  if (flag != SUCCESS) { printf("CVodeF failed.\n"); return(1); }
 
   /* Test check point linked list */
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
@@ -190,9 +184,9 @@ int main(int argc, char *argv[])
   reltolB = RTOL;               
   /* Set the vector absolute tolerance abstolB */
   abstolB = N_VNew(NEQ+NP+1, machEnvB); 
-  Ith(abstolB,1) = ATOL1;       
-  Ith(abstolB,2) = ATOL2;
-  Ith(abstolB,3) = ATOL3;
+  Ith(abstolB,1) = ATOLl;       
+  Ith(abstolB,2) = ATOLl;
+  Ith(abstolB,3) = ATOLl;
   Ith(abstolB,4) = ATOLq;
   Ith(abstolB,5) = ATOLq;
   Ith(abstolB,6) = ATOLq;
@@ -213,8 +207,12 @@ int main(int argc, char *argv[])
   if (flag < 0) { printf("CVodeB failed.\n"); return(1); }
 
   printf("\n\n========================================================\n");
-  printf("G:  %12.4e \n",-Ith(yB,7));
-  printf("Gp: %12.4e %12.4e %12.4e\n", -Ith(yB,4), -Ith(yB,5), -Ith(yB,6));
+  printf("G:          %12.4e \n",-Ith(yB,7));
+  printf("Gp:         %12.4e %12.4e %12.4e\n", 
+         -Ith(yB,4), -Ith(yB,5), -Ith(yB,6));
+  printf("========================================================\n");
+  printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
+         Ith(yB,1), Ith(yB,2), Ith(yB,3));
   printf("========================================================\n");
 
   /* Free memory */
@@ -233,13 +231,9 @@ int main(int argc, char *argv[])
 
 }
 
-
 /***************** Functions Called by the CVODE Solver ******************/
 
-/*-------------------------------------------------------------------------
-  f routine. Compute f(t,y). 
--------------------------------------------------------------------------*/
-
+/* f routine. Compute f(t,y). */
 static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
 {
   real y1, y2, y3, yd1, yd3;
@@ -255,10 +249,7 @@ static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
         Ith(ydot,2) = -yd1 - yd3;
 }
 
-/*-------------------------------------------------------------------------
-  Jacobian routine. Compute J(t,y). 
--------------------------------------------------------------------------*/
-
+/* Jacobian routine. Compute J(t,y). */
 static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
                 N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
@@ -277,10 +268,7 @@ static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
                       IJth(J,3,2) = 2*p3*y2;
 }
  
-/*-------------------------------------------------------------------------
-  fB routine. Compute fB(t,y,mu). 
--------------------------------------------------------------------------*/
-
+/* fB routine. Compute fB(t,y,yB). */
 static void fB(integer NB, real t, N_Vector y, 
                N_Vector yB, N_Vector yBdot, void *f_dataB)
 {
@@ -288,8 +276,6 @@ static void fB(integer NB, real t, N_Vector y,
   real y1, y2, y3;
   real p1, p2, p3;
   real l1, l2, l3;
-  real x1, x2, x3;
-  real phi;
   real l21, l32, y23;
   
   data = (UserData) f_dataB;
@@ -303,32 +289,23 @@ static void fB(integer NB, real t, N_Vector y,
   /* The lambda vector */
   l1 = Ith(yB,1); l2 = Ith(yB,2); l3 = Ith(yB,3);
 
-  /* The xi vector */
-  x1 = Ith(yB,4); x2 = Ith(yB,5); x3 = Ith(yB,6);
-  
-  /* The phi variable */
-  phi = Ith(yB, 7);
-
   /* Temporary variables */
   l21 = l2-l1;
   l32 = l3-l2;
   y23 = y2*y3;
 
   /* Load yBdot */
-  Ith(yBdot,1) = -p1*l21 + 1.0;
-  Ith(yBdot,2) = p2*y3*l21-2.0*p3*y2*l32+p2*y3;
-  Ith(yBdot,3) = p2*y2*l21+p2*y2;
-  Ith(yBdot,4) = -y1*l21;
-  Ith(yBdot,5) = y23*l21+y23;
-  Ith(yBdot,6) = -y2*y2*l32;
+  Ith(yBdot,1) = - p1*l21 - 1.0;
+  Ith(yBdot,2) = p2*y3*l21 - 2.0*p3*y2*l32 - p2*y3;
+  Ith(yBdot,3) = p2*y2*l21 - p2*y2;
+  Ith(yBdot,4) = y1*l21;
+  Ith(yBdot,5) = - y23*l21 + y23;
+  Ith(yBdot,6) = y2*y2*l32;
   Ith(yBdot,7) = y1+p2*y23;
 
 }
 
-/*-------------------------------------------------------------------------
-  fB routine. Compute fB(t,y,mu). 
--------------------------------------------------------------------------*/
-
+/* JacB routine. Compute JB(t,y,yB). */
 static void JacB(integer NB, DenseMat JB, RhsFnB fB, void *f_dataB, real t,
                  N_Vector y, N_Vector yB, N_Vector fyB, N_Vector ewtB, real hB, 
                  real uroundB, void *jac_dataB, long int *nfePtrB, N_Vector vtemp1B,
@@ -349,8 +326,9 @@ static void JacB(integer NB, DenseMat JB, RhsFnB fB, void *f_dataB, real t,
   /* Load JB */
   IJth(JB,1,1) = p1;     IJth(JB,1,2) = -p1; 
   IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2; IJth(JB,2,3) = -2.0*p3*y2;
-  IJth(JB,3,1) = y1;     IJth(JB,3,2) = -y1; 
-  IJth(JB,4,1) = -y2*y3; IJth(JB,4,2) = y2*y3; 
-                         IJth(JB,5,2) = y2*y2;           IJth(JB,5,3) = -y2*y2; 
+  IJth(JB,3,1) = -p2*y2; IJth(JB,3,2) = p2*y2;
+  IJth(JB,4,1) = -y1;    IJth(JB,4,2) = y1; 
+  IJth(JB,5,1) = y2*y3;  IJth(JB,5,2) = -y2*y3; 
+                         IJth(JB,6,2) = -y2*y2;          IJth(JB,6,3) = y2*y2; 
 }
 
