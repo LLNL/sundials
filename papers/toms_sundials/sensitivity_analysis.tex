@@ -27,19 +27,32 @@ written as an extension of the parallel version of CVODE for this
 situation \cite{LHB:00}.  It integrates the extended ODE system for
 $Y = (y,w_1,\cdots,w_m)$, where $w_i = \bar{p}_i s_i$ and $\bar{p}_i$
 is a scale factor for $p_i$ (it may equal $p_i$ if this is nonzero).
-
 In SensPVODE, the evaluation of $\dot{w}_i = \bar{p}_i \dot{s}_i$ is
 done by difference quotients, for which there is a range of choices
-in differencing strategy, or by Automatic Differentiation.
+in differencing strategy, or by Automatic Differentiation~\cite{LeHo:01}.
 
-It is important to note that the Jacobian of the extended system, of
-size $N(m+1)$, is approximated by $diag[J,\cdots,J]$.  So when the
-linear systems are solved with the SPGMR algorithm, an appropriate
-preconditioner is the block-diagonal matrix $diag[P,\cdots,P]$, where
-$P$ is the preconditioner used for the original problem $\dot{y} = f$.
-Thus the linear systems for the extended problem involve additional
-solve operations compared to the original problem, but no additional
-matrix setup operations.
+For many large-scale applications, implicit time integration methods
+such as Backward Differentiation Formulas are needed. SensPVODE solves
+the nonlinear systems that arise at each time step by using the
+simultaneous corrector method~\cite{MaPe:97}, a type of Newton
+iteration in which the coefficient matrix for the Newton update is
+simply the block-diagonal portion of the Newton matrix. This
+block-diagonal structure results in a decoupling that allows the
+linear system matrix to be used repeatedly in solving the $(m+1)$
+linear systems that arise: one linear system for the Newton update to
+the ODE variables; and $m$ linear systems for updates to the $m$
+scaled sensitivity vectors. Because all of the block-diagonal matrices
+are identical, the linear systems are solved using the same
+preconditioner and/or linear system solver that were specified for the
+original ODE problem. Thus the linear systems for the extended problem
+involve additional solve operations compared to the original problem,
+but no additional matrix setup operations.
+
+%It is important to note that the Jacobian of the extended system, of
+%size $N(m+1)$, is approximated by $diag[J,\cdots,J]$.  So when the
+%linear systems are solved with the SPGMR algorithm, an appropriate
+%preconditioner is the block-diagonal matrix $diag[P,\cdots,P]$, where
+%$P$ is the preconditioner used for the original problem $\dot{y} = f$.
 
 {\sf Think through this carefully and point to CVODES paper as
 appropriate - do not overlap with that paper here except for
