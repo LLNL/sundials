@@ -1,10 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-08 15:21:09 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-09 01:20:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @LLNL
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
  *
@@ -23,7 +23,7 @@
  *   0 <= t <= 86400 sec (1 day).
  * The PDE system is treated by central differences on a uniform
  * 10 x 10 mesh, with simple polynomial initial profiles.
- * The problem is solved with CVODES, with the BDF/GMRES
+ * The problem is solved with CVODE, with the BDF/GMRES
  * method (i.e. using the CVSPGMR linear solver) and the
  * block-diagonal part of the Newton matrix as a left
  * preconditioner. A copy of the block-diagonal part of the
@@ -35,39 +35,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definitions of realtype, TRUE, FALSE           */
-#include "cvodes.h"         /* CVode*** prototypes, various constants         */
-#include "cvspgmr.h"        /* prototypes & constants for CVSPGMR solver      */
-#include "smalldense.h"     /* use generic DENSE solver in preconditioning    */
-#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S  */
-#include "sundialsmath.h"   /* contains SQR macro                             */
+#include "sundialstypes.h"  /* definitions of realtype, TRUE and FALSE     */
+#include "cvodes.h"         /* CVode* prototypes and various constants     */
+#include "cvspgmr.h"        /* prototypes & constants for CVSPGMR solver   */
+#include "smalldense.h"     /* use generic DENSE solver in preconditioning */
+#include "nvector_serial.h" /* definitions of type N_Vector and macro      */
+                            /* NV_DATA_S                                   */
+#include "sundialsmath.h"   /* contains SQR macro                          */
 
 /* Problem Constants */
 
-#define NUM_SPECIES  2             /* number of species         */
-#define KH           4.0e-6        /* horizontal diffusivity Kh */
-#define VEL          0.001         /* advection velocity V      */
-#define KV0          1.0e-8        /* coefficient in Kv(y)      */
-#define Q1           1.63e-16      /* coefficients q1, q2, c3   */ 
-#define Q2           4.66e-16
-#define C3           3.7e16
-#define A3           22.62         /* coefficient in expression for q3(t) */
-#define A4           7.601         /* coefficient in expression for q4(t) */
-#define C1_SCALE     1.0e6         /* coefficients in initial profiles    */
-#define C2_SCALE     1.0e12
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
+#define TWO  RCONST(2.0)
 
-#define T0           0.0           /* initial time */
-#define NOUT         12            /* number of output times */
-#define TWOHR        7200.0        /* number of seconds in two hours  */
-#define HALFDAY      4.32e4        /* number of seconds in a half day */
-#define PI       3.1415926535898   /* pi */ 
+#define NUM_SPECIES  2                 /* number of species         */
+#define KH           RCONST(4.0e-6)    /* horizontal diffusivity Kh */
+#define VEL          RCONST(0.001)     /* advection velocity V      */
+#define KV0          RCONST(1.0e-8)    /* coefficient in Kv(y)      */
+#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */ 
+#define Q2           RCONST(4.66e-16)
+#define C3           RCONST(3.7e16)
+#define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
+#define A4           RCONST(7.601)     /* coefficient in expression for q4(t) */
+#define C1_SCALE     RCONST(1.0e6)     /* coefficients in initial profiles    */
+#define C2_SCALE     RCONST(1.0e12)
 
-#define XMIN          0.0          /* grid boundaries in x  */
-#define XMAX         20.0           
-#define YMIN         30.0          /* grid boundaries in y  */
-#define YMAX         50.0
-#define XMID         10.0          /* grid midpoints in x,y */          
-#define YMID         40.0
+#define T0           ZERO                 /* initial time */
+#define NOUT         12                   /* number of output times */
+#define TWOHR        RCONST(7200.0)       /* number of seconds in two hours  */
+#define HALFDAY      RCONST(4.32e4)       /* number of seconds in a half day */
+#define PI       RCONST(3.1415926535898)  /* pi */ 
+
+#define XMIN         ZERO                 /* grid boundaries in x  */
+#define XMAX         RCONST(20.0)           
+#define YMIN         RCONST(30.0)         /* grid boundaries in y  */
+#define YMAX         RCONST(50.0)
+#define XMID         RCONST(10.0)         /* grid midpoints in x,y */          
+#define YMID         RCONST(40.0)
 
 #define MX           10             /* MX = number of x mesh points */
 #define MY           10             /* MY = number of y mesh points */
@@ -76,8 +81,8 @@
 
 /* CVodeMalloc Constants */
 
-#define RTOL    1.0e-5            /* scalar relative tolerance */
-#define FLOOR   100.0             /* value of C1 or C2 at which tolerances */
+#define RTOL    RCONST(1.0e-5)    /* scalar relative tolerance */
+#define FLOOR   RCONST(100.0)     /* value of C1 or C2 at which tolerances */
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 #define NEQ     (NUM_SPECIES*MM)  /* NEQ = number of equations */
@@ -221,7 +226,7 @@ int main()
   PrintFinalStats(cvode_mem);
 
   /* Free memory */
-  N_VDestroy(u);
+  N_VDestroy_Serial(u);
   FreeUserData(data);
   CVodeFree(cvode_mem);
 
@@ -262,8 +267,8 @@ static void InitUserData(UserData data)
   data->dx = (XMAX-XMIN)/(MX-1);
   data->dy = (YMAX-YMIN)/(MY-1);
   data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(2.0*data->dx);
-  data->vdco = (1.0/SQR(data->dy))*KV0;
+  data->haco = VEL/(TWO*data->dx);
+  data->vdco = (ONE/SQR(data->dy))*KV0;
 }
 
 /* Free data memory */
@@ -299,12 +304,12 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 
   for (jy=0; jy < MY; jy++) {
     y = YMIN + jy*dy;
-    cy = SQR(0.1*(y - YMID));
-    cy = 1.0 - cy + 0.5*SQR(cy);
+    cy = SQR(RCONST(0.1)*(y - YMID));
+    cy = ONE - cy + RCONST(0.5)*SQR(cy);
     for (jx=0; jx < MX; jx++) {
       x = XMIN + jx*dx;
-      cx = SQR(0.1*(x - XMID));
-      cx = 1.0 - cx + 0.5*SQR(cx);
+      cx = SQR(RCONST(0.1)*(x - XMID));
+      cx = ONE - cx + RCONST(0.5)*SQR(cx);
       IJKth(udata,1,jx,jy) = C1_SCALE*cx*cy; 
       IJKth(udata,2,jx,jy) = C2_SCALE*cx*cy;
     }
@@ -329,12 +334,21 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
   flag = CVodeGetLastStep(cvode_mem, &hu);
   check_flag(&flag, "CVodeGetLastStep", 1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n",
+         t, nst, qu, hu);
+  printf("c1 (bot.left/middle/top rt.) = %12.3Le  %12.3Le  %12.3Le\n",
+         IJKth(udata,1,0,0), IJKth(udata,1,mxh,myh), IJKth(udata,1,mx1,my1));
+  printf("c2 (bot.left/middle/top rt.) = %12.3Le  %12.3Le  %12.3Le\n\n",
+         IJKth(udata,2,0,0), IJKth(udata,2,mxh,myh), IJKth(udata,2,mx1,my1));
+#else
   printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
          t, nst, qu, hu);
   printf("c1 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n",
          IJKth(udata,1,0,0), IJKth(udata,1,mxh,myh), IJKth(udata,1,mx1,my1));
   printf("c2 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n\n",
          IJKth(udata,2,0,0), IJKth(udata,2,mxh,myh), IJKth(udata,2,mx1,my1));
+#endif
 }
 
 /* Get and print final statistics */
@@ -446,12 +460,12 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   /* Set diurnal rate coefficients. */
 
   s = sin(data->om*t);
-  if (s > 0.0) {
+  if (s > ZERO) {
     q3 = exp(-A3/s);
     data->q4 = exp(-A4/s);
   } else {
-    q3 = 0.0;
-    data->q4 = 0.0;
+      q3 = ZERO;
+      data->q4 = ZERO;
   }
 
   /* Make local copies of problem variables, for efficiency. */
@@ -468,10 +482,10 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
 
-    ydn = YMIN + (jy - .5)*dely;
+    ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(0.2*ydn);
-    cyup = verdco*exp(0.2*yup);
+    cydn = verdco*exp(RCONST(0.2)*ydn);
+    cyup = verdco*exp(RCONST(0.2)*yup);
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
@@ -484,7 +498,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
       qq2 = Q2*c1*c2;
       qq3 = q3*C3;
       qq4 = q4coef*c2;
-      rkin1 = -qq1 - qq2 + 2.0*qq3 + qq4;
+      rkin1 = -qq1 - qq2 + TWO*qq3 + qq4;
       rkin2 = qq1 - qq2 - qq4;
 
       /* Set vertical diffusion terms. */
@@ -504,8 +518,8 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
       c2lt = IJKth(udata,2,jx+ileft,jy);
       c1rt = IJKth(udata,1,jx+iright,jy);
       c2rt = IJKth(udata,2,jx+iright,jy);
-      hord1 = hordco*(c1rt - 2.0*c1 + c1lt);
-      hord2 = hordco*(c2rt - 2.0*c2 + c2lt);
+      hord1 = hordco*(c1rt - TWO*c1 + c1lt);
+      hord2 = hordco*(c2rt - TWO*c2 + c2lt);
       horad1 = horaco*(c1rt - c1lt);
       horad2 = horaco*(c2rt - c2lt);
 
@@ -566,11 +580,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
        computed on the last f call).  Load into P. */
     
     for (jy=0; jy < MY; jy++) {
-      ydn = YMIN + (jy - .5)*dely;
+      ydn = YMIN + (jy - RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*exp(0.2*ydn);
-      cyup = verdco*exp(0.2*yup);
-      diag = -(cydn + cyup + 2.0*hordco);
+      cydn = verdco*exp(RCONST(0.2)*ydn);
+      cyup = verdco*exp(RCONST(0.2)*yup);
+      diag = -(cydn + cyup + TWO*hordco);
       for (jx=0; jx < MX; jx++) {
         c1 = IJKth(udata,1,jx,jy);
         c2 = IJKth(udata,2,jx,jy);
@@ -627,7 +641,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   pivot = data->pivot;
   zdata = NV_DATA_S(z);
   
-  N_VScale(1.0, r, z);
+  N_VScale(ONE, r, z);
   
   /* Solve the block-diagonal system Px = r using LU factors stored
      in P and pivot data in pivot, and return the solution in z. */

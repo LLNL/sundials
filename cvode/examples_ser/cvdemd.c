@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-10-26 20:11:31 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-09 01:20:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -55,45 +55,52 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definition for realtype                      */
-#include "cvode.h"          /* main integrator header file                  */
-#include "cvdense.h"        /* use CVDENSE linear solver                    */
-#include "cvband.h"         /* use CVBAND linear solver                     */
-#include "cvdiag.h"         /* use CVDIAG linear solver                     */
-#include "nvector_serial.h" /* definition of type N_Vector, macro NV_Ith_S  */
-#include "sundialsmath.h"   /* contains the macros ABS, SQR                 */
+
+#include "sundialstypes.h"   /* definition of realtype              */
+#include "cvode.h"           /* main integrator header file         */
+#include "cvdense.h"         /* use CVDENSE linear solver           */
+#include "cvband.h"          /* use CVBAND linear solver            */
+#include "cvdiag.h"          /* use CVDIAG linear solver            */
+#include "nvector_serial.h"  /* definition of type N_Vector and the */
+                             /* macro NV_Ith_S                      */
+#include "sundialsmath.h"    /* contains the macros ABS and SQR     */
 
 /* Shared Problem Constants */
 
-#define ATOL  1.0e-6
-#define RTOL  0.0
-#define ITOL  CV_SS
+#define ATOL RCONST(1.0e-6)
+#define RTOL RCONST(0.0)
+
+#define ZERO   RCONST(0.0)
+#define ONE    RCONST(1.0)
+#define TWO    RCONST(2.0)
+#define THIRTY RCONST(30.0)
 
 /* Problem #1 Constants */
 
 #define P1_NEQ        2
-#define P1_ETA        3.0
+#define P1_ETA        RCONST(3.0)
 #define P1_NOUT       4
-#define P1_T0         0.0
-#define P1_T1         1.39283880203
-#define P1_DTOUT      2.214773875
-#define P1_TOL_FACTOR 1.0e4
+#define P1_T0         RCONST(0.0)
+#define P1_T1         RCONST(1.39283880203)
+#define P1_DTOUT      RCONST(2.214773875)
+#define P1_TOL_FACTOR RCONST(1.0e4)
 
 /* Problem #2 Constants */
 
-#define P2_MESHX        5
-#define P2_MESHY        5
-#define P2_NEQ          (P2_MESHX * P2_MESHY)
-#define P2_ALPH1        1.0
-#define P2_ALPH2        1.0
-#define P2_NOUT         5
-#define P2_ML           5
-#define P2_MU           0
-#define P2_T0           0.0
-#define P2_T1           0.01
-#define P2_TOUT_MULT   10.0
-#define P2_TOL_FACTOR   1.0e3
+#define P2_MESHX      5
+#define P2_MESHY      5
+#define P2_NEQ        P2_MESHX*P2_MESHY
+#define P2_ALPH1      RCONST(1.0)
+#define P2_ALPH2      RCONST(1.0)
+#define P2_NOUT       5
+#define P2_ML         5
+#define P2_MU         0
+#define P2_T0         RCONST(0.0)
+#define P2_T1         RCONST(0.01)
+#define P2_TOUT_MULT  RCONST(10.0)
+#define P2_TOL_FACTOR RCONST(1.0e3)
 
 /* Linear Solver Options */
 
@@ -103,23 +110,26 @@ enum {FUNC, DENSE_USER, DENSE_DQ, DIAG, BAND_USER, BAND_DQ};
 
 static int  Problem1(void);
 static void PrintIntro1(void);
+static void PrintHeader1(void);
+static void PrintOutput1(realtype t, realtype y0, realtype y1, int qu, realtype hu);
 static int  Problem2(void);
 static void PrintIntro2(void);
+static void PrintHeader2(void);
+static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu);
 static realtype MaxError(N_Vector y, realtype t);
 static int PrepareNextRun(void *cvode_mem, int lmm, int miter, long int mu,
                           long int ml);
+static void PrintErrOutput(realtype tol_factor);
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero);
+static void PrintErrInfo(int nerr);
 
 /* Functions Called by the Solver */
 
 static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-
 static void Jac1(long int N, DenseMat J, realtype tn,
                  N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
 static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-
 static void Jac2(long int N, long int mu, long int ml, BandMat J,
                  realtype tn, N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -130,22 +140,21 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Implementation */
 
-int main()
+int main(void)
 {
   int nerr;
 
   nerr = Problem1();
   nerr += Problem2();
-  printf("\n\n-------------------------------------------------------------");
-  printf("\n-------------------------------------------------------------");
-  printf("\n\n Number of errors encountered = %d \n", nerr);
+  PrintErrInfo(nerr);
+
   return(0);
 }
 
 static int Problem1(void)
 {
   realtype reltol=RTOL, abstol=ATOL, t, tout, ero, er;
-  int lmm, miter, flag, temp_flag, iout, nerr=0;
+  int miter, flag, temp_flag, iout, nerr=0;
   N_Vector y;
   void *cvode_mem;
   booleantype firstrun;
@@ -159,33 +168,30 @@ static int Problem1(void)
   if(check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
   PrintIntro1();
 
-  /* ADAMS formula */
-  lmm = CV_ADAMS;
-
-  cvode_mem = CVodeCreate(lmm, CV_FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= DIAG; miter++) {
-    ero = 0.0;
-    NV_Ith_S(y,0) = 2.0;
-    NV_Ith_S(y,1) = 0.0;
-      
+    ero = ZERO;
+    NV_Ith_S(y,0) = TWO;
+    NV_Ith_S(y,1) = ZERO;
+
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
+      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, CV_SS, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, f1, P1_T0, y, CV_SS, &reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);
+    flag = PrepareNextRun(cvode_mem, CV_ADAMS, miter, 0, 0);
     if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
 
-    printf("\n     t           x              xdot         qu     hu \n");
-      
+    PrintHeader1();
+
     for(iout=1, tout=P1_T1; iout <= P1_NOUT; iout++, tout += P1_DTOUT) {
       flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
       check_flag(&flag, "CVode", 1);
@@ -193,8 +199,7 @@ static int Problem1(void)
       if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
       temp_flag = CVodeGetLastStep(cvode_mem, &hu);
       if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
-      printf("%10.5f    %12.5e   %12.5e   %2d    %6.4e\n",
-             t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
+      PrintOutput1(t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
       if (flag != CV_SUCCESS) {
         nerr++;
         break;
@@ -204,7 +209,7 @@ static int Problem1(void)
         if (er > ero) ero = er;
         if (er > P1_TOL_FACTOR) {
           nerr++;
-          printf("\n\n Error exceeds %g * tolerance \n\n", P1_TOL_FACTOR);
+	  PrintErrOutput(P1_TOL_FACTOR);
         }
       }
     }
@@ -214,32 +219,29 @@ static int Problem1(void)
 
   CVodeFree(cvode_mem);
 
-  /* BDF formula */
-  lmm = CV_BDF;
-
-  cvode_mem = CVodeCreate(lmm, CV_FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_BDF, CV_FUNCTIONAL);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= DIAG; miter++) {
-    ero = 0.0;
-    NV_Ith_S(y,0) = 2.0;
-    NV_Ith_S(y,1) = 0.0;
+    ero = ZERO;
+    NV_Ith_S(y,0) = TWO;
+    NV_Ith_S(y,1) = ZERO;
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
+      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, CV_SS, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, f1, P1_T0, y, CV_SS, &reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);     
+    flag = PrepareNextRun(cvode_mem, CV_BDF, miter, 0, 0);     
     if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
 
-    printf("\n     t           x              xdot         qu     hu \n");
+    PrintHeader1();
       
     for(iout=1, tout=P1_T1; iout <= P1_NOUT; iout++, tout += P1_DTOUT) {
       flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
@@ -248,8 +250,7 @@ static int Problem1(void)
       if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
       temp_flag = CVodeGetLastStep(cvode_mem, &hu);
       if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
-      printf("%10.5f    %12.5e   %12.5e   %2d    %6.4e\n",
-             t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
+      PrintOutput1(t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
       if (flag != CV_SUCCESS) {
         nerr++;
         break;
@@ -259,7 +260,7 @@ static int Problem1(void)
         if (er > ero) ero = er;
         if (er > P1_TOL_FACTOR) {
           nerr++;
-          printf("\n\n Error exceeds %g * tolerance \n\n", P1_TOL_FACTOR);
+          PrintErrOutput(P1_TOL_FACTOR);
         }
       }
     }
@@ -268,7 +269,7 @@ static int Problem1(void)
   }
 
   CVodeFree(cvode_mem);
-  N_VDestroy(y);
+  N_VDestroy_Serial(y);
 
   return(nerr);
 }
@@ -277,11 +278,33 @@ static void PrintIntro1(void)
 {
   printf("Demonstration program for CVODE package - direct linear solvers\n");
   printf("\n\n");
-  
-  printf("Problem 1.. Van der Pol oscillator..\n");
+  printf("Problem 1: Van der Pol oscillator\n");
   printf(" xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf(" neq = %d,  itol = %s,  reltol = %.2Lg,  abstol = %.2Lg",
+	 P1_NEQ, "CV_SS", RTOL, ATOL);
+#else
   printf(" neq = %d,  itol = %s,  reltol = %.2g,  abstol = %.2g",
-	 P1_NEQ, (ITOL == CV_SS) ? "CV_SS" : "CV_SV", RTOL, ATOL);
+	 P1_NEQ, "CV_SS", RTOL, ATOL);
+#endif
+}
+
+static void PrintHeader1(void)
+{
+  printf("\n     t           x              xdot         qu     hu \n");
+
+  return;
+}
+
+static void PrintOutput1(realtype t, realtype y0, realtype y1, int qu, realtype hu)
+{
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%10.5Lf    %12.5Le   %12.5Le   %2d    %6.4Le\n", t, y0, y1, qu, hu);
+#else
+  printf("%10.5f    %12.5e   %12.5e   %2d    %6.4e\n", t, y0, y1, qu, hu);
+#endif
+
+  return;
 }
 
 static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
@@ -292,7 +315,7 @@ static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   y1 = NV_Ith_S(y,1);
 
   NV_Ith_S(ydot,0) = y1;
-  NV_Ith_S(ydot,1) = (1.0 - SQR(y0))* P1_ETA * y1 - y0;
+  NV_Ith_S(ydot,1) = (ONE - SQR(y0))* P1_ETA * y1 - y0;
 } 
 
 static void Jac1(long int N, DenseMat J, realtype tn,
@@ -304,15 +327,15 @@ static void Jac1(long int N, DenseMat J, realtype tn,
   y0 = NV_Ith_S(y,0);
   y1 = NV_Ith_S(y,1);
 
-  DENSE_ELEM(J,0,1) = 1.0;
-  DENSE_ELEM(J,1,0) = -2.0 * P1_ETA * y0 * y1 - 1.0;
-  DENSE_ELEM(J,1,1) = P1_ETA * (1.0 - SQR(y0));
+  DENSE_ELEM(J,0,1) = ONE;
+  DENSE_ELEM(J,1,0) = -TWO * P1_ETA * y0 * y1 - ONE;
+  DENSE_ELEM(J,1,1) = P1_ETA * (ONE - SQR(y0));
 }
 
 static int Problem2(void)
 {
   realtype reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
-  int lmm, miter, flag, temp_flag, nerr=0;
+  int miter, flag, temp_flag, nerr=0;
   N_Vector y;
   void *cvode_mem;
   booleantype firstrun;
@@ -326,34 +349,82 @@ static int Problem2(void)
   if(check_flag((void *)y, "N_VNew", 0)) return(1);
 
   PrintIntro2();
-  
-  /* ADAMS formula */
-  lmm = CV_ADAMS;
 
-  cvode_mem = CVodeCreate(lmm, CV_FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= BAND_DQ; miter++) {
     if ((miter==DENSE_USER) || (miter==DENSE_DQ)) continue;
-    ero = 0.0;
-    N_VConst(0.0, y);
-    NV_Ith_S(y,0) = 1.0;
+    ero = ZERO;
+    N_VConst(ZERO, y);
+    NV_Ith_S(y,0) = ONE;
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
+      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, CV_SS, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, f2, P2_T0, y, CV_SS, &reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, lmm, miter, P2_MU, P2_ML);
+    flag = PrepareNextRun(cvode_mem, CV_ADAMS, miter, P2_MU, P2_ML);
     if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
 
-    printf("\n      t        max.err      qu     hu \n");
+    PrintHeader2();
+
+    for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
+      flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+      check_flag(&flag, "CVode", 1);
+      erm = MaxError(y, t);
+      temp_flag = CVodeGetLastOrder(cvode_mem, &qu);
+      if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
+      temp_flag = CVodeGetLastStep(cvode_mem, &hu);
+      if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
+      PrintOutput2(t, erm, qu, hu);
+      if (flag != CV_SUCCESS) {
+        nerr++;
+        break;
+      }
+      er = erm / abstol;
+        if (er > ero) ero = er;
+        if (er > P2_TOL_FACTOR) {
+          nerr++;
+          PrintErrOutput(P2_TOL_FACTOR);
+        }
+    }
+    
+    PrintFinalStats(cvode_mem, miter, ero);
+  }
+
+  CVodeFree(cvode_mem);
+
+  cvode_mem = CVodeCreate(CV_BDF, CV_FUNCTIONAL);
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+
+  for (miter=FUNC; miter <= BAND_DQ; miter++) {
+    if ((miter==DENSE_USER) || (miter==DENSE_DQ)) continue;
+    ero = ZERO;
+    N_VConst(ZERO, y);
+    NV_Ith_S(y,0) = ONE;
+      
+    firstrun = (miter==FUNC);
+    if (firstrun) {
+      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, CV_SS, &reltol, &abstol);
+      if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+    } else {
+      flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
+      if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
+      flag = CVodeReInit(cvode_mem, f2, P2_T0, y, CV_SS, &reltol, &abstol);
+      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
+    }
+
+    flag = PrepareNextRun(cvode_mem, CV_BDF, miter, P2_MU, P2_ML);
+    if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
+
+    PrintHeader2();
       
     for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
       flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
@@ -363,7 +434,7 @@ static int Problem2(void)
       if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
       temp_flag = CVodeGetLastStep(cvode_mem, &hu);
       if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
-      printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
+      PrintOutput2(t, erm, qu, hu);
       if (flag != CV_SUCCESS) {
         nerr++;
         break;
@@ -372,7 +443,7 @@ static int Problem2(void)
         if (er > ero) ero = er;
         if (er > P2_TOL_FACTOR) {
           nerr++;
-          printf("\n\n Error exceeds %g * tolerance \n\n", P2_TOL_FACTOR);
+          PrintErrOutput(P2_TOL_FACTOR);
         }
     }
     
@@ -380,61 +451,7 @@ static int Problem2(void)
   }
 
   CVodeFree(cvode_mem);
-
-  /* BDF formula */
-  lmm = CV_BDF;
-
-  cvode_mem = CVodeCreate(lmm, CV_FUNCTIONAL);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
-
-  for (miter=FUNC; miter <= BAND_DQ; miter++) {
-    if ((miter==DENSE_USER) || (miter==DENSE_DQ)) continue;
-    ero = 0.0;
-    N_VConst(0.0, y);
-    NV_Ith_S(y,0) = 1.0;
-      
-    firstrun = (miter==FUNC);
-    if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
-      if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
-    } else {
-      flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
-      if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
-      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
-    }
-
-    flag = PrepareNextRun(cvode_mem, lmm, miter, P2_MU, P2_ML);
-    if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
-
-    printf("\n      t        max.err      qu     hu \n");
-      
-    for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
-      flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-      check_flag(&flag, "CVode", 1);
-      erm = MaxError(y, t);
-      temp_flag = CVodeGetLastOrder(cvode_mem, &qu);
-      if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
-      temp_flag = CVodeGetLastStep(cvode_mem, &hu);
-      if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
-      printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
-      if (flag != CV_SUCCESS) {
-        nerr++;
-        break;
-      }
-      er = erm / abstol;
-        if (er > ero) ero = er;
-        if (er > P2_TOL_FACTOR) {
-          nerr++;
-          printf("\n\n Error exceeds %g * tolerance \n\n", P2_TOL_FACTOR);
-        }
-    }
-    
-    PrintFinalStats(cvode_mem, miter, ero);
-  }
-
-  CVodeFree(cvode_mem);
-  N_VDestroy(y);
+  N_VDestroy_Serial(y);
 
   return(nerr);
 }
@@ -443,11 +460,33 @@ static void PrintIntro2(void)
 {
   printf("\n\n-------------------------------------------------------------");
   printf("\n-------------------------------------------------------------");
-  printf("\n\nProblem 2.. ydot = A * y, where A is a banded lower\n");
+  printf("\n\nProblem 2: ydot = A * y, where A is a banded lower\n");
   printf("triangular matrix derived from 2-D advection PDE\n\n");
   printf(" neq = %d, ml = %d, mu = %d\n", P2_NEQ, P2_ML, P2_MU);
-  printf(" itol = %s, reltol = %.2g, abstol = %.2g",
-         (ITOL == CV_SS) ? "CV_SS" : "CV_SV", RTOL, ATOL);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf(" itol = %s, reltol = %.2Lg, abstol = %.2Lg", "CV_SS", RTOL, ATOL);
+#else
+  printf(" itol = %s, reltol = %.2g, abstol = %.2g", "CV_SS", RTOL, ATOL);
+#endif
+  printf("\n      t        max.err      qu     hu \n");
+}
+
+static void PrintHeader2(void)
+{
+  printf("\n      t        max.err      qu     hu \n");
+
+  return;
+}
+
+static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu)
+{
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%10.3Lf  %12.4Le   %2d   %12.4Le\n", t, erm, qu, hu);
+#else
+  printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
+#endif
+
+  return;
 }
 
 static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
@@ -468,7 +507,7 @@ static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   for (j=0; j < P2_MESHY; j++) {
     for (i=0; i < P2_MESHX; i++) {
       k = i + j * P2_MESHX;
-      d = -2.0*ydata[k];
+      d = -TWO*ydata[k];
       if (i != 0) d += P2_ALPH1 * ydata[k-1];
       if (j != 0) d += P2_ALPH2 * ydata[k-P2_MESHX];
       dydata[k] = d;
@@ -503,7 +542,7 @@ static void Jac2(long int N, long int mu, long int ml, BandMat J,
     for (i=0; i < P2_MESHX; i++) {
       k = i + j * P2_MESHX;
       kthCol = BAND_COL(J,k);
-      BAND_COL_ELEM(kthCol,k,k) = -2.0;
+      BAND_COL_ELEM(kthCol,k,k) = -TWO;
       if (i != P2_MESHX-1) BAND_COL_ELEM(kthCol,k+1,k) = P2_ALPH1;
       if (j != P2_MESHY-1) BAND_COL_ELEM(kthCol,k+P2_MESHX,k) = P2_ALPH2;
     }
@@ -513,15 +552,15 @@ static void Jac2(long int N, long int mu, long int ml, BandMat J,
 static realtype MaxError(N_Vector y, realtype t)
 {
   long int i, j, k;
-  realtype *ydata, er, ex=0.0, yt, maxError=0.0, ifact_inv, jfact_inv=1.0;
+  realtype *ydata, er, ex=ZERO, yt, maxError=ZERO, ifact_inv, jfact_inv=ONE;
   
-  if (t == 0.0) return(0.0);
+  if (t == ZERO) return(ZERO);
 
   ydata = NV_DATA_S(y);
-  if (t <= 30.0) ex = exp(-2.0*t); 
+  if (t <= THIRTY) ex = exp(-TWO*t); 
   
   for (j = 0; j < P2_MESHY; j++) {
-    ifact_inv = 1.0;
+    ifact_inv = ONE;
     for (i = 0; i < P2_MESHX; i++) {
       k = i + j * P2_MESHX;
       yt = RPowerI(t,i+j) * ex * ifact_inv * jfact_inv;
@@ -592,6 +631,17 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
   return(flag);
 }
 
+static void PrintErrOutput(realtype tol_factor)
+{
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("\n\n Error exceeds %Lg * tolerance \n\n", tol_factor);
+#else
+  printf("\n\n Error exceeds %g * tolerance \n\n", tol_factor);
+#endif
+
+  return;
+}
+
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
 {
   long int lenrw, leniw, nst, nfe, nsetups, nni, ncfn, netf;
@@ -613,7 +663,7 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  printf("\n Final statistics for this run..\n\n");
+  printf("\n Final statistics for this run:\n\n");
   printf(" CVode real workspace length              = %4ld \n", lenrw);
   printf(" CVode integer workspace length           = %4ld \n", leniw);
   printf(" Number of steps                          = %4ld \n",  nst);
@@ -659,6 +709,15 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
   
   printf(" Error overrun = %.3f \n", ero);
   
+}
+
+static void PrintErrInfo(int nerr)
+{
+  printf("\n\n-------------------------------------------------------------");
+  printf("\n-------------------------------------------------------------");
+  printf("\n\n Number of errors encountered = %d \n", nerr);
+
+  return;
 }
 
 /* Check function return value...

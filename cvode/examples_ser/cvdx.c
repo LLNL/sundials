@@ -1,10 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-10-13 20:38:59 $
+ * $Revision: 1.18 $
+ * $Date: 2004-11-09 01:20:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @LLNL
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
  * 
@@ -32,14 +32,16 @@
 
 /* Header files with a description of contents used in cvdx.c */
 
-#include "sundialstypes.h"   /* definition of type realtype                   */
-#include "cvode.h"           /* prototypes for CVode*** functions; constants  */
-                             /* CV_BDF, CV_NEWTON, CV_SV, CV_NORMAL,          */
-                             /* CV_SUCCESS, CV_ROOT_RETURN                    */
-#include "cvdense.h"         /* prototype for CVDense                         */
-#include "nvector_serial.h"  /* definitions of type N_Vector, macro NV_Ith_S, */
-                             /* prototypes for N_VNew_Serial and N_VDestroy   */
-#include "dense.h"           /* definition of type DenseMat, macro DENSE_ELEM */
+#include "sundialstypes.h"   /* definition of type realtype                */
+#include "cvode.h"           /* prototypes for CVode* functions and        */
+                             /* constants CV_BDF, CV_NEWTON, CV_SV,        */
+                             /* CV_NORMAL, CV_SUCCESS, and CV_ROOT_RETURN  */
+#include "cvdense.h"         /* prototype for CVDense                      */
+#include "nvector_serial.h"  /* definitions of type N_Vector, macro        */
+                             /* NV_Ith_S, and prototypes for N_VNew_Serial */
+                             /* and N_VDestroy                             */
+#include "dense.h"           /* definition of type DenseMat and macro      */
+                             /* DENSE_ELEM                                 */
 
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
@@ -63,18 +65,18 @@
 
 /* Problem Constants */
 
-#define NEQ   3            /* number of equations  */
-#define Y1    1.0          /* initial y components */
-#define Y2    0.0
-#define Y3    0.0
-#define RTOL  1e-4         /* scalar relative tolerance            */
-#define ATOL1 1e-8         /* vector absolute tolerance components */
-#define ATOL2 1e-14
-#define ATOL3 1e-6
-#define T0    0.0          /* initial time           */
-#define T1    0.4          /* first output time      */
-#define TMULT 10.0         /* output time factor     */
-#define NOUT  12           /* number of output times */
+#define NEQ   3                /* number of equations  */
+#define Y1    RCONST(1.0)      /* initial y components */
+#define Y2    RCONST(0.0)
+#define Y3    RCONST(0.0)
+#define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
+#define ATOL1 RCONST(1.0e-8)   /* vector absolute tolerance components */
+#define ATOL2 RCONST(1.0e-14)
+#define ATOL3 RCONST(1.0e-6)
+#define T0    RCONST(0.0)      /* initial time           */
+#define T1    RCONST(0.4)      /* first output time      */
+#define TMULT RCONST(10.0)     /* output time factor     */
+#define NOUT  12               /* number of output times */
 
 
 /* Functions Called by the Solver */
@@ -87,6 +89,10 @@ static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
+/* Private functions to output results */
+
+static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
+static void PrintRootInfo(int root_f1, int root_f2);
 
 /* Private function to print final statistics */
 
@@ -176,15 +182,14 @@ int main()
   printf(" \n3-species kinetics problem\n\n");
 
   iout = 0;  tout = T1;
-  for (;;) {
+  while(1) {
     flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n",
-           t, Ith(y,1), Ith(y,2), Ith(y,3));
+    PrintOutput(t, Ith(y,1), Ith(y,2), Ith(y,3));
 
     if (flag == CV_ROOT_RETURN) {
       flagr = CVodeGetRootInfo(cvode_mem, &rootsfound);
       check_flag(&flagr, "CVodeGetRootInfo", 1);
-      printf("    rootsfound[] = %3d %3d\n",rootsfound[0],rootsfound[1]);
+      PrintRootInfo(rootsfound[0],rootsfound[1]);
     }
 
     if (check_flag(&flag, "CVode", 1)) break;
@@ -200,8 +205,8 @@ int main()
   PrintFinalStats(cvode_mem);
 
   /* Free y and abstol vectors */
-  N_VDestroy(y);
-  N_VDestroy(abstol);
+  N_VDestroy_Serial(y);
+  N_VDestroy_Serial(abstol);
   /* Free integrator memory */
   CVodeFree(cvode_mem);
 
@@ -225,8 +230,8 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
 
-  yd1 = Ith(ydot,1) = -0.04*y1 + 1e4*y2*y3;
-  yd3 = Ith(ydot,3) = 3e7*y2*y2;
+  yd1 = Ith(ydot,1) = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
+  yd3 = Ith(ydot,3) = RCONST(3.0e7)*y2*y2;
         Ith(ydot,2) = -yd1 - yd3;
 }
 
@@ -239,8 +244,8 @@ static void g(realtype t, N_Vector y, realtype *gout, void *g_data)
   realtype y1, y3;
 
   y1 = Ith(y,1); y3 = Ith(y,3);
-  gout[0] = y1 - 0.0001;
-  gout[1] = y3 - 0.01;
+  gout[0] = y1 - RCONST(0.0001);
+  gout[1] = y3 - RCONST(0.01);
 }
 
 /*
@@ -255,9 +260,13 @@ static void Jac(long int N, DenseMat J, realtype t,
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
 
-  IJth(J,1,1) = -0.04;  IJth(J,1,2) = 1e4*y3;          IJth(J,1,3) = 1e4*y2;
-  IJth(J,2,1) =  0.04;  IJth(J,2,2) = -1e4*y3-6e7*y2;  IJth(J,2,3) = -1e4*y2;
-                        IJth(J,3,2) = 6e7*y2;
+  IJth(J,1,1) = RCONST(-0.04);
+  IJth(J,1,2) = RCONST(1.0e4)*y3;
+  IJth(J,1,3) = RCONST(1.0e4)*y2;
+  IJth(J,2,1) = RCONST(0.04); 
+  IJth(J,2,2) = RCONST(-1.0e4)*y3-RCONST(6.0e7)*y2;
+  IJth(J,2,3) = RCONST(-1.0e4)*y2;
+  IJth(J,3,2) = RCONST(6.0e7)*y2;
 }
 
 
@@ -266,6 +275,24 @@ static void Jac(long int N, DenseMat J, realtype t,
  * Private helper functions
  *-------------------------------
  */
+
+static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
+{
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
+#else
+  printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);
+#endif
+
+  return;
+}
+
+static void PrintRootInfo(int root_f1, int root_f2)
+{
+  printf("    rootsfound[] = %3d %3d\n", root_f1, root_f2);
+
+  return;
+}
 
 /* 
  * Get and print some final statistics

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-10-26 20:48:30 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-09 01:20:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -34,41 +34,46 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definitions of realtype                        */
-#include "cvode.h"          /* CVode*** prototypes, various constants         */
-#include "cvspgmr.h"        /* prototypes & constants for CVSPGMR solver      */
-#include "cvbandpre.h"      /* prototypes & constants for CVBANDPRE module    */
-#include "smalldense.h"     /* use generic DENSE solver in preconditioning    */
-#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S  */
-#include "sundialsmath.h"   /* contains SQR macro                             */
+#include "sundialstypes.h"  /* definition of realtype                      */
+#include "cvode.h"          /* CVode* prototypes and various constants     */
+#include "cvspgmr.h"        /* prototypes & constants for CVSPGMR solver   */
+#include "cvbandpre.h"      /* prototypes & constants for CVBANDPRE module */
+#include "smalldense.h"     /* use generic DENSE solver in preconditioning */
+#include "nvector_serial.h" /* definitions of type N_Vector and macro      */
+                            /* NV_DATA_S                                   */
+#include "sundialsmath.h"   /* contains SQR macro                          */
 
 
 /* Problem Constants */
 
-#define NUM_SPECIES  2             /* number of species         */
-#define KH           4.0e-6        /* horizontal diffusivity Kh */
-#define VEL          0.001         /* advection velocity V      */
-#define KV0          1.0e-8        /* coefficient in Kv(y)      */
-#define Q1           1.63e-16      /* coefficients q1, q2, c3   */ 
-#define Q2           4.66e-16
-#define C3           3.7e16
-#define A3           22.62         /* coefficient in expression for q3(t) */
-#define A4           7.601         /* coefficient in expression for q4(t) */
-#define C1_SCALE     1.0e6         /* coefficients in initial profiles    */
-#define C2_SCALE     1.0e12
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
+#define TWO  RCONST(2.0)
 
-#define T0           0.0           /* initial time */
-#define NOUT         12            /* number of output times */
-#define TWOHR        7200.0        /* number of seconds in two hours  */
-#define HALFDAY      4.32e4        /* number of seconds in a half day */
-#define PI       3.1415926535898   /* pi */ 
+#define NUM_SPECIES  2                 /* number of species         */
+#define KH           RCONST(4.0e-6)    /* horizontal diffusivity Kh */
+#define VEL          RCONST(0.001)     /* advection velocity V      */
+#define KV0          RCONST(1.0e-8)    /* coefficient in Kv(y)      */
+#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */ 
+#define Q2           RCONST(4.66e-16)
+#define C3           RCONST(3.7e16)
+#define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
+#define A4           RCONST(7.601)     /* coefficient in expression for q4(t) */
+#define C1_SCALE     RCONST(1.0e6)     /* coefficients in initial profiles    */
+#define C2_SCALE     RCONST(1.0e12)
 
-#define XMIN          0.0          /* grid boundaries in x  */
-#define XMAX         20.0           
-#define YMIN         30.0          /* grid boundaries in y  */
-#define YMAX         50.0
-#define XMID         10.0          /* grid midpoints in x,y */          
-#define YMID         40.0
+#define T0           ZERO                /* initial time */
+#define NOUT         12                  /* number of output times */
+#define TWOHR        RCONST(7200.0)      /* number of seconds in two hours  */
+#define HALFDAY      RCONST(4.32e4)      /* number of seconds in a half day */
+#define PI       RCONST(3.1415926535898) /* pi */ 
+
+#define XMIN         ZERO                /* grid boundaries in x  */
+#define XMAX         RCONST(20.0)           
+#define YMIN         RCONST(30.0)        /* grid boundaries in y  */
+#define YMAX         RCONST(50.0)
+#define XMID         RCONST(10.0)        /* grid midpoints in x,y */          
+#define YMID         RCONST(40.0)
 
 #define MX           10             /* MX = number of x mesh points */
 #define MY           10             /* MY = number of y mesh points */
@@ -77,11 +82,11 @@
 
 /* CVodeMalloc Constants */
 
-#define RTOL    1.0e-5            /* scalar relative tolerance */
-#define FLOOR   100.0             /* value of C1 or C2 at which tolerances */
-                                  /* change from relative to absolute      */
-#define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
-#define NEQ     (NUM_SPECIES*MM)  /* NEQ = number of equations */
+#define RTOL    RCONST(1.0e-5)   /* scalar relative tolerance */
+#define FLOOR   RCONST(100.0)    /* value of C1 or C2 at which tolerances */
+                                 /* change from relative to absolute      */
+#define ATOL    (RTOL*FLOOR)     /* scalar absolute tolerance */
+#define NEQ     (NUM_SPECIES*MM) /* NEQ = number of equations */
 
 /* User-defined vector and matrix accessor macros: IJKth, IJth */
 
@@ -117,6 +122,7 @@ typedef struct {
 
 static void InitUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy);
+static void PrintIntro(int mu, int ml);
 static void PrintOutput(void *cvode_mem, N_Vector u, realtype t);
 static void PrintFinalStats(void *cvode_mem, void *bpdata);
 
@@ -188,10 +194,7 @@ int main()
   flag = CVBPSpgmr(cvode_mem, PREC_LEFT, 0, bpdata);
   if(check_flag(&flag, "CVBPSpgmr", 1)) return(1);
 
-  printf("2-species diurnal advection-diffusion problem, %d by %d mesh\n",
-         MX, MY);
-  printf("SPGMR solver; band preconditioner; mu = %d, ml = %d\n\n",
-         mu, ml);
+  PrintIntro(mu, ml);
 
   /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
 
@@ -234,7 +237,7 @@ int main()
   } /* End of jpre loop */
 
   /* Free memory */
-  N_VDestroy(u);
+  N_VDestroy_Serial(u);
   free(data);
   CVBandPrecFree(bpdata);
   CVodeFree(cvode_mem);
@@ -256,8 +259,8 @@ static void InitUserData(UserData data)
   data->dx = (XMAX-XMIN)/(MX-1);
   data->dy = (YMAX-YMIN)/(MY-1);
   data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(2.0*data->dx);
-  data->vdco = (1.0/SQR(data->dy))*KV0;
+  data->haco = VEL/(TWO*data->dx);
+  data->vdco = (ONE/SQR(data->dy))*KV0;
 }
 
 /* Set initial conditions in u */
@@ -276,16 +279,26 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 
   for (jy = 0; jy < MY; jy++) {
     y = YMIN + jy*dy;
-    cy = SQR(0.1*(y - YMID));
-    cy = 1.0 - cy + 0.5*SQR(cy);
+    cy = SQR(RCONST(0.1)*(y - YMID));
+    cy = ONE - cy + RCONST(0.5)*SQR(cy);
     for (jx = 0; jx < MX; jx++) {
       x = XMIN + jx*dx;
-      cx = SQR(0.1*(x - XMID));
-      cx = 1.0 - cx + 0.5*SQR(cx);
+      cx = SQR(RCONST(0.1)*(x - XMID));
+      cx = ONE - cx + RCONST(0.5)*SQR(cx);
       IJKth(udata,1,jx,jy) = C1_SCALE*cx*cy; 
       IJKth(udata,2,jx,jy) = C2_SCALE*cx*cy;
     }
   }
+}
+
+static void PrintIntro(int mu, int ml)
+{
+  printf("2-species diurnal advection-diffusion problem, %d by %d mesh\n",
+         MX, MY);
+  printf("SPGMR solver; band preconditioner; mu = %d, ml = %d\n\n",
+         mu, ml);
+
+  return;
 }
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
@@ -432,12 +445,12 @@ static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
   /* Set diurnal rate coefficients. */
 
   s = sin(data->om*t);
-  if (s > 0.0) {
+  if (s > ZERO) {
     q3 = exp(-A3/s);
     data->q4 = exp(-A4/s);
   } else {
-    q3 = 0.0;
-    data->q4 = 0.0;
+    q3 = ZERO;
+    data->q4 = ZERO;
   }
 
   /* Make local copies of problem variables, for efficiency. */
@@ -454,10 +467,10 @@ static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
 
-    ydn = YMIN + (jy - .5)*dely;
+    ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(0.2*ydn);
-    cyup = verdco*exp(0.2*yup);
+    cydn = verdco*exp(RCONST(0.2)*ydn);
+    cyup = verdco*exp(RCONST(0.2)*yup);
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
     for (jx = 0; jx < MX; jx++) {
@@ -470,7 +483,7 @@ static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
       qq2 = Q2*c1*c2;
       qq3 = q3*C3;
       qq4 = q4coef*c2;
-      rkin1 = -qq1 - qq2 + 2.0*qq3 + qq4;
+      rkin1 = -qq1 - qq2 + TWO*qq3 + qq4;
       rkin2 = qq1 - qq2 - qq4;
 
       /* Set vertical diffusion terms. */
@@ -490,8 +503,8 @@ static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
       c2lt = IJKth(udata,2,jx+ileft,jy);
       c1rt = IJKth(udata,1,jx+iright,jy);
       c2rt = IJKth(udata,2,jx+iright,jy);
-      hord1 = hordco*(c1rt - 2.0*c1 + c1lt);
-      hord2 = hordco*(c2rt - 2.0*c2 + c2lt);
+      hord1 = hordco*(c1rt - TWO*c1 + c1lt);
+      hord2 = hordco*(c2rt - TWO*c2 + c2lt);
       horad1 = horaco*(c1rt - c1lt);
       horad2 = horaco*(c2rt - c2lt);
 

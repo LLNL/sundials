@@ -1,10 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-10-26 20:48:30 $
+ * $Revision: 1.19 $
+ * $Date: 2004-11-09 01:20:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @LLNL
+ *                Radu Serban @ LLNL
  * --------------------------------------------------------------------
  * Demonstration program for CVODE - Krylov linear solver.
  * ODE system from ns-species interaction PDE in 2 dimensions.
@@ -92,37 +92,42 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "sundialstypes.h"  /* definition of type realtype      */
+#include "cvode.h"          /* main integrator header file      */
+#include "cvspgmr.h"        /* use CVSPGMR linear solver        */
+#include "smalldense.h"     /* use small dense matrix functions */
+#include "nvector_serial.h" /* definition of type N_Vector and  */
+                            /* macro NV_DATA_S                  */
+#include "sundialsmath.h"   /* contains the macros ABS and SQR  */
 
-#include "sundialstypes.h"  /* definition for realtype, TRUE                */
-#include "cvode.h"          /* main integrator header file                  */
-#include "cvspgmr.h"        /* use CVSPGMR linear solver                    */
-#include "smalldense.h"     /* use small dense matrix functions             */
-#include "nvector_serial.h" /* definition of type N_Vector, macro NV_DATA_S */
-#include "sundialsmath.h"   /* contains the macros ABS, SQR                 */
+/* Constants */
+
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
 
 /* Problem Specification Constants */
 
-#define AA 1.0       /* AA = a */
-#define EE 1e4       /* EE = e */
-#define GG 0.5e-6    /* GG = g */
-#define BB 1.0       /* BB = b */
-#define DPREY 1.0    
-#define DPRED 0.5
-#define ALPH 1.0
-#define NP 3
-#define NS (2*NP)
+#define AA    ONE               /* AA = a */
+#define EE    RCONST(1.0e4)     /* EE = e */
+#define GG    RCONST(0.5e-6)    /* GG = g */
+#define BB    ONE               /* BB = b */
+#define DPREY ONE
+#define DPRED RCONST(0.5)
+#define ALPH  ONE
+#define NP    3
+#define NS    (2*NP)
 
 /* Method Constants */
 
-#define MX   6
-#define MY   6
-#define MXNS (MX*NS)
-#define AX   1.0
-#define AY   1.0
-#define DX   (AX/(realtype)(MX-1))
-#define DY   (AY/(realtype)(MY-1))
-#define MP   NS
-#define MQ   (MX*MY)
+#define MX    6
+#define MY    6
+#define MXNS  (MX*NS)
+#define AX    ONE
+#define AY    ONE
+#define DX    (AX/(realtype)(MX-1))
+#define DY    (AY/(realtype)(MY-1))
+#define MP    NS
+#define MQ    (MX*MY)
 #define MXMP  (MX*MP)
 #define NGX   2
 #define NGY   2
@@ -131,24 +136,21 @@
 
 /* CVodeMalloc Constants */
 
-#define NEQ   (NS*MX*MY)
-#define T0    0.0
-#define RTOL  1e-5
-#define ATOL  1e-5
-#define LMM   CV_BDF
-#define ITER  CV_NEWTON
-#define ITOL  CV_SS
+#define NEQ  (NS*MX*MY)
+#define T0   ZERO
+#define RTOL RCONST(1.0e-5)
+#define ATOL RCONST(1.0e-5)
 
 /* CVSpgmr Constants */
 
-#define MAXL 0            /* => use default = MIN(NEQ, 5)            */
-#define DELT 0.0          /* => use default = 0.05                   */
+#define MAXL 0     /* => use default = MIN(NEQ, 5)            */
+#define DELT ZERO  /* => use default = 0.05                   */
 
 /* Output Constants */
 
-#define T1        1e-8
-#define TOUT_MULT 10.0
-#define DTOUT     1.0
+#define T1        RCONST(1.0e-8)
+#define TOUT_MULT RCONST(10.0)
+#define DTOUT     ONE
 #define NOUT      18
 
 /* Note: The value for species i at mesh point (j,k) is stored in */
@@ -158,7 +160,7 @@
 /* Structure for user data */
 
 typedef struct {
-  realtype   **P[NGRP];
+  realtype **P[NGRP];
   long int *pivot[NGRP];
   int ns, mxns;
   int mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
@@ -176,7 +178,7 @@ static WebData AllocUserData(void);
 static void InitUserData(WebData wdata);
 static void SetGroups(int m, int ng, int jg[], int jig[], int jr[]);
 static void CInit(N_Vector c, WebData wdata);
-static void PrintIntro(void);
+static void PrintIntro(int jpre, int gstype);
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t);
 static void PrintOutput(void *cvode_mem, realtype t);
 static void PrintFinalStats(void *cvode_mem);
@@ -239,7 +241,7 @@ int main()
   mxns = wdata->mxns;
 
   /* Print problem description */
-  PrintIntro();
+  PrintIntro(jpre, gstype);
 
   /* Loop over jpre and gstype (four cases) */
   for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
@@ -247,16 +249,12 @@ int main()
       
       /* Initialize c and print heading */
       CInit(c, wdata);
-      printf("\n\nPreconditioner type is           jpre = %s\n",
-             (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
-      printf("\nGram-Schmidt method type is    gstype = %s\n\n\n",
-             (gstype == MODIFIED_GS) ? "MODIFIED_GS" : "CLASSICAL_GS");
-      
+
       /* Call CVodeMalloc or CVodeReInit, then CVSpgmr to set up problem */
       
       firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
-        cvode_mem = CVodeCreate(LMM, ITER);
+        cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
         if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
         wdata->cvode_mem = cvode_mem;
@@ -264,7 +262,7 @@ int main()
         flag = CVodeSetFdata(cvode_mem, wdata);
         if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-        flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
+        flag = CVodeMalloc(cvode_mem, f, T0, c, CV_SS, &reltol, &abstol);
         if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
         flag = CVSpgmr(cvode_mem, jpre, MAXL);
@@ -287,7 +285,7 @@ int main()
 
       } else {
 
-        flag = CVodeReInit(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
+        flag = CVodeReInit(cvode_mem, f, T0, c, CV_SS, &reltol, &abstol);
         if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
         flag = CVSpgmrSetPrecType(cvode_mem, jpre);
@@ -307,7 +305,7 @@ int main()
         PrintOutput(cvode_mem, t);
         if (firstrun && (iout % 3 == 0)) PrintAllSpecies(c, ns, mxns, t);
         if(check_flag(&flag, "CVode", 1)) break;
-        if (tout > 0.9) tout += DTOUT; else tout *= TOUT_MULT; 
+        if (tout > RCONST(0.9)) tout += DTOUT; else tout *= TOUT_MULT; 
       }
       
       /* Print final statistics, and loop for next case */
@@ -318,7 +316,7 @@ int main()
 
   /* Free all memory */
   CVodeFree(cvode_mem);
-  N_VDestroy(c);
+  N_VDestroy_Serial(c);
   FreeUserData(wdata);
 
   return(0);
@@ -430,8 +428,8 @@ static void CInit(N_Vector c, WebData wdata)
   dx = wdata->dx;
   dy = wdata->dy;
 
-  x_factor = 4.0/SQR(AX);
-  y_factor = 4.0/SQR(AY);
+  x_factor = RCONST(4.0)/SQR(AX);
+  y_factor = RCONST(4.0)/SQR(AY);
   for (jy = 0; jy < MY; jy++) {
     y = jy*dy;
     argy = SQR(y_factor*y*(AY-y)); 
@@ -442,28 +440,41 @@ static void CInit(N_Vector c, WebData wdata)
       ioff = iyoff + ns*jx;
       for (i = 1; i <= ns; i++) {
         ici = ioff + i-1;
-        cdata[ici] = 10.0 + i*argx*argy;
+        cdata[ici] = RCONST(10.0) + i*argx*argy;
       }
     }
   }
 }
 
-static void PrintIntro(void)
+static void PrintIntro(int jpre, int gstype)
 {
   printf("\n\nDemonstration program for CVODE - CVSPGMR linear solver\n\n");
   printf("Food web problem with ns species, ns = %d\n", NS);
   printf("Predator-prey interaction and diffusion on a 2-D square\n\n");
-  printf("Matrix parameters.. a = %.2g   e = %.2g   g = %.2g\n",
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("Matrix parameters: a = %.2Lg   e = %.2Lg   g = %.2Lg\n",
+         AA, EE, GG);
+  printf("b parameter = %.2Lg\n", BB);
+  printf("Diffusion coefficients: Dprey = %.2Lg   Dpred = %.2Lg\n",
+         DPREY, DPRED);
+  printf("Rate parameter alpha = %.2Lg\n\n", ALPH);
+#else
+  printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n",
          AA, EE, GG);
   printf("b parameter = %.2g\n", BB);
-  printf("Diffusion coefficients.. Dprey = %.2g   Dpred = %.2g\n",
+  printf("Diffusion coefficients: Dprey = %.2g   Dpred = %.2g\n",
          DPREY, DPRED);
   printf("Rate parameter alpha = %.2g\n\n", ALPH);
+#endif
   printf("Mesh dimensions (mx,my) are %d, %d.  ", MX, MY);
   printf("Total system size is neq = %d \n\n", NEQ);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("Tolerances: itol = %s,  reltol = %.2Lg, abstol = %.2Lg \n\n",
+         "CV_SS", RTOL, ATOL);
+#else
   printf("Tolerances: itol = %s,  reltol = %.2g, abstol = %.2g \n\n",
-         (ITOL == CV_SS) ? "CV_SS" : "CV_SV", RTOL, ATOL);
-  
+         "CV_SS", RTOL, ATOL);
+#endif
   printf("Preconditioning uses a product of:\n");
   printf("  (1) Gauss-Seidel iterations with ");
   printf("itmax = %d iterations, and\n", ITMAX);
@@ -473,6 +484,16 @@ static void PrintIntro(void)
   printf("  (ngx by ngy, ngx = %d, ngy = %d)\n", NGX, NGY);
   printf("\n\n--------------------------------------------------------------");
   printf("--------------\n");
+
+  if(jpre == PREC_LEFT)
+    printf("\n\nPreconditioner type is           jpre = %s\n", "PREC_LEFT");
+  else
+    printf("\n\nPreconditioner type is           jpre = %s\n", "PREC_RIGHT");
+
+  if(gstype == MODIFIED_GS)
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "MODIFIED_GS");
+  else
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "CLASSICAL_GS");
 }
 
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
@@ -481,12 +502,20 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
   realtype *cdata;
   
   cdata = NV_DATA_S(c);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("c values at t = %Lg:\n\n", t);
+#else
   printf("c values at t = %g:\n\n", t);
+#endif
   for (i=1; i <= ns; i++) {
     printf("Species %d\n", i);
     for (jy=MY-1; jy >= 0; jy--) {
       for (jx=0; jx < MX; jx++) {
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+        printf("%-10.6Lg", cdata[(i-1) + jx*ns + jy*mxns]);
+#else
         printf("%-10.6g", cdata[(i-1) + jx*ns + jy*mxns]);
+#endif
       }
       printf("\n");
     }
@@ -511,8 +540,13 @@ static void PrintOutput(void *cvode_mem, realtype t)
   flag = CVodeGetLastStep(cvode_mem, &hu);
   check_flag(&flag, "CVodeGetLastStep", 1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("t = %10.2Le  nst = %ld  nfe = %ld  nni = %ld", t, nst, nfe, nni);
+  printf("  qu = %d  hu = %11.2Le\n\n", qu, hu);
+#else
   printf("t = %10.2e  nst = %ld  nfe = %ld  nni = %ld", t, nst, nfe, nni);
   printf("  qu = %d  hu = %11.2e\n\n", qu, hu);
+#endif
 }
 
 static void PrintFinalStats(void *cvode_mem)
@@ -569,8 +603,12 @@ static void PrintFinalStats(void *cvode_mem)
   printf(" Number of error test failures         = %4ld \n", netf);
   printf(" Number of nonlinear conv. failures    = %4ld \n", ncfn);
   printf(" Number of linear convergence failures = %4ld \n", ncfl);
-  avdim = (nni > 0) ? ((realtype)nli)/((realtype)nni) : 0.0;
+  avdim = (nni > 0) ? ((realtype)nli)/((realtype)nni) : ZERO;
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf(" Average Krylov subspace dimension     = %.3Lf \n", avdim);
+#else
   printf(" Average Krylov subspace dimension     = %.3f \n", avdim);
+#endif
   printf("\n\n--------------------------------------------------------------");
   printf("--------------\n");
   printf(    "--------------------------------------------------------------");
@@ -659,13 +697,13 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
   bcoef = wdata->bcoef;
   
   for (i = 0; i < ns; i++)
-    rate[i] = 0.0;
+    rate[i] = ZERO;
   
   for (j = 0; j < ns; j++) 
     for (i = 0; i < ns; i++) 
       rate[i] += c[j] * acoef[i][j];
   
-  fac = 1.0 + ALPH*x*y;
+  fac = ONE + ALPH*x*y;
   for (i = 0; i < ns; i++) 
     rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
 }
@@ -726,8 +764,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   f1 = NV_DATA_S(vtemp1);
   
   fac = N_VWrmsNorm (fc, rewt);
-  r0 = 1000.0*ABS(gamma)*uround*NEQ*fac;
-  if (r0 == 0.0) r0 = 1.0;
+  r0 = RCONST(1000.0)*ABS(gamma)*uround*NEQ*fac;
+  if (r0 == ZERO) r0 = ONE;
   
   for (igy = 0; igy < ngy; igy++) {
     jy = jyr[igy];
@@ -805,7 +843,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
   
   wdata = (WebData) P_data;
   
-  N_VScale(1.0, r, z);
+  N_VScale(ONE, r, z);
   
   /* call GSIter for Gauss-Seidel iterations */
   
@@ -865,11 +903,11 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
      Load local arrays beta, beta2, gam, gam2, and cof1. */
   
   for (i = 0; i < ns; i++) {
-    temp = 1.0/(1.0 + 2.0*gamma*(cox[i] + coy[i]));
+    temp = ONE/(ONE + RCONST(2.0)*gamma*(cox[i] + coy[i]));
     beta[i] = gamma*cox[i]*temp;
-    beta2[i] = 2.0*beta[i];
+    beta2[i] = RCONST(2.0)*beta[i];
     gam[i] = gamma*coy[i]*temp;
-    gam2[i] = 2.0*gam[i];
+    gam2[i] = RCONST(2.0)*gam[i];
     cof1[i] = temp;
   }
   
@@ -883,7 +921,7 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
       v_prod(xd+ic, cof1, zd+ic, ns); /* x[ic+i] = cof1[i]z[ic+i] */
     }
   }
-  N_VConst(0.0, z);
+  N_VConst(ZERO, z);
   
   /* Looping point for iterations. */
   
@@ -1011,7 +1049,7 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
     
     /* Add increment x to z : z <- z+x */
     
-    N_VLinearSum(1.0, z, 1.0, x, z);
+    N_VLinearSum(ONE, z, ONE, x, z);
     
   }
 }
@@ -1038,7 +1076,7 @@ static void v_prod(realtype u[], realtype v[], realtype w[], int n)
 static void v_zero(realtype u[], int n)
 {
   int i;  
-  for (i=0; i < n; i++) u[i] = 0.0;
+  for (i=0; i < n; i++) u[i] = ZERO;
 }
 
 /* Check function return value...
