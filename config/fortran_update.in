@@ -1,0 +1,437 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2004-10-21 20:36:46 $
+# -----------------------------------------------------------------
+# Programmer(s): Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/shared/LICENSE.
+# -----------------------------------------------------------------
+# This script updates Fortran source code according to the level
+# of precision specified using the --with-precision option. It also
+# updates variable type specifiers according to the sizes of the
+# C types 'long int' and 'int' and the SUNDIALS-specific type
+# 'realtype'.
+# -----------------------------------------------------------------
+# Notes:
+#
+#  (1) The environment variable F77_KEYWORD_LIST should contain
+#      a list of all intrinsic functions/procedures used in the
+#      Fortran examples (defined under 'update' target).
+#
+#  (2) F77_MPI_REAL_* is set to MPI_REAL#, where # is the number
+#      of bytes in realtype (SUNDIALS-specific data type). However,
+#      if MPI_REAL# is NOT defined in the header file 'mpif.h',
+#      then MPI_REAL is used instead. Also, if the file 'mpif.h'
+#      does NOT exist under the directory MPI_INC_DIR, then
+#      MPI_REAL# is still used, but there is NO guarantee that
+#      it is actually defined. Of course, the problem can easily
+#      be avoided by adding -I<mpi_inc_dir> to FFLAGS or
+#      --with-fflags.
+# -----------------------------------------------------------------
+
+abs_top_builddir="@abs_top_builddir@"
+prefix="@prefix@"
+includedir="@includedir@"
+
+F77_FLOAT_TYPE="@F77_FLOAT_TYPE@"
+
+MPI_INC_DIR="@MPI_INC_DIR@"
+
+EGREP="@EGREP@"
+FGREP="@FGREP@"
+
+INSTALL="@INSTALL@"
+TEMP_INSTALL=`echo "${INSTALL}" | cut -d' ' -f1`
+if test -f ${TEMP_INSTALL} ; then
+  :
+else
+  INSTALL="${abs_top_builddir}/config/${INSTALL}"
+fi
+CP_FILE="@INSTALL_DATA@"
+
+srcdir="${1}"
+SOURCE_FILE="${2}"
+
+builddir="."
+
+F77_KEYWORD_LIST="FLOAT/DBLE/QFLOAT,float/dble/qfloat SIN/DSIN/QSIN,sin/dsin/qsin"
+F77_KEYWORD_LIST="${F77_KEYWORD_LIST} EXP/DEXP/QEXP,exp/dexp/qexp"
+F77_KEYWORD_LIST="${F77_KEYWORD_LIST} ABS/DABS/QABS,abs/dabs/qabs"
+F77_KEYWORD_LIST="${F77_KEYWORD_LIST} AMAX1/DMAX1/QMAX1,amax1/dmax1/qmax1"
+TEMP_A=`${FGREP} "#define SIZEOF_INT 4" ${includedir}/config.h`
+if test "X${TEMP_A}" = "X"; then
+  TEMP_A=`${FGREP} "#define SIZEOF_INT 8" ${includedir}/config.h`
+  if test "X${TEMP_A}" = "X"; then
+    INT_BYTES="4"
+  else
+    INT_BYTES="8"
+  fi
+else
+  INT_BYTES="4"
+fi
+F77_INT_UPPER="INTEGER\*${INT_BYTES}"
+F77_INT_LOWER="integer\*${INT_BYTES}"
+TEMP_A=`${FGREP} "#define SIZEOF_LONG_INT 4" ${includedir}/config.h`
+if test "X${TEMP_A}" = "X"; then
+  TEMP_A=`${FGREP} "#define SIZEOF_LONG_INT 8" ${includedir}/config.h`
+  if test "X${TEMP_A}" = "X"; then
+    LONG_INT_BYTES="4"
+  else
+    LONG_INT_BYTES="8"
+  fi
+else
+  LONG_INT_BYTES="4"
+fi
+F77_LONG_INT_UPPER="INTEGER\*${LONG_INT_BYTES}"
+F77_LONG_INT_LOWER="integer\*${LONG_INT_BYTES}"
+if test "X${F77_FLOAT_TYPE}" = "Xsingle"; then
+  TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 4" ${includedir}/config.h`
+  if test "X${TEMP_A}" = "X"; then
+    TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 8" ${includedir}/config.h`
+    if test "X${TEMP_A}" = "X"; then
+      TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 16" ${includedir}/config.h`
+      if test "X${TEMP_A}" = "X"; then
+        FLOAT_BYTES=""
+      else
+        FLOAT_BYTES="16"
+      fi
+    else
+      FLOAT_BYTES="8"
+    fi
+  else
+    FLOAT_BYTES="4"
+  fi
+elif test "X${F77_FLOAT_TYPE}" = "Xdouble"; then
+  TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 4" ${includedir}/config.h`
+  if test "X${TEMP_A}" = "X"; then
+    TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 8" ${includedir}/config.h`
+    if test "X${TEMP_A}" = "X"; then
+      TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 16" ${includedir}/config.h`
+      if test "X${TEMP_A}" = "X"; then
+        FLOAT_BYTES=""
+      else
+        FLOAT_BYTES="16"
+      fi
+    else
+      FLOAT_BYTES="8"
+    fi
+  else
+    FLOAT_BYTES="4"
+  fi
+elif test "X${F77_FLOAT_TYPE}" = "Xextended"; then
+  TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 4" ${includedir}/config.h`
+  if test "X${TEMP_A}" = "X"; then
+    TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 8" ${includedir}/config.h`
+    if test "X${TEMP_A}" = "X"; then
+      TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 16" ${includedir}/config.h`
+      if test "X${TEMP_A}" = "X"; then
+        FLOAT_BYTES=""
+      else
+        FLOAT_BYTES="16"
+      fi
+    else
+      FLOAT_BYTES="8"
+    fi
+  else
+    FLOAT_BYTES="4"
+  fi
+fi
+if test "X${FLOAT_BYTES}" = "X" || test "X${F77_FLOAT_TYPE}" = "Xdouble"; then
+  F77_FLOAT_UPPER=""
+  F77_FLOAT_LOWER=""
+elif test "X${F77_FLOAT_TYPE}" = "Xsingle" || test "X${F77_FLOAT_TYPE}" = "Xextended"; then
+  F77_FLOAT_UPPER="REAL\*${FLOAT_BYTES}"
+  F77_FLOAT_LOWER="real\*${FLOAT_BYTES}"
+fi
+if test "X${F77_FLOAT_TYPE}" = "Xsingle"; then
+  C_FLOAT_TYPE="float"
+elif test "X${F77_FLOAT_TYPE}" = "Xdouble"; then
+  C_FLOAT_TYPE="double"
+elif test "X${F77_FLOAT_TYPE}" = "Xextended"; then
+  C_FLOAT_TYPE="long double"
+fi
+TEMP_A=`echo "${srcdir}" | ${FGREP} "examples_par"`
+if test "X${TEMP_A}" = "X"; then
+  :
+else
+  if test -f ${MPI_INC_DIR}/mpif.h ; then
+    TEMP_A=`${FGREP} "MPI_REAL${FLOAT_BYTES}" ${MPI_INC_DIR}/mpif.h`
+    if test "X${TEMP_A}" = "X"; then
+      TEMP_A=`${FGREP} "mpi_real${FLOAT_BYTES}" ${MPI_INC_DIR}/mpif.h`
+    fi
+    if test "X${TEMP_A}" = "X"; then
+      F77_MPI_REAL_UPPER="MPI_REAL"
+      F77_MPI_REAL_LOWER="mpi_real"
+    else
+      F77_MPI_REAL_UPPER="MPI_REAL${FLOAT_BYTES}"
+      F77_MPI_REAL_LOWER="mpi_real${FLOAT_BYTES}"
+    fi
+  else
+    echo ""
+    echo "WARNING: using MPI_REAL${FLOAT_BYTES} since unable to find mpif.h"
+    echo ""
+    F77_MPI_REAL_UPPER="MPI_REAL${FLOAT_BYTES}"
+    F77_MPI_REAL_LOWER="mpi_real${FLOAT_BYTES}"
+  fi
+fi
+if test "X${FLOAT_BYTES}" = "X"; then
+  echo ""
+  echo "WARNING: ${C_FLOAT_TYPE} floating-point data type has NO Fortran equivalent"
+  echo ""
+fi
+if test -f ${srcdir}/${SOURCE_FILE} ; then
+  echo "Updating ${SOURCE_FILE}..."
+  ${CP_FILE} ${srcdir}/${SOURCE_FILE} ${builddir}/temp1.f
+  TEMP_A=`${FGREP} "INTEGER*4" ${builddir}/temp1.f`
+  TEMP_B=`${FGREP} "integer*4" ${builddir}/temp1.f`
+  TEMP_A="${TEMP_A} ${TEMP_B}"
+  for j in ${TEMP_A} ; do
+    TEMP_B=`echo "${j}" | ${FGREP} "INTEGER*4"`
+    F77_CASE="upper"
+    if test "X${TEMP_B}" = "X"; then
+      TEMP_B=`echo "${j}" | ${FGREP} "integer*4"`
+      F77_CASE="lower"
+    fi
+    if test "X${TEMP_B}" = "X"; then
+      :
+    else
+      TEMP1=`echo "${j}" | cut -d'*' -f1`
+      TEMP2=`echo "${j}" | cut -d'*' -f2`
+      j="${TEMP1}\*${TEMP2}"
+      if test "X${F77_CASE}" = "Xupper"; then
+        sed "s,${j},${F77_LONG_INT_UPPER}," ${builddir}/temp1.f > ${builddir}/temp2.f
+      else
+        sed "s,${j},${F77_LONG_INT_LOWER}," ${builddir}/temp1.f > ${builddir}/temp2.f
+      fi
+      ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+    fi
+  done
+  TEMP_A=`${FGREP} "INTEGER " ${builddir}/temp1.f`
+  TEMP_B=`${FGREP} "integer " ${builddir}/temp1.f`
+  TEMP_A="${TEMP_A} ${TEMP_B}"
+  for j in ${TEMP_A} ; do
+    TEMP_B=`echo "${j}" | ${FGREP} "INTEGER"`
+    F77_CASE="upper"
+    if test "X${TEMP_B}" = "X"; then
+      TEMP_B=`echo "${j}" | ${FGREP} "integer"`
+      F77_CASE="lower"
+    fi
+    if test "X${TEMP_B}" = "X"; then
+      :
+    else
+      if test "X${F77_CASE}" = "Xupper"; then
+        sed "s,${j} ,${F77_INT_UPPER} ," ${builddir}/temp1.f > ${builddir}/temp2.f
+      else
+        sed "s,${j} ,${F77_INT_LOWER} ," ${builddir}/temp1.f > ${builddir}/temp2.f
+      fi
+      ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+    fi
+  done
+  if test "X${F77_FLOAT_TYPE}" = "Xdouble" || test "X${FLOAT_BYTES}" = "X"; then
+    :
+  elif test "X${F77_FLOAT_TYPE}" = "Xsingle"; then
+    CONTINUE="yes"
+    while test "X${CONTINUE}" = "Xyes" ; do
+      TEMP_A=`${FGREP} "DOUBLE PRECISION" ${builddir}/temp1.f`
+      F77_CASE="upper"
+      if test "X${TEMP_A}" = "X"; then
+        TEMP_A=`${FGREP} "double precision" ${builddir}/temp1.f`
+        F77_CASE="lower"
+      fi
+      if test "X${TEMP_A}" = "X"; then
+        CONTINUE="no"
+      else
+        if test "X${F77_CASE}" = "Xupper"; then
+          sed "s,DOUBLE PRECISION,${F77_FLOAT_UPPER}," ${builddir}/temp1.f > ${builddir}/temp2.f
+        else
+          sed "s,double precision,${F77_FLOAT_LOWER}," ${builddir}/temp1.f > ${builddir}/temp2.f
+        fi
+        ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+      fi
+    done
+    CONTINUE="yes"
+    while test "X${CONTINUE}" = "Xyes" ; do
+      TEMP_A=`${FGREP} "MPI_DOUBLE_PRECISION" ${builddir}/temp1.f`
+      F77_CASE="upper"
+      if test "X${TEMP_A}" = "X"; then
+        TEMP_A=`${FGREP} "mpi_double_precision" ${builddir}/temp1.f`
+        F77_CASE="lower"
+      fi
+      if test "X${TEMP_A}" = "X"; then
+        CONTINUE="no"
+      else
+        if test "X${F77_CASE}" = "Xupper"; then
+          sed "s,MPI_DOUBLE_PRECISION,${F77_MPI_REAL_UPPER}," ${builddir}/temp1.f > ${builddir}/temp2.f
+        else
+          sed "s,mpi_double_precision,${F77_MPI_REAL_LOWER}," ${builddir}/temp1.f > ${builddir}/temp2.f
+        fi
+        ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+      fi
+    done
+    TEMP_A=`${EGREP} "[/]?[[:digit:]]+[.]{1}[[:digit:]]*[dD]{1}[+-]?[[:digit:]]+[/]?" ${builddir}/temp1.f`
+    CONTINUE="yes"
+    while test "X${CONTINUE}" = "Xyes" ; do
+      TEMP_B=`echo "${TEMP_A}" | ${FGREP} ","`
+      if test "X${TEMP_B}" = "X"; then
+        CONTINUE="no"
+      else
+        TEMP_A=`echo "${TEMP_A}" | sed "s,\,, ,"`
+      fi
+    done
+    CONTINUE="yes"
+    while test "X${CONTINUE}" = "Xyes" ; do
+      TEMP_B=`echo "${TEMP_A}" | ${FGREP} "("`
+      if test "X${TEMP_B}" = "X"; then
+        CONTINUE="no"
+      else
+        TEMP_A=`echo "${TEMP_A}" | sed "s,(, ,"`
+      fi
+    done
+    for j in ${TEMP_A} ; do
+      TEMP_B=`echo "${j}" | ${EGREP} "[/]?[[:digit:]]+[.]{1}[[:digit:]]*[dD]{1}[+-]?[[:digit:]]+[/]?"`
+      if test "X${TEMP_B}" = "X"; then
+        :
+      else
+        TEMP_B=`echo "${j}" | ${FGREP} "/"`
+        if test "X${TEMP_B}" = "X"; then
+          TEMP_B=`echo "${j}" | sed "s,D,E,"`
+          TEMP_B=`echo "${TEMP_B}" | sed "s,d,e,"`
+          sed "s,${j},${TEMP_B}," ${builddir}/temp1.f > ${builddir}/temp2.f
+        else
+          TEMP_B=`echo "${j}" | cut -d'/' -f2`
+          TEMP_C=`echo "${TEMP_B}" | sed "s,D,E,"`
+          TEMP_C=`echo "${TEMP_C}" | sed "s,d,e,"`
+          TEMP_C=`echo "${j}" | sed "s,${TEMP_B},${TEMP_C},"`
+          sed "s,${j},${TEMP_C}," ${builddir}/temp1.f > ${builddir}/temp2.f
+        fi
+        ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+      fi
+    done
+    for k in ${F77_KEYWORD_LIST} ; do
+      F77_LIST_UPPER=`echo "${k}" | cut -d',' -f1`
+      F77_LIST_LOWER=`echo "${k}" | cut -d',' -f2`
+      DEFAULT_KEYWORD_UPPER=`echo "${F77_LIST_UPPER}" | cut -d'/' -f2`
+      DEFAULT_KEYWORD_LOWER=`echo "${F77_LIST_LOWER}" | cut -d'/' -f2`
+      TEMP_A=`${FGREP} "${DEFAULT_KEYWORD_UPPER}(" ${builddir}/temp1.f`
+      TEMP_B=`${FGREP} "${DEFAULT_KEYWORD_LOWER}(" ${builddir}/temp1.f`
+      TEMP_A="${TEMP_A} ${TEMP_B}"
+      CONTINUE="yes"
+      while test "X${CONTINUE}" = "Xyes" ; do
+        TEMP_B=`echo "${TEMP_A}" | ${FGREP} ","`
+        if test "X${TEMP_B}" = "X"; then
+          CONTINUE="no"
+        else
+          TEMP_A=`echo "${TEMP_A}" | sed "s,\,, ,"`
+        fi
+      done
+      for j in ${TEMP_A} ; do
+        TEMP_B=`echo "${j}" | ${FGREP} "${DEFAULT_KEYWORD_UPPER}("`
+        F77_CASE="upper"
+        if test "X${TEMP_B}" = "X"; then
+          TEMP_B=`echo "${j}" | ${FGREP} "${DEFAULT_KEYWORD_LOWER}("`
+          F77_CASE="lower"
+        fi
+        if test "X${TEMP_B}" = "X"; then
+          :
+        else
+          if test "X${F77_CASE}" = "Xupper"; then
+            TEMP_C=`echo "${F77_LIST_UPPER}" | cut -d'/' -f1`
+            TEMP_B=`echo "${j}" | sed "s,${DEFAULT_KEYWORD_UPPER}(,${TEMP_C}(,"`
+          else
+            TEMP_C=`echo "${F77_LIST_LOWER}" | cut -d'/' -f1`
+            TEMP_B=`echo "${j}" | sed "s,${DEFAULT_KEYWORD_LOWER}(,${TEMP_C}(,"`
+          fi
+          sed "s,${j},${TEMP_B}," ${builddir}/temp1.f > ${builddir}/temp2.f
+          ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+        fi
+      done
+    done
+  elif test "X${F77_FLOAT_TYPE}" = "Xextended"; then
+    CONTINUE="yes"
+    while test "X${CONTINUE}" = "Xyes" ; do
+      TEMP_A=`${FGREP} "DOUBLE PRECISION" ${builddir}/temp1.f`
+      F77_CASE="upper"
+      if test "X${TEMP_A}" = "X"; then
+        TEMP_A=`${FGREP} "double precision" ${builddir}/temp1.f`
+        F77_CASE="lower"
+      fi
+      if test "X${TEMP_A}" = "X"; then
+        CONTINUE="no"
+      else
+        if test "X${F77_CASE}" = "Xupper"; then
+          sed "s,DOUBLE PRECISION,${F77_FLOAT_UPPER}," ${builddir}/temp1.f > ${builddir}/temp2.f
+        else
+          sed "s,double precision,${F77_FLOAT_LOWER}," ${builddir}/temp1.f > ${builddir}/temp2.f
+        fi
+        ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+      fi
+    done
+    CONTINUE="yes"
+    while test "X${CONTINUE}" = "Xyes" ; do
+      TEMP_A=`${FGREP} "MPI_DOUBLE_PRECISION" ${builddir}/temp1.f`
+      F77_CASE="upper"
+      if test "X${TEMP_A}" = "X"; then
+        TEMP_A=`${FGREP} "mpi_double_precision" ${builddir}/temp1.f`
+        F77_CASE="lower"
+      fi
+      if test "X${TEMP_A}" = "X"; then
+        CONTINUE="no"
+      else
+        if test "X${F77_CASE}" = "Xupper"; then
+          sed "s,MPI_DOUBLE_PRECISION,${F77_MPI_REAL_UPPER}," ${builddir}/temp1.f > ${builddir}/temp2.f
+        else
+          sed "s,mpi_double_precision,${F77_MPI_REAL_LOWER}," ${builddir}/temp1.f > ${builddir}/temp2.f
+        fi
+        ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+      fi
+    done
+    if test "X${FLOAT_BYTES}" = "X16"; then
+      for k in ${F77_KEYWORD_LIST} ; do
+        F77_LIST_UPPER=`echo "${k}" | cut -d',' -f1`
+        F77_LIST_LOWER=`echo "${k}" | cut -d',' -f2`
+        DEFAULT_KEYWORD_UPPER=`echo "${F77_LIST_UPPER}" | cut -d'/' -f2`
+        DEFAULT_KEYWORD_LOWER=`echo "${F77_LIST_LOWER}" | cut -d'/' -f2`
+        TEMP_A=`${FGREP} "${DEFAULT_KEYWORD_UPPER}(" ${builddir}/temp1.f`
+        TEMP_B=`${FGREP} "${DEFAULT_KEYWORD_LOWER}(" ${builddir}/temp1.f`
+        TEMP_A="${TEMP_A} ${TEMP_B}"
+        CONTINUE="yes"
+        while test "X${CONTINUE}" = "Xyes" ; do
+          TEMP_B=`echo "${TEMP_A}" | ${FGREP} ","`
+          if test "X${TEMP_B}" = "X"; then
+            CONTINUE="no"
+          else
+            TEMP_A=`echo "${TEMP_A}" | sed "s,\,, ,"`
+          fi
+        done
+        for j in ${TEMP_A} ; do
+          TEMP_B=`echo "${j}" | ${FGREP} "${DEFAULT_KEYWORD_UPPER}("`
+          F77_CASE="upper"
+          if test "X${TEMP_B}" = "X"; then
+            TEMP_B=`echo "${j}" | ${FGREP} "${DEFAULT_KEYWORD_LOWER}("`
+            F77_CASE="lower"
+          fi
+          if test "X${TEMP_B}" = "X"; then
+            :
+          else
+            if test "X${F77_CASE}" = "Xupper"; then
+              TEMP_C=`echo "${F77_LIST_UPPER}" | cut -d'/' -f3`
+              TEMP_B=`echo "${j}" | sed "s,${DEFAULT_KEYWORD_UPPER}(,${TEMP_C}(,"`
+            else
+              TEMP_C=`echo "${F77_LIST_LOWER}" | cut -d'/' -f3`
+              TEMP_B=`echo "${j}" | sed "s,${DEFAULT_KEYWORD_LOWER}(,${TEMP_C}(,"`
+            fi
+            sed "s,${j},${TEMP_B}," ${builddir}/temp1.f > ${builddir}/temp2.f
+            ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+          fi
+        done
+      done
+    fi
+  fi
+  SOURCE_FILE=`echo "${SOURCE_FILE}" | cut -d'.' -f1`
+  SOURCE_FILE="${SOURCE_FILE}-updated.f"
+  ${CP_FILE} ${builddir}/temp1.f ${builddir}/${SOURCE_FILE}
+  rm -f ${builddir}/temp1.f ${builddir}/temp2.f
+fi
