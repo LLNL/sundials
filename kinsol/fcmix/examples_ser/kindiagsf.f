@@ -40,7 +40,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
 
       call fnvspecinits(neq, ier)
       if (ier .ne. 0) then
-         write(6,1220),ier
+         write(6,1220) ier
  1220    format('fnvspecinits failed, ier =',i2)
          stop
       endif
@@ -54,7 +54,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinmalloc(msbpre, fnormtol, scsteptol, 
      &                constr, inopt, iopt, ropt, ier)
       if (ier .ne. 0) then
-         write(6,1230),ier
+         write(6,1230) ier
  1230    format('fkinmalloc failed, ier =',i2)
          stop
       endif
@@ -72,18 +72,18 @@ c * * * * * * * * * * * * * * * * * * * * * *
 
       call fkinsol(uu, 0, scale, scale, ier)
 
-      write(6,1245)ier
+      write(6,1245) ier
  1245 format(/' fkinsol return code is ',i5)
 
       write(6,1246)
  1246 format(/' The resultant values of uu are:'/)
 
       do 30 i = 1,neq,4
-         write(6,1256)i, uu(i), uu(i+1), uu(i+2), uu(i+3)
+         write(6,1256) i, uu(i), uu(i+1), uu(i+2), uu(i+3)
  1256    format(i4,4(1x,f10.6))
  30   continue
 
-      write(6,1267)iopt(4),iopt(11),iopt(5),iopt(12),iopt(13),iopt(14)
+      write(6,1267) iopt(4),iopt(11),iopt(5),iopt(12),iopt(13),iopt(14)
  1267 format(//' nni=',i4,',  nli=',i4,',  nfe=',i4,',  npe=',i4,
      1       ',  nps=',i4,',  ncfl=',i4)
 
@@ -104,8 +104,8 @@ c     function of the following form.
       common /psize/ neq
 
       do 10 i = 1,neq
- 10      fval(i) = uu(i)*uu(i) - i*i
-      
+         fval(i) = uu(i)*uu(i) - i*i
+ 10   continue
       return
       end
       
@@ -129,8 +129,8 @@ c     to it.  The argument list must also be as illustrated below:
       common /psize/ neq
 
       do 10 i = 1,neq
- 10      pp(i) = 0.5/(udata(i)+5.)
-      
+         pp(i) = 0.5/(udata(i)+5.)
+ 10   continue
       ier = 0
       
       return
@@ -156,8 +156,8 @@ c     to it.  The argument list must also be as illustrated below:
       common /psize/ neq
 
       do 10 i = 1,neq
- 10      vv(i) = vv(i) * pp(i)
-      
+         vv(i) = vv(i) * pp(i)
+ 10   continue
       ier = 0
       
       return
