@@ -1,19 +1,20 @@
-/*******************************************************************
- *                                                                 *
- * File          : cvode.c                                         *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban, *
- *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 28 April 2004                                   *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
- *-----------------------------------------------------------------*
- * This is the implementation file for the main CVODE integrator.  *
- * It is independent of the CVODE linear solver in use.            *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.21 $
+ * $Date: 2004-04-29 00:15:16 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
+ *                and Dan Shumaker @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvode/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for the main CVODE integrator.
+ * It is independent of the CVODE linear solver in use.
+ * -----------------------------------------------------------------
+ */
 
 
 /************************************************************/
@@ -2398,7 +2399,11 @@ void CVodeFree(void *cvode_mem)
 
   if (iter == NEWTON) lfree(cv_mem);
 
-  free(glo); free(ghi); free(groot); free(iroots);
+  if (nrtfn > 0) {
+    free(glo);
+    free(ghi);
+    free(groot);
+    free(iroots); }
 
   free(cv_mem);
 }
