@@ -69,7 +69,9 @@ uninstall:
 	rm -f ${includedir}/nvector_parallel.h
 	rm -f ${includedir}/fnvector_parallel.h
 
-${OBJ}: %.o : ${srcdir}/%.c
+nvector_parallel.o : ${srcdir}/nvector_parallel.c
+	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+fnvector_parallel.o : ${srcdir}/fnvector_parallel.c
 	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

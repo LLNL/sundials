@@ -81,7 +81,19 @@ uninstall:
 	rm -f ${includedir}/spgmr.h
 	rm -f ${includedir}/complexify.h
 
-${OBJ}: %.o : ${srcdir}/%.c
+band.o : ${srcdir}/band.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+dense.o : ${srcdir}/dense.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+iterative.o : ${srcdir}/iterative.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+sundialsmath.o : ${srcdir}/sundialsmath.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+nvector.o : ${srcdir}/nvector.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+smalldense.o : ${srcdir}/smalldense.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+spgmr.o : ${srcdir}/spgmr.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---
