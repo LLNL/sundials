@@ -6,7 +6,7 @@ Modified 15 January 2002 - Radu
 Modified 24 January 2002 - Alan
 Modified 7 February 2002 - Alan
 Modified 21 February 2002 - Alan
-
+Modified 13 March 2002 - Radu
 
 Overall structure:
 ------------------
@@ -55,14 +55,16 @@ shared/ subdirectories:
 include/
     llnltyps.h  llnlmath.h
     band.h  dense.h  smalldense.h  spgmr.h  iterativ.h
+    nvector.h
     nvector_serial.h  nvector_parallel.h
     nvector_sens_serial.h  nvector_sens_parallel.h
     fcmixpar.h
       
 source/
-    Makefile, shareds.mk, sharedp.mk
+    Makefile, nvecserial.mk, nvecparallel.mk
     llnlmath.c
     band.c  dense.c  smalldense.c  spgmr.c  iterativ.c
+    nvector.c
     nvector_serial.c  nvector_parallel.c
     nvector_sens_serial.c  nvector_sens_parallel.c
 
@@ -82,7 +84,7 @@ include/
     cvdense.h, cvband.h, cvdiag.h, cvspgmr.h, cvbandpre.h, pvbbdpre.h
 
 source/
-    Makefile, cvode.mk, pvode.mk
+    Makefile
     cvode.c
     cvdense.c, cvband.c, cvdiag.c, cvspgmr.c, cvbandpre.c, pvbbdpre.c
 
@@ -180,7 +182,7 @@ include/
     kinspgmr.h,  kinbbdpre.h
 
 source/
-    Makefile, kinsols.mk, kinsolp.mk
+    Makefile
     kinsol.c
     kinspgmr.c,  kinbbdpre.c
 
@@ -193,8 +195,8 @@ examples/
     kinwebs.c, kinwebs.out
 
 fcmix/
-    Makefile, fkinsolp.mk, fkinsolpx.mk, fkinsols.mk, fkinsolsx.mk
-    fkinsols.c, fkinsolp.c, fkinsol.h
+    Makefile, fkinxs.mk, fkinxp.mk
+    fkinsol.c, fkinsol.h
     fkinspgmr01.c, fkinspgmr10.c, fkinspgmr11.c, fkinspgmr20.c, fkinspgmr21.c
     fkinpsol.c, fkinpreco.c, fkinuatimes.c,  fkinbbd.c, fkinbbd.h, fkinbbdinit1.c
     kindiagsf.f, kindiagsf.out;	  kindiagpf.f, kindiagpf.out
@@ -255,7 +257,7 @@ include/
     idadense.h, idaband.h, idaspgmr.h,  idabbdpre.h
 
 source/
-    Makefile, idas.mk, idap.mk
+    Makefile
     ida.c
     idadense.c, idaband.c, idaspgmr.c,  idabbdpre.c
 
@@ -316,8 +318,6 @@ include letters identifying the solver used, and the use or non-use of
 sensitivity variant, e.g. pvkx.c and spvkx.c.
 
 2) Makefiles are stored with source files for each of the 9 packages.
-In each directory with source files, there is a file Makefile, which
-invokes one or more other makefiles with names ending in .mk.	
 Each makefile in the solver source is to reference other files needed
 by relative paths.  E.g. senspv.mk will reference ../../cvode/source/*.
 
@@ -332,13 +332,12 @@ duplication between them.
 5) Each solver directory now contains a /lib/ subdirectory.  The plan
 is to have the solver library files be stored in these third level
 /lib/ subdirectories, with symbolic links to those stored in the second
-level /lib/ directory.  The shared/ directory also contains a /lib/, and
-the plan is to put NVECTOR module library files there.  All makefiles
-will have to be revised to fit this plan. 
+level /lib/ directory.  The shared/ directory also contains a /lib/
+which will contain the shared library as well as the libraries for the
+two (serial and parallel) nvector implementations provided with SUNDIALS.
 
 6) The second level also includes an /include/ subdirectory, for
-symbolic links to lower level header files.  It will also have a
-Makefile, for installation of packages.
+symbolic links to lower level header files.
 
 7) Preliminary versions of higher level scripts have been written that
 create tar-files for each individual solver package requested.  At
