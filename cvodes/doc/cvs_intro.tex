@@ -96,8 +96,11 @@ Additionally, the interfaces to several user-supplied routines
 (such as those providing Jacobians, preconditioner information, and
 sensitivity right hand sides) were simplified by reducing the number
 of arguments. The same information that was previously accessible
-through such arguments can now be obtained through {\id{Set}-type}
+through such arguments can now be obtained through {\id{Get}-type}
 functions.
+
+Installation of {\cvodes} (and all of {\sundials}) has been completely 
+redesigned and is now based on configure scripts.
 
 \section{Reading this user guide}\label{ss:reading}
 
@@ -140,7 +143,10 @@ and the examples in \cite{cvodes1.1_ex}.
 The structure of this document is as follows:
 \begin{itemize}
 \item
-  In \S\ref{s:math}, we begin with short descriptions of the numerical 
+  In \S\ref{s:install} we begin with instructions for the installation of 
+  {\cvodes}, within the structure of {\sundials}.
+\item
+  In \S\ref{s:math}, we give short descriptions of the numerical 
   methods implemented by {\cvodes} for the solution of initial value problems
   for systems of ODEs, continue with an overview of the mathematical aspects 
   of sensitivity analysis, both forward (\S\ref{ss:fwd_sensi}) and adjoint
@@ -182,7 +188,7 @@ The structure of this document is as follows:
   Section \ref{s:new_linsolv} describes the specifications of linear solver modules as 
   supplied by the user.
 \item
-  Section \ref{s:gen_linsolv} describes in details the generic linear solvers shared 
+  Section \ref{s:gen_linsolv} describes in detail the generic linear solvers shared 
   by all {\sundials} solvers.
 \end{itemize}
 
@@ -191,3 +197,5 @@ in this user guide:  Program listings and identifiers (such as \id{CVodeMalloc})
 within textual explanations appear in typewriter type style; 
 fields in {\C} structures (such as {\em content}) appear in italics;
 and packages or modules, such as {\cvdense}, are written in all capitals. 
+In the Index, page numbers that appear in bold indicate the main reference
+for that entry. 
