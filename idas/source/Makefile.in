@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-10-28 00:35:56 $
+# $Revision: 1.10 $
+# $Date: 2004-12-08 19:37:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,13 +39,13 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-SHARED_INC_DIR   = $(srcdir)/../../shared/include
-IDAS_INC_DIR     = $(srcdir)/../include
+SHARED_INC_DIR = $(srcdir)/../../shared/include
+IDAS_INC_DIR   = $(srcdir)/../include
 
 IDAS_LIB       = libsundials_idas.la
-IDAS_LIB_FILES = idas.lo idaa.lo idasic.lo idasio.lo idaband.lo idadense.lo idaspgmr.lo idabbdpre.lo
+IDAS_LIB_FILES = idas.lo idaa.lo idasic.lo idasio.lo idaband.lo idadense.lo idaspbcg.lo idaspgmr.lo idabbdpre.lo
 
-OBJECT_FILES = idas.o idaa.o idasic.o idasio.o idaband.o idadense.o idaspgmr.o idabbdpre.o
+OBJECT_FILES = idas.o idaa.o idasic.o idasio.o idaband.o idadense.o idaspbcg.o idaspgmr.o idabbdpre.o
 
 all: update $(IDAS_LIB_FILES)
 
@@ -60,6 +60,7 @@ install: update $(IDAS_LIB_FILES)
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaa.h $(includedir)
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idadense.h $(includedir)
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaband.h $(includedir)
+	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaspbcg.h $(includedir)
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaspgmr.h $(includedir)
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idabbdpre.h $(includedir)
 
@@ -75,6 +76,7 @@ uninstall: clean
 	rm -f $(includedir)/idaa.h
 	rm -f $(includedir)/idadense.h
 	rm -f $(includedir)/idaband.h
+	rm -f $(includedir)/idaspbcg.h
 	rm -f $(includedir)/idaspgmr.h
 	rm -f $(includedir)/idabbdpre.h
 
@@ -90,6 +92,8 @@ idaband.lo: $(srcdir)/idaband.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idaband.c
 idadense.lo: $(srcdir)/idadense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idadense.c
+idaspbcg.lo: $(srcdir)/idaspbcg.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idaspbcg.c
 idaspgmr.lo: $(srcdir)/idaspgmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idaspgmr.c
 idabbdpre.lo: $(srcdir)/idabbdpre.c
