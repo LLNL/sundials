@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-07-22 22:54:43 $
+ * $Revision: 1.12 $
+ * $Date: 2004-08-09 21:06:35 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -41,7 +41,7 @@ void FCV_SPGMRSETJAC(int *flag, int *ier)
    Fortran routine FCVJTIMES for Jacobian * vector product.
    Addresses of v, Jv, t, y, fy, vnrm, ewt, h, uround, ytemp, and
    the address nfePtr, are passed to FCVJTIMES, using the routine
-   N_VGetData from NVECTOR. A return flag ier from FCVJTIMES is 
+   N_VGetArrayPointer from NVECTOR. A return flag ier from FCVJTIMES is 
    returned by FCVJtimes.
    Auxiliary data is assumed to be communicated by common blocks. */
 

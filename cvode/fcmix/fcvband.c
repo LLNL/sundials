@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-07-22 22:54:43 $
+ * $Revision: 1.8 $
+ * $Date: 2004-08-09 21:06:14 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +44,7 @@ void FCV_BANDSETJAC(int *flag, int *ier)
 /* C function CVBandJac interfaces between CVODE and a Fortran subroutine
    FCVBJAC for solution of a linear system with band Jacobian approximation.
    Addresses of arguments are passed to FCVBJAC, using the macro 
-   BAND_COL from BAND and the routine N_VGetData from NVECTOR.
+   BAND_COL from BAND and the routine N_VGetArrayPointer from NVECTOR.
    The address passed for J is that of the element in column 0 with row 
    index -mupper.  An extended bandwith equal to (J->smu) + mlower + 1 is
    passed as the column dimension of the corresponding array.

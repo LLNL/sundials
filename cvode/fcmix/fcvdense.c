@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-07-22 22:54:43 $
+ * $Revision: 1.8 $
+ * $Date: 2004-08-09 21:05:52 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,8 +26,7 @@
 
 /* Prototype of the Fortran routine */
 void FCV_DJAC(long int*, realtype*, realtype*, realtype*, realtype*, 
-              realtype*, realtype*,
-              realtype*, realtype*, realtype*);
+              realtype*, realtype*, realtype*, realtype*, realtype*);
 
 /***************************************************************************/
 
@@ -42,7 +41,7 @@ void FCV_DENSESETJAC(int *flag, int *ier)
 /* C function CVDenseJac interfaces between CVODE and a Fortran subroutine
    FCVDJAC for solution of a linear system with dense Jacobian approximation.
    Addresses of arguments are passed to FCVDJAC, using the macro 
-   DENSE_COL from DENSE and the routine N_VGetData from NVECTOR.
+   DENSE_COL from DENSE and the routine N_VGetArrayPointer from NVECTOR.
    Auxiliary data is assumed to be communicated by Common. */
 
 void FCVDenseJac(long int N, DenseMat J, realtype t, 
