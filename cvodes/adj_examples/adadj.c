@@ -1,10 +1,11 @@
 /************************************************************************
- * File: advdifadj.c                                                    *
- * Version of 18 January 2002                                           *
+ * File       : adadj.c                                                 *
+ * Programmers: Radu Serban @ LLNL                                      *
+ * Version of : 22 March 2002                                           *
  *----------------------------------------------------------------------*
- * Example problem.                                                     *
+ * Adjoint sensitivity example problem.                                 *
  * The following is a simple example problem with a banded Jacobian,    *
- * with the program for its solution by CVODE.                          *
+ * with the program for its solution by CVODES.                         *
  * The problem is the semi-discrete form of the advection-diffusion     *
  * equation in 2-D:                                                     *
  *   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2                     *
@@ -21,16 +22,26 @@
  * It uses scalar relative and absolute tolerances.                     *
  * Output is printed at t = .1, .2, ..., 1.                             *
  * Run statistics (optional outputs) are printed at the end.            *
+ *                                                                      *
+ * Additionally, CVODES can integrate backwards in time the             *
+ * the semi-discrete form of the adjoint PDE:                           *
+ *   d(lambda)/dt = - d^2(lambda) / dx^2 + 0.5 d(lambda) / dx           *
+ *                  - d^2(lambda) / dy^2 - 1.0                          *
+ * with homogeneous Dirichlet boundary conditions and final conditions  *
+ *   lambda(x,y,t=t_final) = 0.0                                        *
+ * whose solution at t = 0 represents the sensitivity of                *
+ *   G = int_0^t_final int_x int _y u(t,x,y) dx dy dt                   *
+ * with respect to the initial conditions of the original problem.      *
+ *                                                                      *
  ************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
 #include "llnltyps.h"
 #include "cvodea.h"
 #include "cvsband.h"
-#include "nvector.h"
+#include "nvector_serial.h"
 #include "band.h"
 
 /* Problem Constants */
@@ -63,7 +74,6 @@
    The variables are ordered by the y index j, then by the x index i. */
 
 #define IJth(vdata,i,j) (vdata[(j-1) + (i-1)*MY])
-
 
 /* Type : UserData 
    contains grid constants */
@@ -101,6 +111,8 @@ static void JacB(integer NB, integer muB, integer mlB, BandMat JB, RhsFnB fB,
 
 int main(int argc, char *argv[])
 {
+  M_Env machEnvF, machEnvB;
+
   UserData data;
 
   void *cvadj_mem;
@@ -131,19 +143,22 @@ int main(int argc, char *argv[])
   /*---- ORIGINAL PROBLEM ----*/
   /*--------------------------*/
 
+  /* Initialize serial machine environment for forward run */
+  machEnvF = M_EnvInit_Serial(NEQ);
+
   /* Set the tolerances */
   reltol = 0.0;
   abstol = ATOL;
 
   /* Allocate u vector */
-  u = N_VNew(NEQ, NULL);
+  u = N_VNew(NEQ, machEnvF);
   /* Initialize u vector */
   SetIC(u, data);
 
   /* Allocate CVODE memory for forward run */
   printf("\nAllocate CVODE memory for forward runs\n");
   cvode_mem = CVodeMalloc(NEQ, f, T0, u, BDF, NEWTON, SS, &reltol, &abstol,
-                          data, NULL, FALSE, iopt, ropt, NULL);
+                          data, NULL, FALSE, iopt, ropt, machEnvF);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
 
   /* Call CVBand with  bandwidths ml = mu = MY, */
@@ -174,12 +189,15 @@ int main(int argc, char *argv[])
   /*---- ADJOINT PROBLEM ----*/
   /*-------------------------*/
 
+  /* Initialize serial machine environment for backward run */
+  machEnvB = M_EnvInit_Serial(NEQ);
+
   /* Set the tolerances */
   reltolB = RTOLB;
   abstolB = ATOL;
 
   /* Allocate uB */
-  uB = N_VNew(NEQ, NULL);
+  uB = N_VNew(NEQ, machEnvB);
   /* Initialize uB = 0 */
   N_VConst(0.0, uB);
 
@@ -187,7 +205,7 @@ int main(int argc, char *argv[])
   printf("\nAllocate CVODE memory for backward run\n");
   flag = CVodeMallocB(cvadj_mem, NEQ, fB, uB, BDF, NEWTON, SS, 
                       &reltolB, &abstolB, data, NULL, 
-                      FALSE, NULL, NULL, NULL);
+                      FALSE, NULL, NULL, machEnvB);
   flag = CVBandB(cvadj_mem, MY, MY, JacB, data);
   if (flag != SUCCESS) { printf("CVBandB failed.\n"); return(1); }
 
@@ -202,6 +220,8 @@ int main(int argc, char *argv[])
   N_VFree(u);                  /* Free the u vector */
   CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
   free(data);                  /* Free the user data */
+  M_EnvFree_Serial(machEnvF);
+  M_EnvFree_Serial(machEnvB);
 
   return(0);
 }
@@ -227,7 +247,7 @@ static void SetIC(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u. */
 
-  udata = N_VDATA(u);
+  udata = NV_DATA_S(u);
 
   /* Load initial profile into u vector */
 
@@ -239,7 +259,7 @@ static void SetIC(N_Vector u, UserData data)
     }
   }  
 
-  ff = fopen("u0.dat","w");
+  ff = fopen("ad_u0.dat","w");
 
   for(i=1; i<=MX+2; i++) fprintf(ff, "0.0 ");
   fprintf(ff,"\n");
@@ -268,8 +288,8 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
   int i, j;
   UserData data;
 
-  udata = N_VDATA(u);
-  dudata = N_VDATA(udot);
+  udata = NV_DATA_S(u);
+  dudata = NV_DATA_S(udot);
 
   /* Extract needed constants from data */
 
@@ -357,8 +377,8 @@ static void fB(integer NB, real tB, N_Vector u,
   real hdiffB, hadvB, vdiffB;
   int i, j;
 
-  uBdata = N_VDATA(uB);
-  duBdata = N_VDATA(uBdot);
+  uBdata = NV_DATA_S(uB);
+  duBdata = NV_DATA_S(uBdot);
 
   /* Extract needed constants from data */
 
@@ -430,9 +450,9 @@ static void WriteLambda(N_Vector uB)
   int i, j;
   FILE *ff;
 
-  ff = fopen("lambda.dat","w");
+  ff = fopen("ad_lambda.dat","w");
 
-  uBdata = N_VDATA(uB);
+  uBdata = NV_DATA_S(uB);
   for(i=1; i<=MX+2; i++) fprintf(ff, "0.0 ");
   fprintf(ff,"\n");
   for(j=1; j<= MY; j++) {
