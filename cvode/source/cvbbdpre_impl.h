@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-12-07 19:43:28 $
+ * $Revision: 1.4 $
+ * $Date: 2005-01-26 22:23:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVBBDPRE_IMPL_H
+#define _CVBBDPRE_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVBBDPRE_IMPL_H
-#define _CVBBDPRE_IMPL_H
 
 #include "cvbbdpre.h"
 
@@ -85,8 +85,8 @@ typedef struct {
 
 #define MSGBBDP_NO_PDATA "CVBBDSpgmr/CVBBDSpgmr-- BBDPrecData is NULL.\n\n"
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

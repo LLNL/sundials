@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-01-20 22:34:10 $
+ * $Revision: 1.6 $
+ * $Date: 2005-01-26 22:23:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -14,12 +14,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVODEA_IMPL_H
+#define _CVODEA_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVODEA_IMPL_H
-#define _CVODEA_IMPL_H
 
 #include <stdio.h>
 
@@ -224,8 +224,8 @@ typedef struct CVadjMemRec {
 #define MSGAM_BAD_STEPS _CVAM_ "Steps nonpositive illegal.\n\n"
 #define MSGAM_MEM_FAIL  _CVAM_ "A memory request failed.\n\n"
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

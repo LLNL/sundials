@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-11-05 23:35:41 $
+ * $Revision: 1.5 $
+ * $Date: 2005-01-26 22:23:33 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,12 +17,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IDABAND_IMPL_H
+#define _IDABAND_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _idaband_impl_h
-#define _idaband_impl_h
 
 #include <stdio.h>
 
@@ -90,9 +90,8 @@ typedef struct {
 
 #define MSGB_SETGET_LMEM_NULL   "IDABandSet*/IDABandGet*-- IDABAND memory is NULL. \n\n"
 
-
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

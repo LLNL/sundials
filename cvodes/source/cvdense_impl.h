@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-11-06 01:02:03 $
+ * $Revision: 1.5 $
+ * $Date: 2005-01-26 22:23:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVDENSE_IMPL_H
+#define _CVDENSE_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVDENSE_IMPL_H
-#define _CVDENSE_IMPL_H
 
 #include <stdio.h>
 
@@ -75,8 +75,8 @@ typedef struct {
 
 #define MSGDS_SETGET_LMEM_NULL "CVDenseSet*/CVDenseGet*-- cvdense memory is NULL.\n\n"
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

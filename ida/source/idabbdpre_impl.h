@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-12-08 19:32:40 $
+ * $Revision: 1.8 $
+ * $Date: 2005-01-26 22:23:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -16,6 +16,9 @@
  * and IDASpgmr/IDASpbcg.
  * -----------------------------------------------------------------
  */
+
+#ifndef _IBBDPRE_IMPL_H
+#define _IBBDPRE_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -102,8 +105,8 @@ typedef struct {
 
 #define MSGBBD_NO_PDATA "IDABBDSpgmr/IDABBDSpbcg-- IBBDPrecData is NULL.\n\n"
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-01-20 22:34:10 $
+ * $Revision: 1.11 $
+ * $Date: 2005-01-26 22:23:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVODES_IMPL_H
+#define _CVODES_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVODES_IMPL_H
-#define _CVODES_IMPL_H
 
 #include <stdio.h>
 
@@ -749,8 +749,8 @@ typedef struct CVodeMemRec {
 #define MSGCVS_GET_NO_SENSI2 "calling CVodeSensMalloc.\n\n"
 #define MSGCVS_GET_NO_SENSI  MSGCVS_GET_NO_SENSI1 MSGCVS_GET_NO_SENSI2
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

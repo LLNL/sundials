@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-11-06 01:01:51 $
+ * $Revision: 1.4 $
+ * $Date: 2005-01-26 22:23:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -16,12 +16,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVSPGMR_IMPL_H
+#define _CVSPGMR_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVSPGMR_IMPL_H
-#define _CVSPGMR_IMPL_H
 
 #include <stdio.h>
 
@@ -113,8 +113,8 @@ typedef struct {
 
 #define MSGS_SET_BAD_DELT "CVSpgmrSetDelt-- delt < 0 illegal.\n\n"
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif
