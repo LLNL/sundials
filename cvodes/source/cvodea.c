@@ -264,7 +264,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   /* Workspace memory */
   Y0 = N_VNew(nvspec);
   if (Y0 == NULL) {
-    CVAdataFree(ca_mem->dt_mem, nsteps);
+    CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
     fprintf(stdout, MSG_CVAM_MEM_FAIL);
@@ -274,7 +274,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   Y1 = N_VNew(nvspec);
   if (Y1 == NULL) {
     N_VFree(Y0);
-    CVAdataFree(ca_mem->dt_mem, nsteps);
+    CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
     fprintf(stdout, MSG_CVAM_MEM_FAIL);
@@ -285,7 +285,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   if (ytmp == NULL) {
     N_VFree(Y0);
     N_VFree(Y1);
-    CVAdataFree(ca_mem->dt_mem, nsteps);
+    CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
     fprintf(stdout, MSG_CVAM_MEM_FAIL);
