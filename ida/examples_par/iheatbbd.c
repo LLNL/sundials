@@ -1,33 +1,39 @@
-/***********************************************************************
- * File       : iheatbbd.c   
- * Written by : Allan G. Taylo, Alan C. Hindmarsh, and Radu Serban
- * Version of : 23 July 2003
- *----------------------------------------------------------------------
- *
- * Example problem for IDA: 2D heat equation, parallel, GMRES, IDABBDPRE.
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.9 $
+ * $Date: 2004-05-05 16:27:24 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Allan Taylor, Alan Hindmarsh and
+ *                Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Example problem for IDA: 2D heat equation, parallel, GMRES,
+ * IDABBDPRE.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver IDASpgmr and BBD preconditioning.
+ * This version uses the Krylov solver IDASpgmr and BBD
+ * preconditioning.
  *
- * The DAE system solved is a spatial discretization of the PDE 
+ * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
- * on the unit square.  The boundary condition is u = 0 on all edges.
- * Initial conditions are given by u = 16 x (1 - x) y (1 - y).
- * The PDE is treated with central differences on a uniform MX x MY grid.
- * The values of u at the interior points satisfy ODEs, and equations
- * u = 0 at the boundaries are appended, to form a DAE system of size
- * N = MX * MY.  Here MX = MY = 10.
+ * on the unit square. The boundary condition is u = 0 on all edges.
+ * Initial conditions are given by u = 16 x (1 - x) y (1 - y). The
+ * PDE is treated with central differences on a uniform MX x MY
+ * grid. The values of u at the interior points satisfy ODEs, and
+ * equations u = 0 at the boundaries are appended, to form a DAE
+ * system of size N = MX * MY. Here MX = MY = 10.
  *
- * The system is actually implemented on submeshes, processor by processor,
- * with an MXSUB by MYSUB mesh on each of NPEX * NPEY processors.
+ * The system is actually implemented on submeshes, processor by
+ * processor, with an MXSUB by MYSUB mesh on each of NPEX * NPEY
+ * processors.
  *
- * The system is solved with IDA using the Krylov linear solver IDASPGMR
- * in conjunction with the preconditioner module IDABBDPRE.  The
- * preconditioner uses a tridiagonal approximation (half-bandwidths = 1).
- * The constraints u >= 0 are posed for all components.
- * Local error testing on the boundary values is suppressed. 
- * Output is taken at t = 0, .01, .02, .04, ..., 10.24.
- ***********************************************************************/
+ * The system is solved with IDA using the Krylov linear solver
+ * IDASPGMR in conjunction with the preconditioner module IDABBDPRE.
+ * The preconditioner uses a tridiagonal approximation
+ * (half-bandwidths = 1). The constraints u >= 0 are posed for all
+ * components. Local error testing on the boundary values is
+ * suppressed. Output is taken at t = 0, .01, .02, .04, ..., 10.24.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -728,9 +734,12 @@ static int BRecvWait(MPI_Request request[], long int ixsub,
 } /* End of BRecvWait. */
 
 /* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
-     opt == 2 means function allocates memory so check if returned NULL pointer */
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 {
@@ -741,10 +750,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
       return(1); }}
 
