@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-10-26 23:44:57 $
+ * $Revision: 1.26 $
+ * $Date: 2005-01-24 23:54:35 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -14,12 +14,12 @@
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifndef _IDAS_H
+#define _IDAS_H
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _idas_h
-#define _idas_h
 
 #include <stdio.h>
 #include "sundialstypes.h"
@@ -1215,8 +1215,8 @@ void IDASensFree(void *ida_mem);
  * -----------------------------------------------------------------
  */                                                                 
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-12-07 19:43:28 $
+ * $Revision: 1.2 $
+ * $Date: 2005-01-24 23:54:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVSPBCG_IMPL_H
+#define _CVSPBCG_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVSPBCG_IMPL_H
-#define _CVSPBCG_IMPL_H
 
 #include <stdio.h>
 
@@ -118,8 +118,8 @@ typedef struct {
 
 #define MSGBCG_SET_BAD_DELT "CVSpbcgSetDelt-- delt < 0 illegal.\n\n"
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

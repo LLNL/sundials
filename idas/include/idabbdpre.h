@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-12-08 19:37:57 $
+ * $Revision: 1.15 $
+ * $Date: 2005-01-24 23:54:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -101,12 +101,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IDABBDPRE_H
+#define _IDABBDPRE_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _IDABBDPRE_H
-#define _IDABBDPRE_H
 
 #include "band.h"
 #include "nvector.h"
@@ -331,8 +331,8 @@ void IDABBDPrecFree(void *bbd_data);
 int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP);
 int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

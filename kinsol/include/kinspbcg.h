@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-12-06 20:10:51 $
+ * $Revision: 1.2 $
+ * $Date: 2005-01-24 23:55:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -14,12 +14,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _KINSPBCG_H
+#define _KINSPBCG_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _KINSPBCG_H
-#define _KINSPBCG_H
 
 #include "nvector.h"
 #include "sundialstypes.h"
@@ -364,8 +364,8 @@ int KINSpbcgGetLastFlag(void *kinmem, int *flag);
 #define KINSPBCG_ILL_INPUT -3
 #define KINSPBCG_MEM_FAIL  -4
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-12-08 19:15:24 $
+ * $Revision: 1.3 $
+ * $Date: 2005-01-24 23:55:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Peter Brown and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _SPBCG_H
+#define _SPBCG_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _SPBCG_H
-#define _SPBCG_H
 
 #include "iterative.h"
 #include "nvector.h"
@@ -190,8 +190,8 @@ void SpbcgFree(SpbcgMem mem);
 
 #define SPBCG_VTEMP(mem) (mem->vtemp)
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

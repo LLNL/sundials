@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-12-08 19:32:40 $
+ * $Revision: 1.2 $
+ * $Date: 2005-01-24 23:54:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IDASPBCG_IMPL_H
+#define _IDASPBCG_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _IDASPBCG_IMPL_H
-#define _IDASPBCG_IMPL_H
 
 #include "idaspbcg.h"
 #include "iterative.h"
@@ -158,8 +158,8 @@ typedef struct {
 
 #endif
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-26 20:17:09 $
+ * $Revision: 1.10 $
+ * $Date: 2005-01-24 23:54:35 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifndef _IDASPGMR_H
+#define _IDASPGMR_H
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _idaspgmr_h
-#define _idaspgmr_h
 
 #include <stdio.h>
 #include "sundialstypes.h"
@@ -334,8 +334,8 @@ int IDASpgmrGetLastFlag(void *ida_mem, int *flag);
 #define IDASPGMR_ILL_INPUT  -3
 #define IDASPGMR_MEM_FAIL   -4
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

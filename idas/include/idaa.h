@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-26 20:17:09 $
+ * $Revision: 1.13 $
+ * $Date: 2005-01-24 23:54:35 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -14,13 +14,13 @@
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifndef _IDAA_H
+#define _IDAA_H
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  
-#ifndef _idaa_h
-#define _idaa_h
-  
+
 #include <stdio.h>
 #include "dense.h"
 #include "band.h"
@@ -354,9 +354,8 @@ extern "C" {
   void IDAAgetData(void *idaadj_mem, long int which_pnt, 
                    realtype *t, N_Vector yout, N_Vector ydout);
 
-  
-#endif
-  
 #ifdef __cplusplus
 }
+#endif
+
 #endif

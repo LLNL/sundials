@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-12-07 23:44:14 $
+ * $Revision: 1.2 $
+ * $Date: 2005-01-24 23:54:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVSPBCG_H
+#define _CVSPBCG_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVSPBCG_H
-#define _CVSPBCG_H
 
 #include "spbcg.h"
 #include "nvector.h"
@@ -367,8 +367,8 @@ int CVSpbcgGetLastFlag(void *cvode_mem, int *flag);
 #define CVSPBCG_ILL_INPUT -3
 #define CVSPBCG_MEM_FAIL  -4
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif
