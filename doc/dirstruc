@@ -105,8 +105,10 @@ fcmix/
     fcvode.c, fcvode.h
     fcvbbd.c, fcvbbd.h, fcvbbdin1.c
     fcvjtimes.c, fcvpreco.c, fcvpsol.c
+    fcvdense1.c, fcvband1.c
     fcvspgmr01.c, fcvspgmr10.c, fcvspgmr11.c
     fcvspgmr20.c, fcvspgmr21.c
+    cvdensef.f, cvdensef.out
     pvdiagkbf.f, pvdiagkbf.out
     pvdiagkf.f, pvdiagkf.out
     pvdiagnf.f, pvdiagnf.out  
