@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-10-26 20:17:09 $
+ * $Revision: 1.25 $
+ * $Date: 2004-10-26 23:44:57 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -294,6 +294,10 @@ void *IDACreate(void);
  *                      | components will cause constraint        *
  *                      | checking to be performed.               *
  *                      |                                         *
+ * IDASetTolerances     | Changes the integration tolerances
+ *                      | between calls to IDASolve().
+ *                      | [set by IDAMalloc/IDAReInit]
+ *                      |
  * -------------------------------------------------------------- *
  * If successful, these functions return SUCCESS. If an argument  *
  * has an illegal value, they print an error message to the       *
@@ -315,6 +319,8 @@ int IDASetMaxConvFails(void *ida_mem, int maxncf);
 int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
 int IDASetId(void *ida_mem, N_Vector id);
 int IDASetConstraints(void *ida_mem, N_Vector constraints);
+
+int IDASetTolerances(void *cvode_mem, int itol, realtype *rtol, void *atol);
 
 /******************************************************************
  * Function : IDAMalloc                                           *

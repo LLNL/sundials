@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-10-21 15:59:46 $
+ * $Revision: 1.5 $
+ * $Date: 2004-10-26 23:44:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,6 +47,7 @@ extern "C" {
  *        sensitivity system at a time.                           
  *                                                                
  */
+
 #define IDA_ONESENS 1
 #define IDA_ALLSENS 2
 
@@ -105,12 +106,21 @@ typedef struct IDAMemRec {
   realtype      *ida_p;
   realtype      *ida_pbar;
   int           *ida_plist;
-  int            ida_itolS;
-  realtype      *ida_reltolS;
-  void          *ida_abstolS;
   realtype       ida_rhomax;
   booleantype    ida_errconS;
   void          *ida_rdataS;
+
+  int            ida_itolS;
+  realtype      *ida_reltolS;
+  void          *ida_abstolS;
+  booleantype    ida_testSensTol;    /* flag to indicate if sensi. tolerances
+                                        must be checked now                    */
+  booleantype    ida_setSensTol;     /* flag to indicate if sensi. tolerances 
+                                        must be set now                        */
+  booleantype    ida_atolSallocated; /* TRUE if IDAS has allocated space for
+                                        sensitivity absolute tolerances        */
+
+  booleantype    ida_stgr1alloc;     /* ncfS1,ncfnS1,and nniS1 allocated by IDAS? */
 
   /*-----------------------------------------------
     Divided differences array and associated arrays
@@ -197,13 +207,6 @@ typedef struct IDAMemRec {
   realtype ida_steptol;     /* minimum Newton step size in IC calculation    */
   realtype ida_tscale;      /* time scale factor = abs(tout1 - t0)           */
 
-  /*-------------------------------------------------
-    Does IDASensMalloc allocate additional space?
-  -------------------------------------------------*/  
-
-  booleantype ida_tolSset;      /* tolerances set by IDAS?                   */
-  booleantype ida_abstolSalloc; /* abstolS allocated by IDAS?                */
-  booleantype ida_stgr1alloc;   /* ncfS1,ncfnS1,and nniS1 allocated by IDAS? */
 
 
   /*-----------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2004-10-26 20:17:12 $
+ * $Revision: 1.31 $
+ * $Date: 2004-10-26 23:44:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -240,16 +240,6 @@
 #define MSG_BAD_ISM_IRESS2  "with the provided sensitivity residual function.\n\n"
 #define MSG_BAD_ISM_IRESS   IDAIS MSG_BAD_ISM_IRESS1 MSG_BAD_ISM_IRESS2 
 
-#define MSG_PBAR_NULL       IDAIS "pbar is needed, but pbar=NULL illegal.\n\n"
-
-#define MSG_BAD_RELTOLS     IDAIS "*reltolS=%g < 0.0 illegal.\n\n"
-
-#define MSG_BAD_ABSTOLS     IDAIS "Some abstolS component < 0.0 illegal.\n\n"  
-
-#define MSG_IDAIS_MEM_FAIL  IDAIS "A memory request failed (abstolS).\n\n"
-
-#define MSG_BAD_PBAR        IDAIS "Some pbar component = 0.0 illegal.\n\n"
-
 #define MSG_BAD_EWTS        IDAIS "Some initial ewtS component = 0.0 illegal.\n\n"
 
 #define MSG_LSOLVE_NULL     IDAIS "The linear solver's solve routine is NULL.\n\n"
@@ -259,6 +249,14 @@
 /* IDASolve error messages */
 
 #define IDASLV             "IDASolve-- "
+
+#define MSG_BAD_RELTOLS    IDASLV "*reltolS=%g < 0.0 illegal.\n\n"
+
+#define MSG_BAD_ABSTOLS    IDASLV "Some abstolS component < 0.0 illegal.\n\n"  
+
+#define MSG_BAD_PBAR       IDASLV "Some pbar component = 0.0 illegal.\n\n"
+
+#define MSG_ATOLS_MEM_FAIL IDASLV "A memory request failed (abstolS).\n\n"
 
 #define MSG_IDA_NO_MEM     IDASLV "IDA_mem = NULL illegal.\n\n"
 
@@ -273,7 +271,6 @@
 #define MSG_BAD_TSTOP1     IDASLV "tstop = %g is behind  current t = %g \n"
 #define MSG_BAD_TSTOP2     "in the direction of integration.\n\n"
 #define MSG_BAD_TSTOP      MSG_BAD_TSTOP1 MSG_BAD_TSTOP2
-
 
 #define MSG_MAX_STEPS1     IDASLV "At t=%g, mxstep=%d steps taken on "
 #define MSG_MAX_STEPS2     "this call before\nreaching tout=%g.\n\n"
@@ -386,12 +383,10 @@ static booleantype IDAQuadEwtSet(IDAMem IDA_mem, N_Vector qcur);
 static booleantype IDAQuadEwtSetSS(IDAMem IDA_mem, N_Vector qcur);
 static booleantype IDAQuadEwtSetSV(IDAMem IDA_mem, N_Vector qcur);
 
-static booleantype IDASensTestAtol(IDAMem IDA_mem, void *atolS);
-
+static int IDASensTestTolerances(IDAMem IDA_mem);
+static int IDASensSetTolerances(IDAMem IDA_mem);
 static booleantype IDASensAllocAtol(IDAMem IDA_mem, void **atolSPtr);
 static void IDASensFreeAtol(IDAMem IDA_mem, void *atolS);
-
-static booleantype IDASensSetAtol(IDAMem IDA_mem, void *atolS);
 static booleantype IDASensSetAtolSS(IDAMem IDA_mem, realtype *atolS);
 static booleantype IDASensSetAtolSV(IDAMem IDA_mem, N_Vector *atolS);
 
@@ -492,11 +487,7 @@ int IDASensRes1DQ(int Ns, realtype t,
                   N_Vector ytemp, N_Vector yptemp, N_Vector restemp);
 
 /*=================================================================*/
-/*END          Private Helper Functions Prototypes                 */
-/*=================================================================*/
-
-/*=================================================================*/
-/*BEGIN        EXPORTED FUNCTIONS IMPLEMENTATION                   */
+/*             EXPORTED FUNCTIONS IMPLEMENTATION                   */
 /*=================================================================*/
 
 /*------------------     IDACreate     --------------------------*/
@@ -555,9 +546,13 @@ void *IDACreate(void)
   IDA_mem->ida_errconS     = TRUE;
   IDA_mem->ida_rhomax      = ZERO;
   IDA_mem->ida_pbar        = NULL;
-  IDA_mem->ida_reltolS     = NULL;
-  IDA_mem->ida_abstolS     = NULL;
-  IDA_mem->ida_abstolSalloc= TRUE;
+
+  /* By default, IDAS sets sensi tolerances */
+  IDA_mem->ida_setSensTol     = TRUE;
+  IDA_mem->ida_atolSallocated = FALSE;
+  IDA_mem->ida_testSensTol    = FALSE;
+  IDA_mem->ida_reltolS        = NULL;
+  IDA_mem->ida_abstolS        = NULL;
 
   /* Set default values for IC optional inputs */
   IDA_mem->ida_epiccon     = PT01 * EPCON;
@@ -973,13 +968,8 @@ int IDAQuadReInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
 
 }
 
-/*=================================================================*/
-/*END        SENSITIVITY OPTIONAL INPUT FUNCTIONS                  */
-/*=================================================================*/
-
 #define iresS        (IDA_mem->ida_iresS)
 #define resSDQ       (IDA_mem->ida_resSDQ)
-#define abstolSalloc (IDA_mem->ida_abstolSalloc)
 #define stgr1alloc   (IDA_mem->ida_stgr1alloc)
 #define ssS1         (IDA_mem->ida_ssS1)
 #define netfS1       (IDA_mem->ida_netfS1)
@@ -1309,21 +1299,18 @@ int IDASensReInit(void *ida_mem, int ism,
 #define lrw1Q        (IDA_mem->ida_lrw1Q)
 #define liw1Q        (IDA_mem->ida_liw1Q)
 
+#define sensi        (IDA_mem->ida_sensi)
 #define resS         (IDA_mem->ida_resS)
 #define resS1        (IDA_mem->ida_resS1)
 #define errconS      (IDA_mem->ida_errconS)
 #define rhomax       (IDA_mem->ida_rhomax)
 #define pbar         (IDA_mem->ida_pbar)
-#define itolS        (IDA_mem->ida_itolS)
-#define reltolS      (IDA_mem->ida_reltolS)
-#define abstolS      (IDA_mem->ida_abstolS)
 #define rdataS       (IDA_mem->ida_rdataS)
 #define maxcorS      (IDA_mem->ida_maxcorS)
 #define Ns           (IDA_mem->ida_Ns)
 #define ism          (IDA_mem->ida_ism)
 #define p            (IDA_mem->ida_p)
 #define plist        (IDA_mem->ida_plist)
-#define sensi        (IDA_mem->ida_sensi)
 #define phiS         (IDA_mem->ida_phiS)
 #define ewtS         (IDA_mem->ida_ewtS)
 #define yyS          (IDA_mem->ida_yyS)
@@ -1343,7 +1330,14 @@ int IDASensReInit(void *ida_mem, int ism,
 #define ncfnS        (IDA_mem->ida_ncfnS)
 #define netfS        (IDA_mem->ida_netfS)
 #define nsetupsS     (IDA_mem->ida_nsetupsS)
-#define abstolSalloc (IDA_mem->ida_abstolSalloc)
+
+#define itolS        (IDA_mem->ida_itolS)
+#define reltolS      (IDA_mem->ida_reltolS)
+#define abstolS      (IDA_mem->ida_abstolS)
+#define setSensTol   (IDA_mem->ida_setSensTol)
+#define testSensTol  (IDA_mem->ida_testSensTol)
+#define atolSallocated (IDA_mem->ida_atolSallocated)
+
 #define stgr1alloc   (IDA_mem->ida_stgr1alloc)
 
 /*=================================================================*/
@@ -1452,6 +1446,24 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   } else {
     istop = FALSE;
   }
+
+  /* If doing FSA, deal with the sensitivity tolerances */
+
+  if (sensi) {
+
+    if (testSensTol) {
+      ier = IDASensTestTolerances(IDA_mem);
+      if (ier != IDA_SUCCESS) return (ier);
+      testSensTol = FALSE;
+    }
+    
+    if (setSensTol) {
+      ier = IDASensSetTolerances(IDA_mem);
+      if (ier != IDA_SUCCESS) return (ier);
+      setSensTol = FALSE;
+    }
+
+  }  
 
   if (nst == 0) {       /* THIS IS THE FIRST CALL */
 
@@ -1922,7 +1934,7 @@ void IDASensFree(void *ida_mem)
   IDA_mem = (IDAMem) ida_mem;
 
   if(sensi) {
-    if (abstolSalloc) 
+    if (atolSallocated) 
       IDASensFreeAtol(IDA_mem, abstolS);
     if (stgr1alloc) {
       free(netfS1);
@@ -1933,11 +1945,6 @@ void IDASensFree(void *ida_mem)
     sensi = FALSE;
   }
 }
-
-/*=================================================================*/
-/*END          EXPORTED FUNCTIONS IMPLEMENTATION                   */
-/*=================================================================*/
-
 /*=================================================================*/
 /*BEGIN        PRIVATE FUNCTIONS IMPLEMENTATION                    */
 /*=================================================================*/
@@ -2122,7 +2129,6 @@ static booleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   return(TRUE);
 }
 
-/*------------------ IDAQuadFreeVectors  --------------------------*/
 /*-----------------------------------------------------------------*/
 
 static void IDAQuadFreeVectors(IDAMem IDA_mem)
@@ -2136,7 +2142,6 @@ static void IDAQuadFreeVectors(IDAMem IDA_mem)
   for(j=0; j <= maxord; j++) N_VDestroy(phiQ[j]);
 }
 
-/*------------------ IDASensAllocVectors  -------------------------*/
 /*-----------------------------------------------------------------*/
 
 static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
@@ -2260,7 +2265,6 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   return(TRUE);
 }
 
-/*------------------ IDASensFreeVectors  --------------------------*/
 /*-----------------------------------------------------------------*/
 
 static void IDASensFreeVectors(IDAMem IDA_mem)
@@ -2361,21 +2365,6 @@ int IDAInitialSetup(IDAMem IDA_mem)
       return(IDA_ILL_INPUT);
     }
 
-    if (*reltolQ < ZERO) {
-      if(errfp!=NULL) fprintf(errfp, MSG_BAD_RELTOLQ, *reltolQ);
-      return(IDA_ILL_INPUT);
-    }
-
-    if (itolQ == IDA_SS) {
-      neg_abstol = (*((realtype *)abstolQ) < ZERO);
-    } else {
-      neg_abstol = (N_VMin((N_Vector)abstolQ) < ZERO);
-    }
-    if (neg_abstol) {
-      if(errfp!=NULL) fprintf(errfp, MSG_BAD_ABSTOLQ);
-      return(IDA_ILL_INPUT);
-    }
-
     ewtsetOK = IDAQuadEwtSet(IDA_mem, phiQ[0]);
     if (!ewtsetOK) {
       if(errfp!=NULL) fprintf(errfp, MSG_BAD_EWTQ);
@@ -2385,7 +2374,8 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
   if (!quad) errconQ = FALSE;
 
-  /* Sensitivity related set-up */
+  /* Forward sensitivity related set-up */
+
   if (sensi) {
 
     /* Check if ism and iresS agree */
@@ -2393,46 +2383,6 @@ int IDAInitialSetup(IDAMem IDA_mem)
       if(errfp!=NULL) fprintf(errfp, MSG_BAD_ISM_IRESS);
       return (IDA_ILL_INPUT);
     } 
-
-    /* If pbar is needed, check if it is NULL */
-    if( (abstolS==NULL) || (resSDQ==TRUE) )
-      if (pbar==NULL) {
-        if(errfp!=NULL) fprintf(errfp, MSG_PBAR_NULL);
-        return(IDA_ILL_INPUT);
-      }
-
-    /* Check if reltolS is non-null and legal */
-    if (reltolS != NULL) {
-      if (*reltolS<ZERO) {
-        if(errfp!=NULL) fprintf(errfp, MSG_BAD_RELTOLS, *reltolS);
-        return(IDA_ILL_INPUT);
-      }
-    } else {
-      reltolS = reltol;
-    }
-    
-    /* Check if abstolS is non-null and legal */
-    if (abstolS != NULL) {
-      abstolSalloc = FALSE;
-      neg_abstol = IDASensTestAtol(IDA_mem, abstolS);
-      if (neg_abstol) {
-        if(errfp!=NULL) fprintf(errfp, MSG_BAD_ABSTOLS);
-        return(IDA_ILL_INPUT);
-      }
-    } else {
-      abstolSalloc = TRUE;
-      itolS = itol;
-      allocOK = IDASensAllocAtol(IDA_mem, &abstolS);
-      if (!allocOK) {
-        if(errfp!=NULL) fprintf(errfp, MSG_IDAIS_MEM_FAIL);
-        return(IDA_ILL_INPUT);
-      }
-      tolsetOK = IDASensSetAtol(IDA_mem, abstolS);
-      if (!tolsetOK) {
-        if(errfp!=NULL) fprintf(errfp, MSG_BAD_PBAR);
-        return(IDA_ILL_INPUT);
-      }
-    }
 
     /* Load ewtS */
     ewtsetOK = IDASensEwtSet(IDA_mem, phiS[0]);
@@ -2548,7 +2498,6 @@ static booleantype IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur)
   return(TRUE);
 }
 
-/*------------------  IDAQuadEwtSet      --------------------------*/
 /*-----------------------------------------------------------------*/
 
 static booleantype IDAQuadEwtSet(IDAMem IDA_mem, N_Vector qcur)
@@ -2566,7 +2515,6 @@ static booleantype IDAQuadEwtSet(IDAMem IDA_mem, N_Vector qcur)
   return(ewtsetOK);
 }
 
-/*------------------  IDAQuadEwtSetSS    --------------------------*/
 /*-----------------------------------------------------------------*/
 
 static booleantype IDAQuadEwtSetSS(IDAMem IDA_mem, N_Vector qcur)
@@ -2589,7 +2537,6 @@ static booleantype IDAQuadEwtSetSS(IDAMem IDA_mem, N_Vector qcur)
   return(TRUE);
 }
 
-/*------------------  IDAQuadEwtSetSV    --------------------------*/
 /*-----------------------------------------------------------------*/
 
 static booleantype IDAQuadEwtSetSV(IDAMem IDA_mem, N_Vector qcur)
@@ -2610,36 +2557,81 @@ static booleantype IDAQuadEwtSetSV(IDAMem IDA_mem, N_Vector qcur)
   return(TRUE);
 }
 
-/*-------------------- IDASensTestAtol  --------------------------*/
 /*-----------------------------------------------------------------*/
 
-static booleantype IDASensTestAtol(IDAMem IDA_mem, void *atolS)
+/* 
+ * -----------------------------------------------------------------
+ * PRIVATE FUNCTIONS FOR SENSITIVITY ANALYSIS
+ * -----------------------------------------------------------------
+ */
+
+static int IDASensTestTolerances(IDAMem IDA_mem)
 {
   int is;
+  booleantype neg_abstol;
   realtype *atolSS;
-  N_Vector *atolSV;
-  
-  switch (itolS) {
-  case IDA_SS:
-    atolSS = (realtype *)atolS;
-    for (is=0; is<Ns; is++)
-      if (atolSS[is] < ZERO) return (TRUE);
-    break;
-  case IDA_SV:
-    atolSV = (N_Vector *)atolS;
-    for (is=0; is<Ns; is++) 
-      if (N_VMin(atolSV[is]) < ZERO) return (TRUE);
-    break;
+  N_Vector *atolSV;  
+
+  if (*reltolS<ZERO) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RELTOLS, *reltolS);
+    return(IDA_ILL_INPUT);
   }
 
-  return(FALSE);
+  if (itolS == IDA_SS) {
+    atolSS = (realtype *) abstolS;
+    for (is=0; is<Ns; is++)
+      if (atolSS[is] < ZERO) {neg_abstol = TRUE; break;}
+  } else {
+    atolSV = (N_Vector *) abstolS;
+    for (is=0; is<Ns; is++) 
+      if (N_VMin(atolSV[is]) < ZERO) {neg_abstol = TRUE; break;}
+  }
+
+  if (neg_abstol) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ABSTOLS);
+    return(IDA_ILL_INPUT);
+  }
+
+  return(IDA_SUCCESS);
 }
 
-/* 
- * IDASensAllocAtol
- * Allocate space for the forward sensitivity absolute tolerances
- * If needed, use the N_Vector 'tempv1' as a template
- */
+/*-----------------------------------------------------------------*/
+
+static int IDASensSetTolerances(IDAMem IDA_mem)
+{
+  booleantype allocOK, setOK;
+
+  itolS = itol;
+
+  reltolS = reltol;
+
+  if (!atolSallocated) {
+    allocOK = IDASensAllocAtol(IDA_mem, &abstolS);
+    if (!allocOK) {
+      if(errfp!=NULL) fprintf(errfp, MSG_ATOLS_MEM_FAIL);
+      return(IDA_ILL_INPUT);
+    }
+    atolSallocated = TRUE;
+  }
+
+  switch(itolS) {
+  case IDA_SS:
+    setOK = IDASensSetAtolSS(IDA_mem, (realtype *) abstolS);
+    break;
+  case IDA_SV:
+    setOK = IDASensSetAtolSV(IDA_mem, (N_Vector *) abstolS);
+    break;
+  }
+  if (!setOK) {
+    IDASensFreeAtol(IDA_mem, abstolS);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_PBAR);
+    return(IDA_ILL_INPUT);
+  }
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
 
 static booleantype IDASensAllocAtol(IDAMem IDA_mem, void **atolSPtr)
 {
@@ -2649,6 +2641,8 @@ static booleantype IDASensAllocAtol(IDAMem IDA_mem, void **atolSPtr)
     break;
   case IDA_SV:
     *atolSPtr = (void *)N_VCloneVectorArray(Ns, tempv1);
+    lrw += Ns*lrw1;
+    liw += Ns*liw1;
     break;
   }
   
@@ -2656,7 +2650,6 @@ static booleantype IDASensAllocAtol(IDAMem IDA_mem, void **atolSPtr)
   else                 return (TRUE);
 }
 
-/*--------------------- IDASensFreeAtol  --------------------------*/
 /*-----------------------------------------------------------------*/
 
 static void IDASensFreeAtol(IDAMem IDA_mem, void *atolS)
@@ -2671,58 +2664,50 @@ static void IDASensFreeAtol(IDAMem IDA_mem, void *atolS)
   }
 }
 
-/*--------------------- IDASensSetAtol   --------------------------*/
-/*-----------------------------------------------------------------*/
-
-static booleantype IDASensSetAtol(IDAMem IDA_mem, void *atolS)
-{
-  booleantype flag=TRUE;
-  
-  switch (itolS) {
-  case IDA_SS: 
-    flag = IDASensSetAtolSS(IDA_mem, (realtype *)atolS);
-    break;
-  case IDA_SV: 
-    flag = IDASensSetAtolSV(IDA_mem, (N_Vector *)atolS);
-    break;
-  }
-  
-  return(flag);
-}
-
-/*--------------------- IDASensSetAtolSS --------------------------*/
 /*-----------------------------------------------------------------*/
 
 static booleantype IDASensSetAtolSS(IDAMem IDA_mem, realtype *atolS)
 {
   int is, which;
-  realtype rpbar;
+  realtype pb, rpb;
   
   for (is=0; is<Ns; is++) {
+
     if (plist!=NULL) which = abs(plist[is]) - 1; 
     else             which = is;
-    if (pbar[which]==ZERO) return (FALSE);
-    rpbar = ONE/ABS(pbar[which]);
-    atolS[is] = *((realtype *)abstol) * rpbar;
+
+    if (pbar == NULL) pb = 1.0;
+    else              pb = ABS(pbar[which]);
+
+    if (pb == ZERO) return (FALSE);
+
+    rpb = ONE/pb;
+    atolS[is] = *((realtype *)abstol) * rpb;
   }
   
   return (TRUE);
 }
 
-/*--------------------- IDASensSetAtolSV --------------------------*/
 /*-----------------------------------------------------------------*/
 
 static booleantype IDASensSetAtolSV(IDAMem IDA_mem, N_Vector *atolS)
 {
   int is, which;
-  realtype rpbar;
+  realtype pb, rpb;
   
   for (is=0; is<Ns; is++) {
+
     if (plist!=NULL) which = abs(plist[is]) - 1;
     else             which = is;
-    if (pbar[which]==ZERO) return (FALSE);
-    rpbar = ONE/ABS(pbar[which]);
-    N_VScale(rpbar, (N_Vector)abstol, atolS[is]);
+
+    if (pbar == NULL) pb = 1.0;
+    else              pb = ABS(pbar[which]);
+
+    if (pb == ZERO) return (FALSE);
+
+    rpb = ONE/pb;
+    N_VScale(rpb, (N_Vector)abstol, atolS[is]);
+
   }
   
   return (TRUE);
@@ -4880,7 +4865,8 @@ int IDASensRes1DQ(int Ns, realtype t,
     skipFP = FALSE;
   }
   psave   = p[which];
-  pbari   = ABS(pbar[which]);
+  if (pbar == NULL) pbari = 1.0;
+  else              pbari = ABS(pbar[which]);
 
   Delp  = pbari * del;
   rDelp = ONE/Delp;

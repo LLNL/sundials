@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-26 20:17:12 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-26 23:44:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,6 +42,20 @@
 
 #define MSG_IDAS_NEG_EPCON   "IDASetNonlinConvCoef-- epcon < 0.0 illegal. \n\n"
 
+#define IDA_TOL              "IDASetTolerances-- "
+
+#define MSG_IDAS_BAD_ITOL1   IDA_TOL "itol = %d illegal.\n"
+#define MSG_IDAS_BAD_ITOL2   "The legal values are IDA_SS = %d and IDA_SV = %d.\n\n"
+#define MSG_IDAS_BAD_ITOL    MSG_IDAS_BAD_ITOL1 MSG_IDAS_BAD_ITOL2
+
+#define MSG_IDAS_RTOL_NULL   IDA_TOL "rtol = NULL illegal.\n\n"
+
+#define MSG_IDAS_BAD_RTOL    IDA_TOL "*rtol = %g < 0 illegal.\n\n"
+
+#define MSG_IDAS_ATOL_NULL   IDA_TOL "atol = NULL illegal.\n\n"
+
+#define MSG_IDAS_BAD_ATOL    IDA_TOL "Some atol component < 0.0 illegal.\n\n"
+
 #define MSG_IDAS_BAD_EPICCON "IDASetNonlinConvCoefIC-- epiccon < 0.0 illegal.\n\n"
 
 #define MSG_IDAS_BAD_MAXNH   "IDASetMaxNumStepsIC-- maxnh < 0 illegal.\n\n"
@@ -56,9 +70,21 @@
 #define MSG_BAD_ITOLQ2       "The legal values are IDA_SS=%d and IDA_SV=%d.\n\n"
 #define MSG_BAD_ITOLQ        MSG_BAD_ITOLQ1 MSG_BAD_ITOLQ2
 
+#define MSG_RELTOLQ_NULL     "IDASetQuadTolerances-- reltolQ=NULL illegal.\n\n"
+ 
+#define MSG_ABSTOLQ_NULL     "IDASetQuadTolerances-- abstolQ=NULL illegal.\n\n"
+
+#define MSG_BAD_RELTOLQ      "IDASetQuadTolerances-- *reltolQ=%g < 0.0 illegal.\n\n"
+
+#define MSG_BAD_ABSTOLQ      "IDASetQuadTolerances-- Some abstolQ component < 0.0 illegal.\n\n"  
+
 #define MSG_BAD_ITOLS1       "IDASetSensTolerances-- itolS=%d illegal.\n"
-#define MSG_BAD_ITOLS2       "The legal values are IDA_SS=%d and IDA_SV=%d.\n\n"
+#define MSG_BAD_ITOLS2       "The legal values are IDA_SS=%d, IDA_SV=%d, and IDA_EE=%d.\n\n"
 #define MSG_BAD_ITOLS        MSG_BAD_ITOLS1 MSG_BAD_ITOLS2
+
+#define MSG_RELTOLS_NULL     "IDASetSensTolerances-- reltolS=NULL illegal.\n\n"
+ 
+#define MSG_ABSTOLS_NULL     "IDASetSensTolerances-- abstolS=NULL illegal.\n\n"
 
 /* IDAGet* Error Messages */
 
@@ -92,7 +118,6 @@ extern int IDASensRes1DQ(int Ns, realtype t,
                          N_Vector yyS, N_Vector ypS, N_Vector resvalS,
                          void *rdataS,
                          N_Vector ytemp, N_Vector yptemp, N_Vector restemp);
-
 
 /*=================================================================*/
 /*BEGIN        INTEGRATOR OPTIONAL INPUT FUNCTIONS                 */
@@ -153,7 +178,8 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
   }
 
   if (maxord > IDA_mem->ida_maxord) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_MAXORD, IDA_mem->ida_maxord, maxord);
+    if(errfp!=NULL) 
+      fprintf(errfp, MSG_IDAS_BAD_MAXORD, IDA_mem->ida_maxord, maxord);
     return(IDA_ILL_INPUT);
   }  
 
@@ -376,12 +402,61 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
   return(IDA_SUCCESS);
 }
 
-/*=================================================================*/
-/*END        INTEGRATOR OPTIONAL INPUT FUNCTIONS                   */
-/*=================================================================*/
+/*-----------------------------------------------------------------*/
+
+int IDASetTolerances(void *ida_mem, 
+                     int itol, realtype *rtol, void *atol)
+{
+  IDAMem IDA_mem;
+  booleantype neg_atol;
+
+  if (ida_mem==NULL) {
+    fprintf(stderr, MSG_IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if ((itol != IDA_SS) && (itol != IDA_SV)) {
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ITOL, itol, IDA_SS, IDA_SV);
+    return(IDA_ILL_INPUT);
+  }
+
+  if (rtol == NULL) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_RTOL_NULL); 
+    return(IDA_ILL_INPUT); 
+  }
+
+  if (*rtol < ZERO) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_RTOL, *rtol); 
+    return(IDA_ILL_INPUT); 
+  }
+   
+  if (atol == NULL) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_ATOL_NULL); 
+    return(IDA_ILL_INPUT); 
+  }
+
+  /* Test absolute tolerances */
+  if (itol == IDA_SS) { 
+    neg_atol = (*((realtype *)atol) < ZERO); 
+  } else { 
+    neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
+  }
+  if (neg_atol) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ATOL); 
+    return(IDA_ILL_INPUT); 
+  }
+
+  IDA_mem->ida_itol   = itol;
+  IDA_mem->ida_reltol = rtol;      
+  IDA_mem->ida_abstol = atol;  
+
+  return(IDA_SUCCESS);
+}
 
 /*=================================================================*/
-/*BEGIN  INITIAL CONDITION CALCULATION OPTIONAL INPUT FUNCTIONS    */
+/*       INITIAL CONDITION CALCULATION OPTIONAL INPUT FUNCTIONS    */
 /*=================================================================*/
 
 int IDASetNonlinConvFactorIC(void *ida_mem, realtype epiccon)
@@ -516,11 +591,7 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 }
 
 /*=================================================================*/
-/*END  INITIAL CONDITION CALCULATION OPTIONAL INPUT FUNCTIONS      */
-/*=================================================================*/
-
-/*=================================================================*/
-/*BEGIN        QUADRATURE OPTIONAL INPUT FUNCTIONS                 */
+/*             QUADRATURE OPTIONAL INPUT FUNCTIONS                 */
 /*=================================================================*/
 
 int IDASetQuadErrCon(void *ida_mem, booleantype errconQ)
@@ -545,6 +616,7 @@ int IDASetQuadTolerances(void *ida_mem, int itolQ,
                          realtype *reltolQ, void *abstolQ)
 {
   IDAMem IDA_mem;
+  booleantype neg_abstol;
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
@@ -555,6 +627,31 @@ int IDASetQuadTolerances(void *ida_mem, int itolQ,
 
   if ((itolQ != IDA_SS) && (itolQ != IDA_SV)) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOLQ, itolQ, IDA_SS, IDA_SV);
+    return(IDA_ILL_INPUT);
+  }
+
+  if (reltolQ == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_RELTOLQ_NULL);
+    return(IDA_ILL_INPUT);
+  }
+  
+  if (*reltolQ < ZERO) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RELTOLQ, *reltolQ);
+    return(IDA_ILL_INPUT);
+  }
+
+  if (abstolQ == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_ABSTOLQ_NULL);
+    return(IDA_ILL_INPUT);
+  }
+
+  if (itolQ == IDA_SS) {
+    neg_abstol = (*((realtype *)abstolQ) < ZERO);
+  } else {
+    neg_abstol = (N_VMin((N_Vector)abstolQ) < ZERO);
+  }
+  if (neg_abstol) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ABSTOLQ);
     return(IDA_ILL_INPUT);
   }
 
@@ -584,11 +681,7 @@ int IDASetQuadRdata(void *ida_mem, void *rdataQ)
 }
 
 /*=================================================================*/
-/*END        QUADRATURE OPTIONAL INPUT FUNCTIONS                   */
-/*=================================================================*/
-
-/*=================================================================*/
-/*BEGIN        SENSITIVITY OPTIONAL INPUT FUNCTIONS                */
+/*             SENSITIVITY OPTIONAL INPUT FUNCTIONS                */
 /*=================================================================*/
 
 int IDASetSensResFn(void *ida_mem, IDASensResFn resS)
@@ -712,17 +805,40 @@ int IDASetSensTolerances(void *ida_mem, int itolS,
   IDA_mem = (IDAMem) ida_mem;
 
   if ((itolS != IDA_SS) && (itolS != IDA_SV)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOLS, itolS, IDA_SS, IDA_SV);
+    if(errfp!=NULL) 
+      fprintf(errfp, MSG_BAD_ITOLS, itolS, IDA_SS, IDA_SV, IDA_EE);
     return(IDA_ILL_INPUT);
   }
 
-  IDA_mem->ida_itolS   = itolS;
-  IDA_mem->ida_reltolS = reltolS;
-  IDA_mem->ida_abstolS = abstolS;
+  if (itolS == IDA_EE) {
+
+    /* IDAS will set tolerances */
+    IDA_mem->ida_setSensTol = TRUE;
+    IDA_mem->ida_testSensTol = FALSE;
+    
+  } else {
+
+    /* Test user-supplied tolerances */
+    if (reltolS == NULL) {
+      if(errfp!=NULL) fprintf(errfp, MSG_RELTOLS_NULL);
+      return(IDA_ILL_INPUT);
+    }
+    
+    if (abstolS == NULL) {
+      if(errfp!=NULL) fprintf(errfp, MSG_ABSTOLS_NULL);
+      return(IDA_ILL_INPUT);
+    }
+    
+    IDA_mem->ida_itolS   = itolS;
+    IDA_mem->ida_reltolS = reltolS;
+    IDA_mem->ida_abstolS = abstolS;
+
+    IDA_mem->ida_setSensTol = FALSE;
+    IDA_mem->ida_testSensTol = TRUE;
+  }
 
   return(IDA_SUCCESS);
 }
-
 
 /*-----------------------------------------------------------------*/
 
@@ -760,10 +876,6 @@ int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS)
 
   return(IDA_SUCCESS);
 }
-
-/*=================================================================*/
-/*END        SENSITIVITY OPTIONAL INPUT FUNCTIONS                  */
-/*=================================================================*/
 
 #define lrw      (IDA_mem->ida_lrw)
 #define liw      (IDA_mem->ida_liw)
