@@ -49,7 +49,7 @@ defines the abstract \Id{N\_Vector} type.
 Finally, a linear solver module header file is required. 
 \index{KINSOL@{\kinsol} linear solvers!header files}
 At the present time, {\kinsol} offers only a Krylov linear solver, {\kinspgmr},
-whose corrsponding header file is \Id{kinspgmr.h}, 
+whose corresponding header file is \Id{kinspgmr.h}, 
 This in turn includes a header file (\id{iterative.h})
 which enumerates the kind of preconditioning and the choices for the
 Gram-Schmidt process.
@@ -101,7 +101,7 @@ provided with {\kinsol}: steps marked with {\p} correspond to
   and the active set of processors.
   
 \item
-  {\bf Set vector with intial guess}
+  {\bf Set vector with initial guess}
  
   To set the vector \id{u} of initial values, use functions defined by a
   particular {\nvector} implementation.  If a \id{realtype} array  \id{udata}
@@ -155,7 +155,7 @@ provided with {\kinsol}: steps marked with {\p} correspond to
   {\bf Attach linear solver module}
 
   Initialize the linear solver module by calling \id{KINSpgmr(...);}
-  to spcify the maximum dimensino of the Krylov subspace.
+  to specify the maximum dimension of the Krylov subspace.
 
 \item
   {\bf Set linear solver optional inputs}
@@ -173,7 +173,7 @@ provided with {\kinsol}: steps marked with {\p} correspond to
   {\bf Get optional outputs}
 
   Call \id{KINGet*} functions to obtain optional output from {\kinsol}
-  and \id{KINSpgmrGet*} functinos for optional outputs from {\kinspgmr}.
+  and \id{KINSpgmrGet*} functions for optional outputs from {\kinspgmr}.
   See \S\ref{ss:optional_output}.
 
 \item
@@ -305,7 +305,7 @@ This is an iterative solver that uses a scaled preconditioned
 GMRES method.
 
 \index{KINSOL{\kinsol} linear solvers!selecting|(} 
-To attch the {\kinspgmr} linear solver, after the call to \id{KINCreate}
+To attach the {\kinspgmr} linear solver, after the call to \id{KINCreate}
 but before any call to \id{KINSol}, the user's program must call  \Id{KINSpgmr},
 as documented below. The first argument passed to this function is the {\kinsol}
 memory pointer returned by \id{KINCreate}.  The call to this
@@ -780,8 +780,8 @@ flag = KINSetNoPrecInit(kin\_mem, noPrecInit);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[noPrecInit] (\id{booleantype})
-    flag controlling whether or not an intiial call 
-    to the preconditioner setup functino is made.
+    flag controlling whether or not an initial call 
+    to the preconditioner setup function is made.
   \end{args}
 }
 {
@@ -892,7 +892,7 @@ flag = KINSetEtaConstValue(kin\_mem, eta);
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KIN\_ILL\_INPUT}]
-    The argument \id{eta} had anillegal value
+    The argument \id{eta} had an illegal value
   \end{args}
 }
 {
@@ -954,7 +954,7 @@ flag = KINSetNoMinEps(kin\_mem, noMinEps);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[noMinEps] (\id{booleantype})
-    flag controling the bound on $\epsilon$.
+    flag controlling the bound on $\epsilon$.
   \end{args}
 }
 {
@@ -1010,7 +1010,7 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
 }
 {
   The function \ID{KINSetRelErrFunc} specifies the relative error in 
-  computing $F(u)$ used in the difference-quotient appoximation of the
+  computing $F(u)$ used in the difference-quotient approximation of the
   Jacobian-vector product.
 }
 {
@@ -1030,7 +1030,7 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KIN\_ILL\_INPUT}]
-    The realtive error was non-positive.
+    The relative error was non-positive.
   \end{args}
 }
 {
@@ -1083,7 +1083,7 @@ flag = KINSetScaledStepTol(kin\_mem, scsteptol);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[scsteptol] (\id{realtype})
-    tolerance for stoppnig based on scaled step length.. 
+    tolerance for stopping based on scaled step length.. 
   \end{args}
 }
 {
@@ -1146,14 +1146,14 @@ flag = KINSetSysFunc(kin\_mem, func);
 }
 {
   The function \ID{KINSetSysFunc} specifies the user-provided function
-  that evaluates the nonlinear system functino $F(u)$.
+  that evaluates the nonlinear system function $F(u)$.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[func] (\id{KINSysFn})
-    user-supplied function taht evaluates $F(u)$.
+    user-supplied function that evaluates $F(u)$.
   \end{args}
 }
 {
@@ -1247,7 +1247,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[KINSPGMR\_ILL\_INPUT]
   \item[\Id{KINSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{KINSPGMR\_ILL\_INPUT}]
     The maximum number of restarts specified is negative.
   \item[\Id{KINSPGMR\_MEM\_NULL}]
@@ -1279,7 +1279,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{KINSPGMR\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KINSPGMR\_LMEM\_NULL}]
@@ -1311,7 +1311,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{KINSPGMR\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KINSPGMR\_LMEM\_NULL}]
@@ -1344,7 +1344,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{KINSPGMR\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KINSPGMR\_LMEM\_NULL}]
@@ -1376,7 +1376,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{KINSPGMR\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KINSPGMR\_LMEM\_NULL}]
@@ -1412,7 +1412,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{KINSPGMR\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KINSPGMR\_LMEM\_NULL}]
@@ -1443,8 +1443,8 @@ which are then described in detail in the remainder of this section.
 \multicolumn{2}{|c|}{\bf KINSOL main solver} \\
 \hline
 Size of {\kinsol} real and integer workspaces & \id{KINGetWorkSpace} \\
-Niumber of function evaluations  & \id{KINGetNumFuncEvals} \\
-Number of nonlinar iterations & \id{KINGetNumnolinSolvIters} \\
+Number of function evaluations  & \id{KINGetNumFuncEvals} \\
+Number of nonlinear iterations & \id{KINGetNumnolinSolvIters} \\
 Number of $\beta$-condition failures & \id{KINGetNumBetacondFails} \\
 Number of backtrack operations & \id{KINGetNumBacktrackOps} \\
 Scaled norm of $F$ & \id{KINGetFuncNorm} \\
@@ -2178,7 +2178,7 @@ typedef int (*KINSpgmrPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
  
   where $D_u$ and $D_F$ denote the diagonal scaling matrices whose
   diagonal elements are stored in the vectors \id{uscale} and
-  \id{fscale}, repsectively.
+  \id{fscale}, respectively.
  
   The preconditioner setup routine will not be called prior
   to every call made to the preconditioner solve function, but will instead be
@@ -2293,7 +2293,7 @@ then used by \id{Gloc}, which is not expected to do any communication.
   Each call to the \id{Gcomm} function is preceded by a call to the system function
   \id{func} with the same \id{u} argument.  Thus \id{Gcomm} can omit 
   any communications done by \id{func} if relevant to the evaluation of \id{Gloc}.
-  If all necessary comunication was done in \id{func}, then \id{Gcomm = NULL}
+  If all necessary communication was done in \id{func}, then \id{Gcomm = NULL}
   can be passed in the call to \id{KINBBDPrecAlloc} (see below).
 }
 %%
@@ -2896,7 +2896,7 @@ apply to {\nvecp}.
   \id{MAXL} is the maximum Krylov subspace dimension ($0$ indicates default).
   \id{MAXLRST} is the maximum number of linear system restarts ($0$ indicates
   default).
-  \id{IER} is the return completion flag (possible values are $0$: succes and
+  \id{IER} is the return completion flag (possible values are $0$: success and
   $-1$: failure).
     
   \index{Jacobian times vector approximation!use in {\fkinsol}}
@@ -2971,7 +2971,7 @@ apply to {\nvecp}.
   preconditioning setup process. Typically, the system function \id{FKFUN} is
   called, so that \id{FVAL} will have been updated. \id{U} is the current solution
   iterate. The arrays \id{VTEMP1} and \id{VTEMP2} are available for work space. 
-  If scaling is being used, \id{USCALE} and \id{FSCALE} are available for those operatins
+  If scaling is being used, \id{USCALE} and \id{FSCALE} are available for those operations
   requiring scaling. \id{NEQ} is the problem size.
   
   On return, set \id{IER} $= 0$ if \id{FKPSET} was successful or set \id{IER} $= 1$
