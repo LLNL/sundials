@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2004-10-21 19:26:12 $
+ * $Revision: 1.34 $
+ * $Date: 2004-10-26 20:13:21 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -467,7 +467,7 @@ int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeResetIterTypeB(void *cvadj_mem, int iterB)
+int CVodeSetIterTypeB(void *cvadj_mem, int iterB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -476,7 +476,7 @@ int CVodeResetIterTypeB(void *cvadj_mem, int iterB)
   ca_mem = (CVadjMem) cvadj_mem;
   cvode_mem = (void *)ca_mem->cvb_mem;
 
-  flag = CVodeResetIterType(cvode_mem, iterB);
+  flag = CVodeSetIterType(cvode_mem, iterB);
   
   return(flag);
 }

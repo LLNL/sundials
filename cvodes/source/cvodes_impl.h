@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-10-21 19:26:12 $
+ * $Revision: 1.5 $
+ * $Date: 2004-10-26 20:13:21 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -106,14 +106,20 @@ typedef struct CVodeMemRec {
   realtype *cv_p;          /* parameters in f(t,y,p)                       */
   realtype *cv_pbar;       /* scale factors for parameters                 */
   int *cv_plist;           /* list of sensitivities                        */
-  booleantype cv_userStol; /* TRUE if user specifies sensi tolerances      */
-  int cv_itolS;
-  realtype *cv_reltolS;    /* ptr to relative tolerance for sensi          */
-  void *cv_abstolS;        /* ptr to absolute tolerance for sensi          */
   realtype cv_rhomax;      /* cut-off value for centered/forward finite
                               differences                                  */
   booleantype cv_errconS;  /* TRUE if sensitivities are in err. control    */
   void *cv_fS_data;        /* user pointer passed to fS                    */
+
+  int cv_itolS;
+  realtype *cv_reltolS;          /* ptr to relative tolerance for sensi    */
+  void *cv_abstolS;              /* ptr to absolute tolerance for sensi    */
+  booleantype cv_testSensTol;    /* flag to indicate if sensi. tolerances
+                                    must be checked now                    */
+  booleantype cv_setSensTol;     /* flag to indicate if sensi. tolerances 
+                                    must be set now                        */
+  booleantype cv_atolSallocated; /* TRUE if CVODES has allocated space for
+                                    sensitivity absolute tolerances        */
 
   /*-------------------------
     Nordsieck History Array 
@@ -323,7 +329,7 @@ typedef struct CVodeMemRec {
 
   /*-------------------------------------------------------------------
     Flags turned ON by CVodeMalloc, CVodeSensMalloc, and CVodeQuadMalloc 
-    and read by CVodeMalloc, CVodeSensReInit, and CVodeQuadReInit
+    and read by CVodeReInit, CVodeSensReInit, and CVodeQuadReInit
     ------------------------------------------------------------------*/
 
   booleantype cv_MallocDone;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-10-21 19:26:00 $
+ * $Revision: 1.27 $
+ * $Date: 2004-10-26 20:13:24 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -203,7 +203,7 @@ extern "C" {
 
   int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB);
 
-  int CVodeResetIterTypeB(void *cvadj_mem, int iterB);
+  int CVodeSetIterTypeB(void *cvadj_mem, int iterB);
 
   int CVodeSetFdataB(void *cvadj_mem, void *f_dataB);
   int CVodeSetErrFileB(void *cvadj_mem, FILE *errfpB);
