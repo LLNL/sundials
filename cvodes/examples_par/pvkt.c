@@ -32,7 +32,7 @@
  * MY = MYSUB*NPEY, and the ODE system size is neq = 2*MX*MY.           *
  *                                                                      *
  * The solution with CVODES is done with the BDF/GMRES method (i.e.     *
- * using the CVSSPGMR linear solver) and the block-diagonal part of the *
+ * using the CVSPGMR linear solver) and the block-diagonal part of the  *
  * Newton matrix as a left preconditioner. A copy of the block-diagonal *
  * part of the Jacobian is saved and conditionally reused within the    *
  * Precond routine.                                                     *
@@ -50,7 +50,7 @@
 #include "sundialstypes.h"  /* definitions of realtype and booleantype           */
 #include "cvodes.h"         /* main CVODES header file                           */
 #include "iterative.h"      /* contains the enum for types of preconditioning    */
-#include "cvsspgmr.h"       /* use CVSPGMR linear solver each internal step      */
+#include "cvspgmr.h"        /* use CVSPGMR linear solver each internal step      */
 #include "smalldense.h"     /* use generic DENSE solver in preconditioning       */
 #include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P   */
 #include "sundialsmath.h"   /* contains SQR macro                                */

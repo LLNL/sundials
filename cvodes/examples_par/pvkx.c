@@ -47,7 +47,7 @@
 			      /* booleantype                                  */
 #include "cvodes.h"           /* main CVODE header file                       */
 #include "iterative.h"        /* contains the enum for preconditioning types  */
-#include "cvsspgmr.h"         /* use CVSPGMR linear solver each internal step */
+#include "cvspgmr.h"          /* use CVSPGMR linear solver each internal step */
 #include "smalldense.h"       /* use generic DENSE solver in preconditioning  */
 #include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P*/
 #include "sundialsmath.h"     /* contains SQR macro                           */

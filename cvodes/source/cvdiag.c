@@ -1,6 +1,6 @@
 /*******************************************************************
  *                                                                 *
- * File          : cvsdiag.c                                       *
+ * File          : cvdiag.c                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
  * Version of    : 31 July 2003                                    *
@@ -11,13 +11,13 @@
  * For details, see sundials/cvodes/LICENSE                        *
  *-----------------------------------------------------------------*
  * This is the implementation file for the CVODES diagonal linear  *
- * solver, CVSDIAG.                                                *
+ * solver, CVDIAG.                                                 *
  *                                                                 *
  *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "cvsdiag.h"
+#include "cvdiag.h"
 #include "cvodes.h"
 #include "sundialstypes.h"
 #include "nvector.h"
@@ -26,13 +26,13 @@
 
 #define CVDIAG   "CVDiag-- "
 
-#define MSG_CVMEM_NULL  CVDIAG "CVode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL  CVDIAG "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL  CVDIAG "A memory request failed.\n\n"
 
-#define MSG_SETGET_CVMEM_NULL "CVDiagGet*-- cvodes memory is NULL. \n\n"
+#define MSG_SETGET_CVMEM_NULL "CVDiagGet*-- Integrator memory is NULL. \n\n"
 
-#define MSG_SETGET_LMEM_NULL  "CVDiagGet*-- cvsdiag memory is NULL. \n\n"
+#define MSG_SETGET_LMEM_NULL  "CVDiagGet*-- cvdiag memory is NULL. \n\n"
 
 /* Other Constants */
   
@@ -148,7 +148,7 @@ int CVDiag(void *cvode_mem)
     return(LMEM_FAIL);
   }
 
-  /* Attach linear solver memory to CVODES memory */
+  /* Attach linear solver memory to integrator memory */
   lmem = cvdiag_mem;
 
   return(SUCCESS);

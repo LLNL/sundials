@@ -61,17 +61,17 @@ then a linear solver module header file will be required.
 The header files corresponding to the various linear solver options in {\cvodes} are:
 %%
 \begin{itemize}
-\item \Id{cvsdense.h}, 
+\item \Id{cvdense.h}, 
   which is used with the dense direct linear solver in 
   the context of {\cvodes}. This in turn includes a header file (\id{dense.h})
   which defines the \Id{DenseMat} type and corresponding accessor macros; 
-\item \Id{cvsband.h}, 
+\item \Id{cvband.h}, 
   which is used with the band direct linear solver in the
   context of {\cvodes}. This in turn includes a header file (\id{band.h})
   which defines the \Id{BandMat} type and corrsponding accessor macros;
-\item \Id{cvsdiag.h}, which is used with a diagonal linear solver in the
+\item \Id{cvdiag.h}, which is used with a diagonal linear solver in the
   context of {\cvodes};
-\item \Id{cvsspgmr.h}, 
+\item \Id{cvspgmr.h}, 
   which is used with the Krylov solver {\spgmr} in the
   context of {\cvodes}. This in turn includes a header file (\id{iterative.h})
   which enumerates the kind of preconditioning and the choices for the
@@ -414,7 +414,7 @@ separately in \S\ref{s:gen_linsolv}.
 {
   The function \ID{CVDense} selects the {\cvdense} linear solver. 
 
-  The user's main function must include the \id{cvsdense.h} header file.
+  The user's main function must include the \id{cvdense.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -457,7 +457,7 @@ separately in \S\ref{s:gen_linsolv}.
 {
   The function \ID{CVBand} selects the {\cvband} linear solver. 
 
-  The user's main function must include the \id{cvsband.h} header file.
+  The user's main function must include the \id{cvband.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -506,7 +506,7 @@ separately in \S\ref{s:gen_linsolv}.
 {
   The function \ID{CVDiag} selects the {\cvdiag} linear solver. 
 
-  The user's main function must include the \id{cvsdiag.h} header file.
+  The user's main function must include the \id{cvdiag.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -544,7 +544,7 @@ separately in \S\ref{s:gen_linsolv}.
 {
   The function \ID{CVSpgmr} selects the {\cvspgmr} linear solver. 
 
-  The user's main function must include the \id{cvsspgmr.h} header file.
+  The user's main function must include the \id{cvspgmr.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -3906,7 +3906,7 @@ additional functions.
 %%
 Besides the header files required for the integration of the ODE problem
 (see \S\ref{ss:header_sim}),  to use the {\cvbandpre} module, the main program 
-must include the header file \id{cvsbandpre.h} which declares the needed
+must include the header file \id{cvbandpre.h} which declares the needed
 function prototypes.\index{header files}
 %%
 The following is a summary of the usage of this module and describes the sequence 
@@ -4375,7 +4375,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 Besides the header files required for the integration of the ODE problem
 (see \S\ref{ss:header_sim}),  to use the {\cvbbdpre} module, the main program 
-must include the header file \id{cvsbbdpre.h} which declares the needed
+must include the header file \id{cvbbdpre.h} which declares the needed
 function prototypes.\index{header files}
 
 The following is a summary of the usage of this module and describes the sequence 

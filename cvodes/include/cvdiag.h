@@ -1,6 +1,6 @@
 /*******************************************************************
  *                                                                 *
- * File          : cvsdiag.h                                       *
+ * File          : cvdiag.h                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
  * Version of    : 07 February 2004                                *
@@ -8,10 +8,10 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
- * This is the header file for the CVODES diagonal linear solver,  *
- * CVSDIAG.                                                        *
+ * This is the header file for the CVODE/CVODES diagonal linear    *
+ * solver, CVDIAG.                                                 *
  *                                                                 *
  *******************************************************************/
 
@@ -20,11 +20,10 @@
 extern "C" {
 #endif
 
-#ifndef _cvsdiag_h
-#define _cvsdiag_h
+#ifndef _cvdiag_h
+#define _cvdiag_h
 
 #include <stdio.h>
-#include "cvodes.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 
@@ -33,10 +32,10 @@ extern "C" {
  *                                                                *
  * Function : CVDiag                                              *
  *----------------------------------------------------------------*
- * A call to the CVDiag function links the main CVODES integrator *
- * with the CVSDIAG linear solver.                                *
+ * A call to the CVDiag function links the main integrator with   *
+ * the CVDIAG linear solver.                                      *
  *                                                                *
- * cvode_mem is the pointer to CVODES memory returned by          *
+ * cvode_mem is the pointer to the integrator memory returned by  *
  *              CVodeCreate.                                      *
  *                                                                *
  * The return values of CVDiag are:                               *
@@ -48,13 +47,13 @@ extern "C" {
 int CVDiag(void *cvode_mem);
 
 /******************************************************************
- * Optional outputs from the CVSDIAG linear solver                *
+ * Optional outputs from the CVDIAG linear solver                 *
  *----------------------------------------------------------------*
  *                                                                *
  * CVDiagGetIntWorkSpace returns the integer workspace used by    *
- *     CVSDIAG.                                                   *
+ *     CVDIAG.                                                    *
  * CVDiagGetRealWorkSpace returns the real workspace used by      *
- *     CVSDIAG.                                                   *
+ *     CVDIAG.                                                    *
  * CVDiagGetNumRhsEvals returns the number of calls to the user   *
  *     f routine due to finite difference Jacobian evaluation.    *
  * Note: the number of diagonal approximate Jacobians formed is   *

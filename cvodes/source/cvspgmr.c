@@ -1,8 +1,8 @@
 /*******************************************************************
- * File          : cvsspgmr.c                                      *
+ * File          : cvspgmr.c                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 July 2003                                    *
+ * Version of    : 18 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -10,12 +10,12 @@
  * For details, see sundials/cvodes/LICENSE                        *
  *-----------------------------------------------------------------*
  * This is the implementation file for the CVODES scaled,          *
- * preconditioned GMRES linear solver, CVSSPGMR.                   *
+ * preconditioned GMRES linear solver, CVSPGMR.                    *
  *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "cvsspgmr.h"
+#include "cvspgmr.h"
 #include "cvodes.h"
 #include "sundialstypes.h"
 #include "nvector.h"
@@ -27,7 +27,7 @@
 
 #define CVSPGMR               "CVSpgmr-- "
 
-#define MSG_CVMEM_NULL        CVSPGMR "CVode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL        CVSPGMR "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL          CVSPGMR "A memory request failed.\n\n"
 
@@ -38,9 +38,9 @@
 
 #define MSG_PSOLVE_REQ        CVSPGMR "pretype!=NONE, but PSOLVE=NULL is illegal. \n\n"
 
-#define MSG_SETGET_CVMEM_NULL "CVSpgmrSet*/CVSpgmrGet*-- cvodes memory is NULL. \n\n"
+#define MSG_SETGET_CVMEM_NULL "CVSpgmrSet*/CVSpgmrGet*-- Integrator memory is NULL. \n\n"
 
-#define MSG_SETGET_LMEM_NULL  "CVSpgmrSet*/CVSpgmrGet*-- cvsspgmr memory is NULL. \n\n"
+#define MSG_SETGET_LMEM_NULL  "CVSpgmrSet*/CVSpgmrGet*-- cvspgmr memory is NULL. \n\n"
 
 #define MSG_CVS_BAD_PRETYPE1  "CVSpgmrResetPrecType-- pretype=%d illegal.\n"
 #define MSG_CVS_BAD_PRETYPE2  "The legal values are NONE=%d, LEFT=%d, "
@@ -68,7 +68,7 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                         N_Vector vtemp2, N_Vector vtemp3);
 
 static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
-                        N_Vector ycur, N_Vector fcur);
+                        N_Vector ynow, N_Vector fnow);
 
 static void CVSpgmrFree(CVodeMem cv_mem);
 
@@ -234,7 +234,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
     return(LMEM_FAIL);
   }
   
-  /* Attach linear solver memory to CVODES memory */
+  /* Attach linear solver memory to integrator memory */
   lmem = cvspgmr_mem;
 
   return(SUCCESS);

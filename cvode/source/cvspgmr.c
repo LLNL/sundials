@@ -2,7 +2,7 @@
  * File          : cvspgmr.c                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 31 July 2003                                    *
+ * Version of    : 18 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -27,7 +27,7 @@
 
 #define CVSPGMR               "CVSpgmr-- "
 
-#define MSG_CVMEM_NULL        CVSPGMR "CVode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL        CVSPGMR "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL          CVSPGMR "A memory request failed.\n\n"
 
@@ -38,7 +38,7 @@
 
 #define MSG_PSOLVE_REQ        CVSPGMR "pretype!=NONE, but PSOLVE=NULL is illegal. \n\n"
 
-#define MSG_SETGET_CVMEM_NULL "CVSpgmrSet*/CVSpgmrGet*-- cvode memory is NULL. \n\n"
+#define MSG_SETGET_CVMEM_NULL "CVSpgmrSet*/CVSpgmrGet*-- Integrator memory is NULL. \n\n"
 
 #define MSG_SETGET_LMEM_NULL  "CVSpgmrSet*/CVSpgmrGet*-- cvspgmr memory is NULL. \n\n"
 
@@ -112,8 +112,6 @@ static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define nvspec  (cv_mem->cv_nvspec)
 #define setupNonNull (cv_mem->cv_setupNonNull)
 
-#define ewtS    (cv_mem->cv_ewtS)
-
 #define sqrtN   (cvspgmr_mem->g_sqrtN)   
 #define ytemp   (cvspgmr_mem->g_ytemp)
 #define x       (cvspgmr_mem->g_x)
@@ -175,7 +173,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
 
   if (lfree != NULL) lfree(cv_mem);
 
-  /* Set five main function fields in cv_mem */
+  /* Set four main function fields in cv_mem */
   linit  = CVSpgmrInit;
   lsetup = CVSpgmrSetup;
   lsolve = CVSpgmrSolve;
@@ -236,7 +234,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
     return(LMEM_FAIL);
   }
   
-  /* Attach linear solver memory to CVODE memory */
+  /* Attach linear solver memory to integrator memory */
   lmem = cvspgmr_mem;
 
   return(SUCCESS);
@@ -771,7 +769,7 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
  Otherwise, we set the tolerance parameter and initial guess (x = 0),
  call SpgmrSolve, and copy the solution x into b.  The x-scaling and
- b-scaling arrays are both equal to ewt, and no restarts are allowed.
+ b-scaling arrays are both equal to weight, and no restarts are allowed.
 
  The counters nli, nps, and ncfl are incremented, and the return value
  is set according to the success of SpgmrSolve.  The success flag is

@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "cvode.h"
 #include "cvbandpre.h"
 #include "cvspgmr.h"
 #include "sundialsmath.h"
@@ -31,7 +32,7 @@
 /* Error Messages */
 
 #define CVBALLOC        "CVBandPreAlloc-- "
-#define MSG_CVMEM_NULL  CVBALLOC "CVode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL  CVBALLOC "Integrator memory is NULL.\n\n"
 #define MSG_WRONG_NVEC  CVBALLOC "Incompatible NVECTOR implementation.\n\n"
 
 #define MSG_PDATA_NULL "CVBandPrecGet*-- BandPrecData is NULL. \n\n"

@@ -24,7 +24,7 @@ within each of the four {\cvodes} linear solvers.
 
 There is one subtlety in the {\cvspgmr} column hidden by the table. 
 The dot product kernel \id{N\_VDotProd} is called both within the 
-implementation file \id{cvsspgmr.c} for the {\cvspgmr} solver and within 
+implementation file \id{cvspgmr.c} for the {\cvspgmr} solver and within 
 the implementation files \id{spgmr.c} and \id{iterative.c} for the generic {\spgmr} 
 solver upon which the {\cvspgmr} solver is implemented. 
 This issue does not arise for the other 

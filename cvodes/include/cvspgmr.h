@@ -1,31 +1,31 @@
 /*******************************************************************
- * File          : cvsspgmr.h                                      *
+ * File          : cvspgmr.h                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 July 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
- * This is the header file for the CVODES scaled, preconditioned   *
- * GMRES linear solver, CVSPGMR.                                   *
+ * This is the header file for the CVODE/CVODES scaled,            *
+ * preconditioned GMRES linear solver, CVSPGMR.                    *
+ *                                                                 *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _cvsspgmr_h
-#define _cvsspgmr_h
+#ifndef _cvspgmr_h
+#define _cvspgmr_h
 
 #include <stdio.h>
-#include "cvodes.h"
 #include "spgmr.h"
 #include "sundialstypes.h"
 #include "nvector.h"
- 
+
 /******************************************************************
  * CVSPGMR solver constants                                       *
  *----------------------------------------------------------------*
@@ -74,8 +74,8 @@ extern "C" {
  * approximation to M.  This function will not be called in       *
  * advance of every call to PrecSolve, but instead will be called *
  * only as often as necessary to achieve convergence within the   *
- * Newton iteration in CVODES.  If the PrecSolve function needs   *
- * no preparation, the PrecSetup function can be NULL.            *
+ * Newton iteration.  If the PrecSolve function needs no          *
+ * preparation, the PrecSetup function can be NULL.               *
  *                                                                *
  * For greater efficiency, the PrecSetup function may save        *
  * Jacobian-related data and reuse it, rather than generating it  *
@@ -126,9 +126,9 @@ extern "C" {
  * NOTE: If the user's preconditioner needs other quantities,     *
  *     they are accessible as follows: hcur (the current stepsize)*
  *     and ewt (the error weight vector) are accessible through   *
- *     IDAGetCurrentStep and CVodeGetErrWeights, respectively     *
- *     see cvode.h). The unit roundoff is available as            *
- *     UNIT_ROUNDOFF defined in sundialstypes.h                   *
+ *     CVodeGetCurrentStep and CVodeGetErrWeights, respectively). *
+ *     The unit roundoff is available as UNIT_ROUNDOFF defined in *
+ *     sundialstypes.h                                            *
  *                                                                *
  * Returned value:                                                *
  * The value to be returned by the PrecSetup function is a flag   *
@@ -234,10 +234,10 @@ typedef int (*CVSpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
 /******************************************************************
  * Function : CVSpgmr                                             *
  *----------------------------------------------------------------*
- * A call to the CVSpgmr function links the main CVODES integrator*
+ * A call to the CVSpgmr function links the main CVODE integrator *
  * with the CVSPGMR linear solver.                                *
  *                                                                *
- * cvode_mem is the pointer to CVODES memory returned by          *
+ * cvode_mem is the pointer to the integrator memory returned by  *
  *           CVodeCreate.                                         *
  *                                                                *
  * pretype   is the type of user preconditioning to be done.      *
@@ -330,6 +330,7 @@ int CVSpgmrSetJacData(void *cvode_mem, void *jac_data);
  * CVSpgmrGetNumRhsEvals returns the number of calls to the user  *
  *     f routine due to finite difference Jacobian times vector   *
  *     evaluation.                                                *
+ *                                                                *
  ******************************************************************/
 
 int CVSpgmrGetIntWorkSpace(void *cvode_mem, long int *leniwSG);
@@ -342,6 +343,7 @@ int CVSpgmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
 int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG); 
 
 /******************************************************************
+ *                                                                *           
  * Types : CVSpgmrMemRec, CVSpgmrMem                              *
  *----------------------------------------------------------------*
  * The type CVSpgmrMem is pointer to a CVSpgmrMemRec. This        *
@@ -351,45 +353,46 @@ int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG);
 
 typedef struct {
 
-  int  g_pretype;     /* type of preconditioning                      */
-  int  g_gstype;      /* type of Gram-Schmidt orthogonalization       */
-  realtype g_sqrtN;   /* sqrt(N)                                      */
-  realtype g_delt;    /* delt = user specified or DELT_DEFAULT        */
-  realtype g_deltar;  /* deltar = delt * tq4                          */
-  realtype g_delta;   /* delta = deltar * sqrtN                       */
-  int  g_maxl;        /* maxl = maximum dimension of the Krylov space */
+  int  g_pretype;       /* type of preconditioning                      */
+  int  g_gstype;        /* type of Gram-Schmidt orthogonalization       */
+  realtype g_sqrtN;     /* sqrt(N)                                      */
+  realtype g_delt;      /* delt = user specified or DELT_DEFAULT        */
+  realtype g_deltar;    /* deltar = delt * tq4                          */
+  realtype g_delta;     /* delta = deltar * sqrtN                       */
+  int  g_maxl;          /* maxl = maximum dimension of the Krylov space */
 
-  long int g_nstlpre;  /* value of nst at the last pset call          */     
-  long int g_npe;      /* npe = total number of pset calls            */   
-  long int g_nli;      /* nli = total number of linear iterations     */
-  long int g_nps;      /* nps = total number of psolve calls          */
-  long int g_ncfl;     /* ncfl = total number of convergence failures */
-  long int g_njtimes;  /* njtimes = total number of calls to jtimes   */
-  long int g_nfeSG;    /* nfeSG = total number of calls to f  for     
-                          difference quotient Jacobian-vector products*/
+  long int g_nstlpre;   /* value of nst at the last pset call           */
+  long int g_npe;       /* npe = total number of pset calls             */
+  long int g_nli;       /* nli = total number of linear iterations      */
+  long int g_nps;       /* nps = total number of psolve calls           */
+  long int g_ncfl;      /* ncfl = total number of convergence failures  */
+  long int g_njtimes;   /* njtimes = total number of calls to jtimes    */
+  long int g_nfeSG;     /* nfeSG = total number of calls to f for     
+                           difference quotient Jacobian-vector products */
 
-  N_Vector g_ytemp;    /* temp vector passed to jtimes and psolve     */
-  N_Vector g_x;        /* temp vector used by CVSpgmrSolve            */
-  N_Vector g_ycur;     /* CVODE current y vector in Newton Iteration  */
-  N_Vector g_fcur;     /* fcur = f(tn, ycur)                          */
+  N_Vector g_ytemp;     /* temp vector passed to jtimes and psolve      */
+  N_Vector g_x;         /* temp vector used by CVSpgmrSolve             */
+  N_Vector g_ycur;      /* CVODE current y vector in Newton Iteration   */
+  N_Vector g_fcur;      /* fcur = f(tn, ycur)                           */
 
   CVSpgmrPrecSetupFn g_pset; 
-                       /* pset = user-supplied routine to compute     */
-                       /* a preconditioner                            */
+                        /* pset = user-supplied routine to compute      */
+                        /* a preconditioner                             */
 
   CVSpgmrPrecSolveFn g_psolve;   
-                       /* psolve = user-supplied routine to solve     */
-                       /* preconditioner linear system                */
+                        /* psolve = user-supplied routine to solve      */
+                        /* preconditioner linear system                 */
 
-  void *g_P_data;       /* P_data passed to psolve and pset           */
-  SpgmrMem g_spgmr_mem; /* spgmr_mem is memory used by the            */
-                        /* generic Spgmr solver                       */
+  void *g_P_data;       /* P_data passed to psolve and pset             */
+  SpgmrMem g_spgmr_mem; /* spgmr_mem is memory used by the              */
+                        /* generic Spgmr solver                         */
 
   CVSpgmrJacTimesVecFn g_jtimes;  
-                        /* jtimes = Jacobian * vector routine         */
-  void *g_j_data;       /* j_data is passed to jtimes                 */
+                        /* jtimes = Jacobian * vector routine           */
+  void *g_j_data;       /* j_data is passed to jtimes                   */
 
 } CVSpgmrMemRec, *CVSpgmrMem;
+
 
 #endif
 

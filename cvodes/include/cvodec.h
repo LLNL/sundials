@@ -24,9 +24,9 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include "cvodes.h"
-#include "cvsdense.h"
-#include "cvsband.h"
-#include "cvsspgmr.h"
+#include "cvdense.h"
+#include "cvband.h"
+#include "cvspgmr.h"
 #include "nvector.h"
 #include "sundialstypes.h"
 #include "sundialsmath.h"
@@ -85,18 +85,18 @@ extern "C" {
  *----------------------------------------------------------------*        
  *                                                                *
  * CVDenseSetCSJac - enables complex step calculation of the      *
- *                   dense Jacobian for use with CVSDENSE.        *
+ *                   dense Jacobian for use with CVDENSE.         *
  *                                                                *
  *----------------------------------------------------------------*        
  *                                                                *
  * CVBandSetCSJac - enables complex step calculation of the       *
  *                  band Jacobian approximation for use with      *
- *                  CVSBAND.                                      *
+ *                  CVBAND.                                       *
  *                                                                *
  *----------------------------------------------------------------*        
  *                                                                *
  * CVSpgmrSetCSJacTimesVec - enables complex step calculation of  *
- *                  the Jacobian x Vector for use with CVSSPGMR.  *
+ *                  the Jacobian x Vector for use with CVSPGMR.   *
  *                                                                *
  *----------------------------------------------------------------*/
 

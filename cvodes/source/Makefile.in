@@ -39,14 +39,14 @@ CVODES_LIB = libcvodes.a
 # Source and object files
 SRC =	${srcdir}/cvodes.c \
 	${srcdir}/cvodea.c \
-	${srcdir}/cvsband.c \
-	${srcdir}/cvsdense.c \
-	${srcdir}/cvsdiag.c \
-	${srcdir}/cvsspgmr.c \
-	${srcdir}/cvsbandpre.c \
-	${srcdir}/cvsbbdpre.c
+	${srcdir}/cvband.c \
+	${srcdir}/cvdense.c \
+	${srcdir}/cvdiag.c \
+	${srcdir}/cvspgmr.c \
+	${srcdir}/cvbandpre.c \
+	${srcdir}/cvbbdpre.c
 
-OBJ = cvodes.o cvodea.o cvsband.o cvsdense.o cvsdiag.o cvsspgmr.o cvsbandpre.o cvsbbdpre.o
+OBJ = cvodes.o cvodea.o cvband.o cvdense.o cvdiag.o cvspgmr.o cvbandpre.o cvbbdpre.o
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -59,12 +59,12 @@ install: ${OBJ}
 	cp ${CVODES_LIB} ${libdir}
 	cp ${CVODES_INC_DIR}/cvodes.h     ${includedir}
 	cp ${CVODES_INC_DIR}/cvodea.h     ${includedir}
-	cp ${CVODES_INC_DIR}/cvsdense.h   ${includedir}
-	cp ${CVODES_INC_DIR}/cvsband.h    ${includedir}
-	cp ${CVODES_INC_DIR}/cvsdiag.h    ${includedir}
-	cp ${CVODES_INC_DIR}/cvsspgmr.h   ${includedir}
-	cp ${CVODES_INC_DIR}/cvsbandpre.h ${includedir}
-	cp ${CVODES_INC_DIR}/cvsbbdpre.h  ${includedir}
+	cp ${CVODES_INC_DIR}/cvdense.h   ${includedir}
+	cp ${CVODES_INC_DIR}/cvband.h    ${includedir}
+	cp ${CVODES_INC_DIR}/cvdiag.h    ${includedir}
+	cp ${CVODES_INC_DIR}/cvspgmr.h   ${includedir}
+	cp ${CVODES_INC_DIR}/cvbandpre.h ${includedir}
+	cp ${CVODES_INC_DIR}/cvbbdpre.h  ${includedir}
 
 clean:
 	rm -f ${OBJ}
@@ -74,12 +74,12 @@ uninstall:
 	rm -f ${libdir}/${CVODES_LIB}
 	rm -f ${includedir}/cvodes.h
 	rm -f ${includedir}/cvodea.h
-	rm -f ${includedir}/cvsdense.h
-	rm -f ${includedir}/cvsband.h
-	rm -f ${includedir}/cvsdiag.h
-	rm -f ${includedir}/cvsspgmr.h
-	rm -f ${includedir}/cvsbandpre.h
-	rm -f ${includedir}/cvsbbdpre.h
+	rm -f ${includedir}/cvdense.h
+	rm -f ${includedir}/cvband.h
+	rm -f ${includedir}/cvdiag.h
+	rm -f ${includedir}/cvspgmr.h
+	rm -f ${includedir}/cvbandpre.h
+	rm -f ${includedir}/cvbbdpre.h
 
 .c.o:
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<

@@ -30,13 +30,13 @@
 
 #define CVDENSE               "CVDense-- "
 
-#define MSG_CVMEM_NULL        CVDENSE "cvode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL        CVDENSE "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL          CVDENSE "A memory request failed.\n\n"
 
 #define MSG_WRONG_NVEC        CVDENSE "Incompatible NVECTOR implementation.\n\n" 
 
-#define MSG_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- cvode memory is NULL. \n\n"
+#define MSG_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- Integrator memory is NULL. \n\n"
 
 #define MSG_SETGET_LMEM_NULL  "CVDenseSet*/CVDenseGet*-- cvdense memory is NULL. \n\n"
 
@@ -139,7 +139,7 @@ int CVDense(void *cvode_mem, long int N)
 
   if (lfree !=NULL) lfree(cv_mem);
 
-  /* Set five main function fields in cv_mem */
+  /* Set four main function fields in cv_mem */
   linit  = CVDenseInit;
   lsetup = CVDenseSetup;
   lsolve = CVDenseSolve;
@@ -182,7 +182,7 @@ int CVDense(void *cvode_mem, long int N)
     return(LMEM_FAIL);
   }
 
-  /* Attach linear solver memory to CVODE memory */
+  /* Attach linear solver memory to integrator memory */
   lmem = cvdense_mem;
 
   return(SUCCESS);

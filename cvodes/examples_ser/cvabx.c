@@ -40,7 +40,7 @@
 #include <math.h>
 #include "sundialstypes.h"
 #include "cvodea.h"
-#include "cvsband.h"
+#include "cvband.h"
 #include "nvector_serial.h"
 #include "band.h"
 

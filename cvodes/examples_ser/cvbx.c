@@ -34,7 +34,7 @@
 #include "cvodes.h"         /* prototypes for CVodeMalloc, CVode, CVodeFree,  */
                             /* constants OPT_SIZE, BDF, NEWTON, SS, SUCCESS,  */
                             /* NST, NFE, NSETUPS, NNI, NCFN, NETF             */
-#include "cvsband.h"        /* prototype for CVBand, constant BAND_NJE        */
+#include "cvband.h"         /* prototype for CVBand, constant BAND_NJE        */
 #include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S, */
                             /* prototypes for N_VNew, N_VFree, N_VMaxNorm     */
 #include "band.h"           /* definitions of type BandMat, macros            */

@@ -1,6 +1,5 @@
 /*******************************************************************
- *                                                                 *
- * File          : cvsbandpre.h                                    *
+ * File          : cvbandpre.h                                     *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
  * Version of    : 07 February 2004                                *
@@ -8,11 +7,11 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
- * This is the header file for the CVSBANDPRE module, which        *
+ * This is the header file for the CVBANDPRE module, which         *
  * provides a banded difference quotient Jacobian-based            *
- * preconditioner and solver routines for use with CVSSPGMR.       *
+ * preconditioner and solver routines for use with CVSPGMR.        *
  *                                                                 *
  * Summary:                                                        *
  * These routines provide a band matrix preconditioner based on    *
@@ -32,11 +31,11 @@
  * Usage:                                                          *
  *   The following is a summary of the usage of this module.       *
  *   Details of the calls to CVodeCreate, CVodeMalloc, CVSpgmr,    *
- *   and CVode are available in the CVODES User Guide.             *
+ *   and CVode are available in the User Guide.                    *
  *   To use these routines, the sequence of calls in the user      *
  *   main program should be as follows:                            *
  *                                                                 *
- *   #include "cvsbandpre.h"                                       *
+ *   #include "cvbandpre.h"                                        *
  *   #include "nvector_serial.h"                                   *
  *   ...                                                           *
  *   NV_Spec nvspec;                                               *
@@ -67,17 +66,15 @@
  *     pretype and gstype, and the optional inputs maxl and delt.  *
  *     But the last three arguments must be as shown, with the     *
  *     last argument being the pointer returned by CVBandPreAlloc. *
- *                                                                 *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _cvsbandpre_h
-#define _cvsbandpre_h
+#ifndef _cvbandpre_h
+#define _cvbandpre_h
 
-#include "cvodes.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
@@ -103,9 +100,7 @@ typedef struct {
 
 } *CVBandPrecData;
 
-
 /******************************************************************
- *                                                                *
  * Function : CVBandPrecAlloc                                     *
  *----------------------------------------------------------------*
  * CVBandPrecAlloc allocates and initializes a CVBandPrecData     *
@@ -130,22 +125,21 @@ typedef struct {
  *       representation by checking (1) the vector specification  *
  *       ID tag and (2) that the functions N_VGetData, and        *
  *       N_VSetData are implemented.                              *
- *                                                                *
  ******************************************************************/
 
-void *CVBandPrecAlloc(void *cvode_mem, long int N,
+void *CVBandPrecAlloc(void *cvode_mem, long int N, 
                       long int mu, long int ml);
 
 /******************************************************************
  * Function : CVBPSpgmr                                           *
  *----------------------------------------------------------------*
- * CVBPSpgmr links the CVBANDPPRE preconditioner to the CVSSPGMR  *
+ * CVBPSpgmr links the CVBANDPPRE preconditioner to the CVSPGMR   *
  * linear solver. It performs the following actions:              *
  *  1) Calls the CVSPGMR specification routine and attaches the   *
- *     CVSSPGMR linear solver to the CVODE solver;                *
- *  2) Sets the preconditioner data structure for CVSSPGMR        *
- *  3) Sets the preconditioner setup routine for CVSSPGMR         *
- *  4) Sets the preconditioner solve routine for CVSSPGMR         *
+ *     CVSPGMR linear solver to the integrator memory;            *
+ *  2) Sets the preconditioner data structure for CVSPGMR         *
+ *  3) Sets the preconditioner setup routine for CVSPGMR          *
+ *  4) Sets the preconditioner solve routine for CVSPGMR          *
  *                                                                *
  * Its first 3 arguments are the same as for CVSpgmr (see         *
  * cvspgmr.h). The last argument is the pointer to the CVBANDPPRE *
@@ -153,7 +147,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
  * Note that the user need not call CVSpgmr anymore.              *
  *                                                                *
  * Possible return values are:                                    *
- *   (from cvodes.h)  SUCCESS                                     *
+ *                   SUCCESS                                      *
  *                   LIN_NO_MEM                                   *
  *                   LMEM_FAIL                                    *
  *                   LIN_NO_LMEM                                  *
@@ -170,7 +164,6 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
  *----------------------------------------------------------------*
  * CVBandPrecFree frees the memory allocated by CVBandPrecAlloc   *
  * in the argument pdata.                                         *
- *                                                                *
  ******************************************************************/
 
 void CVBandPrecFree(void *bp_data);
@@ -178,14 +171,12 @@ void CVBandPrecFree(void *bp_data);
 /******************************************************************
  * Function : CVBandPrecGet*                                      *
  *----------------------------------------------------------------*
- *                                                                *
  * CVBandPrecGetIntWorkSpace returns the integer workspace used   *
  *    by CVBANDPRE.                                               *
  * CVBandPrecGetRealWorkSpace returns the real workspace used     *
  *    by CVBANDPRE.                                               *
  * CVBandPrecGetNumRhsEvals returns the number of calls made from *
  *    CVBANDPRE to the user's right hand side routine f.          *
- *                                                                *
  ******************************************************************/
 
 int CVBandPrecGetIntWorkSpace(void *bp_data, long int *leniwBP);
@@ -203,12 +194,10 @@ int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
                     realtype gamma, void *bp_data,
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-
 int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
                     N_Vector r, N_Vector z, 
                     realtype gamma, realtype delta,
                     int lr, void *bp_data, N_Vector tmp);
-
 
 #endif
 

@@ -1,6 +1,6 @@
 /*******************************************************************
  *                                                                 *
- * File          : cvsdense.c                                      *
+ * File          : cvdense.c                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
  *                 Radu Serban @ LLNL                              *
  * Version of    : 07 February 2004                                *
@@ -11,14 +11,14 @@
  * For details, see sundials/cvodes/LICENSE                        *
  *-----------------------------------------------------------------*
  * This is the implementation file for the CVODES dense linear     *
- * solver, CVSDENSE.                                               *
+ * solver, CVDENSE.                                                *
  *                                                                 *
  *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cvsdense.h"
+#include "cvdense.h"
 #include "cvodes.h"
 #include "dense.h"
 #include "sundialstypes.h"
@@ -30,15 +30,15 @@
 
 #define CVDENSE               "CVDense-- "
 
-#define MSG_CVMEM_NULL        CVDENSE "cvodes Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL        CVDENSE "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL          CVDENSE "A memory request failed.\n\n"
 
 #define MSG_WRONG_NVEC        CVDENSE "Incompatible NVECTOR implementation.\n\n" 
 
-#define MSG_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- cvodes memory is NULL. \n\n"
+#define MSG_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- Integrator memory is NULL. \n\n"
 
-#define MSG_SETGET_LMEM_NULL  "CVDenseSet*/CVDenseGet*-- cvsdense memory is NULL. \n\n"
+#define MSG_SETGET_LMEM_NULL  "CVDenseSet*/CVDenseGet*-- cvdense memory is NULL. \n\n"
 
 /* Other Constants */
 
@@ -55,7 +55,7 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                         N_Vector fpred, booleantype *jcurPtr, 
                         N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, 
+static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                         N_Vector ycur, N_Vector fcur);
 
 static void CVDenseFree(CVodeMem cv_mem);
@@ -182,7 +182,7 @@ int CVDense(void *cvode_mem, long int N)
     return(LMEM_FAIL);
   }
 
-  /* Attach linear solver memory to CVODES memory */
+  /* Attach linear solver memory to integrator memory */
   lmem = cvdense_mem;
 
   return(SUCCESS);
@@ -380,7 +380,7 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  int ier;
+  long int ier;
   CVDenseMem cvdense_mem;
   
   cvdense_mem = (CVDenseMem) lmem;

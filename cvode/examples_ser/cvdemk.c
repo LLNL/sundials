@@ -472,7 +472,7 @@ static void PrintIntro(void)
   
   printf("Preconditioning uses a product of:\n");
   printf("  (1) Gauss-Seidel iterations with ");
-  printf("itmax = %ld iterations, and\n", ITMAX);
+  printf("itmax = %d iterations, and\n", ITMAX);
   printf("  (2) interaction-only block-diagonal matrix ");
   printf("with block-grouping\n");
   printf("  Number of diagonal block groups = ngrp = %d", NGRP);

@@ -80,7 +80,7 @@
 #include "sundialstypes.h"
 #include "cvodea.h"
 #include "iterative.h"
-#include "cvsspgmr.h"
+#include "cvspgmr.h"
 #include "dense.h"
 #include "nvector_serial.h"
 #include "sundialsmath.h"

@@ -38,11 +38,11 @@
 #define MSG_BAD_SIZES_3       "Must have 0 <=  ml, mu <= N-1=%ld.\n\n"
 #define MSG_BAD_SIZES         MSG_BAD_SIZES_1 MSG_BAD_SIZES_2 MSG_BAD_SIZES_3
 
-#define MSG_CVMEM_NULL        CVBAND "CVode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL        CVBAND "Integrator memory is NULL.\n\n"
 
 #define MSG_WRONG_NVEC        CVBAND "Incompatible NVECTOR implementation.\n\n"
 
-#define MSG_SETGET_CVMEM_NULL "CVBandSet*/CVBandGet*-- cvode memory is NULL. \n\n"
+#define MSG_SETGET_CVMEM_NULL "CVBandSet*/CVBandGet*-- Integrator memory is NULL. \n\n"
 
 #define MSG_SETGET_LMEM_NULL  "CVBandSet*/CVBandGet*-- cvband memory is NULL. \n\n"
 
@@ -68,8 +68,8 @@ static void CVBandFree(CVodeMem cv_mem);
 
 /* CVBAND DQJac routine */
 
-static void CVBandDQJac(long int n, long int mupper, long int mlower, 
-                        BandMat J, realtype t, 
+static void CVBandDQJac(long int n, long int mupper, long int mlower,
+                        BandMat J, realtype t,
                         N_Vector y, N_Vector fy, void *jac_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -135,7 +135,8 @@ static void CVBandDQJac(long int n, long int mupper, long int mlower,
 
 **********************************************************************/
                   
-int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
+int CVBand(void *cvode_mem, long int N,
+           long int mupper, long int mlower)
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -212,7 +213,7 @@ int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
     return(LMEM_FAIL);
   }
 
-  /* Attach linear solver memory to CVODE memory */
+  /* Attach linear solver memory to integrator memory */
   lmem = cvband_mem;
 
   return(SUCCESS);
@@ -505,8 +506,8 @@ static void CVBandFree(CVodeMem cv_mem)
 
 **********************************************************************/
 
-static void CVBandDQJac(long int N, long int mupper, long int mlower, 
-                        BandMat J, realtype t, 
+static void CVBandDQJac(long int N, long int mupper, long int mlower,
+                        BandMat J, realtype t,
                         N_Vector y, N_Vector fy, void *jac_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {

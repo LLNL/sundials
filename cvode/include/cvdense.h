@@ -8,10 +8,10 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
- * This is the header file for the CVODE dense linear solver,      *
- * CVDENSE.                                                        *
+ * This is the header file for the CVODE/CVODES dense linear       *
+ * solver, CVDENSE.                                                *
  *                                                                 *
  *******************************************************************/
 
@@ -23,14 +23,13 @@ extern "C" {
 #define _cvdense_h
 
 #include <stdio.h>
-#include "cvode.h"
 #include "sundialstypes.h"
 #include "dense.h"
 #include "nvector.h"
 
 /******************************************************************
  *                                                                *
- * CVSDENSE solver constants                                      *
+ * CVDENSE solver constants                                       *
  *----------------------------------------------------------------*
  * CVD_MSBJ  : maximum number of steps between dense Jacobian     *
  *             evaluations                                        *
@@ -112,10 +111,10 @@ typedef void (*CVDenseJacFn)(long int N, DenseMat J, realtype t,
  *                                                                *
  * Function : CVDense                                             *
  *----------------------------------------------------------------*
- * A call to the CVDense function links the main CVODE integrator *
- * with the CVDENSE linear solver.                                *
+ * A call to the CVDense function links the main integrator with  *
+ * the CVDENSE linear solver.                                     *
  *                                                                *
- * cvode_mem is the pointer to CVODE memory returned by           *
+ * cvode_mem is the pointer to the integrator memory returned by  *
  *              CVodeCreate.                                      *
  *                                                                *
  * N is the size of the ODE system.                               *
@@ -190,7 +189,7 @@ typedef struct {
   
   long int d_nje;     /* nje = no. of calls to jac              */
 
-  long int d_nfeD;    /* nfeD = no. of calls to f due to 
+  long int d_nfeD;    /* nfeD = no. of calls to f due to
                          difference quotient approximation of J */
   
   void *d_J_data;     /* J_data is passed to jac                */

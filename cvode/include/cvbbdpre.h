@@ -7,17 +7,17 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
  * This is the header file for the CVBBDPRE module, for a          *
  * band-block-diagonal preconditioner, i.e. a block-diagonal       *
- * matrix with banded blocks, for use with CVODE, CVSpgmr, and     *
+ * matrix with banded blocks, for use with CVSpgmr, and            *
  * the parallel implementation of the NVECTOR module.              *
  *                                                                 *
  * Summary:                                                        *
  *                                                                 *
- * These routines provide a preconditioner matrix for CVODE that   *
- * is block-diagonal with banded blocks.  The blocking corresponds *
+ * These routines provide a preconditioner matrix  that is         *
+ * block-diagonal with banded blocks.  The blocking corresponds    *
  * to the distribution of the dependent variable vector y among    *
  * the processors.  Each preconditioner block is generated from    *
  * the Jacobian of the local part (on the current processor) of a  *
@@ -96,7 +96,7 @@
  *    associated with this module also include nsetups banded LU   *
  *    factorizations, nlinsetups cfn calls, and npsolves banded    *
  *    backsolve calls, where nlinsetups and npsolves are           *
- *    CVODE/CVSPGMR optional outputs.                              *
+ *    integrator/CVSPGMR optional outputs.                         *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
@@ -106,7 +106,6 @@ extern "C" {
 #ifndef _cvbbdpre_h
 #define _cvbbdpre_h
 
-#include "cvode.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
@@ -197,7 +196,7 @@ typedef struct {
  *                                                                *
  * The parameters of CVBBDPrecAlloc are as follows:               *
  *                                                                *
- * cvode_mem is the pointer to CVODE memory.                      *
+ * cvode_mem is the pointer to the integrator memory.             *
  *                                                                *
  * Nlocal  is the length of the local block of the vectors y etc. *
  *         on the current processor.                              *
@@ -239,7 +238,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
  * CVBBDSpgmr links the CVBBDPRE preconditioner to the CVSPGMR    *
  * linear solver. It performs the following actions:              *
  *  1) Calls the CVSPGMR specification routine and attaches the   *
- *     CVSPGMR linear solver to the CVODE solver;                 *
+ *     CVSPGMR linear solver to the integrator memory;            *
  *  2) Sets the preconditioner data structure for CVSPGMR         *
  *  3) Sets the preconditioner setup routine for CVSPGMR          *
  *  4) Sets the preconditioner solve routine for CVSPGMR          *
@@ -269,7 +268,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
  * sequence of problems of the same size with CVSPGMR/CVBBDPRE,   *
  * provided there is no change in Nlocal, mukeep, or mlkeep.      *
  * After solving one problem, and after calling CVodeReInit to    *
- * re-initialize CVODE for a subsequent problem, call             *
+ * re-initialize the integrator for a subsequent problem, call    *
  * CVBBDPrecReInit.                                               *
  * Then call CVReInitSpgmr or CVSpgmr if necessary, depending on  *
  * changes made in the CVSpgmr parameters, before calling CVode.  *

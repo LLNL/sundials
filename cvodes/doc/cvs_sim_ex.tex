@@ -113,7 +113,7 @@ functions to be called (excluding the linear solver selection
 function), and also a number of constants that are to be used in
 dimensioning, setting input arguments, testing the return value of
 \id{CVode}, and accessing the integer optional outputs.
-The \id{cvsdense.h} file provides the prototype for the \id{CVDense} 
+The \id{cvdense.h} file provides the prototype for the \id{CVDense} 
 function, and a constant \id{DENSE\_NJE} for accessing optional output 
 specific to {\cvdense}.  
 The \id{nvector\_serial.h} file is the header file for the serial implementation
@@ -124,7 +124,7 @@ and freeing functions.
 Finally, the \id{dense.h} file provides the definition of the dense
 matrix type \id{DenseMat} and a macro for accessing matrix elements.
 We have explicitly included \id{dense.h}, but this is not necessary because 
-it is included by \id{cvsdense.h}.
+it is included by \id{cvdense.h}.
 
 This program includes two user-defined accessor macros,
 \id{Ith} and \id{IJth}

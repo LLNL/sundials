@@ -172,7 +172,7 @@ int main()
 
   /* In loop over output points, call CVode, print results, test for error */
 
-  printf(" \n2-D advection-diffusion equation, mesh dimensions =%3ld %3ld\n\n",
+  printf(" \n2-D advection-diffusion equation, mesh dimensions =%3d %3d\n\n",
          MX,MY);
   umax = N_VMaxNorm(u);
   printf("At t = %4.2f    max.norm(u) =%14.6e \n", T0,umax);

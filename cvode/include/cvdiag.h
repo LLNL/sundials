@@ -8,10 +8,10 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
- * This is the header file for the CVODE diagonal linear solver,   *
- * CVDIAG.                                                         *
+ * This is the header file for the CVODE/CVODES diagonal linear    *
+ * solver, CVDIAG.                                                 *
  *                                                                 *
  *******************************************************************/
 
@@ -24,7 +24,6 @@ extern "C" {
 #define _cvdiag_h
 
 #include <stdio.h>
-#include "cvode.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 
@@ -33,10 +32,10 @@ extern "C" {
  *                                                                *
  * Function : CVDiag                                              *
  *----------------------------------------------------------------*
- * A call to the CVDiag function links the main CVODE integrator  *
- * with the CVDIAG linear solver.                                 *
+ * A call to the CVDiag function links the main integrator with   *
+ * the CVDIAG linear solver.                                      *
  *                                                                *
- * cvode_mem is the pointer to CVODE memory returned by           *
+ * cvode_mem is the pointer to the integrator memory returned by  *
  *              CVodeCreate.                                      *
  *                                                                *
  * The return values of CVDiag are:                               *

@@ -1,6 +1,6 @@
 /*******************************************************************
  *                                                                 *
- * File          : cvsbandpre.c                                    *
+ * File          : cvbandpre.c                                     *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
  * Version of    : 07 February 2004                                *
@@ -19,8 +19,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cvsbandpre.h"
-#include "cvsspgmr.h"
+#include "cvodes.h"
+#include "cvbandpre.h"
+#include "cvspgmr.h"
 #include "sundialsmath.h"
 #include "nvector.h"
 
@@ -31,7 +32,7 @@
 /* Error Messages */
 
 #define CVBALLOC        "CVBandPreAlloc-- "
-#define MSG_CVMEM_NULL  CVBALLOC "CVode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL  CVBALLOC "Integrator memory is NULL.\n\n"
 #define MSG_WRONG_NVEC  CVBALLOC "Incompatible NVECTOR implementation.\n\n"
 
 #define MSG_PDATA_NULL "CVBandPrecGet*-- BandPrecData is NULL. \n\n"
@@ -181,7 +182,7 @@ int CVBandPrecGetRealWorkSpace(void *bp_data, long int *lenrwBP)
   ml  = pdata->ml;
   smu = MIN( N-1, mu + ml);
 
-  *lenrwBP = N * ( 2*ml + smu + mu + 2 );  
+  *lenrwBP = N * ( 2*ml + smu + mu + 2 );
 
   return(OKAY);
 }
@@ -196,7 +197,7 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
   } 
 
   pdata = (CVBandPrecData) bp_data;
-  
+
   *nfevalsBP = pdata->nfeBP;
 
   return(OKAY);

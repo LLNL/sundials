@@ -7,7 +7,7 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
  * This is the header file for the CVBANDPRE module, which         *
  * provides a banded difference quotient Jacobian-based            *
@@ -31,7 +31,7 @@
  * Usage:                                                          *
  *   The following is a summary of the usage of this module.       *
  *   Details of the calls to CVodeCreate, CVodeMalloc, CVSpgmr,    *
- *   and CVode are available in the CVODE User Guide.              *
+ *   and CVode are available in the User Guide.                    *
  *   To use these routines, the sequence of calls in the user      *
  *   main program should be as follows:                            *
  *                                                                 *
@@ -75,7 +75,6 @@ extern "C" {
 #ifndef _cvbandpre_h
 #define _cvbandpre_h
 
-#include "cvode.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
@@ -137,7 +136,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
  * CVBPSpgmr links the CVBANDPPRE preconditioner to the CVSPGMR   *
  * linear solver. It performs the following actions:              *
  *  1) Calls the CVSPGMR specification routine and attaches the   *
- *     CVSPGMR linear solver to the CVODE solver;                 *
+ *     CVSPGMR linear solver to the integrator memory;            *
  *  2) Sets the preconditioner data structure for CVSPGMR         *
  *  3) Sets the preconditioner setup routine for CVSPGMR          *
  *  4) Sets the preconditioner solve routine for CVSPGMR          *
@@ -148,7 +147,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
  * Note that the user need not call CVSpgmr anymore.              *
  *                                                                *
  * Possible return values are:                                    *
- *   (from cvode.h)  SUCCESS                                      *
+ *                   SUCCESS                                      *
  *                   LIN_NO_MEM                                   *
  *                   LMEM_FAIL                                    *
  *                   LIN_NO_LMEM                                  *

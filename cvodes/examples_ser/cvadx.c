@@ -49,7 +49,7 @@
 #include <stdlib.h>
 #include "sundialstypes.h"
 #include "cvodea.h"
-#include "cvsdense.h"
+#include "cvdense.h"
 #include "nvector_serial.h"
 #include "dense.h"
 

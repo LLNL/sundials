@@ -1,5 +1,5 @@
 /*******************************************************************
- * File          : cvsbbdpre.h                                     *
+ * File          : cvbbdpre.h                                      *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
  * Version of    : 07 February 2004                                *
@@ -7,17 +7,17 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
- * This is the header file for the CVSBBDPRE module, for a         *
+ * This is the header file for the CVBBDPRE module, for a          *
  * band-block-diagonal preconditioner, i.e. a block-diagonal       *
- * matrix with banded blocks, for use with CVODES, CVSpgmr, and    *
+ * matrix with banded blocks, for use with CVSpgmr, and            *
  * the parallel implementation of the NVECTOR module.              *
  *                                                                 *
  * Summary:                                                        *
  *                                                                 *
- * These routines provide a preconditioner matrix for CVODES that  *
- * is block-diagonal with banded blocks.  The blocking corresponds *
+ * These routines provide a preconditioner matrix  that is         *
+ * block-diagonal with banded blocks.  The blocking corresponds    *
  * to the distribution of the dependent variable vector y among    *
  * the processors.  Each preconditioner block is generated from    *
  * the Jacobian of the local part (on the current processor) of a  *
@@ -31,7 +31,7 @@
  * The user's calling program should have the following form:      *
  *                                                                 *
  *   #include "nvector_parallel.h"                                 *
- *   #include "cvsbbdpre.h"                                        *
+ *   #include "cvbbdpre.h"                                         *
  *   ...                                                           *
  *   void *cvode_mem;                                              *
  *   void *p_data;                                                 *
@@ -96,17 +96,16 @@
  *    associated with this module also include nsetups banded LU   *
  *    factorizations, nlinsetups cfn calls, and npsolves banded    *
  *    backsolve calls, where nlinsetups and npsolves are           *
- *    CVODES/CVSSPGMR optional outputs.                            *
+ *    integrator/CVSPGMR optional outputs.                         *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _cvsbbdpre_h
-#define _cvsbbdpre_h
+#ifndef _cvbbdpre_h
+#define _cvbbdpre_h
 
-#include "cvodes.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
@@ -121,19 +120,19 @@ extern "C" {
  * The implementation of this function must have type CVLocalFn.  *
  *                                                                *
  * This function takes as input the local vector size Nlocal, the *
- * independent variable value t, the dependent variable vector    *
- * ylocal, and a pointer to the user-defined data block f_data.   *
- * It is to compute the local part of g(t,y) and store this in    *
- * the vector glocal.                                             *
- * (Allocation of memory for y and glocal is handled within the   *
- * preconditioner module.)                                        *
+ * independent variable value t, the local real dependent         *
+ * variable vector ylocal, and a pointer to the user-defined data *
+ * block f_data.  It is to compute the local part of g(t,y) and   *
+ * store this in the vector glocal.                               *
+ * (Allocation of memory for ylocal and glocal is handled within  *
+ * the preconditioner module.)                                    *
  * The f_data parameter is the same as that specified by the user *
  * through the CVodeSetFdata routine.                             *
  * A CVLocalFn gloc does not have a return value.                 *
  ******************************************************************/
 
 typedef void (*CVLocalFn)(long int Nlocal, realtype t, 
-                          N_Vector y, N_Vector glocal, 
+                          N_Vector ylocal, N_Vector glocal, 
                           void *f_data);
 
 /******************************************************************
@@ -160,7 +159,6 @@ typedef void (*CVLocalFn)(long int Nlocal, realtype t,
 typedef void (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
                          void *f_data);
 
- 
 /*********************** Definition of CVBBDData *****************/
 
 typedef struct {
@@ -198,7 +196,7 @@ typedef struct {
  *                                                                *
  * The parameters of CVBBDPrecAlloc are as follows:               *
  *                                                                *
- * cvode_mem is the pointer to CVODES memory.                     *
+ * cvode_mem is the pointer to the integrator memory.             *
  *                                                                *
  * Nlocal  is the length of the local block of the vectors y etc. *
  *         on the current processor.                              *
@@ -237,21 +235,21 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
 /******************************************************************
  * Function : CVBBDSpgmr                                          *
  *----------------------------------------------------------------*
- * CVBBDSpgmr links the CVSBBDPRE preconditioner to the CVSSPGMR  *
+ * CVBBDSpgmr links the CVBBDPRE preconditioner to the CVSPGMR    *
  * linear solver. It performs the following actions:              *
- *  1) Calls the CVSSPGMR specification routine and attaches the  *
- *     CVSSPGMR linear solver to the CVODE solver;                *
- *  2) Sets the preconditioner data structure for CVSSPGMR        *
- *  3) Sets the preconditioner setup routine for CVSSPGMR         *
- *  4) Sets the preconditioner solve routine for CVSSPGMR         *
+ *  1) Calls the CVSPGMR specification routine and attaches the   *
+ *     CVSPGMR linear solver to the integrator memory;            *
+ *  2) Sets the preconditioner data structure for CVSPGMR         *
+ *  3) Sets the preconditioner setup routine for CVSPGMR          *
+ *  4) Sets the preconditioner solve routine for CVSPGMR          *
  *                                                                *
  * Its first 3 arguments are the same as for CVSpgmr (see         *
- * cvspgmr.h). The last argument is the pointer to the CVSBBDPRE  *
+ * cvspgmr.h). The last argument is the pointer to the CVBBDPRE   *
  * memory block returned by CVBBDPrecAlloc.                       * 
  * Note that the user need not call CVSpgmr anymore.              *
  *                                                                *
  * Possible return values are:                                    *
- *   (from cvodes.h) SUCCESS                                      *
+ *   (from cvode.h)  SUCCESS                                      *
  *                   LIN_NO_MEM                                   *
  *                   LMEM_FAIL                                    *
  *                   LIN_NO_LMEM                                  *
@@ -270,7 +268,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
  * sequence of problems of the same size with CVSPGMR/CVBBDPRE,   *
  * provided there is no change in Nlocal, mukeep, or mlkeep.      *
  * After solving one problem, and after calling CVodeReInit to    *
- * re-initialize CVODE for a subsequent problem, call             *
+ * re-initialize the integrator for a subsequent problem, call    *
  * CVBBDPrecReInit.                                               *
  * Then call CVReInitSpgmr or CVSpgmr if necessary, depending on  *
  * changes made in the CVSpgmr parameters, before calling CVode.  *
@@ -282,10 +280,8 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
  * The return value of CVBBDPrecReInit is 0, indicating success.  *
  ******************************************************************/
 
-int CVBBDPrecReInit(void *p_data, 
-                    long int mudq, long int mldq,
-                    realtype dqrely,
-                    CVLocalFn gloc, CVCommFn cfn);
+int CVBBDPrecReInit(void *p_data, long int mudq, long int mldq,
+                    realtype dqrely, CVLocalFn gloc, CVCommFn cfn);
 
 /******************************************************************
  * Function : CVBBDPrecFree                                       *

@@ -8,10 +8,10 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
- * This is the header file for the CVODE band linear solver,       *
- * CVBAND.                                                         *
+ * This is the header file for the CVODE/CVODES band linear        *
+ * solver, CVBAND.                                                 *
  *                                                                 *
  *******************************************************************/
  
@@ -23,7 +23,6 @@ extern "C" {
 #define _cvband_h
 
 #include <stdio.h>
-#include "cvode.h"
 #include "sundialstypes.h"
 #include "band.h"
 #include "nvector.h"
@@ -122,8 +121,8 @@ extern "C" {
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVBandJacFn)(long int N, long int mupper, long int mlower, 
-                            BandMat J, realtype t, 
+typedef void (*CVBandJacFn)(long int N, long int mupper, long int mlower,
+                            BandMat J, realtype t,
                             N_Vector y, N_Vector fy, void *jac_data,
                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
  
@@ -135,7 +134,7 @@ typedef void (*CVBandJacFn)(long int N, long int mupper, long int mlower,
  * A call to the CVBand function links the main CVODE integrator  *
  * with the CVBAND linear solver.                                 *
  *                                                                *
- * cvode_mem is the pointer to CVODE memory returned by           *
+ * cvode_mem is the pointer to the integrator memory returned by  *
  *              CVodeCreate.                                      *
  *                                                                *
  * N is the size of the ODE system.                               *
@@ -153,7 +152,8 @@ typedef void (*CVBandJacFn)(long int N, long int mupper, long int mlower,
  *                                                                *
  ******************************************************************/
 
-int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower);
+int CVBand(void *cvode_mem, long int N, 
+           long int mupper, long int mlower);
 
 /******************************************************************
  * Optional inputs to the CVBAND linear solver                    *

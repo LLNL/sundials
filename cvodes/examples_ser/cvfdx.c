@@ -50,7 +50,7 @@
 #include "cvodes.h"          /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
                              /* constants OPT_SIZE, BDF, NEWTON, SV, SUCCESS,     */
                              /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
-#include "cvsdense.h"        /* prototype for CVDense, constant DENSE_NJE         */
+#include "cvdense.h"         /* prototype for CVDense, constant DENSE_NJE         */
 #include "nvector_serial.h"  /* definitions of type N_Vector and macro NV_Ith_S,  */
                              /* prototypes for N_VNew, N_VFree                    */
 #include "dense.h"           /* definitions of type DenseMat, macro DENSE_ELEM    */

@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "cvode.h"
 #include "cvbbdpre.h"
 #include "cvspgmr.h"
 #include "sundialsmath.h"
@@ -29,7 +30,7 @@
 
 /* Error Messages */
 #define CVBBDALLOC     "CVBBDAlloc-- "
-#define MSG_CVMEM_NULL CVBBDALLOC "CVODE Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL CVBBDALLOC "Integrator memory is NULL.\n\n"
 #define MSG_WRONG_NVEC CVBBDALLOC "Incompatible NVECTOR implementation.\n\n"
 #define MSG_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL. \n\n"
 

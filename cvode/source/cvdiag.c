@@ -27,11 +27,11 @@
 
 #define CVDIAG   "CVDiag-- "
 
-#define MSG_CVMEM_NULL  CVDIAG "CVode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL  CVDIAG "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL  CVDIAG "A memory request failed.\n\n"
 
-#define MSG_SETGET_CVMEM_NULL "CVDiagGet*-- cvode memory is NULL. \n\n"
+#define MSG_SETGET_CVMEM_NULL "CVDiagGet*-- Integrator memory is NULL. \n\n"
 
 #define MSG_SETGET_LMEM_NULL  "CVDiagGet*-- cvdiag memory is NULL. \n\n"
 
@@ -149,7 +149,7 @@ int CVDiag(void *cvode_mem)
     return(LMEM_FAIL);
   }
 
-  /* Attach linear solver memory to CVODE memory */
+  /* Attach linear solver memory to integrator memory */
   lmem = cvdiag_mem;
 
   return(SUCCESS);

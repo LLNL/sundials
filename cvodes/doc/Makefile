@@ -58,6 +58,6 @@ clean:
 	rm -f ug.tex
 	rm -f llnlCoverPage.tex Logo_for_papers.ps Rule_and_address.ps chngpage.sty
 	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
-#	rm -f cvs_guide.ps cvs_guide.pdf
-#	rm -f cvs_examples.ps cvs_examples.pdf
+	rm -f cvs_guide.ps cvs_guide.pdf
+	rm -f cvs_examples.ps cvs_examples.pdf
 

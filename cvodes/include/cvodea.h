@@ -50,10 +50,10 @@ extern "C" {
 #include <stdio.h>
 #include "nvector.h"
 #include "cvodes.h"
-#include "cvsdense.h"
-#include "cvsband.h"
-#include "cvsspgmr.h"
-#include "cvsbandpre.h"
+#include "cvdense.h"
+#include "cvband.h"
+#include "cvspgmr.h"
+#include "cvbandpre.h"
 
 /******************************************************************
  *                                                                *

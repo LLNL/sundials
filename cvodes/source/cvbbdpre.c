@@ -1,5 +1,5 @@
 /*******************************************************************
- * File          : cvsbbdpre.c                                     *
+ * File          : cvbbdpre.c                                      *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
  * Version of    : 07 February 2004                                *
@@ -18,8 +18,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cvsbbdpre.h"
-#include "cvsspgmr.h"
+#include "cvodes.h"
+#include "cvbbdpre.h"
+#include "cvspgmr.h"
 #include "sundialsmath.h"
 #include "iterative.h"
 
@@ -29,7 +30,7 @@
 
 /* Error Messages */
 #define CVBBDALLOC     "CVBBDAlloc-- "
-#define MSG_CVMEM_NULL CVBBDALLOC "CVODES Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL CVBBDALLOC "Integrator memory is NULL.\n\n"
 #define MSG_WRONG_NVEC CVBBDALLOC "Incompatible NVECTOR implementation.\n\n"
 #define MSG_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL. \n\n"
 

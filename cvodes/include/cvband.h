@@ -1,6 +1,6 @@
 /*******************************************************************
  *                                                                 *
- * File          : cvsband.h                                       *
+ * File          : cvband.h                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban  @ LLNL                             *
  * Version of    : 07 February 2004                                *
@@ -8,10 +8,10 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
- * This is the header file for the CVODES band linear solver,      *
- * CVSBAND.                                                        *
+ * This is the header file for the CVODE/CVODES band linear        *
+ * solver, CVBAND.                                                 *
  *                                                                 *
  *******************************************************************/
  
@@ -19,18 +19,17 @@
 extern "C" {
 #endif
 
-#ifndef _cvsband_h
-#define _cvsband_h
+#ifndef _cvband_h
+#define _cvband_h
 
 #include <stdio.h>
-#include "cvodes.h"
 #include "sundialstypes.h"
 #include "band.h"
 #include "nvector.h"
  
 /******************************************************************
  *                                                                *
- * CVSBAND solver constants                                       *
+ * CVBAND solver constants                                        *
  *----------------------------------------------------------------*
  * CVB_MSBJ  : maximum number of steps between band Jacobian      *
  *             evaluations                                        *
@@ -122,8 +121,8 @@ extern "C" {
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVBandJacFn)(long int N, long int mupper, 
-                            long int mlower, BandMat J, realtype t, 
+typedef void (*CVBandJacFn)(long int N, long int mupper, long int mlower,
+                            BandMat J, realtype t,
                             N_Vector y, N_Vector fy, void *jac_data,
                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
  
@@ -133,9 +132,9 @@ typedef void (*CVBandJacFn)(long int N, long int mupper,
  * Function : CVBand                                              *
  *----------------------------------------------------------------*
  * A call to the CVBand function links the main CVODE integrator  *
- * with the CVSBAND linear solver.                                *
+ * with the CVBAND linear solver.                                 *
  *                                                                *
- * cvode_mem is the pointer to CVODES memory returned by          *
+ * cvode_mem is the pointer to the integrator memory returned by  *
  *              CVodeCreate.                                      *
  *                                                                *
  * N is the size of the ODE system.                               *
@@ -157,7 +156,7 @@ int CVBand(void *cvode_mem, long int N,
            long int mupper, long int mlower);
 
 /******************************************************************
- * Optional inputs to the CVSBAND linear solver                   *
+ * Optional inputs to the CVBAND linear solver                    *
  *----------------------------------------------------------------*
  *                                                                *
  * CVBandSetJacFn specifies the band Jacobian approximation       *
@@ -174,13 +173,13 @@ int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac);
 int CVBandSetJacData(void *cvode_mem, void *jac_data);
 
 /******************************************************************
- * Optional outputs from the CVSBAND linear solver                *
+ * Optional outputs from the CVBAND linear solver                 *
  *----------------------------------------------------------------*
  *                                                                *
  * CVBandGetIntWorkSpace returns the integer workspace used by    *
- *     CVSBAND.                                                   *
+ *     CVBAND.                                                    *
  * CVBandGetRealWorkSpace returns the real workspace used by      *
- *     CVSBAND.                                                   *
+ *     CVBAND.                                                    *
  * CVBandGetNumJacEvals returns the number of calls made to the   *
  *     Jacobian evaluation routine bjac.                          *
  * CVBandGetNumRhsEvals returns the number of calls to the user   *

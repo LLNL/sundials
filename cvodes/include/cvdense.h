@@ -1,6 +1,6 @@
 /*******************************************************************
  *                                                                 *
- * File          : cvsdense.h                                      *
+ * File          : cvdense.h                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
  * Version of    : 07 February 2004                                *
@@ -8,10 +8,10 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
+ * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
  *-----------------------------------------------------------------*
- * This is the header file for the CVODES dense linear solver,     *
- * CVSDENSE.                                                       *
+ * This is the header file for the CVODE/CVODES dense linear       *
+ * solver, CVDENSE.                                                *
  *                                                                 *
  *******************************************************************/
 
@@ -19,18 +19,17 @@
 extern "C" {
 #endif
 
-#ifndef _cvsdense_h
-#define _cvsdense_h
+#ifndef _cvdense_h
+#define _cvdense_h
 
 #include <stdio.h>
-#include "cvodes.h"
 #include "sundialstypes.h"
 #include "dense.h"
 #include "nvector.h"
 
 /******************************************************************
  *                                                                *
- * CVSDENSE solver constants                                      *
+ * CVDENSE solver constants                                       *
  *----------------------------------------------------------------*
  * CVD_MSBJ  : maximum number of steps between dense Jacobian     *
  *             evaluations                                        *
@@ -112,10 +111,10 @@ typedef void (*CVDenseJacFn)(long int N, DenseMat J, realtype t,
  *                                                                *
  * Function : CVDense                                             *
  *----------------------------------------------------------------*
- * A call to the CVDense function links the main CVODES integrator*
- * with the CVSDENSE linear solver.                               *
+ * A call to the CVDense function links the main integrator with  *
+ * the CVDENSE linear solver.                                     *
  *                                                                *
- * cvode_mem is the pointer to CVODES memory returned by          *
+ * cvode_mem is the pointer to the integrator memory returned by  *
  *              CVodeCreate.                                      *
  *                                                                *
  * N is the size of the ODE system.                               *
@@ -129,7 +128,7 @@ typedef void (*CVDenseJacFn)(long int N, DenseMat J, realtype t,
 int CVDense(void *cvode_mem, long int N); 
 
 /******************************************************************
- * Optional inputs to the CVSDENSE linear solver                  *
+ * Optional inputs to the CVDENSE linear solver                   *
  *----------------------------------------------------------------*
  *                                                                *
  * CVDenseSetJacFn specifies the dense Jacobian approximation     *
@@ -146,13 +145,13 @@ int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac);
 int CVDenseSetJacData(void *cvode_mem, void *jac_data);
 
 /******************************************************************
- * Optional outputs from the CVSDENSE linear solver               *
+ * Optional outputs from the CVDENSE linear solver                *
  *----------------------------------------------------------------*
  *                                                                *
  * CVDenseGetIntWorkSpace returns the integer workspace used by   *
- *     CVSDENSE.                                                  *
+ *     CVDENSE.                                                   *
  * CVDenseGetRealWorkSpace returns the real workspace used by     *
- *     CVSDENSE.                                                  *
+ *     CVDENSE.                                                   *
  * CVDenseGetNumJacEvals returns the number of calls made to the  *
  *     Jacobian evaluation routine djac.                          *
  * CVDenseGetNumRhsEvals returns the number of calls to the user  *

@@ -1,9 +1,9 @@
 /*******************************************************************
  *                                                                 *
- * File          : cvsband.c                                       *
+ * File          : cvband.c                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 07 Febnruary 2004                               *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -11,14 +11,14 @@
  * For details, see sundials/cvodes/LICENSE                        *
  *-----------------------------------------------------------------*
  * This is the implementation file for the CVODES band linear      *
- * solver, CVSBAND.                                                *
+ * solver, CVBAND.                                                 *
  *                                                                 *
  *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cvsband.h"
+#include "cvband.h"
 #include "cvodes.h"
 #include "band.h"
 #include "sundialstypes.h"
@@ -36,13 +36,13 @@
 #define MSG_BAD_SIZES_3       "Must have 0 <=  ml, mu <= N-1=%ld.\n\n"
 #define MSG_BAD_SIZES         MSG_BAD_SIZES_1 MSG_BAD_SIZES_2 MSG_BAD_SIZES_3
 
-#define MSG_CVMEM_NULL        CVBAND "CVode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL        CVBAND "Integrator memory is NULL.\n\n"
 
 #define MSG_WRONG_NVEC        CVBAND "Incompatible NVECTOR implementation.\n\n"
 
-#define MSG_SETGET_CVMEM_NULL "CVBandSet*/CVBandGet*-- cvodes memory is NULL. \n\n"
+#define MSG_SETGET_CVMEM_NULL "CVBandSet*/CVBandGet*-- Integrator memory is NULL. \n\n"
 
-#define MSG_SETGET_LMEM_NULL  "CVBandSet*/CVBandGet*-- cvsband memory is NULL. \n\n"
+#define MSG_SETGET_LMEM_NULL  "CVBandSet*/CVBandGet*-- cvband memory is NULL. \n\n"
 
 /* Other Constants */
 
@@ -66,8 +66,8 @@ static void CVBandFree(CVodeMem cv_mem);
 
 /* CVBAND DQJac routine */
 
-static void CVBandDQJac(long int n, long int mupper, 
-                        long int mlower, BandMat J, realtype t, 
+static void CVBandDQJac(long int n, long int mupper, long int mlower,
+                        BandMat J, realtype t,
                         N_Vector y, N_Vector fy, void *jac_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -133,7 +133,7 @@ static void CVBandDQJac(long int n, long int mupper,
 
 **********************************************************************/
                   
-int CVBand(void *cvode_mem, long int N, 
+int CVBand(void *cvode_mem, long int N,
            long int mupper, long int mlower)
 {
   CVodeMem cv_mem;
@@ -211,7 +211,7 @@ int CVBand(void *cvode_mem, long int N,
     return(LMEM_FAIL);
   }
 
-  /* Attach linear solver memory to CVODES memory */
+  /* Attach linear solver memory to integrator memory */
   lmem = cvband_mem;
 
   return(SUCCESS);
@@ -409,7 +409,7 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  int ier;
+  long int ier;
   CVBandMem cvband_mem;
   
   cvband_mem = (CVBandMem) lmem;
@@ -504,8 +504,8 @@ static void CVBandFree(CVodeMem cv_mem)
 
 **********************************************************************/
 
-static void CVBandDQJac(long int N, long int mupper, 
-                        long int mlower, BandMat J, realtype t, 
+static void CVBandDQJac(long int N, long int mupper, long int mlower,
+                        BandMat J, realtype t,
                         N_Vector y, N_Vector fy, void *jac_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {

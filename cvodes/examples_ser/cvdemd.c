@@ -53,9 +53,9 @@
 #include <math.h>
 #include "sundialstypes.h"  /* definition for realtype                      */
 #include "cvodes.h"         /* main CVODE header file                       */
-#include "cvsdense.h"       /* use CVDENSE linear solver each internal step */
-#include "cvsband.h"        /* use CVBAND linear solver each internal step  */
-#include "cvsdiag.h"        /* use CVDIAG linear solver each internal step  */
+#include "cvdense.h"        /* use CVDENSE linear solver each internal step */
+#include "cvband.h"         /* use CVBAND linear solver each internal step  */
+#include "cvdiag.h"         /* use CVDIAG linear solver each internal step  */
 #include "nvector_serial.h" /* contains the definition of type N_Vector     */
 #include "sundialsmath.h"   /* contains the macros ABS, SQR                 */
 
