@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2004-11-03 22:25:18 $
+ * $Revision: 1.31 $
+ * $Date: 2004-11-03 23:09:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -1707,7 +1707,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       tmp1 = ONE / (rl - rlprev);
       rl_a *= tmp1;
       rl_b *= tmp1;
-      disc = (rl_b * rl_b) - (THREE) * rl_a * slpi);
+      disc = (rl_b * rl_b) - (THREE * rl_a * slpi);
 
       /* cubic is actually just a quadratic (rl_a ~ 0) */
 
@@ -1715,7 +1715,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
       /* real cubic */
 
-      else rltmp = (-rl_b + RSqrt(disc)) / (THREE) * rl_a);
+      else rltmp = (-rl_b + RSqrt(disc)) / (THREE * rl_a);
 
       if (rltmp > (HALF * rl)) rltmp = HALF * rl;
     }
