@@ -1,0 +1,44 @@
+# File Makefile
+#--------------------------------------------------------------------------
+# Makefile for the FKINSOL examples using the serial N_Vector implementation.
+# @configure_input@ 
+#--------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# SUNDIALS library directory
+SUNDIALSLIBDIRS = -L${libdir}
+SUNDIALSLIBS    = -lfkinsol -lkinsol -lfnvecserial -lnvecserial -lshared
+
+# Libraries
+LIBDIRS = ${SUNDIALSLIBDIRS}
+LIBS    = ${SUNDIALSLIBS}
+
+# Compiler and compiler options
+FC     = @F77@
+FFLAGS = @FFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: kindiagsf
+
+kindiagsf: kindiagsf.o
+	${FC} ${FFLAGS} -o kindiagsf kindiagsf.o ${LIBDIRS} ${LIBS}
+
+clean:
+	rm -f *.o
+	rm -f kindiagsf
+
+.f.o:
+	${FC} -c ${FFLAGS} $*.f
+
+#---End of Makefile---
