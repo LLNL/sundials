@@ -50,10 +50,10 @@ static void KBBDDQJac(KBBDPrecData pdata,
 
 /***************** User-Callable Functions: malloc and free ******************/
 
-void *KBBDPrecAlloc(void *kinmem, long int Nlocal, 
-                    long int mu, long int ml,
-                    realtype dq_rel_uu, 
-                    KINLocalFn gloc, KINCommFn gcomm)
+void *KINBBDPrecAlloc(void *kinmem, long int Nlocal, 
+		      long int mu, long int ml,
+		      realtype dq_rel_uu, 
+		      KINLocalFn gloc, KINCommFn gcomm)
 {
   KBBDPrecData pdata;
   KINMem kin_mem;
@@ -127,7 +127,7 @@ void *KBBDPrecAlloc(void *kinmem, long int Nlocal,
   return((void *)pdata);
 }
 
-int KBBDSpgmr(void *kinmem, int maxl, void *p_data)
+int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
 {
   int flag;
 
@@ -142,16 +142,16 @@ int KBBDSpgmr(void *kinmem, int maxl, void *p_data)
   flag = KINSpgmrSetPrecData(kinmem, p_data);
   if(flag != SUCCESS) return(flag);
 
-  flag = KINSpgmrSetPrecSetupFn(kinmem, KBBDPrecSetup);
+  flag = KINSpgmrSetPrecSetupFn(kinmem, KINBBDPrecSetup);
   if(flag != SUCCESS) return(flag);
 
-  flag = KINSpgmrSetPrecSolveFn(kinmem, KBBDPrecSolve);
+  flag = KINSpgmrSetPrecSolveFn(kinmem, KINBBDPrecSolve);
   if(flag != SUCCESS) return(flag);
 
   return(SUCCESS);
 }
 
-void KBBDPrecFree(void *p_data)
+void KINBBDPrecFree(void *p_data)
 {
   KBBDPrecData pdata;
 
@@ -163,7 +163,7 @@ void KBBDPrecFree(void *p_data)
   }
 }
 
-int KBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP)
+int KINBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP)
 {
   KBBDPrecData pdata;
 
@@ -179,7 +179,7 @@ int KBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP)
   return(OKAY);
 }
 
-int KBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
+int KINBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
 {
   KBBDPrecData pdata;
 
@@ -195,7 +195,7 @@ int KBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
   return(OKAY);
 }
 
-int KBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
+int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 {
   KBBDPrecData pdata;
 
@@ -229,17 +229,17 @@ int KBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 
 
 /******************************************************************
- * Function : KBBDPrecSetup                                       *
+ * Function : KINBBDPrecSetup                                     *
  *----------------------------------------------------------------*
- * KBBDPrecSetup generates and factors a banded block of the      *
+ * KINBBDPrecSetup generates and factors a banded block of the    *
  * preconditioner matrix on each processor, via calls to the      *
  * user-supplied gloc and gcomm functions. It uses difference     *
  * quotient approximations to the Jacobian elements.              *
  *                                                                *
- * KBBDPrecSetup calculates a new Jacobian, stored in banded      *
+ * KINBBDPrecSetup calculates a new Jacobian, stored in banded    *
  * matrix PP and does an LU factorization of P in place  in PP.   *
  *                                                                *
- * The parameters of KBBDPrecSetup are as follows:                *
+ * The parameters of KINBBDPrecSetup are as follows:              *
  *                                                                *
  * uu      is the current value of the dependent variable vector, *
  *         namely the solutin to func(uu)=0.                      *
@@ -252,25 +252,25 @@ int KBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
  *                                                                *
  * vtemp1, vtemp2 are pointers to memory allocated                *
  *           for vectors of length N which are be used by         *
- *           KBBDPrecSetup as temporary storage or work space.    *
- *           A third vector vtemp3 required for KBBDPrecSetup has *
- *           been previously allocated as pdata->vtemp3           *
+ *           KINBBDPrecSetup as temporary storage or work space.  *
+ *           A third vector vtemp3 required for KINBBDPrecSetup   *
+ *           has been previously allocated as pdata->vtemp3       *
  *                                                                *
  * p_data  is a pointer to user data - the same as the p_data     *
- *           parameter passed to KINSpgmr. For KBBDPrecSetup, this*
- *           should be of type KBBDData.                          *
+ *           parameter passed to KINSpgmr. For KINBBDPrecSetup,   *
+ *           this should be of type KBBDData.                     *
  *                                                                *
  * Return value:                                                  *
- * The value to be returned by the KBBDPrecSetup function is a    *
+ * The value to be returned by the KINBBDPrecSetup function is a  *
  * flag indicating whether it was successful.  This value is      *
  *   0   if successful,                                           *
  *   > 0 for a recoverable error (step will be retried).          *
  ******************************************************************/
 
-int KBBDPrecSetup(N_Vector uu, N_Vector uscale,
-                  N_Vector fval, N_Vector fscale, 
-                  void *p_data,
-                  N_Vector vtemp1, N_Vector vtemp2)
+int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
+		    N_Vector fval, N_Vector fscale, 
+		    void *p_data,
+		    N_Vector vtemp1, N_Vector vtemp2)
 {
   long int ier;
   KBBDPrecData pdata;
@@ -294,14 +294,14 @@ int KBBDPrecSetup(N_Vector uu, N_Vector uscale,
 
 
 /******************************************************************
- * Function : KBBDPrecSolve                                       *
+ * Function : KINBBDPrecSolve                                     *
  *----------------------------------------------------------------*
- * KBBDPrecSolve solves a linear system P z = r, with the banded  *
- * blocked preconditioner matrix P generated and factored by      *
- * KBBDPrecSetup.  Here, r comes in as vtem and z is returned in  *
- * vtem as well.                                                  *
+ * KINBBDPrecSolve solves a linear system P z = r, with the       *
+ * banded blocked preconditioner matrix P generated and factored  *
+ * by KINBBDPrecSetup.  Here, r comes in as vtem and z is         *
+ * returned in vtem as well.                                      *
  *                                                                *
- * The parameters of KBBDPrecSolve are as follows:                *
+ * The parameters of KINBBDPrecSolve are as follows:              *
  *                                                                *
  * uu     an N_Vector giving the current iterate for the system   *
  *                                                                *
@@ -317,19 +317,19 @@ int KBBDPrecSetup(N_Vector uu, N_Vector uscale,
  *          from spgmr, the typical calling routine               *
  *                                                                *
  * p_data is a pointer to user data - the same as the P_data      *
- *          parameter passed to KINSpgmr. For KBBDPrecSolve, this *
- *          should be of type KBBDData.                           *
+ *          parameter passed to KINSpgmr. For KINBBDPrecSolve,    *
+ *          this should be of type KBBDData.                      *
  *                                                                *
  * Return value:                                                  *
- * The value returned by the KBBDPrecSolve function is a flag     *
+ * The value returned by the KINBBDPrecSolve function is a flag   *
  * indicating whether it was successful.  Here this value is      *
  * always 0, indicating success.                                  *
  ******************************************************************/
 
-int KBBDPrecSolve(N_Vector uu, N_Vector uscale,
-                  N_Vector fval, N_Vector fscale, 
-                  N_Vector vv, void *p_data,
-                  N_Vector vtemp)
+int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
+		    N_Vector fval, N_Vector fscale, 
+		    N_Vector vv, void *p_data,
+		    N_Vector vtemp)
 {
   KBBDPrecData pdata;
   realtype *vd;

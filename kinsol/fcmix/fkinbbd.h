@@ -28,10 +28,10 @@
 
  The user-callable functions in this package, with the corresponding
  KINSOL and KINBBDPRE functions, are as follows: 
-   FKINBBDINIT  interfaces to KBBDPrecAlloc
+   FKINBBDINIT  interfaces to KINBBDPrecAlloc
    FKINBBDSPGMR interfaces with KINSpgmr
    FKINBBDOPT   accesses optional outputs
-   FKINBBDFREE  interfaces to KBBDPrecFree
+   FKINBBDFREE  interfaces to KINBBDPrecFree
 
  In addition to the Fortran system function KFUN, and optional Jacobian
  vector product routine KJTIMES, the following are the user-supplied 

@@ -33,7 +33,7 @@ void FK_COMMFN(long int*, realtype*);
 
 void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier)
 {
-  KBBD_Data = KBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, 0.0, FKINgloc, FKINgcomm);
+  KBBD_Data = KINBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, 0.0, FKINgloc, FKINgcomm);
   if (KBBD_Data == NULL) { *ier = -1; return; }
 }
 
@@ -41,7 +41,7 @@ void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier)
 
 void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier)
 {
-  *ier = KBBDSpgmr(KIN_mem, *maxl, KBBD_Data);
+  *ier = KINBBDSpgmr(KIN_mem, *maxl, KBBD_Data);
   if (*ier != 0) return;
 
   *ier = KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
@@ -88,21 +88,18 @@ void FKINgcomm(long int Nloc, N_Vector uu, void *f_data)
 
 void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 {
-  KBBDPrecGetIntWorkSpace(KBBD_Data, lenipw);
-  KBBDPrecGetRealWorkSpace(KBBD_Data, lenrpw);
-  KBBDPrecGetNumGfnEvals(KBBD_Data, nge);
+  KINBBDPrecGetIntWorkSpace(KBBD_Data, lenipw);
+  KINBBDPrecGetRealWorkSpace(KBBD_Data, lenrpw);
+  KINBBDPrecGetNumGfnEvals(KBBD_Data, nge);
 }
 
 
 /***************************************************************************/
 
-/* C function FKINBBDFREE to interface to KBBDFree, to free memory 
-   created by KBBDAlloc */
+/* C function FKINBBDFREE to interface to KINBBDFree, to free memory 
+   created by KINBBDAlloc */
 
 void FKIN_BBDFREE()
 {
-  KBBDPrecFree(KBBD_Data);
+  KINBBDPrecFree(KBBD_Data);
 }
-
-
-
