@@ -2,15 +2,15 @@
  *                                                                          *
  * File         : fkinbbd.c                                                 *
  * Programmers  : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL * 
- * Version of   : 5 August 2003                                             *
+ * Version of   : 27 January 2004                                           *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
  * This module contains the routines necessary to interface with the        *
  * KINBBDPRE module and user-supplied Fortran routines. Generic names are   *
- * used (e.g. K_COMMFN, see fcmixpar.h). The routines here call the         *
- * generically named routines and provide a standard interface to the C code*
- * of the KINBBDPRE package.                                                *
+ * used (e.g. K_COMMFN). The routines here call the generically named       *
+ * routines and provide a standard interface to the C code of the           *
+ * KINBBDPRE package.                                                       *
  *                                                                          *
  ***************************************************************************/
 
@@ -28,16 +28,16 @@
 
 /* Prototypes of the user-supplied Fortran routines */
 
-void K_LOCFN(integertype*, realtype*, realtype*);
-void K_COMMFN(integertype*, realtype*);
+void FK_LOCFN(integertype*, realtype*, realtype*);
+void FK_COMMFN(integertype*, realtype*);
 
 /***************************************************************************/
 
-void F_KINBBDINIT(integertype *nlocal, int *maxl, int *maxlrst,
+void FKIN_BBDINIT(integertype *nlocal, int *maxl, int *maxlrst,
                   integertype *mu, integertype *ml, int *ier)
 {
 
-  KBBD_Data = KBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, 0.0, KINgloc, KINgcomm);
+  KBBD_Data = KBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, 0.0, FKINgloc, FKINgcomm);
   if (KBBD_Data == NULL) { *ier = -1; return; }
 
   *ier = KBBDSpgmr(KIN_mem, *maxl, KBBD_Data);
@@ -49,17 +49,17 @@ void F_KINBBDINIT(integertype *nlocal, int *maxl, int *maxlrst,
 
 /***************************************************************************/
 
-/* C function KINgloc to interface between KINBBDPRE module and a Fortran 
-   subroutine KLOCFN. */
+/* C function FKINgloc to interface between KINBBDPRE module and a Fortran 
+   subroutine FKLOCFN. */
 
-void KINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data)
+void FKINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data)
 {
   realtype *uloc, *gloc;
 
   uloc = N_VGetData(uu);
   gloc = N_VGetData(gval);
 
-  K_LOCFN(&Nloc, uloc, gloc);
+  FK_LOCFN(&Nloc, uloc, gloc);
 
   N_VSetData(gloc, gval);
 
@@ -67,17 +67,17 @@ void KINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data)
 
 /***************************************************************************/
 
-/* C function KINgcomm to interface between KINBBDPRE module and a Fortran 
-   subroutine KCOMMFN. */
+/* C function FKINgcomm to interface between KINBBDPRE module and a Fortran 
+   subroutine FKCOMMFN. */
 
 
-void KINgcomm(integertype Nloc, N_Vector uu, void *f_data)
+void FKINgcomm(integertype Nloc, N_Vector uu, void *f_data)
 {
   realtype *uloc;
 
   uloc = N_VGetData(uu);
   
-  K_COMMFN(&Nloc, uloc);
+  FK_COMMFN(&Nloc, uloc);
 
 }
 
@@ -85,7 +85,7 @@ void KINgcomm(integertype Nloc, N_Vector uu, void *f_data)
 
 /* C function FKINBBDOPT to access optional outputs from KBBD_Data */
 
-void F_KINBBDOPT(integertype *lenrpw, integertype *lenipw, int *nge)
+void FKIN_BBDOPT(integertype *lenrpw, integertype *lenipw, int *nge)
 {
   KBBDPrecGetIntWorkSpace(KBBD_Data, lenipw);
   KBBDPrecGetRealWorkSpace(KBBD_Data, lenrpw);
@@ -98,7 +98,7 @@ void F_KINBBDOPT(integertype *lenrpw, integertype *lenipw, int *nge)
 /* C function FKINBBDFREE to interface to KBBDFree, to free memory 
    created by KBBDAlloc */
 
-void F_KINBBDFREE()
+void FKIN_BBDFREE()
 {
   KBBDPrecFree(KBBD_Data);
 }

@@ -3,10 +3,10 @@
  * File          : fkinpsol.c                                     *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                             *
- * Version of    : 31 MArch 2003                                  *
+ * Version of    : 27 Januaray 2004                               *
  *----------------------------------------------------------------*
  * This routine interfaces between KINSOL and a user-supplied     *
- * Fortran routine KPSOL for the various cases involving KINSpgmr.*
+ * Fortran routine FKPSOL.                                        *
  ******************************************************************/
 
 #include <stdio.h>
@@ -20,27 +20,27 @@
 /********************************************************************/
 
 /* Prototype of the user-supplied Fortran routine */
-void K_PSOL(realtype*, realtype*, realtype*, realtype*, 
-            realtype*, realtype*, int*);
+void FK_PSOL(realtype*, realtype*, realtype*, realtype*, 
+             realtype*, realtype*, int*);
 
 /***************************************************************************/
 
-void F_KSPGMRSETPSOL(int *flag, int *ier)
+void FKIN_SPGMRSETPSOL(int *flag, int *ier)
 {
   if (*flag == 0) KINSpgmrSetPrecSolveFn(KIN_mem, NULL);
-  else            KINSpgmrSetPrecSolveFn(KIN_mem, KINPSol);
+  else            KINSpgmrSetPrecSolveFn(KIN_mem, FKINPSol);
 }
 
 
 /********************************************************************/
 
-/* C function KINPSol to interface between KINSpgmr and KPSOL, the user-
+/* C function FKINPSol to interface between KINSpgmr and FKPSOL, the user-
   supplied Fortran preconditioner solve routine. */
 
-int KINPSol(N_Vector uu, N_Vector uscale, 
-            N_Vector fval, N_Vector fscale, 
-            N_Vector vv, void *P_data,
-            N_Vector ftem)
+int FKINPSol(N_Vector uu, N_Vector uscale, 
+             N_Vector fval, N_Vector fscale, 
+             N_Vector vv, void *P_data,
+             N_Vector ftem)
 {
   realtype *udata,*uscaledata, *fdata,*fscaledata, *vvdata, *ftemdata;
   int retcode;
@@ -52,7 +52,7 @@ int KINPSol(N_Vector uu, N_Vector uscale,
   vvdata     = N_VGetData(vv);
   ftemdata   = N_VGetData(ftem);
   
-  K_PSOL(udata, uscaledata, fdata, fscaledata, vvdata, ftemdata, &retcode);
+  FK_PSOL(udata, uscaledata, fdata, fscaledata, vvdata, ftemdata, &retcode);
  
   N_VSetData(vvdata, vv);
 

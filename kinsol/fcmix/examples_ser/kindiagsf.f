@@ -1,17 +1,17 @@
       program kindiagsf
-c   ***************************************************************************
-c   * File        : kindiagsf.f                                               *
-c   * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL    *
-c   * Version of  : 5 August 2003                                             *
-c   *   Simple diagonal test with Fortran interface, using user-supplied      *
-c   *   preconditioner setup and solve routines (supplied in Fortran, below). *
-c   *   This example does a basic test of the solver by solving the system    *
-c   *                        f(u) = 0   for                                   *
-c   *                        f(u) = u(i)^2 - i^2 .                            *
-c   *   No scaling is done.                                                   *
-c   *   An approximate diagonal preconditioner is used.                       *
-c   *   Execute line: kindiagsf                                               *
-c   *-------------------------------------------------------------------------*
+c
+c     File        : kindiagsf.f                                             
+c     Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL  
+c     Version of  : 27 January 2004
+c     Simple diagonal test with Fortran interface, using user-supplied      
+c     preconditioner setup and solve routines (supplied in Fortran, below). 
+c     This example does a basic test of the solver by solving the system    
+c          f(u) = 0   for                                   
+c          f(u) = u(i)^2 - i^2 .                            
+c     No scaling is done.                                                   
+c     An approximate diagonal preconditioner is used.                       
+c     Execute line: kindiagsf                                               
+c   
 
       integer PROBSIZE
       parameter(PROBSIZE=128)
@@ -38,7 +38,7 @@ c   *-------------------------------------------------------------------------*
 
 c * * * * * * * * * * * * * * * * * * * * * *
 
-      call fnvspecinits(neq, ier)
+      call fnvinits(neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
  1220    format('fnvspecinits failed, ier =',i2)
@@ -60,8 +60,8 @@ c * * * * * * * * * * * * * * * * * * * * * *
       endif
 
       call fkinspgmr(maxl, maxlrst, ier)
-      call fkspgmrsetpsol(1, ier)
-      call fkspgmrsetpreco(1, ier)
+      call fkinspgmrsetpsol(1, ier)
+      call fkinspgmrsetpset(1, ier)
 
       write(6,1240)
  1240 format('Example program kindiagsf'/' This fkinsol example code',
@@ -88,7 +88,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
      1       ',  nps=',i4,',  ncfl=',i4)
 
       call fkinfree
-      call fnvspecfrees
+      call fnvfrees
 
       stop
       end
@@ -97,7 +97,7 @@ c * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 c     The function defining the system f(u) = 0 must be defined by a Fortran
 c     function of the following form.
       
-      subroutine KFUN(uu, fval)
+      subroutine fkfun(uu, fval)
       
       double precision fval(*), uu(*)
       integer neq
@@ -115,7 +115,7 @@ c     The routine kpreco is the preconditioner setup routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine kpreco(udata, uscale, fdata, fscale, 
+      subroutine fkpset(udata, uscale, fdata, fscale, 
      1                  vtemp1, vtemp2, ier)
       
       integer ier
@@ -142,8 +142,8 @@ c     The routine kpsol is the preconditioner solve routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine kpsol(udata, uscale, fdata, fscale, 
-     1                 vv, ftem, ier)
+      subroutine fkpsol(udata, uscale, fdata, fscale, 
+     1                  vv, ftem, ier)
       
       integer ier
       double precision udata(*), uscale(*), fdata(*), fscale(*)

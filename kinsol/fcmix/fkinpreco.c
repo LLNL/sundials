@@ -3,12 +3,12 @@
  * File          : fkinpreco.c                                     *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 5 August 2003                                   *
+ * Version of    : 27 January 2004                                 *
  *-----------------------------------------------------------------*
- * This C function KINPreco is to interface between KINSOL and the *
+ * This C function FKINPSet is to interface between KINSOL and the *
  * Fortran user-supplied preconditioner setup routine.             *
- * Note the use of generic name K_PRECO below.                     *
- ******************************************************************/
+ * Note the use of generic name FK_PSET below.                     *
+ *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,24 +21,24 @@
 /*********************************************************************/
 
 /* Prototype of the user-supplied Fortran routine */
-void K_PRECO(realtype*, realtype*, realtype*, realtype*, 
+void FK_PSET(realtype*, realtype*, realtype*, realtype*, 
              realtype*, realtype*, int*);
 
 
 /***************************************************************************/
 
-void F_KSPGMRSETPRECO(int *flag, int *ier)
+void FKIN_SPGMRSETPSET(int *flag, int *ier)
 {
   if (*flag == 0) KINSpgmrSetPrecSetupFn(KIN_mem, NULL);
-  else            KINSpgmrSetPrecSetupFn(KIN_mem, KINPreco);
+  else            KINSpgmrSetPrecSetupFn(KIN_mem, FKINPSet);
 }
 
 /*********************************************************************/
 
-/* C function KINPreco to interface between KINSpgmr and KPRECO, 
+/* C function FKINPSet to interface between KINSpgmr and FKPSET, 
    the user-supplied Fortran preconditioner setup routine. */
 
-int KINPreco(N_Vector uu, N_Vector uscale,
+int FKINPSet(N_Vector uu, N_Vector uscale,
              N_Vector fval, N_Vector fscale,
              void *P_data,
              N_Vector vtemp1, N_Vector vtemp2)
@@ -46,14 +46,14 @@ int KINPreco(N_Vector uu, N_Vector uscale,
   realtype *udata,*uscaledata, *fdata, *fscaledata, *vtemp1data, *vtemp2data;
   int retcode;
   
- udata        = N_VGetData(uu);
- uscaledata   = N_VGetData(uscale);
- fdata        = N_VGetData(fval);
- fscaledata   = N_VGetData(fscale);
- vtemp1data   = N_VGetData(vtemp1);
- vtemp2data   = N_VGetData(vtemp2);
- 
- K_PRECO(udata, uscaledata, fdata, fscaledata, vtemp1data, vtemp2data, &retcode);
+  udata        = N_VGetData(uu);
+  uscaledata   = N_VGetData(uscale);
+  fdata        = N_VGetData(fval);
+  fscaledata   = N_VGetData(fscale);
+  vtemp1data   = N_VGetData(vtemp1);
+  vtemp2data   = N_VGetData(vtemp2);
+  
+  FK_PSET(udata, uscaledata, fdata, fscaledata, vtemp1data, vtemp2data, &retcode);
 
  /* Note: there is no need to use N_VSetData since we are not getting back any
     information that should go into an N_Vector */

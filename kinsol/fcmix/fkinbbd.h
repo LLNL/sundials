@@ -2,7 +2,7 @@
  *                                                                         *
  * File        : fkinbbd.h                                                 *
  * Programmers : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL *
- * Version of  : 5 August 2003                                             *
+ * Version of  : 27 January 2004                                           *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -120,11 +120,11 @@
  arguments.  Thus KCOMMFN can omit any communications done by KFUN
  if relevant to the evaluation of g.
 
- (4) Initialization:  FNVSPECINITP, FKINMALLOC, and FKINBBDINIT.
+ (4) Initialization:  FNVINITP, FKINMALLOC, and FKINBBDINIT.
 
  (4.1) To initialize the parallel machine environment, the user must make 
  the following call:
-       CALL FNVSPECINITP (NLOCAL, NGLOBAL, IER)
+       CALL FNVINITP (NLOCAL, NGLOBAL, IER)
  The arguments are:
  NLOCAL  = local size of vectors on this processor
  NGLOBAL = the system size, and the global size of vectors (the sum 
@@ -132,8 +132,8 @@
  IER     = return completion flag. Values are 0 = success, -1 = failure.
 
  (4.2) To allocate internal memory for KINSOL, make the following call:
-       CALL FKINMALLOC(MSBPRE, FNORMTOL, SCSTEPTOL, CONSTRAINTS,
-                       OPTIN, IOPT, ROPT, IER)
+       CALL FKINMALLOC (MSBPRE, FNORMTOL, SCSTEPTOL, CONSTRAINTS,
+                        OPTIN, IOPT, ROPT, IER)
  The arguments are:
  MSBPRE      = maximum number of preconditioning solve calls without calling
                the preconditioning setup routine; 0 indicates default.
@@ -152,7 +152,7 @@
  (4.3) To specify the SPGMR linear system solver, and to allocate memory 
  and initialize data associated with the SPGMR method and the BBD
  preconditioner, make the following call:
-      CALL FKINBBDINIT(NLOCAL, MAXL, MAXLRST, MU, ML, IER)
+      CALL FKINBBDINIT (NLOCAL, MAXL, MAXLRST, MU, ML, IER)
 
  The arguments are:
  NLOCAL   = local size of vectors on this processor
@@ -188,13 +188,13 @@
           This size is local to the current processor.
  NGE    = number of g(u) evaluations (calls to KLOCFN) so far.
 
- (7) Memory freeing: FKINBBDFREE, FKINFREE, and FNVSPECFREEP
+ (7) Memory freeing: FKINBBDFREE, FKINFREE, and FNVFREEP
  To the free the internal memory created by the calls to  
- FKINBBDINIT, FNVSPECINITP, and FKINMALLOC, make the 
+ FKINBBDINIT, FNVINITP, and FKINMALLOC, make the 
  following calls, in this order:
       CALL FKINBBDFREE
       CALL FKINFREE
-      CALL FNVSPECFREEP
+      CALL FNVFREEP
 
 *******************************************************************************/
 
@@ -202,27 +202,27 @@
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
-#define F_KINBBDINIT    fkinbbdinit
-#define K_COMMFN        kcommfn
-#define K_LOCFN         klocfn
-#define F_KINBBDOPT     fkinbbdopt
-#define F_KINBBDFREE    fkinbbdfree
+#define FKIN_BBDINIT    fkinbbdinit
+#define FKIN_BBDOPT     fkinbbdopt
+#define FKIN_BBDFREE    fkinbbdfree
+#define FK_COMMFN       fkcommfn
+#define FK_LOCFN        fklocfn
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
 
-#define F_KINBBDINIT     fkinbbdinit__
-#define K_COMMFN         kcommfn__
-#define K_LOCFN          klocfn__
-#define F_KINBBDOPT      fkinbbdopt__
-#define F_KINBBDFREE     fkinbbdfree__
+#define FKIN_BBDINIT    fkinbbdinit__
+#define FKIN_BBDOPT     fkinbbdopt__
+#define FKIN_BBDFREE    fkinbbdfree__
+#define FK_COMMFN       fkcommfn__
+#define FK_LOCFN        fklocfn__
 
 #else
 
-#define F_KINBBDINIT    fkinbbdinit_
-#define K_COMMFN        kcommfn_
-#define K_LOCFN         klocfn_
-#define F_KINBBDOPT     fkinbbdopt_
-#define F_KINBBDFREE    fkinbbdfree_
+#define FKIN_BBDINIT    fkinbbdinit_
+#define FKIN_BBDOPT     fkinbbdopt_
+#define FKIN_BBDFREE    fkinbbdfree_
+#define FK_COMMFN       fkcommfn_
+#define FK_LOCFN        fklocfn_
 
 #endif
 
@@ -235,9 +235,9 @@
 
 /* Prototypes: Functions Called by the KINBBDPRE Module */
 
-void KINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data);
+void FKINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data);
 
-void KINgcomm(integertype Nloc, N_Vector uu, void *f_data);
+void FKINgcomm(integertype Nloc, N_Vector uu, void *f_data);
 
 
 /* Declaration for global variable shared among various routines */

@@ -2,14 +2,13 @@
  * File          : fkinsol.c                                      *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                             *
- * Version of    : 5 August 2003                                  *
+ * Version of    : 27 January 2004                                *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the KINSOL package. See fkinsol.h for usage.                   *
  * NOTE: some routines are necessarily stored elsewhere to avoid  *
  * linking problems. See also, therefore, fkinpreco.c, fkinpsol.c *
- * fkinuatimes.c, and the five fkinspgmr**.c where ** = 01, 10, 11*
- * 20, 21, for all the options available                          *
+ * fkinuatimes.c, and fkinspgmr.c                                 *
  ******************************************************************/
 
 #include <stdio.h>
@@ -23,11 +22,11 @@
 /**************************************************************************/
 
 /* Prototype of the user-supplied Fortran routine */
-void K_FUN(realtype*, realtype*);
+void FK_FUN(realtype*, realtype*);
 
 /**************************************************************************/
 
-void F_KINMALLOC(int *msbpre, realtype *fnormtol, realtype *scsteptol,
+void FKIN_MALLOC(int *msbpre, realtype *fnormtol, realtype *scsteptol,
                  realtype *constraints, int *optin, int *iopt, realtype *ropt,
                  integertype *ier)
 {
@@ -63,7 +62,7 @@ void F_KINMALLOC(int *msbpre, realtype *fnormtol, realtype *scsteptol,
       KINSetEtaParams(KIN_mem, ropt[6], ropt[7]);
   }
 
-  *ier = KINMalloc(KIN_mem, KINfunc, F2C_nvspec);
+  *ier = KINMalloc(KIN_mem, FKINfunc, F2C_nvspec);
 
   KIN_iopt = iopt;
   KIN_ropt = ropt;
@@ -72,7 +71,7 @@ void F_KINMALLOC(int *msbpre, realtype *fnormtol, realtype *scsteptol,
 
 /***************************************************************************/
 
-void F_KINSPGMR(int *maxl, int *maxlrst, int *ier)
+void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
 {
   *ier = KINSpgmr(KIN_mem, *maxl);
   KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
@@ -80,7 +79,7 @@ void F_KINSPGMR(int *maxl, int *maxlrst, int *ier)
 
 /***************************************************************************/
 
-void F_KINSOL(realtype *uu, int *globalstrategy, 
+void FKIN_SOL(realtype *uu, int *globalstrategy, 
               realtype *uscale , realtype *fscale, int *ier)
 
 { 
@@ -114,7 +113,7 @@ void F_KINSOL(realtype *uu, int *globalstrategy,
 
 /***************************************************************************/
 
-void F_KINFREE()
+void FKIN_FREE()
 {
   /* Call KINFree:
      KIN_mem is the pointer to the KINSOL memory block */
@@ -132,14 +131,14 @@ void F_KINFREE()
    The data in the returned N_Vector fval is set using N_VSetData. 
    Auxiliary data is assumed to be communicated by Common. */
 
-void KINfunc(N_Vector uu, N_Vector fval, void *f_data)
+void FKINfunc(N_Vector uu, N_Vector fval, void *f_data)
 {
   realtype *udata, *fdata;
 
   udata = N_VGetData(uu);
   fdata = N_VGetData(fval);
 
-  K_FUN(udata, fdata);
+  FK_FUN(udata, fdata);
 
   N_VSetData(fdata, fval);
 

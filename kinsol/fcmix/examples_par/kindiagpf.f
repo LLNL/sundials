@@ -1,20 +1,17 @@
       program kindiagpf
-c   ***************************************************************************
-c   * File        : kindiagpf.f                                               *
-c   * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL    *
-c   * Version of  : 5 August 2003                                             *
-c   *   Simple diagonal test with Fortran interface, using user-supplied      *
-c   *   preconditioner setup and solve routines (supplied in Fortran, below). *
-c   *   This example does a basic test of the solver by solving the system    *
-c   *                        f(u) = 0   for                                   *
-c   *                        f(u) = u(i)^2 - i^2 .                            *
-c   *   No scaling is done.                                                   *
-c   *   An approximate diagonal preconditioner is used.                       *
-c   *   Execute line:  mpirun -np 4 kindiagpf                                 *
-c   *--------------------------------------------------------------------------
-c   * Modified by Radu Serban to work with new serial NVECTOR, 12 March 2002. *
-c   *-------------------------------------------------------------------------*
-c     The following include is required
+c
+c    File        : kindiagpf.f                                               
+c    Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL    
+c    Version of  : 27 January 2004
+c      Simple diagonal test with Fortran interface, using user-supplied      
+c      preconditioner setup and solve routines (supplied in Fortran, below). 
+c      This example does a basic test of the solver by solving the system    
+c                           f(u) = 0   for                                   
+c                           f(u) = u(i)^2 - i^2 .                            
+c      No scaling is done.                                                   
+c      An approximate diagonal preconditioner is used.                       
+c      Execute line:  mpirun -np 4 kindiagpf                                 
+c
       include "mpif.h"
 
       parameter(localsize=32)
@@ -49,10 +46,10 @@ c     number of this process.
       
       call mpi_init(ierr)
       
-      call fnvspecinitp(nlocal, neq, ier)
+      call fnvinitp(nlocal, neq, ier)
       if (ier .ne. 0) then
          write(6,1220)ier
- 1220    format('fnvspecinitp failed, ier =',i2)
+ 1220    format('fnvinitp failed, ier =',i2)
          stop
       endif
       
@@ -61,7 +58,7 @@ c     number of this process.
       if (size .ne. 4) then
          write(6,1230)
  1230    format(/'Number of processors not 4. Set to 4 and try again.')
-         call fnvspecfreep
+         call fnvfreep
          stop
       endif
       npes = size
@@ -88,8 +85,8 @@ c     number of this process.
       endif
       
       call fkinspgmr(maxl, maxlrst, ier)
-      call fkspgmrsetpsol(1, ier)
-      call fkspgmrsetpreco(1, ier)
+      call fkinspgmrsetpsol(1, ier)
+      call fkinspgmrsetpset(1, ier)
       
       if(mype .eq. 0)write(6,1240)
  1240 format('Example program kindiagpf'/' This fkinsol example code',
@@ -118,7 +115,7 @@ c     number of this process.
      1       ',  nps=',i4,',  ncfl=',i4)
 
       call fkinfree
-      call fnvspecfreep
+      call fnvfreep
       
 c     An explicit call to mpi_finalize (Fortran binding) is required by 
 c     the constructs used in fkinsol. 
@@ -132,7 +129,7 @@ c * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 c     The function defining the system f(u) = 0 must be defined by a Fortran
 c     function with the following name and form. 
       
-      subroutine KFUN(uu, fval)
+      subroutine fkfun(uu, fval)
 
       double precision fval(*), uu(*)
       
@@ -153,7 +150,7 @@ c     The routine kpreco is the preconditioner setup routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine kpreco(udata, uscale, fdata, fscale, 
+      subroutine fkpset(udata, uscale, fdata, fscale, 
      1                  vtemp1, vtemp2, ier)
       
       integer ier
@@ -179,8 +176,8 @@ c     The routine kpsol is the preconditioner solve routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine kpsol(udata, uscale, fdata, fscale, 
-     1                 vv, ftem, ier)
+      subroutine fkpsol(udata, uscale, fdata, fscale, 
+     1                  vv, ftem, ier)
       
       integer ier
       double precision udata(*), uscale(*), fdata(*), fscale(*)
