@@ -1,6 +1,6 @@
                             SUNDIALS 
     SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
-                   Release 2.0.2, March 2005
+                   Release 2.0.3, April 2005
      Peter Brown, Aaron Collier, Keith Grant, Alan Hindmarsh, 
       Steve Lee, Radu Serban, Dan Shumaker, Carol Woodward
           Center for Applied Scientific Computing, LLNL
@@ -50,4 +50,5 @@ the solver directory.
 | Dec 2004 |   2.0    |  2.2.0   |  2.1.0   |  2.2.0   |  2.2.0   |
 | Jan 2005 |   2.0.1  |  2.2.1   |  2.1.1   |  2.2.1   |  2.2.1   |
 | Mar 2005 |   2.0.2  |  2.2.2   |  2.1.2   |  2.2.2   |  2.2.2   |
+| Apr 2005 |   2.0.3  |  2.2.3   |  2.1.3   |  2.2.3   |  2.2.3   |
 +----------+----------+----------+----------+----------+----------+
