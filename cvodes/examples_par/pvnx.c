@@ -1,30 +1,35 @@
-/************************************************************************
- * File       : pvnx.c                                                  *
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George Byrne, and    *
- *              Radu Serban @LLNL                                       *
- * Version of : 19 February 2004                                        *
- *----------------------------------------------------------------------*
- * Example problem.                                                     *
- * The following is a simple example problem, with the program for its  *
- * solution by CVODE/CVODES.  The problem is the semi-discrete form of  *
- * the advection-diffusion equation in 1-D:                             *
- *   du/dt = d^2 u / dx^2 + .5 du/dx                                    *
- * on the interval 0 <= x <= 2, and the time interval 0 <= t <= 5.      *
- * Homogeneous Dirichlet boundary conditions are posed, and the         *
- * initial condition is                                                 *
- *   u(x,t=0) = x(2-x)exp(2x) .                                         *
- * The PDE is discretized on a uniform grid of size MX+2 with           *
- * central differencing, and with boundary values eliminated,           *
- * leaving an ODE system of size NEQ = MX.                              *
- * This program solves the problem with the option for nonstiff systems:*
- * ADAMS method and functional iteration.                               *
- * It uses scalar relative and absolute tolerances.                     *
- * Output is printed at t = .5, 1.0, ..., 5.                            *
- * Run statistics (optional outputs) are printed at the end.            *
- *                                                                      *
- * This version uses MPI for user routines, and the MPI_PVODE solver.   *
- * Execute with Number of Processors = N,  with 1 <= N <= MX.           *
- ************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-04-29 22:09:58 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
+ *                and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Example problem:
+ *
+ * The following is a simple example problem, with the program for
+ * its solution by CVODE/CVODES. The problem is the semi-discrete
+ * form of the advection-diffusion equation in 1-D:
+ *   du/dt = d^2 u / dx^2 + .5 du/dx
+ * on the interval 0 <= x <= 2, and the time interval 0 <= t <= 5.
+ * Homogeneous Dirichlet boundary conditions are posed, and the
+ * initial condition is:
+ *   u(x,t=0) = x(2-x)exp(2x).
+ * The PDE is discretized on a uniform grid of size MX+2 with
+ * central differencing, and with boundary values eliminated,
+ * leaving an ODE system of size NEQ = MX.
+ * This program solves the problem with the option for nonstiff
+ * systems: ADAMS method and functional iteration.
+ * It uses scalar relative and absolute tolerances.
+ * Output is printed at t = .5, 1.0, ..., 5.
+ * Run statistics (optional outputs) are printed at the end.
+ *
+ * This version uses MPI for user routines, and the MPI_PVODE
+ * solver.
+ * Execute with Number of Processors = N,  with 1 <= N <= MX.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -313,9 +318,12 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 }
 
 /* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
-     opt == 2 means function allocates memory so check if returned NULL pointer */
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 {
@@ -326,10 +334,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
       return(1); }}
 

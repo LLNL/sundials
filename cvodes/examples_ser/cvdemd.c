@@ -1,53 +1,58 @@
-/**************************************************************************
- * File       : cvdemd.c                                                  *
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL   *
- * Version of : 19 February 2004                                          *
- *------------------------------------------------------------------------*
- *                                                                        *
- * Demonstration program for CVODE/CVODES - direct linear solvers. Two    *
- * separate problems are solved using both the ADAMS and BDF linear       *
- * multistep methods in combination with FUNCTIONAL and NEWTON            *
- * iterations :                                                           *
- *                                                                        *
- * Problem 1.. Van der Pol oscillator..                                   *
- *   xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0.           *
- * This second-order ODE is converted to a first-order system by          *
- * defining y0 = x and y1 = xdot.                                         *
- * The NEWTON iteration cases use the following types of Jacobian         *
- * approximation: (1) dense, user-supplied, (2) dense, difference         *
- * quotient approximation, (3) diagonal approximation.                    *
- *                                                                        * 
- * Problem 2.. ydot = A * y, where A is a banded lower triangular         *
- * matrix derived from 2-D advection PDE.                                 *
- * The NEWTON iteration cases use the following types of Jacobian         *
- * approximation: (1) band, user-supplied, (2) band, difference           *
- * quotient approximation, (3) diagonal approximation.                    *
- *                                                                        *
- * For each problem, in the series of eight runs, CVodeMalloc is called   *
- * only once, for the first run, whereas CVodeReInit is called for each   *
- * of the remaining seven runs.                                           *
- *                                                                        *
- * Notes.. This program demonstrates the usage of the sequential          *
- * macros NV_Ith_S, NV_DATA_S, DENSE_ELEM, BAND_COL, and BAND_COL_ELEM.   *
- * The NV_Ith_S macro is used to reference the components of an N_Vector. *
- * It works for any size N=NEQ, but due to efficiency concerns it should  *
- * only by used when the problem size is small. The Problem 1 right       *
- * hand side and Jacobian functions f1 and Jac1 both use NV_Ith_S. The    *
- * NV_DATA_S macro gives the user access to the memory used for the       *
- * component storage of an N_Vector. In the sequential case, the user     *
- * may assume that this is one contiguous array of reals. The NV_DATA_S   *
- * macro gives a more efficient means (than the NV_Ith_S macro) to access *
- * the components of an N_Vector and should be used when the problem      *
- * size is large. The Problem 2 right hand side function f2 uses the      *
- * NV_DATA_S macro. The DENSE_ELEM macro used in Jac1 gives access to an  *
- * element of a dense matrix of type DenseMat. It should be used only     *
- * when the problem size is small (the size of a DenseMat is NEQ x NEQ)   *
- * due to efficiency concerns. For larger problem sizes, the macro        *
- * DENSE_COL can be used in order to work directly with a column of a     *
- * DenseMat. The BAND_COL and BAND_COL_ELEM allow efficient columnwise    *
- * access to the elements of a band matrix of type BandMat. These macros  *
- * are used in the Jac2 function.                                         *
- **************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.9 $
+ * $Date: 2004-04-29 22:09:53 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Demonstration program for CVODE/CVODES - direct linear solvers.
+ * Two separate problems are solved using both the ADAMS and BDF
+ * linear multistep methods in combination with FUNCTIONAL and
+ * NEWTON iterations:
+ *
+ * Problem 1: Van der Pol oscillator
+ *   xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0.
+ * This second-order ODE is converted to a first-order system by
+ * defining y0 = x and y1 = xdot.
+ * The NEWTON iteration cases use the following types of Jacobian
+ * approximation: (1) dense, user-supplied, (2) dense, difference
+ * quotient approximation, (3) diagonal approximation.
+ *
+ * Problem 2: ydot = A * y, where A is a banded lower triangular
+ * matrix derived from 2-D advection PDE.
+ * The NEWTON iteration cases use the following types of Jacobian
+ * approximation: (1) band, user-supplied, (2) band, difference
+ * quotient approximation, (3) diagonal approximation.
+ *
+ * For each problem, in the series of eight runs, CVodeMalloc is
+ * called only once, for the first run, whereas CVodeReInit is
+ * called for each of the remaining seven runs.
+ *
+ * Notes: This program demonstrates the usage of the sequential
+ * macros NV_Ith_S, NV_DATA_S, DENSE_ELEM, BAND_COL, and
+ * BAND_COL_ELEM. The NV_Ith_S macro is used to reference the
+ * components of an N_Vector. It works for any size N=NEQ, but
+ * due to efficiency concerns it should only by used when the
+ * problem size is small. The Problem 1 right hand side and
+ * Jacobian functions f1 and Jac1 both use NV_Ith_S. The NV_DATA_S
+ * macro gives the user access to the memory used for the component
+ * storage of an N_Vector. In the sequential case, the user may
+ * assume that this is one contiguous array of reals. The NV_DATA_S
+ * macro gives a more efficient means (than the NV_Ith_S macro) to
+ * access the components of an N_Vector and should be used when the
+ * problem size is large. The Problem 2 right hand side function f2
+ * uses the NV_DATA_S macro. The DENSE_ELEM macro used in Jac1 gives
+ * access to an element of a dense matrix of type DenseMat. It
+ * should be used only when the problem size is small (the size of
+ * a DenseMat is NEQ x NEQ) due to efficiency concerns. For larger
+ * problem sizes, the macro DENSE_COL can be used in order to work
+ * directly with a column of a DenseMat. The BAND_COL and
+ * BAND_COL_ELEM allow efficient columnwise access to the elements
+ * of a band matrix of type BandMat. These macros are used in the
+ * Jac2 function.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <math.h>
@@ -679,9 +684,12 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
 }
 
 /* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
-     opt == 2 means function allocates memory so check if returned NULL pointer */
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -692,10 +700,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
       return(1); }}
 

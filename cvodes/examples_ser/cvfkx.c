@@ -1,49 +1,51 @@
-/************************************************************************
- *                                                                      *
- * File       : cvfkx.c                                                 *
- * Programmers: Scott D. Cohen and Alan C. Hindmarsh and                *
- *              Radu Serban @ LLNL                                      *
- * Version of : 11 February 2004                                        *
- *----------------------------------------------------------------------*
- * Example problem.                                                     *
- * An ODE system is generated from the following 2-species diurnal      *
- * kinetics advection-diffusion PDE system in 2 space dimensions:       *
- *                                                                      *
- * dc(i)/dt = Kh*(d/dx)^2 c(i) + V*dc(i)/dx + (d/dz)(Kv(z)*dc(i)/dz)    *
- *                 + Ri(c1,c2,t)      for i = 1,2,   where              *
- *   R1(c1,c2,t) = -q1*c1*c3 - q2*c1*c2 + 2*q3(t)*c3 + q4(t)*c2 ,       *
- *   R2(c1,c2,t) =  q1*c1*c3 - q2*c1*c2 - q4(t)*c2 ,                    *
- *   Kv(z) = Kv0*exp(z/5) ,                                             *
- * Kh, V, Kv0, q1, q2, and c3 are constants, and q3(t) and q4(t)        *
- * vary diurnally.   The problem is posed on the square                 *
- *   0 <= x <= 20,    30 <= z <= 50   (all in km),                      *
- * with homogeneous Neumann boundary conditions, and for time t in      *
- *   0 <= t <= 86400 sec (1 day).                                       *
- * The PDE system is treated by central differences on a uniform        *
- * 10 x 10 mesh, with simple polynomial initial profiles.               *
- * The problem is solved with CVODES, with the BDF/GMRES method (i.e.   *
- * using the CVSPGMR linear solver) and the block-diagonal part of the  *
- * Newton matrix as a left preconditioner. A copy of the block-diagonal *
- * part of the Jacobian is saved and conditionally reused within the    *
- * Precond routine.                                                     *
- *                                                                      *
- * Optionally, CVODES can compute sensitivities with respect to the     *
- * problem parameters q1 and q2.                                        *
- * Any of three sensitivity methods (SIMULTANEOUS, STAGGERED, and       *
- * STAGGERED1) can be used and sensitivities may be included in the     *
- * error test or not (error control set on FULL or PARTIAL,             *
- * respectively).                                                       *
- *                                                                      *
- * Execution:                                                           *
- *                                                                      *
- * If no sensitivities are desired:                                     *
- *    % cvskx -nosensi                                                  *
- * If sensitivities are to be computed:                                 *
- *    % cvskx -sensi sensi_meth err_con                                 *
- * where sensi_meth is one of {sim, stg, stg1} and err_con is one of    *
- * {t, f}.                                                              *
- *                                                                      *
- ************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.12 $
+ * $Date: 2004-04-29 22:09:53 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Example problem:
+ *
+ * An ODE system is generated from the following 2-species diurnal
+ * kinetics advection-diffusion PDE system in 2 space dimensions:
+ *
+ * dc(i)/dt = Kh*(d/dx)^2 c(i) + V*dc(i)/dx + (d/dz)(Kv(z)*dc(i)/dz)
+ *                 + Ri(c1,c2,t)      for i = 1,2,   where
+ *   R1(c1,c2,t) = -q1*c1*c3 - q2*c1*c2 + 2*q3(t)*c3 + q4(t)*c2 ,
+ *   R2(c1,c2,t) =  q1*c1*c3 - q2*c1*c2 - q4(t)*c2 ,
+ *   Kv(z) = Kv0*exp(z/5) ,
+ * Kh, V, Kv0, q1, q2, and c3 are constants, and q3(t) and q4(t)
+ * vary diurnally. The problem is posed on the square
+ *   0 <= x <= 20,    30 <= z <= 50   (all in km),
+ * with homogeneous Neumann boundary conditions, and for time t in
+ *   0 <= t <= 86400 sec (1 day).
+ * The PDE system is treated by central differences on a uniform
+ * 10 x 10 mesh, with simple polynomial initial profiles.
+ * The problem is solved with CVODES, with the BDF/GMRES method
+ * (i.e. using the CVSPGMR linear solver) and the block-diagonal
+ * part of the Newton matrix as a left preconditioner. A copy of
+ * the block-diagonal part of the Jacobian is saved and
+ * conditionally reused within the Precond routine.
+ *
+ * Optionally, CVODES can compute sensitivities with respect to the
+ * problem parameters q1 and q2.
+ * Any of three sensitivity methods (SIMULTANEOUS, STAGGERED, and
+ * STAGGERED1) can be used and sensitivities may be included in the
+ * error test or not (error control set on FULL or PARTIAL,
+ * respectively).
+ *
+ * Execution:
+ *
+ * If no sensitivities are desired:
+ *    % cvskx -nosensi
+ * If sensitivities are to be computed:
+ *    % cvskx -sensi sensi_meth err_con
+ * where sensi_meth is one of {sim, stg, stg1} and err_con is one of
+ * {t, f}.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -828,9 +830,12 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
 }
  
 /* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
-     opt == 2 means function allocates memory so check if returned NULL pointer */
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -841,10 +846,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
       return(1); }}
 

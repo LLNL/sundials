@@ -1,43 +1,46 @@
-/************************************************************************
- *                                                                      *
- * File       : pvanx.c                                                 *
- * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 16 July 2003                                            *
- *----------------------------------------------------------------------*
- * Example problem.                                                     *
- * The following is a simple example problem, with the program for its  *
- * solution by CVODE.  The problem is the semi-discrete form of the     *
- * advection-diffusion equation in 1-D:                                 *
- *   du/dt = p1 * d^2u / dx^2 + p2 * du / dx                            *
- * on the interval 0 <= x <= 2, and the time interval 0 <= t <= 5.      *
- * Homogeneous Dirichlet boundary conditions are posed, and the         *
- * initial condition is                                                 *
- *   u(x,t=0) = x(2-x)exp(2x) .                                         *
- * The nominal values of the two parameters are: p1=1.0, p2=0.5         *
- * The PDE is discretized on a uniform grid of size MX+2 with           *
- * central differencing, and with boundary values eliminated,           *
- * leaving an ODE system of size NEQ = MX.                              *
- * This program solves the problem with the option for nonstiff systems:*
- * ADAMS method and functional iteration.                               *
- * It uses scalar relative and absolute tolerances.                     *
- *                                                                      *
- * In addition to the solution, sensitivities with respect to p1 and p2 *
- * as well as with respect to initial conditions are computed for the   *
- * quantity:                                                            *
- *    g(t, u, p) = int_x u(x,t) at t = 5                                *
- * These sensitivities are obtained by solving the adjoint system:      *
- *    dv/dt = -p1 * d^2 v / dx^2 + p2 * dv / dx                         *
- * with homogeneous Ditrichlet boundary conditions and the final        *
- * condition                                                            *
- *    v(x,t=5) = 1.0                                                    *
- * Then, v(x, t=0) represents the sensitivity of g(5) with respect to   *
- * u(x, t=0) and the gradient of g(5) with respect to p1, p2 is         *
- *    (dg/dp)^T = [  int_t int_x (v * d^2u / dx^2) dx dt ]              *
- *                [  int_t int_x (v * du / dx) dx dt     ]              *
- *                                                                      *
- * This version uses MPI for user routines.                             *
- * Execute with Number of Processors = N,  with 1 <= N <= MX.           *
- ************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.7 $
+ * $Date: 2004-04-29 22:09:57 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Example problem:
+ *
+ * The following is a simple example problem, with the program for
+ * its solution by CVODE. The problem is the semi-discrete form of
+ * the advection-diffusion equation in 1-D:
+ *   du/dt = p1 * d^2u / dx^2 + p2 * du / dx
+ * on the interval 0 <= x <= 2, and the time interval 0 <= t <= 5.
+ * Homogeneous Dirichlet boundary conditions are posed, and the
+ * initial condition is:
+ *   u(x,t=0) = x(2-x)exp(2x).
+ * The nominal values of the two parameters are: p1=1.0, p2=0.5
+ * The PDE is discretized on a uniform grid of size MX+2 with
+ * central differencing, and with boundary values eliminated,
+ * leaving an ODE system of size NEQ = MX.
+ * This program solves the problem with the option for nonstiff
+ * systems: ADAMS method and functional iteration.
+ * It uses scalar relative and absolute tolerances.
+ *
+ * In addition to the solution, sensitivities with respect to p1
+ * and p2 as well as with respect to initial conditions are
+ * computed for the quantity:
+ *    g(t, u, p) = int_x u(x,t) at t = 5
+ * These sensitivities are obtained by solving the adjoint system:
+ *    dv/dt = -p1 * d^2 v / dx^2 + p2 * dv / dx
+ * with homogeneous Ditrichlet boundary conditions and the final
+ * condition:
+ *    v(x,t=5) = 1.0
+ * Then, v(x, t=0) represents the sensitivity of g(5) with respect
+ * to u(x, t=0) and the gradient of g(5) with respect to p1, p2 is
+ *    (dg/dp)^T = [  int_t int_x (v * d^2u / dx^2) dx dt ]
+ *                [  int_t int_x (v * du / dx) dx dt     ]
+ *
+ * This version uses MPI for user routines.
+ * Execute with Number of Processors = N,  with 1 <= N <= MX.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -262,7 +265,6 @@ int main(int argc, char *argv[])
 
   /* Integrate to T0 */
   flag = CVodeB(cvadj_mem, uB);
-  flag -= 1;
   if (check_flag(&flag, "CVodeB", 1, my_pe)) MPI_Abort(comm, 1);
 
   /*-------------------------------------------------------
@@ -613,7 +615,7 @@ static void fB(realtype t, N_Vector u,
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
      opt == 1 means SUNDIALS function returns a flag so check if
-              flag == SUCCESS
+              flag >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
@@ -627,10 +629,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 	    id, funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
 	      id, funcname, *errflag);
       return(1); }}

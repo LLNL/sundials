@@ -1,84 +1,86 @@
-/*************************************************************************
- *                                                                       *
- * File       : cvakx.c                                                  *
- * Programmers: Radu Serban @ LLNL                                       *
- * Version of : 15 July 2003                                             * 
- *-----------------------------------------------------------------------*
- *                                                                       *
- * This program solves a stiff ODE system that arises from a system      *
- * of partial differential equations.  The PDE system is a food web      *
- * population model, with predator-prey interaction and diffusion on     *
- * the unit square in two dimensions.  The dependent variable vector is  *
- *                                                                       *
- *        1   2        ns                                                *
- *  c = (c , c , ..., c  )                                               *
- *                                                                       *
- * and the PDEs are as follows:                                          *
- *                                                                       *
- *    i               i      i                                           *
- *  dc /dt  =  d(i)*(c    + c   )  +  f (x,y,c)  (i=1,...,ns)            *
- *                    xx     yy        i                                 *
- *                                                                       *
- * where                                                                 *
- *                                                                       * 
- *                 i          ns         j                               *
- *  f (x,y,c)  =  c *(b(i) + sum a(i,j)*c )   .                          *
- *   i                       j=1                                         *
- *                                                                       *
- * The number of species is ns = 2*np, with the first np being prey and  *
- * the last np being predators.  The coefficients a(i,j), b(i), d(i) are *
- *                                                                       *
- *  a(i,i) = -a  (all i)                                                 *
- *  a(i,j) = -g  (i <= np, j > np)                                       *
- *  a(i,j) =  e  (i > np, j <= np)                                       *
- *  b(i) =  b*(1 + alpha*x*y)  (i <= np)                                 *
- *  b(i) = -b*(1 + alpha*x*y)  (i > np)                                  *
- *  d(i) = Dprey  (i <= np)                                              *
- *  d(i) = Dpred  (i > np)                                               *
- *                                                                       *
- * The spatial domain is the unit square. The final time is 10.          *
- * The boundary conditions are: normal derivative = 0.                   *
- * A polynomial in x and y is used to set the initial conditions.        *
- *                                                                       *
- * The PDEs are discretized by central differencing on an MX by MY mesh. *
- * The resulting ODE system is stiff.                                    *
- *                                                                       *
- * The ODE system is solved by CVODES using Newton iteration and the     *
- * CVSPGMR linear solver (scaled preconditioned GMRES).                  *
- *                                                                       *
- * The preconditioner matrix used is the product of two matrices:        * 
- * (1) A matrix, only defined implicitly, based on a fixed number of     *
- * Gauss-Seidel iterations using the diffusion terms only.               *
- * (2) A block-diagonal matrix based on the partial derivatives of the   *
- * interaction terms f only, using block-grouping (computing only a      * 
- * subset of the ns by ns blocks).                                       *
- *                                                                       *
- * Additionally, CVODES can integrate backwards in time the              *
- * the semi-discrete form of the adjoint PDE:                            *
- *   d(lambda)/dt = - D^T ( lambda_xx + lambda_yy )                      *
- *                  - F_c^T lambda - g_c^T                               *
- * with homogeneous Neumann boundary conditions and final conditions     *
- *   lambda(x,y,t=t_final) = 0.0                                         *
- * whose solution at t = 0 represents the sensitivity of                 *
- *   G = int_0^t_final int_x int _y g(t,c) dx dy dt                      *
- * with respect to the initial conditions of the original problem.       *
- *                                                                       *
- * In this example,                                                      *
- *   g(t,c) = c(ISPEC), with ISPEC defined below.                        *
- *                                                                       *
- * During the forward run, CVODES also computes G as                     *
- *   G = phi(t_final)                                                    *
- * where                                                                 *
- *   d(phi)/dt = int_x int _y g(t,c) dx dy                               *
- * and the 2-D integral is evaluated with Simpson's rule.                *
- *                                                                       *
- *-----------------------------------------------------------------------*
- *                                                                       *
- * Reference..  Peter N. Brown and Alan C. Hindmarsh, Reduced Storage    *
- * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31       *
- * (1989), pp. 40-91.  Also available as Lawrence Livermore National     *
- * Laboratory Report UCRL-95088, Rev. 1, June 1987.                      *
- *************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.8 $
+ * $Date: 2004-04-29 22:09:52 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * This program solves a stiff ODE system that arises from a system
+ * of partial differential equations. The PDE system is a food web
+ * population model, with predator-prey interaction and diffusion on
+ * the unit square in two dimensions. The dependent variable vector
+ * is the following:
+ *
+ *        1   2        ns
+ *  c = (c , c , ..., c  )
+ *
+ * and the PDEs are as follows:
+ *
+ *    i               i      i
+ *  dc /dt  =  d(i)*(c    + c   )  +  f (x,y,c)  (i=1,...,ns)
+ *                    xx     yy        i
+ *
+ * where
+ *
+ *                 i          ns         j
+ *  f (x,y,c)  =  c *(b(i) + sum a(i,j)*c ).
+ *   i                       j=1
+ *
+ * The number of species is ns = 2*np, with the first np being prey
+ * and the last np being predators. The coefficients a(i,j), b(i),
+ * d(i) are:
+ *
+ *  a(i,i) = -a  (all i)
+ *  a(i,j) = -g  (i <= np, j > np)
+ *  a(i,j) =  e  (i > np, j <= np)
+ *  b(i) =  b*(1 + alpha*x*y)  (i <= np)
+ *  b(i) = -b*(1 + alpha*x*y)  (i > np)
+ *  d(i) = Dprey  (i <= np)
+ *  d(i) = Dpred  (i > np)
+ *
+ * The spatial domain is the unit square. The final time is 10.
+ * The boundary conditions are: normal derivative = 0.
+ * A polynomial in x and y is used to set the initial conditions.
+ *
+ * The PDEs are discretized by central differencing on an MX by MY
+ * mesh. The resulting ODE system is stiff.
+ *
+ * The ODE system is solved by CVODES using Newton iteration and
+ * the CVSPGMR linear solver (scaled preconditioned GMRES).
+ *
+ * The preconditioner matrix used is the product of two matrices:
+ * (1) A matrix, only defined implicitly, based on a fixed number
+ * of Gauss-Seidel iterations using the diffusion terms only.
+ * (2) A block-diagonal matrix based on the partial derivatives of
+ * the interaction terms f only, using block-grouping (computing
+ * only a subset of the ns by ns blocks).
+ *
+ * Additionally, CVODES can integrate backwards in time the
+ * the semi-discrete form of the adjoint PDE:
+ *   d(lambda)/dt = - D^T ( lambda_xx + lambda_yy )
+ *                  - F_c^T lambda - g_c^T
+ * with homogeneous Neumann boundary conditions and final
+ * conditions are the following:
+ *   lambda(x,y,t=t_final) = 0.0
+ * whose solution at t = 0 represents the sensitivity of
+ *   G = int_0^t_final int_x int _y g(t,c) dx dy dt
+ * with respect to the initial conditions of the original problem.
+ *
+ * In this example,
+ *   g(t,c) = c(ISPEC), with ISPEC defined below.
+ *
+ * During the forward run, CVODES also computes G as
+ *   G = phi(t_final)
+ * where
+ *   d(phi)/dt = int_x int _y g(t,c) dx dy
+ * and the 2-D integral is evaluated with Simpson's rule.
+ * -----------------------------------------------------------------
+ * Reference:  Peter N. Brown and Alan C. Hindmarsh, Reduced Storage
+ * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
+ * (1989), pp. 40-91.  Also available as Lawrence Livermore National
+ * Laboratory Report UCRL-95088, Rev. 1, June 1987.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -367,7 +369,6 @@ int main(int argc, char *argv[])
 
   printf("\nBackward integration\n");
   flag = CVodeB(cvadj_mem, cB);
-  flag -=1;
   if(check_flag(&flag, "CVodeB", 1)) return(1);
 
   PrintAllSpecies(outfile,cB, NS, MXNS);
@@ -1273,9 +1274,12 @@ static int PSolveB(realtype t, N_Vector c,
 }
 
 /* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
-     opt == 2 means function allocates memory so check if returned NULL pointer */
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -1286,10 +1290,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
       return(1); }}
 

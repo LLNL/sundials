@@ -1,28 +1,33 @@
-/************************************************************************
- * File       : cvbx.c                                                  *
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
- * Version of : 19 February 2004                                        *
- *----------------------------------------------------------------------*
- * Example problem.                                                     *
- * The following is a simple example problem with a banded Jacobian,    *
- * with the program for its solution by CVODE/CVODES.                   *
- * The problem is the semi-discrete form of the advection-diffusion     *
- * equation in 2-D:                                                     *
- *   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2                     *
- * on the rectangle 0 <= x <= 2, 0 <= y <= 1, and the time              *
- * interval 0 <= t <= 1.  Homogeneous Dirichlet boundary conditions     *
- * are posed, and the initial condition is                              *
- *   u(x,y,t=0) = x(2-x)y(1-y)exp(5xy) .                                *
- * The PDE is discretized on a uniform MX+2 by MY+2 grid with           *
- * central differencing, and with boundary values eliminated,           *
- * leaving an ODE system of size NEQ = MX*MY.                           *
- * This program solves the problem with the BDF method, Newton          *
- * iteration with the CVBAND band linear solver, and a user-supplied    *
- * Jacobian routine.                                                    * 
- * It uses scalar relative and absolute tolerances.                     *
- * Output is printed at t = .1, .2, ..., 1.                             *
- * Run statistics (optional outputs) are printed at the end.            *
- ************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.7 $
+ * $Date: 2004-04-29 22:09:53 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Example problem:
+ *
+ * The following is a simple example problem with a banded Jacobian,
+ * with the program for its solution by CVODE/CVODES.
+ * The problem is the semi-discrete form of the advection-diffusion
+ * equation in 2-D:
+ *   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2
+ * on the rectangle 0 <= x <= 2, 0 <= y <= 1, and the time
+ * interval 0 <= t <= 1. Homogeneous Dirichlet boundary conditions
+ * are posed, and the initial condition is the following:
+ *   u(x,y,t=0) = x(2-x)y(1-y)exp(5xy).
+ * The PDE is discretized on a uniform MX+2 by MY+2 grid with
+ * central differencing, and with boundary values eliminated,
+ * leaving an ODE system of size NEQ = MX*MY.
+ * This program solves the problem with the BDF method, Newton
+ * iteration with the CVBAND band linear solver, and a user-supplied
+ * Jacobian routine.
+ * It uses scalar relative and absolute tolerances.
+ * Output is printed at t = .1, .2, ..., 1.
+ * Run statistics (optional outputs) are printed at the end.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -344,9 +349,12 @@ static void Jac(long int N, long int mu, long int ml, BandMat J,
 }
 
 /* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
-     opt == 2 means function allocates memory so check if returned NULL pointer */
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -357,10 +365,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
       return(1); }}
 

@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-04-03 00:28:30 $
+ * $Revision: 1.10 $
+ * $Date: 2004-04-29 22:09:52 $
  * ----------------------------------------------------------------- 
- * Programmers   : Radu Serban @ LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California 
  * Produced at the Lawrence Livermore National Laboratory
@@ -12,23 +12,24 @@
  * -----------------------------------------------------------------
  * Adjoint sensitivity example problem.
  * The following is a simple example problem, with the coding
- * needed for its solution by CVODES.  The problem is from chemical
+ * needed for its solution by CVODES. The problem is from chemical
  * kinetics, and consists of the following three rate equations.
  *    dy1/dt = -p1*y1 + p2*y2*y3
  *    dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2
  *    dy3/dt =  p3*(y2)^2
- * on the interval from t = 0.0 to t = 4.e10, with initial conditions
- * y1 = 1.0, y2 = y3 = 0.  The reaction rates are: p1=0.04, p2=1e4, and
- * p3=3e7.  The problem is stiff.
+ * on the interval from t = 0.0 to t = 4.e10, with initial
+ * conditions: y1 = 1.0, y2 = y3 = 0. The reaction rates are:
+ * p1=0.04, p2=1e4, and p3=3e7. The problem is stiff.
  * This program solves the problem with the BDF method, Newton
  * iteration with the CVODE dense linear solver, and a user-supplied
  * Jacobian routine.
- * It uses a scalar relative tolerance and a vector absolute tolerance.
+ * It uses a scalar relative tolerance and a vector absolute
+ * tolerance.
  * Output is printed in decades from t = .4 to t = 4.e10.
  * Run statistics (optional outputs) are printed at the end.
  * 
- * Optionally, CVODES can compute sensitivities with respect to the
- * problem parameters p1, p2, and p3 of the following quantity:
+ * Optionally, CVODES can compute sensitivities with respect to
+ * the problem parameters p1, p2, and p3 of the following quantity:
  *   G = int_t0^t1 g(t,p,y) dt
  * where
  *   g(t,p,y) = y3
@@ -308,7 +309,6 @@ int main(int argc, char *argv[])
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB1);
   flag = CVodeB(cvadj_mem, yB);
-  flag -= 1;
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
@@ -336,7 +336,6 @@ int main(int argc, char *argv[])
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB2);
   flag = CVodeB(cvadj_mem, yB);
-  flag -= 1;
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
@@ -505,7 +504,7 @@ static void fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_da
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
      opt == 1 means SUNDIALS function returns a flag so check if
-              flag == SUCCESS
+              flag >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
@@ -519,10 +518,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 	    funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
 	      funcname, *errflag);
       return(1); }}

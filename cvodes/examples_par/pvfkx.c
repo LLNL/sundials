@@ -1,63 +1,68 @@
-/************************************************************************
- *                                                                      *
- * File       : pvfkx.c                                                 *
- * Programmers: S. D. Cohen, A. C. Hindmarsh, Radu Serban, and          *
- *              M. R. Wittman @ LLNL                                    *
- * Version of : 11 February 2004                                        *
- *----------------------------------------------------------------------*
- * Example problem.                                                     *
- * An ODE system is generated from the following 2-species diurnal      *
- * kinetics advection-diffusion PDE system in 2 space dimensions:       *
- *                                                                      *
- * dc(i)/dt = Kh*(d/dx)^2 c(i) + V*dc(i)/dx + (d/dy)(Kv(y)*dc(i)/dy)    *
- *                 + Ri(c1,c2,t)      for i = 1,2,   where              *
- *   R1(c1,c2,t) = -q1*c1*c3 - q2*c1*c2 + 2*q3(t)*c3 + q4(t)*c2 ,       *
- *   R2(c1,c2,t) =  q1*c1*c3 - q2*c1*c2 - q4(t)*c2 ,                    *
- *   Kv(y) = Kv0*exp(y/5) ,                                             *
- * Kh, V, Kv0, q1, q2, and c3 are constants, and q3(t) and q4(t)        *
- * vary diurnally.   The problem is posed on the square                 *
- *   0 <= x <= 20,    30 <= y <= 50   (all in km),                      *
- * with homogeneous Neumann boundary conditions, and for time t in      *
- *   0 <= t <= 86400 sec (1 day).                                       *
- * The PDE system is treated by central differences on a uniform        *
- * mesh, with simple polynomial initial profiles.                       *
- *                                                                      *
- * The problem is solved by CVODES on NPE processors, treated as a      *
- * rectangular process grid of size NPEX by NPEY, with NPE = NPEX*NPEY. *
- * Each processor contains a subgrid of size MXSUB by MYSUB of the      *
- * (x,y) mesh.  Thus the actual mesh sizes are MX = MXSUB*NPEX and      *
- * MY = MYSUB*NPEY, and the ODE system size is neq = 2*MX*MY.           *
- *                                                                      *
- * The solution with CVODES is done with the BDF/GMRES method (i.e.     *
- * using the CVSPGMR linear solver) and the block-diagonal part of the  *
- * Newton matrix as a left preconditioner. A copy of the block-diagonal *
- * part of the Jacobian is saved and conditionally reused within the    *
- * Precond routine.                                                     *
- *                                                                      *
- * Performance data and sampled solution values are printed at selected *
- * output times, and all performance counters are printed on completion.*
- *                                                                      *
- * Optionally, CVODES can compute sensitivities with respect to the     *
- * problem parameters q1 and q2.                                        *
- * Any of three sensitivity methods (SIMULTANEOUS, STAGGERED, and       *
- * STAGGERED1) can be used and sensitivities may be included in the     *
- * error test or not (error control set on FULL or PARTIAL,             *
- * respectively).                                                       *
- *                                                                      *
- * Execution:                                                           *
- *                                                                      *
- * NOTE: This version uses MPI for user routines, and the CVODES        *
- *       solver. In what follows, N is the number of processors,        *
- *       N = NPEX*NPEY (see constants below) and it is assumed that     *
- *       the MPI script mpirun is used to run a paralles application.   *
- * If no sensitivities are desired:                                     *
- *    % mpirun -np N pvfkx -nosensi                                     *
- * If sensitivities are to be computed:                                 *
- *    % mpirun -np N pvfkx -sensi sensi_meth err_con                    *
- * where sensi_meth is one of {sim, stg, stg1} and err_con is one of    *
- * {t, f}.                                                              *
- *                                                                      *
- ************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.12 $
+ * $Date: 2004-04-29 22:09:57 $
+ * -----------------------------------------------------------------
+ * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
+ *                and M. R. Wittman @ LLNL
+ * -----------------------------------------------------------------
+ * Example problem:
+ *
+ * An ODE system is generated from the following 2-species diurnal
+ * kinetics advection-diffusion PDE system in 2 space dimensions:
+ *
+ * dc(i)/dt = Kh*(d/dx)^2 c(i) + V*dc(i)/dx + (d/dy)(Kv(y)*dc(i)/dy)
+ *                 + Ri(c1,c2,t)      for i = 1,2,   where
+ *   R1(c1,c2,t) = -q1*c1*c3 - q2*c1*c2 + 2*q3(t)*c3 + q4(t)*c2 ,
+ *   R2(c1,c2,t) =  q1*c1*c3 - q2*c1*c2 - q4(t)*c2 ,
+ *   Kv(y) = Kv0*exp(y/5) ,
+ * Kh, V, Kv0, q1, q2, and c3 are constants, and q3(t) and q4(t)
+ * vary diurnally. The problem is posed on the square
+ *   0 <= x <= 20,    30 <= y <= 50   (all in km),
+ * with homogeneous Neumann boundary conditions, and for time t in
+ *   0 <= t <= 86400 sec (1 day).
+ * The PDE system is treated by central differences on a uniform
+ * mesh, with simple polynomial initial profiles.
+ *
+ * The problem is solved by CVODES on NPE processors, treated
+ * as a rectangular process grid of size NPEX by NPEY, with
+ * NPE = NPEX*NPEY. Each processor contains a subgrid of size
+ * MXSUB by MYSUB of the (x,y) mesh. Thus the actual mesh sizes
+ * are MX = MXSUB*NPEX and MY = MYSUB*NPEY, and the ODE system size
+ * is neq = 2*MX*MY.
+ *
+ * The solution with CVODES is done with the BDF/GMRES method (i.e.
+ * using the CVSPGMR linear solver) and the block-diagonal part of
+ * the Newton matrix as a left preconditioner. A copy of the
+ * block-diagonal part of the Jacobian is saved and conditionally
+ * reused within the Precond routine.
+ *
+ * Performance data and sampled solution values are printed at
+ * selected output times, and all performance counters are printed
+ * on completion.
+ *
+ * Optionally, CVODES can compute sensitivities with respect to the
+ * problem parameters q1 and q2.
+ * Any of three sensitivity methods (SIMULTANEOUS, STAGGERED, and
+ * STAGGERED1) can be used and sensitivities may be included in the
+ * error test or not (error control set on FULL or PARTIAL,
+ * respectively).
+ *
+ * Execution:
+ *
+ * Note: This version uses MPI for user routines, and the CVODES
+ *       solver. In what follows, N is the number of processors,
+ *       N = NPEX*NPEY (see constants below) and it is assumed that
+ *       the MPI script mpirun is used to run a paralles
+ *       application.
+ * If no sensitivities are desired:
+ *    % mpirun -np N pvfkx -nosensi
+ * If sensitivities are to be computed:
+ *    % mpirun -np N pvfkx -sensi sensi_meth err_con
+ * where sensi_meth is one of {sim, stg, stg1} and err_con is one of
+ * {t, f}.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1198,7 +1203,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
      opt == 1 means SUNDIALS function returns a flag so check if
-              flag == SUCCESS
+              flag >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
@@ -1212,10 +1217,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 	    id, funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
 	      id, funcname, *errflag);
       return(1); }}
