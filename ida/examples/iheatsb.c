@@ -1,7 +1,7 @@
 /***********************************************************************
  * File       : iheatsb.c   
  * Written by : Allan G. Taylor and Alan C. Hindmarsh
- * Version of : 8 March 2002
+ * Version of : 3 July 2002
  *----------------------------------------------------------------------
  * Modified by R. Serban to work with new serial nvector (8/3/2002)
  *----------------------------------------------------------------------
@@ -33,24 +33,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"
-#include "llnlmath.h"
+#include "sundialstypes.h"
+#include "sundialsmath.h"
 #include "nvector_serial.h" /* definitions of type N_Vector and macro NV_DATA_S */
 #include "ida.h"
 #include "idaband.h"
 
 typedef struct {
-  integer    neq;
-  integer    mm;
-  real       dx;
-  real       coeff;
+  integertype    neq;
+  integertype    mm;
+  realtype       dx;
+  realtype       coeff;
 } *UserData;
 
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res);
 
-int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
+int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
             N_Vector resval, void *rdata);
 
 
@@ -65,10 +65,10 @@ int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
 int main()
 {
   M_Env machEnv;
-  integer retval, iout, itol, itask, mu, ml;
+  integertype retval, iout, itol, itask, mu, ml;
   long int iopt[OPT_SIZE];
-  boole optIn;
-  real ropt[OPT_SIZE], rtol, atol, t0, t1, tout, tret, umax;
+  booleantype optIn;
+  realtype ropt[OPT_SIZE], rtol, atol, t0, t1, tout, tret, umax;
   N_Vector uu, up, constraints, id, res;
   UserData data;
   void *mem;
@@ -183,8 +183,8 @@ int main()
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res)
 {
-  real xfact, yfact, *udata, *updata, *iddata;
-  integer mm, mm1, i, j, offset, loc;
+  realtype xfact, yfact, *udata, *updata, *iddata;
+  integertype mm, mm1, i, j, offset, loc;
   
   mm = data->mm;
   mm1 = mm - 1;
@@ -239,11 +239,11 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
  *    res_i = u'_i - (central difference)_i                              *
  * while for each boundary point, it is res_i = u_i.                     */
 
-int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
+int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
             N_Vector resval, void *rdata)
 {
-  integer mm, i, j, offset, loc;
-  real *uv, *upv, *resv, coeff;
+  integertype mm, i, j, offset, loc;
+  realtype *uv, *upv, *resv, coeff;
   UserData data;
   
   uv = NV_DATA_S(uu); upv = NV_DATA_S(up); resv = NV_DATA_S(resval);

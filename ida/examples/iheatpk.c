@@ -1,7 +1,7 @@
 /***********************************************************************
  * File       : iheatpk.c   
  * Written by : Allan G. Taylor and Alan C. Hindmarsh
- * Version of : 8 March 2002
+ * Version of : 3 July 2002
  *----------------------------------------------------------------------
  * Modified by R. Serban to work with new parallel nvector (8/3/2002)
  *----------------------------------------------------------------------
@@ -35,8 +35,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"
-#include "llnlmath.h"
+#include "sundialstypes.h"
+#include "sundialsmath.h"
 #include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P   */
 #include "ida.h"
 #include "idaspgmr.h"
@@ -62,17 +62,17 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  integer   neq, thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
-  real      dx, dy, coeffx, coeffy, coeffxy;
-  real      uext[(MXSUB+2)*(MYSUB+2)];
-  N_Vector  pp;    /* vector of diagonal preconditioner elements */
-  MPI_Comm  comm;
+  integertype neq, thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
+  realtype    dx, dy, coeffx, coeffy, coeffxy;
+  realtype    uext[(MXSUB+2)*(MYSUB+2)];
+  N_Vector    pp;    /* vector of diagonal preconditioner elements */
+  MPI_Comm    comm;
 } *UserData;
 
 
 /* Prototypes of private helper functions */
 
-static int InitUserData(integer Neq, int thispe,
+static int InitUserData(integertype Neq, int thispe,
                         MPI_Comm comm, UserData data);
 
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
@@ -82,38 +82,38 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 /* User-supplied residual function and supporting routines */
 
 
-int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
+int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
             N_Vector res, void *rdata);
 
 static int rescomm(N_Vector uu, N_Vector up, void *rdata);
 
-static int reslocal(real tres, N_Vector uu, N_Vector up, 
+static int reslocal(realtype tres, N_Vector uu, N_Vector up, 
                     N_Vector res,  void *rdata);
 
-static int BSend(MPI_Comm comm, integer thispe, integer ixsub, integer jysub,
-                 integer dsizex, integer dsizey, real uarray[]);
+static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub, integertype jysub,
+                 integertype dsizex, integertype dsizey, realtype uarray[]);
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], integer thispe,
-                     integer ixsub, integer jysub,
-                     integer dsizex, integer dsizey,
-                     real uext[], real buffer[]);
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
+                     integertype ixsub, integertype jysub,
+                     integertype dsizex, integertype dsizey,
+                     realtype uext[], realtype buffer[]);
 
-static int BRecvWait(MPI_Request request[], integer ixsub, integer jysub,
-		     integer dsizex, real uext[], real buffer[]);
+static int BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub,
+                     integertype dsizex, realtype uext[], realtype buffer[]);
 
 /* User-supplied preconditioner routines */
 
-int PSolveHeateq(integer local_N, real tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, real cj, ResFn res, void *rdata,
-                 void *pdata, N_Vector ewt, real delta, N_Vector rvec,
+int PSolveHeateq(integertype local_N, realtype tt, N_Vector uu,
+                 N_Vector up, N_Vector rr, realtype cj, ResFn res, void *rdata,
+                 void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
                  N_Vector zvec, long int *nrePtr, N_Vector tempv);
 
 
-int PrecondHeateq(integer local_N, real tt, N_Vector yy,
-                  N_Vector yp, N_Vector rr, real cj,
+int PrecondHeateq(integertype local_N, realtype tt, N_Vector yy,
+                  N_Vector yp, N_Vector rr, realtype cj,
                   ResFn res, void *rdata, void *pdata,
-                  N_Vector ewt, N_Vector constraints, real hh, 
-                  real uround, long int *nrePtr,
+                  N_Vector ewt, N_Vector constraints, realtype hh, 
+                  realtype uround, long int *nrePtr,
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 
@@ -121,11 +121,11 @@ int main(int argc, char *argv[])
 
 {
   int npes, thispe;
-  integer retval, i, iout, itol, itask, Neq, local_N;
+  integertype retval, i, iout, itol, itask, Neq, local_N;
   long int iopt[OPT_SIZE];
-  boole optIn;
-  real ropt[OPT_SIZE], rtol, atol;
-  real t0, t1, tout, tret, umax;
+  booleantype optIn;
+  realtype ropt[OPT_SIZE], rtol, atol;
+  realtype t0, t1, tout, tret, umax;
   void *mem;
   UserData data;
   N_Vector uu, up, constraints, id, res;
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
 /********************************************************/
 /* InitUserData initializes the user's data block data. */
 
-static int InitUserData(integer Neq, int thispe, MPI_Comm comm, UserData data)
+static int InitUserData(integertype Neq, int thispe, MPI_Comm comm, UserData data)
 {
   data->neq = Neq;
   data->thispe = thispe;
@@ -299,9 +299,9 @@ static int InitUserData(integer Neq, int thispe, MPI_Comm comm, UserData data)
 static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id, 
                              N_Vector res, UserData data)
 {
-  integer i, iloc, j, jloc, offset, loc, ixsub, jysub;
-  integer ixbegin, ixend, jybegin, jyend;
-  real xfact, yfact, *udata, *iddata, dx, dy;
+  integertype i, iloc, j, jloc, offset, loc, ixsub, jysub;
+  integertype ixbegin, ixend, jybegin, jyend;
+  realtype xfact, yfact, *udata, *iddata, dx, dy;
   
   /* Initialize uu. */ 
 
@@ -370,7 +370,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * BSend, BRecvPost, and BREcvWait handle interprocessor communication
  * of uu required to calculate the residual. */
 
-int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
+int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
             N_Vector res, void *rdata)
 {
   int retval;
@@ -399,9 +399,9 @@ int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
 static int rescomm(N_Vector uu, N_Vector up, void *rdata)
 {
   UserData data;
-  real *uarray, *uext, buffer[2*MYSUB];
+  realtype *uarray, *uext, buffer[2*MYSUB];
   MPI_Comm comm;
-  integer thispe, ixsub, jysub, mxsub, mysub;
+  integertype thispe, ixsub, jysub, mxsub, mysub;
   MPI_Request request[4];
   
   data = (UserData) rdata;
@@ -432,14 +432,14 @@ static int rescomm(N_Vector uu, N_Vector up, void *rdata)
    that all inter-processor communication of data needed to calculate F
     has already been done, and that this data is in the work array uext.  */
 
-static int reslocal(real tres, N_Vector uu, N_Vector up, N_Vector res,
+static int reslocal(realtype tres, N_Vector uu, N_Vector up, N_Vector res,
                     void *rdata)
 {
-  real *uext, *uuv, *upv, *resv;
-  real termx, termy, termctr;
-  integer lx, ly, offsetu, offsetue, locu, locue;
-  integer ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
-  integer ixbegin, ixend, jybegin, jyend;
+  realtype *uext, *uuv, *upv, *resv;
+  realtype termx, termy, termctr;
+  integertype lx, ly, offsetu, offsetue, locu, locue;
+  integertype ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
+  integertype ixbegin, ixend, jybegin, jyend;
   UserData data;
   
   /* Get subgrid indices, array sizes, extended work array uext. */
@@ -498,11 +498,11 @@ static int reslocal(real tres, N_Vector uu, N_Vector up, N_Vector res,
 /*************************************************************************/
 /* Routine to send boundary data to neighboring PEs.                     */
 
-static int BSend(MPI_Comm comm, integer thispe, integer ixsub, integer jysub,
-                 integer dsizex, integer dsizey, real uarray[])
+static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub, integertype jysub,
+                 integertype dsizex, integertype dsizey, realtype uarray[])
 {
-  integer ly, offsetu;
-  real bufleft[MYSUB], bufright[MYSUB];
+  integertype ly, offsetu;
+  realtype bufleft[MYSUB], bufright[MYSUB];
 
   /* If jysub > 0, send data from bottom x-line of u. */
   
@@ -545,20 +545,20 @@ static int BSend(MPI_Comm comm, integer thispe, integer ixsub, integer jysub,
 /**************************************************************/
 /* Routine to start receiving boundary data from neighboring PEs.
    Notes:
-   1) buffer should be able to hold 2*MYSUB real entries, should be
+   1) buffer should be able to hold 2*MYSUB realtype entries, should be
    passed to both the BRecvPost and BRecvWait functions, and should not
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in 
    both calls also. */
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], integer thispe,
-                     integer ixsub, integer jysub,
-                     integer dsizex, integer dsizey,
-                     real uext[], real buffer[])
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
+                     integertype ixsub, integertype jysub,
+                     integertype dsizex, integertype dsizey,
+                     realtype uext[], realtype buffer[])
 {
-  integer offsetue;
+  integertype offsetue;
   /* Have bufleft and bufright use the same buffer. */
-  real *bufleft = buffer, *bufright = buffer+MYSUB;
+  realtype *bufleft = buffer, *bufright = buffer+MYSUB;
   
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0)
@@ -592,17 +592,17 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], integer thispe,
 /****************************************************************/
 /* Routine to finish receiving boundary data from neighboring PEs.
    Notes:
-   1) buffer should be able to hold 2*MYSUB real entries, should be
+   1) buffer should be able to hold 2*MYSUB realtype entries, should be
    passed to both the BRecvPost and BRecvWait functions, and should not
    be manipulated between the two calls.
    2) request should have four entries, and should be passed in both 
    calls also. */
 
-static int BRecvWait(MPI_Request request[], integer ixsub, integer jysub,
-                     integer dsizex, real uext[], real buffer[])
+static int BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub,
+                     integertype dsizex, realtype uext[], realtype buffer[])
 {
-  integer ly, dsizex2, offsetue;
-  real *bufleft = buffer, *bufright = buffer+MYSUB;
+  integertype ly, dsizex2, offsetue;
+  realtype *bufleft = buffer, *bufright = buffer+MYSUB;
   MPI_Status status;
   
   dsizex2 = dsizex + 2;
@@ -659,16 +659,16 @@ static int BRecvWait(MPI_Request request[], integer ixsub, integer jysub,
  * pp etc.) are used from the PrecondHeateq argument list.         *
  ******************************************************************/
   
-int PrecondHeateq(integer local_N, real tt, N_Vector yy,
-                  N_Vector yp, N_Vector rr, real cj,
+int PrecondHeateq(integertype local_N, realtype tt, N_Vector yy,
+                  N_Vector yp, N_Vector rr, realtype cj,
                   ResFn res, void *rdata, void *pdata,
-                  N_Vector ewt, N_Vector constraints, real hh, 
-                  real uround, long int *nrePtr,
+                  N_Vector ewt, N_Vector constraints, realtype hh, 
+                  realtype uround, long int *nrePtr,
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  real *ppv, pelinv;
-  integer lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
-  integer ixsub, jysub, npex, npey;
+  realtype *ppv, pelinv;
+  integertype lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
+  integertype ixsub, jysub, npex, npey;
   UserData data;
 
   data = (UserData) pdata;
@@ -714,9 +714,9 @@ int PrecondHeateq(integer local_N, real tt, N_Vector yy,
  * containing the inverse diagonal Jacobian elements (previously  *
  * computed in PrecondHeateq), returning the result in zvec.      */
   
-int PSolveHeateq(integer local_N, real tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, real cj, ResFn res, void *rdata,
-                 void *pdata, N_Vector ewt, real delta, N_Vector rvec,
+int PSolveHeateq(integertype local_N, realtype tt, N_Vector uu,
+                 N_Vector up, N_Vector rr, realtype cj, ResFn res, void *rdata,
+                 void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
                  N_Vector zvec, long int *nrePtr, N_Vector tempv)
 {
   UserData data;

@@ -1,7 +1,7 @@
 /***********************************************************************
  * File       : irobx.c
  * Written by : Allan G. Taylor and Alan C. Hindmarsh
- * Version of : 8 March 2002
+ * Version of : 3 July 2002
  *----------------------------------------------------------------------
  * Modified by R. Serban to work with new serial nvector (8/3/2002)     
  *----------------------------------------------------------------------
@@ -23,8 +23,8 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "llnltyps.h"
-#include "llnlmath.h"
+#include "sundialstypes.h"
+#include "sundialsmath.h"
 #include "nvector_serial.h" /* definition of type N_Vector and macros NV_DATA_S */
 #include "ida.h"
 #include "idadense.h"
@@ -32,13 +32,13 @@
 /* Macro to define dense matrix elements, indexed from 1. */
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
 
-int resrob(integer Neq, real tres, N_Vector yy, N_Vector yp, 
+int resrob(integertype Neq, realtype tres, N_Vector yy, N_Vector yp, 
            N_Vector resval, void *rdata);
 
-int jacrob(integer Neq, real tt, N_Vector yy, N_Vector yp,
-           real cj, N_Vector constraints, ResFn res, void *rdata,
-           void *jdata, N_Vector resvec, N_Vector ewt, real hh,
-           real uround, DenseMat JJ, long int *nrePtr,
+int jacrob(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+           realtype cj, N_Vector constraints, ResFn res, void *rdata,
+           void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
+           realtype uround, DenseMat JJ, long int *nrePtr,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 #define NOUT  12
@@ -47,11 +47,11 @@ int main()
 {
   M_Env machEnv;
   int itol, itask;
-  integer SystemSize = 3, retval, iout;
+  integertype SystemSize = 3, retval, iout;
   long int iopt[OPT_SIZE];
-  boole optIn;
-  real ropt[OPT_SIZE], rtol, *yval, *ypval, *atval;
-  real t0, t1, tout, tret;
+  booleantype optIn;
+  realtype ropt[OPT_SIZE], rtol, *yval, *ypval, *atval;
+  realtype t0, t1, tout, tret;
   N_Vector yy, yp, avtol;
   void *mem;
 
@@ -142,10 +142,10 @@ int main()
 
 /*  Define the system residual function resrob. */
 
-int resrob(integer Neq, real tres, N_Vector yy, N_Vector yp, N_Vector rr, 
+int resrob(integertype Neq, realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, 
            void *rdata)
 {
-  real *yval, *ypval, *rval;
+  realtype *yval, *ypval, *rval;
 
   yval = NV_DATA_S(yy); ypval = NV_DATA_S(yp); rval = NV_DATA_S(rr);
 
@@ -160,14 +160,14 @@ int resrob(integer Neq, real tres, N_Vector yy, N_Vector yp, N_Vector rr,
 
 /* Define the Jacobian function jacrob. */
 
-int jacrob(integer Neq, real tt, N_Vector yy, N_Vector yp,
-           real cj, N_Vector constraints, ResFn res, void *rdata,
-           void *jdata, N_Vector rr, N_Vector ewt, real hh,
-           real uround, DenseMat JJ, long int *nrePtr,
+int jacrob(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+           realtype cj, N_Vector constraints, ResFn res, void *rdata,
+           void *jdata, N_Vector rr, N_Vector ewt, realtype hh,
+           realtype uround, DenseMat JJ, long int *nrePtr,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
 
-  real *yval;
+  realtype *yval;
   
   yval = NV_DATA_S(yy);
 

@@ -1,7 +1,7 @@
 /*************************************************************************
  * File       : iwebpk.c                                                 *
  * Written by : Allan G. Taylor and Alan C. Hindmarsh @ LLNL             *
- * Version of : 8 March 2002                                             *
+ * Version of : 3 July 2002                                              *
  *-----------------------------------------------------------------------*
  * Modified by R. Serban to work with new parallel nvector (8/3/2002)    *
  *-----------------------------------------------------------------------*
@@ -93,12 +93,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"          /* Definitions of real, integer, boole, TRUE, FALSE.*/
+#include "sundialstypes.h"      /* Definitions of realtype, integertype            */
 #include "iterativ.h"          /* Contains the enum for types of preconditioning.  */
 #include "ida.h"               /* Main IDA header file.                            */
 #include "idaspgmr.h"          /* Use IDASPGMR linear solver.                      */
 #include "nvector_parallel.h"  /* Definitions of type N_Vector, macro NV_DATA_P.   */
-#include "llnlmath.h"          /* Contains RSqrt and UnitRoundoff routines.        */
+#include "sundialsmath.h"      /* Contains RSqrt and UnitRoundoff routines.        */
 #include "smalldense.h"        /* Contains definitions for denalloc routine.       */
 #include "mpi.h"               /* MPI library routines.                            */
 
@@ -149,15 +149,15 @@
 /* Type: UserData.  Contains problem constants, preconditioner data, etc. */
 
 typedef struct {
-  integer Neq, ns, np, thispe, npes, ixsub, jysub, npex, npey,
+  integertype Neq, ns, np, thispe, npes, ixsub, jysub, npex, npey,
     mxsub, mysub, nsmxsub, nsmxsub2;
-  real dx, dy, **acoef;
-  real cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES],
+  realtype dx, dy, **acoef;
+  realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES],
     rhs[NUM_SPECIES], cext[(MXSUB+2)*(MYSUB+2)*NUM_SPECIES];
   MPI_Comm comm;
   N_Vector rates;
-  real **PP[MXSUB][MYSUB];
-  integer *pivot[MXSUB][MYSUB];
+  realtype **PP[MXSUB][MYSUB];
+  integertype *pivot[MXSUB][MYSUB];
 } *UserData;
 
 
@@ -173,47 +173,47 @@ static void FreeUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector scrtch, UserData webdata);
 
-static void PrintOutput(long int iopt[], real ropt[], N_Vector cc, real time,
+static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype time,
                         UserData webdata, MPI_Comm comm);
 
 static void PrintFinalStats(long int iopt[]);
 
 static int rescomm(N_Vector cc, N_Vector cp, void *rdata);
 
-static void BSend(MPI_Comm comm, integer thispe, integer ixsub, integer jysub,
-                  integer dsizex, integer dsizey, real carray[]);
+static void BSend(MPI_Comm comm, integertype thispe, integertype ixsub, integertype jysub,
+                  integertype dsizex, integertype dsizey, realtype carray[]);
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer thispe,
-                      integer ixsub, integer jysub,
-                      integer dsizex, integer dsizey,
-                      real cext[], real buffer[]);
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
+                      integertype ixsub, integertype jysub,
+                      integertype dsizex, integertype dsizey,
+                      realtype cext[], realtype buffer[]);
 
-static void BRecvWait(MPI_Request request[], integer ixsub, integer jysub,
-                      integer dsizex, real cext[], real buffer[]);
+static void BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub,
+                      integertype dsizex, realtype cext[], realtype buffer[]);
 
-static int reslocal(real tt, N_Vector cc, N_Vector cp, N_Vector res, 
+static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res, 
                     void *rdata);
 
-static void WebRates(real xx, real yy, real *cxy, real *ratesxy, 
+static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
 
-static real dotprod(integer size, real *x1, real *x2);
+static realtype dotprod(integertype size, realtype *x1, realtype *x2);
 
 
 /* Prototypes for functions called by the IDA Solver. */
 
-static int resweb(integer Neq, real time, N_Vector cc, N_Vector cp,
+static int resweb(integertype Neq, realtype time, N_Vector cc, N_Vector cp,
                   N_Vector resval, void *rdata);
 
-static int Precondbd(integer Neq, real tt, N_Vector cc, N_Vector cp,
-                     N_Vector rr, real cj, ResFn res,  void *rdata,
+static int Precondbd(integertype Neq, realtype tt, N_Vector cc, N_Vector cp,
+                     N_Vector rr, realtype cj, ResFn res,  void *rdata,
                      void *Pdata, N_Vector ewt, N_Vector constraints,
-                     real hh, real uround, long int *nrePtr, 
+                     realtype hh, realtype uround, long int *nrePtr, 
                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-static int PSolvebd(integer Neq, real tt, N_Vector cc, N_Vector cp,
-                    N_Vector rr, real cj, ResFn res, void *rdata,
-                    void *Pdata, N_Vector ewt, real delta,
+static int PSolvebd(integertype Neq, realtype tt, N_Vector cc, N_Vector cp,
+                    N_Vector rr, realtype cj, ResFn res, void *rdata,
+                    void *Pdata, N_Vector ewt, realtype delta,
                     N_Vector rvec, N_Vector zvec,
                     long int *nfePtr, N_Vector tempv);
 
@@ -223,13 +223,13 @@ static int PSolvebd(integer Neq, real tt, N_Vector cc, N_Vector cp,
 int main(int argc, char *argv[])
 {
   int thispe, npes;
-  integer SystemSize, local_N;
-  real rtol, atol, ropt[OPT_SIZE], t0, tout, tret;
+  integertype SystemSize, local_N;
+  realtype rtol, atol, ropt[OPT_SIZE], t0, tout, tret;
   long int iopt[OPT_SIZE];
   N_Vector cc, cp, res, id;
   UserData webdata;
   int maxl, iout, flag, retval, itol, itask;
-  boole optIn;
+  booleantype optIn;
   void *mem;
   MPI_Comm comm;
   M_Env machEnv;
@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
 
 static UserData AllocUserData(M_Env machEnv)
 {
-  integer ix, jy;
+  integertype ix, jy;
   UserData webdata;
   
   webdata = (UserData) malloc(sizeof *webdata);
@@ -401,7 +401,7 @@ static void InitUserData(UserData webdata, int thispe, int npes,
                          MPI_Comm comm)
 {
   int i, j, np;
-  real *a1,*a2, *a3, *a4, dx2, dy2, **acoef, *bcoef, *cox, *coy;
+  realtype *a1,*a2, *a3, *a4, dx2, dy2, **acoef, *bcoef, *cox, *coy;
   
   webdata->jysub = thispe / NPEX;
   webdata->ixsub = thispe - (webdata->jysub)*NPEX;
@@ -460,7 +460,7 @@ static void InitUserData(UserData webdata, int thispe, int npes,
 
 static void FreeUserData(UserData webdata)
 {
-  integer ix, jy;
+  integertype ix, jy;
 
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
@@ -487,8 +487,8 @@ static void FreeUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector res, UserData webdata)
 {
-  integer ixsub, jysub, mxsub, mysub, nsmxsub, np, ix, jy, is;
-  real *cxy, *idxy, *cpxy, dx, dy, xx, yy, xyfactor;
+  integertype ixsub, jysub, mxsub, mysub, nsmxsub, np, ix, jy, is;
+  realtype *cxy, *idxy, *cpxy, dx, dy, xx, yy, xyfactor;
   
   ixsub = webdata->ixsub;
   jysub = webdata->jysub;
@@ -510,7 +510,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       cxy = IJ_Vptr(cc,ix,jy); 
       idxy = IJ_Vptr(id,ix,jy); 
       for (is = 0; is < NUM_SPECIES; is++) {
-        if (is < np) { cxy[is] = 10. + (real)(is+1)*xyfactor; idxy[is] = ONE; }
+        if (is < np) { cxy[is] = 10. + (realtype)(is+1)*xyfactor; idxy[is] = ONE; }
         else { cxy[is] = 1.0e5; idxy[is] = ZERO; }
       }
     }
@@ -539,12 +539,12 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
    are printed for the bottom left and top right grid points only.
    (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         */
 
-static void PrintOutput(long int iopt[], real ropt[], N_Vector cc, real tt,
+static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype tt,
                         UserData webdata, MPI_Comm comm)
 {
   MPI_Status status;
-  integer thispe, npelast, ilast;
-  real *cdata, clast[2];
+  integertype thispe, npelast, ilast;
+  realtype *cdata, clast[2];
   
   thispe = webdata->thispe; npelast = webdata->npes - 1;
   cdata = NV_DATA_P(cc);
@@ -601,7 +601,7 @@ static void PrintFinalStats(long int iopt[])
       rescomm, for needed communication, and then
       reslocal, for computation of the residuals on this processor.      */
 
-static int resweb(integer Neq, real tt, N_Vector cc, N_Vector cp, 
+static int resweb(integertype Neq, realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *rdata)
 {
   int retval;
@@ -633,8 +633,8 @@ static int rescomm(N_Vector cc, N_Vector cp, void *rdata)
 {
 
   UserData webdata;
-  real *cdata, *cext, buffer[2*NUM_SPECIES*MYSUB];
-  integer thispe, ixsub, jysub, nsmxsub, nsmysub;
+  realtype *cdata, *cext, buffer[2*NUM_SPECIES*MYSUB];
+  integertype thispe, ixsub, jysub, nsmxsub, nsmysub;
   MPI_Comm comm;
   MPI_Request request[4];
   
@@ -672,12 +672,12 @@ static int rescomm(N_Vector cc, N_Vector cp, void *rdata)
    to the appropriate neighbor PEs.                                      */
  
 
-static void BSend(MPI_Comm comm, integer my_pe, integer ixsub, integer jysub,
-                  integer dsizex, integer dsizey, real cdata[])
+static void BSend(MPI_Comm comm, integertype my_pe, integertype ixsub, integertype jysub,
+                  integertype dsizex, integertype dsizey, realtype cdata[])
 {
   int i;
-  integer ly, offsetc, offsetbuf;
-  real bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
+  integertype ly, offsetc, offsetbuf;
+  realtype bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
   
   /* If jysub > 0, send data from bottom x-line of cc. */
 
@@ -720,19 +720,19 @@ static void BSend(MPI_Comm comm, integer my_pe, integer ixsub, integer jysub,
  
 /*************************************************************************/
 /* BRecvPost: Start receiving boundary data from neighboring PEs.
-   (1) buffer should be able to hold 2*NUM_SPECIES*MYSUB real entries,
+   (1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
    should be passed to both the BRecvPost and BRecvWait functions, and
    should not be manipulated between the two calls.
    (2) request should have 4 entries, and is also passed in both calls.  */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
-                      integer ixsub, integer jysub,
-                      integer dsizex, integer dsizey,
-                      real cext[], real buffer[])
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
+                      integertype ixsub, integertype jysub,
+                      integertype dsizex, integertype dsizey,
+                      realtype cext[], realtype buffer[])
 {
-  integer offsetce;
+  integertype offsetce;
   /* Have bufleft and bufright use the same buffer. */
-  real *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
+  realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
 
   /* If jysub > 0, receive data for bottom x-line of cext. */
   if (jysub != 0)
@@ -763,17 +763,17 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
 
 /*************************************************************************/
 /* BRecvWait: Finish receiving boundary data from neighboring PEs.
-   (1) buffer should be able to hold 2*NUM_SPECIES*MYSUB real entries,
+   (1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
    should be passed to both the BRecvPost and BRecvWait functions, and
    should not be manipulated between the two calls.
    (2) request should have 4 entries, and is also passed in both calls.  */
 
-static void BRecvWait(MPI_Request request[], integer ixsub, integer jysub,
-                      integer dsizex, real cext[], real buffer[])
+static void BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub,
+                      integertype dsizex, realtype cext[], realtype buffer[])
 {
   int i;
-  integer ly, dsizex2, offsetce, offsetbuf;
-  real *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
+  integertype ly, dsizex2, offsetce, offsetbuf;
+  realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
   MPI_Status status;
 
   dsizex2 = dsizex + 2*NUM_SPECIES;
@@ -850,12 +850,12 @@ static void BRecvWait(MPI_Request request[], integer ixsub, integer jysub,
    The reaction terms are saved separately in the vector webdata->rates
    for use by the preconditioner setup routine.                          */
 
-static int reslocal(real tt, N_Vector cc, N_Vector cp, N_Vector res,
+static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res,
                     void *rdata)
 {
-  real *cdata, *ratesxy, *cpxy, *resxy,
+  realtype *cdata, *ratesxy, *cpxy, *resxy,
     xx, yy, dcyli, dcyui, dcxli, dcxui;
-  integer ix, jy, is, i, locc, ylocce, locce;
+  integertype ix, jy, is, i, locc, ylocce, locce;
   UserData webdata;
   
   webdata = (UserData) rdata;
@@ -948,11 +948,11 @@ static int reslocal(real tt, N_Vector cc, N_Vector cp, N_Vector res,
 /* WebRates: Evaluate reaction rates at a given spatial point.           */
 /* At a given (x,y), evaluate the array of ns reaction terms R.          */
 
-static void WebRates(real xx, real yy, real *cxy, real *ratesxy,
+static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
                      UserData webdata)
 {
   int is;
-  real fac;
+  realtype fac;
   
   for (is = 0; is < NUM_SPECIES; is++)
     ratesxy[is] = dotprod(NUM_SPECIES, cxy, acoef[is]);
@@ -966,12 +966,12 @@ static void WebRates(real xx, real yy, real *cxy, real *ratesxy,
 
 
 /*************************************************************************/
-/* dotprod: dot product routine for real arrays, for use by WebRates.    */
+/* dotprod: dot product routine for realtype arrays, for use by WebRates.    */
 
-static real dotprod(integer size, real *x1, real *x2)
+static realtype dotprod(integertype size, realtype *x1, realtype *x2)
 {
-  integer i;
-  real *xx1, *xx2, temp = ZERO;
+  integertype i;
+  realtype *xx1, *xx2, temp = ZERO;
 
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
@@ -988,16 +988,16 @@ static real dotprod(integer size, real *x1, real *x2)
    The base value of R are taken from webdata->rates, as set by webres.
    Each block is LU-factored, for later solution of the linear systems.  */
 
-static int Precondbd(integer Neq, real tt, N_Vector cc, N_Vector cp,
-                     N_Vector rr, real cj, ResFn res,  void *rdata,
+static int Precondbd(integertype Neq, realtype tt, N_Vector cc, N_Vector cp,
+                     N_Vector rr, realtype cj, ResFn res,  void *rdata,
                      void *Pdata, N_Vector ewt, N_Vector constraints,
-                     real hh, real uround, long int *nrePtr, 
+                     realtype hh, realtype uround, long int *nrePtr, 
                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 
 {
-  real xx, yy, *cxy, *ewtxy, cctemp, **Pxy, *ratesxy, *Pxycol, *cpxy;
-  real inc, sqru, fac, perturb_rates[NUM_SPECIES];
-  integer is, js, ix, jy, ret;
+  realtype xx, yy, *cxy, *ewtxy, cctemp, **Pxy, *ratesxy, *Pxycol, *cpxy;
+  realtype inc, sqru, fac, perturb_rates[NUM_SPECIES];
+  integertype is, js, ix, jy, ret;
   UserData webdata;
 
   webdata = (UserData)Pdata;
@@ -1052,14 +1052,14 @@ static int Precondbd(integer Neq, real tt, N_Vector cc, N_Vector cp,
    This routine applies the LU factorization of the blocks of the
    preconditioner PP, to compute the solution of PP * zvec = rvec.       */
 
-static int PSolvebd(integer Neq, real tt, N_Vector cc, N_Vector cp,
-                    N_Vector rr, real cj,ResFn res, void *rdata,
-                    void *Pdata, N_Vector ewt, real delta,
+static int PSolvebd(integertype Neq, realtype tt, N_Vector cc, N_Vector cp,
+                    N_Vector rr, realtype cj,ResFn res, void *rdata,
+                    void *Pdata, N_Vector ewt, realtype delta,
                     N_Vector rvec, N_Vector zvec,
                     long int *nfePtr, N_Vector tempv)
 {
-  real **Pxy, *zxy;
-  integer *pivot, ix, jy;
+  realtype **Pxy, *zxy;
+  integertype *pivot, ix, jy;
   UserData webdata;
 
   webdata = (UserData)Pdata;

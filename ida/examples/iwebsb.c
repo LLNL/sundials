@@ -1,7 +1,7 @@
 /*************************************************************************
  * File       : iwebsb.c                                                 *
  * Written by : Allan G. Taylor and Alan C. Hindmarsh @ LLNL             *
- * Version of : 8 March 2002                                             *
+ * Version of : 3 July 2002                                              *
  *-----------------------------------------------------------------------*
  * Modified by R. Serban to work with new serial nvector (8/3/2002)      *
  *-----------------------------------------------------------------------*
@@ -84,11 +84,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"        /* Definitions of real, integer, boole, TRUE, FALSE.*/
+#include "sundialstypes.h"   /* Definitions of realtype, integertype, booleantype*/
 #include "ida.h"             /* Main IDA header file.                            */
 #include "idaband.h"         /* Use IDABAND linear solver.                       */
 #include "nvector_serial.h"  /* Definitions of type N_Vector, macro NV_DATA_S.   */
-#include "llnlmath.h"        /* Contains RSqrt and UnitRoundoff routines.        */
+#include "sundialsmath.h"    /* Contains RSqrt and UnitRoundoff routines.        */
 #include "smalldense.h"      /* Contains definitions for denalloc routine.       */
 
 /* Problem Constants. */
@@ -133,9 +133,9 @@
 /* Type: UserData.  Contains problem constants, etc. */
 
 typedef struct {
-  integer Neq, ns, np, mx, my;
-  real dx, dy, **acoef;
-  real cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
+  integertype Neq, ns, np, mx, my;
+  realtype dx, dy, **acoef;
+  realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
   N_Vector rates;
 } *UserData;
 
@@ -146,18 +146,18 @@ static void InitUserData(UserData webdata);
 static void FreeUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintOutput(long int iopt[], real ropt[], N_Vector cc, real time,
+static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype time,
                         UserData webdata);
 static void PrintFinalStats(long int iopt[]);
-static void Fweb(real tcalc, N_Vector cc, N_Vector crate, UserData webdata);
-static void WebRates(real xx, real yy, real *cxy, real *ratesxy, 
+static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
+static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
-static real dotprod(integer size, real *x1, real *x2);
+static realtype dotprod(integertype size, realtype *x1, realtype *x2);
 
 
 /* Prototypes for functions called by the IDA Solver. */
 
-static int resweb(integer Neq, real time, N_Vector cc, N_Vector cp,
+static int resweb(integertype Neq, realtype time, N_Vector cc, N_Vector cp,
                   N_Vector resval, void *rdata);
 
 /***************************** Main Program ******************************/
@@ -166,10 +166,10 @@ int main()
 { 
   M_Env machEnv;
   int iout, flag, retval, itol, itask;
-  integer SystemSize, mu, ml;
+  integertype SystemSize, mu, ml;
   long int iopt[OPT_SIZE];
-  boole optIn;
-  real rtol, atol, ropt[OPT_SIZE], t0, tout, tret;
+  booleantype optIn;
+  realtype rtol, atol, ropt[OPT_SIZE], t0, tout, tret;
   N_Vector cc, cp, id, res;
   UserData webdata;
   void *mem;
@@ -303,7 +303,7 @@ static UserData AllocUserData(M_Env machEnv)
 static void InitUserData(UserData webdata)
 {
   int i, j, np;
-  real *a1,*a2, *a3, *a4, dx2, dy2;
+  realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   webdata->mx = MX;
   webdata->my = MY;
@@ -365,9 +365,9 @@ static void FreeUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
 {
-  integer loc, yloc, is, jx, jy, np;
-  real xx, yy, xyfactor, fac;
-  real *ccv, *cpv, *idv;
+  integertype loc, yloc, is, jx, jy, np;
+  realtype xx, yy, xyfactor, fac;
+  realtype *ccv, *cpv, *idv;
   
   ccv = NV_DATA_S(cc);
   cpv = NV_DATA_S(cp);
@@ -387,7 +387,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       
       for (is = 0; is < NUM_SPECIES; is++) {
         if (is < np) {
-          ccv[loc+is] = 10. + (real)(is+1) * xyfactor;
+          ccv[loc+is] = 10. + (realtype)(is+1) * xyfactor;
           idv[loc+is] = ONE;
         }
         else {
@@ -421,11 +421,11 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
    (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         */
 
 
-static void PrintOutput(long int iopt[], real ropt[], N_Vector cc, real tt,
+static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype tt,
                         UserData webdata)
 {
   int jx, jy;
-  real *ct;
+  realtype *ct;
   
   printf("\nTIME t = %e.     NST = %ld, k = %ld, h = %e\n",
          tt, iopt[NST], iopt[KUSED], ropt[HUSED]);
@@ -463,11 +463,11 @@ static void PrintFinalStats(long int iopt[])
 /* equations, then loads the residual vector accordingly,                */
 /* using cp in the case of prey species.                                 */
 
-static int resweb(integer Neq, real tt, N_Vector cc, N_Vector cp, 
+static int resweb(integertype Neq, realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *rdata)
 {
-  integer jx, jy, is, yloc, loc, np;
-  real *resv, *cpv;
+  integertype jx, jy, is, yloc, loc, np;
+  realtype *resv, *cpv;
   UserData webdata;
   
   webdata = (UserData)rdata;
@@ -506,11 +506,11 @@ static int resweb(integer Neq, real tt, N_Vector cc, N_Vector cp,
 /* consisting of the diffusion term and interaction term.                */
 /* The interaction term is computed by the function WebRates.            */
 
-static void Fweb(real tcalc, N_Vector cc, N_Vector crate,  
+static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,  
                  UserData webdata)
 { 
-  integer jx, jy, is, idyu, idyl, idxu, idxl;
-  real xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
+  integertype jx, jy, is, idyu, idyl, idxu, idxl;
+  realtype xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
   
   /* Loop over grid points, evaluate interaction vector (length ns),
      form diffusion difference terms, and load crate.                    */
@@ -557,11 +557,11 @@ static void Fweb(real tcalc, N_Vector cc, N_Vector crate,
 /* WebRates: Evaluate reaction rates at a given spatial point.           */
 /* At a given (x,y), evaluate the array of ns reaction terms R.          */
 
-static void WebRates(real xx, real yy, real *cxy, real *ratesxy,
+static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
                      UserData webdata)
 {
   int is;
-  real fac;
+  realtype fac;
   
   for (is = 0; is < NUM_SPECIES; is++)
     ratesxy[is] = dotprod(NUM_SPECIES, cxy, acoef[is]);
@@ -575,12 +575,12 @@ static void WebRates(real xx, real yy, real *cxy, real *ratesxy,
 
 
 /*************************************************************************/
-/* dotprod: dot product routine for real arrays, for use by WebRates.    */
+/* dotprod: dot product routine for realtype arrays, for use by WebRates.    */
 
-static real dotprod(integer size, real *x1, real *x2)
+static realtype dotprod(integertype size, realtype *x1, realtype *x2)
 {
-  integer i;
-  real *xx1, *xx2, temp = ZERO;
+  integertype i;
+  realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
