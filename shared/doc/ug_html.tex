@@ -1,47 +1,21 @@
-\usepackage{epsfig, supertabular, makeidx}
-
+\usepackage{html}
+\usepackage[dvips]{epsfig}
+\usepackage{makeidx}
+\usepackage{supertabular}
 \usepackage{amsmath, amssymb}
-
-% Package to add Bibliography and Index to TOC
-% but not the TOC itself :-)
-\usepackage[nottoc]{tocbibind}
-
-\usepackage{hangcaption}
-\usepackage{subfigure}
 \usepackage{color}
-
-% Needed for sideways
-\usepackage{rotating}
-
-% Packages needed for the cover page
-\usepackage{calc, epsfig, chngpage}
-\input{pstricks}\input{pst-node}\input{llnlCoverPage}
-
-% Package used for code listings
-\usepackage{fancyvrb}
-
-\usepackage{fancyheadings}
-
-% External references
-\usepackage{xr}
+\usepackage{verbatimfiles}
 
 %----- Define some colors
 \definecolor{gray}{rgb}{0.5,0.5,0.5} 
-
-%----- Page formatting
-\setlength{\oddsidemargin}{0.5in}
-\setlength{\evensidemargin}{0.0in}
-\setlength{\paperwidth}{8.5in}
-\setlength{\hoffset}{0in}
-\setlength{\textwidth}{\paperwidth-(1in+\hoffset)*2-\oddsidemargin-\evensidemargin}
-\setlength{\textheight}{9.0in}
+\definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
 
 %----- SUNDIALS MODULES
 \newcommand{\sundials}{{\normalfont\scshape sundials}}
 \newcommand{\shared}{{\normalfont\scshape shared}}
 \newcommand{\nvector}{{\normalfont\scshape nvector}}
-\newcommand{\nvecp}{{\normalfont\scshape nvector\_parallel}}
-\newcommand{\nvecs}{{\normalfont\scshape nvector\_serial}}
+\newcommand{\nvecp}{{\normalfont\scshape nvector-parallel}}
+\newcommand{\nvecs}{{\normalfont\scshape nvector-serial}}
 \newcommand{\cvode}{{\normalfont\scshape cvode}}
 \newcommand{\pvode}{{\normalfont\scshape pvode}}
 \newcommand{\cvodes}{{\normalfont\scshape cvodes}}
@@ -76,7 +50,6 @@
 \newcommand{\fkinbbd}{{\normalfont\scshape fkinbbd}}
 \newcommand{\fkinsol}{{\normalfont\scshape fkinsol}}
 
-
 %----- IDA and IDAS COMPONENTS
 \newcommand{\idadense}{{\normalfont\scshape idadense}}
 \newcommand{\idaband}{{\normalfont\scshape idaband}}
@@ -108,9 +81,9 @@
 \newcommand{\A}{App. }
 
 %------ Index entries
-\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}|textbf}}}
-\newcommand{\Id}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
-\newcommand{\id}[1]{{\tt #1}}
+\newcommand{\ID}[1]{{\bf #1}{\index{#1@\texttt{#1}}}}
+\newcommand{\Id}[1]{{\bf #1}{\index{#1@\texttt{#1}}}}
+\newcommand{\id}[1]{{\bf #1}}
 
 %%----- Shortcuts for math formulas
 \newcommand{\mb}[1]{{\mbox{\scriptsize #1}}}
@@ -120,61 +93,46 @@
 \newcommand{\dfdpiI}{\partial f / \partial p_i}
 \newcommand{\rhomax}{\rho_{\max}}
 
-\newcommand{\cm}{$\checkmark$}
+\newcommand{\cm}{{\bf X}}
 
-\newcommand{\includeCode}[1]
-{
-  \VerbatimInput[numbers=left,fontsize=\small]{#1}
-}
+\newcommand{\includeCode}[1]{\verbatimlisting{#1}}
 
 \newcommand{\includeOutput}[2]
 {
-  \vspace{0.1in}
-  \VerbatimInput[frame=single,
-                 framesep=0.1in,
-                 label={\tt #1} sample output,
-                 fontsize=\small]{#2}
+\begin{rawhtml}<HR>\end{rawhtml}
+{\bf #1} sample output
+\verbatimfile{#2}
+\begin{rawhtml}<HR>\end{rawhtml}
 }
 
-\newcommand{\ugref}[1]{\S\ref{#1}}
+\newcommand{\ugref}[1]{the user guide}
+
+\newcommand{\subfigure}[2][label]{
+{#2}
+{\centerline{#1}}
+}
+
+\newcommand{\externaldocument}[1]{}
+
+\newcommand{\makeLLNLCover}[6]{}
+\newcommand{\makeLLNLBackCover}{}
 
 %%--------------------------------
 \newcommand{\frontug}
 {
   \maketitle
-
-  %% Leave an empty page
-  \newpage\thispagestyle{empty}
-  \vspace*{1.0in}
-  
-  %% Start roman numbering
-  \pagestyle{plain}\pagenumbering{roman}
   \tableofcontents
   \listoftables
   \listoffigures
-  
-  %% Move to new page and start arabic numbering
-  \newpage\pagestyle{plain}\pagenumbering{arabic}
-
-  \pagestyle{fancyplain}
-  %%\addtolength{\headwidth}{\marginparsep}
-  %%\addtolength{\headwidth}{\marginparwidth}
-  \lhead[\fancyplain{}{\bfseries\thepage}]%
-        {\fancyplain{}{\bfseries\rightmark}}
-  \rhead[\fancyplain{}{\bfseries\leftmark}]%
-        {\fancyplain{}{\bfseries\thepage}}
-  \cfoot{}
 }
-
 %%--------------------------------
 \newcommand{\frontex}
 {
-  \maketitle\thispagestyle{empty}
-
-  %% Start arabic numbering
-  \newpage\pagestyle{plain}\pagenumbering{arabic}
+  \maketitle
   \tableofcontents
 }
+
+\newenvironment{sideways}{}{}
 
 %%----------------------------------
 %% List of configure options
@@ -190,28 +148,17 @@
 %%---------------------------------
 %% Steps used in skeleton programs
 %%---------------------------------
-\newcounter{Stepsctr}
-\newenvironment{Steps}
-{\stepcounter{Stepsctr}
-  \begin{list}{\arabic{Stepsctr}. }{
-      \usecounter{Stepsctr}
-      \setlength{\parsep}{0.5em}
-      \setlength{\labelsep}{0em}
-      \settowidth{\labelwidth}{99. }
-      \setlength{\leftmargin}{\labelwidth+\labelsep}}}
-  {\end{list}}
-%%-----------------------------------------------------
-%% Underlying list environemnt for function definitions
-%%-----------------------------------------------------
-\newenvironment{Ventry}[1][\quad]
-{\begin{list}{}{
-      \setlength{\rightmargin}{0em}
-      \setlength{\topsep}{0.15in}
-      \setlength{\itemsep}{0em}
-      \renewcommand{\makelabel}[1]{##1\hfill}
-      \settowidth{\labelwidth}{#1}
-      \setlength{\leftmargin}{\labelwidth+\labelsep}}}
-  {\end{list}}
+%% \newcounter{Stepsctr}
+%% \newenvironment{Steps}
+%% {\setcounter{Stepsctr}{0}
+%%   \begin{list}{\arabic{Stepsctr}. }{
+%%       \usecounter{Stepsctr}
+%%       \setlength{\parsep}{0.5em}
+%%       \setlength{\labelsep}{0em}
+%%       \settowidth{\labelwidth}{99.}}}
+%%   {\end{list}}
+\newenvironment{Steps}{\begin{enumerate}}{\end{enumerate}}
+
 %%----------------------------------
 %% List of function arguments
 %%---------------------------------
@@ -220,37 +167,38 @@
       \setlength{\rightmargin}{0em}
       \setlength{\topsep}{0em}
       \setlength{\itemsep}{0em}
-      \renewcommand{\makelabel}[1]{\id{##1}\hfill}
-      \settowidth{\labelwidth}{\id{#1}}
-      \setlength{\leftmargin}{\labelwidth+\labelsep}}}
+      \renewcommand{\makelabel}[1]{{\bf{#1}}\hfill}
+      \settowidth{\labelwidth}{{\bf #1}}}}
   {\end{list}}
 %%---------------------------------
 %% User-callable function
 %%---------------------------------
 \newcommand{\ucfunction}[6]{
-  \begin{Ventry}[Return value]
-  \item[\fbox{\id{#1}}]{}
+  \begin{itemize}
+  \item[\textcolor{darkgreen}{\bf #1}]{}
   \item[Call]{\id{#2}}
   \item[Description]{#3}
   \item[Arguments]{#4}
   \item[Return value]{#5}
-  \addNotes{#6}
-  \end{Ventry}
+  \item[Notes]{#6}
+  \end{itemize}
 }
 %%---------------------------------
 %% User-supplied function
 %%---------------------------------
 \newcommand{\usfunction}[6]{
-  \begin{Ventry}[Return value]
-  \item[\fbox{\id{#1}}]{}
+  \begin{itemize}
+  \item[\textcolor{darkgreen}{\bf #1}]{}
   \item[Definition]{\id{\begin{tabular}[t]{@{}r@{}l@{}}#2\end{tabular}}}
   \item[Purpose]{#3}
   \item[Arguments]{#4}
   \item[Return value]{#5}
-  \addNotes{#6}
-  \end{Ventry}
+  \item[Notes]{#6}
+  \end{itemize}
 }
 %%---------------------------------
-\makeatletter
-\long\def\addNotes#1{\def\@tempa{#1}\ifx\@tempa\empty\else\item[Notes]{#1}\fi}
-\makeatother
+
+\bodytext{
+bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#FF0000"
+alink="#FF0000"
+}
