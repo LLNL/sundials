@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-08-31 20:41:17 $
+ * $Revision: 1.14 $
+ * $Date: 2004-10-26 20:11:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -175,8 +175,8 @@ static int Problem1(void)
       flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
-      flag = CVodeResetIterType(cvode_mem, CV_NEWTON);
-      if(check_flag(&flag, "CVodeResetIterType", 1)) ++nerr;
+      flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
+      if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
       flag = CVodeReInit(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
@@ -230,8 +230,8 @@ static int Problem1(void)
       flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
-      flag = CVodeResetIterType(cvode_mem, CV_NEWTON);
-      if(check_flag(&flag, "CVodeResetIterType", 1)) ++nerr;
+      flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
+      if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
       flag = CVodeReInit(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
@@ -344,8 +344,8 @@ static int Problem2(void)
       flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
-      flag = CVodeResetIterType(cvode_mem, CV_NEWTON);
-      if(check_flag(&flag, "CVodeResetIterType", 1)) ++nerr;
+      flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
+      if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
       flag = CVodeReInit(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
@@ -398,8 +398,8 @@ static int Problem2(void)
       flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
-      flag = CVodeResetIterType(cvode_mem, CV_NEWTON);
-      if(check_flag(&flag, "CVodeResetIterType", 1)) ++nerr;
+      flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
+      if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
       flag = CVodeReInit(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
