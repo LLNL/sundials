@@ -235,7 +235,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 %% CVodeCreate
 %%
 
-\function{CVodeCreate}
+\ucfunction{CVodeCreate}
 {
 cvode\_mem = CVodeCreate(lmm, iter);
 }
@@ -267,7 +267,7 @@ cvode\_mem = CVodeCreate(lmm, iter);
 %%  CVodeMalloc
 %%
 
-\function{CVodeMalloc}
+\ucfunction{CVodeMalloc}
 {
 flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
 }
@@ -356,7 +356,7 @@ separately in \S\ref{s:gen_linsolv}.
 %%
 %%
 \index{CVODES@{\cvodes} linear solvers!CVDENSE@{\cvdense}}
-\function{CVDense}
+\ucfunction{CVDense}
 {flag = CVDense(cvode\_mem, N);}
 {
   \index{CVDENSE@{\cvdense} linear solver!selection of}
@@ -395,7 +395,7 @@ separately in \S\ref{s:gen_linsolv}.
 %%
 %%
 \index{CVODES@{\cvodes} linear solvers!CVBAND@{\cvband}}
-\function{CVBand}
+\ucfunction{CVBand}
 {flag = CVBand(cvode\_mem, N, mupper, mlower);}
 {
   \index{CVBAND@{\cvband} linear solver!selection of}
@@ -439,7 +439,7 @@ separately in \S\ref{s:gen_linsolv}.
 %%
 %%
 \index{CVODES@{\cvodes} linear solvers!CVDIAG@{\cvdiag}}
-\function{CVDiag}
+\ucfunction{CVDiag}
 {
   flag = CVDiag(cvode\_mem);
 }
@@ -477,7 +477,7 @@ separately in \S\ref{s:gen_linsolv}.
 %%
 %%
 \index{CVODES@{\cvodes} linear solvers!CVSPGMR@{\cvspgmr}}
-\function{CVSpgmr}
+\ucfunction{CVSpgmr}
 {
   flag = CVSpgmr(cvode\_mem, pretype, maxl);
 }
@@ -530,7 +530,7 @@ separately in \S\ref{s:gen_linsolv}.
 %--------------------------------------------------------------------
 \subsection{{\cvodes} Solver Routine}\label{sss:cvode}
 
-\function{CVode}
+\ucfunction{CVode}
 {
   flag = CVode(cvode\_mem, tout, y, t, itask);
 }
@@ -609,7 +609,7 @@ will catch any error.
 
 
 
-\function{CVodeSet}
+\ucfunction{CVodeSet}
 {
   flag = CVodeSetFdata(cvode\_mem, f\_data);
 }
@@ -640,7 +640,7 @@ will catch any error.
 }
 
 
-\function{CVodeSetErrFile}
+\ucfunction{CVodeSetErrFile}
 {
   flag = CVodeSetErrFile(cvode\_mem, errfp);
 }
@@ -671,7 +671,7 @@ will catch any error.
 }
 %%
 %%
-\function{CVodeSetMaxOrd}
+\ucfunction{CVodeSetMaxOrd}
 {
 flag = CVodeSetMaxOrder(cvode\_mem, maxord);
 }
@@ -709,7 +709,7 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
 }
 %%
 %%
-\function{CVodeSetMaxNumSteps}
+\ucfunction{CVodeSetMaxNumSteps}
 {
 flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 }
@@ -742,7 +742,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 }
 %%
 %%
-\function{CVodeSetMaxHnilWarns}
+\ucfunction{CVodeSetMaxHnilWarns}
 {
 flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
 }
@@ -774,7 +774,7 @@ flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
 }
 %%
 %%
-\function{CVodeSet}
+\ucfunction{CVodeSet}
 {
 flag = CVodeSet(cvode\_mem, );
 }
@@ -803,7 +803,7 @@ flag = CVodeSet(cvode\_mem, );
 {}
 %%
 %%
-\function{CVodeSet}
+\ucfunction{CVodeSet}
 {
 flag = CVodeSet(cvode\_mem, );
 }
@@ -832,7 +832,7 @@ flag = CVodeSet(cvode\_mem, );
 {}
 %%
 %%
-\function{CVodeSet}
+\ucfunction{CVodeSet}
 {
 flag = CVodeSet(cvode\_mem, );
 }
@@ -861,7 +861,7 @@ flag = CVodeSet(cvode\_mem, );
 {}
 %%
 %%
-\function{CVodeSet}
+\ucfunction{CVodeSet}
 {
 flag = CVodeSet(cvode\_mem, );
 }
@@ -890,7 +890,7 @@ flag = CVodeSet(cvode\_mem, );
 {}
 %%
 %%
-\function{CVodeSet}
+\ucfunction{CVodeSet}
 {
 flag = CVodeSet(cvode\_mem, );
 }
