@@ -1,7 +1,7 @@
 /****************************************************************************
  * File         : fcvbbd.c                                                  *
  * Programmers  : Alan C. Hindmarsh and Radu Serban @ LLNL                  * 
- * Version of   : 31 July 2003                                              *
+ * Version of   : 27 January 2004                                           *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
@@ -9,8 +9,6 @@
  * CVBBDPRE module and user-supplied Fortran routines.                      *
  * The routines here call the generically named routines and provide a      *
  * standard interface to the C code of the CVBBDPRE package.                *
- * The routine FCV_BBDIN0 has a counterpart FCV_BBDIN1 in a separate        *
- * file: fcvbbdin1.c.                                                       *
  *                                                                          *
  ***************************************************************************/
 
@@ -33,9 +31,9 @@ void FCV_COMMFN(integertype*, realtype*, realtype*);
 
 /***************************************************************************/
 
-void FCV_BBDIN(integertype *Nloc, integertype *mudq, integertype *mldq, 
-               integertype *mu, integertype *ml, realtype* dqrely,
-               int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
+void FCV_BBDINIT(integertype *Nloc, integertype *mudq, integertype *mldq, 
+                 integertype *mu, integertype *ml, realtype* dqrely,
+                 int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
 
   /* First call CVBBDPrecAlloc to initialize CVBBDPRE module:
@@ -43,11 +41,11 @@ void FCV_BBDIN(integertype *Nloc, integertype *mudq, integertype *mldq,
      *mudq,*mldq are the half-bandwidths for computing preconditioner blocks
      *mu, *ml    are the half-bandwidths of the retained preconditioner blocks
      *dqrely     is the difference quotient relative increment factor
-     CVgloc      is a pointer to the CVLocalFn function
-     CVcfn       is a pointer to the CVCommFn function */
+     FCVgloc     is a pointer to the CVLocalFn function
+     FCVcfn      is a pointer to the CVCommFn function */
 
   CVBBD_Data = CVBBDPrecAlloc(CV_cvodemem, *Nloc, *mudq, *mldq, *mu, *ml, 
-                              *dqrely, CVgloc, CVcfn);
+                              *dqrely, FCVgloc, FCVcfn);
   if (CVBBD_Data == NULL) { *ier = -1; return; }
 
   /* Call CVBBDSpgmr to specify the SPGMR linear solver:
@@ -72,9 +70,9 @@ void FCV_BBDIN(integertype *Nloc, integertype *mudq, integertype *mldq,
 
 /***************************************************************************/
 
-void FCV_REINBBD(integertype *Nloc, integertype *mudq, integertype *mldq, 
-                 realtype* dqrely, int *pretype, int *gstype,
-                 realtype *delt, int *ier)
+void FCV_BBDREINIT(integertype *Nloc, integertype *mudq, integertype *mldq, 
+                   realtype* dqrely, int *pretype, int *gstype,
+                   realtype *delt, int *ier)
 {
   int flag;
 
@@ -82,11 +80,11 @@ void FCV_REINBBD(integertype *Nloc, integertype *mudq, integertype *mldq,
      CVBBD_Data  is the pointer to P_data
      *mudq,*mldq are the half-bandwidths for computing preconditioner blocks
      *dqrely     is the difference quotient relative increment factor
-     CVgloc      is a pointer to the CVLocalFn function
-     CVcfn       is a pointer to the CVCommFn function */
+     FCVgloc     is a pointer to the CVLocalFn function
+     FCVcfn      is a pointer to the CVCommFn function */
 
   flag = CVBBDPrecReInit(CVBBD_Data, *mudq, *mldq,
-                         *dqrely, CVgloc, CVcfn);
+                         *dqrely, FCVgloc, FCVcfn);
 
   /* Call CVSetSpgmr* to re-initialize the SPGMR linear solver:
      *pretype    is the preconditioner type
@@ -108,11 +106,11 @@ void FCV_REINBBD(integertype *Nloc, integertype *mudq, integertype *mldq,
 
 /***************************************************************************/
 
-/* C function CVgloc to interface between CVBBDPRE module and a Fortran 
-   subroutine CVLOCFN. */
+/* C function FCVgloc to interface between CVBBDPRE module and a Fortran 
+   subroutine FCVLOCFN. */
 
-void CVgloc(integertype Nloc, realtype t, N_Vector yloc, N_Vector gloc,
-            void *f_data)
+void FCVgloc(integertype Nloc, realtype t, N_Vector yloc, N_Vector gloc,
+             void *f_data)
 {
   realtype *yloc_data, *gloc_data;
   
@@ -127,11 +125,11 @@ void CVgloc(integertype Nloc, realtype t, N_Vector yloc, N_Vector gloc,
 
 /***************************************************************************/
 
-/* C function CVcfn to interface between CVBBDPRE module and a Fortran 
-   subroutine CVCOMMF. */
+/* C function FCVcfn to interface between CVBBDPRE module and a Fortran 
+   subroutine FCVCOMMF. */
 
 
-void CVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data)
+void FCVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data)
 {
   realtype *yloc;
 
@@ -159,10 +157,10 @@ void FCV_BBDOPT(integertype *lenrpw, integertype *lenipw, int *nge)
 
 /***************************************************************************/
 
-/* C function FCVBBDF to interface to CVBBDPrecFree, to free memory 
+/* C function FCVBBDFREE to interface to CVBBDPrecFree, to free memory 
    created by CVBBDPrecAlloc */
 
-void FCV_BBDF ()
+void FCV_BBDFREE()
 {
   CVBBDPrecFree(CVBBD_Data);
 }

@@ -1,10 +1,10 @@
 /**********************************************************************
  * File          : fcvpsol.c                                          *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL           *
- * Version of    : 1 August 2003                                      *
+ * Version of    : 27 January 2004                                    *
  *--------------------------------------------------------------------*
- * This C function CVPSol is to interface between the CVSPGMR module  *
- * and the user-supplied preconditioner solve routine CVPSOL.         *
+ * The C function FCVPSol is to interface between the CVSPGMR module  *
+ * and the user-supplied preconditioner solve routine FCVPSOL.        *
  * Note the use of the generic name FCV_PSOL below.                   *
  **********************************************************************/
 
@@ -27,22 +27,22 @@ void FCV_PSOL(realtype*, realtype*, realtype*, realtype*,
 void FCV_SPGMRSETPSOL(int *flag, int *ier)
 {
   if (*flag == 0) CVSpgmrSetPrecSolveFn(CV_cvodemem, NULL);
-  else            CVSpgmrSetPrecSolveFn(CV_cvodemem, CVPSol);
+  else            CVSpgmrSetPrecSolveFn(CV_cvodemem, FCVPSol);
 }
 
 /***************************************************************************/
 
-/* C function CVPSol to interface between CVODE and a Fortran subroutine
-   CVPSOL for solution of a Krylov preconditioner.
+/* C function FCVPSol to interface between CVODE and a Fortran subroutine
+   FCVPSOL for solution of a Krylov preconditioner.
    Addresses of t, gamma, delta, lr, y, fy, vtemp, ewt, r, z, and the
-   address nfePtr, are passed to CVPSOL, using the routine N_VGetData 
-   from NVECTOR.  A return flag ier from CVPSOL is returned by CVPSol.
-   Auxiliary data is assumed to be communicated by Common. */
+   address nfePtr, are passed to FCVPSOL, using the routine N_VGetData 
+   from NVECTOR.  A return flag ier from FCVPSOL is returned by FCVPSol.
+   Auxiliary data is assumed to be communicated by common blocks. */
 
-int CVPSol(realtype t, N_Vector y, N_Vector fy, 
-           N_Vector r, N_Vector z,
-           realtype gamma, realtype delta,
-           int lr, void *P_data, N_Vector vtemp)
+int FCVPSol(realtype t, N_Vector y, N_Vector fy, 
+            N_Vector r, N_Vector z,
+            realtype gamma, realtype delta,
+            int lr, void *P_data, N_Vector vtemp)
 {
   N_Vector ewt;
   realtype *ydata, *fydata, *vtdata, *ewtdata, *rdata, *zdata;

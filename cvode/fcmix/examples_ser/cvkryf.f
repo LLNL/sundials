@@ -1,7 +1,7 @@
 C File cvkryf.f
 C
 C FCVODE Example Problem: 2D kinetics-transport, precond. Krylov solver. 
-C Version of 1 August 2003
+C Version of 27 January 2004
 C
 C An ODE system is generated from the following 2-species diurnal
 C kinetics advection-diffusion PDE system in 2 space dimensions:
@@ -54,10 +54,10 @@ C
       WRITE(6,10)NEQ
  10   FORMAT('Krylov example problem: Kinetics-transport, NEQ = ',I4/)
 C
-      CALL FNVSPECINITS(NEQ, IER)
+      CALL FNVINITS (NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
- 20     FORMAT(///' FMENVINITS returned IER =',I5)
+ 20     FORMAT(///' FNVINITS returned IER =',I5)
         STOP
       ENDIF
 C
@@ -77,7 +77,7 @@ C
       ENDIF
 
       CALL FCVSPGMRSETPSOL (1, IER)
-      CALL FCVSPGMRSETPRECO (1, IER)
+      CALL FCVSPGMRSETPSET (1, IER)
 C
 C Loop over output points, call FCVODE, print sample solution values.
       TOUT = TWOHR
@@ -123,7 +123,7 @@ C Print final statistics.
      6 ' number of conv. failures..  nonlinear =',I3,'  linear =',I3)
 C
       CALL FCVFREE
-      CALL FNVSPECFREES
+      CALL FNVFREES
 C
       STOP
       END
@@ -171,7 +171,7 @@ C
       RETURN
       END
 
-      SUBROUTINE CVFUN (T, Y, YDOT)
+      SUBROUTINE FCVFUN (T, Y, YDOT)
 C Routine for right-hand side function f
       DOUBLE PRECISION T, Y(2,*), YDOT(2,*)
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3,A4, OM, C3, DZ, HDCO,VDCO,HACO
@@ -240,7 +240,7 @@ C Load all terms into YDOT.
       RETURN
       END
 
-      SUBROUTINE CVPRECO (T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UR,
+      SUBROUTINE FCVPSET (T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UR,
      1                    V1, V2, V3, IER)
 C Routine to set and preprocess block-diagonal preconditioner.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
@@ -298,7 +298,7 @@ C
       RETURN
       END
 
-      SUBROUTINE CVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, DELTA,
+      SUBROUTINE FCVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, DELTA,
      1                   R, LR, Z, IER)
 C Routine to solve preconditioner linear system.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.

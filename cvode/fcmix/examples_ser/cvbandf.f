@@ -1,7 +1,7 @@
 C File cvbandf.f
 C
 C FCVODE Example Problem: Advection-diffusion, banded user Jacobian.
-C Version of 1 August 2003
+C Version of 27 January 2004
 C
 C The following is a simple example problem with a banded Jacobian.
 C The problem is the semi-discrete form of the advection-diffusion
@@ -45,10 +45,10 @@ C
       WRITE(6,10)NEQ
  10   FORMAT('Band example problem: Advection-diffusion, NEQ = ',I2//)
 C
-      CALL FNVSPECINITS(NEQ, IER)
+      CALL FNVINITS (NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
- 20     FORMAT(///' FMENVINITS returned IER =',I5)
+ 20     FORMAT(///' FNVINITS returned IER =',I5)
         STOP
       ENDIF
 C
@@ -100,7 +100,7 @@ C
      4       ' No. error test failures =',I4/)
 C
       CALL FCVFREE
-      CALL FNVSPECFREES
+      CALL FNVFREES
 C
       STOP
       END
@@ -145,7 +145,7 @@ C Compute max-norm of array U
       RETURN
       END
 
-      SUBROUTINE CVFUN (T, U, UDOT)
+      SUBROUTINE FCVFUN (T, U, UDOT)
 C Right-hand side routine
       DOUBLE PRECISION T, U(*), UDOT(*)
       DOUBLE PRECISION UIJ, UDN, UUP, ULT, URT, HDIFF, HADV, VDIFF
@@ -180,7 +180,7 @@ C
       RETURN
       END
 
-      SUBROUTINE CVBJAC(N, MU, ML, MDIM, T, U, FU,
+      SUBROUTINE FCVBJAC(N, MU, ML, MDIM, T, U, FU,
      1                 BJAC, V1, V2, V3)
 C Load banded Jacobian
       DOUBLE PRECISION BJAC(MDIM,*)

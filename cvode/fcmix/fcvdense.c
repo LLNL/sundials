@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvdense.c                                     *
  * Programmers   : Radu Serban  and Alan Hindmarsh@ LLNL          *
- * Version of    : 1 August 2003                                  *
+ * Version of    : 27 January 2004                                *
  *----------------------------------------------------------------*
  *                                                                *
  * Fortran/C interface routines for CVODE/CVDENSE, for the case   *
@@ -27,20 +27,20 @@ void FCV_DJAC(integertype*, realtype*, realtype*, realtype*, realtype*,
 void FCV_DENSESETJAC(int *flag, int *ier)
 {
   if (*flag == 0) CVDenseSetJacFn(CV_cvodemem, NULL);
-  else            CVDenseSetJacFn(CV_cvodemem, CVDenseJac);
+  else            CVDenseSetJacFn(CV_cvodemem, FCVDenseJac);
 }
 
 /***************************************************************************/
 
 /* C function CVDenseJac interfaces between CVODE and a Fortran subroutine
-   CVDJAC for solution of a linear system with dense Jacobian approximation.
-   Addresses of arguments are passed to CVDJAC, using the macro 
+   FCVDJAC for solution of a linear system with dense Jacobian approximation.
+   Addresses of arguments are passed to FCVDJAC, using the macro 
    DENSE_COL from DENSE and the routine N_VGetData from NVECTOR.
    Auxiliary data is assumed to be communicated by Common. */
 
-void CVDenseJac(integertype N, DenseMat J, realtype t, 
-                N_Vector y, N_Vector fy, void *jac_data,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+void FCVDenseJac(integertype N, DenseMat J, realtype t, 
+                 N_Vector y, N_Vector fy, void *jac_data,
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
 

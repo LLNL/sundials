@@ -1,7 +1,7 @@
 /***************************************************************************
  * File        : fcvbbd.h                                                  *
  * Programmers : Alan C. Hindmarsh and Radu Serban @ LLNL                  *
- * Version of  : 2 August 2003                                             *
+ * Version of  : 27 January 2004                                           *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -29,19 +29,19 @@ problem-defining routines are written in Fortran.
 
 The user-callable functions in this package, with the corresponding
 CVODE and CVBBDPRE functions, are as follows: 
-  FCVBBDIN interfaces to CVBBDPrecAlloc and CVSpgmr 
-  FCVREINBBD interfaces to CVBBDPrecReInit
-  FCVBBDOPT accesses optional outputs
-  FCVBBDF   interfaces to CVBBDPrecFree
+  FCVBBDININT  interfaces to CVBBDPrecAlloc and CVSpgmr 
+  FCVBBDREINIT interfaces to CVBBDPrecReInit
+  FCVBBDOPT    accesses optional outputs
+  FCVBBDFREE   interfaces to CVBBDPrecFree
 
-In addition to the Fortran right-hand side function CVFUN, the
+In addition to the Fortran right-hand side function FCVFUN, the
 user-supplied functions used by this package, are listed below,
 each with the corresponding interface function which calls it (and its
 type within CVBBDPRE or CVODE):
-  CVLOCFN  is called by the interface function CVgloc of type CVLocalFn
-  CVCOMMF  is called by the interface function CVcfn of type CVCommFn
-  CVJTIMES (optional) is called by the interface function CVJtimes of 
-           type CVSpgmrJtimesFn
+  FCVLOCFN  is called by the interface function FCVgloc of type CVLocalFn
+  FCVCOMMF  is called by the interface function FCVcfn of type CVCommFn
+  FCVJTIMES (optional) is called by the interface function FCVJtimes of 
+            type CVSpgmrJtimesFn
 (The names of all user-supplied routines here are fixed, in order to
 maximize portability for the resulting mixed-language program.)
 
@@ -49,12 +49,9 @@ Important note on portability.
 In this package, the names of the interface functions, and the names of
 the Fortran user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
-header file fcvbbd.h.  Those mapping definitions depend in turn on a
-pair of parameters, CRAY and UNDERSCORE, defined in the header file
-fcmixpar.h, which is machine-dependent.  The names into which the dummy
-names are mapped are either upper or lower case, and may or may not have
-an underscore appended, depending on these parameters.  Check, and if 
-necessary modify, the file fcmixpar.h for a given machine environment.
+header file fcvbbd.h. These definition depend in turn on variables
+SUNDIALS_UNDERSCORE_NONE and SUNDIALS_UNDERSCORE_TWO which can be 
+set at the configuration stage.
 
 ==============================================================================
 
@@ -69,15 +66,15 @@ summarized separately below.
 Some details are omitted, and the user is referred to the CVODE and PVODE
 user documents for more complete information.
 
-(1) User-supplied right-hand side routine: CVFUN
+(1) User-supplied right-hand side routine: FCVFUN
 The user must in all cases supply the following Fortran routine
-      SUBROUTINE CVFUN (T, Y, YDOT)
+      SUBROUTINE FCVFUN (T, Y, YDOT)
       DIMENSION Y(*), YDOT(*)
 It must set the YDOT array to f(t,y), the right-hand side of the ODE
 system, as function of T = t and the array Y = y.  Here Y and YDOT
 are distributed vectors.
 
-(2) User-supplied routines to define preconditoner: CVLOCFN and CVCOMMF
+(2) User-supplied routines to define preconditoner: FCVLOCFN and FCVCOMMF
 
 The routines in the CVBBDPRE module provide a preconditioner matrix
 for CVODE that is block-diagonal with banded blocks.  The blocking
@@ -89,9 +86,9 @@ difference quotient scheme on each processor independently, utilizing
 an assumed banded structure with given half-bandwidths.  A separate
 pair of half-bandwidths defines the band matrix retained.
 
-(2.1) Local approximate function CVLOCFN.
+(2.1) Local approximate function FCVLOCFN.
 The user must supply a subroutine of the form
-      SUBROUTINE CVLOCFN (NLOC, T, YLOC, GLOC)
+      SUBROUTINE FCVLOCFN (NLOC, T, YLOC, GLOC)
       DIMENSION YLOC(*), GLOC(*)
 to compute the function g(t,y) which approximates the right-hand side
 function f(t,y).  This function is to be computed locally, i.e. without 
@@ -101,9 +98,9 @@ NLOC, the independent variable value T = t, and the local realtype
 dependent variable array YLOC.  It is to compute the local part of
 g(t,y) and store this in the realtype array GLOC.
 
-(2.2) Communication function CVCOMMF.
+(2.2) Communication function FCVCOMMF.
 The user must also supply a subroutine of the form
-      SUBROUTINE CVCOMMF (NLOC, T, YLOC)
+      SUBROUTINE FCVCOMMF (NLOC, T, YLOC)
       DIMENSION YLOC(*)
 which is to perform all inter-processor communication necessary to
 evaluate the approximate right-hand side function g described above.
@@ -111,26 +108,26 @@ This function takes as input the local vector length NLOC, the
 independent variable value T = t, and the local real dependent
 variable array YLOC.  It is expected to save communicated data in 
 work space defined by the user, and made available to CVLOCFN.
-Each call to the CVCOMMF is preceded by a call to CVFUN with the same
-(t,y) arguments.  Thus CVCOMMF can omit any communications done by CVFUN
-if relevant to the evaluation of g.
+Each call to the FCVCOMMF is preceded by a call to FCVFUN with the same
+(t,y) arguments.  Thus FCVCOMMF can omit any communications done by 
+FCVFUN if relevant to the evaluation of g.
 
-(3) Optional user-supplied Jacobian-vector product routine: CVJTIMES
+(3) Optional user-supplied Jacobian-vector product routine: FCVJTIMES
 As an option, the user may supply a routine that computes the product
 of the system Jacobian J = df/dy and a given vector v.  If supplied, it
 must have the following form:
-      SUBROUTINE CVJTIMES (V, FJV, T, Y, FY, WORK, IER)
+      SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, WORK, IER)
       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
 Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
 compute the product vector Jv, where the vector v is stored in V, and store
-the product in FJV.  On return, set IER = 0 if CVJTIMES was successful,
+the product in FJV.  On return, set IER = 0 if FCVJTIMES was successful,
 and nonzero otherwise.
 
-(4) Initialization:  FNVSPECINITP, FCVMALLOC, FCVBBDIN.
+(4) Initialization:  FNVINITP, FCVMALLOC, FCVBBDINIT.
 
 (4.1) To initialize the parallel vector specification, the user must make 
 the following call:
-       CALL FNVSPECINITP (NLOCAL, NGLOBAL, IER)
+       CALL FNVINITP (NLOCAL, NGLOBAL, IER)
 The arguments are:
 NLOCAL  = local size of vectors on this processor
 NGLOBAL = the system size, and the global size of vectors (the sum 
@@ -170,7 +167,7 @@ IER    = return completion flag.  Values are 0 = success, and -1 = failure.
 (4.3) To specify the SPGMR linear system solver, and to allocate memory 
 and initialize data associated with the SPGMR method and the CVBBDPRE
 preconditioner, make the following call:
-      CALL FCVBBDIN(NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IPRETYPE, IGSTYPE,
+      CALL FCVBBDINIT(NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IPRETYPE, IGSTYPE,
      1              MAXL, DELT, IER)
 
 The arguments are:
@@ -192,13 +189,13 @@ DELT      = linear convergence tolerance factor; 0.0 indicates default.
 IER       = return completion flag.  Values are 0 = success, -1 = memory
             failure, -2 = illegal input.
 
-(4.4) To specify whether GMRES should use the supplied CVJTIMES or the 
+(4.4) To specify whether GMRES should use the supplied FCVJTIMES or the 
 internal finite difference approximation, make the call
        CALL FCVSPGMRSETJAC(FLAG, IER)
 where FLAG=0 for finite differences approxaimtion or
-      FLAG=1 to use the supplied routine CVJTIMES
+      FLAG=1 to use the supplied routine FCVJTIMES
 
-(5) Re-initialization: FCVREINIT, FCVREINBBD
+(5) Re-initialization: FCVREINIT, FCVBBDREINIT
 If a sequence of problems of the same size is being solved using the SPGMR
 linear solver in combination with the CVBBDPRE preconditioner, then the
 CVODE package can be re-initialized for the second and subsequent problems
@@ -211,14 +208,14 @@ except that NEQ has been omitted from the argument list (being unchanged
 for the new problem).  FCVREINIT performs the same initializations as
 FCVMALLOC, but does no memory allocation, using instead the existing
 internal memory created by the previous FCVMALLOC call.
-Following the call to FCVREINIT, a call to FCVBBDIN may or may not be needed.
-If the input arguments are the same, no FCVBBDIN call is needed.
+Following the call to FCVREINIT, a call to FCVBBDINIT may or may not be needed.
+If the input arguments are the same, no FCVBBDINIT call is needed.
 If there is a change in input arguments other than MU, ML or MAXL, then 
-the user program should call FCVREINBBD.  This reinitializes the SPGMR
+the user program should call FCVBBDREINIT.  This reinitializes the SPGMR
 linear solver, but without reallocating its memory.  The arguments of the
-FCVREINBBD routine have the same names and meanings as FCVBBDIN.  
+FCVBBDREINIT routine have the same names and meanings as FCVBBDINIT.  
 Finally, if the value of MU, ML, or MAXL is being changed, then a call to 
-FCVBBDIN must be made; in this case the SPGMR memory is reallocated.
+FCVBBDINIT must be made; in this case the SPGMR memory is reallocated.
 
 (6) The integrator: FCVODE
 Carrying out the integration is accomplished by making calls as follows:
@@ -255,12 +252,12 @@ T   = value of t at which solution derivative is desired
 K   = derivative order (0 .le. K .le. QU)
 DKY = array containing computed K-th derivative of y on return
 
-(9) Memory freeing: FCVBBDF, FCVFREE, and FNVSPECFREEP
-  To the free the internal memory created by the calls to FNVSPECINITP,
-FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
-      CALL FCVBBDF
+(9) Memory freeing: FCVBBDFREE, FCVFREE, and FNVFREEP
+  To the free the internal memory created by the calls to FNVINITP,
+FCVMALLOC, and FCVBBDINIT, make the following calls, in this order:
+      CALL FCVBBDFREE
       CALL FCVFREE
-      CALL FNVSPECFREEP
+      CALL FNVFREEP
 
 ****************************************************************************/
 
@@ -268,30 +265,30 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
-#define FCV_BBDIN     fcvbbdin
-#define FCV_REINBBD   fcvreinbbd
+#define FCV_BBDINIT   fcvbbdinit
+#define FCV_BBDREINIT fcvbbdreinit
 #define FCV_BBDOPT    fcvbbdopt
-#define FCV_BBDF      fcvbbdf
-#define FCV_GLOCFN    cvlocfn
-#define FCV_COMMFN    cvcommf
+#define FCV_BBDFREE   fcvbbdfree
+#define FCV_GLOCFN    fcvlocfn
+#define FCV_COMMFN    fcvcommf
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
 
-#define FCV_BBDIN     fcvbbdin__
-#define FCV_REINBBD   fcvreinbbd__
+#define FCV_BBDINIT   fcvbbdinit__
+#define FCV_BBDREINIT fcvbbdreinit__
 #define FCV_BBDOPT    fcvbbdopt__
-#define FCV_BBDF      fcvbbdf__
-#define FCV_GLOCFN    cvlocfn__
-#define FCV_COMMFN    cvcommf__
+#define FCV_BBDFREE   fcvbbdfree__
+#define FCV_GLOCFN    fcvlocfn__
+#define FCV_COMMFN    fcvcommf__
 
 #else
 
-#define FCV_BBDIN     fcvbbdin_
-#define FCV_REINBBD   fcvreinbbd_
+#define FCV_BBDINIT   fcvbbdinit_
+#define FCV_BBDREINIT fcvbbdreinit_
 #define FCV_BBDOPT    fcvbbdopt_
-#define FCV_BBDF      fcvbbdf_
-#define FCV_GLOCFN    cvlocfn_
-#define FCV_COMMFN    cvcommf_
+#define FCV_BBDFREE   fcvbbdfree_
+#define FCV_GLOCFN    fcvlocfn_
+#define FCV_COMMFN    fcvcommf_
 
 #endif
 
@@ -304,10 +301,10 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
-void CVgloc(integertype Nloc, realtype t, N_Vector yloc, N_Vector gloc,
-            void *f_data);
+void FCVgloc(integertype Nloc, realtype t, N_Vector yloc, N_Vector gloc,
+             void *f_data);
 
-void CVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data);
+void FCVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data);
 
 
 /* Declarations for global variables, shared among various routines */

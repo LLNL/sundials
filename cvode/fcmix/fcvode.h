@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvode.h                                       *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 31 July 2003                                   *
+ * Version of    : 27 January 2004                                *
  *----------------------------------------------------------------*
  * This is the header file for FCVODE, the Fortran interface to   *
  * the CVODE package.                                             *
@@ -26,7 +26,7 @@ serial and the parallel NVECTOR implementations.
 The user-callable functions, with the corresponding CVODE functions,
 are as follows:
 
-  FNVSPECINITS and FNVSPECINITP interface to NV_SpecInit_Serial and
+  FNVINITS and FNVINITP interface to NV_SpecInit_Serial and
              NV_SpecInitParallel (defined by nvector_serial
              and nvector_parallel, respectively)
 
@@ -40,7 +40,7 @@ are as follows:
 
   FCVBAND    interfaces to CVBand
 
-  FCVSPGMR, FCVREINSPGMR
+  FCVSPGMR, FCVSPGMRREINIT
              interface to CVSpgmr 
 
   FCVODE     interfaces to CVode and CVodeGet*
@@ -49,18 +49,18 @@ are as follows:
 
   FCVFREE    interfaces to CVodeFree
 
-  FNVSPECFREES and FNVSPECFREEP interface to NV_SpecFree_Serial and
+  FNVFREES and FNVFREEP interface to NV_SpecFree_Serial and
              NV_SpecFree_parallel(defined by nvector_serial
              and nvector_parallel, respectively)
 
 The user-supplied functions, each listed with the corresponding interface
 function which calls it (and its type within CVODE), are as follows:
-  CVFUN    is called by the interface function CVf of type RhsFn
-  CVDJAC   is called by the interface function CVDenseJac of type CVDenseJacFn
-  CVBJAC   is called by the interface function CVBandJac of type CVBandJacFn
-  CVPSOL   is called by the interface function CVPSol of type CVSpgmrPrecSolveFn
-  CVPRECO  is called by the interface function CVPreco of type CVSpgmrPrecSetupFn
-  CVJTIMES is called by the interface function CVJtimes of type CVSpgmrJacTimesVecFn
+  FCVFUN    is called by the interface function FCVf of type RhsFn
+  FCVDJAC   is called by the interface function FCVDenseJac of type CVDenseJacFn
+  FCVBJAC   is called by the interface function FCVBandJac of type CVBandJacFn
+  FCVPSOL   is called by the interface function FCVPSol of type CVSpgmrPrecSolveFn
+  FCVPSET   is called by the interface function FCVPSet of type CVSpgmrPrecSetupFn
+  FCVJTIMES is called by the interface function FCVJtimes of type CVSpgmrJacTimesVecFn
 In contrast to the case of direct use of CVODE, and of most Fortran ODE
 solvers, the names of all user-supplied routines here are fixed, in
 order to maximize portability for the resulting mixed-language program.
@@ -69,12 +69,9 @@ Important note on portability.
 In this package, the names of the interface functions, and the names of
 the Fortran user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
-header file fcvode.h.  Those mapping definitions depend in turn on a
-pair of parameters, CRAY and UNDERSCORE, defined in the header file
-fcmixpar.h, which is machine-dependent.  The names into which the dummy
-names are mapped are either upper or lower case, and may or may not have
-an underscore appended, depending on these parameters.  Check, and if 
-necessary modify, the file fcmixpar.h for a given machine environment.
+header file fcvode.h. These definition depend in turn on variables
+SUNDIALS_UNDERSCORE_NONE and SUNDIALS_UNDERSCORE_TWO which can be 
+set at the configuration stage.
 
 ===============================================================================
 
@@ -96,28 +93,28 @@ that apply to the serial version of CVODE only, and end with p for
 those that apply to the parallel version only.
 
 
-(1) User-supplied right-hand side routine: CVFUN
+(1) User-supplied right-hand side routine: FCVFUN
 The user must in all cases supply the following Fortran routine
-      SUBROUTINE CVFUN (T, Y, YDOT)
+      SUBROUTINE FCVFUN (T, Y, YDOT)
       DIMENSION Y(*), YDOT(*)
 It must set the YDOT array to f(t,y), the right-hand side of the ODE 
 system, as function of T = t and the array Y = y.  Here Y and YDOT
 are distributed vectors.
 
-(2) Optional user-supplied dense Jacobian approximation routine: CVDJAC
+(2) Optional user-supplied dense Jacobian approximation routine: FCVDJAC
 As an option when using the DENSE linear solver, the user may supply a
 routine that computes a dense approximation of the system Jacobian 
 J = df/dy. If supplied, it must have the following form:
-      SUBROUTINE CVDJAC (NEQ, T, Y, FY, DJAC, WK1, WK2, WK3)
+      SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, WK1, WK2, WK3)
       DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
 Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
 the Jacobian and store it columnwise in DJAC.
 
-(3) Optional user-supplied band Jacobian approximation routine: CVBJAC
+(3) Optional user-supplied band Jacobian approximation routine: FCVBJAC
 As an option when using the BAND linear solver, the user may supply a
 routine that computes a band approximation of the system Jacobian 
 J = df/dy. If supplied, it must have the following form:
-      SUBROUTINE CVBJAC (NEQ, MU, ML, MDIM, T, Y, FY,
+      SUBROUTINE FCVBJAC (NEQ, MU, ML, MDIM, T, Y, FY,
      1                   BJAC, WK1, WK2, WK3)
       DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
 Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. 
@@ -125,29 +122,29 @@ It must load the MDIM by N array BJAC with the Jacobian matrix at the
 current (t,y) in band form.  Store in BJAC(k,j) the Jacobian element J(i,j)
 with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
 
-(4) Optional user-supplied Jacobian-vector product routine: CVJTIMES
+(4) Optional user-supplied Jacobian-vector product routine: FCVJTIMES
 As an option when using the SPGMR linear solver, the user may supply a 
 routine that computes the product of the system Jacobian J = df/dy and 
 a given vector v.  If supplied, it must have the following form:
-      SUBROUTINE CVJTIMES (V, FJV, T, Y, FY, WORK, IER)
+      SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, WORK, IER)
       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
 Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
 compute the product vector Jv, where the vector v is stored in V, and store
-the product in FJV.  On return, set IER = 0 if CVJTIMES was successful,
+the product in FJV.  On return, set IER = 0 if FCVJTIMES was successful,
 and nonzero otherwise.
 
-(5) Initialization:  FNVSPECINITS / FNVSPECINITP , FCVMALLOC, FCVREINIT
+(5) Initialization:  FNVINITS / FNVINITP , FCVMALLOC, FCVREINIT
 
 (5.1s) To initialize the serial machine environment, the user must make
 the following call:
-       CALL FNVSPECINITS (NEQ, IER)
+       CALL FNVINITS (NEQ, IER)
 The arguments are:
 NEQ     = size of vectors
 IER     = return completion flag. Values are 0 = success, -1 = failure.
 
 (5.1p) To initialize the parallel machine environment, the user must make 
 the following call:
-       CALL FNVSPECINITP (NLOCAL, NGLOBAL, IER)
+       CALL FNVINITP (NLOCAL, NGLOBAL, IER)
 The arguments are:
 NLOCAL  = local size of vectors on this processor
 NGLOBAL = the system size, and the global size of vectors (the sum 
@@ -204,7 +201,7 @@ desired choice.
 (6.1) Diagonal approximate Jacobian.
 This choice is appropriate when the Jacobian can be well approximated by
 a diagonal matrix.  The user must make the call:
-      CALL FCVDIAG (IER)
+      CALL FCVDIAG(IER)
 IER is an error return flag: 0 = success, -1 = memory failure.
 There is no additional user-supplied routine.  Optional outputs specific
 to the approximate diagonal Jacobian case are LRW and LIW, stored in
@@ -212,12 +209,12 @@ IOPT(16) and IOPT(17), respectively.  (See the CVODE manual for descriptions.)
 
 (6.2) DENSE treatment of the linear system.
 The user must make the call
-      CALL FCVDENSE0(NEQ, IER)
+      CALL FCVDENSE(NEQ, IER)
 The argument is:
 IER = error return flag: 0 = success , -1 = memory allocation failure,
                         -2 = illegal input. 
 
-If the user program includes the CVDJAC routine for the evaluation of the 
+If the user program includes the FCVDJAC routine for the evaluation of the 
 dense approximation to the Jacobian, the following call must be made
       CALL FCVDENSESETJAC(FLAG, IER)
 The argument FLAG=0 specifies using the internal finite differences
@@ -237,7 +234,7 @@ ML  = lower bandwidth
 IER = error return flag: 0 = success , -1 = memory allocation failure,
                         -2 = illegal input.     
 
-If the user program includes the CVBJAC routine for the evaluation of the 
+If the user program includes the FCVBJAC routine for the evaluation of the 
 band approximation to the Jacobian, the following call must be made
       CALL FCVBANDSETJAC(FLAG, IER)
 The argument FLAG=0 specifies using the internal finite differences
@@ -251,7 +248,7 @@ manual for descriptions.)
 (6.4) SPGMR treatment of the linear systems.
 For the Scaled Preconditioned GMRES solution of the linear systems,
 the user must make the following call:
-      CALL FCVSPGMR (IGSTYPE, MAXL, DELT, IER)              
+      CALL FCVSPGMR(IGSTYPE, MAXL, DELT, IER)              
 
 The arguments are:
 IPRETYPE = preconditioner type: 1 = left only, 2 = right only, 3 = both sides.
@@ -271,9 +268,9 @@ CVJTIMES is provided.
 Usage of the user-supplied routine CVPSOL for solution of the preconditioner 
 linear system is specified by calling
       CALL FCVSPGMRSETPSOL(FLAG, IER)
-where FLAG=0 indicates no CVPSOL (default) and FLAG=1 specifies using CVPSOL.
-The user-supplied routine CVPSOL must be of the form:
-      SUBROUTINE CVPSOL (T, Y,FY, VT, GAMMA, EWT,DELTA, NFE, R, LR, Z, IER)
+where FLAG=0 indicates no FCVPSOL (default) and FLAG=1 specifies using FCVPSOL.
+The user-supplied routine FCVPSOL must be of the form:
+      SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT,DELTA, NFE, R, LR, Z, IER)
       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
 Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
 must solve the preconditioner linear system Pz = r, where r = R is input, 
@@ -282,22 +279,22 @@ and the right preconditioner if LR = 2.  The preconditioner (or the product
 of the left and right preconditioners if both are nontrivial) should be an 
 approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
 
-Usage of the user-supplied routine CVPRECO for construction of the preconditioner 
+Usage of the user-supplied routine FCVPSET for construction of the preconditioner 
 is specified by calling
-      CALL FCVSPGMRSETPPRECO(FLAG, IER)
-where FLAG=0 indicates no CVPRECO (default) and FLAG=1 specifies using CVPRECO.
-The user-supplied routine CVPRECO must be of the form:
-      SUBROUTINE CVPRECO (T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UROUND, 
+      CALL FCVSPGMRSETPPSET(FLAG, IER)
+where FLAG=0 indicates no FCVPSET (default) and FLAG=1 specifies using FCVPSET.
+The user-supplied routine FCVPSET must be of the form:
+      SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UROUND, 
      1                   NFE, V1, V2, V3, IER)
       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
 Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
 perform any evaluation of Jacobian-related data and preprocessing needed
-for the solution of the preconditioner linear systems by CVPSOL.
+for the solution of the preconditioner linear systems by FCVPSOL.
 The JOK argument allows for Jacobian data to be saved and reused:  If 
 JOK = 0, this data should be recomputed from scratch.  If JOK = 1, a saved
 copy of it may be reused, and the preconditioner constructed from it.
 On return, set JCUR = 1 if Jacobian data was computed, and 0 otherwise.
-Also on return, set IER = 0 if CVPRECO was successful, set IER positive if a 
+Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
 recoverable error occurred, and set IER negative if a non-recoverable error
 occurred.
 
@@ -306,7 +303,7 @@ LRW, and LIW, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
 manual for descriptions.)
 
      If a sequence of problems of the same size is being solved using the SPGMR
-linear solver, then following the call to FCVREINIT, a call to the FCVREINSPGMR
+linear solver, then following the call to FCVREINIT, a call to the FCVSPGMRREINIT
 routine may or may not be needed.  
 
 (7) The integrator: FCVODE
@@ -332,12 +329,12 @@ K   = derivative order (0 .le. K .le. QU)
 DKY = array containing computed K-th derivative of y on return
 IER = return flag: = 0 for success, < 0 for illegal argument.
 
-(9) Memory freeing: FCVFREE and FNVSPECFREES / FNVSPECFREEP
+(9) Memory freeing: FCVFREE and FNVFREES / FNVFREEP
 To the free the internal memory created by the calls to FCVMALLOC and
-FNVSPECINITS or FNVSPECINITP, depending on the version (serial/parallel), make
+FNVINITS or FNVINITP, depending on the version (serial/parallel), make
 the following calls, in this order:
       CALL FCVFREE
-      CALL FNVSPECFREES or CALL FNVSPECFREEP  
+      CALL FNVFREES or CALL FNVFREEP  
 
 
 ******************************************************************************/
@@ -348,75 +345,75 @@ the following calls, in this order:
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
-#define FCV_MALLOC      fcvmalloc
-#define FCV_REINIT      fcvreinit
-#define FCV_DIAG        fcvdiag
-#define FCV_DENSE       fcvdense
-#define FCV_DENSESETJAC fcvdensesetjac
-#define FCV_BAND        fcvband
-#define FCV_BANDSETJAC  fcvbandsetjac
-#define FCV_SPGMR       fcvspgmr
-#define FCV_REINSPGMR   fcvreinspgmr
-#define FCV_SPGMRSETJAC fcvspgmrsetjac
-#define FCV_SPGMRSETPSOL  fcvspgmrsetpsol
-#define FCV_SPGMRSETPRECO fcvspgmrsetpreco
-#define FCV_CVODE       fcvode
-#define FCV_DKY         fcvdky
-#define FCV_FREE        fcvfree
-#define FCV_FUN         cvfun
-#define FCV_DJAC        cvdjac
-#define FCV_BJAC        cvbjac
-#define FCV_PSOL        cvpsol
-#define FCV_PRECO       cvpreco
-#define FCV_JTIMES      cvjtimes
+#define FCV_MALLOC       fcvmalloc
+#define FCV_REINIT       fcvreinit
+#define FCV_DIAG         fcvdiag
+#define FCV_DENSE        fcvdense
+#define FCV_DENSESETJAC  fcvdensesetjac
+#define FCV_BAND         fcvband
+#define FCV_BANDSETJAC   fcvbandsetjac
+#define FCV_SPGMR        fcvspgmr
+#define FCV_SPGMRREINIT  fcvspgmrreinit
+#define FCV_SPGMRSETJAC  fcvspgmrsetjac
+#define FCV_SPGMRSETPSOL fcvspgmrsetpsol
+#define FCV_SPGMRSETPSET fcvspgmrsetpset
+#define FCV_CVODE        fcvode
+#define FCV_DKY          fcvdky
+#define FCV_FREE         fcvfree
+#define FCV_FUN          fcvfun
+#define FCV_DJAC         fcvdjac
+#define FCV_BJAC         fcvbjac
+#define FCV_PSOL         fcvpsol
+#define FCV_PSET         fcvpset
+#define FCV_JTIMES       fcvjtimes
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
 
-#define FCV_MALLOC      fcvmalloc__
-#define FCV_REINIT      fcvreinit__
-#define FCV_DIAG        fcvdiag__
-#define FCV_DENSE       fcvdense__
-#define FCV_DENSESETJAC fcvdensesetjac__
-#define FCV_BAND        fcvband__
-#define FCV_BANDSETJAC  fcvbandsetjac__
-#define FCV_SPGMR       fcvspgmr__
-#define FCV_REINSPGMR   fcvreinspgmr__
-#define FCV_SPGMRSETJAC fcvspgmrsetjac__
-#define FCV_SPGMRSETPSOL  fcvspgmrsetpsol__
-#define FCV_SPGMRSETPRECO fcvspgmrsetpreco__
-#define FCV_CVODE       fcvode__
-#define FCV_DKY         fcvdky__
-#define FCV_FREE        fcvfree__
-#define FCV_FUN         cvfun__
-#define FCV_DJAC        cvdjac__
-#define FCV_BJAC        cvbjac__
-#define FCV_PSOL        cvpsol__
-#define FCV_PRECO       cvpreco__
-#define FCV_JTIMES      cvjtimes__
+#define FCV_MALLOC       fcvmalloc__
+#define FCV_REINIT       fcvreinit__
+#define FCV_DIAG         fcvdiag__
+#define FCV_DENSE        fcvdense__
+#define FCV_DENSESETJAC  fcvdensesetjac__
+#define FCV_BAND         fcvband__
+#define FCV_BANDSETJAC   fcvbandsetjac__
+#define FCV_SPGMR        fcvspgmr__
+#define FCV_SPGMRREINIT  fcvspgmrreinit__
+#define FCV_SPGMRSETJAC  fcvspgmrsetjac__
+#define FCV_SPGMRSETPSOL fcvspgmrsetpsol__
+#define FCV_SPGMRSETPSET fcvspgmrsetpset__
+#define FCV_CVODE        fcvode__
+#define FCV_DKY          fcvdky__
+#define FCV_FREE         fcvfree__
+#define FCV_FUN          fcvfun__
+#define FCV_DJAC         fcvdjac__
+#define FCV_BJAC         fcvbjac__
+#define FCV_PSOL         fcvpsol__
+#define FCV_PSET         fcvpset__
+#define FCV_JTIMES       fcvjtimes__
 
 #else
 
-#define FCV_MALLOC      fcvmalloc_
-#define FCV_REINIT      fcvreinit_
-#define FCV_DIAG        fcvdiag_
-#define FCV_DENSE       fcvdense_
-#define FCV_DENSESETJAC fcvdensesetjac_
-#define FCV_BAND        fcvband_
-#define FCV_BANDSETJAC  fcvbandsetjac_
-#define FCV_SPGMR       fcvspgmr_
-#define FCV_REINSPGMR   fcvreinspgmr_
-#define FCV_SPGMRSETJAC fcvspgmrsetjac_
-#define FCV_SPGMRSETPSOL  fcvspgmrsetpsol_
-#define FCV_SPGMRSETPRECO fcvspgmrsetpreco_
-#define FCV_CVODE       fcvode_
-#define FCV_DKY         fcvdky_
-#define FCV_FREE        fcvfree_
-#define FCV_FUN         cvfun_
-#define FCV_DJAC        cvdjac_
-#define FCV_BJAC        cvbjac_
-#define FCV_PSOL        cvpsol_
-#define FCV_PRECO       cvpreco_
-#define FCV_JTIMES      cvjtimes_
+#define FCV_MALLOC       fcvmalloc_
+#define FCV_REINIT       fcvreinit_
+#define FCV_DIAG         fcvdiag_
+#define FCV_DENSE        fcvdense_
+#define FCV_DENSESETJAC  fcvdensesetjac_
+#define FCV_BAND         fcvband_
+#define FCV_BANDSETJAC   fcvbandsetjac_
+#define FCV_SPGMR        fcvspgmr_
+#define FCV_SPGMRREINIT  fcvspgmrreinit_
+#define FCV_SPGMRSETJAC  fcvspgmrsetjac_
+#define FCV_SPGMRSETPSOL fcvspgmrsetpsol_
+#define FCV_SPGMRSETPSET fcvspgmrsetpset_
+#define FCV_CVODE        fcvode_
+#define FCV_DKY          fcvdky_
+#define FCV_FREE         fcvfree_
+#define FCV_FUN          fcvfun_
+#define FCV_DJAC         fcvdjac_
+#define FCV_BJAC         fcvbjac_
+#define FCV_PSOL         fcvpsol_
+#define FCV_PSET         fcvpset_
+#define FCV_JTIMES       fcvjtimes_
 
 #endif
 
@@ -430,30 +427,30 @@ the following calls, in this order:
 #include "band.h"          /* definition of BandMat                         */
 
 /* Prototypes: Functions Called by the CVODE Solver */
+  
+void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-void CVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+void FCVDenseJac(integertype N, DenseMat J, realtype t, 
+                 N_Vector y, N_Vector fy, void *jac_data,
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-void CVDenseJac(integertype N, DenseMat J, realtype t, 
-                N_Vector y, N_Vector fy, void *jac_data,
+void FCVBandJac(integertype N, integertype mupper, integertype mlower,
+                BandMat J, realtype t, N_Vector y, N_Vector fy,
+                void *jac_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-void CVBandJac(integertype N, integertype mupper, integertype mlower,
-               BandMat J, realtype t, N_Vector y, N_Vector fy,
-               void *jac_data,
-               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-
-int CVPreco(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
+int FCVPSet(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
             booleantype *jcurPtr, realtype gamma, void *P_data,
             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int CVPSol(realtype tn, N_Vector y, N_Vector fy, 
-           N_Vector r, N_Vector z,
-           realtype gamma, realtype delta,
-           int lr, void *P_data, N_Vector vtemp);
+int FCVPSol(realtype tn, N_Vector y, N_Vector fy, 
+            N_Vector r, N_Vector z,
+            realtype gamma, realtype delta,
+            int lr, void *P_data, N_Vector vtemp);
 
-int CVJtimes(N_Vector v, N_Vector Jv, realtype t, 
-             N_Vector y, N_Vector fy,
-             void *jac_data, N_Vector work);
+int FCVJtimes(N_Vector v, N_Vector Jv, realtype t, 
+              N_Vector y, N_Vector fy,
+              void *jac_data, N_Vector work);
 
 
 /* Declarations for global variables, shared among various routines */

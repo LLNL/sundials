@@ -1,14 +1,13 @@
 /******************************************************************
  * File          : fcvode.c                                       *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 31 July 2003                                   *
+ * Version of    : 27 January 2004                                *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the CVODE package.  See fcvode.h for usage.                    *
  * NOTE: some routines are necessarily stored elsewhere to avoid  *
  * linking problems.  Therefore, see also fcvpreco.c, fcvpsol.c,  *
- * fcvjtimes.c, and the five files fcvspgmr**.c (where ** is one  *
- * 01, 10, 11, 20, 21) for all the options available.             *
+ * fcvjtimes.c, and fcvspgmr.c for all the options available.     *
  ******************************************************************/
 
 #include <stdio.h>
@@ -80,7 +79,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     if (ropt[2] > 0.0)  CVodeSetMinStep(CV_cvodemem, ropt[2]);
   }
 
-  *ier = CVodeMalloc(CV_cvodemem, CVf, *t0, CV_yvec,
+  *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, CV_yvec,
                      itol, rtol, atolptr, F2C_nvspec);
 
   CV_iopt = iopt;
@@ -129,7 +128,7 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
   }  
 
 
-  *ier = CVodeReInit(CV_cvodemem, CVf, *t0, CV_yvec,
+  *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, CV_yvec,
                      itol, rtol, atolptr);
 
   CV_iopt = iopt;
@@ -204,7 +203,7 @@ void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 
 /***************************************************************************/
 
-void FCV_REINSPGMR(int *pretype, int *gstype, realtype *delt, int *ier)
+void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
 {
   /* Call CVSpgmrSet* to specify 
      *gstype     is the Gram-Schmidt process type
@@ -327,7 +326,7 @@ void FCV_FREE ()
   /* Call CVodeFree:
      CV_cvodemem is the pointer to the CVODE memory block */
 
-  CVodeFree (CV_cvodemem);
+  CVodeFree(CV_cvodemem);
 }
 
 /***************************************************************************/
@@ -337,14 +336,14 @@ void FCV_FREE ()
    routine N_VGetData from the NVECTOR module.
    Auxiliary data is assumed to be communicated by Common. */
 
-void CVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype *ydata, *dydata;
 
   ydata = N_VGetData(y);
   dydata = N_VGetData(ydot);
 
-  FCV_FUN (&t, ydata, dydata);
+  FCV_FUN(&t, ydata, dydata);
 
   N_VSetData(dydata, ydot);
 

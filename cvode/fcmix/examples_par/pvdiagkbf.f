@@ -2,7 +2,7 @@ C File: pvdiagkbf.f
 C Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C Uses FCVODE interfaces and FCVBBD interfaces.
 C Solves problem twice -- with left and right preconditioning.
-C Version of 1 August 2003
+C Version of 27 January 2004
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
@@ -66,16 +66,16 @@ C
      5         'Number of processors = ',I3)
       ENDIF
 C
-      CALL FNVSPECINITP(NLOCAL, NEQ, IER)
+      CALL FNVINITP (NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
- 20     FORMAT(///' FMENVINITP returned IER =',I5)
+ 20     FORMAT(///' FNVINITP returned IER =',I5)
         STOP
         ENDIF
 C
-      CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               INOPT, IOPT, ROPT, IER)
+      CALL FCVMALLOC (T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+     1                INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -87,11 +87,11 @@ C
       MLDQ = 0
       MU = 0
       ML = 0
-      CALL FCVBBDIN (NLOCAL, MUDQ, MLDQ, MU,ML, 0.0D0, 
-     1               IPRE, IGS, 0, 0.0D0, IER)
+      CALL FCVBBDINIT (NLOCAL, MUDQ, MLDQ, MU,ML, 0.0D0, 
+     1                 IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,35) IER
- 35     FORMAT(///' FCVBBDIN0 returned IER =',I5)
+ 35     FORMAT(///' FCVBBDINIT returned IER =',I5)
         STOP
         ENDIF
       IF (MYPE.EQ. 0) WRITE(6,38)
@@ -105,7 +105,7 @@ C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
       DO 60 IOUT = 1,NOUT
 C
-        CALL FCVODE(TOUT, T, Y, ITASK, IER)
+        CALL FCVODE (TOUT, T, Y, ITASK, IER)
 C
         IF (MYPE .EQ. 0) WRITE(6,45) T,IOPT(LNST),IOPT(LNFE)
  45     FORMAT(/' t =',E10.2,5X,'no. steps =',I5,'   no. f-s =',I5)
@@ -126,8 +126,8 @@ C Get max. absolute error in the local vector.
         ERMAX = MAX(ERMAX,ABS(ERRI))
  65     CONTINUE
 C Get global max. error from MPI_REDUCE call.
-      CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
-     1                0, MPI_COMM_WORLD, IER)
+      CALL MPI_REDUCE (ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
+     1                 0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,70) IER
  70     FORMAT(///' MPI_REDUCE returned IER =',I5)
@@ -158,7 +158,7 @@ C Print final statistics.
      5 ' average Krylov subspace dimension (NLI/NNI)  =',F8.4/
      6 ' number of conv. failures..  nonlinear =',I3,'  linear =',I3/
      7 ' number of error test failures =',I3)
-      CALL FCVBBDOPT(LENRPW, LENIPW, NGE)
+      CALL FCVBBDOPT (LENRPW, LENIPW, NGE)
       WRITE (6,82) LENRPW, LENIPW, NGE
  82   FORMAT('In CVBBDPRE: real/integer local work space sizes =',2I5/
      1 ' number of g evals.     =',I5)
@@ -172,8 +172,8 @@ C Otherwise jump to final block.
       DO 90 I = 1,NLOCAL
  90      Y(I) = 1.0D0
          
-      CALL FCVREINIT(T, Y, IATOL, RTOL, ATOL,
-     1               INOPT, IOPT, ROPT, IER)
+      CALL FCVREINIT (T, Y, IATOL, RTOL, ATOL,
+     1                INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,91) IER
  91      FORMAT(///' FCVREINIT returned IER =',I5)
@@ -182,12 +182,12 @@ C Otherwise jump to final block.
 
       IPRE = 2
 
-      CALL FCVREINBBD (NLOCAL, MUDQ, MLDQ, 
-     1                 0D0, IPRE, IGS, 
-     2                 0.0D0, IER)
+      CALL FCVBBDREINIT (NLOCAL, MUDQ, MLDQ, 
+     1                   0D0, IPRE, IGS, 
+     2                   0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,92) IER
- 92     FORMAT(///' FCVREINBBD0 returned IER =',I5)
+ 92     FORMAT(///' FCVBBDREINIT returned IER =',I5)
         STOP
       ENDIF
       IF (MYPE .EQ. 0) WRITE (6,95)
@@ -195,15 +195,15 @@ C Otherwise jump to final block.
       GO TO 40
 C
 C Free the memory and finalize MPI.
- 99   CALL FCVBBDF
+ 99   CALL FCVBBDFREE
       CALL FCVFREE
-      CALL FNVSPECFREEP
+      CALL FNVFREEP
       CALL MPI_FINALIZE(IER)
 C
       STOP
       END
 
-      SUBROUTINE CVFUN(T, Y, YDOT)
+      SUBROUTINE FCVFUN(T, Y, YDOT)
 C Routine for right-hand side function f
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       DIMENSION Y(*), YDOT(*)
@@ -215,17 +215,17 @@ C
       RETURN
       END
 
-      SUBROUTINE CVLOCFN(NLOC, T, YLOC, GLOC)
+      SUBROUTINE FCVLOCFN(NLOC, T, YLOC, GLOC)
 C Routine to define local approximate function g, here the same as f. 
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       DIMENSION YLOC(*), GLOC(*)
 C
-      CALL CVFUN(T, YLOC, GLOC)
+      CALL FCVFUN(T, YLOC, GLOC)
 C
       RETURN
       END
 
-      SUBROUTINE CVCOMMF(NLOC, T, YLOC)
+      SUBROUTINE FCVCOMMF(NLOC, T, YLOC)
 C Routine to perform communication required for evaluation of g.
       RETURN
       END

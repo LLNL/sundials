@@ -1,12 +1,12 @@
 /**********************************************************************
  * File          : fcvpreco.c                                         *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL           *
- * Version of    : 1 August 2003                                      *
+ * Version of    : 27 January 2004                                    *
  *--------------------------------------------------------------------*
- * This C function CVPreco is to interface between the CVSPGMR module *
- * and the user-supplied preconditioner setup routine CVPRECO.        *
- * Note the use of the generic name FCV_PRECO below.                  *
- *********************************************************************/
+ * The C function FCVPSet is to interface between the CVSPGMR module  *
+ * and the user-supplied preconditioner setup routine FCVPSET.        *
+ * Note the use of the generic name FCV_PSET below.                   *
+ **********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,30 +19,30 @@
 /*********************************************************************/
 
 /* Prototype of the Fortran routine */
-void FCV_PRECO(realtype*, realtype*, realtype*, booleantype*, 
-               booleantype*, realtype*, realtype*, realtype*, realtype*, 
-               realtype*, realtype*, realtype*, int*);
+void FCV_PSET(realtype*, realtype*, realtype*, booleantype*, 
+              booleantype*, realtype*, realtype*, realtype*, realtype*, 
+              realtype*, realtype*, realtype*, int*);
 
 /***************************************************************************/
 
-void FCV_SPGMRSETPRECO(int *flag, int *ier)
+void FCV_SPGMRSETPSET(int *flag, int *ier)
 {
   if (*flag == 0) CVSpgmrSetPrecSetupFn(CV_cvodemem, NULL);
-  else            CVSpgmrSetPrecSetupFn(CV_cvodemem, CVPreco);
+  else            CVSpgmrSetPrecSetupFn(CV_cvodemem, FCVPSet);
 }
 
 
 /***************************************************************************/
 
-/* C function CVPreco to interface between CVODE and a Fortran subroutine
-   CVPRECO for setup of a Krylov preconditioner.
+/* C function FCVPSet to interface between CVODE and a Fortran subroutine
+   FCVPSET for setup of a Krylov preconditioner.
    Addresses of Nlocal, t, jok, gamma, h, uround, y, fy, ewt, vtemp1, vtemp2, 
-   vtemp3, and the address jcurPtr are passed to CVPRECO, using
-   the routine N_VGetData from NVECTOR.  A return flag ier from CVPRECO
-   is returned by CVPreco.
-   Auxiliary data is assumed to be communicated by Common. */
+   vtemp3, and the address jcurPtr are passed to FCVPSET, using
+   the routine N_VGetData from NVECTOR.  A return flag ier from FCVPSET
+   is returned by FCVPSet.
+   Auxiliary data is assumed to be communicated by common blocks. */
 
-int CVPreco(realtype t, N_Vector y, N_Vector fy, booleantype jok,
+int FCVPSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
             booleantype *jcurPtr, realtype gamma,
             void *P_data,
             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -63,8 +63,8 @@ int CVPreco(realtype t, N_Vector y, N_Vector fy, booleantype jok,
   v2data  = N_VGetData(vtemp2);
   v3data  = N_VGetData(vtemp3);
 
-  FCV_PRECO (&t, ydata, fydata, &jok, jcurPtr, &gamma, ewtdata,
-             &h, &uround, v1data, v2data, v3data, &ier);
+  FCV_PSET(&t, ydata, fydata, &jok, jcurPtr, &gamma, ewtdata,
+           &h, &uround, v1data, v2data, v3data, &ier);
 
   return(ier);
 }

@@ -1,6 +1,6 @@
 C File: pvdiagnf.f
 C Diagonal ODE example.  Nonstiff case: alpha = 10/NEQ.
-C Version of 1 August 2003
+C Version of 27 January 2004
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
@@ -15,19 +15,19 @@ C
       COMMON /PCOM/ ALPHA, MYPE, NLOCAL
 C
 C Get NPES and MYPE.  Requires initialization of MPI.
-      CALL MPI_INIT(IER)
+      CALL MPI_INIT (IER)
       IF (IER .NE. 0) THEN
         WRITE(6,5) IER
  5      FORMAT(///' MPI_INIT returned IER =',I5)
         STOP
         ENDIF
-      CALL MPI_COMM_SIZE(MPI_COMM_WORLD, NPES, IER)
+      CALL MPI_COMM_SIZE (MPI_COMM_WORLD, NPES, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,6) IER
  6      FORMAT(///' MPI_COMM_SIZE returned IER =',I5)
         STOP
         ENDIF
-      CALL MPI_COMM_RANK(MPI_COMM_WORLD, MYPE, IER)
+      CALL MPI_COMM_RANK (MPI_COMM_WORLD, MYPE, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,7) IER
  7      FORMAT(///' MPI_COMM_RANK returned IER =',I5)
@@ -63,16 +63,16 @@ C
   15    FORMAT('Number of processors =',i3)
         ENDIF
 C
-      CALL FNVSPECINITP(NLOCAL, NEQ, IER)
+      CALL FNVINITP (NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
-  20    FORMAT(///' FMENVINITP returned IER =',I5)
+  20    FORMAT(///' FNVINITP returned IER =',I5)
         STOP
         ENDIF
 C
-      CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               INOPT, IOPT, ROPT, IER)
+      CALL FCVMALLOC (T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+     1                INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -84,7 +84,7 @@ C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
       DO 70 IOUT = 1,NOUT
 C
-        CALL FCVODE(TOUT, T, Y, ITASK, IER)
+        CALL FCVODE (TOUT, T, Y, ITASK, IER)
 C
         IF (MYPE .EQ. 0) WRITE(6,40) T,IOPT(LNST),IOPT(LNFE)
   40    FORMAT(/' t =',D10.2,5X,'no. steps =',I5,'   no. f-s =',I5)
@@ -130,7 +130,7 @@ C Print final statistics.
 C
 C Free the memory and finalize MPI.
       CALL FCVFREE
-      CALL FNVSPECFREEP
+      CALL FNVFREEP
       CALL MPI_FINALIZE(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,95) IER
@@ -141,7 +141,7 @@ C
       STOP
       END
 
-      SUBROUTINE CVFUN(T, Y, YDOT)
+      SUBROUTINE FCVFUN(T, Y, YDOT)
 C Routine for right-hand side function f
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       DIMENSION Y(*), YDOT(*)
