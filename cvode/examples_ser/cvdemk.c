@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-08-31 20:36:27 $
+ * $Revision: 1.16 $
+ * $Date: 2004-08-31 20:41:53 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -138,7 +138,6 @@
 #define LMM   CV_BDF
 #define ITER  CV_NEWTON
 #define ITOL  CV_SS
-#define ERRFP stderr
 
 /* CVSpgmr Constants */
 
@@ -261,9 +260,6 @@ int main()
         if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
         wdata->cvode_mem = cvode_mem;
-
-        flag = CVodeSetErrFile(cvode_mem, ERRFP);
-        if(check_flag(&flag, "CVodeSetErrFile", 1)) return(1);
 
         flag = CVodeSetFdata(cvode_mem, wdata);
         if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
