@@ -2,19 +2,18 @@ SUNDIALS is a suite of advanced computational codes for solving
 large-scale problems that can be modeled as a system of nonlinear
 algebraic equations, or as initial-value problems in ordinary
 differential or differential-algebraic equations. The basic versions
-of these codes are called KINSOL, CVODE, and IDA respectively. The
-codes are written in ANSI standard C, and suitable for either serial
+of these codes are called KINSOL, CVODE, and IDA, respectively. The
+codes are written in ANSI standard C and are suitable for either serial
 or parallel machine environments.  Common and notable features of
 these codes include: inexact Newton-Krylov methods for solving
-large-scale nonlinear systems, linear multistep methods for
-time-dependent problems, a highly modular structure to allow
+large-scale nonlinear systems; linear multistep methods for
+time-dependent problems; a highly modular structure to allow
 incorporation of different preconditioning and/or linear solver
-methods, clear interfaces allowing for users to provide their 
-data structures underneath the solvers,
-and a set of interfaces for accommodating Fortran applications.  We
+methods; and clear interfaces allowing for users to provide their 
+own data structures underneath the solvers.  We
 describe the current capabilities of the codes, along with some of the
 algorithms and heuristics used to achieve efficiency and robustness.
 We also describe how the codes stem from previous and widely used
-Fortran solvers, and how the codes have been augmented with forward
+Fortran 77 solvers, and how the codes have been augmented with forward
 and adjoint methods for carrying out first-order sensitivity analysis
 with respect to model parameters or initial conditions.
