@@ -130,12 +130,12 @@ appropriate safeguards are incorporated to ensure that $\eta$ does not
 decrease too fast~\cite{EiWa:96}.
 
 As a user option, KINSOL permits the application of inequality
-constraints, $u^i > 0$ and $u^i < 0$ as well as $u^i \geq 0$ and
-$u^i \leq 0$, where $u^i$ is the $i$th component of $u$. Either
+constraints, $u^i > 0$ and $u^i < 0$, as well as $u^i \geq 0$ and
+$u^i \leq 0$, where $u^i$ is the $i$th component of $u$.  Any such
 constraint, or no constraint, may be imposed on each component.
 KINSOL will reduce step lengths in order to ensure that no
 constraint is violated.  Specifically, if a new Newton iterate
 will violate a constraint, the maximum (over all $i$) step length
 along the Newton direction that will satisfy all constraints is
-found and $\delta_n$ in Step 2(b) is scaled to take that length of
-step.
+found and $\delta_n$ in Step 2(b) is scaled to take a step of that
+length.
