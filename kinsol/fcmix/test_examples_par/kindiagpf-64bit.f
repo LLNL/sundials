@@ -1,7 +1,7 @@
       program kindiagpf
 c ------------------------------------------------------------------
-c $Revision: 1.2 $
-c $Date: 2004-05-04 16:35:48 $
+c $Revision: 1.3 $
+c $Date: 2004-05-17 20:43:18 $
 c ------------------------------------------------------------------
 c Programmers : Allan G. Taylor, Alan C. Hindmarsh, and
 c               Radu Serban @ LLNL
@@ -35,7 +35,7 @@ c
 c
       nlocal = localsize
       neq = 4*nlocal
-      globalstrat = 0
+      globalstrat = 1
       fnormtol = 0.00001
       scsteptol = 0.0001
       inopt = 0
