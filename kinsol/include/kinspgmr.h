@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-09-22 21:24:50 $
+ * $Revision: 1.16 $
+ * $Date: 2004-10-08 23:28:39 $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                 Radu Serban @ LLNL
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
+ *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/kinsol/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
  * -----------------------------------------------------------------
  * KINSPGMR linear solver module header file
  * -----------------------------------------------------------------
@@ -22,9 +22,7 @@ extern "C" {
 #ifndef _KINSPGMR_H
 #define _KINSPGMR_H
 
-#include "kinsol.h"
 #include "nvector.h"
-#include "spgmr.h"
 #include "sundialstypes.h"
 
 /*
@@ -175,8 +173,8 @@ typedef int (*KINSpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv,
  *        a value of 0 (zero) will cause the default value
  *        KINSPGMR_MAXL (predefined constant) to be used)
  *
- * If successful, KINSpgmr returns SUCCESS. If an error occurs, then
- * KINSpgmr returns an error code (negative integer value).
+ * KINSpgmr return values: KINSPGMR_SUCCESS, KINSPGMR_MEM_NULL,
+ * KINSPGMR_MEM_FAIL and KINSPGMR_ILL_INPUT (see below).
  * -----------------------------------------------------------------
  */
 
@@ -189,31 +187,29 @@ int KINSpgmr(void *kinmem, int maxl);
  * The possible return values for the KINSpgmr subroutine are the
  * following:
  *
- * KIN_SUCCESS : means the KINSPGMR linear solver module (implementation
- *               of the GMRES method) was successfully initialized -
- *               allocated system memory and set shared variables to
- *               default values [0]
+ * KINSPGMR_SUCCESS : means the KINSPGMR linear solver module
+ *                    (implementation of the GMRES method) was
+ *                    successfully initialized - allocated system
+ *                    memory and set shared variables to default
+ *                    values [0]
  *
- * KINSPGMR_KIN_MEM_NULL : means a NULL KINSOL memory block pointer
- *                         was given (must call the KINCreate and
- *                         KINMalloc memory allocation subroutines
- *                         prior to calling KINSpgmr) [-1]
+ * KINSPGMR_MEM_NULL : means a NULL KINSOL memory block pointer was
+ *                     given (must call the KINCreate and KINMalloc
+ *                     memory allocation subroutines prior to
+ *                     calling KINSpgmr) [-1]
  *
- * KINSPGMR_MEM_FAIL : means sufficient system resources were not
- *                     available to allocate memory for the main
- *                     KINSPGMR data structure (type KINSpgmrMemRec)
- *                     [-2]
+ * KINSPGMR_MEM_FAIL : means either insufficient system resources
+ *                     were available to allocate memory for the main
+ *                     KINSPGMR data structure (type KINSpgmrMemRec),
+ *                     or the SpgmrMalloc subroutine failed (unable
+ *                     to allocate enough system memory for vector
+ *                     storage and/or the main SPGMR data structure
+ *                     (type SpgmrMemRec)) [-4]
  *
- * SPGMR_MEM_FAIL : means the SpgmrMalloc subroutine failed - unable
- *                  to allocate enough system memory for vector
- *                  storage and/or the main SPGMR data structure
- *                  (type SpgmrMemRec) [-3]
+ * KINSPGMR_ILL_INPUT : means a supplied parameter was invalid
+ *                      (check error message) [-3]
  * -----------------------------------------------------------------
  */
-
-/* Note: KIN_SUCCESS = 0 */
-
-enum { KINSPGMR_KIN_MEM_NULL = -1, KINSPGMR_MEM_FAIL = -2, SPGMR_MEM_FAIL = -3 };
 
 /*
  * -----------------------------------------------------------------
@@ -272,17 +268,17 @@ int KINSpgmrSetJacData(void *kinmem, void *J_data);
  * The possible return values for the KINSpgmrSet* subroutines
  * are the following:
  *
- * KIN_SUCCESS : means the associated variable was successfully
- *               set [0]
+ * KINSPGMR_SUCCESS : means the associated parameter was successfully
+ *                    set [0]
  *
- * KIN_LIN_ILL_INPUT : means the supplied parameter was invalid
- *                     (check error message) [-1]
+ * KINSPGMR_ILL_INPUT : means the supplied parameter was invalid
+ *                      (check error message) [-3]
  *
- * KIN_LIN_NO_MEM : means a NULL KINSOL memory block pointer
- *                  was given [-2]
+ * KINSPGMR_MEM_NULL : means a NULL KINSOL memory block pointer
+ *                     was given [-1]
  *
- * KIN_LIN_NO_LMEM : means system memory has not yet been allocated
- *                   (lmem == NULL) [-3]
+ * KINSPGMR_LMEM_NULL : means system memory has not yet been
+ *                      allocated for SPGMR (lmem == NULL) [-2]
  * -----------------------------------------------------------------
  */
 
@@ -298,15 +294,13 @@ int KINSpgmrSetJacData(void *kinmem, void *J_data);
  *                            |
  * -----------------------------------------------------------------
  *                            |
- * KINSpgmrGetIntWorkSpace    | integer workspace size (total number
- *                            | of long int-sized blocks of memory
- *                            | allocated by KINSPGMR for vector
- *                            | storage)
- *                            |
- * KINSpgmrGetRealWorkSpace   | real workspace size (total number
- *                            | of realtype-sized blocks of memory
- *                            | allocated by KINSPGMR for vector
- *                            | storage)
+ * KINSpgmrGetWorkSpace       | returns both integer workspace size
+ *                            | (total number of long int-sized blocks
+ *                            | of memory allocated by KINSPGMR for
+ *                            | vector storage), and real workspace
+ *                            | size (total number of realtype-sized
+ *                            | blocks of memory allocated by KINSPGMR
+ *                            | for vector storage)
  *                            |
  * KINSpgmrGetNumPrecEvals    | total number of preconditioner
  *                            | evaluations (number of calls made
@@ -333,17 +327,20 @@ int KINSpgmrSetJacData(void *kinmem, void *J_data);
  *                            | calls made to the user-supplied
  *                            | func routine by the KINSPGMR module
  *                            | member subroutines)
+ *                            |
+ * KINSpgmrGetLastFlag        | returns the last flag returned by
+ *                            | the linear solver
  * -----------------------------------------------------------------
  */
 
-int KINSpgmrGetIntWorkSpace(void *kinmem, long int *leniwSG);
-int KINSpgmrGetRealWorkSpace(void *kinmem, long int *lenrwSG);
+int KINSpgmrGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG);
 int KINSpgmrGetNumPrecEvals(void *kinmem, long int *npevals);
 int KINSpgmrGetNumPrecSolves(void *kinmem, long int *npsolves);
 int KINSpgmrGetNumLinIters(void *kinmem, long int *nliters);
 int KINSpgmrGetNumConvFails(void *kinmem, long int *nlcfails);
 int KINSpgmrGetNumJtimesEvals(void *kinmem, long int *njvevals);
 int KINSpgmrGetNumFuncEvals(void *kinmem, long int *nfevalsSG); 
+int KINSpgmrGetLastFlag(void *kinmem, int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -352,18 +349,27 @@ int KINSpgmrGetNumFuncEvals(void *kinmem, long int *nfevalsSG);
  * The possible return values for the KINSpgmrGet* subroutines
  * are the following:
  *
- * KING_OKAY : means the routine exited normally [0]
+ * KINSPGMR_SUCCES : means the routine exited normally [0]
  *
- * KIN_LIN_ILL_INPUT : means at least one input parameter was
- *                     invalid (check error message(s)) [-1]
+ * KINSPGMR_ILL_INPUT : means at least one input parameter was
+ *                      invalid (check error message(s)) [-3]
  *
- * KIN_LIN_NO_MEM : means a NULL KINSOL memory block pointer was
- *                  given [-2]
+ * KINSPGMR_MEM_NULL : means a NULL KINSOL memory block pointer was
+ *                     given [-1]
  *
- * KIN_LIN_NO_LMEM : means a NULL KINSPGMR memory block pointer was
- *                   given [-3]
+ * KINSPGMR_LMEM_NULL : means a NULL KINSPGMR memory block pointer
+ *                      was given [-2]
  * -----------------------------------------------------------------
  */
+
+#define KINSPGMR_SUCCESS 0
+
+#define KINSPGMR_MEM_NULL  -1
+#define KINSPGMR_LMEM_NULL -2
+#define KINSPGMR_ILL_INPUT -3
+#define KINSPGMR_MEM_FAIL  -4
+
+#define KINSPGMR_DATA_NULL -13
 
 #endif
 

@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-08-18 19:35:03 $
+ * $Revision: 1.17 $
+ * $Date: 2004-10-08 23:28:39 $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
- *  -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/kinsol/LICENSE
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
+ *                Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
  * -----------------------------------------------------------------
  * This is the header file for the KINBBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
@@ -95,13 +95,11 @@
 extern "C" {
 #endif
 
-#ifndef _kbbdpre_h
-#define _kbbdpre_h
+#ifndef _KBBDPRE_H
+#define _KBBDPRE_H
 
-#include "kinsol.h"
-#include "sundialstypes.h"
 #include "nvector.h"
-#include "band.h"
+#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------
@@ -212,14 +210,14 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
  * memory block returned by KINBBDPrecAlloc.
  *
  * Possible return values are:
- *   (from kinsol.h) SUCCESS
- *                   LIN_NO_MEM
- *                   LMEM_FAIL
- *                   LIN_NO_LMEM
- *                   LIN_ILL_INPUT
+ *   (from kinspgmr.h) KINSPGMR_SUCCESS
+ *                     KINSPGMR_MEM_NULL
+ *                     KINSPGMR_LMEM_NULL
+ *                     KINSPGMR_MEM_FAIL
+ *                     KINSPGMR_ILL_INPUT
  *
  *   Additionaly, if KINBBDPrecAlloc was not previously called,
- *   KINBBDSpgmr returns KIN_BBDP_NO_PDATA (defined below).
+ *   KINBBDSpgmr returns KINSPGMR_DATA_NULL (defined below).
  * -----------------------------------------------------------------
  */
 
@@ -242,14 +240,8 @@ void KINBBDPrecFree(void *p_data);
  * -----------------------------------------------------------------
  */
 
-int KINBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP);
-int KINBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP);
+int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP);
 int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
-
-/* return values for KINBBDPrecGet* functions */
-/* Note: OKAY = 0 */
-
-enum { KIN_BBDP_NO_PDATA = -11 };
 
 /* prototypes for functions KINBBDPrecSetup and KINBBDPrecSolve */
 
