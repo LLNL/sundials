@@ -58,7 +58,7 @@ the \id{cvkx} problem, as expected.
 This example, \id{pvdiagkbf}, uses a simple diagonal ODE system to illustrate
 the use of {\fcvode} in a parallel setting.  The system is
 \begin{equation} \label{diagode}
-y^\prime_i = - \alpha ~i~ y_i ~~~ (i = 1,\ldots, N)
+\dot{y}_i = - \alpha ~i~ y_i ~~~ (i = 1,\ldots, N)
 \end{equation}
 on the time interval $0 \leq t \leq 1$.  In this case, we use $\alpha = 10$
 and $N = 10*$\id{NPES}, where \id{NPES} is the number of processors
