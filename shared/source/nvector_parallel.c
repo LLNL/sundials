@@ -134,8 +134,8 @@ M_Env M_EnvInit_Parallel(MPI_Comm comm,  integer local_vec_length,
   me->ops->nvminquotient   = N_VMinQuotient_Parallel;
   me->ops->nvprint         = N_VPrint_Parallel;
 
-  /* If this PE is inactive, return now */
-  if (local_vec_length <= 0) return(me);
+  /* If local length is negative, return now */
+  if (local_vec_length < 0) return(me);
   
   /* Compute global length as sum of local lengths */
   n = local_vec_length;
