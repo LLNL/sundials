@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-12-07 19:50:30 $
+ * $Revision: 1.3 $
+ * $Date: 2005-03-02 17:53:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -77,7 +77,7 @@ static void KINSpbcgPrintInfo(KINMem kin_mem, char *funcname, int key,...);
 #define lrw1         (kin_mem->kin_lrw1)
 #define liw1         (kin_mem->kin_liw1)
 #define nni          (kin_mem->kin_nni)
-#define nnilpre      (kin_mem->kin_nnilpre)
+#define nnilset      (kin_mem->kin_nnilset)
 #define func         (kin_mem->kin_func)
 #define f_data       (kin_mem->kin_f_data)
 #define printfl      (kin_mem->kin_printfl)
@@ -86,6 +86,7 @@ static void KINSpbcgPrintInfo(KINMem kin_mem, char *funcname, int key,...);
 #define lsolve       (kin_mem->kin_lsolve)
 #define lfree        (kin_mem->kin_lfree)
 #define lmem         (kin_mem->kin_lmem)
+#define inexact_ls   (kin_mem->kin_inexact_ls)
 #define uu           (kin_mem->kin_uu)
 #define fval         (kin_mem->kin_fval)
 #define uscale       (kin_mem->kin_uscale)
@@ -205,6 +206,10 @@ int KINSpbcg(void *kinmem, int maxl)
     free(lmem);
     return(KINSPBCG_MEM_FAIL);
   }
+
+  /* This is an iterative linear solver */
+
+  inexact_ls = TRUE;
 
   /* attach linear solver memory to KINSOL memory */
 
@@ -679,7 +684,7 @@ static int KINSpbcgSetup(KINMem kin_mem)
   if (ret != 0) return(1);
 
   npe++;
-  nnilpre = nni; 
+  nnilset = nni; 
 
   /* return the same value ret that pset returned */
 

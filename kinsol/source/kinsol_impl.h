@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-01-26 22:23:36 $
+ * $Revision: 1.10 $
+ * $Date: 2005-03-02 17:53:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -25,6 +25,17 @@ extern "C" {
 #include "kinsol.h"
 #include "nvector.h"
 #include "sundialstypes.h"
+
+/*
+ * -----------------------------------------------------------------
+ * default constants
+ * -----------------------------------------------------------------
+ */
+ 
+#define PRINTFL_DEFAULT 0
+#define MXITER_DEFAULT  200
+#define MXNBCF_DEFAULT  10
+#define MSBSET_DEFAULT  10
 
 /*
  * -----------------------------------------------------------------
@@ -52,20 +63,20 @@ typedef struct KINMemRec {
   int kin_globalstrategy;      /* choices are INEXACT_NEWTON and LINESEARCH    */
   int kin_printfl;             /* level of verbosity of output                 */
   long int kin_mxiter;         /* maximum number of nonlinear iterations       */
-  long int kin_msbpre;         /* maximum number of nonlinear iterations that
+  long int kin_msbset;         /* maximum number of nonlinear iterations that
 				  may be performed between calls to the
-				  preconditioner setup routine (pset)          */
+				  linear solver setup routine (lsetup)         */
+  long int kin_mxnbcf;         /* maximum number of beta condition failures    */
   int kin_etaflag;             /* choices are ETACONSTANT, ETACHOICE1 and
 				  ETACHOICE2                                   */
   booleantype kin_noMinEps;    /* flag controlling whether or not the value
 				  of eps is bounded below                      */
-  booleantype kin_setupNonNull;    /* flag indicating if preconditioning setup
-				      routine is non-null and if
-				      preconditioning is being used            */
-  booleantype kin_constraintsSet;  /* flag indicating if constraints are being
-				      used                                     */
-  booleantype kin_precondcurrent;  /* flag indicating if the preconditioner is
-				     current                                   */
+  booleantype kin_setupNonNull;   /* flag indicating if linear solver setup
+				     routine is non-null and if setup is used */
+  booleantype kin_constraintsSet; /* flag indicating if constraints are being
+				     used                                     */
+  booleantype kin_jacCurrent;     /* flag indicating if the Jacobian info. 
+				     used by the linear solver is current     */
   booleantype kin_callForcingTerm; /* flag set if using either ETACHOICE1 or
 				      ETACHOICE2                               */
   realtype kin_mxnewtstep;     /* maximum allowable scaled step length         */
@@ -78,17 +89,18 @@ typedef struct KINMemRec {
 				  (choice #2)                                  */
   realtype kin_eta_alpha;      /* alpha value used in eta calculation
 			          (choice #2)                                  */
-  booleantype kin_noPrecInit;  /* flag controlling whether or not the KINSol
+  booleantype kin_noInitSetup; /* flag controlling whether or not the KINSol
 				  routine makes an initial call to the
-				  preconditioner setup routine (pset)          */
-  realtype kin_pthrsh;         /* threshold value for calling preconditioner   */
+				  linear solver setup routine (lsetup)         */
+  realtype kin_sthrsh;         /* threshold value for calling the linear   
+                                  solver setup routine                         */
 
   /* counters */
 
   long int  kin_nni;           /* number of nonlinear iterations               */
   long int  kin_nfe;           /* number of calls made to func routine         */
-  long int  kin_nnilpre;       /* value of nni counter when the preconditioner
-				  was last called                              */
+  long int  kin_nnilset;       /* value of nni counter when the linear solver
+				  setup was last called                        */
   long int  kin_nbcf;          /* number of times the beta-condition could not 
                                   be met in KINLineSearch                      */
   long int  kin_nbktrk;        /* number of backtracks performed by
@@ -135,6 +147,10 @@ typedef struct KINMemRec {
                     realtype *res_norm );
 
   int (*kin_lfree)(struct KINMemRec *kin_mem);
+
+  booleantype kin_inexact_ls; /* Flag, set by the linear solver module (in linit) 
+                                 indicating whether this is an iterative linear 
+                                 solver (TRUE), or a direct linear solver (FALSE) */
 
   void *kin_lmem;        /* pointer to linear solver memory block              */
 
@@ -188,15 +204,16 @@ typedef struct KINMemRec {
 #define MSG_KINS_NO_MEM    "KINSet*-- kin_mem = NULL illegal.\n\n"
 #define MSG_BAD_PRINTFL    "KINSetPrintLevel-- illegal value for printfl.\n\n"
 #define MSG_BAD_MXITER     "KINSetNumMaxIters-- illegal value for mxiter.\n\n"
-#define MSG_BAD_MSBPRE     "KINSetMaxPrecCalls-- illegal msbpre < 0. \n\n"
+#define MSG_BAD_MSBSET     "KINSetMaxSetupCalls-- illegal msbset < 0. \n\n"
 #define MSG_BAD_ETACHOICE  "KINSetEtaForm-- illegal value for etachoice.\n\n"
 #define MSG_BAD_ETACONST   "KINSetEtaConstValue-- eta out of range.\n\n"
 #define MSG_BAD_GAMMA      "KINSetEtaParams-- gamma out of range.\n\n"
 #define MSG_BAD_ALPHA      "KINSetEtaParams-- alpha out of range.\n\n"
-#define MSG_BAD_MXNEWTSTEP "KINSetMaxNewtonStep-- mxnewtstep nonpositive.\n\n"
+#define MSG_BAD_MXNEWTSTEP "KINSetMaxNewtonStep-- mxnewtstep < 0 illegal.\n\n"
 #define MSG_BAD_RELFUNC    "KINSetRelErrFunc-- relfunc < 0 illegal.\n\n"
 #define MSG_BAD_FNORMTOL   "KINSetFuncNormTol-- fnormtol < 0 illegal.\n\n"
 #define MSG_BAD_SCSTEPTOL  "KINSetScaledStepTol-- scsteptol < 0 illegal.\n\n"
+#define MSG_BAD_MXNBCF     "KINSetMaxBetaFails-- mxbcf < 0 illegal.\n\n"
 
 /* KINMalloc error messages */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-12-02 19:28:17 $
+ * $Revision: 1.27 $
+ * $Date: 2005-03-02 17:53:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -81,7 +81,7 @@ static void KINSpgmrPrintInfo(KINMem kin_mem, char *funcname, int key,...);
 #define uround         (kin_mem->kin_uround)
 #define nfe            (kin_mem->kin_nfe)
 #define nni            (kin_mem->kin_nni)
-#define nnilpre        (kin_mem->kin_nnilpre)
+#define nnilset        (kin_mem->kin_nnilset)
 #define func           (kin_mem->kin_func)
 #define f_data         (kin_mem->kin_f_data)
 #define printfl        (kin_mem->kin_printfl)
@@ -90,12 +90,13 @@ static void KINSpgmrPrintInfo(KINMem kin_mem, char *funcname, int key,...);
 #define lsolve         (kin_mem->kin_lsolve)
 #define lfree          (kin_mem->kin_lfree)
 #define lmem           (kin_mem->kin_lmem)
+#define inexact_ls     (kin_mem->kin_inexact_ls)
 #define uu             (kin_mem->kin_uu)
 #define fval           (kin_mem->kin_fval)
 #define uscale         (kin_mem->kin_uscale)
 #define fscale         (kin_mem->kin_fscale)
 #define sqrt_relfunc   (kin_mem->kin_sqrt_relfunc)
-#define precondcurrent (kin_mem->kin_precondcurrent)
+#define jacCurrent     (kin_mem->kin_jacCurrent)
 #define eps            (kin_mem->kin_eps)
 #define sJpnorm        (kin_mem->kin_sJpnorm)
 #define sfdotJp        (kin_mem->kin_sfdotJp)
@@ -215,6 +216,10 @@ int KINSpgmr(void *kinmem, int maxl)
     free(lmem);
     return(KINSPGMR_MEM_FAIL);
   }
+
+  /* This is an iterative linear solver */
+
+  inexact_ls = TRUE;
 
   /* attach linear solver memory to KINSOL memory */
 
@@ -726,9 +731,7 @@ static int KINSpgmrSetup(KINMem kin_mem)
   if (ret != 0) return(1);
 
   npe++;
-  nnilpre = nni; 
-
-  /* return the same value ret that pset returned */
+  nnilset = nni; 
 
   return(0);
 }

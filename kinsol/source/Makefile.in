@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2005-02-15 00:10:36 $
+# $Revision: 1.12 $
+# $Date: 2005-03-02 17:53:47 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,9 +43,9 @@ SHARED_INC_DIR   = $(srcdir)/../../shared/include
 KINSOL_INC_DIR   = $(srcdir)/../include
 
 KINSOL_LIB       = libsundials_kinsol.la
-KINSOL_LIB_FILES = kinsol.lo kinsolio.lo kinspgmr.lo kinspbcg.lo kinbbdpre.lo
+KINSOL_LIB_FILES = kinsol.lo kinsolio.lo kindense.lo kinspgmr.lo kinspbcg.lo kinbbdpre.lo
 
-OBJECT_FILES = kinsol.o kinsolio.o kinspgmr.o kinspbcg.o kinbbdpre.o
+OBJECT_FILES = kinsol.o kinsolio.o kindense.o kinspgmr.o kinspbcg.o kinbbdpre.o
 
 all: update $(KINSOL_LIB_FILES)
 
@@ -56,6 +56,7 @@ install: update $(KINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(KINSOL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinsol.h $(includedir)
+	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kindense.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspgmr.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspbcg.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinbbdpre.h $(includedir)
@@ -69,6 +70,7 @@ clean:
 uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(KINSOL_LIB)
 	rm -f $(includedir)/kinsol.h
+	rm -f $(includedir)/kindense.h
 	rm -f $(includedir)/kinspgmr.h
 	rm -f $(includedir)/kinspbcg.h
 	rm -f $(includedir)/kinbbdpre.h
@@ -77,6 +79,8 @@ kinsol.lo: $(srcdir)/kinsol.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol.c
 kinsolio.lo: $(srcdir)/kinsolio.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsolio.c
+kindense.lo: $(srcdir)/kindense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kindense.c
 kinspgmr.lo: $(srcdir)/kinspgmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspgmr.c
 kinspbcg.lo: $(srcdir)/kinspbcg.c

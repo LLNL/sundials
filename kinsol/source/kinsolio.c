@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-11-23 21:37:30 $
+ * $Revision: 1.2 $
+ * $Date: 2005-03-02 17:53:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -23,10 +23,13 @@
 #include "sundialstypes.h"
 #include "sundialsmath.h"
 
-#define ZERO    RCONST(0.0)
-#define POINT9  RCONST(0.9)
-#define ONE     RCONST(1.0)
-#define TWO     RCONST(2.0)
+#define ZERO      RCONST(0.0)
+#define POINT1    RCONST(0.1)
+#define POINT9    RCONST(0.9)
+#define ONE       RCONST(1.0)
+#define TWO       RCONST(2.0)
+#define ONETHIRD  RCONST(.3333333333333333)
+#define TWOTHIRDS RCONST(.6666666666666667)
 
 /* 
  * =================================================================
@@ -143,23 +146,26 @@ int KINSetNumMaxIters(void *kinmem, long int mxiter)
 
   kin_mem = (KINMem) kinmem;
 
-  if (mxiter <= 0) {
+  if (mxiter < 0) {
     fprintf(errfp, MSG_BAD_MXITER);
     return(KIN_ILL_INPUT);
   }
 
-  kin_mem->kin_mxiter = mxiter;
+  if (mxiter == 0)
+    kin_mem->kin_mxiter = MXITER_DEFAULT;
+  else
+    kin_mem->kin_mxiter = mxiter;
 
   return(KIN_SUCCESS);
 }
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetNoPrecInit
+ * Function : KINSetNoInitSetup
  * -----------------------------------------------------------------
  */
 
-int KINSetNoPrecInit(void *kinmem, booleantype noPrecInit)
+int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup)
 {
   KINMem kin_mem;
 
@@ -169,18 +175,18 @@ int KINSetNoPrecInit(void *kinmem, booleantype noPrecInit)
   }
 
   kin_mem = (KINMem) kinmem;
-  kin_mem->kin_noPrecInit = noPrecInit;
+  kin_mem->kin_noInitSetup = noInitSetup;
 
   return(KIN_SUCCESS);
 }
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetMaxPrecCalls
+ * Function : KINSetMaxSetupCalls
  * -----------------------------------------------------------------
  */
 
-int KINSetMaxPrecCalls(void *kinmem, long int msbpre)
+int KINSetMaxSetupCalls(void *kinmem, long int msbset)
 {
   KINMem kin_mem;
 
@@ -191,12 +197,15 @@ int KINSetMaxPrecCalls(void *kinmem, long int msbpre)
 
   kin_mem = (KINMem) kinmem;
 
-  if (msbpre < 0) {
-    fprintf(errfp, MSG_BAD_MSBPRE);
+  if (msbset < 0) {
+    fprintf(errfp, MSG_BAD_MSBSET);
     return(KIN_ILL_INPUT);
   }
-
-  kin_mem->kin_msbpre = msbpre;
+  
+  if (msbset == 0)
+    kin_mem->kin_msbset = MSBSET_DEFAULT;
+  else
+    kin_mem->kin_msbset = msbset;
 
   return(KIN_SUCCESS);
 }
@@ -247,12 +256,16 @@ int KINSetEtaConstValue(void *kinmem, realtype eta)
 
   kin_mem = (KINMem) kinmem;
 
-  if ((eta <= ZERO) || (eta > ONE)) {
+  if ((eta < ZERO) || (eta > ONE)) {
     fprintf(errfp, MSG_BAD_ETACONST);
     return(KIN_ILL_INPUT);
   }
 
-  kin_mem->kin_eta = eta;
+  if (eta == ZERO)
+    kin_mem->kin_eta = POINT1;
+  else
+    kin_mem->kin_eta = eta;
+
 
   return(KIN_SUCCESS);
 }
@@ -337,14 +350,48 @@ int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep)
 
   kin_mem = (KINMem) kinmem;
 
-  if (mxnewtstep <= ZERO) {
+  if (mxnewtstep < ZERO) {
     fprintf(errfp, MSG_BAD_MXNEWTSTEP);
     return(KIN_ILL_INPUT);
   }
 
+  /* Note: passing a value of 0.0 will use the default
+     value (computed in KINSolinit) */
+
   kin_mem->kin_mxnewtstep = mxnewtstep;
 
   return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetMaxBetaFails
+ * -----------------------------------------------------------------
+ */
+
+int KINSetMaxBetaFails(void *kinmem, long int mxnbcf)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    fprintf(stderr, MSG_KINS_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  if (mxnbcf < 0) {
+    fprintf(errfp, MSG_BAD_MXNBCF);
+    return(KIN_ILL_INPUT);
+  }
+
+  if (mxnbcf == 0)
+    kin_mem->kin_mxnewtstep = MXNBCF_DEFAULT;
+  else
+    kin_mem->kin_mxnewtstep = mxnbcf;
+
+  return(KIN_SUCCESS);
+
 }
 
 /*
@@ -356,6 +403,7 @@ int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep)
 int KINSetRelErrFunc(void *kinmem, realtype relfunc)
 {
   KINMem kin_mem;
+  realtype uround;
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_KINS_NO_MEM);
@@ -364,12 +412,17 @@ int KINSetRelErrFunc(void *kinmem, realtype relfunc)
 
   kin_mem = (KINMem) kinmem;
 
-  if (relfunc <= ZERO) {
+  if (relfunc < ZERO) {
     fprintf(errfp, MSG_BAD_RELFUNC);
     return(KIN_ILL_INPUT);
   }
 
-  kin_mem->kin_sqrt_relfunc = RSqrt(relfunc);
+  if (relfunc == ZERO) {
+    uround = kin_mem->kin_uround;
+    kin_mem->kin_sqrt_relfunc = RSqrt(uround);
+  } else {
+    kin_mem->kin_sqrt_relfunc = RSqrt(relfunc);
+  }
 
   return(KIN_SUCCESS);
 }
@@ -383,6 +436,7 @@ int KINSetRelErrFunc(void *kinmem, realtype relfunc)
 int KINSetFuncNormTol(void *kinmem, realtype fnormtol)
 {
   KINMem kin_mem;
+  realtype uround;
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_KINS_NO_MEM);
@@ -391,12 +445,17 @@ int KINSetFuncNormTol(void *kinmem, realtype fnormtol)
 
   kin_mem = (KINMem) kinmem;
 
-  if (fnormtol <= ZERO) {
+  if (fnormtol < ZERO) {
     fprintf(errfp, MSG_BAD_FNORMTOL);
     return(KIN_ILL_INPUT);
   }
 
-  kin_mem->kin_fnormtol = fnormtol;
+  if (fnormtol == ZERO) {
+    uround = kin_mem->kin_uround;
+    kin_mem->kin_fnormtol = RPowerR(uround,ONETHIRD);
+  } else {
+    kin_mem->kin_fnormtol = fnormtol;
+  }
 
   return(KIN_SUCCESS);
 }
@@ -410,6 +469,7 @@ int KINSetFuncNormTol(void *kinmem, realtype fnormtol)
 int KINSetScaledStepTol(void *kinmem, realtype scsteptol)
 {
   KINMem kin_mem;
+  realtype uround;
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_KINS_NO_MEM);
@@ -418,12 +478,17 @@ int KINSetScaledStepTol(void *kinmem, realtype scsteptol)
 
   kin_mem = (KINMem) kinmem;
 
-  if (scsteptol <= ZERO) {
+  if (scsteptol < ZERO) {
     fprintf(errfp, MSG_BAD_SCSTEPTOL);
     return(KIN_ILL_INPUT);
   }
 
-  kin_mem->kin_scsteptol = scsteptol;
+  if (scsteptol == ZERO) {
+    uround = kin_mem->kin_uround;
+    kin_mem->kin_scsteptol = RPowerR(uround,TWOTHIRDS);
+  } else {
+    kin_mem->kin_scsteptol = scsteptol;
+  }
 
   return(KIN_SUCCESS);
 }
