@@ -11,7 +11,7 @@ given an initial guess $u_0$. \index{nonlinear
 system!definition|(}
 
 {\kinsol} employs the Inexact Newton method developed in
-\cite{BrSa:90,Bro:87,DES:82} and further described in
+\cite{Bro:87,BrSa:90,DES:82} and further described in
 \cite{DeSc:96,Kel:95}, resulting in the following iteration:
 
 \index{Inexact Newton iteration!definition|)} \vspace{1ex}
@@ -23,7 +23,7 @@ system!definition|(}
           \item[(a)] Approximately solve $J(u_n)\delta_n = -
           F(u_n)$ \label{e:Newton}
           \item[(b)] Set $u_{n+1} = u_n + \lambda \delta_n$,
-          $\lambda \leq 1$
+          $0 < \lambda \leq 1$
           \item[(c)] Test for convergence
       \end{itemize}
 \end{enumerate}
@@ -45,7 +45,7 @@ either finite difference quotients or a user-supplied routine. In
 the case where finite differences are used, the matrix-vector
 product $J(u)v$ is approximated by a quotient of the form given by
 \begin{equation}\label{jacobv}
-J(u) v = [F(u+\sigma v) - F(u)]/\sigma \,
+J(u) v \approx [F(u+\sigma v) - F(u)]/\sigma \,
 \end{equation}
 where $u$ is the current approximation to a root of
 (\ref{nonlinear_system}), and $\sigma$ is a scalar. The choice of
@@ -66,12 +66,14 @@ Scaling is allowed for both the solution vector and the system
 function vector. For scaling to be used, the user should supply
 values $D_u$, which are diagonal elements of the scaling matrix
 such that $D_u u_n$ has all components roughly the same magnitude
-when $u_n$ is close to a solution, and $D_F F$ has all components
+when $u_n$ is close to a solution, and $D_F$, which are diagonal
+scaling matrix elements such that $D_F F$ has all components
 roughly the same magnitude when $u_n$ is not too close to a
 solution. In the text below, we use the following scaled norms:
 \begin{equation}
 \|z\|_{D_u} = \|D_u z\|_2, \;\; \|z\|_{D_F} = \|D_F z\|_2, \;\;
-{\rm and} \;\; \|z\|_{D,\infty} = \|Dz\|_{\infty},
+\|z\|_{D_u,\infty} = \|D_u z\|_{\infty}, \;\; {\rm and} \;\;
+\|z\|_{D_F,\infty} = \|D_F z\|_{\infty}
 \end{equation}
 where $\| \cdot \|_{\infty}$ is the max norm.  When scaling values
 are provided for the solution vector, these values are
@@ -79,7 +81,8 @@ automatically incorporated into the calculation of $\sigma$ in
 (\ref{sigma_comp}). Additionally, right preconditioning is
 provided if the preconditioning setup and solve routines are
 supplied by the user. In this case, GMRES is applied to the linear
-systems $(JP^{-1})(P\delta) = -F$.
+systems $(JP^{-1})(P\delta) = -F$, where $P$ denotes the right
+preconditioning matrix.
 
 Two methods of applying a computed step $\delta_n$ to the
 previously computed solution vector are implemented. The first and
@@ -133,7 +136,7 @@ where default values of $\gamma$ and $\alpha$ are $0.9$ and $2$,
 \end{itemize}
 The default is Eisenstat and Walker Choice 1. For both options 1
 and 2, appropriate safeguards are incorporated to ensure that
-$\eta$ does not decrease too fast~\cite{EiWa:96}.
+$\eta$ does not decrease too quickly~\cite{EiWa:96}.
 
 As a user option, KINSOL permits the application of inequality
 constraints, $u^i > 0$ and $u^i < 0$, as well as $u^i \geq 0$ and
