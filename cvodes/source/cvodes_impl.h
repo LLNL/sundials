@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-01-26 22:23:31 $
+ * $Revision: 1.12 $
+ * $Date: 2005-01-27 17:44:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -27,11 +27,6 @@ extern "C" {
 #include "cvodes.h"
 #include "nvector.h"
 #include "sundialstypes.h"
-
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
 
 /* Prototypes for internal sensitivity rhs DQ functions */
 
