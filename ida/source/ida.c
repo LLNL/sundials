@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2004-10-26 20:15:32 $
+ * $Revision: 1.32 $
+ * $Date: 2004-10-26 23:43:07 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,24 +26,9 @@
 #include "nvector.h"
 #include "sundialsmath.h"
 
-/************************************************************/
-/******************** END Imports ***************************/
-/************************************************************/
-
-
-/***************************************************************/
-/*********************** BEGIN Macros **************************/
-/**************************************************************/
-
 /* Macro: loop */
 
 #define loop for(;;)
-
-/***************************************************************/
-/************************ END Macros ***************************/
-/***************************************************************/
-
-
 
 /************************************************************/
 /************** BEGIN IDA Private Constants ***************/
@@ -80,11 +65,6 @@
 #define MAXNH      5    /* max. number of h tries in IC calc. */
 #define MAXNJ      4    /* max. number of J tries in IC calc. */
 #define MAXNI      10   /* max. Newton iterations in IC calc. */
-
-/***************************************************************/
-/*************** END Default Constants *************************/
-/***************************************************************/
-
 
 /***************************************************************/
 /************ BEGIN Routine-Specific Constants *****************/
@@ -153,12 +133,6 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define XRATE                RCONST(0.25)        
 
-
-/***************************************************************/
-/*************** END Routine-Specific Constants  ***************/
-/***************************************************************/
-
-
 /***************************************************************/
 /***************** BEGIN Error Messages ************************/
 /***************************************************************/
@@ -192,6 +166,20 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_IDAS_BAD_MAXNIT  "IDASetMaxNumItersIC-- maxnit < 0 illegal.\n\n"
 
 #define MSG_IDAS_BAD_STEPTOL "IDASetLineSearchOffIC-- steptol < 0.0 illegal.\n\n"
+
+#define IDA_TOL              "IDASetTolerances-- "
+
+#define MSG_IDAS_BAD_ITOL1   IDA_TOL "itol = %d illegal.\n"
+#define MSG_IDAS_BAD_ITOL2   "The legal values are IDA_SS = %d and IDA_SV = %d.\n\n"
+#define MSG_IDAS_BAD_ITOL    MSG_IDAS_BAD_ITOL1 MSG_IDAS_BAD_ITOL2
+
+#define MSG_IDAS_RTOL_NULL   IDA_TOL "rtol = NULL illegal.\n\n"
+
+#define MSG_IDAS_BAD_RTOL    IDA_TOL "*rtol = %g < 0 illegal.\n\n"
+
+#define MSG_IDAS_ATOL_NULL   IDA_TOL "atol = NULL illegal.\n\n"
+
+#define MSG_IDAS_BAD_ATOL    IDA_TOL "Some atol component < 0.0 illegal.\n\n"
 
 /* IDAMalloc/IDAReInit error messages */
 
@@ -370,16 +358,6 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_BAD_T2      "t not in interval tcur-hu=%g to tcur=%g.\n\n"
 #define MSG_BAD_T       MSG_BAD_T1 MSG_BAD_T2
 
-/***************************************************************/
-/****************** END Error Messages *************************/
-/***************************************************************/
-
-
-/************************************************************/
-/*************** END IDA Private Constants ****************/
-/************************************************************/
-
-
 /**************************************************************/
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
@@ -423,17 +401,6 @@ static int IDACompleteStep(IDAMem IDA_mem, realtype *est,
 
 static realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, 
                             booleantype mask);
-
-/**************************************************************/
-/********** END Private Helper Functions Prototypes ***********/
-/**************************************************************/
-
-
-
-/***************************************************************/
-/************* BEGIN IDA Implementation ************************/
-/***************************************************************/
-
 
 /***************************************************************/
 /********* BEGIN Exported Functions Implementation *************/
@@ -801,6 +768,59 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 }
 
 #define constraints (IDA_mem->ida_constraints)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetTolerances(void *ida_mem, 
+                     int itol, realtype *rtol, void *atol)
+{
+  IDAMem IDA_mem;
+  booleantype neg_atol;
+
+  if (ida_mem==NULL) {
+    fprintf(stderr, MSG_IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if ((itol != IDA_SS) && (itol != IDA_SV)) {
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ITOL, itol, IDA_SS, IDA_SV);
+    return(IDA_ILL_INPUT);
+  }
+
+  if (rtol == NULL) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_RTOL_NULL); 
+    return(IDA_ILL_INPUT); 
+  }
+
+  if (*rtol < ZERO) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_RTOL, *rtol); 
+    return(IDA_ILL_INPUT); 
+  }
+   
+  if (atol == NULL) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_ATOL_NULL); 
+    return(IDA_ILL_INPUT); 
+  }
+
+  /* Test absolute tolerances */
+  if (itol == IDA_SS) { 
+    neg_atol = (*((realtype *)atol) < ZERO); 
+  } else { 
+    neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
+  }
+  if (neg_atol) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ATOL); 
+    return(IDA_ILL_INPUT); 
+  }
+
+  IDA_mem->ida_itol = itol;
+  IDA_mem->ida_rtol = rtol;      
+  IDA_mem->ida_atol = atol;  
+
+  return(IDA_SUCCESS);
+}
 
 /******************** IDAMalloc *******************************
 
