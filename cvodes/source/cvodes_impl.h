@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-11-06 01:02:03 $
+ * $Revision: 1.8 $
+ * $Date: 2004-11-15 19:01:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -15,7 +15,7 @@
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -396,6 +396,13 @@ typedef struct CVodeMemRec {
 #define MSG_TIME_H    "t = %Lg and h = %Lg"
 #define MSG_TIME_INT  "t = %Lg is not between tcur - hu = %Lg and tcur = %Lg.\n\n"
 #define MSG_TIME_TOUT "tout = %Lg"
+
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+
+#define MSG_TIME      "t = %lg"
+#define MSG_TIME_H    "t = %lg and h = %lg"
+#define MSG_TIME_INT  "t = %lg is not between tcur - hu = %lg and tcur = %lg.\n\n"
+#define MSG_TIME_TOUT "tout = %lg"
 
 #else
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-09 01:20:38 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-15 18:56:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -319,12 +319,28 @@ static void PrintOutput(void *cvode_mem, N_Vector u,realtype t)
   flag = CVodeGetLastStep(cvode_mem, &hu);
   check_flag(&flag, "CVodeGetLastStep", 1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n",
+         t, nst, qu, hu);
+  printf("c1 (bot.left/middle/top rt.) = %12.3Le  %12.3Le  %12.3Le\n",
+         IJKth(udata,1,0,0), IJKth(udata,1,mxh,myh), IJKth(udata,1,mx1,my1));
+  printf("c2 (bot.left/middle/top rt.) = %12.3Le  %12.3Le  %12.3Le\n\n",
+         IJKth(udata,2,0,0), IJKth(udata,2,mxh,myh), IJKth(udata,2,mx1,my1));
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("t = %.2le   no. steps = %ld   order = %d   stepsize = %.2le\n",
+         t, nst, qu, hu);
+  printf("c1 (bot.left/middle/top rt.) = %12.3le  %12.3le  %12.3le\n",
+         IJKth(udata,1,0,0), IJKth(udata,1,mxh,myh), IJKth(udata,1,mx1,my1));
+  printf("c2 (bot.left/middle/top rt.) = %12.3le  %12.3le  %12.3le\n\n",
+         IJKth(udata,2,0,0), IJKth(udata,2,mxh,myh), IJKth(udata,2,mx1,my1));
+#else
   printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
          t, nst, qu, hu);
   printf("c1 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n",
          IJKth(udata,1,0,0), IJKth(udata,1,mxh,myh), IJKth(udata,1,mx1,my1));
   printf("c2 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n\n",
          IJKth(udata,2,0,0), IJKth(udata,2,mxh,myh), IJKth(udata,2,mx1,my1));
+#endif
 }
 
 /* Get and print final statistics */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-11-09 00:14:07 $
+ * $Revision: 1.13 $
+ * $Date: 2004-11-15 19:01:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -488,12 +488,16 @@ static void PrintOutput(N_Vector uB, UserData data)
   printf("\nMaximum sensitivity\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("  lambda max = %Le\n", uBmax);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("  lambda max = %le\n", uBmax);
 #else
   printf("  lambda max = %e\n", uBmax);
 #endif
   printf("at\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("  x = %Le\ny = %Le\n", x, y);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("  x = %le\ny = %le\n", x, y);
 #else
   printf("  x = %e\n  y = %e\n", x, y);
 #endif

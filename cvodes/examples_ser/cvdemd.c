@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-09 18:42:37 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-15 19:01:36 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -283,6 +283,9 @@ static void PrintIntro1(void)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" neq = %d,  itol = %s,  reltol = %.2Lg,  abstol = %.2Lg",
 	 P1_NEQ, "CV_SS", RTOL, ATOL);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf(" neq = %d,  itol = %s,  reltol = %.2lg,  abstol = %.2lg",
+	 P1_NEQ, "CV_SS", RTOL, ATOL);
 #else
   printf(" neq = %d,  itol = %s,  reltol = %.2g,  abstol = %.2g",
 	 P1_NEQ, "CV_SS", RTOL, ATOL);
@@ -300,6 +303,8 @@ static void PrintOutput1(realtype t, realtype y0, realtype y1, int qu, realtype 
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%10.5Lf    %12.5Le   %12.5Le   %2d    %6.4Le\n", t, y0, y1, qu, hu);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%10.5f    %12.5le   %12.5le   %2d    %6.4le\n", t, y0, y1, qu, hu);
 #else
   printf("%10.5f    %12.5e   %12.5e   %2d    %6.4e\n", t, y0, y1, qu, hu);
 #endif
@@ -465,6 +470,8 @@ static void PrintIntro2(void)
   printf(" neq = %d, ml = %d, mu = %d\n", P2_NEQ, P2_ML, P2_MU);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" itol = %s, reltol = %.2Lg, abstol = %.2Lg", "CV_SS", RTOL, ATOL);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf(" itol = %s, reltol = %.2lg, abstol = %.2lg", "CV_SS", RTOL, ATOL);
 #else
   printf(" itol = %s, reltol = %.2g, abstol = %.2g", "CV_SS", RTOL, ATOL);
 #endif
@@ -482,6 +489,8 @@ static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%10.3Lf  %12.4Le   %2d   %12.4Le\n", t, erm, qu, hu);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%10.3f  %12.4le   %2d   %12.4le\n", t, erm, qu, hu);
 #else
   printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
 #endif
@@ -635,6 +644,8 @@ static void PrintErrOutput(realtype tol_factor)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\n\n Error exceeds %Lg * tolerance \n\n", tol_factor);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("\n\n Error exceeds %lg * tolerance \n\n", tol_factor);
 #else
   printf("\n\n Error exceeds %g * tolerance \n\n", tol_factor);
 #endif
@@ -706,8 +717,12 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
     printf(" Number of Jacobian evaluations           = %4ld  \n", nje);
     printf(" Number of f-s evaluations                = %4ld \n\n", nfeL);
   }
-  
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf(" Error overrun = %.3Lf \n", ero);
+#else
   printf(" Error overrun = %.3f \n", ero);
+#endif
   
 }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-09 00:14:08 $
+ * $Revision: 1.17 $
+ * $Date: 2004-11-15 19:01:36 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -748,6 +748,8 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector y)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%8.3Le %2d  %8.3Le %5ld\n", t,qu,hu,nst);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%8.3le %2d  %8.3le %5ld\n", t,qu,hu,nst);
 #else
   printf("%8.3e %2d  %8.3e %5ld\n", t,qu,hu,nst);
 #endif
@@ -755,12 +757,16 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector y)
   printf("                                Solution       ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le \n", IJKth(ydata,1,0,0), IJKth(ydata,1,MX-1,MZ-1)); 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le \n", IJKth(ydata,1,0,0), IJKth(ydata,1,MX-1,MZ-1)); 
 #else
   printf("%12.4e %12.4e \n", IJKth(ydata,1,0,0), IJKth(ydata,1,MX-1,MZ-1)); 
 #endif
   printf("                                               ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le \n", IJKth(ydata,2,0,0), IJKth(ydata,2,MX-1,MZ-1));
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le \n", IJKth(ydata,2,0,0), IJKth(ydata,2,MX-1,MZ-1));
 #else
   printf("%12.4e %12.4e \n", IJKth(ydata,2,0,0), IJKth(ydata,2,MX-1,MZ-1));
 #endif
@@ -780,12 +786,16 @@ static void PrintOutputS(N_Vector *uS)
   printf("                                Sensitivity 1  ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
 #else
   printf("%12.4e %12.4e \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
 #endif
   printf("                                               ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
 #else
   printf("%12.4e %12.4e \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
 #endif
@@ -796,12 +806,16 @@ static void PrintOutputS(N_Vector *uS)
   printf("                                Sensitivity 2  ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
 #else
   printf("%12.4e %12.4e \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
 #endif
   printf("                                               ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
 #else
   printf("%12.4e %12.4e \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
 #endif

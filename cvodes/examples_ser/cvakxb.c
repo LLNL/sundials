@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-09 23:19:20 $
+ * $Revision: 1.17 $
+ * $Date: 2004-11-15 19:01:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1214,12 +1214,16 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
     printf("\nMaximum sensitivity with respect to I.C. of species %d\n", i);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("  mu max = %Le\n",cmax);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("  mu max = %le\n",cmax);
 #else
     printf("  mu max = %e\n",cmax);
 #endif
     printf("at\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("  x = %Le\ny = %Le\n", x, y);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("  x = %le\ny = %le\n", x, y);
 #else
     printf("  x = %e\n  y = %e\n", x, y);
 #endif

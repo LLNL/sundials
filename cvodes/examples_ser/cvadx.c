@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-11-09 00:14:08 $
+ * $Revision: 1.18 $
+ * $Date: 2004-11-15 19:01:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California 
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvodes/LICENSE.
  * -----------------------------------------------------------------
  * Adjoint sensitivity example problem.
  * The following is a simple example problem, with the coding
@@ -232,6 +232,8 @@ int main(int argc, char *argv[])
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("G: %12.4Le \n",Ith(q,1));
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("G: %12.4le \n",Ith(q,1));
 #else
   printf("G: %12.4e \n",Ith(q,1));
 #endif
@@ -504,9 +506,15 @@ static void PrintOutput(N_Vector yB, N_Vector qB)
   printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("tB0:        %12.4Le\n",TB1);
-  printf("dG/dp:      %12.4Le %12.4Le %12.4le\n", 
+  printf("dG/dp:      %12.4Le %12.4Le %12.4Le\n", 
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
   printf("lambda(t0): %12.4Le %12.4Le %12.4Le\n", 
+         Ith(yB,1), Ith(yB,2), Ith(yB,3));
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("tB0:        %12.4le\n",TB1);
+  printf("dG/dp:      %12.4le %12.4le %12.4le\n", 
+         -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
+  printf("lambda(t0): %12.4le %12.4le %12.4le\n", 
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
 #else
   printf("tB0:        %12.4e\n",TB1);

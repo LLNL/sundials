@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-11-09 18:42:33 $
+ * $Revision: 1.12 $
+ * $Date: 2004-11-15 18:56:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -229,6 +229,8 @@ static void PrintData(realtype t, realtype umax, long int nst)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %4.2Lf  max.norm(u) =%14.6Le  nst =%4ld \n", t, umax, nst);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("At t = %4.2f  max.norm(u) =%14.6le  nst =%4ld \n", t, umax, nst);
 #else
   printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4ld \n", t, umax, nst);
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-11-09 18:42:32 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-15 18:56:39 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -445,10 +445,23 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
     check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
     flag = CVodeGetLastStep(cvode_mem, &hu);
     check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n",
+           t, nst, qu, hu);
+    printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", udata[0], udata[1]);
+    printf("At top right:    c1, c2 = %12.3Le %12.3Le \n\n", tempu[0], tempu[1]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("t = %.2le   no. steps = %ld   order = %d   stepsize = %.2le\n",
+           t, nst, qu, hu);
+    printf("At bottom left:  c1, c2 = %12.3le %12.3le \n", udata[0], udata[1]);
+    printf("At top right:    c1, c2 = %12.3le %12.3le \n\n", tempu[0], tempu[1]);
+#else
     printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
            t, nst, qu, hu);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", udata[0], udata[1]);
     printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
+#endif
   }
 }
 

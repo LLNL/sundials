@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-11-09 00:14:12 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-15 19:01:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
@@ -455,6 +455,8 @@ static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%8.3Le %2d  %8.3Le %5ld\n", t,qu,hu,nst);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%8.3le %2d  %8.3le %5ld\n", t,qu,hu,nst);
 #else
     printf("%8.3e %2d  %8.3e %5ld\n", t,qu,hu,nst);
 #endif
@@ -463,6 +465,8 @@ static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le \n", umax);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%12.4le \n", umax);
 #else
     printf("%12.4e \n", umax);
 #endif
@@ -484,6 +488,8 @@ static void PrintOutputS(int my_pe, N_Vector *uS)
     printf("                                Sensitivity 1  ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le \n", smax);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%12.4le \n", smax);
 #else
     printf("%12.4e \n", smax);
 #endif
@@ -494,6 +500,8 @@ static void PrintOutputS(int my_pe, N_Vector *uS)
     printf("                                Sensitivity 2  ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le \n", smax);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%12.4le \n", smax);
 #else
     printf("%12.4e \n", smax);
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-11-09 00:14:12 $
+ * $Revision: 1.10 $
+ * $Date: 2004-11-15 19:01:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -307,6 +307,8 @@ int main(int argc, char *argv[])
   MPI_Allreduce(&qdata[0], &G, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   if (myId == 0) printf("  G = %Le\n",G);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  if (myId == 0) printf("  G = %le\n",G);
 #else
   if (myId == 0) printf("  G = %e\n",G);
 #endif
@@ -1079,6 +1081,12 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
         fprintf(fid,"y%d(%d,1) = %Le; \n",  myId, i[1]+1,         x[1]);
         fprintf(fid,"z%d(%d,1) = %Le; \n",  myId, i[2]+1,         x[2]);
         fprintf(fid,"p%d(%d,%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
+        fprintf(fid,"g%d(%d,%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+        fprintf(fid,"x%d(%d,1) = %le; \n",  myId, i[0]+1,         x[0]);
+        fprintf(fid,"y%d(%d,1) = %le; \n",  myId, i[1]+1,         x[1]);
+        fprintf(fid,"z%d(%d,1) = %le; \n",  myId, i[2]+1,         x[2]);
+        fprintf(fid,"p%d(%d,%d,%d) = %le; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
         fprintf(fid,"g%d(%d,%d,%d) = %le; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
 #else
         fprintf(fid,"x%d(%d,1) = %e; \n",  myId, i[0]+1,         x[0]);
@@ -1093,8 +1101,13 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
       p = IJth(pdata, i);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
       fprintf(fid,"x%d(%d,1) = %Le; \n",  myId, i[0]+1,         x[0]);
-      fprintf(fid,"y%d(%d,1) = %le; \n",  myId, i[1]+1,         x[1]);
+      fprintf(fid,"y%d(%d,1) = %Le; \n",  myId, i[1]+1,         x[1]);
       fprintf(fid,"p%d(%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, p);
+      fprintf(fid,"g%d(%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, g);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+      fprintf(fid,"x%d(%d,1) = %le; \n",  myId, i[0]+1,         x[0]);
+      fprintf(fid,"y%d(%d,1) = %le; \n",  myId, i[1]+1,         x[1]);
+      fprintf(fid,"p%d(%d,%d) = %le; \n", myId, i[1]+1, i[0]+1, p);
       fprintf(fid,"g%d(%d,%d) = %le; \n", myId, i[1]+1, i[0]+1, g);
 #else
       fprintf(fid,"x%d(%d,1) = %e; \n",  myId, i[0]+1,         x[0]);
@@ -1172,4 +1185,3 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
   }
     
 }
-

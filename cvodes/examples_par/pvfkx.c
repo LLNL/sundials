@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-11-09 00:14:12 $
+ * $Revision: 1.19 $
+ * $Date: 2004-11-15 19:01:40 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -1092,6 +1092,8 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%8.3Le %2d  %8.3Le %5ld\n", t,qu,hu,nst);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%8.3le %2d  %8.3le %5ld\n", t,qu,hu,nst);
 #else
     printf("%8.3e %2d  %8.3e %5ld\n", t,qu,hu,nst);
 #endif
@@ -1099,6 +1101,8 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
     printf("                                Solution       ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", udata[0], tempu[0]); 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%12.4le %12.4le \n", udata[0], tempu[0]); 
 #else
     printf("%12.4e %12.4e \n", udata[0], tempu[0]); 
 #endif
@@ -1107,6 +1111,8 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", udata[1], tempu[1]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%12.4le %12.4le \n", udata[1], tempu[1]);
 #else
     printf("%12.4e %12.4e \n", udata[1], tempu[1]);
 #endif
@@ -1149,12 +1155,16 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
     printf("                                Sensitivity 1  ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", sdata[0], temps[0]); 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%12.4le %12.4le \n", sdata[0], temps[0]); 
 #else
     printf("%12.4e %12.4e \n", sdata[0], temps[0]); 
 #endif
     printf("                                               ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", sdata[1], temps[1]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%12.4le %12.4le \n", sdata[1], temps[1]);
 #else
     printf("%12.4e %12.4e \n", sdata[1], temps[1]);
 #endif
@@ -1182,12 +1192,16 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
     printf("                                Sensitivity 2  ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", sdata[0], temps[0]); 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%12.4le %12.4le \n", sdata[0], temps[0]); 
 #else
     printf("%12.4e %12.4e \n", sdata[0], temps[0]); 
 #endif
     printf("                                               ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", sdata[1], temps[1]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("%12.4le %12.4le \n", sdata[1], temps[1]);
 #else
     printf("%12.4e %12.4e \n", sdata[1], temps[1]);
 #endif

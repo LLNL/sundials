@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.44 $
- * $Date: 2004-11-06 01:02:02 $
+ * $Revision: 1.45 $
+ * $Date: 2004-11-15 19:01:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -7010,8 +7010,6 @@ void CVBDFStab(CVodeMem cv_mem)
         eta = eta/MAX(ONE,ABS(h)*hmax_inv*eta);
         hprime = h*eta;
         nor = nor + 1;
-     /* printf(" Order reduced to %d by CVBDFStab at nst = %d,\n    h = %e hnew = %e\n",
-        qprime,nst,h,h*eta); */
       }
     }
   }
