@@ -3,140 +3,91 @@
 %===================================================================================
 
 %----------------------------------
-\section{{\sundials} Organization}\label{ss:sun_org}
+\section{SUNDIALS organization}\label{ss:sun_org}
 %----------------------------------
 \input{sun_org}
 
 %----------------------------------
-\section{{\cvodes} Organization}\label{ss:cvodes_org}
+\section{KINSOL organization}\label{ss:cvode_org}
 %----------------------------------
 
-\index{CVODES@{\cvodes}!package structure}
-The {\cvodes} package is written in the ANSI {\C} language. The following
+\index{KINSOL@{\kinsol}!package structure}
+The {\kinsol} package is written in the ANSI {\C} language. The following
 summarizes the basic structure of the package, although knowledge
 of this structure is not necessary for its use.
 
-The overall organization of the {\cvodes} package is shown in Figure
-\ref{f:cvsorg}.  The basic elements of the structure are a module for
-the basic integration algorithm (including forward sensitivity analysis),
-a module for adjoint sensitivity analysis, and a set of modules for the solution
-of linear systems that arise in the case of a stiff system.  
-%% \begin{figure}
-%% {\centerline{\psfig{figure=cvsorg.eps,width=\textwidth}}}
-%% \caption [Overall structure diagram of the {\cvodes} package]
-%% {Overall structure diagram of the {\cvodes} package.
-%%   Modules specific to {\cvodes} are distinguished by rounded boxes, while 
-%%   generic solver and auxiliary modules are in unrounded boxes.}
-%% \label{f:cvsorg}
-%% \end{figure}
+The overall organization of the {\kinsol} package is shown in Figure
+\ref{f:kinorg}. 
+\begin{figure}
+{\centerline{\psfig{figure=kinorg.eps,width=\textwidth}}}
+\caption [Overall structure diagram of the {\kinsol} package]
+{Overall structure diagram of the {\kinsol} package.
+  Modules specific to {\kinsol} are distinguished by rounded boxes, while 
+  generic solver and auxiliary modules are in rectangular boxes.}
+\label{f:kinorg}
+\end{figure}
 
-The central integration module, implemented in the files 
-\id{cvodes.h} and \id{cvodes.c}, deals with the evaluation of integration coefficients,
-the functional or Newton iteration process, estimation of local error,
-selection of stepsize and order, and interpolation to user output
-points, among other issues.  Although this module contains logic for
-the basic Newton iteration algorithm, it has no knowledge of the
-method being used to solve the linear systems that arise.  For any
-given user problem, one of the linear system modules is specified, and
-is then invoked as needed during the integration. 
+The central solver module, implemented in the files 
+\id{kinsol.h} and \id{kinsol.c}, deals with the solution of a nonlinear
+algebraic system using either an Inexact Newton method or a line search method
+for the global strategy. Although this module contains logic for the Newton
+iteration, it has no knowledge of the method used to solve the linear
+systems that arise. For any given user problem, the user must specify
+which linear solver module to use.
 
-In addition, if forward sensitivity analysis is turned on, the main module 
-will integrate the forward sensitivity equations, simultaneously with the original IVP.
-The sensitivities variables may or may not be included in the local error control
-mechanism of the main integrator.
-\index{forward sensitivity analysis!correction strategies}
-{\cvodes} provides three different strategies of dealing with the correction
-stage for the sensitivity variables, \Id{SIMULTANEOUS}, \Id{STAGGERED}, and
-\Id{STAGGERED1} (see \S\ref{ss:fwd_sensi} and \S\ref{sss:cvodesensmalloc}).
-The {\cvodes} package includes an algorithm for the approximation of the sensitivity 
-equations right hand sides by difference quotients, but the user has the option of 
-supplying these right hand sides directly.
-
-\index{adjoint sensitivity analysis!implementation in {\cvodes}|(}
-The adjoint sensitivity module provides the infrastructure needed for the 
-integration backwards in time of any system of ODEs which depends on the solution 
-of the original IVP, in particular the adjoint system and any quadratures required
-in evaluating the gradient of the objective functional.
-This module deals with the set-up of the check points, interpolation of the forward 
-solution during the backward integration, and backward integration of the adjoint
-equations. 
-\index{adjoint sensitivity analysis!implementation in {\cvodes}|)}
-
-
-\index{CVODES@{\cvodes} linear solvers!list of|(} 
-At present, the package includes the following four {\cvodes} linear system
-modules:
+\index{KINSOL@{\kinsol} linear solvers!list of|(} 
+At present, the package includes the following {\kinsol} linear system
+module:
 \begin{itemize} 
-\item {\cvdense}: LU factorization and backsolving with dense matrices; 
-\item {\cvband}: LU factorization and backsolving with banded matrices; 
-\item {\cvdiag}: an internally generated diagonal approximation to the 
-Jacobian; 
-\item {\cvspgmr}: scaled preconditioned GMRES method.
+\item {\kinspgmr}: scaled preconditioned GMRES method.
 \end{itemize}
 This set of linear solver modules is intended to be expanded in the
 future as new algorithms are developed.
-\index{CVODES@{\cvodes} linear solvers!list of|)} 
+\index{KINSOL@{\kinsol} linear solvers!list of|)} 
 
-In the case of the direct {\cvdense} and {\cvband} methods, the package includes
-an algorithm for the approximation of the Jacobian by difference
-quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly. In the case of the iterative
-{\cvspgmr} method, the package includes and algorithm for the approximation
+The {\kinspgmr} package includes an algorithm for the approximation
 by difference quotients of the product between the Jacobian matrix and
-a vector of appropriate length. Again, the user has the option of providing
+a vector of appropriate length. The user has the option of providing
 a routine for this operation.
-In \index{preconditioning!setup and solve phases} the case of {\cvspgmr}, 
+With \index{preconditioning!setup and solve phases} {\kinspgmr}, 
 the preconditioning must be supplied by the user, in two phases: 
 setup (preprocessing of Jacobian data) and solve.
-While\index{preconditioning!advice on} there is no default
-choice of preconditioner analogous to the difference quotient
-approximation in the direct case, the references
-\cite{BrHi:89}-\cite{Byr:92}, together with
-the example and demonstration programs included with {\cvodes}, offer
-considerable assistance in building preconditioners.
 
-\index{CVODES@{\cvodes} linear solvers!implementation details|(} 
-Each {\cvodes} linear solver module consists of five routines, devoted to (1)
+\index{KINSOL@{\kinsol} linear solvers!implementation details|(} 
+A {\kinsol} linear solver module consists of four routines, devoted to (1)
 memory allocation and initialization, (2) setup of the matrix data
-involved, (3) solution of the system, (4) solution of the system in the
-context of forward sensitivity analysis, and (5) freeing of memory.  The
-setup and solution phases are separate because the evaluation of
+involved, (3) solution of the system, and (4) freeing of memory.  
+The setup and solution phases are separate because the evaluation of
 Jacobians and preconditioners is done only periodically during the
 integration, as required to achieve convergence. The call list within
-the central {\cvodes} module to each of the five associated functions is
+the central {\kinsol} module to each of the associated functions is
 fixed, thus allowing the central module to be completely independent
 of the linear system method.
-\index{CVODES@{\cvodes} linear solvers!implementation details|)} 
+\index{KINSOL@{\kinsol} linear solvers!implementation details|)} 
 
-These modules are also decomposed in another way.
-\index{generic linear solvers!use in {\cvodes}|(} 
-Each of the modules {\cvdense}, {\cvband}, and {\cvspgmr} is a set of 
-interface routines built on top of a generic solver module, 
-named {\dense}, {\band}, and {\spgmr}, respectively.  
-The interfaces deal with the use of these methods in the {\cvodes} context, 
+Linear solver modules are also decomposed in another way.
+\index{generic linear solvers!use in {\kinsol}|(} 
+The module {\kinspgmr} is a set of 
+interface routines built on top of a generic solver module {\spgmr}.  
+The interface deals with the use of these methods in the {\kinsol} context, 
 whereas the generic solver is independent of the context.
 While the generic solvers here were generated with {\sundials} in mind, our
 intention is that they be usable in other applications as
 general-purpose solvers.  This separation also allows for any generic
 solver to be replaced by an improved version, with no necessity to
-revise the {\cvodes} package elsewhere.
-\index{generic linear solvers!use in {\cvodes}|)}
+revise the {\kinsol} package elsewhere.
+\index{generic linear solvers!use in {\kinsol}|)}
 
-{\cvodes} also provides two preconditioner modules. The first one, 
-{\cvbandpre}, is intended to be used with {\nvecs} and provides
-a banded difference quotient Jacobian based preconditioner and solver
-routines for use with {\cvspgmr}. The second preconditioner module, 
-{\cvbbdpre}, works in conjunction with {\nvecp} and generates a 
-preconditioner that is a block-diagonal matrix with each block being 
-a band matrix.
+{\kinsol} also provides a preconditioner module called {\kinbbdpre} which
+works in conjunction with {\nvecp} and generates a preconditioner that is
+a block-diagonal matrix with each block being a band matrix.
 
-All state information used by {\cvodes} to solve a given problem is saved
+All state information used by {\kinsol} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
-user.  There is no global data in the {\cvodes} package, and so in this
+user.  There is no global data in the {\kinsol} package, and so in this
 respect it is reentrant. State information specific to the linear
 solver is saved in separate structure, a pointer to which resides in
-the {\cvodes} memory structure. The reentrancy of {\cvodes} was motivated
+the {\kinsol} memory structure. The reentrancy of {\kinsol} was motivated
 by the anticipated multicomputer extension, but is also essential
 in a uniprocessor setting where two or more problems are solved by
 intermixed calls to the package from one user program.
-
