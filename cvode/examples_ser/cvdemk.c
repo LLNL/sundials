@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-08-31 20:41:53 $
+ * $Revision: 1.17 $
+ * $Date: 2004-08-31 22:52:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -93,7 +93,7 @@
 #include <math.h>
 
 
-#include "sundialstypes.h"  /* definition for realtype                      */
+#include "sundialstypes.h"  /* definition for realtype, TRUE                */
 #include "cvode.h"          /* main integrator header file                  */
 #include "cvspgmr.h"        /* use CVSPGMR linear solver                    */
 #include "smalldense.h"     /* use small dense matrix functions             */
