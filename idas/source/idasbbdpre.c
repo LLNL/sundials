@@ -232,7 +232,7 @@ int IBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
   return(OKAY);
 }
 
-int IBBDPrecGetNumGfnEvals(void *p_data, int *ngevalsBBDP)
+int IBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 {
   IBBDPrecData pdata;
 

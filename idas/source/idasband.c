@@ -312,7 +312,7 @@ int IDABandGetRealWorkSpace(void *ida_mem, long int *lenrwB)
 
 /************* IDABandGetNumJacEvals **********************************/
 
-int IDABandGetNumJacEvals(void *ida_mem, int *njevalsB)
+int IDABandGetNumJacEvals(void *ida_mem, long int *njevalsB)
 {
   IDAMem IDA_mem;
   IDABandMem idaband_mem;
@@ -337,7 +337,7 @@ int IDABandGetNumJacEvals(void *ida_mem, int *njevalsB)
 
 /************* IDABandGetNumResEvals **********************************/
 
-int IDABandGetNumResEvals(void *ida_mem, int *nrevalsB)
+int IDABandGetNumResEvals(void *ida_mem, long int *nrevalsB)
 {
   IDAMem IDA_mem;
   IDABandMem idaband_mem;

@@ -300,12 +300,12 @@ int IDASpgmrSetJacData(void *ida_mem, void *jdata);
 
 int IDASpgmrGetIntWorkSpace(void *ida_mem, long int *leniwSG);
 int IDASpgmrGetRealWorkSpace(void *ida_mem, long int *lenrwSG);
-int IDASpgmrGetNumPrecEvals(void *ida_mem, int *npevals);
-int IDASpgmrGetNumPrecSolves(void *ida_mem, int *npsolves);
-int IDASpgmrGetNumLinIters(void *ida_mem, int *nliters);
-int IDASpgmrGetNumConvFails(void *ida_mem, int *nlcfails);
-int IDASpgmrGetNumJtimesEvals(void *ida_mem, int *njvevals);
-int IDASpgmrGetNumResEvals(void *ida_mem, int *nrevalsSG); 
+int IDASpgmrGetNumPrecEvals(void *ida_mem, long int *npevals);
+int IDASpgmrGetNumPrecSolves(void *ida_mem, long int *npsolves);
+int IDASpgmrGetNumLinIters(void *ida_mem, long int *nliters);
+int IDASpgmrGetNumConvFails(void *ida_mem, long int *nlcfails);
+int IDASpgmrGetNumJtimesEvals(void *ida_mem, long int *njvevals);
+int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG); 
 
 /******************************************************************
  *                                                                *           
@@ -328,19 +328,19 @@ typedef struct {
   realtype g_epslin;   /* SpgrmSolve tolerance parameter               */
 
   int g_resflag;       /* flag from last res call                      */
-  int g_npe;           /* npe = total number of precond calls          */   
-  int g_nli;           /* nli = total number of linear iterations      */
-  int g_nps;           /* nps = total number of psolve calls           */
-  int g_ncfl;          /* ncfl = total number of convergence failures  */
-  int g_nreSG;         /* nreSG = total number of calls to res         */    
-  int g_njtimes;       /* njtimes = total number of calls to jtimes    */
+  long int g_npe;      /* npe = total number of precond calls          */   
+  long int g_nli;      /* nli = total number of linear iterations      */
+  long int g_nps;      /* nps = total number of psolve calls           */
+  long int g_ncfl;     /* ncfl = total number of convergence failures  */
+  long int g_nreSG;    /* nreSG = total number of calls to res         */    
+  long int g_njtimes;  /* njtimes = total number of calls to jtimes    */
 
-  int g_nst0;          /* nst0 = saved nst (for performance monitor)   */   
-  int g_nni0;          /* nni0 = saved nni (for performance monitor)   */   
-  int g_nli0;          /* nli0 = saved nli (for performance monitor)   */   
-  int g_ncfn0;         /* ncfn0 = saved ncfn (for performance monitor) */   
-  int g_ncfl0;         /* ncfl0 = saved ncfl (for performance monitor) */   
-  int g_nwarn;         /* nwarn = no. of warnings (for perf. monitor)  */   
+  long int g_nst0;     /* nst0 = saved nst (for performance monitor)   */   
+  long int g_nni0;     /* nni0 = saved nni (for performance monitor)   */   
+  long int g_nli0;     /* nli0 = saved nli (for performance monitor)   */   
+  long int g_ncfn0;    /* ncfn0 = saved ncfn (for performance monitor) */   
+  long int g_ncfl0;    /* ncfl0 = saved ncfl (for performance monitor) */   
+  long int g_nwarn;    /* nwarn = no. of warnings (for perf. monitor)  */   
 
   N_Vector g_ytemp;    /* temp vector used by IDAJtimesDQ              */ 
   N_Vector g_yptemp;   /* temp vector used by IDAJtimesDQ              */ 

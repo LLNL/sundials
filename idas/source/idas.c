@@ -1080,9 +1080,9 @@ int IDASensMalloc(void *ida_mem, int Ns, int ism,
   if (ism == STAGGERED1) {
     stgr1alloc = TRUE;
     ssS1   = (realtype*) malloc(Ns*sizeof(realtype));
-    netfS1 = (int*)      malloc(Ns*sizeof(int));
-    ncfnS1 = (int*)      malloc(Ns*sizeof(int));
-    nniS1  = (int*)      malloc(Ns*sizeof(int));
+    netfS1 = (long int*) malloc(Ns*sizeof(long int));
+    ncfnS1 = (long int*) malloc(Ns*sizeof(long int));
+    nniS1  = (long int*) malloc(Ns*sizeof(long int));
     if ( (ssS1 == NULL) || (ncfnS1 == NULL) || (nniS1 == NULL) ) {
       IDASensFreeVectors(IDA_mem);
       fprintf(errfp, MSG_SIDAM_MEM_FAIL);
@@ -1192,9 +1192,9 @@ int IDASensReInit(void *ida_mem, int ism,
   if ( (ism == STAGGERED1) && (!stgr1alloc) ) {
     stgr1alloc = TRUE;
     ssS1   = (realtype*) malloc(Ns*sizeof(realtype));
-    netfS1 = (int*)      malloc(Ns*sizeof(int));
-    ncfnS1 = (int*)      malloc(Ns*sizeof(int));
-    nniS1  = (int*)      malloc(Ns*sizeof(int));
+    netfS1 = (long int*) malloc(Ns*sizeof(long int));
+    ncfnS1 = (long int*) malloc(Ns*sizeof(long int));
+    nniS1  = (long int*) malloc(Ns*sizeof(long int));
     if ( (ssS1 == NULL) || (ncfnS1 == NULL) || (nniS1 == NULL) ) {
       fprintf(errfp, MSG_SIDAM_MEM_FAIL);
       return(SIDAREI_MEM_FAIL);
@@ -1407,7 +1407,8 @@ int IDASensReInit(void *ida_mem, int ism,
 int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
-  int is, nstloc, sflag, istate, ier;
+  long int nstloc;
+  int is, sflag, istate, ier;
   realtype tdist, troundoff, ypnorm, rh, nrm;
   booleantype istop, ewtsetOK, ewtQsetOK, ewtSsetOK;
   IDAMem IDA_mem;
@@ -1672,7 +1673,6 @@ int IDAGetSolution(void *ida_mem, realtype t,
   IDAMem IDA_mem;
   realtype tfuzz, tp, delt, c, d, gam;
   int j, kord;
-  int is;
 
   if (ida_mem == NULL) {
     fprintf(stdout, MSG_IDAG_NO_MEM);
@@ -3082,6 +3082,7 @@ static int IDAStep(IDAMem IDA_mem)
 
     IDASetCoeffs(IDA_mem, &ck);
 
+    kflag = SUCCESS;
     
     /*-----------------------
       Advance state variables
@@ -3882,7 +3883,6 @@ static int IDAStgr1NewtonIter(IDAMem IDA_mem, int is)
 static void IDAPredict(IDAMem IDA_mem)
 {
   int j;
-  int is;
 
   N_VScale(ONE, phi[0], yy);
   N_VConst(ZERO, yp);

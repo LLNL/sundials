@@ -140,7 +140,7 @@ extern "C" {
    *                                                                *
    ******************************************************************/
 
-  void *IDAAdjMalloc(void *ida_mem, int steps);
+  void *IDAAdjMalloc(void *ida_mem, long int steps);
 
   /******************************************************************
    *                                                                *
@@ -210,7 +210,7 @@ extern "C" {
   int IDASetRdataB(void *idaadj_mem, void *rdataB);
   int IDASetErrFileB(void *idaadj_mem, FILE *errfpB);
   int IDASetMaxOrdB(void *idaadj_mem, int maxordB);
-  int IDASetMaxNumStepsB(void *idaadj_mem, int mxstepsB);
+  int IDASetMaxNumStepsB(void *idaadj_mem, long int mxstepsB);
   int IDASetInitStepB(void *idaadj_mem, realtype hinB);
   int IDASetMaxStepB(void *idaadj_mem, realtype hmaxB);
   int IDASetSuppressAlgB(void *idaadj_mem, booleantype suppressalgB);
@@ -353,8 +353,8 @@ extern "C" {
    *                                                                *
    ******************************************************************/
   
-  int IDAAloadData(void *idaadj_mem, int which_ckpnt, int *points);
-  void IDAAgetData(void *idaadj_mem, int which_pnt, 
+  int IDAAloadData(void *idaadj_mem, int which_ckpnt, long int *points);
+  void IDAAgetData(void *idaadj_mem, long int which_pnt, 
                    realtype *t, N_Vector yout, N_Vector ydout);
 
   typedef struct CkpntMemRec {
@@ -373,12 +373,12 @@ extern "C" {
     realtype ck_gamma[MXORDP1];
     
     /* Step data */
-    int          ck_nst;
+    long int     ck_nst;
+    long int     ck_ns;
     int          ck_kk;
     int          ck_kused;
     int          ck_knew;
     int          ck_phase;
-    int          ck_ns;
     
     realtype     ck_hh;
     realtype     ck_hused;
@@ -486,7 +486,7 @@ extern "C" {
     int ia_nckpnts;
     
     /* Number of steps between 2 check points */
-    int ia_nsteps;
+    long int ia_nsteps;
     
     /* Flag to indicate that data in dt_mem is new */
     booleantype ia_newData;
@@ -496,7 +496,7 @@ extern "C" {
     
     /* Actual number of data points saved in current dt_mem */
     /* Commonly, np = nsteps+1                              */
-    int ia_np;
+    long int ia_np;
     
     /* Temporary space used by the Hermite interpolation */
     realtype ia_dt;

@@ -92,15 +92,15 @@ static CkpntMem IDAAckpntInit(IDAMem IDA_mem);
 static CkpntMem IDAAckpntNew(IDAMem IDA_mem);
 static void IDAAckpntDelete(CkpntMem *ck_memPtr);
 
-static DtpntMem *IDAAdataMalloc(IDAMem IDA_mem, int steps);
-static void IDAAdataFree(DtpntMem *dt_mem, int steps);
+static DtpntMem *IDAAdataMalloc(IDAMem IDA_mem, long int steps);
+static void IDAAdataFree(DtpntMem *dt_mem, long int steps);
 static int  IDAAdataStore(IDAadjMem IDAADJ_mem, CkpntMem ck_mem);
 
 
 static int  IDAAgetY(void *idaadj_mem, realtype t, N_Vector yy, N_Vector yp);
-static void IDAAhermitePrepare(IDAadjMem IDAADJ_mem, DtpntMem *dt_mem, int i);
+static void IDAAhermitePrepare(IDAadjMem IDAADJ_mem, DtpntMem *dt_mem, long int i);
 static void IDAAhermiteInterpolate(IDAadjMem IDAADJ_mem, DtpntMem *dt_mem,
-                                   int i, realtype t, N_Vector y, N_Vector yd);
+                                   long int i, realtype t, N_Vector y, N_Vector yd);
 
 static int IDAAres(realtype tres, 
                     N_Vector yyB, N_Vector ypB, N_Vector resvalB, 
@@ -244,7 +244,7 @@ static int IDAAspgmrJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
 */
 /*-----------------------------------------------------------------*/
 
-void *IDAAdjMalloc(void *ida_mem, int steps)
+void *IDAAdjMalloc(void *ida_mem, long int steps)
 {
   IDAadjMem IDAADJ_mem;
   IDAMem IDA_mem;
@@ -290,7 +290,7 @@ void *IDAAdjMalloc(void *ida_mem, int steps)
   /* Workspace memory */
   Y0 = N_VNew(nvspec);
   if (Y0 == NULL) {
-    IDAAdataFree(IDAADJ_mem->dt_mem, nsteps);
+    IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
     fprintf(stdout, MSG_IDAAM_MEM_FAIL);
@@ -300,7 +300,7 @@ void *IDAAdjMalloc(void *ida_mem, int steps)
   Y1 = N_VNew(nvspec);
   if (Y1 == NULL) {
     N_VFree(Y0);
-    IDAAdataFree(IDAADJ_mem->dt_mem, nsteps);
+    IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
     fprintf(stdout, MSG_IDAAM_MEM_FAIL);
@@ -311,7 +311,7 @@ void *IDAAdjMalloc(void *ida_mem, int steps)
   if (ytmp == NULL) {
     N_VFree(Y1);
     N_VFree(Y0);
-    IDAAdataFree(IDAADJ_mem->dt_mem, nsteps);
+    IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
     fprintf(stdout, MSG_IDAAM_MEM_FAIL);
@@ -323,7 +323,7 @@ void *IDAAdjMalloc(void *ida_mem, int steps)
     N_VFree(ytmp);
     N_VFree(Y1);
     N_VFree(Y0);
-    IDAAdataFree(IDAADJ_mem->dt_mem, nsteps);
+    IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
     fprintf(stdout, MSG_IDAAM_MEM_FAIL);
@@ -605,7 +605,7 @@ int IDASetMaxOrdB(void *idaadj_mem, int maxordB)
 }
 
 
-int IDASetMaxNumStepsB(void *idaadj_mem, int mxstepsB)
+int IDASetMaxNumStepsB(void *idaadj_mem, long int mxstepsB)
 {
   IDAadjMem IDAADJ_mem;
   void *ida_mem;
@@ -952,6 +952,7 @@ int IDABandSetJacDataB(void *idaadj_mem, void *jdataB)
 
 /*------------   IDASpgmrB and IDASpgmrSet*B    ---------------------*/
 /*-----------------------------------------------------------------*/
+
 int IDASpgmrB(void *idaadj_mem, int maxlB)
 {
   IDAadjMem IDAADJ_mem;
@@ -1186,11 +1187,11 @@ int IDAGetQuadB(void *idaadj_mem, N_Vector qB)
 /*BEGIN           Debugging routines                               */
 /*=================================================================*/
 
-int IDAAloadData(void *idaadj_mem, int which_ckpnt, int *points)
+int IDAAloadData(void *idaadj_mem, int which_ckpnt, long int *points)
 {
   IDAadjMem IDAADJ_mem;
   CkpntMem ck_mem;
-  int i, flag;
+  int i, flag = SUCCESS;
   
   IDAADJ_mem  = (IDAadjMem) idaadj_mem;
   ck_mem = IDAADJ_mem->ck_mem;
@@ -1226,7 +1227,7 @@ int IDAAloadData(void *idaadj_mem, int which_ckpnt, int *points)
 */
 /*-----------------------------------------------------------------*/
 
-void IDAAgetData(void *idaadj_mem, int which_pnt, 
+void IDAAgetData(void *idaadj_mem, long int which_pnt, 
                  realtype *t, N_Vector yout, N_Vector ydout)
 {
   IDAadjMem IDAADJ_mem;
@@ -1368,10 +1369,10 @@ static void IDAAckpntDelete(CkpntMem *ck_memPtr)
 */
 /*-----------------------------------------------------------------*/
 
-static DtpntMem *IDAAdataMalloc(IDAMem IDA_mem, int steps)
+static DtpntMem *IDAAdataMalloc(IDAMem IDA_mem, long int steps)
 {
   DtpntMem *dt_mem;
-  int i;
+  long int i;
 
   dt_mem = (DtpntMem *)malloc((steps+1)*sizeof(struct DtpntMemRec *));
 
@@ -1391,9 +1392,9 @@ static DtpntMem *IDAAdataMalloc(IDAMem IDA_mem, int steps)
 */
 /*-----------------------------------------------------------------*/
 
-static void IDAAdataFree(DtpntMem *dt_mem, int steps)
+static void IDAAdataFree(DtpntMem *dt_mem, long int steps)
 {
-  int i;
+  long int i;
 
   for (i=0; i<=steps; i++) {
     N_VFree(dt_mem[i]->y);
@@ -1416,7 +1417,8 @@ int IDAAdataStore(IDAadjMem IDAADJ_mem, CkpntMem ck_mem)
   IDAMem IDA_mem;
   DtpntMem *dt_mem;
   realtype t;
-  int i, j, flag;
+  long int i;
+  int j, flag;
 
   IDA_mem = IDAADJ_mem->IDA_mem;
   dt_mem = IDAADJ_mem->dt_mem;
@@ -1515,8 +1517,8 @@ static int IDAAgetY(void *idaadj_mem, realtype t, N_Vector yy, N_Vector yp)
 {
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
-  static int i;
-  int inew;
+  static long int i;
+  long int inew;
   booleantype to_left, to_right;
   realtype troundoff;
 
@@ -1586,7 +1588,7 @@ static int IDAAgetY(void *idaadj_mem, realtype t, N_Vector yy, N_Vector yp)
 */
 /*-----------------------------------------------------------------*/
 
-static void IDAAhermitePrepare(IDAadjMem IDAADJ_mem, DtpntMem *dt_mem, int i)
+static void IDAAhermitePrepare(IDAadjMem IDAADJ_mem, DtpntMem *dt_mem, long int i)
 {
   realtype t0, t1; 
   N_Vector y0, y1, yd0, yd1;
@@ -1616,7 +1618,7 @@ static void IDAAhermitePrepare(IDAadjMem IDAADJ_mem, DtpntMem *dt_mem, int i)
 /*-----------------------------------------------------------------*/
 
 static void IDAAhermiteInterpolate(IDAadjMem IDAADJ_mem, DtpntMem *dt_mem,
-                                   int i, realtype t, N_Vector y, N_Vector yd)
+                                   long int i, realtype t, N_Vector y, N_Vector yd)
 {
   realtype t0, t1;
   N_Vector y0, yd0;

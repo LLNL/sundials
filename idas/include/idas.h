@@ -310,7 +310,7 @@ void *IDACreate(void);
 int IDASetRdata(void *ida_mem, void *rdata);
 int IDASetErrFile(void *ida_mem, FILE *errfp);
 int IDASetMaxOrd(void *ida_mem, int maxord);
-int IDASetMaxNumSteps(void *ida_mem, int mxsteps);
+int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
 int IDASetInitStep(void *ida_mem, realtype hin);
 int IDASetMaxStep(void *ida_mem, realtype hmax);
 int IDASetStopTime(void *ida_mem, realtype tstop);
@@ -999,11 +999,11 @@ int IDAGetSolution(void *ida_mem, realtype t,
 
 int IDAGetIntWorkSpace(void *ida_mem, long int *leniw);
 int IDAGetRealWorkSpace(void *ida_mem, long int *lenrw);
-int IDAGetNumSteps(void *ida_mem, int *nsteps);
-int IDAGetNumResEvals(void *ida_mem, int *nrevals);
-int IDAGetNumLinSolvSetups(void *ida_mem, int *nlinsetups);
-int IDAGetNumErrTestFails(void *ida_mem, int *netfails);
-int IDAGetNumBacktrackOps(void *ida_mem, int *nbacktr);
+int IDAGetNumSteps(void *ida_mem, long int *nsteps);
+int IDAGetNumResEvals(void *ida_mem, long int *nrevals);
+int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups);
+int IDAGetNumErrTestFails(void *ida_mem, long int *netfails);
+int IDAGetNumBacktrackOps(void *ida_mem, long int *nbacktr);
 int IDAGetLastOrder(void *ida_mem, int *klast);
 int IDAGetCurrentOrder(void *ida_mem, int *kcur);
 int IDAGetActualInitStep(void *ida_mem, realtype *hinused);
@@ -1019,8 +1019,8 @@ int IDAGetErrWeights(void *ida_mem, N_Vector *eweight);
  *----------------------------------------------------------------*/
 
 int IDAGetWorkSpace(void *ida_mem, long int *leniw, long int *lenrw);
-int IDAGetIntegratorStats(void *ida_mem, int *nsteps, int *nrevals, 
-                          int *nlinsetups, int *netfails,
+int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals, 
+                          long int *nlinsetups, long int *netfails,
                           int *qlast, int *qcur, realtype *hlast, 
                           realtype *hcur, realtype *tcur);
 
@@ -1037,15 +1037,16 @@ int IDAGetIntegratorStats(void *ida_mem, int *nsteps, int *nrevals,
  *       convergence failures.                                    *
  *----------------------------------------------------------------*/
 
-int IDAGetNumNonlinSolvIters(void *ida_mem, int *nniters);
-int IDAGetNumNonlinSolvConvFails(void *ida_mem, int *nncfails);
+int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters);
+int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails);
 
 /*----------------------------------------------------------------*
  * As a convenience, the following function provides the          *
  * optional outputs in a group.                                   *
  *----------------------------------------------------------------*/
 
-int IDAGetNonlinSolvStats(void *ida_mem, int *nniters, int *nncfails);
+int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, 
+                          long int *nncfails);
 
 /*----------------------------------------------------------------*
  * Quadrature integration solution extraction routines            *
@@ -1077,8 +1078,8 @@ int IDAGetQuad(void *ida_mem, realtype t, N_Vector yretQ);
  *      space for ewtQ.                                           *
  *----------------------------------------------------------------*/
 
-int IDAGetQuadNumRhsEvals(void *ida_mem, int *nrhsQevals);
-int IDAGetQuadNumErrTestFails(void *ida_mem, int *nQetfails);
+int IDAGetQuadNumRhsEvals(void *ida_mem, long int *nrhsQevals);
+int IDAGetQuadNumErrTestFails(void *ida_mem, long int *nQetfails);
 int IDAGetQuadErrWeights(void *ida_mem, N_Vector *eQweight);
 
 /*----------------------------------------------------------------*
@@ -1086,7 +1087,7 @@ int IDAGetQuadErrWeights(void *ida_mem, N_Vector *eQweight);
  * optional outputs in a group.                                   *
  *----------------------------------------------------------------*/
 
-int IDAGetQuadStats(void *ida_mem, int *nrhsQevals, int *nQetfails);
+int IDAGetQuadStats(void *ida_mem, long int *nrhsQevals, long int *nQetfails);
 
 /*----------------------------------------------------------------*
  * Forward sensitivity solution extraction routines               *
@@ -1127,10 +1128,10 @@ int IDAGetSens1(void *ida_mem, realtype t, int is,
  *     vectors. The user need not allocate space for ewtS.        *
  *----------------------------------------------------------------*/
 
-int IDAGetSensNumRhsEvals(void *ida_mem, int *nresSevals);
-int IDAGetNumRhsEvalsSens(void *ida_mem, int *nresevalsS);
-int IDAGetSensNumErrTestFails(void *ida_mem, int *nSetfails);
-int IDAGetSensNumLinSolvSetups(void *ida_mem, int *nlinsetupsS);
+int IDAGetSensNumRhsEvals(void *ida_mem, long int *nresSevals);
+int IDAGetNumRhsEvalsSens(void *ida_mem, long int *nresevalsS);
+int IDAGetSensNumErrTestFails(void *ida_mem, long int *nSetfails);
+int IDAGetSensNumLinSolvSetups(void *ida_mem, long int *nlinsetupsS);
 int IDAGetSensErrWeights(void *ida_mem, N_Vector_S *eSweight);
 
 /*----------------------------------------------------------------*
@@ -1138,8 +1139,8 @@ int IDAGetSensErrWeights(void *ida_mem, N_Vector_S *eSweight);
  * optional outputs in a group.                                   *
  *----------------------------------------------------------------*/
 
-int IDAGetSensStats(void *ida_mem, int *nresSevals, int *nresevalsS, 
-                      int *nSetfails, int *nlinsetupsS);
+int IDAGetSensStats(void *ida_mem, long int *nresSevals, long int *nresevalsS, 
+                    long int *nSetfails, long int *nlinsetupsS);
 
 /*----------------------------------------------------------------*
  *                                                                *
@@ -1163,18 +1164,18 @@ int IDAGetSensStats(void *ida_mem, int *nresSevals, int *nresevalsS,
  *         sensitivity variables in the STAGGERED1 method.        *
  *----------------------------------------------------------------*/
 
-int IDAGetSensNumNonlinSolvIters(void *ida_mem, int *nSniters);
-int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, int *nSncfails);
-int IDAGetSensNumStgrErrTestFails(void *ida_mem, int *nSTGR1netfails);
-int IDAGetSensNumStgrNonlinSolvIters(void *ida_mem, int *nSTGR1niters);
-int IDAGetSensNumStgrNonlinSolvConvFails(void *ida_mem, int *nSTGR1ncfails);
+int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters);
+int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, long int *nSncfails);
+int IDAGetSensNumStgrErrTestFails(void *ida_mem, long int *nSTGR1netfails);
+int IDAGetSensNumStgrNonlinSolvIters(void *ida_mem, long int *nSTGR1niters);
+int IDAGetSensNumStgrNonlinSolvConvFails(void *ida_mem, long int *nSTGR1ncfails);
 
 /*----------------------------------------------------------------*
  * As a convenience, the following function provides the          *
  * optional outputs in groups.                                    *
  *----------------------------------------------------------------*/
 
-int IDAGetSensNonlinSolvStats(void *ida_mem, int *nSniters, int *nSncfails);
+int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncfails);
 
 /* IDAGet* return values */
 enum { OKAY = 0, IDAG_NO_MEM = -1, BAD_T = -2, BAD_IS = -3,
@@ -1394,7 +1395,7 @@ typedef struct IDAMemRec {
   int ida_kused;     /* method order used on last successful step         */
   int ida_knew;      /* order for next step from order decrease decision  */
   int ida_phase;     /* flag to trigger step doubling in first few steps  */
-  int ida_ns;        /* counts steps at fixed stepsize and order          */
+  long int ida_ns;   /* counts steps at fixed stepsize and order          */
 
   realtype ida_hin;      /* initial step                                      */
   realtype ida_h0u;      /* actual initial stepsize                           */
@@ -1434,28 +1435,28 @@ typedef struct IDAMemRec {
     Counters
     --------*/
 
-  int ida_nst;           /* number of internal steps taken                    */
+  long int ida_nst;      /* number of internal steps taken                    */
 
-  int ida_nre;           /* number of user function calls                     */
-  int ida_nrQe;
-  int ida_nrSe;
-  int ida_nreS;
+  long int ida_nre;      /* number of user function calls                     */
+  long int ida_nrQe;
+  long int ida_nrSe;
+  long int ida_nreS;
 
-  int ida_ncfn;          /* number of corrector convergence failures          */
-  int ida_ncfnS;
-  int *ida_ncfnS1;
+  long int ida_ncfn;     /* number of corrector convergence failures          */
+  long int ida_ncfnS;
+  long int *ida_ncfnS1;
 
-  int ida_nni;           /* number of Newton iterations performed             */
-  int ida_nniS;
-  int *ida_nniS1;
+  long int ida_nni;      /* number of Newton iterations performed             */
+  long int ida_nniS;
+  long int *ida_nniS1;
 
-  int ida_netf;          /* number of error test failures                     */
-  int ida_netfQ;
-  int ida_netfS;
-  int *ida_netfS1;
+  long int ida_netf;     /* number of error test failures                     */
+  long int ida_netfQ;
+  long int ida_netfS;
+  long int *ida_netfS1;
 
-  int ida_nsetups;       /* number of lsetup calls                            */
-  int ida_nsetupsS;
+  long int ida_nsetups;  /* number of lsetup calls                            */
+  long int ida_nsetupsS;
   
   /*---------------------------
     Space requirements for IDAS
