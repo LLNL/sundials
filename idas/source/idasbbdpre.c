@@ -24,7 +24,7 @@
 #include "idasbbdpre.h"
 #include "idasspgmr.h"
 #include "sundialsmath.h"
-#include "iterativ.h"
+#include "iterative.h"
 
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)

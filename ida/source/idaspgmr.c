@@ -20,7 +20,7 @@
 #include "idaspgmr.h"
 #include "ida.h"
 #include "spgmr.h"
-#include "iterativ.h"
+#include "iterative.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"

@@ -17,7 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "iterativ.h"
+#include "iterative.h"
 #include "spgmr.h"
 #include "sundialstypes.h"
 #include "nvector.h"

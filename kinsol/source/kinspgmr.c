@@ -23,7 +23,7 @@
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
-#include "iterativ.h"
+#include "iterative.h"
 #include "spgmr.h"
 
 

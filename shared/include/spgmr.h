@@ -73,7 +73,7 @@ extern "C" {
 #define _spgmr_h
 
 #include "sundialstypes.h"
-#include "iterativ.h"
+#include "iterative.h"
 #include "nvector.h"
 
 

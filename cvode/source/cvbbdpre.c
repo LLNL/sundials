@@ -21,7 +21,7 @@
 #include "cvbbdpre.h"
 #include "cvspgmr.h"
 #include "sundialsmath.h"
-#include "iterativ.h"
+#include "iterative.h"
 
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)
