@@ -92,7 +92,13 @@ right-hand side (15) or (17) in the paper. This is the key for the
 users.  I find that in the code, the analytic input by hand is used,
 which is impossible for many of users and applications.
 
-{\em Response:} ???
+{\em Response:}
+The user interface in CVODES provides all the software hooks for 
+implementing interfaces to routines that evaluate the adjoint systems via
+reverse automatic differentiation. 
+Current AD tools for C codes are not mature enough (there are fundamental 
+difficulties due to the much higher flexibility of C vs. F77) to allow for 
+the definition of generic wrappers in CVODES at this time.
 
 The last sentence about the adjoint PDE on page 10 is wrong. 
 You cannot replace the adjoint of the discretized PDE with the 
@@ -259,6 +265,9 @@ method. The code DSL48S [1] contains a BDF solver for DAE systems with
 the staggered corrector sensitivity method using the sparse direct
 linear algebra solver MA48.
 
+{\em Response:}
+We have included appropriate citations.
+
 The statement in Section 2.2.1 of the paper, that the staggered direct
 method is always unattractive, is not correct. As shown in [4], it can
 outperform the other methods in case that $N_s >> N$.
@@ -274,6 +283,15 @@ any forward sensitivity method.
 In contrast to CVODES, DDASPK already contains automatic
 differentiation capabilities according to [2].
 
+{\em Response:} 
+DASPK3.0 and DASPKADJOINT do not contain AD capabilities, but rather provide 
+generic interfaces to AD-generated routines.
+The user interface in CVODES provides all the software hooks for 
+implementing interfaces to AD-generated routines. 
+Current AD tools for C codes are not mature enough (there are fundamental 
+difficulties due to the much higher flexibility of C vs. F77) to allow for 
+the definition of generic wrappers in CVODES at this time.
+
 Regarding the adjoint approach, the concepts and implementation in
 this paper appear to be close to what has been reported in [3]. The
 check-pointing has already been described in that reference.
@@ -286,6 +304,9 @@ by Griewank and Walther) cannot be employed.
 
 DDASPKADJOINT additionally contains optional automatic differentiation
 facilities for obtaining the required derivative information.
+
+{\em Response:} 
+See above response regarding AD in DASPK3.0.
 
 According to the paper, the key benefit of CVODES appears to be the
 modular software implementation, which collects all subelements for
