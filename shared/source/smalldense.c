@@ -1,32 +1,36 @@
-/*******************************************************************
- *                                                                 *
- * File          : smalldense.c                                    *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the implementation file for a generic DENSE linear      *
- * solver package, intended for small dense matrices.              *
- *                                                                 *
- *******************************************************************/ 
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.5 $
+ * $Date: 2004-11-03 23:14:35 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
+ * -----------------------------------------------------------------
+ * This is the implementation file for a generic DENSE linear
+ * solver package, intended for small dense matrices.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "smalldense.h"
-#include "sundialstypes.h"
-#include "sundialsmath.h"
 
+#include "smalldense.h"
+#include "sundialsmath.h"
+#include "sundialstypes.h"
+
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
+#endif
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
-
 /* Implementation */
-
 
 realtype **denalloc(long int n)
 {
@@ -229,7 +233,11 @@ void denprint(realtype **a, long int n)
   printf("\n");
   for (i=0; i < n; i++) {
     for (j=0; j < n; j++) {
+      #if defined(SUNDIALS_EXTENDED_PRECISION)
+      printf("%10Lg", a[j][i]);
+      #else
       printf("%10g", a[j][i]);
+      #endif
     }
     printf("\n");
   }

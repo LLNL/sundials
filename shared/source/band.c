@@ -1,32 +1,37 @@
-/*******************************************************************
- *                                                                 *
- * File          : band.c                                          *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh, and       *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the implementation file for a generic BAND linear       *
- * solver package.                                                 *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-11-03 23:14:35 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
+ * -----------------------------------------------------------------
+ * This is the implementation file for a generic BAND linear
+ * solver package.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "band.h"
-#include "sundialstypes.h"
-#include "sundialsmath.h"
 
+#include "band.h"
+#include "sundialsmath.h"
+#include "sundialstypes.h"
+
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
+#endif
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
 #define ROW(i,j,smu) (i-j+smu)
-
 
 /* Implementation */
 
@@ -53,7 +58,6 @@ BandMat BandAllocMat(long int N, long int mu, long int ml, long int smu)
   return(A);
 }
 
-
 long int *BandAllocPiv(long int N)
 {
   if (N <= 0) return(NULL);
@@ -61,12 +65,10 @@ long int *BandAllocPiv(long int N)
   return((long int *) malloc(N * sizeof(long int)));
 }
 
-
 long int BandFactor(BandMat A, long int *p)
 {
   return(gbfa(A->data, A->size, A->mu, A->ml, A->smu, p));
 }
-
 
 void BandBacksolve(BandMat A, long int *p, realtype *b)
 {
@@ -110,7 +112,6 @@ void BandPrint(BandMat A)
   bandprint(A->data, A->size, A->mu, A->ml, A->smu);
 }
 
-
 realtype **bandalloc(long int n, long int smu, long int ml)
 {
   realtype **a;
@@ -139,7 +140,6 @@ long int *bandallocpiv(long int n)
 
   return((long int *) malloc(n * sizeof(long int)));
 }
-
 
 long int gbfa(realtype **a, long int n, long int mu, long int ml, 
               long int smu, long int *p)
@@ -356,7 +356,11 @@ void bandprint(realtype **a, long int n, long int mu, long int ml,
     finish = MIN(n-1,i+mu);
     for (j=0; j < start; j++) printf("%10s","");
     for (j=start; j <= finish; j++) {
+      #if defined(SUNDIALS_EXTENDED_PRECISION)
+      printf("%10Lg", a[j][i-j+smu]);
+      #else
       printf("%10g", a[j][i-j+smu]);
+      #endif
     }
     printf("\n");
   }

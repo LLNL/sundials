@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-10-21 20:44:41 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-03 23:14:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -22,6 +22,11 @@
 #include "nvector_serial.h"
 #include "sundialsmath.h"
 #include "sundialstypes.h"
+
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
+#endif
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -297,11 +302,15 @@ void N_VPrint_Serial(N_Vector x)
   N  = NV_LENGTH_S(x);
   xd = NV_DATA_S(x);
 
-  for (i=0; i < N; i++) printf("%11.8g\n", *xd++);
-
+  for (i=0; i < N; i++) {
+    #if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%11.8Lg\n", *xd++);
+    #else
+    printf("%11.8g\n", *xd++);
+    #endif
+  }
   printf("\n");
 }
-
 
 /*
  * -----------------------------------------------------------------
@@ -764,7 +773,6 @@ realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
   
   return(min);
 }
-
 
 /*
  * -----------------------------------------------------------------

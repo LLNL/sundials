@@ -1,8 +1,8 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-10-21 20:44:48 $
- * ----------------------------------------------------------------- 
+ * $Revision: 1.17 $
+ * $Date: 2004-11-03 23:14:43 $
+ * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -23,16 +23,21 @@
 #include "sundialsmath.h"
 #include "sundialstypes.h"
 
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
+#endif
+
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
-/* Error message */
+/* Error Message */
 
-#define BAD_N1  "N_VNew_Parallel -- Sum of local vector lengths differs from "
-#define BAD_N2  "input global length. \n\n"
-#define BAD_N    BAD_N1 BAD_N2
+#define BAD_N1 "N_VNew_Parallel -- Sum of local vector lengths differs from "
+#define BAD_N2 "input global length. \n\n"
+#define BAD_N   BAD_N1 BAD_N2
 
 /* Private function prototypes */
 
@@ -58,7 +63,6 @@ static void VLin2_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z);
 static void Vaxpy_Parallel(realtype a, N_Vector x, N_Vector y);
 /* x <- ax */
 static void VScaleBy_Parallel(realtype a, N_Vector x);
-
 
 /*
  * -----------------------------------------------------------------
@@ -311,7 +315,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
   return(vs);
 }
 
-/* ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------
  * Function to free an array created with N_VNewVectorArray_Parallel
  */
 
@@ -336,11 +340,15 @@ void N_VPrint_Parallel(N_Vector x)
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
 
-  for (i=0; i < N; i++) printf("%g\n", *xd++);
-
+  for (i=0; i < N; i++) {
+    #if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%Lg\n", *xd++);
+    #else
+    printf("%g\n", *xd++);
+    #endif
+  }
   printf("\n");
 }
-
 
 /*
  * -----------------------------------------------------------------
@@ -838,7 +846,6 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
 
   return(VAllReduce_Parallel(min, 3, comm));
 }
-
 
 /*
  * -----------------------------------------------------------------
