@@ -1239,11 +1239,8 @@ void CVadjGetCheckPointsList(void *cvadj_mem)
   i = 0;
 
   while (ck_mem != NULL) {
-    printf("Check point %d\n", nckpnts-i);
-    printf("  address   %x\n", (int)ck_mem);
-    printf("  t0        %f\n", t0_);
-    printf("  t1        %f\n", t1_);
-    printf("  next      %x\n", (int)next_);
+    printf("Check point %2d  addr: %x  time = [ %5e %5e ]  next: %x\n", 
+           nckpnts-i, ck_mem, t0_, t1_, next_ );
     ck_mem = next_;
     i++;
   }
@@ -1325,6 +1322,7 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
 {
   CkpntMem ck_mem;
   int j, jj;
+  int qmax; 
 
   /* Allocate space for ckdata */
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
@@ -1338,8 +1336,22 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
     }
   }
 
+  /* Allocate space for the last zn, if not already at max order
+     NOTE: zn(qmax) may be needed for a hot restart, if an order
+     increase is deemed necessary at the first step after a check 
+     point */
+  qmax = cv_mem->cv_qmax;
+  if ( q < qmax) {
+    zn_[qmax] = N_VNew(nvspec);
+    if ( zn_[qmax] == NULL ) {
+      for(jj=0; jj<=q; jj++) N_VFree(zn_[jj]);
+      return(NULL);
+    }
+  }
+
   /* Load check point data from cv_mem */
   for (j=0; j<=q; j++)         N_VScale(ONE, zn[j], zn_[j]);
+  if ( q < qmax )              N_VScale(ONE, zn[qmax], zn_[qmax]);
   for (j=0; j<=L_MAX; j++)     tau_[j] = tau[j];
   for (j=0; j<=NUM_TESTS; j++) tq_[j] = tq[j];
   for (j=0; j<=q; j++)         l_[j] = l[j];
@@ -1447,6 +1459,8 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
   /* Initialize cv_mem with data from ck_mem */
   flag = CVAckpntGet(cv_mem, ck_mem);
 
+  if (flag != SUCCESS) return(flag);
+
   /* Set first structure in dt_mem[0] */
   dt_mem[0]->t = t0_;
   N_VScale(ONE, zn_[0], dt_mem[0]->y);
@@ -1481,6 +1495,8 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
 static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem) 
 {
   int j;
+  int flag;
+  int qmax;
 
   if (next_ == NULL) {
 
@@ -1489,9 +1505,11 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
        the first run. */
 
     CVodeSetInitStep(cv_mem, h0u);
-    CVodeReInit(cv_mem, f, t0_, zn_[0], itol, reltol, abstol);
+    flag = CVodeReInit(cv_mem, f, t0_, zn_[0], itol, reltol, abstol);
     
   } else {
+    
+    qmax = cv_mem->cv_qmax;
 
     /* Copy parameters from check point data structure */
     nst       = nst_;
@@ -1510,6 +1528,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     
     /* Copy the arrays from check point data structure */
     for (j=0; j<=q; j++)         N_VScale(ONE, zn_[j], zn[j]);
+    if ( q < qmax )              N_VScale(ONE, zn_[qmax], zn[qmax]);
     for (j=0; j<=L_MAX; j++)     tau[j] = tau_[j];
     for (j=0; j<=NUM_TESTS; j++) tq[j] = tq_[j];
     for (j=0; j<=q; j++)         l[j] = l_[j];
@@ -1517,9 +1536,11 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     /* Force a call to setup */
     forceSetup = TRUE;
 
+    flag = SUCCESS;
+
   }
 
-  return(0);
+  return(flag);
 }
 
 /*------------------   CVAhermitePrepare --------------------------*/
