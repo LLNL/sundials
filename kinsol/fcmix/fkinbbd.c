@@ -19,7 +19,6 @@
 #include "sundialstypes.h" /* definitions of types realtype and integertype   */
 #include "nvector.h"   /* definitions of type N_Vector                        */
 #include "kinsol.h"    /* KINSOL constants and prototypes                     */
-#include "fcmixpar.h"  /* definition of global F2C_machEnv variable           */
 #include "fkinsol.h"   /* prototypes of standard interfaces, global variables */
 #include "fkinbbd.h"   /* prototypes of interfaces to KINBBDPRE               */
 #include "kinspgmr.h"  /* prototypes of KINSPGMR interface routines           */

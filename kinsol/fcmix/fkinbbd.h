@@ -198,35 +198,31 @@
 
 *******************************************************************************/
 
-
-#include "fcmixpar.h"
-
 /* definitions of interface function names */
 
-#if (CRAY)
-
-#define F_KINBBDINIT     FKINBBDINIT
-#define K_COMMFN         KCOMMFN
-#define K_LOCFN          KLOCFN
-#define F_KINBBDOPT      FKINBBDOPT
-#define F_KINBBDFREE     FKINBBDFREE
-
-
-#elif  (UNDERSCORE)
-
-#define F_KINBBDINIT     fkinbbdinit_
-#define K_COMMFN         kcommfn_
-#define K_LOCFN          klocfn_
-#define F_KINBBDOPT      fkinbbdopt_
-#define F_KINBBDFREE     fkinbbdfree_
-
-#else
+#if SUNDIALS_UNDERSCORE_NONE
 
 #define F_KINBBDINIT    fkinbbdinit
 #define K_COMMFN        kcommfn
 #define K_LOCFN         klocfn
 #define F_KINBBDOPT     fkinbbdopt
 #define F_KINBBDFREE    fkinbbdfree
+
+#elif SUNDIALS_UNDERSCORE_TWO
+
+#define F_KINBBDINIT     fkinbbdinit__
+#define K_COMMFN         kcommfn__
+#define K_LOCFN          klocfn__
+#define F_KINBBDOPT      fkinbbdopt__
+#define F_KINBBDFREE     fkinbbdfree__
+
+#else
+
+#define F_KINBBDINIT    fkinbbdinit_
+#define K_COMMFN        kcommfn_
+#define K_LOCFN         klocfn_
+#define F_KINBBDOPT     fkinbbdopt_
+#define F_KINBBDFREE    fkinbbdfree_
 
 #endif
 

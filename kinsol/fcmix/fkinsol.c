@@ -18,7 +18,6 @@
 #include "nvector.h"       /* def's of type N_Vector and related routines     */
 #include "kinsol.h"        /* KINSOL constants and prototypes                 */
 #include "kinspgmr.h"      /* prototypes of KINSPGMR interface routines       */
-#include "fcmixpar.h"      /* global F2C_nvspec variable                     */
 #include "fkinsol.h"       /* prototypes of interfaces, global variables      */
 
 /**************************************************************************/
