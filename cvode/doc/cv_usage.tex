@@ -2567,7 +2567,7 @@ These optional output functions are described next.
 \index{optional output!solver|)}
 
 %%==============================================================================
-\subsubsection{Linear solver optional output functions}
+\subsubsection{Linear solver optional output functions}\label{sss:linsolv_io}
 %%==============================================================================
 
 For each of the linear system solver modules, there are various optional 
@@ -2681,6 +2681,41 @@ to access these are described below.
 {
   The value \id{nfevalsD} is incremented only if the default 
   \id{CVDenseDQJac} difference quotient function is used.
+}
+%%
+%%
+\ucfunction{CVDenseGetLastFlag}
+{
+  flag = CVDenseGetLastFlag(cvode\_mem, \&flag);
+}
+{
+  The function \ID{CVDenseGetLastFlag} returns the
+  last return value from a {\cvdense} routine. 
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[flag] (\id{int})
+    the value of the last return flag from a {\cvdense} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVDENSE\_LMEM\_NULL]
+  \item[\Id{CVDENSE\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{CVDENSE\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVDENSE\_LMEM\_NULL}]
+    The {\cvdense} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\cvdense} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
+  the value \id{flag} is equal to the column index (numbered from one) at which
+  a zero diagonal element was encountered during the LU factorization of the 
+  dense Jacobian matrix.
 }
 %%
 %%
@@ -2800,6 +2835,41 @@ to access these are described below.
 }
 %%
 %%
+\ucfunction{CVBandGetLastFlag}
+{
+  flag = CVBandGetLastFlag(cvode\_mem, \&flag);
+}
+{
+  The function \ID{CVBandGetLastFlag} returns the
+  last return value from a {\cvband} routine. 
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[flag] (\id{int})
+    the value of the last return flag from a {\cvband} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVBAND\_LMEM\_NULL]
+  \item[\Id{CVBAND\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{CVBAND\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVBAND\_LMEM\_NULL}]
+    The {\cvband} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\cvband} setup sunction failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
+  the value \id{flag} is equal to the column index (numbered from one) at which
+  a zero diagonal element was encountered during the LU factorization of the 
+  banded Jacobian matrix.
+}
+%%
+%%
 \index{CVBAND@{\cvband} linear solver!optional output|)}
 \index{optional output!band linear solver|)}
 %
@@ -2882,6 +2952,42 @@ to access these are described below.
   The number of diagonal approximate Jacobians formed is
   equal to the number of calls to the linear solver setup function
   (available by calling \id{CVodeGetNumLinsolvSetups}).
+}
+%%
+%%
+\ucfunction{CVDiagGetLastFlag}
+{
+  flag = CVDiagGetLastFlag(cvode\_mem, \&flag);
+}
+{
+  The function \ID{CVDiagGetLastFlag} returns the
+  last return value from a {\cvdiag} routine. 
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[flag] (\id{int})
+    the value of the last return flag from a {\cvdiag} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVDIAG\_LMEM\_NULL]
+  \item[\Id{CVDIAG\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{CVDIAG\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVDIAG\_LMEM\_NULL}]
+    The {\cvdiag} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\cvdiag} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
+  the value \id{flag} is equal to \id{CVDIAG\_INV\_FAIL}, indicating that a zero
+  diagonal element was encountered.
+  The same value for \id{flag} is set if the {\cvdiag} solve function failed
+  (\id{CVode} returned \id{CV\_LSOLVE\_FAIL}).
 }
 %%
 %%
@@ -3123,7 +3229,53 @@ to access these are described below.
   The value \id{nfevalsSG} is incremented only if the default 
   \id{CVSpgmrDQJtimes} difference quotient function is used.
 }
+%%
+%%
+\ucfunction{CVSpgmrGetLastFlag}
+{
+  flag = CVSpgmrGetLastFlag(cvode\_mem, \&flag);
+}
+{
+  The function \ID{CVSpgmrGetLastFlag} returns the
+  last return value from a {\cvspgmr} routine. 
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[flag] (\id{int})
+    the value of the last return flag from a {\cvspgmr} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
+    The {\cvspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\cvspgmr} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
+  \id{flag} contains the return value of the preconditioner setup function \id{psetup}.
 
+  If the {\cvspgmr} solve function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
+  \id{flag} contains the error return flag from \id{SpgmrSolve} and will be one
+  of: \id{SPGMR\_CONV\_FAIL} indicating a failure to converge, \id{SPGMR\_QRFACT\_FAIL}
+  indicating a singular matrix foud during the QR factorization, \id{SPGMR\_PSOLVE\_FAIL\_REC}
+  indicating that the preconditioner solve function \id{psolve} failed recoverably,
+  \id{SPGMR\_MEM\_NULL} indicating that the {\spgmr} memory is \id{NULL}, \id{SPGMR\_ATIMES\_FAIL},
+  indicating a failure in the Jacobian times vector function, \id{SPGMR\_PSOLVE\_FAIL\_UNREC}
+  indicating that the preconditioner solve function \id{psolve} failed unrecoverably,
+  \id{SPGMR\_GS\_FAIL} indicating a failure in the Gram-Schmidt procedure, 
+  or \id{SPGMR\_QRSOL\_FAIL} indicating that the matrix $R$ was found to be singular during
+  the QR solve phase.
+}
+%%
+%%
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|)} 
 \index{optional output!iterative linear solver|)}
 
@@ -5041,6 +5193,9 @@ apply to {\nvecp}.
   
   Optional outputs specific to the {\dense} case are \id{NJE}, \id{LRW}, and
   \id{LIW}, stored in \id{IOPT(16)}, \id{IOPT(17)}, and \id{IOPT(18)}, respectively.
+
+  In addition, \id{IOPT(26)} contains the last return value of a {\cvdense}
+  interface function (see \s\ref{sss:linsolv_io}).
   
   {\s} {\bf Band treatment of the linear system}
   \index{CVBAND@{\cvband} linear solver!use in {\fcvode}}
@@ -5092,6 +5247,9 @@ apply to {\nvecp}.
   
   Optional outputs specific to the {\band} case are \id{NJE}, \id{LRW}, and
   \id{LIW}, stored in \id{IOPT(16)}, \id{IOPT(17)}, and \id{IOPT(18)}, respectively.
+  
+  In addition, \id{IOPT(26)} contains the last return value of a {\cvband}
+  interface function (see \s\ref{sss:linsolv_io}).
   
   {\s}{\p} {\bf SPGMR treatment of the linear systems}
   \index{CVSPGMR@{\cvspgmr} linear solver!use in {\fcvode}}
@@ -5208,6 +5366,9 @@ apply to {\nvecp}.
   Optional outputs specific to the {\spgmr} case are \id{NPE}, \id{NLI}, \id{NPS}, 
   \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$
   \id{IOPT(21)}, respectively (see Table~\ref{t:fcvode_io}).
+  
+  In addition, \id{IOPT(26)} contains the last return value of a {\cvspgmr}
+  interface function (see \s\ref{sss:linsolv_io}).
   
   If a sequence of problems of the same size is being solved using the {\spgmr}
   linear solver, then following the call to \id{FCVREINIT} (see below), a call
