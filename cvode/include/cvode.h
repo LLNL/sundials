@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-04-29 14:51:03 $
+ * $Revision: 1.16 $
+ * $Date: 2004-04-29 19:16:28 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -83,13 +83,14 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-enum { ADAMS, BDF };                                      /* lmm */
+enum { ADAMS=1, BDF=2 };                                   /* lmm */
 
-enum { FUNCTIONAL, NEWTON };                             /* iter */
+enum { FUNCTIONAL=1, NEWTON=2 };                          /* iter */
 
-enum { SS, SV };                                         /* itol */
+enum { SS=1, SV=2 };                                      /* itol */
 
-enum { NORMAL, ONE_STEP, NORMAL_TSTOP, ONE_STEP_TSTOP}; /* itask */
+enum { NORMAL=1, ONE_STEP=2, 
+       NORMAL_TSTOP=3, ONE_STEP_TSTOP=4 };               /* itask */
 
 /******************************************************************
  *                                                                *
@@ -191,7 +192,7 @@ int CVodeResetIterType(void *cvode_mem, int iter);
  *                      | opened for writing) returned by fopen.  *
  *                      | If not called, then all messages will   *
  *                      | be written to standard output.          *
- *                      | [NULL]                                  *
+ *                      | [stderr]                                *
  *                      |                                         * 
  * CVodeSetFdata        | a pointer to user data that will be     *
  *                      | passed to the user's f function every   *

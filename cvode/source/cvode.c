@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-04-29 14:53:14 $
+ * $Revision: 1.23 $
+ * $Date: 2004-04-29 19:16:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -483,18 +483,18 @@ void *CVodeCreate(int lmm, int iter)
   /* Test inputs */
 
   if ((lmm != ADAMS) && (lmm != BDF)) {
-    fprintf(stdout, MSG_BAD_LMM, lmm, ADAMS, BDF);
+    fprintf(stderr, MSG_BAD_LMM, lmm, ADAMS, BDF);
     return (NULL);
   }
   
   if ((iter != FUNCTIONAL) && (iter != NEWTON)) {
-    fprintf(stdout, MSG_BAD_ITER, iter, FUNCTIONAL, NEWTON);
+    fprintf(stderr, MSG_BAD_ITER, iter, FUNCTIONAL, NEWTON);
     return (NULL);
   }
 
   cv_mem = (CVodeMem) malloc(sizeof(struct CVodeMemRec));
   if (cv_mem == NULL) {
-    fprintf(stdout, MSG_CVMEM_FAIL);
+    fprintf(stderr, MSG_CVMEM_FAIL);
     return (NULL);
   }
 
@@ -509,7 +509,7 @@ void *CVodeCreate(int lmm, int iter)
 
   /* Set default values for integrator optional inputs */
   cv_mem->cv_f_data   = NULL;
-  cv_mem->cv_errfp    = stdout;
+  cv_mem->cv_errfp    = stderr;
   cv_mem->cv_qmax     = maxord;
   cv_mem->cv_mxstep   = MXSTEP_DEFAULT;
   cv_mem->cv_mxhnil   = MXHNIL_DEFAULT;
@@ -540,7 +540,7 @@ void *CVodeCreate(int lmm, int iter)
 
 /*------------------  CVodeSetErrFile    --------------------------*/
 /* 
-   Specifies the FILE pointer for output (NULL means stdout)
+   Specifies the FILE pointer for output (NULL means no messages)
 */
 /*-----------------------------------------------------------------*/
 
@@ -549,7 +549,7 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
@@ -573,14 +573,14 @@ int CVodeResetIterType(void *cvode_mem, int iter)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if ((iter != FUNCTIONAL) && (iter != NEWTON)) {
-    fprintf(stdout, MSG_CVS_BAD_ITER, iter, FUNCTIONAL, NEWTON);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_BAD_ITER, iter, FUNCTIONAL, NEWTON);
     return (CVS_ILL_INPUT);
   }
 
@@ -602,7 +602,7 @@ int CVodeSetFdata(void *cvode_mem, void *f_data)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
@@ -626,7 +626,7 @@ int CVodeSetGdata(void *cvode_mem, void *g_data)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
@@ -650,19 +650,19 @@ int CVodeSetMaxOrd(void *cvode_mem, int maxord)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (maxord <= 0) {
-    fprintf(errfp, MSG_CVS_NEG_MAXORD);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_NEG_MAXORD);
     return(CVS_ILL_INPUT);
   }
   
   if (maxord > cv_mem->cv_qmax) {
-    fprintf(errfp, MSG_CVS_BAD_MAXORD, cv_mem->cv_qmax, maxord);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_BAD_MAXORD, cv_mem->cv_qmax, maxord);
     return(CVS_ILL_INPUT);
   }
 
@@ -684,14 +684,14 @@ int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (mxsteps<=0) {
-    fprintf(errfp, MSG_CVS_NEG_MXSTEPS);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_NEG_MXSTEPS);
     return(CVS_ILL_INPUT);
   }
 
@@ -713,7 +713,7 @@ int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
@@ -737,14 +737,14 @@ int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if(cv_mem->cv_lmm != BDF) {
-    fprintf(errfp, MSG_CVS_SLDET);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_SLDET);
     return(CVS_ILL_INPUT);
   }
 
@@ -766,7 +766,7 @@ int CVodeSetInitStep(void *cvode_mem, realtype hin)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
@@ -791,20 +791,20 @@ int CVodeSetMinStep(void *cvode_mem, realtype hmin)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (hmin<=0) {
-    fprintf(errfp, MSG_CVS_NEG_HMIN);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_NEG_HMIN);
     return(CVS_ILL_INPUT);
   }
 
   if (hmin * cv_mem->cv_hmax_inv > ONE) {
     hmax = ONE/cv_mem->cv_hmax_inv;
-    fprintf(errfp, MSG_CVS_BAD_HMIN_HMAX, hmin, hmax);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_BAD_HMIN_HMAX, hmin, hmax);
     return(CVS_ILL_INPUT);
   }
 
@@ -827,20 +827,20 @@ int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return (CVS_NO_MEM);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (hmax <= 0) {
-    fprintf(errfp, MSG_CVS_NEG_HMAX);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_NEG_HMAX);
     return(CVS_ILL_INPUT);
   }
 
   hmax_inv = ONE/hmax;
   if (hmax_inv * cv_mem->cv_hmin > ONE) {
-    fprintf(errfp, MSG_CVS_BAD_HMIN_HMAX, cv_mem->cv_hmin, hmax);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_BAD_HMIN_HMAX, cv_mem->cv_hmin, hmax);
     return(CVS_ILL_INPUT);
   }
 
@@ -863,7 +863,7 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return (CVS_NO_MEM);
   }
 
@@ -890,7 +890,7 @@ int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return (CVS_NO_MEM);
   }
 
@@ -915,7 +915,7 @@ int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return (CVS_NO_MEM);
   }
 
@@ -940,7 +940,7 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return (CVS_NO_MEM);
   }
 
@@ -965,7 +965,7 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVS_NO_MEM);
+    fprintf(stderr, MSG_CVS_NO_MEM);
     return(CVS_NO_MEM);
   }
 
@@ -1001,7 +1001,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVM_NO_MEM);
+    fprintf(stderr, MSG_CVM_NO_MEM);
     return(CVM_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -1009,32 +1009,32 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   /* Check for legal input parameters */
 
   if (y0==NULL) {
-    fprintf(errfp, MSG_Y0_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_Y0_NULL);
     return(CVM_ILL_INPUT);
   }
 
   if ((itol != SS) && (itol != SV)) {
-    fprintf(errfp, MSG_BAD_ITOL, itol, SS, SV);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOL, itol, SS, SV);
     return(CVM_ILL_INPUT);
   }
 
   if (f == NULL) {
-    fprintf(errfp, MSG_F_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_F_NULL);
     return(CVM_ILL_INPUT);
   }
 
   if (reltol == NULL) {
-    fprintf(errfp, MSG_RELTOL_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_RELTOL_NULL);
     return(CVM_ILL_INPUT);
   }
 
   if (*reltol < ZERO) {
-    fprintf(errfp, MSG_BAD_RELTOL, *reltol);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RELTOL, *reltol);
     return(CVM_ILL_INPUT);
   }
    
   if (abstol == NULL) {
-    fprintf(errfp, MSG_ABSTOL_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_ABSTOL_NULL);
     return(CVM_ILL_INPUT);
   }
 
@@ -1044,7 +1044,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
     neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
   }
   if (neg_abstol) {
-    fprintf(errfp, MSG_BAD_ABSTOL);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ABSTOL);
     return(CVM_ILL_INPUT);
   }
 
@@ -1056,7 +1056,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   /* Allocate the vectors */
   allocOK = CVAllocVectors(cv_mem, qmax, nvspec);
   if (!allocOK) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(CVM_MEM_FAIL);
   }
  
@@ -1066,7 +1066,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_abstol = abstol;
   ewtsetOK = CVEwtSet(cv_mem, y0);
   if (!ewtsetOK) {
-    fprintf(errfp, MSG_BAD_EWT);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_EWT);
     CVFreeVectors(cv_mem, qmax);
     return(CVM_ILL_INPUT);
   }
@@ -1146,46 +1146,46 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
  
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVM_NO_MEM);
+    fprintf(stderr, MSG_CVM_NO_MEM);
     return(CVREI_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Check if cvode_mem was allocated */
   if (cv_mem->cv_MallocDone == FALSE) {
-    fprintf(errfp, MSG_CVREI_NO_MALLOC);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVREI_NO_MALLOC);
     return(CVREI_NO_MALLOC);
   }
 
   /* Check for legal input parameters */
 
   if (y0 == NULL) {
-    fprintf(errfp, MSG_Y0_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_Y0_NULL);
     return (CVREI_ILL_INPUT);
   }
   
   if ((itol != SS) && (itol != SV)) {
-    fprintf(errfp, MSG_BAD_ITOL, itol, SS, SV);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOL, itol, SS, SV);
     return (CVREI_ILL_INPUT);
   }
 
   if (f == NULL) {
-    fprintf(errfp, MSG_F_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_F_NULL);
     return (CVREI_ILL_INPUT);
   }
 
   if (reltol == NULL) {
-    fprintf(errfp, MSG_RELTOL_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_RELTOL_NULL);
     return (CVREI_ILL_INPUT);
   }
 
   if (*reltol < ZERO) {
-    fprintf(errfp, MSG_BAD_RELTOL, *reltol);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RELTOL, *reltol);
     return (CVREI_ILL_INPUT);
   }
    
   if (abstol == NULL) {
-    fprintf(errfp, MSG_ABSTOL_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_ABSTOL_NULL);
     return (CVREI_ILL_INPUT);
   }
 
@@ -1195,7 +1195,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
     neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
   }
   if (neg_abstol) {
-    fprintf(errfp, MSG_BAD_ABSTOL);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ABSTOL);
     return (CVREI_ILL_INPUT);
   }
 
@@ -1205,7 +1205,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_abstol = abstol;
   ewtsetOK = CVEwtSet(cv_mem, y0);
   if (!ewtsetOK) {
-    fprintf(errfp, MSG_BAD_EWT);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_EWT);
     return (CVREI_ILL_INPUT);
   }
   
@@ -1278,7 +1278,7 @@ int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn)
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVRT_NO_MEM);
+    fprintf(stderr, MSG_CVRT_NO_MEM);
     return(CVRT_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -1292,28 +1292,28 @@ int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn)
 
   glo = (realtype *) malloc(nrt*sizeof(realtype));
   if (glo == NULL) {
-    fprintf(stdout, MSG_CVRT_MEM_FAIL);
+    fprintf(stderr, MSG_CVRT_MEM_FAIL);
     return(CVRT_MEM_FAIL);
   }
     
   ghi = (realtype *) malloc(nrt*sizeof(realtype));
   if (ghi == NULL) {
     free(glo);
-    fprintf(stdout, MSG_CVRT_MEM_FAIL);
+    fprintf(stderr, MSG_CVRT_MEM_FAIL);
     return(CVRT_MEM_FAIL);
   }
     
   groot = (realtype *) malloc(nrt*sizeof(realtype));
   if (groot == NULL) {
     free(glo); free(ghi);
-    fprintf(stdout, MSG_CVRT_MEM_FAIL);
+    fprintf(stderr, MSG_CVRT_MEM_FAIL);
     return(CVRT_MEM_FAIL);
   }
 
   iroots = (int *) malloc(nrt*sizeof(int));
   if (iroots == NULL) {
     free(glo); free(ghi); free(groot);
-    fprintf(stdout, MSG_CVRT_MEM_FAIL);
+    fprintf(stderr, MSG_CVRT_MEM_FAIL);
     return(CVRT_MEM_FAIL);
   }
 
@@ -1430,26 +1430,26 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_CVODE_NO_MEM);
+    fprintf(stderr, MSG_CVODE_NO_MEM);
     return (CVODE_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Check if cvode_mem was allocated */
   if (cv_mem->cv_MallocDone == FALSE) {
-    fprintf(errfp, MSG_CVODE_NO_MALLOC);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVODE_NO_MALLOC);
     return(CVODE_NO_MALLOC);
   }
   
   /* Check for yout != NULL */
   if ((y = yout) == NULL) {
-    fprintf(errfp, MSG_YOUT_NULL);       
+    if(errfp!=NULL) fprintf(errfp, MSG_YOUT_NULL);       
     return (ILL_INPUT);
   }
   
   /* Check for tret != NULL */
   if (tret == NULL) {
-    fprintf(errfp, MSG_TRET_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_TRET_NULL);
     return (ILL_INPUT);
   }
   tretlast = *tret = tn;
@@ -1459,14 +1459,14 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       (itask != ONE_STEP)     &&
       (itask != NORMAL_TSTOP) &&
       (itask != ONE_STEP_TSTOP) ) {
-    fprintf(errfp, MSG_BAD_ITASK, itask);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITASK, itask);
     return (ILL_INPUT);
   }
 
   /* Split itask into task and istop */
   if ((itask == NORMAL_TSTOP) || (itask == ONE_STEP_TSTOP)) {
     if ( tstopset == FALSE ) {
-      fprintf(errfp, MSG_NO_TSTOP);
+      if(errfp!=NULL) fprintf(errfp, MSG_NO_TSTOP);
       return(ILL_INPUT);
     }
     istop = TRUE;
@@ -1488,24 +1488,24 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     if (iter == NEWTON) {
       if (linit == NULL) {
-        fprintf(errfp, MSG_LINIT_NULL);
+        if(errfp!=NULL) fprintf(errfp, MSG_LINIT_NULL);
         return(ILL_INPUT);
       }
       if (lsetup == NULL) {
-        fprintf(errfp, MSG_LSETUP_NULL);
+        if(errfp!=NULL) fprintf(errfp, MSG_LSETUP_NULL);
         return(ILL_INPUT);
       }
       if (lsolve == NULL) {
-        fprintf(errfp, MSG_LSOLVE_NULL);
+        if(errfp!=NULL) fprintf(errfp, MSG_LSOLVE_NULL);
         return(ILL_INPUT);
       }
       if (lfree == NULL) {
-        fprintf(errfp, MSG_LFREE_NULL);
+        if(errfp!=NULL) fprintf(errfp, MSG_LFREE_NULL);
         return(ILL_INPUT);
       }
       ier = linit(cv_mem);
       if (ier != LINIT_OK) {
-        fprintf(errfp, MSG_LINIT_FAIL);
+        if(errfp!=NULL) fprintf(errfp, MSG_LINIT_FAIL);
         return(ILL_INPUT);
       }
     }
@@ -1519,13 +1519,13 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     h = hin;
     if ( (h != ZERO) && ((tout-tn)*h < ZERO) ) {
-      fprintf(errfp, MSG_BAD_H0, h, tout-tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_H0, h, tout-tn);
       return(ILL_INPUT);
     }
     if (h == ZERO) {
       hOK = CVHin(cv_mem, tout);
       if (!hOK) {
-        fprintf(errfp, MSG_TOO_CLOSE, tout, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_TOO_CLOSE, tout, tn);
         return(ILL_INPUT);
       }
     }
@@ -1537,7 +1537,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     if (istop) {
       if ( (tstop - tn)*h < ZERO ) {
-        fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
         return(ILL_INPUT);
       }
       if ( (tn + h - tstop)*h > ZERO ) 
@@ -1553,7 +1553,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (nrtfn > 0) {
       ier = CVRcheck1(cv_mem);
       if (ier != OKAY) {
-        fprintf(errfp, MSG_BAD_INIT_ROOT);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_INIT_ROOT);
         return(ILL_INPUT);
       }
     }
@@ -1576,7 +1576,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
       if (ier == CLOSERT) {
         tretlast = *tret = tlo;
-        fprintf(errfp, MSG_CLOSE_ROOTS, tlo);
+        if(errfp!=NULL) fprintf(errfp, MSG_CLOSE_ROOTS, tlo);
         return(ILL_INPUT);
       }
 
@@ -1606,7 +1606,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     /* Test for tn past tstop */
     if ( istop && ((tstop - tn)*h < ZERO) ) {
-      fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
       return (ILL_INPUT);
     }
 
@@ -1615,7 +1615,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       tretlast = *tret = tout;
       ier =  CVodeGetDky(cv_mem, tout, 0, yout);
       if (ier != OKAY) {
-        fprintf(errfp, MSG_BAD_TOUT, tout);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TOUT, tout);
         return (ILL_INPUT);
       }
       return (SUCCESS);
@@ -1635,7 +1635,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       if ( ABS(tn - tstop) <= troundoff) {
         ier =  CVodeGetDky(cv_mem, tstop, 0, yout);
         if (ier != OKAY) {
-          fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+          if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
           return (ILL_INPUT);
         }
         tretlast = *tret = tstop;
@@ -1664,7 +1664,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (nst > 0) {
       ewtsetOK = CVEwtSet(cv_mem, zn[0]);
       if (!ewtsetOK) {
-        fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_EWT_NOW_BAD, tn);
         istate = ILL_INPUT;
         tretlast = *tret = tn;
         N_VScale(ONE, zn[0], yout);
@@ -1675,7 +1675,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* Check for too many steps */
     
     if (nstloc >= mxstep) {
-      fprintf(errfp, MSG_MAX_STEPS, tn, mxstep, tout);
+      if(errfp!=NULL) fprintf(errfp, MSG_MAX_STEPS, tn, mxstep, tout);
       istate = TOO_MUCH_WORK;
       tretlast = *tret = tn;
       N_VScale(ONE, zn[0], yout);
@@ -1685,7 +1685,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* Check for too much accuracy requested */
 
     if ((tolsf = uround * N_VWrmsNorm(zn[0], ewt)) > ONE) {
-      fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
       istate = TOO_MUCH_ACC;
       tretlast = *tret = tn;
       N_VScale(ONE, zn[0], yout);
@@ -1697,8 +1697,8 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     if (tn + h == tn) {
       nhnil++;
-      if (nhnil <= mxhnil) fprintf(errfp, MSG_HNIL, tn, h);
-      if (nhnil == mxhnil) fprintf(errfp, MSG_HNIL_DONE, mxhnil);
+      if (nhnil <= mxhnil) if(errfp!=NULL) fprintf(errfp, MSG_HNIL, tn, h);
+      if (nhnil == mxhnil) if(errfp!=NULL) fprintf(errfp, MSG_HNIL_DONE, mxhnil);
     }
 
     /* Call CVStep to take a step */
@@ -1804,18 +1804,18 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   /* Check all inputs for legality */
  
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_DKY_NO_MEM);
+    fprintf(stderr, MSG_DKY_NO_MEM);
     return (CVG_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (dky == NULL) {
-    fprintf(errfp, MSG_BAD_DKY);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_DKY);
     return (BAD_DKY);
   }
 
   if ((k < 0) || (k > q)) {
-    fprintf(errfp, MSG_BAD_K, k);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_K, k);
     return (BAD_K);
   }
   
@@ -1825,7 +1825,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   tp = tn - hu - tfuzz;
   tn1 = tn + tfuzz;
   if ((t-tp)*(t-tn1) > ZERO) {
-    fprintf(errfp, MSG_BAD_T, t, tn-hu, tn);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_T, t, tn-hu, tn);
     return (BAD_T);
   }
 
@@ -1858,7 +1858,7 @@ int CVodeGetIntWorkSpace(void *cvode_mem, long int *leniw)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -1880,7 +1880,7 @@ int CVodeGetRealWorkSpace(void *cvode_mem, long int *lenrw)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -1902,7 +1902,7 @@ int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -1924,7 +1924,7 @@ int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -1947,7 +1947,7 @@ int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -1969,7 +1969,7 @@ int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -1991,7 +1991,7 @@ int CVodeGetLastOrder(void *cvode_mem, int *qlast)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2013,7 +2013,7 @@ int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2036,14 +2036,14 @@ int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (sldeton==FALSE) {
-    fprintf(errfp, MSG_CVG_NO_SLDET);
+    if(errfp!=NULL) fprintf(errfp, MSG_CVG_NO_SLDET);
     return(CVG_NO_SLDET);
   }
 
@@ -2063,7 +2063,7 @@ int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2085,7 +2085,7 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2107,7 +2107,7 @@ int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2129,7 +2129,7 @@ int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2151,7 +2151,7 @@ int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2174,7 +2174,7 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector *eweight)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2196,7 +2196,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2218,7 +2218,7 @@ int CVodeGetWorkSpace(void *cvode_mem, long int *leniw, long int *lenrw)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2244,7 +2244,7 @@ int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2275,7 +2275,7 @@ int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2297,7 +2297,7 @@ int CVodeGetRootInfo(void *cvode_mem, int **rootsfound)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2321,7 +2321,7 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2344,7 +2344,7 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -2367,7 +2367,7 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSG_CVG_NO_MEM);
+    fprintf(stderr, MSG_CVG_NO_MEM);
     return(CVG_NO_MEM);
   }
 
@@ -3775,14 +3775,18 @@ static int CVHandleFailure(CVodeMem cv_mem, int kflag)
 
   /* Depending on kflag, print error message and return error flag */
   switch (kflag) {
-    case REP_ERR_FAIL:  fprintf(errfp, MSG_ERR_FAILS, tn, h);
-                        return(ERR_FAILURE);
-    case REP_CONV_FAIL: fprintf(errfp, MSG_CONV_FAILS, tn, h);
-                        return(CONV_FAILURE);
-    case SETUP_FAILED:  fprintf(errfp, MSG_SETUP_FAILED, tn);
-                        return(SETUP_FAILURE);
-    case SOLVE_FAILED:  fprintf(errfp, MSG_SOLVE_FAILED, tn);
-                        return(SOLVE_FAILURE);
+    case REP_ERR_FAIL: 
+      if(errfp!=NULL) fprintf(errfp, MSG_ERR_FAILS, tn, h);
+      return(ERR_FAILURE);
+    case REP_CONV_FAIL:
+      if(errfp!=NULL) fprintf(errfp, MSG_CONV_FAILS, tn, h);
+      return(CONV_FAILURE);
+    case SETUP_FAILED:
+      if(errfp!=NULL) fprintf(errfp, MSG_SETUP_FAILED, tn);
+      return(SETUP_FAILURE);
+    case SOLVE_FAILED:
+      if(errfp!=NULL) fprintf(errfp, MSG_SOLVE_FAILED, tn);
+      return(SOLVE_FAILURE);
   }
   return(-99);
 }

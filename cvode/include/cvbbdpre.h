@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-04-03 01:10:19 $
+ * $Revision: 1.15 $
+ * $Date: 2004-04-29 19:16:28 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -9,7 +9,7 @@
  * Copyright (c) 2002, The Regents of the University of California 
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * For details, see sundials/cvode/LICENSE
  * -----------------------------------------------------------------
  * This is the header file for the CVBBDPRE module, for a          
  * band-block-diagonal preconditioner, i.e. a block-diagonal       
@@ -101,7 +101,6 @@
  *    integrator/CVSPGMR optional outputs.                         
  * -----------------------------------------------------------------
  */
-
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

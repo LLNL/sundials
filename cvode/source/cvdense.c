@@ -1,19 +1,20 @@
-/*******************************************************************
- *                                                                 *
- * File          : cvdense.c                                       *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
- *-----------------------------------------------------------------*
- * This is the implementation file for the CVODE dense linear      *
- * solver, CVDENSE.                                                *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.13 $
+ * $Date: 2004-04-29 19:16:39 $
+ * ----------------------------------------------------------------- 
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
+ *                 Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvode/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for the CVODE dense linear 
+ * solver, CVDENSE. 
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -122,7 +123,7 @@ int CVDense(void *cvode_mem, long int N)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_CVMEM_NULL);
+    fprintf(stderr, MSG_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -133,7 +134,7 @@ int CVDense(void *cvode_mem, long int N)
       nvspec->ops->nvdispose == NULL ||
       nvspec->ops->nvgetdata == NULL || 
       nvspec->ops->nvsetdata == NULL) {
-    fprintf(errfp, MSG_WRONG_NVEC);
+    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
     return(LIN_ILL_INPUT);
   }
 
@@ -148,7 +149,7 @@ int CVDense(void *cvode_mem, long int N)
   /* Get memory for CVDenseMemRec */
   cvdense_mem = (CVDenseMem) malloc(sizeof(CVDenseMemRec));
   if (cvdense_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
 
@@ -165,18 +166,18 @@ int CVDense(void *cvode_mem, long int N)
   
   M = DenseAllocMat(N);
   if (M == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
   savedJ = DenseAllocMat(N);
   if (savedJ == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     DenseFreeMat(M);
     return(LMEM_FAIL);
   }
   pivots = DenseAllocPiv(N);
   if (pivots == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     DenseFreeMat(M);
     DenseFreeMat(savedJ);
     return(LMEM_FAIL);
@@ -197,13 +198,13 @@ int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -222,13 +223,13 @@ int CVDenseSetJacData(void *cvode_mem, void *jac_data)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -247,13 +248,13 @@ int CVDenseGetIntWorkSpace(void *cvode_mem, long int *leniwD)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -272,13 +273,13 @@ int CVDenseGetRealWorkSpace(void *cvode_mem, long int *lenrwD)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -297,13 +298,13 @@ int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -322,13 +323,13 @@ int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvdense_mem = (CVDenseMem) lmem;

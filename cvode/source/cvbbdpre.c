@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-04-03 01:10:22 $
+ * $Revision: 1.15 $
+ * $Date: 2004-04-29 19:16:39 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -77,14 +77,14 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   long int muk, mlk, storage_mu;
 
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_CVMEM_NULL);
+    fprintf(stderr, MSG_CVMEM_NULL);
     return(NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BLOCK BAND preconditioner */
   if (nvspec->ops->nvgetdata == NULL || nvspec->ops->nvsetdata == NULL) {
-    fprintf(errfp, MSG_WRONG_NVEC);
+    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
     return(NULL);
   }
 
@@ -142,7 +142,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   int flag;
 
   if ( bbd_data == NULL ) {
-    fprintf(stdout, MSG_NO_PDATA);
+    fprintf(stderr, MSG_NO_PDATA);
     return(BBDP_NO_PDATA);
   } 
 
@@ -207,7 +207,7 @@ int CVBBDPrecGetIntWorkSpace(void *bbd_data, long int *leniwBBDP)
   CVBBDPrecData pdata;
 
   if ( bbd_data == NULL ) {
-    fprintf(stdout, MSG_PDATA_NULL);
+    fprintf(stderr, MSG_PDATA_NULL);
     return(BBDP_NO_PDATA);
   } 
 
@@ -223,7 +223,7 @@ int CVBBDPrecGetRealWorkSpace(void *bbd_data, long int *lenrwBBDP)
   CVBBDPrecData pdata;
 
   if ( bbd_data == NULL ) {
-    fprintf(stdout, MSG_PDATA_NULL);
+    fprintf(stderr, MSG_PDATA_NULL);
     return(BBDP_NO_PDATA);
   } 
 
@@ -239,7 +239,7 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
   CVBBDPrecData pdata;
 
   if ( bbd_data == NULL ) {
-    fprintf(stdout, MSG_PDATA_NULL);
+    fprintf(stderr, MSG_PDATA_NULL);
     return(BBDP_NO_PDATA);
   } 
 

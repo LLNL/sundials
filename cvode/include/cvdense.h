@@ -1,19 +1,20 @@
-/*******************************************************************
- *                                                                 *
- * File          : cvdense.h                                       *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * See sundials/cvode/LICENSE or sundials/cvodes/LICENSE           *
- *-----------------------------------------------------------------*
- * This is the header file for the CVODE/CVODES dense linear       *
- * solver, CVDENSE.                                                *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.13 $
+ * $Date: 2004-04-29 19:16:28 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
+ *              Radu Serban @ LLNL                              
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California 
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvode/LICENSE
+ * -----------------------------------------------------------------
+ * This is the header file for the CVODE/CVODES dense linear
+ * solver, CVDENSE. 
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

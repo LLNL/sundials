@@ -1,20 +1,20 @@
-/*******************************************************************
- *                                                                 *
- * File          : cvband.c                                        *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
- *-----------------------------------------------------------------*
- * This is the implementation file for the CVODE band linear       *
- * solver, CVBAND.                                                 *
- *                                                                 *
- *******************************************************************/
-
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.12 $
+ * $Date: 2004-04-29 19:16:39 $
+ * ----------------------------------------------------------------- 
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
+ *                 Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvode/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for the CVODE band linear
+ * solver, CVBAND.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +25,6 @@
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
-
 
 /* Error Messages */
 
@@ -143,7 +142,7 @@ int CVBand(void *cvode_mem, long int N,
   
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_CVMEM_NULL);
+    fprintf(stderr, MSG_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -152,7 +151,7 @@ int CVBand(void *cvode_mem, long int N,
   if ((strcmp(nvspec->tag,"serial")) || 
       nvspec->ops->nvgetdata == NULL || 
       nvspec->ops->nvsetdata == NULL) {
-    fprintf(errfp, MSG_WRONG_NVEC);
+    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
     return(LIN_ILL_INPUT);
   }
 
@@ -167,7 +166,7 @@ int CVBand(void *cvode_mem, long int N,
   /* Get memory for CVBandMemRec */
   cvband_mem = (CVBandMem) malloc(sizeof(CVBandMemRec));
   if (cvband_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
   
@@ -186,7 +185,7 @@ int CVBand(void *cvode_mem, long int N,
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    fprintf(errfp, MSG_BAD_SIZES, ml, mu, N-1);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_SIZES, ml, mu, N-1);
     return(LIN_ILL_INPUT);
   }
 
@@ -196,18 +195,18 @@ int CVBand(void *cvode_mem, long int N,
   /* Allocate memory for M, savedJ, and pivot arrays */
   M = BandAllocMat(N, mu, ml, storage_mu);
   if (M == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
   savedJ = BandAllocMat(N, mu, ml, mu);
   if (savedJ == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     BandFreeMat(M);
     return(LMEM_FAIL);
   }
   pivots = BandAllocPiv(N);
   if (pivots == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     BandFreeMat(M);
     BandFreeMat(savedJ);
     return(LMEM_FAIL);
@@ -228,13 +227,13 @@ int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -253,13 +252,13 @@ int CVBandSetJacData(void *cvode_mem, void *jac_data)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -278,13 +277,13 @@ int CVBandGetIntWorkSpace(void *cvode_mem, long int *leniwB)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -303,13 +302,13 @@ int CVBandGetRealWorkSpace(void *cvode_mem, long int *lenrwB)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -328,13 +327,13 @@ int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -353,13 +352,13 @@ int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvband_mem = (CVBandMem) lmem;
