@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-10-18 23:38:17 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-08 20:36:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -67,28 +67,28 @@
 
 /* Problem Constants */
 
-#define NEQ      3            /* number of equations                  */
+#define NEQ      3             /* number of equations                  */
 
-#define RTOL     1e-4         /* scalar relative tolerance            */
+#define RTOL     RCONST(1e-4)  /* scalar relative tolerance            */
 
-#define ATOL1    1e-8         /* vector absolute tolerance components */
-#define ATOL2    1e-14
-#define ATOL3    1e-6
+#define ATOL1    RCONST(1e-8)  /* vector absolute tolerance components */
+#define ATOL2    RCONST(1e-14)
+#define ATOL3    RCONST(1e-6)
 
-#define ATOLl    1e-5         /* absolute tolerance for adjoint vars. */
-#define ATOLq    1e-6         /* absolute tolerance for quadratures   */
+#define ATOLl    RCONST(1e-5)  /* absolute tolerance for adjoint vars. */
+#define ATOLq    RCONST(1e-6)  /* absolute tolerance for quadratures   */
 
-#define T0       0.0          /* initial time                         */
-#define TOUT     4e7          /* final time                           */
+#define T0       RCONST(0.0)   /* initial time                         */
+#define TOUT     RCONST(4e7)   /* final time                           */
 
-#define TB1      4e7          /* starting point for adjoint problem   */
-#define TB2      50.0         /* starting point for adjoint problem   */
+#define TB1      RCONST(4e7)   /* starting point for adjoint problem   */
+#define TB2      RCONST(50.0)  /* starting point for adjoint problem   */
 
-#define STEPS    150          /* number of steps between check points */
+#define STEPS    150           /* number of steps between check points */
 
-#define NP       3            /* number of problem parameters         */
+#define NP       3             /* number of problem parameters         */
 
-#define ZERO     0.0
+#define ZERO     RCONST(0.0)
 
 
 /* Type : UserData */
@@ -97,7 +97,7 @@ typedef struct {
   realtype p[3];
 } *UserData;
 
-/* Functions Called by the CVODES Solver */
+/* Prototypes of user-supplied functions */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 static void Jac(long int N, DenseMat J, realtype t,
@@ -114,8 +114,9 @@ static void fQB(realtype t, N_Vector y, N_Vector yB,
                 N_Vector qBdot, void *fQ_dataB);
 
 
-/* Private function to check function return values */
+/* Prototypes of private functions */
 
+static void PrintOutput(N_Vector yB, N_Vector qB);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
@@ -229,7 +230,11 @@ int main(int argc, char *argv[])
   flag = CVodeGetQuad(cvode_mem, TOUT, q);
   if (check_flag(&flag, "CVodeGetQuad", 1)) return(1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("G: %12.4Le \n",Ith(q,1));
+#else
   printf("G: %12.4e \n",Ith(q,1));
+#endif
 
   /* Test check point linked list */
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
@@ -284,20 +289,14 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
 
   /* Backward Integration */
-  printf("Integrate backwards from tB0 = %12.4e\n", TB1);
+  printf("Integrate backwards\n");
   flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
-  printf("--------------------------------------------------------\n");
-  printf("tB0:        %12.4e\n",TB1);
-  printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
-         -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
-  printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
-         Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("--------------------------------------------------------\n\n");
+  PrintOutput(yB, qB);
 
   /* Reinitialize backward phase (new tB0) */
   Ith(yB,1) = 0.0;
@@ -315,20 +314,14 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
 
   /* Backward Integration */
-  printf("Integrate backwards from tB0 = %12.4e\n", TB2);
+  printf("Integrate backwards\n");
   flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
-  printf("--------------------------------------------------------\n");
-  printf("tB0:        %12.4e \n",TB2);
-  printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
-         -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
-  printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
-         Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("--------------------------------------------------------\n\n");
+  PrintOutput(yB, qB);
 
   /* Free memory */
   printf("Free memory\n\n");
@@ -501,6 +494,29 @@ static void fQB(realtype t, N_Vector y, N_Vector yB,
  * PRIVATE FUNCTIONS
  *--------------------------------------------------------------------
  */
+
+/*
+ * Print results after backward integration
+ */
+
+static void PrintOutput(N_Vector yB, N_Vector qB)
+{
+  printf("--------------------------------------------------------\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("tB0:        %12.4Le\n",TB1);
+  printf("dG/dp:      %12.4Le %12.4Le %12.4le\n", 
+         -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
+  printf("lambda(t0): %12.4Le %12.4Le %12.4Le\n", 
+         Ith(yB,1), Ith(yB,2), Ith(yB,3));
+#else
+  printf("tB0:        %12.4e\n",TB1);
+  printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
+         -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
+  printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
+         Ith(yB,1), Ith(yB,2), Ith(yB,3));
+#endif
+  printf("--------------------------------------------------------\n\n");
+}
 
 /* 
  * Check function return value.

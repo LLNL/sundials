@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-18 23:43:52 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-08 20:36:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -54,12 +54,12 @@
 
 /* Problem Constants */
 
-#define XMAX  2.0          /* domain boundary            */
-#define MX    20           /* mesh dimension             */
-#define NEQ   MX           /* number of equations        */
-#define ATOL  1.e-5        /* scalar absolute tolerance  */
-#define T0    0.0          /* initial time               */
-#define TOUT  2.5          /* output time increment      */
+#define XMAX  RCONST(2.0)   /* domain boundary            */
+#define MX    20            /* mesh dimension             */
+#define NEQ   MX            /* number of equations        */
+#define ATOL  RCONST(1.e-5) /* scalar absolute tolerance  */
+#define T0    RCONST(0.0)   /* initial time               */
+#define TOUT  RCONST(2.5)   /* output time increment      */
 
 /* Adjoint Problem Constants */
 
@@ -72,23 +72,26 @@ typedef struct {
   realtype p[2];            /* model parameters                         */
   realtype dx;              /* spatial discretization grid              */
   realtype hdcoef, hacoef;  /* diffusion and advection coefficients     */
-  long int npes, my_pe;  /* total number of processes and current ID */
+  long int local_N;
+  long int npes, my_pe;     /* total number of processes and current ID */
+  long int nperpe, nrem;
   MPI_Comm comm;            /* MPI communicator                         */
   realtype *z1, *z2;        /* work space                               */
 } *UserData;
 
-/* Functions Called by the CVODES Solver */
+/* Prototypes of user-supplied funcitons */
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 static void fB(realtype t, N_Vector u, 
                N_Vector uB, N_Vector uBdot, void *f_dataB);
 
-/* Private Helper Functions */
+/* Prototypes of private functions */
 
 static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base);
 static void SetICback(N_Vector uB, long int my_base);
 static realtype Xintgr(realtype *z, long int l, realtype dx);
 static realtype Compute_g(N_Vector u, UserData data);
+static void PrintOutput(realtype g_val, N_Vector uB, UserData data);
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 /*
@@ -114,16 +117,11 @@ int main(int argc, char *argv[])
   int flag, my_pe, nprocs, npes, ncheck;
   long int local_N=0, nperpe, nrem, my_base=0, i;
 
-  realtype *mu;
-  long int indx, Ni;
-  MPI_Status status;
-
   MPI_Comm comm;
 
   data = NULL;
   cvadj_mem = cvode_mem = NULL;
   u = uB = NULL;
-  mu = NULL;
 
   /*------------------------------------------------------
     Initialize MPI and get total number of pe's, and my_pe
@@ -143,6 +141,24 @@ int main(int argc, char *argv[])
     return(1);
   }
 
+  /*-----------------------
+    Set local vector length
+    -----------------------*/
+  nperpe = NEQ/npes;
+  nrem = NEQ - npes*nperpe;
+  if (my_pe < npes) {
+
+    /* PDE vars. distributed to this proccess */
+    local_N = (my_pe < nrem) ? nperpe+1 : nperpe;
+    my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
+
+  } else {
+
+    /* Make last process inactive for forward phase */
+    local_N = 0;
+
+  }
+
   /*-------------------------------------
     Allocate and load user data structure
     -------------------------------------*/
@@ -156,22 +172,9 @@ int main(int argc, char *argv[])
   data->comm = comm;
   data->npes = npes;
   data->my_pe = my_pe;
-
-  /*-----------------------
-    Set local vector length
-    -----------------------*/
-  nperpe = NEQ/npes;
-  nrem = NEQ - npes*nperpe;
-  if (my_pe < npes) {
-
-    /* PDE vars. distributed to this proccess */
-    local_N = (my_pe < nrem) ? nperpe+1 : nperpe;
-    my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
-  } else {
-
-    /* Make last process inactive for forward phase */
-    local_N = 0;
-  }
+  data->nperpe = nperpe;
+  data->nrem = nrem;
+  data->local_N = local_N;
 
   /*------------------------- 
     Forward integration phase
@@ -222,6 +225,7 @@ int main(int argc, char *argv[])
 
     /* Activate last process for integration of the quadrature equations */
     local_N = NP;
+
   } else {
 
     /* Allocate work space */
@@ -229,6 +233,7 @@ int main(int argc, char *argv[])
     if (check_flag((void *)data->z1, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     data->z2 = (realtype *)malloc(local_N*sizeof(realtype));
     if (check_flag((void *)data->z2, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+
   }
 
   /* Allocate and initialize backward variables */
@@ -248,35 +253,9 @@ int main(int argc, char *argv[])
   flag = CVodeB(cvadj_mem, T0, uB, &t, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1, my_pe)) MPI_Abort(comm, 1);
 
-  /*-------------------------------------------------------
-    Print results (adjoint states and quadrature variables)
-    -------------------------------------------------------*/
+  /* Print results (adjoint states and quadrature variables) */
+  PrintOutput(g_val, uB, data);
 
-  uBdata = NV_DATA_P(uB);
-
-  if (my_pe == npes) {
-
-    printf("\ng(tf) = %8e\n\n", g_val);
-    printf("dgdp(tf)\n  [ 1]: %8e\n  [ 2]: %8e\n\n", -uBdata[0], -uBdata[1]);
-
-    mu = (realtype *)malloc(NEQ*sizeof(realtype));
-    if (check_flag((void *)mu, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-    indx = 0;
-    for ( i = 0; i < npes; i++) {
-      Ni = ( i < nrem ) ? nperpe+1 : nperpe;
-      MPI_Recv(&mu[indx], Ni, PVEC_REAL_MPI_TYPE, i, 0, comm, &status);
-      indx += Ni;
-    }
-
-    printf("mu(t0)\n");
-    for (i=0; i<NEQ; i++)
-      printf("  [%2ld]: %8e\n", i+1, mu[i]);
-
-  } else {
-
-    MPI_Send(uBdata, local_N, PVEC_REAL_MPI_TYPE, npes, 0, comm);
-
-  }
 
   /* Free memory */
   N_VDestroy_Parallel(u);
@@ -288,7 +267,6 @@ int main(int argc, char *argv[])
     free(data->z2);
   }
   free(data);
-  free(mu);
 
   MPI_Finalize();
 
@@ -301,7 +279,10 @@ int main(int argc, char *argv[])
  *--------------------------------------------------------------------
  */
 
-/* f routine. Compute f(t,u) for forward phase. */
+/*
+ * f routine. Compute f(t,u) for forward phase. 
+ */
+
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype uLeft, uRight, ui, ult, urt;
@@ -367,7 +348,10 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   }
 }
 
-/* fB routine. Compute right hand side of backward problem */
+/*
+ * fB routine. Compute right hand side of backward problem 
+ */
+
 static void fB(realtype t, N_Vector u, 
                N_Vector uB, N_Vector uBdot, void *f_dataB)
 {
@@ -503,7 +487,7 @@ static void fB(realtype t, N_Vector u,
 
 /* 
  * Set initial conditions in u vector 
-*/
+ */
 
 static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base)
 {
@@ -526,7 +510,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base)
 
 /* 
  * Set final conditions in uB vector 
-*/
+ */
 
 static void SetICback(N_Vector uB, long int my_base)
 {
@@ -545,7 +529,7 @@ static void SetICback(N_Vector uB, long int my_base)
 
 /*
  * Compute local value of the space integral int_x z(x) dx 
-*/
+ */
 
 static realtype Xintgr(realtype *z, long int l, realtype dx)
 {
@@ -562,7 +546,7 @@ static realtype Xintgr(realtype *z, long int l, realtype dx)
 
 /*
  * Compute value of g(u) 
-*/
+ */
 
 static realtype Compute_g(N_Vector u, UserData data)
 {
@@ -593,6 +577,68 @@ static realtype Compute_g(N_Vector u, UserData data)
     MPI_Send(&my_intgr, 1, PVEC_REAL_MPI_TYPE, npes, 0, comm);
     return(my_intgr);
   }
+}
+
+/* 
+ * Print output after backward integration
+ */
+
+static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
+{
+  MPI_Comm comm;
+  MPI_Status status;
+  int npes, my_pe;
+  long int i, Ni, indx, local_N, nperpe, nrem;
+  realtype *uBdata;
+  realtype *mu;
+
+  comm = data->comm;
+  npes = data->npes;
+  my_pe = data->my_pe;
+  local_N = data->local_N;
+  nperpe = data->nperpe;
+  nrem = data->nrem;
+
+  uBdata = NV_DATA_P(uB);
+
+  if (my_pe == npes) {
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("\ng(tf) = %8Le\n\n", g_val);
+    printf("dgdp(tf)\n  [ 1]: %8Le\n  [ 2]: %8Le\n\n", -uBdata[0], -uBdata[1]);
+#else
+    printf("\ng(tf) = %8e\n\n", g_val);
+    printf("dgdp(tf)\n  [ 1]: %8e\n  [ 2]: %8e\n\n", -uBdata[0], -uBdata[1]);
+#endif
+
+    mu = (realtype *)malloc(NEQ*sizeof(realtype));
+    if (check_flag((void *)mu, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+
+    indx = 0;
+    for ( i = 0; i < npes; i++) {
+      Ni = ( i < nrem ) ? nperpe+1 : nperpe;
+      MPI_Recv(&mu[indx], Ni, PVEC_REAL_MPI_TYPE, i, 0, comm, &status);
+      indx += Ni;
+    }
+
+    printf("mu(t0)\n");
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    for (i=0; i<NEQ; i++)
+      printf("  [%2ld]: %8Le\n", i+1, mu[i]);
+#else
+    for (i=0; i<NEQ; i++)
+      printf("  [%2ld]: %8e\n", i+1, mu[i]);
+#endif
+
+    free(mu);
+
+  } else {
+
+    MPI_Send(uBdata, local_N, PVEC_REAL_MPI_TYPE, npes, 0, comm);
+
+  }
+
 }
 
 /* 

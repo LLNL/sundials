@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-10-28 21:04:57 $
+ * $Revision: 1.8 $
+ * $Date: 2004-11-08 20:36:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -36,68 +36,68 @@
 
 /* Domain definition */
 
-#define XMIN  0.0
-#define XMAX 20.0
+#define XMIN RCONST(0.0)
+#define XMAX RCONST(20.0)
 #define MX   20    /* no. of divisions in x dir. */
 #define NPX  2     /* no. of procs. in x dir.    */
 
-#define YMIN  0.0
-#define YMAX 20.0
+#define YMIN RCONST(0.0)
+#define YMAX RCONST(20.0)
 #define MY   40    /* no. of divisions in y dir. */
 #define NPY  2     /* no. of procs. in y dir.    */
 
 #ifdef USE3D
-#define ZMIN  0.0
-#define ZMAX 20.0
+#define ZMIN RCONST(0.0)
+#define ZMAX RCONST(20.0)
 #define MZ   20    /* no. of divisions in z dir. */
 #define NPZ  1     /* no. of procs. in z dir.    */
 #endif
 
 /* Parameters for source Gaussians */
 
-#define G1_AMPL   1.0
-#define G1_SIGMA  1.7  
-#define G1_X      4.0
-#define G1_Y      8.0
+#define G1_AMPL   RCONST(1.0)
+#define G1_SIGMA  RCONST(1.7) 
+#define G1_X      RCONST(4.0)
+#define G1_Y      RCONST(8.0)
 #ifdef USE3D
-#define G1_Z      8.0
+#define G1_Z      RCONST(8.0)
 #endif
 
-#define G2_AMPL   0.8
-#define G2_SIGMA  3.0  
-#define G2_X     16.0
-#define G2_Y     12.0
+#define G2_AMPL   RCONST(0.8)
+#define G2_SIGMA  RCONST(3.0)
+#define G2_X      RCONST(16.0)
+#define G2_Y      RCONST(12.0)
 #ifdef USE3D
-#define G2_Z     12.0
+#define G2_Z      RCONST(12.0)
 #endif
 
-#define G_MIN    1.0e-5
+#define G_MIN     RCONST(1.0e-5)
 
 /* Diffusion coeff., max. velocity, domain width in y dir. */
 
-#define DIFF_COEF 1.0
-#define V_MAX     1.0
-#define L         (YMAX-YMIN)/2.0
+#define DIFF_COEF RCONST(1.0)
+#define V_MAX     RCONST(1.0)
+#define L         (YMAX-YMIN)/RCONST(2.0)
 #define V_COEFF   V_MAX/L/L
 
 /* Initial and final times */
 
-#define ti    0.0
-#define tf   10.0
+#define ti    RCONST(0.0)
+#define tf    RCONST(10.0)
 
 /* Integration tolerances */
 
-#define RTOL    1.0e-8 /* states */
-#define ATOL    1.0e-6 
+#define RTOL    RCONST(1.0e-8) /* states */
+#define ATOL    RCONST(1.0e-6)
 
-#define RTOL_Q  1.0e-8 /* forward quadrature */
-#define ATOL_Q  1.0e-6
+#define RTOL_Q  RCONST(1.0e-8) /* forward quadrature */
+#define ATOL_Q  RCONST(1.0e-6)
 
-#define RTOL_B  1.0e-8 /* adjoint variables */
-#define ATOL_B  1.0e-6
+#define RTOL_B  RCONST(1.0e-8) /* adjoint variables */
+#define ATOL_B  RCONST(1.0e-6)
 
-#define RTOL_QB 1.0e-8 /* backward quadratures */
-#define ATOL_QB 1.0e-6
+#define RTOL_QB RCONST(1.0e-8) /* backward quadratures */
+#define ATOL_QB RCONST(1.0e-6)
 
 /* Steps between check points */
 
@@ -188,6 +188,7 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
 static void SetSource(ProblemData d);
 static void f_comm( long int Nlocal, realtype t, N_Vector y, void *f_data);
 static void Load_yext(realtype *src, ProblemData d);
+static void PrintHeader();
 static void PrintFinalStats(void *cvode_mem);
 static void OutputGradient(int myId, N_Vector qB, ProblemData d);
 
@@ -251,21 +252,7 @@ int main(int argc, char *argv[])
   d = (ProblemData) malloc(sizeof *d);
   SetData(d, comm, npes, myId, &neq, &l_neq);
   
-  if (myId == 0) {
-    printf("\nParallel Krylov adjoint sensitivity analysis example\n");
-    printf("%1dD Advection diffusion PDE with homogeneous Neumann B.C.\n",DIM);
-    printf("Computes gradient of G = int_t_Omega ( c_i^2 ) dt dOmega\n");
-    printf("with respect to the source values at each grid point.\n\n");
-
-    printf("Domain:\n");
-    printf("   %f < x < %f   mx = %d  npe_x = %d \n",XMIN,XMAX,MX,NPX);
-    printf("   %f < y < %f   my = %d  npe_y = %d \n",YMIN,YMAX,MY,NPY);
-#ifdef USE3D
-    printf("   %f < z < %f   mz = %d  npe_z = %d \n",ZMIN,ZMAX,MZ,NPZ);
-#endif
-
-    printf("\n");
-  }
+  if (myId == 0) PrintHeader();
 
   /*-------------------------- 
     Forward integration phase
@@ -313,7 +300,11 @@ int main(int argc, char *argv[])
   flag = CVodeGetQuad(cvode_mem, tf, q);
   qdata = NV_DATA_P(q);
   MPI_Allreduce(&qdata[0], &G, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  if (myId == 0) printf("  G = %Le\n",G);
+#else
   if (myId == 0) printf("  G = %e\n",G);
+#endif
 
   /* Print statistics for forward run */
   if (myId == 0) PrintFinalStats(cvode_mem);
@@ -961,6 +952,43 @@ static void Load_yext(realtype *src, ProblemData d)
 	IJth_ext(d->y_ext, i) = IJth(src, i);
 }
 
+
+/*
+ *------------------------------------------------------------------
+ * PrintHeader:
+ * Print first lins of output (problem description)
+ *------------------------------------------------------------------
+ */
+
+static void PrintHeader()
+{
+
+    printf("\nParallel Krylov adjoint sensitivity analysis example\n");
+    printf("%1dD Advection diffusion PDE with homogeneous Neumann B.C.\n",DIM);
+    printf("Computes gradient of G = int_t_Omega ( c_i^2 ) dt dOmega\n");
+    printf("with respect to the source values at each grid point.\n\n");
+
+    printf("Domain:\n");
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("   %Lf < x < %Lf   mx = %d  npe_x = %d \n",XMIN,XMAX,MX,NPX);
+    printf("   %Lf < y < %Lf   my = %d  npe_y = %d \n",YMIN,YMAX,MY,NPY);
+#else
+    printf("   %f < x < %f   mx = %d  npe_x = %d \n",XMIN,XMAX,MX,NPX);
+    printf("   %f < y < %f   my = %d  npe_y = %d \n",YMIN,YMAX,MY,NPY);
+#endif
+
+#ifdef USE3D
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("   %Lf < z < %Lf   mz = %d  npe_z = %d \n",ZMIN,ZMAX,MZ,NPZ);
+#else
+    printf("   %f < z < %f   mz = %d  npe_z = %d \n",ZMIN,ZMAX,MZ,NPZ);
+#endif
+#endif
+
+    printf("\n");
+  }
+
 /*
  *------------------------------------------------------------------
  * PrintFinalStats:
@@ -1040,21 +1068,35 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
       for(i[2]=0; i[2]<l_m[2]; i[2]++) {
         x[2] = xmin[2] + (m_start[2]+i[2]) * dx[2];
         g = IJth(qBdata, i);
-        p = IJth(pdata, i);;
+        p = IJth(pdata, i);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+        fprintf(fid,"x%d(%d,1) = %Le; \n",  myId, i[0]+1,         x[0]);
+        fprintf(fid,"y%d(%d,1) = %Le; \n",  myId, i[1]+1,         x[1]);
+        fprintf(fid,"z%d(%d,1) = %Le; \n",  myId, i[2]+1,         x[2]);
+        fprintf(fid,"p%d(%d,%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
+        fprintf(fid,"g%d(%d,%d,%d) = %le; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
+#else
         fprintf(fid,"x%d(%d,1) = %e; \n",  myId, i[0]+1,         x[0]);
         fprintf(fid,"y%d(%d,1) = %e; \n",  myId, i[1]+1,         x[1]);
         fprintf(fid,"z%d(%d,1) = %e; \n",  myId, i[2]+1,         x[2]);
         fprintf(fid,"p%d(%d,%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
         fprintf(fid,"g%d(%d,%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
+#endif
       }
 #else
-      g = IJth(qBdata, i);;
-      p = IJth(pdata, i);;
+      g = IJth(qBdata, i);
+      p = IJth(pdata, i);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      fprintf(fid,"x%d(%d,1) = %Le; \n",  myId, i[0]+1,         x[0]);
+      fprintf(fid,"y%d(%d,1) = %le; \n",  myId, i[1]+1,         x[1]);
+      fprintf(fid,"p%d(%d,%d) = %Le; \n", myId, i[1]+1, i[0]+1, p);
+      fprintf(fid,"g%d(%d,%d) = %le; \n", myId, i[1]+1, i[0]+1, g);
+#else
       fprintf(fid,"x%d(%d,1) = %e; \n",  myId, i[0]+1,         x[0]);
       fprintf(fid,"y%d(%d,1) = %e; \n",  myId, i[1]+1,         x[1]);
       fprintf(fid,"p%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, p);
       fprintf(fid,"g%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, g);
-      
+#endif
 #endif 
     }
   }
@@ -1070,9 +1112,15 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
     fprintf(fid,"clear;\nfigure;\nhold on\n");
     fprintf(fid,"trans = 0.7;\n");
     fprintf(fid,"ecol  = 'none';\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(fid,"xp=[%Lf %Lf];\n",G1_X,G2_X);
+    fprintf(fid,"yp=[%Lf %Lf];\n",G1_Y,G2_Y);
+    fprintf(fid,"zp=[%Lf %Lf];\n",G1_Z,G2_Z);
+#else
     fprintf(fid,"xp=[%f %f];\n",G1_X,G2_X);
     fprintf(fid,"yp=[%f %f];\n",G1_Y,G2_Y);
     fprintf(fid,"zp=[%f %f];\n",G1_Z,G2_Z);
+#endif
     fprintf(fid,"ns = length(xp)*length(yp)*length(zp);\n");
 
     for (ip=0; ip<d->npes; ip++) {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-10-18 23:49:28 $
+ * $Revision: 1.18 $
+ * $Date: 2004-11-08 20:36:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -61,23 +61,23 @@
 
 /* Problem Constants */
 
-#define NEQ   3            /* number of equations  */
-#define Y1    1.0          /* initial y components */
-#define Y2    0.0
-#define Y3    0.0
-#define RTOL  1e-4         /* scalar relative tolerance */
-#define ATOL1 1e-8         /* vector absolute tolerance components */
-#define ATOL2 1e-14
-#define ATOL3 1e-6
-#define T0    0.0          /* initial time */
-#define T1    0.4          /* first output time */
-#define TMULT 10.0         /* output time factor */
-#define NOUT  12           /* number of output times */
+#define NEQ   3             /* number of equations  */
+#define Y1    RCONST(1.0)   /* initial y components */
+#define Y2    RCONST(0.0)
+#define Y3    RCONST(0.0)
+#define RTOL  RCONST(1e-4)  /* scalar relative tolerance */
+#define ATOL1 RCONST(1e-8)  /* vector absolute tolerance components */
+#define ATOL2 RCONST(1e-14)
+#define ATOL3 RCONST(1e-6)
+#define T0    RCONST(0.0)   /* initial time */
+#define T1    RCONST(0.4)   /* first output time */
+#define TMULT RCONST(10.0)  /* output time factor */
+#define NOUT  12            /* number of output times */
 
-#define NP    3            /* number of problem parameters */
-#define NS    3            /* number of sensitivities computed */
+#define NP    3             /* number of problem parameters */
+#define NS    3             /* number of sensitivities computed */
 
-#define ZERO  0.0
+#define ZERO  RCONST(0.0)
 
 /* Type : UserData */
 
@@ -85,7 +85,7 @@ typedef struct {
   realtype p[3];           /* problem parameters */
 } *UserData;
 
-/* Functions Called by the CVODES Solver */
+/* Prototypes of functions by CVODES */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
@@ -97,15 +97,15 @@ static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
                int iS, N_Vector yS, N_Vector ySdot, 
                void *fS_data, N_Vector tmp1, N_Vector tmp2);
 
-/* Private Helper Function */
+/* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[],
                         booleantype *sensi, int *sensi_meth, 
                         booleantype *err_con);
 static void WrongArgs(char *name);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi);
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
+static void PrintFinalStats(void *cvode_mem, booleantype sensi);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
@@ -238,9 +238,12 @@ int main(int argc, char *argv[])
   printf("============================\n");
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
+
     flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
     if (check_flag(&flag, "CVode", 1)) break;
+
     PrintOutput(cvode_mem, t, y);
+
     if (sensi) {
       flag = CVodeGetSens(cvode_mem, t, yS);
       if (check_flag(&flag, "CVodeGetSens", 1)) break;
@@ -248,6 +251,7 @@ int main(int argc, char *argv[])
     } 
     printf("-------------------------------------------------");
     printf("------------------------------\n");
+
   }
 
   /* Print final statistics */
@@ -436,9 +440,20 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
   flag = CVodeGetLastStep(cvode_mem, &hu);
   check_flag(&flag, "CVodeGetLastStep", 1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%8.3Le %2d  %8.3Le %5ld\n", t, qu, hu, nst);
+#else
   printf("%8.3e %2d  %8.3e %5ld\n", t, qu, hu, nst);
+#endif
+
   printf("                          Solution       ");
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", udata[0], udata[1], udata[2]);
+#else
   printf("%12.4e %12.4e %12.4e \n", udata[0], udata[1], udata[2]);
+#endif
+
 }
 
 /* 
@@ -451,15 +466,30 @@ static void PrintOutputS(N_Vector *uS)
 
   sdata = NV_DATA_S(uS[0]);
   printf("                          Sensitivity 1  ");
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
+#else
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
+#endif
   
   sdata = NV_DATA_S(uS[1]);
   printf("                          Sensitivity 2  ");
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
+#else
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
+#endif
 
   sdata = NV_DATA_S(uS[2]);
   printf("                          Sensitivity 3  ");
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
+#else
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
+#endif
 }
 
 /* 

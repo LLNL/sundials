@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-08-25 16:23:40 $
+ * $Revision: 1.11 $
+ * $Date: 2004-11-08 20:36:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,7 +26,7 @@
  * Output is printed at t = .1, .2, ..., 1.
  * Run statistics (optional outputs) are printed at the end.
  *
- * Additionally, CVODES can integrate backwards in time the
+ * Additionally, CVODES integrates backwards in time the
  * the semi-discrete form of the adjoint PDE:
  *   d(lambda)/dt = - d^2(lambda) / dx^2 + 0.5 d(lambda) / dx
  *                  - d^2(lambda) / dy^2 - 1.0
@@ -47,24 +47,25 @@
 #include "cvband.h"
 #include "nvector_serial.h"
 #include "sundialstypes.h"
+#include "sundialsmath.h"
 
 /* Problem Constants */
 
-#define XMAX  2.0          /* domain boundaries */
-#define YMAX  1.0
-#define MX    40           /* mesh dimensions   */
+#define XMAX  RCONST(2.00   /* domain boundaries             */
+#define YMAX  RCONST(1.0)
+#define MX    40            /* mesh dimensions               */
 #define MY    20
-#define NEQ   MX*MY        /* number of equations       */
-#define ATOL  1.e-5        /* scalar absolute tolerance */
-#define RTOLB 1.e-6
-#define T0    0.0          /* initial time              */
-#define T1    0.1          /* first output time         */
-#define DTOUT 0.1          /* output time increment     */
-#define NOUT  10           /* number of output times    */
-#define TOUT  1.0          /* final time */
+#define NEQ   MX*MY         /* number of equations           */
+#define ATOL  RCONST(1.e-5)        
+#define RTOLB RCONST(1.e-6)        
+#define T0    RCONST(0.0)   /* initial time                  */
+#define T1    RCONST(0.1)   /* first output time             */
+#define DTOUT RCONST(0.1)   /* output time increment         */
+#define NOUT  10            /* number of output times        */
+#define TOUT  RCONST(1.0)   /* final time                    */
+#define NSTEP 50            /* check point saved every NSTEP */
 
-/* Check point saved every NSTEP */
-#define NSTEP 50
+#define ZERO  RCONST(0.0)
 
 /* User-defined vector access macro IJth */
 
@@ -86,12 +87,7 @@ typedef struct {
   realtype dx, dy, hdcoef, hacoef, vdcoef;
 } *UserData;
 
-/* Private Helper Functions */
-
-static void SetIC(N_Vector u, UserData data);
-static void WriteLambda(N_Vector uB);
-
-/* Functions Called by the CVODE Solver */
+/* Prototypes of user-supplied functions */
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
@@ -106,11 +102,17 @@ static void JacB(long int NB, long int muB, long int mlB, BandMat JB,
                  N_Vector uB, N_Vector fuB, void *jac_dataB,
                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B); 
 
-/* Private function to check function return values */
+/* Prototypes of private functions */
 
+static void SetIC(N_Vector u, UserData data);
+static void PrintOutput(N_Vector uB, UserData data);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
-/***************************** Main Program ******************************/
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
 
 int main(int argc, char *argv[])
 {
@@ -131,25 +133,19 @@ int main(int argc, char *argv[])
   cvadj_mem = cvode_mem = NULL;
   u = uB = NULL;
 
-  /*--------------------*/
-  /*----- USER DATA ----*/
-  /*--------------------*/
+  /* Allocate and initialize user data memory */
 
-  /* Allocate data memory */
   data = (UserData) malloc(sizeof *data);
   if(check_flag((void *)data, "malloc", 2)) return(1);
-  dx = data->dx = XMAX/(MX+1);     /* Set grid coefficients in data */
+
+  dx = data->dx = XMAX/(MX+1);
   dy = data->dy = YMAX/(MY+1);
   data->hdcoef = 1.0/(dx*dx);
   data->hacoef = 1.5/(2.0*dx);
   data->vdcoef = 1.0/(dy*dy);
 
-  /*--------------------------*/
-  /*---- ORIGINAL PROBLEM ----*/
-  /*--------------------------*/
-
-  /* Set the tolerances */
-  reltol = 0.0;
+  /* Set the tolerances for the forward integration */
+  reltol = ZERO;
   abstol = ATOL;
 
   /* Allocate u vector */
@@ -183,20 +179,12 @@ int main(int argc, char *argv[])
   flag = CVBandSetJacData(cvode_mem, data);
   if(check_flag(&flag, "CVBandSetJacData", 1)) return(1);
 
-  /*------------------------*/
-  /*---- ADJOINT MEMORY ----*/
-  /*------------------------*/
-
   /* Allocate global memory */
 
   printf("\nAllocate global memory\n");
 
   cvadj_mem = CVadjMalloc(cvode_mem, NSTEP);
   if(check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
-
-  /*---------------------*/
-  /*---- FORWARD RUN ----*/
-  /*---------------------*/
 
   /* Perform forward run */
   printf("\nForward integration\n");
@@ -207,11 +195,7 @@ int main(int argc, char *argv[])
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
   CVadjGetCheckPointsList(cvadj_mem);
 
-  /*-------------------------*/
-  /*---- ADJOINT PROBLEM ----*/
-  /*-------------------------*/
-
-  /* Set the tolerances */
+  /* Set the tolerances for the backward integration */
   reltolB = RTOLB;
   abstolB = ATOL;
 
@@ -219,7 +203,7 @@ int main(int argc, char *argv[])
   uB = N_VNew_Serial(NEQ);
   if(check_flag((void *)uB, "N_VNew", 0)) return(1);
   /* Initialize uB = 0 */
-  N_VConst(0.0, uB);
+  N_VConst(ZERO, uB);
 
   /* Create and allocate CVODES memory for backward run */
 
@@ -243,79 +227,30 @@ int main(int argc, char *argv[])
   flag = CVBandSetJacDataB(cvadj_mem, data);
   if(check_flag(&flag, "CVBandSetJacDataB", 1)) return(1);
 
-  /*----------------------*/
-  /*---- BACKWARD RUN ----*/
-  /*----------------------*/
-
+  /* Perform backward integration */
   printf("\nBackward integration\n");
   flag = CVodeB(cvadj_mem, T0, uB, &t, CV_NORMAL);
   if(check_flag(&flag, "CVodeB", 1)) return(1);
 
-  WriteLambda(uB);
+  PrintOutput(uB, data);
 
-  N_VDestroy(u);         /* Free the u vector */
-  N_VDestroy(uB);        /* Free the uB vector */
+  N_VDestroy_Serial(u);  /* Free the u vector */
+  N_VDestroy_Serial(uB); /* Free the uB vector */
   CVodeFree(cvode_mem);  /* Free the CVODE problem memory */
   free(data);            /* Free the user data */
 
   return(0);
 }
 
-/************************ Private Helper Functions ***********************/
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY CVODES
+ *--------------------------------------------------------------------
+ */
 
-/* Set initial conditions in u vector */
-
-static void SetIC(N_Vector u, UserData data)
-{
-  int i, j;
-  realtype x, y, dx, dy;
-  realtype *udata;
-
-  FILE *ff;
-  realtype uij;
-
-  /* Extract needed constants from data */
-
-  dx = data->dx;
-  dy = data->dy;
-
-  /* Set pointer to data array in vector u. */
-
-  udata = NV_DATA_S(u);
-
-  /* Load initial profile into u vector */
-
-  for (j=1; j <= MY; j++) {
-    y = j*dy;
-    for (i=1; i <= MX; i++) {
-      x = i*dx;
-      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*exp(5.0*x*y);
-    }
-  }  
-
-  ff = fopen("cvabx.u0","w");
-
-  for(i=1; i<=MX+2; i++) fprintf(ff, "0.0 ");
-  fprintf(ff,"\n");
-  for(j=1; j<= MY; j++) {
-    fprintf(ff,"0.0 ");
-    for(i=1; i<=MX; i++) {
-      uij = IJth(udata, i, j);
-      fprintf(ff,"%14.6e ",uij);
-    }
-    fprintf(ff,"0.0 \n");
-  }
-  for(i=1; i<=MX+2; i++) fprintf(ff, "0.0 ");
-  fprintf(ff,"\n");
-  fclose(ff);
-
-  printf("\nInitial condition written to file cvabx.u0\n");
-
-}
-
-/***************** Functions Called by the CVODE Solver ******************/
-
-/* f routine. Compute f(t,u). */
+/*
+ * f routine. right-hand side of forward ODE.
+ */
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
@@ -343,10 +278,10 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
       /* Extract u at x_i, y_j and four neighboring points */
 
       uij = IJth(udata, i, j);
-      udn = (j == 1)  ? 0.0 : IJth(udata, i, j-1);
-      uup = (j == MY) ? 0.0 : IJth(udata, i, j+1);
-      ult = (i == 1)  ? 0.0 : IJth(udata, i-1, j);
-      urt = (i == MX) ? 0.0 : IJth(udata, i+1, j);
+      udn = (j == 1)  ? ZERO : IJth(udata, i, j-1);
+      uup = (j == MY) ? ZERO : IJth(udata, i, j+1);
+      ult = (i == 1)  ? ZERO : IJth(udata, i-1, j);
+      urt = (i == MX) ? ZERO : IJth(udata, i+1, j);
 
       /* Set diffusion and advection terms and load into udot */
 
@@ -358,8 +293,9 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   }
 }
 
-
-/* Jacobian routine. Compute J(t,u). */
+/*
+ * Jac function. Jacobian of forward ODE.
+ */
 
 static void Jac(long int N, long int mu, long int ml, BandMat J,
                 realtype t, N_Vector u, N_Vector fu, void *jac_data,
@@ -400,7 +336,9 @@ static void Jac(long int N, long int mu, long int ml, BandMat J,
   }
 }
 
-/********** Functions Called by the backward CVODE Solver ****************/
+/*
+ * fB function. Right-hand side of backward ODE.
+ */
 
 static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, 
                void *f_dataB)
@@ -431,10 +369,10 @@ static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
       /* Extract u at x_i, y_j and four neighboring points */
 
       uBij = IJth(uBdata, i, j);
-      uBdn = (j == 1)  ? 0.0 : IJth(uBdata, i, j-1);
-      uBup = (j == MY) ? 0.0 : IJth(uBdata, i, j+1);
-      uBlt = (i == 1)  ? 0.0 : IJth(uBdata, i-1, j);
-      uBrt = (i == MX) ? 0.0 : IJth(uBdata, i+1, j);
+      uBdn = (j == 1)  ? ZERO : IJth(uBdata, i, j-1);
+      uBup = (j == MY) ? ZERO : IJth(uBdata, i, j+1);
+      uBlt = (i == 1)  ? ZERO : IJth(uBdata, i-1, j);
+      uBrt = (i == MX) ? ZERO : IJth(uBdata, i+1, j);
 
       /* Set diffusion and advection terms and load into udot */
 
@@ -445,6 +383,10 @@ static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
     }
   }
 }
+
+/*
+ * JacB function. Jacobian of backward ODE
+ */
 
 static void JacB(long int NB, long int muB, long int mlB, BandMat JB,
                  realtype tB, N_Vector u, 
@@ -478,40 +420,93 @@ static void JacB(long int NB, long int muB, long int mlB, BandMat JB,
   }
 }
 
-static void WriteLambda(N_Vector uB)
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+/*
+ * Set initial conditions in u vector 
+ */
+
+static void SetIC(N_Vector u, UserData data)
 {
-  realtype *uBdata, uBij;
   int i, j;
-  FILE *ff;
+  realtype x, y, dx, dy;
+  realtype *udata;
 
-  ff = fopen("cvabx.lambda","w");
+  /* Extract needed constants from data */
 
-  uBdata = NV_DATA_S(uB);
-  for(i=1; i<=MX+2; i++) fprintf(ff, "0.0 ");
-  fprintf(ff,"\n");
-  for(j=1; j<= MY; j++) {
-    fprintf(ff,"0.0 ");
-    for(i=1; i<=MX; i++) {
-      uBij = IJth(uBdata, i, j);
-      fprintf(ff,"%14.6e ",uBij);
+  dx = data->dx;
+  dy = data->dy;
+
+  /* Set pointer to data array in vector u. */
+
+  udata = NV_DATA_S(u);
+
+  /* Load initial profile into u vector */
+
+  for (j=1; j <= MY; j++) {
+    y = j*dy;
+    for (i=1; i <= MX; i++) {
+      x = i*dx;
+      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*exp(5.0*x*y);
     }
-    fprintf(ff,"0.0 \n");
-  }
-  for(i=1; i<=MX+2; i++) fprintf(ff, "0.0 ");
-  fprintf(ff,"\n");
-  fclose(ff);
-
-  printf("\nLambda written to file cvabx.lambda\n");
+  }  
 
 }
 
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ * Print results after backward integration 
+ */
+
+static void PrintOutput(N_Vector uB, UserData data)
+{
+  realtype *uBdata, uBij, uBmax, x, y, dx, dy;
+  int i, j;
+
+  dx = data->dx;
+  dy = data->dy;
+
+  uBdata = NV_DATA_S(uB);
+
+  uBmax = ZERO;
+  for(j=1; j<= MY; j++) {
+    for(i=1; i<=MX; i++) {
+      uBij = IJth(uBdata, i, j);
+      if (ABS(uBij) > uBmax) {
+        uBmax = uBij;
+        x = i*dx;
+        y = j*dy;
+      }
+    }
+  }
+
+  printf("\nMaximum sensitivity\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("  lambda max = %Le\n",uBmax);
+#else
+  printf("  lambda max = %e\n",uBmax);
+#endif
+  printf("at\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("  x = %Le\ny = %Le\n", x, y);
+#else
+  printf("  x = %e\n  y = %e\n", x, y);
+#endif
+
+}
+
+/* 
+ * Check function return value.
+ *    opt == 0 means SUNDIALS function allocates memory so check if
+ *             returned NULL pointer
+ *    opt == 1 means SUNDIALS function returns a flag so check if
+ *             flag >= 0
+ *    opt == 2 means function allocates memory so check if returned
+ *             NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -519,19 +514,22 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+	    funcname);
     return(1); }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+	      funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+	    funcname);
     return(1); }
 
   return(0);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-20 19:19:32 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-08 20:36:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -52,14 +52,14 @@
 #include "nvector_serial.h"
 
 /* Problem Constants */
-#define XMAX  2.0          /* domain boundary           */
-#define MX    10           /* mesh dimension            */
-#define NEQ   MX           /* number of equations       */
-#define ATOL  1.e-5        /* scalar absolute tolerance */
-#define T0    0.0          /* initial time              */
-#define T1    0.5          /* first output time         */
-#define DTOUT 0.5          /* output time increment     */
-#define NOUT  10           /* number of output times    */
+#define XMAX  RCONST(2.0)   /* domain boundary           */
+#define MX    10            /* mesh dimension            */
+#define NEQ   MX            /* number of equations       */
+#define ATOL  RCONST(1.e-5) /* scalar absolute tolerance */
+#define T0    RCONST(0.0)   /* initial time              */
+#define T1    RCONST(0.5)   /* first output time         */
+#define DTOUT RCONST(0.50   /* output time increment     */
+#define NOUT  10            /* number of output times    */
 
 #define NP    2
 #define NS    2
@@ -373,9 +373,19 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
   flag = CVodeGetLastStep(cvode_mem, &hu);
   check_flag(&flag, "CVodeGetLastStep", 1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%8.3Le %2d  %8.3Le %5ld\n", t, qu, hu ,nst);
+#else
   printf("%8.3e %2d  %8.3e %5ld\n", t, qu, hu ,nst);
+#endif
+
   printf("                                Solution       ");
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le \n", N_VMaxNorm(u));
+#else
   printf("%12.4e \n", N_VMaxNorm(u));
+#endif
 }
 
 /*
@@ -385,9 +395,18 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
 static void PrintOutputS(N_Vector *uS)
 {
   printf("                                Sensitivity 1  ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le \n", N_VMaxNorm(uS[0]));
+#else
   printf("%12.4e \n", N_VMaxNorm(uS[0]));
+#endif
+
   printf("                                Sensitivity 2  ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le \n", N_VMaxNorm(uS[1]));
+#else
   printf("%12.4e \n", N_VMaxNorm(uS[1]));
+#endif
 }
 
 

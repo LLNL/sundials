@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-10-18 23:43:52 $
+ * $Revision: 1.17 $
+ * $Date: 2004-11-08 20:36:55 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -68,55 +68,55 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "sundialstypes.h"    /* def. of realtype */
-#include "cvodes.h"           /* main CVODES header file */
-#include "iterative.h"        /* types of preconditioning */
-#include "cvspgmr.h"          /* defs. for CVSPGMR functions and constants */
+#include "sundialstypes.h"    /* def. of realtype                             */
+#include "cvodes.h"           /* main CVODES header file                      */
+#include "iterative.h"        /* types of preconditioning                     */
+#include "cvspgmr.h"          /* defs. for CVSPGMR functions and constants    */
 #include "smalldense.h"       /* generic DENSE solver used in preconditioning */
 #include "nvector_parallel.h" /* defs of paralel NVECTOR functions and macros */
-#include "sundialsmath.h"     /* contains SQR macro */
+#include "sundialsmath.h"     /* contains SQR macro                           */
 #include "mpi.h"
 
 
 /* Problem Constants */
 
-#define NVARS        2             /* number of species                    */
-#define C1_SCALE     1.0e6         /* coefficients in initial profiles     */
-#define C2_SCALE     1.0e12
+#define NVARS     2              /* number of species                    */
+#define C1_SCALE  RCONST(1.0e6)  /* coefficients in initial profiles     */
+#define C2_SCALE  RCONST(1.0e12)
 
-#define T0           0.0           /* initial time                         */
-#define NOUT         12            /* number of output times               */
-#define TWOHR        7200.0        /* number of seconds in two hours       */
-#define HALFDAY      4.32e4        /* number of seconds in a half day      */
-#define PI       3.1415926535898   /* pi                                   */ 
+#define T0        RCONST(0.0)    /* initial time                         */
+#define NOUT      12             /* number of output times               */
+#define TWOHR     RCONST(7200.0) /* number of seconds in two hours       */
+#define HALFDAY   RCONST(4.32e4) /* number of seconds in a half day      */
+#define PI        RCONST(3.1415926535898)   /* pi                        */ 
 
-#define XMIN          0.0          /* grid boundaries in x                 */
-#define XMAX         20.0           
-#define YMIN         30.0          /* grid boundaries in y                 */
-#define YMAX         50.0
+#define XMIN      RCONST(0.0)    /* grid boundaries in x                 */
+#define XMAX      RCONST(20.0)          
+#define YMIN      RCONST(30.0)   /* grid boundaries in y                 */
+#define YMAX      RCONST(50.0)
 
-#define NPEX         2              /* no. PEs in x direction of PE array  */
-#define NPEY         2              /* no. PEs in y direction of PE array  */
-                                    /* Total no. PEs = NPEX*NPEY           */
-#define MXSUB        5              /* no. x points per subgrid            */
-#define MYSUB        5              /* no. y points per subgrid            */
+#define NPEX      2              /* no. PEs in x direction of PE array   */
+#define NPEY      2              /* no. PEs in y direction of PE array   */
+                                 /* Total no. PEs = NPEX*NPEY            */
+#define MXSUB     5              /* no. x points per subgrid             */
+#define MYSUB     5              /* no. y points per subgrid             */
 
-#define MX           (NPEX*MXSUB)   /* MX = number of x mesh points        */
-#define MY           (NPEY*MYSUB)   /* MY = number of y mesh points        */
-                                    /* Spatial mesh is MX by MY            */
+#define MX        (NPEX*MXSUB)   /* MX = number of x mesh points         */
+#define MY        (NPEY*MYSUB)   /* MY = number of y mesh points         */
+                                 /* Spatial mesh is MX by MY             */
 
 /* CVodeMalloc Constants */
 
-#define RTOL         1.0e-5         /* scalar relative tolerance            */
-#define FLOOR        100.0          /* value of C1 or C2 at which tols.     */
-                                    /* change from relative to absolute     */
-#define ATOL         (RTOL*FLOOR)   /* scalar absolute tolerance            */
+#define RTOL      RCONST(1.0e-5) /* scalar relative tolerance             */
+#define FLOOR     RCONST(100.0)  /* value of C1 or C2 at which tols.      */
+                                 /* change from relative to absolute      */
+#define ATOL      (RTOL*FLOOR)   /* scalar absolute tolerance             */
 
 /* Sensitivity constants */
-#define NP           8              /* number of problem parameters         */
-#define NS           2              /* number of sensitivities              */
+#define NP        8              /* number of problem parameters          */
+#define NS        2              /* number of sensitivities               */
 
-#define ZERO         RCONST(0.0)
+#define ZERO      RCONST(0.0)
 
 
 /* User-defined matrix accessor macro: IJth */
@@ -1079,20 +1079,40 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
   /* On PE 0, receive c at top right, then print performance data
      and sampled solution values */ 
   if (my_pe == 0) {
+
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
+
     flag = CVodeGetNumSteps(cvode_mem, &nst);
     check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
     flag = CVodeGetLastOrder(cvode_mem, &qu);
     check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
     flag = CVodeGetLastStep(cvode_mem, &hu);
     check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%8.3Le %2d  %8.3Le %5ld\n", t,qu,hu,nst);
+#else
     printf("%8.3e %2d  %8.3e %5ld\n", t,qu,hu,nst);
+#endif
+
     printf("                                Solution       ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%12.4Le %12.4Le \n", udata[0], tempu[0]); 
+#else
     printf("%12.4e %12.4e \n", udata[0], tempu[0]); 
+#endif
+
     printf("                                               ");
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%12.4Le %12.4Le \n", udata[1], tempu[1]);
+#else
     printf("%12.4e %12.4e \n", udata[1], tempu[1]);
+#endif
+
   }
+
 }
 
 /*
@@ -1127,9 +1147,17 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
       MPI_Recv(&temps[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
     printf("                                ----------------------------------------\n");
     printf("                                Sensitivity 1  ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%12.4Le %12.4Le \n", sdata[0], temps[0]); 
+#else
     printf("%12.4e %12.4e \n", sdata[0], temps[0]); 
+#endif
     printf("                                               ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%12.4Le %12.4Le \n", sdata[1], temps[1]);
+#else
     printf("%12.4e %12.4e \n", sdata[1], temps[1]);
+#endif
   }
 
   sdata = NV_DATA_P(uS[1]);
@@ -1152,9 +1180,17 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
       MPI_Recv(&temps[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
     printf("                                ----------------------------------------\n");
     printf("                                Sensitivity 2  ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%12.4Le %12.4Le \n", sdata[0], temps[0]); 
+#else
     printf("%12.4e %12.4e \n", sdata[0], temps[0]); 
+#endif
     printf("                                               ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%12.4Le %12.4Le \n", sdata[1], temps[1]);
+#else
     printf("%12.4e %12.4e \n", sdata[1], temps[1]);
+#endif
   }
 }
 

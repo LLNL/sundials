@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-08-25 16:23:40 $
+ * $Revision: 1.13 $
+ * $Date: 2004-11-08 20:36:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -55,7 +55,7 @@
  * the interaction terms f only, using block-grouping (computing
  * only a subset of the ns by ns blocks).
  *
- * Additionally, CVODES can integrate backwards in time the
+ * Additionally, CVODES integrates backwards in time the
  * the semi-discrete form of the adjoint PDE:
  *   d(lambda)/dt = - D^T ( lambda_xx + lambda_yy )
  *                  - F_c^T lambda - g_c^T
@@ -92,15 +92,17 @@
 #include "sundialstypes.h"
 #include "sundialsmath.h"
 
+#define ZERO RCONST(0.0)
+
 /* Problem Specification Constants */
 
-#define AA 1.0       /* AA = a */
-#define EE 1e4       /* EE = e */
-#define GG 0.5e-6    /* GG = g */
-#define BB 1.0       /* BB = b */
-#define DPREY 1.0    
-#define DPRED 0.5
-#define ALPH 1.0
+#define AA RCONST(1.0)       /* AA = a */
+#define EE RCONST(1e4)       /* EE = e */
+#define GG RCONST(0.5e-6)    /* GG = g */
+#define BB RCONST(1.0)       /* BB = b */
+#define DPREY RCONST(1.0)    
+#define DPRED RCONST(0.5)
+#define ALPH RCONST(1.0)
 #define NP 3
 #define NS (2*NP)
 
@@ -109,8 +111,8 @@
 #define MX   20
 #define MY   20
 #define MXNS (MX*NS)
-#define AX   1.0
-#define AY   1.0
+#define AX   RCONST(1.0)
+#define AY   RCONST(1.0)
 #define DX   (AX/(realtype)(MX-1))
 #define DY   (AY/(realtype)(MY-1))
 #define MP   NS
@@ -124,17 +126,9 @@
 /* CVodeMalloc Constants */
 
 #define NEQ   (NS*MX*MY)
-#define T0    0.0
-#define RTOL  1e-5
-#define ATOL  1e-5
-#define LMM   CV_BDF
-#define ITER  CV_NEWTON
-#define ITOL  CV_SS
-
-/* CVSpgmr Constants */
-
-#define MAXL 0            /* => use default = MIN(NEQ, 5)            */
-#define DELT 0.0          /* => use default = 0.05                   */
+#define T0    RCONST(0.0)
+#define RTOL  RCONST(1e-5)
+#define ATOL  RCONST(1e-5)
 
 /* Output Constants */
 
@@ -161,36 +155,12 @@ typedef struct {
 } *WebData;
 
 /* Adjoint calculation constants */
-#define NSTEPS 100 /* check points every NSTEPS steps */
-#define ISPEC  6   /* species # in objective */
 /* G = int_t int_x int_y c(ISPEC) dy dx dt */
 
-/* Private Helper Functions */
+#define NSTEPS 300 /* check points every NSTEPS steps */
+#define ISPEC  6   /* species # in objective */
 
-static WebData AllocUserData(void);
-static void InitUserData(WebData wdata);
-static void SetGroups(int m, int ng, int jg[], int jig[], int jr[]);
-static void CInit(N_Vector c, WebData wdata);
-static void PrintAllSpecies(FILE *fout, N_Vector c, int ns, int mxns);
-static void FreeUserData(WebData wdata);
-static void WebRates(realtype x, realtype y, realtype t, realtype c[], realtype rate[],
-                     WebData wdata);
-static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype cB[], 
-                      realtype rate[], realtype rateB[], WebData wdata);
-static void fblock (realtype t, realtype cdata[], int jx, int jy, realtype cdotdata[],
-                    WebData wdata);
-static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata);
-static realtype doubleIntgr(N_Vector c, int i, WebData wdata);
-
-/* Small Vector Kernels */
-
-static void v_inc_by_prod(realtype u[], realtype v[], realtype w[], int n);
-static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[], realtype w[],
-                        int n);
-static void v_prod(realtype u[], realtype v[], realtype w[], int n);
-static void v_zero(realtype u[], int n);
-
-/* Functions Called By The CVODE Solver */
+/* Prototypes for user-supplied functions */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
@@ -219,11 +189,37 @@ static int PSolveB(realtype t, N_Vector c,
                    realtype gamma, realtype delta, 
                    int lr, void *P_data, N_Vector vtemp);
 
-/* Private function to check function return values */
+/* Prototypes for private functions */
 
+static WebData AllocUserData(void);
+static void InitUserData(WebData wdata);
+static void SetGroups(int m, int ng, int jg[], int jig[], int jr[]);
+static void CInit(N_Vector c, WebData wdata);
+static void PrintOutput(N_Vector c, int ns, int mxns, WebData wdata);
+static void FreeUserData(WebData wdata);
+static void WebRates(realtype x, realtype y, realtype t, realtype c[], realtype rate[],
+                     WebData wdata);
+static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype cB[], 
+                      realtype rate[], realtype rateB[], WebData wdata);
+static void fblock (realtype t, realtype cdata[], int jx, int jy, realtype cdotdata[],
+                    WebData wdata);
+static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata);
+static realtype doubleIntgr(N_Vector c, int i, WebData wdata);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
-/* Implementation */
+/* Small Vector Kernels */
+
+static void v_inc_by_prod(realtype u[], realtype v[], realtype w[], int n);
+static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[], realtype w[],
+                        int n);
+static void v_prod(realtype u[], realtype v[], realtype w[], int n);
+static void v_zero(realtype u[], int n);
+
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
 
 int main(int argc, char *argv[])
 {
@@ -239,53 +235,38 @@ int main(int argc, char *argv[])
   realtype reltolB=RTOL, abstolB=ATOL;
   N_Vector cB;
 
-  FILE *outfile;
-
-  c = cB = NULL;
+  c = NULL;
+  cB = NULL;
   wdata = NULL;
-  cvode_mem = cvadj_mem = NULL;
+  cvode_mem = NULL;
+  cvadj_mem = NULL;
 
-  /*--------------------*/
-  /*----- OPEN FILE ----*/
-  /*--------------------*/
-
-  outfile = fopen("cvakx.lambda","w");
-  fprintf(outfile,"%f %f\n",AX,AY);
-  fprintf(outfile,"%d %d\n\n", MX, MY);
-
-  /*--------------------*/
-  /*----- USER DATA ----*/
-  /*--------------------*/
+  /* Allocate and initialize user data */
 
   wdata = AllocUserData();
   if(check_flag((void *)wdata, "AllocUserData", 2)) return(1);
   InitUserData(wdata);
 
-  /*--------------------------*/
-  /*---- ORIGINAL PROBLEM ----*/
-  /*--------------------------*/
+  /* Set-up forward problem */
 
   /* Initializations */
   c = N_VNew_Serial(NEQ+1);
   if(check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
   CInit(c, wdata);
-  PrintAllSpecies(outfile,c,NS,MXNS);
 
   /* Call CVodeCreate/CVodeMalloc for forward run */
   printf("\nCreate and allocate CVODE memory for forward run\n");
-  cvode_mem = CVodeCreate(LMM, ITER);
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   wdata->cvode_memF = cvode_mem; /* Used in Precond */
   flag = CVodeSetFdata(cvode_mem, wdata);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
-  flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, c, CV_SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
   
   /* Call CVSpgmr for forward run */
-  flag = CVSpgmr(cvode_mem, PREC_LEFT, MAXL);
+  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
-  flag = CVSpgmrSetDelt(cvode_mem, DELT);
-  if(check_flag(&flag, "CVSpgmrSetDelt", 1)) return(1);
   flag = CVSpgmrSetPrecData(cvode_mem, wdata);
   if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
   flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
@@ -293,36 +274,31 @@ int main(int argc, char *argv[])
   flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
   if(check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1)) return(1);
 
-  /*------------------------*/
-  /*---- ADJOINT MEMORY ----*/
-  /*------------------------*/
+  /* Set-up adjoint calculations */
 
   printf("\nAllocate global memory\n");
   cvadj_mem = CVadjMalloc(cvode_mem, NSTEPS);
   if(check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
   wdata->cvadj_mem = cvadj_mem;
 
-  /*---------------------*/
-  /*---- FORWARD RUN ----*/
-  /*---------------------*/
+  /* Perform forward run */
 
   printf("\nForward integration\n");
   flag = CVodeF(cvadj_mem, TOUT, c, &t, CV_NORMAL, &ncheck);
   if(check_flag(&flag, "CVodeF", 1)) return(1);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %Lf \n\n", 
+         ISPEC, NV_DATA_S(c)[NEQ]);
+#else
   printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %f \n\n", 
          ISPEC, NV_DATA_S(c)[NEQ]);
-
-  /*-------------------------*/
-  /*-- LIST CHECK POINTS ----*/
-  /*-------------------------*/
+#endif
 
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
   CVadjGetCheckPointsList(cvadj_mem);
 
-  /*-------------------------*/
-  /*---- ADJOINT PROBLEM ----*/
-  /*-------------------------*/
+  /* Set-up backward problem */
 
   /* Allocate cB */
   cB = N_VNew_Serial(NEQ);
@@ -332,18 +308,16 @@ int main(int argc, char *argv[])
 
   /* Create and allocate CVODES memory for backward run */
   printf("\nCreate and allocate CVODES memory for backward run\n");
-  flag = CVodeCreateB(cvadj_mem, LMM, ITER);
+  flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
   if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
   flag = CVodeSetFdataB(cvadj_mem, wdata);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, ITOL, &reltolB, &abstolB);
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, CV_SS, &reltolB, &abstolB);
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   /* Call CVSpgmr */
-  flag = CVSpgmrB(cvadj_mem, PREC_LEFT, MAXL);
+  flag = CVSpgmrB(cvadj_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmrB", 1)) return(1);
-  flag = CVSpgmrSetDeltB(cvadj_mem, DELT);
-  if(check_flag(&flag, "CVSpgmrSetDeltB", 1)) return(1);
   flag = CVSpgmrSetPrecDataB(cvadj_mem, wdata);
   if(check_flag(&flag, "CVSpgmrSetPrecDataB", 1)) return(1);
   flag = CVSpgmrSetPrecSetupFnB(cvadj_mem, PrecondB);
@@ -351,250 +325,36 @@ int main(int argc, char *argv[])
   flag = CVSpgmrSetPrecSolveFnB(cvadj_mem, PSolveB);
   if(check_flag(&flag, "CVSpgmrSetPrecSolveFnB", 1)) return(1);
 
-  /*----------------------*/
-  /*---- BACKWARD RUN ----*/
-  /*----------------------*/
+  /* Perform backward integration */
 
   printf("\nBackward integration\n");
   flag = CVodeB(cvadj_mem, T0, cB, &t, CV_NORMAL);
   if(check_flag(&flag, "CVodeB", 1)) return(1);
 
-  PrintAllSpecies(outfile,cB, NS, MXNS);
-  printf("\nLambda(0,x,y) written to file cvakx.lambda\n\n");
-  for ( iout=1 ; iout <= NS ; iout++ )
-    printf("  int_x int_y lambda%d(0,x,y) dx dy = %g \n",iout,doubleIntgr(cB,iout,wdata));
-
-  /* Close file */
-  fclose(outfile);
+  PrintOutput(cB, NS, MXNS, wdata);
 
   /* Free all memory */
   CVodeFree(cvode_mem);
   CVadjFree(cvadj_mem);
-  N_VDestroy(c);
-  N_VDestroy(cB);
+  N_VDestroy_Serial(c);
+  N_VDestroy_Serial(cB);
   FreeUserData(wdata);
 
   return(0);
 }
 
-static WebData AllocUserData(void)
-{
-  int i, ngrp = NGRP, ns = NS;
-  WebData wdata;
-
-  wdata = (WebData) malloc(sizeof *wdata);
-  for(i=0; i < ngrp; i++) {
-    (wdata->P)[i] = denalloc(ns);
-    (wdata->pivot)[i] = denallocpiv(ns);
-  }
-  return(wdata);
-}
-
-static void InitUserData(WebData wdata)
-{
-  int i, j, ns;
-  realtype *bcoef, *diff, *cox, *coy, dx, dy;
-  realtype (*acoef)[NS];
-
-  acoef = wdata->acoef;
-  bcoef = wdata->bcoef;
-  diff = wdata->diff;
-  cox = wdata->cox;
-  coy = wdata->coy;
-  ns = wdata->ns = NS;
-
-  for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = 0.; }
-  for (j = 0; j < NP; j++) {
-    for (i = 0; i < NP; i++) {
-      acoef[NP+i][j] = EE;
-      acoef[i][NP+j] = -GG;
-    }
-    acoef[j][j] = -AA;
-    acoef[NP+j][NP+j] = -AA;
-    bcoef[j] = BB;
-    bcoef[NP+j] = -BB;
-    diff[j] = DPREY;
-    diff[NP+j] = DPRED;
-  }
-
-  /* Set remaining problem parameters */
-
-  wdata->mxns = MXNS;
-  dx = wdata->dx = DX;
-  dy = wdata->dy = DY;
-  for (i = 0; i < ns; i++) {
-    cox[i] = diff[i]/SQR(dx);
-    coy[i] = diff[i]/SQR(dy);
-  }
-
-  /* Set remaining method parameters */
-
-  wdata->mp = MP;
-  wdata->mq = MQ;
-  wdata->mx = MX;
-  wdata->my = MY;
-  wdata->srur = RSqrt(UNIT_ROUNDOFF);
-  wdata->mxmp = MXMP;
-  wdata->ngrp = NGRP;
-  wdata->ngx = NGX;
-  wdata->ngy = NGY;
-  SetGroups(MX, NGX, wdata->jgx, wdata->jigx, wdata->jxr);
-  SetGroups(MY, NGY, wdata->jgy, wdata->jigy, wdata->jyr);
-}
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY CVODES
+ *--------------------------------------------------------------------
+ */
 
 /*
- This routine sets arrays jg, jig, and jr describing
- a uniform partition of (0,1,2,...,m-1) into ng groups.
- The arrays set are:
-   jg    = length ng+1 array of group boundaries.
-           Group ig has indices j = jg[ig],...,jg[ig+1]-1.
-   jig   = length m array of group indices vs node index.
-           Node index j is in group jig[j].
-   jr    = length ng array of indices representing the groups.
-           The index for group ig is j = jr[ig].
-*/
-static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
-{
-  int ig, j, len1, mper, ngm1;
-  
-  mper = m/ng; /* does integer division */
-  for (ig=0; ig < ng; ig++) jg[ig] = ig*mper;
-  jg[ng] = m;
-  
-  ngm1 = ng - 1;
-  len1 = ngm1*mper;
-  for (j = 0; j < len1; j++) jig[j] = j/mper;
-  for (j = len1; j < m; j++) jig[j] = ngm1;
+ * This routine computes the right-hand side of the ODE system and
+ * returns it in cdot. The interaction rates are computed by calls to WebRates,
+ * and these are saved in fsave for use in preconditioning.
+ */
 
-  for (ig = 0; ig < ngm1; ig++) jr[ig] = ((2*ig+1)*mper-1)/2;
-  jr[ngm1] = (ngm1*mper+m-1)/2;
-}
-
-/* This routine computes and loads the vector of initial values. */
-static void CInit(N_Vector c, WebData wdata)
-{
-  int i, ici, ioff, iyoff, jx, jy, ns, mxns;
-  realtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
-  
-  cdata = NV_DATA_S(c);
-  ns = wdata->ns;
-  mxns = wdata->mxns;
-  dx = wdata->dx;
-  dy = wdata->dy;
-  
-  x_factor = 4.0/SQR(AX);
-  y_factor = 4.0/SQR(AY);
-  for (jy = 0; jy < MY; jy++) {
-    y = jy*dy;
-    argy = SQR(y_factor*y*(AY-y)); 
-    iyoff = mxns*jy;
-    for (jx = 0; jx < MX; jx++) {
-      x = jx*dx;
-      argx = SQR(x_factor*x*(AX-x));
-      ioff = iyoff + ns*jx;
-      for (i = 1; i <= ns; i++) {
-        ici = ioff + i-1;
-        cdata[ici] = 10.0 + i*argx*argy;
-
-        /*if(i==1) cdata[ici] += 1.0;*/
-
-      }
-    }
-  }
-
-  /* Initialize quadrature variable to zero */
-  cdata[NEQ] = 0.0;
-}
-
-static void PrintAllSpecies(FILE *f, N_Vector c, int ns, int mxns)
-{
-  int i, jx, jy;
-  realtype *cdata;
-
-  cdata = NV_DATA_S(c);
-  for (i=1; i <= ns; i++) {
-    for (jy=MY-1; jy >= 0; jy--) {
-      for (jx=0; jx < MX; jx++) {
-        fprintf(f,"%14.6e  ", cdata[(i-1) + jx*ns + jy*mxns]);
-      }
-      fprintf(f,"\n");
-    }
-    fprintf(f,"\n");
-  }
-}
-
-static realtype doubleIntgr(N_Vector c, int i, WebData wdata)
-{
-  realtype *cdata;
-  int ns, mx, my, mxns;
-  realtype dx, dy;
-  realtype intgr_xy, intgr_x;
-  int jx, jy;
-
-  cdata = NV_DATA_S(c);
-
-  ns   = wdata->ns;
-  mx   = wdata->mx;
-  my   = wdata->my;
-  mxns = wdata->mxns;
-  dx   = wdata->dx;
-  dy   = wdata->dy;
-
-  jy = 0;
-  intgr_x = cdata[(i-1)+jy*mxns];
-  for (jx = 1; jx < mx-1; jx++) {
-    intgr_x += 2.0*cdata[(i-1) + jx*ns + jy*mxns]; 
-  }
-  intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-  intgr_x *= 0.5*dx;
-  
-  intgr_xy = intgr_x;
-  
-  for (jy = 1; jy < my-1; jy++) {
-    
-    intgr_x = cdata[(i-1)+jy*mxns];
-    for (jx = 1; jx < mx-1; jx++) {
-      intgr_x += 2.0*cdata[(i-1) + jx*ns + jy*mxns]; 
-    }
-    intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-    intgr_x *= 0.5*dx;
-    
-    intgr_xy += 2.0*intgr_x;
-
-  }
-  
-  jy = my-1;
-  intgr_x = cdata[(i-1)+jy*mxns];
-  for (jx = 1; jx < mx-1; jx++) {
-    intgr_x += 2.0*cdata[(i-1) + jx*ns + jy*mxns]; 
-  }
-  intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-  intgr_x *= 0.5*dx;
-  
-  intgr_xy += intgr_x;
-  
-  intgr_xy *= 0.5*dy;
-
-  return(intgr_xy);
-}
-
-static void FreeUserData(WebData wdata)
-{
-  int i, ngrp;
-
-  ngrp = wdata->ngrp;
-  for(i=0; i < ngrp; i++) {
-    denfree((wdata->P)[i]);
-    denfreepiv((wdata->pivot)[i]);
-  }
-  free(wdata);
-}
-
-/*
- This routine computes the right-hand side of the ODE system and
- returns it in cdot. The interaction rates are computed by calls to WebRates,
- and these are saved in fsave for use in preconditioning.
-*/
 static void f(realtype t, N_Vector c, N_Vector cdot, void *f_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
@@ -648,46 +408,19 @@ static void f(realtype t, N_Vector c, N_Vector cdot, void *f_data)
 }
 
 /*
- This routine computes the interaction rates for the species
- c_1, ... ,c_ns (stored in c[0],...,c[ns-1]), at one spatial point 
- and at time t.
-*/
-static void WebRates(realtype x, realtype y, realtype t, realtype c[], 
-                     realtype rate[], WebData wdata)
-{
-  int i, j, ns;
-  realtype fac, *bcoef;
-  realtype (*acoef)[NS];
-
-  ns = wdata->ns;
-  acoef = wdata->acoef;
-  bcoef = wdata->bcoef;
-
-  for (i = 0; i < ns; i++)
-    rate[i] = 0.0;
-  
-  for (j = 0; j < ns; j++) 
-    for (i = 0; i < ns; i++) 
-      rate[i] += c[j] * acoef[i][j];
-  
-  fac = 1.0 + ALPH*x*y;
-  for (i = 0; i < ns; i++) 
-    rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
-}
-
-/*
- This routine generates the block-diagonal part of the Jacobian
- corresponding to the interaction rates, multiplies by -gamma, adds
- the identity matrix, and calls gefa to do the LU decomposition of
- each diagonal block. The computation of the diagonal blocks uses
- the preset block and grouping information. One block per group is
- computed. The Jacobian elements are generated by difference
- quotients using calls to the routine fblock.
-
- This routine can be regarded as a prototype for the general case
- of a block-diagonal preconditioner. The blocks are of size mp, and
- there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
-*/ 
+ * This routine generates the block-diagonal part of the Jacobian
+ * corresponding to the interaction rates, multiplies by -gamma, adds
+ * the identity matrix, and calls gefa to do the LU decomposition of
+ * each diagonal block. The computation of the diagonal blocks uses
+ * the preset block and grouping information. One block per group is
+ * computed. The Jacobian elements are generated by difference
+ * quotients using calls to the routine fblock.
+ *
+ * This routine can be regarded as a prototype for the general case
+ * of a block-diagonal preconditioner. The blocks are of size mp, and
+ * there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
+ */
+ 
 static int Precond(realtype t, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr, 
                    realtype gamma, void *P_data,
@@ -774,33 +507,16 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
 }
 
 /*
- This routine computes one block of the interaction terms of the
- system, namely block (jx,jy), for use in preconditioning.
- Here jx and jy count from 0.
-*/
-static void fblock(realtype t, realtype cdata[], int jx, int jy, 
-                   realtype cdotdata[], WebData wdata)
-{
-  int iblok, ic;
-  realtype x, y;
+ * This routine applies two inverse preconditioner matrices
+ * to the vector r, using the interaction-only block-diagonal Jacobian
+ * with block-grouping, denoted Jr, and Gauss-Seidel applied to the
+ * diffusion contribution to the Jacobian, denoted Jd.
+ * It first calls GSIter for a Gauss-Seidel approximation to
+ * ((I - gamma*Jd)-inverse)*r, and stores the result in z.
+ * Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
+ * blocks in P, and pivot information in pivot, and returns the result in z.
+ */
 
-  iblok = jx + jy*(wdata->mx);
-  y = jy*(wdata->dy);
-  x = jx*(wdata->dx);
-  ic = (wdata->ns)*(iblok);
-  WebRates(x, y, t, cdata+ic, cdotdata, wdata);
-}
-
-/*
- This routine applies two inverse preconditioner matrices
- to the vector r, using the interaction-only block-diagonal Jacobian
- with block-grouping, denoted Jr, and Gauss-Seidel applied to the
- diffusion contribution to the Jacobian, denoted Jd.
- It first calls GSIter for a Gauss-Seidel approximation to
- ((I - gamma*Jd)-inverse)*r, and stores the result in z.
- Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
- blocks in P, and pivot information in pivot, and returns the result in z.
-*/
 static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
@@ -848,14 +564,448 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
 }
 
 /*
- This routine performs ITMAX=5 Gauss-Seidel iterations to compute an
- approximation to (P-inverse)*z, where P = I - gamma*Jd, and
- Jd represents the diffusion contributions to the Jacobian.
- The answer is stored in z on return, and x is a temporary vector.
- The dimensions below assume a global constant NS >= ns.
- Some inner loops of length ns are implemented with the small
- vector kernels v_sum_prods, v_prod, v_inc_by_prod.
-*/
+ * This routine computes the right-hand side of the adjoint ODE system and
+ * returns it in cBdot. The interaction rates are computed by calls to WebRates,
+ * and these are saved in fsave for use in preconditioning. The adjoint 
+ * interaction rates are computed by calls to WebRatesB.
+ */
+
+static void fB(realtype t, N_Vector c, N_Vector cB, 
+               N_Vector cBdot, void *f_data)
+{
+  int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
+  realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, *fBsave, dx, dy;
+  realtype *cdata, *cBdata, *cBdotdata;
+  WebData wdata;
+
+  realtype gu[NS];
+
+  wdata = (WebData) f_data;
+  cdata = NV_DATA_S(c);
+  cBdata = NV_DATA_S(cB);
+  cBdotdata = NV_DATA_S(cBdot);
+
+  mxns = wdata->mxns;
+  ns = wdata->ns;
+  fsave = wdata->fsave;
+  fBsave = wdata->fBsave;
+  cox = wdata->cox;
+  coy = wdata->coy;
+  mxns = wdata->mxns;
+  dx = wdata->dx;
+  dy = wdata->dy;
+
+  for ( i = 0; i < ns; i++ ) gu[i] = 0.0; 
+  gu[ISPEC-1] = 1.0;
+
+  for (jy = 0; jy < MY; jy++) {
+    y = jy*dy;
+    iyoff = mxns*jy;
+    idyu = (jy == MY-1) ? -mxns : mxns;
+    idyl = (jy == 0) ? -mxns : mxns;
+    for (jx = 0; jx < MX; jx++) {
+      x = jx*dx;
+      ic = iyoff + ns*jx;
+      /* Get interaction rates at one point (x,y). */
+      WebRatesB(x, y, t, cdata+ic, cBdata+ic, fsave+ic, fBsave+ic, wdata);
+      idxu = (jx == MX-1) ? -ns : ns;
+      idxl = (jx == 0) ? -ns : ns;
+      for (i = 1; i <= ns; i++) {
+        ici = ic + i-1;
+        /* Do differencing in y. */
+        dcyli = cBdata[ici] - cBdata[ici-idyl];
+        dcyui = cBdata[ici+idyu] - cBdata[ici];
+        /* Do differencing in x. */
+        dcxli = cBdata[ici] - cBdata[ici-idxl];
+        dcxui = cBdata[ici+idxu] - cBdata[ici];
+        /* Collect terms and load cdot elements. */
+        cBdotdata[ici] = - coy[i-1]*(dcyui - dcyli) 
+                         - cox[i-1]*(dcxui - dcxli)
+                         - fBsave[ici]
+                         - gu[i-1];
+      }
+    }
+  }
+}
+
+/*
+ * Preconditioner setup function for the backward problem
+ */
+
+static int PrecondB(realtype t, N_Vector c, 
+                    N_Vector cB, N_Vector fcB, booleantype jok, 
+                    booleantype *jcurPtr, realtype gamma,
+                    void *P_data,
+                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+{
+  long int N;
+  realtype ***P;
+  long int **pivot, ier;
+  int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
+  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp, flag;
+  realtype uround, fac, r, r0, save, srur;
+  realtype *f1, *fsave, *cdata, *rewtdata;
+  void *cvode_mem;
+  WebData wdata;
+  N_Vector rewt;
+
+  wdata = (WebData) P_data;
+  cvode_mem = CVadjGetCVodeBmem(wdata->cvadj_mem);
+  if(check_flag((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) return(1);
+  flag = CVodeGetErrWeights(cvode_mem, &rewt);
+  if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
+
+  cdata = NV_DATA_S(c);
+  rewtdata = NV_DATA_S(rewt);
+
+  uround = UNIT_ROUNDOFF;
+
+  P = wdata->P;
+  pivot = wdata->pivot;
+  jxr = wdata->jxr;
+  jyr = wdata->jyr;
+  mp = wdata->mp;
+  srur = wdata->srur;
+  ngrp = wdata->ngrp;
+  ngx = wdata->ngx;
+  ngy = wdata->ngy;
+  mxmp = wdata->mxmp;
+  fsave = wdata->fsave;
+
+  /* Make mp calls to fblock to approximate each diagonal block of Jacobian.
+     Here, fsave contains the base value of the rate vector and 
+     r0 is a minimum increment factor for the difference quotient. */
+
+  f1 = NV_DATA_S(vtemp1);
+  fac = N_VWrmsNorm (fcB, rewt);
+  N = NEQ;
+  r0 = 1000.0*ABS(gamma)*uround*N*fac;
+  if (r0 == 0.0) r0 = 1.0;
+
+  for (igy = 0; igy < ngy; igy++) {
+    jy = jyr[igy];
+    if00 = jy*mxmp;
+    for (igx = 0; igx < ngx; igx++) { 
+      jx = jxr[igx];
+      if0 = if00 + jx*mp;
+      ig = igx + igy*ngx; 
+      /* Generate ig-th diagonal block */
+      for (j = 0; j < mp; j++) {
+        /* Generate the jth column as a difference quotient */
+        jj = if0 + j; 
+        save = cdata[jj];
+        r = MAX(srur*ABS(save),r0/rewtdata[jj]);
+        cdata[jj] += r;
+        fac = gamma/r;
+        fblock (t, cdata, jx, jy, f1, wdata);
+        for (i = 0; i < mp; i++) {
+          P[ig][i][j] = (f1[i] - fsave[if0+i])*fac;
+        }
+        cdata[jj] = save;
+      }
+    }
+  }
+
+  /* Add identity matrix and do LU decompositions on blocks. */
+
+   for (ig = 0; ig < ngrp; ig++) {
+     denaddI(P[ig], mp);
+     ier = gefa(P[ig], mp, pivot[ig]);
+     if (ier != 0) return(1);
+   }
+
+  *jcurPtr = TRUE;
+  return(0);
+}
+
+/*
+ * Preconditioner solve function for the backward problem
+ */
+
+static int PSolveB(realtype t, N_Vector c, 
+                   N_Vector cB, N_Vector fcB, 
+                   N_Vector r, N_Vector z,
+                   realtype gamma, realtype delta, 
+                   int lr, void *P_data, N_Vector vtemp)
+{
+  realtype ***P;
+  long int **pivot;
+  int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
+  WebData wdata;
+
+  wdata = (WebData) P_data;
+
+  N_VScale(1.0, r, z);
+
+  /* call GSIter for Gauss-Seidel iterations (same routine but with gamma=-gamma) */
+
+  GSIter(-gamma, z, vtemp, wdata);
+
+  /* Do backsolves for inverse of block-diagonal preconditioner factor */
+ 
+  P = wdata->P;
+  pivot = wdata->pivot;
+  mx = wdata->mx;
+  my = wdata->my;
+  ngx = wdata->ngx;
+  mp = wdata->mp;
+  jigx = wdata->jigx;
+  jigy = wdata->jigy;
+
+  iv = 0;
+  for (jy = 0; jy < my; jy++) {
+    igy = jigy[jy];
+    for (jx = 0; jx < mx; jx++) {
+      igx = jigx[jx];
+      ig = igx + igy*ngx;
+      gesl(P[ig], mp, pivot[ig], &(NV_DATA_S(z)[iv]));
+      iv += mp;
+    }
+  }
+
+  return(0);
+}
+
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+/*
+ * Allocate space for user data structure
+ */
+
+static WebData AllocUserData(void)
+{
+  int i, ngrp = NGRP, ns = NS;
+  WebData wdata;
+
+  wdata = (WebData) malloc(sizeof *wdata);
+  for(i=0; i < ngrp; i++) {
+    (wdata->P)[i] = denalloc(ns);
+    (wdata->pivot)[i] = denallocpiv(ns);
+  }
+  return(wdata);
+}
+
+/*
+ * Initialize user data structure
+ */
+
+static void InitUserData(WebData wdata)
+{
+  int i, j, ns;
+  realtype *bcoef, *diff, *cox, *coy, dx, dy;
+  realtype (*acoef)[NS];
+
+  acoef = wdata->acoef;
+  bcoef = wdata->bcoef;
+  diff = wdata->diff;
+  cox = wdata->cox;
+  coy = wdata->coy;
+  ns = wdata->ns = NS;
+
+  for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = 0.; }
+  for (j = 0; j < NP; j++) {
+    for (i = 0; i < NP; i++) {
+      acoef[NP+i][j] = EE;
+      acoef[i][NP+j] = -GG;
+    }
+    acoef[j][j] = -AA;
+    acoef[NP+j][NP+j] = -AA;
+    bcoef[j] = BB;
+    bcoef[NP+j] = -BB;
+    diff[j] = DPREY;
+    diff[NP+j] = DPRED;
+  }
+
+  /* Set remaining problem parameters */
+
+  wdata->mxns = MXNS;
+  dx = wdata->dx = DX;
+  dy = wdata->dy = DY;
+  for (i = 0; i < ns; i++) {
+    cox[i] = diff[i]/SQR(dx);
+    coy[i] = diff[i]/SQR(dy);
+  }
+
+  /* Set remaining method parameters */
+
+  wdata->mp = MP;
+  wdata->mq = MQ;
+  wdata->mx = MX;
+  wdata->my = MY;
+  wdata->srur = RSqrt(UNIT_ROUNDOFF);
+  wdata->mxmp = MXMP;
+  wdata->ngrp = NGRP;
+  wdata->ngx = NGX;
+  wdata->ngy = NGY;
+  SetGroups(MX, NGX, wdata->jgx, wdata->jigx, wdata->jxr);
+  SetGroups(MY, NGY, wdata->jgy, wdata->jigy, wdata->jyr);
+}
+
+/*
+ * This routine sets arrays jg, jig, and jr describing
+ * a uniform partition of (0,1,2,...,m-1) into ng groups.
+ * The arrays set are:
+ *   jg    = length ng+1 array of group boundaries.
+ *           Group ig has indices j = jg[ig],...,jg[ig+1]-1.
+ *   jig   = length m array of group indices vs node index.
+ *           Node index j is in group jig[j].
+ *   jr    = length ng array of indices representing the groups.
+ *           The index for group ig is j = jr[ig].
+ */
+
+static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
+{
+  int ig, j, len1, mper, ngm1;
+  
+  mper = m/ng; /* does integer division */
+  for (ig=0; ig < ng; ig++) jg[ig] = ig*mper;
+  jg[ng] = m;
+  
+  ngm1 = ng - 1;
+  len1 = ngm1*mper;
+  for (j = 0; j < len1; j++) jig[j] = j/mper;
+  for (j = len1; j < m; j++) jig[j] = ngm1;
+
+  for (ig = 0; ig < ngm1; ig++) jr[ig] = ((2*ig+1)*mper-1)/2;
+  jr[ngm1] = (ngm1*mper+m-1)/2;
+}
+
+/*
+ * This routine computes and loads the vector of initial values. 
+ */
+
+static void CInit(N_Vector c, WebData wdata)
+{
+  int i, ici, ioff, iyoff, jx, jy, ns, mxns;
+  realtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
+  
+  cdata = NV_DATA_S(c);
+  ns = wdata->ns;
+  mxns = wdata->mxns;
+  dx = wdata->dx;
+  dy = wdata->dy;
+  
+  x_factor = 4.0/SQR(AX);
+  y_factor = 4.0/SQR(AY);
+  for (jy = 0; jy < MY; jy++) {
+    y = jy*dy;
+    argy = SQR(y_factor*y*(AY-y)); 
+    iyoff = mxns*jy;
+    for (jx = 0; jx < MX; jx++) {
+      x = jx*dx;
+      argx = SQR(x_factor*x*(AX-x));
+      ioff = iyoff + ns*jx;
+      for (i = 1; i <= ns; i++) {
+        ici = ioff + i-1;
+        cdata[ici] = 10.0 + i*argx*argy;
+
+        /*if(i==1) cdata[ici] += 1.0;*/
+
+      }
+    }
+  }
+
+  /* Initialize quadrature variable to zero */
+  cdata[NEQ] = 0.0;
+}
+
+/*
+ * This routine computes the interaction rates for the species
+ * c_1, ... ,c_ns (stored in c[0],...,c[ns-1]), at one spatial point 
+ * and at time t.
+ */
+
+static void WebRates(realtype x, realtype y, realtype t, realtype c[], 
+                     realtype rate[], WebData wdata)
+{
+  int i, j, ns;
+  realtype fac, *bcoef;
+  realtype (*acoef)[NS];
+
+  ns = wdata->ns;
+  acoef = wdata->acoef;
+  bcoef = wdata->bcoef;
+
+  for (i = 0; i < ns; i++)
+    rate[i] = 0.0;
+  
+  for (j = 0; j < ns; j++) 
+    for (i = 0; i < ns; i++) 
+      rate[i] += c[j] * acoef[i][j];
+  
+  fac = 1.0 + ALPH*x*y;
+  for (i = 0; i < ns; i++) 
+    rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
+}
+
+/*
+ * This routine computes the interaction rates for the backward problem
+ */
+
+static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype cB[], 
+                      realtype rate[], realtype rateB[], WebData wdata)
+{
+  int i, j, ns;
+  realtype fac, *bcoef;
+  realtype (*acoef)[NS];
+
+  ns = wdata->ns;
+  acoef = wdata->acoef;
+  bcoef = wdata->bcoef;
+
+  fac = 1.0 + ALPH*x*y;
+
+  for (i = 0; i < ns; i++)
+    rate[i] = bcoef[i]*fac;
+  
+  for (j = 0; j < ns; j++) 
+    for (i = 0; i < ns; i++)
+      rate[i] += acoef[i][j]*c[j];
+
+  for (i = 0; i < ns; i++) {
+    rateB[i] = cB[i]*rate[i];
+    rate[i] = c[i]*rate[i];
+  }
+
+  for (j = 0; j < ns; j++) 
+    for (i = 0; i < ns; i++)
+      rateB[i] += acoef[j][i]*c[j]*cB[j];
+}
+
+/*
+ * This routine computes one block of the interaction terms of the
+ * system, namely block (jx,jy), for use in preconditioning.
+ * Here jx and jy count from 0.
+ */
+
+static void fblock(realtype t, realtype cdata[], int jx, int jy, 
+                   realtype cdotdata[], WebData wdata)
+{
+  int iblok, ic;
+  realtype x, y;
+
+  iblok = jx + jy*(wdata->mx);
+  y = jy*(wdata->dy);
+  x = jx*(wdata->dx);
+  ic = (wdata->ns)*(iblok);
+  WebRates(x, y, t, cdata+ic, cdotdata, wdata);
+}
+
+
+/*
+ * This routine performs ITMAX=5 Gauss-Seidel iterations to compute an
+ * approximation to (P-inverse)*z, where P = I - gamma*Jd, and
+ * Jd represents the diffusion contributions to the Jacobian.
+ * The answer is stored in z on return, and x is a temporary vector.
+ * The dimensions below assume a global constant NS >= ns.
+ * Some inner loops of length ns are implemented with the small
+ * vector kernels v_sum_prods, v_prod, v_inc_by_prod.
+ */
+
 static void GSIter(realtype gamma, N_Vector z, N_Vector x, 
                    WebData wdata)
 {
@@ -1034,238 +1184,133 @@ static void v_zero(realtype u[], int n)
   for (i=0; i < n; i++) u[i] = 0.0;
 }
 
+/*
+ * Print maximum sensitivity of G for each species
+ */
+
+static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
+{
+  int i, jx, jy;
+  realtype *cdata, cij, cmax, x, y;
+
+  cdata = NV_DATA_S(cB);
+
+  for (i=1; i <= ns; i++) {
+
+    cmax = ZERO;
+
+    for (jy=MY-1; jy >= 0; jy--) {
+      for (jx=0; jx < MX; jx++) {
+        cij = cdata[(i-1) + jx*ns + jy*mxns];
+        if (ABS(cij) > cmax) {
+          cmax = cij;
+          x = jx * wdata->dx;
+          y = jy * wdata->dy;
+        }
+      }
+    }
+
+    printf("\nMaximum sensitivity with respect to I.C. of species %d\n", i);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("  lambda max = %Le\n",cmax);
+#else
+    printf("  lambda max = %e\n",cmax);
+#endif
+    printf("at\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("  x = %Le\ny = %Le\n", x, y);
+#else
+    printf("  x = %e\n  y = %e\n", x, y);
+#endif
+
+  }
+
+}
 
 /*
- This routine computes the right-hand side of the adjoint ODE system and
- returns it in cBdot. The interaction rates are computed by calls to WebRates,
- and these are saved in fsave for use in preconditioning. The adjoint 
- interaction rates are computed by calls to WebRatesB.
-*/
-static void fB(realtype t, N_Vector c, N_Vector cB, 
-               N_Vector cBdot, void *f_data)
+ * Compute double space integral
+ */
+
+static realtype doubleIntgr(N_Vector c, int i, WebData wdata)
 {
-  int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
-  realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, *fBsave, dx, dy;
-  realtype *cdata, *cBdata, *cBdotdata;
-  WebData wdata;
+  realtype *cdata;
+  int ns, mx, my, mxns;
+  realtype dx, dy;
+  realtype intgr_xy, intgr_x;
+  int jx, jy;
 
-  realtype gu[NS];
-
-  wdata = (WebData) f_data;
   cdata = NV_DATA_S(c);
-  cBdata = NV_DATA_S(cB);
-  cBdotdata = NV_DATA_S(cBdot);
 
+  ns   = wdata->ns;
+  mx   = wdata->mx;
+  my   = wdata->my;
   mxns = wdata->mxns;
-  ns = wdata->ns;
-  fsave = wdata->fsave;
-  fBsave = wdata->fBsave;
-  cox = wdata->cox;
-  coy = wdata->coy;
-  mxns = wdata->mxns;
-  dx = wdata->dx;
-  dy = wdata->dy;
+  dx   = wdata->dx;
+  dy   = wdata->dy;
 
-  for ( i = 0; i < ns; i++ ) gu[i] = 0.0; 
-  gu[ISPEC-1] = 1.0;
-
-  for (jy = 0; jy < MY; jy++) {
-    y = jy*dy;
-    iyoff = mxns*jy;
-    idyu = (jy == MY-1) ? -mxns : mxns;
-    idyl = (jy == 0) ? -mxns : mxns;
-    for (jx = 0; jx < MX; jx++) {
-      x = jx*dx;
-      ic = iyoff + ns*jx;
-      /* Get interaction rates at one point (x,y). */
-      WebRatesB(x, y, t, cdata+ic, cBdata+ic, fsave+ic, fBsave+ic, wdata);
-      idxu = (jx == MX-1) ? -ns : ns;
-      idxl = (jx == 0) ? -ns : ns;
-      for (i = 1; i <= ns; i++) {
-        ici = ic + i-1;
-        /* Do differencing in y. */
-        dcyli = cBdata[ici] - cBdata[ici-idyl];
-        dcyui = cBdata[ici+idyu] - cBdata[ici];
-        /* Do differencing in x. */
-        dcxli = cBdata[ici] - cBdata[ici-idxl];
-        dcxui = cBdata[ici+idxu] - cBdata[ici];
-        /* Collect terms and load cdot elements. */
-        cBdotdata[ici] = - coy[i-1]*(dcyui - dcyli) 
-                         - cox[i-1]*(dcxui - dcxli)
-                         - fBsave[ici]
-                         - gu[i-1];
-      }
-    }
+  jy = 0;
+  intgr_x = cdata[(i-1)+jy*mxns];
+  for (jx = 1; jx < mx-1; jx++) {
+    intgr_x += 2.0*cdata[(i-1) + jx*ns + jy*mxns]; 
   }
-}
-
-static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype cB[], 
-                      realtype rate[], realtype rateB[], WebData wdata)
-{
-  int i, j, ns;
-  realtype fac, *bcoef;
-  realtype (*acoef)[NS];
-
-  ns = wdata->ns;
-  acoef = wdata->acoef;
-  bcoef = wdata->bcoef;
-
-  fac = 1.0 + ALPH*x*y;
-
-  for (i = 0; i < ns; i++)
-    rate[i] = bcoef[i]*fac;
+  intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
+  intgr_x *= 0.5*dx;
   
-  for (j = 0; j < ns; j++) 
-    for (i = 0; i < ns; i++)
-      rate[i] += acoef[i][j]*c[j];
+  intgr_xy = intgr_x;
+  
+  for (jy = 1; jy < my-1; jy++) {
+    
+    intgr_x = cdata[(i-1)+jy*mxns];
+    for (jx = 1; jx < mx-1; jx++) {
+      intgr_x += 2.0*cdata[(i-1) + jx*ns + jy*mxns]; 
+    }
+    intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
+    intgr_x *= 0.5*dx;
+    
+    intgr_xy += 2.0*intgr_x;
 
-  for (i = 0; i < ns; i++) {
-    rateB[i] = cB[i]*rate[i];
-    rate[i] = c[i]*rate[i];
   }
+  
+  jy = my-1;
+  intgr_x = cdata[(i-1)+jy*mxns];
+  for (jx = 1; jx < mx-1; jx++) {
+    intgr_x += 2.0*cdata[(i-1) + jx*ns + jy*mxns]; 
+  }
+  intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
+  intgr_x *= 0.5*dx;
+  
+  intgr_xy += intgr_x;
+  
+  intgr_xy *= 0.5*dy;
 
-  for (j = 0; j < ns; j++) 
-    for (i = 0; i < ns; i++)
-      rateB[i] += acoef[j][i]*c[j]*cB[j];
+  return(intgr_xy);
 }
 
-static int PrecondB(realtype t, N_Vector c, 
-                    N_Vector cB, N_Vector fcB, booleantype jok, 
-                    booleantype *jcurPtr, realtype gamma,
-                    void *P_data,
-                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+/*
+ * Free space allocated for the user data structure
+ */
+
+static void FreeUserData(WebData wdata)
 {
-  long int N;
-  realtype ***P;
-  long int **pivot, ier;
-  int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp, flag;
-  realtype uround, fac, r, r0, save, srur;
-  realtype *f1, *fsave, *cdata, *rewtdata;
-  void *cvode_mem;
-  WebData wdata;
-  N_Vector rewt;
+  int i, ngrp;
 
-  wdata = (WebData) P_data;
-  cvode_mem = CVadjGetCVodeBmem(wdata->cvadj_mem);
-  if(check_flag((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) return(1);
-  flag = CVodeGetErrWeights(cvode_mem, &rewt);
-  if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
-
-  cdata = NV_DATA_S(c);
-  rewtdata = NV_DATA_S(rewt);
-
-  uround = UNIT_ROUNDOFF;
-
-  P = wdata->P;
-  pivot = wdata->pivot;
-  jxr = wdata->jxr;
-  jyr = wdata->jyr;
-  mp = wdata->mp;
-  srur = wdata->srur;
   ngrp = wdata->ngrp;
-  ngx = wdata->ngx;
-  ngy = wdata->ngy;
-  mxmp = wdata->mxmp;
-  fsave = wdata->fsave;
-
-  /* Make mp calls to fblock to approximate each diagonal block of Jacobian.
-     Here, fsave contains the base value of the rate vector and 
-     r0 is a minimum increment factor for the difference quotient. */
-
-  f1 = NV_DATA_S(vtemp1);
-  fac = N_VWrmsNorm (fcB, rewt);
-  N = NEQ;
-  r0 = 1000.0*ABS(gamma)*uround*N*fac;
-  if (r0 == 0.0) r0 = 1.0;
-
-  for (igy = 0; igy < ngy; igy++) {
-    jy = jyr[igy];
-    if00 = jy*mxmp;
-    for (igx = 0; igx < ngx; igx++) { 
-      jx = jxr[igx];
-      if0 = if00 + jx*mp;
-      ig = igx + igy*ngx; 
-      /* Generate ig-th diagonal block */
-      for (j = 0; j < mp; j++) {
-        /* Generate the jth column as a difference quotient */
-        jj = if0 + j; 
-        save = cdata[jj];
-        r = MAX(srur*ABS(save),r0/rewtdata[jj]);
-        cdata[jj] += r;
-        fac = gamma/r;
-        fblock (t, cdata, jx, jy, f1, wdata);
-        for (i = 0; i < mp; i++) {
-          P[ig][i][j] = (f1[i] - fsave[if0+i])*fac;
-        }
-        cdata[jj] = save;
-      }
-    }
+  for(i=0; i < ngrp; i++) {
+    denfree((wdata->P)[i]);
+    denfreepiv((wdata->pivot)[i]);
   }
-
-  /* Add identity matrix and do LU decompositions on blocks. */
-
-   for (ig = 0; ig < ngrp; ig++) {
-     denaddI(P[ig], mp);
-     ier = gefa(P[ig], mp, pivot[ig]);
-     if (ier != 0) return(1);
-   }
-
-  *jcurPtr = TRUE;
-  return(0);
+  free(wdata);
 }
 
-static int PSolveB(realtype t, N_Vector c, 
-                   N_Vector cB, N_Vector fcB, 
-                   N_Vector r, N_Vector z,
-                   realtype gamma, realtype delta, 
-                   int lr, void *P_data, N_Vector vtemp)
-{
-  realtype ***P;
-  long int **pivot;
-  int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
-  WebData wdata;
-
-  wdata = (WebData) P_data;
-
-  N_VScale(1.0, r, z);
-
-  /* call GSIter for Gauss-Seidel iterations (same routine but with gamma=-gamma) */
-
-  GSIter(-gamma, z, vtemp, wdata);
-
-  /* Do backsolves for inverse of block-diagonal preconditioner factor */
- 
-  P = wdata->P;
-  pivot = wdata->pivot;
-  mx = wdata->mx;
-  my = wdata->my;
-  ngx = wdata->ngx;
-  mp = wdata->mp;
-  jigx = wdata->jigx;
-  jigy = wdata->jigy;
-
-  iv = 0;
-  for (jy = 0; jy < my; jy++) {
-    igy = jigy[jy];
-    for (jx = 0; jx < mx; jx++) {
-      igx = jigx[jx];
-      ig = igx + igy*ngx;
-      gesl(P[ig], mp, pivot[ig], &(NV_DATA_S(z)[iv]));
-      iv += mp;
-    }
-  }
-
-  return(0);
-}
-
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/* 
+ * Check function return value.
+ *    opt == 0 means SUNDIALS function allocates memory so check if
+ *             returned NULL pointer
+ *    opt == 1 means SUNDIALS function returns a flag so check if
+ *             flag >= 0
+ *    opt == 2 means function allocates memory so check if returned
+ *             NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -1273,19 +1318,22 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+	    funcname);
     return(1); }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+	      funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+	    funcname);
     return(1); }
 
   return(0);

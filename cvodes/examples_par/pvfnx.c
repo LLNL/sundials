@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-25 16:23:47 $
+ * $Revision: 1.12 $
+ * $Date: 2004-11-08 20:36:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
@@ -58,14 +58,14 @@
 #include "mpi.h"
 
 /* Problem Constants */
-#define XMAX  2.0          /* domain boundary           */
-#define MX    10           /* mesh dimension            */
-#define NEQ   MX           /* number of equations       */
-#define ATOL  1.e-5        /* scalar absolute tolerance */
-#define T0    0.0          /* initial time              */
-#define T1    0.5          /* first output time         */
-#define DTOUT 0.5          /* output time increment     */
-#define NOUT  10           /* number of output times    */
+#define XMAX  RCONST(2.0)   /* domain boundary           */
+#define MX    10            /* mesh dimension            */
+#define NEQ   MX            /* number of equations       */
+#define ATOL  RCONST(1.e-5) /* scalar absolute tolerance */
+#define T0    RCONST(0.0)   /* initial time              */
+#define T1    RCONST(0.5)   /* first output time         */
+#define DTOUT RCONST(0.5)   /* output time increment     */
+#define NOUT  10            /* number of output times    */
 
 #define NP    2
 #define NS    2
@@ -84,7 +84,11 @@ typedef struct {
 } *UserData;
 
 
-/* Private Helper Functions */
+/* Prototypes of user-supplied functins */
+
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+
+/* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
                         booleantype *sensi, int *sensi_meth, booleantype *err_con);
@@ -93,16 +97,13 @@ static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base)
 static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u);
 static void PrintOutputS(int my_pe, N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi); 
-
-/* Functions Called by the PVODES Solver */
-
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
-
-/* Private function to check function return values */
-
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
-/***************************** Main Program ******************************/
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
 
 int main(int argc, char *argv[])
 {
@@ -226,7 +227,6 @@ int main(int argc, char *argv[])
 
   }
 
-
   /* In loop over output points, call CVode, print results, test for error */
 
   if(my_pe == 0) {
@@ -270,188 +270,15 @@ int main(int argc, char *argv[])
   return(0);
 }
 
-/************************ Private Helper Functions ***********************/
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY CVODES
+ *--------------------------------------------------------------------
+ */
 
-/* ======================================================================= */
-/* Check arguments */
-
-static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
-{
-  *sensi = FALSE;
-  *sensi_meth = -1;
-  *err_con = FALSE;
-
-  if (argc < 2) WrongArgs(my_pe, argv[0]);
-
-  if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = FALSE;
-  else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = TRUE;
-  else
-    WrongArgs(my_pe, argv[0]);
-  
-  if (*sensi) {
-
-    if (argc != 4)
-      WrongArgs(my_pe, argv[0]);
-
-    if (strcmp(argv[2],"sim") == 0)
-      *sensi_meth = CV_SIMULTANEOUS;
-    else if (strcmp(argv[2],"stg") == 0)
-      *sensi_meth = CV_STAGGERED;
-    else if (strcmp(argv[2],"stg1") == 0)
-      *sensi_meth = CV_STAGGERED1;
-    else 
-      WrongArgs(my_pe, argv[0]);
-
-    if (strcmp(argv[3],"t") == 0)
-      *err_con = TRUE;
-    else if (strcmp(argv[3],"f") == 0)
-      *err_con = FALSE;
-    else
-      WrongArgs(my_pe, argv[0]);
-  }
-
-}
-
-static void WrongArgs(int my_pe, char *name)
-{
-  if (my_pe == 0) {
-    printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",name);
-    printf("         sensi_meth = sim, stg, or stg1\n");
-    printf("         err_con    = t or f\n");
-  }  
-  MPI_Finalize();
-  exit(0);
-}
-
-/* ======================================================================= */
-/* Set initial conditions in u vector */
-
-static void SetIC(N_Vector u, realtype dx, long int my_length, 
-                  long int my_base)
-{
-  int i;
-  long int iglobal;
-  realtype x;
-  realtype *udata;
-
-  /* Set pointer to data array and get local length of u. */
-  udata = NV_DATA_P(u);
-  my_length = NV_LOCLENGTH_P(u);
-
-  /* Load initial profile into u vector */
-  for (i=1; i<=my_length; i++) {
-    iglobal = my_base + i;
-    x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*exp(2.0*x);
-  }  
-}
-
-/* ======================================================================= */
-/* Print current t, step count, order, stepsize, and max norm of solution  */
-
-static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
-{
-  long int nst;
-  int qu, flag;
-  realtype hu, umax;
-
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
-  flag = CVodeGetLastOrder(cvode_mem, &qu);
-  check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
-  flag = CVodeGetLastStep(cvode_mem, &hu);
-  check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
-
-  umax = N_VMaxNorm(u);
-  if (my_pe == 0) {
-    printf("%8.3e %2d  %8.3e %5ld\n", t,qu,hu,nst);
-    printf("                                Solution       ");
-    printf("%12.4e \n", umax);
-  }  
-
-}
-
-/* ======================================================================= */
-/* Print max norm of sensitivities */
-
-static void PrintOutputS(int my_pe, N_Vector *uS)
-{
-  realtype smax;
-
-  smax = N_VMaxNorm(uS[0]);
-  if (my_pe == 0) {
-    printf("                                Sensitivity 1  ");
-    printf("%12.4e \n", smax);
-  }
-
-  smax = N_VMaxNorm(uS[1]);
-  if (my_pe == 0) {
-    printf("                                Sensitivity 2  ");
-    printf("%12.4e \n", smax);
-  }
-
-}
-
-/* ======================================================================= */
-/* Print some final statistics located in the iopt array */
-
-static void PrintFinalStats(void *cvode_mem, booleantype sensi) 
-{
-  long int nst;
-  long int nfe, nsetups, nni, ncfn, netf;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  int flag;
-
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1, 0);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
-
-  if (sensi) {
-    flag = CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
-    check_flag(&flag, "CVodeGetNumSensRhsEvals", 1, 0);
-    flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
-    check_flag(&flag, "CVodeGetNumRhsEvalsSens", 1, 0);
-    flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
-    check_flag(&flag, "CVodeGetNumSensLinSolvSetups", 1, 0);
-    flag = CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
-    check_flag(&flag, "CVodeGetNumSensErrTestFails", 1, 0);
-    flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
-    check_flag(&flag, "CVodeGetNumSensNonlinSolvIters", 1, 0);
-    flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
-    check_flag(&flag, "CVodeGetNumSensNonlinSolvConvFails", 1, 0);
-  }
-
-  printf("\nFinal Statistics\n\n");
-  printf("nst     = %5ld\n\n", nst);
-  printf("nfe     = %5ld\n",   nfe);
-  printf("netf    = %5ld    nsetups  = %5ld\n", netf, nsetups);
-  printf("nni     = %5ld    ncfn     = %5ld\n", nni, ncfn);
-
-  if(sensi) {
-    printf("\n");
-    printf("nfSe    = %5ld    nfeS     = %5ld\n", nfSe, nfeS);
-    printf("netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
-    printf("nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);
-  }
-
-}
-
-/***************** Function Called by the PVODES Solver ******************/
-
-/* ======================================================================= */
-/* f routine. Compute f(t,u). */
+/*
+ * f routine. Compute f(t,u). 
+ */
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
@@ -520,13 +347,223 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   }
 }
 
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+/* 
+ * Process and verify arguments to pvfnx.
+ */
+
+static void ProcessArgs(int argc, char *argv[], int my_pe,
+                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+{
+  *sensi = FALSE;
+  *sensi_meth = -1;
+  *err_con = FALSE;
+
+  if (argc < 2) WrongArgs(my_pe, argv[0]);
+
+  if (strcmp(argv[1],"-nosensi") == 0)
+    *sensi = FALSE;
+  else if (strcmp(argv[1],"-sensi") == 0)
+    *sensi = TRUE;
+  else
+    WrongArgs(my_pe, argv[0]);
+  
+  if (*sensi) {
+
+    if (argc != 4)
+      WrongArgs(my_pe, argv[0]);
+
+    if (strcmp(argv[2],"sim") == 0)
+      *sensi_meth = CV_SIMULTANEOUS;
+    else if (strcmp(argv[2],"stg") == 0)
+      *sensi_meth = CV_STAGGERED;
+    else if (strcmp(argv[2],"stg1") == 0)
+      *sensi_meth = CV_STAGGERED1;
+    else 
+      WrongArgs(my_pe, argv[0]);
+
+    if (strcmp(argv[3],"t") == 0)
+      *err_con = TRUE;
+    else if (strcmp(argv[3],"f") == 0)
+      *err_con = FALSE;
+    else
+      WrongArgs(my_pe, argv[0]);
+  }
+
+}
+
+static void WrongArgs(int my_pe, char *name)
+{
+  if (my_pe == 0) {
+    printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",name);
+    printf("         sensi_meth = sim, stg, or stg1\n");
+    printf("         err_con    = t or f\n");
+  }  
+  MPI_Finalize();
+  exit(0);
+}
+
+/*
+ * Set initial conditions in u vector 
+ */
+
+static void SetIC(N_Vector u, realtype dx, long int my_length, 
+                  long int my_base)
+{
+  int i;
+  long int iglobal;
+  realtype x;
+  realtype *udata;
+
+  /* Set pointer to data array and get local length of u. */
+  udata = NV_DATA_P(u);
+  my_length = NV_LOCLENGTH_P(u);
+
+  /* Load initial profile into u vector */
+  for (i=1; i<=my_length; i++) {
+    iglobal = my_base + i;
+    x = iglobal*dx;
+    udata[i-1] = x*(XMAX - x)*exp(2.0*x);
+  }  
+}
+
+/*
+ * Print current t, step count, order, stepsize, and max norm of solution  
+ */
+
+static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
+{
+  long int nst;
+  int qu, flag;
+  realtype hu, umax;
+
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
+  flag = CVodeGetLastOrder(cvode_mem, &qu);
+  check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
+  flag = CVodeGetLastStep(cvode_mem, &hu);
+  check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
+
+  umax = N_VMaxNorm(u);
+
+  if (my_pe == 0) {
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%8.3Le %2d  %8.3Le %5ld\n", t,qu,hu,nst);
+#else
+    printf("%8.3e %2d  %8.3e %5ld\n", t,qu,hu,nst);
+#endif
+
+    printf("                                Solution       ");
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%12.4Le \n", umax);
+#else
+    printf("%12.4e \n", umax);
+#endif
+
+  }  
+
+}
+
+/*
+ * Print max norm of sensitivities 
+ */
+
+static void PrintOutputS(int my_pe, N_Vector *uS)
+{
+  realtype smax;
+
+  smax = N_VMaxNorm(uS[0]);
+  if (my_pe == 0) {
+    printf("                                Sensitivity 1  ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%12.4Le \n", smax);
+#else
+    printf("%12.4e \n", smax);
+#endif
+  }
+
+  smax = N_VMaxNorm(uS[1]);
+  if (my_pe == 0) {
+    printf("                                Sensitivity 2  ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%12.4Le \n", smax);
+#else
+    printf("%12.4e \n", smax);
+#endif
+  }
+
+}
+
+/*
+ * Print some final statistics located in the iopt array 
+ */
+
+static void PrintFinalStats(void *cvode_mem, booleantype sensi) 
+{
+  long int nst;
+  long int nfe, nsetups, nni, ncfn, netf;
+  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  int flag;
+
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1, 0);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
+
+  if (sensi) {
+    flag = CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
+    check_flag(&flag, "CVodeGetNumSensRhsEvals", 1, 0);
+    flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
+    check_flag(&flag, "CVodeGetNumRhsEvalsSens", 1, 0);
+    flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
+    check_flag(&flag, "CVodeGetNumSensLinSolvSetups", 1, 0);
+    flag = CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
+    check_flag(&flag, "CVodeGetNumSensErrTestFails", 1, 0);
+    flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
+    check_flag(&flag, "CVodeGetNumSensNonlinSolvIters", 1, 0);
+    flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
+    check_flag(&flag, "CVodeGetNumSensNonlinSolvConvFails", 1, 0);
+  }
+
+  printf("\nFinal Statistics\n\n");
+  printf("nst     = %5ld\n\n", nst);
+  printf("nfe     = %5ld\n",   nfe);
+  printf("netf    = %5ld    nsetups  = %5ld\n", netf, nsetups);
+  printf("nni     = %5ld    ncfn     = %5ld\n", nni, ncfn);
+
+  if(sensi) {
+    printf("\n");
+    printf("nfSe    = %5ld    nfeS     = %5ld\n", nfSe, nfeS);
+    printf("netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
+    printf("nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);
+  }
+
+}
+
+/* 
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 {
@@ -534,19 +571,22 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+	    id, funcname);
     return(1); }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
+	      id, funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+	    id, funcname);
     return(1); }
 
   return(0);

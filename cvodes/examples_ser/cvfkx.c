@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-08-25 16:23:40 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-08 20:36:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -61,40 +61,40 @@
 
 /* Problem Constants */
 
-#define NUM_SPECIES  2             /* number of species */
-#define C1_SCALE     1.0e6         /* coefficients in initial profiles */
-#define C2_SCALE     1.0e12
+#define NUM_SPECIES  2                /* number of species */
+#define C1_SCALE     RCONST(1.0e6)    /* coefficients in initial profiles */
+#define C2_SCALE     RCONST(1.0e12)
 
-#define T0           0.0           /* initial time */
-#define NOUT         12            /* number of output times */
-#define TWOHR        7200.0        /* number of seconds in two hours  */
-#define HALFDAY      4.32e4        /* number of seconds in a half day */
-#define PI       3.1415926535898   /* pi */ 
+#define T0           RCONST(0.0)      /* initial time */
+#define NOUT         12               /* number of output times */
+#define TWOHR        RCONST(7200.0)   /* number of seconds in two hours  */
+#define HALFDAY      RCONST(4.32e4)   /* number of seconds in a half day */
+#define PI           RCONST(3.1415926535898)   /* pi */ 
 
-#define XMIN          0.0          /* grid boundaries in x  */
-#define XMAX         20.0           
-#define ZMIN         30.0          /* grid boundaries in z  */
-#define ZMAX         50.0
-#define XMID         10.0          /* grid midpoints in x,z */          
-#define ZMID         40.0
+#define XMIN         RCONST(0.0)      /* grid boundaries in x  */
+#define XMAX         RCONST(20.0)           
+#define ZMIN         RCONST(30.0)     /* grid boundaries in z  */
+#define ZMAX         RCONST(50.0)
+#define XMID         RCONST(10.0)     /* grid midpoints in x,z */          
+#define ZMID         RCONST(40.0)
 
-#define MX           15             /* MX = number of x mesh points */
-#define MZ           15             /* MZ = number of z mesh points */
-#define NSMX         NUM_SPECIES*MX /* NSMX = NUM_SPECIES*MX */
-#define MM           (MX*MZ)        /* MM = MX*MZ */
+#define MX           15               /* MX = number of x mesh points */
+#define MZ           15               /* MZ = number of z mesh points */
+#define NSMX         NUM_SPECIES*MX   /* NSMX = NUM_SPECIES*MX */
+#define MM           (MX*MZ)          /* MM = MX*MZ */
 
 /* CVodeMalloc Constants */
-#define RTOL    1.0e-5            /* scalar relative tolerance */
-#define FLOOR   100.0             /* value of C1 or C2 at which tolerances */
-                                  /* change from relative to absolute      */
-#define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
-#define NEQ     (NUM_SPECIES*MM)  /* NEQ = number of equations */
+#define RTOL         RCONST(1.0e-5)   /* scalar relative tolerance */
+#define FLOOR        RCONST(100.0)    /* value of C1 or C2 at which tolerances */
+                                      /* change from relative to absolute      */
+#define ATOL         (RTOL*FLOOR)     /* scalar absolute tolerance */
+#define NEQ          (NUM_SPECIES*MM) /* NEQ = number of equations */
 
 /* Sensitivity Constants */
-#define NP    8
-#define NS    2
+#define NP           8
+#define NS           2
 
-#define ZERO  RCONST(0.0)
+#define ZERO         RCONST(0.0)
 
 /* User-defined vector and matrix accessor macros: IJKth, IJth */
 
@@ -130,20 +130,8 @@ typedef struct {
   realtype q4, om, dx, dz, hdco, haco, vdco;
 } *UserData;
 
-/* Private Helper Functions */
 
-static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con);
-static void WrongArgs(char *name);
-static UserData AllocUserData(void);
-static void InitUserData(UserData data);
-static void FreeUserData(UserData data);
-static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector y);
-static void PrintOutputS(N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi);
-
-/* Functions Called by the CVODES Solver */
+/* Prototypes of user-supplied functions */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
@@ -156,11 +144,25 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   realtype gamma, realtype delta,
                   int lr, void *P_data, N_Vector vtemp);
 
-/* Private function to check function return values */
+/* Prototypes of private functions */
 
+static void ProcessArgs(int argc, char *argv[],
+                        booleantype *sensi, int *sensi_meth, booleantype *err_con);
+static void WrongArgs(char *name);
+static UserData AllocUserData(void);
+static void InitUserData(UserData data);
+static void FreeUserData(UserData data);
+static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
+static void PrintOutput(void *cvode_mem, realtype t, N_Vector y);
+static void PrintOutputS(N_Vector *uS);
+static void PrintFinalStats(void *cvode_mem, booleantype sensi);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
-/***************************** Main Program ******************************/
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
 
 int main(int argc, char *argv[])
 {
@@ -186,21 +188,21 @@ int main(int argc, char *argv[])
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
 
-  /* PROBLEM PARAMETERS */
+  /* Problem parameters */
   data = AllocUserData();
   if(check_flag((void *)data, "AllocUserData", 2)) return(1);
   InitUserData(data);
 
-  /* INITIAL STATES */
+  /* Initial states */
   y = N_VNew_Serial(NEQ);
   if(check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
   SetInitialProfiles(y, data->dx, data->dz);
   
-  /* TOLERANCES */
+  /* Tolerances */
   abstol=ATOL; 
   reltol=RTOL;
 
-  /* CVODE_CREATE */
+  /* Create CVODES object */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
@@ -210,11 +212,11 @@ int main(int argc, char *argv[])
   flag = CVodeSetMaxNumSteps(cvode_mem, 2000);
   if(check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return(1);
 
-  /* CVODE_MALLOC */
+  /* Allocate CVODES memory */
   flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
-  /* CVSPGMR */
+  /* Attach CVSPGMR linear solver */
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
 
@@ -229,7 +231,7 @@ int main(int argc, char *argv[])
 
   printf("\n2-species diurnal advection-diffusion problem\n");
 
-  /* SENSITIVTY */
+  /* Forward sensitivity analysis */
   if(sensi) {
     pbar = (realtype *) malloc(NP*sizeof(realtype));
     if(check_flag((void *)pbar, "malloc", 2)) return(1);
@@ -295,297 +297,27 @@ int main(int argc, char *argv[])
   PrintFinalStats(cvode_mem, sensi);
 
   /* Free memory */
-  N_VDestroy(y);
-  if (sensi) N_VDestroyVectorArray(uS, NS);
+  N_VDestroy_Serial(y);
+  if (sensi) {
+    N_VDestroyVectorArray_Serial(uS, NS);
+    free(pbar);
+    free(plist);
+  }
   FreeUserData(data);
   CVodeFree(cvode_mem);
-  free(pbar);
-  if (sensi) free(plist);
 
   return(0);
 }
 
-/*********************** Private Helper Functions ************************/
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY CVODES
+ *--------------------------------------------------------------------
+ */
 
-/* ======================================================================= */
-/* Exit if arguments are incorrect */
-
-static void ProcessArgs(int argc, char *argv[], 
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
-{
-  *sensi = FALSE;
-  *sensi_meth = -1;
-  *err_con = FALSE;
-
-  if (argc < 2) WrongArgs(argv[0]);
-
-  if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = FALSE;
-  else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = TRUE;
-  else
-    WrongArgs(argv[0]);
-  
-  if (*sensi) {
-
-    if (argc != 4)
-      WrongArgs(argv[0]);
-
-    if (strcmp(argv[2],"sim") == 0)
-      *sensi_meth = CV_SIMULTANEOUS;
-    else if (strcmp(argv[2],"stg") == 0)
-      *sensi_meth = CV_STAGGERED;
-    else if (strcmp(argv[2],"stg1") == 0)
-      *sensi_meth = CV_STAGGERED1;
-    else 
-      WrongArgs(argv[0]);
-
-    if (strcmp(argv[3],"t") == 0)
-      *err_con = TRUE;
-    else if (strcmp(argv[3],"f") == 0)
-      *err_con = FALSE;
-    else
-      WrongArgs(argv[0]);
-  }
-
-}
-
-static void WrongArgs(char *name)
-{
-    printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",name);
-    printf("         sensi_meth = sim, stg, or stg1\n");
-    printf("         err_con    = t or f\n");
-    
-    exit(0);
-}
-
-/* ======================================================================= */
-/* Allocate memory for data structure of type UserData */
-
-static UserData AllocUserData(void)
-{
-  int jx, jz;
-  UserData data;
-
-  data = (UserData) malloc(sizeof *data);
-
-  for (jx=0; jx < MX; jx++) {
-    for (jz=0; jz < MZ; jz++) {
-      (data->P)[jx][jz] = denalloc(NUM_SPECIES);
-      (data->Jbd)[jx][jz] = denalloc(NUM_SPECIES);
-      (data->pivot)[jx][jz] = denallocpiv(NUM_SPECIES);
-    }
-  }
-
-  data->p = (realtype *) malloc(NP*sizeof(realtype));
-
-  return(data);
-}
-
-/* ======================================================================= */
-/* Load problem constants in data */
-
-static void InitUserData(UserData data)
-{
-  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
-
-  /* Set problem parameters */
-  Q1 = 1.63e-16; /* Q1  coefficients q1, q2, c3             */
-  Q2 = 4.66e-16; /* Q2                                      */
-  C3 = 3.7e16;   /* C3                                      */
-  A3 = 22.62;    /* A3  coefficient in expression for q3(t) */
-  A4 = 7.601;    /* A4  coefficient in expression for q4(t) */
-  KH = 4.0e-6;   /* KH  horizontal diffusivity Kh           */ 
-  VEL = 0.001;   /* VEL advection velocity V                */
-  KV0 = 1.0e-8;  /* KV0 coefficient in Kv(z)                */  
-
-  data->om = PI/HALFDAY;
-  data->dx = (XMAX-XMIN)/(MX-1);
-  data->dz = (ZMAX-ZMIN)/(MZ-1);
-  data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(2.0*data->dx);
-  data->vdco = (1.0/SQR(data->dz))*KV0;
-
-  data->p[0] = Q1;
-  data->p[1] = Q2;
-  data->p[2] = C3;
-  data->p[3] = A3;
-  data->p[4] = A4;
-  data->p[5] = KH;
-  data->p[6] = VEL;
-  data->p[7] = KV0;
-}
-
-/* ======================================================================= */
-/* Free data memory */
-
-static void FreeUserData(UserData data)
-{
-  int jx, jz;
-
-  for (jx=0; jx < MX; jx++) {
-    for (jz=0; jz < MZ; jz++) {
-      denfree((data->P)[jx][jz]);
-      denfree((data->Jbd)[jx][jz]);
-      denfreepiv((data->pivot)[jx][jz]);
-    }
-  }
-
-  free(data->p);
-
-  free(data);
-}
-
-/* ======================================================================= */
-/* Set initial conditions in y */
-
-static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
-{
-  int jx, jz;
-  realtype x, z, cx, cz;
-  realtype *ydata;
-
-  /* Set pointer to data array in vector y. */
-
-  ydata = NV_DATA_S(y);
-
-  /* Load initial profiles of c1 and c2 into y vector */
-
-  for (jz=0; jz < MZ; jz++) {
-    z = ZMIN + jz*dz;
-    cz = SQR(0.1*(z - ZMID));
-    cz = 1.0 - cz + 0.5*SQR(cz);
-    for (jx=0; jx < MX; jx++) {
-      x = XMIN + jx*dx;
-      cx = SQR(0.1*(x - XMID));
-      cx = 1.0 - cx + 0.5*SQR(cx);
-      IJKth(ydata,1,jx,jz) = C1_SCALE*cx*cz; 
-      IJKth(ydata,2,jx,jz) = C2_SCALE*cx*cz;
-    }
-  }
-}
-
-/* ======================================================================= */
-/* Print current t, step count, order, stepsize, and sampled c1,c2 values */
-
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector y)
-{  
-  long int nst;
-  int qu, flag;
-  realtype hu;
-  realtype *ydata;
-
-  ydata = NV_DATA_S(y);
-
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetLastOrder(cvode_mem, &qu);
-  check_flag(&flag, "CVodeGetLastOrder", 1);
-  flag = CVodeGetLastStep(cvode_mem, &hu);
-  check_flag(&flag, "CVodeGetLastStep", 1);
-
-  printf("%8.3e %2d  %8.3e %5ld\n", t,qu,hu,nst);
-  printf("                                Solution       ");
-  printf("%12.4e %12.4e \n", IJKth(ydata,1,0,0), IJKth(ydata,1,MX-1,MZ-1)); 
-  printf("                                               ");
-  printf("%12.4e %12.4e \n", IJKth(ydata,2,0,0), IJKth(ydata,2,MX-1,MZ-1));
-}
-
-/* ======================================================================= */
-/* Print sampled sensitivities */
-
-static void PrintOutputS(N_Vector *uS)
-{
-  realtype *sdata;
-
-  sdata = NV_DATA_S(uS[0]);
-
-  printf("                                ----------------------------------------\n"); 
-  printf("                                Sensitivity 1  ");
-  printf("%12.4e %12.4e \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
-  printf("                                               ");
-  printf("%12.4e %12.4e \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
-
-  sdata = NV_DATA_S(uS[1]);
-
-  printf("                                ----------------------------------------\n"); 
-  printf("                                Sensitivity 2  ");
-  printf("%12.4e %12.4e \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
-  printf("                                               ");
-  printf("%12.4e %12.4e \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
-}
-
-/* ======================================================================= */
-/* Print final statistics contained in iopt */
-
-static void PrintFinalStats(void *cvode_mem, booleantype sensi)
-{
-  long int nst;
-  long int nfe, nsetups, nni, ncfn, netf;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  long int nli, ncfl, npe, nps;
-  int flag;
-
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
-
-  if (sensi) {
-    flag = CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
-    check_flag(&flag, "CVodeGetNumSensRhsEvals", 1);
-    flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
-    check_flag(&flag, "CVodeGetNumRhsEvalsSens", 1);
-    flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
-    check_flag(&flag, "CVodeGetNumSensLinSolvSetups", 1);
-    flag = CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
-    check_flag(&flag, "CVodeGetNumSensErrTestFails", 1);
-    flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
-    check_flag(&flag, "CVodeGetNumSensNonlinSolvIters", 1);
-    flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
-    check_flag(&flag, "CVodeGetNumSensNonlinSolvConvFails", 1);
-  }
-
-  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
-  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
-  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
-
-  printf("\nFinal Statistics\n\n");
-  printf("nst     = %5ld\n\n", nst);
-  printf("nfe     = %5ld\n",   nfe);
-  printf("netf    = %5ld    nsetups  = %5ld\n", netf, nsetups);
-  printf("nni     = %5ld    ncfn     = %5ld\n", nni, ncfn);
-
-  if(sensi) {
-    printf("\n");
-    printf("nfSe    = %5ld    nfeS     = %5ld\n", nfSe, nfeS);
-    printf("netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
-    printf("nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);
-  }
-
-  printf("\n");
-  printf("nli     = %5ld    ncfl     = %5ld\n", nli, ncfl);
-  printf("npe     = %5ld    nps      = %5ld\n", npe, nps);
-
-}
-
-/***************** Functions Called by the CVODES Solver ******************/
-
-/* ======================================================================= */
-/* f routine. Compute f(t,y). */
+/*
+ * f routine. Compute f(t,y). 
+ */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
@@ -687,8 +419,9 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   }
 }
 
-/* ======================================================================= */
-/* Preconditioner setup routine. Generate and preprocess P. */
+/*
+ * Preconditioner setup routine. Generate and preprocess P. 
+ */
 
 static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, void *P_data,
@@ -786,8 +519,9 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
   return(0);
 }
 
-/* ======================================================================= */
-/* Preconditioner solve routine */
+/*
+ * Preconditioner solve routine 
+ */
 
 static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   N_Vector r, N_Vector z,
@@ -822,13 +556,333 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
   return(0);
 }
  
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+/* 
+ * Process and verify arguments to cvfkx.
+ */
+
+static void ProcessArgs(int argc, char *argv[], 
+                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+{
+  *sensi = FALSE;
+  *sensi_meth = -1;
+  *err_con = FALSE;
+
+  if (argc < 2) WrongArgs(argv[0]);
+
+  if (strcmp(argv[1],"-nosensi") == 0)
+    *sensi = FALSE;
+  else if (strcmp(argv[1],"-sensi") == 0)
+    *sensi = TRUE;
+  else
+    WrongArgs(argv[0]);
+  
+  if (*sensi) {
+
+    if (argc != 4)
+      WrongArgs(argv[0]);
+
+    if (strcmp(argv[2],"sim") == 0)
+      *sensi_meth = CV_SIMULTANEOUS;
+    else if (strcmp(argv[2],"stg") == 0)
+      *sensi_meth = CV_STAGGERED;
+    else if (strcmp(argv[2],"stg1") == 0)
+      *sensi_meth = CV_STAGGERED1;
+    else 
+      WrongArgs(argv[0]);
+
+    if (strcmp(argv[3],"t") == 0)
+      *err_con = TRUE;
+    else if (strcmp(argv[3],"f") == 0)
+      *err_con = FALSE;
+    else
+      WrongArgs(argv[0]);
+  }
+
+}
+
+static void WrongArgs(char *name)
+{
+    printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",name);
+    printf("         sensi_meth = sim, stg, or stg1\n");
+    printf("         err_con    = t or f\n");
+    
+    exit(0);
+}
+
+/*
+ * Allocate memory for data structure of type UserData 
+ */
+
+static UserData AllocUserData(void)
+{
+  int jx, jz;
+  UserData data;
+
+  data = (UserData) malloc(sizeof *data);
+
+  for (jx=0; jx < MX; jx++) {
+    for (jz=0; jz < MZ; jz++) {
+      (data->P)[jx][jz] = denalloc(NUM_SPECIES);
+      (data->Jbd)[jx][jz] = denalloc(NUM_SPECIES);
+      (data->pivot)[jx][jz] = denallocpiv(NUM_SPECIES);
+    }
+  }
+
+  data->p = (realtype *) malloc(NP*sizeof(realtype));
+
+  return(data);
+}
+
+/*
+ * Load problem constants in data 
+ */
+
+static void InitUserData(UserData data)
+{
+  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+
+  /* Set problem parameters */
+  Q1 = 1.63e-16; /* Q1  coefficients q1, q2, c3             */
+  Q2 = 4.66e-16; /* Q2                                      */
+  C3 = 3.7e16;   /* C3                                      */
+  A3 = 22.62;    /* A3  coefficient in expression for q3(t) */
+  A4 = 7.601;    /* A4  coefficient in expression for q4(t) */
+  KH = 4.0e-6;   /* KH  horizontal diffusivity Kh           */ 
+  VEL = 0.001;   /* VEL advection velocity V                */
+  KV0 = 1.0e-8;  /* KV0 coefficient in Kv(z)                */  
+
+  data->om = PI/HALFDAY;
+  data->dx = (XMAX-XMIN)/(MX-1);
+  data->dz = (ZMAX-ZMIN)/(MZ-1);
+  data->hdco = KH/SQR(data->dx);
+  data->haco = VEL/(2.0*data->dx);
+  data->vdco = (1.0/SQR(data->dz))*KV0;
+
+  data->p[0] = Q1;
+  data->p[1] = Q2;
+  data->p[2] = C3;
+  data->p[3] = A3;
+  data->p[4] = A4;
+  data->p[5] = KH;
+  data->p[6] = VEL;
+  data->p[7] = KV0;
+}
+
+/*
+ * Free user data memory 
+ */
+
+static void FreeUserData(UserData data)
+{
+  int jx, jz;
+
+  for (jx=0; jx < MX; jx++) {
+    for (jz=0; jz < MZ; jz++) {
+      denfree((data->P)[jx][jz]);
+      denfree((data->Jbd)[jx][jz]);
+      denfreepiv((data->pivot)[jx][jz]);
+    }
+  }
+
+  free(data->p);
+
+  free(data);
+}
+
+/*
+ * Set initial conditions in y 
+ */
+
+static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
+{
+  int jx, jz;
+  realtype x, z, cx, cz;
+  realtype *ydata;
+
+  /* Set pointer to data array in vector y. */
+
+  ydata = NV_DATA_S(y);
+
+  /* Load initial profiles of c1 and c2 into y vector */
+
+  for (jz=0; jz < MZ; jz++) {
+    z = ZMIN + jz*dz;
+    cz = SQR(0.1*(z - ZMID));
+    cz = 1.0 - cz + 0.5*SQR(cz);
+    for (jx=0; jx < MX; jx++) {
+      x = XMIN + jx*dx;
+      cx = SQR(0.1*(x - XMID));
+      cx = 1.0 - cx + 0.5*SQR(cx);
+      IJKth(ydata,1,jx,jz) = C1_SCALE*cx*cz; 
+      IJKth(ydata,2,jx,jz) = C2_SCALE*cx*cz;
+    }
+  }
+}
+
+/*
+ * Print current t, step count, order, stepsize, and sampled c1,c2 values 
+ */
+
+static void PrintOutput(void *cvode_mem, realtype t, N_Vector y)
+{  
+  long int nst;
+  int qu, flag;
+  realtype hu;
+  realtype *ydata;
+
+  ydata = NV_DATA_S(y);
+
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1);
+  flag = CVodeGetLastOrder(cvode_mem, &qu);
+  check_flag(&flag, "CVodeGetLastOrder", 1);
+  flag = CVodeGetLastStep(cvode_mem, &hu);
+  check_flag(&flag, "CVodeGetLastStep", 1);
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%8.3Le %2d  %8.3Le %5ld\n", t,qu,hu,nst);
+#else
+  printf("%8.3e %2d  %8.3e %5ld\n", t,qu,hu,nst);
+#endif
+
+  printf("                                Solution       ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le \n", IJKth(ydata,1,0,0), IJKth(ydata,1,MX-1,MZ-1)); 
+#else
+  printf("%12.4e %12.4e \n", IJKth(ydata,1,0,0), IJKth(ydata,1,MX-1,MZ-1)); 
+#endif
+  printf("                                               ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le \n", IJKth(ydata,2,0,0), IJKth(ydata,2,MX-1,MZ-1));
+#else
+  printf("%12.4e %12.4e \n", IJKth(ydata,2,0,0), IJKth(ydata,2,MX-1,MZ-1));
+#endif
+}
+
+/*
+ * Print sampled sensitivities 
+ */
+
+static void PrintOutputS(N_Vector *uS)
+{
+  realtype *sdata;
+
+  sdata = NV_DATA_S(uS[0]);
+
+  printf("                                ----------------------------------------\n"); 
+  printf("                                Sensitivity 1  ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
+#else
+  printf("%12.4e %12.4e \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
+#endif
+  printf("                                               ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
+#else
+  printf("%12.4e %12.4e \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
+#endif
+
+  sdata = NV_DATA_S(uS[1]);
+
+  printf("                                ----------------------------------------\n"); 
+  printf("                                Sensitivity 2  ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
+#else
+  printf("%12.4e %12.4e \n", IJKth(sdata,1,0,0), IJKth(sdata,1,MX-1,MZ-1)); 
+#endif
+  printf("                                               ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
+#else
+  printf("%12.4e %12.4e \n", IJKth(sdata,2,0,0), IJKth(sdata,2,MX-1,MZ-1));
+#endif
+}
+
+/*
+ * Print final statistics contained in iopt 
+ */
+
+static void PrintFinalStats(void *cvode_mem, booleantype sensi)
+{
+  long int nst;
+  long int nfe, nsetups, nni, ncfn, netf;
+  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int nli, ncfl, npe, nps;
+  int flag;
+
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+
+  if (sensi) {
+    flag = CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
+    check_flag(&flag, "CVodeGetNumSensRhsEvals", 1);
+    flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
+    check_flag(&flag, "CVodeGetNumRhsEvalsSens", 1);
+    flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
+    check_flag(&flag, "CVodeGetNumSensLinSolvSetups", 1);
+    flag = CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
+    check_flag(&flag, "CVodeGetNumSensErrTestFails", 1);
+    flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
+    check_flag(&flag, "CVodeGetNumSensNonlinSolvIters", 1);
+    flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
+    check_flag(&flag, "CVodeGetNumSensNonlinSolvConvFails", 1);
+  }
+
+  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
+  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
+  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
+  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
+
+  printf("\nFinal Statistics\n\n");
+  printf("nst     = %5ld\n\n", nst);
+  printf("nfe     = %5ld\n",   nfe);
+  printf("netf    = %5ld    nsetups  = %5ld\n", netf, nsetups);
+  printf("nni     = %5ld    ncfn     = %5ld\n", nni, ncfn);
+
+  if(sensi) {
+    printf("\n");
+    printf("nfSe    = %5ld    nfeS     = %5ld\n", nfSe, nfeS);
+    printf("netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
+    printf("nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);
+  }
+
+  printf("\n");
+  printf("nli     = %5ld    ncfl     = %5ld\n", nli, ncfl);
+  printf("npe     = %5ld    nps      = %5ld\n", npe, nps);
+
+}
+
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
