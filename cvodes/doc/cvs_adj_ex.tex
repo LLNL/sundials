@@ -178,14 +178,19 @@ interface routine with a non-\id{NULL} Jacobian routine \id{JacB}.
 
 The actual solution of the backward problem is acomplished through the call to
 \id{CVodeB}. If successful, \id{CVodeB} returns the solution of the backward 
-problem at time \id{T0} in the vector \id{yB}.
+problem at time \id{T0} in the vector \id{yB}. The values for $G$ and its gradient
+are printed next.
 
-The main program ends by printing the value of $G$ and its gradient and by
-freeing previously allocated memory through calls to \id{CVodeFree} (for the
-{\cvodes} memory for the forward problem), \id{CVadjFree} (for the memory
-allocated for the combined problem), \id{N\_VFree} (for the various vectors), 
-and \id{M\_EnvFree\_Serial} (for the two machine environment variables
-\id{machEnvF} and \id{machEnvB}).
+The main program continues with a call to \id{CVReInitB} to reinitialize the 
+backward memory block for a new adjoint computation with a different final 
+time (\id{TB2}), followed by a second call to \id{CVodeB} and, upon successful
+return, reporting of the new values for $G$ and its gradient.
+
+The main program ends by freeing previously allocated memory through calls to 
+\id{CVodeFree} (for the {\cvodes} memory for the forward problem), \id{CVadjFree} 
+(for the memory allocated for the combined problem), \id{N\_VFree} 
+(for the various vectors), and \id{M\_EnvFree\_Serial} (for the two machine 
+environment variables \id{machEnvF} and \id{machEnvB}).
 
 The user-supplied functions \id{f} and \id{Jac} for the right hand side and
 Jacobian of the forward problem are straightforward expressions of its 

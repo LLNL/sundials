@@ -517,7 +517,7 @@ need to be stored make this approach computationally intractable.
 
 {\cvodes} settles for a compromise {\em storage space - execution time} by
 implementing a so-called {\em check-pointing scheme}. At the cost of
-one additional forward integration, this approach offers the best possible 
+at most one additional forward integration, this approach offers the best possible 
 estimate of memory requirements for adjoint sensitivity analysis. To begin with,
 based on the problem size $N$ and the available memory, the user decides on 
 the number $N_d$ of data pairs $y$-${\dot y}$ that can be kept in memory for 
@@ -540,6 +540,17 @@ points. However, $N_c$ is much smaller than the number of steps taken during
 the forward integration and there is no major penalty for writting and then reading
 check point data to/from a temporary file.
 
+Note that, at the end of the first forward integration stage, data pairs 
+$y$-${\dot y}$ are available from the last check point to the end of the integration 
+interval. If no check points are necessary, i.e $N_d$ is larger than the 
+number of integration steps taken in the solution of (\ref{e:orig_eqns}),
+the total cost of an adjoint sensitivity computation can be as low as one forward
+plus one backward integration.
+
+In addition, {\cvodes} provides the capability of reusing a set of check points
+for multiple backward integrations, thus allowing for efficient computation of
+gradients of several functionals (\ref{e:G}).
+
 \bigskip
 
 \index{adjoint sensitivity analysis!implementation in {\cvodes}|(}
@@ -549,8 +560,8 @@ dependent on the solution of the IVP (\ref{e:orig_eqns}), including
 adjoint systems (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}), as well as any other
 quadrature ODEs that may be needed in evaluating the integrals in (\ref{e:dGdp}) 
 or (\ref{e:dgdp}). In particular, for ODE systems arising from semi-discretization
-of time-dependent PDEs, this feature allows for integration of both the 
-discretized adjoint PDE system and the adjoint of the discretized PDE.
+of time-dependent PDEs, this feature allows for integration of either the 
+discretized adjoint PDE system or the adjoint of the discretized PDE.
 \index{adjoint sensitivity analysis!implementation in {\cvodes}|)}
 \index{adjoint sensitivity analysis!mathematical background|)}
 

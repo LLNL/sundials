@@ -78,8 +78,8 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   routine \id{CVode}, either in \Id{NORMAL} mode to the time 
   \id{tout} or in \Id{ONE\_STEP} mode inside a loop (if intermediate
   solutions of the forward problem are desired (see \S\ref{sss:cvodef}).
-  The final value of \id{tout} (or of \id{t}), denoted \id{tlast}, is then
-  the endpoint $t_1$;
+  The final value of of \id{t}, denoted \id{tfinal}, is then
+  the maximmum allowable value for the endpoint $t_1$;
 
 \item \label{i:back_start}
   Set problem dimensions for the backward problem:
@@ -99,9 +99,8 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 
 \item
   Call \Id{CVodeMallocB}, a wrapper around the \id{CVodeMalloc}, to 
-  allocate internal memory and initialize {\cvodes} for the backward problem
-  (see \S\ref{sss:cvodemallocb});
-
+  allocate internal memory and initialize {\cvodes} at \id{tB0} for 
+  the backward problem (see \S\ref{sss:cvodemallocb});
 
 \item \label{i:lin_solverB}
   If Newton iteration is chosen, initialize the linear solver module 
@@ -114,8 +113,8 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 
 \item \label{i:back_end}
   Call \Id{CVodeB}, a second wrapper around the {\cvodes} main integration
-  routine \id{CVode}, to integrate the backward problem from \id{tlast}
-  to \id{t0}, returning the solution of the backward problem at \id{t0} into
+  routine \id{CVode}, to integrate the backward problem from \id{tB0}, 
+  returning the solution of the backward problem at \id{t0} into
   \id{yB} (see \S\ref{sss:cvodeb});
 
 \item
@@ -199,24 +198,30 @@ a snapshot of the {\cvodes} internal memory block and contains enough informatio
 to restart the integration from that time and proceed with the same stepsize and
 method order sequence as during the forward integration.
 
+In addition, \id{CVodeF} also stores interpolation data between consecutive check points
+so that, at the end of this first forward integration phase, information for the Hermite 
+interpolation is already available from the last check point to \id{tfial}. In particular,
+if no check points were necessary there is no need for the second forward integration phase.
+
 \subsubsection{Backward Problem Initialization Routine}\label{sss:cvodemallocb}
 
 The routine \ID{CVodeMallocB} initializes and allocates memory for the backward
 problem. It has the following form
 \begin{verbatim}
-ier = CVodeMallocB(cvadj_mem, NB, fB, yB0, lmmB, iterB, itolB, &rtolB, 
+ier = CVodeMallocB(cvadj_mem, NB, fB, tB0, yB0, lmmB, iterB, itolB, &rtolB, 
                    atolB, f_dataB, errfpB, optInB, ioptB, roptB, machEnvB);
 \end{verbatim}
 and is essentially a call to \id{CVodeMalloc} with some particularization for 
 backward integration. First, \id{CVodeMallocB} takes as an argument 
 \id{cvadj\_mem}, the memory pointer returned by \id{CVadjMalloc}.
-Secondly, no integration starting time is required, as the backward integration 
-starts with the \id{tlast} value from the last \id{CVodeF} call. Finally, the 
-argument \id{fB}, the {\C} function to compute the right hand side of the 
-backward problem, must be of type \id{RhsFnB} and
+Secondly, the argument \id{fB}, the {\C} function to compute the right hand side 
+of the backward problem, must be of type \id{RhsFnB} and
 has the form \id{fB(NB, t, y, yB, yBdot, f\_dataB)} 
 (see \S\ref{ss:user_fct_adj} for details). 
-All other arguments are equivalent to those of \id{CVodeMalloc}.
+All other arguments are equivalent to those of \id{CVodeMalloc}. The argument
+\id{tB0} specifies the end point $t_1$ where final conditions are provided for
+the backward problem. If \id{tB0} is not in the interval $[$\id{t0},\id{tfinal}$]$
+an error message is printed and \id{CVodeMallocB} returns \id{CVBM\_BAD\_TB0}.
 The relative and absolute tolerances \id{rtolB} and \id{atolB} for \id{yB} need
 to be set appropriately; this may require some experimentation. Data that could
 help in the selection of appropriate tolerances includes the time scale of the
@@ -226,8 +231,9 @@ the backward integration phase, and (if an adjoint problem is integrated
 backwards in time) the value of the gradient $g_y$ at time $t_1$.
 
 The return value of \id{CVodeMallocB} is \Id{SUCCESS} if there were no errors,
-\Id{CVBM\_NO\_MEM} if \id{cvadj\_mem} was \id{NULL}, or \id{CVBM\_MEM\_FAIL}
-if a memory request failed.
+\Id{CVBM\_NO\_MEM} if \id{cvadj\_mem} was \id{NULL}, \Id{CVBM\_MEM\_FAIL}
+if a memory request failed, \Id{CVBM\_BAD\_TB0} if \id{tB0} had an illegal value,
+or any other error return value from \id{CVodeMalloc} (see \S\ref{sss:cvodemalloc}).
 
 \subsubsection{Linear Solver Initialization Routines for Backward Problem}\label{sss:lin_solv_b}
 
@@ -365,6 +371,37 @@ CVadjFree(cvadj_mem);
 and it frees check-point-related memory, as well as the {\cvodes} memory block
 allocated for the integration of the backward problem. There is no return 
 value for \id{CVadjFree}.
+
+\subsubsection{Backward Problem Reinitialization Routine}\label{sss:cvreinitb}
+\index{reinitialization}
+
+For the case when it is needed to solve several different backward problems 
+corresponding to the same original problem, {\cvodes} provides a mechanism 
+to reuse the existing check points. The function \ID{CVReInitB} reinitializes
+the {\cvodes} memory block for the backward problem, where a prior call to
+\Id{CVodeMallocB} has been made with the same problem size \id{NB}.
+\id{CVReInitB} performs the same input checking and initializations that 
+\id{CVodeMallocB} does (except for \id{NB}), but does no memory allocation, 
+assuming that the existing internal memory is sufficient for the new problem. 
+Note that \id{CVReInitB} is essentially a wrapper around \id{CVReInit}
+and hence all details given for \id{CVReInit} in \S\ref{sss:cvreinit}
+apply.
+
+The call to the \id{CVReInitB} function has the form
+\begin{verbatim}
+ier = CVReInitB(cvadj_mem, fB, tB0, yB0, lmmB, iterB, itolB, &rtolB, 
+                atolB, f_dataB, errfpB, optInB, ioptB, roptB, machEnvB);
+\end{verbatim}
+All its arguments  have names and meanings identical to those of \id{CVodeMallocB}.
+Note that the backward problem size \id{NB} is not passed as an argument to 
+\id{CVReInitB}, as that is assumed to be unchanged since the \id{CVodeMallocB} call.
+
+The return value \id{ier} of \id{CVReInitB} is  
+\id{SUCCESS}=0 if there were no errors,
+\id{CVBM\_NO\_MEM} if \id{cvadj\_mem} was NULL,
+\id{CVBM\_BAD\_TB0} if \id{tB0} has an illegal value,
+or any other error return value from \id{CVReInit} (see \S\ref{sss:cvreinit}).
+In case of an error return, an error message is also printed.  
 
 \subsubsection{Check Point Listing Routine}
 

@@ -3,7 +3,7 @@
  *                                                                      *
  * File       : cvadx.c                                                 *
  * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 22 March 2002                                           *
+ * Version of : 27 June 2002                                            *
  *----------------------------------------------------------------------*
  * Adjoint sensitivity example problem.                                 *
  * The following is a simple example problem, with the coding           *
@@ -73,7 +73,10 @@
 #define T0       0.0          /* initial time                         */
 #define TOUT     4e7          /* final time                           */
 
-#define STEPS   150          /* number of steps between check points */
+#define TB1      4e7          /* starting point for adjoint problem   */
+#define TB2      50.0         /* starting point for adjoint problem   */
+
+#define STEPS    150          /* number of steps between check points */
 
 #define NP       3            /* number of problem parameters         */
 
@@ -122,8 +125,18 @@ int main(int argc, char *argv[])
   realtype time;
   int flag, ncheck;
 
+  /* Print problem description */
+  printf("\n\n Adjoint Sensitivity Example for Chemical Kinetics\n");
+  printf(" -------------------------------------------------\n\n");
+  printf("ODE: dy1/dt = -p1*y1 + p2*y2*y3\n");
+  printf("     dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2\n");
+  printf("     dy3/dt =  p3*(y2)^2\n\n");
+  printf("Find dG/dp for\n");
+  printf("     G = int_t0^tB0 g(t,p,y) dt\n");
+  printf("     g(t,p,y) = y1 + p2 * y2 * y3\n\n\n");
 
-  /* USER DATA STRUCTURE */
+
+  /* User data structure */
   data = (UserData) malloc(sizeof *data);
   data->p[0] = 0.04;
   data->p[1] = 1.0e4;
@@ -147,26 +160,24 @@ int main(int argc, char *argv[])
   Ith(abstol,3) = ATOL3;
 
   /* Allocate CVODE memory for forward run */
-  printf("\nAllocate CVODE memory for forward runs\n");
+  printf("Allocate CVODE memory for forward runs\n");
   cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
                           data, NULL, FALSE, NULL, NULL, machEnvF);
   flag = CVDense(cvode_mem, Jac, NULL);
   if (flag != SUCCESS) { printf("CVDense failed.\n"); return(1); }
 
   /* Allocate global memory */
-  printf("\nAllocate global memory\n");
+  printf("Allocate global memory\n");
   cvadj_mem = CVadjMalloc(cvode_mem, STEPS);
   if (cvadj_mem == NULL) { printf("CVadjMalloc failed.\n"); return(1); }
 
   /* Perform forward run */
-  printf("\nForward integration\n");
+  printf("Forward integration ... ");
   
   flag = CVodeF(cvadj_mem, TOUT, y, &time, NORMAL, &ncheck);
   if (flag != SUCCESS) { printf("CVodeF failed.\n"); return(1); }
 
-  /* Test check point linked list */
-  printf("\nList of Check Points (ncheck = %d)\n", ncheck);
-  CVadjCheckPointsList(cvadj_mem);
+  printf("ncheck = %d\n", ncheck);
 
   /* Initialize serial machine environment for backward run */ 
   machEnvB = M_EnvInit_Serial(NEQ+NP+1);
@@ -194,8 +205,8 @@ int main(int argc, char *argv[])
   Ith(abstolB,7) = ATOLq;
 
   /* Allocate CVODE memory for backward run */
-  printf("\nAllocate CVODE memory for backward run\n");
-  flag = CVodeMallocB(cvadj_mem, NEQ+NP+1, fB, yB, BDF, NEWTON, SV, 
+  printf("Allocate CVODE memory for backward run\n");
+  flag = CVodeMallocB(cvadj_mem, NEQ+NP+1, fB, TB1, yB, BDF, NEWTON, SV, 
                       &reltolB, abstolB, data, NULL, 
                       FALSE, NULL, NULL, machEnvB);
   if (flag != SUCCESS) { printf("CVodeMallocB failed.\n"); return(1); }
@@ -204,20 +215,54 @@ int main(int argc, char *argv[])
   if (flag != SUCCESS) { printf("CVDenseB failed.\n"); return(1); }
 
   /* Backward Integration */
+  printf("Integrate backwards from tB0 = %12.4e\n", TB1);
   flag = CVodeB(cvadj_mem, yB);
   if (flag < 0) { printf("CVodeB failed.\n"); return(1); }
 
-  printf("\n\n========================================================\n");
+  printf("\n========================================================\n");
+  printf("tB0:        %12.4e \n",TB1);
+  printf("========================================================\n");
   printf("G:          %12.4e \n",-Ith(yB,7));
   printf("Gp:         %12.4e %12.4e %12.4e\n", 
          -Ith(yB,4), -Ith(yB,5), -Ith(yB,6));
   printf("========================================================\n");
   printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
+  printf("========================================================\n\n");
+
+  /* Reinitialize backward phase (new tB0) */
+  Ith(yB,1) = 0.0;
+  Ith(yB,2) = 0.0;
+  Ith(yB,3) = 0.0;
+  Ith(yB,4) = 0.0;
+  Ith(yB,5) = 0.0;
+  Ith(yB,6) = 0.0;
+  Ith(yB,7) = 0.0;
+
+  printf("Re-initialize CVODE memory for backward run\n");
+  flag = CVReInitB(cvadj_mem, fB, TB2, yB, BDF, NEWTON, SV, 
+                   &reltolB, abstolB, data, NULL, 
+                   FALSE, NULL, NULL, machEnvB);
+  if (flag != SUCCESS) { printf("CVReInitB failed.\n"); return(1); }
+
+  /* Backward Integration */
+  printf("Integrate backwards from tB0 = %12.4e\n", TB2);
+  flag = CVodeB(cvadj_mem, yB);
+  if (flag < 0) { printf("CVodeB failed.\n"); return(1); }
+
+  printf("\n========================================================\n");
+  printf("tB0:        %12.4e \n",TB2);
   printf("========================================================\n");
+  printf("G:          %12.4e \n",-Ith(yB,7));
+  printf("Gp:         %12.4e %12.4e %12.4e\n", 
+         -Ith(yB,4), -Ith(yB,5), -Ith(yB,6));
+  printf("========================================================\n");
+  printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
+         Ith(yB,1), Ith(yB,2), Ith(yB,3));
+  printf("========================================================\n\n");
 
   /* Free memory */
-  printf("\nFree memory\n");
+  printf("Free memory\n\n");
   CVodeFree(cvode_mem);
   CVadjFree(cvadj_mem);
   N_VFree(y);
