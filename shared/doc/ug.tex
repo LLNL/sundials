@@ -139,42 +139,52 @@
 
 \newcommand{\ugref}[1]{\S\ref{#1}}
 
+\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
+
 %%--------------------------------
 \newcommand{\frontug}
 {
-  \maketitle
 
-  %% Leave an empty page
-  \newpage\thispagestyle{empty}
-  \vspace*{1.0in}
-  
   %% Start roman numbering
-  \pagestyle{plain}\pagenumbering{roman}
-  \tableofcontents
-  \listoftables
-  \listoffigures
+  \pagenumbering{roman}
   
-  %% Move to new page and start arabic numbering
-  \newpage\pagestyle{plain}\pagenumbering{arabic}
+  %% Title page
+  \maketitle
+  \clearemptydoublepage  
 
-  \pagestyle{fancyplain}
-  %%\addtolength{\headwidth}{\marginparsep}
-  %%\addtolength{\headwidth}{\marginparwidth}
+  %% Contents, tables, and figures
+  \tableofcontents
+  \clearemptydoublepage
+  \listoftables
+  \clearemptydoublepage
+  \listoffigures
+  \clearemptydoublepage
+  
+  %% Start arabic numbering
+  \pagenumbering{arabic}
+
+  %% Define page style for the body of the document
   \lhead[\fancyplain{}{\bfseries\thepage}]%
         {\fancyplain{}{\bfseries\rightmark}}
   \rhead[\fancyplain{}{\bfseries\leftmark}]%
         {\fancyplain{}{\bfseries\thepage}}
   \cfoot{}
+  \pagestyle{fancyplain}
+
 }
 
 %%--------------------------------
 \newcommand{\frontex}
 {
-  \maketitle\thispagestyle{empty}
+
+  \pagestyle{empty}
+  \maketitle
+  \tableofcontents
 
   %% Start arabic numbering
-  \newpage\pagestyle{plain}\pagenumbering{arabic}
-  \tableofcontents
+  %%  \clearemptydoublepage
+  \clearpage
+  \pagestyle{plain}\pagenumbering{arabic}
 }
 
 %%----------------------------------
