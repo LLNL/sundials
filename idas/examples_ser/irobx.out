@@ -28,5 +28,6 @@ Final Run Statistics:
 Number of steps                    = 407
 Number of residual evaluations     = 557
 Number of Jacobian evaluations     = 65
+Number of nonlinear iterations     = 557
 Number of error test failures      = 6
 Number of nonlinear conv. failures = 0
