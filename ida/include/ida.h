@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : ida.h                                          *
- * Programmers   : Allan G. Taylor and Alan C. Hindmarsh @ LLNL   *
- * Version of    : 9 January 2001                                 *
+ * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 5 MArch 2002                                   *
  *----------------------------------------------------------------*
  * This is the header (include) file for the main IDA solver.     *
  *                                                                *
@@ -260,9 +261,9 @@ enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
  ******************************************************************/
 
 void *IDAMalloc(integer Neq, ResFn res, void *rdata, real t0,
-      N_Vector y0, N_Vector yp0, int itol, real *rtol, void *atol, 
-      N_Vector id, N_Vector constraints, FILE *errfp, boole optIn, 
-      long int iopt[], real ropt[], void *machEnv);
+                N_Vector y0, N_Vector yp0, int itol, real *rtol, void *atol, 
+                N_Vector id, N_Vector constraints, FILE *errfp, boole optIn, 
+                long int iopt[], real ropt[], M_Env machEnv);
 
  
 /******************************************************************
@@ -608,7 +609,7 @@ void *IDAMalloc(integer Neq, ResFn res, void *rdata, real t0,
 
 
 int IDASolve(void *ida_mem, real tout, real tstop, real *tret,
-        N_Vector yret, N_Vector ypret, int itask);
+             N_Vector yret, N_Vector ypret, int itask);
 
 
 
@@ -800,7 +801,7 @@ typedef struct IDAMemRec {
 
   /* Pointer to Machine Environment-Specific Information   */
 
-  void *ida_machenv;
+  M_Env ida_machenv;
 
 } *IDAMem;
 

@@ -1,7 +1,8 @@
 /******************************************************************
  * File          : ida.c                                          *
- * Programmers   : Allan G. Taylor and Alan C. Hindmarsh @ LLNL   *
- * Version of    : 15 October 2001                                *
+ * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 5 MArch 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the main IDA solver.       *
  * It is independent of the linear solver in use.                 *
@@ -393,7 +394,7 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
 
-static boole IDAAllocVectors(IDAMem IDA_mem, integer Neq,  void *machEnv);
+static boole IDAAllocVectors(IDAMem IDA_mem, integer Neq,  M_Env machEnv);
 static void IDAFreeVectors(IDAMem IDA_mem);
 
 static int IDAnlsIC (IDAMem IDA_mem);
@@ -410,9 +411,9 @@ static boole IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur);
 static boole IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur);
 
 static int IDAStopTest1(IDAMem IDA_mem, real tout, real tstop, real *tret, 
-             N_Vector yret, N_Vector ypret, int itask);
+                        N_Vector yret, N_Vector ypret, int itask);
 static int IDAStopTest2(IDAMem IDA_mem, real tout, real tstop, real *tret, 
-             N_Vector yret, N_Vector ypret, int itask);
+                        N_Vector yret, N_Vector ypret, int itask);
 static int IDAInterp(IDAMem IDA_mem, real t, N_Vector yret, N_Vector ypret);
 static int IDAHandleFailure(IDAMem IDA_mem, int sflag);
 
@@ -422,11 +423,11 @@ static int IDAnls(IDAMem IDA_mem);
 static int IDAPredict(IDAMem IDA_mem);
 static int IDANewtonIter(IDAMem IDA_mem);
 static int IDATestError(IDAMem IDA_mem, real *ck, real *est,
-                         real *terk, real *terkm1, real *erkm1);
+                        real *terk, real *terkm1, real *erkm1);
 static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, real saved_t,
-                           int *ncfPtr, int *nefPtr, real *est);
+                          int *ncfPtr, int *nefPtr, real *est);
 static int IDACompleteStep(IDAMem IDA_mem, real *est, 
-                         real *terk, real *terkm1, real *erkm1);
+                           real *terk, real *terkm1, real *erkm1);
 
 
 /**************************************************************/
@@ -525,7 +526,7 @@ static int IDACompleteStep(IDAMem IDA_mem, real *est,
 void *IDAMalloc(integer Neq, ResFn res, void *rdata, real t0,
       N_Vector y0, N_Vector yp0, int itol, real *rtol, void *atol, 
       N_Vector id, N_Vector constraints, FILE *errfp, boole optIn, 
-      long int iopt[], real ropt[], void *machEnv)
+      long int iopt[], real ropt[], M_Env machEnv)
 {
   boole allocOK, ioptExists, roptExists, neg_atol, ewtsetOK, conOK;
   real temptest;
@@ -789,7 +790,7 @@ int IDACalcIC (void *ida_mem, int icopt, real tout1, real epicfac,
                int maxnh, int maxnj, int maxnit, int lsoff, real steptol)
 {
   boole ewtsetOK;
-  int nwt, nh, retval, maxnh1, mxnh, icret;
+  int nwt, nh, retval = SUCCESS, maxnh1 = MAXNH, mxnh, icret;
   real tdist, troundoff, minid, hic, ypnorm;
   IDAMem IDA_mem;
 
@@ -1253,7 +1254,7 @@ void IDAFree(void *ida_mem)
 
 **********************************************************************/
 
-static boole IDAAllocVectors(IDAMem IDA_mem, integer Neq, void *machEnv)
+static boole IDAAllocVectors(IDAMem IDA_mem, integer Neq, M_Env machEnv)
 {
   int i, j, maxcol;
 
@@ -1761,15 +1762,20 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval)
 
 static boole IDAEwtSet(IDAMem IDA_mem, N_Vector ycur)
 {
-  boole ewtsetOK;
+  boole ewtsetOK = TRUE;
 
   switch(itol) {
-  case SS: {ewtsetOK = IDAEwtSetSS(IDA_mem, ycur); break;}
-  case SV: {ewtsetOK = IDAEwtSetSV(IDA_mem, ycur); break;}
+  case SS: 
+    ewtsetOK = IDAEwtSetSS(IDA_mem, ycur); 
+    break;
+  case SV: 
+    ewtsetOK = IDAEwtSetSV(IDA_mem, ycur); 
+    break;
   }
   if(!ewtsetOK) return(FALSE);
   if(suppressalg) {
-    N_VOneMask(mskewt);  /* Note: mskewt is identical to id, so the vector id
+    N_VOneMask(mskewt);  
+    /* Note: mskewt is identical to id, so the vector id
        of the next line is what was just processed by N_VOneMask. It is called
        id below to emphasize that it now has been restored to its original
        settings (1.0 or 0.0) as received (id) in preparation to recreating 
@@ -1799,11 +1805,15 @@ static boole IDAEwtSet(IDAMem IDA_mem, N_Vector ycur)
 
 static boole IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur)
 {
-  boole ewtsetOK;
+  boole ewtsetOK = TRUE;
 
   switch(itol) {
-  case SS: {ewtsetOK = IDAEwtSetSS(IDA_mem, ycur); break;}
-  case SV: {ewtsetOK = IDAEwtSetSV(IDA_mem, ycur); break;}
+  case SS: 
+    ewtsetOK = IDAEwtSetSS(IDA_mem, ycur); 
+    break;
+  case SV: 
+    ewtsetOK = IDAEwtSetSV(IDA_mem, ycur); 
+    break;
   }
   return(ewtsetOK);
 }
