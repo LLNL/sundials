@@ -1,4 +1,5 @@
-\documentclass[11pt]{article}
+\documentclass[twoside,titlepage,11pt]{article}
+%%\documentclass[titlepage,11pt]{article}
 
 \input{ug.tex}
 
@@ -27,10 +28,10 @@
 \begin{document}
 
 %Create the LLNL Cover Page
-\makeLLNLCover{\kinucrl}%                             UCRL number
-{Example Programs for \\ KINSOL {\kinrelease}}%       Title on cover page
-{Aaron M. Collier and Radu Serban}%                   Authors
-{\kindate}%                                           Date
+\makeLLNLCover{\kinucrl}%                         UCRL number
+{Example Programs for \\ KINSOL {\kinrelease}}%   Title on cover page
+{Aaron M. Collier and Radu Serban}%               Authors
+{\kindate}%                                       Date
 {0in}{0in}
 
 \frontex
@@ -48,6 +49,7 @@
 \appendix
 \include{kin_ex_codes}
 %===============================================================
+\clearemptydoublepage
 \makeLLNLBackCover
 %===============================================================
 \end{document}
