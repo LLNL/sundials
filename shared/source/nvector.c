@@ -65,7 +65,7 @@ void N_VFree_S(int ns, N_Vector_S vs)
   free(vs);
 }
 
-N_Vector N_VMake(realtype *v_data, NV_Spec nvSpec)
+N_Vector N_VMake(void *v_data, NV_Spec nvSpec)
 {
   N_Vector v_new;
   v_new = nvSpec->ops->nvmake(v_data, nvSpec);
@@ -77,14 +77,14 @@ void N_VDispose(N_Vector v)
   v->nvspec->ops->nvdispose(v);
 }
 
-realtype *N_VGetData(N_Vector v)
+void *N_VGetData(N_Vector v)
 {
-  realtype *data;
+  void *data;
   data = v->nvspec->ops->nvgetdata(v);
   return(data);
 }
 
-void N_VSetData(realtype *v_data, N_Vector v)
+void N_VSetData(void *v_data, N_Vector v)
 {
   v->nvspec->ops->nvsetdata(v_data, v);
 }

@@ -74,10 +74,10 @@ struct _generic_N_Vector_Ops {
   N_Vector    (*nvnew)(NV_Spec);
   void        (*nvfree)(N_Vector);
   void        (*nvspace)(NV_Spec, long int *, long int *);
-  N_Vector    (*nvmake)(realtype *, NV_Spec);
+  N_Vector    (*nvmake)(void *, NV_Spec);
   void        (*nvdispose)(N_Vector);
-  realtype*   (*nvgetdata)(N_Vector);
-  void        (*nvsetdata)(realtype *, N_Vector);
+  void*       (*nvgetdata)(N_Vector);
+  void        (*nvsetdata)(void *, N_Vector);
   void        (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector); 
   void        (*nvconst)(realtype, N_Vector);
   void        (*nvprod)(N_Vector, N_Vector, N_Vector);
@@ -184,7 +184,7 @@ void N_VFree_S(int ns, N_Vector_S vs);
  * the user.                                                    *
  *--------------------------------------------------------------*/
 
-N_Vector N_VMake(realtype *v_data, NV_Spec nvSpec);
+N_Vector N_VMake(void *v_data, NV_Spec nvSpec);
 
 /*--------------------------------------------------------------*
  * Function : N_VDispose                                        *
@@ -209,7 +209,7 @@ void N_VDispose(N_Vector v);
  *       used.                                                  *
  *--------------------------------------------------------------*/
 
-realtype *N_VGetData(N_Vector v);
+void *N_VGetData(N_Vector v);
 
 /*--------------------------------------------------------------*
  * Function : N_VSetData                                        *
@@ -224,7 +224,7 @@ realtype *N_VGetData(N_Vector v);
  *       used.                                                  *
  *--------------------------------------------------------------*/
 
-void N_VSetData(realtype *v_data, N_Vector v);
+void N_VSetData(void *v_data, N_Vector v);
 
 /*--------------------------------------------------------------*
  * Function  : N_VLinearSum                                     *
