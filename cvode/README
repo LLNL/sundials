@@ -71,26 +71,34 @@ D.1.  Revision History since release 2.2.1 (January 2005)
 
 - Bug fixes
    - fixed bug in CVode function:  Initial setting of tretlast = *tret = tn removed
-  (correcting erroneous behavior at first call to CVRcheck3).
-  - Removed redundant setting of tretlast = *tret = tn at CLOSE_ROOTS return from CVode.
+     (correcting erroneous behavior at first call to CVRcheck3).
+   - removed redundant setting of tretlast = *tret = tn at CLOSE_ROOTS return from CVode
+   - modified FCMIX files to avoid C++ compiler errors
+   - changed implicit type conversion to explicit in check_flag() routine in
+     examples to avoid C++ compiler errors
 
 - Changes to documentation
    - added section with numerical values of all input and output solver constants
    - added more detailed notes on the type of absolute tolerances
    - added more details on ownership of memory for the array returned by CVodeGetRootInfo 
-   - corrected/added descriptions of error returns.
+   - corrected/added descriptions of error returns
+   - added description of --with-mpi-flags option
 
 - Changes related to the build system
    - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
    - modified to use customized detection of the Fortran name mangling scheme 
      (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
+   - added --with-mpi-flags as a configure option to allow user to specify
+     MPI-specific flags
+   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
+     CC and MPICC to link)
 
 D.2. Revision History since release 2.2.0 (December 2004)
 ---------------------------------------------------------
 
 - Changes related to the build system
    - changed order of compiler directives in header files to avoid compilation
-     errors when using a C++ compiler.
+     errors when using a C++ compiler
 
 D.3. Revision History since release 2.0 (August 2002)
 -----------------------------------------------------

@@ -77,15 +77,24 @@ C. References
 D.1.  Revision History since release 2.2.1 (January 2005)
 ---------------------------------------------------------
 
+- Bug fixes
+   - changed implicit type conversion to explicit in check_flag() routine in
+     examples to avoid C++ compiler errors
+
 - Changes to documentation
    - added section with numerical values of all input and output solver constants
    - added more detailed notes on the type of absolute tolerances
    - fixed several typos and removed reference to inexistent function IDASetMinStep 
+   - added description of --with-mpi-flags option
 
 - Changes related to the build system
    - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
    - modified to use customized detection of the Fortran name mangling scheme 
      (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
+   - added --with-mpi-flags as a configure option to allow user to specify
+     MPI-specific flags
+   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
+     CC and MPICC to link)
 
 D.2. Revision History since release 2.2.0 (December 2004)
 ---------------------------------------------------------
