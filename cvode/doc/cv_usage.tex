@@ -1052,8 +1052,8 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
 }
 {
   By default, {\cvode} estimates the initial stepsize as the solution $h$ 
-  of $\| 0.5 h^2 \ddot y \|_{\mbox{\scriptsize WRMS}} = 1$,
-  where $\ddot y$ is an estimated second derivative of the solution at the
+  of $\| 0.5 h^2 y^{\prime\prime} \|_{\mbox{\scriptsize WRMS}} = 1$,
+  where $y^{\prime\prime}$ is an estimated second derivative of the solution at the
   initial time.
 }
 %%
