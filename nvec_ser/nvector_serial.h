@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-07-22 21:10:21 $
+ * $Revision: 1.11 $
+ * $Date: 2004-07-22 22:21:22 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -168,15 +168,6 @@ N_Vector N_VNewEmpty_Serial(long int vec_length);
 N_Vector N_VMake_Serial(long int vec_length, realtype *v_data);
 
 /*
- * N_VCloneEmpty_Serial
- *
- * This function creates a new serial vector of the same type as an 
- * existing vector but with an empty (NULL) data array.
- */
-
-N_Vector N_VCloneEmpty_Serial(N_Vector w);
-
-/*
  * N_VNewVectorArray_Serial
  *
  * This function creates an array of 'count' serial vectors.
@@ -185,15 +176,6 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w);
  */
 
 N_Vector *N_VNewVectorArray_Serial(int count, long int vec_length);
-
-/*
- * N_VDestroyEmpty_Serial
- *
- * This function frees an N_Vector created with N_VNewEmpty_Serial
- * or N_VCloneEmpty_Serial.
- */
-
-void N_VDestroyEmpty_Serial(N_Vector v);
 
 /*
  * N_VDispose_Serial
@@ -220,6 +202,8 @@ void N_VPrint_Serial(N_Vector v);
 
 N_Vector N_VClone_Serial(N_Vector w);
 void N_VDestroy_Serial(N_Vector v);
+N_Vector N_VCloneEmpty_Serial(N_Vector w);
+void N_VDestroyEmpty_Serial(N_Vector v);
 void N_VSpace_Serial(N_Vector v, long int *lrw, long int *liw);
 realtype *N_VGetArrayPointer_Serial(N_Vector v);
 void N_VSetArrayPointer_Serial(realtype *v_data, N_Vector v);

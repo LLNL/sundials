@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-07-22 21:10:21 $
+ * $Revision: 1.10 $
+ * $Date: 2004-07-22 22:21:22 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -74,6 +74,8 @@ N_Vector N_VNewEmpty_Serial(long int length)
 
   ops->nvclone           = N_VClone_Serial;
   ops->nvdestroy         = N_VDestroy_Serial;
+  ops->nvcloneempty      = N_VCloneEmpty_Serial;
+  ops->nvdestroyempty    = N_VDestroyEmpty_Serial;
   ops->nvspace           = N_VSpace_Serial;
   ops->nvgetarraypointer = N_VGetArrayPointer_Serial;
   ops->nvsetarraypointer = N_VSetArrayPointer_Serial;
@@ -170,16 +172,6 @@ N_Vector *N_VNewVectorArray_Serial(int count, long int length)
   return(vs);
 }
 
-/* Function to free an N_Vector created with N_VNewEmpty_Serial
-   N_VCloneEmpty_Serial */
-
-void N_VDestroyEmpty_Serial(N_Vector v)
-{
-  free(v->content);
-  free(v->ops);
-  free(v);
-}
-
 /* Function to free an N_Vector created with N_VMake_Serial */
 
 void N_VDispose_Serial(N_Vector v)
@@ -227,6 +219,8 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
   
   ops->nvclone           = w->ops->nvclone;
   ops->nvdestroy         = w->ops->nvdestroy;
+  ops->nvcloneempty      = w->ops->nvcloneempty;
+  ops->nvdestroyempty    = w->ops->nvdestroyempty;
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
@@ -283,6 +277,13 @@ N_Vector N_VClone_Serial(N_Vector w)
   NV_DATA_S(v) = data;
 
   return(v);
+}
+
+void N_VDestroyEmpty_Serial(N_Vector v)
+{
+  free(v->content);
+  free(v->ops);
+  free(v);
 }
 
 void N_VDestroy_Serial(N_Vector v)
