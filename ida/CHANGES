@@ -1,0 +1,31 @@
+idadense.h idadense.c
+  - added dimension neq to IDADense (stored in the ls memory struct)
+  - removed Neq from call to res
+  - simplified Jacobian routine argument list
+
+idaband.h idaband.c
+  - added dimension neq to IDABand (stored in the ls memory struct)
+  - removed Neq from call to res
+  - simplified Jacobian routine argument list
+
+idaspgmr.h idaspgmr.c
+  - removed Neq from definitions of IDASpgmrPrecondFn, IDASpgmrPSolveFn, IDASpgmrJtimesFn
+  - removed Neq from calls to N_VNew and res
+  - compute sqrtN from a dot product now (done in IDASpgmr)
+  - work space requirements now use lrw1 and liw1
+
+idabbdpre.h idabbdpre.c
+  - removed Neq from definitions of IDABBDPrecond and IDABBDPSolve
+  - removed Neq from call to N_VNew
+
+ida.h ida.c
+  - removed Neq from definition of ResFn
+  - removed Neq from ida_mem      
+  - removed Neq from definition of IDAMalloc 
+  - removed Neq from all calls to res and N_VNew
+  - work space requirements now use N_VSpace to get lrw1 and liw1
+  - added IDAGetEwt accessor routine
+
+examples_ser examples_par
+  - updated to reflect changes to IDA
+  - output generated on Linux
