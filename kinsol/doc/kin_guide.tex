@@ -5,9 +5,9 @@
 \input{ug.tex}
 %===============================================================
 
-\newcommand{\kinucrl}{123456}
-\newcommand{\kindate}{November 2003}
-\newcommand{\kinrelease}{v2.1}
+\newcommand{\kinucrl}{000000}
+\newcommand{\kindate}{November 2004}
+\newcommand{\kinrelease}{v2.2.0}
 
 \title{User Documentation for \kinsol, \\ 
 An Inexact Newton-Krylov Nonlinear Solver  \\
@@ -37,9 +37,13 @@ An Inexact Newton-Krylov Nonlinear Solver  \\
 \frontug
 \renewcommand{\chaptermark}[1]{\markboth{#1}{}}
 \renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+
 %===============================================================
 % Introduction
 \include{kin_intro}
+%===============================================================
+% SUNDIALS installation procedure
+\include{kin_install}
 %===============================================================
 % Mathematical Considerations
 \include{kin_math}
@@ -49,9 +53,6 @@ An Inexact Newton-Krylov Nonlinear Solver  \\
 %===============================================================
 % Using KINSOL for NLP Solution
 \include{kin_use}
-%===============================================================
-% Types realtype and integertype
-\include{kin_types}
 %===============================================================
 % Description of the NVECTOR Concept
 \include{kin_nvec}

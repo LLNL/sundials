@@ -1,5 +1,5 @@
 %===================================================================================
-\chapter{Using {\cvodes} for IVP Solution}\label{s:simulation}
+\chapter{Using {\cvodes} for IVP Solution}\label{c:simulation}
 %===================================================================================
 
 This section is concerned with the use of {\cvodes} for the integration of IVPs.
@@ -19,7 +19,7 @@ The following {\cvodes} modules can only be used with {\nvecs}:
 can only be used with {\nvecp}. 
 
 %------------------------
-\section{Header Files}\label{ss:header_sim}
+\section{Header Files}\label{s:header_sim}
 %------------------------
 
 The calling program must include several header files so that various macros
@@ -80,7 +80,7 @@ is done with a block-diagonal matrix. For this, the header
 
 
 %-------------------------------------------------
-\section{A Skeleton of the User's Main Program}\label{ss:skeleton_sim}
+\section{A Skeleton of the User's Main Program}\label{s:skeleton_sim}
 %-------------------------------------------------
 
 A high-level view of the combined user program and {\cvodes} package is
@@ -226,7 +226,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 
 %-------------------------------------------------------
 \section{User-Callable Routines for IVP Solution}
-\label{ss:cvodes_fct_sim}
+\label{s:cvodes_fct_sim}
 %-------------------------------------------------------
 
 \subsection{{\cvodes} Initialization Routines}\label{sss:cvodemalloc}
@@ -237,7 +237,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 
 \ucfunction{CVodeCreate}
 {
-cvode\_mem = CVodeCreate(lmm, iter);
+  cvode\_mem = CVodeCreate(lmm, iter);
 }
 {
   Instantiates a {\cvodes} solver object and specifies the solution method.
@@ -269,7 +269,7 @@ cvode\_mem = CVodeCreate(lmm, iter);
 
 \ucfunction{CVodeMalloc}
 {
-flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
+  flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
 }
 {
   Provide required problem specifications, allocate internal memory,
@@ -316,7 +316,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
 }
 {}
 
-\subsection{Linear Solver Specification Routines}\label{sss:lin_solv_init}
+\subsection{Linear Solver Specification Routines}\label{ss:lin_solv_init}
 
 As previously explained, Newton iteration requires the solution of
 linear systems of the form (\ref{e:Newton}).  There are four {\cvodes} linear

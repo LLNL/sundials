@@ -1,12 +1,18 @@
-\documentclass[11pt]{report}
+\documentclass[11pt]{article}
+
+\usepackage{xr}
+\externaldocument{kin_math}
+\externaldocument{kin_use}
+\externaldocument{kin_nvec}
+\externaldocument{kin_linsolv}
 
 \input{ug.tex}
 
-\newcommand{\kinucrl}{123456}
-\newcommand{\kindate}{November 2003}
-\newcommand{\kinrelease}{v2.1}
+\newcommand{\kinucrl}{000000}
+\newcommand{\kindate}{November 2004}
+\newcommand{\kinrelease}{v2.2.0}
 
-\title{Example Programs for \cvodes, \\ 
+\title{Example Programs for {\kinsol}, \\ 
 An Inexact Newton-Krylov Nonlinear Solver  \\
 \kinrelease}
 \author{
@@ -30,12 +36,17 @@ An Inexact Newton-Krylov Nonlinear Solver  \\
 \frontex
 
 %===============================================================
-% Example Problems
-\include{kin_ex}
+\include{kin_ex_intro}
+\include{kin_ex_c}
+\include{kin_ex_fortran}
+%===============================================================
+% References
+\bibliographystyle{plain}
+\bibliography{biblio}
 %===============================================================
 % Start appendices
 \appendix
-\include{cvs_codes}
+\include{kin_ex_codes}
 %===============================================================
 \makeLLNLBackCover
 %===============================================================
