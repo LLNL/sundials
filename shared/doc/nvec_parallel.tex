@@ -2,38 +2,38 @@
 % the parallel nvector implementation
 %
 The {\nvecp} implementation of the {\nvector} module
-defines the {\em content} field of \id{M\_Env} to be a structure 
+defines the {\em content} field of \id{NV\_Spec} to be a structure 
 containing the local and global lengths of the vector, a pointer to the MPI\index{MPI}
 communicator, and a flag showing if the user called \id{MPI\_Init}:
 \begin{verbatim}
-struct _M_EnvParallelContent {
-    MPI_Comm    comm;
-    integertype local_vec_length;
-    integertype global_vec_length;
-    int         init_by_user;
+struct _NV_SpecContent_Parallel {
+  MPI_Comm comm;
+  integertype local_vec_length;
+  integertype global_vec_length;
+  int init_by_user;
 };
 \end{verbatim}
-The {\em tag} field of \id{M\_Env} is set to \id{parallel}.
+The {\em tag} field of \id{NV\_Spec} is set to \id{parallel}.
 The content field of \id{N\_Vector} is defined to be a structure containing
 the global and local lengths of the vector and a pointer to the beginning 
 of a contiguous local data array:
 \begin{verbatim} 
-struct _N_VectorParallelContent {
-    integertype local_length;
-    integertype global_length;
-    realtype    *data;
+struct _N_VectorContent_Parallel {
+  integertype local_length;
+  integertype global_length;
+  realtype   *data;
 };
 \end{verbatim}
 
-The {\nvecp} implementation provides user-callable routines \ID{M\_EnvInit\_Parallel} 
-to create a structure of type \id{M\_Env} whose {\em content} field is
-of type \id{struct \_M\_EnvParallelContent}, and \ID{M\_EnvFree\_Parallel} 
+The {\nvecp} implementation provides user-callable routines \ID{NV\_SpecInit\_Parallel} 
+to create a structure of type \id{NV\_Spec} whose {\em content} field is
+of type \id{struct \_NV\_SpecParallelContent}, and \ID{NV\_SpecFree\_Parallel} 
 to deallocate the space used by such a structure. 
 
-\noindent The form of the call to \id{M\_EnvInit\_Parallel} is
+\noindent The form of the call to \id{NV\_SpecInit\_Parallel} is
 \begin{verbatim}
-machenv = M_EnvInit_Parallel(comm, local_vec_length, global vec_length,
-                             argc, argv);
+nvspec = NV_SpecInit_Parallel(comm, local_vec_length, global vec_length,
+                              argc, argv);
 \end{verbatim}
 Its arguments are:
 \begin{itemize}
@@ -52,30 +52,30 @@ Its arguments are:
   respectively. Dummy arguments are acceptable if \id{MPI\_Init} has
   already been called.
 \end{itemize}
-If successful, \id{M\_EnvInit\_Parallel} returns a pointer of type
-\id{M\_Env}. This pointer should in turn be passed in any user
+If successful, \id{NV\_SpecInit\_Parallel} returns a pointer of type
+\id{NV\_Spec}. This pointer should in turn be passed in any user
 calls to \id{N\_VNew} to create a new \id{N\_Vector} of this type.
-A machine environemnt variable \id{machenv} returned by \id{M\_EnvInit\_Parallel}
+A vector specification object \id{nvspec} returned by \id{NV\_SpecInit\_Parallel}
 can be freed by calling:
 \begin{verbatim}
-M_EnvFree_Parallel(machenv);
+NV_SpecFree_Parallel(nvspec);
 \end{verbatim}
 In addition to these two routines, {\nvecp} defines MPI\index{MPI} implementations of all 
 vector kernels listed in Table \ref{t:nvecops}, as well as the following macros
-that can be used to access the contents of \id{M\_Env} and \id{N\_Vector}
+that can be used to access the contents of \id{NV\_Spec} and \id{N\_Vector}
 or to create and destroy \id{N\_Vector}'s with component array data allocated
 by the user. The suffix \id{\_P} in the names denotes parallel version.
 
 \begin{itemize}
 
-\item \ID{ME\_CONTENT\_P}, \ID{NV\_CONTENT\_P}
+\item \ID{NS\_CONTENT\_P}, \ID{NV\_CONTENT\_P}
 
       These macros give access to the contents of the parallel
-      machine environment and \id{N\_Vector}, respectively.           
+      vector specification object and \id{N\_Vector}, respectively.           
                                                                
-      The assignment \id{m\_cont = ME\_CONTENT\_P(machenv)} sets       
-      \id{m\_cont} to be a pointer to the parallel machine             
-      environment content structure (of type \id{struct \_M\_EnvParallelContent}).
+      The assignment \id{ns\_cont = NS\_CONTENT\_P(nvspec)} sets       
+      \id{ns\_cont} to be a pointer to the parallel vector
+      specification content structure (of type \id{struct \_NV\_SpecParallelContent}).
 
       The assignment \id{v\_cont = NV\_CONTENT\_P(v)} sets       
       \id{v\_cont} to be a pointer to the \id{N\_Vector} content    
@@ -118,10 +118,10 @@ by the user. The suffix \id{\_P} in the names denotes parallel version.
       destroy an \id{N\_Vector} with a component array vdata        
       allocated by the user.                                   
                                                                
-      The call \id{NV\_MAKE\_P(v,v\_data,machenv)} makes \id{v} an        
+      The call \id{NV\_MAKE\_P(v,v\_data,nvspec)} makes \id{v} an        
       \id{N\_Vector} with local component array \id{v\_data}. 
       The local and global lengths of the  
-      vector \id{v} is taken from \id{machenv}.                             
+      vector \id{v} is taken from \id{nvspec}.                             
       \id{NV\_MAKE\_P} stores the pointer \id{v\_data} so that changes      
       made by the user to the elements of \id{v\_data} are           
       simultaneously reflected in \id{v}. There is no copying of    
@@ -138,10 +138,10 @@ by the user. The suffix \id{\_P} in the names denotes parallel version.
       an array of \id{N\_Vector}'s with component \id{vs\_data} 
       (of type \id{realtype **}) allocated by the user.                                                
                                                                
-      The call \id{NVS\_MAKE\_P(vs,vs\_data,ns,machenv)} makes   
+      The call \id{NVS\_MAKE\_P(vs,vs\_data,ns,nvspec)} makes   
       \id{vs} an array of \id{ns} \id{N\_Vector}'s, with \id{vs[i]} having
       local component array \id{vs\_data[i]} and local and global lengths taken 
-      from \id{machenv}.    
+      from \id{nvspec}.    
       \id{NVS\_MAKE\_P} stores the pointers \id{vs\_data[i]} so that        
       changes made by the user to the elements of \id{vs\_data} are  
       simultaneously reflected in \id{vs}. There is no copying of   
@@ -187,8 +187,8 @@ by the user. The suffix \id{\_P} in the names denotes parallel version.
   that have more than one \id{N\_Vector} argument do not check for
   consistent internal representation of these vectors. It is the user's 
   responsability to ensure that such routines are called with \id{N\_Vector}
-  arguments that were all created with the \id{M\_Env} structure returned
-  by \id{M\_EnvInit\_Parallel}.
+  arguments that were all created with the \id{NV\_Spec} structure returned
+  by \id{NV\_SpecInit\_Parallel}.
 
 \end{itemize}
 

@@ -7,10 +7,10 @@
 The type \id{DenseMat} is defined to be a pointer to a structure    
 with a size and a data field:
 \begin{verbatim}
-      typedef struct {
-        integertype size;
-        realtype  **data;
-      } *DenseMat;
+typedef struct {
+  integertype size;
+  realtype  **data;
+} *DenseMat;
 \end{verbatim}
 The {\em size} field indicates the number of columns (which is the same as the
 number of rows) of a dense matrix, while the {\em data} field is a two 

@@ -21,22 +21,22 @@ Content:
 The SUNDIALS solvers (CVODE, IDA, KINSOL, CVODES) are
 written in a data independent manner. They all operate 
 on generic vectors (of type N_Vector) through a set of
-operations defined by a generic machine environment
-(of type M_Env). 
+operations defined by a generic vector specification
+(of type NV_Spec). 
 
 N_Vector has an implementation-dependent 'content' field
 which contains the description and actual data of the 
-vector and a 'menv' field which points to the M_Env 
+vector and a 'menv' field which points to the NV_Spec 
 structure used in creating the vector.
 
-M_Env has an implementation-dependent 'content' field
+NV_Spec has an implementation-dependent 'content' field
 which contains the data needed to generate a new vector 
 in that implementation and an 'ops' field which is a 
 structure listing operations acting on such vectors.    
 
 A particular implementation of NVECTOR must provide
 implementation-specific routines to create and free
-a machine environment variable (of type M_Env).
+a vector specification variable (of type NV_Spec).
 
 For more information on the N_Vector abstraction, as well
 as the vector kernel descriptions, see the header file 
@@ -56,9 +56,9 @@ of N_VECTOR:
     containing the length of the vector and a pointer to the 
     beginning of a contiguous data array;
 
-    Provides user-callable routines M_EnvInit_Serial to create 
-    a structure of type M_Env whose 'content' field is a 
-    structure containing the vector length, and M_EnvFree_Serial 
+    Provides user-callable routines NV_SpecInit_Serial to create 
+    a structure of type NV_Spec whose 'content' field is a 
+    structure containing the vector length, and NV_SpecFree_Serial 
     to deallocate the space used by such a structure.
 
 (b) nvector_parallel - for parallel machines (MPI)
@@ -68,10 +68,10 @@ of N_VECTOR:
     length, and a pointer to the beginning of a contiguous
     data array containing the local portion of the vector;
     
-    Provides user-callable routines M_EnvInit_Parallel to create 
-    a structure of type M_Env whose 'content' field is a 
+    Provides user-callable routines NV_SpecInit_Parallel to create 
+    a structure of type NV_Spec whose 'content' field is a 
     structure containing the local and global vector lengths,
-    and M_EnvFree_Parallel to deallocate the space used by such 
+    and NV_SpecFree_Parallel to deallocate the space used by such 
     a structure.
 
     It uses MPI for message-passing.
@@ -88,11 +88,11 @@ nvector_parallel.h in /shared/include/.
 A new N_VECTOR implementation must:
 
 (1) specify the 'content' fields of the structures of type
-    M_Env and N_Vector;
+    NV_Spec and N_Vector;
 (2) define the prototypes for kernel operations on 
     those N_Vectors and implement them; 
 (3) provide an initialization routine, which generates 
-    an M_Env with that particular 'content' field and 
+    an NV_Spec with that particular 'content' field and 
     links the defined vector kernel routines into the 
     'ops' field.
 We also strongly recommend that the developer of a new 
@@ -109,7 +109,7 @@ internal representations in the same code.
 
 In order to use the FORTRAN - C interface (for CVODE 
 or KINSOL), the N_VECTOR implementation must also provide 
-FORTRAN callable wrappers around the machine environment
+FORTRAN callable wrappers around the vector specification
 initialization and free routines.
 
 
@@ -208,7 +208,7 @@ Note that, in order to reduce overhead, the two
 implementations provided by SUNDIALS assume that
 N_Vectors sent as arguments to a given vector kernel
 are consistent, i.e. they were created with the same 
-machine environment.
+vector specification.
 
 Do not add apples and oranges :-)
 
