@@ -1282,12 +1282,14 @@ flag = IDASetConstraints(ida\_mem, constraints);
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[constraints] (\id{N\_Vector})
-    vector of constraint flags. A value of \id{constraints[i]}$=0.0$ indicates that no 
-    constraint is imposed on $y_i$. 
-    If \id{constraints[i]}$=1.0$ then $y_i$ will be constrained to be $y_i > 0.0$.
-    If \id{constraints[i]}$=-1.0$ then $y_i$ will be constrained to be $y_i < 0.0$.
-    If \id{constraints[i]}$=2.0$ then $y_i$ will be constrained to be $y_i \ge 0.0$.
-    If \id{constraints[i]}$=-2.0$ then $y_i$ will be constrained to be $y_i \le 0.0$.
+    vector of constraint flags. If \id{constraints[i]} is
+    \begin{itemize}    
+    \item[$0.0$] then no constraint is imposed on $y_i$. 
+    \item[$1.0$] then $y_i$ will be constrained to be $y_i > 0.0$.
+    \item[$-1.0$] then $y_i$ will be constrained to be $y_i < 0.0$.
+    \item[$2.0$] then $y_i$ will be constrained to be $y_i \ge 0.0$.
+    \item[$-2.0$] then $y_i$ will be constrained to be $y_i \le 0.0$.
+    \end{itemize}
   \end{args}
 }
 {
