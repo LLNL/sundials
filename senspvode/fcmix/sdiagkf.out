@@ -1,0 +1,85 @@
+Diagonal test problem, size NY =   40  parameter alpha =  10.000
+  ydot_i = -alpha*i * y_i (i = 1,...,NY)
+
+RTOL, ATOL =   0.1E-04   0.1E-09
+
+Method is BDF/NEWTON/SPGMR
+Diagonal preconditioner uses approximate Jacobian
+
+Number of processors =  4
+Number of sensitivity vectors =  1
+Total number of equations = 80
+
+
+
+Case 1: preconditioning on left
+
+ t =  0.10E+00     no. steps =  180   no. f-s = 1135
+
+ t =  0.20E+00     no. steps =  227   no. f-s = 1400
+
+ t =  0.30E+00     no. steps =  254   no. f-s = 1550
+
+ t =  0.40E+00     no. steps =  272   no. f-s = 1656
+
+ t =  0.50E+00     no. steps =  287   no. f-s = 1741
+
+ t =  0.60E+00     no. steps =  297   no. f-s = 1794
+
+ t =  0.70E+00     no. steps =  308   no. f-s = 1849
+
+ t =  0.80E+00     no. steps =  315   no. f-s = 1897
+
+ t =  0.90E+00     no. steps =  323   no. f-s = 1937
+
+ t =  0.10E+01     no. steps =  327   no. f-s = 1970
+
+
+Max. absolute error is  0.24E-07
+
+
+ Final statistics..
+ number of steps        =  327     number of f evals.     = 1970
+ number of prec. setups =    0
+ number of prec. evals. =    0     number of prec. solves = 1316
+ number of nonl. iters. =  437     number of lin. iters.  =  652
+ average Krylov subspace dimension (NLI/NNI)  =  1.4920
+ number of conv. failures..  nonlinear =  0  linear =  0
+ number of error test failures =  1
+
+
+
+Case 2: preconditioning on right
+
+ t =  0.10E+00     no. steps =  180   no. f-s = 1135
+
+ t =  0.20E+00     no. steps =  227   no. f-s = 1400
+
+ t =  0.30E+00     no. steps =  254   no. f-s = 1550
+
+ t =  0.40E+00     no. steps =  272   no. f-s = 1657
+
+ t =  0.50E+00     no. steps =  287   no. f-s = 1742
+
+ t =  0.60E+00     no. steps =  297   no. f-s = 1795
+
+ t =  0.70E+00     no. steps =  308   no. f-s = 1850
+
+ t =  0.80E+00     no. steps =  316   no. f-s = 1903
+
+ t =  0.90E+00     no. steps =  323   no. f-s = 1938
+
+ t =  0.10E+01     no. steps =  327   no. f-s = 1971
+
+
+Max. absolute error is  0.42E-07
+
+
+ Final statistics..
+ number of steps        =  327     number of f evals.     = 1971
+ number of prec. setups =    0
+ number of prec. evals. =    0     number of prec. solves = 1298
+ number of nonl. iters. =  437     number of lin. iters.  =  653
+ average Krylov subspace dimension (NLI/NNI)  =  1.4943
+ number of conv. failures..  nonlinear =  0  linear =  0
+ number of error test failures =  1

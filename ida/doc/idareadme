@@ -1,0 +1,286 @@
+
+          IDA: Implicit Differential-Algebraic System Solver
+                    Version of 21 December 2001
+                   Notes on Installation and Usage
+
+                 Alan C. Hindmarsh and Allan G. Taylor 
+              Center for Applied Scientific Computing, LLNL
+
+
+IDA is a package for the solution of differential-algebraic equation
+(DAE) systems.  It is written in C, but derived from the package DASPK
+[1,2], which is written in Fortran.  In addition to the basic solver,
+the IDA package also contains a preconditioner module called
+IDABBDPRE, which provides a band-block-diagonal preconditioner for use
+with the parallel version.
+
+IDA comes in two versions: one for serial and another for parallel
+computers.  These differ only in the NVECTOR module of vector kernels.
+The desired version is obtained by making the appropriate choice when
+invoking the solver makefile.  In the parallel version, communication
+between processors is done with the MPI (Message Passage Interface)
+system.
+
+IDA is part of a software family called SUNDIALS: SUite of Nonlinear
+and DIfferential/ALgebraic equation Solvers.  This suite consists of
+CVODE/PVODE, KINSOL, and IDA, and variants of these.  The directory
+structure of the package supplied reflects this family relationship.
+
+Several examples problem programs are included, covering both serial
+and parallel cases, both small and large problem sizes, and both
+linear and nonlinear problems.
+
+Using IDA on a different system should require only minor changes to
+the various makefiles, as described below.  In the package supplied
+here, the makefiles are set up for use on the CASC cluster of Sun
+SPARC workstations.  But comments are included to show where changes
+may be needed for other environments.
+
+The notes below provide instructions for the installation of the IDA
+package.  In the package supplied, each Makefile is set up so that
+typing 'make' produces instructions for various make operations
+available.  For convenience, we include a brief summary of the usage
+of IDA (without IDABBDPRE), with notes on the locations of full user
+documentation.  Following that is a list of references and a brief
+history of revisions to the package.
+
+
+A. Installation Notes for IDA
+-----------------------------
+
+1. A tar file  ida.tar  is provided.  To un-tar, type 'tar xvf ida.tar'
+   in an appropriate working directory.  This generates a directory
+   called /SUNDIALS/ida/ there, with subdirectories /shared/, /ida/,
+   and /lib/.
+
+2. /SUNDIALS/ida/doc/ contains this file, called idareadme, a PostScript
+   file idaudoc.ps for the User Document [3], and a file idaaddenda
+   with corrections to the usage as given in [3].
+
+3. /SUNDIALS/shared/ contains files (header and source) that are shared
+   with other members of SUNDIALS.
+
+4. /SUNDIALS/ida/source/ contains the source files for IDA, and a makefile.
+   Typing 'make idas' or 'make idap' there compiles the serial or
+   parallel version of IDA, respectively.  This generates a library
+   file /SUNDIALS/lib/libidas.a or /SUNDIALS/lib/libidap.a, and then
+   the associated object files are removed.
+
+5. /SUNDIALS/ida/include/ contains all required header files for IDA.
+
+6. /SUNDIALS/ida/examples/ contains eight example programs.  For each,
+   there is a source file, a makefile, and sample output.  The examples
+   are described briefly below.  In each case, the source file gives
+   details of the problem and the setup for its solution with IDA.
+
+   (a) irobx is a serial program that solves a chemical kinetics problem
+   due to Robertson, with 3 species, two ODEs, and one algebraic equation.
+
+   The following four programs solve a discretized form of the 2D
+   heat equation, in which the boundary conditions form algebraic
+   equations appended to the ODEs for the interior values.
+   (b) iheatsb is a serial program that solves the heat equation using
+   the banded (direct) linear system solver.
+   (c) iheatsk is a serial program for the heat equation using the SPGMR
+   (Krylov iterative) linear system solver with a diagonal preconditioner.
+   (d) iheatpk is a parallel program for the heat equation using the SPGMR
+   (Krylov iterative) linear system solver with a diagonal preconditioner.
+   (e) iheatbbd is a parallel program for the heat equation using the
+   SPGMR (Krylov iterative) linear system solver with the IDABBDPRE
+   (band-block-diagonal) preconditioner module.
+
+   The following three programs solve a discretized 2D food web DAE
+   system of predator-prey type, which poses ODEs for the prey
+   concentrations and quasi-steady equations for the predator
+   concentrations, and both undergo interactions and diffusion.
+   (f) iwebsb is a serial program that solves the food web problem using
+   the banded (direct) linear system solver.
+   (g) iwebpk is a parallel program that solves the food web problem
+   using the SPGMR (Krylov iterative) linear system solver with a
+   block-diagonal preconditioner.
+   (h) iwebbbd is a parallel program that solves the food web problem
+   using the SPGMR (Krylov iterative) linear system solver with the
+   IDABBDPRE (band-block-diagonal) preconditioner module.
+
+      Typing 'make <ex>' in this subdirectory, where <ex> is any of the
+   above eight example names (irobx etc.), finds the required header
+   files etc. and generates the corresponding executable file.  Also
+   included are sample outputs for the examples (with names ending in
+   .out).  Outputs obtained by another user (and run with the same
+   number of processors) should agree with these, possibly with
+   relatively small differences throughout.
+
+
+7. Installing and using IDA in a different environment requires only
+   minor modifications to the various makefiles.  For the compilation of
+   IDA, check the files idas.mk and/or idap.mk in /SUNDIALS/ida/source/,
+   and if necessary modify the compiler name, and the path to MPI
+   include files.
+      To run IDA on an application in a different directory location,
+   the makefiles in /SUNDIALS/ida/examples/ can be used with minor
+   changes.  In the files Makefile, idaxs.mk, and idaxp.mk, correct
+   the various paths involved -- paths to /SUNDIALS/shared/,
+   /SUNDIALS/ida/include/, /SUNDIALS/lib/, and to MPI include files.
+   Also check and correct the compiler/linker names and flags.
+
+
+B. Summary of Usage of IDA
+--------------------------
+
+The following outline summarizes the sequence of steps in the usage of
+the parallel version of IDA.  To use the serial version, omit steps
+0 - 3 and 9, and pass NULL in place of machEnv in step 4.  In either
+case, the user's program must include the system residual function that
+defines the problem in the form F(t,y,y') = 0, and (optionally) any
+Jacobian or preconditioner routines called for in the options selected.
+
+
+0.  MPI_Init();   /* if user is using MPI also, aside from IDA */
+
+1.  Set local vector length nloc, the global length (problem size) Neq, and 
+    the active set of processors
+
+2.  machEnv = PVecInitMPI(comm, nloc, Neq, &argc, &argv);
+      /* comm = MPI communicator (if set up by user), or
+         comm = MPI_COMM_WORLD (specifying all processors)
+         &argc,&argv = pointers to command line argument count and arrays
+                       (needed if MPI not already initialized)  */
+    if (machEnv == NULL) return(1);
+
+3.  N_VMAKE(y, ydata, machEnv);    OR  y = N_VNew(Neq, machEnv);
+    N_VMAKE(yp, ypdata, machEnv);  OR  yp = N_VNew(Neq, machEnv);
+    /* user sets up vectors y and yp = y' */
+
+4.  idamem = IDAMalloc( Neq, F, ..., machEnv);      /* initializes IDA */
+    if (idamem == NULL) return(1);
+
+5.  Specify choice of linear system solver, with one of the calls:
+    flag = IDADense (idamem, Djac, jdata);  OR
+    flag = IDABand (idamem, mu, ml, Bjac, jdata);  OR
+    flag = IDASpgmr (idamem, Precond, Psolve, ..., pdata);
+    followed by:
+    if (flag != 0) return(1);
+    /* Here jdata and pdata are pointers to user-defined space devoted to
+    Jacobian or preconditioner data. */
+
+6.  ier = IDACalcIC(idamem, icopt, ...)   /* optional call to calculate  */
+    if (ier != SUCCESS) return(1);        /* selected initial conditions */
+
+7.  ier = IDASolve(idamem, tout, tstop, &tret, y, yp, itask);  
+    if (ier < 0) return(1);           /* solve the system,
+                                         in a loop over values of tout */
+
+8.  IDAFree(idamem);         /* Free IDA memory independent of machine */
+
+9.  PVecFreeMPI(machEnv);    /* Free machine-dependent data */
+
+
+Usage Notes:
+
+(1) Usage of the band-block-diagonal preconditioner module IDABBDPRE
+    involves a call to IBBDAlloc between steps 4 and 5, and two
+    additional user-supplied routines.
+
+(2) A detailed usage document for IDA is available; see Ref. 3 below,
+    together with the file /doc/idaaddenda.
+
+(3) For further assistance with usage, see the various example programs,
+    which are heavily annotated.
+
+(4) IDA can be called from a C++ application, as there are wrappers
+    around all IDA header files which specify C-style naming of functions.
+
+
+C. References
+-------------
+
+[1]  P. N. Brown, A. C. Hindmarsh, and L. R. Petzold, Using Krylov
+     Methods in the Solution of Large-Scale Differential-Algebraic
+     Systems, SIAM J. Sci. Comp., 15 (1994), pp. 1467-1488.
+
+[2]  P. N. Brown, A. C. Hindmarsh, and L. R. Petzold, Consistent
+     Initial Condition Calculation for Differential-Algebraic
+     Systems, SIAM J. Sci. Comp., 19 (1998), pp. 1495-1512.
+
+[3]  Alan C. Hindmarsh and Allan G. Taylor, User Documentation for IDA,
+     a Differential-Algebraic Equation Solver for Sequential and Parallel
+     Computers, LLNL Technical Report UCRL-MA-136910, December 1999.
+
+
+D. Revision History (YYYYMMDD)
+------------------------------
+
+19990212  DATE WRITTEN; initial internal release (incomplete).
+19990514  IDABBDPRE preconditioner module added.
+19990520  Heat equation examples added.
+19990720  Initial condition calculation routines (IDACalcIC) added.
+19990813  Predator-prey examples added.
+19990831  Minor changes throughout; some linear solver initializations
+          moved from linit routine to user-callable routine.
+19990915  Revised all example programs for clarity etc.
+19991208  In IDABBDPRE, user routine argument lists changed.
+19991215  Revised all example programs for uniformity, etc.
+19991217  Generic SPGMR module revised to correct scalings.
+19991217  Minor revisions to all NVECTOR files.
+20000207  Revised all examples -- t0 for dummy argument tstop.
+20000316  In parallel NVECTOR, comm arg. to PVecInitMPI is non-NULL.
+20000324  Minor corrections to example Makefile files.
+20000808  Fixed bug in N_VMin routine; minor changes in robx example.
+          Added calculation of system index in IDACalcIC in CALC_YA_YDP_INIT
+          case; added scaling of fnorm in IDACalcIC when index = 0.
+20010110  Fixed two bugs in IDACalcIC and subordinate routines:
+          (1) Set hh in IDACalcIC independent of icopt, for lsetup.
+          (2) Set ypnew = yp0 in IDALineSrch in CALC_Y_INIT case.
+          Changed safety factor to .99 in step ratio in IDALineSrch
+          on constraint violation.  Added .9 safety factor in step
+          ratio in IDAnls on constraint violation.
+          Other minor changes in IDACalcIC and subordinate routines.
+          Corrected #define ncfl0 line in idaspgmr.c.
+          Minor changes in heatsb, websb, webpk, webbbd example programs.
+20011015  Fixed bug in IDAInterp (tn test).
+          Fixed minor bugs in error messages (missing arguments etc.)
+          Corrected missing return values (ida.c and idaspgmr.c).
+          Removed unused variables in declarations (ida.c).
+          Corrected missing #include in idabbdpre.c.
+          Corrected missing Free statements in three examples.
+          In serial and parallel nvector.*, rewrote N_VConstrMask loop;
+          revised descriptions of N_VConstrProdPos and N_VConstrMask.
+          In parallel nvector.c, changed POINT5 to HALF for consistency.
+20011016  Changed PVecInitMPI to return (void *)env (parallel nvector.c).
+20011119  Renamed all example files for uniqueness.
+20011220  Default type 'integer' changed to 'long int' in llnltyps.h.
+20011220  In parallel nvector.h, PVecInitMPI prototype, corrected type
+          (int to integer) of length arguments.
+20011221  In all parallel examples, corrected type (integer to int) of
+          variables thispe and npes (local to Main and in InitUserData). 
+20020207  This file revised to reflect new package organization.
+
+......................................................................
+
+                            LEGAL NOTICES
+
+This work was performed at the University of California, Lawrence
+Livermore National Laboratory (UC LLNL) under contract No.
+W-7405-ENG-48 (Contract 48) between the U.S. Department of Energy
+(DOE) and The Regents of the University of California (the University)
+for the operation of UC LLNL.
+
+This work was prepared as an account of work sponsored by an agency of
+the United States Government.  Neither the United States Government
+nor the University of California nor any of their employees makes any
+warranty, express or implied, or assumes any liability or
+responsibility for the accuracy, completeness, or usefulness of any
+information, apparatus, product, or process disclosed, or represents
+that its use would not infringe privately owned rights.  Reference
+herein to any specific commercial products, process, or service by
+trade name, trademark, manufacturer, or otherwise, does not
+necessarily constitute or imply its endorsement, recommendation, or
+favoring by the United States Government or the University of
+California.  The views and opinions of authors expressed herein do not
+necessarily state or reflect those of the United States Government or
+the University of California, and shall not be used for advertising or
+product endorsement purposes.
+
+IDA has been declared to be in the Public Domain.
+
+......................................................................

@@ -1,0 +1,66 @@
+# File tarida: Script to build IDA tar-file, ida.tar.
+# To execute, type 'sundials/scripts/tarida' in the directory
+# containing /sundials/.
+# Version of 7 February 2002.
+
+tar cvf ida.tar sundials/doc/Readme
+
+tar uvf ida.tar sundials/lib
+
+tar uvf ida.tar sundials/shared/include/llnltyps.h
+tar uvf ida.tar sundials/shared/include/llnlmath.h
+tar uvf ida.tar sundials/shared/include/nvector_serial.h
+tar uvf ida.tar sundials/shared/include/nvector_parallel.h
+tar uvf ida.tar sundials/shared/include/dense.h
+tar uvf ida.tar sundials/shared/include/smalldense.h
+tar uvf ida.tar sundials/shared/include/band.h
+tar uvf ida.tar sundials/shared/include/spgmr.h
+tar uvf ida.tar sundials/shared/include/iterativ.h
+
+tar uvf ida.tar sundials/shared/source/llnlmath.c
+tar uvf ida.tar sundials/shared/source/nvector_serial.c
+tar uvf ida.tar sundials/shared/source/nvector_parallel.c
+tar uvf ida.tar sundials/shared/source/dense.c
+tar uvf ida.tar sundials/shared/source/smalldense.c
+tar uvf ida.tar sundials/shared/source/band.c
+tar uvf ida.tar sundials/shared/source/spgmr.c
+tar uvf ida.tar sundials/shared/source/iterativ.c
+
+tar uvf ida.tar sundials/ida/doc/idareadme
+tar uvf ida.tar sundials/ida/doc/idaudoc.ps
+tar uvf ida.tar sundials/ida/doc/idaaddenda
+
+tar uvf ida.tar sundials/ida/include/ida.h
+tar uvf ida.tar sundials/ida/include/idadense.h
+tar uvf ida.tar sundials/ida/include/idaband.h
+tar uvf ida.tar sundials/ida/include/idaspgmr.h
+tar uvf ida.tar sundials/ida/include/idabbdpre.h
+
+tar uvf ida.tar sundials/ida/source/Makefile
+tar uvf ida.tar sundials/ida/source/idas.mk
+tar uvf ida.tar sundials/ida/source/idap.mk
+tar uvf ida.tar sundials/ida/source/ida.c
+tar uvf ida.tar sundials/ida/source/idadense.c
+tar uvf ida.tar sundials/ida/source/idaband.c
+tar uvf ida.tar sundials/ida/source/idaspgmr.c
+tar uvf ida.tar sundials/ida/source/idabbdpre.c
+
+tar uvf ida.tar sundials/ida/examples/Makefile
+tar uvf ida.tar sundials/ida/examples/idaxs.mk
+tar uvf ida.tar sundials/ida/examples/idaxp.mk
+tar uvf ida.tar sundials/ida/examples/irobx.c
+tar uvf ida.tar sundials/ida/examples/irobx.out
+tar uvf ida.tar sundials/ida/examples/iheatsb.c
+tar uvf ida.tar sundials/ida/examples/iheatsb.out
+tar uvf ida.tar sundials/ida/examples/iheatsk.c
+tar uvf ida.tar sundials/ida/examples/iheatsk.out
+tar uvf ida.tar sundials/ida/examples/iheatpk.c
+tar uvf ida.tar sundials/ida/examples/iheatpk.out
+tar uvf ida.tar sundials/ida/examples/iheatbbd.c
+tar uvf ida.tar sundials/ida/examples/iheatbbd.out
+tar uvf ida.tar sundials/ida/examples/iwebsb.c
+tar uvf ida.tar sundials/ida/examples/iwebsb.out
+tar uvf ida.tar sundials/ida/examples/iwebpk.c
+tar uvf ida.tar sundials/ida/examples/iwebpk.out
+tar uvf ida.tar sundials/ida/examples/iwebbbd.c
+tar uvf ida.tar sundials/ida/examples/iwebbbd.out

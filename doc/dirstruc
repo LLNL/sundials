@@ -1,0 +1,348 @@
+Proposed directory structure for PVODE Trio
+-------------------------------------------
+Written 1 December 2000 - Alan
+Modified 27 November 2001 - Alan
+Modified 15 January 2002 - Radu
+Modified 24 January 2002 - Alan
+Modified 7 February 2002 - Alan
+
+
+Current directory structure
+
+
+Overall structure:
+------------------
+
+Top directory = SUNDIALS/
+
+Second level = subdirectories for shared files, documentation, lib files,
+               include files, and each of 9 packages--
+               CVODE,  SensPVODE,  CVODES,
+               KINSOL, SensKINSOL, KINSOLS
+               IDA,    SensIDA,    IDAS
+
+Third level = up to 6 subdirectories for parts of each package --
+              documentation, source, include, lib, examples, F/C interfaces
+
+...........................................................................
+
+Second level subdirectories:
+----------------------------
+
+Makefile = top-level installation makefile
+
+shared/ = shared files
+
+doc/ = documentation files for whole family
+
+lib/ = empty directory -- placeholder for symbolic links to lib*.a files
+
+include/ = empty directory -- placeholder for symbolic links to *.h files
+
+scripts/ = Unix scripts to produce distribution tar-files
+
+cvode/   cvodes/   senspvode/
+
+kinsol/  kinsols/  senskinsol/
+
+ida/     idas/     sensida/
+
+...........................................................................
+
+Third level subdirectories:
+---------------------------
+
+shared/ subdirectories:
+
+include/
+    llnltyps.h  llnlmath.h
+    band.h  dense.h  smalldense.h  spgmr.h  iterativ.h
+    nvector_serial.h  nvector_parallel.h
+    nvector_sens_serial.h  nvector_sens_parallel.h
+    fcmixpar.h
+      
+source/
+    Makefile, shareds.mk, sharedp.mk
+    llnlmath.c
+    band.c  dense.c  smalldense.c  spgmr.c  iterativ.c
+    nvector_serial.c  nvector_parallel.c
+    nvector_sens_serial.c  nvector_sens_parallel.c
+
+lib/
+
+...........................................................................
+
+cvode/ subdirectories for CVODE/PVODE:
+
+doc/
+    cvreadme, cvaddenda
+    pvreadme, pvaddenda
+    stald.doc
+
+include/
+    cvode.h
+    cvdense.h, cvband.h, cvdiag.h, cvspgmr.h, cvbandpre.h, pvbbdpre.h
+
+source/
+    Makefile, cvode.mk, pvode.mk
+    cvode.c
+    cvdense.c, cvband.c, cvdiag.c, cvspgmr.c, cvbandpre.c, pvbbdpre.c
+
+lib/
+
+examples/
+    Makefile, cvodex.mk, pvodex.mk
+    cvdx.c, cvdx.out; 	cvbx.c, cvbx.out;	cvkx.c, cvkx.out
+    cvkxb.c, cvkxb.out;	cvdemd.c, cvdemd.out;	cvdemk.c, cvdemk.out
+    pvnx.c, pvnx.out; 	pvkx.c, pvkx.out;	pvkxb.c, pvkxb.out
+
+fcmix/
+    Makefile, fpvode.mk, fpvodex.mk
+    fpvode.c, fpvode.h
+    fpvbbd.c, fpvbbd.h, fpvbbdin1.c
+    fpvjtimes.c, fpvpreco.c, fpvpsol.c
+    fpvspgmr01.c, fpvspgmr10.c, fpvspgmr11.c
+    fpvspgmr20.c, fpvspgmr21.c
+    pvdiagkbf.f, pvdiagkbf.out
+    pvdiagkf.f, pvdiagkf.out
+    pvdiagnf.f, pvdiagnf.out  
+
+...........................................................................
+
+senspvode/ subdirectories for SensPVODE:
+
+doc/
+    senspvreadme
+
+include/
+    senspvode.h,  senscvspgmr.h
+
+source/
+    Makefile ,senspv.mk, nosenspv.mk
+    senspvode.c, senscvspgmr.c
+
+lib/
+
+examples/
+    Makefile, senspvx.mk
+    spvnx.c, spvnx.out;	spvkx.c, spvkx.out;	spvkxb.c, spvkxb.out
+
+fcmix/
+    Makefile, sensfpv.mk,  sensfpvx.mk
+    sensfpvode.c, sensfpvode.h
+    sensfpvspgmr1.c, sensfpvspgmr2.c;	sensfpvbbd.c, sensfpvbbd.h
+    spvdiagnf.f, spvdiagnf.out;		spvdiagkf.f, spvdiagkf.out
+    spvdiagkbf.f, spvdiagkbf.out
+
+...........................................................................
+
+cvodes/ subdirectories for CVODES/PVODES:
+
+doc/
+    cvsreadme, cvsdoc.tex
+
+include/
+    cvodes.h, cvodea.h
+    cvsdense.h, cvsband.h, cvsdiag.h, cvsspgmr.h, cvsbandpre.h, pvsbbdpre.h
+
+source/
+    Makefile, cvodes.mk, pvodes.mk
+    cvodes.c, cvodea.c
+    cvsdense.c, cvsband.c, cvsdiag.c, cvsspgmr.c,  cvsbandpre.c, pvsbbdpre.c
+
+lib/
+
+examples/
+    Makefile, cvodesx.mk, pvodesx.mk
+    cvsnx.c, cvsns.out;	  cvsdx.c, cvsdx.out;	cvskx.c, cvskx.out
+    pvsnx.c, pvsnx.out;	  pvskx.c, pvskx.out
+
+more_examples/
+    Makefile, cvodesx.mk, pvodesx.mk
+    advd_s.c, advd_p.c 
+    diur_s.c, diur_p.c
+    food_s.c, heat_s.c, vpol_s.c
+
+adj_examples/
+    Makefile, cvodeax.mk
+    chemadj.c, chemfwd.c
+
+fcmix/
+
+
+...........................................................................
+
+kinsol/ subdirectories for KINSOL:
+
+doc/
+    kinreadme, kinaddenda
+
+include/
+    kinsol.h
+    kinspgmr.h,  kinbbdpre.h
+
+source/
+    Makefile, kinsols.mk, kinsolp.mk
+    kinsol.c
+    kinspgmr.c,  kinbbdpre.c
+
+lib/
+
+examples/
+    Makefile, kinxs.mk, kinxp.mk
+    kinwebbbd.c, kinwebbbd.out
+    kinwebp.c, kinwebp.out
+    kinwebs.c, kinwebs.out
+
+fcmix/
+    Makefile, fkinsolp.mk, fkinsolpx.mk, fkinsols.mk, fkinsolsx.mk
+    fkinsols.c, fkinsolp.c, fkinsol.h
+    fkinspgmr01.c, fkinspgmr10.c, fkinspgmr11.c, fkinspgmr20.c, fkinspgmr21.c
+    fkinpsol.c, fkinpreco.c, fkinuatimes.c,  fkinbbd.c, fkinbbd.h, fkinbbdinit1.c
+    kindiagsf.f, kindiagsf.out;	  kindiagpf.f, kindiagpf.out
+
+...........................................................................
+
+senskinsol/ subdirectories for SensKINSOL:
+
+doc/
+    senskinreadme, senskin_struct.eps, senskinudoc.tex, senskinudoc.toc
+
+include/
+    sens_kinsol.h, sens_kinspgmr.h
+
+source/
+    Makefile, senskins.mk, senskinp.mk
+    sens_kinsol.c, sens_kinspgmr.c
+
+lib/
+
+examples/
+    Makefile, senskinxs.mk, senskinxp.mk
+    sens_kinxs.c, sens_kinxs.out
+    sens_kinxp.c, sens_kinxp.out
+
+fcmix/
+    Makefile, sensfkins.mk, sensfkinp.mk, sensfkinxs.mk, sensfkinxp.mk
+    fsenskinsols.c, fsenskinsolp.c, fsenskinsol.h
+    fsenskinspgmr01.c, fsenskinspgmr10.c, fsenskinspgmr11.c,
+    fsenskinspgmr20.c, fsenskinspgmr21.c
+    sensk_diagsf.f, sensk_diagsf.out;  sensk_diagpf.f, sensk_diagpf.out
+
+...........................................................................
+
+kinsols/ subdirectories for KINSOLS:
+
+doc/
+
+include/
+
+source/
+
+lib/
+
+examples/
+
+fcmix/
+
+...........................................................................
+
+ida/ subdirectories for IDA:
+
+doc/
+    idareadme, idaaddenda
+
+include/
+    ida.h
+    idadense.h, idaband.h, idaspgmr.h,  idabbdpre.h
+
+source/
+    Makefile, idas.mk, idap.mk
+    ida.c
+    idadense.c, idaband.c, idaspgmr.c,  idabbdpre.c
+
+lib/
+
+examples/
+    Makefile, idaxs.mk, idapx.mk
+    irobx.c, irobx.out;  iheatsb.c, iheatsb.out
+    iheatsk.c, iheatsk.out;  iheatpk.c, iheatpk.out;  iheatbbd.c, iheatbbd.out
+    iwebsb.c, iwebsb.out;  iwebpk.c, iwebpk.out;  iwebbbd.c, iwebbbd.out
+
+...........................................................................
+
+sensida/ subdirectories for SensIDA:
+
+doc/
+    sidareadme, sensidaudoc.tex
+
+include/
+    sensida.h
+    sensidadense.h, sensidaband.h, sensidaspgmr.h
+
+source/
+    Makefile, sensidas.mk, sensidap.mk
+    sensida.c
+    sensidadense.c, sensidaband.c, sensidaspgmr.c
+
+lib/
+
+examples/
+    Makefile, sensidaxs.mk,  sensidaxp.mk
+    sensirobx.c, sensirobx.out;  sensdiagk.c, sensdiagk.out
+    sensiheatsk.c, sensiheatsk.out;  sensiheatsb.c, sensiheatsb.out	
+    sensiheatpk.c, sensiheatpk.out;  sensiheatbbd.c, sensiheatbbd.out
+    sensiwebpk.c, sensiwebpk.out;
+
+...........................................................................
+
+idas/ subdirectories for IDAS:
+
+doc/
+
+include/
+
+source/
+
+lib/
+
+examples/
+
+==============================================================================
+
+Notes:
+
+1) File names are unique (or intended to be).  Some renaming of files
+has been done to achieve this.  In particular, example file names
+include letters identifying the solver used, and the use or non-use of
+sensitivity variant, e.g. pvkx.c and spvkx.c.
+
+2) Makefiles are stored with source files for each of the 9 packages.
+In each directory with source files, there is a file Makefile, which
+invokes one or more other makefiles with names ending in .mk.	
+Each makefile in the solver source is to reference other files needed
+by relative paths.  E.g. senspv.mk will reference ../../cvode/source/*.
+
+3) In each /examples/ subdirectory, and for the examples within each
+/fcmix/ directory, there is to be one only .mk makefile for all of the
+serial examples, and one for all of the parallel examples, or possibly
+one makefile for all examples.  This keeps the duplication to a minimum.
+
+4) The dense.* and smalldense.* files have been rearranged to eliminate
+duplication between them.
+
+5) Each solver directory now contains a /lib/ subdirectory.  The plan
+is to have the solver library files be stored in these third level
+/lib/ subdirectories, with symbolic links to those stored in the second
+level /lib/ directory.  The shared/ directory also contains a /lib/, and
+the plan is to put NVECTOR module library files there.  All makefiles
+will have to be revised to fit this plan. 
+
+6) The second level also includes an /include/ subdirectory, for
+symbolic links to lower level header files.  It will also have a
+Makefile, for installation of packages.
+
+7) Preliminary versions of higher level scripts have been written that
+create tar-files for each individual solver package requested.  At
+present, these are to be executed in the directory above /sundials/.
+

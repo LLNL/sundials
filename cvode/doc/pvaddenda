@@ -1,0 +1,112 @@
+
+                            ADDENDA TO 
+  "User Documentation for PVODE, an ODE Solver for Parallel Computers"
+                          14 January 2002 
+
+Since the publication of the PVODE User Documentation, several changes
+have been made in the PVODE package.  Those which affect the usage of
+PVODE are summarized here.  Full details are available in the
+appropriate header files.
+
+1. The preconditioner module PVBBDPRE has been modified, and the
+routine PVBBDAlloc has three new arguments:
+  mukeep, mlkeep = upper and lower half-bandwidths of the retained band
+                   matrix approximation to the local Jacobian block.
+                   These are in contrast to the arguments mudq, mldq
+                   (formerly mu, ml) that define the difference quotient
+                   procedure to calculate that block, and may be smaller
+                   if the resulting preconditioner is more efficient.
+  dqrely         = optional input; the relative increment in components
+                   of y used in the difference quotient procedure.
+                   Pass 0.0 to specify the default, sqrt(unit_roundoff).
+                   (This argument was present in the May 1998 version of
+                   PVODE, but was mistakenly omitted from the user document.)
+The full call sequence to PVBBDAlloc is now:
+  p_data = PVBBDAlloc(Nlocal, mudq, mldq, mukeep, mlkeep, dqrely, 
+                      gloc, cfn, f_data);
+
+2. The Fortran/C interface module FPVBBD was modified to accommodate
+the new arguments described above.  The routine FPVBBDIN now has the
+call sequence:
+      CALL FPVBBDIN (MUDQ, MLDQ, MUKEEP, MLKEEP, DQRELY, IPRETYPE, IGSTYPE,
+     1               MAXL, DELT, IER)
+
+3. In the initialization routine PVecInitMPI of the NVECTOR module,
+the argument comm must be a meaningful communicator of type MPI_Comm,
+and cannot be NULL.
+
+4. The central solver module CVODE now includes a routine, CVReInit,
+which re-initializes PVODE for a new problem of the same size as one
+already solved.  Its specification is:
+  int CVReInit(void *cvode_mem, RhsFn f, real t0, N_Vector y0,
+               int lmm, int iter, int itol, real *reltol, void *abstol,
+               void *f_data, FILE *errfp, boole optIn, long int iopt[],
+               real ropt[], void *machEnv);
+CVReInit checks its inputs and initializes internal memory, but does
+not allocate new memory, instead using the existing memory block.  Its
+arguments are the same as those of CVodeMalloc, except for the first
+one, which is the memory pointer previously returned by CVodeMalloc.
+CVReInit returns SUCCESS = 0 if successful, or a negative int otherwise.
+Following the call to CVReInit, the call to specify the choice of
+linear solver must still be made, even if this choice is unchanged.
+
+5. The Fortran/C interface package FPVODE includes a new routine,
+FPVREINIT, to interface between a Fortran user and the CVReInit routine.
+Its call list is the same as that of FPVMALLOC except that the first
+argument NEQ is omitted.  The use of this routine is illustrated in
+the example diagkf.f, which runs two cases --  with preconditioning
+on the left, then on the right.
+
+6. A new optional input, iopt[SLDET], has been added to activate a
+stability limit detection algorithm, which may be useful when using
+the BDF method for a problem with mildly damped oscillations.
+See the separate document stald.doc for details.
+
+7. In the file llnltyps.h, the default for type 'integer' is now
+'long int' instead of 'int'.  The usage instructions in the CVODE
+User Guide for changing this type are to be altered accordingly.
+
+8. The optional input ropt[HMAX] is examined on every call to CVode,
+rather than by CVodeMalloc and CVReInit.  Thus its value can be
+changed on every call to CVode, if desired.
+
+9. The optional input iopt[MXNHIL] may now have the value -1, meaning
+that no warning messages (t + h = t) are issued.
+
+10. The CVSpgmr routine has two new arguments (the last two).  These
+are for an optional user-supplied Jacobian*vector routine (jtimes),
+and an optional pointer to a user-defined Jacobian data block for use
+by jtimes, respectively.  Setting jtimes = NULL specifies the internal
+(difference quotient) routine.  See cvspgmr.h for details.
+
+11. Corresponding to the new optional jtimes routine supplied to CVSpgmr,
+the FPVODE Fortran interface package provides the option of supplying
+a Fortran routine (PVJTIMES) for Jacobian*vector products.  As a result,
+the specification of the SPGMR linear solver requires one of six routines 
+to be called, depending on which optional user routines are supplied.
+See the files fpvode.h and fpvbbd.h for details.
+
+12. The routines CVDiag and CVSpgmr that specifies the linear solver
+to be used (when iter = NEWTON) now has an int return value (0 for
+success, negative for failure).  These routines now perform all malloc
+operations specific to that linear solver, whereas previously these
+operations were done by a call from CVode to the (linit) member of the
+linear solver module.  The return value of this flag should be tested
+before proceeding to the CVode calls for a given problem.
+
+13. If a user provides a new linear solver module, the specifications
+for the various routines in the module have changed.  The user-callable 
+routine returns a flag (as noted above), and the linit routine has one
+less argument.  See cvode.h for details.
+
+14. When CVReInit is used to re-initialize PVODE for a new problem of
+the same size as one already solved, as described above, the linear
+solver specification routine need not be called again if the choice of
+linear solver, and related input parameters, are unchanged.  In that
+case, the memory specific to the linear solver, as well as the main
+PVODE memory, will be re-used, with no new memory allocation operations.
+
+15. In the FPVODE package (Fortran interfaces), all calls to the linear
+solver specification routines now include an error return flag as a new
+(final) argument.  This change corresponds to the changes described
+above in these routines.  See fpvode.h for details.

@@ -1,0 +1,71 @@
+sensheatbbd: Heat equation, parallel example problem for SensIDA 
+             Discretized heat equation on 2D unit square. 
+             Zero boundary conditions, polynomial initial conditions.
+             Mesh dimensions: 10 x 10             Total system size: 100
+
+Subgrid dimensions: 5 x 5             Processor array: 2 x 2
+Number of sensitivities: Ns = 2
+Parameter values:       p_1 =  1.00e+00,    p_2 =  1.00e+00
+Scale factors:       pbar_1 =  1.00e+00, pbar_2 =  1.00e+00
+Finite difference:   rhomax = 0
+Tolerance parameters:  rtol = 0,  atol = 0.001
+Constraints set to force all components of solution u >= 0. 
+iopt[SUPPRESSALG] = 1 to suppress local error testing on all boundary components. 
+Linear solver: IDASPGMR  Preconditioner: IDABBDPRE - Banded-block-diagonal.
+   Difference quotient half-bandwidths = 5   Retained matrix half-bandwidths = 1 
+
+Output Summary:   max(u) = max-norm of solution u 
+                max(s_i) = max-norm of sensitivity vector s_i
+
+  time       max(u)     k   nst  nni  nli   nre    h       npe nps
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+  0.00     9.75461e-01  0    0    1    2     5  1.00e-05    2  11
+max(s_1) = 1.09841e-17
+max(s_2) = 5.49220e-18
+
+  0.01     8.24107e-01  2   11   14   22    38  2.56e-03   10  70
+max(s_1) = 7.20977e-02
+max(s_2) = 7.20849e-02
+
+  0.02     6.88124e-01  3   14   18   38    58  5.12e-03   10  98
+max(s_1) = 1.27161e-01
+max(s_2) = 1.27129e-01
+
+  0.04     4.70872e-01  3   18   22   58    82  5.12e-03   10 130
+max(s_1) = 1.81684e-01
+max(s_2) = 1.81740e-01
+
+  0.08     2.16390e-01  3   22   27   88   117  1.02e-02   11 175
+max(s_1) = 1.68526e-01
+max(s_2) = 1.68464e-01
+
+  0.16     4.55299e-02  3   30   37  138   177  2.05e-02   12 255
+max(s_1) = 7.05614e-02
+max(s_2) = 7.06131e-02
+
+  0.32     1.97683e-03  2   38   47  205   254  4.10e-02   13 352
+max(s_1) = 6.10599e-03
+max(s_2) = 6.22548e-03
+
+  0.64     6.74142e-05  1   43   53  242   297  8.19e-02   14 407
+max(s_1) = 1.46475e-04
+max(s_2) = 1.09528e-04
+
+  1.28     1.09296e-04  1   46   59  254   315  6.55e-01   17 437
+max(s_1) = 2.18370e-04
+max(s_2) = 1.96817e-04
+
+  2.56     1.60734e-04  1   47   61  258   321  1.31e+00   18 447
+max(s_1) = 2.59672e-04
+max(s_2) = 2.22985e-04
+
+  5.12     5.41845e-05  1   48   63  261   326  2.62e+00   19 456
+max(s_1) = 2.71236e-04
+max(s_2) = 2.66447e-04
+
+ 10.24     1.97996e-04  1   49   65  268   335  5.24e+00   20 469
+max(s_1) = 1.41399e-05
+max(s_2) = 1.44920e-05
+
+
+ netf = 0,   ncfn = 0,   ncfl = 0 

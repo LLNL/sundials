@@ -1,0 +1,298 @@
+                MPI_PVODE: Version of 15 January 2002
+                   Notes on Installation and Usage
+                         Alan C. Hindmarsh
+              Center for Applied Scientific Computing, LLNL
+
+
+PVODE is derived from the sequential solver CVODE [2,3], which solves
+stiff and nonstiff ODE systems (initial value problem).  It is written
+in the ANSI standard C.  PVODE refers to a set of extensions of CVODE
+for parallel machines, using message-passing.  MPI_PVODE is a version
+of PVODE that uses the MPI (Message Passage Interface) system.  In
+addition to the basic solver, this package includes a module called
+PVBBDPRE, which provides a band-block-diagonal preconditioner.
+
+MPI_PVODE has been tested on a workstation cluster, an IBM-SP, and on
+the LLNL Cray-T3D with two different implementations of the MPI
+library (MPICH and EPCC).  In the package supplied here, the makefiles
+are set up to access a workstation cluster, but with commented lines
+for use on one or more other LLNL systems.  Changes for other
+environments can be made easily.
+
+PVODE is part of a software family called SUNDIALS: SUite of Nonlinear
+and DIfferential/ALgebraic equation Solvers.  This suite consists of
+CVODE/PVODE, KINSOL, and IDA, and variants of these.  The directory
+structure of the package supplied reflects this family relationship.
+
+In the package supplied, each Makefile is set up so that typing 'make'
+produces instructions for various make operations.  However, some of
+the operations listed may refer to CVODE (instead of PVODE) and thus
+may unavailable.
+
+For use with Fortran applications, a set of Fortran/C interface routines,
+called FPVODE, is also supplied.  These are written in C, but assume that
+the user calling program and all user-supplied routines are in Fortran.
+
+The notes below provide instructions for the installation of the
+MPI_PVODE package.  For convenience, we include a brief summary of the
+usage of PVODE in a C application (without PVBBDPRE), with notes on
+the locations of full user documentation.  Following that is a list of
+references and a brief history of revisions to the package.
+
+
+A. Installation Notes for MPI_PVODE
+-----------------------------------
+
+1. A tar file  pvode.tar  is provided.  To un-tar, type
+   'tar xvf pvode.tar' in an appropriate working directory.  This
+   generates a directory /SUNDIALS/ with subdirectories /shared/,
+   /cvode/, and /lib/.
+
+2. /SUNDIALS/cvode/doc/ contains this file, called pvreadme, a PostScript
+   file pvudoc.ps for the PVODE user documentation [1], and a file
+   pvaddenda with corrections to the usage as given in [1].
+
+3. /SUNDIALS/shared/ contains files (header and source) that are shared
+   with other members of SUNDIALS.
+
+4. /SUNDIALS/cvode/source/ contains source files for PVODE and a makefile.  
+   Typing 'make pvode' there generates all associated object files and a
+   library file /SUNDIALS/lib/libpvode.a, then removes the object files.
+
+5. /SUNDIALS/cvode/include/ contains all required header files for PVODE.
+
+6. /SUNDIALS/cvode/examples/ contains three example programs and a makefile.
+   (a) pvnx.c has an ODE system based on a 1-D PDE problem, solved with
+   the nonstiff option.
+   (b) pvkx.c has an ODE system based on a 2-D 2-species reaction-transport
+   PDE problem, solved with the stiff (BDF) method and the preconditioned
+   Krylov linear system method (SPGMR).
+   (c) pvkxb.c solves the same problem as pvkx.c, but uses the band-
+   block-diagonal preconditioner module PVBBDPRE.
+   See the initial comments in each example source file for details on
+   problem and solution parameters.   
+      Typing 'make pvnx', 'make pvkx', or 'make pvkxb' in this subdirectory
+   finds the required header files etc. and generates the corresponding 
+   executable file.  Also included are sample outputs for the examples
+   (with names ending in .out).  Outputs obtained by another user, run
+   with the same number of processors, should agree with these, possibly
+   with relatively small differences throughout.
+
+7. /SUNDIALS/cvode/fcmix/ contains FPVODE, package of Fortran/C interfaces
+   which allow a Fortran application to use PVODE.  A makefile is supplied,
+   and typing 'make fpvode' adds these interfaces to the library file.
+   Usage documentation for FPVODE is contained in [1], and also in fpvode.h
+   and fpvbbd.h (for use of PVODE without and with PVBBDPRE, respectively).
+   The header file fcmixpar.h contains two machine-dependent parameters that
+   are used to define interface function names.  Check, and if necessary
+   modify, those parameter values for a given machine.
+      The subdirectory /SUNDIALS/cvode/fcmix/ also contains three Fortran
+   examples, called pvdiagnf, pvdiagkf, and pvdiagkbf.  Type 'make fpvodex'
+   to compile all of these examples.  A sample output for each is included.
+      Note: the example programs are in double precision Fortran; for a
+   long-wordlength machine, these should be converted to single precision.
+
+8. The files provided are independent of the machine environment, with 
+   minor exceptions, assuming only the availability of the tar utility,
+   and the MPI system.  The exceptions are the makefiles and the file
+   fcmixpar.h, which are specific to one particular machine environment.
+   Comments in these files describe parameters to be changed for a
+   different environment.
+
+9. Installing and using PVODE in a different environment requires only
+   minor modifications to the various makefiles.  For the compilation of
+   PVODE, check the file /SUNDIALS/cvode/source/pvode.mk, and if necessary
+   modify the compiler name, and the path to MPI include files.
+      To run PVODE on an application in a different directory location,
+   the makefiles in /SUNDIALS/cvode/examples/ can be used with minor
+   changes.  In the files Makefile and pvodex.mk, correct the various
+   paths involved -- paths to /SUNDIALS/shared/, /SUNDIALS/cvode/include/,
+   /SUNDIALS/lib/, and to MPI include files.  Also check and correct the
+   compiler/linker names and flags.
+
+
+B. Summary of Usage of MPI_PVODE
+--------------------------------
+
+0.  MPI_Init();  /* if user is using MPI also, aside from PVODE */
+
+1.  Set local length n, global length N, and active set of processors
+
+2.  machEnv = PVecInitMPI(comm, n, N, &argc, &argv);
+      /* comm = MPI communicator (if set up by user), or
+         comm = MPI_COMM_WORLD (specifying all processors)
+         &argc,&argv = pointers to command line argument count and arrays
+                       (needed if MPI not already initialized)  */
+    if (machEnv == NULL) return(1);
+    ...
+
+3.  N_VMAKE(y, data, machEnv);       /* user sets up vectors, etc. */
+    ...
+
+4.  cvmem = CVodeMalloc( N, f, ..., machEnv);      /* initializes CVODE */
+    if (cvmem == NULL) return(1);
+    ...
+
+5.  CV<linear solver choice>  /* e.g. CVSpgmr(... Precond, Psolve,...) */
+    ...
+
+6.  ier = CVode(cvmem, tout, y, &t, itask);  /* in loop over tout values */
+    ...
+
+7.  CVodeFree(cvmem);       /* Free CVODE memory independent of machine */
+    ...
+
+8.  PVecFreeMPI(machEnv);     /* Free machine-dependent stuff */
+
+
+Usage Notes:
+
+(1) See [1] and the file /doc/pvaddenda for further user documentation.
+    Additional usage details are also available from other sources:
+    (a) See the file nvector.h for documentation of PVecInitMPI, PVecFreeMPI,
+        and N_VMAKE (steps 2, 3, 8).
+    (b) See the CVODE User Guide [2] for documentation of steps 4-7, which are
+        independent of the sequential vs parallel machine environment.
+    (c) The paper [3] is a summary of CVODE with another short usage example.
+    (d) For further assistance with usage, see the example programs, which
+        are heavily annotated.
+
+(2) PVODE can be called from a C++ application, by virtue of wrappers
+    around all PVODE header files specifying C-style naming of functions.
+
+
+C. References
+-------------
+
+[1] George D. Byrne and Alan C. Hindmarsh, User Documentation for PVODE,
+    an ODE Solver for Parallel Computers, LLNL Report UCRL-ID-130884,
+    May 1998.
+
+[2] S. D. Cohen and A. C. Hindmarsh, CVODE User Guide, Lawrence
+    Livermore National Laboratory report UCRL-MA-118618, September 1994.
+
+[3] S. D. Cohen and A. C. Hindmarsh, CVODE, A Stiff/Nonstiff ODE Solver
+    in C, Computers in Physics, vol. 10, no. 2 (March 1996), pp. 138-143.
+
+[4] A. C. Hindmarsh and A. G. Taylor, PVODE and KINSOL: Parallel Software
+    for Differential and Nonlinear Systems, LLNL Report UCRL-ID-129739,
+    February 1998.
+
+
+D. Revision History (YYYYMMDD)
+------------------------------
+
+19950726  DATE WRITTEN; MPI version of VECTOR module written, creating 
+          MPI_PVODE; makefiles written with defs. specific to IBM-SP.
+19950929  Makefiles revised to include definitions for Cray-T3D; packaged
+          in directory, with subdirectories /source, /include, /examples.
+19960327  Diagonal example dropped; revisions to README.
+19961203  Minor revisions to README.
+19970116  Subdirectory /lib added; makefiles create and use libpvode.a.
+19970124  Combined example makefiles into one.
+19970219  FPVODE package of Fortran/C interfaces written, with examples.
+19970410  Legal note added to README.
+19970625  Wrote preconditioner module BBDPRE.
+19970724  FPVBBD - Fortran/C interfaces to BBDPRE precond. module written.
+19970811  Type names changed to LLNL_FLOAT etc.
+19970813  Changed first FFUN arg. in FPVODE to local length NLOC.
+19971103  Added argc,argv to PVInitMPI call list; removed ICOMM
+          argument to FPVINITMPI (pass MPI_COMM_WORLD).
+19971118  Makefiles revised for use on CASC Sun cluster; README revised.
+19971201  Name changes: PVInitMPI/PVFreeMPI to PVecInitMPI/PVecFreeMPI.
+19971208  Added optional argument dqrely to BBDPRE.
+19971215  Package restructured - added subdirectory /precon, pvkxb example.
+19971217  In FPVODE and FPVBBD, use name mappings dependent on parameters
+          set in fcmixpar.h.
+19980120  Name changes: VECTOR to NVECTOR etc.; expanded NVECTOR module from
+          KINSOL included; package restructured - subdirectory /fcmix added.
+19980206  Name changes for compatibility with KINSOL: BBDPRE to PVBBDPRE,
+          FFUN to PVFUN, etc.; added report as reference.
+19980504  Legal notices attached to README and nvector.* files.
+19980508  Wrappers on header files for C++ use; type bool changed to boole;
+          guards around definitions of macros MIN etc.
+19980803  In PVBBDPRE, added two half-bandwidth arguments;
+          use library file libpvpre.a for preconditioner module.
+19980923  In FPVBBDIN, added two half-bandwidth arguments.
+19981103  PS file for user doc. added to /doc subdirectory; README revised.
+19981109  Revised legal notices; minor changes to nvector files.
+19981116  Modified makefiles for use of MPI on CASC cluster.
+19981209  Simplified Fortran/C interface header files.
+19990119  Minor fixes to nvector.c and spgmr.c
+19990730  Minor fixes to Fortran examples.
+19990827  Minor fixes to fpvode.h and fpvbbd.h.
+20000316  SPGMR module modified for correct treatment of scalings;
+          in cvode.c, first f call moved from CVodeMalloc to CVode;
+          argument ewt removed from CVEwtSet, CVEwtSetSS, CVEwtSetSV;
+          added new routine CVReInit for re-initialization of CVODE;
+          file doc/Readme added, with corrections to usage;
+          minor errors corrected throughout.
+20000320  In NVECTOR module: removed comm = NULL option in PVecInitMPI
+          call, augmented module with three kernels (in support of IDA),
+          removed unused variable in N_VWL2Norm;
+          in PVBBDPRE module: added limits on half-bandwidths, preset
+          relative increment value, revised internal comments.
+20000321  In FPVODE module: added interface routine FPVREINIT, and
+          expanded diagkf example to run two cases, using FPVREINIT.
+20000719  Fixed memory leak bugs in CVReInit and FPVREINIT.
+20000808  Fixed bug in N_VMin routine.
+20011114  Added option for stability limit detection algorithm STALD;
+          revised FPVODE documentation.
+20011115  In NVECTOR module, macros and routines added to support CVODES.
+20011119  Renamed FPVODE example files for uniqueness.
+20011214  All makefiles revised to use new CVODE/PVODE package structure.
+20011220  Default type 'integer' changed to 'long int' in llnltyps.h.
+20011220  In nvector.h, PVecInitMPI prototype, corrected type
+          (int to integer) of length arguments.
+20011220  Optional input ropt[HMAX] examined on every call to CVode.
+20011220  Minor changes in cvode.c: comment errors fixed; conditional
+          copy of acor in CVChooseEta; more robust tfuzz in CVodeDky. 
+20011221  Optional input iopt[MXHNIL] = -1 means no t+h=t messages.
+20011221  Minor corrections to all examples.
+20011228  Added arguments jtimes (optional user J*v routine) and
+          jac_data to CVSpgmr.  Revised examples accordingly.
+20011228  Revised and expanded FPVODE interface package to accommodate
+          optional jtimes routine.  Revised examples accordingly.
+20020111  Minor corrections to cvode.c, in initialization of hmax_inv,
+          nscon, and sldeton.
+20020114  Linear solver modules reorganized: specification routines
+          CVDiag and CVSpgmr perform malloc operations and return a
+          completion flag.  Re-use of linear solver memory is allowed if
+          linear solver choice and parameters are unchanged.  Fortran
+          interface routines modified analogously.  All examples
+          modified to receive and test new return flag.
+20020114  Minor changes to cvode.c and cvspgmr.c: unused variables in
+          declarations, missing (non-occurring) return values.
+20020115  Minor corrections to cvode.h (CVReInit description), cvode.c
+          (formatting in CVsldet), and cvbandpre.c (include added).
+20020207  This file revised to reflect new package organization.
+
+......................................................................
+
+                            LEGAL NOTICES
+
+This work was performed at the University of California, Lawrence
+Livermore National Laboratory (UC LLNL) under contract no.
+W-7405-ENG-48 (Contract 48) between the U.S. Department of Energy
+(DOE) and The Regents of the University of California (the University)
+for the operation of UC LLNL.
+
+This work was prepared as an account of work sponsored by an agency of
+the United States Government.  Neither the United States Government
+nor the University of California nor any of their empolyees makes any
+warranty, express or implied, or assumes any liability or
+responsibility for the accuracy, completeness, or usefulness of any
+information, apparatus, product, or process disclosed, or represents
+that its use would not infringe privately owned rights.  Reference
+herein to any specific commercial products, process, or service by
+trade name, trademark, manufacturer, or otherwise, does not
+necessarily constitute or imply its endorsement, recommendation, or
+favoring by the United States Government or the University of
+California.  The views and opinions of authors expressed herein do not
+necessarily state or reflect those of the United States Government or
+the University of California, and shall not be used for advertising or
+product endorsement purposes.
+
+PVODE has been declared to be in the Public Domain.
+
+......................................................................

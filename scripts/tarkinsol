@@ -1,0 +1,75 @@
+# File tarkinsol: Script to build KINSOL tar-file, kinsol.tar.
+# To execute, type 'sundials/scripts/tarkinsol' in the directory
+# containing /sundials/.
+# Version of 7 February 2002.
+
+tar cvf kinsol.tar sundials/doc/Readme
+
+tar uvf kinsol.tar sundials/lib
+
+tar uvf kinsol.tar sundials/shared/include/llnltyps.h
+tar uvf kinsol.tar sundials/shared/include/llnlmath.h
+tar uvf kinsol.tar sundials/shared/include/nvector_serial.h
+tar uvf kinsol.tar sundials/shared/include/nvector_parallel.h
+tar uvf kinsol.tar sundials/shared/include/smalldense.h
+tar uvf kinsol.tar sundials/shared/include/band.h
+tar uvf kinsol.tar sundials/shared/include/spgmr.h
+tar uvf kinsol.tar sundials/shared/include/iterativ.h
+tar uvf kinsol.tar sundials/shared/include/fcmixpar.h
+
+tar uvf kinsol.tar sundials/shared/source/llnlmath.c
+tar uvf kinsol.tar sundials/shared/source/nvector_serial.c
+tar uvf kinsol.tar sundials/shared/source/nvector_parallel.c
+tar uvf kinsol.tar sundials/shared/source/smalldense.c
+tar uvf kinsol.tar sundials/shared/source/band.c
+tar uvf kinsol.tar sundials/shared/source/spgmr.c
+tar uvf kinsol.tar sundials/shared/source/iterativ.c
+
+tar uvf kinsol.tar sundials/kinsol/doc/kinreadme
+tar uvf kinsol.tar sundials/kinsol/doc/kinudoc.ps
+tar uvf kinsol.tar sundials/kinsol/doc/kinaddenda
+
+tar uvf kinsol.tar sundials/kinsol/include/kinsol.h
+tar uvf kinsol.tar sundials/kinsol/include/kinspgmr.h
+tar uvf kinsol.tar sundials/kinsol/include/kinbbdpre.h
+
+tar uvf kinsol.tar sundials/kinsol/source/Makefile
+tar uvf kinsol.tar sundials/kinsol/source/kinsols.mk
+tar uvf kinsol.tar sundials/kinsol/source/kinsolp.mk
+tar uvf kinsol.tar sundials/kinsol/source/kinsol.c
+tar uvf kinsol.tar sundials/kinsol/source/kinspgmr.c
+tar uvf kinsol.tar sundials/kinsol/source/kinbbdpre.c
+
+tar uvf kinsol.tar sundials/kinsol/examples/Makefile
+tar uvf kinsol.tar sundials/kinsol/examples/kinxs.mk
+tar uvf kinsol.tar sundials/kinsol/examples/kinxp.mk
+tar uvf kinsol.tar sundials/kinsol/examples/kinwebs.c
+tar uvf kinsol.tar sundials/kinsol/examples/kinwebs.out
+tar uvf kinsol.tar sundials/kinsol/examples/kinwebp.c
+tar uvf kinsol.tar sundials/kinsol/examples/kinwebp.out
+tar uvf kinsol.tar sundials/kinsol/examples/kinwebbbd.c
+tar uvf kinsol.tar sundials/kinsol/examples/kinwebbbd.out
+
+tar uvf kinsol.tar sundials/kinsol/fcmix/Makefile
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinsols.mk
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinsolsx.mk
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinsolp.mk
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinsolpx.mk
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinsol.h
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinsols.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinsolp.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinspgmr01.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinspgmr10.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinspgmr11.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinspgmr20.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinspgmr21.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinpreco.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinpsol.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinuatimes.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinbbd.h
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinbbd.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/fkinbbdinit1.c
+tar uvf kinsol.tar sundials/kinsol/fcmix/kindiagsf.f
+tar uvf kinsol.tar sundials/kinsol/fcmix/kindiagsf.out
+tar uvf kinsol.tar sundials/kinsol/fcmix/kindiagpf.f
+tar uvf kinsol.tar sundials/kinsol/fcmix/kindiagpf.out

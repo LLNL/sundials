@@ -1,0 +1,670 @@
+\documentstyle[12pt]{siam}
+
+
+\setlength{\oddsidemargin}{0in}   %These seem to be necessary
+\setlength{\evensidemargin}{0in}  %   to get equal side margins
+\setlength{\textwidth}{6.5in}     %Default is 6.15in
+
+\def\drop#1 {\ }
+
+\newcommand{\fortran}{{\sc Fortran}}
+\newcommand{\C}{{\sc C}}
+\newcommand{\codeS}{\mbox{\footnotesize\scshape CVODES/PVODES}}
+\newcommand{\code}{\mbox{\footnotesize\scshape CVODE/PVODE}}
+
+\newcommand{\uu}{{\bf u}}
+\newcommand{\ff}{{\bf f}}
+\newcommand{\bfr}{{\bf R}}
+\newcommand{\pbar}{\overline{p}}
+\newcommand{\deltat}{h}
+\newcommand{\dfdy}{\frac{\partial f}{\partial y}}
+\newcommand{\dFdY}{\frac{\partial F}{\partial Y}}
+\newcommand{\dGdY}{\frac{\partial G}{\partial Y}}
+\newcommand{\dfdpi}{\frac{\partial f}{\partial p_i}}
+\newcommand{\atol}{{\sc atol}}
+\newcommand{\rtol}{{\sc rtol}}
+\newcommand{\floor}{{\sc floor}}
+\newcommand{\rhomax}{\rho_{\max}}
+\newcommand{\sit}{s_{i}(t)}
+\newcommand{\sprimeit}{s_{i}^{\prime}(t)}
+\newcommand{\wit}{w_{i}(t)}
+\newcommand{\wprimeit}{w_{i}^{\prime}(t)}
+\newcommand{\yprimet}{y^{\prime}(t)}
+\newcommand{\Yprimet}{Y^{\prime}(t)}
+
+
+\hyphenation{N-VECTOR}
+
+\begin{document}
+
+{\codeS} is written with a functionality that is a superset of that of the 
+pair {\code}. {\codeS} solves initial-value problems (IVP) for 
+ordinary differential equations, stated as
+\begin{equation}
+y'(t) = f(t,y,p), \; \; y(t_0) = y_0(p), \; \; y \in \bfr^{N_y}, \; \; p \in
+\bfr^{N_p}, \label{orig_ODE}
+\end{equation}
+and (optionally) first-order sensitivity equations
+\begin{equation}
+s_i^{\prime}(t) = \frac{\partial f}{\partial y} s_i(t) + \dfdpi, \; 
+~~~~s_i(t_0) = \frac{\partial y_{0}(p)}{\partial p_i}, \;
+i = 1,\cdots, N_s. 
+\label{sens_eqns}
+\end{equation}
+
+
+\section{Using {\codeS}}
+
+This section describes the use of {\codeS}.
+We begin with a brief overview, in the form of a skeleton user program.
+Following that are detailed descriptions of the interface to the
+various user-callable routines, and of the user-supplied routines.
+
+%==============================================================================
+\subsection{Overview of Usage}
+\label{Usage}
+
+The following is a skeleton of the user's main program (or calling
+program) as an application of {\codeS}.
+The user program is to have these steps in the order indicated, unless 
+otherwise noted.
+For the sake of brevity, we defer many of the details to the later
+subsections.
+
+\begin{enumerate}
+
+\item 
+The calling program must {\tt \#include} several header files so that
+various data types, macros, and enumerations can be used.
+These header files include: {\tt llnltyps.h}, {\tt llnlmath.h}, {\tt
+cvode.h}, {\tt nvector.h}, {\tt mpi.h}, and one or more of the files {\tt
+dense.h}, {\tt band.h}, {\tt cvspgmr.h}, {\tt iterativ.h}, {\tt
+pvbbdpre.h} associated with the choice of preconditioner and/or linear
+system solvers.
+
+\item 
+{\tt MPI\_Init(\&argc, \&argv);} to initialize MPI.  
+Here {\tt argc} and {\tt argv} are the command line argument counter
+and array received by {\tt main}.
+
+\item
+Set {\tt Nlocal}, the local vector length for this processor, and {\tt
+Ny} the global vector length for this processor.
+Note that the problem size {\tt Ny} must be the sum of all values of {\tt Nlocal}.
+
+\item 
+{\tt machEnv = PVecInitMPI(comm, Nlocal, Ny, \&argc, \&argv);}
+to initialize the \newline {\tt NVECTOR} module.
+Here {\tt comm} is the MPI communicator, set in one of two ways: If a
+proper subset of active processors is to be used, {\tt comm} must be
+set by suitable MPI calls.
+Otherwise, to specify that all processors are to be used, {\tt comm}
+must be {\tt MPI\_COMM\_WORLD}.
+
+\item
+Set the vector {\tt y} of {\tt Ny} initial values. 
+If an existing array contains the initial values of {\tt y}, then use the macro 
+{\tt N\_VMAKE(y, ydata, machEnv);}. 
+Otherwise, make the call {\tt y = N\_VNew(Ny, machEnv);} and load initial values
+into the array defined by {\tt N\_DATA(y)}. 
+
+\item
+{\tt cvode\_mem = CVodeMalloc(\ldots);} allocates internal
+memory  not related to sensitivity calculations, 
+initializes the code, and returns a pointer to the {\codeS} memory structure. 
+(see details below.)
+
+\item \label{StepLinSolver}
+{\tt CVSpgmr(\ldots);} or {\tt CVDense(\ldots);} or {\tt CVBand(\ldots);} 
+or {\tt CVDiag(\ldots);} or \ldots
+if Newton iteration is chosen. (see details below. Note: This call can be made after 
+the sensitivity related steps)
+
+%{\bf NOTES: (1) When the user has selected the combination staggered 
+%sensitivities with Adams/functional iteration, I should probably use 
+%functional iterations on the sensitivity system too; this way I 
+%don't need a linear solver. Of course this apply for the staggered corrector
+%only. For the staggered direct, I would need a linear solver no matter what.}
+
+\item
+({\bf S}) Set the {\tt Ns} vectors {\tt s[i]} of {\tt Ny} initial values
+for sensitivities (for $i=0,\ldots,Ns-1$). 
+If an existing data array {\tt sdata} (of type {\tt real**} and pointing to
+{\tt Ns} vectors of length {\tt Ny} each) contains the initial values of
+{\tt s}, then use the macro {\tt N\_VMAKE\_S(Ns, s, sdata, machEnv);}.
+Otherwise, make the call {\tt s = N\_VNew\_S(Ns, Ny, machEnv);} and load
+initial values for sensitivity {\tt s[i]} into the array given by
+{\tt N\_DATA(s[i])}.
+
+\item
+({\bf S}) {\tt ier = SensCVodeMalloc(\ldots);} allocates internal
+memory for {\codeS} related to sensitivity calculations.
+(see details below.) 
+
+\item 
+{\tt ier = CVode(cvode\_mem, tout, y, \&t, itask);} for each point
+{\tt t =} {\tt tout} at which output is desired.
+Set {\tt itask} to {\tt NORMAL} to have the integrator overshoot {\tt
+tout} and interpolate, or {\tt ONE\_STEP} to take a single step and
+return.
+
+\item
+({\bf S}) {\tt ier = SensCVode(cvode\_mem, t, s);} to extract
+sensitivity solution into {\tt s}.
+
+\item 
+{\tt CVodeFree(cvode\_mem);} to free the memory allocated for {\codeS}.
+
+\item
+Before freeing the pointer to the user-defined data block {\tt
+f\_data}, release the array containing the real parameters {\tt p}:
+{\tt free(f\_data->p); free(f\_data);}.
+
+\item 
+{\tt PVecFreeMPI(machEnv);} to free machine-dependent data.
+
+\item
+{\tt MPI\_Finalize();}
+
+\end{enumerate}
+
+With the exception of two new arguments to {\tt CVDiag} and {\tt CVSpgmr} 
+(see details below) this new version of {\codeS} is completely backward compatible.
+If none of the steps marked ({\bf S}) are present, existing examples will work without
+modifications to either the user-supplied functions or to the user's main program.
+In what follows, we give detailed descriptions to the sensitivity-related user-callable
+routines, of the user-supplied functions, and of the modified {\tt CVSpgmr}.
+
+%==============================================================================
+\subsection{Sensitivity Related Routines}
+
+\begin{itemize}
+
+%------------------
+\item {\tt SensCVodeMalloc}
+%------------------
+
+This routine allocates internal memory related to sensitivity calculations.
+The return value is {\tt SUCCESS = 0} if no errors occured during initialization.
+\begin{verbatim}
+
+         ier = SensCVodeMalloc(cvode_mem, Ns, ism, p, pbar, plist, 
+                               fS, errcon, rhomax, s0, rtolS, atolS)
+
+\end{verbatim}
+
+\begin{itemize}
+\item {\tt cvode\_mem} is the pointer to the memory previously allocated
+  by {\tt CVodeMalloc}. 
+
+\item {\tt Ns} is the number of sensitivities to be computed.
+
+\item The flag {\tt ism} is used to select the sensitivity solution method and can 
+  be either {\tt SIMULTANEOUS} or {\tt STAGGERED}.
+
+\item The argument {\tt p} is a pointer to the array of problem parameters used to
+  evaluate $f(t,y,p)$.
+  The user data block must include a real pointer (e.g., {\tt p})
+  that points to {\tt p}. For example, if the pointer to the data block has the 
+  form {\tt typedef struct \{\ldots, real *p;\} *f\_data;}, 
+  then {\tt f\_data->p = p;} must point to the real array in which 
+  {\tt p[i-1] =} $p_i$, for $i=1,\ldots,N_p$.
+
+\item The user must pass the argument {\tt pbar} and
+  set an array of real values {\tt pbar[i]} that are used to scale the
+  sensitivity absolute error tolerance vectors.
+  Each {\tt pbar[i]} must be set to a nonzero constant that is
+  dimensionally consistent with {\tt p[i]}.
+  Typically, {\tt pbar[i]}$=${\tt p[i]} whenever {\tt p[i]} is nonzero.
+
+\item The array of {\tt Ns} integer flags pointed to by {\tt plist} has 
+  two functions; first, it specifies parameters with respect to which 
+  sensitivities  are to be computed. In this way, a user problem can
+  depend on more parameters than sensitivities required. Also, the parameters
+  with respect to which sensitivities are to be computed are not required
+  to be at the beginning of the array {\tt p}. Secondly, a value 
+  {\tt plist[i] = -j} indicates that the parameter {\tt p[-j]} does not
+  affect the right hand side $f$ of the IVP (\ref{orig_ODE}), but only its
+  initial conditions, thus saving some wasted computations.
+
+\item The argument {\tt fS}, if not {\tt NULL}, is a user provided {\C} function
+  to evaluate the right hand side of all sensitivity equations
+  (\ref{sens_eqns}). If a {\tt NULL} pointer is passed then {\codeS}
+  uses the default difference quotient routine {\tt CVSensRhsDQ}
+  to evaluate these quantities. 
+
+\item The flag {\tt errcon} is used to specify whether partial or full error 
+  control is to be used. If {\tt errcon = FULL} then both state variables and
+  sensitivity variables are included in the error tests. If {\tt errcon = PARTIAL}
+  then the sensitivity variables are excluded from the error tests. Note that,
+  in any event, all variables are considered in the convergence tests.
+
+\item In the case in which residuals of sensitivity equations are to be 
+  computed by {\codeS} ({\tt fS = NULL}), the argument {\tt rhomax} is 
+  used to decide the finite differencing strategy. 
+
+\item The vector {\tt s0} is a pointer to an array of {\tt Ns} vectors of 
+  length {\tt Ny} containing the initial values of
+  the sensitivities (which can be the same as the vector {\tt s} described above).
+
+\item The arguments {\tt rtolS} is a pointer to the user's 
+  relative error tolerance for sensitivity variables.
+  If a {\tt NULL} pointer is passed for {\tt rtolS} then {\codeS} uses the same
+  relative tolerance for sensitivity variables as for the state variables.
+
+\item The argument {\tt atolS} must point to a vector of {\tt Ns} absolute
+  tolerance values for sensitivity variables (if {\tt itol = SS}) or to
+  an array of {\tt Ns} vectors of sensitivity absolute tolerances.
+  If a {\tt NULL} pointer is passed for {\tt atolS}, {\codeS} defaults to using
+  as absolute error tolerance for sensitivity {\tt s[i]} a multiple of the
+  absolute error tolerance for the state variables, with the scale factor
+  being {\tt 1/pbar[plist[i]]}.
+\end{itemize}
+
+%------------------
+\item {\tt SensCVReinit}
+%------------------
+
+This routine re-initializes the sensitivity related internal memory and must
+follow a call to {\tt CVReInit}. The number {\tt Ns} of sensitivities is 
+assumed to be unchanged since the call to {\tt SensCVodeMalloc}.
+\begin{verbatim}
+
+         ier = SensCVReinit(cvode_mem, ism, p, pbar, plist, fS, 
+                            errcon, rhomax, s0, rtolS, atolS)
+
+\end{verbatim}
+
+The arguments have names and meanings identical to those of {\tt SensCVodeMalloc}.
+%------------------
+\item {\tt SensCVode}
+%------------------
+
+This routine extracts sensitivity variables at time $t$.
+\begin{verbatim}
+
+         ier = SensCVode(cvode_mem, t, s)
+
+\end{verbatim}
+
+\begin{itemize}
+\item {\tt cvode\_mem} is the pointer to the memory previously allocated
+  by {\tt CVodeMalloc}. If {\tt cvode\_mem == NULL} the return value is
+  {\tt DKY\_NO\_MEM}.
+
+\item The argument {\tt t} specifies the time at which sensitivity information is 
+  requested. The time {\tt t} must fall within the interval defined by the last 
+  succesfull step taken by {\codeS}. If its value is illegal, the return value
+  is {\tt BAD\_T}.
+
+\item The argument {\tt s} must be declared as a pointer to {\tt N\_Vector} but the
+  user needs not allocate memory for it. If {\tt s} is succesfully loaded
+  with the values of the sensitivity variables, {\tt SensCVode} returns {\tt OKAY}.
+\end{itemize}
+%------------------
+\item {\tt SensCVodeDkyAll}
+%------------------
+
+This routine computes the $k$-th derivatives of the interpolating polynomials for
+each sensitivity variable at time $t$.
+This function is called by {\tt SensCVode} with $k = 0$, but may also be called 
+directly by the user.
+
+\begin{verbatim}
+
+         ier = SensCVodeDkyAll(cvode_mem, t, k, dkyA)
+
+\end{verbatim}
+
+\begin{itemize}
+\item The arguments {\tt cvode\_mem} and {\tt t} are as above.
+
+\item The argument {\tt k} specifies the derivative order and must be 
+  $0 \le k \le q$, where $q$ is the order of the LMM used on the last step.
+  If its value is illegal, the return value is {\tt BAD\_K}.
+
+\item {\tt dkyA} must be declared as a pointer to {\tt N\_Vector} and the user
+  must allocate space for it. If {\tt dkyA} or any of its component vectors
+  is {\tt NULL}, the return value is {\tt BAD\_DKY}.
+
+\end{itemize}
+
+%------------------
+\item {\tt SensCVodeDky}
+%------------------
+
+This routine computes the $k$-th derivatives of the interpolating polynomial for
+the $is$-th sensitivity variable at time $t$.
+This function is called by {\tt SensCVodeDkyAll} for all sensitivities, but may 
+also be called directly by the user.
+
+\begin{verbatim}
+
+         ier = SensCVodeDky(cvode_mem, t, k, is, dky)
+
+\end{verbatim}
+
+\begin{itemize}
+\item The arguments {\tt cvode\_mem}, {\tt t}, and {\tt k} are as above.
+
+\item The argument {\tt is} specifies the sensitivity for which information
+  is requested and must be $0<is \le Ns$. If its value is illegal, the return
+  value is {\tt BAD\_IS}.
+
+\item {\tt dkyA} must be declared as an {\tt N\_Vector} and the user
+  must allocate space for it. If {\tt dkyA} is {\tt NULL}, the return value 
+  is {\tt BAD\_DKY}.
+
+\end{itemize}
+
+
+\end{itemize}
+
+%==============================================================================
+
+\subsection{Linear Solvers Initialization Routines}
+If Newton iteration was chosen for the solution of the nonlinear systems, the 
+user must specify a choice of a linear system solver. {\codeS} provides the 
+following choices:
+\begin{itemize}
+\item a direct method with dense treatment of the Jacobian
+\item a direct method with banded treatment of the Jacobian
+\item a direct method with diagonal treatment of the Jacobian
+\item a Krylov method, scaled preconditioned GMRES
+\end{itemize}
+For these, the initialization routines (step \ref{StepLinSolver} of \S\ref{Usage})
+are described below.
+
+\begin{itemize}
+
+%-------
+\item Dense case
+%-------
+\begin{verbatim}
+
+         CVDense(cvode_mem, djac, jac_data)
+
+\end{verbatim}
+
+The definition of this (optional) routine is unchanged from previous 
+versions of {\code}. Pass {\tt NULL} for {\tt djac} to use the default
+difference quotient routine {\tt CVDenseDQJac} supplied with this solver.
+
+%-------
+\item Banded case
+%-------
+\begin{verbatim}
+
+         CVBand(cvode_mem, mupper, mlower, bjac, jac_data)
+
+\end{verbatim}
+
+The definition of this (optional) routine is unchanged from previous 
+versions of {\code}. Pass {\tt NULL} for {\tt bjac} to use the default
+difference quotient routine {\tt CVBandDQJac} supplied with this solver.
+
+%-------
+\item Diagonal case
+%-------
+\begin{verbatim}
+
+         CVDiag(cvode_mem, gjac, jac_data)
+
+\end{verbatim}
+
+The argument {\tt gjac}, if non {\tt NULL}, is a user provided
+function of type {\tt CVDiagJacFn} to evaluate the diagonal of
+the Jacobian. Pass {\tt NULL} for {\tt gjac} to use the default
+difference quotient routine {\tt CVDiagDQJac} supplied with this solver.
+The last argument, {\tt jac\_data} is a pointer to user data which is passed 
+to the {\tt gjac} routine every time it is called.
+
+%-------
+\item SPGMR case
+%-------
+\begin{verbatim}
+
+         CVSpgmr(cvode_mem, pretype, gstype, maxl, delt, Precond, 
+                 PSolve, P_data, jtimes, jac_data)
+
+\end{verbatim}
+The first arguments to {\tt CVSpgmr} are the same as in {\code}. 
+The argument {\tt jtimes}, if non {\tt NULL}, points to a user 
+provided function of type {\tt CVSpgmrJtimesFn} to evaluate 
+the Jacobian times vector product for the SPGMR linear solver.
+Pass {\tt NULL} for {\tt jtimes} to use the default
+difference quotient routine {\tt CVSpgmrDQJtimes} supplied with this solver.
+The last argument, {\tt jac\_data} is a pointer to user data which is passed 
+to the {\tt jtimes} routine every time it is called.
+
+\end{itemize}
+
+%==============================================================================
+
+\subsection{User-Supplied Functions}
+
+The user-supplied routines consist of one function defining the ODE, 
+(optionally) a function that defines the sensitivity ODE, (optionally)
+a function that provides Jacobian related information for the linear 
+solver (if Newton iteration is chosen), 
+and (optionally) one or two functions that define the preconditioner for
+use in the SPGMR algorithm. 
+
+Recall that, if sensitivity analysis is to be performed, the user-supplied 
+data structure {\tt f\_data} contains a pointer (e.g., {\tt p}) that points 
+to the array of real parameters used in {\tt f}.
+
+\begin{itemize}
+
+%---------
+\item ODE right hand side
+%---------
+
+This function includes as input the value of the independent variable
+{\tt t}, and dependent variable vector {\tt y}.
+The computed value of $f(t, y, p)$ is stored in {\tt ydot}.
+There is no return value for a {\tt RhsFn}.
+\begin{verbatim}
+
+         void f(integer Ny, real t, N_Vector y, N_Vector ydot, 
+                void *f_data)
+
+\end{verbatim}
+
+The definition of this (required) user-provided routine is unchanged from
+previous versions of {\code}.
+
+%---------
+\item Sensitivity equations right hand side
+%---------
+
+The user may provide the right hand sides of the sensitivity equations
+(\ref{sens_eqns}) through the function 
+\begin{verbatim}
+
+         void fS(RhsFn f, integer Ns, integer Ny, real t, 
+                 N_Vector y, N_Vector ydot, 
+                 N_Vector *yS, N_Vector *ySdot, 
+                 real *p, real *pbar, integer *plist, void *f_data,
+                 N_Vector ewt, N_Vector *ewtS, 
+                 real *reltol, real *reltolS,
+                 real uround, real rhomax, long int *nfePtr,
+                 N_Vector ytemp, N_Vector ftemp);
+
+\end{verbatim}
+This function must be of type {\tt RhsSFn}. It receives as input the
+value of the independent variable {\tt t}, ODE solution vector {\tt y} and
+{\tt ydot}, and sensitivity vectors {\tt yS}. The computed vectors
+$\dfdy s_i(t) + \dfdpi$ are stored in {\tt ySdot[i]}. 
+There is no return value for a {\tt RhsSFn}.
+
+Other arguments, not discussed previously, are as follows:
+\begin{itemize}
+\item {\tt ewt} contains error weights for the state variables {\tt y};
+\item {\tt ewtS} is an array of vectors {\tt ewtS[i]} containing
+  error weights for sensitivity variables {\tt yS[i]};
+\item {\tt reltol} and {\tt reltolS} are the relative error tolerances for state 
+  and sensitivity variables, respectively;
+\item {\tt uround} is the machine unit roundoff;
+\item {\tt rhomax} is the finite difference threshold parameter;
+\item {\tt nfePtr} is a pointer to the number of function evaluation
+  calls counter. If any calls to {\tt f} are made, the user has the 
+  option of accounting for them in the final {\codeS} statistics;
+\item {\tt ytemp} and {\tt ftemp} are pointers to memory allocated
+  for vectors of length N which can be used by a {\tt RhsSFn} function
+  as temporary storage or work space.
+\end{itemize}
+
+%---------
+\item Jacobian information (direct method with dense Jacobian)
+%---------
+
+If the direct linear solver with dense treatment of the Jacobian is used 
+(i.e. {\tt CVDense} is called in step \ref{StepLinSolver} of \S\ref{Usage}), 
+the user may provide a function of type {\tt CVDenseJacFn} in the form
+\begin{verbatim}
+
+         void djac(integer Ny, DenseMat J, RhsFn f, void *f_data, 
+                   real t, N_Vector y, _Vector fy, N_Vector ewt,
+                   real h, real uround, void *jac_data,
+                   long int *nfePtr, N_Vector vtemp1,
+                   N_Vector vtemp2, N_Vector vtemp3);
+
+\end{verbatim}
+to compute the dense Jacobian $\dfdy$ (or an approximation to it).
+
+The definition of this (optional) user-provided routine is unchanged from
+previous versions of {\code}.
+
+NOTE: The {\tt CVDENSE} module in {\codeS} provides a default 
+{\tt CVDenseJacFn} routine - {\tt CVDenseDQJac} - which generates a dense
+difference quotient approximation to the Jacobian.
+
+%---------
+\item Jacobian information (direct method with banded Jacobian)
+%---------
+
+If the direct linear solver with banded treatment of the Jacobian is used 
+(i.e. {\tt CVBand} is called in step \ref{StepLinSolver} of \S\ref{Usage}), 
+the user may provide a function of type {\tt CVBandJacFn} in the form
+\begin{verbatim}
+
+         void bjac(integer Ny, integer mupper, integer mlower, 
+                   BandMat J, RhsFn f, void *f_data, real t, 
+                   N_Vector y, N_Vector fy,
+                   N_Vector ewt, real h, real uround, 
+                   void *jac_data, long int *nfePtr, 
+                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
+
+\end{verbatim}
+to generate the banded Jacobian $\dfdy$ (or a banded approximation to it).
+
+The definition of this (optional) user-provided routine is unchanged from
+previous versions of {\code}.
+
+NOTE: The {\tt CVBAND} module in {\codeS} provides a default 
+{\tt CVBandJacFn} routine - {\tt CVBandDQJac} - which generates a banded
+difference quotient approximation to the Jacobian.
+
+%---------
+\item Jacobian information (direct method with diagonal Jacobian)
+%---------
+
+If the direct linear solver with diagonal treatment of the Jacobian is used 
+(i.e. {\tt CVDiag} is called in step \ref{StepLinSolver} of \S\ref{Usage}), 
+the user may provide a function of type {\tt CVDiagJacFn} in the form
+
+{\bf (NOTE: This is not final argument list)}
+
+\begin{verbatim}
+
+         void gjac(integer Ny, N_Vector J,
+                   RhsFn f, void *f_data, real t, 
+                   N_Vector y, N_Vector fy,
+                   N_Vector ewt, real h, real uround, void *jac_data,
+                   long int *nfePtr, ... )
+
+\end{verbatim}
+to generate the diagonal Jacobian $\dfdy$ (or a diagonal approximation of it).
+
+NOTE: The {\tt CVDIAG} module in {\codeS} provides a default 
+{\tt CVDiagJacFn} routine - {\tt CVDiagDQJac} - which generates a diagonal
+difference quotient approximation to the Jacobian.
+
+%---------
+\item Jacobian information (SPGMR case)
+%---------
+
+If an iterative SPGMR linear solver is selected ({\tt CVSpgmr} is called in step 
+\ref{StepLinSolver} of \S\ref{Usage}) the user may provide a function
+of type {\tt CVSpgmrJtimesFn} in the form 
+
+{\bf (NOTE: This is not final argument list)}
+
+\begin{verbatim}
+
+         void jtimes(integer Ny, N_Vector v, N_Vector Jv,
+                     RhsFn f, void *f_data, real t, 
+                     N_Vector y, N_Vector fy,
+                     N_Vector ewt, real h, real uround, void *jac_data,
+                     long int *nfePtr, ... )
+
+\end{verbatim} 
+to compute the product $(\dfdy) v$ (or an approximation to it).
+
+NOTE: The {\tt CVSPGMR} module in {\codeS} provides a default 
+{\tt CVSpgmrJtimesFn} routine - {\tt CVSpgmrDQJtimes} - which generates a
+difference quotient approximation to the Jacobian times vector quantity.
+
+%---------
+\item Preconditioning (linear system solution) 
+%---------
+
+If preconditioning is used, then the user must provide a C function to
+solve the linear system $Pz = r$ where $P$ may be either a left or a
+right preconditioner matrix.
+This C function must be of type {\tt CVSpgmrPSolveFn}.
+The {\tt Psolve} function has the following form:
+\begin{verbatim}
+
+         int Psolve(integer Ny, real t, N_Vector y, N_Vector fy, 
+                    N_Vector vtemp, real gamma, N_Vector ewt, 
+                    real delta, long int *nfePtr, N_Vector r, 
+                    int lr, void *P_data, N_Vector z)
+
+\end{verbatim}
+
+The definition of this (optional) user-provided routine is unchanged from
+previous versions of {\code}.
+
+%---------
+\item Preconditioning (Jacobian data) 
+%---------
+
+If the user's preconditioner requires that any Jacobian related data
+be evaluated or preprocessed, then this needs to be done in the
+optional user-supplied C function {\tt Precond}.
+The {\tt Precond} function has the form:
+\begin{verbatim}
+
+         int Precond(integer Ny, real t, N_Vector y, N_Vector fy, 
+                     boole jok, boole *jcurPtr, real gamma, 
+                     N_Vector ewt, real h, real uround, 
+                     long int *nfePtr, void *P_data, 
+                     N_Vector vtemp1, N_Vector vtemp2,
+                     N_Vector vtemp3)
+
+\end{verbatim}
+
+The definition of this (optional) user-provided routine is unchanged from
+previous versions of {\code}.
+
+\end{itemize}
+
+
+
+%==============================================================================
+
+\end{document}
+
+

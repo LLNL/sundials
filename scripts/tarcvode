@@ -1,0 +1,61 @@
+# File tarcvode: Script to build CVODE tar-file, cvode.tar.
+# To execute, type 'sundials/scripts/tarcvode' in the directory
+# containing /sundials/.
+# Version of 7 February 2002.
+
+tar cvf cvode.tar sundials/doc/Readme
+
+tar uvf cvode.tar sundials/lib
+
+tar uvf cvode.tar sundials/shared/include/llnltyps.h
+tar uvf cvode.tar sundials/shared/include/llnlmath.h
+tar uvf cvode.tar sundials/shared/include/nvector_serial.h
+tar uvf cvode.tar sundials/shared/include/dense.h
+tar uvf cvode.tar sundials/shared/include/smalldense.h
+tar uvf cvode.tar sundials/shared/include/band.h
+tar uvf cvode.tar sundials/shared/include/spgmr.h
+tar uvf cvode.tar sundials/shared/include/iterativ.h
+
+tar uvf cvode.tar sundials/shared/source/llnlmath.c
+tar uvf cvode.tar sundials/shared/source/nvector_serial.c
+tar uvf cvode.tar sundials/shared/source/dense.c
+tar uvf cvode.tar sundials/shared/source/smalldense.c
+tar uvf cvode.tar sundials/shared/source/band.c
+tar uvf cvode.tar sundials/shared/source/spgmr.c
+tar uvf cvode.tar sundials/shared/source/iterativ.c
+
+tar uvf cvode.tar sundials/cvode/doc/cvreadme
+tar uvf cvode.tar sundials/cvode/doc/cvudoc.ps
+tar uvf cvode.tar sundials/cvode/doc/cvaddenda
+
+tar uvf cvode.tar sundials/cvode/include/cvode.h
+tar uvf cvode.tar sundials/cvode/include/cvdense.h
+tar uvf cvode.tar sundials/cvode/include/cvband.h
+tar uvf cvode.tar sundials/cvode/include/cvdiag.h
+tar uvf cvode.tar sundials/cvode/include/cvspgmr.h
+tar uvf cvode.tar sundials/cvode/include/cvbandpre.h
+
+tar uvf cvode.tar sundials/cvode/source/Makefile
+tar uvf cvode.tar sundials/cvode/source/cvode.mk
+tar uvf cvode.tar sundials/cvode/source/cvode.c
+tar uvf cvode.tar sundials/cvode/source/cvdense.c
+tar uvf cvode.tar sundials/cvode/source/cvband.c
+tar uvf cvode.tar sundials/cvode/source/cvdiag.c
+tar uvf cvode.tar sundials/cvode/source/cvspgmr.c
+tar uvf cvode.tar sundials/cvode/source/cvbandpre.c
+
+tar uvf cvode.tar sundials/cvode/examples/Makefile
+tar uvf cvode.tar sundials/cvode/examples/cvodex.mk
+tar uvf cvode.tar sundials/cvode/examples/pvodex.mk
+tar uvf cvode.tar sundials/cvode/examples/cvdx.c
+tar uvf cvode.tar sundials/cvode/examples/cvdx.out
+tar uvf cvode.tar sundials/cvode/examples/cvbx.c
+tar uvf cvode.tar sundials/cvode/examples/cvbx.out
+tar uvf cvode.tar sundials/cvode/examples/cvkx.c
+tar uvf cvode.tar sundials/cvode/examples/cvkx.out
+tar uvf cvode.tar sundials/cvode/examples/cvkxb.c
+tar uvf cvode.tar sundials/cvode/examples/cvkxb.out
+tar uvf cvode.tar sundials/cvode/examples/cvdemd.c
+tar uvf cvode.tar sundials/cvode/examples/cvdemd.out
+tar uvf cvode.tar sundials/cvode/examples/cvdemk.c
+tar uvf cvode.tar sundials/cvode/examples/cvdemk.out

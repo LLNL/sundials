@@ -1,0 +1,54 @@
+
+ 1-D advection-diffusion equation, mesh size = 10 
+ Number of sensitivity vectors: Ns  =   2 
+ Number of PEs =   4 
+
+At t = 0.00    max.norm(u) =  1.569909e+01 
+sensitivity s_1:  max.norm =  0.000000e+00 
+sensitivity s_2:  max.norm =  0.000000e+00 
+
+At t = 0.50    max.norm(u) =  3.052880e+00   nst = 111 
+sensitivity s_1:  max.norm =  3.866800e+00 
+sensitivity s_2:  max.norm =  6.202004e-01 
+
+At t = 1.00    max.norm(u) =  8.753254e-01   nst = 179 
+sensitivity s_1:  max.norm =  2.174317e+00 
+sensitivity s_2:  max.norm =  1.890860e-01 
+
+At t = 1.50    max.norm(u) =  2.494878e-01   nst = 244 
+sensitivity s_1:  max.norm =  9.182392e-01 
+sensitivity s_2:  max.norm =  7.392083e-02 
+
+At t = 2.00    max.norm(u) =  7.109524e-02   nst = 319 
+sensitivity s_1:  max.norm =  3.466627e-01 
+sensitivity s_2:  max.norm =  2.822763e-02 
+
+At t = 2.50    max.norm(u) =  2.025933e-02   nst = 385 
+sensitivity s_1:  max.norm =  1.230116e-01 
+sensitivity s_2:  max.norm =  1.008525e-02 
+
+At t = 3.00    max.norm(u) =  5.773203e-03   nst = 453 
+sensitivity s_1:  max.norm =  4.195618e-02 
+sensitivity s_2:  max.norm =  3.455627e-03 
+
+At t = 3.50    max.norm(u) =  1.645103e-03   nst = 521 
+sensitivity s_1:  max.norm =  1.391418e-02 
+sensitivity s_2:  max.norm =  1.167859e-03 
+
+At t = 4.00    max.norm(u) =  4.694338e-04   nst = 594 
+sensitivity s_1:  max.norm =  4.533121e-03 
+sensitivity s_2:  max.norm =  3.944522e-04 
+
+At t = 4.50    max.norm(u) =  1.350271e-04   nst = 672 
+sensitivity s_1:  max.norm =  1.463116e-03 
+sensitivity s_2:  max.norm =  1.266590e-04 
+
+At t = 5.00    max.norm(u) =  3.894741e-05   nst = 753 
+sensitivity s_1:  max.norm =  4.668291e-04 
+sensitivity s_2:  max.norm =  4.070255e-05 
+
+
+Final Statistics.. 
+
+nst = 753     nfe  = 7006    nni = 0       ncfn = 140     netf = 2
+ 

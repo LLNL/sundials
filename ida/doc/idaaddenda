@@ -1,0 +1,17 @@
+
+                            ADDENDA TO 
+       "User Documentation for IDA, A Differential-Algebraic Equation
+            Solver for Sequential and Parallel Computers"
+                          20 December 2001
+
+Since the publication of the IDA User Documentation, several minor
+changes have been made in the IDA package.  Only one of those affects
+the usage of IDA, as described below.
+
+1. In the initialization routine PVecInitMPI of the parallel NVECTOR
+module, the argument comm must be a meaningful communicator of type
+MPI_Comm, and cannnot be NULL.
+
+2. In the file llnltyps.h, the default for type 'integer' is now
+'long int' instead of 'int'.  The usage instructions in the IDA User 
+Documentation for changing this type are to be altered accordingly.

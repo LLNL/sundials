@@ -1,0 +1,193 @@
+# File tarsun: Script to build SUNDIALS tar-file, sundials.tar.
+# To execute, type 'sundials/scripts/tarsun' in the directory
+# containing /sundials/.
+# Version of 7 February 2002.
+
+tar cvf sundials.tar sundials/doc/Readme
+
+tar uvf sundials.tar sundials/lib
+
+tar uvf sundials.tar sundials/shared/include/llnltyps.h
+tar uvf sundials.tar sundials/shared/include/llnlmath.h
+tar uvf sundials.tar sundials/shared/include/nvector_serial.h
+tar uvf sundials.tar sundials/shared/include/dense.h
+tar uvf sundials.tar sundials/shared/include/smalldense.h
+tar uvf sundials.tar sundials/shared/include/band.h
+tar uvf sundials.tar sundials/shared/include/spgmr.h
+tar uvf sundials.tar sundials/shared/include/iterativ.h
+
+tar uvf sundials.tar sundials/shared/source/llnlmath.c
+tar uvf sundials.tar sundials/shared/source/nvector_serial.c
+tar uvf sundials.tar sundials/shared/source/dense.c
+tar uvf sundials.tar sundials/shared/source/smalldense.c
+tar uvf sundials.tar sundials/shared/source/band.c
+tar uvf sundials.tar sundials/shared/source/spgmr.c
+tar uvf sundials.tar sundials/shared/source/iterativ.c
+
+
+# Add CVODE and PVODE
+
+tar uvf sundials.tar sundials/cvode/doc/cvreadme
+tar uvf sundials.tar sundials/cvode/doc/cvudoc.ps
+tar uvf sundials.tar sundials/cvode/doc/cvaddenda
+tar uvf sundials.tar sundials/cvode/doc/pvreadme
+tar uvf sundials.tar sundials/cvode/doc/pvudoc.ps
+tar uvf sundials.tar sundials/cvode/doc/pvaddenda
+
+tar uvf sundials.tar sundials/cvode/include/cvode.h
+tar uvf sundials.tar sundials/cvode/include/cvdense.h
+tar uvf sundials.tar sundials/cvode/include/cvband.h
+tar uvf sundials.tar sundials/cvode/include/cvdiag.h
+tar uvf sundials.tar sundials/cvode/include/cvspgmr.h
+tar uvf sundials.tar sundials/cvode/include/cvbandpre.h
+tar uvf sundials.tar sundials/cvode/include/pvbbdpre.h
+
+tar uvf sundials.tar sundials/cvode/source/Makefile
+tar uvf sundials.tar sundials/cvode/source/cvode.mk
+tar uvf sundials.tar sundials/cvode/source/cvode.c
+tar uvf sundials.tar sundials/cvode/source/cvdense.c
+tar uvf sundials.tar sundials/cvode/source/cvband.c
+tar uvf sundials.tar sundials/cvode/source/cvdiag.c
+tar uvf sundials.tar sundials/cvode/source/cvspgmr.c
+tar uvf sundials.tar sundials/cvode/source/cvbandpre.c
+tar uvf sundials.tar sundials/cvode/source/pvode.mk
+tar uvf sundials.tar sundials/cvode/source/pvbbdpre.c
+
+tar uvf sundials.tar sundials/cvode/examples/Makefile
+tar uvf sundials.tar sundials/cvode/examples/cvodex.mk
+tar uvf sundials.tar sundials/cvode/examples/pvodex.mk
+tar uvf sundials.tar sundials/cvode/examples/cvdx.c
+tar uvf sundials.tar sundials/cvode/examples/cvdx.out
+tar uvf sundials.tar sundials/cvode/examples/cvbx.c
+tar uvf sundials.tar sundials/cvode/examples/cvbx.out
+tar uvf sundials.tar sundials/cvode/examples/cvkx.c
+tar uvf sundials.tar sundials/cvode/examples/cvkx.out
+tar uvf sundials.tar sundials/cvode/examples/cvkxb.c
+tar uvf sundials.tar sundials/cvode/examples/cvkxb.out
+tar uvf sundials.tar sundials/cvode/examples/cvdemd.c
+tar uvf sundials.tar sundials/cvode/examples/cvdemd.out
+tar uvf sundials.tar sundials/cvode/examples/cvdemk.c
+tar uvf sundials.tar sundials/cvode/examples/cvdemk.out
+tar uvf sundials.tar sundials/cvode/examples/pvnx.c
+tar uvf sundials.tar sundials/cvode/examples/pvnx.out
+tar uvf sundials.tar sundials/cvode/examples/pvkx.c
+tar uvf sundials.tar sundials/cvode/examples/pvkx.out
+tar uvf sundials.tar sundials/cvode/examples/pvkxb.c
+tar uvf sundials.tar sundials/cvode/examples/pvkxb.out
+
+tar uvf sundials.tar sundials/cvode/fcmix/Makefile
+tar uvf sundials.tar sundials/cvode/fcmix/fpvode.mk
+tar uvf sundials.tar sundials/cvode/fcmix/fpvodex.mk
+tar uvf sundials.tar sundials/cvode/fcmix/fpvode.h
+tar uvf sundials.tar sundials/cvode/fcmix/fpvode.c
+tar uvf sundials.tar sundials/cvode/fcmix/fpvspgmr01.c
+tar uvf sundials.tar sundials/cvode/fcmix/fpvspgmr10.c
+tar uvf sundials.tar sundials/cvode/fcmix/fpvspgmr11.c
+tar uvf sundials.tar sundials/cvode/fcmix/fpvspgmr20.c
+tar uvf sundials.tar sundials/cvode/fcmix/fpvspgmr21.c
+tar uvf sundials.tar sundials/cvode/fcmix/fpvpreco.c
+tar uvf sundials.tar sundials/cvode/fcmix/fpvpsol.c
+tar uvf sundials.tar sundials/cvode/fcmix/fpvjtimes.c
+tar uvf sundials.tar sundials/cvode/fcmix/fpvbbd.h
+tar uvf sundials.tar sundials/cvode/fcmix/fpvbbd.c
+tar uvf sundials.tar sundials/cvode/fcmix/fpvbbdin1.c
+tar uvf sundials.tar sundials/cvode/fcmix/pvdiagnf.f
+tar uvf sundials.tar sundials/cvode/fcmix/pvdiagnf.out
+tar uvf sundials.tar sundials/cvode/fcmix/pvdiagkf.f
+tar uvf sundials.tar sundials/cvode/fcmix/pvdiagkf.out
+tar uvf sundials.tar sundials/cvode/fcmix/pvdiagkbf.f
+tar uvf sundials.tar sundials/cvode/fcmix/pvdiagkbf.out
+
+
+# Add KINSOL
+
+tar uvf sundials.tar sundials/kinsol/doc/kinreadme
+tar uvf sundials.tar sundials/kinsol/doc/kinudoc.ps
+tar uvf sundials.tar sundials/kinsol/doc/kinaddenda
+
+tar uvf sundials.tar sundials/kinsol/include/kinsol.h
+tar uvf sundials.tar sundials/kinsol/include/kinspgmr.h
+tar uvf sundials.tar sundials/kinsol/include/kinbbdpre.h
+
+tar uvf sundials.tar sundials/kinsol/source/Makefile
+tar uvf sundials.tar sundials/kinsol/source/kinsols.mk
+tar uvf sundials.tar sundials/kinsol/source/kinsolp.mk
+tar uvf sundials.tar sundials/kinsol/source/kinsol.c
+tar uvf sundials.tar sundials/kinsol/source/kinspgmr.c
+tar uvf sundials.tar sundials/kinsol/source/kinbbdpre.c
+
+tar uvf sundials.tar sundials/kinsol/examples/Makefile
+tar uvf sundials.tar sundials/kinsol/examples/kinxs.mk
+tar uvf sundials.tar sundials/kinsol/examples/kinxp.mk
+tar uvf sundials.tar sundials/kinsol/examples/kinwebs.c
+tar uvf sundials.tar sundials/kinsol/examples/kinwebs.out
+tar uvf sundials.tar sundials/kinsol/examples/kinwebp.c
+tar uvf sundials.tar sundials/kinsol/examples/kinwebp.out
+tar uvf sundials.tar sundials/kinsol/examples/kinwebbbd.c
+tar uvf sundials.tar sundials/kinsol/examples/kinwebbbd.out
+
+tar uvf sundials.tar sundials/kinsol/fcmix/Makefile
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinsols.mk
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinsolsx.mk
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinsolp.mk
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinsolpx.mk
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinsol.h
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinsols.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinsolp.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinspgmr01.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinspgmr10.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinspgmr11.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinspgmr20.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinspgmr21.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinpreco.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinpsol.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinuatimes.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinbbd.h
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinbbd.c
+tar uvf sundials.tar sundials/kinsol/fcmix/fkinbbdinit1.c
+tar uvf sundials.tar sundials/kinsol/fcmix/kindiagsf.f
+tar uvf sundials.tar sundials/kinsol/fcmix/kindiagsf.out
+tar uvf sundials.tar sundials/kinsol/fcmix/kindiagpf.f
+tar uvf sundials.tar sundials/kinsol/fcmix/kindiagpf.out
+
+
+# Add IDA
+
+tar uvf sundials.tar sundials/ida/doc/idareadme
+tar uvf sundials.tar sundials/ida/doc/idaudoc.ps
+tar uvf sundials.tar sundials/ida/doc/idaaddenda
+
+tar uvf sundials.tar sundials/ida/include/ida.h
+tar uvf sundials.tar sundials/ida/include/idadense.h
+tar uvf sundials.tar sundials/ida/include/idaband.h
+tar uvf sundials.tar sundials/ida/include/idaspgmr.h
+tar uvf sundials.tar sundials/ida/include/idabbdpre.h
+
+tar uvf sundials.tar sundials/ida/source/Makefile
+tar uvf sundials.tar sundials/ida/source/idas.mk
+tar uvf sundials.tar sundials/ida/source/idap.mk
+tar uvf sundials.tar sundials/ida/source/ida.c
+tar uvf sundials.tar sundials/ida/source/idadense.c
+tar uvf sundials.tar sundials/ida/source/idaband.c
+tar uvf sundials.tar sundials/ida/source/idaspgmr.c
+tar uvf sundials.tar sundials/ida/source/idabbdpre.c
+
+tar uvf sundials.tar sundials/ida/examples/Makefile
+tar uvf sundials.tar sundials/ida/examples/idaxs.mk
+tar uvf sundials.tar sundials/ida/examples/idaxp.mk
+tar uvf sundials.tar sundials/ida/examples/irobx.c
+tar uvf sundials.tar sundials/ida/examples/irobx.out
+tar uvf sundials.tar sundials/ida/examples/iheatsb.c
+tar uvf sundials.tar sundials/ida/examples/iheatsb.out
+tar uvf sundials.tar sundials/ida/examples/iheatsk.c
+tar uvf sundials.tar sundials/ida/examples/iheatsk.out
+tar uvf sundials.tar sundials/ida/examples/iheatpk.c
+tar uvf sundials.tar sundials/ida/examples/iheatpk.out
+tar uvf sundials.tar sundials/ida/examples/iheatbbd.c
+tar uvf sundials.tar sundials/ida/examples/iheatbbd.out
+tar uvf sundials.tar sundials/ida/examples/iwebsb.c
+tar uvf sundials.tar sundials/ida/examples/iwebsb.out
+tar uvf sundials.tar sundials/ida/examples/iwebpk.c
+tar uvf sundials.tar sundials/ida/examples/iwebpk.out
+tar uvf sundials.tar sundials/ida/examples/iwebbbd.c
+tar uvf sundials.tar sundials/ida/examples/iwebbbd.out
