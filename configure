@@ -2627,7 +2627,7 @@ if test "X${MY_CFLAGS}" = "Xnone"; then
   case $host in
 
     # Linux
-    i686-pc-linux-gnu)
+    i*-pc-linux-gnu)
 
       if test "X${GCC}" = "Xyes"; then
         MY_CFLAGS="${MY_CFLAGS} -ffloat-store"
@@ -3497,6 +3497,15 @@ echo $ECHO_N "checking for Fortran compiler flags... $ECHO_C" >&6
 
   case $host in
 
+    # Linux
+    i*-pc-linux-gnu)
+
+      if test "X${G77}" = "Xyes"; then
+        MY_FFLAGS="${MY_FFLAGS} -ffloat-store"
+      fi
+
+    ;;
+
     # SGI/IRIX
     mips-sgi-irix* )
 
@@ -3578,7 +3587,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3581: \"$ac_link\") >&5
+(eval echo $as_me:3590: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3658,7 +3667,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3661: \"$ac_link\") >&5
+(eval echo $as_me:3670: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS

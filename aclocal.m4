@@ -1,8 +1,8 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2004-03-31 21:17:46 $
+# $Revision: 1.15 $
+# $Date: 2004-05-04 21:48:23 $
 # ------------------------------------------------------------------------
-# Programmers: Radu Serban @ LLNL
+# Programmer(s): Radu Serban @ LLNL
 # ------------------------------------------------------------------------
 # Copyright (c) 2002, The Regents of the University of California
 # Produced at the Lawrence Livermore National Laboratory
@@ -236,7 +236,7 @@ AC_DEFUN(SUNDIALS_PROG_CFLAGS,
   case $host in 
 
     # Linux
-    i686-pc-linux-gnu)
+    i*-pc-linux-gnu)
 
       if test "X${GCC}" = "Xyes"; then       
         MY_CFLAGS="${MY_CFLAGS} -ffloat-store"
@@ -341,6 +341,15 @@ fi
 AC_DEFUN(SUNDIALS_PROG_FFLAGS,
 [
   case $host in
+
+    # Linux
+    i*-pc-linux-gnu)
+
+      if test "X${G77}" = "Xyes"; then       
+        MY_FFLAGS="${MY_FFLAGS} -ffloat-store"
+      fi
+
+    ;;
 
     # SGI/IRIX
     mips-sgi-irix* ) 
