@@ -1,9 +1,0 @@
-nvector_parallel.h nvector_parallel.c
-  - updated to conform to generic nvector
-  - removed dimension from N_VNew
-  - removed parallel implementation of N_VNew_S and N_VFree_S
-
-  - changed M_Env -> NV_Spec , N_VectorParalelContent -> N_VectorContentParalel
-
-fnvector_parallel.h fnvector_parallel.c
-  - changed MENV -> NVSPEC , M_Env -> NV_Spec , etc.
