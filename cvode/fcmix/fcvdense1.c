@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvdense1.c                                    *
  * Programmers   : Radu Serban  and Alan Hindmarsh@ LLNL          *
- * Version of    : 22 July 2002                                   *
+ * Version of    : 30 March 2003                                  *
  *----------------------------------------------------------------*
  *                                                                *
  * Fortran/C interface routines for CVODE/CVDENSE, for the case   *
@@ -20,19 +20,19 @@
 
 /* Prototype of the Fortran routine */
 void FCV_DJAC(integertype*, realtype*, realtype*, realtype*, realtype*, 
-              realtype*, realtype*, realtype*, long int*,
               realtype*, realtype*, realtype*);
 
 /***************************************************************************/
 
-void FCV_DENSE1(int *ier)
+void FCV_DENSE1(integertype *neq, int *ier)
 {
   /* Call CVDense:
+   *neq          is the problem dimension
      CV_cvodemem is the pointer to the CVODE memory block 
      CVDenseJac  is a pointer to the dense Jac routine
      NULL        is a pointer to jac_data                 */
 
-  *ier = CVDense(CV_cvodemem, CVDenseJac, NULL);
+  *ier = CVDense(CV_cvodemem, *neq, CVDenseJac, NULL);
 }
 
 /***************************************************************************/
@@ -55,23 +55,20 @@ void FCV_REINDENSE1(int *ier)
    DENSE_COL from DENSE and the routine N_VGetData from NVECTOR.
    Auxiliary data is assumed to be communicated by Common. */
 
-void CVDenseJac(integertype N, DenseMat J, RhsFn f, void *f_data,
-                realtype t, N_Vector y, N_Vector fy, N_Vector ewt,
-                realtype h, realtype uround, void *jac_data, long int *nfePtr,
+void CVDenseJac(integertype N, DenseMat J, realtype t, 
+                N_Vector y, N_Vector fy, void *jac_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  realtype *ydata, *fydata, *ewtdata, *jacdata, *v1data, *v2data, *v3data;
+  realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
 
   ydata   = N_VGetData(y);
   fydata  = N_VGetData(fy);
-  ewtdata = N_VGetData(ewt);
   v1data  = N_VGetData(vtemp1);
   v2data  = N_VGetData(vtemp2);
   v3data  = N_VGetData(vtemp3);
 
   jacdata = DENSE_COL(J,0);
 
-  FCV_DJAC(&N, &t, ydata, fydata, ewtdata, &h, &uround, jacdata,
-           nfePtr, v1data, v2data, v3data); 
+  FCV_DJAC(&N, &t, ydata, fydata, jacdata, v1data, v2data, v3data); 
 
 }

@@ -1,7 +1,7 @@
 /**********************************************************************
  * File          : fcvpsol.c                                          *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL           *
- * Version of    : 18 July 2002                                       *
+ * Version of    : 30 March 2003                                      *
  *--------------------------------------------------------------------*
  * This C function CVPSol is to interface between the CVSPGMR module  *
  * and the user-supplied preconditioner solve routine CVPSOL.         *
@@ -18,7 +18,7 @@
 /********************************************************************/
 
 /* Prototype of the Fortran routine */
-void FCV_PSOL(integertype*, realtype*, realtype*, realtype*, realtype*, 
+void FCV_PSOL(realtype*, realtype*, realtype*, realtype*, 
               realtype*, realtype*, realtype*, 
               long int*, realtype*, int*, realtype*, int*);
 
@@ -27,12 +27,12 @@ void FCV_PSOL(integertype*, realtype*, realtype*, realtype*, realtype*,
 
 /* C function CVPSol to interface between CVODE and a Fortran subroutine
    CVPSOL for solution of a Krylov preconditioner.
-   Addresses of N, t, gamma, delta, lr, y, fy, vtemp, ewt, r, z, and the
+   Addresses of t, gamma, delta, lr, y, fy, vtemp, ewt, r, z, and the
    address nfePtr, are passed to CVPSOL, using the routine N_VGetData 
    from NVECTOR.  A return flag ier from CVPSOL is returned by CVPSol.
    Auxiliary data is assumed to be communicated by Common. */
 
-int CVPSol(integertype N, realtype t, N_Vector y, N_Vector fy, N_Vector vtemp,
+int CVPSol(realtype t, N_Vector y, N_Vector fy, N_Vector vtemp,
            realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
            N_Vector r, int lr, void *P_data, N_Vector z)
 {
@@ -46,7 +46,7 @@ int CVPSol(integertype N, realtype t, N_Vector y, N_Vector fy, N_Vector vtemp,
   rdata = N_VGetData(r);
   zdata = N_VGetData(z);
 
-  FCV_PSOL(&N, &t, ydata, fydata, vtdata, &gamma, ewtdata, &delta,
+  FCV_PSOL(&t, ydata, fydata, vtdata, &gamma, ewtdata, &delta,
            nfePtr, rdata, &lr, zdata, &ier);
 
   N_VSetData(zdata, z);

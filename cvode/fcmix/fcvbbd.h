@@ -1,7 +1,7 @@
 /***************************************************************************
  * File        : fcvbbd.h                                                  *
  * Programmers : Alan C. Hindmarsh and Radu Serban @ LLNL                  *
- * Version of  : 18 July 2002                                              *
+ * Version of  : 30 March 2003                                             *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -71,11 +71,11 @@ user documents for more complete information.
 
 (1) User-supplied right-hand side routine: CVFUN
 The user must in all cases supply the following Fortran routine
-      SUBROUTINE CVFUN (NEQ, T, Y, YDOT)
+      SUBROUTINE CVFUN (T, Y, YDOT)
       DIMENSION Y(*), YDOT(*)
 It must set the YDOT array to f(t,y), the right-hand side of the ODE
 system, as function of T = t and the array Y = y.  Here Y and YDOT
-are distributed vectors, and NEQ is the problem dimension.
+are distributed vectors.
 
 (2) User-supplied routines to define preconditoner: CVLOCFN and CVCOMMF
 
@@ -119,8 +119,7 @@ if relevant to the evaluation of g.
 As an option, the user may supply a routine that computes the product
 of the system Jacobian J = df/dy and a given vector v.  If supplied, it
 must have the following form:
-      SUBROUTINE CVJTIMES (NEQ, V, FJV, T, Y, FY, VNRM, EWT, H, UROUND,
-     1                     NFE, WORK, IER)
+      SUBROUTINE CVJTIMES (V, FJV, T, Y, FY, WORK, IER)
       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
 Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
 compute the product vector Jv, where the vector v is stored in V, and store
@@ -144,10 +143,9 @@ the communicator equal to MPI_COMM_WORLD.
 
 (4.2) To set various problem and solution parameters and allocate
 internal memory for CVODE, make the following call:
-      CALL FCVMALLOC(NEQ, T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, INOPT,
+      CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, INOPT,
      1               IOPT, ROPT, IER)
 The arguments are:
-NEQ    = the global problem size
 T0     = initial value of t
 Y0     = array of initial conditions
 METH   = basic integration method: 1 = Adams (nonstiff), 2 = BDF (stiff)

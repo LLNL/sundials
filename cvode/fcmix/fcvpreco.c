@@ -1,7 +1,7 @@
 /**********************************************************************
  * File          : fcvpreco.c                                         *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL           *
- * Version of    : 18 July 2002                                       *
+ * Version of    : 30 March 2003                                      *
  *--------------------------------------------------------------------*
  * This C function CVPreco is to interface between the CVSPGMR module *
  * and the user-supplied preconditioner setup routine CVPRECO.        *
@@ -18,7 +18,7 @@
 /*********************************************************************/
 
 /* Prototype of the Fortran routine */
-void FCV_PRECO(integertype*, realtype*, realtype*, realtype*, booleantype*, 
+void FCV_PRECO(realtype*, realtype*, realtype*, booleantype*, 
                booleantype*, realtype*, realtype*, realtype*, realtype*, 
                long int *, realtype*, realtype*, realtype*, int*);
 
@@ -32,7 +32,7 @@ void FCV_PRECO(integertype*, realtype*, realtype*, realtype*, booleantype*,
    is returned by CVPreco.
    Auxiliary data is assumed to be communicated by Common. */
 
-int CVPreco(integertype N, realtype t, N_Vector y, N_Vector fy, booleantype jok,
+int CVPreco(realtype t, N_Vector y, N_Vector fy, booleantype jok,
             booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
             realtype uround, long int *nfePtr, void *P_data,
             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -47,7 +47,7 @@ int CVPreco(integertype N, realtype t, N_Vector y, N_Vector fy, booleantype jok,
   v2data  = N_VGetData(vtemp2);
   v3data  = N_VGetData(vtemp3);
 
-  FCV_PRECO (&N, &t, ydata, fydata, &jok, jcurPtr, &gamma, ewtdata,
+  FCV_PRECO (&t, ydata, fydata, &jok, jcurPtr, &gamma, ewtdata,
            &h, &uround, nfePtr, v1data, v2data, v3data, &ier);
 
   /* Note: there is no need to use N_VSetData since we are not getting back any

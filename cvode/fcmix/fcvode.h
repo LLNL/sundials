@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvode.h                                       *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 31 July 2002                                   *
+ * Version of    : 30 MArch 2003                                  *
  *----------------------------------------------------------------*
  * This is the header file for FCVODE, the Fortran interface to   *
  * the CVODE package.                                             *
@@ -102,18 +102,17 @@ those that apply to the parallel version only.
 
 (1) User-supplied right-hand side routine: CVFUN
 The user must in all cases supply the following Fortran routine
-      SUBROUTINE CVFUN (NEQ, T, Y, YDOT)
+      SUBROUTINE CVFUN (T, Y, YDOT)
       DIMENSION Y(*), YDOT(*)
 It must set the YDOT array to f(t,y), the right-hand side of the ODE
 system, as function of T = t and the array Y = y.  Here Y and YDOT
-are distributed vectors, and NEQ is the problem size.
+are distributed vectors.
 
 (2) Optional user-supplied dense Jacobian approximation routine: CVDJAC
 As an option when using the DENSE linear solver, the user may supply a
 routine that computes a dense approximation of the system Jacobian 
 J = df/dy. If supplied, it must have the following form:
-      SUBROUTINE CVDJAC (NEQ, T, Y, FY, EWT, H, UROUND, DJAC, NFE,
-     1                   WK1, WK2, WK3)
+      SUBROUTINE CVDJAC (NEQ, T, Y, FY, DJAC, WK1, WK2, WK3)
       DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
 Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
 the Jacobian and store it columnwise in DJAC.
@@ -122,8 +121,8 @@ the Jacobian and store it columnwise in DJAC.
 As an option when using the BAND linear solver, the user may supply a
 routine that computes a band approximation of the system Jacobian 
 J = df/dy. If supplied, it must have the following form:
-      SUBROUTINE CVBJAC (NEQ, MU, ML, MDIM, T, Y, FY, EWT, H, UROUND,
-     1                   BJAC, NFE, WK1, WK2, WK3)
+      SUBROUTINE CVBJAC (NEQ, MU, ML, MDIM, T, Y, FY,
+     1                   BJAC, WK1, WK2, WK3)
       DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
 Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. 
 It must load the MDIM by N array BJAC with the Jacobian matrix at the
@@ -134,8 +133,7 @@ with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
 As an option when using the SPGMR linear solver, the user may supply a 
 routine that computes the product of the system Jacobian J = df/dy and 
 a given vector v.  If supplied, it must have the following form:
-      SUBROUTINE CVJTIMES (NEQ, V, FJV, T, Y, FY, VNRM, EWT, H, UROUND,
-     1                     NFE, WORK, IER)
+      SUBROUTINE CVJTIMES (V, FJV, T, Y, FY, WORK, IER)
       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
 Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
 compute the product vector Jv, where the vector v is stored in V, and store
@@ -165,10 +163,9 @@ the communicator equal to MPI_COMM_WORLD.
 
 (5.2) To set various problem and solution parameters and allocate
 internal memory, make the following call:
-      CALL FCVMALLOC(NEQ, T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, INOPT,
+      CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, INOPT,
      1               IOPT, ROPT, IER)
 The arguments are:
-NEQ    = the global problem size
 T0     = initial value of t
 Y0     = array of initial conditions
 METH   = basic integration method: 1 = Adams (nonstiff), 2 = BDF (stiff)
@@ -220,10 +217,10 @@ IOPT(16) and IOPT(17), respectively.  (See the CVODE manual for descriptions.)
 
 (6.2) DENSE treatment of the linear system.
 The user must make one of the following two calls:
-      CALL FCVDENSE0(IER)
+      CALL FCVDENSE0(NEQ, IER)
           if CVDJAC is not supplied 
 or
-      CALL FCVDENSE1(IER)
+      CALL FCVDENSE1(NEQ, IER)
           if CVDJAC is supplied 
 
 In both cases, the argument is:
@@ -250,10 +247,10 @@ FCVDENSE* routines.
 
 (6.3) BAND treatment of the linear system
 The user must make one of the following two calls:
-      CALL FCVBAND0(MU, ML, IER)
+      CALL FCVBAND0(NEQ, MU, ML, IER)
           if CVBJAC is not supplied
 or
-      CALL FCVBAND1(MU, ML, IER)
+      CALL FCVBAND1(NEQ, MU, ML, IER)
           if CVBJAC is supplied
 
 In both cases, the arguments are:
@@ -319,7 +316,7 @@ IER      = error return flag: 0 = success, -1 = memory allocation failure,
      In the cases FCVSPGMR10, FCVSPGMR11, FCVSPGMR20, and FCVSPGMR21, the user
 program must include the following routine for solution of the preconditioner
 linear system:
-      SUBROUTINE CVPSOL (NEQ, T, Y,FY, VT, GAMMA, EWT,DELTA, NFE, R, LR, Z, IER)
+      SUBROUTINE CVPSOL (T, Y,FY, VT, GAMMA, EWT,DELTA, NFE, R, LR, Z, IER)
       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
 Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
 must solve the preconditioner linear system Pz = r, where r = R is input, 
@@ -330,7 +327,7 @@ approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
 
      In the cases FCVSPGMR20 and FCVSPGMR21, the user program must also include
 the following routine for the evaluation and preprocessing of the preconditioner:
-      SUBROUTINE CVPRECO (NEQ, T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UROUND, 
+      SUBROUTINE CVPRECO (T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UROUND, 
      1                   NFE, V1, V2, V3, IER)
       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
 Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
@@ -517,33 +514,29 @@ the following calls, in this order:
 
 /* Prototypes: Functions Called by the CVODE Solver */
 
-void CVf(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
+void CVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-void CVDenseJac(integertype N, DenseMat J, RhsFn f, void *f_data,
-                realtype t, N_Vector y, N_Vector fy, N_Vector ewt,
-                realtype h, realtype uround, void *jac_data,
-                long int *nfePtr, N_Vector vtemp1,
-                N_Vector vtemp2, N_Vector vtemp3);
+void CVDenseJac(integertype N, DenseMat J, realtype t, 
+                N_Vector y, N_Vector fy, void *jac_data,
+                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 void CVBandJac(integertype N, integertype mupper, integertype mlower,
-               BandMat J, RhsFn f, void *f_data, realtype t,
-               N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
-               realtype uround, void *jac_data, long int *nfePtr,
+               BandMat J, realtype t, N_Vector y, N_Vector fy,
+               void *jac_data,
                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int CVPreco(integertype N, realtype tn, N_Vector y,N_Vector fy, booleantype jok,
+int CVPreco(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
             booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
             realtype uround, long int *nfePtr, void *P_data,
             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int CVPSol(integertype N, realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
+int CVPSol(realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
            realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
            N_Vector r, int lr, void *P_data, N_Vector z);
 
-int CVJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f, 
-             void *f_data, realtype t, N_Vector y, N_Vector fy,
-             realtype vnrm, N_Vector ewt, realtype h, realtype uround, 
-             void *jac_data, long int *nfePtr, N_Vector work);
+int CVJtimes(N_Vector v, N_Vector Jv, realtype t, 
+             N_Vector y, N_Vector fy,
+             void *jac_data, N_Vector work);
 
 
 /* Declarations for global variables, shared among various routines */

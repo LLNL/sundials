@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvode.c                                       *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 17 July 2002                                   *
+ * Version of    : 30 March 2003                                  *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the CVODE package.  See fcvode.h for usage.                    *
@@ -26,10 +26,10 @@
 /***************************************************************************/
 
 /* Prototypes of the Fortran routines */
-void FCV_FUN(integertype*, realtype*, realtype*, realtype*);
+void FCV_FUN(realtype*, realtype*, realtype*);
 
 /**************************************************************************/
-void FCV_MALLOC(integertype *neq, realtype *t0, realtype *y0, 
+void FCV_MALLOC(realtype *t0, realtype *y0, 
                 integertype *meth, integertype *itmeth, integertype *iatol, 
                 realtype *rtol, realtype *atol,
                 integertype *optin, long int *iopt, realtype *ropt, int *ier)
@@ -38,17 +38,16 @@ void FCV_MALLOC(integertype *neq, realtype *t0, realtype *y0,
   N_Vector atolvec;
   void *atolptr;
 
-  CV_yvec = N_VMake(*neq, y0, F2C_machEnv);
+  CV_yvec = N_VMake(y0, F2C_machEnv);
   lmm = (*meth == 1) ? ADAMS : BDF;
   iter = (*itmeth == 1) ? FUNCTIONAL : NEWTON;
   if (*iatol == 1)
     { itol = SS; atolptr = atol; }
   else
-    { atolvec = N_VMake(*neq, atol, F2C_machEnv);
+    { atolvec = N_VMake(atol, F2C_machEnv);
       itol = SV; atolptr = atolvec; }
 
   /* Call CVodeMalloc to initialize CVODE: 
-     *neq    is the problem size
      CVf     is the user's right-hand side function in y'=f(t,y)
      *t0     is the initial time
      CV_yvec is the initial dependent variable vector
@@ -66,7 +65,7 @@ void FCV_MALLOC(integertype *neq, realtype *t0, realtype *y0,
 
      A pointer to CVODE problem memory is returned and stored in CV_cvodemem. */
 
-  CV_cvodemem = CVodeMalloc(*neq, CVf, *t0, CV_yvec, lmm, iter, 
+  CV_cvodemem = CVodeMalloc(CVf, *t0, CV_yvec, lmm, iter, 
                             itol, rtol, atolptr, NULL, NULL, 
                             *optin, iopt, ropt, F2C_machEnv);
 
@@ -83,9 +82,6 @@ void FCV_REINIT(realtype *t0, realtype *y0, integertype *meth,
   int lmm, iter, itol;
   N_Vector atolvec;
   void *atolptr;
-  integertype neq;
-
-  neq = ((CVodeMem)CV_cvodemem)->cv_N;
 
   N_VSetData(y0, CV_yvec);
   lmm = (*meth == 1) ? ADAMS : BDF;
@@ -93,7 +89,7 @@ void FCV_REINIT(realtype *t0, realtype *y0, integertype *meth,
   if (*iatol == 1)
     { itol = SS; atolptr = atol; }
   else
-    { atolvec = N_VMake(neq, atol, F2C_machEnv);
+    { atolvec = N_VMake(atol, F2C_machEnv);
       itol = SV; atolptr = atolvec; }
 
   /* Call CVReInit to re-initialize CVODE: 
@@ -115,9 +111,9 @@ void FCV_REINIT(realtype *t0, realtype *y0, integertype *meth,
 
      A pointer to CVODE problem memory is returned and stored in CV_cvodemem. */
 
-  *ier = CVReInit(CV_cvodemem, CVf, *t0, CV_yvec, lmm, iter, 
-                  itol, rtol, atolptr, NULL, NULL,
-                  *optin, iopt, ropt, F2C_machEnv);
+  *ier = CVodeReInit(CV_cvodemem, CVf, *t0, CV_yvec, lmm, iter, 
+                     itol, rtol, atolptr, NULL, NULL,
+                     *optin, iopt, ropt, F2C_machEnv);
 }
 
 /***************************************************************************/
@@ -132,14 +128,15 @@ void FCV_DIAG(int *ier)
 
 /***************************************************************************/
 
-void FCV_DENSE0(int *ier)
+void FCV_DENSE0(integertype *neq, int *ier)
 {
   /* Call CVDense:
+     *neq        is the problem size
      CV_cvodemem is the pointer to the CVODE memory block 
      NULL        is a pointer to the dense Jac routine
      NULL        is a pointer to jac_data                 */
 
-  *ier = CVDense(CV_cvodemem, NULL, NULL);
+  *ier = CVDense(CV_cvodemem, *neq, NULL, NULL);
 }
 
 /***************************************************************************/
@@ -157,16 +154,17 @@ void FCV_REINDENSE0(int *ier)
 
 /***************************************************************************/
 
-void FCV_BAND0(integertype *mupper, integertype *mlower, int *ier)
+void FCV_BAND0(integertype *neq, integertype *mupper, integertype *mlower, int *ier)
 {
   /* Call CVBand:
      CV_cvodemem is the pointer to the CVODE memory block 
+     *neq        is the problem size
      *mupper     is the upper bandwidth
      *mlower     is the lower bandwidth
      NULL        is a pointer to the band Jac routine
      NULL        is a pointer to jac_data                 */
 
-  *ier = CVBand(CV_cvodemem, *mupper, *mlower, NULL, NULL);
+  *ier = CVBand(CV_cvodemem, *neq, *mupper, *mlower, NULL, NULL);
 }
 
 /***************************************************************************/
@@ -269,18 +267,18 @@ void FCV_FREE ()
 /***************************************************************************/
 
 /* C function CVf to interface between CVODE and a Fortran subroutine CVFUN.
-   Addresses of N, t, y, and ydot are passed to CVFUN, using the
+   Addresses of t, y, and ydot are passed to CVFUN, using the
    routine N_VGetData from the NVECTOR module.
    Auxiliary data is assumed to be communicated by Common. */
 
-void CVf(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
+void CVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype *ydata, *dydata;
 
   ydata = N_VGetData(y);
   dydata = N_VGetData(ydot);
 
-  FCV_FUN (&N, &t, ydata, dydata);
+  FCV_FUN (&t, ydata, dydata);
 
   N_VSetData(dydata, ydot);
 
