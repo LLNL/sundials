@@ -1,7 +1,7 @@
 /***************************************************************************
  * File        : fcvbbd.h                                                  *
  * Programmers : Alan C. Hindmarsh and Radu Serban @ LLNL                  *
- * Version of  : 27 March 2002                                             *
+ * Version of  : 26 June 2002                                              *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -97,9 +97,9 @@ to compute the function g(t,y) which approximates the right-hand side
 function f(t,y).  This function is to be computed locally, i.e. without 
 inter-processor communication.  (The case where g is mathematically
 identical to f is allowed.)  It takes as input the local vector length
-NLOC, the independent variable value T = t, and the local real
+NLOC, the independent variable value T = t, and the local realtype
 dependent variable array YLOC.  It is to compute the local part of
-g(t,y) and store this in the real array GLOC.
+g(t,y) and store this in the realtype array GLOC.
 
 (2.2) Communication function CVCOMMF.
 The user must also supply a subroutine of the form
@@ -243,9 +243,9 @@ To obtain the optional outputs associated with the CVBBDPRE module, make
 the following call:
       CALL FCVBBDOPT (LENRPW, LENIPW, NGE)
 The arguments returned are:
-LENRPW = length of real preconditioner work space, in real words.
+LENRPW = length of real preconditioner work space, in realtype words.
          This size is local to the current processor.
-LENIPW = length of integer preconditioner work space, in integer words.
+LENIPW = length of integer preconditioner work space, in integertype words.
          This size is local to the current processor.
 NGE    = number of g(t,y) evaluations (calls to CVLOCFN) so far.
 
@@ -309,15 +309,15 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 
 /* CVODE header files  */
 
-#include "llnltyps.h" /* definitions of types real and integer             */
-#include "nvector.h"  /* definition of type N_Vector                       */
+#include "sundialstypes.h" /* definitions of types realtype and integertype */
+#include "nvector.h"       /* definition of type N_Vector                   */
 
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
-void CVgloc(integer Nloc, real t, real *yloc, real *gloc, void *f_data);
+void CVgloc(integertype Nloc, realtype t, realtype *yloc, realtype *gloc, void *f_data);
 
-void CVcfn(integer Nloc, real t, N_Vector y, void *f_data);
+void CVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data);
 
 
 /* Declarations for global variables, shared among various routines */

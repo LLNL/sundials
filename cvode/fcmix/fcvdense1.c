@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvdense1.c                                    *
  * Programmers   : Radu Serban @ LLNL                             *
- * Version of    : 28 March 2002                                  *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  *                                                                *
  * Fortran/C interface routine for CVODE/CVDENSE, for the case of *
@@ -11,16 +11,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer             */
-#include "nvector.h"  /* definitions of type N_Vector and vector macros    */
-#include "fcvode.h"   /* actual function names, prototypes, global vars.   */
-#include "cvdense.h"  /* CVDense prototype                                 */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "nvector.h"       /* definitions of type N_Vector and vector macros  */
+#include "fcvode.h"        /* actual function names, prototypes, global vars. */
+#include "cvdense.h"       /* CVDense prototype                               */
 
 /***************************************************************************/
 
 /* Prototypes of the Fortran routines */
-void FCV_DJAC(integer*, real*, real*, real*, real*, real*, real*, real*,
-              long int*, real*, real*, real*);
+void FCV_DJAC(integertype*, realtype*, realtype*, realtype*, realtype*, 
+              realtype*, realtype*, realtype*,
+              long int*, realtype*, realtype*, realtype*);
 
 /***************************************************************************/
 
@@ -54,14 +55,14 @@ void FCV_REINDENSE1(int *ier)
    DENSE_COL from DENSE and the routine N_VGetData from NVECTOR.
    Auxiliary data is assumed to be communicated by Common. */
 
-void CVDenseJac(integer N, DenseMat J, RhsFn f, void *f_data,
-                real t, N_Vector y, N_Vector fy, N_Vector ewt,
-                real h, real uround, void *jac_data,
+void CVDenseJac(integertype N, DenseMat J, RhsFn f, void *f_data,
+                realtype t, N_Vector y, N_Vector fy, N_Vector ewt,
+                realtype h, realtype uround, void *jac_data,
                 long int *nfePtr, N_Vector vtemp1,
                 N_Vector vtemp2, N_Vector vtemp3)
 {
-  real *ydata, *fydata, *ewtdata, *v1data, *v2data, *v3data;
-  real *jacdata;
+  realtype *ydata, *fydata, *ewtdata, *v1data, *v2data, *v3data;
+  realtype *jacdata;
 
   ydata = N_VGetData(y);
   fydata = N_VGetData(fy);

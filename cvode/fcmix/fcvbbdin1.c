@@ -1,7 +1,7 @@
 /****************************************************************************
  * File         : fcvbbdin1.c                                               *
  * Programmers  : Alan C. Hindmarsh and Radu Serban @ LLNL                  * 
- * Version of   : 27 March 2002                                             *
+ * Version of   : 26 June 2002                                              *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
@@ -12,21 +12,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer           */
-#include "nvector.h"  /* definition of type N_Vector                     */
-#include "cvode.h"    /* CVODE constants and prototypes                  */
-#include "fcmixpar.h" /* definition of global F2C_machEnv variable       */
-#include "fcvode.h"   /* actual function names, prototypes, global vars. */
-#include "fcvbbd.h"   /* prototypes of interfaces to PVBBDPRE            */
-#include "cvspgmr.h"  /* prototypes of CVSPGMR interface routines        */
-#include "cvbbdpre.h" /* prototypes of PVBBDPRE functions, macros        */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "nvector.h"       /* definition of type N_Vector                     */
+#include "cvode.h"         /* CVODE constants and prototypes                  */
+#include "fcmixpar.h"      /* definition of global F2C_machEnv variable       */
+#include "fcvode.h"        /* actual function names, prototypes, global vars. */
+#include "fcvbbd.h"        /* prototypes of interfaces to PVBBDPRE            */
+#include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines        */
+#include "cvbbdpre.h"      /* prototypes of PVBBDPRE functions, macros        */
 
 /***************************************************************************/
 
-void FCV_BBDIN1(integer *Nloc, integer *mudq, integer *mldq, 
-                integer *mu, integer *ml,
-                real* dqrely, int *pretype, int *gstype, int *maxl,
-                real *delt, int *ier)
+void FCV_BBDIN1(integertype *Nloc, integertype *mudq, integertype *mldq, 
+                integertype *mu, integertype *ml,
+                realtype* dqrely, int *pretype, int *gstype, int *maxl,
+                realtype *delt, int *ier)
 {
 
   /* First call PVBBDAlloc to initialize PVBBDPRE module:
@@ -61,10 +61,10 @@ void FCV_BBDIN1(integer *Nloc, integer *mudq, integer *mldq,
 
 /***************************************************************************/
 
-void FCV_REINBBD1(integer *Nloc, integer *mudq, integer *mldq, 
-                  integer *mu, integer *ml,
-                  real* dqrely, int *pretype, int *gstype, int *maxl,
-                  real *delt, int *ier)
+void FCV_REINBBD1(integertype *Nloc, integertype *mudq, integertype *mldq, 
+                  integertype *mu, integertype *ml,
+                  realtype* dqrely, int *pretype, int *gstype, int *maxl,
+                  realtype *delt, int *ier)
 {
   int flag;
 

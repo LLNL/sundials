@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvode.c                                       *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 27 March 2002                                  *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the CVODE package. See fcvode.h for usage.                     *
@@ -13,26 +13,26 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer             */
-#include "nvector.h"  /* definitions of type N_Vector and vector macros    */
-#include "cvode.h"    /* CVODE constants and prototypes                    */
-#include "cvdiag.h"   /* prototypes for CVDIAG interface routines          */
-#include "cvdense.h"  /* prototypes for CVDENSE interface routines         */
-#include "cvband.h"   /* prototypes for CVBAND interface routines          */
-#include "cvspgmr.h"  /* prototypes for CVSPGMR interface routines         */
-#include "fcmixpar.h" /* global F2C_machEnv variable                       */
-#include "fcvode.h"   /* actual function names, prototypes, global vars.   */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "nvector.h"       /* definitions of type N_Vector and vector macros  */
+#include "cvode.h"         /* CVODE constants and prototypes                  */
+#include "cvdiag.h"        /* prototypes for CVDIAG interface routines        */
+#include "cvdense.h"       /* prototypes for CVDENSE interface routines       */
+#include "cvband.h"        /* prototypes for CVBAND interface routines        */
+#include "cvspgmr.h"       /* prototypes for CVSPGMR interface routines       */
+#include "fcmixpar.h"      /* global F2C_machEnv variable                     */
+#include "fcvode.h"        /* actual function names, prototypes, global vars. */
 
 /***************************************************************************/
 
 /* Prototypes of the Fortran routines */
-void FCV_FUN(integer*, real*, real*, real*);
+void FCV_FUN(integertype*, realtype*, realtype*, realtype*);
 
 /**************************************************************************/
-void FCV_MALLOC(integer *neq, real *t0, real *y0, 
-                integer *meth, integer *itmeth, integer *iatol, 
-                real *rtol, real *atol,
-                integer *optin, long int *iopt, real *ropt, int *ier)
+void FCV_MALLOC(integertype *neq, realtype *t0, realtype *y0, 
+                integertype *meth, integertype *itmeth, integertype *iatol, 
+                realtype *rtol, realtype *atol,
+                integertype *optin, long int *iopt, realtype *ropt, int *ier)
 {
   int lmm, iter, itol;
   N_Vector atolvec;
@@ -75,14 +75,14 @@ void FCV_MALLOC(integer *neq, real *t0, real *y0,
 
 /***************************************************************************/
 
-void FCV_REINIT(real *t0, real *y0, integer *meth, integer *itmeth,
-                integer *iatol, real *rtol, real *atol, integer *optin,
-                long int *iopt, real *ropt, int *ier)
+void FCV_REINIT(realtype *t0, realtype *y0, integertype *meth, integertype *itmeth,
+                integertype *iatol, realtype *rtol, realtype *atol, integertype *optin,
+                long int *iopt, realtype *ropt, int *ier)
 {
   int lmm, iter, itol;
   N_Vector atolvec;
   void *atolptr;
-  integer neq;
+  integertype neq;
 
   neq = ((CVodeMem)CV_cvodemem)->cv_N;
 
@@ -156,7 +156,7 @@ void FCV_REINDENSE0(int *ier)
 
 /***************************************************************************/
 
-void FCV_BAND0(integer *mupper, integer *mlower, int *ier)
+void FCV_BAND0(integertype *mupper, integertype *mlower, int *ier)
 {
   /* Call CVBand:
      CV_cvodemem is the pointer to the CVODE memory block 
@@ -170,7 +170,7 @@ void FCV_BAND0(integer *mupper, integer *mlower, int *ier)
 
 /***************************************************************************/
 
-void FCV_REINBAND0(integer *mupper, integer *mlower, int *ier)
+void FCV_REINBAND0(integertype *mupper, integertype *mlower, int *ier)
 {
   /* Call CVReInitBand:
      CV_cvodemem is the pointer to the CVODE memory block 
@@ -184,7 +184,7 @@ void FCV_REINBAND0(integer *mupper, integer *mlower, int *ier)
 
 /***************************************************************************/
 
-void FCV_SPGMR00(int *gstype, int *maxl, real *delt, int *ier)
+void FCV_SPGMR00(int *gstype, int *maxl, realtype *delt, int *ier)
 {
   /* Call CVSpgmr to specify the SPGMR linear solver:
      CV_cvodemem is the pointer to the CVODE memory block
@@ -204,7 +204,7 @@ void FCV_SPGMR00(int *gstype, int *maxl, real *delt, int *ier)
 
 /***************************************************************************/
 
-void FCV_REINSPGMR00(int *gstype, int *maxl, real *delt, int *ier)
+void FCV_REINSPGMR00(int *gstype, int *maxl, realtype *delt, int *ier)
 {
   /* Call CVReInitSpgmr to specify the SPGMR linear solver:
      CV_cvodemem is the pointer to the CVODE memory block
@@ -224,7 +224,7 @@ void FCV_REINSPGMR00(int *gstype, int *maxl, real *delt, int *ier)
 
 /***************************************************************************/
 
-void FCV_CVODE(real *tout, real *t, real *y, int *itask, int *ier)
+void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
   /* Call CVode:
      CV_cvodemem is the pointer to the CVODE memory block
@@ -241,7 +241,7 @@ void FCV_CVODE(real *tout, real *t, real *y, int *itask, int *ier)
 
 /***************************************************************************/
 
-void FCV_DKY (real *t, int *k, real *dky, int *ier)
+void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 {
   /* Call CVodeDky:
      CV_cvodemem is the pointer to the CVODE memory block
@@ -272,9 +272,9 @@ void FCV_FREE ()
    routine N_VGetData from the NVECTOR module.
    Auxiliary data is assumed to be communicated by Common. */
 
-void CVf(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
+void CVf(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
-  real *ydata, *dydata;
+  realtype *ydata, *dydata;
 
   ydata = N_VGetData(y);
   dydata = N_VGetData(ydot);

@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvband1.c                                     *
  * Programmers   : Radu Serban @ LLNL                             *
- * Version of    : 28 March 2002                                  *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  *                                                                *
  * Fortran/C interface routine for CVODE/CVBAND, for the case of  *
@@ -11,21 +11,22 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer             */
-#include "nvector.h"  /* definitions of type N_Vector and vector macros    */
-#include "fcvode.h"   /* actual function names, prototypes, global vars.   */
-#include "cvband.h"   /* CVBand prototype                                 */
+#include "sundialstypes.h" /* definitions of types realtype and integertype  */
+#include "nvector.h"       /* definitions of type N_Vector and vector macros */
+#include "fcvode.h"        /* actual function names, prototypes, global vars.*/
+#include "cvband.h"        /* CVBand prototype                               */
 
 
 /***************************************************************************/
 
 /* Prototypes of the Fortran routines */
-void FCV_BJAC(integer*, integer*, integer*, real*, real*, real*, real*, 
-              real*, real*, real*, long int*, real*, real*, real*);
+void FCV_BJAC(integertype*, integertype*, integertype*, realtype*, realtype*, 
+              realtype*, realtype*, realtype*, realtype*, realtype*, long int*, 
+              realtype*, realtype*, realtype*);
 
 /***************************************************************************/
 
-void FCV_BAND1(integer *mupper, integer *mlower, int *ier)
+void FCV_BAND1(integertype *mupper, integertype *mlower, int *ier)
 {
   /* Call CVBand:
      CV_cvodemem is the pointer to the CVODE memory block 
@@ -39,7 +40,7 @@ void FCV_BAND1(integer *mupper, integer *mlower, int *ier)
 
 /***************************************************************************/
 
-void FCV_REINBAND1(integer *mupper, integer *mlower, int *ier)
+void FCV_REINBAND1(integertype *mupper, integertype *mlower, int *ier)
 {
   /* Call CVReInitBand:
      CV_cvodemem is the pointer to the CVODE memory block 
@@ -59,14 +60,14 @@ void FCV_REINBAND1(integer *mupper, integer *mlower, int *ier)
    BAND_COL from BAND and the routine N_VGetData from NVECTOR.
    Auxiliary data is assumed to be communicated by Common. */
 
-void CVBandJac(integer N, integer mupper, integer mlower,
-               BandMat J, RhsFn f, void *f_data, real t,
-               N_Vector y, N_Vector fy, N_Vector ewt, real h,
-               real uround, void *jac_data, long int *nfePtr,
+void CVBandJac(integertype N, integertype mupper, integertype mlower,
+               BandMat J, RhsFn f, void *f_data, realtype t,
+               N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
+               realtype uround, void *jac_data, long int *nfePtr,
                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  real *ydata, *fydata, *ewtdata, *v1data, *v2data, *v3data;
-  real *jacdata;
+  realtype *ydata, *fydata, *ewtdata, *v1data, *v2data, *v3data;
+  realtype *jacdata;
 
   ydata = N_VGetData(y);
   fydata = N_VGetData(fy);

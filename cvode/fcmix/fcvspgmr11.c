@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvspgmr11.c                                   *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 27 March 2002                                  *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  *                                                                *
  * Fortran/C interface routine for CVODE/CVSPGMR, for the case of *
@@ -11,15 +11,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer             */
-#include "nvector.h"  /* definitions of type N_Vector and vector macros    */
-#include "fcvode.h"   /* actual function names, prototypes, global vars.   */
-#include "cvspgmr.h"  /* CVSpgmr prototype                                 */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "nvector.h"      /* definitions of type N_Vector and vector macros  */
+#include "fcvode.h"       /* actual function names, prototypes, global vars. */
+#include "cvspgmr.h"      /* CVSpgmr prototype                               */
 
 
 /***************************************************************************/
 
-void FCV_SPGMR11(int *pretype, int *gstype, int *maxl, real *delt, int *ier)
+void FCV_SPGMR11(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
   /* Call CVSpgmr to specify the SPGMR linear solver:
      CV_cvodemem is the pointer to the CVODE memory block
@@ -39,7 +39,7 @@ void FCV_SPGMR11(int *pretype, int *gstype, int *maxl, real *delt, int *ier)
 
 /***************************************************************************/
 
-void FCV_REINSPGMR11(int *pretype, int *gstype, int *maxl, real *delt, int *ier)
+void FCV_REINSPGMR11(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
   /* Call CVReInitSpgmr to specify the SPGMR linear solver:
      CV_cvodemem is the pointer to the CVODE memory block

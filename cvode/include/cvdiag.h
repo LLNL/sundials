@@ -2,7 +2,7 @@
  *                                                                *
  * File          : cvdiag.h                                       *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 9 January 2002                                 *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVODE diagonal linear solver,  *
  * CVDIAG.                                                        *
@@ -22,7 +22,7 @@ extern "C" {
 
 #include <stdio.h>
 #include "cvode.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 
  
@@ -35,10 +35,10 @@ extern "C" {
  * the iopt and ropt arrays passed to CVodeMalloc.                *
  * The CVDIAG statistics are:                                     *
  *                                                                *
- * iopt[DIAG_LRW] : size (in real words) of real workspace        *
+ * iopt[DIAG_LRW] : size (in realtype words) of real workspace    *
  *                  vectors used by this solver.                  *
  *                                                                *
- * iopt[DIAG_LIW] : size (in integer words) of integer            *
+ * iopt[DIAG_LIW] : size (in integertype words) of integer        *
  *                  workspace vectors used by this solver.        *
  *                                                                *
  * The number of diagonal approximate Jacobians formed is equal   *

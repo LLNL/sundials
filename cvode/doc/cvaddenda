@@ -159,4 +159,17 @@ environment argument to CVodeMalloc (last argument) cannot be NULL anymore.
 22. Vector accessor macros now have implementation-dependent names, such
 as NV_DATA_S, NV_LENGTH_S, NV_Ith_S for the serial NVECTOR (nvector_serial.h).
 
+23. The file llnltyps.h was renamed sundialstypes.h. 
+The constant name
+   LLNL_FLOAT      has been changed to  SUNDIALS_FLOAT, 
+   LLNL_DOUBLE     has been changed to  SUNDIALS_DOUBLE, 
+   LLNL_INT        has been changed to  SUNDIALS_INT,    and 
+   LLNL_LONG       has been changed to  SUNDIALS_LONG.
 
+To avoid conflicts with C++ methods the following type names have been changed:
+   real    has been changed to realtype
+   integer has been changed to integertype
+   boole   has been changed to bolleantype
+
+24. The files llnlmath.h and llnlmath.c have been renamed sundialsmath.h
+and sundialsmath.c, respectively.

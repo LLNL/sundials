@@ -1,5 +1,5 @@
 /* File fcvode.h: Header file for the FCVODE Interface Package
-   Version of 27 March 2002 */
+   Version of 26 June 2002 */
 
 #ifndef _fcvode_h
 #define _fcvode_h
@@ -457,40 +457,40 @@ To the free the internal memory created by the calls to FMENVINITS
 
 /* CVODE header files  */
 
-#include "llnltyps.h" /* definitions of types real and integer             */
-#include "cvode.h"    /* definition of type RHSFn                          */
-#include "nvector.h"  /* definition of type N_Vector, machEnvType          */
-#include "dense.h"    /* definition of DenseMat                            */
-#include "band.h"     /* definition of BandMat                             */
+#include "sundialstypes.h" /* definitions of types realtype and integertype */
+#include "cvode.h"         /* definition of type RHSFn                      */
+#include "nvector.h"       /* definition of type N_Vector, machEnvType      */
+#include "dense.h"         /* definition of DenseMat                        */
+#include "band.h"          /* definition of BandMat                         */
 
 /* Prototypes: Functions Called by the CVODE Solver */
 
-void CVf(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
+void CVf(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-void CVDenseJac(integer N, DenseMat J, RhsFn f, void *f_data,
-                real t, N_Vector y, N_Vector fy, N_Vector ewt,
-                real h, real uround, void *jac_data,
+void CVDenseJac(integertype N, DenseMat J, RhsFn f, void *f_data,
+                realtype t, N_Vector y, N_Vector fy, N_Vector ewt,
+                realtype h, realtype uround, void *jac_data,
                 long int *nfePtr, N_Vector vtemp1,
                 N_Vector vtemp2, N_Vector vtemp3);
 
-void CVBandJac(integer N, integer mupper, integer mlower,
-               BandMat J, RhsFn f, void *f_data, real t,
-               N_Vector y, N_Vector fy, N_Vector ewt, real h,
-               real uround, void *jac_data, long int *nfePtr,
+void CVBandJac(integertype N, integertype mupper, integertype mlower,
+               BandMat J, RhsFn f, void *f_data, realtype t,
+               N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
+               realtype uround, void *jac_data, long int *nfePtr,
                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int CVPreco(integer N, real tn, N_Vector y, N_Vector fy, boole jok,
-            boole *jcurPtr, real gamma, N_Vector ewt, real h,
-            real uround, long int *nfePtr, void *P_data,
+int CVPreco(integertype N, realtype tn, N_Vector y, N_Vector fy, booleantype jok,
+            booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
+            realtype uround, long int *nfePtr, void *P_data,
             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int CVPSol(integer N, real tn, N_Vector y, N_Vector fy, N_Vector vtemp,
-           real gamma, N_Vector ewt, real delta, long int *nfePtr,
+int CVPSol(integertype N, realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
+           realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
            N_Vector r, int lr, void *P_data, N_Vector z);
 
-int CVJtimes(integer N, N_Vector v, N_Vector Jv, RhsFn f, 
-             void *f_data, real t, N_Vector y, N_Vector fy,
-             real vnrm, N_Vector ewt, real h, real uround, 
+int CVJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f, 
+             void *f_data, realtype t, N_Vector y, N_Vector fy,
+             realtype vnrm, N_Vector ewt, realtype h, realtype uround, 
              void *jac_data, long int *nfePtr, N_Vector work);
 
 

@@ -4,7 +4,7 @@ Diagonal test problem, size NEQ =   40  parameter alpha =   10.000
 RTOL, ATOL =    0.1E-04   0.1E-09
 
 Method is BDF/NEWTON/SPGMR
-Preconditioner is band-block-diagonal, using PVBBDPRE
+Preconditioner is band-block-diagonal, using CVBBDPRE
 
 Number of processors =   4
 
@@ -46,7 +46,7 @@ Final statistics..
  average Krylov subspace dimension (NLI/NNI)  =  0.9055
  number of conv. failures..  nonlinear =  0  linear =  0
  number of error test failures =  5
-In PVBBDPRE: real/integer local work space sizes =   20   10
+In CVBBDPRE: real/integer local work space sizes =   20   10
  number of g evals.     =   14
 
 
@@ -90,5 +90,5 @@ Final statistics..
  average Krylov subspace dimension (NLI/NNI)  =  0.9055
  number of conv. failures..  nonlinear =  0  linear =  0
  number of error test failures =  5
-In PVBBDPRE: real/integer local work space sizes =   20   10
+In CVBBDPRE: real/integer local work space sizes =   20   10
  number of g evals.     =   14

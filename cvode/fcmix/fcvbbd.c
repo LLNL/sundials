@@ -1,7 +1,7 @@
 /****************************************************************************
  * File         : fcvbbd.c                                                  *
  * Programmers  : Alan C. Hindmarsh and Radu Serban @ LLNL                  * 
- * Version of   : 27 March 2002                                             *
+ * Version of   : 26 June 2002                                              *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
@@ -16,28 +16,28 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer           */
-#include "nvector.h"  /* definitions of type N_Vector                    */
-#include "cvode.h"    /* CVODE constants and prototypes                  */
-#include "fcmixpar.h" /* definition of global F2C_machEnv variable       */
-#include "fcvode.h"   /* actual function names, prototypes, global vars. */
-#include "fcvbbd.h"   /* prototypes of interfaces to CVBBDPRE            */
-#include "cvspgmr.h"  /* prototypes of CVSPGMR interface routines        */
-#include "cvbbdpre.h" /* prototypes of CVBBDPRE functions, macros        */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "nvector.h"       /* definitions of type N_Vector                    */
+#include "cvode.h"         /* CVODE constants and prototypes                  */
+#include "fcmixpar.h"      /* definition of global F2C_machEnv variable       */
+#include "fcvode.h"        /* actual function names, prototypes, global vars. */
+#include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE            */
+#include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines        */
+#include "cvbbdpre.h"      /* prototypes of CVBBDPRE functions, macros        */
 
 /***************************************************************************/
 
 /* Prototypes of the Fortran routines */
 
-void FCV_GLOCFN(integer*, real*, real*, real*);
-void FCV_COMMFN(integer*, real*, real*);
+void FCV_GLOCFN(integertype*, realtype*, realtype*, realtype*);
+void FCV_COMMFN(integertype*, realtype*, realtype*);
 
 /***************************************************************************/
 
-void FCV_BBDIN0(integer *Nloc, integer *mudq, integer *mldq, 
-                integer *mu, integer *ml,
-                real* dqrely, int *pretype, int *gstype, int *maxl,
-                real *delt, int *ier)
+void FCV_BBDIN0(integertype *Nloc, integertype *mudq, integertype *mldq, 
+                integertype *mu, integertype *ml,
+                realtype* dqrely, int *pretype, int *gstype, int *maxl,
+                realtype *delt, int *ier)
 {
 
   /* First call CVBBDAlloc to initialize CVBBDPRE module:
@@ -72,10 +72,10 @@ void FCV_BBDIN0(integer *Nloc, integer *mudq, integer *mldq,
 
 /***************************************************************************/
 
-void FCV_REINBBD0(integer *Nloc, integer *mudq, integer *mldq, 
-                  integer *mu, integer *ml,
-                  real* dqrely, int *pretype, int *gstype, int *maxl,
-                  real *delt, int *ier)
+void FCV_REINBBD0(integertype *Nloc, integertype *mudq, integertype *mldq, 
+                  integertype *mu, integertype *ml,
+                  realtype* dqrely, int *pretype, int *gstype, int *maxl,
+                  realtype *delt, int *ier)
 {
   int flag;
 
@@ -114,7 +114,7 @@ void FCV_REINBBD0(integer *Nloc, integer *mudq, integer *mldq,
 /* C function CVgloc to interface between CVBBDPRE module and a Fortran 
    subroutine CVLOCFN. */
 
-void CVgloc(integer Nloc, real t, real *yloc, real *gloc, void *f_data)
+void CVgloc(integertype Nloc, realtype t, realtype *yloc, realtype *gloc, void *f_data)
 {
 
   FCV_GLOCFN(&Nloc, &t, yloc, gloc);
@@ -127,9 +127,9 @@ void CVgloc(integer Nloc, real t, real *yloc, real *gloc, void *f_data)
    subroutine CVCOMMF. */
 
 
-void CVcfn(integer Nloc, real t, N_Vector y, void *f_data)
+void CVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data)
 {
-  real *yloc;
+  realtype *yloc;
 
   yloc = N_VGetData(y);
 
@@ -143,7 +143,7 @@ void CVcfn(integer Nloc, real t, N_Vector y, void *f_data)
 
 /* C function FCVBBDOPT to access optional outputs from CVBBD_Data */
 
-void FCV_BBDOPT(integer *lenrpw, integer *lenipw, integer *nge)
+void FCV_BBDOPT(integertype *lenrpw, integertype *lenipw, integertype *nge)
 {
   CVBBDData pdata;
   pdata = (CVBBDData)(CVBBD_Data);

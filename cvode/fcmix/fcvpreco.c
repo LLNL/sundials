@@ -1,7 +1,7 @@
 /*******************************************************************
  * File          : fcvpreco.c                                      *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL        *
- * Version of    : 27 March 2002                                   *
+ * Version of    : 26 June 2002                                    *
  *-----------------------------------------------------------------*
  * This C function CVPreco is to interface between routines that   *
  * call CVSpgmr(fcvspgmr20, fcvspgmr21) and the user-supplied      *
@@ -11,16 +11,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer             */
-#include "nvector.h"  /* definitions of type N_Vector and vector macros    */
-#include "fcvode.h"   /* actual function names, prototypes, global vars.   */
-#include "cvspgmr.h"  /* CVSpgmr prototype                                 */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "nvector.h"       /* definitions of type N_Vector and vector macros  */
+#include "fcvode.h"        /* actual function names, prototypes, global vars. */
+#include "cvspgmr.h"       /* CVSpgmr prototype                               */
 
 /*********************************************************************/
 
 /* Prototypes of the Fortran routines */
-void FCV_PRECO(integer*, real*, real*, real*, boole*, boole*, real*, real*, 
-               real*, real*, long int *, real*, real*, real*, int*);
+void FCV_PRECO(integertype*, realtype*, realtype*, realtype*, booleantype*, 
+               booleantype*, realtype*, realtype*, realtype*, realtype*, 
+               long int *, realtype*, realtype*, realtype*, int*);
 
 /***************************************************************************/
 
@@ -32,12 +33,12 @@ void FCV_PRECO(integer*, real*, real*, real*, boole*, boole*, real*, real*,
    is returned by CVPreco.
    Auxiliary data is assumed to be communicated by Common. */
 
-int CVPreco(integer N, real t, N_Vector y, N_Vector fy, boole jok,
-            boole *jcurPtr, real gamma, N_Vector ewt, real h,
-            real uround, long int *nfePtr, void *P_data,
+int CVPreco(integertype N, realtype t, N_Vector y, N_Vector fy, booleantype jok,
+            booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
+            realtype uround, long int *nfePtr, void *P_data,
             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  real *ydata, *fydata, *ewtdata, *v1data, *v2data, *v3data;
+  realtype *ydata, *fydata, *ewtdata, *v1data, *v2data, *v3data;
   int ier = 0;
 
   ydata   = N_VGetData(y);

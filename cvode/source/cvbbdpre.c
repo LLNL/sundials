@@ -2,7 +2,7 @@
  * File          : cvbbdpre.c                                     *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 14 March 2002                                  *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This file contains implementations of routines for a           *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -15,9 +15,9 @@
 #include <string.h>
 #include "cvbbdpre.h"
 #include "cvode.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 #include "iterativ.h"
 #include "band.h"
 
@@ -33,11 +33,12 @@
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
-static void CVBBDDQJac(integer Nlocal, integer mudq, integer mldq, 
-                       integer mukeep, integer mlkeep, real rely,
+static void CVBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq, 
+                       integertype mukeep, integertype mlkeep, realtype rely,
                        CVLocalFn gloc, CVCommFn cfn, BandMat J, void *f_data,
-                       real t, N_Vector y, N_Vector ewt, real h, real uround,
-                       N_Vector gy, N_Vector gtemp, N_Vector ytemp);
+                       realtype t, N_Vector y, N_Vector ewt, realtype h, 
+                       realtype uround, N_Vector gy, N_Vector gtemp, 
+                       N_Vector ytemp);
 
 
 /*************** CVBBDDQJac *****************************************
@@ -55,16 +56,16 @@ static void CVBBDDQJac(integer Nlocal, integer mudq, integer mldq,
 
 **********************************************************************/
 
-static void CVBBDDQJac(integer Nlocal, integer mudq, integer mldq, 
-                       integer mukeep, integer mlkeep, real rely,
+static void CVBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq, 
+                       integertype mukeep, integertype mlkeep, realtype rely,
                        CVLocalFn gloc, CVCommFn cfn, BandMat J,
-                       void *f_data, real t, N_Vector y,
-                       N_Vector ewt, real h, real uround,
+                       void *f_data, realtype t, N_Vector y,
+                       N_Vector ewt, realtype h, realtype uround,
                        N_Vector gy, N_Vector gtemp, N_Vector ytemp)
 {
-  real    gnorm, minInc, inc, inc_inv;
-  integer group, i, j, width, ngroups, i1, i2;
-  real *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
+  realtype    gnorm, minInc, inc, inc_inv;
+  integertype group, i, j, width, ngroups, i1, i2;
+  realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
 
   /* Obtain pointers to the data for all vectors */
   y_data     = N_VGetData(y);
@@ -124,14 +125,14 @@ static void CVBBDDQJac(integer Nlocal, integer mudq, integer mldq,
 
 /*********** User-Callable Functions: malloc, reinit, and free ***************/
 
-CVBBDData CVBBDAlloc(integer Nlocal, integer mudq, integer mldq,
-                     integer mukeep, integer mlkeep, real dqrely, 
+CVBBDData CVBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
+                     integertype mukeep, integertype mlkeep, realtype dqrely, 
                      CVLocalFn gloc, CVCommFn cfn, void *f_data,
                      void *cvode_mem)
 {
   CVodeMem cv_mem;
   CVBBDData pdata;
-  integer muk, mlk, storage_mu;
+  integertype muk, mlk, storage_mu;
 
   cv_mem = (CVodeMem) cvode_mem;
   if (cvode_mem == NULL) {
@@ -199,11 +200,11 @@ CVBBDData CVBBDAlloc(integer Nlocal, integer mudq, integer mldq,
   return(pdata);
 }
 
-int CVReInitBBD(CVBBDData pdata, integer Nlocal, integer mudq, integer mldq,
-                integer mukeep, integer mlkeep, real dqrely, 
-                CVLocalFn gloc, CVCommFn cfn, void *f_data)
+int CVReInitBBD(CVBBDData pdata, integertype Nlocal, integertype mudq, 
+                integertype mldq, integertype mukeep, integertype mlkeep, 
+                realtype dqrely, CVLocalFn gloc, CVCommFn cfn, void *f_data)
 {
-  integer muk, mlk, storage_mu;
+  integertype muk, mlk, storage_mu;
 
   /* Set pointers to f_data, gloc, and cfn; load half-bandwidths */
   pdata->f_data = f_data;
@@ -320,12 +321,13 @@ void CVBBDFree(CVBBDData pdata)
  *   1  for a recoverable error (step will be retried).           *
  ******************************************************************/
 
-int CVBBDPrecon(integer Neq, real t, N_Vector y, N_Vector fy,
-                boole jok, boole *jcurPtr, real gamma, N_Vector ewt,
-                real h, real uround, long int *nfePtr, void *P_data,
+int CVBBDPrecon(integertype Neq, realtype t, N_Vector y, N_Vector fy,
+                booleantype jok, booleantype *jcurPtr, realtype gamma, 
+                N_Vector ewt, realtype h, realtype uround, 
+                long int *nfePtr, void *P_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  integer Nlocal, ier;
+  integertype Nlocal, ier;
   CVBBDData pdata;
 
   pdata = (CVBBDData)P_data;
@@ -379,13 +381,13 @@ int CVBBDPrecon(integer Neq, real t, N_Vector y, N_Vector fy,
  * indicating success.                                            *
  ******************************************************************/
 
-int CVBBDPSol(integer N, real t, N_Vector y, N_Vector fy,
-              N_Vector vtemp, real gamma, N_Vector ewt,
-              real delta, long int *nfePtr, N_Vector r,
+int CVBBDPSol(integertype N, realtype t, N_Vector y, N_Vector fy,
+              N_Vector vtemp, realtype gamma, N_Vector ewt,
+              realtype delta, long int *nfePtr, N_Vector r,
               int lr, void *P_data, N_Vector z)
 {
   CVBBDData pdata;
-  real *zd;
+  realtype *zd;
 
   pdata = (CVBBDData)P_data;
 

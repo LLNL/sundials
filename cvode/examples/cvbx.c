@@ -2,7 +2,7 @@
  *                                                                      *
  * File        : cvbx.c                                                 *
  * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL            *
- * Version of  : 5 March 2002                                           *
+ * Version of  : 26 June 2002                                           *
  *----------------------------------------------------------------------*
  * Modified by R. Serban to work with new serial nvector (5/3/2002)     *
  *----------------------------------------------------------------------*
@@ -33,7 +33,7 @@
 
 /* CVODE header files with a description of contents used in cvbx.c */
 
-#include "llnltyps.h"       /* definitions of real, integer, FALSE               */
+#include "sundialstypes.h"  /* definitions of realtype, integertype              */
 #include "cvode.h"          /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
                             /* constants OPT_SIZE, BDF, NEWTON, SS, SUCCESS,     */
                             /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
@@ -74,7 +74,7 @@
    contains grid constants */
 
 typedef struct {
-  real dx, dy, hdcoef, hacoef, vdcoef;
+  realtype dx, dy, hdcoef, hacoef, vdcoef;
 } *UserData;
 
 
@@ -86,12 +86,12 @@ static void PrintFinalStats(long int iopt[]);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static void Jac(integer N, integer mu, integer ml, BandMat J, RhsFn f,
-		 void *f_data, real t, N_Vector u, N_Vector fu, N_Vector ewt,
-		 real h, real uround, void *jac_data, long int *nfePtr,
-		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
+static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
+                void *f_data, realtype t, N_Vector u, N_Vector fu, N_Vector ewt,
+                realtype h, realtype uround, void *jac_data, long int *nfePtr,
+                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 
 
 /***************************** Main Program ******************************/
@@ -99,7 +99,7 @@ static void Jac(integer N, integer mu, integer ml, BandMat J, RhsFn f,
 int main()
 {
   M_Env machEnv;
-  real ropt[OPT_SIZE], dx, dy, reltol, abstol, t, tout, umax;
+  realtype ropt[OPT_SIZE], dx, dy, reltol, abstol, t, tout, umax;
   long int iopt[OPT_SIZE];
   N_Vector u;
   UserData data;
@@ -181,8 +181,8 @@ int main()
 static void SetIC(N_Vector u, UserData data)
 {
   int i, j;
-  real x, y, dx, dy;
-  real *udata;
+  realtype x, y, dx, dy;
+  realtype *udata;
 
   /* Extract needed constants from data */
 
@@ -221,10 +221,10 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,u). */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
-  real uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
-  real *udata, *dudata;
+  realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
+  realtype *udata, *dudata;
   int i, j;
   UserData data;
 
@@ -265,13 +265,13 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static void Jac(integer N, integer mu, integer ml, BandMat J, RhsFn f,
-                void *f_data, real t, N_Vector u, N_Vector fu, N_Vector ewt,
-                real h, real uround, void *jac_data, long int *nfePtr,
+static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
+                void *f_data, realtype t, N_Vector u, N_Vector fu, N_Vector ewt,
+                realtype h, realtype uround, void *jac_data, long int *nfePtr,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  integer i, j, k;
-  real *kthCol, hordc, horac, verdc;
+  integertype i, j, k;
+  realtype *kthCol, hordc, horac, verdc;
   UserData data;
   
   /*

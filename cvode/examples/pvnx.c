@@ -2,7 +2,7 @@
  *                                                                      *
  * File       : pvnx.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne      *
- * Version of : 6 March 2002                                            *
+ * Version of : 26 June 2002                                            *
  *----------------------------------------------------------------------*
  * Modified by R. Serban to work with new parallel nvector (6/3/2002)   *
  *----------------------------------------------------------------------*
@@ -34,7 +34,7 @@
 
 /* CVODE header files with a description of contents used here */
 
-#include "llnltyps.h"          /* definitions of real, integer, FALSE, DOUBLE       */
+#include "sundialstypes.h"     /* definitions of realtype, integertype              */
 #include "cvode.h"             /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
                                /* constants OPT_SIZE, ADAMS, FUNCTIONAL, SS,        */
                                /* SUCCESS, NST, NFE, NNI, NCFN, NETF                */
@@ -59,22 +59,22 @@
    contains grid constants, parallel machine parameters, work array. */
 
 typedef struct {
-  real dx, hdcoef, hacoef;
-  integer npes, my_pe;
+  realtype dx, hdcoef, hacoef;
+  integertype npes, my_pe;
   MPI_Comm comm;
-  real z[100];
+  realtype z[100];
 } *UserData;
 
 
 /* Private Helper Functions */
 
-static void SetIC(N_Vector u, real dx, integer my_length, integer my_base);
+static void SetIC(N_Vector u, realtype dx, integertype my_length, integertype my_base);
 
 static void PrintFinalStats(long int iopt[]);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -82,13 +82,13 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
 int main(int argc, char *argv[])
 {
   M_Env machEnv;
-  real ropt[OPT_SIZE], dx, reltol, abstol, t, tout, umax;
+  realtype ropt[OPT_SIZE], dx, reltol, abstol, t, tout, umax;
   long int iopt[OPT_SIZE];
   N_Vector u;
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  integer local_N, nperpe, nrem, my_base;
+  integertype local_N, nperpe, nrem, my_base;
 
   MPI_Comm comm;
 
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
   reltol = 0.0;                /* Set the tolerances */
   abstol = ATOL;
 
-  dx = data->dx = XMAX/((real)(MX+1));   /* Set grid coefficients in data */
+  dx = data->dx = XMAX/((realtype)(MX+1));   /* Set grid coefficients in data */
   data->hdcoef = 1.0/(dx*dx);
   data->hacoef = 0.5/(2.0*dx);
 
@@ -184,12 +184,12 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, real dx, integer my_length, integer my_base)
+static void SetIC(N_Vector u, realtype dx, integertype my_length, integertype my_base)
 {
   int i;
-  integer iglobal;
-  real x;
-  real *udata;
+  integertype iglobal;
+  realtype x;
+  realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = NV_DATA_P(u);
@@ -219,10 +219,10 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,u). */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
-  real ui, ult, urt, hordc, horac, hdiff, hadv;
-  real *udata, *dudata, *z;
+  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
+  realtype *udata, *dudata, *z;
   int i;
   int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe, my_last;
   UserData data;

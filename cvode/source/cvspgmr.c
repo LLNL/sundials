@@ -3,7 +3,7 @@
  * File          : cvspgmr.c                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and          *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 1 March 2002                                   *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the CVODE scaled,          *
  * preconditioned GMRES linear solver, CVSPGMR.                   *
@@ -15,9 +15,9 @@
 #include <stdlib.h>
 #include "cvspgmr.h"
 #include "cvode.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 #include "iterativ.h"
 #include "spgmr.h"
 
@@ -62,10 +62,10 @@ typedef struct {
 
   int  g_pretype;     /* type of preconditioning                      */
   int  g_gstype;      /* type of Gram-Schmidt orthogonalization       */
-  real g_sqrtN;       /* sqrt(N)                                      */
-  real g_delt;        /* delt = user specified or DELT_DEFAULT        */
-  real g_deltar;      /* deltar = delt * tq4                          */
-  real g_delta;       /* delta = deltar * sqrtN                       */
+  realtype g_sqrtN;   /* sqrt(N)                                      */
+  realtype g_delt;    /* delt = user specified or DELT_DEFAULT        */
+  realtype g_deltar;  /* deltar = delt * tq4                          */
+  realtype g_delta;   /* delta = deltar * sqrtN                       */
   int  g_maxl;        /* maxl = maximum dimension of the Krylov space */
 
   long int g_nstlpre;  /* value of nst at the last precond call       */     
@@ -101,7 +101,7 @@ typedef struct {
 static int CVSpgmrInit(CVodeMem cv_mem);
 
 static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                        N_Vector fpred, boole *jcurPtr, N_Vector vtemp1,
+                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                         N_Vector vtemp2, N_Vector vtemp3);
 
 static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
@@ -117,9 +117,9 @@ static int CVSpgmrPSolve(void *cv_mem, N_Vector r, N_Vector z, int lr);
 
 /* CVSPGMR difference quotient routine for J*v */
 
-static int CVSpgmrDQJtimes(integer N, N_Vector v, N_Vector Jv, RhsFn f, 
-                           void *f_data, real tn, N_Vector y, N_Vector fy,
-                           real vnrm, N_Vector ewt, real h, real uround, 
+static int CVSpgmrDQJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f, 
+                           void *f_data, realtype tn, N_Vector y, N_Vector fy,
+                           realtype vnrm, N_Vector ewt, realtype h, realtype uround, 
                            void *jac_data, long int *nfePtr, N_Vector ytemp);
 
 
@@ -132,9 +132,9 @@ static int CVSpgmrDQJtimes(integer N, N_Vector v, N_Vector Jv, RhsFn f,
 
 **********************************************************************/
 
-static int CVSpgmrDQJtimes(integer N, N_Vector v, N_Vector Jv, RhsFn f, 
-                            void *f_data, real tn, N_Vector y, N_Vector fy,
-                            real vnrm, N_Vector ewt, real h, real uround, 
+static int CVSpgmrDQJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f, 
+                            void *f_data, realtype tn, N_Vector y, N_Vector fy,
+                            realtype vnrm, N_Vector ewt, realtype h, realtype uround, 
                             void *jac_data, long int *nfePtr, N_Vector work)
 {
   N_Vector ytemp;
@@ -228,7 +228,7 @@ static int CVSpgmrDQJtimes(integer N, N_Vector v, N_Vector Jv, RhsFn f,
 
 **********************************************************************/
 
-int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, real delt,
+int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, realtype delt,
              CVSpgmrPrecondFn precond, CVSpgmrPSolveFn psolve, void *P_data,
              CVSpgmrJtimesFn jtimes, void *jac_data)
 
@@ -336,7 +336,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, real delt,
 **********************************************************************/
 
 int CVReInitSpgmr(void *cvode_mem, int pretype, int gstype, int maxl,
-            real delt, CVSpgmrPrecondFn precond, CVSpgmrPSolveFn psolve,
+            realtype delt, CVSpgmrPrecondFn precond, CVSpgmrPSolveFn psolve,
             void *P_data, CVSpgmrJtimesFn jtimes, void *jac_data)
 
 {
@@ -457,11 +457,11 @@ static int CVSpgmrInit(CVodeMem cv_mem)
 **********************************************************************/
 
 static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                        N_Vector fpred, boole *jcurPtr, N_Vector vtemp1,
+                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                         N_Vector vtemp2, N_Vector vtemp3)
 {
-  boole jbad, jok;
-  real dgamma;
+  booleantype jbad, jok;
+  realtype dgamma;
   int  ier;
   CVSpgmrMem cvspgmr_mem;
 
@@ -514,7 +514,7 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ynow,
                         N_Vector fnow)
 {
-  real bnorm, res_norm;
+  realtype bnorm, res_norm;
   CVSpgmrMem cvspgmr_mem;
   int nli_inc, nps_inc, ier;
   
@@ -594,7 +594,7 @@ static void CVSpgmrFree(CVodeMem cv_mem)
 
 static int CVSpgmrAtimes(void *cvode_mem, N_Vector v, N_Vector z)
 {
-  real rho;
+  realtype rho;
   CVodeMem   cv_mem;
   CVSpgmrMem cvspgmr_mem;
   int jtflag;

@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvtimes.c                                     *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 27 March 2002                                  *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * Routine used to interface between a Fortran main and a user-   *
  * supplied J-times routine FCVJTIMES (Jacobian J times vector v) *
@@ -9,14 +9,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer             */
-#include "nvector.h"  /* definitions of type N_Vector and vector macros    */
-#include "fcvode.h"   /* actual function names, prototypes, global vars.   */
-#include "cvspgmr.h"  /* CVSpgmr prototype                                 */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "nvector.h"      /* definitions of type N_Vector and vector macros  */
+#include "fcvode.h"       /* actual function names, prototypes, global vars. */
+#include "cvspgmr.h"      /* CVSpgmr prototype                               */
 
 /* Prototypes of the Fortran routines */
-void FCV_JTIMES(integer*, real*, real*, real*, real*, real*, real*,
-                real*, real*, real*, long int*, real*, int*);
+void FCV_JTIMES(integertype*, realtype*, realtype*, realtype*, realtype*, 
+                realtype*, realtype*, realtype*, realtype*, realtype*, 
+                long int*, realtype*, int*);
 
 /***************************************************************************/
 
@@ -28,13 +29,13 @@ void FCV_JTIMES(integer*, real*, real*, real*, real*, real*, real*,
    returned by CVJtimes.
    Auxiliary data is assumed to be communicated by Common. */
 
-int CVJtimes(integer N, N_Vector v, N_Vector Jv, RhsFn f, 
-             void *f_data, real t, N_Vector y, N_Vector fy,
-             real vnrm, N_Vector ewt, real h, real uround, 
+int CVJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f, 
+             void *f_data, realtype t, N_Vector y, N_Vector fy,
+             realtype vnrm, N_Vector ewt, realtype h, realtype uround, 
              void *jac_data, long int *nfePtr, N_Vector work)
 {
 
-  real *vdata, *Jvdata, *ydata, *fydata, *ewtdata, *wkdata;
+  realtype *vdata, *Jvdata, *ydata, *fydata, *ewtdata, *wkdata;
   int ier = 0;
 
   vdata = N_VGetData(v);

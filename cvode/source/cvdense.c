@@ -3,7 +3,7 @@
  * File          : cvdense.c                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 5 March 2002                                   *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the CVODE dense linear     *
  * solver, CVDENSE.                                               *
@@ -17,9 +17,9 @@
 #include "cvdense.h"
 #include "cvode.h"
 #include "dense.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 
 
 /* Error Messages */
@@ -51,19 +51,19 @@
 
 typedef struct {
 
-    CVDenseJacFn d_jac; /* jac = Jacobian routine to be called    */
+    CVDenseJacFn d_jac;    /* jac = Jacobian routine to be called    */
 
-    DenseMat d_M;       /* M = I - gamma J, gamma = h / l1        */
+    DenseMat d_M;          /* M = I - gamma J, gamma = h / l1        */
 
-    integer *d_pivots;  /* pivots = pivot array for PM = LU       */
+    integertype *d_pivots; /* pivots = pivot array for PM = LU       */
 
-    DenseMat d_savedJ;  /* savedJ = old Jacobian                  */
+    DenseMat d_savedJ;     /* savedJ = old Jacobian                  */
 
-    long int  d_nstlj;  /* nstlj = nst at last Jacobian eval.     */
+    long int  d_nstlj;     /* nstlj = nst at last Jacobian eval.     */
     
-    long int d_nje;     /* nje = no. of calls to jac              */
+    long int d_nje;        /* nje = no. of calls to jac              */
 
-    void *d_J_data;     /* J_data is passed to jac                */
+    void *d_J_data;        /* J_data is passed to jac                */
 
 } CVDenseMemRec, *CVDenseMem;
 
@@ -73,7 +73,7 @@ typedef struct {
 static int CVDenseInit(CVodeMem cv_mem);
 
 static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                        N_Vector fpred, boole *jcurPtr, N_Vector vtemp1,
+                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                         N_Vector vtemp2, N_Vector vtemp3);
 
 static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
@@ -81,10 +81,11 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
 
 static void CVDenseFree(CVodeMem cv_mem);
 
-static void CVDenseDQJac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
-                  N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
-                  void *jac_data, long int *nfePtr, N_Vector vtemp1,
-                  N_Vector vtemp2, N_Vector vtemp3);
+static void CVDenseDQJac(integertype N, DenseMat J, RhsFn f, void *f_data, 
+                         realtype t, N_Vector y, N_Vector fy, N_Vector ewt, 
+                         realtype h, realtype uround, void *jac_data, 
+                         long int *nfePtr, N_Vector vtemp1,
+                         N_Vector vtemp2, N_Vector vtemp3);
 
 
 /*************** CVDenseDQJac ****************************************
@@ -100,16 +101,17 @@ static void CVDenseDQJac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
 
 **********************************************************************/
  
-static void CVDenseDQJac(integer N, DenseMat J, RhsFn f, void *f_data, real tn,
-                  N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
-                  void *jac_data, long int *nfePtr, N_Vector vtemp1,
-                  N_Vector vtemp2, N_Vector vtemp3)
+static void CVDenseDQJac(integertype N, DenseMat J, RhsFn f, void *f_data, 
+                         realtype tn, N_Vector y, N_Vector fy, N_Vector ewt, 
+                         realtype h, realtype uround, void *jac_data, 
+                         long int *nfePtr, N_Vector vtemp1,
+                         N_Vector vtemp2, N_Vector vtemp3)
 {
-  real fnorm, minInc, inc, inc_inv, yjsaved, srur;
-  real *y_data, *ewt_data;
+  realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
+  realtype *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
   M_Env machEnv;
-  integer j;
+  integertype j;
 
   machEnv = y->menv; /* Get machine environment */
 
@@ -368,12 +370,12 @@ static int CVDenseInit(CVodeMem cv_mem)
 **********************************************************************/
 
 static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                        N_Vector fpred, boole *jcurPtr, N_Vector vtemp1,
-                        N_Vector vtemp2, N_Vector vtemp3)
+                        N_Vector fpred, booleantype *jcurPtr, 
+                        N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  boole jbad, jok;
-  real dgamma;
-  integer ier;
+  booleantype jbad, jok;
+  realtype dgamma;
+  integertype ier;
   CVDenseMem cvdense_mem;
   
   cvdense_mem = (CVDenseMem) lmem;
@@ -425,7 +427,7 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                         N_Vector fcur)
 {
   CVDenseMem cvdense_mem;
-  real *bd;
+  realtype *bd;
   
   cvdense_mem = (CVDenseMem) lmem;
   

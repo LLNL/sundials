@@ -1,6 +1,6 @@
 2-species diurnal advection-diffusion problem
   10 by 10 mesh on 4 processors
-  Using PVBBDPRE preconditioner module
+  Using CVBBDPRE preconditioner module
     Difference-quotient half-bandwidths are mudq = 10,  mldq = 10
     Retained band block half-bandwidths are mukeep = 2,  mlkeep = 2
 
@@ -62,7 +62,7 @@ nni     =   567    nli   =   495
 nsetups =    82    netf  =    30
 npe     =     8    nps   =  1012
 ncfn    =     0    ncfl  =     0
-In PVBBDPRE: real/integer local work space sizes = 600, 50
+In CVBBDPRE: real/integer local work space sizes = 600, 50
              no. flocal evals. = 176
 
 
@@ -127,5 +127,5 @@ nni     =   595    nli   =   756
 nsetups =    94    netf  =    31
 npe     =     9    nps   =  1250
 ncfn    =     0    ncfl  =     0
-In PVBBDPRE: real/integer local work space sizes = 600, 50
+In CVBBDPRE: real/integer local work space sizes = 600, 50
              no. flocal evals. = 198

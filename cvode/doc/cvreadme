@@ -406,7 +406,7 @@ D.3. Revision History for combined CVODE package (YYYYMMDD)
           routine names to reflect this.
 20020321  Merged readme files cvreadme and pvreadme.
           Revised to reflect new N_Vector usage.
-
+20020626  Modified to reflect type name changes
 
 ......................................................................
 

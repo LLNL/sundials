@@ -2,7 +2,7 @@
  *                                                                      *
  * File       : pvkxb.c                                                 *
  * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman @ LLNL      *
- * Version of : 7 March 2002                                            *
+ * Version of : 26 June 2002                                            *
  *----------------------------------------------------------------------*
  * Modified by R. Serban to work with new parallel nvector (7/3/2002)   *
  *----------------------------------------------------------------------*
@@ -50,14 +50,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"  /* definitions of real, integer, TRUE, FALSE       */
-#include "cvode.h"     /* main CVODE header file                          */
-#include "iterativ.h"  /* contains the enum for types of preconditioning  */
-#include "cvspgmr.h"   /* use CVSPGMR linear solver                       */
-#include "cvbbdpre.h"  /* band preconditioner function prototypes         */
-#include "nvector_parallel.h"   /* definitions of type N_Vector, macro NV_DATA_P  */
-#include "llnlmath.h"  /* contains SQR macro                              */
-#include "mpi.h"       /* MPI data types and prototypes                   */
+#include "sundialstypes.h" /* definitions of realtype, integertype              */ 
+#include "cvode.h"         /* main CVODE header file                            */
+#include "iterativ.h"      /* contains the enum for types of preconditioning    */
+#include "cvspgmr.h"       /* use CVSPGMR linear solver                         */
+#include "cvbbdpre.h"      /* band preconditioner function prototypes           */
+#include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P  */
+#include "sundialsmath.h"  /* contains SQR macro                                */
+#include "mpi.h"           /* MPI data types and prototypes                     */
 
 
 /* Problem Constants */
@@ -108,9 +108,9 @@
    grid constants, processor indices, MPI communicator */
 
 typedef struct {
-  real q4, om, dx, dy, hdco, haco, vdco;
-  real uext[NVARS*(MXSUB+2)*(MYSUB+2)];
-  integer my_pe, isubx, isuby, nvmxsub, nvmxsub2;
+  realtype q4, om, dx, dy, hdco, haco, vdco;
+  realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
+  integertype my_pe, isubx, isuby, nvmxsub, nvmxsub2;
   MPI_Comm comm;
 } *UserData;
 
@@ -119,32 +119,32 @@ typedef struct {
 
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintOutput(integer my_pe, MPI_Comm comm, long int iopt[],
-                        real ropt[], N_Vector u, real t);
+static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[],
+                        realtype ropt[], N_Vector u, realtype t);
 static void PrintFinalStats(long int iopt[]);
-static void BSend(MPI_Comm comm, integer my_pe, integer isubx, integer isuby,
-                  integer dsizex, integer dsizey, real uarray[]);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
-		      integer isubx, integer isuby,
-		      integer dsizex, integer dsizey,
-		      real uext[], real buffer[]);
-static void BRecvWait(MPI_Request request[], integer isubx, integer isuby,
-		      integer dsizex, real uext[], real buffer[]);
+static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, integertype isuby,
+                  integertype dsizex, integertype dsizey, realtype uarray[]);
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
+		      integertype isubx, integertype isuby,
+		      integertype dsizex, integertype dsizey,
+		      realtype uext[], realtype buffer[]);
+static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
+		      integertype dsizex, realtype uext[], realtype buffer[]);
 
-static void fucomm(integer N, real t, N_Vector u, void *f_data);
+static void fucomm(integertype N, realtype t, N_Vector u, void *f_data);
 
 
 /* Prototype of function called by the CVODE solver */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 
 /* Prototype of functions called by the CVBBDPRE module */
 
-static void flocal(integer N, real t, real uarray[], real duarray[], 
+static void flocal(integertype N, realtype t, realtype uarray[], realtype duarray[], 
                     void *f_data);
 
-static void ucomm(integer N, real t, N_Vector u, void *f_data);
+static void ucomm(integertype N, realtype t, N_Vector u, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -152,14 +152,14 @@ static void ucomm(integer N, real t, N_Vector u, void *f_data);
 int main(int argc, char *argv[])
 {
   M_Env machEnv;
-  real abstol, reltol, t, tout, ropt[OPT_SIZE];
+  realtype abstol, reltol, t, tout, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector u;
   UserData data;
   CVBBDData pdata;
   void *cvode_mem;
   int iout, flag, my_pe, npes, jpre;
-  integer neq, local_N, mudq, mldq, mukeep, mlkeep;
+  integertype neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
 
   /* Set problem size neq */
@@ -316,12 +316,12 @@ int main(int argc, char *argv[])
 
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 {
-  integer isubx, isuby;
+  integertype isubx, isuby;
 
   /* Set problem constants */
   data->om = PI/HALFDAY;
-  data->dx = (XMAX-XMIN)/((real)(MX-1));
-  data->dy = (YMAX-YMIN)/((real)(MY-1));
+  data->dx = (XMAX-XMIN)/((realtype)(MX-1));
+  data->dy = (YMAX-YMIN)/((realtype)(MY-1));
   data->hdco = KH/SQR(data->dx);
   data->haco = VEL/(2.0*data->dx);
   data->vdco = (1.0/SQR(data->dy))*KV0;
@@ -344,9 +344,9 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 
 static void SetInitialProfiles(N_Vector u, UserData data)
 {
-  integer isubx, isuby, lx, ly, jx, jy, offset;
-  real dx, dy, x, y, cx, cy, xmid, ymid;
-  real *uarray;
+  integertype isubx, isuby, lx, ly, jx, jy, offset;
+  realtype dx, dy, x, y, cx, cy, xmid, ymid;
+  realtype *uarray;
 
   /* Set pointer to data array in vector u */
 
@@ -383,11 +383,11 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(integer my_pe, MPI_Comm comm, long int iopt[], 
-                        real ropt[], N_Vector u, real t)
+static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[], 
+                        realtype ropt[], N_Vector u, realtype t)
 {
-  real *uarray, tempu[2];
-  integer npelast, i0, i1;
+  realtype *uarray, tempu[2];
+  integertype npelast, i0, i1;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
@@ -433,12 +433,12 @@ static void PrintFinalStats(long int iopt[])
  
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(MPI_Comm comm, integer my_pe, integer isubx, integer isuby,
-                  integer dsizex, integer dsizey, real uarray[])
+static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, integertype isuby,
+                  integertype dsizex, integertype dsizey, realtype uarray[])
 {
   int i, ly;
-  integer offsetu, offsetbuf;
-  real bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
+  integertype offsetu, offsetbuf;
+  realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
 
@@ -480,19 +480,19 @@ static void BSend(MPI_Comm comm, integer my_pe, integer isubx, integer isuby,
  
 /* Routine to start receiving boundary data from neighboring PEs.
    Notes:
-   1) buffer should be able to hold 2*NVARS*MYSUB real entries, should be
+   1) buffer should be able to hold 2*NVARS*MYSUB realtype entries, should be
    passed to both the BRecvPost and BRecvWait functions, and should not
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
-		      integer isubx, integer isuby,
-		      integer dsizex, integer dsizey,
-		      real uext[], real buffer[])
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
+		      integertype isubx, integertype isuby,
+		      integertype dsizex, integertype dsizey,
+		      realtype uext[], realtype buffer[])
 {
-  integer offsetue;
+  integertype offsetue;
   /* Have bufleft and bufright use the same buffer */
-  real *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
+  realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
 
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
@@ -522,17 +522,17 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
 
 /* Routine to finish receiving boundary data from neighboring PEs.
    Notes:
-   1) buffer should be able to hold 2*NVARS*MYSUB real entries, should be
+   1) buffer should be able to hold 2*NVARS*MYSUB realtype entries, should be
    passed to both the BRecvPost and BRecvWait functions, and should not
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvWait(MPI_Request request[], integer isubx, integer isuby,
-		      integer dsizex, real uext[], real buffer[])
+static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
+		      integertype dsizex, realtype uext[], realtype buffer[])
 {
   int i, ly;
-  integer dsizex2, offsetue, offsetbuf;
-  real *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
+  integertype dsizex2, offsetue, offsetbuf;
+  realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
   dsizex2 = dsizex + 2*NVARS;
@@ -576,13 +576,13 @@ static void BRecvWait(MPI_Request request[], integer isubx, integer isuby,
 /* fucomm routine.  This routine performs all inter-processor
    communication of data in u needed to calculate f.         */
 
-static void fucomm(integer N, real t, N_Vector u, void *f_data)
+static void fucomm(integertype N, realtype t, N_Vector u, void *f_data)
 {
 
   UserData data;
-  real *uarray, *uext, buffer[2*NVARS*MYSUB];
+  realtype *uarray, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
-  integer my_pe, isubx, isuby, nvmxsub, nvmysub;
+  integertype my_pe, isubx, isuby, nvmxsub, nvmysub;
   MPI_Request request[4];
 
   data = (UserData) f_data;
@@ -617,9 +617,9 @@ static void fucomm(integer N, real t, N_Vector u, void *f_data)
 /* f routine.  Evaluate f(t,y).  First call fucomm to do communication of 
    subgrid boundary data into uext.  Then calculate f by a call to flocal. */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
-  real *uarray, *duarray;
+  realtype *uarray, *duarray;
   UserData data;
 
   uarray = NV_DATA_P(u);
@@ -644,16 +644,16 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
    inter-processor communication of data needed to calculate f has already
    been done, and this data is in the work array uext.                    */
 
-static void flocal(integer N, real t, real uarray[], real duarray[],
+static void flocal(integertype N, realtype t, realtype uarray[], realtype duarray[],
                    void *f_data)
 {
-  real *uext;
-  real q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
-  real c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
-  real qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
-  real q4coef, dely, verdco, hordco, horaco;
+  realtype *uext;
+  realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
+  realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
+  realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
+  realtype q4coef, dely, verdco, hordco, horaco;
   int i, lx, ly, jx, jy;
-  integer isubx, isuby, nvmxsub, nvmxsub2, offsetu, offsetue;
+  integertype isubx, isuby, nvmxsub, nvmxsub2, offsetu, offsetue;
   UserData data;
 
   /* Get subgrid indices, array sizes, extended work array uext */
@@ -788,6 +788,6 @@ static void flocal(integer N, real t, real uarray[], real duarray[],
 /* ucomm routine.  This routine is empty, as communication needed
    to evaluate flocal has been done in prior call to f */
 
-static void ucomm(integer N, real t, N_Vector u, void *f_data)
+static void ucomm(integertype N, realtype t, N_Vector u, void *f_data)
 {
 }

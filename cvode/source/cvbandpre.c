@@ -3,7 +3,7 @@
  * File          : cvbandpre.c                                    *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 7 March 2002                                   *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This file contains implementations of the banded difference    *
  * quotient Jacobian-based preconditioner and solver routines for *
@@ -16,9 +16,9 @@
 #include <string.h>
 #include "cvbandpre.h"
 #include "cvode.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 #include "band.h"
 
 #define MIN_INC_MULT RCONST(1000.0)
@@ -33,10 +33,10 @@
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
-static void CVBandPDQJac(integer N, integer mupper, integer mlower, BandMat J,
-                         RhsFn f, void *f_data, real tn, N_Vector y,
-                         N_Vector fy, N_Vector ewt, real h, real uround,
-                         N_Vector ftemp, N_Vector ytemp);
+static void CVBandPDQJac(integertype N, integertype mupper, integertype mlower, 
+                         BandMat J, RhsFn f, void *f_data, realtype tn, 
+                         N_Vector y, N_Vector fy, N_Vector ewt, realtype h, 
+                         realtype uround, N_Vector ftemp, N_Vector ytemp);
 
 
 /* Redability replacements */
@@ -45,12 +45,12 @@ static void CVBandPDQJac(integer N, integer mupper, integer mlower, BandMat J,
 
 /**************  Malloc, ReInit, and Free Functions **********************/
 
-CVBandPreData CVBandPreAlloc(integer N, RhsFn f, void *f_data,
-                             integer mu, integer ml, void *cvode_mem)
+CVBandPreData CVBandPreAlloc(integertype N, RhsFn f, void *f_data,
+                             integertype mu, integertype ml, void *cvode_mem)
 {
   CVodeMem cv_mem;
   CVBandPreData pdata;
-  integer mup, mlp, storagemu;
+  integertype mup, mlp, storagemu;
 
   cv_mem = (CVodeMem) cvode_mem;
   if (cvode_mem == NULL) {
@@ -105,8 +105,8 @@ CVBandPreData CVBandPreAlloc(integer N, RhsFn f, void *f_data,
   return(pdata);
 }
 
-int CVReInitBandPre(CVBandPreData pdata, integer N, RhsFn f, void *f_data,
-                    integer mu, integer ml)
+int CVReInitBandPre(CVBandPreData pdata, integertype N, RhsFn f, void *f_data,
+                    integertype mu, integertype ml)
 {
   /* Load pointers and bandwidths into pdata block. */
   pdata->f = f;
@@ -201,14 +201,14 @@ void CVBandPreFree(CVBandPreData pdata)
  *   1  if the band factorization failed.                         *
  ******************************************************************/
 
-int CVBandPrecond(integer N, real t, N_Vector y, N_Vector fy,
-                  boole jok, boole *jcurPtr, real gamma,
-                  N_Vector ewt, real h, real uround,
+int CVBandPrecond(integertype N, realtype t, N_Vector y, N_Vector fy,
+                  booleantype jok, booleantype *jcurPtr, realtype gamma,
+                  N_Vector ewt, realtype h, realtype uround,
                   long int *nfePtr, void *bp_data,
                   N_Vector vtemp1, N_Vector vtemp2,
                   N_Vector vtemp3)
 {
-  integer ier;
+  integertype ier;
   CVBandPreData pdata;
 
   /* Assume matrix and pivots have already been allocated. */
@@ -261,13 +261,13 @@ int CVBandPrecond(integer N, real t, N_Vector y, N_Vector fy,
  *                                                                *
  ******************************************************************/
 
-int CVBandPSolve(integer N, real t, N_Vector y, N_Vector fy,
-                 N_Vector vtemp, real gamma, N_Vector ewt,
-                 real delta, long int *nfePtr, N_Vector r,
+int CVBandPSolve(integertype N, realtype t, N_Vector y, N_Vector fy,
+                 N_Vector vtemp, realtype gamma, N_Vector ewt,
+                 realtype delta, long int *nfePtr, N_Vector r,
                  int lr, void *bp_data, N_Vector z)
 {
   CVBandPreData pdata;
-  real *zd;
+  realtype *zd;
 
   /* Assume matrix and pivots have already been allocated. */
   pdata = (CVBandPreData) bp_data;
@@ -306,14 +306,14 @@ int CVBandPSolve(integer N, real t, N_Vector y, N_Vector fy,
 
 **********************************************************************/
 
-static void CVBandPDQJac(integer N, integer mupper, integer mlower, BandMat J,
-                         RhsFn f, void *f_data, real tn, N_Vector y,
-                         N_Vector fy, N_Vector ewt, real h, real uround,
-                         N_Vector ftemp, N_Vector ytemp)
+static void CVBandPDQJac(integertype N, integertype mupper, integertype mlower, 
+                         BandMat J, RhsFn f, void *f_data, realtype tn, 
+                         N_Vector y, N_Vector fy, N_Vector ewt, realtype h, 
+                         realtype uround, N_Vector ftemp, N_Vector ytemp)
 {
-  real    fnorm, minInc, inc, inc_inv, srur;
-  integer group, i, j, width, ngroups, i1, i2;
-  real *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
+  realtype    fnorm, minInc, inc, inc_inv, srur;
+  integertype group, i, j, width, ngroups, i1, i2;
+  realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
   ewt_data   = N_VGetData(ewt);
