@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-07-22 20:41:12 $
+ * $Revision: 1.13 $
+ * $Date: 2004-07-22 22:20:40 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban, LLNL                               
  * -----------------------------------------------------------------
@@ -69,6 +69,8 @@ typedef N_Vector *N_Vector_S;
 struct _generic_N_Vector_Ops {
   N_Vector    (*nvclone)(N_Vector);
   void        (*nvdestroy)(N_Vector);
+  N_Vector    (*nvcloneempty)(N_Vector);
+  void        (*nvdestroyempty)(N_Vector);
   void        (*nvspace)(N_Vector, long int *, long int *);
   realtype*   (*nvgetarraypointer)(N_Vector);
   void        (*nvsetarraypointer)(realtype *, N_Vector);
@@ -120,6 +122,13 @@ struct _generic_N_Vector {
  * N_VDestroy
  *   Destroys a vector (created either with the implementation
  *   specific N_VNew function or with N_VClone).
+ *
+ * N_VCloneEmpty
+ *   Creates a new vector of the same type as an existing vector,
+ *   but does not allocate memory for the internal data.
+ *
+ * N_VDestroyEmpty
+ *   Destroys a vector created by N_VCloneEmpty.
  *
  * N_VSpace
  *   Returns space requirements for one N_Vector (type real in lrw
@@ -249,6 +258,7 @@ struct _generic_N_Vector {
  * I    -  called by the iterative linear solver module
  * BP   -  called by the band preconditioner module
  * BBDP -  called by the band-block diagonal preconditioner module
+ * F    -  called by the Fortran - C interface
  *
  * Note that N_VMake, N_VGetData and N_VSetData expect to exchange
  * data through contiguous arrays of realtype values. If this is
@@ -265,11 +275,15 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  * N_VDestroy         S Di I                S I             S I       
  * -----------------------------------------------------------------
+ * N_VCloneEmpty      F                                     F
+ * -----------------------------------------------------------------
+ * N_VDestroyEmpty    F                                     F
+ * -----------------------------------------------------------------
  * N_VSpace           S                     S               S         
  * -----------------------------------------------------------------
- * N_VGetArrayPointer D B BP BBDP           D B BBDP        BBDP      
+ * N_VGetArrayPointer D B BP BBDP F         D B BBDP        BBDP F     
  * -----------------------------------------------------------------
- * N_VSetArrayPointer D                     D
+ * N_VSetArrayPointer D F                   D               F
  * -----------------------------------------------------------------
  * N_VLinearSum       S Di I                S I             S I       
  * -----------------------------------------------------------------
@@ -314,9 +328,11 @@ struct _generic_N_Vector {
   
 N_Vector N_VClone(N_Vector w);
 void N_VDestroy(N_Vector v);
+N_Vector N_VCloneEmpty(N_Vector w);
+void N_VDestroyEmpty(N_Vector v);
 void N_VSpace(N_Vector v, long int *lrw, long int *liw);
 realtype *N_VGetArrayPointer(N_Vector v);
-  void N_VSetArrayPointer(realtype *v_data, N_Vector v);
+void N_VSetArrayPointer(realtype *v_data, N_Vector v);
 void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 void N_VConst(realtype c, N_Vector z);
 void N_VProd(N_Vector x, N_Vector y, N_Vector z);
