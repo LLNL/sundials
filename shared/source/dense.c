@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : dense.c                                        *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 15 November 2001                               *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 4 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for a generic DENSE linear     *
  * solver package.                                                *
@@ -13,7 +14,6 @@
 #include <stdlib.h>
 #include "llnltyps.h"
 #include "llnlmath.h"
-#include "nvector.h"
 #include "dense.h"
 #include "smalldense.h"
 
@@ -60,9 +60,9 @@ integer DenseFactor(DenseMat A, integer *p)
 }
 
 
-void DenseBacksolve(DenseMat A, integer *p, N_Vector b)
+void DenseBacksolve(DenseMat A, integer *p, real *b)
 {
-  gesl(A->data, A->size, p, N_VDATA(b));
+  gesl(A->data, A->size, p, b);
 }
 
 

@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : dense.h                                        *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 30 November 2001                               *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 4 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for a generic DENSE linear solver      *
  * package.  The routines listed in this file all use type        *
@@ -22,13 +23,7 @@
  * DenseAllocPiv is deallocated by the routines DenseFreeMat and  *
  * DenseFreePiv, respectively. The DenseFactor and DenseBacksolve *
  * routines perform the actual solution of a dense linear system. *
- * Note that the DenseBacksolve routine has a parameter b of type *
- * N_Vector. The current implementation makes use of a machine    *
- * environment-specific macro (N_VDATA) which may not exist for   *
- * other implementations of the type N_Vector. Thus, the          *
- * implementation of DenseBacksolve may need to change if the     *
- * type N_Vector is changed.                                      *
- *                                                                * 
+ *                                                                *
  * Routines that work with real ** begin with "den" (except for   *
  * the factor and solve routines which are called gefa and gesl,  *
  * respectively). The underlying matrix storage is described in   *
@@ -45,7 +40,6 @@ extern "C" {
 
 #include "llnltyps.h"
 #include "smalldense.h"
-#include "nvector.h"
 
  
 /******************************************************************
@@ -194,7 +188,7 @@ integer DenseFactor(DenseMat A, integer *p);
  *                                                                *
  ******************************************************************/
 
-void DenseBacksolve(DenseMat A, integer *p, N_Vector b);
+void DenseBacksolve(DenseMat A, integer *p, real *b);
 
 
 /******************************************************************
