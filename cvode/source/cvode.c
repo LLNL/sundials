@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2004-11-23 20:48:24 $
+ * $Revision: 1.38.2.1 $
+ * $Date: 2005-01-24 21:40:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1456,7 +1456,7 @@ static booleantype CVEwtSetSV(CVodeMem cv_mem, N_Vector ycur)
   
   rtoli = *reltol;
   N_VAbs(ycur, tempv);
-  N_VLinearSum(rtoli, tempv, ONE, abstol, tempv);
+  N_VLinearSum(rtoli, tempv, ONE, (N_Vector) abstol, tempv);
   if (N_VMin(tempv) <= ZERO) return(FALSE);
   N_VInv(tempv, ewt);
   return(TRUE);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-11-15 18:56:28 $
+ * $Revision: 1.5.2.1 $
+ * $Date: 2005-01-24 21:40:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -27,11 +27,6 @@ extern "C" {
 #include "cvode.h"
 #include "nvector.h"
 #include "sundialstypes.h"
-
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
 
 /*
  * =================================================================
