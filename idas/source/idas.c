@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2004-11-05 01:19:39 $
+ * $Revision: 1.33 $
+ * $Date: 2004-11-05 23:55:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,7 +24,6 @@
 
 #include "idas_impl.h"
 #include "sundialsmath.h"
-#include "sundialstypes.h"
 
 /*=================================================================*/
 /*END          Import Header Files                                 */
@@ -139,219 +138,6 @@
 
 /*=================================================================*/
 /*END          IDAS Routine-Specific Constants                     */
-/*=================================================================*/
-
-/*=================================================================*/
-/*BEGIN        IDAS Error Messages                                 */
-/*=================================================================*/
-
-/* IDACreate error messages */
-
-#define MSG_IDAMEM_FAIL      "IDACreate-- Allocation of ida_mem failed. \n\n"
-
-/* IDAMalloc/IDAReInit error messages */
-
-#define IDAM               "IDAMalloc/IDAReInit-- "
-
-#define MSG_IDAM_NO_MEM    IDAM "ida_mem = NULL illegal.\n\n"
-
-#define MSG_Y0_NULL        IDAM "y0 = NULL illegal.\n\n"
-#define MSG_YP0_NULL       IDAM "yp0 = NULL illegal.\n\n"
-
-#define MSG_BAD_ITOL1      IDAM "itol = %d illegal.\n"
-#define MSG_BAD_ITOL2      "The legal values are IDA_SS = %d and IDA_SV = %d.\n\n"
-#define MSG_BAD_ITOL       MSG_BAD_ITOL1 MSG_BAD_ITOL2
-
-#define MSG_RES_NULL       IDAM "res = NULL illegal.\n\n"
-
-#define MSG_RELTOL_NULL      IDAM "reltol = NULL illegal.\n\n"
-
-#define MSG_BAD_RELTOL       IDAM "*reltol = %g < 0 illegal.\n\n"
-
-#define MSG_ABSTOL_NULL      IDAM "abstol = NULL illegal.\n\n"
-
-#define MSG_BAD_ABSTOL       IDAM "Some abstol component < 0.0 illegal.\n\n"
-
-#define MSG_BAD_NVECTOR    IDAM "A required vector operation is not implemented.\n\n"
-
-#define MSG_MEM_FAIL       IDAM "A memory request failed.\n\n"
-
-#define MSG_REI_NO_MALLOC  "IDAReInit-- Attempt to call before IDAMalloc. \n\n"
-
-/* IDAQuadMalloc/IDAQuadReInit error messages */
-
-#define QIDAM              "IDAQuadMalloc/IDAQuadReInit-- "
-
-#define MSG_QIDAM_NO_MEM   QIDAM "ida_mem=NULL illegal.\n\n"
-
-#define MSG_QIDAM_MEM_FAIL QIDAM "A memory request failed.\n\n"
-
-#define MSG_BAD_RHSQ       QIDAM "rhsQ=NULL illegal.\n\n"
-
-#define MSG_QREI_QUAD1     "IDAQuadReInit-- Illegal attempt to call before "
-#define MSG_QREI_QUAD2     "calling IDAQuadMalloc.\n\n"
-#define MSG_QREI_NO_QUAD   MSG_QREI_QUAD1 MSG_QREI_QUAD2
-
-/* IDASensMalloc/ IDASensReInit error messages */
-
-#define SIDAM            "IDASensMalloc/IDASensReInit-- "
-
-#define MSG_SIDAM_NO_MEM SIDAM "ida_mem=NULL illegal.\n\n"
-
-#define MSG_SIDAM_MEM_FAIL SIDAM "A memory request failed.\n\n"
-
-#define MSG_BAD_NS       SIDAM "NS=%d<=0 illegal.\n\n"
-
-#define MSG_P_NULL       SIDAM "p=NULL illegal.\n\n"
-
-#define MSG_YS0_NULL     SIDAM "yS0=NULL illegal.\n\n"
-#define MSG_YPS0_NULL    SIDAM "ypS0=NULL illegal.\n\n"
-
-#define MSG_BAD_ISM1     SIDAM "ism=%d illegal.\n"
-#define MSG_BAD_ISM2     "The legal values are: "
-#define MSG_BAD_ISM3     "IDA_SIMULTANEOUS=%d, IDA_STAGGERED=%d and IDA_STAGGERED1=%d.\n\n"
-#define MSG_BAD_ISM      MSG_BAD_ISM1 MSG_BAD_ISM2 MSG_BAD_ISM3
-
-#define MSG_SREI_SENSI1    "IDASensReInit-- Illegal attempt to call before "
-#define MSG_SREI_SENSI2    "calling IDASensMalloc.\n\n"
-#define MSG_SREI_NO_SENSI  MSG_SREI_SENSI1 MSG_SREI_SENSI2
-
-/* IDAInitialSetup error messages -- called from IDACalcIC or IDASolve */
-
-#define IDAIS              "Initial setup-- "
-
-#define MSG_MISSING_ID      IDAIS "id = NULL but suppressalg option on.\n\n"
-
-#define MSG_BAD_EWT         IDAIS "Some initial ewt component = 0.0 illegal.\n\n"
-
-#define MSG_BAD_CONSTRAINTS IDAIS "illegal values in constraints vector.\n\n"
-
-#define MSG_Y0_FAIL_CONSTR  IDAIS "y0 fails to satisfy constraints.\n\n"
-
-#define MSG_NO_QUADTOL      IDAIS "No quad tolerances set. Illegal for errconQ=TRUE.\n\n"
-
-#define MSG_BAD_RELTOLQ     IDAIS "*reltolQ=%g < 0.0 illegal.\n\n"
-
-#define MSG_BAD_ABSTOLQ     IDAIS "Some abstolQ component < 0.0 illegal.\n\n"  
-
-#define MSG_BAD_EWTQ        IDAIS "Some initial ewtQ component = 0.0 illegal.\n\n"
-
-#define MSG_BAD_ISM_IRESS1  "Illegal use of ism=IDA_STAGGERED1 "
-#define MSG_BAD_ISM_IRESS2  "with the provided sensitivity residual function.\n\n"
-#define MSG_BAD_ISM_IRESS   IDAIS MSG_BAD_ISM_IRESS1 MSG_BAD_ISM_IRESS2 
-
-#define MSG_BAD_EWTS        IDAIS "Some initial ewtS component = 0.0 illegal.\n\n"
-
-#define MSG_LSOLVE_NULL     IDAIS "The linear solver's solve routine is NULL.\n\n"
-
-#define MSG_LINIT_FAIL      IDAIS "The linear solver's init routine failed.\n\n"
-
-/* IDASolve error messages */
-
-#define IDASLV             "IDASolve-- "
-
-#define MSG_BAD_RELTOLS    IDASLV "*reltolS=%g < 0.0 illegal.\n\n"
-
-#define MSG_BAD_ABSTOLS    IDASLV "Some abstolS component < 0.0 illegal.\n\n"  
-
-#define MSG_BAD_PBAR       IDASLV "Some pbar component = 0.0 illegal.\n\n"
-
-#define MSG_ATOLS_MEM_FAIL IDASLV "A memory request failed (abstolS).\n\n"
-
-#define MSG_IDA_NO_MEM     IDASLV "IDA_mem = NULL illegal.\n\n"
-
-#define MSG_NO_MALLOC      IDASLV "Attempt to call before IDAMalloc. \n\n"
- 
-#define MSG_BAD_HINIT      IDASLV "hinit=%g and tout-t0=%g inconsistent.\n\n"
-
-#define MSG_BAD_TOUT1      IDASLV "Trouble interpolating at tout = %g.\n"
-#define MSG_BAD_TOUT2      "tout too far back in direction of integration.\n\n"
-#define MSG_BAD_TOUT       MSG_BAD_TOUT1 MSG_BAD_TOUT2
-
-#define MSG_BAD_TSTOP1     IDASLV "tstop = %g is behind  current t = %g \n"
-#define MSG_BAD_TSTOP2     "in the direction of integration.\n\n"
-#define MSG_BAD_TSTOP      MSG_BAD_TSTOP1 MSG_BAD_TSTOP2
-
-#define MSG_MAX_STEPS1     IDASLV "At t=%g, mxstep=%d steps taken on "
-#define MSG_MAX_STEPS2     "this call before\nreaching tout=%g.\n\n"
-#define MSG_MAX_STEPS      MSG_MAX_STEPS1 MSG_MAX_STEPS2
-
-#define MSG_EWT_NOW_BAD1   IDASLV "At t=%g, "
-#define MSG_EWT_NOW_BAD2   "some ewt component has become <= 0.0.\n\n"
-#define MSG_EWT_NOW_BAD    MSG_EWT_NOW_BAD1 MSG_EWT_NOW_BAD2
-
-#define MSG_EWTQ_NOW_BAD1  IDASLV "At t=%g, "
-#define MSG_EWTQ_NOW_BAD2  "some ewtQ component has become <= 0.0.\n\n"
-#define MSG_EWTQ_NOW_BAD   MSG_EWTQ_NOW_BAD1 MSG_EWTQ_NOW_BAD2
-
-#define MSG_EWTS_NOW_BAD1  IDASLV "At t=%g, "
-#define MSG_EWTS_NOW_BAD2  "some ewtS component has become <= 0.0.\n\n"
-#define MSG_EWTS_NOW_BAD   MSG_EWTS_NOW_BAD1 MSG_EWTS_NOW_BAD2
-
-#define MSG_TOO_MUCH_ACC   IDASLV "At t=%g, too much accuracy requested.\n\n"
-
-#define MSG_ERR_FAILS1     IDASLV "At t=%g and step size h=%g, the error test\n"
-#define MSG_ERR_FAILS2     "failed repeatedly or with |h| = hmin.\n\n"
-#define MSG_ERR_FAILS      MSG_ERR_FAILS1 MSG_ERR_FAILS2
-
-#define MSG_CONV_FAILS1    IDASLV "At t=%g and step size h=%g, the corrector\n"
-#define MSG_CONV_FAILS2    "convergence failed repeatedly.\n\n"
-#define MSG_CONV_FAILS     MSG_CONV_FAILS1 MSG_CONV_FAILS2
-
-#define MSG_SETUP_FAILED1  IDASLV "At t=%g, the linear solver setup routine "
-#define MSG_SETUP_FAILED2  "failed in an unrecoverable manner.\n\n"
-#define MSG_SETUP_FAILED   MSG_SETUP_FAILED1 MSG_SETUP_FAILED2
-
-#define MSG_SOLVE_FAILED1  IDASLV "At t=%g, the linear solver solve routine "
-#define MSG_SOLVE_FAILED2  "failed in an unrecoverable manner.\n\n"
-#define MSG_SOLVE_FAILED   MSG_SOLVE_FAILED1 MSG_SOLVE_FAILED2
-
-#define MSG_TOO_CLOSE1     IDASLV "tout=%g too close to t0=%g to start"
-#define MSG_TOO_CLOSE2     " integration.\n\n"
-#define MSG_TOO_CLOSE      MSG_TOO_CLOSE1 MSG_TOO_CLOSE2
-
-#define MSG_YRET_NULL      IDASLV "yret=NULL illegal.\n\n"
-#define MSG_YPRET_NULL     IDASLV "ypret=NULL illegal.\n\n"
-#define MSG_TRET_NULL      IDASLV "tret=NULL illegal.\n\n"
-
-#define MSG_BAD_ITASK      IDASLV "itask=%d illegal.\n\n"
-
-#define MSG_NO_TSTOP1      IDASLV "itask = IDA_NORMAL_TSTOP or itask = IDA_ONE_STEP_TSTOP "
-#define MSG_NO_TSTOP2      "but tstop was not set.\n\n"
-#define MSG_NO_TSTOP       MSG_NO_TSTOP1 MSG_NO_TSTOP2
-
-#define MSG_REP_RES_ERR1   IDASLV "At t = %g, repeated recoverable error \n"
-#define MSG_REP_RES_ERR2   "returns from residual function. \n\n"
-#define MSG_REP_RES_ERR    MSG_REP_RES_ERR1 MSG_REP_RES_ERR2
-
-#define MSG_RES_NONRECOV1  IDASLV "At t = %g, nonrecoverable error \n"
-#define MSG_RES_NONRECOV2  "return from residual function. \n\n"
-#define MSG_RES_NONRECOV   MSG_RES_NONRECOV1 MSG_RES_NONRECOV2
-
-#define MSG_FAILED_CONSTR1 IDASLV "At t = %g, unable to satisfy \n"
-#define MSG_FAILED_CONSTR2 "inequality constraints. \n\n"
-#define MSG_FAILED_CONSTR  MSG_FAILED_CONSTR1 MSG_FAILED_CONSTR2
-
-/* IDAGet* Error Messages */
-
-#define MSG_IDAG_NO_MEM    "ida_mem=NULL in an IDAGet routine illegal. \n\n"
-
-#define MSG_BAD_T1         "IDAGetSolution/IDAGetQuad/IDAGetSens-- t=%g illegal.\n"
-#define MSG_BAD_T2         "t not in interval tcur-hu=%g to tcur=%g.\n\n"
-#define MSG_BAD_T          MSG_BAD_T1 MSG_BAD_T2
-
-#define MSG_IDAG_NO_QUAD1  "IDAGetQuad*-- Illegal attempt to call before "
-#define MSG_IDAG_NO_QUAD2  "calling IDAQuadMalloc.\n\n"
-#define MSG_IDAG_NO_QUAD   MSG_IDAG_NO_QUAD1 MSG_IDAG_NO_QUAD2
-
-#define MSG_IDAG_NO_SENS1  "IDAGetSens*-- Illegal attempt to call before "
-#define MSG_IDAG_NO_SENS2  "calling IDASensMalloc.\n\n"
-#define MSG_IDAG_NO_SENS   MSG_IDAG_NO_SENS1 MSG_IDAG_NO_SENS2
-
-#define MSG_BAD_IS         "IDAGetSens1-- is=%d illegal. \n\n"
-
-/*=================================================================*/
-/*END          IDAS Error Messages                                 */
 /*=================================================================*/
 
 /*=================================================================*/
@@ -614,7 +400,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   }
 
   if ((itol != IDA_SS) && (itol != IDA_SV)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOL, itol, IDA_SS, IDA_SV);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOL);
     return(IDA_ILL_INPUT);
   }
 
@@ -629,12 +415,12 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   }
 
   if (*reltol < ZERO) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RELTOL, *reltol); 
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL); 
     return(IDA_ILL_INPUT); 
   }
    
   if (abstol == NULL) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_ABSTOL_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
     return(IDA_ILL_INPUT); 
   }
 
@@ -652,7 +438,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
     neg_abstol = (N_VMin((N_Vector)abstol) < ZERO); 
   }
   if (neg_abstol) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ABSTOL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ATOL); 
     return(IDA_ILL_INPUT); 
   }
 
@@ -787,12 +573,12 @@ int IDAReInit(void *ida_mem, IDAResFn res,
   }
 
   if (*reltol < ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RELTOL, *reltol); 
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL); 
     return(IDA_ILL_INPUT); 
   }
    
   if (abstol == NULL) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_ABSTOL_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
     return(IDA_ILL_INPUT); 
   }
 
@@ -802,7 +588,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
     neg_abstol = (N_VMin((N_Vector)abstol) < ZERO); 
   }
   if (neg_abstol) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ABSTOL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ATOL); 
     return(IDA_ILL_INPUT); 
   }
 
@@ -1004,14 +790,14 @@ int IDASensMalloc(void *ida_mem, int Ns, int ism,
 
   /* Check if Ns is legal */
   if (Ns<=0) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NS, Ns);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NS);
     return(IDA_ILL_INPUT);
   }
   IDA_mem->ida_Ns = Ns;
 
   /* Check if ism is legal */
   if ((ism!=IDA_SIMULTANEOUS) && (ism!=IDA_STAGGERED) && (ism!=IDA_STAGGERED1)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ISM,ism,IDA_SIMULTANEOUS,IDA_STAGGERED,IDA_STAGGERED1);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ISM);
     return(IDA_ILL_INPUT);
   }
   IDA_mem->ida_ism = ism;
@@ -1131,7 +917,7 @@ int IDASensReInit(void *ida_mem, int ism,
 
   /* Check if ism is legal */
   if ((ism!=IDA_SIMULTANEOUS) && (ism!=IDA_STAGGERED) && (ism!=IDA_STAGGERED1)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ISM,ism,IDA_SIMULTANEOUS,IDA_STAGGERED,IDA_STAGGERED1);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ISM);
     return(IDA_ILL_INPUT);
   }
   IDA_mem->ida_ism = ism;
@@ -1433,7 +1219,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       (itask != IDA_ONE_STEP)     &&
       (itask != IDA_NORMAL_TSTOP) &&
       (itask != IDA_ONE_STEP_TSTOP) ) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITASK, itask);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITASK);
     return(IDA_ILL_INPUT);
   }
   
@@ -1489,7 +1275,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     tdist = ABS(tout - tn);
     troundoff = TWO*uround*(ABS(tn) + ABS(tout));    
     if (tdist < troundoff) {
-      if(errfp!=NULL) fprintf(errfp, MSG_TOO_CLOSE, tout, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_TOO_CLOSE);
       return(IDA_ILL_INPUT);
     }
 
@@ -1517,7 +1303,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     if(istop) {
       if ( (tstop - tn)*hh < ZERO) {
-        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
         return(IDA_ILL_INPUT);
       }
       if ( (tn + hh - tstop)*hh > ZERO) 
@@ -1564,7 +1350,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     /* Check for too many steps taken. */
     
     if (nstloc >= mxstep) {
-      if(errfp!=NULL) fprintf(errfp, MSG_MAX_STEPS, tn, mxstep, tout);
+      if(errfp!=NULL) fprintf(errfp, MSG_MAX_STEPS, tn);
       istate = IDA_TOO_MUCH_WORK;
       *tret = tretp = tn;
       break; /* Here yy=yret and yp=ypret already have the current solution. */
@@ -1684,7 +1470,7 @@ int IDAGetSolution(void *ida_mem, realtype t,
   tfuzz = HUNDRED * uround * (tn + hh);
   tp = tn - hused - tfuzz;
   if ( (t - tp)*hh < ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_T, t, tn-hused, tn);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAG_BAD_T, t, tn-hused, tn);
     return(IDA_BAD_T);
   }
 
@@ -1744,7 +1530,7 @@ int IDAGetQuad(void *ida_mem, realtype t, N_Vector yretQ)
   tfuzz = HUNDRED * uround * (tn + hh);
   tp = tn - hused - tfuzz;
   if ( (t - tp)*hh < ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_T, t, tn-hused, tn);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAG_BAD_T, t, tn-hused, tn);
     return(IDA_BAD_T);
   }
 
@@ -1832,7 +1618,7 @@ int IDAGetSens1(void *ida_mem, realtype t, int is,
   }
 
   if ( (is<0) || (is>=Ns) ) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_IS, is);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAG_BAD_IS);
     return(IDA_BAD_IS);
   }
 
@@ -1841,7 +1627,7 @@ int IDAGetSens1(void *ida_mem, realtype t, int is,
   tfuzz = HUNDRED * uround * (tn + hh);
   tp = tn - hused - tfuzz;
   if ( (t - tp)*hh < ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_T, t, tn-hused, tn);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAG_BAD_T, t, tn-hused, tn);
     return(IDA_BAD_T);
   }
 
@@ -2573,7 +2359,7 @@ static int IDASensTestTolerances(IDAMem IDA_mem)
   N_Vector *atolSV;  
 
   if (*reltolS<ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RELTOLS, *reltolS);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOLS);
     return(IDA_ILL_INPUT);
   }
 
@@ -2588,7 +2374,7 @@ static int IDASensTestTolerances(IDAMem IDA_mem)
   }
 
   if (neg_abstol) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ABSTOLS);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ATOLS);
     return(IDA_ILL_INPUT);
   }
 
@@ -2805,7 +2591,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( (tn - tout)*hh >= ZERO) {
       ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
       if (ier != IDA_SUCCESS) {
-        if(errfp!=NULL) fprintf(errfp,MSG_BAD_TOUT, tout);
+        if(errfp!=NULL) fprintf(errfp,MSG_BAD_TOUT);
         return(IDA_ILL_INPUT);
       }
       *tret = tretp = tout;

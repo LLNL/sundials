@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-26 23:44:59 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-05 23:55:11 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,90 +21,6 @@
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
-
-/*=================================================================*/
-/*BEGIN        IDAS Error Messages                                 */
-/*=================================================================*/
-
-/* IDASet* error messages */
-
-#define MSG_IDAS_NO_MEM      "ida_mem=NULL in an IDASet routine illegal. \n\n"
-
-#define MSG_IDAS_NEG_MAXORD  "IDASetMaxOrd-- maxord<=0 illegal. \n\n"
-
-#define MSG_IDAS_BAD_MAXORD1 "IDASetMaxOrd-- Illegal attempt to increase "
-#define MSG_IDAS_BAD_MAXORD2 "maximum method order from %d to %d.\n\n"
-#define MSG_IDAS_BAD_MAXORD  MSG_IDAS_BAD_MAXORD1 MSG_IDAS_BAD_MAXORD2 
-
-#define MSG_IDAS_NEG_MXSTEPS "IDASetMaxNumSteps-- mxsteps<=0 illegal. \n\n"
-
-#define MSG_IDAS_NEG_HMAX    "IDASetMaxStep-- hmax<=0 illegal. \n\n"
-
-#define MSG_IDAS_NEG_EPCON   "IDASetNonlinConvCoef-- epcon < 0.0 illegal. \n\n"
-
-#define IDA_TOL              "IDASetTolerances-- "
-
-#define MSG_IDAS_BAD_ITOL1   IDA_TOL "itol = %d illegal.\n"
-#define MSG_IDAS_BAD_ITOL2   "The legal values are IDA_SS = %d and IDA_SV = %d.\n\n"
-#define MSG_IDAS_BAD_ITOL    MSG_IDAS_BAD_ITOL1 MSG_IDAS_BAD_ITOL2
-
-#define MSG_IDAS_RTOL_NULL   IDA_TOL "rtol = NULL illegal.\n\n"
-
-#define MSG_IDAS_BAD_RTOL    IDA_TOL "*rtol = %g < 0 illegal.\n\n"
-
-#define MSG_IDAS_ATOL_NULL   IDA_TOL "atol = NULL illegal.\n\n"
-
-#define MSG_IDAS_BAD_ATOL    IDA_TOL "Some atol component < 0.0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_EPICCON "IDASetNonlinConvCoefIC-- epiccon < 0.0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_MAXNH   "IDASetMaxNumStepsIC-- maxnh < 0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_MAXNJ   "IDASetMaxNumJacsIC-- maxnj < 0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_MAXNIT  "IDASetMaxNumItersIC-- maxnit < 0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_STEPTOL "IDASetLineSearchOffIC-- steptol < 0.0 illegal.\n\n"
-
-#define MSG_BAD_ITOLQ1       "IDASetQuadTolerances-- itolQ=%d illegal.\n"
-#define MSG_BAD_ITOLQ2       "The legal values are IDA_SS=%d and IDA_SV=%d.\n\n"
-#define MSG_BAD_ITOLQ        MSG_BAD_ITOLQ1 MSG_BAD_ITOLQ2
-
-#define MSG_RELTOLQ_NULL     "IDASetQuadTolerances-- reltolQ=NULL illegal.\n\n"
- 
-#define MSG_ABSTOLQ_NULL     "IDASetQuadTolerances-- abstolQ=NULL illegal.\n\n"
-
-#define MSG_BAD_RELTOLQ      "IDASetQuadTolerances-- *reltolQ=%g < 0.0 illegal.\n\n"
-
-#define MSG_BAD_ABSTOLQ      "IDASetQuadTolerances-- Some abstolQ component < 0.0 illegal.\n\n"  
-
-#define MSG_BAD_ITOLS1       "IDASetSensTolerances-- itolS=%d illegal.\n"
-#define MSG_BAD_ITOLS2       "The legal values are IDA_SS=%d, IDA_SV=%d, and IDA_EE=%d.\n\n"
-#define MSG_BAD_ITOLS        MSG_BAD_ITOLS1 MSG_BAD_ITOLS2
-
-#define MSG_RELTOLS_NULL     "IDASetSensTolerances-- reltolS=NULL illegal.\n\n"
- 
-#define MSG_ABSTOLS_NULL     "IDASetSensTolerances-- abstolS=NULL illegal.\n\n"
-
-/* IDAGet* Error Messages */
-
-#define MSG_IDAG_NO_MEM      "ida_mem=NULL in an IDAGet routine illegal. \n\n"
-
-#define MSG_IDAG_NO_QUAD1    "IDAGetQuad*-- Illegal attempt to call before "
-#define MSG_IDAG_NO_QUAD2    "calling IDAQuadMalloc.\n\n"
-#define MSG_IDAG_NO_QUAD     MSG_IDAG_NO_QUAD1 MSG_IDAG_NO_QUAD2
-
-#define MSG_IDAG_NO_SENS1    "IDAGetSens*-- Illegal attempt to call before "
-#define MSG_IDAG_NO_SENS2    "calling IDASensMalloc.\n\n"
-#define MSG_IDAG_NO_SENS     MSG_IDAG_NO_SENS1 MSG_IDAG_NO_SENS2
-
-#define MSG_IDAG_NO_STGR11   "IDAGetSensStgr*-- Illegal attempt to call "
-#define MSG_IDAG_NO_STGR12   "with ism other than IDA_STAGGERED1.\n\n"
-#define MSG_IDAG_NO_STGR1    MSG_IDAG_NO_STGR11 MSG_IDAG_NO_STGR12
-
-/*=================================================================*/
-/*END          IDAS Error Messages                                 */
-/*=================================================================*/
 
 extern int IDASensResDQ(int Ns, realtype t, 
                         N_Vector yy, N_Vector yp, N_Vector resval,
@@ -179,7 +95,7 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
 
   if (maxord > IDA_mem->ida_maxord) {
     if(errfp!=NULL) 
-      fprintf(errfp, MSG_IDAS_BAD_MAXORD, IDA_mem->ida_maxord, maxord);
+      fprintf(errfp, MSG_IDAS_BAD_MAXORD);
     return(IDA_ILL_INPUT);
   }  
 
@@ -428,7 +344,7 @@ int IDASetTolerances(void *ida_mem,
   }
 
   if (*rtol < ZERO) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_RTOL, *rtol); 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_RTOL); 
     return(IDA_ILL_INPUT); 
   }
    
@@ -626,22 +542,22 @@ int IDASetQuadTolerances(void *ida_mem, int itolQ,
   IDA_mem = (IDAMem) ida_mem;
 
   if ((itolQ != IDA_SS) && (itolQ != IDA_SV)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOLQ, itolQ, IDA_SS, IDA_SV);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ITOLQ);
     return(IDA_ILL_INPUT);
   }
 
   if (reltolQ == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_RELTOLQ_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_RTOLQ_NULL);
     return(IDA_ILL_INPUT);
   }
   
   if (*reltolQ < ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RELTOLQ, *reltolQ);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_RTOLQ);
     return(IDA_ILL_INPUT);
   }
 
   if (abstolQ == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_ABSTOLQ_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_ATOLQ_NULL);
     return(IDA_ILL_INPUT);
   }
 
@@ -651,7 +567,7 @@ int IDASetQuadTolerances(void *ida_mem, int itolQ,
     neg_abstol = (N_VMin((N_Vector)abstolQ) < ZERO);
   }
   if (neg_abstol) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ABSTOLQ);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ATOLQ);
     return(IDA_ILL_INPUT);
   }
 
@@ -806,7 +722,7 @@ int IDASetSensTolerances(void *ida_mem, int itolS,
 
   if ((itolS != IDA_SS) && (itolS != IDA_SV)) {
     if(errfp!=NULL) 
-      fprintf(errfp, MSG_BAD_ITOLS, itolS, IDA_SS, IDA_SV, IDA_EE);
+      fprintf(errfp, MSG_IDAS_BAD_ITOLS);
     return(IDA_ILL_INPUT);
   }
 
@@ -820,12 +736,12 @@ int IDASetSensTolerances(void *ida_mem, int itolS,
 
     /* Test user-supplied tolerances */
     if (reltolS == NULL) {
-      if(errfp!=NULL) fprintf(errfp, MSG_RELTOLS_NULL);
+      if(errfp!=NULL) fprintf(errfp, MSG_IDAS_RTOLS_NULL);
       return(IDA_ILL_INPUT);
     }
     
     if (abstolS == NULL) {
-      if(errfp!=NULL) fprintf(errfp, MSG_ABSTOLS_NULL);
+      if(errfp!=NULL) fprintf(errfp, MSG_IDAS_ATOLS_NULL);
       return(IDA_ILL_INPUT);
     }
     

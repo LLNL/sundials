@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-10-21 15:59:46 $
+ * $Revision: 1.4 $
+ * $Date: 2004-11-05 23:55:11 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -198,6 +198,28 @@ extern "C" {
   } *IDAadjMem;
   
 #endif
+
+/*
+ *----------------------------------------------------------------
+ * IDAA Error Messages
+ *----------------------------------------------------------------
+ */
+
+#define MSG_IDAAM_NO_MEM     "IDAAdjMalloc-- ida_mem = NULL illegal.\n\n"
+#define MSG_IDAAM_BAD_STEPS  "IDAAdjMalloc-- steps non-positive illegal.\n\n"
+#define MSG_IDAAM_MEM_FAIL   "IDAAdjMalloc-- a memory request failed.\n\n"
+
+#define MSG_IDASOLVEF_MEM_FAIL "IDASolveF-- a memory request failed.\n\n"
+
+#define MSG_IDABM_NO_MEM     "IDAMallocB/IDAReInitB-- idaadj_mem = NULL illegal.\n\n"
+#define MSG_IDABM_BAD_TB0    "IDAMallocB/IDAReInitB-- tB0 out of range.\n\n"
+#define MSG_IDABM_MEM_FAIL   "IDAMallocB/IDAReInitB-- a memory request failed.\n\n"
+
+#define MSG_IDABQM_NO_MEM    "IDAQuadMallocB-- idaadj_mem = NULL illegal.\n\n"
+
+#define MSG_IDASOLVEB_FWD    "IDASolveB-- an error occured during the forward phase.\n\n"
+#define MSG_IDASOLVEB_BCK    "IDASolveB-- an error occured during the backward phase.\n\n"
+
   
 #ifdef __cplusplus
 }

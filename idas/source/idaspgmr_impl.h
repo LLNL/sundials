@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-10-08 15:27:25 $
+ * $Revision: 1.4 $
+ * $Date: 2004-11-05 23:55:11 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -85,6 +85,54 @@ typedef struct {
   int g_last_flag;                /* last error return flag            */
 
 } IDASpgmrMemRec, *IDASpgmrMem;
+
+
+/*
+ * -----------------------------------------------------------------
+ * Error and Warning Messages
+ * -----------------------------------------------------------------
+ */
+
+#ifdef SUNDIALS_EXTENDED_PRECISION
+#define MSGS_TIME "at t = %Lg, "
+#else
+#define MSGS_TIME "at t = %g, "
+#endif
+
+
+/* Error Messages */
+
+#define MSGS_IDAMEM_NULL        "IDASpgmr-- integrator memory is NULL.\n\n"
+
+#define MSGS_MEM_FAIL           "IDASpgmr-- a memory request failed.\n\n"
+
+#define MSGS_BAD_NVECTOR        "IDASpgmr-- a required vector operation is not implemented.\n\n"
+
+#define MSGS_SETGET_IDAMEM_NULL "IDASpgmrSet*/IDASpgmrGet*-- integrator memory is NULL. \n\n"
+
+#define MSGS_SETGET_LMEM_NULL   "IDASpgmrSet*/IDASpgmrGet*-- IDASPGMR memory is NULL. \n\n"
+
+#define MSGS_BAD_GSTYPE         "IDASpgmrSetGSType-- gstype has an illegal value.\n"
+
+#define MSGS_IDAS_NEG_MAXRS     "IDASpgmrSetMaxRestarts-- maxrs < 0 illegal. \n\n"
+
+#define MSGS_IDAS_NEG_EPLIFAC   "IDASpgmrSetEpsLin-- eplifac < 0.0 illegal. \n\n"
+
+#define MSGS_IDAS_NEG_DQINCFAC  "IDASpgmrSetIncrementFactor-- dqincfac < 0.0 illegal. \n\n"
+
+/* Warning Messages */
+
+#define MSGS_WARN1      "Warning. Poor iterative algorithm performance\n"
+#define MSGS_WARN       "IDASpgmrPerf-- " MSGS_TIME MSGS_WARN1 
+
+#define MSGS_AVD_WARN1  "Average number of linear iterations is %e.\n\n"
+#define MSGS_AVD_WARN   MSGS_WARN MSGS_AVD_WARN1
+
+#define MSGS_CFN_WARN1  "Nonlinear convergence failure rate is %e.\n\n"
+#define MSGS_CFN_WARN   MSGS_WARN MSGS_CFN_WARN1
+
+#define MSGS_CFL_WARN1  "Linear convergence failure rate is %e.\n\n"
+#define MSGS_CFL_WARN   MSGS_WARN MSGS_CFL_WARN1
 
 #endif
 

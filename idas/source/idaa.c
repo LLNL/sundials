@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-11-05 01:19:39 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-05 23:55:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -60,34 +60,6 @@
 
 /*=================================================================*/
 /*END               IDAA Private Constants                       */
-/*=================================================================*/
-
-/*=================================================================*/
-/*BEGIN             Error Messages                                 */
-/*=================================================================*/
-
-#define IDAAM                "IDAAdjMalloc-- "
-#define MSG_IDAAM_NO_MEM     IDAAM "ida_mem = NULL illegal.\n\n"
-#define MSG_IDAAM_BAD_STEPS  IDAAM "steps non-positive illegal.\n\n"
-#define MSG_IDAAM_MEM_FAIL   IDAAM "a memory request failed.\n\n"
-
-#define IDAF                 "IDASolveF-- "
-#define MSG_IDASOLVEF_MEM_FAIL IDAF "a memory request failed.\n\n"
-
-#define IDABM                "IDAMallocB/IDAReInitB-- "
-#define MSG_IDABM_NO_MEM     IDABM "idaadj_mem = NULL illegal.\n\n"
-#define MSG_IDABM_BAD_TB0    IDABM "tB0 out of range.\n\n"
-#define MSG_IDABM_MEM_FAIL   IDABM "a memory request failed.\n\n"
-
-#define IDABQM               "IDAQuadMallocB-- "
-#define MSG_IDABQM_NO_MEM    IDABQM "idaadj_mem = NULL illegal.\n\n"
-
-#define IDAB                 "IDASOLVEBB-- "
-#define MSG_IDASOLVEB_FWD    IDAB "an error occured during the forward phase.\n\n"
-#define MSG_IDASOLVEB_BCK    IDAB "an error occured during the backward phase.\n\n"
-
-/*=================================================================*/
-/*END               Error Messages                                 */
 /*=================================================================*/
 
 /*=================================================================*/

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-10-08 15:27:24 $
+ * $Revision: 1.9 $
+ * $Date: 2004-11-05 23:55:11 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -56,71 +56,6 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
        IC_CONV_FAIL =  4,  IC_SLOW_CONVRG =   5 };
 
 /*=================================================================*/
-/*END          IDAS Constants                                      */
-/*=================================================================*/
-
-/*=================================================================*/
-/*BEGIN        IDAS Error Messages                                 */
-/*=================================================================*/
-
-/* IDACalcIC error messages */
-
-#define IDAIC              "IDACalcIC-- "
-
-#define MSG_IC_IDA_NO_MEM  IDAIC "IDA_mem = NULL illegal.\n\n"
-
-#define MSG_IC_NO_MALLOC   IDAIC "Attempt to call before IDAMalloc. \n\n"
- 
-#define MSG_BAD_ICOPT      IDAIC "icopt = %d is illegal.\n\n"
-
-#define MSG_IC_MISSING_ID  IDAIC "id = NULL conflicts with icopt.\n\n"
-
-#define MSG_IC_BAD_ID      IDAIC "id has illegal values.\n\n"
-
-#define MSG_IC_TOO_CLOSE1  IDAIC "tout1 = %g too close to t0 = %g to attempt"
-#define MSG_IC_TOO_CLOSE2  " initial condition calculation.\n\n"
-#define MSG_IC_TOO_CLOSE   MSG_IC_TOO_CLOSE1 MSG_IC_TOO_CLOSE2
-
-#define MSG_IC_BAD_EWT     IDAIC "Some ewt component = 0.0 illegal.\n\n"
-
-#define MSG_IC_RES_NONR1   IDAIC "Non-recoverable error return from"
-#define MSG_IC_RES_NONR2   " ResFn residual routine. \n\n"
-#define MSG_IC_RES_NONREC  MSG_IC_RES_NONR1 MSG_IC_RES_NONR2
-
-#define MSG_IC_RES_FAIL1   IDAIC "Recoverable error in first call to"
-#define MSG_IC_RES_FAIL2   " ResFn residual routine. Cannot recover. \n\n"
-#define MSG_IC_RES_FAIL    MSG_IC_RES_FAIL1 MSG_IC_RES_FAIL2
-
-#define MSG_IC_SETUP_FL1   IDAIC "The linear solver setup routine"
-#define MSG_IC_SETUP_FL2   " failed non-recoverably.\n\n"
-#define MSG_IC_SETUP_FAIL  MSG_IC_SETUP_FL1 MSG_IC_SETUP_FL2
-
-#define MSG_IC_SOLVE_FL1   IDAIC "The linear solver solve routine"
-#define MSG_IC_SOLVE_FL2   " failed non-recoverably.\n\n"
-#define MSG_IC_SOLVE_FAIL  MSG_IC_SOLVE_FL1 MSG_IC_SOLVE_FL2
-
-#define MSG_IC_NO_RECOV1   IDAIC "The residual routine or the linear"
-#define MSG_IC_NO_RECOV2   " setup or solve routine had a recoverable"
-#define MSG_IC_NO_RECOV3   " error, but IDACalcIC was unable to recover.\n\n"
-#define MSG_IC_NO_RECOVERY MSG_IC_NO_RECOV1 MSG_IC_NO_RECOV2 MSG_IC_NO_RECOV3
-
-#define MSG_IC_FAIL_CON1   IDAIC "Unable to satisfy the inequality"
-#define MSG_IC_FAIL_CON2   " constraints.\n\n"
-#define MSG_IC_FAIL_CONSTR MSG_IC_FAIL_CON1 MSG_IC_FAIL_CON2
-
-#define MSG_IC_FAILED_LS1  IDAIC "The Linesearch algorithm failed"
-#define MSG_IC_FAILED_LS2  " with too small a step.\n\n"
-#define MSG_IC_FAILED_LINS MSG_IC_FAILED_LS1 MSG_IC_FAILED_LS2
-
-#define MSG_IC_CONV_FAIL1  IDAIC "Failed to get convergence in"
-#define MSG_IC_CONV_FAIL2  " Newton/Linesearch algorithm.\n\n"
-#define MSG_IC_CONV_FAILED MSG_IC_CONV_FAIL1 MSG_IC_CONV_FAIL2
-
-/*=================================================================*/
-/*END          IDAS Error Messages                                 */
-/*=================================================================*/
-
-/*=================================================================*/
 /*BEGIN        Private Helper Functions Prototypes                 */
 /*=================================================================*/
 
@@ -136,10 +71,6 @@ static int IDAfnorm (IDAMem IDA_mem, realtype *fnorm);
 static int IDANewyyp (IDAMem IDA_mem, realtype lambda);
 static int IDANewy (IDAMem IDA_mem);
 static int IDAICFailFlag (IDAMem IDA_mem, int retval);
-
-/*=================================================================*/
-/*END          Private Helper Functions Prototypes                 */
-/*=================================================================*/
 
 /*=================================================================*/
 /*BEGIN        Readibility Constants                               */
@@ -227,7 +158,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   /* Check if IDA memory exists */
 
   if (ida_mem == NULL) {
-    fprintf(stderr, MSG_IC_IDA_NO_MEM);
+    fprintf(stderr, MSG_IC_NO_MEM);
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -248,7 +179,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   /* Check legality of input arguments, and set IDA memory copies. */
 
   if (icopt < IDA_YA_YDP_INIT || icopt > IDA_Y_INIT) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ICOPT, icopt);
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_ICOPT);
     return(IDA_ILL_INPUT);
   }
   IDA_mem->ida_icopt = icopt;
@@ -261,7 +192,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   tdist = ABS(tout1 - tn);
   troundoff = TWO*uround*(ABS(tn) + ABS(tout1));    
   if (tdist < troundoff) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_TOO_CLOSE, tout1, tn);
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_TOO_CLOSE);
     return(IDA_ILL_INPUT);
   }
 
