@@ -104,13 +104,12 @@ echo "Generate $distrobase distribution tar-file $tarfile"
 
 echo "  Add top-level files/directories"
 
-tar cf $tarfile $distrobase/Makefile
+tar cf $tarfile $distrobase/configure
+tar uf $tarfile $distrobase/tarch
+
+tar uf $tarfile $distrobase/Makefile.in
 
 tar uf $tarfile $distrobase/doc/Readme
-
-tar uf $tarfile $distrobase/lib/.dontremove
-
-tar uf $tarfile $distrobase/include/.dontremove
 
 # Add SHARED module
 #------------------
@@ -120,8 +119,6 @@ echo "  Add shared module"
 tar uf $tarfile $distrobase/shared/LICENSE
 
 tar uf $tarfile $distrobase/shared/doc/nvecreadme
-
-tar uf $tarfile $distrobase/shared/lib/.dontremove
 
 tar uf $tarfile $distrobase/shared/include/sundialstypes.h
 tar uf $tarfile $distrobase/shared/include/sundialsmath.h
@@ -133,7 +130,7 @@ tar uf $tarfile $distrobase/shared/include/spgmr.h
 tar uf $tarfile $distrobase/shared/include/iterativ.h
 tar uf $tarfile $distrobase/shared/include/fcmixpar.h
 
-tar uf $tarfile $distrobase/shared/source/Makefile
+tar uf $tarfile $distrobase/shared/source/Makefile.in
 tar uf $tarfile $distrobase/shared/source/sundialsmath.c
 tar uf $tarfile $distrobase/shared/source/nvector.c
 tar uf $tarfile $distrobase/shared/source/dense.c
@@ -144,22 +141,22 @@ tar uf $tarfile $distrobase/shared/source/iterativ.c
 
 if [ $ser = "T" ]
 then
-    tar uf $tarfile $distrobase/shared/include/nvector_serial.h
-    tar uf $tarfile $distrobase/shared/include/fnvector_serial.h
+    tar uf $tarfile $distrobase/nvec_ser/nvector_serial.h
+    tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.h
 
-    tar uf $tarfile $distrobase/shared/source/nvecserial.mk
-    tar uf $tarfile $distrobase/shared/source/nvector_serial.c
-    tar uf $tarfile $distrobase/shared/source/fnvector_serial.c
+    tar uf $tarfile $distrobase/nvec_ser/Makefile.in
+    tar uf $tarfile $distrobase/nvec_ser/nvector_serial.c
+    tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.c
 fi
 
 if [ $par = "T" ]
 then
-    tar uf $tarfile $distrobase/shared/include/nvector_parallel.h
-    tar uf $tarfile $distrobase/shared/include/fnvector_parallel.h
+    tar uf $tarfile $distrobase/nvec_par/nvector_parallel.h
+    tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.h
 
-    tar uf $tarfile $distrobase/shared/source/nvecparallel.mk
-    tar uf $tarfile $distrobase/shared/source/nvector_parallel.c
-    tar uf $tarfile $distrobase/shared/source/fnvector_parallel.c
+    tar uf $tarfile $distrobase/nvec_par/Makefile.in
+    tar uf $tarfile $distrobase/nvec_par/nvector_parallel.c
+    tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.c
 fi
 
 # Add IDA module
@@ -180,41 +177,37 @@ tar uf $tarfile $distrobase/ida/include/idaband.h
 tar uf $tarfile $distrobase/ida/include/idaspgmr.h
 tar uf $tarfile $distrobase/ida/include/idabbdpre.h
 
-tar uf $tarfile $distrobase/ida/source/Makefile
+tar uf $tarfile $distrobase/ida/source/Makefile.in
 tar uf $tarfile $distrobase/ida/source/ida.c
 tar uf $tarfile $distrobase/ida/source/idadense.c
 tar uf $tarfile $distrobase/ida/source/idaband.c
 tar uf $tarfile $distrobase/ida/source/idaspgmr.c
 tar uf $tarfile $distrobase/ida/source/idabbdpre.c
 
-tar uf $tarfile $distrobase/ida/lib/.dontremove
-
-tar uf $tarfile $distrobase/ida/examples/Makefile
-
 if [ $ser = "T" ]
 then
-    tar uf $tarfile $distrobase/ida/examples/idax_ser.mk
-    tar uf $tarfile $distrobase/ida/examples/irobx.c
-    tar uf $tarfile $distrobase/ida/examples/irobx.out
-    tar uf $tarfile $distrobase/ida/examples/iheatsb.c
-    tar uf $tarfile $distrobase/ida/examples/iheatsb.out
-    tar uf $tarfile $distrobase/ida/examples/iheatsk.c
-    tar uf $tarfile $distrobase/ida/examples/iheatsk.out
-    tar uf $tarfile $distrobase/ida/examples/iwebsb.c
-    tar uf $tarfile $distrobase/ida/examples/iwebsb.out
+    tar uf $tarfile $distrobase/ida/examples_ser/Makefile.in
+    tar uf $tarfile $distrobase/ida/examples_ser/irobx.c
+    tar uf $tarfile $distrobase/ida/examples_ser/irobx.out
+    tar uf $tarfile $distrobase/ida/examples_ser/iheatsb.c
+    tar uf $tarfile $distrobase/ida/examples_ser/iheatsb.out
+    tar uf $tarfile $distrobase/ida/examples_ser/iheatsk.c
+    tar uf $tarfile $distrobase/ida/examples_ser/iheatsk.out
+    tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.c
+    tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.out
 fi
 
 if [ $par = "T" ]
 then
-    tar uf $tarfile $distrobase/ida/examples/idax_par.mk
-    tar uf $tarfile $distrobase/ida/examples/iheatpk.c
-    tar uf $tarfile $distrobase/ida/examples/iheatpk.out
-    tar uf $tarfile $distrobase/ida/examples/iheatbbd.c
-    tar uf $tarfile $distrobase/ida/examples/iheatbbd.out
-    tar uf $tarfile $distrobase/ida/examples/iwebpk.c
-    tar uf $tarfile $distrobase/ida/examples/iwebpk.out
-    tar uf $tarfile $distrobase/ida/examples/iwebbbd.c
-    tar uf $tarfile $distrobase/ida/examples/iwebbbd.out
+    tar uf $tarfile $distrobase/ida/examples_par/Makefile.in
+    tar uf $tarfile $distrobase/ida/examples_par/iheatpk.c
+    tar uf $tarfile $distrobase/ida/examples_par/iheatpk.out
+    tar uf $tarfile $distrobase/ida/examples_par/iheatbbd.c
+    tar uf $tarfile $distrobase/ida/examples_par/iheatbbd.out
+    tar uf $tarfile $distrobase/ida/examples_par/iwebpk.c
+    tar uf $tarfile $distrobase/ida/examples_par/iwebpk.out
+    tar uf $tarfile $distrobase/ida/examples_par/iwebbbd.c
+    tar uf $tarfile $distrobase/ida/examples_par/iwebbbd.out
 fi
 
 #----End of tarida script file----

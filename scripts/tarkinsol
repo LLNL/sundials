@@ -104,13 +104,12 @@ echo "Generate $distrobase distribution tar-file $tarfile"
 
 echo "  Add top-level files/directories"
 
-tar cf $tarfile $distrobase/Makefile
+tar cf $tarfile $distrobase/configure
+tar uf $tarfile $distrobase/tarch
+
+tar uf $tarfile $distrobase/Makefile.in
 
 tar uf $tarfile $distrobase/doc/Readme
-
-tar uf $tarfile $distrobase/lib/.dontremove
-
-tar uf $tarfile $distrobase/include/.dontremove
 
 # Add SHARED module
 #------------------
@@ -120,8 +119,6 @@ echo "  Add shared module"
 tar uf $tarfile $distrobase/shared/LICENSE
 
 tar uf $tarfile $distrobase/shared/doc/nvecreadme
-
-tar uf $tarfile $distrobase/shared/lib/.dontremove
 
 tar uf $tarfile $distrobase/shared/include/sundialstypes.h
 tar uf $tarfile $distrobase/shared/include/sundialsmath.h
@@ -133,7 +130,7 @@ tar uf $tarfile $distrobase/shared/include/spgmr.h
 tar uf $tarfile $distrobase/shared/include/iterativ.h
 tar uf $tarfile $distrobase/shared/include/fcmixpar.h
 
-tar uf $tarfile $distrobase/shared/source/Makefile
+tar uf $tarfile $distrobase/shared/source/Makefile.in
 tar uf $tarfile $distrobase/shared/source/sundialsmath.c
 tar uf $tarfile $distrobase/shared/source/nvector.c
 tar uf $tarfile $distrobase/shared/source/dense.c
@@ -144,22 +141,22 @@ tar uf $tarfile $distrobase/shared/source/iterativ.c
 
 if [ $ser = "T" ]
 then
-    tar uf $tarfile $distrobase/shared/include/nvector_serial.h
-    tar uf $tarfile $distrobase/shared/include/fnvector_serial.h
+    tar uf $tarfile $distrobase/nvec_ser/nvector_serial.h
+    tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.h
 
-    tar uf $tarfile $distrobase/shared/source/nvecserial.mk
-    tar uf $tarfile $distrobase/shared/source/nvector_serial.c
-    tar uf $tarfile $distrobase/shared/source/fnvector_serial.c
+    tar uf $tarfile $distrobase/nvec_ser/Makefile.in
+    tar uf $tarfile $distrobase/nvec_ser/nvector_serial.c
+    tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.c
 fi
 
 if [ $par = "T" ]
 then
-    tar uf $tarfile $distrobase/shared/include/nvector_parallel.h
-    tar uf $tarfile $distrobase/shared/include/fnvector_parallel.h
+    tar uf $tarfile $distrobase/nvec_par/nvector_parallel.h
+    tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.h
 
-    tar uf $tarfile $distrobase/shared/source/nvecparallel.mk
-    tar uf $tarfile $distrobase/shared/source/nvector_parallel.c
-    tar uf $tarfile $distrobase/shared/source/fnvector_parallel.c
+    tar uf $tarfile $distrobase/nvec_par/Makefile.in
+    tar uf $tarfile $distrobase/nvec_par/nvector_parallel.c
+    tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.c
 fi
 
 # Add KINSOL module
@@ -178,16 +175,12 @@ tar uf $tarfile $distrobase/kinsol/include/kinsol.h
 tar uf $tarfile $distrobase/kinsol/include/kinspgmr.h
 tar uf $tarfile $distrobase/kinsol/include/kinbbdpre.h
 
-tar uf $tarfile $distrobase/kinsol/source/Makefile
+tar uf $tarfile $distrobase/kinsol/source/Makefile.in
 tar uf $tarfile $distrobase/kinsol/source/kinsol.c
 tar uf $tarfile $distrobase/kinsol/source/kinspgmr.c
 tar uf $tarfile $distrobase/kinsol/source/kinbbdpre.c
 
-tar uf $tarfile $distrobase/kinsol/lib/.dontremove
-
-tar uf $tarfile $distrobase/kinsol/examples/Makefile
-
-tar uf $tarfile $distrobase/kinsol/fcmix/Makefile
+tar uf $tarfile $distrobase/kinsol/fcmix/Makefile.in
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinsol.h
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinsol.c
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinspgmr01.c
@@ -204,26 +197,26 @@ tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbdinit1.c
 
 if [ $ser = "T" ]
 then
-    tar uf $tarfile $distrobase/kinsol/examples/kinx_ser.mk
-    tar uf $tarfile $distrobase/kinsol/examples/kinwebs.c
-    tar uf $tarfile $distrobase/kinsol/examples/kinwebs.out
+    tar uf $tarfile $distrobase/kinsol/examples_ser/Makefile.in
+    tar uf $tarfile $distrobase/kinsol/examples_ser/kinwebs.c
+    tar uf $tarfile $distrobase/kinsol/examples_ser/kinwebs.out
 
-    tar uf $tarfile $distrobase/kinsol/fcmix/fkinx_ser.mk
-    tar uf $tarfile $distrobase/kinsol/fcmix/kindiagsf.f
-    tar uf $tarfile $distrobase/kinsol/fcmix/kindiagsf.out
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/Makefile.in
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/kindiagsf.f
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/kindiagsf.out
 fi
     
 if [ $par = "T" ]
 then
-    tar uf $tarfile $distrobase/kinsol/examples/kinx_par.mk
-    tar uf $tarfile $distrobase/kinsol/examples/kinwebp.c
-    tar uf $tarfile $distrobase/kinsol/examples/kinwebp.out
-    tar uf $tarfile $distrobase/kinsol/examples/kinwebbbd.c
-    tar uf $tarfile $distrobase/kinsol/examples/kinwebbbd.out
+    tar uf $tarfile $distrobase/kinsol/examples_par/Makefile.in
+    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebp.c
+    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebp.out
+    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebbbd.c
+    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebbbd.out
     
-    tar uf $tarfile $distrobase/kinsol/fcmix/fkinx_par.mk
-    tar uf $tarfile $distrobase/kinsol/fcmix/kindiagpf.f
-    tar uf $tarfile $distrobase/kinsol/fcmix/kindiagpf.out
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/Makefile.in
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/kindiagpf.f
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/kindiagpf.out
 fi
 
 #----End of tarkinsol script file----

@@ -104,13 +104,12 @@ echo "Generate $distrobase distribution tar-file $tarfile"
 
 echo "  Add top-level files/directories"
 
-tar cf $tarfile $distrobase/Makefile
+tar cf $tarfile $distrobase/configure
+tar uf $tarfile $distrobase/tarch
+
+tar uf $tarfile $distrobase/Makefile.in
 
 tar uf $tarfile $distrobase/doc/Readme
-
-tar uf $tarfile $distrobase/lib/.dontremove
-
-tar uf $tarfile $distrobase/include/.dontremove
 
 # Add SHARED module
 #------------------
@@ -120,8 +119,6 @@ echo "  Add shared module"
 tar uf $tarfile $distrobase/shared/LICENSE
 
 tar uf $tarfile $distrobase/shared/doc/nvecreadme
-
-tar uf $tarfile $distrobase/shared/lib/.dontremove
 
 tar uf $tarfile $distrobase/shared/include/sundialstypes.h
 tar uf $tarfile $distrobase/shared/include/sundialsmath.h
@@ -133,7 +130,7 @@ tar uf $tarfile $distrobase/shared/include/spgmr.h
 tar uf $tarfile $distrobase/shared/include/iterativ.h
 tar uf $tarfile $distrobase/shared/include/fcmixpar.h
 
-tar uf $tarfile $distrobase/shared/source/Makefile
+tar uf $tarfile $distrobase/shared/source/Makefile.in
 tar uf $tarfile $distrobase/shared/source/sundialsmath.c
 tar uf $tarfile $distrobase/shared/source/nvector.c
 tar uf $tarfile $distrobase/shared/source/dense.c
@@ -144,22 +141,22 @@ tar uf $tarfile $distrobase/shared/source/iterativ.c
 
 if [ $ser = "T" ]
 then
-    tar uf $tarfile $distrobase/shared/include/nvector_serial.h
-    tar uf $tarfile $distrobase/shared/include/fnvector_serial.h
+    tar uf $tarfile $distrobase/nvec_ser/nvector_serial.h
+    tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.h
 
-    tar uf $tarfile $distrobase/shared/source/nvecserial.mk
-    tar uf $tarfile $distrobase/shared/source/nvector_serial.c
-    tar uf $tarfile $distrobase/shared/source/fnvector_serial.c
+    tar uf $tarfile $distrobase/nvec_ser/Makefile.in
+    tar uf $tarfile $distrobase/nvec_ser/nvector_serial.c
+    tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.c
 fi
 
 if [ $par = "T" ]
 then
-    tar uf $tarfile $distrobase/shared/include/nvector_parallel.h
-    tar uf $tarfile $distrobase/shared/include/fnvector_parallel.h
+    tar uf $tarfile $distrobase/nvec_par/nvector_parallel.h
+    tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.h
 
-    tar uf $tarfile $distrobase/shared/source/nvecparallel.mk
-    tar uf $tarfile $distrobase/shared/source/nvector_parallel.c
-    tar uf $tarfile $distrobase/shared/source/fnvector_parallel.c
+    tar uf $tarfile $distrobase/nvec_par/Makefile.in
+    tar uf $tarfile $distrobase/nvec_par/nvector_parallel.c
+    tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.c
 fi
 
 # Add CVODES module
@@ -182,7 +179,7 @@ tar uf $tarfile $distrobase/cvodes/include/cvsspgmr.h
 tar uf $tarfile $distrobase/cvodes/include/cvsbandpre.h
 tar uf $tarfile $distrobase/cvodes/include/cvsbbdpre.h
 
-tar uf $tarfile $distrobase/cvodes/source/Makefile
+tar uf $tarfile $distrobase/cvodes/source/Makefile.in
 tar uf $tarfile $distrobase/cvodes/source/cvodes.c
 tar uf $tarfile $distrobase/cvodes/source/cvodea.c
 tar uf $tarfile $distrobase/cvodes/source/cvsdense.c
@@ -192,75 +189,62 @@ tar uf $tarfile $distrobase/cvodes/source/cvsspgmr.c
 tar uf $tarfile $distrobase/cvodes/source/cvsbandpre.c
 tar uf $tarfile $distrobase/cvodes/source/cvsbbdpre.c
 
-tar uf $tarfile $distrobase/cvodes/lib/.dontremove
-
-tar uf $tarfile $distrobase/cvodes/examples/Makefile
-
-tar uf $tarfile $distrobase/cvodes/fwd_examples/Makefile
-
-tar uf $tarfile $distrobase/cvodes/adj_examples/Makefile
-
 if [ $ser = "T" ]
 then
-    tar uf $tarfile $distrobase/cvodes/examples/cvx_ser.mk
-    tar uf $tarfile $distrobase/cvodes/examples/cvdx.c
-    tar uf $tarfile $distrobase/cvodes/examples/cvdx.out
-    tar uf $tarfile $distrobase/cvodes/examples/cvbx.c
-    tar uf $tarfile $distrobase/cvodes/examples/cvbx.out
-    tar uf $tarfile $distrobase/cvodes/examples/cvkx.c
-    tar uf $tarfile $distrobase/cvodes/examples/cvkx.out
-    tar uf $tarfile $distrobase/cvodes/examples/cvkxb.c
-    tar uf $tarfile $distrobase/cvodes/examples/cvkxb.out
-    tar uf $tarfile $distrobase/cvodes/examples/cvdemd.c
-    tar uf $tarfile $distrobase/cvodes/examples/cvdemd.out
-    tar uf $tarfile $distrobase/cvodes/examples/cvdemk.c
-    tar uf $tarfile $distrobase/cvodes/examples/cvdemk.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/Makefile.in
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvbx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvbx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvkx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvkx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvkxb.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvkxb.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdemd.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdemd.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdemk.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdemk.out
 
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfx_ser.mk
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfdx.c
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfdx.out1
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfdx.out2
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfnx.c
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfnx.out1
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfnx.out2
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfkx.c
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfkx.out1
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfkx.out2
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfdx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfdx.out1
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfdx.out2
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfnx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfnx.out1
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfnx.out2
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfkx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfkx.out1
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfkx.out2
 
-    tar uf $tarfile $distrobase/cvodes/adj_examples/cvax_ser.mk
-    tar uf $tarfile $distrobase/cvodes/adj_examples/cvadx.c
-    tar uf $tarfile $distrobase/cvodes/adj_examples/cvadx.out
-    tar uf $tarfile $distrobase/cvodes/adj_examples/cvabx.c
-    tar uf $tarfile $distrobase/cvodes/adj_examples/cvabx.out
-    tar uf $tarfile $distrobase/cvodes/adj_examples/cvakx.c
-    tar uf $tarfile $distrobase/cvodes/adj_examples/cvakx.out
-    tar uf $tarfile $distrobase/cvodes/adj_examples/cvakxb.c
-    tar uf $tarfile $distrobase/cvodes/adj_examples/cvakxb.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvadx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvadx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvabx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvabx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvakx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvakx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvakxb.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvakxb.out
 fi
 
 
 if [ $par = "T" ]
 then
-    tar uf $tarfile $distrobase/cvodes/examples/cvx_par.mk
-    tar uf $tarfile $distrobase/cvodes/examples/pvnx.c
-    tar uf $tarfile $distrobase/cvodes/examples/pvnx.out
-    tar uf $tarfile $distrobase/cvodes/examples/pvkx.c
-    tar uf $tarfile $distrobase/cvodes/examples/pvkx.out
-    tar uf $tarfile $distrobase/cvodes/examples/pvkxb.c
-    tar uf $tarfile $distrobase/cvodes/examples/pvkxb.out
+    tar uf $tarfile $distrobase/cvodes/examples_par/Makefile.in
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.out
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvkx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvkx.out
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvkxb.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvkxb.out
 
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfx_par.mk
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfnx.c
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfnx.out1
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfnx.out2
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfkx.c
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfkx.out1
-    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfkx.out2
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.out1
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.out2
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.out1
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.out2
 
-    tar uf $tarfile $distrobase/cvodes/adj_examples/cvax_par.mk
-    tar uf $tarfile $distrobase/cvodes/adj_examples/pvanx.c
-    tar uf $tarfile $distrobase/cvodes/adj_examples/pvanx.out
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvanx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvanx.out
 fi
-
 
 #----End of tarcvodes script file----
