@@ -207,7 +207,7 @@ void FCV_REINSPGMR(int *pretype, int *gstype, realtype *delt, int *ier)
      *gstype     is the Gram-Schmidt process type
      *delt       is the linear convergence tolerance factor */
 
-  *ier = CVSpgmrSetPrecType(CV_cvodemem, *pretype);
+  *ier = CVSpgmrResetPrecType(CV_cvodemem, *pretype);
   if (*ier != 0) return;
 
   *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);

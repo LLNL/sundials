@@ -51,32 +51,20 @@ void FCV_BBDIN(integertype *Nloc, integertype *mudq, integertype *mldq,
                               *dqrely, CVgloc, CVcfn);
   if (CVBBD_Data == NULL) { *ier = -1; return; }
 
-  /* Call CVSpgmr to specify the SPGMR linear solver:
+  /* Call CVBBDSpgmr to specify the SPGMR linear solver:
      CV_cvodemem is the pointer to the CVODE memory block
      *pretype    is the preconditioner type
      *gstype     is the Gram-Schmidt process type
      *maxl       is the maximum Krylov dimension
-     *delt       is the linear convergence tolerance factor
-     CVBBDPrecon is a pointer to the preconditioner setup routine
-     CVBBDPSol   is a pointer to the preconditioner solve routine
-     CVBBD_Data  is the pointer to P_data */
+     *delt       is the linear convergence tolerance factor */
 
-  *ier = CVSpgmr(CV_cvodemem, *pretype, *maxl);
+  *ier = CVBBDSpgmr(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
   if (*ier != 0) return;
 
   *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
   if (*ier != 0) return;
 
   *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
-  if (*ier != 0) return;
-
-  *ier = CVSpgmrSetPrecSetupFn(CV_cvodemem, CVBBDPrecSetup);
-  if (*ier != 0) return;
-
-  *ier = CVSpgmrSetPrecSolveFn(CV_cvodemem, CVBBDPrecSolve);
-  if (*ier != 0) return;
-
-  *ier = CVSpgmrSetPrecData(CV_cvodemem, CVBBD_Data);
   if (*ier != 0) return;
 
 }
@@ -104,7 +92,7 @@ void FCV_REINBBD(integertype *Nloc, integertype *mudq, integertype *mldq,
      *gstype     is the Gram-Schmidt process type
      *delt       is the linear convergence tolerance factor */
    
-  *ier = CVSpgmrSetPrecType(CV_cvodemem, *pretype);
+  *ier = CVSpgmrResetPrecType(CV_cvodemem, *pretype);
   if (*ier != 0) return;
 
   *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
