@@ -21,14 +21,14 @@ grid points and replacing the first and second order spatial derivatives
 with their central difference approximations. Since the value of $u$ is
 constant at the two endpoints, the semi-discrete equations for those points
 can be eliminated.  With $u_{i}$ as the approximation to $u(t,x_{i})$, 
-$x_{i} = i(\Delta x)$, and $\Delta x=2/(\id{MX}+1)$, the resulting system of
+$x_{i} = i(\Delta x)$, and $\Delta x = 2/($\id{MX}$+1)$, the resulting system of
 ODEs, $u^\prime = f(t,u)$, can now be written:
 \begin{equation}
 u^\prime_i=\frac{u_{i+1}-2u_{i}+u_{i-1}}{(\Delta x)^{2}}
   + 0.5 \frac{u_{i+1}-u_{i-1}}{2(\Delta x)} ~. \label{pvnxode}
 \end{equation}
 This equation holds for $i=1,2,\ldots ,$ \id{MX}, with the understanding
-that $u_{0} = u_{\id{MX}+1}=0.$
+that $u_{0} = u_{MX+1}=0.$
 
 In the parallel processing environment, we may think of the several
 processors as being laid out on a straight line with each processor to
@@ -179,7 +179,7 @@ In this example, \id{pvkxb}, we solve the same problem in \id{pvkx} above,
 but instead of supplying the preconditioner, we use the {\cvbbdpre} module,
 which generates and uses a band-block-diagonal preconditioner.  The
 half-bandwidths of the Jacobian block on each processor are both equal to
-$2\cdot\id{MXSUB}$, and that is the value supplied as \id{mudq} and \id{mldq}
+$2\cdot$\id{MXSUB}, and that is the value supplied as \id{mudq} and \id{mldq}
 in the call to \id{CVBBDPrecAlloc}.  But in order to reduce storage and computation
 costs for preconditioning, we supply the values \id{mukeep} = \id{mlkeep} = 2
 (= \id{NVARS}) as the half-bandwidths of the retained band matrix blocks.
