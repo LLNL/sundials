@@ -1,30 +1,40 @@
-# File Makefile  Version of 4 Feruary 2002
-#----------------------------------------------------
-# Makefile for the CVODEA examples
-# (serial and parallel versions)
-#----------------------------------------------------
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+# Version of  : 22 March 2002
+#--------------------------------------------------------------------------------
+# Makefile for the adjoint CVODES examples.
+#
+# This makefile generates the executables for the adjoint CVODES examples requested.
+# 
+# Type 'make' to see usage instructions and list of examples.
+#
+#--------------------------------------------------------------------------------
 
+SHELL = /bin/sh
 
-#---------------------
-# Path to shared files
-#---------------------
-SHARED_DIR = ../../shared
 
 #======================================================
 # Make rules
 #======================================================
 
 all:
-	@(make -f cvodeax.mk)
+	@(echo)
+	@(echo 'Usage: make <ex>     - make example <ex>')
+	@(echo '       make cvax_ser - make all serial adjoint CVODES examples')
+	@(echo '       make cvax_par - make all parallel adjoint CVODES examples')
+	@(echo '       make examples - make all adjoint CVODES examples')
+	@(echo '       make purge    - remove all example executable files')
+	@(echo)
+	@(if test -f cvax_ser.mk; then make -f cvax_ser.mk; fi)
+	@(echo)
+	@(if test -f cvax_par.mk; then make -f cvax_par.mk; fi)
+	@(echo)
 
-chemfwd chemadj ad adadj diurnadj:
-	@(cp $(SHARED_DIR)/include/nvector_serial.h $(SHARED_DIR)/include/nvector.h)
-	@(make -f cvodeax.mk $@)
-	@(rm $(SHARED_DIR)/include/nvector.h)
-
-#======================================================
+chemadj adadj foodadj foodadj1:
+	@(if test -f cvax_ser.mk; then make -f cvax_ser.mk $@; fi)
 
 purge:
-	@(make -f cvodeax.mk purge)
+	@(if test -f cvax_ser.mk; then make -f cvax_ser.mk purge; fi)
 
-#======================================================
+#---End of Makefile---
