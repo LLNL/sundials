@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-10-21 20:49:09 $
+ * $Revision: 1.8 $
+ * $Date: 2004-12-06 20:22:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -21,6 +21,7 @@
 
 #include "fkinsol.h"        /* prototypes of interfaces and global variables */
 #include "kinsol.h"         /* KINSOL constants and prototypes               */
+#include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines     */
 #include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
 #include "nvector.h"        /* definition of type N_Vector                   */
 #include "sundialstypes.h"  /* definition of type realtype                   */
@@ -32,6 +33,18 @@
  */
 
 extern void FK_JTIMES(realtype*, realtype*, int*, realtype*, int*);
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_SPBCGSETJAC
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_SPBCGSETJAC(int *flag, int *ier)
+{
+  if ((*flag) == 0) KINSpbcgSetJacTimesVecFn(KIN_mem, NULL);
+  else KINSpbcgSetJacTimesVecFn(KIN_mem, FKINJtimes);
+}
 
 /*
  * ----------------------------------------------------------------
@@ -50,8 +63,8 @@ void FKIN_SPGMRSETJAC(int *flag, int *ier)
  * Function : FKINJtimes
  * ----------------------------------------------------------------
  * C function FKINJtimes is used to interface between
- * KINSpgmr/KINSpgmrJTimes and FK_JTIMES (user-supplied Fortran
- * routine).
+ * KINSpgmr/KINSpgmrJTimes or KINSpbcg/KINSpbcgJTimes and FK_JTIMES
+ * (user-supplied Fortran routine).
  * ----------------------------------------------------------------
  */
 

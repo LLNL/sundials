@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-10-26 18:01:54 $
+ * $Revision: 1.26 $
+ * $Date: 2004-12-06 20:22:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -35,6 +35,7 @@
                            computations, respectively
    FKINMALLOC :  interfaces to KINMalloc 
    FKINSPGMR : interfaces to KINSpgmr
+   FKINSPBCG : interfaces to KINSpbcg
    FKINSOL : interfaces to KINSol
    FKINFREE : interfaces to KINFree
    FNVFREES and FNVFREEP : finalize serial and parallel vector
@@ -156,7 +157,71 @@
      The solution method in KINSOL involves the solution of linear systems 
      related to the Jacobian J = dF/du of the nonlinear system.
 
- (4.1) SPGMR treatment of the linear systems:
+ (4.1) SPBCG treatment of the linear systems:
+
+       For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
+       the user must make the call:
+
+         CALL FKINSPBCG(MAXL, IER)
+
+       In the above routine, the arguments are as follows:
+         MAXL     = maximum Krylov subspace dimension; 0 indicates default.
+         IER      = return completion flag.  Values are 0 = succes, and
+                    -1 = failure.
+
+       Note: See printed message for details in case of failure.
+
+       If the user program includes the FKJTIMES routine for the evaluation
+       of the Jacobian-vector product, the following call must be made:
+
+         CALL FKINSPBCGSETJAC(FLAG, IER)
+
+       The argument FLAG = 0 specifies using the internal finite differences
+       approximation to the Jacobian-vector product, while FLAG = 1 specifies
+       that FKJTIMES is provided.
+
+       Usage of the user-supplied routine FKPSOL for solution of the
+       preconditioned linear system is specified by calling:
+
+         CALL FKINSPBCGSETPSOL(FLAG, IER)
+
+       where FLAG = 0 indicates no FKPSOL (default) and FLAG = 1 specifies
+       using FKPSOL. The user-supplied routine FKPSOL must be of the form:
+
+         SUBROUTINE FKPSOL (UU, USCALE, FVAL, FSCALE, VTEM, FTEM, IER)
+         DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEM(*), FTEM(*)
+
+       Typically this routine will use only UU, FVAL, VTEM and FTEM.
+       It must solve the preconditioned linear system Pz = r, where
+       r = VTEM is input, and store the solution z in VTEM as well. Here
+       P is the right preconditioner. If scaling is being used, the
+       routine supplied must also account for scaling on either coordinate
+       or function value.
+
+       Usage of the user-supplied routine FKPSET for construction of the
+       preconditioner is specified by calling:
+
+         CALL FKINSPBCGSETPSET(FLAG, IER)
+
+       where FLAG = 0 indicates no FKPSET (default) and FLAG = 1 specifies
+       using FKPSET. The user-supplied routine FKPSET must be of the form:
+
+         SUBROUTINE FKPSET (UU, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2, IER)
+         DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEMP1(*), VTEMP2(*)
+
+       It must perform any evaluation of Jacobian-related data and
+       preprocessing needed for the solution of the preconditioned linear
+       systems by FKPSOL. The variables UU through FSCALE are for use in the
+       preconditioning setup process. Typically, the system function FKFUN is
+       called, so that FVAL will have been updated. UU is the current solution
+       iterate. VTEMP1 and VTEMP2 are available for work space. If scaling is
+       being used, USCALE and FSCALE are available for those operatins
+       requiring scaling. NEQ is the (global) problem size.
+
+       On return, set IER = 0 if FKPSET was successful, set IER = 1 if
+       an error occurred.
+
+ (4.2) SPGMR treatment of the linear systems:
 
        For the Scaled Preconditioned GMRES solution of the linear systems,
        the user must make the call:
@@ -173,12 +238,12 @@
        Note: See printed message for details in case of failure.
 
        If the user program includes the FKJTIMES routine for the evaluation
-       of the Jacobian vector product, the following call must be made:
+       of the Jacobian-vector product, the following call must be made:
 
          CALL FKINSPGMRSETJAC(FLAG, IER)
 
        The argument FLAG = 0 specifies using the internal finite differences
-       approximation to the Jacobian vector product, while FLAG = 1 specifies
+       approximation to the Jacobian-vector product, while FLAG = 1 specifies
        that FKJTIMES is provided.
 
        Usage of the user-supplied routine FKPSOL for solution of the
@@ -288,7 +353,7 @@
        FNORM  = ROPT(3) = final scaled norm of f(u)
        STEPL  = ROPT(4) = scaled last step length
 
-     The following optional outputs are specific to the SPGMR module:
+     The following optional outputs are specific to the SPGMR/SPBCG module:
 
        NLI    = IOPT(11) = number of linear (Krylov) iterations
        NPE    = IOPT(12) = number of preconditioner evaluations
@@ -315,6 +380,10 @@
 #if defined(F77_FUNC)
 
 #define FKIN_MALLOC       F77_FUNC(fkinmalloc, FKINMALLOC)
+#define FKIN_SPBCG        F77_FUNC(fkinspbcg, FKINSPBCG)
+#define FKIN_SPBCGSETJAC  F77_FUNC(fkinspbcgsetjac, FKINSPBCGSETJAC)
+#define FKIN_SPBCGSETPSOL F77_FUNC(fkinspbcgsetpsol, FKINSPBCGSETPSOL)
+#define FKIN_SPBCGSETPSET F77_FUNC(fkinspbcgsetpset, FKINSPBCGSETPSET)
 #define FKIN_SPGMR        F77_FUNC(fkinspgmr, FKINSPGMR)
 #define FKIN_SPGMRSETJAC  F77_FUNC(fkinspgmrsetjac, FKINSPGMRSETJAC)
 #define FKIN_SPGMRSETPSOL F77_FUNC(fkinspgmrsetpsol, FKINSPGMRSETPSOL)
@@ -329,6 +398,10 @@
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC       fkinmalloc
+#define FKIN_SPBCG        fkinspbcg
+#define FKIN_SPBCGSETJAC  fkinspbcgsetjac
+#define FKIN_SPBCGSETPSOL fkinspbcgsetpsol
+#define FKIN_SPBCGSETPSET fkinspbcgsetpset
 #define FKIN_SPGMR        fkinspgmr
 #define FKIN_SPGMRSETJAC  fkinspgmrsetjac
 #define FKIN_SPGMRSETPSOL fkinspgmrsetpsol
@@ -343,6 +416,10 @@
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC       FKINMALLOC
+#define FKIN_SPBCG        FKINSPBCG
+#define FKIN_SPBCGSETJAC  FKINSPBCGSETJAC
+#define FKIN_SPBCGSETPSOL FKINSPBCGSETPSOL
+#define FKIN_SPBCGSETPSET FKINSPBCGSETPSET
 #define FKIN_SPGMR        FKINSPGMR
 #define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC
 #define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL
@@ -357,6 +434,10 @@
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC       fkinmalloc_
+#define FKIN_SPBCG        fkinspbcg_
+#define FKIN_SPBCGSETJAC  fkinspbcgsetjac_
+#define FKIN_SPBCGSETPSOL fkinspbcgsetpsol_
+#define FKIN_SPBCGSETPSET fkinspbcgsetpset_
 #define FKIN_SPGMR        fkinspgmr_
 #define FKIN_SPGMRSETJAC  fkinspgmrsetjac_
 #define FKIN_SPGMRSETPSOL fkinspgmrsetpsol_
@@ -371,6 +452,10 @@
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC       FKINMALLOC_
+#define FKIN_SPBCG        FKINSPBCG_
+#define FKIN_SPBCGSETJAC  FKINSPBCGSETJAC_
+#define FKIN_SPBCGSETPSOL FKINSPBCGSETPSOL_
+#define FKIN_SPBCGSETPSET FKINSPBCGSETPSET_
 #define FKIN_SPGMR        FKINSPGMR_
 #define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC_
 #define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL_
@@ -385,6 +470,10 @@
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC       fkinmalloc__
+#define FKIN_SPBCG        fkinspbcg__
+#define FKIN_SPBCGSETJAC  fkinspbcgsetjac__
+#define FKIN_SPBCGSETPSOL fkinspbcgsetpsol__
+#define FKIN_SPBCGSETPSET fkinspbcgsetpset__
 #define FKIN_SPGMR        fkinspgmr__
 #define FKIN_SPGMRSETJAC  fkinspgmrsetjac__
 #define FKIN_SPGMRSETPSOL fkinspgmrsetpsol__
@@ -399,6 +488,10 @@
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC       FKINMALLOC__
+#define FKIN_SPBCG        FKINSPBCG__
+#define FKIN_SPBCGSETJAC  FKINSPBCGSETJAC__
+#define FKIN_SPBCGSETPSOL FKINSPBCGSETPSOL__
+#define FKIN_SPBCGSETPSET FKINSPBCGSETPSET__
 #define FKIN_SPGMR        FKINSPGMR__
 #define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC__
 #define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL__
@@ -457,7 +550,7 @@ void *KIN_mem;
 long int *KIN_iopt;
 realtype *KIN_ropt;
 
-int KIN_ls;  /* Linear Solver: 1 = SPGMR */
-enum { KIN_SPGMR = 1 };
+int KIN_ls;  /* Linear Solver: 1 = SPGMR , 2 = SPBCG */
+enum { KIN_SPGMR = 1 , KIN_SPBCG = 2};
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-12-02 19:29:55 $
+ * $Revision: 1.15 $
+ * $Date: 2004-12-06 20:22:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -23,6 +23,7 @@
 
 #include "fkinsol.h"        /* prototypes of interfaces and global variables */
 #include "kinsol.h"         /* KINSOL constants and prototypes               */
+#include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines     */
 #include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
 #include "nvector.h"        /* definition of type N_Vector                   */
 #include "sundialstypes.h"  /* definition of type realtype                   */
@@ -35,6 +36,18 @@
 
 extern void FK_PSET(realtype*, realtype*, realtype*, realtype*, 
 		    realtype*, realtype*, int*);
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_SPBCGSETPSET
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_SPBCGSETPSET(int *flag, int *ier)
+{
+  if ((*flag) == 0) KINSpbcgSetPrecSetupFn(KIN_mem, NULL);
+  else KINSpbcgSetPrecSetupFn(KIN_mem, FKINPSet);
+}
 
 /*
  * ----------------------------------------------------------------

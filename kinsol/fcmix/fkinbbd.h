@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-10-26 18:01:55 $
+ * $Revision: 1.22 $
+ * $Date: 2004-12-06 20:22:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -23,16 +23,18 @@
  The FKINBBD Interface Package is a package of C functions which support the
  use of the KINSOL solver with the KINBBDPRE preconditioner module, for the
  solution of nonlinear systems in a mixed Fortran/C setting. The combination
- of KINSOL and KINBBDPRE solves systems f(u) = 0 with the SPGMR (scaled
- preconditioned GMRES) method for the linear systems that arise, and with a
- preconditioner that is block-diagonal with banded blocks. While KINSOL and
- KINBBDPRE are written in C, it is assumed here that the user's calling program
- and user-supplied problem-defining routines are written in Fortran.
+ of KINSOL and KINBBDPRE solves systems f(u) = 0 with either the SPGMR (scaled
+ preconditioned GMRES), or SPBCG (scaled preconditioned Bi-CGSTAB) method for
+ the linear systems that arise, and with a preconditioner that is block-diagonal
+ with banded blocks. While KINSOL and KINBBDPRE are written in C, it is assumed
+ here that the user's calling program and user-supplied problem-defining routines
+ are written in Fortran.
 
  The user-callable functions in this package, with the corresponding KINSOL and
  KINBBDPRE functions, are as follows:
 
    FKINBBDINIT : interfaces to KINBBDPrecAlloc
+   FKINBBDSPBCG : interfaces with KINSpbcg
    FKINBBDSPGMR : interfaces with KINSpgmr
    FKINBBDOPT : accesses optional outputs
    FKINBBDFREE : interfaces to KINBBDPrecFree
@@ -137,7 +139,7 @@
        arguments. Thus FKCOMMFN can omit any communications done by FKFUN if
        relevant to the evaluation of g.
 
- (4) Initialization: FNVINITP, FKINMALLOC, FKINBBDINIT, and FKINBBDSPGMR
+ (4) Initialization: FNVINITP, FKINMALLOC, FKINBBDINIT, and FKINBBDSPBCG/FKINBBDSPGMR
 
  (4.1) To initialize the parallel machine environment, the user must make the
        following call:
@@ -190,18 +192,30 @@
          IER      = return completion flag. Values are 0 = success, and
                     -1 = failure.
 
- (4.4) To specify the SPGMR linear system solver, and to allocate memory
-       and initialize data associated with the SPGMR method, make the
-       following call:
+ (4.4A) To specify the SPBCG linear system solver, and to allocate memory
+        and initialize data associated with the SPBCG method, make the
+        following call:
 
-         CALL FKINBBDSPGMR (MAXL, MAXLRST, IER)
+          CALL FKINBBDSPBCG (MAXL, IER)
 
-       The arguments are:
-         MAXL     = maximum Krylov subspace dimension
-                    Note: 0 indicates default.
-         MAXLRST  = maximum number of linear solver restarts
-         IER      = return completion flag. Values are 0 = success, and
-                    -1 = failure.
+        The arguments are:
+          MAXL     = maximum Krylov subspace dimension
+                     Note: 0 indicates default.
+          IER      = return completion flag. Values are 0 = success, and
+                     -1 = failure.
+
+ (4.4B) To specify the SPGMR linear system solver, and to allocate memory
+        and initialize data associated with the SPGMR method, make the
+        following call:
+
+          CALL FKINBBDSPGMR (MAXL, MAXLRST, IER)
+
+        The arguments are:
+          MAXL     = maximum Krylov subspace dimension
+                     Note: 0 indicates default.
+          MAXLRST  = maximum number of linear solver restarts
+          IER      = return completion flag. Values are 0 = success, and
+                     -1 = failure.
 
  (5) To solve the system, make the following call:
 
@@ -261,6 +275,7 @@
 #if defined(F77_FUNC)
 
 #define FKIN_BBDINIT  F77_FUNC(fkinbbdinit, FKINBBDINIT)
+#define FKIN_BBDSPBCG F77_FUNC(fkinbbdspbcg, FKINBBDSPBCG)
 #define FKIN_BBDSPGMR F77_FUNC(fkinbbdspgmr, FKINBBDSPGMR)
 #define FKIN_BBDOPT   F77_FUNC(fkinbbdopt, FKINBBDOPT)
 #define FKIN_BBDFREE  F77_FUNC(fkinbbdfree, FKINBBDFREE)
@@ -270,6 +285,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_BBDINIT  fkinbbdinit
+#define FKIN_BBDSPBCG fkinbbdspbcg
 #define FKIN_BBDSPGMR fkinbbdspgmr
 #define FKIN_BBDOPT   fkinbbdopt
 #define FKIN_BBDFREE  fkinbbdfree
@@ -279,6 +295,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_BBDINIT  FKINBBDINIT
+#define FKIN_BBDSPBCG FKINBBDSPBCG
 #define FKIN_BBDSPGMR FKINBBDSPGMR
 #define FKIN_BBDOPT   FKINBBDOPT
 #define FKIN_BBDFREE  FKINBBDFREE
@@ -288,6 +305,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_BBDINIT  fkinbbdinit_
+#define FKIN_BBDSPBCG fkinbbdspbcg_
 #define FKIN_BBDSPGMR fkinbbdspgmr_
 #define FKIN_BBDOPT   fkinbbdopt_
 #define FKIN_BBDFREE  fkinbbdfree_
@@ -297,6 +315,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_BBDINIT  FKINBBDINIT_
+#define FKIN_BBDSPBCG FKINBBDSPBCG_
 #define FKIN_BBDSPGMR FKINBBDSPGMR_
 #define FKIN_BBDOPT   FKINBBDOPT_
 #define FKIN_BBDFREE  FKINBBDFREE_
@@ -306,6 +325,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_BBDINIT  fkinbbdinit__
+#define FKIN_BBDSPBCG fkinbbdspbcg__
 #define FKIN_BBDSPGMR fkinbbdspgmr__
 #define FKIN_BBDOPT   fkinbbdopt__
 #define FKIN_BBDFREE  fkinbbdfree__
@@ -315,6 +335,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_BBDINIT  FKINBBDINIT__
+#define FKIN_BBDSPBCG FKINBBDSPBCG__
 #define FKIN_BBDSPGMR FKINBBDSPGMR__
 #define FKIN_BBDOPT   FKINBBDOPT__
 #define FKIN_BBDFREE  FKINBBDFREE__
