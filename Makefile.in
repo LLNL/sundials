@@ -1,95 +1,127 @@
-#-----------------------------------------------
-# File        : Makefile
-# Programmers : Radu Serban @ LLNL
-#-----------------------------------------------
-# Makefile for SUNDIALS suite
+# -----------------------------------------------------------------
+# $Revision: 1.3 $
+# $Date: 2004-10-21 21:10:28 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/shared/LICENSE.
+# -----------------------------------------------------------------
+# Main Makefile for SUNDIALS suite
+#
 # @configure_input@
-#-----------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
 @SET_MAKE@
 
-MODULES = @MODULES@
-NVEC_MODULES = @NVEC_MODULES@
-EX_MODULES = @EX_MODULES@
+srcdir       = @srcdir@
+abs_builddir = @abs_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-COMPONENTS = $(MODULES) $(NVEC_MODULES)
-EXAMPLES = $(EX_MODULES)
+INSTALL      = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
 
-#-----------------------------------------------
-# Make rules
-#-----------------------------------------------
+MODULES         = @MODULES@
+NVEC_MODULES    = @NVEC_MODULES@
+EXAMPLE_MODULES = @EXAMPLE_MODULES@
+
+COMPONENTS = $(NVEC_MODULES) $(MODULES)
+EXAMPLES   = $(EXAMPLE_MODULES)
 
 all:
-	@for i in $(COMPONENTS); do  \
-	  if [ -d $$i ]; then        \
-	    echo "Making $$i ...";   \
-	    (cd $$i; ${MAKE});       \
-	    echo "";                 \
-	  fi;                        \
-	done;
+	@${INSTALL_DATA} config.h ${includedir}/config.h
+	@for i in ${COMPONENTS} ; do  \
+	   if test -d $${i} ; then    \
+	     echo "Making $${i}..." ; \
+	     cd $${i} ;               \
+	     ${MAKE} ;                \
+	     cd ${abs_builddir} ;     \
+	     echo "" ;                \
+	   fi ;                       \
+	 done
 
 install:
-	@for i in $(COMPONENTS); do    \
-	  if [ -d $$i ]; then          \
-	    echo "Installing $$i ..."; \
-	    (cd $$i; ${MAKE} install); \
-	    echo "";                   \
-	  fi;                          \
-	done;
+	@for i in ${COMPONENTS} ; do      \
+	   if test -d $${i} ; then        \
+	     echo "Installing $${i}..." ; \
+	     cd $${i} ;                   \
+	     ${MAKE} install ;            \
+	     cd ${abs_builddir} ;         \
+	     echo "" ;                    \
+	   fi ;                           \
+	 done
 
 clean:
-	@for i in $(COMPONENTS); do  \
-	  if [ -d $$i ]; then        \
-	    (cd $$i; ${MAKE} clean); \
-	  fi;                        \
-	done;
+	@for i in ${COMPONENTS} ; do \
+	   if test -d $${i} ; then   \
+	     cd $${i} ;              \
+	     ${MAKE} clean ;         \
+	     cd ${abs_builddir} ;    \
+	   fi ;                      \
+	 done
 
 examples:
-	@if [ "X${EXAMPLES}" = "Xno" ]; then             \
-	  echo "Examples were not configured";           \
-	  echo "Rerun configure with --enable-examples"; \
-	else                                             \
-	for i in $(EXAMPLES); do                         \
-	  if [ -d $$i ]; then                            \
-	    echo "Making examples in $$i ...";           \
-	    (cd $$i; ${MAKE});                           \
-	    echo "";                                     \
-	  fi;                                            \
-	done;                                            \
-	fi;
+	@if test "X${EXAMPLES}" = "Xno" ; then             \
+	   echo "Examples were NOT configured" ;           \
+	   echo "Rerun configure with --enable-examples" ; \
+	 else                                              \
+	   for i in ${EXAMPLES} ; do                       \
+	     if test -d $${i} ; then                       \
+	       echo "Making examples in $${i}..." ;        \
+	       cd $${i} ;                                  \
+	       ${MAKE} ;                                   \
+	       cd ${abs_builddir} ;                        \
+	       echo "" ;                                   \
+	     fi ;                                          \
+	   done ;                                          \
+	 fi
 
 examples_clean:
-	@if [ "X${EXAMPLES}" != "Xno" ]; then            \
-	for i in $(EXAMPLES); do                         \
-	  if [ -d $$i ]; then                            \
-	    (cd $$i; ${MAKE} clean);                     \
-	  fi;                                            \
-	done;                                            \
-	fi;
+	@if test "X${EXAMPLES}" = "Xno" ; then \
+	   : ;                                 \
+	 else                                  \
+	   for i in ${EXAMPLES} ; do           \
+	     if test -d $${i} ; then           \
+	       cd $${i} ;                      \
+	       ${MAKE} clean ;                 \
+	       cd ${abs_builddir} ;            \
+	     fi ;                              \
+	   done ;                              \
+	 fi
 
 distclean: clean examples_clean
-	@for i in $(COMPONENTS); do           \
-	  if [ -d $$i ]; then                 \
-	    (cd $$i; rm -f Makefile);         \
-	  fi;                                 \
-	done;
-	@if [ "X${EXAMPLES}" != "Xno" ]; then \
-	for i in $(EXAMPLES); do              \
-	  if [ -d $$i ]; then                 \
-	    (cd $$i; rm -f Makefile);         \
-	  fi;                                 \
-	done;                                 \
-	fi;
-	rm -f config.log config.status config.cache
-	rm -f Makefile
+	@for i in ${COMPONENTS} ; do           \
+	   if test -d $${i} ; then             \
+	     rm -f $${i}/Makefile ;            \
+	   fi ;                                \
+	 done
+	@if test "X${EXAMPLES}" = "Xno" ; then \
+	   : ;                                 \
+	 else                                  \
+	   for i in ${EXAMPLES} ; do           \
+	     if test -d $${i} ; then           \
+	       rm -f $${i}/Makefile ;          \
+	     fi ;                              \
+	   done ;                              \
+	 fi
+	@rm -f config.log ;                    \
+	 rm -f config.status ;                 \
+	 rm -f config.cache ;                  \
+	 rm -f config.h                        \
+	 rm -f Makefile
 
 uninstall:
-	@for i in $(COMPONENTS); do      \
-	  if [ -d $$i ]; then            \
-	    (cd $$i; ${MAKE} uninstall); \
-	  fi;                            \
-	done;
-
+	@for i in ${COMPONENTS} ; do \
+	   if test -d $${i} ; then   \
+	     cd $${i} ;              \
+	     ${MAKE} uninstall ;     \
+	     cd ${abs_builddir} ;    \
+	   fi ;                      \
+	 done

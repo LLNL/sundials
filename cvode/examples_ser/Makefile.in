@@ -1,63 +1,69 @@
-# File Makefile
-#--------------------------------------------------------------------------
-# Makefile for the CVODE examples using the serial N_Vector implementation.
+# -----------------------------------------------------------------
+# $Revision: 1.4 $
+# $Date: 2004-10-21 21:10:59 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/cvode/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for CVODE serial examples
+#
 # @configure_input@
-#--------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
+LIBTOOL = @LIBTOOL@
 
-# Compiler and compiler options
-CC       = @CC@
+CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
 CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
-TEMP_LIBS     = @LIBS@
+LIBS     = @LIBS@
 
-# SUNDIALS library and include directories
-SUNDIALS_INC_DIR = ${includedir}
-SUNDIALS_LIB_DIR = ${libdir}
+SUNDIALS_INC_DIR = $(includedir)
+SUNDIALS_LIB_DIR = $(libdir)
+SUNDIALS_LIBS    = -lsundials_cvode -lsundials_nvecserial -lsundials_shared
 
-INCDIRS = -I${SUNDIALS_INC_DIR}
-LIBDIRS = -L${SUNDIALS_LIB_DIR}
-LIBS    = ${TEMP_LIBS} -lcvode -lshared -lnvecserial -lm
+OBJECT_FILES = cvdx.o cvbx.o cvkx.o cvkxb.o cvdemd.o cvdemk.o
+EXEC_FILES   = cvdx cvbx cvkx cvkxb cvdemd cvdemk
 
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
+all: $(EXEC_FILES)
 
-all: cvdx cvbx cvkx cvkxb cvdemd cvdemk
-
-cvdx: ${srcdir}/cvdx.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-cvbx: ${srcdir}/cvbx.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-cvkx: ${srcdir}/cvkx.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-cvkxb: ${srcdir}/cvkxb.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-cvdemd: ${srcdir}/cvdemd.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-cvdemk: ${srcdir}/cvdemk.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvdx: $(srcdir)/cvdx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdx $(builddir)/cvdx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+cvbx: $(srcdir)/cvbx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvbx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvbx $(builddir)/cvbx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+cvkx: $(srcdir)/cvkx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvkx $(builddir)/cvkx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+cvkxb: $(srcdir)/cvkxb.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkxb.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvkxb $(builddir)/cvkxb.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+cvdemd: $(srcdir)/cvdemd.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdemd.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdemd $(builddir)/cvdemd.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+cvdemk: $(srcdir)/cvdemk.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdemk.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdemk $(builddir)/cvdemk.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 
 clean:
-	rm -f *.o
-	rm -f cvdx cvbx cvkx cvkxb cvdemd cvdemk
-
-#---End of Makefile---
+	@for i in ${EXEC_FILES} ; do             \
+	   $(LIBTOOL) --mode=clean rm -f $${i} ; \
+	   rm -f $${i}.lo ;                      \
+	 done
+	rm -f $(OBJECT_FILES)

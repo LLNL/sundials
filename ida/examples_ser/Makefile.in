@@ -1,57 +1,63 @@
-# File Makefile
-#--------------------------------------------------------------------------
-# Makefile for the IDA examples using the serial N_Vector implementation.
+# -----------------------------------------------------------------
+# $Revision: 1.4 $
+# $Date: 2004-10-21 21:11:45 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/ida/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for IDA serial examples
+#
 # @configure_input@
-#--------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
+LIBTOOL = @LIBTOOL@
 
-# Compiler and compiler options
-CC       = @CC@
+CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
 CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
-TEMP_LIBS     = @LIBS@
+LIBS     = @LIBS@
 
-# SUNDIALS library and include directories
-SUNDIALS_INC_DIR = ${includedir}
-SUNDIALS_LIB_DIR = ${libdir}
+SUNDIALS_INC_DIR = $(includedir)
+SUNDIALS_LIB_DIR = $(libdir)
+SUNDIALS_LIBS    = -lsundials_ida -lsundials_nvecserial -lsundials_shared
 
-INCDIRS = -I${SUNDIALS_INC_DIR}
-LIBDIRS = -L${SUNDIALS_LIB_DIR}
-LIBS    = ${TEMP_LIBS} -lida -lshared -lnvecserial -lm
+OBJECT_FILES = irobx.o iheatsb.o iheatsk.o iwebsb.o
+EXEC_FILES   = irobx iheatsb iheatsk iwebsb
 
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
+all: $(EXEC_FILES)
 
-all: irobx iheatsb iheatsk iwebsb
-
-irobx : ${srcdir}/irobx.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-iheatsb : ${srcdir}/iheatsb.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-iheatsk : ${srcdir}/iheatsk.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-iwebsb : ${srcdir}/iwebsb.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+irobx: $(srcdir)/irobx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/irobx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/irobx $(builddir)/irobx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+iheatsb: $(srcdir)/iheatsb.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatsb.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/iheatsb $(builddir)/iheatsb.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+iheatsk: $(srcdir)/iheatsk.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatsk.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/iheatsk $(builddir)/iheatsk.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+iwebsb: $(srcdir)/iwebsb.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iwebsb.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/iwebsb $(builddir)/iwebsb.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 
 clean:
-	rm -f *.o
-	rm -f irobx iheatsb iheatsk iwebsb
-
-#---End of Makefile---
+	@for i in ${EXEC_FILES} ; do             \
+	   $(LIBTOOL) --mode=clean rm -f $${i} ; \
+	   rm -f $${i}.lo ;                      \
+	 done
+	rm -f $(OBJECT_FILES)

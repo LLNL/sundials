@@ -1,55 +1,72 @@
-# File Makefile
-#--------------------------------------------------------------------------
-# Makefile for the FCVODE examples using the serial N_Vector implementation.
+# -----------------------------------------------------------------
+# $Revision: 1.5 $
+# $Date: 2004-10-21 21:11:09 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/cvode/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for FCVODE serial examples
+#
 # @configure_input@
-#--------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+top_builddir = @top_builddir@
+builddir     = @builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
+INSTALL = @INSTALL@
 
-# Compiler and compiler options
-FC      = @F77@
+LIBTOOL = @LIBTOOL@
+
+F77     = @F77@
 FFLAGS  = @FFLAGS@
 FLIBS   = @FLIBS@
 LDFLAGS = @LDFLAGS@
-TEMP_LIBS    = @LIBS@
+LIBS    = @LIBS@
 
-# SUNDIALS library directory
-SUNDIALS_LIB_DIR = ${libdir}
+SUNDIALS_LIB_DIR = $(libdir)
+SUNDIALS_LIBS    = -lsundials_fcvode -lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared
 
-LIBDIRS = -L${SUNDIALS_LIB_DIR}
-LIBS    = ${TEMP_LIBS} -lfcvode -lcvode -lfnvecserial -lnvecserial -lshared
+SOURCE_FILES = cvdensef.f cvbandf.f cvkryf.f cvkrybf.f
+EXEC_FILES   = cvdensef cvbandf cvkryf cvkrybf
 
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
+all: update $(EXEC_FILES)
 
-all: cvdensef cvbandf cvkryf cvkrybf
+update:
+	@${INSTALL} ${top_builddir}/config/fortran_update ${builddir}/fortran_update.sh
 
-cvdensef : ${srcdir}/cvdensef.f
-	${FC} -c ${FFLAGS} ${srcdir}/$@.f
-	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
-cvbandf : ${srcdir}/cvbandf.f
-	${FC} -c ${FFLAGS} ${srcdir}/$@.f
-	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
-cvkryf : ${srcdir}/cvkryf.f
-	${FC} -c ${FFLAGS} ${srcdir}/$@.f
-	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
-cvkrybf : ${srcdir}/cvkrybf.f
-	${FC} -c ${FFLAGS} ${srcdir}/$@.f
-	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
+cvdensef: $(srcdir)/cvdensef.f
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvdensef.f
+	$(LIBTOOL) --mode=compile $(F77) $(FFLAGS) -c $(builddir)/cvdensef-updated.f
+	$(LIBTOOL) --mode=link $(F77) -o $(builddir)/cvdensef $(builddir)/cvdensef-updated.lo $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+cvbandf: $(srcdir)/cvbandf.f
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvbandf.f
+	$(LIBTOOL) --mode=compile $(F77) $(FFLAGS) -c $(builddir)/cvbandf-updated.f
+	$(LIBTOOL) --mode=link $(F77)  -o $(builddir)/cvbandf $(builddir)/cvbandf-updated.lo $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+cvkryf: $(srcdir)/cvkryf.f
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvkryf.f
+	$(LIBTOOL) --mode=compile $(F77) $(FFLAGS) -c $(builddir)/cvkryf-updated.f
+	$(LIBTOOL) --mode=link $(F77)  -o $(builddir)/cvkryf $(builddir)/cvkryf-updated.lo $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+cvkrybf: $(srcdir)/cvkrybf.f
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvkrybf.f
+	$(LIBTOOL) --mode=compile $(F77) $(FFLAGS) -c $(builddir)/cvkrybf-updated.f
+	$(LIBTOOL) --mode=link $(F77)  -o $(builddir)/cvkrybf $(builddir)/cvkrybf-updated.lo $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 
 clean:
-	rm -f *.o
-	rm -f cvdensef cvbandf cvkryf cvkrybf
-
-#---End of Makefile---
+	@for i in ${EXEC_FILES} ; do             \
+	   $(LIBTOOL) --mode=clean rm -f $${i} ; \
+	   rm -f $${i}-updated.f ;               \
+	   rm -f $${i}-updated.lo ;              \
+	   rm -f $${i}-updated.o ;               \
+	 done
+	rm -f fortran_update.sh

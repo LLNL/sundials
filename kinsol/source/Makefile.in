@@ -1,72 +1,81 @@
-#--------------------------------------------------------------------------------
-# File        : Makefile
-# Programmers : Radu Serban @ LLNL
-#--------------------------------------------------------------------------------
-# Makefile for the KINSOL package.
+# -----------------------------------------------------------------
+# $Revision: 1.5 $
+# $Date: 2004-10-21 21:12:09 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/kinsol/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for KINSOL module
+#
 # @configure_input@
-#--------------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
-VPATH  = @srcdir@
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
 
-# Archiver program
-AR = @AR@
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-# Compiler and compiler options
-CC       = @CC@
+CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
 CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
 
-# KINSOL and SHARED include directories
-SHARED_INC_DIR = ${srcdir}/../../shared/include
-KINSOL_INC_DIR  = ${srcdir}/../include
+SUNDIALS_INC_DIR = $(includedir)
+SHARED_INC_DIR   = $(srcdir)/../../shared/include
+KINSOL_INC_DIR   = $(srcdir)/../include
 
-INCDIRS = -I${KINSOL_INC_DIR} -I${SHARED_INC_DIR}
+KINSOL_LIB       = libsundials_kinsol.la
+KINSOL_LIB_FILES = kinsol.lo kinspgmr.lo kinbbdpre.lo
 
-# KINSOL library name
-KINSOL_LIB = libkinsol.a
+OBJECT_FILES = kinsol.o kinspgmr.o kinbbdpre.o
 
-# Source and object files
-SRC =	${srcdir}/kinsol.c \
-	${srcdir}/kinspgmr.c \
-	${srcdir}/kinbbdpre.c
+all: $(KINSOL_LIB_FILES)
 
-OBJ = kinsol.o kinspgmr.o kinbbdpre.o
-
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
-
-all: ${OBJ}
-
-install: ${OBJ}
-	${AR} ${KINSOL_LIB} ${OBJ}
-	cp ${KINSOL_LIB} ${libdir}
-	cp ${KINSOL_INC_DIR}/kinsol.h    ${includedir}
-	cp ${KINSOL_INC_DIR}/kinspgmr.h  ${includedir}
-	cp ${KINSOL_INC_DIR}/kinbbdpre.h ${includedir}
+install: $(KINSOL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(KINSOL_LIB) $(libdir)
+	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinsol.h $(includedir)
+	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspgmr.h $(includedir)
+	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinbbdpre.h $(includedir)
 
 clean:
-	rm -f ${OBJ}
-	rm -f ${KINSOL_LIB}
+	$(LIBTOOL) --mode=clean rm -f $(KINSOL_LIB)
+	rm -f $(KINSOL_LIB_FILES)
+	rm -f $(OBJECT_FILES)
 
 uninstall:
-	rm -f ${libdir}/${KINSOL_LIB}
-	rm -f ${includedir}/kinsol.h
-	rm -f ${includedir}/kinspgmr.h
-	rm -f ${includedir}/kinbbdpre.h
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(KINSOL_LIB)
+	rm -f $(includedir)/kinsol.h
+	rm -f $(includedir)/kinspgmr.h
+	rm -f $(includedir)/kinbbdpre.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+kinsol.lo: $(srcdir)/kinsol.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol.c
+kinspgmr.lo: $(srcdir)/kinspgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspgmr.c
+kinbbdpre.lo: $(srcdir)/kinbbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinbbdpre.c
 
-#---End of Makefile---
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd $(top_builddir) ;                 \
+	 $(SHELL) ./config.status --recheck ; \
+	 cd $(abs_builddir)

@@ -1,86 +1,99 @@
-#--------------------------------------------------------------------------------------
-# File        : Makefile
-# Programmers : Radu Serban @ LLNL
-#--------------------------------------------------------------------------------------
-# Makefile for the SHARED module.
+# -----------------------------------------------------------------
+# $Revision: 1.6 $
+# $Date: 2004-10-21 21:10:33 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/shared/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for SHARED module
+#
 # @configure_input@
-#--------------------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
-VPATH  = @srcdir@
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
 
-# Archiver programs
-AR = @AR@
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-# Compiler and compiler options
-CC       = @CC@
+CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
 CFLAGS   = @CFLAGS@
+LIBS     = @LIBS@
 
-# SHARED include directory
-SHARED_INC_DIR = ${srcdir}/../include
+SUNDIALS_INC_DIR = $(includedir)
+SHARED_INC_DIR   = $(srcdir)/../include
 
-INCDIRS = -I${SHARED_INC_DIR} 
+SHARED_LIB       = libsundials_shared.la
+SHARED_LIB_FILES = band.lo dense.lo iterative.lo sundialsmath.lo nvector.lo smalldense.lo spgmr.lo
 
-# SHARED library
-SHARED_LIB = libshared.a
+OBJECT_FILES = band.o dense.o iterative.o sundialsmath.o nvector.o smalldense.o spgmr.o
 
-# Source and object files
-SRC =	${srcdir}/band.c \
-	${srcdir}/dense.c \
-	${srcdir}/iterativ.c \
-	${srcdir}/sundialsmath.c \
-	${srcdir}/nvector.c \
-	${srcdir}/smalldense.c \
-	${srcdir}/spgmr.c
+all: $(SHARED_LIB_FILES)
 
-OBJ = band.o dense.o iterative.o sundialsmath.o nvector.o smalldense.o spgmr.o
-
-#--------------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------------
-
-all: ${OBJ}
-
-install: ${OBJ}
-	${AR} ${SHARED_LIB} ${OBJ}
-	cp ${SHARED_LIB} ${libdir}
-	cp ${SHARED_INC_DIR}/band.h             ${includedir}
-	cp ${SHARED_INC_DIR}/dense.h            ${includedir}
-	cp ${SHARED_INC_DIR}/iterative.h        ${includedir}
-	cp ${SHARED_INC_DIR}/sundialsmath.h     ${includedir}
-	cp ${SHARED_INC_DIR}/sundialstypes.h    ${includedir}
-	cp ${SHARED_INC_DIR}/nvector.h          ${includedir}
-	cp ${SHARED_INC_DIR}/smalldense.h       ${includedir}
-	cp ${SHARED_INC_DIR}/spgmr.h            ${includedir}
+install: $(SHARED_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(SHARED_LIB) $(SHARED_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(SHARED_LIB) $(libdir)
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/band.h $(includedir)
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/dense.h $(includedir)
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/iterative.h $(includedir)
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundialsmath.h $(includedir)
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundialstypes.h $(includedir)
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/nvector.h $(includedir)
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/smalldense.h $(includedir)
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/spgmr.h $(includedir)
 
 clean:
-	rm -f ${OBJ}
-	rm -f ${SHARED_LIB}
+	$(LIBTOOL) --mode=clean rm -f $(SHARED_LIB)
+	rm -f $(SHARED_LIB_FILES)
+	rm -f $(OBJECT_FILES)
 
 uninstall:
-	rm -f ${libdir}/${SHARED_LIB}
-	rm -f ${includedir}/band.h
-	rm -f ${includedir}/dense.h
-	rm -f ${includedir}/iterative.h
-	rm -f ${includedir}/sundialsmath.h
-	rm -f ${includedir}/sundialstypes.h
-	rm -f ${includedir}/nvector.h
-	rm -f ${includedir}/smalldense.h
-	rm -f ${includedir}/spgmr.h
-	rm -f ${includedir}/complexify.h
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(SHARED_LIB)
+	rm -f $(includedir)/band.h
+	rm -f $(includedir)/dense.h
+	rm -f $(includedir)/iterative.h
+	rm -f $(includedir)/sundialsmath.h
+	rm -f $(includedir)/sundialstypes.h
+	rm -f $(includedir)/nvector.h
+	rm -f $(includedir)/smalldense.h
+	rm -f $(includedir)/spgmr.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+band.lo: $(srcdir)/band.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/band.c
+dense.lo: $(srcdir)/dense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/dense.c
+iterative.lo: $(srcdir)/iterative.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/iterative.c
+sundialsmath.lo: $(srcdir)/sundialsmath.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundialsmath.c
+sundialstypes.lo: $(srcdir)/sundialstypes.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundialstypes.c
+nvector.lo: $(srcdir)/nvector.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector.c
+smalldense.lo: $(srcdir)/smalldense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/smalldense.c
+spgmr.lo: $(srcdir)/spgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/spgmr.c
 
-#---End of Makefile---
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd $(top_builddir) ;                 \
+	 $(SHELL) ./config.status --recheck ; \
+	 cd $(abs_builddir)

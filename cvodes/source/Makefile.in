@@ -1,87 +1,101 @@
-#--------------------------------------------------------------------------------
-# File        : Makefile
-# Programmers : Radu Serban @ LLNL
-#--------------------------------------------------------------------------------
-# Makefile for the CVODES package.
+# -----------------------------------------------------------------
+# $Revision: 1.8 $
+# $Date: 2004-10-21 21:11:19 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/cvodes/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for CVODES module
+#
 # @configure_input@
-#--------------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
-VPATH  = @srcdir@
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
 
-# Archiver program
-AR = @AR@
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-# Compiler and compiler options
-CC       = @CC@
+CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
 CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
 
-# CVODES and SHARED include directories
-SHARED_INC_DIR = ${srcdir}/../../shared/include
-CVODES_INC_DIR = ${srcdir}/../include
+SUNDIALS_INC_DIR = $(includedir)
+SHARED_INC_DIR   = $(srcdir)/../../shared/include
+CVODES_INC_DIR   = $(srcdir)/../include
 
-INCDIRS = -I${CVODES_INC_DIR} -I${SHARED_INC_DIR}
+CVODES_LIB       = libsundials_cvodes.la
+CVODES_LIB_FILES = cvodes.lo cvodea.lo cvband.lo cvdense.lo cvdiag.lo cvspgmr.lo cvbandpre.lo cvbbdpre.lo
 
-# CVODES library name
-CVODES_LIB = libcvodes.a
+OBJECT_FILES = cvodes.o cvodea.o cvband.o cvdense.o cvdiag.o cvspgmr.o cvbandpre.o cvbbdpre.o
 
-# Source and object files
-SRC =	${srcdir}/cvodes.c \
-	${srcdir}/cvodea.c \
-	${srcdir}/cvband.c \
-	${srcdir}/cvdense.c \
-	${srcdir}/cvdiag.c \
-	${srcdir}/cvspgmr.c \
-	${srcdir}/cvbandpre.c \
-	${srcdir}/cvbbdpre.c
+all: $(CVODES_LIB_FILES)
 
-OBJ = cvodes.o cvodea.o cvband.o cvdense.o cvdiag.o cvspgmr.o cvbandpre.o cvbbdpre.o
-
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
-
-all: ${OBJ}
-
-install: ${OBJ}
-	${AR} ${CVODES_LIB} ${OBJ}
-	cp ${CVODES_LIB} ${libdir}
-	cp ${CVODES_INC_DIR}/cvodes.h     ${includedir}
-	cp ${CVODES_INC_DIR}/cvodea.h     ${includedir}
-	cp ${CVODES_INC_DIR}/cvdense.h   ${includedir}
-	cp ${CVODES_INC_DIR}/cvband.h    ${includedir}
-	cp ${CVODES_INC_DIR}/cvdiag.h    ${includedir}
-	cp ${CVODES_INC_DIR}/cvspgmr.h   ${includedir}
-	cp ${CVODES_INC_DIR}/cvbandpre.h ${includedir}
-	cp ${CVODES_INC_DIR}/cvbbdpre.h  ${includedir}
+install: $(CVODES_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODES_LIB) $(CVODES_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CVODES_LIB) $(libdir)
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes.h $(includedir)
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodea.h $(includedir)
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvdense.h $(includedir)
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvband.h $(includedir)
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvdiag.h $(includedir)
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvspgmr.h $(includedir)
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvbandpre.h $(includedir)
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvbbdpre.h $(includedir)
 
 clean:
-	rm -f ${OBJ}
-	rm -f ${CVODES_LIB}
+	$(LIBTOOL) --mode=clean rm -f $(CVODES_LIB)
+	rm -f $(CVODES_LIB_FILES)
+	rm -f $(OBJECT_FILES)
 
 uninstall:
-	rm -f ${libdir}/${CVODES_LIB}
-	rm -f ${includedir}/cvodes.h
-	rm -f ${includedir}/cvodea.h
-	rm -f ${includedir}/cvdense.h
-	rm -f ${includedir}/cvband.h
-	rm -f ${includedir}/cvdiag.h
-	rm -f ${includedir}/cvspgmr.h
-	rm -f ${includedir}/cvbandpre.h
-	rm -f ${includedir}/cvbbdpre.h
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CVODES_LIB)
+	rm -f $(includedir)/cvodes.h
+	rm -f $(includedir)/cvodea.h
+	rm -f $(includedir)/cvdense.h
+	rm -f $(includedir)/cvband.h
+	rm -f $(includedir)/cvdiag.h
+	rm -f $(includedir)/cvspgmr.h
+	rm -f $(includedir)/cvbandpre.h
+	rm -f $(includedir)/cvbbdpre.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+cvodes.lo: $(srcdir)/cvodes.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes.c
+cvodea.lo: $(srcdir)/cvodea.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodea.c
+cvdense.lo: $(srcdir)/cvdense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdense.c
+cvband.lo: $(srcdir)/cvband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvband.c
+cvdiag.lo: $(srcdir)/cvdiag.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdiag.c
+cvspgmr.lo: $(srcdir)/cvspgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvspgmr.c
+cvbandpre.lo: $(srcdir)/cvbandpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvbandpre.c
+cvbbdpre.lo: $(srcdir)/cvbbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvbbdpre.c
 
-#---End of Makefile---
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd $(top_builddir) ;                 \
+	 $(SHELL) ./config.status --recheck ; \
+	 cd $(abs_builddir)

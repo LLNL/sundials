@@ -1,48 +1,60 @@
-# File Makefile
-#--------------------------------------------------------------------------
-# Makefile for the FKINSOL examples using the serial N_Vector implementation.
-# @configure_input@ 
-#--------------------------------------------------------------------------
+# -----------------------------------------------------------------
+# $Revision: 1.4 $
+# $Date: 2004-10-21 21:12:28 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/kinsol/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for FKINSOL serial examples
+#
+# @configure_input@
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+top_builddir = @top_builddir@
+builddir     = @builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
+INSTALL = @INSTALL@
 
-# Compiler and compiler options
-FC      = @F77@
+LIBTOOL = @LIBTOOL@
+
+F77     = @F77@
 FFLAGS  = @FFLAGS@
 FLIBS   = @FLIBS@
 LDFLAGS = @LDFLAGS@
-TEMP_LIBS    = @LIBS@
+LIBS    = @LIBS@
 
-# SUNDIALS library directory
-SUNDIALS_LIB_DIR = ${libdir}
-SUNDIALSLIBS    = 
+SUNDIALS_LIB_DIR = $(libdir)
+SUNDIALS_LIBS    = -lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared
 
-# Libraries
-LIBDIRS = -L${SUNDIALS_LIB_DIR}
-LIBS    = ${TEMP_LIBS} -lfkinsol -lkinsol -lfnvecserial -lnvecserial -lshared
+SOURCE_FILES = kindiagsf.f
+EXEC_FILES   = kindiagsf
 
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
+all: update $(EXEC_FILES)
 
-all: kindiagsf
+update:
+	@${INSTALL} ${top_builddir}/config/fortran_update ${builddir}/fortran_update.sh
 
-kindiagsf : ${srcdir}/kindiagsf.f
-	${FC} -c ${FFLAGS} ${srcdir}/$@.f
-	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
+kindiagsf: $(srcdir)/kindiagsf.f
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} kindiagsf.f
+	$(LIBTOOL) --mode=compile $(F77) $(FFLAGS) -c $(builddir)/kindiagsf-updated.f
+	$(LIBTOOL) --mode=link $(F77) -o $(builddir)/kindiagsf $(builddir)/kindiagsf-updated.lo $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 
 clean:
-	rm -f *.o
-	rm -f kindiagsf
-
-#---End of Makefile---
+	@for i in ${EXEC_FILES} ; do             \
+	   $(LIBTOOL) --mode=clean rm -f $${i} ; \
+	   rm -f $${i}-updated.f ;               \
+	   rm -f $${i}-updated.lo ;              \
+	   rm -f $${i}-updated.o ;               \
+	 done
+	rm -f fortran_update.sh

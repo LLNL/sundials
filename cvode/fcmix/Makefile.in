@@ -1,76 +1,87 @@
-#--------------------------------------------------------------------------------
-# File        : Makefile
-# Programmers : Radu Serban @ LLNL
-# Version of  : 
-#--------------------------------------------------------------------------------
-# Makefile for the FCVODE package.
+# -----------------------------------------------------------------
+# $Revision: 1.8 $
+# $Date: 2004-10-21 21:10:54 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/cvode/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for FCVODE module
+#
 # @configure_input@
-#--------------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
-SHELL = /bin/sh
+SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
-VPATH  = @srcdir@
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
 
-# Archiver program
-AR = @AR@
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-# Compiler and compiler options
-CC       = @CC@
+CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
 CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
 
-FCFLAGS  = @FCFLAGS@
+SUNDIALS_INC_DIR = $(includedir)
+SHARED_INC_DIR   = $(srcdir)/../../shared/include
+CVODE_INC_DIR    = $(srcdir)/../include
+FCVODE_INC_DIR   = $(srcdir)
 
-# CVODE and SHARED include directories
-SHARED_INC_DIR = ${srcdir}/../../shared/include
-CVODE_INC_DIR  = ${srcdir}/../include
-FCVODE_INC_DIR = ${srcdir}
+FCVODE_LIB       = libsundials_fcvode.la
+FCVODE_LIB_FILES = fcvode.lo fcvband.lo fcvdense.lo fcvjtimes.lo fcvpreco.lo fcvpsol.lo fcvbbd.lo fcvbp.lo fcvroot.lo
 
-INCDIRS = -I${FCVODE_INC_DIR} -I${CVODE_INC_DIR} -I${SHARED_INC_DIR}
+OBJECT_FILES = fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvpsol.o fcvbbd.o fcvbp.o fcvroot.o
 
-# FCVODE library name
-FCVODE_LIB = libfcvode.a
+all: $(FCVODE_LIB_FILES)
 
-# Source and object files
-SRC =	${srcdir}/fcvode.c \
-	${srcdir}/fcvdense.c \
-	${srcdir}/fcvband.c \
-	${srcdir}/fcvjtimes.c \
-	${srcdir}/fcvpsol.c \
-	${srcdir}/fcvpreco.c \
-	${srcdir}/fcvbbd.c \
-	${srcdir}/fcvbp.c \
-	${srcdir}/fcvroot.c
-
-OBJ = fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvpsol.o fcvbbd.o fcvbp.o fcvroot.o
-
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
-
-all: ${OBJ}
-
-install: ${OBJ}
-	${AR} ${FCVODE_LIB} ${OBJ}
-	cp ${FCVODE_LIB} ${libdir}
+install: $(FCVODE_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FCVODE_LIB) $(FCVODE_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FCVODE_LIB) $(libdir)
 
 clean:
-	rm -f ${OBJ}
-	rm -f ${FCVODE_LIB}
+	$(LIBTOOL) --mode=clean rm -f $(FCVODE_LIB)
+	rm -f $(FCVODE_LIB_FILES)
+	rm -f $(OBJECT_FILES)
 
 uninstall:
-	rm -f ${libdir}/${FCVODE_LIB}
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FCVODE_LIB)
 
-.c.o:
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS} -o $@ $<
+fcvode.lo: $(srcdir)/fcvode.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvode.c
+fcvband.lo: $(srcdir)/fcvband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvband.c
+fcvdense.lo: $(srcdir)/fcvdense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvdense.c
+fcvjtimes.lo: $(srcdir)/fcvjtimes.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvjtimes.c
+fcvpreco.lo: $(srcdir)/fcvpreco.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvpreco.c
+fcvpsol.lo: $(srcdir)/fcvpsol.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvpsol.c
+fcvbbd.lo: $(srcdir)/fcvbbd.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvbbd.c
+fcvbp.lo: $(srcdir)/fcvbp.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvbp.c
+fcvroot.lo: $(srcdir)/fcvroot.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvroot.c
 
-#---End of Makefile---
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd $(top_builddir) ;                 \
+	 $(SHELL) ./config.status --recheck ; \
+	 cd $(abs_builddir)

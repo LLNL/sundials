@@ -1,75 +1,84 @@
-#--------------------------------------------------------------------------------------
-# File        : Makefile
-# Programmers : Radu Serban @ LLNL
-#--------------------------------------------------------------------------------------
-# Makefile for the serial NVECTOR module.
+# -----------------------------------------------------------------
+# $Revision: 1.8 $
+# $Date: 2004-10-21 21:10:38 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/shared/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for serial NVECTOR module
+#
 # @configure_input@
-#--------------------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
-VPATH  = @srcdir@
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
 
-# Archiver programs
-AR = @AR@
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-# Compiler and compiler options
-CC       = @CC@
+CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
 CFLAGS   = @CFLAGS@
-FCFLAGS  = @FCFLAGS@
+LIBS     = @LIBS@
 
-# SHARED include directory
-SHARED_INC_DIR  = ${srcdir}/../shared/include
-NVECSER_INC_DIR = ${srcdir}
+SUNDIALS_INC_DIR       = $(includedir)
+SHARED_INC_DIR         = $(srcdir)/../shared/include
+NVECTOR_SERIAL_INC_DIR = $(srcdir)
 
-INCDIRS = -I${SHARED_INC_DIR} -I${NVECSER_INC_DIR}
+NVECTOR_SERIAL_LIB       = libsundials_nvecserial.la
+NVECTOR_SERIAL_LIB_FILES = nvector_serial.lo
 
-# NVECSERIAL libraries
-NVECSER_LIB  = libnvecserial.a
-FNVECSER_LIB = libfnvecserial.a
+FNVECTOR_SERIAL_LIB       = libsundials_fnvecserial.la
+FNVECTOR_SERIAL_LIB_FILES = fnvector_serial.lo
 
-# Source and object files
-SRC =	${srcdir}/nvector_serial.c \
-	${srcdir}/fnvector_serial.c
+OBJECT_FILES = nvector_serial.o fnvector_serial.o
 
-OBJ = nvector_serial.o fnvector_serial.o
+all: $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
 
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
-
-all: $(OBJ)
-
-install: ${OBJ}
-	${AR} ${NVECSER_LIB}  nvector_serial.o
-	${AR} ${FNVECSER_LIB} fnvector_serial.o
-	cp ${NVECSER_LIB}  ${libdir}
-	cp ${FNVECSER_LIB} ${libdir}
-	cp ${NVECSER_INC_DIR}/nvector_serial.h  ${includedir}
-	cp ${NVECSER_INC_DIR}/fnvector_serial.h ${includedir}
+install: $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(NVECTOR_SERIAL_LIB) $(NVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_SERIAL_LIB) $(libdir)
+	$(INSTALL_HEADER) $(NVECTOR_SERIAL_INC_DIR)/nvector_serial.h $(includedir)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FNVECTOR_SERIAL_LIB) $(FNVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FNVECTOR_SERIAL_LIB) $(libdir)
+	$(INSTALL_HEADER) $(NVECTOR_SERIAL_INC_DIR)/fnvector_serial.h $(includedir)
 
 clean:
-	rm -f ${OBJ}
-	rm -f ${NVECSER_LIB}
-	rm -f ${FNVECSER_LIB}
+	$(LIBTOOL) --mode=clean rm -f $(NVECTOR_SERIAL_LIB)
+	rm -f $(NVECTOER_SERIAL_LIB_FILES)
+	$(LIBTOOL) --mode=clean rm -f $(FNVECTOR_SERIAL_LIB)
+	rm -f $(FNVECTOR_SERIAL_LIB_FILES)
+	rm -f $(OBJECT_FILES)
 
 uninstall:
-	rm -f ${libdir}/${NVECSER_LIB}
-	rm -f ${libdir}/${FNVECSER_LIB}
-	rm -f ${includedir}/nvector_serial.h
-	rm -f ${includedir}/fnvector_serial.h
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECTOR_SERIAL_LIB)
+	rm -f $(includedir)/nvector_serial.h
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FNVECTOR_SERIAL_LIB)
+	rm -f $(includedir)/fnvector_serial.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS} -o $@ $<
+nvector_serial.lo: $(srcdir)/nvector_serial.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(NVECTOR_SERIAL_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector_serial.c
+fnvector_serial.lo: $(srcdir)/fnvector_serial.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(NVECTOR_SERIAL_INC_DIR) $(CFLAGS) -c $(srcdir)/fnvector_serial.c
 
-#---End of Makefile---
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd $(top_builddir) ;                 \
+	 $(SHELL) ./config.status --recheck ; \
+	 cd $(abs_builddir)

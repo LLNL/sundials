@@ -1,68 +1,76 @@
-# File Makefile
-#--------------------------------------------------------------------------
-# Makefile for the CVODES examples using the parallel N_Vector implementation.
+# -----------------------------------------------------------------
+# $Revision: 1.6 $
+# $Date: 2004-10-21 21:11:29 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/cvodes/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for CVODES parallel examples
+#
 # @configure_input@
-#--------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
+LIBTOOL = @LIBTOOL@
 
-# Compiler and compiler options
-CPPFLAGS  = @CPPFLAGS@
-CFLAGS    = @CFLAGS@
-LDFLAGS   = @LDFLAGS@
-TEMP_LIBS      = @LIBS@
-MPICC     = @MPICC@
-MPIINC    = @MPIINC@
-MPILIBDIR = @MPILIBDIR@
-MPILIBS   = @MPILIBS@
+CPP         = @CPP@
+CPPFLAGS    = @CPPFLAGS@
+CC          = @CC@
+CFLAGS      = @CFLAGS@
+LDFLAGS     = @LDFLAGS@
+LIBS        = @LIBS@
+MPICC       = @MPICC@
+MPI_INC_DIR = @MPI_INC_DIR@
+MPI_LIB_DIR = @MPI_LIB_DIR@
+MPI_LIBS    = @MPI_LIBS@
 
-# SUNDIALS library and include directories
-SUNDIALS_INC_DIR = ${includedir}
-SUNDIALS_LIB_DIR = ${libdir}
+SUNDIALS_INC_DIR = $(includedir)
+SUNDIALS_LIB_DIR = $(libdir)
+SUNDIALS_LIBS    = -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared
 
-INCDIRS = -I${SUNDIALS_INC_DIR} ${MPIINC}
-LIBDIRS = -L${SUNDIALS_LIB_DIR} ${MPILIBDIR}
-LIBS    = ${TEMP_LIBS} -lcvodes -lshared -lnvecparallel -lm ${MPILIBS}
+OBJECT_FILES = pvnx.o pvkx.o pvkxb.o pvfnx.o pvfkx.o pvanx.o pvakx.o
+EXEC_FILES   = pvnx pvkx pvkxb pvfnx pvfkx pvanx pvakx
 
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
+all: $(EXEC_FILES)
 
-all: pvnx pvkx pvkxb pvfnx pvfkx pvanx
-
-pvnx : ${srcdir}/pvnx.c
-	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-pvkx : ${srcdir}/pvkx.c
-	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-pvkxb : ${srcdir}/pvkxb.c
-	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-pvfnx : ${srcdir}/pvfnx.c
-	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-pvfkx : ${srcdir}/pvfkx.c
-	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-pvanx : ${srcdir}/pvanx.c
-	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+pvnx: $(srcdir)/pvnx.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvnx.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvnx $(builddir)/pvnx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+pvkx: $(srcdir)/pvkx.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkx.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvkx $(builddir)/pvkx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+pvkxb: $(srcdir)/pvkxb.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkxb.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvkxb $(builddir)/pvkxb.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+pvfnx: $(srcdir)/pvfnx.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfnx.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvfnx $(builddir)/pvfnx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+pvfkx: $(srcdir)/pvfkx.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkx.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvfkx $(builddir)/pvfkx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+pvanx: $(srcdir)/pvanx.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvanx.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvanx $(builddir)/pvanx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+pvakx: $(srcdir)/pvakx.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvakx.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvakx $(builddir)/pvakx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 
 clean:
-	rm -f *.o
-	rm -f pvnx pvkx pvkxb
-	rm -f pvfnx pvfkx
-	rm -f pvanx
-
-#---End of Makefile---
+	@for i in ${EXEC_FILES} ; do             \
+	   $(LIBTOOL) --mode=clean rm -f $${i} ; \
+	   rm -f $${i}.lo ;                      \
+	 done
+	rm -f $(OBJECT_FILES)

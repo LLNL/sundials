@@ -1,77 +1,85 @@
-#--------------------------------------------------------------------------------------
-# File        : Makefile
-# Programmers : Radu Serban @ LLNL
-#--------------------------------------------------------------------------------------
-# Makefile for the parallel NVECTOR module.
+# -----------------------------------------------------------------
+# $Revision: 1.7 $
+# $Date: 2004-10-21 21:10:43 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/shared/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for parallel NVECTOR module
+#
 # @configure_input@
-#--------------------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
-VPATH  = @srcdir@
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
 
-# Archiver program
-AR = @AR@
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-# Compiler and compiler options
-CPPFLAGS  = @CPPFLAGS@
-CFLAGS    = @CFLAGS@
-MPICC     = @MPICC@
-MPIINC    = @MPIINC@
-FCFLAGS   = @FCFLAGS@
+MPICC    = @MPICC@
+MPI_LIBS = @MPI_LIBS@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS   = @CFLAGS@
+LIBS     = @LIBS@
 
-# SHARED and NVECPAR include directory
-SHARED_INC_DIR  = ${srcdir}/../shared/include
-NVECPAR_INC_DIR = ${srcdir}
+SUNDIALS_INC_DIR         = $(includedir)
+MPI_INC_DIR              = @MPI_INC_DIR@
+SHARED_INC_DIR           = $(srcdir)/../shared/include
+NVECTOR_PARALLEL_INC_DIR = $(srcdir)
 
-INCDIRS = -I${SHARED_INC_DIR} -I${NVECPAR_INC_DIR} ${MPIINC}
+NVECTOR_PARALLEL_LIB       = libsundials_nvecparallel.la
+NVECTOR_PARALLEL_LIB_FILES = nvector_parallel.lo
 
-# NVECPARALLEL libraries
-NVECPAR_LIB  = libnvecparallel.a
-FNVECPAR_LIB = libfnvecparallel.a
+FNVECTOR_PARALLEL_LIB       = libsundials_fnvecparallel.la
+FNVECTOR_PARALLEL_LIB_FILES = fnvector_parallel.lo
 
-# Source and object files
-SRC =	${srcdir}/nvector_parallel.c \
-	${srcdir}/fnvector_parallel.c
+OBJECT_FILES = nvector_parallel.o fnvector_parallel.o
 
-OBJ = nvector_parallel.o fnvector_parallel.o
+all: $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
 
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
-
-all: ${OBJ}
-
-
-install: ${OBJ}
-	${AR} ${NVECPAR_LIB} nvector_parallel.o
-	${AR} ${FNVECPAR_LIB} fnvector_parallel.o
-	cp ${NVECPAR_LIB}  ${libdir}
-	cp ${FNVECPAR_LIB} ${libdir}
-	cp ${NVECPAR_INC_DIR}/nvector_parallel.h  ${includedir}
-	cp ${NVECPAR_INC_DIR}/fnvector_parallel.h ${includedir}
+install: $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) -o $(NVECTOR_PARALLEL_LIB) $(NVECTOR_PARALLEL_LIB_FILES) -rpath $(libdir) $(LIBS) $(MPI_LIBS) -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_PARALLEL_LIB) $(libdir)
+	$(INSTALL_HEADER) $(NVECTOR_PARALLEL_INC_DIR)/nvector_parallel.h $(includedir)
+	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) -o $(FNVECTOR_PARALLEL_LIB) $(FNVECTOR_PARALLEL_LIB_FILES) -rpath $(libdir) $(LIBS) $(MPI_LIBS) -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FNVECTOR_PARALLEL_LIB) $(libdir)
+	$(INSTALL_HEADER) $(NVECTOR_PARALLEL_INC_DIR)/fnvector_parallel.h $(includedir)
 
 clean:
-	rm -f ${OBJ}
-	rm -f ${NVECPAR_LIB}
-	rm -f ${FNVECPAR_LIB}
+	$(LIBTOOL) --mode=clean rm -f $(NVECTOR_PARALLEL_LIB)
+	rm -f $(NVECTOR_PARALLEL_LIB_FILES)
+	$(LIBTOOL) --mode=clean rm -f $(FNVECTOR_PARALLEL_LIB)
+	rm -f $(FNVECTOR_PARALLEL_LIB_FILES)
+	rm -f $(OBJECT_FILES)
 
 uninstall:
-	rm -f ${libdir}/${NVECPAR_LIB}
-	rm -f ${libdir}/${FNVECPAR_LIB}
-	rm -f ${includedir}/nvector_parallel.h
-	rm -f ${includedir}/fnvector_parallel.h
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECTOR_PARALLEL_LIB)
+	rm -f $(includedir)/nvector_parallel.h
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FNVECTOR_PARALLEL_LIB)
+	rm -f $(includedir)/fnvector_parallel.h
 
-.c.o:
-	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS} -o $@ $<
+nvector_parallel.lo: $(srcdir)/nvector_parallel.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(NVECTOR_PARALLEL_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector_parallel.c
+fnvector_parallel.lo: $(srcdir)/fnvector_parallel.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(NVECTOR_PARALLEL_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/fnvector_parallel.c
 
-#---End of Makefile---
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd $(top_builddir) ;                 \
+	 $(SHELL) ./config.status --recheck ; \
+	 cd $(abs_builddir)

@@ -1,72 +1,79 @@
-#--------------------------------------------------------------------------------
-# File        : Makefile
-# Programmers : Radu Serban @ LLNL
-# Version of  : 
-#--------------------------------------------------------------------------------
-# Makefile for the FKINSOL package.
+# -----------------------------------------------------------------
+# $Revision: 1.6 $
+# $Date: 2004-10-21 21:12:14 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/kinsol/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for FKINSOL module
+#
 # @configure_input@
-#--------------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
-SHELL = /bin/sh
+SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
-VPATH  = @srcdir@
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
 
-# Archiver program
-AR = @AR@
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-# Compiler and compiler options
-CC       = @CC@
+CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
 CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
 
-FCFLAGS  = @FCFLAGS@
+SUNDIALS_INC_DIR = $(includedir)
+SHARED_INC_DIR   = $(srcdir)/../../shared/include
+KINSOL_INC_DIR   = $(srcdir)/../include
+FKINSOL_INC_DIR  = $(srcdir)
 
-# KINSOL and SHARED include directories
-SHARED_INC_DIR  = ${srcdir}/../../shared/include
-KINSOL_INC_DIR  = ${srcdir}/../include
-FKINSOL_INC_DIR = ${srcdir}
+FKINSOL_LIB       = libsundials_fkinsol.la
+FKINSOL_LIB_FILES = fkinsol.lo fkinpreco.lo fkinpsol.lo fkinjtimes.lo fkinbbd.lo
 
-INCDIRS = -I${FKINSOL_INC_DIR} -I${KINSOL_INC_DIR} -I${SHARED_INC_DIR}
+OBJECT_FILES = fkinsol.o fkinpreco.o fkinpsol.o fkinjtimes.o fkinbbd.o
 
-# FKINSOL library name
-FKINSOL_LIB = libfkinsol.a
+all: $(FKINSOL_LIB_FILES)
 
-# Source and object files
-SRC =	${srcdir}/fkinsol.c \
-	${srcdir}/fkinpreco.c \
-	${srcdir}/fkinpsol.c \
-	${srcdir}/fkinjtimes.c \
-	${srcdir}/fkinbbd.c
-
-OBJ = fkinsol.o fkinpreco.o fkinpsol.o fkinjtimes.o fkinbbd.o
-
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
-
-all: ${OBJ}
-
-install: ${OBJ}
-	${AR} ${FKINSOL_LIB} ${OBJ}
-	cp ${FKINSOL_LIB} ${libdir}
+install: $(FKINSOL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FKINSOL_LIB) $(FKINSOL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FKINSOL_LIB) $(libdir)
 
 clean:
-	rm -f ${OBJ}
-	rm -f ${FKINSOL_LIB}
+	$(LIBTOOL) --mode=clean rm -f $(FKINSOL_LIB)
+	rm -f $(FKINSOL_LIB_FILES)
+	rm -f $(OBJECT_FILES)
 
 uninstall:
-	rm -f ${libdir}/${FKINSOL_LIB}
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FKINSOL_LIB)
 
-.c.o:
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS} -o $@ $<
+fkinsol.lo: $(srcdir)/fkinsol.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinsol.c
+fkinpreco.lo: $(srcdir)/fkinpreco.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinpreco.c
+fkinpsol.lo: $(srcdir)/fkinpsol.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinpsol.c
+fkinjtimes.lo: $(srcdir)/fkinjtimes.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinjtimes.c
+fkinbbd.lo: $(srcdir)/fkinbbd.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinbbd.c
 
-#---End of Makefile---
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd $(top_builddir) ;                 \
+	 $(SHELL) ./config.status --recheck ; \
+	 cd $(abs_builddir)

@@ -1,78 +1,89 @@
-#--------------------------------------------------------------------------------
-# File        : Makefile
-# Programmers : Radu Serban @ LLNL
-#--------------------------------------------------------------------------------
-# Makefile for the IDA package.
+# -----------------------------------------------------------------
+# $Revision: 1.5 $
+# $Date: 2004-10-21 21:11:40 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/ida/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for IDA module
+#
 # @configure_input@
-#--------------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
-VPATH  = @srcdir@
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
 
-# Archiver program
-AR = @AR@
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-# Compiler and compiler options
-CC       = @CC@
+CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
 CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
 
-# IDA and SHARED include directories
-SHARED_INC_DIR = ${srcdir}/../../shared/include
-IDA_INC_DIR    = ${srcdir}/../include
+SUNDIALS_INC_DIR = $(includedir)
+SHARED_INC_DIR   = $(srcdir)/../../shared/include
+IDA_INC_DIR      = $(srcdir)/../include
 
-INCDIRS = -I${IDA_INC_DIR} -I${SHARED_INC_DIR}
+IDA_LIB       = libsundials_ida.la
+IDA_LIB_FILES = ida.lo idadense.lo idaband.lo idaspgmr.lo idabbdpre.lo
 
-# IDA library name
-IDA_LIB = libida.a
+OBJECT_FILES = ida.o idadense.o idaband.o idaspgmr.o idabbdpre.o
 
-# Source and object files
-SRC =	${srcdir}/ida.c \
-	${srcdir}/idaband.c \
-	${srcdir}/idadense.c \
-	${srcdir}/idaspgmr.c \
-	${srcdir}/idabbdpre.c
+all: $(IDA_LIB_FILES)
 
-OBJ = ida.o idaband.o idadense.o idaspgmr.o idabbdpre.o
-
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
-
-all: ${OBJ}
-
-install: ${OBJ}
-	${AR} ${IDA_LIB} ${OBJ}
-	cp ${IDA_LIB} ${libdir}
-	cp ${IDA_INC_DIR}/ida.h       ${includedir}
-	cp ${IDA_INC_DIR}/idadense.h  ${includedir}
-	cp ${IDA_INC_DIR}/idaband.h   ${includedir}
-	cp ${IDA_INC_DIR}/idaspgmr.h  ${includedir}
-	cp ${IDA_INC_DIR}/idabbdpre.h ${includedir}
+install: $(IDA_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDA_LIB) $(IDA_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(IDA_LIB) $(libdir)
+	$(INSTALL_HEADER) $(IDA_INC_DIR)/ida.h $(includedir)
+	$(INSTALL_HEADER) $(IDA_INC_DIR)/idadense.h $(includedir)
+	$(INSTALL_HEADER) $(IDA_INC_DIR)/idaband.h $(includedir)
+	$(INSTALL_HEADER) $(IDA_INC_DIR)/idaspgmr.h $(includedir)
+	$(INSTALL_HEADER) $(IDA_INC_DIR)/idabbdpre.h $(includedir)
 
 clean:
-	rm -f ${OBJ}
-	rm -f ${IDA_LIB}
+	$(LIBTOOL) --mode=clean rm -f $(IDA_LIB)
+	rm -f $(IDA_LIB_FILES)
+	rm -f $(OBJECT_FILES)
 
 uninstall:
-	rm -f ${libdir}/${IDA_LIB}
-	rm -f ${includedir}/ida.h
-	rm -f ${includedir}/idadense.h
-	rm -f ${includedir}/idaband.h
-	rm -f ${includedir}/idaspgmr.h
-	rm -f ${includedir}/idabbdpre.h
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDA_LIB)
+	rm -f $(includedir)/ida.h
+	rm -f $(includedir)/idadense.h
+	rm -f $(includedir)/idaband.h
+	rm -f $(includedir)/idaspgmr.h
+	rm -f $(includedir)/idabbdpre.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+ida.lo: $(srcdir)/ida.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/ida.c
+idadense.lo: $(srcdir)/idadense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idadense.c
+idaband.lo: $(srcdir)/idaband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idaband.c
+idaspgmr.lo: $(srcdir)/idaspgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idaspgmr.c
+idabbdpre.lo: $(srcdir)/idabbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idabbdpre.c
 
-#---End of Makefile---
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd $(top_builddir) ;                 \
+	 $(SHELL) ./config.status --recheck ; \
+	 cd $(abs_builddir)

@@ -1,48 +1,54 @@
-# File Makefile
-#--------------------------------------------------------------------------
-# Makefile for the KINSOL examples using the serial N_Vector implementation.
+# -----------------------------------------------------------------
+# $Revision: 1.4 $
+# $Date: 2004-10-21 21:12:18 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/kinsol/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for KINSOL serial examples
+#
 # @configure_input@
-#--------------------------------------------------------------------------
+# -----------------------------------------------------------------
 
-# Shell
 SHELL = @SHELL@
 
-# SUNDIALS instalation directory
-prefix      = @prefix@
-exec_prefix = @exec_prefix@
-includedir  = @includedir@
-libdir      = @libdir@
+srcdir       = @srcdir@
+builddir     = @builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
 
-# Path to sources
-srcdir = @srcdir@
+LIBTOOL = @LIBTOOL@
 
-# Compiler and compiler options
-CC       = @CC@
+CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
 CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
-TEMP_LIBS     = @LIBS@
+LIBS     = @LIBS@
 
-# SUNDIALS library and include directories
-SUNDIALS_INC_DIR = ${includedir}
-SUNDIALS_LIB_DIR = ${libdir}
+SUNDIALS_INC_DIR = $(includedir)
+SUNDIALS_LIB_DIR = $(libdir)
+SUNDIALS_LIBS    = -lsundials_kinsol -lsundials_nvecserial -lsundials_shared
 
-INCDIRS = -I${SUNDIALS_INC_DIR}
-LIBDIRS = -L${SUNDIALS_LIB_DIR}
-LIBS    = ${TEMP_LIBS} -lkinsol -lshared -lnvecserial -lm
+OBJECT_FILES = kinwebs.o
+EXEC_FILES   = kinwebs
 
-#--------------------------------------------------------------------------------
-# Make rules
-#--------------------------------------------------------------------------------
+all: $(EXEC_FILES)
 
-all: kinwebs
-
-kinwebs : ${srcdir}/kinwebs.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+kinwebs: $(srcdir)/kinwebs.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/kinwebs.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kinwebs $(builddir)/kinwebs.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 
 clean:
-	rm -f *.o
-	rm -f kinwebs
-
-#---End of Makefile---
+	@for i in ${EXEC_FILES} ; do             \
+	   $(LIBTOOL) --mode=clean rm -f $${i} ; \
+	   rm -f $${i}.lo ;                      \
+	 done
+	rm -f $(OBJECT_FILES)
