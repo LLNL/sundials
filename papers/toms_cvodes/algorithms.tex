@@ -58,7 +58,7 @@ identify these equations separately from those in~(\ref{e:ivp}) and
 provides the option of including or excluding $\phi$ from the error
 control algorithm.
 A similar treatment of quadratures is included in the DASPK3
-code~\cite{LiPe:00,LiPe:04}.
+code~\cite{LiPe:99a,LiPe:00}.
 
 
 A complete description of the CVODES integration algorithm, including 
@@ -179,6 +179,10 @@ will perform the error test for each sensitivity vector $s_i$ ($i=1,\ldots,N_s$)
 individually, as they pass the convergence test. Differences in performance
 between the two variants may therefore be noticed whenever one of the sensitivity 
 vectors $s_i$ fails a convergence or error test. 
+
+We note that the DASPK3.0 code \cite{LiPe:99b,LiPe:99a} implements the staggered
+direct, simultaneous corrector, and staggered corrector methods. The code
+DSL48S \cite{FTB:97,Fee:98} also contains the staggered corrector method.
 
 \subsubsection{Selection of the absolute tolerances for sensitivity variables}
 If the sensitivities are included in the error test, CVODES provides an 
@@ -360,7 +364,7 @@ the forward integration, and there is no major penalty for writing and then read
 check point data to/from a temporary file.
 %
 
-Finally, we note that the adjoint sensitivity module in CVODES provides the 
+We note that the adjoint sensitivity module in CVODES provides the 
 infrastructure to integrate backwards in time any ODE terminal value problem
 dependent on the solution of the IVP (\ref{e:ivp}), including
 the adjoint system (\ref{e:adj_eqns}), as well as any other
@@ -369,3 +373,11 @@ In particular, for ODE systems arising from semi-discretization
 of time-dependent PDEs, this feature allows for integration either of the 
 discretized adjoint PDE system or of the adjoint of the discretized PDE,
 since these two formulations are not equivalent~\cite{ArSa:97,LiPe:04}.
+
+Finally, we mention that, when using the backward integration module for adjoint
+sensitivity analysis, the CVODES interface allows for user-provided
+functions for the evaluation of the adjoint systems that are generated through
+reverse automatic differentiation. Due to the current development stage of
+reverse AD tools for C codes, CVODES cannot provide generic wrappers
+(as done, for example, in DASPKADJOINT for Fortran77 codes). At this time, the
+burden of interfacing CVODE with AD-generated functions must rely on the user.
