@@ -1739,7 +1739,6 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
   N_VScale (ONE, phi[0], yret);
   N_VConst (ZERO, ypret);
   kord = kused; 
-  /*if (kused == 0 || t == tn) kord = 1;*/
   if (kused == 0) kord = 1;
 
  /* Accumulate multiples of columns phi[j] into yret and ypret. */
@@ -3644,10 +3643,14 @@ static int IDACompleteStep(IDAMem IDA_mem, realtype *est,
   /* For the first few steps, until either a step fails, or the order is 
   reduced, or the order reaches its maximum, we raise the order and double 
   the stepsize. During these steps, phase = 0. Thereafter, phase = 1, and
-  stepsize and order are set by the usual local error algorithm.         */
+  stepsize and order are set by the usual local error algorithm. 
+
+  Note that, after the first step, the order is not increased, as not all
+  of the neccessary information is available yet.
+  */
   
   if (phase  == 0) {
-    kk++;
+    if(nst>1) kk++;
     hnew = TWO * hh;
     hh = hnew;
   }
