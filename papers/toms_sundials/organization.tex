@@ -31,8 +31,8 @@ keeping the entire set of solvers in mind. Thus, CVODE, KINSOL, and IDA share
 much in their organization and have a number of common modules.  The
 separation of the linear solvers from the core integrators allows for easy
 addition of linear solvers not currently included in SUNDIALS. At the bottom
-level is the NVECTOR module, providing key vector operations such as
-duplication, destruction, summation, and dot-products on potentially
+level is the NVECTOR module, providing key vector operations such as creation,
+duplication, destruction, summation, and dot products on potentially
 distributed data vectors. Serial and parallel NVECTOR implementations are
 included with SUNDIALS, but a user can substitute his/her own implementation
 as useful. Two small modules defining several data types and elementary
