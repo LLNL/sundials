@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.16 $
-C     $Date: 2004-10-15 17:07:34 $
+C     $Revision: 1.17 $
+C     $Date: 2004-10-21 18:58:38 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -151,7 +151,7 @@ C Loop over grid and load initial values.
         DO 10 J = 1, MY
           Y = J * DY
           U0(J,I) = X * (XMAX - X) * Y * (YMAX - Y) *
-     *              DEXP(5.0D0 * X * Y)
+     *              EXP(5.0D0 * X * Y)
  10       CONTINUE
  20     CONTINUE
 C
@@ -167,7 +167,7 @@ C
 C
       TEMP = 0.0D0
       DO 10 I = 1, N
-         TEMP = DMAX1(DABS(U(I)), TEMP)
+         TEMP = MAX(ABS(U(I)), TEMP)
  10   CONTINUE
       UNORM = TEMP
       RETURN

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.10 $
-C     $Date: 2004-10-15 20:20:17 $
+C     $Revision: 1.11 $
+C     $Date: 2004-10-21 18:58:44 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
 C     ----------------------------------------------------------------
@@ -116,8 +116,8 @@ C
 C Get max. absolute error in the local vector.
       ERMAX = 0.0D0
       DO 75 I = 1, NLOCAL
-        ERRI  = Y(I) - DEXP(-ALPHA * (MYPE * NLOCAL + I) * T)
-        ERMAX = DMAX1(ERMAX, DABS(ERRI))
+        ERRI  = Y(I) - EXP(-ALPHA * (MYPE * NLOCAL + I) * T)
+        ERMAX = MAX(ERMAX, ABS(ERRI))
   75    CONTINUE
 C Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.17 $
-C     $Date: 2004-10-15 22:25:35 $
+C     $Revision: 1.18 $
+C     $Date: 2004-10-21 18:58:44 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -150,8 +150,8 @@ C
 C     Get max. absolute error in the local vector.
       ERMAX = 0.0D0
       DO 65 I = 1, NLOCAL
-         ERRI  = Y(I) - DEXP(-ALPHA * (MYPE * NLOCAL + I) * T)
-         ERMAX = DMAX1(ERMAX, DABS(ERRI))
+         ERRI  = Y(I) - EXP(-ALPHA * (MYPE * NLOCAL + I) * T)
+         ERMAX = MAX(ERMAX, ABS(ERRI))
  65   CONTINUE
 C     Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
@@ -266,7 +266,7 @@ C
       RETURN
       END
 C
-      SUBROUTINE FCVLOCFN(NLOC, T, YLOC, GLOC)
+      SUBROUTINE FCVGLOCFN(NLOC, T, YLOC, GLOC)
 C     Routine to define local approximate function g, here the same as f. 
       IMPLICIT NONE
 C
@@ -279,7 +279,7 @@ C
       RETURN
       END
       
-      SUBROUTINE FCVCOMMF(NLOC, T, YLOC)
+      SUBROUTINE FCVCOMMFN(NLOC, T, YLOC)
 C     Routine to perform communication required for evaluation of g.
       RETURN
       END

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.9 $
-C     $Date: 2004-10-15 00:25:22 $
+C     $Revision: 1.10 $
+C     $Date: 2004-10-21 18:59:18 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -233,10 +233,10 @@ C
       COMMON /PCOM/ HDCO, VDCO, HACO, MX, MY, MM
 C     
 C     Set diurnal rate coefficients.
-      S = DSIN(OM * T)
+      S = SIN(OM * T)
       IF (S .GT. 0.0D0) THEN
-         Q3 = DEXP(-A3 / S)
-         Q4 = DEXP(-A4 / S)
+         Q3 = EXP(-A3 / S)
+         Q4 = EXP(-A4 / S)
       ELSE
          Q3 = 0.0D0
          Q4 = 0.0D0
@@ -246,8 +246,8 @@ C     Loop over all grid points.
       DO 20 JY = 1, MY
          YDN = 30.0D0 + (JY - 1.5D0) * DY
          YUP = YDN + DY
-         CYDN = VDCO * DEXP(0.2D0 * YDN)
-         CYUP = VDCO * DEXP(0.2D0 * YUP)
+         CYDN = VDCO * EXP(0.2D0 * YDN)
+         CYUP = VDCO * EXP(0.2D0 * YUP)
          IBLOK0 = (JY - 1) * MX
          IDN = -MX
          IF (JY .EQ. 1) IDN = MX

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.14 $
-C     $Date: 2004-10-15 20:20:16 $
+C     $Revision: 1.15 $
+C     $Date: 2004-10-21 18:58:44 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
@@ -138,8 +138,8 @@ C
 C Get max. absolute error in the local vector.
       ERMAX = 0.0D0
       DO 75 I = 1, NLOCAL
-        ERRI  = Y(I) - DEXP(-ALPHA * (MYPE * NLOCAL + I) * T)
-  75    ERMAX = DMAX1(ERMAX, DABS(ERRI))
+        ERRI  = Y(I) - EXP(-ALPHA * (MYPE * NLOCAL + I) * T)
+  75    ERMAX = MAX(ERMAX, ABS(ERRI))
 C Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
      1                0, MPI_COMM_WORLD, IER)
@@ -227,8 +227,8 @@ C
 C Get max. absolute error in the local vector.
       ERMAX = 0.0D0
       DO 175 I = 1, NLOCAL
-        ERRI  = Y(I) - DEXP(-ALPHA * (MYPE * NLOCAL + I) * T)
- 175    ERMAX = DMAX1(ERMAX, DABS(ERRI))
+        ERRI  = Y(I) - EXP(-ALPHA * (MYPE * NLOCAL + I) * T)
+ 175    ERMAX = MAX(ERMAX, ABS(ERRI))
 C Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
      1                0, MPI_COMM_WORLD, IER)
@@ -307,7 +307,7 @@ C
  10     Z(I) = R(I)
 C
       IBASE = MYPE * NLOCAL
-      ISTART = MAX0(1, 4 - IBASE)
+      ISTART = MAX(1, 4 - IBASE)
       DO 20 I = ISTART, NLOCAL
         PSUBI = 1.0D0 + GAMMA * ALPHA * (IBASE + I)
         Z(I) = Z(I) / PSUBI
