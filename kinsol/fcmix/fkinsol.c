@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-06-02 23:06:11 $
+ * $Revision: 1.19 $
+ * $Date: 2004-06-18 21:36:28 $
  * ----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -51,7 +51,7 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
     return;
   }
 
-  constr_vec = N_VMake(constraints, F2C_nvspec);
+  constr_vec = N_VMake((void *)constraints, F2C_nvspec);
 
   KINSetMaxPrecCalls(KIN_mem, *msbpre);
   KINSetFuncNormTol(KIN_mem, *fnormtol);
@@ -107,9 +107,9 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   long int nliters, npevals, npsolves, nlcfails;
   N_Vector uuvec, uscalevec, fscalevec;
 
-  uuvec = N_VMake(uu, F2C_nvspec);
-  uscalevec = N_VMake(uscale, F2C_nvspec);
-  fscalevec = N_VMake(fscale, F2C_nvspec);
+  uuvec = N_VMake((void *)uu, F2C_nvspec);
+  uscalevec = N_VMake((void *)uscale, F2C_nvspec);
+  fscalevec = N_VMake((void *)fscale, F2C_nvspec);
 
   *ier = KINSol(KIN_mem, uuvec, *globalstrategy, uscalevec, fscalevec);
 
@@ -181,10 +181,10 @@ void FKINfunc(N_Vector uu, N_Vector fval, void *f_data)
 {
   realtype *udata, *fdata;
 
-  udata = N_VGetData(uu);
-  fdata = N_VGetData(fval);
+  udata = (realtype *) N_VGetData(uu);
+  fdata = (realtype *) N_VGetData(fval);
 
   FK_FUN(udata, fdata);
 
-  N_VSetData(fdata, fval);
+  N_VSetData((void *)fdata, fval);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-04-29 22:23:21 $
+ * $Revision: 1.9 $
+ * $Date: 2004-06-18 21:33:49 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -58,17 +58,17 @@ int FCVPSol(realtype t, N_Vector y, N_Vector fy,
 
   CVodeGetErrWeights(CV_cvodemem, &ewt);
 
-  ydata = N_VGetData(y);
-  fydata = N_VGetData(fy);
-  vtdata = N_VGetData(vtemp);
-  ewtdata = N_VGetData(ewt);
-  rdata = N_VGetData(r);
-  zdata = N_VGetData(z);
+  ydata   = (realtype *) N_VGetData(y);
+  fydata  = (realtype *) N_VGetData(fy);
+  vtdata  = (realtype *) N_VGetData(vtemp);
+  ewtdata = (realtype *) N_VGetData(ewt);
+  rdata   = (realtype *) N_VGetData(r);
+  zdata   = (realtype *) N_VGetData(z);
 
   FCV_PSOL(&t, ydata, fydata, vtdata, &gamma, ewtdata, &delta,
            rdata, &lr, zdata, &ier);
 
-  N_VSetData(zdata, z);
+  N_VSetData((void *)zdata, z);
 
   return(ier);
 }

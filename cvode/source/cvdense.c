@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-05-26 19:54:25 $
+ * $Revision: 1.15 $
+ * $Date: 2004-06-18 21:33:52 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -114,6 +114,13 @@ static void CVDenseDQJac(long int n, DenseMat J, realtype t,
  * TRUE, and the d_jac field to the default CVDenseDQJac.
  * Finally, it allocates memory for M, savedJ, and pivots.
  * The return value is SUCCESS = 0, or LMEM_FAIL = -1.
+ *
+ * NOTE: The band linear solver assumes a serial implementation
+ *       of the NVECTOR package. Therefore, CVDense will first 
+ *       test for compatible a compatible N_Vector internal
+ *       representation by checking (1) the vector specification
+ *       ID tag and (2) that the functions N_VMake, N_VDispose,
+ *       N_VGetData, and N_VSetData are implemented.
  * -----------------------------------------------------------------
  */
 
@@ -130,8 +137,8 @@ int CVDense(void *cvode_mem, long int N)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
-  if ((strcmp(nvspec->tag,"serial")) || 
-      nvspec->ops->nvmake    == NULL || 
+  if ((strcmp(nvspec->tag,"serial")) ||
+      nvspec->ops->nvmake    == NULL ||
       nvspec->ops->nvdispose == NULL ||
       nvspec->ops->nvgetdata == NULL || 
       nvspec->ops->nvsetdata == NULL) {
@@ -466,9 +473,9 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   cvdense_mem = (CVDenseMem) lmem;
   
-  bd = N_VGetData(b);
+  bd = (realtype *) N_VGetData(b);
   DenseBacksolve(M, pivots, bd);
-  N_VSetData(bd, b);
+  N_VSetData((void *)bd, b);
 
   /* If BDF, scale the correction to account for change in gamma */
   if ((lmm == BDF) && (gamrat != ONE)) {
@@ -532,8 +539,8 @@ static void CVDenseDQJac(long int N, DenseMat J, realtype t,
   ftemp = tmp1; /* Rename work vector for use as f vector value */
 
   /* Obtain pointers to the data for ewt, y */
-  ewt_data   = N_VGetData(ewt);
-  y_data     = N_VGetData(y);
+  ewt_data   = (realtype *) N_VGetData(ewt);
+  y_data     = (realtype *) N_VGetData(y);
 
   /* Set minimum increment based on uround and norm of f */
   srur = RSqrt(uround);
@@ -542,26 +549,26 @@ static void CVDenseDQJac(long int N, DenseMat J, realtype t,
            (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
 
   /* j loop overwrites this data address */
-  jthCol = N_VMake(DENSE_COL(J,0), nvspec);
+  jthCol = N_VMake((void *)DENSE_COL(J,0), nvspec);
 
   /* This is the only for loop for 0..N-1 in CVODE */
   for (j = 0; j < N; j++) {
 
     /* Generate the jth col of J(tn,y) */
     
-    N_VSetData(DENSE_COL(J,j), jthCol);
+    N_VSetData((void *)DENSE_COL(J,j), jthCol);
     yjsaved = y_data[j];
     inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
-    N_VSetData(y_data, y);
+    N_VSetData((void *)y_data, y);
     f(tn, y, ftemp, f_data);
     inc_inv = ONE/inc;
     N_VLinearSum(inc_inv, ftemp, -inc_inv, fy, jthCol);
-    DENSE_COL(J,j) = N_VGetData(jthCol);
+    DENSE_COL(J,j) = (realtype *) N_VGetData(jthCol);
     y_data[j] = yjsaved;
   }
 
-  N_VSetData(y_data, y);
+  N_VSetData((void *)y_data, y);
 
   N_VDispose(jthCol);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-04-29 22:23:21 $
+ * $Revision: 1.9 $
+ * $Date: 2004-06-18 21:33:49 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -53,15 +53,15 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
   realtype *vdata, *Jvdata, *ydata, *fydata, *wkdata;
   int ier = 0;
 
-  vdata = N_VGetData(v);
-  Jvdata = N_VGetData(Jv);
-  ydata = N_VGetData(y);
-  fydata = N_VGetData(fy);
-  wkdata = N_VGetData(work);
+  vdata  = (realtype *) N_VGetData(v);
+  Jvdata = (realtype *) N_VGetData(Jv);
+  ydata  = (realtype *) N_VGetData(y);
+  fydata = (realtype *) N_VGetData(fy);
+  wkdata = (realtype *) N_VGetData(work);
 
   FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, wkdata, &ier);
 
-  N_VSetData(Jvdata, Jv);
+  N_VSetData((void *)Jvdata, Jv);
 
   return(ier);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-05-26 18:37:07 $
+ * $Revision: 1.7 $
+ * $Date: 2004-06-18 21:35:02 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a            
  * band-block-diagonal preconditioner, i.e. a block-diagonal       
- * matrix with banded blocks, for use with CVODE, CVSpgmr, and     
+ * matrix with banded blocks, for use with CVODES, CVSpgmr, and     
  * the parallel implementation of NVECTOR.                         
  * -----------------------------------------------------------------
  */
@@ -398,9 +398,9 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   /* Copy r to z, then do backsolve and return */
   N_VScale(ONE, r, z);
   
-  zd = N_VGetData(z);
+  zd = (realtype *) N_VGetData(z);
   BandBacksolve(savedP, pivots, zd);
-  N_VSetData(zd, z);
+  N_VSetData((void *)zd, z);
 
   return(0);
 }
@@ -439,17 +439,17 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Obtain pointers to the data for the y and ewt vectors */
-  y_data     = N_VGetData(y);
-  ewt_data   = N_VGetData(ewt);
+  y_data     = (realtype *) N_VGetData(y);
+  ewt_data   = (realtype *) N_VGetData(ewt);
 
   /* Load ytemp with y = predicted solution vector */
   N_VScale(ONE, y, ytemp);
-  ytemp_data = N_VGetData(ytemp);
+  ytemp_data = (realtype *) N_VGetData(ytemp);
 
   /* Call cfn and gloc to get base value of g(t,y) */
   cfn (Nlocal, t, y, f_data);
   gloc(Nlocal, t, ytemp, gy, f_data);
-  gy_data    = N_VGetData(gy);
+  gy_data    = (realtype *) N_VGetData(gy);
 
   /* Set minimum increment based on uround and norm of g */
   gnorm = N_VWrmsNorm(gy, ewt);
@@ -470,9 +470,9 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
     }
 
     /* Evaluate g with incremented y */
-    N_VSetData(ytemp_data, ytemp);
+    N_VSetData((void *)ytemp_data, ytemp);
     gloc(Nlocal, t, ytemp, gtemp, f_data);
-    gtemp_data = N_VGetData(gtemp);
+    gtemp_data = (realtype *) N_VGetData(gtemp);
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < Nlocal; j+=width) {

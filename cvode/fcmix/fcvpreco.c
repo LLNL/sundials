@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-04-29 22:23:21 $
+ * $Revision: 1.10 $
+ * $Date: 2004-06-18 21:33:49 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,12 +63,12 @@ int FCVPSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
   CVodeGetLastStep(CV_cvodemem, &h);
   uround = UNIT_ROUNDOFF;
 
-  ydata   = N_VGetData(y);
-  fydata  = N_VGetData(fy);
-  ewtdata = N_VGetData(ewt);
-  v1data  = N_VGetData(vtemp1);
-  v2data  = N_VGetData(vtemp2);
-  v3data  = N_VGetData(vtemp3);
+  ydata   = (realtype *) N_VGetData(y);
+  fydata  = (realtype *) N_VGetData(fy);
+  ewtdata = (realtype *) N_VGetData(ewt);
+  v1data  = (realtype *) N_VGetData(vtemp1);
+  v2data  = (realtype *) N_VGetData(vtemp2);
+  v3data  = (realtype *) N_VGetData(vtemp3);
 
   FCV_PSET(&t, ydata, fydata, &jok, jcurPtr, &gamma, ewtdata,
            &h, &uround, v1data, v2data, v3data, &ier);

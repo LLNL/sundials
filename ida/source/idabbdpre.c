@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-06-02 23:14:21 $
+ * $Revision: 1.17 $
+ * $Date: 2004-06-18 21:36:13 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -370,9 +370,9 @@ int IDABBDPrecSolve(realtype tt,
   /* Copy rvec to zvec, do the backsolve, and return. */
   N_VScale(ONE, rvec, zvec);
 
-  zd = N_VGetData(zvec);
+  zd = (realtype *) N_VGetData(zvec);
   BandBacksolve(PP, pivots, zd);
-  N_VSetData(zd, zvec);
+  N_VSetData((void *)zd, zvec);
 
   return(0);
 }
@@ -417,21 +417,21 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
   /* Obtain pointers as required to the data array of vectors. */
 
-  ydata     = N_VGetData(yy);
-  ypdata    = N_VGetData(yp);
+  ydata     = (realtype *) N_VGetData(yy);
+  ypdata    = (realtype *) N_VGetData(yp);
 
-  gtempdata = N_VGetData(gtemp);
+  gtempdata = (realtype *) N_VGetData(gtemp);
 
-  ewtdata = N_VGetData(ewt);
-  if (constraints != NULL) cnsdata = N_VGetData(constraints);
+  ewtdata = (realtype *) N_VGetData(ewt);
+  if (constraints != NULL) cnsdata = (realtype *) N_VGetData(constraints);
 
   /* Initialize ytemp and yptemp. */
 
   N_VScale(ONE, yy, ytemp);
   N_VScale(ONE, yp, yptemp);
 
-  ytempdata = N_VGetData(ytemp);
-  yptempdata= N_VGetData(yptemp);
+  ytempdata = (realtype *) N_VGetData(ytemp);
+  yptempdata= (realtype *) N_VGetData(yptemp);
 
   /* Call gcomm and glocal to get base value of G(t,y,y'). */
 
@@ -442,7 +442,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   nge++;
   if (retval != 0) return(retval);
 
-  grefdata = N_VGetData(gref);
+  grefdata = (realtype *) N_VGetData(gref);
 
   /* Set bandwidth and number of column groups for band differencing. */
 
@@ -480,14 +480,14 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
     /* Evaluate G with incremented y and yp arguments. */
 
-    N_VSetData(ytempdata, ytemp);
-    N_VSetData(yptempdata, yptemp);
+    N_VSetData((void *)ytempdata, ytemp);
+    N_VSetData((void *)yptempdata, yptemp);
 
     retval = glocal(Nlocal, tt, ytemp, yptemp, gtemp, res_data); 
     nge++;
     if (retval != 0) return(retval);
 
-    gtempdata = N_VGetData(gtemp);
+    gtempdata = (realtype *) N_VGetData(gtemp);
     
     /* Loop over components of the group again; restore ytemp and yptemp. */
     for(j = group-1; j < Nlocal; j += width) {

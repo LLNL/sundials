@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-06-09 18:10:06 $
+ * $Revision: 1.4 $
+ * $Date: 2004-06-18 21:33:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -50,7 +50,7 @@ void FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data)
 {
   realtype *ydata;
 
-  ydata = N_VGetData(y);
+  ydata = (realtype *) N_VGetData(y);
 
   FCV_ROOTFN(&t, ydata, gout);
 

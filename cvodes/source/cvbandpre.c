@@ -1,10 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-05-26 18:37:06 $
+ * $Revision: 1.7 $
+ * $Date: 2004-06-18 21:35:02 $
  * ----------------------------------------------------------------- 
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
- *                 Radu Serban @ LLNL
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
+ *              Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California
  * Produced at the Lawrence Livermore National Laboratory
@@ -66,6 +66,12 @@ static void CVBandPDQJac(CVBandPrecData pdata,
 /*
  * -----------------------------------------------------------------
  * Malloc, Free, and Get Functions
+ * NOTE: The band linear solver assumes a serial implementation
+ *       of the NVECTOR package. Therefore, CVBandPrecAlloc will 
+ *       first test for compatible a compatible N_Vector internal
+ *       representation by checking (1) the vector specification
+ *       ID tag and (2) that the functions N_VGetData, and N_VSetData 
+ *       are implemented.
  * -----------------------------------------------------------------
  */
 
@@ -354,9 +360,9 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
   N_VScale(ONE, r, z);
 
   /* Do band backsolve on the vector z. */
-  zd = N_VGetData(z);
+  zd = (realtype *) N_VGetData(z);
   BandBacksolve(savedP, pivots, zd);
-  N_VSetData(zd, z);
+  N_VSetData((void *)zd, z);
 
   return(0);
 }
@@ -392,11 +398,11 @@ static void CVBandPDQJac(CVBandPrecData pdata,
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
-  ewt_data   = N_VGetData(ewt);
-  fy_data    = N_VGetData(fy);
-  ftemp_data = N_VGetData(ftemp);
-  y_data     = N_VGetData(y);
-  ytemp_data = N_VGetData(ytemp);
+  ewt_data   = (realtype *) N_VGetData(ewt);
+  fy_data    = (realtype *) N_VGetData(fy);
+  ftemp_data = (realtype *) N_VGetData(ftemp);
+  y_data     = (realtype *) N_VGetData(y);
+  ytemp_data = (realtype *) N_VGetData(ytemp);
 
   /* Load ytemp with y = predicted y vector. */
   N_VScale(ONE, y, ytemp);
@@ -420,10 +426,10 @@ static void CVBandPDQJac(CVBandPrecData pdata,
     }
 
     /* Evaluate f with incremented y. */
-    N_VSetData(ytemp_data, ytemp);
+    N_VSetData((void *)ytemp_data, ytemp);
     f(t, ytemp, ftemp, f_data);
     nfeBP++;
-    ftemp_data = N_VGetData(ftemp);
+    ftemp_data = (realtype *) N_VGetData(ftemp);
 
     /* Restore ytemp, then form and load difference quotients. */
     for (j = group-1; j < N; j += width) {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-04-29 22:23:21 $
+ * $Revision: 1.5 $
+ * $Date: 2004-06-18 21:33:49 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -57,11 +57,11 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   long int eband;
 
-  ydata = N_VGetData(y);
-  fydata = N_VGetData(fy);
-  v1data  = N_VGetData(vtemp1);
-  v2data  = N_VGetData(vtemp2);
-  v3data  = N_VGetData(vtemp3);
+  ydata  = (realtype *) N_VGetData(y);
+  fydata = (realtype *) N_VGetData(fy);
+  v1data = (realtype *) N_VGetData(vtemp1);
+  v2data = (realtype *) N_VGetData(vtemp2);
+  v3data = (realtype *) N_VGetData(vtemp3);
 
   eband = (J->smu) + mlower + 1;
   jacdata = BAND_COL(J,0) - mupper;

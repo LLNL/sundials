@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-06-02 23:04:40 $
+ * $Revision: 1.15 $
+ * $Date: 2004-06-18 21:36:31 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -424,9 +424,9 @@ int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
 
   /* do the backsolve and return */
 
-  vd = N_VGetData(vv);
+  vd = (realtype *) N_VGetData(vv);
   BandBacksolve(PP, pivots, vd);
-  N_VSetData(vd, vv);
+  N_VSetData((void *)vd, vv);
 
   return(0);
 }
@@ -462,11 +462,11 @@ static void KBBDDQJac(KBBDPrecData pdata,
 
   /* set pointers to the data for all vectors */
 
-  udata     = N_VGetData(uu);
-  uscdata   = N_VGetData(uscale);
-  gudata    = N_VGetData(gu);
-  gtempdata = N_VGetData(gtemp);
-  utempdata = N_VGetData(utemp);
+  udata     = (realtype *) N_VGetData(uu);
+  uscdata   = (realtype *) N_VGetData(uscale);
+  gudata    = (realtype *) N_VGetData(gu);
+  gtempdata = (realtype *) N_VGetData(gtemp);
+  utempdata = (realtype *) N_VGetData(utemp);
 
   /* load utemp with uu = predicted solution vector */
 
@@ -495,9 +495,9 @@ static void KBBDDQJac(KBBDPrecData pdata,
   
     /* evaluate g with incremented u */
 
-    N_VSetData(utempdata, utemp);
+    N_VSetData((void *)utempdata, utemp);
     gloc(Nlocal, utemp, gtemp, f_data);
-    gtempdata = N_VGetData(gtemp);
+    gtempdata = (realtype *) N_VGetData(gtemp);
 
     /* restore utemp, then form and load difference quotients */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-06-09 18:41:07 $
+ * $Revision: 1.24 $
+ * $Date: 2004-06-18 21:33:49 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -46,13 +46,13 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   N_Vector atolvec;
   void *atolptr;
 
-  CV_yvec = N_VMake(y0, F2C_nvspec);
+  CV_yvec = N_VMake((void *)y0, F2C_nvspec);
   lmm = (*meth == 1) ? ADAMS : BDF;
   iter = (*itmeth == 1) ? FUNCTIONAL : NEWTON;
   if (*iatol == 1)
     { itol = SS; atolptr = atol; }
   else
-    { atolvec = N_VMake(atol, F2C_nvspec);
+    { atolvec = N_VMake((void *)atol, F2C_nvspec);
       itol = SV; atolptr = atolvec; }
 
   /* 
@@ -120,12 +120,12 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
   N_Vector atolvec;
   void *atolptr;
 
-  N_VSetData(y0, CV_yvec);
+  N_VSetData((void *)y0, CV_yvec);
 
   if (*iatol == 1)
     { itol = SS; atolptr = atol; }
   else
-    { atolvec = N_VMake(atol, F2C_nvspec);
+    { atolvec = N_VMake((void *)atol, F2C_nvspec);
       itol = SV; atolptr = atolvec; }
 
   /* 
@@ -271,7 +271,7 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   *ier = CVode(CV_cvodemem, *tout, CV_yvec, t, *itask);
   if (*ier < 0) return;
 
-  y = N_VGetData(CV_yvec);
+  y = (realtype *) N_VGetData(CV_yvec);
 
   /* CVode() succeeded and found at least one root */
   if (*ier == ROOT_RETURN) {
@@ -355,7 +355,7 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 
   *ier = CVodeGetDky(CV_cvodemem, *t, *k, CV_yvec);
 
-  dky = N_VGetData(CV_yvec);
+  dky = (realtype *) N_VGetData(CV_yvec);
 
 }
 
@@ -373,7 +373,7 @@ void FCV_GETEWT (realtype *ewt, int *ier)
   N_Vector eweight;
 
   *ier = CVodeGetErrWeights(CV_cvodemem, &eweight);
-  if (*ier == OKAY) ewt = N_VGetData(eweight);
+  if (*ier == OKAY) ewt = (realtype *) N_VGetData(eweight);
 }
 
 /***************************************************************************/
@@ -389,12 +389,12 @@ void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype *ydata, *dydata;
 
-  ydata = N_VGetData(y);
-  dydata = N_VGetData(ydot);
+  ydata  = (realtype *) N_VGetData(y);
+  dydata = (realtype *) N_VGetData(ydot);
 
   FCV_FUN(&t, ydata, dydata);
 
-  N_VSetData(dydata, ydot);
+  N_VSetData((void *)dydata, ydot);
 
 }
 

@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-05-03 21:24:50 $
+ * $Revision: 1.10 $
+ * $Date: 2004-06-18 21:36:28 $
  * ----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -59,12 +59,12 @@ int FKINPSet(N_Vector uu, N_Vector uscale,
   realtype *udata,*uscaledata, *fdata, *fscaledata, *vtemp1data, *vtemp2data;
   int retcode;
   
-  udata      = N_VGetData(uu);
-  uscaledata = N_VGetData(uscale);
-  fdata      = N_VGetData(fval);
-  fscaledata = N_VGetData(fscale);
-  vtemp1data = N_VGetData(vtemp1);
-  vtemp2data = N_VGetData(vtemp2);
+  udata      = (realtype *) N_VGetData(uu);
+  uscaledata = (realtype *) N_VGetData(uscale);
+  fdata      = (realtype *) N_VGetData(fval);
+  fscaledata = (realtype *) N_VGetData(fscale);
+  vtemp1data = (realtype *) N_VGetData(vtemp1);
+  vtemp2data = (realtype *) N_VGetData(vtemp2);
   
   FK_PSET(udata, uscaledata, fdata, fscaledata, vtemp1data, vtemp2data, &retcode);
 

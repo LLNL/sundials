@@ -377,22 +377,21 @@ void CVDenseCSJac(long int N, DenseMat J, realtype t,
   f_im = tmp3;
 
   N_VConst(ZERO, y_im);
-  ydata_im = N_VGetData(y_im);
+  ydata_im = (realtype *) N_VGetData(y_im);
 
-  jthCol = N_VMake(DENSE_COL(J,0), nvspec);
+  jthCol = N_VMake((void *)DENSE_COL(J,0), nvspec);
 
   for (j=0; j < N; j++) {
-    N_VSetData(DENSE_COL(J,j), jthCol);
+    N_VSetData((void *)DENSE_COL(J,j), jthCol);
     ydata_im[j] = del_cs;
     if (type1)
       f_cs1(t, 0.0, y_re, y_im, f_re, f_im, f_data_re);
     else
       f_cs2(t, 0.0, y_re, y_im, f_re, f_im, f_data_re, f_data_im);
     N_VScale(ONE/del_cs, f_im, jthCol);
-    DENSE_COL(J,j) = N_VGetData(jthCol);
+    DENSE_COL(J,j) = (realtype *) N_VGetData(jthCol);
     ydata_im[j] = ZERO;
   }
-
 
   N_VDispose(jthCol);
 
@@ -426,7 +425,7 @@ void CVBandCSJac(long int N, long int mupper,
   f_im = tmp3;
 
   N_VConst(ZERO, y_im);
-  ydata_im = N_VGetData(y_im);
+  ydata_im = (realtype *) N_VGetData(y_im);
 
   /* Set bandwidth and number of column groups */
   width = mlower + mupper + 1;
@@ -442,7 +441,7 @@ void CVBandCSJac(long int N, long int mupper,
     else
       f_cs2(t, 0.0, y_re, y_im, f_re, f_im, f_data_re, f_data_im);
     
-    fdata_im = N_VGetData(f_im);
+    fdata_im = (realtype *) N_VGetData(f_im);
 
     for (j=group-1; j < N; j+=width) {
       ydata_im[j] = ZERO;

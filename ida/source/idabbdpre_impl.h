@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-06-02 23:22:22 $
+ * $Revision: 1.2 $
+ * $Date: 2004-06-18 21:36:13 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,10 +23,11 @@ extern "C" {
 #ifndef _ibbdpre_impl_h
 #define _ibbdpre_impl_h
 
-#include "sundialstypes.h"
-#include "nvector.h"
-#include "band.h"
 #include "idabbdpre.h"
+
+#include "band.h"
+#include "nvector.h"
+#include "sundialstypes.h"
 
 /*********************** Definition of IBBDPrecData *****************/
 

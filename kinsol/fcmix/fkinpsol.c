@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-06-02 23:06:11 $
+ * $Revision: 1.11 $
+ * $Date: 2004-06-18 21:36:28 $
  * ----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -57,16 +57,16 @@ int FKINPSol(N_Vector uu, N_Vector uscale,
   realtype *udata, *uscaledata, *fdata, *fscaledata, *vvdata, *ftemdata;
   int retcode;
 
-  udata      = N_VGetData(uu);
-  uscaledata = N_VGetData(uscale);
-  fdata      = N_VGetData(fval);
-  fscaledata = N_VGetData(fscale);
-  vvdata     = N_VGetData(vv);
-  ftemdata   = N_VGetData(ftem);
+  udata      = (realtype *) N_VGetData(uu);
+  uscaledata = (realtype *) N_VGetData(uscale);
+  fdata      = (realtype *) N_VGetData(fval);
+  fscaledata = (realtype *) N_VGetData(fscale);
+  vvdata     = (realtype *) N_VGetData(vv);
+  ftemdata   = (realtype *) N_VGetData(ftem);
   
   FK_PSOL(udata, uscaledata, fdata, fscaledata, vvdata, ftemdata, &retcode);
  
-  N_VSetData(vvdata, vv);
+  N_VSetData((void *)vvdata, vv);
 
   return(retcode);
 }

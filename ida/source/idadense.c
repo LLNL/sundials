@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-06-02 23:14:21 $
+ * $Revision: 1.16 $
+ * $Date: 2004-06-18 21:36:13 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -419,9 +419,9 @@ static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   
   idadense_mem = (IDADenseMem) lmem;
   
-  bd = N_VGetData(b);
+  bd = (realtype *) N_VGetData(b);
   DenseBacksolve(JJ, pivots, bd);
-  N_VSetData(bd, b);
+  N_VSetData((void *)bd, b);
 
   /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
@@ -485,10 +485,10 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
   rtemp = tempv1; /* Rename work vector for use as residual value. */
 
   /* Obtain pointers to the data for ewt, yy, yp. */
-  ewt_data = N_VGetData(ewt);
-  y_data   = N_VGetData(yy);
-  yp_data  = N_VGetData(yp);
-  if(constraints!=NULL) cns_data = N_VGetData(constraints);
+  ewt_data = (realtype *) N_VGetData(ewt);
+  y_data   = (realtype *) N_VGetData(yy);
+  yp_data  = (realtype *) N_VGetData(yp);
+  if(constraints!=NULL) cns_data = (realtype *) N_VGetData(constraints);
 
   srur = RSqrt(uround);
 
@@ -499,7 +499,7 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
     /* Generate the jth col of J(tt,yy,yp) as delta(F)/delta(y_j). */
 
     /* Set data address of jthCol, and save y_j and yp_j values. */
-    N_VSetData(DENSE_COL(Jac,j), jthCol);
+    N_VSetData((void *)DENSE_COL(Jac,j), jthCol);
     yj = y_data[j];
     ypj = yp_data[j];
 
@@ -522,8 +522,8 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
     y_data[j] += inc;
     yp_data[j] += c_j*inc;
 
-    N_VSetData(y_data, yy);
-    N_VSetData(yp_data, yp);
+    N_VSetData((void *)y_data, yy);
+    N_VSetData((void *)yp_data, yp);
 
     retval = res(tt, yy, yp, rtemp, rdata);
     nreD++;
@@ -532,7 +532,7 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
     /* Construct difference quotient in jthCol */
     inc_inv = ONE/inc;
     N_VLinearSum(inc_inv, rtemp, -inc_inv, resvec, jthCol);
-    DENSE_COL(Jac,j) = N_VGetData(jthCol);
+    DENSE_COL(Jac,j) = (realtype *) N_VGetData(jthCol);
 
     /*  reset y_j, yp_j */     
     y_data[j] = yj;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-06-02 23:22:22 $
+ * $Revision: 1.2 $
+ * $Date: 2004-06-18 21:36:14 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,10 +23,13 @@ extern "C" {
 #define _idaspgmr_impl_h
 
 #include <stdio.h>
-#include "sundialstypes.h"
-#include "spgmr.h"
-#include "nvector.h"
+
 #include "idaspgmr.h"
+
+#include "spgmr.h"
+#include "iterative.h"
+#include "sundialstypes.h"
+#include "nvector.h"
 
 /******************************************************************
  *                                                                *           

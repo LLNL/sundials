@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-06-02 23:22:22 $
+ * $Revision: 1.2 $
+ * $Date: 2004-06-18 21:36:13 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,10 +25,12 @@ extern "C" {
 #define _idaband_impl_h
 
 #include <stdio.h>
-#include "sundialstypes.h"
+
+#include "idaband.h"
+
 #include "band.h"
 #include "nvector.h"
-#include "idaband.h"
+#include "sundialstypes.h"
 
 /******************************************************************
  *                                                                *           
