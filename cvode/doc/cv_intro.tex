@@ -95,44 +95,45 @@ concentrate on the general instructions, while others will refer
 mostly to the examples, and the organization is intended to
 accommodate both styles.
 
-There are different possible levels of usage of {\cvode}. The most casual
-user, with a small IVP problem only, can get by with reading \S\ref{ss:ivp_sol}, 
-then \S\ref{s:simulation} through \S\ref{sss:cvode} only, and looking at examples 
-in \cite{cvode2.1_ex}. 
+There are different possible levels of usage of {\cvode}. The most
+casual user, with a small IVP problem only, can get by with reading
+\S\ref{ss:ivp_sol}, then Chapter \ref{s:simulation} through
+\S\ref{sss:cvode} only, and looking at examples in \cite{cvode2.1_ex}.
 In a different direction, a more expert user with an IVP problem may want
 to (a) use a package preconditioner (\S\ref{ss:preconds}), (b) supply
 his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
 (c) do multiple runs of problems of the same size (\S\ref{sss:cvreinit}), 
-(d) supply a new {\nvector} module (\S\ref{s:nvector}), or even 
+(d) supply a new {\nvector} module (Chapter \ref{s:nvector}), or even 
 (e) supply a different linear solver module
-(\S\ref{ss:cvode_org} and \S\ref{s:gen_linsolv}).
+(\S\ref{ss:cvode_org} and Chapter \ref{s:gen_linsolv}).
 
 The structure of this document is as follows:
 \begin{itemize}
 \item
-  In \S\ref{s:install} we begin with instructions for the installation of 
-  {\cvode}, within the structure of {\sundials}.
+  In Chapter \ref{s:install} we begin with instructions for the
+  installation of {\cvode}, within the structure of {\sundials}.
 \item
-  In \S\ref{s:math}, we give short descriptions of the numerical 
-  methods implemented by {\cvode} for the solution of initial value problems
-  for systems of ODEs.
+  In Chapter \ref{s:math}, we give short descriptions of the numerical
+  methods implemented by {\cvode} for the solution of initial value
+  problems for systems of ODEs.
 \item
-  The following section describes the structure of the {\sundials} suite
+  The following chapter describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\cvode}
   solver (\S\ref{ss:cvode_org}). 
 \item
-  In \S\ref{s:simulation}, we give an overview of the usage of {\cvode},
-  as well as a complete description of the user interface and of the 
-  user-defined routines for integration of IVP ODEs.
+  In Chapter \ref{s:simulation}, we give an overview of the usage of
+  {\cvode}, as well as a complete description of the user interface
+  and of the user-defined routines for integration of IVP ODEs.
 \item
-  Section \ref{s:nvector} gives a brief overview of the generic {\nvector} module 
-  shared among the various components of {\sundials}, and details on the two {\nvector}
-  implementations provided with {\sundials}: a serial implementation
-  (\S\ref{ss:nvec_ser}) and a parallel implementation based on MPI\index{MPI}
-  (\S\ref{ss:nvec_par}).
+  Chapter \ref{s:nvector} gives a brief overview of the generic
+  {\nvector} module shared among the various components of
+  {\sundials}, and details on the two {\nvector} implementations
+  provided with {\sundials}: a serial implementation
+  (\S\ref{ss:nvec_ser}) and a parallel implementation based on
+  MPI\index{MPI} (\S\ref{ss:nvec_par}).
 \item
-  Section \ref{s:gen_linsolv} describes in detail the generic linear solvers shared 
-  by all {\sundials} solvers.
+  Chapter \ref{s:gen_linsolv} describes in detail the generic linear
+  solvers shared by all {\sundials} solvers.
 \end{itemize}
 
 Finally, the reader should be aware of the following notational conventions
