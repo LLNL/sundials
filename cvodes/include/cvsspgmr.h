@@ -333,7 +333,7 @@ typedef int (*CVSpgmrJtimesFn)(N_Vector v, N_Vector Jv, realtype t,
  *                                                                *
  * maxl      is the maximum Krylov dimension. This is an          *
  *           optional input to the CVSPGMR solver. Pass 0 to      *
- *           use the default value MIN(N, CVSPGMR_MAXL=5).        *
+ *           use the default value CVSPGMR_MAXL=5.                *
  *                                                                *
  * delt      is the factor by which the tolerance on the          *
  *           nonlinear iteration is multiplied to get a           *
