@@ -99,7 +99,7 @@ file for the basic solver. At Step~\ref{sun_problem}, the user must
 create an array of real parameters upon which the solution depends,
 and attach a pointer to this array to the user-defined data structure
 that is passed to the user's function. Also, the user must specify the
-number of sensitivities to be computed, and provide an array to that
+number of sensitivities to be computed, and provide an array that
 indicates which solution sensitivities are to be
 computed. Step~\ref{sun_malloc} requires that the user call the memory
 allocation routine for the forward sensitivity version of the basic
@@ -119,7 +119,7 @@ In Step~\ref{sun_finalize}, memory allocated for MPI must be freed.
 \subsection{Optional inputs and outputs}\label{ss:optional_io}
 
 Within SUNDIALS, an attempt is made to set reasonable defaults for the
-various methods, heuristics, parameters and pointers used in the
+various methods, heuristic parameters, and pointers used in the
 codes. 
 A key feature of SUNDIALS is that it provides a collection of optional
 input and output routines so that default settings can be changed, or
