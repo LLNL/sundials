@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2004-10-28 00:35:40 $
+# $Revision: 1.8 $
+# $Date: 2004-11-23 21:37:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,9 +43,9 @@ SHARED_INC_DIR   = $(srcdir)/../../shared/include
 KINSOL_INC_DIR   = $(srcdir)/../include
 
 KINSOL_LIB       = libsundials_kinsol.la
-KINSOL_LIB_FILES = kinsol.lo kinspgmr.lo kinbbdpre.lo
+KINSOL_LIB_FILES = kinsol.lo kinsolio.lo kinspgmr.lo kinbbdpre.lo
 
-OBJECT_FILES = kinsol.o kinspgmr.o kinbbdpre.o
+OBJECT_FILES = kinsol.o kinsolio.o kinspgmr.o kinbbdpre.o
 
 all: update $(KINSOL_LIB_FILES)
 
@@ -74,6 +74,8 @@ uninstall: clean
 
 kinsol.lo: $(srcdir)/kinsol.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol.c
+kinsolio.lo: $(srcdir)/kinsolio.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsolio.c
 kinspgmr.lo: $(srcdir)/kinspgmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspgmr.c
 kinbbdpre.lo: $(srcdir)/kinbbdpre.c
