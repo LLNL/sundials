@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-04-29 15:32:29 $
+ * $Revision: 1.8 $
+ * $Date: 2004-07-22 21:25:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -84,7 +84,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpec;
   realtype dx, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
@@ -94,7 +93,6 @@ int main(int argc, char *argv[])
 
   MPI_Comm comm;
 
-  nvSpec = NULL;
   u = NULL;
   data = NULL;
   cvode_mem = NULL;
@@ -118,13 +116,7 @@ int main(int argc, char *argv[])
   data->npes = npes;
   data->my_pe = my_pe;
 
-  nvSpec = NV_SpecInit_Parallel(comm, local_N, NEQ, &argc, &argv);
-  if(nvSpec == NULL) {
-    if(my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
-    MPI_Finalize();
-    return(1); }
-
-  u = N_VNew(nvSpec);    /* Allocate u vector */
+  u = N_VNew_Parallel(comm, local_N, NEQ);    /* Allocate u vector */
   if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
 
   reltol = 0.0;           /* Set the tolerances */
@@ -160,10 +152,9 @@ int main(int argc, char *argv[])
      u       is the initial dependent variable vector
      SS      specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances
-     nvSpec  is the vector specification object 
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) {
@@ -190,10 +181,9 @@ int main(int argc, char *argv[])
   if (my_pe == 0) 
     PrintFinalStats(cvode_mem);     /* Print some final statistics   */
 
-  N_VFree(u);                  /* Free the u vector */
+  N_VDestroy(u);               /* Free the u vector */
   CVodeFree(cvode_mem);        /* Free the integrator memory */
   free(data);                  /* Free user data */
-  NV_SpecFree_Parallel(nvSpec);
 
   MPI_Finalize();
 

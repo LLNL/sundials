@@ -181,7 +181,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpec;
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
@@ -191,7 +190,6 @@ int main(int argc, char *argv[])
   long int neq, local_N;
   MPI_Comm comm;
 
-  nvSpec = NULL;
   u = NULL;
   data = NULL;
   predata = NULL;
@@ -223,14 +221,8 @@ int main(int argc, char *argv[])
   InitUserData(my_pe, comm, data);
   predata = AllocPreconData (data);
 
-  nvSpec = NV_SpecInit_Parallel(comm, local_N, neq, &argc, &argv);
-  if (nvSpec == NULL) {
-    if (my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
-    MPI_Finalize();
-    return(1); }
-
   /* Allocate u, and set initial values and tolerances */ 
-  u = N_VNew(nvSpec);
+  u = N_VNew_Parallel(comm, local_N, neq);
   if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
@@ -259,9 +251,8 @@ int main(int argc, char *argv[])
      u       is the initial dependent variable vector
      SS      specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances
-     nvSpec  is the vector specification object 
   */
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
   if (check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVSpgmr to specify the linear solver CVSPGMR 
@@ -294,11 +285,10 @@ int main(int argc, char *argv[])
   if (my_pe == 0) PrintFinalStats(cvode_mem);
 
   /* Free memory */
-  N_VFree(u);
+  N_VDestroy(u);
   free(data);
   FreePreconData(predata);
   CVodeFree(cvode_mem);
-  NV_SpecFree_Parallel(nvSpec);
 
   MPI_Finalize();
 

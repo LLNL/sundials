@@ -1,10 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-04-29 22:09:53 $
+ * $Revision: 1.8 $
+ * $Date: 2004-07-22 21:25:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ *                Radu Serban @LLNL
  * -----------------------------------------------------------------
  * Example problem:
  *
@@ -15,7 +15,7 @@
  *   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2
  * on the rectangle 0 <= x <= 2, 0 <= y <= 1, and the time
  * interval 0 <= t <= 1. Homogeneous Dirichlet boundary conditions
- * are posed, and the initial condition is the following:
+ * are posed, and the initial condition is
  *   u(x,y,t=0) = x(2-x)y(1-y)exp(5xy).
  * The PDE is discretized on a uniform MX+2 by MY+2 grid with
  * central differencing, and with boundary values eliminated,
@@ -99,7 +99,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main()
 {
-  NV_Spec nvSpec;
   realtype dx, dy, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
@@ -107,17 +106,13 @@ int main()
   int iout, flag;
   long int nst;
 
-  nvSpec = NULL;
   u = NULL;
   data = NULL;
   cvode_mem = NULL;
 
-  /* Initialize serial vector specification object */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
-  u = N_VNew(nvSpec);    /* Allocate u vector */
-  if(check_flag((void*)u, "N_VNew", 0)) return(1);
+  /* Create a serial vector */
+  u = N_VNew_Serial(NEQ);    /* Allocate u vector */
+  if(check_flag((void*)u, "N_VNew_Serial", 0)) return(1);
 
   reltol = 0.0;           /* Set the tolerances */
   abstol = ATOL;
@@ -154,10 +149,9 @@ int main()
      SS      specifies scalar relative and absolute tolerances
      &reltol is a pointer to the scalar relative tolerance
      &abstol is a pointer to the scalar absolute tolerance vector
-     nvSpec  is the vector specification object 
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Set the pointer to user-defined data */
@@ -192,10 +186,9 @@ int main()
 
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
-  N_VFree(u);                  /* Free the u vector */
+  N_VDestroy(u);               /* Free the u vector */
   CVodeFree(cvode_mem);        /* Free the integrator memory */
   free(data);                  /* Free the user data */
-  NV_SpecFree_Serial(nvSpec);  /* Free the vector specification memory */
 
   return(0);
 }

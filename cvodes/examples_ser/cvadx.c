@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-06-09 18:54:40 $
+ * $Revision: 1.13 $
+ * $Date: 2004-07-22 21:25:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -138,8 +138,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpecF, nvSpecQF, nvSpecB, nvSpecQB;
-
   UserData data;
 
   void *cvadj_mem;
@@ -154,7 +152,6 @@ int main(int argc, char *argv[])
   realtype time;
   int flag, ncheck;
 
-  nvSpecF = nvSpecQF = nvSpecB = nvSpecQB = NULL;
   data = NULL;
   cvadj_mem = cvode_mem = NULL;
   y = abstol = yB = qB = NULL;
@@ -177,29 +174,24 @@ int main(int argc, char *argv[])
   data->p[1] = 1.0e4;
   data->p[2] = 3.0e7;
 
-  /* Initialize serial vector specification for forward integration */
-  nvSpecF = NV_SpecInit_Serial(NEQ);
-  if (check_flag((void *)nvSpecF, "NV_SpecInit", 0)) return(1);
-  nvSpecQF = NV_SpecInit_Serial(1);
-  if (check_flag((void *)nvSpecQF, "NV_SpecInit", 0)) return(1);
-
   /* Initialize y */
-  y = N_VNew(nvSpecF);
-  if (check_flag((void *)y, "N_VNew", 0)) return(1);
+  y = N_VNew_Serial(NEQ);
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
   Ith(y,1) = 1.0;
   Ith(y,2) = 0.0;
   Ith(y,3) = 0.0;
 
-  /* Allocate q */
-  q = N_VNew(nvSpecQF);
-  if (check_flag((void *)q, "N_VNew", 0)) return(1);
+  /* Initialize q */
+  q = N_VNew_Serial(1);
+  if (check_flag((void *)q, "N_VNew_Serial", 0)) return(1);
+  Ith(q,1) = 0.0;
 
   /* Set the scalar relative tolerance reltol */
   reltol = RTOL;    
 
   /* Set the vector absolute tolerance abstol */
-  abstol = N_VNew(nvSpecF);
-  if (check_flag((void *)abstol, "N_VNew", 0)) return(1);
+  abstol = N_VNew_Serial(NEQ);
+  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
   Ith(abstol,1) = ATOL1;       
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
@@ -216,7 +208,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpecF);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   flag = CVDense(cvode_mem, NEQ);
@@ -232,7 +224,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
   flag = CVodeSetQuadTolerances(cvode_mem, SS, &reltol, &abstolQ); 
   if (check_flag(&flag, "CVodeSetQuadTolerances", 1)) return(1);
-  flag = CVodeQuadMalloc(cvode_mem, fQ, nvSpecQF);
+  flag = CVodeQuadMalloc(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadMalloc", 1)) return(1);
 
   /* Allocate global memory */
@@ -255,22 +247,19 @@ int main(int argc, char *argv[])
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
   CVadjGetCheckPointsList(cvadj_mem);
 
-  /* Initialize serial nvector specification for backward run */ 
-  nvSpecB  = NV_SpecInit_Serial(NEQ);   /* adjoint variables */
-  if (check_flag((void *)nvSpecB, "NV_SpecInit", 0)) return(1);
-  nvSpecQB = NV_SpecInit_Serial(NP);    /* quadrature variables */
-  if (check_flag((void *)nvSpecQB, "NV_SpecInit", 0)) return(1);
-
   /* Initialize yB */
-  yB = N_VNew(nvSpecB);
-  if (check_flag((void *)yB, "N_VNew", 0)) return(1);
+  yB = N_VNew_Serial(NEQ);
+  if (check_flag((void *)yB, "N_VNew_Serial", 0)) return(1);
   Ith(yB,1) = 0.0;
   Ith(yB,2) = 0.0;
   Ith(yB,3) = 0.0;
 
   /* Initialize qB */
-  qB = N_VNew(nvSpecQB);
+  qB = N_VNew_Serial(NP);
   if (check_flag((void *)qB, "N_VNew", 0)) return(1);
+  Ith(qB,1) = 0.0;
+  Ith(qB,2) = 0.0;
+  Ith(qB,3) = 0.0;
 
   /* Set the scalar relative tolerance reltolB */
   reltolB = RTOL;               
@@ -287,7 +276,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
   flag = CVodeSetFdataB(cvadj_mem, data);
   if (check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
-  flag = CVodeMallocB(cvadj_mem, fB, TB1, yB, SS, &reltolB, &abstolB, nvSpecB);
+  flag = CVodeMallocB(cvadj_mem, fB, TB1, yB, SS, &reltolB, &abstolB);
   if (check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   flag = CVDenseB(cvadj_mem, NEQ);
@@ -303,7 +292,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
   flag = CVodeSetQuadTolerancesB(cvadj_mem, SS, &reltolB, &abstolQB); 
   if (check_flag(&flag, "CVodeSetQuadTolerancesB", 1)) return(1);
-  flag = CVodeQuadMallocB(cvadj_mem, fQB,nvSpecQB);
+  flag = CVodeQuadMallocB(cvadj_mem, fQB, qB);
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
 
   /* Backward Integration */
@@ -327,10 +316,14 @@ int main(int argc, char *argv[])
   Ith(yB,2) = 0.0;
   Ith(yB,3) = 0.0;
 
+  Ith(qB,1) = 0.0;
+  Ith(qB,2) = 0.0;
+  Ith(qB,3) = 0.0;
+
   printf("Re-initialize CVODES memory for backward run\n");
   flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, SS, &reltolB, &abstolB);
   if (check_flag(&flag, "CVodeReInitB", 1)) return(1);
-  flag = CVodeQuadReInitB(cvadj_mem, fQB); 
+  flag = CVodeQuadReInitB(cvadj_mem, fQB, qB); 
   if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
 
   /* Backward Integration */
@@ -352,16 +345,12 @@ int main(int argc, char *argv[])
   /* Free memory */
   printf("Free memory\n\n");
   CVodeFree(cvode_mem);
-  N_VFree(abstol);
-  N_VFree(y); 
-  N_VFree(q);
-  N_VFree(yB);
-  N_VFree(qB);
+  N_VDestroy(abstol);
+  N_VDestroy(y); 
+  N_VDestroy(q);
+  N_VDestroy(yB);
+  N_VDestroy(qB);
   CVadjFree(cvadj_mem);
-  NV_SpecFree_Serial(nvSpecF);
-  NV_SpecFree_Serial(nvSpecQF);
-  NV_SpecFree_Serial(nvSpecB);
-  NV_SpecFree_Serial(nvSpecQB);
   free(data);
 
   return(0);

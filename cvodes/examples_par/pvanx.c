@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-06-09 18:54:53 $
+ * $Revision: 1.10 $
+ * $Date: 2004-07-22 21:26:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -102,8 +102,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpecF, nvSpecB;
-
   UserData data;
 
   void *cvadj_mem;
@@ -125,7 +123,6 @@ int main(int argc, char *argv[])
 
   MPI_Comm comm;
 
-  nvSpecF = nvSpecB = NULL;
   data = NULL;
   cvadj_mem = cvode_mem = NULL;
   u = uB = NULL;
@@ -183,20 +180,13 @@ int main(int argc, char *argv[])
     Forward integration phase
     -------------------------*/
   
-  /* Initialize vector specification for forward phase */
-  nvSpecF = NV_SpecInit_Parallel(comm, local_N, NEQ, &argc, &argv);
-  if (nvSpecF == NULL) {
-    if (my_pe == npes) check_flag((void *)nvSpecF, "NV_SpecInit", 0, my_pe);
-    MPI_Finalize();
-    return(1); }
-
   /* Set relative and absolute tolerances for forward phase */
   reltol = 0.0;
   abstol = ATOL;
 
   /* Allocate and initialize forward variables */
-  u = N_VNew(nvSpecF);
-  if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  u = N_VNew_Parallel(comm, local_N, NEQ);
+  if (check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetIC(u, dx, local_N, my_base);
 
   /* Allocate CVODES memory for forward integration */
@@ -206,7 +196,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpecF);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
   if (check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate combined forward/backward memory */
@@ -244,16 +234,9 @@ int main(int argc, char *argv[])
     if (check_flag((void *)data->z2, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   }
 
-  /* Initialize vector specification for backward phase */
-  nvSpecB = NV_SpecInit_Parallel(comm, local_N, NEQ+NP, &argc, &argv);
-  if (nvSpecB == NULL) {
-    if (my_pe == 0) check_flag((void *)nvSpecB, "NV_SpecInit", 0, my_pe);
-    MPI_Finalize();
-    return(1); }
-
   /* Allocate and initialize backward variables */
-  uB = N_VNew(nvSpecB);
-  if (check_flag((void *)uB, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  uB = N_VNew_Parallel(comm, local_N, NEQ+NP);
+  if (check_flag((void *)uB, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetICback(uB, my_base);
 
   /* Allocate CVODES memory for the backward integration */
@@ -261,7 +244,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeCreateB", 1, my_pe)) MPI_Abort(comm, 1);
   flag = CVodeSetFdataB(cvadj_mem, data);
   if (check_flag(&flag, "CVodeSetFdataB", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, SS, &reltol, &abstol, nvSpecB);
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, SS, &reltol, &abstol);
   if (check_flag(&flag, "CVodeMallocB", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to T0 */
@@ -300,9 +283,9 @@ int main(int argc, char *argv[])
 
   /* Clean-Up */
   /* Free forward u vector */
-  N_VFree(u);
+  N_VDestroy(u);
   /* Free backward uB vector */
-  N_VFree(uB);
+  N_VDestroy(uB);
   /* Free CVODES memory */
   CVodeFree(cvode_mem);  
   /* Free combined memory */
@@ -314,10 +297,6 @@ int main(int argc, char *argv[])
   }
   /* Free user data */
   free(data);
-  /* Free forward memory */
-  NV_SpecFree_Parallel(nvSpecF);
-  /* Free backward memory */
-  NV_SpecFree_Parallel(nvSpecB);
   /* Free mu */
   free(mu);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-06-09 18:54:40 $
+ * $Revision: 1.11 $
+ * $Date: 2004-07-22 21:25:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -221,8 +221,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpecF, nvSpecB;
-
   realtype abstol=ATOL, reltol=RTOL, t;
   N_Vector c;
   WebData wdata;
@@ -237,7 +235,6 @@ int main(int argc, char *argv[])
 
   FILE *outfile;
 
-  nvSpecF = nvSpecB = NULL;
   c = cB = NULL;
   wdata = NULL;
   cvode_mem = cvadj_mem = NULL;
@@ -262,13 +259,9 @@ int main(int argc, char *argv[])
   /*---- ORIGINAL PROBLEM ----*/
   /*--------------------------*/
 
-  /* Initialize serial vector specification for forward run */
-  nvSpecF = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpecF, "NV_SpecInit", 0)) return(1);
-
   /* Initializations */
-  c = N_VNew(nvSpecF);
-  if(check_flag((void *)c, "N_VNew", 0)) return(1);
+  c = N_VNew_Serial(NEQ);
+  if(check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
   CInit(c, wdata);
   PrintAllSpecies(outfile,c,NS,MXNS);
 
@@ -279,7 +272,7 @@ int main(int argc, char *argv[])
   wdata->cvode_memF = cvode_mem; /* Used in Precond */
   flag = CVodeSetFdata(cvode_mem, wdata);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
-  flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol, nvSpecF);
+  flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVSpgmr for forward run */
@@ -325,13 +318,9 @@ int main(int argc, char *argv[])
   /*---- ADJOINT PROBLEM ----*/
   /*-------------------------*/
 
-  /* Initialize serial vector specification for backward run */
-  nvSpecB = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpecB, "NV_SpecInit", 0)) return(1);
-
   /* Allocate cB */
-  cB = N_VNew(nvSpecB);
-  if(check_flag((void *)cB, "N_VNew", 0)) return(1);
+  cB = N_VNew_Serial(NEQ);
+  if(check_flag((void *)cB, "N_VNew_Serial", 0)) return(1);
   /* Initialize cB = 0 */
   CbInit(cB, ISPEC, wdata);
 
@@ -341,7 +330,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
   flag = CVodeSetFdataB(cvadj_mem, wdata);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, ITOL, &reltolB, &abstolB, nvSpecB);
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, ITOL, &reltolB, &abstolB);
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   /* Call CVSpgmr */
@@ -375,11 +364,9 @@ int main(int argc, char *argv[])
   /* Free all memory */
   CVodeFree(cvode_mem);
   CVadjFree(cvadj_mem);
-  N_VFree(c);
-  N_VFree(cB);
+  N_VDestroy(c);
+  N_VDestroy(cB);
   FreeUserData(wdata);
-  NV_SpecFree_Serial(nvSpecF);
-  NV_SpecFree_Serial(nvSpecB);  
 
   return(0);
 }

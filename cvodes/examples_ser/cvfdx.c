@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-06-18 19:38:24 $
+ * $Revision: 1.14 $
+ * $Date: 2004-07-22 21:25:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -120,7 +120,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpec;
   void *cvode_mem;
   UserData data;
   realtype reltol, t, tout;
@@ -133,7 +132,6 @@ int main(int argc, char *argv[])
   booleantype sensi, err_con;
   int sensi_meth;
 
-  nvSpec = NULL;
   cvode_mem = NULL;
   data = NULL;
   y = abstol = NULL;
@@ -143,10 +141,6 @@ int main(int argc, char *argv[])
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
 
-  /* Initialize serial vector specification */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if (check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
   /* USER DATA STRUCTURE */
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2)) return(1);
@@ -155,10 +149,10 @@ int main(int argc, char *argv[])
   data->p[2] = 3.0e7;
 
   /* INITIAL STATES */
-  y = N_VNew(nvSpec);
-  if (check_flag((void *)y, "N_VNew", 0)) return(1);
-  abstol = N_VNew(nvSpec);
-  if (check_flag((void *)abstol, "N_VNew", 0)) return(1);
+  y = N_VNew_Serial(NEQ);
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  abstol = N_VNew_Serial(NEQ);
+  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize y */
   Ith(y,1) = Y1;
@@ -182,7 +176,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
   /* CVODE_MALLOC */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* CVDENSE */
@@ -207,8 +201,8 @@ int main(int argc, char *argv[])
     if (check_flag((void *)plist, "malloc", 2)) return(1);
     for (is=0; is<NS; is++) plist[is] = is+1;
 
-    yS = N_VNew_S(NS, nvSpec);
-    if (check_flag((void *)yS, "N_VNew", 0)) return(1);
+    yS = N_VNewVectorArray_Serial(NS, NEQ);
+    if (check_flag((void *)yS, "N_VNewVectorArray_Serial", 0)) return(1);
     for (is=0;is<NS;is++)
       N_VConst(0.0, yS[is]);
 
@@ -268,22 +262,19 @@ int main(int argc, char *argv[])
   /* Free memory */
 
   /* Free y vector */
-  N_VFree(y);
+  N_VDestroy(y);
 
   /* Free abstol vector */
-  N_VFree(abstol);   
+  N_VDestroy(abstol);   
 
   /* Free yS vector */
-  if (sensi) N_VFree_S(NS, yS);
+  if (sensi) N_VDestroyVectorArray(yS, NS);
 
   /* Free user data */
   free(data);
 
   /* Free CVODES problem memory */
   CVodeFree(cvode_mem);
-
-  /* Free vector specification */
-  NV_SpecFree_Serial(nvSpec);
 
   /* Free plist */
   if (sensi) free(plist);

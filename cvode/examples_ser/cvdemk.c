@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-04-29 15:32:24 $
+ * $Revision: 1.13 $
+ * $Date: 2004-07-22 21:25:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -221,7 +221,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main()
 {
-  NV_Spec nvSpec;
   realtype abstol=ATOL, reltol=RTOL, t, tout;
   N_Vector c;
   WebData wdata;
@@ -230,18 +229,13 @@ int main()
   int jpre, gstype, flag;
   int ns, mxns, iout;
 
-  nvSpec = NULL;
   c = NULL;
   wdata = NULL;
   cvode_mem = NULL;
 
-  /* Initialize serial vector specification */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
   /* Initializations */
-  c = N_VNew(nvSpec);
-  if(check_flag((void *)c, "N_VNew", 0)) return(1);
+  c = N_VNew_Serial(NEQ);
+  if(check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
   wdata = AllocUserData();
   if(check_flag((void *)wdata, "AllocUserData", 2)) return(1);
   InitUserData(wdata);
@@ -277,7 +271,7 @@ int main()
         flag = CVodeSetFdata(cvode_mem, wdata);
         if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-        flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol, nvSpec);
+        flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
         if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
         flag = CVSpgmr(cvode_mem, jpre, MAXL);
@@ -331,8 +325,7 @@ int main()
 
   /* Free all memory */
   CVodeFree(cvode_mem);
-  N_VFree(c);
-  NV_SpecFree_Serial(nvSpec);
+  N_VDestroy(c);
   FreeUserData(wdata);
 
   return(0);

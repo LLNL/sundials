@@ -1,19 +1,19 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-04-29 22:09:53 $
+ * $Revision: 1.12 $
+ * $Date: 2004-07-22 21:25:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ *                Radu Serban @LLNL
  * -----------------------------------------------------------------
  * Demonstration program for CVODE/CVODES - Krylov linear solver.
  * ODE system from ns-species interaction PDE in 2 dimensions.
- *
+ * 
  * This program solves a stiff ODE system that arises from a system
  * of partial differential equations. The PDE system is a food web
  * population model, with predator-prey interaction and diffusion on
  * the unit square in two dimensions. The dependent variable vector
- * is the following:
+ * is:
  *
  *        1   2        ns
  *  c = (c , c , ..., c  )
@@ -22,14 +22,14 @@
  *
  *    i               i      i
  *  dc /dt  =  d(i)*(c    + c   )  +  f (x,y,c)  (i=1,...,ns)
- *                    xx     yy        i
+ *                    xx     yy        i   
  *
  * where
  *
  *                 i          ns         j
- *  f (x,y,c)  =  c *(b(i) + sum a(i,j)*c ).
- *   i                       j=1
- *
+ *  f (x,y,c)  =  c *(b(i) + sum a(i,j)*c )
+ *   i                       j=1                                         
+ *                                                                       
  * The number of species is ns = 2*np, with the first np being prey
  * and the last np being predators. The coefficients a(i,j), b(i),
  * d(i) are:
@@ -46,23 +46,25 @@
  * The boundary conditions are: normal derivative = 0.
  * A polynomial in x and y is used to set the initial conditions.
  *
- * The PDEs are discretized by central differencing on an MX by
- * MY mesh. The resulting ODE system is stiff.
+ * The PDEs are discretized by central differencing on an MX by MY
+ * mesh.
+ *
+ * The resulting ODE system is stiff.
  *
  * The ODE system is solved using Newton iteration and the CVSPGMR
  * linear solver (scaled preconditioned GMRES).
  *
  * The preconditioner matrix used is the product of two matrices:
- * (1) A matrix, only defined implicitly, based on a fixed number of
- * Gauss-Seidel iterations using the diffusion terms only.
- * (2) A block-diagonal matrix based on the partial derivatives of
- * the interaction terms f only, using block-grouping (computing
+ * (1) A matrix, only defined implicitly, based on a fixed number
+ * of Gauss-Seidel iterations using the diffusion terms only.
+ * (2) A block-diagonal matrix based on the partial derivatives
+ * of the interaction terms f only, using block-grouping (computing
  * only a subset of the ns by ns blocks).
  *
  * Four different runs are made for this problem.
  * The product preconditoner is applied on the left and on the
- * right. In each case, both the modified and classical
- * Gram-Schmidt options are tested.
+ * right. In each case, both the modified and classical Gram-Schmidt
+ * options are tested.
  * In the series of runs, CVodeMalloc and CVSpgmr are called only
  * for the first run, whereas CVodeReInit and CVReInitSpgmr are
  * called for each of the remaining three runs.
@@ -81,7 +83,7 @@
  * type N_Vector and uses the NV_DATA_S macro to gain access to the
  * contiguous array of components of an N_Vector.
  * -----------------------------------------------------------------
- * Reference:  Peter N. Brown and Alan C. Hindmarsh, Reduced Storage
+ * Reference: Peter N. Brown and Alan C. Hindmarsh, Reduced Storage
  * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
  * (1989), pp. 40-91.  Also available as Lawrence Livermore National
  * Laboratory Report UCRL-95088, Rev. 1, June 1987.
@@ -219,7 +221,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main()
 {
-  NV_Spec nvSpec;
   realtype abstol=ATOL, reltol=RTOL, t, tout;
   N_Vector c;
   WebData wdata;
@@ -228,18 +229,13 @@ int main()
   int jpre, gstype, flag;
   int ns, mxns, iout;
 
-  nvSpec = NULL;
   c = NULL;
   wdata = NULL;
   cvode_mem = NULL;
 
-  /* Initialize serial vector specification */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
   /* Initializations */
-  c = N_VNew(nvSpec);
-  if(check_flag((void *)c, "N_VNew", 0)) return(1);
+  c = N_VNew_Serial(NEQ);
+  if(check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
   wdata = AllocUserData();
   if(check_flag((void *)wdata, "AllocUserData", 2)) return(1);
   InitUserData(wdata);
@@ -275,7 +271,7 @@ int main()
         flag = CVodeSetFdata(cvode_mem, wdata);
         if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-        flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol, nvSpec);
+        flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
         if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
         flag = CVSpgmr(cvode_mem, jpre, MAXL);
@@ -329,8 +325,7 @@ int main()
 
   /* Free all memory */
   CVodeFree(cvode_mem);
-  N_VFree(c);
-  NV_SpecFree_Serial(nvSpec);
+  N_VDestroy(c);
   FreeUserData(wdata);
 
   return(0);

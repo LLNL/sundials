@@ -1,7 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh
- *                and Radu Serban @ LLNL
+ * $Revision: 1.11 $
+ * $Date: 2004-07-22 21:25:59 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @LLNL
  * -----------------------------------------------------------------
  * Example problem:
  *
@@ -128,7 +131,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main()
 {
-  NV_Spec nvSpec;
   realtype abstol, reltol, t, tout;
   N_Vector y;
   UserData data;
@@ -136,18 +138,13 @@ int main()
   void *cvode_mem;
   int flag, ml, mu, iout, jpre;
 
-  nvSpec = NULL;
   y = NULL;
   data = NULL;
   bpdata = cvode_mem = NULL;
 
-  /* Initialize serial vector specification object */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
   /* Allocate and initialize y, and set problem data and tolerances */ 
-  y = N_VNew(nvSpec);
-  if(check_flag((void *)y, "N_VNew", 0)) return(1);
+  y = N_VNew_Serial(NEQ);
+  if(check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
   data = (UserData) malloc(sizeof *data);
   if(check_flag((void *)data, "malloc", 2)) return(1);
   InitUserData(data);
@@ -174,7 +171,7 @@ int main()
      y       is the initial dependent variable vector
      SS      specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances      */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, SS, &reltol, &abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVBandPreAlloc to initialize band preconditioner */
@@ -233,11 +230,10 @@ int main()
   } /* End of jpre loop */
 
   /* Free memory */
-  N_VFree(y);
+  N_VDestroy(y);
   free(data);
   CVBandPrecFree(bpdata);
   CVodeFree(cvode_mem);
-  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 }
@@ -468,7 +464,7 @@ static void f(realtype t, N_Vector y, N_Vector ydot,void *f_data)
 
 /* Check function return value...
      opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
+                    returned NULL pointer
      opt == 1 means SUNDIALS function returns a flag so check if
               flag >= 0
      opt == 2 means function allocates memory so check if returned

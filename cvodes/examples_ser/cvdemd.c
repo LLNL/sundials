@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-04-29 22:09:53 $
+ * $Revision: 1.10 $
+ * $Date: 2004-07-22 21:25:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -42,12 +42,12 @@
  * macro gives a more efficient means (than the NV_Ith_S macro) to
  * access the components of an N_Vector and should be used when the
  * problem size is large. The Problem 2 right hand side function f2
- * uses the NV_DATA_S macro. The DENSE_ELEM macro used in Jac1 gives
- * access to an element of a dense matrix of type DenseMat. It
- * should be used only when the problem size is small (the size of
- * a DenseMat is NEQ x NEQ) due to efficiency concerns. For larger
- * problem sizes, the macro DENSE_COL can be used in order to work
- * directly with a column of a DenseMat. The BAND_COL and
+ * uses the NV_DATA_S macro. The DENSE_ELEM macro used in Jac1
+ * gives access to an element of a dense matrix of type DenseMat.
+ * It should be used only when the problem size is small (the size
+ * of a DenseMat is NEQ x NEQ) due to efficiency concerns. For
+ * larger problem sizes, the macro DENSE_COL can be used in order
+ * to work directly with a column of a DenseMat. The BAND_COL and
  * BAND_COL_ELEM allow efficient columnwise access to the elements
  * of a band matrix of type BandMat. These macros are used in the
  * Jac2 function.
@@ -146,7 +146,6 @@ int main()
 
 static int Problem1(void)
 {
-  NV_Spec nvSpec;
   realtype reltol=RTOL, abstol=ATOL, t, tout, ero, er;
   int lmm, miter, flag, temp_flag, iout, nerr=0;
   N_Vector y;
@@ -155,15 +154,11 @@ static int Problem1(void)
   int qu;
   realtype hu;
 
-  nvSpec = NULL;
   y = NULL;
   cvode_mem = NULL;
 
-  nvSpec = NV_SpecInit_Serial(P1_NEQ);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
-  y = N_VNew(nvSpec);
-  if(check_flag((void *)y, "N_VNew", 0)) return(1);
+  y = N_VNew_Serial(P1_NEQ);
+  if(check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
   PrintIntro1();
 
   /* ADAMS formula */
@@ -179,7 +174,7 @@ static int Problem1(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol, nvSpec);
+      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeResetIterType(cvode_mem, NEWTON);
@@ -234,7 +229,7 @@ static int Problem1(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol, nvSpec);
+      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeResetIterType(cvode_mem, NEWTON);
@@ -275,8 +270,7 @@ static int Problem1(void)
   }
 
   CVodeFree(cvode_mem);
-  N_VFree(y);
-  NV_SpecFree_Serial(nvSpec);
+  N_VDestroy(y);
 
   return(nerr);
 }
@@ -319,7 +313,6 @@ static void Jac1(long int N, DenseMat J, realtype tn,
 
 static int Problem2(void)
 {
-  NV_Spec nvSpec;
   realtype reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
   int lmm, miter, flag, temp_flag, nerr=0;
   N_Vector y;
@@ -328,14 +321,10 @@ static int Problem2(void)
   int qu, iout;
   realtype hu;
 
-  nvSpec = NULL;
   y = NULL;
   cvode_mem = NULL;
 
-  nvSpec = NV_SpecInit_Serial(P2_NEQ);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
-  y = N_VNew(nvSpec);
+  y = N_VNew_Serial(P2_NEQ);
   if(check_flag((void *)y, "N_VNew", 0)) return(1);
 
   PrintIntro2();
@@ -354,7 +343,7 @@ static int Problem2(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol, nvSpec);
+      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeResetIterType(cvode_mem, NEWTON);
@@ -408,7 +397,7 @@ static int Problem2(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol, nvSpec);
+      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeResetIterType(cvode_mem, NEWTON);
@@ -447,8 +436,7 @@ static int Problem2(void)
   }
 
   CVodeFree(cvode_mem);
-  N_VFree(y);
-  NV_SpecFree_Serial(nvSpec);
+  N_VDestroy(y);
 
   return(nerr);
 }

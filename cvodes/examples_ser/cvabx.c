@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-06-09 18:54:40 $
+ * $Revision: 1.9 $
+ * $Date: 2004-07-22 21:25:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -114,8 +114,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpecF, nvSpecB;
-
   UserData data;
 
   void *cvadj_mem;
@@ -129,7 +127,6 @@ int main(int argc, char *argv[])
   
   int flag, ncheck;
 
-  nvSpecF = nvSpecB = NULL;
   data = NULL;
   cvadj_mem = cvode_mem = NULL;
   u = uB = NULL;
@@ -151,16 +148,12 @@ int main(int argc, char *argv[])
   /*---- ORIGINAL PROBLEM ----*/
   /*--------------------------*/
 
-  /* Initialize serial vector specification for forward run */
-  nvSpecF = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpecF, "NV_SpecInit", 0)) return(1);
-
   /* Set the tolerances */
   reltol = 0.0;
   abstol = ATOL;
 
   /* Allocate u vector */
-  u = N_VNew(nvSpecF);
+  u = N_VNew_Serial(NEQ);
   if(check_flag((void *)u, "N_VNew", 0)) return(1);
 
   /* Initialize u vector */
@@ -176,7 +169,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpecF);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVBand with  bandwidths ml = mu = MY, */
@@ -218,16 +211,12 @@ int main(int argc, char *argv[])
   /*---- ADJOINT PROBLEM ----*/
   /*-------------------------*/
 
-  /* Initialize serial vector specification for backward run */
-  nvSpecB = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpecB, "NV_SpecInit", 0)) return(1);
-
   /* Set the tolerances */
   reltolB = RTOLB;
   abstolB = ATOL;
 
   /* Allocate uB */
-  uB = N_VNew(nvSpecB);
+  uB = N_VNew_Serial(NEQ);
   if(check_flag((void *)uB, "N_VNew", 0)) return(1);
   /* Initialize uB = 0 */
   N_VConst(0.0, uB);
@@ -242,7 +231,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdataB(cvadj_mem, data);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
 
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, SS, &reltolB, &abstolB, nvSpecB);
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, SS, &reltolB, &abstolB);
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   flag = CVBandB(cvadj_mem, NEQ, MY, MY);
@@ -264,12 +253,10 @@ int main(int argc, char *argv[])
 
   WriteLambda(uB);
 
-  N_VFree(u);                        /* Free the u vector */
-  N_VFree(uB);                      /* Free the uB vector */
-  CVodeFree(cvode_mem);      /* Free the CVODE problem memory */
-  free(data);                     /* Free the user data */
-  NV_SpecFree_Serial(nvSpecF);
-  NV_SpecFree_Serial(nvSpecB);
+  N_VDestroy(u);         /* Free the u vector */
+  N_VDestroy(uB);        /* Free the uB vector */
+  CVodeFree(cvode_mem);  /* Free the CVODE problem memory */
+  free(data);            /* Free the user data */
 
   return(0);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-04-29 22:09:53 $
+ * $Revision: 1.10 $
+ * $Date: 2004-07-22 21:25:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -95,7 +95,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpec;
   void *cvode_mem;
   UserData data;
   realtype dx, reltol, abstol, t, tout;
@@ -108,7 +107,6 @@ int main(int argc, char *argv[])
   booleantype sensi, err_con;
   int sensi_meth;
 
-  nvSpec = NULL;
   cvode_mem = NULL;
   data = NULL;
   u = NULL;
@@ -119,10 +117,6 @@ int main(int argc, char *argv[])
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
 
-  /* Initialize serial vector specification */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
   /* USER DATA STRUCTURE */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
   if(check_flag((void *)data, "malloc", 2)) return(1);
@@ -132,8 +126,8 @@ int main(int argc, char *argv[])
   data->p[1] = 0.5;
 
   /* INITIAL STATES */
-  u = N_VNew(nvSpec);    /* Allocate u vector */
-  if(check_flag((void *)u, "N_VNew", 0)) return(1);
+  u = N_VNew_Serial(NEQ);    /* Allocate u vector */
+  if(check_flag((void *)u, "N_VNew_Serial", 0)) return(1);
   SetIC(u, dx);           /* Initialize u vector */
 
   /* TOLERANCES */
@@ -148,7 +142,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
   /* CVODE_MALLOC */
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
   
   printf("\n1-D advection-diffusion equation, mesh size =%3d\n", MX);
@@ -165,7 +159,7 @@ int main(int argc, char *argv[])
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 
-    uS = N_VNew_S(NS, nvSpec);
+    uS = N_VNewVectorArray_Serial(NS, NEQ);
     if(check_flag((void *)uS, "N_VNew", 0)) return(1);
     for(is=0;is<NS;is++)
       N_VConst(0.0, uS[is]);
@@ -220,11 +214,11 @@ int main(int argc, char *argv[])
   PrintFinalStats(cvode_mem, sensi);
 
   /* Free memory */
-  N_VFree(u);            /* Free the u vector              */
-  if (sensi) N_VFree_S(NS, uS);  /* Free the uS vectors            */
-  free(data);                  /* Free block of UserData         */
-  CVodeFree(cvode_mem);        /* Free the CVODES problem memory */
-  NV_SpecFree_Serial(nvSpec);  /* Free the vector specification  */
+  N_VDestroy(u);                    /* Free the u vector              */
+  if (sensi) 
+    N_VDestroyVectorArray(uS, NS);  /* Free the uS vectors            */
+  free(data);                       /* Free block of UserData         */
+  CVodeFree(cvode_mem);             /* Free the CVODES problem memory */
   free(pbar);
   if (plist) free(plist);
 

@@ -1,7 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman,
- *                and Radu Serban  @ LLNL
+ * $Revision: 1.11 $
+ * $Date: 2004-07-22 21:26:09 $
+ * -----------------------------------------------------------------
+ * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
+ *                Radu Serban  @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
  *
@@ -35,7 +38,7 @@
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded
  * blocks have half-bandwidths mukeep = mlkeep = 2.
  * A copy of the approximate Jacobian is saved and conditionally
- * reused within the Precond routine.
+ * reused within the preconditioner routine.
  *
  * The problem is solved twice -- with left and right
  * preconditioning.
@@ -156,7 +159,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpec;
   UserData data;
   void *cvode_mem;
   void *pdata;
@@ -167,7 +169,6 @@ int main(int argc, char *argv[])
   long int neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
 
-  nvSpec = NULL;
   data = NULL;
   cvode_mem = pdata = NULL;
   u = NULL;
@@ -191,20 +192,14 @@ int main(int argc, char *argv[])
   /* Set local length */
   local_N = NVARS*MXSUB*MYSUB;
 
-  nvSpec = NV_SpecInit_Parallel(comm, local_N, neq, &argc, &argv);
-  if(nvSpec == NULL) {
-    if(my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
-    MPI_Finalize();
-    return(1); }
-
   /* Allocate and load user data block */
   data = (UserData) malloc(sizeof *data);
   if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, local_N, comm, data);
 
   /* Allocate and initialize u, and set tolerances */ 
-  u = N_VNew(nvSpec);
-  if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  u = N_VNew_Parallel(comm, local_N, neq);
+  if(check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL;
   reltol = RTOL;
@@ -234,10 +229,9 @@ int main(int argc, char *argv[])
      u       is the initial dependent variable vector
      SS      specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances
-     nvSpec  is the vector specification object 
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate preconditioner block */
@@ -319,11 +313,10 @@ int main(int argc, char *argv[])
   } /* End of jpre loop */
 
   /* Free memory */
-  N_VFree(u);
+  N_VDestroy(u);
   CVBBDPrecFree(pdata);
   free(data);
   CVodeFree(cvode_mem);
-  NV_SpecFree_Parallel(nvSpec);
 
   MPI_Finalize();
 

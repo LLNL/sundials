@@ -1,34 +1,31 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-04-29 19:28:12 $
- * ----------------------------------------------------------------- 
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and 
- *                 Radu Serban at LLNL
+ * $Revision: 1.8 $
+ * $Date: 2004-07-22 21:25:59 $
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @LLNL
  * -----------------------------------------------------------------
- * Example problem.                                                    
- * The following is a simple example problem, with the coding          
- * needed for its solution by CVODE/CVODES.  The problem is from       
- * chemical kinetics, and consists of the following three rate         
- * equations:                                                          
- *    dy1/dt = -.04*y1 + 1.e4*y2*y3                                    
- *    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2                       
- *    dy3/dt = 3.e7*(y2)^2                                             
- * on the interval from t = 0.0 to t = 4.e10, with initial conditions  
- * y1 = 1.0, y2 = y3 = 0.  The problem is stiff.                       
- * While integrating the system, we also use the rootfinding feature   
- * to find the points at which y1 = 1e-4 or at which y3 = 0.01.        
- * This program solves the problem with the BDF method, Newton         
- * iteration with the CVDENSE dense linear solver, and a user-supplied 
- * Jacobian routine.                               
- * It uses a scalar relative tolerance and a vector absolute tolerance.
- * Output is printed in decades from t = .4 to t = 4.e10.              
- * Run statistics (optional outputs) are printed at the end.           
+ * Example problem:
+ * 
+ * The following is a simple example problem, with the coding
+ * needed for its solution by CVODE/CVODES. The problem is from
+ * chemical kinetics, and consists of the following three rate
+ * equations:         
+ *    dy1/dt = -.04*y1 + 1.e4*y2*y3
+ *    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2
+ *    dy3/dt = 3.e7*(y2)^2
+ * on the interval from t = 0.0 to t = 4.e10, with initial
+ * conditions: y1 = 1.0, y2 = y3 = 0. The problem is stiff.
+ * While integrating the system, we also use the rootfinding
+ * feature to find the points at which y1 = 1e-4 or at which
+ * y3 = 0.01. This program solves the problem with the BDF method,
+ * Newton iteration with the CVDENSE dense linear solver, and a
+ * user-supplied Jacobian routine.
+ * It uses a scalar relative tolerance and a vector absolute
+ * tolerance. Output is printed in decades from t = .4 to
+ * t = 4.e10. Run statistics (optional outputs) are printed at
+ * the end.
  * -----------------------------------------------------------------
  */
 
@@ -82,11 +79,6 @@
 #define NOUT  12           /* number of output times */
 
 
-/* Private Helper Function */
-
-static void PrintFinalStats(void *cvode_mem);
-
-
 /* Functions Called by the Solver */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
@@ -98,6 +90,10 @@ static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 
+/* Private function to print final statistics */
+
+static void PrintFinalStats(void *cvode_mem);
+
 /* Private function to check function return values */
 
 static int check_flag(void *flagvalue, char *funcname, int opt);
@@ -107,25 +103,20 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main()
 {
-  NV_Spec nvSpec;
   realtype reltol, t, tout;
   N_Vector y, abstol;
   void *cvode_mem;
   int flag, flagr, iout;
   int *rootsfound;
 
-  nvSpec = NULL;
   y = abstol = NULL;
   cvode_mem = NULL;
 
-  /* Initialize serial vector specification object */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if (check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
-  y = N_VNew(nvSpec);    /* Allocate y, abstol vectors */
-  if (check_flag((void *)y, "N_VNew", 0)) return(1);
-  abstol = N_VNew(nvSpec); 
-  if (check_flag((void *)abstol, "N_VNew", 0)) return(1);
+  /* Create serial vectors of length NEQ for I.C. and abstol */
+  y = N_VNew_Serial(NEQ);
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  abstol = N_VNew_Serial(NEQ); 
+  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
   Ith(y,1) = Y1;               /* Initialize y */
   Ith(y,2) = Y2;
@@ -157,9 +148,8 @@ int main()
      SV      specifies scalar relative and vector absolute tolerances
      &reltol is a pointer to the scalar relative tolerance
      abstol  is the absolute tolerance vector
-     nvSpec  is the vector specification object 
   */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
@@ -202,13 +192,11 @@ int main()
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
   /* Free y vector */
-  N_VFree(y);
+  N_VDestroy(y);
   /* Free abstol vector */
-  N_VFree(abstol);
+  N_VDestroy(abstol);
   /* Free integrator memory */
   CVodeFree(cvode_mem);
-  /* Free vector specification memory */
-  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 }

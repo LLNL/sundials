@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-06-29 00:51:16 $
+ * $Revision: 1.10 $
+ * $Date: 2004-07-22 21:25:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -99,63 +99,66 @@ static void PrintFinalStats(void *cvode_mem);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 
-/***************************** Main Program ******************************/
+/*
+ *-------------------------------
+ * Main Program
+ *-------------------------------
+ */
 
 int main()
 {
-  NV_Spec nvSpec;
   realtype reltol, t, tout;
   N_Vector y, abstol;
   void *cvode_mem;
   int flag, flagr, iout;
   int *rootsfound;
 
-  nvSpec = NULL;
   y = abstol = NULL;
   cvode_mem = NULL;
 
-  /* Initialize serial vector specification object */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if (check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
+  /* Create serial vectors of length NEQ for I.C. and abstol */
+  y = N_VNew_Serial(NEQ);
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  abstol = N_VNew_Serial(NEQ); 
+  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
-  y = N_VNew(nvSpec);    /* Allocate y, abstol vectors */
-  if (check_flag((void *)y, "N_VNew", 0)) return(1);
-  abstol = N_VNew(nvSpec); 
-  if (check_flag((void *)abstol, "N_VNew", 0)) return(1);
-
-  Ith(y,1) = Y1;               /* Initialize y */
+  /* Initialize y */
+  Ith(y,1) = Y1;
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
 
-  reltol = RTOL;               /* Set the scalar relative tolerance */
-  Ith(abstol,1) = ATOL1;       /* Set the vector absolute tolerance */
+  /* Set the scalar relative tolerance */
+  reltol = RTOL;
+  /* Set the vector absolute tolerance */
+  Ith(abstol,1) = ATOL1;
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
   /* 
      Call CVodeCreate to create the solver memory:
-
+     
      BDF     specifies the Backward Differentiation Formula
      NEWTON  specifies a Newton iteration
 
      A pointer to the integrator problem memory is returned and stored in cvode_mem.
   */
+
   cvode_mem = CVodeCreate(BDF, NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
-
+  
   /* 
      Call CVodeMalloc to initialize the integrator memory: 
-
+     
      cvode_mem is the pointer to the integrator memory returned by CVodeCreate
-     f       is the user's right hand side function in y'=f(t,y)
-     T0      is the initial time
-     y       is the initial dependent variable vector
-     SV      specifies scalar relative and vector absolute tolerances
-     &reltol is a pointer to the scalar relative tolerance
-     abstol  is the absolute tolerance vector
-     nvSpec  is the vector specification object 
+     f         is the user's right hand side function in y'=f(t,y)
+     T0        is the initial time
+     y         is the initial dependent variable vector
+     SV        specifies scalar relative and vector absolute tolerances
+     &reltol   is a pointer to the scalar relative tolerance
+     abstol    is the absolute tolerance vector
   */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpec);
+
+  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
@@ -195,24 +198,28 @@ int main()
     if (iout == NOUT) break;
   }
 
-  PrintFinalStats(cvode_mem);  /* Print some final statistics   */
+  /* Print some final statistics */
+  PrintFinalStats(cvode_mem);
 
   /* Free y vector */
-  N_VFree(y);
+  N_VDestroy(y);
   /* Free abstol vector */
-  N_VFree(abstol);
+  N_VDestroy(abstol);
   /* Free integrator memory */
   CVodeFree(cvode_mem);
-  /* Free vector specification memory */
-  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 }
 
+/*
+ *-------------------------------
+ * Private helper functions
+ *-------------------------------
+ */
 
-/************************ Private Helper Function ************************/
-
-/* Print some final statistics located in the iopt array */
+/* 
+ * Print some final statistics located in the iopt array 
+ */
 
 static void PrintFinalStats(void *cvode_mem)
 {
@@ -248,9 +255,9 @@ static void PrintFinalStats(void *cvode_mem)
 }
 
 
-/***************** Functions Called by the Solver ******************/
-
-/* f routine. Compute f(t,y). */
+/*
+ * f function. Compute f(t,y). 
+ */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
@@ -263,7 +270,9 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
         Ith(ydot,2) = -yd1 - yd3;
 }
 
-/* g routine. Compute g_i(t,y) for i = 0,1. */
+/*
+ * g function. Compute g_i(t,y) for i = 0,1. 
+ */
 
 static void g(realtype t, N_Vector y, realtype *gout, void *g_data)
 {
@@ -274,7 +283,8 @@ static void g(realtype t, N_Vector y, realtype *gout, void *g_data)
   gout[1] = y3 - 0.01;
 }
 
-/* Jacobian routine. Compute J(t,y). */
+/* Jacobian function. Compute J(t,y). */
+
 static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -289,15 +299,15 @@ static void Jac(long int N, DenseMat J, realtype t,
 }
 
 
-/************************ Private Helper Function ************************/
-
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-04-29 22:09:57 $
+ * $Revision: 1.13 $
+ * $Date: 2004-07-22 21:26:09 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -200,7 +200,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpec;
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
@@ -216,7 +215,6 @@ int main(int argc, char *argv[])
   booleantype sensi, err_con;
   int sensi_meth;
 
-  nvSpec = NULL;
   u = NULL;
   data = NULL;
   predata = NULL;
@@ -258,15 +256,9 @@ int main(int argc, char *argv[])
   predata = AllocPreconData (data);
   if (check_flag((void *)predata, "AllocPreconData", 2, my_pe)) MPI_Abort(comm, 1);
 
-  nvSpec = NV_SpecInit_Parallel(comm, local_N, neq, &argc, &argv);
-  if (nvSpec == NULL) {
-    if (my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
-    MPI_Finalize();
-    return(1); }
-
   /* Allocate u, and set initial values and tolerances */ 
-  u = N_VNew(nvSpec);
-  if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  u = N_VNew_Parallel(comm, local_N, neq);
+  if (check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
@@ -280,7 +272,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetMaxNumSteps(cvode_mem, 2000);
   if (check_flag(&flag, "CVodeSetMaxNumSteps", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
   if (check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* CVSPGMR */
@@ -309,8 +301,8 @@ int main(int argc, char *argv[])
     if (check_flag((void *)plist, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for (is=0; is<NS; is++) plist[is] = is+1;
 
-    uS = N_VNew_S(NS, nvSpec);
-    if (check_flag((void *)uS, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+    uS = N_VNewVectorArray_Parallel(NS, comm, local_N, neq);
+    if (check_flag((void *)uS, "N_VNewVectorArray_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
     for (is = 0; is < NS; is++)
       N_VConst(ZERO,uS[is]);
 
@@ -368,15 +360,14 @@ int main(int argc, char *argv[])
   if (my_pe == 0) PrintFinalStats(cvode_mem, sensi);
 
   /* Free memory */
-  N_VFree(u);
-  if (sensi) N_VFree_S(NS, uS);
+  N_VDestroy(u);
+  if (sensi) N_VDestroyVectorArray(uS, NS);
   free(data->p);  
   free(data);
   free(pbar);
   if (sensi) free(plist);
   FreePreconData(predata);
   CVodeFree(cvode_mem);
-  NV_SpecFree_Parallel(nvSpec);
 
   MPI_Finalize();
 

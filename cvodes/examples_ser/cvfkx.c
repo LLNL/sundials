@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-04-29 22:09:53 $
+ * $Revision: 1.13 $
+ * $Date: 2004-07-22 21:25:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -164,7 +164,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpec;
   void *cvode_mem;
   UserData data;
   realtype abstol, reltol, t, tout;
@@ -182,15 +181,10 @@ int main(int argc, char *argv[])
   uS = NULL;
   y = NULL;
   data = NULL;
-  nvSpec = NULL;
   cvode_mem = NULL;
 
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
-
-  /* Initialize serial vector specification */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
 
   /* PROBLEM PARAMETERS */
   data = AllocUserData();
@@ -198,8 +192,8 @@ int main(int argc, char *argv[])
   InitUserData(data);
 
   /* INITIAL STATES */
-  y = N_VNew(nvSpec);
-  if(check_flag((void *)y, "N_VNew", 0)) return(1);
+  y = N_VNew_Serial(NEQ);
+  if(check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
   SetInitialProfiles(y, data->dx, data->dz);
   
   /* TOLERANCES */
@@ -217,7 +211,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return(1);
 
   /* CVODE_MALLOC */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, SS, &reltol, &abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* CVSPGMR */
@@ -244,8 +238,8 @@ int main(int argc, char *argv[])
     if(check_flag((void *)plist, "malloc", 2)) return(1);
     for(is=0; is<NS; is++) plist[is] = is+1;
 
-    uS = N_VNew_S(NS, nvSpec);
-    if(check_flag((void *)uS, "N_VNew", 0)) return(1);
+    uS = N_VNewVectorArray_Serial(NS, NEQ);
+    if(check_flag((void *)uS, "N_VNewVectorArray_Serial", 0)) return(1);
     for(is=0;is<NS;is++)
       N_VConst(ZERO,uS[is]);
 
@@ -301,11 +295,10 @@ int main(int argc, char *argv[])
   PrintFinalStats(cvode_mem, sensi);
 
   /* Free memory */
-  N_VFree(y);
-  if (sensi) N_VFree_S(NS, uS);
+  N_VDestroy(y);
+  if (sensi) N_VDestroyVectorArray(uS, NS);
   FreeUserData(data);
   CVodeFree(cvode_mem);
-  NV_SpecFree_Serial(nvSpec);
   free(pbar);
   if (sensi) free(plist);
 
