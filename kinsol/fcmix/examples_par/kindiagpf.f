@@ -1,7 +1,7 @@
       program kindiagpf
 c     ----------------------------------------------------------------
-c     $Revision: 1.12 $
-c     $Date: 2004-10-14 23:38:53 $
+c     $Revision: 1.13 $
+c     $Date: 2004-10-15 00:03:58 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -116,11 +116,11 @@ c     number of this process.
       call fkinspgmrsetpset(1, ier)
       
       if (mype .eq. 0) write(6,1240)
- 1240 format('Example program kindiagpf'/' This fkinsol example code',
+ 1240 format('Example program kindiagpf:'//' This fkinsol example code',
      1       ' solves a 128 eqn diagonal algebraic system.'/
      2       ' Its purpose is to demonstrate the use of the Fortran',
-     3       ' interface'/' in a parallel environment.'//
-     4       ' globalstrategy = KIN_INEXACT_NEWTON'/)
+     3       ' interface'/' in a parallel environment.'///
+     4       ' globalstrategy = KIN_INEXACT_NEWTON')
 
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then
@@ -132,7 +132,7 @@ c     number of this process.
       endif
 
       if (mype .eq. 0) write(6,1245) ier
- 1245 format(/' FKINSOL return code is ', i5)
+ 1245 format(/' FKINSOL return code is ', i4/)
 
       if (mype .eq. 0) write(6,1246)
  1246 format(/' The resultant values of uu (process 0) are:'/)
@@ -140,13 +140,14 @@ c     number of this process.
       do 30 i = 1, nlocal, 4
          if(mype .eq. 0) write(6,1256) i + baseadd, uu(i), uu(i+1),
      1                                 uu(i+2), uu(i+3)
- 1256    format(i4, 4(1x, e14.6))
+ 1256    format(i4, 4(1x, f10.6))
  30   continue
 
       if (mype .eq. 0) write(6,1267) iopt(4), iopt(11), iopt(5),
      1                               iopt(12), iopt(13), iopt(14)
- 1267 format(//' nni = ', i4, ',  nli = ', i4, ',  nfe = ', i4,
-     1       ',  npe = ', i4, ',  nps=', i4, ',  ncfl=', i4)
+ 1267 format(//'Final statistics:'//
+     1       ' nni = ', i4, ',  nli = ', i4, ',  nfe = ', i4,
+     2       ',  npe = ', i4, ',  nps=', i4, ',  ncfl=', i4)
 
       call fkinfree
       call fnvfreep

@@ -1,11 +1,14 @@
-Example program kindiagsf
+Example program kindiagsf:
+
  This fkinsol example code solves a 128 eqn diagonal algebraic system.
  Its purpose is to demonstrate the use of the Fortran interface
  in a serial environment.
- globalstrategy = INEXACT_NEWTON
 
 
- fkinsol return code is     0
+ globalstrategy = KIN_INEXACT_NEWTON
+
+ FKINSOL return code is   0
+
 
  The resultant values of uu are:
 
@@ -43,4 +46,6 @@ Example program kindiagsf
  125 125.000000 126.000000 127.000000 128.000000
 
 
- nni=   7,  nli=  21,  nfe=   8,  npe=   2,  nps=  28,  ncfl=   0
+Final statistics:
+
+ nni =    7,  nli =   21,  nfe =    8,  npe =    2,  nps =   28,  ncfl =    0

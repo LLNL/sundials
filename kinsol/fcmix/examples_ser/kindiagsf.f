@@ -1,7 +1,7 @@
       program kindiagsf
 c     ----------------------------------------------------------------
-c     $Revision: 1.12 $
-c     $Date: 2004-10-14 23:38:48 $
+c     $Revision: 1.13 $
+c     $Date: 2004-10-15 00:03:54 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -80,11 +80,11 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinspgmrsetpset(1, ier)
 
       write(6,1240)
- 1240 format('Example program kindiagsf'/' This fkinsol example code',
+ 1240 format('Example program kindiagsf:'//' This fkinsol example code',
      1       ' solves a 128 eqn diagonal algebraic system.'/
      2       ' Its purpose is to demonstrate the use of the Fortran',
-     3       ' interface'/' in a serial environment.'//
-     4       ' globalstrategy = KIN_INEXACT_NEWTON'/)
+     3       ' interface'/' in a serial environment.'///
+     4       ' globalstrategy = KIN_INEXACT_NEWTON')
 
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then
@@ -97,20 +97,21 @@ c * * * * * * * * * * * * * * * * * * * * * *
       endif
 
       write(6,1245) ier
- 1245 format(/' FKINSOL return code is ', i5)
+ 1245 format(/' FKINSOL return code is ', i3)
 
       write(6,1246)
- 1246 format(/' The resultant values of uu are:'/)
+ 1246 format(//' The resultant values of uu are:'/)
 
       do 30 i = 1, neq, 4
          write(6,1256) i, uu(i), uu(i+1), uu(i+2), uu(i+3)
- 1256    format(i4, 4(1x, e14.6))
+ 1256    format(i4, 4(1x, f10.6))
  30   continue
 
       write(6,1267) iopt(4), iopt(11), iopt(5), iopt(12), iopt(13),
      1              iopt(14)
- 1267 format(//' nni = ', i4, ',  nli = ', i4, ',  nfe = ', i4,
-     1       ',  npe = ', i4, ',  nps = ', i4, ',  ncfl = ', i4)
+ 1267 format(//'Final statistics:'//
+     1       ' nni = ', i4, ',  nli = ', i4, ',  nfe = ', i4,
+     2       ',  npe = ', i4, ',  nps = ', i4, ',  ncfl = ', i4)
 
       call fkinfree
       call fnvfrees
