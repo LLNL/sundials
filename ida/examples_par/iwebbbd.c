@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-11-08 20:35:24 $
+ * $Revision: 1.19 $
+ * $Date: 2004-11-08 21:23:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
   
-  tout = 0.001;
+  tout = RCONST(0.001);
   retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
   if(check_flag(&retval, "IDACalcIC", 1, thispe)) MPI_Abort(comm, 1);
   
@@ -478,7 +478,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       cxy = IJ_Vptr(cc,ix,jy); 
       idxy = IJ_Vptr(id,ix,jy); 
       for (is = 0; is < NUM_SPECIES; is++) {
-        if (is < np) { cxy[is] = 10. + (realtype)(is+1)*xyfactor; idxy[is] = ONE; }
+	if (is < np) { cxy[is] = RCONST(10.0) + (realtype)(is+1)*xyfactor; idxy[is] = ONE; }
         else { cxy[is] = 1.0e5; idxy[is] = ZERO; }
       }
     }

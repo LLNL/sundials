@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-08 20:35:25 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-08 21:23:05 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -228,7 +228,7 @@ int main()
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
-  tout = 0.001;
+  tout = RCONST(0.001);
   retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
   if(check_flag(&retval, "IDACalcIC", 1)) return(1);
   
@@ -404,18 +404,18 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
     yloc = NSMX * jy;
     for (jx = 0; jx < MX; jx++) {
       xx = jx * webdata->dx;
-      xyfactor = 16.*xx*(1.-xx)*yy*(1.-yy);
+      xyfactor = RCONST(16.0)*xx*(ONE-xx)*yy*(ONE-yy);
       xyfactor *= xyfactor;
       loc = yloc + NUM_SPECIES*jx;
       fac = ONE + ALPHA * xx * yy + BETA * sin(FOURPI*xx) * sin(FOURPI*yy);
       
       for (is = 0; is < NUM_SPECIES; is++) {
         if (is < np) {
-          ccv[loc+is] = 10. + (realtype)(is+1) * xyfactor;
+	    ccv[loc+is] = RCONST(10.0) + (realtype)(is+1) * xyfactor;
           idv[loc+is] = ONE;
         }
         else {
-          ccv[loc+is] = 1.0e5;
+	  ccv[loc+is] = RCONST(1.0e5);
           idv[loc+is] = ZERO;
         }
       }

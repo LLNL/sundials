@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-11-08 17:41:09 $
+ * $Revision: 1.11 $
+ * $Date: 2004-11-08 21:23:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -53,9 +53,9 @@
 /* Type: UserData */
 
 typedef struct {
-  long int    mm;
-  realtype       dx;
-  realtype       coeff;
+  long int mm;
+  realtype dx;
+  realtype coeff;
 } *UserData;
 
 /* Prototypes of functions called by IDA */
@@ -117,9 +117,9 @@ int main(void)
 
   /* Set remaining input parameters. */
   t0   = ZERO;
-  t1   = 0.01;
+  t1   = RCONST(0.01);
   rtol = ZERO;
-  atol = 1.0e-3;
+  atol = RCONST(1.0e-3);
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
@@ -168,11 +168,11 @@ int main(void)
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   IDAFree(mem);
-  N_VDestroy(uu);
-  N_VDestroy(up);
-  N_VDestroy(constraints);
-  N_VDestroy(id);
-  N_VDestroy(res);
+  N_VDestroy_Serial(uu);
+  N_VDestroy_Serial(up);
+  N_VDestroy_Serial(constraints);
+  N_VDestroy_Serial(id);
+  N_VDestroy_Serial(res);
   free(data);
 
   return(0);
@@ -215,7 +215,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
     for (i = 1; i < mm-1; i++) {
       loc = offset + i;
       resv[loc] = upv[loc] - coeff * 
-           (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - 4.0*uv[loc]);
+	  (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - RCONST(4.0)*uv[loc]);
     }
   }
   
@@ -256,7 +256,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
     for (i = 0;i < mm; i++) {
       xfact = data->dx * i;
       loc = offset + i;
-      udata[loc] = 16. * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
   

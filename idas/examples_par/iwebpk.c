@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-08 20:35:38 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-08 21:23:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -115,8 +115,8 @@
 #define NPREY       1        /* Number of prey (= number of predators). */
 #define NUM_SPECIES 2*NPREY
 
-#define PI          RCONST(3.1415926535898) /* pi */ 
-#define FOURPI      (RCONST(4.0)*PI)        /* 4 pi */
+#define PI          RCONST(3.1415926535898)   /* pi */ 
+#define FOURPI      (RCONST(4.0)*PI)          /* 4 pi */
 
 #define MXSUB       10    /* Number of x mesh points per processor subgrid */
 #define MYSUB       10    /* Number of y mesh points per processor subgrid */
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
   
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
-  tout = 0.001;
+  tout = RCONST(0.001);
   flag = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
   if (check_flag(&flag, "IDACalcIC", 1, thispe)) 
     MPI_Abort(comm, 1);
@@ -530,13 +530,13 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
     yy = (jy + jysub*mysub) * dy;
     for (ix = 0; ix < mxsub; ix++) {
       xx = (ix + ixsub*mxsub) * dx;
-      xyfactor = 16.*xx*(1. - xx)*yy*(1. - yy);
+      xyfactor = RCONST(16.0)*xx*(ONE - xx)*yy*(ONE - yy);
       xyfactor *= xyfactor;
       
       cxy = IJ_Vptr(cc,ix,jy); 
       idxy = IJ_Vptr(id,ix,jy); 
       for (is = 0; is < NUM_SPECIES; is++) {
-        if (is < np) { cxy[is] = 10. + (realtype)(is+1)*xyfactor; idxy[is] = ONE; }
+	if (is < np) { cxy[is] = RCONST(10.0) + (realtype)(is+1)*xyfactor; idxy[is] = ONE; }
         else { cxy[is] = 1.0e5; idxy[is] = ZERO; }
       }
     }

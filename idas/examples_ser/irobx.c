@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-11-08 17:41:09 $
+ * $Revision: 1.11 $
+ * $Date: 2004-11-08 21:23:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -35,6 +35,9 @@
 
 #define NEQ   3
 #define NOUT  12
+
+#define ZERO RCONST(0.0);
+#define ONE  RCONST(1.0);
 
 /* Macro to define dense matrix elements, indexed from 1. */
 
@@ -85,26 +88,26 @@ int main(void)
   /* Create and initialize  y, y', and absolute tolerance vectors. */
 
   yval  = NV_DATA_S(yy);
-  yval[0] = 1.0;
-  yval[1] = 0.0;
-  yval[2] = 0.0;
+  yval[0] = ONE;
+  yval[1] = ZERO;
+  yval[2] = ZERO;
 
   ypval = NV_DATA_S(yp);
-  ypval[0]  = -0.04;
-  ypval[1]  = +0.04;
-  ypval[2]  =   0.;  
+  ypval[0]  = RCONST(-0.04);
+  ypval[1]  = RCONST(0.04);
+  ypval[2]  = ZERO;  
 
-  rtol = 1.e-4;
+  rtol = RCONST(1.0e-4);
 
   atval = NV_DATA_S(avtol);
-  atval[0] = 1.e-6;
-  atval[1] = 1.e-10;
-  atval[2] = 1.e-6;
+  atval[0] = RCONST(1.0e-6);
+  atval[1] = RCONST(1.0e-10);
+  atval[2] = RCONST(1.0e-6);
 
   /* Integration limits */
 
-  t0   = 0.0;
-  t1   = 0.4;
+  t0 = ZERO;
+  t1 = RCONST(0.4);
 
   /* Call IDACreate and IDAMalloc to initialize IDA memory */
 
@@ -124,7 +127,7 @@ int main(void)
 
   PrintHeader(rtol, avtol, yy);
 
-  for (tout = t1, iout = 1; iout <= NOUT ; iout++, tout *= 10.0) {
+  for (tout = t1, iout = 1; iout <= NOUT ; iout++, tout *= RCONST(10.0)) {
     retval=IDASolve(mem, tout, &tret, yy, yp, IDA_NORMAL);
     if(check_flag(&retval, "IDASolve", 1)) return(1);
     PrintOutput(mem,tret,yy);
@@ -161,10 +164,10 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
   ypval = NV_DATA_S(yp); 
   rval = NV_DATA_S(rr);
 
-  rval[0]  = -0.04*yval[0] + 1.e4*yval[1]*yval[2];
-  rval[1]  = -rval[0]    - 3.e7*yval[1]*yval[1] - ypval[1];
+  rval[0]  = RCONST(-0.04)*yval[0] + RCONST(1.0e4)*yval[1]*yval[2];
+  rval[1]  = -rval[0] - RCONST(3.0e7)*yval[1]*yval[1] - ypval[1];
   rval[0] -=  ypval[0];
-  rval[2]  =  yval[0] + yval[1] + yval[2] - 1.0;
+  rval[2]  =  yval[0] + yval[1] + yval[2] - ONE;
 
   return(0);
 
@@ -183,15 +186,15 @@ int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
   
   yval = NV_DATA_S(yy);
 
-  IJth(JJ,1,1) = -0.04 - cj;
-  IJth(JJ,2,1) = +0.04;
-  IJth(JJ,3,1) =  1.  ;
-  IJth(JJ,1,2) =  1.e4*yval[2];
-  IJth(JJ,2,2) = -1.e4*yval[2] - 6.e7*yval[1] - cj;
-  IJth(JJ,3,2) =  1.;
-  IJth(JJ,1,3) =  1.e4*yval[1];
-  IJth(JJ,2,3) = -1.e4*yval[1];
-  IJth(JJ,3,3) =  1.;
+  IJth(JJ,1,1) = RCONST(-0.04) - cj;
+  IJth(JJ,2,1) = RCONST(0.04);
+  IJth(JJ,3,1) = ONE;
+  IJth(JJ,1,2) = RCONST(1.0e4)*yval[2];
+  IJth(JJ,2,2) = RCONST(-1.0e4)*yval[2] - RCONST(6.0e7)*yval[1] - cj;
+  IJth(JJ,3,2) = ONE;
+  IJth(JJ,1,3) = RCONST(1.0e4)*yval[1];
+  IJth(JJ,2,3) = RCONST(-1.0e4)*yval[1];
+  IJth(JJ,3,3) = ONE;
 
   return(0);
 

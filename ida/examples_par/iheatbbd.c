@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-08 17:40:51 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-08 21:23:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -184,12 +184,12 @@ int main(int argc, char *argv[])
   SetInitialProfile(uu, up, id, res, data);
   N_VConst(ONE, constraints);
 
-  t0 = 0.0; t1 = 0.01;
+  t0 = ZERO; t1 = RCONST(0.01);
 
   /* Scalar relative and absolute tolerance. */
 
-  rtol = 0.0;
-  atol = 1.e-3;
+  rtol = ZERO;
+  atol = RCONST(1.0e-3);
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
   if(check_flag((void *)P_data, "IDABBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDSpgmr to specify the linear solver. */
-  ier = IDABBDSpgmr(mem, 0.0, P_data);
+  ier = IDABBDSpgmr(mem, 0, P_data);
   if(check_flag(&ier, "IDABBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Print output heading (on processor 0 only) and initial solution. */
@@ -672,7 +672,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
     for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
       xfact = data->dx * i;
       loc = offset + iloc;
-      udata[loc] = 16. * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
       if (i == 0 || i == MX-1 || j == 0 || j == MY-1) iddata[loc] = ZERO;
     }
   }

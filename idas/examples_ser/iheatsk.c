@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-11-08 17:41:09 $
+ * $Revision: 1.12 $
+ * $Date: 2004-11-08 21:23:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -43,7 +43,7 @@
 
 #define NOUT  11
 #define MGRID 10
-#define NEQ   (MGRID*MGRID)
+#define NEQ   MGRID*MGRID
 #define ZERO  RCONST(0.0)
 #define ONE   RCONST(1.0)
 #define TWO   RCONST(2.0)
@@ -141,9 +141,9 @@ int main()
   /* Assign various parameters. */
 
   t0   = ZERO;
-  t1   = 0.01;
+  t1   = RCONST(0.01);
   rtol = ZERO;
-  atol = 1.e-3; 
+  atol = RCONST(1.0e-3); 
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
@@ -164,7 +164,7 @@ int main()
 
   /* Call IDASpgmr to specify the linear solver. */
 
-  ier = IDASpgmr(mem, 0.0);
+  ier = IDASpgmr(mem, 0);
   if(check_flag(&ier, "IDASpgmr", 1)) return(1);
 
   ier = IDASpgmrSetPrecSetupFn(mem, PsetupHeat);
@@ -321,8 +321,8 @@ int resHeat(realtype tt,
     offset = mm*j;
     for (i = 1; i < mm-1; i++) {
       loc = offset + i;
-      dif1 = uu_data[loc-1]  + uu_data[loc+1]  - 2 * uu_data[loc];
-      dif2 = uu_data[loc-mm] + uu_data[loc+mm] - 2 * uu_data[loc];
+      dif1 = uu_data[loc-1]  + uu_data[loc+1]  - TWO * uu_data[loc];
+      dif2 = uu_data[loc-mm] + uu_data[loc+mm] - TWO * uu_data[loc];
       rr_data[loc]= up_data[loc] - coeff * ( dif1 + dif2 );
     }
   }
@@ -431,7 +431,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
     for (i = 0;i < mm; i++) {
       xfact = data->dx * i;
       loc = offset + i;
-      udata[loc] = 16. * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
   
