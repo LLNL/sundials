@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-05-26 19:52:15 $
+ * $Revision: 1.21 $
+ * $Date: 2004-06-09 17:43:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -96,6 +96,9 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 
   *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, CV_yvec,
                      itol, rtol, atolptr, F2C_nvspec);
+
+  /* Store the unit roundoff in ropt for user access */
+  CV_ropt[9] = UNIT_ROUNDOFF;
 
   CV_iopt = iopt;
   CV_ropt = ropt;
@@ -353,8 +356,17 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 
 void FCV_FREE ()
 {
-
   CVodeFree(CV_cvodemem);
+}
+
+/***************************************************************************/
+
+void FCV_GETEWT (realtype *ewt, int *ier)
+{
+  N_Vector eweight;
+
+  *ier = CVodeGetErrWeights(CV_cvodemem, &eweight);
+  if (*ier == OKAY) ewt = N_VGetData(eweight);
 }
 
 /***************************************************************************/

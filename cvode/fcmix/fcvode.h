@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-05-26 19:52:15 $
+ * $Revision: 1.17 $
+ * $Date: 2004-06-09 17:43:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -379,6 +379,7 @@
 #define FCV_SPGMRSETPSET fcvspgmrsetpset
 #define FCV_CVODE        fcvode
 #define FCV_DKY          fcvdky
+#define FCV_GETEWT       fcvgetewt
 #define FCV_FREE         fcvfree
 #define FCV_FUN          fcvfun
 #define FCV_DJAC         fcvdjac
@@ -403,6 +404,7 @@
 #define FCV_SPGMRSETPSET fcvspgmrsetpset__
 #define FCV_CVODE        fcvode__
 #define FCV_DKY          fcvdky__
+#define FCV_GETEWT       fcvgetewt__
 #define FCV_FREE         fcvfree__
 #define FCV_FUN          fcvfun__
 #define FCV_DJAC         fcvdjac__
@@ -427,6 +429,7 @@
 #define FCV_SPGMRSETPSET fcvspgmrsetpset_
 #define FCV_CVODE        fcvode_
 #define FCV_DKY          fcvdky_
+#define FCV_GETEWT       fcvgetewt_
 #define FCV_FREE         fcvfree_
 #define FCV_FUN          fcvfun_
 #define FCV_DJAC         fcvdjac_
