@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2004-10-28 00:35:14 $
+# $Revision: 1.4 $
+# $Date: 2004-10-28 21:09:18 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -20,22 +20,29 @@ SUNDIALS_GREETING
 # Miscellaneous SUNDIALS initializations
 SUNDIALS_INITIALIZE
 
+# Test enable/disable features
+SUNDIALS_ENABLES
+SUNDIALS_MPI_ENABLES
+
 # Set C compilation
 SUNDIALS_SET_CC
 
-# Set Fortran compilation
-SUNDIALS_SET_F77
+# Set Fortran compilation (Optional)
+if test "X${F77_ENABLED}" = "Xyes"; then
+  SUNDIALS_SET_F77
+fi
 
-# Set MPI support
-SUNDIALS_SET_MPICC
-SUNDIALS_SET_MPIF77
+# Set MPI support (Optional)
+if test "X${MPI_ENABLED}" = "Xyes"; then
+  SUNDIALS_SET_MPICC
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    SUNDIALS_SET_MPIF77
+  fi
+fi
 
 # Run libtool checks
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
-
-# Set modules to build
-SUNDIALS_ENABLE_MODULES
 
 # Set examples modules
 SUNDIALS_ENABLE_EXAMPLES

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2004-10-28 00:35:14 $
+# $Revision: 1.4 $
+# $Date: 2004-10-28 21:09:18 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -76,7 +76,7 @@ AC_PROG_MAKE_SET
 # Also sets INSTALL_PROGRAM and INSTALL_SCRIPT
 AC_PROG_INSTALL
 
-# Set CC and F77 to default values
+# Set CC to default value
 if test "X${CC}" = "X"; then
   CC="cc"
 fi
@@ -146,6 +146,194 @@ fi
 ])
 
 #------------------------------------------------------------------
+# TEST ENABLES
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_ENABLES],
+[
+
+# Check if user wants to disable CVODE
+# If not, check if CVODE exists
+
+AC_ARG_ENABLE(cvode,
+[AC_HELP_STRING([--disable-cvode],[disable configuration of CVODE])],
+[
+if test "X${enableval}" = "Xno"; then
+  CVODE_ENABLED="no"
+fi
+],
+[
+if test -d ${srcdir}/cvode ; then
+  CVODE_ENABLED="yes"
+else
+  CVODE_ENABLED="no"
+fi
+])
+
+# Check if user wants to disable CVODES
+# If not, check if CVODES exists
+
+AC_ARG_ENABLE(cvodes,
+[AC_HELP_STRING([--disable-cvodes],[disable configuration of CVODES])],
+[
+if test "X${enableval}" = "Xno"; then
+  CVODES_ENABLED="no"
+fi
+],
+[
+if test -d ${srcdir}/cvodes ; then
+  CVODES_ENABLED="yes"
+else
+  CVODES_ENABLED="no"
+fi
+])
+
+# Check if user wants to disable IDA
+# If not, check if IDA exists
+
+AC_ARG_ENABLE(ida,
+[AC_HELP_STRING([--disable-ida],[disable configuration of IDA])],
+[
+if test "X${enableval}" = "Xno"; then
+  IDA_ENABLED="no"
+fi
+],
+[
+if test -d ${srcdir}/ida  ; then
+  IDA_ENABLED="yes"
+else
+  IDA_ENABLED="no"
+fi
+])
+
+# Check if user wants to disable KINSOL
+# If not, check if KINSOL exists
+
+AC_ARG_ENABLE(kinsol,
+[AC_HELP_STRING([--disable-kinsol],[disable configuration of KINSOL])],
+[
+if test "X${enableval}" = "Xno"; then
+  KINSOL_ENABLED="no"
+fi
+],
+[
+if test -d ${srcdir}/kinsol ; then
+  KINSOL_ENABLED="yes"
+else
+  KINSOL_ENABLED="no"
+fi
+])
+
+# IDAS is disabled here
+
+IDAS_ENABLED="no"
+
+# Check if user wants to disable examples
+EXAMPLES_ENABLED="yes"
+AC_ARG_ENABLE(examples,
+[AC_HELP_STRING([--disable-examples],[disable configuration of examples])],
+[
+if test "X${enableval}" = "Xno"; then
+  EXAMPLES_ENABLED="no"
+fi
+])
+
+# Check if user wants to disable Fortran
+F77_ENABLED="yes"
+AC_ARG_ENABLE([f77],
+[AC_HELP_STRING([--disable-f77], [disable Fortran support])],
+[
+  if test "X${enableval}" = "Xno"; then
+    F77_ENABLED="no"
+  fi
+],
+[
+  if test "X${CVODE_ENABLED}" = "Xno" && test "X${KINSOL_ENABLED}" = "Xno"; then
+    F77_ENABLED="no"
+  elif test "X${EXAMPLES_ENABLED}" = "Xno"; then
+    F77_ENABLED="no"
+  else
+    F77_ENABLED="yes"
+  fi
+]
+)
+
+]) dnl END SUNDIALS_ENABLES
+
+#------------------------------------------------------------------
+# TEST PARALLEL ENABLES
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_MPI_ENABLES],
+[
+
+# Check if user wants to disable MPI
+# If not, check if it is needed at all
+
+AC_ARG_ENABLE([mpi],
+[AC_HELP_STRING([--disable-mpi],[disable MPI support])],
+[
+if test "X${enableval}" = "Xno"; then
+  MPI_ENABLED="no"
+fi
+],
+[
+if test -d ${srcdir}/nvec_par ; then
+  MPI_ENABLED="yes"
+else
+  MPI_ENABLED="no"
+fi
+]
+)
+
+]) dnl END SUNDIALS_MPI_ENABLES
+
+#------------------------------------------------------------------
+# TEST DEVELOPMENT ENABLES
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_DEV_ENABLES],
+[
+
+# Check if user wants to skip C++
+# If not, check if it is needed at all
+
+AC_ARG_ENABLE([cxx],
+[AC_HELP_STRING([--disable-cxx], [disable C++ support])],
+[
+if test "X${enableval}" = "Xno"; then
+  CXX_ENABLED="no"
+fi
+],
+[
+if test -d ${srcdir}/xs4c ; then
+  CXX_ENABLED="yes"
+else
+  CXX_ENABLED="no"
+fi
+])
+
+# Check if user wants to disable IDAS
+# If not, see if IDAS exists
+
+AC_ARG_ENABLE(idas,
+[AC_HELP_STRING([--disable-idas],[disable configuration of IDAS])],
+[
+if test "X${enableval}" = "Xno"; then
+  IDAS_ENABLED="no"
+fi
+],
+[
+if test -d ${srcdir}/idas ; then
+  IDAS_ENABLED="yes"
+else
+  IDAS_ENABLED="no"
+fi
+])
+        
+]) dnl END SUNDIALS_DEV_ENABLES
+
+#------------------------------------------------------------------
 # CHECK C COMPILER
 #------------------------------------------------------------------
 
@@ -210,164 +398,177 @@ AC_PROG_CC(${USER_CC} cc gcc)
 
 # If CC="" then abort (means did NOT find a valid C compiler)
 if test "X${CC}" = "X"; then
-  CC_OK="no"
+
   AC_MSG_ERROR([cannot find C compiler])
-else
-
-  CC_OK="yes"
-
-  # Determine absolute pathname for specified C compiler
-  CC_TEMP1="${CC}"
-  CC_TEMP2=`basename "${CC}"`
-  # If only the executable name was given, then determine absolute pathname
-  if test "X${CC_TEMP1}" = "X${CC_TEMP2}"; then
-    AC_PATH_PROG([CC_COMP],[${CC}],[none])
-    # We already know the C compiler exists, so this test is provided only
-    # for the sake of completeness
-    if test "X${CC_COMP}" = "Xnone"; then
-      CC="${CC_TEMP1}"
-    else
-      CC="${CC_COMP}"
-    fi
-  fi
-
-  AC_MSG_CHECKING([for extra C compiler flags])
-  AC_ARG_WITH(cflags,
-  [AC_HELP_STRING([--with-cflags],[add extra C compiler flags])],
-  [AC_MSG_RESULT([${withval}])
-   USER_CFLAGS="${withval}"],
-  [AC_MSG_RESULT([none])
-   USER_CFLAGS=""])
-
-  # Set CPP to command that runs C preprocessor
-  # Defines CPP
-  AC_PROG_CPP
-
-  AC_MSG_CHECKING([for extra C/C++ preprocessor flags])
-  AC_ARG_WITH(cppflags,
-  [AC_HELP_STRING([--with-cppflags],[add extra C/C++ preprocessor flags])],
-  [AC_MSG_RESULT([${withval}])
-   if test "X${CPPFLAGS}" = "X"; then
-     CPPFLAGS="${withval}"
-   else
-     CPPFLAGS="${CPPFLAGS} ${withval}"
-   fi],
-  [AC_MSG_RESULT([none])])
-
-  # Add default flag(s) to CFLAGS only if not already defined
-  if test "X${CFLAGS_USER_OVERRIDE}" = "Xno"; then
-    SUNDIALS_DEFAULT_CFLAGS
-  fi
-
-  if test "X${USER_CFLAGS}" = "X"; then
-    CFLAGS="${CFLAGS}"
-  else
-    CFLAGS="${CFLAGS} ${USER_CFLAGS}"
-  fi
-
-  AC_MSG_CHECKING([for extra linker flags])
-  AC_ARG_WITH(ldflags,
-  [AC_HELP_STRING([--with-ldflags],[add extra linker flags])],
-  [AC_MSG_RESULT([${withval}])
-   if test "X${LDFLAGS}" = "X"; then
-     LDFLAGS="${withval}"
-   else
-     LDFLAGS="${LDFLAGS} ${withval}"
-   fi],
-  [AC_MSG_RESULT([none])])
-
-  AC_MSG_CHECKING([for extra libraries])
-  AC_ARG_WITH(libs,
-  [AC_HELP_STRING([--with-libs],[add extra libraries])],
-  [AC_MSG_RESULT([${withval}])
-   if test "X${LIBS}" = "X"; then
-     LIBS="${withval}"
-   else
-     LIBS="${LIBS} ${withval}"
-   fi],
-  [AC_MSG_RESULT([none])])
-
-  # Remaining tests pertain to C programming language
-  AC_LANG([C])
-
-  # Defines STDC_HEADERS if the following header files are found: stdlib.h,
-  # stdarg.h, string.h, and float.h
-  # We really only need stdlib.h and float.h
-  AC_HEADER_STDC
-
-  AC_CHECK_HEADERS([stdlib.h float.h math.h])
-
-  TEMP_LIBS="${LIBS}"
-  LIBS=""
-
-  # Check if math library contains pow() and sqrt() functions (required)
-  # May update LIBS (meaning add additional library, namely libm)
-  AC_CHECK_LIB([m],pow,[],[AC_MSG_ERROR([cannot find pow function])])
-  LIBS_TEMP="${LIBS}"
-  LIBS=""
-  AC_CHECK_LIB([m],sqrt,[],[AC_MSG_ERROR([cannt find sqrt function])])
-  # For the sake of clarity, do NOT include the same library twice
-  if test "X${LIBS}" = "X"; then
-    if test "X${LIBS_TEMP}" = "X"; then
-      LIBS=""
-    else
-      LIBS="${LIBS_TEMP}"
-    fi
-  else
-    if test "X${LIBS_TEMP}" = "X"; then
-      LIBS="${LIBS}"
-    else
-      if test "X${LIBS}" = "X${LIBS_TEMP}"; then
-        LIBS="${LIBS}"
-      else
-        LIBS="${LIBS} ${LIBS_TEMP}"
-      fi
-    fi
-  fi
-
-  AC_MSG_CHECKING([for additional required C libraries])
-  if test "X${LIBS}" = "X"; then
-    if test "X${TEMP_LIBS}" = "X"; then
-      LIBS=""
-    else
-      LIBS="${TEMP_LIBS}"
-    fi
-    AC_MSG_RESULT([none])
-  else
-    AC_MSG_RESULT([${LIBS}])
-    if test "X${TEMP_LIBS}" = "X"; then
-      LIBS="${LIBS}"
-    else
-      LIBS="${LIBS} ${TEMP_LIBS}"
-    fi
-  fi
-
-  # Check sizeof(int) - used to modify Fortran examples
-  AC_CHECK_SIZEOF(int)
-
-  # Check sizeof(long int) - used to modify Fortran examples
-  AC_CHECK_SIZEOF(long int)
-
-  # Check sizeof(realtype), where realtype is either float, double
-  # or long double - used to modify Fortran examples
-  if test "X${FLOAT_TYPE}" = "Xsingle"; then
-    AC_CHECK_SIZEOF(float)
-  elif test "X${FLOAT_TYPE}" = "Xdouble"; then
-    AC_CHECK_SIZEOF(double)
-  elif test "X${FLOAT_TYPE}" = "Xextended"; then
-    AC_CHECK_SIZEOF(long double)
-  fi
-
-  # F77_FLOAT_TYPE exported via AC_SUBST (see configure.ac) - used by FCMIX Makefile's
-  F77_FLOAT_TYPE="${FLOAT_TYPE}"
-
-  # Defines EGREP and exports via AC_SUBST - used by FCMIX Makefile's
-  AC_PROG_EGREP
-
-  # Defines FGREP and exports via AC_SUBST - used by FCMIX Makefile's
-  AC_PROG_FGREP
 
 fi
+
+# Determine absolute pathname for specified C compiler
+CC_TEMP1="${CC}"
+CC_TEMP2=`basename "${CC}"`
+# If only the executable name was given, then determine absolute pathname
+if test "X${CC_TEMP1}" = "X${CC_TEMP2}"; then
+  AC_PATH_PROG([CC_COMP],[${CC}],[none])
+  # We already know the C compiler exists, so this test is provided only
+  # for the sake of completeness
+  if test "X${CC_COMP}" = "Xnone"; then
+    CC="${CC_TEMP1}"
+  else
+    CC="${CC_COMP}"
+  fi
+fi
+
+AC_MSG_CHECKING([for extra C compiler flags])
+AC_ARG_WITH(cflags,
+[AC_HELP_STRING([--with-cflags],[add extra C compiler flags])],
+[
+AC_MSG_RESULT([${withval}])
+USER_CFLAGS="${withval}"
+],
+[
+AC_MSG_RESULT([none])
+USER_CFLAGS=""
+])
+
+# Set CPP to command that runs C preprocessor
+# Defines CPP
+AC_PROG_CPP
+
+AC_MSG_CHECKING([for extra C/C++ preprocessor flags])
+AC_ARG_WITH(cppflags,
+[AC_HELP_STRING([--with-cppflags],[add extra C/C++ preprocessor flags])],
+[
+AC_MSG_RESULT([${withval}])
+if test "X${CPPFLAGS}" = "X"; then
+  CPPFLAGS="${withval}"
+else
+  CPPFLAGS="${CPPFLAGS} ${withval}"
+fi
+],
+[
+AC_MSG_RESULT([none])
+])
+
+# Add default flag(s) to CFLAGS only if not already defined
+if test "X${CFLAGS_USER_OVERRIDE}" = "Xno"; then
+  SUNDIALS_DEFAULT_CFLAGS
+fi
+
+if test "X${USER_CFLAGS}" = "X"; then
+  CFLAGS="${CFLAGS}"
+else
+  CFLAGS="${CFLAGS} ${USER_CFLAGS}"
+fi
+
+AC_MSG_CHECKING([for extra linker flags])
+AC_ARG_WITH(ldflags,
+[AC_HELP_STRING([--with-ldflags],[add extra linker flags])],
+[
+AC_MSG_RESULT([${withval}])
+if test "X${LDFLAGS}" = "X"; then
+  LDFLAGS="${withval}"
+else
+  LDFLAGS="${LDFLAGS} ${withval}"
+fi
+],
+[
+AC_MSG_RESULT([none])
+])
+
+AC_MSG_CHECKING([for extra libraries])
+AC_ARG_WITH(libs,
+[AC_HELP_STRING([--with-libs],[add extra libraries])],
+[
+AC_MSG_RESULT([${withval}])
+if test "X${LIBS}" = "X"; then
+  LIBS="${withval}"
+else
+  LIBS="${LIBS} ${withval}"
+fi
+],
+[
+AC_MSG_RESULT([none])
+])
+
+# Remaining tests pertain to C programming language
+AC_LANG([C])
+
+# Defines STDC_HEADERS if the following header files are found: stdlib.h,
+# stdarg.h, string.h, and float.h
+# We really only need stdlib.h and float.h
+AC_HEADER_STDC
+
+AC_CHECK_HEADERS([stdlib.h float.h math.h])
+
+TEMP_LIBS="${LIBS}"
+LIBS=""
+
+# Check if math library contains pow() and sqrt() functions (required)
+# May update LIBS (meaning add additional library, namely libm)
+AC_CHECK_LIB([m],pow,[],[AC_MSG_ERROR([cannot find pow function])])
+LIBS_TEMP="${LIBS}"
+LIBS=""
+AC_CHECK_LIB([m],sqrt,[],[AC_MSG_ERROR([cannt find sqrt function])])
+# For the sake of clarity, do NOT include the same library twice
+if test "X${LIBS}" = "X"; then
+  if test "X${LIBS_TEMP}" = "X"; then
+    LIBS=""
+  else
+    LIBS="${LIBS_TEMP}"
+  fi
+else
+  if test "X${LIBS_TEMP}" = "X"; then
+    LIBS="${LIBS}"
+  else
+    if test "X${LIBS}" = "X${LIBS_TEMP}"; then
+      LIBS="${LIBS}"
+    else
+      LIBS="${LIBS} ${LIBS_TEMP}"
+    fi
+  fi
+fi
+
+AC_MSG_CHECKING([for additional required C libraries])
+if test "X${LIBS}" = "X"; then
+  if test "X${TEMP_LIBS}" = "X"; then
+    LIBS=""
+  else
+    LIBS="${TEMP_LIBS}"
+  fi
+  AC_MSG_RESULT([none])
+else
+  AC_MSG_RESULT([${LIBS}])
+  if test "X${TEMP_LIBS}" = "X"; then
+    LIBS="${LIBS}"
+  else
+    LIBS="${LIBS} ${TEMP_LIBS}"
+  fi
+fi
+
+# Check sizeof(int) - used to modify Fortran examples
+AC_CHECK_SIZEOF(int)
+
+# Check sizeof(long int) - used to modify Fortran examples
+AC_CHECK_SIZEOF(long int)
+
+# Check sizeof(realtype), where realtype is either float, double
+# or long double - used to modify Fortran examples
+if test "X${FLOAT_TYPE}" = "Xsingle"; then
+  AC_CHECK_SIZEOF(float)
+elif test "X${FLOAT_TYPE}" = "Xdouble"; then
+  AC_CHECK_SIZEOF(double)
+elif test "X${FLOAT_TYPE}" = "Xextended"; then
+  AC_CHECK_SIZEOF(long double)
+fi
+
+# F77_FLOAT_TYPE exported via AC_SUBST (see configure.ac) - used by FCMIX Makefile's
+F77_FLOAT_TYPE="${FLOAT_TYPE}"
+
+# Defines EGREP and exports via AC_SUBST - used by FCMIX Makefile's
+AC_PROG_EGREP
+
+# Defines FGREP and exports via AC_SUBST - used by FCMIX Makefile's
+AC_PROG_FGREP
 
 ])
 
@@ -413,244 +614,182 @@ esac
 AC_DEFUN([SUNDIALS_SET_F77],
 [
 
-AC_ARG_ENABLE([],[],[])
+F77_OK="yes"
 
-# Fortran compiler is only required if examples are enabled and building KINSOL
-# and/or CVODE
-# For now just check if examples were enabled (default)
-EXAMPLES_ENABLED="yes"
-AC_ARG_ENABLE(examples,
-[AC_HELP_STRING([--disable-examples],[disable configuration of examples])],
-[
-if test "X${enableval}" = "Xno"; then
-  EXAMPLES_ENABLED="no"
-fi
-])
+USER_F77="${F77}"
+# unset is NOT portable so just undefine/unset F77 by setting to "" (NULL)
+F77=""
 
-AC_ARG_ENABLE([],[ ],[])
+# Defines F77 and sets G77="yes" if F77="g77"
+# Search for Fortran compiler given by user first
+AC_PROG_F77(${USER_F77} f77 g77)
 
-# Must have kinsol directory in order to build KINSOL
-KINSOL_ENABLED="no"
-if test -d ${srcdir}/kinsol ; then
-  KINSOL_ENABLED="yes"
-fi
 
-# Check if user wants to skip KINSOL
-AC_ARG_ENABLE(kinsol,
-[AC_HELP_STRING([--disable-kinsol],[disable configuration of KINSOL])],
-[
-if test "X${enableval}" = "Xno"; then
-  KINSOL_ENABLED="no"
-fi
-])
-
-# Must have cvode directory in order to build CVODE
-CVODE_ENABLED="no"
-if test -d ${srcdir}/cvode ; then
-  CVODE_ENABLED="yes"
-fi
-
-# Check if user wants to skip CVODE
-AC_ARG_ENABLE(cvode,
-[AC_HELP_STRING([--disable-cvode],[disable configuration of CVODE])],
-[
-if test "X${enableval}" = "Xno"; then
-  CVODE_ENABLED="no"
-fi
-])
-
-# Check if we need Fortran
-if test "X${CVODE_ENABLED}" = "Xyes" || test "X${KINSOL_ENABLED}" = "Xyes"; then
-  if test "X${EXAMPLES_ENABLED}" = "Xno"; then
-    F77_ENABLED="no"
-  else
-    F77_ENABLED="yes"
-  fi
-else
-  F77_ENABLED="no"
-fi
-
-AC_ARG_WITH([],[  ],[])
-
-# Check if user wants to skip Fortran
-AC_ARG_WITH([f77],
-[AC_HELP_STRING([--without-f77], [disable Fortran examples])],
-[
-  if test "X${withval}" = "Xno"; then
-    F77_ENABLED="no"
-  fi
-])
-
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-AH_TEMPLATE([SUNDIALS_UNDERSCORE_NONE],
-            [FCMIX: Do NOT append any underscores to functions names])
-AH_TEMPLATE([SUNDIALS_UNDERSCORE_ONE],
-            [FCMIX: Append ONE underscore to function names])
-AH_TEMPLATE([SUNDIALS_UNDERSCORE_TWO],
-            [FCMIX: Append TWO underscores to function names])
-
-# Provided in case AC_F77_WRAPPERS cannot determine name mangling scheme
-AC_ARG_WITH(f77underscore, 
-[AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
-[
-
-UNDERSCORE_ARG_GIVEN="yes"
-if test "X${withval}" = "Xnone"; then
-  AC_DEFINE([SUNDIALS_UNDERSCORE_NONE],[1],[])
-elif test "X${withval}" = "Xone"; then
-  AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
-elif test "X${withval}" = "Xtwo"; then
-  AC_DEFINE([SUNDIALS_UNDERSCORE_TWO],[1],[])
-else
-  AC_MSG_ERROR([invalid input])
-fi
-
-],
-[
-
-UNDERSCORE_ARG_GIVEN="no"
-
-])
-
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-AH_TEMPLATE([SUNDIALS_CASE_UPPER],
-            [FCMIX: Make function names uppercase])
-AH_TEMPLATE([SUNDIALS_CASE_LOWER],
-            [FCMIX: Make function names lowercase])
-
-# Provided in case AC_F77_WRAPPERS cannot determine name mangling scheme
-AC_ARG_WITH(f77case, 
-[AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
-[
-
-CASE_ARG_GIVEN="yes"
-if test "X${withval}" = "Xupper"; then
-  AC_DEFINE([SUNDIALS_CASE_UPPER],[1],[])
-elif test "X${withval}" = "Xlower"; then
-  AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
-else
-  AC_MSG_ERROR([invalid input])
-fi
-
-],
-[
-
-CASE_ARG_GIVEN="no"
-
-])
-
-# Check if user used "--with-f77underscore" or "--with-f77case"
-# If both flags were used, then just continue
-if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" || test "X${CASE_ARG_GIVEN}" = "Xyes"; then
-  # Only used "--with-f77underscore" flag, so set default case
-  if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" && test "X${CASE_ARG_GIVEN}" = "Xno"; then
-    AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
-  # Only used "--with-f77case" flag, so set default number of underscores
-  elif test "X${UNDERSCORE_ARG_GIVEN}" = "Xno" && test "X${CASE_ARG_GIVEN}" = "Xyes"; then
-    AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
-  fi
-  RUN_F77_WRAPPERS="no"
-# Only call AC_F77_WRAPPERS if user did NOT use "--with-f77underscore" or "--with-f77case" flags
-else
-  RUN_F77_WRAPPERS="yes"
-fi
-
-# Only continue checks if Fortran support is "required"
-if test "X${F77_ENABLED}" = "Xyes"; then
-
-  F77_OK="yes"
-
-  USER_F77="${F77}"
-  # unset is NOT portable so just undefine/unset F77 by setting to "" (NULL)
-  F77=""
-
-  # Defines F77 and sets G77="yes" if F77="g77"
-  # Search for Fortran compiler given by user first
-  AC_PROG_F77(${USER_F77} f77 g77)
+if test "X${F77}" = "X"; then
 
   # If F77="" then issue warning (means did NOT find a valid Fortran compiler)
   # Do NOT abort since Fortran compiler is NOT required
-  if test "X${F77}" = "X"; then
-    AC_MSG_WARN([cannot find Fortran compiler])
-    echo ""
-    echo "   Unable to find a functional Fortran compiler."
-    echo ""
-    echo "   Disabling serial Fortran examples..."
-    echo ""
-    F77_OK="no"
+
+  AC_MSG_WARN([cannot find Fortran compiler])
+  echo ""
+  echo "   Unable to find a functional Fortran compiler."
+  echo ""
+  echo "   Disabling serial Fortran examples..."
+  echo ""
+  F77_OK="no"
+
+else
+
+  # Provide variable description templates for config.hin and config.h files
+  # Required by autoheader utility
+  AH_TEMPLATE([SUNDIALS_UNDERSCORE_NONE],
+              [FCMIX: Do NOT append any underscores to functions names])
+  AH_TEMPLATE([SUNDIALS_UNDERSCORE_ONE],
+              [FCMIX: Append ONE underscore to function names])
+  AH_TEMPLATE([SUNDIALS_UNDERSCORE_TWO],
+              [FCMIX: Append TWO underscores to function names])
+
+  # Provided in case AC_F77_WRAPPERS cannot determine name mangling scheme
+  AC_ARG_WITH(f77underscore, 
+  [AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
+  [
+
+  UNDERSCORE_ARG_GIVEN="yes"
+  if test "X${withval}" = "Xnone"; then
+    AC_DEFINE([SUNDIALS_UNDERSCORE_NONE],[1],[])
+  elif test "X${withval}" = "Xone"; then
+    AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
+  elif test "X${withval}" = "Xtwo"; then
+    AC_DEFINE([SUNDIALS_UNDERSCORE_TWO],[1],[])
   else
+    AC_MSG_ERROR([invalid input])
+  fi
 
-    # Determine absolute pathname for specified Fortran compiler
-    F77_TEMP1="${F77}"
-    F77_TEMP2=`basename "${F77}"`
-    # If only the executable name was given, then determine absolute pathname
-    if test "X${F77_TEMP1}" = "X${F77_TEMP2}"; then
-      AC_PATH_PROG([F77_COMP],[${F77}],[none])
-      # We already know the Fortran compiler exists, so this test is provided only
-      # for the sake of completeness
-      if test "X${F77_COMP}" = "Xnone"; then
-        F77="${F77_TEMP1}"
-      else
-        F77="${F77_COMP}"
-      fi
+  ],
+  [
+
+  UNDERSCORE_ARG_GIVEN="no"
+
+  ])
+
+  # Provide variable description templates for config.hin and config.h files
+  # Required by autoheader utility
+  AH_TEMPLATE([SUNDIALS_CASE_UPPER],
+              [FCMIX: Make function names uppercase])
+  AH_TEMPLATE([SUNDIALS_CASE_LOWER],
+              [FCMIX: Make function names lowercase])
+
+  # Provided in case AC_F77_WRAPPERS cannot determine name mangling scheme
+  AC_ARG_WITH(f77case, 
+  [AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
+  [
+
+  CASE_ARG_GIVEN="yes"
+  if test "X${withval}" = "Xupper"; then
+    AC_DEFINE([SUNDIALS_CASE_UPPER],[1],[])
+  elif test "X${withval}" = "Xlower"; then
+    AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
+  else
+    AC_MSG_ERROR([invalid input])
+  fi
+
+  ],
+  [
+
+  CASE_ARG_GIVEN="no"
+
+  ])
+
+  # Check if user used "--with-f77underscore" or "--with-f77case"
+  # If both flags were used, then just continue
+  if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" || test "X${CASE_ARG_GIVEN}" = "Xyes"; then
+    # Only used "--with-f77underscore" flag, so set default case
+    if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" && test "X${CASE_ARG_GIVEN}" = "Xno"; then
+      AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
+    # Only used "--with-f77case" flag, so set default number of underscores
+    elif test "X${UNDERSCORE_ARG_GIVEN}" = "Xno" && test "X${CASE_ARG_GIVEN}" = "Xyes"; then
+      AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
     fi
+    RUN_F77_WRAPPERS="no"
+  # Only call AC_F77_WRAPPERS if user did NOT use "--with-f77underscore" or "--with-f77case" flags
+  else
+    RUN_F77_WRAPPERS="yes"
+  fi
 
-    # Determine how to properly mangle function names so Fortran subroutines can
-    # call C functions included in SUNDIALS libraries
-    # Defines C preprocessor macros F77_FUNC and F77_FUNC_
-    if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
-      AC_F77_WRAPPERS
-    fi
-
-    AC_MSG_CHECKING([for extra Fortran compiler flags])
-    AC_ARG_WITH(fflags,
-    [AC_HELP_STRING([--with-fflags],[add extra Fortran compiler flags])],
-    [AC_MSG_RESULT([${withval}])
-     USER_FFLAGS="${withval}"],
-    [AC_MSG_RESULT([none])
-     USER_FFLAGS=""])
-
-    # Add default flag(s) to FFLAGS only if not already defined
-    if test "X${FFLAGS_USER_OVERRIDE}" = "Xno"; then
-      SUNDIALS_DEFAULT_FFLAGS
-    fi
-
-    if test "X${USER_FFLAGS}" = "X"; then
-      FFLAGS="${FFLAGS}"
+  # Determine absolute pathname for specified Fortran compiler
+  F77_TEMP1="${F77}"
+  F77_TEMP2=`basename "${F77}"`
+  # If only the executable name was given, then determine absolute pathname
+  if test "X${F77_TEMP1}" = "X${F77_TEMP2}"; then
+    AC_PATH_PROG([F77_COMP],[${F77}],[none])
+    # We already know the Fortran compiler exists, so this test is provided only
+    # for the sake of completeness
+    if test "X${F77_COMP}" = "Xnone"; then
+      F77="${F77_TEMP1}"
     else
-      FFLAGS="${FFLAGS} ${USER_FFLAGS}"
+      F77="${F77_COMP}"
     fi
+  fi
 
-    TEMP_FLIBS="${FLIBS}"
-    FLIBS=""
+  # Determine how to properly mangle function names so Fortran subroutines can
+  # call C functions included in SUNDIALS libraries
+  # Defines C preprocessor macros F77_FUNC and F77_FUNC_
 
-    # Add any required linker flags to FLIBS
-    AC_F77_LIBRARY_LDFLAGS
+  if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
+    AC_F77_WRAPPERS
+  fi
 
-    AC_MSG_CHECKING([for additional required Fortran linker flags])
-    if test "X${FLIBS}" = "X"; then
-      if test "X${TEMP_FLIBS}" = "X"; then
-        FLIBS=""
-      else
-        FLIBS="${TEMP_FLIBS}"
-      fi
-      AC_MSG_RESULT([none])
+  AC_MSG_CHECKING([for extra Fortran compiler flags])
+  AC_ARG_WITH(fflags,
+  [AC_HELP_STRING([--with-fflags],[add extra Fortran compiler flags])],
+  [
+  AC_MSG_RESULT([${withval}])
+  USER_FFLAGS="${withval}"
+  ],
+  [
+  AC_MSG_RESULT([none])
+  USER_FFLAGS=""
+  ])
+  
+  # Add default flag(s) to FFLAGS only if not already defined
+  if test "X${FFLAGS_USER_OVERRIDE}" = "Xno"; then
+    SUNDIALS_DEFAULT_FFLAGS
+  fi
+
+  if test "X${USER_FFLAGS}" = "X"; then
+    FFLAGS="${FFLAGS}"
+  else
+    FFLAGS="${FFLAGS} ${USER_FFLAGS}"
+  fi
+
+  TEMP_FLIBS="${FLIBS}"
+  FLIBS=""
+
+  # Add any required linker flags to FLIBS
+  AC_F77_LIBRARY_LDFLAGS
+
+  AC_MSG_CHECKING([for additional required Fortran linker flags])
+  if test "X${FLIBS}" = "X"; then
+    if test "X${TEMP_FLIBS}" = "X"; then
+      FLIBS=""
     else
-      AC_MSG_RESULT([${FLIBS}])
-      if test "X${TEMP_FLIBS}" = "X"; then
+      FLIBS="${TEMP_FLIBS}"
+    fi
+    AC_MSG_RESULT([none])
+  else
+    AC_MSG_RESULT([${FLIBS}])
+    if test "X${TEMP_FLIBS}" = "X"; then
+      FLIBS="${FLIBS}"
+    else
+      if test "X${FLIBS}" = "X${TEMP_FLIBS}"; then
         FLIBS="${FLIBS}"
       else
-        if test "X${FLIBS}" = "X${TEMP_FLIBS}"; then
-          FLIBS="${FLIBS}"
-        else
-          FLIBS="${FLIBS} ${TEMP_FLIBS}"
-        fi
+        FLIBS="${FLIBS} ${TEMP_FLIBS}"
       fi
     fi
   fi
-fi
+
+fi dnl END if test "X${F77}" = "X"
 
 ])
 
@@ -712,102 +851,86 @@ esac
 AC_DEFUN([SUNDIALS_SET_CXX],
 [
 
-AC_ARG_WITH([],[   ],[])
+CXX_OK="yes"
 
-# C++ compiler is only required if xs4c directory exists
-if test -d ${srcdir}/xs4c ; then
-  CXX_ENABLED="yes"
+# CXX and CCC are common so check both
+if test "X${CXX}" = "X"; then
+  if test "X${CCC}" = "X"; then
+    USER_CXX=""
+  else
+    USER_CXX="${CCC}"
+  fi
 else
-  CXX_ENABLED="no"
+  USER_CXX="${CXX}"
 fi
+# unset is NOT portable so just undefine/unset CXX by setting to "" (NULL)
+CXX=""
 
-# Check if user wants to skip C++
-AC_ARG_WITH([cxx],
-[AC_HELP_STRING([--without-cxx], [skip C++ support])],
-[
-if test "X${withval}" = "Xno"; then
-  CXX_ENABLED="no"
-fi
-])
+# Defines CXX and sets GXX="yes" if CXX="g++" (GNU C++ compiler)
+AC_PROG_CXX(${USER_CXX} g++ CC gcc c++ cxx)
 
-# Only continue checks if C++ support is required
-if test "X${CXX_ENABLED}" = "Xyes"; then
+# If CXX="" then issue warning (means did NOT find a valid C++ compiler)
+# Do NOT abort since C++ compiler is NOT required
+if test "X${CXX}" = "X"; then
 
-  CXX_OK="yes"
+  AC_MSG_WARN([cannot find C++ compiler])
+  echo ""
+  echo "   Unable to find a functional C++ compiler."
+  echo ""
+  echo "   Disabling dependent modules..."
+  echo ""
+  CXX_OK="no"
 
-  # CXX and CCC are common so check both
-  if test "X${CXX}" = "X"; then
-    if test "X${CCC}" = "X"; then
-      USER_CXX=""
+else
+
+  # Determine absolute pathname for specified C++ compiler
+  CXX_TEMP1="${CXX}"
+  CXX_TEMP2=`basename "${CXX}"`
+  # If only the executable name was given, then determine absolute pathname
+  if test "X${CXX_TEMP1}" = "X${CXX_TEMP2}"; then
+    AC_PATH_PROG([CXX_COMP],[${CXX}],[none])
+    # We already know the C++ compiler exists, so this test is provided only
+    # for the sake of completeness
+    if test "X${CXX_COMP}" = "Xnone"; then
+      CXX="${CXX_TEMP1}"
     else
-      USER_CXX="${CCC}"
+      CXX="${CXX_COMP}"
     fi
-  else
-    USER_CXX="${CXX}"
   fi
-  # unset is NOT portable so just undefine/unset CXX by setting to "" (NULL)
-  CXX=""
 
-  # Defines CXX and sets GXX="yes" if CXX="g++" (GNU C++ compiler)
-  AC_PROG_CXX(${USER_CXX} g++ CC gcc c++ cxx)
+  AC_MSG_CHECKING([for extra C++ compiler flags])
+  AC_ARG_WITH(cxxflags,
+  [AC_HELP_STRING([--with-cxxflags],[add extra C++ compiler flags])],
+  [
+  AC_MSG_RESULT([${withval}])
+  USER_CXXFLAGS="${withval}"
+  ],
+  [
+  AC_MSG_RESULT([none])
+  USER_CXXFLAGS=""
+  ])
 
-  # If CXX="" then issue warning (means did NOT find a valid C++ compiler)
-  # Do NOT abort since C++ compiler is NOT required
-  if test "X${CXX}" = "X"; then
-    AC_MSG_WARN([cannot find C++ compiler])
-    echo ""
-    echo "   Unable to find a functional C++ compiler."
-    echo ""
-    echo "   Disabling dependent modules..."
-    echo ""
-    CXX_OK="no"
-  else
+  # Set CXXCPP to command that runs C++ preprocessor
+  AC_PROG_CXXCPP
 
-    # Determine absolute pathname for specified C++ compiler
-    CXX_TEMP1="${CXX}"
-    CXX_TEMP2=`basename "${CXX}"`
-    # If only the executable name was given, then determine absolute pathname
-    if test "X${CXX_TEMP1}" = "X${CXX_TEMP2}"; then
-      AC_PATH_PROG([CXX_COMP],[${CXX}],[none])
-      # We already know the C++ compiler exists, so this test is provided only
-      # for the sake of completeness
-      if test "X${CXX_COMP}" = "Xnone"; then
-        CXX="${CXX_TEMP1}"
-      else
-        CXX="${CXX_COMP}"
-      fi
-    fi
-
-    AC_MSG_CHECKING([for extra C++ compiler flags])
-    AC_ARG_WITH(cxxflags,
-    [AC_HELP_STRING([--with-cxxflags],[add extra C++ compiler flags])],
-    [AC_MSG_RESULT([${withval}])
-     USER_CXXFLAGS="${withval}"],
-    [AC_MSG_RESULT([none])
-     USER_CXXFLAGS=""])
-
-    # Set CXXCPP to command that runs C++ preprocessor
-    AC_PROG_CXXCPP
-
-    # Add default flag(s) to CXXFLAGS only if not already defined
-    if test "X${CXXFLAGS_USER_OVERRIDE}" = "Xno"; then
-      SUNDIALS_DEFAULT_CXXFLAGS
-    fi
-
-    if test "X${USER_CXXFLAGS}" = "X"; then
-      CXXFLAGS="${CXXFLAGS}"
-    else
-      CXXFLAGS="${CXXFLAGS} ${USER_CXXFLAGS}"
-    fi
-
-    # Remaining test pertains to C++ programming language
-    AC_LANG([C++])
-
-    # Check for complex.h header file (required)
-    AC_CHECK_HEADER([complex.h])
-
+  # Add default flag(s) to CXXFLAGS only if not already defined
+  if test "X${CXXFLAGS_USER_OVERRIDE}" = "Xno"; then
+    SUNDIALS_DEFAULT_CXXFLAGS
   fi
-fi
+
+  if test "X${USER_CXXFLAGS}" = "X"; then
+    CXXFLAGS="${CXXFLAGS}"
+  else
+    CXXFLAGS="${CXXFLAGS} ${USER_CXXFLAGS}"
+  fi
+
+  # Remaining test pertains to C++ programming language
+  AC_LANG([C++])
+
+  # Check for complex.h header file (required)
+  AC_CHECK_HEADER([complex.h])
+
+fi dnl END if test "X${CXX}" = "X"
 
 ])
 
@@ -855,73 +978,70 @@ AC_DEFUN([SUNDIALS_SET_MPICC],
 
 AC_ARG_WITH([],[    ],[])
 
-# MPI is only required if nvec_par directory exists (parallel NVECTOR
-# implementation) and MPI support is enabled
-MPI_ENABLED="no"
-if test -d ${srcdir}/nvec_par ; then
-  MPI_ENABLED="yes"
-fi
-
-# Check if user wants to skip MPI
-AC_ARG_WITH([mpi],
-[AC_HELP_STRING([--without-mpi],[skip MPI support])],
+# MPI root directory
+AC_ARG_WITH(mpi-root,
+[AC_HELP_STRING([--with-mpi-root=MPIROOT],[use MPI root directory])],
 [
-if test "X${withval}" = "Xno"; then
-  MPI_ENABLED="no"
-fi
+MPI_ROOT_DIR="${withval}"
+],
+[
+MPI_ROOT_DIR=""
 ])
 
-# Only continue checks if MPI support is enabled
-if test "X${MPI_ENABLED}" = "Xyes"; then
+# MPI include directory
+AC_ARG_WITH(mpi-incdir,
+[AC_HELP_STRING([--with-mpi-incdir=DIR],[MPI include directory @<:@MPIROOT/include@:>@])],
+[
+MPI_INC_DIR="${withval}"
+],
+[
+MPI_INC_DIR=""
+])
 
-  # MPI root directory
-  AC_ARG_WITH(mpi-root,
-  [AC_HELP_STRING([--with-mpi-root=MPIROOT],[use MPI root directory])],
-  [MPI_ROOT_DIR="${withval}"],
-  [MPI_ROOT_DIR=""])
+# MPI library directory
+AC_ARG_WITH(mpi-libdir,
+[AC_HELP_STRING([--with-mpi-libdir=DIR],[MPI library directory @<:@MPIROOT/lib@:>@])],
+[
+MPI_LIB_DIR="${withval}"
+],
+[
+MPI_LIB_DIR=""
+])
 
-  # MPI include directory
-  AC_ARG_WITH(mpi-incdir,
-  [AC_HELP_STRING([--with-mpi-incdir=DIR],[MPI include directory @<:@MPIROOT/include@:>@])],
-  [MPI_INC_DIR="${withval}"],
-  [MPI_INC_DIR=""])
+# MPI libraries
+AC_ARG_WITH(mpi-libs,
+[AC_HELP_STRING([--with-mpi-libs=ARG],[MPI libraries @<:@-lmpi@:>@])],
+[
+MPI_LIBS="${withval}"
+],
+[
+MPI_LIBS=""
+])
 
-  # MPI library directory
-  AC_ARG_WITH(mpi-libdir,
-  [AC_HELP_STRING([--with-mpi-libdir=DIR],[MPI library directory @<:@MPIROOT/lib@:>@])],
-  [MPI_LIB_DIR="${withval}"],
-  [MPI_LIB_DIR=""])
+# MPI-C compiler
+AC_ARG_WITH(mpicc,
+[AC_HELP_STRING([--with-mpicc[[[[=ARG]]]]],[specify MPI-C compiler to use @<:@mpicc@:>@],
+                [                                ])],
+[
+if test "X${withval}" = "Xno"; then
+  USE_MPICC_SCRIPT="no"
+else
+  USE_MPICC_SCRIPT="yes"
+  MPICC_COMP="${withval}"
+fi
+],
+[
+USE_MPICC_SCRIPT="yes"
+ MPICC_COMP="mpicc"
+])
 
-  # MPI libraries
-  AC_ARG_WITH(mpi-libs,
-  [AC_HELP_STRING([--with-mpi-libs=ARG],[MPI libraries @<:@-lmpi@:>@])],
-  [MPI_LIBS="${withval}"],
-  [MPI_LIBS=""])
-
-  # MPI-C compiler
-  AC_ARG_WITH(mpicc,
-  [AC_HELP_STRING([--with-mpicc[[[[=ARG]]]]],[specify MPI-C compiler to use @<:@mpicc@:>@],
-                  [                                ])],
-  [
-  if test "X${withval}" = "Xno"; then
-    USE_MPICC_SCRIPT="no"
-  else
-    USE_MPICC_SCRIPT="yes"
-    MPICC_COMP="${withval}"
-  fi
-  ],
-  [USE_MPICC_SCRIPT="yes"
-   MPICC_COMP="mpicc"])
-
-  # Check MPI-C compiler (either MPI compiler script or regular C compiler)
-  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
-    SUNDIALS_CHECK_MPICC
-  else
-    MPICC_COMP="${CC}"
-    MPICC="${CC}"
-    SUNDIALS_CHECK_CC_WITH_MPI
-  fi
-
+# Check MPI-C compiler (either MPI compiler script or regular C compiler)
+if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+  SUNDIALS_CHECK_MPICC
+else
+  MPICC_COMP="${CC}"
+  MPICC="${CC}"
+  SUNDIALS_CHECK_CC_WITH_MPI
 fi
 
 ])
@@ -939,14 +1059,17 @@ AC_DEFUN([SUNDIALS_CHECK_MPICC],
 # CASE 1: MPICC_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPICC_COMP} ; then
+
   MPICC_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`AS_DIRNAME(["${MPICC_COMP}"])`
   MPI_INC_DIR="${MPI_BASE_DIR}/../include"
   MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
+
 # CASE 2: MPICC_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
+
   if test "X${MPI_ROOT_DIR}" = "X"; then
     # Try to find location of executable (perhaps directory was entered
     # incorrectly)
@@ -963,8 +1086,10 @@ else
       MPI_INC_DIR="${MPI_BASE_DIR}/../include"
       MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
+
   # CASE 3: MPICC_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
+
     # MPICC_COMP should really only contain an executable name
     # Found location of MPICC_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPICC_COMP} ; then
@@ -977,14 +1102,19 @@ else
       MPICC_COMP_EXISTS="no"
       MPICC_COMP=""
     fi
+
   fi
+
 fi
 
 # Issue warning message if MPICC_COMP does NOT exist, else set MPICC
 if test "X${MPICC_COMP_EXISTS}" = "Xyes"; then
+
   MPICC="${MPICC_COMP}"
   MPI_C_COMP_OK="yes"
+
 else
+
   AC_MSG_WARN([cannot find MPI-C compiler])
   echo ""
   echo "   Unable to find a functional MPI-C compiler."
@@ -999,6 +1129,7 @@ else
   echo ""
   MPICC=""
   MPI_C_COMP_OK="no"
+
 fi
 
 ])
@@ -1018,6 +1149,7 @@ SAVED_LIBS="${LIBS}"
 
 # Determine location of MPI header files (find MPI include directory)
 MPI_EXISTS="yes"
+
 # MPI include directory was NOT explicitly specified so check if MPI root
 # directory was given by user
 if test "X${MPI_INC_DIR}" = "X"; then
@@ -1135,35 +1267,29 @@ LIBS="${SAVED_LIBS}"
 AC_DEFUN([SUNDIALS_SET_MPIF77],
 [
 
-# Check MPI-F77 compiler only if MPI support is enabled and F77_ENABLED="yes"
-# Do NOT base check on F77_OK flag because even if a valid serial Fortran
-# compiler could NOT be found the MPIF77 compiler script may still work
-# F77_ENABLED flag also indicates if "--without-f77" flag was given by user
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_ENABLED}" = "Xyes" ; then
+AC_ARG_WITH(mpif77,
+[AC_HELP_STRING([--with-mpif77[[[[=ARG]]]]],[specify MPI-Fortran compiler to use @<:@mpif77@:>@],
+                [                                ])],
+[
+if test "X${withval}" = "Xno"; then
+  USE_MPIF77_SCRIPT="no"
+else
+  USE_MPIF77_SCRIPT="yes"
+  MPIF77_COMP="${withval}"
+fi
+],
+[
+USE_MPIF77_SCRIPT="yes"
+MPIF77_COMP="mpif77"
+])
 
-  AC_ARG_WITH(mpif77,
-  [AC_HELP_STRING([--with-mpif77[[[[=ARG]]]]],[specify MPI-Fortran compiler to use @<:@mpif77@:>@],
-                  [                                ])],
-  [
-  if test "X${withval}" = "Xno"; then
-    USE_MPIF77_SCRIPT="no"
-  else
-    USE_MPIF77_SCRIPT="yes"
-    MPIF77_COMP="${withval}"
-  fi
-  ],
-  [USE_MPIF77_SCRIPT="yes"
-   MPIF77_COMP="mpif77"])
-
-  # Check MPI-Fortran compiler (either MPI compiler script or regular Fortran compiler)
-  if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
-    SUNDIALS_CHECK_MPIF77
-  else
-    MPIF77_COMP="${F77}"
-    MPIF77="${F77}"
-    SUNDIALS_CHECK_F77_WITH_MPI
-  fi
-
+# Check MPI-Fortran compiler (either MPI compiler script or regular Fortran compiler)
+if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
+  SUNDIALS_CHECK_MPIF77
+else
+  MPIF77_COMP="${F77}"
+  MPIF77="${F77}"
+  SUNDIALS_CHECK_F77_WITH_MPI
 fi
 
 ])
@@ -1181,15 +1307,19 @@ AC_DEFUN([SUNDIALS_CHECK_MPIF77],
 # CASE 1: MPIF77_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPIF77_COMP} ; then
+
   MPIF77_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`AS_DIRNAME(["${MPIF77_COMP}"])`
   MPI_INC_DIR="${MPI_BASE_DIR}/../include"
   MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
+
 # CASE 2: MPIF77_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
+
   if test "X${MPI_ROOT_DIR}" = "X"; then
+
     # Try to find location of executable (perhaps directory was entered
     # incorrectly)
     TEMP_MPIF77_COMP=`basename "${MPIF77_COMP}"`
@@ -1205,8 +1335,10 @@ else
       MPI_INC_DIR="${MPI_BASE_DIR}/../include"
       MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
+
   # CASE 3: MPIF77_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
+
     # MPIF77_COMP should really only contain an executable name
     # Found location of MPIF77_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPIF77_COMP} ; then
@@ -1219,14 +1351,19 @@ else
       MPIF77_COMP_EXISTS="no"
       MPIF77_COMP=""
     fi
+
   fi
+
 fi
 
 # Issue warning message if MPIF77_COMP does NOT exist, else set MPIF77
 if test "X${MPIF77_COMP_EXISTS}" = "Xyes"; then
+
   MPIF77="${MPIF77_COMP}"
   MPI_F77_COMP_OK="yes"
+
 else
+
   AC_MSG_WARN([cannot find MPI-Fortran compiler])
   echo ""
   echo "   Unable to find a functional MPI-Fortran compiler."
@@ -1241,6 +1378,7 @@ else
   echo ""
   MPIF77=""
   MPI_F77_COMP_OK="no"
+
 fi
 
 ])
@@ -1390,37 +1528,29 @@ LIBS="${SAVED_LIBS}"
 AC_DEFUN([SUNDIALS_SET_MPICXX],
 [
 
-# Check MPI-C++ compiler only if MPI support is enabled and CXX_ENABLED="yes"
-# Do NOT base check on CXX_OK flag because even if a valid serial C++ compiler
-# could NOT be found the MPIC++ compiler script may still work
-# CXX_ENABLED flag also indicates if "--without-cxx" flag was given by user
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes"; then
-
-  AC_ARG_WITH(mpicxx,
-  [AC_HELP_STRING([--with-mpicxx[[[[=ARG]]]]],[specify MPI-C++ compiler to use @<:@mpiCC@:>@],
-                  [                                ])],
-  [
-  if test "X${withval}" = "Xno"; then
-    USE_MPICXX_SCRIPT="no"
-  else
-    USE_MPICXX_SCRIPT="yes"
-    MPICXX_COMP="${withval}"
-  fi
-  ],
-  [
+AC_ARG_WITH(mpicxx,
+[AC_HELP_STRING([--with-mpicxx[[[[=ARG]]]]],[specify MPI-C++ compiler to use @<:@mpiCC@:>@],
+                [                                ])],
+[
+if test "X${withval}" = "Xno"; then
+  USE_MPICXX_SCRIPT="no"
+else
   USE_MPICXX_SCRIPT="yes"
-  MPICXX_COMP="mpiCC"
-  ])
+  MPICXX_COMP="${withval}"
+fi
+],
+[
+USE_MPICXX_SCRIPT="yes"
+MPICXX_COMP="mpiCC"
+])
 
-  # Check MPI-C++ compiler (either MPI compiler script or regular C++ compiler)
-  if test "X${USE_MPICXX_SCRIPT}" = "Xyes"; then
-    SUNDIALS_CHECK_MPICXX
-  else
-    MPICXX_COMP="${CXX}"
-    MPICXX="${CXX}"
-    SUNDIALS_CHECK_CXX_WITH_MPI
-  fi
-
+# Check MPI-C++ compiler (either MPI compiler script or regular C++ compiler)
+if test "X${USE_MPICXX_SCRIPT}" = "Xyes"; then
+  SUNDIALS_CHECK_MPICXX
+else
+  MPICXX_COMP="${CXX}"
+  MPICXX="${CXX}"
+  SUNDIALS_CHECK_CXX_WITH_MPI
 fi
 
 AC_ARG_WITH([],[     ],[])
@@ -1440,15 +1570,19 @@ AC_DEFUN([SUNDIALS_CHECK_MPICXX],
 # CASE 1: MPICXX_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPICXX_COMP} ; then
+
   MPICXX_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`AS_DIRNAME(["${MPICXX_COMP}"])`
   MPI_INC_DIR="${MPI_BASE_DIR}/../include"
   MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
+
 # CASE 2: MPICXX_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
+
   if test "X${MPI_ROOT_DIR}" = "X"; then
+
     # Try to find location of executable (perhaps directory was entered
     # incorrectly)
     TEMP_MPICXX_COMP=`basename "${MPICXX_COMP}"`
@@ -1464,8 +1598,10 @@ else
       MPI_INC_DIR="${MPI_BASE_DIR}/../include"
       MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
+
   # CASE 3: MPICXX_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
+
     # MPICXX_COMP should really only contain an executable name
     # Found location of MPICXX_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPICXX_COMP} ; then
@@ -1478,7 +1614,9 @@ else
       MPICXX_COMP_EXISTS="no"
       MPICXX_COMP=""
     fi
+
   fi
+
 fi
 
 # Issue warning message if MPICXX_COMP does NOT exist, else set MPICXX
@@ -1640,105 +1778,6 @@ LIBS="${SAVED_LIBS}"
 ])
 
 #------------------------------------------------------------------
-# ENABLE MODULES
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_ENABLE_MODULES],
-[
-
-# Must have cvode directory in order to build CVODE
-CVODE_ENABLED="no"
-if test -d ${srcdir}/cvode ; then
-  CVODE_ENABLED="yes"
-fi
-
-# Check if user wants to skip CVODE
-AC_ARG_ENABLE(cvode,
-[AC_HELP_STRING([--disable-cvode],[disable configuration of CVODE])],
-[
-if test "X${enableval}" = "Xno"; then
-  CVODE_ENABLED="no"
-fi
-])
-
-# Must have cvodes directory in order to build CVODES
-CVODES_ENABLED="no"
-if test -d ${srcdir}/cvodes ; then
-  CVODES_ENABLED="yes"
-fi
-
-# Check if user wants to skip CVODES
-AC_ARG_ENABLE(cvodes,
-[AC_HELP_STRING([--disable-cvodes],[disable configuration of CVODES])],
-[
-if test "X${enableval}" = "Xno"; then
-  CVODES_ENABLED="no"
-fi
-])
-
-# Must have ida directory in order to build IDA
-IDA_ENABLED="no"
-if test -d ${srcdir}/ida  ; then
-  IDA_ENABLED="yes"
-fi
-
-# Check if user wants to skip IDA
-AC_ARG_ENABLE(ida,
-[AC_HELP_STRING([--disable-ida],[disable configuration of IDA])],
-[
-if test "X${enableval}" = "Xno"; then
-  IDA_ENABLED="no"
-fi
-])
-
-# Must have kinsol directory in order to build KINSOL
-KINSOL_ENABLED="no"
-if test -d ${srcdir}/kinsol ; then
-  KINSOL_ENABLED="yes"
-fi
-
-# Check if user wants to skip KINSOL
-AC_ARG_ENABLE(kinsol,
-[AC_HELP_STRING([--disable-kinsol],[disable configuration of KINSOL])],
-[
-if test "X${enableval}" = "Xno"; then
-  KINSOL_ENABLED="no"
-fi
-])
-
-IDAS_ENABLED="no"
-
-AC_ARG_ENABLE([],[  ],[])
-
-])
-
-#------------------------------------------------------------------
-# ENABLE DEVELOPER MODULES
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_ENABLE_DEV_MODULES],
-[
-
-# Must have idas directory in order to build IDAS
-IDAS_ENABLED="no"
-if test -d ${srcdir}/idas ; then
-  IDAS_ENABLED="yes"
-fi
-
-# Check if user wants to skip IDAS
-AC_ARG_ENABLE(idas,
-[AC_HELP_STRING([--disable-idas],[disable configuration of IDAS])],
-[
-if test "X${enableval}" = "Xno"; then
-  IDAS_ENABLED="no"
-fi
-])
-
-AC_ARG_ENABLE([],[   ],[])
-
-])
-
-#------------------------------------------------------------------
 # ENABLE EXAMPLES
 #------------------------------------------------------------------
 
@@ -1748,31 +1787,28 @@ AC_DEFUN([SUNDIALS_ENABLE_EXAMPLES],
 # Check libtool settings to determine which compiler and linker commands
 # should be used
 # Must export LIBTOOL_CMD, COMPILER_CMD and LINKER_CMD via AC_SUBST
+
 # If building shared libraries, then use libtool
 if test "X${enable_shared}" = "Xyes"; then
+
   LIBTOOL_CMD="LIBTOOL = ${LIBTOOL}"
   COMPILER_PREFIX="\$(LIBTOOL) --mode=compile"
   LINKER_PREFIX="\$(LIBTOOL) --mode=link"
+
 # If building static libraries, then use regular C compiler
 else
+
   LIBTOOL_CMD=""
   COMPILER_PREFIX=""
   LINKER_PREFIX=""
-fi
 
-# Examples are built by default, but user can override
-EXAMPLES_ENABLED="yes"
-AC_ARG_ENABLE(examples,
-[AC_HELP_STRING([--disable-examples],[disable configuration of examples])],
-[
-if test "X${enableval}" = "Xno"; then
-  EXAMPLES_ENABLED="no"
 fi
-])
 
 # Check if we need to build the Fortran examples
-# Recall F77_ENABLED is set in SUNDIALS_SET_F77 based upon CVODE_ENABLED,
-# KINSOL_ENABLED and EXAMPLES_ENABLED, so the check here is rather simple
+# Recall F77_ENABLED is set based upon CVODE_ENABLED, KINSOL_ENABLED,
+# and EXAMPLES_ENABLED, so the check here is rather simple:
+#       F77_EXAMPLES = ~F77_ENABLED
+
 F77_EXAMPLES="no";
 if test "X${F77_ENABLED}" = "Xyes"; then
   F77_EXAMPLES="yes"
@@ -1799,9 +1835,7 @@ PARALLEL_F77_EXAMPLES="no"
 if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
 
   AC_MSG_CHECKING([if we can build serial C examples])
-  if test "X${CC_OK}" = "Xyes"; then
-    SERIAL_C_EXAMPLES="yes"
-  fi
+  SERIAL_C_EXAMPLES="yes"
   AC_MSG_RESULT([${SERIAL_C_EXAMPLES}])
 
   if test "X${MPI_ENABLED}" = "Xyes"; then
@@ -1931,8 +1965,10 @@ if test "X${CVODE_ENABLED}" = "Xyes"; then
   MODULES="${MODULES} cvode/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/source/Makefile"
 
-  MODULES="${MODULES} cvode/fcmix"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    MODULES="${MODULES} cvode/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
+  fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/examples_ser ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/examples_ser"
@@ -2021,8 +2057,10 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
   MODULES="${MODULES} kinsol/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/source/Makefile"
 
-  MODULES="${MODULES} kinsol/fcmix"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    MODULES="${MODULES} kinsol/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
+  fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/examples_ser ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/examples_ser"

@@ -257,7 +257,6 @@ if test "X${PATH_SEPARATOR+set}" != Xset; then
     *-DOS) lt_cv_sys_path_separator=';' ;;
     *)     lt_cv_sys_path_separator=':' ;;
   esac
-  PATH_SEPARATOR=$lt_cv_sys_path_separator
 fi
 
 
@@ -324,7 +323,7 @@ else
   #
   # So, first we look for a working echo in the user's PATH.
 
-  IFS="${IFS= 	}"; save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+  IFS="${IFS= 	}"; save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR}"
   for dir in $PATH /usr/ucb; do
     if (test -f $dir/echo || test -f $dir/echo$ac_exeext) &&
        test "X`($dir/echo '\t') 2>/dev/null`" = 'X\t' &&
@@ -477,7 +476,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CC_COMP CPP EGREP FGREP F77 FFLAGS ac_ct_F77 F77_COMP FLIBS CXX CXXFLAGS ac_ct_CXX CXX_COMP CXXCPP MPICC_COMP MPIF77_COMP MPICXX_COMP LN_S ECHO RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP LIBTOOL COMPILER_PREFIX LINKER_PREFIX MPICC MPICXX MPIF77 MPI_INC_DIR MPI_LIB_DIR MPI_LIBS MODULES NVEC_MODULES EXAMPLE_MODULES F77_FLOAT_TYPE LIBTOOL_CMD LIBTOOL_DEPS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CC_COMP CPP EGREP FGREP F77 FFLAGS ac_ct_F77 F77_COMP FLIBS CXX CXXFLAGS ac_ct_CXX CXX_COMP CXXCPP MPICC_COMP MPIF77_COMP MPICXX_COMP LN_S ECHO RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP LIBTOOL COMPILER_PREFIX LINKER_PREFIX MPICC MPICXX MPIF77 MPI_INC_DIR MPI_LIB_DIR MPI_LIBS MODULES NVEC_MODULES EXAMPLE_MODULES F77_ENABLED F77_FLOAT_TYPE LIBTOOL_CMD LIBTOOL_DEPS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1034,20 +1033,19 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-
-  --disable-examples      disable configuration of examples
-
-  --disable-kinsol        disable configuration of KINSOL
   --disable-cvode         disable configuration of CVODE
+  --disable-cvodes        disable configuration of CVODES
+  --disable-ida           disable configuration of IDA
+  --disable-kinsol        disable configuration of KINSOL
+  --disable-examples      disable configuration of examples
+  --disable-f77           disable Fortran support
+  --disable-mpi           disable MPI support
+  --disable-cxx           disable C++ support
+  --disable-idas          disable configuration of IDAS
   --enable-shared=PKGS  build shared libraries default=no
   --enable-static=PKGS  build static libraries default=yes
   --enable-fast-install=PKGS  optimize for fast installation default=yes
   --disable-libtool-lock  avoid locking (might break parallel builds)
-  --disable-cvodes        disable configuration of CVODES
-  --disable-ida           disable configuration of IDA
-
-  --disable-idas          disable configuration of IDAS
-
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1060,18 +1058,13 @@ Optional Packages:
   --with-cppflags         add extra C/C++ preprocessor flags
   --with-ldflags          add extra linker flags
   --with-libs             add extra libraries
-
-  --without-f77           disable Fortran examples
   --with-f77underscore=ARG
                           specify number of underscores to append to function
                           names (none/one/two) [AUTO]
   --with-f77case=ARG      specify case of function names (lower/upper) [AUTO]
   --with-fflags           add extra Fortran compiler flags
-
-  --without-cxx           skip C++ support
   --with-cxxflags         add extra C++ compiler flags
 
-  --without-mpi           skip MPI support
   --with-mpi-root=MPIROOT use MPI root directory
   --with-mpi-incdir=DIR   MPI include directory [MPIROOT/include]
   --with-mpi-libdir=DIR   MPI library directory [MPIROOT/lib]
@@ -1753,7 +1746,7 @@ test -z "$INSTALL_SCRIPT" && INSTALL_SCRIPT='${INSTALL}'
 test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
 
 
-# Set CC and F77 to default values
+# Set CC to default value
 if test "X${CC}" = "X"; then
   CC="cc"
 fi
@@ -1784,7 +1777,205 @@ fi
 
 
 
-# Set C compilation
+# Test enable/disable features
+
+
+# Check if user wants to disable CVODE
+# If not, check if CVODE exists
+
+# Check whether --enable-cvode or --disable-cvode was given.
+if test "${enable_cvode+set}" = set; then
+  enableval="$enable_cvode"
+
+if test "X${enableval}" = "Xno"; then
+  CVODE_ENABLED="no"
+fi
+
+else
+
+if test -d ${srcdir}/cvode ; then
+  CVODE_ENABLED="yes"
+else
+  CVODE_ENABLED="no"
+fi
+
+fi;
+
+# Check if user wants to disable CVODES
+# If not, check if CVODES exists
+
+# Check whether --enable-cvodes or --disable-cvodes was given.
+if test "${enable_cvodes+set}" = set; then
+  enableval="$enable_cvodes"
+
+if test "X${enableval}" = "Xno"; then
+  CVODES_ENABLED="no"
+fi
+
+else
+
+if test -d ${srcdir}/cvodes ; then
+  CVODES_ENABLED="yes"
+else
+  CVODES_ENABLED="no"
+fi
+
+fi;
+
+# Check if user wants to disable IDA
+# If not, check if IDA exists
+
+# Check whether --enable-ida or --disable-ida was given.
+if test "${enable_ida+set}" = set; then
+  enableval="$enable_ida"
+
+if test "X${enableval}" = "Xno"; then
+  IDA_ENABLED="no"
+fi
+
+else
+
+if test -d ${srcdir}/ida  ; then
+  IDA_ENABLED="yes"
+else
+  IDA_ENABLED="no"
+fi
+
+fi;
+
+# Check if user wants to disable KINSOL
+# If not, check if KINSOL exists
+
+# Check whether --enable-kinsol or --disable-kinsol was given.
+if test "${enable_kinsol+set}" = set; then
+  enableval="$enable_kinsol"
+
+if test "X${enableval}" = "Xno"; then
+  KINSOL_ENABLED="no"
+fi
+
+else
+
+if test -d ${srcdir}/kinsol ; then
+  KINSOL_ENABLED="yes"
+else
+  KINSOL_ENABLED="no"
+fi
+
+fi;
+
+# IDAS is disabled here
+
+IDAS_ENABLED="no"
+
+# Check if user wants to disable examples
+EXAMPLES_ENABLED="yes"
+# Check whether --enable-examples or --disable-examples was given.
+if test "${enable_examples+set}" = set; then
+  enableval="$enable_examples"
+
+if test "X${enableval}" = "Xno"; then
+  EXAMPLES_ENABLED="no"
+fi
+
+fi;
+
+# Check if user wants to disable Fortran
+F77_ENABLED="yes"
+# Check whether --enable-f77 or --disable-f77 was given.
+if test "${enable_f77+set}" = set; then
+  enableval="$enable_f77"
+
+  if test "X${enableval}" = "Xno"; then
+    F77_ENABLED="no"
+  fi
+
+else
+
+  if test "X${CVODE_ENABLED}" = "Xno" && test "X${KINSOL_ENABLED}" = "Xno"; then
+    F77_ENABLED="no"
+  elif test "X${EXAMPLES_ENABLED}" = "Xno"; then
+    F77_ENABLED="no"
+  else
+    F77_ENABLED="yes"
+  fi
+
+
+fi;
+
+
+
+
+# Check if user wants to disable MPI
+# If not, check if it is needed at all
+
+# Check whether --enable-mpi or --disable-mpi was given.
+if test "${enable_mpi+set}" = set; then
+  enableval="$enable_mpi"
+
+if test "X${enableval}" = "Xno"; then
+  MPI_ENABLED="no"
+fi
+
+else
+
+if test -d ${srcdir}/nvec_par ; then
+  MPI_ENABLED="yes"
+else
+  MPI_ENABLED="no"
+fi
+
+
+fi;
+
+
+
+
+# Check if user wants to skip C++
+# If not, check if it is needed at all
+
+# Check whether --enable-cxx or --disable-cxx was given.
+if test "${enable_cxx+set}" = set; then
+  enableval="$enable_cxx"
+
+if test "X${enableval}" = "Xno"; then
+  CXX_ENABLED="no"
+fi
+
+else
+
+if test -d ${srcdir}/xs4c ; then
+  CXX_ENABLED="yes"
+else
+  CXX_ENABLED="no"
+fi
+
+fi;
+
+# Check if user wants to disable IDAS
+# If not, see if IDAS exists
+
+# Check whether --enable-idas or --disable-idas was given.
+if test "${enable_idas+set}" = set; then
+  enableval="$enable_idas"
+
+if test "X${enableval}" = "Xno"; then
+  IDAS_ENABLED="no"
+fi
+
+else
+
+if test -d ${srcdir}/idas ; then
+  IDAS_ENABLED="yes"
+else
+  IDAS_ENABLED="no"
+fi
+
+fi;
+
+
+
+# Set C compilation (Required)
 
 
 echo "$as_me:$LINENO: checking for egrep" >&5
@@ -2607,20 +2798,19 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 # If CC="" then abort (means did NOT find a valid C compiler)
 if test "X${CC}" = "X"; then
-  CC_OK="no"
+
   { { echo "$as_me:$LINENO: error: cannot find C compiler" >&5
 echo "$as_me: error: cannot find C compiler" >&2;}
    { (exit 1); exit 1; }; }
-else
 
-  CC_OK="yes"
+fi
 
-  # Determine absolute pathname for specified C compiler
-  CC_TEMP1="${CC}"
-  CC_TEMP2=`basename "${CC}"`
-  # If only the executable name was given, then determine absolute pathname
-  if test "X${CC_TEMP1}" = "X${CC_TEMP2}"; then
-    # Extract the first word of "${CC}", so it can be a program name with args.
+# Determine absolute pathname for specified C compiler
+CC_TEMP1="${CC}"
+CC_TEMP2=`basename "${CC}"`
+# If only the executable name was given, then determine absolute pathname
+if test "X${CC_TEMP1}" = "X${CC_TEMP2}"; then
+  # Extract the first word of "${CC}", so it can be a program name with args.
 set dummy ${CC}; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
@@ -2660,33 +2850,37 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-    # We already know the C compiler exists, so this test is provided only
-    # for the sake of completeness
-    if test "X${CC_COMP}" = "Xnone"; then
-      CC="${CC_TEMP1}"
-    else
-      CC="${CC_COMP}"
-    fi
+  # We already know the C compiler exists, so this test is provided only
+  # for the sake of completeness
+  if test "X${CC_COMP}" = "Xnone"; then
+    CC="${CC_TEMP1}"
+  else
+    CC="${CC_COMP}"
   fi
+fi
 
-  echo "$as_me:$LINENO: checking for extra C compiler flags" >&5
+echo "$as_me:$LINENO: checking for extra C compiler flags" >&5
 echo $ECHO_N "checking for extra C compiler flags... $ECHO_C" >&6
 
 # Check whether --with-cflags or --without-cflags was given.
 if test "${with_cflags+set}" = set; then
   withval="$with_cflags"
-  echo "$as_me:$LINENO: result: ${withval}" >&5
+
+echo "$as_me:$LINENO: result: ${withval}" >&5
 echo "${ECHO_T}${withval}" >&6
-   USER_CFLAGS="${withval}"
+USER_CFLAGS="${withval}"
+
 else
-  echo "$as_me:$LINENO: result: none" >&5
+
+echo "$as_me:$LINENO: result: none" >&5
 echo "${ECHO_T}none" >&6
-   USER_CFLAGS=""
+USER_CFLAGS=""
+
 fi;
 
-  # Set CPP to command that runs C preprocessor
-  # Defines CPP
-  ac_ext=c
+# Set CPP to command that runs C preprocessor
+# Defines CPP
+ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
@@ -2921,26 +3115,30 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-  echo "$as_me:$LINENO: checking for extra C/C++ preprocessor flags" >&5
+echo "$as_me:$LINENO: checking for extra C/C++ preprocessor flags" >&5
 echo $ECHO_N "checking for extra C/C++ preprocessor flags... $ECHO_C" >&6
 
 # Check whether --with-cppflags or --without-cppflags was given.
 if test "${with_cppflags+set}" = set; then
   withval="$with_cppflags"
-  echo "$as_me:$LINENO: result: ${withval}" >&5
+
+echo "$as_me:$LINENO: result: ${withval}" >&5
 echo "${ECHO_T}${withval}" >&6
-   if test "X${CPPFLAGS}" = "X"; then
-     CPPFLAGS="${withval}"
-   else
-     CPPFLAGS="${CPPFLAGS} ${withval}"
-   fi
+if test "X${CPPFLAGS}" = "X"; then
+  CPPFLAGS="${withval}"
 else
-  echo "$as_me:$LINENO: result: none" >&5
+  CPPFLAGS="${CPPFLAGS} ${withval}"
+fi
+
+else
+
+echo "$as_me:$LINENO: result: none" >&5
 echo "${ECHO_T}none" >&6
+
 fi;
 
-  # Add default flag(s) to CFLAGS only if not already defined
-  if test "X${CFLAGS_USER_OVERRIDE}" = "Xno"; then
+# Add default flag(s) to CFLAGS only if not already defined
+if test "X${CFLAGS_USER_OVERRIDE}" = "Xno"; then
 
 
 # Specify "-ffloat-store" flag if using gcc on an IA-32 system (recommended)
@@ -2970,62 +3168,70 @@ case $host in
 esac
 
 
-  fi
+fi
 
-  if test "X${USER_CFLAGS}" = "X"; then
-    CFLAGS="${CFLAGS}"
-  else
-    CFLAGS="${CFLAGS} ${USER_CFLAGS}"
-  fi
+if test "X${USER_CFLAGS}" = "X"; then
+  CFLAGS="${CFLAGS}"
+else
+  CFLAGS="${CFLAGS} ${USER_CFLAGS}"
+fi
 
-  echo "$as_me:$LINENO: checking for extra linker flags" >&5
+echo "$as_me:$LINENO: checking for extra linker flags" >&5
 echo $ECHO_N "checking for extra linker flags... $ECHO_C" >&6
 
 # Check whether --with-ldflags or --without-ldflags was given.
 if test "${with_ldflags+set}" = set; then
   withval="$with_ldflags"
-  echo "$as_me:$LINENO: result: ${withval}" >&5
+
+echo "$as_me:$LINENO: result: ${withval}" >&5
 echo "${ECHO_T}${withval}" >&6
-   if test "X${LDFLAGS}" = "X"; then
-     LDFLAGS="${withval}"
-   else
-     LDFLAGS="${LDFLAGS} ${withval}"
-   fi
+if test "X${LDFLAGS}" = "X"; then
+  LDFLAGS="${withval}"
 else
-  echo "$as_me:$LINENO: result: none" >&5
+  LDFLAGS="${LDFLAGS} ${withval}"
+fi
+
+else
+
+echo "$as_me:$LINENO: result: none" >&5
 echo "${ECHO_T}none" >&6
+
 fi;
 
-  echo "$as_me:$LINENO: checking for extra libraries" >&5
+echo "$as_me:$LINENO: checking for extra libraries" >&5
 echo $ECHO_N "checking for extra libraries... $ECHO_C" >&6
 
 # Check whether --with-libs or --without-libs was given.
 if test "${with_libs+set}" = set; then
   withval="$with_libs"
-  echo "$as_me:$LINENO: result: ${withval}" >&5
+
+echo "$as_me:$LINENO: result: ${withval}" >&5
 echo "${ECHO_T}${withval}" >&6
-   if test "X${LIBS}" = "X"; then
-     LIBS="${withval}"
-   else
-     LIBS="${LIBS} ${withval}"
-   fi
+if test "X${LIBS}" = "X"; then
+  LIBS="${withval}"
 else
-  echo "$as_me:$LINENO: result: none" >&5
+  LIBS="${LIBS} ${withval}"
+fi
+
+else
+
+echo "$as_me:$LINENO: result: none" >&5
 echo "${ECHO_T}none" >&6
+
 fi;
 
-  # Remaining tests pertain to C programming language
-  ac_ext=c
+# Remaining tests pertain to C programming language
+ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-  # Defines STDC_HEADERS if the following header files are found: stdlib.h,
-  # stdarg.h, string.h, and float.h
-  # We really only need stdlib.h and float.h
-  echo "$as_me:$LINENO: checking for ANSI C header files" >&5
+# Defines STDC_HEADERS if the following header files are found: stdlib.h,
+# stdarg.h, string.h, and float.h
+# We really only need stdlib.h and float.h
+echo "$as_me:$LINENO: checking for ANSI C header files" >&5
 echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6
 if test "${ac_cv_header_stdc+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3331,11 +3537,11 @@ fi
 done
 
 
-  TEMP_LIBS="${LIBS}"
-  LIBS=""
+TEMP_LIBS="${LIBS}"
+LIBS=""
 
-  # Check if math library contains pow() and sqrt() functions (required)
-  # May update LIBS (meaning add additional library, namely libm)
+# Check if math library contains pow() and sqrt() functions (required)
+# May update LIBS (meaning add additional library, namely libm)
 
 echo "$as_me:$LINENO: checking for pow in -lm" >&5
 echo $ECHO_N "checking for pow in -lm... $ECHO_C" >&6
@@ -3404,8 +3610,8 @@ echo "$as_me: error: cannot find pow function" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-  LIBS_TEMP="${LIBS}"
-  LIBS=""
+LIBS_TEMP="${LIBS}"
+LIBS=""
 
 echo "$as_me:$LINENO: checking for sqrt in -lm" >&5
 echo $ECHO_N "checking for sqrt in -lm... $ECHO_C" >&6
@@ -3474,47 +3680,47 @@ echo "$as_me: error: cannt find sqrt function" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-  # For the sake of clarity, do NOT include the same library twice
-  if test "X${LIBS}" = "X"; then
-    if test "X${LIBS_TEMP}" = "X"; then
-      LIBS=""
-    else
-      LIBS="${LIBS_TEMP}"
-    fi
+# For the sake of clarity, do NOT include the same library twice
+if test "X${LIBS}" = "X"; then
+  if test "X${LIBS_TEMP}" = "X"; then
+    LIBS=""
   else
-    if test "X${LIBS_TEMP}" = "X"; then
+    LIBS="${LIBS_TEMP}"
+  fi
+else
+  if test "X${LIBS_TEMP}" = "X"; then
+    LIBS="${LIBS}"
+  else
+    if test "X${LIBS}" = "X${LIBS_TEMP}"; then
       LIBS="${LIBS}"
     else
-      if test "X${LIBS}" = "X${LIBS_TEMP}"; then
-        LIBS="${LIBS}"
-      else
-        LIBS="${LIBS} ${LIBS_TEMP}"
-      fi
+      LIBS="${LIBS} ${LIBS_TEMP}"
     fi
   fi
+fi
 
-  echo "$as_me:$LINENO: checking for additional required C libraries" >&5
+echo "$as_me:$LINENO: checking for additional required C libraries" >&5
 echo $ECHO_N "checking for additional required C libraries... $ECHO_C" >&6
-  if test "X${LIBS}" = "X"; then
-    if test "X${TEMP_LIBS}" = "X"; then
-      LIBS=""
-    else
-      LIBS="${TEMP_LIBS}"
-    fi
-    echo "$as_me:$LINENO: result: none" >&5
-echo "${ECHO_T}none" >&6
+if test "X${LIBS}" = "X"; then
+  if test "X${TEMP_LIBS}" = "X"; then
+    LIBS=""
   else
-    echo "$as_me:$LINENO: result: ${LIBS}" >&5
-echo "${ECHO_T}${LIBS}" >&6
-    if test "X${TEMP_LIBS}" = "X"; then
-      LIBS="${LIBS}"
-    else
-      LIBS="${LIBS} ${TEMP_LIBS}"
-    fi
+    LIBS="${TEMP_LIBS}"
   fi
+  echo "$as_me:$LINENO: result: none" >&5
+echo "${ECHO_T}none" >&6
+else
+  echo "$as_me:$LINENO: result: ${LIBS}" >&5
+echo "${ECHO_T}${LIBS}" >&6
+  if test "X${TEMP_LIBS}" = "X"; then
+    LIBS="${LIBS}"
+  else
+    LIBS="${LIBS} ${TEMP_LIBS}"
+  fi
+fi
 
-  # Check sizeof(int) - used to modify Fortran examples
-  echo "$as_me:$LINENO: checking for int" >&5
+# Check sizeof(int) - used to modify Fortran examples
+echo "$as_me:$LINENO: checking for int" >&5
 echo $ECHO_N "checking for int... $ECHO_C" >&6
 if test "${ac_cv_type_int+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3876,8 +4082,8 @@ _ACEOF
 
 
 
-  # Check sizeof(long int) - used to modify Fortran examples
-  echo "$as_me:$LINENO: checking for long int" >&5
+# Check sizeof(long int) - used to modify Fortran examples
+echo "$as_me:$LINENO: checking for long int" >&5
 echo $ECHO_N "checking for long int... $ECHO_C" >&6
 if test "${ac_cv_type_long_int+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -4239,10 +4445,10 @@ _ACEOF
 
 
 
-  # Check sizeof(realtype), where realtype is either float, double
-  # or long double - used to modify Fortran examples
-  if test "X${FLOAT_TYPE}" = "Xsingle"; then
-    echo "$as_me:$LINENO: checking for float" >&5
+# Check sizeof(realtype), where realtype is either float, double
+# or long double - used to modify Fortran examples
+if test "X${FLOAT_TYPE}" = "Xsingle"; then
+  echo "$as_me:$LINENO: checking for float" >&5
 echo $ECHO_N "checking for float... $ECHO_C" >&6
 if test "${ac_cv_type_float+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -4603,8 +4809,8 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-  elif test "X${FLOAT_TYPE}" = "Xdouble"; then
-    echo "$as_me:$LINENO: checking for double" >&5
+elif test "X${FLOAT_TYPE}" = "Xdouble"; then
+  echo "$as_me:$LINENO: checking for double" >&5
 echo $ECHO_N "checking for double... $ECHO_C" >&6
 if test "${ac_cv_type_double+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -4965,8 +5171,8 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-  elif test "X${FLOAT_TYPE}" = "Xextended"; then
-    echo "$as_me:$LINENO: checking for long double" >&5
+elif test "X${FLOAT_TYPE}" = "Xextended"; then
+  echo "$as_me:$LINENO: checking for long double" >&5
 echo $ECHO_N "checking for long double... $ECHO_C" >&6
 if test "${ac_cv_type_long_double+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -5327,13 +5533,13 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-  fi
+fi
 
-  # F77_FLOAT_TYPE exported via AC_SUBST (see configure.ac) - used by FCMIX Makefile's
-  F77_FLOAT_TYPE="${FLOAT_TYPE}"
+# F77_FLOAT_TYPE exported via AC_SUBST (see configure.ac) - used by FCMIX Makefile's
+F77_FLOAT_TYPE="${FLOAT_TYPE}"
 
-  # Defines EGREP and exports via AC_SUBST - used by FCMIX Makefile's
-  echo "$as_me:$LINENO: checking for egrep" >&5
+# Defines EGREP and exports via AC_SUBST - used by FCMIX Makefile's
+echo "$as_me:$LINENO: checking for egrep" >&5
 echo $ECHO_N "checking for egrep... $ECHO_C" >&6
 if test "${ac_cv_prog_egrep+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -5349,8 +5555,8 @@ echo "${ECHO_T}$ac_cv_prog_egrep" >&6
 
 
 
-  # Defines FGREP and exports via AC_SUBST - used by FCMIX Makefile's
-  echo "$as_me:$LINENO: checking for fgrep" >&5
+# Defines FGREP and exports via AC_SUBST - used by FCMIX Makefile's
+echo "$as_me:$LINENO: checking for fgrep" >&5
 echo $ECHO_N "checking for fgrep... $ECHO_C" >&6
 if test "${ac_cv_prog_fgrep+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -5366,11 +5572,10 @@ echo "${ECHO_T}$ac_cv_prog_fgrep" >&6
 
 
 
-fi
 
 
-
-# Set Fortran compilation
+# Set Fortran compilation (Optional)
+if test "X${F77_ENABLED}" = "Xyes"; then
 
 ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
@@ -5419,7 +5624,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:5422: \"$ac_link\") >&5
+(eval echo $as_me:5627: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -5499,7 +5704,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:5502: \"$ac_link\") >&5
+(eval echo $as_me:5707: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -6007,217 +6212,15 @@ echo "${ECHO_T}$ac_cv_f77_mangling" >&6
 
 
 
-# Check whether --enable- or --disable- was given.
-if test "${enable_+set}" = set; then
-  enableval="$enable_"
-
-fi;
-
-# Fortran compiler is only required if examples are enabled and building KINSOL
-# and/or CVODE
-# For now just check if examples were enabled (default)
-EXAMPLES_ENABLED="yes"
-# Check whether --enable-examples or --disable-examples was given.
-if test "${enable_examples+set}" = set; then
-  enableval="$enable_examples"
-
-if test "X${enableval}" = "Xno"; then
-  EXAMPLES_ENABLED="no"
-fi
-
-fi;
-
-# Check whether --enable- or --disable- was given.
-if test "${enable_+set}" = set; then
-  enableval="$enable_"
-
-fi;
-
-# Must have kinsol directory in order to build KINSOL
-KINSOL_ENABLED="no"
-if test -d ${srcdir}/kinsol ; then
-  KINSOL_ENABLED="yes"
-fi
-
-# Check if user wants to skip KINSOL
-# Check whether --enable-kinsol or --disable-kinsol was given.
-if test "${enable_kinsol+set}" = set; then
-  enableval="$enable_kinsol"
-
-if test "X${enableval}" = "Xno"; then
-  KINSOL_ENABLED="no"
-fi
-
-fi;
-
-# Must have cvode directory in order to build CVODE
-CVODE_ENABLED="no"
-if test -d ${srcdir}/cvode ; then
-  CVODE_ENABLED="yes"
-fi
-
-# Check if user wants to skip CVODE
-# Check whether --enable-cvode or --disable-cvode was given.
-if test "${enable_cvode+set}" = set; then
-  enableval="$enable_cvode"
-
-if test "X${enableval}" = "Xno"; then
-  CVODE_ENABLED="no"
-fi
-
-fi;
-
-# Check if we need Fortran
-if test "X${CVODE_ENABLED}" = "Xyes" || test "X${KINSOL_ENABLED}" = "Xyes"; then
-  if test "X${EXAMPLES_ENABLED}" = "Xno"; then
-    F77_ENABLED="no"
-  else
-    F77_ENABLED="yes"
-  fi
-else
-  F77_ENABLED="no"
-fi
-
-
-# Check whether --with- or --without- was given.
-if test "${with_+set}" = set; then
-  withval="$with_"
-
-fi;
-
-# Check if user wants to skip Fortran
-
-# Check whether --with-f77 or --without-f77 was given.
-if test "${with_f77+set}" = set; then
-  withval="$with_f77"
-
-  if test "X${withval}" = "Xno"; then
-    F77_ENABLED="no"
-  fi
-
-fi;
-
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-
-
-
-
-
-
-
-# Provided in case AC_F77_WRAPPERS cannot determine name mangling scheme
-
-# Check whether --with-f77underscore or --without-f77underscore was given.
-if test "${with_f77underscore+set}" = set; then
-  withval="$with_f77underscore"
-
-
-UNDERSCORE_ARG_GIVEN="yes"
-if test "X${withval}" = "Xnone"; then
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_UNDERSCORE_NONE 1
-_ACEOF
-
-elif test "X${withval}" = "Xone"; then
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_UNDERSCORE_ONE 1
-_ACEOF
-
-elif test "X${withval}" = "Xtwo"; then
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_UNDERSCORE_TWO 1
-_ACEOF
-
-else
-  { { echo "$as_me:$LINENO: error: invalid input" >&5
-echo "$as_me: error: invalid input" >&2;}
-   { (exit 1); exit 1; }; }
-fi
-
-
-else
-
-
-UNDERSCORE_ARG_GIVEN="no"
-
-
-fi;
-
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-
-
-
-
-
-# Provided in case AC_F77_WRAPPERS cannot determine name mangling scheme
-
-# Check whether --with-f77case or --without-f77case was given.
-if test "${with_f77case+set}" = set; then
-  withval="$with_f77case"
-
-
-CASE_ARG_GIVEN="yes"
-if test "X${withval}" = "Xupper"; then
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_CASE_UPPER 1
-_ACEOF
-
-elif test "X${withval}" = "Xlower"; then
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_CASE_LOWER 1
-_ACEOF
-
-else
-  { { echo "$as_me:$LINENO: error: invalid input" >&5
-echo "$as_me: error: invalid input" >&2;}
-   { (exit 1); exit 1; }; }
-fi
-
-
-else
-
-
-CASE_ARG_GIVEN="no"
-
-
-fi;
-
-# Check if user used "--with-f77underscore" or "--with-f77case"
-# If both flags were used, then just continue
-if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" || test "X${CASE_ARG_GIVEN}" = "Xyes"; then
-  # Only used "--with-f77underscore" flag, so set default case
-  if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" && test "X${CASE_ARG_GIVEN}" = "Xno"; then
-    cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_CASE_LOWER 1
-_ACEOF
-
-  # Only used "--with-f77case" flag, so set default number of underscores
-  elif test "X${UNDERSCORE_ARG_GIVEN}" = "Xno" && test "X${CASE_ARG_GIVEN}" = "Xyes"; then
-    cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_UNDERSCORE_ONE 1
-_ACEOF
-
-  fi
-  RUN_F77_WRAPPERS="no"
-# Only call AC_F77_WRAPPERS if user did NOT use "--with-f77underscore" or "--with-f77case" flags
-else
-  RUN_F77_WRAPPERS="yes"
-fi
-
-# Only continue checks if Fortran support is "required"
-if test "X${F77_ENABLED}" = "Xyes"; then
-
-  F77_OK="yes"
-
-  USER_F77="${F77}"
-  # unset is NOT portable so just undefine/unset F77 by setting to "" (NULL)
-  F77=""
-
-  # Defines F77 and sets G77="yes" if F77="g77"
-  # Search for Fortran compiler given by user first
-  ac_ext=f
+F77_OK="yes"
+
+USER_F77="${F77}"
+# unset is NOT portable so just undefine/unset F77 by setting to "" (NULL)
+F77=""
+
+# Defines F77 and sets G77="yes" if F77="g77"
+# Search for Fortran compiler given by user first
+ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
@@ -6309,7 +6312,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:6312:" \
+echo "$as_me:6315:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6432,25 +6435,138 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+
+if test "X${F77}" = "X"; then
+
   # If F77="" then issue warning (means did NOT find a valid Fortran compiler)
   # Do NOT abort since Fortran compiler is NOT required
-  if test "X${F77}" = "X"; then
-    { echo "$as_me:$LINENO: WARNING: cannot find Fortran compiler" >&5
-echo "$as_me: WARNING: cannot find Fortran compiler" >&2;}
-    echo ""
-    echo "   Unable to find a functional Fortran compiler."
-    echo ""
-    echo "   Disabling serial Fortran examples..."
-    echo ""
-    F77_OK="no"
-  else
 
-    # Determine absolute pathname for specified Fortran compiler
-    F77_TEMP1="${F77}"
-    F77_TEMP2=`basename "${F77}"`
-    # If only the executable name was given, then determine absolute pathname
-    if test "X${F77_TEMP1}" = "X${F77_TEMP2}"; then
-      # Extract the first word of "${F77}", so it can be a program name with args.
+  { echo "$as_me:$LINENO: WARNING: cannot find Fortran compiler" >&5
+echo "$as_me: WARNING: cannot find Fortran compiler" >&2;}
+  echo ""
+  echo "   Unable to find a functional Fortran compiler."
+  echo ""
+  echo "   Disabling serial Fortran examples..."
+  echo ""
+  F77_OK="no"
+
+else
+
+  # Provide variable description templates for config.hin and config.h files
+  # Required by autoheader utility
+
+
+
+
+
+
+
+  # Provided in case AC_F77_WRAPPERS cannot determine name mangling scheme
+
+# Check whether --with-f77underscore or --without-f77underscore was given.
+if test "${with_f77underscore+set}" = set; then
+  withval="$with_f77underscore"
+
+
+  UNDERSCORE_ARG_GIVEN="yes"
+  if test "X${withval}" = "Xnone"; then
+    cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_UNDERSCORE_NONE 1
+_ACEOF
+
+  elif test "X${withval}" = "Xone"; then
+    cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_UNDERSCORE_ONE 1
+_ACEOF
+
+  elif test "X${withval}" = "Xtwo"; then
+    cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_UNDERSCORE_TWO 1
+_ACEOF
+
+  else
+    { { echo "$as_me:$LINENO: error: invalid input" >&5
+echo "$as_me: error: invalid input" >&2;}
+   { (exit 1); exit 1; }; }
+  fi
+
+
+else
+
+
+  UNDERSCORE_ARG_GIVEN="no"
+
+
+fi;
+
+  # Provide variable description templates for config.hin and config.h files
+  # Required by autoheader utility
+
+
+
+
+
+  # Provided in case AC_F77_WRAPPERS cannot determine name mangling scheme
+
+# Check whether --with-f77case or --without-f77case was given.
+if test "${with_f77case+set}" = set; then
+  withval="$with_f77case"
+
+
+  CASE_ARG_GIVEN="yes"
+  if test "X${withval}" = "Xupper"; then
+    cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_CASE_UPPER 1
+_ACEOF
+
+  elif test "X${withval}" = "Xlower"; then
+    cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_CASE_LOWER 1
+_ACEOF
+
+  else
+    { { echo "$as_me:$LINENO: error: invalid input" >&5
+echo "$as_me: error: invalid input" >&2;}
+   { (exit 1); exit 1; }; }
+  fi
+
+
+else
+
+
+  CASE_ARG_GIVEN="no"
+
+
+fi;
+
+  # Check if user used "--with-f77underscore" or "--with-f77case"
+  # If both flags were used, then just continue
+  if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" || test "X${CASE_ARG_GIVEN}" = "Xyes"; then
+    # Only used "--with-f77underscore" flag, so set default case
+    if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" && test "X${CASE_ARG_GIVEN}" = "Xno"; then
+      cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_CASE_LOWER 1
+_ACEOF
+
+    # Only used "--with-f77case" flag, so set default number of underscores
+    elif test "X${UNDERSCORE_ARG_GIVEN}" = "Xno" && test "X${CASE_ARG_GIVEN}" = "Xyes"; then
+      cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_UNDERSCORE_ONE 1
+_ACEOF
+
+    fi
+    RUN_F77_WRAPPERS="no"
+  # Only call AC_F77_WRAPPERS if user did NOT use "--with-f77underscore" or "--with-f77case" flags
+  else
+    RUN_F77_WRAPPERS="yes"
+  fi
+
+  # Determine absolute pathname for specified Fortran compiler
+  F77_TEMP1="${F77}"
+  F77_TEMP2=`basename "${F77}"`
+  # If only the executable name was given, then determine absolute pathname
+  if test "X${F77_TEMP1}" = "X${F77_TEMP2}"; then
+    # Extract the first word of "${F77}", so it can be a program name with args.
 set dummy ${F77}; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
@@ -6490,19 +6606,20 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-      # We already know the Fortran compiler exists, so this test is provided only
-      # for the sake of completeness
-      if test "X${F77_COMP}" = "Xnone"; then
-        F77="${F77_TEMP1}"
-      else
-        F77="${F77_COMP}"
-      fi
+    # We already know the Fortran compiler exists, so this test is provided only
+    # for the sake of completeness
+    if test "X${F77_COMP}" = "Xnone"; then
+      F77="${F77_TEMP1}"
+    else
+      F77="${F77_COMP}"
     fi
+  fi
 
-    # Determine how to properly mangle function names so Fortran subroutines can
-    # call C functions included in SUNDIALS libraries
-    # Defines C preprocessor macros F77_FUNC and F77_FUNC_
-    if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
+  # Determine how to properly mangle function names so Fortran subroutines can
+  # call C functions included in SUNDIALS libraries
+  # Defines C preprocessor macros F77_FUNC and F77_FUNC_
+
+  if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
 
 
 case $ac_cv_f77_mangling in
@@ -6584,25 +6701,29 @@ echo "$as_me: WARNING: unknown Fortran 77 name-mangling scheme" >&2;}
           ;;
 esac
 
-    fi
+  fi
 
-    echo "$as_me:$LINENO: checking for extra Fortran compiler flags" >&5
+  echo "$as_me:$LINENO: checking for extra Fortran compiler flags" >&5
 echo $ECHO_N "checking for extra Fortran compiler flags... $ECHO_C" >&6
 
 # Check whether --with-fflags or --without-fflags was given.
 if test "${with_fflags+set}" = set; then
   withval="$with_fflags"
+
   echo "$as_me:$LINENO: result: ${withval}" >&5
 echo "${ECHO_T}${withval}" >&6
-     USER_FFLAGS="${withval}"
+  USER_FFLAGS="${withval}"
+
 else
+
   echo "$as_me:$LINENO: result: none" >&5
 echo "${ECHO_T}none" >&6
-     USER_FFLAGS=""
+  USER_FFLAGS=""
+
 fi;
 
-    # Add default flag(s) to FFLAGS only if not already defined
-    if test "X${FFLAGS_USER_OVERRIDE}" = "Xno"; then
+  # Add default flag(s) to FFLAGS only if not already defined
+  if test "X${FFLAGS_USER_OVERRIDE}" = "Xno"; then
 
 
 # FIXME: Should IRIX and Tru64 options overwrite FFLAGS?
@@ -6648,19 +6769,19 @@ case $host in
 esac
 
 
-    fi
+  fi
 
-    if test "X${USER_FFLAGS}" = "X"; then
-      FFLAGS="${FFLAGS}"
-    else
-      FFLAGS="${FFLAGS} ${USER_FFLAGS}"
-    fi
+  if test "X${USER_FFLAGS}" = "X"; then
+    FFLAGS="${FFLAGS}"
+  else
+    FFLAGS="${FFLAGS} ${USER_FFLAGS}"
+  fi
 
-    TEMP_FLIBS="${FLIBS}"
-    FLIBS=""
+  TEMP_FLIBS="${FLIBS}"
+  FLIBS=""
 
-    # Add any required linker flags to FLIBS
-    ac_ext=f
+  # Add any required linker flags to FLIBS
+  ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
@@ -6707,7 +6828,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:6710: \"$ac_link\") >&5
+(eval echo $as_me:6831: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -6787,7 +6908,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:6790: \"$ac_link\") >&5
+(eval echo $as_me:6911: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -6956,85 +7077,57 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-    echo "$as_me:$LINENO: checking for additional required Fortran linker flags" >&5
+  echo "$as_me:$LINENO: checking for additional required Fortran linker flags" >&5
 echo $ECHO_N "checking for additional required Fortran linker flags... $ECHO_C" >&6
-    if test "X${FLIBS}" = "X"; then
-      if test "X${TEMP_FLIBS}" = "X"; then
-        FLIBS=""
-      else
-        FLIBS="${TEMP_FLIBS}"
-      fi
-      echo "$as_me:$LINENO: result: none" >&5
-echo "${ECHO_T}none" >&6
+  if test "X${FLIBS}" = "X"; then
+    if test "X${TEMP_FLIBS}" = "X"; then
+      FLIBS=""
     else
-      echo "$as_me:$LINENO: result: ${FLIBS}" >&5
+      FLIBS="${TEMP_FLIBS}"
+    fi
+    echo "$as_me:$LINENO: result: none" >&5
+echo "${ECHO_T}none" >&6
+  else
+    echo "$as_me:$LINENO: result: ${FLIBS}" >&5
 echo "${ECHO_T}${FLIBS}" >&6
-      if test "X${TEMP_FLIBS}" = "X"; then
+    if test "X${TEMP_FLIBS}" = "X"; then
+      FLIBS="${FLIBS}"
+    else
+      if test "X${FLIBS}" = "X${TEMP_FLIBS}"; then
         FLIBS="${FLIBS}"
       else
-        if test "X${FLIBS}" = "X${TEMP_FLIBS}"; then
-          FLIBS="${FLIBS}"
-        else
-          FLIBS="${FLIBS} ${TEMP_FLIBS}"
-        fi
+        FLIBS="${FLIBS} ${TEMP_FLIBS}"
       fi
     fi
   fi
+
 fi
 
-
-
-# Set C++ compilation
-
-
-
-
-
-# Check whether --with- or --without- was given.
-if test "${with_+set}" = set; then
-  withval="$with_"
-
-fi;
-
-# C++ compiler is only required if xs4c directory exists
-if test -d ${srcdir}/xs4c ; then
-  CXX_ENABLED="yes"
-else
-  CXX_ENABLED="no"
 fi
 
-# Check if user wants to skip C++
-
-# Check whether --with-cxx or --without-cxx was given.
-if test "${with_cxx+set}" = set; then
-  withval="$with_cxx"
-
-if test "X${withval}" = "Xno"; then
-  CXX_ENABLED="no"
-fi
-
-fi;
-
-# Only continue checks if C++ support is required
+# Set C++ compilation (Optional)
 if test "X${CXX_ENABLED}" = "Xyes"; then
 
-  CXX_OK="yes"
 
-  # CXX and CCC are common so check both
-  if test "X${CXX}" = "X"; then
-    if test "X${CCC}" = "X"; then
-      USER_CXX=""
-    else
-      USER_CXX="${CCC}"
-    fi
+
+
+CXX_OK="yes"
+
+# CXX and CCC are common so check both
+if test "X${CXX}" = "X"; then
+  if test "X${CCC}" = "X"; then
+    USER_CXX=""
   else
-    USER_CXX="${CXX}"
+    USER_CXX="${CCC}"
   fi
-  # unset is NOT portable so just undefine/unset CXX by setting to "" (NULL)
-  CXX=""
+else
+  USER_CXX="${CXX}"
+fi
+# unset is NOT portable so just undefine/unset CXX by setting to "" (NULL)
+CXX=""
 
-  # Defines CXX and sets GXX="yes" if CXX="g++" (GNU C++ compiler)
-  ac_ext=cc
+# Defines CXX and sets GXX="yes" if CXX="g++" (GNU C++ compiler)
+ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
@@ -7379,25 +7472,27 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-  # If CXX="" then issue warning (means did NOT find a valid C++ compiler)
-  # Do NOT abort since C++ compiler is NOT required
-  if test "X${CXX}" = "X"; then
-    { echo "$as_me:$LINENO: WARNING: cannot find C++ compiler" >&5
-echo "$as_me: WARNING: cannot find C++ compiler" >&2;}
-    echo ""
-    echo "   Unable to find a functional C++ compiler."
-    echo ""
-    echo "   Disabling dependent modules..."
-    echo ""
-    CXX_OK="no"
-  else
+# If CXX="" then issue warning (means did NOT find a valid C++ compiler)
+# Do NOT abort since C++ compiler is NOT required
+if test "X${CXX}" = "X"; then
 
-    # Determine absolute pathname for specified C++ compiler
-    CXX_TEMP1="${CXX}"
-    CXX_TEMP2=`basename "${CXX}"`
-    # If only the executable name was given, then determine absolute pathname
-    if test "X${CXX_TEMP1}" = "X${CXX_TEMP2}"; then
-      # Extract the first word of "${CXX}", so it can be a program name with args.
+  { echo "$as_me:$LINENO: WARNING: cannot find C++ compiler" >&5
+echo "$as_me: WARNING: cannot find C++ compiler" >&2;}
+  echo ""
+  echo "   Unable to find a functional C++ compiler."
+  echo ""
+  echo "   Disabling dependent modules..."
+  echo ""
+  CXX_OK="no"
+
+else
+
+  # Determine absolute pathname for specified C++ compiler
+  CXX_TEMP1="${CXX}"
+  CXX_TEMP2=`basename "${CXX}"`
+  # If only the executable name was given, then determine absolute pathname
+  if test "X${CXX_TEMP1}" = "X${CXX_TEMP2}"; then
+    # Extract the first word of "${CXX}", so it can be a program name with args.
 set dummy ${CXX}; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
@@ -7437,32 +7532,36 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-      # We already know the C++ compiler exists, so this test is provided only
-      # for the sake of completeness
-      if test "X${CXX_COMP}" = "Xnone"; then
-        CXX="${CXX_TEMP1}"
-      else
-        CXX="${CXX_COMP}"
-      fi
+    # We already know the C++ compiler exists, so this test is provided only
+    # for the sake of completeness
+    if test "X${CXX_COMP}" = "Xnone"; then
+      CXX="${CXX_TEMP1}"
+    else
+      CXX="${CXX_COMP}"
     fi
+  fi
 
-    echo "$as_me:$LINENO: checking for extra C++ compiler flags" >&5
+  echo "$as_me:$LINENO: checking for extra C++ compiler flags" >&5
 echo $ECHO_N "checking for extra C++ compiler flags... $ECHO_C" >&6
 
 # Check whether --with-cxxflags or --without-cxxflags was given.
 if test "${with_cxxflags+set}" = set; then
   withval="$with_cxxflags"
+
   echo "$as_me:$LINENO: result: ${withval}" >&5
 echo "${ECHO_T}${withval}" >&6
-     USER_CXXFLAGS="${withval}"
+  USER_CXXFLAGS="${withval}"
+
 else
+
   echo "$as_me:$LINENO: result: none" >&5
 echo "${ECHO_T}none" >&6
-     USER_CXXFLAGS=""
+  USER_CXXFLAGS=""
+
 fi;
 
-    # Set CXXCPP to command that runs C++ preprocessor
-    ac_ext=cc
+  # Set CXXCPP to command that runs C++ preprocessor
+  ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
@@ -7693,8 +7792,8 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-    # Add default flag(s) to CXXFLAGS only if not already defined
-    if test "X${CXXFLAGS_USER_OVERRIDE}" = "Xno"; then
+  # Add default flag(s) to CXXFLAGS only if not already defined
+  if test "X${CXXFLAGS_USER_OVERRIDE}" = "Xno"; then
 
 
 # Specify "-ffloat-store" flag if using g++ on an IA-32 system (recommended)
@@ -7724,24 +7823,24 @@ case $host in
 esac
 
 
-    fi
+  fi
 
-    if test "X${USER_CXXFLAGS}" = "X"; then
-      CXXFLAGS="${CXXFLAGS}"
-    else
-      CXXFLAGS="${CXXFLAGS} ${USER_CXXFLAGS}"
-    fi
+  if test "X${USER_CXXFLAGS}" = "X"; then
+    CXXFLAGS="${CXXFLAGS}"
+  else
+    CXXFLAGS="${CXXFLAGS} ${USER_CXXFLAGS}"
+  fi
 
-    # Remaining test pertains to C++ programming language
-    ac_ext=cc
+  # Remaining test pertains to C++ programming language
+  ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
-    # Check for complex.h header file (required)
-    if test "${ac_cv_header_complex_h+set}" = set; then
+  # Check for complex.h header file (required)
+  if test "${ac_cv_header_complex_h+set}" = set; then
   echo "$as_me:$LINENO: checking for complex.h" >&5
 echo $ECHO_N "checking for complex.h... $ECHO_C" >&6
 if test "${ac_cv_header_complex_h+set}" = set; then
@@ -7873,12 +7972,12 @@ fi
 
 
 
-  fi
 fi
 
+fi
 
-
-# Set MPI support
+# Set MPI support (Optional)
+if test "X${MPI_ENABLED}" = "Xyes"; then
 
 
 
@@ -7888,88 +7987,84 @@ if test "${with_+set}" = set; then
 
 fi;
 
-# MPI is only required if nvec_par directory exists (parallel NVECTOR
-# implementation) and MPI support is enabled
-MPI_ENABLED="no"
-if test -d ${srcdir}/nvec_par ; then
-  MPI_ENABLED="yes"
-fi
-
-# Check if user wants to skip MPI
-
-# Check whether --with-mpi or --without-mpi was given.
-if test "${with_mpi+set}" = set; then
-  withval="$with_mpi"
-
-if test "X${withval}" = "Xno"; then
-  MPI_ENABLED="no"
-fi
-
-fi;
-
-# Only continue checks if MPI support is enabled
-if test "X${MPI_ENABLED}" = "Xyes"; then
-
-  # MPI root directory
+# MPI root directory
 
 # Check whether --with-mpi-root or --without-mpi-root was given.
 if test "${with_mpi_root+set}" = set; then
   withval="$with_mpi_root"
-  MPI_ROOT_DIR="${withval}"
+
+MPI_ROOT_DIR="${withval}"
+
 else
-  MPI_ROOT_DIR=""
+
+MPI_ROOT_DIR=""
+
 fi;
 
-  # MPI include directory
+# MPI include directory
 
 # Check whether --with-mpi-incdir or --without-mpi-incdir was given.
 if test "${with_mpi_incdir+set}" = set; then
   withval="$with_mpi_incdir"
-  MPI_INC_DIR="${withval}"
+
+MPI_INC_DIR="${withval}"
+
 else
-  MPI_INC_DIR=""
+
+MPI_INC_DIR=""
+
 fi;
 
-  # MPI library directory
+# MPI library directory
 
 # Check whether --with-mpi-libdir or --without-mpi-libdir was given.
 if test "${with_mpi_libdir+set}" = set; then
   withval="$with_mpi_libdir"
-  MPI_LIB_DIR="${withval}"
+
+MPI_LIB_DIR="${withval}"
+
 else
-  MPI_LIB_DIR=""
+
+MPI_LIB_DIR=""
+
 fi;
 
-  # MPI libraries
+# MPI libraries
 
 # Check whether --with-mpi-libs or --without-mpi-libs was given.
 if test "${with_mpi_libs+set}" = set; then
   withval="$with_mpi_libs"
-  MPI_LIBS="${withval}"
+
+MPI_LIBS="${withval}"
+
 else
-  MPI_LIBS=""
+
+MPI_LIBS=""
+
 fi;
 
-  # MPI-C compiler
+# MPI-C compiler
 
 # Check whether --with-mpicc or --without-mpicc was given.
 if test "${with_mpicc+set}" = set; then
   withval="$with_mpicc"
 
-  if test "X${withval}" = "Xno"; then
-    USE_MPICC_SCRIPT="no"
-  else
-    USE_MPICC_SCRIPT="yes"
-    MPICC_COMP="${withval}"
-  fi
-
+if test "X${withval}" = "Xno"; then
+  USE_MPICC_SCRIPT="no"
 else
   USE_MPICC_SCRIPT="yes"
-   MPICC_COMP="mpicc"
+  MPICC_COMP="${withval}"
+fi
+
+else
+
+USE_MPICC_SCRIPT="yes"
+ MPICC_COMP="mpicc"
+
 fi;
 
-  # Check MPI-C compiler (either MPI compiler script or regular C compiler)
-  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+# Check MPI-C compiler (either MPI compiler script or regular C compiler)
+if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
 
 
 # Test MPI-C compiler (meaning test MPICC_COMP)
@@ -7978,6 +8073,7 @@ fi;
 # CASE 1: MPICC_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPICC_COMP} ; then
+
   MPICC_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`(dirname "${MPICC_COMP}") 2>/dev/null ||
@@ -7994,9 +8090,11 @@ echo X"${MPICC_COMP}" |
   	  s/.*/./; q'`
   MPI_INC_DIR="${MPI_BASE_DIR}/../include"
   MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
+
 # CASE 2: MPICC_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
+
   if test "X${MPI_ROOT_DIR}" = "X"; then
     # Try to find location of executable (perhaps directory was entered
     # incorrectly)
@@ -8063,8 +8161,10 @@ echo X"${MPICC_COMP}" |
       MPI_INC_DIR="${MPI_BASE_DIR}/../include"
       MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
+
   # CASE 3: MPICC_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
+
     # MPICC_COMP should really only contain an executable name
     # Found location of MPICC_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPICC_COMP} ; then
@@ -8077,14 +8177,19 @@ echo X"${MPICC_COMP}" |
       MPICC_COMP_EXISTS="no"
       MPICC_COMP=""
     fi
+
   fi
+
 fi
 
 # Issue warning message if MPICC_COMP does NOT exist, else set MPICC
 if test "X${MPICC_COMP_EXISTS}" = "Xyes"; then
+
   MPICC="${MPICC_COMP}"
   MPI_C_COMP_OK="yes"
+
 else
+
   { echo "$as_me:$LINENO: WARNING: cannot find MPI-C compiler" >&5
 echo "$as_me: WARNING: cannot find MPI-C compiler" >&2;}
   echo ""
@@ -8100,12 +8205,13 @@ echo "$as_me: WARNING: cannot find MPI-C compiler" >&2;}
   echo ""
   MPICC=""
   MPI_C_COMP_OK="no"
+
 fi
 
 
-  else
-    MPICC_COMP="${CC}"
-    MPICC="${CC}"
+else
+  MPICC_COMP="${CC}"
+  MPICC="${CC}"
 
 
 # Save copies of CPPFLAGS, LDFLAGS and LIBS (preserve information)
@@ -8116,6 +8222,7 @@ SAVED_LIBS="${LIBS}"
 
 # Determine location of MPI header files (find MPI include directory)
 MPI_EXISTS="yes"
+
 # MPI include directory was NOT explicitly specified so check if MPI root
 # directory was given by user
 if test "X${MPI_INC_DIR}" = "X"; then
@@ -8273,38 +8380,33 @@ LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
 
 
-  fi
-
 fi
 
 
+  if test "X${F77_ENABLED}" = "Xyes"; then
 
-
-# Check MPI-F77 compiler only if MPI support is enabled and F77_ENABLED="yes"
-# Do NOT base check on F77_OK flag because even if a valid serial Fortran
-# compiler could NOT be found the MPIF77 compiler script may still work
-# F77_ENABLED flag also indicates if "--without-f77" flag was given by user
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_ENABLED}" = "Xyes" ; then
 
 
 # Check whether --with-mpif77 or --without-mpif77 was given.
 if test "${with_mpif77+set}" = set; then
   withval="$with_mpif77"
 
-  if test "X${withval}" = "Xno"; then
-    USE_MPIF77_SCRIPT="no"
-  else
-    USE_MPIF77_SCRIPT="yes"
-    MPIF77_COMP="${withval}"
-  fi
-
+if test "X${withval}" = "Xno"; then
+  USE_MPIF77_SCRIPT="no"
 else
   USE_MPIF77_SCRIPT="yes"
-   MPIF77_COMP="mpif77"
+  MPIF77_COMP="${withval}"
+fi
+
+else
+
+USE_MPIF77_SCRIPT="yes"
+MPIF77_COMP="mpif77"
+
 fi;
 
-  # Check MPI-Fortran compiler (either MPI compiler script or regular Fortran compiler)
-  if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
+# Check MPI-Fortran compiler (either MPI compiler script or regular Fortran compiler)
+if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
 
 
 # Test the MPI-Fortran compiler (meaning test MPIF77_COMP)
@@ -8313,6 +8415,7 @@ fi;
 # CASE 1: MPIF77_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPIF77_COMP} ; then
+
   MPIF77_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`(dirname "${MPIF77_COMP}") 2>/dev/null ||
@@ -8329,10 +8432,13 @@ echo X"${MPIF77_COMP}" |
   	  s/.*/./; q'`
   MPI_INC_DIR="${MPI_BASE_DIR}/../include"
   MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
+
 # CASE 2: MPIF77_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
+
   if test "X${MPI_ROOT_DIR}" = "X"; then
+
     # Try to find location of executable (perhaps directory was entered
     # incorrectly)
     TEMP_MPIF77_COMP=`basename "${MPIF77_COMP}"`
@@ -8398,8 +8504,10 @@ echo X"${MPIF77_COMP}" |
       MPI_INC_DIR="${MPI_BASE_DIR}/../include"
       MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
+
   # CASE 3: MPIF77_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
+
     # MPIF77_COMP should really only contain an executable name
     # Found location of MPIF77_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPIF77_COMP} ; then
@@ -8412,14 +8520,19 @@ echo X"${MPIF77_COMP}" |
       MPIF77_COMP_EXISTS="no"
       MPIF77_COMP=""
     fi
+
   fi
+
 fi
 
 # Issue warning message if MPIF77_COMP does NOT exist, else set MPIF77
 if test "X${MPIF77_COMP_EXISTS}" = "Xyes"; then
+
   MPIF77="${MPIF77_COMP}"
   MPI_F77_COMP_OK="yes"
+
 else
+
   { echo "$as_me:$LINENO: WARNING: cannot find MPI-Fortran compiler" >&5
 echo "$as_me: WARNING: cannot find MPI-Fortran compiler" >&2;}
   echo ""
@@ -8435,12 +8548,13 @@ echo "$as_me: WARNING: cannot find MPI-Fortran compiler" >&2;}
   echo ""
   MPIF77=""
   MPI_F77_COMP_OK="no"
+
 fi
 
 
-  else
-    MPIF77_COMP="${F77}"
-    MPIF77="${F77}"
+else
+  MPIF77_COMP="${F77}"
+  MPIF77="${F77}"
 
 
 # Save copies of FFLAGS, LDFLAGS and LIBS (preserve information)
@@ -8603,40 +8717,34 @@ LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
 
 
-  fi
-
 fi
 
 
+  fi
+  if test "X${CXX_ENABLED}" = "Xyes"; then
 
-
-# Check MPI-C++ compiler only if MPI support is enabled and CXX_ENABLED="yes"
-# Do NOT base check on CXX_OK flag because even if a valid serial C++ compiler
-# could NOT be found the MPIC++ compiler script may still work
-# CXX_ENABLED flag also indicates if "--without-cxx" flag was given by user
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes"; then
 
 
 # Check whether --with-mpicxx or --without-mpicxx was given.
 if test "${with_mpicxx+set}" = set; then
   withval="$with_mpicxx"
 
-  if test "X${withval}" = "Xno"; then
-    USE_MPICXX_SCRIPT="no"
-  else
-    USE_MPICXX_SCRIPT="yes"
-    MPICXX_COMP="${withval}"
-  fi
+if test "X${withval}" = "Xno"; then
+  USE_MPICXX_SCRIPT="no"
+else
+  USE_MPICXX_SCRIPT="yes"
+  MPICXX_COMP="${withval}"
+fi
 
 else
 
-  USE_MPICXX_SCRIPT="yes"
-  MPICXX_COMP="mpiCC"
+USE_MPICXX_SCRIPT="yes"
+MPICXX_COMP="mpiCC"
 
 fi;
 
-  # Check MPI-C++ compiler (either MPI compiler script or regular C++ compiler)
-  if test "X${USE_MPICXX_SCRIPT}" = "Xyes"; then
+# Check MPI-C++ compiler (either MPI compiler script or regular C++ compiler)
+if test "X${USE_MPICXX_SCRIPT}" = "Xyes"; then
 
 
 # Test the MPI-C++ compiler (meaning test MPICXX_COMP)
@@ -8645,6 +8753,7 @@ fi;
 # CASE 1: MPICXX_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPICXX_COMP} ; then
+
   MPICXX_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`(dirname "${MPICXX_COMP}") 2>/dev/null ||
@@ -8661,10 +8770,13 @@ echo X"${MPICXX_COMP}" |
   	  s/.*/./; q'`
   MPI_INC_DIR="${MPI_BASE_DIR}/../include"
   MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
+
 # CASE 2: MPICXX_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
+
   if test "X${MPI_ROOT_DIR}" = "X"; then
+
     # Try to find location of executable (perhaps directory was entered
     # incorrectly)
     TEMP_MPICXX_COMP=`basename "${MPICXX_COMP}"`
@@ -8730,8 +8842,10 @@ echo X"${MPICXX_COMP}" |
       MPI_INC_DIR="${MPI_BASE_DIR}/../include"
       MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
+
   # CASE 3: MPICXX_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
+
     # MPICXX_COMP should really only contain an executable name
     # Found location of MPICXX_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPICXX_COMP} ; then
@@ -8744,7 +8858,9 @@ echo X"${MPICXX_COMP}" |
       MPICXX_COMP_EXISTS="no"
       MPICXX_COMP=""
     fi
+
   fi
+
 fi
 
 # Issue warning message if MPICXX_COMP does NOT exist, else set MPICXX
@@ -8770,9 +8886,9 @@ echo "$as_me: WARNING: cannot find MPI-C++ compiler" >&2;}
 fi
 
 
-  else
-    MPICXX_COMP="${CXX}"
-    MPICXX="${CXX}"
+else
+  MPICXX_COMP="${CXX}"
+  MPICXX="${CXX}"
 
 
 # Save copies of CPPFLAGS, LDFLAGS and LIBS
@@ -8951,8 +9067,6 @@ LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
 
 
-  fi
-
 fi
 
 
@@ -8963,6 +9077,8 @@ if test "${with_+set}" = set; then
 fi;
 
 
+  fi
+fi
 
 # Run libtool checks
 # Check whether --enable-shared or --disable-shared was given.
@@ -9031,17 +9147,6 @@ esac
 else
   enable_fast_install=yes
 fi;
-# Find the correct PATH separator.  Usually this is `:', but
-# DJGPP uses `;' like DOS.
-if test "X${PATH_SEPARATOR+set}" != Xset; then
-  UNAME=${UNAME-`uname 2>/dev/null`}
-  case X$UNAME in
-    *-DOS) lt_cv_sys_path_separator=';' ;;
-    *)     lt_cv_sys_path_separator=':' ;;
-  esac
-  PATH_SEPARATOR=$lt_cv_sys_path_separator
-fi
-
 
 # Check whether --with-gnu-ld or --without-gnu-ld was given.
 if test "${with_gnu_ld+set}" = set; then
@@ -9093,7 +9198,7 @@ if test "${lt_cv_path_LD+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   if test -z "$LD"; then
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR-:}"
   for ac_dir in $PATH; do
     test -z "$ac_dir" && ac_dir=.
     if test -f "$ac_dir/$ac_prog" || test -f "$ac_dir/$ac_prog$ac_exeext"; then
@@ -9163,7 +9268,7 @@ else
   # Let the user override the test.
   lt_cv_path_NM="$NM"
 else
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR-:}"
   for ac_dir in $PATH /usr/ccs/bin /usr/ucb /bin; do
     test -z "$ac_dir" && ac_dir=.
     tmp_nm=$ac_dir/${ac_tool_prefix}nm
@@ -9193,91 +9298,6 @@ NM="$lt_cv_path_NM"
 echo "$as_me:$LINENO: result: $NM" >&5
 echo "${ECHO_T}$NM" >&6
 
-echo "$as_me:$LINENO: checking for a sed that does not truncate output" >&5
-echo $ECHO_N "checking for a sed that does not truncate output... $ECHO_C" >&6
-if test "${lt_cv_path_SED+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  # Loop through the user's path and test for sed and gsed.
-# Then use that list of sed's as ones to test for truncation.
-as_executable_p="test -f"
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_prog in sed gsed; do
-    for ac_exec_ext in '' $ac_executable_extensions; do
-      if $as_executable_p "$as_dir/$ac_prog$ac_exec_ext"; then
-        _sed_list="$_sed_list $as_dir/$ac_prog$ac_exec_ext"
-      fi
-    done
-  done
-done
-
-  # Create a temporary directory, and hook for its removal unless debugging.
-$debug ||
-{
-  trap 'exit_status=$?; rm -rf $tmp && exit $exit_status' 0
-  trap '{ (exit 1); exit 1; }' 1 2 13 15
-}
-
-# Create a (secure) tmp directory for tmp files.
-: ${TMPDIR=/tmp}
-{
-  tmp=`(umask 077 && mktemp -d -q "$TMPDIR/sedXXXXXX") 2>/dev/null` &&
-  test -n "$tmp" && test -d "$tmp"
-}  ||
-{
-  tmp=$TMPDIR/sed$$-$RANDOM
-  (umask 077 && mkdir $tmp)
-} ||
-{
-   echo "$me: cannot create a temporary directory in $TMPDIR" >&2
-   { (exit 1); exit 1; }
-}
-  _max=0
-  _count=0
-  # Add /usr/xpg4/bin/sed as it is typically found on Solaris
-  # along with /bin/sed that truncates output.
-  for _sed in $_sed_list /usr/xpg4/bin/sed; do
-    test ! -f ${_sed} && break
-    cat /dev/null > "$tmp/sed.in"
-    _count=0
-    echo ${ECHO_N-$ac_n} "0123456789${ECHO_C-$ac_c}" >"$tmp/sed.in"
-    # Check for GNU sed and select it if it is found.
-    if "${_sed}" --version 2>&1 < /dev/null | egrep '(GNU)' > /dev/null; then
-      lt_cv_path_SED=${_sed}
-      break
-    fi
-    while true; do
-      cat "$tmp/sed.in" "$tmp/sed.in" >"$tmp/sed.tmp"
-      mv "$tmp/sed.tmp" "$tmp/sed.in"
-      cp "$tmp/sed.in" "$tmp/sed.nl"
-      echo >>"$tmp/sed.nl"
-      ${_sed} -e 's/a$//' < "$tmp/sed.nl" >"$tmp/sed.out" || break
-      cmp -s "$tmp/sed.out" "$tmp/sed.nl" || break
-      # 40000 chars as input seems more than enough
-      test $_count -gt 10 && break
-      _count=`expr $_count + 1`
-      if test $_count -gt $_max; then
-        _max=$_count
-        lt_cv_path_SED=$_sed
-      fi
-    done
-  done
-  rm -rf "$tmp"
-
-fi
-
-if test "X$SED" != "X"; then
-  lt_cv_path_SED=$SED
-else
-  SED=$lt_cv_path_SED
-fi
-echo "$as_me:$LINENO: result: $SED" >&5
-echo "${ECHO_T}$SED" >&6
-
 echo "$as_me:$LINENO: checking whether ln -s works" >&5
 echo $ECHO_N "checking whether ln -s works... $ECHO_C" >&6
 LN_S=$as_ln_s
@@ -9289,8 +9309,8 @@ else
 echo "${ECHO_T}no, using $LN_S" >&6
 fi
 
-echo "$as_me:$LINENO: checking how to recognise dependent libraries" >&5
-echo $ECHO_N "checking how to recognise dependent libraries... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking how to recognise dependant libraries" >&5
+echo $ECHO_N "checking how to recognise dependant libraries... $ECHO_C" >&6
 if test "${lt_cv_deplibs_check_method+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
@@ -9303,7 +9323,7 @@ lt_cv_deplibs_check_method='unknown'
 # `unknown' -- same as none, but documents that we really don't know.
 # 'pass_all' -- all dependencies passed with no checks.
 # 'test_compile' -- check by making test program.
-# 'file_magic [[regex]]' -- check by looking for files in library path
+# ['file_magic [regex]'] -- check by looking for files in library path
 # which responds to the $file_magic_cmd with a given egrep regex.
 # If you have `file' or equivalent on your system and you're not sure
 # whether `pass_all' will *always* work, you probably want this one.
@@ -9332,7 +9352,7 @@ darwin* | rhapsody*)
   lt_cv_deplibs_check_method='file_magic Mach-O dynamically linked shared library'
   lt_cv_file_magic_cmd='/usr/bin/file -L'
   case "$host_os" in
-  rhapsody* | darwin1.[012])
+  rhapsody* | darwin1.012)
     lt_cv_file_magic_test_file=`echo /System/Library/Frameworks/System.framework/Versions/*/System | head -1`
     ;;
   *) # Darwin 1.3 on
@@ -9367,9 +9387,9 @@ hpux10.20*|hpux11*)
   lt_cv_file_magic_test_file=/usr/lib/libc.sl
   ;;
 
-irix5* | irix6* | nonstopux*)
+irix5* | irix6*)
   case $host_os in
-  irix5* | nonstopux*)
+  irix5*)
     # this will be overridden with pass_all, but let us keep it just in case
     lt_cv_deplibs_check_method="file_magic ELF 32-bit MSB dynamic lib MIPS - version 1"
     ;;
@@ -9391,7 +9411,7 @@ irix5* | irix6* | nonstopux*)
 # This must be Linux ELF.
 linux-gnu*)
   case $host_cpu in
-  alpha* | hppa* | i*86 | mips | mipsel | powerpc* | sparc* | ia64* | s390* | x86_64*)
+  alpha* | hppa* | i*86 | powerpc* | sparc* | ia64* | s390* )
     lt_cv_deplibs_check_method=pass_all ;;
   *)
     # glibc up to 2.1.1 does not perform some relocations on ARM
@@ -9412,16 +9432,6 @@ newos6*)
   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
   lt_cv_file_magic_cmd=/usr/bin/file
   lt_cv_file_magic_test_file=/usr/lib/libnls.so
-  ;;
-
-openbsd*)
-  lt_cv_file_magic_cmd=/usr/bin/file
-  lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
-  if test -z "`echo __ELF__ | $CC -E - | grep __ELF__`" || test "$host_os-$host_cpu" = "openbsd2.8-powerpc"; then
-    lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [LM]SB shared object'
-  else
-    lt_cv_deplibs_check_method='file_magic OpenBSD.* shared library'
-  fi
   ;;
 
 osf3* | osf4* | osf5*)
@@ -9462,9 +9472,6 @@ sysv4 | sysv4.2uw2* | sysv4.3* | sysv5*)
     lt_cv_deplibs_check_method="file_magic ELF [0-9][0-9]*-bit [LM]SB dynamic lib"
     lt_cv_file_magic_test_file=/lib/libc.so
     ;;
-  siemens)
-    lt_cv_deplibs_check_method=pass_all
-    ;;
   esac
   ;;
 esac
@@ -9503,9 +9510,6 @@ symxfrm='\1 \2\3 \3'
 # Transform an extracted symbol line into a proper C declaration
 lt_cv_global_symbol_to_cdecl="sed -n -e 's/^. .* \(.*\)$/extern char \1;/p'"
 
-# Transform an extracted symbol line into symbol name and symbol address
-lt_cv_global_symbol_to_c_name_address="sed -n -e 's/^: \([^ ]*\) $/  {\\\"\1\\\", (lt_ptr) 0},/p' -e 's/^$symcode \([^ ]*\) \([^ ]*\)$/  {\"\2\", (lt_ptr) \&\2},/p'"
-
 # Define system-specific variables.
 case $host_os in
 aix*)
@@ -9516,13 +9520,9 @@ cygwin* | mingw* | pw32*)
   ;;
 hpux*) # Its linker distinguishes data from code symbols
   lt_cv_global_symbol_to_cdecl="sed -n -e 's/^T .* \(.*\)$/extern char \1();/p' -e 's/^$symcode* .* \(.*\)$/extern char \1;/p'"
-  lt_cv_global_symbol_to_c_name_address="sed -n -e 's/^: \([^ ]*\) $/  {\\\"\1\\\", (lt_ptr) 0},/p' -e 's/^$symcode* \([^ ]*\) \([^ ]*\)$/  {\"\2\", (lt_ptr) \&\2},/p'"
   ;;
-irix* | nonstopux*)
+irix*)
   symcode='[BCDEGRST]'
-  ;;
-osf*)
-  symcode='[BCDEGQRST]'
   ;;
 solaris* | sysv5*)
   symcode='[BDT]'
@@ -9599,23 +9599,23 @@ EOF
 
 	  cat <<EOF >> conftest.$ac_ext
 #if defined (__STDC__) && __STDC__
-# define lt_ptr void *
+# define lt_ptr_t void *
 #else
-# define lt_ptr char *
+# define lt_ptr_t char *
 # define const
 #endif
 
 /* The mapping between symbol names and symbols. */
 const struct {
   const char *name;
-  lt_ptr address;
+  lt_ptr_t address;
 }
 lt_preloaded_symbols[] =
 {
 EOF
-	  sed "s/^$symcode$symcode* \(.*\) \(.*\)$/  {\"\2\", (lt_ptr) \&\2},/" < "$nlist" >> conftest.$ac_ext
+	  sed "s/^$symcode$symcode* \(.*\) \(.*\)$/  {\"\2\", (lt_ptr_t) \&\2},/" < "$nlist" >> conftest.$ac_ext
 	  cat <<\EOF >> conftest.$ac_ext
-  {0, (lt_ptr) 0}
+  {0, (lt_ptr_t) 0}
 };
 
 #ifdef __cplusplus
@@ -9632,7 +9632,7 @@ EOF
   (eval $ac_link) 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && test -s conftest$ac_exeext; then
+  (exit $ac_status); } && test -s conftest; then
 	    pipe_works=yes
 	  fi
 	  LIBS="$save_LIBS"
@@ -9665,13 +9665,10 @@ fi
 global_symbol_pipe="$lt_cv_sys_global_symbol_pipe"
 if test -z "$lt_cv_sys_global_symbol_pipe"; then
   global_symbol_to_cdecl=
-  global_symbol_to_c_name_address=
 else
   global_symbol_to_cdecl="$lt_cv_global_symbol_to_cdecl"
-  global_symbol_to_c_name_address="$lt_cv_global_symbol_to_c_name_address"
 fi
-if test -z "$global_symbol_pipe$global_symbol_to_cdec$global_symbol_to_c_name_address";
-then
+if test -z "$global_symbol_pipe$global_symbol_to_cdecl"; then
   echo "$as_me:$LINENO: result: failed" >&5
 echo "${ECHO_T}failed" >&6
 else
@@ -9820,7 +9817,6 @@ _ACEOF
 fi
 
 done
-
 
 
 
@@ -10141,7 +10137,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 10144 "configure"' > conftest.$ac_ext
+  echo '#line 10140 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -10314,15 +10310,8 @@ old_postinstall_cmds='chmod 644 $oldlib'
 old_postuninstall_cmds=
 
 if test -n "$RANLIB"; then
-  case $host_os in
-  openbsd*)
-    old_postinstall_cmds="\$RANLIB -t \$oldlib~$old_postinstall_cmds"
-    ;;
-  *)
-    old_postinstall_cmds="\$RANLIB \$oldlib~$old_postinstall_cmds"
-    ;;
-  esac
   old_archive_cmds="$old_archive_cmds~\$RANLIB \$oldlib"
+  old_postinstall_cmds="\$RANLIB \$oldlib~$old_postinstall_cmds"
 fi
 
 # Allow CC to be a program name with arguments.
@@ -10380,7 +10369,7 @@ else
       # libC (AIX C++ library), which obviously doesn't included in libraries
       # list by gcc. This cause undefined symbols with -static flags.
       # This hack allows C programs to be linked with "-static -ldl", but
-      # not sure about C++ programs.
+      # we not sure about C++ programs.
       lt_cv_prog_cc_static="$lt_cv_prog_cc_static ${lt_cv_prog_cc_wl}-lC"
       ;;
     amigaos*)
@@ -10389,7 +10378,7 @@ else
       # like `-m68040'.
       lt_cv_prog_cc_pic='-m68020 -resident32 -malways-restore-a4'
       ;;
-    beos* | irix5* | irix6* | nonstopux* | osf3* | osf4* | osf5*)
+    beos* | irix5* | irix6* | osf3* | osf4* | osf5*)
       # PIC is the default for these OSes.
       ;;
     darwin* | rhapsody*)
@@ -10415,13 +10404,13 @@ else
     # PORTME Check for PIC flags for the system compiler.
     case $host_os in
     aix3* | aix4* | aix5*)
-      lt_cv_prog_cc_wl='-Wl,'
       # All AIX code is PIC.
       if test "$host_cpu" = ia64; then
-	# AIX 5 now supports IA64 processor
-	lt_cv_prog_cc_static='-Bstatic'
+        # AIX 5 now supports IA64 processor
+        lt_cv_prog_cc_static='-Bstatic'
+        lt_cv_prog_cc_wl='-Wl,'
       else
-	lt_cv_prog_cc_static='-bnso -bI:/lib/syscalls.exp'
+        lt_cv_prog_cc_static='-bnso -bI:/lib/syscalls.exp'
       fi
       ;;
 
@@ -10432,7 +10421,7 @@ else
       lt_cv_prog_cc_pic='+Z'
       ;;
 
-    irix5* | irix6* | nonstopux*)
+    irix5* | irix6*)
       lt_cv_prog_cc_wl='-Wl,'
       lt_cv_prog_cc_static='-non_shared'
       # PIC (with -KPIC) is the default.
@@ -10476,7 +10465,11 @@ else
     sysv4 | sysv4.2uw2* | sysv4.3* | sysv5*)
       lt_cv_prog_cc_pic='-KPIC'
       lt_cv_prog_cc_static='-Bstatic'
-      lt_cv_prog_cc_wl='-Wl,'
+      if test "x$host_vendor" = xsni; then
+        lt_cv_prog_cc_wl='-LD'
+      else
+        lt_cv_prog_cc_wl='-Wl,'
+      fi
       ;;
 
     uts4*)
@@ -10688,7 +10681,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:10691: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:10684: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -10726,8 +10719,6 @@ else
   lt_cv_compiler_o_lo=no
   save_CFLAGS="$CFLAGS"
   CFLAGS="$CFLAGS -c -o conftest.lo"
-  save_objext="$ac_objext"
-  ac_objext=lo
   cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -10776,7 +10767,6 @@ sed 's/^/| /' conftest.$ac_ext >&5
 
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
-  ac_objext="$save_objext"
   CFLAGS="$save_CFLAGS"
 
 fi
@@ -10921,7 +10911,7 @@ exclude_expsyms="_GLOBAL_OFFSET_TABLE_"
 extract_expsyms_cmds=
 
 case $host_os in
-cygwin* | mingw* | pw32*)
+cygwin* | mingw* | pw32* )
   # FIXME: the MSVC++ port hasn't been tested in a loooong time
   # When not using gcc, we currently assume that we are using
   # Microsoft Visual C++.
@@ -10929,9 +10919,7 @@ cygwin* | mingw* | pw32*)
     with_gnu_ld=no
   fi
   ;;
-openbsd*)
-  with_gnu_ld=no
-  ;;
+
 esac
 
 ld_shlibs=yes
@@ -11018,7 +11006,7 @@ EOF
     # can override, but on older systems we have to supply one (in ltdll.c)
     if test "x$lt_cv_need_dllmain" = "xyes"; then
       ltdll_obj='$output_objdir/$soname-ltdll.'"$ac_objext "
-      ltdll_cmds='test -f $output_objdir/$soname-ltdll.c || sed -e "/^# \/\* ltdll\.c starts here \*\//,/^# \/\* ltdll.c ends here \*\// { s/^# //; p; }" -e d < $''0 > $output_objdir/$soname-ltdll.c~
+      ltdll_cmds='test -f $output_objdir/$soname-ltdll.c || sed -e "/^# \/\* ltdll\.c starts here \*\//,/^# \/\* ltdll.c ends here \*\// { s/^# //; p; }" -e d < [$]0 > $output_objdir/$soname-ltdll.c~
 	test -f $output_objdir/$soname-ltdll.$ac_objext || (cd $output_objdir && $CC -c $soname-ltdll.c)~'
     else
       ltdll_obj=
@@ -11036,20 +11024,19 @@ EOF
     # If the export-symbols file already is a .def file (1st line
     # is EXPORTS), use it as is.
     # If DATA tags from a recent dlltool are present, honour them!
-    archive_expsym_cmds='if test "x`sed 1q $export_symbols`" = xEXPORTS; then
-	cp $export_symbols $output_objdir/$soname-def;
+    archive_expsym_cmds='if test "x`head -1 $export_symbols`" = xEXPORTS; then
+        cp $export_symbols $output_objdir/$soname-def;
       else
-	echo EXPORTS > $output_objdir/$soname-def;
-	_lt_hint=1;
-	cat $export_symbols | while read symbol; do
-	 set dummy \$symbol;
-	 case \$# in
-	   2) echo "   \$2 @ \$_lt_hint ; " >> $output_objdir/$soname-def;;
-	   4) echo "   \$2 \$3 \$4 ; " >> $output_objdir/$soname-def; _lt_hint=`expr \$_lt_hint - 1`;;
-	   *) echo "     \$2 @ \$_lt_hint \$3 ; " >> $output_objdir/$soname-def;;
-	 esac;
-	 _lt_hint=`expr 1 + \$_lt_hint`;
-	done;
+        echo EXPORTS > $output_objdir/$soname-def;
+        _lt_hint=1;
+        cat $export_symbols | while read symbol; do
+         set dummy \$symbol;
+         case \$# in
+           2) echo "   \$2 @ \$_lt_hint ; " >> $output_objdir/$soname-def;;
+           *) echo "     \$2 @ \$_lt_hint \$3 ; " >> $output_objdir/$soname-def;;
+         esac;
+         _lt_hint=`expr 1 + \$_lt_hint`;
+        done;
       fi~
       '"$ltdll_cmds"'
       $CC -Wl,--base-file,$output_objdir/$soname-base '$lt_cv_cc_dll_switch' -Wl,-e,'$dll_entry' -o $output_objdir/$soname '$ltdll_obj'$libobjs $deplibs $compiler_flags~
@@ -11144,6 +11131,41 @@ else
     ;;
 
   aix4* | aix5*)
+    # When large executables or shared objects are built, AIX ld can
+    # have problems creating the table of contents.  If linking a library
+    # or program results in "error TOC overflow" add -mminimal-toc to
+    # CXXFLAGS/CFLAGS for g++/gcc.  In the cases where that is not
+    # enough to fix the problem, add -Wl,-bbigtoc to LDFLAGS.
+
+    archive_cmds=''
+    hardcode_libdir_separator=':'
+    if test "$GCC" = yes; then
+      collect2name=`${CC} -print-prog-name=collect2`
+      if test -f "$collect2name" && \
+	 strings "$collect2name" | grep resolve_lib_name >/dev/null
+      then
+	# We have reworked collect2
+	hardcode_direct=yes
+      else
+        # We have old collect2
+        hardcode_direct=unsupported
+        # It fails to find uninstalled libraries when the uninstalled
+        # path is not listed in the libpath.  Setting hardcode_minus_L
+        # to unsupported forces relinking
+        hardcode_minus_L=yes
+        hardcode_libdir_flag_spec='-L$libdir'
+        hardcode_libdir_separator=
+      fi
+      shared_flag='-shared'
+    else
+      if test "$host_cpu" = ia64; then
+        shared_flag='-G'
+      else
+        shared_flag='${wl}-bM:SRE'
+      fi
+      hardcode_direct=yes
+    fi
+
     if test "$host_cpu" = ia64; then
       # On IA64, the linker does run time linking by default, so we don't
       # have to do anything special.
@@ -11151,91 +11173,38 @@ else
       exp_sym_flag='-Bexport'
       no_entry_flag=""
     else
+      # Test if we are trying to use run time linking, or normal AIX style linking.
+      # If -brtl is somewhere in LDFLAGS, we need to do run time linking.
       aix_use_runtimelinking=no
-
-      # Test if we are trying to use run time linking or normal
-      # AIX style linking. If -brtl is somewhere in LDFLAGS, we
-      # need to do runtime linking.
-      case $host_os in aix4.[23]|aix4.[23].*|aix5*)
-	for ld_flag in $LDFLAGS; do
-	  case $ld_flag in
-	  *-brtl*)
-	    aix_use_runtimelinking=yes
-	    break
-	  ;;
-	  esac
-	done
-      esac
-
+      for ld_flag in $LDFLAGS; do
+        if (test $ld_flag = "-brtl" || test $ld_flag = "-Wl,-brtl" ); then
+          aix_use_runtimelinking=yes
+          break
+        fi
+      done
       exp_sym_flag='-bexport'
       no_entry_flag='-bnoentry'
     fi
-
-    # When large executables or shared objects are built, AIX ld can
-    # have problems creating the table of contents.  If linking a library
-    # or program results in "error TOC overflow" add -mminimal-toc to
-    # CXXFLAGS/CFLAGS for g++/gcc.  In the cases where that is not
-    # enough to fix the problem, add -Wl,-bbigtoc to LDFLAGS.
-
-    hardcode_direct=yes
-    archive_cmds=''
-    hardcode_libdir_separator=':'
-    if test "$GCC" = yes; then
-      case $host_os in aix4.[012]|aix4.[012].*)
-	collect2name=`${CC} -print-prog-name=collect2`
-	if test -f "$collect2name" && \
-	  strings "$collect2name" | grep resolve_lib_name >/dev/null
-	then
-	  # We have reworked collect2
-	  hardcode_direct=yes
-	else
-	  # We have old collect2
-	  hardcode_direct=unsupported
-	  # It fails to find uninstalled libraries when the uninstalled
-	  # path is not listed in the libpath.  Setting hardcode_minus_L
-	  # to unsupported forces relinking
-	  hardcode_minus_L=yes
-	  hardcode_libdir_flag_spec='-L$libdir'
-	  hardcode_libdir_separator=
-	fi
-      esac
-
-      shared_flag='-shared'
-    else
-      # not using gcc
-      if test "$host_cpu" = ia64; then
-	shared_flag='${wl}-G'
-      else
-	if test "$aix_use_runtimelinking" = yes; then
-	  shared_flag='${wl}-G'
-	else
-	  shared_flag='${wl}-bM:SRE'
-	fi
-      fi
-    fi
-
     # It seems that -bexpall can do strange things, so it is better to
     # generate a list of symbols to export.
     always_export_symbols=yes
     if test "$aix_use_runtimelinking" = yes; then
-      # Warning - without using the other runtime loading flags (-brtl),
-      # -berok will link without error, but may produce a broken library.
-      allow_undefined_flag='-berok'
       hardcode_libdir_flag_spec='${wl}-blibpath:$libdir:/usr/lib:/lib'
-      archive_expsym_cmds="\$CC"' -o $output_objdir/$soname $libobjs $deplibs $compiler_flags `if test "x${allow_undefined_flag}" != "x"; then echo "${wl}${allow_undefined_flag}"; else :; fi` '"\${wl}$no_entry_flag \${wl}$exp_sym_flag:\$export_symbols $shared_flag"
+      allow_undefined_flag=' -Wl,-G'
+      archive_expsym_cmds="\$CC $shared_flag"' -o $output_objdir/$soname $libobjs $deplibs $compiler_flags ${allow_undefined_flag} '"\${wl}$no_entry_flag \${wl}$exp_sym_flag:\$export_symbols"
     else
       if test "$host_cpu" = ia64; then
-	hardcode_libdir_flag_spec='${wl}-R $libdir:/usr/lib:/lib'
-	allow_undefined_flag="-z nodefs"
-	archive_expsym_cmds="\$CC $shared_flag"' -o $output_objdir/$soname ${wl}-h$soname $libobjs $deplibs $compiler_flags ${wl}${allow_undefined_flag} '"\${wl}$no_entry_flag \${wl}$exp_sym_flag:\$export_symbols"
+        hardcode_libdir_flag_spec='${wl}-R $libdir:/usr/lib:/lib'
+       allow_undefined_flag="-znodefs"
+        archive_expsym_cmds="\$CC $shared_flag"' -o $output_objdir/$soname ${wl}-h$soname $libobjs $deplibs $compiler_flags ${wl}${allow_undefined_flag} '"\${wl}$no_entry_flag \${wl}$exp_sym_flag:\$export_symbols"
       else
-	hardcode_libdir_flag_spec='${wl}-bnolibpath ${wl}-blibpath:$libdir:/usr/lib:/lib'
-	# Warning - without using the other run time loading flags,
-	# -berok will link without error, but may produce a broken library.
-	allow_undefined_flag='${wl}-berok'
-	# This is a bit strange, but is similar to how AIX traditionally builds
-	# it's shared libraries.
-	archive_expsym_cmds="\$CC $shared_flag"' -o $output_objdir/$soname $libobjs $deplibs $compiler_flags ${allow_undefined_flag} '"\${wl}$no_entry_flag \${wl}$exp_sym_flag:\$export_symbols"' ~$AR -crlo $objdir/$libname$release.a $objdir/$soname'
+        hardcode_libdir_flag_spec='${wl}-bnolibpath ${wl}-blibpath:$libdir:/usr/lib:/lib'
+        # Warning - without using the other run time loading flags, -berok will
+        #           link without error, but may produce a broken library.
+        allow_undefined_flag='${wl}-berok'
+        # This is a bit strange, but is similar to how AIX traditionally builds
+        # it's shared libraries.
+        archive_expsym_cmds="\$CC $shared_flag"' -o $output_objdir/$soname $libobjs $deplibs $compiler_flags ${allow_undefined_flag} '"\${wl}$no_entry_flag \${wl}$exp_sym_flag:\$export_symbols"' ~$AR -crlo $objdir/$libname$release.a $objdir/$soname'
       fi
     fi
     ;;
@@ -11267,19 +11236,11 @@ else
     ;;
 
   darwin* | rhapsody*)
-    case "$host_os" in
-    rhapsody* | darwin1.[012])
-      allow_undefined_flag='-undefined suppress'
-      ;;
-    *) # Darwin 1.3 on
-      allow_undefined_flag='-flat_namespace -undefined suppress'
-      ;;
-    esac
+    allow_undefined_flag='-undefined suppress'
     # FIXME: Relying on posixy $() will cause problems for
     #        cross-compilation, but unfortunately the echo tests do not
-    #        yet detect zsh echo's removal of \ escapes.  Also zsh mangles
-    #	     `"' quotes if we put them in here... so don't!
-    archive_cmds='$CC -r -keep_private_externs -nostdlib -o ${lib}-master.o $libobjs && $CC $(test .$module = .yes && echo -bundle || echo -dynamiclib) $allow_undefined_flag -o $lib ${lib}-master.o $deplibs$linker_flags $(test .$module != .yes && echo -install_name $rpath/$soname $verstring)'
+    #        yet detect zsh echo's removal of \ escapes.
+    archive_cmds='$CC $(test .$module = .yes && echo -bundle || echo -dynamiclib) $allow_undefined_flag -o $lib $libobjs $deplibs$linkopts -install_name $rpath/$soname $(test -n "$verstring" -a x$verstring != x0.0 && echo $verstring)'
     # We need to add '_' to the symbols in $export_symbols first
     #archive_expsym_cmds="$archive_cmds"' && strip -s $export_symbols'
     hardcode_direct=yes
@@ -11331,14 +11292,13 @@ else
     export_dynamic_flag_spec='${wl}-E'
     ;;
 
-  irix5* | irix6* | nonstopux*)
+  irix5* | irix6*)
     if test "$GCC" = yes; then
       archive_cmds='$CC -shared $libobjs $deplibs $compiler_flags ${wl}-soname ${wl}$soname `test -n "$verstring" && echo ${wl}-set_version ${wl}$verstring` ${wl}-update_registry ${wl}${output_objdir}/so_locations -o $lib'
-      hardcode_libdir_flag_spec='${wl}-rpath ${wl}$libdir'
     else
       archive_cmds='$LD -shared $libobjs $deplibs $linker_flags -soname $soname `test -n "$verstring" && echo -set_version $verstring` -update_registry ${output_objdir}/so_locations -o $lib'
-      hardcode_libdir_flag_spec='-rpath $libdir'
     fi
+    hardcode_libdir_flag_spec='${wl}-rpath ${wl}$libdir'
     hardcode_libdir_separator=:
     link_all_deplibs=yes
     ;;
@@ -11355,7 +11315,7 @@ else
     ;;
 
   newsos6)
-    archive_cmds='$LD -G -h $soname -o $lib $libobjs $deplibs $linker_flags'
+    archive_cmds='$LD -G -h $soname -o $lib $libobjs $deplibs $linkopts'
     hardcode_direct=yes
     hardcode_libdir_flag_spec='${wl}-rpath ${wl}$libdir'
     hardcode_libdir_separator=:
@@ -11363,24 +11323,10 @@ else
     ;;
 
   openbsd*)
+    archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+    hardcode_libdir_flag_spec='-R$libdir'
     hardcode_direct=yes
     hardcode_shlibpath_var=no
-    if test -z "`echo __ELF__ | $CC -E - | grep __ELF__`" || test "$host_os-$host_cpu" = "openbsd2.8-powerpc"; then
-      archive_cmds='$CC -shared $pic_flag -o $lib $libobjs $deplibs $compiler_flags'
-      hardcode_libdir_flag_spec='${wl}-rpath,$libdir'
-      export_dynamic_flag_spec='${wl}-E'
-    else
-      case "$host_os" in
-      openbsd[01].* | openbsd2.[0-7] | openbsd2.[0-7].*)
-	archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
-	hardcode_libdir_flag_spec='-R$libdir'
-        ;;
-      *)
-        archive_cmds='$CC -shared $pic_flag -o $lib $libobjs $deplibs $compiler_flags'
-        hardcode_libdir_flag_spec='${wl}-rpath,$libdir'
-        ;;
-      esac
-    fi
     ;;
 
   os2*)
@@ -11425,39 +11371,10 @@ else
     hardcode_shlibpath_var=no
     runpath_var=LD_RUN_PATH
     hardcode_runpath_var=yes
-    export_dynamic_flag_spec='${wl}-Bexport'
     ;;
 
   solaris*)
-    # gcc --version < 3.0 without binutils cannot create self contained
-    # shared libraries reliably, requiring libgcc.a to resolve some of
-    # the object symbols generated in some cases.  Libraries that use
-    # assert need libgcc.a to resolve __eprintf, for example.  Linking
-    # a copy of libgcc.a into every shared library to guarantee resolving
-    # such symbols causes other problems:  According to Tim Van Holder
-    # <tim.van.holder@pandora.be>, C++ libraries end up with a separate
-    # (to the application) exception stack for one thing.
     no_undefined_flag=' -z defs'
-    if test "$GCC" = yes; then
-      case `$CC --version 2>/dev/null` in
-      [12].*)
-	cat <<EOF 1>&2
-
-*** Warning: Releases of GCC earlier than version 3.0 cannot reliably
-*** create self contained shared libraries on Solaris systems, without
-*** introducing a dependency on libgcc.a.  Therefore, libtool is disabling
-*** -no-undefined support, which will at least allow you to build shared
-*** libraries.  However, you may find that when you link such libraries
-*** into an application without using GCC, you have to manually add
-*** \`gcc --print-libgcc-file-name\` to the link command.  We urge you to
-*** upgrade to a newer version of GCC.  Another option is to rebuild your
-*** current GCC to use the GNU linker from GNU binutils 2.9.1 or newer.
-
-EOF
-        no_undefined_flag=
-	;;
-      esac
-    fi
     # $CC -shared without GNU ld will not create a library from C++
     # object files and a static libstdc++, better avoid it by now
     archive_cmds='$LD -G${allow_undefined_flag} -h $soname -o $lib $libobjs $deplibs $linker_flags'
@@ -11488,23 +11405,13 @@ EOF
     ;;
 
   sysv4)
-    case $host_vendor in
-      sni)
-        archive_cmds='$LD -G -h $soname -o $lib $libobjs $deplibs $linker_flags'
-        hardcode_direct=yes # is this really true???
-        ;;
-      siemens)
-        ## LD is ld it makes a PLAMLIB
-        ## CC just makes a GrossModule.
-        archive_cmds='$LD -G -o $lib $libobjs $deplibs $linker_flags'
-        reload_cmds='$CC -r -o $output$reload_objs'
-        hardcode_direct=no
-        ;;
-      motorola)
-        archive_cmds='$LD -G -h $soname -o $lib $libobjs $deplibs $linker_flags'
-        hardcode_direct=no #Motorola manual says yes, but my tests say they lie
-        ;;
-    esac
+    if test "x$host_vendor" = xsno; then
+      archive_cmds='$LD -G -Bsymbolic -h $soname -o $lib $libobjs $deplibs $linkopts'
+      hardcode_direct=yes # is this really true???
+    else
+      archive_cmds='$LD -G -h $soname -o $lib $libobjs $deplibs $linker_flags'
+      hardcode_direct=no #Motorola manual says yes, but my tests say they lie
+    fi
     runpath_var='LD_RUN_PATH'
     hardcode_shlibpath_var=no
     ;;
@@ -11652,9 +11559,6 @@ aix3*)
 
 aix4* | aix5*)
   version_type=linux
-  need_lib_prefix=no
-  need_version=no
-  hardcode_into_libs=yes
   if test "$host_cpu" = ia64; then
     # AIX 5 supports IA64
     library_names_spec='${libname}${release}.so$major ${libname}${release}.so$versuffix $libname.so'
@@ -11666,24 +11570,22 @@ aix4* | aix5*)
     # depend on `.', always an invalid library.  This was fixed in
     # development snapshots of GCC prior to 3.0.
     case $host_os in
-      aix4 | aix4.[01] | aix4.[01].*)
-	if { echo '#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 97)'
-	     echo ' yes '
-	     echo '#endif'; } | ${CC} -E - | grep yes > /dev/null; then
-	  :
-	else
-	  can_build_shared=no
-	fi
-	;;
+       aix4 | aix4.[01] | aix4.[01].*)
+      if { echo '#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 97)'
+           echo ' yes '
+           echo '#endif'; } | ${CC} -E - | grep yes > /dev/null; then
+        :
+      else
+        can_build_shared=no
+      fi
+      ;;
     esac
-    # AIX (on Power*) has no versioning support, so currently we can
-    # not hardcode correct soname into executable. Probably we can
-    # add versioning support to collect2, so additional links can
-    # be useful in future.
+    # AIX (on Power*) has no versioning support, so currently we can not hardcode correct
+    # soname into executable. Probably we can add versioning support to
+    # collect2, so additional links can be useful in future.
     if test "$aix_use_runtimelinking" = yes; then
-      # If using run time linking (on AIX 4.2 or later) use lib<name>.so
-      # instead of lib<name>.a to let people know that these are not
-      # typical AIX shared libraries.
+      # If using run time linking (on AIX 4.2 or later) use lib<name>.so instead of
+      # lib<name>.a to let people know that these are not typical AIX shared libraries.
       library_names_spec='${libname}${release}.so$versuffix ${libname}${release}.so$major $libname.so'
     else
       # We preserve .a as extension for shared libraries through AIX4.2
@@ -11692,8 +11594,8 @@ aix4* | aix5*)
       soname_spec='${libname}${release}.so$major'
     fi
     shlibpath_var=LIBPATH
+    deplibs_check_method=pass_all
   fi
-  hardcode_into_libs=yes
   ;;
 
 amigaos*)
@@ -11741,7 +11643,7 @@ cygwin* | mingw* | pw32*)
     ;;
   yes,mingw*)
     library_names_spec='${libname}`echo ${release} | sed -e 's/[.]/-/g'`${versuffix}.dll'
-    sys_lib_search_path_spec=`$CC -print-search-dirs | grep "^libraries:" | sed -e "s/^libraries://" -e "s/;/ /g" -e "s,=/,/,g"`
+    sys_lib_search_path_spec=`$CC -print-search-dirs | grep "^libraries:" | sed -e "s/^libraries://" -e "s/;/ /g"`
     ;;
   yes,pw32*)
     library_names_spec='`echo ${libname} | sed -e 's/^lib/pw/'``echo ${release} | sed -e 's/./-/g'`${versuffix}.dll'
@@ -11824,17 +11726,14 @@ hpux9* | hpux10* | hpux11*)
   postinstall_cmds='chmod 555 $lib'
   ;;
 
-irix5* | irix6* | nonstopux*)
-  case $host_os in
-    nonstopux*) version_type=nonstopux ;;
-    *)          version_type=irix ;;
-  esac
+irix5* | irix6*)
+  version_type=irix
   need_lib_prefix=no
   need_version=no
   soname_spec='${libname}${release}.so$major'
   library_names_spec='${libname}${release}.so$versuffix ${libname}${release}.so$major ${libname}${release}.so $libname.so'
   case $host_os in
-  irix5* | nonstopux*)
+  irix5*)
     libsuff= shlibsuff=
     ;;
   *)
@@ -11879,30 +11778,6 @@ linux-gnu*)
   # people can always --disable-shared, the test was removed, and we
   # assume the GNU/Linux dynamic linker is in use.
   dynamic_linker='GNU/Linux ld.so'
-
-  # Find out which ABI we are using (multilib Linux x86_64 hack).
-  libsuff=
-  case "$host_cpu" in
-  x86_64*|s390x*)
-    echo '#line 11887 "configure"' > conftest.$ac_ext
-    if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; then
-      case `/usr/bin/file conftest.$ac_objext` in
-      *64-bit*)
-        libsuff=64
-        ;;
-      esac
-    fi
-    rm -rf conftest*
-    ;;
-  *)
-    ;;
-  esac
-  sys_lib_dlsearch_path_spec="/lib${libsuff} /usr/lib${libsuff}"
-  sys_lib_search_path_spec="/lib${libsuff} /usr/lib${libsuff} /usr/local/lib${libsuff}"
   ;;
 
 netbsd*)
@@ -11932,19 +11807,9 @@ newsos6)
 
 openbsd*)
   version_type=sunos
-  need_lib_prefix=no
-  need_version=no
-  if test -z "`echo __ELF__ | $CC -E - | grep __ELF__`" || test "$host_os-$host_cpu" = "openbsd2.8-powerpc"; then
-    case "$host_os" in
-    openbsd2.[89] | openbsd2.[89].*)
-      shlibpath_overrides_runpath=no
-      ;;
-    *)
-      shlibpath_overrides_runpath=yes
-      ;;
-    esac
-  else
-    shlibpath_overrides_runpath=yes
+  if test "$with_gnu_ld" = yes; then
+    need_lib_prefix=no
+    need_version=no
   fi
   library_names_spec='${libname}${release}.so$versuffix ${libname}.so$versuffix'
   finish_cmds='PATH="\$PATH:/sbin" ldconfig -m $libdir'
@@ -11962,12 +11827,11 @@ os2*)
 osf3* | osf4* | osf5*)
   version_type=osf
   need_version=no
-  soname_spec='${libname}${release}.so$major'
-  library_names_spec='${libname}${release}.so$versuffix ${libname}${release}.so$major $libname.so'
+  soname_spec='${libname}${release}.so'
+  library_names_spec='${libname}${release}.so$versuffix ${libname}${release}.so $libname.so'
   shlibpath_var=LD_LIBRARY_PATH
   sys_lib_search_path_spec="/usr/shlib /usr/ccs/lib /usr/lib/cmplrs/cc /usr/lib /usr/local/lib /var/shlib"
   sys_lib_dlsearch_path_spec="$sys_lib_search_path_spec"
-  hardcode_into_libs=yes
   ;;
 
 sco3.2v5*)
@@ -12010,12 +11874,6 @@ sysv4 | sysv4.2uw2* | sysv4.3* | sysv5*)
   case $host_vendor in
     sni)
       shlibpath_overrides_runpath=no
-      need_lib_prefix=no
-      export_dynamic_flag_spec='${wl}-Blargedynsym'
-      runpath_var=LD_RUN_PATH
-      ;;
-    siemens)
-      need_lib_prefix=no
       ;;
     motorola)
       need_lib_prefix=no
@@ -12065,37 +11923,6 @@ echo $ECHO_N "checking if libtool supports shared libraries... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: $can_build_shared" >&5
 echo "${ECHO_T}$can_build_shared" >&6
 
-echo "$as_me:$LINENO: checking whether to build shared libraries" >&5
-echo $ECHO_N "checking whether to build shared libraries... $ECHO_C" >&6
-test "$can_build_shared" = "no" && enable_shared=no
-
-# On AIX, shared libraries and static libraries use the same namespace, and
-# are all built from PIC.
-case "$host_os" in
-aix3*)
-  test "$enable_shared" = yes && enable_static=no
-  if test -n "$RANLIB"; then
-    archive_cmds="$archive_cmds~\$RANLIB \$lib"
-    postinstall_cmds='$RANLIB $lib'
-  fi
-  ;;
-
-aix4*)
-  if test "$host_cpu" != ia64 && test "$aix_use_runtimelinking" = no ; then
-    test "$enable_shared" = yes && enable_static=no
-  fi
-  ;;
-esac
-echo "$as_me:$LINENO: result: $enable_shared" >&5
-echo "${ECHO_T}$enable_shared" >&6
-
-echo "$as_me:$LINENO: checking whether to build static libraries" >&5
-echo $ECHO_N "checking whether to build static libraries... $ECHO_C" >&6
-# Make sure either enable_shared or enable_static is yes.
-test "$enable_shared" = yes || enable_static=yes
-echo "$as_me:$LINENO: result: $enable_static" >&5
-echo "${ECHO_T}$enable_static" >&6
-
 if test "$hardcode_action" = relink; then
   # Fast installation is not supported
   enable_fast_install=no
@@ -12131,94 +11958,13 @@ else
    ;;
 
   *)
-    echo "$as_me:$LINENO: checking for shl_load" >&5
-echo $ECHO_N "checking for shl_load... $ECHO_C" >&6
-if test "${ac_cv_func_shl_load+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char shl_load (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char shl_load ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_shl_load) || defined (__stub___shl_load)
-choke me
-#else
-char (*f) () = shl_load;
-#endif
-#ifdef __cplusplus
-}
-#endif
-
-#ifdef F77_DUMMY_MAIN
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-#endif
-int
-main ()
-{
-return f != shl_load;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_func_shl_load=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_func_shl_load=no
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_func_shl_load" >&5
-echo "${ECHO_T}$ac_cv_func_shl_load" >&6
-if test $ac_cv_func_shl_load = yes; then
-  lt_cv_dlopen="shl_load"
-else
-  echo "$as_me:$LINENO: checking for shl_load in -ldld" >&5
-echo $ECHO_N "checking for shl_load in -ldld... $ECHO_C" >&6
-if test "${ac_cv_lib_dld_shl_load+set}" = set; then
+    echo "$as_me:$LINENO: checking for dlopen in -ldl" >&5
+echo $ECHO_N "checking for dlopen in -ldl... $ECHO_C" >&6
+if test "${ac_cv_lib_dl_dlopen+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-ldld  $LIBS"
+LIBS="-ldl  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -12233,7 +11979,7 @@ extern "C"
 #endif
 /* We use char because int might match the return type of a gcc2
    builtin and then its argument prototype would still apply.  */
-char shl_load ();
+char dlopen ();
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
      extern "C"
@@ -12243,7 +11989,7 @@ char shl_load ();
 int
 main ()
 {
-shl_load ();
+dlopen ();
   ;
   return 0;
 }
@@ -12260,20 +12006,20 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_dld_shl_load=yes
+  ac_cv_lib_dl_dlopen=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_dld_shl_load=no
+ac_cv_lib_dl_dlopen=no
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_dld_shl_load" >&5
-echo "${ECHO_T}$ac_cv_lib_dld_shl_load" >&6
-if test $ac_cv_lib_dld_shl_load = yes; then
-  lt_cv_dlopen="shl_load" lt_cv_dlopen_libs="-dld"
+echo "$as_me:$LINENO: result: $ac_cv_lib_dl_dlopen" >&5
+echo "${ECHO_T}$ac_cv_lib_dl_dlopen" >&6
+if test $ac_cv_lib_dl_dlopen = yes; then
+  lt_cv_dlopen="dlopen" lt_cv_dlopen_libs="-ldl"
 else
   echo "$as_me:$LINENO: checking for dlopen" >&5
 echo $ECHO_N "checking for dlopen... $ECHO_C" >&6
@@ -12356,28 +12102,47 @@ echo "${ECHO_T}$ac_cv_func_dlopen" >&6
 if test $ac_cv_func_dlopen = yes; then
   lt_cv_dlopen="dlopen"
 else
-  echo "$as_me:$LINENO: checking for dlopen in -ldl" >&5
-echo $ECHO_N "checking for dlopen in -ldl... $ECHO_C" >&6
-if test "${ac_cv_lib_dl_dlopen+set}" = set; then
+  echo "$as_me:$LINENO: checking for shl_load" >&5
+echo $ECHO_N "checking for shl_load... $ECHO_C" >&6
+if test "${ac_cv_func_shl_load+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-ldl  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
+  cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-
+/* System header to define __stub macros and hopefully few prototypes,
+    which can conflict with char shl_load (); below.
+    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
+    <limits.h> exists even on freestanding compilers.  */
+#ifdef __STDC__
+# include <limits.h>
+#else
+# include <assert.h>
+#endif
 /* Override any gcc2 internal prototype to avoid an error.  */
 #ifdef __cplusplus
 extern "C"
+{
 #endif
 /* We use char because int might match the return type of a gcc2
    builtin and then its argument prototype would still apply.  */
-char dlopen ();
+char shl_load ();
+/* The GNU C library defines this for functions which it implements
+    to always fail with ENOSYS.  Some functions are actually named
+    something starting with __ and the normal name is an alias.  */
+#if defined (__stub_shl_load) || defined (__stub___shl_load)
+choke me
+#else
+char (*f) () = shl_load;
+#endif
+#ifdef __cplusplus
+}
+#endif
+
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
      extern "C"
@@ -12387,7 +12152,7 @@ char dlopen ();
 int
 main ()
 {
-dlopen ();
+return f != shl_load;
   ;
   return 0;
 }
@@ -12404,20 +12169,19 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_dl_dlopen=yes
+  ac_cv_func_shl_load=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_dl_dlopen=no
+ac_cv_func_shl_load=no
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_dl_dlopen" >&5
-echo "${ECHO_T}$ac_cv_lib_dl_dlopen" >&6
-if test $ac_cv_lib_dl_dlopen = yes; then
-  lt_cv_dlopen="dlopen" lt_cv_dlopen_libs="-ldl"
+echo "$as_me:$LINENO: result: $ac_cv_func_shl_load" >&5
+echo "${ECHO_T}$ac_cv_func_shl_load" >&6
+if test $ac_cv_func_shl_load = yes; then
+  lt_cv_dlopen="shl_load"
 else
   echo "$as_me:$LINENO: checking for dlopen in -lsvld" >&5
 echo $ECHO_N "checking for dlopen in -lsvld... $ECHO_C" >&6
@@ -12482,9 +12246,9 @@ echo "${ECHO_T}$ac_cv_lib_svld_dlopen" >&6
 if test $ac_cv_lib_svld_dlopen = yes; then
   lt_cv_dlopen="dlopen" lt_cv_dlopen_libs="-lsvld"
 else
-  echo "$as_me:$LINENO: checking for dld_link in -ldld" >&5
-echo $ECHO_N "checking for dld_link in -ldld... $ECHO_C" >&6
-if test "${ac_cv_lib_dld_dld_link+set}" = set; then
+  echo "$as_me:$LINENO: checking for shl_load in -ldld" >&5
+echo $ECHO_N "checking for shl_load in -ldld... $ECHO_C" >&6
+if test "${ac_cv_lib_dld_shl_load+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -12503,7 +12267,7 @@ extern "C"
 #endif
 /* We use char because int might match the return type of a gcc2
    builtin and then its argument prototype would still apply.  */
-char dld_link ();
+char shl_load ();
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
      extern "C"
@@ -12513,7 +12277,7 @@ char dld_link ();
 int
 main ()
 {
-dld_link ();
+shl_load ();
   ;
   return 0;
 }
@@ -12530,23 +12294,20 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_dld_dld_link=yes
+  ac_cv_lib_dld_shl_load=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_dld_dld_link=no
+ac_cv_lib_dld_shl_load=no
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_dld_dld_link" >&5
-echo "${ECHO_T}$ac_cv_lib_dld_dld_link" >&6
-if test $ac_cv_lib_dld_dld_link = yes; then
+echo "$as_me:$LINENO: result: $ac_cv_lib_dld_shl_load" >&5
+echo "${ECHO_T}$ac_cv_lib_dld_shl_load" >&6
+if test $ac_cv_lib_dld_shl_load = yes; then
   lt_cv_dlopen="dld_link" lt_cv_dlopen_libs="-dld"
-fi
-
-
 fi
 
 
@@ -12592,7 +12353,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12595 "configure"
+#line 12356 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12690,7 +12451,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12693 "configure"
+#line 12454 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12873,7 +12634,7 @@ if test -f "$ltmain"; then
   # Now quote all the things that may contain metacharacters while being
   # careful not to overquote the AC_SUBSTed values.  We take copies of the
   # variables and quote the copies for generation of the libtool script.
-  for var in echo old_CC old_CFLAGS SED \
+  for var in echo old_CC old_CFLAGS \
     AR AR_FLAGS CC LD LN_S NM SHELL \
     reload_flag reload_cmds wl \
     pic_flag link_static_flag no_builtin_flag export_dynamic_flag_spec \
@@ -12885,7 +12646,6 @@ if test -f "$ltmain"; then
     old_striplib striplib file_magic_cmd export_symbols_cmds \
     deplibs_check_method allow_undefined_flag no_undefined_flag \
     finish_cmds finish_eval global_symbol_pipe global_symbol_to_cdecl \
-    global_symbol_to_c_name_address \
     hardcode_libdir_flag_spec hardcode_libdir_separator  \
     sys_lib_search_path_spec sys_lib_dlsearch_path_spec \
     compiler_c_o compiler_o_lo need_locks exclude_expsyms include_expsyms; do
@@ -12935,11 +12695,8 @@ if test -f "$ltmain"; then
 # configuration script generated by Autoconf, you may include it under
 # the same distribution terms that you use for the rest of that program.
 
-# A sed that does not truncate output.
-SED=$lt_SED
-
 # Sed that helps us avoid accidentally triggering echo(1) options like -n.
-Xsed="${SED} -e s/^X//"
+Xsed="sed -e s/^X//"
 
 # The HP-UX ksh and POSIX shell print the target directory to stdout
 # if CDPATH is set.
@@ -12955,11 +12712,11 @@ SHELL=$lt_SHELL
 # Whether or not to build shared libraries.
 build_libtool_libs=$enable_shared
 
-# Whether or not to build static libraries.
-build_old_libs=$enable_static
-
 # Whether or not to add -lc for building shared libraries.
 build_libtool_need_lc=$need_lc
+
+# Whether or not to build static libraries.
+build_old_libs=$enable_static
 
 # Whether or not to optimize for fast installation.
 fast_install=$enable_fast_install
@@ -13126,9 +12883,6 @@ global_symbol_pipe=$lt_global_symbol_pipe
 # Transform the output of nm in a proper C declaration
 global_symbol_to_cdecl=$lt_global_symbol_to_cdecl
 
-# Transform the output of nm in a C name address pair
-global_symbol_to_c_name_address=$lt_global_symbol_to_c_name_address
-
 # This is the shared library runtime path variable.
 runpath_var=$runpath_var
 
@@ -13251,9 +13005,9 @@ EOF
 #   return TRUE;
 # }
 # /* ltdll.c ends here */
-	# This is a source program that is used to create import libraries
-	# on Windows for dlls which lack them. Don't remove nor modify the
-	# starting and closing comments
+        # This is a source program that is used to create import libraries
+        # on Windows for dlls which lack them. Don't remove nor modify the
+        # starting and closing comments
 # /* impgen.c starts here */
 # /*   Copyright (C) 1999-2000 Free Software Foundation, Inc.
 #
@@ -13418,146 +13172,34 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 
-# Set modules to build
-
-
-# Must have cvode directory in order to build CVODE
-CVODE_ENABLED="no"
-if test -d ${srcdir}/cvode ; then
-  CVODE_ENABLED="yes"
-fi
-
-# Check if user wants to skip CVODE
-# Check whether --enable-cvode or --disable-cvode was given.
-if test "${enable_cvode+set}" = set; then
-  enableval="$enable_cvode"
-
-if test "X${enableval}" = "Xno"; then
-  CVODE_ENABLED="no"
-fi
-
-fi;
-
-# Must have cvodes directory in order to build CVODES
-CVODES_ENABLED="no"
-if test -d ${srcdir}/cvodes ; then
-  CVODES_ENABLED="yes"
-fi
-
-# Check if user wants to skip CVODES
-# Check whether --enable-cvodes or --disable-cvodes was given.
-if test "${enable_cvodes+set}" = set; then
-  enableval="$enable_cvodes"
-
-if test "X${enableval}" = "Xno"; then
-  CVODES_ENABLED="no"
-fi
-
-fi;
-
-# Must have ida directory in order to build IDA
-IDA_ENABLED="no"
-if test -d ${srcdir}/ida  ; then
-  IDA_ENABLED="yes"
-fi
-
-# Check if user wants to skip IDA
-# Check whether --enable-ida or --disable-ida was given.
-if test "${enable_ida+set}" = set; then
-  enableval="$enable_ida"
-
-if test "X${enableval}" = "Xno"; then
-  IDA_ENABLED="no"
-fi
-
-fi;
-
-# Must have kinsol directory in order to build KINSOL
-KINSOL_ENABLED="no"
-if test -d ${srcdir}/kinsol ; then
-  KINSOL_ENABLED="yes"
-fi
-
-# Check if user wants to skip KINSOL
-# Check whether --enable-kinsol or --disable-kinsol was given.
-if test "${enable_kinsol+set}" = set; then
-  enableval="$enable_kinsol"
-
-if test "X${enableval}" = "Xno"; then
-  KINSOL_ENABLED="no"
-fi
-
-fi;
-
-IDAS_ENABLED="no"
-
-# Check whether --enable- or --disable- was given.
-if test "${enable_+set}" = set; then
-  enableval="$enable_"
-
-fi;
-
-
-
-
-# Must have idas directory in order to build IDAS
-IDAS_ENABLED="no"
-if test -d ${srcdir}/idas ; then
-  IDAS_ENABLED="yes"
-fi
-
-# Check if user wants to skip IDAS
-# Check whether --enable-idas or --disable-idas was given.
-if test "${enable_idas+set}" = set; then
-  enableval="$enable_idas"
-
-if test "X${enableval}" = "Xno"; then
-  IDAS_ENABLED="no"
-fi
-
-fi;
-
-# Check whether --enable- or --disable- was given.
-if test "${enable_+set}" = set; then
-  enableval="$enable_"
-
-fi;
-
-
-
 # Set examples modules
 
 
 # Check libtool settings to determine which compiler and linker commands
 # should be used
 # Must export LIBTOOL_CMD, COMPILER_CMD and LINKER_CMD via AC_SUBST
+
 # If building shared libraries, then use libtool
 if test "X${enable_shared}" = "Xyes"; then
+
   LIBTOOL_CMD="LIBTOOL = ${LIBTOOL}"
   COMPILER_PREFIX="\$(LIBTOOL) --mode=compile"
   LINKER_PREFIX="\$(LIBTOOL) --mode=link"
+
 # If building static libraries, then use regular C compiler
 else
+
   LIBTOOL_CMD=""
   COMPILER_PREFIX=""
   LINKER_PREFIX=""
+
 fi
-
-# Examples are built by default, but user can override
-EXAMPLES_ENABLED="yes"
-# Check whether --enable-examples or --disable-examples was given.
-if test "${enable_examples+set}" = set; then
-  enableval="$enable_examples"
-
-if test "X${enableval}" = "Xno"; then
-  EXAMPLES_ENABLED="no"
-fi
-
-fi;
 
 # Check if we need to build the Fortran examples
-# Recall F77_ENABLED is set in SUNDIALS_SET_F77 based upon CVODE_ENABLED,
-# KINSOL_ENABLED and EXAMPLES_ENABLED, so the check here is rather simple
+# Recall F77_ENABLED is set based upon CVODE_ENABLED, KINSOL_ENABLED,
+# and EXAMPLES_ENABLED, so the check here is rather simple:
+#       F77_EXAMPLES = ~F77_ENABLED
+
 F77_EXAMPLES="no";
 if test "X${F77_ENABLED}" = "Xyes"; then
   F77_EXAMPLES="yes"
@@ -13585,9 +13227,7 @@ if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
 
   echo "$as_me:$LINENO: checking if we can build serial C examples" >&5
 echo $ECHO_N "checking if we can build serial C examples... $ECHO_C" >&6
-  if test "X${CC_OK}" = "Xyes"; then
-    SERIAL_C_EXAMPLES="yes"
-  fi
+  SERIAL_C_EXAMPLES="yes"
   echo "$as_me:$LINENO: result: ${SERIAL_C_EXAMPLES}" >&5
 echo "${ECHO_T}${SERIAL_C_EXAMPLES}" >&6
 
@@ -13693,6 +13333,7 @@ fi
 
 
 # Substitute variables
+
 
 
 
@@ -13825,8 +13466,10 @@ if test "X${CVODE_ENABLED}" = "Xyes"; then
   MODULES="${MODULES} cvode/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/source/Makefile"
 
-  MODULES="${MODULES} cvode/fcmix"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    MODULES="${MODULES} cvode/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
+  fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/examples_ser ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/examples_ser"
@@ -13915,8 +13558,10 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
   MODULES="${MODULES} kinsol/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/source/Makefile"
 
-  MODULES="${MODULES} kinsol/fcmix"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    MODULES="${MODULES} kinsol/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
+  fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/examples_ser ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/examples_ser"
@@ -14612,6 +14257,7 @@ s,@MPI_LIBS@,$MPI_LIBS,;t t
 s,@MODULES@,$MODULES,;t t
 s,@NVEC_MODULES@,$NVEC_MODULES,;t t
 s,@EXAMPLE_MODULES@,$EXAMPLE_MODULES,;t t
+s,@F77_ENABLED@,$F77_ENABLED,;t t
 s,@F77_FLOAT_TYPE@,$F77_FLOAT_TYPE,;t t
 s,@LIBTOOL_CMD@,$LIBTOOL_CMD,;t t
 s,@LIBTOOL_DEPS@,$LIBTOOL_DEPS,;t t

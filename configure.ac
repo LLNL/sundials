@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2004-10-28 00:35:14 $
+# $Revision: 1.13 $
+# $Date: 2004-10-28 21:09:18 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -20,27 +20,38 @@ SUNDIALS_GREETING
 # Miscellaneous SUNDIALS initializations
 SUNDIALS_INITIALIZE
 
-# Set C compilation
+# Test enable/disable features
+SUNDIALS_ENABLES
+SUNDIALS_MPI_ENABLES
+SUNDIALS_DEV_ENABLES
+
+# Set C compilation (Required)
 SUNDIALS_SET_CC
 
-# Set Fortran compilation
-SUNDIALS_SET_F77
+# Set Fortran compilation (Optional)
+if test "X${F77_ENABLED}" = "Xyes"; then
+  SUNDIALS_SET_F77
+fi
 
-# Set C++ compilation
-SUNDIALS_SET_CXX
+# Set C++ compilation (Optional)
+if test "X${CXX_ENABLED}" = "Xyes"; then
+  SUNDIALS_SET_CXX
+fi
 
-# Set MPI support
-SUNDIALS_SET_MPICC
-SUNDIALS_SET_MPIF77
-SUNDIALS_SET_MPICXX
+# Set MPI support (Optional)
+if test "X${MPI_ENABLED}" = "Xyes"; then
+  SUNDIALS_SET_MPICC
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    SUNDIALS_SET_MPIF77
+  fi
+  if test "X${CXX_ENABLED}" = "Xyes"; then
+    SUNDIALS_SET_MPICXX
+  fi
+fi
 
 # Run libtool checks
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
-
-# Set modules to build
-SUNDIALS_ENABLE_MODULES
-SUNDIALS_ENABLE_DEV_MODULES
 
 # Set examples modules
 SUNDIALS_ENABLE_EXAMPLES
@@ -58,6 +69,7 @@ AC_SUBST(MPI_LIBS)
 AC_SUBST(MODULES)
 AC_SUBST(NVEC_MODULES)
 AC_SUBST(EXAMPLE_MODULES)
+AC_SUBST(F77_ENABLED)
 AC_SUBST(F77_FLOAT_TYPE)
 AC_SUBST(LIBTOOL_CMD)
 AC_SUBST(LIBTOOL_DEPS)
