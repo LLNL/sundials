@@ -5,12 +5,12 @@
 This section is concerned with the use of {\kinsol} for the solution of nonlinear systems.
 The following subsections treat the header files, the layout of the user's main
 program, description of the {\kinsol} user-callable routines, and user-supplied functions.
-The listings of the sample programs in the companion document \cite{kin2.2.0_ex} may also 
+The listings of the sample programs in the companion document \cite{kinsol2.2.0_ex} may also 
 be helpful. Those codes are intended to serve as templates and are included in the 
 {\kinsol} package.
 
 %------------------------
-\section{Header Files}\label{s:headers_sol}
+\section{Header Files}\label{s:header_sol}
 %------------------------
 
 The calling program must include several header files so that various macros
@@ -50,7 +50,7 @@ which enumerates the kind of preconditioning and the choices for the
 Gram-Schmidt process.
 
 Other headers may be needed, according as to the choice of
-preconditioner, etc. In the \id{kinwebs} example~\cite{kin2.20_ex}, 
+preconditioner, etc. In the \id{kinwebs} example~\cite{kinsol2.2.0_ex}, 
 preconditioning is done with a block-diagonal matrix. For this, the header
 \id{smalldense.h} is included.
 
@@ -161,7 +161,7 @@ provided with {\kinsol}: steps marked with {\p} correspond to
   {\bf Solve problem}
 
   Call \id{KINSol(...);} to solve the nonlinear problem for a given
-  initial guess (see \S\ref{sss:kinsol} for details).
+  initial guess (see \S\ref{ss:kinsol} for details).
 
 \item
   {\bf Get optional outputs}
@@ -349,7 +349,7 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
 
   Within {\kinsol}, preconditioning can be done on the right only.
   For specification of preconditioner,
-  see \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
+  see \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sol}.
 
   If preconditioning is done, user-supplied functions define the right 
   preconditioner matrices $P$ which approximates the Newton matrix
@@ -1189,7 +1189,7 @@ and specify it through a call to \id{KINSpgmrSetPrecSolveFn}.
 The evaluation and preprocessing of any Jacobian-related data needed
 by the user's preconditioner solve function is done in the optional
 user-supplied function \id{psetup}. Both of these functions are
-fully specified in \S\ref{ss:user_fct_sim}.
+fully specified in \S\ref{ss:user_fct_sol}.
 If used, the \id{psetup} function should be specified through a call to
 \id{KINSpgmrSetPrecSetupFn}.
 \index{KINSPGMR@{\kinspgmr} linear solver!preconditioner setup function}
@@ -1211,7 +1211,7 @@ or use the difference quotient function \Id{KINSpgmrDQJtimes}
 that comes with the {\kinspgmr} solver.
 A user-defined Jacobian-vector function must be of type \id{KINSpgmrJtimesFn} and 
 can be specified through a call to \id{KINSpgmrSetJacTimesVecFn} 
-(see \S\ref{ss:user_fct_sim} for specification details).
+(see \S\ref{ss:user_fct_sol} for specification details).
 %%
 As with the preconditioner user data structure \id{prec\_data}, 
 the user can specify, through a call to \id{KINSpgmrSetJacData}, a pointer to a 
@@ -2299,13 +2299,13 @@ typedef void (*KINCommFn)(long int Nlocal, N\_Vector y, void *f\_data);
 \index{KINBBDPRE@{\kinbbdpre} preconditioner!usage|(}
 %%
 Besides the header files required for the solution of a nonlinear problem
-(see \S\ref{ss:header_sim}),  to use the {\kinbbdpre} module, the main program 
+(see \S\ref{s:header_sol}),  to use the {\kinbbdpre} module, the main program 
 must include the header file \id{kinbbdpre.h} which declares the needed
 function prototypes.\index{header files}
 
 The following is a summary of the usage of this module and describes the sequence
 of calls in the user main program. Steps that are unchanged from the user main
-program presented in \S\ref{ss:skeleton_sim} are grayed-out.
+program presented in \S\ref{s:skeleton_sol} are grayed-out.
 %%
 %%
 \index{User main program!KINBBDPRE@{\kinbbdpre} usage}
@@ -2875,7 +2875,7 @@ apply to {\nvecp}.
     to zero to indicate default values.
   }
   
-\item {\bf Linear solver specification} 
+\item\label{i:fkinsol_lin_solv_spec}{\bf Linear solver specification} 
   
   The solution method in {\kinsol} involves the solution of linear systems 
   related to the Jacobian of the nonlinear system.
@@ -3019,3 +3019,119 @@ apply to {\nvecp}.
 %%==============================================================================
 \subsection{Usage of the FKINBBD interface to KINBBDPRE}
 %%==============================================================================
+
+The {\fkinbbd} interface sub-module is a package of {\C} functions which,
+as part of the {\fkinsol} interface module, support the use of the
+{\kinsol} solver with the parallel {\nvecp} module and the {\kinbbdpre} 
+preconditioner module (see \S\ref{sss:kinbbdpre}), for the solution of 
+nonlinear problems in a mixed {\F}/{\C} setting.  
+
+The user-callable functions in this package, with the corresponding
+{\kinsol} and {\kinbbdpre} functions, are as follows: 
+\begin{itemize}
+\item \id{FKINBBDINIT}
+  interfaces to \id{KINBBDPrecAlloc}.
+\item \id{FKINBBDSPGMR}
+  interfaces to \id{KINBBDSpgmr} and {\spgmr} optional input functions.
+\item \id{FKINBBDOPT}
+  interfaces to {\kinbbdpre} optional output functions.
+\item \id{FKINBBDFREE}
+  interfaces to \id{KINBBDPrecFree}.
+\end{itemize}
+
+In addition to the Fortran right-hand side function \id{FKFUN}, the
+user-supplied functions used by this package, are listed below,
+each with the corresponding interface function which calls it (and its
+type within {\kinbbdpre} or {\kinsol}):
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+{\fkinbbd} routine ({\F})  &  {\kinsol} function ({\C}) & {\kinsol} function type \\\hline
+\id{FKLOCFN}  & \id{FKINgloc}     & \id{KIMLocalFn} \\
+\id{FKCOMMF}  & \id{FKINgcomm}      & \id{KIMCommFn} \\
+\id{FKJTIMES} & \id{FKINJtimes}   & \id{KIMSpgmrJacTimesVecFn} \\ \hline
+\end{tabular}
+\end{center}
+As with the rest of the {\fkinsol} routines, the names of all user-supplied routines 
+here are fixed, in order to maximize portability for the resulting mixed-language
+program.  Additionally, based on the flags \Id{SUNDIALS\_CASE\_*} and 
+\Id{SUNDIALS\_UNDERSCORE\_*}, the names of the user-supplied routines 
+are mapped to actual values through a series of definitions in the header file 
+\id{fkinbbd.h}.
+
+The following is a summary of the usage of this module. Steps that are unchanged
+from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
+
+
+\index{User main program!FCVBBD@{\fcvbbd} usage}
+\begin{Steps}
+  
+\item \textcolor{gray}{\bf Nonlinear system function specification}
+
+\item \textcolor{gray}{\bf {\nvector} module initialization}
+
+\item \textcolor{gray}{\bf Problem specification}
+
+\item {\bf Linear solver specification}
+
+  To initialize the {\kinbbdpre} preconditioner, make the following call:
+  \index{FKINBBDINIT@\texttt{FKINBBDINIT}}
+\begin{verbatim}
+      CALL FKINBBDINIT(NLOCAL, MU, ML, IER)
+\end{verbatim}
+  The arguments are as follows.
+  \id{NLOCAL} is the local size of vectors on this processor.
+  \id{MU} and \id{ML} are the upper and lower half-bandwidths to be used in 
+  the computation of the local Jacobian blocks by difference quotients.
+  These may be smaller than the true half-bandwidths of the
+  Jacobian of the local block of $G$, when smaller values may
+  provide greater efficiency.
+  \id{IER} is a return completion flag.  A value of $0$ indicates success, while
+  a value of $-1$ indicates that a memory failure occurred or that an input had
+  an illegal value.
+  
+  To specify the {\spgmr} linear system solver and use the {\kinbbdpre}
+  preconditioner, make the following call:
+  \index{FKINBBDSPGMR@\texttt{FKINBBDSPGMR}}
+\begin{verbatim}
+      CALL FKINBBDSPGMR(MAXL, MAXLRST, IER)
+\end{verbatim}
+  Its arguments are the same as those of \id{FKINSPGMR}
+  (see step \ref{i:fkinsol_lin_solv_spec} in \S\ref{ss:fkinsol_usage}).
+  
+  Optionally, to specify that {\spgmr} should use the supplied \id{FKJTIMES}, 
+  make the call
+  \index{FKINSPGMRSETJAC@\texttt{FKINSPGMRSETJAC}}
+\begin{verbatim}
+      CALL FKINSPGMRSETJAC(FLAG, IER)
+\end{verbatim}
+  with \id{FLAG} $\neq 0$.
+  
+\item \textcolor{gray}{\bf Problem solution}
+  
+\item {\bf {\cvbbdpre} Optional outputs}
+  
+  To obtain the optional outputs associated with the {\kinbbdpre} module, make
+  the following call:
+  \index{FKINBBDOPT@\texttt{FKINBBDOPT}}
+\begin{verbatim}
+      CALL FKINBBDOPT(LENRPW, LENIPW, NGE)
+\end{verbatim}
+  The arguments returned are as follows.
+  \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
+  words.  This size is local to the current processor.
+  \id{LENIPW} is the length of integer preconditioner work space, in integer
+  words.  This size is local to the current processor.
+  \id{NGE} is the number of $G(y)$ evaluations (calls to \id{FKLOCFN}) so far.
+  
+\item {\bf Memory deallocation}
+
+  To free the internal memory created by the call to \id{FKINBBDINIT}, before
+  calling \id{FKINFREE} and \id{FNVFREEP}, the user must call
+  \index{FKINBBDFREE@\texttt{FKINBBDFREE}}
+\begin{verbatim}
+      CALL FKINBBDFREE
+\end{verbatim}
+\index{FKINSOL@{\fkinsol} interface module!interface to the {\kinbbdpre} module|)}
+
+\end{Steps}
