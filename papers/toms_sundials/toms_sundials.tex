@@ -1,40 +1,48 @@
 % LaTeX source for joint paper on SUNDIALS
-% Version of 7 March 2003
+% Version of 18 August 2003
 
-\documentclass[11pt]{article}
-
+\documentclass[acmtoms]{acmtrans2m}
 \usepackage{epsfig}
 
-\parskip=12pt
-\font\bftitle=cmbx10 scaled\magstep1            %title headings
-\setlength{\oddsidemargin}{0in}
-\setlength{\evensidemargin}{0in}
-\setlength{\textwidth}{6.5in}
-\setlength{\textheight}{9.0in}
-\setlength{\topmargin}{-0.5in}
+\acmVolume{V}
+\acmNumber{N}
+\acmYear{Y}
+\acmMonth{Month}
 
+\markboth{Peter N. Brown et al.}
+{SUNDIALS: SUite  of Nonlinear and DIfferential/ALgebraic equation Solvers}
 
-\title{SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic\\
-       equation Solvers}
-\author{Peter N.~Brown \and Keith E.~Grant \and Alan C.~Hindmarsh 
-\and Steven L.~Lee \and Radu Serban \and Dan E.~Shumaker 
-\and Carol S.~Woodward}
+\title{SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers}
 
+\author{PETER N.~BROWN, KEITH E.~GRANT, ALAN C.~HINDMARSH, 
+  STEVEN L.~LEE, RADU SERBAN, DAN E.~SHUMAKER, and CAROL S.~WOODWARD \\
+  Center for Applied Scientific Computing,
+  Lawrence Livermore National Laboratory}
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+\category{}{}{}
+\terms{Algorithms, Design}
+\keywords{ODEs, DAEs, Nonlinear Systems, Sensitivity Analysis}
+
+%=======================================================================
 
 \begin{document}
 
+\setcounter{page}{1}
 
-% Start of page 1 of paper
+\begin{bottomstuff}
+Authors' address: Center for Applied Scientific Computing, 
+Lawrence Livermore National Laboratory, P.O. Box 808,
+Livermore, CA 94551.
+\end{bottomstuff}
 
 \maketitle
 
-\setcounter{page}{1}
-
-\input{abstract.tex}
-
-\noindent {\bf Keywords:} ODEs, DAEs, Nonlinear Systems,
-Sensitivity Analysis
-
+%=======================================================================
+% Include sections
 
 \input{introduction.tex}
 \input{solvers_section.tex}
@@ -48,18 +56,32 @@ Sensitivity Analysis
 \input{applications.tex}
 \input{availability.tex}
 
+%=======================================================================
+% Acknowledgments section 
 
-\section{Acknowledgements}
-
+\begin{acks}
 The authors wish to acknowledge the contributions of Scott Cohen
 in the development of CVODE and Allan Taylor in development of
-KINSOL and IDA.  This work was performed under the auspices of the
+KINSOL and IDA.  
+
+This work was performed under the auspices of the
 U.S. Department of Energy by the University of California,
 Lawrence Livermore National Laboratory, under contract No.
 W-7405-Eng-48.
+\end{acks}
 
-%\nocite{*}
-\bibliographystyle{siam}
+%=======================================================================
+% Bibliography
+\bibliographystyle{acmtrans}
 \bibliography{biblio}
+
+%=======================================================================
+% The article should end by the following lines. 
+% The actual dates will be supplied by the Editor-in-Chief.
+
+\begin{received}
+Received Month Year;
+revised Month Year; accepted Month Year
+\end{received}
 
 \end{document}
