@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-06-09 17:43:46 $
+ * $Revision: 1.22 $
+ * $Date: 2004-06-09 18:10:06 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -269,6 +269,7 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 
   /* CVode() succeeded and found at least one root */
   if (*ier == ROOT_RETURN) {
+    CVodeGetNumGEvals(CV_cvodemem, &CV_iopt[24]);
     flag = CVodeGetRootInfo(CV_cvodemem, &rootsfound);
     if (flag == SUCCESS) {
       printf("   rootsfound[] = ");

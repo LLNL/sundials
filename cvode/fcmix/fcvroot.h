@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-05-14 22:17:09 $
+ * $Revision: 1.2 $
+ * $Date: 2004-06-09 18:10:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -22,14 +22,13 @@
  * use the rootfinding feature of the CVODE solver module.
  *
  * The user-callable functions constituting the FCVROOT package are the
- * following: FCVROOTINIT, FCVROOTOPT and FCVROOTFREE. The corresponding
+ * following: FCVROOTINIT and FCVROOTFREE. The corresponding
  * CVODE subroutine called by each interface function is given below.
  *
  *   -----------------      -----------------------
  *  | FCVROOT routine |    | CVODE function called |
  *   -----------------      -----------------------
  *      FCVROOTINIT     ->     CVodeRootInit
- *      FCVROOTOPT      ->     CVodeGetNumGEvals
  *      FCVROOTFREE     ->     CVodeRootInit
  *
  * FCVROOTFN is a user-supplied subroutine defining the functions whose
@@ -61,13 +60,8 @@
  *   IER   = return completion flag (0 = success, -1 = CVODE memory NULL and
  *           -2 = memory allocation error)  [output]
  *
- * To determine the total number of calls made to the root function (FCVROOTFN)
- * make the following call:
- *
- *   CALL FCVROOTOPT (NGE)
- *
- * The only argument is:
- *   NGE = number of root function evaluations  [output]
+ * The total number of calls made to the root function (FCVROOTFN)
+ * can be obtained from IOPT[]
  *
  * If the FCVODE/CVODE memory block is reinitialized to solve a different
  * problem via a call to FCVREINIT, then the counter variable NGE is cleared
@@ -88,21 +82,18 @@
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
 #define FCV_ROOTINIT   fcvrootinit
-#define FCV_ROOTOPT    fcvrootopt
 #define FCV_ROOTFREE   fcvrootfree
 #define FCV_ROOTFN     fcvrootfn
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
 
 #define FCV_ROOTINIT   fcvrootinit__
-#define FCV_ROOTOPT    fcvrootopt__
 #define FCV_ROOTFREE   fcvrootfree__
 #define FCV_ROOTFN     fcvrootfn__
 
 #else
 
 #define FCV_ROOTINIT   fcvrootinit_
-#define FCV_ROOTOPT    fcvrootopt_
 #define FCV_ROOTFREE   fcvrootfree_
 #define FCV_ROOTFN     fcvrootfn_
 
