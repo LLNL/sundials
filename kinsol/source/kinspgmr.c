@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : kinspgmr.c                                      *
  * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 July 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -105,7 +105,6 @@ static int KINSpgmrPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lr);
 
 /* Readability Replacements */
 
-#define Neq     (kin_mem->kin_Neq)      
 #define uround  (kin_mem->kin_uround)
 #define nfe     (kin_mem->kin_nfe)
 #define nni     (kin_mem->kin_nni)
@@ -208,9 +207,8 @@ int KINSpgmr(void *kinsol_mem, int maxl, int maxlrst, int msbpre,
   kinspgmr_mem->g_gstype  = MODIFIED_GS;
 
   /* Set Spgmr parameters that have been passed in call sequence */
-  kinspgmr_mem->g_maxl = (maxl<= 0) ? MIN(KINSPGMR_MAXL,Neq) : MIN(maxl,Neq);
-  kinspgmr_mem->g_maxlrst = (maxlrst<=0) ? 0 : 
-                             MIN(maxlrst,2*Neq/(kinspgmr_mem->g_maxl));
+  kinspgmr_mem->g_maxl = (maxl<= 0) ? KINSPGMR_MAXL : maxl;
+  kinspgmr_mem->g_maxlrst = (maxlrst<=0) ? 0 : maxlrst;
   kinspgmr_mem->g_P_data  = P_data;
   kinspgmr_mem->g_precond = precondset;
   kinspgmr_mem->g_psolve  = psolve;
@@ -223,7 +221,7 @@ int KINSpgmr(void *kinsol_mem, int maxl, int maxlrst, int msbpre,
   kin_mem->kin_msbpre  = (msbpre<=0) ? KINSPGMR_MSBPRE : msbpre ;
 
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
-  spgmr_mem = SpgmrMalloc(Neq, kinspgmr_mem->g_maxl, machenv);
+  spgmr_mem = SpgmrMalloc(kinspgmr_mem->g_maxl, machenv);
 
   if (spgmr_mem == NULL) {
     fprintf(msgfp, MSG_MEM_FAIL);
@@ -303,8 +301,8 @@ static int KINSpgmrSetup(KINMem kin_mem)
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
   /* Call precondset routine */
-  ret = precondset(Neq, uu, uscale, fval, fscale, vtemp1, vtemp2, func, 
-        uround, &nfe, P_data);
+  ret = precondset(uu, uscale, fval, fscale, vtemp1, vtemp2, func, 
+                   uround, &nfe, P_data);
 
   if(ret != 0) return(1);
   npe++;
@@ -502,7 +500,7 @@ static int KINSpgmrAtimesDQ(void *kinsol_mem, N_Vector v, N_Vector z)
   N_VLinearSum(ONE, uu, sigma, v, vtemp1);
  
   /*  Call the system function to calc func(uu+sigma*v).  */
-  func(Neq, vtemp1, vtemp2, f_data);    nfe++;
+  func(vtemp1, vtemp2, f_data);    nfe++;
 
   /*  Finish the computation of the difference quotient. */
   N_VLinearSum(sigma_inv, vtemp2, -sigma_inv, fval, z);
@@ -535,7 +533,7 @@ static int KINSpgmrPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lrdummy)
               z returns with the solution */
   N_VScale(ONE, r, z);
 
-  ret = psolve(Neq, uu, uscale, fval, fscale, z, vtemp1, func, uround,
+  ret = psolve(uu, uscale, fval, fscale, z, vtemp1, func, uround,
                &nfe, P_data);
   
   /* This call is counted in nps within the KINSpgmrSolve routine */

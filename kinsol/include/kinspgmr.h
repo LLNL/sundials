@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : kinspgmr.h                                      *
  * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 30 July 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -116,8 +116,6 @@ enum { SPGMR_NLI=KINSOL_IOPT_SIZE, SPGMR_NPE, SPGMR_NPS, SPGMR_NCFL };
  * A function precondset must have the prototype given below.     *
  * Its parameters are as follows:                                 *
  *                                                                *
- * Neq     is the length of all vector arguments.                 *
- *                                                                *
  * uu      an N_Vector giving the current iterate for the system. *
  *                                                                *
  * uscale  an N_Vector giving the diagonal entries of the uu-     *
@@ -157,8 +155,7 @@ enum { SPGMR_NLI=KINSOL_IOPT_SIZE, SPGMR_NPE, SPGMR_NPS, SPGMR_NCFL };
  *                                                                *
  ******************************************************************/
 
-typedef int (*KINSpgmrPrecondFn)(integertype Neq, 
-                                 N_Vector uu, N_Vector uscale ,
+typedef int (*KINSpgmrPrecondFn)(N_Vector uu, N_Vector uscale ,
                                  N_Vector fval, N_Vector fscale,
                                  N_Vector vtemp1, N_Vector vtemp2,
                                  SysFn func, realtype uround,
@@ -179,8 +176,6 @@ typedef int (*KINSpgmrPrecondFn)(integertype Neq,
  *                                                                *
  * A function precondsolve must have the prototype given below.   *
  * Its parameters are as follows:                                 *
- *                                                                *
- * Neq     system size, and length of all vector arguments.       *
  *                                                                *
  * uu      an N_Vector giving the current iterate for the system. *
  *                                                                *
@@ -221,8 +216,7 @@ typedef int (*KINSpgmrPrecondFn)(integertype Neq,
  *                                                                *
  ******************************************************************/
   
-typedef int (*KINSpgmrPrecondSolveFn)(integertype Neq,
-                                      N_Vector uu, N_Vector uscale, 
+typedef int (*KINSpgmrPrecondSolveFn)(N_Vector uu, N_Vector uscale, 
                                       N_Vector fval, N_Vector fscale, 
                                       N_Vector vv, N_Vector ftem,
                                       SysFn func, realtype u_round,
