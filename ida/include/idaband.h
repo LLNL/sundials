@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19.2.1 $
- * $Date: 2005-01-24 21:41:07 $
+ * $Revision: 1.19.2.2 $
+ * $Date: 2005-04-06 23:39:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -154,7 +154,7 @@ int IDABand(void *ida_mem, long int Neq, long int mupper, long int mlower);
  *         be of type IDABandJacFn.                               
  *         By default, a difference quotient routine IDABandDQJac,
  *         supplied with this solver is used.                     
- * IDABandSetJacData specifies a pointer to user data which is    
+ *         It also specifies a pointer to user data which is    
  *         passed to the bjac routine every time it is called.    
  *                                                                
  * The return value of IDABandSet* is one of:
@@ -164,8 +164,7 @@ int IDABand(void *ida_mem, long int Neq, long int mupper, long int mlower);
  * -----------------------------------------------------------------
  */
 
-int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac);
-int IDABandSetJacData(void *ida_mem, void *jac_data);
+int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac, void *jac_data);
 
 /*
  * -----------------------------------------------------------------

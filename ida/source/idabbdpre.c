@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-11-05 23:35:41 $
+ * $Revision: 1.25.2.1 $
+ * $Date: 2005-04-06 23:39:58 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -142,13 +142,8 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
   flag = IDASpgmr(ida_mem, maxl);
   if(flag != IDASPGMR_SUCCESS) return(flag);
 
-  flag = IDASpgmrSetPrecData(ida_mem, bbd_data);
-  if(flag != IDASPGMR_SUCCESS) return(flag);
-
-  flag = IDASpgmrSetPrecSetupFn(ida_mem, IDABBDPrecSetup);
-  if(flag != IDASPGMR_SUCCESS) return(flag);
-
-  flag = IDASpgmrSetPrecSolveFn(ida_mem, IDABBDPrecSolve);
+  flag = IDASpgmrSetPreconditioner(ida_mem, IDABBDPrecSetup,
+                                   IDABBDPrecSolve, bbd_data);
   if(flag != IDASPGMR_SUCCESS) return(flag);
 
   return(IDASPGMR_SUCCESS);

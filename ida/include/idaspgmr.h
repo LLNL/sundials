@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18.2.1 $
- * $Date: 2005-01-24 21:41:08 $
+ * $Revision: 1.18.2.2 $
+ * $Date: 2005-04-06 23:39:54 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -210,7 +210,7 @@ typedef int (*IDASpgmrJacTimesVecFn)(realtype tt,
  * -----------------------------------------------------------------
  *                                                                
  * Function : IDASpgmr                                            
- *----------------------------------------------------------------
+ * -----------------------------------------------------------------
  * A call to the IDASpgmr function links the main integrator with 
  * the IDASPGMR linear solver module.  Its parameters are as      
  * follows:                                                       
@@ -235,23 +235,18 @@ int IDASpgmr(void *ida_mem, int maxl);
 /*
  * -----------------------------------------------------------------
  * Optional inputs to the IDASPGMR linear solver                  
- *----------------------------------------------------------------
+ * -----------------------------------------------------------------
  *                                                                
- * IDASpgmrSetPrecSolveFn specifies the PrecSolve function.       
- *           Default is NULL.                                     
- * IDASpgmrSetPrecSetupFn specifies the PrecSetup function.       
- *           Default is NULL.                                     
- * IDASpgmrSetPrecData specifies a pointer to user preconditioner 
- *           data. This pointer is passed to PrecSetup and        
- *           PrecSolve every time these routines are called.      
- *           Default is NULL.                                     
+ * IDASpgmrSetPreconditioner specifies the PrecSetup and PrecSolve 
+ *           functions, as well as a pointer to user preconditioner 
+ *           data. This pointer is passed to PrecSetup and PrecSolve
+ *           every time these routines are called.
+ *           Default is NULL for al three arguments.
  * IDASpgmrSetJacTimesVecFn specifies the jtimes function.        
  *           Default is to use an internal finite difference      
- *           approximation routine.                               
- * IDASpgmrSetJacData specifies a pointer to user Jacobian data.  
- *           This pointer is passed to jtimes every time this     
- *           routine is called.                                   
- *           Default is NULL.                                     
+ *           approximation routine. It also specifies a pointer 
+ *           to user Jacobian data. This pointer is passed to jtimes 
+ *           every time the jtimes routine is called.                              
  * IDASpgmrSetGSType specifies the type of Gram-Schmidt           
  *           orthogonalization to be used. This must be one of    
  *           the two enumeration constants MODIFIED_GS or         
@@ -278,11 +273,10 @@ int IDASpgmr(void *ida_mem, int maxl);
  * -----------------------------------------------------------------
  */
 
-int IDASpgmrSetPrecSolveFn(void *ida_mem, IDASpgmrPrecSolveFn psolve);
-int IDASpgmrSetPrecSetupFn(void *ida_mem, IDASpgmrPrecSetupFn pset);
-int IDASpgmrSetPrecData(void *ida_mem, void *prec_data);
-int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes);
-int IDASpgmrSetJacData(void *ida_mem, void *jac_data);
+int IDASpgmrSetPreconditioner(void *ida_mem, IDASpgmrPrecSetupFn pset, 
+                              IDASpgmrPrecSolveFn psolve, void *prec_data);
+int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes,
+                             void *jac_data);
 int IDASpgmrSetGSType(void *ida_mem, int gstype);
 int IDASpgmrSetMaxRestarts(void *ida_mem, int maxrs);
 int IDASpgmrSetEpsLin(void *ida_mem, realtype eplifac);

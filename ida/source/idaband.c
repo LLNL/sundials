@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24.2.1 $
- * $Date: 2005-01-24 21:43:39 $
+ * $Revision: 1.24.2.2 $
+ * $Date: 2005-04-06 23:39:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -197,7 +197,7 @@ int IDABand(void *ida_mem, long int Neq,
  * -----------------------------------------------------------------
  */
 
-int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac)
+int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac, void *jac_data)
 {
   IDAMem IDA_mem;
   IDABandMem idaband_mem;
@@ -216,29 +216,7 @@ int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac)
   idaband_mem = (IDABandMem) lmem;
 
   jac = bjac;
-
-  return(IDABAND_SUCCESS);
-}
-
-int IDABandSetJacData(void *ida_mem, void *jac_data)
-{
-  IDAMem IDA_mem;
-  IDABandMem idaband_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_IDAMEM_NULL);
-    return(IDABAND_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
-    return(IDABAND_LMEM_NULL);
-  }
-  idaband_mem = (IDABandMem) lmem;
-
-  jacdata = jac_data;
+  if (bjac != NULL) jacdata = jac_data;
 
   return(IDABAND_SUCCESS);
 }

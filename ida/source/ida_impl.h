@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8.2.3 $
- * $Date: 2005-04-05 01:49:24 $
+ * $Revision: 1.8.2.4 $
+ * $Date: 2005-04-06 23:39:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -280,6 +280,10 @@ typedef struct IDAMemRec {
 
 #define MSG_MISSING_ID      _IDAIS_ "id = NULL but suppressalg option on.\n\n"
 
+#define MSG_NO_EFUN         _IDAIS_ "itol = IDA_WF but no EwtSet function was provided.\n\n"
+
+#define MSG_FAIL_EWT        _IDAIS_ "The user-provide EwtSet function failed.\n\n"
+
 #define MSG_BAD_EWT         _IDAIS_ "some initial ewt component = 0.0 illegal.\n\n"
 
 #define MSG_Y0_FAIL_CONSTR  _IDAIS_ "y0 fails to satisfy constraints.\n\n"
@@ -305,6 +309,8 @@ typedef struct IDAMemRec {
 #define MSG_BAD_TSTOP      _IDASLV_ MSG_TIME "tstop is behind.\n\n"
 
 #define MSG_MAX_STEPS      _IDASLV_ MSG_TIME "maximum number of steps reached.\n\n"
+
+#define MSG_EWT_NOW_FAIL   _IDASLV_ MSG_TIME "the user-provide EwtSet function failed.\n\n"
 
 #define MSG_EWT_NOW_BAD    _IDASLV_ MSG_TIME "some ewt component has become <= 0.0.\n\n"
 
@@ -427,10 +433,6 @@ typedef struct IDAMemRec {
 #define MSG_IDAS_BAD_MAXNIT  "IDASetMaxNumItersIC-- maxnit < 0 illegal.\n\n"
 
 #define MSG_IDAS_BAD_STEPTOL "IDASetLineSearchOffIC-- steptol < 0.0 illegal.\n\n"
-
-#define MSG_IDAS_NO_EFUN1    "IDASetEdata-- Attempt to set e_data before specifying efun\n"
-#define MSG_IDAS_NO_EFUN2    "(through IDAMalloc or IDASetTolerances) illegal.\n\n"
-#define MSG_IDAS_NO_EFUN     MSG_IDAS_NO_EFUN1 MSG_IDAS_NO_EFUN2
 
 /* IDAGet* Error Messages */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1.2.2 $
- * $Date: 2005-04-05 01:49:24 $
+ * $Revision: 1.1.2.3 $
+ * $Date: 2005-04-06 23:39:58 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -393,7 +393,7 @@ int IDASetTolerances(void *ida_mem,
 
   /* Check inputs */
 
-  if ((itol != IDA_SS) && (itol != IDA_SV) && (itol != IDA_WF)) {
+  if ((itol != IDA_SS) && (itol != IDA_SV)) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ITOL);
     return(IDA_ILL_INPUT);
   }
@@ -403,25 +403,21 @@ int IDASetTolerances(void *ida_mem,
     return(IDA_ILL_INPUT); 
   }
 
-  if (itol != IDA_WF) {
-
-    if (rtol < ZERO) { 
-      if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_RTOL); 
-      return(IDA_ILL_INPUT); 
-    }
+  if (rtol < ZERO) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_RTOL); 
+    return(IDA_ILL_INPUT); 
+  }
 
     
-    if (itol == IDA_SS) { 
-      neg_atol = (*((realtype *)atol) < ZERO); 
-    } else { 
-      neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
-    }
+  if (itol == IDA_SS) { 
+    neg_atol = (*((realtype *)atol) < ZERO); 
+  } else { 
+    neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
+  }
 
-    if (neg_atol) { 
-      if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ATOL); 
-      return(IDA_ILL_INPUT); 
-    }
-
+  if (neg_atol) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ATOL); 
+    return(IDA_ILL_INPUT); 
   }
 
   /* Copy tolerances into memory */
@@ -438,27 +434,24 @@ int IDASetTolerances(void *ida_mem,
 
   IDA_mem->ida_itol = itol;
   IDA_mem->ida_rtol = rtol;      
+  if (itol == IDA_SS)
+    IDA_mem->ida_Satol = *((realtype *)atol);
+  else 
+    N_VScale(ONE, (N_Vector)atol, IDA_mem->ida_Vatol);
 
-  if (itol == IDA_WF)
-    IDA_mem->ida_efun = (IDAEwtFn)atol;
-  else {
-    IDA_mem->ida_efun = IDAEwtSet;
-    if (itol == IDA_SS)
-      IDA_mem->ida_Satol = *((realtype *)atol);
-    else 
-      N_VScale(ONE, (N_Vector)atol, IDA_mem->ida_Vatol);
-  }
+  IDA_mem->ida_efun = IDAEwtSet;
+  IDA_mem->ida_edata = ida_mem;
 
   return(IDA_SUCCESS);
 }
 
 /* 
- * IDASetEdata
+ * IDASetEwtFn
  *
- * Specifies the user data pointer for e
+ * Specifies the user-provide EwtSet function and data pointer for e
  */
 
-int IDASetEdata(void *ida_mem, void *e_data)
+int IDASetEwtFn(void *ida_mem, IDAEwtFn efun, void *edata)
 {
   IDAMem IDA_mem;
 
@@ -469,14 +462,14 @@ int IDASetEdata(void *ida_mem, void *e_data)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  /* To ensure that everything is in place, we enforce
-     that this function is called only if itol=IDA_WF */
-  if (IDA_mem->ida_itol != IDA_WF) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NO_EFUN);
-    return(IDA_ILL_INPUT);
+  if ( IDA_mem->ida_VatolMallocDone ) {
+    N_VDestroy(IDA_mem->ida_Vatol);
+    IDA_mem->ida_VatolMallocDone = FALSE;
   }
 
-  IDA_mem->ida_edata = e_data;
+  IDA_mem->ida_itol = IDA_WF;
+  IDA_mem->ida_efun = efun;
+  IDA_mem->ida_edata = edata;
 
   return(IDA_SUCCESS);
 }

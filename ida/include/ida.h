@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28.2.2 $
- * $Date: 2005-04-04 22:33:10 $
+ * $Revision: 1.28.2.3 $
+ * $Date: 2005-04-06 23:39:54 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -151,16 +151,6 @@ void *IDACreate(void);
  *                      |                                          
  * ---------------------------------------------------------------- 
  *                      |                                          
- * IDASetRdata          | a pointer to user data that will be     
- *                      | passed to the user's res function every 
- *                      | time res is called.                     
- *                      | [NULL]                                  
- *                      |         
- * IDASetEdata          | a pointer to user data that will be
- *                      | passed to the user's e function every
- *                      | time e is called.
- *                      | [NULL]
- *                      |
  * IDASetErrFile        | the file pointer for an error file      
  *                      | where all IDA warning and error         
  *                      | messages will be written. This parameter
@@ -172,6 +162,18 @@ void *IDACreate(void);
  *                      | be written to standard output.          
  *                      | [NULL]                                  
  *                      |                                          
+ * IDASetRdata          | a pointer to user data that will be     
+ *                      | passed to the user's res function every 
+ *                      | time res is called.                     
+ *                      | [NULL]                                  
+ *                      |         
+ * IDASetEwtFn          | user-provide EwtSet function e and 
+ *                      | a pointer to user data that will be
+ *                      | passed to the user's e function every
+ *                      | time e is called.
+ *                      | [NULL]
+ *                      | [NULL]
+ *                      |
  * IDASetMaxOrd         | maximum lmm order to be used by the     
  *                      | solver.                                 
  *                      | [5]                                      
@@ -261,8 +263,9 @@ void *IDACreate(void);
  * ----------------------------------------------------------------
  */
 
-int IDASetRdata(void *ida_mem, void *res_data);
 int IDASetErrFile(void *ida_mem, FILE *errfp);
+int IDASetRdata(void *ida_mem, void *res_data);
+int IDASetEwtFn(void *ida_mem, IDAEwtFn efun, void *edata);
 int IDASetMaxOrd(void *ida_mem, int maxord);
 int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
 int IDASetInitStep(void *ida_mem, realtype hin);
@@ -715,8 +718,6 @@ int IDAGetSolution(void *ida_mem, realtype t,
  *       accuracy has been requested for some internal step       
  * IDAGetErrWeights returns the state error weight vector.        
  *       The user must allocate space for ewt.                
- * IDAGetEstLocalErrors returns the vector of estimated local     
- *       errors. The user need not allocate space for ele.        
  *                                                                
  * IDAGet* return values:
  *   IDA_SUCCESS   if succesful
