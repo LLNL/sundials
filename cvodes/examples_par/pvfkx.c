@@ -613,14 +613,14 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, long
   }
 
   printf("\n\n");
-  printf("nst     = %5ld                \n\n", iopt[NST]);
-  printf("nfe     = %5ld    nfSe  = %5ld  \n", iopt[NFE],  iopt[NFSE]);
-  printf("nni     = %5ld    nniS  = %5ld  \n", iopt[NNI],  iopt[NNIS]);
-  printf("ncfn    = %5ld    ncfnS = %5ld  \n", iopt[NCFN], iopt[NCFNS]);
-  printf("netf    = %5ld    netfS = %5ld\n\n", iopt[NETF], iopt[NETFS]);
-  printf("nsetups = %5ld                  \n", iopt[NSETUPS]);
-  printf("nli     = %5ld    ncfl  = %5ld  \n", iopt[SPGMR_NLI], iopt[SPGMR_NCFL]);
-  printf("npe     = %5ld    nps   = %5ld  \n", iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
+  printf("nst     = %5ld \n\n", iopt[NST]);
+  printf("nfe     = %5ld  nfSe     = %5ld \n",  iopt[NFE],      iopt[NFSE]);
+  printf("nni     = %5ld  nniS     = %5ld \n",  iopt[NNI],      iopt[NNIS]);
+  printf("ncfn    = %5ld  ncfnS    = %5ld \n",  iopt[NCFN],     iopt[NCFNS]);
+  printf("netf    = %5ld  netfS    = %5ld \n",  iopt[NETF],     iopt[NETFS]);
+  printf("nsetups = %5ld  nsetupss = %5ld \n\n",iopt[NSETUPS],  iopt[NSETUPSS]);
+  printf("nli     = %5ld  ncfl     = %5ld \n",  iopt[SPGMR_NLI],iopt[SPGMR_NCFL]);
+  printf("npe     = %5ld  nps      = %5ld \n",  iopt[SPGMR_NPE],iopt[SPGMR_NPS]);
 
   printf("========================================================\n");
 
