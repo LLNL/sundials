@@ -142,12 +142,12 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   To set the vector \id{y0} of initial values, use macros defined by a particular 
   {\nvector} implementation:
 
-  {\s} \id{NV\_MAKE\_S(y0, ydata, machEnv);}
+  {\s} \id{NV\_MAKE\_S(y0, ydata, nvSpec);}
 
-  {\p} \id{NV\_MAKE\_P(y0, ydata, machEnv);}
+  {\p} \id{NV\_MAKE\_P(y0, ydata, nvSpec);}
 
   if an existing real array \id{ydata} contains the initial values of $y$.  
-  Otherwise, make the call \id{y0 = }\Id{N\_VNew}\id{(machEnv);} and load 
+  Otherwise, make the call \id{y0 = }\Id{N\_VNew}\id{(nvSpec);} and load 
   initial values into the real array defined by:
 
   {\s} \id{NV\_DATA\_S(y0)}
@@ -173,7 +173,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 \item\label{i:cvode_malloc} 
   {\bf Allocate internal memory}
 
-  Call \id{cvode\_mem = }\id{CVodeMalloc}\id{(...);} 
+  Call \id{CVodeMalloc}\id{(...);} 
   to provide required problem specifications,
   allocate internal memory for {\cvodes}, 
   and initialize {\cvodes}.
@@ -302,7 +302,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
   allocates internal memory, and initializes {\cvodes}.
 }
 {
-  \begin{args}[abstol]
+  \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[f] (\Id{RhsFn})
@@ -642,7 +642,7 @@ of the IVP.
   and \id{yout} = $y($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[SOLVER\_FAILURE]
+  \begin{args}[SOLVE\_FAILURE]
   \item[\Id{SUCCESS}]
     \id{CVode} succeeded.
   \item[\Id{TSTOP\_RETURN}]
@@ -3953,7 +3953,7 @@ The call to the \id{CVodeQuadReInit} function has the form:
 
 \subsection{Quadrature extraction functions}\label{ss:quad_get}
 
-If forward sensitivity computations have been initialized by a call to \id{CVodeQuadMalloc},
+If quadrature integration has been initialized by a call to \id{CVodeQuadMalloc},
 or reinitialized by a call to \id{CVodeQuadReInit}, then {\cvodes} computes both solution
 and quadratures at time \id{t}. However, \id{CVode} will still return only the solution
 $y$ in \id{y}. Solution quadratures can be obtained through the function
@@ -3991,7 +3991,7 @@ $y$ in \id{y}. Solution quadratures can be obtained through the function
   \item \Id{BAD\_DKY} 
     \id{yQ} is \id{NULL}.
   \item \Id{BAD\_T} 
-    the time \id{t} is not in the allowed range.
+    The time \id{t} is not in the allowed range.
   \end{args}
 }
 {
@@ -4022,11 +4022,11 @@ directly by the user.
     succesful step taken by {\cvodes}.
   \item \id{k} (\id{int})
   \item \id{dkyQ} (\id{N\_Vector})
-    the vector continaing the derivative. This vector must be allocated by the caller. 
+    the vector containing the derivative. This vector must be allocated by the user. 
   \end{args}
 }
 {
-  The return value \id{flag} of \id{CVodeGetQuad} is one of:
+  The return value \id{flag} of \id{CVodeGetQuadDky} is one of:
   \begin{args}
   \item \Id{OKAY} 
     \id{CVodeGetQuadDky} succeeded.
@@ -4035,7 +4035,7 @@ directly by the user.
   \item \Id{CVG\_NO\_QUAD} 
     Quadrature integration was not initialized.
   \item \Id{BAD\_DKY} 
-    The vector \id{yQ} is \id{NULL}.
+    The vector \id{dkyQ} is \id{NULL}.
   \item \Id{BAD\_K} 
     \id{k} is not in the range $0, 1, ..., q_u$.
   \item \Id{BAD\_T} 

@@ -81,7 +81,7 @@ In the case of the direct {\cvdense} and {\cvband} methods, the package includes
 an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
 (or an approximation to it) directly. In the case of the iterative
-{\cvspgmr} method, the package includes and algorithm for the approximation
+{\cvspgmr} method, the package includes an algorithm for the approximation
 by difference quotients of the product between the Jacobian matrix and
 a vector of appropriate length. Again, the user has the option of providing
 a routine for this operation.
@@ -96,7 +96,7 @@ the example and demonstration programs included with {\cvodes}, offer
 considerable assistance in building preconditioners.
 
 \index{CVODES@{\cvodes} linear solvers!implementation details|(} 
-Each {\cvodes} linear solver module consists of five routines, devoted to (1)
+Each {\cvodes} linear solver module consists of four routines, devoted to (1)
 memory allocation and initialization, (2) setup of the matrix data
 involved, (3) solution of the system, and (4) freeing of memory.  
 The setup and solution phases are separate because the evaluation of
