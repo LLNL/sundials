@@ -2,7 +2,7 @@
  *                                                                *
  * File          : kinspgmr.h                                     *
  * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 27 June 2002                                   *
+ * Version of    : 26 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the KINSol scaled, preconditioned  *
  * GMRES linear solver, KINSpgmr.                                 *
@@ -18,7 +18,6 @@ extern "C" {
 #ifndef _kinspgmr_h
 #define _kinspgmr_h
 
-
 #include <stdio.h>
 #include "kinsol.h"   /*  for KINSOL_IOPT_SIZE, etc.  */
 #include "spgmr.h"
@@ -32,8 +31,8 @@ extern "C" {
  *----------------------------------------------------------------*
  * The following enumeration gives a symbolic name to each        *
  * KINSpgmr-specific statistic. The symbolic names are used as    *
- * indices into the iopt and ropt arrays and values of both arrays*
- * are set in this module                                         *
+ * indices into the iopt and ropt arrays and values of both       *
+ * arrays are set in this module.                                 *
  *                                                                *
  * The KINSpgmr statistics are:                                   *
  *                                                                *
@@ -42,7 +41,7 @@ extern "C" {
  * iopt[SPGMR_NPE]  (output) number of preconditioner evaluations *
  *                                                                *
  * iopt[SPGMR_NPS]  (output) number of calls made to user's psolve*
- *                    function.                                   *
+ *                    function                                    *
  *                                                                *
  * iopt[SPGMR_NCFL] (output) number of linear convergence failures*
  *                                                                *
@@ -57,17 +56,14 @@ enum { SPGMR_NLI=KINSOL_IOPT_SIZE, SPGMR_NPE, SPGMR_NPS, SPGMR_NCFL };
  *----------------------------------------------------------------*
  * KINSPGMR_MAXL    : default value for the maximum Krylov        *
  *                   dimension is MIN(N, KINSPGMR_MAXL)           *
- *                                                                * 
  * KINSPGMR_MSBPRE  : maximum number of steps between             *
  *                   preconditioner evaluations                   *
- *                                                                *
  ******************************************************************/
 
 #define KINSPGMR_MAXL    10
-
 #define KINSPGMR_MSBPRE  10 
 
-   /* Constants for error returns from KINSpgmr. */
+/* Constants for error returns from KINSpgmr. */
 
 #define KIN_MEM_NULL      -1
 #define KINSPGMR_MEM_FAIL -2
@@ -317,18 +313,14 @@ typedef int (*KINSpgmruserAtimesFn)(void *f_data, N_Vector v,
  *             pointer is passed to precondset and precondsolve   *
  *             every time these routines are called.              *
  *                                                                *
- *       KINSpgmr returns an integer that is one of the following *
- *       defined constants:                                       *
- *            SUCCESS, KIN_MEM_NULL, KINSPGMR_MEM_FAIL, and       *
- *            SPGMR_MEM_FAIL.                                     *
+ * KINSpgmr returns an int equal to one of the following:         *
+ *      SUCCESS, KIN_MEM_NULL, KINSPGMR_MEM_FAIL, SPGMR_MEM_FAIL  *
  *                                                                *
  ******************************************************************/
   
 int KINSpgmr(void *kin_mem, int maxl, int maxlrst, int msbpre,
-             KINSpgmrPrecondFn precondset, 
-             KINSpgmrPrecondSolveFn precondsolve,
-             KINSpgmruserAtimesFn userAtimes,
-             void *P_data);
+             KINSpgmrPrecondFn precondset, KINSpgmrPrecondSolveFn precondsolve,
+             KINSpgmruserAtimesFn userAtimes, void *P_data);
   
 #endif
 #ifdef __cplusplus

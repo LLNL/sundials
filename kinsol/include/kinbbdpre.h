@@ -2,7 +2,7 @@
  * File          : kinbbdpre.h                                    *
  * Programmers   : Allan Grant Taylor, Alan C Hindmarsh, and      *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 27 June 2002                                   *
+ * Version of    : 26 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the KINBBDPRE module, for a        *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -75,12 +75,11 @@
  *    passed to KINMalloc, is also passed to KBBDAlloc, and       *
  *    is available to the user in glocal and gcomm.               *
  *                                                                *
- *                                                                *
- * 6) The two functions KBBDPrecon and KBBDPSol are never called  *
+ * 5) The two functions KBBDPrecon and KBBDPSol are never called  *
  *    by the user explicitly; their names are simply passed to    *
  *    KINSpgmr as in the above.                                   *
  *                                                                *
- * 7) Optional outputs specific to this module are available by   *
+ * 6) Optional outputs specific to this module are available by   *
  *    way of macros listed below.  These include work space sizes *
  *    and the cumulative number of glocal calls.  The costs       *
  *    associated with this module also include nsetups banded LU  *
@@ -169,7 +168,7 @@ typedef struct {
   BandMat PP;
   integertype *pivots;
 
-  /* set by KBBDAlloc and used by KBBDPrecon */
+  /* set by KBBDAlloc and used by KBBDPrecon: */
   integertype n_local;
 
   /* available for optional output: */
@@ -235,7 +234,7 @@ typedef struct {
  ******************************************************************/
 
 KBBDData KBBDAlloc(integertype Nlocal, integertype mu, integertype ml,
-                   realtype dq_rel_uu, KINLocalFn gloc, KINCommFn gcomm, 
+                   realtype dq_rel_uu, KINLocalFn gloc, KINCommFn gcomm,
                    void *f_data, void *kinmem);
 
 
@@ -248,20 +247,17 @@ KBBDData KBBDAlloc(integertype Nlocal, integertype mu, integertype ml,
 
 void KBBDFree(KBBDData pdata);
 
+
 /****** Prototypes of functions KBBDPrecon and KBBDPSol *********/
 
 int KBBDPrecon(integertype Neq, N_Vector uu, N_Vector uscale,
-               N_Vector fval, N_Vector fscale,
-               N_Vector vtemp1, N_Vector vtemp2,
-               SysFn func, realtype uround,
-               long int *nfePtr, void *P_data);
+               N_Vector fval, N_Vector fscale, N_Vector vtemp1, N_Vector vtemp2,
+               SysFn func, realtype uround, long int *nfePtr, void *P_data);
 
 
 int KBBDPSol(integertype Nlocal, N_Vector uu, N_Vector uscale,
-             N_Vector fval, N_Vector fscale,
-             N_Vector vtem, N_Vector ftem,
-             SysFn func, realtype u_round,
-             long int *nfePtr, void *P_data);
+             N_Vector fval, N_Vector fscale, N_Vector vtem, N_Vector ftem,
+             SysFn func, realtype u_round, long int *nfePtr, void *P_data);
 
 #endif
 #ifdef __cplusplus
