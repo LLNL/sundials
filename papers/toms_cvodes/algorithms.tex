@@ -6,103 +6,55 @@ Such problems can be stated as
 \dot{y}  = f(t,\,y,\,p) \, , \quad y(t_0)  = y_0(p) \, ,
 \end{equation}
 where $y \in {\bf R}^N$ is  the vector of state variables, 
-$\dot{y}\,=dy/dt$,
-and $p \in {\bf R}^{N_p}$ are problem parameters.
-Additionally, CVODES can also compute first order derivative information, performing either
+$\dot{y}\,=dy/dt$, and $p \in {\bf R}^{N_p}$ are problem parameters.
+Additionally, CVODES can also compute first order derivative
+information, performing either
 {\em forward sensitivity analysis} or {\em adjoint sensitivity analysis}.
-In the first case, CVODES computes the sensitivities of the solution with respect 
-to the parameters $p$, while in the second case, CVODES computes the gradient of a 
-{\em derived function} with respect to the parameters $p$.
+In the first case, CVODES computes the sensitivities of the solution
+with respect to the parameters $p$, while in the second case, CVODES
+computes the gradient of a {\em derived function} with respect to the
+parameters $p$.
 
-In the rest of this section we describe the algorithms implemented in CVODES,
-with emphasis on sensitivity analysis. We give only a 
-brief overview of the ODE integration algorithm to introduce some of the
-quantities needed in the sequel. 
-Since CVODES shares its main integration algorithm with CVODE, the interested reader is
-directed to~\cite{HBGLSSW:04}.
+In the rest of this section we describe the algorithms implemented in
+CVODES, with emphasis on sensitivity analysis. We give only a brief
+overview of the ODE integration algorithm to introduce some of the
+quantities needed in the sequel.  Since CVODES shares its main
+integration algorithm with CVODE, the interested reader is directed
+to~\cite{HBGLSSW:04}.
 
-%-----------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
 
 \subsection{ODE Integration}\label{ss:integration}
 
-The IVP is solved by one of two numerical methods. These are the
-backward differentiation formula (BDF) and the Adams-Moulton formula. 
-Both are implemented in a variable-stepsize, variable-order form. The BDF
-uses a fixed-leading-coefficient form. These formulas can both be
-represented by a linear multistep formula 
-\begin{equation}\label{e:lmm}
-\sum_{i=0}^{K_1}\alpha_{n,i}y_{n-i} + h_n\sum_{i=0}^{K_2}\beta_{n,i} 
-\dot{y}_{n-i}=0
-\end{equation}
-where the $N$-vector $y_n$ is the computed approximation to $y(t_n)$,
-the exact solution of (\ref{e:ivp}) at $t_n$. The stepsize is
-$h_n=t_n-t_{n-1}$.  The coefficients $\alpha_{n,i}$ and $\beta_{n,i}$
-are uniquely determined by the particular integration formula, the
-history of the stepsize, and the normalization $\alpha_{n,0}=-1$. The
-Adams-Moulton formula is recommended for nonstiff ODEs and is
-represented by (\ref{e:lmm}) with $K_1=1$ and $K_2=q-1$. The order
-of this formula is $q$ and its values range from 1 through 12. For
-stiff ODEs, BDF should be selected and is represented by 
-(\ref{e:lmm}) with $K_1=q$ and $K_2=0$. For BDF, the order $q$ may
-take on values from 1 through 5. In the case of either formula, the
-integration begins with $q=1$, and after that $q$ varies automatically
-and dynamically.
-
-For either BDF or the Adams formula, $\dot{y}_n$ denotes
-$f(t_n,\,y_n)$. That is, (\ref{e:lmm}) is an implicit formula, and 
-the nonlinear equation 
+CVODES solves the IVP using either Backward Differentiation Formula
+(BDF) methods or Adams-Moulton methods.  Both are implemented with
+dynamically varying stepsize and order, based on the control of local
+errors to meet user-specified tolerances.  A central feature of the
+method is the solution, at each time step, of a nonlinear system of
+size $N$, of the form
 \begin{equation}\label{e:nonlinear}
-  \begin{split}
-    F(y_n) &\equiv  y_n-h_n\beta_{n,0}f(t_n,\,y_n) - a_n=0   \\
-    a_n &= \sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i}) 
-  \end{split}
+    F(y_n) \equiv y_n - \gamma_n f(t_n,\,y_n,\,p) - a_n = 0 \,
 \end{equation}
-must be solved for $y_{n}$ at each time step. For nonstiff problems,
-a functional (or fixpoint) iteration is normally used which does not
-require the solution of a linear system of equations. For stiff
-problems, a Newton iteration is used and for each iteration an
-underlying linear system must be solved. The system matrix 
-$M$ approximates $\partial F/ \partial y$, that is
-$M \approx I-\gamma J$, where $J = {\partial f}/{\partial y}$
-and $\gamma = h_n\beta_{n,0}$.
-
-At present, aside from a diagonal Jacobian approximation, the other
-options implemented in CVODES for solving these linear systems are:
-(a) a direct method with dense treatment of the Jacobian,
-(b) a direct method with band treatment of the Jacobian, and
-(c) an iterative method SPGMR (scaled, preconditioned
-GMRES) \cite{BrHi:89}, which is a Krylov subspace method. In most
-cases, performance of SPGMR is improved by user-supplied
-preconditioners. The user may precondition the system on the left, on
-the right, on both the left and right, or use no preconditioner.
-In most cases of interest to the CVODES user, the technique of
-integration will involve BDF and the Newton method coupled with one of the 
-linear solver modules.
-
-The integrator computes an estimate $E_{n}$ of the local error at each time
-step and strives to satisfy the inequality
-$\left\| E_n\right\|_{\mbox{\scriptsize WRMS}} < 1$,
-where $\|\cdot\|_{\mbox{\scriptsize WRMS}}$ is the weighted root-mean-square norm
-defined in terms of the user-defined relative and absolute tolerances. 
-The error control mechanism in CVODES varies the stepsize and order
-in an attempt to take minimum number of steps while satisfying the local
-error test. 
+where $\gamma_n$ is a scalar and $a_n$ is a constant vector.
+This system is solved by either functional (fixpoint) iteration or
+some form of Newton iteration.  In the latter case, the matrix in the
+linear system for Newton corrections has the form $M = I-\gamma_nJ_n$,
+where $J_n = {\partial f}/{\partial y}$ at $(t_n,y_n)$.
 
 CVODES also incorporates an algorithm for special treatment of
 quadratures depending on the solution $y$ of (\ref{e:ivp}).
 Evaluation of integrals of the form
-${\cal G} = \int_{t_0}^{t_\mb{f}} g(t,y,p) dt$ can be done efficiently using the
+$G = \int_{t_0}^{t_\mb{f}} g(t,y,p) dt$ can be done efficiently using the
 underlying linear multistep method interpolating polynomials by
 appending to (\ref{e:ivp}) an additional ODE
 $\dot\phi = g(t,y,p)$, with initial condition $\phi(t_0) = 0$,
-in which case ${\cal G} = \phi(t_f)$. In the context of an implicit ODE
+in which case $G = \phi(t_f)$. In the context of an implicit ODE
 integrator, since the right-hand side of this additional equation does not
 depend on $\phi$, such equations need not participate in the solution of
 the nonlinear system~(\ref{e:nonlinear}). CVODES allows the user to
 identify these equations separately from those in~(\ref{e:ivp}) and
 provides the option of including or excluding $\phi$ from the error
 control algorithm.
-%
 The main reason for including this option in CVODES was the need for
 efficient quadrature computation in the context of adjoint sensitivity 
 analysis (see Section~\ref{ss:adj_sensitivity}).
@@ -112,7 +64,7 @@ the nonlinear solver convergence, error control mechanism, and heuristics
 related to stopping criteria and finite-difference parameter selection, is
 given in~\cite{HBGLSSW:04}.
 
-%-----------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
 
 \subsection{Forward Sensitivity Analysis}\label{ss:fwd_sensitivity}
 
