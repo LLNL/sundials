@@ -546,6 +546,7 @@ Rel. error for F.D. $Jv$ & \id{KINSetRelerrFunc} & $\sqrt{\text{uround}}$ \\
 Function-norm stopping tolerance & \id{KINSetFuncNormTol} & $\sqrt[3]{\text{uround}}$ \\
 Scaled-step stopping tolerance & \id{KINSetScaledSteptol} & $\sqrt[3]{\text{uround}^2}$ \\
 Inequality constraints on solution & \id{KINSetConstraints} & \id{NULL} \\
+nonlinear system function & \id{KINSetSysFunc} & none \\
 \hline
 \multicolumn{3}{|c|}{\bf KINSPGMR linear solver} \\
 \hline
@@ -769,7 +770,7 @@ flag = KINSetNoPrecInit(kin\_mem, noPrecInit);
   to the preconditioner setup function should be made or not.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[noPrecInit]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[noPrecInit] (\id{booleantype})
@@ -836,11 +837,11 @@ flag = KINSetEtaForm(kin\_mem, etachoice);
   linear solver convergence tolerance.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[etachoice]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[etachoice] (\id{int})
-    flag indicating the method for computing $\eta$. Must be one
+    flag indicating the method for computing $\eta$. \id{etachoice} must be one
     of \Id{KIN\_ETACHOICE1}, \Id{KIN\_ETACHOICE2}, or \Id{KIN\_ETACONSTANT}
     (see \S\ref{} for details).
   \end{args}
@@ -943,7 +944,7 @@ flag = KINSetNoMinEps(kin\_mem, noMinEps);
   the value of $\epsilon$ is bounded below.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[noMinEps]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[noMinEps] (\id{booleantype})
@@ -973,7 +974,7 @@ flag = KINSetMAxNewtonStep(kin\_mem, mxnewtstep);
   length of the Newton step.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[mxnewtstep]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[mxnewtstep] (\id{realtype})
@@ -1007,7 +1008,7 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
   Jacobian-vector product.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[relfunc]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[relfunc] (\id{realtype})
@@ -1162,8 +1163,8 @@ flag = KINSetSysFunc(kin\_mem, func);
 }
 {
   The nonlinear system function is initially specified through \id{KINMalloc}.
-  \id{KINResetSysFunc} is provided for a user who wishes to solve several 
-  problems of the same size but with different functions.
+  The option of changing the system function is provided for a user who wishes 
+  to solve several problems of the same size but with different functions.
 }
 %%
 
@@ -1996,7 +1997,7 @@ The user must provide a function of type \ID{KINSysFn} defined as follows:
   \item[fval]
     is the output vector $F(y)$.
   \item[f\_data]
-    is a pointer to user data --- the same as the \Id{f\_data}      
+    is a pointer to user data, the same as the \Id{f\_data}      
     parameter passed to \id{KINSetFdata}.   
   \end{args}
 }
@@ -2013,30 +2014,565 @@ Allocation of memory for \id{fval} is handled within {\kinsol}.
 \subsection{Jacobian information (SPGMR matrix-vector product)}
 \label{ss:jtimesFn}
 %%==============================================================================
+\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+The user may provide a function of type \ID{KINSpgmrJacTimesVecFn} to evaluate
+Jacobian-vector products for the {\kinspgmr} linear solver module.
+This function has the following form:
+\usfunction{KINSpgmrJacTimesVecFn}
+{
+typedef int (*KINSpgmrJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, \\
+                                     &N\_Vector y, booleantype *new\_y, \\
+                                     &void *jac\_data);
+}
+{
+  This function computes the product $J v = (\partial f / \partial y) v$ 
+  (or an approximation to it).
+}
+{
+  \begin{args}[jac\_data]
+  \item[v]
+    is the vector by which the Jacobian must be multiplied to the right.
+  \item[Jv]
+      is the output vector computed.
+  \item[y] 
+    is the current (unscaled) value of the iterate.
+  \item[new\_y]
+    is a flag (reset by user) indicating if the iterate \id{y}
+    has been updated in the interim. The Jacobian-vector product 
+    needs to be updated/reevaluated, if appropriate, unless
+    \id{new\_y = FALSE}.
+  \item[jac\_data]
+    is a pointer to user data, the same as the \id{jac\_data}      
+    parameter passed to \id{KINSpgmrSetJacData}.   
+  \end{args}
+}
+{  
+  The value to be returned by the Jacobian times vector function should be
+  $0$ if successful. Any other return value will result in an unrecoverable
+  error of the {\spgmr} generic solver, in which case the solution process
+  is halted.
+}
+{
+  If a user-defined routine is not given, then an internal
+  {\kinspgmr} function, using difference-quotient approximations,
+  is used.
+
+  If the user-provided \id{KINSpgmrJacTimesVec} function needs the unit roundoff,
+  this can be accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+}
+%%
 
 %%==============================================================================
 \subsection{Preconditioning (SPGMR linear system solution)} \label{ss:psolveFn}
 %%==============================================================================
+\index{preconditioning!user-supplied}
+\index{KINSPGMR@{\kinspgmr} linear solver!preconditioner solve function}
+
+If preconditioning is used, then the user must provide a {\C} function to
+solve the linear system $Pz = r$ where $P$ is the preconditioner matrix.
+This function must be of type \ID{KINSpgmrPrecSolveFn}, defined as follows:
+%%
+%%
+\usfunction{KINSpgmrPrecSolveFn}
+{
+typedef int (*KINSpgmrPrecSolveFn)(&N\_Vector y, N\_Vector yscale,  \\
+                                   &N\_Vector fval, N\_Vector fscale,  \\
+                                   &N\_Vector v, void *prec\_data, \\
+                                   &N\_Vector tmp);
+}
+{
+  This function solves the preconditioning system $Pz = r$.
+}
+{  
+  \begin{args}[prec\_data]
+  \item[y] 
+    is the current (unscaled) value of the iterate.
+  \item[yscale]
+    is a vector containing diagonal elements
+    of scaling matrix for \id{y}.
+  \item[fval]
+    is the vector $F(y)$ evaluated at \id{y}.
+  \item[fscale]
+    is a vector containing diagonal elements
+    of scaling matrix for \id{fval}.
+  \item[v]
+    on input, \id{v} is set to the right-hand side vector of the linear 
+    system, \id{r}. On output, \id{v} must contain the solution \id{z} of
+    the linear system $Pz=r$.
+  \item[prec\_data]
+    is a pointer to user data --- the same as the \id{prec\_data}      
+    parameter passed to the function \id{KINSpgmrSetPrecData}.
+  \item[tmp]
+    is a pointer to memory allocated for a variable of type \id{N\_Vector}
+    which can be used for work space.
+  \end{args}
+}
+{
+  The value to be returned by the preconditioner solve function is a flag
+  indicating whether it was successful.  This value should be $0$ if successful, 
+  positive for a recoverable error, and negative for an unrecoverable error.
+}
+{}
 
 %%==============================================================================
 \subsection{Preconditioning (SPGMR Jacobian data)}\label{ss:precondFn}
 %%==============================================================================
+\index{preconditioning!user-supplied}
+\index{KINSPGMR@{\kinspgmr} linear solver!preconditioner setup function}
+
+If the user's preconditioner requires that any Jacobian related data
+be evaluated or preprocessed, then this needs to be done in a
+user-supplied {\C} function of type \ID{KINSpgmrPrecSetupFn}, defined as follows:
+\usfunction{KINSpgmrPrecSetupFn}
+{
+typedef int (*KINSpgmrPrecSetupFn)(&N\_Vector y, N\_Vector yscale, \\
+                                   &N\_Vector fval, N\_Vector fscale,\\
+                                   &void *prec\_data, N\_Vector tmp1,\\
+                                   &N\_Vector tmp2);
+}
+{
+  This function evaluates and/or preprocesses Jacobian related data needed
+  by the preconditioner.
+}
+{
+  The arguments of a \id{KINSpgmrPrecSetupFn} are as follows:
+  \begin{args}[prec\_data]
+  \item[y] 
+    is the current (unscaled) value of the iterate.
+  \item[yscale]
+    is a vector containing diagonal elements
+    of scaling matrix for \id{y}.
+  \item[fval]
+    is the vector $F(y)$ evaluated at \id{y}.
+  \item[fscale]
+    is a vector containing diagonal elements
+    of scaling matrix for \id{fval}.
+  \item[prec\_data]
+    is a pointer to user data --- the same as the \id{prec\_data}      
+    parameter passed to the function \id{KINSpgmrSetPrecData}.
+  \item[tmp1]
+  \item[tmp2]
+    are pointers to memory allocated for variables of type \id{N\_Vector}
+    which can be used by \id{KINSpgmrPrecSetupFn} as temporary storage or 
+    work space.    
+  \end{args}
+}
+{
+  The value to be returned by the preconditioner setup function is a flag
+  indicating whether it was successful.  This value should be $0$ if successful, 
+  positive for a recoverable error, and negative for an unrecoverable error.
+}
+{
+  The user-supplied preconditioner setup subroutine should
+  compute the right-preconditioner matrix $P$ (stored in the memory
+  block referenced by the \id{prec\_data} pointer) used to form the
+  scaled preconditioned linear system
+ 
+   $$(D_f J(y) P^{-1} D_y^{-1}) \cdot (D_y P x) = - D_f F(y) \, ,$$
+ 
+  where $D_y$ and $D_f$ denote the diagonal scaling matrices whose
+  diagonal elements are stored in the vectors \id{yscale} and
+  \id{fscale}, repsectively.
+ 
+  The preconditioner setup routine will not be called prior
+  to every call made to the preconditioner solve function, but will instead be
+  called only as often as necessary to achieve convergence of the
+  Newton iteration.
+ 
+  If the preconditioner solve routine requires no preparation, then a
+  preconditioner setup function need not be given.
+}
 
 %%==============================================================================
-\section{Preconditioner modules}\label{ss:preconds}
+\section{A parallel band-block-diagonal preconditioner module}
+\label{sss:kinbbdpre}
 %%==============================================================================
 The efficiency of Krylov iterative methods for the solution of linear systems 
 can be greatly enhanced through preconditioning. For problems in which the 
 user cannot define a more effective, problem-specific preconditioner,
 {\kinsol} provides a band-block-diagonal preconditioner module {\kinbbdpre}.
 
-%%==============================================================================
-\subsection{A parallel band-block-diagonal preconditioner module}
-\label{sss:kinbbdpre}
-%%==============================================================================
-.......
-.......
-......
+This module provides a preconditioner matrix for {\kinsol} that
+is block-diagonal with banded blocks. The blocking corresponds
+to the distribution of the dependent variable vector $y$ amongst
+the processes. Each preconditioner block is generated from
+the Jacobian of the local part (associated with the current
+process) of a given function $G(y)$ approximating $F(y)$. The blocks
+are generated by each process via a difference quotient scheme,
+utilizing the assumed banded structure with given
+half-bandwidths.
+
+%%
+%% ----------------------------------------
+%%
+\index{KINBBDPRE@{\kinbbdpre} preconditioner!user-supplied functions|(}
+The {\kinbbdpre} module calls two user-provided functions to construct $P$: 
+a required function \id{Gloc} (of type \id{KINLocalFn}) 
+which approximates the nonlinear system function function $G(y) \approx F(y)$ and which 
+is computed locally, and an optional function \id{Gcomm} (of type \id{KINCommFn}) 
+which performs all inter-process communication necessary to evaluate 
+the approximate function $G$.  
+These are in addition to the user-supplied nonlinear system function that 
+evaluates $F(y)$.
+Both functions take as input the same pointer \id{f\_data} as that passed
+by the user to \id{KINSetFdata} and passed to the user's function \id{func},
+and neither function has a return value. The user is responsible for
+providing space (presumably within \id{f\_data}) for components of \id{y}
+that are communicated by \id{Gcomm} from the other processors, and that are
+then used by \id{Gloc}, which is not expected to do any communication.
+%%
+%%
+\usfunction{KINLocalFn}
+{
+typedef void (*KINLocalFn)(&long int Nlocal, N\_Vector y, \\
+                           &N\_Vector gval, void *f\_data);
+}
+{
+  This function computes $G(y)$. It loads the vector
+  \id{gval} as a function of \id{y}.  
+}
+{
+  \begin{args}[Nlocal]
+  \item[Nlocal] 
+    is the local vector length.
+  \item[y]
+    is the current value of the iterate.
+  \item[gval]
+    is the output vector.
+  \item[f\_data]
+    is a pointer to user data --- the same as the \Id{f\_data}      
+    parameter passed to \id{KINSetFdata}.  
+  \end{args}
+}
+{
+  A \id{KINLocalFn} function type does not have a return value.
+}
+{
+  This function assumes that all inter-processor communication of data needed to 
+  calculate \id{gval} has already been done, and this data is accessible within
+  \id{f\_data}.
+
+   Memory for \id{y} and \id{gval} is handled within the preconditioner module.
+
+  The case where $G$ is mathematically identical to $F$ is allowed.
+}
+%%
+%%
+\usfunction{KINCommFn}
+{
+typedef void (*KINCommFn)(long int Nlocal, N\_Vector y, void *f\_data);
+}
+{
+  This function performs all inter-processor communications necessary 
+  for the execution of the \id{gloc} function above, using the input vector \id{y}.
+}
+{
+  \begin{args}[Nlocal]
+  \item[Nlocal] 
+    is the local vector length.
+  \item[y]
+    is the current value of the iterate.
+  \item[f\_data]
+    is a pointer to user data --- the same as the \Id{f\_data}      
+    parameter passed to \id{KINSetFdata}.  
+  \end{args}
+}
+{
+  A \id{KINCommFn} function type does not have a return value.
+}
+{
+  The \id{Gcomm} function is expected to save communicated data in space defined
+  within the structure \id{f\_data}. 
+
+  Each call to the \id{Gcomm} function is preceded by a call to the system function
+  \id{func} with the same \id{y} argument.  Thus \id{Gcomm} can omit 
+  any communications done by \id{func} if relevant to the evaluation of \id{Gloc}.
+  If all necessary comunication was done in \id{func}, then \id{Gcomm} $=$ \id{NULL}
+  can be passed in the call to \id{KINBBDPrecAlloc} (see below).
+}
+%%
+\index{KINBBDPRE@{\kinbbdpre} preconditioner!user-supplied functions|)}
+
+%%
+%% ----------------------------------------
+%%
+\index{KINBBDPRE@{\kinbbdpre} preconditioner!usage|(}
+%%
+Besides the header files required for the solution of a nonlinear problem
+(see \S\ref{ss:header_sim}),  to use the {\kinbbdpre} module, the main program 
+must include the header file \id{kinbbdpre.h} which declares the needed
+function prototypes.\index{header files}
+
+The following is a summary of the usage of this module and describes the sequence
+of calls in the user main program. Steps that are unchanged from the user main
+program presented in \S\ref{ss:skeleton_sim} are grayed-out.
+%%
+%%
+\index{User main program!KINBBDPRE@{\kinbbdpre} usage}
+\begin{Steps}
+\item 
+  \textcolor{gray}{\bf Initialize MPI}
+
+\item
+  \textcolor{gray}{\bf Set problem dimensions}
+
+\item
+  \textcolor{gray}{\bf Set vector with initial guess}
+ 
+\item
+  \textcolor{gray}{\bf Create {\kinsol} object}
+
+\item
+  \textcolor{gray}{\bf Set optional inputs}
+
+\item
+  \textcolor{gray}{\bf Allocate internal memory}
+
+\item \label{i:bbdpre_init}
+  {\bf Initialize the {\kinbbdpre} preconditioner module}
+
+  Specify the upper and lower half-bandwidths \id{mu}, \id{ml} and call
+
+   \id{
+     \begin{tabular}[t]{@{}r@{}l@{}}
+       bbd\_data = KINBBDPrecAlloc(&kin\_mem, Nlocal, mu, ml, \\
+                                  &dq\_rel\_y, Gloc, Gcomm);
+     \end{tabular}
+   }
+
+  to allocate memory for and initialize a data structure \id{bbd\_data} to be 
+  passed to the {\kinspgmr} linear solver. The last two arguments of
+  \id{KINBBDPrecAlloc} are the two user-supplied functions described above.
+
+\item \label{i:bbdpre_attach}
+  {\bf Attach the {\kinspgmr} linear solver}
+
+  \id{flag = KINBBDSpgmr(kin\_mem, maxl, bbd\_data);}
+
+  The function \Id{KINBBDSpgmr} is a wrapper around the {\kinspgmr} specification
+  function \id{KINSpgmr} and performs the following actions:
+  \begin{itemize}
+    \item Attaches the {\kinspgmr} linear solver to the main {\cvode} solver memory;
+    \item Sets the preconditioner data structure for {\kinbbdpre};
+    \item Sets the preconditioner setup function for {\kinbbdpre};
+    \item Sets the preconditioner solve function for {\kinbbdpre};
+  \end{itemize}
+  The argument \id{maxl} is described below.
+  The last argument of \id{KINBBDSpgmr} is the pointer to the {\kinbbdpre} data
+  returned by \id{KINBBDPrecAlloc}.
+
+\item
+  \textcolor{gray}{\bf Set linear solver optional inputs}
+
+  Note that the user should not overwrite the preconditioner data, setup function,
+  or solve function through calls to {\kinspgmr} optional input functions.
+
+\item
+  \textcolor{gray}{\bf Solve problem}
+
+\item
+  \textcolor{gray}{\bf Get optional output}
+
+\item
+  \textcolor{gray}{\bf Deallocate memory for solution vector}
+
+\item \label{i:bbdpre_free}
+  {\bf Free the {\kinbbdpre} data structure}
+
+  \id{KINBBDPrecFree(bbd\_data);}
+
+\item
+  \textcolor{gray}{\bf Free solver memory}
+  
+\item 
+  \textcolor{gray}{\bf Finalize MPI}
+
+\end{Steps}
+%%
+\index{KINBBDPRE@{\kinbbdpre} preconditioner!usage|)}
+
+%%
+%% ----------------------------------------
+%%
+\index{KINBBDPRE@{\kinbbdpre} preconditioner!user-callable functions|(}
+%%
+The three user-callable functions that initialize, attach, and deallocate
+the {\kinbbdpre} preconditioner module (steps \ref{i:bbdpre_init},
+\ref{i:bbdpre_attach}, and \ref{i:bbdpre_free} above) are described
+next.
+%%
+\index{half-bandwidths}
+\ucfunction{KINBBDPrecAlloc}
+{
+   \begin{tabular}[t]{@{}r@{}l@{}}
+     bbd\_data = KINBBDPrecAlloc(&kin\_mem, Nlocal, mu, ml, \\
+                                &dq\_rel\_y, Gloc, Gcomm);
+   \end{tabular}
+}
+{
+  The function \ID{KINBBDPrecAlloc} initializes and allocates
+  memory for the {\kinbbdpre} preconditioner.
+}
+{
+  \begin{args}[dq\_rel\_y]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[Nlocal] (\id{long int})
+    local vector length.
+  \item[mu] (\id{long int})
+    upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
+  \item[ml] (\id{long int})
+    lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
+  \item[dq\_rel\_y] (\id{realtype})
+    the relative increment in components of \id{y} used in the difference quotient
+    approximations.  The default is \id{dq\_rel\_y}$ = \sqrt{\text{unit roundoff}}$,
+    which can be specified by passing \id{dq\_rel\_y}$ = 0.0$.
+  \item[Gloc] (\id{KINLocalFn})
+    the {\C} function which computes the approximation $G(y) \approx F(y)$. 
+  \item[Gcomm] (\id{KINCommFn})
+    the optional {\C} function which performs all inter-process communication required for
+    the computation of $G(y)$.
+  \end{args}
+}
+{
+  If successful, \id{KINBBDPrecAlloc} returns a pointer to the newly created 
+  {\kinbbdpre} memory block (of type \id{void *}).
+  If an error occurred, \id{KINBBDPrecAlloc} returns \id{NULL}.
+}
+{
+  The half-bandwidths \id{mu} and \id{ml} need not be the true 
+  half-bandwidths of the Jacobian of the local block of $G$,    
+  when smaller values may provide a greater efficiency.       
+
+  Moreover, the half-bandwidth values need not be the same on every processor.
+}
+%%
+%%
+\ucfunction{KINBBDSpgmr}
+{
+  flag = KINBBDSpgmr(kin\_mem, maxl, bbd\_data);
+}
+{
+  The function \ID{KINBBDSpgmr} links the {\kinbbdpre} data to the
+  {\kinspgmr} linear solver and attaches the latter to the {\kinsol}
+  memory block.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[maxl] (\id{int})
+    \index{maxl@\texttt{maxl}}
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{KINSPGMR\_MAXL}$=5$.
+  \item[bbd\_data] (\id{void *})
+    pointer to the {\kinbbdpre} data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINSPGMR\_ILL\_INPUT]
+  \item[\Id{KINSPGMR\_SUCCESS}] 
+    The {\kinspgmr} initialization was successful.
+  \item[\Id{KINSPGMR\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINSPGMR\_ILL\_INPUT}]
+    The {\nvector} module used does not implement a required operation.
+  \item[\Id{KINSPGMR\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \item[\Id{KIN\_PDATA\_NULL}]
+    The {\kinbbdpre} preconditioner has not been initialized.
+  \end{args}
+}
+{}
+%%
+\ucfunction{KINBBDPrecFree}
+{
+  KINBBDPrecFree(bbd\_data);
+}
+{
+  The function \ID{KINBBDPrecFree} frees the pointer allocated by
+  \id{KINBBDPrecAlloc}.
+}
+{
+  The only argument of \id{KINBBDPrecFree} is the pointer to the {\kinbbdpre} 
+  data structure (of type \id{void *}).
+}
+{
+  The function \id{KINBBDPrecFree} has no return value.
+}
+{}
+%%
+%%-------------
+%%
+\index{optional output!band-block-diagonal preconditioner|(}
+\index{KINBBDPRE@{\kinbbdpre} preconditioner!optional output|(}
+The following three optional output functions are available for use with
+the {\kinbbdpre} module:
+%%
+\index{memory requirements!KINBBDPRE@{\kinbbdpre} preconditioner}
+\ucfunction{CVBBDPrecGetWorkSpace}
+{
+  flag = KINBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
+}
+{
+  The function \ID{KINBBDPrecGetWorkSpace} returns the local
+  {\kinbbdpre} real and integer workspace sizes.
+}
+{
+  \begin{args}[lenrwBBDP]
+  \item[bbd\_data] (\id{void *})
+    pointer to the {\kinbbdpre} data structure.
+  \item[lenrwBBDP] (\id{long int})
+    local number of \id{realtype} values in the {\kinbbdpre} workspace.
+  \item[leniwBBDP] (\id{long int})
+    local number of integer values in the {\kinbbdpre} workspace.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_PDATA\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KIN\_PDATA\_NULL}]
+    The {\kinbbdpre} preconditioner has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{KINBBDPrecGetNumGfnEvals}
+{
+  flag = KINBBDPrecGetNumGfnEvals(bbd\_data, \&ngevalsBBDP);
+}
+{
+  The function \ID{KINBBDPrecGetNumGfnEvals} returns the
+  number of calls to the user \id{Gloc} function due to the 
+  finite difference approximation of the Jacobian blocks used within
+  {\kinbbdpre}'s preconditioner setup function.
+}
+{
+  \begin{args}[ngevalsBBDP]
+  \item[bbd\_data] (\id{void *})
+    pointer to the {\kinbbdpre} data structure.
+  \item[ngevalsBBDP] (\id{long int})
+    the number of calls to the user \id{Gloc} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_PDATA\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{KIN\_PDATA\_NULL}]
+    The {\kinbbdpre} preconditioner has not been initialized.
+  \end{args}
+}
+{}
+%%
+\index{KINBBDPRE@{\kinbbdpre} preconditioner!optional output|)}
+\index{optional output!band-block-diagonal preconditioner|)}
+
 
 %%==============================================================================
 \section{FKINSOL, a {\F}-{\C} interface module}\label{ss:fcmix}
