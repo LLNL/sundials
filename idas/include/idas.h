@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-06-29 00:49:37 $
+ * $Revision: 1.18 $
+ * $Date: 2004-07-22 23:03:41 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -362,8 +362,6 @@ enum {IDAS_NO_MEM = -1, IDAS_ILL_INPUT = -2};
  *         the current approximate solution.  See the routine     *
  *         N_VWrmsNorm for the norm used in this error test.      *
  *                                                                *
- * nvspec  is a pointer to a vector specification structure       * 
- *                                                                *
  * Note: The tolerance values may be changed in between calls to  *
  *       IDASolve for the same problem. These values refer to     *
  *       (*reltol) and either (*abstol), for a scalar absolute    *
@@ -378,8 +376,7 @@ enum {IDAS_NO_MEM = -1, IDAS_ILL_INPUT = -2};
 
 int IDAMalloc(void *ida_mem, ResFn res,
               realtype t0, N_Vector y0, N_Vector yp0, 
-              int itol, realtype *reltol, void *abstol,
-              NV_Spec nvspec);
+              int itol, realtype *reltol, void *abstol);
 
 /* Error return values for IDAMalloc */
 /* SUCCESS = 0 */
@@ -475,10 +472,10 @@ int IDASetQuadTolerances(void *ida_mem, int itolQ,
  *                                                                *
  * ida_mem is a pointer to IDAS memory returned by IDACreate      *
  *                                                                *
- * rhsQ    is the user-provided integrand routine.                *
+ * rhsQ  is the user-provided integrand routine.                  *
  *                                                                *
- * nvspecQ   is a pointer to a vector specification structure     *
- *           for N_Vectors containing quadrature variables.       *
+ * yQ0   is a pointer to a vector specification structure         *
+ *       for N_Vectors containing quadrature variables.           *
  *                                                                *
  *                                                                *
  * If successful, IDAQuadMalloc returns SUCCESS.                  *
@@ -487,7 +484,7 @@ int IDASetQuadTolerances(void *ida_mem, int itolQ,
  * of the error flags defined below.                              *
  *----------------------------------------------------------------*/
 
-int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, NV_Spec nvspecQ);
+int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0);
 
 enum {QIDAM_NO_MEM = -1, QIDAM_ILL_INPUT = -2, QIDAM_MEM_FAIL = -3};
 
@@ -507,7 +504,7 @@ enum {QIDAM_NO_MEM = -1, QIDAM_ILL_INPUT = -2, QIDAM_MEM_FAIL = -3};
  *                                                                *
  *----------------------------------------------------------------*/
 
-int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ);
+int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0);
 
 enum {QIDAREI_NO_MEM = -1, QIDAREI_NO_QUAD = -2, QIDAREI_ILL_INPUT = -3};
 
