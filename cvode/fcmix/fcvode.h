@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2005-03-19 00:10:19 $
+ * $Revision: 1.38 $
+ * $Date: 2005-04-04 22:53:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -77,6 +77,7 @@
  *             of CVSpbcgPrecSetupFn
  *   FCVJTIMES is called by interface fn. FCVJtimes of type CVSpgmrJacTimesVecFn
  *             or CVSpbcgJacTimesVecFn
+ *   FCVEWT    is called by interface fn. FCVEwtSet of type CVEwtFn
  * In contrast to the case of direct use of CVODE, and of most Fortran ODE
  * solvers, the names of all user-supplied routines here are fixed, in
  * order to maximize portability for the resulting mixed-language program.
@@ -146,16 +147,25 @@
  * the product in FJV.  On return, set IER = 0 if FCVJTIMES was successful,
  * and nonzero otherwise.
  * 
- * (5) Initialization:  FNVINITS / FNVINITP , FCVMALLOC, FCVREINIT
+ * (5) Optional user-supplied error weight vector routine: FCVEWT
+ * As an option to providing the relative and absolute tolerances, the user
+ * may supply a routine that computes the weights used in the WRMS norms.
+ * If supplied, it must have the following form:
+ *       SUBROUTINE FCVEWT (Y, EWT, IER)
+ *       DIMENSION Y(*), EWT(*)
+ * It must store the error weights in EWT, given the current solution vector Y.
+ * On return, set IER = 0 if successful, and nonzero otherwise.
+ *
+ * (6) Initialization:  FNVINITS / FNVINITP , FCVMALLOC, FCVREINIT
  * 
- * (5.1s) To initialize the serial machine environment, the user must make
+ * (6.1s) To initialize the serial machine environment, the user must make
  * the following call:
  *        CALL FNVINITS (NEQ, IER)
  * The arguments are:
  * NEQ     = size of vectors
  * IER     = return completion flag. Values are 0 = success, -1 = failure.
  * 
- * (5.1p) To initialize the parallel machine environment, the user must make 
+ * (6.1p) To initialize the parallel machine environment, the user must make 
  * the following call:
  *        CALL FNVINITP (NLOCAL, NGLOBAL, IER)
  * The arguments are:
@@ -167,7 +177,7 @@
  * set to MPI_COMM_WORLD.  If not, this routine initializes MPI and sets
  * the communicator equal to MPI_COMM_WORLD.
  * 
- * (5.2) To set various problem and solution parameters and allocate
+ * (6.2) To set various problem and solution parameters and allocate
  * internal memory, make the following call:
  *       CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, INOPT,
  *      1               IOPT, ROPT, IER)
@@ -176,7 +186,9 @@
  * Y0     = array of initial conditions
  * METH   = basic integration method: 1 = Adams (nonstiff), 2 = BDF (stiff)
  * ITMETH = nonlinear iteration method: 1=functional iteration, 2=Newton iter.
- * IATOL  = type for absolute tolerance ATOL: 1 = scalar, 2 = array
+ * IATOL  = type for absolute tolerance ATOL: 1 = scalar, 2 = array.
+ *          If IATOL = 3, then the user must supply a routine FCVEWT to compute
+ *          the error weight vector.
  * RTOL   = relative tolerance (scalar)
  * ATOL   = absolute tolerance (scalar or array)
  * INOPT  = optional input flag: 0 = none, 1 = inputs used
@@ -198,7 +210,13 @@
  * IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *          See printed message for details in case of failure.
  * 
- * (5.3) To reinitialize the CVODE solver for the solution of a new problem
+ * If the user program includes the FCVEWT routine for the evaluation of the 
+ * error weights, the following call must be made
+ *       CALL FCVEWTSET(FLAG, IER)
+ * with FLAG = 1 to specify that FCVEWT is provided.
+ * The return flag IER is 0 if successful, and nonzero otherwise.
+ *
+ * (6.3) To re-initialize the CVODE solver for the solution of a new problem
  * of the same size as one already solved, make the following call:
  *       CALL FCVREINIT(T0, Y0, IATOL, RTOL, ATOL, INOPT, IOPT, ROPT, IER)
  * The arguments have the same names and meanings as those of FCVMALLOC,
@@ -209,14 +227,14 @@
  * previous  FCVMALLOC call.  The call to specify the linear system solution
  * method may or  may not be needed; see paragraph (6) below.
  * 
- * (6) Specification of linear system solution method.
+ * (7) Specification of linear system solution method.
  * In the case of a stiff system, the implicit BDF method involves the solution
  * of linear systems related to the Jacobian J = df/dy of the ODE system.
  * CVODE presently includes four choices for the treatment of these systems,
  * and the user of FCVODE must call a routine with a specific name to make the
  * desired choice.
  * 
- * (6.1) Diagonal approximate Jacobian.
+ * (7.1) Diagonal approximate Jacobian.
  * This choice is appropriate when the Jacobian can be well approximated by
  * a diagonal matrix.  The user must make the call:
  *       CALL FCVDIAG(IER)
@@ -225,7 +243,7 @@
  * to the approximate diagonal Jacobian case are LRW and LIW, stored in
  * IOPT(16) and IOPT(17), respectively.  See the CVODE manual for descriptions.
  * 
- * (6.2s) DENSE treatment of the linear system.
+ * (7.2s) DENSE treatment of the linear system.
  * The user must make the call
  *       CALL FCVDENSE(NEQ, IER)
  * The argument is:
@@ -242,7 +260,7 @@
  * stored in IOPT(16), IOPT(17), and IOPT(18), respectively.  (See the CVODE
  * manual for descriptions.)
  * 
- * (6.3s) BAND treatment of the linear system
+ * (7.3s) BAND treatment of the linear system
  * The user must make the call
  *       CALL FCVBAND(NEQ, MU, ML, IER)
  * The arguments are:
@@ -261,7 +279,7 @@
  * stored in IOPT(16), IOPT(17), and IOPT(18), respectively.  (See the CVODE
  * manual for descriptions.)
  *
- * (6.4A) SPBCG treatment of the linear systems.
+ * (7.4) SPBCG treatment of the linear systems.
  * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
  * the user must make the following call:
  *       CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)              
@@ -327,7 +345,7 @@
  * The arguments have the same meanings as for FCVSPBCG.  If MAXL is being
  * changed, then call FCVSPBCG instead.
  *
- * (6.4B) SPGMR treatment of the linear systems.
+ * (7.5) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
  *       CALL FCVSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)              
@@ -396,7 +414,7 @@
  * The arguments have the same meanings as for FCVSPGMR.  If MAXL is being
  * changed, then call FCVSPGMR instead.
  * 
- * (7) The integrator: FCVODE
+ * (8) The integrator: FCVODE
  * Carrying out the integration is accomplished by making calls as follows:
  *       CALL FCVODE (TOUT, T, Y, ITASK, IER)
  * The arguments are:
@@ -412,7 +430,7 @@
  *         values -1 ... -10 are various failure modes (see CVODE manual).
  * The current values of the optional outputs are available in IOPT and ROPT.
  * 
- * (8) Computing solution derivatives: FCVDKY
+ * (9) Computing solution derivatives: FCVDKY
  * To obtain a derivative of the solution, of order up to the current method
  * order, make the following call:
  *       CALL FCVDKY (T, K, DKY, IER)
@@ -422,7 +440,7 @@
  * DKY = array containing computed K-th derivative of y on return
  * IER = return flag: = 0 for success, < 0 for illegal argument.
  * 
- * (9) Memory freeing: FCVFREE and FNVFREES/FNVFREEP
+ * (10) Memory freeing: FCVFREE and FNVFREES/FNVFREEP
  * To the free the internal memory created by the calls to FCVMALLOC and
  * FNVINITS or FNVINITP, depending on the version (serial/parallel), make
  * the following calls, in this order:
@@ -453,6 +471,7 @@ extern "C" {
 
 #define FCV_MALLOC       F77_FUNC(fcvmalloc, FCVMALLOC)
 #define FCV_REINIT       F77_FUNC(fcvreinit, FCVREINIT)
+#define FCV_EWTSET       F77_FUNC(fcvewtset, FCVEWTSET)
 #define FCV_DIAG         F77_FUNC(fcvdiag, FCVDIAG)
 #define FCV_DENSE        F77_FUNC(fcvdense, FCVDENSE)
 #define FCV_DENSESETJAC  F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
@@ -477,11 +496,13 @@ extern "C" {
 #define FCV_PSOL         F77_FUNC(fcvpsol, FCVPSOL)
 #define FCV_PSET         F77_FUNC(fcvpset, FCVPSET)
 #define FCV_JTIMES       F77_FUNC(fcvjtimes, FCVJTIMES)
+#define FCV_EWT          F77_FUNC(fcvewt, FCVEWT)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_MALLOC       fcvmalloc
 #define FCV_REINIT       fcvreinit
+#define FCV_EWTSET       fcvewtset
 #define FCV_DIAG         fcvdiag
 #define FCV_DENSE        fcvdense
 #define FCV_DENSESETJAC  fcvdensesetjac
@@ -506,11 +527,13 @@ extern "C" {
 #define FCV_PSOL         fcvpsol
 #define FCV_PSET         fcvpset
 #define FCV_JTIMES       fcvjtimes
+#define FCV_EWT          fcvewt
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_MALLOC       FCVMALLOC
 #define FCV_REINIT       FCVREINIT
+#define FCV_EWTSET       FCVEWTSET
 #define FCV_DIAG         FCVDIAG
 #define FCV_DENSE        FCVDENSE
 #define FCV_DENSESETJAC  FCVDENSESETJAC
@@ -535,11 +558,13 @@ extern "C" {
 #define FCV_PSOL         FCVPSOL
 #define FCV_PSET         FCVPSET
 #define FCV_JTIMES       FCVJTIMES
+#define FCV_EWT          FCVEWT
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_MALLOC       fcvmalloc_
 #define FCV_REINIT       fcvreinit_
+#define FCV_EWTSET       fcvewtset_
 #define FCV_DIAG         fcvdiag_
 #define FCV_DENSE        fcvdense_
 #define FCV_DENSESETJAC  fcvdensesetjac_
@@ -564,11 +589,13 @@ extern "C" {
 #define FCV_PSOL         fcvpsol_
 #define FCV_PSET         fcvpset_
 #define FCV_JTIMES       fcvjtimes_
+#define FCV_EWT          fcvewt_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_MALLOC       FCVMALLOC_
 #define FCV_REINIT       FCVREINIT_
+#define FCV_EWTSET       FCVEWTSET_
 #define FCV_DIAG         FCVDIAG_
 #define FCV_DENSE        FCVDENSE_
 #define FCV_DENSESETJAC  FCVDENSESETJAC_
@@ -593,11 +620,13 @@ extern "C" {
 #define FCV_PSOL         FCVPSOL_
 #define FCV_PSET         FCVPSET_
 #define FCV_JTIMES       FCVJTIMES_
+#define FCV_EWT          FCVEWT_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_MALLOC       fcvmalloc__
 #define FCV_REINIT       fcvreinit__
+#define FCV_EWTSET       fcvewtset__
 #define FCV_DIAG         fcvdiag__
 #define FCV_DENSE        fcvdense__
 #define FCV_DENSESETJAC  fcvdensesetjac__
@@ -622,11 +651,13 @@ extern "C" {
 #define FCV_PSOL         fcvpsol__
 #define FCV_PSET         fcvpset__
 #define FCV_JTIMES       fcvjtimes__
+#define FCV_EWT          fcvewt__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_MALLOC       FCVMALLOC__
 #define FCV_REINIT       FCVREINIT__
+#define FCV_EWTSET       FCVEWTSET__
 #define FCV_DIAG         FCVDIAG__
 #define FCV_DENSE        FCVDENSE__
 #define FCV_DENSESETJAC  FCVDENSESETJAC__
@@ -651,6 +682,7 @@ extern "C" {
 #define FCV_PSOL         FCVPSOL__
 #define FCV_PSET         FCVPSET__
 #define FCV_JTIMES       FCVJTIMES__
+#define FCV_EWT          FCVEWT__
 
 #endif
 
@@ -664,6 +696,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
                 realtype *atol, int *optin, long int *iopt,
                 realtype *ropt, int *ier);
+void FCV_EWTSET(int *flag, int *ier);
 void FCV_DIAG(int *ier);
 void FCV_DENSE(long int *neq, int *ier);
 void FCV_DENSESETJAC(int *flag, int *ier);
@@ -677,7 +710,6 @@ void FCV_SPGMRSETPSOL(int *flag, int *ier);
 void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
 void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier);
 void FCV_FREE ();
-
 
 
 /* Prototypes: Functions Called by the CVODE Solver */
@@ -706,6 +738,7 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
               N_Vector y, N_Vector fy,
               void *jac_data, N_Vector work);
 
+int FCVEwtSet(N_Vector y, N_Vector ewt, void *e_data);
 
 /* Declarations for global variables shared amongst various routines */
 

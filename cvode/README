@@ -73,6 +73,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.2.3       - Apr. 2005
 v. 2.2.2       - Mar. 2005
 v. 2.2.1       - Jan. 2005
 v. 2.2.0       - Dec. 2004
@@ -85,7 +86,7 @@ v. 1.0 (CVODE) - Sep. 1994 (date written)
 E. Revision History
 -------------------
 
-v. 2.2.2 (Mar. 2005) ---> 
+v. 2.2.3 (Apr. 2005) ---> 
 ---------------------------------------------------------
 
 - New features
@@ -103,19 +104,33 @@ v. 2.2.2 (Mar. 2005) --->
 - Changes to the FCVODE module
    - added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
 
-- Bug fixes
-   - modified FCMIX files to avoid C++ compiler errors
-   - changed implicit type conversion to explicit in check_flag() routine in
-     examples to avoid C++ compiler errors
 
-- Changes to documentation
-   - added description of --with-mpi-flags option
+v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
+----------------------------------------------
 
-- Changes related to build system
-   - added --with-mpi-flags as a configure option to allow user to specify
-     MPI-specific flags
-   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
-     CC and MPICC to link)
+- New features
+   - added option for user-provided error weight computation function
+
+- Changes to user interface
+   - CVODE now stores tolerances through values rather than references 
+     (to resolve potential scoping issues). 
+   - CVODE now passes information back to the user through values rather
+     than references (error weights, estimated local errors, root info)
+   - CVodeMalloc, CVodeReInit, CVodeSetTolerances: added option itol=CV_WF 
+     to indicate user-supplied function for computing the error weights; 
+     reltol is now declared as realtype. Note that it is now illegal to call
+     CVodeSetTolerances before CVodeMalloc. It is now legal to deallocate
+     the absolute tolerance N_Vector right after its use.
+   - CVodeGetErrorWeights: the user is now responsible for allocating space
+     for the N_Vector in which error weights will be copied.
+   - CVodeGetEstLocalErrors: the user is now responsible for allocating space
+     for the N_Vector in which estimated local errors will be copied.
+   - CVodeGetRootInfo: the user is now responsible for allocating space
+     for the int array in which root information will be copied.
+
+- Changes to the FCVODE module:
+   - Added option for user-supplied error weight computation subroutine
+     (FCVEWT). Use FCVEWTSET to indicate that FCVEWT is provided.
 
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------
@@ -124,17 +139,25 @@ v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
    - fixed bug in CVode function:  Initial setting of tretlast = *tret = tn removed
      (correcting erroneous behavior at first call to CVRcheck3).
    - removed redundant setting of tretlast = *tret = tn at CLOSE_ROOTS return from CVode.
+   - modified FCMIX files to avoid C++ compiler errors
+   - changed implicit type conversion to explicit in check_flag() routine in
+     examples to avoid C++ compiler errors
 
 - Changes to documentation
    - added section with numerical values of all input and output solver constants
    - added more detailed notes on the type of absolute tolerances
    - added more details on ownership of memory for the array returned by CVodeGetRootInfo 
    - corrected/added descriptions of error returns.
+   - added description of --with-mpi-flags option
 
 - Changes related to the build system
    - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
    - modified to use customized detection of the Fortran name mangling scheme 
      (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
+   - added --with-mpi-flags as a configure option to allow user to specify
+     MPI-specific flags
+   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
+     CC and MPICC to link)
 
 v. 2.2.0 (Dec. 2004) ---> v. 2.2.1 (Jan. 2005)
 ----------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2005-01-26 22:23:29 $
+ * $Revision: 1.8 $
+ * $Date: 2005-04-04 22:53:21 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -27,6 +27,11 @@ extern "C" {
 #include "cvode.h"
 #include "nvector.h"
 #include "sundialstypes.h"
+
+/* Prototype of internal ewtSet function */
+
+int CVEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
+
 
 /*
  * =================================================================
@@ -59,13 +64,17 @@ typedef struct CVodeMemRec {
     Problem Specification Data 
     --------------------------*/
 
-  CVRhsFn cv_f;        /* y' = f(t,y(t))              */
-  void *cv_f_data;     /* user pointer passed to f    */
-  int cv_lmm;          /* lmm = ADAMS or BDF          */
-  int cv_iter;         /* iter = FUNCTIONAL or NEWTON */
-  int cv_itol;         /* itol = SS or SV             */
-  realtype *cv_reltol; /* ptr to relative tolerance   */
-  void *cv_abstol;     /* ptr to absolute tolerance   */
+  CVRhsFn cv_f;        /* y' = f(t,y(t))                    */
+  void *cv_f_data;     /* user pointer passed to f          */
+  int cv_lmm;          /* lmm = CV_ADAMS or CV_BDF          */
+  int cv_iter;         /* iter = CV_FUNCTIONAL or CV_NEWTON */
+  int cv_itol;         /* itol = CV_SS or CV_SV             */
+
+  realtype cv_reltol;  /* relative tolerance                */
+  realtype cv_Sabstol; /* scalar absolute tolerance         */
+  N_Vector cv_Vabstol; /* vector absolute tolerance         */
+  CVEwtFn cv_efun;     /* function to set ewt               */
+  void *cv_e_data;     /* user pointer passed to efun       */
 
   /*-----------------------
     Nordsieck History Array 
@@ -76,9 +85,9 @@ typedef struct CVodeMemRec {
                           /* zn[j] = [1/factorial(j)] * h^j * (jth       */ 
                           /* derivative of the interpolating polynomial  */
 
-  /*-------------------
-    Vectors of length N 
-    -------------------*/
+  /*--------------------------
+    other vectors of length N 
+    -------------------------*/
 
   N_Vector cv_ewt;     /* error weight vector                          */
   N_Vector cv_y;       /* y is used as temporary storage by the solver */
@@ -211,6 +220,7 @@ typedef struct CVodeMemRec {
   realtype cv_tolsf;     /* tolerance scale factor         */
   booleantype cv_setupNonNull; /* Does setup do something? */
 
+  booleantype cv_VabstolMallocDone;
   booleantype cv_MallocDone;  
 
   /*----------
@@ -326,15 +336,21 @@ typedef struct CVodeMemRec {
 
 #define _CVSET_TOL_ "CVodeSetTolerances-- "
 
+#define MSGCV_SET_NO_MALLOC _CVSET_TOL_ "Attempt to call before CVodeMalloc.\n\n"
+
 #define MSGCV_SET_BAD_ITOL1 _CVSET_TOL_ "Illegal value for itol.\n"
-#define MSGCV_SET_BAD_ITOL2 "The legal values are CV_SS and CV_SV.\n\n"
+#define MSGCV_SET_BAD_ITOL2 "The legal values are CV_SS, CV_SV, CV_WF.\n\n"
 #define MSGCV_SET_BAD_ITOL  MSGCV_SET_BAD_ITOL1 MSGCV_SET_BAD_ITOL2
 
-#define MSGCV_SET_BAD_RELTOL _CVSET_TOL_ "*reltol < 0 illegal.\n\n"
+#define MSGCV_SET_BAD_RELTOL _CVSET_TOL_ "reltol < 0 illegal.\n\n"
 
 #define MSGCV_SET_ABSTOL_NULL _CVSET_TOL_ "abstol = NULL illegal.\n\n"
 
 #define MSGCV_SET_BAD_ABSTOL _CVSET_TOL_ "abstol has negative component(s) (illegal).\n\n"
+
+#define MSGCV_SET_NO_EFUN1 "CVodeSetEdata-- Attempt to set e_data before specifying efun\n"
+#define MSGCV_SET_NO_EFUN2 "(through CVodeMalloc or CVodeSetTolerances) illegal.\n\n"
+#define MSGCV_SET_NO_EFUN MSGCV_SET_NO_EFUN1 MSGCV_SET_NO_EFUN2
 
 /* CVodeMalloc/CVodeReInit Error Messages */
 
@@ -345,14 +361,12 @@ typedef struct CVodeMemRec {
 #define MSGCV_Y0_NULL _CVM_ "y0 = NULL illegal.\n\n"
 
 #define MSGCV_BAD_ITOL1 _CVM_ "Illegal value for itol.\n"
-#define MSGCV_BAD_ITOL2 "The legal values are CV_SS and CV_SV.\n\n"
+#define MSGCV_BAD_ITOL2 "The legal values are CV_SS, CV_SV, and CV_WF.\n\n"
 #define MSGCV_BAD_ITOL  MSGCV_BAD_ITOL1 MSGCV_BAD_ITOL2
 
 #define MSGCV_F_NULL _CVM_ "f = NULL illegal.\n\n"
 
-#define MSGCV_RELTOL_NULL _CVM_ "reltol = NULL illegal.\n\n"
-
-#define MSGCV_BAD_RELTOL _CVM_ "*reltol < 0 illegal.\n\n"
+#define MSGCV_BAD_RELTOL _CVM_ "reltol < 0 illegal.\n\n"
 
 #define MSGCV_ABSTOL_NULL _CVM_ "abstol = NULL illegal.\n\n"
 

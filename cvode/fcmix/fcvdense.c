@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-03-19 00:10:18 $
+ * $Revision: 1.11 $
+ * $Date: 2005-04-04 22:53:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,7 +63,9 @@ void FCVDenseJac(long int N, DenseMat J, realtype t,
   realtype *ydata, *fydata, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
   realtype h;
 
-  CVodeGetErrWeights(CV_cvodemem, &ewt);
+  ewt = N_VClone(y);
+
+  CVodeGetErrWeights(CV_cvodemem, ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
 
   ydata   = N_VGetArrayPointer(y);
@@ -77,5 +79,8 @@ void FCVDenseJac(long int N, DenseMat J, realtype t,
 
   FCV_DJAC(&N, &t, ydata, fydata, jacdata, 
            ewtdata, &h, v1data, v2data, v3data);
+
+  N_VDestroy(ewt);
+
 }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.41 $
- * $Date: 2005-03-19 00:10:18 $
+ * $Revision: 1.42 $
+ * $Date: 2005-04-04 22:53:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -88,16 +88,23 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 
   lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
   iter = (*itmeth == 1) ? CV_FUNCTIONAL : CV_NEWTON;
-  if (*iatol == 1) {
+  switch (*iatol) {
+  case 1:
     F2C_atolvec = NULL;
     itol = CV_SS; 
-    atolptr = atol; 
-  } else { 
+    atolptr = (void *) atol; 
+    break;
+  case 2:
     F2C_atolvec = N_VClone(F2C_vec);
     data_F2C_atolvec = N_VGetArrayPointer(F2C_atolvec);
     N_VSetArrayPointer(atol, F2C_atolvec);
     itol = CV_SV; 
     atolptr = (void *) F2C_atolvec; 
+    break;
+  case 3:
+    F2C_atolvec = NULL;
+    itol = CV_WF;
+    break;
   }
 
   /* 
@@ -108,8 +115,8 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
      *t0     is the initial time
      F2C_vec is the initial dependent variable vector
      itol    specifies tolerance type
-     rtol    is a pointer to the scalar relative tolerance
-     atolptr is the absolute tolerance pointer (to scalar or vector)
+     rtol    is the scalar relative tolerance
+     atolptr is the absolute tolerance pointer (to scalar or vector or function)
 
      A pointer to CVODE problem memory is createded and stored in CV_cvodemem. 
   */
@@ -141,8 +148,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     CV_optin = FALSE;
   }
 
-  *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, F2C_vec,
-                     itol, rtol, atolptr);
+  *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, F2C_vec, itol, *rtol, atolptr);
 
   if(*ier != CV_SUCCESS) {
     *ier = -1;
@@ -169,10 +175,12 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
 
   N_VSetArrayPointer(y0, F2C_vec);
 
-  if (*iatol == 1) { 
+  switch (*iatol) {
+  case 1:
     itol = CV_SS; 
-    atolptr = atol; 
-  } else { 
+    atolptr = (void *) atol; 
+    break;
+  case 2:
     if (F2C_atolvec == NULL) {
       F2C_atolvec = N_VClone(F2C_vec);
       data_F2C_atolvec = N_VGetArrayPointer(F2C_atolvec);
@@ -180,6 +188,9 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
     N_VSetArrayPointer(atol, F2C_atolvec);
     itol = CV_SV; 
     atolptr = (void *) F2C_atolvec; 
+    break;
+  case 3:
+    itol = CV_WF;
   }
 
   /* 
@@ -188,8 +199,8 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
      t0      is the initial time
      F2C_vec is the initial dependent variable vector
      itol    specifies tolerance type
-     rtol    is a pointer to the scalar relative tolerance
-     atolptr is the absolute tolerance pointer (to scalar or vector)
+     rtol    is the scalar relative tolerance
+     atolptr is the absolute tolerance pointer (to scalar or vector or function)
   */
 
   if (*optin == 1) {
@@ -210,8 +221,7 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
     CV_optin = FALSE;
   }
 
-  *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, F2C_vec,
-                     itol, rtol, atolptr);
+  *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, F2C_vec, itol, *rtol, atolptr);
 
   if (*ier != CV_SUCCESS) {
     *ier = -1;
@@ -460,11 +470,11 @@ void FCV_FREE ()
 /***************************************************************************/
 
 /* 
-   C function CVf to interface between CVODE and a Fortran subroutine CVFUN.
-   Addresses of t, y, and ydot are passed to CVFUN, using the
-   routine N_VGetArrayPointer from the NVECTOR module.
-   Auxiliary data is assumed to be communicated by Common. 
-*/
+ * C function CVf to interface between CVODE and a Fortran subroutine FCVFUN.
+ * Addresses of t, y, and ydot are passed to CVFUN, using the
+ * routine N_VGetArrayPointer from the NVECTOR module.
+ * Auxiliary data is assumed to be communicated by Common. 
+ */
 
 void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-03-19 00:10:19 $
+ * $Revision: 1.15 $
+ * $Date: 2005-04-04 22:53:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -77,8 +77,10 @@ int FCVPSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
   realtype *ydata, *fydata, *ewtdata, *v1data, *v2data, *v3data;
 
   int ier = 0;
+  
+  ewt = N_VClone(y);
 
-  CVodeGetErrWeights(CV_cvodemem, &ewt);
+  CVodeGetErrWeights(CV_cvodemem, ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
 
   ydata   = N_VGetArrayPointer(y);
@@ -90,6 +92,8 @@ int FCVPSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
 
   FCV_PSET(&t, ydata, fydata, &jok, jcurPtr, &gamma, ewtdata,
            &h, v1data, v2data, v3data, &ier);
+
+  N_VDestroy(ewt);
 
   return(ier);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2005-01-24 22:28:44 $
+ * $Revision: 1.28 $
+ * $Date: 2005-04-04 22:53:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -64,10 +64,12 @@ extern "C" {
  *
  * itol:  This parameter specifies the relative and absolute
  *        tolerance types to be used. The CV_SS tolerance type means
- *        a scalar relative and absolute tolerance, while the CV_SV
+ *        a scalar relative and absolute tolerance. The CV_SV
  *        tolerance type means a scalar relative tolerance and a
  *        vector absolute tolerance (a potentially different
- *        absolute tolerance for each vector component).
+ *        absolute tolerance for each vector component). The CV_WF
+ *        tolerance type means that the user provides a function
+ *        (of type CVEwtFn) to set the error weight vector.
  *
  * itask: The itask input parameter to CVode indicates the job
  *        of the solver for the next user step. The CV_NORMAL
@@ -95,6 +97,7 @@ extern "C" {
 /* itol */
 #define CV_SS 1
 #define CV_SV 2
+#define CV_WF 3
 
 /* itask */
 #define CV_NORMAL         1
@@ -150,6 +153,30 @@ typedef void (*CVRhsFn)(realtype t, N_Vector y,
 typedef void (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
                          void *g_data);
 
+/*
+ * -----------------------------------------------------------------
+ * Type : CVEwtFn
+ * -----------------------------------------------------------------
+ * A function e, which sets the error weight vector ewt, must have
+ * type CVEwtFn.
+ * The function e takes as input the current dependent variable y.
+ * It must set the vector of error weights used in the WRMS norm:
+ * 
+ *   ||y||_WRMS = sqrt [ 1/N * sum ( ewt_i * y_i)^2 ]
+ *
+ * Typically, the vector ewt has components:
+ * 
+ *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
+ *
+ * The e_data parameter is the same as that passed by the user
+ * to the CVodeSetEdata routine.  This user-supplied pointer is
+ * passed to the user's e function every time it is called.
+ * A CVEwtFn e must return 0 if the error weight vector has been
+ * successfuly set and a non-zero value otherwise.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
 
 /*
  * =================================================================
@@ -210,6 +237,11 @@ void *CVodeCreate(int lmm, int iter);
  * CVodeSetGdata           | a pointer to user data that will be
  *                         | passed to the user's g function every
  *                         | time g is called.
+ *                         | [NULL]
+ *                         |
+ * CVodeSetEdata           | a pointer to user data that will be
+ *                         | passed to the user's e function every
+ *                         | time e is called.
  *                         | [NULL]
  *                         |
  * CVodeSetMaxOrd          | maximum lmm order to be used by the
@@ -287,6 +319,7 @@ void *CVodeCreate(int lmm, int iter);
 int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 int CVodeSetFdata(void *cvode_mem, void *f_data);
 int CVodeSetGdata(void *cvode_mem, void *g_data);
+int CVodeSetEdata(void *cvode_mem, void *e_data);
 int CVodeSetMaxOrd(void *cvode_mem, int maxord);
 int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
@@ -302,7 +335,7 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
 
 int CVodeSetIterType(void *cvode_mem, int iter);
 int CVodeSetTolerances(void *cvode_mem,
-                       int itol, realtype *reltol, void *abstol);
+                       int itol, realtype reltol, void *abstol);
 
 /*
  * -----------------------------------------------------------------
@@ -326,7 +359,7 @@ int CVodeSetTolerances(void *cvode_mem,
  *            CV_SV (scalar relative tolerance and vector
  *                absolute tolerance).
  *
- * reltol  is a pointer to the relative tolerance scalar.
+ * reltol  is the relative tolerance scalar.
  *
  * abstol  is a pointer to the absolute tolerance scalar or
  *         an N_Vector of absolute tolerances.
@@ -340,12 +373,6 @@ int CVodeSetTolerances(void *cvode_mem,
  *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),
  * where N is the problem dimension.
  *
- * Note: The tolerance values may be changed between calls to
- *       CVode for the same problem.  These values refer to
- *       (*reltol) and either (*abstol), for a scalar absolute
- *       tolerance, or the components of abstol, for a vector
- *       absolute tolerance.
- *
  * Return flag:
  *  CV_SUCCESS if successful
  *  CV_MEM_NULL if the cvode memory was NULL
@@ -355,7 +382,7 @@ int CVodeSetTolerances(void *cvode_mem,
  */
 
 int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
-                int itol, realtype *reltol, void *abstol);
+                int itol, realtype reltol, void *abstol);
 
 /*
  * -----------------------------------------------------------------
@@ -392,7 +419,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
  */
 
 int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
-                int itol, realtype *reltol, void *abstol);
+                int itol, realtype reltol, void *abstol);
 
 /*
  * -----------------------------------------------------------------
@@ -617,10 +644,10 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast);
 int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur);
 int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur);
 int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfac);
-int CVodeGetErrWeights(void *cvode_mem, N_Vector *eweight);
-int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele);
+int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight);
+int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele);
 int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals);
-int CVodeGetRootInfo(void *cvode_mem, int **rootsfound);
+int CVodeGetRootInfo(void *cvode_mem, int *rootsfound);
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-03-19 00:10:19 $
+ * $Revision: 1.16 $
+ * $Date: 2005-04-04 22:53:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -77,7 +77,9 @@ int FCVPSol(realtype t, N_Vector y, N_Vector fy,
 
   int ier = 0;
 
-  CVodeGetErrWeights(CV_cvodemem, &ewt);
+  ewt = N_VClone(y);
+
+  CVodeGetErrWeights(CV_cvodemem, ewt);
 
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
@@ -88,6 +90,8 @@ int FCVPSol(realtype t, N_Vector y, N_Vector fy,
 
   FCV_PSOL(&t, ydata, fydata, vtdata, &gamma, ewtdata, &delta,
            rdata, &lr, zdata, &ier);
+
+  N_VDestroy(ewt);
 
   return(ier);
 }
