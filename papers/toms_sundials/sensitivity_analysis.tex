@@ -31,7 +31,7 @@ and solve an additional system, adjoint to the original one, the
 solution of which can then be used to evaluate the gradient of the
 output functional with respect to any set of model parameters.
 
-For each of the basic solvers described in \S\ref{s:basic_solvers},
+For each of the basic solvers described in Section~\ref{s:basic_solvers},
 extensions that are sensitivity-enabled are already available (CVODES)
 or under development (IDAS). If demand merits it, a sensitivity
 enabled extension to the nonlinear solver, KINSOLS, will also be
@@ -210,7 +210,7 @@ matrix for the Newton update of the extended system (\ref{e:DAE})+(\ref{e:DAEfwd
 is again approximated by its diagonal blocks, each of them identical to the
 matrix $J$ of (\ref{e:DAE_Jacobian}). For the generation of the residuals of the sensitivity
 equations, IDAS provides several difference quotient approximations equivalent 
-to those described in \S\ref{ss:cvodes}.
+to those described in Section~\ref{ss:cvodes}.
 
 The use of adjoint DAE systems for {\em adjoint sensitivity} analysis is also
 similar to the ODE case. As an example, if $\lambda$ satisfies 
@@ -273,7 +273,7 @@ where $ J = \partial F / \partial u$.
 number of linear systems equal to the number of model parameters. 
 The Jacobian-vector product and right-hand side of (\ref{e:NLSfwd}) can be provided 
 by the user or evaluated with directional derivatives. In the latter case
-we approximate $J s_i$ with the formulas presented in \S\ref{ss:kinsol} 
+we approximate $J s_i$ with the formulas presented in Section~\ref{ss:kinsol} 
 and ${\partial F}/{\partial p_i}$ with:
 \begin{equation*}
 \frac{\partial F}{\partial p_i} \approx \frac{F(u,p + \sigma_i e_i)-
