@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-07-22 20:31:29 $
+ * $Revision: 1.4 $
+ * $Date: 2004-08-25 16:14:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -31,21 +31,21 @@ extern "C" {
  * -----------------------------------------------------------------
  * enum : types of preconditioning                                
  * -----------------------------------------------------------------
- * NONE  : The iterative linear solver should not use             
- *         preconditioning.                                       
+ * PREC_NONE  : The iterative linear solver should not use             
+ *              preconditioning.                                       
  *                                                                
- * LEFT  : The iterative linear solver uses preconditioning on    
- *         the left only.                                         
+ * PREC_LEFT  : The iterative linear solver uses preconditioning on    
+ *              the left only.                                         
  *                                                                
- * RIGHT : The iterative linear solver uses preconditioning on    
- *         the right only.                                        
+ * PREC_RIGHT : The iterative linear solver uses preconditioning on    
+ *              the right only.                                        
  *                                                                
- * BOTH  : The iterative linear solver uses preconditioning on    
- *         both the left and the right.                           
+ * PREC_BOTH  : The iterative linear solver uses preconditioning on    
+ *              both the left and the right.                           
  * -----------------------------------------------------------------
  */
 
-enum { NONE, LEFT, RIGHT, BOTH };
+enum { PREC_NONE, PREC_LEFT, PREC_RIGHT, PREC_BOTH };
 
 /*
  * -----------------------------------------------------------------
