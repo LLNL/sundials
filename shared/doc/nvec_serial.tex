@@ -2,7 +2,7 @@
 %% the serial nvector implementation
 %%
 
-The {\nvecs} implementation of the {\nvector} module defines the {\em content} 
+The implementation of the {\nvector} module defines the {\em content} 
 field of \id{N\_Vector} to be a structure containing the length of the vector,
 a pointer to the beginning of a contiguous data array, and a boolean flag
 {\em own\_data} which specifies the ownership of {\em data}.
@@ -181,11 +181,11 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
   loop than it is to use \id{NV\_Ith\_S(v,i)} within the loop.        
 
 \item
-  The constructor functions \id{N\_VNewEmpty\_Serial}, \id{N\_VCloneEmpty\_Serial},
+  The {\nvecs} constructor functions \id{N\_VNewEmpty\_Serial}, \id{N\_VCloneEmpty\_Serial},
   \id{N\_VMake\_Serial}, and \id{N\_VNewVectorArrayEmpty\_Serial}
-  set the field {\em own\_data}$=$\id{FALSE}. 
-  The destructor functions \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
-  will not attempt to free the pointer {\em data} for any \if{N\_Vector} with
+  set the field {\em own\_data} $=$ \id{FALSE}. 
+  The functions \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
+  will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
   {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
   deallocate the {\em data} pointer.
                                      
