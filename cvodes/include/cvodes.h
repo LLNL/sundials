@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2004-11-06 01:02:08 $
+ * $Revision: 1.34 $
+ * $Date: 2004-11-23 21:21:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -518,6 +518,8 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f,
  * In case of an error return, an error message is also printed.
  * -----------------------------------------------------------------
  */
+
+int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn);
 
 /*
  * -----------------------------------------------------------------
