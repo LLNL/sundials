@@ -1,35 +1,44 @@
-/****************************************************************************
- * File         : fkinbbd.c                                                 *
- * Programmers  : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL * 
- * Version of   : 07 February 2004                                          *
- ****************************************************************************
- *                                                                          *
- * This module contains the routines necessary to interface with the        *
- * KINBBDPRE module and user-supplied Fortran routines. Generic names are   *
- * used (e.g. K_COMMFN). The routines here call the generically named       *
- * routines and provide a standard interface to the C code of the           *
- * KINBBDPRE package.                                                       *
- *                                                                          *
- ***************************************************************************/
+/*
+ * ----------------------------------------------------------------
+ * $Revision: 1.13 $
+ * $Date: 2004-05-03 21:24:50 $
+ * ----------------------------------------------------------------
+ * Programmer(s): Allan Taylor, Alan Hindmarsh and
+ *                Radu Serban @ LLNL
+ * ----------------------------------------------------------------
+ * This module contains the routines necessary to interface with
+ * the KINBBDPRE module and user-supplied Fortran routines. Generic
+ * names are used (e.g. FK_COMMFN). The routines here call the
+ * generically named routines and provide a standard interface to
+ * the C code of the KINBBDPRE package.
+ * ----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of type realtype                        */
-#include "nvector.h"       /* definitions of type N_Vector                        */
-#include "kinsol.h"        /* KINSOL constants and prototypes                     */
-#include "fkinsol.h"       /* prototypes of standard interfaces, global variables */
-#include "fkinbbd.h"       /* prototypes of interfaces to KINBBDPRE               */
-#include "kinspgmr.h"      /* prototypes of KINSPGMR interface routines           */
-#include "kinbbdpre.h"     /* prototypes of KINBBDPRE functions, macros           */
+#include "sundialstypes.h"  /* definition of type realtype */
+#include "nvector.h"        /* definition of type N_Vector */
+#include "kinsol.h"         /* KINSOL constants and prototypes */
+#include "fkinsol.h"        /* prototypes of standard interfaces and
+                               global variables */
+#include "fkinbbd.h"        /* prototypes of interfaces to KINBBDPRE */
+#include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines */
+#include "kinbbdpre.h"      /* prototypes of KINBBDPRE functions and macros */
 
-/***************************************************************************/
-
-/* Prototypes of the user-supplied Fortran routines */
+/*
+ * ----------------------------------------------------------------
+ * prototypes of the user-supplied fortran routines
+ * ----------------------------------------------------------------
+ */
 
 void FK_LOCFN(long int*, realtype*, realtype*);
 void FK_COMMFN(long int*, realtype*);
 
-/***************************************************************************/
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_BBDINIT
+ * ----------------------------------------------------------------
+ */
 
 void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier)
 {
@@ -37,7 +46,11 @@ void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier)
   if (KBBD_Data == NULL) { *ier = -1; return; }
 }
 
-/***************************************************************************/
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_BBDSPGMR
+ * ----------------------------------------------------------------
+ */
 
 void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier)
 {
@@ -48,10 +61,14 @@ void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier)
   if (*ier != 0) return;
 }
 
-/***************************************************************************/
-
-/* C function FKINgloc to interface between KINBBDPRE module and a Fortran 
-   subroutine FKLOCFN. */
+/*
+ * ----------------------------------------------------------------
+ * Function : FKINgloc
+ * ----------------------------------------------------------------
+ * C function FKINgloc is the interface between the KINBBDPRE
+ * module and the Fortran subroutine FK_LOCFN.
+ * ----------------------------------------------------------------
+ */
 
 void FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data)
 {
@@ -63,14 +80,16 @@ void FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data)
   FK_LOCFN(&Nloc, uloc, gloc);
 
   N_VSetData(gloc, gval);
-
 }
 
-/***************************************************************************/
-
-/* C function FKINgcomm to interface between KINBBDPRE module and a Fortran 
-   subroutine FKCOMMFN. */
-
+/*
+ * ----------------------------------------------------------------
+ * Function : FKINgcomm
+ * ----------------------------------------------------------------
+ * C function FKINgcomm is the interface between the KINBBDPRE
+ * module and the Fortran subroutine FK_COMMFN.
+ * ----------------------------------------------------------------
+ */
 
 void FKINgcomm(long int Nloc, N_Vector uu, void *f_data)
 {
@@ -79,12 +98,16 @@ void FKINgcomm(long int Nloc, N_Vector uu, void *f_data)
   uloc = N_VGetData(uu);
   
   FK_COMMFN(&Nloc, uloc);
-
 }
 
-/***************************************************************************/
-
-/* C function FKINBBDOPT to access optional outputs from KBBD_Data */
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_BBDOPT
+ * ----------------------------------------------------------------
+ * C function FKIN_BBDOPT is used to access optional outputs stored
+ * in the KBBD_Data data structure.
+ * ----------------------------------------------------------------
+ */
 
 void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 {
@@ -93,11 +116,14 @@ void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
   KINBBDPrecGetNumGfnEvals(KBBD_Data, nge);
 }
 
-
-/***************************************************************************/
-
-/* C function FKINBBDFREE to interface to KINBBDFree, to free memory 
-   created by KINBBDAlloc */
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_BBDFREE
+ * ----------------------------------------------------------------
+ * C function FKIN_BBDFREE is used to interface with KINBBDPrecFree
+ * in order to free memory created by KINBBDPrecAlloc.
+ * ----------------------------------------------------------------
+ */
 
 void FKIN_BBDFREE()
 {
