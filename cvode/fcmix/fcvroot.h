@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-08-25 16:22:25 $
+ * $Revision: 1.5 $
+ * $Date: 2004-09-15 22:05:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -38,7 +38,7 @@
  *
  *                     Usage of the FCVROOT Interface Package
  *
- * In order to use the rootfinding feature of the CVODE package the user must
+ * 1. In order to use the rootfinding feature of the CVODE package the user must
  * define the following subroutine:
  *
  *   SUBROUTINE FCVROOTFN (T, Y, G)
@@ -49,7 +49,7 @@
  *   Y = dependent variable vector y  [input]
  *   G = function values g(t,y)  [output]
  *
- * Also, after calling FCVMALLOC but prior to calling FCVODE, the user must
+ * 2. After calling FCVMALLOC but prior to calling FCVODE, the user must
  * allocate and initialize memory for the FCVROOT module by making the
  * following call:
  *
@@ -60,14 +60,17 @@
  *   IER   = return completion flag (0 = success, -1 = CVODE memory NULL and
  *           -4 = memory allocation error)  [output]
  *
- * The total number of calls made to the root function (FCVROOTFN)
+ * 3. After calling FCVODE, to see whether a root was found, test the FCVODE
+ * return flag IER.  The value IER = 2 means one or more roots were found.
+ *
+ * 4. The total number of calls made to the root function (FCVROOTFN)
  * can be obtained from IOPT[]
  *
  * If the FCVODE/CVODE memory block is reinitialized to solve a different
  * problem via a call to FCVREINIT, then the counter variable NGE is cleared
  * (reset to zero).
  *
- * To free the memory resources allocated by a prior call to FCVROOTINIT make
+ * 5. To free the memory resources allocated by a prior call to FCVROOTINIT make
  * the following call:
  *
  *   CALL FCVROOTFREE
