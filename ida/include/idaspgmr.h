@@ -2,7 +2,7 @@
  *                                                                *
  * File          : idaspgmr.h                                     *
  * Programmers   : Alan C. Hindmarsh and Allan G. Taylor          *
- * Version of    : 30 August 1999                                 *
+ * Version of    : 2 July 2002                                    *
  *----------------------------------------------------------------*
  * This is the header file for the IDA Scaled Preconditioned      *
  * GMRES linear solver module, IDASPGMR.                          *
@@ -20,14 +20,10 @@ extern "C" {
 
 #include <stdio.h>
 #include "ida.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "spgmr.h"
 #include "nvector.h"
 
-/* Return values for IDASpgmr: */
-
-/* SUCCESS = 0 (defined in ida.h) */
-enum {IDA_SPGMR_FAIL = -1, IDA_SPGMR_BAD_ARG = -2};
 
  
 /******************************************************************
@@ -49,10 +45,10 @@ enum {IDA_SPGMR_FAIL = -1, IDA_SPGMR_BAD_ARG = -2};
  *                                                                *
  * iopt[SPGMR_NCFL] : number of linear convergence failures.      *
  *                                                                *
- * iopt[SPGMR_LRW]  : size (in real words) of real workspace      *
+ * iopt[SPGMR_LRW]  : size (in realtype words) of real workspace  *
  *                    matrices and vectors used by this module.   *
  *                                                                *
- * iopt[SPGMR_LIW]  : size (in integer words) of integer          *
+ * iopt[SPGMR_LIW]  : size (in integertype words) of integer      *
  *                    workspace vectors used by this module.      *
  *                                                                *
  ******************************************************************/
@@ -146,10 +142,10 @@ enum { SPGMR_NPE=IDA_IOPT_SIZE, SPGMR_NLI, SPGMR_NPS, SPGMR_NCFL,
  * recover by reducing the stepsize (which changes cj).           *
  ******************************************************************/
   
-typedef int (*IDASpgmrPrecondFn)(integer Neq, real tt, N_Vector yy,
-         N_Vector yp, N_Vector rr, real cj, ResFn res, 
+typedef int (*IDASpgmrPrecondFn)(integertype Neq, realtype tt, N_Vector yy,
+         N_Vector yp, N_Vector rr, realtype cj, ResFn res, 
          void *rdata, void *pdata, N_Vector ewt, N_Vector constraints, 
-         real hh, real uround,  long int *nrePtr, N_Vector tempv1, 
+         realtype hh, realtype uround,  long int *nrePtr, N_Vector tempv1, 
          N_Vector tempv2, N_Vector tempv3);
 
 
@@ -216,9 +212,9 @@ typedef int (*IDASpgmrPrecondFn)(integer Neq, real tt, N_Vector yy,
  * updating the preconditioner and/or reducing the stepsize.      *
  ******************************************************************/
   
-typedef int (*IDASpgmrPSolveFn)(integer Neq, real tt, N_Vector yy,
-             N_Vector yp, N_Vector rr, real cj, ResFn res, void *rdata,
-             void *pdata, N_Vector ewt, real delta, N_Vector rvec,
+typedef int (*IDASpgmrPSolveFn)(integertype Neq, realtype tt, N_Vector yy,
+             N_Vector yp, N_Vector rr, realtype cj, ResFn res, void *rdata,
+             void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
              N_Vector zvec, long int *nrePtr, N_Vector tempv);
 
  
@@ -277,16 +273,47 @@ typedef int (*IDASpgmrPSolveFn)(integer Neq, real tt, N_Vector yy,
  *           pointer is passed to precond and psolve every time   *
  *           these routines are called.                           *
  *                                                                *
- * IDASpgmr returns either                                        *
- *    SUCCESS = 0             if successful, or                   *
- *    IDA_SPGMR_FAIL = -1     if either IDA_mem was null or a     *
- *                            malloc failure occurred, or         *
- *    IDA_SPGMR_BAD_ARG = -2  if gstype was found illegal.        *
+ * The return values of IDASpgmr are:                             *
+ *    SUCCESS       = 0  if successful                            *
+ *    LMEM_FAIL     = -1 if there was a memory allocation failure *
+ *    LIN_ILL_INPUT = -2 if there was illegal input.              *
+ *                                                                *
  ******************************************************************/
 
 int IDASpgmr(void *IDA_mem, IDASpgmrPrecondFn precond, 
              IDASpgmrPSolveFn psolve, int gstype, int maxl, int maxrs,
-             real eplifac, real dqincfac, void *pdata);
+             realtype eplifac, realtype dqincfac, void *pdata);
+
+
+/******************************************************************
+ *                                                                *
+ * Function : IDAReInitSpgmr                                      *
+ *----------------------------------------------------------------*
+ * A call to the IDAReInitSpgmr function resets the link between  *
+ * the main IDA integrator and the IDASPGMR linear solver.        *
+ * After solving one problem using IDASPGMR, call IDAReInit and   *
+ * then IDAReInitSpgmr to solve another problem of the same size, *
+ * if there is a change in the IDASpgmr parameters precond,       *
+ * psolve, gstype, maxrs, eplifac, dqincfac, or pdata, but not in *
+ * maxl.  If there is a change in maxl, then IDASpgmr must be     *
+ * called again, and the linear solver memory will be reallocated.*
+ * If there is no change in parameters, it is not necessary to    *
+ * call either IDAReInitSpgmr or IDASpgmr for the new problem.    *
+ *                                                                *
+ * All arguments to IDAReInitSpgmr have the same names and        * 
+ * meanings as those of IDASpgmr.  The IDA_mem argument must be   *
+ * identical to its value in the previous IDASpgmr call.          *
+ *                                                                *
+ * The return values of IDAReInitSpgmr are:                       *
+ *    SUCCESS       = 0  if successful                            *
+ *    LMEM_FAIL     = -1 if the IDA_mem argument is NULL          *
+ *    LIN_ILL_INPUT = -2 if there was illegal input.              *
+ *                                                                *
+ ******************************************************************/
+
+int IDAReInitSpgmr(void *IDA_mem, IDASpgmrPrecondFn precond, 
+             IDASpgmrPSolveFn psolve, int gstype, int maxl, int maxrs,
+             realtype eplifac, realtype dqincfac, void *pdata);
 
 
 #endif

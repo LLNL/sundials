@@ -3,7 +3,7 @@
  * File          : idaband.c                                      *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 6 March 2002                                   *
+ * Version of    : 3 July 2002                                    *
  *----------------------------------------------------------------*
  * This is the implementation file for the IDA banded linear      *
  * solver module, IDABAND. This module uses standard banded       *
@@ -21,14 +21,18 @@
 #include "idaband.h"
 #include "ida.h"
 #include "band.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 
 
 /* Error Messages */
 
-#define MSG_BAD_SIZES_1  "IDABand-- Illegal bandwidth parameter(s) "
+#define IDABAND  "IDABand/IDAReInitBand-- "
+
+#define MSG_IDAMEM_NULL  IDABAND "IDA memory is NULL.\n\n"
+
+#define MSG_BAD_SIZES_1  IDABAND "Illegal bandwidth parameter(s) "
 #define MSG_BAD_SIZES_2  "mlower = %ld, mupper = %ld.\n"
 #define MSG_BAD_SIZES_3  "Must have 0 <=  mlower, mupper <= N-1 =%ld.\n\n"
 #define MSG_BAD_SIZES    MSG_BAD_SIZES_1 MSG_BAD_SIZES_2 MSG_BAD_SIZES_3
@@ -60,14 +64,14 @@ typedef struct {
 
    BandMat b_J;          /* J = dF/dy + cj*dF/dy', banded approximation. */
   
-   integer b_mupper;     /* mupper = upper bandwidth of Jacobian matrix. */
+   integertype b_mupper;     /* mupper = upper bandwidth of Jacobian matrix. */
 
-   integer b_mlower;     /* mlower = lower bandwidth of Jacobian matrix. */
+   integertype b_mlower;     /* mlower = lower bandwidth of Jacobian matrix. */
 
-   integer b_storage_mu; /* storage_mu = upper bandwidth with storage for
+   integertype b_storage_mu; /* storage_mu = upper bandwidth with storage for
                             factoring = min(Neq-1, mupper+mlower).       */
 
-   integer *b_pivots;    /* pivots = pivot array for PJ = LU        */
+   integertype *b_pivots;    /* pivots = pivot array for PJ = LU        */
 
    long int b_nje;       /* nje = no. of calls to jac               */
  
@@ -78,7 +82,7 @@ typedef struct {
 
 /* IDABAND linit, lsetup, lsolve, and lfree routines */
  
-static int  IDABandInit(IDAMem ida_mem, boole *setupNonNull);
+static int  IDABandInit(IDAMem ida_mem);
 
 static int  IDABandSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
                           N_Vector resp, N_Vector tempv1,
@@ -89,10 +93,10 @@ static int  IDABandSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
 
 static int IDABandFree(IDAMem ida_mem);
 
-static int IDABandDQJac(integer Neq, integer mupper, integer mlower, real tt, 
-                        N_Vector yy, N_Vector yp, real cj, N_Vector constraints, 
+static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower, realtype tt, 
+                        N_Vector yy, N_Vector yp, realtype cj, N_Vector constraints, 
                         ResFn res, void *rdata,  void *jdata, N_Vector resvec, 
-                        N_Vector ewt, real hh, real uround, BandMat JJ, 
+                        N_Vector ewt, realtype hh, realtype uround, BandMat JJ, 
                         long int *nrePtr,  N_Vector tempv1, N_Vector tempv2,
                         N_Vector tempv3);
 
@@ -109,21 +113,21 @@ static int IDABandDQJac(integer Neq, integer mupper, integer mlower, real tt,
  by the res routine, if any.
 **********************************************************************/
 
-int IDABandDQJac(integer Neq, integer mupper, integer mlower, real tt, 
-                  N_Vector yy, N_Vector yp, real cj,  N_Vector constraints, 
-                  ResFn res, void *rdata, void *jdata, N_Vector resvec, 
-                  N_Vector ewt, real hh, real uround, BandMat JJ, 
-                  long int *nrePtr, N_Vector tempv1, N_Vector tempv2, 
-                  N_Vector tempv3)
+static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower, realtype tt, 
+                        N_Vector yy, N_Vector yp, realtype cj,  N_Vector constraints, 
+                        ResFn res, void *rdata, void *jdata, N_Vector resvec, 
+                        N_Vector ewt, realtype hh, realtype uround, BandMat JJ, 
+                        long int *nrePtr, N_Vector tempv1, N_Vector tempv2, 
+                        N_Vector tempv3)
  
 {
-  real inc, inc_inv, yj, ypj, srur, conj, ewtj;
-  real *y_data, *yp_data, *ewt_data, *cns_data = NULL;
-  real *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
+  realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
+  realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
+  realtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
   int group, ngroups;
   
   N_Vector rtemp, ytemp, yptemp;
-  integer i, j, i1, i2, width;
+  integertype i, j, i1, i2, width;
   int retval = SUCCESS;
 
   rtemp = tempv1; /* Rename work vector for use as the perturbed residual. */
@@ -254,6 +258,7 @@ int IDABandDQJac(integer Neq, integer mupper, integer mlower, real tt,
 #define lfree       (ida_mem->ida_lfree)
 #define lmem        (ida_mem->ida_lmem)
 #define machenv     (ida_mem->ida_machenv)
+#define setupNonNull  (ida_mem->ida_setupNonNull)
 
 #define jac         (idaband_mem->b_jac)
 #define JJ          (idaband_mem->b_J)
@@ -266,21 +271,20 @@ int IDABandDQJac(integer Neq, integer mupper, integer mlower, real tt,
 /*************** IDABand *********************************************
 
  This routine initializes the memory record and sets various function
- fields specific to the IDABAND linear solver module.  IDABand sets
- the ida_linit, ida_lsetup, ida_lsolve, ida_lperf, and ida_lfree fields
- in (*IDA_mem) to be IDABandInit, IDABandSetup, IDABandSolve, NULL,
- and IDABandFree, respectively.
+ fields specific to the IDABAND linear solver module.
+ IDABand first calls the existing lfree routine if this is not NULL.
+ Then it sets the ida_linit, ida_lsetup, ida_lsolve, ida_lperf, and
+ ida_lfree fields in (*IDA_mem) to be IDABandInit, IDABandSetup,
+ IDABandSolve, NULL, and IDABandFree, respectively.
  It allocates memory for a structure of type IDABandMemRec and sets
  the ida_lmem field in (*IDA_mem) to the address of this structure.
- It sets b_jdata field in the IDABandMemRec structure to be
- the input parameter jdata and the b_jac field to be:
+ It sets setupNonNull in (*IDA_mem) to TRUE, sets the b_jdata field in
+ the IDABandMemRec structure to be the input parameter jdata, and sets
+ the b_jac field to be:
    (1) the input parameter bjac, if bjac != NULL, or
    (2) IDABandDQJac, if bjac == NULL.
- Finally, it initializes IDABAND-specific optional outputs.
-
- IDABand returns SUCCESS = 0 if successful, or 
-    IDA_BAND_FAIL    if IDA_mem = NULL or malloc failed, or
-    IDA_BAND_BAD_ARG if mupper or mlower is illegal.
+ Finally, it allocates memory for JJ and pivots.
+ IDABand returns SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
 
  NOTE: The band linear solver assumes a serial implementation
        of the NVECTOR package. Therefore, IDABand will first 
@@ -291,15 +295,19 @@ int IDABandDQJac(integer Neq, integer mupper, integer mlower, real tt,
 
 **********************************************************************/
 
-int IDABand(void *IDA_mem, integer mupper, integer mlower,
+int IDABand(void *IDA_mem, integertype mupper, integertype mlower,
             IDABandJacFn bjac, void *jdata)
 {
   IDAMem ida_mem;
   IDABandMem idaband_mem;
+  int flag;
 
   /* Return immediately if IDA_mem is NULL. */
   ida_mem = (IDAMem) IDA_mem;
-  if (ida_mem == NULL) return(IDA_BAND_FAIL);
+  if (ida_mem == NULL) {
+    fprintf(errfp, MSG_MEM_FAIL);
+    return(LMEM_FAIL);
+  }
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if ((strcmp(machenv->tag,"serial")) || 
@@ -308,8 +316,10 @@ int IDABand(void *IDA_mem, integer mupper, integer mlower,
       machenv->ops->nvgetdata == NULL || 
       machenv->ops->nvsetdata == NULL) {
     fprintf(errfp, MSG_WRONG_NVEC);
-    return(IDA_BAND_FAIL);
+    return(LIN_ILL_INPUT);
   }
+
+  if (lfree != NULL) flag = lfree(ida_mem);
 
   /* Set five main function fields in ida_mem. */
   linit  = IDABandInit;
@@ -320,34 +330,107 @@ int IDABand(void *IDA_mem, integer mupper, integer mlower,
 
   /* Get memory for IDABandMemRec. */
   lmem = idaband_mem = (IDABandMem) malloc(sizeof(IDABandMemRec));
-  if (idaband_mem == NULL) return(IDA_BAND_FAIL);
+  if (idaband_mem == NULL) {
+    fprintf(errfp, MSG_MEM_FAIL);
+    return(LMEM_FAIL);
+  }
 
   /* Set Jacobian routine field to user's bjac or IDABandDQJac. */
   if (bjac == NULL) jac = IDABandDQJac;
   else jac = bjac;
+  setupNonNull = TRUE;
+  jacdata = jdata;
 
   /* Test mlower and mupper for legality and load in memory. */
   if ((mlower < 0) || (mupper < 0) || (mlower >= Neq) || (mupper >= Neq)) {
     fprintf(errfp, MSG_BAD_SIZES, mlower, mupper, Neq-1);
-    return(IDA_BAND_BAD_ARG);
+    return(LIN_ILL_INPUT);
   }
   idaband_mem->b_mlower = mlower;
   idaband_mem->b_mupper = mupper;
+    
+  /* Set extended upper half-bandwidth for JJ (required for pivoting). */
+  storage_mu = MIN(Neq-1, mupper + mlower);
+
+  /* Allocate memory for JJ and pivot array. */
+  JJ = BandAllocMat(Neq, mupper, mlower, storage_mu);
+  if (JJ == NULL) {
+    fprintf(errfp, MSG_MEM_FAIL);
+    return(LMEM_FAIL);
+  }
+  pivots = BandAllocPiv(Neq);
+  if (pivots == NULL) {
+    fprintf(errfp, MSG_MEM_FAIL);
+    BandFreeMat(JJ);
+    return(LMEM_FAIL);
+  }  
+
+  return(SUCCESS);
+}
+
+
+/*************** IDAReInitBand****************************************
+
+ This routine resets the link between the main IDA module and the
+ band linear solver module IDABAND.  No memory freeing or allocation
+ operations are done, as the existing linear solver memory is assumed
+ sufficient.  All other initializations are the same as in IDABand.
+ The return value is SUCCESS=0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
+
+**********************************************************************/
+
+int IDAReInitBand(void *IDA_mem, integertype mupper, integertype mlower,
+                  IDABandJacFn bjac, void *jdata)
+{
+  IDAMem ida_mem;
+  IDABandMem idaband_mem;
+
+  /* Return immediately if IDA_mem is NULL. */
+  ida_mem = (IDAMem) IDA_mem;
+  if (ida_mem == NULL) {
+    fprintf(errfp, MSG_MEM_FAIL);
+    return(LMEM_FAIL);
+   }
+
+  /* Test if the NVECTOR package is compatible with the BAND solver */
+  if ((strcmp(machenv->tag,"serial")) || 
+      machenv->ops->nvmake    == NULL || 
+      machenv->ops->nvdispose == NULL ||
+      machenv->ops->nvgetdata == NULL || 
+      machenv->ops->nvsetdata == NULL) {
+    fprintf(errfp, MSG_WRONG_NVEC);
+    return(LIN_ILL_INPUT);
+  }
+
+  /* Set five main function fields in ida_mem. */
+  linit  = IDABandInit;
+  lsetup = IDABandSetup;
+  lsolve = IDABandSolve;
+  lperf  = NULL;
+  lfree  = IDABandFree;
+
+  idaband_mem = lmem;  /* Use existing linear solver memory pointer. */
+
+  /* Set Jacobian routine field to user's bjac or IDABandDQJac. */
+  if (bjac == NULL) jac = IDABandDQJac;
+  else jac = bjac;
+  setupNonNull = TRUE;
   jacdata = jdata;
+
+  /* Test mlower and mupper for legality and load in memory. */
+  if ((mlower < 0) || (mupper < 0) || (mlower >= Neq) || (mupper >= Neq)) {
+    fprintf(errfp, MSG_BAD_SIZES, mlower, mupper, Neq-1);
+    return(LIN_ILL_INPUT);
+  }
+  idaband_mem->b_mlower = mlower;
+  idaband_mem->b_mupper = mupper;
      
   /* Set extended upper half-bandwidth for JJ (required for pivoting). */
   storage_mu = MIN(Neq-1, mupper + mlower);
 
-  /* Initialize nje and set workspace lengths. */
-  nje = 0;
-  if (iopt != NULL) {
-   iopt[BAND_NJE] = nje;
-   iopt[BAND_LRW] = Neq*(storage_mu + mlower + 1);
-   iopt[BAND_LIW] = Neq;
-  }
-
   return(SUCCESS);
 }
+
 
 /* More convenience definitions */
 #define mlower      (idaband_mem->b_mlower)
@@ -356,45 +439,27 @@ int IDABand(void *IDA_mem, integer mupper, integer mlower,
 
 /*************** IDABandInit *****************************************
 
- This routine initializes remaining memory specific to the IDABAND
- linear solver module.  If any memory request fails, memory previously
- allocated is freed, and an error message printed, before returning.
- The return value is either LINIT_OK (success) or LINIT_ERR (failure).
+ This routine does remaining initializations specific to the IDABAND
+ linear solver module.  It returns LINIT_OK = 0.
 
-**********************************************************************/
+***********************************************************************/
 
-static int IDABandInit(IDAMem ida_mem, boole *setupNonNull)
+static int IDABandInit(IDAMem ida_mem)
 {
   IDABandMem idaband_mem;
-  
+
   idaband_mem = (IDABandMem) lmem;
 
-  /* Print error message and return if idaband_mem is NULL. */
-  if (idaband_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
-    return(LINIT_ERR);
+  /* Initialize nje and set workspace lengths. */
+  nje = 0;
+  if (iopt != NULL) {
+    iopt[BAND_NJE] = nje;
+    iopt[BAND_LRW] = Neq*(storage_mu + mlower + 1);
+    iopt[BAND_LIW] = Neq;
   }
-
-  /* Set flag setupNonNull = TRUE. */
-  *setupNonNull = TRUE;
-
-  /* Allocate memory for JJ and pivot array. */
   
-  JJ = BandAllocMat(Neq, mupper, mlower, storage_mu);
-  if (JJ == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
-    return(LINIT_ERR);
-  }
-  pivots = BandAllocPiv(Neq);
-  if (pivots == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
-    BandFreeMat(JJ);
-    return(LINIT_ERR);
-  }
-
-   return(LINIT_OK);
+  return(LINIT_OK);
 }
-
 
 
 /*************** IDABandSetup ****************************************
@@ -414,7 +479,7 @@ static int IDABandSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector tempv3)
 {
   int retval;
-  integer retfac;
+  integertype retfac;
   IDABandMem idaband_mem;
   
   idaband_mem = (IDABandMem) lmem;
@@ -452,7 +517,7 @@ static int IDABandSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
                          N_Vector ypcur, N_Vector rescur)
 {
   IDABandMem idaband_mem;
-  real *bd;
+  realtype *bd;
 
   idaband_mem = (IDABandMem) lmem;
   

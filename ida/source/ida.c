@@ -2,7 +2,7 @@
  * File          : ida.c                                          *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 5 MArch 2002                                   *
+ * Version of    : 3 July 2002                                    *
  *----------------------------------------------------------------*
  * This is the implementation file for the main IDA solver.       *
  * It is independent of the linear solver in use.                 *
@@ -17,9 +17,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ida.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 
 /************************************************************/
 /******************** END Imports ***************************/
@@ -195,7 +195,7 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 /* IDAMalloc error messages */
 
-#define IDAM               "IDAMalloc-- "
+#define IDAM               "IDAMalloc/IDAReInit-- "
 
 #define MSG_Y0_NULL        IDAM "y0=NULL illegal.\n\n"
 #define MSG_YP0_NULL       IDAM "yp0=NULL illegal.\n\n"
@@ -234,6 +234,12 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_BAD_EWT        IDAM "Some initial ewt component = 0.0 illegal.\n\n"
 
 #define MSG_Y0_FAIL_CONSTR IDAM "y0 fails to satisfy constraints.\n\n"
+
+#define MSG_REI_NO_MEM  "IDAReInit-- ida_mem = NULL illegal.\n\n"
+
+#define MSG_REI_MAXORD1 "IDAReInit-- Illegal attempt to increase "
+#define MSG_REI_MAXORD2 "maximum method order from %d to %d.\n\n"
+#define MSG_REI_MAXORD  MSG_REI_MAXORD1 MSG_REI_MAXORD2 
 
 
 /* IDACalcIC error messages */
@@ -394,40 +400,40 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
 
-static boole IDAAllocVectors(IDAMem IDA_mem, integer Neq,  M_Env machEnv);
+static booleantype IDAAllocVectors(IDAMem IDA_mem, integertype Neq,  M_Env machEnv);
 static void IDAFreeVectors(IDAMem IDA_mem);
 
 static int IDAnlsIC (IDAMem IDA_mem);
 static int IDANewtonIC (IDAMem IDA_mem);
-static int IDALineSrch (IDAMem IDA_mem, real *delnorm, real *fnorm);
-static int IDAfnorm (IDAMem IDA_mem, real *fnorm);
-static int IDANewyyp (IDAMem IDA_mem, real lambda);
+static int IDALineSrch (IDAMem IDA_mem, realtype *delnorm, realtype *fnorm);
+static int IDAfnorm (IDAMem IDA_mem, realtype *fnorm);
+static int IDANewyyp (IDAMem IDA_mem, realtype lambda);
 static int IDANewy (IDAMem IDA_mem);
 static int IDAICFailFlag (IDAMem IDA_mem, int retval);
 
-static boole IDAEwtSet(IDAMem IDA_mem, N_Vector ycur);
-static boole IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur);
-static boole IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur);
-static boole IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur);
+static booleantype IDAEwtSet(IDAMem IDA_mem, N_Vector ycur);
+static booleantype IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur);
+static booleantype IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur);
+static booleantype IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur);
 
-static int IDAStopTest1(IDAMem IDA_mem, real tout, real tstop, real *tret, 
+static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype tstop, realtype *tret, 
                         N_Vector yret, N_Vector ypret, int itask);
-static int IDAStopTest2(IDAMem IDA_mem, real tout, real tstop, real *tret, 
+static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype tstop, realtype *tret, 
                         N_Vector yret, N_Vector ypret, int itask);
-static int IDAInterp(IDAMem IDA_mem, real t, N_Vector yret, N_Vector ypret);
+static int IDAInterp(IDAMem IDA_mem, realtype t, N_Vector yret, N_Vector ypret);
 static int IDAHandleFailure(IDAMem IDA_mem, int sflag);
 
 static int IDAStep(IDAMem IDA_mem);
-static void IDASetCoeffs(IDAMem IDA_mem, real *ck);
+static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck);
 static int IDAnls(IDAMem IDA_mem);
 static int IDAPredict(IDAMem IDA_mem);
 static int IDANewtonIter(IDAMem IDA_mem);
-static int IDATestError(IDAMem IDA_mem, real *ck, real *est,
-                        real *terk, real *terkm1, real *erkm1);
-static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, real saved_t,
-                          int *ncfPtr, int *nefPtr, real *est);
-static int IDACompleteStep(IDAMem IDA_mem, real *est, 
-                           real *terk, real *terkm1, real *erkm1);
+static int IDATestError(IDAMem IDA_mem, realtype *ck, realtype *est,
+                        realtype *terk, realtype *terkm1, realtype *erkm1);
+static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
+                          int *ncfPtr, int *nefPtr, realtype *est);
+static int IDACompleteStep(IDAMem IDA_mem, realtype *est, 
+                           realtype *terk, realtype *terkm1, realtype *erkm1);
 
 
 /**************************************************************/
@@ -523,13 +529,13 @@ static int IDACompleteStep(IDAMem IDA_mem, real *est,
  
 *****************************************************************/
 
-void *IDAMalloc(integer Neq, ResFn res, void *rdata, real t0,
-      N_Vector y0, N_Vector yp0, int itol, real *rtol, void *atol, 
-      N_Vector id, N_Vector constraints, FILE *errfp, boole optIn, 
-      long int iopt[], real ropt[], M_Env machEnv)
+void *IDAMalloc(integertype Neq, ResFn res, void *rdata, realtype t0,
+      N_Vector y0, N_Vector yp0, int itol, realtype *rtol, void *atol, 
+      N_Vector id, N_Vector constraints, FILE *errfp, booleantype optIn, 
+      long int iopt[], realtype ropt[], M_Env machEnv)
 {
-  boole allocOK, ioptExists, roptExists, neg_atol, ewtsetOK, conOK;
-  real temptest;
+  booleantype allocOK, ioptExists, roptExists, neg_atol, ewtsetOK, conOK;
+  realtype temptest;
   IDAMem IDA_mem;
   N_Vector mskewt;
   FILE *fp;
@@ -557,7 +563,7 @@ void *IDAMalloc(integer Neq, ResFn res, void *rdata, real t0,
    
   if (atol == NULL) { fprintf(fp, MSG_ATOL_NULL); return(NULL); }
 
-  if (itol == SS) { neg_atol = (*((real *)atol) < ZERO); }
+  if (itol == SS) { neg_atol = (*((realtype *)atol) < ZERO); }
   else { neg_atol = (N_VMin((N_Vector)atol) < ZERO); }
   if (neg_atol) { fprintf(fp, MSG_BAD_ATOL); return(NULL); }
 
@@ -652,7 +658,7 @@ void *IDAMalloc(integer Neq, ResFn res, void *rdata, real t0,
   }
 
   /* Copy the input parameters into IDA memory block
-     (Readability constants are defined below IDAMalloc) */
+     (Corresponding readability constants are defined below) */
 
   IDA_mem->ida_Neq = Neq;
   IDA_mem->ida_res = res;
@@ -736,17 +742,230 @@ void *IDAMalloc(integer Neq, ResFn res, void *rdata, real t0,
   return((void *)IDA_mem);
 }
 
+/******************** IDAReInit ********************************
+
+ IDAReInit re-initializes IDA's memory for a problem, assuming
+ it has already beeen allocated in a prior IDAMalloc call.
+ All problem specification inputs are checked for errors.
+ The problem size Neq is assumed to be unchaged since the call
+ to IDAMalloc, and the maximum order maxord must not be larger.
+ If any error occurs during reinitialization, it is reported to
+ the file whose file pointer is errfp.
+ The return value is SUCCESS = 0 if no errors occurred, or
+ a negative value otherwise.
+ 
+*****************************************************************/
+
+int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
+      N_Vector y0, N_Vector yp0, int itol, realtype *rtol, void *atol, 
+      N_Vector id, N_Vector constraints, FILE *errfp, booleantype optIn, 
+      long int iopt[], realtype ropt[], void *machEnv)
+{
+  booleantype ioptExists, roptExists, neg_atol, ewtsetOK, conOK;
+  realtype temptest;
+  IDAMem IDA_mem;
+  N_Vector mskewt;
+  FILE *fp;
+  int oldmaxord;
+
+  /* Check for legal input parameters */
+  
+  fp = (errfp == NULL) ? stdout : errfp;
+
+  if (ida_mem == NULL) {
+    fprintf(fp, MSG_REI_NO_MEM);
+    return(IDAREI_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (y0 == NULL) { fprintf(fp, MSG_Y0_NULL); return(IDAREI_ILL_INPUT); }
+  
+  if (yp0 == NULL) { fprintf(fp, MSG_YP0_NULL); return(IDAREI_ILL_INPUT); }
+
+  if ((itol != SS) && (itol != SV)) {
+    fprintf(fp, MSG_BAD_ITOL, itol, SS, SV);
+    return(IDAREI_ILL_INPUT);
+  }
+
+  if (res == NULL) { fprintf(fp, MSG_RES_NULL); return(IDAREI_ILL_INPUT); }
+
+  if (rtol == NULL) { fprintf(fp, MSG_RTOL_NULL); return(IDAREI_ILL_INPUT); }
+
+  if (*rtol < ZERO) { fprintf(fp, MSG_BAD_RTOL, *rtol); return(IDAREI_ILL_INPUT); }
+   
+  if (atol == NULL) { fprintf(fp, MSG_ATOL_NULL); return(IDAREI_ILL_INPUT); }
+
+  if (itol == SS) { neg_atol = (*((realtype *)atol) < ZERO); }
+  else { neg_atol = (N_VMin((N_Vector)atol) < ZERO); }
+  if (neg_atol) { fprintf(fp, MSG_BAD_ATOL); return(IDAREI_ILL_INPUT); }
+
+  if ((optIn != FALSE) && (optIn != TRUE)) {
+    fprintf(fp, MSG_BAD_OPTIN, optIn, FALSE, TRUE);
+    return(IDAREI_ILL_INPUT);
+  }
+
+  if ((optIn) && (iopt == NULL) && (ropt == NULL)) {
+    fprintf(fp, MSG_BAD_OPT);
+    return(IDAREI_ILL_INPUT);
+  } 
+
+  ioptExists = (iopt != NULL);
+  roptExists = (ropt != NULL);
+
+  if(optIn && roptExists) {
+    if (ropt[HMAX] < ZERO) {
+      fprintf(fp, MSG_BAD_HMAX, ropt[HMAX]);
+      return(IDAREI_ILL_INPUT);
+    }
+    if(ropt[NCONFAC] < ZERO) { fprintf(fp, MSG_BAD_NCONFAC); return(IDAREI_ILL_INPUT); }
+  }
+
+  /* Set maxord and suppressalg, and check new vs old maxord */
+
+  oldmaxord = maxord;
+  maxord = MAXORD_DEFAULT;
+  suppressalg = FALSE;
+  if (optIn && ioptExists) {
+    if(iopt[SUPPRESSALG] == ONE) suppressalg = TRUE;
+    if (iopt[MAXORD] > 0) maxord = MIN(maxord, iopt[MAXORD]);
+  }
+  if (maxord > oldmaxord) {
+    fprintf(fp, MSG_REI_MAXORD, oldmaxord, maxord);
+    return(IDAREI_ILL_INPUT);
+  }
+ 
+  /* Test id vector for legality */
+
+  if(suppressalg && (id==NULL)){ fprintf(fp, MSG_MISSING_ID); return(IDAREI_ILL_INPUT); }
+  if(suppressalg) {
+    temptest = N_VMin(id);
+    if(temptest < ZERO){ fprintf(fp, MSG_BAD_ID); return(IDAREI_ILL_INPUT); }
+  }
+
+  /* Set the mskewt vector, set relevant memory pointers, and load ewt */
+
+  if (suppressalg) mskewt = id;
+  else mskewt = ewt;
+
+  IDA_mem->ida_itol = itol;
+  IDA_mem->ida_rtol = rtol;      
+  IDA_mem->ida_atol = atol;  
+  IDA_mem->ida_mskewt = mskewt;
+  IDA_mem->ida_id  = id;
+
+  ewtsetOK = IDAEwtSet(IDA_mem, y0);
+  if (!ewtsetOK) {
+    fprintf(fp, MSG_BAD_EWT);
+    return(IDAREI_ILL_INPUT);
+  }
+
+  /*  Check the constraints pointer and vector */
+  
+  if (constraints == NULL) constraintsSet = FALSE;
+  else {
+    constraintsSet = TRUE;
+    temptest = N_VMaxNorm(constraints);
+    if(temptest > TWOPT5){ fprintf(fp, MSG_BAD_CONSTRAINTS); return(IDAREI_ILL_INPUT); }
+
+    else if(temptest < HALF) constraintsSet = FALSE; /* constraints empty */
+  }
+
+  /* Check to see if y0 satisfies constraints. */
+
+  if (constraintsSet) {
+    conOK = N_VConstrMask (constraints, y0, tempv2);
+    if (!conOK) { fprintf(fp, MSG_Y0_FAIL_CONSTR); return(IDAREI_ILL_INPUT); }
+  }
+
+  /* Copy the input parameters into IDA memory block
+     (Corresponding readability constants are defined below.) */
+
+  IDA_mem->ida_res = res;
+  IDA_mem->ida_constraints = constraints;
+  IDA_mem->ida_rdata = rdata;
+  IDA_mem->ida_iopt = iopt;
+  IDA_mem->ida_ropt = ropt;
+  IDA_mem->ida_errfp = fp;
+  IDA_mem->ida_y0  = y0;
+  IDA_mem->ida_yp0 = yp0;
+
+  tn = t0;
+  machenv = machEnv;
+
+  /* Set unit roundoff uround */
+
+  uround = UnitRoundoff();
+
+
+  /* Set linitOK to FALSE */
+
+  linitOK = FALSE;
+
+  /* Initialize the phi array */
+
+  N_VScale(ONE, y0, phi[0]);  
+  N_VScale(ONE, yp0, phi[1]);  
+ 
+  /* Handle the remaining optional inputs */
+
+  hmax_inv = ZERO;
+  nconfac  = ONE;
+  if (optIn && roptExists) {
+    if (ropt[HMAX] > ZERO) hmax_inv = ONE/ropt[HMAX];
+    if (ropt[NCONFAC] > ZERO) nconfac = ropt[NCONFAC];
+  }
+
+  mxstep = MXSTEP_DEFAULT;
+  if (optIn && ioptExists) if (iopt[MXSTEP] > 0) mxstep = iopt[MXSTEP];
+
+  if ((!optIn) && roptExists) ropt[HINIT] = ZERO;
+
+  /* All error checking is complete at this point */
+
+    
+  /* Initialize all the counters and other optional output values */
+ 
+  nst = nre = ncfn = netf = nni = nsetups  = 0;
+  
+  kused = 0;
+  hused = ZERO;
+  tolsf = ONE;
+
+
+  /* Initialize optional output locations in iopt, ropt */
+
+  if (ioptExists) {
+    iopt[NST] = iopt[NRE] = iopt[NSETUPS] = iopt[NNI] = 0;
+    iopt[NCFN] = iopt[NETF] = iopt[NBACKTR] = 0;
+    iopt[KUSED] = 0;
+    iopt[KNEXT] = 0;
+    iopt[LENRW] = lrw;
+    iopt[LENIW] = liw;
+  }
+  
+  if (roptExists) {
+    ropt[HUSED] = ZERO;
+    ropt[HNEXT] = ZERO;
+    ropt[TNOW]  = t0;
+    ropt[TOLSF] = ONE;
+  }
+      
+  /* Problem has been successfully re-initialized */
+
+  return(SUCCESS);
+}
+
 
 /**************************************************************/
 /************** BEGIN More Readability Constants **************/
 /**************************************************************/
-#define y0       (IDA_mem->ida_y0)   
-#define yp0      (IDA_mem->ida_yp0)   
-#define res      (IDA_mem->ida_res)   
-#define rdata    (IDA_mem->ida_rdata)        
-#define itol     (IDA_mem->ida_itol)         
-#define rtol     (IDA_mem->ida_rtol)       
-#define atol     (IDA_mem->ida_atol)     
+#define y0       (IDA_mem->ida_y0)
+#define yp0      (IDA_mem->ida_yp0)
+#define res      (IDA_mem->ida_res)
+#define rdata    (IDA_mem->ida_rdata)
+#define itol     (IDA_mem->ida_itol)
+#define rtol     (IDA_mem->ida_rtol)
+#define atol     (IDA_mem->ida_atol)
 #define iopt     (IDA_mem->ida_iopt)
 #define ropt     (IDA_mem->ida_ropt)
 #define errfp    (IDA_mem->ida_errfp)
@@ -786,12 +1005,12 @@ void *IDAMalloc(integer Neq, ResFn res, void *rdata, real t0,
  
 *****************************************************************/
 
-int IDACalcIC (void *ida_mem, int icopt, real tout1, real epicfac, 
-               int maxnh, int maxnj, int maxnit, int lsoff, real steptol)
+int IDACalcIC (void *ida_mem, int icopt, realtype tout1, realtype epicfac, 
+               int maxnh, int maxnj, int maxnit, int lsoff, realtype steptol)
 {
-  boole ewtsetOK;
-  int nwt, nh, retval = SUCCESS, maxnh1 = MAXNH, mxnh, icret;
-  real tdist, troundoff, minid, hic, ypnorm;
+  booleantype ewtsetOK;
+  int nwt, nh, retval, maxnh1, mxnh, icret;
+  realtype tdist, troundoff, minid, hic, ypnorm;
   IDAMem IDA_mem;
 
   /* Check legality of input arguments, and set IDA memory copies. */
@@ -880,7 +1099,7 @@ int IDACalcIC (void *ida_mem, int icopt, real tout1, real epicfac,
 
   cjratio = ONE;
   nbacktr = 0;
-  linitOK = (linit(IDA_mem, &(setupNonNull)) == LINIT_OK);
+  linitOK = (linit(IDA_mem) == LINIT_OK);
   if (!linitOK) {
     fprintf(errfp, MSG_IC_LINIT_FAIL);
     return(IC_LINIT_FAIL);
@@ -995,12 +1214,12 @@ int IDACalcIC (void *ida_mem, int icopt, real tout1, real epicfac,
 
 ********************************************************************/
 
-int IDASolve(void *ida_mem, real tout, real tstop, real *tret,
+int IDASolve(void *ida_mem, realtype tout, realtype tstop, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
   int nstloc, sflag, istate, ier;
-  real tdist, troundoff, ypnorm, rh;
-  boole ewtsetOK;
+  realtype tdist, troundoff, ypnorm, rh;
+  booleantype ewtsetOK;
   IDAMem IDA_mem;
 
   /* Check for legal inputs in all cases. */
@@ -1055,7 +1274,7 @@ int IDASolve(void *ida_mem, real tout, real tstop, real *tret,
     }
     /* Call linit if not already successfully called by IDACalcIC */
     if (!linitOK) {
-      linitOK = (linit(IDA_mem, &(setupNonNull)) == LINIT_OK);
+      linitOK = (linit(IDA_mem) == LINIT_OK);
       if (!linitOK) {
         fprintf(errfp, MSG_LINIT_FAIL);
         return(ILL_INPUT);
@@ -1142,16 +1361,16 @@ int IDASolve(void *ida_mem, real tout, real tstop, real *tret,
     if (nst > 0) {
       ewtsetOK = IDAEwtSet(IDA_mem, phi[0]);
       if (!ewtsetOK) {
-	fprintf(errfp, MSG_EWT_NOW_BAD, tn);
-	istate = ILL_INPUT;
+        fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+        istate = ILL_INPUT;
         ier = IDAInterp(IDA_mem, tn, yret, ypret);
         *tret = tretp = tn;
-	break;
+        break;
       }
     }
-
+    
     /* Check for too much accuracy requested. */
-
+    
     if ((tolsf = uround * N_VWrmsNorm(phi[0], ewt)) > ONE) {
       tolsf *= TEN;
       fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
@@ -1203,7 +1422,7 @@ int IDASolve(void *ida_mem, real tout, real tstop, real *tret,
     ropt[TOLSF] = tolsf;
   }
   
-  return(istate);	
+  return(istate);    
 }
 
 
@@ -1226,7 +1445,7 @@ void IDAFree(void *ida_mem)
   if (IDA_mem == NULL) return;
 
   IDAFreeVectors(IDA_mem);
-  if (linitOK) lfree(IDA_mem);
+  lfree(IDA_mem);
   free(IDA_mem);
 }
 
@@ -1254,7 +1473,7 @@ void IDAFree(void *ida_mem)
 
 **********************************************************************/
 
-static boole IDAAllocVectors(IDAMem IDA_mem, integer Neq, M_Env machEnv)
+static booleantype IDAAllocVectors(IDAMem IDA_mem, integertype Neq, M_Env machEnv)
 {
   int i, j, maxcol;
 
@@ -1452,7 +1671,7 @@ static int IDAnlsIC (IDAMem IDA_mem)
 static int IDANewtonIC (IDAMem IDA_mem)
 {
   int retval, mnewt;
-  real delnorm, fnorm, fnorm0, oldfnrm, rate;
+  realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
 
   /* Set pointer for vector delnew */
   delnew = phi[2];
@@ -1521,11 +1740,11 @@ static int IDANewtonIC (IDAMem IDA_mem)
  
 *****************************************************************/
 
-static int IDALineSrch (IDAMem IDA_mem, real *delnorm, real *fnorm)
+static int IDALineSrch (IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 {
-  boole conOK;
+  booleantype conOK;
   int retval;
-  real f1norm, fnormp, f1normp, ratio, lambda, minlam, slpi;
+  realtype f1norm, fnormp, f1normp, ratio, lambda, minlam, slpi;
   N_Vector mc;
 
   /* Initialize work space pointers, f1norm, ratio.
@@ -1607,7 +1826,7 @@ static int IDALineSrch (IDAMem IDA_mem, real *delnorm, real *fnorm)
  
 *****************************************************************/
 
-static int IDAfnorm (IDAMem IDA_mem, real *fnorm)
+static int IDAfnorm (IDAMem IDA_mem, realtype *fnorm)
 {
 
   int retval;
@@ -1643,7 +1862,7 @@ static int IDAfnorm (IDAMem IDA_mem, real *fnorm)
  
 *****************************************************************/
 
-static int IDANewyyp (IDAMem IDA_mem, real lambda)
+static int IDANewyyp (IDAMem IDA_mem, realtype lambda)
 {
   
   /* CALC_YA_YDP_INIT case: ynew = y0  - lambda*delta    where id_i = 0
@@ -1760,9 +1979,9 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval)
  
 ***********************************************************************/
 
-static boole IDAEwtSet(IDAMem IDA_mem, N_Vector ycur)
+static booleantype IDAEwtSet(IDAMem IDA_mem, N_Vector ycur)
 {
-  boole ewtsetOK = TRUE;
+  booleantype ewtsetOK;
 
   switch(itol) {
   case SS: 
@@ -1803,9 +2022,9 @@ static boole IDAEwtSet(IDAMem IDA_mem, N_Vector ycur)
  
 ***********************************************************************/
 
-static boole IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur)
+static booleantype IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur)
 {
-  boole ewtsetOK = TRUE;
+  booleantype ewtsetOK;
 
   switch(itol) {
   case SS: 
@@ -1829,12 +2048,12 @@ static boole IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur)
 
 ********************************************************************/
 
-static boole IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur)
+static booleantype IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur)
 {
-  real rtoli, *atoli;
+  realtype rtoli, *atoli;
   
   rtoli = *rtol;
-  atoli = (real *)atol;
+  atoli = (realtype *)atol;
   N_VAbs(ycur, tempv1);
   N_VScale(rtoli, tempv1, tempv1);
   N_VAddConst(tempv1, *atoli, tempv1);
@@ -1853,9 +2072,9 @@ static boole IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur)
 
 ********************************************************************/
 
-static boole IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur)
+static booleantype IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur)
 {
-  real rtoli;
+  realtype rtoli;
   N_Vector atoli;
   
   rtoli = *rtol;
@@ -1887,97 +2106,97 @@ static boole IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur)
 
 ********************************************************************/
 
-static int IDAStopTest1(IDAMem IDA_mem, real tout, real tstop, real *tret, 
+static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype tstop, realtype *tret, 
              N_Vector yret, N_Vector ypret, int itask)
 {
 
   int ier;
-  real troundoff;
+  realtype troundoff;
 
   switch (itask) {
-
-    case NORMAL:  
-      /* Test for tout = tretp, and for tn past tout. */
-      if (tout == tretp) {
-        *tret = tretp = tout;
-        return(NORMAL_RETURN);
+    
+  case NORMAL:  
+    /* Test for tout = tretp, and for tn past tout. */
+    if (tout == tretp) {
+      *tret = tretp = tout;
+      return(NORMAL_RETURN);
+    }
+    if ( (tn - tout)*hh >= ZERO) {
+      ier = IDAInterp(IDA_mem, tout, yret, ypret);
+      if (ier != OKAY) {
+        fprintf(errfp,MSG_BAD_TOUT, tout);
+        return(ILL_INPUT);
       }
-      if ( (tn - tout)*hh >= ZERO) {
-        ier = IDAInterp(IDA_mem, tout, yret, ypret);
-        if (ier != OKAY) {
-	    fprintf(errfp,MSG_BAD_TOUT, tout);
-	    return(ILL_INPUT);
-	  }
-        *tret = tretp = tout;
-        return(NORMAL_RETURN);
+      *tret = tretp = tout;
+      return(NORMAL_RETURN);
+    }
+    return(CONTINUE_STEPS);
+    
+  case ONE_STEP:
+    /* Test for tn past tretp. */
+    if ( (tn - tretp)*hh > ZERO) {
+      ier = IDAInterp(IDA_mem, tn, yret, ypret);
+      *tret = tretp = tn;
+      return(INTERMEDIATE_RETURN);
+    }
+    return(CONTINUE_STEPS);
+    
+  case NORMAL_TSTOP:
+    /* Test for tn past tstop, tn = tretp, tn past tout, tn near tstop. */
+    if ( (tn - tstop)*hh > ZERO) {
+      fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+      return(ILL_INPUT);
+    }
+    if (tout == tretp) {
+      *tret = tretp = tout;
+      return(NORMAL_RETURN);
+    }
+    if ( (tn - tout)*hh >= ZERO) {
+      ier = IDAInterp(IDA_mem, tout, yret, ypret);
+      if (ier != OKAY) {
+        fprintf(errfp, MSG_BAD_TOUT, tout);
+        return(ILL_INPUT);
       }
-      return(CONTINUE_STEPS);
-
-    case ONE_STEP:
-      /* Test for tn past tretp. */
-      if ( (tn - tretp)*hh > ZERO) {
-        ier = IDAInterp(IDA_mem, tn, yret, ypret);
-        *tret = tretp = tn;
-        return(INTERMEDIATE_RETURN);
-      }
-      return(CONTINUE_STEPS);
-
-    case NORMAL_TSTOP:
-      /* Test for tn past tstop, tn = tretp, tn past tout, tn near tstop. */
-      if ( (tn - tstop)*hh > ZERO) {
+      *tret = tretp = tout;
+      return(NORMAL_RETURN);
+    }
+    troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
+    if ( ABS(tn - tstop) <= troundoff) {
+      ier = IDAInterp(IDA_mem, tstop, yret, ypret);
+      if (ier != OKAY) {
         fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
         return(ILL_INPUT);
       }
-      if (tout == tretp) {
-        *tret = tretp = tout;
-        return(NORMAL_RETURN);
-      }
-      if ( (tn - tout)*hh >= ZERO) {
-        ier = IDAInterp(IDA_mem, tout, yret, ypret);
-        if (ier != OKAY) {
-	    fprintf(errfp, MSG_BAD_TOUT, tout);
-	    return(ILL_INPUT);
-	}
-        *tret = tretp = tout;
-        return(NORMAL_RETURN);
-      }
-      troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
-      if ( ABS(tn - tstop) <= troundoff) {
-        ier = IDAInterp(IDA_mem, tstop, yret, ypret);
-        if (ier != OKAY) {
-	    fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
-	    return(ILL_INPUT);
-	}
-        *tret = tretp = tstop;
-        return(TSTOP_RETURN);
-      }
-      if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
-      return(CONTINUE_STEPS);
-
-    case ONE_STEP_TSTOP:
-      /* Test for tn past tstop, tn past tretp, and tn near tstop. */
-      if ( (tn - tstop)*hh > ZERO) {
+      *tret = tretp = tstop;
+      return(TSTOP_RETURN);
+    }
+    if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
+    return(CONTINUE_STEPS);
+    
+  case ONE_STEP_TSTOP:
+    /* Test for tn past tstop, tn past tretp, and tn near tstop. */
+    if ( (tn - tstop)*hh > ZERO) {
+      fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+      return(ILL_INPUT);
+    }
+    if ( (tn - tretp)*hh > ZERO) {
+      ier = IDAInterp(IDA_mem, tn, yret, ypret);
+      *tret = tretp = tn;
+      return(INTERMEDIATE_RETURN);
+    }
+    troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
+    if ( ABS(tn - tstop) <= troundoff) {
+      ier = IDAInterp(IDA_mem, tstop, yret, ypret);
+      if (ier != OKAY) {
         fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
         return(ILL_INPUT);
       }
-      if ( (tn - tretp)*hh > ZERO) {
-        ier = IDAInterp(IDA_mem, tn, yret, ypret);
-        *tret = tretp = tn;
-        return(INTERMEDIATE_RETURN);
-      }
-      troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
-      if ( ABS(tn - tstop) <= troundoff) {
-        ier = IDAInterp(IDA_mem, tstop, yret, ypret);
-        if (ier != OKAY) {
-	    fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
-	    return(ILL_INPUT);
-	 }
-        *tret = tretp = tstop;
-        return(TSTOP_RETURN);
-      }
-      if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
-      return(CONTINUE_STEPS);
-
+      *tret = tretp = tstop;
+      return(TSTOP_RETURN);
+    }
+    if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
+    return(CONTINUE_STEPS);
+    
   }
   return -99;
 }
@@ -2004,12 +2223,12 @@ static int IDAStopTest1(IDAMem IDA_mem, real tout, real tstop, real *tret,
 
 ********************************************************************/
 
-static int IDAStopTest2(IDAMem IDA_mem, real tout, real tstop, real *tret, 
+static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype tstop, realtype *tret, 
              N_Vector yret, N_Vector ypret, int itask)
 {
 
   int ier;
-  real troundoff;
+  realtype troundoff;
 
   switch (itask) {
 
@@ -2076,9 +2295,9 @@ static int IDAStopTest2(IDAMem IDA_mem, real tout, real tstop, real *tret,
 
 **********************************************************************/
 
-static int IDAInterp(IDAMem IDA_mem, real t, N_Vector yret, N_Vector ypret)
+static int IDAInterp(IDAMem IDA_mem, realtype t, N_Vector yret, N_Vector ypret)
 {
-  real tfuzz, tp, delt, c, d, gam;
+  realtype tfuzz, tp, delt, c, d, gam;
   int j, kord;
   
   /* Check t for legality.  Here tn - hused is t_{n-1}. */
@@ -2203,8 +2422,8 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
 
 static int IDAStep(IDAMem IDA_mem)
 {
-  real saved_t, ck, est;
-  real terk, terkm1, erkm1;
+  realtype saved_t, ck, est;
+  realtype terk, terkm1, erkm1;
   int ncf, nef, nflag, kflag;
   
   saved_t = tn;
@@ -2258,10 +2477,10 @@ static int IDAStep(IDAMem IDA_mem)
 
 ***********************************************************************/
 
-static void IDASetCoeffs(IDAMem IDA_mem, real *ck)
+static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
 {
   int i;
-  real temp1, temp2, alpha0, alphas;
+  realtype temp1, temp2, alpha0, alphas;
 
   /* Set coefficients for the current stepsize h */
 
@@ -2334,8 +2553,8 @@ static void IDASetCoeffs(IDAMem IDA_mem, real *ck)
 static int IDAnls(IDAMem IDA_mem)
 {
   int retval, ier;
-  boole constraintsPassed, callSetup, tryAgain;
-  real temp1, temp2, vnorm;
+  booleantype constraintsPassed, callSetup, tryAgain;
+  realtype temp1, temp2, vnorm;
   N_Vector tempv3;
 
   callSetup = FALSE;
@@ -2415,30 +2634,30 @@ static int IDAnls(IDAMem IDA_mem)
     if(constraintsPassed) return(SUCCESS);
     else {
       N_VCompare(ONEPT5, constraints, tempv1);  
-        /* a , where a[i] =1. when |c[i]| = 2 ,  c the vector of constraints */
+      /* a , where a[i] =1. when |c[i]| = 2 ,  c the vector of constraints */
       N_VProd(tempv1, constraints, tempv1);       /* a * c */
       N_VDiv(tempv1, ewt, tempv1);                /* a * c * wt */
       N_VLinearSum(ONE, yy, -PT1, tempv1, tempv1);/* y - 0.1 * a * c * wt */
       N_VProd(tempv1, mm, tempv1);               /*  v = mm*(y-.1*a*c*wt) */
       vnorm = N_VWrmsNorm(tempv1, ewt);          /*  ||v|| */
-
+      
       /* If vector v of constraint corrections is small
-	     in norm, correct and accept this step */      
+         in norm, correct and accept this step */      
       if(vnorm <= epsNewt){  
-	N_VLinearSum(ONE, yy, -ONE, tempv1, yy);  /* y <- y - v */
-	return(SUCCESS);
+        N_VLinearSum(ONE, yy, -ONE, tempv1, yy);  /* y <- y - v */
+        return(SUCCESS);
       }
       else {
-       /* Constraints not met -- reduce h by computing rr = h'/h */
-	N_VLinearSum(ONE, phi[0], -ONE, yy, tempv1);
-	N_VProd(mm, tempv1, tempv1);
-	rr = PT9*N_VMinQuotient(phi[0], tempv1);
+        /* Constraints not met -- reduce h by computing rr = h'/h */
+        N_VLinearSum(ONE, phi[0], -ONE, yy, tempv1);
+        N_VProd(mm, tempv1, tempv1);
+        rr = PT9*N_VMinQuotient(phi[0], tempv1);
         rr = MAX(rr,PT1);
-	return(CONSTRAINT_FAIL_RECVR);
+        return(CONSTRAINT_FAIL_RECVR);
       }
     }
   }
-      return(SUCCESS);
+  return(SUCCESS);
 }
 
 
@@ -2486,7 +2705,7 @@ static int IDAPredict(IDAMem IDA_mem)
 static int IDANewtonIter(IDAMem IDA_mem)
 {
   int mnewt, retval;
-  real delnrm, oldnrm, rate;
+  realtype delnrm, oldnrm, rate;
 
   /* Initialize counter mnewt and cumulative correction vector ee. */
   mnewt = 0;
@@ -2551,13 +2770,13 @@ static int IDANewtonIter(IDAMem IDA_mem)
 
 ******************************************************************/
 
-static int IDATestError(IDAMem IDA_mem, real *ck, real *est,
-                         real *terk, real *terkm1, real *erkm1)
+static int IDATestError(IDAMem IDA_mem, realtype *ck, realtype *est,
+                         realtype *terk, realtype *terkm1, realtype *erkm1)
 {
   int retval;
-  real enorm;
-  real terkm2;
-  real erk, erkm2;
+  realtype enorm;
+  realtype terkm2;
+  realtype erk, erkm2;
 
   /* Compute error for order k. */
   enorm = N_VWrmsNorm(ee, mskewt);
@@ -2567,33 +2786,33 @@ static int IDATestError(IDAMem IDA_mem, real *ck, real *est,
   knew = kk;
 
   /* Now compute the errors for orders k-1 and k-2, and decide whether to 
-    reduce the order k to k-1 */
-
-    if(kk > 1){
-      N_VLinearSum(ONE, phi[kk], ONE, ee, delta);
-      *erkm1 = sigma[kk-1] * N_VWrmsNorm(delta, mskewt);
-      *terkm1 = kk * *erkm1;
-      {
+     reduce the order k to k-1 */
+  
+  if(kk > 1){
+    N_VLinearSum(ONE, phi[kk], ONE, ee, delta);
+    *erkm1 = sigma[kk-1] * N_VWrmsNorm(delta, mskewt);
+    *terkm1 = kk * *erkm1;
+    {
       if(kk > 2){
-	N_VLinearSum(ONE, phi[kk-1], ONE, delta, delta);
-	erkm2 = sigma[kk-2] * N_VWrmsNorm(delta, mskewt);
-	terkm2 = (kk-1) * erkm2;
-	if(MAX(*terkm1, terkm2) > *terk) goto evaltest;
-        }
+        N_VLinearSum(ONE, phi[kk-1], ONE, delta, delta);
+        erkm2 = sigma[kk-2] * N_VWrmsNorm(delta, mskewt);
+        terkm2 = (kk-1) * erkm2;
+        if(MAX(*terkm1, terkm2) > *terk) goto evaltest;
+      }
       
       else if(*terkm1 > 0.5 * (*terk)) goto evaltest; /* executed for kk=2 only */
-      }
-                  /* end of "kk>2" if/else block */
-
-      knew = kk-1;
-      *est = *erkm1;
-
-    } /* end kk>1 if block */ 
+    }
+    /* end of "kk>2" if/else block */
+    
+    knew = kk-1;
+    *est = *erkm1;
+    
+  } /* end kk>1 if block */ 
   
-
-  evaltest:
+  
+ evaltest:
   retval = SUCCESS;
-
+  
   if ((*ck * enorm) > ONE) retval = ERROR_TEST_FAIL;
   return(retval);
 }
@@ -2616,47 +2835,47 @@ REP_ERR_FAIL     REP_CONV_FAIL      LSETUP_ERROR_NONRECVR   [from IDAnls]
      
 **********************************************************************/
 
-static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, real saved_t,
-			int *ncfPtr, int *nefPtr, real *est)
+static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
+                          int *ncfPtr, int *nefPtr, realtype *est)
 {
   int j, retval;
   int *ncf, *nef;
-
+  
   ncf = ncfPtr; nef = nefPtr;
   phase = 1;
-
+  
   tn = saved_t; /* restore tn */
-
+  
   /* restore phi and psi */
-
+  
   for (j = ns; j<=kk; j++) N_VScale(ONE/beta[j], phi[j], phi[j]);
-
+  
   for (j = 1; j <= kk; j++) psi[j-1] = psi[j] - hh;
-
+  
   loop{  /* begin 'breakout' loop */
-
+    
     if (nflag < 0) {    /*  nonrecoverable failure cases */
       retval = nflag; ncfn++;
       break;
     }
-
+    
     /* Only positive nflag values (apparently recoverable) will appear here*/
-
+    
     else if (nflag != ERROR_TEST_FAIL) {   /*  misc. recoverable cases  */
       (*ncf)++; ncfn++;
       if (nflag != CONSTRAINT_FAIL_RECVR) rr = QUARTER;
       hh *= rr;
       if (*ncf < MXNCF){
-	retval = PREDICT_AGAIN;
-	break;
+        retval = PREDICT_AGAIN;
+        break;
       }
       else if (nflag == RES_ERROR_RECVR) {
-	retval= REP_RES_ERR;
-	break;
+        retval= REP_RES_ERR;
+        break;
       }
       else if (nflag == CONSTRAINT_FAIL_RECVR) {
-	retval = CONSTR_FAIL;
-	break;
+        retval = CONSTR_FAIL;
+        break;
       }
       else {
         retval = REP_CONV_FAIL;
@@ -2665,38 +2884,38 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, real saved_t,
     }
     else {    /* error test failed case */
       (*nef)++; netf++;
-
+      
       if (*nef == 1){
-	/* On first error test failure, keep current order or lower order 
-         by one. Compute new stepsize based on differences of the solution. */
-	kk = knew;
-
+        /* On first error test failure, keep current order or lower order 
+           by one. Compute new stepsize based on differences of the solution. */
+        kk = knew;
+        
         rr = PT9 * RPowerR( TWO*(*est) + PT0001,(-ONE/(kk+1)) );
         rr = MAX(QUARTER, MIN(PT9,rr));
         hh *=rr;  /* adjust step size */
-
+        
         retval = PREDICT_AGAIN;
-	break;
+        break;
       }
       else if (*nef == 2){
-	/* On second error test failure, use current order or decrease order 
+        /* On second error test failure, use current order or decrease order 
            by one. Reduce stepsize by factor of 1/4. */
         kk = knew;
         rr = QUARTER;
         hh *= rr;
-  
+        
         retval = PREDICT_AGAIN;
         break;
       }
       else if (*nef > 2){
-	/* On third and subsequent error test failures, set order to 1 and
-	   reduce stepsize h by factor of 1/4. */
-	if (*nef<MXETF){
+        /* On third and subsequent error test failures, set order to 1 and
+           reduce stepsize h by factor of 1/4. */
+        if (*nef<MXETF){
           kk = 1;
           rr = QUARTER;
           hh *= rr;
-	  retval = PREDICT_AGAIN;
-	  break;
+          retval = PREDICT_AGAIN;
+          break;
         }
         else {
           retval = REP_ERR_FAIL;
@@ -2704,17 +2923,17 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, real saved_t,
         }
       }
     } /* end of nflag  if block */
-  
+    
   } /* end of 'breakout loop' */
-
+  
   if (retval < 0) return(retval);
-
+  
   if (retval == PREDICT_AGAIN) {
     if (nst == 0){
       psi[0] = hh;
       N_VScale(rr, phi[1], phi[1]);
     }
-   return(PREDICT_AGAIN);
+    return(PREDICT_AGAIN);
   }
   return -99;  
 }
@@ -2729,11 +2948,11 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, real saved_t,
 
 ***********************************************************************/
 
-static int IDACompleteStep(IDAMem IDA_mem, real *est, 
-                           real *terk, real *terkm1, real *erkm1)
+static int IDACompleteStep(IDAMem IDA_mem, realtype *est, 
+                           realtype *terk, realtype *terkm1, realtype *erkm1)
 {
   int j, kdiff, action;
-  real terkp1, erkp1, temp, hnew;
+  realtype terkp1, erkp1, temp, hnew;
 
   nst++;
   kdiff = kk - kused;
@@ -2752,51 +2971,51 @@ static int IDACompleteStep(IDAMem IDA_mem, real *est,
     hnew = TWO * hh;
     hh = hnew;
   }
-
+  
   else {
-      action = UNSET;
-
-      /* Set action = LOWER/MAINTAIN/RAISE to specify order decision */
-
-      if (knew == kk-1)   {action = LOWER; goto takeaction;}
-      if (kk == maxord)   {action = MAINTAIN; goto takeaction;}
-      if ( (kk+1 >= ns ) || (kdiff == 1)) {action = MAINTAIN;goto takeaction;}
-
-      /* Estimate the error at order k+1, unless already decided to
-      reduce order, or already using maximum order, or stepsize has not
-      been constant, or order was just raised. */
-
-      N_VLinearSum (ONE, ee, -ONE, phi[kk+1], delta);
-      terkp1 = N_VWrmsNorm(delta, mskewt);
-      erkp1= terkp1/(kk+2);
-
-      /* Choose among orders k-1, k, k+1 using local truncation error norms. */
-
-      if (kk == 1) {
-        if (terkp1 >= HALF * (*terk)) {action = MAINTAIN; goto takeaction;}
-        else                          {action = RAISE;    goto takeaction;}
-      }
-      else {
-        if (*terkm1 <= MIN(*terk, terkp1)) {action = LOWER;    goto takeaction;}
-        if (terkp1  >= *terk)             {action = MAINTAIN; goto takeaction;}
-        action = RAISE;
-        goto takeaction;
-      }
-
-    takeaction:
-
+    action = UNSET;
+    
+    /* Set action = LOWER/MAINTAIN/RAISE to specify order decision */
+    
+    if (knew == kk-1)   {action = LOWER; goto takeaction;}
+    if (kk == maxord)   {action = MAINTAIN; goto takeaction;}
+    if ( (kk+1 >= ns ) || (kdiff == 1)) {action = MAINTAIN;goto takeaction;}
+    
+    /* Estimate the error at order k+1, unless already decided to
+       reduce order, or already using maximum order, or stepsize has not
+       been constant, or order was just raised. */
+    
+    N_VLinearSum (ONE, ee, -ONE, phi[kk+1], delta);
+    terkp1 = N_VWrmsNorm(delta, mskewt);
+    erkp1= terkp1/(kk+2);
+    
+    /* Choose among orders k-1, k, k+1 using local truncation error norms. */
+    
+    if (kk == 1) {
+      if (terkp1 >= HALF * (*terk)) {action = MAINTAIN; goto takeaction;}
+      else                          {action = RAISE;    goto takeaction;}
+    }
+    else {
+      if (*terkm1 <= MIN(*terk, terkp1)) {action = LOWER;    goto takeaction;}
+      if (terkp1  >= *terk)             {action = MAINTAIN; goto takeaction;}
+      action = RAISE;
+      goto takeaction;
+    }
+    
+  takeaction:
+    
     /* On change of order, reset kk and the estimated error norm. */
-
+    
     if (action == RAISE) { kk++; *est = erkp1;}
     else if (action == LOWER) { kk--; *est = *erkm1;}
-
+    
     /* Compute rr = tentative ratio hnew/hh from error norm.
-    Reduce hh if rr <= 1, double hh if rr >= 2, else leave hh as is.
-    If hh is reduced, hnew/hh is restricted to be between .5 and .9. */
-
+       Reduce hh if rr <= 1, double hh if rr >= 2, else leave hh as is.
+       If hh is reduced, hnew/hh is restricted to be between .5 and .9. */
+    
     hnew = hh;
     rr = RPowerR( (TWO * (*est) + PT0001) , (-ONE/(kk+1) ) );
-
+    
     if (rr >= TWO) {
       hnew = TWO * hh;
       if( (temp = ABS(hnew)*hmax_inv) > ONE ) hnew /= temp;
@@ -2805,24 +3024,24 @@ static int IDACompleteStep(IDAMem IDA_mem, real *est,
       rr = MAX(HALF, MIN(PT9,rr));
       hnew = hh * rr;
     }
-
+    
     hh = hnew;
-
+    
   } /* end of phase if block */
-
+  
   /* Save ee for possible order increase on next step; update phi array. */
-
+  
   if (kused < maxord) N_VScale(ONE, ee, phi[kused+1]);
-
+  
   N_VLinearSum(ONE, ee, ONE, phi[kused], phi[kused]);
   for (j= kused-1; j>=0; j--)
-       N_VLinearSum(ONE, phi[j], ONE, phi[j+1], phi[j]);
-
+    N_VLinearSum(ONE, phi[j], ONE, phi[j+1], phi[j]);
+  
   return (SUCCESS);
 }
 
 
-/******************** ***********************************************/
+/********************************************************************/
 /********* END Private Helper Functions Implementation **************/
 /********************************************************************/
 

@@ -2,7 +2,7 @@
  * File          : idabbdpre.h                                    *
  * Programmers   : Allan G. Taylor, Alan C Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 6 March 2002                                   *
+ * Version of    : 2 July 2002                                    *
  *----------------------------------------------------------------*
  * This is the header file for the IDABBDPRE module, for a        *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -101,7 +101,7 @@ extern "C" {
 #define _ibbdpre_h
 
 #include "ida.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
 
@@ -131,7 +131,7 @@ extern "C" {
  * way as for the residual function: 0 (success), +1 or -1 (fail).*
  ******************************************************************/
 
-typedef int (*IDALocalFn)(real tt, N_Vector yy, 
+typedef int (*IDALocalFn)(realtype tt, N_Vector yy, 
                           N_Vector yp, N_Vector gval, void *res_data);
  
 
@@ -168,8 +168,8 @@ typedef struct {
 
   /* passed by user to IBBDAlloc, used by Precond/Psolve functions: */
   void *res_data;
-  integer mudq, mldq, mukeep, mlkeep;
-  real rel_yy;
+  integertype mudq, mldq, mukeep, mlkeep;
+  realtype rel_yy;
   IDALocalFn glocal;
   IDACommFn gcomm;
 
@@ -178,15 +178,15 @@ typedef struct {
 
   /* set by IBBDPrecon and used by IBBDPSol: */
   BandMat PP;
-  integer *pivots;
+  integertype *pivots;
 
   /* set by IBBDAlloc and used by IBBDPrecond */
-  integer n_local;
+  integertype n_local;
 
   /* available for optional output: */
-  integer rpwsize;
-  integer ipwsize;
-  integer nge;
+  integertype rpwsize;
+  integertype ipwsize;
+  integertype nge;
 
 } *IBBDData;
 
@@ -194,11 +194,11 @@ typedef struct {
 /*************** Macros for optional outputs **********************
  *                                                                *
  * IBBD_RPWSIZE(pdata) returns the size of the real work space,   *
- * in real words, used by this preconditioner module.             *
+ * in realtype words, used by this preconditioner module.         *
  * This size is local to the current processor.                   *
  *                                                                *
  * IBBD_IPWSIZE(pdata) returns the size of the integer work space,*
- * in integer words, used by this preconditioner module.          *
+ * in integertype words, used by this preconditioner module.      *
  * This size is local to the current processor.                   *
  *                                                                *
  * IBBD_NGE(pdata) returns the number of G(t,y,y') evaluations,   *
@@ -252,8 +252,32 @@ typedef struct {
  * or NULL if the request for storage cannot be satisfied.        *
  ******************************************************************/
 
-IBBDData IBBDAlloc(integer Nlocal, integer mudq, integer mldq, 
-                   integer mukeep, integer mlkeep, real dq_rel_yy, 
+IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq, 
+                   integertype mukeep, integertype mlkeep, realtype dq_rel_yy, 
+                   IDALocalFn glocal, IDACommFn gcomm, 
+                   void *idamem, void *res_data);
+
+/******************************************************************
+ * Function : IDAReInitBBD                                        *
+ *----------------------------------------------------------------*
+ * IDAReInitBBD re-initializes the IDABBDPRE module when solving a*
+ * sequence of problems of the same size with IDASPGMR/IDABBDPRE, *
+ * provided there is no change in Nlocal, mukeep, or mlkeep.      *
+ * After solving one problem, and after calling IDAReInit to      *
+ * re-initialize IDA for a subsequent problem, call IDAReInitBBD. *
+ * Then call IDAReInitSpgmr or IDASpgmr, if necessary, to         *
+ * re-initialize the Spgmr linear solver, depending on changes    *
+ * made in its input parameters, before calling IDASolve.         *
+ *                                                                *
+ * The first argument to IDAReInitBBD must be the pointer p_data  *
+ * that was returned by IBBDAlloc.  All other arguments have      *
+ * the same names and meanings as those of IBBDAlloc.             *
+ *                                                                *
+ * The return value of IDAReInitBBD is 0, indicating success.     *
+ ******************************************************************/
+
+int IDAReInitBBD(IBBDData p_data, integertype Nlocal, integertype mudq, integertype mldq, 
+                   integertype mukeep, integertype mlkeep, realtype dq_rel_yy, 
                    IDALocalFn glocal, IDACommFn gcomm, 
                    void *idamem, void *res_data);
 
@@ -269,15 +293,15 @@ void IBBDFree(IBBDData p_data);
 
 /* Prototypes of IBDPrecon and IBBDPSol */
 
-int IBBDPrecon(integer Neq, real tt, N_Vector yy,
-               N_Vector yp, N_Vector rr, real cj, ResFn res, 
+int IBBDPrecon(integertype Neq, realtype tt, N_Vector yy,
+               N_Vector yp, N_Vector rr, realtype cj, ResFn res, 
                void *res_data, void *P_data, N_Vector ewt, N_Vector constraints, 
-               real hh, real uround, long int *nrePtr,
+               realtype hh, realtype uround, long int *nrePtr,
                N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
  
-int IBBDPSol(integer Neq, real tt, N_Vector yy, N_Vector yp, 
-             N_Vector rr, real cj, ResFn res, void *res_data, 
-             void *P_data, N_Vector ewt, real delta, N_Vector rvec, 
+int IBBDPSol(integertype Neq, realtype tt, N_Vector yy, N_Vector yp, 
+             N_Vector rr, realtype cj, ResFn res, void *res_data, 
+             void *P_data, N_Vector ewt, realtype delta, N_Vector rvec, 
              N_Vector zvec, long int *nrePtr, N_Vector tempv);
 
 #endif

@@ -3,7 +3,7 @@
  * File          : idabbdpre.c                                    *
  * Programmers   : Allan G Taylor, Alan C Hindmarsh, and          *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 6 March 2002                                   *
+ * Version of    : 3 July 2002                                    *
  *----------------------------------------------------------------*
  * This file contains implementations of routines for a           *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -18,9 +18,9 @@
 #include <string.h>
 #include "idabbdpre.h"
 #include "ida.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 #include "iterativ.h"
 #include "band.h"
 
@@ -35,12 +35,12 @@
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
-static int IBBDDQJac(integer Nlocal, integer mudq, integer mldq, 
-                     integer mukeep, integer mlkeep, 
-                     real cj, real hh, real rel_yy, real tt,
+static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq, 
+                     integertype mukeep, integertype mlkeep, 
+                     realtype cj, realtype hh, realtype rel_yy, realtype tt,
                      N_Vector ewt, N_Vector constraints,
                      IDALocalFn glocal, IDACommFn gcomm, BandMat JJ, 
-                     integer *nginc, void *res_data, N_Vector yy,  
+                     integertype *nginc, void *res_data, N_Vector yy,  
                      N_Vector yp, N_Vector gref, N_Vector gtemp, 
                      N_Vector ytemp, N_Vector yptemp);
 
@@ -65,21 +65,21 @@ static int IBBDDQJac(integer Nlocal, integer mudq, integer mldq,
 **********************************************************************/
 
 
-static int IBBDDQJac(integer Nlocal, integer mudq, integer mldq, 
-                     integer mukeep, integer mlkeep, 
-                     real cj, real hh, real rel_yy, real tt,
+static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq, 
+                     integertype mukeep, integertype mlkeep, 
+                     realtype cj, realtype hh, realtype rel_yy, realtype tt,
                      N_Vector ewt, N_Vector constraints,
                      IDALocalFn glocal, IDACommFn gcomm, BandMat JJ, 
-                     integer *nginc, void *res_data, N_Vector yy, N_Vector yp, 
+                     integertype *nginc, void *res_data, N_Vector yy, N_Vector yp, 
                      N_Vector gref, N_Vector gtemp, 
                      N_Vector ytemp, N_Vector yptemp)
 {
-  real inc, inc_inv;
+  realtype inc, inc_inv;
   int  retval;
-  integer group, i, j, width, ngroups, i1, i2;
-  real *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
-  real *cnsdata = NULL, *ewtdata;
-  real *col_j, conj, yj, ypj, ewtj;
+  integertype group, i, j, width, ngroups, i1, i2;
+  realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
+  realtype *cnsdata = NULL, *ewtdata;
+  realtype *col_j, conj, yj, ypj, ewtj;
 
   /* Obtain pointers as required to the data array of vectors. */
   ydata     = N_VGetData(yy);
@@ -181,16 +181,16 @@ static int IBBDDQJac(integer Nlocal, integer mudq, integer mldq,
 
 /***************** User-Callable Functions: malloc and free ******************/
 
-IBBDData IBBDAlloc(integer Nlocal, integer mudq, integer mldq, 
-                   integer mukeep, integer mlkeep, real dq_rel_yy, 
+IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq, 
+                   integertype mukeep, integertype mlkeep, realtype dq_rel_yy, 
                    IDALocalFn glocal, IDACommFn gcomm, 
                    void *idamem, void *res_data)
 {
   IBBDData P_data;
   IDAMem ida_mem;
   N_Vector tempv4;
-  real rel_yy;
-  integer muk, mlk, storage_mu;
+  realtype rel_yy;
+  integertype muk, mlk, storage_mu;
 
   ida_mem = (IDAMem)idamem;
 
@@ -260,6 +260,46 @@ IBBDData IBBDAlloc(integer Nlocal, integer mudq, integer mldq,
 
   return(P_data);
 }
+
+int IDAReInitBBD(IBBDData P_data, integertype Nlocal, integertype mudq, integertype mldq,
+                 integertype mukeep, integertype mlkeep, realtype dq_rel_yy, 
+                 IDALocalFn glocal, IDACommFn gcomm, 
+                 void *idamem, void *res_data)
+{
+  IDAMem ida_mem;
+  realtype rel_yy;
+  integertype muk, mlk, storage_mu;
+
+  ida_mem = (IDAMem)idamem;
+
+  /* Set pointers to res_data, glocal, and gcomm; load half-bandwidths. */
+  P_data->res_data = res_data;
+  P_data->mudq = MIN( Nlocal-1, MAX(0,mudq) );
+  P_data->mldq = MIN( Nlocal-1, MAX(0,mldq) );
+  muk = MIN( Nlocal-1, MAX(0,mukeep) );
+  mlk = MIN( Nlocal-1, MAX(0,mlkeep) );
+  P_data->mukeep = muk;
+  P_data->mlkeep = mlk;
+  P_data->glocal = glocal;
+  P_data->gcomm = gcomm;
+
+  /* Set rel_yy based on input value dq_rel_yy (0 implies default). */
+  if (dq_rel_yy > ZERO) rel_yy = dq_rel_yy;
+  else                  rel_yy = RSqrt(ida_mem->ida_uround); 
+  P_data->rel_yy = rel_yy;
+
+  /* Store Nlocal to be used in IBBDPrecond */
+  P_data->n_local = Nlocal;
+
+  /* Set work space sizes and initialize nge. */
+  storage_mu = MIN(Nlocal-1, muk + mlk);
+  P_data->rpwsize = Nlocal*(mlk + storage_mu + 1);
+  P_data->ipwsize = Nlocal;
+  P_data->nge = 0;
+
+  return(0);
+}
+
 
 void IBBDFree(IBBDData P_data)
 {
@@ -335,13 +375,13 @@ void IBBDFree(IBBDData P_data)
  ******************************************************************/
 
 
-int IBBDPrecon(integer Neq, real tt, N_Vector yy,
-               N_Vector yp, N_Vector rr, real cj, ResFn res, 
+int IBBDPrecon(integertype Neq, realtype tt, N_Vector yy,
+               N_Vector yp, N_Vector rr, realtype cj, ResFn res, 
                void *res_data, void *P_data, N_Vector ewt, 
-               N_Vector constraints, real hh, real uround, long int *nrePtr,
+               N_Vector constraints, realtype hh, realtype uround, long int *nrePtr,
                N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  integer Nlocal, nginc, retfac;
+  integertype Nlocal, nginc, retfac;
   int retval;
   IBBDData pdata;
   N_Vector tempv4;
@@ -392,13 +432,13 @@ int IBBDPrecon(integer Neq, real tt, N_Vector yy,
  *                                                                *
 ******************************************************************/
 
- int IBBDPSol(integer Neq, real tt, N_Vector yy, N_Vector yp, 
-              N_Vector rr, real cj, ResFn res, void *res_data, 
-              void *P_data, N_Vector ewt, real delta, N_Vector rvec, 
+ int IBBDPSol(integertype Neq, realtype tt, N_Vector yy, N_Vector yp, 
+              N_Vector rr, realtype cj, ResFn res, void *res_data, 
+              void *P_data, N_Vector ewt, realtype delta, N_Vector rvec, 
               N_Vector zvec, long int *nrePtr, N_Vector tempv)
 {
   IBBDData pdata;
-  real *zd;
+  realtype *zd;
 
   pdata = (IBBDData)P_data;
 

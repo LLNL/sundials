@@ -2,7 +2,7 @@
  *                                                                *
  * File          : idaspgmr.c                                     *
  * Programmers   : Alan C. Hindmarsh and Allan G. Taylor          *
- * Version of    : 2 March 2001                                   *
+ * Version of    : 3 July 2002                                    *
  *----------------------------------------------------------------*
  * This is the implementation file for the IDA Scaled             *
  * Preconditioned GMRES linear solver module, IDASPGMR.           *
@@ -16,20 +16,23 @@
 #include "ida.h"
 #include "spgmr.h"
 #include "iterativ.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 
 
 /* Error Messages */
 
-#define MSG_BAD_GSTYPE_1  "IDASpgmr-- gstype = %d illegal.\n"
+#define IDASPGMR          "IDASpgmr/IDAReInitSpgmr-- "
+
+#define MSG_IDAMEM_NULL   IDASPGMR "IDA memory is NULL.\n\n"
+
+#define MSG_BAD_GSTYPE_1  IDASPGMR "gstype = %d illegal.\n"
 #define MSG_BAD_GSTYPE_2  "The legal values are MODIFIED_GS = %d and "
 #define MSG_BAD_GSTYPE_3  "CLASSICAL_GS = %d.\n\n"
-#define MSG_BAD_GSTYPE     MSG_BAD_GSTYPE_1 MSG_BAD_GSTYPE_2 MSG_BAD_GSTYPE_3
+#define MSG_BAD_GSTYPE    MSG_BAD_GSTYPE_1 MSG_BAD_GSTYPE_2 MSG_BAD_GSTYPE_3
 
-#define MSG_MEM_FAIL      "IDASpgmrInit-- A memory request failed.\n\n"
-
+#define MSG_MEM_FAIL      IDASPGMR "A memory request failed.\n\n"
 
 /* Warning Messages */
 
@@ -71,19 +74,19 @@
 
 typedef struct {
 
-  int  g_gstype;      /* type of Gram-Schmidt orthogonalization       */
-  real g_sqrtN;       /* sqrt(N)                                      */
-  int  g_maxl;        /* maxl = maximum dimension of the Krylov space */
-  int  g_maxrs;       /* maxrs = max. number of GMRES restarts        */
-  real g_eplifac;     /* eplifac = optional linear convergence factor */
-  real g_dqincfac;    /* dqincfac = optional increment factor in Jv   */
-  real g_epslin;      /* SpgrmSolve tolerance parameter               */
+  int  g_gstype;       /* type of Gram-Schmidt orthogonalization       */
+  realtype g_sqrtN;    /* sqrt(N)                                      */
+  int  g_maxl;         /* maxl = maximum dimension of the Krylov space */
+  int  g_maxrs;        /* maxrs = max. number of GMRES restarts        */
+  realtype g_eplifac;  /* eplifac = optional linear convergence factor */
+  realtype g_dqincfac; /* dqincfac = optional increment factor in Jv   */
+  realtype g_epslin;   /* SpgrmSolve tolerance parameter               */
 
-  int g_resflag;       /* flag from last res call                     */
-  long int g_npe;      /* npe = total number of precond calls         */   
-  long int g_nli;      /* nli = total number of linear iterations     */
-  long int g_nps;      /* nps = total number of psolve calls          */
-  long int g_ncfl;     /* ncfl = total number of convergence failures */
+  int g_resflag;       /* flag from last res call                      */
+  long int g_npe;      /* npe = total number of precond calls          */   
+  long int g_nli;      /* nli = total number of linear iterations      */
+  long int g_nps;      /* nps = total number of psolve calls           */
+  long int g_ncfl;     /* ncfl = total number of convergence failures  */
 
   long int g_nst0;     /* nst0 = saved nst (for performance monitor)   */   
   long int g_nni0;     /* nni0 = saved nni (for performance monitor)   */   
@@ -92,18 +95,18 @@ typedef struct {
   long int g_ncfl0;    /* ncfl0 = saved ncfl (for performance monitor) */   
   long int g_nwarn;    /* nwarn = no. of warnings (for perf. monitor)  */   
 
-  N_Vector g_ytemp;    /* temp vector used by IDAAtimesDQ            */ 
-  N_Vector g_yptemp;   /* temp vector used by IDAAtimesDQ            */ 
-  N_Vector g_xx;       /* temp vector used by IDASpgmrSolve          */
-  N_Vector g_ycur;     /* IDA current y vector in Newton iteration   */
-  N_Vector g_ypcur;    /* IDA current yp vector in Newton iteration  */
-  N_Vector g_rcur;     /* rcur = F(tn, ycur, ypcur)                  */
+  N_Vector g_ytemp;    /* temp vector used by IDAAtimesDQ              */ 
+  N_Vector g_yptemp;   /* temp vector used by IDAAtimesDQ              */ 
+  N_Vector g_xx;       /* temp vector used by IDASpgmrSolve            */
+  N_Vector g_ycur;     /* IDA current y vector in Newton iteration     */
+  N_Vector g_ypcur;    /* IDA current yp vector in Newton iteration    */
+  N_Vector g_rcur;     /* rcur = F(tn, ycur, ypcur)                    */
 
   IDASpgmrPrecondFn g_precond; /* precond = user-supplied routine to   */
                                /* compute a preconditioner             */
 
   IDASpgmrPSolveFn g_psolve;   /* psolve = user-supplied routine to    */
-			       /* solve preconditioner linear system   */
+                               /* solve preconditioner linear system   */
 
   void *g_pdata;               /* pdata passed to psolve and precond   */
   SpgmrMem g_spgmr_mem;        /* spgmr_mem is memory used by the      */
@@ -114,14 +117,14 @@ typedef struct {
 
 /* IDASPGMR linit, lsetup, lsolve, lperf, and lfree routines */
 
-static int  IDASpgmrInit(IDAMem ida_mem, boole *setupNonNull);
+static int IDASpgmrInit(IDAMem ida_mem);
 
-static int  IDASpgmrSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
-                          N_Vector resp, N_Vector tempv1,
-                          N_Vector tempv2, N_Vector tempv3);
+static int IDASpgmrSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
+                         N_Vector resp, N_Vector tempv1,
+                         N_Vector tempv2, N_Vector tempv3);
 
-static int  IDASpgmrSolve(IDAMem ida_mem, N_Vector bb, N_Vector ynow,
-                          N_Vector ypnow, N_Vector rnow);
+static int IDASpgmrSolve(IDAMem ida_mem, N_Vector bb, N_Vector ynow,
+                         N_Vector ypnow, N_Vector rnow);
 
 static int IDASpgmrPerf(IDAMem ida_mem, int perftask);
 
@@ -160,6 +163,7 @@ static int IDASpgmrPSolve(void *lin_mem, N_Vector r, N_Vector z, int lr);
 #define machenv (ida_mem->ida_machenv)
 #define nni     (ida_mem->ida_nni)
 #define ncfn    (ida_mem->ida_ncfn)
+#define setupNonNull  (ida_mem->ida_setupNonNull)
 
 #define sqrtN   (IDASpgmr_mem->g_sqrtN)
 #define epslin  (IDASpgmr_mem->g_epslin)
@@ -187,15 +191,16 @@ static int IDASpgmrPSolve(void *lin_mem, N_Vector r, N_Vector z, int lr);
 /*************** IDASpgmr *********************************************
 
  This routine initializes the memory record and sets various function
- fields specific to the IDASPGMR linear solver module.  IDASpgmr sets
- the ida_linit, ida_lsetup, ida_lsolve, ida_lperf, and ida_lfree fields
- in (*IDA_mem) to be IDASpgmrInit, IDASpgmrSetup, IDASpgmrSolve,
- IDASpgmrPerf, and IDASpgmrFree, respectively.
+ fields specific to the IDASPGMR linear solver module.  
+
+ IDASpgmr first calls the existing lfree routine if this is not NULL.
+ It then sets the ida_linit, ida_lsetup, ida_lsolve, ida_lperf, and
+ ida_lfree fields in (*IDA_mem) to be IDASpgmrInit, IDASpgmrSetup,
+ IDASpgmrSolve, IDASpgmrPerf, and IDASpgmrFree, respectively.
  It allocates memory for a structure of type IDASpgmrMemRec and sets
  the ida_lmem field in (*IDA_mem) to the address of this structure.
-
- IDASpgmr sets the following fields in the IDASpgmrMemRec structure:
-
+ It sets setupNonNull in (*IDA_mem).  It then sets the following
+ fields in the IDASpgmrMemRec structure:
    g_gstype   = gstype
    g_maxl     = MIN(Neq,IDA_SPGMR_MAXL) if maxl <= 0,  else MIN(Neq,maxl)
    g_maxrs    = 0 if maxrs < 0,  MIN(5,Neq/g_maxl) if maxrs = 0, and
@@ -205,25 +210,32 @@ static int IDASpgmrPSolve(void *lin_mem, N_Vector r, N_Vector z, int lr);
    g_pdata    = pdata
    g_precond  = precond
    g_psolve   = psolve
+ Finally, IDASpgmr allocates memory for ytemp, yptemp, and xx, and
+ calls SpgmrMalloc to allocate memory for the Spgmr solver.
 
- IDASpgmr returns SUCCESS = 0 if successful, or 
-          IDA_SPGMR_FAIL if IDA_mem is NULL or malloc failed, or
-          IDA_SPGMR_BAD_ARG if the gstype argument is illegal.
+ The return value of IDASpgmr is:
+   SUCCESS       = 0  if successful
+   LMEM_FAIL     = -1 if IDA_mem is NULL or a memory allocation failed
+   LIN_ILL_INPUT = -2 if the gstype argument is illegal.
 
 **********************************************************************/
 
 int IDASpgmr(void *IDA_mem, IDASpgmrPrecondFn precond, 
              IDASpgmrPSolveFn psolve, int gstype, int maxl, int maxrs,
-             real eplifac, real dqincfac, void *pdata)
-
+             realtype eplifac, realtype dqincfac, void *pdata)
 {
   IDAMem ida_mem;
   IDASpgmrMem IDASpgmr_mem;
-  int maxl1, maxrs1;
+  int flag, maxl1, maxrs1;
 
   /* Return immediately if IDA_mem is NULL */
   ida_mem = (IDAMem) IDA_mem;
-  if (ida_mem == NULL) return(IDA_SPGMR_FAIL);
+  if (ida_mem == NULL) {
+    fprintf(errfp, MSG_IDAMEM_NULL);
+    return(LMEM_FAIL);
+  }
+
+  if (lfree != NULL) flag = lfree(ida_mem);
 
   /* Set five main function fields in ida_mem */
   linit  = IDASpgmrInit;
@@ -234,12 +246,15 @@ int IDASpgmr(void *IDA_mem, IDASpgmrPrecondFn precond,
 
   /* Get memory for IDASpgmrMemRec */
   lmem = IDASpgmr_mem = (IDASpgmrMem) malloc(sizeof(IDASpgmrMemRec));
-  if (IDASpgmr_mem == NULL) return(IDA_SPGMR_FAIL);
+  if (IDASpgmr_mem == NULL) {
+    fprintf(errfp, MSG_MEM_FAIL);
+    return(LMEM_FAIL);
+  }
 
   /* Check for legal gstype */
   if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
     fprintf(errfp, MSG_BAD_GSTYPE, gstype, MODIFIED_GS, CLASSICAL_GS);
-    return(IDA_SPGMR_BAD_ARG);
+    return(LIN_ILL_INPUT);
   }
 
   /* Set SPGMR parameters that were passed in call sequence */
@@ -254,22 +269,101 @@ int IDASpgmr(void *IDA_mem, IDASpgmrPrecondFn precond,
   IDASpgmr_mem->g_psolve   = psolve;
   IDASpgmr_mem->g_pdata    = pdata;
 
+  /* Set setupNonNull to TRUE iff there is preconditioning with setup */
+  setupNonNull = (psolve != NULL) && (precond != NULL);
 
-  /* Initialize counters and other optional outputs. */
-  npe = nli = nps = ncfl = 0;
-    
-  if (iopt != NULL) {
-    iopt[SPGMR_NPE] = npe;
-    iopt[SPGMR_NLI] = nli;
-    iopt[SPGMR_NPS] = nps;
-    iopt[SPGMR_NCFL] = ncfl;
-    iopt[SPGMR_LRW] = Neq*(maxl1 + 5) + maxl1*(maxl1 + 4) + 1;
-    iopt[SPGMR_LIW] = 0;
+  /* Allocate memory for ytemp, yptemp, and xx */
+  ytemp = N_VNew(Neq, machenv);
+  if (ytemp == NULL) {
+    fprintf(errfp, MSG_MEM_FAIL);
+    return(LMEM_FAIL);
+  }
+  yptemp = N_VNew(Neq, machenv);
+  if (yptemp == NULL) {
+    fprintf(errfp, MSG_MEM_FAIL);
+    N_VFree(ytemp);
+    return(LMEM_FAIL);
+  }
+  xx = N_VNew(Neq, machenv);
+  if (xx == NULL) {
+    fprintf(errfp, MSG_MEM_FAIL);
+    N_VFree(ytemp);
+    N_VFree(yptemp);
+    return(LMEM_FAIL);
+  }
+
+  /* Call SpgmrMalloc to allocate workspace for Spgmr */
+  spgmr_mem = SpgmrMalloc(Neq, maxl1, machenv);
+  if (spgmr_mem == NULL) {
+    fprintf(errfp, MSG_MEM_FAIL);
+    N_VFree(ytemp);
+    N_VFree(yptemp);
+    N_VFree(xx);
+    return(LMEM_FAIL);
   }
 
   return(SUCCESS);
 }
 
+
+/*************** IDAReInit Spgmr **************************************
+
+ This routine resets the link between the main IDA module and the
+ Spgmr linear solver module IDASPGMR.  No memory freeing or allocation
+ operations are done, as the existing linear solver memory is assumed
+ sufficient.  All other initializations are the same as in IDASpgmr.
+ The return value is SUCCESS=0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
+
+**********************************************************************/
+
+int IDAReInitSpgmr(void *IDA_mem, IDASpgmrPrecondFn precond, 
+                   IDASpgmrPSolveFn psolve, int gstype, int maxl, int maxrs,
+                   realtype eplifac, realtype dqincfac, void *pdata)
+
+{
+  IDAMem ida_mem;
+  IDASpgmrMem IDASpgmr_mem;
+  int maxl1, maxrs1;
+
+  /* Return immediately if IDA_mem is NULL */
+  ida_mem = (IDAMem) IDA_mem;
+  if (ida_mem == NULL) {
+    fprintf(errfp, MSG_IDAMEM_NULL);
+    return(LMEM_FAIL);
+  }
+
+  /* Set five main function fields in ida_mem */
+  linit  = IDASpgmrInit;
+  lsetup = IDASpgmrSetup;
+  lsolve = IDASpgmrSolve;
+  lperf  = IDASpgmrPerf;
+  lfree  = IDASpgmrFree;
+
+  IDASpgmr_mem = lmem;  /* Use existing linear solver memory pointer */
+
+  /* Check for legal gstype */
+  if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
+    fprintf(errfp, MSG_BAD_GSTYPE, gstype, MODIFIED_GS, CLASSICAL_GS);
+    return(LIN_ILL_INPUT);
+  }
+
+  /* Set SPGMR parameters that were passed in call sequence */
+  maxl1 = (maxl <= 0) ? IDA_SPGMR_MAXL : maxl; maxl1 = MIN(maxl1, Neq);
+  IDASpgmr_mem->g_gstype   = gstype;
+  IDASpgmr_mem->g_maxl     = maxl1;
+  maxrs1 = (maxrs == 0) ? IDA_SPGMR_MAXRS : maxrs;
+  IDASpgmr_mem->g_maxrs    = (maxrs < 0) ? 0 : MIN(maxrs1, Neq/maxl1);
+  IDASpgmr_mem->g_eplifac  = (eplifac == ZERO) ? ONE : eplifac;
+  IDASpgmr_mem->g_dqincfac = (dqincfac == ZERO) ? ONE : dqincfac;
+  IDASpgmr_mem->g_precond  = precond;
+  IDASpgmr_mem->g_psolve   = psolve;
+  IDASpgmr_mem->g_pdata    = pdata;
+
+  /* Set setupNonNull to TRUE iff there is preconditioning with setup */
+  setupNonNull = (psolve != NULL) && (precond != NULL);
+
+  return(SUCCESS);
+}
 
 /* Additional readability Replacements */
 
@@ -285,59 +379,30 @@ int IDASpgmr(void *IDA_mem, IDASpgmrPrecondFn precond,
 
 /*************** IDASpgmrInit *****************************************
 
- This routine initializes remaining memory specific to the IDASPGMR 
- linear solver.  If any memory request fails, all memory previously
- allocated is freed, and an error message printed, before returning.
+ This routine does remaining initializations specific to the IDASPGMR 
+ linear solver.  It returns LINIT_OK = 0.
 
 **********************************************************************/
 
-static int IDASpgmrInit(IDAMem ida_mem, boole *setupNonNull)
+static int IDASpgmrInit(IDAMem ida_mem)
 {
   IDASpgmrMem IDASpgmr_mem;
 
   IDASpgmr_mem = (IDASpgmrMem) lmem;
 
-  /* Print error message and return if IDASpgmr_mem is NULL */  
-  if (IDASpgmr_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
-    return(LINIT_ERR);
-  }
+  /* Initialize sqrtN, counters, and workspace lengths. */
 
-  /* Allocate memory for ytemp, yptemp, and xx */
-  ytemp = N_VNew(Neq, machenv);
-  if (ytemp == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
-    return(LINIT_ERR);
-  }
-  yptemp = N_VNew(Neq, machenv);
-  if (yptemp == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
-    N_VFree(ytemp);
-    return(LINIT_ERR);
-  }
-  xx = N_VNew(Neq, machenv);
-  if (xx == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
-    N_VFree(ytemp);
-    N_VFree(yptemp);
-    return(LINIT_ERR);
-  }
-
-  /* Call SpgmrMalloc to allocate workspace for Spgmr */
-  spgmr_mem = SpgmrMalloc(Neq, maxl, machenv);
-  if (spgmr_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
-    N_VFree(ytemp);
-    N_VFree(yptemp);
-    N_VFree(xx);
-    return(LINIT_ERR);
-  }
-
-  /* Initialize sqrtN. */
   sqrtN = RSqrt(Neq);
+  npe = nli = nps = ncfl = 0;
 
-  /* Set setupNonNull to TRUE iff there is preconditioning with setup */
-  *setupNonNull = (psolve != NULL) && (precond != NULL);
+  if (iopt != NULL) {
+    iopt[SPGMR_NPE] = npe;
+    iopt[SPGMR_NLI] = nli;
+    iopt[SPGMR_NPS] = nps;
+    iopt[SPGMR_NCFL] = ncfl;
+    iopt[SPGMR_LRW] = Neq*(maxl + 5) + maxl*(maxl + 4) + 1;
+    iopt[SPGMR_LIW] = 0;
+  }
 
   return(LINIT_OK);
 }
@@ -363,7 +428,7 @@ static int IDASpgmrSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
 
   /* Call user setup routine precond and update counter npe. */
   retval = precond(Neq, tn, yyp, ypp, resp, cj, res, rdata, pdata,
-             ewt, constraints, hh, uround, &nre, tempv1, tempv2, tempv3);
+                   ewt, constraints, hh, uround, &nre, tempv1, tempv2, tempv3);
   npe++;
   if (iopt != NULL) iopt[SPGMR_NPE] = npe;
 
@@ -389,11 +454,11 @@ static int IDASpgmrSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
 **********************************************************************/
 
 static int IDASpgmrSolve(IDAMem ida_mem, N_Vector bb, N_Vector ynow,
-			N_Vector ypnow, N_Vector rnow)
+                         N_Vector ypnow, N_Vector rnow)
 {
   IDASpgmrMem IDASpgmr_mem;
   int pretype, nli_inc, nps_inc, retval;
-  real res_norm;
+  realtype res_norm;
   
   IDASpgmr_mem = (IDASpgmrMem) lmem;
 
@@ -415,8 +480,8 @@ static int IDASpgmrSolve(IDAMem ida_mem, N_Vector bb, N_Vector ynow,
   
   /* Call SpgmrSolve and copy xx to bb. */
   retval = SpgmrSolve(spgmr_mem, ida_mem, xx, bb, pretype, gstype, epslin,
-                maxrs, ida_mem, ewt, ewt, IDASpgmrAtimesDQ, IDASpgmrPSolve,
-	        &res_norm, &nli_inc, &nps_inc);
+                      maxrs, ida_mem, ewt, ewt, IDASpgmrAtimesDQ, IDASpgmrPSolve,
+                      &res_norm, &nli_inc, &nps_inc);
 
   if (nli_inc == 0) N_VScale(ONE, SPGMR_VTEMP(spgmr_mem), bb);
   else N_VScale(ONE, xx, bb);
@@ -455,9 +520,9 @@ static int IDASpgmrSolve(IDAMem ida_mem, N_Vector bb, N_Vector ynow,
 static int IDASpgmrPerf(IDAMem ida_mem, int perftask)
 {
   IDASpgmrMem IDASpgmr_mem;
-  real avdim, rcfn, rcfl;
+  realtype avdim, rcfn, rcfl;
   long int nstd, nnid;
-  boole lavd, lcfn, lcfl;
+  booleantype lavd, lcfn, lcfl;
 
   IDASpgmr_mem = (IDASpgmrMem) lmem;
 
@@ -470,10 +535,10 @@ static int IDASpgmrPerf(IDAMem ida_mem, int perftask)
 
   nstd = nst - nst0;  nnid = nni - nni0;
   if (nstd == 0 || nnid == 0) return 0;
-  avdim = (nli - nli0)/( (real) nnid);
-  rcfn = (ncfn - ncfn0)/( (real) nstd);
-  rcfl = (ncfl - ncfl0)/( (real) nnid);
-  lavd = (avdim > ( (real) maxl ) );
+  avdim = (nli - nli0)/( (realtype) nnid);
+  rcfn = (ncfn - ncfn0)/( (realtype) nstd);
+  rcfl = (ncfl - ncfl0)/( (realtype) nnid);
+  lavd = (avdim > ( (realtype) maxl ) );
   lcfn = (rcfn > PT9);
   lcfl = (rcfl > PT9);
   if (!(lavd || lcfn || lcfl)) return 0;
@@ -521,9 +586,9 @@ static int IDASpgmrFree(IDAMem ida_mem)
 
 static int IDASpgmrAtimesDQ(void *idamem, N_Vector v, N_Vector z)
 {
-  IDAMem   ida_mem;
+  IDAMem ida_mem;
   IDASpgmrMem IDASpgmr_mem;
-  real sig, siginv;
+  realtype sig, siginv;
   int ires;
 
   ida_mem = (IDAMem) idamem;
@@ -561,7 +626,7 @@ static int IDASpgmrAtimesDQ(void *idamem, N_Vector v, N_Vector z)
 
 static int IDASpgmrPSolve(void *idamem, N_Vector r, N_Vector z, int lr)
 {
-  IDAMem   ida_mem;
+  IDAMem ida_mem;
   IDASpgmrMem IDASpgmr_mem;
   int retval;
 

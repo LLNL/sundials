@@ -3,7 +3,7 @@
  * File          : idaband.h                                      *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 6 March 2002                                   *
+ * Version of    : 2 July 2002                                    *
  *----------------------------------------------------------------*
  * This is the header file for the IDA band linear solver         *
  * module, IDABAND. It interfaces between the band module and the *
@@ -21,14 +21,9 @@ extern "C" {
 
 #include <stdio.h>
 #include "ida.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "band.h"
 #include "nvector.h"
-
-/* Return values for IDABand: */
-
-/* SUCCESS = 0 (defined in ida.h) */
-enum {IDA_BAND_FAIL = -1, IDA_BAND_BAD_ARG = -2};
 
  
 /******************************************************************
@@ -44,10 +39,10 @@ enum {IDA_BAND_FAIL = -1, IDA_BAND_BAD_ARG = -2};
  *                   calls made to the band Jacobian routine      *
  *                   (default or user-supplied).                  *
  *                                                                *
- * iopt[BAND_LRW] : size (in real words) of real workspace        *
+ * iopt[BAND_LRW] : size (in realtype words) of real workspace    *
  *                   matrices and vectors used by this module.    *
  *                                                                *
- * iopt[BAND_LIW] : size (in integer words) of integer            *
+ * iopt[BAND_LIW] : size (in integertype words) of integer        *
  *                   workspace vectors used by this module.       *
  *                                                                *
  ******************************************************************/
@@ -153,10 +148,10 @@ enum { BAND_NJE=IDA_IOPT_SIZE, BAND_LRW, BAND_LIW };
  * recover by reducing the stepsize (which changes cj).           *
  ******************************************************************/
   
-typedef int (*IDABandJacFn)(integer Neq, integer mupper, integer mlower,
-                            real tt, N_Vector yy, N_Vector yp, real cj, 
+typedef int (*IDABandJacFn)(integertype Neq, integertype mupper, integertype mlower,
+                            realtype tt, N_Vector yy, N_Vector yp, realtype cj, 
                             N_Vector constraints, ResFn res, void *rdata, void *jdata, 
-                            N_Vector resvec, N_Vector ewt, real hh, real uround, 
+                            N_Vector resvec, N_Vector ewt, realtype hh, realtype uround, 
                             BandMat JJ, long int *nrePtr, N_Vector tempv1,
                             N_Vector tempv2, N_Vector tempv3);
 
@@ -183,11 +178,10 @@ typedef int (*IDABandJacFn)(integer Neq, integer mupper, integer mlower,
  * jdata is a pointer to user data which is passed to the bjac    *
  *         routine every time it is called.                       *
  *                                                                *
- * IDABand returns either                                         *
- *    SUCCESS = 0            if successful, or                    *
- *    IDA_BAND_FAIL = -1     if either IDA_mem was NULL or a      *
- *                           malloc failure occurred, or          *
- *    IDA_BAND_BAD_ARG = -2  if mupper or mlower is illegal.      *
+ * The return values of IDABand are:                              *
+ *    SUCCESS       = 0  if successful                            *
+ *    LMEM_FAIL     = -1 if there was a memory allocation failure *
+ *    LIN_ILL_INPUT = -2 if there was illegal input.              *
  *                                                                *
  * NOTE: The band linear solver assumes a serial implementation   *
  *       of the NVECTOR package. Therefore, IDABand will first    *
@@ -198,8 +192,38 @@ typedef int (*IDABandJacFn)(integer Neq, integer mupper, integer mlower,
  *                                                                *
  ******************************************************************/
 
-int IDABand(void *IDA_mem, integer mupper, integer mlower,
+int IDABand(void *IDA_mem, integertype mupper, integertype mlower,
             IDABandJacFn bjac, void *jdata);
+
+
+/******************************************************************
+ *                                                                *
+ * Function : IDAReInitBand                                       *
+ *----------------------------------------------------------------*
+ * A call to the IDAReInitBand function resets the link between   *
+ * the main IDA integrator and the IDABand linear solver.         *
+ * After solving one problem using IDABand, call IDAReInit and    *
+ * then IDAReInitBand to solve another problem of the same size,  *
+ * if there is a change in the IDABand parameters bjac or jdata,  *
+ * but no change in mupper or mlower.  If there is a change in    *
+ * mupper or mlower, then IDABand must be called again, and the   *
+ * linear solver memory will be reallocated.                      *
+ * If there is no change in parameters, it is not necessary to    *
+ * call either IDAReInitBand or IDABand for the new problem.      *
+ *                                                                *
+ * All arguments to IDAReInitBand have the same names and         * 
+ * meanings as those of IDABand.  The IDA_mem argument must be    *
+ * identical to its value in the previous IDABand call.           *
+ *                                                                *
+ * The return values of IDAReInitBand are:                        *
+ *    SUCCESS       = 0  if successful                            *
+ *    LMEM_FAIL     = -1 if the IDA_mem argument is NULL          *
+ *    LIN_ILL_INPUT = -2 if there was illegal input.              *
+ *                                                                *
+ ******************************************************************/
+
+int IDAReInitBand(void *IDA_mem, integertype mupper, integertype mlower,
+                  IDABandJacFn bjac, void *jdata);
 
 
 #endif

@@ -3,7 +3,7 @@
  * File          : idadense.h                                     *
  * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and        *
  *                 Radu Serban @LLNL                              *
- * Version of    : 6 March 2002                                   *
+ * Version of    : 2 July 2002                                    *
  *----------------------------------------------------------------*
  * This is the header file for the IDA dense linear solver        *
  * module, IDADENSE.                                              *
@@ -20,14 +20,9 @@ extern "C" {
 
 #include <stdio.h>
 #include "ida.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "dense.h"
 #include "nvector.h"
-
-/* Return values for IDADense: */
-
-/* SUCCESS = 0 (defined in ida.h) */
-enum {IDA_DENSE_FAIL = -1};
 
  
 /******************************************************************
@@ -43,10 +38,10 @@ enum {IDA_DENSE_FAIL = -1};
  *                   calls made to the dense Jacobian routine     *
  *                   (default or user-supplied).                  *
  *                                                                *
- * iopt[DENSE_LRW] : size (in real words) of real workspace       *
+ * iopt[DENSE_LRW] : size (in realtype words) of real workspace   *
  *                   matrices and vectors used by this module.    *
  *                                                                *
- * iopt[DENSE_LIW] : size (in integer words) of integer           *
+ * iopt[DENSE_LIW] : size (in integertype words) of integer       *
  *                   workspace vectors used by this module.       *
  *                                                                *
  ******************************************************************/
@@ -144,16 +139,15 @@ enum { DENSE_NJE=IDA_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  * recover by reducing the stepsize (which changes cj).           *
  ******************************************************************/
   
-typedef int (*IDADenseJacFn)(integer Neq, real tt, N_Vector yy, N_Vector yp,
-                             real cj, N_Vector constraints, ResFn res, void *rdata,
-                             void *jdata, N_Vector resvec, N_Vector ewt, real hh,
-                             real uround, DenseMat JJ, long int *nrePtr,
+typedef int (*IDADenseJacFn)(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+                             realtype cj, N_Vector constraints, ResFn res, void *rdata,
+                             void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
+                             realtype uround, DenseMat JJ, long int *nrePtr,
                              N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 
 
- 
-/******************************************************************
+ /******************************************************************
  *                                                                *
  * Function : IDADense                                            *
  *----------------------------------------------------------------*
@@ -172,9 +166,8 @@ typedef int (*IDADenseJacFn)(integer Neq, real tt, N_Vector yy, N_Vector yp,
  *         routine every time it is called.                       *
  *                                                                *
  * IDADense returns either                                        *
- *     SUCCESS = 0         if successful, or                      *
- *     IDA_DENSE_FAIL = -1 if either IDA_mem was null, or a       *
- *                         malloc failure occurred.               *
+ *     SUCCESS   = 0   if successful, or                          *
+ *     LMEM_FAIL = -1  if there was a memory allocation failure   *
  *                                                                *
  * NOTE: The dense linear solver assumes a serial implementation  *
  *       of the NVECTOR package. Therefore, IDADense will first   *
@@ -186,6 +179,31 @@ typedef int (*IDADenseJacFn)(integer Neq, real tt, N_Vector yy, N_Vector yp,
  ******************************************************************/
 
 int IDADense(void *IDA_mem, IDADenseJacFn djac, void *jdata);
+
+ 
+/******************************************************************
+ *                                                                *
+ * Function : IDAReInitDense                                      *
+ *----------------------------------------------------------------*
+ * A call to the IDAReInitDense function resets the link between  *
+ * the main IDA integrator and the IDADENSE linear solver.        *
+ * After solving one problem using IDADENSE, call IDAReInit and   *
+ * then IDAReInitDense to solve another problem of the same size, *
+ * if there is a change in the IDADense parameters djac or jdata. *
+ * If there is no change in parameters, it is not necessary to    *
+ * call either IDAReInitDense or IDADense for the new problem.    *
+ *                                                                *
+ * All arguments to IDAReInitDense have the same names and        * 
+ * meanings as those of IDADense.  The IDA_mem argument must be   *
+ * identical to its value in the previous IDADense call.          *
+ *                                                                *
+ * The return values of IDAReInitDense are:                       *
+ *     SUCCESS   = 0   if successful, or                          *
+ *     LMEM_FAIL = -1  if the IDA_mem argument is NULL            *
+ *                                                                *
+ ******************************************************************/
+
+int IDAReInitDense(void *IDA_mem, IDADenseJacFn djac, void *jdata);
 
 
 #endif
