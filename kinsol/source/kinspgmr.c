@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-08-26 20:15:59 $
+ * $Revision: 1.17 $
+ * $Date: 2004-09-21 21:34:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -18,13 +18,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "kinspgmr_impl.h"
-#include "kinsol_impl.h"
-#include "sundialstypes.h"
-#include "nvector.h"
-#include "sundialsmath.h"
+
 #include "iterative.h"
+#include "kinsol_impl.h"
+#include "kinspgmr_impl.h"
+#include "nvector.h"
 #include "spgmr.h"
+#include "sundialsmath.h"
+#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------
@@ -41,8 +42,9 @@
 
 /* KINSpgmrSet* and KINSpgmrGet* error messages */
 
-#define MSG_SETGET_KINMEM_NULL "KINSpgmrSet*/KINSpgmrGet*-- KIN memory is NULL. \n\n"
-#define MSG_SETGET_LMEM_NULL   "KINSpgmrSet*/KINSpgmrGet*-- KINSPGMR memory is NULL.\n\n"
+#define KINSPGMR_SETGET        "KINSpgmrSet*/KINSpgmrGet*-- "
+#define MSG_SETGET_KINMEM_NULL KINSPGMR_SETGET "KINSOL memory is NULL. \n\n"
+#define MSG_SETGET_LMEM_NULL   KINSPGMR_SETGET "KINSPGMR memory is NULL.\n\n"
 
 /* KINSpgmrSetMaxRestarts error message */
 
@@ -144,17 +146,18 @@ static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
  * kin_lmem field in *kinmem to the address of this structure. It
  * also calls SpgmrMalloc to allocate memory for the module
  * SPGMR. In summary, KINSpgmr sets the following fields in the
- * KINSpgmrMemRec structure: 
- *                         
+ * KINSpgmrMemRec structure:
+ *
  *  pretype   = PREC_NONE
  *  gstype    = MODIFIED_GS
- *  g_maxl    = KINSPGMR_MAXL  if maxl <= 0             
- *            = maxl           if maxl > 0   
+ *  g_maxl    = KINSPGMR_MAXL  if maxl <= 0
+ *            = maxl           if maxl > 0
  *  g_maxlrst = 0 (default)
  *  g_pset    = NULL
- *  g_psolve  = NULL    
- *  g_gtimes  = NULL                                    
- *  g_P_data  = NULL                                        
+ *  g_psolve  = NULL
+ *  g_P_data  = NULL
+ *  g_jtimes  = NULL
+ *  g_J_data  = NULL
  * -----------------------------------------------------------------
  */
 
@@ -207,14 +210,15 @@ int KINSpgmr(void *kinmem, int maxl)
   kinspgmr_mem->g_pretype = PREC_NONE;
   kinspgmr_mem->g_gstype  = MODIFIED_GS;
   kinspgmr_mem->g_maxlrst = 0;
-  kinspgmr_mem->g_P_data  = NULL;
   kinspgmr_mem->g_pset    = NULL;
   kinspgmr_mem->g_psolve  = NULL;
+  kinspgmr_mem->g_P_data  = NULL;
   kinspgmr_mem->g_jtimes  = NULL;
+  kinspgmr_mem->g_J_data  = NULL;
 
   /* call SpgmrMalloc to allocate workspace for SPGMR */
 
-  /* vec_templ passed as template vector */
+  /* vec_tmpl passed as template vector */
 
   spgmr_mem = SpgmrMalloc(maxl1, vec_tmpl);
   if (spgmr_mem == NULL) {

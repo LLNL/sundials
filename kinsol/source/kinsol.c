@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-08-18 19:35:23 $
+ * $Revision: 1.26 $
+ * $Date: 2004-09-21 21:34:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -18,10 +18,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"
+
+#include "kinsol_impl.h"
 #include "nvector.h"
 #include "sundialsmath.h"
-#include "kinsol_impl.h"
+#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------
@@ -110,7 +111,7 @@
 
 /* KINSolInit error messages */
 
-#define KINSI "KINSolInit--"
+#define KINSI                  "KINSolInit--"
 #define MSG_LSOLV_NO_MEM       KINSI "The linear solver memory pointer is NULL.\n\n"
 #define MSG_UU_NULL            KINSI "uu == NULL illegal.\n\n"
 #define MSG_BAD_GLSTRAT1       KINSI "globalstrategy = %d illegal.\n"
@@ -186,7 +187,9 @@ void *KINCreate(void)
   
   /* set default values for solver optional inputs */
 
+  kin_mem->kin_func         = NULL;
   kin_mem->kin_f_data       = NULL;
+  kin_mem->kin_constraints  = NULL;
   kin_mem->kin_errfp        = stderr;
   kin_mem->kin_infofp       = stdout;
   kin_mem->kin_printfl      = PRINTFL_DEFAULT;
@@ -204,6 +207,7 @@ void *KINCreate(void)
   kin_mem->kin_eta_alpha    = TWO;  /* default for ETACHOICE2 */
   kin_mem->kin_eta_gamma    = POINT9;  /* default for ETACHOICE2 */
   kin_mem->kin_MallocDone   = FALSE;
+  kin_mem->kin_setupNonNull = FALSE;
 
   return((void *) kin_mem);
 }
