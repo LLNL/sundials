@@ -1,12 +1,14 @@
 /************************************************************************
  *                                                                      *
- * File: pvnx.c                                                         *
+ * File       : pvnx.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne      *
- * Version of 20 December 2001                                          *
+ * Version of : 6 March 2002                                            *
+ *----------------------------------------------------------------------*
+ * Modified by R. Serban to work with new parallel nvector (6/3/2002)   *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
- * solution by PVODE.  The problem is the semi-discrete form of the     *
+ * solution by CVODE.  The problem is the semi-discrete form of the     *
  * advection-diffusion equation in 1-D:                                 *
  *   du/dt = d^2 u / dx^2 + .5 du/dx                                    *
  * on the interval 0 <= x <= 2, and the time interval 0 <= t <= 5.      *
@@ -27,17 +29,18 @@
  ************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 /* CVODE header files with a description of contents used here */
 
-#include "llnltyps.h" /* definitions of real, integer, FALSE, DOUBLE       */
-#include "cvode.h"    /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
-                      /* constants OPT_SIZE, ADAMS, FUNCTIONAL, SS,        */
-                      /* SUCCESS, NST, NFE, NNI, NCFN, NETF                */
-#include "nvector.h"  /* definitions of type N_Vector and vector macros,   */
-                      /* prototypes for N_Vector functions                 */
-#include "mpi.h"      /* for MPI constants and types                       */
+#include "llnltyps.h"          /* definitions of real, integer, FALSE, DOUBLE       */
+#include "cvode.h"             /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
+                               /* constants OPT_SIZE, ADAMS, FUNCTIONAL, SS,        */
+                               /* SUCCESS, NST, NFE, NNI, NCFN, NETF                */
+#include "nvector_parallel.h"  /* definitions of type N_Vector and vector macros,   */
+                               /* prototypes for N_Vector functions                 */
+#include "mpi.h"               /* for MPI constants and types                       */
 
 
 /* Problem Constants */
@@ -76,8 +79,9 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
 
 /***************************** Main Program ******************************/
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+  M_Env machEnv;
   real ropt[OPT_SIZE], dx, reltol, abstol, t, tout, umax;
   long int iopt[OPT_SIZE];
   N_Vector u;
@@ -85,7 +89,6 @@ main(int argc, char *argv[])
   void *cvode_mem;
   int iout, flag, my_pe, npes;
   integer local_N, nperpe, nrem, my_base;
-  machEnvType machEnv;
 
   MPI_Comm comm;
 
@@ -109,7 +112,7 @@ main(int argc, char *argv[])
 
   /* Set machEnv block. */
 
-  machEnv = PVecInitMPI(comm, local_N, NEQ, &argc, &argv);
+  machEnv = M_EnvInit_Parallel(comm, local_N, NEQ, &argc, &argv);
   if (machEnv == NULL) return(1);
 
   u = N_VNew(NEQ, machEnv);    /* Allocate u vector */
@@ -159,7 +162,7 @@ main(int argc, char *argv[])
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
     umax = N_VMaxNorm(u);
     if (my_pe == 0) 
-      printf("At t = %4.2f    max.norm(u) =%14.6e   nst =%4d \n", 
+      printf("At t = %4.2f    max.norm(u) =%14.6e   nst =%4ld \n", 
             t,umax,iopt[NST]);
     if (flag != SUCCESS) { printf("CVode failed, flag=%d.\n", flag); break; }
   }
@@ -170,7 +173,7 @@ main(int argc, char *argv[])
   if (my_pe == 0) 
     PrintFinalStats(iopt);     /* Print some final statistics   */
 
-  PVecFreeMPI(machEnv);
+  M_EnvFree_Parallel(machEnv);
   MPI_Finalize();
 
   return(0);
@@ -189,8 +192,8 @@ static void SetIC(N_Vector u, real dx, integer my_length, integer my_base)
   real *udata;
 
   /* Set pointer to data array and get local length of u. */
-  udata = N_VDATA(u);
-  my_length = N_VLOCLENGTH(u);
+  udata = NV_DATA_P(u);
+  my_length = NV_LOCLENGTH_P(u);
 
   /* Load initial profile into u vector */
   for (i=1; i<=my_length; i++) {
@@ -220,14 +223,14 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
 {
   real ui, ult, urt, hordc, horac, hdiff, hadv;
   real *udata, *dudata, *z;
-  int i, j;
+  int i;
   int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe, my_last;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;
 
-  udata = N_VDATA(u);
-  dudata = N_VDATA(udot);
+  udata = NV_DATA_P(u);
+  dudata = NV_DATA_P(udot);
 
   /* Extract needed problem constants from data */
   data = (UserData) f_data;
@@ -238,7 +241,7 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
   comm = data->comm;
   npes = data->npes;           /* Number of processes. */ 
   my_pe = data->my_pe;         /* Current process number. */
-  my_length = N_VLOCLENGTH(u); /* Number of local elements of u. */ 
+  my_length = NV_LOCLENGTH_P(u); /* Number of local elements of u. */ 
   z = data->z;
 
   /* Compute related parameters. */

@@ -1,8 +1,9 @@
 /************************************************************************
- *                                                                      *
  * File: cvkx.c                                                         *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 10 January 2002                                           *
+ * Version of 27 February 2002                                          *
+ *----------------------------------------------------------------------*
+ * Modified by R. Serban to work with new serial nvector (27/2/2002)    *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -30,13 +31,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"  /* definitions of real, integer, boole, TRUE,FALSE */
-#include "cvode.h"     /* main CVODE header file                          */
-#include "iterativ.h"  /* contains the enum for types of preconditioning  */
-#include "cvspgmr.h"   /* use CVSPGMR linear solver each internal step    */
-#include "dense.h"     /* use generic DENSE solver for preconditioning    */
-#include "nvector.h"    /* definitions of type N_Vector, macro N_VDATA     */
-#include "llnlmath.h"  /* contains SQR macro                              */
+#include "llnltyps.h"       /* definitions of real, integer, boole, TRUE,FALSE */
+#include "cvode.h"          /* main CVODE header file                          */
+#include "iterativ.h"       /* contains the enum for types of preconditioning  */
+#include "cvspgmr.h"        /* use CVSPGMR linear solver each internal step    */
+#include "smalldense.h"     /* use generic DENSE solver for preconditioning    */
+#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S   */
+#include "llnlmath.h"       /* contains SQR macro                              */
 
 
 /* Problem Constants */
@@ -91,7 +92,7 @@
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MZ-1. The vdata array is obtained via
-   the macro call vdata = N_VDATA(v), where v is an N_Vector. 
+   the macro call vdata = NV_DATA_S(v), where v is an N_Vector. 
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
@@ -140,8 +141,9 @@ static int PSolve(integer N, real tn, N_Vector y, N_Vector fy, N_Vector vtemp,
 
 /***************************** Main Program ******************************/
 
-main()
+int main()
 {
+  M_Env machEnv;
   real abstol, reltol, t, tout, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector y;
@@ -149,15 +151,18 @@ main()
   void *cvode_mem;
   int iout, flag;
 
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);
+
   /* Allocate memory, and set problem data, initial values, tolerances */ 
 
-  y = N_VNew(NEQ, NULL);
+  y = N_VNew(NEQ, machEnv);
   data = AllocUserData();
   InitUserData(data);
   SetInitialProfiles(y, data->dx, data->dz);
   abstol=ATOL; reltol=RTOL;
 
-/* Call CVodeMalloc to initialize CVODE: 
+  /* Call CVodeMalloc to initialize CVODE: 
 
      NEQ     is the problem size = number of equations
      f       is the user's right hand side function in y'=f(t,y)
@@ -174,7 +179,7 @@ main()
      A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
 
   cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SS, &reltol,
-                          &abstol, data, NULL, FALSE, iopt, ropt, NULL);
+                          &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
 
   /* Call CVSpgmr to specify the CVODE linear solver CVSPGMR with
@@ -202,6 +207,8 @@ main()
   N_VFree(y);
   FreeUserData(data);
   CVodeFree(cvode_mem);
+  M_EnvFree_Serial(machEnv);
+
   PrintFinalStats(iopt);
   return(0);
 }
@@ -268,7 +275,7 @@ static void SetInitialProfiles(N_Vector y, real dx, real dz)
 
   /* Set pointer to data array in vector y. */
 
-  ydata = N_VDATA(y);
+  ydata = NV_DATA_S(y);
 
   /* Load initial profiles of c1 and c2 into y vector */
 
@@ -292,9 +299,9 @@ static void PrintOutput(long int iopt[], real ropt[], N_Vector y, real t)
 {
   real *ydata;
 
-  ydata = N_VDATA(y);
+  ydata = NV_DATA_S(y);
 
-  printf("t = %.2e   no. steps = %d   order = %d   stepsize = %.2e\n",
+  printf("t = %.2e   no. steps = %ld   order = %ld   stepsize = %.2e\n",
          t, iopt[NST], iopt[QU], ropt[HU]);
   printf("c1 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n",
          IJKth(ydata,1,0,0), IJKth(ydata,1,4,4), IJKth(ydata,1,9,9));
@@ -332,8 +339,8 @@ static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
   UserData data;
 
   data = (UserData) f_data;
-  ydata = N_VDATA(y);
-  dydata = N_VDATA(ydot);
+  ydata = NV_DATA_S(y);
+  dydata = NV_DATA_S(ydot);
 
   /* Set diurnal rate coefficients. */
 
@@ -422,40 +429,40 @@ static int Precond(integer N, real tn, N_Vector y, N_Vector fy, boole jok,
   int jx, jz;
   real *ydata, **a, **j;
   UserData data;
-
+  
   /* Make local copies of pointers in P_data, and of pointer to y's data */
-
+  
   data = (UserData) P_data;
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  ydata = N_VDATA(y);
-
+  ydata = NV_DATA_S(y);
+  
   if (jok) {
-
-  /* jok = TRUE: Copy Jbd to P */
-
+    
+    /* jok = TRUE: Copy Jbd to P */
+    
     for (jz=0; jz < MZ; jz++)
       for (jx=0; jx < MX; jx++)
         dencopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES);
-
-  *jcurPtr = FALSE;
-
+    
+    *jcurPtr = FALSE;
+    
   }
-
+  
   else {
-  /* jok = FALSE: Generate Jbd from scratch and copy to P */
-
-  /* Make local copies of problem variables, for efficiency. */
-
-  q4coef = data->q4;
-  delz = data->dz;
-  verdco = data->vdco;
-  hordco  = data->hdco;
-
-  /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
-     computed on the last f call).  Load into P. */
-
+    /* jok = FALSE: Generate Jbd from scratch and copy to P */
+    
+    /* Make local copies of problem variables, for efficiency. */
+    
+    q4coef = data->q4;
+    delz = data->dz;
+    verdco = data->vdco;
+    hordco  = data->hdco;
+    
+    /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
+       computed on the last f call).  Load into P. */
+    
     for (jz=0; jz < MZ; jz++) {
       zdn = ZMIN + (jz - .5)*delz;
       zup = zdn + delz;
@@ -474,19 +481,19 @@ static int Precond(integer N, real tn, N_Vector y, N_Vector fy, boole jok,
         dencopy(j, a, NUM_SPECIES);
       }
     }
-
-  *jcurPtr = TRUE;
-
+    
+    *jcurPtr = TRUE;
+    
   }
-
+  
   /* Scale by -gamma */
-
-    for (jz=0; jz < MZ; jz++)
-      for (jx=0; jx < MX; jx++)
-        denscale(-gamma, P[jx][jz], NUM_SPECIES);
-
+  
+  for (jz=0; jz < MZ; jz++)
+    for (jx=0; jx < MX; jx++)
+      denscale(-gamma, P[jx][jz], NUM_SPECIES);
+  
   /* Add identity matrix and do LU decompositions on blocks in place. */
-
+  
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
       denaddI(P[jx][jz], NUM_SPECIES);
@@ -494,7 +501,7 @@ static int Precond(integer N, real tn, N_Vector y, N_Vector fy, boole jok,
       if (ier != 0) return(1);
     }
   }
-
+  
   return(0);
 }
 
@@ -516,13 +523,13 @@ static int PSolve(integer N, real tn, N_Vector y, N_Vector fy, N_Vector vtemp,
   data = (UserData) P_data;
   P = data->P;
   pivot = data->pivot;
-  zdata = N_VDATA(z);
-
+  zdata = NV_DATA_S(z);
+  
   N_VScale(1.0, r, z);
-
+  
   /* Solve the block-diagonal system Px = r using LU factors stored
      in P and pivot data in pivot, and return the solution in z. */
-
+  
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
       v = &(IJKth(zdata, 1, jx, jz));

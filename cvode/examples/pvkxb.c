@@ -1,8 +1,10 @@
 /************************************************************************
  *                                                                      *
- * File: pvkxb.c                                                        *
+ * File       : pvkxb.c                                                 *
  * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman @ LLNL      *
- * Version of 5 March 2002                                              *
+ * Version of : 7 March 2002                                            *
+ *----------------------------------------------------------------------*
+ * Modified by R. Serban to work with new parallel nvector (7/3/2002)   *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -21,15 +23,15 @@
  * The PDE system is treated by central differences on a uniform        *
  * mesh, with simple polynomial initial profiles.                       *
  *                                                                      *
- * The problem is solved by PVODE on NPE processors, treated as a       *
+ * The problem is solved by CVODE on NPE processors, treated as a       *
  * rectangular process grid of size NPEX by NPEY, with NPE = NPEX*NPEY. *
  * Each processor contains a subgrid of size MXSUB by MYSUB of the      *
  * (x,y) mesh.  Thus the actual mesh sizes are MX = MXSUB*NPEX and      *
  * MY = MYSUB*NPEY, and the ODE system size is neq = 2*MX*MY.           *
  *                                                                      *
- * The solution with PVODE is done with the BDF/GMRES method (i.e.      *
+ * The solution with CVODE is done with the BDF/GMRES method (i.e.      *
  * using the CVSPGMR linear solver) and a block-diagonal matrix with    *
- * banded blocks as a preconditioner, using the PVBBDPRE module.        *
+ * banded blocks as a preconditioner, using the CVBBDPRE module.        *
  * Each block is generated using difference quotients, with             *
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded       *
  * blocks have half-bandwidths mukeep = mlkeep = 2.                     *
@@ -41,7 +43,7 @@
  * Performance data and sampled solution values are printed at selected *
  * output times, and all performance counters are printed on completion.*
  *                                                                      *
- * This version uses MPI for user routines, and the MPI_PVODE solver.   *   
+ * This version uses MPI for user routines, and the MPI_CVODE solver.   *   
  * Execute with number of processors = NPEX*NPEY (see constants below). *
  ************************************************************************/
 
@@ -52,8 +54,8 @@
 #include "cvode.h"     /* main CVODE header file                          */
 #include "iterativ.h"  /* contains the enum for types of preconditioning  */
 #include "cvspgmr.h"   /* use CVSPGMR linear solver                       */
-#include "pvbbdpre.h"  /* band preconditioner function prototypes         */
-#include "nvector.h"   /* definitions of type N_Vector, macro N_VDATA     */
+#include "cvbbdpre.h"  /* band preconditioner function prototypes         */
+#include "nvector_parallel.h"   /* definitions of type N_Vector, macro NV_DATA_P  */
 #include "llnlmath.h"  /* contains SQR macro                              */
 #include "mpi.h"       /* MPI data types and prototypes                   */
 
@@ -137,7 +139,7 @@ static void fucomm(integer N, real t, N_Vector u, void *f_data);
 static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
 
 
-/* Prototype of functions called by the PVBBDPRE module */
+/* Prototype of functions called by the CVBBDPRE module */
 
 static void flocal(integer N, real t, real uarray[], real duarray[], 
                     void *f_data);
@@ -147,25 +149,23 @@ static void ucomm(integer N, real t, N_Vector u, void *f_data);
 
 /***************************** Main Program ******************************/
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+  M_Env machEnv;
   real abstol, reltol, t, tout, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector u;
   UserData data;
-  PVBBDData pdata;
+  CVBBDData pdata;
   void *cvode_mem;
   int iout, flag, my_pe, npes, jpre;
   integer neq, local_N, mudq, mldq, mukeep, mlkeep;
-  machEnvType machEnv;
   MPI_Comm comm;
 
   /* Set problem size neq */
-
   neq = NVARS*MX*MY;
 
   /* Get processor number and total number of pe's */
-
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
@@ -178,26 +178,17 @@ main(int argc, char *argv[])
   }
 
   /* Set local length */
-
   local_N = NVARS*MXSUB*MYSUB;
 
-  /* Allocate and load user data block and preconditioner block */
+  /* Set machEnv block */
+  machEnv = M_EnvInit_Parallel(comm, local_N, neq, &argc, &argv);
+  if (machEnv == NULL) { printf("M_EnvInit_Parallel failed."); return(1); }
 
+  /* Allocate and load user data block */
   data = (UserData) malloc(sizeof *data);
   InitUserData(my_pe, comm, data);
-  mudq = mldq = NVARS*MXSUB;
-  mukeep = mlkeep = NVARS;
-  pdata = PVBBDAlloc(local_N, mudq, mldq, mukeep, mlkeep, 0.0, 
-                     flocal, ucomm, data);
-  if (pdata == NULL) { printf("PVBBDAlloc failed."); return(1); }
-
-  /* Set machEnv block */
-
-  machEnv = PVecInitMPI(comm, local_N, neq, &argc, &argv);
-  if (machEnv == NULL) { printf("PVecInitMPI failed."); return(1); }
 
   /* Allocate and initialize u, and set tolerances */ 
-
   u = N_VNew(neq, machEnv);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
@@ -223,35 +214,40 @@ main(int argc, char *argv[])
                           &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
 
+  /* Allocate preconditioner block */
+  mudq = mldq = NVARS*MXSUB;
+  mukeep = mlkeep = NVARS;
+  pdata = CVBBDAlloc(local_N, mudq, mldq, mukeep, mlkeep, 0.0, 
+                     flocal, ucomm, data, cvode_mem);
+  if (pdata == NULL) { printf("CVBBDAlloc failed."); return(1); }
+
   /* Call CVSpgmr to specify the CVODE linear solver CVSPGMR with
      left preconditioning, modified Gram-Schmidt orthogonalization,
      default values for the maximum Krylov dimension maxl and the tolerance
      parameter delt, preconditioner setup and solve routines from the
-     PVBBDPRE module, the pointer to the preconditioner data block, and
+     CVBBDPRE module, the pointer to the preconditioner data block, and
      NULL for theuser jtimes routine and Jacobian data pointer.              */
 
   flag = CVSpgmr(cvode_mem, LEFT, MODIFIED_GS, 0, 0.0,
-                 PVBBDPrecon, PVBBDPSol, pdata, NULL, NULL);
+                 CVBBDPrecon, CVBBDPSol, pdata, NULL, NULL);
   if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
 
   /* Print heading */
-
   if (my_pe == 0) {
     printf("2-species diurnal advection-diffusion problem\n");
     printf("  %d by %d mesh on %d processors\n",MX,MY,npes);
-    printf("  Using PVBBDPRE preconditioner module\n");
-    printf("    Difference-quotient half-bandwidths are mudq = %d,  mldq = %d\n",
+    printf("  Using CVBBDPRE preconditioner module\n");
+    printf("    Difference-quotient half-bandwidths are mudq = %ld,  mldq = %ld\n",
            mudq, mldq);
-    printf("    Retained band block half-bandwidths are mukeep = %d,  mlkeep = %d",
+    printf("    Retained band block half-bandwidths are mukeep = %ld,  mlkeep = %ld",
            mukeep, mlkeep); 
 
   }
 
   /* Loop over jpre (= LEFT, RIGHT), and solve the problem */
-
   for (jpre = LEFT; jpre <= RIGHT; jpre++) {
 
-  /* On second run, re-initialize u, CVODE, PVBBDPRE, and CVSPGMR */
+  /* On second run, re-initialize u, CVODE, CVBBDPRE, and CVSPGMR */
 
   if (jpre == RIGHT) {
 
@@ -261,11 +257,11 @@ main(int argc, char *argv[])
                     &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
     if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
 
-    flag = PVReInitBBD(pdata, local_N, mudq, mldq, mukeep, mlkeep, 0.0, 
+    flag = CVReInitBBD(pdata, local_N, mudq, mldq, mukeep, mlkeep, 0.0, 
                        flocal, ucomm, data);
 
     flag = CVReInitSpgmr(cvode_mem, jpre, MODIFIED_GS, 0, 0.0,
-                         PVBBDPrecon, PVBBDPSol, pdata, NULL, NULL);
+                         CVBBDPrecon, CVBBDPSol, pdata, NULL, NULL);
     if (flag != SUCCESS) { printf("CVReInitSpgmr failed."); return(1); }
 
     if (my_pe == 0) {
@@ -294,9 +290,9 @@ main(int argc, char *argv[])
 
   if (my_pe == 0) {
     PrintFinalStats(iopt);
-    printf("In PVBBDPRE: real/integer local work space sizes = %d, %d\n",
-           PVBBD_RPWSIZE(pdata), PVBBD_IPWSIZE(pdata) );  
-    printf("             no. flocal evals. = %d\n",PVBBD_NGE(pdata));
+    printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
+           CVBBD_RPWSIZE(pdata), CVBBD_IPWSIZE(pdata) );  
+    printf("             no. flocal evals. = %ld\n",CVBBD_NGE(pdata));
   }
 
   } /* End of jpre loop */
@@ -304,10 +300,10 @@ main(int argc, char *argv[])
   /* Free memory */
 
   N_VFree(u);
-  PVBBDFree(pdata);
+  CVBBDFree(pdata);
   free(data);
   CVodeFree(cvode_mem);
-  PVecFreeMPI(machEnv);
+  M_EnvFree_Parallel(machEnv);
   MPI_Finalize();
 
   return(0);
@@ -354,7 +350,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u */
 
-  uarray = N_VDATA(u);
+  uarray = NV_DATA_P(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
 
@@ -395,7 +391,7 @@ static void PrintOutput(integer my_pe, MPI_Comm comm, long int iopt[],
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
-  uarray = N_VDATA(u);
+  uarray = NV_DATA_P(u);
 
   /* Send c1,c2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -414,7 +410,7 @@ static void PrintOutput(integer my_pe, MPI_Comm comm, long int iopt[],
   if (my_pe == 0) {
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
-    printf("t = %.2e   no. steps = %d   order = %d   stepsize = %.2e\n",
+    printf("t = %.2e   no. steps = %ld   order = %ld   stepsize = %.2e\n",
            t, iopt[NST], iopt[QU], ropt[HU]);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", uarray[0], uarray[1]);
     printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
@@ -590,7 +586,7 @@ static void fucomm(integer N, real t, N_Vector u, void *f_data)
   MPI_Request request[4];
 
   data = (UserData) f_data;
-  uarray = N_VDATA(u);
+  uarray = NV_DATA_P(u);
 
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
@@ -626,8 +622,8 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
   real *uarray, *duarray;
   UserData data;
 
-  uarray = N_VDATA(u);
-  duarray = N_VDATA(udot);
+  uarray = NV_DATA_P(u);
+  duarray = NV_DATA_P(udot);
   data = (UserData) f_data;
 
 
@@ -642,14 +638,14 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
 }
 
 
-/***************** Functions called by the PVBBDPRE module ****************/
+/***************** Functions called by the CVBBDPRE module ****************/
 
 /* flocal routine.  Compute f(t,y).  This routine assumes that all
    inter-processor communication of data needed to calculate f has already
    been done, and this data is in the work array uext.                    */
 
 static void flocal(integer N, real t, real uarray[], real duarray[],
-                    void *f_data)
+                   void *f_data)
 {
   real *uext;
   real q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;

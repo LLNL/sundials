@@ -1,8 +1,10 @@
 /************************************************************************
  *                                                                      *
- * File: pvkx.c                                                         *
- * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman @ LLNL      *
- * Version of 11 January 2002                                           *
+ * File       : pvkx.c                                                  *
+ * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman @LLNL       *
+ * Version of : 6 March 2002                                            *
+ *----------------------------------------------------------------------*
+ * Modified by R. Serban to work with new parallel nvector (6/3/2002)   *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -21,13 +23,13 @@
  * The PDE system is treated by central differences on a uniform        *
  * mesh, with simple polynomial initial profiles.                       *
  *                                                                      *
- * The problem is solved by PVODE on NPE processors, treated as a       *
+ * The problem is solved by CVODE on NPE processors, treated as a       *
  * rectangular process grid of size NPEX by NPEY, with NPE = NPEX*NPEY. *
  * Each processor contains a subgrid of size MXSUB by MYSUB of the      *
  * (x,y) mesh.  Thus the actual mesh sizes are MX = MXSUB*NPEX and      *
  * MY = MYSUB*NPEY, and the ODE system size is neq = 2*MX*MY.           *
  *                                                                      *
- * The solution with PVODE is done with the BDF/GMRES method (i.e.      *
+ * The solution with CVODE is done with the BDF/GMRES method (i.e.      *
  * using the CVSPGMR linear solver) and the block-diagonal part of the  *
  * Newton matrix as a left preconditioner. A copy of the block-diagonal *
  * part of the Jacobian is saved and conditionally reused within the    *
@@ -43,13 +45,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"  /* definitions of real, integer, boole, TRUE,FALSE */
-#include "cvode.h"     /* main CVODE header file                          */
-#include "iterativ.h"  /* contains the enum for types of preconditioning  */
-#include "cvspgmr.h"   /* use CVSPGMR linear solver each internal step    */
-#include "smalldense.h" /* use generic DENSE solver in preconditioning    */
-#include "nvector.h"   /* definitions of type N_Vector, macro N_VDATA     */
-#include "llnlmath.h"  /* contains SQR macro                              */
+#include "llnltyps.h"           /* definitions of real, integer, boole, TRUE,FALSE */
+#include "cvode.h"              /* main CVODE header file                          */
+#include "iterativ.h"           /* contains the enum for types of preconditioning  */
+#include "cvspgmr.h"            /* use CVSPGMR linear solver each internal step    */
+#include "smalldense.h"         /* use generic DENSE solver in preconditioning     */
+#include "nvector_parallel.h"   /* definitions of type N_Vector, macro NV_DATA_P   */
+#include "llnlmath.h"           /* contains SQR macro                              */
 #include "mpi.h"
 
 
@@ -163,8 +165,9 @@ static int PSolve(integer N, real tn, N_Vector u, N_Vector fu, N_Vector vtemp,
 
 /***************************** Main Program ******************************/
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+  M_Env machEnv;
   real abstol, reltol, t, tout, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector u;
@@ -173,7 +176,6 @@ main(int argc, char *argv[])
   void *cvode_mem;
   int iout, flag, my_pe, npes;
   integer neq, local_N;
-  machEnvType machEnv;
   MPI_Comm comm;
 
   /* Set problem size neq */
@@ -205,7 +207,7 @@ main(int argc, char *argv[])
 
   /* Set machEnv block */
 
-  machEnv = PVecInitMPI(comm, local_N, neq, &argc, &argv);
+  machEnv = M_EnvInit_Parallel(comm, local_N, neq, &argc, &argv);
   if (machEnv == NULL) return(1);
 
   /* Allocate u, and set initial values and tolerances */ 
@@ -266,7 +268,7 @@ main(int argc, char *argv[])
   FreePreconData(predata);
   CVodeFree(cvode_mem);
   if (my_pe == 0) PrintFinalStats(iopt);
-  PVecFreeMPI(machEnv);
+  M_EnvFree_Parallel(machEnv);
   MPI_Finalize();
 
   return(0);
@@ -352,7 +354,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u */
 
-  udata = N_VDATA(u);
+  udata = NV_DATA_P(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
 
@@ -362,7 +364,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   /* Load initial profiles of c1 and c2 into local u vector.
   Here lx and ly are local mesh point indices on the local subgrid,
   and jx and jy are the global mesh point indices. */
-
+  
   offset = 0;
   xmid = .5*(XMIN + XMAX);
   ymid = .5*(YMIN + YMAX);
@@ -393,7 +395,7 @@ static void PrintOutput(integer my_pe, MPI_Comm comm, long int iopt[],
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
-  udata = N_VDATA(u);
+  udata = NV_DATA_P(u);
 
   /* Send c1,c2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -412,7 +414,7 @@ static void PrintOutput(integer my_pe, MPI_Comm comm, long int iopt[],
   if (my_pe == 0) {
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
-    printf("t = %.2e   no. steps = %d   order = %d   stepsize = %.2e\n",
+    printf("t = %.2e   no. steps = %ld   order = %ld   stepsize = %.2e\n",
            t, iopt[NST], iopt[QU], ropt[HU]);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", udata[0], udata[1]);
     printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
@@ -586,7 +588,7 @@ static void ucomm(integer N, real t, N_Vector u, UserData data)
   integer my_pe, isubx, isuby, nvmxsub, nvmysub;
   MPI_Request request[4];
 
-  udata = N_VDATA(u);
+  udata = NV_DATA_P(u);
 
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
@@ -766,8 +768,8 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
   real *udata, *dudata;
   UserData data;
 
-  udata = N_VDATA(u);
-  dudata = N_VDATA(udot);
+  udata = NV_DATA_P(u);
+  dudata = NV_DATA_P(udot);
   data = (UserData) f_data;
 
 
@@ -805,7 +807,7 @@ static int Precond(integer N, real tn, N_Vector u, N_Vector fu, boole jok,
   P = predata->P;
   Jbd = predata->Jbd;
   pivot = predata->pivot;
-  udata = N_VDATA(u);
+  udata = NV_DATA_P(u);
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
@@ -908,7 +910,7 @@ static int PSolve(integer N, real tn, N_Vector u, N_Vector fu, N_Vector vtemp,
   N_VScale(1.0, r, z);
 
   nvmxsub = data->nvmxsub;
-  zdata = N_VDATA(z);
+  zdata = NV_DATA_P(z);
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {

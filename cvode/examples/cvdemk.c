@@ -1,8 +1,10 @@
 /*************************************************************************
  *                                                                       *
- * File: cvdemk.c                                                        *
- * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL              *
- * Version of 1 March 2002                                               * 
+ * File        : cvdemk.c                                                *
+ * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
+ * Version of  : 5 March 2002                                            * 
+ *-----------------------------------------------------------------------*
+ * Modified by R. Serban to work with new serial nvector (5/3/2002)      *
  *-----------------------------------------------------------------------*
  * Demonstration program for CVODE - Krylov linear solver.               *
  * ODE system from ns-species interaction PDE in 2 dimensions.           *
@@ -73,7 +75,7 @@
  * denalloc, denallocpiv, denaddI, gefa, gesl, denfreepiv and denfree.   *
  *                                                                       *
  * Note.. This program assumes the sequential implementation for the     *
- * type N_Vector and uses the N_VDATA macro to gain access to the        *
+ * type N_Vector and uses the NV_DATA_S macro to gain access to the      *
  * contiguous array of components of an N_Vector.                        *
  *-----------------------------------------------------------------------*
  *                                                                       *
@@ -86,14 +88,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"  /* contains the definition for real, integer, boole  */
-#include "cvode.h"     /* main CVODE header file                            */
-#include "iterativ.h"  /* for types of preconditioning and Gram-Schmidt     */
-#include "cvspgmr.h"   /* use CVSPGMR linear solver each internal step      */
-#include "dense.h"     /* use generic DENSE linear solver for "small" dense */
-                       /* matrix blocks in right preconditioner             */
-#include "nvector.h"   /* contains the definition of type N_Vector          */
-#include "llnlmath.h"  /* contains UnitRoundoff, RSqrt, SQR functions       */
+#include "llnltyps.h"        /* contains the definition for real, integer, boole  */
+#include "cvode.h"           /* main CVODE header file                            */
+#include "iterativ.h"        /* for types of preconditioning and Gram-Schmidt     */
+#include "cvspgmr.h"         /* use CVSPGMR linear solver each internal step      */
+#include "dense.h"           /* use generic DENSE linear solver for "small" dense */
+                             /* matrix blocks in right preconditioner             */
+#include "nvector_serial.h"  /* contains the definition of type N_Vector          */
+#include "llnlmath.h"        /* contains UnitRoundoff, RSqrt, SQR functions       */
 
 /* Problem Specification Constants */
 
@@ -206,19 +208,25 @@ static int PSolve(integer N, real tn, N_Vector c, N_Vector fc,
      
 /* Implementation */
 
-main()
+int main()
 {
+  M_Env machEnv;
   real ropt[OPT_SIZE], abstol=ATOL, reltol=RTOL, t, tout;
   long int iopt[OPT_SIZE]; 
   N_Vector c;
   WebData wdata;
-  void *cvode_mem;
+  void *cvode_mem = NULL;
   boole firstrun;
   int jpre, gstype, iout, flag, ns, mxns;
 
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);
+
   /* Initializations */
-  c = N_VNew(NEQ, NULL);
+  c = N_VNew(NEQ, machEnv);
   wdata = AllocUserData();
+  ns = wdata->ns;
+  mxns = wdata->mxns;
   InitUserData(wdata);
 
   /* Print problem description */
@@ -231,33 +239,32 @@ main()
       /* Initialize c and print heading */
       CInit(c, wdata);
       printf("\n\nPreconditioner type is           jpre = %s\n",
-	     (jpre == LEFT) ? "LEFT" : "RIGHT");
+             (jpre == LEFT) ? "LEFT" : "RIGHT");
       printf("\nGram-Schmidt method type is    gstype = %s\n\n\n",
-	     (gstype == MODIFIED_GS) ? "MODIFIED_GS" : "CLASSICAL_GS");
-
+             (gstype == MODIFIED_GS) ? "MODIFIED_GS" : "CLASSICAL_GS");
+      
       /* Call CVodeMalloc or CVReInit, then CVSpgmr to set up problem */
-
+      
       firstrun = (jpre == LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
         cvode_mem = CVodeMalloc(NEQ, f, T0, c, LMM, ITER, ITOL, &reltol,
-			  &abstol, wdata, ERRFP, OPTIN, iopt, ropt, NULL);
+                                &abstol, wdata, ERRFP, OPTIN, iopt, ropt, machEnv);
         if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
         flag = CVSpgmr(cvode_mem, jpre, gstype, MAXL, DELT, Precond, PSolve,
                        wdata, NULL, NULL);
         if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
-      }
-      else {
+      } else {
         flag = CVReInit(cvode_mem, f, T0, c, LMM, ITER, ITOL, &reltol,
-			  &abstol, wdata, ERRFP, OPTIN, iopt, ropt, NULL);
+                        &abstol, wdata, ERRFP, OPTIN, iopt, ropt, machEnv);
         if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
         flag = CVReInitSpgmr(cvode_mem, jpre, gstype, MAXL, DELT,
                              Precond, PSolve, wdata, NULL, NULL);
         if (flag != SUCCESS) { printf("CVReInitSpgmr failed."); return(1); }
       }
- 
+      
       /* Print initial values */
-      if (firstrun) PrintAllSpecies(c, ns=wdata->ns, mxns=wdata->mxns, T0);
-
+      if (firstrun) PrintAllSpecies(c, wdata->ns, wdata->mxns, T0);
+      
       /* Loop over output points, call CVode, print sample solution values. */
       tout = T1;
       for (iout = 1; iout <= NOUT; iout++) {
@@ -267,17 +274,19 @@ main()
         if (flag != SUCCESS) { printf("CVode failed.\n"); break; }
         if (tout > 0.9) tout += DTOUT; else tout *= TOUT_MULT; 
       }
-
+      
       /* Print final statistics, and loop for next case */
       PrintFinalStats(iopt);
-
+      
     }
   }
 
   /* Free all memory */
   CVodeFree(cvode_mem);
   N_VFree(c);
+  M_EnvFree_Serial(machEnv);
   FreeUserData(wdata);
+
   return(0);
 }
 
@@ -285,7 +294,7 @@ static WebData AllocUserData(void)
 {
   int i, ngrp = NGRP, ns = NS;
   WebData wdata;
-
+  
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
     (wdata->P)[i] = denalloc(ns);
@@ -299,14 +308,14 @@ static void InitUserData(WebData wdata)
   int i, j, ns;
   real *bcoef, *diff, *cox, *coy, dx, dy;
   real (*acoef)[NS];
-
+  
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
   diff = wdata->diff;
   cox = wdata->cox;
   coy = wdata->coy;
   ns = wdata->ns = NS;
-
+  
   for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = 0.; }
   for (j = 0; j < NP; j++) {
     for (i = 0; i < NP; i++) {
@@ -380,7 +389,7 @@ static void CInit(N_Vector c, WebData wdata)
   int i, ici, ioff, iyoff, jx, jy, ns, mxns;
   real argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
   
-  cdata = N_VDATA(c);
+  cdata = NV_DATA_S(c);
   ns = wdata->ns;
   mxns = wdata->mxns;
   dx = wdata->dx;
@@ -397,8 +406,8 @@ static void CInit(N_Vector c, WebData wdata)
       argx = SQR(x_factor*x*(AX-x));
       ioff = iyoff + ns*jx;
       for (i = 1; i <= ns; i++) {
-	ici = ioff + i-1;
-	cdata[ici] = 10.0 + i*argx*argy;
+        ici = ioff + i-1;
+        cdata[ici] = 10.0 + i*argx*argy;
       }
     }
   }
@@ -410,16 +419,16 @@ static void PrintIntro(void)
   printf("Food web problem with ns species, ns = %d\n", NS);
   printf("Predator-prey interaction and diffusion on a 2-D square\n\n");
   printf("Matrix parameters.. a = %.2g   e = %.2g   g = %.2g\n",
-	 AA, EE, GG);
+         AA, EE, GG);
   printf("b parameter = %.2g\n", BB);
   printf("Diffusion coefficients.. Dprey = %.2g   Dpred = %.2g\n",
-	 DPREY, DPRED);
+         DPREY, DPRED);
   printf("Rate parameter alpha = %.2g\n\n", ALPH);
   printf("Mesh dimensions (mx,my) are %d, %d.  ", MX, MY);
   printf("Total system size is neq = %d \n\n", NEQ);
   printf("Tolerances: itol = %s,  reltol = %.2g, abstol = %.2g \n\n",
          (ITOL == SS) ? "SS" : "SV", RTOL, ATOL);
-
+  
   printf("Preconditioning uses a product of:\n");
   printf("  (1) Gauss-Seidel iterations with ");
   printf("itmax = %d iterations, and\n", ITMAX);
@@ -435,14 +444,14 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, real t)
 {
   int i, jx, jy;
   real *cdata;
-
-  cdata = N_VDATA(c);
+  
+  cdata = NV_DATA_S(c);
   printf("c values at t = %g:\n\n", t);
   for (i=1; i <= ns; i++) {
     printf("Species %d\n", i);
     for (jy=MY-1; jy >= 0; jy--) {
       for (jx=0; jx < MX; jx++) {
-	printf("%-10.6g", cdata[(i-1) + jx*ns + jy*mxns]);
+        printf("%-10.6g", cdata[(i-1) + jx*ns + jy*mxns]);
       }
       printf("\n");
     }
@@ -453,7 +462,7 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, real t)
 static void PrintOutput(real t, long int iopt[], real ropt[])
 {
   printf("t = %10.2e  nst = %ld  nfe = %ld  nni = %ld", t, iopt[NST],
-	 iopt[NFE], iopt[NNI]);
+         iopt[NFE], iopt[NNI]);
   printf("  qu = %ld  hu = %11.2e\n\n", iopt[QU], ropt[HU]);
 }
 
@@ -461,7 +470,7 @@ static void PrintFinalStats(long int iopt[])
 {
   long int nni, nli;
   real avdim;
-
+  
   printf("\n\n Final statistics for this run:\n\n");
   printf(" CVode real workspace length           = %4ld \n", iopt[LENRW]);
   printf(" CVode integer workspace length        = %4ld \n", iopt[LENIW]);
@@ -472,7 +481,7 @@ static void PrintFinalStats(long int iopt[])
   printf(" Number of setups                      = %4ld \n", iopt[NSETUPS]);
   printf(" Number of nonlinear iterations        = %4ld \n", nni = iopt[NNI]);
   printf(" Number of linear iterations           = %4ld \n", 
-	 nli = iopt[SPGMR_NLI]);
+         nli = iopt[SPGMR_NLI]);
   printf(" Number of preconditioner evaluations  = %4ld \n", iopt[SPGMR_NPE]);
   printf(" Number of preconditioner solves       = %4ld \n", iopt[SPGMR_NPS]);
   printf(" Number of error test failures         = %4ld \n", iopt[NETF]);
@@ -489,7 +498,7 @@ static void PrintFinalStats(long int iopt[])
 static void FreeUserData(WebData wdata)
 {
   int i, ngrp;
-
+  
   ngrp = wdata->ngrp;
   for(i=0; i < ngrp; i++) {
     denfree((wdata->P)[i]);
@@ -509,11 +518,11 @@ static void f(integer N, real t, N_Vector c, N_Vector cdot, void *f_data)
   real dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
   real *cdata, *cdotdata;
   WebData wdata;
-
+  
   wdata = (WebData) f_data;
-  cdata = N_VDATA(c);
-  cdotdata = N_VDATA(cdot);
-
+  cdata = NV_DATA_S(c);
+  cdotdata = NV_DATA_S(cdot);
+  
   mxns = wdata->mxns;
   ns = wdata->ns;
   fsave = wdata->fsave;
@@ -522,7 +531,7 @@ static void f(integer N, real t, N_Vector c, N_Vector cdot, void *f_data)
   mxns = wdata->mxns;
   dx = wdata->dx;
   dy = wdata->dy;
-
+  
   for (jy = 0; jy < MY; jy++) {
     y = jy*dy;
     iyoff = mxns*jy;
@@ -536,37 +545,37 @@ static void f(integer N, real t, N_Vector c, N_Vector cdot, void *f_data)
       idxu = (jx == MX-1) ? -ns : ns;
       idxl = (jx == 0) ? -ns : ns;
       for (i = 1; i <= ns; i++) {
-	ici = ic + i-1;
-	/* Do differencing in y. */
-	dcyli = cdata[ici] - cdata[ici-idyl];
-	dcyui = cdata[ici+idyu] - cdata[ici];
-	/* Do differencing in x. */
-	dcxli = cdata[ici] - cdata[ici-idxl];
-	dcxui = cdata[ici+idxu] - cdata[ici];
-	/* Collect terms and load cdot elements. */
-	cdotdata[ici] = coy[i-1]*(dcyui - dcyli) + cox[i-1]*(dcxui - dcxli) +
-	  fsave[ici];
+        ici = ic + i-1;
+        /* Do differencing in y. */
+        dcyli = cdata[ici] - cdata[ici-idyl];
+        dcyui = cdata[ici+idyu] - cdata[ici];
+        /* Do differencing in x. */
+        dcxli = cdata[ici] - cdata[ici-idxl];
+        dcxui = cdata[ici+idxu] - cdata[ici];
+        /* Collect terms and load cdot elements. */
+        cdotdata[ici] = coy[i-1]*(dcyui - dcyli) + cox[i-1]*(dcxui - dcxli) +
+          fsave[ici];
       }
     }
   }
 }
 
 /*
- This routine computes the interaction rates for the species
- c_1, ... ,c_ns (stored in c[0],...,c[ns-1]), at one spatial point 
- and at time t.
+  This routine computes the interaction rates for the species
+  c_1, ... ,c_ns (stored in c[0],...,c[ns-1]), at one spatial point 
+  and at time t.
 */
 static void WebRates(real x, real y, real t, real c[], real rate[],
-		     WebData wdata)
+                     WebData wdata)
 {
   int i, j, ns;
   real fac, *bcoef;
   real (*acoef)[NS];
-
+  
   ns = wdata->ns;
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
-
+  
   for (i = 0; i < ns; i++)
     rate[i] = 0.0;
   
@@ -593,9 +602,9 @@ static void WebRates(real x, real y, real t, real c[], real rate[],
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */ 
 static int Precond(integer N, real t, N_Vector c, N_Vector fc, boole jok,
-		   boole *jcurPtr, real gamma, N_Vector rewt, real h,
-		   real uround, long int *nfePtr, void *P_data,
-		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   boole *jcurPtr, real gamma, N_Vector rewt, real h,
+                   real uround, long int *nfePtr, void *P_data,
+                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   real ***P;
   integer **pivot, ier;
@@ -604,11 +613,11 @@ static int Precond(integer N, real t, N_Vector c, N_Vector fc, boole jok,
   real fac, r, r0, save, srur;
   real *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
-
+  
   wdata = (WebData) P_data;
-  cdata = N_VDATA(c);
-  rewtdata = N_VDATA(rewt);
-
+  cdata = NV_DATA_S(c);
+  rewtdata = NV_DATA_S(rewt);
+  
   P = wdata->P;
   pivot = wdata->pivot;
   jxr = wdata->jxr;
@@ -620,17 +629,17 @@ static int Precond(integer N, real t, N_Vector c, N_Vector fc, boole jok,
   ngy = wdata->ngy;
   mxmp = wdata->mxmp;
   fsave = wdata->fsave;
-
+  
   /* Make mp calls to fblock to approximate each diagonal block of Jacobian.
      Here, fsave contains the base value of the rate vector and 
      r0 is a minimum increment factor for the difference quotient. */
-
-  f1 = N_VDATA(vtemp1);
-
+  
+  f1 = NV_DATA_S(vtemp1);
+  
   fac = N_VWrmsNorm (fc, rewt);
   r0 = 1000.0*ABS(gamma)*uround*N*fac;
   if (r0 == 0.0) r0 = 1.0;
-
+  
   for (igy = 0; igy < ngy; igy++) {
     jy = jyr[igy];
     if00 = jy*mxmp;
@@ -640,44 +649,44 @@ static int Precond(integer N, real t, N_Vector c, N_Vector fc, boole jok,
       ig = igx + igy*ngx; 
       /* Generate ig-th diagonal block */
       for (j = 0; j < mp; j++) {
-	/* Generate the jth column as a difference quotient */
-	jj = if0 + j; 
-	save = cdata[jj];
-	r = MAX(srur*ABS(save),r0/rewtdata[jj]);
-	cdata[jj] += r;
-	fac = -gamma/r;
-	fblock (t, cdata, jx, jy, f1, wdata);
-	for (i = 0; i < mp; i++) {
-	  P[ig][j][i] = (f1[i] - fsave[if0+i])*fac;
-	}
-	cdata[jj] = save;
+        /* Generate the jth column as a difference quotient */
+        jj = if0 + j; 
+        save = cdata[jj];
+        r = MAX(srur*ABS(save),r0/rewtdata[jj]);
+        cdata[jj] += r;
+        fac = -gamma/r;
+        fblock (t, cdata, jx, jy, f1, wdata);
+        for (i = 0; i < mp; i++) {
+          P[ig][j][i] = (f1[i] - fsave[if0+i])*fac;
+        }
+        cdata[jj] = save;
       }
     }
   }
-
+  
   /* Add identity matrix and do LU decompositions on blocks. */
-
-   for (ig = 0; ig < ngrp; ig++) {
-     denaddI(P[ig], mp);
-     ier = gefa(P[ig], mp, pivot[ig]);
-     if (ier != 0) return(1);
-   }
-
+  
+  for (ig = 0; ig < ngrp; ig++) {
+    denaddI(P[ig], mp);
+    ier = gefa(P[ig], mp, pivot[ig]);
+    if (ier != 0) return(1);
+  }
+  
   *jcurPtr = TRUE;
   return(0);
 }
 
 /*
- This routine computes one block of the interaction terms of the
- system, namely block (jx,jy), for use in preconditioning.
- Here jx and jy count from 0.
+  This routine computes one block of the interaction terms of the
+  system, namely block (jx,jy), for use in preconditioning.
+  Here jx and jy count from 0.
 */
 static void fblock(real t, real cdata[], int jx, int jy, real cdotdata[],
-		   WebData wdata)
+                   WebData wdata)
 {
   int iblok, ic;
   real x, y;
-
+  
   iblok = jx + jy*(wdata->mx);
   y = jy*(wdata->dy);
   x = jx*(wdata->dx);
@@ -686,34 +695,34 @@ static void fblock(real t, real cdata[], int jx, int jy, real cdotdata[],
 }
 
 /*
- This routine applies two inverse preconditioner matrices
- to the vector r, using the interaction-only block-diagonal Jacobian
- with block-grouping, denoted Jr, and Gauss-Seidel applied to the
- diffusion contribution to the Jacobian, denoted Jd.
- It first calls GSIter for a Gauss-Seidel approximation to
- ((I - gamma*Jd)-inverse)*r, and stores the result in z.
- Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
- blocks in P, and pivot information in pivot, and returns the result in z.
+  This routine applies two inverse preconditioner matrices
+  to the vector r, using the interaction-only block-diagonal Jacobian
+  with block-grouping, denoted Jr, and Gauss-Seidel applied to the
+  diffusion contribution to the Jacobian, denoted Jd.
+  It first calls GSIter for a Gauss-Seidel approximation to
+  ((I - gamma*Jd)-inverse)*r, and stores the result in z.
+  Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
+  blocks in P, and pivot information in pivot, and returns the result in z.
 */
 static int PSolve(integer N, real tn, N_Vector c, N_Vector fc, N_Vector vtemp,
-		  real gamma, N_Vector rewt, real delta, long int *nfePtr,
-		  N_Vector r, int lr, void *P_data, N_Vector z)
+                  real gamma, N_Vector rewt, real delta, long int *nfePtr,
+                  N_Vector r, int lr, void *P_data, N_Vector z)
 {
   real   ***P;
   integer **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
-
+  
   wdata = (WebData) P_data;
-
+  
   N_VScale(1.0, r, z);
-
+  
   /* call GSIter for Gauss-Seidel iterations */
-
+  
   GSIter(N, gamma, z, vtemp, wdata);
-
+  
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
- 
+  
   P = wdata->P;
   pivot = wdata->pivot;
   mx = wdata->mx;
@@ -722,48 +731,48 @@ static int PSolve(integer N, real tn, N_Vector c, N_Vector fc, N_Vector vtemp,
   mp = wdata->mp;
   jigx = wdata->jigx;
   jigy = wdata->jigy;
-
+  
   iv = 0;
   for (jy = 0; jy < my; jy++) {
     igy = jigy[jy];
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      gesl(P[ig], mp, pivot[ig], &(N_VDATA(z)[iv]));
+      gesl(P[ig], mp, pivot[ig], &(NV_DATA_S(z)[iv]));
       iv += mp;
     }
   }
-
+  
   return(0);
 }
 
 /*
- This routine performs ITMAX=5 Gauss-Seidel iterations to compute an
- approximation to (P-inverse)*z, where P = I - gamma*Jd, and
- Jd represents the diffusion contributions to the Jacobian.
- The answer is stored in z on return, and x is a temporary vector.
- The dimensions below assume a global constant NS >= ns.
- Some inner loops of length ns are implemented with the small
- vector kernels v_sum_prods, v_prod, v_inc_by_prod.
+  This routine performs ITMAX=5 Gauss-Seidel iterations to compute an
+  approximation to (P-inverse)*z, where P = I - gamma*Jd, and
+  Jd represents the diffusion contributions to the Jacobian.
+  The answer is stored in z on return, and x is a temporary vector.
+  The dimensions below assume a global constant NS >= ns.
+  Some inner loops of length ns are implemented with the small
+  vector kernels v_sum_prods, v_prod, v_inc_by_prod.
 */
 static void GSIter(int N, real gamma, N_Vector z, N_Vector x, WebData wdata)
 {
-  int i, ic, ici, iter, iyoff, jx, jy, ns, mxns, mx, my, x_loc, y_loc;
+  int i, ic, iter, iyoff, jx, jy, ns, mxns, mx, my, x_loc, y_loc;
   real beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
   real temp, *cox, *coy, *xd, *zd;
-
-  xd = N_VDATA(x);
-  zd = N_VDATA(z);
+  
+  xd = NV_DATA_S(x);
+  zd = NV_DATA_S(z);
   ns = wdata->ns;
   mx = wdata->mx;
   my = wdata->my;
   mxns = wdata->mxns;
   cox = wdata->cox;
   coy = wdata->coy;
-
+  
   /* Write matrix as P = D - L - U.
      Load local arrays beta, beta2, gam, gam2, and cof1. */
- 
+  
   for (i = 0; i < ns; i++) {
     temp = 1.0/(1.0 + 2.0*gamma*(cox[i] + coy[i]));
     beta[i] = gamma*cox[i]*temp;
@@ -772,10 +781,10 @@ static void GSIter(int N, real gamma, N_Vector z, N_Vector x, WebData wdata)
     gam2[i] = 2.0*gam[i];
     cof1[i] = temp;
   }
-
+  
   /* Begin iteration loop.
-  Load vector x with (D-inverse)*z for first iteration. */
-
+     Load vector x with (D-inverse)*z for first iteration. */
+  
   for (jy = 0; jy < my; jy++) {
     iyoff = mxns*jy;
     for (jx = 0; jx < mx; jx++) {
@@ -784,117 +793,135 @@ static void GSIter(int N, real gamma, N_Vector z, N_Vector x, WebData wdata)
     }
   }
   N_VConst(0.0, z);
-
+  
   /* Looping point for iterations. */
-
+  
   for (iter=1; iter <= ITMAX; iter++) {
-
+    
     /* Calculate (D-inverse)*U*x if not the first iteration. */
-
+    
     if (iter > 1) {
       for (jy=0; jy < my; jy++) {
-	iyoff = mxns*jy;
-	for (jx=0; jx < mx; jx++) { /* order of loops matters */
-	  ic = iyoff + ns*jx;
-	  x_loc = (jx == 0) ? 0 : ((jx == mx-1) ? 2 : 1);
-	  y_loc = (jy == 0) ? 0 : ((jy == my-1) ? 2 : 1);
-	  switch (3*y_loc+x_loc) {
-	  case 0 : /* jx == 0, jy == 0 */
-	           /* x[ic+i] = beta2[i]x[ic+ns+i] + gam2[i]x[ic+mxns+i] */
-	           v_sum_prods(xd+ic, beta2, xd+ic+ns, gam2, xd+ic+mxns, ns);
-		   break;
-	  case 1 : /* 1 <= jx <= mx-2, jy == 0 */
-	           /* x[ic+i] = beta[i]x[ic+ns+i] + gam2[i]x[ic+mxns+i] */
-	           v_sum_prods(xd+ic, beta, xd+ic+ns, gam2, xd+ic+mxns, ns);
-		   break;
-	  case 2 : /* jx == mx-1, jy == 0 */
-	           /* x[ic+i] = gam2[i]x[ic+mxns+i] */
-	           v_prod(xd+ic, gam2, xd+ic+mxns, ns);
-		   break;
-	  case 3 : /* jx == 0, 1 <= jy <= my-2 */
-	           /* x[ic+i] = beta2[i]x[ic+ns+i] + gam[i]x[ic+mxns+i] */
-                   v_sum_prods(xd+ic, beta2, xd+ic+ns, gam, xd+ic+mxns, ns);
-		   break;
-	  case 4 : /* 1 <= jx <= mx-2, 1 <= jy <= my-2 */
-	           /* x[ic+i] = beta[i]x[ic+ns+i] + gam[i]x[ic+mxns+i] */
-	           v_sum_prods(xd+ic, beta, xd+ic+ns, gam, xd+ic+mxns, ns);
-		   break;
-	  case 5 : /* jx == mx-1, 1 <= jy <= my-2 */
-	           /* x[ic+i] = gam[i]x[ic+mxns+i] */
-	           v_prod(xd+ic, gam, xd+ic+mxns, ns);
-		   break;
-	  case 6 : /* jx == 0, jy == my-1 */
-	           /* x[ic+i] = beta2[i]x[ic+ns+i] */
-	           v_prod(xd+ic, beta2, xd+ic+ns, ns);
-		   break;
-	  case 7 : /* 1 <= jx <= mx-2, jy == my-1 */
-	           /* x[ic+i] = beta[i]x[ic+ns+i] */
-	           v_prod(xd+ic, beta, xd+ic+ns, ns);
-		   break;
-	  case 8 : /* jx == mx-1, jy == my-1 */
-	           /* x[ic+i] = 0.0 */
-	           v_zero(xd+ic, ns);
-		   break;
-	  }
-	}
+        iyoff = mxns*jy;
+        for (jx=0; jx < mx; jx++) { /* order of loops matters */
+          ic = iyoff + ns*jx;
+          x_loc = (jx == 0) ? 0 : ((jx == mx-1) ? 2 : 1);
+          y_loc = (jy == 0) ? 0 : ((jy == my-1) ? 2 : 1);
+          switch (3*y_loc+x_loc) {
+          case 0 : 
+            /* jx == 0, jy == 0 */
+            /* x[ic+i] = beta2[i]x[ic+ns+i] + gam2[i]x[ic+mxns+i] */
+            v_sum_prods(xd+ic, beta2, xd+ic+ns, gam2, xd+ic+mxns, ns);
+            break;
+          case 1 : 
+            /* 1 <= jx <= mx-2, jy == 0 */
+            /* x[ic+i] = beta[i]x[ic+ns+i] + gam2[i]x[ic+mxns+i] */
+            v_sum_prods(xd+ic, beta, xd+ic+ns, gam2, xd+ic+mxns, ns);
+            break;
+          case 2 : 
+            /* jx == mx-1, jy == 0 */
+            /* x[ic+i] = gam2[i]x[ic+mxns+i] */
+            v_prod(xd+ic, gam2, xd+ic+mxns, ns);
+            break;
+          case 3 : 
+            /* jx == 0, 1 <= jy <= my-2 */
+            /* x[ic+i] = beta2[i]x[ic+ns+i] + gam[i]x[ic+mxns+i] */
+            v_sum_prods(xd+ic, beta2, xd+ic+ns, gam, xd+ic+mxns, ns);
+            break;
+          case 4 : 
+            /* 1 <= jx <= mx-2, 1 <= jy <= my-2 */
+            /* x[ic+i] = beta[i]x[ic+ns+i] + gam[i]x[ic+mxns+i] */
+            v_sum_prods(xd+ic, beta, xd+ic+ns, gam, xd+ic+mxns, ns);
+            break;
+          case 5 : 
+            /* jx == mx-1, 1 <= jy <= my-2 */
+            /* x[ic+i] = gam[i]x[ic+mxns+i] */
+            v_prod(xd+ic, gam, xd+ic+mxns, ns);
+            break;
+          case 6 : 
+            /* jx == 0, jy == my-1 */
+            /* x[ic+i] = beta2[i]x[ic+ns+i] */
+            v_prod(xd+ic, beta2, xd+ic+ns, ns);
+            break;
+          case 7 : 
+            /* 1 <= jx <= mx-2, jy == my-1 */
+            /* x[ic+i] = beta[i]x[ic+ns+i] */
+            v_prod(xd+ic, beta, xd+ic+ns, ns);
+            break;
+          case 8 : 
+            /* jx == mx-1, jy == my-1 */
+            /* x[ic+i] = 0.0 */
+            v_zero(xd+ic, ns);
+            break;
+          }
+        }
       }
     }  /* end if (iter > 1) */
- 
+    
     /* Overwrite x with [(I - (D-inverse)*L)-inverse]*x. */
-
+    
     for (jy=0; jy < my; jy++) {
       iyoff = mxns*jy;
       for (jx=0; jx < mx; jx++) { /* order of loops matters */
-	ic = iyoff + ns*jx;
-	x_loc = (jx == 0) ? 0 : ((jx == mx-1) ? 2 : 1);
-	y_loc = (jy == 0) ? 0 : ((jy == my-1) ? 2 : 1);
-	switch (3*y_loc+x_loc) {
-	case 0 : /* jx == 0, jy == 0 */
-	         break;
-	case 1 : /* 1 <= jx <= mx-2, jy == 0 */
-	         /* x[ic+i] += beta[i]x[ic-ns+i] */
-	         v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
-		 break;
-	case 2 : /* jx == mx-1, jy == 0 */
-	         /* x[ic+i] += beta2[i]x[ic-ns+i] */
-	         v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
-		 break;
-	case 3 : /* jx == 0, 1 <= jy <= my-2 */
-	         /* x[ic+i] += gam[i]x[ic-mxns+i] */
-	         v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
-		 break;
-	case 4 : /* 1 <= jx <= mx-2, 1 <= jy <= my-2 */
-	         /* x[ic+i] += beta[i]x[ic-ns+i] + gam[i]x[ic-mxns+i] */
-	         v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
-		 v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
-		 break;
-	case 5 : /* jx == mx-1, 1 <= jy <= my-2 */
-	         /* x[ic+i] += beta2[i]x[ic-ns+i] + gam[i]x[ic-mxns+i] */
-	         v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
-		 v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
-		 break;
-	case 6 : /* jx == 0, jy == my-1 */
-	         /* x[ic+i] += gam2[i]x[ic-mxns+i] */
-	         v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
-		 break;
-	case 7 : /* 1 <= jx <= mx-2, jy == my-1 */
-	         /* x[ic+i] += beta[i]x[ic-ns+i] + gam2[i]x[ic-mxns+i] */
-	         v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
-		 v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
-                 break;
-	case 8 : /* jx == mx-1, jy == my-1 */
-	         /* x[ic+i] += beta2[i]x[ic-ns+i] + gam2[i]x[ic-mxns+i] */
-	         v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
-		 v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
-		 break;
-	}
+        ic = iyoff + ns*jx;
+        x_loc = (jx == 0) ? 0 : ((jx == mx-1) ? 2 : 1);
+        y_loc = (jy == 0) ? 0 : ((jy == my-1) ? 2 : 1);
+        switch (3*y_loc+x_loc) {
+        case 0 : 
+          /* jx == 0, jy == 0 */
+          break;
+        case 1 : 
+          /* 1 <= jx <= mx-2, jy == 0 */
+          /* x[ic+i] += beta[i]x[ic-ns+i] */
+          v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
+          break;
+        case 2 : 
+          /* jx == mx-1, jy == 0 */
+          /* x[ic+i] += beta2[i]x[ic-ns+i] */
+          v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
+          break;
+        case 3 : 
+          /* jx == 0, 1 <= jy <= my-2 */
+          /* x[ic+i] += gam[i]x[ic-mxns+i] */
+          v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
+          break;
+        case 4 : 
+          /* 1 <= jx <= mx-2, 1 <= jy <= my-2 */
+          /* x[ic+i] += beta[i]x[ic-ns+i] + gam[i]x[ic-mxns+i] */
+          v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
+          v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
+          break;
+        case 5 : 
+          /* jx == mx-1, 1 <= jy <= my-2 */
+          /* x[ic+i] += beta2[i]x[ic-ns+i] + gam[i]x[ic-mxns+i] */
+          v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
+          v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
+          break;
+        case 6 : 
+          /* jx == 0, jy == my-1 */
+          /* x[ic+i] += gam2[i]x[ic-mxns+i] */
+          v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
+          break;
+        case 7 : 
+          /* 1 <= jx <= mx-2, jy == my-1 */
+          /* x[ic+i] += beta[i]x[ic-ns+i] + gam2[i]x[ic-mxns+i] */
+          v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
+          v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
+          break;
+        case 8 : 
+          /* jx == mx-1, jy == my-1 */
+          /* x[ic+i] += beta2[i]x[ic-ns+i] + gam2[i]x[ic-mxns+i] */
+          v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
+          v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
+          break;
+        }
       }
     }
- 
+    
     /* Add increment x to z : z <- z+x */
     
     N_VLinearSum(1.0, z, 1.0, x, z);
-
+    
   }
 }
 
@@ -905,7 +932,7 @@ static void v_inc_by_prod(real u[], real v[], real w[], int n)
 }
 
 static void v_sum_prods(real u[], real p[], real q[], real v[], real w[],
-			int n)
+                        int n)
 {
   int i;  
   for (i=0; i < n; i++) u[i] = p[i]*q[i] + v[i]*w[i];

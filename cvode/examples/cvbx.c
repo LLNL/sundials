@@ -1,8 +1,10 @@
 /************************************************************************
  *                                                                      *
- * File: cvbx.c                                                         *
- * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 9 January 2001                                            *
+ * File        : cvbx.c                                                 *
+ * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL            *
+ * Version of  : 5 March 2002                                           *
+ *----------------------------------------------------------------------*
+ * Modified by R. Serban to work with new serial nvector (5/3/2002)     *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem with a banded Jacobian,    *
@@ -26,18 +28,19 @@
  ************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 /* CVODE header files with a description of contents used in cvbx.c */
 
-#include "llnltyps.h" /* definitions of real, integer, FALSE               */
-#include "cvode.h"    /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
-                      /* constants OPT_SIZE, BDF, NEWTON, SS, SUCCESS,     */
-                      /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
-#include "cvband.h"   /* prototype for CVBand, constant BAND_NJE           */
-#include "nvector.h"  /* definitions of type N_Vector and macro N_VDATA,   */
-                      /* prototypes for N_VNew, N_VFree, N_VMaxNorm        */
-#include "band.h"     /* definitions of type BandMat, macros               */
+#include "llnltyps.h"       /* definitions of real, integer, FALSE               */
+#include "cvode.h"          /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
+                            /* constants OPT_SIZE, BDF, NEWTON, SS, SUCCESS,     */
+                            /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
+#include "cvband.h"         /* prototype for CVBand, constant BAND_NJE           */
+#include "nvector_serial.h" /* definitions of type N_Vector and macro NV_DATA_S, */
+                            /* prototypes for N_VNew, N_VFree, N_VMaxNorm        */
+#include "band.h"           /* definitions of type BandMat, macros               */
 
 
 /* Problem Constants */
@@ -60,7 +63,7 @@
    to the underlying 1-dimensional storage. 
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
-   The vdata array is obtained via the macro call vdata = N_VDATA(v),
+   The vdata array is obtained via the macro call vdata = NV_DATA_S(v),
    where v is an N_Vector. 
    The variables are ordered by the y index j, then by the x index i. */
 
@@ -93,8 +96,9 @@ static void Jac(integer N, integer mu, integer ml, BandMat J, RhsFn f,
 
 /***************************** Main Program ******************************/
 
-main()
+int main()
 {
+  M_Env machEnv;
   real ropt[OPT_SIZE], dx, dy, reltol, abstol, t, tout, umax;
   long int iopt[OPT_SIZE];
   N_Vector u;
@@ -102,7 +106,10 @@ main()
   void *cvode_mem;
   int iout, flag;
 
-  u = N_VNew(NEQ, NULL);       /* Allocate u vector */
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);
+
+  u = N_VNew(NEQ, machEnv);    /* Allocate u vector */
 
   reltol = 0.0;                /* Set the tolerances */
   abstol = ATOL;
@@ -133,7 +140,7 @@ main()
      A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
 
   cvode_mem = CVodeMalloc(NEQ, f, T0, u, BDF, NEWTON, SS, &reltol, &abstol,
-                          data, NULL, FALSE, iopt, ropt, NULL);
+                          data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
 
   /* Call CVBand to specify the CVODE band linear solver with the
@@ -152,14 +159,16 @@ main()
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
     umax = N_VMaxNorm(u);
-    printf("At t = %4.2f    max.norm(u) =%14.6e   nst =%4d \n", 
-            t,umax,iopt[NST]);
+    printf("At t = %4.2f    max.norm(u) =%14.6e   nst =%4ld \n", 
+           t,umax,iopt[NST]);
     if (flag != SUCCESS) { printf("CVode failed, flag=%d.\n", flag); break; }
   }
 
   N_VFree(u);                  /* Free the u vector */
   CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
   free(data);                  /* Free the user data */
+  M_EnvFree_Serial(machEnv);   /* Free the machine environment memory */
+
   PrintFinalStats(iopt);       /* Print some final statistics   */
   return(0);
 }
@@ -182,10 +191,10 @@ static void SetIC(N_Vector u, UserData data)
 
   /* Set pointer to data array in vector u. */
 
-  udata = N_VDATA(u);
+  udata = NV_DATA_S(u);
 
   /* Load initial profile into u vector */
-
+  
   for (j=1; j <= MY; j++) {
     y = j*dy;
     for (i=1; i <= MX; i++) {
@@ -202,9 +211,9 @@ static void PrintFinalStats(long int iopt[])
 {
   printf("\nFinal Statistics.. \n\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n",
-	 iopt[NST], iopt[NFE], iopt[NSETUPS], iopt[BAND_NJE]);
+         iopt[NST], iopt[NFE], iopt[NSETUPS], iopt[BAND_NJE]);
   printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",
-	 iopt[NNI], iopt[NCFN], iopt[NETF]);
+         iopt[NNI], iopt[NCFN], iopt[NETF]);
 }
 
 
@@ -219,8 +228,8 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
   int i, j;
   UserData data;
 
-  udata = N_VDATA(u);
-  dudata = N_VDATA(udot);
+  udata = NV_DATA_S(u);
+  dudata = NV_DATA_S(udot);
 
   /* Extract needed constants from data */
 
@@ -257,14 +266,14 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
 /* Jacobian routine. Compute J(t,u). */
 
 static void Jac(integer N, integer mu, integer ml, BandMat J, RhsFn f,
-		 void *f_data, real t, N_Vector u, N_Vector fu, N_Vector ewt,
-		 real h, real uround, void *jac_data, long int *nfePtr,
-		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                void *f_data, real t, N_Vector u, N_Vector fu, N_Vector ewt,
+                real h, real uround, void *jac_data, long int *nfePtr,
+                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   integer i, j, k;
   real *kthCol, hordc, horac, verdc;
   UserData data;
-
+  
   /*
     The components of f = udot that depend on u(i,j) are
     f(i,j), f(i-1,j), f(i+1,j), f(i,j-1), f(i,j+1), with
@@ -279,7 +288,7 @@ static void Jac(integer N, integer mu, integer ml, BandMat J, RhsFn f,
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
-
+  
   for (j=1; j <= MY; j++) {
     for (i=1; i <= MX; i++) {
       k = j-1 + (i-1)*MY;

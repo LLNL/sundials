@@ -2,7 +2,9 @@
  *                                                                      *
  * File: cvkxb.c                                                        *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 5 March 2002                                              *
+ * Version of 7 March 2002                                              *
+ *----------------------------------------------------------------------*
+ * Modified by R. Serban to work with new serial nvector (7/3/2002)     *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -34,7 +36,7 @@
 #include "iterativ.h"  /* contains the enum for types of preconditioning  */
 #include "cvspgmr.h"   /* use CVSPGMR linear solver each internal step    */
 #include "cvbandpre.h" /* band preconditioner function prototypes         */
-#include "nvector.h"   /* definitions of type N_Vector, macro N_VDATA     */
+#include "nvector_serial.h"  /* definitions of type N_Vector, macro NV_DATA_S */
 #include "llnlmath.h"  /* contains SQR macro                              */
 
 
@@ -90,7 +92,7 @@
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MZ-1. The vdata array is obtained via
-   the macro call vdata = N_VDATA(v), where v is an N_Vector. 
+   the macro call vdata = NV_DATA_S(v), where v is an N_Vector. 
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
@@ -126,8 +128,9 @@ static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
 
 /***************************** Main Program ******************************/
 
-main()
+int main()
 {
+  M_Env machEnv;
   real abstol, reltol, t, tout, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector y;
@@ -136,17 +139,16 @@ main()
   void *cvode_mem;
   int ml, mu, iout, flag, jpre;
 
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);
+
   /* Allocate and initialize y, and set problem data and tolerances */ 
 
-  y = N_VNew(NEQ, NULL);
+  y = N_VNew(NEQ, machEnv);
   data = (UserData) malloc(sizeof *data);
   InitUserData(data);
   SetInitialProfiles(y, data->dx, data->dz);
   abstol = ATOL; reltol = RTOL;
-
-  /* Call CVBandPreAlloc to initialize band preconditioner */
-  ml = mu = 2;
-  bpdata = CVBandPreAlloc (NEQ, f, data, mu, ml);
 
   /* Call CVodeMalloc to initialize CVODE: 
      NEQ     is the problem size = number of equations
@@ -164,8 +166,12 @@ main()
      A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
 
   cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SS, &reltol,
-                          &abstol, data, NULL, FALSE, iopt, ropt, NULL);
+                          &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
+
+  /* Call CVBandPreAlloc to initialize band preconditioner */
+  ml = mu = 2;
+  bpdata = CVBandPreAlloc (NEQ, f, data, mu, ml, cvode_mem);
 
   /* Call CVSpgmr to specify the CVODE linear solver CVSPGMR with
      left preconditioning, modified Gram-Schmidt orthogonalization,
@@ -194,7 +200,7 @@ main()
     SetInitialProfiles(y, data->dx, data->dz);
 
     flag = CVReInit(cvode_mem, f, T0, y, BDF, NEWTON, SS, &reltol,
-                    &abstol, data, NULL, FALSE, iopt, ropt, NULL);
+                    &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
     if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
 
     flag = CVReInitBandPre(bpdata, NEQ, f, data, mu, ml);
@@ -233,6 +239,8 @@ main()
   free(data);
   CVBandPreFree(bpdata);
   CVodeFree(cvode_mem);
+  M_EnvFree_Serial(machEnv);
+
   return(0);
 }
 
@@ -261,7 +269,7 @@ static void SetInitialProfiles(N_Vector y, real dx, real dz)
 
   /* Set pointer to data array in vector y. */
 
-  ydata = N_VDATA(y);
+  ydata = NV_DATA_S(y);
 
   /* Load initial profiles of c1 and c2 into y vector */
 
@@ -285,9 +293,9 @@ static void PrintOutput(long int iopt[], real ropt[], N_Vector y, real t)
 {
   real *ydata;
 
-  ydata = N_VDATA(y);
+  ydata = NV_DATA_S(y);
 
-  printf("t = %.2e   no. steps = %d   order = %d   stepsize = %.2e\n",
+  printf("t = %.2e   no. steps = %ld   order = %ld   stepsize = %.2e\n",
          t, iopt[NST], iopt[QU], ropt[HU]);
   printf("c1 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n",
          IJKth(ydata,1,0,0), IJKth(ydata,1,4,4), IJKth(ydata,1,9,9));
@@ -325,8 +333,8 @@ static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
   UserData data;
 
   data = (UserData) f_data;
-  ydata = N_VDATA(y);
-  dydata = N_VDATA(ydot);
+  ydata = NV_DATA_S(y);
+  dydata = NV_DATA_S(ydot);
 
   /* Set diurnal rate coefficients. */
 

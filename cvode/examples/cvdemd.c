@@ -1,64 +1,66 @@
-/************************************************************************
- *                                                                      *
- * File: cvdemd.c                                                       *
- * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 28 February 2002                                          *
- *----------------------------------------------------------------------*
- *                                                                      *
- * Demonstration program for CVODE - direct linear solvers. Two         *
- * separate problems are solved using both the ADAMS and BDF linear     *
- * multistep methods in combination with FUNCTIONAL and NEWTON          *
- * iterations :                                                         *
- *                                                                      *
- * Problem 1.. Van der Pol oscillator..                                 *
- *   xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0.         *
- * This second-order ODE is converted to a first-order system by        *
- * defining y0 = x and y1 = xdot.                                       *
- * The NEWTON iteration cases use the following types of Jacobian       *
- * approximation: (1) dense, user-supplied, (2) dense, difference       *
- * quotient approximation, (3) diagonal approximation.                  *
- *                                                                      * 
- * Problem 2.. ydot = A * y, where A is a banded lower triangular       *
- * matrix derived from 2-D advection PDE.                               *
- * The NEWTON iteration cases use the following types of Jacobian       *
- * approximation: (1) band, user-supplied, (2) band, difference         *
- * quotient approximation, (3) diagonal approximation.                  *
- *                                                                      *
- * For each problem, in the series of eight runs, CVodeMalloc is called *
- * only once, for the first run, whereas CVReInit is called for each of *
- * the remaining seven runs.                                            *
- *                                                                      *
- * Notes.. This program demonstrates the usage of the sequential CVODE  *
- * macros N_VIth, N_VDATA, DENSE_ELEM, BAND_COL, and BAND_COL_ELEM. The *
- * N_VIth macro is used to reference the components of an N_Vector. It  *
- * works for any size N=NEQ, but due to efficiency concerns it should   *
- * only by used when the problem size is small. The Problem 1 right     *
- * hand side and Jacobian functions f1 and Jac1 both use N_VIth. The    *
- * N_VDATA macro gives the user access to the memory used for the       *
- * component storage of an N_Vector. In the sequential case, the user   *
- * may assume that this is one contiguous array of reals. The N_VDATA   *
- * macro gives a more efficient (than the N_VIth macro) means to access *
- * the components of an N_Vector and should be used when the problem    *
- * size is large. The Problem 2 right hand side function f2 uses the    *
- * N_VDATA macro. The DENSE_ELEM macro used in Jac1 gives access to an  *
- * element of a dense matrix of type DenseMat. It should be used only   *
- * when the problem size is small (the size of a DenseMat is NEQ x NEQ) *
- * due to efficiency concerns. For larger problem sizes, the macro      *
- * DENSE_COL can be used in order to work directly with a column of a   *
- * DenseMat. The BAND_COL and BAND_COL_ELEM allow efficient columnwise  *
- * access to the the elements of a band matrix of type BandMat. These   *
- * macros are used in the Jac2 function.                                *
- ************************************************************************/
+/**************************************************************************
+ *                                                                        *
+ * File        : cvdemd.c                                                 *
+ * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL              *
+ * Version of  : 5 March 2002                                             *
+ *------------------------------------------------------------------------*
+ * Modified by R. Serban to work with new serial nvector (5/3/2002)       *
+ *------------------------------------------------------------------------*
+ *                                                                        *
+ * Demonstration program for CVODE - direct linear solvers. Two           *
+ * separate problems are solved using both the ADAMS and BDF linear       *
+ * multistep methods in combination with FUNCTIONAL and NEWTON            *
+ * iterations :                                                           *
+ *                                                                        *
+ * Problem 1.. Van der Pol oscillator..                                   *
+ *   xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0.           *
+ * This second-order ODE is converted to a first-order system by          *
+ * defining y0 = x and y1 = xdot.                                         *
+ * The NEWTON iteration cases use the following types of Jacobian         *
+ * approximation: (1) dense, user-supplied, (2) dense, difference         *
+ * quotient approximation, (3) diagonal approximation.                    *
+ *                                                                        * 
+ * Problem 2.. ydot = A * y, where A is a banded lower triangular         *
+ * matrix derived from 2-D advection PDE.                                 *
+ * The NEWTON iteration cases use the following types of Jacobian         *
+ * approximation: (1) band, user-supplied, (2) band, difference           *
+ * quotient approximation, (3) diagonal approximation.                    *
+ *                                                                        *
+ * For each problem, in the series of eight runs, CVodeMalloc is called   *
+ * only once, for the first run, whereas CVReInit is called for each of   *
+ * the remaining seven runs.                                              *
+ *                                                                        *
+ * Notes.. This program demonstrates the usage of the sequential CVODE    *
+ * macros NV_Ith_S, NV_DATA_S, DENSE_ELEM, BAND_COL, and BAND_COL_ELEM.   *
+ * The NV_Ith_S macro is used to reference the components of an N_Vector. *
+ * It works for any size N=NEQ, but due to efficiency concerns it should  *
+ * only by used when the problem size is small. The Problem 1 right       *
+ * hand side and Jacobian functions f1 and Jac1 both use NV_Ith_S. The    *
+ * NV_DATA_S macro gives the user access to the memory used for the       *
+ * component storage of an N_Vector. In the sequential case, the user     *
+ * may assume that this is one contiguous array of reals. The NV_DATA_S   *
+ * macro gives a more efficient (than the NV_Ith_S macro) means to access *
+ * the components of an N_Vector and should be used when the problem      *
+ * size is large. The Problem 2 right hand side function f2 uses the      *
+ * NV_DATA_S macro. The DENSE_ELEM macro used in Jac1 gives access to an  *
+ * element of a dense matrix of type DenseMat. It should be used only     *
+ * when the problem size is small (the size of a DenseMat is NEQ x NEQ)   *
+ * due to efficiency concerns. For larger problem sizes, the macro        *
+ * DENSE_COL can be used in order to work directly with a column of a     *
+ * DenseMat. The BAND_COL and BAND_COL_ELEM allow efficient columnwise    *
+ * access to the the elements of a band matrix of type BandMat. These     *
+ * macros are used in the Jac2 function.                                  *
+ **************************************************************************/
 
 #include <stdio.h>
 #include <math.h>
-#include "llnltyps.h" /* contains the definition for real, integer    */
-#include "cvode.h"    /* main CVODE header file                       */
-#include "cvdense.h"  /* use CVDENSE linear solver each internal step */
-#include "cvband.h"   /* use CVBAND linear solver each internal step  */
-#include "cvdiag.h"   /* use CVDIAG linear solver each internal step  */
-#include "nvector.h"  /* contains the definition of type N_Vector     */
-#include "llnlmath.h" /* contains the macros ABS, SQR                 */
+#include "llnltyps.h"       /* contains the definition for real, integer    */
+#include "cvode.h"          /* main CVODE header file                       */
+#include "cvdense.h"        /* use CVDENSE linear solver each internal step */
+#include "cvband.h"         /* use CVBAND linear solver each internal step  */
+#include "cvdiag.h"         /* use CVDIAG linear solver each internal step  */
+#include "nvector_serial.h" /* contains the definition of type N_Vector     */
+#include "llnlmath.h"       /* contains the macros ABS, SQR                 */
 
 /* Shared Problem Constants */
 
@@ -113,20 +115,20 @@ static void PrintFinalStats(long int iopt[], int miter, real ero);
 static void f1(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
 
 static void Jac1(integer N, DenseMat J, RhsFn f, void *f_data, real tn,
-		 N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
-		 void *jac_data, long int *nfePtr, N_Vector vtemp1,
-		 N_Vector vtemp2, N_Vector vtemp3);
+                 N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
+                 N_Vector vtemp2, N_Vector vtemp3);
 
 static void f2(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
 
 static void Jac2(integer N, integer mu, integer ml, BandMat J, RhsFn f,
-		 void *f_data, real tn, N_Vector y, N_Vector fy, N_Vector ewt,
-		 real h, real uround, void *jac_data, long int *nfePtr,
-		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
+                 void *f_data, real tn, N_Vector y, N_Vector fy, N_Vector ewt,
+                 real h, real uround, void *jac_data, long int *nfePtr,
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 
 /* Implementation */
 
-main()
+int main()
 {
   int nerr;
 
@@ -137,68 +139,72 @@ main()
   printf("\n\n Number of errors encountered = %d \n", nerr);
   return(0);
 }
- 
+
 static int Problem1(void)
 {
+  M_Env machEnv;
   real ropt[OPT_SIZE], reltol=RTOL, abstol=ATOL, t, tout, ero, er;
   long int iopt[OPT_SIZE];
   int lmm, miter, flag, iter, iout, nerr=0;
   N_Vector y;
-  void *cvode_mem;
+  void *cvode_mem = NULL;
   boole firstrun;
 
-  y = N_VNew(P1_NEQ, NULL);
+  machEnv = M_EnvInit_Serial(P1_NEQ);
+
+  y = N_VNew(P1_NEQ, machEnv);
   PrintIntro1();
 
   for (lmm=ADAMS; lmm <= BDF; lmm++) {
     for (miter=FUNC; miter <= DIAG; miter++) {
       ero = 0.0;
-      N_VIth(y,0) = 2.0;
-      N_VIth(y,1) = 0.0;
+      NV_Ith_S(y,0) = 2.0;
+      NV_Ith_S(y,1) = 0.0;
       iter = (miter == FUNC) ? FUNCTIONAL : NEWTON;
-     
+      
       firstrun = (lmm==ADAMS) && (miter==FUNC);
       if (firstrun) {
         cvode_mem = CVodeMalloc(P1_NEQ, f1, P1_T0, y, lmm, iter, ITOL,
-                    &reltol, &abstol, NULL, ERRFP, OPTIN, iopt, ropt, NULL);
+                                &reltol, &abstol, NULL, ERRFP, OPTIN, iopt, ropt, machEnv);
         if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
-      }
-      else {
+      } else {
         flag = CVReInit(cvode_mem, f1, P1_T0, y, lmm, iter,
-              ITOL, &reltol, &abstol, NULL, ERRFP, OPTIN, iopt, ropt, NULL);
+                        ITOL, &reltol, &abstol, NULL, ERRFP, OPTIN, iopt, ropt, machEnv);
         if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
       }
-
+      
       flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);     
       if (flag != SUCCESS) { printf("PrepareNextRun failed."); return(1); }
-
+      
       printf("\n     t           x              xdot         qu     hu \n");
-
+      
       for(iout=1, tout=P1_T1; iout <= P1_NOUT; iout++, tout += P1_DTOUT) {
-	flag = CVode(cvode_mem, tout, y, &t, NORMAL);
-	printf("%10.5f    %12.5e   %12.5e   %2d    %6.4e\n",
-	       t, N_VIth(y,0), N_VIth(y,1), iopt[QU], ropt[HU]);
-	if (flag != SUCCESS) {
-	  nerr++;
+        flag = CVode(cvode_mem, tout, y, &t, NORMAL);
+        printf("%10.5f    %12.5e   %12.5e   %2ld    %6.4e\n",
+               t, NV_Ith_S(y,0), NV_Ith_S(y,1), iopt[QU], ropt[HU]);
+        if (flag != SUCCESS) {
+          nerr++;
           printf("\n\n CVode returned error flag = %d \n\n", flag);
-	  break;
-	}
-	if (iout%2 == 0) {
-	  er = ABS(N_VIth(y,0)) / abstol;
-	  if (er > ero) ero = er;
-	  if (er > P1_TOL_FACTOR) {
-	    nerr++;
-	    printf("\n\n Error exceeds %g * tolerance \n\n", P1_TOL_FACTOR);
-	  }
-	}
+          break;
+        }
+        if (iout%2 == 0) {
+          er = ABS(NV_Ith_S(y,0)) / abstol;
+          if (er > ero) ero = er;
+          if (er > P1_TOL_FACTOR) {
+            nerr++;
+            printf("\n\n Error exceeds %g * tolerance \n\n", P1_TOL_FACTOR);
+          }
+        }
       }
-
+      
       PrintFinalStats(iopt, miter, ero);
     }
   }
 
   CVodeFree(cvode_mem);
   N_VFree(y);
+  M_EnvFree_Serial(machEnv);
+
   return(nerr);
 }
 
@@ -206,7 +212,7 @@ static void PrintIntro1(void)
 {
   printf("Demonstration program for CVODE package - direct linear solvers\n");
   printf("\n\n");
-
+  
   printf("Problem 1.. Van der Pol oscillator..\n");
   printf(" xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0\n");
   printf(" neq = %d,  itol = %s,  reltol = %.2g,  abstol = %.2g",
@@ -217,23 +223,23 @@ static void PrintIntro1(void)
 static void f1(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
 {
   real y0, y1;
+  
+  y0 = NV_Ith_S(y,0);
+  y1 = NV_Ith_S(y,1);
 
-  y0 = N_VIth(y,0);
-  y1 = N_VIth(y,1);
-
-  N_VIth(ydot,0) = y1;
-  N_VIth(ydot,1) = (1.0 - SQR(y0))* P1_ETA * y1 - y0;
+  NV_Ith_S(ydot,0) = y1;
+  NV_Ith_S(ydot,1) = (1.0 - SQR(y0))* P1_ETA * y1 - y0;
 } 
 
 static void Jac1(integer N, DenseMat J, RhsFn f, void *f_data, real tn,
-		 N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
-		 void *jac_data, long int *nfePtr, N_Vector vtemp1,
-		 N_Vector vtemp2, N_Vector vtemp3)
+                 N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
+                 N_Vector vtemp2, N_Vector vtemp3)
 { 
   real y0, y1;
 
-  y0 = N_VIth(y,0);
-  y1 = N_VIth(y,1);
+  y0 = NV_Ith_S(y,0);
+  y1 = NV_Ith_S(y,1);
 
   DENSE_ELEM(J,0,1) = 1.0;
   DENSE_ELEM(J,1,0) = -2.0 * P1_ETA * y0 * y1 - 1.0;
@@ -242,65 +248,71 @@ static void Jac1(integer N, DenseMat J, RhsFn f, void *f_data, real tn,
 
 static int Problem2(void)
 {
+  M_Env machEnv;
   real ropt[OPT_SIZE], reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
   long int iopt[OPT_SIZE];
   int lmm, miter, iter, flag, iout, nerr=0;
   N_Vector y;
-  void *cvode_mem;
+  void *cvode_mem = NULL;
   boole firstrun;
  
-  y = N_VNew(P2_NEQ, NULL);
-  PrintIntro2();
+  machEnv = M_EnvInit_Serial(P2_NEQ);
 
+  y = N_VNew(P2_NEQ, machEnv);
+  PrintIntro2();
+  
   for (lmm=ADAMS; lmm <= BDF; lmm++) {
     for (miter=FUNC; miter <= BAND_DQ; miter++) {     
       if ((miter==DENSE_USER) || (miter==DENSE_DQ)) continue;
       ero = 0.0;
       N_VConst(0.0, y);
-      N_VIth(y,0) = 1.0;
+      NV_Ith_S(y,0) = 1.0;
       iter = (miter == FUNC) ? FUNCTIONAL : NEWTON;
 
       firstrun = (lmm==ADAMS) && (miter==FUNC);
 
       if (firstrun) {
         cvode_mem = CVodeMalloc(P2_NEQ, f2, P2_T0, y, lmm, iter, ITOL,
-		    &reltol, &abstol, NULL, ERRFP, OPTIN, iopt, ropt, NULL);
+                                &reltol, &abstol, NULL, ERRFP, OPTIN, 
+                                iopt, ropt, machEnv);
         if (cvode_mem == NULL) { printf("CVodeMalloc failed."); continue; }
-      }
-      else {
+      } else {
         flag = CVReInit(cvode_mem, f2, P2_T0, y, lmm, iter, ITOL,
-		    &reltol, &abstol, NULL, ERRFP, OPTIN, iopt, ropt, NULL);
+                        &reltol, &abstol, NULL, ERRFP, OPTIN, 
+                        iopt, ropt, machEnv);
         if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
       }
-
+      
       flag = PrepareNextRun(cvode_mem, lmm, miter, P2_MU, P2_ML);
       if (flag != SUCCESS) { printf("PrepareNextRun failed."); return(1); }
-
+      
       printf("\n      t        max.err      qu     hu \n");
-
+      
       for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
-	flag = CVode(cvode_mem, tout, y, &t, NORMAL);
-	erm = MaxError(y, t);
-	printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, iopt[QU], ropt[HU]);
-	if (flag != SUCCESS) {
-	  nerr++;
+        flag = CVode(cvode_mem, tout, y, &t, NORMAL);
+        erm = MaxError(y, t);
+        printf("%10.3f  %12.4e   %2ld   %12.4e\n", t, erm, iopt[QU], ropt[HU]);
+        if (flag != SUCCESS) {
+          nerr++;
           printf("\n\n CVode returned error flag = %d \n\n", flag);
-	  break;
-	}
-	er = erm / abstol;
-	if (er > ero) ero = er;
-	if (er > P2_TOL_FACTOR) {
-	  nerr++;
-	  printf("\n\n Error exceeds %g * tolerance \n\n", P2_TOL_FACTOR);
-	}
+          break;
+        }
+        er = erm / abstol;
+        if (er > ero) ero = er;
+        if (er > P2_TOL_FACTOR) {
+          nerr++;
+          printf("\n\n Error exceeds %g * tolerance \n\n", P2_TOL_FACTOR);
+        }
       }
-
+      
       PrintFinalStats(iopt, miter, ero);
     }
   }
-
+  
   CVodeFree(cvode_mem);
   N_VFree(y);
+  M_EnvFree_Serial(machEnv);
+
   return(nerr);
 }
 
@@ -312,7 +324,7 @@ static void PrintIntro2(void)
   printf("triangular matrix derived from 2-D advection PDE\n\n");
   printf(" neq = %d, ml = %d, mu = %d\n", P2_NEQ, P2_ML, P2_MU);
   printf(" itol = %s, reltol = %.2g, abstol = %.2g",
-	 (ITOL == SS) ? "SS" : "SV", RTOL, ATOL);
+         (ITOL == SS) ? "SS" : "SV", RTOL, ATOL);
 }
 
 
@@ -321,8 +333,8 @@ static void f2(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
   integer i, j, k;
   real d, *ydata, *dydata;
   
-  ydata = N_VDATA(y);
-  dydata = N_VDATA(ydot);
+  ydata = NV_DATA_S(y);
+  dydata = NV_DATA_S(ydot);
 
   /*
      Excluding boundaries, 
@@ -343,9 +355,9 @@ static void f2(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
 }
 
 static void Jac2(integer N, integer mu, integer ml, BandMat J, RhsFn f,
-		 void *f_data, real tn, N_Vector y, N_Vector fy, N_Vector ewt,
-		 real h, real uround, void *jac_data, long int *nfePtr,
-		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                 void *f_data, real tn, N_Vector y, N_Vector fy, N_Vector ewt,
+                 real h, real uround, void *jac_data, long int *nfePtr,
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   integer i, j, k;
   real *kthCol;
@@ -379,14 +391,14 @@ static void Jac2(integer N, integer mu, integer ml, BandMat J, RhsFn f,
 
 static real MaxError(N_Vector y, real t)
 {
-  integer i, j, k, ipj;
+  integer i, j, k;
   real *ydata, er, ex=0.0, yt, maxError=0.0, ifact_inv, jfact_inv=1.0;
   
   if (t == 0.0) return(0.0);
 
-  ydata = N_VDATA(y);
+  ydata = NV_DATA_S(y);
   if (t <= 30.0) ex = exp(-2.0*t); 
-
+  
   for (j = 0; j < P2_MESHY; j++) {
     ifact_inv = 1.0;
     for (i = 0; i < P2_MESHX; i++) {
@@ -402,19 +414,19 @@ static real MaxError(N_Vector y, real t)
 }
 
 static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integer mu,
-			   integer ml)
+                          integer ml)
 {
-  int flag;
-
+  int flag = SUCCESS;
+  
   printf("\n\n-------------------------------------------------------------");
-
+  
   printf("\n\nLinear Multistep Method : ");
   if (lmm == ADAMS) {
     printf("ADAMS\n");
   } else {
     printf("BDF\n");
   }
-
+  
   printf("Iteration               : ");
   if (miter == FUNC) {
     printf("FUNCTIONAL\n");
@@ -422,31 +434,36 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integer mu,
     printf("NEWTON\n");
     printf("Linear Solver           : ");
     switch(miter) {
-      case DENSE_USER : printf("Dense, User-Supplied Jacobian\n");
-                        flag = CVDense(cvode_mem, Jac1, NULL);
-	                break;
-      case DENSE_DQ   : printf("Dense, Difference Quotient Jacobian\n");
-	                flag = CVReInitDense(cvode_mem, NULL, NULL);
-                        break;
-      case DIAG       : printf("Diagonal Jacobian\n");
-                        flag = CVDiag(cvode_mem);
-                        break;
-      case BAND_USER  : printf("Band, User-Supplied Jacobian\n");
-                        flag = CVBand(cvode_mem, mu, ml, Jac2, NULL);
-                        break;
-      case BAND_DQ  :   printf("Band, Difference Quotient Jacobian\n");
-	                flag = CVReInitBand(cvode_mem, mu, ml, NULL, NULL);
-                        break;    
+    case DENSE_USER : 
+      printf("Dense, User-Supplied Jacobian\n");
+      flag = CVDense(cvode_mem, Jac1, NULL);
+      break;
+    case DENSE_DQ   : 
+      printf("Dense, Difference Quotient Jacobian\n");
+      flag = CVReInitDense(cvode_mem, NULL, NULL);
+      break;
+    case DIAG       : 
+      printf("Diagonal Jacobian\n");
+      flag = CVDiag(cvode_mem);
+      break;
+    case BAND_USER  : 
+      printf("Band, User-Supplied Jacobian\n");
+      flag = CVBand(cvode_mem, mu, ml, Jac2, NULL);
+      break;
+    case BAND_DQ  :   
+      printf("Band, Difference Quotient Jacobian\n");
+      flag = CVReInitBand(cvode_mem, mu, ml, NULL, NULL);
+      break;    
     }
   }							
   return(flag);
-
+  
 }
 
 static void PrintFinalStats(long int iopt[], int miter, real ero)
 {
-  int nje, llrw, lliw;
-
+  int nje = 0, llrw = 0, lliw = 0;
+  
   printf("\n Final statistics for this run..\n\n");
   printf(" CVode real workspace length              = %4ld \n", iopt[LENRW]);
   printf(" CVode integer workspace length           = %4ld \n", iopt[LENIW]);
@@ -456,31 +473,34 @@ static void PrintFinalStats(long int iopt[], int miter, real ero)
   printf(" Number of nonlinear iterations           = %4ld \n", iopt[NNI]);
   printf(" Number of nonlinear convergence failures = %4ld \n", iopt[NCFN]);
   printf(" Number of error test failures            = %4ld \n\n", iopt[NETF]);
-
+  
   if (miter != FUNC) {
     switch(miter) {
-      case DENSE_USER :
-      case DENSE_DQ   : nje  = DENSE_NJE;
-	                llrw = DENSE_LRW;
-                        lliw = DENSE_LIW;
-                        break;
-      case BAND_USER  :
-      case BAND_DQ    : nje  = BAND_NJE;
-	                llrw = BAND_LRW;
-                        lliw = BAND_LIW;
-                        break;  
-      case DIAG       : nje = NSETUPS;
-                        llrw = DIAG_LRW;
-                        lliw = DIAG_LIW;
-	                break;
+    case DENSE_USER :
+    case DENSE_DQ   : 
+      nje  = DENSE_NJE;
+      llrw = DENSE_LRW;
+      lliw = DENSE_LIW;
+      break;
+    case BAND_USER  :
+    case BAND_DQ    : 
+      nje  = BAND_NJE;
+      llrw = BAND_LRW;
+      lliw = BAND_LIW;
+      break;  
+    case DIAG       : 
+      nje = NSETUPS;
+      llrw = DIAG_LRW;
+      lliw = DIAG_LIW;
+      break;
     }
     printf(" Linear solver real workspace length      = %4ld \n", iopt[llrw]);
     printf(" Linear solver integer workspace length   = %4ld \n", iopt[lliw]);
     printf(" Number of Jacobian evaluations           = %4ld \n\n", iopt[nje]);
   }
-
+  
   printf(" Error overrun = %.3f \n", ero);
-
+  
 }
 
 

@@ -1,8 +1,10 @@
 /************************************************************************
  *                                                                      *
- * File: cvdx.c                                                         *
- * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 8 January 2002                                            *
+ * File       : cvdx.c                                                  *
+ * Programmers: Scott D. Cohen and Alan C. Hindmarsh @LLNL              *
+ * Version of : 5 March 2002                                            *
+ *----------------------------------------------------------------------*
+ * Modified by R. Serban to work with new serial nvector (5/3/2002)     *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the coding           *
@@ -26,15 +28,15 @@
 
 /* CVODE header files with a description of contents used in cvdx.c */
 
-#include "llnltyps.h" /* definitions of types real (set to double) and     */
-                      /* integer (set to int), and the constant FALSE      */
-#include "cvode.h"    /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
-                      /* constants OPT_SIZE, BDF, NEWTON, SV, SUCCESS,     */
-                      /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
-#include "cvdense.h"  /* prototype for CVDense, constant DENSE_NJE         */
-#include "nvector.h"  /* definitions of type N_Vector and macro N_VIth,    */
-                      /* prototypes for N_VNew, N_VFree                    */
-#include "dense.h"    /* definitions of type DenseMat, macro DENSE_ELEM    */
+#include "llnltyps.h"        /* definitions of types real (set to double) and     */
+                             /* integer (set to int), and the constant FALSE      */
+#include "cvode.h"           /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
+                             /* constants OPT_SIZE, BDF, NEWTON, SV, SUCCESS,     */
+                             /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
+#include "cvdense.h"         /* prototype for CVDense, constant DENSE_NJE         */
+#include "nvector_serial.h"  /* definitions of type N_Vector and macro NV_Ith_S,  */
+                             /* prototypes for N_VNew, N_VFree                    */
+#include "dense.h"           /* definitions of type DenseMat, macro DENSE_ELEM    */
 
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
@@ -52,7 +54,7 @@
    DENSE_ELEM macro in dense.h. DENSE_ELEM numbers rows and columns of a
    dense matrix starting from 0. */
 
-#define Ith(v,i)    N_VIth(v,i-1)         /* Ith numbers components 1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
 
 
@@ -88,16 +90,20 @@ static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
 
 /***************************** Main Program ******************************/
 
-main()
+int main()
 {
+  M_Env machEnv;
   real ropt[OPT_SIZE], reltol, t, tout;
   long int iopt[OPT_SIZE];
   N_Vector y, abstol;
   void *cvode_mem;
   int iout, flag;
 
-  y = N_VNew(NEQ, NULL);       /* Allocate y, abstol vectors */
-  abstol = N_VNew(NEQ, NULL); 
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);
+
+  y = N_VNew(NEQ, machEnv);    /* Allocate y, abstol vectors */
+  abstol = N_VNew(NEQ, machEnv); 
 
   Ith(y,1) = Y1;               /* Initialize y */
   Ith(y,2) = Y2;
@@ -126,7 +132,7 @@ main()
      A pointer to CVODE problem memory is returned and stored in cvode_mem. */
 
   cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
-                          NULL, NULL, FALSE, iopt, ropt, NULL);
+                          NULL, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
 
   /* Call CVDense to specify the CVODE dense linear solver with the
@@ -148,6 +154,8 @@ main()
   N_VFree(y);                  /* Free the y and abstol vectors */
   N_VFree(abstol);   
   CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
+  M_EnvFree_Serial(machEnv);   /* Free the machine environment memory */
+
   PrintFinalStats(iopt);       /* Print some final statistics   */
   return(0);
 }
