@@ -46,6 +46,9 @@ tar uf $tarfile $distrobase/shared/source/band.c
 tar uf $tarfile $distrobase/shared/source/spgmr.c
 tar uf $tarfile $distrobase/shared/source/iterative.c
 
+
+tar uf $tarfile $distrobase/nvec_ser/README
+
 tar uf $tarfile $distrobase/nvec_ser/nvector_serial.h
 tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.h
 
@@ -55,6 +58,8 @@ tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.c
 
 if [ $par = "T" ]
 then
+    tar uf $tarfile $distrobase/nvec_par/README
+
     tar uf $tarfile $distrobase/nvec_par/nvector_parallel.h
     tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.h
 

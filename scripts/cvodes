@@ -16,10 +16,10 @@ echo "  Add cvodes module"
 tar uf $tarfile $distrobase/cvodes/LICENSE
 tar uf $tarfile $distrobase/cvodes/README
 
-#tar uf $tarfile $distrobase/cvodes/doc/cvs_guide.ps
-#tar uf $tarfile $distrobase/cvodes/doc/cvs_guide.pdf
-#tar uf $tarfile $distrobase/cvodes/doc/cvs_examples.ps
-#tar uf $tarfile $distrobase/cvodes/doc/cvs_examples.pdf
+tar uf $tarfile $distrobase/cvodes/doc/cvs_guide.ps
+tar uf $tarfile $distrobase/cvodes/doc/cvs_guide.pdf
+tar uf $tarfile $distrobase/cvodes/doc/cvs_examples.ps
+tar uf $tarfile $distrobase/cvodes/doc/cvs_examples.pdf
 
 tar uf $tarfile $distrobase/cvodes/include/cvodes.h
 tar uf $tarfile $distrobase/cvodes/include/cvodea.h

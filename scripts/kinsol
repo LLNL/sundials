@@ -16,10 +16,10 @@ echo "  Add kinsol module"
 tar uf $tarfile $distrobase/kinsol/LICENSE
 tar uf $tarfile $distrobase/kinsol/README
 
-#tar uf $tarfile $distrobase/kinsol/doc/kin_guide.ps
-#tar uf $tarfile $distrobase/kinsol/doc/kin_guide.pdf
-#tar uf $tarfile $distrobase/kinsol/doc/kin_examples.ps
-#tar uf $tarfile $distrobase/kinsol/doc/kin_examples.pdf
+tar uf $tarfile $distrobase/kinsol/doc/kin_guide.ps
+tar uf $tarfile $distrobase/kinsol/doc/kin_guide.pdf
+tar uf $tarfile $distrobase/kinsol/doc/kin_examples.ps
+tar uf $tarfile $distrobase/kinsol/doc/kin_examples.pdf
 
 tar uf $tarfile $distrobase/kinsol/include/kinsol.h
 tar uf $tarfile $distrobase/kinsol/include/kinspgmr.h
