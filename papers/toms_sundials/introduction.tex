@@ -11,9 +11,9 @@ systems.
 
 To meet this need, Lawrence Livermore National Laboratory 
 has a long history of research and development in ordinary
-differential equation (ODE) methods and software, along with closely related
+differential equation (ODE) methods and software, as well as closely related
 areas, with emphasis on applications to partial differential equations
-(PDEs).  Among the popular Fortran solvers written at LLNL are the
+(PDEs).  Among the popular Fortran 77 solvers written at LLNL are the
 following:
 \begin{itemize}
 \item VODE: a solver for ODE initial-value problems for stiff/nonstiff
@@ -43,10 +43,10 @@ single solver, CVODE, which runs in both serial and parallel environments.
 
 These codes have been combined into the core of SUNDIALS, the  
 SUite of Nonlinear and DIfferential/Algebraic equation Solvers.  
-This suite, consisting of CVODE, KINSOL, and IDA, augmented to include
+This suite, consisting of CVODE, KINSOL, and IDA augmented to include
 forward and adjoint sensitivity 
 analysis capabilities, was implemented with the goal of providing
-robust time integrators and nonlinear solvers which can easily be 
+robust time integrators and nonlinear solvers that can easily be 
 incorporated into existing simulation codes.  The primary design 
 goals were to require minimal information from the user, allow users 
 to easily supply their own data structures underneath the solvers, 
@@ -56,12 +56,12 @@ and preconditioners.
 As simulations have increased in size and complexity, the 
 relationship between computed results and problem parameters has 
 become harder to establish.  Scientists have a greater need to
-understand answers to questions like: ``Which model parameters are 
-most influential?'', ``How can parameters be adjusted to better 
-match experimental data?'', and ``What is the uncertainty in solutions 
-given uncertainty in data?''  Sensitivity analysis provides 
+understand answers to questions like: Which model parameters are 
+most influential?, How can parameters be adjusted to better 
+match experimental data?, and What is the uncertainty in solutions 
+given uncertainty in data?  Sensitivity analysis provides 
 information about the relationship between simulation results and model 
-data which can be critical to answering these questions.  In addition, for 
+data, which can be critical to answering these questions.  In addition, for 
 a given parameter, sensitivities can be computed in a modest multiple of 
 the computing time of the simulation itself.  
 SUNDIALS is being expanded to 
@@ -77,7 +77,7 @@ The rest of this paper is organized as follows.  In Section
 core solvers of SUNDIALS are presented.  
 We have attempted to identify many of the heuristics related to 
 stopping criteria and finite-difference parameter selection
-where appropriate as these items 
+where appropriate, as these items 
 can sometimes affect algorithm performance significantly.
 In Section \ref{s:preconditioning}, the
 preconditioning packages supplied with SUNDIALS are
