@@ -1,4 +1,8 @@
 SHARED_DOC = ../../shared/doc
+all:
+	@echo 'Usage: make doc   - compile LaTeX files to generate cvs_guide.ps and cvs_guide.pdf'
+	@echo '       make clean - remove temporary files (*.aux, *.log, etc.)'
+	@echo
 doc:
 	cp $(SHARED_DOC)/band.tex .
 	cp $(SHARED_DOC)/dense.tex .
@@ -15,8 +19,8 @@ doc:
 	makeindex -s cvs_indx.ist cvs_guide
 	latex cvs_guide
 	latex cvs_guide
-#	dvips -Ppdf -o cvs_guide.ps cvs_guide
-#	ps2pdf cvs_guide.ps cvs_guide.pdf
+	dvips -Ppdf -o cvs_guide.ps cvs_guide
+	ps2pdf cvs_guide.ps cvs_guide.pdf
 clean:
 	rm -f bandmat.eps
 	rm -f band.tex
