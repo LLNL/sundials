@@ -10,7 +10,7 @@ AC_ARG_WITH(ARCH,
    AC_HELP_STRING([--with-ARCH=ARG], [manually set ARCH to ARG]),
    [AC_MSG_RESULT([setting ARCH to $withval])
    ARCH=$withval],
-   [CASC_GUESS_ARCH])
+   [SUNDIALS_GUESS_ARCH])
 
 AC_ARG_WITH(CC,
    AC_HELP_STRING([--with-CC=ARG], [manually set CC to ARG]),
