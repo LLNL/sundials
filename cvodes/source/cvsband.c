@@ -3,7 +3,7 @@
  * File          : cvsband.c                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 27 June 2002                                    *
+ * Version of    : 28 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -61,26 +61,28 @@
 
 typedef struct {
 
-    CVBandJacFn b_jac;      /* jac = Jacobian routine to be called      */
+  integertype b_N;        /* N = problem dimension                    */
 
-    integertype b_ml;       /* b_ml = lower bandwidth of savedJ         */
+  CVBandJacFn b_jac;      /* jac = Jacobian routine to be called      */
 
-    integertype b_mu;       /* b_mu = upper bandwidth of savedJ         */ 
-
-    integertype b_storage_mu; /* upper bandwith of M = MIN(N-1,b_mu+b_ml) */
-
-    BandMat b_M;            /* M = I - gamma J, gamma = h / l1          */
-
-    integertype *b_pivots;  /* pivots = pivot array for PM = LU         */
-
-    BandMat b_savedJ;       /* savedJ = old Jacobian                    */
-
-    long int b_nstlj;       /* nstlj = nst at last Jacobian eval.       */
-    
-    long int b_nje;         /* nje = no. of calls to jac                */
-
-    void *b_J_data;         /* J_data is passed to jac                  */
-
+  integertype b_ml;       /* b_ml = lower bandwidth of savedJ         */
+  
+  integertype b_mu;       /* b_mu = upper bandwidth of savedJ         */ 
+  
+  integertype b_storage_mu; /* upper bandwith of M = MIN(N-1,b_mu+b_ml) */
+  
+  BandMat b_M;            /* M = I - gamma J, gamma = h / l1          */
+  
+  integertype *b_pivots;  /* pivots = pivot array for PM = LU         */
+  
+  BandMat b_savedJ;       /* savedJ = old Jacobian                    */
+  
+  long int b_nstlj;       /* nstlj = nst at last Jacobian eval.       */
+  
+  long int b_nje;         /* nje = no. of calls to jac                */
+  
+  void *b_J_data;         /* J_data is passed to jac                  */
+  
 } CVBandMemRec, *CVBandMem;
 
 
@@ -102,91 +104,14 @@ static void CVBandFree(CVodeMem cv_mem);
 
 /* CVBAND DQJac routine */
 
-static void CVBandDQJac(integertype N, integertype mupper, integertype mlower, BandMat J,
-                        RhsFn f, void *f_data, realtype t, N_Vector y, N_Vector fy,
-                        N_Vector ewt, realtype h, realtype uround, void *jac_data,
-                        long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
-                        N_Vector vtemp3);
-
-/*************** CVBandDQJac *****************************************
-
- This routine generates a banded difference quotient approximation to
- the Jacobian of f(t,y).  It assumes that a band matrix of type
- BandMat is stored column-wise, and that elements within each column
- are contiguous. This makes it possible to get the address of a column
- of J via the macro BAND_COL and to write a simple for loop to set
- each of the elements of a column in succession.
-
-**********************************************************************/
-
-static void CVBandDQJac(integertype N, integertype mupper, integertype mlower, BandMat J,
-                        RhsFn f, void *f_data, realtype tn, N_Vector y,
-                        N_Vector fy, N_Vector ewt, realtype h, realtype uround,
-                        void *jac_data, long int *nfePtr, N_Vector vtemp1,
-                        N_Vector vtemp2, N_Vector vtemp3)
-{
-  realtype    fnorm, minInc, inc, inc_inv, srur;
-  N_Vector ftemp, ytemp;
-  integertype group, i, j, width, ngroups, i1, i2;
-  realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
-
-  /* Rename work vectors for use as temporary values of y and f */
-  ftemp = vtemp1;
-  ytemp = vtemp2;
-
-  /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp */
-  ewt_data   = N_VGetData(ewt);
-  fy_data    = N_VGetData(fy);
-  ftemp_data = N_VGetData(ftemp);
-  y_data     = N_VGetData(y);
-  ytemp_data = N_VGetData(ytemp);
-
-  /* Load ytemp with y = predicted y vector */
-  N_VScale(ONE, y, ytemp);
-
-  /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
-  fnorm = N_VWrmsNorm(fy, ewt);
-  minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
-
-  /* Set bandwidth and number of column groups for band differencing */
-  width = mlower + mupper + 1;
-  ngroups = MIN(width, N);
-  
-  for (group=1; group <= ngroups; group++) {
-    
-    /* Increment all y_j in group */
-    for(j=group-1; j < N; j+=width) {
-      inc = MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
-      ytemp_data[j] += inc;
-    }
-
-    /* Evaluate f with incremented y */
-    f(N, tn, ytemp, ftemp, f_data);
-
-    /* Restore ytemp, then form and load difference quotients */
-    for (j=group-1; j < N; j+=width) {
-      ytemp_data[j] = y_data[j];
-      col_j = BAND_COL(J,j);
-      inc = MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
-      inc_inv = ONE/inc;
-      i1 = MAX(0, j-mupper);
-      i2 = MIN(j+mlower, N-1);
-      for (i=i1; i <= i2; i++)
-        BAND_COL_ELEM(col_j,i,j) =
-          inc_inv * (ftemp_data[i] - fy_data[i]);
-    }
-  }
-  
-  /* Increment counter nfe = *nfePtr */
-  *nfePtr += ngroups;
-}
+static void CVBandDQJac(integertype n, integertype mupper, 
+                        integertype mlower, BandMat J, realtype t, 
+                        N_Vector y, N_Vector fy, void *jac_data,
+                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 
 /* Readability Replacements */
 
-#define N         (cv_mem->cv_N)
 #define lmm       (cv_mem->cv_lmm)
 #define f         (cv_mem->cv_f)
 #define f_data    (cv_mem->cv_f_data)
@@ -210,16 +135,17 @@ static void CVBandDQJac(integertype N, integertype mupper, integertype mlower, B
 #define setupNonNull  (cv_mem->cv_setupNonNull)
 #define machenv   (cv_mem->cv_machenv)
 
-#define jac       (cvband_mem->b_jac)
-#define M         (cvband_mem->b_M)
-#define mu        (cvband_mem->b_mu)
-#define ml        (cvband_mem->b_ml)
+#define N          (cvband_mem->b_N)
+#define jac        (cvband_mem->b_jac)
+#define M          (cvband_mem->b_M)
+#define mu         (cvband_mem->b_mu)
+#define ml         (cvband_mem->b_ml)
 #define storage_mu (cvband_mem->b_storage_mu)
-#define pivots    (cvband_mem->b_pivots)
-#define savedJ    (cvband_mem->b_savedJ)
-#define nstlj     (cvband_mem->b_nstlj)
-#define nje       (cvband_mem->b_nje)
-#define J_data    (cvband_mem->b_J_data)
+#define pivots     (cvband_mem->b_pivots)
+#define savedJ     (cvband_mem->b_savedJ)
+#define nstlj      (cvband_mem->b_nstlj)
+#define nje        (cvband_mem->b_nje)
+#define J_data     (cvband_mem->b_J_data)
 
 
 /*************** CVBand **********************************************
@@ -249,7 +175,8 @@ static void CVBandDQJac(integertype N, integertype mupper, integertype mlower, B
 
 **********************************************************************/
                   
-int CVBand(void *cvode_mem, integertype mupper, integertype mlower, 
+int CVBand(void *cvode_mem, integertype n, 
+           integertype mupper, integertype mlower, 
            CVBandJacFn bjac, void *jac_data)
 {
   CVodeMem cv_mem;
@@ -288,15 +215,19 @@ int CVBand(void *cvode_mem, integertype mupper, integertype mlower,
     return(LMEM_FAIL);
   }
   
-/* Set Jacobian routine field, J_data, and setupNonNull */
+  /* Set Jacobian routine field, J_data, and setupNonNull */
   if (bjac == NULL) {
     jac = CVBandDQJac;
+    J_data = cvode_mem;
   } else {
     jac = bjac;
+    J_data = jac_data;
   }
-  J_data = jac_data;
   setupNonNull = TRUE;
   
+  /* Load problem dimension */
+  N = n;
+
   /* Load half-bandwiths in cvband_mem */
   ml = mlower;
   mu = mupper;
@@ -378,10 +309,11 @@ int CVReInitBand(void *cvode_mem, integertype mupper, integertype mlower,
 /* Set Jacobian routine field, J_data, and setupNonNull */
   if (bjac == NULL) {
     jac = CVBandDQJac;
+    J_data = cvode_mem;
   } else {
     jac = bjac;
+    J_data = jac_data;
   }
-  J_data = jac_data;
   setupNonNull = TRUE;
   
   /* Load half-bandwiths in cvband_mem */
@@ -466,8 +398,7 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlj = nst;
     *jcurPtr = TRUE;
     BandZero(M); 
-    jac(N, mu, ml, M, f, f_data, tn, ypred, fpred, ewt,
-        h, uround, J_data, &nfe, vtemp1, vtemp2, vtemp3);
+    jac(N, mu, ml, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
     BandCopy(M, savedJ, mu, ml);
   }
   
@@ -558,3 +489,83 @@ static void CVBandFree(CVodeMem cv_mem)
   BandFreePiv(pivots);
   free(cvband_mem);
 }
+
+/*************** CVBandDQJac *****************************************
+
+ This routine generates a banded difference quotient approximation to
+ the Jacobian of f(t,y).  It assumes that a band matrix of type
+ BandMat is stored column-wise, and that elements within each column
+ are contiguous. This makes it possible to get the address of a column
+ of J via the macro BAND_COL and to write a simple for loop to set
+ each of the elements of a column in succession.
+
+**********************************************************************/
+
+static void CVBandDQJac(integertype n, integertype mupper, 
+                        integertype mlower, BandMat J, realtype t, 
+                        N_Vector y, N_Vector fy, void *jac_data,
+                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  realtype fnorm, minInc, inc, inc_inv, srur;
+  N_Vector ftemp, ytemp;
+  integertype group, i, j, width, ngroups, i1, i2;
+  realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
+
+  CVodeMem cv_mem;
+
+  /* jac_dat points to cvode_mem */
+  cv_mem = (CVodeMem) jac_data;
+
+  /* Rename work vectors for use as temporary values of y and f */
+  ftemp = tmp1;
+  ytemp = tmp2;
+
+  /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp */
+  ewt_data   = N_VGetData(ewt);
+  fy_data    = N_VGetData(fy);
+  ftemp_data = N_VGetData(ftemp);
+  y_data     = N_VGetData(y);
+  ytemp_data = N_VGetData(ytemp);
+
+  /* Load ytemp with y = predicted y vector */
+  N_VScale(ONE, y, ytemp);
+
+  /* Set minimum increment based on uround and norm of f */
+  srur = RSqrt(uround);
+  fnorm = N_VWrmsNorm(fy, ewt);
+  minInc = (fnorm != ZERO) ?
+           (MIN_INC_MULT * ABS(h) * uround * n * fnorm) : ONE;
+
+  /* Set bandwidth and number of column groups for band differencing */
+  width = mlower + mupper + 1;
+  ngroups = MIN(width, n);
+  
+  for (group=1; group <= ngroups; group++) {
+    
+    /* Increment all y_j in group */
+    for(j=group-1; j < n; j+=width) {
+      inc = MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      ytemp_data[j] += inc;
+    }
+
+    /* Evaluate f with incremented y */
+    f(tn, ytemp, ftemp, f_data);
+
+    /* Restore ytemp, then form and load difference quotients */
+    for (j=group-1; j < n; j+=width) {
+      ytemp_data[j] = y_data[j];
+      col_j = BAND_COL(J,j);
+      inc = MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc_inv = ONE/inc;
+      i1 = MAX(0, j-mupper);
+      i2 = MIN(j+mlower, n-1);
+      for (i=i1; i <= i2; i++)
+        BAND_COL_ELEM(col_j,i,j) =
+          inc_inv * (ftemp_data[i] - fy_data[i]);
+    }
+  }
+  
+  /* Increment counter nfe = *nfePtr */
+  nfe += ngroups;
+}
+
