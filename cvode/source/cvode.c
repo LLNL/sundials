@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2004-11-06 01:01:51 $
+ * $Revision: 1.37 $
+ * $Date: 2004-11-10 01:01:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1713,7 +1713,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   tp = tn - hu - tfuzz;
   tn1 = tn + tfuzz;
   if ((t-tp)*(t-tn1) > ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_BAD_T, tn-hu, tn);
+    if(errfp!=NULL) fprintf(errfp, MSGCV_BAD_T, t, tn-hu, tn);
     return (CV_BAD_T);
   }
 
