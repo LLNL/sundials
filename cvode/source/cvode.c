@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2004-10-21 19:09:23 $
+ * $Revision: 1.35 $
+ * $Date: 2004-10-26 20:11:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -181,7 +181,7 @@
 
 #define MSG_CVS_NO_MEM      "cvode_mem=NULL in a CVodeSet routine illegal. \n\n"
 
-#define MSG_CVS_BAD_ITER1    "CVodeResetIterType-- iter=%d illegal.\n"
+#define MSG_CVS_BAD_ITER1    "CVodeSetIterType-- iter=%d illegal.\n"
 #define MSG_CVS_BAD_ITER2    "The legal values are CV_FUNCTIONAL=%d "
 #define MSG_CVS_BAD_ITER3    "and CV_NEWTON=%d.\n\n"
 #define MSG_CVS_BAD_ITER      MSG_CVS_BAD_ITER1 MSG_CVS_BAD_ITER2 MSG_CVS_BAD_ITER3
@@ -205,6 +205,18 @@
 #define MSG_CVS_BAD_HMM1    "CVodeSetMinStep/CVodeSetMaxStep-- Inconsistent \n"
 #define MSG_CVS_BAD_HMM2    "step size limits: hmin=%g > hmax=%g.\n\n"
 #define MSG_CVS_BAD_HMIN_HMAX  MSG_CVS_BAD_HMM1 MSG_CVS_BAD_HMM2
+
+#define CVS_TOL             "CVodeSetTolerances-- "
+
+#define MSG_CVS_BAD_ITOL1   CVS_TOL "itol=%d illegal.\n"
+#define MSG_CVS_BAD_ITOL2   "The legal values are CV_SS=%d and CV_SV=%d.\n\n"
+#define MSG_CVS_BAD_ITOL    MSG_CVS_BAD_ITOL1 MSG_CVS_BAD_ITOL2
+
+#define MSG_CVS_BAD_RELTOL  CVS_TOL "*reltol=%g < 0 illegal.\n\n"
+
+#define MSG_CVS_ABSTOL_NULL CVS_TOL "abstol=NULL illegal.\n\n"
+
+#define MSG_CVS_BAD_ABSTOL  CVS_TOL "Some abstol component < 0.0 illegal.\n\n"
 
 /* CVodeMalloc/CVodeReInit Error Messages */
 
@@ -484,7 +496,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_maxncf   = MXNCF;
   cv_mem->cv_nlscoef  = CORTES;
 
-  /* No mallocs have been done yet */
+  /* CVodeMalloc not done yet */
   cv_mem->cv_MallocDone = FALSE;
 
   /* Return pointer to CVODE memory block */
@@ -524,12 +536,12 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
 #define errfp (cv_mem->cv_errfp)
 
 /* 
- * CVodeResetIterType
+ * CVodeSetIterType
  *
  * Specifies the iteration type (CV_FUNCTIONAL or CV_NEWTON)
  */
 
-int CVodeResetIterType(void *cvode_mem, int iter)
+int CVodeSetIterType(void *cvode_mem, int iter)
 {
   CVodeMem cv_mem;
 
@@ -938,6 +950,57 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
 }
 
 #define nlscoef (cv_mem->cv_nlscoef)
+
+/*
+ * CVodeSetTolerances
+ *
+ * Changes te integration tolerances between calls to CVode()
+ */
+
+int CVodeSetTolerances(void *cvode_mem, 
+                       int itol, realtype *reltol, void *abstol)
+{
+  CVodeMem cv_mem;
+  booleantype neg_abstol;
+
+  if (cvode_mem==NULL) {
+    fprintf(stderr, MSG_CVS_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if ((itol != CV_SS) && (itol != CV_SV)) {
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_BAD_ITOL, itol, CV_SS, CV_SV);
+    return(CV_ILL_INPUT);
+  }
+
+  if (*reltol < ZERO) {
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_BAD_RELTOL, *reltol);
+    return(CV_ILL_INPUT);
+  }
+
+  if (abstol == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_ABSTOL_NULL);
+    return(CV_ILL_INPUT);
+  }
+
+  if (itol == CV_SS) {
+    neg_abstol = (*((realtype *)abstol) < ZERO);
+  } else {
+    neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
+  }
+  if (neg_abstol) {
+    if(errfp!=NULL) fprintf(errfp, MSG_CVS_BAD_ABSTOL);
+    return(CV_ILL_INPUT);
+  }
+
+  cv_mem->cv_itol   = itol;
+  cv_mem->cv_reltol = reltol;      
+  cv_mem->cv_abstol = abstol;
+
+  return(CV_SUCCESS);
+}
 
 /*
  * =================================================================
@@ -1516,7 +1579,8 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   if (nst == 0) {
 
-    /* On first call, check solver functions and call linit function */
+    /* Check if lsolve exists (if needed) 
+       and call linit function (if it exists) */
 
     if (iter == CV_NEWTON) {
       if (lsolve == NULL) {
@@ -1532,7 +1596,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       }
     }
     
-    /* On the first call, call f at (t0,y0), set zn[1] = y'(t0), 
+    /* Call f at (t0,y0), set zn[1] = y'(t0), 
        set initial h (from H0 or CVHin), and scale zn[1] by h.
        Also check for zeros of root function g at and near t0.    */
     
@@ -1555,7 +1619,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (rh > ONE) h /= rh;
     if (ABS(h) < hmin) h *= hmin/ABS(h);
 
-    /* On first call, check for approach to tstop */
+    /* Check for approach to tstop */
 
     if (istop) {
       if ( (tstop - tn)*h < ZERO ) {
@@ -1586,7 +1650,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   if (nst > 0) {
 
-    /* First check for a root in the last step taken, other than the
+    /* First, check for a root in the last step taken, other than the
        last root found, if any.  If task = CV_ONE_STEP and y(tn) was not
        returned because of an intervening root, return y(tn) now.     */
 
@@ -2524,11 +2588,16 @@ static void CVFreeVectors(CVodeMem cv_mem, int maxord)
 
 static booleantype CVEwtSet(CVodeMem cv_mem, N_Vector ycur)
 {
+  booleantype flag;
   switch(itol) {
-  case CV_SS: return(CVEwtSetSS(cv_mem, ycur));
-  case CV_SV: return(CVEwtSetSV(cv_mem, ycur));
+  case CV_SS: 
+    flag = CVEwtSetSS(cv_mem, ycur);
+    break;
+  case CV_SV: 
+    flag = CVEwtSetSV(cv_mem, ycur);
+    break;
   }
-  return(-99);
+  return(flag);
 }
 
 /*********************** CVEwtSetSS *********************************
@@ -3222,11 +3291,18 @@ static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 
 static int CVnls(CVodeMem cv_mem, int nflag)
 {
+  int flag;
+
   switch(iter) {
-    case CV_FUNCTIONAL : return(CVnlsFunctional(cv_mem));
-    case CV_NEWTON     : return(CVnlsNewton(cv_mem, nflag));
+  case CV_FUNCTIONAL: 
+    flag = CVnlsFunctional(cv_mem);
+    break;
+  case CV_NEWTON:
+    flag = CVnlsNewton(cv_mem, nflag);
+    break;
   }
-  return(-99);
+
+  return(flag);
 }
 
 /***************** CVnlsFunctional ********************************
@@ -3793,7 +3869,7 @@ static int CVHandleFailure(CVodeMem cv_mem, int kflag)
       if(errfp!=NULL) fprintf(errfp, MSG_SOLVE_FAILED, tn);
       return(CV_LSOLVE_FAIL);
   }
-  return(-99);
+  return(0);
 }
 
 /****************** CVBDFStab ***********************************

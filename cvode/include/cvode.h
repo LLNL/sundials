@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-10-21 19:09:13 $
+ * $Revision: 1.25 $
+ * $Date: 2004-10-26 20:11:07 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -182,21 +182,6 @@ void *CVodeCreate(int lmm, int iter);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVodeResetIterType                                  
- * -----------------------------------------------------------------
- * CVodeResetIterType changes the cuurent nonlinear iteration     
- * type. The legal values for iter are CV_FUNCTIONAL or CV_NEWTON.      
- *                                                                
- * If successful, CVodeResetIterType returns SUCCESS. Otherwise,  
- * it returns one of the error values defined below for the       
- * optional input specification routines.                         
- * -----------------------------------------------------------------
- */
-
-int CVodeResetIterType(void *cvode_mem, int iter);
-
-/*
- * -----------------------------------------------------------------
  * Integrator optional input specification functions              
  * -----------------------------------------------------------------
  * The following functions can be called to set optional inputs   
@@ -279,6 +264,17 @@ int CVodeResetIterType(void *cvode_mem, int iter);
  * CVodeSetNonlinConvCoef  | Coefficient in the nonlinear
  *                         | convergence test.
  *                         | [0.1]                                
+ *                         |
+ * -----------------------------------------------------------------
+ *                         |
+ * CVodeSetIterType        | Changes the current nonlinear iteration     
+ *                         | type. 
+ *                         | [set by CVodecreate]      
+ *                         |
+ * CVodeSetTolerances      | Changes the integration tolerances
+ *                         | between calls to CVode().
+ *                         | [set by CVodeMalloc/CVodeReInit]
+ *                         |
  * -----------------------------------------------------------------
  * Return flag:
  *   CV_SUCCESS   if successful
@@ -302,6 +298,11 @@ int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef);
 int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor);
 int CVodeSetMaxConvFails(void *cvode_mem, int maxncf);
 int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
+
+int CVodeSetIterType(void *cvode_mem, int iter);
+int CVodeSetTolerances(void *cvode_mem, 
+                       int itol, realtype *reltol, void *abstol);
+
 
 /*
  * -----------------------------------------------------------------
