@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.10.2.2 $
-# $Date: 2005-02-14 23:14:48 $
+# $Revision: 1.10.2.3 $
+# $Date: 2005-04-01 21:49:12 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -44,9 +44,9 @@ CVODE_INC_DIR    = $(srcdir)/../include
 FCVODE_INC_DIR   = $(srcdir)
 
 FCVODE_LIB       = libsundials_fcvode.la
-FCVODE_LIB_FILES = fcvode.lo fcvband.lo fcvdense.lo fcvjtimes.lo fcvpreco.lo fcvpsol.lo fcvbbd.lo fcvbp.lo fcvroot.lo
+FCVODE_LIB_FILES = fcvode.lo fcvband.lo fcvdense.lo fcvjtimes.lo fcvpreco.lo fcvpsol.lo fcvbbd.lo fcvbp.lo fcvroot.lo fcvewt.lo
 
-OBJECT_FILES = fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvpsol.o fcvbbd.o fcvbp.o fcvroot.o
+OBJECT_FILES = fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvpsol.o fcvbbd.o fcvbp.o fcvroot.o fcvewt.o
 
 all: update $(FCVODE_LIB_FILES)
 
@@ -68,6 +68,8 @@ uninstall: clean
 
 fcvode.lo: $(srcdir)/fcvode.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvode.c
+fcvewt.lo: $(srcdir)/fcvewt.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvewt.c
 fcvband.lo: $(srcdir)/fcvband.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvband.c
 fcvdense.lo: $(srcdir)/fcvdense.c
