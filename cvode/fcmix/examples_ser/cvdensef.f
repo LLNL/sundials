@@ -1,23 +1,29 @@
-C File cvdensef.f
+C     ----------------------------------------------------------------
+C     $Revision: 1.8 $
+C     $Date: 2004-04-29 15:32:32 $
+C     ----------------------------------------------------------------
+C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
-C FCVODE Example Problem:  Robertson kinetics, dense user Jacobian.
-C Version of 27 January 2004
+C     The following is a simple example problem, with the coding
+C     needed for its solution by CVODE. The problem is from chemical
+C     kinetics, and consists of the following three rate equations:
 C
-C The following is a simple example problem, with the coding
-C needed for its solution by CVODE.  The problem is from chemical
-C kinetics, and consists of the following three rate equations..
 C     dy1/dt = -.04*y1 + 1.e4*y2*y3
 C     dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*y2**2
 C     dy3/dt = 3.e7*y2**2
-C on the interval from t = 0.0 to t = 4.e10, with initial conditions
-C y1 = 1.0, y2 = y3 = 0.  The problem is stiff.
 C
-C The following coding solves this problem with CVODE, using the
-C Fortran/C interface routine package.  This solution uses the BDF
-C method and user-supplied Jacobian routine, and prints results at
-C t = .4, 4., ..., 4.e10.  It uses ITOL = 2 and ATOL much smaller for
-C y2 than y1 or y3 because y2 has much smaller values.
-C At the end of the run, various counters of interest are printed.
+C     on the interval from t = 0.0 to t = 4.e10, with initial
+C     conditions:
+C
+C     y1 = 1.0, y2 = y3 = 0. The problem is stiff.
+C     
+C     The following coding solves this problem with CVODE, using the
+C     Fortran/C interface routine package. This solution uses the BDF
+C     method and user-supplied Jacobian routine, and prints results
+C     at t = .4, 4., ..., 4.e10. It uses ITOL = 2 and ATOL much
+C     smaller for y2 than y1 or y3 because y2 has much smaller values.
+C     At the end of the run, various counters of interest are printed.
+C     ----------------------------------------------------------------
 C
       DOUBLE PRECISION RTOL, T, T0, TOUT
       DOUBLE PRECISION Y(3), ATOL(3), ROPT(40)

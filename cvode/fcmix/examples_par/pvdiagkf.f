@@ -1,7 +1,11 @@
-C File: pvdiagkf.f
-C Diagonal ODE example.  Stiff case, with BDF/SPGMR, diagonal precond.
-C Solved with preconditioning on left, then with preconditioning on right.
-C Version of 27 January 2004
+C     ----------------------------------------------------------------
+C     $Revision: 1.7 $
+C     $Date: 2004-04-29 15:32:36 $
+C     ----------------------------------------------------------------
+C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
+C     preconditioner. Solved with preconditioning on left, then with
+C     preconditioning on right.
+C     ----------------------------------------------------------------
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C

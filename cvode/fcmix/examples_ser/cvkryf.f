@@ -1,31 +1,39 @@
-C File cvkryf.f
+C     ----------------------------------------------------------------
+C     $Revision: 1.8 $
+C     $Date: 2004-04-29 15:32:32 $
+C     ----------------------------------------------------------------
+C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
+C     solver. 
+C     
+C     An ODE system is generated from the following 2-species diurnal
+C     kinetics advection-diffusion PDE system in 2 space dimensions:
+C     
+C     dc(i)/dt = Kh*(d/dx)**2 c(i) + V*dc(i)/dx + (d/dz)(Kv(z)*dc(i)/dz)
+C     + Ri(c1,c2,t)      for i = 1,2,   where
+C     R1(c1,c2,t) = -q1*c1*c3 - q2*c1*c2 + 2*q3(t)*c3 + q4(t)*c2 ,
+C     R2(c1,c2,t) =  q1*c1*c3 - q2*c1*c2 - q4(t)*c2 ,
+C     Kv(z) = Kv0*exp(z/5) ,
+C     Kh, V, Kv0, q1, q2, and c3 are constants, and q3(t) and q4(t)
+C     vary diurnally.
 C
-C FCVODE Example Problem: 2D kinetics-transport, precond. Krylov solver. 
-C Version of 27 January 2004
+C     The problem is posed on the square
+C     0 .le. x .le. 20,    30 .le. z .le. 50   (all in km),
+C     with homogeneous Neumann boundary conditions, and for time t
+C     in 0 .le. t .le. 86400 sec (1 day).
+C     The PDE system is treated by central differences on a uniform
+C     10 x 10 mesh, with simple polynomial initial profiles.
+C     The problem is solved with CVODE, with the BDF/GMRES method and
+C     the block-diagonal part of the Jacobian as a left
+C     preconditioner.
+C     
+C     Note: this program requires the dense linear solver routines
+C     DGEFA and DGESL from LINPACK, and BLAS routines DCOPY and DSCAL.
+C     
+C     The second and third dimensions of Y here must match the values
+C     of MESHX and MESHY, for consistency with the output statements
+C     below.
+C     ----------------------------------------------------------------
 C
-C An ODE system is generated from the following 2-species diurnal
-C kinetics advection-diffusion PDE system in 2 space dimensions:
-C
-C dc(i)/dt = Kh*(d/dx)**2 c(i) + V*dc(i)/dx + (d/dz)(Kv(z)*dc(i)/dz)
-C                 + Ri(c1,c2,t)      for i = 1,2,   where
-C   R1(c1,c2,t) = -q1*c1*c3 - q2*c1*c2 + 2*q3(t)*c3 + q4(t)*c2 ,
-C   R2(c1,c2,t) =  q1*c1*c3 - q2*c1*c2 - q4(t)*c2 ,
-C   Kv(z) = Kv0*exp(z/5) ,
-C Kh, V, Kv0, q1, q2, and c3 are constants, and q3(t) and q4(t)
-C vary diurnally.   The problem is posed on the square
-C   0 .le. x .le. 20,    30 .le. z .le. 50   (all in km),
-C with homogeneous Neumann boundary conditions, and for time t in
-C   0 .le. t .le. 86400 sec (1 day).
-C The PDE system is treated by central differences on a uniform
-C 10 x 10 mesh, with simple polynomial initial profiles.
-C The problem is solved with CVODE, with the BDF/GMRES method and
-C the block-diagonal part of the Jacobian as a left preconditioner.
-C
-C Note: this program requires the dense linear solver routines
-C DGEFA and DGESL from LINPACK, and BLAS routines DCOPY and DSCAL.
-C
-C The second and third dimensions of Y here must match the values of
-C MESHX and MESHY, for consistency with the output statements below.
       DOUBLE PRECISION ATOL, AVDIM, DELT, FLOOR, RTOL, T, TOUT, TWOHR
       DOUBLE PRECISION Y(2,10,10), ROPT(40)
       INTEGER IOPT(40)

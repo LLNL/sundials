@@ -1,6 +1,9 @@
-C File: pvdiagnf.f
-C Diagonal ODE example.  Nonstiff case: alpha = 10/NEQ.
-C Version of 27 January 2004
+C     ----------------------------------------------------------------
+C     $Revision: 1.6 $
+C     $Date: 2004-04-29 15:32:36 $
+C     ----------------------------------------------------------------
+C     Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
+C     ----------------------------------------------------------------
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C

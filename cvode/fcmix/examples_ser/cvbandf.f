@@ -1,24 +1,27 @@
-C File cvbandf.f
+C     ----------------------------------------------------------------
+C     $Revision: 1.8 $
+C     $Date: 2004-04-29 15:32:32 $
+C     ----------------------------------------------------------------
+C     FCVODE Example Problem: Advection-diffusion, banded user
+C     Jacobian.
 C
-C FCVODE Example Problem: Advection-diffusion, banded user Jacobian.
-C Version of 27 January 2004
-C
-C The following is a simple example problem with a banded Jacobian.
-C The problem is the semi-discrete form of the advection-diffusion
-C equation in 2D:
-C   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2
-C on the rectangle 0 <= x <= 2, 0 <= y <= 1, and the time
-C interval 0 <= t <= 1.  Homogeneous Dirichlet boundary conditions
-C are posed, and the initial condition is
-C   u(x,y,t=0) = x(2-x)y(1-y)exp(5xy) .
-C The PDE is discretized on a uniform MX+2 by MY+2 grid with
-C central differencing, and with boundary values eliminated,
-C leaving an ODE system of size NEQ = MX*MY.
-C This program solves this problem with CVODE, using the Fortran/C 
-C interface routine package.  This solution uses the BDF method,
-C a user-supplied banded Jacobian routine, and scalar relative and
-C absolute tolerances.  It prints results at t = .1, .2, ..., 1.0.
-C At the end of the run, various counters of interest are printed.
+C     The following is a simple example problem with a banded
+C     Jacobian. The problem is the semi-discrete form of the
+C     advection-diffusion equation in 2D:
+C     du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2
+C     on the rectangle 0 <= x <= 2, 0 <= y <= 1, and the time
+C     interval 0 <= t <= 1. Homogeneous Dirichlet boundary conditions
+C     are posed, and the initial condition is the following:
+C     u(x,y,t=0) = x(2-x)y(1-y)exp(5xy) .
+C     The PDE is discretized on a uniform MX+2 by MY+2 grid with
+C     central differencing, and with boundary values eliminated,
+C     leaving an ODE system of size NEQ = MX*MY.
+C     This program solves this problem with CVODE, using the Fortran/C 
+C     interface routine package. This solution uses the BDF method,
+C     a user-supplied banded Jacobian routine, and scalar relative and
+C     absolute tolerances. It prints results at t = .1, .2, ..., 1.0.
+C     At the end of the run, various counters of interest are printed.
+C     ----------------------------------------------------------------
 C
       DOUBLE PRECISION RTOL, ATOL, T0, T, TOUT, DTOUT, UNORM 
       DOUBLE PRECISION U(50), ROPT(40)

@@ -1,27 +1,33 @@
-/************************************************************************
- * File       : cvdx.c                                                  *
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
- * Version of : 27 April 2004                                           *
- *----------------------------------------------------------------------*
- * Example problem.                                                     *
- * The following is a simple example problem, with the coding           *
- * needed for its solution by CVODE/CVODES.  The problem is from        *
- * chemical kinetics, and consists of the following three rate          *
- * equations:                                                           *
- *    dy1/dt = -.04*y1 + 1.e4*y2*y3                                     *
- *    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2                        *
- *    dy3/dt = 3.e7*(y2)^2                                              *
- * on the interval from t = 0.0 to t = 4.e10, with initial conditions   *
- * y1 = 1.0, y2 = y3 = 0.  The problem is stiff.                        *
- * While integrating the system, we also use the rootfinding feature    *
- * to find the points at which y1 = 1e-4 or at which y3 = 0.01.         *
- * This program solves the problem with the BDF method, Newton          *
- * iteration with the CVDENSE dense linear solver, and a user-supplied  *
- * Jacobian routine.                                                    * 
- * It uses a scalar relative tolerance and a vector absolute tolerance. *
- * Output is printed in decades from t = .4 to t = 4.e10.               *
- * Run statistics (optional outputs) are printed at the end.            *
- ************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.8 $
+ * $Date: 2004-04-29 15:32:24 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @LLNL
+ * -----------------------------------------------------------------
+ * Example problem:
+ * 
+ * The following is a simple example problem, with the coding
+ * needed for its solution by CVODE/CVODES. The problem is from
+ * chemical kinetics, and consists of the following three rate
+ * equations:         
+ *    dy1/dt = -.04*y1 + 1.e4*y2*y3
+ *    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2
+ *    dy3/dt = 3.e7*(y2)^2
+ * on the interval from t = 0.0 to t = 4.e10, with initial
+ * conditions: y1 = 1.0, y2 = y3 = 0. The problem is stiff.
+ * While integrating the system, we also use the rootfinding
+ * feature to find the points at which y1 = 1e-4 or at which
+ * y3 = 0.01. This program solves the problem with the BDF method,
+ * Newton iteration with the CVDENSE dense linear solver, and a
+ * user-supplied Jacobian routine.
+ * It uses a scalar relative tolerance and a vector absolute
+ * tolerance. Output is printed in decades from t = .4 to
+ * t = 4.e10. Run statistics (optional outputs) are printed at
+ * the end.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 
