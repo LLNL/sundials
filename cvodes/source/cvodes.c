@@ -154,11 +154,8 @@
 
 /* CVNls other constants */
 
-#define FUNC_MAXCOR 3       /* maximum no. of corrector iterations
-                               for iter == FUNCTIONAL                      */
-#define NEWT_MAXCOR 3      /* maximum no. of corrector iterations
-                              for iter == NEWTON                           */
-
+#define NLS_MAXCOR 3       /* maximum no. of corrector iterations for the
+                              nonlinear solver                             */
 #define CRDOWN RCONST(0.3) /* constant used in the estimation of the
                               convergence rate (crate) of the
                               iterates for the nonlinear equation          */
@@ -170,13 +167,6 @@
 
 #define TRY_AGAIN  99      /* control constant for CVNlsNewton - should be
                               distinct from CVNls return values            */
-
-/* CVStgrNls constants */
-
-#define FUNC_MAXCOR_S 5
-#define NEWT_MAXCOR_S 3
-#define CRDOWN_S      RCONST(0.3)
-#define RDIV_S        TWO
 
 /* CVSensRhs1DQ finite difference methods */
 
@@ -694,10 +684,6 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_lmm    = lmm;
   cv_mem->cv_iter   = iter;
 
-  /* Set maxcor and maxcorS */
-  cv_mem->cv_maxcor  = (iter==NEWTON) ? NEWT_MAXCOR : FUNC_MAXCOR;  
-  cv_mem->cv_maxcorS = (iter==NEWTON) ? NEWT_MAXCOR_S : FUNC_MAXCOR_S;  
-
   /* Set uround */
   cv_mem->cv_uround = UnitRoundoff();
 
@@ -712,6 +698,10 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_hmin     = HMIN_DEFAULT;
   cv_mem->cv_hmax_inv = HMAX_INV_DEFAULT;
   cv_mem->cv_tstopset = FALSE;
+  cv_mem->cv_maxcor   = NLS_MAXCOR;
+  cv_mem->cv_maxnef   = MXNEF;
+  cv_mem->cv_maxncf   = MXNCF;
+  cv_mem->cv_nlscoef  = CORTES;
 
   /* Set default values for quad. optional inputs */
   cv_mem->cv_fQ_data  = NULL;
@@ -728,6 +718,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_pbar    = NULL;
   cv_mem->cv_reltolS = NULL;
   cv_mem->cv_abstolS = NULL;
+  cv_mem->cv_maxcorS = NLS_MAXCOR;
 
   /* No mallocs have been done yet */
   cv_mem->cv_MallocDone     = FALSE;
@@ -761,10 +752,6 @@ int CVodeResetIterType(void *cvode_mem, int iter)
   }
 
   cv_mem->cv_iter = iter;
-
-  /* Set maxcor and maxcorS */
-  cv_mem->cv_maxcor  = (iter==NEWTON) ? NEWT_MAXCOR : FUNC_MAXCOR;  
-  cv_mem->cv_maxcorS = (iter==NEWTON) ? NEWT_MAXCOR_S : FUNC_MAXCOR_S;   
 
   return(SUCCESS);
 }
@@ -1016,6 +1003,106 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
 
 #define tstop    (cv_mem->cv_tstop)
 #define tstopset (cv_mem->cv_tstopset)
+
+/*------------------  CVodeSetMaxErrTestFails   -------------------*/
+/* 
+   Specifies the maximum number of error test failures during one
+   step try.
+*/
+/*-----------------------------------------------------------------*/
+
+int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_CVS_NO_MEM);
+    return (CVS_NO_MEM);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_maxnef = maxnef;
+
+  return(SUCCESS);
+}
+
+#define maxnef (cv_mem->cv_maxnef)
+
+/*------------------  CVodeSetMaxConvFails  -----------------------*/
+/* 
+   Specifies the maximum number of nonlinear convergence failures 
+   during one step try.
+*/
+/*-----------------------------------------------------------------*/
+
+int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_CVS_NO_MEM);
+    return (CVS_NO_MEM);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_maxncf = maxncf;
+
+  return(SUCCESS);
+}
+
+#define maxncf (cv_mem->cv_maxncf)
+
+/*------------------  CVodeSetMaxNonlinIters  ---------------------*/
+/* 
+   Specifies the maximum number of nonlinear iterations during
+   one solve.
+*/
+/*-----------------------------------------------------------------*/
+
+int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_CVS_NO_MEM);
+    return (CVS_NO_MEM);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_maxcor = maxcor;
+
+  return(SUCCESS);
+}
+
+#define maxcor (cv_mem->cv_maxcor)
+
+/*------------------ CVodeSetNonlinConvCoef -----------------------*/
+/* 
+   Specifies the coeficient in the nonlinear solver convergence
+   test
+*/
+/*-----------------------------------------------------------------*/
+
+int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_CVS_NO_MEM);
+    return(CVS_NO_MEM);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_nlscoef = nlscoef;
+
+  return(SUCCESS);
+}
+
+#define nlscoef (cv_mem->cv_nlscoef)
 
 /*=================================================================*/
 /*END        INTEGRATOR OPTIONAL INPUT FUNCTIONS                   */
@@ -1733,6 +1820,32 @@ int CVodeSetSensAbstol(void *cvode_mem, void *abstolS)
 
 #define abstolS (cv_mem->cv_abstolS)
 
+/*------------------  CVodeSetSensMaxNonlinIters  ------------------*/
+/* 
+   Specifies the maximum number of nonlinear iterations during
+   one solve for sensitivity equations (staggered).
+*/
+/*-----------------------------------------------------------------*/
+
+int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_CVS_NO_MEM);
+    return (CVS_NO_MEM);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_maxcorS = maxcorS;
+
+  return(SUCCESS);
+}
+
+#define maxcorS (cv_mem->cv_maxcorS)
+
+
 /*=================================================================*/
 /*END        SENSITIVITY OPTIONAL INPUT FUNCTIONS                  */
 /*=================================================================*/
@@ -2131,7 +2244,6 @@ int CVodeSensReInit(void *cvode_mem, int ism,
 #define crate          (cv_mem->cv_crate)
 #define acnrm          (cv_mem->cv_acnrm)
 #define mnewt          (cv_mem->cv_mnewt)
-#define maxcor         (cv_mem->cv_maxcor)
 #define etamax         (cv_mem->cv_etamax)
 #define nst            (cv_mem->cv_nst)
 #define nfe            (cv_mem->cv_nfe)
@@ -2170,7 +2282,6 @@ int CVodeSensReInit(void *cvode_mem, int ism,
 #define ftempS         (cv_mem->cv_ftempS)
 #define crateS         (cv_mem->cv_crateS)
 #define acnrmS         (cv_mem->cv_acnrmS)
-#define maxcorS        (cv_mem->cv_maxcorS)
 #define nfSe           (cv_mem->cv_nfSe)
 #define nfeS           (cv_mem->cv_nfeS)
 #define nniS           (cv_mem->cv_nniS)
@@ -5029,7 +5140,7 @@ static void CVSetAdams(CVodeMem cv_mem)
     l[0] = l[1] = tq[1] = tq[5] = ONE;
     tq[2] = TWO;
     tq[3] = TWELVE;
-    tq[4] = CORTES * tq[2];       /* = 0.1 * tq[2] */
+    tq[4] = nlscoef * tq[2];       /* = 0.1 * tq[2] */
     return;
   }
   
@@ -5096,7 +5207,7 @@ static void CVAdamsFinish(CVodeMem cv_mem, realtype m[], realtype M[], realtype 
     tq[3] = L * M[0] / M[2];
   }
 
-  tq[4] = CORTES * tq[2];
+  tq[4] = nlscoef * tq[2];
 }
 
 /*------------------     CVAltSum        --------------------------*/
@@ -5203,7 +5314,7 @@ static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
     CPrimePrime = A2 / (ONE - A6 + A5);
     tq[3] = ABS(CPrimePrime * xi_inv * (q+2) * A5);
   }
-  tq[4] = CORTES * tq[2];
+  tq[4] = nlscoef * tq[2];
 }
 
 /*------------------       CVNls         --------------------------*/
@@ -5626,7 +5737,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
   Otherwise, a recoverable failure occurred when solving the 
   nonlinear system (CVNls returned nflag == CONV_FAIL). 
   In this case, we return the value REP_CONV_FAIL if ncf is now
-  equal to MXNCF or |h| = hmin. 
+  equal to maxncf or |h| = hmin. 
   If not, we set *nflagPtr = PREV_CONV_FAIL and return the value
   PREDICT_AGAIN, telling CVStep to reattempt the step.
 */
@@ -5653,8 +5764,8 @@ static int CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   
   (*ncfPtr)++;
   etamax = ONE;
-  /* If we had MXNCF failures or |h| = hmin, return REP_CONV_FAIL */
-  if ((ABS(h) <= hmin*ONEPSM) || (*ncfPtr == MXNCF))
+  /* If we had maxncf failures or |h| = hmin, return REP_CONV_FAIL */
+  if ((ABS(h) <= hmin*ONEPSM) || (*ncfPtr == maxncf))
     return (REP_CONV_FAIL);
 
   /* Reduce step size; return to reattempt the step */
@@ -5709,7 +5820,7 @@ static void CVRestore(CVodeMem cv_mem, realtype saved_t)
   If the test fails, we undo the step just taken (call CVRestore), 
   set *nflagPtr to PREV_ERR_FAIL, and return FALSE. 
   
-  If MXNEF error test failures have occurred or if ABS(h) = hmin,
+  If maxnef error test failures have occurred or if ABS(h) = hmin,
   we set *kflagPtr = REP_ERR_FAIL. (Otherwise *kflagPtr has the
   value last returned by CVHandleNflag.)
   
@@ -5741,8 +5852,8 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   *nflagPtr = PREV_ERR_FAIL;
   CVRestore(cv_mem, saved_t);
 
-  /* At MXNEF failures or |h| = hmin, return with kflag = REP_ERR_FAIL */
-  if ((ABS(h) <= hmin*ONEPSM) || (*nefPtr == MXNEF)) {
+  /* At maxnef failures or |h| = hmin, return with kflag = REP_ERR_FAIL */
+  if ((ABS(h) <= hmin*ONEPSM) || (*nefPtr == maxnef)) {
     *kflagPtr = REP_ERR_FAIL;
     return (FALSE);
   }
@@ -5809,7 +5920,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   If the test fails, we undo the step just taken (call CVRestore), 
   set *nflagPtr to PREV_ERR_FAIL, and return FALSE. 
   
-  If MXNEF error test failures have occurred or if ABS(h) = hmin,
+  If maxnef error test failures have occurred or if ABS(h) = hmin,
   we set *kflagPtr = REP_ERR_FAIL. (Otherwise *kflagPtr has the
   value last returned by CVHandleNflag.)
   
@@ -5840,8 +5951,8 @@ static booleantype CVQuadDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   *nflagPtr = PREV_ERR_FAIL;
   CVRestore(cv_mem, saved_t);
 
-  /* At MXNEF failures or |h| = hmin, return with kflag = REP_ERR_FAIL */
-  if ((ABS(h) <= hmin*ONEPSM) || (*nefQPtr == MXNEF)) {
+  /* At maxnef failures or |h| = hmin, return with kflag = REP_ERR_FAIL */
+  if ((ABS(h) <= hmin*ONEPSM) || (*nefQPtr == maxnef)) {
     *kflagPtr = REP_ERR_FAIL;
     return (FALSE);
   }
@@ -5984,7 +6095,7 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
        rate constant is stored in crateS, and used in the test. 
        acnrmS contains the norm of the corrections (yS_n-yS_n(0)) and
        will be used in the error test (if errcon==FULL)                */
-    if (m > 0) crateS = MAX(CRDOWN_S * crateS, Del / Delp);
+    if (m > 0) crateS = MAX(CRDOWN * crateS, Del / Delp);
     dcon = Del * MIN(ONE, crateS) / tq[4];
     
     if (dcon <= ONE) {
@@ -5995,7 +6106,7 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
 
     /* Stop at maxcor iterations or if iter. seems to be diverging */
     m++;
-    if ((m==maxcorS) || ((m >= 2) && (Del > RDIV_S * Delp)))
+    if ((m==maxcorS) || ((m >= 2) && (Del > RDIV * Delp)))
       return (CONV_FAIL);
 
     /* Save norm of correction, evaluate f, and loop again */
@@ -6151,7 +6262,7 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crateS, and used in the test.        */
-    if (m > 0) crateS = MAX(CRDOWN_S * crateS, Del/Delp);
+    if (m > 0) crateS = MAX(CRDOWN * crateS, Del/Delp);
     dcon = Del * MIN(ONE, crateS) / tq[4];
     if (dcon <= ONE) {
       if (errcon==FULL)
@@ -6165,7 +6276,7 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
     /* Stop at maxcor iterations or if iter. seems to be diverging.
        If still not converged and Jacobian data is not current, 
        signal to try the solution again                            */
-    if ((m == maxcorS) || ((m >= 2) && (Del > RDIV_S * Delp))) {
+    if ((m == maxcorS) || ((m >= 2) && (Del > RDIV * Delp))) {
       if ((!jcur) && (setupNonNull)) return (TRY_AGAIN);
       return (CONV_FAIL);
     }
@@ -6259,7 +6370,7 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, int is)
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crateS, and used in the test. */
 
-    if (m > 0) crateS = MAX(CRDOWN_S * crateS, Del / Delp);
+    if (m > 0) crateS = MAX(CRDOWN * crateS, Del / Delp);
     dcon = Del * MIN(ONE, crateS) / tq[4];
 
     if (dcon <= ONE) {
@@ -6268,7 +6379,7 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, int is)
 
     /* Stop at maxcor iterations or if iter. seems to be diverging */
     m++;
-    if ((m==maxcorS) || ((m >= 2) && (Del > RDIV_S * Delp)))
+    if ((m==maxcorS) || ((m >= 2) && (Del > RDIV * Delp)))
       return (CONV_FAIL);
 
     /* Save norm of correction, evaluate f, and loop again */
@@ -6416,7 +6527,7 @@ static int CVStgr1NewtonIteration(CVodeMem cv_mem, int is)
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crateS, and used in the test.        */
-    if (m > 0) crateS = MAX(CRDOWN_S * crateS, Del/Delp);
+    if (m > 0) crateS = MAX(CRDOWN * crateS, Del/Delp);
     dcon = Del * MIN(ONE, crateS) / tq[4];
     if (dcon <= ONE) {
       jcur = FALSE;
@@ -6428,7 +6539,7 @@ static int CVStgr1NewtonIteration(CVodeMem cv_mem, int is)
     /* Stop at maxcor iterations or if iter. seems to be diverging.
        If still not converged and Jacobian data is not current, 
        signal to try the solution again                            */
-    if ((m == maxcorS) || ((m >= 2) && (Del > RDIV_S * Delp))) {
+    if ((m == maxcorS) || ((m >= 2) && (Del > RDIV * Delp))) {
       if ((!jcur) && (setupNonNull)) return (TRY_AGAIN);
       return (CONV_FAIL);
     }
@@ -6479,8 +6590,8 @@ static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   *nflagPtr = PREV_ERR_FAIL;
   CVRestore(cv_mem, saved_t);
   
-  /* At MXNEF failures or |h| = hmin, return with nflag = REP_ERR_FAIL */
-  if ((ABS(h) <= hmin*ONEPSM) || ( (*nefSPtr) == MXNEF)) {
+  /* At maxnef failures or |h| = hmin, return with nflag = REP_ERR_FAIL */
+  if ((ABS(h) <= hmin*ONEPSM) || ( (*nefSPtr) == maxnef)) {
     *kflagPtr = REP_ERR_FAIL;
     return (FALSE);
   }

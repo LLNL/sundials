@@ -318,7 +318,24 @@ int CVodeResetIterType(void *cvode_mem, int iter);
  * CVodeSetStopTime     | the independent variable value past     *
  *                      | which the solution is not to proceed.   *
  *                      | [infinity]                              *
- *                      |                                         * 
+ *                       \                                        * 
+ *                        \                                       * 
+ * CVodeSetMaxErrTestFails | Maximum number of error test failures*
+ *                         | in attempting one step.              *
+ *                         | [7]                                  *
+ *                         |                                      *
+ * CVodeSetMaxNonlinIters  | Maximum number of nonlinear solver   *
+ *                         | iterations at one solution.          *
+ *                         | [3]                                  *
+ *                         |                                      *
+ * CVodeSetMaxConvFails    | Maximum number of allowable conv.    *
+ *                         | failures in attempting one step.     *
+ *                         | [10]                                 *
+ *                         |                                      *
+ * CVodeSetNonlinConvCoef  | Coeficient in the nonlinear conv.    *
+ *                         | test.                                *
+ *                         | [0.1]                                *
+ *                         |                                      *
  * -------------------------------------------------------------- *
  * If successful, these functions return SUCCESS. If an argument  *
  * has an illegal value, they print an error message to the       *
@@ -336,6 +353,10 @@ int CVodeSetInitStep(void *cvode_mem, realtype hin);
 int CVodeSetMinStep(void *cvode_mem, realtype hmin);
 int CVodeSetMaxStep(void *cvode_mem, realtype hmax);
 int CVodeSetStopTime(void *cvode_mem, realtype tstop);
+int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef);
+int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor);
+int CVodeSetMaxConvFails(void *cvode_mem, int maxncf);
+int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
 
 /* Error return values for CVodeSet* functions */
 /* SUCCESS = 0*/
@@ -595,7 +616,11 @@ enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2, QCVREI_ILL_INPUT = -3};
  *                      | passed to the user's fS function every  *
  *                      | time fS is called.                      *
  *                      | [NULL]                                  *
- *                      |                                         *
+ *                                                                *
+ * CVodeSetSensMaxNonlinIters | Maximum number of nonlinear solver*
+ *                            | iterations at one solution.       *
+ *                            | [3]                               *
+ *                            |                                   *
  * -------------------------------------------------------------- *
  * If successful, these functions return SUCCESS. If an argument  *
  * has an illegal value, they print an error message to the       *
@@ -611,6 +636,7 @@ int CVodeSetSensPbar(void *cvode_mem, realtype *pbar);
 int CVodeSetSensReltol(void *cvode_mem, realtype *reltolS);
 int CVodeSetSensAbstol(void *cvode_mem, void *abstolS);
 int CVodeSetSensFdata(void *cvode_mem, void *fS_data);
+int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS);
 
 /*----------------------------------------------------------------*
  * Function : CVodeSensMalloc                                     *
@@ -1247,6 +1273,7 @@ typedef struct CVodeMemRec {
   realtype cv_acnrm;           /* | acor |                                 */
   realtype cv_acnrmS;          /* | acorS |                                */
   realtype cv_acnrmQ;          /* | acorQ |                                */
+  realtype cv_nlscoef;         /* coeficient in nonlinear convergence test */
   int  cv_mnewt;               /* Newton iteration counter                 */
   int  *cv_ncfS1;              /* Array of Ns local counters for conv.  
                                   failures (used in CVStep for STAGGERED1) */
@@ -1264,6 +1291,8 @@ typedef struct CVodeMemRec {
   int cv_mxhnil;           /* maximum number of warning messages issued to 
                               the user that t + h == t for the next 
                               internal step                                */
+  int cv_maxnef;           /* maximum number of error test failures        */
+  int cv_maxncf;           /* maximum number of nonlinear conv. failures   */
 
   realtype cv_hmin;        /* |h| >= hmin                                  */
   realtype cv_hmax_inv;    /* |h| <= 1/hmax_inv                            */
