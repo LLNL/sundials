@@ -555,13 +555,13 @@ for the given problem.
   \item[icopt] (\id{int})
     is the option of IDACalcIC to be used.
     
-    \id{icopt}$=$\ID{CALC\_YA\_YDP\_INIT} directs \id{IDACalcIC} to compute 
+    \id{icopt}$=$\ID{IDA\_YA\_YDP\_INIT} directs \id{IDACalcIC} to compute 
     the algebraic components of $y$ and differential components of $y^\prime$, 
     given the differential components of $y$.  
     This option requires that the \id{N\_Vector} \id{id} was set through 
     \id{IDASetId}, specifying the differential and algebraic components.  
     
-    \id{icopt}$=$\ID{CALC\_Y\_INIT} directs \id{IDACalcIC} to compute all  
+    \id{icopt}$=$\ID{IDA\_Y\_INIT} directs \id{IDACalcIC} to compute all  
     components of $y$, given $y^\prime$.  \id{id} is not required.
 
   \item[tout1] (\id{realtype})
@@ -890,10 +890,10 @@ flag = IDASetErrFile(ida\_mem, errfp);
 %%
 \ucfunction{IDASetMaxOrd}
 {
-flag = IDASetMaxOrder(ida\_mem, maxord);
+flag = IDASetMaxOrd(ida\_mem, maxord);
 }
 {
-  The function \ID{IDASetMaxOrder} specifies the maximum order of the 
+  The function \ID{IDASetMaxOrd} specifies the maximum order of the 
   linear multistep method.
 }
 {
@@ -1270,7 +1270,7 @@ flag = IDASetId(ida\_mem, id);
 {
   The vector \id{id} is required if the algebraic variables are to be 
   suppressed from the local error test (see \id{IDASetSuppressAlg}) or
-  if \id{IDACalcIC} is to be called with \id{icopt} $=$ \id{CALC\_YA\_YDP\_INIT}
+  if \id{IDACalcIC} is to be called with \id{icopt} $=$ \id{IDA\_YA\_YDP\_INIT}
   (see \S\ref{ss:idacalcic}).
 }
 %%
@@ -1957,7 +1957,7 @@ flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
 }
 {
   The function \ID{IDASetMaxNumStepsIC} specifies the maximum number
-  of steps allowed when \id{icopt}$=$\id{CALC\_YA\_YDP\_INIT}
+  of steps allowed when \id{icopt}$=$\id{IDA\_YA\_YDP\_INIT}
   in \id{IDACalcIC}, where $h$ appears in the system Jacobian,
   $J = \partial F / \partial y + (1/h) \partial F / \partial y^\prime$.
 }
@@ -3499,8 +3499,8 @@ that define the preconditioner for use in the {\spgmr} algorithm.
 The user must provide a function of type \ID{IDAResFn} defined as follows:
 \usfunction{IDAResFn}
 {
-  typedef void (*IDAResFn)(&realtype tt, N\_Vector yy, N\_Vector yp,  \\
-                           &N\_Vector rr, void *res\_data);
+  typedef int (*IDAResFn)(&realtype tt, N\_Vector yy, N\_Vector yp,  \\
+                          &N\_Vector rr, void *res\_data);
 }
 {
   This function computes the problem residual for given values
