@@ -35,11 +35,14 @@ appropriate locations for the library and header files required by
 {\cvodes}.  In terms of the directory {\em build\_tree} defined in
 Chapter \ref{s:install}, the relevant library files are
 \begin{itemize}
-\item {\em build\_tree}\id{/lib/libcvodes.a},
-\item {\em build\_tree}\id{/lib/libshared.a}, and
-\item {\em build\_tree}\id{/lib/lib*nvec*.a} (up to four files)
+\item {\em build\_tree}\id{/lib/libsundials\_cvodes.}{\em lib},
+\item {\em build\_tree}\id{/lib/libsundials\_shared.}{\em lib},
+\item {\em build\_tree}\id{/lib/libsundials\_nvec*.}{\em lib} (up to two files), and
+\item {\em build\_tree}\id{/lib/libsundials\_fnvec*.a} (up to two files),
 \end{itemize}
-All relevant header files are all located in
+where the file extension .{\em lib} is typically \id{.so} for shared libraries
+and \id{.a} for static libraries. All relevant header files are all located under
+the subdirectory
 \begin{itemize}
 \item {\em build\_tree}\id{/include}
 \end{itemize}
