@@ -72,7 +72,7 @@ cvsdx: cvsdx.c
 	@rm -f cvsdx.o
 
 cvskx: cvskx.c
-	@echo '...Compile cvsnx...'
+	@echo '...Compile cvskx...'
 	@$(CC) $(CFLAGS) -o cvskx cvskx.c -lcvodes.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH) -lm
 	@rm -f cvskx.o
 
