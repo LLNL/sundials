@@ -16,7 +16,7 @@ modify any of the CVODE user interface to account for the initialization
 and set up of sensitivity analysis.
 
 Instrumenting an existing user code for forward sensitivity analysis can 
-thus be done by only inserting a few calls to CVODES routines, additional
+thus be done by only inserting a few calls to CVODES functions, additional
 to those required for setting up and solving the original ODE
 (steps \ref{i:sensi_set}, \ref{i:sensi_malloc}, \ref{i:getsensi}, 
 and \ref{i:sensi_get} below).
@@ -34,7 +34,7 @@ follow the memory allocation step \ref{i:malloc}.
 \item \label{i:nvspec}
   An implementation dependent NVECTOR specification constructor must first
   be called. For the two NVECTOR implementation provided with SUNDIALS, serial
-  and MPI parallel, the constructor routines are {\tt NV\_SpecInit\_Serial}
+  and MPI parallel, the constructor functions are {\tt NV\_SpecInit\_Serial}
   and {\tt NV\_SpecInit\_Parallel}, respectively.
 \item \label{i:create}
   {\tt CVodeCreate} 
@@ -44,43 +44,43 @@ follow the memory allocation step \ref{i:malloc}.
   Various options controlling the solver are set to their default values.
 \item \label{i:set}
   {\tt CVodeSet*} 
-  routines can now be used to change various controls from their default values.
+  functions can now be used to change various controls from their default values.
   Choices and default values are given in Table~\ref{t:optional_inputs}.
 \item \label{i:malloc}
   {\tt CVodeMalloc}
   must be called next to perform any required memory allocation, after checking 
   the initialized memory block for errors in the default or optional inputs. 
-  At this step the user must specify the routine providing the ODE right-hand 
+  At this step the user must specify the function providing the ODE right-hand 
   side, the initial time and initial values, as well as the desired
   integration tolerances.
 \item \label{i:linear}
-  {\tt CVDense}, {\tt CVBand}, {\tt CVDiag}, or {\tt CVSpgmr}
+  {\tt CVDense}, {\tt CVBand}, {\tt CVDiag}, or {\tt CVSpgmr}.
   If Newton iteration was selected in step (\ref{i:create}), a linear solver  
   is needed for solving the linear systems that arise during the Newton iterations. 
   A linear solver object (dense, band, diagonal, or SPGMR) must now be created
   and attached to the block of memory allocated for the solver.
   Various options controlling the linear solver are set to their default values.
 \item \label{i:ls_set}
-  {\tt CVDenseSet*}, {\tt CVBandSet*}, or {\tt CVSpgmrSet*}
+  {\tt CVDenseSet*}, {\tt CVBandSet*}, or {\tt CVSpgmrSet*}.
   At this stage, the default values in the linear solver memory block can be
   changed if so desired. 
   Choices and default values are given in Table \ref{t:optional_inputs}.
 \item \label{i:sensi_set}
   {\tt CVodeSetSens*}
-  routines can be called to change from their default values the optional inputs
+  functions can be called to change from their default values the optional inputs
   that control the integration of the sensitivity systems 
   (see Table~\ref{t:optional_inputs}).
 \item \label{i:sensi_malloc} 
   {\tt CVodeSensMalloc}
   must be called if solution sensitivities are desired.
-  This routine initializes and allocates memory for forward sensitivity calculations.
+  This function initializes and allocates memory for forward sensitivity calculations.
   At this stage the user specifies the number of sensitivities to be computed, 
   the forward sensitivity method 
   the model parameters, as well as the initial values for the sensitivity variables.
 \item \label{i:solve}
   {\tt CVode} 
   solves the problem. 
-  The solver routine is typically called in a loop over the desired output times.
+  The solver function is typically called in a loop over the desired output times.
   The user can have the solver take internal steps until it has reached the
   user-specified $t_{\mbox{\scriptsize out}}$ or return control to the user's
   main program after taking one successful step. Additionally, the user can
@@ -91,20 +91,20 @@ follow the memory allocation step \ref{i:malloc}.
   extracts the sensitivity solution vectors. If forward sensitivity analysis
   had been enabled in step \ref{i:sensi_malloc}, solutions sensitivities are
   computed at the same time as the ODE solution and are available to the user
-  through this routine.
+  through this function.
 \item \label{i:get}
-  {\tt CVodeGet*} 
+  {\tt CVodeGet*}.
   Optional outputs and statistics for the main solver are available through 
   extraction functions. A complete list of the optional outputs from CVODES 
   is given in Table~\ref{t:optional_outputs}.
 \item \label{i:sensi_get}
-  {\tt CVodeGet*Sens*}
+  {\tt CVodeGet*Sens*}.
   Optional outputs and statistics related to the solution of the sensitivity 
   systems are available through additional extraction functions 
   (see Table~\ref{t:optional_outputs}).
 \item \label{i:ls_get}  
-  {\tt CVDenseGet*}, {\tt CVBandGet*}, {\tt CVDiagGet*} or {\tt CVSpgmrGet*}
-  provide optional statistics from the linear solver module.
+  {\tt CVDenseGet*}, {\tt CVBandGet*}, {\tt CVDiagGet*} or {\tt CVSpgmrGet*}.
+  These functions provide optional statistics from the linear solver module.
 \item \label{i:free}
   {\tt CVodeFree} and the vector specification destructor.
   To complete the process, the user must make the appropriate calls to
@@ -119,15 +119,15 @@ follow the memory allocation step \ref{i:malloc}.
 If there are any quadrature equations that must also be integrated, the user's 
 main program must construct an additional NVECTOR specification object. 
 Integration of the quadrature variables is activated and initialized through a 
-call to the CVODES routine {\tt CVodeQuadMalloc}, which must specify the
-user-provided routine for the evaluation of the quadrature integrands and
+call to the CVODES function {\tt CVodeQuadMalloc}, which must specify the
+user-provided function for the evaluation of the quadrature integrands and
 the integration tolerances for quadrature variables. As before, the user
 has the option of changing from their default values various quantities
 controlling the quadrature integration (see Table~\ref{t:optional_inputs}).
-All these calls must preceed any call to the main CVODES solver routine.
+All these calls must preceed any call to the main CVODES solver function.
 After a successful return from {\tt CVode}, the quadrature variables are
 accessible through a call to {\tt CVodeGetQuad}, and solver statistics related
-to quadrature integration are available through the routines listed in
+to quadrature integration are available through the functions listed in
 Table~\ref{t:optional_outputs}.
 
 %------------------------------------------------------
@@ -143,17 +143,17 @@ have strived to maintain the same ``look and feel'' as for that used for
 ODE and forward sensitivity solution.
 The initialization and set-up of the forward phase is the same as above.
 Before calling the main solver for the forward integration, the user must 
-call the CVODES routine {\tt CVadjMalloc} to initialize and allocate memory 
+call the CVODES function {\tt CVadjMalloc} to initialize and allocate memory 
 for the structure holding the check-pointing and interpolation data.
 The forward integration and check-point generation is done through a call
-to {\tt CVodeF}, a wrapper around the {\tt CVode} routine in step 
+to {\tt CVodeF}, a wrapper around the {\tt CVode} function in step 
 \ref{i:solve} above.
 %
 The initialization, set-up, and solution of the adjoint problem is then
 done in the same way as for a regular forward ODE integration but
-calling CVODES and linear solver wrapper routines that have the names 
+calling CVODES and linear solver wrapper functions that have the names 
 mentioned before with the suffix {\tt B} attached. Some examples of such
-CVODES routines are: {\tt CVodeCreateB}, {\tt CVSpgmrB}, {\tt CVodeMallocB},
+CVODES functions are: {\tt CVodeCreateB}, {\tt CVSpgmrB}, {\tt CVodeMallocB},
 and {\tt CVodeB}.
 
 %------------------------------------------------------
@@ -165,12 +165,12 @@ and {\tt CVodeB}.
 \begin{acmtable}{\textwidth}
 \centering
 \begin{tabularx}{\textwidth}{lll}
-{\bf Optional input} & {\bf Routine name} & {\bf Default} \\
+{\bf Optional input} & {\bf Function name} & {\bf Default} \\
 \hline
 \multicolumn{3}{c}{\bf CVODES solver} \\
 \hline
 Pointer to an error output file & {\tt CVodeSetErrFile} & NULL  \\
-Data for right-hand side routine & {\tt CVodeSetFdata} & NULL \\
+Data for right-hand side function & {\tt CVodeSetFdata} & NULL \\
 Maximum order for BDF (or Adams) method & {\tt CVodeSetMaxOrd} & 5 (12) \\
 Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & {\tt CVodeSetMaxNumSteps} & 500 \\
 Maximum no. of warnings for $h < U$ & {\tt CVodeSetMaxHnilWarns} & 10 \\
@@ -183,11 +183,11 @@ Maximum no. of error test failures & {\tt CVodeSetMaxErrTestFails} & 7 \\
 Maximum no. of nonlinear iterations & {\tt CVodeSetMaxNonlinIters} & 3 \\
 Maximum no. of convergence failures & {\tt CVodeSetMaxConvFails} & 10 \\
 Coefficient in the nonlinear convergence test & {\tt CVodeSetNonlinConvCoef} & 0.1 \\
-Data for quadrature right-hand side routine & {\tt CVodeSetQuadFdata} & NULL\\
+Data for quadrature right-hand side function & {\tt CVodeSetQuadFdata} & NULL\\
 Error control on quadrature variables & {\tt CVodeSetQuadErrCon} & FALSE \\
 Tolerances for quadrature variables & {\tt CVodeSetQuadTolerances} & none \\
-Sensitivity right-hand side routine & {\tt CVodeSetSensRhsFn}  & internal DQ  \\
-Data for sensitivity right-hand side routine & {\tt CVodeSetSensFdata} & NULL \\
+Sensitivity right-hand side function & {\tt CVodeSetSensRhsFn}  & internal DQ  \\
+Data for sensitivity right-hand side function & {\tt CVodeSetSensFdata} & NULL \\
 Error control on sensitivity variables & {\tt CVodeSetSensErrCon} & FALSE \\
 Control for difference quotient approximation & {\tt CVodeSetSensRho}   & 0.0 \\
 Vector of problem parameter scalings & {\tt CVodeSetSensPbar}  & NULL \\
@@ -195,21 +195,21 @@ Tolerances for sensitivity variables & {\tt CVodeSetSensTolerances} & estimated 
 \hline
 \multicolumn{3}{c}{\bf CVSDENSE linear solver} \\
 \hline
-Dense Jacobian routine & {\tt CVDenseSetJacFn} & internal DQ \\
-Data for Jacobian routine & {\tt CVDenseSetJacData} & NULL \\
+Dense Jacobian function & {\tt CVDenseSetJacFn} & internal DQ \\
+Data for Jacobian function & {\tt CVDenseSetJacData} & NULL \\
 \hline
 \multicolumn{3}{c}{\bf CVSBAND linear solver} \\
 \hline
-Band Jacobian routine & {\tt CVBandSetJacFn} & internal DQ \\
-Data for Jacobian routine & {\tt CVBandSetJacData} & NULL \\
+Band Jacobian function & {\tt CVBandSetJacFn} & internal DQ \\
+Data for Jacobian function & {\tt CVBandSetJacData} & NULL \\
 \hline
 \multicolumn{3}{c}{\bf CVSSPGMR linear solver} \\
 \hline
-Preconditioner solve routine & {\tt CVSpgmrSetPrecSolveFn} & NULL \\
-Preconditioner setup routine & {\tt CVSpgmrSetPrecSetupFn} & NULL \\
-Data for preconditioner routines & {\tt CVSpgmrSetPrecData} & NULL \\
-Jacobian times vector routine & {\tt CVSpgmrSetJacTimesVecFn} & NULL \\
-Data for Jacobian times vector routine &{\tt CVSpgmrSetJacData} & NULL \\
+Preconditioner solve function & {\tt CVSpgmrSetPrecSolveFn} & NULL \\
+Preconditioner setup function & {\tt CVSpgmrSetPrecSetupFn} & NULL \\
+Data for preconditioner functions & {\tt CVSpgmrSetPrecData} & NULL \\
+Jacobian times vector function & {\tt CVSpgmrSetJacTimesVecFn} & NULL \\
+Data for Jacobian times vector function &{\tt CVSpgmrSetJacData} & NULL \\
 Type of Gram-Schmidt orthogonalization & {\tt CVSpgmrSetGSType} & classical GS \\
 Ratio between linear and nonlinear tolerances & {\tt CVSpgmrSetDelt} & 0.05 \\
 \end{tabularx}
@@ -222,13 +222,13 @@ Ratio between linear and nonlinear tolerances & {\tt CVSpgmrSetDelt} & 0.05 \\
 \begin{acmtable}{\textwidth}
 \centering
 \begin{tabularx}{\textwidth}{ll}
-{\bf Optional output} & {\bf Routine name} \\
+{\bf Optional output} & {\bf Function name} \\
 \hline
 Size of CVODES integer workspace & {\tt CVodeGetIntWorkSpace} \\
 Size of CVODES real workspace & {\tt CVodeGetRealWorkSpace} \\
 Cumulative number of internal steps & {\tt CVodeGetNumSteps} \\
 No. of calls to r.h.s. function & {\tt CVodeGetNumRhsEvals} \\
-No. of calls to linear solver setup routine & {\tt CVodeGetNumLinSolvSetups} \\
+No. of calls to linear solver setup function & {\tt CVodeGetNumLinSolvSetups} \\
 No. of local error test failures that have occurred & {\tt CVodeGetNumErrTestFails} \\
 Order used during the last step & {\tt CVodeGetLastOrder} \\
 Order to be attempted on the next step & {\tt CVodeGetCurrentOrder} \\

@@ -61,7 +61,7 @@ to the corresponding modules for CVODE, which are described in detail
 in ~\cite{HBGLSSW:04}.  In addition, the user of CVODES may supply
 his/her own linear solver module, following specifications given in
 the user documentation.  Thus an existing linear system solver can be
-incorporated by providing short interface routines between CVODES
+incorporated by providing short interface functions between CVODES
 and the linear system solver.
 
 All state information used by CVODES to solve a given problem is saved
@@ -74,19 +74,19 @@ by the anticipated multicomputer extension but is also essential
 during adjoint sensitivity analysis where the check-pointing algorithm
 leads to interleaved forward and backward integration passes. 
 
-Figure~\ref{f:cvsorg} does not show any of the user-supplied routines
-for CVODES. At a minimum, the user must provide a routine for the
+Figure~\ref{f:cvsorg} does not show any of the user-supplied functions
+for CVODES. At a minimum, the user must provide a function for the
 evaluation of the ODE right-hand side and, if performing adjoint
-sensitivity analysis, a routine for the evaluation of the right-hand
-side of the adjoint system.  Optional user-provided routines include,
+sensitivity analysis, a function for the evaluation of the right-hand
+side of the adjoint system.  Optional user-provided functions include,
 depending on the options chosen, functions for Jacobian evaluation
 (direct cases) or Jacobian-vector products (Krylov case), setup and
 solution of Krylov preconditioners, a function providing the integrand
-of any additional quadrature equations, and a routine for providing
+of any additional quadrature equations, and a function for providing
 the right-hand side of the sensitivity equations (for forward
 sensitivity analysis). Depending on the options selected for the
 solution of the adjoint system, the user may have to provide
-corresponding Jacobian and/or preconditioner routines.
+corresponding Jacobian and/or preconditioner functions.
 
 One of the most important characteristics of the design of CVODES 
 (shared by all solvers across SUNDIALS) is the fact that it is implemented 
@@ -111,9 +111,9 @@ different from that of the variables in the forward problem.
 A particular NVECTOR implementation, such as the serial and parallel 
 implementations included with SUNDIALS or a user-provided implementation,
 must provide the following:
-(1) actual implementation of the routines for operations on N-vectors, 
+(1) actual implementation of the functions for operations on N-vectors, 
 such as creation, destruction, summation, and dot product;
-(2) a routine to construct an NVECTOR specification structure
+(2) a function to construct an NVECTOR specification structure
 for this particular implementation, which defines the data necessary
 for constructing a new N-vector and attaches the vector operations
 to the new structure; and

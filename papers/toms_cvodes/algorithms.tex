@@ -213,12 +213,12 @@ There are several methods for evaluating the right-hand side of the sensitivity
 systems (\ref{e:sens_eqns}): analytic evaluation, automatic differentiation, 
 complex-step approximation, and finite differences (or directional derivatives).
 
-Since it allows for user-defined routines for the evaluation of any and all 
+Since it allows for user-defined functions for the evaluation of any and all 
 derivative information, CVODES provides all the software hooks for implementing 
 interfaces to automatic differentiation or complex-step approximation. 
 We have prototyped an automated code generator tool (not included in
 the CVODES distribution) which parses C code and generates C++ code to
-perform complex arithmetic. The user's right-hand side routine can
+perform complex arithmetic. The user's right-hand side function can
 thus be transformed to allow for the automatic generation of
 derivative information using complex-step approximations~\cite{MSA:03}.
 This approach allows for very accurate numerical estimation of
