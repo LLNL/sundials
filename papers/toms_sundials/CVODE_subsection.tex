@@ -227,13 +227,14 @@ CVODE returns to the user with a give-up message.
 % Step/order control
 %-------------------
 In addition to adjusting the stepsize to meet the local error test,
-CVODE periodically adjusts the order, with the goal of maximizing
-the stepsize.  The basic idea is to pick the order $q$ for which a
-polynomial of order $q$ best fits the discrete data involved in the
-multistep method.  However, if either a convergence failure or an
-error test failure occurred on the step just completed, no change in
-stepsize or order is done.  At the current order $q$, selecting a new
-stepsize is done exactly as when the error test fails, giving a
+CVODE periodically adjusts the order, with the goal of maximizing the
+stepsize.  The integration starts out at order 1, and varies the order
+dynamically after that.  The basic idea is to pick the order $q$ for
+which a polynomial of order $q$ best fits the discrete data involved
+in the multistep method.  However, if either a convergence failure or
+an error test failure occurred on the step just completed, no change
+in stepsize or order is done.  At the current order $q$, selecting a
+new stepsize is done exactly as when the error test fails, giving a
 tentative stepsize ratio
 \[ h'/h = (\epsilon / 6 \|\Delta_n\| )^{1/(q+1)} \equiv \eta_q \, . \]
 We consider changing order only after taking $q+1$ steps at order $q$,
@@ -300,10 +301,10 @@ turned off.
 
 % Output modes
 %-------------
-Normally, CVODE takes steps until a user-defined output value $t =
-t_{\mbox{\scriptsize out}}$ is overtaken, and then computes
+Normally, CVODE takes steps until a user-defined output value 
+$t = t_{\mbox{\scriptsize out}}$ is overtaken, and then computes
 $y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
 ``one-step'' mode option is available, where control returns to the
 calling program after each step.  There are also options to force
-CVODE not to integrate past a given stopping point $t =
-t_{\mbox{\scriptsize stop}}$.
+CVODE not to integrate past a given stopping point 
+$t = t_{\mbox{\scriptsize stop}}$.
