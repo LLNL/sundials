@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2004-10-18 18:37:00 $
+ * $Revision: 1.30 $
+ * $Date: 2004-10-21 15:58:17 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -259,11 +259,11 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_IC_BAD_EWT     IDAIC "Some ewt component = 0.0 illegal.\n\n"
 
 #define MSG_IC_RES_NONR1   IDAIC "Non-recoverable error return from"
-#define MSG_IC_RES_NONR2   " ResFn residual routine. \n\n"
+#define MSG_IC_RES_NONR2   " residual routine. \n\n"
 #define MSG_IC_RES_NONREC  MSG_IC_RES_NONR1 MSG_IC_RES_NONR2
 
 #define MSG_IC_RES_FAIL1   IDAIC "Recoverable error in first call to"
-#define MSG_IC_RES_FAIL2   " ResFn residual routine. Cannot recover. \n\n"
+#define MSG_IC_RES_FAIL2   " residual routine. Cannot recover. \n\n"
 #define MSG_IC_RES_FAIL    MSG_IC_RES_FAIL1 MSG_IC_RES_FAIL2
 
 #define MSG_IC_SETUP_FL1   IDAIC "The linear solver setup routine"
@@ -351,11 +351,11 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_NO_TSTOP       MSG_NO_TSTOP1 MSG_NO_TSTOP2
 
 #define MSG_REP_RES_ERR1   IDASLV "At t = %g, repeated recoverable error \n"
-#define MSG_REP_RES_ERR2   "returns from ResFn residual function. \n\n"
+#define MSG_REP_RES_ERR2   "returns from residual function. \n\n"
 #define MSG_REP_RES_ERR    MSG_REP_RES_ERR1 MSG_REP_RES_ERR2
 
 #define MSG_RES_NONRECOV1  IDASLV "At t = %g, nonrecoverable error \n"
-#define MSG_RES_NONRECOV2  "return from ResFn residual function. \n\n"
+#define MSG_RES_NONRECOV2  "return from residual function. \n\n"
 #define MSG_RES_NONRECOV   MSG_RES_NONRECOV1 MSG_RES_NONRECOV2
 
 #define MSG_FAILED_CONSTR1 IDASLV "At t = %g, unable to satisfy \n"
@@ -811,7 +811,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
  
 *****************************************************************/
 
-int IDAMalloc(void *ida_mem, ResFn res,
+int IDAMalloc(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector y0, N_Vector yp0, 
               int itol, realtype *rtol, void *atol)
 {
@@ -955,7 +955,7 @@ int IDAMalloc(void *ida_mem, ResFn res,
  
 *****************************************************************/
 
-int IDAReInit(void *ida_mem, ResFn res,
+int IDAReInit(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector y0, N_Vector yp0,
               int itol, realtype *rtol, void *atol)
 {

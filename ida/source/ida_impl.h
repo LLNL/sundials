@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-07-22 22:59:35 $
+ * $Revision: 1.3 $
+ * $Date: 2004-10-21 15:58:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -45,7 +45,7 @@ typedef struct IDAMemRec {
 
   /* Problem Specification Data */
 
-  ResFn          ida_res;            /* F(t,y(t),y'(t))=0; the function F  */
+  IDAResFn       ida_res;            /* F(t,y(t),y'(t))=0; the function F  */
   void          *ida_rdata;          /* user pointer passed to res         */
   int            ida_itol;           /* itol = SS or SV                    */
   realtype      *ida_rtol;           /* ptr to relative tolerance          */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-06-18 21:36:13 $
+ * $Revision: 1.3 $
+ * $Date: 2004-10-21 15:58:17 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -37,8 +37,8 @@ typedef struct {
      IDABBDPrecSetup/IDABBDPrecSolve functions: */
   long int mudq, mldq, mukeep, mlkeep;
   realtype rel_yy;
-  IDALocalFn glocal;
-  IDACommFn gcomm;
+  IDABBDLocalFn glocal;
+  IDABBDCommFn gcomm;
 
  /* allocated for use by IDABBDPrecSetup */
   N_Vector tempv4;
