@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-10-22 22:35:23 $
+ * $Revision: 1.21 $
+ * $Date: 2004-10-30 23:30:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -303,6 +303,26 @@ void *KINCreate(void);
  *                      | constraints are applied to vector u
  *                      | [NULL]
  *                      |
+ * KINResetSysFunc      | changes the user-provided routine which
+ *                      | defines the nonlinear problem to be 
+ *                      | solved.
+ *                      | KINResetSysFunc is provided for a user 
+ *                      | who wishes to solve several problems of 
+ *                      | the same size but with different functions.
+ *                      | [none]
+ * -----------------------------------------------------------------
+ * The possible return values for the KINSet* subroutines are the
+ * following:
+ *
+ * KIN_SUCCESS : means the associated variable was successfully
+ *               set [0]
+ *
+ * KIN_MEM_NULL : means a NULL KINSOL memory block pointer was given
+ *                (must call the KINCreate and KINMalloc memory
+ *                allocation subroutines prior to calling KINSol) [-1]
+ *
+ * KIN_ILL_INPUT : means the supplied parameter was invalid (check
+ *                 error message) [-2]
  * -----------------------------------------------------------------
  * Note: If successful, these functions return KIN_SUCCESS. If an
  * argument has an illegal value, then an error message is printed
@@ -326,25 +346,7 @@ int KINSetRelErrFunc(void *kinmem, realtype relfunc);
 int KINSetFuncNormTol(void *kinmem, realtype fnormtol);
 int KINSetScaledStepTol(void *kinmem, realtype scsteptol);
 int KINSetConstraints(void *kinmem, N_Vector constraints);
-
-/*
- * -----------------------------------------------------------------
- * KINSet* Return Values
- * -----------------------------------------------------------------
- * The possible return values for the KINSet* subroutines are the
- * following:
- *
- * KIN_SUCCESS : means the associated variable was successfully
- *               set [0]
- *
- * KIN_MEM_NULL : means a NULL KINSOL memory block pointer was given
- *                (must call the KINCreate and KINMalloc memory
- *                allocation subroutines prior to calling KINSol) [-1]
- *
- * KIN_ILL_INPUT : means the supplied parameter was invalid (check
- *                 error message) [-2]
- * -----------------------------------------------------------------
- */
+int KINSetSysFunc(void *kinmem, KINSysFn func);
 
 /*
  * -----------------------------------------------------------------
@@ -368,14 +370,7 @@ int KINSetConstraints(void *kinmem, N_Vector constraints);
  * KINMalloc return flags: KIN_SUCCESS, KIN_MEM_NULL, KIN_ILL_INPUT,
  * and KIN_MEM_FAIL (see below). If an error occurs, then KINMalloc
  * prints an error message.
- * -----------------------------------------------------------------
- */
-
-int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl);
-
-/*
- * -----------------------------------------------------------------
- * KINMalloc Return Values
+ *
  * -----------------------------------------------------------------
  * The possible return values for the KINMalloc subroutine are the
  * following:
@@ -398,40 +393,7 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl);
  * -----------------------------------------------------------------
  */
 
-/*
- * -----------------------------------------------------------------
- * Function : KINResetSysFunc
- * -----------------------------------------------------------------
- * KINResetSysFunc changes the user-provided routine which
- * defines the nonlinear problem to be solved.
- *
- * KINResetSysFunc is provided for a user who wishes to solve
- * several problems of the same size but with different
- * functions.
- * -----------------------------------------------------------------
- */
-
-int KINResetSysFunc(void *kinmem, KINSysFn func);
-
-/*
- * -----------------------------------------------------------------
- * KINResetSysFunc Return Values
- * -----------------------------------------------------------------
- * The possible return values for the KINResetSysFunc subroutine are
- * the following:
- *
- * KIN_SUCCESS : means the associated variable was successfully
- *               set [0]
- *
- * KIN_MEM_NULL : means a NULL KINSOL memory block pointer was given
- *                (must call the KINCreate and KINMalloc memory
- *                allocation subroutines prior to calling KINSol)
- *                [-1]
- *
- * KIN_ILL_INPUT : means the supplied parameter was invalid (check
- *                 error message) [-2]
- * -----------------------------------------------------------------
- */
+int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl);
 
 /*
  * -----------------------------------------------------------------
@@ -482,16 +444,11 @@ int KINResetSysFunc(void *kinmem, KINSysFn func);
  * If successful, KINSol returns a vector uu contains an approximate
  * solution of the given nonlinear system. If an error occurs, then
  * an error message is printed and an error code is returned.
- * -----------------------------------------------------------------
- */
-
-int KINSol(void *kinmem, N_Vector uu, int strategy,
-	   N_Vector u_scale, N_Vector f_scale);
-
-/*
+ *
  * -----------------------------------------------------------------
  * KINSol Return Values
  * -----------------------------------------------------------------
+ *
  * The possible return values for the KINSol subroutine are the
  * following:
  *
@@ -582,6 +539,9 @@ int KINSol(void *kinmem, N_Vector uu, int strategy,
  * -----------------------------------------------------------------
  */
 
+int KINSol(void *kinmem, N_Vector uu, int strategy,
+	   N_Vector u_scale, N_Vector f_scale);
+
 /*
  * -----------------------------------------------------------------
  * Optional Output Extraction Functions (KINSOL)
@@ -632,21 +592,9 @@ int KINSol(void *kinmem, N_Vector uu, int strategy,
  *                           | used during the previous iteration:
  *                           |
  *                           |  ||uscale*p||_L2
+ *                           |
  * -----------------------------------------------------------------
- */
-
-int KINGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
-int KINGetNumNonlinSolvIters(void *kinmem, long int *nniters);
-int KINGetNumFuncEvals(void *kinmem, long int *nfevals);
-int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails); 
-int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
-int KINGetFuncNorm(void *kinmem, realtype *fnorm);
-int KINGetStepLength(void *kinmem, realtype *steplength);
-
-/*
- * -----------------------------------------------------------------
- * KINGet* Return Values
- * -----------------------------------------------------------------
+ *
  * The possible return values for the KINSet* subroutines are the
  * following:
  *
@@ -657,6 +605,14 @@ int KINGetStepLength(void *kinmem, realtype *steplength);
  *                allocation subroutines prior to calling KINSol) [-1]
  * -----------------------------------------------------------------
  */
+
+int KINGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
+int KINGetNumNonlinSolvIters(void *kinmem, long int *nniters);
+int KINGetNumFuncEvals(void *kinmem, long int *nfevals);
+int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails); 
+int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
+int KINGetFuncNorm(void *kinmem, realtype *fnorm);
+int KINGetStepLength(void *kinmem, realtype *steplength);
 
 /*
  * -----------------------------------------------------------------

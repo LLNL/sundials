@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-10-22 22:35:28 $
+ * $Revision: 1.29 $
+ * $Date: 2004-10-30 23:30:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -102,7 +102,7 @@
 #define MSG_MEM_FAIL       "KINMalloc-- A memory request failed.\n\n"
 #define MSG_FUNC_NULL      "KINMalloc-- func == NULL illegal.\n\n"
 #define MSG_BAD_NVECTOR    "KINMalloc-- A required vector operation is not implemented.\n\n"
-#define MSG_KINS_FUNC_NULL "KINResetSysFunc-- func == NULL illegal.\n\n"
+#define MSG_KINS_FUNC_NULL "KINSetSysFunc-- func == NULL illegal.\n\n"
 
 /* KINSol error messages */
 
@@ -738,11 +738,11 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINResetSysFunc
+ * Function : KINSetSysFunc
  * -----------------------------------------------------------------
  */
 
-int KINResetSysFunc(void *kinmem, KINSysFn func)
+int KINSetSysFunc(void *kinmem, KINSysFn func)
 {
   KINMem kin_mem;
 
