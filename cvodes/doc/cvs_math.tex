@@ -31,7 +31,7 @@ parameters $p$, while in the second case, {\cvodes} computes the gradient of a
 {\em derived function} with respect to the parameters $p$.
 
 %------------------------
-\section{IVP Solution}\label{ss:ivp_sol}
+\section{IVP solution}\label{ss:ivp_sol}
 %------------------------
 
 % Linear multistep methods
@@ -289,8 +289,7 @@ step, when it is limited to $10^4$.
 
 The various algorithmic features of {\cvodes} described above, as
 inherited from VODE and VODPK, are documented in 
-\cite{BBH:89,Byr:92,Hin:00}.  A full description of the usage
-of {\cvodes} is given in \cite{HiSe:03a}.
+\cite{BBH:89,Byr:92,Hin:00}.
 
 % Output modes
 %-------------
@@ -305,7 +304,7 @@ $t = t_{\mbox{\scriptsize stop}}$.
 \index{output mode|)}
 
 %----------------------------------------
-\section{Forward Sensitivity Analysis}\label{ss:fwd_sensi}
+\section{Forward sensitivity analysis}\label{ss:fwd_sensi}
 %----------------------------------------
 
 \index{forward sensitivity analysis!mathematical background|(}
@@ -334,7 +333,7 @@ ODEs~(\ref{e:ivp_p}).
 
 When performing forward sensitivity analysis, {\cvodes} carries out the time integration 
 of the combined system, (\ref{e:ivp_p}) and (\ref{e:sens_eqns}), by viewing it as an ODE
-system of size $N(N_s+1)$, where $N_s$ represents a subset of model parameters $p_i$, 
+system of size $N(N_s+1)$, where $N_s$ is the number of model parameters $p_i$, 
 with respect to which sensitivities are desired ($N_s \le N_p$). 
 However, major efficiency improvements can be obtained by taking advantage of the special 
 form of the sensitivity equations as linearizations of the original ODEs. 
@@ -365,7 +364,7 @@ is not implemented in {\cvodes}.
   In this approach \cite{CaSt:85}, the nonlinear system (\ref{e:nonlinear}) is first 
   solved and, once an acceptable numerical solution is obtained, the sensitivity 
   variables at the new step are found by directly solving (\ref{e:sens_eqns}) 
-  after the BDF discretization is used to eliminate ${\dot s}_i$. 
+  after the BDF (or Adams) discretization is used to eliminate ${\dot s}_i$. 
   Although the system matrix of the above linear system is based on exactly the same 
   information as the matrix $M$ in (\ref{e:Newtonmat}), it must be updated and factored 
   at every step of the integration, in contrast to $M$ which is updated only ocasionally. 
@@ -375,7 +374,7 @@ is not implemented in {\cvodes}.
   
 \item {\em Simultaneous Corrector.}
 
-  In this method \cite{MaPe:97}, the BDF discretization is applied simultaneously
+  In this method \cite{MaPe:97}, the discretization is applied simultaneously
   to both the original equations (\ref{e:ivp_p}) and the sensitivity systems
   (\ref{e:sens_eqns}) resulting in the following nonlinear system 
   \begin{equation*}
@@ -383,8 +382,8 @@ is not implemented in {\cvodes}.
     {\hat y}_n - h_n\beta_{n,0} {\hat f}(t_n,\,{\hat y}_n) - {\hat a}_n = 0 \, ,
   \end{equation*}
   where
-  ${\hat f} = [ f(t,y,p), \ldots , (\dfdyI)(t,y,p) s_i + (\dfdpiI)(t,y,p) , \ldots ]$
-  and ${\hat a}_n$ are the terms in the BDF discretization that depend on the
+  ${\hat f} = [ f(t,y,p), \ldots , (\dfdyI)(t,y,p) s_i + (\dfdpiI)(t,y,p) , \ldots ]$,
+  and ${\hat a}_n$ is comprised of the terms in the discretization that depend on the
   solution at previous integration steps.
   This combined nonlinear system can be solved as in (\ref{e:Newton}) using
   a modified Newton method by solving the corrector equation
@@ -395,11 +394,11 @@ is not implemented in {\cvodes}.
   \begin{equation*}
     {\hat M} = 
     \begin{bmatrix}
-      M              &        &        &        &   \\
-      \gamma J_1     & M      &        &        &   \\
-      \gamma J_2     & 0      & M      &        &   \\
-      \vdots         & \vdots & \ddots & \ddots &   \\
-      \gamma J_{N_s} & 0      & \ldots & 0      & M 
+      M                &        &        &        &   \\
+      - \gamma J_1     & M      &        &        &   \\
+      - \gamma J_2     & 0      & M      &        &   \\
+        \vdots         & \vdots & \ddots & \ddots &   \\
+      - \gamma J_{N_s} & 0      & \ldots & 0      & M 
     \end{bmatrix} \, ,
   \end{equation*}
   $M$ is defined as in (\ref{e:Newtonmat}), and 
@@ -540,7 +539,7 @@ negative) indicates whether this switching is done with regard to
 \index{forward sensitivity analysis!mathematical background|)}
 
 %----------------------------------------
-\section{Adjoint Sensitivity Analysis}\label{ss:adj_sensi}
+\section{Adjoint sensitivity analysis}\label{ss:adj_sensi}
 %----------------------------------------
 \index{adjoint sensitivity analysis!mathematical background|(}
 In the {\em forward sensitivity approach} described in the previous
@@ -649,7 +648,7 @@ implementing a so-called {\em check-pointing scheme}. At the cost of
 at most one additional forward integration, this approach offers the best possible 
 estimate of memory requirements for adjoint sensitivity analysis. To begin with,
 based on the problem size $N$ and the available memory, the user decides on 
-the number $N_d$ of data pairs $y$-${\dot y}$ that can be kept in memory for 
+the number $N_d$ of data pairs ($y$, ${\dot y}$) that can be kept in memory for 
 the purpose of interpolation. Then, during the first forward integration stage, 
 every $N_d$ integration steps a check point is formed by saving enough information
 (either in memory or on disk if needed) to allow for a hot restart, that is a restart
@@ -661,7 +660,7 @@ During the backward integration stage, the adjoint variables are integrated
 from $t_1$ to $t_0$ going from one check point to the previous one.
 The backward integration from check point $i+1$ to check point $i$ is preceeded
 by a forward integration from $i$ to $i+1$ during which $N_d$ data pairs 
-$y$-${\dot y}$ are generated and stored in memory for interpolation.
+($y$, ${\dot y}$) are generated and stored in memory for interpolation.
 (see Fig.~\ref{f:ckpnt}).
 %
 \begin{figure}
@@ -678,7 +677,7 @@ the forward integration, and there is no major penalty for writing and then read
 check point data to/from a temporary file.
 %
 Note that, at the end of the first forward integration stage, data pairs 
-$y$-${\dot y}$ are available from the last check point to the end of the integration 
+($y$, ${\dot y}$) are available from the last check point to the end of the integration 
 interval. If no check points are necessary, i.e., $N_d$ is larger than the 
 number of integration steps taken in the solution of (\ref{e:ivp_p}),
 the total cost of an adjoint sensitivity computation can be as low as one forward
@@ -704,7 +703,7 @@ discretized adjoint PDE system or the adjoint of the discretized PDE.
 
 %-----------------------------------------------
 
-\section{BDF Stability Limit Detection}
+\section{BDF stability limit detection}\label{s:bdf_stab}
 
 {\cvodes} includes an algorithm, {\stald} (STAbility Limit Detection),
 which provides protection against potentially unstable behavior of the 

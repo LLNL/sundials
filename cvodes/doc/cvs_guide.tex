@@ -1,4 +1,14 @@
+%\documentclass[twoside,10pt]{report}
 \documentclass[10pt]{report}
+
+\usepackage{xr}
+\externaldocument{cvs_sim_ex}
+\externaldocument{cvs_fwd_ex}
+\externaldocument{cvs_adj_ex}
+
+\usepackage{fancyheadings}
+% Package useful for debuging
+%\usepackage{showlabels}
 
 \input{ug.tex}
 
@@ -8,9 +18,7 @@
 \newcommand{\cvsdate}{October 2003}
 \newcommand{\cvsrelease}{v1.1}
 
-\title{User Documentation for \cvodes, \\ 
-An ODE Solver with Sensitivity Analysis Capabilities \\
-\cvsrelease}
+\title{User Documentation for \cvodes \\ \cvsrelease}
 \author{
   Alan C. Hindmarsh and Radu Serban\\
   {\em Center for Applied Scientific Computing} \\
@@ -33,7 +41,9 @@ An ODE Solver with Sensitivity Analysis Capabilities \\
 {\cvsdate}%                                         Date
 {0in}{0in}
 
-\frontmatter
+\frontug
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
 
 %===============================================================
 % Introduction

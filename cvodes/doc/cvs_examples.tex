@@ -1,5 +1,13 @@
 %\documentclass[11pt]{article}
-\documentclass[11pt]{report}
+\documentclass[11pt]{article}
+
+\usepackage{xr}
+\externaldocument{cvs_math}
+\externaldocument{cvs_sim}
+\externaldocument{cvs_fwd}
+\externaldocument{cvs_adj}
+\externaldocument{cvs_types}
+\externaldocument{cvs_nvec}
 
 \input{ug.tex}
 
@@ -7,9 +15,7 @@
 \newcommand{\cvsdate}{October 2003}
 \newcommand{\cvsrelease}{v1.1}
 
-\title{Example Programs for \cvodes, \\ 
-An ODE Solver with Sensitivity Analysis Capabilities \\
-\cvsrelease}
+\title{Example Programs for \cvodes \\ \cvsrelease}
 \author{
   Alan C. Hindmarsh and Radu Serban\\
   {\em Center for Applied Scientific Computing} \\
@@ -28,7 +34,7 @@ An ODE Solver with Sensitivity Analysis Capabilities \\
 {\cvsdate}%                                            Date
 {0in}{0in}
 
-\frontmatter
+\frontex
 
 %===============================================================
 % Example Problems

@@ -36,14 +36,13 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 Differences between the user main program in \S\ref{ss:skeleton_sim} and
 the one below start only at step (\ref{i:fwd_start}).
 
-
+First note that no additional header files need be included for forward sensitivity 
+analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
+%%
 \begin{Steps}
   
 \item 
-  \textcolor{gray}{\bf Initialize MPI}
-
-  No additional header files need be included for forward sensitivity analysis 
-  beyond those for IVP solution (\S\ref{ss:skeleton_sim});
+  \textcolor{gray}{\bf {\p} Initialize MPI}
 
 \item
   \textcolor{gray}{\bf Set problem dimensions}
@@ -346,7 +345,7 @@ In case of an error return, an error message is also printed.
 %--------------------------
 \subsection{Additional Optional Input/Output}\label{sss:more_optional_io}
 
-As mentioned in \S\ref{sss:optional_io}, during forward sensitivity 
+As mentioned in \S\ref{ss:optional_input}, during forward sensitivity 
 analysis, {\cvodes} stores some additional integer output values in \Id{iopt}.
 These values are described in Table \ref{t:more_iopt}.
 
@@ -470,7 +469,7 @@ arrays of length \id{Ns} are allocated by \id{CVodeSensReInit}.
 For user-provided sensitivity right-hand side routines based on finite
 differences, additional quantities already available to {\cvodes} may
 be of interest. The machine unit roundoff and the vector of error weights
-for states can be accessed as described in \S\ref{sss:cvodegetewt}.
+for states can be accessed as described in \S\ref{ss:optional_output}.
 The vectors of error weights for sensitivity variables can be extracted
 with a call to the function
 \begin{verbatim}
@@ -603,9 +602,9 @@ For some problems, when sensitivities are excluded from the error control test,
 the behavior of {\cvodes} may appear at first glance erroneous. One would
 expect that, in such cases, the sensitivity variables will not influence in
 any way the step size selection. A comparison of the solver diagnostics 
-reported for the \id{cvdx} example in \S\ref{ss:serial_sim_ex} and the
-second run of the \id{cvfdx} example in \S\ref{ss:serial_fwd_ex} indicates 
-that this may not always be the case.
+reported for the \id{cvdx} example in \S\ref{ss:serial_sim_ex} of \cite{cvodes1.1_ex} 
+and the second run of the \id{cvfdx} example in \S\ref{ss:serial_fwd_ex} of \cite{cvodes1.1_ex}
+indicates that this may not always be the case.
 
 The short explanation of this behavior is that the step size selection
 implemented by the error control mechanism in {\cvodes} is based on the 

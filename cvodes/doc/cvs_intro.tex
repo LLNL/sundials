@@ -7,12 +7,12 @@ SUite of Nonlinear and DIfferential/ALgebraic equation Solvers.
 This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these. 
 %
 {\cvodes}\index{CVODES@{\cvodes}!brief description of} is a solver for stiff and
-nonstiff initial value problems for systems of ordinary differential equation
+nonstiff initial value problems (IVPs) for systems of ordinary differential equation
 (ODEs). In addition to solving stiff and nonstiff ODE systems, {\cvodes} has sensitivity 
 analysis capabilities, using either the forward or the adjoint methods.
 
 %---------------------------------
-\section{Historical Background}\label{ss:history}
+\section{Historical background}\label{ss:history}
 %---------------------------------
 
 \index{CVODES@{\cvodes}!relationship to {\vode}, {\vodpk}|(}
@@ -79,7 +79,7 @@ and the greater ease of interfacing the solver to applications written
 in extended {\F}.
 \index{CVODES@{\cvodes}!motivation for writing in C|)}
 
-\section{Changes in Version 1.1}
+\section{Changes in version 1.1}
 The major changes from the previous version involve a redesign of the
 user interface across the entire {\sundials} suite. We have eliminated the
 mechanism of providing optional inputs and extracting optional statistics 
@@ -88,60 +88,66 @@ from the solver through the \id{iopt} and \id{ropt} arrays. Instead,
 to change the default values for various quantities controlling the
 solver and a set of extraction routines (with prefix \id{CVodeGet})
 to extract statistics after return from the main solver routine.
-Similarly, each linear solver module provides its own set of {\id{set}-}
-and {\id{get}-type} routines. For more details see \S\ref{}.
+Similarly, each linear solver module provides its own set of {\id{Set}-}
+and {\id{Get}-type} routines. For more details see \S\ref{ss:optional_input}
+and \S\ref{ss:optional_output}.
 
 Additionally, the interfaces to several user-supplied routines
 (such as those providing Jacobians, preconditioner information, and
 sensitivity right hand sides) were simplified by reducing the number
 of arguments. The same information that was previously accessible
-through such arguments can now be obtained through {\id{set}-type}
+through such arguments can now be obtained through {\id{Set}-type}
 functions.
 
-\section{Reading this User Guide}\label{ss:reading}
+\section{Reading this user guide}\label{ss:reading}
 
-This user guide is a combination of general usage instructions and
-specific example programs.  We expect that some readers will want to
-concentrate on the general instructions, while others will refer
-mostly to the examples, and the organization is intended to
-accommodate both styles.
+This user guide is a combination of general usage instructions.
+Specific example programs are provided as a separate document.
+We expect that some readers will want to concentrate on the general 
+instructions, while others will refer mostly to the examples.
 
 There are different possible levels of usage of {\cvodes}. The most casual
 user, with an IVP problem only, can get by with reading \S\ref{ss:ivp_sol}, 
 then \S\ref{s:simulation} through \S\ref{sss:cvode} only, and looking at examples 
-in \S\ref{s:sim_examples} and \A\ref{s:sim_codes}. 
+in \cite{cvodes1.1_ex}.
 In addition, to solve a forward sensitivity problem the user should read 
 \S\ref{ss:fwd_sensi}, followed by \S\ref{s:forward} through 
-\S\ref{sss:cvodesensextract} only, and look at examples in 
-\S\ref{s:fwd_examples} and \A\ref{s:fwd_codes}. 
-In a different direction, a more expert user with an IVP problem may want
-to (a) use a package preconditioner (\S\ref{ss:preconds}), (b) supply
-his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
-(c) do multiple runs of problems of the same size (\S\ref{sss:cvreinit} and
-\S\ref{sss:lin_solv_reinit}), (d) supply a new {\nvector} module
-(\S\ref{s:nvector}), or even (e) supply a different linear solver module
-(\S\ref{ss:cvodes_org} and \S\ref{s:gen_linsolv}).
+\S\ref{sss:cvodesensextract} only, and look at examples in \cite{cvodes1.1_ex}.
+
+%%
+%%
+In a different direction, a more expert user with an IVP problem may want to 
+(a) use a package preconditioner (\S\ref{ss:preconds}), 
+(b) supply his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
+(c) do multiple runs of problems of the same size (\S\ref{sss:cvreinit}), 
+(d) supply a new {\nvector} module (\S\ref{s:nvector}), or even 
+(e) supply a different linear solver module (\S\ref{ss:cvodes_org}).
+%%
+%%
 An advanced user with a forward sensitivity problem may also want to
 (a) provide his/her own sensitivity equations right-hand side routine
 (\S\ref{ss:user_fct_fwd}), (b) perform multiple runs with the same number of
 sensitivity parameters (\S\ref{sss:cvsreinit}), or (c) extract additional
 diagnostic information (\S\ref{sss:cvodesensextract}).
+%%
+%%
 A user with an adjoint sensitivity problem needs to understand the IVP 
 solution approach at the desired level and also go through 
 \S\ref{ss:adj_sensi} for a short mathematical description of the adjoint
 approach, \S\ref{s:adjoint} for the usage of the adjoint module in {\cvodes},
-and the examples in \S\ref{s:adj_examples} and \A\ref{s:adj_codes}.
+and the examples in \cite{cvodes1.1_ex}.
 
 The structure of this document is as follows:
 \begin{itemize}
 \item
   In \S\ref{s:math}, we begin with short descriptions of the numerical 
   methods implemented by {\cvodes} for the solution of initial value problems
-  for systems of ODEs and continue with an overview of the mathematical aspects 
+  for systems of ODEs, continue with an overview of the mathematical aspects 
   of sensitivity analysis, both forward (\S\ref{ss:fwd_sensi}) and adjoint
-  (\S\ref{ss:adj_sensi}).
+  (\S\ref{ss:adj_sensi}), and conclude with a description of stability limit
+  detection (\S\ref{s:bdf_stab}).
 \item
-  The following section describes the structure of the {\sundials} suite
+  The next section describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\cvodes}
   solver (\S\ref{ss:cvodes_org}). 
 \item
@@ -149,7 +155,7 @@ The structure of this document is as follows:
   as well as a complete description of the user interface and of the 
   user-defined routines for integration of IVP ODEs. Readers that are not 
   interested in using {\cvodes} for sensitivity analysis can then 
-  skip to the example programs.
+  skip to the example programs in \cite{cvodes1.1_ex}.
 \item
   Section \ref{s:forward} describes the usage of {\cvodes} for forward
   sensitivity analysis as an extension of its IVP integration capabilities. 
@@ -159,25 +165,13 @@ The structure of this document is as follows:
   specific to forward sensitivity analysis and of the additonal optional user-defined
   routines.
 \item
-  Section \S\ref{s:adjoint} describes the usage of {\cvodes} for adjoint
+  Section \ref{s:adjoint} describes the usage of {\cvodes} for adjoint
   sensitivity analysis. We begin by describing the {\cvodes} check-pointing 
   implementation for interpolation of the original IVP solution during
   integration of the adjoint system backwards in time and with 
   an overview of the user main program. Following that we provide complete
   descriptions of the user-callable interface routines for adjoint sensitivity
   analysis as well as descriptions of the required additional user-defined routines.
-\item
-  The subsequent sections contain sample programs that illustrate
-  the usage of {\cvodes} with different choices of the linear system
-  solvers for integration of IVP ODEs (\S\ref{s:sim_examples}),
-  forward sensitivity analysis (\S\ref{s:fwd_examples}), and adjoint
-  sensitivity analysis (\S\ref{s:adj_examples}) with code listings provided
-  in Appendices \ref{s:sim_codes}, \ref{s:fwd_codes}, and \ref{s:adj_codes},
-  respectively. Each of these sections is self-contained and provides both
-  serial and parallel examples. In each case, we give the program source, 
-  a step-by-step explanation of the program, and the output.  
-  Our intention is that these programs will enable the user to learn {\cvodes} 
-  by example, and each can serve as a template for user programs.
 \item
   Section \ref{s:types} describes the \id{realtype} and \id{integertype} type definitions used 
   across the {\sundials} solvers, as well as instructions on changing these definitions.
@@ -188,15 +182,15 @@ The structure of this document is as follows:
   (\S\ref{ss:nvec_ser}) and a parallel implementation, based on MPI\index{MPI}
   (\S\ref{ss:nvec_par}).
 \item
+  Section \ref{s:new_linsolv} describes the specifications of linear solver modules as 
+  supplied by the user.
+\item
   Section \ref{s:gen_linsolv} describes in details the generic linear solvers shared 
   by all {\sundials} solvers.
-\item Appendices \ref{s:sim_codes}-\ref{s:adj_codes} contain the 
-  code listings of the six {\cvodes} sample programs described in detail
-  in this document.
 \end{itemize}
 
 Finally, the reader should be aware of the following notational conventions
-in this user guide:  program listings and identifiers (such as \id{CVodeMalloc}) 
+in this user guide:  Program listings and identifiers (such as \id{CVodeMalloc}) 
 within textual explanations appear in typewriter type style; 
 fields in {\C} structures (such as {\em content}) appear in italics;
 and packages or modules, such as {\cvdense}, are written in all capitals. 

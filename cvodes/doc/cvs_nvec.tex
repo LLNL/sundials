@@ -1,18 +1,18 @@
 %===================================================================================
-\chapter{Description of the {\nvector} Concept}\label{s:nvector}
+\chapter{Description of the {\nvector} module}\label{s:nvector}
 %===================================================================================
 \input{nvec_generic}
 
 %---------------------------------------------------------------------------
-\section{The {\nvecs} Implementation of {\nvector}}\label{ss:nvec_ser}
+\section{The {\nvecs} implementation of {\nvector}}\label{ss:nvec_ser}
 \input{nvec_serial}
 
 %---------------------------------------------------------------------------
-\section{The {\nvecp} Implementation of {\nvector}}\label{ss:nvec_par}
+\section{The {\nvecp} implementation of {\nvector}}\label{ss:nvec_par}
 \input{nvec_parallel}
 
 %---------------------------------------------------------------------------
-\section{{\nvector} Kernels Used by {\cvodes}}
+\section{{\nvector} kernels used by {\cvodes}}
 
 In Table \ref{t:nvecuse} below, we list the vector kernels in the 
 {\nvector} module within the {\cvodes} package.
@@ -32,16 +32,16 @@ three {\cvodes} linear solvers because the generic {\dense} and {\band} solvers
 any vector kernels and {\cvdiag} is not implemented using a generic diagonal solver. 
 
 The vector kernels \id{N\_VMake}, \id{N\_VDispose}, \id{N\_VGetData}, and
-\id{N\_VSetData} are only called by one of the {\cvodes} direct linear solvers, 
-{\cvdense} or {\cvband}, or by a preconditioner solve routine that uses a 
-direct linear solver (such as {\cvbandpre}  or {\cvbbdpre}). They duplicate 
+\id{N\_VSetData} are only called by the {\cvodes} direct linear solvers, 
+{\cvdense} and {\cvband}, and by preconditioner solve routines that use a 
+direct linear solver ({\cvbandpre}  and {\cvbbdpre}). They duplicate 
 functionality provided by macros in particular implementations of {\nvector},
 but are part of the specifications of the generic {\nvector} module to insure 
 that the {\cvodes} package is not dependent on any particular {\nvector} implementation.
 
 At this point, we should emphasize that the {\cvodes} user does not need to know 
 anything about the usage of vector kernels by the {\cvodes} code modules in order 
-to use {\cvodes}. The information is presented as implementation details for the 
+to use {\cvodes}. The information is presented as an implementation detail for the 
 interested reader.
 
 \begin{table}[htb]

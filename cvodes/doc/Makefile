@@ -1,9 +1,10 @@
 SHARED_DOC = ../../shared/doc
 all:
-	@echo 'Usage: make doc   - compile LaTeX files to generate cvs_guide.ps and cvs_guide.pdf'
+	@echo 'Usage: make ug   - compile LaTeX files to generate cvodes user guide'
+	@echo 'Usage: make ex   - compile LaTeX files to generate cvodes examples doc'
 	@echo '       make clean - remove temporary files (*.aux, *.log, etc.)'
 	@echo
-doc:
+ug:
 	cp $(SHARED_DOC)/band.tex .
 	cp $(SHARED_DOC)/dense.tex .
 	cp $(SHARED_DOC)/nvec_generic.tex .
@@ -29,6 +30,12 @@ doc:
 	latex cvs_guide
 	dvips -Ppdf -o cvs_guide.ps cvs_guide
 	ps2pdf cvs_guide.ps cvs_guide.pdf
+ex:
+	cp $(SHARED_DOC)/llnlCoverPage.tex .
+	cp $(SHARED_DOC)/Logo_for_papers.ps .
+	cp $(SHARED_DOC)/Rule_and_address.ps .
+	cp $(SHARED_DOC)/chngpage.sty .
+	cp $(SHARED_DOC)/ug.tex .
 	latex cvs_examples
 	latex cvs_examples
 	dvips -Ppdf -o cvs_examples.ps cvs_examples
