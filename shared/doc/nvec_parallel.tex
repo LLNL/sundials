@@ -99,7 +99,7 @@ vector. The suffix \id{\_P} in the names denotes parallel version.
 %%
 %%--------------------------------------------
 %%
-The {\nvecp} module defines serial implementations of all vector operations listed 
+The {\nvecp} module defines parallel implementations of all vector operations listed 
 in Table \ref{t:nvecops} and provides the following user-callable routines:
 %%
 %%
@@ -192,7 +192,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
 
 \item \ID{N\_VDestroyVectorArray\_Parallel}
  
- This function frees memory allocated for the array of \id{count} parallel \id{N\_Vector} 
+ This function frees memory allocated for the array of \id{count} parallel \id{N\_Vector}'s 
  created with \id{N\_VNewVectorArray\_Parallel} or with \id{N\_VNewVectorArrayEmpty\_Parallel}.
 
  
@@ -239,8 +239,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
   that have more than one \id{N\_Vector} argument do not check for
   consistent internal representation of these vectors. It is the user's 
   responsability to ensure that such routines are called with \id{N\_Vector}
-  arguments that were all created with the \id{NV\_Spec} structure returned
-  by \id{NV\_SpecInit\_Parallel}.
+  arguments that were all created with the same internal representations.
 
 \end{itemize}
 
