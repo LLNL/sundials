@@ -6,6 +6,7 @@ all:
 	@echo
 ug:
 	cp $(SHARED_DOC)/band.tex .
+	cp $(SHARED_DOC)/install.tex .
 	cp $(SHARED_DOC)/dense.tex .
 	cp $(SHARED_DOC)/nvec_generic.tex .
 	cp $(SHARED_DOC)/nvec_parallel.tex .
@@ -45,6 +46,7 @@ clean:
 	rm -f band.tex
 	rm -f biblio.bib
 	rm -f dense.tex
+	rm -f install.tex
 	rm -f nvec_generic.tex
 	rm -f nvec_parallel.tex
 	rm -f nvec_serial.tex
