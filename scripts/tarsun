@@ -1,8 +1,19 @@
 #!/bin/sh
 #
 # File tarsun: Script to build SUNDIALS tar-file.
-# Version of 4 April 2002.
+# Version of 30 August 2002.
 #
+
+#---------------------------------------------------------
+# Test if the script is executed from within its directory
+#---------------------------------------------------------
+scriptbase=`basename $0`
+if [ ! -f "$scriptbase" ]
+then
+    echo "This script must be executed from within its directory"
+    exit 1
+fi
+
 #-------------
 # Define flags
 #-------------
@@ -32,6 +43,13 @@ else
    done
 fi
 
+#------------------
+# Define some names
+#------------------
+scriptdir=`pwd`
+distrodir=`echo $PWD | sed -e 's/scripts//'`
+distrobase=`basename $distrodir`
+
 #------------
 # Print usage
 #------------
@@ -43,6 +61,8 @@ then
     echo "   -p      : parallel"
     echo "   -h      : help"
     echo "   -f file : output to file" 
+    echo "Note: This script must be executed from within its directory" 
+    echo "      Default file will be created in $distrodir"
     if [ $err = "T" -o \( $ser = "F" -a $par = "F" \) ]
     then
         exit 1
@@ -63,6 +83,13 @@ then
     else
         filename="sundials.tar"
     fi
+    tarfile=$distrodir$filename
+else
+    filebase=`basename $filename`
+    cd `dirname $filename`
+    filedir=`pwd`
+    tarfile=$filedir/$filebase
+    cd $scriptdir
 fi
 
 #----------------
@@ -70,73 +97,67 @@ fi
 #----------------
 
 cd ../..
-if [ $fnm != "T" ]
-then
-    echo "Generate tar file $PWD/$filename"
-else
-    echo "Generate tar file $filename"
-fi
+echo "Generate $distrobase distribution tar-file $tarfile"
 
 # Add top level files
 #--------------------
 
 echo "  Add top-level files/directories"
 
-tar cf $filename sundials/Makefile
+tar cf $tarfile $distrobase/Makefile
 
-tar uf $filename sundials/lib/.dontremove
+tar uf $tarfile $distrobase/lib/.dontremove
 
-tar uf $filename sundials/include/.dontremove
-
-tar uf $filename sundials/doc/Readme
-tar uf $filename sundials/doc/dirstruc
+tar uf $tarfile $distrobase/include/.dontremove
 
 # Add SHARED module
 #------------------
 
 echo "  Add shared module"
 
-tar uf $filename sundials/shared/doc/nvecreadme
+tar uf $tarfile $distrobase/shared/LICENSE
 
-tar uf $filename sundials/shared/lib/.dontremove
+tar uf $tarfile $distrobase/shared/doc/nvecreadme
 
-tar uf $filename sundials/shared/include/sundialstypes.h
-tar uf $filename sundials/shared/include/sundialsmath.h
-tar uf $filename sundials/shared/include/nvector.h
-tar uf $filename sundials/shared/include/dense.h
-tar uf $filename sundials/shared/include/smalldense.h
-tar uf $filename sundials/shared/include/band.h
-tar uf $filename sundials/shared/include/spgmr.h
-tar uf $filename sundials/shared/include/iterativ.h
-tar uf $filename sundials/shared/include/fcmixpar.h
+tar uf $tarfile $distrobase/shared/lib/.dontremove
 
-tar uf $filename sundials/shared/source/Makefile
-tar uf $filename sundials/shared/source/sundialsmath.c
-tar uf $filename sundials/shared/source/nvector.c
-tar uf $filename sundials/shared/source/dense.c
-tar uf $filename sundials/shared/source/smalldense.c
-tar uf $filename sundials/shared/source/band.c
-tar uf $filename sundials/shared/source/spgmr.c
-tar uf $filename sundials/shared/source/iterativ.c
+tar uf $tarfile $distrobase/shared/include/sundialstypes.h
+tar uf $tarfile $distrobase/shared/include/sundialsmath.h
+tar uf $tarfile $distrobase/shared/include/nvector.h
+tar uf $tarfile $distrobase/shared/include/dense.h
+tar uf $tarfile $distrobase/shared/include/smalldense.h
+tar uf $tarfile $distrobase/shared/include/band.h
+tar uf $tarfile $distrobase/shared/include/spgmr.h
+tar uf $tarfile $distrobase/shared/include/iterativ.h
+tar uf $tarfile $distrobase/shared/include/fcmixpar.h
+
+tar uf $tarfile $distrobase/shared/source/Makefile
+tar uf $tarfile $distrobase/shared/source/sundialsmath.c
+tar uf $tarfile $distrobase/shared/source/nvector.c
+tar uf $tarfile $distrobase/shared/source/dense.c
+tar uf $tarfile $distrobase/shared/source/smalldense.c
+tar uf $tarfile $distrobase/shared/source/band.c
+tar uf $tarfile $distrobase/shared/source/spgmr.c
+tar uf $tarfile $distrobase/shared/source/iterativ.c
 
 if [ $ser = "T" ]
 then
-    tar uf $filename sundials/shared/include/nvector_serial.h
-    tar uf $filename sundials/shared/include/fnvector_serial.h
+    tar uf $tarfile $distrobase/shared/include/nvector_serial.h
+    tar uf $tarfile $distrobase/shared/include/fnvector_serial.h
 
-    tar uf $filename sundials/shared/source/nvecserial.mk
-    tar uf $filename sundials/shared/source/nvector_serial.c
-    tar uf $filename sundials/shared/source/fnvector_serial.c
+    tar uf $tarfile $distrobase/shared/source/nvecserial.mk
+    tar uf $tarfile $distrobase/shared/source/nvector_serial.c
+    tar uf $tarfile $distrobase/shared/source/fnvector_serial.c
 fi
 
 if [ $par = "T" ]
 then
-    tar uf $filename sundials/shared/include/nvector_parallel.h
-    tar uf $filename sundials/shared/include/fnvector_parallel.h
+    tar uf $tarfile $distrobase/shared/include/nvector_parallel.h
+    tar uf $tarfile $distrobase/shared/include/fnvector_parallel.h
 
-    tar uf $filename sundials/shared/source/nvecparallel.mk
-    tar uf $filename sundials/shared/source/nvector_parallel.c
-    tar uf $filename sundials/shared/source/fnvector_parallel.c
+    tar uf $tarfile $distrobase/shared/source/nvecparallel.mk
+    tar uf $tarfile $distrobase/shared/source/nvector_parallel.c
+    tar uf $tarfile $distrobase/shared/source/fnvector_parallel.c
 fi
 
 # Add CVODE module
@@ -144,85 +165,99 @@ fi
 
 echo "  Add cvode module"
 
-tar uf $filename sundials/cvode/doc/cvreadme
-tar uf $filename sundials/cvode/doc/stald.doc
+tar uf $tarfile $distrobase/cvode/LICENSE
 
-tar uf $filename sundials/cvode/include/cvode.h
-tar uf $filename sundials/cvode/include/cvdense.h
-tar uf $filename sundials/cvode/include/cvband.h
-tar uf $filename sundials/cvode/include/cvdiag.h
-tar uf $filename sundials/cvode/include/cvspgmr.h
-tar uf $filename sundials/cvode/include/cvbandpre.h
-tar uf $filename sundials/cvode/include/cvbbdpre.h
+tar uf $tarfile $distrobase/cvode/doc/cvreadme
+tar uf $tarfile $distrobase/cvode/doc/stald.doc
 
-tar uf $filename sundials/cvode/source/Makefile
-tar uf $filename sundials/cvode/source/cvode.c
-tar uf $filename sundials/cvode/source/cvdense.c
-tar uf $filename sundials/cvode/source/cvband.c
-tar uf $filename sundials/cvode/source/cvdiag.c
-tar uf $filename sundials/cvode/source/cvspgmr.c
-tar uf $filename sundials/cvode/source/cvbandpre.c
-tar uf $filename sundials/cvode/source/cvbbdpre.c
+tar uf $tarfile $distrobase/cvode/include/cvode.h
+tar uf $tarfile $distrobase/cvode/include/cvdense.h
+tar uf $tarfile $distrobase/cvode/include/cvband.h
+tar uf $tarfile $distrobase/cvode/include/cvdiag.h
+tar uf $tarfile $distrobase/cvode/include/cvspgmr.h
+tar uf $tarfile $distrobase/cvode/include/cvbandpre.h
+tar uf $tarfile $distrobase/cvode/include/cvbbdpre.h
 
-tar uf $filename sundials/cvode/lib/.dontremove
+tar uf $tarfile $distrobase/cvode/source/Makefile
+tar uf $tarfile $distrobase/cvode/source/cvode.c
+tar uf $tarfile $distrobase/cvode/source/cvdense.c
+tar uf $tarfile $distrobase/cvode/source/cvband.c
+tar uf $tarfile $distrobase/cvode/source/cvdiag.c
+tar uf $tarfile $distrobase/cvode/source/cvspgmr.c
+tar uf $tarfile $distrobase/cvode/source/cvbandpre.c
+tar uf $tarfile $distrobase/cvode/source/cvbbdpre.c
 
-tar uf $filename sundials/cvode/examples/Makefile
+tar uf $tarfile $distrobase/cvode/lib/.dontremove
 
-tar uf $filename sundials/cvode/fcmix/Makefile
-tar uf $filename sundials/cvode/fcmix/fcvode.h
-tar uf $filename sundials/cvode/fcmix/fcvode.c
-tar uf $filename sundials/cvode/fcmix/fcvspgmr01.c
-tar uf $filename sundials/cvode/fcmix/fcvspgmr10.c
-tar uf $filename sundials/cvode/fcmix/fcvspgmr11.c
-tar uf $filename sundials/cvode/fcmix/fcvspgmr20.c
-tar uf $filename sundials/cvode/fcmix/fcvspgmr21.c
-tar uf $filename sundials/cvode/fcmix/fcvpreco.c
-tar uf $filename sundials/cvode/fcmix/fcvpsol.c
-tar uf $filename sundials/cvode/fcmix/fcvjtimes.c
-tar uf $filename sundials/cvode/fcmix/fcvband1.c
-tar uf $filename sundials/cvode/fcmix/fcvdense1.c
-tar uf $filename sundials/cvode/fcmix/fcvbbd.h
-tar uf $filename sundials/cvode/fcmix/fcvbbd.c
-tar uf $filename sundials/cvode/fcmix/fcvbbdin1.c
+tar uf $tarfile $distrobase/cvode/examples/Makefile
+
+tar uf $tarfile $distrobase/cvode/fcmix/Makefile
+tar uf $tarfile $distrobase/cvode/fcmix/fcvode.h
+tar uf $tarfile $distrobase/cvode/fcmix/fcvode.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvspgmr01.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvspgmr10.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvspgmr11.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvspgmr20.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvspgmr21.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvpreco.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvpsol.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvjtimes.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvband1.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvdense1.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvbbd.h
+tar uf $tarfile $distrobase/cvode/fcmix/fcvbbd.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvbbdin1.c
 
 if [ $ser = "T" ]
 then
-    tar uf $filename sundials/cvode/examples/cvx_ser.mk
-    tar uf $filename sundials/cvode/examples/cvdx.c
-    tar uf $filename sundials/cvode/examples/cvdx.out
-    tar uf $filename sundials/cvode/examples/cvbx.c
-    tar uf $filename sundials/cvode/examples/cvbx.out
-    tar uf $filename sundials/cvode/examples/cvkx.c
-    tar uf $filename sundials/cvode/examples/cvkx.out
-    tar uf $filename sundials/cvode/examples/cvkxb.c
-    tar uf $filename sundials/cvode/examples/cvkxb.out
-    tar uf $filename sundials/cvode/examples/cvdemd.c
-    tar uf $filename sundials/cvode/examples/cvdemd.out
-    tar uf $filename sundials/cvode/examples/cvdemk.c
-    tar uf $filename sundials/cvode/examples/cvdemk.out
+    tar uf $tarfile $distrobase/cvode/doc/cvudoc.ps
+    tar uf $tarfile $distrobase/cvode/doc/cvudoc.pdf
+    tar uf $tarfile $distrobase/cvode/doc/cvaddenda
 
-    tar uf $filename sundials/cvode/fcmix/fcvx_ser.mk
-    tar uf $filename sundials/cvode/fcmix/cvdensef.f
-    tar uf $filename sundials/cvode/fcmix/cvdensef.out
+    tar uf $tarfile $distrobase/cvode/examples/cvx_ser.mk
+    tar uf $tarfile $distrobase/cvode/examples/cvdx.c
+    tar uf $tarfile $distrobase/cvode/examples/cvdx.out
+    tar uf $tarfile $distrobase/cvode/examples/cvbx.c
+    tar uf $tarfile $distrobase/cvode/examples/cvbx.out
+    tar uf $tarfile $distrobase/cvode/examples/cvkx.c
+    tar uf $tarfile $distrobase/cvode/examples/cvkx.out
+    tar uf $tarfile $distrobase/cvode/examples/cvkxb.c
+    tar uf $tarfile $distrobase/cvode/examples/cvkxb.out
+    tar uf $tarfile $distrobase/cvode/examples/cvdemd.c
+    tar uf $tarfile $distrobase/cvode/examples/cvdemd.out
+    tar uf $tarfile $distrobase/cvode/examples/cvdemk.c
+    tar uf $tarfile $distrobase/cvode/examples/cvdemk.out
+
+    tar uf $tarfile $distrobase/cvode/fcmix/fcvx_ser.mk
+    tar uf $tarfile $distrobase/cvode/fcmix/cvdensef.f
+    tar uf $tarfile $distrobase/cvode/fcmix/cvdensef.out
+    tar uf $tarfile $distrobase/cvode/fcmix/cvbandf.f
+    tar uf $tarfile $distrobase/cvode/fcmix/cvbandf.out
+    tar uf $tarfile $distrobase/cvode/fcmix/cvkryf.f
+    tar uf $tarfile $distrobase/cvode/fcmix/cvkryf.out
 fi
 
 if [ $par = "T" ]
 then
-    tar uf $filename sundials/cvode/examples/cvx_par.mk
-    tar uf $filename sundials/cvode/examples/pvnx.c
-    tar uf $filename sundials/cvode/examples/pvnx.out
-    tar uf $filename sundials/cvode/examples/pvkx.c
-    tar uf $filename sundials/cvode/examples/pvkx.out
-    tar uf $filename sundials/cvode/examples/pvkxb.c
-    tar uf $filename sundials/cvode/examples/pvkxb.out
+    tar uf $tarfile $distrobase/cvode/doc/pvudoc.ps
+    tar uf $tarfile $distrobase/cvode/doc/pvudoc.pdf
+    tar uf $tarfile $distrobase/cvode/doc/pvaddenda
 
-    tar uf $filename sundials/cvode/fcmix/fcvx_par.mk
-    tar uf $filename sundials/cvode/fcmix/pvdiagnf.f
-    tar uf $filename sundials/cvode/fcmix/pvdiagnf.out
-    tar uf $filename sundials/cvode/fcmix/pvdiagkf.f
-    tar uf $filename sundials/cvode/fcmix/pvdiagkf.out
-    tar uf $filename sundials/cvode/fcmix/pvdiagkbf.f
-    tar uf $filename sundials/cvode/fcmix/pvdiagkbf.out
+    tar uf $tarfile $distrobase/cvode/examples/cvx_par.mk
+    tar uf $tarfile $distrobase/cvode/examples/pvnx.c
+    tar uf $tarfile $distrobase/cvode/examples/pvnx.out
+    tar uf $tarfile $distrobase/cvode/examples/pvkx.c
+    tar uf $tarfile $distrobase/cvode/examples/pvkx.out
+    tar uf $tarfile $distrobase/cvode/examples/pvkxb.c
+    tar uf $tarfile $distrobase/cvode/examples/pvkxb.out
+
+    tar uf $tarfile $distrobase/cvode/fcmix/fcvx_par.mk
+    tar uf $tarfile $distrobase/cvode/fcmix/pvdiagnf.f
+    tar uf $tarfile $distrobase/cvode/fcmix/pvdiagnf.out
+    tar uf $tarfile $distrobase/cvode/fcmix/pvdiagkf.f
+    tar uf $tarfile $distrobase/cvode/fcmix/pvdiagkf.out
+    tar uf $tarfile $distrobase/cvode/fcmix/pvdiagkbf.f
+    tar uf $tarfile $distrobase/cvode/fcmix/pvdiagkbf.out
 fi
 
 # Add KINSOL module
@@ -230,59 +265,63 @@ fi
 
 echo "  Add kinsol module"
 
-tar uf $filename sundials/kinsol/doc/kinreadme
-tar uf $filename sundials/kinsol/doc/kinaddenda
+tar uf $tarfile $distrobase/kinsol/LICENSE
 
-tar uf $filename sundials/kinsol/include/kinsol.h
-tar uf $filename sundials/kinsol/include/kinspgmr.h
-tar uf $filename sundials/kinsol/include/kinbbdpre.h
+tar uf $tarfile $distrobase/kinsol/doc/kinreadme
+tar uf $tarfile $distrobase/kinsol/doc/kinaddenda
+tar uf $tarfile $distrobase/kinsol/doc/kinudoc.ps
+tar uf $tarfile $distrobase/kinsol/doc/kinudoc.pdf
 
-tar uf $filename sundials/kinsol/source/Makefile
-tar uf $filename sundials/kinsol/source/kinsol.c
-tar uf $filename sundials/kinsol/source/kinspgmr.c
-tar uf $filename sundials/kinsol/source/kinbbdpre.c
+tar uf $tarfile $distrobase/kinsol/include/kinsol.h
+tar uf $tarfile $distrobase/kinsol/include/kinspgmr.h
+tar uf $tarfile $distrobase/kinsol/include/kinbbdpre.h
 
-tar uf $filename sundials/kinsol/lib/.dontremove
+tar uf $tarfile $distrobase/kinsol/source/Makefile
+tar uf $tarfile $distrobase/kinsol/source/kinsol.c
+tar uf $tarfile $distrobase/kinsol/source/kinspgmr.c
+tar uf $tarfile $distrobase/kinsol/source/kinbbdpre.c
 
-tar uf $filename sundials/kinsol/examples/Makefile
+tar uf $tarfile $distrobase/kinsol/lib/.dontremove
 
-tar uf $filename sundials/kinsol/fcmix/Makefile
-tar uf $filename sundials/kinsol/fcmix/fkinsol.h
-tar uf $filename sundials/kinsol/fcmix/fkinsol.c
-tar uf $filename sundials/kinsol/fcmix/fkinspgmr01.c
-tar uf $filename sundials/kinsol/fcmix/fkinspgmr10.c
-tar uf $filename sundials/kinsol/fcmix/fkinspgmr11.c
-tar uf $filename sundials/kinsol/fcmix/fkinspgmr20.c
-tar uf $filename sundials/kinsol/fcmix/fkinspgmr21.c
-tar uf $filename sundials/kinsol/fcmix/fkinpreco.c
-tar uf $filename sundials/kinsol/fcmix/fkinpsol.c
-tar uf $filename sundials/kinsol/fcmix/fkinuatimes.c
-tar uf $filename sundials/kinsol/fcmix/fkinbbd.h
-tar uf $filename sundials/kinsol/fcmix/fkinbbd.c
-tar uf $filename sundials/kinsol/fcmix/fkinbbdinit1.c
+tar uf $tarfile $distrobase/kinsol/examples/Makefile
+
+tar uf $tarfile $distrobase/kinsol/fcmix/Makefile
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinsol.h
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinsol.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinspgmr01.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinspgmr10.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinspgmr11.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinspgmr20.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinspgmr21.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinpreco.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinpsol.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinuatimes.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbd.h
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbd.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbdinit1.c
 
 if [ $ser = "T" ]
 then
-    tar uf $filename sundials/kinsol/examples/kinx_ser.mk
-    tar uf $filename sundials/kinsol/examples/kinwebs.c
-    tar uf $filename sundials/kinsol/examples/kinwebs.out
+    tar uf $tarfile $distrobase/kinsol/examples/kinx_ser.mk
+    tar uf $tarfile $distrobase/kinsol/examples/kinwebs.c
+    tar uf $tarfile $distrobase/kinsol/examples/kinwebs.out
 
-    tar uf $filename sundials/kinsol/fcmix/fkinx_ser.mk
-    tar uf $filename sundials/kinsol/fcmix/kindiagsf.f
-    tar uf $filename sundials/kinsol/fcmix/kindiagsf.out
+    tar uf $tarfile $distrobase/kinsol/fcmix/fkinx_ser.mk
+    tar uf $tarfile $distrobase/kinsol/fcmix/kindiagsf.f
+    tar uf $tarfile $distrobase/kinsol/fcmix/kindiagsf.out
 fi
     
 if [ $par = "T" ]
 then
-    tar uf $filename sundials/kinsol/examples/kinx_par.mk
-    tar uf $filename sundials/kinsol/examples/kinwebp.c
-    tar uf $filename sundials/kinsol/examples/kinwebp.out
-    tar uf $filename sundials/kinsol/examples/kinwebbbd.c
-    tar uf $filename sundials/kinsol/examples/kinwebbbd.out
+    tar uf $tarfile $distrobase/kinsol/examples/kinx_par.mk
+    tar uf $tarfile $distrobase/kinsol/examples/kinwebp.c
+    tar uf $tarfile $distrobase/kinsol/examples/kinwebp.out
+    tar uf $tarfile $distrobase/kinsol/examples/kinwebbbd.c
+    tar uf $tarfile $distrobase/kinsol/examples/kinwebbbd.out
     
-    tar uf $filename sundials/kinsol/fcmix/fkinx_par.mk
-    tar uf $filename sundials/kinsol/fcmix/kindiagpf.f
-    tar uf $filename sundials/kinsol/fcmix/kindiagpf.out
+    tar uf $tarfile $distrobase/kinsol/fcmix/fkinx_par.mk
+    tar uf $tarfile $distrobase/kinsol/fcmix/kindiagpf.f
+    tar uf $tarfile $distrobase/kinsol/fcmix/kindiagpf.out
 fi
 
 
@@ -291,50 +330,54 @@ fi
 
 echo "  Add ida module"
 
-tar uf $filename sundials/ida/doc/idareadme
-tar uf $filename sundials/ida/doc/idaaddenda
+tar uf $tarfile $distrobase/ida/LICENSE
 
-tar uf $filename sundials/ida/include/ida.h
-tar uf $filename sundials/ida/include/idadense.h
-tar uf $filename sundials/ida/include/idaband.h
-tar uf $filename sundials/ida/include/idaspgmr.h
-tar uf $filename sundials/ida/include/idabbdpre.h
+tar uf $tarfile $distrobase/ida/doc/idareadme
+tar uf $tarfile $distrobase/ida/doc/idaaddenda
+tar uf $tarfile $distrobase/ida/doc/idaudoc.ps
+tar uf $tarfile $distrobase/ida/doc/idaudoc.pdf
 
-tar uf $filename sundials/ida/source/Makefile
-tar uf $filename sundials/ida/source/ida.c
-tar uf $filename sundials/ida/source/idadense.c
-tar uf $filename sundials/ida/source/idaband.c
-tar uf $filename sundials/ida/source/idaspgmr.c
-tar uf $filename sundials/ida/source/idabbdpre.c
+tar uf $tarfile $distrobase/ida/include/ida.h
+tar uf $tarfile $distrobase/ida/include/idadense.h
+tar uf $tarfile $distrobase/ida/include/idaband.h
+tar uf $tarfile $distrobase/ida/include/idaspgmr.h
+tar uf $tarfile $distrobase/ida/include/idabbdpre.h
 
-tar uf $filename sundials/ida/lib/.dontremove
+tar uf $tarfile $distrobase/ida/source/Makefile
+tar uf $tarfile $distrobase/ida/source/ida.c
+tar uf $tarfile $distrobase/ida/source/idadense.c
+tar uf $tarfile $distrobase/ida/source/idaband.c
+tar uf $tarfile $distrobase/ida/source/idaspgmr.c
+tar uf $tarfile $distrobase/ida/source/idabbdpre.c
 
-tar uf $filename sundials/ida/examples/Makefile
+tar uf $tarfile $distrobase/ida/lib/.dontremove
+
+tar uf $tarfile $distrobase/ida/examples/Makefile
 
 if [ $ser = "T" ]
 then
-    tar uf $filename sundials/ida/examples/idax_ser.mk
-    tar uf $filename sundials/ida/examples/irobx.c
-    tar uf $filename sundials/ida/examples/irobx.out
-    tar uf $filename sundials/ida/examples/iheatsb.c
-    tar uf $filename sundials/ida/examples/iheatsb.out
-    tar uf $filename sundials/ida/examples/iheatsk.c
-    tar uf $filename sundials/ida/examples/iheatsk.out
-    tar uf $filename sundials/ida/examples/iwebsb.c
-    tar uf $filename sundials/ida/examples/iwebsb.out
+    tar uf $tarfile $distrobase/ida/examples/idax_ser.mk
+    tar uf $tarfile $distrobase/ida/examples/irobx.c
+    tar uf $tarfile $distrobase/ida/examples/irobx.out
+    tar uf $tarfile $distrobase/ida/examples/iheatsb.c
+    tar uf $tarfile $distrobase/ida/examples/iheatsb.out
+    tar uf $tarfile $distrobase/ida/examples/iheatsk.c
+    tar uf $tarfile $distrobase/ida/examples/iheatsk.out
+    tar uf $tarfile $distrobase/ida/examples/iwebsb.c
+    tar uf $tarfile $distrobase/ida/examples/iwebsb.out
 fi
 
 if [ $par = "T" ]
 then
-    tar uf $filename sundials/ida/examples/idax_par.mk
-    tar uf $filename sundials/ida/examples/iheatpk.c
-    tar uf $filename sundials/ida/examples/iheatpk.out
-    tar uf $filename sundials/ida/examples/iheatbbd.c
-    tar uf $filename sundials/ida/examples/iheatbbd.out
-    tar uf $filename sundials/ida/examples/iwebpk.c
-    tar uf $filename sundials/ida/examples/iwebpk.out
-    tar uf $filename sundials/ida/examples/iwebbbd.c
-    tar uf $filename sundials/ida/examples/iwebbbd.out
+    tar uf $tarfile $distrobase/ida/examples/idax_par.mk
+    tar uf $tarfile $distrobase/ida/examples/iheatpk.c
+    tar uf $tarfile $distrobase/ida/examples/iheatpk.out
+    tar uf $tarfile $distrobase/ida/examples/iheatbbd.c
+    tar uf $tarfile $distrobase/ida/examples/iheatbbd.out
+    tar uf $tarfile $distrobase/ida/examples/iwebpk.c
+    tar uf $tarfile $distrobase/ida/examples/iwebpk.out
+    tar uf $tarfile $distrobase/ida/examples/iwebbbd.c
+    tar uf $tarfile $distrobase/ida/examples/iwebbbd.out
 fi
 
 # Add CVODES module
@@ -342,93 +385,99 @@ fi
 
 echo "  Add cvodes module"
 
-tar uf $filename sundials/cvodes/include/cvodes.h
-tar uf $filename sundials/cvodes/include/cvodea.h
-tar uf $filename sundials/cvodes/include/cvsdense.h
-tar uf $filename sundials/cvodes/include/cvsband.h
-tar uf $filename sundials/cvodes/include/cvsdiag.h
-tar uf $filename sundials/cvodes/include/cvsspgmr.h
-tar uf $filename sundials/cvodes/include/cvsbandpre.h
-tar uf $filename sundials/cvodes/include/cvsbbdpre.h
+tar uf $tarfile $distrobase/cvodes/LICENSE
 
-tar uf $filename sundials/cvodes/source/Makefile
-tar uf $filename sundials/cvodes/source/cvodes.c
-tar uf $filename sundials/cvodes/source/cvodea.c
-tar uf $filename sundials/cvodes/source/cvsdense.c
-tar uf $filename sundials/cvodes/source/cvsband.c
-tar uf $filename sundials/cvodes/source/cvsdiag.c
-tar uf $filename sundials/cvodes/source/cvsspgmr.c
-tar uf $filename sundials/cvodes/source/cvsbandpre.c
-tar uf $filename sundials/cvodes/source/cvsbbdpre.c
+tar uf $tarfile $distrobase/cvodes/doc/cvs_guide.ps
+tar uf $tarfile $distrobase/cvodes/doc/cvs_guide.pdf
 
-tar uf $filename sundials/cvodes/lib/.dontremove
+tar uf $tarfile $distrobase/cvodes/include/cvodes.h
+tar uf $tarfile $distrobase/cvodes/include/cvodea.h
+tar uf $tarfile $distrobase/cvodes/include/cvsdense.h
+tar uf $tarfile $distrobase/cvodes/include/cvsband.h
+tar uf $tarfile $distrobase/cvodes/include/cvsdiag.h
+tar uf $tarfile $distrobase/cvodes/include/cvsspgmr.h
+tar uf $tarfile $distrobase/cvodes/include/cvsbandpre.h
+tar uf $tarfile $distrobase/cvodes/include/cvsbbdpre.h
 
-tar uf $filename sundials/cvodes/examples/Makefile
+tar uf $tarfile $distrobase/cvodes/source/Makefile
+tar uf $tarfile $distrobase/cvodes/source/cvodes.c
+tar uf $tarfile $distrobase/cvodes/source/cvodea.c
+tar uf $tarfile $distrobase/cvodes/source/cvsdense.c
+tar uf $tarfile $distrobase/cvodes/source/cvsband.c
+tar uf $tarfile $distrobase/cvodes/source/cvsdiag.c
+tar uf $tarfile $distrobase/cvodes/source/cvsspgmr.c
+tar uf $tarfile $distrobase/cvodes/source/cvsbandpre.c
+tar uf $tarfile $distrobase/cvodes/source/cvsbbdpre.c
 
-tar uf $filename sundials/cvodes/fwd_examples/Makefile
+tar uf $tarfile $distrobase/cvodes/lib/.dontremove
 
-tar uf $filename sundials/cvodes/adj_examples/Makefile
+tar uf $tarfile $distrobase/cvodes/examples/Makefile
+
+tar uf $tarfile $distrobase/cvodes/fwd_examples/Makefile
+
+tar uf $tarfile $distrobase/cvodes/adj_examples/Makefile
 
 if [ $ser = "T" ]
 then
-    tar uf $filename sundials/cvodes/examples/cvx_ser.mk
-    tar uf $filename sundials/cvodes/examples/cvdx.c
-    tar uf $filename sundials/cvodes/examples/cvdx.out
-    tar uf $filename sundials/cvodes/examples/cvbx.c
-    tar uf $filename sundials/cvodes/examples/cvbx.out
-    tar uf $filename sundials/cvodes/examples/cvkx.c
-    tar uf $filename sundials/cvodes/examples/cvkx.out
-    tar uf $filename sundials/cvodes/examples/cvkxb.c
-    tar uf $filename sundials/cvodes/examples/cvkxb.out
-    tar uf $filename sundials/cvodes/examples/cvdemd.c
-    tar uf $filename sundials/cvodes/examples/cvdemd.out
-    tar uf $filename sundials/cvodes/examples/cvdemk.c
-    tar uf $filename sundials/cvodes/examples/cvdemk.out
+    tar uf $tarfile $distrobase/cvodes/examples/cvx_ser.mk
+    tar uf $tarfile $distrobase/cvodes/examples/cvdx.c
+    tar uf $tarfile $distrobase/cvodes/examples/cvdx.out
+    tar uf $tarfile $distrobase/cvodes/examples/cvbx.c
+    tar uf $tarfile $distrobase/cvodes/examples/cvbx.out
+    tar uf $tarfile $distrobase/cvodes/examples/cvkx.c
+    tar uf $tarfile $distrobase/cvodes/examples/cvkx.out
+    tar uf $tarfile $distrobase/cvodes/examples/cvkxb.c
+    tar uf $tarfile $distrobase/cvodes/examples/cvkxb.out
+    tar uf $tarfile $distrobase/cvodes/examples/cvdemd.c
+    tar uf $tarfile $distrobase/cvodes/examples/cvdemd.out
+    tar uf $tarfile $distrobase/cvodes/examples/cvdemk.c
+    tar uf $tarfile $distrobase/cvodes/examples/cvdemk.out
 
-    tar uf $filename sundials/cvodes/fwd_examples/cvfx_ser.mk
-    tar uf $filename sundials/cvodes/fwd_examples/cvfdx.c
-    tar uf $filename sundials/cvodes/fwd_examples/cvfdx.out1
-    tar uf $filename sundials/cvodes/fwd_examples/cvfdx.out2
-    tar uf $filename sundials/cvodes/fwd_examples/cvfnx.c
-    tar uf $filename sundials/cvodes/fwd_examples/cvfnx.out1
-    tar uf $filename sundials/cvodes/fwd_examples/cvfnx.out2
-    tar uf $filename sundials/cvodes/fwd_examples/cvfkx.c
-    tar uf $filename sundials/cvodes/fwd_examples/cvfkx.out1
-    tar uf $filename sundials/cvodes/fwd_examples/cvfkx.out2
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfx_ser.mk
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfdx.c
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfdx.out1
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfdx.out2
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfnx.c
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfnx.out1
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfnx.out2
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfkx.c
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfkx.out1
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfkx.out2
 
-    tar uf $filename sundials/cvodes/adj_examples/cvax_ser.mk
-    tar uf $filename sundials/cvodes/adj_examples/cvadx.c
-    tar uf $filename sundials/cvodes/adj_examples/cvadx.out
-    tar uf $filename sundials/cvodes/adj_examples/cvabx.c
-    tar uf $filename sundials/cvodes/adj_examples/cvabx.out
-    tar uf $filename sundials/cvodes/adj_examples/cvakx.c
-    tar uf $filename sundials/cvodes/adj_examples/cvakx.out
-    tar uf $filename sundials/cvodes/adj_examples/cvakxb.c
-    tar uf $filename sundials/cvodes/adj_examples/cvakxb.out
+    tar uf $tarfile $distrobase/cvodes/adj_examples/cvax_ser.mk
+    tar uf $tarfile $distrobase/cvodes/adj_examples/cvadx.c
+    tar uf $tarfile $distrobase/cvodes/adj_examples/cvadx.out
+    tar uf $tarfile $distrobase/cvodes/adj_examples/cvabx.c
+    tar uf $tarfile $distrobase/cvodes/adj_examples/cvabx.out
+    tar uf $tarfile $distrobase/cvodes/adj_examples/cvakx.c
+    tar uf $tarfile $distrobase/cvodes/adj_examples/cvakx.out
+    tar uf $tarfile $distrobase/cvodes/adj_examples/cvakxb.c
+    tar uf $tarfile $distrobase/cvodes/adj_examples/cvakxb.out
 fi
 
 
 if [ $par = "T" ]
 then
-    tar uf $filename sundials/cvodes/examples/cvx_par.mk
-    tar uf $filename sundials/cvodes/examples/pvnx.c
-    tar uf $filename sundials/cvodes/examples/pvnx.out
-    tar uf $filename sundials/cvodes/examples/pvkx.c
-    tar uf $filename sundials/cvodes/examples/pvkx.out
-    tar uf $filename sundials/cvodes/examples/pvkxb.c
-    tar uf $filename sundials/cvodes/examples/pvkxb.out
+    tar uf $tarfile $distrobase/cvodes/examples/cvx_par.mk
+    tar uf $tarfile $distrobase/cvodes/examples/pvnx.c
+    tar uf $tarfile $distrobase/cvodes/examples/pvnx.out
+    tar uf $tarfile $distrobase/cvodes/examples/pvkx.c
+    tar uf $tarfile $distrobase/cvodes/examples/pvkx.out
+    tar uf $tarfile $distrobase/cvodes/examples/pvkxb.c
+    tar uf $tarfile $distrobase/cvodes/examples/pvkxb.out
 
-    tar uf $filename sundials/cvodes/fwd_examples/cvfx_par.mk
-    tar uf $filename sundials/cvodes/fwd_examples/pvfnx.c
-    tar uf $filename sundials/cvodes/fwd_examples/pvfnx.out1
-    tar uf $filename sundials/cvodes/fwd_examples/pvfnx.out2
-    tar uf $filename sundials/cvodes/fwd_examples/pvfkx.c
-    tar uf $filename sundials/cvodes/fwd_examples/pvfkx.out1
-    tar uf $filename sundials/cvodes/fwd_examples/pvfkx.out2
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/cvfx_par.mk
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfnx.c
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfnx.out1
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfnx.out2
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfkx.c
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfkx.out1
+    tar uf $tarfile $distrobase/cvodes/fwd_examples/pvfkx.out2
 
-    tar uf $filename sundials/cvodes/adj_examples/cvax_par.mk
-    tar uf $filename sundials/cvodes/adj_examples/pvanx.c
-    tar uf $filename sundials/cvodes/adj_examples/pvanx.out
+    tar uf $tarfile $distrobase/cvodes/adj_examples/cvax_par.mk
+    tar uf $tarfile $distrobase/cvodes/adj_examples/pvanx.c
+    tar uf $tarfile $distrobase/cvodes/adj_examples/pvanx.out
 fi
 
 #----End of tarsun script file----
+

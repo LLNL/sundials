@@ -1,8 +1,19 @@
 #!/bin/sh
 #
 # File tarida: Script to build IDA tar-file.
-# Version of 4 April 2002.
+# Version of 30 August 2002.
 #
+
+#---------------------------------------------------------
+# Test if the script is executed from within its directory
+#---------------------------------------------------------
+scriptbase=`basename $0`
+if [ ! -f "$scriptbase" ]
+then
+    echo "This script must be executed from within its directory"
+    exit 1
+fi
+
 #-------------
 # Define flags
 #-------------
@@ -32,6 +43,13 @@ else
    done
 fi
 
+#------------------
+# Define some names
+#------------------
+scriptdir=`pwd`
+distrodir=`echo $PWD | sed -e 's/scripts//'`
+distrobase=`basename $distrodir`
+
 #------------
 # Print usage
 #------------
@@ -43,6 +61,8 @@ then
     echo "   -p      : parallel"
     echo "   -h      : help"
     echo "   -f file : output to file" 
+    echo "Note: This script must be executed from within its directory" 
+    echo "      Default file will be created in $distrodir"
     if [ $err = "T" -o \( $ser = "F" -a $par = "F" \) ]
     then
         exit 1
@@ -63,6 +83,13 @@ then
     else
         filename="ida.tar"
     fi
+    tarfile=$distrodir$filename
+else
+    filebase=`basename $filename`
+    cd `dirname $filename`
+    filedir=`pwd`
+    tarfile=$filedir/$filebase
+    cd $scriptdir
 fi
 
 #----------------
@@ -70,73 +97,67 @@ fi
 #----------------
 
 cd ../..
-if [ $fnm != "T" ]
-then
-    echo "Generate tar file $PWD/$filename"
-else
-    echo "Generate tar file $filename"
-fi
+echo "Generate $distrobase distribution tar-file $tarfile"
 
 # Add top level files
 #--------------------
 
 echo "  Add top-level files/directories"
 
-tar cf $filename sundials/Makefile
+tar cf $tarfile $distrobase/Makefile
 
-tar uf $filename sundials/lib/.dontremove
+tar uf $tarfile $distrobase/lib/.dontremove
 
-tar uf $filename sundials/include/.dontremove
-
-tar uf $filename sundials/doc/Readme
-tar uf $filename sundials/doc/dirstruc
+tar uf $tarfile $distrobase/include/.dontremove
 
 # Add SHARED module
 #------------------
 
 echo "  Add shared module"
 
-tar uf $filename sundials/shared/doc/nvecreadme
+tar uf $tarfile $distrobase/shared/LICENSE
 
-tar uf $filename sundials/shared/lib/.dontremove
+tar uf $tarfile $distrobase/shared/doc/nvecreadme
 
-tar uf $filename sundials/shared/include/sundialstypes.h
-tar uf $filename sundials/shared/include/sundialsmath.h
-tar uf $filename sundials/shared/include/nvector.h
-tar uf $filename sundials/shared/include/dense.h
-tar uf $filename sundials/shared/include/smalldense.h
-tar uf $filename sundials/shared/include/band.h
-tar uf $filename sundials/shared/include/spgmr.h
-tar uf $filename sundials/shared/include/iterativ.h
-tar uf $filename sundials/shared/include/fcmixpar.h
+tar uf $tarfile $distrobase/shared/lib/.dontremove
 
-tar uf $filename sundials/shared/source/Makefile
-tar uf $filename sundials/shared/source/sundialsmath.c
-tar uf $filename sundials/shared/source/nvector.c
-tar uf $filename sundials/shared/source/dense.c
-tar uf $filename sundials/shared/source/smalldense.c
-tar uf $filename sundials/shared/source/band.c
-tar uf $filename sundials/shared/source/spgmr.c
-tar uf $filename sundials/shared/source/iterativ.c
+tar uf $tarfile $distrobase/shared/include/sundialstypes.h
+tar uf $tarfile $distrobase/shared/include/sundialsmath.h
+tar uf $tarfile $distrobase/shared/include/nvector.h
+tar uf $tarfile $distrobase/shared/include/dense.h
+tar uf $tarfile $distrobase/shared/include/smalldense.h
+tar uf $tarfile $distrobase/shared/include/band.h
+tar uf $tarfile $distrobase/shared/include/spgmr.h
+tar uf $tarfile $distrobase/shared/include/iterativ.h
+tar uf $tarfile $distrobase/shared/include/fcmixpar.h
+
+tar uf $tarfile $distrobase/shared/source/Makefile
+tar uf $tarfile $distrobase/shared/source/sundialsmath.c
+tar uf $tarfile $distrobase/shared/source/nvector.c
+tar uf $tarfile $distrobase/shared/source/dense.c
+tar uf $tarfile $distrobase/shared/source/smalldense.c
+tar uf $tarfile $distrobase/shared/source/band.c
+tar uf $tarfile $distrobase/shared/source/spgmr.c
+tar uf $tarfile $distrobase/shared/source/iterativ.c
 
 if [ $ser = "T" ]
 then
-    tar uf $filename sundials/shared/include/nvector_serial.h
-    tar uf $filename sundials/shared/include/fnvector_serial.h
+    tar uf $tarfile $distrobase/shared/include/nvector_serial.h
+    tar uf $tarfile $distrobase/shared/include/fnvector_serial.h
 
-    tar uf $filename sundials/shared/source/nvecserial.mk
-    tar uf $filename sundials/shared/source/nvector_serial.c
-    tar uf $filename sundials/shared/source/fnvector_serial.c
+    tar uf $tarfile $distrobase/shared/source/nvecserial.mk
+    tar uf $tarfile $distrobase/shared/source/nvector_serial.c
+    tar uf $tarfile $distrobase/shared/source/fnvector_serial.c
 fi
 
 if [ $par = "T" ]
 then
-    tar uf $filename sundials/shared/include/nvector_parallel.h
-    tar uf $filename sundials/shared/include/fnvector_parallel.h
+    tar uf $tarfile $distrobase/shared/include/nvector_parallel.h
+    tar uf $tarfile $distrobase/shared/include/fnvector_parallel.h
 
-    tar uf $filename sundials/shared/source/nvecparallel.mk
-    tar uf $filename sundials/shared/source/nvector_parallel.c
-    tar uf $filename sundials/shared/source/fnvector_parallel.c
+    tar uf $tarfile $distrobase/shared/source/nvecparallel.mk
+    tar uf $tarfile $distrobase/shared/source/nvector_parallel.c
+    tar uf $tarfile $distrobase/shared/source/fnvector_parallel.c
 fi
 
 # Add IDA module
@@ -144,50 +165,54 @@ fi
 
 echo "  Add ida module"
 
-tar uf $filename sundials/ida/doc/idareadme
-tar uf $filename sundials/ida/doc/idaaddenda
+tar uf $tarfile $distrobase/ida/LICENSE
 
-tar uf $filename sundials/ida/include/ida.h
-tar uf $filename sundials/ida/include/idadense.h
-tar uf $filename sundials/ida/include/idaband.h
-tar uf $filename sundials/ida/include/idaspgmr.h
-tar uf $filename sundials/ida/include/idabbdpre.h
+tar uf $tarfile $distrobase/ida/doc/idareadme
+tar uf $tarfile $distrobase/ida/doc/idaaddenda
+tar uf $tarfile $distrobase/ida/doc/idaudoc.ps
+tar uf $tarfile $distrobase/ida/doc/idaudoc.pdf
 
-tar uf $filename sundials/ida/source/Makefile
-tar uf $filename sundials/ida/source/ida.c
-tar uf $filename sundials/ida/source/idadense.c
-tar uf $filename sundials/ida/source/idaband.c
-tar uf $filename sundials/ida/source/idaspgmr.c
-tar uf $filename sundials/ida/source/idabbdpre.c
+tar uf $tarfile $distrobase/ida/include/ida.h
+tar uf $tarfile $distrobase/ida/include/idadense.h
+tar uf $tarfile $distrobase/ida/include/idaband.h
+tar uf $tarfile $distrobase/ida/include/idaspgmr.h
+tar uf $tarfile $distrobase/ida/include/idabbdpre.h
 
-tar uf $filename sundials/ida/lib/.dontremove
+tar uf $tarfile $distrobase/ida/source/Makefile
+tar uf $tarfile $distrobase/ida/source/ida.c
+tar uf $tarfile $distrobase/ida/source/idadense.c
+tar uf $tarfile $distrobase/ida/source/idaband.c
+tar uf $tarfile $distrobase/ida/source/idaspgmr.c
+tar uf $tarfile $distrobase/ida/source/idabbdpre.c
 
-tar uf $filename sundials/ida/examples/Makefile
+tar uf $tarfile $distrobase/ida/lib/.dontremove
+
+tar uf $tarfile $distrobase/ida/examples/Makefile
 
 if [ $ser = "T" ]
 then
-    tar uf $filename sundials/ida/examples/idax_ser.mk
-    tar uf $filename sundials/ida/examples/irobx.c
-    tar uf $filename sundials/ida/examples/irobx.out
-    tar uf $filename sundials/ida/examples/iheatsb.c
-    tar uf $filename sundials/ida/examples/iheatsb.out
-    tar uf $filename sundials/ida/examples/iheatsk.c
-    tar uf $filename sundials/ida/examples/iheatsk.out
-    tar uf $filename sundials/ida/examples/iwebsb.c
-    tar uf $filename sundials/ida/examples/iwebsb.out
+    tar uf $tarfile $distrobase/ida/examples/idax_ser.mk
+    tar uf $tarfile $distrobase/ida/examples/irobx.c
+    tar uf $tarfile $distrobase/ida/examples/irobx.out
+    tar uf $tarfile $distrobase/ida/examples/iheatsb.c
+    tar uf $tarfile $distrobase/ida/examples/iheatsb.out
+    tar uf $tarfile $distrobase/ida/examples/iheatsk.c
+    tar uf $tarfile $distrobase/ida/examples/iheatsk.out
+    tar uf $tarfile $distrobase/ida/examples/iwebsb.c
+    tar uf $tarfile $distrobase/ida/examples/iwebsb.out
 fi
 
 if [ $par = "T" ]
 then
-    tar uf $filename sundials/ida/examples/idax_par.mk
-    tar uf $filename sundials/ida/examples/iheatpk.c
-    tar uf $filename sundials/ida/examples/iheatpk.out
-    tar uf $filename sundials/ida/examples/iheatbbd.c
-    tar uf $filename sundials/ida/examples/iheatbbd.out
-    tar uf $filename sundials/ida/examples/iwebpk.c
-    tar uf $filename sundials/ida/examples/iwebpk.out
-    tar uf $filename sundials/ida/examples/iwebbbd.c
-    tar uf $filename sundials/ida/examples/iwebbbd.out
+    tar uf $tarfile $distrobase/ida/examples/idax_par.mk
+    tar uf $tarfile $distrobase/ida/examples/iheatpk.c
+    tar uf $tarfile $distrobase/ida/examples/iheatpk.out
+    tar uf $tarfile $distrobase/ida/examples/iheatbbd.c
+    tar uf $tarfile $distrobase/ida/examples/iheatbbd.out
+    tar uf $tarfile $distrobase/ida/examples/iwebpk.c
+    tar uf $tarfile $distrobase/ida/examples/iwebpk.out
+    tar uf $tarfile $distrobase/ida/examples/iwebbbd.c
+    tar uf $tarfile $distrobase/ida/examples/iwebbbd.out
 fi
 
 #----End of tarida script file----
