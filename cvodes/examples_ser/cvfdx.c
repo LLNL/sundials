@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-04-29 22:09:53 $
+ * $Revision: 1.13 $
+ * $Date: 2004-06-18 19:38:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -243,11 +243,11 @@ int main(int argc, char *argv[])
   
   printf("\n\n");
   printf("===================================================");
-  printf("==================================\n");
+  printf("============================\n");
   printf("     T     Q       H      NST                    y1");
   printf("           y2           y3    \n");
   printf("===================================================");
-  printf("==================================\n");
+  printf("============================\n");
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
     flag = CVode(cvode_mem, tout, y, &t, NORMAL);
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
       PrintOutputS(yS);
     } 
     printf("-------------------------------------------------");
-    printf("------------------------------------\n");
+    printf("------------------------------\n");
   }
 
   /* Print final statistics */
@@ -365,7 +365,7 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
   check_flag(&flag, "CVodeGetLastStep", 1);
 
   printf("%8.3e %2d  %8.3e %5ld\n", t, qu, hu, nst);
-  printf("                                Solution       ");
+  printf("                          Solution       ");
   printf("%12.4e %12.4e %12.4e \n", udata[0], udata[1], udata[2]);
 }
 
@@ -377,15 +377,15 @@ static void PrintOutputS(N_Vector *uS)
   realtype *sdata;
 
   sdata = NV_DATA_S(uS[0]);
-  printf("                                Sensitivity 1  ");
+  printf("                          Sensitivity 1  ");
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
   
   sdata = NV_DATA_S(uS[1]);
-  printf("                                Sensitivity 2  ");
+  printf("                          Sensitivity 2  ");
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 
   sdata = NV_DATA_S(uS[2]);
-  printf("                                Sensitivity 3  ");
+  printf("                          Sensitivity 3  ");
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 }
 

@@ -1,3 +1,5 @@
+
+
  Adjoint Sensitivity Example for Chemical Kinetics
  -------------------------------------------------
 
@@ -15,14 +17,14 @@ Allocate global memory
 Forward integration ... G:   3.9983e+07 
 
 List of Check Points (ncheck = 2)
-Check point  2  addr: 0x806ab58  time = [ 2.069985e+04 4.201867e+07 ]  next: 0x806a748
-Check point  1  addr: 0x806a748  time = [ 9.253659e+01 2.069985e+04 ]  next: 0x8064820
-Check point  0  addr: 0x8064820  time = [ 0.000000e+00 9.253659e+01 ]  next: (nil)
+ 2  addr: 0x806b518  time = [ 2.070e+04 4.202e+07 ]  next: 0x806b108
+ 1  addr: 0x806b108  time = [ 9.254e+01 2.070e+04 ]  next: 0x80651e0
+ 0  addr: 0x80651e0  time = [ 0.000e+00 9.254e+01 ]  next: (nil)
 
 Create and allocate CVODES memory for backward run
 Integrate backwards from tB0 =   4.0000e+07
 --------------------------------------------------------
-tB0:          4.0000e+07 
+tB0:          4.0000e+07
 dG/dp:        7.6998e+05  -3.0740e+00   5.0749e-04
 lambda(t0):   3.9967e+07   3.9967e+07   3.9967e+07
 --------------------------------------------------------
