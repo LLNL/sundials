@@ -81,9 +81,9 @@
 \newcommand{\A}{App. }
 
 %------ Index entries
-\newcommand{\ID}[1]{{\bf #1}{\index{#1@\texttt{#1}}}}
-\newcommand{\Id}[1]{{\bf #1}{\index{#1@\texttt{#1}}}}
-\newcommand{\id}[1]{{\bf #1}}
+\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
+\newcommand{\Id}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
+\newcommand{\id}[1]{{\tt #1}}
 
 %%----- Shortcuts for math formulas
 \newcommand{\mb}[1]{{\mbox{\scriptsize #1}}}
@@ -100,7 +100,7 @@
 \newcommand{\includeOutput}[2]
 {
 \begin{rawhtml}<HR>\end{rawhtml}
-{\bf #1} sample output
+{\tt #1} sample output
 \verbatimfile{#2}
 \begin{rawhtml}<HR>\end{rawhtml}
 }
@@ -122,8 +122,6 @@
 {
   \maketitle
   \tableofcontents
-  \listoftables
-  \listoffigures
 }
 %%--------------------------------
 \newcommand{\frontex}
