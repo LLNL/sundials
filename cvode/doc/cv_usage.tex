@@ -141,12 +141,12 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
   To set the vector \id{y0} of initial values, use macros defined by a particular 
   {\nvector} implementation:
 
-  {\s} \id{NV\_MAKE\_S(y0, ydata, machEnv);}
+  {\s} \id{NV\_MAKE\_S(y0, ydata, nvSpec);}
 
-  {\p} \id{NV\_MAKE\_P(y0, ydata, machEnv);}
+  {\p} \id{NV\_MAKE\_P(y0, ydata, nvSpec);}
 
   if an existing real array \id{ydata} contains the initial values of $y$.  
-  Otherwise, make the call \id{y0 = }\Id{N\_VNew}\id{(machEnv);} and load 
+  Otherwise, make the call \id{y0 = }\Id{N\_VNew}\id{(nvSpec);} and load 
   initial values into the real array defined by:
 
   {\s} \id{NV\_DATA\_S(y0)}
@@ -172,7 +172,7 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
 \item\label{i:cvode_malloc} 
   {\bf Allocate internal memory}
 
-  Call \id{cvode\_mem = }\id{CVodeMalloc}\id{(...);} 
+  Call \id{CVodeMalloc}\id{(...);} 
   to provide required problem specifications,
   allocate internal memory for {\cvode}, 
   and initialize {\cvode}.
@@ -545,7 +545,7 @@ separately in \S\ref{s:gen_linsolv}.
 {
   The function \ID{CVSpgmr} selects the {\cvspgmr} linear solver. 
 
-  The user's main function must include the \id{cvsspgmr.h} header file.
+  The user's main function must include the \id{cvspgmr.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -643,7 +643,7 @@ of the IVP.
   and \id{yout} = $y($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[SOLVER\_FAILURE]
+  \begin{args}[SOLVE\_FAILURE]
   \item[\Id{SUCCESS}]
     \id{CVode} succeeded.
   \item[\ID{TSTOP\_RETURN}]
@@ -652,11 +652,11 @@ of the IVP.
   \item[\ID{CVODE\_NO\_MEM}]
     The \id{cvode\_mem} argument was \id{NULL}.
   \item[\ID{ILL\_INPUT}]
-    One of the inputs to CVode is illegal. This includes the situation when a 
+    One of the inputs to \id{CVode} is illegal. This includes the situation when a 
     component of the error weight vectors becomes negative during internal 
     time-stepping. The \id{ILL\_INPUT} flag will also be returned if the linear 
     solver function initialization (called by the user after calling 
-    \id{CVodeMalloc}) failed to set one of the linear solver-related fields 
+    \id{CVodeCreate}) failed to set one of the linear solver-related fields 
     in \id{cvode\_mem} or if the linear solver's initialization function failed. 
     In any case, the user should see the printed error message for more details.
   \item[\ID{TOO\_MUCH\_WORK}] 
@@ -4866,7 +4866,7 @@ apply to {\nvecp}.
     if a failure occured.
     
   \item {\p}
-    To initialize the parallel machine environment, the user must make the following call:
+    To initialize the parallel vector module, the user must make the following call:
     \index{FNVINITP\@texttt{FNVINITP}}
 \begin{verbatim}
        CALL FNVINITP(NLOCAL, NGLOBAL, IER)
@@ -5215,6 +5215,120 @@ apply to {\nvecp}.
 \end{Steps}
 \index{FCVODE@{\fcvode} interface module!usage|)}
 
+
+%%
+%%------------------------------------------------------------------------------
+
+\subsection{Usage of the FCVBP interface to CVBANDPRE}
+
+\index{FCVODE@{\fcvode} interface module!interface to the {\cvbandpre} module|(}
+The {\fcvbp} interface sub-module is a package of {\C} functions which,
+as part of the {\fcvode} interface module, support the use of the
+{\cvode} solver with the serial {\nvecs} module and the {\cvbandpre} 
+preconditioner module (see \S\ref{sss:cvbandpre}), for the solution of 
+ODE systems in a mixed {\F}/{\C} setting.  
+
+The user-callable functions in this package, with the corresponding
+{\cvode} and {\cvbandpre} functions, are as follows: 
+\begin{itemize}
+\item \id{FCVBPINIT}
+  interfaces to \id{CVBandPrecAlloc}.
+\item \id{FCVBPSPGMR}
+  interfaces to \id{CVBPSpgmr} and {\spgmr} optional input routines.
+\item \id{FCVBPREINIT}
+  interfaces to \id{CVBandPrecReInit}.
+\item \id{FCVBPOPT}
+  interfaces to {\cvbandpre} optional output routines.
+\item \id{FCVBPFREE}
+  interfaces to \id{CVBandPrecFree}.
+\end{itemize}
+
+As with the rest of the {\fcvode} routines, the names of the user-supplied routines 
+are mapped to actual values through a series of definitions in the header file 
+\id{fcvbp.h}.
+
+The following is a summary of the usage of this module. Steps that are unchanged from 
+the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
+
+\index{User main program!FCVBP@{\fcvbp} usage}
+\begin{Steps}
+  
+\item \textcolor{gray}{\bf Right-hand side specification}
+
+\item \textcolor{gray}{\bf {\nvector} module initialization}
+
+\item \textcolor{gray}{\bf Problem specification}
+
+\item {\bf Linear solver specification}
+
+  To initialize the {\cvbandpre} preconditioner, make the following call:
+  \index{FCVBPINIT@\texttt{FCVBPINIT}}
+\begin{verbatim}
+       CALL FCVBPINIT(NEQ, MU, ML, IER)
+\end{verbatim}
+  The arguments are as follows.
+  \id{NEQ} is the problem size.
+  \id{MU} and \id{ML} are the upper and lower half-bandwidths of the band matrix that 
+  is retained as an approximation of the Jacobian.
+  \id{IER} is a return completion flag.  A value of $0$ inidicates success, while 
+  a value of $-1$ indicates that a memory failure occured.
+  
+  To specify the {\spgmr} linear system solver and use the {\cvbandpre}
+  preconditioner, make the following call:
+  \index{FCVBPSPGMR@\texttt{FCVBPSPGMR}}
+\begin{verbatim}
+       CALL FCVBPINIT(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+\end{verbatim}
+  Its arguments are the same as those of \id{FCVSPGMR}
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
+  
+
+  Optionally, to specify that {\spgmr} should use the supplied \id{FCVJTIMES}, 
+  make the call
+  \index{FCVSPGMRSETJAC@\texttt{FCVSPGMRSETJAC}}
+\begin{verbatim}
+       CALL FCVSPGMRSETJAC(FLAG, IER)
+\end{verbatim}
+  with \id{FLAG}$\neq 0$ 
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
+  
+\item \textcolor{gray}{\bf Problem solution}
+  
+\item {\bf {\cvbbdpre} Optional outputs}
+  
+  Optional outputs specific to the {\spgmr} solver are \id{NPE}, \id{NLI}, \id{NPS}, 
+  \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$ \id{IOPT(21)}, 
+  respectively.
+  To obtain the optional outputs associated with the {\cvbandpre} module, make
+  the following call:
+  \index{FCVBPOPT@\texttt{FCVBPOPT}}
+\begin{verbatim}
+       CALL FCVBPOPT(LENRPW, LENIPW, NFE)
+\end{verbatim}
+  The arguments returned are as follows.
+  \id{LENRPW} is the length of real preconditioner work space, in \id{realtype} words.
+  This size is local to the current processor.
+  \id{LENIPW} is the length of integer preconditioner work space, in integer words.
+  This size is local to the current processor.
+  \id{NFE} is the number of $f(t,y)$ evaluations (calls to \id{FCVFUN}) for
+  finite difference banded Jacobian approximation.
+  
+\item {\bf Memory deallocation}
+
+  To free the internal memory created by the call to \id{FCVBPINIT}, before calling
+  \id{FCVFREE} and \id{FNVFREEP}, the user must call
+  \index{FCVBPFREE@\texttt{FCVBPFREE}}
+\begin{verbatim}
+      CALL FCVBPFREE
+\end{verbatim}
+\index{FCVODE@{\fcvode} interface module!interface to the {\cvbandpre} module|)}
+
+\end{Steps}
+
+
+%%
+%%------------------------------------------------------------------------------
+
 \subsection{Usage of the FCVBBD interface to CVBBDPRE}
 
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbbdpre} module|(}
@@ -5228,10 +5342,11 @@ The user-callable functions in this package, with the corresponding
 {\cvode} and {\cvbbdpre} functions, are as follows: 
 \begin{itemize}
 \item \id{FCVBBDINIT}
-  interfaces to \id{CVBBDPrecAlloc}, \id{CVBBDSpgmr},
-  and {\spgmr} optional input routines.
+  interfaces to \id{CVBBDPrecAlloc}.
+\item \id{FCVBBDSPGMR}
+  interfaces to \id{CVBBDSpgmr} and {\spgmr} optional input routines.
 \item \id{FCVBBDREINIT}
-  interfaces to \id{CVBBDPrecReInit} and {\spgmr} optional input routines.
+  interfaces to \id{CVBBDPrecReInit}.
 \item \id{FCVBBDOPT}
   interfaces to {\cvbbdpre} optional output routines.
 \item \id{FCVBBDFREE}
@@ -5272,65 +5387,45 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 \item {\bf Linear solver specification}
 
-  To specify the SPGMR linear system solver, and to allocate memory 
-  and initialize data associated with the SPGMR method and the CVBBDPRE
-  preconditioner, make the following call:
+  To initialize the {\cvbbdpre} preconditioner, make the following call:
   \index{FCVBBDINIT@\texttt{FCVBBDINIT}}
-  \ucfunction{FCVBBDINIT}
-  {
-    \begin{tabular}[t]{@{}r@{}l@{}l@{}}
-        &CALL FCVBBDINIT(&NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IPRETYPE, \\
-      \&&                &IGSTYPE, MAXL, DELT, IER)
-    \end{tabular}
-  }
-  {
-    This function initializes and allocates memory for the {\cvbbdpre} preconditioner.
-  }
-  {
-    \begin{args}[IPRETYPE ]
-      \item[NLOCAL]
-        is the local size of vectors on this processor.
-      \item[MUDQ]
-      \item[MLDQ]
-        are the upper and lower half-bandwidths to be used in the computation
-        of the local Jacobian blocks by difference quotients.
-        These may be smaller than the true half-bandwidths of the
-        Jacobian of the local block of $g$, when smaller values may
-        provide greater efficiency.
-      \item[MU]
-      \item[ML]
-        are the upper and lower half-bandwidths of the band matrix that 
-        is retained as an approximation of the local Jacobian block.
-        These may be smaller than \id{MUDQ} and \id{MLDQ}.
-      \item[DQRELY]
-        is the relative increment factor in $y$ for difference quotients (optional). 
-        A value of $0.0$ indicates the default, $\sqrt{\text{unit roundoff}}$.
-      \item[IPRETYPE]
-        is the preconditioner type: $1$ for left only, $2$ for right only, 
-        3 for both sides.
-      \item[IGSTYPE]
-        is the Gram-Schmidt process type: $0$ for modified G-S, 1 for classical G-S.
-      \item[MAXL]
-        is the maximum Krylov subspace dimension; $0$ indicates default.
-      \item[DELT]
-        is the linear convergence tolerance factor; $0.0$ indicates default.
-    \end{args}
-  }
-  {
-    \id{IER} is a return completion flag.  A value of $0$ inidicates success, a value of
-    $-1$ indicates that a memory failure occured, and a value of $-2$ indicates an 
-    illegal input.
-  }
-  {}
+\begin{verbatim}
+       CALL FCVBBDINIT(NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IER)
+\end{verbatim}
+  The arguments are as follows.
+  \id{NLOCAL} is the local size of vectors on this processor.
+  \d{MUDQ} and \id{MLDQ} are the upper and lower half-bandwidths to be used in 
+  the computation of the local Jacobian blocks by difference quotients.
+  These may be smaller than the true half-bandwidths of the
+  Jacobian of the local block of $g$, when smaller values may
+  provide greater efficiency.
+  \id{MU} and \id{ML} are the upper and lower half-bandwidths of the band matrix that 
+  is retained as an approximation of the local Jacobian block.
+  These may be smaller than \id{MUDQ} and \id{MLDQ}.
+  \id{DQRELY} is the relative increment factor in $y$ for difference quotients (optional). 
+  A value of $0.0$ indicates the default, $\sqrt{\text{unit roundoff}}$.
+  \id{IER} is a return completion flag.  A value of $0$ inidicates success, a value of
+  $-1$ indicates that a memory failure occured, and a value of $-2$ indicates an 
+  illegal input.
   
+  To specify the {\spgmr} linear system solver and use the {\cvbbdpre}
+  preconditioner, make the following call:
+  \index{FCVBBDSPGMR@\texttt{FCVBBDSPGMR}}
+\begin{verbatim}
+       CALL FCVBBDINIT(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+\end{verbatim}
+  Its arguments are the same as those of \id{FCVSPGMR}
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
+  
+
   Optionally, to specify that {\spgmr} should use the supplied \id{FCVJTIMES}, 
   make the call
   \index{FCVSPGMRSETJAC@\texttt{FCVSPGMRSETJAC}}
 \begin{verbatim}
        CALL FCVSPGMRSETJAC(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG}$\neq 0$. See Step \ref{i:fcvode_lin_solv_spec} in 
-  \S\ref{ss:fcvode_usage} for details.
+  with \id{FLAG}$\neq 0$ 
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
   
 \item \textcolor{gray}{\bf Problem solution}
   
@@ -5352,8 +5447,6 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   This size is local to the current processor.
   \id{NGE} is the number of $g(t,y)$ evaluations (calls to \id{FCVLOCFN}) so far.
   
-\item \textcolor{gray}{\bf Solution output}
-  
 \item {\bf Problem reinitialization}
   
   If a sequence of problems of the same size is being solved using the {\spgmr}
@@ -5366,10 +5459,9 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   then the user program should make the call 
   \index{FCVBBDREINIT@\texttt{FCVBBDREINIT}}
 \begin{verbatim}
-       CALL FCVBBDREINIT(NLOCAL, MUDQ, MLDQ, DQRELY, IPRETYPE, 
-      &                  IGSTYPE, DELT, IER)
+       CALL FCVBBDREINIT(NLOCAL, MUDQ, MLDQ, DQRELY, IER)
 \end{verbatim}
-  This reinitializes the {\spgmr} linear solver, but without reallocating its memory.  
+  This reinitializes the {\cvbbdpre} preconditioner, but without reallocating its memory.  
   The arguments of the \id{FCVBBDREINIT} routine have the same names and meanings as 
   those of \id{FCVBBDINIT}.
   Finally, if the value of \id{MU}, \id{ML}, or \id{MAXL} is being changed, then a call to 
