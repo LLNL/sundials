@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-10-21 20:55:05 $
+ * $Revision: 1.18 $
+ * $Date: 2004-11-24 22:43:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -150,7 +150,7 @@ void FCV_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 /* C function FCVBBDFREE to interface to CVBBDPrecFree, to free memory 
    created by CVBBDPrecAlloc */
 
-void FCV_BBDFREE()
+void FCV_BBDFREE(void)
 {
   CVBBDPrecFree(CVBBD_Data);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-10-21 20:44:48 $
+ * $Revision: 1.8 $
+ * $Date: 2004-11-24 22:43:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,7 +42,7 @@ void FNV_INITP(long int *nlocal, long int *nglobal, int *ier)
  *ier = (F2C_vec == NULL) ? -1 : 0 ;
 }
 
-void FNV_FREEP()
+void FNV_FREEP(void)
 {
   N_VDestroy_Parallel(F2C_vec);
 }

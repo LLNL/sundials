@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-10-21 20:55:05 $
+ * $Revision: 1.6 $
+ * $Date: 2004-11-24 22:43:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -87,7 +87,7 @@ void FCV_BPOPT(long int *lenrpw, long int *lenipw, long int *nfe)
 /* C function FCVBPFREE to interface to CVBandPrecFree, to free memory 
    created by CVBandPrecAlloc */
 
-void FCV_BPFREE()
+void FCV_BPFREE(void)
 {
   CVBandPrecFree(CVBP_Data);
 }

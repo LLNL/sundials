@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-10-21 20:49:09 $
+ * $Revision: 1.27 $
+ * $Date: 2004-11-24 22:43:32 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -25,6 +25,7 @@
 
 #include "fkinsol.h"        /* prototypes of interfaces and global variables */
 #include "kinsol.h"         /* KINSOL constants and prototypes               */
+#include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines     */
 #include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
 #include "nvector.h"        /* definition of type N_Vector and prototypes
                                of related routines                           */
@@ -109,6 +110,19 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 
 /*
  * ----------------------------------------------------------------
+ * Function : FKIN_SPBCG
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_SPBCG(int *maxl, int *ier)
+{
+  *ier = KINSpbcg(KIN_mem, *maxl);
+
+  KIN_ls = KIN_SPBCG;
+}
+
+/*
+ * ----------------------------------------------------------------
  * Function : FKIN_SPGMR
  * ----------------------------------------------------------------
  */
@@ -178,6 +192,15 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KINGetStepLength(KIN_mem, &KIN_ropt[3]);
 
     switch(KIN_ls) {
+
+    case KIN_SPBCG:
+      KINSpbcgGetNumLinIters(KIN_mem, &nliters);
+      KINSpbcgGetNumPrecEvals(KIN_mem, &npevals);
+      KINSpbcgGetNumPrecSolves(KIN_mem, &npsolves);
+      KINSpbcgGetNumConvFails(KIN_mem, &nlcfails);
+      KINSpbcgGetLastFlag(KIN_mem, &lsflag);
+      break;
+
     case KIN_SPGMR:
       KINSpgmrGetNumLinIters(KIN_mem, &nliters);
       KINSpgmrGetNumPrecEvals(KIN_mem, &npevals);
@@ -185,6 +208,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
       KINSpgmrGetNumConvFails(KIN_mem, &nlcfails);
       KINSpgmrGetLastFlag(KIN_mem, &lsflag);
       break;
+
     }
 
     KIN_iopt[10] = nliters;
@@ -201,7 +225,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
  * ----------------------------------------------------------------
  */
 
-void FKIN_FREE()
+void FKIN_FREE(void)
 {
 
   /* call KINFree: KIN_mem is the pointer to the KINSOL memory block */
