@@ -120,7 +120,7 @@ can be evaluated separately:
   J s_i \approx \frac{f(t, y+\sigma_y s_i, p)-
     f(t, y-\sigma_y s_i, p)}{2\,\sigma_y} \, , \label{e:fd2} \\
   {\partial f}/{\partial p_i} \approx \frac{f(t,y,p + \sigma_i e_i)-
-    f(t,y,p - \sigma_i e_i)}{2\,\sigma_i} \, , \tag{\ref{e:fd2}'} \\
+    f(t,y,p - \sigma_i e_i)}{2\,\sigma_i} \, , \tag{\ref{e:fd2}$'$} \\
   \sigma_i = |{\bar p}_i| \sqrt{\max(\mbox{\sc rtol}, U)} \, , \quad
   \sigma_y = \frac{1}{\max(1/\sigma_i, \|s_i\|_{\mbox{\scriptsize WRMS}} / |{\bar p}_i|)} \, , \nonumber
 \end{gather}
@@ -131,7 +131,7 @@ simultaneously:
     f(t, y-\sigma s_i, p - \sigma e_i)}{2\,\sigma} \, , \label{e:dd2} \\
   \sigma = \min(\sigma_i, \sigma_y) \, , \nonumber
 \end{gather}
-or adaptively switching between (\ref{e:fd2})+(\ref{e:fd2}') and (\ref{e:dd2}), 
+or adaptively switching between (\ref{e:fd2})+(\ref{e:fd2}$'$) and (\ref{e:dd2}), 
 depending on the relative size of the estimated finite difference 
 increments $\sigma_i$ and $\sigma_y$.
 
@@ -144,23 +144,23 @@ sensitivities are obtained from the backward solution.
 To be specific about how the adjoint approach works, we consider
 the following situation. We assume as before that $f$ and/or $y_0$
 involves the parameter vector $p$, and that there is a
-functional $g(t,y,p)$ for which we desire the gradient $(dg/dp)|_{t=t_f}$, 
-at the final time $t_f$.
+functional $g(t,y,p)$ for which we desire the gradient $(dg/dp)|_{t=t_{\mbox{\tiny f}}}$, 
+at the final time $t_{\mbox{\scriptsize f}}$.
 We first integrate the original problem (\ref{e:ODE_with_p}) forward 
-from $t_0$ to $t_f$. The next step in the procedure is to integrate 
-from $t_f$ to $t_0$ the adjoint system
+from $t_0$ to $t_{\mbox{\scriptsize f}}$. The next step in the procedure is to integrate 
+from $t_{\mbox{\scriptsize f}}$ to $t_0$ the adjoint system
 \begin{equation}\label{e:ODEadj}
   \dot{\lambda} = -J^T \lambda \, , \quad
-  \lambda(t_f) = \left. \left( \frac{\partial g}{\partial y}
-    \right)^T \right| _{t=t_f} \, .
+  \lambda(t_{\mbox{\scriptsize f}}) = \left. \left( \frac{\partial g}{\partial y}
+    \right)^T \right| _{t=t_{\mbox{\tiny f}}} \, .
 \end{equation}
 When this backward integration is complete, then the desired
 sensitivity array is given by
 \begin{equation}\label{e:grad_g}
-  \left. \frac{dg}{dp}\right|_{t=t_f} = 
+  \left. \frac{dg}{dp}\right|_{t=t_{\mbox{\tiny f}}} = 
   \lambda^T(t_0) \frac{dy_0}{dp}
-  + \int_{t_0}^{t_f} \lambda^T \frac{\partial f}{\partial p} dt + 
-  \left. \frac{\partial g}{\partial p} \right|_{t=t_f} \, . 
+  + \int_{t_0}^{t_{\mbox{\tiny f}}} \lambda^T \frac{\partial f}{\partial p} dt + 
+  \left. \frac{\partial g}{\partial p} \right|_{t=t_{\mbox{\tiny f}}} \, . 
 \end{equation}
 Other situations, with different forms for the desired sensitivity
 information, are covered by different adjoint systems~\cite{CLPS:03}.
@@ -219,16 +219,16 @@ similar to the ODE case. As an example, if $\lambda$ satisfies
   - \left(\frac{\partial F}{\partial y}\right)^T \lambda 
   = - \left( \frac{\partial g}{\partial y}\right)^T \, ,
 \end{equation}
-with appropriate conditions at $t_f$, then the gradient of 
-$G(p) = \int_{t_0}^{t_f} g(t,y,p) dt$ is obtained as
+with appropriate conditions at $t_{\mbox{\scriptsize f}}$, then the gradient of 
+$G(p) = \int_{t_0}^{t_{\mbox{\tiny f}}} g(t,y,p) dt$ is obtained as
 \begin{equation*}
   \frac{dG}{dp} = 
-  \int_{t_0}^{t_f} \left(
+  \int_{t_0}^{t_{\mbox{\tiny f}}} \left(
     \frac{\partial g}{\partial p} - \lambda^T \frac{\partial F}{\partial p}
   \right) dt 
   - \left.\left( 
       \lambda^T \frac{\partial F}{\partial \dot{y}} s 
-    \right)\right|_{t_0}^{t_f} \, . 
+    \right)\right|_{t_0}^{t_{\mbox{\tiny f}}} \, . 
 \end{equation*}
 However, unlike the ODE case, homogeneous final conditions for the 
 adjoint variables may not always be enough (such is the case for 
