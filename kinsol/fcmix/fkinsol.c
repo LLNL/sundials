@@ -85,6 +85,8 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
 
 { 
   N_Vector uuvec, uscalevec, fscalevec;
+  int nniters, nfevals, nbcfails, nbacktr;
+  int nliters, npevals, npsolves, nlcfails;
 
   uuvec     = N_VMake(uu, F2C_nvspec);
   uscalevec = N_VMake(uscale, F2C_nvspec);
@@ -98,17 +100,30 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
 
   /* Load optional outputs in iopt & ropt */
   if ( (KIN_iopt != NULL) && (KIN_ropt != NULL) ) {
-    KINGetNumNonlinSolvIters(KIN_mem, &KIN_iopt[3]);
-    KINGetNumFuncEvals(KIN_mem, &KIN_iopt[4]);
-    KINGetNumBetaCondFails(KIN_mem, &KIN_iopt[5]);
-    KINGetNumBacktrackOps(KIN_mem, &KIN_iopt[6]);
+
+    KINGetNumNonlinSolvIters(KIN_mem, &nniters);
+    KINGetNumFuncEvals(KIN_mem, &nfevals);
+    KINGetNumBetaCondFails(KIN_mem, &nbcfails);
+    KINGetNumBacktrackOps(KIN_mem, &nbacktr);
+
+    KIN_iopt[3] = (long int) nniters;
+    KIN_iopt[4] = (long int) nfevals;
+    KIN_iopt[5] = (long int) nbcfails;
+    KIN_iopt[6] = (long int) nbacktr;
+
     KINGetFuncNorm(KIN_mem, &KIN_ropt[3]);
     KINGetStepLength(KIN_mem, &KIN_ropt[4]);
     
-    KINSpgmrGetNumLinIters(KIN_mem, &KIN_iopt[10]);
-    KINSpgmrGetNumPrecEvals(KIN_mem, &KIN_iopt[11]);
-    KINSpgmrGetNumPrecSolves(KIN_mem, &KIN_iopt[12]);
-    KINSpgmrGetNumConvFails(KIN_mem, &KIN_iopt[13]);
+    KINSpgmrGetNumLinIters(KIN_mem, &nliters);
+    KINSpgmrGetNumPrecEvals(KIN_mem, &npevals);
+    KINSpgmrGetNumPrecSolves(KIN_mem, &npsolves);
+    KINSpgmrGetNumConvFails(KIN_mem, &nlcfails);
+    
+    KIN_iopt[10] = (long int) nliters;
+    KIN_iopt[11] = (long int) npevals;
+    KIN_iopt[12] = (long int) npsolves;
+    KIN_iopt[13] = (long int) nlcfails;
+
   }
 }
 
