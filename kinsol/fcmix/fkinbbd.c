@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-12-01 00:07:35 $
+ * $Revision: 1.20.2.1 $
+ * $Date: 2005-03-18 23:29:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -45,8 +45,16 @@
  * ----------------------------------------------------------------
  */
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 extern void FK_LOCFN(long int*, realtype*, realtype*);
 extern void FK_COMMFN(long int*, realtype*);
+
+#ifdef __cplusplus
+}
+#endif
 
 /*
  * ----------------------------------------------------------------

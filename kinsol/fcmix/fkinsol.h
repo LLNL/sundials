@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25.2.1 $
- * $Date: 2005-01-24 21:45:27 $
+ * $Revision: 1.25.2.2 $
+ * $Date: 2005-03-18 23:29:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -301,6 +301,10 @@
 #ifndef _FKINSOL_H
 #define _FKINSOL_H
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /*
  * -----------------------------------------------------------------
  * header files
@@ -418,6 +422,23 @@
 
 /*
  * -----------------------------------------------------------------
+ * Prototypes : exported functions
+ * -----------------------------------------------------------------
+ */
+
+void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
+		 realtype *constraints, int *optin, long int *iopt,
+		 realtype *ropt, int *ier);
+void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier);
+void FKIN_SOL(realtype *uu, int *globalstrategy, 
+              realtype *uscale , realtype *fscale, int *ier);
+void FKIN_FREE(void);
+void FKIN_SPGMRSETJAC(int *flag, int *ier);
+void FKIN_SPGMRSETPSET(int *flag, int *ier);
+void FKIN_SPGMRSETPSOL(int *flag, int *ier);
+
+/*
+ * -----------------------------------------------------------------
  * Prototypes : functions called by the solver
  * -----------------------------------------------------------------
  */
@@ -446,13 +467,14 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
  */
 
 extern N_Vector F2C_vec;
-realtype *data_F2C_vec;
+extern realtype *data_F2C_vec;
+extern void *KIN_mem;
+extern long int *KIN_iopt;
+extern realtype *KIN_ropt;
+extern int KIN_ls;  /* Linear Solver: 1 = SPGMR */
 
-void *KIN_mem;
-long int *KIN_iopt;
-realtype *KIN_ropt;
-
-int KIN_ls;  /* Linear Solver: 1 = SPGMR */
-enum { KIN_SPGMR = 1 };
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-10-21 20:49:09 $
+ * $Revision: 1.7.2.1 $
+ * $Date: 2005-03-18 23:29:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -30,8 +30,15 @@
  * prototype of the user-supplied fortran routine
  * ----------------------------------------------------------------
  */
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 extern void FK_JTIMES(realtype*, realtype*, int*, realtype*, int*);
+
+#ifdef __cplusplus
+}
+#endif
 
 /*
  * ----------------------------------------------------------------

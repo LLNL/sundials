@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-12-02 19:29:55 $
+ * $Revision: 1.14.2.1 $
+ * $Date: 2005-03-18 23:29:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -33,8 +33,16 @@
  * ----------------------------------------------------------------
  */
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 extern void FK_PSET(realtype*, realtype*, realtype*, realtype*, 
 		    realtype*, realtype*, int*);
+
+#ifdef __cplusplus
+}
+#endif
 
 /*
  * ----------------------------------------------------------------

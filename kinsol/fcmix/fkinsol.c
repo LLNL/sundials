@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-11-30 21:17:56 $
+ * $Revision: 1.28.2.1 $
+ * $Date: 2005-03-18 23:29:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -32,6 +32,20 @@
 
 /*
  * ----------------------------------------------------------------
+ * definitions of global variables shared amongst various routines
+ * ----------------------------------------------------------------
+ */
+
+realtype *data_F2C_vec;
+void *KIN_mem;
+long int *KIN_iopt;
+realtype *KIN_ropt;
+int KIN_ls;
+
+enum { KIN_SPGMR = 1 };
+
+/*
+ * ----------------------------------------------------------------
  * private constants
  * ----------------------------------------------------------------
  */
@@ -44,7 +58,15 @@
  * ----------------------------------------------------------------
  */
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 extern void FK_FUN(realtype*, realtype*);
+
+#ifdef __cplusplus
+}
+#endif
 
 /*
  * ----------------------------------------------------------------
