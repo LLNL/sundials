@@ -215,7 +215,7 @@ The \id{cvbx.c} program includes files \id{cvband.h} and
 file contains the prototype for the \id{CVBand} routine. The \id{band.h}
 file contains the definition for band matrix type \id{BandMat} and the
 \id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
-elements (see \ugref{ss:bjacFn}).
+elements (see \ugref{ss:bjac}).
 We have explicitly included \id{band.h}, but this is not necessary because
 it is included by \id{cvband.h}.  The file \id{nvector\_serial.h} is
 included for the definition of the serial \id{N\_Vector} type.
@@ -401,7 +401,7 @@ setup and solve functions, \id{Precond} and \id{PSolve}, are specified through
 calls to \id{CVSpgmrSetPrecSetupFn} and \id{CVSpgmrSetPrecSolveFn}, respectively.
 The \id{data} pointer passed to \id{CVSpgmrSetPrecData} is passed to
 \id{Precond} and \id{PSolve} whenever these are called.  See
-\S\ref{ss:optional_input} for details on these \id{CVSpgmrSet*} functions.
+\ugref{ss:optional_input} for details on these \id{CVSpgmrSet*} functions.
 
 Then for a sequence of \id{tout} values, \id{CVode} is called in the
 \id{CV\_NORMAL} mode, sampled output is printed, and the return value is

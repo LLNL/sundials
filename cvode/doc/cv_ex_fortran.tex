@@ -34,7 +34,7 @@ arrays).  At the end, it prints a number of performance counters, and
 frees memory with calls to \id{FCVFREE} and \id{FNVFREES}.
 
 In \id{cvkryf.c}, the \id{FCVFUN} routine is a straghtforward implementation
-of the discretized form of Ens. (\ref{cvkxpde}).  In \id{FCVPSET}, the
+of the discretized form of Eqns. (\ref{cvkxpde}).  In \id{FCVPSET}, the
 block-diagonal part of the Jacobian, $J_{bd}$, is computed (and copied to
 \id{P}) if \id{JOK} = 0, but is simply copied from \id{BD} to \id{P} if
 \id{JOK} = 1.  In both cases, the preconditioner matrix $P$ is formed from 
