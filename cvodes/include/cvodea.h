@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2004-12-08 21:57:05 $
+ * $Revision: 1.31 $
+ * $Date: 2005-01-24 22:28:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -51,12 +51,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVODEA_H
+#define _CVODEA_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVODEA_H
-#define _CVODEA_H
 
 #include <stdio.h>
 
@@ -515,8 +515,8 @@ void CVadjGetStoredData(void *cvadj_mem, long int which,
 #define CV_BAD_TBOUT   -108
 #define CV_GETY_BADT   -109
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

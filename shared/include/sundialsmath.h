@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-11-11 00:07:49 $
+ * $Revision: 1.5 $
+ * $Date: 2005-01-24 22:29:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Aaron Collier @ LLNL
@@ -17,12 +17,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _SUNDIALSMATH_H
+#define _SUNDIALSMATH_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _SUNDIALSMATH_H
-#define _SUNDIALSMATH_H
 
 #include "sundialstypes.h"
 
@@ -122,8 +122,8 @@ realtype RAbs(realtype x);
 
 realtype RPower2(realtype x);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

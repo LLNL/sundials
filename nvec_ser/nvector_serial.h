@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-21 20:44:41 $
+ * $Revision: 1.14 $
+ * $Date: 2005-01-24 22:29:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -46,12 +46,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _NVECTOR_SERIAL_H
+#define _NVECTOR_SERIAL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _NVECTOR_SERIAL_H
-#define _NVECTOR_SERIAL_H
 
 #include "nvector.h"
 #include "sundialstypes.h"

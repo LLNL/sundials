@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-11-15 17:11:48 $
+ * $Revision: 1.8 $
+ * $Date: 2005-01-24 22:29:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -36,13 +36,13 @@
  * the documentation for denalloc in smalldense.h
  * -----------------------------------------------------------------
  */
- 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
 
 #ifndef _DENSE_H
 #define _DENSE_H
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 #include "sundialstypes.h"
 #include "smalldense.h"
@@ -286,8 +286,8 @@ void DenseFreePiv(long int *p);
 
 void DensePrint(DenseMat A);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

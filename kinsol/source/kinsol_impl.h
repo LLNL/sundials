@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-11-04 02:08:08 $
+ * $Revision: 1.8 $
+ * $Date: 2005-01-24 22:29:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -25,10 +25,6 @@ extern "C" {
 #include "kinsol.h"
 #include "nvector.h"
 #include "sundialstypes.h"
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
 
 /*
  * -----------------------------------------------------------------

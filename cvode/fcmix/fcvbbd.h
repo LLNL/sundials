@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-12-07 19:46:02 $
+ * $Revision: 1.18 $
+ * $Date: 2005-01-24 22:28:41 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -299,10 +299,10 @@
 #ifndef _FCVBBD_H
 #define _FCVBBD_H
 
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
+/* header files  */
+
+#include "nvector.h"       /* definition of type N_Vector */
+#include "sundialstypes.h" /* definition of type realtype */
 
 /* Definitions of interface function names */
 
@@ -384,11 +384,6 @@
 #define FCV_COMMFN    FCVCOMMFN__
 
 #endif
-
-/* header files  */
-
-#include "nvector.h"       /* definition of type N_Vector */
-#include "sundialstypes.h" /* definition of type realtype */
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 

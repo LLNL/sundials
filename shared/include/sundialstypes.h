@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-26 18:02:16 $
+ * $Revision: 1.10 $
+ * $Date: 2005-01-24 22:29:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -37,17 +37,17 @@
  * explicitly cast 1.0 to (realtype).
  *------------------------------------------------------------------
  */
-
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
   
 #ifndef _SUNDIALSTYPES_H
 #define _SUNDIALSTYPES_H
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 #ifndef _SUNDIALS_CONFIG_H
 #define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
+#include "sundials_config.h"
 #endif
 
 #include <float.h>
@@ -107,8 +107,8 @@ typedef long double realtype;
 #define TRUE 1
 #endif
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

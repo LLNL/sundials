@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-26 18:02:11 $
+ * $Revision: 1.11 $
+ * $Date: 2005-01-24 22:29:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -21,7 +21,7 @@
 
 #ifndef _SUNDIALS_CONFIG_H
 #define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
+#include "sundials_config.h"
 #endif
 
 #if defined(F77_FUNC)

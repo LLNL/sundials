@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-10-26 23:43:05 $
+ * $Revision: 1.29 $
+ * $Date: 2005-01-24 22:28:53 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IDA_H
+#define _IDA_H
+
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _ida_h
-#define _ida_h
 
 #include <stdio.h>
 #include "sundialstypes.h"
@@ -873,8 +873,8 @@ void IDAFree(void *ida_mem);
  * -----------------------------------------------------------------
  */                                                                 
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

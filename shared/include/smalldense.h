@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-11-15 17:11:48 $
+ * $Revision: 1.6 $
+ * $Date: 2005-01-24 22:29:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -21,12 +21,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _SMALLDENSE_H
+#define _SMALLDENSE_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _SMALLDENSE_H
-#define _SMALLDENSE_H
 
 #include "sundialstypes.h"
 
@@ -214,8 +214,8 @@ void denfree(realtype **a);
 
 void denprint(realtype **a, long int n);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

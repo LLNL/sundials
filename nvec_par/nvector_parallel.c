@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-12-03 21:39:52 $
+ * $Revision: 1.20 $
+ * $Date: 2005-01-24 22:29:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -22,11 +22,6 @@
 #include "nvector_parallel.h"
 #include "sundialsmath.h"
 #include "sundialstypes.h"
-
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-11-23 18:49:30 $
+ * $Revision: 1.19 $
+ * $Date: 2005-01-24 22:29:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _KINSPGMR_H
+#define _KINSPGMR_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _KINSPGMR_H
-#define _KINSPGMR_H
 
 #include "nvector.h"
 #include "sundialstypes.h"
@@ -369,8 +369,8 @@ int KINSpgmrGetLastFlag(void *kinmem, int *flag);
 #define KINSPGMR_ILL_INPUT -3
 #define KINSPGMR_MEM_FAIL  -4
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-11-06 01:01:56 $
+ * $Revision: 1.27 $
+ * $Date: 2005-01-24 22:28:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVODE_H
+#define _CVODE_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVODE_H
-#define _CVODE_H
 
 #include <stdio.h>
 
@@ -837,8 +837,8 @@ void CVodeFree(void *cvode_mem);
  * -----------------------------------------------------------------
  */
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

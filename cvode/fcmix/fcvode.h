@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2004-12-07 19:46:03 $
+ * $Revision: 1.36 $
+ * $Date: 2005-01-24 22:28:41 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -435,10 +435,13 @@
 #ifndef _FCVODE_H
 #define _FCVODE_H
 
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
+/* header files  */
+
+#include "band.h"           /* definition of BandMat       */
+#include "cvode.h"          /* definition of type CVRhsFn  */
+#include "dense.h"          /* definition of DenseMat      */
+#include "nvector.h"        /* definition of type N_Vector */
+#include "sundialstypes.h"  /* definition of type realtype */
 
 /* Definitions of interface function names */
 
@@ -646,14 +649,6 @@
 #define FCV_JTIMES       FCVJTIMES__
 
 #endif
-
-/* header files  */
-
-#include "band.h"           /* definition of BandMat       */
-#include "cvode.h"          /* definition of type CVRhsFn  */
-#include "dense.h"          /* definition of DenseMat      */
-#include "nvector.h"        /* definition of type N_Vector */
-#include "sundialstypes.h"  /* definition of type realtype */
 
 /* Prototypes: Functions Called by the CVODE Solver */
   

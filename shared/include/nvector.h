@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-11-23 18:58:44 $
+ * $Revision: 1.18 $
+ * $Date: 2005-01-24 22:29:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -40,12 +40,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _NVECTOR_H
+#define _NVECTOR_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _NVECTOR_H
-#define _NVECTOR_H
 
 #include "sundialstypes.h"
 
@@ -353,8 +353,8 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom);
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
 void N_VDestroyVectorArray(N_Vector *vs, int count);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

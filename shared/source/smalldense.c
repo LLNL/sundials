@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-11-15 17:26:04 $
+ * $Revision: 1.7 $
+ * $Date: 2005-01-24 22:29:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -21,11 +21,6 @@
 #include "smalldense.h"
 #include "sundialsmath.h"
 #include "sundialstypes.h"
-
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)

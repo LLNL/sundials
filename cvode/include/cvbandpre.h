@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-12-07 19:44:38 $
+ * $Revision: 1.25 $
+ * $Date: 2005-01-24 22:28:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -72,12 +72,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVBANDPRE_H
+#define _CVBANDPRE_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVBANDPRE_H
-#define _CVBANDPRE_H
 
 /*
  * -----------------------------------------------------------------
@@ -199,8 +199,8 @@ void CVBandPrecFree(void *bp_data);
 int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP);
 int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

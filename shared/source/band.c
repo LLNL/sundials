@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-11-15 17:26:03 $
+ * $Revision: 1.8 $
+ * $Date: 2005-01-24 22:29:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -22,11 +22,6 @@
 #include "band.h"
 #include "sundialsmath.h"
 #include "sundialstypes.h"
-
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)

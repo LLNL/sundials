@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-11-16 21:36:34 $
+ * $Revision: 1.20 $
+ * $Date: 2005-01-24 22:28:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -16,12 +16,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IDABAND_H
+#define _IDABAND_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _IDABAND_H
-#define _IDABAND_H
 
 #include <stdio.h>
 
@@ -201,8 +201,8 @@ int IDABandGetLastFlag(void *ida_mem, int *flag);
 #define IDABAND_ILL_INPUT -3
 #define IDABAND_MEM_FAIL  -4
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif
