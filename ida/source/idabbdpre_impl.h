@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-10-21 15:58:17 $
+ * $Revision: 1.4 $
+ * $Date: 2004-10-21 17:49:31 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -29,7 +29,20 @@ extern "C" {
 #include "nvector.h"
 #include "sundialstypes.h"
 
-/*********************** Definition of IBBDPrecData *****************/
+/* Prototypes of IDABBDPrecSetup and IDABBDPrecSolve */
+
+int IDABBDPrecSetup(realtype tt, 
+		    N_Vector yy, N_Vector yp, N_Vector rr, 
+		    realtype cj, void *p_data,
+		    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+ 
+int IDABBDPrecSolve(realtype tt, 
+		    N_Vector yy, N_Vector yp, N_Vector rr, 
+		    N_Vector rvec, N_Vector zvec,
+		    realtype cj, realtype delta,
+		    void *p_data, N_Vector tempv);
+
+/* Definition of IBBDPrecData */
 
 typedef struct {
 
