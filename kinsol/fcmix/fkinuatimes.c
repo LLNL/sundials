@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : fkinuatimes.c                                  *
- * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 17 January 2001                                *
+ * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 8 March 2002                                   *
  *----------------------------------------------------------------*
  * Routine used to interface between a Fortran main and a user-   *
  * supplied A-times routine FATIMES (Jacobian A times vector v)   *
@@ -11,6 +12,8 @@
 #include "kinsol.h"  /* prototypes of interfaces, global variables  */
 #include "fkinsol.h" /* prototypes of interfaces, global variables  */
 
+/* Prototypes of the Fortran routines */
+void F_ATIMES(real*, real*, int*, real*, int*);
 
 /*******************************************************************/
 /*  C function KINUAtimes is to interface between                   *
@@ -23,12 +26,14 @@ int KINUAtimes(void *f_data, N_Vector v, N_Vector z,
 {
  int retcode;
  real *vdata, *zdata, *uudata;
-
- vdata      = N_VDATA(v);
- zdata      = N_VDATA(z);
- uudata     = N_VDATA(uu);
+ 
+ vdata      = N_VGetData(v);
+ zdata      = N_VGetData(z);
+ uudata     = N_VGetData(uu);
  
  F_ATIMES(vdata, zdata, (int *)new_uu, uudata, &retcode);
 
-return(retcode);
+ N_VSetData(zdata, z);
+
+ return(retcode);
 }
