@@ -119,6 +119,12 @@ AC_ARG_WITH(ldflags,
 [EXTRA_LDFLAGS=${withval}]
 )
 
+AC_ARG_WITH(libs,
+[AC_HELP_STRING([--with-libs],[add extra libraries])],
+[EXTRA_LIBS=${withval}]
+)
+LIBS="${LIBS} ${EXTRA_LIBS}"
+
 # ------------------------------------------------------------------------
 # See whether we need a C++ compiler
 # ------------------------------------------------------------------------
@@ -313,9 +319,6 @@ fi
 # ------------------------------------------------------------------------
 
 if test "X${MY_CC}" = "Xnone"; then
-  SUNDIALS_PROG_CC
-fi
-if test "X${MY_CC}" = "Xnone"; then
   MY_CC=cc
 fi
 AC_PROG_CC(${MY_CC} cc gcc)
@@ -360,10 +363,6 @@ fi
 # ------------------------------------------------------------------------
 
 if test "X${CXX_ENABLED}" = "Xyes"; then
-
-  if test "X${MY_CXX}" = "Xnone"; then
-    SUNDIALS_PROG_CXX
-  fi
 
   if test "X${MY_CXX}" = "Xnone"; then
     MY_CXX=g++
@@ -413,10 +412,6 @@ fi
 # ------------------------------------------------------------------------
 
 if test "X${F77_ENABLED}" = "Xyes"; then
-
-  if test "X${MY_F77}" = "Xnone"; then
-    SUNDIALS_PROG_F77
-  fi
 
   if test "X${MY_F77}" = "Xnone"; then
     MY_F77=f77
@@ -651,7 +646,7 @@ Configuration:
   Install path (include):     $my_includedir
   Install path (lib):         $my_libdir
 
-  C Preprocessor:             $CPP $CPPFLAGS
+  C/C++ Preprocessor:         $CPP $CPPFLAGS
   C Compiler:	              $CC $CFLAGS
   C Linker:                   $CC $LDFLAGS $LIBS"
 

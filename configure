@@ -311,7 +311,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os SET_MAKE AR CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP CXX CXXFLAGS ac_ct_CXX CXXCPP F77 FFLAGS ac_ct_F77 FLIBS MPI_CC_EXISTS MPI_CXX_EXISTS MPI_F77_EXISTS MPICC MPICXX MPIF77 MPIINC MPILIBDIR MPILIBS MODULES NVEC_MODULES EX_MODULES LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os SET_MAKE AR CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP CXX CXXFLAGS ac_ct_CXX CXXCPP F77 FFLAGS ac_ct_F77 FLIBS MPI_CC_EXISTS MPI_MPICXX_EXISTS MPI_F77_EXISTS MPICC MPICXX MPIF77 MPIINC MPILIBDIR MPILIBS MODULES NVEC_MODULES EX_MODULES LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -885,6 +885,7 @@ Optional Packages:
   --with-cppflags         add extra preprocessor flags
   --with-cflags           add extra C compiler flags
   --with-ldflags          add extra linker flags
+  --with-libs             add extra libraries
 
   --with-cxx[=ARG]        force (ARG=yes) or skip (ARG=no) C++ check [ARG=yes]
   --with-cxxflags         add extra C++ compiler flags
@@ -892,7 +893,9 @@ Optional Packages:
   --with-fflags           add extra Fortran compiler flags
 
   --with-mpi[=ARG]        force (ARG=yes) or skip (ARG=no) MPI check [ARG=yes]
-  --with-mpi-comp[=DIR]   use MPI compiler scripts from DIR [$PATH]
+  --with-mpicc            specify MPI C compiler to use
+  --with-mpiCC            specify MPI C++ compiler to use
+  --with-mpif77           specify MPI Fortran compiler to use
   --with-mpi-root=MPIROOT use MPI root directory
   --with-mpi-incdir=DIR   MPI include directory [MPIROOT/include]
   --with-mpi-libdir=DIR   MPI library directory [MPIROOT/lib]
@@ -1617,6 +1620,15 @@ if test "${with_ldflags+set}" = set; then
 
 fi;
 
+
+# Check whether --with-libs or --without-libs was given.
+if test "${with_libs+set}" = set; then
+  withval="$with_libs"
+  EXTRA_LIBS=${withval}
+
+fi;
+LIBS="${LIBS} ${EXTRA_LIBS}"
+
 # ------------------------------------------------------------------------
 # See whether we need a C++ compiler
 # ------------------------------------------------------------------------
@@ -1852,20 +1864,6 @@ fi
 # C compiler and flags
 # ------------------------------------------------------------------------
 
-if test "X${MY_CC}" = "Xnone"; then
-
-  case $target in
-
-    # IBM
-    rs6000-ibm-aix3.2.* | rs6000-ibm-aix4.* | powerpc-ibm-aix4.*)
-
-      MY_CC=xlc
-
-    ;;
-
-  esac
-
-fi
 if test "X${MY_CC}" = "Xnone"; then
   MY_CC=cc
 fi
@@ -2529,13 +2527,6 @@ if test "X${MY_CFLAGS}" = "Xnone"; then
 
 
   case $target in
-
-    # IBM
-    rs6000-ibm-aix3.2.* | rs6000-ibm-aix4.* | powerpc-ibm-aix4.*)
-
-      MY_CFLAGS="${MY_CFLAGS} -qmaxmem=18432"
-
-    ;;
 
     # Linux
     i686-pc-linux-gnu)
@@ -3435,21 +3426,6 @@ fi
 if test "X${CXX_ENABLED}" = "Xyes"; then
 
   if test "X${MY_CXX}" = "Xnone"; then
-
-  case $target in
-
-    # IBM
-    rs6000-ibm-aix3.2.* | rs6000-ibm-aix4.* | powerpc-ibm-aix4.*)
-
-      MY_CXX=xlCC
-
-    ;;
-
-  esac
-
-  fi
-
-  if test "X${MY_CXX}" = "Xnone"; then
     MY_CXX=g++
   fi
   ac_ext=cc
@@ -3783,13 +3759,6 @@ echo $ECHO_N "checking for C++ compiler flags... $ECHO_C" >&6
       MY_CXXFLAGS="-O"
 
   case $target in
-
-    # IBM
-    rs6000-ibm-aix3.2.* | rs6000-ibm-aix4.* | powerpc-ibm-aix4.*)
-
-      MY_CXXFLAGS="${MY_CXXFLAGS} -qnolm -qrtti"
-
-    ;;
 
     # Linux
     i686-pc-linux-gnu)
@@ -4221,21 +4190,6 @@ fi
 if test "X${F77_ENABLED}" = "Xyes"; then
 
   if test "X${MY_F77}" = "Xnone"; then
-
-  case $target in
-
-    # IBM
-    rs6000-ibm-aix3.2.* | rs6000-ibm-aix4.* | powerpc-ibm-aix4.*)
-
-      MY_F77=xlf
-
-    ;;
-
-  esac
-
-  fi
-
-  if test "X${MY_F77}" = "Xnone"; then
     MY_F77=f77
   fi
   ac_ext=f
@@ -4330,7 +4284,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:4333:" \
+echo "$as_me:4287:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -4537,7 +4491,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:4540: \"$ac_link\") >&5
+(eval echo $as_me:4494: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4617,7 +4571,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:4620: \"$ac_link\") >&5
+(eval echo $as_me:4574: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4827,37 +4781,86 @@ if test "X${MPI_ENABLED}" = "Xyes"; then
   # MPI compilers
   # -------------
 
+#  AC_ARG_WITH(mpi-comp,
+#  [AC_HELP_STRING([--with-mpi-comp[[[[=DIR]]]]],
+#                  [use MPI compiler scripts from DIR [$PATH]],
+#                  [                                ])],
+#  [
+#    if test "X${withval}" != "Xno"; then
+#      USE_MPI_COMPILERS=yes
+#      if test "X${withval}" = "Xyes"; then
+#        MPI_CC=mpicc
+#        MPI_F77=mpif77
+#        MPI_CXX=mpiCC
+#      else
+#        MPI_CC=${withval}/mpicc
+#        MPI_F77=${withval}/mpif77
+#        MPI_TEMP_CXX=${withval}/mpicxx
+#        if test -f ${MPI_TEMP_CXX}; then
+#          MPI_CXX=${MPI_TEMP_CXX}
+#        else
+#          MPI_CXX=${withval}/mpiCC
+#        fi
+#      fi
+#    else
+#      USE_MPI_COMPILERS=no
+#    fi
+#  ],
+#  [
+#    USE_MPI_COMPILERS=yes
+#    MPI_CC=mpicc
+#    MPI_F77=mpif77
+#    MPI_CXX=mpiCC
+#  ])
 
-# Check whether --with-mpi-comp or --without-mpi-comp was given.
-if test "${with_mpi_comp+set}" = set; then
-  withval="$with_mpi_comp"
 
-    if test "X${withval}" != "Xno"; then
-      USE_MPI_COMPILERS=yes
-      if test "X${withval}" = "Xyes"; then
-        MPI_CC=mpicc
-        MPI_F77=mpif77
-        MPI_CXX=mpiCC
-      else
-        MPI_CC=${withval}/mpicc
-        MPI_F77=${withval}/mpif77
-        MPI_TEMP_CXX=${withval}/mpicxx
-        if test -f ${MPI_TEMP_CXX}; then
-          MPI_CXX=${MPI_TEMP_CXX}
-        else
-          MPI_CXX=${withval}/mpiCC
-        fi
-      fi
-    else
-      USE_MPI_COMPILERS=no
+# Check whether --with-mpicc or --without-mpicc was given.
+if test "${with_mpicc+set}" = set; then
+  withval="$with_mpicc"
+
+    if  test "X${withval}" != "Xno" ; then
+      USE_MPI_COMPILERS="yes"
+      MPI_CC="${withval}"
     fi
 
 else
 
-    USE_MPI_COMPILERS=yes
-    MPI_CC=mpicc
-    MPI_F77=mpif77
-    MPI_CXX=mpiCC
+    USE_MPI_COMPILERS="yes"
+    MPI_CC="mpicc"
+
+fi;
+
+
+# Check whether --with-mpiCC or --without-mpiCC was given.
+if test "${with_mpiCC+set}" = set; then
+  withval="$with_mpiCC"
+
+    if  test "X${withval}" != "Xno" ; then
+      USE_MPI_COMPILERS="yes"
+      MPI_CXX="${withval}"
+    fi
+
+else
+
+    USE_MPI_COMPILERS="yes"
+    MPI_CXX="mpiCC"
+
+fi;
+
+
+# Check whether --with-mpif77 or --without-mpif77 was given.
+if test "${with_mpif77+set}" = set; then
+  withval="$with_mpif77"
+
+    if  test "X${withval}" != "Xno" ; then
+      USE_MPI_COMPILERS="yes"
+      MPI_F77="${withval}"
+    fi
+
+else
+
+    USE_MPI_COMPILERS="yes"
+    MPI_F77="mpif77"
 
 fi;
 
@@ -4938,15 +4941,10 @@ fi;
 
 
 # Test the MPICC compiler
-if test -x ${MPI_CC}; then
-  echo "$as_me:$LINENO: checking for ${MPI_CC}" >&5
-echo $ECHO_N "checking for ${MPI_CC}... $ECHO_C" >&6
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-  MPI_CC_EXISTS=yes
-else
-  # Extract the first word of "${MPI_CC}", so it can be a program name with args.
-set dummy ${MPI_CC}; ac_word=$2
+
+TEMP_MPI_CC=`basename "${MPI_CC}"`
+# Extract the first word of "${TEMP_MPI_CC}", so it can be a program name with args.
+set dummy ${TEMP_MPI_CC}; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_MPI_CC_EXISTS+set}" = set; then
@@ -4981,7 +4979,6 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-fi
 
 if test "X${MPI_CC_EXISTS}" = "Xyes"; then
   MPICC_OK=yes
@@ -5007,22 +5004,16 @@ fi
 
 # Test the MPICXX compiler
 
-if test -x ${MPI_CXX}; then
-  echo "$as_me:$LINENO: checking for ${MPI_CXX}" >&5
-echo $ECHO_N "checking for ${MPI_CXX}... $ECHO_C" >&6
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-  MPI_CXX_EXISTS=yes
-else
-  # Extract the first word of "${MPI_CXX}", so it can be a program name with args.
-set dummy ${MPI_CXX}; ac_word=$2
+TEMP_MPI_CXX=`basename "${MPI_CXX}"`
+# Extract the first word of "${TEMP_MPI_CXX}", so it can be a program name with args.
+set dummy ${TEMP_MPI_CXX}; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_MPI_CXX_EXISTS+set}" = set; then
+if test "${ac_cv_prog_MPI_MPICXX_EXISTS+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test -n "$MPI_CXX_EXISTS"; then
-  ac_cv_prog_MPI_CXX_EXISTS="$MPI_CXX_EXISTS" # Let the user override the test.
+  if test -n "$MPI_MPICXX_EXISTS"; then
+  ac_cv_prog_MPI_MPICXX_EXISTS="$MPI_MPICXX_EXISTS" # Let the user override the test.
 else
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
@@ -5031,26 +5022,25 @@ do
   test -z "$as_dir" && as_dir=.
   for ac_exec_ext in '' $ac_executable_extensions; do
   if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_MPI_CXX_EXISTS="yes"
+    ac_cv_prog_MPI_MPICXX_EXISTS="yes"
     echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
 done
 done
 
-  test -z "$ac_cv_prog_MPI_CXX_EXISTS" && ac_cv_prog_MPI_CXX_EXISTS="no"
+  test -z "$ac_cv_prog_MPI_MPICXX_EXISTS" && ac_cv_prog_MPI_MPICXX_EXISTS="no"
 fi
 fi
-MPI_CXX_EXISTS=$ac_cv_prog_MPI_CXX_EXISTS
-if test -n "$MPI_CXX_EXISTS"; then
-  echo "$as_me:$LINENO: result: $MPI_CXX_EXISTS" >&5
-echo "${ECHO_T}$MPI_CXX_EXISTS" >&6
+MPI_MPICXX_EXISTS=$ac_cv_prog_MPI_MPICXX_EXISTS
+if test -n "$MPI_MPICXX_EXISTS"; then
+  echo "$as_me:$LINENO: result: $MPI_MPICXX_EXISTS" >&5
+echo "${ECHO_T}$MPI_MPICXX_EXISTS" >&6
 else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
-fi
 
 if test "X${MPI_CXX_EXISTS}" = "Xyes"; then
   MPICXX_OK=yes
@@ -5061,7 +5051,7 @@ else
 echo "$as_me: WARNING: MPI C++ compiler (${MPI_CXX}) not found." >&2;}
   echo "
        Cannot find a working MPI C++ compiler.
-       Try --with-mpi-comp to specify MPI C++ compiler script.
+       Try --with-mpiCC to specify a MPI C++ compiler script.
        Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
        to specify all the specific MPI compile options.
 
@@ -5077,15 +5067,9 @@ fi
 
 # Test the MPIF77 compiler
 
-if test -x ${MPI_F77}; then
-  echo "$as_me:$LINENO: checking for ${MPI_F77}" >&5
-echo $ECHO_N "checking for ${MPI_F77}... $ECHO_C" >&6
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-  MPI_F77_EXISTS=yes
-else
-  # Extract the first word of "${MPI_F77}", so it can be a program name with args.
-set dummy ${MPI_F77}; ac_word=$2
+TEMP_MPI_F77=`basename "${MPI_F77}"`
+# Extract the first word of "${TEMP_MPI_F77}", so it can be a program name with args.
+set dummy ${TEMP_MPI_F77}; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_MPI_F77_EXISTS+set}" = set; then
@@ -5120,7 +5104,6 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-fi
 
 if test "X${MPI_F77_EXISTS}" = "Xyes"; then
   MPIF77_OK=yes
@@ -5131,7 +5114,7 @@ else
 echo "$as_me: WARNING: MPI F77 compiler (${MPI_F77}) not found." >&2;}
   echo "
        Cannot find a working MPI F77 compiler.
-       Try --with-mpi-comp to specify MPI F77 compiler script.
+       Try --with-mpif77 to specify a MPI F77 compiler script.
        Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
        to specify all the specific MPI compile options.
 
@@ -5233,7 +5216,7 @@ echo "${ECHO_T}no" >&6
 echo "$as_me: WARNING: MPI cannot link with ${CC}" >&2;}
     echo "
          Cannot build a simple MPI program.
-         Try --with-mpi-comp to specify MPI C compiler script.
+         Try --with-mpicc to specify a MPI C compiler script.
          Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
          to specify all the specific MPI compile options.
 
@@ -5341,7 +5324,7 @@ echo "${ECHO_T}no" >&6
 echo "$as_me: WARNING: MPI cannot link with ${CXX}" >&2;}
     echo "
          Cannot build a simple MPI program.
-         Try --with-mpi-comp to specify MPI C++ compiler script.
+         Try --with-mpiCC to specify MPI C++ compiler script.
          Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
          to specify all the specific MPI compile options.
 
@@ -5441,7 +5424,7 @@ echo "${ECHO_T}no" >&6
 echo "$as_me: WARNING: MPI cannot link with ${F77}" >&2;}
     echo "
          Cannot build a simple MPI program.
-         Try --with-mpi-comp to specify MPI F77 compiler script.
+         Try --with-mpif77 to specify MPI F77 compiler script.
          Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
          to specify all the specific MPI compile options.
 
@@ -6425,7 +6408,7 @@ s,@FFLAGS@,$FFLAGS,;t t
 s,@ac_ct_F77@,$ac_ct_F77,;t t
 s,@FLIBS@,$FLIBS,;t t
 s,@MPI_CC_EXISTS@,$MPI_CC_EXISTS,;t t
-s,@MPI_CXX_EXISTS@,$MPI_CXX_EXISTS,;t t
+s,@MPI_MPICXX_EXISTS@,$MPI_MPICXX_EXISTS,;t t
 s,@MPI_F77_EXISTS@,$MPI_F77_EXISTS,;t t
 s,@MPICC@,$MPICC,;t t
 s,@MPICXX@,$MPICXX,;t t
@@ -6680,7 +6663,7 @@ Configuration:
   Install path (include):     $my_includedir
   Install path (lib):         $my_libdir
 
-  C Preprocessor:             $CPP $CPPFLAGS
+  C/C++ Preprocessor:         $CPP $CPPFLAGS
   C Compiler:	              $CC $CFLAGS
   C Linker:                   $CC $LDFLAGS $LIBS"
 
