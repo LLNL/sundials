@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-10-26 20:13:21 $
+ * $Revision: 1.6 $
+ * $Date: 2004-10-27 00:09:05 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -43,15 +43,15 @@ extern "C" {
 #define L_MAX  (Q_MAX+1)    /* max value of L for either lmm      */
 #define NUM_TESTS    5      /* number of error test quantities    */
 
-/*
- * ifS:   Type of the function returning the sensitivity right    
- *        hand side. ifS can be either CV_ALLSENS if the function    
- *        (of type CVSensRhsFn) returns right hand sides for all    
- *        sensitivity systems at once, or CV_ONESENS if the function 
- *        (of type SensRhs1Fn) returns the right hand side of one 
- *        sensitivity system at a time.                           
- *                                                                
+/*                                                                
+ * ifS is the type of the function returning the sensitivity
+ * right-hand side. ifS can be either CV_ALLSENS if the function    
+ * (of type CVSensRhsFn) returns right hand sides for all    
+ * sensitivity systems at once, or CV_ONESENS if the function 
+ * (of type SensRhs1Fn) returns the right hand side of one 
+ *  sensitivity system at a time.                           
  */
+
 #define CV_ONESENS 1
 #define CV_ALLSENS 2
 
