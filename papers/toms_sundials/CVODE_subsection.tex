@@ -24,7 +24,7 @@ methods, based on formulas of the form
      h_n \sum_{i = 0}^{K_2} \beta_{n,i} \dot{y}_{n-i} = 0 \, .
 \end{equation}
 Here the $y_n$ are computed approximations to $y(t_n)$, and
-$h_n = t_n - t_{n-1}$ is the step size.  The user of CVODE must choose
+$h_n = t_n - t_{n-1}$ is the stepsize.  The user of CVODE must choose
 appropriately one of two multistep methods: For nonstiff problems,
 CVODE includes the Adams-Moulton formulas, characterized by $K_1 = 1$
 and $K_2 = q$ above, where the order $q$ varies between $1$ and $12$.
@@ -43,7 +43,7 @@ For either choice of formula, the nonlinear system
   G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0 \, ,
 \end{equation}
 where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i})$, 
-must be solved (approximately) at each time step.  For this, CVODE
+must be solved (approximately) at each integration step.  For this, CVODE
 offers the choice of either {\em functional iteration}, suitable only
 for nonstiff systems, and various versions of {\em Newton iteration}.
 Functional iteration, given by
@@ -128,9 +128,10 @@ satisfies $|\gamma/\bar{\gamma} - 1| < 0.2$, or
 The stopping test for the Newton iteration is related to the
 subsequent local error test, with the goal of keeping the nonlinear
 iteration errors from interfering with local error control.  As
-described below, the final computed value $y_n$ will have to satisfy a
-local error test $\| y_n - y_{n(0)} \| \leq \epsilon$.  Here, we want
-to insure that the iteration error $y_n - y_{n(m)}$ is small relative
+described below, the final computed value $y_{n(m)}$ will have to satisfy a
+local error test $\| y_{n(m)} - y_{n(0)} \| \leq \epsilon$.  Letting
+$y_n$ denote the exact solution, we want
+to ensure that the iteration error $y_n - y_{n(m)}$ is small relative
 to $\epsilon$, specifically that it is less than $0.1 \epsilon$.
 (The safety factor $0.1$ can be changed by the user.)  For this, we
 also estimate the linear convergence rate constant $R$ as follows:
@@ -154,7 +155,7 @@ user).  We also declare the iteration diverged if any $\|\delta_m\| /
 \|\delta_{m-1}\| > 2$ with $m > 1$. If convergence fails with $J$ or
 $P$ current, we are forced to reduce the stepsize, and we replace
 $h_n$ by $h_n/4$.  The integration is halted after a preset number
-of convergence failures; the default value this limit is 10, 
+of convergence failures; the default value for this limit is 10, 
 but this can be changed by the user.
 
 When SPGMR is used to solve the linear system, its errors must also be
@@ -176,7 +177,7 @@ approximation
 The increments $\sigma_j$ are given by
 \[ \sigma_j = \max\left\{\sqrt{U} |y^j| , \sigma_0 W_j \right\} \, , \]
 where $U$ is the unit roundoff, $\sigma_0$ is a dimensionless value,
-and $W_j$ is the error weight of Eq. (\ref{errwt}).  In the dense
+and $W_j$ is the error weight defined in (\ref{errwt}).  In the dense
 case, this scheme requires $N$ evaluations of $f$, one for each column
 of $J$.  In the band case, the columns of $J$ are computed in groups,
 by the Curtis-Powell-Reid algorithm, with a number of $f$ evaluations
@@ -184,8 +185,8 @@ equal to the bandwidth.
 
 In the case of SPGMR, preconditioning may be used on the left, on the
 right, or both, with user-supplied routines for the preconditioning
-setup and solve operations, and optionally also for the matrix-vector
-products $Jv$ required.  If a routine for $Jv$ is not supplied, these
+setup and solve operations, and optionally also for the required matrix-vector
+products $Jv$.  If a routine for $Jv$ is not supplied, these
 products are computed as
 \begin{equation}\label{jacobv}
 Jv = [f(t,y+\sigma v) - f(t,y)]/\sigma \, . 
@@ -199,7 +200,7 @@ just an ODE method, is its control of local error.  At every step, the
 local error is estimated and required to satisfy tolerance conditions,
 and the step is redone with reduced stepsize whenever that error test
 fails.  As with any linear multistep method, the local truncation
-error LTE, at order $q$ and stepsize $h$, satisfies an asymptotic
+error, LTE, at order $q$ and stepsize $h$, satisfies an asymptotic
 relation
 \[ LTE = C h^{q+1} y^{(q+1)} + O(h^{q+2}) \]
 for some constant $C$, under mild assumptions on the stepsizes.
@@ -208,7 +209,8 @@ These are combined to get a relation
 \[ LTE = C' [y_n - y_{n(0)}] + O(h^{q+2}) \, . \]
 The local error test is simply $\|LTE\| \leq 1$.  Using the above,
 it is performed on the predictor-corrector difference 
-$\Delta \equiv y_n - y_{n(0)}$ and takes the form
+$\Delta \equiv y_{n(m)} - y_{n(0)}$ (with $y_{n(m)}$ the final
+computed approximation to $y_n$) and takes the form
 \[ \|\Delta_n\| \leq \epsilon \equiv 1/|C'| \, . \]
 If this test passes, the step is considered successful.  If it fails,
 the step is rejected and a new stepsize $h'$ is computed based on the
@@ -224,7 +226,7 @@ to the user with a give-up message.
 % Step/order control
 %-------------------
 In addition to adjusting the stepsize to meet the local error test,
-CVODE periodically adjusts the order, with the goal of maximizing
+CVODE periodically adjusts the order, with the goal of maximizing the
 stepsize.  The basic idea is to pick the order $q$ for which a
 polynomial of order $q$ best fits the discrete data involved in the
 multistep method.  However, if either a convergence failure or an
@@ -266,7 +268,7 @@ half-plane that is concentrated near the imaginary axis.  The size of
 that region of instability grows as the order increases from 3 to 5.
 What this means is that, when running BDF at these higher orders, if
 an eigenvalue $\lambda$ of the system lies close enough to the
-imaginary axis, the step sizes $h$ for which the method is stable are
+imaginary axis, the stepsizes $h$ for which the method is stable are
 limited (at least according to the linear stability theory) to a set
 that prevents $h\lambda$ from leaving the stability region.  System
 eigenvalues that are likely to cause this instability are ones that
@@ -276,10 +278,10 @@ over diffusion.
 
 CVODE includes an optional algorithm called STALD (STAbility Limit
 Detection), which attempts to detect directly the presence of a
-stability region boundary that is limiting the step sizes in the
+stability region boundary that is limiting the stepsizes in the
 presence of a weakly damped oscillation \cite{Hin:92}.  Working
 directly with history data that is readily available, if it concludes
-that the step size is in fact stability-limited, it dictates a
+that the stepsize is in fact stability-limited, it dictates a
 reduction in the method order, regardless of the outcome of the
 error-based algorithm.  STALD has been tested in combination with the
 VODE solver on linear advection-dominated advection-diffusion problems
