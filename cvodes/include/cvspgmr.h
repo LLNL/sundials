@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-11-06 01:02:08 $
+ * $Revision: 1.8.2.1 $
+ * $Date: 2005-01-24 21:40:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -16,12 +16,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVSPGMR_H
+#define _CVSPGMR_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVSPGMR_H
-#define _CVSPGMR_H
 
 #include "spgmr.h"
 #include "nvector.h"
@@ -375,8 +375,8 @@ int CVSpgmrGetLastFlag(void *cvode_mem, int *flag);
 #define CVSPGMR_ILL_INPUT -3
 #define CVSPGMR_MEM_FAIL  -4
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

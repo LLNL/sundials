@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-11-06 01:01:56 $
+ * $Revision: 1.17.2.1 $
+ * $Date: 2005-01-24 21:38:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -16,12 +16,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVDENSE_H
+#define _CVDENSE_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVDENSE_H
-#define _CVDENSE_H
 
 #include "dense.h"
 #include "nvector.h"
@@ -185,8 +185,8 @@ int CVDenseGetLastFlag(void *cvode_mem, int *flag);
 #define CVDENSE_ILL_INPUT -3
 #define CVDENSE_MEM_FAIL  -4
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

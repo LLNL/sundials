@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-11-16 21:36:34 $
+ * $Revision: 1.18.2.1 $
+ * $Date: 2005-01-24 21:41:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IDADENSE_H
+#define _IDADENSE_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _IDADENSE_H
-#define _IDADENSE_H
 
 #include <stdio.h>
 
@@ -190,8 +190,8 @@ int IDADenseGetLastFlag(void *ida_mem, int *flag);
 #define IDADENSE_ILL_INPUT -3
 #define IDADENSE_MEM_FAIL  -4
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

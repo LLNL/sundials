@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-11-06 01:02:08 $
+ * $Revision: 1.5.2.1 $
+ * $Date: 2005-01-24 21:40:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -15,13 +15,13 @@
  * solver, CVBAND.
  * -----------------------------------------------------------------
  */
- 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
 
 #ifndef _CVBAND_H
 #define _CVBAND_H
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 #include "band.h"
 #include "nvector.h"
@@ -214,8 +214,8 @@ int CVBandGetLastFlag(void *cvode_mem, int *flag);
 #define CVBAND_ILL_INPUT -3
 #define CVBAND_MEM_FAIL  -4
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-11-06 01:01:56 $
+ * $Revision: 1.26.2.1 $
+ * $Date: 2005-01-24 21:38:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -100,12 +100,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVBBDPRE_H
+#define _CVBBDPRE_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVBBDPRE_H
-#define _CVBBDPRE_H
 
 #include "nvector.h"
 #include "sundialstypes.h"
@@ -291,8 +291,8 @@ void CVBBDPrecFree(void *bbd_data);
 int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP);
 int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

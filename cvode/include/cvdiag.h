@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-06 01:01:56 $
+ * $Revision: 1.15.2.1 $
+ * $Date: 2005-01-24 21:38:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -16,12 +16,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVDIAG_H
+#define _CVDIAG_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVDIAG_H
-#define _CVDIAG_H
 
 #include <stdio.h>
 
@@ -84,8 +84,8 @@ int CVDiagGetLastFlag(void *cvode_mem, int *flag);
 
 #define CVDIAG_INV_FAIL   1
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

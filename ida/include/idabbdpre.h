@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-10-21 17:48:36 $
+ * $Revision: 1.24.2.1 $
+ * $Date: 2005-01-24 21:41:07 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -98,11 +98,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IBBDPRE_H
+#define _IBBDPRE_H
+
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-#ifndef _ibbdpre_h
-#define _ibbdpre_h
 
 #include "sundialstypes.h"
 #include "nvector.h"
@@ -301,8 +302,8 @@ void IDABBDPrecFree(void *bbd_data);
 int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP);
 int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif
