@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.10 $
-# $Date: 2004-12-10 01:52:33 $
+# $Revision: 1.10.2.1 $
+# $Date: 2005-01-24 21:26:34 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -658,7 +658,7 @@ if test "X${F77}" = "X"; then
   echo ""
   echo "   Unable to find a functional Fortran compiler."
   echo ""
-  echo "   Disabling serial Fortran examples..."
+  echo "   Disabling Fortran support..."
   echo ""
   F77_OK="no"
 
@@ -673,7 +673,7 @@ else
   AH_TEMPLATE([SUNDIALS_UNDERSCORE_TWO],
               [FCMIX: Append TWO underscores to function names])
 
-  # Provided in case AC_F77_WRAPPERS cannot determine name-mangling scheme
+  # Provided in case SUNDIALS_F77_WRAPPERS cannot determine name-mangling scheme
   AC_ARG_WITH(f77underscore, 
   [AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
   [
@@ -699,7 +699,7 @@ else
   AH_TEMPLATE([SUNDIALS_CASE_LOWER],
               [FCMIX: Make function names lowercase])
 
-  # Provided in case AC_F77_WRAPPERS cannot determine name-mangling scheme
+  # Provided in case SUNDIALS_F77_WRAPPERS cannot determine name-mangling scheme
   AC_ARG_WITH(f77case, 
   [AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
   [
@@ -727,7 +727,7 @@ else
       AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
     fi
     RUN_F77_WRAPPERS="no"
-  # Only call AC_F77_WRAPPERS if user did NOT use "--with-f77underscore" or "--with-f77case" flags
+  # Only call SUNDIALS_F77_WRAPPERS if user did NOT use "--with-f77underscore" or "--with-f77case" flags
   else
     RUN_F77_WRAPPERS="yes"
   fi
@@ -806,11 +806,136 @@ fi
 # Defines C preprocessor macros F77_FUNC and F77_FUNC_
 if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
   if test "X${F77_OK}" = "Xyes"; then
-    AC_F77_WRAPPERS
+    SUNDIALS_F77_WRAPPERS
   fi
 fi
 
 AC_LANG_POP([Fortran 77])
+
+]) dnl END SUNDIALS_SET_F77
+
+#------------------------------------------------------------------
+# DETERMINE F77 NAME-MANGLING SCHEME
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_F77_WRAPPERS],
+[
+
+# Replacement macro for AC_F77_WRAPPERS which has too many problems
+# (based on implementation of AC_F77_WRAPPERS minus the "fluff")
+
+# Provide variable description templates for config.hin and config.h files
+# Required by autoheader utility
+AH_TEMPLATE(F77[_FUNC],
+            [FCMIX: Define name-mangling macro])
+
+# Remaining test pertains to Fortran programming language
+AC_LANG_PUSH([Fortran 77])
+
+AC_MSG_CHECKING([Fortran name-mangling scheme])
+
+# Compile a dummy Fortran subroutine
+AC_COMPILE_IFELSE(
+[AC_LANG_SOURCE(
+[[
+	SUBROUTINE SUNDIALS()
+	RETURN
+	END
+]])],
+[
+
+mv conftest.${ac_objext} f77_wrapper_check.${ac_objext}
+
+# Temporarily reset LIBS environment variable to perform test
+SAVED_LIBS="${LIBS}"
+LIBS="f77_wrapper_check.${ac_objext} ${LIBS} ${FLIBS}"
+
+AC_LANG_PUSH([C])
+
+F77_WRAPPER_CHECK_OK="no"
+for i in "sundials" "SUNDIALS" ; do
+  for j in "" "_" "__" ; do
+    F77_MANGLED_NAME="${i}${j}"
+    AC_LINK_IFELSE([AC_LANG_CALL([],[${F77_MANGLED_NAME}])],[F77_WRAPPER_CHECK_OK="yes" ; break 2])
+  done
+done
+
+AC_LANG_POP([C])
+
+# If test succeeded, then set F77_FUNC_CASE and F77_FUNC_UNDERSCORES variables
+if test "X${F77_WRAPPER_CHECK_OK}" = "Xyes"; then
+  # Determine case (lower, upper)
+  if test "X${i}" = "Xsundials"; then
+    F77_FUNC_CASE="lowercase"
+  else
+    F77_FUNC_CASE="uppercase"
+  fi
+  # Determine number of underscores to append (none, one, two)
+  if test "X${j}" = "X"; then
+    F77_FUNC_UNDERSCORES="no underscores"
+  elif test "X${j}" = "X_"; then
+    F77_FUNC_UNDERSCORES="one underscore"
+  else
+    F77_FUNC_UNDERSCORES="two underscores"
+  fi
+  AC_MSG_RESULT([${F77_FUNC_CASE} with ${F77_FUNC_UNDERSCORES}])
+  # Set exported macro definition (F77_FUNC)
+  if test "X${F77_FUNC_CASE}" = "Xlowercase"; then
+    if test "X${F77_FUNC_UNDERSCORES}" = "Xno underscores"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[name],[])
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone underscore"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## _],[])
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo underscores"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## __],[])
+    fi
+  elif test "X${F77_FUNC_CASE}" = "Xuppercase"; then
+    if test "X${F77_FUNC_UNDERSCORES}" = "Xno underscores"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME],[])
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone underscore"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## _],[])
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo underscores"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## __],[])
+    fi
+  fi
+# If test failed, then tell user to use '--with-f77case' and '--with-f77underscore'
+# and disable Fortran support
+else
+  AC_MSG_RESULT([UNKNOWN])
+  AC_MSG_WARN([cannot determine Fortran name-mangling scheme])
+  echo ""
+  echo "   Unable to determine name-mangling scheme required by Fortran"
+  echo "   compiler."
+  echo ""
+  echo "   Try using --with-f77case and --with-f77underscore to explicitly"
+  echo "   specify the appropriate name-mangline scheme."
+  echo ""
+  echo "   Disabling Fortran support..."
+  echo ""
+  F77_OK="no"
+fi
+
+# Set LIBS environment variable back to original value
+LIBS="${SAVED_LIBS}"
+
+],
+[
+
+# If a compilation error occurred, then disable Fortran support
+AC_MSG_RESULT([ERROR])
+echo ""
+echo "   Unable to compile test program using given Fortran compiler."
+echo ""
+echo "   Disabling Fortran support..."
+echo ""
+F77_OK="no"
+
+])
+
+# Reset language (remove 'Fortran 77' from stack)
+AC_LANG_POP([Fortran 77])
+
+# Remove temporary file
+rm -f f77_wrapper_check.${ac_objext}
 
 ]) dnl END SUNDIALS_SET_F77
 
@@ -1299,13 +1424,18 @@ USE_MPIF77_SCRIPT="yes"
 MPIF77_COMP="mpif77"
 ])
 
-# Check MPI-Fortran compiler (either MPI compiler script or regular Fortran compiler)
-if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
-  SUNDIALS_CHECK_MPIF77
-else
-  MPIF77_COMP="${F77}"
-  MPIF77="${F77}"
-  SUNDIALS_CHECK_F77_WITH_MPI
+# Do NOT even check for MPI support for Fortran if serial Fortran compiler does NOT work
+# Need serial Fortran compiler to determine name-mangline scheme, and FCMIX libraries will
+# only be built if a serial Fortran compiler is found
+if test "X${F77_OK}" = "Xyes"; then
+  # Check MPI-Fortran compiler (either MPI compiler script or regular Fortran compiler)
+  if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
+    SUNDIALS_CHECK_MPIF77
+  else
+    MPIF77_COMP="${F77}"
+    MPIF77="${F77}"
+    SUNDIALS_CHECK_F77_WITH_MPI
+  fi
 fi
 
 ]) dnl END SUNDIALS_SET_MPIF77
@@ -2114,6 +2244,9 @@ fi
 AC_DEFUN([SUNDIALS_INSTALL_PATH],
 [
 
+# Installation directories are created by 'make install' target
+# in top-level Makefile
+
 AC_MSG_CHECKING([for 'include' directory])
 if test "X${prefix}" = "XNONE"; then
   SUNDIALS_INC_DIR="${DEFAULT_PREFIX}/include"
@@ -2133,18 +2266,6 @@ else
   SUNDIALS_LIB_DIR="${exec_prefix}/lib"
 fi
 AC_MSG_RESULT([${SUNDIALS_LIB_DIR}])
-
-if test -d ${SUNDIALS_INC_DIR} ; then
-  :
-else
-  AS_MKDIR_P(${SUNDIALS_INC_DIR})
-fi
-
-if test -d ${SUNDIALS_LIB_DIR} ; then
-  :
-else
-  AS_MKDIR_P(${SUNDIALS_LIB_DIR})
-fi
 
 ]) dnl END SUNDIALS_INSTALL_PATH
 
