@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-07-22 21:14:47 $
+ * $Revision: 1.19 $
+ * $Date: 2004-08-10 22:55:50 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -38,7 +38,7 @@
  *   void *cvode_mem;                                              
  *   void *bbd_data;                                                 
  *   ...                                                           
- *   y0 = N_VNew_Parallel(...);                           
+ *   Set y0
  *   ...                                                           
  *   cvode_mem = CVodeCreate(...);                                 
  *   ier = CVodeMalloc(...);                                       
@@ -53,7 +53,7 @@
  *   ...                                                           
  *   CVodeFree(...);                                               
  *                                                                 
- *   N_VDestroy_Parallel(y0);                                 
+ *   Free y0
  *                                                                 
  *                                                                 
  * The user-supplied routines required are:                        
@@ -136,9 +136,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef void (*CVLocalFn)(long int Nlocal, realtype t, 
-                          N_Vector y, N_Vector g, 
-                          void *f_data);
+typedef void (*CVLocalFn)(long int Nlocal, realtype t, N_Vector y,
+                          N_Vector g, void *f_data);
 
 /*
  * -----------------------------------------------------------------
@@ -228,7 +227,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
  * Its first 3 arguments are the same as for CVSpgmr (see         
  * cvspgmr.h). The last argument is the pointer to the CVBBDPRE   
  * memory block returned by CVBBDPrecAlloc.  
- * Note that the user need not call CVSpgmr anymore.              
+ * Note that the user need not call CVSpgmr.
  *                                                                
  * Possible return values are:                                    
  *   (from cvode.h)  SUCCESS                                      
@@ -236,7 +235,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
  *                   LMEM_FAIL                                    
  *                   LIN_NO_LMEM                                  
  *                   LIN_ILL_INPUT                                
- *   Additionaly, if CVBBDPrecAlloc was not previously called,    
+ *   Additionally, if CVBBDPrecAlloc was not previously called,    
  *   CVBBDSpgmr returns BBDP_NO_PDATA (defined below).            
  * -----------------------------------------------------------------
  */                                                                
@@ -252,9 +251,9 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * provided there is no change in Nlocal, mukeep, or mlkeep.      
  * After solving one problem, and after calling CVodeReInit to    
  * re-initialize the integrator for a subsequent problem, call    
- * CVBBDPrecReInit.                                               
- * Then call CVReInitSpgmr or CVSpgmr if necessary, depending on  
- * changes made in the CVSpgmr parameters, before calling CVode.  
+ * CVBBDPrecReInit.  Then call CVSpgmrSet* or CVSpgmrReset*
+ * functions if necessary for any changes to CVSpgmr parameters,
+ * before calling CVode.
  *                                                                
  * The first argument to CVBBDPrecReInit must be the pointer pdata
  * that was returned by CVBBDPrecAlloc.  All other arguments have 

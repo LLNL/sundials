@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-05-26 19:54:11 $
+ * $Revision: 1.14 $
+ * $Date: 2004-08-10 22:55:08 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -252,7 +252,7 @@ typedef int (*CVSpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  *                                                                
  * pretype   is the type of user preconditioning to be done.      
  *           This must be one of the four enumeration constants   
- *           NONE, LEFT, RIGHT, or BOTH defined in iterativ.h.    
+ *           NONE, LEFT, RIGHT, or BOTH defined in iterative.h.    
  *           These correspond to no preconditioning,              
  *           left preconditioning only, right preconditioning     
  *           only, and both left and right preconditioning,       
@@ -275,7 +275,8 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl);
  * -----------------------------------------------------------------
  * Function: CVSpgmrResetPrecType                                 
  * -----------------------------------------------------------------
- * CVSpgmrResetPrecType specifies the type of preconditioner.     
+ * CVSpgmrResetPrecType resets the type of preconditioner, pretype,
+ *     from the value set in a prior call to CVSpgmr.     
  *     This must be one of NONE, LEFT, RIGHT, or BOTH.            
  * -----------------------------------------------------------------
  */
@@ -290,7 +291,7 @@ int CVSpgmrResetPrecType(void *cvode_mem, int pretype);
  * CVSpgmrSetGSType specifies the type of Gram-Schmidt            
  *           orthogonalization to be used. This must be one of    
  *           the two enumeration constants MODIFIED_GS or         
- *           CLASSICAL_GS defined in iterativ.h. These correspond 
+ *           CLASSICAL_GS defined in iterative.h. These correspond 
  *           to using modified Gram-Schmidt and classical         
  *           Gram-Schmidt, respectively.                          
  *           Default value is MODIFIED_GS.                        
