@@ -2989,7 +2989,7 @@ int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
+int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfac)
 {
   CVodeMem cv_mem;
 
@@ -3000,7 +3000,7 @@ int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *tolsfact = tolsf;
+  *tolsfac = tolsf;
 
   return(OKAY);
 }
