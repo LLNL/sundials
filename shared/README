@@ -1,6 +1,6 @@
                            SUNDIALS 
                         Shared Module
-                   Release 2.0.2, March 2005
+                   Release 2.0.3, April 2005
 
 
 The family of solvers referred to as SUNDIALS consists of solvers CVODE 
@@ -43,8 +43,28 @@ C. References
     Documentation for KINSOL v2.2.0," LLNL technical report UCRL-MA-208116, 
     November 2004.
 
-D.1.  Revision History since release 2.0.1 (January 2005)
----------------------------------------------------------
+
+D. Releases
+-----------
+
+v. 2.0.3 - Apr. 2005
+v. 2.0.2 - Mar. 2005
+v. 2.0.1 - Jan. 2005
+v. 2.0   - Dec. 2004
+v. 1.0   - Jul. 2002 (first SUNDIALS release)
+v. 0.0   - Mar. 2002
+
+
+E. Revision History
+-------------------
+
+v. 2.0.2 (Mar. 2005) ---> v. 2.0.3 (Apr. 2005)
+----------------------------------------------
+
+- none
+
+v. 2.0.1 (Jan. 2005) ---> v. 2.0.2 (Mar. 2005)
+----------------------------------------------
 
 - Changes related to the build system
    - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
@@ -55,15 +75,15 @@ D.1.  Revision History since release 2.0.1 (January 2005)
    - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
      CC and MPICC to link)
 
-D.2. Revision History since release 2.0 (December 2004)
--------------------------------------------------------
+v. 2.0 (Dec. 2004) ---> v. 2.0.1 (Jan. 2005)
+--------------------------------------------
 
 - Changes related to the build system
    - changed order of compiler directives in header files to avoid compilation
      errors when using a C++ compiler.
 
-D.3. Revision history since release 1.0 (July 2002)
----------------------------------------------------
+v. 1.0 (Jul. 2002) ---> v. 2.0 (Dec. 2004)
+------------------------------------------
 
 - Changes to the generic NVECTOR module
    - removed machEnv, redefined table of vector operations (now contained
@@ -103,8 +123,8 @@ D.3. Revision history since release 1.0 (July 2002)
      values from float.h based on the precision.
    - changed definition of macro RCONST to depend on precision.
 
-D.4. Previous revisions (YYYYMMDD)
-----------------------------------
+v 0.0 (Mar. 2002) ---> v. 1.0 (Jul. 2002)
+-----------------------------------------
 
 20020321  Defined and implemented generic NVECTOR module, and separate serial/
           parallel NVECTOR modules, including serial/parallel F/C interfaces.

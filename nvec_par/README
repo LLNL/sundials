@@ -1,5 +1,5 @@
                      NVECTOR_PARALLEL
-                Release 2.0.2, March 2005
+                Release 2.0.3, April 2005
 
 MPI parallel implementation of the NVECTOR module for SUNDIALS. 
 
@@ -46,8 +46,26 @@ C. References
     Documentation for KINSOL v2.2.0," LLNL technical report UCRL-MA-208116, 
     November 2004.
 
-D.1.  Revision History since release 2.0.1 (January 2005)
----------------------------------------------------------
+D. Releases
+-----------
+
+v. 2.0.3 - Apr. 2005
+v. 2.0.2 - Mar. 2005
+v. 2.0.1 - Jan. 2005
+v. 2.0   - Dec. 2004
+v. 1.0   - Jul. 2002 (first SUNDIALS release)
+
+
+E. Revision History
+-------------------
+
+v. 2.0.2 (Mar. 2005) ---> v. 2.0.3 (Apr. 2005)
+----------------------------------------------
+
+- none
+
+v. 2.0.1 (Jan. 2005) ---> v. 2.0.2 (Mar. 2005)
+----------------------------------------------
 
 - Changes related to the build system
    - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
@@ -58,15 +76,15 @@ D.1.  Revision History since release 2.0.1 (January 2005)
    - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
      CC and MPICC to link)
 
-D.2. Revision History since release 2.0 (December 2004)
----------------------------------------------------------
+v. 2.0 (Dec. 2004) ---> v. 2.0.1 (Jan. 2005)
+--------------------------------------------
 
 - Changes related to the build system
    - changed order of compiler directives in header files to avoid compilation
      errors when using a C++ compiler.
 
-D.3. Revision history since release 1.0 (July 2002)
----------------------------------------------------
+v. 1.0 (Jul. 2002) ---> v. 2.0 (Dec. 2004)
+------------------------------------------
 
 - Revised to correspond to new generic NVECTOR module
   (see sundials/shared/README).

@@ -74,8 +74,22 @@ C. References
     Condition Calculation for Differential-Algebraic Systems, 
     SIAM J. Sci. Comp., 19 (1998), pp. 1495-1512.
 
-D.1.   Revision History since release 2.2.2 (March 2005)
----------------------------------------------------------
+D. Releases
+-----------
+
+v. 2.2.3   - Apr. 2005
+v. 2.2.2   - Mar. 2005
+v. 2.2.1   - Jan. 2005
+v. 2.2.0   - Dec. 2004
+v. 2.0     - Jul. 2002 (first SUNDIALS release)
+v. 1.0     - Feb. 1999 (date written)
+
+
+E. Revision History
+-------------------
+
+v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
+----------------------------------------------
 
 - New features
    - added option for user-provided error weight computation function
@@ -97,8 +111,8 @@ D.1.   Revision History since release 2.2.2 (March 2005)
    - IDACalcIC takes as additional arguments (t0,y0,yp0). As a consequence,
      it can be called at any time to correct a pair (y,y').
 
-D.2.  Revision History since release 2.2.1 (January 2005)
----------------------------------------------------------
+v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
+----------------------------------------------
 
 - Bug fixes
    - changed implicit type conversion to explicit in check_flag() routine in
@@ -119,8 +133,9 @@ D.2.  Revision History since release 2.2.1 (January 2005)
    - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
      CC and MPICC to link)
 
-D.3. Revision History since release 2.2.0 (December 2004)
----------------------------------------------------------
+
+v. 2.2.0 (Dec. 2004) ---> v. 2.2.1 (Jan. 2005)
+----------------------------------------------
 
 - Changes related to the build system
    - changed order of compiler directives in header files to avoid compilation
@@ -130,8 +145,8 @@ D.3. Revision History since release 2.2.0 (December 2004)
    - fixed various mistakes and typos in the user guide and example program
      documents.
 
-D.4. Revision history since release 2.0 (July 2002)
----------------------------------------------------
+v. 2.0 (Jul. 2002) ---> v. 2.2.0 (Dec. 2004)
+--------------------------------------------
 
 - New features
    - added option to disable all error messages.
@@ -185,9 +200,10 @@ D.4. Revision history since release 2.0 (July 2002)
    - in IDABBDPRE, added Nlocal, the local vector size, as an argument to 
      IDABBDLocalFn and IDABBDCommFn.
 
+v. 1.0 (Feb. 1999) ---> v. 2.0 (Jul. 2002)
+------------------------------------------
 
-D.5. Summary of previous revisions (YYYYMMDD) (significant revisions only)
---------------------------------------------------------------------------
+YYYYMMDD
 
 19990212  DATE WRITTEN; initial internal release (incomplete).
 19990514  IDABBDPRE preconditioner module added.
