@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.4 $
-# $Date: 2004-06-21 19:23:49 $
+# $Revision: 1.5 $
+# $Date: 2004-09-27 22:50:25 $
 ############################################################################
 #
 # Filename: sundials.sh
@@ -35,6 +35,7 @@ ERROR_2="warning"
 ERROR_3="illegal"
 ERROR_4="failure"
 ERROR_5="cannot"
+ERROR_6="not found"
 
 echo -e "\nStarting..."
 
@@ -1027,8 +1028,9 @@ while [ $((${NUM_MACHINES})) -gt 0 ]; do
   STATUS_3=`fgrep -i "${ERROR_3}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`
   STATUS_4=`fgrep -i "${ERROR_4}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`
   STATUS_5=`fgrep -i "${ERROR_5}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`
+  STATUS_6=`fgrep -i "${ERROR_6}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`
   # if an error was detected then set error flag
-  if [ "${STATUS_0}" != "" -o "${STATUS_1}" != "" -o "${STATUS_2}" != "" -o "${STATUS_3}" != "" -o "${STATUS_4}" != "" -o "${STATUS_5}" != "" ]; then
+  if [ "${STATUS_0}" != "" -o "${STATUS_1}" != "" -o "${STATUS_2}" != "" -o "${STATUS_3}" != "" -o "${STATUS_4}" != "" -o "${STATUS_5}" != "" -o "${STATUS_6}" != "" ]; then
     ERROR_FLAG="yes"
     echo -e "[ERROR]\n"
     # flag system if build failed

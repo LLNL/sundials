@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.1 $
-# $Date: 2004-04-02 21:18:20 $
+# $Revision: 1.2 $
+# $Date: 2004-09-27 22:50:25 $
 ############################################################################
 #
 # Filename: sundials_build.sh
@@ -122,7 +122,9 @@ else
   cd "${PROJECT_NAME}"
   # create shell script to perform software build
   touch "${SYSTEM_NAME}-build.sh"
-  echo "#\!/bin/sh" >> "${SYSTEM_NAME}-build.sh"
+  # octal ASCII value of '!' character is 41 (echo command seems to choke on '\!'
+  # escape sequence so we must use this work around)
+  echo -e "#\41/bin/sh" >> "${SYSTEM_NAME}-build.sh"
   echo "" >> "${SYSTEM_NAME}-build.sh"
   echo "echo \"#################################\"" >> "${SYSTEM_NAME}-build.sh"
   echo "echo \"#  Running configure script...  #\"" >> "${SYSTEM_NAME}-build.sh"
