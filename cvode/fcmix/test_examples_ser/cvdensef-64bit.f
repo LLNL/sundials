@@ -1,6 +1,6 @@
 C ------------------------------------------------------------------
-C $Revision: 1.2 $
-C $Date: 2004-05-17 18:50:12 $
+C $Revision: 1.3 $
+C $Date: 2004-06-17 22:30:30 $
 C ------------------------------------------------------------------
 C FCVODE Example Problem:  Robertson kinetics, dense user Jacobian.
 C
@@ -36,7 +36,7 @@ C
       DOUBLE PRECISION RTOL, T, T0, TOUT
       DOUBLE PRECISION Y(3), ATOL(3), ROPT(40)
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
-     1     LNJE/18/
+     1     LNJE/18/, NGE/25/
 C
       NEQ = 3
       T0 = 0.0D0
@@ -118,8 +118,6 @@ C
 C
       ENDDO
 C
-      CALL FCVROOTOPT(NGE)
-C
       CALL FCVDKY (T, 1, Y, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,80) IER
@@ -133,7 +131,7 @@ C
  85   FORMAT(/'Final value of ydot =',3D11.3)
 C
       WRITE(6,90) IOPT(LNST), IOPT(LNFE), IOPT(LNJE), IOPT(LNSETUP),
-     1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF), NGE
+     1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF), IOPT(NGE)
  90   FORMAT(/'No. steps =',I4,'   No. f-s =',I4,
      1       '   No. J-s =',I4,'   No. LU-s =',I4/
      2       'No. nonlinear iterations =',I4/
