@@ -2326,7 +2326,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
   }
 
   /* Quadrature related set-up */
-  if (errconQ) {
+  if (quad && errconQ) {
 
     if ( (reltolQ == NULL) || (abstolQ == NULL) ) {
       fprintf(errfp, MSG_NO_QUADTOL);
@@ -2354,6 +2354,8 @@ int IDAInitialSetup(IDAMem IDA_mem)
       return (ILL_INPUT);
     }
   }
+
+  if (!quad) errconQ = FALSE;
 
   /* Sensitivity related set-up */
   if (sensi) {
@@ -4510,7 +4512,7 @@ static void IDACompleteStep(IDAMem IDA_mem,
     erkp1= temp/(kk+2);
     error_kp1 = erkp1;
 
-    if (quad && errconQ) {
+    if (errconQ) {
       tempvQ = ypQ;
       N_VLinearSum (ONE, eeQ, -ONE, phiQ[kk+1], tempvQ);
       temp = N_VWrmsNorm(tempvQ, ewtQ);
@@ -4518,7 +4520,7 @@ static void IDACompleteStep(IDAMem IDA_mem,
       if (erQkp1 > error_kp1) error_kp1 = erQkp1;
     }
 
-    if (sensi && errconS) {
+    if (errconS) {
       for (is=0; is<Ns; is++) {
         N_VLinearSum (ONE, eeS[is], -ONE, phiS[kk+1][is], tempv1);
         temp = IDAWrmsNorm(IDA_mem, tempv1, ewtS[is], suppressalg);
@@ -4574,10 +4576,10 @@ static void IDACompleteStep(IDAMem IDA_mem,
 
     N_VScale(ONE, ee, phi[kused+1]);
 
-    if (quad && errconQ)
+    if (errconQ)
       N_VScale(ONE, eeQ, phiQ[kused+1]);
 
-    if (sensi && errconS)
+    if (errconS)
       for (is=0; is<Ns; is++)
         N_VScale(ONE, eeS[is], phiS[kused+1][is]);
 
