@@ -1,24 +1,27 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-21 20:55:05 $
+ * $Revision: 1.14 $
+ * $Date: 2004-12-07 19:46:02 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh, Radu Serban and
+ *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
- * The C function FCVJtimes is to interface between the CVSPGMR module
- * and the user-supplied Jacobian-times-vector routine FCVJTIMES.     
- * Note the use of the generic name FCV_JTIMES below.                 
+ * The C function FCVJtimes is to interface between the
+ * CVSPGMR/CVSPBCG module and the user-supplied Jacobian-vector
+ * product routine FCVJTIMES. Note the use of the generic name
+ * FCV_JTIMES below.
  * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cvspbcg.h"        /* CVSpbcg prototype                              */
 #include "cvspgmr.h"        /* CVSpgmr prototype                              */
 #include "fcvode.h"         /* actual function names, prototypes and
 			       global variables                               */
@@ -29,6 +32,14 @@
 extern void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*, 
 		       realtype*, realtype*, realtype*, realtype*,
 		       int*);
+
+/***************************************************************************/
+
+void FCV_SPBCGSETJAC(int *flag, int *ier)
+{
+  if (*flag == 0) CVSpbcgSetJacTimesVecFn(CV_cvodemem, NULL);
+  else CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes);
+}
 
 /***************************************************************************/
 

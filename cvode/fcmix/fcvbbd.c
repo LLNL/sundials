@@ -1,9 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-11-24 22:43:28 $
+ * $Revision: 1.19 $
+ * $Date: 2004-12-07 19:46:02 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh, Radu Serban and
+ *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -22,6 +23,7 @@
 
 #include "cvbbdpre.h"      /* prototypes of CVBBDPRE functions and macros */
 #include "cvode.h"         /* CVODE constants and prototypes              */
+#include "cvspbcg.h"       /* prototypes of CVSPBCG interface routines    */
 #include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines    */
 #include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE        */
 #include "fcvode.h"        /* actual function names, prototypes and
@@ -58,6 +60,26 @@ void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
   else                    *ier = 0;
 
   return; 
+}
+
+/***************************************************************************/
+
+void FCV_BBDSPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
+{
+  /* 
+     Call CVBBDSpbcg to specify the SPBCG linear solver:
+     pretype    is the preconditioner type
+     maxl       is the maximum Krylov dimension
+     delt       is the linear convergence tolerance factor 
+  */
+
+  *ier = CVBBDSpbcg(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
+  if (*ier != CVSPBCG_SUCCESS) return;
+
+  *ier = CVSpbcgSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPBCG_SUCCESS) return;
+
+  CV_ls = 5;
 }
 
 /***************************************************************************/

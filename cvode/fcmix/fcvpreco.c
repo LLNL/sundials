@@ -1,17 +1,18 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-21 20:55:05 $
+ * $Revision: 1.13 $
+ * $Date: 2004-12-07 19:46:02 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh, Radu Serban and
+ *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
- * The C function FCVPSet is to interface between the CVSPGMR module
- * and the user-supplied preconditioner setup routine FCVPSET.
+ * The C function FCVPSet is to interface between the CVSPGMR/CVSPBCG
+ * module and the user-supplied preconditioner setup routine FCVPSET.
  * Note the use of the generic name FCV_PSET below.
  * -----------------------------------------------------------------
  */
@@ -19,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cvspbcg.h"        /* CVSpbcg prototype                              */
 #include "cvspgmr.h"        /* CVSpgmr prototype                              */
 #include "fcvode.h"         /* actual function names, prototypes and
 			       global variables                               */
@@ -31,6 +33,14 @@
 extern void FCV_PSET(realtype*, realtype*, realtype*, booleantype*, 
 		     booleantype*, realtype*, realtype*, realtype*,
 		     realtype*, realtype*, realtype*, int*);
+
+/***************************************************************************/
+
+void FCV_SPBCGSETPSET(int *flag, int *ier)
+{
+  if (*flag == 0) CVSpbcgSetPrecSetupFn(CV_cvodemem, NULL);
+  else CVSpbcgSetPrecSetupFn(CV_cvodemem, FCVPSet);
+}
 
 /***************************************************************************/
 

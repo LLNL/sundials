@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39 $
- * $Date: 2004-12-01 18:58:30 $
+ * $Revision: 1.40 $
+ * $Date: 2004-12-07 19:46:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -15,7 +15,7 @@
  * the CVODE package.  See fcvode.h for usage.
  * NOTE: some routines are necessarily stored elsewhere to avoid
  * linking problems.  Therefore, see also fcvpreco.c, fcvpsol.c,
- * fcvjtimes.c, and fcvspgmr.c for all the options available.
+ * and fcvjtimes.c for all the options available.
  * -----------------------------------------------------------------
  */
 
@@ -26,6 +26,7 @@
 #include "cvdense.h"        /* prototypes for CVDENSE interface routines       */
 #include "cvdiag.h"         /* prototypes for CVDIAG interface routines        */
 #include "cvode.h"          /* CVODE constants and prototypes                  */
+#include "cvspbcg.h"        /* prototypes for CVSPBCG interface routines       */
 #include "cvspgmr.h"        /* prototypes for CVSPGMR interface routines       */
 #include "fcvode.h"         /* actual function names, prototypes, global vars. */
 #include "nvector.h"        /* definitions of type N_Vector and vector macros  */
@@ -241,6 +242,25 @@ void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 
 /***************************************************************************/
 
+void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
+{
+  /* 
+     pretype    the preconditioner type
+     maxl       the maximum Krylov dimension
+     delt       the linear convergence tolerance factor 
+  */
+
+  *ier = CVSpbcg(CV_cvodemem, *pretype, *maxl);
+  if (*ier != CVSPBCG_SUCCESS) return;
+
+  *ier = CVSpbcgSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPBCG_SUCCESS) return;
+
+  CV_ls = 5;
+}
+
+/***************************************************************************/
+
 void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
   /* 
@@ -260,6 +280,24 @@ void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
   if (*ier != CVSPGMR_SUCCESS) return;
 
   CV_ls = 4;
+}
+
+/***************************************************************************/
+
+void FCV_SPBCGREINIT(int *pretype, realtype *delt, int *ier)
+{
+  /* 
+     pretype    the preconditioner type
+     delt       the linear convergence tolerance factor 
+  */
+
+  *ier = CVSpbcgSetPrecType(CV_cvodemem, *pretype);
+  if (*ier != CVSPBCG_SUCCESS) return;
+
+  *ier = CVSpbcgSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPBCG_SUCCESS) return;
+
+  CV_ls = 5;
 }
 
 /***************************************************************************/
@@ -304,7 +342,7 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   y = N_VGetArrayPointer(F2C_vec);
 
   /* Load optional outputs in iopt & ropt */
-  if ( (CV_iopt != NULL) && (CV_ropt != NULL) ) {
+  if ((CV_iopt != NULL) && (CV_ropt != NULL)) {
 
     CVodeGetIntegratorStats(CV_cvodemem, 
                             &CV_iopt[3],  /* NST */
@@ -355,6 +393,14 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
       CVSpgmrGetNumPrecSolves(CV_cvodemem, &CV_iopt[19]);  /* NPS */
       CVSpgmrGetNumConvFails(CV_cvodemem, &CV_iopt[20]);  /* NCFL */
       CVSpgmrGetLastFlag(CV_cvodemem, (int *) &CV_iopt[25]);  /* last linear solver flag */
+      break;
+    case 5:
+      CVSpbcgGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]);  /* LRW and LIW */
+      CVSpbcgGetNumPrecEvals(CV_cvodemem, &CV_iopt[17]);  /* NPE */
+      CVSpbcgGetNumLinIters(CV_cvodemem, &CV_iopt[18]);  /* NLI */
+      CVSpbcgGetNumPrecSolves(CV_cvodemem, &CV_iopt[19]);  /* NPS */
+      CVSpbcgGetNumConvFails(CV_cvodemem, &CV_iopt[20]);  /* NCFL */
+      CVSpbcgGetLastFlag(CV_cvodemem, (int *) &CV_iopt[25]);  /* last linear solver flag */
       break;
     }
   }
@@ -408,4 +454,3 @@ void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
   FCV_FUN(&t, ydata, dydata);
 }
-

@@ -1,17 +1,18 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-21 20:55:05 $
+ * $Revision: 1.14 $
+ * $Date: 2004-12-07 19:46:03 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh, Radu Serban and
+ *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
- * The C function FCVPSol is to interface between the CVSPGMR module
- * and the user-supplied preconditioner solve routine FCVPSOL.
+ * The C function FCVPSol is to interface between the CVSPGMR/CVSPBCG
+ * module and the user-supplied preconditioner solve routine FCVPSOL.
  * Note the use of the generic name FCV_PSOL below.
  * -----------------------------------------------------------------
  */
@@ -19,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cvspbcg.h"        /* CVSpbcg prototype                       */
 #include "cvspgmr.h"        /* CVSpgmr prototype                       */
 #include "fcvode.h"         /* actual function names, prototypes and
 			       global variables                        */
@@ -32,6 +34,14 @@
 extern void FCV_PSOL(realtype*, realtype*, realtype*, realtype*, 
 		     realtype*, realtype*, realtype*, 
 		     realtype*, int*, realtype*, int*);
+
+/***************************************************************************/
+
+void FCV_SPBCGSETPSOL(int *flag, int *ier)
+{
+  if (*flag == 0) CVSpbcgSetPrecSolveFn(CV_cvodemem, NULL);
+  else CVSpbcgSetPrecSolveFn(CV_cvodemem, FCVPSol);
+}
 
 /***************************************************************************/
 

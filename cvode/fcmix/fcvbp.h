@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-10-26 18:01:27 $
+ * $Revision: 1.8 $
+ * $Date: 2004-12-07 19:46:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -11,7 +11,7 @@
  * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * This is the Fortran interface include file for the BAND
- * preconditioner (CVBANDPRE)
+ * preconditioner (CVBANDPRE).
  * -----------------------------------------------------------------
  */
 
@@ -24,20 +24,20 @@
  * together with the FCVODE Interface Package, support the use of the
  * CVODE solver (serial version) with the CVBANDPRE preconditioner module,
  * for the solution of ODE systems in a mixed Fortran/C setting.  The
- * combination of CVODE and CVBANDPRE solves systems dy/dt = f(t,y) with
- * the SPGMR (scaled preconditioned GMRES) method for the linear systems
- * that arise, and with a banded difference quotient Jacobian-based
- * preconditioner.
+ * combination of CVODE and CVBANDPRE solves systems dy/dt = f(t,y) with either
+ * the SPGMR (scaled preconditioned GMRES) or SPBCG (scaled preconditioned
+ * Bi-CGSTAB) method for the linear systems that arise, and with a banded
+ * difference quotient Jacobian-based preconditioner.
  * 
  * The user-callable functions in this package, with the corresponding
  * CVODE and CVBBDPRE functions, are as follows: 
- *   FCVBPINIT  interfaces to CVBandPrecAlloc and CVSpgmr 
+ *   FCVBPINIT  interfaces to CVBandPrecAlloc and CVSpgmr/CVSpbcg
  *   FCVBPOPT   accesses optional outputs
  *   FCVBPFREE  interfaces to CVBandPrecFree
  * 
  * In addition to the Fortran right-hand side function FCVFUN, the
  * user may (optionally) supply a routine FCVJTIMES which is called by 
- * the interface function FCVJtimes of type CVSpgmrJtimesFn.
+ * the interface function FCVJtimes of type CVSpgmrJtimesFn or CVSpbcgJtimesFn.
  * (The names of all user-supplied routines here are fixed, in order to
  * maximize portability for the resulting mixed-language program.)
  * 
@@ -45,9 +45,7 @@
  * In this package, the names of the interface functions, and the names of
  * the Fortran user routines called by them, appear as dummy names
  * which are mapped to actual values by a series of definitions in the
- * header file fcvbbd.h. These definition depend in turn on variables
- * SUNDIALS_UNDERSCORE_NONE and SUNDIALS_UNDERSCORE_TWO which can be 
- * set at the configuration stage.
+ * header file fcvbp.h.
  * 
  * ==============================================================================
  * 
@@ -124,10 +122,24 @@
  * MU, ML    = upper and lower half-bandwidths of the band matrix that 
  *             is retained as an approximation of the Jacobian.
  * IER       = return completion flag: IER=0: success, IER<0: and error occured
- * 
- * (3.4) Tp specify the SPGMR linear solver with the CVBANDPRE preconditioner,
+ *
+ * (3.4A) To specify the SPBCG linear solver with the CVBANDPRE preconditioner,
  * make the following call
- *       CALL FCVBPINIT(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+ *       CALL FCVBPSPBCG(IPRETYPE, MAXL, DELT, IER)
+ * 
+ * The arguments are:
+ * IPRETYPE  = preconditioner type: 
+ *            0 = none
+ *            1 = left only
+ *            2 = right only
+ *            3 = both sides.
+ * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT      = linear convergence tolerance factor; 0.0 indicates default.
+ * IER       = return completion flag: IER=0: success, IER<0: ans error occured
+ *
+ * (3.4B) To specify the SPGMR linear solver with the CVBANDPRE preconditioner,
+ * make the following call
+ *       CALL FCVBPSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
  * 
  * The arguments are:
  * IPRETYPE  = preconditioner type: 
@@ -139,8 +151,14 @@
  * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
  * DELT      = linear convergence tolerance factor; 0.0 indicates default.
  * IER       = return completion flag: IER=0: success, IER<0: ans error occured
- * 
- * (3.5) To specify whether GMRES should use the supplied FCVJTIMES or the 
+ *
+ * (3.5A) To specify whether Bi-CGSTAB should use the supplied FCVJTIMES or the 
+ * internal finite difference approximation, make the call
+ *        CALL FCVSPBCGSETJAC(FLAG, IER)
+ * where FLAG=0 for finite differences approxaimtion or
+ *       FLAG=1 to use the supplied routine FCVJTIMES
+ *
+ * (3.5B) To specify whether GMRES should use the supplied FCVJTIMES or the 
  * internal finite difference approximation, make the call
  *        CALL FCVSPGMRSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approxaimtion or
@@ -160,7 +178,7 @@
  * The current values of the optional outputs are available in IOPT and ROPT.
  * 
  * (5) Optional outputs: FCVBPOPT
- * Optional outputs specific to the SPGMR solver are NPE, NLI, NPS, NCFL,
+ * Optional outputs specific to the SPGMR/SPBCG solver are NPE, NLI, NPS, NCFL,
  * LRW, and LIW, stored in IOPT(16) ... IOPT(21), respectively.
  * To obtain the optional outputs associated with the CVBANDPRE module, make
  * the following call:
@@ -204,6 +222,7 @@
 #if defined(F77_FUNC)
 
 #define FCV_BPINIT  F77_FUNC(fcvbpinit, FCVBPINIT)
+#define FCV_BPSPBCG F77_FUNC(fcvbpspbcg, FCVBPSPBCG)
 #define FCV_BPSPGMR F77_FUNC(fcvbpspgmr, FCVBPSPGMR)
 #define FCV_BPOPT   F77_FUNC(fcvbpopt, FCVBPOPT)
 #define FCV_BPFREE  F77_FUNC(fcvbpfree, FCVBPFREE)
@@ -211,6 +230,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BPINIT  fcvbpinit
+#define FCV_BPSPBCG fcvbpspbcg
 #define FCV_BPSPGMR fcvbpspgmr
 #define FCV_BPOPT   fcvbpopt
 #define FCV_BPFREE  fcvbpfree
@@ -218,6 +238,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_BPINIT  FCVBPINIT
+#define FCV_BPSPBCG FCVBPSPBCG
 #define FCV_BPSPGMR FCVBPSPGMR
 #define FCV_BPOPT   FCVBPOPT
 #define FCV_BPFREE  FCVBPFREE
@@ -225,6 +246,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BPINIT  fcvbpinit_
+#define FCV_BPSPBCG fcvbpspbcg_
 #define FCV_BPSPGMR fcvbpspgmr_
 #define FCV_BPOPT   fcvbpopt_
 #define FCV_BPFREE  fcvbpfree_
@@ -232,6 +254,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_BPINIT  FCVBPINIT_
+#define FCV_BPSPBCG FCVBPSPBCG_
 #define FCV_BPSPGMR FCVBPSPGMR_
 #define FCV_BPOPT   FCVBPOPT_
 #define FCV_BPFREE  FCVBPFREE_
@@ -239,6 +262,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BPINIT  fcvbpinit__
+#define FCV_BPSPBCG fcvbpspbcg__
 #define FCV_BPSPGMR fcvbpspgmr__
 #define FCV_BPOPT   fcvbpopt__
 #define FCV_BPFREE  fcvbpfree__
@@ -246,6 +270,7 @@
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
 #define FCV_BPINIT  FCVBPINIT__
+#define FCV_BPSPBCG FCVBPSPBCG__
 #define FCV_BPSPGMR FCVBPSPGMR__
 #define FCV_BPOPT   FCVBPOPT__
 #define FCV_BPFREE  FCVBPFREE__

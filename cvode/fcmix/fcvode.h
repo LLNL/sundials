@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2004-10-26 18:01:27 $
+ * $Revision: 1.35 $
+ * $Date: 2004-12-07 19:46:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -46,7 +46,12 @@
  * 
  *   FCVBAND    interfaces to CVBand
  *   FCVBANDSETJAC    interfaces to CVBandSetJacFn
- * 
+ *
+ *   FCVSPBCG, FCVSPBCGREINIT interface to CVSpbcg and CVSpbcgSet*
+ *   FCVSPBCGSETJAC   interfaces to CVSpbcgSetJacFn
+ *   FCVSPBCGSETPSOL  interfaces to CVSpbcgSetPrecSolveFn
+ *   FCVSPBCGSETPSET  interfaces to CVSpbcgSetPrecSetupFn
+ *
  *   FCVSPGMR, FCVSPGMRREINIT interface to CVSpgmr and CVSpgmrSet*
  *   FCVSPGMRSETJAC   interfaces to CVSpgmrSetJacFn
  *   FCVSPGMRSETPSOL  interfaces to CVSpgmrSetPrecSolveFn
@@ -67,8 +72,11 @@
  *   FCVDJAC   is called by the interface fn. FCVDenseJac of type CVDenseJacFn
  *   FCVBJAC   is called by the interface fn. FCVBandJac of type CVBandJacFn
  *   FCVPSOL   is called by the interface fn. FCVPSol of type CVSpgmrPrecSolveFn
+ *             or CVSpbcgPrecSolveFn
  *   FCVPSET   is called by the interface fn. FCVPSet of type CVSpgmrPrecSetupFn
+ *             of CVSpbcgPrecSetupFn
  *   FCVJTIMES is called by interface fn. FCVJtimes of type CVSpgmrJacTimesVecFn
+ *             or CVSpbcgJacTimesVecFn
  * In contrast to the case of direct use of CVODE, and of most Fortran ODE
  * solvers, the names of all user-supplied routines here are fixed, in
  * order to maximize portability for the resulting mixed-language program.
@@ -77,9 +85,7 @@
  * In this package, the names of the interface functions, and the names of
  * the Fortran user routines called by them, appear as dummy names
  * which are mapped to actual values by a series of definitions, in this
- * header file fcvode.h. These definition depend in turn on variables
- * SUNDIALS_UNDERSCORE_NONE, SUNDIALS_UNDERSCORE_TWO, SUNDIALS_CASE_UPPER
- * and SUNDIALS_CASE_LOWER, which can be set at the configuration stage.
+ * header file (fcvode.h).
  * 
  * =============================================================================
  * 
@@ -99,8 +105,7 @@
  * The number labels on the instructions below end with s for instructions
  * that apply to the serial version of CVODE only, and end with p for
  * those that apply to the parallel version only.
- * 
- * 
+ *
  * (1) User-supplied right-hand side routine: FCVFUN
  * The user must in all cases supply the following Fortran routine
  *       SUBROUTINE FCVFUN (T, Y, YDOT)
@@ -131,8 +136,8 @@
  * with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
  * 
  * (4) Optional user-supplied Jacobian-vector product routine: FCVJTIMES
- * As an option when using the SPGMR linear solver, the user may supply a 
- * routine that computes the product of the system Jacobian J = df/dy and 
+ * As an option when using the SPGMR/SPBCG linear solver, the user may supply
+ * a routine that computes the product of the system Jacobian J = df/dy and 
  * a given vector v.  If supplied, it must have the following form:
  *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, H, WORK, IER)
  *       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
@@ -193,7 +198,7 @@
  * IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *          See printed message for details in case of failure.
  * 
- * (5.3) To re-initialize the CVODE solver for the solution of a new problem
+ * (5.3) To reinitialize the CVODE solver for the solution of a new problem
  * of the same size as one already solved, make the following call:
  *       CALL FCVREINIT(T0, Y0, IATOL, RTOL, ATOL, INOPT, IOPT, ROPT, IER)
  * The arguments have the same names and meanings as those of FCVMALLOC,
@@ -255,8 +260,74 @@
  *      Optional outputs specific to the BAND case are LRW, LIW, and NJE
  * stored in IOPT(16), IOPT(17), and IOPT(18), respectively.  (See the CVODE
  * manual for descriptions.)
+ *
+ * (6.4A) SPBCG treatment of the linear systems.
+ * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
+ * the user must make the following call:
+ *       CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)              
+ * The arguments are:
+ * IPRETYPE = preconditioner type: 
+ *              0 = none 
+ *              1 = left only
+ *              2 = right only
+ *              3 = both sides
+ * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT     = linear convergence tolerance factor; 0.0 indicates default.
+ * IER      = error return flag: 0 = success; negative value = an error occured
  * 
- * (6.4) SPGMR treatment of the linear systems.
+ * If the user program includes the FCVJTIMES routine for the evaluation of the 
+ * Jacobian vector product, the following call must be made
+ *       CALL FCVSPBCGSETJAC(FLAG, IER)
+ * with FLAG = 1 to specify that FCVJTIMES is provided.  (FLAG = 0 specifies
+ * using and internal finite difference approximation to this product.)
+ * The return flag IER is 0 if successful, and nonzero otherwise.
+ * 
+ * Usage of the user-supplied routine FCVPSOL for solution of the preconditioner
+ * linear system requires the following call:
+ *       CALL FCVSPBCGSETPSOL(FLAG, IER)
+ * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
+ * The user-supplied routine FCVPSOL must have the form:
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, NFE, R, LR, Z, IER)
+ *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
+ * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
+ * must solve the preconditioner linear system Pz = r, where r = R is input, 
+ * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
+ * and the right preconditioner if LR = 2.  The preconditioner (or the product
+ * of the left and right preconditioners if both are nontrivial) should be an 
+ * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
+ * 
+ * Usage of the user-supplied routine FCVPSET for construction of the
+ * preconditioner  is specified by calling
+ *       CALL FCVSPBCGSETPPSET(FLAG, IER)
+ * with FLAG = 1. (FLAG = 0 specifies no such setup routine.)
+ * The return flag IER is 0 if successful, and nonzero otherwise.
+ * The user-supplied routine FCVPSET must be of the form:
+ *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
+ *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
+ * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
+ * perform any evaluation of Jacobian-related data and preprocessing needed
+ * for the solution of the preconditioner linear systems by FCVPSOL.
+ * The JOK argument allows for Jacobian data to be saved and reused:  If 
+ * JOK = 0, this data should be recomputed from scratch.  If JOK = 1, a saved
+ * copy of it may be reused, and the preconditioner constructed from it.
+ * On return, set JCUR = 1 if Jacobian data was computed, and 0 otherwise.
+ * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
+ * recoverable error occurred, and set IER negative if a non-recoverable error
+ * occurred.
+ * 
+ *      Optional outputs specific to the SPBCG case are LRW, LIW, NPE, NLI, NPS,
+ * and NCFL, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
+ * manual for descriptions.)
+ * 
+ *      If a sequence of problems of the same size is being solved using the
+ * SPBCG linear solver, then following the call to FCVREINIT, a call to the
+ * FCVSPBCGREINIT routine is needed if IPRETYPE or DELT is
+ * being changed.  In that case, call FCVSPBCGREINIT as follows:
+ *       CALL FCVSPBCGREINIT(IPRETYPE, DELT, IER)              
+ * The arguments have the same meanings as for FCVSPBCG.  If MAXL is being
+ * changed, then call FCVSPBCG instead.
+ *
+ * (6.4B) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
  *       CALL FCVSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)              
@@ -380,6 +451,11 @@
 #define FCV_DENSESETJAC  F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
 #define FCV_BAND         F77_FUNC(fcvband, FCVBAND)
 #define FCV_BANDSETJAC   F77_FUNC(fcvbandsetjac, FCVBANDSETJAC)
+#define FCV_SPBCG        F77_FUNC(fcvspbcg, FCVSPGMR)
+#define FCV_SPBCGREINIT  F77_FUNC(fcvspbcgreinit, FCVSPBCGREINIT)
+#define FCV_SPBCGSETJAC  F77_FUNC(fcvspbcgsetjac, FCVSPBCGSETJAC)
+#define FCV_SPBCGSETPSOL F77_FUNC(fcvspbcgsetpsol, FCVSPBCGSETPSOL)
+#define FCV_SPBCGSETPSET F77_FUNC(fcvspbcgsetpset, FCVSPBCGSETPSET)
 #define FCV_SPGMR        F77_FUNC(fcvspgmr, FCVSPGMR)
 #define FCV_SPGMRREINIT  F77_FUNC(fcvspgmrreinit, FCVSPGMRREINIT)
 #define FCV_SPGMRSETJAC  F77_FUNC(fcvspgmrsetjac, FCVSPGMRSETJAC)
@@ -404,6 +480,11 @@
 #define FCV_DENSESETJAC  fcvdensesetjac
 #define FCV_BAND         fcvband
 #define FCV_BANDSETJAC   fcvbandsetjac
+#define FCV_SPBCG        fcvspbcg
+#define FCV_SPBCGREINIT  fcvspbcgreinit
+#define FCV_SPBCGSETJAC  fcvspbcgsetjac
+#define FCV_SPBCGSETPSOL fcvspbcgsetpsol
+#define FCV_SPBCGSETPSET fcvspbcgsetpset
 #define FCV_SPGMR        fcvspgmr
 #define FCV_SPGMRREINIT  fcvspgmrreinit
 #define FCV_SPGMRSETJAC  fcvspgmrsetjac
@@ -428,6 +509,11 @@
 #define FCV_DENSESETJAC  FCVDENSESETJAC
 #define FCV_BAND         FCVBAND
 #define FCV_BANDSETJAC   FCVBANDSETJAC
+#define FCV_SPBCG        FCVSPBCG
+#define FCV_SPBCGREINIT  FCVSPBCGREINIT
+#define FCV_SPBCGSETJAC  FCVSPBCGSETJAC
+#define FCV_SPBCGSETPSOL FCVSPBCGSETPSOL
+#define FCV_SPBCGSETPSET FCVSPBCGSETPSET
 #define FCV_SPGMR        FCVSPGMR
 #define FCV_SPGMRREINIT  FCVSPGMRREINIT
 #define FCV_SPGMRSETJAC  FCVSPGMRSETJAC
@@ -452,6 +538,11 @@
 #define FCV_DENSESETJAC  fcvdensesetjac_
 #define FCV_BAND         fcvband_
 #define FCV_BANDSETJAC   fcvbandsetjac_
+#define FCV_SPBCG        fcvspbcg_
+#define FCV_SPBCGREINIT  fcvspbcgreinit_
+#define FCV_SPBCGSETJAC  fcvspbcgsetjac_
+#define FCV_SPBCGSETPSOL fcvspbcgsetpsol_
+#define FCV_SPBCGSETPSET fcvspbcgsetpset_
 #define FCV_SPGMR        fcvspgmr_
 #define FCV_SPGMRREINIT  fcvspgmrreinit_
 #define FCV_SPGMRSETJAC  fcvspgmrsetjac_
@@ -476,6 +567,11 @@
 #define FCV_DENSESETJAC  FCVDENSESETJAC_
 #define FCV_BAND         FCVBAND_
 #define FCV_BANDSETJAC   FCVBANDSETJAC_
+#define FCV_SPBCG        FCVSPBCG_
+#define FCV_SPBCGREINIT  FCVSPBCGREINIT_
+#define FCV_SPBCGSETJAC  FCVSPBCGSETJAC_
+#define FCV_SPBCGSETPSOL FCVSPBCGSETPSOL_
+#define FCV_SPBCGSETPSET FCVSPBCGSETPSET_
 #define FCV_SPGMR        FCVSPGMR_
 #define FCV_SPGMRREINIT  FCVSPGMRREINIT_
 #define FCV_SPGMRSETJAC  FCVSPGMRSETJAC_
@@ -500,6 +596,11 @@
 #define FCV_DENSESETJAC  fcvdensesetjac__
 #define FCV_BAND         fcvband__
 #define FCV_BANDSETJAC   fcvbandsetjac__
+#define FCV_SPBCG        fcvspbcg__
+#define FCV_SPBCGREINIT  fcvspbcgreinit__
+#define FCV_SPBCGSETJAC  fcvspbcgsetjac__
+#define FCV_SPBCGSETPSOL fcvspbcgsetpsol__
+#define FCV_SPBCGSETPSET fcvspbcgsetpset__
 #define FCV_SPGMR        fcvspgmr__
 #define FCV_SPGMRREINIT  fcvspgmrreinit__
 #define FCV_SPGMRSETJAC  fcvspgmrsetjac__
@@ -524,6 +625,11 @@
 #define FCV_DENSESETJAC  FCVDENSESETJAC__
 #define FCV_BAND         FCVBAND__
 #define FCV_BANDSETJAC   FCVBANDSETJAC__
+#define FCV_SPBCG        FCVSPBCG__
+#define FCV_SPBCGREINIT  FCVSPBCGREINIT__
+#define FCV_SPBCGSETJAC  FCVSPBCGSETJAC__
+#define FCV_SPBCGSETPSOL FCVSPBCGSETPSOL__
+#define FCV_SPBCGSETPSET FCVSPBCGSETPSET__
 #define FCV_SPGMR        FCVSPGMR__
 #define FCV_SPGMRREINIT  FCVSPGMRREINIT__
 #define FCV_SPGMRSETJAC  FCVSPGMRSETJAC__
@@ -588,6 +694,6 @@ booleantype CV_optin;
 long int *CV_iopt;
 realtype *CV_ropt;
 int CV_nrtfn;
-int CV_ls;  /* 1 = DENSE, 2 = BAND, 3 = DIAG, 4 = SPGMR */
+int CV_ls;  /* 1 = DENSE, 2 = BAND, 3 = DIAG, 4 = SPGMR , 5 = SPBCG */
 
 #endif
