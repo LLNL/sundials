@@ -1,9 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : cvode.h                                        *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and          *
- *                 Dan Shumaker @ LLNL                            *
- * Version of    : 28 February 2002                               *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban *
+ *                 and Dan Shumaker @ LLNL                        *
+ * Version of    : 5 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the interface file for the main CVODE integrator.      *
  *                                                                *
@@ -200,7 +200,7 @@ typedef void (*RhsFn)(integer N, real t, N_Vector y, N_Vector ydot,
 void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0, int lmm, int iter,
                   int itol, real *reltol, void *abstol, void *f_data,
                   FILE *errfp, boole optIn, long int iopt[], real ropt[],
-                  void *machEnv);
+                  M_Env machEnv);
  
  
 /******************************************************************
@@ -259,7 +259,7 @@ void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0, int lmm, int iter,
 int CVReInit(void *cvode_mem, RhsFn f, real t0, N_Vector y0,
              int lmm, int iter, int itol, real *reltol, void *abstol,
              void *f_data, FILE *errfp, boole optIn, long int iopt[],
-             real ropt[], void *machEnv);
+             real ropt[], M_Env machEnv);
 
 
 /* CVReInit return values: */
@@ -691,7 +691,7 @@ typedef struct CVodeMemRec {
 
   /* Pointer to Machine Environment-Specific Information */
 
-  void *cv_machenv;
+  M_Env cv_machenv;
 
   /* Stability Limit Detection control flag */
 

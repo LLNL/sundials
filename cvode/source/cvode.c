@@ -1,9 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : cvode.c                                        *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and          *
- *                 Dan Shumaker @ LLNL                            *
- * Version of    : 14 January 2002                                *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban *
+ *                 and Dan Shumaker @ LLNL                        *
+ * Version of    : 5 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the main CVODE integrator. *
  * It is independent of the CVODE linear solver in use.           *
@@ -329,7 +329,7 @@
 /**************************************************************/
 
 static boole CVAllocVectors(CVodeMem cv_mem, integer neq, int maxord,
-                            void *machEnv);
+                            M_Env machEnv);
 static void CVFreeVectors(CVodeMem cv_mem, int maxord);
 
 static boole CVEwtSet(CVodeMem cv_mem, real *rtol, void *atol, int tol_type,
@@ -492,7 +492,7 @@ static int  CVHandleFailure(CVodeMem cv_mem,int kflag);
 void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0, int lmm, int iter,
                   int itol, real *reltol, void *abstol, void *f_data,
                   FILE *errfp, boole optIn, long int iopt[], real ropt[],
-                  void *machEnv)
+                  M_Env machEnv)
 {
   boole   allocOK, ioptExists, roptExists, neg_abstol, ewtsetOK;
   int     maxord;
@@ -731,7 +731,7 @@ void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0, int lmm, int iter,
 int CVReInit(void *cvode_mem, RhsFn f, real t0, N_Vector y0,
              int lmm, int iter, int itol, real *reltol, void *abstol,
              void *f_data, FILE *errfp, boole optIn, long int iopt[],
-             real ropt[], void *machEnv)
+             real ropt[], M_Env machEnv)
 {
   boole   ioptExists, roptExists, neg_abstol, ewtsetOK;
   int     maxord;
@@ -1302,7 +1302,7 @@ void CVodeFree(void *cvode_mem)
 **********************************************************************/
 
 static boole CVAllocVectors(CVodeMem cv_mem, integer neq, int maxord,
-                            void *machEnv)
+                            M_Env machEnv)
 {
   int i, j;
 
@@ -2766,26 +2766,30 @@ static int CVsldet(CVodeMem cv_mem)
   real rd2a, rd2b, rd2c, rd3a, rd3b, cest1, corr1; 
   real ratp, ratm, qfac1, qfac2, bb, rrb;
 
- /* The following are cutoffs and tolerances used by this routine */
+  /* Initialize some variables */
+  kmin = 1;
+  kflag = 1;
+
+  /* The following are cutoffs and tolerances used by this routine */
 
   rrcut = 0.98;
   vrrtol = 1.0e-4;
   vrrt2 = 5.0e-4;
   sqtol = 1.0e-3;
   rrtol = 1.0e-2;
-
+  
   rr = ZERO;
-
- /*  Index k corresponds to the degree of the interpolating polynomial. */
- /*      k = 1 -> q-1          */
- /*      k = 2 -> q            */
- /*      k = 3 -> q+1          */
-
- /*  Index i is a backward-in-time index, i = 1 -> current time, */
- /*      i = 2 -> previous step, etc    */
-
- /* get maxima, minima, and variances, and form quartic coefficients  */
-
+  
+  /*  Index k corresponds to the degree of the interpolating polynomial. */
+  /*      k = 1 -> q-1          */
+  /*      k = 2 -> q            */
+  /*      k = 3 -> q+1          */
+  
+  /*  Index i is a backward-in-time index, i = 1 -> current time, */
+  /*      i = 2 -> previous step, etc    */
+  
+  /* get maxima, minima, and variances, and form quartic coefficients  */
+  
   for (k=1; k<=3; k++) {
     smink = ssdat[1][k];
     smaxk = ZERO;
@@ -2848,6 +2852,7 @@ static int CVsldet(CVodeMem cv_mem)
       }
       
       kflag = 1;
+
       /*  can compute charactistic root, drop to next section   */
       
     }
@@ -3020,7 +3025,7 @@ static int CVsldet(CVodeMem cv_mem)
     kflag = -9;
     return(kflag);
   }
-
+  
   /* Check to see if rr is above cutoff rrcut  */
   if (rr > rrcut) {
     if (kflag == 1) kflag = 4;
