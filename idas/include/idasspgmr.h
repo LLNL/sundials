@@ -216,11 +216,6 @@ typedef int (*IDASpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  *           optional input.  Pass 0 to use the default value,    *
  *           MIN(Neq, 5).  Otherwise pass a positive integer.     *
  *                                                                *
- * eplifac   is a factor in the linear iteration convergence      *
- *           test constant, an optional input.  Pass 0.0 to use   *
- *           the default, which is 1.0.  Otherwise eplifac must   *
- *           be a positive real number.                           *
- *                                                                *
  * The return values of IDASpgmr are:                             *
  *    SUCCESS       = 0  if successful                            *
  *    LMEM_FAIL     = -1 if there was a memory allocation failure *
@@ -328,7 +323,7 @@ typedef struct {
   realtype g_sqrtN;    /* sqrt(N)                                      */
   int  g_maxl;         /* maxl = maximum dimension of the Krylov space */
   int  g_maxrs;        /* maxrs = max. number of GMRES restarts        */
-  realtype g_eplifac;  /* eplifac = optional linear convergence factor */
+  realtype g_eplifac;  /* eplifac = linear convergence factor          */
   realtype g_dqincfac; /* dqincfac = optional increment factor in Jv   */
   realtype g_epslin;   /* SpgrmSolve tolerance parameter               */
 

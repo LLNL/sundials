@@ -43,7 +43,7 @@
 
 #define MSG_IDAS_NEG_MAXRS     "IDASpgmrSetMaxRestarts-- maxrs<0 illegal. \n\n"
 
-#define MSG_IDAS_NEG_EPLIFAC   "IDASpgmrSetEpsLin-- eplifac<0.0 illegal. \n\n"
+#define MSG_IDAS_NEG_EPLIFAC   "IDASpgmrSetEpsLin-- eplifac < 0.0 illegal. \n\n"
 
 #define MSG_IDAS_NEG_DQINCFAC  "IDASpgmrSetIncrementFactor-- dqincfac<0.0 illegal. \n\n"
 
@@ -174,7 +174,7 @@ static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
    g_maxl     = MIN(Neq,IDA_SPGMR_MAXL) if maxl <= 0,  else MIN(Neq,maxl)
    g_maxrs    = 0 if maxrs < 0,  MIN(5,Neq/g_maxl) if maxrs = 0, and
                 MIN(maxrs,Neq/g_maxl) if maxrs > 0.
-   g_eplifac  = 1.0 if eplifac = 0.0,  else eplifac
+   g_eplifac  = 0.05 if eplifac = 0.0,  else eplifac
    g_dqincfac = 1.0 if dqincfac = 0.0,  else dqincfac
    g_pdata    = NULL
    g_pset     = NULL
@@ -228,7 +228,7 @@ int IDASpgmr(void *ida_mem, int maxl)
   /* Set default values for the rest of the Spgmr parameters */
   idaspgmr_mem->g_gstype   = MODIFIED_GS;
   idaspgmr_mem->g_maxrs    = IDA_SPGMR_MAXRS;
-  idaspgmr_mem->g_eplifac  = ONE;
+  idaspgmr_mem->g_eplifac  = PT05;
   idaspgmr_mem->g_dqincfac = ONE;
   idaspgmr_mem->g_pset     = NULL;
   idaspgmr_mem->g_psolve   = NULL;
@@ -834,7 +834,7 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
     sqrt(Neq) assures that the GMRES convergence test is applied to the
     WRMS norm of the residual vector, rather than the weighted L2 norm. */
 
-  epslin = sqrtN*eplifac*PT05*epsNewt;
+  epslin = sqrtN*eplifac*epsNewt;
 
   /* Set vectors ycur, ypcur, and rcur for use by the Atimes and Psolve */
 
@@ -904,7 +904,7 @@ static int IDASpgmrSolveS(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
     sqrt(Neq) assures that the GMRES convergence test is applied to the
     WRMS norm of the residual vector, rather than the weighted L2 norm. */
 
-  epslin = sqrtN*eplifac*PT05*epsNewt;
+  epslin = sqrtN*eplifac*epsNewt;
 
   /* Set vectors ycur, ypcur, and rcur for use by the Atimes and Psolve */
 
