@@ -1,6 +1,6 @@
 C ------------------------------------------------------------------
-C $Revision: 1.3 $
-C $Date: 2004-07-29 23:48:33 $
+C $Revision: 1.4 $
+C $Date: 2004-08-12 20:32:53 $
 C ------------------------------------------------------------------
 C
 C File cvkryf.f
@@ -329,7 +329,7 @@ C
       RETURN
       END
 
-      SUBROUTINE FCVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, H, DELTA,
+      SUBROUTINE FCVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, DELTA,
      1                   R, LR, Z, IER)
 C Routine to solve preconditioner linear system.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
@@ -338,7 +338,7 @@ C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
       INTEGER*8 I, NEQ, MX, MZ, MM, LR, IPP
       DOUBLE PRECISION R(*), Z(2,*)
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3,A4, OM, C3, DZ, HDCO,VDCO,HACO
-      DOUBLE PRECISION BD, P, T, Y, FY, VTEMP, EWT, DELTA, GAMMA, H
+      DOUBLE PRECISION BD, P, T, Y, FY, VTEMP, EWT, DELTA, GAMMA
       COMMON /PCOM/ Q1,Q2,Q3,Q4,A3,A4,OM,C3,DZ,HDCO,VDCO,HACO,MX,MZ,MM
       COMMON /BDJ/ BD(2,2,100), P(2,2,100), IPP(2,100)
       COMMON /PBDIM/ NEQ
