@@ -1000,6 +1000,7 @@ int CVodeQuadMalloc(void *cvode_mem,
 {
   CVodeMem cv_mem;
   FILE     *fp;
+  long int *iopt;
   int      itol;
   booleantype  ioptExists, neg_abstol, allocOK, ewtsetOK;
 
@@ -1018,6 +1019,7 @@ int CVodeQuadMalloc(void *cvode_mem,
   cv_mem = (CVodeMem) cvode_mem;
   fp     = cv_mem->cv_errfp;
   itol   = cv_mem->cv_itol;
+  iopt   = cv_mem->cv_iopt;
 
   /* Check if errcon is legal */
   if ((errconQ!=FULL) && (errconQ!=PARTIAL)) {
@@ -1579,6 +1581,7 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, int errconQ,
 {
   CVodeMem cv_mem;
   FILE     *fp;
+  long int *iopt;
   int      itol;
   booleantype  ioptExists, neg_abstol, ewtsetOK;
 
@@ -1596,6 +1599,7 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, int errconQ,
   cv_mem = (CVodeMem) cvode_mem;
   fp     = cv_mem->cv_errfp;
   itol   = cv_mem->cv_itol;
+  iopt   = cv_mem->cv_iopt;
 
   /* Was quadrature initialized? */
   if (quadMallocDone == FALSE) {
