@@ -20,7 +20,6 @@
 #include "cvdense.h"       /* prototypes for CVDENSE interface routines       */
 #include "cvband.h"        /* prototypes for CVBAND interface routines        */
 #include "cvspgmr.h"       /* prototypes for CVSPGMR interface routines       */
-#include "fcmixpar.h"      /* global F2C_machEnv variable                     */
 #include "fcvode.h"        /* actual function names, prototypes, global vars. */
 
 /***************************************************************************/

@@ -264,29 +264,9 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 
 ****************************************************************************/
 
-#include "fcmixpar.h"   /* parameters for function name definitions */
-
 /* Definitions of interface function names */
 
-#if (CRAY)
-
-#define FCV_BBDIN     FCVBBDIN
-#define FCV_REINBBD   FCVREINBBD
-#define FCV_BBDOPT    FCVBBDOPT
-#define FCV_BBDF      FCVBBDF
-#define FCV_GLOCFN    CVLOCFN
-#define FCV_COMMFN    CVCOMMF
-
-#elif (UNDERSCORE)
-
-#define FCV_BBDIN     fcvbbdin_
-#define FCV_REINBBD   fcvreinbbd_
-#define FCV_BBDOPT    fcvbbdopt_
-#define FCV_BBDF      fcvbbdf_
-#define FCV_GLOCFN    cvlocfn_
-#define FCV_COMMFN    cvcommf_
-
-#else
+#if SUNDIALS_UNDERSCORE_NONE
 
 #define FCV_BBDIN     fcvbbdin
 #define FCV_REINBBD   fcvreinbbd
@@ -294,6 +274,24 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 #define FCV_BBDF      fcvbbdf
 #define FCV_GLOCFN    cvlocfn
 #define FCV_COMMFN    cvcommf
+
+#elif SUNDIALS_UNDERSCORE_TWO
+
+#define FCV_BBDIN     fcvbbdin__
+#define FCV_REINBBD   fcvreinbbd__
+#define FCV_BBDOPT    fcvbbdopt__
+#define FCV_BBDF      fcvbbdf__
+#define FCV_GLOCFN    cvlocfn__
+#define FCV_COMMFN    cvcommf__
+
+#else
+
+#define FCV_BBDIN     fcvbbdin_
+#define FCV_REINBBD   fcvreinbbd_
+#define FCV_BBDOPT    fcvbbdopt_
+#define FCV_BBDF      fcvbbdf_
+#define FCV_GLOCFN    cvlocfn_
+#define FCV_COMMFN    cvcommf_
 
 #endif
 

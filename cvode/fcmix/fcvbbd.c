@@ -19,7 +19,6 @@
 #include "sundialstypes.h" /* definitions of types realtype and integertype   */
 #include "nvector.h"       /* definitions of type N_Vector                    */
 #include "cvode.h"         /* CVODE constants and prototypes                  */
-#include "fcmixpar.h"      /* definition of global F2C_machEnv variable       */
 #include "fcvode.h"        /* actual function names, prototypes, global vars. */
 #include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE            */
 #include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines        */
