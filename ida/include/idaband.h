@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-10-08 19:20:26 $
+ * $Revision: 1.18 $
+ * $Date: 2004-10-26 20:14:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -41,39 +41,38 @@ extern "C" {
  *                                                                
  * mlower is the lower bandwidth of the banded Jacobian matrix.   
  *                                                                
- * tt  is the current value of the independent variable t.        
+ * tt is the current value of the independent variable t.        
  *                                                                
- * yy  is the current value of the dependent variable vector,     
- *        namely the predicted value of y(t).                     
+ * yy is the current value of the dependent variable vector,     
+ *    namely the predicted value of y(t).                     
  *                                                                
- * yp  is the current value of the derivative vector y',          
- *        namely the predicted value of y'(t).                    
+ * yp is the current value of the derivative vector y',          
+ *    namely the predicted value of y'(t).                    
+ *                                                                
+ * rr is the residual vector F(tt,yy,yp).                     
  *                                                                
  * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *                                                                
- * jdata  is a pointer to user Jacobian data - the same as the    
- *        jdata parameter passed to IDABand.                      
+ * jac_data  is a pointer to user Jacobian data - the same as the    
+ *    jdata parameter passed to IDABand.                      
  *                                                                
- * resvec is the residual vector F(tt,yy,yp).                     
- *                                                                
- * Jac    is the band matrix (of type BandMat) to be loaded by    
- *        an IDABandJacFn routine with an approximation to the    
- *        system Jacobian matrix                                  
- *              J = dF/dy + cj*dF/dy'                             
- *        at the given point (t,y,y'), where the DAE system is    
- *        given by F(t,y,y') = 0.  Jac is preset to zero, so only 
- *        the nonzero elements need to be loaded.  See note below.
+ * Jac is the band matrix (of type BandMat) to be loaded by    
+ *     an IDABandJacFn routine with an approximation to the    
+ *     system Jacobian matrix                                  
+ *            J = dF/dy + cj*dF/dy'                             
+ *     at the given point (t,y,y'), where the DAE system is    
+ *     given by F(t,y,y') = 0.  Jac is preset to zero, so only 
+ *     the nonzero elements need to be loaded.  See note below.
  *                                                                
  * tmp1, tmp2, tmp3 are pointers to memory allocated for          
- *        N_Vectors which can be used by an IDABandJacFn routine  
- *        as temporary storage or work space.                     
+ *     N_Vectors which can be used by an IDABandJacFn routine  
+ *     as temporary storage or work space.                     
  *                                                                
- *                                                                
- * NOTE: The following are two efficient ways to load JJ:         
+ * NOTE: The following are two efficient ways to load Jac:
  *                                                                
  * (1) (with macros - no explicit data structure references)      
  *    for (j=0; j < Neq; j++) {                                   
- *       col_j = BAND_COL(JJ,j);                                  
+ *       col_j = BAND_COL(Jac,j);                                  
  *       for (i=j-mupper; i <= j+mlower; i++) {                   
  *         generate J_ij = the (i,j)th Jacobian element           
  *         BAND_COL_ELEM(col_j,i,j) = J_ij;                       
@@ -82,7 +81,7 @@ extern "C" {
  *                                                                
  * (2) (with BAND_COL macro, but without BAND_COL_ELEM macro)     
  *    for (j=0; j < Neq; j++) {                                   
- *       col_j = BAND_COL(JJ,j);                                  
+ *       col_j = BAND_COL(Jac,j);                                  
  *       for (k=-mupper; k <= mlower; k++) {                      
  *         generate J_ij = the (i,j)th Jacobian element, i=j+k    
  *         col_j[k] = J_ij;                                       
@@ -111,8 +110,8 @@ extern "C" {
   
 typedef int (*IDABandJacFn)(long int Neq, long int mupper, 
                             long int mlower, realtype tt, 
-                            N_Vector yy, N_Vector yp, realtype c_j, 
-                            void *jdata, N_Vector resvec, BandMat Jac, 
+                            N_Vector yy, N_Vector yp, N_Vector rr, 
+                            realtype c_j, void *jac_data, BandMat Jac, 
                             N_Vector tmp1, N_Vector tmp2, 
                             N_Vector tmp3);
  
@@ -145,8 +144,7 @@ typedef int (*IDABandJacFn)(long int Neq, long int mupper,
  * -----------------------------------------------------------------
  */
 
-int IDABand(void *ida_mem, long int Neq, 
-            long int mupper, long int mlower);
+int IDABand(void *ida_mem, long int Neq, long int mupper, long int mlower);
 
 /*
  * -----------------------------------------------------------------
@@ -169,7 +167,7 @@ int IDABand(void *ida_mem, long int Neq,
  */
 
 int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac);
-int IDABandSetJacData(void *ida_mem, void *jdata);
+int IDABandSetJacData(void *ida_mem, void *jac_data);
 
 /*
  * -----------------------------------------------------------------

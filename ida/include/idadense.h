@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-10-08 19:20:26 $
+ * $Revision: 1.17 $
+ * $Date: 2004-10-26 20:14:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -39,34 +39,34 @@ extern "C" {
  * tt  is the current value of the independent variable t.        
  *                                                                
  * yy  is the current value of the dependent variable vector,     
- *        namely the predicted value of y(t).                     
+ *     namely the predicted value of y(t).                     
  *                                                                
  * yp  is the current value of the derivative vector y',          
- *        namely the predicted value of y'(t).                    
+ *     namely the predicted value of y'(t).                    
+ *                                                                
+ * rr  is the residual vector F(tt,yy,yp).                     
  *                                                                
  * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *                                                                
- * jdata  is a pointer to user Jacobian data - the same as the    
- *        jdata parameter passed to IDADense.                     
+ * jac_data  is a pointer to user Jacobian data - the same as the    
+ *     jdata parameter passed to IDADense.                     
  *                                                                
- * resvec is the residual vector F(tt,yy,yp).                     
- *                                                                
- * Jac    is the dense matrix (of type DenseMat) to be loaded by  
- *        an IDADenseJacFn routine with an approximation to the   
- *        system Jacobian matrix                                  
- *              J = dF/dy + c_j*dF/dy'                            
- *        at the given point (t,y,y'), where the DAE system is    
- *        given by F(t,y,y') = 0.  Jac is preset to zero, so only 
- *        the nonzero elements need to be loaded.  See note below.
+ * Jac is the dense matrix (of type DenseMat) to be loaded by  
+ *     an IDADenseJacFn routine with an approximation to the   
+ *     system Jacobian matrix                                  
+ *            J = dF/dy + c_j*dF/dy'                            
+ *     at the given point (t,y,y'), where the DAE system is    
+ *     given by F(t,y,y') = 0.  Jac is preset to zero, so only 
+ *     the nonzero elements need to be loaded.  See note below.
  *                                                                
  * tmp1, tmp2, tmp3 are pointers to memory allocated for          
- *        N_Vectors which can be used by an IDADenseJacFn routine 
- *        as temporary storage or work space.                     
+ *     N_Vectors which can be used by an IDADenseJacFn routine 
+ *     as temporary storage or work space.                     
  *                                                                
- * NOTE: The following are two efficient ways to load JJ:         
+ * NOTE: The following are two efficient ways to load Jac:         
  * (1) (with macros - no explicit data structure references)      
  *     for (j=0; j < Neq; j++) {                                  
- *       col_j = DENSE_COL(JJ,j);                                 
+ *       col_j = DENSE_COL(Jac,j);                                 
  *       for (i=0; i < Neq; i++) {                                
  *         generate J_ij = the (i,j)th Jacobian element           
  *         col_j[i] = J_ij;                                       
@@ -74,7 +74,7 @@ extern "C" {
  *     }                                                          
  * (2) (without macros - explicit data structure references)      
  *     for (j=0; j < Neq; j++) {                                  
- *       col_j = (JJ->data)[j];                                   
+ *       col_j = (Jac->data)[j];                                   
  *       for (i=0; i < Neq; i++) {                                
  *         generate J_ij = the (i,j)th Jacobian element           
  *         col_j[i] = J_ij;                                       
@@ -100,9 +100,10 @@ extern "C" {
  * -----------------------------------------------------------------
  */
   
-typedef int (*IDADenseJacFn)(long int Neq, realtype tt, N_Vector yy, 
-                             N_Vector yp, realtype c_j, void *jdata, 
-                             N_Vector resvec, DenseMat Jac, 
+typedef int (*IDADenseJacFn)(long int Neq, realtype tt, 
+                             N_Vector yy, N_Vector yp, N_Vector rr,
+                             realtype c_j, void *jac_data, 
+                             DenseMat Jac, 
                              N_Vector tmp1, N_Vector tmp2, 
                              N_Vector tmp3);
 
@@ -157,7 +158,7 @@ int IDADense(void *ida_mem, long int Neq);
  */
 
 int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac);
-int IDADenseSetJacData(void *ida_mem, void *jdata);
+int IDADenseSetJacData(void *ida_mem, void *jac_data);
  
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-10-25 22:06:26 $
+ * $Revision: 1.27 $
+ * $Date: 2004-10-26 20:14:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -44,17 +44,16 @@ extern "C" {
  * The F function which defines the DAE system   F(t,y,y')=0      
  * must have type IDAResFn.                                          
  * Symbols are as follows: 
- *                  t  <-> tres     y <-> yy               
- *                  y' <-> yp       F <-> res (type IDAResFn) 
- * A IDAResFn takes as input the independent variable value tres,    
+ *                  t  <-> t        y <-> yy               
+ *                  y' <-> yp       F <-> rr
+ * A IDAResFn takes as input the independent variable value t,    
  * the dependent variable vector yy, and the derivative (with     
  * respect to t) of the yy vector, yp.  It stores the result of   
- * F(t,y,y') in the vector resval. The yy, yp, and resval         
- * arguments are of type N_Vector. The rdata parameter is to be   
- * of the same type as the rdata parameter passed by the user to  
- * the IDASetRdata routine. This user-supplied pointer is passed  
- * to the user's res function every time it is called, to provide 
- * access in res to user data.                                    
+ * F(t,y,y') in the vector rr. The yy, yp, and rr arguments are of 
+ * type N_Vector. The res_data parameter is the pointer res_data 
+ * passed by the user to the IDASetRdata routine. This user-supplied 
+ * pointer is passed to the user's res function every time it is called, 
+ * to provide access in res to user data.                                    
  *                                                                
  * A IDAResFn res should return a value of 0 if successful, a positive
  * value if a recoverable error occured (e.g. yy has an illegal value),
@@ -64,8 +63,9 @@ extern "C" {
  * ----------------------------------------------------------------
  */
 
-typedef int (*IDAResFn)(realtype tres, N_Vector yy, N_Vector yp, 
-                        N_Vector resval, void *rdata);
+typedef int (*IDAResFn)(realtype tt, 
+                        N_Vector yy, N_Vector yp, N_Vector rr, 
+                        void *res_data);
  
 /*
  * ----------------------------------------------------------------
@@ -221,7 +221,7 @@ void *IDACreate(void);
  * ----------------------------------------------------------------
  */
 
-int IDASetRdata(void *ida_mem, void *rdata);
+int IDASetRdata(void *ida_mem, void *res_data);
 int IDASetErrFile(void *ida_mem, FILE *errfp);
 int IDASetMaxOrd(void *ida_mem, int maxord);
 int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
@@ -247,7 +247,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints);
  *                                                                
  * t0      is the initial value of t, the independent variable.   
  *                                                                
- * y0      is the initial condition vector y(t0).                 
+ * yy0     is the initial condition vector y(t0).                 
  *                                                                
  * yp0     is the initial condition vector y'(t0)                 
  *                                                                
@@ -287,7 +287,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints);
  */
 
 int IDAMalloc(void *ida_mem, IDAResFn res,
-              realtype t0, N_Vector y0, N_Vector yp0, 
+              realtype t0, N_Vector yy0, N_Vector yp0, 
               int itol, realtype *rtol, void *atol);
 
 /*
@@ -331,7 +331,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
  */                                                                
 
 int IDAReInit(void *ida_mem, IDAResFn res,
-              realtype t0, N_Vector y0, N_Vector yp0,
+              realtype t0, N_Vector yy0, N_Vector yp0,
               int itol, realtype *rtol, void *atol);
  
 /* ----------------------------------------------------------------

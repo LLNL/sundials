@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-10-21 18:18:21 $
+ * $Revision: 1.18 $
+ * $Date: 2004-10-26 20:14:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,21 +63,21 @@ extern "C" {
  * tt  is the current value of the independent variable t.        
  *                                                                
  * yy  is the current value of the dependent variable vector,     
- *        namely the predicted value of y(t).                     
+ *     namely the predicted value of y(t).                     
  *                                                                
  * yp  is the current value of the derivative vector y',          
- *        namely the predicted value of y'(t).                    
+ *     namely the predicted value of y'(t).                    
  *                                                                
  * rr  is the current value of the residual vector F(t,y,y').     
  *                                                                
- * cj  is the scalar in the system Jacobian, proportional to 1/hh.
+ * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *                                                                
- * pdata  is a pointer to user preconditioner data - the same as  
- *        the pdata parameter passed to IDASpgmr.                 
+ * prec_data is a pointer to user preconditioner data - the same as  
+ *     the pdata parameter passed to IDASpgmr.                 
  *                                                                
  * tmp1, tmp2, tmp3 are pointers to vectors of type N_Vector      
- * which can be used by an IDASpgmrPrecSetupFn routine            
- * as temporary storage or work space.                            
+ *     which can be used by an IDASpgmrPrecSetupFn routine            
+ *     as temporary storage or work space.                            
  *                                                                
  * NOTE: If the user's preconditioner needs other quantities,     
  *     they are accessible as follows: hcur (the current stepsize)
@@ -97,7 +97,7 @@ extern "C" {
   
 typedef int (*IDASpgmrPrecSetupFn)(realtype tt, 
                                    N_Vector yy, N_Vector yp, N_Vector rr, 
-                                   realtype cj, void *pdata,
+                                   realtype c_j, void *prec_data,
                                    N_Vector tmp1, N_Vector tmp2, 
                                    N_Vector tmp3);
 
@@ -114,33 +114,33 @@ typedef int (*IDASpgmrPrecSetupFn)(realtype tt,
  * A preconditioner solve function PrecSolve must have the        
  * prototype given below.  Its parameters are as follows:         
  *                                                                
- * tt  is the current value of the independent variable t.        
+ * tt is the current value of the independent variable t.        
  *                                                                
- * yy  is the current value of the dependent variable vector y.   
+ * yy is the current value of the dependent variable vector y.   
  *                                                                
- * yp  is the current value of the derivative vector y'.          
+ * yp is the current value of the derivative vector y'.          
  *                                                                
- * rr  is the current value of the residual vector F(t,y,y').     
+ * rr is the current value of the residual vector F(t,y,y').     
  *                                                                
- * cj  is the scalar in the system Jacobian, proportional to 1/hh.
+ * rvec is the input right-hand side vector r.                  
  *                                                                
- * pdata  is a pointer to user preconditioner data - the same as  
- *        the pdata parameter passed to IDASpgmr.                 
+ * zvec is the computed solution vector z.                      
  *                                                                
- * delta  is an input tolerance for use by PrecSolve if it uses an
- *        iterative method in its solution.   In that case, the   
- *        the residual vector r - P z of the system should be     
- *        made less than delta in weighted L2 norm, i.e.,         
+ * c_j is the scalar in the system Jacobian, proportional to 1/hh.
+ *                                                                
+ * delta is an input tolerance for use by PrecSolve if it uses an
+ *     iterative method in its solution.   In that case, the   
+ *     the residual vector r - P z of the system should be     
+ *     made less than delta in weighted L2 norm, i.e.,         
  *            sqrt [ Sum (Res[i]*ewt[i])^2 ] < delta .            
- *        Note: the error weight vector ewt can be obtained       
- *        through a call to the routine IDAGetErrWeights.         
+ *     Note: the error weight vector ewt can be obtained       
+ *     through a call to the routine IDAGetErrWeights.         
  *                                                                
- * rvec   is the input right-hand side vector r.                  
+ * prec_data is a pointer to user preconditioner data - the same as  
+ *     the pdata parameter passed to IDASpgmr.                 
  *                                                                
- * zvec   is the computed solution vector z.                      
- *                                                                
- * tmp  is an N_Vector which can be used by the PrecSolve         
- * routine as temporary storage or work space.                    
+ * tmp is an N_Vector which can be used by the PrecSolve         
+ *     routine as temporary storage or work space.                    
  *                                                                
  *                                                                
  * The IDASpgmrPrecSolveFn should return                          
@@ -157,8 +157,8 @@ typedef int (*IDASpgmrPrecSetupFn)(realtype tt,
 typedef int (*IDASpgmrPrecSolveFn)(realtype tt, 
                                    N_Vector yy, N_Vector yp, N_Vector rr, 
                                    N_Vector rvec, N_Vector zvec,
-                                   realtype cj, realtype delta,
-                                   void *pdata, N_Vector tmp);
+                                   realtype c_j, realtype delta, void *prec_data,
+                                   N_Vector tmp);
 
 /*
  * -----------------------------------------------------------------
@@ -174,11 +174,7 @@ typedef int (*IDASpgmrPrecSolveFn)(realtype tt,
  * A function jtimes must have the prototype given below. Its     
  * parameters are as follows:                                     
  *                                                                
- *   v    is the N_Vector to be multiplied by J.                  
- *                                                                
- *   Jv   is the output N_Vector containing J*v.                  
- *                                                                
- *   t    is the current value of the independent variable.       
+ *   tt   is the current value of the independent variable.       
  *                                                                
  *   yy   is the current value of the dependent variable vector,  
  *        namely the predicted value of y(t).                     
@@ -188,7 +184,11 @@ typedef int (*IDASpgmrPrecSolveFn)(realtype tt,
  *                                                                
  *   rr   is the current value of the residual vector F(t,y,y').  
  *                                                                
- *   cj   is the scalar in the system Jacobian, proportional      
+ *   v    is the N_Vector to be multiplied by J.                  
+ *                                                                
+ *   Jv   is the output N_Vector containing J*v.                  
+ *                                                                
+ *   c_j  is the scalar in the system Jacobian, proportional      
  *        to 1/hh.                                                
  *                                                                
  *   jac_data is a pointer to user Jacobian data, the same as the 
@@ -200,8 +200,9 @@ typedef int (*IDASpgmrPrecSolveFn)(realtype tt,
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDASpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
+typedef int (*IDASpgmrJacTimesVecFn)(realtype tt,
                                      N_Vector yy, N_Vector yp, N_Vector rr,
+                                     N_Vector v, N_Vector Jv, 
                                      realtype c_j, void *jac_data, 
                                      N_Vector tmp1, N_Vector tmp2);
 
@@ -279,9 +280,9 @@ int IDASpgmr(void *ida_mem, int maxl);
 
 int IDASpgmrSetPrecSolveFn(void *ida_mem, IDASpgmrPrecSolveFn psolve);
 int IDASpgmrSetPrecSetupFn(void *ida_mem, IDASpgmrPrecSetupFn pset);
-int IDASpgmrSetPrecData(void *ida_mem, void *pdata);
+int IDASpgmrSetPrecData(void *ida_mem, void *prec_data);
 int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes);
-int IDASpgmrSetJacData(void *ida_mem, void *jdata);
+int IDASpgmrSetJacData(void *ida_mem, void *jac_data);
 int IDASpgmrSetGSType(void *ida_mem, int gstype);
 int IDASpgmrSetMaxRestarts(void *ida_mem, int maxrs);
 int IDASpgmrSetEpsLin(void *ida_mem, realtype eplifac);
