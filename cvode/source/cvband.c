@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-08-25 16:19:33 $
+ * $Revision: 1.17 $
+ * $Date: 2004-10-08 16:25:40 $
  * ----------------------------------------------------------------- 
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
- *              Radu Serban @ LLNL
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvode/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * This is the implementation file for the CVBAND linear solver.
  * -----------------------------------------------------------------
@@ -17,7 +17,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "cvband_impl.h"
 #include "cvode_impl.h"
@@ -36,8 +35,6 @@
 #define MSG_BAD_SIZES         MSG_BAD_SIZES_1 MSG_BAD_SIZES_2 MSG_BAD_SIZES_3
 
 #define MSG_BAD_NVECTOR       CVBAND "A required vector operation is not implemented.\n\n"
-
-#define MSG_WRONG_NVEC        CVBAND "Incompatible NVECTOR implementation.\n\n"
 
 #define MSG_CVMEM_NULL        CVBAND "Integrator memory is NULL.\n\n"
 
