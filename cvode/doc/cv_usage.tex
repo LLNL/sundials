@@ -371,7 +371,9 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
     \index{tolerances}
     is a pointer to the relative error tolerance.
   \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance.
+    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{CV\_SS}, \id{abstol}
+    must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{CV\_SV}, \id{abstol}
+    must be an \id{N\_Vector} variable.
   \end{args}
 }
 {
@@ -1338,7 +1340,9 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
     \index{tolerances}
     is a pointer to the relative error tolerance.
   \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance.
+    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{CV\_SS}, \id{abstol}
+    must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{CV\_SV}, \id{abstol}
+    must be an \id{N\_Vector} variable.
   \end{args}
 }
 {
@@ -3401,7 +3405,9 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}
   \item[reltol] (\id{realtype *})
     is a pointer to the relative error tolerance.
   \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance.
+    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{CV\_SS}, \id{abstol}
+    must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{CV\_SV}, \id{abstol}
+    must be an \id{N\_Vector} variable.
   \end{args}
 }
 {
@@ -3973,7 +3979,9 @@ There are two optional output functions associated with rootfinding.
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
+{
+  Memory for the vector \id{rootsfound} is allocated and freed by {\cvode}.
+}
 %%
 %%
 \ucfunction{CVodeGetNumGEvals}

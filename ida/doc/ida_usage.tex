@@ -14,9 +14,14 @@ The user should be aware that not all linear solver modules are compatible
 with all {\nvector} implementations. 
 \index{IDA@{\ida} linear solvers!NVECTOR@{\nvector} compatibility}
 For example, {\nvecp} is not compatible with the direct dense or direct band 
-linear solvers since these linear solver modules need to form the system Jacobian.
+linear solvers, since these linear solver modules need to form the complete
+system Jacobian.
 The {\idadense} and {\idaband} modules can only be used with {\nvecs}. 
 The preconditioner module {\idabbdpre} can only be used with {\nvecp}. 
+
+{\ida} uses various constants for both input and output.  These are
+defined as needed in this chapter, but for convenience are also listed
+separately in Chapter \ref{c:constants}.
 
 %%===================================================================================
 \section{Data types}\label{s:types}
@@ -310,7 +315,9 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
     \index{tolerances}
     is a pointer to the relative error tolerance.
   \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance.
+    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS}, \id{abstol}
+    must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{IDA\_SV}, \id{abstol}
+    must be an \id{N\_Vector} variable.
   \end{args}
 }
 {
@@ -1309,7 +1316,9 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
     \index{tolerances}
     is a pointer to the relative error tolerance.
   \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance.
+    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS}, \id{abstol}
+    must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{IDA\_SV}, \id{abstol}
+    must be an \id{N\_Vector} variable.
   \end{args}
 }
 {
@@ -3435,7 +3444,9 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
   \item[reltol] (\id{realtype *})
     is a pointer to the relative error tolerance.
   \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance.
+    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS}, \id{abstol}
+    must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{IDA\_SV}, \id{abstol}
+    must be an \id{N\_Vector} variable.
   \end{args}
 }
 {

@@ -16,6 +16,10 @@ only way to pass values of the problem parameters to the ODE right-hand side
 function is to require the user data structure \id{f\_data} to contain a pointer
 to the array of real parameters $p$.
 
+{\cvodes} uses various constants for both input and output.  These are
+defined as needed in this chapter, but for convenience are also listed
+separately in Chapter \ref{c:constants}.
+
 We begin with a brief overview, in the form of a skeleton user program.
 Following that are detailed descriptions of the interface to the
 various user-callable routines and of the user-supplied routines that were not already
@@ -863,7 +867,11 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
     \index{tolerances}
     is a pointer to the relative error tolerance.
   \item[abstolS] (\id{void *})
-    is a pointer to the absolute error tolerance.
+    is a pointer to the absolute error tolerance. If \id{itolS}$=$\id{CV\_SS}, \id{abstolS}
+    must be a pointer to a \id{realtype} variable. If \id{itolS}$=$\id{CV\_SV}, \id{abstolS}
+    must be an array of \id{Ns} variables of ype \id{N\_Vector}. In the latter case, \id{abstolS}
+    should be created and set in the same manner as the vectors of initial values for the 
+    sensitivity variables (see \S\ref{s:forward_usage}).
   \end{args}
 }
 {
