@@ -205,7 +205,7 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
 
   Optionally, call \id{CVodeRootInit} to initialize a rootfinding problem
   to be solved during the integration of the ODE system.
-  See \S\ref{ss:root_init} for details.
+  See \S\ref{ss:root_uc} for details.
 
 \item
   {\bf Advance solution in time}
@@ -650,7 +650,7 @@ of the IVP.
   and \id{yout} = $y($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[SOLVE\_FAILURE]
+  \begin{args}[CVODE\_NO\_MALLOC]
   \item[\Id{SUCCESS}]
     \id{CVode} succeeded.
   \item[\ID{TSTOP\_RETURN}]
@@ -658,6 +658,8 @@ of the IVP.
     the optional input function \id{CVodeSetStopTime} (see \S\ref{ss:optional_input}).
   \item[\ID{CVODE\_NO\_MEM}]
     The \id{cvode\_mem} argument was \id{NULL}.
+  \item[\ID{CVODE\_NO\_MALLOC}]
+    The {\cvode} memory was not allocated through a call to \id{CVodeMalloc}.
   \item[\ID{ILL\_INPUT}]
     One of the inputs to \id{CVode} is illegal. This includes the situation when a 
     component of the error weight vectors becomes negative during internal 
@@ -738,6 +740,7 @@ Maximum no. of error test failures & \id{CVodeSetMaxErrTestFails} & 7 \\
 Maximum no. of nonlinear iterations & \id{CVodeSetMaxNonlinIters} & 3 \\
 Maximum no. of convergence failures & \id{CVodeSetMaxConvFails} & 10 \\
 Coefficient in the nonlinear convergence test & \id{CVodeSetNonlinConvCoef} & 0.1 \\
+Data for rootfinding function & \id{CVodeSetGdata} & NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf CVDENSE linear solver} \\
 \hline
@@ -1875,6 +1878,8 @@ Error weight vector for state variables & \id{CVodeGetErrWeights} \\
 Estimated local error vector & \id{CVodeGetEstLocalErrors} \\
 No. of nonlinear solver iterations & \id{CVodeGetNumNonlinSolvIters} \\
 No. of nonlinear convergence failures & \id{CVodeGetNumNonlinSolvConvFails} \\ 
+Rootfinding information & \id{CvodeGetRootInfo} \\
+No. of calls to the rootfinding function & \id{CVodeGetNumGevals} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVDENSE linear solver} \\
 \hline
@@ -3721,6 +3726,186 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
   function, but rather is called only as often as needed to achieve convergence in the
   Newton iteration. 
 }
+
+%%===================================================================================
+%%
+\section{Rootfinding}
+%%
+%%===================================================================================
+
+While integrating the IVP, {\cvode} has the capability of finding the roots of a set 
+of user-defined functions. This section describes the user-callable functions used
+to initialize and define the root finding problem, as well as the required additional 
+user-supplied functions.
+
+\subsection{User-callable functions for rootfinding}\label{ss:root_uc}
+%%
+\ucfunction{CVodeRootInit}
+{
+  flag = CVodeRootInit(cvode\_mem, g, nrtfn);
+}
+{
+  The function \ID{CVodeRootInit} specifies thaqt roots of a set of
+  functions $g_i(t,y)$ are to be found while the IVP is being solved.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[g] (\id{RootFn})
+    is the {\C} function which defines the \id{nrtfn} functions $g_i(t,y)$
+    whose roots are sought. See \S\ref{ss:root_us} for details.
+  \item[nrtfn] (\id{int})
+    is the number of root functions $g_i$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVRT\_MEM\_FAIL]
+  \item[SUCCESS]
+    The call to \id{CVodeRootInit} was successfull.
+  \item[CVRT\_NO\_MEM]
+    The \id{cvode\_mem} argument was \id{NULL}.
+  \item[CVRT\_MEM\_FAIL]
+    A memory allocation failed.
+  \end{args}
+}
+{
+  If a new IVP is to be solved with a call to \id{CVodeReInit}, where the new
+  IVP has no rootfinding problem but the prior one did, then call \id{CVodeRootInit}
+  with \id{nrtfn}$=0$.
+}
+%%
+%%
+There is one optional input function associated with rootfinding. 
+%%
+\ucfunction{CVodeSetGdata}
+{
+  flag = CVodeSetGdata(cvode\_mem, g\_data);
+}
+{
+  The function \ID{CVodeSetGdata} specifies the user data block \Id{g\_data}
+  for use by the user's root function $g$.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[g\_data] (\id{void *})
+    pointer to the user data.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVS\_NO\_MEM]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVS\_NO\_MEM}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  If \id{g\_data} is not specified, a \id{NULL} pointer is
+  passed to the $g$ function.
+}
+%%
+There are two optional output functions associated with rootfinding.
+%%
+%%
+\ucfunction{CVodeGetRootInfo}
+{
+  flag = CVodeGetRootInfo(cvode\_mem, rootsfound);
+}
+{
+  The function \ID{CVodeGetRootInfo} returns an array showing which 
+  functions were found to have a root.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[rootsfound] (\id{int **})
+    pointer to an array of \id{int} of length \id{nrtfn}, showing the
+    indeces of the user functions $g_i$ found to have a root. 
+    For $i=0,\ldots,$\id{nrtfn}$-1$, \id{rootsfound}[$i$]$=1$ if $g_i$
+    has a root, and $=0$ if not.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVG\_NO\_MEM]
+  \item[OKAY] 
+    The optional output values have been successfully set.
+  \item[\Id{CVG\_NO\_MEM}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{CVodeGetNumGEvals}
+{
+  flag = CVodeGetNumGEvals(cvode\_mem, ngevals);
+}
+{
+  The function \ID{CVodeGetNumGEvals} returns the 
+  number of calls to the user root function $g$.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[ngevals] (\id{long int *})
+    number of calls to the user's \id{g} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVG\_NO\_MEM]
+  \item[OKAY] 
+    The optional output value has been successfully set.
+  \item[\Id{CVG\_NO\_MEM}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+
+\subsection{USer-supplied function for rootfinding}\label{ss:root_us}
+
+If a rootfinding problem is to be solved during the integration of the ODE system,
+the user must supply a {\C} function of type \id{RootFn}, defined as follows:
+%%
+\usfunction{RootFn}
+{
+  typedef void (*RootFn)(realtype t, N\_Vector y, realtype *gout, void *g\_data);
+}
+{
+  This function computes a vector-valued function $g(t,y)$ such that the roots of 
+  the \id{nrtfn} components $g_i(t,y)$ are to be found during the integration.
+}
+{
+  \begin{args}[g\_data]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[gout]
+    is the output array, of length \id{nrtfn}, with components $g_i(t,y)$.
+  \item[g\_data]
+    is a pointer to user data - the same as the \Id{g\_data}      
+    parameter passed to \id{CVodeSetGdata}.   
+  \end{args}
+}
+{
+  A \id{RootFn} function type does not have a return value.                        
+}
+{
+  Allocation of memory for \id{gout} is handled within {\cvode}.
+}
+
+
 
 %%===================================================================================
 %%
