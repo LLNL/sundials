@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8.2.1 $
- * $Date: 2005-01-24 21:37:07 $
+ * $Revision: 1.8.2.2 $
+ * $Date: 2005-03-18 21:33:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -94,6 +94,10 @@
 #ifndef _FCVROOT_H
 #define _FCVROOT_H
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /* header files */
 
 #include "nvector.h"        /* definition of type N_Vector          */
@@ -152,8 +156,19 @@
 
 #endif
 
+/* Prototypes of exported function */
+
+void FCV_ROOTINIT(int *nrtfn, int *ier);
+void FCV_ROOTINFO(int *nrtfn, int *info, int *ier);
+void FCV_ROOTFREE(void);
+
 /* Prototype of function called by CVROOT module */
 
 void FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16.2.1 $
- * $Date: 2005-01-24 21:37:06 $
+ * $Revision: 1.16.2.2 $
+ * $Date: 2005-03-18 21:33:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -281,6 +281,10 @@
 #ifndef _FCVBBD_H
 #define _FCVBBD_H
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /* header files  */
 
 #include "nvector.h"       /* definition of type N_Vector */
@@ -360,6 +364,16 @@
 
 #endif
 
+/* Prototypes of exported functions */
+
+void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq, 
+                 long int *mu, long int *ml, realtype* dqrely, int *ier);
+void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
+void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq, 
+                   realtype* dqrely, int *ier);
+void FCV_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
+void FCV_BBDFREE(void);
+
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
 void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
@@ -371,5 +385,9 @@ void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data);
 /* Declarations for global variables, shared among various routines */
 
 void *CVBBD_Data;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7.2.1 $
- * $Date: 2005-01-24 21:37:07 $
+ * $Revision: 1.7.2.2 $
+ * $Date: 2005-03-18 21:33:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -194,6 +194,10 @@
 #ifndef _FCVBP_H
 #define _FCVBP_H
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /* header files  */
 
 #include "nvector.h"       /* definition of type N_Vector */
@@ -252,8 +256,18 @@
 
 #endif
 
+/* Prototypes of exported function */
+void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier);
+void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
+void FCV_BPOPT(long int *lenrpw, long int *lenipw, long int *nfe);
+void FCV_BPFREE(void);
+
 /* Declarations for global variables, shared among various routines */
 
 void *CVBP_Data;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

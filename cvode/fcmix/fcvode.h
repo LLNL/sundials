@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34.2.1 $
- * $Date: 2005-01-24 21:37:07 $
+ * $Revision: 1.34.2.2 $
+ * $Date: 2005-03-18 21:33:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -364,6 +364,10 @@
 #ifndef _FCVODE_H
 #define _FCVODE_H
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /* header files  */
 
 #include "band.h"           /* definition of BandMat       */
@@ -544,6 +548,32 @@
 
 #endif
 
+/* Prototypes of exported functions */
+
+void FCV_MALLOC(realtype *t0, realtype *y0, 
+                int *meth, int *itmeth, int *iatol, 
+                realtype *rtol, realtype *atol,
+                int *optin, long int *iopt, realtype *ropt, 
+                int *ier);
+void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
+                realtype *atol, int *optin, long int *iopt,
+                realtype *ropt, int *ier);
+void FCV_DIAG(int *ier);
+void FCV_DENSE(long int *neq, int *ier);
+void FCV_DENSESETJAC(int *flag, int *ier);
+void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
+void FCV_BANDSETJAC(int *flag, int *ier);
+void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
+void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);
+void FCV_SPGMRSETJAC(int *flag, int *ier);
+void FCV_SPGMRSETPSET(int *flag, int *ier);
+void FCV_SPGMRSETPSOL(int *flag, int *ier);
+void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
+void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier);
+void FCV_FREE ();
+
+
+
 /* Prototypes: Functions Called by the CVODE Solver */
   
 void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
@@ -575,14 +605,18 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
 
 extern N_Vector F2C_vec;
 
-N_Vector F2C_atolvec;
-realtype *data_F2C_vec, *data_F2C_atolvec;
+extern N_Vector F2C_atolvec;
+extern realtype *data_F2C_vec, *data_F2C_atolvec;
 
-void *CV_cvodemem;
-booleantype CV_optin;
-long int *CV_iopt;
-realtype *CV_ropt;
-int CV_nrtfn;
-int CV_ls;  /* 1 = DENSE, 2 = BAND, 3 = DIAG, 4 = SPGMR */
+extern void *CV_cvodemem;
+extern booleantype CV_optin;
+extern long int *CV_iopt;
+extern realtype *CV_ropt;
+extern int CV_nrtfn;
+extern int CV_ls;  /* 1 = DENSE, 2 = BAND, 3 = DIAG, 4 = SPGMR */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39 $
- * $Date: 2004-12-01 18:58:30 $
+ * $Revision: 1.39.2.1 $
+ * $Date: 2005-03-18 21:33:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -33,13 +33,34 @@
 
 /***************************************************************************/
 
+/* Definitions for global variables shared amongst various routines */
+
+N_Vector F2C_atolvec;
+realtype *data_F2C_vec, *data_F2C_atolvec;
+
+void *CV_cvodemem;
+booleantype CV_optin;
+long int *CV_iopt;
+realtype *CV_ropt;
+int CV_nrtfn;
+int CV_ls;
+
+/***************************************************************************/
+
 /* private constant(s) */
 #define ZERO RCONST(0.0)
 
 /***************************************************************************/
 
 /* Prototypes of the Fortran routines */
-extern void FCV_FUN(realtype*, realtype*, realtype*);
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+  extern void FCV_FUN(realtype*, realtype*, realtype*);
+#ifdef __cplusplus
+}
+#endif
 
 /**************************************************************************/
 
