@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-08-05 18:01:23 $
+ * $Revision: 1.24 $
+ * $Date: 2004-08-09 21:05:22 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -281,12 +281,12 @@
  * approximation to the Jacobian vector product, while FLAG=1 specifies that 
  * CVJTIMES is provided.
  * 
- * Usage of the user-supplied routine CVPSOL for solution of the preconditioner 
+ * Usage of the user-supplied routine FCVPSOL for solution of the preconditioner 
  * linear system is specified by calling
  *       CALL FCVSPGMRSETPSOL(FLAG, IER)
  * where FLAG=0 indicates no FCVPSOL (default) and FLAG=1 specifies using FCVPSOL.
  * The user-supplied routine FCVPSOL must be of the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, H, DELTA, NFE, R, LR, Z, IER)
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, NFE, R, LR, Z, IER)
  *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
