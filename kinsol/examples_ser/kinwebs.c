@@ -1,9 +1,7 @@
 /*************************************************************************
  * File        : kinwebs.c                                               *
- * Programmers : Allan G. Taylor and Alan C. Hindmarsh @ LLNL            *
- * Version of  : 26 July 2002                                            *
- *-----------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial NVECTOR 7 March 2002.   *
+ * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL  *
+ * Version of  : 31 March 2003                                           *
  *-----------------------------------------------------------------------*
  * Example problem for KINSol, serial machine version.
  * This example solves a nonlinear system that arises from a system of  
@@ -128,7 +126,7 @@ typedef struct {
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
   realtype uround, sqruround;
-  integertype Neq, mx, my, ns, np;
+  integertype mx, my, ns, np;
 } *UserData;
 
 
@@ -147,14 +145,14 @@ static realtype DotProd(integertype size, realtype *x1, realtype *x2);
 
 /* Functions Called by the KINSOL Solver */
 
-static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data);
+static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
 
-static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale,
+static int Precondbd(N_Vector cc, N_Vector cscale,
                      N_Vector fval, N_Vector fscale, N_Vector vtemp1,
                      N_Vector vtemp2, SysFn func, realtype uround,
                      long int *nfePtr, void *P_data);
 
-static int PSolvebd(integertype Neq, N_Vector cc, N_Vector cscale,
+static int PSolvebd(N_Vector cc, N_Vector cscale,
                     N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
                     SysFn func, realtype uround, long int *nfePtr,void *P_data);
 
@@ -164,7 +162,7 @@ static int PSolvebd(integertype Neq, N_Vector cc, N_Vector cscale,
 int main()
 {
   M_Env machEnv;
-  integertype Neq=NEQ, globalstrategy;
+  integertype globalstrategy;
   realtype fnormtol, scsteptol, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector cc, sc, constraints;
@@ -174,7 +172,7 @@ int main()
   void *kmem;
 
   /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(Neq);
+  machEnv = M_EnvInit_Serial(NEQ);
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
   optIn = FALSE;
@@ -184,11 +182,11 @@ int main()
   data = AllocUserData();
   InitUserData(data);
 
-  cc = N_VNew(Neq, machEnv);
-  sc = N_VNew(Neq, machEnv);
-  data->rates= N_VNew(Neq, machEnv);
+  cc = N_VNew(machEnv);
+  sc = N_VNew(machEnv);
+  data->rates= N_VNew(machEnv);
 
-  constraints = N_VNew(Neq, machEnv);
+  constraints = N_VNew(machEnv);
   N_VConst(1.0,constraints);
   
   SetInitialProfiles(cc, sc);
@@ -196,12 +194,11 @@ int main()
   fnormtol=FTOL; scsteptol=STOL;
 
   /* Call KINMalloc to initialize KINSOL: 
-     Neq      is the number of equations in the system being solved
      NULL     directs error messages to stdout
      machEnv  the machEnv pointer used in the serial version
      A pointer to KINSOL problem memory is returned and stored in kmem. */
 
-  kmem = KINMalloc(Neq, NULL, machEnv);
+  kmem = KINMalloc(NULL, machEnv);
   if (kmem == NULL) { printf("KINMalloc failed."); return(1); }
 
   /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
@@ -229,7 +226,7 @@ int main()
   printf("\nPredator-prey test problem --  KINSol (serial version)\n\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
   printf("Number of species = %d\n", NUM_SPECIES);
-  printf("Total system size = %ld\n\n", Neq);
+  printf("Total system size = %ld\n\n", NEQ);
   printf("Flag globalstrategy = %ld (0 = Inex. Newton, 1 = Linesearch)\n",
          globalstrategy);
   printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
@@ -246,7 +243,6 @@ int main()
   /* Call KINSol and print output concentration profile */
 
   flag = KINSol(kmem,           /* KINSol memory block */
-                Neq,            /* system size -- number of equations  */
                 cc,             /* initial guess on input; solution vector */
                 funcprpr,       /* function describing the system equations */
                 globalstrategy, /* global stragegy choice */
@@ -328,7 +324,6 @@ static void InitUserData(UserData data)
   
   data->mx = MX;
   data->my = MY;
-  data->Neq= NEQ;
   data->ns = NUM_SPECIES;
   data->np = NUM_SPECIES/2;
   data->ax = AX;
@@ -474,7 +469,7 @@ static void PrintFinalStats(long int iopt[])
 
 /* System function for predator-prey system */
 
-static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
+static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
   integertype jx, jy, is, idyu, idyl, idxr, idxl;
@@ -532,7 +527,7 @@ static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale,
+static int Precondbd(N_Vector cc, N_Vector cscale,
                      N_Vector fval, N_Vector fscale,
                      N_Vector vtemp1, N_Vector vtemp2, 
                      SysFn func, realtype uround, long int *nfePtr,void *P_data)
@@ -548,7 +543,7 @@ static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale,
   
   sqruround = data->sqruround;
   fac = N_VWL2Norm(fval, fscale);
-  r0 = THOUSAND * uround * fac * Neq;
+  r0 = THOUSAND * uround * fac * NEQ;
   if(r0 == ZERO) r0 = ONE;
   
   /* Loop over spatial points; get size NUM_SPECIES Jacobian block at each */
@@ -601,7 +596,7 @@ static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale,
 
 /* Preconditioner solve routine */
 
-static int PSolvebd(integertype Neq, N_Vector cc, N_Vector cscale,
+static int PSolvebd(N_Vector cc, N_Vector cscale,
                     N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
                     SysFn func, realtype uround, long int *nfePtr, void *P_data)
 {

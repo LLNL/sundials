@@ -1,8 +1,8 @@
       program kindiagpf
 c   ***************************************************************************
 c   * File        : kindiagpf.f                                               *
-c   * Programmers : Allan G. Taylor and Alan C. Hindmarsh @ LLNL              *
-c   * Version of  : 30 July 2002                                              *
+c   * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL    *
+c   * Version of  : 31 March 2003                                             *
 c   *   Simple diagonal test with Fortran interface, using user-supplied      *
 c   *   preconditioner setup and solve routines (supplied in Fortran, below). *
 c   *   This example does a basic test of the solver by solving the system    *
@@ -71,7 +71,7 @@ c     number of this process.
       mype = rank
       baseadd = mype * nlocal 
       
-      call fkinmalloc(neq, ier)
+      call fkinmalloc(ier)
       
       if (ier .ne. 0) then
          write(6,1231)ier
@@ -101,7 +101,7 @@ c     number of this process.
          constr(ii) = 0.0
  20   continue
       
-      call fkinsol(neq, uu, 0, scale, scale, fnormtol, 
+      call fkinsol(uu, 0, scale, scale, fnormtol, 
      1             scsteptol, constr, inopt, iopt, ropt, ier)
 
       if (mype .eq. 0) write(6,1245)ier
@@ -136,7 +136,7 @@ c * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 c     The function defining the system f(u) = 0 must be defined by a Fortran
 c     function with the following name and form. 
       
-      subroutine KFUN(neq, uu, fval)
+      subroutine KFUN(uu, fval)
 
       double precision fval(*), uu(*)
       
@@ -157,7 +157,7 @@ c     The routine kpreco is the preconditioner setup routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine kpreco(neq, udata, uscale, fdata, fscale, 
+      subroutine kpreco(udata, uscale, fdata, fscale, 
      1                  vtemp1, vtemp2, uround, nfe, ier)
       
       integer nfe, ier
@@ -183,7 +183,7 @@ c     The routine kpsol is the preconditioner solve routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine kpsol(neq, udata, uscale, fdata, fscale, 
+      subroutine kpsol(udata, uscale, fdata, fscale, 
      1                 vv, ftem, uround, nfe, ier)
       
       integer nfe, ier

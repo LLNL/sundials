@@ -1,8 +1,8 @@
       program kindiagsf
 c   ***************************************************************************
 c   * File        : kindiagsf.f                                               *
-c   * Programmers : Allan G. Taylor and Alan C. Hindmarsh @ LLNL              *
-c   * Version of  : 30 July 2002                                              *
+c   * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL    *
+c   * Version of  : 31 MArch 2003                                             *
 c   *   Simple diagonal test with Fortran interface, using user-supplied      *
 c   *   preconditioner setup and solve routines (supplied in Fortran, below). *
 c   *   This example does a basic test of the solver by solving the system    *
@@ -27,6 +27,7 @@ c   *-------------------------------------------------------------------------*
       double precision pp
       
       common /pcom/ pp(PROBSIZE)
+      common /psize/ neq
 
       neq = PROBSIZE
       globalstrat = 0
@@ -46,7 +47,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
          stop
       endif
 
-      call fkinmalloc(neq, ier)
+      call fkinmalloc(ier)
       if (ier .ne. 0) then
          write(6,1230),ier
  1230    format('fkinmalloc failed, ier =',i2)
@@ -74,7 +75,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
      3       ' interface'/' in a serial environment.'/
      4       ' globalstrategy = INEXACT_NEWTON'/)
 
-      call fkinsol(neq, uu, 0, scale, scale, fnormtol, 
+      call fkinsol(uu, 0, scale, scale, fnormtol, 
      1             scsteptol, constr, inopt, iopt, ropt, ier)
 
       write(6,1245)ier
@@ -102,9 +103,11 @@ c * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 c     The function defining the system f(u) = 0 must be defined by a Fortran
 c     function of the following form.
       
-      subroutine KFUN(neq, uu, fval)
-
+      subroutine KFUN(uu, fval)
+      
       double precision fval(*), uu(*)
+      integer neq
+      common /psize/ neq
 
       do 10 i = 1,neq
  10      fval(i) = uu(i)*uu(i) - i*i
@@ -118,7 +121,7 @@ c     The routine kpreco is the preconditioner setup routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine kpreco(neq, udata, uscale, fdata, fscale, 
+      subroutine kpreco(udata, uscale, fdata, fscale, 
      1                  vtemp1, vtemp2, uround, nfe, ier)
       
       integer nfe, ier
@@ -128,6 +131,9 @@ c     to it.  The argument list must also be as illustrated below:
       double precision pp
       common /pcom/ pp(128)
       
+      integer neq
+      common /psize/ neq
+
       do 10 i = 1,neq
  10      pp(i) = 0.5/(udata(i)+5.)
       
@@ -142,7 +148,7 @@ c     The routine kpsol is the preconditioner solve routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine kpsol(neq, udata, uscale, fdata, fscale, 
+      subroutine kpsol(udata, uscale, fdata, fscale, 
      1                 vv, ftem, uround, nfe, ier)
       
       integer nfe, ier
@@ -151,7 +157,10 @@ c     to it.  The argument list must also be as illustrated below:
       
       double precision pp
       common /pcom/ pp(128)
-      
+
+      integer neq
+      common /psize/ neq
+
       do 10 i = 1,neq
  10      vv(i) = vv(i) * pp(i)
       

@@ -1,9 +1,7 @@
  /************************************************************************
  * File        : kinwebbbd.d                                             *
- * Programmers : Allan G. Taylor and Alan C. Hindmarsh @ LLNL            *
- * Version of  : 27 June 2002                                            *
- *-----------------------------------------------------------------------*
- * Modified by R. Serban to work with new parallel NVECTOR 7 March 2002. *
+ * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL  *
+ * Version of  : 31 March 2003                                           *
  *-----------------------------------------------------------------------*
  * Example problem for KINSol, parallel machine case, BBD preconditioner.
  * This example solves a nonlinear system that arises from a system of  
@@ -135,7 +133,7 @@ typedef struct {
   N_Vector rates;
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
-  integertype Neq, mx, my, ns, np;
+  integertype Nlocal, mx, my, ns, np;
   realtype cext[NUM_SPECIES * (MXSUB+2)*(MYSUB+2)];
   integertype my_pe, isubx, isuby, nsmxsub, nsmxsub2;
   MPI_Comm comm;
@@ -145,7 +143,7 @@ typedef struct {
 /* Private Helper Functions */
 
 static UserData AllocUserData(void);
-static void InitUserData(integertype my_pe, MPI_Comm comm, UserData data);
+static void InitUserData(integertype my_pe, integertype Nlocal, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintOutput(integertype my_pe, MPI_Comm comm, N_Vector cc);
@@ -167,11 +165,11 @@ static void BRecvWait(MPI_Request request[], integertype isubx,
 
 /* Function called by the KINSol Solver */
 
-static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data);
+static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
 
-static void ccomm(integertype Neq, realtype *cdata, void *data);
+static void ccomm(integertype Nlocal, realtype *cdata, void *data);
 
-static void fcalcprpr(integertype Neq, N_Vector cc, N_Vector fval,void *f_data);
+static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval,void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -180,7 +178,6 @@ int main(int argc, char *argv[])
 
 {
   M_Env machEnv;
-  integertype Neq = NEQ;
   integertype globalstrategy, Nlocal;
   realtype fnormtol, scsteptol, dq_rel_uu, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
@@ -212,21 +209,21 @@ int main(int argc, char *argv[])
   Nlocal = NUM_SPECIES*MXSUB*MYSUB;
 
   /* Set machEnv block */
-  machEnv = M_EnvInit_Parallel(comm, Nlocal, Neq, &argc, &argv);
+  machEnv = M_EnvInit_Parallel(comm, Nlocal, NEQ, &argc, &argv);
   if (machEnv==NULL) return(1);
 
   /* Allocate and initialize user data block */
   data = AllocUserData();
-  InitUserData(my_pe, comm, data);
+  InitUserData(my_pe, Nlocal, comm, data);
 
   /* Choose global strategy */
   globalstrategy = INEXACT_NEWTON;
 
   /* Allocate and initialize vectors */
-  cc = N_VNew(Neq, machEnv);
-  sc = N_VNew(Neq, machEnv);
-  data->rates = N_VNew(Neq,machEnv);
-  constraints = N_VNew(Neq, machEnv);
+  cc = N_VNew(machEnv);
+  sc = N_VNew(machEnv);
+  data->rates = N_VNew(machEnv);
+  constraints = N_VNew(machEnv);
   N_VConst(0.,constraints);
   
   SetInitialProfiles(cc, sc);
@@ -239,7 +236,7 @@ int main(int argc, char *argv[])
      machEnv  points to machine environment data
      A pointer to KINSOL problem memory is returned and stored in kmem. */
   
-  kmem = KINMalloc(Neq, NULL, machEnv);
+  kmem = KINMalloc(NULL, machEnv);
   
   if (kmem == NULL) {
     if (my_pe == 0) printf("KINMalloc failed."); return(1);
@@ -284,7 +281,7 @@ int main(int argc, char *argv[])
     
     printf("Mesh dimensions = %d X %d\n", MX, MY);
     printf("Number of species = %d\n", NUM_SPECIES);
-    printf("Total system size = %ld\n\n", Neq);
+    printf("Total system size = %ld\n\n", NEQ);
     printf("Subgrid dimensions = %d X %d\n", MXSUB, MYSUB);
     printf("Processor array is %d X %d\n\n", NPEX, NPEY);
     printf("Flag globalstrategy = %ld (0 = Inex. Newton, 1 = Linesearch)\n",
@@ -305,7 +302,6 @@ int main(int argc, char *argv[])
   /* call KINSol and print output concentration profile */
   
   flag = KINSol(kmem,           /* KINSol memory block */
-                Neq,            /* system size -- number of equations  */
                 cc,             /* initial guesss on input; solution vector */
                 funcprpr,       /* function describing the system equations */
                 globalstrategy, /* global stragegy choice */
@@ -379,14 +375,13 @@ static UserData AllocUserData(void)
 
 /* Load problem constants in data */
 
-static void InitUserData(integertype my_pe, MPI_Comm comm, UserData data)
+static void InitUserData(integertype my_pe, integertype Nlocal, MPI_Comm comm, UserData data)
 {
   int i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   data->mx = MX;
   data->my = MY;
-  data->Neq= NEQ;
   data->ns = NUM_SPECIES;
   data->np = NUM_SPECIES/2;
   data->ax = AX;
@@ -394,6 +389,7 @@ static void InitUserData(integertype my_pe, MPI_Comm comm, UserData data)
   data->dx = (data->ax)/(MX-1);
   data->dy = (data->ay)/(MY-1);
   data->my_pe = my_pe;
+  data->Nlocal = Nlocal;
   data->comm = comm;
   data->isuby = my_pe/NPEX;
   data->isubx = my_pe - data->isuby*NPEX;
@@ -693,7 +689,7 @@ static void BRecvWait(MPI_Request request[], integertype isubx,
 /* ccomm routine.  This routine performs all communication 
    between processors of data needed to calculate f. */
 
-static void ccomm(integertype Neq, realtype *cdata, void *userdata)
+static void ccomm(integertype Nlocal, realtype *cdata, void *userdata)
 {
 
   realtype *cext, buffer[2*NUM_SPECIES*MYSUB];
@@ -727,7 +723,7 @@ static void ccomm(integertype Neq, realtype *cdata, void *userdata)
 
 /* System function for predator-prey system - calculation part */
 
-static void fcalcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
+static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
   realtype *cext, dely, delx, *cdata;
@@ -844,7 +840,7 @@ static void fcalcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
   communication of subgrid boundary data into cext.  Then calculate funcprpr
   by a call to fcalcprpr. */
 
-static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
+static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype *cdata, *fvdata;
   UserData data;
@@ -856,11 +852,11 @@ static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
 
   /* Call ccomm to do inter-processor communicaiton */
 
-  ccomm (Neq, cdata, data);
+  ccomm (data->Nlocal, cdata, data);
 
   /* Call fcalcprpr to calculate all right-hand sides */
   
-  fcalcprpr (Neq, cc, fval, data);
+  fcalcprpr (data->Nlocal, cc, fval, data);
   
 } /* end of routine funcprpr *********************************************/
 
