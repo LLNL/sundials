@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-07-22 23:01:09 $
+ * $Revision: 1.19 $
+ * $Date: 2004-10-08 15:26:54 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -56,7 +56,11 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 #define uround   (IDA_mem->ida_uround)
 #define vec_tmpl (IDA_mem->ida_tempv1)
 
-/*********** User-Callable Functions: malloc, reinit, and free *************/
+/*
+ * -----------------------------------------------------------------
+ * User-Callable Functions: malloc, reinit, and free
+ * -----------------------------------------------------------------
+ */
 
 void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal, 
 		      long int mudq, long int mldq, 
@@ -142,22 +146,22 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSG_NO_PDATA);
-    return(BBDP_NO_PDATA);
+    return(IDASPGMR_DATA_NULL);
   }
 
   flag = IDASpgmr(ida_mem, maxl);
-  if(flag != SUCCESS) return(flag);
+  if(flag != IDASPGMR_SUCCESS) return(flag);
 
   flag = IDASpgmrSetPrecData(ida_mem, p_data);
-  if(flag != SUCCESS) return(flag);
+  if(flag != IDASPGMR_SUCCESS) return(flag);
 
   flag = IDASpgmrSetPrecSetupFn(ida_mem, IDABBDPrecSetup);
-  if(flag != SUCCESS) return(flag);
+  if(flag != IDASPGMR_SUCCESS) return(flag);
 
   flag = IDASpgmrSetPrecSolveFn(ida_mem, IDABBDPrecSolve);
-  if(flag != SUCCESS) return(flag);
+  if(flag != IDASPGMR_SUCCESS) return(flag);
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
 
 int IDABBDPrecReInit(void *p_data,
@@ -203,36 +207,21 @@ void IDABBDPrecFree(void *p_data)
   }
 }
 
-int IDABBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP)
+int IDABBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP)
 {
   IBBDPrecData pdata;
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(BBDP_NO_PDATA);
-  } 
-
-  pdata = (IBBDPrecData) p_data;
-
-  *leniwBBDP = pdata->ipwsize;
-
-  return(OKAY);
-}
-
-int IDABBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
-{
-  IBBDPrecData pdata;
-
-  if ( p_data == NULL ) {
-    fprintf(stderr, MSG_PDATA_NULL);
-    return(BBDP_NO_PDATA);
+    return(IDASPGMR_DATA_NULL);
   } 
 
   pdata = (IBBDPrecData) p_data;
 
   *lenrwBBDP = pdata->rpwsize;
+  *leniwBBDP = pdata->ipwsize;
 
-  return(OKAY);
+  return(IDASPGMR_SUCCESS);
 }
 
 int IDABBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
@@ -241,18 +230,15 @@ int IDABBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(BBDP_NO_PDATA);
+    return(IDASPGMR_DATA_NULL);
   } 
 
   pdata = (IBBDPrecData) p_data;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(OKAY);
+  return(IDASPGMR_SUCCESS);
 }
-
-/************* Preconditioner setup and solve functions **************/
- 
 
 /* Readability Replacements */
 
@@ -268,43 +254,46 @@ int IDABBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 #define nge         (pdata->nge)
 #define rel_yy      (pdata->rel_yy)
 
-/******************************************************************
- * Function : IDABBDPrecSetup                                     *
- *----------------------------------------------------------------*
- * IDABBDPrecSetup generates a band-block-diagonal preconditioner *
- * matrix, where the local block (on this processor) is a band    *
- * matrix.  Each local block is computed by a difference quotient *
- * scheme via calls to the user-supplied routines glocal, gcomm.  *
- * After generating the block in the band matrix PP, this routine *
- * does an LU factorization in place in PP.                       *
- *                                                                *
- * The IDABBDPrecSetup parameters used here are as follows:       *
- *                                                                *
- * tt  is the current value of the independent variable t.        *
- *                                                                *
- * yy      is the current value of the dependent variable vector, *
- *         namely the predicted value of y(t).                    *
- *                                                                *
- * yp  is the current value of the derivative vector y',          *
- *        namely the predicted value of y'(t).                    *
- *                                                                *
- * cj  is the scalar in the system Jacobian, proportional to 1/hh.*
- *                                                                *
- * p_data  is a pointer to user preconditioner data - the same as *
- *        the p_data parameter passed to IDASpgmr.                *
- *                                                                *
- * tempv1, tempv2, tempv3 are pointers to vectors of type         *
- * N_Vector, used for temporary storage or work space.            *
- *                                                                *  
- * The arguments Neq, rr, res, uround, and nrePtr are not used.   *
- *                                                                *  
- * Return value:                                                  *
- * The value returned by this IDABBDPrecSetup function is a int   *
- * flag indicating whether it was successful.  This value is      *
- *    0    if successful,                                         *
- *  > 0    for a recoverable error (step will be retried).        *
- *  < 0    for a nonrecoverable error (step fails).               *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function : IDABBDPrecSetup                                     
+ *----------------------------------------------------------------
+ * IDABBDPrecSetup generates a band-block-diagonal preconditioner 
+ * matrix, where the local block (on this processor) is a band    
+ * matrix.  Each local block is computed by a difference quotient 
+ * scheme via calls to the user-supplied routines glocal, gcomm.  
+ * After generating the block in the band matrix PP, this routine 
+ * does an LU factorization in place in PP.                       
+ *                                                                
+ * The IDABBDPrecSetup parameters used here are as follows:       
+ *                                                                
+ * tt  is the current value of the independent variable t.        
+ *                                                                
+ * yy      is the current value of the dependent variable vector, 
+ *         namely the predicted value of y(t).                    
+ *                                                                
+ * yp  is the current value of the derivative vector y',          
+ *        namely the predicted value of y'(t).                    
+ *                                                                
+ * cj  is the scalar in the system Jacobian, proportional to 1/hh.
+ *                                                                
+ * p_data  is a pointer to user preconditioner data - the same as 
+ *        the p_data parameter passed to IDASpgmr.                
+ *                                                                
+ * tempv1, tempv2, tempv3 are pointers to vectors of type         
+ * N_Vector, used for temporary storage or work space.            
+ *                                                                  
+ * The arguments Neq, rr, res, uround, and nrePtr are not used.   
+ *                                                                  
+ * Return value:                                                  
+ * The value returned by this IDABBDPrecSetup function is a int   
+ * flag indicating whether it was successful.  This value is      
+ *    0    if successful,                                         
+ *  > 0    for a recoverable error (step will be retried).        
+ *  < 0    for a nonrecoverable error (step fails).               
+ *
+ * -----------------------------------------------------------------
+ */
 
 int IDABBDPrecSetup(realtype tt, 
 		    N_Vector yy, N_Vector yp, N_Vector rr, 
@@ -321,41 +310,42 @@ int IDABBDPrecSetup(realtype tt,
   BandZero(PP);
   retval = IBBDDQJac(pdata, tt, cj, yy, yp,
                      tempv1, tempv2, tempv3, pdata->tempv4);
-  if (retval < 0) return(LSETUP_ERROR_NONRECVR);
-  if (retval > 0) return(LSETUP_ERROR_RECVR);
+  if (retval < 0) return(-1);
+  if (retval > 0) return(+1);
  
   /* Do LU factorization of preconditioner block in place (in PP). */
   retfac = BandFactor(PP, pivots);
 
-  /* Return 0 if the LU was complete, or LSETUP_ERROR_RECVR otherwise. */
-  if (retfac > 0) return(LSETUP_ERROR_RECVR);
+  /* Return 0 if the LU was complete, or +1 otherwise. */
+  if (retfac > 0) return(+1);
   return(0);
 }
 
 
-/******************************************************************
- *                                                                *           
- * Function: IDABBDPrecSolve                                      *
- *----------------------------------------------------------------*
- * The function IDABBDPrecSolve computes a solution to the linear *
- * system P z = r, where P is the left preconditioner defined by  *
- * the routine IDABBDPrecSetup.                                   *
- *                                                                *
- * The IDABBDPrecSolve parameters used here are as follows:       *
- *                                                                *
- * P_data is a pointer to user preconditioner data - the same as  *
- *        the p_data parameter passed to IDASpgmr.                *
- *                                                                *
- * rvec   is the input right-hand side vector r.                  *
- *                                                                *
- * zvec   is the computed solution vector z.                      *
- *                                                                *
- * The arguments Neq, tt, yy, yp, rr, cj, res, res_data, ewt,     *
- * delta, nrePtr, and tempv are NOT used.                         *
- *                                                                *
- * IDABBDPrecSolve always returns 0, indicating success.          *
- *                                                                *
-******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function: IDABBDPrecSolve                                      
+ *----------------------------------------------------------------
+ * The function IDABBDPrecSolve computes a solution to the linear 
+ * system P z = r, where P is the left preconditioner defined by  
+ * the routine IDABBDPrecSetup.                                   
+ *                                                                
+ * The IDABBDPrecSolve parameters used here are as follows:       
+ *                                                                
+ * P_data is a pointer to user preconditioner data - the same as  
+ *        the p_data parameter passed to IDASpgmr.                
+ *                                                                
+ * rvec   is the input right-hand side vector r.                  
+ *                                                                
+ * zvec   is the computed solution vector z.                      
+ *                                                                
+ * The arguments Neq, tt, yy, yp, rr, cj, res, res_data, ewt,     
+ * delta, nrePtr, and tempv are NOT used.                         
+ *                                                                
+ * IDABBDPrecSolve always returns 0, indicating success.          
+ *                                                                
+ * -----------------------------------------------------------------
+ */
 
 int IDABBDPrecSolve(realtype tt, 
 		    N_Vector yy, N_Vector yp, N_Vector rr, 
@@ -378,24 +368,27 @@ int IDABBDPrecSolve(realtype tt,
   return(0);
 }
 
-/*************** IBBDDQJac *****************************************
-
- This routine generates a banded difference quotient approximation to
- the local block of the Jacobian of G(t,y,y').  It assumes that a
- band matrix of type BandMat is stored column-wise, and that elements
- within each column are contiguous.
-
- All matrix elements are generated as difference quotients, by way
- of calls to the user routine glocal.
- By virtue of the band structure, the number of these calls is
- bandwidth + 1, where bandwidth = mldq + mudq + 1.
- But the band matrix kept has bandwidth = mlkeep + mukeep + 1.
- This routine also assumes that the local elements of a vector are
- stored contiguously.
-
- Return values are: 0 (success), > 0 (recoverable error),
- or < 0 (nonrecoverable error).
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * IBBDDQJac
+ * -----------------------------------------------------------------
+ * This routine generates a banded difference quotient approximation to
+ * the local block of the Jacobian of G(t,y,y').  It assumes that a
+ * band matrix of type BandMat is stored column-wise, and that elements
+ * within each column are contiguous.
+ *
+ * All matrix elements are generated as difference quotients, by way
+ * of calls to the user routine glocal.
+ * By virtue of the band structure, the number of these calls is
+ * bandwidth + 1, where bandwidth = mldq + mudq + 1.
+ * But the band matrix kept has bandwidth = mlkeep + mukeep + 1.
+ * This routine also assumes that the local elements of a vector are
+ * stored contiguously.
+ *
+ * Return values are: 0 (success), > 0 (recoverable error),
+ * or < 0 (nonrecoverable error).
+ * -----------------------------------------------------------------
+ */
 
 #define ewt         (IDA_mem->ida_ewt)
 #define res_data    (IDA_mem->ida_rdata)
@@ -509,5 +502,5 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
     }
   }
   
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }

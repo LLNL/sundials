@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-06-18 21:36:13 $
+ * $Revision: 1.3 $
+ * $Date: 2004-10-08 15:26:54 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -32,14 +32,11 @@ extern "C" {
 #include "nvector.h"
 #include "sundialstypes.h"
 
-/******************************************************************
- *                                                                *           
- * Types : IDABandMemRec, IDABandMem                              *
- *----------------------------------------------------------------*
- * The type IDABandMem is pointer to an IDABandMemRec. This       *
- * structure contains IDABand solver-specific data.               *
- *                                                                *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Types : IDABandMemRec, IDABandMem                             
+ * -----------------------------------------------------------------
+ */
 
 typedef struct {
 
@@ -65,6 +62,8 @@ typedef struct {
 
   void *b_jdata;            /* jdata = data structure required by jac.      */
   
+  int b_last_flag;          /* last error return flag                       */
+
 } IDABandMemRec, *IDABandMem;
 
 #endif

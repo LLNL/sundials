@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-07-22 23:10:00 $
+ * $Revision: 1.9 $
+ * $Date: 2004-10-08 15:27:24 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -473,7 +473,7 @@ int IDASolveF(void *idaadj_mem, realtype tout, realtype *tret,
 
     /* Perform one step of the integration */
 
-    flag = IDASolve(IDA_mem, tout, tret, yret, ypret, ONE_STEP);
+    flag = IDASolve(IDA_mem, tout, tret, yret, ypret, IDA_ONE_STEP);
     if (flag < 0) break;
 
     /* Test if a new check point is needed */
@@ -515,13 +515,13 @@ int IDASolveF(void *idaadj_mem, realtype tout, realtype *tret,
     /* tfinal is now set to *t */
     tfinal = *tret;
 
-    /* In ONE_STEP mode break from loop */
-    if (itask == ONE_STEP) break;
+    /* In IDA_ONE_STEP mode break from loop */
+    if (itask == IDA_ONE_STEP) break;
 
-    /* In NORMAL mode and if we passed tout,
+    /* In IDA_NORMAL mode and if we passed tout,
        evaluate yout at tout, set t=tout,
        then break from the loop */
-    if ( (itask == NORMAL) && (*tret >= tout) ) {
+    if ( (itask == IDA_NORMAL) && (*tret >= tout) ) {
       *tret = tout;
       IDAGetSolution(IDA_mem, tout, yret, ypret);
       break;
@@ -568,7 +568,7 @@ int IDACreateB(void *idaadj_mem)
 
   IDAADJ_mem->IDAB_mem = (IDAMem) ida_mem;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 
 }
 
@@ -582,7 +582,7 @@ int IDASetRdataB(void *idaadj_mem, void *rdataB)
 
   rdata_B = rdataB;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 int IDASetErrFileB(void *idaadj_mem, FILE *errfpB)
@@ -793,7 +793,7 @@ int IDASetQuadRdataB(void *idaadj_mem, void *rdataQB)
 
   rdataQ_B = rdataQB;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 int IDASetQuadTolerancesB(void *idaadj_mem, int itolQB, 
@@ -831,7 +831,7 @@ int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, N_Vector yQB0)
   ida_mem = (void *) IDAADJ_mem->IDAB_mem;
 
   flag = IDAQuadMalloc(ida_mem, IDAArhsQ, yQB0); 
-  if (flag != SUCCESS) return(flag);
+  if (flag != IDA_SUCCESS) return(flag);
 
   IDASetQuadRdata(ida_mem, idaadj_mem);
 
@@ -908,7 +908,7 @@ int IDADenseSetJacDataB(void *idaadj_mem, void *jdataB)
 
   jdata_B = jdataB;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------  IDABandB and IDABandSet*B      -----------------------*/
@@ -956,7 +956,7 @@ int IDABandSetJacDataB(void *idaadj_mem, void *jdataB)
 
   jdata_B = jdataB;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*------------   IDASpgmrB and IDASpgmrSet*B    ---------------------*/
@@ -1099,7 +1099,7 @@ int IDASpgmrSetPrecDataB(void *idaadj_mem, void *PdataB)
 
   pdata_B = PdataB;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 int IDASpgmrSetJacDataB(void *idaadj_mem, void *jdataB)
@@ -1110,7 +1110,7 @@ int IDASpgmrSetJacDataB(void *idaadj_mem, void *jdataB)
 
   jdata_B = jdataB;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*------------------     IDASolveB          --------------------------*/
@@ -1154,7 +1154,7 @@ int IDASolveB(void *idaadj_mem, N_Vector yyB, N_Vector ypB)
 
     /* Propagate backward integration to next check point */
     IDASetStopTime((void *)IDAB_mem, t0_);
-    flag = IDASolve(IDAB_mem, t0_, &t, yyB, ypB, NORMAL_TSTOP);
+    flag = IDASolve(IDAB_mem, t0_, &t, yyB, ypB, IDA_NORMAL_TSTOP);
     if (flag < 0) {
       fprintf(stderr, MSG_IDASOLVEB_BCK);
       return(flag);
@@ -1221,7 +1221,7 @@ int IDAAloadData(void *idaadj_mem, int which_ckpnt, long int *points)
 {
   IDAadjMem IDAADJ_mem;
   CkpntMem ck_mem;
-  int i, flag = SUCCESS;
+  int i, flag = IDA_SUCCESS;
   
   IDAADJ_mem  = (IDAadjMem) idaadj_mem;
   ck_mem = IDAADJ_mem->ck_mem;
@@ -1498,11 +1498,11 @@ int IDAAdataStore(IDAadjMem IDAADJ_mem, CkpntMem ck_mem)
     IDASetInitStep(IDA_mem, h0u);
 
     flag = IDAReInit(IDA_mem, res, t0_, phi_[0], phi_[1], itol, reltol, abstol);
-    if (flag != SUCCESS) return(flag);
+    if (flag != IDA_SUCCESS) return(flag);
 
     if(quad_) {
       flag = IDAQuadReInit(IDA_mem, rhsQ, phiQ_[0]);
-      if (flag != SUCCESS) return(flag);
+      if (flag != IDA_SUCCESS) return(flag);
     }
 
     dt_mem[0]->t = t0_;
@@ -1552,12 +1552,12 @@ int IDAAdataStore(IDAadjMem IDAADJ_mem, CkpntMem ck_mem)
   }
 
   /* 
-   * Run IDA in ONE_STEP mode to set following structures in dt_mem[i] 
+   * Run IDA in IDA_ONE_STEP mode to set following structures in dt_mem[i] 
    */
 
   i = 1;
   do {
-    flag = IDASolve(IDA_mem, t1_, &t, dt_mem[i]->y, dt_mem[i]->yd, ONE_STEP);
+    flag = IDASolve(IDA_mem, t1_, &t, dt_mem[i]->y, dt_mem[i]->yd, IDA_ONE_STEP);
     if (flag < 0) return(flag);
     dt_mem[i]->t = t;
     i++;

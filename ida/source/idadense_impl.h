@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-06-18 21:36:14 $
+ * $Revision: 1.3 $
+ * $Date: 2004-10-08 15:26:54 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -30,14 +30,11 @@ extern "C" {
 #include "nvector.h"
 #include "sundialstypes.h"
 
-/******************************************************************
- *                                                                *
- * Types : IDADenseMemRec, IDADenseMem                            *
- *----------------------------------------------------------------*
- * The type IDADenseMem is pointer to an IDADenseMemRec. This     *
- * structure contains IDADense solver-specific data.              *
- *                                                                *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Types : IDADenseMemRec, IDADenseMem                             
+ * -----------------------------------------------------------------
+ */
 
 typedef struct {
 
@@ -52,9 +49,11 @@ typedef struct {
   long int d_nje;        /* nje = no. of calls to jac            */
   
   long int d_nreD;       /* nreD = no. of calls to res due to 
-                            difference quotient Jacobian evaluation */
+                            diff. quotient Jacobian evaluation   */
 
   void *d_jdata;         /* jdata is passed to jac               */
+
+  int d_last_flag;       /* last error return flag               */
 
 } IDADenseMemRec, *IDADenseMem;
 

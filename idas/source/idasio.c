@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-06-18 21:37:59 $
+ * $Revision: 1.9 $
+ * $Date: 2004-10-08 15:27:24 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -53,11 +53,11 @@
 #define MSG_IDAS_BAD_STEPTOL "IDASetLineSearchOffIC-- steptol < 0.0 illegal.\n\n"
 
 #define MSG_BAD_ITOLQ1       "IDASetQuadTolerances-- itolQ=%d illegal.\n"
-#define MSG_BAD_ITOLQ2       "The legal values are SS=%d and SV=%d.\n\n"
+#define MSG_BAD_ITOLQ2       "The legal values are IDA_SS=%d and IDA_SV=%d.\n\n"
 #define MSG_BAD_ITOLQ        MSG_BAD_ITOLQ1 MSG_BAD_ITOLQ2
 
 #define MSG_BAD_ITOLS1       "IDASetSensTolerances-- itolS=%d illegal.\n"
-#define MSG_BAD_ITOLS2       "The legal values are SS=%d and SV=%d.\n\n"
+#define MSG_BAD_ITOLS2       "The legal values are IDA_SS=%d and IDA_SV=%d.\n\n"
 #define MSG_BAD_ITOLS        MSG_BAD_ITOLS1 MSG_BAD_ITOLS2
 
 /* IDAGet* Error Messages */
@@ -73,7 +73,7 @@
 #define MSG_IDAG_NO_SENS     MSG_IDAG_NO_SENS1 MSG_IDAG_NO_SENS2
 
 #define MSG_IDAG_NO_STGR11   "IDAGetSensStgr*-- Illegal attempt to call "
-#define MSG_IDAG_NO_STGR12   "with ism other than STAGGERED1.\n\n"
+#define MSG_IDAG_NO_STGR12   "with ism other than IDA_STAGGERED1.\n\n"
 #define MSG_IDAG_NO_STGR1    MSG_IDAG_NO_STGR11 MSG_IDAG_NO_STGR12
 
 /*=================================================================*/
@@ -104,14 +104,14 @@ int IDASetErrFile(void *ida_mem, FILE *errfp)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_errfp = errfp;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 #define errfp (IDA_mem->ida_errfp)
@@ -124,14 +124,14 @@ int IDASetRdata(void *ida_mem, void *rdata)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_rdata = rdata;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -142,24 +142,24 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (maxord <= 0) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_MAXORD);
-    return(IDAS_ILL_INPUT);
+    return(IDA_ILL_INPUT);
   }
 
   if (maxord > IDA_mem->ida_maxord) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_MAXORD, IDA_mem->ida_maxord, maxord);
-    return(IDAS_ILL_INPUT);
+    return(IDA_ILL_INPUT);
   }  
 
   IDA_mem->ida_maxord = maxord;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -170,19 +170,19 @@ int IDASetMaxNumSteps(void *ida_mem, long int mxsteps)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (mxsteps <= 0) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_MXSTEPS);
-    return(IDAS_ILL_INPUT);
+    return(IDA_ILL_INPUT);
   }
 
   IDA_mem->ida_mxstep = mxsteps;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -193,14 +193,14 @@ int IDASetInitStep(void *ida_mem, realtype hin)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_hin = hin;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -211,19 +211,19 @@ int IDASetMaxStep(void *ida_mem, realtype hmax)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (hmax <= 0) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_HMAX);
-    return(IDAS_ILL_INPUT);
+    return(IDA_ILL_INPUT);
   }
 
   IDA_mem->ida_hmax_inv = ONE/hmax;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -234,7 +234,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
@@ -242,7 +242,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
   IDA_mem->ida_tstop = tstop;
   IDA_mem->ida_tstopset = TRUE;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -253,19 +253,19 @@ int IDASetNonlinConvCoef(void *ida_mem, realtype epcon)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (epcon < ZERO) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_EPCON);
-    return(IDAS_ILL_INPUT);
+    return(IDA_ILL_INPUT);
   }
 
   IDA_mem->ida_epcon = epcon;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -276,14 +276,14 @@ int IDASetMaxErrTestFails(void *ida_mem, int maxnef)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return (IDAS_NO_MEM);
+    return (IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_maxnef = maxnef;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -294,14 +294,14 @@ int IDASetMaxConvFails(void *ida_mem, int maxncf)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return (IDAS_NO_MEM);
+    return (IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_maxncf = maxncf;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -312,14 +312,14 @@ int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return (IDAS_NO_MEM);
+    return (IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_maxcor = maxcor;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -330,14 +330,14 @@ int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_suppressalg = suppressalg;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -348,14 +348,14 @@ int IDASetId(void *ida_mem, N_Vector id)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_id = id;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -366,14 +366,14 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_constraints = constraints;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*=================================================================*/
@@ -390,19 +390,19 @@ int IDASetNonlinConvFactorIC(void *ida_mem, realtype epiccon)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (epiccon < ZERO) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_EPICCON);
-    return(IDAS_ILL_INPUT);
+    return(IDA_ILL_INPUT);
   }
 
   IDA_mem->ida_epiccon = epiccon;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -413,19 +413,19 @@ int IDASetMaxNumStepsIC(void *ida_mem, int maxnh)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (maxnh < 0) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_MAXNH);
-    return(IDAS_ILL_INPUT);
+    return(IDA_ILL_INPUT);
   }
 
   IDA_mem->ida_maxnh = maxnh;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -436,19 +436,19 @@ int IDASetMaxNumJacsIC(void *ida_mem, int maxnj)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
    if (maxnj < 0) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_MAXNJ);
-    return(IDAS_ILL_INPUT);
+    return(IDA_ILL_INPUT);
   } 
 
   IDA_mem->ida_maxnj = maxnj;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -459,19 +459,19 @@ int IDASetMaxNumItersIC(void *ida_mem, int maxnit)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (maxnit < 0) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_MAXNIT);
-    return(IDAS_ILL_INPUT);
+    return(IDA_ILL_INPUT);
   }
 
   IDA_mem->ida_maxnit = maxnit;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -482,14 +482,14 @@ int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_lsoff = lsoff;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -500,19 +500,19 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (steptol < ZERO) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_STEPTOL);
-    return(IDAS_ILL_INPUT);
+    return(IDA_ILL_INPUT);
   }
 
   IDA_mem->ida_steptol = steptol;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*=================================================================*/
@@ -529,14 +529,14 @@ int IDASetQuadErrCon(void *ida_mem, booleantype errconQ)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_errconQ = errconQ;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -548,21 +548,21 @@ int IDASetQuadTolerances(void *ida_mem, int itolQ,
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if ((itolQ != SS) && (itolQ != SV)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOLQ, itolQ, SS, SV);
-    return(IDAS_ILL_INPUT);
+  if ((itolQ != IDA_SS) && (itolQ != IDA_SV)) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOLQ, itolQ, IDA_SS, IDA_SV);
+    return(IDA_ILL_INPUT);
   }
 
   IDA_mem->ida_itolQ   = itolQ;
   IDA_mem->ida_reltolQ = reltolQ;
   IDA_mem->ida_abstolQ = abstolQ;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -573,14 +573,14 @@ int IDASetQuadRdata(void *ida_mem, void *rdataQ)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_rdataQ = rdataQ;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*=================================================================*/
@@ -597,7 +597,7 @@ int IDASetSensResFn(void *ida_mem, SensResFn resS)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
@@ -613,7 +613,7 @@ int IDASetSensResFn(void *ida_mem, SensResFn resS)
     IDA_mem->ida_resSDQ = TRUE;
   }
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -624,7 +624,7 @@ int IDASetSensRes1Fn(void *ida_mem, SensRes1Fn resS1)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
@@ -640,7 +640,7 @@ int IDASetSensRes1Fn(void *ida_mem, SensRes1Fn resS1)
     IDA_mem->ida_resSDQ = TRUE;
   }
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -651,14 +651,14 @@ int IDASetSensErrCon(void *ida_mem, booleantype errconS)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_errconS = errconS;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -669,14 +669,14 @@ int IDASetSensRho(void *ida_mem, realtype rho)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_rhomax = rho;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -687,14 +687,14 @@ int IDASetSensPbar(void *ida_mem, realtype *pbar)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_pbar = pbar;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -706,21 +706,21 @@ int IDASetSensTolerances(void *ida_mem, int itolS,
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if ((itolS != SS) && (itolS != SV)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOLS, itolS, SS, SV);
-    return(IDAS_ILL_INPUT);
+  if ((itolS != IDA_SS) && (itolS != IDA_SV)) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOLS, itolS, IDA_SS, IDA_SV);
+    return(IDA_ILL_INPUT);
   }
 
   IDA_mem->ida_itolS   = itolS;
   IDA_mem->ida_reltolS = reltolS;
   IDA_mem->ida_abstolS = abstolS;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 
@@ -732,14 +732,14 @@ int IDASetSensRdata(void *ida_mem, void *rdataS)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_rdataS = rdataS;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 
@@ -751,14 +751,14 @@ int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
-    return (IDAS_NO_MEM);
+    return (IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_maxcorS = maxcorS;
 
-  return(SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /*=================================================================*/
@@ -805,56 +805,20 @@ int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS)
 /*BEGIN        INTEGRATOR OPTIONAL INPUT FUNCTIONS                 */
 /*=================================================================*/
 
-int IDAGetIntWorkSpace(void *ida_mem, long int *leniw)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  *leniw = liw;
-
-  return(OKAY);
-}
-
-/*-----------------------------------------------------------------*/
-
-int IDAGetRealWorkSpace(void *ida_mem, long int *lenrw)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  *lenrw = lrw;
-
-  return(OKAY);
-}
-
-/*-----------------------------------------------------------------*/
-
 int IDAGetNumSteps(void *ida_mem, long int *nsteps)
 {
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *nsteps = nst;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -865,14 +829,14 @@ int IDAGetNumResEvals(void *ida_mem, long int *nrevals)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *nrevals = nre;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -883,14 +847,14 @@ int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *nlinsetups = nsetups;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -901,14 +865,14 @@ int IDAGetNumErrTestFails(void *ida_mem, long int *netfails)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *netfails = netf;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -919,14 +883,14 @@ int IDAGetNumBacktrackOps(void *ida_mem, long int *nbacktracks)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *nbacktracks = nbacktr;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -937,14 +901,14 @@ int IDAGetLastOrder(void *ida_mem, int *klast)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *klast = kused;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -955,14 +919,14 @@ int IDAGetCurrentOrder(void *ida_mem, int *kcur)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *kcur = kk;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -973,14 +937,14 @@ int IDAGetActualInitStep(void *ida_mem, realtype *hinused)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *hinused = h0u;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -991,14 +955,14 @@ int IDAGetLastStep(void *ida_mem, realtype *hlast)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *hlast = hused;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1009,14 +973,14 @@ int IDAGetCurrentStep(void *ida_mem, realtype *hcur)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *hcur = hh;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1027,14 +991,14 @@ int IDAGetCurrentTime(void *ida_mem, realtype *tcur)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *tcur = tn;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1045,14 +1009,14 @@ int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *tolsfact = tolsf;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1063,25 +1027,25 @@ int IDAGetErrWeights(void *ida_mem, N_Vector *eweight)
   
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem; 
 
   *eweight = ewt;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetWorkSpace(void *ida_mem,long int *leniw, long int *lenrw)
+int IDAGetWorkSpace(void *ida_mem,long int *lenrw, long int *leniw)
 {
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
@@ -1089,7 +1053,7 @@ int IDAGetWorkSpace(void *ida_mem,long int *leniw, long int *lenrw)
   *leniw = liw;
   *lenrw = lrw;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1103,7 +1067,7 @@ int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals,
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
@@ -1118,7 +1082,7 @@ int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals,
   *hcur       = hh;  
   *tcur       = tn;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1129,14 +1093,14 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *nniters = nni;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1147,14 +1111,14 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   *nncfails = ncfn;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1166,7 +1130,7 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return(IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
@@ -1174,7 +1138,7 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,
   *nniters  = nni;
   *nncfails = ncfn;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*=================================================================*/
@@ -1191,18 +1155,18 @@ int IDAGetQuadNumRhsEvals(void *ida_mem, long int *nrhsQevals)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if(quad != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_QUAD);
-    return (IDAG_NO_QUAD);
+    return (IDA_NO_QUAD);
   }
 
   *nrhsQevals = nrQe;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1213,18 +1177,18 @@ int IDAGetQuadNumErrTestFails(void *ida_mem, long int *nQetfails)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if(quad != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_QUAD);
-    return (IDAG_NO_QUAD);
+    return (IDA_NO_QUAD);
   }
 
   *nQetfails = netfQ;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 
 }
 
@@ -1236,19 +1200,19 @@ int IDAGetQuadErrWeights(void *ida_mem, N_Vector *eQweight)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if(quad != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_QUAD);
-    return (IDAG_NO_QUAD);
+    return (IDA_NO_QUAD);
   }
 
   if(IDA_mem->ida_errconQ) *eQweight = ewtQ;
   else                     *eQweight = NULL;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 
 }
 
@@ -1261,19 +1225,19 @@ int IDAGetQuadStats(void *ida_mem, long int *nrhsQevals,
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if(quad != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_QUAD);
-    return (IDAG_NO_QUAD);
+    return (IDA_NO_QUAD);
   }
 
   *nrhsQevals = nrQe;
   *nQetfails  = netfQ;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 
 }
 
@@ -1291,18 +1255,18 @@ int IDAGetSensNumRhsEvals(void *ida_mem, long int *nresSevals)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
   *nresSevals = nrSe;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1313,18 +1277,18 @@ int IDAGetNumRhsEvalsSens(void *ida_mem, long int *nresevalsS)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
   *nresevalsS = nreS;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1335,18 +1299,18 @@ int IDAGetSensNumErrTestFails(void *ida_mem, long int *nSetfails)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
   *nSetfails = netfS;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1357,18 +1321,18 @@ int IDAGetSensNumLinSolvSetups(void *ida_mem, long int *nlinsetupsS)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
   *nlinsetupsS = nsetupsS;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1379,18 +1343,18 @@ int IDAGetSensErrWeights(void *ida_mem, N_Vector_S *eSweight)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
   *eSweight = ewtS;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1403,13 +1367,13 @@ int IDAGetSensStats(void *ida_mem, long int *nresSevals,
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
   *nresSevals  = nrSe;
@@ -1417,7 +1381,7 @@ int IDAGetSensStats(void *ida_mem, long int *nresSevals,
   *nSetfails   = netfS;
   *nlinsetupsS = nsetupsS;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1428,18 +1392,18 @@ int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
   *nSniters = nniS;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1450,18 +1414,18 @@ int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, long int *nSncfails)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
   *nSncfails = ncfnS;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1473,19 +1437,19 @@ int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters,
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
   *nSniters  = nniS;
   *nSncfails = ncfnS;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1496,23 +1460,23 @@ int IDAGetSensNumStgrErrTestFails(void *ida_mem, long int *nSTGR1etfails)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
-  if (ism != STAGGERED1) {
+  if (ism != IDA_STAGGERED1) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_STGR1);
-    return (IDAG_NO_STGR1);
+    return (IDA_NO_STGR1);
   }
 
   nSTGR1etfails = netfS1;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1523,23 +1487,23 @@ int IDAGetSensNumStgrNonlinSolvIters(void *ida_mem, long int *nSTGR1niters)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
-  if (ism != STAGGERED1) {
+  if (ism != IDA_STAGGERED1) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_STGR1);
-    return (IDAG_NO_STGR1);
+    return (IDA_NO_STGR1);
   }
 
   nSTGR1niters = nniS1;
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1550,23 +1514,23 @@ int IDAGetSensNumStgrNonlinSolvConvFails(void *ida_mem, long int *nSTGR1ncfails)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
   if (sensi != TRUE) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_SENS);
-    return (IDAG_NO_SENS);
+    return (IDA_NO_SENS);
   }
 
-  if (ism != STAGGERED1) {
+  if (ism != IDA_STAGGERED1) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_NO_STGR1);
-    return (IDAG_NO_STGR1);
+    return (IDA_NO_STGR1);
   }
 
   nSTGR1ncfails = ncfnS1;  
 
-  return(OKAY);
+  return(IDA_SUCCESS);
 }
 
 /*=================================================================*/

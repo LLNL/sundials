@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-07-22 23:03:41 $
+ * $Revision: 1.19 $
+ * $Date: 2004-10-08 15:27:15 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -85,15 +85,27 @@ extern "C" {
  *        (specified through the routine IDASetStopTime).         *
  *----------------------------------------------------------------*/
 
-enum { SS, SV };                                  /* itol, itolQ */
+/* itol */
+#define IDA_SS 1   /* scalar    - scalar    */
+#define IDA_SV 2   /* scalar    - vector    */
+#define IDA_EE 3   /* estimated - estimated */
 
-enum { SIMULTANEOUS, STAGGERED, STAGGERED1 };             /* ism */
+/* itask */
+#define IDA_NORMAL         1
+#define IDA_ONE_STEP       2
+#define IDA_NORMAL_TSTOP   3 
+#define IDA_ONE_STEP_TSTOP 4
 
-enum { NORMAL, ONE_STEP, NORMAL_TSTOP, ONE_STEP_TSTOP}; /* itask */
+/* icopt */
+#define IDA_YA_YDP_INIT 1 
+#define IDA_Y_INIT      2
+
+/* ism */
+#define IDA_SIMULTANEOUS 1
+#define IDA_STAGGERED    2
+#define IDA_STAGGERED1   3
 
 enum { ALLSENS, ONESENS };                                /* ifS */
-
-enum { CALC_YA_YDP_INIT = 1 , CALC_Y_INIT = 2 };        /* icopt */
 
 
 /******************************************************************
@@ -170,15 +182,6 @@ typedef void (*QuadRhsFn)(realtype tres,
                           N_Vector yy, N_Vector yp,
                           N_Vector ypQ,
                           void *rdataQ);
-
-/*----------------------------------------------------------------*
- * Enumerations for res, lsetup and lsolve return values          *
- *----------------------------------------------------------------*/
-
-enum {SUCCESS               = 0,
-      RES_ERROR_RECVR       = 1, RES_ERROR_NONRECVR      = -1,
-      LSETUP_ERROR_RECVR    = 2, LSETUP_ERROR_NONRECVR   = -2,
-      LSOLVE_ERROR_RECVR    = 3, LSOLVE_ERROR_NONRECVR   = -3};
 
 /*================================================================*
  *                                                                *
@@ -323,10 +326,6 @@ int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
 int IDASetId(void *ida_mem, N_Vector id);
 int IDASetConstraints(void *ida_mem, N_Vector constraints);
 
-/* Error return values for IDASet* functions */
-/* SUCCESS = 0*/
-enum {IDAS_NO_MEM = -1, IDAS_ILL_INPUT = -2};
-
 /******************************************************************
  * Function : IDAMalloc                                           *
  *----------------------------------------------------------------*
@@ -424,10 +423,6 @@ int IDAReInit(void *ida_mem, ResFn res,
               realtype t0, N_Vector y0, N_Vector yp0,
               int itol, realtype *reltol, void *abstol);
  
-/* Error return values for IDAReInit */
-/* SUCCESS = 0 */ 
-enum {IDAREI_NO_MEM = -1, IDAREI_NO_MALLOC = -2, IDAREI_ILL_INPUT = -3};
-
 /*----------------------------------------------------------------*
  * Quadrature optional input specification functions              *
  *----------------------------------------------------------------*
@@ -486,8 +481,6 @@ int IDASetQuadTolerances(void *ida_mem, int itolQ,
 
 int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0);
 
-enum {QIDAM_NO_MEM = -1, QIDAM_ILL_INPUT = -2, QIDAM_MEM_FAIL = -3};
-
 /*----------------------------------------------------------------*
  * Function : IDAQuadReInit                                       *
  *----------------------------------------------------------------*
@@ -505,8 +498,6 @@ enum {QIDAM_NO_MEM = -1, QIDAM_ILL_INPUT = -2, QIDAM_MEM_FAIL = -3};
  *----------------------------------------------------------------*/
 
 int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0);
-
-enum {QIDAREI_NO_MEM = -1, QIDAREI_NO_QUAD = -2, QIDAREI_ILL_INPUT = -3};
 
 /*----------------------------------------------------------------*
  * Forward sensitivity optional input specification functions     *
@@ -625,8 +616,6 @@ int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS);
 int IDASensMalloc(void *ida_mem, int Ns, int ism, 
                   realtype *p, int *plist, 
                   N_Vector *yS0, N_Vector *ypS0);
-    
-enum {SIDAM_NO_MEM = -1, SIDAM_ILL_INPUT = -2, SIDAM_MEM_FAIL = -3};
 
 /*----------------------------------------------------------------*
  * Function : IDASensReInit                                       *
@@ -658,9 +647,6 @@ enum {SIDAM_NO_MEM = -1, SIDAM_ILL_INPUT = -2, SIDAM_MEM_FAIL = -3};
 int IDASensReInit(void *ida_mem, int ism,
                   realtype *p, int *plist, 
                   N_Vector *yS0, N_Vector *ypS0);
-  
-enum {SIDAREI_NO_MEM    = -1, SIDAREI_NO_SENSI = -2, 
-      SIDAREI_ILL_INPUT = -3, SIDAREI_MEM_FAIL = -4};
 
 /*----------------------------------------------------------------*
  * Initial Conditions optional input specification functions      *
@@ -811,18 +797,6 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
 
 int IDACalcIC (void *ida_mem, int icopt, realtype tout1); 
 
-/* IDACalcIC return values */
-
-/* The following three values are IDASolve return values, repeated
-   here for convenience. 
-       SETUP_FAILURE=-7,  SOLVE_FAILURE=-8,  RES_NONRECOV_ERR=-11  */
-
-enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
-       IC_LINIT_FAIL =     -22,   IC_BAD_EWT =         -23,
-       IC_FIRST_RES_FAIL = -24,   IC_NO_RECOVERY =     -25,
-       IC_FAILED_CONSTR =  -26,   IC_FAILED_LINESRCH = -27,
-       IC_CONV_FAILURE =   -28,   IC_NO_MALLOC =       -29  };
-
 /******************************************************************
  * Function : IDASolve                                            *
  *----------------------------------------------------------------*
@@ -923,14 +897,6 @@ enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
 int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask);
 
-/* IDASolve return values */
-
-enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
-       IDA_NO_MEM=-1,       NO_MALLOC=-2,          ILL_INPUT=-3,
-       TOO_MUCH_WORK=-4,    TOO_MUCH_ACC=-5,       ERR_FAILURE=-6,
-       CONV_FAILURE=-7,     SETUP_FAILURE=-8,      SOLVE_FAILURE=-9,
-       CONSTR_FAILURE=-10,  REP_RES_REC_ERR=-11,   RES_NONRECOV_ERR=-12 };
-
 /*----------------------------------------------------------------*
  * Function: IDAGetSolution                                       *
  *----------------------------------------------------------------*
@@ -962,8 +928,7 @@ int IDAGetSolution(void *ida_mem, realtype t,
  * and statistics related to the main integrator.                 *
  * -------------------------------------------------------------- *
  *                                                                *
- * IDAGetIntWorkSpace returns the IDAS integer workspace size     *
- * IDAGetRealWorkSpace returns the IDAS real workspace size       *
+ * IDAGetWorkSpace returns the IDAS real and integer workspace sizes     *
  * IDAGetNumSteps returns the cumulative number of internal       *
  *       steps taken by the solver                                *
  * IDAGetNumRhsEvals returns the number of calls to the user's    *
@@ -996,8 +961,7 @@ int IDAGetSolution(void *ida_mem, realtype t,
  *       errors. The user need not allocate space for ele.        *
  *----------------------------------------------------------------*/
 
-int IDAGetIntWorkSpace(void *ida_mem, long int *leniw);
-int IDAGetRealWorkSpace(void *ida_mem, long int *lenrw);
+int IDAGetWorkSpace(void *ida_mem, long int *lenrw, long int *leniw);
 int IDAGetNumSteps(void *ida_mem, long int *nsteps);
 int IDAGetNumResEvals(void *ida_mem, long int *nrevals);
 int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups);
@@ -1013,11 +977,10 @@ int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
 int IDAGetErrWeights(void *ida_mem, N_Vector *eweight);
 
 /*----------------------------------------------------------------*
- * As a convenience, the following two functions provide the      *
- * optional outputs in groups.                                    *
+ * As a convenience, the following function provides the
+ * optional outputs in a group
  *----------------------------------------------------------------*/
 
-int IDAGetWorkSpace(void *ida_mem, long int *leniw, long int *lenrw);
 int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals, 
                           long int *nlinsetups, long int *netfails,
                           int *qlast, int *qcur, realtype *hlast, 
@@ -1176,10 +1139,6 @@ int IDAGetSensNumStgrNonlinSolvConvFails(void *ida_mem, long int *nSTGR1ncfails)
 
 int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncfails);
 
-/* IDAGet* return values */
-enum { OKAY = 0, IDAG_NO_MEM = -1, BAD_T = -2, BAD_IS = -3,
-       IDAG_NO_QUAD = -4, IDAG_NO_SENS = -5, IDAG_NO_STGR1 = -6 };
-
 /*----------------------------------------------------------------*
  * Function : IDAFree                                             *
  *----------------------------------------------------------------*
@@ -1215,145 +1174,133 @@ void IDAQuadFree(void *ida_mem);
 
 void IDASensFree(void *ida_mem);
 
+/* 
+ * ----------------------------------------
+ * IDAS return flags 
+ * ----------------------------------------
+ */
+
+#define IDA_SUCCESS          0
+#define IDA_TSTOP_RETURN     1
+
+#define IDA_MEM_NULL        -1
+#define IDA_ILL_INPUT       -2
+#define IDA_NO_MALLOC       -3
+#define IDA_TOO_MUCH_WORK   -4
+#define IDA_TOO_MUCH_ACC    -5
+#define IDA_ERR_FAIL        -6
+#define IDA_CONV_FAIL       -7
+#define IDA_LINIT_FAIL      -8
+#define IDA_LSETUP_FAIL     -9
+#define IDA_LSOLVE_FAIL     -10
+#define IDA_RES_FAIL        -11
+#define IDA_CONSTR_FAIL     -12
+#define IDA_REP_RES_ERR     -13
+
+#define IDA_MEM_FAIL        -14
+
+#define IDA_BAD_T           -15
+
+#define IDA_BAD_EWT         -16
+#define IDA_FIRST_RES_FAIL  -17
+#define IDA_LINESEARCH_FAIL -18
+#define IDA_NO_RECOVERY     -19
+
+#define IDA_NO_QUAD         -20
+#define IDA_BAD_IS          -21
+#define IDA_NO_SENS         -22
+#define IDA_NO_STGR1        -23
+
 /*
  * =================================================================
  *     I N T E R F A C E   T O    L I N E A R   S O L V E R S     
  * =================================================================
  */
 
-/*----------------------------------------------------------------*
- *                                                                *
- * Communication between user and an IDAS Linear Solver           *
- *----------------------------------------------------------------*
- * Return values of the linear solver specification routine.      *
- * The values of these are given in the enum statement below.     *
- * SUCCESS      : The routine was successful.                     *
- *                                                                *
- * LIN_NO_MEM   : IDAS memory = NULL.                             *
- *                                                                *
- * LMEM_FAIL    : A memory allocation failed.                     *
- *                                                                *
- * LIN_ILL_INPUT: Some input was illegal (see message).           *
- *                                                                *
- * LIN_NO_LMEM  : The linear solver's memory = NULL.              *
- *                                                                *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * int (*ida_linit)(IDAMem IDA_mem);                               
+ * -----------------------------------------------------------------
+ * The purpose of ida_linit is to allocate memory for the          
+ * solver-specific fields in the structure *(idamem->ida_lmem) and 
+ * perform any needed initializations of solver-specific memory,   
+ * such as counters/statistics. An (*ida_linit) should return      
+ * 0 if it has successfully initialized the IDA linear solver and 
+ * a negative value otherwise. If an error does occur, an 
+ * appropriate message should be sent to (idamem->errfp).          
+ * ----------------------------------------------------------------
+ */                                                                 
 
-/* SUCCESS = 0  (defined above but listed here for completeness)  */
-enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
+/*
+ * -----------------------------------------------------------------
+ * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,   
+ *                  N_Vector resp,                                 
+ *            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);  
+ * -----------------------------------------------------------------
+ * The job of ida_lsetup is to prepare the linear solver for       
+ * subsequent calls to ida_lsolve. Its parameters are as follows:  
+ *                                                                 
+ * idamem - problem memory pointer of type IDAMem. See the big     
+ *          typedef earlier in this file.                          
+ *                                                                 
+ *                                                                 
+ * yyp   - the predicted y vector for the current IDA internal     
+ *         step.                                                   
+ *                                                                 
+ * ypp   - the predicted y' vector for the current IDA internal    
+ *         step.                                                   
+ *                                                                 
+ * resp  - F(tn, yyp, ypp).                                        
+ *                                                                 
+ * tempv1, tempv2, tempv3 - temporary N_Vectors provided for use   
+ *         by ida_lsetup.                                          
+ *                                                                 
+ * The ida_lsetup routine should return 0 if successful,
+ * a positive value for a recoverable error, and a negative value 
+ * for an unrecoverable error.
+ * -----------------------------------------------------------------
+ */                                                                 
 
+/*
+ * -----------------------------------------------------------------
+ * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector weight,  
+ *               N_Vector ycur, N_Vector ypcur, N_Vector rescur);  
+ * -----------------------------------------------------------------
+ * ida_lsolve must solve the linear equation P x = b, where        
+ * P is some approximation to the system Jacobian                  
+ *                  J = (dF/dy) + cj (dF/dy')                      
+ * evaluated at (tn,ycur,ypcur) and the RHS vector b is input.     
+ * The N-vector ycur contains the solver's current approximation   
+ * to y(tn), ypcur contains that for y'(tn), and the vector rescur 
+ * contains the N-vector residual F(tn,ycur,ypcur).                
+ * The solution is to be returned in the vector b. 
+ *                                                                 
+ * The ida_lsolve routine should return 0 if successful,
+ * a positive value for a recoverable error, and a negative value 
+ * for an unrecoverable error.
+ * -----------------------------------------------------------------
+ */                                                                 
 
-/*----------------------------------------------------------------*
- *                                                                *
- * Communication between ida.c and an IDA Linear Solver Module    *
- *----------------------------------------------------------------*
- * (1) ida_linit return values                                    *
- *                                                                *
- * LINIT_OK    : The ida_linit routine succeeded.                 *
- *                                                                *
- * LINIT_ERR   : The ida_linit routine failed. Each linear solver *
- *               init routine should print an appropriate error   *
- *               message to (idamem->errfp).                      *
- *                                                                *
- * (2) Parameter documentation, as well as a brief description    *
- *     of purpose, for each IDAS linear solver routine to be      *
- *     called in IDAS is given below the constant declarations    *
- *     that follow.                                               *
- *                                                                *
- *----------------------------------------------------------------*/
+/*
+ * -----------------------------------------------------------------
+ * int (*ida_lperf)(IDAMem IDA_mem, int perftask);                 
+ * -----------------------------------------------------------------
+ * ida_lperf is called two places in IDA where linear solver       
+ * performance data is required by IDA. For perftask = 0, an       
+ * initialization of performance variables is performed, while for 
+ * perftask = 1, the performance is evaluated.                     
+ * -----------------------------------------------------------------
+ */                                                                 
 
-/* ida_linit return values */
-
-#define LINIT_OK        0
-#define LINIT_ERR      -1
-
-/*-----------------------------------------------------------------*
- *                                                                 *
- * int (*ida_linit)(IDAMem IDA_mem);                               *
- *-----------------------------------------------------------------*
- * The purpose of ida_linit is to allocate memory for the          *
- * solver-specific fields in the structure *(idamem->ida_lmem) and *
- * perform any needed initializations of solver-specific memory,   *
- * such as counters/statistics. An (*ida_linit) should return      *
- * LINIT_OK (== 0) if it has successfully initialized the IDAS     *
- * linear solver and LINIT_ERR (== -1) otherwise.                  *
- * These constants are defined above. If an error does occur, an   *
- * appropriate message should be sent to (idamem->errfp).          *
- *                                                                 *
- *-----------------------------------------------------------------*/
-
-/*-----------------------------------------------------------------*
- *                                                                 *
- * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,   *
- *                   N_Vector resp,                                *
- *                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); *
- *-----------------------------------------------------------------*
- * The job of ida_lsetup is to prepare the linear solver for       *
- * subsequent calls to ida_lsolve. Its parameters are as follows:  *
- *                                                                 *
- * idamem - problem memory pointer of type IDAMem. See the big     *
- *          typedef earlier in this file.                          *
- *                                                                 *
- *                                                                 *
- * yyp   - the predicted y vector for the current IDAS internal    *
- *         step.                                                   *
- *                                                                 *
- * ypp   - the predicted y' vector for the current IDAS internal   *
- *         step.                                                   *
- *                                                                 *
- * resp  - F(tn, yyp, ypp).                                        *
- *                                                                 *
- * tmp1, tmp2, tmp3 - temporary N_Vectors provided for use by      *
- *         ida_lsetup.                                             *
- *                                                                 *
- * The ida_lsetup routine should return SUCCESS (=0) if successful,*
- * the positive value LSETUP_ERROR_RECVR for a recoverable error,  *
- * and the negative value LSETUP_ERROR_NONRECVR for an             *
- * unrecoverable error.  The code should include the file ida.h .  *
- *                                                                 *
- *-----------------------------------------------------------------*/
-
-/*-----------------------------------------------------------------*
- *                                                                 *
- * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector weight,  *
- *             N_Vector ycur, N_Vector ypcur, N_Vector rescur);    *
- *-----------------------------------------------------------------*
- * ida_lsolve must solve the linear equation P x = b, where        *
- * P is some approximation to the system Jacobian                  *
- *                  J = (dF/dy) + cj (dF/dy')                      *
- * evaluated at (tn,ycur,ypcur) and the RHS vector b is input.     *
- * The N-vector ycur contains the solver's current approximation   *
- * to y(tn), ypcur contains that for y'(tn), and the vector rescur *
- * contains the N-vector residual F(tn,ycur,ypcur).                *
- * The solution is to be returned in the vector b. ida_lsolve      *
- * returns the positive value LSOLVE_ERROR_RECVR for a             *
- * recoverable error and the negative value LSOLVE_ERROR_NONRECVR  *
- * for an unrecoverable error. Success is indicated by a return    *
- * value SUCCESS = 0. The code should include the file ida.h .     *
- *                                                                 *
- *-----------------------------------------------------------------*/
-
-/*-----------------------------------------------------------------*
- *                                                                 *
- * int (*ida_lperf)(IDAMem IDA_mem, int perftask);                 *
- *                                                                 *
- *-----------------------------------------------------------------*
- * ida_lperf is called two places in IDAS where linear solver      *
- * performance data is required by IDAS. For perftask = 0, an      *
- * initialization of performance variables is performed, while for *
- * perftask = 1, the performance is evaluated.                     *
- *                                                                 *
- *-----------------------------------------------------------------*/
-
-/*-----------------------------------------------------------------*
- *                                                                 *
- * int (*ida_lfree)(IDAMem IDA_mem);                               *
- *-----------------------------------------------------------------*
- * ida_lfree should free up any memory allocated by the linear     *
- * solver. This routine is called once a problem has been          *
- * completed and the linear solver is no longer needed.            *
- *                                                                 *
- *-----------------------------------------------------------------*/
+/*
+ * -----------------------------------------------------------------
+ * int (*ida_lfree)(IDAMem IDA_mem);                               
+ * -----------------------------------------------------------------
+ * ida_lfree should free up any memory allocated by the linear     
+ * solver. This routine is called once a problem has been          
+ * completed and the linear solver is no longer needed.            
+ * -----------------------------------------------------------------
+ */                                                                 
 
 #endif
 

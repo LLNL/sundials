@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-08-26 20:15:54 $
+ * $Revision: 1.7 $
+ * $Date: 2004-10-08 15:27:24 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,7 +10,7 @@
  * All rights reserved
  * For details, see sundials/idas/LICENSE
  * -----------------------------------------------------------------
- * This is the implementation file for the IDAS Scaled              
+ * This is the implementation file for the IDA Scaled              
  * Preconditioned GMRES linear solver module, IDASPGMR.            
  * -----------------------------------------------------------------
  */
@@ -154,41 +154,45 @@ static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define nreSG   (idaspgmr_mem->g_nreSG)
 
 #define spgmr_mem (idaspgmr_mem->g_spgmr_mem)
+#define last_flag (idaspgmr_mem->g_last_flag)
 
-
-/*************** IDASpgmr *********************************************
-
- This routine initializes the memory record and sets various function
- fields specific to the IDASPGMR linear solver module.  
-
- IDASpgmr first calls the existing lfree routine if this is not NULL.
- It then sets the ida_linit, ida_lsetup, ida_lsolve, ida_lperf, and
- ida_lfree fields in (*IDA_mem) to be IDASpgmrInit, IDASpgmrSetup,
- IDASpgmrSolve, IDASpgmrPerf, and IDASpgmrFree, respectively.
- It allocates memory for a structure of type IDASpgmrMemRec and sets
- the ida_lmem field in (*IDA_mem) to the address of this structure.
- It sets setupNonNull in (*IDA_mem).  It then sets the following
- fields in the IDASpgmrMemRec structure:
-   g_gstype   = gstype
-   g_maxl     = MIN(Neq,IDA_SPGMR_MAXL) if maxl <= 0,  else MIN(Neq,maxl)
-   g_maxrs    = 0 if maxrs < 0,  MIN(5,Neq/g_maxl) if maxrs = 0, and
-                MIN(maxrs,Neq/g_maxl) if maxrs > 0.
-   g_eplifac  = 0.05 if eplifac = 0.0,  else eplifac
-   g_dqincfac = 1.0 if dqincfac = 0.0,  else dqincfac
-   g_pdata    = NULL
-   g_pset     = NULL
-   g_psolve   = NULL
-   g_jtimes   = NULL
-   g_jdata    = NULL
- Finally, IDASpgmr allocates memory for ytemp, yptemp, and xx, and
- calls SpgmrMalloc to allocate memory for the Spgmr solver.
-
- The return value of IDASpgmr is:
-   SUCCESS       = 0  if successful
-   LMEM_FAIL     = -1 if IDA_mem is NULL or a memory allocation failed
-   LIN_ILL_INPUT = -2 if the gstype argument is illegal.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * IDASpgmr
+ * -----------------------------------------------------------------
+ *
+ * This routine initializes the memory record and sets various function
+ * fields specific to the IDASPGMR linear solver module.  
+ *
+ * IDASpgmr first calls the existing lfree routine if this is not NULL.
+ * It then sets the ida_linit, ida_lsetup, ida_lsolve, ida_lperf, and
+ * ida_lfree fields in (*IDA_mem) to be IDASpgmrInit, IDASpgmrSetup,
+ * IDASpgmrSolve, IDASpgmrPerf, and IDASpgmrFree, respectively.
+ * It allocates memory for a structure of type IDASpgmrMemRec and sets
+ * the ida_lmem field in (*IDA_mem) to the address of this structure.
+ * It sets setupNonNull in (*IDA_mem).  It then sets the following
+ * fields in the IDASpgmrMemRec structure:
+ *   g_gstype   = gstype
+ *   g_maxl     = MIN(Neq,IDA_SPGMR_MAXL) if maxl <= 0,  else MIN(Neq,maxl)
+ *   g_maxrs    = 0 if maxrs < 0,  MIN(5,Neq/g_maxl) if maxrs = 0, and
+ *                MIN(maxrs,Neq/g_maxl) if maxrs > 0.
+ *   g_eplifac  = 0.05 if eplifac = 0.0,  else eplifac
+ *   g_dqincfac = 1.0 if dqincfac = 0.0,  else dqincfac
+ *   g_pdata    = NULL
+ *   g_pset     = NULL
+ *   g_psolve   = NULL
+ *   g_jtimes   = NULL
+ *   g_jdata    = NULL
+ * Finally, IDASpgmr allocates memory for ytemp, yptemp, and xx, and
+ * calls SpgmrMalloc to allocate memory for the Spgmr solver.
+ *
+ * The return value of IDASpgmr is:
+ *   IDASPGMR_SUCCESS       = 0  if successful
+ *   IDASPGMR_MEM_FAIL     = -1 if IDA_mem is NULL or a memory allocation failed
+ *   IDASPGMR_ILL_INPUT = -2 if the gstype argument is illegal.
+ *
+ * -----------------------------------------------------------------
+ */
 
 int IDASpgmr(void *ida_mem, int maxl)
 {
@@ -200,14 +204,14 @@ int IDASpgmr(void *ida_mem, int maxl)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAMEM_NULL);
-    return(LMEM_FAIL);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Check if N_VDotProd is present */
   if(vec_tmpl->ops->nvdotprod == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
-    return(LIN_ILL_INPUT);
+    return(IDASPGMR_ILL_INPUT);
   }
 
   if (lfree != NULL) flag = lfree(ida_mem);
@@ -223,7 +227,7 @@ int IDASpgmr(void *ida_mem, int maxl)
   idaspgmr_mem = (IDASpgmrMem) malloc(sizeof(IDASpgmrMemRec));
   if (idaspgmr_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    return(LMEM_FAIL);
+    return(IDASPGMR_MEM_FAIL);
   }
 
   /* Set SPGMR parameters that were passed in call sequence */
@@ -240,6 +244,7 @@ int IDASpgmr(void *ida_mem, int maxl)
   idaspgmr_mem->g_pdata    = NULL;
   idaspgmr_mem->g_jtimes   = IDASpgmrDQJtimes;
   idaspgmr_mem->g_jdata    = ida_mem;
+  idaspgmr_mem->g_last_flag  = IDASPGMR_SUCCESS;
 
   /* Set setupNonNull to FALSE */
   setupNonNull = FALSE;
@@ -248,20 +253,20 @@ int IDASpgmr(void *ida_mem, int maxl)
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
-    return(LMEM_FAIL);
+    return(IDASPGMR_MEM_FAIL);
   }
   yptemp = N_VClone(vec_tmpl);
   if (yptemp == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     N_VDestroy(ytemp);
-    return(LMEM_FAIL);
+    return(IDASPGMR_MEM_FAIL);
   }
   xx = N_VClone(vec_tmpl);
   if (xx == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(yptemp);
-    return(LMEM_FAIL);
+    return(IDASPGMR_MEM_FAIL);
   }
 
   /* Compute sqrtN from a dot product */
@@ -275,16 +280,20 @@ int IDASpgmr(void *ida_mem, int maxl)
     N_VDestroy(ytemp);
     N_VDestroy(yptemp);
     N_VDestroy(xx);
-    return(LMEM_FAIL);
+    return(IDASPGMR_MEM_FAIL);
   }
 
   /* Attach linear solver memory to the integrator memory */
   lmem = idaspgmr_mem;
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
 
-/*************** IDASpgmrSetGSType ************************************/
+/*
+ * -----------------------------------------------------------------
+ * IDASpgmrSet* and IDASpgmrGet*
+ * -----------------------------------------------------------------
+ */
 
 int IDASpgmrSetGSType(void *ida_mem, int gstype)
 {
@@ -294,28 +303,26 @@ int IDASpgmrSetGSType(void *ida_mem, int gstype)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   /* Check for legal gstype */
   if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_GSTYPE, gstype, MODIFIED_GS, CLASSICAL_GS);
-    return(LIN_ILL_INPUT);
+    return(IDASPGMR_ILL_INPUT);
   }
 
   idaspgmr_mem->g_gstype = gstype;
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrSetMaxRestarts ******************************/
 
 int IDASpgmrSetMaxRestarts(void *ida_mem, int maxrs)
 {
@@ -325,28 +332,26 @@ int IDASpgmrSetMaxRestarts(void *ida_mem, int maxrs)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   /* Check for legal maxrs */
   if (maxrs < 0) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_MAXRS);
-    return(LIN_ILL_INPUT);
+    return(IDASPGMR_ILL_INPUT);
   }
 
   idaspgmr_mem->g_maxrs = maxrs;
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrSetEpsLin ***********************************/
 
 int IDASpgmrSetEpsLin(void *ida_mem, realtype eplifac)
 {
@@ -356,28 +361,26 @@ int IDASpgmrSetEpsLin(void *ida_mem, realtype eplifac)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   /* Check for legal maxrs */
   if (eplifac < ZERO) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_EPLIFAC);
-    return(LIN_ILL_INPUT);
+    return(IDASPGMR_ILL_INPUT);
   }
 
   idaspgmr_mem->g_eplifac = eplifac;
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrSetIncrementFactor **************************/
 
 int IDASpgmrSetIncrementFactor(void *ida_mem, realtype dqincfac)
 {
@@ -387,28 +390,26 @@ int IDASpgmrSetIncrementFactor(void *ida_mem, realtype dqincfac)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   /* Check for legal maxrs */
   if (dqincfac < ZERO) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_DQINCFAC);
-    return(LIN_ILL_INPUT);
+    return(IDASPGMR_ILL_INPUT);
   }
 
   idaspgmr_mem->g_dqincfac = dqincfac;
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrSetPrecSetupFn *******************************/
 
 int IDASpgmrSetPrecSetupFn(void *ida_mem, IDASpgmrPrecSetupFn pset)
 {
@@ -418,22 +419,20 @@ int IDASpgmrSetPrecSetupFn(void *ida_mem, IDASpgmrPrecSetupFn pset)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   idaspgmr_mem->g_pset = pset;
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrSetPrecSolveFn *******************************/
 
 int IDASpgmrSetPrecSolveFn(void *ida_mem, IDASpgmrPrecSolveFn psolve)
 {
@@ -443,22 +442,20 @@ int IDASpgmrSetPrecSolveFn(void *ida_mem, IDASpgmrPrecSolveFn psolve)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   idaspgmr_mem->g_psolve = psolve;
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrSetPrecData **********************************/
 
 int IDASpgmrSetPrecData(void *ida_mem, void *pdata)
 {
@@ -468,22 +465,20 @@ int IDASpgmrSetPrecData(void *ida_mem, void *pdata)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   idaspgmr_mem->g_pdata = pdata;
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrSetJacTimesVecFn *****************************/
 
 int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes)
 {
@@ -493,22 +488,20 @@ int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   idaspgmr_mem->g_jtimes = jtimes;
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrSetJacData ***********************************/
 
 int IDASpgmrSetJacData(void *ida_mem, void *jdata)
 {
@@ -518,24 +511,22 @@ int IDASpgmrSetJacData(void *ida_mem, void *jdata)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   idaspgmr_mem->g_jdata = jdata;
 
-  return(SUCCESS);
+  return(IDASPGMR_SUCCESS);
 }
 
-/*************** IDASpgmrGetIntWorkSpace ******************************/
-
-int IDASpgmrGetIntWorkSpace(void *ida_mem, long int *leniwSG)
+int IDASpgmrGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -544,50 +535,22 @@ int IDASpgmrGetIntWorkSpace(void *ida_mem, long int *leniwSG)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
-  }
-  idaspgmr_mem = (IDASpgmrMem) lmem;
-
-  maxl = idaspgmr_mem->g_maxl;
-  *leniwSG = liw1*(maxl + 6);
-
-  return(OKAY);
-}
-
-/*************** IDASpgmrGetRealWorkSpace *****************************/
-
-int IDASpgmrGetRealWorkSpace(void *ida_mem, long int *lenrwSG)
-{
-  IDAMem IDA_mem;
-  IDASpgmrMem idaspgmr_mem;
-  int maxl;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   maxl = idaspgmr_mem->g_maxl;
   *lenrwSG = lrw1*(maxl + 6) + maxl*(maxl + 4) + 1;
+  *leniwSG = liw1*(maxl + 6);
 
-  return(OKAY);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrGetNumPrecEvals ******************************/
 
 int IDASpgmrGetNumPrecEvals(void *ida_mem, long int *npevals)
 {
@@ -597,22 +560,20 @@ int IDASpgmrGetNumPrecEvals(void *ida_mem, long int *npevals)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   *npevals = npe;
 
-  return(OKAY);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrGetNumPrecSolves *****************************/
 
 int IDASpgmrGetNumPrecSolves(void *ida_mem, long int *npsolves)
 {
@@ -622,22 +583,20 @@ int IDASpgmrGetNumPrecSolves(void *ida_mem, long int *npsolves)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   *npsolves = nps;
 
-  return(OKAY);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrGetNumLinIters *******************************/
 
 int IDASpgmrGetNumLinIters(void *ida_mem, long int *nliters)
 {
@@ -647,22 +606,20 @@ int IDASpgmrGetNumLinIters(void *ida_mem, long int *nliters)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   *nliters = nli;
 
-  return(OKAY);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrGetNumConvFails ******************************/
 
 int IDASpgmrGetNumConvFails(void *ida_mem, long int *nlcfails)
 {
@@ -672,22 +629,20 @@ int IDASpgmrGetNumConvFails(void *ida_mem, long int *nlcfails)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   *nlcfails = ncfl;
 
-  return(OKAY);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrGetNumJtimesEvals ****************************/
 
 int IDASpgmrGetNumJtimesEvals(void *ida_mem, long int *njvevals)
 {
@@ -697,22 +652,20 @@ int IDASpgmrGetNumJtimesEvals(void *ida_mem, long int *njvevals)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   *njvevals = njtimes;
 
-  return(OKAY);
+  return(IDASPGMR_SUCCESS);
 }
-
-/*************** IDASpgmrGetNumResEvals *******************************/
 
 int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
 {
@@ -722,21 +675,50 @@ int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
-    return(LIN_NO_MEM);
+    return(IDASPGMR_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(IDASPGMR_LMEM_NULL);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   *nrevalsSG = nreSG;
 
-  return(OKAY);
+  return(IDASPGMR_SUCCESS);
 }
 
+int IDASpgmrGetLastFlag(void *ida_mem, int *flag)
+{
+  IDAMem IDA_mem;
+  IDASpgmrMem idaspgmr_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
+    return(IDASPGMR_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(IDASPGMR_LMEM_NULL);
+  }
+  idaspgmr_mem = (IDASpgmrMem) lmem;
+
+  *flag = last_flag;
+
+  return(IDASPGMR_SUCCESS);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * IDASPGMR interface routines
+ * -----------------------------------------------------------------
+ */
 
 /* Additional readability Replacements */
 
@@ -750,13 +732,6 @@ int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
 #define pdata    (idaspgmr_mem->g_pdata)
 #define jtimes   (idaspgmr_mem->g_jtimes)
 #define jdata    (idaspgmr_mem->g_jdata)
-
-/*************** IDASpgmrInit *****************************************
-
- This routine does remaining initializations specific to the IDASPGMR 
- linear solver.  It returns LINIT_OK = 0.
-
-**********************************************************************/
 
 static int IDASpgmrInit(IDAMem IDA_mem)
 {
@@ -777,19 +752,9 @@ static int IDASpgmrInit(IDAMem IDA_mem)
     jdata = IDA_mem;
   }
 
-  return(LINIT_OK);
+  last_flag = IDASPGMR_SUCCESS;
+  return(0);
 }
-
-/*************** IDASpgmrSetup ****************************************
-
- This routine calls the user's preconditioner setup routine pset,
- and updates the counter npe.
- The return value is either
-     SUCCESS = 0           if successful,
-     LSETUP_ERROR_RECVR    if pset failed recoverably, or
-     LSETUP_ERROR_NONRECVR if pset failed unrecoverably.
-
-**********************************************************************/
 
 static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector resp, N_Vector tempv1, N_Vector tempv2,
@@ -805,26 +770,23 @@ static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                 tempv1, tempv2, tempv3);
   npe++;
 
+  last_flag = retval;
   /* Return flag showing success or failure of pset. */
-  if (retval < 0) return(LSETUP_ERROR_NONRECVR);
-  if (retval > 0) return(LSETUP_ERROR_RECVR);
-  return(SUCCESS);
+  if (retval < 0) return(-1);
+  if (retval > 0) return(+1);
+  return(0);
 }
 
-/*************** IDASpgmrSolve ****************************************
 
- This routine handles the call to the generic SPGMR solver SpgmrSolve
- for the solution of the linear system Ax = b.
-
- The x-scaling and b-scaling arrays are both equal to weight.
-
- We set the initial guess, x = 0, then call SpgmrSolve.  
- We copy the solution x into b, and update the counters nli, nps, ncfl.
- If SpgmrSolve returned nli_inc = 0 (hence x = 0), we take the SPGMR
- vtemp vector (= P_inverse F) as the correction vector instead.
- Finally, we set the return value according to the success of SpgmrSolve.
-
-**********************************************************************/
+/*
+ * The x-scaling and b-scaling arrays are both equal to weight.
+ *  
+ * We set the initial guess, x = 0, then call SpgmrSolve.  
+ * We copy the solution x into b, and update the counters nli, nps, ncfl.
+ * If SpgmrSolve returned nli_inc = 0 (hence x = 0), we take the SPGMR
+ * vtemp vector (= P_inverse F) as the correction vector instead.
+ *  Finally, we set the return value according to the success of SpgmrSolve.
+ */
 
 static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
                          N_Vector ynow, N_Vector ypnow, N_Vector rnow)
@@ -832,7 +794,7 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   IDASpgmrMem idaspgmr_mem;
   int pretype, nli_inc, nps_inc, retval;
   realtype res_norm;
-  
+
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
 
@@ -855,7 +817,7 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   retval = SpgmrSolve(spgmr_mem, IDA_mem, xx, bb, pretype, gstype, epslin,
                       maxrs, IDA_mem, weight, weight, IDASpgmrAtimes,
                       IDASpgmrPSolve, &res_norm, &nli_inc, &nps_inc);
-
+  last_flag = retval;
   if (nli_inc == 0) N_VScale(ONE, SPGMR_VTEMP(spgmr_mem), bb);
   else N_VScale(ONE, xx, bb);
   
@@ -863,27 +825,25 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   nli += nli_inc;
   nps += nps_inc;
 
-  if (retval == SUCCESS) return(SUCCESS);
+  if (retval == 0) return(0);
 
   /* If not successful, increment ncfl and return appropriate flag. */
   ncfl++;
 
-  if (retval > 0)   return(LSOLVE_ERROR_RECVR);
-  if (retval != -2) return(LSOLVE_ERROR_NONRECVR);
-  if (resflag > 0)  return(LSOLVE_ERROR_RECVR);
-  return(LSOLVE_ERROR_NONRECVR);
+  if (retval > 0)   return(+1);
+  if (retval != -2) return(-1);
+  if (resflag > 0)  return(+1);
+  return(-1);
 
 }
 
-/*************** IDASpgmrPerf *****************************************
-
- This routine handles performance monitoring specific to the IDASPGMR
- linear solver.  When perftask = 0, it saves values of various counters.
- When perftask = 1, it examines difference quotients in these counters,
- and depending on their values, it prints up to three warning messages.
- Messages are printed up to a maximum of 10 times.
-
-**********************************************************************/
+/*
+ * This routine handles performance monitoring specific to the IDASPGMR
+ * linear solver.  When perftask = 0, it saves values of various counters.
+ * When perftask = 1, it examines difference quotients in these counters,
+ * and depending on their values, it prints up to three warning messages.
+ * Messages are printed up to a maximum of 10 times.
+ */
 
 static int IDASpgmrPerf(IDAMem IDA_mem, int perftask)
 {
@@ -898,32 +858,26 @@ static int IDASpgmrPerf(IDAMem IDA_mem, int perftask)
     nst0 = nst;  nni0 = nni;  nli0 = nli;
     ncfn0 = ncfn;  ncfl0 = ncfl;  
     nwarn = 0;
-    return 0;
+    return(0);
   }
 
   nstd = nst - nst0;  nnid = nni - nni0;
-  if (nstd == 0 || nnid == 0) return 0;
+  if (nstd == 0 || nnid == 0) return(0);
   avdim = (nli - nli0)/( (realtype) nnid);
   rcfn = (ncfn - ncfn0)/( (realtype) nstd);
   rcfl = (ncfl - ncfl0)/( (realtype) nnid);
   lavd = (avdim > ( (realtype) maxl ) );
   lcfn = (rcfn > PT9);
   lcfl = (rcfl > PT9);
-  if (!(lavd || lcfn || lcfl)) return 0;
+  if (!(lavd || lcfn || lcfl)) return(0);
   nwarn++;
-  if (nwarn > 10) return 1;
+  if (nwarn > 10) return(1);
   if (lavd) if(errfp!=NULL) fprintf(errfp, MSG_AVD_WARN, tn, avdim);
   if (lcfn) if(errfp!=NULL) fprintf(errfp, MSG_CFN_WARN, tn, rcfn);
   if (lcfl) if(errfp!=NULL) fprintf(errfp, MSG_CFL_WARN, tn, rcfl);
 
-  return 0;
+  return(0);
 }
-
-/*************** IDASpgmrFree *****************************************
-
- This routine frees memory specific to the IDASPGMR linear solver.
-
-**********************************************************************/
 
 static int IDASpgmrFree(IDAMem IDA_mem)
 {
@@ -936,16 +890,21 @@ static int IDASpgmrFree(IDAMem IDA_mem)
   SpgmrFree(spgmr_mem);
   free(lmem);
 
-  return 0;
+  return(0);
 }
 
-/***************** IDASpgmrAtimes *************************************
+/*
+ * -----------------------------------------------------------------
+ * IDASPGMR private functions
+ * -----------------------------------------------------------------
+ */
 
- This routine generates the matrix-vector product z = Jv, where
- J is the system Jacobian, by calling either the user provided
- routine or the internal DQ routine.
 
-**********************************************************************/
+/*
+ * This routine generates the matrix-vector product z = Jv, where
+ * J is the system Jacobian, by calling either the user provided
+ * routine or the internal DQ routine.
+ */
 
 static int IDASpgmrAtimes(void *ida_mem, N_Vector v, N_Vector z)
 {
@@ -962,15 +921,13 @@ static int IDASpgmrAtimes(void *ida_mem, N_Vector v, N_Vector z)
   return(jtflag);
 }
 
-/*************** IDASpgmrPSolve ***************************************
-
- This routine interfaces between the generic SpgmrSolve routine and
- the user's psolve routine.  It passes to psolve all required state 
- information from ida_mem.  Its return value is the same as that
- returned by psolve.  Note that the generic SPGMR solver guarantees
- that IDASpgmrPSolve will not be called in the case psolve = NULL.
-
-**********************************************************************/
+/*
+ * This routine interfaces between the generic SpgmrSolve routine and
+ * the user's psolve routine.  It passes to psolve all required state 
+ * information from ida_mem.  Its return value is the same as that
+ * returned by psolve.  Note that the generic SPGMR solver guarantees
+ * that IDASpgmrPSolve will not be called in the case psolve = NULL.
+ */
 
 static int IDASpgmrPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr)
 {
@@ -989,18 +946,16 @@ static int IDASpgmrPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr)
 
 }
 
-/******************* IDASpgmrDQJtimes *********************************
-
- This routine generates the matrix-vector product z = Jv, where
- J is the system Jacobian, by using a difference quotient approximation.
- The approximation is 
-      Jv = [F(t,y1,yp1) - F(t,y,yp)]/sigma,  where
-        y1 = y + sigma*v,  yp1 = yp + cj*sigma*v,
-        sigma = sqrt(Neq)*dqincfac.
- The return value from the call to res is saved in order to set the
- return flag from IDASpgmrSolve.
-
-**********************************************************************/
+/*
+ * This routine generates the matrix-vector product z = Jv, where
+ * J is the system Jacobian, by using a difference quotient approximation.
+ * The approximation is 
+ *      Jv = [F(t,y1,yp1) - F(t,y,yp)]/sigma,  where
+ *        y1 = y + sigma*v,  yp1 = yp + cj*sigma*v,
+ *        sigma = sqrt(Neq)*dqincfac.
+ * The return value from the call to res is saved in order to set the
+ * return flag from IDASpgmrSolve.
+ */
 
 static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                             N_Vector yy, N_Vector yp, N_Vector rr,

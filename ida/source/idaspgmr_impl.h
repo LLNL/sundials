@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-06-18 21:36:14 $
+ * $Revision: 1.3 $
+ * $Date: 2004-10-08 15:26:54 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,14 +31,11 @@ extern "C" {
 #include "sundialstypes.h"
 #include "nvector.h"
 
-/******************************************************************
- *                                                                *           
- * Types : IDASpgmrMemRec, IDASpgmrMem                            *
- *----------------------------------------------------------------*
- * The type IDASpgmrMem is pointer to an IDASpgmrMemRec. This     *
- * structure contains IDASpgmr solver-specific data.              *
- *                                                                *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Types : IDASpgmrMemRec, IDASpgmrMem                             
+ * -----------------------------------------------------------------
+ */
 
 typedef struct {
 
@@ -84,6 +81,8 @@ typedef struct {
 
   IDASpgmrJacTimesVecFn g_jtimes; /* Jacobian*vector routine           */ 
   void *g_jdata;                  /* data passed to Jtimes             */
+
+  int g_last_flag;                /* last error return flag            */
 
 } IDASpgmrMemRec, *IDASpgmrMem;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-07-22 22:58:30 $
+ * $Revision: 1.22 $
+ * $Date: 2004-10-08 15:25:32 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -75,24 +75,18 @@ typedef int (*ResFn)(realtype tres, N_Vector yy, N_Vector yp,
  */
 
 /* itol */
-enum { SS, SV };
+#define IDA_SS 1
+#define IDA_SV 2
 
 /* itask */
-enum { NORMAL, ONE_STEP, NORMAL_TSTOP, ONE_STEP_TSTOP };
+#define IDA_NORMAL         1
+#define IDA_ONE_STEP       2
+#define IDA_NORMAL_TSTOP   3 
+#define IDA_ONE_STEP_TSTOP 4
 
 /* icopt */
-enum { CALC_YA_YDP_INIT = 1 , CALC_Y_INIT = 2 };
-
-/*
- * ----------------------------------------------------------------
- * Enumerations for res, lsetup and lsolve return values          
- * ----------------------------------------------------------------
- */
-
-enum {SUCCESS               = 0,
-      RES_ERROR_RECVR       = 1, RES_ERROR_NONRECVR      = -1,
-      LSETUP_ERROR_RECVR    = 2, LSETUP_ERROR_NONRECVR   = -2,
-      LSOLVE_ERROR_RECVR    = 3, LSOLVE_ERROR_NONRECVR   = -3};
+#define IDA_YA_YDP_INIT 1 
+#define IDA_Y_INIT      2
 
 /*
  * ================================================================
@@ -220,10 +214,11 @@ void *IDACreate(void);
  *                      | checking to be performed.               
  *                      |                                         
  * ---------------------------------------------------------------- 
- * If successful, these functions return SUCCESS. If an argument  
- * has an illegal value, they print an error message to the       
- * file specified by errfp and return one of the error flags        
- * defined below.                                                 
+ * Return flag:
+ *   IDA_SUCCESS   if successful
+ *   IDA_MEM_NULL  if the ida memory is NULL
+ *   IDA_ILL_INPUT if an argument has an illegal value
+ *
  * ----------------------------------------------------------------
  */
 
@@ -241,10 +236,6 @@ int IDASetMaxConvFails(void *ida_mem, int maxncf);
 int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
 int IDASetId(void *ida_mem, N_Vector id);
 int IDASetConstraints(void *ida_mem, N_Vector constraints);
-
-/* Error return values for IDASet* functions */
-/* SUCCESS = 0*/
-enum {IDAS_NO_MEM = -1, IDAS_ILL_INPUT = -2};
 
 /*
  * ----------------------------------------------------------------
@@ -288,10 +279,10 @@ enum {IDAS_NO_MEM = -1, IDAS_ILL_INPUT = -2};
  *       tolerance, or the components of atol, for a vector       
  *       absolute tolerance.                                      
  *                                                                 
- * If successful, IDAMalloc returns SUCCESS.                      
- * If an initialization error occurs, IDAMalloc prints an error   
- * message to the file specified by errfp and returns one of the  
- * error flags defined below.                                     
+ *  IDA_SUCCESS if successful
+ *  IDA_MEM_NULL if the ida memory was NULL
+ *  IDA_MEM_FAIL if a memory allocation failed
+ *  IDA_ILL_INPUT f an argument has an illegal value.
  *                                                                
  * ----------------------------------------------------------------
  */
@@ -299,10 +290,6 @@ enum {IDAS_NO_MEM = -1, IDAS_ILL_INPUT = -2};
 int IDAMalloc(void *ida_mem, ResFn res,
               realtype t0, N_Vector y0, N_Vector yp0, 
               int itol, realtype *rtol, void *atol);
-
-/* Error return values for IDAMalloc */
-/* SUCCESS = 0 */
-enum {IDAM_NO_MEM = -1, IDAM_MEM_FAIL=-2, IDAM_ILL_INPUT = -2};
 
 /*
  * ----------------------------------------------------------------
@@ -336,10 +323,10 @@ enum {IDAM_NO_MEM = -1, IDAM_MEM_FAIL=-2, IDAM_ILL_INPUT = -2};
  *                                                                
  * The return value of IDAReInit is equal to SUCCESS = 0 if there 
  * were no errors; otherwise it is a negative int equal to:       
- *   IDAREI_NO_MEM     indicating ida_mem was NULL, or            
- *   IDAREI_NO_MALLOC  indicating that ida_mem was not allocated. 
- *   IDAREI_ILL_INPUT  indicating an input argument was illegal   
- *                     (including an attempt to increase maxord). 
+ *   IDA_MEM_NULL   indicating ida_mem was NULL, or            
+ *   IDA_NO_MALLOC  indicating that ida_mem was not allocated. 
+ *   IDA_ILL_INPUT  indicating an input argument was illegal   
+ *                  (including an attempt to increase maxord). 
  * In case of an error return, an error message is also printed.  
  * ----------------------------------------------------------------
  */                                                                
@@ -348,10 +335,6 @@ int IDAReInit(void *ida_mem, ResFn res,
               realtype t0, N_Vector y0, N_Vector yp0,
               int itol, realtype *rtol, void *atol);
  
-/* Error return values for IDAReInit */
-/* SUCCESS = 0 */ 
-enum {IDAREI_NO_MEM = -1, IDAREI_NO_MALLOC = -2, IDAREI_ILL_INPUT = -3};
-
 /* ----------------------------------------------------------------
  * Initial Conditions optional input specification functions      
  * ----------------------------------------------------------------
@@ -399,6 +382,12 @@ enum {IDAREI_NO_MEM = -1, IDAREI_NO_MALLOC = -2, IDAREI_ILL_INPUT = -3};
  *                        | a Newton step.                        
  *                        | [(unit roundoff)^(2/3)                
  *                                                                
+ * ---------------------------------------------------------------- 
+ * Return flag:
+ *   IDA_SUCCESS   if successful
+ *   IDA_MEM_NULL  if the ida memory is NULL
+ *   IDA_ILL_INPUT if an argument has an illegal value
+ *
  * ----------------------------------------------------------------
  */
 
@@ -465,61 +454,49 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  * SUCCESS             IDACalcIC was successful.  The corrected   
  *                     initial value vectors are in y0 and yp0.    
  *                                                                
- * IC_IDA_NO_MEM       The argument ida_mem was NULL.             
+ * IDA_MEM_NULL        The argument ida_mem was NULL.             
  *                                                                
- * IC_ILL_INPUT        One of the input arguments was illegal.    
+ * IDA_ILL_INPUT       One of the input arguments was illegal.    
  *                     See printed message.                       
  *                                                                
- * IC_LINIT_FAIL       The linear solver's init routine failed.   
+ * IDA_LINIT_FAIL      The linear solver's init routine failed.   
  *                                                                
- * IC_BAD_EWT          Some component of the error weight vector  
+ * IDA_BAD_EWT         Some component of the error weight vector  
  *                     is zero (illegal), either for the input    
  *                     value of y0 or a corrected value.          
  *                                                                
- * RES_NONRECOV_ERR    The user's ResFn residual routine returned 
+ * IDA_RES_FAIL        The user's ResFn residual routine returned 
  *                     a non-recoverable error flag.              
  *                                                                
- * IC_FIRST_RES_FAIL   The user's ResFn residual routine returned 
+ * IDA_FIRST_RES_FAIL  The user's ResFn residual routine returned 
  *                     a recoverable error flag on the first call,
  *                     but IDACalcIC was unable to recover.       
  *                                                                
- * SETUP_FAILURE       The linear solver's setup routine had a    
+ * IDA_LSETUP_FAIL     The linear solver's setup routine had a    
  *                     non-recoverable error.                     
  *                                                                
- * SOLVE_FAILURE       The linear solver's solve routine had a    
+ * IDA_LSOLVE_FAIL     The linear solver's solve routine had a    
  *                     non-recoverable error.                     
  *                                                                
- * IC_NO_RECOVERY      The user's residual routine, or the linear 
+ * IDA_NO_RECOVERY     The user's residual routine, or the linear 
  *                     solver's setup or solve routine had a      
  *                     recoverable error, but IDACalcIC was       
  *                     unable to recover.                         
  *                                                                
- * IC_FAILED_CONSTR    IDACalcIC was unable to find a solution    
+ * IDA_CONSTR_FAIL     IDACalcIC was unable to find a solution    
  *                     satisfying the inequality constraints.     
  *                                                                
- * IC_FAILED_LINESRCH  The Linesearch algorithm failed to find a  
+ * IDA_LINESEARCH_FAIL The Linesearch algorithm failed to find a  
  *                     solution with a step larger than steptol   
  *                     in weighted RMS norm.                      
  *                                                                
- * IC_CONV_FAILURE     IDACalcIC failed to get convergence of the 
+ * IDA_CONV_FAIL       IDACalcIC failed to get convergence of the 
  *                     Newton iterations.                         
  *                                                                
  * ----------------------------------------------------------------
  */
 
 int IDACalcIC (void *ida_mem, int icopt, realtype tout1); 
-
-/* IDACalcIC return values */
-
-/* The following three values are IDASolve return values, repeated
-   here for convenience. 
-       SETUP_FAILURE=-7,  SOLVE_FAILURE=-8,  RES_NONRECOV_ERR=-11  */
-
-enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
-       IC_LINIT_FAIL =     -22,   IC_BAD_EWT =         -23,
-       IC_FIRST_RES_FAIL = -24,   IC_NO_RECOVERY =     -25,
-       IC_FAILED_CONSTR =  -26,   IC_FAILED_LINESRCH = -27,
-       IC_CONV_FAILURE =   -28,   IC_NO_MALLOC =       -29  };
 
 /*
  * ----------------------------------------------------------------
@@ -564,21 +541,17 @@ enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
  * (The numerical return values are defined above in this file.)  
  * All unsuccessful returns give a negative return value.         
  *                                                                
- * NORMAL_RETURN: 
+ * IDA_SUCCESS
  *   IDASolve succeeded.                       
  *                                                                
- * INTERMEDIATE_RETURN: 
- *   IDASolve returns computed results for the last single step 
- *   (itask = ONE_STEP).          
- *                                                                
- * TSTOP_RETURN: 
+ * IDA_TSTOP_RETURN: 
  *   IDASolve returns computed results for the independent variable 
  *   value tstop. That is, tstop was reached.                            
  *                                                                
- * IDA_NO_MEM: 
+ * IDA_MEM_NULL: 
  *   The IDA_mem argument was NULL.            
  *                                                                
- * ILL_INPUT: 
+ * IDA_ILL_INPUT: 
  *   One of the inputs to IDASolve is illegal. This includes the 
  *   situation when a component of the error weight vectors 
  *   becomes < 0 during internal stepping. The ILL_INPUT flag          
@@ -588,39 +561,39 @@ enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
  *   solver's init routine failed. In any case, the user should see 
  *   the printed error message for more details.                
  *                                                                
- * TOO_MUCH_WORK: 
+ * IDA_TOO_MUCH_WORK: 
  *   The solver took mxstep internal steps but could not reach tout. 
  *   The default value for mxstep is MXSTEP_DEFAULT = 500.                
  *                                                                
- * TOO_MUCH_ACC: 
+ * IDA_TOO_MUCH_ACC: 
  *   The solver could not satisfy the accuracy demanded by the user 
  *   for some internal step.   
  *                                                                
- * ERR_FAILURE:
+ * IDA_ERR_FAIL:
  *   Error test failures occurred too many times (=MXETF = 10) during 
  *   one internal step.  
  *                                                                
- * CONV_FAILURE: 
+ * IDA_CONV_FAIL: 
  *   Convergence test failures occurred too many times (= MXNCF = 10) 
  *   during one internal step.                                          
  *                                                                
- * SETUP_FAILURE: 
+ * IDA_LSETUP_FAIL: 
  *   The linear solver's setup routine failed  
  *   in an unrecoverable manner.                    
  *                                                                
- * SOLVE_FAILURE: 
+ * IDA_LSOLVE_FAIL: 
  *   The linear solver's solve routine failed  
  *   in an unrecoverable manner.                    
  *                                                                
- * CONSTR_FAILURE:
+ * IDA_CONSTR_FAIL:
  *    The inequality constraints were violated, 
  *    and the solver was unable to recover.         
  *                                                                
- * REP_RES_REC_ERR: 
+ * IDA_REP_RES_ERR: 
  *    The user's residual function repeatedly returned a recoverable 
  *    error flag, but the solver was unable to recover.                 
  *                                                                
- * RES_NONRECOV_ERR:
+ * IDA_RES_FAIL:
  *    The user's residual function returned a nonrecoverable error 
  *    flag.
  *                                                                
@@ -629,14 +602,6 @@ enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
 
 int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask);
-
-/* IDASolve return values */
-
-enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
-       IDA_NO_MEM=-1,       NO_MALLOC=-2,          ILL_INPUT=-3,
-       TOO_MUCH_WORK=-4,    TOO_MUCH_ACC=-5,       ERR_FAILURE=-6,
-       CONV_FAILURE=-7,     SETUP_FAILURE=-8,      SOLVE_FAILURE=-9,
-       CONSTR_FAILURE=-10,  REP_RES_REC_ERR=-11,   RES_NONRECOV_ERR=-12 };
 
 /*
  * ----------------------------------------------------------------
@@ -655,8 +620,9 @@ enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
  * ypret = phi[1]/psi[0].                                         
  *                                                                
  * The return values are:                                         
- *  OKAY  if t is legal, or                                       
- *  BAD_T if t is not within the interval of the last step taken. 
+ *   IDA_SUCCESS:  succeess.                                  
+ *   IDA_BAD_T:    t is not in the interval [tn-hu,tn].                   
+ *   IDA_MEM_NULL: The ida_mem argument was NULL.     
  *                                                                
  * ----------------------------------------------------------------
  */
@@ -672,8 +638,7 @@ int IDAGetSolution(void *ida_mem, realtype t,
  * and statistics related to the main integrator.                 
  * ---------------------------------------------------------------- 
  *                                                                
- * IDAGetIntWorkSpace returns the IDA integer workspace size      
- * IDAGetRealWorkSpace returns the IDA real workspace size        
+ * IDAGetWorkSpace returns the IDA real and integer workspace sizes      
  * IDAGetNumSteps returns the cumulative number of internal       
  *       steps taken by the solver                                
  * IDAGetNumRhsEvals returns the number of calls to the user's    
@@ -705,12 +670,14 @@ int IDAGetSolution(void *ida_mem, realtype t,
  * IDAGetEstLocalErrors returns the vector of estimated local     
  *       errors. The user need not allocate space for ele.        
  *                                                                
+ * IDAGet* return values:
+ *   IDA_SUCCESS   if succesful
+ *   IDA_MEM_NULL  if the ida memory was NULL
  *
  * ----------------------------------------------------------------
  */
 
-int IDAGetIntWorkSpace(void *ida_mem, long int *leniw);
-int IDAGetRealWorkSpace(void *ida_mem, long int *lenrw);
+int IDAGetWorkSpace(void *ida_mem, long int *lenrw, long int *leniw);
 int IDAGetNumSteps(void *ida_mem, long int *nsteps);
 int IDAGetNumResEvals(void *ida_mem, long int *nrevals);
 int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups);
@@ -725,14 +692,6 @@ int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
 int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
 int IDAGetErrWeights(void *ida_mem, N_Vector *eweight);
 
-/*
- * ----------------------------------------------------------------
- * As a convenience, the following two functions provide the      
- * optional outputs in groups.                                    
- * ----------------------------------------------------------------
- */
-
-int IDAGetWorkSpace(void *ida_mem, long int *leniw, long int *lenrw);
 int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, 
                           long int *nrevals, long int *nlinsetups, 
                           long int *netfails, int *qlast, int *qcur, 
@@ -769,9 +728,6 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails);
 int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, 
                           long int *nncfails);
 
-/* IDAGet* return values */
-enum { OKAY=0, IDAG_NO_MEM=-1, BAD_T=-2 };
-
 /*
  * ----------------------------------------------------------------
  * Function : IDAFree                                             
@@ -784,51 +740,45 @@ enum { OKAY=0, IDAG_NO_MEM=-1, BAD_T=-2 };
 
 void IDAFree(void *ida_mem);
 
-/*
- * ----------------------------------------------------------------
- * Communication between user and an IDA Linear Solver            
- * ----------------------------------------------------------------
- * Return values of the linear solver specification routine.      
- * The values of these are given in the enum statement below.     
- * SUCCESS      : The routine was successful.                     
- *                                                                
- * LIN_NO_MEM   : IDA memory = NULL.                              
- *                                                                
- * LMEM_FAIL    : A memory allocation failed.                     
- *                                                                
- * LIN_ILL_INPUT: Some input was illegal (see message).           
- *                                                                
- * LIN_NO_LMEM  : The linear solver's memory = NULL.              
- * ----------------------------------------------------------------
+/* 
+ * ----------------------------------------
+ * IDA return flags 
+ * ----------------------------------------
  */
 
-/* SUCCESS = 0  (defined above but listed here for completeness)  */
-enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
+
+#define IDA_SUCCESS          0
+#define IDA_TSTOP_RETURN     1
+
+#define IDA_MEM_NULL        -1
+#define IDA_ILL_INPUT       -2
+#define IDA_NO_MALLOC       -3
+#define IDA_TOO_MUCH_WORK   -4
+#define IDA_TOO_MUCH_ACC    -5
+#define IDA_ERR_FAIL        -6
+#define IDA_CONV_FAIL       -7
+#define IDA_LINIT_FAIL      -8
+#define IDA_LSETUP_FAIL     -9
+#define IDA_LSOLVE_FAIL     -10
+#define IDA_RES_FAIL        -11
+#define IDA_CONSTR_FAIL     -12
+#define IDA_REP_RES_ERR     -13
+
+#define IDA_MEM_FAIL        -14
+
+#define IDA_BAD_T           -15
+
+#define IDA_BAD_EWT         -16
+#define IDA_FIRST_RES_FAIL  -17
+#define IDA_LINESEARCH_FAIL -18
+#define IDA_NO_RECOVERY     -19
 
 
 /*
- * ----------------------------------------------------------------
- * Communication between ida.c and an IDA Linear Solver Module    
- * ----------------------------------------------------------------
- * (1) ida_linit return values                                    
- *                                                                
- * LINIT_OK    : The ida_linit routine succeeded.                 
- *                                                                
- * LINIT_ERR   : The ida_linit routine failed. Each linear solver 
- *               init routine should print an appropriate error   
- *               message to (idamem->errfp).                      
- *                                                                
- * (2) Parameter documentation, as well as a brief description    
- *     of purpose, for each IDA linear solver routine to be       
- *     called in IDA.c is given below the constant declarations   
- *     that follow.                                               
- * ----------------------------------------------------------------
- */                                                                
-
-/* ida_linit return values */
-
-#define LINIT_OK        0
-#define LINIT_ERR      -1
+ * =================================================================
+ *     I N T E R F A C E   T O    L I N E A R   S O L V E R S     
+ * =================================================================
+ */
 
 /*
  * -----------------------------------------------------------------
@@ -838,9 +788,8 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * solver-specific fields in the structure *(idamem->ida_lmem) and 
  * perform any needed initializations of solver-specific memory,   
  * such as counters/statistics. An (*ida_linit) should return      
- * LINIT_OK (== 0) if it has successfully initialized the IDA      
- * linear solver and LINIT_ERR (== -1) otherwise.                  
- * These constants are defined above. If an error does occur, an   
+ * 0 if it has successfully initialized the IDA linear solver and 
+ * a negative value otherwise. If an error does occur, an 
  * appropriate message should be sent to (idamem->errfp).          
  * ----------------------------------------------------------------
  */                                                                 
@@ -869,10 +818,9 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * tempv1, tempv2, tempv3 - temporary N_Vectors provided for use   
  *         by ida_lsetup.                                          
  *                                                                 
- * The ida_lsetup routine should return SUCCESS (=0) if successful,
- * the positive value LSETUP_ERROR_RECVR for a recoverable error,  
- * and the negative value LSETUP_ERROR_NONRECVR for an             
- * unrecoverable error.  The code should include the file ida.h .  
+ * The ida_lsetup routine should return 0 if successful,
+ * a positive value for a recoverable error, and a negative value 
+ * for an unrecoverable error.
  * -----------------------------------------------------------------
  */                                                                 
 
@@ -888,11 +836,11 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * The N-vector ycur contains the solver's current approximation   
  * to y(tn), ypcur contains that for y'(tn), and the vector rescur 
  * contains the N-vector residual F(tn,ycur,ypcur).                
- * The solution is to be returned in the vector b. ida_lsolve      
- * returns the positive value LSOLVE_ERROR_RECVR for a             
- * recoverable error and the negative value LSOLVE_ERROR_NONRECVR  
- * for an unrecoverable error. Success is indicated by a return    
- * value SUCCESS = 0. The code should include the file ida.h .     
+ * The solution is to be returned in the vector b. 
+ *                                                                 
+ * The ida_lsolve routine should return 0 if successful,
+ * a positive value for a recoverable error, and a negative value 
+ * for an unrecoverable error.
  * -----------------------------------------------------------------
  */                                                                 
 
