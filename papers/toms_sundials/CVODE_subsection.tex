@@ -79,7 +79,7 @@ in the form of the user-supplied preconditioner matrix \cite{BrHi:89}.
 % WRMS Norm
 %----------
 In the process of controlling errors at various levels, CVODE uses a
-weighted RMS norm, denoted $\|\cdot\|_{WRMS}$, for all error-like
+weighted root-mean-square norm, denoted $\|\cdot\|_{WRMS}$, for all error-like
 quantities.  The weights used are based on the current solution and
 on the relative and absolute tolerances input by the user, namely
 \begin{equation}\label{errwt}
@@ -149,7 +149,7 @@ Therefore the convergence (stopping) test is
 \begin{equation*}
   R \|\delta_m \| < 0.1 \epsilon \, .
 \end{equation*}
-We allow at most 3 iteratations (but this limit can be changed by the
+We allow at most 3 iterations (but this limit can be changed by the
 user).  We also declare the iteration diverged if any $\|\delta_m\| /
 \|\delta_{m-1}\| > 2$ with $m > 1$. If convergence fails with $J$ or
 $P$ current, we are forced to reduce the stepsize, and we replace
@@ -217,8 +217,8 @@ asymptotic behavior of the local error, namely by the equation
 Here 1/6 is a safety factor.  A new attempt at the step is made,
 and the error test repeated.  If it fails three times, the order $q$
 is reset to 1 (if $q > 1$), or the step is restarted from scratch (if
-$q = 1$).  The ratio $h'/h$ is limited below to .2 after two error test
-failures and to .1 after three.  After seven failures, CVODE returns
+$q = 1$).  The ratio $h'/h$ is limited below to 0.2 after two error test
+failures and to 0.1 after three.  After seven failures, CVODE returns
 to the user with a give-up message.
 
 % Step/order control
@@ -292,5 +292,5 @@ to 7\% of the total, depending on the size and complexity of the
 problem, with lower relative costs for larger problems.  Therefore, it
 should be activated only when there is reasonable expectation of modes
 in the user's system for which it is appropriate, together with poor
-performance at orders 3-5, for no apparent reason, with the option
+performance at orders 3--5, for no apparent reason, with the option
 turned off.
