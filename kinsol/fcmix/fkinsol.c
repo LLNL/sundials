@@ -2,7 +2,7 @@
  * File          : fkinsol.c                                      *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                             *
- * Version of    : 8 March 2002                                   *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the KINSOL package. See fkinsol.h for usage.                   *
@@ -14,21 +14,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer             */
-#include "nvector.h"  /* definitions of type N_Vector and related routines */
-#include "kinsol.h"   /* KINSOL constants and prototypes                   */
-#include "kinspgmr.h" /* prototypes of KINSPGMR interface routines         */
-#include "fcmixpar.h" /* global F2C_machEnv variable                       */
-#include "fkinsol.h"  /* prototypes of interfaces, global variables        */
+#include "sundialstypes.h" /* definitions of types realtype and integertype     */
+#include "nvector.h"       /* definitions of type N_Vector and related routines */
+#include "kinsol.h"        /* KINSOL constants and prototypes                   */
+#include "kinspgmr.h"      /* prototypes of KINSPGMR interface routines         */
+#include "fcmixpar.h"      /* global F2C_machEnv variable                       */
+#include "fkinsol.h"       /* prototypes of interfaces, global variables        */
 
 /**************************************************************************/
 
 /* Prototypes of the Fortran routines */
-void K_FUN(integer*, real*, real*);
+void K_FUN(integertype*, realtype*, realtype*);
 
 /**************************************************************************/
 
-void F_KINMALLOC(integer *neq, integer *ier)
+void F_KINMALLOC(integertype *neq, integertype *ier)
 {
 
   /* Call KINMalloc to initialize memory for KINSOL: 
@@ -67,14 +67,14 @@ void F_KINSPGMR00( int *maxl, int *maxlrst, int *msbpre)
 
 /***************************************************************************/
 
-void F_KINSOL(int *Neq, real *uu, int *globalstrategy, 
-              real *uscale , real *fscale, real *fnormtol, real *scsteptol,
-              real *constraints, int *inopt, long int *iopt, real *ropt,
-              int *ier)
+void F_KINSOL(int *Neq, realtype *uu, int *globalstrategy, 
+              realtype *uscale , realtype *fscale, realtype *fnormtol, 
+              realtype *scsteptol, realtype *constraints, int *inopt, 
+              long int *iopt, realtype *ropt, int *ier)
 
 { 
   N_Vector uuvec, uscalevec, fscalevec, constraintsvec;
-  boole binopt;
+  booleantype binopt;
 
   binopt = *inopt;
 
@@ -133,9 +133,9 @@ void F_KINFREE()
    routine N_VGetData from the NVECTOR module.
    Auxiliary data is assumed to be communicated by Common. */
 
-void KINfunc(integer Neq, N_Vector uu, N_Vector fval, void *f_data)
+void KINfunc(integertype Neq, N_Vector uu, N_Vector fval, void *f_data)
 {
-  real *udata, *fdata;
+  realtype *udata, *fdata;
 
   /* NOTE: f_data is not passed to KFUN... it is NULL */
 

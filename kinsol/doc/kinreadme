@@ -248,7 +248,7 @@ REVISION HISTORY (YYYYMMDD)
 20020207   This file revised to reflect new package organization.
 20020313   Modified to work with new NVECTOR abstraction. (Radu Serban)
            Revised this file to reflect new N_Vector usage. (Radu Serban)
-
+20020627  Modified to reflect type name changes. (Radu Serban)
 ..........................................................................
 
                             LEGAL NOTICES

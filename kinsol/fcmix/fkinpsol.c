@@ -3,7 +3,7 @@
  * File          : fkinpsol.c                                     *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                             *
- * Version of    : 8 MArch 2002                                   *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This routine interfaces between the user-supplied Fortran      *
  * routine KPSOL and the various routines that call KINSpgmr.     *
@@ -13,28 +13,29 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer      */
-#include "nvector.h"  /* definitions of type N_Vector               */
-#include "kinsol.h"   /* KINSOL constants and prototypes            */
-#include "fkinsol.h"  /* prototypes of interfaces, global variables */
+#include "sundialstypes.h" /* definitions of types realtype and integertype */
+#include "nvector.h"       /* definitions of type N_Vector                  */
+#include "kinsol.h"        /* KINSOL constants and prototypes               */
+#include "fkinsol.h"       /* prototypes of interfaces, global variables    */
 
 /********************************************************************/
 
 /* Prototypes of the Fortran routines */
-void K_PSOL(integer*, real*, real*, real*, real*, real*, real*, real*, long int*, int*);
+void K_PSOL(integertype*, realtype*, realtype*, realtype*, realtype*, 
+            realtype*, realtype*, realtype*, long int*, int*);
 
 /********************************************************************/
 
 /* C function KINPSol to interface between KINSpgmr and KPSOL, the user-
   supplied Fortran preconditioner solve routine. */
 
-int KINPSol(integer Neq, N_Vector uu, N_Vector uscale, 
+int KINPSol(integertype Neq, N_Vector uu, N_Vector uscale, 
             N_Vector fval, N_Vector fscale,
             N_Vector vtem, N_Vector ftem,
-            SysFn func, real u_round,
+            SysFn func, realtype u_round,
             long int *nfePtr, void *P_data)
 {
-  real *udata,*uscaledata, *fdata,*fscaledata, *vtemdata, *ftemdata;
+  realtype *udata,*uscaledata, *fdata,*fscaledata, *vtemdata, *ftemdata;
   int retcode;
 
   udata      = N_VGetData(uu);

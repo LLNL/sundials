@@ -2,7 +2,7 @@
  *                                                                          *
  * File         : fkinbbd.c                                                 *
  * Programmers  : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL * 
- * Version of   : 8 March 2002                                              *
+ * Version of   : 27 June 2002                                              *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
@@ -17,7 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h"  /* definitions of types real and integer               */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
 #include "nvector.h"   /* definitions of type N_Vector                        */
 #include "kinsol.h"    /* KINSOL constants and prototypes                     */
 #include "fcmixpar.h"  /* definition of global F2C_machEnv variable           */
@@ -30,13 +30,13 @@
 
 /* Prototypes of the Fortran routines */
 
-void K_LOCFN(integer*, real*, real*);
-void K_COMMFN(integer*, real*);
+void K_LOCFN(integertype*, realtype*, realtype*);
+void K_COMMFN(integertype*, realtype*);
 
 /***************************************************************************/
 
-void F_KINBBDINIT0(integer *nlocal, int *maxl, int *maxlrst, int *msbpre,
-                   integer *mu, integer *ml, int *ier)
+void F_KINBBDINIT0(integertype *nlocal, int *maxl, int *maxlrst, int *msbpre,
+                   integertype *mu, integertype *ml, int *ier)
 {
   /* First call KBBDAlloc to initialize KINBBDPRE module:
      *mu, *ml      are the half-bandwidths for the preconditioner blocks
@@ -69,9 +69,9 @@ void F_KINBBDINIT0(integer *nlocal, int *maxl, int *maxlrst, int *msbpre,
 /* C function KINgloc to interface between KINBBDPRE module and a Fortran 
    subroutine KLOCFN. */
 
-void KINgloc(integer Nloc, N_Vector uu, N_Vector gval, void *f_data)
+void KINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data)
 {
-  real *uloc, *gloc;
+  realtype *uloc, *gloc;
 
   uloc = N_VGetData(uu);
   gloc = N_VGetData(gval) ;
@@ -88,7 +88,7 @@ void KINgloc(integer Nloc, N_Vector uu, N_Vector gval, void *f_data)
    subroutine KCOMMFN. */
 
 
-void KINgcomm(integer Nloc, real *uloc, void *f_data)
+void KINgcomm(integertype Nloc, realtype *uloc, void *f_data)
 {
 
   K_COMMFN(&Nloc, uloc);
@@ -99,7 +99,7 @@ void KINgcomm(integer Nloc, real *uloc, void *f_data)
 
 /* C function FKINBBDOPT to access optional outputs from KBBD_Data */
 
-void F_KINBBDOPT(integer *lenrpw, integer *lenipw, integer *nge)
+void F_KINBBDOPT(integertype *lenrpw, integertype *lenipw, integertype *nge)
 {
   KBBDData pdata;
   pdata = (KBBDData)(KBBD_Data);

@@ -15,7 +15,7 @@
 
 /***************************************************************************/
 
-void F_KINSPGMR21( int *maxl, int *maxlrst, int *msbpre)
+void F_KINSPGMR21(int *maxl, int *maxlrst, int *msbpre)
 {
   /* Call KINSpgmr to specify the SPGMR linear solver:
 
@@ -31,6 +31,6 @@ void F_KINSPGMR21( int *maxl, int *maxlrst, int *msbpre)
      KINUAtimes  is a pointer to the user ATimes interface routine     
      NULL        is a pointer to the P_data memory structure  */
 
- KINSpgmr (KIN_kmem, *maxl, *maxlrst, *msbpre, 
-	   KINPreco, KINPSol, KINUAtimes, NULL);
+  KINSpgmr(KIN_kmem, *maxl, *maxlrst, *msbpre, 
+           KINPreco, KINPSol, KINUAtimes, NULL);
 }

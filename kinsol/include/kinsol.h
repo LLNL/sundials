@@ -3,7 +3,7 @@
  * File          : kinsol.h                                       *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 5 March 2002                                   *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the interface file for the main KINSol solver          *
  *                                                                *
@@ -17,7 +17,7 @@ extern "C" {
 
 
 #include <stdio.h>
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 
  
@@ -36,7 +36,7 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-typedef void (*SysFn)(integer Neq, N_Vector uu, 
+typedef void (*SysFn)(integertype Neq, N_Vector uu, 
                       N_Vector fval,  void *f_data );
 
 /******************************************************************
@@ -65,7 +65,7 @@ typedef void (*SysFn)(integer Neq, N_Vector uu,
  *                                                                *
  *****************************************************************/
 
-void *KINMalloc(integer Neq, FILE *msgfp, M_Env machEnv);
+void *KINMalloc(integertype Neq, FILE *msgfp, M_Env machEnv);
 
 
 
@@ -95,17 +95,17 @@ void *KINMalloc(integer Neq, FILE *msgfp, M_Env machEnv);
  * Neq     is the number of equations in the algebraic system     *
  *                                                                *
  * kinmem  pointer to KINSol memory block returned by the         *
- *             preceding KINMalloc call                           *
+ *         preceding KINMalloc call                               *
  *                                                                *
  * uu      is the solution vector for the system func(uu) = 0.    *
- *          uu is to be set to an initial value if other          *
- *          than 0. vector starting value is desired              *
+ *         uu is to be set to an initial value if other           *
+ *         than 0. vector starting value is desired               *
  *                                                                *
  * func    is the system function for the system:   func(uu) = 0. *          
  *                                                                *
- * globalstrategy  is a variable which indicates which global 	  *
+ * globalstrategy  is a variable which indicates which global     *
  *         strategy to apply the computed increment delta in the  *
- *	   solution uu.  Choices are given below.		  *
+ *         solution uu.  Choices are given below.                 *
  *                                                                *
  * uscale  is an array (type N_Vector) of diagonal elements of the*
  *         scaling matrix for uu. The elements of uscale must be  *
@@ -129,7 +129,7 @@ void *KINMalloc(integer Neq, FILE *msgfp, M_Env machEnv);
  *         uround is the unit roundoff for the machine            *
  *         in use for the calculation. (see UnitRoundoff in       *
  *         llnlmath module                                        *
- *        							  *
+ *                                                                *
  * scsteptol  is a real (scalar) value containing the stopping    *
  *         tolerance on the maximum scaled step  uu(k) - uu(k-1). *
  *         If scsteptol is input as 0., then a default value of   *
@@ -137,7 +137,7 @@ void *KINMalloc(integer Neq, FILE *msgfp, M_Env machEnv);
  *         uround is the unit roundoff for the machine            *
  *         in use for the calculation. (see UnitRoundoff in       *
  *         llnlmath module                                        *
- *  								  *
+ *                                                                *
  * constraints  is a pointer to an array (type N_Vector) of       *
  *         constraints on uu .  If the pointer passed in is NULL, *
  *         then NO constraints are applied to uu . A NULL pointer *
@@ -196,7 +196,7 @@ enum { INEXACT_NEWTON , LINESEARCH };  /* globalstrategy */
  * So the user's declaration should look like:                    *
  *                                                                *
  * long int iopt[OPT_SIZE];                                       *
- * real     ropt[OPT_SIZE];                                       *
+ * realtype ropt[OPT_SIZE];                                       *
  *                                                                *
  * The following definitions are indices into the iopt and ropt   *
  * arrays. A brief description of the contents of these positions *
@@ -418,11 +418,11 @@ enum { INEXACT_NEWTON , LINESEARCH };  /* globalstrategy */
  ******************************************************************/
 
 
-int KINSol(void *kinmem, integer Neq, 
-           N_Vector uu, SysFn func, int globalstrategy, 
-           N_Vector uscale, N_Vector fscale,
-           real fnormtol, real scsteptol, N_Vector constraints, 
-           boole optIn, long int iopt[], real ropt[], void *f_data);
+int KINSol(void *kinmem, integertype Neq, N_Vector uu, SysFn func, 
+           int globalstrategy, N_Vector uscale, N_Vector fscale,
+           realtype fnormtol, realtype scsteptol, N_Vector constraints, 
+           booleantype optIn, long int iopt[], realtype ropt[], 
+           void *f_data);
 
 
   /* KINSol return values */
@@ -477,46 +477,46 @@ enum {ETACHOICE1 = 0, ETACHOICE2, ETACONSTANT};
 
 typedef struct KINMemRec {
 
- real kin_uround;    /* machine unit roundoff */
+ realtype kin_uround;    /* machine unit roundoff */
 
   /* Problem Specification Data */
 
-  integer  kin_Neq;        /*  system size                                */
-  SysFn kin_func;          /* = func(uu)= 0.                              */
-  void *kin_f_data;        /* ptr to func work space                      */
-  real kin_fnormtol;       /* ptr to func norm tolerance                  */
-  real kin_scsteptol;      /* ptr to scaled step tolerance                */
-  int kin_globalstrategy;  /* choices are INEXACT_NEWTON & LINESEARCH     */
-  long int *kin_iopt;      /* pointer to integer optional INPUTs and
-                                                                   OUTPUTs */
-  real *kin_ropt;          /* pointer to real optional INPUTs and OUTPUTs */
-  int kin_printfl;         /* print (output) option selected              */
-  int kin_mxiter;          /*  max number of nonlinear iterations         */
-  int kin_msbpre;          /*  max number of iterations without calling the
-				preconditioner.  this variable set by the
-		         	setup routine for the linear solver       */
-  int kin_etaflag;          /* eta computation choice                     */
-  boole kin_ioptExists;     /* logical set when the array iopt is non-null*/ 
-  boole kin_roptExists;     /* logical set when the array ropt is non-null*/ 
-  boole kin_precondflag;    /* precondition is in use                     */
-  boole kin_setupNonNull;   /*  preconditioning setup routine is non-null and
-				preconditioning is in use                 */
-  boole kin_constraintsSet; /* if set, user has given a valid constraints
-				array and constraints will be used        */
-  boole kin_precondcurrent; /*  if set, the preconditioner is current ,
-				           else not                       */
-  boole kin_callForcingTerm; /* if set, call the routine KINForcingTerm   */
-  real kin_mxnewtstep;      /* max allowable step length of a Newton step */
-  real kin_sqrt_relfunc;    /* relative error bound for func(uu) 
-				 (sqrt of error used in the code)         */
-  real kin_relu;           /* scalar bound on (del(uu)/uu)                */
-  real kin_stepl;          /* previous steplength in LineSearch or 
-                               InexactNewton algorithm                    */
-  real kin_eps;            /* current eps value for the iteration         */ 
-  real kin_eta;            /* current eta value for the iteration         */  
-  real kin_eta_gamma;      /* gamma value for use in eta calculation      */
-  real kin_eta_alpha;      /* alpha value for use in eta calculation      */
-  real kin_pthrsh;         /* threshold value for calling preconditioner  */
+  integertype  kin_Neq;        /*  system size                                */
+  SysFn kin_func;              /* = func(uu)= 0.                              */
+  void *kin_f_data;            /* ptr to func work space                      */
+  realtype kin_fnormtol;       /* ptr to func norm tolerance                  */
+  realtype kin_scsteptol;      /* ptr to scaled step tolerance                */
+  int kin_globalstrategy;      /* choices are INEXACT_NEWTON & LINESEARCH     */
+  long int *kin_iopt;          /* pointer to integer optional INPUTs and
+                                  OUTPUTs                                     */
+  realtype *kin_ropt;          /* pointer to real optional INPUTs and OUTPUTs */
+  int kin_printfl;             /* print (output) option selected              */
+  int kin_mxiter;              /* max number of nonlinear iterations          */
+  int kin_msbpre;              /* max number of iterations without calling the
+                                  preconditioner.  this variable set by the
+                                  setup routine for the linear solver         */
+  int kin_etaflag;             /* eta computation choice                      */
+  booleantype kin_ioptExists;  /* logical set when the array iopt is non-null */ 
+  booleantype kin_roptExists;  /* logical set when the array ropt is non-null */ 
+  booleantype kin_precondflag; /* precondition is in use                      */
+  booleantype kin_setupNonNull;/*  preconditioning setup routine is non-null
+                                   and preconditioning is in use              */
+  booleantype kin_constraintsSet; /* if set, user has given a valid constraints
+                                     array and constraints will be used       */
+  booleantype kin_precondcurrent; /* if set, the preconditioner is current ,
+                                     else not                                 */
+  booleantype kin_callForcingTerm;/* if set, call the routine KINForcingTerm  */
+  realtype kin_mxnewtstep;     /* max allowable step length of a Newton step  */
+  realtype kin_sqrt_relfunc;   /* relative error bound for func(uu) 
+                                     (sqrt of error used in the code)         */
+  realtype kin_relu;           /* scalar bound on (del(uu)/uu)                */
+  realtype kin_stepl;          /* previous steplength in LineSearch or 
+                                  InexactNewton algorithm                     */
+  realtype kin_eps;            /* current eps value for the iteration         */ 
+  realtype kin_eta;            /* current eta value for the iteration         */  
+  realtype kin_eta_gamma;      /* gamma value for use in eta calculation      */
+  realtype kin_eta_alpha;      /* alpha value for use in eta calculation      */
+  realtype kin_pthrsh;         /* threshold value for calling preconditioner  */
 
   /* Counters */
 
@@ -524,10 +524,10 @@ typedef struct KINMemRec {
   long int  kin_nfe;       /* number of func references/calls             */
   long int  kin_nnilpre;   /* nni value at last precond call              */
   long int  kin_nbcf;      /* number of times the beta condition could not 
-                                be met in LineSearch                      */
-  long int  kin_nbktrk;    /*  number of backtracks                       */
+                              be met in LineSearch                        */
+  long int  kin_nbktrk;    /* number of backtracks                        */
   long int  kin_ncscmx;    /* number of consecutive max stepl occurences
-				in the global strategy */
+                              in the global strategy                      */
 
   /* Vectors of length Neq */
 
@@ -537,12 +537,12 @@ typedef struct KINMemRec {
                               also bb vector in linear solver             */
   N_Vector kin_fval;       /* pointer to returned func vector             */
   N_Vector kin_uscale;     /* pointer to user-supplied scaling vector 
-			      for uu */
+                              for uu                                      */
   N_Vector kin_fscale;     /* pointer to user-supplied scaling vector 
-			      for func */
+                              for func                                    */
   N_Vector kin_pp;         /* pointer to the incremental change vector 
-			      for uu in this iteration; also vector xx
-		              in the linear solver */
+                              for uu in this iteration; also vector xx
+                              in the linear solver                        */
   N_Vector kin_constraints;/* pointer to user supplied constraints vector */ 
   N_Vector kin_vtemp1;     /* scratch vector  # 1                         */
   N_Vector kin_vtemp2;     /* scratch vector  # 2                         */
@@ -552,12 +552,12 @@ typedef struct KINMemRec {
  
   /* Linear Solver functions to be called */
 
-  int (*kin_linit)(struct KINMemRec *kin_mem, boole *setupNonNull);
+  int (*kin_linit)(struct KINMemRec *kin_mem, booleantype *setupNonNull);
 
   int (*kin_lsetup)(struct KINMemRec *kin_mem);
 
   int (*kin_lsolve)(struct KINMemRec *kin_mem, N_Vector xx, N_Vector bb, 
-                    real *res_norm );
+                    realtype *res_norm );
   
   int (*kin_lfree)(struct KINMemRec *kin_mem);
   
@@ -568,19 +568,19 @@ typedef struct KINMemRec {
 
   /* Saved Values */
 
-  real kin_fnorm;   /* current value for the norm of func(uu)                 */
-  real kin_f1norm;  /* current value for the expression:  fnorm*fnorm/2  
-                       NOTE: the value f1normp is computed in KINLineSearch or 
-                       KINInexactNewton and supplied to the calling routine to set 
-                       this value. f1normp remains a variable of scope to KINSol, however */
-  real kin_res_norm;  /* current value for the norm of the residual */
+  realtype kin_fnorm;    /* current value for the norm of func(uu)                     */
+  realtype kin_f1norm;   /* current value for the expression:  fnorm*fnorm/2  
+                            NOTE: the value f1normp is computed in KINLineSearch or 
+                            KINInexactNewton and supplied to the calling routine to set 
+                            this value. f1normp remains a variable of scope to KINSol  */
+  realtype kin_res_norm; /* current value for the norm of the residual                 */
 
-  real kin_sfdotJp;        /* scaled f value dotted with J p, p the computed
-                              increment in the computed solution. This term is used 
-                              in the global strategy routine and in KINForcingTerm */
+  realtype kin_sfdotJp;  /* scaled f value dotted with J p, p the computed
+                           increment in the computed solution. This term is used 
+                           in the global strategy routine and in KINForcingTerm        */
 
-  real kin_sJpnorm;        /* norm of scaled J p, as above, also used in
-                              the KINForcingTerm routine               */
+  realtype kin_sJpnorm;  /* norm of scaled J p, as above, also used in
+                            the KINForcingTerm routine                                 */
   
   /* in the above two comments, J is the jacobian matrix evaluated at the
      last iterate u  and p is the current increment from the last iterate u.
@@ -626,7 +626,7 @@ typedef struct KINMemRec {
 
 /*******************************************************************
  *                                                                 *
- * int (*kin_linit)(KINMem kin_mem, boole *setupNonNull);          *
+ * int (*kin_linit)(KINMem kin_mem, booleantype *setupNonNull);    *
  *-----------------------------------------------------------------*
  * The purpose of kin_linit is to perform any needed               *
  * initializations of solver-specific memory, such as              *
@@ -661,7 +661,7 @@ typedef struct KINMemRec {
 /*******************************************************************
  *                                                                 *
  * int (*kin_lsolve)(KINMem kin_mem, N_Vector bb, N_Vector xx,     *
- *                  real *res_norm);                               *
+ *                  realtype *res_norm);                           *
  *-----------------------------------------------------------------*
  * kin_lsolve must solve the linear equation J x = b, where        *
  * J is an approximate Jacobian matrix, x is the approximate system*

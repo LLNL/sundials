@@ -3,7 +3,7 @@
  * File          : kinsol.c                                       *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 5 MArch 2002                                   *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the main KINSol solver.    *
  * It is independent of the KINSol linear solver in use.          *
@@ -16,9 +16,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 #include "kinsol.h"
 #include "kinspgmr.h"
 
@@ -59,7 +59,7 @@
 #define TWOTHIRDS RCONST(.6666666666666667)   /* 2/3  */
 #define POINT6   RCONST(0.6)    /* real 0.6  */
 #define POINT9   RCONST(0.9)    /* real 0.9  */
-#define POINTOHOHONE RCONST(0.001)   /* real 0.001 */
+#define POINTOHOHONE RCONST(0.001)    /* real 0.001 */
 #define POINTOHOHOHONE RCONST(0.0001) /* real 0.0001 */
 
 /***************************************************************/
@@ -87,13 +87,13 @@
 #define MSG_BAD_NEQ         KINM "N=%ld < 1 illegal.\n\n"
 
 
-#define MSG_MEM_FAIL       KINM "A memory request failed.\n\n"
+#define MSG_MEM_FAIL        KINM "A memory request failed.\n\n"
 
 /* KINSol error messages */
 
-#define KINSOL           "KINSOL-- "
+#define KINSOL              "KINSOL-- "
 
-#define NO_MEM           "kinsol_mem=NULL illegal.\n\n"
+#define NO_MEM              "kinsol_mem=NULL illegal.\n\n"
 
 #define MSG_KINSOL_NO_MEM KINSOL NO_MEM
 
@@ -110,9 +110,9 @@
 #define MSG_GAMMA_BAD     KINSI "Input gamma out of range: reset -> .9\n\n"
 #define MSG_ETACONST_BAD  KINSI "Input etaconst out of range: reset -> 0.1\n\n"
 
-#define MSG_UU_NULL         KINSI "uu=NULL illegal.\n\n"
+#define MSG_UU_NULL       KINSI "uu=NULL illegal.\n\n"
 
-#define MSG_FUNC_NULL       KINSI "func=NULL illegal.\n\n"
+#define MSG_FUNC_NULL     KINSI "func=NULL illegal.\n\n"
 
 #define MSG_BAD_GLSTRAT1   KINSI "globalstrategy=%d illegal.\n"
 #define MSG_BAD_GLSTRAT2   "The legal values are INEXACT_NEWTON=%d"
@@ -147,40 +147,43 @@
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
 
-static boole KINAllocVectors(KINMem kin_mem, integer neq, M_Env machEnv);
+static booleantype KINAllocVectors(KINMem kin_mem, integertype neq, 
+                                   M_Env machEnv);
 
 static int KINConstraint( KINMem kin_mem );
 
-static void KINForcingTerm(KINMem kin_mem, real fnormp);
+static void KINForcingTerm(KINMem kin_mem, realtype fnormp);
 
 static void KINFreeVectors(KINMem kin_mem);
 
-static int  KINInexactNewton(KINMem kin_mem, real *fnormp, real *f1normp, 
-			     boole *maxStepTaken);
+static int  KINInexactNewton(KINMem kin_mem, realtype *fnormp, 
+                             realtype *f1normp, 
+                             booleantype *maxStepTaken);
 
-static int  KINLineSearch(KINMem kin_mem, real *fnormp, real *f1normp,
-			  boole *maxSteptaken);
+static int  KINLineSearch(KINMem kin_mem, realtype *fnormp, 
+                          realtype *f1normp,
+                          booleantype *maxSteptaken);
 
-static boole KINInitialConstraint(KINMem kin_mem);
+static booleantype KINInitialConstraint(KINMem kin_mem);
 
-static boole KINInitialStop(KINMem kin_mem);
+static booleantype KINInitialStop(KINMem kin_mem);
 
 static int  KINLinSolDrv(KINMem kinmem , N_Vector bb , N_Vector xx );
 
-static real KINScFNorm(N_Vector vv , N_Vector scale , N_Vector wrkv);
+static realtype KINScFNorm(N_Vector vv , N_Vector scale , N_Vector wrkv);
 
-static real KINScSteplength(KINMem kin_mem,
-			    N_Vector ucur, N_Vector ss, N_Vector usc);
+static realtype KINScSteplength(KINMem kin_mem,
+                                N_Vector ucur, N_Vector ss, N_Vector usc);
 
-static int KINStop(KINMem kinmem,  boole maxStepTaken, int globalstratret);
+static int KINStop(KINMem kinmem,  booleantype maxStepTaken, int globalstratret);
       
-static int KINSolInit(void *kinmem, integer Neq,
-                   N_Vector uu, SysFn func, int globalstrategy, 
-                   N_Vector uscale, N_Vector fscale,
-                   real fnormtol, real scsteptol,
-		   N_Vector constraints, boole optIn, 
-		   long int iopt[], real ropt[], void *f_data);
- 
+static int KINSolInit(void *kinmem, integertype Neq,
+                      N_Vector uu, SysFn func, int globalstrategy, 
+                      N_Vector uscale, N_Vector fscale,
+                      realtype fnormtol, realtype scsteptol,
+                      N_Vector constraints, booleantype optIn, 
+                      long int iopt[], realtype ropt[], void *f_data);
+
 
 /**************************************************************/
 /********** END Private Helper Functions Prototypes ***********/
@@ -248,10 +251,10 @@ static int KINSolInit(void *kinmem, integer Neq,
  
 *****************************************************************/
 
-void *KINMalloc(integer Neq, FILE *msgfp, M_Env machEnv)
+void *KINMalloc(integertype Neq, FILE *msgfp, M_Env machEnv)
  
 {
-  boole    allocOK;
+  booleantype    allocOK;
   KINMem kin_mem;
   FILE *fp;
   
@@ -319,14 +322,14 @@ void *KINMalloc(integer Neq, FILE *msgfp, M_Env machEnv)
  
 *****************************************************************/
 
-static int KINSolInit(void *kinmem, integer Neq,
-                   N_Vector uu, SysFn func, int globalstrategy, 
-                   N_Vector uscale, N_Vector fscale,
-                   real fnormtol, real scsteptol, N_Vector constraints, 
-                   boole optIn, long int iopt[], real ropt[], void *f_data)
+static int KINSolInit(void *kinmem, integertype Neq,
+                      N_Vector uu, SysFn func, int globalstrategy, 
+                      N_Vector uscale, N_Vector fscale,
+                      realtype fnormtol, realtype scsteptol, N_Vector constraints, 
+                      booleantype optIn, long int iopt[], realtype ropt[], void *f_data)
  
 {
-  boole ioptExists, roptExists, ioptBad, roptNeg;
+  booleantype ioptExists, roptExists, ioptBad, roptNeg;
   KINMem kin_mem;
   FILE *fp;
   
@@ -601,15 +604,15 @@ static int KINSolInit(void *kinmem, integer Neq,
 
 
 ****************************************************************************/
- int KINSol(void *kinmem, integer Neq, 
-                   N_Vector uu, SysFn func, int globalstrategy, 
-                   N_Vector uscale, N_Vector fscale,
-                   real fnormtol, real scsteptol, N_Vector constraints, 
-                   boole optIn, long int iopt[], real ropt[], void *f_data)
+int KINSol(void *kinmem, integertype Neq, 
+           N_Vector uu, SysFn func, int globalstrategy, 
+           N_Vector uscale, N_Vector fscale,
+           realtype fnormtol, realtype scsteptol, N_Vector constraints, 
+           booleantype optIn, long int iopt[], realtype ropt[], void *f_data)
 {
-  real fnormp, f1normp, epsmin;
+  realtype fnormp, f1normp, epsmin;
   int  ret, globalstratret = 0;
-  boole maxStepTaken, noMinEps;
+  booleantype maxStepTaken, noMinEps;
   N_Vector bb, xx;
 
  
@@ -701,7 +704,7 @@ static int KINSolInit(void *kinmem, integer Neq,
     if(!noMinEps) eps = MAX(epsmin, eps);
 
     /*  call KINLinSolDrv to calculate the approximate Newton step using
-	the appropriate Krylov algorithm  */
+    the appropriate Krylov algorithm  */
 
     /*  use unew as work space for bb, the rhs vector, in the Newton steps 
         and pp as xx, the x in J x = b  */
@@ -750,11 +753,11 @@ static int KINSolInit(void *kinmem, integer Neq,
 
     /*  print out the current nni, fnorm, and nfe values for printfl>0) */
     if(printfl>0)fprintf(msgfp,"KINSol nni= %4ld fnorm= %26.16g nfe=%6ld\n",
-			    nni, fnorm, nfe);
+                nni, fnorm, nfe);
 
     if(ret !=0) break;  /*  ret == 0 means keep iterating ;  != 0 means there
-			 is some reason to stop the iteration process and
-			 return to the users code.  */
+             is some reason to stop the iteration process and
+             return to the users code.  */
 
 
      fflush(msgfp);
@@ -795,7 +798,7 @@ static int KINSolInit(void *kinmem, integer Neq,
         fprintf(msgfp,"---KINSOL_PRECONDSOLVE_FAILURE\n");
   }
 
-  return(ret);	
+  return(ret);    
 }
 
  
@@ -843,7 +846,7 @@ void KINFree(void *kinsol_mem)
 
 **********************************************************************/
 
-static boole KINAllocVectors(KINMem kin_mem, integer neq, M_Env machEnv)
+static booleantype KINAllocVectors(KINMem kin_mem, integertype neq, M_Env machEnv)
 {
 
   /* Allocate unew, fval, pp, vtemp1 and vtemp2
@@ -898,7 +901,7 @@ static boole KINAllocVectors(KINMem kin_mem, integer neq, M_Env machEnv)
 
 static int KINConstraint(KINMem kin_mem) 
 {
- real mxchange;
+ realtype mxchange;
 
  N_VLinearSum(ONE,uu,ONE,pp,vtemp1);
  
@@ -942,10 +945,10 @@ static int KINConstraint(KINMem kin_mem)
 
  ******************************************************************/
 
-static void KINForcingTerm(KINMem kin_mem, real fnormp)
+static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
 { 
 
-  real eta_max = POINT9, eta_min = POINTOHOHOHONE, 
+  realtype eta_max = POINT9, eta_min = POINTOHOHOHONE, 
     eta_safe=0.5, linmodel_norm; 
 
   if (etaflag == ETACHOICE1) {      /* Choice 1 forcing terms. */
@@ -1007,7 +1010,7 @@ static void KINFreeVectors(KINMem kin_mem)
 
  *******************************************************************/
 
-static boole KINInitialConstraint(KINMem kin_mem)
+static booleantype KINInitialConstraint(KINMem kin_mem)
 
 {
  return(N_VConstrProdPos(constraints, uu));
@@ -1020,14 +1023,14 @@ static boole KINInitialConstraint(KINMem kin_mem)
 
     *****************************************************************/
 
-static boole KINInitialStop(KINMem kin_mem)
+static booleantype KINInitialStop(KINMem kin_mem)
 {
-  real fmax;
+  realtype fmax;
 
   func(Neq, uu, fval, f_data);    nfe++;
   fmax = KINScFNorm(fval, fscale, vtemp1);
   if(printfl>1)fprintf(kin_mem->kin_msgfp,
-	    " KINInitialStop:scaled f norm (for stopping): %12.3g\n",fmax);
+        " KINInitialStop:scaled f norm (for stopping): %12.3g\n",fmax);
   return(fmax <= POINTOH1 * fnormtol );
 }
 
@@ -1043,11 +1046,12 @@ static boole KINInitialStop(KINMem kin_mem)
 
 ******************************************************************/
 
-static int  KINInexactNewton(KINMem kin_mem, real *fnormp, real *f1normp, 
-			     boole *maxStepTaken)
+static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, 
+                            realtype *f1normp, 
+                            booleantype *maxStepTaken)
 {
  int ret;
- real pnorm, ratio, ratio1;
+ realtype pnorm, ratio, ratio1;
  
  *maxStepTaken = FALSE;
  pnorm = N_VWL2Norm(pp,uscale);
@@ -1112,14 +1116,15 @@ static int  KINInexactNewton(KINMem kin_mem, real *fnormp, real *f1normp,
        where 0. < rl <= 1. 
 ***************************************************************************/
 
-static int  KINLineSearch(KINMem kin_mem, real *fnormp, real *f1normp, 
-			  boole *maxStepTaken)
+static int KINLineSearch(KINMem kin_mem, realtype *fnormp, 
+                         realtype *f1normp, 
+                         booleantype *maxStepTaken)
 {
 
  int ret, ivio, nfesav, rladjust=0;
- real pnorm, ratio, ratio1, slpi, rlmin, rlength, rl, rlmax, rldiff;
- real rltmp, rlprev,pt1trl, f1nprv, f1lo, rllo, rlincr, alpha, beta;
- real alpha_cond, beta_cond;
+ realtype pnorm, ratio, ratio1, slpi, rlmin, rlength, rl, rlmax, rldiff;
+ realtype rltmp, rlprev,pt1trl, f1nprv, f1lo, rllo, rlincr, alpha, beta;
+ realtype alpha_cond, beta_cond;
 
  *maxStepTaken = FALSE;
  pnorm = N_VWL2Norm(pp,uscale);
@@ -1133,7 +1138,7 @@ static int  KINLineSearch(KINMem kin_mem, real *fnormp, real *f1normp,
  stepl = pnorm;
  ivio = 0;
  /*           check if constraints are active, and 
-	         constrain the step by the constraints*/
+             constrain the step by the constraints*/
  if(constraintsSet){
   loop{
    ret=KINConstraint(kin_mem);
@@ -1145,7 +1150,7 @@ static int  KINLineSearch(KINMem kin_mem, real *fnormp, real *f1normp,
      pnorm = stepl;
 
      if(printfl > 0)fprintf(msgfp," --- in routine KINLineSearch"
-	    "(ivio=1, pnorm= %12.4e )\n",pnorm);
+        "(ivio=1, pnorm= %12.4e )\n",pnorm);
    }
    else
      break;
@@ -1158,8 +1163,8 @@ static int  KINLineSearch(KINMem kin_mem, real *fnormp, real *f1normp,
  rl = ONE;
 
  if(printfl > 2)fprintf(msgfp,"KINLineSearch -----\n"
-		 "  min_lam%11.4e  f1norm%11.4e  pnorm"
-		 "%11.4e\n",rlmin, f1norm, pnorm);
+         "  min_lam%11.4e  f1norm%11.4e  pnorm"
+         "%11.4e\n",rlmin, f1norm, pnorm);
  /*  now begin the iteration to find a rl value which satisfies both the
   alpha- and beta- conditions. if rl becomes < rlmin, then terminate with a
   1 being returned...  */
@@ -1174,8 +1179,8 @@ static int  KINLineSearch(KINMem kin_mem, real *fnormp, real *f1normp,
    *f1normp = HALF * (*fnormp) * (*fnormp) ;
    alpha_cond = f1norm + alpha*slpi*rl;
    if(printfl > 2 && rladjust>0) fprintf(msgfp,
-	    " fnormp%15.8e  f1normp%15.8e  alpha_cond%15.8e lam%15.8e\n", 
-		*fnormp,*f1normp, alpha_cond, rl);
+        " fnormp%15.8e  f1normp%15.8e  alpha_cond%15.8e lam%15.8e\n", 
+        *fnormp,*f1normp, alpha_cond, rl);
    if((*f1normp) <= alpha_cond) break;
 
  /*  alpha condition not satisfied  perform quadratic backtrack to compute
@@ -1218,9 +1223,9 @@ static int  KINLineSearch(KINMem kin_mem, real *fnormp, real *f1normp,
        alpha_cond = f1norm + alpha*slpi*rl;
        beta_cond = f1norm + beta*slpi*rl;
        if(printfl > 2) fprintf(msgfp,"  f1normp%15.8e  beta_cond%15.8e  "
-	              "lam=%15.8e\n", *f1normp, beta_cond, rl);
+                  "lam=%15.8e\n", *f1normp, beta_cond, rl);
      } while((*f1normp) <= alpha_cond && 
-	     (*f1normp) <  beta_cond && (rl<rlmax) );
+         (*f1normp) <  beta_cond && (rl<rlmax) );
    }
    if(rl < ONE ||
       ((rl > ONE) && (*f1normp > alpha_cond) ) ) {
@@ -1241,11 +1246,11 @@ static int  KINLineSearch(KINMem kin_mem, real *fnormp, real *f1normp,
        alpha_cond = f1norm + alpha*slpi*rl;
        beta_cond = f1norm + beta*slpi*rl;
        if(printfl > 2&& rladjust>0)
-	 fprintf(msgfp,"  f1normp%12.5e  alpha_cond%12.5e  "
-	  "beta_cond%12.5e  lam%12.5e\n", *f1normp, alpha_cond, beta_cond, rl);
+     fprintf(msgfp,"  f1normp%12.5e  alpha_cond%12.5e  "
+      "beta_cond%12.5e  lam%12.5e\n", *f1normp, alpha_cond, beta_cond, rl);
 
        if((*f1normp) > alpha_cond) 
-	 rldiff = rlincr;
+     rldiff = rlincr;
        else if(*f1normp < beta_cond) {
          rllo = rl;
          rldiff = rldiff - rlincr;
@@ -1253,12 +1258,12 @@ static int  KINLineSearch(KINMem kin_mem, real *fnormp, real *f1normp,
        }
        
      } while(*f1normp > alpha_cond ||
-	   ((*f1normp < beta_cond)&&(rldiff > rlmin)));
+       ((*f1normp < beta_cond)&&(rldiff > rlmin)));
 
      if((*f1normp) < beta_cond){
      /*  beta condition could not be satisfied.  set unew to last
-	 u value that satisfied the alpha condition and continue.
-	 increment counter on number of steps beta condition not satisfied */
+     u value that satisfied the alpha condition and continue.
+     increment counter on number of steps beta condition not satisfied */
 
        N_VLinearSum(ONE, uu, rllo, pp, unew);
        func(Neq, unew, fval, f_data);   nfe++;
@@ -1271,7 +1276,7 @@ static int  KINLineSearch(KINMem kin_mem, real *fnormp, real *f1normp,
 
   nbktrk= nfe - nfesav - 1;
   if (printfl > 1 && rladjust>0) fprintf(msgfp, "Number of lambda adjustments "
-		    "%d\n", rladjust);
+            "%d\n", rladjust);
 
   /* scale the following two expressions by rl and ratio for 
         subsequent use in the  KINForcingTerm routine */
@@ -1349,7 +1354,7 @@ static int KINLinSolDrv(KINMem kin_mem , N_Vector bb , N_Vector xx )
 
     ****************************************************************/
 
-static real KINScFNorm(N_Vector vv , N_Vector scale , N_Vector wrkv)
+static realtype KINScFNorm(N_Vector vv , N_Vector scale , N_Vector wrkv)
 {
   N_VAbs(vv, wrkv);
   N_VProd(scale, wrkv, wrkv);
@@ -1361,8 +1366,8 @@ static real KINScFNorm(N_Vector vv , N_Vector scale , N_Vector wrkv)
   This routine computes the max norm of the scaled steplength, ss
   ucur is the current step      usc is the u scale factor  .*/
 
-static real KINScSteplength(KINMem kin_mem, N_Vector ucur, 
-			    N_Vector ss, N_Vector usc)
+static realtype KINScSteplength(KINMem kin_mem, N_Vector ucur, 
+                                N_Vector ss, N_Vector usc)
 {
   N_VInv(usc, vtemp1);
   N_VAbs(ucur, vtemp2);
@@ -1378,16 +1383,16 @@ static real KINScSteplength(KINMem kin_mem, N_Vector ucur,
 
     *****************************************************************/
 
-static int KINStop(KINMem kinmem,  boole maxStepTaken, int globalstratret)
+static int KINStop(KINMem kinmem,  booleantype maxStepTaken, int globalstratret)
 {
   KINMem kin_mem;
-  real fmax, rlength;
+  realtype fmax, rlength;
 
   kin_mem=kinmem;
   if(globalstratret==1){
     if(precondflag && setupNonNull && !precondcurrent){
       /*  if the globalstratret was caused (potentially) by the 
-	  preconditioner being out of date,  update the preconditioner */
+      preconditioner being out of date,  update the preconditioner */
       pthrsh = TWO;
       return(0);
     }
@@ -1399,7 +1404,7 @@ static int KINStop(KINMem kinmem,  boole maxStepTaken, int globalstratret)
 
   fmax = KINScFNorm(fval, fscale, vtemp1);
   if(printfl>1)fprintf(kin_mem->kin_msgfp,
-		 " scaled f norm (for stopping): %12.3g\n",fmax);
+         " scaled f norm (for stopping): %12.3g\n",fmax);
 
   if(fmax <= fnormtol)return(KINSOL_SUCCESS);
 
@@ -1410,14 +1415,14 @@ static int KINStop(KINMem kinmem,  boole maxStepTaken, int globalstratret)
   if(rlength <= scsteptol)
     {
       if(!precondcurrent){
-	/* for rlength too small and the preconditioner not current,
-	   try again with the preconditioner current...*/
-	pthrsh=TWO;
-	return(0);
+    /* for rlength too small and the preconditioner not current,
+       try again with the preconditioner current...*/
+    pthrsh=TWO;
+    return(0);
       }
       else
-	/* otherwise return failure flag */
-	return(KINSOL_STEP_LT_STPTOL);
+    /* otherwise return failure flag */
+    return(KINSOL_STEP_LT_STPTOL);
     }
 
  /* if the max number of iterations exceeded, return failure flag  */

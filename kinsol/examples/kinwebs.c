@@ -1,7 +1,7 @@
 /*************************************************************************
  * File        : kinwebs.c                                               *
  * Programmers : Allan G. Taylor and Alan C. Hindmarsh @ LLNL            *
- * Version of  : 7 March 2002                                            *
+ * Version of  : 27 June 2002                                            *
  *-----------------------------------------------------------------------*
  * Modified by R. Serban to work with new serial nvector (7/3/2002)      *
  *-----------------------------------------------------------------------*
@@ -70,13 +70,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"       /* definitions of real, integer, bool, TRUE, FALSE */
-#include "kinsol.h"         /* main KINSOL header file                         */
-#include "iterativ.h"       /* contains the enum for types of preconditioning  */
-#include "kinspgmr.h"       /* use KINSPGMR linear solver                      */
-#include "smalldense.h"     /* use generic DENSE solver for preconditioning    */
-#include "nvector_serial.h" /* definitions of type N_Vector, macros NV_Ith_S,  NV_DATA_S   */
-#include "llnlmath.h"       /* contains RSqrt and UnitRoundoff routines        */
+#include "sundialstypes.h"  /* definitions of realtype, integertype, booleantype */
+#include "kinsol.h"         /* main KINSOL header file                           */
+#include "iterativ.h"       /* contains the enum for types of preconditioning    */
+#include "kinspgmr.h"       /* use KINSPGMR linear solver                        */
+#include "smalldense.h"     /* use generic DENSE solver for preconditioning      */
+#include "nvector_serial.h" /* definitions of type N_Vector and access macros    */
+#include "sundialsmath.h"   /* contains RSqrt and UnitRoundoff routines          */
 
 /* Problem Constants */
 
@@ -120,14 +120,14 @@
    contains preconditioner blocks, pivot arrays, and problem constants */
 
 typedef struct {
-  real **P[MX][MY];
-  integer *pivot[MX][MY];
-  real **acoef, *bcoef;
+  realtype **P[MX][MY];
+  integertype *pivot[MX][MY];
+  realtype **acoef, *bcoef;
   N_Vector rates;
-  real *cox, *coy;
-  real ax, ay, dx, dy;
-  real uround, sqruround;
-  integer Neq, mx, my, ns, np;
+  realtype *cox, *coy;
+  realtype ax, ay, dx, dy;
+  realtype uround, sqruround;
+  integertype Neq, mx, my, ns, np;
 } *UserData;
 
 
@@ -139,21 +139,22 @@ static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintOutput(N_Vector cc);
 static void PrintFinalStats(long int iopt[]);
-static void WebRate(real xx, real yy, real *cxy, real *ratesxy, void *f_data);
-static real DotProd(integer size, real *x1, real *x2);
+static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
+                    void *f_data);
+static realtype DotProd(integertype size, realtype *x1, realtype *x2);
 
 
 /* Functions Called by the KINSOL Solver */
 
-static void funcprpr(integer Neq, N_Vector cc, N_Vector fval, void *f_data);
+static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data);
 
-static int Precondbd(integer Neq, N_Vector cc, N_Vector cscale, N_Vector fval,
-		     N_Vector fscale, N_Vector vtemp1, N_Vector vtemp2, 
-                     SysFn func, real uround, long int *nfePtr, void *P_data);
+static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale, N_Vector fval,
+                     N_Vector fscale, N_Vector vtemp1, N_Vector vtemp2, 
+                     SysFn func, realtype uround, long int *nfePtr, void *P_data);
 
-static int PSolvebd(integer Neq, N_Vector cc, N_Vector cscale,
-		  N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
-		  SysFn func, real uround, long int *nfePtr, void *P_data); 
+static int PSolvebd(integertype Neq, N_Vector cc, N_Vector cscale,
+                    N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
+                    SysFn func, realtype uround, long int *nfePtr, void *P_data); 
 
 
 /***************************** Main Program ******************************/
@@ -161,13 +162,13 @@ static int PSolvebd(integer Neq, N_Vector cc, N_Vector cscale,
 int main()
 {
   M_Env machEnv;
-  integer Neq=NEQ, globalstrategy;
-  real fnormtol, scsteptol, ropt[OPT_SIZE];
+  integertype Neq=NEQ, globalstrategy;
+  realtype fnormtol, scsteptol, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector cc, sc, constraints;
   UserData data;
   int flag, maxl, maxlrst;
-  boole optIn;
+  booleantype optIn;
   void *mem;
   KINMem kmem;
 
@@ -301,9 +302,9 @@ static UserData AllocUserData(void)
     }
   }
   (data->acoef) = denalloc(NUM_SPECIES);
-  (data->bcoef) = (real *)malloc(NUM_SPECIES * sizeof(real));
-  (data->cox)   = (real *)malloc(NUM_SPECIES * sizeof(real));
-  (data->coy)   = (real *)malloc(NUM_SPECIES * sizeof(real));
+  (data->bcoef) = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+  (data->cox)   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+  (data->coy)   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   
   return(data);
   
@@ -322,7 +323,7 @@ static UserData AllocUserData(void)
 static void InitUserData(UserData data)
 {
   int i, j, np;
-  real *a1,*a2, *a3, *a4, dx2, dy2;
+  realtype *a1,*a2, *a3, *a4, dx2, dy2;
   
   data->mx = MX;
   data->my = MY;
@@ -398,8 +399,8 @@ static void FreeUserData(UserData data)
 static void SetInitialProfiles(N_Vector cc, N_Vector sc)
 {
   int i, jx, jy;
-  real *cloc, *sloc;
-  real  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
+  realtype *cloc, *sloc;
+  realtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
   
   /* Initialize arrays ctemp and stemp used in the loading process */
   for(i=0;i<NUM_SPECIES/2;i++) {
@@ -431,7 +432,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
 static void PrintOutput(N_Vector cc)
 {
   int is, jx, jy;
-  real *ct;
+  realtype *ct;
   
   jy = 0; jx = 0;
   ct = IJ_Vptr(cc,jx,jy);
@@ -472,10 +473,10 @@ static void PrintFinalStats(long int iopt[])
 
 /* System function for predator-prey system */
 
-static void funcprpr(integer Neq, N_Vector cc, N_Vector fval, void *f_data)
+static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
 {
-  real xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
-  integer jx, jy, is, idyu, idyl, idxr, idxl;
+  realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
+  integertype jx, jy, is, idyu, idyl, idxr, idxl;
   UserData data;
   
   data=(UserData)f_data;
@@ -530,14 +531,14 @@ static void funcprpr(integer Neq, N_Vector cc, N_Vector fval, void *f_data)
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precondbd(integer Neq, N_Vector cc, N_Vector cscale,
+static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale,
                      N_Vector fval, N_Vector fscale,
                      N_Vector vtemp1, N_Vector vtemp2, 
-                     SysFn func, real uround, long int *nfePtr, void *P_data)
+                     SysFn func, realtype uround, long int *nfePtr, void *P_data)
 {
-  real r, r0, sqruround, xx, yy, delx, dely, csave, fac;
-  real *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
-  integer i, j, jx, jy, ret;
+  realtype r, r0, sqruround, xx, yy, delx, dely, csave, fac;
+  realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
+  integertype i, j, jx, jy, ret;
   UserData data;
   
   data = (UserData)P_data;
@@ -599,12 +600,12 @@ static int Precondbd(integer Neq, N_Vector cc, N_Vector cscale,
 
 /* Preconditioner solve routine */
 
-static int PSolvebd(integer Neq, N_Vector cc, N_Vector cscale,
+static int PSolvebd(integertype Neq, N_Vector cc, N_Vector cscale,
                     N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
-                    SysFn func, real uround, long int *nfePtr, void *P_data)
+                    SysFn func, realtype uround, long int *nfePtr, void *P_data)
 {
-  real **Pxy, *vxy;
-  integer *piv, jx, jy;
+  realtype **Pxy, *vxy;
+  integertype *piv, jx, jy;
   UserData data;
   
   data = (UserData)P_data;
@@ -633,10 +634,11 @@ static int PSolvebd(integer Neq, N_Vector cc, N_Vector cscale,
 
 /* Interaction rate function routine */
 
-static void WebRate(real xx, real yy, real *cxy, real *ratesxy, void *f_data)
+static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
+                    void *f_data)
 {
-  integer i;
-  real fac;
+  integertype i;
+  realtype fac;
   UserData data;
   
   data = (UserData)f_data;
@@ -652,12 +654,12 @@ static void WebRate(real xx, real yy, real *cxy, real *ratesxy, void *f_data)
 } /* end of routine WebRate **********************************************/
 
 
-/* Dot product routine for real arrays */
+/* Dot product routine for realtype arrays */
 
-static real DotProd(integer size, real *x1, real *x2)
+static realtype DotProd(integertype size, realtype *x1, realtype *x2)
 {
-  integer i;
-  real *xx1, *xx2, temp = ZERO;
+  integertype i;
+  realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);

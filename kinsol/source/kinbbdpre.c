@@ -3,7 +3,7 @@
  * File          : kinbbdpre.c                                    *
  * Programmers   : Allan G Taylor, Alan C Hindmarsh, and          *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 7 March 2002                                   *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This file contains implementations of routines for a           *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -19,9 +19,9 @@
 #include <string.h>
 #include "kinbbdpre.h"
 #include "kinsol.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 #include "iterativ.h"
 #include "band.h"
 
@@ -36,7 +36,7 @@
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
-static void KBBDDQJac(integer Nlocal, BandMat J, void *P_data,
+static void KBBDDQJac(integertype Nlocal, BandMat J, void *P_data,
                       N_Vector uu, N_Vector uscale, N_Vector gu,
                       N_Vector gtemp, N_Vector utemp);
 
@@ -46,14 +46,14 @@ static void KBBDDQJac(integer Nlocal, BandMat J, void *P_data,
 
 /***************** User-Callable Functions: malloc and free ******************/
 
-KBBDData KBBDAlloc(integer Nlocal, integer mu, integer ml,
-                   real dq_rel_uu, KINLocalFn gloc, KINCommFn gcomm, 
+KBBDData KBBDAlloc(integertype Nlocal, integertype mu, integertype ml,
+                   realtype dq_rel_uu, KINLocalFn gloc, KINCommFn gcomm, 
                    void *f_data, void *kinmem)
 {
   KBBDData pdata;
   KINMem kin_mem;
   N_Vector vtemp3;
-  real rel_uu;
+  realtype rel_uu;
 
   kin_mem = (KINMem) kinmem;
   if (kin_mem == NULL) {
@@ -199,14 +199,14 @@ void KBBDFree(KBBDData pdata)
  *   > 0 for a recoverable error (step will be retried).          *
  ******************************************************************/
 
-int KBBDPrecon(integer Neq, N_Vector uu, N_Vector uscale,
+int KBBDPrecon(integertype Neq, N_Vector uu, N_Vector uscale,
                N_Vector fval, N_Vector fscale,
                N_Vector vtemp1, N_Vector vtemp2,
-               SysFn func, real uround,
+               SysFn func, realtype uround,
                long int *nfePtr, void *P_data)
 
 {
-  integer Nlocal, ier;
+  integertype Nlocal, ier;
   KBBDData pdata;
   N_Vector vtemp3;
 
@@ -275,14 +275,14 @@ int KBBDPrecon(integer Neq, N_Vector uu, N_Vector uscale,
  * always 0, indicating success.                                  *
  ******************************************************************/
 
-int KBBDPSol(integer Nlocal, N_Vector uu, N_Vector uscale,
-	      N_Vector fval, N_Vector fscale,
-	      N_Vector vtem, N_Vector ftem,
-	      SysFn func, real u_round,
-	      long int *nfePtr, void *P_data)
+int KBBDPSol(integertype Nlocal, N_Vector uu, N_Vector uscale,
+             N_Vector fval, N_Vector fscale,
+             N_Vector vtem, N_Vector ftem,
+             SysFn func, realtype u_round,
+             long int *nfePtr, void *P_data)
 {
   KBBDData pdata;
-  real *vd;
+  realtype *vd;
 
   pdata = (KBBDData)P_data;
 
@@ -308,13 +308,13 @@ int KBBDPSol(integer Nlocal, N_Vector uu, N_Vector uscale,
  stored contiguously.
 **********************************************************************/
 
-static void KBBDDQJac(integer Nlocal, BandMat J, void *P_data,
+static void KBBDDQJac(integertype Nlocal, BandMat J, void *P_data,
                       N_Vector uu, N_Vector uscale, N_Vector gu,
                       N_Vector gtemp, N_Vector utemp)
 {
-  real inc, inc_inv;
-  integer group, i, j, width, ngroups, i1, i2;
-  real *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
+  realtype inc, inc_inv;
+  integertype group, i, j, width, ngroups, i1, i2;
+  realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
   KBBDData pdata;
   
   pdata= (KBBDData)P_data;

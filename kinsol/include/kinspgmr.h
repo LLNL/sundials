@@ -2,13 +2,13 @@
  *                                                                *
  * File          : kinspgmr.h                                     *
  * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 17 January 2001                                *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the KINSol scaled, preconditioned  *
  * GMRES linear solver, KINSpgmr.                                 *
  *                                                                *
- * Note: The type integer must be large enough to store the value *
- * of the linear system size Neq.                                 *
+ * Note: The type integertype must be large enough to store the   *
+ * value of the linear system size Neq.                           *
  *                                                                *
  ******************************************************************/
 
@@ -22,7 +22,7 @@ extern "C" {
 #include <stdio.h>
 #include "kinsol.h"   /*  for KINSOL_IOPT_SIZE, etc.  */
 #include "spgmr.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 
  
@@ -156,11 +156,11 @@ enum { SPGMR_NLI=KINSOL_IOPT_SIZE, SPGMR_NPE, SPGMR_NPS, SPGMR_NCFL };
  *                                                                *
  ******************************************************************/
 
-typedef int (*KINSpgmrPrecondFn)(integer Neq, 
+typedef int (*KINSpgmrPrecondFn)(integertype Neq, 
                                  N_Vector uu, N_Vector uscale ,
                                  N_Vector fval, N_Vector fscale,
                                  N_Vector vtemp1, N_Vector vtemp2,
-                                 SysFn func, real uround,
+                                 SysFn func, realtype uround,
                                  long int *nfePtr, void *P_data);
 
 
@@ -220,11 +220,11 @@ typedef int (*KINSpgmrPrecondFn)(integer Neq,
  *                                                                *
  ******************************************************************/
   
-typedef int (*KINSpgmrPrecondSolveFn)(integer Neq,
+typedef int (*KINSpgmrPrecondSolveFn)(integertype Neq,
                                       N_Vector uu, N_Vector uscale, 
                                       N_Vector fval, N_Vector fscale, 
                                       N_Vector vv, N_Vector ftem,
-                                      SysFn func, real u_round,
+                                      SysFn func, realtype u_round,
                                       long int *nfePtr, void *P_data);
 
 
@@ -256,7 +256,7 @@ typedef int (*KINSpgmrPrecondSolveFn)(integer Neq,
  ********************************************************************/
 
 typedef int (*KINSpgmruserAtimesFn)(void *f_data, N_Vector v, 
-                                    N_Vector z, boole *new_uu, 
+                                    N_Vector z, booleantype *new_uu, 
                                     N_Vector uu);
   
  

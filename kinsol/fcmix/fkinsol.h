@@ -3,7 +3,7 @@
  * File          : fkinsol.h                                       *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                              *
- * Version of    : 21 December 2001                                *
+ * Version of    : 27 June 2002                                    *
  *-----------------------------------------------------------------*
  *  This is the header file for the FKINSOL Interface Package      *
  *  See below for usage details                                    *
@@ -145,22 +145,22 @@
 
       CALL FKINSPGMR11(MAXL, MAXLRST, MSBPRE)  if preconditioning is used but
          no preconditioning setup routine. A user-supplied atimes routine IS
-	     supplied (FATIMES).
+         supplied (FATIMES).
 
       CALL FKINSPGMR20(MAXL, MAXLRST, MSBPRE)  if preconditioning is used and
          a preconditioning setup routine IS used. No user-supplied atimes
-	     routine.
+         routine.
 
       CALL FKINSPGMR21(MAXL, MAXLRST, MSBPRE)  if preconditioning is use dand
          a precondiioning setup routine IS used. A user-supplied atimes routine
-	     is supplied as well.
+         is supplied as well.
 
  The arguments are:
  MAXL     = maximum Krylov subspace dimension; 0 indicates default.
  MAXLRST  = maximum number of linear system restarts; 0 indicates default.
  MSBPRE   = maximum number of preconditioning solve calls without calling the
             preconditioning setup routine; 0 indicates default; applies only
-	        for FKINSPGMR20 and FKINSPGMR21.
+            for FKINSPGMR20 and FKINSPGMR21.
 
  In the four cases FKINSPGMR10, FKINSPGMR11, FKINSPGMR20, and FKINSPGMR21,
  the user program must include the following routine for solution of the 
@@ -302,29 +302,29 @@
 
 /* KINSOL header files  */
 
-#include "llnltyps.h"  /* definitions of types real and integer             */
-#include "kinsol.h"    /* definition of type SysFn                          */
-#include "nvector.h"   /* definition of type N_Vector, machEnvType          */
+#include "sundialstypes.h" /* definitions of types realtype and integertype */
+#include "kinsol.h"        /* definition of type SysFn                      */
+#include "nvector.h"       /* definition of type N_Vector, machEnvType      */
 
 /* Prototypes: Functions called by the solver */
 
-void KINfunc(integer Neq, N_Vector uu, N_Vector fval, void *f_data);
+void KINfunc(integertype Neq, N_Vector uu, N_Vector fval, void *f_data);
 
 
-int KINPreco(integer Neq, N_Vector uu, N_Vector uscale, 
+int KINPreco(integertype Neq, N_Vector uu, N_Vector uscale, 
              N_Vector fval, N_Vector fscale,
              N_Vector vtemp1, N_Vector vtemp2,
-             SysFn func, real u_round,
+             SysFn func, realtype u_round,
              long int *nfePtr, void *P_data);
 
 
-int KINPSol(integer Neq, N_Vector uu, N_Vector uscale, 
+int KINPSol(integertype Neq, N_Vector uu, N_Vector uscale, 
             N_Vector fval, N_Vector fscale,
             N_Vector vtem, N_Vector ftem,
-            SysFn func, real u_round,
+            SysFn func, realtype u_round,
             long int *nfePtr, void *P_data);
 
-int KINUAtimes(void *f_data, N_Vector v, N_Vector z, boole *new_uu,
+int KINUAtimes(void *f_data, N_Vector v, N_Vector z, booleantype *new_uu,
                N_Vector uu);
 
 /* Declarations for global variables, shared among various routines */

@@ -13,7 +13,7 @@
 #include "fkinsol.h" /* prototypes of interfaces, global variables  */
 
 /* Prototypes of the Fortran routines */
-void F_ATIMES(real*, real*, int*, real*, int*);
+void F_ATIMES(realtype*, realtype*, int*, realtype*, int*);
 
 /*******************************************************************/
 /*  C function KINUAtimes is to interface between                   *
@@ -22,10 +22,10 @@ void F_ATIMES(real*, real*, int*, real*, int*);
  *******************************************************************/
 
 int KINUAtimes(void *f_data, N_Vector v, N_Vector z, 
-               boole *new_uu,  N_Vector uu)
+               booleantype *new_uu,  N_Vector uu)
 {
  int retcode;
- real *vdata, *zdata, *uudata;
+ realtype *vdata, *zdata, *uudata;
  
  vdata      = N_VGetData(v);
  zdata      = N_VGetData(z);

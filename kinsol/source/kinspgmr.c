@@ -2,7 +2,7 @@
  *                                                                *
  * File          : kinspgmr.c                                     *
  * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 17 January 2001                                *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the KINSOL scaled,         *
  * preconditioned GMRES linear solver, KINSPGMR.                  *
@@ -14,18 +14,18 @@
 #include <stdlib.h>
 #include "kinspgmr.h"
 #include "kinsol.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 #include "iterativ.h"
 #include "spgmr.h"
 
 
 /* Error Messages */
 
-#define KINSPGMR_MAIN       "KINSpgmr-- "
+#define KINSPGMR_MAIN  "KINSpgmr-- "
 
-#define MSG_MEM_FAIL       KINSPGMR_MAIN "A memory request failed.\n\n"
+#define MSG_MEM_FAIL    KINSPGMR_MAIN "A memory request failed.\n\n"
 
 /* Other Constants */
 
@@ -47,11 +47,11 @@ typedef struct {
   int  g_maxl;        /* maxl = maximum dimension of the Krylov space   */     
   int  g_pretype;     /* preconditioning type--for Spgmr call           */
   int  g_gstype;      /* gram schmidt type --  for Spgmr call           */
-  boole g_new_uu;       /* flag that a new uu has been created--
-                    indicating that a call to generate a new user-supplied
-		    Jacobian routine (internal to user's code) is req'd */
+  booleantype g_new_uu;  /* flag that a new uu has been created--
+                      indicating that a call to generate a new user-supplied
+                      Jacobian routine (internal to user's code) is req'd */
   int g_maxlrst;      /* max number of linear solver restarts allowed, 
-		        	 default is zero  */
+                         default is zero  */
   long int g_nli;     /* nli = total number of linear iterations        */
   long int g_npe;     /* npe = total number of precondset calls         */
   long int g_nps;     /* nps = total number of psolve calls             */
@@ -63,14 +63,14 @@ typedef struct {
 
   KINSpgmrPrecondSolveFn g_psolve; 
                       /* psolve = user-supplied routine to 
-			 solve preconditioner linear system             */ 
+                         solve preconditioner linear system             */ 
 
   KINSpgmruserAtimesFn g_userAtimes;
                       /* userAtimes - user-supplied routine to optionally
                          compute the product J v as required by Spgmr   */ 
 
   void *g_P_data;     /* P_data is a memory block passed to psolve 
-			 and precondset through KINSpgmr                */
+                         and precondset through KINSpgmr                */
   SpgmrMem g_spgmr_mem;  
                       /* spgmr_mem is memory used by the        
                          generic Spgmr solver                           */
@@ -80,12 +80,12 @@ typedef struct {
 
 /* KINSpgmr linit, lsetup, lsolve, and lfree routines */
 
-static int  KINSpgmrInit(KINMem kin_mem, boole *setupNonNull);
+static int  KINSpgmrInit(KINMem kin_mem, booleantype *setupNonNull);
 
 static int  KINSpgmrSetup(KINMem kin_mem);
 
 static int  KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
-			  real *res_norm);
+                          realtype *res_norm);
 
 static int  KINSpgmrFree(KINMem kin_mem);
 
@@ -156,10 +156,10 @@ static int KINSpgmrPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lr);
 **********************************************************************/
 
 int KINSpgmr(void *kinsol_mem, int maxl, int maxlrst, int msbpre,
-	      KINSpgmrPrecondFn precondset, 
-	      KINSpgmrPrecondSolveFn psolve,
-	      KINSpgmruserAtimesFn userAtimes,
-	      void *P_data)
+             KINSpgmrPrecondFn precondset, 
+             KINSpgmrPrecondSolveFn psolve,
+             KINSpgmruserAtimesFn userAtimes,
+             void *P_data)
 {
   KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
@@ -215,8 +215,7 @@ int KINSpgmr(void *kinsol_mem, int maxl, int maxlrst, int msbpre,
   /*  this sets a variable in the main memory block for use in controlling the
       calling of the preconditioner. It is set to either the default 
       KINSPGMR_SBPRE or the user supplied value msbpre                 */
-  kin_mem->kin_msbpre  = (msbpre<=0) 
-                            ? KINSPGMR_MSBPRE : msbpre ;
+  kin_mem->kin_msbpre  = (msbpre<=0) ? KINSPGMR_MSBPRE : msbpre ;
 
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
   spgmr_mem = SpgmrMalloc(Neq, kinspgmr_mem->g_maxl, machenv);
@@ -224,7 +223,8 @@ int KINSpgmr(void *kinsol_mem, int maxl, int maxlrst, int msbpre,
   if (spgmr_mem == NULL) {
     fprintf(msgfp, MSG_MEM_FAIL);
     lmem = NULL; /* Set lmem to NULL and release (free) that memory as a flag 
-   to an inadvertent and  subsequent KINSol call that SpgmrMalloc has failed. */
+                    to an inadvertent and  subsequent KINSol call that 
+                    SpgmrMalloc has failed. */
     free(lmem);
     return(SPGMR_MEM_FAIL);
   }
@@ -250,7 +250,7 @@ int KINSpgmr(void *kinsol_mem, int maxl, int maxlrst, int msbpre,
 
 **********************************************************************/
 
-static int KINSpgmrInit(KINMem kin_mem, boole *setupNonNull)
+static int KINSpgmrInit(KINMem kin_mem, booleantype *setupNonNull)
 {
   KINSpgmrMem kinspgmr_mem;
 
@@ -300,7 +300,7 @@ static int KINSpgmrSetup(KINMem kin_mem)
 
   /* Call precondset routine */
   ret = precondset(Neq, uu, uscale, fval, fscale, vtemp1, vtemp2, func, 
-		uround, &nfe, P_data);
+        uround, &nfe, P_data);
 
   if(ret != 0) return(1);
   npe++;
@@ -337,7 +337,7 @@ static int KINSpgmrSetup(KINMem kin_mem)
 **********************************************************************/
 
 static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, 
-			 real *res_norm)
+                         realtype *res_norm)
 {
   KINSpgmrMem kinspgmr_mem;
   int ret, nli_inc, nps_inc;
@@ -354,15 +354,15 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   /* Call SpgmrSolve  */
   ret = SpgmrSolve(spgmr_mem, kin_mem, xx, bb, pretype, gstype, eps, 
                    maxlinrestarts, kin_mem, fscale, fscale, 
-		   KINSpgmrAtimes, KINSpgmrPSolve,
-		   res_norm, &nli_inc, &nps_inc);
+                   KINSpgmrAtimes, KINSpgmrPSolve,
+                   res_norm, &nli_inc, &nps_inc);
   /* Increment counters nli, nps, and ncfl 
      (nni is updated in the KINSol main iteration loop) */
   nli += nli_inc;
   nps += nps_inc;
 
   if(kin_mem->kin_printfl==3)
-            fprintf(msgfp,"KINSpgmrSolve: nli_inc=%d\n",nli_inc);
+    fprintf(msgfp,"KINSpgmrSolve: nli_inc=%d\n",nli_inc);
 
   if (ioptExists) {
     iopt[SPGMR_NLI] = nli;
@@ -378,10 +378,10 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
      corrected if the step is reduced by constraints or the linesearch.
 
      sJpnorm is the norm of the scaled product (scaled by fscale) of
-        the current Jacobian matrix J and the step vector p.
+     the current Jacobian matrix J and the step vector p.
 
      sfdotJp is the dot product of the scaled f vector and the scaled
-        vector J*p, where the scaling uses fscale.                        */
+     vector J*p, where the scaling uses fscale.                        */
 
   KINSpgmrAtimes(kin_mem, xx, bb);
   sJpnorm = N_VWL2Norm(bb,fscale);
@@ -390,7 +390,7 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   sfdotJp = N_VDotProd(fval, bb);
 
   if(kin_mem->kin_printfl>TWO)fprintf(kin_mem->kin_msgfp,
-    "linear (Krylov step) residual norm %12.3g  eps %12.3g\n",*res_norm, eps);
+     "linear (Krylov step) residual norm %12.3g  eps %12.3g\n",*res_norm, eps);
 
   /* Set return value to appropriate values */
 
@@ -423,7 +423,7 @@ static int KINSpgmrFree(KINMem kin_mem)
 
 /*************** KINSpgmrAtimes *************************************
 
-          This routine coordinates the generation of the matrix-vector product 
+ This routine coordinates the generation of the matrix-vector product 
 
                        z = ( J * v) 
 
@@ -436,7 +436,7 @@ static int KINSpgmrAtimes(void *kinsol_mem, N_Vector v, N_Vector z)
 {
   KINMem   kin_mem;
   KINSpgmrMem kinspgmr_mem;
-  integer ret;
+  integertype ret;
   KINSpgmruserAtimesFn patimes;
 
   kin_mem = (KINMem) kinsol_mem;
@@ -448,29 +448,29 @@ static int KINSpgmrAtimes(void *kinsol_mem, N_Vector v, N_Vector z)
     ret = KINSpgmrAtimesDQ(kinsol_mem, v,z);
   else 
     ret = (*userAtimes)((kin_mem->kin_f_data), v, z, 
-			  &(kinspgmr_mem->g_new_uu),uu);
+                        &(kinspgmr_mem->g_new_uu),uu);
   
   return(ret);
 }
 /*************** KINSpgmrAtimesDQ *************************************
 
-          This routine generates the matrix-vector product 
+ This routine generates the matrix-vector product 
 
                        z = ( J * v) 
 
  by using a difference quotient approximation for J. The approximation is 
-J * v = [func(uu +sigma*v) - func(uu)]/sigma.  Here sigma is based on the 
-dot products  (uscale * uu, uscale * v) and (uscale * v, uscale * v), the 
-L1Norm(uscale * v), and on sqrt_relfunc  (the square root of the rel error in
-the function). Note that v in the argument list has already been both
-preconditioned and unscaled.
+ J * v = [func(uu +sigma*v) - func(uu)]/sigma.  Here sigma is based on the 
+ dot products  (uscale * uu, uscale * v) and (uscale * v, uscale * v), the 
+ L1Norm(uscale * v), and on sqrt_relfunc  (the square root of the rel error in
+ the function). Note that v in the argument list has already been both
+ preconditioned and unscaled.
 
 **********************************************************************/
 
 static int KINSpgmrAtimesDQ(void *kinsol_mem, N_Vector v, N_Vector z)
 {
-  real sigma, sigma_inv;
-  real sutsv, sq1norm, sign, vtv;
+  realtype sigma, sigma_inv;
+  realtype sutsv, sq1norm, sign, vtv;
   KINMem   kin_mem;
   KINSpgmrMem kinspgmr_mem;
 
@@ -522,7 +522,7 @@ static int KINSpgmrAtimesDQ(void *kinsol_mem, N_Vector v, N_Vector z)
 **********************************************************************/
 
 static int KINSpgmrPSolve(void *kinsol_mem, N_Vector r, N_Vector z, 
-			  int lrdummy)
+                          int lrdummy)
 {
   KINMem   kin_mem;
   KINSpgmrMem kinspgmr_mem;
@@ -536,8 +536,8 @@ static int KINSpgmrPSolve(void *kinsol_mem, N_Vector r, N_Vector z,
   N_VScale(ONE, r, z);
 
   ret = psolve(Neq, uu, uscale, fval, fscale, z, vtemp1, func, uround,
-	       &nfe, P_data);
-
+               &nfe, P_data);
+  
   /* This call is counted in nps within the KINSpgmrSolve routine */
 
   return(ret);     

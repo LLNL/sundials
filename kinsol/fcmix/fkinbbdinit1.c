@@ -3,7 +3,7 @@
  * File        : fkinbbdinit1.c                                     *
  * Programmers : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban *
  *               @ LLNL                                             *
- * Version of  : 8 March 2002                                       *
+ * Version of  : 27 June 2002                                       *
  *------------------------------------------------------------------*
  * This is the implementation file for the routine fkinbbdinit1,    *
  * used as part of the KINSOL Fortran/C interface package.          *
@@ -17,7 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h"  /* definitions of types real and integer               */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
 #include "nvector.h"   /* definitions of type N_Vector                        */
 #include "kinsol.h"    /* KINSOL constants and prototypes                     */
 #include "fcmixpar.h"  /* definition of global F2C_machEnv variable           */
@@ -28,8 +28,8 @@
 
 /***************************************************************************/
 
-void F_KINBBDINIT1 (integer *nlocal, int *maxl, int *maxlrst, int *msbpre,
-                    integer *mu, integer *ml, int *ier)
+void F_KINBBDINIT1 (integertype *nlocal, int *maxl, int *maxlrst, int *msbpre,
+                    integertype *mu, integertype *ml, int *ier)
 {
 
   /* First call KBBDAlloc to initialize KINBBDPRE module:

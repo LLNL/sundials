@@ -2,7 +2,7 @@
  * File          : kinbbdpre.h                                    *
  * Programmers   : Allan Grant Taylor, Alan C Hindmarsh, and      *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 7 March 2002                                   *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the KINBBDPRE module, for a        *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -76,8 +76,8 @@
  *    is available to the user in glocal and gcomm.               *
  *                                                                *
  *                                                                *
- * 6) The two functions KBBDPrecon and KBBDPSol are never called by*
- *    the user explicitly; their names are simply passed to       *
+ * 6) The two functions KBBDPrecon and KBBDPSol are never called  *
+ *    by the user explicitly; their names are simply passed to    *
  *    KINSpgmr as in the above.                                   *
  *                                                                *
  * 7) Optional outputs specific to this module are available by   *
@@ -96,7 +96,7 @@ extern "C" {
 #define _kbbdpre_h
 
 #include "kinsol.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
 
@@ -122,7 +122,8 @@ extern "C" {
  * relevant to the evaluation of the local function gloc.         *
  ******************************************************************/
 
-typedef void (*KINCommFn)(integer Nlocal, real *udata, void *f_data);
+typedef void (*KINCommFn)(integertype Nlocal, realtype *udata, 
+                          void *f_data);
 
 /******************************************************************
  * Type : KINLocalFn                                              *
@@ -145,8 +146,8 @@ typedef void (*KINCommFn)(integer Nlocal, real *udata, void *f_data);
  * A KINLocalFn gloc does not have a return value.                *
  ******************************************************************/
 
-typedef void (*KINLocalFn)(integer Nlocal, N_Vector uu,
-                          N_Vector gval, void *f_data);
+typedef void (*KINLocalFn)(integertype Nlocal, N_Vector uu,
+                           N_Vector gval, void *f_data);
  
 /*********************** Definition of KBBDData *****************/
 
@@ -154,27 +155,27 @@ typedef struct {
 
   /* passed by user to KBBDAlloc, used by Precond/Psolve functions: */
   void *f_data;
-  integer ml, mu;
+  integertype ml, mu;
   KINLocalFn gloc;
   KINCommFn gcomm;
 
   /* relative error for the Jacobian DQ routine */
-  real rel_uu;
+  realtype rel_uu;
 
   /* allocated for use by KBBDPrecon */
   N_Vector vtemp3;
 
   /* set by KBBDPrecon and used by KBBDPSol: */
   BandMat PP;
-  integer *pivots;
+  integertype *pivots;
 
   /* set by KBBDAlloc and used by KBBDPrecon */
-  integer n_local;
+  integertype n_local;
 
   /* available for optional output: */
-  integer rpwsize;
-  integer ipwsize;
-  integer nge;
+  integertype rpwsize;
+  integertype ipwsize;
+  integertype nge;
 
 } *KBBDData;
 
@@ -182,11 +183,11 @@ typedef struct {
 /*************** Macros for optional outputs **********************
  *                                                                *
  * KBBD_RPWSIZE(pdata) returns the size of the real work space,   *
- * in real words, used by this preconditioner module.             *
+ * in realtype words, used by this preconditioner module.         *
  * This size is local to the current processor.                   *
  *                                                                *
  * KBBD_IPWSIZE(pdata) returns the size of the integer work space,*
- * in integer words, used by this preconditioner module.          *
+ * in integertype words, used by this preconditioner module.      *
  * This size is local to the current processor.                   *
  *                                                                *
  * KBBD_NGE(pdata) returns the number of g(u) evaluations,        *
@@ -233,9 +234,9 @@ typedef struct {
  * or NULL if the request for storage cannot be satisfied.        *
  ******************************************************************/
 
-KBBDData KBBDAlloc(integer Nlocal, integer mu, integer ml,
-		 real dq_rel_uu, KINLocalFn gloc, KINCommFn gcomm, 
-		 void *f_data, void *kinmem);
+KBBDData KBBDAlloc(integertype Nlocal, integertype mu, integertype ml,
+                   realtype dq_rel_uu, KINLocalFn gloc, KINCommFn gcomm, 
+                   void *f_data, void *kinmem);
 
 
 /******************************************************************
@@ -249,18 +250,18 @@ void KBBDFree(KBBDData pdata);
 
 /****** Prototypes of functions KBBDPrecon and KBBDPSol *********/
 
-int KBBDPrecon(integer Neq, N_Vector uu, N_Vector uscale,
-	        N_Vector fval, N_Vector fscale,
-                N_Vector vtemp1, N_Vector vtemp2,
-	        SysFn func, real uround,
-                long int *nfePtr, void *P_data);
+int KBBDPrecon(integertype Neq, N_Vector uu, N_Vector uscale,
+               N_Vector fval, N_Vector fscale,
+               N_Vector vtemp1, N_Vector vtemp2,
+               SysFn func, realtype uround,
+               long int *nfePtr, void *P_data);
 
 
-int KBBDPSol(integer Nlocal, N_Vector uu, N_Vector uscale,
-	      N_Vector fval, N_Vector fscale,
-	      N_Vector vtem, N_Vector ftem,
-	      SysFn func, real u_round,
-	      long int *nfePtr, void *P_data);
+int KBBDPSol(integertype Nlocal, N_Vector uu, N_Vector uscale,
+             N_Vector fval, N_Vector fscale,
+             N_Vector vtem, N_Vector ftem,
+             SysFn func, realtype u_round,
+             long int *nfePtr, void *P_data);
 
 #endif
 #ifdef __cplusplus

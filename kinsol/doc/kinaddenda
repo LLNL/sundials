@@ -87,3 +87,17 @@ call to KBBDAlloc has been removed.  (This quantity is available internally.)
 routine for the system function F is now the problem size and not the local vector 
 length.
  
+16. The file llnltyps.h was renamed sundialstypes.h. 
+The constant name
+   LLNL_FLOAT      has been changed to  SUNDIALS_FLOAT, 
+   LLNL_DOUBLE     has been changed to  SUNDIALS_DOUBLE, 
+   LLNL_INT        has been changed to  SUNDIALS_INT,    and 
+   LLNL_LONG       has been changed to  SUNDIALS_LONG.
+
+To avoid conflicts with C++ methods the following type names have been changed:
+   real    has been changed to realtype
+   integer has been changed to integertype
+   boole   has been changed to bolleantype
+
+17. The files llnlmath.h and llnlmath.c have been renamed sundialsmath.h
+and sundialsmath.c, respectively.

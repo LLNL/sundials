@@ -3,7 +3,7 @@
  * File          : fkinpreco.c                                     *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 8 March 2002                                    *
+ * Version of    : 27 June 2002                                    *
  *-----------------------------------------------------------------*
  * This C function KINPreco is to interface between routines that  *
  * call KINSpgmr(fkinspgmr20, fkinspgmr21) and the user-supplied   *
@@ -13,28 +13,29 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h"  /* definitions of types real and integer      */
-#include "nvector.h"   /* definitions of type N_Vector               */
-#include "kinsol.h"    /* KINSOL constants and prototypes            */
-#include "fkinsol.h"   /* prototypes of interfaces, global variables */
+#include "sundialstypes.h" /* definitions of types realtype and integertype */
+#include "nvector.h"       /* definitions of type N_Vector                  */
+#include "kinsol.h"        /* KINSOL constants and prototypes               */
+#include "fkinsol.h"       /* prototypes of interfaces, global variables    */
 
 /*********************************************************************/
 
 /* Prototypes of the Fortran routines */
-void K_PRECO(integer*, real*, real*, real*, real*, real*, real*, real*, long int*, int*);
+void K_PRECO(integertype*, realtype*, realtype*, realtype*, realtype*, 
+             realtype*, realtype*, realtype*, long int*, int*);
 
 /*********************************************************************/
 
 /* C function KINPreco to interface between KINSpgmr and KPRECO, 
    the user-supplied Fortran preconditioner setup routine. */
 
-int KINPreco(integer Neq, N_Vector uu, N_Vector uscale, 
+int KINPreco(integertype Neq, N_Vector uu, N_Vector uscale, 
              N_Vector fval, N_Vector fscale,
              N_Vector vtemp1, N_Vector vtemp2,
-             SysFn func, real u_round,
+             SysFn func, realtype u_round,
              long int *nfePtr, void *P_data)
 {
-  real *udata,*uscaledata, *fdata, *fscaledata, *vtemp1data, *vtemp2data;
+  realtype *udata,*uscaledata, *fdata, *fscaledata, *vtemp1data, *vtemp2data;
   int retcode;
   
  udata        = N_VGetData(uu);

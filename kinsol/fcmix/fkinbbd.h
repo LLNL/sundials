@@ -2,7 +2,7 @@
  *                                                                         *
  * File        : fkinbbd.h                                                 *
  * Programmers : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL *
- * Version of  : 8 March 2002                                              *
+ * Version of  : 27 June 2002                                              *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -106,7 +106,8 @@
  This function is to be computed locally, i.e. without  inter-processor
  communication.  (The case where g is mathematically identical to f is allowed).
  It takes as input the local vector length NLOC and the local real solution
- array ULOC.  It is to compute the local part of g(u) and store this in the real array GLOC.
+ array ULOC.  It is to compute the local part of g(u) and store this in the 
+ realtype array GLOC.
 
  (3.2) Communication function KCOMMFN.
  The user must also supply a subroutine of the form
@@ -164,9 +165,9 @@
        CALL FKINSOL (NEQ, UU, GLOBALSTRAT, USCALE, FSCALE, FNORMTOL,
        SCSTEPTOL, CONSTRAINTS, OPTIN, IOPT,ROPT, IER)
  The arguments are:
- NEQ   = (integer) global number of unknowns in the nonlinear system
+ NEQ   = (INTEGER) global number of unknowns in the nonlinear system
  UU    = array containing the initial guess when called, returns the solution
- GLOBALSTRAT = (integer) a number defining the global strategy choice:
+ GLOBALSTRAT = (INTEGER) a number defining the global strategy choice:
           0 = InexactNewton, 1 = LineSearch .
  USCALE = array of scaling factors for the UU vector
  FSCALE = array of scaling factors for the FVAL (function) vector
@@ -188,9 +189,9 @@
  the following call:
       CALL FKINBBDOPT (LENRPW, LENIPW, NGE)
  The arguments returned are:
- LENRPW = length of real preconditioner work space, in real words.
+ LENRPW = length of real preconditioner work space, in realtype words.
           This size is local to the current processor.
- LENIPW = length of integer preconditioner work space, in integer words.
+ LENIPW = length of integer preconditioner work space, in integertype words.
           This size is local to the current processor.
  NGE    = number of g(u) evaluations (calls to KLOCFN) so far.
 
@@ -244,15 +245,15 @@
 
 /* KINSOL header files  */
 
-#include "llnltyps.h"  /* definitions of types real and integer             */
-#include "nvector.h"   /* definition of type N_Vector                      */
+#include "sundialstypes.h"  /* definitions of types realtype and integertype */
+#include "nvector.h"        /* definition of type N_Vector                   */
 
 
 /* Prototypes: Functions Called by the KINBBDPRE Module */
 
-void KINgloc(integer Nloc, N_Vector uu, N_Vector gval, void *f_data);
+void KINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data);
 
-void KINgcomm(integer Nloc, real *uloc, void *f_data);
+void KINgcomm(integertype Nloc, realtype *uloc, void *f_data);
 
 
 /* Declarations for global variables, shared among various routines */
