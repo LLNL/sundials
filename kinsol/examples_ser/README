@@ -1,3 +1,14 @@
 List of serial KINSOL examples
 
   kinwebs:  2-D food web system, block-diagonal preconditioner
+
+Sample result:
+
+  SUNDIALS was built with the following options:
+
+  ./configure CC=gcc F77=g77 --without-mpi
+
+  System Architecture: IA-32
+  Processor Type: Intel Pentium 4 Xeon DP (i686)
+  Operating System: Red Hat Linux 7.2
+  C/Fortran Compilers: gcc/g77 v2.96 (Red Hat)

@@ -72,7 +72,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"     /* def's of realtype, integertype, booleantype */
+#include "sundialstypes.h"     /* def's of realtype and booleantype           */
 #include "kinsol.h"            /* main KINSol header file                     */
 #include "iterative.h"         /* enum for types of preconditioning           */
 #include "kinspgmr.h"          /* use KINSpgmr linear solver                  */
@@ -81,6 +81,7 @@
 #include "sundialsmath.h"      /* contains RSqrt routine                      */
 #include "mpi.h"               /* MPI include file                            */
 #include "kinbbdpre.h"         /* band preconditioner function prototypes     */
+
 
 /* Problem Constants */
 
@@ -133,9 +134,9 @@ typedef struct {
   N_Vector rates;
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
-  integertype Nlocal, mx, my, ns, np;
+  long int Nlocal, mx, my, ns, np;
   realtype cext[NUM_SPECIES * (MXSUB+2)*(MYSUB+2)];
-  integertype my_pe, isubx, isuby, nsmxsub, nsmxsub2;
+  long int my_pe, isubx, isuby, nsmxsub, nsmxsub2;
   MPI_Comm comm;
 } *UserData;
 
@@ -143,23 +144,23 @@ typedef struct {
 /* Private Helper Functions */
 
 static UserData AllocUserData(void);
-static void InitUserData(integertype my_pe, integertype Nlocal, MPI_Comm comm, UserData data);
+static void InitUserData(long int my_pe, long int Nlocal, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
-static void PrintOutput(integertype my_pe, MPI_Comm comm, N_Vector cc);
+static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc);
 static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
                     void *f_data);
-static realtype DotProd(integertype size, realtype *x1, realtype *x2);
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
-                  integertype isuby, integertype dsizex, integertype dsizey,
+static realtype DotProd(long int size, realtype *x1, realtype *x2);
+static void BSend(MPI_Comm comm, long int my_pe, long int isubx,
+                  long int isuby, long int dsizex, long int dsizey,
                   realtype *cdata);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
-                      integertype isubx, integertype isuby,
-                      integertype dsizex, integertype dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
+                      long int isubx, long int isuby,
+                      long int dsizex, long int dsizey,
                       realtype *cext, realtype *buffer);
-static void BRecvWait(MPI_Request request[], integertype isubx,
-                      integertype isuby, integertype dsizex, realtype *cext,
+static void BRecvWait(MPI_Request request[], long int isubx,
+                      long int isuby, long int dsizex, realtype *cext,
                       realtype *buffer);
 
 
@@ -167,29 +168,37 @@ static void BRecvWait(MPI_Request request[], integertype isubx,
 
 static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
 
-static void ccomm(integertype Nlocal, N_Vector cc, void *data);
-/* static void ccomm(integertype Nlocal, realtype *cdata, void *data); */
+static void ccomm(long int Nlocal, N_Vector cc, void *data);
 
-static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval, void *f_data);
+static void fcalcprpr(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data);
+
+
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 
 /***************************** Main Program ******************************/
 
 int main(int argc, char *argv[])
-
 {
   MPI_Comm comm;
   NV_Spec nvSpec;
   void *kmem, *pdata;
   UserData data;
   N_Vector cc, sc, constraints;
-  integertype globalstrategy, Nlocal;
+  int globalstrategy;
+  long int Nlocal;
   realtype fnormtol, scsteptol, dq_rel_uu;
   int flag, mu, ml, maxl, maxlrst;
   int my_pe, npes, npelast = NPEX*NPEY-1;
 
-  /* Get processor number and total number of pe's */
+  data = NULL;
+  nvSpec = NULL;
+  kmem = pdata = NULL;
+  cc = sc = constraints = NULL;
 
+  /* Get processor number and total number of pe's */
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
@@ -197,7 +206,7 @@ int main(int argc, char *argv[])
 
   if (npes != NPEX*NPEY) {
     if (my_pe == 0)
-      printf("\n npes=%d is not equal to NPEX*NPEY=%d\n", npes, NPEX*NPEY);
+      printf("\nMPI_ERROR(0): npes=%d is not equal to NPEX*NPEY=%d\n", npes, NPEX*NPEY);
     return(1);
   }
 
@@ -208,10 +217,14 @@ int main(int argc, char *argv[])
 
   /* Set nvSpec block */
   nvSpec = NV_SpecInit_Parallel(comm, Nlocal, NEQ, &argc, &argv);
-  if (nvSpec==NULL) return(1);
+  if (nvSpec==NULL) {
+    if (my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
+    MPI_Finalize();
+    return(1); }
 
   /* Allocate and initialize user data block */
   data = AllocUserData();
+  if (check_flag((void *)data, "AllocUserData", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, Nlocal, comm, data);
 
   /* Choose global strategy */
@@ -219,9 +232,13 @@ int main(int argc, char *argv[])
 
   /* Allocate and initialize vectors */
   cc = N_VNew(nvSpec);
+  if (check_flag((void *)cc, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   sc = N_VNew(nvSpec);
+  if (check_flag((void *)sc, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   data->rates = N_VNew(nvSpec);
+  if (check_flag((void *)data->rates, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   constraints = N_VNew(nvSpec);
+  if (check_flag((void *)constraints, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   N_VConst(0.,constraints);
   
   SetInitialProfiles(cc, sc);
@@ -232,45 +249,38 @@ int main(int argc, char *argv[])
      nvSpec  points to machine environment data
      A pointer to KINSOL problem memory is returned and stored in kmem. */
   kmem = KINCreate();
-  if (kmem == NULL) {
-    if (my_pe == 0) printf("KINCreate failed."); 
-    return(1); 
-  }
+  if (check_flag((void *)kmem, "KINCreate", 0, my_pe)) MPI_Abort(comm, 1);
   flag = KINMalloc(kmem, funcprpr, nvSpec);
-  if (flag != SUCCESS) { 
-    if (my_pe == 0) printf("KINMalloc failed."); 
-    return(1); 
-  }
+  if (check_flag(&flag, "KINMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = KINSetFdata(kmem, data);
+  if (check_flag(&flag, "KINSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
   flag = KINSetConstraints(kmem, constraints);
+  if (check_flag(&flag, "KINSetConstraints", 1, my_pe)) MPI_Abort(comm, 1);
   flag = KINSetFuncNormTol(kmem, fnormtol);
+  if (check_flag(&flag, "KINSetFuncNormTol", 1, my_pe)) MPI_Abort(comm, 1);
   flag = KINSetScaledStepTol(kmem, scsteptol);
+  if (check_flag(&flag, "KINSetScaledStepTol", 1, my_pe)) MPI_Abort(comm, 1);
   
   /* Call KBBDAlloc to initialize and allocate memory for the band-block-
      diagonal preconditioner, and specify the local and communication
      functions fcalcprpr and ccomm. */
-  
   dq_rel_uu = ZERO;
   mu = ml = 2*NUM_SPECIES - 1;
 
   pdata = KBBDPrecAlloc(kmem, Nlocal, mu, ml, dq_rel_uu, fcalcprpr, ccomm);
-  if (pdata == NULL) {
-    if (my_pe == 0) printf("KBBDPrecAlloc failed \n"); return(1);
-  }
+  if (check_flag((void *)pdata, "KBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call KBBDSpgmr to specify the linear solver KINSPGMR 
      with preconditioner KINBBDPRE */
   maxl = 20; maxlrst = 2;
   flag = KBBDSpgmr(kmem, maxl, pdata);
-  if (flag != 0) {
-    if (my_pe == 0) printf("KBBDSpgmr failed, returning %d \n",flag);
-    return(1);
-  }
+  if (check_flag(&flag, "KBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
+  if (check_flag(&flag, "KINSpgmrSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
+
   /* Print out the problem size, solution parameters, initial guess. */
-  
   if (my_pe == 0) {
     printf("\nPredator-prey test problem--  KINSol (parallel-BBD version)\n\n");
     
@@ -292,29 +302,21 @@ int main(int argc, char *argv[])
     printf("At all mesh points:  %g %g %g   %g %g %g\n", PREYIN,PREYIN,PREYIN,
            PREDIN,PREDIN,PREDIN);
   }
-  
- 
+
   /* call KINSol and print output concentration profile */
-  
   flag = KINSol(kmem,           /* KINSol memory block */
                 cc,             /* initial guesss on input; solution vector */
                 globalstrategy, /* global stragegy choice */
                 sc,             /* scaling vector, for the variable cc */
                 sc);            /* scaling vector for function values fval */
-  
-  if (flag != SUCCESS) { 
-    if (my_pe == 0)
-      printf("KINSol failed, returning %d.\n", flag);
-    return(flag);
-  }
+  if (check_flag(&flag, "KINSol", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) printf("\n\n\nComputed equilibrium species concentrations:\n");
   if (my_pe == 0 || my_pe==npelast) PrintOutput(my_pe, comm, cc);
   
   /* Print final statistics and free memory */
-  
   if (my_pe == 0) PrintFinalStats(kmem);
-  
+
   N_VFree(cc);
   N_VFree(sc);
   N_VFree(constraints);
@@ -331,7 +333,6 @@ int main(int argc, char *argv[])
 
 
 /*********************** Private Helper Functions ************************/
-
 
 /* Allocate memory for data structure of type UserData */
 
@@ -360,7 +361,7 @@ static UserData AllocUserData(void)
 
 /* Load problem constants in data */
 
-static void InitUserData(integertype my_pe, integertype Nlocal, MPI_Comm comm, UserData data)
+static void InitUserData(long int my_pe, long int Nlocal, MPI_Comm comm, UserData data)
 {
   int i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
@@ -386,13 +387,14 @@ static void InitUserData(integertype my_pe, integertype Nlocal, MPI_Comm comm, U
 
   dx2=(data->dx)*(data->dx); dy2=(data->dy)*(data->dy);
 
-  for(i=0;i<np;i++){
+  for (i = 0; i < np; i++) {
     a1= &(acoef[i][np]);
     a2= &(acoef[i+np][0]);
     a3= &(acoef[i][0]);
     a4= &(acoef[i+np][np]);
+
     /*  Fill in the portion of acoef in the four quadrants, row by row */
-    for(j=0;j<np;j++){
+    for (j = 0; j < np; j++) {
       *a1++ =  -GG;
       *a2++ =   EE;
       *a3++ = ZERO;
@@ -415,7 +417,6 @@ static void InitUserData(integertype my_pe, integertype Nlocal, MPI_Comm comm, U
 
 } /* end of routine InitUserData *****************************************/
 
-
 /* Free data memory */
 
 static void FreeUserData(UserData data)
@@ -430,7 +431,6 @@ static void FreeUserData(UserData data)
 
 } /* end of routine FreeUserData *****************************************/
 
-
 /* Set initial conditions in cc */
 
 static void SetInitialProfiles(N_Vector cc, N_Vector sc)
@@ -440,21 +440,21 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
   realtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
 
   /* Initialize arrays ctemp and stemp used in the loading process */
-  for(i=0;i<NUM_SPECIES/2;i++) {
+  for (i = 0; i < NUM_SPECIES/2; i++) {
     ctemp[i] = PREYIN;
     stemp[i] = ONE;
   }
-  for(i=NUM_SPECIES/2;i<NUM_SPECIES;i++) {
+  for (i = NUM_SPECIES/2; i < NUM_SPECIES; i++) {
     ctemp[i] = PREDIN;
     stemp[i] = 0.00001;
   }
 
   /* Load initial profiles into cc and sc vector from ctemp and stemp. */
-  for (jy=0; jy < MYSUB; jy++) {
+  for (jy = 0; jy < MYSUB; jy++) {
     for (jx=0; jx < MXSUB; jx++) {
       cloc = IJ_Vptr(cc,jx,jy);
       sloc = IJ_Vptr(sc,jx,jy);
-      for(i=0;i<NUM_SPECIES;i++){
+      for (i = 0; i < NUM_SPECIES; i++){
         cloc[i] = ctemp[i];
         sloc[i] = stemp[i];
       }
@@ -463,10 +463,9 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
   
 } /* end of routine SetInitialProfiles ***********************************/
 
-
 /* Print sample of current cc values */
 
-static void PrintOutput(integertype my_pe, MPI_Comm comm, N_Vector cc)
+static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc)
 {
   int is, i0, npelast;
   realtype  *ct, tempc[NUM_SPECIES];
@@ -477,30 +476,30 @@ static void PrintOutput(integertype my_pe, MPI_Comm comm, N_Vector cc)
   ct = NV_DATA_P(cc);
   
   /* Send the cc values (for all species) at the top right mesh point to PE 0 */
-  if(my_pe == npelast){
+  if (my_pe == npelast) {
     i0 = NUM_SPECIES*(MXSUB*MYSUB-1);
-    if(npelast!=0)
+    if (npelast!=0)
       MPI_Send(&ct[i0],NUM_SPECIES,PVEC_REAL_MPI_TYPE,0,0,comm);
     else  /* single processor case */
-      for(is=0;is<NUM_SPECIES;is++) tempc[is]=ct[i0+is];   
+      for (is = 0; is < NUM_SPECIES; is++) tempc[is]=ct[i0+is];   
   }
   
   /* On PE 0, receive the cc values at top right, then print performance data 
      and sampled solution values */
-  if(my_pe == 0) {
+  if (my_pe == 0) {
     
-    if(npelast != 0)
+    if (npelast != 0)
       MPI_Recv(&tempc[0],NUM_SPECIES,PVEC_REAL_MPI_TYPE,npelast,0,comm,&status);
     
     printf("\nAt bottom left:");
-    for(is=0;is<NUM_SPECIES;is++){
-      if((is%6)*6== is)printf("\n");
+    for (is = 0; is < NUM_SPECIES; is++){
+      if ((is%6)*6== is) printf("\n");
       printf(" %g",ct[is]);
     }
     
     printf("\n\nAt top right:");
-    for(is=0;is<NUM_SPECIES;is++){
-      if((is%6)*6 == is)printf("\n");
+    for (is = 0; is < NUM_SPECIES; is++) {
+      if ((is%6)*6 == is) printf("\n");
       printf(" %g",tempc[is]);
     }
     printf("\n\n");
@@ -508,22 +507,26 @@ static void PrintOutput(integertype my_pe, MPI_Comm comm, N_Vector cc)
   
 } /* end of routine PrintOutput ******************************************/
 
-
 /* Print final statistics contained in iopt */
 
 static void PrintFinalStats(void *kmem)
 {
-  int nni, nfe;
-  int nli, npe, nps, ncfl, nfeSG;
+  int nni, nfe, nli, npe, nps, ncfl, nfeSG, flag;
   
-  KINGetNumNonlinSolvIters(kmem, &nni);
-  KINGetNumFuncEvals(kmem, &nfe);
-
-  KINSpgmrGetNumLinIters(kmem, &nli);
-  KINSpgmrGetNumPrecEvals(kmem, &npe);
-  KINSpgmrGetNumPrecSolves(kmem, &nps);
-  KINSpgmrGetNumConvFails(kmem, &ncfl);
-  KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
+  flag = KINGetNumNonlinSolvIters(kmem, &nni);
+  check_flag(&flag, "KINGetNumNonlinSolvIters", 1, 0);
+  flag = KINGetNumFuncEvals(kmem, &nfe);
+  check_flag(&flag, "KINGetNumFuncEvals", 1, 0);
+  flag = KINSpgmrGetNumLinIters(kmem, &nli);
+  check_flag(&flag, "KINSpgmrGetNumLinIters", 1, 0);
+  flag = KINSpgmrGetNumPrecEvals(kmem, &npe);
+  check_flag(&flag, "KINSpgmrGetNumPrecEvals", 1, 0);
+  flag = KINSpgmrGetNumPrecSolves(kmem, &nps);
+  check_flag(&flag, "KINSpgmrGetNumPrecSolves", 1, 0);
+  flag = KINSpgmrGetNumConvFails(kmem, &ncfl);
+  check_flag(&flag, "KINSpgmrGetNumConvFails", 1, 0);
+  flag = KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
+  check_flag(&flag, "KINSpgmrGetNumFuncEvals", 1, 0);
 
   printf("\nFinal Statistics.. \n\n");
   printf("nni    = %5d    nli   = %5d\n", nni, nli);
@@ -532,31 +535,27 @@ static void PrintFinalStats(void *kmem)
   
 } /* end of routine PrintFinalStats **************************************/
 
-
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(MPI_Comm comm, integertype my_pe, 
-                  integertype isubx, integertype isuby, 
-                  integertype dsizex, integertype dsizey, realtype *cdata)
+static void BSend(MPI_Comm comm, long int my_pe, 
+                  long int isubx, long int isuby, 
+                  long int dsizex, long int dsizey, realtype *cdata)
 {
   int i, ly;
-  integertype offsetc, offsetbuf;
+  long int offsetc, offsetbuf;
   realtype bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
-
   if (isuby != 0)
     MPI_Send(&cdata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
 
   /* If isuby < NPEY-1, send data from top x-line of u */
-
   if (isuby != NPEY-1) {
     offsetc = (MYSUB-1)*dsizex;
     MPI_Send(&cdata[offsetc], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
   }
 
   /* If isubx > 0, send data from left y-line of u (via bufleft) */
-  
   if (isubx != 0) {
     for (ly = 0; ly < MYSUB; ly++) {
       offsetbuf = ly*NUM_SPECIES;
@@ -568,7 +567,6 @@ static void BSend(MPI_Comm comm, integertype my_pe,
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
-
   if (isubx != NPEX-1) {
     for (ly = 0; ly < MYSUB; ly++) {
       offsetbuf = ly*NUM_SPECIES;
@@ -581,7 +579,6 @@ static void BSend(MPI_Comm comm, integertype my_pe,
 
 } /* end of routine BSend ************************************************/
 
- 
 /* Routine to start receiving boundary data from neighboring PEs.
    Notes:
    1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
@@ -589,12 +586,13 @@ static void BSend(MPI_Comm comm, integertype my_pe,
    should not be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
-                      integertype isubx, integertype isuby,
-                      integertype dsizex, integertype dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
+                      long int isubx, long int isuby,
+                      long int dsizex, long int dsizey,
                       realtype *cext, realtype *buffer)
 {
-  integertype offsetce;
+  long int offsetce;
+
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
   
@@ -624,7 +622,6 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
   
 } /* end of routine BRecvPost ********************************************/
 
-
 /* Routine to finish receiving boundary data from neighboring PEs.
    Notes:
    1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
@@ -632,12 +629,12 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
    should not be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvWait(MPI_Request request[], integertype isubx,
-                      integertype isuby, integertype dsizex, realtype *cext,
+static void BRecvWait(MPI_Request request[], long int isubx,
+                      long int isuby, long int dsizex, realtype *cext,
                       realtype *buffer)
 {
   int i, ly;
-  integertype dsizex2, offsetce, offsetbuf;
+  long int dsizex2, offsetce, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
   MPI_Status status;
   
@@ -682,17 +679,16 @@ static void BRecvWait(MPI_Request request[], integertype isubx,
 
 /***************** Functions Called by the KINSol Solver ******************/
 
-
 /* ccomm routine.  This routine performs all communication 
    between processors of data needed to calculate f. */
 
-static void ccomm(integertype Nlocal, N_Vector cc, void *userdata)
+static void ccomm(long int Nlocal, N_Vector cc, void *userdata)
 {
 
   realtype *cdata, *cext, buffer[2*NUM_SPECIES*MYSUB];
   UserData data;
   MPI_Comm comm;
-  integertype my_pe, isubx, isuby, nsmxsub, nsmysub;
+  long int my_pe, isubx, isuby, nsmxsub, nsmysub;
   MPI_Request request[4];
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array cext */
@@ -706,42 +702,36 @@ static void ccomm(integertype Nlocal, N_Vector cc, void *userdata)
   cdata = NV_DATA_P(cc);
 
   /* Start receiving boundary data from neighboring PEs */
-
   BRecvPost(comm, request, my_pe, isubx, isuby, nsmxsub, nsmysub, cext, buffer);
 
   /* Send data from boundary of local grid to neighboring PEs */
-
   BSend(comm, my_pe, isubx, isuby, nsmxsub, nsmysub, cdata);
 
   /* Finish receiving boundary data from neighboring PEs */
-
   BRecvWait(request, isubx, isuby, nsmxsub, cext, buffer);
 
 } /* end of routine ccomm ************************************************/
 
-
 /* System function for predator-prey system - calculation part */
 
-static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval, void *f_data)
+static void fcalcprpr(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
   realtype *cext, dely, delx, *cdata;
-  integertype i, jx, jy, is, ly;
-  integertype isubx, isuby, nsmxsub, nsmxsub2;
-  integertype shifty, offsetc, offsetce, offsetcl, offsetcr, offsetcd, offsetcu;
+  long int i, jx, jy, is, ly;
+  long int isubx, isuby, nsmxsub, nsmxsub2;
+  long int shifty, offsetc, offsetce, offsetcl, offsetcr, offsetcd, offsetcu;
   UserData data;
   
   data = (UserData)f_data;
   cdata = NV_DATA_P(cc);
   
   /* Get subgrid indices, data sizes, extended work array cext */
-  
   isubx = data->isubx;   isuby = data->isuby;
   nsmxsub = data->nsmxsub; nsmxsub2 = data->nsmxsub2;
   cext = data->cext;
   
   /* Copy local segment of cc vector into the working extended array cext */
-  
   offsetc = 0;
   offsetce = nsmxsub2 + NUM_SPECIES;
   for (ly = 0; ly < MYSUB; ly++) {
@@ -782,10 +772,8 @@ static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval, void *f_da
       for (i = 0; i < NUM_SPECIES; i++) cext[offsetce+i] = cdata[offsetc+i];
     }
   }
-  
-  
+
   /* Loop over all mesh points, evaluating rate arra at each point */
-  
   delx = data->dx;
   dely = data->dy;
   shifty = (MXSUB+2)*NUM_SPECIES;
@@ -812,17 +800,14 @@ static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval, void *f_da
       for (is = 0; is < NUM_SPECIES; is++) {
         
         /* differencing in x */
-        
         dcydi = cext[offsetc+is]  - cext[offsetcd+is];
         dcyui = cext[offsetcu+is] - cext[offsetc+is];
         
         /* differencing in y */
-        
         dcxli = cext[offsetc+is]  - cext[offsetcl+is];
         dcxri = cext[offsetcr+is] - cext[offsetc+is];
         
         /* compute the value at xx , yy */
-        
         fxy[is] = (coy)[is] * (dcyui - dcydi) +
           (cox)[is] * (dcxri - dcxli) + rxy[is];
         
@@ -833,7 +818,6 @@ static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval, void *f_da
   } /* end of jy loop */
   
 } /* end of routine fcalcprpr ********************************************/
-
 
 /* System function routine.  Evaluate funcprpr(cc).  First call ccomm to do 
   communication of subgrid boundary data into cext.  Then calculate funcprpr
@@ -846,22 +830,19 @@ static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
   data = (UserData) f_data;
 
   /* Call ccomm to do inter-processor communicaiton */
-
   ccomm (data->Nlocal, cc, data);
 
   /* Call fcalcprpr to calculate all right-hand sides */
-  
   fcalcprpr (data->Nlocal, cc, fval, data);
   
 } /* end of routine funcprpr *********************************************/
-
 
 /* Interaction rate function routine */
 
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *f_data)
 {
-  integertype i;
+  long int i;
   realtype fac;
   UserData data;
   
@@ -877,12 +858,11 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
   
 } /* end of routine WebRate **********************************************/
 
-
 /* Dot product routine for realtype arrays */
 
-static realtype DotProd(integertype size, realtype *x1, realtype *x2)
+static realtype DotProd(long int size, realtype *x1, realtype *x2)
 {
-  integertype i;
+  long int i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;
@@ -890,3 +870,40 @@ static realtype DotProd(integertype size, realtype *x1, realtype *x2)
   return(temp);
   
 } /* end of routine DotProd **********************************************/
+
+/*********************** Private Helper Function ************************/
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+	    id, funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
+	      id, funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+	    id, funcname);
+    return(1); }
+
+  return(0);
+}
