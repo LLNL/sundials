@@ -9,20 +9,69 @@ package.
 
 The {\ida} distribution contains, in the \id{sundials/ida/examples\_ser}
 directory, the following four serial examples (using the {\nvecs} module):
+%%
 \begin{itemize}
-\item \id{iheatsb}
-\item \id{iheatsk}
+
 \item \id{irobx}
+  solves the Robertson chemical kinetics problem~\cite{Rob:66} which consists
+  of two differential equations and one algebraic constraint.
+
+  The problem is solved with the {\idadense} linear solver using
+  a user-supplied Jacobian.
+
 \item \id{iwebsb}
+  solves a system of PDE modelling a food web problem, with predator-prey
+  interaction and diffusion on the unit square in 2-D.
+
+  The PDEs are discretized in space to a system of DAEs which are solved
+  using the {\idaband} linear solver with the default difference-quotient 
+  Jacobian approximation.
+
+\item \id{iheatsb}
+  solves a 2-D heat equation, semidiscretized to a DAE on the unit square.
+
+  This program solves the problem with the {\idaband} linear solver and
+  the default difference-quotient Jacobian approximation. For purposes of
+  illustration, \id{IDACalcIC} is called to compute correct values at the
+  boundary, given incorrect values as input initial guesses. The constraint
+  $u > 0.0$ is imposed for all components.
+
+\item \id{iheatsk}
+  solves the same problem as \id{iheatsb}, with the Krylov linear solver
+  {\idaspgmr}. The preconditioner uses only the diagonal elements of the 
+  Jacobian.
+
 \end{itemize}
 
 In the \id{sundials/ida/examples\_par} directory, the {\ida} 
 distribution contains the following four parallel examples 
 (using the {\nvecp} module):
+%%
 \begin{itemize}
-\item \id{iheatbbd}
-\item \id{iheatpk}
+
 \item \id{iwebbbd}
+  is a parallel implementation of the predator-prey problem.
+
+  The problem is solved in parallel using the {\idaspgmr} linear
+  solver and the {\idabbdpre} preconditioner.
+
 \item \id{iwebpk}
+  solves the same problem as \id{iwebbbd} with a user-supplied preconditioner.
+  
+  The precondtioner supplied to {\idaspgmr} is the block-diagonal part of 
+  the Jacobian with $n_s \times n_s$ blocks arising from the reaction terms only
+  ($n_s$ is the number of species in the model).
+
+\item \id{iheatbbd}
+  is a parallel implementation of the 2-D heat equation.
+
+  This program solves the problem in parallel, using the Krylov linear solver
+  {\idaspgmr} and the band-block diagonal preconditioner {\idabbdpre} with
+  half-bandwidths equal to $1$.
+
+\item \id{iheatpk}
+  solves the same problem as \id{iheatbbd} with a user-supplied preconditioner
+  which uses the diagonal elements of the Jacobian only.
+  
 \end{itemize}
 

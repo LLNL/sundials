@@ -4,27 +4,361 @@
 
 \subsection{A dense example: \id{irobx}}\label{ss:irobx}
 
+This example, due to Robertson~\cite{Rob:66}, is a model of a three-species 
+chemical kinetics system written in DAE form. Differential equations are given 
+for species $y^1$ and $y^2$ while an algebraic equation determines $y^3$. The 
+equations for the system concentrations $y^i(t)$ are:
+\begin{equation}\label{e:irobx_ODE}
+\begin{cases}
+  \dot y_1 &= -.04 y_1 + 10^4 y_2 y_3   \\
+  \dot y_2 &= +.04 y_1 - 10^4 y_2 y_3 - 3 \cdot 10^7 y_2^2  \\
+  0 &=  y_1 + y_2 + y_3 - 1 \, .
+\end{cases}
+\end{equation}
+
+The initial values are taken as $y_1 = 1$, $y_2 = 0$, and $y_3 = 0$
+This example computes the three concentration components on the interval
+from $t=0$ through $t=4 \cdot 10^{10}$.
+
+For the source, listed in Appendix \ref{s:irobx_c}, we give a rather detailed
+explanation of the parts of the program and their interaction with {\ida}.
+
+Following the initial comment block, this program has a number
+of \id{\#include} lines, which allow access to useful items in {\ida}
+header files.  The \id{sundialstypes.h} file provides the definition of the
+type \id{realtype} (see \S\ref{s:types} in the user guide \cite{ida2.2.0_ug}
+for details).  For now, it suffices to read \id{realtype} as \id{double}.
+The \id{ida.h} file provides prototypes for the {\ida}
+functions to be called (excluding the linear solver selection
+function), and also a number of constants that are to be used in
+setting input arguments and testing the return value of \id{IDASolve}.
+The \id{idadense.h} file provides the prototype for the \id{IDADense} function.
+The \id{nvector\_serial.h} file is the header file for the serial
+implementation of the {\nvector} module and includes definitions of the 
+\id{N\_Vector} type, a macro to access vector components, and prototypes 
+for the serial implementation specific machine environment memory allocation
+and freeing functions.
+Finally, note that \id{idadense.h} also includes the \id{dense.h} file which 
+provides the definition of the dense matrix type \id{DenseMat} and a macro for 
+accessing matrix elements.
+
+This program includes the user-defined accessor macro
+\id{IJth} that is useful in writing the problem functions in a form
+closely matching the mathematical description of the DAE system,
+i.e. with components numbered from 1 instead of from 0.
+The \id{IJth} macro is used to access elements of a dense matrix of
+type \id{DenseMat}. It is defined using the {\dense} accessor macro
+\id{DENSE\_ELEM} which numbers matrix rows and columns starting with
+0. The macro \id{DENSE\_ELEM} is fully described in \S\ref{ss:djacFn} 
+of the user guide.
+
+The program prologue ends with prototypes of the two user-supplied functions 
+that are called by {\ida} and the prototype of the private function
+\id{check\_flag} which is used to test the return flag from the {\ida}
+user-callable functions.
+
+After various declarations, the \id{main} program begins by
+allocating memory for the \id{yy}, \id{yp}, and \id{avtol} vectors using
+\id{N\_VNew\_Serial} with a length argument of \id{NEQ} ($= 3$). The
+lines following that load the initial values of the dependendent
+variable vectors into \id{yy} and \id{yp} and set the realtive tolerance 
+\id{rtol} and absolute tolerance vector \id{avtol}. Serial \id{N\_Vector} 
+are set by first accessing the pointer to their underlying data using
+the macro \id{NV\_DATA\_S} defined by {\nvecs} in \id{nvector\_serial.h}.
+
+The calls to \id{N\_VNew\_Serial}, and also later calls to \id{IDA***}
+functions, make use of a private function, \id{check\_flag}, which examines
+the return value and prints a message if there was a failure.  This
+\id{check\_flag} function was written to be used for any serial {\sundials}
+application.
+
+The call to \id{IDACreate} creates the {\ida} solver memory block.
+The return value of is a pointer to that memory block for this
+problem.  In the case of failure, the return value is \id{NULL}.  This
+pointer must be passed in the remaining calls to {\ida} functions.
+
+The call to \id{IDAMalloc} allocates the solver memory block.
+Its arguments include the name of the {\C} function \id{resrob} defining the
+residual function $T(t,y,y')$, and the initial values of $t$, $y$, and $y'$.
+The argument \id{IDA\_SV} specifies a vector of absolute tolerances, and
+this is followed by the address of the relative tolerance \id{rtol}
+and the absolute tolerance vector \id{avtol}.
+See \S\ref{sss:idamalloc} for full details of this call.
+
+The calls to \id{IDADense} and \id{IDADenseSetJacFn} specify the {\idadense}
+linear solver with an analytic Jacobian supplied by the user-supplied function
+\id{jacrob}.  See \S\ref{sss:lin_solv_init} and \S\ref{ss:optional_input}
+for full details of these two calls.
+
+The actual solution of the DAE initial value problem is accomplished in
+the loop over values of the output time \id{tout}.  In each pass of the
+loop, the program calls \id{IDASolve} in the \id{IDA\_NORMAL} mode, meaning that
+the integrator is to take steps until it overshoots \id{tout} and then
+interpolate to $t = $\id{tout}, putting the computed value of $y$(\id{tout})
+and $y'$(\id{tout}) into \id{yy} and \id{yp}, respectively, with \id{t} = \id{tout}. 
+If an error occured during the call to \id{IDASolve}, the program returns $1$ \
+and terminates.
+On a successful return (indicated by a return value \id{IDA\_SUCCESS}), the program
+prints the solution, the cummulative number of steps taken so far, and the 
+current method order and step size.
+
+Finally, the main program extracts and prints several relevant statistical quantities,
+such as the total number of steps, the number of residual and Jacobian evaluations, and
+the number of error test and convergence test failures.
+It then calls \id{IDAFree} to free the {\ida} memory block and \id{NV\_Destroy\_Serial} 
+to free the vectors \id{yy}, \id{yp}, and \id{avtol}. 
+
+The functions \id{resrob} (of type \id{IDAResFn} and \id{jacrob} (of type \id{IDADenseJacFn}) 
+are straightforward expressions of the DAE system. 
+The function \id{jacrob} makes use of the macro \id{IJth} discussed above.
+See \S\ref{ss:resFn} and \S\ref{ss:djacFn} for detailed specifications of \id{IDAResFn} and 
+\id{IDADenseJacFn}, respectively.
+
 Sample output from \id{irobx} follows.
 %%
+\vspace{0.1in}
 \VerbatimInput[frame=single,framesep=0.1in,label={\tt irobx} sample output,fontsize=\small]
 {../examples_ser/irobx.out}
 %%
 %-----------------------------------------------------------------------------------
 
-\subsection{A banded example: \id{iheatsb}}\label{ss:iheatsb}
+\subsection{A banded example: \id{iwebsb}}\label{ss:iwebsb}
 
-Sample output from \id{iheatsb} follows.
+This example is a model of a multi-species food web \cite{Bro:86}, in
+which predator-prey relationships with diffusion in a 2-D spatial
+domain are simulated.  Here we consider a model with $s = 2p$ species:
+$p$ predators and $p$ prey.  Species $1,\ldots, p$ (the prey) satisfy
+rate equations, while species $p+1,\ldots, s$ (the predators) have
+infinitely fast reaction rates.  The coupled PDEs for the species
+concentrations $c^i(x,y,t)$ are:
+\begin{equation}\label{e:iwebsb_PDE}
+  \begin{cases}
+    \partial c^i / \partial t = R_i(x,y,c) + d_i 
+    ( c^i_{xx} + c^i_{yy} ) \, ~~ i = 1,2,\ldots,p \\
+    \hspace*{.36in}        0 = R_i(x,y,c) + d_i 
+    ( c^i_{xx} + c^i_{yy} ) \, ~~ i = p+1,\ldots,s ~,
+  \end{cases}
+\end{equation}
+with
+\[
+R_i(x,y,c) = c^i \left( b_i + \sum_{j=1}^s a_{ij} c^j \right) \, .
+\]
+Here $c$ denotes the vector $\{c^i\}$.
+The interaction and diffusion coefficients $(a_{ij},b_i,d_i)$ can be
+functions of $(x,y)$ in general. The choices made for this test
+problem are as follows:
 %%
-\VerbatimInput[frame=single,framesep=0.1in,label={\tt iheatsb} sample output,fontsize=\small]
-{../examples_ser/iheatsb.out}
+\begin{equation*}
+  a_{ij} = 
+  \begin{cases}
+    -1                 & i=j \\
+    -0.5 \cdot 10^{-6} & i \leq p , ~ j > p  \\
+    10^4               & i > p , ~ j \leq p  \\
+    0                  & \mbox{all other } \, ,
+  \end{cases}
+\end{equation*}
+%%
+\begin{equation*}
+  b_i = b_i(x,y) = 
+  \begin{cases}
+    (1 + \alpha xy + \beta \sin(4\pi x)\sin(4\pi y) )  & i \leq p  \\
+    - (1 + \alpha xy + \beta \sin(4\pi x)\sin(4\pi y) )  & i > p \, ,
+  \end{cases}
+\end{equation*}
+and
+%%
+\begin{equation*}
+  d-i = 
+  \begin{cases}
+    1 & i \leq p  \\
+    0.5 & i > p  \, .
+  \end{cases}
+\end{equation*}
+
+The spatial domain is the unit square $0 \leq x,y \leq 1$, and the
+time interval is $0 \leq t \leq 1$.  The boundary conditions are of
+Neumann type (zero normal derivatives) everywhere.  The coefficients
+are such that a unique stable equilibrium is guaranteed to exist when
+$\alpha = \beta = 0$ \cite{Bro:86}.  Empirically, a stable equilibrium
+appears to exist for (\ref{e:iwebsb_PDE}) when $\alpha$ and $\beta$ are
+positive, although it may not be unique. In this problem we take
+$\alpha = 50$ and $\beta = 1000$.  For the initial conditions, we set
+each prey concentration to a simple polynomial profile satisfying the
+boundary conditions, while the predator concentrations are all set to
+a flat value:
+\begin{equation*}
+c^i(x,y,0) = 
+\begin{cases}
+  10 + i [16x(1 - x)y(1 - y)]^2 & i \leq p \, , \\
+  10^5                          & i > p \, .
+\end{cases}
+\end{equation*}
+
+We discretize this PDE system (\ref{e:iwebsb_PDE}) (plus boundary conditions)
+with central differencing on an $L \times L$ mesh, so as to obtain a
+DAE system of size $N = s L^2$.  The dependent variable vector $C$
+consists of the values $c^i(x_j,y_k,t)$ grouped first by species index
+$i$, then by $x$, and lastly by $y$.  At each spatial mesh point, the
+system has a block of $p$ ODE's followed by a block of $p$ algebraic
+equations, all coupled.
+%%
+For this example, we take $p = 1, s = 2$, and $L = 20$.
+
+The \id{iwebsb.c} program (listed in Appendix \ref{s:iwebsb_c})
+includes the file \id{idaband.h} in order to use the {\idaband} linear solver. 
+This file contains the prototype for the \id{IDABand} routine,
+the definition for the band matrix type \id{BandMat}, and the
+\id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
+elements. See \S\ref{ss:band} of the user guide.
+The main {\ida} header file \id{ida.h} is included for the prototypes of the
+solver user-callable functions and {\ida} constants, while the file \id{nvector\_serial.h}
+is included for the definition of the serial \id{N\_Vector} type.
+The header file \id{smalldense.h} is included for the \id{denalloc} function
+used in allocating memory for the user data structure.
+
+The include lines at the top of the file are followed by definitions of
+problem constants which include the $x$ and $y$ mesh dimensions, \id{MX} and
+\id{MY}, the number of equations \id{NEQ}, the scalar relative and absolute tolerances
+\id{RTOL} and \id{ATOL}, and various parameters for the food-web problem.
+
+Spatial discretization of the PDE naturally produces a DAE system in
+which equations are numbered by mesh coordinates $(i,j)$. The
+user-defined macro \id{IJth\_Vptr} isolates the translation for the
+mathematical two-dimensional index to the one-dimensional
+\id{N\_Vector} index and allows the user to write clean, readable code
+to access components of the dependent variable. 
+\id{IJ\_Vptr(v,i,j)} returns a pointer to the location in \id{v} corresponding to 
+the species with index \id{is} $= 0$, x-index \id{ix} $= i$, and y-index \id{jy} $= j$.
+
+The type \id{UserData} is a pointer to a structure containing problem
+data used in the \id{resweb} function.  This structure is
+allocated and initialized at the beginning of \id{main}. The pointer
+to it, called \id{webdata}, is then passed to \id{IDASetRData} and as a result 
+it will be passed back to the \id{resweb} function each time it is called.
+
+The \id{main} program is straightforward and very similar to that for \id{irobx}.
+The differences come from the use of the {\idaband} linear solver and from the
+use of the consistent initial conditions algorithm in {\ida} to correct the initial
+values. \id{IDACalcIC} is called with the option \id{IDA\_YA\_YDP\_INIT}, meaning
+that {\ida} is to compute the algebraic components of $y$ and differential  
+components of $y'$, given the differential components of $y$.  
+This option requires that the \id{N\_Vector} \id{id} be set through a call to 
+\id{IDASetId} specifying the differential and algebraic components. In this example,
+\id{id} has components equal to $1$ for the prey (indicating differential cariables)
+and $0$ for the predators (algebraic variables).
+
+Next, the \id{IDASolve} function is called in a loop over the output times
+and the solution for the species concentrations at the bottom-left and
+top-right corners is printed.
+
+Finally, the main program calls \id{PrintFinalStats} to get and print
+all of the relevant statistical quantities.  It then calls \id{NV\_Destroy\_Serial}
+to free the vectors \id{cc}, \id{cp}, and \id{id}, and \id{IDAFree} to free the 
+{\ida} memory block.
+
+The function \id{PrintFinalStats} used here is actually suitable for
+general use in applications of {\ida} to any problem with a banded
+Jacobian.  It calls various \id{IDAGet***} and \id{IDABandGet***}
+functions to obtain the relevant counters, and then prints them.
+Specifically, these are: the cumulative number of steps (\id{nst}), 
+the number of residual evaluations (\id{nre}) (excluding those for
+difference-quotient Jacobian evaluations),
+the number of residual evaluations for Jacobian evaluations (\id{nreB}),
+the number of Jacobian evaluations (\id{njeB}),
+the number of nonlinear (Newton) iterations (\id{nni}),
+the number of local error test failures (\id{netf}),
+and the number of nonlinear convergence failures (\id{ncfn}).
+These optional outputs are described in \S\ref{ss:optional_output}.
+
+The function \id{resweb} is a direct translation of the residual of (\ref{e:iwebsb_PDE}).
+It first calls the private function \id{Fweb} to initialize the residual vector
+with the right-hand side of (\ref{e:iwebsb_PDE}) and then
+it loops over all grid points, setting residual values appropriately for 
+differential or algebraic components. The calculation of the interaction terms
+$R_i$ is done in the function \id{WebRates}.
+
+
+Sample output from \id{iwebsb} follows.
+%%
+\vspace{0.1in}
+\VerbatimInput[frame=single,framesep=0.1in,label={\tt iwebsb} sample output,fontsize=\small]
+{../examples_ser/iwebsb.out}
 %%
 
 %-----------------------------------------------------------------------------------
 
 \subsection{A Krylov example: \id{iheatsk}}\label{ss:iheatsk}
 
+This example solves a discretized 2D heat PDE problem. The DAE system
+arises from the Dirichlet boundary condition $u = 0$, along with the 
+differential equations arising from the discretization of the interior 
+of the region. 
+
+The equations solved are:
+\begin{equation}\label{e:iheatsk_PDE}
+\begin{cases}
+  \frac{\partial u}{\partial t}  = u_{xx} + u_{yy}  & (x,y) \in \Omega \\
+  u = 0 & (x,y) \in \partial\Omega\, .
+\end{cases}
+\end{equation}
+Initial conditions are given by $u = 16x(1-x)y(1-y)$, where the spatial domain
+is the unit square $0 \leq x,y \leq 1$, and the time interval is 
+$0 \leq t \leq 10.24$.
+
+We discretize the PDE system (\ref{e:iheatsk_PDE}) (plus boundary conditions)
+with central differencing on a $10 \times 10$ mesh, so as to obtain a
+DAE system of size $N = 100$.  The dependent variable vector $u$
+consists of the values $u^i(x_j,y_k,t)$ grouped first by $x$, and then
+by $y$.  At each spatial boundary point, the boundary condition is coupled
+algebraically into the adjacent interior points by the central differencing
+scheme. 
+
+The source for this example is listed in appendix \ref{s:iheatsk_c}.
+In this case, \id{idaspgmr.h} is included for the definitions of
+constants and function prototypes associated with the {\spgmr} method.
+
+The program defines three user-supplied functions that will be called by the
+{\ida} solver: \id{resHeat} provides the residual of the DAE system, while
+\id{PsetupHeat} and \id{PsolveHeat} define the preconditioner to be used
+with the Krylov solver.
+
+After various initializations (including a vector of constraints with all components
+set to $0$ imposing all solution components to be non-negative), the main program
+creates and initializes the {\ida} memory block and then attaches the {\idaspgmr} linear
+solver using the default \id{MODIFIED\_GS} Gram-Scmidt orthogonalization algorithm. 
+
+The calls to \id{IDASpgmrSetPrecSetupFn} and \id{IDASpgmrSetPsolveFn} specify
+the use of the user-supplied preconditioner with \id{data} being the pointer to user data
+passed to \id{PsolveHeat} and \id{PsetupHeat} whenever they are called (specified 
+with the call to \id{IDASpgmrSetPrecData}).
+%%
+In a loop over the desired output times, \id{IDASolve} is called in \id{IDA\_NORMAL}
+mode and the maximum solution norm is printed.
+
+The \id{main} program then re-initializes the {\ida} solver and the {\idaspgmr} linear 
+solver and solves the problem again, this time using the \id{CLASSICAL\_GS} Gramm-Schmidt
+orthogonalization algorithm.
+%%
+Finally, memory for the {\ida} solver and for the various vectors used is deallocated.
+
+The user-supplied residual function \id{resHeat}, of type \id{IDAResFn}, loads the DAE
+residual with the value of $u$ on the boundary (representing the algebraic equations
+expressing the boundary conditions of (\ref{e:iheatsk_PDE})) and with the 
+spatial discretization of the PDE (using central differences) in the rest of the domain.
+
+The user-supplied functions \id{PsetupHeat} and \id{PsolveHeat} together define the 
+left preconditoner matrix $P$ approximating the system Jacobian matrix               
+$J = dF/du + \alpha*dF/du'$ (where the DAE system is $F(t,u,u') = 0$), and solve the linear   
+systems $P z = r$.   This is done in this case by keeping only the diagonal elements of 
+the $J$ matrix above, storing them as inverses in a vector \id{pp}, when computed in 
+\id{PsetupHeat}, for subsequent use in \id{PsolveHeat}.                                 
+%%
+In this instance, only \id{cj} $=\alpha$ and \id{data} (the user data structure) are 
+used from the \id{PsetupHeat} argument list.      
+
 Sample output from \id{iheatsk} follows.
 %%
+\vspace{0.1in}
 \VerbatimInput[frame=single,framesep=0.1in,label={\tt iheatsk} sample output,fontsize=\small]
 {../examples_ser/iheatsk.out}
 %%
