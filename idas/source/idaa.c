@@ -1,15 +1,18 @@
-/*******************************************************************
- * File          : idaa.c                                          *
- * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
- *-----------------------------------------------------------------*
- * This is the implementation file for the IDAA adjoint integrator.*
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-04-29 23:15:34 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California  
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/idas/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for the IDAA adjoint integrator.
+ * -----------------------------------------------------------------
+ */
 
 /*=================================================================*/
 /*BEGIN             Import Header Files                            */

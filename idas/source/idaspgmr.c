@@ -1,17 +1,19 @@
-/*******************************************************************
- * File          : idaspgmr.c                                      *
- * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 19 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
- *-----------------------------------------------------------------*
- * This is the implementation file for the IDAS Scaled             *
- * Preconditioned GMRES linear solver module, IDASPGMR.            *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.3 $
+ * $Date: 2004-04-29 23:15:34 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California  
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/idas/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for the IDAS Scaled              
+ * Preconditioned GMRES linear solver module, IDASPGMR.            
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,18 +1,19 @@
-/*******************************************************************
- * File          : idasic.c                                        *
- * Programmers   : Alan C. Hindmarsh, Radu Serban and              *
- *                 Allan G. Taylor @ LLNL                          *
- * Version of    : 18 September 2003                               *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
- *-----------------------------------------------------------------*
- * This is the implementation file for the IC calculation for IDAS.*
- * It is independent of the linear solver in use.                  *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-04-29 23:15:34 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California  
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/idas/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for the IC calculation for IDAS.
+ * It is independent of the linear solver in use.                  
+ * -----------------------------------------------------------------
+ */
 
 /*=================================================================*/
 /*BEGIN        Import Header Files                                 */

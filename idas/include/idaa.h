@@ -1,15 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-04-28 15:34:51 $
+ * $Revision: 1.7 $
+ * $Date: 2004-04-29 23:15:32 $
  * ----------------------------------------------------------------- 
- * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
- *              Radu Serban @ LLNL
+ * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * For details, see sundials/idas/LICENSE
  * -----------------------------------------------------------------
  * This is the interface file for the IDAA adjoint integrator.
  * -----------------------------------------------------------------
