@@ -252,6 +252,18 @@ void *IDACreate(void);
  *                      | for use during integration.             *
  *                      | [0.33]                                  *
  *                      |                                         * 
+ * IDASetMaxErrTestFails| Maximum number of error test failures   *
+ *                      | in attempting one step.                 *
+ *                      | [10]                                    *
+ *                      |                                         *
+ * IDASetMaxNonlinIters | Maximum number of nonlinear solver      *
+ *                      | iterations at one solution.             *
+ *                      | [4]                                     *
+ *                      |                                         *
+ * IDASetMaxConvFails   | Maximum number of allowable conv.       *
+ *                      | failures in attempting one step.        *
+ *                      | [10]                                    *
+ *                      |                                         *
  * IDASetSuppressAlg    | flag to indicate whether or not to      *
  *                      | suppress algebraic variables in the     *
  *                      | local error tests:                      *
@@ -305,7 +317,9 @@ int IDASetInitStep(void *ida_mem, realtype hin);
 int IDASetMaxStep(void *ida_mem, realtype hmax);
 int IDASetStopTime(void *ida_mem, realtype tstop);
 int IDASetNlinConvCoef(void *ida_mem, realtype epcon);
-
+int IDASetMaxErrTestFails(void *ida_mem, int maxnef);
+int IDASetMaxNonlinIters(void *ida_mem, int maxcor);
+int IDASetMaxConvFails(void *ida_mem, int maxncf);
 int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
 int IDASetID(void *ida_mem, N_Vector id);
 int IDASetConstraints(void *ida_mem, N_Vector constraints);
@@ -560,7 +574,12 @@ enum {QIDAREI_NO_MEM = -1, QIDAREI_NO_QUAD = -2, QIDAREI_ILL_INPUT = -3};
  *                      | passed to the user's resS function      *
  *                      | every time resS is called.              *
  *                      | [NULL]                                  *
- *                      |                                         *
+ *                          |                                     *
+ * IDASetSensMaxNonlinIters | Maximum number of nonlinear solver  *
+ *                          | iterations for sensitivity systems  *
+ *                          | (staggered)                         *
+ *                          | [4]                                 *
+ *                          |                                     *
  * -------------------------------------------------------------- *
  * If successful, these functions return SUCCESS. If an argument  *
  * has an illegal value, they print an error message to the       *
@@ -576,6 +595,7 @@ int IDASetSensPbar(void *ida_mem, realtype *pbar);
 int IDASetSensReltol(void *ida_mem, realtype *reltolS);
 int IDASetSensAbstol(void *ida_mem, void *abstolS);
 int IDASetSensRdata(void *ida_mem, void *rdataS);
+int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS);
 
 /*----------------------------------------------------------------*
  * Function : IDASensMalloc                                       *
@@ -1398,9 +1418,16 @@ typedef struct IDAMemRec {
     Limits
     ------*/
 
+  int ida_maxncf;        /* max numer of convergence failures                 */
+  int ida_maxcor;        /* max number of Newton corrections                  */
+  int ida_maxnef;        /* max number of error test failures                 */
+
   int ida_maxord;        /* max value of method order k:                      */
   int ida_mxstep;        /* max number of internal steps for one user call    */
   realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
+
+  int ida_maxcorS;       /* max number of Newton corrections for sensitivity
+                            systems (staggered method)                        */
 
   /*--------
     Counters
