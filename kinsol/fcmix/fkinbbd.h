@@ -121,18 +121,11 @@
  arguments.  Thus KCOMMFN can omit any communications done by KFUN
  if relevant to the evaluation of g.
 
- (4) Initialization:  FKINITMPI, FPKINMALLOC, and FKINBBDINIT0/FKINBBDINIT1.
+ (4) Initialization:  FMENVINITP , FKINMALLOC, and FKINBBDINIT0/FKINBBDINIT1.
 
- (4.1s) To initialize the serial machine environment, the user must make 
- the following call: 
-       CALL FKMENVINITS (NEQ, IER)
- The arguments are:
- NEQ     = size of vectors
- IER     = return completion flag. Values are 0 = success, -1 = failure.
-
- (4.1p) To initialize the parallel machine environment, the user must make 
+ (4.1) To initialize the parallel machine environment, the user must make 
  the following call:
-       CALL FKMENVINITP (NLOCAL, NGLOBAL, IER)
+       CALL FMENVINITP (NLOCAL, NGLOBAL, IER)
  The arguments are:
  NLOCAL  = local size of vectors on this processor
  NGLOBAL = the system size, and the global size of vectors (the sum 
@@ -202,13 +195,13 @@
  NGE    = number of g(u) evaluations (calls to KLOCFN) so far.
 
 
- (7) Memory freeing: FKBBDFREE, FKINFREE, and FKFREEMPI
+ (7) Memory freeing: FKINBBDFREE, FKINFREE, and FMENVFREEP
  To the free the internal memory created by the calls to  
- FKINBBDINIT0/FKINBBDINIT1, FKINITMPI, and FPKINMALLOC, make the 
+ FKINBBDINIT0/FKINBBDINIT1, FMENVINITP, and FKINMALLOC, make the 
  following calls, in this order:
       CALL FKINBBDFREE
       CALL FKINFREE
-      CALL FKFREEMPI
+      CALL FMENVFREEP
 
 ****************************************************************************/
 
