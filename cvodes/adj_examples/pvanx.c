@@ -32,7 +32,8 @@
  *    v(x,t=5) = 1.0                                                    *
  * Then, v(x, t=0) represents the sensitivity of g(5) with respect to   *
  * u(x, t=0) and the gradient of g(5) with respect to p1, p2 is         *
- *    dg/dp = [ - int_x v * d^2u / dx^2 *dx , - int_x v * du / dx *dx ] *
+ *    (dg/dp)^T = [  int_t int_x (v * d^2u / dx^2) dx dt ]              *
+ *                [  int_t int_x (v * du / dx) dx dt     ]              *
  *                                                                      *
  * This version uses MPI for user routines.                             *
  * Execute with Number of Processors = N,  with 1 <= N <= MX.           *
@@ -221,7 +222,7 @@ int main(int argc, char *argv[])
   uBdata = NV_DATA_P(uB);
   printf("\n (PE# %d)\n", my_pe);
   if (my_pe == npes) {
-    printf("    dgdp(t1) = [ %g  %g ]\n", uBdata[0], uBdata[1]);
+    printf("    dgdp(t1) = [ %g  %g ]\n", -uBdata[0], -uBdata[1]);
   } else {
     for (i=1; i<=local_N; i++) {
       iglobal = my_base + i;
@@ -289,10 +290,10 @@ static real Xintgr(real *z, integer l, real dx)
   real my_intgr;
   integer i;
 
-  my_intgr = z[0] + z[l-1];
+  my_intgr = 0.5*(z[0] + z[l-1]);
   for (i = 1; i < l-1; i++)
-    my_intgr += 2.0*z[i]; 
-  my_intgr *= 0.5*dx;
+    my_intgr += z[i]; 
+  my_intgr *= dx;
 
   return(my_intgr);
 }
@@ -501,7 +502,7 @@ static void fB(integer NB, real t, N_Vector u,
 
       /* Load integrands of the two space integrals */
       z1[i] = uBdata[i]*(ult - 2.0*ui + urt)/(dx*dx);
-      z2[i] = uBdata[i]*(uBrt - uBlt)/(2.0*dx);
+      z2[i] = uBdata[i]*(urt - ult)/(2.0*dx);
     }
 
     /* Compute local integrals */
