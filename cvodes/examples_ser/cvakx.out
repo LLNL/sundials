@@ -1,40 +1,55 @@
-Allocate CVODE memory for forward run
+llocate CVODE memory for forward run
 
 Allocate global memory
 
 Forward integration
 
-   G = int_t int_x int_y c6(t,x,y) dx dy dt = 422296.195712 
+   G = int_t int_x int_y c6(t,x,y) dx dy dt = 422295.840567
 
 
-List of Check Points (ncheck = 5)
+List of Check Points (ncheck = 8)
+Check point 8
+  address   8538390
+  t0        8.954906
+  t1        10.011853
+  next      8525530
+Check point 7
+  address   8525530
+  t0        7.303428
+  t1        8.954906
+  next      85126d0
+Check point 6
+  address   85126d0
+  t0        5.651949
+  t1        7.303428
+  next      84ff870
 Check point 5
-  address   4da448
-  t0        4.267907
-  t1        10.000000
-  next      4cc170
+  address   84ff870
+  t0        4.000470
+  t1        5.651949
+  next      84eca10
 Check point 4
-  address   4cc170
-  t0        1.345606
-  t1        4.267907
-  next      4b9360
+  address   84eca10
+  t0        2.348991
+  t1        4.000470
+  next      84d9bb0
 Check point 3
-  address   4b9360
-  t0        0.583955
-  t1        1.345606
-  next      4a1a68
+  address   84d9bb0
+  t0        0.689793
+  t1        2.348991
+  next      84c2220
 Check point 2
-  address   4a1a68
+  address   84c2220
   t0        0.163578
-  t1        0.583955
-  next      485660
+  t1        0.689793
+  next      84a5d60
 Check point 1
-  address   485660
+  address   84a5d60
   t0        0.000046
   t1        0.163578
-  next      bc9e0
+  next      80d84e0
 Check point 0
-  address   bc9e0
+  address   80d84e0
   t0        0.000000
   t1        0.000046
   next      0
@@ -45,9 +60,9 @@ Backward integration
 
 Lambda(0,x,y) written to file cvakx.lambda
 
-  int_x int_y lambda1(0,x,y) dx dy = 930.587145 
-  int_x int_y lambda2(0,x,y) dx dy = 905.789322 
-  int_x int_y lambda3(0,x,y) dx dy = 882.422801 
-  int_x int_y lambda4(0,x,y) dx dy = -0.002465 
-  int_x int_y lambda5(0,x,y) dx dy = -0.002399 
-  int_x int_y lambda6(0,x,y) dx dy = 0.161745 
+  int_x int_y lambda1(0,x,y) dx dy = 930.073
+  int_x int_y lambda2(0,x,y) dx dy = 905.274
+  int_x int_y lambda3(0,x,y) dx dy = 881.907
+  int_x int_y lambda4(0,x,y) dx dy = 4.50812e-09
+  int_x int_y lambda5(0,x,y) dx dy = 4.42946e-09
+  int_x int_y lambda6(0,x,y) dx dy = -2.91428e-07

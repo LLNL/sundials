@@ -2,7 +2,7 @@
  *                                                                      *
  * File       : pvanx.c                                                 *
  * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 23 September 2002                                       *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -77,8 +77,8 @@ static realtype Xintgr(realtype *z, integertype l, realtype dx);
 static realtype Compute_g(N_Vector u, UserData data);
 
 /* Functions Called by the CVODES Solver */
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
-static void fB(integertype NB, realtype t, N_Vector u, 
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void fB(realtype t, N_Vector u, 
                N_Vector uB, N_Vector uBdot, void *f_dataB);
 
 
@@ -153,11 +153,11 @@ int main(int argc, char *argv[])
   abstol = ATOL;
 
   /* Allocate and initialize forward variables */
-  u = N_VNew(NEQ, machEnvF);
+  u = N_VNew(machEnvF);
   SetIC(u, dx, local_N, my_base);
 
   /* Allocate CVODES memory for forward integration */
-  cvode_mem = CVodeMalloc(NEQ, f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
                           &abstol, data, NULL, FALSE, iopt, ropt, machEnvF);
   if (cvode_mem == NULL) {
     if(my_pe == 0) printf("CVodeMalloc failed.\n"); 
@@ -200,11 +200,11 @@ int main(int argc, char *argv[])
   }
 
   /* Allocate and initialize backward variables */
-  uB = N_VNew(NEQ+NP, machEnvB);
+  uB = N_VNew(machEnvB);
   SetICback(uB, my_base);
 
   /* Allocate CVODES memory for the backward integration */
-  flag = CVodeMallocB(cvadj_mem, NEQ+NP, fB, TOUT, uB, ADAMS, FUNCTIONAL, SS, &reltol, 
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, ADAMS, FUNCTIONAL, SS, &reltol, 
                       &abstol, data, NULL, FALSE, NULL, NULL, machEnvB);
   if (flag != SUCCESS) { 
     if(my_pe == 0) printf("CVodeMallocB failed, flag=%d.\n", flag);
@@ -333,7 +333,7 @@ static realtype Compute_g(N_Vector u, UserData data)
 /***************** Function Called by the CVODE Solver ******************/
 
 /* f routine. Compute f(t,u) for forward phase. */
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype uLeft, uRight, ui, ult, urt;
   realtype hordc, horac, hdiff, hadv;
@@ -399,7 +399,7 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
 }
 
 /* fB routine. Compute right hand side of backward problem */
-static void fB(integertype NB, realtype t, N_Vector u, 
+static void fB(realtype t, N_Vector u, 
                N_Vector uB, N_Vector uBdot, void *f_dataB)
 {
   realtype *uBdata, *duBdata, *udata, *zB;

@@ -1,7 +1,7 @@
 /************************************************************************
  * File       : cvabx.c                                                 *
  * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 23 September 2002                                       *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Adjoint sensitivity example problem.                                 *
  * The following is a simple example problem with a banded Jacobian,    *
@@ -90,21 +90,18 @@ static void WriteLambda(N_Vector uB);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
-                void *f_data, realtype t, N_Vector u, N_Vector fu, N_Vector ewt,
-                realtype h, realtype uround, void *jac_data, long int *nfePtr,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
+static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
+                realtype t, N_Vector u, N_Vector fu, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
 
-static void fB(integertype NB, realtype tB, N_Vector u, 
-               N_Vector uB, N_Vector uBdot, void *f_dataB);
+static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *f_dataB);
 
-static void JacB(integertype NB, integertype muB, integertype mlB, BandMat JB, RhsFnB fB,
-                 void *f_dataB, realtype tB, N_Vector u, 
-                 N_Vector uB, N_Vector fuB, N_Vector ewtB,
-                 realtype hB, realtype uroundB, void *jac_dataB, long int *nfePtrB,
-                 N_Vector vtemp1B, N_Vector vtemp2B, N_Vector vtemp3B); 
+static void JacB(integertype NB, integertype muB, integertype mlB, BandMat JB,
+                 realtype tB, N_Vector u, 
+                 N_Vector uB, N_Vector fuB, void *jac_dataB,
+                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B); 
 
 
 /***************************** Main Program ******************************/
@@ -151,18 +148,18 @@ int main(int argc, char *argv[])
   abstol = ATOL;
 
   /* Allocate u vector */
-  u = N_VNew(NEQ, machEnvF);
+  u = N_VNew(machEnvF);
   /* Initialize u vector */
   SetIC(u, data);
 
   /* Allocate CVODE memory for forward run */
   printf("\nAllocate CVODE memory for forward runs\n");
-  cvode_mem = CVodeMalloc(NEQ, f, T0, u, BDF, NEWTON, SS, &reltol, &abstol,
+  cvode_mem = CVodeMalloc(f, T0, u, BDF, NEWTON, SS, &reltol, &abstol,
                           data, NULL, FALSE, iopt, ropt, machEnvF);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
 
   /* Call CVBand with  bandwidths ml = mu = MY, */
-  flag = CVBand(cvode_mem, MY, MY, Jac, data);
+  flag = CVBand(cvode_mem, NEQ, MY, MY, Jac, data);
   if (flag != SUCCESS) { printf("CVBand failed.\n"); return(1); }
 
   /*------------------------*/
@@ -197,16 +194,16 @@ int main(int argc, char *argv[])
   abstolB = ATOL;
 
   /* Allocate uB */
-  uB = N_VNew(NEQ, machEnvB);
+  uB = N_VNew(machEnvB);
   /* Initialize uB = 0 */
   N_VConst(0.0, uB);
 
   /* Allocate CVODE memory for backward run */
   printf("\nAllocate CVODE memory for backward run\n");
-  flag = CVodeMallocB(cvadj_mem, NEQ, fB, TOUT, uB, BDF, NEWTON, SS, 
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, BDF, NEWTON, SS, 
                       &reltolB, &abstolB, data, NULL, 
                       FALSE, NULL, NULL, machEnvB);
-  flag = CVBandB(cvadj_mem, MY, MY, JacB, data);
+  flag = CVBandB(cvadj_mem, NEQ, MY, MY, JacB, data);
   if (flag != SUCCESS) { printf("CVBandB failed.\n"); return(1); }
 
   /*----------------------*/
@@ -283,7 +280,7 @@ static void SetIC(N_Vector u, UserData data)
 
 /* f routine. Compute f(t,u). */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
   realtype *udata, *dudata;
@@ -327,10 +324,9 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
 
 /* Jacobian routine. Compute J(t,u). */
 
-static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
-		 void *f_data, realtype t, N_Vector u, N_Vector fu, N_Vector ewt,
-		 realtype h, realtype uround, void *jac_data, long int *nfePtr,
-		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
+                realtype t, N_Vector u, N_Vector fu, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   integertype i, j, k;
   realtype *kthCol, hordc, horac, verdc;
@@ -369,8 +365,8 @@ static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn 
 
 /********** Functions Called by the backward CVODE Solver ****************/
 
-static void fB(integertype NB, realtype tB, N_Vector u, 
-               N_Vector uB, N_Vector uBdot, void *f_dataB)
+static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, 
+               void *f_dataB)
 {
   UserData data;
   realtype *uBdata, *duBdata;
@@ -413,11 +409,10 @@ static void fB(integertype NB, realtype tB, N_Vector u,
   }
 }
 
-static void JacB(integertype NB, integertype muB, integertype mlB, BandMat JB, RhsFnB fB,
-                 void *f_dataB, realtype tB, N_Vector u, 
-                 N_Vector uB, N_Vector fuB, N_Vector ewtB,
-                 realtype hB, realtype uroundB, void *jac_dataB, long int *nfePtrB,
-                 N_Vector vtemp1B, N_Vector vtemp2B, N_Vector vtemp3B)
+static void JacB(integertype NB, integertype muB, integertype mlB, BandMat JB,
+                 realtype tB, N_Vector u, 
+                 N_Vector uB, N_Vector fuB, void *jac_dataB,
+                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   integertype i, j, k;
   realtype *kthCol, hordc, horac, verdc;

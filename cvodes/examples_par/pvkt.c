@@ -1,8 +1,9 @@
 /************************************************************************
  *                                                                      *
  * File: pvkt.c                                                         *
- * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman @ LLNL      *
- * Version of 22 October 2002 (R. Serban)                               *
+ * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and        *
+ *              Radu Serban @ LLNL                                      *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Parallel CVODES test problem.                                        *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -170,14 +171,14 @@ static void BRecvWait(MPI_Request request[], integertype isubx, integertype isub
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu, booleantype jok,
+static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
                    realtype uround, long int *nfePtr, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int PSolve(integertype N, realtype tn, N_Vector u, N_Vector fu, N_Vector vtemp,
+static int PSolve(realtype tn, N_Vector u, N_Vector fu, N_Vector vtemp,
                   realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
                   N_Vector r, int lr, void *P_data, N_Vector z);
 
@@ -240,13 +241,12 @@ main(int argc, char *argv[])
 
   /* Allocate u, and set initial values and tolerances */
 
-  u = N_VNew(neq, machEnv);
+  u = N_VNew(machEnv);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
 /* Call CVodeMalloc to initialize CVODE:
 
-     neq     is the problem size = number of equations
      f       is the user's right hand side function in u'=f(t,u)
      T0      is the initial time
      u       is the initial dependent variable vector
@@ -260,7 +260,7 @@ main(int argc, char *argv[])
 
      A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
 
-  cvode_mem = CVodeMalloc(neq, f, T0, u, BDF, NEWTON, SS, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, u, BDF, NEWTON, SS, &reltol,
                           &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
 
@@ -745,7 +745,7 @@ static void BRecvWait(MPI_Request request[], integertype isubx, integertype isub
 
 /* f routine. Compute f(t,y). */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
@@ -911,7 +911,7 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu, booleantype jok,
+static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
                    realtype uround, long int *nfePtr, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -1011,7 +1011,7 @@ static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu, booleant
 
 /* Preconditioner solve routine */
 
-static int PSolve(integertype N, realtype tn, N_Vector u, N_Vector fu, N_Vector vtemp,
+static int PSolve(realtype tn, N_Vector u, N_Vector fu, N_Vector vtemp,
                   realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
                   N_Vector r, int lr, void *P_data, N_Vector z)
 {

@@ -3,7 +3,7 @@
  * File       : cvfnx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne, and *
  *              Radu Serban @ LLNL                                      *
- * Version of : 25 March 2003                                           *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -76,7 +76,7 @@ typedef struct {
 /* Private Helper Functions */
 
 static void WrongArgs(char *argv[]);
-static void SetIC(N_Vector u, realtype dx, integertype N);
+static void SetIC(N_Vector u, realtype dx);
 static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
 static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
@@ -84,7 +84,7 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con,
 
 /* Functions Called by the CVODES Solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -150,15 +150,15 @@ int main(int argc, char *argv[])
   data->p[1] = 0.5;
 
   /* INITIAL STATES */
-  u = N_VNew(NEQ, machEnv);    /* Allocate u vector */
-  SetIC(u, dx, NEQ);           /* Initialize u vector */
+  u = N_VNew(machEnv);    /* Allocate u vector */
+  SetIC(u, dx);           /* Initialize u vector */
 
   /* TOLERANCES */
   reltol = 0.0;                /* Set the tolerances */
   abstol = ATOL;
 
   /* CVODE_MALLOC */
-  cvode_mem = CVodeMalloc(NEQ, f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
                           &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { 
     printf("CVodeMalloc failed.\n");
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 
-    uS = N_VNew_S(NS, NEQ, machEnv);
+    uS = N_VNew_S(NS, machEnv);
     for(is=0;is<NS;is++)
       N_VConst(0.0, uS[is]);
 
@@ -246,7 +246,7 @@ static void WrongArgs(char *argv[])
 /* ======================================================================= */
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, realtype dx, integertype N)
+static void SetIC(N_Vector u, realtype dx)
 {
   int i;
   realtype x;
@@ -256,7 +256,7 @@ static void SetIC(N_Vector u, realtype dx, integertype N)
   udata = NV_DATA_S(u);
 
   /* Load initial profile into u vector */
-  for (i=0; i<N; i++) {
+  for (i=0; i<NEQ; i++) {
     x = (i+1)*dx;
     udata[i] = x*(XMAX - x)*exp(2.0*x);
   }  
@@ -331,7 +331,7 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con,
 /* ======================================================================= */
 /* f routine. Compute f(t,u). */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype dx;
@@ -349,7 +349,7 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
   horac = data->p[1]/(2.0*dx);
 
   /* Loop over all grid points. */
-  for (i=0; i<N; i++) {
+  for (i=0; i<NEQ; i++) {
 
     /* Extract u at x_i and two neighboring points */
     ui = udata[i];
@@ -357,7 +357,7 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
       ult = udata[i-1];
     else
       ult = 0.0;
-    if(i!=N-1)
+    if(i!=NEQ-1)
       urt = udata[i+1];
     else
       urt = 0.0;

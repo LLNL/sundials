@@ -2,7 +2,7 @@
  *                                                                       *
  * File       : cvakxb.c                                                 *
  * Programmers: Radu Serban @ LLNL                                       *
- * Version of : 23 September 2002                                        * 
+ * Version of : 30 March 2003                                            * 
  *-----------------------------------------------------------------------*
  *                                                                       *
  * This program solves a stiff ODE system that arises from a system      *
@@ -175,7 +175,7 @@ static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype
                       realtype rate[], realtype rateB[], WebData wdata);
 static void fblock (realtype t, realtype cdata[], int jx, int jy, realtype cdotdata[],
                     WebData wdata);
-static void GSIter(int N, realtype gamma, N_Vector z, N_Vector x, WebData wdata);
+static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata);
 static realtype doubleIntgr(N_Vector c, int i, WebData wdata);
 
 /* Small Vector Kernels */
@@ -188,26 +188,26 @@ static void v_zero(realtype u[], int n);
 
 /* Functions Called By The CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static int Precond(integertype N, realtype tn, N_Vector c, N_Vector fc,
+static int Precond(realtype tn, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
                    realtype uround, long int *nfePtr, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int PSolve(integertype N, realtype tn, N_Vector c, N_Vector fc,
+static int PSolve(realtype tn, N_Vector c, N_Vector fc,
                   N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
                   long int *nfePtr, N_Vector r, int lr, void *P_data,
                   N_Vector z);
 
-static void fB(integertype N, realtype t, N_Vector c, N_Vector cB, N_Vector cBdot, void *f_data);
+static void fB(realtype t, N_Vector c, N_Vector cB, N_Vector cBdot, void *f_data);
 
-static int PrecondB(integertype N, realtype t, N_Vector c, N_Vector cB, N_Vector fcB, 
+static int PrecondB(realtype t, N_Vector c, N_Vector cB, N_Vector fcB, 
                     booleantype jok, booleantype *jcurPtr, realtype gamma, N_Vector rewt, realtype h,
                     realtype uround, long int *nfePtr, void *P_data,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int PSolveB(integertype N, realtype tn, N_Vector c, N_Vector cB, N_Vector fcB, 
+static int PSolveB(realtype tn, N_Vector c, N_Vector cB, N_Vector fcB, 
                    N_Vector vtemp, realtype gamma, N_Vector rewt, realtype delta, 
                    long int *nfePtr, N_Vector r, int lr, void *P_data, N_Vector z);     
 
@@ -256,13 +256,13 @@ int main(int argc, char *argv[])
   machEnvF = M_EnvInit_Serial(NEQ);
 
   /* Initializations */
-  c = N_VNew(NEQ, machEnvF);
+  c = N_VNew(machEnvF);
   CInit(c, wdata);
   PrintAllSpecies(outfile,c,NS,MXNS);
 
   /* Call CVodeMalloc for forward run */
   printf("\nAllocate CVODE memory for forward run\n");
-  cvode_mem = CVodeMalloc(NEQ, f, T0, c, LMM, ITER, ITOL, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, c, LMM, ITER, ITOL, &reltol,
                           &abstol, wdata, ERRFP, OPTIN, iopt, ropt, machEnvF);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
   
@@ -305,13 +305,13 @@ int main(int argc, char *argv[])
   machEnvB = M_EnvInit_Serial(NEQ);
 
   /* Allocate cB */
-  cB = N_VNew(NEQ, machEnvB);
+  cB = N_VNew(machEnvB);
   /* Initialize cB */
   CbInit(cB, ISPEC, wdata);
 
   /* Allocate CVODE memory for backward run */
   printf("\nAllocate CVODE memory for backward run\n");
-  flag = CVodeMallocB(cvadj_mem, NEQ, fB, TOUT, cB, LMM, ITER, ITOL, 
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, LMM, ITER, ITOL, 
                       &reltolB, &abstolB, wdata, ERRFP, 
                       FALSE, ioptB, roptB, machEnvB);
   if (flag != SUCCESS) { printf("CVodeMallocB failed."); return(1); }
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
   PrintAllSpecies(outfile,cB,NS,MXNS);
   printf("\nMu(0,x,y) written to file cvakxb.mu\n\n");
   for ( iout=1 ; iout <= NS ; iout++ )
-    printf("  int_x int_y mu%d(0,x,y) dx dy = %f \n",iout,doubleIntgr(cB,iout,wdata));
+    printf("  int_x int_y mu%d(0,x,y) dx dy = %g \n",iout,doubleIntgr(cB,iout,wdata));
 
   /* Close file */
   fclose(outfile);
@@ -588,7 +588,7 @@ static void FreeUserData(WebData wdata)
  returns it in cdot. The interaction rates are computed by calls to WebRates,
  and these are saved in fsave for use in preconditioning.
 */
-static void f(integertype N, realtype t, N_Vector c, N_Vector cdot, void *f_data)
+static void f(realtype t, N_Vector c, N_Vector cdot, void *f_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
   realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
@@ -679,7 +679,7 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
  of a block-diagonal preconditioner. The blocks are of size mp, and
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */ 
-static int Precond(integertype N, realtype t, N_Vector c, N_Vector fc, booleantype jok,
+static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, N_Vector rewt, realtype h,
                    realtype uround, long int *nfePtr, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -715,7 +715,7 @@ static int Precond(integertype N, realtype t, N_Vector c, N_Vector fc, booleanty
   f1 = NV_DATA_S(vtemp1);
 
   fac = N_VWrmsNorm (fc, rewt);
-  r0 = 1000.0*ABS(gamma)*uround*N*fac;
+  r0 = 1000.0*ABS(gamma)*uround*NEQ*fac;
   if (r0 == 0.0) r0 = 1.0;
 
   for (igy = 0; igy < ngy; igy++) {
@@ -782,7 +782,7 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
  Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
  blocks in P, and pivot information in pivot, and returns the result in z.
 */
-static int PSolve(integertype N, realtype tn, N_Vector c, N_Vector fc, N_Vector vtemp,
+static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector vtemp,
                   realtype gamma, N_Vector rewt, realtype delta, long int *nfePtr,
                   N_Vector r, int lr, void *P_data, N_Vector z)
 {
@@ -797,7 +797,7 @@ static int PSolve(integertype N, realtype tn, N_Vector c, N_Vector fc, N_Vector 
 
   /* call GSIter for Gauss-Seidel iterations */
 
-  GSIter(N, gamma, z, vtemp, wdata);
+  GSIter(gamma, z, vtemp, wdata);
 
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
  
@@ -833,7 +833,7 @@ static int PSolve(integertype N, realtype tn, N_Vector c, N_Vector fc, N_Vector 
  Some inner loops of length ns are implemented with the small
  vector kernels v_sum_prods, v_prod, v_inc_by_prod.
 */
-static void GSIter(int N, realtype gamma, N_Vector z, N_Vector x, WebData wdata)
+static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
 {
   int i, ic, iter, iyoff, jx, jy, ns, mxns, mx, my, x_loc, y_loc;
   realtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
@@ -1017,7 +1017,7 @@ static void v_zero(realtype u[], int n)
  and these are saved in fsave for use in preconditioning. The adjoint 
  interaction rates are computed by calls to WebRatesB.
 */
-static void fB(integertype N, realtype t, N_Vector c, N_Vector cB, 
+static void fB(realtype t, N_Vector c, N_Vector cB, 
                N_Vector cBdot, void *f_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
@@ -1101,7 +1101,7 @@ static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype
 }
 
 
-static int PrecondB(integertype N, realtype t, N_Vector c, N_Vector cB, N_Vector fcB, 
+static int PrecondB(realtype t, N_Vector c, N_Vector cB, N_Vector fcB, 
                     booleantype jok, booleantype *jcurPtr, realtype gamma, N_Vector rewt, realtype h,
                     realtype uround, long int *nfePtr, void *P_data,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -1137,7 +1137,7 @@ static int PrecondB(integertype N, realtype t, N_Vector c, N_Vector cB, N_Vector
   f1 = NV_DATA_S(vtemp1);
 
   fac = N_VWrmsNorm (fcB, rewt);
-  r0 = 1000.0*ABS(gamma)*uround*N*fac;
+  r0 = 1000.0*ABS(gamma)*uround*NEQ*fac;
   if (r0 == 0.0) r0 = 1.0;
 
   for (igy = 0; igy < ngy; igy++) {
@@ -1177,7 +1177,7 @@ static int PrecondB(integertype N, realtype t, N_Vector c, N_Vector cB, N_Vector
 }
 
 
-static int PSolveB(integertype N, realtype tn, N_Vector c, N_Vector cB, N_Vector fcB, 
+static int PSolveB(realtype tn, N_Vector c, N_Vector cB, N_Vector fcB, 
                    N_Vector vtemp, realtype gamma, N_Vector rewt, realtype delta, 
                    long int *nfePtr, N_Vector r, int lr, void *P_data, N_Vector z)
 {
@@ -1192,7 +1192,7 @@ static int PSolveB(integertype N, realtype tn, N_Vector c, N_Vector cB, N_Vector
 
   /* call GSIter for Gauss-Seidel iterations (same routine but with gamma=-gamma) */
 
-  GSIter(N, -gamma, z, vtemp, wdata);
+  GSIter(-gamma, z, vtemp, wdata);
 
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
  

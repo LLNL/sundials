@@ -3,7 +3,7 @@
  * File       : pvfnx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne, and *
  *              Radu Serban @ LLNL                                      *
- * Version of : 25 March 2003                                           *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -93,7 +93,7 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con,
 
 /* Functions Called by the PVODES Solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
   if (machEnv == NULL) return(1);
 
   /* INITIAL STATES */
-  u = N_VNew(NEQ, machEnv);          /* Allocate u vector */
+  u = N_VNew(machEnv);          /* Allocate u vector */
   SetIC(u, dx, local_N, my_base);    /* Initialize u vector */
 
   /* TOLERANCES */
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
   abstol = ATOL;
 
   /* CVODE_MALLOC */
-  cvode_mem = CVodeMalloc(NEQ, f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
                           &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { 
     if (my_pe == 0) printf("CVodeMalloc failed.\n"); 
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 
-    uS = N_VNew_S(NS, NEQ, machEnv);
+    uS = N_VNew_S(NS, machEnv);
     for(is=0;is<NS;is++)
       N_VConst(0.0,uS[is]);
 
@@ -387,7 +387,7 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con,
 /* ======================================================================= */
 /* f routine. Compute f(t,u). */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;

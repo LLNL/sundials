@@ -3,7 +3,7 @@
  * File       : cvfkx.c                                                 *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh and                *
  *              Radu Serban @ LLNL                                      *
- * Version of : 25 March 2003                                           *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -143,14 +143,14 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, long
 
 /* Functions Called by the CVODES Solver */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static int Precond(integertype N, realtype tn, N_Vector y, N_Vector fy, booleantype jok,
+static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
                    realtype uround, long int *nfePtr, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int PSolve(integertype N, realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
+static int PSolve(realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
                   realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
                   N_Vector r, int lr, void *P_data, N_Vector z);
 
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
   InitUserData(data);
 
   /* INITIAL STATES */
-  y = N_VNew(NEQ, machEnv);
+  y = N_VNew(machEnv);
   SetInitialProfiles(y, data->dx, data->dz);
   
   /* TOLERANCES */
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
   iopt[MXSTEP] = 2000;
 
   /* CVODE_MALLOC */
-  cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SS, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, y, BDF, NEWTON, SS, &reltol,
                           &abstol, data, NULL, TRUE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { 
     printf("CVodeMalloc failed."); 
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
     plist = (integertype *) malloc(NS * sizeof(integertype));
     for(is=0; is<NS; is++) plist[is] = is+1;
 
-    uS = N_VNew_S(NS, NEQ, machEnv);
+    uS = N_VNew_S(NS, machEnv);
     for(is=0;is<NS;is++)
       N_VConst(ZERO,uS[is]);
 
@@ -515,7 +515,7 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, long
 /* ======================================================================= */
 /* f routine. Compute f(t,y). */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;
@@ -618,7 +618,7 @@ static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data
 /* ======================================================================= */
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(integertype N, realtype tn, N_Vector y, N_Vector fy, booleantype jok,
+static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
                    realtype uround, long int *nfePtr, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -719,7 +719,7 @@ static int Precond(integertype N, realtype tn, N_Vector y, N_Vector fy, booleant
 /* ======================================================================= */
 /* Preconditioner solve routine */
 
-static int PSolve(integertype N, realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
+static int PSolve(realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
                   realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
                   N_Vector r, int lr, void *P_data, N_Vector z)
 {

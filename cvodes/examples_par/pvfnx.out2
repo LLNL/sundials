@@ -1,3 +1,4 @@
+
  1-D advection-diffusion equation, mesh size = 10 
 
  Number of PEs =   4 
@@ -13,12 +14,12 @@
 1.000e+00  4  6.920e-03   191
                                 Solution         8.7532e-01 
                                 Sensitivity 1    2.1743e+00 
-                                Sensitivity 2    1.8910e-01 
+                                Sensitivity 2    1.8909e-01 
 ------------------------------------------------------------
-1.500e+00  2  9.864e-03   267
+1.500e+00  2  9.863e-03   267
                                 Solution         2.4950e-01 
                                 Sensitivity 1    9.1826e-01 
-                                Sensitivity 2    7.3921e-02 
+                                Sensitivity 2    7.3922e-02 
 ------------------------------------------------------------
 2.000e+00  2  4.222e-03   381
                                 Solution         7.1100e-02 
@@ -33,38 +34,38 @@
 3.000e+00  2  4.220e-03   618
                                 Solution         5.7741e-03 
                                 Sensitivity 1    4.1958e-02 
-                                Sensitivity 2    3.4558e-03 
+                                Sensitivity 2    3.4559e-03 
 ------------------------------------------------------------
 3.500e+00  2  4.220e-03   737
                                 Solution         1.6455e-03 
                                 Sensitivity 1    1.3925e-02 
-                                Sensitivity 2    1.1669e-03 
+                                Sensitivity 2    1.1671e-03 
 ------------------------------------------------------------
 4.000e+00  2  4.220e-03   855
                                 Solution         4.6893e-04 
                                 Sensitivity 1    4.5287e-03 
-                                Sensitivity 2    3.8633e-04 
+                                Sensitivity 2    3.8639e-04 
 ------------------------------------------------------------
 4.500e+00  2  4.220e-03   974
                                 Solution         1.3361e-04 
                                 Sensitivity 1    1.4496e-03 
-                                Sensitivity 2    1.2562e-04 
+                                Sensitivity 2    1.2544e-04 
 ------------------------------------------------------------
 5.000e+00  2  4.220e-03  1092
                                 Solution         3.8072e-05 
                                 Sensitivity 1    4.5855e-04 
-                                Sensitivity 2    4.0189e-05 
+                                Sensitivity 2    4.0115e-05 
 ------------------------------------------------------------
 
 
 ========================================================
 Final Statistics
-Sensitivity: YES ( STAGGERED1 + PARTIAL ERROR CONTROL )
+Sensitivity: YES ( STAGGERED + PARTIAL ERROR CONTROL )
 
 nst     =  1092                
 
-nfe     = 12479    nfSe  =  4628  
-nni     =  1717    nniS  =  4626  
+nfe     = 16679    nfSe  =  3364  
+nni     =  1717    nniS  =  3363  
 ncfn    =     5    ncfnS =   411  
 netf    =     5    netfS =     0
 

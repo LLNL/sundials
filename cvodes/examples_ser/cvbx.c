@@ -1,10 +1,7 @@
 /************************************************************************
- *                                                                      *
  * File        : cvbx.c                                                 *
- * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL            *
- * Version of  : 26 June 2002                                           *
- *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial nvector (5/3/2002)     *
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
+ * Version of : 31 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem with a banded Jacobian,    *
@@ -33,14 +30,14 @@
 
 /* CVODE header files with a description of contents used in cvbx.c */
 
-#include "sundialstypes.h"  /* definitions of realtype, integertype              */
-#include "cvodes.h"         /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
-                            /* constants OPT_SIZE, BDF, NEWTON, SS, SUCCESS,     */
-                            /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
-#include "cvsband.h"        /* prototype for CVBand, constant BAND_NJE           */
-#include "nvector_serial.h" /* definitions of type N_Vector and macro NV_DATA_S, */
-                            /* prototypes for N_VNew, N_VFree, N_VMaxNorm        */
-#include "band.h"           /* definitions of type BandMat, macros               */
+#include "sundialstypes.h"  /* definitions of realtype, integertype           */
+#include "cvodes.h"         /* prototypes for CVodeMalloc, CVode, CVodeFree,  */
+                            /* constants OPT_SIZE, BDF, NEWTON, SS, SUCCESS,  */
+                            /* NST, NFE, NSETUPS, NNI, NCFN, NETF             */
+#include "cvsband.h"        /* prototype for CVBand, constant BAND_NJE        */
+#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S, */
+                            /* prototypes for N_VNew, N_VFree, N_VMaxNorm     */
+#include "band.h"           /* definitions of type BandMat, macros            */
 
 
 /* Problem Constants */
@@ -86,12 +83,11 @@ static void PrintFinalStats(long int iopt[]);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
-                void *f_data, realtype t, N_Vector u, N_Vector fu, N_Vector ewt,
-                realtype h, realtype uround, void *jac_data, long int *nfePtr,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
+static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
+                realtype t, N_Vector u, N_Vector fu, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
 
 
 /***************************** Main Program ******************************/
@@ -109,9 +105,9 @@ int main()
   /* Initialize serial machine environment */
   machEnv = M_EnvInit_Serial(NEQ);
 
-  u = N_VNew(NEQ, machEnv);    /* Allocate u vector */
+  u = N_VNew(machEnv);    /* Allocate u vector */
 
-  reltol = 0.0;                /* Set the tolerances */
+  reltol = 0.0;           /* Set the tolerances */
   abstol = ATOL;
 
   data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
@@ -125,7 +121,6 @@ int main()
 
   /* Call CVodeMalloc to initialize CVODE: 
 
-     NEQ     is the problem size = number of equations
      f       is the user's right hand side function in u'=f(t,u)
      T0      is the initial time
      u       is the initial dependent variable vector
@@ -139,7 +134,7 @@ int main()
 
      A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
 
-  cvode_mem = CVodeMalloc(NEQ, f, T0, u, BDF, NEWTON, SS, &reltol, &abstol,
+  cvode_mem = CVodeMalloc(f, T0, u, BDF, NEWTON, SS, &reltol, &abstol,
                           data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
 
@@ -147,7 +142,7 @@ int main()
      user-supplied Jacobian routine Jac, bandwidths ml = mu = MY,
      and the pointer to the user-defined block data. */
 
-  flag = CVBand(cvode_mem, MY, MY, Jac, data);
+  flag = CVBand(cvode_mem, NEQ, MY, MY, Jac, data);
   if (flag != SUCCESS) { printf("CVBand failed.\n"); return(1); }
 
   /* In loop over output points, call CVode, print results, test for error */
@@ -221,7 +216,7 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,u). */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(realtype t, N_Vector u,N_Vector udot, void *f_data)
 {
   realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
   realtype *udata, *dudata;
@@ -265,10 +260,9 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
 
 /* Jacobian routine. Compute J(t,u). */
 
-static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
-                void *f_data, realtype t, N_Vector u, N_Vector fu, N_Vector ewt,
-                realtype h, realtype uround, void *jac_data, long int *nfePtr,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
+                realtype t, N_Vector u, N_Vector fu, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   integertype i, j, k;
   realtype *kthCol, hordc, horac, verdc;
@@ -304,4 +298,3 @@ static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn 
     }
   }
 }
- 

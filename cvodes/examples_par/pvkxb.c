@@ -1,10 +1,8 @@
 /************************************************************************
- *                                                                      *
  * File       : pvkxb.c                                                 *
- * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman @ LLNL      *
- * Version of : 25 March 2003                                           *
- *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new parallel nvector (7/3/2002)   *
+ * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and        *
+ *              Radu Serban  @LLNL                                      *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -43,21 +41,21 @@
  * Performance data and sampled solution values are printed at selected *
  * output times, and all performance counters are printed on completion.*
  *                                                                      *
- * This version uses MPI for user routines, and the MPI_CVODE solver.   *   
+ * This version uses MPI for user routines, and the CVODE solver.       *   
  * Execute with number of processors = NPEX*NPEY (see constants below). *
  ************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h" /* definitions of realtype, integertype              */ 
-#include "cvodes.h"        /* main CVODE header file                            */
-#include "iterativ.h"      /* contains the enum for types of preconditioning    */
-#include "cvsspgmr.h"      /* use CVSPGMR linear solver                         */
-#include "cvsbbdpre.h"     /* band preconditioner function prototypes           */
-#include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P  */
-#include "sundialsmath.h"  /* contains SQR macro                                */
-#include "mpi.h"           /* MPI data types and prototypes                     */
+#include "sundialstypes.h" /* definitions of realtype, integertype            */
+#include "cvodes.h"        /* main CVODE header file                          */
+#include "iterativ.h"      /* contains the enum for types of preconditioning  */
+#include "cvsspgmr.h"      /* use CVSPGMR linear solver                       */
+#include "cvsbbdpre.h"     /* band preconditioner function prototypes         */
+#include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P*/
+#include "sundialsmath.h"  /* contains SQR macro                              */
+#include "mpi.h"           /* MPI data types and prototypes                   */
 
 
 /* Problem Constants */
@@ -111,40 +109,42 @@ typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
   integertype my_pe, isubx, isuby, nvmxsub, nvmxsub2;
+  integertype Nlocal;
   MPI_Comm comm;
 } *UserData;
 
 
 /* Prototypes of private helper functions */
 
-static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
+static void InitUserData(int my_pe, integertype local_N, MPI_Comm comm, UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
 static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[],
                         realtype ropt[], N_Vector u, realtype t);
 static void PrintFinalStats(long int iopt[]);
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, integertype isuby,
-                  integertype dsizex, integertype dsizey, realtype uarray[]);
+static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
+                  integertype isuby, integertype dsizex, integertype dsizey,
+                  realtype uarray[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
 		      integertype isubx, integertype isuby,
 		      integertype dsizex, integertype dsizey,
 		      realtype uext[], realtype buffer[]);
-static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
-		      integertype dsizex, realtype uext[], realtype buffer[]);
+static void BRecvWait(MPI_Request request[], integertype isubx,
+		      integertype isuby, integertype dsizex, realtype uext[],
+                      realtype buffer[]);
 
-static void fucomm(integertype N, realtype t, N_Vector u, void *f_data);
+static void fucomm(realtype t, N_Vector u, void *f_data);
 
 
 /* Prototype of function called by the CVODE solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 
 /* Prototype of functions called by the CVBBDPRE module */
 
-static void flocal(integertype N, realtype t, realtype uarray[], realtype duarray[], 
-                    void *f_data);
+static void flocal(integertype Nlocal, realtype t, realtype uarray[], realtype duarray[],  void *f_data);
 
-static void ucomm(integertype N, realtype t, N_Vector u, void *f_data);
+static void ucomm(integertype Nlocal, realtype t, N_Vector u, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -186,16 +186,15 @@ int main(int argc, char *argv[])
 
   /* Allocate and load user data block */
   data = (UserData) malloc(sizeof *data);
-  InitUserData(my_pe, comm, data);
+  InitUserData(my_pe, local_N, comm, data);
 
   /* Allocate and initialize u, and set tolerances */ 
-  u = N_VNew(neq, machEnv);
+  u = N_VNew(machEnv);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
 /* Call CVodeMalloc to initialize CVODE: 
 
-     neq     is the problem size = number of equations
      f       is the user's right hand side function in u'=f(t,u)
      T0      is the initial time
      u       is the initial dependent variable vector
@@ -210,7 +209,7 @@ int main(int argc, char *argv[])
 
      A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
 
-  cvode_mem = CVodeMalloc(neq, f, T0, u, BDF, NEWTON, SS, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, u, BDF, NEWTON, SS, &reltol,
                           &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
 
@@ -237,10 +236,10 @@ int main(int argc, char *argv[])
     printf("2-species diurnal advection-diffusion problem\n");
     printf("  %d by %d mesh on %d processors\n",MX,MY,npes);
     printf("  Using CVBBDPRE preconditioner module\n");
-    printf("    Difference-quotient half-bandwidths are mudq = %ld,  mldq = %ld\n",
-           mudq, mldq);
-    printf("    Retained band block half-bandwidths are mukeep = %ld,  mlkeep = %ld",
-           mukeep, mlkeep); 
+    printf("    Difference-quotient half-bandwidths are");
+    printf(" mudq = %ld,  mldq = %ld\n", mudq, mldq);
+    printf("    Retained band block half-bandwidths are");
+    printf(" mukeep = %ld,  mlkeep = %ld", mukeep, mlkeep); 
 
   }
 
@@ -314,7 +313,7 @@ int main(int argc, char *argv[])
 
 /* Load constants in data */
 
-static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
+static void InitUserData(int my_pe, integertype local_N, MPI_Comm comm, UserData data)
 {
   integertype isubx, isuby;
 
@@ -329,6 +328,7 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   /* Set machine-related constants */
   data->comm = comm;
   data->my_pe = my_pe;
+  data->Nlocal = local_N;
   /* isubx and isuby are the PE grid indices corresponding to my_pe */
   isuby = my_pe/NPEX;
   isubx = my_pe - isuby*NPEX;
@@ -433,8 +433,9 @@ static void PrintFinalStats(long int iopt[])
  
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, integertype isuby,
-                  integertype dsizex, integertype dsizey, realtype uarray[])
+static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
+                  integertype isuby, integertype dsizex, integertype dsizey,
+                  realtype uarray[])
 {
   int i, ly;
   integertype offsetu, offsetbuf;
@@ -527,8 +528,9 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
-		      integertype dsizex, realtype uext[], realtype buffer[])
+static void BRecvWait(MPI_Request request[], integertype isubx,
+		      integertype isuby, integertype dsizex, realtype uext[],
+                      realtype buffer[])
 {
   int i, ly;
   integertype dsizex2, offsetue, offsetbuf;
@@ -576,7 +578,7 @@ static void BRecvWait(MPI_Request request[], integertype isubx, integertype isub
 /* fucomm routine.  This routine performs all inter-processor
    communication of data in u needed to calculate f.         */
 
-static void fucomm(integertype N, realtype t, N_Vector u, void *f_data)
+static void fucomm(realtype t, N_Vector u, void *f_data)
 {
 
   UserData data;
@@ -617,7 +619,7 @@ static void fucomm(integertype N, realtype t, N_Vector u, void *f_data)
 /* f routine.  Evaluate f(t,y).  First call fucomm to do communication of 
    subgrid boundary data into uext.  Then calculate f by a call to flocal. */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
 {
   realtype *uarray, *duarray;
   UserData data;
@@ -629,11 +631,11 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
 
   /* Call fucomm to do inter-processor communication */
 
-  fucomm (N, t, u, data);
+  fucomm (t, u, data);
 
   /* Call flocal to calculate all right-hand sides */
 
-  flocal (N, t, uarray, duarray, data);
+  flocal (data->Nlocal, t, uarray, duarray, data);
 
 }
 
@@ -644,8 +646,8 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
    inter-processor communication of data needed to calculate f has already
    been done, and this data is in the work array uext.                    */
 
-static void flocal(integertype N, realtype t, realtype uarray[], realtype duarray[],
-                   void *f_data)
+static void flocal(integertype Nlocal, realtype t, realtype uarray[],
+                   realtype duarray[], void *f_data)
 {
   realtype *uext;
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
@@ -788,6 +790,6 @@ static void flocal(integertype N, realtype t, realtype uarray[], realtype duarra
 /* ucomm routine.  This routine is empty, as communication needed
    to evaluate flocal has been done in prior call to f */
 
-static void ucomm(integertype N, realtype t, N_Vector u, void *f_data)
+static void ucomm(integertype Nlocal, realtype t, N_Vector u, void *f_data)
 {
 }

@@ -1,9 +1,7 @@
 /************************************************************************
  * File: cvkx.c                                                         *
- * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 26 June 2002                                              *
- *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial nvector (27/2/2002)    *
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -31,13 +29,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definitions of realtype, integertype            */
-#include "cvodes.h"         /* main CVODE header file                          */
-#include "iterativ.h"       /* contains the enum for types of preconditioning  */
-#include "cvsspgmr.h"       /* use CVSPGMR linear solver each internal step    */
-#include "smalldense.h"     /* use generic DENSE solver for preconditioning    */
-#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S   */
-#include "sundialsmath.h"   /* contains SQR macro                              */
+#include "sundialstypes.h"  /* definitions of realtype, integertype           */
+#include "cvodes.h"         /* main CVODE header file                         */
+#include "iterativ.h"       /* contains the enum for types of preconditioning */
+#include "cvsspgmr.h"       /* use CVSPGMR linear solver each internal step   */
+#include "smalldense.h"     /* use generic DENSE solver for preconditioning   */
+#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S  */
+#include "sundialsmath.h"   /* contains SQR macro                             */
 
 
 /* Problem Constants */
@@ -122,21 +120,24 @@ static UserData AllocUserData(void);
 static void InitUserData(UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
-static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y, realtype t);
+static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y,
+                        realtype t);
 static void PrintFinalStats(long int iopt[]);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static int Precond(integertype N, realtype tn, N_Vector y, N_Vector fy, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
-                   realtype uround, long int *nfePtr, void *P_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+static int Precond(realtype tn, N_Vector y, N_Vector fy,
+                   booleantype jok, booleantype *jcurPtr, realtype gamma,
+                   N_Vector ewt, realtype h, realtype uround, long int *nfePtr,
+                   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   N_Vector vtemp3);
 
-static int PSolve(integertype N, realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
-                  realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
-                  N_Vector r, int lr, void *P_data, N_Vector z);
+static int PSolve(realtype tn, N_Vector y, N_Vector fy,
+                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
+                  long int *nfePtr, N_Vector r, int lr, void *P_data,
+                  N_Vector z);
 
 
 /***************************** Main Program ******************************/
@@ -156,7 +157,7 @@ int main()
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
 
-  y = N_VNew(NEQ, machEnv);
+  y = N_VNew(machEnv);
   data = AllocUserData();
   InitUserData(data);
   SetInitialProfiles(y, data->dx, data->dz);
@@ -164,7 +165,6 @@ int main()
 
   /* Call CVodeMalloc to initialize CVODE: 
 
-     NEQ     is the problem size = number of equations
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      y       is the initial dependent variable vector
@@ -178,7 +178,7 @@ int main()
 
      A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
 
-  cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SS, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, y, BDF, NEWTON, SS, &reltol,
                           &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
 
@@ -295,18 +295,19 @@ static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y, realtype t)
+static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y,realtype t)
 {
   realtype *ydata;
+  int mxh = MX/2 - 1, mzh = MZ/2 - 1, mx1 = MX - 1, mz1 = MZ - 1;
 
   ydata = NV_DATA_S(y);
 
   printf("t = %.2e   no. steps = %ld   order = %ld   stepsize = %.2e\n",
          t, iopt[NST], iopt[QU], ropt[HU]);
   printf("c1 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n",
-         IJKth(ydata,1,0,0), IJKth(ydata,1,4,4), IJKth(ydata,1,9,9));
+         IJKth(ydata,1,0,0), IJKth(ydata,1,mxh,mzh), IJKth(ydata,1,mx1,mz1));
   printf("c2 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n\n",
-         IJKth(ydata,2,0,0), IJKth(ydata,2,4,4), IJKth(ydata,2,9,9));
+         IJKth(ydata,2,0,0), IJKth(ydata,2,mxh,mzh), IJKth(ydata,2,mx1,mz1));
 }
 
 /* Print final statistics contained in iopt */
@@ -328,7 +329,7 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,y). */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static void f(realtype t, N_Vector y,N_Vector ydot, void *f_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;
@@ -414,14 +415,16 @@ static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data
       IJKth(dydata, 2, jx, jz) = vertd2 + hord2 + horad2 + rkin2;
     }
   }
+
 }
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(integertype N, realtype tn, N_Vector y, N_Vector fy, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
-                   realtype uround, long int *nfePtr, void *P_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static int Precond(realtype tn, N_Vector y, N_Vector fy,
+                   booleantype jok, booleantype *jcurPtr, realtype gamma,
+                   N_Vector ewt, realtype h, realtype uround, long int *nfePtr,
+                   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   N_Vector vtemp3)
 {
   realtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
   realtype **(*P)[MZ], **(*Jbd)[MZ];
@@ -508,9 +511,9 @@ static int Precond(integertype N, realtype tn, N_Vector y, N_Vector fy, booleant
 
 /* Preconditioner solve routine */
 
-static int PSolve(integertype N, realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
-                  realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
-                  N_Vector r, int lr, void *P_data, N_Vector z)
+static int PSolve(realtype tn, N_Vector y, N_Vector fy,
+                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
+                  long int *nfePtr, N_Vector r, int lr, void *P_data,N_Vector z)
 {
   realtype **(*P)[MZ];
   integertype *(*pivot)[MZ];
@@ -539,4 +542,3 @@ static int PSolve(integertype N, realtype tn, N_Vector y, N_Vector fy, N_Vector 
 
   return(0);
 }
- 
