@@ -84,8 +84,8 @@ static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector resp, N_Vector tempv1,
                          N_Vector tempv2, N_Vector tempv3);
 
-static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
-                         N_Vector ypnow, N_Vector rnow);
+static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
+                         N_Vector ynow, N_Vector ypnow, N_Vector rnow);
 
 static int IDASpgmrPerf(IDAMem IDA_mem, int perftask);
 
@@ -808,7 +808,7 @@ static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
  This routine handles the call to the generic SPGMR solver SpgmrSolve
  for the solution of the linear system Ax = b.
 
- The x-scaling and b-scaling arrays are both equal to ewt.
+ The x-scaling and b-scaling arrays are both equal to weight.
 
  We set the initial guess, x = 0, then call SpgmrSolve.  
  We copy the solution x into b, and update the counters nli, nps, ncfl.
@@ -818,8 +818,8 @@ static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
 **********************************************************************/
 
-static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
-                         N_Vector ypnow, N_Vector rnow)
+static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
+                         N_Vector ynow, N_Vector ypnow, N_Vector rnow)
 {
   IDASpgmrMem idaspgmr_mem;
   int pretype, nli_inc, nps_inc, retval;
@@ -845,7 +845,7 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
   
   /* Call SpgmrSolve and copy xx to bb. */
   retval = SpgmrSolve(spgmr_mem, IDA_mem, xx, bb, pretype, gstype, epslin,
-                      maxrs, IDA_mem, ewt, ewt, IDASpgmrAtimes,
+                      maxrs, IDA_mem, weight, weight, IDASpgmrAtimes,
                       IDASpgmrPSolve, &res_norm, &nli_inc, &nps_inc);
 
   if (nli_inc == 0) N_VScale(ONE, SPGMR_VTEMP(spgmr_mem), bb);

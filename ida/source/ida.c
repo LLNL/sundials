@@ -2369,7 +2369,7 @@ static int IDANewtonIC (IDAMem IDA_mem)
   delnew = phi[2];
 
   /* Call the linear solve function to get the Newton step, delta. */
-  retval = lsolve (IDA_mem, delta, y0, yp0, savres);
+  retval = lsolve(IDA_mem, delta, ewt, y0, yp0, savres);
   if(retval < 0) return(SOLVE_FAILURE);
   if(retval > 0) return(IC_FAIL_RECOV);
 
@@ -2532,7 +2532,7 @@ static int IDAfnorm (IDAMem IDA_mem, realtype *fnorm)
   N_VScale (ONE, delnew, savres);
 
   /* Call the linear solve function to get J-inverse F; return if failed. */
-  retval = lsolve (IDA_mem, delnew, ynew, ypnew, savres);
+  retval = lsolve(IDA_mem, delnew, ewt, ynew, ypnew, savres);
   if(retval < 0) return(SOLVE_FAILURE);
   if(retval > 0) return(IC_FAIL_RECOV);
 
@@ -3396,7 +3396,7 @@ static int IDANewtonIter(IDAMem IDA_mem)
     N_VScale(ONE, delta, savres);
 
     /* Call the lsolve function to get correction vector delta. */
-    retval = lsolve(IDA_mem, delta, yy, yp, savres); 
+    retval = lsolve(IDA_mem, delta, ewt, yy, yp, savres); 
     nni++;
     if (retval != SUCCESS) break;
 

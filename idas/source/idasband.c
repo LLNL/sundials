@@ -60,11 +60,8 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                         N_Vector resp, N_Vector tempv1,
                         N_Vector tempv2, N_Vector tempv3);
 
-static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                        N_Vector ypcur, N_Vector rescur);
-
-static int IDABandSolveS(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                         N_Vector ypcur, N_Vector rescur, int is);
+static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
+                        N_Vector ycur, N_Vector ypcur, N_Vector rescur);
 
 static int IDABandFree(IDAMem IDA_mem);
 
@@ -90,7 +87,6 @@ static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
 #define linit       (IDA_mem->ida_linit)
 #define lsetup      (IDA_mem->ida_lsetup)
 #define lsolve      (IDA_mem->ida_lsolve)
-#define lsolveS     (IDA_mem->ida_lsolveS)
 #define lperf       (IDA_mem->ida_lperf)
 #define lfree       (IDA_mem->ida_lfree)
 #define lmem        (IDA_mem->ida_lmem)
@@ -161,11 +157,10 @@ int IDABand(void *ida_mem, integertype Neq,
 
   if (lfree != NULL) flag = lfree(ida_mem);
 
-  /* Set six main function fields in ida_mem. */
+  /* Set five main function fields in ida_mem. */
   linit   = IDABandInit;
   lsetup  = IDABandSetup;
   lsolve  = IDABandSolve;
-  lsolveS = IDABandSolveS;
   lperf   = NULL;
   lfree   = IDABandFree;
 
@@ -437,38 +432,8 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
 **********************************************************************/
 
-static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                        N_Vector ypcur, N_Vector rescur)
-{
-  IDABandMem idaband_mem;
-  realtype *bd;
-
-  idaband_mem = (IDABandMem) lmem;
-  
-  bd = N_VGetData(b);
-  BandBacksolve(JJ, pivots, bd);
-  N_VSetData(bd, b);
-
-  /* Scale the correction to account for change in cj. */
-  if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
-
-  return(SUCCESS);
-}
-
-/*************** IDABandSolveS ***************************************
-
- This routine handles the solve operation for the IDABAND linear
- solver module for sensitivity variables.  
- It calls the band backsolve routine, scales the solution vector 
- according to cjratio, then returns SUCCESS = 0.
-
- NOTE: As for any direct linear solvers, this routine is identical to 
- IDABandSolve (except for the additional argument is)
-
-**********************************************************************/
-
-static int IDABandSolveS(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                         N_Vector ypcur, N_Vector rescur, int is)
+static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
+                        N_Vector ycur, N_Vector ypcur, N_Vector rescur)
 {
   IDABandMem idaband_mem;
   realtype *bd;

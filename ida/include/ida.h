@@ -901,8 +901,8 @@ typedef struct IDAMemRec {
                     N_Vector ypp, N_Vector resp, 
                     N_Vector tempv1, N_Vector tempv2, N_Vector tempv3); 
 
-  int (*ida_lsolve)(struct IDAMemRec *idamem, N_Vector b, N_Vector ycur,
-                    N_Vector ypcur, N_Vector rescur);
+  int (*ida_lsolve)(struct IDAMemRec *idamem, N_Vector b, N_Vector weight,
+                    N_Vector ycur, N_Vector ypcur, N_Vector rescur);
 
   int (*ida_lperf)(struct IDAMemRec *idamem, int perftask);
 
@@ -1018,8 +1018,8 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
 
 /*******************************************************************
  *                                                                 *
- * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector ycur,    *
- *                 NPVector ypcur, N_Vector rescur);               *
+ * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector weight,  *
+ *               N_Vector ycur, N_Vector ypcur, N_Vector rescur);  *
  *-----------------------------------------------------------------*
  * ida_lsolve must solve the linear equation P x = b, where        *
  * P is some approximation to the system Jacobian                  *

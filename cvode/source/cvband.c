@@ -61,8 +61,8 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3);
 
-static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                       N_Vector fcur);
+static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                       N_Vector ycur, N_Vector fcur);
 
 static void CVBandFree(CVodeMem cv_mem);
 
@@ -117,7 +117,7 @@ static void CVBandDQJac(integertype n, integertype mupper,
  fields specific to the band linear solver module.  CVBand first calls
  the existing lfree routine if this is not NULL.  It then sets the
  cv_linit, cv_lsetup, cv_lsolve, and cv_lfree fields in (*cvode_mem)
- to be CVBandInit, CVBandSetup, CVBandSolve, CVBandSolveS, and CVBandFree,
+ to be CVBandInit, CVBandSetup, CVBandSolve, and CVBandFree,
  respectively.  It allocates memory for a structure of type
  CVBandMemRec and sets the cv_lmem field in (*cvode_mem) to the
  address of this structure.  It sets setupNonNull in (*cvode_mem) to be
@@ -457,8 +457,8 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
 **********************************************************************/
 
-static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                       N_Vector fcur)
+static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                       N_Vector ycur, N_Vector fcur)
 {
   CVBandMem cvband_mem;
   realtype *bd;

@@ -61,8 +61,8 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                         N_Vector resp, N_Vector tempv1,
                         N_Vector tempv2, N_Vector tempv3);
 
-static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                        N_Vector ypcur, N_Vector rescur);
+static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
+                        N_Vector ycur, N_Vector ypcur, N_Vector rescur);
 
 static int IDABandFree(IDAMem IDA_mem);
 
@@ -437,8 +437,8 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
 **********************************************************************/
 
-static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                        N_Vector ypcur, N_Vector rescur)
+static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
+                        N_Vector ycur, N_Vector ypcur, N_Vector rescur)
 {
   IDABandMem idaband_mem;
   realtype *bd;

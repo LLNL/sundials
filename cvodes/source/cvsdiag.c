@@ -39,7 +39,7 @@
 #define FRACT RCONST(0.1)
 #define ONE   RCONST(1.0)
 
-/* CVDIAG linit, lsetup, lsolve, lsolveS, and lfree routines */
+/* CVDIAG linit, lsetup, lsolve, and lfree routines */
 
 static int CVDiagInit(CVodeMem cv_mem);
 
@@ -47,11 +47,8 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3);
 
-static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                       N_Vector fcur);
-
-static int CVDiagSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                        N_Vector fcur, int is);
+static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                       N_Vector ycur, N_Vector fcur);
 
 static void CVDiagFree(CVodeMem cv_mem);
 
@@ -74,7 +71,6 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define linit     (cv_mem->cv_linit)
 #define lsetup    (cv_mem->cv_lsetup)
 #define lsolve    (cv_mem->cv_lsolve)
-#define lsolveS   (cv_mem->cv_lsolveS)
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
 #define nvspec    (cv_mem->cv_nvspec)
@@ -91,8 +87,8 @@ static void CVDiagFree(CVodeMem cv_mem);
  This routine initializes the memory record and sets various function
  fields specific to the diagonal linear solver module.  CVDense first
  calls the existing lfree routine if this is not NULL.  Then it sets
- the cv_linit, cv_lsetup, cv_lsolve, cv_lsolveS, cv_lfree fields in (*cvode_mem)
- to be CVDiagInit, CVDiagSetup, CVDiagSolve, CVDiagSolveS, and CVDiagFree,
+ the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
+ to be CVDiagInit, CVDiagSetup, CVDiagSolve, and CVDiagFree,
  respectively.  It allocates memory for a structure of type
  CVDiagMemRec and sets the cv_lmem field in (*cvode_mem) to the
  address of this structure.  It sets setupNonNull in (*cvode_mem) to
@@ -119,7 +115,6 @@ int CVDiag(void *cvode_mem)
   linit  = CVDiagInit;
   lsetup = CVDiagSetup;
   lsolve = CVDiagSolve;
-  lsolveS= CVDiagSolveS;
   lfree  = CVDiagFree;
 
   /* Get memory for CVDiagMemRec */
@@ -299,47 +294,8 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
 **********************************************************************/
 
-static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                       N_Vector fcur)
-{
-  booleantype invOK;
-  realtype r;
-  CVDiagMem cvdiag_mem;
-
-  cvdiag_mem = (CVDiagMem) lmem;
-  
-  /* If gamma has changed, update factor in M, and save gamma value */
-
-  if (gammasv != gamma) {
-    r = gamma / gammasv;
-    N_VInv(M, M);
-    N_VAddConst(M, -ONE, M);
-    N_VScale(r, M, M);
-    N_VAddConst(M, ONE, M);
-    invOK = N_VInvTest(M, M);
-    if (!invOK) return (1);
-
-    gammasv = gamma;
-  }
-
-  /* Apply M-inverse to b */
-  N_VProd(b, M, b);
-  return(0);
-}
-
-/*************** CVDiagSolveS *****************************************
-
- This routine performs the solve operation for the diagonal linear
- solver for sensitivities.  
- If necessary it first updates gamma in M = I - gamma*J.
-
- NOTE: As for any direct linear solvers, this routine is identical to 
- CVDenseSolve (except for the additional argument is) 
-
-**********************************************************************/
-
-static int CVDiagSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                        N_Vector fcur, int is)
+static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                       N_Vector ycur, N_Vector fcur)
 {
   booleantype invOK;
   realtype r;

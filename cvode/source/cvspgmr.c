@@ -67,8 +67,8 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                         N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                         N_Vector vtemp2, N_Vector vtemp3);
 
-static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                        N_Vector fcur);
+static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                        N_Vector ynow, N_Vector fnow);
 
 static void CVSpgmrFree(CVodeMem cv_mem);
 
@@ -137,7 +137,7 @@ static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
  fields specific to the Spgmr linear solver module. CVSpgmr first
  calls the existing lfree routine if this is not NULL.  It then sets
  the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
- to be CVSpgmrInit, CVSpgmrSetup, CVSpgmrSolve, CVSpgmrSolveS, and CVSpgmrFree,
+ to be CVSpgmrInit, CVSpgmrSetup, CVSpgmrSolve, and CVSpgmrFree,
  respectively.  It allocates memory for a structure of type
  CVSpgmrMemRec and sets the cv_lmem field in (*cvode_mem) to the
  address of this structure.  It sets setupNonNull in (*cvode_mem),
@@ -780,8 +780,8 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
 **********************************************************************/
 
-static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ynow,
-                        N_Vector fnow)
+static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                        N_Vector ynow, N_Vector fnow)
 {
   realtype bnorm, res_norm;
   CVSpgmrMem cvspgmr_mem;
@@ -792,7 +792,7 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ynow,
   /* Test norm(b); if small, return x = 0 or x = b */
   deltar = delt*tq[4]; 
 
-  bnorm = N_VWrmsNorm(b, ewt);
+  bnorm = N_VWrmsNorm(b, weight);
   if (bnorm <= deltar) {
     if (mnewt > 0) N_VConst(ZERO, b); 
     return(0);
@@ -808,7 +808,7 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ynow,
   
   /* Call SpgmrSolve and copy x to b */
   ier = SpgmrSolve(spgmr_mem, cv_mem, x, b, pretype, gstype, delta, 0,
-                   cv_mem, ewt, ewt, CVSpgmrAtimes, CVSpgmrPSolve,
+                   cv_mem, weight, weight, CVSpgmrAtimes, CVSpgmrPSolve,
                    &res_norm, &nli_inc, &nps_inc);
 
   N_VScale(ONE, x, b);

@@ -52,11 +52,8 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector resp, N_Vector tempv1,
                          N_Vector tempv2, N_Vector tempv3);
 
-static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                         N_Vector ypcur, N_Vector rescur);
-
-static int IDADenseSolveS(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                          N_Vector ypcur, N_Vector rescur, int is);
+static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
+                         N_Vector ycur, N_Vector ypcur, N_Vector rescur);
 
 static int IDADenseFree(IDAMem IDA_mem);
 
@@ -81,7 +78,6 @@ static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
 #define linit        (IDA_mem->ida_linit)
 #define lsetup       (IDA_mem->ida_lsetup)
 #define lsolve       (IDA_mem->ida_lsolve)
-#define lsolveS      (IDA_mem->ida_lsolveS)
 #define lperf        (IDA_mem->ida_lperf)
 #define lfree        (IDA_mem->ida_lfree)
 #define lmem         (IDA_mem->ida_lmem)
@@ -148,11 +144,10 @@ int IDADense(void *ida_mem, integertype Neq)
 
   if (lfree != NULL) flag = lfree(IDA_mem);
 
-  /* Set six main function fields in IDA_mem. */
+  /* Set five main function fields in IDA_mem. */
   linit   = IDADenseInit;
   lsetup  = IDADenseSetup;
   lsolve  = IDADenseSolve;
-  lsolveS = IDADenseSolveS;
   lperf   = NULL;
   lfree   = IDADenseFree;
 
@@ -414,38 +409,8 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
 **********************************************************************/
 
-static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                         N_Vector ypcur, N_Vector rescur)
-{
-  IDADenseMem idadense_mem;
-  realtype *bd;
-  
-  idadense_mem = (IDADenseMem) lmem;
-  
-  bd = N_VGetData(b);
-  DenseBacksolve(JJ, pivots, bd);
-  N_VSetData(bd, b);
-
-  /* Scale the correction to account for change in cj. */
-  if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
-
-  return(SUCCESS);
-}
-
-/*************** IDADenseSolveS ***************************************
-
- This routine handles the solve operation for the IDADENSE linear
- solver module for sensitivity variables.  
- It calls the dense backsolve routine, scales the solution vector 
- according to cjratio, then returns SUCCESS = 0.
-
- NOTE: As for any direct linear solvers, this routine is identical to 
- IDADenseSolve (except for the additional argument is)
-
-**********************************************************************/
-
-static int IDADenseSolveS(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                          N_Vector ypcur, N_Vector rescur, int is)
+static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
+                         N_Vector ycur, N_Vector ypcur, N_Vector rescur)
 {
   IDADenseMem idadense_mem;
   realtype *bd;

@@ -367,7 +367,6 @@ void CVDenseCSJac(integertype N, DenseMat J, realtype t,
   realtype *ydata_im;
   integertype j;
 
-
   /* jac_data points to cvode_mem */
   cv_mem = (CVodeMem) jac_data;
   cvcs_mem = (CVCSMem) csmem;
@@ -393,6 +392,7 @@ void CVDenseCSJac(integertype N, DenseMat J, realtype t,
     DENSE_COL(J,j) = N_VGetData(jthCol);
     ydata_im[j] = ZERO;
   }
+
 
   N_VDispose(jthCol);
 

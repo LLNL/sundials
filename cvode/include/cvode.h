@@ -761,8 +761,8 @@ typedef struct CVodeMemRec {
                    N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                    N_Vector vtemp2, N_Vector vtemp3); 
 
-  int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector ycur,
-                   N_Vector fcur);
+  int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector weight,
+                   N_Vector ycur, N_Vector fcur);
 
   void (*cv_lfree)(struct CVodeMemRec *cv_mem);
 

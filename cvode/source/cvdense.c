@@ -55,8 +55,8 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                         N_Vector fpred, booleantype *jcurPtr, 
                         N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                        N_Vector fcur);
+static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                        N_Vector ycur, N_Vector fcur);
 
 static void CVDenseFree(CVodeMem cv_mem);
 
@@ -105,7 +105,7 @@ static void CVDenseDQJac(integertype n, DenseMat J, realtype t,
  fields specific to the dense linear solver module.  CVDense first
  calls the existing lfree routine if this is not NULL.  Then it sets
  the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
- to be CVDenseInit, CVDenseSetup, CVDenseSolve, CVDenseSolveS, and CVDenseFree,
+ to be CVDenseInit, CVDenseSetup, CVDenseSolve, and CVDenseFree,
  respectively.  It allocates memory for a structure of type
  CVDenseMemRec and sets the cv_lmem field in (*cvode_mem) to the
  address of this structure.  It sets setupNonNull in (*cvode_mem) to
@@ -426,8 +426,8 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
 **********************************************************************/
 
-static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                        N_Vector fcur)
+static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                        N_Vector ycur, N_Vector fcur)
 {
   CVDenseMem cvdense_mem;
   realtype *bd;

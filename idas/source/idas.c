@@ -282,8 +282,6 @@
 
 #define MSG_LSOLVE_NULL     IDAIS "The linear solver's solve routine is NULL.\n\n"
 
-#define MSG_LSOLVES_NULL    IDAIS "The linear solver's solveS routine is NULL.\n\n"
-
 #define MSG_LFREE_NULL      IDAIS "The linear solver's free routine is NULL.\n\n"
 
 #define MSG_LINIT_FAIL      IDAIS "The linear solver's init routine failed.\n\n"
@@ -1354,7 +1352,6 @@ int IDASensReInit(void *ida_mem, int ism,
 #define ncfnS        (IDA_mem->ida_ncfnS)
 #define netfS        (IDA_mem->ida_netfS)
 #define nsetupsS     (IDA_mem->ida_nsetupsS)
-#define lsolveS      (IDA_mem->ida_lsolveS) 
 #define abstolSalloc (IDA_mem->ida_abstolSalloc)
 #define stgr1alloc   (IDA_mem->ida_stgr1alloc)
 
@@ -2412,10 +2409,6 @@ int IDAInitialSetup(IDAMem IDA_mem)
   }
   if (lsolve == NULL) {
     fprintf(errfp, MSG_LSOLVE_NULL);
-    return(ILL_INPUT);
-  }
-  if (sensi && (lsolveS == NULL)) {
-    fprintf(errfp, MSG_LSOLVES_NULL);
     return(ILL_INPUT);
   }
   if (lfree == NULL) {
@@ -3655,12 +3648,12 @@ static int IDANewtonIter(IDAMem IDA_mem)
     N_VScale(ONE, delta, savres);
 
     /* Call the lsolve function to get correction vector delta. */
-    retval = lsolve(IDA_mem, delta, yy, yp, savres);
+    retval = lsolve(IDA_mem, delta, ewt, yy, yp, savres);
     if (retval != SUCCESS) return(retval);
 
     if (sensi_sim) {
       for(is=0;is<Ns;is++) {
-        retval = lsolveS(IDA_mem, deltaS[is], yy, yp, savres, is);
+        retval = lsolve(IDA_mem, deltaS[is], ewtS[is], yy, yp, savres);
         if(retval != SUCCESS) return(retval);
       }
     }
@@ -3753,7 +3746,7 @@ static int IDAStgrNewtonIter(IDAMem IDA_mem)
 
     for(is=0;is<Ns;is++) {
 
-      retval = lsolveS(IDA_mem, deltaS[is], yy, yp, delta, is);
+      retval = lsolve(IDA_mem, deltaS[is], ewtS[is], yy, yp, delta);
       if(retval != SUCCESS) return(retval);
 
       N_VLinearSum(ONE, eeS[is], -ONE, deltaS[is], eeS[is]);
@@ -3821,7 +3814,7 @@ static int IDAStgr1NewtonIter(IDAMem IDA_mem, int is)
     nniS++;
     nniS1[is]++;
 
-    retval = lsolveS(IDA_mem, deltaS1, yy, yp, delta, is);
+    retval = lsolve(IDA_mem, deltaS1, ewtS[is], yy, yp, delta);
     if(retval != SUCCESS) return(retval);
 
     N_VLinearSum(ONE, eeS[is], -ONE, deltaS1, eeS[is]);

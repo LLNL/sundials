@@ -81,11 +81,8 @@ static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector resp, N_Vector tempv1,
                          N_Vector tempv2, N_Vector tempv3);
 
-static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
-                         N_Vector ypnow, N_Vector rnow);
-
-static int IDASpgmrSolveS(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
-                          N_Vector ypnow, N_Vector rnow, int is);
+static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
+                         N_Vector ynow, N_Vector ypnow, N_Vector rnow);
 
 static int IDASpgmrPerf(IDAMem IDA_mem, int perftask);
 
@@ -122,7 +119,6 @@ static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define linit   (IDA_mem->ida_linit)
 #define lsetup  (IDA_mem->ida_lsetup)
 #define lsolve  (IDA_mem->ida_lsolve)
-#define lsolveS (IDA_mem->ida_lsolveS)
 #define lperf   (IDA_mem->ida_lperf)
 #define lfree   (IDA_mem->ida_lfree)
 #define lmem    (IDA_mem->ida_lmem)
@@ -206,11 +202,10 @@ int IDASpgmr(void *ida_mem, int maxl)
 
   if (lfree != NULL) flag = lfree(ida_mem);
 
-  /* Set six main function fields in ida_mem */
+  /* Set five main function fields in ida_mem */
   linit   = IDASpgmrInit;
   lsetup  = IDASpgmrSetup;
   lsolve  = IDASpgmrSolve;
-  lsolveS = IDASpgmrSolveS;
   lperf   = IDASpgmrPerf;
   lfree   = IDASpgmrFree;
 
@@ -820,8 +815,8 @@ static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
 **********************************************************************/
 
-static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
-                         N_Vector ypnow, N_Vector rnow)
+static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
+                         N_Vector ynow, N_Vector ypnow, N_Vector rnow)
 {
   IDASpgmrMem idaspgmr_mem;
   int pretype, nli_inc, nps_inc, retval;
@@ -850,7 +845,7 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
   /* Call SpgmrSolve and copy xx to bb. */
 
   retval = SpgmrSolve(spgmr_mem, IDA_mem, xx, bb, pretype, gstype, epslin,
-                      maxrs, IDA_mem, ewt, ewt, IDASpgmrAtimes,
+                      maxrs, IDA_mem, weight, weight, IDASpgmrAtimes,
                       IDASpgmrPSolve, &res_norm, &nli_inc, &nps_inc);
 
   if (nli_inc == 0) N_VScale(ONE, SPGMR_VTEMP(spgmr_mem), bb);
@@ -865,74 +860,6 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
 
   /* If not successful, increment ncfl and return appropriate flag. */
 
-  ncfl++;
-
-  if (retval > 0)   return(LSOLVE_ERROR_RECVR);
-  if (retval != -2) return(LSOLVE_ERROR_NONRECVR);
-  if (resflag > 0)  return(LSOLVE_ERROR_RECVR);
-  return(LSOLVE_ERROR_NONRECVR);
-
-}
-
-/*************** IDASpgmrSolveS ***************************************
-
- This routine handles the call to the generic SPGMR solver SpgmrSolve
- for the solution of the linear system Ax = b for sensitivity variables.
-
- The x-scaling and b-scaling arrays are both equal to ewtS[is].
- NOTE: This is where IDASpgmrSolveS differs from IDASpgmrSolve.
-
- We set the initial guess, x = 0, then call SpgmrSolve.  
- We copy the solution x into b, and update the counters nli, nps, ncfl.
- If SpgmrSolve returned nli_inc = 0 (hence x = 0), we take the SPGMR
- vtemp vector (= P_inverse F) as the correction vector instead.
- Finally, we set the return value according to the success of SpgmrSolve.
-
-**********************************************************************/
-
-static int IDASpgmrSolveS(IDAMem IDA_mem, N_Vector bb, N_Vector ynow,
-                          N_Vector ypnow, N_Vector rnow, int is)
-{
-  IDASpgmrMem idaspgmr_mem;
-  int pretype, nli_inc, nps_inc, retval;
-  realtype res_norm;
-  
-  idaspgmr_mem = (IDASpgmrMem) lmem;
-
-  /* Set SpgmrSolve convergence test constant epslin, in terms of the
-    Newton convergence test constant epsNewt and safety factors.  The factor 
-    sqrt(Neq) assures that the GMRES convergence test is applied to the
-    WRMS norm of the residual vector, rather than the weighted L2 norm. */
-
-  epslin = sqrtN*eplifac*epsNewt;
-
-  /* Set vectors ycur, ypcur, and rcur for use by the Atimes and Psolve */
-
-  ycur = ynow;
-  ypcur = ypnow;
-  rcur = rnow;
-
-  /* Set SpgmrSolve inputs pretype and initial guess xx = 0. */  
-
-  pretype = (psolve == NULL) ? NONE : LEFT;
-  N_VConst(ZERO, xx);
-  
-  /* Call SpgmrSolve and copy xx to bb. */
-
-  retval = SpgmrSolve(spgmr_mem, IDA_mem, xx, bb, pretype, gstype, epslin,
-                      maxrs, IDA_mem, ewtS[is], ewtS[is], IDASpgmrAtimes,
-                      IDASpgmrPSolve, &res_norm, &nli_inc, &nps_inc);
-
-  if (nli_inc == 0) N_VScale(ONE, SPGMR_VTEMP(spgmr_mem), bb);
-  else N_VScale(ONE, xx, bb);
-  
-  /* Increment counters nli, nps, and return if successful. */
-  nli += nli_inc;
-  nps += nps_inc;
-
-  if (retval == SUCCESS) return(SUCCESS);
-
-  /* If not successful, increment ncfl and return appropriate flag. */
   ncfl++;
 
   if (retval > 0)   return(LSOLVE_ERROR_RECVR);

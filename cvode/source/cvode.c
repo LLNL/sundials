@@ -266,8 +266,6 @@
 
 #define MSG_LSOLVE_NULL     CVODE "The linear solver's solve routine is NULL.\n\n"
 
-#define MSG_LSOLVES_NULL    CVODE "The linear solver's solveS routine is NULL.\n\n"
-
 #define MSG_LFREE_NULL      CVODE "The linear solver's free routine is NULL.\n\n"
 
 #define MSG_LINIT_FAIL      CVODE "The linear solver's init routine failed.\n\n"
@@ -3126,7 +3124,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
 
     /* Call the lsolve function */
     b = tempv;
-    ret = lsolve(cv_mem, b, y, ftemp); 
+    ret = lsolve(cv_mem, b, ewt, y, ftemp); 
     nni++;
     
     if (ret < 0) return(SOLVE_FAIL_UNREC);

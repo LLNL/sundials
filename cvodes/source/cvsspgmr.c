@@ -59,7 +59,7 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
-/* CVSPGMR linit, lsetup, lsolve, lsolveS, and lfree routines */
+/* CVSPGMR linit, lsetup, lsolve, and lfree routines */
 
 static int CVSpgmrInit(CVodeMem cv_mem);
 
@@ -67,11 +67,8 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                         N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                         N_Vector vtemp2, N_Vector vtemp3);
 
-static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                        N_Vector fcur);
-
-static int CVSpgmrSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                         N_Vector fcur, int is);
+static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                        N_Vector ycur, N_Vector fcur);
 
 static void CVSpgmrFree(CVodeMem cv_mem);
 
@@ -110,13 +107,10 @@ static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define linit   (cv_mem->cv_linit)
 #define lsetup  (cv_mem->cv_lsetup)
 #define lsolve  (cv_mem->cv_lsolve)
-#define lsolveS (cv_mem->cv_lsolveS)
 #define lfree   (cv_mem->cv_lfree)
 #define lmem    (cv_mem->cv_lmem)
 #define nvspec  (cv_mem->cv_nvspec)
 #define setupNonNull (cv_mem->cv_setupNonNull)
-
-#define ewtS    (cv_mem->cv_ewtS)
 
 #define sqrtN   (cvspgmr_mem->g_sqrtN)   
 #define ytemp   (cvspgmr_mem->g_ytemp)
@@ -140,8 +134,8 @@ static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
  This routine initializes the memory record and sets various function
  fields specific to the Spgmr linear solver module. CVSpgmr first
  calls the existing lfree routine if this is not NULL.  It then sets
- the cv_linit, cv_lsetup, cv_lsolve, cv_lsolveS, cv_lfree fields in (*cvode_mem)
- to be CVSpgmrInit, CVSpgmrSetup, CVSpgmrSolve, CVSpgmrSolveS, and CVSpgmrFree,
+ the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
+ to be CVSpgmrInit, CVSpgmrSetup, CVSpgmrSolve, and CVSpgmrFree,
  respectively.  It allocates memory for a structure of type
  CVSpgmrMemRec and sets the cv_lmem field in (*cvode_mem) to the
  address of this structure.  It sets setupNonNull in (*cvode_mem),
@@ -179,11 +173,10 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
 
   if (lfree != NULL) lfree(cv_mem);
 
-  /* Set five main function fields in cv_mem */
+  /* Set four main function fields in cv_mem */
   linit  = CVSpgmrInit;
   lsetup = CVSpgmrSetup;
   lsolve = CVSpgmrSolve;
-  lsolveS= CVSpgmrSolveS;
   lfree  = CVSpgmrFree;
 
   /* Get memory for CVSpgmrMemRec */
@@ -776,7 +769,7 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
  Otherwise, we set the tolerance parameter and initial guess (x = 0),
  call SpgmrSolve, and copy the solution x into b.  The x-scaling and
- b-scaling arrays are both equal to ewt, and no restarts are allowed.
+ b-scaling arrays are both equal to weight, and no restarts are allowed.
 
  The counters nli, nps, and ncfl are incremented, and the return value
  is set according to the success of SpgmrSolve.  The success flag is
@@ -785,8 +778,8 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
 **********************************************************************/
 
-static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ynow,
-                        N_Vector fnow)
+static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                        N_Vector ynow, N_Vector fnow)
 {
   realtype bnorm, res_norm;
   CVSpgmrMem cvspgmr_mem;
@@ -797,7 +790,7 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ynow,
   /* Test norm(b); if small, return x = 0 or x = b */
   deltar = delt*tq[4]; 
 
-  bnorm = N_VWrmsNorm(b, ewt);
+  bnorm = N_VWrmsNorm(b, weight);
   if (bnorm <= deltar) {
     if (mnewt > 0) N_VConst(ZERO, b); 
     return(0);
@@ -813,62 +806,7 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ynow,
   
   /* Call SpgmrSolve and copy x to b */
   ier = SpgmrSolve(spgmr_mem, cv_mem, x, b, pretype, gstype, delta, 0,
-                   cv_mem, ewt, ewt, CVSpgmrAtimes, CVSpgmrPSolve,
-                   &res_norm, &nli_inc, &nps_inc);
-
-  N_VScale(ONE, x, b);
-  
-  /* Increment counters nli, nps, and ncfl */
-  nli += nli_inc;
-  nps += nps_inc;
-  if (ier != 0) ncfl++;
-
-  /* Set return value to -1, 0, or 1 */
-  if (ier < 0) return(-1);  
-  if ((ier == SPGMR_SUCCESS) || 
-      ((ier == SPGMR_RES_REDUCED) && (mnewt == 0)))
-    return(0);
-  return(1);  
-}
-
-/*************** CVSpgmrSolveS ***************************************
-
- This routine handles the call to the generic solver SpgmrSolve
- for the solution of the linear system Ax = b for sensitivity 'is' 
- with the SPGMR method, without restarts.  
- The solution x is returned in the vector b.
-
-**********************************************************************/
-
-static int CVSpgmrSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ynow,
-                         N_Vector fnow, int is)
-{
-  realtype bnorm, res_norm;
-  CVSpgmrMem cvspgmr_mem;
-  int nli_inc, nps_inc, ier;
-  
-  cvspgmr_mem = (CVSpgmrMem) lmem;
-
-  /* Test norm(b); if small, return x = 0 or x = b */
-  deltar = delt*tq[4]; 
-
-  bnorm = N_VWrmsNorm(b, ewtS[is]);
-  if (bnorm <= deltar) {
-    if (mnewt > 0) N_VConst(ZERO, b); 
-    return(0);
-  }
-  
-  /* Set vectors ycur and fcur for use by the Atimes and Psolve routines */
-  ycur = ynow;
-  fcur = fnow;
-
-  /* Set inputs delta and initial guess x = 0 to SpgmrSolve */  
-  delta = deltar * sqrtN;
-  N_VConst(ZERO, x);
-  
-  /* Call SpgmrSolve and copy x to b */
-  ier = SpgmrSolve(spgmr_mem, cv_mem, x, b, pretype, gstype, delta, 0,
-                   cv_mem, ewtS[is], ewtS[is], CVSpgmrAtimes, CVSpgmrPSolve,
+                   cv_mem, weight, weight, CVSpgmrAtimes, CVSpgmrPSolve,
                    &res_norm, &nli_inc, &nps_inc);
 
   N_VScale(ONE, x, b);

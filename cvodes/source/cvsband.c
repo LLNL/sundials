@@ -15,7 +15,6 @@
  *                                                                 *
  *******************************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +24,6 @@
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
-
 
 /* Error Messages */
 
@@ -53,7 +51,7 @@
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
 
-/* CVBAND linit, lsetup, lsolve, lsolveS, and lfree routines */
+/* CVBAND linit, lsetup, lsolve, and lfree routines */
 
 static int CVBandInit(CVodeMem cv_mem);
 
@@ -61,11 +59,8 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3);
 
-static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                       N_Vector fcur);
-
-static int  CVBandSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                         N_Vector fcur, int is);
+static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                       N_Vector ycur, N_Vector fcur);
 
 static void CVBandFree(CVodeMem cv_mem);
 
@@ -95,7 +90,6 @@ static void CVBandDQJac(integertype n, integertype mupper,
 #define linit     (cv_mem->cv_linit)
 #define lsetup    (cv_mem->cv_lsetup)
 #define lsolve    (cv_mem->cv_lsolve)
-#define lsolveS   (cv_mem->cv_lsolveS)
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
 #define setupNonNull  (cv_mem->cv_setupNonNull)
@@ -120,8 +114,8 @@ static void CVBandDQJac(integertype n, integertype mupper,
  This routine initializes the memory record and sets various function
  fields specific to the band linear solver module.  CVBand first calls
  the existing lfree routine if this is not NULL.  It then sets the
- cv_linit, cv_lsetup, cv_lsolve, cv_lsolveS, and cv_lfree fields in (*cvode_mem)
- to be CVBandInit, CVBandSetup, CVBandSolve, CVBandSolveS, and CVBandFree,
+ cv_linit, cv_lsetup, cv_lsolve, and cv_lfree fields in (*cvode_mem)
+ to be CVBandInit, CVBandSetup, CVBandSolve, and CVBandFree,
  respectively.  It allocates memory for a structure of type
  CVBandMemRec and sets the cv_lmem field in (*cvode_mem) to the
  address of this structure.  It sets setupNonNull in (*cvode_mem) to be
@@ -166,7 +160,6 @@ int CVBand(void *cvode_mem, integertype N,
   linit  = CVBandInit;
   lsetup = CVBandSetup;
   lsolve = CVBandSolve;
-  lsolveS= CVBandSolveS;
   lfree  = CVBandFree;
   
   /* Get memory for CVBandMemRec */
@@ -462,43 +455,12 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
 **********************************************************************/
 
-static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                       N_Vector fcur)
+static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
+                       N_Vector ycur, N_Vector fcur)
 {
   CVBandMem cvband_mem;
   realtype *bd;
 
-  cvband_mem = (CVBandMem) lmem;
-
-  bd = N_VGetData(b);
-  BandBacksolve(M, pivots, bd);
-  N_VSetData(bd, b);
-
-  /* If BDF, scale the correction to account for change in gamma */
-  if ((lmm == BDF) && (gamrat != ONE)) {
-    N_VScale(TWO/(ONE + gamrat), b, b);
-  }
-
-  return(0);
-}
-
-/*************** CVBandSolveS ****************************************
-
- This routine handles the solve operation for the band linear solver
- for sensitivities by calling the band backsolve routine.  
- The return value is 0.
-
- NOTE: As for any direct linear solvers, this routine is identical to 
- CVDenseSolve (except for the additional argument is)
-
-**********************************************************************/
-
-static int CVBandSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                        N_Vector fcur, int is)
-{
-  CVBandMem cvband_mem;
-  realtype *bd;
-  
   cvband_mem = (CVBandMem) lmem;
 
   bd = N_VGetData(b);

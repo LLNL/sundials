@@ -53,8 +53,8 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector resp, N_Vector tempv1,
                          N_Vector tempv2, N_Vector tempv3);
 
-static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                         N_Vector ypcur, N_Vector rescur);
+static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
+                         N_Vector ycur, N_Vector ypcur, N_Vector rescur);
 
 static int IDADenseFree(IDAMem IDA_mem);
 
@@ -411,8 +411,8 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
 **********************************************************************/
 
-static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
-                         N_Vector ypcur, N_Vector rescur)
+static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
+                         N_Vector ycur, N_Vector ypcur, N_Vector rescur)
 {
   IDADenseMem idadense_mem;
   realtype *bd;

@@ -1357,11 +1357,8 @@ typedef struct CVodeMemRec {
                    N_Vector ypred, N_Vector fpred, booleantype *jcurPtr, 
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 
-  int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, 
+  int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector weight,
                    N_Vector ycur, N_Vector fcur);
-
-  int (*cv_lsolveS)(struct CVodeMemRec *cv_mem, N_Vector b, 
-                    N_Vector ycur, N_Vector fcur, int is);
 
   void (*cv_lfree)(struct CVodeMemRec *cv_mem);
 
@@ -1572,8 +1569,8 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  *----------------------------------------------------------------*/
 
 /*----------------------------------------------------------------*
- * int (*cv_lsolve)(CVodeMem cv_mem, N_Vector b, N_Vector ycur,   *
- *                  N_Vector fcur);                               *
+ * int (*cv_lsolve)(CVodeMem cv_mem, N_Vector b, N_Vector weight, *
+ *                  N_Vector ycur, N_Vector fcur);                *
  *----------------------------------------------------------------*
  * cv_lsolve must solve the linear equation P x = b, where        *
  * P is some approximation to (I - gamma J), J = (df/dy)(tn,ycur) *
@@ -1583,11 +1580,6 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * returned in the vector b. cv_lsolve returns a positive value   *
  * for a recoverable error and a negative value for an            *
  * unrecoverable error. Success is indicated by a 0 return value. *
- *----------------------------------------------------------------*/
-
-/*----------------------------------------------------------------*
- * int (*cv_lsolveS)(CVodeMem cv_mem, N_Vector b, N_Vector ycur,  *
- *                   N_Vector fcur, int is);                      *
  *----------------------------------------------------------------*/
 
 /*----------------------------------------------------------------*

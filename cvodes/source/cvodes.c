@@ -336,8 +336,6 @@
 
 #define MSG_LSOLVE_NULL     CVODE "The linear solver's solve routine is NULL.\n\n"
 
-#define MSG_LSOLVES_NULL    CVODE "The linear solver's solveS routine is NULL.\n\n"
-
 #define MSG_LFREE_NULL      CVODE "The linear solver's free routine is NULL.\n\n"
 
 #define MSG_LINIT_FAIL      CVODE "The linear solver's init routine failed.\n\n"
@@ -1219,7 +1217,6 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_linit   = NULL;
   cv_mem->cv_lsetup  = NULL;
   cv_mem->cv_lsolve  = NULL;
-  cv_mem->cv_lsolveS = NULL;
   cv_mem->cv_lfree   = NULL;
   cv_mem->cv_lmem    = NULL;
 
@@ -2288,7 +2285,6 @@ int CVodeSensReInit(void *cvode_mem, int ism,
 #define ncfnS          (cv_mem->cv_ncfnS)
 #define netfS          (cv_mem->cv_netfS)
 #define nsetupsS       (cv_mem->cv_nsetupsS)
-#define lsolveS        (cv_mem->cv_lsolveS) 
 #define abstolSalloc   (cv_mem->cv_abstolSalloc)
 #define stgr1alloc     (cv_mem->cv_stgr1alloc)
 
@@ -2409,11 +2405,6 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         fprintf(errfp, MSG_LSOLVE_NULL);
         return (ILL_INPUT);
       }
-      if (sensi && (lsolveS==NULL)) {
-        fprintf(errfp, MSG_LSOLVES_NULL);
-        return (ILL_INPUT);
-      }
-    
       if (lfree == NULL) {
         fprintf(errfp, MSG_LFREE_NULL);
         return (ILL_INPUT);
@@ -5625,7 +5616,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
 
     /* Call the lsolve function */
     b = tempv;
-    ret = lsolve(cv_mem, b, y, ftemp); 
+    ret = lsolve(cv_mem, b, ewt, y, ftemp); 
     nni++;
 
     if (ret < 0) return (SOLVE_FAIL_UNREC);
@@ -5638,7 +5629,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
     }
 
     /* Solve the sensitivity linear systems and do the same 
-       tests on the return value of lsolveS. */
+       tests on the return value of lsolve. */
  
     if (do_sensi_sim) {
 
@@ -5648,7 +5639,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
       }
       bS = tempvS;
       for (is=0; is<Ns; is++) {
-        ret = lsolveS(cv_mem, bS[is], y, ftemp, is);
+        ret = lsolve(cv_mem, bS[is], ewtS[is], y, ftemp);
         if (ret < 0) return (SOLVE_FAIL_UNREC);
         if (ret > 0) { 
           if ((!jcur) && (setupNonNull)) return (TRY_AGAIN);
@@ -6235,17 +6226,17 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
       N_VLinearSum(gamma, ftempS[is], -ONE, tempvS[is], tempvS[is]);
     }
 
-    /* Call the lsolveS function */
+    /* Call the lsolve function */
     bS = tempvS;
     nniS++;
     for (is=0; is<Ns; is++) {
 
-      ret = lsolveS(cv_mem, bS[is], y, ftemp, is);
+      ret = lsolve(cv_mem, bS[is], ewtS[is], y, ftemp);
 
-      /* Unrecoverable error in lsolveS */
+      /* Unrecoverable error in lsolve */
       if (ret < 0) return (SOLVE_FAIL_UNREC);
 
-      /* Recoverable error in lsolveS and Jacobian data not current */
+      /* Recoverable error in lsolve and Jacobian data not current */
       if (ret > 0) { 
         if ((!jcur) && (setupNonNull)) return (TRY_AGAIN);
         return (CONV_FAIL);
@@ -6504,17 +6495,17 @@ static int CVStgr1NewtonIteration(CVodeMem cv_mem, int is)
     N_VLinearSum(rl1, znS[1][is], ONE, acorS[is], tempvS[is]);
     N_VLinearSum(gamma, ftempS[is], -ONE, tempvS[is], tempvS[is]);
 
-    /* Call the lsolveS function */
+    /* Call the lsolve function */
     bS = tempvS;
 
     nniS1[is]++;
 
-    ret = lsolveS(cv_mem, bS[is], y, ftemp, is);
+    ret = lsolve(cv_mem, bS[is], ewtS[is], y, ftemp);
 
-    /* Unrecoverable error in lsolveS */
+    /* Unrecoverable error in lsolve */
     if (ret < 0) return (SOLVE_FAIL_UNREC);
 
-    /* Recoverable error in lsolveS and Jacobian data not current */
+    /* Recoverable error in lsolve and Jacobian data not current */
     if (ret > 0) { 
       if ((!jcur) && (setupNonNull)) return (TRY_AGAIN);
       return (CONV_FAIL);
