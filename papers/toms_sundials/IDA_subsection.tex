@@ -10,16 +10,17 @@ a DAE system of the general form
   F(t,y,{\dot y}) = 0 \, ,
   \quad y(t_0) = y_0 \, ,~ {\dot y}(t_0) = {\dot y}_0 \, ,
 \end{equation}
-where $y$ and $F$ are vectors in ${\bf R}^N$, $t$ is the independent
+where $y$, ${\dot y}$, and $F$ are vectors in ${\bf R}^N$, $t$ is the independent
 variable, ${\dot y} = dy/dt$, 
 and initial conditions $y(t_0) = y_0$, ${\dot y}(t_0) = {\dot y}_0$ 
 are given.  (Often $t$ is time, but it certainly need not be.)
 
 % Initial condition calculation
 %------------------------------
-Unlike the situation for ODE systems, the initial vectors $y_0$ and
-${\dot y}_0$ are not arbitrary, but must be consistent with the system
-(\ref{e:DAE}).  For a class of problems that includes so-called
+An important requirement before integrating a DAE initial-value problem
+is that the pair of vectors $y_0$ and ${\dot y_0}$ are both initialized to
+satisfy the DAE residual $F(t_0,y_0, {\dot y}_0) = 0$.
+For a class of problems that includes so-called
 semi-explicit index-one systems, IDA provides a routine that computes
 consistent initial conditions from a user's initial guess~\cite{BHP:98}.  
 For this, the user must identify subvectors of $y$
@@ -218,12 +219,12 @@ basis of the three error norms.  See \cite{BCP:96} for details.
 IDA permits the user to impose optional inequality constraints on individual 
 components of the solution vector $y$. Any of the following four constraints 
 can be imposed: $y^i > 0$, $y^i < 0$, $y^i \geq 0$, or $y^i \leq 0$. 
-The constraint satisfaction is tested after a succesful nonlinear system solution. 
+The constraint satisfaction is tested after a successful nonlinear system solution. 
 If any constraint fails, we declare a convergence failure of the Newton iteration 
 and reduce the stepsize. Rather than cutting the stepsize by some arbitrary factor, 
 IDA estimates a new stepsize $h'$ using a linear approximation of the components 
 in $y$ that failed the constraint test (including a safety factor of $0.9$ to 
-cover the strict inequality case. These additional constraints are also imposed
+cover the strict inequality case). These additional constraints are also imposed
 during the calculation of consistent initial conditions.
 
 Normally, IDA takes steps until a user-defined output value $t = t_{out}$
