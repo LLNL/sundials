@@ -17,6 +17,8 @@
 #include "nvector.h"  /* definitions of type N_Vector and vector macros    */
 #include "cvode.h"    /* CVODE constants and prototypes                    */
 #include "cvdiag.h"   /* prototypes for CVDIAG interface routines          */
+#include "cvdense.h"  /* prototypes for CVDENSE interface routines         */
+#include "cvband.h"   /* prototypes for CVBAND interface routines          */
 #include "cvspgmr.h"  /* prototypes for CVSPGMR interface routines         */
 #include "fcmixpar.h" /* global F2C_machEnv variable                       */
 #include "fcvode.h"   /* actual function names, prototypes, global vars.   */
@@ -125,6 +127,59 @@ void FCV_DIAG(int *ier)
      CV_cvodemem is the pointer to the CVODE memory block  */
 
   *ier = CVDiag(CV_cvodemem);
+}
+
+/***************************************************************************/
+
+void FCV_DENSE0(int *ier)
+{
+  /* Call CVDense:
+     CV_cvodemem is the pointer to the CVODE memory block 
+     NULL        is a pointer to the dense Jac routine
+     NULL        is a pointer to jac_data                 */
+
+  *ier = CVDense(CV_cvodemem, NULL, NULL);
+}
+
+/***************************************************************************/
+
+void FCV_REINDENSE0(int *ier)
+{
+  /* Call CVReInitDense:
+     CV_cvodemem is the pointer to the CVODE memory block 
+     NULL        is a pointer to the dense Jac routine
+     NULL        is a pointer to jac_data                 */
+
+  *ier = CVReInitDense(CV_cvodemem, NULL, NULL);
+}
+
+
+/***************************************************************************/
+
+void FCV_BAND0(integer *mupper, integer *mlower, int *ier)
+{
+  /* Call CVBand:
+     CV_cvodemem is the pointer to the CVODE memory block 
+     *mupper     is the upper bandwidth
+     *mlower     is the lower bandwidth
+     NULL        is a pointer to the band Jac routine
+     NULL        is a pointer to jac_data                 */
+
+  *ier = CVBand(CV_cvodemem, *mupper, *mlower, NULL, NULL);
+}
+
+/***************************************************************************/
+
+void FCV_REINBAND0(integer *mupper, integer *mlower, int *ier)
+{
+  /* Call CVReInitBand:
+     CV_cvodemem is the pointer to the CVODE memory block 
+     *mupper     is the upper bandwidth
+     *mlower     is the lower bandwidth
+     NULL        is a pointer to the band Jac routine
+     NULL        is a pointer to jac_data                 */
+
+  *ier = CVReInitBand(CV_cvodemem, *mupper, *mlower, NULL, NULL);
 }
 
 /***************************************************************************/
