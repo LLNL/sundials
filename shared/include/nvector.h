@@ -105,7 +105,7 @@ struct _generic_N_Vector_Ops {
 struct _generic_M_Env {
   void *content;
   struct _generic_N_Vector_Ops *ops;
-  char tag[8];
+  char *tag;
 };
 
 /* A vector is a structure with an implementation dependent content
