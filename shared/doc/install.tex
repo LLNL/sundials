@@ -1,180 +1,295 @@
-Generally speaking, the installation procedure outlined below will work on commodity \small LINUX\normalsize/\small UNIX \normalsize systems without modification, and so the typical user may certainly opt to just skip to the step-by-step installation instructions given below.  Users are still encouraged, however, to carefully read the entire installation guide before attempting to install the \small SUNDIALS \normalsize suite.  In lieu of reading the installation guide, the user may invoke the configuration utility script with the help flag to view a complete listing of available optional parameters which may be done by issuing \texttt{\textbf{./configure --help}} from a shell command prompt.
-\\
+Generally speaking, the installation procedure outlined below will work on commodity 
+{\linux}/{\unix} systems without modification, and so 
+the typical user may certainly opt to just skip to the step-by-step installation 
+instructions given below.  Users are still encouraged, however, to carefully read this
+entire section before attempting to install the {\sundials} suite.  
+In lieu of reading the installation guide, the user may invoke the 
+configuration utility script with the help flag to view a complete listing of 
+available optional parameters which may be done by issuing 
+\begin{verbatim}
+   % ./configure --help 
+\end{verbatim}
+from a shell command prompt.
 
-Regarding terminology, \textit{build\_tree} refers to the directory under which the user wants to build and/or install the \small SUNDIALS \normalsize package.  Also, \textit{source\_tree} refers to the directory where the \small SUNDIALS \normalsize source code is located.  The chosen \textit{build\_tree} may be different from the \textit{source\_tree}, thus allowing for multiple installations of the \small SUNDIALS \normalsize suite with different configuration options within a common \textit{source\_tree}.
-\\
+Regarding terminology, \textit{build\_tree} refers to the directory under which the 
+user wants to build and/or install the {\sundials} package.  
+Also, \textit{source\_tree} refers to the directory where the {\sundials} 
+source code is located.  The chosen \textit{build\_tree} may be different from the \textit{source\_tree}, 
+thus allowing for multiple installations of the {\sundials} suite with different 
+configuration options within a common \textit{source\_tree}.
 
-Concerning the installation procedure outlined below, after invoking the \textit{tar} command with the appropriate options the contents of the \small SUNDIALS \normalsize archive (or the \textit{source\_tree}) will be extracted to a directory named \texttt{\textbf{sundials}}.  Since the name of the extracted directory is not version-specific it is recommended that the user refrain from extracting the archive to a directory containing a previous version/release of the \small SUNDIALS \normalsize suite.  If the user is only upgrading and the previous installation of \small SUNDIALS \normalsize is not needed, then the user may remove the previous installation by issuing \texttt{\textbf{rm -Rf}}\texttt{\textbf{ sundials/}} from a shell command prompt.
-\\
+Concerning the installation procedure outlined below, after invoking the \textit{tar} 
+command with the appropriate options the contents of the {\sundials} archive 
+(or the \textit{source\_tree}) will be extracted to a directory named \id{sundials}.  
+Since the name of the extracted directory is not version-specific it is recommended that the 
+user refrain from extracting the archive to a directory containing a previous version/release 
+of the {\sundials} suite.  If the user is only upgrading and the previous 
+installation of {\sundials} is not needed, then the user may remove the 
+previous installation by issuing 
+\begin{verbatim}
+   % rm -Rf sundials
+\end{verbatim}
+from a shell command prompt.
 
-With reference only to the parallel releases of the \small SUNDIALS \normalsize suite, the upshot of following the installation/build procedure given below will be the automatic compilation of support for a parallel execution environment if the subdirectory named \texttt{\textbf{sundials/nvec\_\hspace{0.2ex}par/}} exists (which is \textit{not} included with the serial \small SUNDIALS \normalsize packages), and a functional \small MPI \normalsize (\small M\normalsize essage-\small P\normalsize assing \small I\normalsize nterface) implementation is detected by the configuration script during the preliminary system analysis stage.  Passing the \texttt{--without-mpi} (or equivalently \texttt{\textbf{--with-mpi=no}}) command-line option to the configuration script will cause support for \small MPI \normalsize to be completely omitted.
-\\
+With reference only to the parallel releases of the {\sundials} suite, the 
+upshot of following the installation/build procedure given below will be the automatic 
+compilation of support for a parallel execution environment if the subdirectory named 
+\id{sundials/nvec\_par} exists (which is \textit{not} included 
+with the serial {\sundials} packages), and a functional {\mpi} (Message-Passing Interface) 
+implementation is detected by the configuration script during the preliminary system analysis stage.  
+Passing the \id{--without-mpi} (or equivalently \id{--with-mpi=no}) command-line 
+option to the configuration script will cause support for {\mpi} to be completely omitted.
 
-Even though the installation procedure given below presupposes that the user will use the default vector kernels supplied with the distribution, using the \small SUNDIALS \normalsize suite with a user-supplied vector kernel normally will not require any changes to the build procedure.  However, if the user-supplied vector kernel uses different function names and/or data structures then the header file named \texttt{\textbf{sundials/shared/include/nvector.h}} (and possibly the source file \texttt{\textbf{sundials/shared/source/nvector.c}}) will need to be modified before building \small SUNDIALS\normalsize .
-\\
+Even though the installation procedure given below presupposes that the user will use the default 
+vector kernels supplied with the distribution, using the {\sundials} suite with a 
+user-supplied vector kernel normally will not require any changes to the build procedure.  
 
-Although general debugging information is automatically generated during run-time by the configuration utility script (named \texttt{\textbf{sundials/}}\textit{configure}) and stored in a file named \textit{config.log}, it may be useful to store the actual standard output/error in a different text file (named \textit{filename}) by appending either \texttt{\textbf{|\& tee}}\textit{ filename} or \texttt{\textbf{2>\&1 | tee}}\textit{ filename} to the end of (can only appear after all optional parameters) line \small 4 \normalsize depending upon the shell being used.  Additionally, the appropriate \small I\normalsize/\small O \normalsize redirection command sequence may also be appended to each individual invocation of the \textit{make} command to save all messages sent to standard output/error for later viewing.
-\\
+%%==========================================================================================
 
-If system storage space conservation is a priority, then the user may, upon completion of the software installation, issue \texttt{\textbf{make clean}} and/or \texttt{\textbf{make examples\_clean}} (will delete all example executables) from a shell command prompt to remove unneeded object files and thus help to minimize the total required storage space.
-\\
-\\
-\setlength{\parindent}{0cm}
-\small\textbf{STEPS}\normalsize\hspace*{2ex}To install the \small SUNDIALS \normalsize suite issue the following commands from a shell command prompt:
-\\
-\small 1\normalsize\texttt{ \$\textbf{ gunzip}}\textit{ sundials\_file}\texttt{\textbf{.tar.gz}} \\
-\small 2\normalsize\texttt{ \$\textbf{ tar -xf}}\textit{ sundials\_file}\texttt{\textbf{.tar}} \\
-\small 3\normalsize\texttt{ \$\textbf{ cd}}\texttt{\textbf{ sundials/}} \\
-\\
-\textit{Note}: If \texttt{\textbf{./configure}} does not work then try \texttt{\textbf{sh ./configure}} instead. \\
-\\
-\small 4\normalsize\texttt{ \$\textbf{ ./configure }}[\textit{options}] \\
-\small 5\normalsize\texttt{ \$\textbf{ make}} \\
-\small 6\normalsize\texttt{ \$\textbf{ make install}} \\
-\small 7\normalsize\texttt{ \$\textbf{ make examples}} \\ \setlength{\parindent}{0.5cm}
+\section{Installation steps}
 
-By default, the \small SUNDIALS \normalsize libraries and header files are installed under subdirectories (named \texttt{\textbf{lib}} and \texttt{\textbf{include}}, respectively) of the directory from within which the configuration script was initially invoked.
-\\
+To install the {\sundials} suite issue the following commands from a shell command prompt:
+\begin{enumerate}
+\item \id{gunzip} \textit{sundials\_file}\id{.tar.gz}
+\item \id{tar -xf} \textit{sundials\_file}\id{.tar}
+\item \id{cd} {\em build\_tree}
+\item {\em path\_to\_source\_tree}\id{/configure} [\textit{options}]
 
-The installation procedure given above will generally work without modification; however, if the system includes multiple \small MPI \normalsize implementations, then certain configure script-related flags may be used to indicate which \small MPI \normalsize implementation should be used.  Also, if the user wants to use non-default serial (non-\small MPI \normalsize aware) language compilers, then, again, the necessary shell environment variables must be appropriately redefined.  Simply stated, non-default build/compile options will always require that additional parameters be provided.
-\\
-\\ \setlength{\parindent}{0cm}
-\small\textbf{EXAMPLES}\normalsize\hspace*{2ex}The following examples are meant to help demonstrate proper usage of the optional flags.
-\\
-\\
-Substituting the following command into the above installation procedure will configure the \small SUNDIALS \normalsize suite to use the \small GNU \normalsize C and Fortran compilers to compile the serial code, and to use the \small MPICH-MPI \normalsize implementation installed under the directory named \textit{mpiroot\_dir} to compile the parallelized C code, but to still use the standard \small GNU \normalsize Fortran compiler with additional user-supplied flags to compile the parallelized Fortran examples.
-\\
-\\
-\small 4\normalsize\texttt{ \$\textbf{ ./configure CC=gcc F77=g77 --with-mpicc=}}\textit{mpiroot\_dir}\texttt{\textbf{/bin/mpicc --with-mpif77=no  $\backslash$}} \\
-\hspace*{2ex}\texttt{\textbf{--with-mpi-incdir=}}\textit{mpiroot\_dir}\texttt{\textbf{/include/ --with-mpi-libdir=}}\textit{mpiroot\_dir}\texttt{\textbf{/lib/  $\backslash$}} \\
-\hspace*{2ex}\texttt{\textbf{--with-mpi-libs=\"}}\texttt{\textbf{-lmpich}}\texttt{\textbf{\"}} \texttt{\textbf{--with-fflags=\"}}\textit{flags}\texttt{\textbf{\"}}
-\\
-\\
-Issue the following commands during the installation procedure outlined above to configure \small SUNDIALS \normalsize to use the \small GNU \normalsize C and Fortran compilers to compile the serial code, to use the compiler scripts included with the \small MPI \normalsize implementation installed under the directory named \textit{mpiroot\_dir} to compile the parallelized code, to disable the \texttt{\textbf{ida}} and \texttt{\textbf{kinsol}} solver modules, and to install the resultant header files and libraries under the \textit{source\_tree}\texttt{\textbf{/}}\textit{build\_tree}\texttt{\textbf{/}} subdirectory.  Using this approach the \textit{source\_tree} will remain unchanged.
-\\
-\\
-\small 4.1\normalsize\texttt{ \$\textbf{ cd }}\textit{build\_tree}\texttt{\textbf{/}} \\
-\small 4.2\normalsize\texttt{ \$\textbf{ ../configure CC=gcc F77=g77 --with-mpi-root=}}\textit{mpiroot\_dir}\texttt{\textbf{/ --disable-ida  $\backslash$}} \\
-\hspace*{3.5ex}\texttt{\textbf{--disable-kinsol}}
-\\ \setlength{\parindent}{0.5cm}
+{\em Note}: If \id{./configure} does not work then try \id{sh ./configure} instead.
+\item \id{make}
+\item \id{make install}
+\item \id{make examples}
+\end{enumerate}
 
-The remainder of the guide provides explanations of configure script-related optional parameters.  An unabridged, release-specific listing of the available flags (with brief descriptions) may be viewed by issuing \texttt{\textbf{./configure --help}} from a shell command prompt.
-\\
-\\
-\texttt{\textbf{--prefix=}}\textit{build\_tree}\hspace{0.5in}Default: \texttt{\textbf{--prefix=sundials/}}\vspace{0.05in}
+By default, the {\sundials} libraries and header files are installed under subdirectories 
+(named \texttt{\textbf{lib}} and \texttt{\textbf{include}}, respectively) of the directory 
+from within which the configuration script was initially invoked.
 
-To change the default destination directory just append \texttt{\textbf{--prefix=}}\textit{build\_tree} to the configuration script invocation command, where \textit{build\_tree} is a valid directory name.
-\\
-\\
-\texttt{\textbf{--includedir=}}\textit{include\_dir}\hspace{0.5in}Default: \texttt{\textbf{--includedir=}}\textit{build\_tree}\texttt{\textbf{/include/}}\vspace{0.05in}
+If system storage space conservation is a priority, then the user may, upon completion of the software 
+installation, issue 
+\begin{verbatim}
+   % make clean
+\end{verbatim}
+and/or 
+\begin{verbatim}
+   % make examples_clean
+\end{verbatim}
+(will delete all example executables) from a shell command prompt to remove unneeded object files and 
+thus help to minimize the total required storage space.
 
-The \texttt{\textbf{--includedir}} flag may be used to specify an alternate destination directory for the resultant header files.
-\\
-\\
-\texttt{\textbf{--libdir=}}\textit{lib\_dir}\hspace{0.5in}Default: \texttt{\textbf{--libdir=}}\textit{build\_tree}\texttt{\textbf{/lib/}}\vspace{0.05in}
+%%==========================================================================================
 
-Using the \texttt{\textbf{--libdir}} flag will change the destination directory for the resultant \small SUNDIALS \normalsize libraries.
-\\
-\\
-\texttt{\textbf{--enable-examples}}/\texttt{\textbf{--disable-examples}}\hspace{0.5in}Default: \texttt{\textbf{--enable-examples}}\vspace{0.05in}
+\section{Configuration options}
 
-All example subroutines are automatically compiled unless the user appends \texttt{\textbf{--disable-examples}} (which is equilavent to \texttt{\textbf{--enable-examples=no}}) to line \small 4 \normalsize in the above instructions.  The executable versions of the example subroutines are stored under subdirectories of the associated solver named \textit{solver}\texttt{\textbf{/examples\_\hspace{0.2ex}ser/}} (standard interface serial examples), \textit{solver}\texttt{\textbf{/examples\_\hspace{0.2ex}par/}} (standard interface parallel (\small MPI\normalsize-aware) examples), \textit{solver}\texttt{\textbf{/fcmix/examples\_\hspace{0.2ex}ser/}} (Fortran interface serial examples), and/or \textit{solver}\texttt{\textbf{/fcmix/examples\_\hspace{0.2ex}par/}} (Fortran interface parallel (\small MPI\normalsize-aware) examples).
-\\
-\\
-\texttt{\textbf{--enable-}}\textit{solver}/\texttt{\textbf{--disable-}}\textit{solver}\hspace{0.5in}Default: \texttt{\textbf{--enable-}}\textit{solver}\vspace{0.05in}
+The installation procedure given above will generally work without modification; however, if the system 
+includes multiple {\mpi} implementations, then certain configure script-related flags may 
+be used to indicate which {\mpi} implementation should be used.  Also, if the user wants to 
+use non-default language compilers, then, again, the necessary 
+shell environment variables must be appropriately redefined.
 
-Each solver module will by default be built unless the user disables support for a given \textit{solver} by supplying \texttt{\textbf{--disable-}}\textit{solver} as an argument to the configuration utility script, where currently valid values for the variable \textit{solver} include \texttt{\textbf{cvode}}, \texttt{\textbf{cvodes}}, \texttt{\textbf{ida}}, and \texttt{\textbf{kinsol}}.
-\\
-\\
-\texttt{\textbf{CC=}}\textit{alt\_compiler}\\
-\texttt{\textbf{F77=}}\textit{alt\_compiler}\vspace{0.05in}
+The remainder of this section provides explanations of configure script-related optional parameters.  
+An unabridged, release-specific listing of the available flags (with brief descriptions) may be viewed by 
+issuing \id{./configure --help} from a shell command prompt.
 
-Since the configuration script uses the first C and Fortran language compilers found in the current executable search path, then each relevant shell variable (\texttt{\textbf{\small CC\normalsize}} and \texttt{\textbf{\small F77\normalsize}}) must be locally (re)defined in order to use a different compiler.  For example, to use \textit{xcc} (executable name of chosen compiler) as the C language compiler set \texttt{\textbf{CC=}}\textit{xcc}.
-\\
-\\
-\texttt{\textbf{--with-f77}}/\texttt{\textbf{--without-f77}}\hspace{0.5in}Default: \texttt{\textbf{--with-f77}}\vspace{0.05in}
 
-A Fortran language compiler is only used if compilation of the included example subroutines has been enabled (default) and the \textit{cvode} and/or \textit{kinsol} module(s) have/has been enabled (both enabled by default).   The only consequence of disabling Fortran support by using the \texttt{\textbf{--without-f77}} flag is that the example subroutines written in the Fortran programming language would not be compiled.
-\\
-\\
-\texttt{\textbf{--with-cflags=}}\textit{option(s)}\\
-\texttt{\textbf{--with-fflags=}}\textit{option(s)}\vspace{0.05in}
+%%
+%% General options
+%%
 
-The above flags are used to supply the C and Fortran language compilers with supplementary debugging and/or optimization options.
-\\
-\\
-\texttt{\textbf{--with-cppflags=}}\textit{option(s)}\vspace{0.05in}
+\begin{config}
+  
+\item \id{--prefix=PREFIX}
+  
+  Location for architecture-independent files.
+  
+  Default: \id{PREFIX =} {\em build\_tree}.
+  
+\item \id{--includedir=DIR}
+  
+  Alternate location for header files.
+  
+  Default: \id{DIR = PREFIX/include}.
+  
+\item \id{--libdir=DIR}
+  
+  Alternate location for libraries.
+  
+  Default: \id{DIR = PREFIX/lib}.
+  
+\item \id{--disable-examples}
+  
+  All example programs are built unless this option is used (or, equilavently to \id{--enable-examples=no}).  
+  The example executables are created under the following subdirectories of the associated solver: 
+  
+  \begin{config}
+  \item {\em build\_tree}/{\em solver}/\id{examples\_ser/}: serial examples.
+  \item {\em build\_tree}/{\em solver}/\id{examples\_par/}: parralel {\mpi} examples.
+  \item {\em build\_tree}/{\em solver}/\id{fcmix}/\id{examples\_ser/}: serial {\F} examples.
+  \item {\em build\_tree}/{\em solver}/\id{fcmix}/\id{examples\_par/}: parallel {\F} examples.
+  \end{config}
+  
+  Note that some of these subdirectories may not exist, depending on the solver and/or the configuration
+  options used.
+  
+\item \id{--disable-}{\em solver}
+  
+  Each existing solver module will be built by default, unless explicitely disabled with this option.
+  {\em solver} can be one of: \id{cvode}, \id{cvodes}, \id{ida}, or \id{kinsol}.
+  
+\item \id{--without-f77}
+  
+  A {\F} language compiler is only used if compilation of the included example subroutines has been 
+  enabled (default) and the {\cvode} and/or {\kinsol} module(s) have/has been enabled (both enabled by default).
+  This behaviour can be overwritten by using the option \id{--without-f77}.
+  The only consequence of disabling {\F} support is that the {\F} example programs will not be built.
+  
+\item \id{--with-cppflags=ARG}
+  
+  Specify additional {\C} preprocessor flags 
+  (e.g., \id{ARG = -I<include dir>} if there are header files in nonstandard locations).
+  
+\item \id{--with-cflags=ARG}
+  
+  Specify additional {\C} compilation flags.
+  
+\item \id{--with-fflags=ARG}
+  
+  Specify additional {\C} compilation flags.
+  
+\item \id{--with-ldflags=ARG}
+  
+  Specify additional linker flags
+  (e.g., \id{ARG = -L<lib dir>} if there are libraries in nonstandard locations).
+  
+\item \id{--with-libs=ARG}
+  
+  Specify additional libraries to be used.
+  (e.g., \id{ARG = -l<foo>} to link the library \id{libfoo.a}).
+  
+\item \id{--with-single-prec}
+  
+  By default, {\sundials} will define a real number (internally referred to as \id{realtype}) 
+  to be a double-precision floating-point numeric via preprocessor directives in the header file
+  \id{sundialstypes.h} (located under the \id{sundials/shared/include/} subdirectory); 
+  however, the \id{--with-single-prec} configure option may be used to build {\sundials} with 
+  \id{realtype} alternately defined as a single-precision floating-point numeric data type.
+  
+\item \id{--with-f77underscore=ARG}
+  
+  The option deals with the {\F}/{\C} interface and is used to specify the number of underscores to 
+  append to function names so {\F} routines can link with the associated {\sundials} libraries.
+  
+  Default: \id{ARG = one}.
+  
+\end{config}
 
-The above flag is used to pass a list of additional header/include directories to search (\texttt{\textbf{-I}}\textit{pathname}) and unrelated miscellaneous options to the C preprocessor and compiler. 
-\\
-\\
-\texttt{\textbf{--with-ldflags=}}\textit{option(s)}\vspace{0.05in}
+%%
+%% Environment variables
+%%
 
-This particular option is used to supply the object/archive file linker with a list of additional directories to search for libraries (\texttt{\textbf{-L}}\textit{pathname}) and with unrelated miscellaneous options.
-\\
-\\
-\texttt{\textbf{--with-libs=}}\textit{option(s)}\vspace{0.05in}
+\vspace{0.25in}
+\noindent The following environment variables can be locally defined for use in the configuration of {\sundials}:
 
-Additional libraries (\texttt{\textbf{-l}}\textit{lib\_name}) that may be required by the object/archive file linker should be provided as arguments to the \texttt{\textbf{--with-libs}} flag.
-\\
-\\ \enlargethispage*{1ex}
-\textit{Note}: If the \small SUNDIALS \normalsize suite will be cross-compiled (meaning the build procedure will not be completed on the actual destination system, but rather on an alternate system with a different architecture) then the next two flags should be passed to the configuration script.
-\\
-\\
-\texttt{\textbf{--build=}}\textit{canonical\_system\_name}\hspace{0.5in}Default: \texttt{\textbf{--build=}}\textit{current\_system}\vspace{0.05in}
+\begin{config}
+  
+\item \id{CC}
+  
+\item \id{CFLAGS}
+  
+\item \id{F77}
+  
+\item \id{FFLAGS}
+  
+  Since the configuration script uses the first {\C} and {\F} language compilers found in the current executable 
+  search path, then each relevant shell variable (\id{CC} and \id{F77}) must be locally (re)defined in order to 
+  use a different compiler.  For example, to use \id{xcc} (executable name of chosen compiler) as the {\C} language 
+  compiler use \id{CC=xcc}.
+  
+\end{config}
 
-This particular command-line parameter is used to specify the canonical system/platform name for the alternate system on which the software build procedure will actually be completed.  Included with the \small SUNDIALS \normalsize suite is a helpful utility script named \textit{config.guess} (located in the \texttt{\textbf{sundials/config/}} subdirectory) which may be used to determine the properly formatted canonical system/platform name for the system on which the script was invoked.  To determine the appropriate argument to supply to the \texttt{\textbf{--build}} flag issue \texttt{\textbf{./config/config.guess}} from a shell command prompt, or alternatively try appending \texttt{\textbf{--build=`./config/config.guess`}} to line \small 4 \normalsize in the above installation instructions.
-\\
-\\
-\texttt{\textbf{--host=}}\textit{canonical\_system\_name}\hspace{0.5in}Default: \texttt{\textbf{--host=}}\textit{current\_system}\vspace{0.05in}
+%%
+%% Parallel options
+%%
 
-If cross-compiling then the user must specify the canonical system/platform name for the destination system by appending the \texttt{\textbf{--host}} flag to line \small 4 \normalsize of the installation procedure.  Again, the utility script named \textit{config.guess} may be used to ascertain the proper canonical system/platform name for the destination system.
-\\
-\\
-\textit{Note}: The remaining configuration script-related flags are only applicable to the parallel \small SUNDIALS \normalsize packages.
-\\
-\\
-\texttt{\textbf{--with-mpi}}/\texttt{\textbf{--without-mpi}}\hspace{0.5in}Default: \texttt{\textbf{--with-mpi}}\vspace{0.05in}
+\vspace{0.25in}
+\noindent The following configuration options are only applicable to the parallel {\sundials} packages.
 
-The parallelized vector kernel may be disabled by appending the \texttt{\textbf{--without-mpi}} flag (or equivalently \texttt{\textbf{--with-mpi=no}}) to line \small 4 \normalsize in the above instructions.
-\\
-\\
-\texttt{\textbf{--with-mpicc=}}\textit{alt\_\small MPI\normalsize \_compiler}\\
-\texttt{\textbf{--with-mpif77=}}\textit{alt\_\small MPI\normalsize \_compiler}\vspace{0.05in}
+\begin{config}
+  
+\item \id{--without-mpi}
+  
+  The parallelized vector kernel may be disabled by using the \id{--without-mpi} option
+  (or equivalently \id{--with-mpi=no}).
+  
+\item \id{--with-mpicc=ARG}
+\item \id{--with-mpif77=ARG}
+  
+  The configuration utility script will use by default the {\mpi} compiler scriptss named
+  \id{mpicc} and \id{mpif77} to compile the parallelized {\sundials} subroutines; 
+  however, for reasons of compatibility, different executable names may be specified via the above options.
 
-The configuration utility script will by default use the \small MPI \normalsize compiler scripts named \textit{mpicc} and \textit{mpif77} to compile the parallelized \small SUNDIALS \normalsize subroutines; however, for reasons of compatibility, different executable names may be specified via the above flags.
-\\
-\\
-\texttt{\textbf{--with-mpi-root=}}\textit{mpiroot\_dir}\vspace{0.05in}
+\item \id{--with-mpi-root=MPIDIR}
 
-The \texttt{\textbf{--with-mpi-root}} flag may be used to specify which \small MPI \normalsize implementation should be used.  The \small SUNDIALS \normalsize configuration script will automatically check under the subdirectories \textit{mpiroot\_dir}\texttt{\textbf{/include/}} and \textit{mpiroot\_dir}\texttt{\textbf{/lib/}} for the necessary header files and libraries, and will also search the subdirectory \textit{mpiroot\_dir}\texttt{\textbf{/bin/}} for the C and Fortran \small MPI \normalsize compiler/wrapper scripts.
-\\
-\\
-\textit{Note}: The next three configuration-related parameters may be used if the user would prefer not to use a preexisting \small MPI \normalsize compiler/script, but instead would rather use a serial (non-\small MPI\normalsize-aware) complier and provide the flags necessary to compile the \small MPI\normalsize-aware subroutines in \small SUNDIALS\normalsize ; however, the user also has the option of using both approaches and so an \small MPI\normalsize -aware wrapper script may be used to compile the parallelized C language subroutines while a standard serial Fortran language compiler may be used to compile the parallelized Fortran language subroutines, or \textit{vice versa}.
-\\
-\\
-\texttt{\textbf{--with-mpi-incdir=}}\textit{dir}\hspace{0.5in}Default: \texttt{\textbf{--with-mpi-incdir=}}\textit{mpiroot\_dir}\texttt{\textbf{/include/}}\vspace{0.05in}
+  This option may be used to specify which {\mpi} implementation should be used.  
+  The {\sundials} configuration script will automatically check under the subdirectories 
+  \id{MPIDIR/include/} and \id{MPIDIR/lib/} for the necessary header files and libraries, and will also 
+  search the subdirectory \id{MPIDIR/bin/} for the {\C} and {\F} {\mpi} compiler scripts.
+  
+\item \id{--with-mpi-incdir=INCDIR}
+\item \id{--with-mpi-libdir=LIBDIR}
+\item \id{--with-mpi-lib=ARG}
 
-Although the configuration script will ordinarily search the subdirectory of the given \small MPI \normalsize root/base installation directory (denoted above by \textit{mpiroot\_dir}) named \texttt{\textbf{include}} for the necessary header files, the user may specify an different directory to search by using the \texttt{\textbf{--with-mpi-incdir}} flag.
-\\
-\\
-\\
-\texttt{\textbf{--with-mpi-libdir=}}\textit{dir}\hspace{0.5in}Default: \texttt{\textbf{--with-mpi-libdir=}}\textit{mpiroot\_dir}\texttt{\textbf{/lib/}}\vspace{0.05in}
+  These options may be used if the user would prefer not to use a preexisting {\mpi} compiler script, 
+  but instead would rather use a serial complier and provide the flags necessary to compile the {\mpi}-aware 
+  subroutines in {\sundials}.
 
-The default directory to search for required libraries is the \textit{mpiroot\_dir}\texttt{\textbf{/lib/}} subdirectory, but the user may specify an alternate directory via the \texttt{\textbf{--with-mpi-libdir}} flag.
-\\
-\\ 
-\texttt{\textbf{--with-mpi-libs=}}\textit{option(s)}\vspace{0.05in}
+  Often an {\mpi} implementation will have unique library names and so it may be necessary to specify the 
+  appropriate libraries to use (e.g., \id{ARG=-lmpi})
 
-Often an MPI implementation will have unique library names and so it may be necessary to specify the appropriate \small MPI \normalsize libraries to use.  An argument for \texttt{\textbf{--with-mpi-libs}} should be of the form \texttt{\textbf{-l}}\textit{lib\_name} (no space), where the term \textit{lib\_name} is meant to denote the unique identifier for the specific library.  Typically, the abbreviated form of the library name is derived from the library filename by removing the \textit{lib} prefix and the filename extension which is either .\textit{a} (static) or .\textit{so} (shared).
-\\
-\\
-\texttt{\textbf{--with-single-prec}}\vspace{0.05in}
+  Default: \id{INCDIR=MPIDIR/include}, \id{LIBDIR=MPIDIR/lib}.
 
-By default, \small SUNDIALS \normalsize will define a real number (internally referred to as \textit{realtype}) to be a double-precision floating-point numeric data type and an integer (or \textit{integertype}) to be a signed long integer numeric data type via preprocessor directives given in the header/include file named \textit{sundialstypes.h} (located under the \texttt{\textbf{sundials/shared/include/}} subdirectory); however, the \texttt{\textbf{--with-single-prec}} flag may be used to build \small SUNDIALS \normalsize with \textit{realtype} alternately defined as a single-precision floating-point numeric data type and \textit{integertype} defined as a signed integer numeric data type.
-\\
-\\
-\texttt{\textbf{--with-f77underscore=}}\textit{none}/\textit{one}/\textit{two}\hspace{0.5in}Default: \texttt{\textbf{--with-f77underscore=one}}\vspace{0.05in}
+\end{config}
 
-The \texttt{\textbf{--with-f77underscore}} flag deals with the Fortran-to-C interface (Fortran/C interoperability) and is used to specify the number of underscores to append to function names so Fortran routines can link with the associated \small SUNDIALS \normalsize libraries.
 
+%%
+%% Cross-compilation
+%%
+
+\vspace{0.25in}
+\noindent If the {\sundials} suite will be cross-compiled (meaning the build procedure will not be completed on the actual 
+destination system, but rather on an alternate system with a different architecture) then the next two options should be specified:
+
+\begin{config}
+
+\item \id{--build=BUILD}
+
+  This particular command-line parameter is used to specify the canonical system/platform name for the alternate 
+  system on which the software build procedure will actually be completed.  
+
+\item \id{--host=HOST}
+
+  If cross-compiling then the user must specify the canonical system/platform name for the destination system.
+
+
+\end{config}
+
+
+%%==========================================================================================
+
+\section{Configuration examples}
+
+The following examples are meant to help demonstrate proper usage of the optional flags.
+
+\begin{verbatim}
+% configure CC=gcc F77=g77 --with-cflags=-g --with-fflags=-g \
+            --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \ 
+            --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
+\end{verbatim}
+
+
+\begin{verbatim}
+% configure CC=gcc F77=g77 --disable-examples \
+            --with-mpicc=no --with-mpif77=no \
+            --with-mpi-root=/usr/apps/mpich/1.2.4 \
+            --with-mpi-libs=-lmpich
+\end{verbatim}
