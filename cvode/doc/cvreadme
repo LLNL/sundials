@@ -1,4 +1,4 @@
-                   CVODE: Version of 23 July 2002
+                   CVODE: Version of 24 July 2002
                    Notes on Installation and Usage
              Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
               Center for Applied Scientific Computing, LLNL
@@ -428,6 +428,8 @@ D.3. Revision History for combined CVODE package (YYYYMMDD)
           In FCVODE: revised dense and band Jacobian treatment;
           added examples cvbandf and cvkryf and revised cvdensef;
           minor corrections throughout.
+20020724  In cvode.c, removed Neq and tolerances from three CVEwtSet*
+          routines, accessing cv_mem instead.
 
 ......................................................................
 
