@@ -1,6 +1,6 @@
 /*******************************************************************
  *                                                                 *
- * File          : iterativ.c                                      *
+ * File          : iterative.c                                     *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
  * Version of    : 26 June 2002                                    *
  *-----------------------------------------------------------------*
@@ -16,7 +16,7 @@
  *******************************************************************/
 
 
-#include "iterativ.h"
+#include "iterative.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
