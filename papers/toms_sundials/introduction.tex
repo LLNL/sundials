@@ -16,7 +16,7 @@ areas, with emphasis on applications to partial differential equations
 (PDEs).  Among the popular Fortran solvers written at LLNL are the
 following:
 \begin{itemize}
-\item VODE: a solver for ODE initial value problems for stiff/nonstiff
+\item VODE: a solver for ODE initial-value problems for stiff/nonstiff
 systems, with direct solution of linear systems, by Brown, Byrne, and
 Hindmarsh \cite{BBH:89}.
 \item VODPK: a variant of VODE with preconditioned Krylov (GMRES
@@ -62,7 +62,7 @@ most influential?'', ``How can parameters be adjusted to better
 match experimental data?'', and ``What is the uncertainty in solutions 
 given uncertainty in data?''  Sensitivity analysis provides 
 information about the relationship between simulation results and model 
-data which can be critcal to answering these questions.  In addition, for 
+data which can be critical to answering these questions.  In addition, for 
 a given parameter, sensitivities can be computed in a modest multiple of 
 the computing time of the simulation itself.  
 SUNDIALS is being expanded to 
@@ -74,9 +74,9 @@ a more thorough description of the CVODES package is contained in a
 companion paper \cite{SeHi:03}.
 
 The rest of this paper is organized as follows.  In Section 
-\ref{s:basic_solvers} the algorithms contained in the three 
-core SUNDIALS solvers are presented.  
-We have attempted to capture many of the heuristics related to 
+\ref{s:basic_solvers}, the algorithms contained in the three 
+core solvers of SUNDIALS are presented.  
+We have attempted to identify many of the heuristics related to 
 stopping criteria and finite-difference parameter selection
 where appropriate as these items 
 can sometimes affect algorithm performance significantly.
@@ -89,7 +89,7 @@ capabilities to the codes.  Sections \ref{s:organization} and
 suite and the philosophy of the user interface.   
 Availability of the codes is given in 
 Section \ref{s:availability}.  Lastly, some
-concluding remarks and indication of future development
+concluding remarks and indications of future development
 are contained in the last section.
 
 
