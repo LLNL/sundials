@@ -1,5 +1,8 @@
 /*
  * -----------------------------------------------------------------
+ * $Revision: 1.11 $
+ * $Date: 2004-08-31 22:58:46 $
+ * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -21,7 +24,7 @@
  * The PDE system is treated by central differences on a uniform
  * mesh, with simple polynomial initial profiles.
  *
- * The problem is solved by CVODE/CVODE on NPE processors, treated
+ * The problem is solved by CVODE on NPE processors, treated
  * as a rectangular process grid of size NPEX by NPEY, with
  * NPE = NPEX*NPEY. Each processor contains a subgrid of size MXSUB
  * by MYSUB of the (x,y) mesh.  Thus the actual mesh sizes are
@@ -48,14 +51,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "cvode.h"
-#include "cvspgmr.h"
-#include "smalldense.h"
-#include "nvector_parallel.h"
-#include "sundialsmath.h"
-#include "mpi.h"
-
+#include "sundialstypes.h"     /* defn. of realtype, booleantype, TRUE, FALSE */
+#include "sundialsmath.h"      /* definition of macro SQR                     */
+#include "cvode.h"             /* prototypes for CVode***, various constants  */
+#include "cvspgmr.h"           /* prototypes and constants for CVSPGMR solver */
+#include "smalldense.h"        /* prototypes for small dense matrix functions */
+#include "nvector_parallel.h"  /* definition of type N_Vector, macro NV_DATA_P*/
+#include "mpi.h"               /* for MPI constants and types                 */
 
 /* Problem Constants */
 
