@@ -17,7 +17,7 @@ Briefly, their purposes are as follows:
 %%
 %%
 A linear solver module must also provide a user-callable specification routine
-(like those described in \S\ref{sss:lin_solv_init}) which will atach the above five 
+(like those described in \S\ref{sss:lin_solv_init}) which will attach the above four 
 routines to the main {\cvode} memory block. The return value of the specification 
 routine should be: \id{SUCCESS} = 0 if the routine was successful,
 \id{LMEM\_FAIL} = -1 if a memory allocation failed, or \id{LIN\_ILL\_INPUT} = -2
@@ -83,7 +83,7 @@ The type definition of \id{lsetup} is
      is the {\cvode} memory pointer of type \id{CVodeMem}.
   
    \item[convfail]
-     is a flag used to indicate any problem that occurred during  
+     is an input flag used to indicate any problem that occurred during  
      the solution of the nonlinear equation on the current time step for which 
      the linear solver is being used. This flag can be used to help decide     
      whether the Jacobian data kept by a {\cvode} linear solver needs to be updated 

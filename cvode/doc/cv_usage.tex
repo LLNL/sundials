@@ -1,11 +1,11 @@
 %%===================================================================================
-\chapter{Using {\cvode} for IVP Solution}\label{s:simulation}
+\chapter{Using CVODE for IVP Solution}\label{s:simulation}
 %%===================================================================================
 
 This section is concerned with the use of {\cvode} for the integration of IVPs.
 The following subsections treat the header files, the layout of the user's main
 program, description of the {\cvode} user-callable functions, and user-supplied functions. 
-The listings of the sample programs in the companion document \cite{} may also be helpful. 
+The listings of the sample programs in the companion document \cite{cvode2.1_ex} may also be helpful. 
 Those codes are intended to serve as templates and are included in the {\cvode} package.
 
 The user should be aware that not all linear solver modules are compatible 
@@ -25,7 +25,7 @@ can only be used with {\nvecp}.
 %%===================================================================================
 \section{Header files}\label{ss:header_sim}
 %%===================================================================================
-
+\index{header files}
 The calling program must include several header files so that various macros
 and data types can be used. The header file that is always required is:
 %%
@@ -78,7 +78,7 @@ The header files corresponding to the various linear solver options in {\cvode} 
 \end{itemize}
 
 Other headers may be needed, according as to the choice of
-preconditioner, etc. In one of the examples in \cite{}, preconditioning
+preconditioner, etc. In one of the examples in \cite{cvode2.1_ex}, preconditioning
 is done with a block-diagonal matrix. For this, the header
 \id{smalldense.h} is included.
 
@@ -125,7 +125,7 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
   and the active set of processors.
   
 \item\label{i:nv_spec_init}
-  {\bf Initialize vector specification}
+  {\bf Initialize vector specification}\index{nvSpec@{\tt nvSpec}}
 
   {\s} \id{nvSpec = }\Id{NV\_SpecInit\_Serial}\id{(N);}
 
@@ -160,12 +160,14 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
   to create the {\cvode} memory block and specify the solution method
   (linear multistep method and nonlinear solver iteration type).
   \id{CVodeCreate} returns a pointer to the {\cvode} memory structure.
+  See \S\ref{sss:cvodemalloc} for details.
 
 \item
   {\bf Set optional inputs}
 
   Call \id{CVodeSet*} functions to change from their default values any
   optional inputs that control the behavior of {\cvode}.
+  See \S\ref{ss:optional_input} for details.
 
 \item\label{i:cvode_malloc} 
   {\bf Allocate internal memory}
@@ -175,6 +177,7 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
   allocate internal memory for {\cvode}, 
   and initialize {\cvode}.
   \id{CVodeMalloc} returns an error flag to indicate success or an illegal argument value.
+  See \S\ref{sss:cvodemalloc} for details.
   
 \item\label{i:lin_solver} 
   {\bf Attach linear solver module}
@@ -195,6 +198,7 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
 
   Call \id{CV*Set*} functions from the selected linear solver module to
   change optional inputs specific to that linear solver.
+  See \S\ref{ss:optional_input} for details.
 
 \item
   {\bf Advance solution in time}
@@ -204,7 +208,12 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
   Set \id{itask} to specify the return mode.
   The vector \id{y} (which can be the same as
   the vector \id{y0} above) will contain $y(t)$.
+  See \S\ref{sss:cvode} for details.
   
+\item
+  Call \id{CVodeGet*} functions to obtain optional output.
+  See \S\ref{ss:optional_output} for details.
+
 \item
   {\bf Deallocate memory for solution vector}
 
@@ -246,7 +255,7 @@ the functions listed involve optional inputs/outputs or restarting, and those pa
 be skipped for a casual use of {\cvode}. In any case, refer to \S\ref{ss:skeleton_sim} for
 the correct order of these calls.
 
-\subsection{{\cvode} initialization and deallocation functions}
+\subsection{CVODE initialization and deallocation functions}
 \label{sss:cvodemalloc}
 %%
 The following three functions must be called in the order listed. The last one is to be 
@@ -309,6 +318,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
     The latter choice is important when the absolute error tolerance needs to
     be different for each component of the ODE. 
   \item[reltol] (\id{realtype *})
+    \index{tolerances}
     is a pointer to the relative error tolerance.
   \item[abstol] (\id{void *})
     is a pointer to the absolute error tolerance.
@@ -318,7 +328,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:.
+  The return flag \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CVM\_ILL\_INPUT]
   \item[\Id{SUCCESS}]
     The call to \id{CVodeMalloc} was successful.
@@ -438,6 +448,7 @@ separately in \S\ref{s:gen_linsolv}.
 \index{CVODE@{\cvode} linear solvers!CVBAND@{\cvband}}
 \index{CVBAND@{\cvband} linear solver!selection of}
 \index{CVBAND@{\cvband} linear solver!NVECTOR@{\nvector} compatibility}
+\index{half-bandwidths}
 \ucfunction{CVBand}
 {
   flag = CVBand(cvode\_mem, N, mupper, mlower);
@@ -584,7 +595,7 @@ separately in \S\ref{s:gen_linsolv}.
 
 %%===================================================================================
 
-\subsection{{\cvode} solver function}\label{sss:cvode}
+\subsection{CVODE solver function}\label{sss:cvode}
 %
 This is the central step in the solution process - the call to perform the integration 
 of the IVP.
@@ -688,6 +699,7 @@ For the most casual use of {\cvode}, the reader can skip to \S\ref{ss:user_fct_s
 
 We note that, on error return, all these functions also print an error message to \id{stdout} 
 (or to the file pointed to by \id{errfp} if already specified).
+\index{error message}
 We also note that all error return values are negative, so a test \id{flag}$==0$
 will catch any error.
 
@@ -701,12 +713,13 @@ will catch any error.
 \hline
 \multicolumn{3}{|c|}{\bf CVODE main solver} \\
 \hline
-Data for right-hand side routine & \id{CVodeSetFdata} & NULL \\
 Pointer to an error file & \id{CVodeSetErrFile} & NULL  \\
+Nonlinear iteration type & \id{CVodeResetIterType} & none \\
+Data for right-hand side routine & \id{CVodeSetFdata} & NULL \\
 Maximum order for BDF method & \id{CVodeSetMaxOrd} & 5 \\
 Maximum order for Adams method & \id{CVodeSetMaxOrd} & 12  \\
 Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & \id{CVodeSetMaxNumSteps} & 500 \\
-Maximum no. of warnings for $h < U$ & \id{CVodeSetMaxHnilWarns} & 10 \\
+Maximum no. of warnings for $t_n+h=t_n$ & \id{CVodeSetMaxHnilWarns} & 10 \\
 Flag to activate stability limit detection & \id{CVodeSetStabLimDet} & FALSE \\
 Initial step size & \id{CVodeSetInitStep} & estimated \\
 Minimum absolute step size & \id{CVodeSetMinStep} & 0.0 \\
@@ -729,13 +742,15 @@ Data for Jacobian routine & \id{CVBandSetJacData} & NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPGMR linear solver} \\
 \hline
-Type of Gram-Schmidt orthogonalization & \id{CVSpgmrSetGSType} & classical GS \\
-Ratio between linear and nonlinear tolerances & \id{CVSpgmrSetDelt} & 0.05 \\
-Preconditioner setup routine & \id{CVSpgmrSetPrecSetupFn} & NULL \\
 Preconditioner solve routine & \id{CVSpgmrSetPrecSolveFn} & NULL \\
+Preconditioner setup routine & \id{CVSpgmrSetPrecSetupFn} & NULL \\
 Data for preconditioner routines & \id{CVSpgmrSetPrecData} & NULL \\
 Jacobian times vector routine & \id{CVSpgmrSetJacTimesVecFn} & NULL \\
-Data for Jacobian times vector routine &\id{CVSpgmrSetJacData} & NULL \\ \hline
+Data for Jacobian times vector routine &\id{CVSpgmrSetJacData} & NULL \\ 
+Type of Gram-Schmidt orthogonalization & \id{CVSpgmrSetGSType} & classical GS \\
+Ratio between linear and nonlinear tolerances & \id{CVSpgmrSetDelt} & 0.05 \\
+Preconditioning type & \id{CVSpgmrResetPrecType} & none \\
+\hline
 \end{tabular}
 \end{table}
 
@@ -745,6 +760,7 @@ The calls listed here can be executed in any order. However, if \id{CVodeSetErrF
 is to be called, that call should be first, in order to take effect for any later 
 error message.
 
+\index{error message}
 \ucfunction{CVodeSetErrFile}
 {
 flag = CVodeSetErrFile(cvode\_mem, errfp);
@@ -1012,6 +1028,7 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
 }
 %%
 %%
+\index{step size bounds|(}
 \ucfunction{CVodeSetMinStep}
 {
 flag = CVodeSetMinStep(cvode\_mem, hmin);
@@ -1074,6 +1091,7 @@ flag = CVodeSetMaxStep(cvode\_mem, hmax);
 {
   The default value is $\infty$.
 }
+\index{step size bounds|)}
 %%
 %%
 \ucfunction{CVodeSetStopTime}
@@ -1419,6 +1437,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \paragraph\noindent{\bf SPGMR Linear solver.}
 \index{optional input!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
+\index{preconditioning!user-supplied|(}
 The call to \id{CVSpgmr} is used to communicate the type of preconditioning 
 (\id{pretype}) and the maximum dimension of the Krylov subspace to be used (\id{maxl}). 
 The \id{pretype} parameter can be \id{NONE}, \id{LEFT}, \id{RIGHT}, or \id{BOTH}.
@@ -1533,7 +1552,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 \ucfunction{CVSpgmrSetPrecData}
 {
-  flag = CVSpgmrSetJacData(cvode\_mem, void *P\_data);
+  flag = CVSpgmrSetPrecData(cvode\_mem, void *P\_data);
 }
 {
   The function \ID{CVSpgmrSetPrecData} specifies the data structure
@@ -1561,6 +1580,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {}
 %%
+\index{preconditioning!user-supplied|)}
 %%
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
 \ucfunction{CVSpgmrSetJacTimesVecFn}
@@ -1813,9 +1833,9 @@ The call to the \id{CVodeGetDky} function has the following form:
 \subsection{Optional output functions}\label{ss:optional_output}
 
 {\cvode} provides an extensive list of functions that can be used to obtain
-solver performance statistics.
-Table \ref{t:optional_output} lists all optional output functions in {\cvode} which 
-are then described in detail in the remainder of this section.
+solver performance information.
+Table \ref{t:optional_output} lists all optional output functions in {\cvode},
+which are then described in detail in the remainder of this section.
 
 \begin{table}
 \centering
@@ -3007,7 +3027,7 @@ to access these are described below.
 }
 {
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
-  the actual sizes of the real workspace is
+  the actual size of the real workspace is
   $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$ \id{realtype} words.
 }
 %%
@@ -3096,11 +3116,11 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    the optional output value has been successfuly set.
+    The optional output value has been successfuly set.
   \item[\Id{LIN\_NO\_MEM}]
-    the \id{cvode\_mem} pointer is \id{NULL}.
+    The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
-    the {\cvspgmr} linear solver has not been initialized.
+    The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
 {}
@@ -3207,7 +3227,7 @@ to access these are described below.
 %%
 %%===================================================================================
 
-\subsection{{\cvode} reinitialization function}\label{sss:cvreinit}
+\subsection{CVODE reinitialization function}\label{sss:cvreinit}
 \index{reinitialization}
 
 The function \ID{CVodeReInit} reinitializes the main {\cvode} solver for
@@ -3260,7 +3280,7 @@ will be reused for the new problem.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:.
+  The return flag \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CVREI\_NO\_MALLOC]
   \item[\Id{SUCCESS}]
     The call to \id{CVodeReInit} was successful.
@@ -3380,13 +3400,14 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
   read and write dense matrix elements without making explicit
   references to the underlying representation of the \id{DenseMat}
   type. \id{DENSE\_ELEM(J, i, j)} references the (\id{i}, \id{j})-th
-  element of the dense matrix \id{J} (\id{i}, \id{j} = 0..N-1). This macro
+  element of the dense matrix \id{J} (\id{i}, \id{j}$= 0\ldots N-1$). This macro
   is for use in small problems in which efficiency of access is not a major
   concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
   $N$, the Jacobian element $J_{m,n}$ can be loaded with the statement
   \id{DENSE\_ELEM(J, m-1, n-1) =} $J_{m,n}$.  Alternatively,
   \id{DENSE\_COL(J, j)} returns a pointer to the storage for
-  the \id{j}th column of \id{J}, and the elements of the \id{j}th column
+  the \id{j}th column of \id{J} (\id{j}$= 0\ldots N-1$), and the 
+  elements of the \id{j}th column
   are then accessed via ordinary array indexing.  Thus $J_{m,n}$ can be 
   loaded with the statements \id{col\_n = DENSE\_COL(J, n-1);}
   \id{col\_n[m-1] =} $J_{m,n}$.  For large problems, it is more 
@@ -3410,6 +3431,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
 \subsection{Jacobian information (direct method with banded Jacobian)}
 \label{ss:bjacFn}
 \index{Jacobian approximation function!band!user-supplied|(}
+\index{half-bandwidths|(}
 If the direct linear solver with banded treatment of the Jacobian is used 
 (i.e. \Id{CVBand} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
 the user may provide a function of type \ID{CVBandJacFn} defined as follows:
@@ -3464,7 +3486,8 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   The accessor macros \Id{BAND\_ELEM}, \Id{BAND\_COL}, and \Id{BAND\_COL\_ELEM} 
   allow the user to read and write band matrix elements without making specific 
   references to the underlying representation of the \id{BandMat} type.
-  \id{BAND\_ELEM(J, i, j)} references the (\id{i}, \id{j})th element of the band matrix \id{J}.
+  \id{BAND\_ELEM(J, i, j)} references the (\id{i}, \id{j})th element of the 
+  band matrix \id{J}, counting from $0$.
   This macro is for use in small problems in which efficiency of access is not
   a major concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
   $N$ with $(m,n)$ within the band defined by \id{mupper} and
@@ -3474,7 +3497,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   Alternatively, \id{BAND\_COL(J, j)} returns a pointer to the diagonal element of the
   \id{j}th column of \id{J}, and if we assign this address to 
   \id{realtype *col\_j}, then the \id{i}th element of the \id{j}th column is
-  given by \id{BAND\_COL\_ELEM(col\_j, i, j)}.
+  given by \id{BAND\_COL\_ELEM(col\_j, i, j)}, counting from $0$.
   Thus for $(m,n)$ within the band, $J_{m,n}$ can be loaded by setting 
   \id{col\_n = BAND\_COL(J, n-1);} \id{BAND\_COL\_ELEM(col\_n, m-1, n-1) =} $J_{m,n}$.
   The elements of the \id{j}th column can also be accessed
@@ -3495,11 +3518,12 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   described in \S\ref{ss:optional_output}. The unit roundoff can be accessed through
   the macro \id{DBL\_EPSILON} defined in \id{float.h}.
 }
+\index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
 %%
 %%----------------
 %%
-\subsection{Jacobian information ({\spgmr} matrix-vector product)}
+\subsection{Jacobian information (SPGMR matrix-vector product)}
 \label{ss:jtimesFn}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|(}
 If an iterative {\spgmr} linear solver is selected (\id{CVSpgmr} is called in step 
@@ -3545,8 +3569,9 @@ of type \ID{CVSpgmrJacTimesVecFn} in the following form:
 %%
 %%--------------
 %%
-\subsection{Preconditioning ({\spgmr} linear system solution)}
+\subsection{Preconditioning (SPGMR linear system solution)}
 \label{ss:psolveFn}
+\index{preconditioning!user-supplied}
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner solve function}
 If preconditioning is used, then the user must provide a {\C} function to
 solve the linear system $Pz = r$ where $P$ may be either a left or a
@@ -3608,12 +3633,13 @@ This function must be of type \ID{CVSpgmrPrecSolveFn}, defined as follows:
 %%
 %%-----------------
 %%
-\subsection{Preconditioning ({\spgmr} Jacobian data)}
+\subsection{Preconditioning (SPGMR Jacobian data)}
 \label{ss:precondFn}
+\index{preconditioning!user-supplied}
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner setup function}
 If the user's preconditioner requires that any Jacobian related data
 be evaluated or preprocessed, then this needs to be done in a
-user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn} defined as follows:
+user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
 \usfunction{CVSpgmrPrecSetupFn}
 {
   typedef int (*CVSpgmrPrecSetupFn)(&realtype t, N\_Vector y, N\_Vector fy,  \\
@@ -3726,7 +3752,7 @@ additional functions.
 Besides the header files required for the integration of the ODE problem
 (see \S\ref{ss:header_sim}),  to use the {\cvbandpre} module, the main program 
 must include the header file \id{cvbandpre.h} which declares the needed
-function prototypes.
+function prototypes.\index{header files}
 %%
 The following is a summary of the usage of this module and describes the sequence 
 of calls in the user main program. Steps that are unchanged from the user main
@@ -3817,6 +3843,7 @@ the {\cvbandpre} preconditioner module (steps \ref{i:bandpre_init},
 \ref{i:bandpre_attach}, and \ref{i:bandpre_free} above) are described
 in more detail below.
 %%
+\index{half-bandwidths}
 \ucfunction{CVBandPrecAlloc}
 {
   bp\_data = CVBandPrecAlloc(cvode\_mem, N, mu, ml);
@@ -4194,7 +4221,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 Besides the header files required for the integration of the ODE problem
 (see \S\ref{ss:header_sim}),  to use the {\cvbbdpre} module, the main program 
 must include the header file \id{cvbbdpre.h} which declares the needed
-function prototypes.
+function prototypes.\index{header files}
 
 The following is a summary of the usage of this module and describes the sequence 
 of calls in the user main program. Steps that are unchanged from the user main
@@ -4297,6 +4324,7 @@ the {\cvbbdpre} preconditioner module (steps \ref{i:bbdpre_init},
 \ref{i:bbdpre_attach}, and \ref{i:bbdpre_free} above) are described
 next.
 %%
+\index{half-bandwidths}
 \ucfunction{CVBBDPrecAlloc}
 {
    \begin{tabular}[t]{@{}r@{}l@{}}
@@ -4341,7 +4369,7 @@ next.
 {
   If one of the half-bandwidth \id{mudq} or \id{mldq} to be used in the 
   difference-quotient calculation of the approximate Jacobian is negative or 
-  exceeds the value \id{local\_N}$-1$, it is replaced with 0.
+  exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
 
   The half-bandwiths \id{mudq} and \id{mldq} need not be the true 
   half-bandwidths of the Jacobian of the local block of $g$,    
@@ -4454,7 +4482,7 @@ or one of the user-supplied functions \id{gloc} and \id{cfn}.
 }
 {
   If one of the half-bandwidth \id{mudq} or \id{mldq} is negative or it
-  exceeds the value \id{local\_N}$-1$, it is replaced with 0.
+  exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
 }
 %%
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-callable functions|)}
@@ -4553,7 +4581,7 @@ the {\cvbbdpre} module:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BBDP\_NO\_DATA]
   \item[OKAY] 
-    the optional output value has been successfuly set.
+    The optional output value has been successfuly set.
   \item[\Id{BBDP\_NO\_DATA}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
