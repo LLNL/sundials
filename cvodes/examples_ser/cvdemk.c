@@ -1,19 +1,18 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-08-25 16:23:40 $
+ * $Revision: 1.14 $
+ * $Date: 2004-10-08 15:21:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
- * -----------------------------------------------------------------
- * Demonstration program for CVODE/CVODES - Krylov linear solver.
+ * --------------------------------------------------------------------
+ * Demonstration program for CVODES - Krylov linear solver.
  * ODE system from ns-species interaction PDE in 2 dimensions.
  * 
  * This program solves a stiff ODE system that arises from a system
  * of partial differential equations. The PDE system is a food web
  * population model, with predator-prey interaction and diffusion on
- * the unit square in two dimensions. The dependent variable vector
- * is:
+ * the unit square in two dimensions. The dependent variable vector is:
  *
  *        1   2        ns
  *  c = (c , c , ..., c  )
@@ -46,8 +45,7 @@
  * The boundary conditions are: normal derivative = 0.
  * A polynomial in x and y is used to set the initial conditions.
  *
- * The PDEs are discretized by central differencing on an MX by MY
- * mesh.
+ * The PDEs are discretized by central differencing on an MX by MY mesh.
  *
  * The resulting ODE system is stiff.
  *
@@ -82,23 +80,25 @@
  * Note: This program assumes the sequential implementation for the
  * type N_Vector and uses the NV_DATA_S macro to gain access to the
  * contiguous array of components of an N_Vector.
- * -----------------------------------------------------------------
+ * --------------------------------------------------------------------
  * Reference: Peter N. Brown and Alan C. Hindmarsh, Reduced Storage
  * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
  * (1989), pp. 40-91.  Also available as Lawrence Livermore National
  * Laboratory Report UCRL-95088, Rev. 1, June 1987.
- * -----------------------------------------------------------------
+ * --------------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "cvodes.h"
-#include "cvspgmr.h"
-#include "smalldense.h"
-#include "nvector_serial.h"
-#include "sundialsmath.h"
+
+
+#include "sundialstypes.h"  /* definition for realtype, TRUE                */
+#include "cvodes.h"         /* main integrator header file                  */
+#include "cvspgmr.h"        /* use CVSPGMR linear solver                    */
+#include "smalldense.h"     /* use small dense matrix functions             */
+#include "nvector_serial.h" /* definition of type N_Vector, macro NV_DATA_S */
+#include "sundialsmath.h"   /* contains the macros ABS, SQR                 */
 
 /* Problem Specification Constants */
 
@@ -138,7 +138,6 @@
 #define LMM   CV_BDF
 #define ITER  CV_NEWTON
 #define ITOL  CV_SS
-#define ERRFP stderr
 
 /* CVSpgmr Constants */
 
@@ -261,9 +260,6 @@ int main()
         if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
         wdata->cvode_mem = cvode_mem;
-
-        flag = CVodeSetErrFile(cvode_mem, ERRFP);
-        if(check_flag(&flag, "CVodeSetErrFile", 1)) return(1);
 
         flag = CVodeSetFdata(cvode_mem, wdata);
         if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
@@ -454,7 +450,7 @@ static void CInit(N_Vector c, WebData wdata)
 
 static void PrintIntro(void)
 {
-  printf("\n\nDemonstration program for CVODE/CVODES - CVSPGMR linear solver\n\n");
+  printf("\n\nDemonstration program for CVODE - CVSPGMR linear solver\n\n");
   printf("Food web problem with ns species, ns = %d\n", NS);
   printf("Predator-prey interaction and diffusion on a 2-D square\n\n");
   printf("Matrix parameters.. a = %.2g   e = %.2g   g = %.2g\n",
@@ -1059,19 +1055,22 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
     return(1); }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+              funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
     return(1); }
 
   return(0);

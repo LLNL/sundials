@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-08-25 16:23:40 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-08 15:21:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -9,7 +9,7 @@
  * Example problem:
  * 
  * The following is a simple example problem, with the coding
- * needed for its solution by CVODE/CVODES. The problem is from
+ * needed for its solution by CVODES. The problem is from
  * chemical kinetics, and consists of the following three rate
  * equations:         
  *    dy1/dt = -.04*y1 + 1.e4*y2*y3

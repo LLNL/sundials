@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-09-27 18:45:05 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-08 15:21:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -9,7 +9,7 @@
  * Example problem:
  *
  * The following is a simple example problem with a banded Jacobian,
- * with the program for its solution by CVODE/CVODES.
+ * with the program for its solution by CVODES.
  * The problem is the semi-discrete form of the advection-diffusion
  * equation in 2-D:
  *   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2
@@ -36,13 +36,11 @@
 /* Header files with a description of contents used in cvbx.c */
 
 #include "sundialstypes.h"   /* definition of type realtype                   */
-#include "cvodes.h"          /* prototypes for CVode*** functions and
-				constants: CV_BDF, CV_NEWTON, CV_SS,
-				CV_NORMAL, and CV_SUCCESS                     */
+#include "cvodes.h"          /* prototypes for CVode*** functions; constants  */
+                             /* CV_BDF, CV_NEWTON, CV_SS, CV_NORMAL,CV_SUCCESS*/
 #include "cvband.h"          /* prototype for CVBand                          */
-#include "nvector_serial.h"  /* definitions of type N_Vector and macro
-                                NV_DATA_S, and prototypes for N_VNew_Serial
-				and N_VDestroy                                */
+#include "nvector_serial.h"  /* definitions of type N_Vector, macro NV_DATA_S,*/
+                             /* prototypes for N_VNew_Serial and N_VDestroy   */
 #include "band.h"            /* definition of type BandMat, macros            */
 
 /* Problem Constants */

@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-25 16:23:40 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-08 15:21:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Demonstration program for CVODE/CVODES - direct linear solvers.
+ * Demonstration program for CVODES - direct linear solvers.
  * Two separate problems are solved using both the CV_ADAMS and CV_BDF
  * linear multistep methods in combination with CV_FUNCTIONAL and
  * CV_NEWTON iterations:
@@ -56,21 +56,19 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "cvodes.h"
-#include "cvdense.h"
-#include "cvband.h"
-#include "cvdiag.h"
-#include "nvector_serial.h"
-#include "sundialsmath.h"
+#include "sundialstypes.h"  /* definition for realtype                      */
+#include "cvodes.h"         /* main integrator header file                  */
+#include "cvdense.h"        /* use CVDENSE linear solver                    */
+#include "cvband.h"         /* use CVBAND linear solver                     */
+#include "cvdiag.h"         /* use CVDIAG linear solver                     */
+#include "nvector_serial.h" /* definition of type N_Vector, macro NV_Ith_S  */
+#include "sundialsmath.h"   /* contains the macros ABS, SQR                 */
 
 /* Shared Problem Constants */
 
 #define ATOL  1.0e-6
 #define RTOL  0.0
 #define ITOL  CV_SS
-#define ERRFP stdout
-#define OPTIN FALSE
 
 /* Problem #1 Constants */
 
@@ -277,7 +275,7 @@ static int Problem1(void)
 
 static void PrintIntro1(void)
 {
-  printf("Demonstration program for CVODE/CVODES package - direct linear solvers\n");
+  printf("Demonstration program for CVODE package - direct linear solvers\n");
   printf("\n\n");
   
   printf("Problem 1.. Van der Pol oscillator..\n");
@@ -677,19 +675,22 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
     return(1); }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+              funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
     return(1); }
 
   return(0);
