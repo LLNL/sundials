@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2004-07-26 17:26:30 $
+ * $Revision: 1.28 $
+ * $Date: 2004-07-28 15:45:32 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,16 +45,16 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   int lmm, iter, itol;
   void *atolptr;
 
-  CV_yvec = N_VCloneEmpty(F2C_vec);
-
-  if(CV_yvec->ops->nvcloneempty      == NULL ||
-     CV_yvec->ops->nvdestroyempty    == NULL ||
-     CV_yvec->ops->nvgetarraypointer == NULL ||
-     CV_yvec->ops->nvsetarraypointer == NULL) {
+  if(F2C_vec->ops->nvcloneempty      == NULL ||
+     F2C_vec->ops->nvdestroyempty    == NULL ||
+     F2C_vec->ops->nvgetarraypointer == NULL ||
+     F2C_vec->ops->nvsetarraypointer == NULL) {
     *ier = -1;
     printf("A required vector operation is not implemented.\n\n");
     return;
   }
+
+  CV_yvec = N_VCloneEmpty(F2C_vec);
 
   N_VSetArrayPointer(y0, CV_yvec);
 
