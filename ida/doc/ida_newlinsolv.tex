@@ -43,7 +43,7 @@ The type definition of \id{linit} is
 }
 {
   The purpose of \id{linit} is to complete initializations for      
-  specific linear solver, such as counters and statistics.        
+  a specific linear solver, such as counters and statistics.        
 }
 {
   \begin{args}[IDA\_mem]
@@ -53,7 +53,7 @@ The type definition of \id{linit} is
 }
 {
   An \id{linit} function should return $0$ if it 
-  has successfully initialized the {\cvode} linear solver and 
+  has successfully initialized the {\ida} linear solver and 
   a negative value otherwise. 
 }
 {
@@ -73,7 +73,7 @@ The type definition of \id{lsetup} is
 }
 {
   The job of \id{lsetup} is to prepare the linear solver for subsequent 
-  calls to \id{lsolve}. It may re-compute Jacobian-related data is it 
+  calls to \id{lsolve}. It may re-compute Jacobian-related data if it 
   deems necessary. 
 }
 {
