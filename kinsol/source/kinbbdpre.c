@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-07-27 23:52:30 $
+ * $Revision: 1.17 $
+ * $Date: 2004-07-28 15:27:51 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -112,8 +112,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
   /* Note: do NOT need to check for N_VScale since it is required by KINSOL and
      so has already been checked for (see KINMalloc) */
 
-  if ((vec_tmpl->ops->nvgetarraypointer == NULL) ||
-      (vec_tmpl->ops->nvsetarraypointer == NULL)) {
+  if (vec_tmpl->ops->nvgetarraypointer == NULL) {
     if (errfp != NULL) fprintf(errfp, MSG_BAD_NVECTOR);
     return(NULL);
   }
@@ -430,7 +429,6 @@ int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
 
   vd = N_VGetArrayPointer(vv);
   BandBacksolve(PP, pivots, vd);
-  N_VSetArrayPointer(vd, vv);
 
   return(0);
 }
@@ -499,9 +497,7 @@ static void KBBDDQJac(KBBDPrecData pdata,
   
     /* evaluate g with incremented u */
 
-    N_VSetArrayPointer(utempdata, utemp);
     gloc(Nlocal, utemp, gtemp, f_data);
-    gtempdata = N_VGetArrayPointer(gtemp);
 
     /* restore utemp, then form and load difference quotients */
 
