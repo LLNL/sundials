@@ -115,7 +115,7 @@ As an example of using {\cvode} with the Krylov linear solver
 {\cvspgmr} and the parallel MPI {\nvecp} module, we describe a test
 problem based on the system PDEs given above for the \id{cvkx} example.  
 As before, we discretize the PDE system with central differencing, to
-obtain an ODE system $\dot{u} = f(t,u)$ representing (\ref{e:cvkx:pde}).  
+obtain an ODE system $\dot{u} = f(t,u)$ representing (\ref{cvkxpde}).  
 But in this case, the discrete solution vector is distributed over
 many processors.  Specifically, we may think of the processors as
 being laid out in a rectangle, and each processor being assigned a
@@ -153,7 +153,7 @@ preconditioner is generated, for re-use later under certain conditions.
 
 The organization of the \id{pvkx} program deserves some comments. The
 right-hand side routine \id{f} calls two other routines: \id{ucomm}, which
-carries out inter-processor communication; and \id{fcalc} which operates on
+carries out inter-processor communication; and \id{fcalc}, which operates on
 local data only and contains the actual calculation of $f(t,u)$. The 
 \id{ucomm} function in turn calls three routines which do, respectively,
 non-blocking receive operations, blocking send operations, and
@@ -185,7 +185,7 @@ $2\cdot\id{MXSUB}$, and that is the value supplied as \id{mudq} and \id{mldq}
 in the call to \id{CVBBDPrecAlloc}.  But in order to reduce storage and computation
 costs for preconditioning, we supply the values \id{mukeep} = \id{mlkeep} = 2
 (= \id{NVARS}) as the half-bandwidths of the retained band matrix blocks.
-This means that the Jacobian elements are computed with a differnce quotient
+This means that the Jacobian elements are computed with a difference quotient
 scheme using the true bandwidth of the block, but only a narrow band matrix
 (bandwidth 5) is kept as the preconditioner.  The source is listed in
 Appendix \ref{s:pvkxb_c}. 
