@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-22 19:49:53 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-22 20:42:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -291,7 +291,7 @@ int main()
 
 /*
  *--------------------------------------------------------------------
- * FUNCTIONS CALLED BY CVODES
+ * FUNCTIONS CALLED BY IDA
  *--------------------------------------------------------------------
  */
 
@@ -469,10 +469,7 @@ static void PrintOutput(void *mem, N_Vector c, realtype t, UserData webdata)
   check_flag(&flag, "IDAGetLastStep", 1);
   
   c_bl = IJ_Vptr(c,0,0);
-  //  printf("At bottom left:  c1, c2 = %e %e \n",   ct[0],ct[1]);
-  
   c_tr = IJ_Vptr(c,MX-1,MY-1);
-  //  printf("At top right:    c1, c2 = %e %e \n\n", ct[0],ct[1]);
 
   printf("%8.2e %12.4e %12.4e   | %3d  %1d %12.4e\n", 
          t, c_bl[0], c_tr[1], nst, kused, hused);
