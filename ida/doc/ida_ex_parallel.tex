@@ -68,8 +68,8 @@ In this example, \id{iwebbbd}, we solve the same food web problem as with
 using the {\idabbdpre} module, which generates and uses a band-block-diagonal 
 preconditioner.  The source is listed in Appendix \ref{s:iwebbbd_c}.
 
-As with \id{iheatpk}, we use a \id{NPEX} $\times$ \id{NPEY} processor grid,
-with an \id{MXSUB} $\times$ \id{MYSUB} submesh on each.  Again, the residual
+As with \id{iheatpk}, we use a \id{NPEX} $\times$ \id{NPEY} processor grid, with
+an \id{MXSUB} $\times$ \id{MYSUB} submesh on each processor.  Again, the residual
 evaluation begins with the communication of ghost data (in \id{rescomm}),
 followed by computation using an extended local array, \id{cext}, in the
 \id{reslocal} routine.
@@ -80,7 +80,7 @@ evaluated in terms of the \id{cext} array, and the residuals are formed.
 
 The Jacobian block on each processor is banded, and the half-bandwidths of
 that block are both equal to $\id{NUM\_SPECIES}\cdot\id{MXSUB}$.
-That is the value supplied as \id{mudq} and \id{mldq} in the call to
+This is the value supplied as \id{mudq} and \id{mldq} in the call to
 \id{IDABBDPrecAlloc}.  But in order to reduce storage and computation costs for
 preconditioning, we supply the values \id{mukeep} = \id{mlkeep} = 2
 (= \id{NUM\_SPECIES}) as the half-bandwidths of the retained band matrix blocks.
@@ -96,14 +96,14 @@ already done for \id{resweb}).
 In the \id{iwebbbd} main program, following MPI initializations and
 creation of user data block \id{webdata} and \id{N\_Vector} variables,
 the initial profiles are set, the {\ida} memory block is created and
-allocated, and the {\idabbdpre} preconditioner is initialized, and the
+allocated, the {\idabbdpre} preconditioner is initialized, and the
 {\idaspgmr} linear solver is attached to the {\ida} solver.
 The call to \id{IDACalcIC} corrects the initial values so that they are
 consistent with the DAE algebraic constraints.  
 
 In a loop over the desired output times, the main solver function \id{IDASolve}
 is called, and selected solution components (at the bottom-left and top-right
-corners of the computational domain) are collected on process 0 and printed
+corners of the computational domain) are collected on processor 0 and printed
 to \id{stdout}. The main program ends by printing final solver statistics,
 freeing memory, and finalizing MPI.
 

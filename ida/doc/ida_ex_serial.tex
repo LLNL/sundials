@@ -312,16 +312,15 @@ equations solved are:
   u = 0 & (x,y) \in \partial\Omega\, .
 \end{cases}
 \end{equation}
-Initial conditions are given by $u = 16x(1-x)y(1-y)$, where the time interval is 
-$0 \leq t \leq 10.24$.
+The time interval is $0 \leq t \leq 10.24$, and the initial conditions are 
+$u = 16x(1-x)y(1-y)$.
 
 We discretize the PDE system (\ref{e:iheatsk_PDE}) (plus boundary conditions)
 with central differencing on a $10 \times 10$ mesh, so as to obtain a
 DAE system of size $N = 100$.  The dependent variable vector $u$
 consists of the values $u(x_j,y_k,t)$ grouped first by $x$, and then
-by $y$.  At each spatial boundary point, the boundary condition is coupled
-algebraically into the adjacent interior points by the central differencing
-scheme. 
+by $y$.  Each discrete boundary condition becomes an algebraic equation
+within the DAE system.
 
 The source for this example is listed in appendix \ref{s:iheatsk_c}.
 In this case, \id{idaspgmr.h} is included for the definitions of
