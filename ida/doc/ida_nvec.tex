@@ -35,11 +35,6 @@ This issue does not arise for the other two {\ida} linear solvers because
 the generic {\dense} and {\band} solvers (used in the implementation of
 {\idadense} and {\idaband}) do not make calls to any vector functions.
 
-At this point, we should emphasize that the {\ida} user does not need to know 
-anything about the usage of vector functions by the {\ida} code modules in order 
-to use {\ida}. The information is presented as an implementation detail for the 
-interested reader.
-
 \begin{table}[htb]
 \centering
 \caption{List of vector functions usage by {\ida} code modules}\label{t:nvecuse}
