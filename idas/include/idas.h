@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-06-18 21:37:55 $
+ * $Revision: 1.17 $
+ * $Date: 2004-06-29 00:49:37 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -824,7 +824,7 @@ enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
        IC_LINIT_FAIL =     -22,   IC_BAD_EWT =         -23,
        IC_FIRST_RES_FAIL = -24,   IC_NO_RECOVERY =     -25,
        IC_FAILED_CONSTR =  -26,   IC_FAILED_LINESRCH = -27,
-       IC_CONV_FAILURE =   -28,   IC_NO_MALLOC =       -28  };
+       IC_CONV_FAILURE =   -28,   IC_NO_MALLOC =       -29  };
 
 /******************************************************************
  * Function : IDASolve                                            *
