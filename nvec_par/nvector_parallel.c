@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-08-12 21:59:26 $
+ * $Revision: 1.13 $
+ * $Date: 2004-08-17 18:44:24 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -171,7 +171,6 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
                           realtype *v_data)
 {
   N_Vector v;
-  realtype *data;
 
   v = N_VNewEmpty_Parallel(comm, local_length, global_length);
   if (v == NULL) return(NULL);
