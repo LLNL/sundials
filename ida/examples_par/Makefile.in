@@ -1,0 +1,63 @@
+# File Makefile
+#--------------------------------------------------------------------------
+# Makefile for the IDA examples using the parallel N_Vector implementation.
+# @configure_input@
+#--------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# SUNDIALS library and include directories
+SUNDIALSINCLUDE = -I${includedir}
+SUNDIALSLIBDIRS = -L${libdir}
+SUNDIALSLIBS    = -lida -lshared -lnvecparallel
+
+# MPI library and include directories
+MPIINCLUDE = @MPIINCLUDE@
+MPILIBDIRS = @MPILIBDIRS@
+MPILIBS    = @MPILIBS@
+MPIFLAGS   = @MPIFLAGS@
+
+# Include
+INCDIRS = ${SUNDIALSINCLUDE} ${MPIINCLUDE}
+
+# Libraries
+LIBDIRS = ${SUNDIALSLIBDIRS} ${MPILIBDIRS}
+LIBS    = ${SUNDIALSLIBS} ${MPILIBS} -lm
+
+# Compiler and compiler options
+CC     = @MPICC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: iheatpk iheatbbd iwebpk iwebbbd
+
+iheatpk: iheatpk.o
+	${CC} ${CFLAGS} ${MPIFLAGS} -o iheatpk iheatpk.o ${LIBDIRS} ${LIBS}
+
+iheatbbd: iheatbbd.o
+	${CC} ${CFLAGS} ${MPIFLAGS} -o iheatbbd iheatbbd.o ${LIBDIRS} ${LIBS}
+
+iwebpk: iwebpk.o
+	${CC} ${CFLAGS} ${MPIFLAGS} -o iwebpk iwebpk.o ${LIBDIRS} ${LIBS}
+
+iwebbbd: iwebbbd.o
+	${CC} ${CFLAGS} ${MPIFLAGS} -o iwebbbd iwebbbd.o ${LIBDIRS} ${LIBS}
+
+clean:
+	rm -f *.o
+	rm -f iheatpk iheatbbd iwebpk iwebbbd
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCDIRS} $*.c
+
+#---End of Makefile---
