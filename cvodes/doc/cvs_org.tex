@@ -1,14 +1,14 @@
 %===================================================================================
-\section{Code Organization}\label{s:organization}
+\chapter{Code Organization}\label{s:organization}
 %===================================================================================
 
 %----------------------------------
-\subsection{{\sundials} Organization}\label{ss:sun_org}
+\section{{\sundials} Organization}\label{ss:sun_org}
 %----------------------------------
 \input{sun_org}
 
 %----------------------------------
-\subsection{{\cvodes} Organization}\label{ss:cvodes_org}
+\section{{\cvodes} Organization}\label{ss:cvodes_org}
 %----------------------------------
 
 \index{CVODES@{\cvodes}!package structure}
@@ -22,7 +22,7 @@ the basic integration algorithm (including forward sensitivity analysis),
 a module for adjoint sensitivity analysis, and a set of modules for the solution
 of linear systems that arise in the case of a stiff system.  
 \begin{figure}
-\centerline{\psfig{figure=cvsorg.eps,height=7.5in}}
+{\centerline{\psfig{figure=cvsorg.eps,width=\textwidth}}}
 \caption [Overall structure diagram of the {\cvodes} package]
 {Overall structure diagram of the {\cvodes} package.
   Modules specific to {\cvodes} are distinguished by rounded boxes, while 
@@ -91,7 +91,7 @@ setup (preprocessing of Jacobian data) and solve.
 While\index{preconditioning!advice on} there is no default
 choice of preconditioner analogous to the difference quotient
 approximation in the direct case, the references
-\cite{BrHi89}-\cite{By92}, together with
+\cite{BrHi:89}-\cite{Byr:92}, together with
 the example and demonstration programs included with {\cvodes}, offer
 considerable assistance in building preconditioners.
 
@@ -140,41 +140,3 @@ by the anticipated multicomputer extension, but is also essential
 in a uniprocessor setting where two or more problems are solved by
 intermixed calls to the package from one user program.
 
-Table \ref{t:cvsfiles} below is a complete list of files in the {\cvodes}
-package and the routines in each file. 
-Header and source files are described as a single unit.
-
-\begin{table}[htb]
-\centering
-\caption{List of files in the {\cvodes} package}\label{t:cvsfiles}
-\medskip
-\begin{tabular}{|l|l|} \hline
-{\bf File(s)}  & {\bf Description and Contents} \\ \hline\hline
-cvodes.h, .c   & Central {\cvodes} integrator module \\
-               & \id{CVodeMalloc}, \id{CVodeReInit}, \id{CVode}, \id{CVodeFree}, \id{CVodeDky}, \\
-               & \id{CVodeQuadMalloc}, \id{CVodeQuadReInit}, \id{CVodeQuadExtract}, \\
-               & \id{CVodeQuadDky}, \id{CVodeSensMalloc}, \id{CVSensReInit},  \\
-               & \id{CVodeSensExtract}, \id{CVodeSensDkyAll}, \id{CVodeSensDky},  \\ 
-               & \id{CVodeMemExtract}, \id{CVSensRhsDQ}, \id{CVSensRhs1DQ} \\ \hline
-cvodea.h, .c   & Adjoint sensitivity {\cvodes} module \\
-               & \id{CVadjMalloc}, \id{CVodeF}, \\
-               & \id{CVDenseB}, \id{CVBandB}, \id{CVBandPreAllocB}, \id{CVSpgmrB} \\
-               & \id{CVodeMallocB}, \id{CVodeB}, \\
-               & \id{CVodeQuadMallocB}, \id{CVodeQuadReInitB}, \id{CVodeQuadExtractB}, \\
-               & \id{CVadjFree}, \id{CVadjGetY}, \id{CVadjCheckPointsList} \\ \hline
-cvsdense.h, .c & {\cvodes} dense linear solver {\cvdense} \\
-               & \id{CVDense}, \id{CVReInitDense}, \id{CVDenseDQJac}\\ \hline
-cvsband.h, .c  & {\cvodes} band linear solver {\cvband} \\
-               & \id{CVBand}, \id{CVReInitBand}, \id{CVBandDQJac} \\ \hline
-cvsdiag.h, .c  & {\cvodes} diagonal linear solver {\cvdiag} \\
-               & \id{CVDiag} \\ \hline
-cvsspgmr.h, .c & {\cvodes} GMRES linear solver {\cvspgmr} \\
-               & \id{CVSpgmr}, \id{CVReInitSpgmr}, \id{CVSpgmrDQJtimes} \\ \hline
-cvsbandpre.h, .c & Band preconditioner module {\cvbandpre} \\
-                 & \id{CVBandPreAlloc}, \id{CVReInitBandPre}, \id{CVBandPreFree} \\ 
-                 & \id{CVBandPrecond}, \id{CVBandPSolve} \\ \hline
-cvsbbdpre.h, .c  & Band-block-diagonal preconditioner module {\cvbbdpre} \\
-                 & \id{CVBBDAlloc}, \id{CVReInitBBD}, \id{CVBBDFree} \\ 
-                 & \id{CVBBDPrecon}, \id{CVBBDPSol} \\ \hline
-\end{tabular}
-\end{table}

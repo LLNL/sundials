@@ -1,5 +1,5 @@
 %===================================================================================
-\section{Introduction}\label{s:intro}
+\chapter{Introduction}\label{s:intro}
 %===================================================================================
 
 {\cvodes} is part of a software family called {\sundials}: 
@@ -12,26 +12,26 @@ nonstiff initial value problems for systems of ordinary differential equation
 analysis capabilities, using either the forward or the adjoint methods.
 
 %---------------------------------
-\subsection{Historical Background}\label{ss:history}
+\section{Historical Background}\label{ss:history}
 %---------------------------------
 
 \index{CVODES@{\cvodes}!relationship to {\vode}, {\vodpk}|(}
 {\F} solvers for ODE initial value problems are widespread and heavily used. 
-Two solvers that have been written at LLNL in the past are {\vode} \cite{BBH89} 
-and {\vodpk} \cite{By92}.
+Two solvers that have been written at LLNL in the past are {\vode} \cite{BBH:89} 
+and {\vodpk} \cite{Byr:92}.
 {\vode}\index{VODE@{\vode}} is a general purpose solver that includes methods for stiff
 and nonstiff systems, and in the stiff case uses direct methods (full or
 banded) for the solution of the linear systems that arise at each implicit
 step. Externally, {\vode} is very similar to the well known solver
-{\lsode}\index{LSODE@{\lsode}} \cite{KH93}.
+{\lsode}\index{LSODE@{\lsode}} \cite{RaHi:94}.
 {\vodpk}\index{VODPK@{\vodpk}} is a variant of {\vode} that uses a preconditioned Krylov 
 (iterative) method for the solution of the linear systems. {\vodpk} is a powerful 
 tool for large stiff systems because it combines established methods for stiff 
 integration, nonlinear iteration, and Krylov (linear) iteration with a problem-specific
 treatment of the dominant source of stiffness, in the form of the user-supplied
-preconditioner matrix \cite{BrHi89}.
+preconditioner matrix \cite{BrHi:89}.
 The capabilities of both {\vode} and {\vodpk} have been combined in the {\C}-language 
-package {\cvode}\index{CVODE@{\cvode}} \cite{CH94, CH96}.
+package {\cvode}\index{CVODE@{\cvode}} \cite{CoHi:94, CoHi:96}.
 
 In the process of translating the {\vode} and {\vodpk} algorithms into {\C}, the overall 
 {\cvode} organization has been changed considerably.
@@ -40,7 +40,7 @@ layer of code modules that is separated from the integration algorithm, allowing
 easy modification and expansion of the linear solver array.
 A second key feature is a separate module devoted to vector operations; this 
 facilitated the extension to multiprosessor environments with minimal impacts 
-on the rest of the solver, resulting in {\pvode}\index{PVODE@{\pvode}} \cite{ByH99}, 
+on the rest of the solver, resulting in {\pvode}\index{PVODE@{\pvode}} \cite{ByHi:99}, 
 the parallel variant of {\cvode}.
 \index{CVODES@{\cvodes}!relationship to {\vode}, {\vodpk}|)}
 
@@ -79,7 +79,26 @@ and the greater ease of interfacing the solver to applications written
 in extended {\F}.
 \index{CVODES@{\cvodes}!motivation for writing in C|)}
 
-\subsection{Reading this User Guide}\label{ss:reading}
+\section{Changes in Version 1.1}
+The major changes from the previous version involve a redesign of the
+user interface across the entire {\sundials} suite. We have eliminated the
+mechanism of providing optional inputs and extracting optional statistics 
+from the solver through the \id{iopt} and \id{ropt} arrays. Instead,
+{\cvodes} now provides a set of routines (with prefix \id{CVodeSet})
+to change the default values for various quantities controlling the
+solver and a set of extraction routines (with prefix \id{CVodeGet})
+to extract statistics after return from the main solver routine.
+Similarly, each linear solver module provides its own set of {\id{set}-}
+and {\id{get}-type} routines. For more details see \S\ref{}.
+
+Additionally, the interfaces to several user-supplied routines
+(such as those providing Jacobians, preconditioner information, and
+sensitivity right hand sides) were simplified by reducing the number
+of arguments. The same information that was previously accessible
+through such arguments can now be obtained through {\id{set}-type}
+functions.
+
+\section{Reading this User Guide}\label{ss:reading}
 
 This user guide is a combination of general usage instructions and
 specific example programs.  We expect that some readers will want to

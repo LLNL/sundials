@@ -1,5 +1,5 @@
 %===================================================================================
-\section{Using {\cvodes} for Adjoint Sensitivity Analysis}\label{s:adjoint}
+\chapter{Using {\cvodes} for Adjoint Sensitivity Analysis}\label{s:adjoint}
 %===================================================================================
 
 This section describes the use of {\cvodes} to compute sensitivities of derived 
@@ -19,7 +19,7 @@ Following that are detailed descriptions of the interface to the
 various user-callable routines and of the user-supplied routines that were not already
 described in \S\ref{s:simulation}.
 %-----------------------------
-\subsection{A Skeleton of the User's Main Program}\label{ss:skeleton_adj}
+\section{A Skeleton of the User's Main Program}\label{ss:skeleton_adj}
 %-----------------------------
 
 The following is a skeleton of the user's main program as an application of
@@ -145,10 +145,10 @@ a program with the above structure will have the same functionality as one descr
 the check pointing scheme.
 
 %-------------------------------------------------------------------------------
-\subsection{User-Callable Routines for Adjoint Sensitivity Analysis}
+\section{User-Callable Routines for Adjoint Sensitivity Analysis}
 %-------------------------------------------------------------------------------
 
-\subsubsection{Adjoint Sensitivity Allocation Routine}\label{sss:cvadjmalloc}
+\subsection{Adjoint Sensitivity Allocation Routine}\label{sss:cvadjmalloc}
 
 The routine \ID{CVadjMalloc} allocates internal memory for the combined
 forward-backward integration, other than the {\cvodes} memory block. Space is allocated 
@@ -172,7 +172,7 @@ forward problem solution between two check points fits in memory. \id{CVadjMallo
 attempts to allocate space for $(2$\id{Nd}$+3)$ vectors of length \id{N}, the
 dimension of the forward problem.
 
-\subsubsection{Forward Integration Routine}\label{sss:cvodef}
+\subsection{Forward Integration Routine}\label{sss:cvodef}
 
 The routine \ID{CVodeF} is very similar to the {\cvodes} routine \id{CVode}
 (see \S\ref{sss:cvode}) in that it integrates the solution of the forward
@@ -208,7 +208,7 @@ so that, at the end of this first forward integration phase, information for the
 interpolation is already available from the last check point to \id{tfial}. In particular,
 if no check points were necessary there is no need for the second forward integration phase.
 
-\subsubsection{Backward Problem Initialization Routine}\label{sss:cvodemallocb}
+\subsection{Backward Problem Initialization Routine}\label{sss:cvodemallocb}
 
 The routine \ID{CVodeMallocB} initializes and allocates memory for the backward
 problem. It has the following form
@@ -240,7 +240,7 @@ The return value of \id{CVodeMallocB} is \Id{SUCCESS} if there were no errors,
 if a memory request failed, \Id{CVBM\_BAD\_TB0} if \id{tB0} had an illegal value,
 or any other error return value from \id{CVodeMalloc} (see \S\ref{sss:cvodemalloc}).
 
-\subsubsection{Linear Solver Initialization Routines for Backward Problem}\label{sss:lin_solv_b}
+\subsection{Linear Solver Initialization Routines for Backward Problem}\label{sss:lin_solv_b}
 
 \index{CVODES@{\cvodes} linear solvers!usage with adjoint module|(} 
 The adjoint sensitivity module in {\cvodes} provides interfaces to the initialization
@@ -341,7 +341,7 @@ ier = CVSpgmrB(cvadj_mem, pretypeB, gstypeB, maxlB, deltB, PrecondB,
 
 \end{itemize}
 
-\subsubsection{Backward Quadrature Initialization Routine}\label{sss:cvodequadmallocb}
+\subsection{Backward Quadrature Initialization Routine}\label{sss:cvodequadmallocb}
 
 The routine \ID{CVodeQuadMallocB} initializes and allocates memory for the backward
 integration of quadrature equations. It has the following form
@@ -358,7 +358,7 @@ has the form \id{fQB(t, y, yB, yQBdot, fQ\_dataB)}
 (see \S\ref{ss:user_fct_adj} for details). 
 All other arguments are equivalent to those of \id{CVodeQuadMalloc}. 
 
-\subsubsection{Backward Integration Routine}\label{sss:cvodeb}
+\subsection{Backward Integration Routine}\label{sss:cvodeb}
 
 The routine \ID{CVodeB} performs the integration of the backward problem
 from the final to the initial time. It is essentially a wrapper
@@ -384,7 +384,7 @@ the error occurred during the forward or the backward integration phase and retu
 \id{ier} from \id{CVode} (see \S\ref{sss:cvode}).
 
 
-\subsubsection{Backward Quadrature Extraction Routine}
+\subsection{Backward Quadrature Extraction Routine}
 
 To extract the values of the quadrature variables at the initial time,
 {\cvodes} provides a wrapper around the routine \ID{CVodeQuadExtract}
@@ -395,7 +395,7 @@ ier = CVodeQuadExtractB(cvadj_mem, yQB);
 Possible return values for \id{CVodeQuadExtractB} are the same as for
 \id{CVodeQuadExtract}, except for \id{BAD\_T}.
 
-\subsubsection{Adjoint Sensitivity Deallocation Routine}\label{sss:cvadjfree}
+\subsection{Adjoint Sensitivity Deallocation Routine}\label{sss:cvadjfree}
 
 To free the \id{cvadj\_mem} memory block allocated by \id{CVadjMalloc}, the
 user must call \ID{CVadjFree}. The call to this routine has the form
@@ -406,7 +406,7 @@ and it frees check-point-related memory, as well as the {\cvodes} memory block
 allocated for the integration of the backward problem. There is no return 
 value for \id{CVadjFree}.
 
-\subsubsection{Backward Problem Reinitialization Routine}\label{sss:cvreinitb}
+\subsection{Backward Problem Reinitialization Routine}\label{sss:cvreinitb}
 \index{reinitialization}
 
 For the case when it is needed to solve several different backward problems 
@@ -437,7 +437,7 @@ The return value \id{ier} of \id{CVodeReInitB} is
 or any other error return value from \id{CVodeReInit} (see \S\ref{sss:cvreinit}).
 In case of an error return, an error message is also printed.  
 
-\subsubsection{Backward Quadrature Reinitialization Routine}\label{sss:cvodequadreinitb}
+\subsection{Backward Quadrature Reinitialization Routine}\label{sss:cvodequadreinitb}
 
 The integratiojn of quadrature equations during the backward phase can be
 reinitialized by calling
@@ -455,7 +455,7 @@ The return value \id{ier} of \id{CVodeQuadReInitB} is
 \id{CVBM\_ILL\_INPUT} if an argument has an illegal value.
 In case of an error return, an error message is also printed.  
 
-\subsubsection{Check Point Listing Routine}
+\subsection{Check Point Listing Routine}
 
 For debugging purposes, {\cvodes} provides a routine \ID{CVadjCheckPointsList} which
 displays partial information from the linked list of check points generated by
@@ -467,7 +467,7 @@ For a typical output of \id{CVadjCheckPointsList}, see the example section
 \S\ref{ss:serial_adj_ex}.
 
 %-------------------------------------------------------------------
-\subsection{User-Supplied Routines for Adjoint Sensitivity Analysis}\label{ss:user_fct_adj}
+\section{User-Supplied Routines for Adjoint Sensitivity Analysis}\label{ss:user_fct_adj}
 %-------------------------------------------------------------------
 
 In addition to the required ODE right hand side routine and any optional routines
@@ -689,7 +689,7 @@ typedef int (*CVSpgmrPrecondFnB)(realtype t, N_Vector y,
 \end{itemize}
 
 %-------------------------------------------------------------------
-\subsection{Using the Banded Preconditioner Module for Adjoint Sensitivity Analysis}
+\section{Using the Banded Preconditioner Module for Adjoint Sensitivity Analysis}
 %-------------------------------------------------------------------
 
 \index{CVBANDPRE@{\cvbandpre} preconditioner!usage with adjoint module|(}

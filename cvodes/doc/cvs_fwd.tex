@@ -1,5 +1,5 @@
 %===================================================================================
-\section{Using {\cvodes} for Forward Sensitivity Analysis}\label{s:forward}
+\chapter{Using {\cvodes} for Forward Sensitivity Analysis}\label{s:forward}
 %===================================================================================
 
 This section describes the use of {\cvodes} to compute solution sensitivities using
@@ -22,7 +22,7 @@ various user-callable routines and of the user-supplied routines that were not a
 described in \S\ref{s:simulation}.
 
 %-------------------------------------------------
-\subsection{A Skeleton of the User's Main Program}\label{ss:forward_usage}
+\section{A Skeleton of the User's Main Program}\label{ss:forward_usage}
 %-------------------------------------------------
 
 The following is a skeleton of the user's main program (or calling
@@ -36,138 +36,147 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 Differences between the user main program in \S\ref{ss:skeleton_sim} and
 the one below start only at step (\ref{i:fwd_start}).
 
-\begin{enumerate}
-  
-\item 
-  Include relevant header files. No additional header files need be
-  included for forward sensitivity analysis beyond those for IVP solution 
-  (\S\ref{ss:skeleton_sim});
-  
-\item 
-  {\p} If MPI is needed by the user code, call \id{MPI\_Init(\&argc, \&argv);}
-  
-\item
-  Set problem dimensions (excluding sensitivity equations):
 
-  {\s} set \id{N}; {\p} set \id{N} and \id{Nlocal};
+\begin{Steps}
   
 \item 
-  Initialize the machine environment block by calling the appropriate
-  {\nvector} routine:
+  \textcolor{gray}{\bf Initialize MPI}
 
-  {\s} \id{M\_EnvInit\_Serial}; {\p} \id{M\_EnvInit\_Parallel};
-  
+  No additional header files need be included for forward sensitivity analysis 
+  beyond those for IVP solution (\S\ref{ss:skeleton_sim});
+
 \item
-  Set the vector \id{y0} of initial values;
-  
+  \textcolor{gray}{\bf Set problem dimensions}
+
 \item
-  Call \id{cvode\_mem = }\Id{CVodeMalloc}\id{()} to allocate internal memory for 
-  {\cvodes} not related to forward sensitivity computations and initializes {\cvodes};
-  
+  \textcolor{gray}{\bf Initialize vector specification}
+
 \item
-  If Newton iteration is chosen, initialize the linear solver module by
-  calling the appropriate initialization routine;
-  
+  \textcolor{gray}{\bf Set intial values}
+ 
+\item
+  \textcolor{gray}{\bf Create {\cvodes} object}
+
+\item
+  \textcolor{gray}{\bf Set optional inputs}
+
+\item
+  \textcolor{gray}{\bf Allocate internal memory}
+
+\item
+  \textcolor{gray}{\bf Attach linear solver module}
+
+\item
+  \textcolor{gray}{\bf Set linear solver optional inputs}
+
 \item \label{i:fwd_start}
-  Define the sensitivity problem (see \S\ref{sss:cvodesensmalloc} for more details)
-  \begin{itemize}
-  \item 
-    Set \id{p}, an array of \id{Np} real parameters upon which the IVP depends 
-    (both through its right-hand side and initial conditions). Only parameters
-    with respect to which sensitivities are (potentially) desired need to 
-    be included. Also set \id{pbar}, an array of \id{Np} scaling factors.
-  \item
-    Attach \id{p} to the user data structure \id{f\_data}. 
-    For example, \id{f\_data->p = p;}
-  \item
-    Set \id{Ns}, the number of parameters with respect to which sensitivities
-    are to be computed. \id{Ns} must not be larger than \id{Np};
-  \item
-    Set \id{plist}, an array of \id{Ns} integer flags to specify the parameters
-    \id{p} with respect to which solution sensitivities are to be computed.
-  \end{itemize}
+  {\bf Define the sensitivity problem}
+
+  $\centerdot$ Set \id{p}, an array of \id{Np} real parameters upon which the IVP depends 
+  (both through its right-hand side and initial conditions). Only parameters
+  with respect to which sensitivities are (potentially) desired need to 
+  be included. Also set \id{pbar}, an array of \id{Np} scaling factors.
+  
+  $\centerdot$ Attach \id{p} to the user data structure \id{f\_data}. 
+  For example, \id{f\_data->p = p;}
+  
+  $\centerdot$ Set \id{Ns}, the number of parameters with respect to which sensitivities
+  are to be computed. \id{Ns} must not be larger than \id{Np};
+  
+  $\centerdot$ Set \id{plist}, an array of \id{Ns} integer flags to specify the parameters
+  \id{p} with respect to which solution sensitivities are to be computed.
+  
   Note that the names for \id{p}, \id{pbar}, \id{plist}, as well as the field
   {\em p} of \id{f\_data} are arbitrary, but they must agree with the arguments
   to \id{CVodeSensMalloc} below;
 
 \item
+  {\bf Set sensitvivity initial conditions}
+
   Set the \id{Ns} vectors \id{yS0[i]} of \id{N} initial values
   for sensitivities (for $i=0,\ldots,Ns-1$). 
   If an existing data array \id{ySdata} (of type \id{realtype**} and pointing to
   {\tt Ns} vectors of length {\tt N} each) contains the initial values
   {\tt yS0}, then use a macro of type \id{NVS\_MAKE} defined by the current 
   {\nvector} implementation:
-  \begin{itemize}
-  \item {\s} 
-    \id{NVS\_MAKE\_S(Ns, yS0, ySdata, machEnv);}
-  \item {\p} 
-    \id{NVS\_MAKE\_P(Ns, yS0, ySdata, machEnv);}
-  \end{itemize}
+
+  {\s} \id{NVS\_MAKE\_S(Ns, yS0, ySdata, machEnv);}
+
+  {\p} \id{NVS\_MAKE\_P(Ns, yS0, ySdata, machEnv);}
+
   Otherwise, make the call \id{yS0 = }\Id{N\_VNew\_S}\id{(Ns,machEnv);} 
   to create an array of \id{N\_Vector}'s and load initial values for 
   sensitivities \id{yS0[i]} into the array given by:
-  \begin{itemize}
-  \item {\s}
-    \id{NV\_DATA\_S(yS0[i])}
-  \item {\p}
-    \id{NV\_DATA\_P(yS0[i])}
-  \end{itemize}
+
+  {\s} \id{NV\_DATA\_S(yS0[i])}
+
+  {\p} \id{NV\_DATA\_P(yS0[i])}
   
 \item
+  {\bf Set sensitivity analysis optional inputs}
+
+  Call \id{CVodeSetSens*} routines to change from their default values any
+  optional inputs that control the behavior of {\cvodes} in computing forward 
+  sensitivities.
+
+\item
+  {\bf Activate sensitivity calculations}
+
   Call \id{ier = }\Id{CVodeSensMalloc}\id{(\ldots);} to activate forward 
   sensitivity computations and allocate internal
   memory for {\cvodes} related to sensitivity calculations
   (see \S\ref{sss:cvodesensmalloc});
-  
+
 \item
-  Call \Id{CVode} for each point at which output is desired. The 
-  forward sensitivity equations will be integrated together with 
-  the original IVP;
-  
+  \textcolor{gray}{\bf Advance solution in time}
+
 \item
+  {\bf Extract sensitivity solution}
+
   After each successful return from \id{CVode}, the solution of the
   original IVP is available in the \id{y} argument of \id{CVode},
   while the sensitivity solution can be extracted into \id{yS} (which can 
   be the same as \id{yS0}) by calling the routine 
-  \id{ier = }\Id{CVodeSensExtract}\id{(cvode\_mem, t, yS);}
+  \id{ier = }\Id{CVodeGetSens}\id{(cvode\_mem, t, yS);}
   (see \S\ref{sss:cvodesensextract});
-  
+
+\item
+  \textcolor{gray}{\bf Deallocate memory for solution vector}
+
 \item 
-  Upon completion of the integration, deallocate memory for the vector \id{y}
-  and the vectors \id{yS}. If \id{yS} was created from \id{ysdata}, then use
-  the implementation-dependent {\nvector} deallocation macro:
-  \begin{itemize}
-  \item {\s}
-    \id{NVS\_DISPOSE\_S(yS, Ns);}
-  \item {\p}
-    \id{NVS\_DISPOSE\_P(yS, Ns);}
-  \end{itemize}
+  {\bf Deallocate memory for sensitivity vectors}
+
+  Upon completion of the integration, deallocate memory for the vectors \id{yS}. 
+  If \id{yS} was created from \id{ysdata}, then use the implementation-dependent 
+  {\nvector} deallocation macro:
+
+  {\s} \id{NVS\_DISPOSE\_S(yS, Ns);}
+
+  {\p} \id{NVS\_DISPOSE\_P(yS, Ns);}
+
   If \id{yS} was allocated through a call to \id{N\_VNew\_S} then deallocate
   it by calling \Id{N\_VFree\_S}\id{(Ns, yS);}
   
-  
 \item
+  {\bf Free user data structure}
+
   Before freeing the pointer to the user-defined data block 
   \id{f\_data}, release the array containing the real parameters \id{p}:
   \id{free(f\_data->p); free(f\_data);}
-  
-\item 
-  Free the memory allocated for {\cvodes} by calling \Id{CVodeFree}\id{(cvode\_mem);}
-  
-\item 
-  Free the machine environment block by calling the appropriate {\nvector}
-  implementation-dependent routine;
+
+\item
+  \textcolor{gray}{\bf Free solver memory}
   
 \item
-  {\p} If MPI was initialized by the user main program, call \id{MPI\_Finalize();}.
-  
-\end{enumerate}
+  \textcolor{gray}{\bf Free vector specification memory}
+
+\end{Steps}
 
 %-------------------------------------------------------------------------------
-\subsection{User-Callable Routines for Forward Sensitivity Analysis}
+\section{User-Callable Routines for Forward Sensitivity Analysis}
 %-------------------------------------------------------------------------------
 
-\subsubsection{Forward Sensitivity Initialization Routine}\label{sss:cvodesensmalloc}
+\subsection{Forward Sensitivity Initialization Routine}\label{sss:cvodesensmalloc}
 
 The routine \ID{CVodeSensMalloc} activates forward sensitivity computations and
 allocates internal memory related to sensitivity calculations.
@@ -300,7 +309,7 @@ The return value \id{ier} of \id{CVodeSensMalloc} is equal to:
 \end{itemize}
 
 %--------------------------
-\subsubsection{Forward Sensitivity Extraction Routine}\label{sss:cvodesensextract}
+\subsection{Forward Sensitivity Extraction Routine}\label{sss:cvodesensextract}
 
 If forward sensitivity computations have been initialized by a call to \id{CVodeSensMalloc},
 or reinitialized by a call to \id{CVSensReInit}, then {\cvodes} computes both solution
@@ -335,7 +344,7 @@ The return value \id{ier} of \id{CVodeSensExtract} is equal to:
 In case of an error return, an error message is also printed.  
 
 %--------------------------
-\subsubsection{Additional Optional Input/Output}\label{sss:more_optional_io}
+\subsection{Additional Optional Input/Output}\label{sss:more_optional_io}
 
 As mentioned in \S\ref{sss:optional_io}, during forward sensitivity 
 analysis, {\cvodes} stores some additional integer output values in \Id{iopt}.
@@ -379,7 +388,7 @@ the nonlinear solver phase in the \id{STAGGERED} or \id{STAGGERED1} case.
 \end{table}
 
 %------------------------
-\subsubsection{Interpolated Sensitivity Output Routines}
+\subsection{Interpolated Sensitivity Output Routines}
 \index{interpolated output}
 
 The two routines described here are available to obtain additional output values
@@ -418,7 +427,7 @@ must allocate space for it. If \id{dkyA} is \id{NULL}, the return value
 is \Id{BAD\_DKY}.
 
 %--------------------------
-\subsubsection{Forward Sensitivity Reinitialization Routine}\label{sss:cvsreinit}
+\subsection{Forward Sensitivity Reinitialization Routine}\label{sss:cvsreinit}
 \index{reinitialization}
 
 The routine \ID{CVodeSensReInit}, useful during the solution of a sequence of problems of 
@@ -455,7 +464,7 @@ must allocate and set its own internal absolute tolerances for the sensitivity
 varaiables, or if \id{ism = STAGGERED1}, in which case some internal counter
 arrays of length \id{Ns} are allocated by \id{CVodeSensReInit}.
 
-\subsubsection{Additional Extraction Routines}\label{sss:more_extraction}
+\subsection{Additional Extraction Routines}\label{sss:more_extraction}
 \index{access to additional data}
 
 For user-provided sensitivity right-hand side routines based on finite
@@ -493,7 +502,7 @@ while \id{n\_cfnS1}, if non-\id{NULL}, contains the nonlinear solver convergence
 If \id{cvode\_mem} is \id{NULL}, \id{CVodememExtract} returns \Id{MEXT\_NO\_MEM}.
 
 %-------------------------------------------------------------------
-\subsection{User-Supplied Routines for Forward Sensitivity Analysis}\label{ss:user_fct_fwd}
+\section{User-Supplied Routines for Forward Sensitivity Analysis}\label{ss:user_fct_fwd}
 %-------------------------------------------------------------------
 
 In addition to the required and optional user-supplied routines described
@@ -587,7 +596,7 @@ typedef void (*SensRhs1Fn)(integertype Ns, realtype t,
 \end{itemize}
 
 %-------------------------------------------------------------------
-\subsection{Note on Using \id{PARTIAL} Error Control}\label{ss:partial}
+\section{Note on Using \id{PARTIAL} Error Control}\label{ss:partial}
 %-------------------------------------------------------------------
 \index{partial error control!explanation of {\cvodes} behavior}
 For some problems, when sensitivities are excluded from the error control test, 

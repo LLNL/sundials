@@ -12,31 +12,43 @@ doc:
 	cp $(SHARED_DOC)/spgmr.tex .
 	cp $(SHARED_DOC)/sun_org.tex .
 	cp $(SHARED_DOC)/types.tex .
+	cp $(SHARED_DOC)/ug.tex .
+	cp $(SHARED_DOC)/biblio.bib .
 	cp $(SHARED_DOC)/bandmat.eps .
-	cp $(SHARED_DOC)/sunorg.eps .
+	cp $(SHARED_DOC)/sunorg1.eps .
+	cp $(SHARED_DOC)/sunorg2.eps .
 	cp $(SHARED_DOC)/llnlCoverPage.tex .
 	cp $(SHARED_DOC)/Logo_for_papers.ps .
 	cp $(SHARED_DOC)/Rule_and_address.ps .
 	cp $(SHARED_DOC)/chngpage.sty .
 	latex cvs_guide
 	latex cvs_guide
+	bibtex cvs_guide
 	makeindex -s cvs_indx.ist cvs_guide
 	latex cvs_guide
 	latex cvs_guide
 	dvips -Ppdf -o cvs_guide.ps cvs_guide
 	ps2pdf cvs_guide.ps cvs_guide.pdf
+	latex cvs_examples
+	latex cvs_examples
+	dvips -Ppdf -o cvs_examples.ps cvs_examples
+	ps2pdf cvs_examples.ps cvs_examples.pdf
 clean:
 	rm -f bandmat.eps
 	rm -f band.tex
+	rm -f biblio.bib
 	rm -f dense.tex
 	rm -f nvec_generic.tex
 	rm -f nvec_parallel.tex
 	rm -f nvec_serial.tex
 	rm -f spgmr.tex
-	rm -f sunorg.eps
+	rm -f sunorg1.eps
+	rm -f sunorg2.eps
 	rm -f sun_org.tex
 	rm -f types.tex
+	rm -f ug.tex
 	rm -f llnlCoverPage.tex Logo_for_papers.ps Rule_and_address.ps chngpage.sty
-	rm -f *~ *.aux *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
+	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
 #	rm -f cvs_guide.ps cvs_guide.pdf
+#	rm -f cvs_examples.ps cvs_examples.pdf
 

@@ -1,18 +1,18 @@
 %===================================================================================
-\section{Description of the {\nvector} Concept}\label{s:nvector}
+\chapter{Description of the {\nvector} Concept}\label{s:nvector}
 %===================================================================================
 \input{nvec_generic}
 
 %---------------------------------------------------------------------------
-\subsection{The {\nvecs} Implementation of {\nvector}}\label{ss:nvec_ser}
+\section{The {\nvecs} Implementation of {\nvector}}\label{ss:nvec_ser}
 \input{nvec_serial}
 
 %---------------------------------------------------------------------------
-\subsection{The {\nvecp} Implementation of {\nvector}}\label{ss:nvec_par}
+\section{The {\nvecp} Implementation of {\nvector}}\label{ss:nvec_par}
 \input{nvec_parallel}
 
 %---------------------------------------------------------------------------
-\subsection{{\nvector} Kernels Used by {\cvodes}}
+\section{{\nvector} Kernels Used by {\cvodes}}
 
 In Table \ref{t:nvecuse} below, we list the vector kernels in the 
 {\nvector} module within the {\cvodes} package.
@@ -77,7 +77,7 @@ interested reader.
 \end{table}
 
 The vector kernels listed in Table \ref{t:nvecops} that are {\em not} used by
-{\cvodes} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VOneMask}, \id{N\_VConstrProdPos},
+{\cvodes} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VWrmsNormMask}, \id{N\_VConstrProdPos},
 \id{N\_VConstrMask}, and \id{N\_VMinQuotient}. Therefore a user-supplied {\nvector} module
 for {\cvodes} could omit these six kernels. Also, recall that a user-supplied {\nvector}
 module {\em need not} implement the \id{N\_VNew\_S} and \id{N\_VFree\_S} kernels.

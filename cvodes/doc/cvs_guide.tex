@@ -1,127 +1,39 @@
-\documentclass[11pt]{article}
+\documentclass[10pt]{report}
 
-\usepackage{epsfig, supertabular, makeidx}
-\usepackage{amsmath}
+\input{ug.tex}
 
-% Packages needed for the cover page
-\usepackage{calc, epsfig, chngpage}
-\input{pstricks}\input{pst-node}\input{llnlCoverPage}
+%===============================================================
 
-% Package useful for debuging
-%\usepackage{showlabels}
-
-%----- Page formatting
-\setlength{\oddsidemargin}{0in}
-\setlength{\evensidemargin}{0in}
-\setlength{\textwidth}{6.5in}
-\setlength{\textheight}{8.5in}
-
-%----- Date and release info
-\newcommand{\cvsucrl}{123456}
-\newcommand{\cvsdate}{May 2003}
-\newcommand{\cvsrelease}{Version 1.1}
-
-%----- SUNDIALS MODULES
-\newcommand{\sundials}{{\normalfont\scshape sundials}}
-\newcommand{\nvector}{{\normalfont\scshape nvector}}
-\newcommand{\nvecp}{{\normalfont\scshape nvector\_parallel}}
-\newcommand{\nvecs}{{\normalfont\scshape nvector\_serial}}
-\newcommand{\cvode}{{\normalfont\scshape cvode}}
-\newcommand{\pvode}{{\normalfont\scshape pvode}}
-\newcommand{\cvodes}{{\normalfont\scshape cvodes}}
-\newcommand{\ida}{{\normalfont\scshape ida}}
-\newcommand{\idas}{{\normalfont\scshape idas}}
-\newcommand{\kinsol}{{\normalfont\scshape kinsol}}
-\newcommand{\kinsols}{{\normalfont\scshape kinsols}}
-
-%----- OTHER PACKAGES
-\newcommand{\vode}{{\normalfont\scshape vode}}
-\newcommand{\vodpk}{{\normalfont\scshape vodpk}}
-\newcommand{\lsode}{{\normalfont\scshape lsode}}
-
-%----- CVODES COMPONENTS
-\newcommand{\cvdense}{{\normalfont\scshape cvdense}}
-\newcommand{\cvband}{{\normalfont\scshape cvband}}
-\newcommand{\cvdiag}{{\normalfont\scshape cvdiag}}
-\newcommand{\cvspgmr}{{\normalfont\scshape cvspgmr}}
-\newcommand{\cvbandpre}{{\normalfont\scshape cvbandpre}}
-\newcommand{\cvbbdpre}{{\normalfont\scshape cvbbdpre}}
-\newcommand{\stald}{{\normalfont\scshape stald}}
-
-%----- SHARED COMPONENTS
-\newcommand{\sundialsmath}{{\normalfont\scshape sundialsmath}}
-\newcommand{\dense}{{\normalfont\scshape dense}}
-\newcommand{\band}{{\normalfont\scshape band}}
-\newcommand{\spgmr}{{\normalfont\scshape spgmr}}
-
-%----- C and Fortran languages
-\newcommand{\C}{{\sc C}}
-\newcommand{\CPP}{{\sc C++}}
-\newcommand{\F}{{\sc Fortran}}
-
-%------ Serial or Parallel
-\newcommand{\p}{[{\bf P}]}
-\newcommand{\s}{[{\bf S}]}
-
-%------ Appendix in text
-\newcommand{\A}{App. }
-
-%------ Index entries
-\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}|textbf}}}
-\newcommand{\Id}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
-\newcommand{\id}[1]{{\tt #1}}
-
-
-%----- Shortcuts for math formulas
-\newcommand{\dfdy}{\frac{\partial f}{\partial y}}
-\newcommand{\dfdyI}{\partial f / \partial y}
-\newcommand{\dfdpi}{\frac{\partial f}{\partial p_i}}
-\newcommand{\dfdpiI}{\partial f / \partial p_i}
-\newcommand{\rhomax}{\rho_{\max}}
+\newcommand{\cvsucrl}{148813}
+\newcommand{\cvsdate}{October 2003}
+\newcommand{\cvsrelease}{v1.1}
 
 \title{User Documentation for \cvodes, \\ 
 An ODE Solver with Sensitivity Analysis Capabilities \\
 \cvsrelease}
-\author{Alan C. Hindmarsh and Radu Serban}
+\author{
+  Alan C. Hindmarsh and Radu Serban\\
+  {\em Center for Applied Scientific Computing} \\
+  {\em Lawrence Livermore National Laboratory}
+}
 \date{}
 
+%===============================================================
+
 \makeindex
+
+%===============================================================
 
 \begin{document}
 
 %Create the LLNL Cover Page
-\makeLLNLCover{\cvsucrl}%                              UCRL number
-{User Documentation for {\cvodes} \\ {\cvsrelease}}%   Title on cover page
-{Alan C. Hindmarsh and Radu Serban}%                   Authors
-{\cvsdate}%                                            Date
+\makeLLNLCover{\cvsucrl}%                           UCRL number
+{User Documentation for {\cvodes} {\cvsrelease}}%   Title on cover page
+{Alan C. Hindmarsh and Radu Serban}%                Authors
+{\cvsdate}%                                         Date
 {0in}{0in}
 
-% First a title page without page number
-\maketitle\thispagestyle{empty}
-\vfill
-\noindent
-{\large\em Center for Applied Scientific Computing} \\
-{\large\em Lawrence Livermore National Laboratory}\\
-\vspace{0.1in}\\
-UCRL-MA-{\cvsucrl}
-
-% Leave an empty page
-\newpage\thispagestyle{empty}
-\vspace*{1.0in}
-
-% Move to next page and start roman numbering
-\newpage\pagestyle{plain}\pagenumbering{roman}
-\tableofcontents
-\newpage
-\listoftables
-\newpage
-\listoffigures
-
-% Leave a blank page to get page numbers right for double printing.
-\newpage\thispagestyle{empty}\vspace*{1in}
-
-% Move to new page and start arabic numbering
-\newpage\pagestyle{plain}\pagenumbering{arabic}
+\frontmatter
 
 %===============================================================
 % Introduction
@@ -142,11 +54,6 @@ UCRL-MA-{\cvsucrl}
 % Using CVODES for Adjoint Sensitivity Analysis
 \include{cvs_adj}
 %===============================================================
-% Example Problems
-\include{cvs_sim_ex}
-\include{cvs_fwd_ex}
-\include{cvs_adj_ex}
-%===============================================================
 % Types realtype and integertype
 \include{cvs_types}
 %===============================================================
@@ -160,17 +67,11 @@ UCRL-MA-{\cvsucrl}
 \include{cvs_linsolv}
 %===============================================================
 % References
-\include{cvs_biblio}
+\bibliographystyle{plain}
+\bibliography{biblio}
 %===============================================================
 % Index
-\addcontentsline{toc}{section}{Index}
 \printindex
-%===============================================================
-% Start appendices
-\appendix
-\include{cvs_sim_codes}
-\include{cvs_fwd_codes}
-\include{cvs_adj_codes}
 %===============================================================
 \makeLLNLBackCover
 %===============================================================

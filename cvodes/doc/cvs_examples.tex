@@ -1,0 +1,47 @@
+%\documentclass[11pt]{article}
+\documentclass[11pt]{report}
+
+\input{ug.tex}
+
+\newcommand{\cvsucrl}{148813}
+\newcommand{\cvsdate}{October 2003}
+\newcommand{\cvsrelease}{v1.1}
+
+\title{Example Programs for \cvodes, \\ 
+An ODE Solver with Sensitivity Analysis Capabilities \\
+\cvsrelease}
+\author{
+  Alan C. Hindmarsh and Radu Serban\\
+  {\em Center for Applied Scientific Computing} \\
+  {\em Lawrence Livermore National Laboratory}
+}
+\date{}
+
+\makeindex
+
+\begin{document}
+
+%Create the LLNL Cover Page
+\makeLLNLCover{\cvsucrl}%                              UCRL number
+{Example Programs for {\cvodes} {\cvsrelease}}%   Title on cover page
+{Alan C. Hindmarsh and Radu Serban}%                   Authors
+{\cvsdate}%                                            Date
+{0in}{0in}
+
+\frontmatter
+
+%===============================================================
+% Example Problems
+\include{cvs_sim_ex}
+\include{cvs_fwd_ex}
+\include{cvs_adj_ex}
+%===============================================================
+% Start appendices
+\appendix
+\include{cvs_sim_codes}
+\include{cvs_fwd_codes}
+\include{cvs_adj_codes}
+%===============================================================
+\makeLLNLBackCover
+%===============================================================
+\end{document}
