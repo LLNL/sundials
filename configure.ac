@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.15.2.2 $
-# $Date: 2005-03-17 22:47:43 $
+# $Revision: 1.15.2.3 $
+# $Date: 2005-03-18 23:23:42 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -66,6 +66,7 @@ AC_SUBST(MPIF77)
 AC_SUBST(MPI_INC_DIR)
 AC_SUBST(MPI_LIB_DIR)
 AC_SUBST(MPI_LIBS)
+AC_SUBST(MPI_FLAGS)
 AC_SUBST(MODULES)
 AC_SUBST(NVEC_MODULES)
 AC_SUBST(EXAMPLE_MODULES)
