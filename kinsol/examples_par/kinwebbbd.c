@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-11-08 23:14:11 $
+ * $Revision: 1.18 $
+ * $Date: 2004-11-15 17:28:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -690,6 +690,9 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
     printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",
            fnormtol, scsteptol);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("Tolerance parameters:  fnormtol = %lg   scsteptol = %lg\n",
+           fnormtol, scsteptol);
 #else
     printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
            fnormtol, scsteptol);
@@ -698,6 +701,9 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
     printf("\nInitial profile of concentration\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("At all mesh points:  %Lg %Lg %Lg   %Lg %Lg %Lg\n", PREYIN,PREYIN,PREYIN,
+           PREDIN,PREDIN,PREDIN);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("At all mesh points:  %lg %lg %lg   %lg %lg %lg\n", PREYIN,PREYIN,PREYIN,
            PREDIN,PREDIN,PREDIN);
 #else
     printf("At all mesh points:  %g %g %g   %g %g %g\n", PREYIN,PREYIN,PREYIN,
@@ -740,6 +746,8 @@ static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc)
       if ((is%6)*6== is) printf("\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
       printf(" %Lg",ct[is]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+      printf(" %lg",ct[is]);
 #else
       printf(" %g",ct[is]);
 #endif
@@ -750,6 +758,8 @@ static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc)
       if ((is%6)*6 == is) printf("\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
       printf(" %Lg",tempc[is]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+      printf(" %lg",tempc[is]);
 #else
       printf(" %g",tempc[is]);
 #endif
