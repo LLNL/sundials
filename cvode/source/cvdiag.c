@@ -1,17 +1,17 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-08-25 16:19:33 $
+ * $Revision: 1.13 $
+ * $Date: 2004-11-06 01:01:51 $
  * ----------------------------------------------------------------- 
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
- *              Radu Serban @ LLNL
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvode/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
- * This is the implementation file for the CVDIAG linear solver.  
+ * This is the implementation file for the CVDIAG linear solver.
  * -----------------------------------------------------------------
  */
 
@@ -20,20 +20,6 @@
 
 #include "cvdiag_impl.h"
 #include "cvode_impl.h"
-
-/* Error Messages */
-
-#define CVDIAG   "CVDiag-- "
-
-#define MSG_CVMEM_NULL  CVDIAG "Integrator memory is NULL.\n\n"
-
-#define MSG_BAD_NVECTOR CVDIAG "A required vector operation is not implemented.\n\n"
-
-#define MSG_MEM_FAIL  CVDIAG "A memory request failed.\n\n"
-
-#define MSG_SETGET_CVMEM_NULL "CVDiagGet*-- Integrator memory is NULL. \n\n"
-
-#define MSG_SETGET_LMEM_NULL  "CVDiagGet*-- cvdiag memory is NULL. \n\n"
 
 /* Other Constants */
   
@@ -108,7 +94,7 @@ int CVDiag(void *cvode_mem)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_CVMEM_NULL);
+    fprintf(stderr, MSGDG_CVMEM_NULL);
     return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -116,7 +102,7 @@ int CVDiag(void *cvode_mem)
   /* Check if N_VCompare and N_VInvTest are present */
   if(vec_tmpl->ops->nvcompare == NULL ||
      vec_tmpl->ops->nvinvtest == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    if(errfp!=NULL) fprintf(errfp, MSGDG_BAD_NVECTOR);
     return(CVDIAG_ILL_INPUT);
   }
 
@@ -131,7 +117,7 @@ int CVDiag(void *cvode_mem)
   /* Get memory for CVDiagMemRec */
   cvdiag_mem = (CVDiagMem) malloc(sizeof(CVDiagMemRec));
   if (cvdiag_mem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
     return(CVDIAG_MEM_FAIL);
   }
 
@@ -144,18 +130,18 @@ int CVDiag(void *cvode_mem)
     
   M = N_VClone(vec_tmpl);
   if (M == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
     return(CVDIAG_MEM_FAIL);
   }
   bit = N_VClone(vec_tmpl);
   if (bit == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
     N_VDestroy(M);
     return(CVDIAG_MEM_FAIL);
   }
   bitcomp = N_VClone(vec_tmpl);
   if (bitcomp == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
     N_VDestroy(M);
     N_VDestroy(bit);
     return(CVDIAG_MEM_FAIL);
@@ -179,7 +165,7 @@ int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwDI, long int *leniwDI)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGDG_SETGET_CVMEM_NULL);
     return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -203,13 +189,13 @@ int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGDG_SETGET_CVMEM_NULL);
     return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGDG_SETGET_LMEM_NULL);
     return(CVDIAG_LMEM_NULL);
   }
   cvdiag_mem = (CVDiagMem) lmem;
@@ -232,13 +218,13 @@ int CVDiagGetLastFlag(void *cvode_mem, int *flag)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGDG_SETGET_CVMEM_NULL);
     return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGDG_SETGET_LMEM_NULL);
     return(CVDIAG_LMEM_NULL);
   }
   cvdiag_mem = (CVDiagMem) lmem;

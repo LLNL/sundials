@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-10-08 16:25:40 $
+ * $Revision: 1.18 $
+ * $Date: 2004-11-06 01:01:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -20,27 +20,7 @@
 
 #include "cvband_impl.h"
 #include "cvode_impl.h"
-
 #include "sundialsmath.h"
-
-/* Error Messages */
-
-#define CVBAND                "CVBand-- "
-  
-#define MSG_MEM_FAIL          CVBAND "A memory request failed.\n\n"
-
-#define MSG_BAD_SIZES_1       CVBAND "Illegal bandwidth parameter(s) "
-#define MSG_BAD_SIZES_2       "ml = %ld, mu = %ld.\n"
-#define MSG_BAD_SIZES_3       "Must have 0 <=  ml, mu <= N-1=%ld.\n\n"
-#define MSG_BAD_SIZES         MSG_BAD_SIZES_1 MSG_BAD_SIZES_2 MSG_BAD_SIZES_3
-
-#define MSG_BAD_NVECTOR       CVBAND "A required vector operation is not implemented.\n\n"
-
-#define MSG_CVMEM_NULL        CVBAND "Integrator memory is NULL.\n\n"
-
-#define MSG_SETGET_CVMEM_NULL "CVBandSet*/CVBandGet*-- Integrator memory is NULL. \n\n"
-
-#define MSG_SETGET_LMEM_NULL  "CVBandSet*/CVBandGet*-- cvband memory is NULL. \n\n"
 
 /* Other Constants */
 
@@ -139,14 +119,14 @@ int CVBand(void *cvode_mem, long int N,
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_CVMEM_NULL);
+    fprintf(stderr, MSGB_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    if(errfp!=NULL) fprintf(errfp, MSGB_BAD_NVECTOR);
     return(CVBAND_ILL_INPUT);
   }
 
@@ -161,7 +141,7 @@ int CVBand(void *cvode_mem, long int N,
   /* Get memory for CVBandMemRec */
   cvband_mem = (CVBandMem) malloc(sizeof(CVBandMemRec));
   if (cvband_mem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
     return(CVBAND_MEM_FAIL);
   }
   
@@ -181,7 +161,7 @@ int CVBand(void *cvode_mem, long int N,
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_SIZES, ml, mu, N-1);
+    if(errfp!=NULL) fprintf(errfp, MSGB_BAD_SIZES);
     return(CVBAND_ILL_INPUT);
   }
 
@@ -191,18 +171,18 @@ int CVBand(void *cvode_mem, long int N,
   /* Allocate memory for M, savedJ, and pivot arrays */
   M = BandAllocMat(N, mu, ml, storage_mu);
   if (M == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
     return(CVBAND_MEM_FAIL);
   }
   savedJ = BandAllocMat(N, mu, ml, mu);
   if (savedJ == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
     BandFreeMat(M);
     return(CVBAND_MEM_FAIL);
   }
   pivots = BandAllocPiv(N);
   if (pivots == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
     BandFreeMat(M);
     BandFreeMat(savedJ);
     return(CVBAND_MEM_FAIL);
@@ -227,13 +207,13 @@ int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -256,13 +236,13 @@ int CVBandSetJacData(void *cvode_mem, void *jac_data)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -285,13 +265,13 @@ int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwB, long int *leniwB)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -315,13 +295,13 @@ int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -344,13 +324,13 @@ int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -373,13 +353,13 @@ int CVBandGetLastFlag(void *cvode_mem, int *flag)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;

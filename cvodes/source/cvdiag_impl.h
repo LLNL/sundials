@@ -1,26 +1,26 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-08-25 16:19:23 $
+ * $Revision: 1.4 $
+ * $Date: 2004-11-06 01:02:03 $
  * ----------------------------------------------------------------- 
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
- *              Radu Serban @ LLNL                              
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California 
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvodes/LICENSE.
  * -----------------------------------------------------------------
- * Implementation header file for the diagonal linear solver, CVDIAG. 
+ * Implementation header file for the diagonal linear solver, CVDIAG.
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _cvdiag_impl_h
-#define _cvdiag_impl_h
+#ifndef _CVDIAG_IMPL_H
+#define _CVDIAG_IMPL_H
 
 #include <stdio.h>
 
@@ -55,6 +55,17 @@ typedef struct {
   int di_last_flag;    /* last error return flag                    */
 
 } CVDiagMemRec, *CVDiagMem;
+
+/* Error Messages */
+
+#define _CVDIAG_          "CVDiag-- "
+#define MSGDG_CVMEM_NULL  _CVDIAG_ "Integrator memory is NULL.\n\n"
+#define MSGDG_BAD_NVECTOR _CVDIAG_ "A required vector operation is not implemented.\n\n"
+#define MSGDG_MEM_FAIL    _CVDIAG_ "A memory request failed.\n\n"
+
+#define MSGDG_SETGET_CVMEM_NULL "CVDiagGet*-- Integrator memory is NULL.\n\n"
+
+#define MSGDG_SETGET_LMEM_NULL "CVDiagGet*-- cvdiag memory is NULL.\n\n"
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-10-11 22:45:56 $
+ * $Revision: 1.23 $
+ * $Date: 2004-11-06 01:01:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -11,9 +11,9 @@
  * All rights reserved.
  * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
- * This file contains implementations of the banded difference 
+ * This file contains implementations of the banded difference
  * quotient Jacobian-based preconditioner and solver routines for
- * use with CVSpgmr.                                              
+ * use with CVSpgmr.
  * -----------------------------------------------------------------
  */
 
@@ -29,17 +29,6 @@
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
-
-/* Error Messages */
-
-#define CVBALLOC        "CVBandPreAlloc-- "
-#define MSG_CVMEM_NULL  CVBALLOC "Integrator memory is NULL.\n\n"
-
-#define MSG_BAD_NVECTOR CVBALLOC "A required vector operation is not implemented.\n\n"
-
-#define MSG_PDATA_NULL "CVBandPrecGet*-- BandPrecData is NULL. \n\n"
-
-#define MSG_NO_PDATA   "CVBPSpgmr-- BandPrecData is NULL. \n\n"
 
 /* Prototypes of CVBandPrecSetup and CVBandPrecSolve */
   
@@ -58,6 +47,7 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 static void CVBandPDQJac(CVBandPrecData pdata, 
                          realtype t, N_Vector y, N_Vector fy, 
                          N_Vector ftemp, N_Vector ytemp);
+
 /* Redability replacements */
 #define vec_tmpl (cv_mem->cv_tempv)
 #define errfp    (cv_mem->cv_errfp)
@@ -81,14 +71,14 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   long int mup, mlp, storagemu;
 
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_CVMEM_NULL);
+    fprintf(stderr, MSGBP_CVMEM_NULL);
     return(NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND preconditioner */
   if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    if(errfp!=NULL) fprintf(errfp, MSGBP_BAD_NVECTOR);
     return(NULL);
   }
 
@@ -137,7 +127,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   int flag;
 
   if ( p_data == NULL ) {
-    fprintf(stderr, MSG_NO_PDATA);
+    fprintf(stderr, MSGBP_NO_PDATA);
     return(CV_PDATA_NULL);
   } 
 
@@ -175,7 +165,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
   long int N, ml, mu, smu;
 
   if ( bp_data == NULL ) {
-    fprintf(stderr, MSG_PDATA_NULL);
+    fprintf(stderr, MSGBP_PDATA_NULL);
     return(CV_PDATA_NULL);
   } 
 
@@ -185,7 +175,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
   ml  = pdata->ml;
   smu = MIN( N-1, mu + ml);
 
-  *leniwBP = N;
+  *leniwBP = pdata->N;
   *lenrwBP = N * ( 2*ml + smu + mu + 2 );
 
   return(CV_SUCCESS);
@@ -196,7 +186,7 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
   CVBandPrecData pdata;
 
   if ( bp_data == NULL ) {
-    fprintf(stderr, MSG_PDATA_NULL);
+    fprintf(stderr, MSGBP_PDATA_NULL);
     return(CV_PDATA_NULL);
   } 
 
@@ -302,7 +292,6 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   if (ier > 0) return(1);
   return(0);
 }
-
 
 /*
  * -----------------------------------------------------------------
@@ -424,4 +413,3 @@ static void CVBandPDQJac(CVBandPrecData pdata,
     }
   }
 }
-

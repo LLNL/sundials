@@ -1,26 +1,26 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-07-22 21:21:16 $
+ * $Revision: 1.3 $
+ * $Date: 2004-11-06 01:02:03 $
  * ----------------------------------------------------------------- 
- * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
- *              Radu Serban @ LLNL                              
+ * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California 
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvodes/LICENSE.
  * -----------------------------------------------------------------
  * Implementation header file for the CVBANDPRE module.
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _cvbandpre_impl_h
-#define _cvbandpre_impl_h
+#ifndef _CVBANDPRE_IMPL_H
+#define _CVBANDPRE_IMPL_H
 
 #include "cvbandpre.h"
 
@@ -52,6 +52,16 @@ typedef struct {
   void *cvode_mem;
 
 } *CVBandPrecData;
+
+/* Error Messages */
+
+#define _CVBALLOC_        "CVBandPreAlloc-- "
+#define MSGBP_CVMEM_NULL  _CVBALLOC_ "Integrator memory is NULL.\n\n"
+#define MSGBP_BAD_NVECTOR _CVBALLOC_ "A required vector operation is not implemented.\n\n"
+
+#define MSGBP_PDATA_NULL "CVBandPrecGet*-- BandPrecData is NULL.\n\n"
+
+#define MSGBP_NO_PDATA "CVBPSpgmr-- BandPrecData is NULL.\n\n"
 
 #endif
 

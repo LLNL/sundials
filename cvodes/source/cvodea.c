@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2004-10-26 20:47:40 $
+ * $Revision: 1.36 $
+ * $Date: 2004-11-06 01:02:02 $
  * ----------------------------------------------------------------- 
- * Programmers   : Radu Serban @ LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California 
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvodes/LICENSE.
  * -----------------------------------------------------------------
  * This is the implementation file for the CVODEA adjoint integrator.
  * -----------------------------------------------------------------
@@ -24,6 +24,11 @@
 #include "cvdiag.h"
 #include "cvodea_impl.h"
 #include "sundialsmath.h"
+
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
+#endif
 
 /*=================================================================*/
 /*BEGIN             Macros                                         */
@@ -41,15 +46,6 @@
 #define ONE         RCONST(1.0)     /* real 1.0 */
 #define TWO         RCONST(2.0)     /* real 2.0 */
 #define FUZZ_FACTOR RCONST(1000000.0)  /* fuzz factor for CVadjGetY */
-
-/*=================================================================*/
-/*BEGIN             Error Messages                                 */
-/*=================================================================*/
-
-#define CVAM                "CVadjMalloc-- "
-#define MSG_CVAM_NO_MEM     CVAM "cvode_mem=NULL illegal.\n\n"
-#define MSG_CVAM_BAD_STEPS  CVAM "steps non-positive illegal.\n\n"
-#define MSG_CVAM_MEM_FAIL   CVAM "a memory request failed.\n\n"
 
 /*=================================================================*/
 /*BEGIN             Private Functions Prototypes                   */
@@ -219,18 +215,18 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
 
   /* Check arguments */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_CVAM_NO_MEM);
+    fprintf(stderr, MSGAM_NO_MEM);
     return(NULL);
   }
   if (steps <= 0) {
-    fprintf(stderr, MSG_CVAM_BAD_STEPS);
+    fprintf(stderr, MSGAM_BAD_STEPS);
     return(NULL);
   }
 
   /* Allocate memory block */
   ca_mem = (CVadjMem) malloc(sizeof(struct CVadjMemRec));
   if (ca_mem == NULL) {
-    fprintf(stderr, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSGAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -242,7 +238,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   ca_mem->ck_mem = CVAckpntInit(cv_mem);
   if (ca_mem->ck_mem == NULL) {
     free(ca_mem);
-    fprintf(stderr, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSGAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -251,7 +247,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   if (ca_mem->dt_mem == NULL) {
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
-    fprintf(stderr, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSGAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -261,7 +257,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
-    fprintf(stderr, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSGAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -271,7 +267,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
-    fprintf(stderr, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSGAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -282,7 +278,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
-    fprintf(stderr, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSGAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -338,6 +334,9 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
 
   cv_mem = ca_mem->cv_mem;
   dt_mem = ca_mem->dt_mem;
+
+  iret = TRUE;
+  cv_itask = CV_ONE_STEP;
 
   /* Interpret itask */
   switch (itask) {
@@ -1347,8 +1346,13 @@ int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
     }
     else {
       printf("\n TROUBLE IN GETY\n ");
+      #if defined(SUNDIALS_EXTENDED_PRECISION)
+      printf("%Lg = ABS(t-dt_mem[0]->t) > troundoff = %Lg  uround = %Lg\n",
+             ABS(t - dt_mem[0]->t), troundoff, uround);
+      #else
       printf("%g = ABS(t-dt_mem[0]->t) > troundoff = %g  uround = %g\n",
              ABS(t - dt_mem[0]->t), troundoff, uround);
+      #endif
       return(CV_GETY_BADT);
     }
   }
@@ -1400,8 +1404,13 @@ void CVadjGetCheckPointsList(void *cvadj_mem)
   i = 0;
 
   while (ck_mem != NULL) {
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("%2d  addr: %p  time = [ %9.3Le %9.3Le ]  next: %p\n", 
+           nckpnts-i, (void *)ck_mem, t0_, t1_, (void *)next_ );
+#else
     printf("%2d  addr: %p  time = [ %9.3e %9.3e ]  next: %p\n", 
            nckpnts-i, (void *)ck_mem, t0_, t1_, (void *)next_ );
+#endif
     ck_mem = next_;
     i++;
   }

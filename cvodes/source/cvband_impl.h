@@ -1,32 +1,31 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-08-25 16:19:23 $
+ * $Revision: 1.4 $
+ * $Date: 2004-11-06 01:02:03 $
  * ----------------------------------------------------------------- 
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
- *              Radu Serban @ LLNL                              
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California 
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvodes/LICENSE.
  * -----------------------------------------------------------------
  * Implementation header file for the band linear solver, CVBAND.
  * -----------------------------------------------------------------
  */
  
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _cvband_impl_h
-#define _cvband_impl_h
+#ifndef _CVBAND_IMPL_H
+#define _CVBAND_IMPL_H
 
 #include <stdio.h>
 
-#include "cvband.h"
-
 #include "band.h"
+#include "cvband.h"
 #include "nvector.h"
 #include "sundialstypes.h"
 
@@ -70,6 +69,19 @@ typedef struct {
   
 } CVBandMemRec, *CVBandMem;
 
+/* Error Messages */
+
+#define _CVBAND_         "CVBand-- "
+#define MSGB_MEM_FAIL    _CVBAND_ "A memory request failed.\n\n"
+#define MSGB_BAD_SIZES_1 _CVBAND_ "Illegal bandwidth parameter(s)."
+#define MSGB_BAD_SIZES_2 "Must have 0 <=  ml, mu <= N-1.\n\n"
+#define MSGB_BAD_SIZES   MSGB_BAD_SIZES_1 MSGB_BAD_SIZES_2
+#define MSGB_BAD_NVECTOR _CVBAND_ "A required vector operation is not implemented.\n\n"
+#define MSGB_CVMEM_NULL  _CVBAND_ "Integrator memory is NULL.\n\n"
+
+#define MSGB_SETGET_CVMEM_NULL "CVBandSet*/CVBandGet*-- Integrator memory is NULL.\n\n"
+
+#define MSGB_SETGET_LMEM_NULL "CVBandSet*/CVBandGet*-- CVBAND memory is NULL.\n\n"
 
 #endif
 

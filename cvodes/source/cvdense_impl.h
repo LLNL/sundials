@@ -1,26 +1,26 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-08-25 16:19:23 $
+ * $Revision: 1.4 $
+ * $Date: 2004-11-06 01:02:03 $
  * ----------------------------------------------------------------- 
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
- *              Radu Serban @ LLNL                              
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California 
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvodes/LICENSE.
  * -----------------------------------------------------------------
- * Implementation header file for the dense linear solver, CVDENSE. 
+ * Implementation header file for the dense linear solver, CVDENSE.
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _cvdense_impl_h
-#define _cvdense_impl_h
+#ifndef _CVDENSE_IMPL_H
+#define _CVDENSE_IMPL_H
 
 #include <stdio.h>
 
@@ -63,6 +63,17 @@ typedef struct {
   int d_last_flag;    /* last error return flag */
   
 } CVDenseMemRec, *CVDenseMem;
+
+/* Error Messages */
+
+#define _CVDENSE_         "CVDense-- "
+#define MSGDS_CVMEM_NULL  _CVDENSE_ "Integrator memory is NULL.\n\n"
+#define MSGDS_BAD_NVECTOR _CVDENSE_ "A required vector operation is not implemented.\n\n"
+#define MSGDS_MEM_FAIL    _CVDENSE_ "A memory request failed.\n\n"
+
+#define MSGDS_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- Integrator memory is NULL.\n\n"
+
+#define MSGDS_SETGET_LMEM_NULL "CVDenseSet*/CVDenseGet*-- cvdense memory is NULL.\n\n"
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-10-18 21:53:17 $
+ * $Revision: 1.24 $
+ * $Date: 2004-11-06 01:01:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -11,10 +11,10 @@
  * All rights reserved.
  * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
- * This file contains implementations of routines for a            
- * band-block-diagonal preconditioner, i.e. a block-diagonal       
- * matrix with banded blocks, for use with CVODE, CVSpgmr, and     
- * the parallel implementation of NVECTOR.                         
+ * This file contains implementations of routines for a
+ * band-block-diagonal preconditioner, i.e. a block-diagonal
+ * matrix with banded blocks, for use with CVODE, CVSpgmr, and
+ * the parallel implementation of NVECTOR.
  * -----------------------------------------------------------------
  */
 
@@ -30,16 +30,6 @@
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
-
-/* Error Messages */
-#define CVBBDALLOC     "CVBBDAlloc-- "
-#define MSG_CVMEM_NULL CVBBDALLOC "Integrator memory is NULL.\n\n"
-
-#define MSG_BAD_NVECTOR CVBBDALLOC "A required vector operation is not implemented.\n\n"
-
-#define MSG_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL. \n\n"
-
-#define MSG_NO_PDATA   "CVBBDSpgmr-- BBDPrecData is NULL. \n\n"
 
 /* Prototypes of functions CVBBDPrecSetup and CVBBDPrecSolve */
 
@@ -81,14 +71,14 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   long int muk, mlk, storage_mu;
 
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_CVMEM_NULL);
+    fprintf(stderr, MSGBBDP_CVMEM_NULL);
     return(NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BLOCK BAND preconditioner */
   if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    if(errfp!=NULL) fprintf(errfp, MSGBBDP_BAD_NVECTOR);
     return(NULL);
   }
 
@@ -147,7 +137,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   int flag;
 
   if ( bbd_data == NULL ) {
-    fprintf(stderr, MSG_NO_PDATA);
+    fprintf(stderr, MSGBBDP_NO_PDATA);
     return(CV_PDATA_NULL);
   } 
 
@@ -176,7 +166,7 @@ int CVBBDPrecReInit(void *bbd_data,
   long int Nlocal;
 
   if ( bbd_data == NULL ) {
-    fprintf(stderr, MSG_NO_PDATA);
+    fprintf(stderr, MSGBBDP_NO_PDATA);
     return(CV_PDATA_NULL);
   } 
 
@@ -217,7 +207,7 @@ int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBB
   CVBBDPrecData pdata;
 
   if ( bbd_data == NULL ) {
-    fprintf(stderr, MSG_PDATA_NULL);
+    fprintf(stderr, MSGBBDP_PDATA_NULL);
     return(CV_PDATA_NULL);
   } 
 
@@ -234,7 +224,7 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
   CVBBDPrecData pdata;
 
   if ( bbd_data == NULL ) {
-    fprintf(stderr, MSG_PDATA_NULL);
+    fprintf(stderr, MSGBBDP_PDATA_NULL);
     return(CV_PDATA_NULL);
   } 
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-10-08 16:25:40 $
+ * $Revision: 1.21 $
+ * $Date: 2004-11-06 01:01:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -22,21 +22,6 @@
 #include "cvode_impl.h"
 
 #include "sundialsmath.h"
-
-
-/* Error Messages */
-
-#define CVDENSE               "CVDense-- "
-
-#define MSG_CVMEM_NULL        CVDENSE "Integrator memory is NULL.\n\n"
-
-#define MSG_BAD_NVECTOR       CVDENSE "A required vector operation is not implemented.\n\n"
-
-#define MSG_MEM_FAIL          CVDENSE "A memory request failed.\n\n"
-
-#define MSG_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- Integrator memory is NULL. \n\n"
-
-#define MSG_SETGET_LMEM_NULL  "CVDenseSet*/CVDenseGet*-- cvdense memory is NULL. \n\n"
 
 /* Other Constants */
 
@@ -128,7 +113,7 @@ int CVDense(void *cvode_mem, long int N)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_CVMEM_NULL);
+    fprintf(stderr, MSGDS_CVMEM_NULL);
     return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -136,7 +121,7 @@ int CVDense(void *cvode_mem, long int N)
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL ||
       vec_tmpl->ops->nvsetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_BAD_NVECTOR);
     return(CVDENSE_ILL_INPUT);
   }
 
@@ -151,7 +136,7 @@ int CVDense(void *cvode_mem, long int N)
   /* Get memory for CVDenseMemRec */
   cvdense_mem = (CVDenseMem) malloc(sizeof(CVDenseMemRec));
   if (cvdense_mem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
     return(CVDENSE_MEM_FAIL);
   }
 
@@ -169,18 +154,18 @@ int CVDense(void *cvode_mem, long int N)
   
   M = DenseAllocMat(N);
   if (M == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
     return(CVDENSE_MEM_FAIL);
   }
   savedJ = DenseAllocMat(N);
   if (savedJ == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
     DenseFreeMat(M);
     return(CVDENSE_MEM_FAIL);
   }
   pivots = DenseAllocPiv(N);
   if (pivots == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
     DenseFreeMat(M);
     DenseFreeMat(savedJ);
     return(CVDENSE_MEM_FAIL);
@@ -205,13 +190,13 @@ int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGDS_SETGET_CVMEM_NULL);
     return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_SETGET_LMEM_NULL);
     return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -234,13 +219,13 @@ int CVDenseSetJacData(void *cvode_mem, void *jac_data)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGDS_SETGET_CVMEM_NULL);
     return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_SETGET_LMEM_NULL);
     return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -263,13 +248,13 @@ int CVDenseGetWorkSpace(void *cvode_mem, long int *lenrwD, long int *leniwD)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGDS_SETGET_CVMEM_NULL);
     return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_SETGET_LMEM_NULL);
     return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -293,13 +278,13 @@ int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGDS_SETGET_CVMEM_NULL);
     return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_SETGET_LMEM_NULL);
     return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -322,13 +307,13 @@ int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGDS_SETGET_CVMEM_NULL);
     return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_SETGET_LMEM_NULL);
     return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -351,13 +336,13 @@ int CVDenseGetLastFlag(void *cvode_mem, int *flag)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSGDS_SETGET_CVMEM_NULL);
     return(CVDENSE_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGDS_SETGET_LMEM_NULL);
     return(CVDENSE_LMEM_NULL);
   }
   cvdense_mem = (CVDenseMem) lmem;
@@ -391,7 +376,7 @@ static int CVDenseInit(CVodeMem cv_mem)
     J_data = cv_mem;
   }
 
-  last_flag = 0;
+  last_flag = CVDENSE_SUCCESS;
   return(0);
 }
 
