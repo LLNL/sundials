@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-04-03 02:41:19 $
+ * $Revision: 1.23 $
+ * $Date: 2004-04-21 22:27:47 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -248,18 +248,18 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
 
   /* Check arguments */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_CVAM_NO_MEM);
+    fprintf(stderr, MSG_CVAM_NO_MEM);
     return (NULL);
   }
   if (steps <= 0) {
-    fprintf(stdout, MSG_CVAM_BAD_STEPS);
+    fprintf(stderr, MSG_CVAM_BAD_STEPS);
     return (NULL);
   }
 
   /* Allocate memory block */
   ca_mem = (CVadjMem) malloc(sizeof(struct CVadjMemRec));
   if (ca_mem == NULL) {
-    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSG_CVAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -271,7 +271,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   ca_mem->ck_mem = CVAckpntInit(cv_mem);
   if (ca_mem->ck_mem == NULL) {
     free(ca_mem);
-    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSG_CVAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -280,7 +280,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   if (ca_mem->dt_mem == NULL) {
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
-    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSG_CVAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -290,7 +290,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
-    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSG_CVAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -300,7 +300,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
-    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSG_CVAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -311,7 +311,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     CVAdataFree(ca_mem->dt_mem, steps);
     CVAckpntDelete(&(ca_mem->ck_mem));
     free(ca_mem);
-    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    fprintf(stderr, MSG_CVAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -425,7 +425,7 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
   }
 
   if (flag == CVODEF_MEM_FAIL) 
-    fprintf(stdout, MSG_CVODEF_MEM_FAIL);
+    fprintf(stderr, MSG_CVODEF_MEM_FAIL);
 
   /* Get ncheck from ca_mem */ 
   *ncheckPtr = nckpnts;
@@ -448,7 +448,7 @@ int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB)
   void *cvode_mem;
 
   if (cvadj_mem == NULL) {
-    fprintf(stdout, MSG_CVBM_NO_MEM);
+    fprintf(stderr, MSG_CVBM_NO_MEM);
     return(CVBM_NO_MEM);
   }
 
@@ -457,7 +457,7 @@ int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB)
   cvode_mem = CVodeCreate(lmmB, iterB);
 
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_CVBM_MEM_FAIL);
+    fprintf(stderr, MSG_CVBM_MEM_FAIL);
     return(CVBM_MEM_FAIL);
   }
 
@@ -606,14 +606,14 @@ int CVodeMallocB(void *cvadj_mem, RhsFnB fB,
   int flag;
 
   if (cvadj_mem == NULL) {
-    fprintf(stdout, MSG_CVBM_NO_MEM);
+    fprintf(stderr, MSG_CVBM_NO_MEM);
     return(CVBM_NO_MEM);
   }
 
   ca_mem = (CVadjMem) cvadj_mem;
 
   if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
-    fprintf(stdout, MSG_CVBM_BAD_TB0);
+    fprintf(stderr, MSG_CVBM_BAD_TB0);
     return(CVBM_BAD_TB0);
   }
 
@@ -642,14 +642,14 @@ int CVodeReInitB(void *cvadj_mem, RhsFnB fB,
   int flag;
 
   if (cvadj_mem == NULL) {
-    fprintf(stdout, MSG_CVBM_NO_MEM);
+    fprintf(stderr, MSG_CVBM_NO_MEM);
     return(CVBM_NO_MEM);
   }
 
   ca_mem = (CVadjMem) cvadj_mem;
 
   if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
-    fprintf(stdout, MSG_CVBM_BAD_TB0);
+    fprintf(stderr, MSG_CVBM_BAD_TB0);
     return(CVBM_BAD_TB0);
   }
 
@@ -719,7 +719,7 @@ int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, NV_Spec nvspecQB)
   int flag;
 
   if (cvadj_mem == NULL) {
-    fprintf(stdout, MSG_CVBQM_NO_MEM);
+    fprintf(stderr, MSG_CVBQM_NO_MEM);
     return(CVBM_NO_MEM);
   }
 
@@ -746,7 +746,7 @@ int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB)
   int flag;
 
   if (cvadj_mem == NULL) {
-    fprintf(stdout, MSG_CVBQM_NO_MEM);
+    fprintf(stderr, MSG_CVBQM_NO_MEM);
     return(CVBM_NO_MEM);
   }
 
@@ -1141,7 +1141,7 @@ int CVodeB(void *cvadj_mem, N_Vector yB)
     if (ck_mem != ckpntData) {
       flag = CVAdataStore(ca_mem, ck_mem);
       if (flag < 0) {
-        fprintf(stdout, MSG_CVODEB_FWD);
+        fprintf(stderr, MSG_CVODEB_FWD);
         return(flag);
       }
     }
@@ -1150,7 +1150,7 @@ int CVodeB(void *cvadj_mem, N_Vector yB)
     CVodeSetStopTime((void *)cvb_mem, t0_);
     flag = CVode(cvb_mem, t0_, yB, &t, NORMAL_TSTOP);
     if (flag < 0) {
-      fprintf(stdout, MSG_CVODEB_BCK);
+      fprintf(stderr, MSG_CVODEB_BCK);
       return(flag);
     }
 

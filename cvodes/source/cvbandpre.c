@@ -71,7 +71,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   long int mup, mlp, storagemu;
 
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_CVMEM_NULL);
+    fprintf(stderr, MSG_CVMEM_NULL);
     return(NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -80,7 +80,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   if ((strcmp(nvspec->tag,"serial")) || 
       nvspec->ops->nvgetdata == NULL || 
       nvspec->ops->nvsetdata == NULL) {
-    fprintf(errfp, MSG_WRONG_NVEC);
+    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
     return(NULL);
   }
 
@@ -129,7 +129,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   int flag;
 
   if ( p_data == NULL ) {
-    fprintf(stdout, MSG_NO_PDATA);
+    fprintf(stderr, MSG_NO_PDATA);
     return(BP_NO_PDATA);
   } 
 
@@ -166,7 +166,7 @@ int CVBandPrecGetIntWorkSpace(void *bp_data, long int *leniwBP)
   CVBandPrecData pdata;
 
   if ( bp_data == NULL ) {
-    fprintf(stdout, MSG_PDATA_NULL);
+    fprintf(stderr, MSG_PDATA_NULL);
     return(BP_NO_PDATA);
   } 
 
@@ -184,7 +184,7 @@ int CVBandPrecGetRealWorkSpace(void *bp_data, long int *lenrwBP)
   long int N, ml, mu, smu;
 
   if ( bp_data == NULL ) {
-    fprintf(stdout, MSG_PDATA_NULL);
+    fprintf(stderr, MSG_PDATA_NULL);
     return(BP_NO_PDATA);
   } 
 
@@ -204,7 +204,7 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
   CVBandPrecData pdata;
 
   if ( bp_data == NULL ) {
-    fprintf(stdout, MSG_PDATA_NULL);
+    fprintf(stderr, MSG_PDATA_NULL);
     return(BP_NO_PDATA);
   } 
 

@@ -104,7 +104,7 @@ int CVDiag(void *cvode_mem)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_CVMEM_NULL);
+    fprintf(stderr, MSG_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -120,7 +120,7 @@ int CVDiag(void *cvode_mem)
   /* Get memory for CVDiagMemRec */
   cvdiag_mem = (CVDiagMem) malloc(sizeof(CVDiagMemRec));
   if (cvdiag_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
 
@@ -131,18 +131,18 @@ int CVDiag(void *cvode_mem)
     
   M = N_VNew(nvspec);
   if (M == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
   bit = N_VNew(nvspec);
   if (bit == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(M);
     return(LMEM_FAIL);
   }
   bitcomp = N_VNew(nvspec);
   if (bitcomp == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(M);
     N_VFree(bit);
     return(LMEM_FAIL);
@@ -162,7 +162,7 @@ int CVDiagGetIntWorkSpace(void *cvode_mem, long int *leniwDI)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -180,7 +180,7 @@ int CVDiagGetRealWorkSpace(void *cvode_mem, long int *lenrwDI)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -199,13 +199,13 @@ int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    fprintf(stderr, MSG_SETGET_CVMEM_NULL);
     return(LIN_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   cvdiag_mem = (CVDiagMem) lmem;
