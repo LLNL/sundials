@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.11 $
-C     $Date: 2004-10-11 16:57:01 $
+C     $Revision: 1.12 $
+C     $Date: 2004-10-11 20:21:02 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -64,7 +64,7 @@ C
 C     
       IF (MYPE .EQ. 0) THEN
          WRITE(6,15) NEQ, ALPHA, RTOL, ATOL, NPES
- 15      FORMAT('Diagonal test problem, size NEQ =',I5,
+ 15      FORMAT(/'Diagonal test problem, size NEQ =',I5,
      &        '  parameter alpha = ',F8.3/
      &        '  ydot_i = -alpha*i * y_i (i = 1,...,NEQ)'//
      &        'RTOL, ATOL = ',2E10.1//'Method is BDF/NEWTON/SPGMR'/
