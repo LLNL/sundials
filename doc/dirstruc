@@ -7,6 +7,7 @@ Modified 24 January 2002 - Alan
 Modified 7 February 2002 - Alan
 Modified 21 February 2002 - Alan
 Modified 13 March 2002 - Radu
+Modified 27 March 2002 - Radu
 
 Overall structure:
 ------------------
@@ -52,6 +53,9 @@ Third level subdirectories:
 
 shared/ subdirectories:
 
+doc/
+    nvecreadme
+    
 include/
     llnltyps.h  llnlmath.h
     band.h  dense.h  smalldense.h  spgmr.h  iterativ.h
@@ -75,34 +79,34 @@ lib/
 cvode/ subdirectories for CVODE/PVODE:
 
 doc/
-    cvreadme, cvudoc.tex, overview.ps, cvstruct.ps, bandmat.ps, cvaddenda
-    pvreadme, pvudoc.tex, pvorg.ps, pvaddenda
+    cvreadme, cvaddenda
+    pvudoc.tex, pvorg.fig, pvorg.ps, pvaddenda
     stald.doc
 
 include/
     cvode.h
-    cvdense.h, cvband.h, cvdiag.h, cvspgmr.h, cvbandpre.h, pvbbdpre.h
+    cvdense.h, cvband.h, cvdiag.h, cvspgmr.h, cvbandpre.h, cvbbdpre.h
 
 source/
     Makefile
     cvode.c
-    cvdense.c, cvband.c, cvdiag.c, cvspgmr.c, cvbandpre.c, pvbbdpre.c
+    cvdense.c, cvband.c, cvdiag.c, cvspgmr.c, cvbandpre.c, cvbbdpre.c
 
 lib/
 
 examples/
-    Makefile, cvodex.mk, pvodex.mk
+    Makefile, cvx_ser.mk, cvx_par.mk
     cvdx.c, cvdx.out; 	cvbx.c, cvbx.out;	cvkx.c, cvkx.out
     cvkxb.c, cvkxb.out;	cvdemd.c, cvdemd.out;	cvdemk.c, cvdemk.out
     pvnx.c, pvnx.out; 	pvkx.c, pvkx.out;	pvkxb.c, pvkxb.out
 
 fcmix/
-    Makefile, fpvode.mk, fpvodex.mk
-    fpvode.c, fpvode.h
-    fpvbbd.c, fpvbbd.h, fpvbbdin1.c
-    fpvjtimes.c, fpvpreco.c, fpvpsol.c
-    fpvspgmr01.c, fpvspgmr10.c, fpvspgmr11.c
-    fpvspgmr20.c, fpvspgmr21.c
+    Makefile, fcvx_ser.mk, fcvx_par.mk
+    fcvode.c, fcvode.h
+    fcvbbd.c, fcvbbd.h, fcvbbdin1.c
+    fcvjtimes.c, fcvpreco.c, fcvpsol.c
+    fcvspgmr01.c, fcvspgmr10.c, fcvspgmr11.c
+    fcvspgmr20.c, fcvspgmr21.c
     pvdiagkbf.f, pvdiagkbf.out
     pvdiagkf.f, pvdiagkf.out
     pvdiagnf.f, pvdiagnf.out  
@@ -143,29 +147,29 @@ doc/
 
 include/
     cvodes.h, cvodea.h
-    cvsdense.h, cvsband.h, cvsdiag.h, cvsspgmr.h, cvsbandpre.h, pvsbbdpre.h
+    cvsdense.h, cvsband.h, cvsdiag.h, cvsspgmr.h, cvsbandpre.h, cvsbbdpre.h
 
 source/
-    Makefile, cvodes.mk, pvodes.mk
+    Makefile
     cvodes.c, cvodea.c
-    cvsdense.c, cvsband.c, cvsdiag.c, cvsspgmr.c,  cvsbandpre.c, pvsbbdpre.c
+    cvsdense.c, cvsband.c, cvsdiag.c, cvsspgmr.c,  cvsbandpre.c, cvsbbdpre.c
 
 lib/
 
 examples/
-    Makefile, cvodesx.mk, pvodesx.mk
-    cvsnx.c, cvsns.out;	  cvsdx.c, cvsdx.out;	cvskx.c, cvskx.out
-    pvsnx.c, pvsnx.out;	  pvskx.c, pvskx.out
+    Makefile, cvx_ser.mk, cvx_par.mk
+    cvdx.c; cvbx.c; cvkx.c
+    cvkxb.c; cvdemd.c; cvdemk.c
+    pvnx.c; pvkx.c; pvkxb.c
 
-more_examples/
-    Makefile, cvodesx.mk, pvodesx.mk
-    advd_s.c, advd_p.c 
-    diur_s.c, diur_p.c
-    food_s.c, heat_s.c, vpol_s.c
+fwd_examples/
+    Makefile, cvsx_ser.mk, cvsx_par.mk
+    cvsnx.c;  cvsdx.c; cvskx.c  
+    pvsnx.c; pvskx.c
 
 adj_examples/
-    Makefile, cvodeax.mk
-    chemadj.c, chemfwd.c
+    Makefile, cvax_ser.mk cvax_par.mk
+    adadj.c, chemadj.c, foodadj.c, foodadj1.c
 
 fcmix/
 
@@ -175,7 +179,7 @@ fcmix/
 kinsol/ subdirectories for KINSOL:
 
 doc/
-    kinreadme, kinudoc.tex, kinorg.ps, kinaddenda
+    kinreadme, kinudoc.tex, kinorg.fig, kinorg.ps, kinaddenda
 
 include/
     kinsol.h
@@ -189,13 +193,13 @@ source/
 lib/
 
 examples/
-    Makefile, kinxs.mk, kinxp.mk
+    Makefile, kinx_ser.mk, kinx_par.mk
     kinwebbbd.c, kinwebbbd.out
     kinwebp.c, kinwebp.out
     kinwebs.c, kinwebs.out
 
 fcmix/
-    Makefile, fkinxs.mk, fkinxp.mk
+    Makefile
     fkinsol.c, fkinsol.h
     fkinspgmr01.c, fkinspgmr10.c, fkinspgmr11.c, fkinspgmr20.c, fkinspgmr21.c
     fkinpsol.c, fkinpreco.c, fkinuatimes.c,  fkinbbd.c, fkinbbd.h, fkinbbdinit1.c
@@ -264,7 +268,7 @@ source/
 lib/
 
 examples/
-    Makefile, idaxs.mk, idapx.mk
+    Makefile, idax_ser.mk, idax_par.mk
     irobx.c, irobx.out;  iheatsb.c, iheatsb.out
     iheatsk.c, iheatsk.out;  iheatpk.c, iheatpk.out;  iheatbbd.c, iheatbbd.out
     iwebsb.c, iwebsb.out;  iwebpk.c, iwebpk.out;  iwebbbd.c, iwebbbd.out
