@@ -1,9 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-08-25 16:14:59 $
+ * $Revision: 1.5 $
+ * $Date: 2004-11-15 17:11:48 $
  * ----------------------------------------------------------------- 
- * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL
+ * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
  * This header file contains declarations intended for use by
  * generic iterative solvers of Ax = b. The enumeration gives
@@ -16,16 +21,15 @@
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _iterative_h
-#define _iterative_h
+#ifndef _ITERATIVE_H
+#define _ITERATIVE_H
 
 #include "sundialstypes.h"
 #include "nvector.h"
-
 
 /*
  * -----------------------------------------------------------------
@@ -61,7 +65,7 @@ enum { PREC_NONE, PREC_LEFT, PREC_RIGHT, PREC_BOTH };
  * -----------------------------------------------------------------
  */
 
-enum { MODIFIED_GS=1, CLASSICAL_GS=2 };
+enum { MODIFIED_GS = 1, CLASSICAL_GS = 2 };
 
 /*
  * -----------------------------------------------------------------
@@ -100,7 +104,6 @@ typedef int (*ATimesFn)(void *A_data, N_Vector v, N_Vector z);
  */
 
 typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z, int lr);
-
 
 /*
  * -----------------------------------------------------------------

@@ -1,53 +1,52 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-10-12 20:06:55 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-15 17:11:48 $
  * ----------------------------------------------------------------- 
- * Programmer: Radu Serban, LLNL                               
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California 
- * Produced at the Lawrence Livermore National Laboratory          
- * All rights reserved                                             
- * For details, see sundials/shared/LICENSE                        
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
- * This is the header file for a generic NVECTOR package.          
- * It defines the N_Vector structure which contains:  
- *   - an implementation-dependent 'content' field which contains 
+ * This is the header file for a generic NVECTOR package.
+ * It defines the N_Vector structure which contains:
+ *   - an implementation-dependent 'content' field which contains
  *     the description and actual data of the nvector
  *   - an implementation-dependent 'data' field
- *   - an 'ops' filed which contains a structure listing operations 
+ *   - an 'ops' filed which contains a structure listing operations
  *     acting on such nvectors
- *                                                                 
- * Part I of this file contains type declarations for the          
- * generic_N_Vector and _generic_N_Vector_Ops structures, as well 
+ *
+ * Part I of this file contains type declarations for the
+ * generic_N_Vector and _generic_N_Vector_Ops structures, as well
  * as references to pointers to such structures (N_Vector).
- *                                                                 
- * Part II of this file contains the prototypes for the vector     
- * functions which operate on N_Vector.                               
- *                                                                 
+ *
+ * Part II of this file contains the prototypes for the vector
+ * functions which operate on N_Vector.
+ *
  * At a minimum, a particular implementation of an NVECTOR must
- *  - specify the 'content' field of N_Vector, 
+ *  - specify the 'content' field of N_Vector,
  *  - implement the operations on those N_Vectors,
  *  - provide a constructor routine for new vectors
  *
  * Additionally, an NVECTOR implementation may provide
  *  - macros to access the underlying N_Vector data
  *  - a constructor for an array of N_Vectors
- *  - a constructor for an empty N_Vector (i.e. a new N_Vector with 
+ *  - a constructor for an empty N_Vector (i.e. a new N_Vector with
  *    NULL data).
  *  - a routine to print the content of an N_Vector
  *  - etc.
- *
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef included_nvector_h
-#define included_nvector_h
-  
+#ifndef _NVECTOR_H
+#define _NVECTOR_H
+
 #include "sundialstypes.h"
 
 /*
@@ -93,10 +92,12 @@ struct _generic_N_Vector_Ops {
   realtype    (*nvminquotient)(N_Vector, N_Vector);
 };
   
-/* 
+/*
+ * -----------------------------------------------------------------
  * A vector is a structure with an implementation dependent 'content',
  * and a pointer to a structure of vector operations corresponding to 
  * that implementation.
+ * -----------------------------------------------------------------
  */
 struct _generic_N_Vector {
   void *content;
@@ -109,8 +110,8 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  */
 
-
 /*
+ * -----------------------------------------------------------------
  * N_VClone
  *   Creates a new vector of the same type as an existing vector.
  *   It does not copy the vector but rather allocates storage for
@@ -260,9 +261,9 @@ struct _generic_N_Vector {
  * NVECTOR          ------------------------------------------------
  * FUNCTIONS          CVODE/CVODES          IDA             KINSOL    
  * -----------------------------------------------------------------
- * N_VClone           S Di I                S I             S I       
+ * N_VClone           S Di I                S I             S I BBDP
  * -----------------------------------------------------------------
- * N_VDestroy         S Di I                S I             S I       
+ * N_VDestroy         S Di I                S BBDP I        S BBDP
  * -----------------------------------------------------------------
  * N_VSpace           S                     S               S         
  * -----------------------------------------------------------------
@@ -270,11 +271,11 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  * N_VSetArrayPointer D F                   D               F
  * -----------------------------------------------------------------
- * N_VLinearSum       S Di I                S I             S I       
+ * N_VLinearSum       S D Di I              S D I           S I       
  * -----------------------------------------------------------------
  * N_VConst           S I                   S I             I       
  * -----------------------------------------------------------------
- * N_VProd            S Di I                S I             S I       
+ * N_VProd            S Di                  S               S I       
  * -----------------------------------------------------------------
  * N_VDiv             S Di                  S               S         
  * -----------------------------------------------------------------
@@ -298,7 +299,7 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  * N_VWL2Norm                                               S I       
  * -----------------------------------------------------------------
- * N_VL1norm                                                I         
+ * N_VL1Norm                                                
  * -----------------------------------------------------------------
  * N_VCompare         Di                    S                         
  * -----------------------------------------------------------------
@@ -308,7 +309,6 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  * N_VMinQuotient                           S               S         
  * -----------------------------------------------------------------
- *
  */
   
 N_Vector N_VClone(N_Vector w);
@@ -343,6 +343,7 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom);
  */
 
 /*
+ * -----------------------------------------------------------------
  * N_VCloneVectorArray
  *   Creates (by cloning from 'w') an array of 'count' N_Vectors 
  *
@@ -352,7 +353,7 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom);
  *
  * These functions are used by the SPGMR iterative linear solver 
  * module and by the CVODES and IDAS solvers.
- *
+ * -----------------------------------------------------------------
  */
 
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
