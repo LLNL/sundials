@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-10-12 20:47:21 $
+ * $Revision: 1.24 $
+ * $Date: 2004-10-12 23:12:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -192,16 +192,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KIN_iopt[13] = nlcfails;
     KIN_iopt[14] = lsflag;
   }
-}
 
-/*
- * ----------------------------------------------------------------
- * Function : FKIN_FREE
- * ----------------------------------------------------------------
- */
-
-void FKIN_FREE()
-{
   /* Call KINFree: KIN_mem is the pointer to the KINSOL memory block */
   KINFree(KIN_mem);
 

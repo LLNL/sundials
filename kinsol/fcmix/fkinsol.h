@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-10-12 20:47:21 $
+ * $Revision: 1.22 $
+ * $Date: 2004-10-12 23:12:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -36,7 +36,6 @@
    FKINMALLOC :  interfaces to KINMalloc 
    FKINSPGMR : interfaces to KINSpgmr
    FKINSOL : interfaces to KINSol
-   FKINFREE : interfaces to KINFree
    FNVFREES and FNVFREEP : finalize serial and parallel vector
                            computations, respectively
 
@@ -244,17 +243,15 @@
 
      Note: See KINSOL documentation for detailed information.
 
- (6) Memory freeing: FKINFREE and FNVFREES/FNVFREEP
+ (6) Memory freeing: FNVFREES/FNVFREEP
 
      To the free the internal memory created by the calls to FKINMALLOC
      and either FNVINITS or FNVINITP, make the following calls, in this
      order:
 
- (6.1s) CALL FKINFREE
-        CALL FNVFREES
+ (6.1s) CALL FNVFREES
 
- (6.1p) CALL FKINFREE
-        CALL FNVFREEP
+ (6.1p) CALL FNVFREEP
 
  (7) Optional inputs and outputs: IOPT/ROPT
 
@@ -317,7 +314,6 @@
 #define FKIN_SPGMRSETPSOL fkinspgmrsetpsol
 #define FKIN_SPGMRSETPSET fkinspgmrsetpset
 #define FKIN_SOL          fkinsol
-#define FKIN_FREE         fkinfree
 #define FK_FUN            fkfun
 #define FK_PSET           fkpset
 #define FK_PSOL           fkpsol
@@ -331,7 +327,6 @@
 #define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL
 #define FKIN_SPGMRSETPSET FKINSPGMRSETPSET
 #define FKIN_SOL          FKINSOL
-#define FKIN_FREE         FKINFREE
 #define FK_FUN            FKFUN
 #define FK_PSET           FKPSET
 #define FK_PSOL           FKPSOL
@@ -349,7 +344,6 @@
 #define FKIN_SPGMRSETPSOL fkinspgmrsetpsol__
 #define FKIN_SPGMRSETPSET fkinspgmrsetpset__
 #define FKIN_SOL          fkinsol__
-#define FKIN_FREE         fkinfree__
 #define FK_FUN            fkfun__
 #define FK_PSET           fkpset__
 #define FK_PSOL           fkpsol__
@@ -363,7 +357,6 @@
 #define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL__
 #define FKIN_SPGMRSETPSET FKINSPGMRSETPSET__
 #define FKIN_SOL          FKINSOL__
-#define FKIN_FREE         FKINFREE__
 #define FK_FUN            FKFUN__
 #define FK_PSET           FKPSET__
 #define FK_PSOL           FKPSOL__
@@ -381,7 +374,6 @@
 #define FKIN_SPGMRSETPSOL fkinspgmrsetpsol_
 #define FKIN_SPGMRSETPSET fkinspgmrsetpset_
 #define FKIN_SOL          fkinsol_
-#define FKIN_FREE         fkinfree_
 #define FK_FUN            fkfun_
 #define FK_PSET           fkpset_
 #define FK_PSOL           fkpsol_
@@ -395,7 +387,6 @@
 #define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL_
 #define FKIN_SPGMRSETPSET FKINSPGMRSETPSET_
 #define FKIN_SOL          FKINSOL_
-#define FKIN_FREE         FKINFREE_
 #define FK_FUN            FKFUN_
 #define FK_PSET           FKPSET_
 #define FK_PSOL           FKPSOL_

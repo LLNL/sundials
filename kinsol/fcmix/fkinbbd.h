@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-10-08 23:24:53 $
+ * $Revision: 1.18 $
+ * $Date: 2004-10-12 23:12:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -233,13 +233,12 @@
                 Note: This size is local to the current process.
        NGE    = number of g(u) evaluations (calls to FKLOCFN)
 
- (7) Memory freeing: FKINBBDFREE, FKINFREE and FNVFREEP
+ (7) Memory freeing: FKINBBDFREE and FNVFREEP
 
      To the free the internal memory created by the calls to FKINBBDINIT, FNVINITP
      and FKINMALLOC, make the following calls, in this order:
 
        CALL FKINBBDFREE
-       CALL FKINFREE
        CALL FNVFREEP
 
 *******************************************************************************/

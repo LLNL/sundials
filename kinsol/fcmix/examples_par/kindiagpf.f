@@ -1,7 +1,7 @@
       program kindiagpf
 c     ----------------------------------------------------------------
-c     $Revision: 1.9 $
-c     $Date: 2004-10-12 21:54:34 $
+c     $Revision: 1.10 $
+c     $Date: 2004-10-12 23:12:46 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -148,7 +148,6 @@ c     number of this process.
  1267 format(//' nni=',i4,',  nli=',i4,',  nfe=',i4,',  npe=',i4,
      1       ',  nps=',i4,',  ncfl=',i4)
 
-      call fkinfree
       call fnvfreep
       
 c     An explicit call to mpi_finalize (Fortran binding) is required by 

@@ -1,7 +1,7 @@
       program kindiagsf
 c     ----------------------------------------------------------------
-c     $Revision: 1.9 $
-c     $Date: 2004-10-12 21:54:27 $
+c     $Revision: 1.10 $
+c     $Date: 2004-10-12 23:12:40 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -72,7 +72,6 @@ c * * * * * * * * * * * * * * * * * * * * * *
          write(6,1235) ier
  1235    format('SUNDIALS_ERROR: FKINSPGMR returned IER = ',i2)
          call fnvfrees
-         call fkinfree
          stop
       endif
 
@@ -92,7 +91,6 @@ c * * * * * * * * * * * * * * * * * * * * * *
  1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ',i2,/,
      1          '                Linear Solver returned IER = ',i2)
          call fnvfrees
-         call fkinfree
          stop
       endif
 
@@ -111,7 +109,6 @@ c * * * * * * * * * * * * * * * * * * * * * *
  1267 format(//' nni=',i4,',  nli=',i4,',  nfe=',i4,',  npe=',i4,
      1       ',  nps=',i4,',  ncfl=',i4)
 
-      call fkinfree
       call fnvfrees
 
       stop
