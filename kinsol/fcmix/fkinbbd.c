@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-11-24 22:43:32 $
+ * $Revision: 1.19 $
+ * $Date: 2004-11-30 21:20:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -27,7 +27,6 @@
                                variables                                    */
 #include "kinbbdpre.h"      /* prototypes of KINBBDPRE functions and macros */
 #include "kinsol.h"         /* KINSOL constants and prototypes              */
-#include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines    */
 #include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines    */
 #include "nvector.h"        /* definition of type N_Vector                  */
 #include "sundialstypes.h"  /* definition of type realtype                  */
@@ -59,18 +58,6 @@ void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier)
 {
   KBBD_Data = KINBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, ZERO, FKINgloc, FKINgcomm);
   if (KBBD_Data == NULL) { *ier = -1; return; }
-}
-
-/*
- * ----------------------------------------------------------------
- * Function : FKIN_BBDSPBCG
- * ----------------------------------------------------------------
- */
-
-void FKIN_BBDSPBCG(int *maxl, int *ier)
-{
-  *ier = KINBBDSpbcg(KIN_mem, *maxl, KBBD_Data);
-  if (*ier != KINSPBCG_SUCCESS) return;
 }
 
 /*
