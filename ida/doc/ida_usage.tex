@@ -1539,15 +1539,10 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
 \index{optional input!iterative linear solver|(}
 \index{IDASPGMR@{\idaspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
-The call to \id{IDASpgmr} is used to communicate the type of preconditioning 
-(\id{pretype}) and the maximum dimension of the Krylov subspace to be used (\id{maxl}). 
-The \id{pretype} parameter can be \id{NONE}, \id{LEFT}, \id{RIGHT}, or \id{BOTH}.
-If no preconditioning is desired, pass \id{NONE} for \id{pretype}.
-Otherwise, a preconditioner solve function \id{psolve} is required.  
-Regardless of the type of preconditioning, a preconditioner setup function 
-\id{psetup} is sometimes useful, but is {\em not} required. 
+The call to \id{IDASpgmr} is used to communicate the the maximum dimension of 
+the Krylov subspace to be used (\id{maxl}). 
 
-If any type of preconditioning is to be done within the {\spgmr} method,
+If preconditioning is to be done within the {\spgmr} method,
 then the user must supply a preconditioner solve function \id{psolve}
 and specify it through a call to \id{IDASpgmrSetPrecSolveFn}.
 \index{IDASPGMR@{\idaspgmr} linear solver!preconditioner solve function}
@@ -1565,7 +1560,7 @@ Optionally, the {\idaspgmr} solver passes the pointer it receives through
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
-The pointer \id{P\_data} may be identical to \id{res\_data}, if the latter was 
+The pointer \id{prec\_data} may be identical to \id{res\_data}, if the latter was 
 specified through \id{IDASetRdata}.
 
 The \index{IDASPGMR@{\idaspgmr} linear solver!Jacobian approximation used by}
@@ -1579,12 +1574,12 @@ A user-defined Jacobian-vector function must be of type \id{IDASpgmrJtimesFn} an
 can be specified through a call to \id{IDASpgmrSetJacTimesVecFn} 
 (see \S\ref{ss:user_fct_sim} for specification details).
 %%
-As with the preconditioner user data structure \id{P\_data}, 
+As with the preconditioner user data structure \id{prec\_data}, 
 the user can specify, through a call to \id{IDASpgmrSetJacData}, a pointer to a 
 user-defined data structure, \id{jac\_data}, which
 the {\idaspgmr} solver passes to the Jacobian times vector function \id{jtimes} each
 time it is called.  
-The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{res\_data}.
+The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_data}.
 %%
 %%
 \ucfunction{IDASpgmrSetPrecSolveFn}
