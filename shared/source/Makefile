@@ -38,8 +38,6 @@ SRC = band.c dense.c iterativ.c sundialsmath.c \
       nvector.c smalldense.c spgmr.c
 
 OBJ = ${SRC:.c=.o}
-#OBJ = band.o dense.o iterativ.o llnlmath.o \
-#      nvector.o smalldense.o spgmr.o
 
 # Compiler and compiler options
 CC     = gcc
@@ -55,14 +53,18 @@ all:
 	@(echo '                           add symbolic link to libshared.a')
 	@(echo '                           add symbolic links to SHARED header files')
 	@(echo)
-	@(echo '       make nvecserial   - generate the serial NVECTOR library')
-	@(echo '                           add symbolic link to libnvecserial.a')
-	@(echo '                           add symbolic link to nvector_serial.h')
-	@(echo)
-	@(echo '       make nvecparallel - generate the parallel NVECTOR library')
-	@(echo '                           add symbolic link to libnvecparallel.a')
-	@(echo '                           add symbolic link to nvector_parallel.h')
-	@(echo)
+	@if test -f nvecserial.mk; \
+		then echo '       make nvecserial   - generate the serial NVECTOR library'; \
+		     echo '                           add symbolic link to libnvecserial.a'; \
+		     echo '                           add symbolic link to nvector_serial.h' ; \
+		     echo ; \
+	fi
+	@if test -f nvecparallel.mk; \
+		then echo '       make nvecparallel - generate the parallel NVECTOR library'; \
+		     echo '                           add symbolic link to libnvecparallel.a'; \
+		     echo '                           add symbolic link to nvector_parallel.h'; \
+		     echo; \
+	fi
 	@(echo '       make purge        - remove libraries and symbolic links')
 	@(echo)
 
@@ -88,13 +90,11 @@ lib:
 nvecserial:
 	@if test -f nvecserial.mk; \
 		then make -f nvecserial.mk lib; \
-		else echo 'nvector_serial unavailable'; \
 	fi
 
 nvecparallel:
 	@if test -f nvecparallel.mk; \
 		then make -f nvecparallel.mk lib; \
-		else echo 'nvector_parallel unavailable'; \
 	fi
 
 purge:
