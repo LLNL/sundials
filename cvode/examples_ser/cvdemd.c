@@ -166,7 +166,7 @@ static int Problem1(void)
       flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol, nvSpec);
       if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
     } else {
-      flag = CVodeSetIterType(cvode_mem, NEWTON);
+      flag = CVodeResetIterType(cvode_mem, NEWTON);
       flag = CVodeReInit(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
       if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
     }
@@ -218,7 +218,7 @@ static int Problem1(void)
       flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol, nvSpec);
       if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
     } else {
-      flag = CVodeSetIterType(cvode_mem, NEWTON);
+      flag = CVodeResetIterType(cvode_mem, NEWTON);
       flag = CVodeReInit(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
       if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
     }
@@ -332,7 +332,7 @@ static int Problem2(void)
       flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol, nvSpec);
       if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
     } else {
-      flag = CVodeSetIterType(cvode_mem, NEWTON);
+      flag = CVodeResetIterType(cvode_mem, NEWTON);
       flag = CVodeReInit(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
       if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
     }
@@ -383,7 +383,7 @@ static int Problem2(void)
       flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol, nvSpec);
       if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
     } else {
-      flag = CVodeSetIterType(cvode_mem, NEWTON);
+      flag = CVodeResetIterType(cvode_mem, NEWTON);
       flag = CVodeReInit(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
       if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
     }
