@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : cvodea.c                                        *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 27 June 2002                                    *
+ * Version of    : 23 September 2002                               *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *

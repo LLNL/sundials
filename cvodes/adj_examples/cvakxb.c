@@ -2,7 +2,7 @@
  *                                                                       *
  * File       : cvakxb.c                                                 *
  * Programmers: Radu Serban @ LLNL                                       *
- * Version of : 27 June 2002                                             * 
+ * Version of : 23 September 2002                                        * 
  *-----------------------------------------------------------------------*
  *                                                                       *
  * This program solves a stiff ODE system that arises from a system      *
