@@ -55,9 +55,9 @@ FFLAGS  = -L$(LIB_DIR) -L$(MPI_LIB)
 
 all:
 	@(echo 'List of parallel FCVODE examples (using the parallel NVECTOR module):')
-	@(echo '  pvdiagnf:  ')
-	@(echo '  pvdiagkf:  ')
-	@(echo '  pvdiagkbf:  ')
+	@(echo '  pvdiagnf  : Diagonal ODE example. Non-stiff case (ADAMS/FUNCTIONAL)')
+	@(echo '  pvdiagkf  : Diagonal ODE example. Stiff case (BDF/SPGMR)')
+	@(echo '  pvdiagkbf : Diagonal ODE example. Stiff case (BDF/SPGMR with FCVBBD preconditioner)')
 
 pvdiagnf: 
 	@echo '...Compile pvdiagnf...'
