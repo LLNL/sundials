@@ -1,35 +1,37 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-08-25 16:15:19 $
- * ----------------------------------------------------------------- 
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
- *              Radu Serban, LLNL                               
+ * $Revision: 1.11 $
+ * $Date: 2004-11-15 17:26:04 $
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California 
- * Produced at the Lawrence Livermore National Laboratory          
- * All rights reserved                                             
- * For details, see sundials/shared/LICENSE                        
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * This is the implementation file for the scaled preconditioned   
- * GMRES (SPGMR) iterative linear solver.                          
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
+ * -----------------------------------------------------------------
+ * This is the implementation file for the scaled preconditioned
+ * GMRES (SPGMR) iterative linear solver.
  * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "iterative.h"
-#include "spgmr.h"
-#include "sundialstypes.h"
-#include "nvector.h"
-#include "sundialsmath.h"
 
+#include "iterative.h"
+#include "nvector.h"
+#include "spgmr.h"
+#include "sundialsmath.h"
+#include "sundialstypes.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
 /*
- * SpgmrMalloc 
+ * -----------------------------------------------------------------
+ * Function : SpgmrMalloc
+ * -----------------------------------------------------------------
  */
 
 SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl)
@@ -135,9 +137,10 @@ SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl)
   return(mem);
 }
 
-
 /*
- * SpgmrSolve 
+ * -----------------------------------------------------------------
+ * Function : SpgmrSolve
+ * -----------------------------------------------------------------
  */
 
 int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
@@ -154,10 +157,12 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   if (mem == NULL) return(SPGMR_MEM_NULL);
 
   /* Initialize some variables */
+
   l_plus_1 = 0;
   krydim = 0;
 
   /* Make local copies of mem variables. */
+
   l_max  = mem->l_max;
   V      = mem->V;
   Hes    = mem->Hes;
@@ -166,8 +171,8 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   yg     = mem->yg;
   vtemp  = mem->vtemp;
 
-  *nli = *nps = 0;     /* Initialize counters */
-  converged = FALSE;   /* Initialize converged flag */
+  *nli = *nps = 0;    /* Initialize counters */
+  converged = FALSE;  /* Initialize converged flag */
 
   if (max_restarts < 0) max_restarts = 0;
 
@@ -245,10 +250,12 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       /* Generate A-tilde V[l], where A-tilde = s1 P1_inv A P2_inv s2_inv. */
       
       /* Apply right scaling: vtemp = s2_inv V[l]. */
+
       if (scale2) N_VDiv(V[l], s2, vtemp);
       else N_VScale(ONE, V[l], vtemp);
       
       /* Apply right preconditioner: vtemp = P2_inv s2_inv V[l]. */ 
+
       if (preOnRight) {
         N_VScale(ONE, vtemp, V[l_plus_1]);
         ier = psolve(P_data, V[l_plus_1], vtemp, PREC_RIGHT);
@@ -258,10 +265,12 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       }
       
       /* Apply A: V[l+1] = A P2_inv s2_inv V[l]. */
+
       if (atimes(A_data, vtemp, V[l_plus_1] ) != 0)
         return(SPGMR_ATIMES_FAIL);
       
       /* Apply left preconditioning: vtemp = P1_inv A P2_inv s2_inv V[l]. */
+
       if (preOnLeft) {
         ier = psolve(P_data, V[l_plus_1], vtemp, PREC_LEFT);
         (*nps)++;
@@ -272,6 +281,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       }
       
       /* Apply left scaling: V[l+1] = s1 P1_inv A P2_inv s2_inv V[l]. */
+
       if (scale1) {
         N_VProd(s1, vtemp, V[l_plus_1]);
       } else {
@@ -302,22 +312,26 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       if (rho <= delta) { converged = TRUE; break; }
       
       /* Normalize V[l+1] with norm value from the Gram-Schmidt routine. */
+
       N_VScale(ONE/Hes[l_plus_1][l], V[l_plus_1], V[l_plus_1]);
     }
     
     /* Inner loop is done.  Compute the new correction vector xcor. */
     
     /* Construct g, then solve for y. */
+
     yg[0] = r_norm;
     for (i = 1; i <= krydim; i++) yg[i]=ZERO;
     if (QRsol(krydim, Hes, givens, yg) != 0)
       return(SPGMR_QRSOL_FAIL);
     
     /* Add correction vector V_l y to xcor. */
+
     for (k = 0; k < krydim; k++)
       N_VLinearSum(yg[k], V[k], ONE, xcor, xcor);
     
     /* If converged, construct the final solution vector x and return. */
+
     if (converged) {
       
       /* Apply right scaling and right precond.: vtemp = P2_inv s2_inv xcor. */
@@ -333,6 +347,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       }
       
       /* Add vtemp to initial x to get final solution x, and return */
+
       N_VLinearSum(ONE, x, ONE, vtemp, x);
       
       return(SPGMR_SUCCESS);
@@ -343,6 +358,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
     if (ntries == max_restarts) break;
     
     /* Construct last column of Q in yg. */
+
     s_product = ONE;
     for (i = krydim; i > 0; i--) {
       yg[i] = s_product*givens[2*i-2];
@@ -365,8 +381,8 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   
   /* Failed to converge, even after allowed restarts.
      If the residual norm was reduced below its initial value, compute
-     and return x anyway.  Otherwise return failure flag.              */
-  
+     and return x anyway.  Otherwise return failure flag. */
+
   if (rho < beta) {
     
     /* Apply right scaling and right precond.: vtemp = P2_inv s2_inv xcor. */
@@ -382,6 +398,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
     }
 
     /* Add vtemp to initial x to get final solution x, and return. */
+
     N_VLinearSum(ONE, x, ONE, vtemp, x);
     
     return(SPGMR_RES_REDUCED);
@@ -391,7 +408,9 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
 }
 
 /*
- * SpgmrFree 
+ * -----------------------------------------------------------------
+ * Function : SpgmrFree
+ * -----------------------------------------------------------------
  */
 
 void SpgmrFree(SpgmrMem mem)

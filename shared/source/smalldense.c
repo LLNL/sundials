@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-11-03 23:14:35 $
+ * $Revision: 1.6 $
+ * $Date: 2004-11-15 17:26:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -233,11 +233,13 @@ void denprint(realtype **a, long int n)
   printf("\n");
   for (i=0; i < n; i++) {
     for (j=0; j < n; j++) {
-      #if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION)
       printf("%10Lg", a[j][i]);
-      #else
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+      printf("%10lg", a[j][i]);
+#else
       printf("%10g", a[j][i]);
-      #endif
+#endif
     }
     printf("\n");
   }

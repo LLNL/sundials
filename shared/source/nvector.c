@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-12 20:06:59 $
+ * $Revision: 1.13 $
+ * $Date: 2004-11-15 17:26:04 $
  * ----------------------------------------------------------------- 
- * Programmer: Radu Serban, LLNL                               
+ * Programmer(s): Radu Serban @ LLNL                               
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/shared/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
  * This is the implementation file for a generic NVECTOR package. 
  * It contains the implementation of the N_Vector kernels listed in 
@@ -17,10 +17,13 @@
  */
 
 #include <stdlib.h>
+
 #include "nvector.h"
 
 /*
+ * -----------------------------------------------------------------
  * Functions in the 'ops' structure
+ * -----------------------------------------------------------------
  */
 
 N_Vector N_VClone(N_Vector w)
@@ -168,9 +171,11 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom)
 }
 
 /*
- * Additional functions exported by the generic NVECTOR
- *  N_VCloneVectorArray
- *  N_VDestroyVectorArray
+ * -----------------------------------------------------------------
+ * Additional functions exported by the generic NVECTOR:
+ *   N_VCloneVectorArray
+ *   N_VDestroyVectorArray
+ * -----------------------------------------------------------------
  */
 
 N_Vector *N_VCloneVectorArray(int count, N_Vector w)

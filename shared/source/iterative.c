@@ -1,36 +1,41 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-07-22 20:31:32 $
+ * $Revision: 1.3 $
+ * $Date: 2004-11-15 17:26:04 $
  * ----------------------------------------------------------------- 
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
- *              Radu Serban, LLNL                               
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California 
- * Produced at the Lawrence Livermore National Laboratory          
- * All rights reserved                                             
- * For details, see sundials/shared/LICENSE                        
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
- * This is the implementation file for the iterativ.h header
+ * This is the implementation file for the iterative.h header
  * file. It contains the implementation of functions that may be
  * useful for many different iterative solvers of A x = b.
  * -----------------------------------------------------------------
  */
 
+#include <stdio.h>
+
 #include "iterative.h"
-#include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
+#include "sundialstypes.h"
 
 #define FACTOR RCONST(1000.0)
 #define ZERO   RCONST(0.0)
 #define ONE    RCONST(1.0)
 
 /*
- * ModifiedGS 
- * This implementation of ModifiedGS is a slight modification of a 
- * previous modified Gram-Schmidt routine (called mgs) written by 
+ * -----------------------------------------------------------------
+ * Function : ModifiedGS
+ * -----------------------------------------------------------------
+ * This implementation of ModifiedGS is a slight modification of a
+ * previous modified Gram-Schmidt routine (called mgs) written by
  * Milo Dorr.
+ * -----------------------------------------------------------------
  */
  
 int ModifiedGS(N_Vector *v, realtype **h, int k, int p, 
@@ -50,7 +55,7 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
     N_VLinearSum(ONE, v[k], -h[i][k_minus_1], v[i], v[k]);
   }
 
-  /* Compute the norm of the new vector at v[k].  */
+  /* Compute the norm of the new vector at v[k] */
 
   *new_vk_norm = RSqrt(N_VDotProd(v[k], v[k]));
 
@@ -58,7 +63,7 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
      FACTOR (== 1000) times unit roundoff times the norm of the
      input vector v[k], then the vector will be reorthogonalized
      in order to ensure that nonorthogonality is not being masked
-     by a very small vector length.           */
+     by a very small vector length. */
 
   temp = FACTOR * vk_norm;
   if ((temp + (*new_vk_norm)) != temp) return(0);
@@ -82,9 +87,13 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
   return(0);
 }
 
-/* ClassicalGS 
+/*
+ * -----------------------------------------------------------------
+ * Function : ClassicalGS
+ * -----------------------------------------------------------------
  * This implementation of ClassicalGS was contributed by Homer Walker
  * and Peter Brown.
+ * -----------------------------------------------------------------
  */
 
 int ClassicalGS(N_Vector *v, realtype **h, int k, int p, 
@@ -108,7 +117,7 @@ int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
     N_VLinearSum(ONE, v[k], -h[i][k_minus_1], v[i], v[k]);
   }
 
-  /* Compute the norm of the new vector at v[k].  */
+  /* Compute the norm of the new vector at v[k] */
 
   *new_vk_norm = RSqrt(N_VDotProd(v[k], v[k]));
 
@@ -136,9 +145,13 @@ int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
   return(0);
 }
 
-/* QRfact
- * This implementation of QRfact is a slight modification of a previous
- * routine (called qrfact) written by Milo Dorr.
+/*
+ * -----------------------------------------------------------------
+ * Function : QRfact
+ * -----------------------------------------------------------------
+ * This implementation of QRfact is a slight modification of a
+ * previous routine (called qrfact) written by Milo Dorr.
+ * -----------------------------------------------------------------
  */
 
 int QRfact(int n, realtype **h, realtype *q, int job)
@@ -148,11 +161,14 @@ int QRfact(int n, realtype **h, realtype *q, int job)
 
   switch (job) {
   case 0:
-    /* Compute a new factorization of H. */
+
+    /* Compute a new factorization of H */
+
     code = 0;
     for (k=0; k < n; k++) {
       
-      /* Multiply column k by the previous k-1 Givens rotations. */
+      /* Multiply column k by the previous k-1 Givens rotations */
+
       for (j=0; j < k-1; j++) {
 	i = 2*j;
 	temp1 = h[j][k];
@@ -164,6 +180,7 @@ int QRfact(int n, realtype **h, realtype *q, int job)
       }
       
       /* Compute the Givens rotation components c and s */
+
       q_ptr = 2*k;
       temp1 = h[k][k];
       temp2 = h[k+1][k];
@@ -186,11 +203,14 @@ int QRfact(int n, realtype **h, realtype *q, int job)
     break;
 
   default:
-    /* Update the factored H to which a new column has been added. */
+
+    /* Update the factored H to which a new column has been added */
+
     n_minus_1 = n - 1;
     code = 0;
     
-    /* Multiply the new column by the previous n-1 Givens rotations. */
+    /* Multiply the new column by the previous n-1 Givens rotations */
+
     for (k=0; k < n_minus_1; k++) {
       i = 2*k;
       temp1 = h[k][n_minus_1];
@@ -204,6 +224,7 @@ int QRfact(int n, realtype **h, realtype *q, int job)
     /* Compute new Givens rotation and multiply it times the last two
        entries in the new column of H.  Note that the second entry of 
        this product will be 0, so it is not necessary to compute it. */
+
     temp1 = h[n_minus_1][n_minus_1];
     temp2 = h[n][n_minus_1];
     if (temp2 == ZERO) {
@@ -228,9 +249,13 @@ int QRfact(int n, realtype **h, realtype *q, int job)
   return (code);
 }
 
-/* QRsol
- * This implementation of QRsol is a slight modification of a previous
- * routine (called qrsol) written by Milo Dorr.
+/*
+ * -----------------------------------------------------------------
+ * Function : QRsol
+ * -----------------------------------------------------------------
+ * This implementation of QRsol is a slight modification of a
+ * previous routine (called qrsol) written by Milo Dorr.
+ * -----------------------------------------------------------------
  */
 
 int QRsol(int n, realtype **h, realtype *q, realtype *b)
@@ -238,7 +263,7 @@ int QRsol(int n, realtype **h, realtype *q, realtype *b)
   realtype c, s, temp1, temp2;
   int i, k, q_ptr, code=0;
 
-  /* Compute Q*b. */
+  /* Compute Q*b */
   
   for (k=0; k < n; k++) {
     q_ptr = 2*k;
@@ -250,7 +275,7 @@ int QRsol(int n, realtype **h, realtype *q, realtype *b)
     b[k+1] = s*temp1 + c*temp2;
   }
 
-  /* Solve  R*x = Q*b. */
+  /* Solve  R*x = Q*b */
 
   for (k=n-1; k >= 0; k--) {
     if (h[k][k] == ZERO) {

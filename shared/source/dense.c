@@ -1,34 +1,33 @@
-/*******************************************************************
- *                                                                 *
- * File          : dense.c                                         *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the implementation file for a generic DENSE linear      *
- * solver package.                                                 *
- *                                                                 *
- *******************************************************************/ 
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-11-15 17:26:04 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
+ * -----------------------------------------------------------------
+ * This is the implementation file for a generic DENSE linear
+ * solver package.
+ * -----------------------------------------------------------------
+ */ 
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"
-#include "sundialsmath.h"
+
 #include "dense.h"
 #include "smalldense.h"
-
+#include "sundialsmath.h"
+#include "sundialstypes.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
-
 /* Implementation */
-
 
 DenseMat DenseAllocMat(long int N)
 {
@@ -50,7 +49,6 @@ DenseMat DenseAllocMat(long int N)
   return(A);
 }
 
-
 long int *DenseAllocPiv(long int N)
 {
   if (N <= 0) return(NULL);
@@ -58,18 +56,15 @@ long int *DenseAllocPiv(long int N)
   return((long int *) malloc(N * sizeof(long int)));
 }
 
-
 long int DenseFactor(DenseMat A, long int *p)
 {
   return(gefa(A->data, A->size, p));
 }
 
-
 void DenseBacksolve(DenseMat A, long int *p, realtype *b)
 {
   gesl(A->data, A->size, p, b);
 }
-
 
 void DenseZero(DenseMat A)
 {
@@ -106,4 +101,3 @@ void DensePrint(DenseMat A)
 {
   denprint(A->data, A->size);
 }
-
