@@ -1,9 +1,22 @@
 \section{The Basic Solvers}\label{s:basic_solvers}
 
-In this section we overview each of the three core solvers in SUNDIALS.
-Although many of the same options are available in the three codes 
-(e.g., finite-difference Jacobian-vector approximations 
-and stopping criteria), we still outline them with respect to each package,
-as many of the heuristics governing their use or 
-implementation are different.
+In this section we overview each of the three core solvers in
+SUNDIALS, giving a detailed summary of the methods and algorithms used
+in each.  Although many of the algorithmic features are common to the
+three codes (e.g., finite-difference Jacobian-vector approximations
+and stopping criteria), we still outline them with respect to each
+package, as some of the details in their implementation are different.
 
+All three of the solver descriptions below involve a number of
+heuristic rules, safety factors, and the like.  We do not attempt to
+justify or explain these heuristics here, for two reasons.  First,
+most of them are largely arbitrary, and have little or no solid
+mathematical basis.  For example, a safety factor less than 1 is
+needed in many places (such as in step size selection based on
+estimated local error), but we know of no good argument for preferring
+any particular value over another.  (In a few cases, some performance
+testing was done to optimize heuristic parameters, but this is rare.)
+The second reason is that all of these heuristics were inherited from
+earlier solvers, and the documentation of those solvers includes some
+discussion of the heuristics used.  Each of the three descriptions
+cites the appropriate earlier literature.
