@@ -1,0 +1,155 @@
+\usepackage{epsfig, supertabular, makeidx}
+\usepackage{amsmath, amssymb}
+
+% Package to add Bibliography and Index to TOC
+% but not the TOC itself :-)
+\usepackage[nottoc]{tocbibind}
+
+\usepackage{hangcaption}
+\usepackage{subfigure}
+
+\usepackage{color}
+
+% Packages needed for the cover page
+\usepackage{calc, epsfig, chngpage}
+\input{pstricks}\input{pst-node}\input{llnlCoverPage}
+
+% Package useful for debuging
+\usepackage{showlabels}
+
+%----- Define some colors
+\definecolor{gray}{rgb}{0.5,0.5,0.5} 
+
+%----- Page formatting
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.5in}
+
+%----- SUNDIALS MODULES
+\newcommand{\sundials}{{\normalfont\scshape sundials}}
+\newcommand{\nvector}{{\normalfont\scshape nvector}}
+\newcommand{\nvecp}{{\normalfont\scshape nvector\_parallel}}
+\newcommand{\nvecs}{{\normalfont\scshape nvector\_serial}}
+\newcommand{\cvode}{{\normalfont\scshape cvode}}
+\newcommand{\pvode}{{\normalfont\scshape pvode}}
+\newcommand{\cvodes}{{\normalfont\scshape cvodes}}
+\newcommand{\ida}{{\normalfont\scshape ida}}
+\newcommand{\idas}{{\normalfont\scshape idas}}
+\newcommand{\kinsol}{{\normalfont\scshape kinsol}}
+\newcommand{\kinsols}{{\normalfont\scshape kinsols}}
+
+%----- OTHER PACKAGES
+\newcommand{\vode}{{\normalfont\scshape vode}}
+\newcommand{\vodpk}{{\normalfont\scshape vodpk}}
+\newcommand{\lsode}{{\normalfont\scshape lsode}}
+
+%----- CVODES COMPONENTS
+\newcommand{\cvdense}{{\normalfont\scshape cvdense}}
+\newcommand{\cvband}{{\normalfont\scshape cvband}}
+\newcommand{\cvdiag}{{\normalfont\scshape cvdiag}}
+\newcommand{\cvspgmr}{{\normalfont\scshape cvspgmr}}
+\newcommand{\cvbandpre}{{\normalfont\scshape cvbandpre}}
+\newcommand{\cvbbdpre}{{\normalfont\scshape cvbbdpre}}
+\newcommand{\stald}{{\normalfont\scshape stald}}
+
+%----- SHARED COMPONENTS
+\newcommand{\sundialsmath}{{\normalfont\scshape sundialsmath}}
+\newcommand{\dense}{{\normalfont\scshape dense}}
+\newcommand{\band}{{\normalfont\scshape band}}
+\newcommand{\spgmr}{{\normalfont\scshape spgmr}}
+
+%----- C and Fortran languages
+\newcommand{\C}{{\sc C}}
+\newcommand{\CPP}{{\sc C++}}
+\newcommand{\F}{{\sc Fortran}}
+
+%------ Serial or Parallel
+\newcommand{\p}{[{\bf P}]}
+\newcommand{\s}{[{\bf S}]}
+
+%------ Appendix in text
+\newcommand{\A}{App. }
+
+%------ Index entries
+\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}|textbf}}}
+\newcommand{\Id}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
+\newcommand{\id}[1]{{\tt #1}}
+
+
+%%----- Shortcuts for math formulas
+\newcommand{\mb}[1]{{\mbox{\scriptsize #1}}}
+\newcommand{\dfdy}{\frac{\partial f}{\partial y}}
+\newcommand{\dfdyI}{\partial f / \partial y}
+\newcommand{\dfdpi}{\frac{\partial f}{\partial p_i}}
+\newcommand{\dfdpiI}{\partial f / \partial p_i}
+\newcommand{\rhomax}{\rho_{\max}}
+
+
+%%--------------------------------
+\newcommand{\frontmatter}
+{
+  \maketitle
+
+  %% Leave an empty page
+  \newpage\thispagestyle{empty}
+  \vspace*{1.0in}
+  
+  %% Start roman numbering
+  \pagestyle{plain}\pagenumbering{roman}
+  \tableofcontents
+  \listoftables
+  \listoffigures
+  
+  \newpage\thispagestyle{empty}
+  \vspace*{1.0in}
+  
+  %% Move to new page and start arabic numbering
+  \newpage\pagestyle{plain}\pagenumbering{arabic}
+}
+
+%%---------------------------------
+\newcounter{Stepsctr}
+\newenvironment{Steps}
+{\stepcounter{Stepsctr}
+  \begin{list}{\arabic{Stepsctr}. }{
+      \usecounter{Stepsctr}
+      \setlength{\parsep}{0.5em}
+      \setlength{\labelsep}{0em}
+      \settowidth{\labelwidth}{99. }
+      \setlength{\leftmargin}{\labelwidth+\labelsep}}}
+  {\end{list}}
+%%---------------------------------
+\newenvironment{Ventry}[1][\quad]
+{\begin{list}{}{
+      \setlength{\rightmargin}{0em}
+      \setlength{\topsep}{0.15in}
+      \setlength{\itemsep}{0em}
+      \renewcommand{\makelabel}[1]{##1\hfill}
+      \settowidth{\labelwidth}{#1}
+      \setlength{\leftmargin}{\labelwidth+\labelsep}}}
+  {\end{list}}
+%%----------------------------------
+\newenvironment{args}[1][\quad]
+{\begin{list}{}{
+      \setlength{\rightmargin}{0em}
+      \setlength{\topsep}{0em}
+      \setlength{\itemsep}{0em}
+      \renewcommand{\makelabel}[1]{\id{##1}\hfill}
+      \settowidth{\labelwidth}{\id{#1}}
+      \setlength{\leftmargin}{\labelwidth+\labelsep}}}
+  {\end{list}}
+%%---------------------------------
+\newcommand{\function}[6]{
+  \begin{Ventry}[Return value]
+  \item[\fbox{\id{#1}}]{}
+  \item[Call]{\id{#2}}
+  \item[Description]{#3}
+  \item[Arguments]{#4}
+  \item[Return value]{#5}
+  \addNotes{#6}
+  \end{Ventry}
+}
+\makeatletter
+\def\addNotes#1{\def\@tempa{#1}\ifx\@tempa\empty\else\item[Notes]{#1}\fi}
+\makeatother

@@ -5,10 +5,10 @@
 \index{SPGMR@{\spgmr} generic linear solver!description of|(} 
 The {\spgmr} package, in the files \id{spgmr.h} and \id{spgmr.c}, includes an
 implementation of the scaled preconditioned GMRES\index{GMRES method} method.  
-A separate code module, \id{iterativ.h} and \id{iterativ.c}, contains auxiliary
+A separate code module, \id{iterative.h} and \id{iterative.c}, contains auxiliary
 functions that support {\spgmr}, and also other Krylov solvers to be
 added later.  For full details, including usage instructions, see the
-files \id{spgmr.h} and \id{iterativ.h}.
+files \id{spgmr.h} and \id{iterative.h}.
 \index{SPGMR@{\spgmr} generic linear solver!description of|)}
  
 \paragraph{Functions.}
@@ -23,7 +23,7 @@ The following functions are available in the {\spgmr} package:
 %
 \index{SPGMR@{\spgmr} generic linear solver!support functions|(}
 The following functions are available in the support package 
-\id{iterativ.h} and \id{iterativ.c}:
+\id{iterative.h} and \id{iterative.c}:
 \begin{itemize}
 \item \id{ModifiedGS}: performs modified Gram-Schmidt procedure;
 \item \id{ClassicalGS}: performs classical Gram-Schmidt procedure; 

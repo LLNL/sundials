@@ -58,10 +58,10 @@ struct _generic_N_Vector_Ops {
   realtype    (*nvdotprod)(N_Vector, N_Vector);
   realtype    (*nvmaxnorm)(N_Vector);
   realtype    (*nvwrmsnorm)(N_Vector, N_Vector);
+  realtype    (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
   realtype    (*nvmin)(N_Vector);
   realtype    (*nvwl2norm)(N_Vector, N_Vector);
   realtype    (*nvl1norm)(N_Vector);
-  void        (*nvonemask)(N_Vector);
   void        (*nvcompare)(realtype, N_Vector, N_Vector);
   booleantype (*nvinvtest)(N_Vector, N_Vector);
   booleantype (*nvconstrprodpos)(N_Vector, N_Vector);
@@ -250,6 +250,13 @@ weight vector \id{w}:
 $m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}$.
 \\
 %
+\id{N\_VWrmsNormMask} & \id{m = N\_VWrmsNormMask(x, w, id);} \\
+& Returns the weighted root mean square norm of the \id{N\_Vector} \id{x} with
+weight vector \id{w} built using only the elements of \id{x} corresponding to
+nonzero elements of the \id{N\_Vector} \id{id}:\\
+&$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i \text{sign}(id_i))^2 \right) / n}$.
+\\
+%
 \id{N\_VMin} & \id{m = N\_VMin(x);} \\
 & Returns the smallest element of the \id{N\_Vector} \id{x}:
 $m = \min_i x_i $.
@@ -264,11 +271,6 @@ $m = \sqrt{\sum_{i=0}^{n-1} (x_i w_i)^2}$.
 \id{N\_VL1Norm} & \id{m = N\_VL1Norm(x);} \\
 & Returns the $\ell_1$ norm of the \id{N\_Vector} \id{x}:
 $m = \sum_{i=0}^{n-1} | x_i |$.
-\\
-%
-\id{N\_VOneMask} & \id{N\_VOneMask(x);} \\
-& Sets the non-zero components of the \id{N\_Vector} to $1.0$:
-$x_i = 1.0, \: \text{if } \: x_i \ne 0.0, \: i=0,1,\ldots,n-1$.
 \\
 %
 \id{N\_VCompare} & \id{N\_VCompare(c, x, z);} \\

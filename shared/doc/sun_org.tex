@@ -13,23 +13,26 @@ The various solvers of this family share many subordinate modules.
 For this reason, it is organized as a family, with a directory
 structure that exploits that sharing (see Fig. \ref{f:sunorg}).
 \begin{figure}
-\centerline{\psfig{figure=sunorg.eps,width=\textwidth}}
+\subfigure[High level diagram]
+{\centerline{\psfig{figure=sunorg1.eps,width=\textwidth}}}
+\subfigure[Directory structure]
+{\centerline{\psfig{figure=sunorg2.eps,width=\textwidth}}}
 \caption {Organization of the {\sundials} suite}\label{f:sunorg}
 \end{figure}
 The following is a list of the solver packages presently available:
 \begin{itemize}
 
 \item {\cvode},  
-  a solver for stiff and nonstiff ODE systems $dy/dt = f(t,y)$;
+  a solver for stiff and nonstiff ODEs $\dot y = f(t,y)$;
 
 \item {\cvodes},
-  a solver for stiff and nonstiff ODE systems $dy/dt = f(t,y)$
+  a solver for stiff and nonstiff ODEs $\dot y = f(t,y,p)$
   with sensitivity analysis capabilities;
 
 \item {\kinsol}, 
   a solver for nonlinear algebraic systems $F(u) = 0$;
 
 \item {\ida},
-  a solver for differential-algebraic systems $F(t,y,y') = 0$.
+  a solver for DAEs $F(t,y,\dot y) = 0$.
 
 \end{itemize}

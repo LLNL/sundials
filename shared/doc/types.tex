@@ -1,7 +1,7 @@
 % This is a shared SUNDIALS TEX file with description of
 % types used in llntyps.h
 %
-\subsection{Description}
+\section{Description}
 
 The \ID{sundialstypes.h} file contains the definitions of the types \id{realtype} and
 \id{integertype}. {\sundials} solvers use the type \id{realtype} for all floating point data and
@@ -13,7 +13,7 @@ using single or double precision arithmetic. The type \id{realtype} can be
 \id{double} or \id{float} and the type \id{integertype} can be \id{int} or
 \id{long int}. The default settings are \id{double} and \id{long int}.
 
-\subsection{Changing Type \id{realtype}}
+\section{Changing Type \id{realtype}}
 
 The user can change the precision of the {\sundials} solvers arithmetic from double to single
 by changing the typedef \id{typedef double realtype;} to \id{typedef float realtype;}
@@ -66,7 +66,7 @@ functions.  (Our demonstration programs use \id{realtype} but not
 this choice).  Thus, a previously existing piece of ANSI {\C} code can use
 {\sundials} without modifying the codes to use \id{realtype}.
 
-\subsection{Changing Type \id{integertype}}
+\section{Changing Type \id{integertype}}
 
 {\sundials} uses the type \id{integertype} for all quantities related to problem
 size.  On some machines the size of an \id{int} and a \id{long int}
