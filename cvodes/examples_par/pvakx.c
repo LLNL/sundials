@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-10-22 20:56:24 $
+ * $Revision: 1.7 $
+ * $Date: 2004-10-28 21:04:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -38,19 +38,19 @@
 
 #define XMIN  0.0
 #define XMAX 20.0
-#define MX   80    /* no. of divisions in x dir. */
+#define MX   20    /* no. of divisions in x dir. */
 #define NPX  2     /* no. of procs. in x dir.    */
 
 #define YMIN  0.0
 #define YMAX 20.0
-#define MY   80    /* no. of divisions in y dir. */
-#define NPY  4     /* no. of procs. in y dir.    */
+#define MY   40    /* no. of divisions in y dir. */
+#define NPY  2     /* no. of procs. in y dir.    */
 
 #ifdef USE3D
 #define ZMIN  0.0
 #define ZMAX 20.0
-#define MZ   40    /* no. of divisions in z dir. */
-#define NPZ  2     /* no. of procs. in z dir.    */
+#define MZ   20    /* no. of divisions in z dir. */
+#define NPZ  1     /* no. of procs. in z dir.    */
 #endif
 
 /* Parameters for source Gaussians */
