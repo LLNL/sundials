@@ -1,22 +1,20 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-09-15 22:04:28 $
+ * $Revision: 1.29 $
+ * $Date: 2004-10-09 00:16:27 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh, Radu Serban and
+ *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvode/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * This is the header file for FCVODE, the Fortran interface to
  * the CVODE package.                                            
  * -----------------------------------------------------------------
  */
-
-#ifndef _fcvode_h
-#define _fcvode_h
 
 /*
  * =============================================================================
@@ -182,14 +180,16 @@
  * ROPT   = array of length 40 for real optional inputs and outputs
  *             The optional inputs are MAXORD, MXSTEP, MXHNIL, SLDET, 
  *          MAXERRTESTFAILS, MAXNONLINITERS, MAXCONVFAILS, H0, HMAX,
- *          HMIN, TSTOP, NONLINCONVCOEF, stored in IOPT(1), IOPT(2), 
- *          IOPT(3), IOPT(14), IOPT(22), IOPT(23), IOPT(24), ROPT(1), ROPT(2), 
- *          ROPT(3), ROPT(8), ROPT(9), respectively.  If any of these optional 
+ *          HMIN, TSTOP, NONLINCONVCOEF, stored in IOPT(1), IOPT(2),
+ *          IOPT(3), IOPT(14), IOPT(22), IOPT(23), IOPT(24), ROPT(1), ROPT(2),
+ *          ROPT(3), ROPT(8), ROPT(9), respectively.  If any of these optional
  *          inputs are used, set the others to zero to indicate default values.
- *             The optional outputs are NST, NFE, NSETUPS, NNI, NCFN, NETF, QU, 
- *          QCUR, LENRW, LENIW, NOR, HU,HCUR, TCUR, TOLSF, UROUND, stored in 
- *          IOPT(4) .. IOPT(13), IOPT(15), ROPT(4) .. ROPT(7), ROPT(10), resp.  
- *          See the CVODE manual for details. 
+ *             The optional outputs are NST, NFE, NSETUPS, NNI, NCFN, NETF, QU,
+ *          QCUR, LENRW, LENIW, NOR, HU, HCUR, TCUR, TOLSF, UROUND, NGE stored
+ *          in IOPT(4) .. IOPT(13), IOPT(15), ROPT(4) .. ROPT(7), ROPT(10),
+ *          and ROPT(25), respectively. Also, the last flag returned by the
+ *          linear solver is stored in IOPT(26). See the CVODE manual for
+ *          details. 
  * IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *          See printed message for details in case of failure.
  * 
@@ -361,6 +361,9 @@
  * =============================================================================
  */
 
+#ifndef _FCVODE_H
+#define _FCVODE_H
+
 /* Definitions of interface function names */
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
@@ -521,14 +524,13 @@
 
 #endif
 
+/* header files  */
 
-/* CVODE header files  */
-
-#include "sundialstypes.h" /* definitions of type realtype         */
-#include "cvode.h"         /* definition of type RHSFn             */
-#include "nvector.h"       /* definition of type N_Vector, N_VSpec */
-#include "dense.h"         /* definition of DenseMat               */
-#include "band.h"          /* definition of BandMat                */
+#include "band.h"           /* definition of BandMat       */
+#include "cvode.h"          /* definition of type RHSFn    */
+#include "dense.h"          /* definition of DenseMat      */
+#include "nvector.h"        /* definition of type N_Vector */
+#include "sundialstypes.h"  /* definition of type realtype */
 
 /* Prototypes: Functions Called by the CVODE Solver */
   
@@ -567,6 +569,6 @@ booleantype CV_optin;
 long int *CV_iopt;
 realtype *CV_ropt;
 int CV_nrtfn;
-int CV_ls;    /* 1 = DENSE, 2 = BAND, 3 = DIAG, 4 = SPGMR */
+int CV_ls;  /* 1 = DENSE, 2 = BAND, 3 = DIAG, 4 = SPGMR */
 
 #endif
