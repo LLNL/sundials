@@ -38,7 +38,7 @@ LIBS    = ${TEMP_LIBS} -lcvodes -lshared -lnvecparallel -lm ${MPILIBS}
 # Make rules
 #--------------------------------------------------------------------------------
 
-all: pvnx pvkx pvkxb pvfnx pvfkx pvanx pvkt
+all: pvnx pvkx pvkxb pvfnx pvfkx pvanx
 
 pvnx : ${srcdir}/pvnx.c
 	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
@@ -58,15 +58,11 @@ pvfkx : ${srcdir}/pvfkx.c
 pvanx : ${srcdir}/pvanx.c
 	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
 	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
-pvkt : ${srcdir}/pvkt.c
-	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
-	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
 
 clean:
 	rm -f *.o
 	rm -f pvnx pvkx pvkxb
 	rm -f pvfnx pvfkx
 	rm -f pvanx
-	rm -f pvkt
 
 #---End of Makefile---
