@@ -1,0 +1,243 @@
+\documentstyle[12pt]{letter}
+\batchmode
+\begin{document}
+\begin{letter}
+
+
+\reference{Manuscript TOMS-2003-0041}
+
+\opening{Dear Dr. Boisvert,}
+
+blah, blah, blah
+
+\closing{Sincerely,}
+
+Radu Serban and Alan C. Hindmarsh\\
+Center for Applied Scientific Computing\\
+Lawrence Livermore National Laboratory
+
+\end{letter}
+
+\newpage
+\section{Answers to Referee 1 Comments}
+
+This paper describes an ODE solver with sensitivity analysis 
+capabilities. Sensitivity analysis is an extremely important
+subject that can be applied in a number of situations such as
+optimum design, experimental design, uncertainty analysis etc. 
+
+This paper is very well written and can be decomposed into two
+main parts: algorithms and code description. It is difficult to
+find something new in the algorithm part. The authors should
+give proper citations on the things they have used. For example, on
+page 4, the quadrature computation has been proposed and
+documented in DASPK3.0 package (see Li and Petzold (2000 and
+2001), Cao et al (2002)). 
+
+The evaluation of the sensitivity right-hand side is the key
+part for users who want to use the sensitivity analysis
+capabilities. I suggest the authors describe and compare all the
+approaches, not only the finite-difference approaches, and give
+appropriate citations. 
+
+{\em Response:}
+The mechanism provided in CVODES for user-defined routines
+for the evaluation of derivative information (Jacobian-related data
+and/or sensitivity right-hand sides) can be used to wrap AD-generated
+routines.
+We have included a paragraph discussing our own efforts 
+in developing complex-step derivative approximations through automatic 
+code generation and a short discussion on the challenges in 
+designing general interfaces to automatic differentiation tools
+for C codes.
+
+In section 2.3, the authors ignore that the check-pointing
+scheme has also been used in other adjoint packages (e.g.,
+Giering, TAMC) and DAE solver DASPKADJOINT code (see Cao et
+al.(2002), Li and Petzold(2001)). 
+
+{\em Response:} 
+we have changed this paragraph to mention that we are 
+using a checkpointing scheme similar to the one in DASPKADJOINT
+and a justification why truly optimal checkpointing (as described
+by Griewank and Walther) cannot be employed.
+
+The authors do not mention how to evaluate the adjoint sensitivity 
+right-hand side (15) or (17) in the paper. This is the key for the users. 
+I find that in the code, the analytic input by hand is used, which is impossible
+for many of users and applications. 
+
+The last sentence about the adjoint PDE on page 10 is wrong. 
+You cannot replace the adjoint of the discretized PDE with the 
+discretized adjoint PDE system directly without modifying the 
+sensitivity evaluation formula (14). The boundary conditions, 
+which is absent in ODE solver and formula (14), must be incorporated 
+(see Li and Petzold (2003) about adjoint PDE). 
+
+{\em Response:}
+ We are aware that these two formulations are different and this
+is what we were trying to say. Exactly because of this, we designed 
+CVODES such that it does not assume one formulation or the other.
+We have now explicitely stated that the two formulations are different
+(with two citations).
+
+The code description part is quite clear. I would like to see
+the following points to be addressed. 
+
+1) Since there are many FORTRAN ODE/DAE codes available, the authors need to 
+state explicitly what the advantages are to rewrite the code to C or C++
+language. 
+
+{\em Response:}
+We have included a paragraph in the introduction that lists
+some of the advantages of using C: portability, availability, standard
+dynamic memory allocation and data structures, etc.
+
+2) Many numerical users are still using Fortran in writing their right-hand 
+side. The authors need to give a clear and easy-used interface between the 
+Fortran user and CVODES package. 
+
+{\em Response:}
+In the introduction, we point to the Fortran-C interface provided
+with CVODE as an example of using a SUNDIALS solver with Fortran user code.
+Moreover, as mentioned in the Conlcusions section, we are planning on
+providing interlanguage operability for all of the SUNDIALS codes by using
+Babel technology.
+
+3) The authors need to describe how to incorporate efficiently the existing 
+nonlinear or linear solvers. For example, many PDE packages now use the sparse 
+data structure and multi-grid preconditioners. How to use the modern solver
+techniques  in CVODES is an interesting field. The author need
+to give some related examples in the code. 
+
+4) The authors do not state much about the parallelization. I would like to 
+see more about that topic in the paper and numerical efficiency and speed-up
+comparison with the serial code in the packages.
+
+{\em Response:}
+We have included a section on parallel speedup on a sensitivity problem.
+
+
+\newpage
+\section{Answers to Referee 2 Comments}
+
+This paper describes a stiff and nonstiff ODE IVP solver with forward and adjoint sensitivity
+analysis capabilities. The presented software, which is a part of SUNDIALS software suite, is an
+updated version of the VODE solver written in C and extended to sensitivity analysis capabilities.
+All the algorithms presented have been published elsewhere by other workers, and cannot be seen
+as novel contributions of the current paper. Therefore the first 10 pages of the paper can be
+summarized with appropriate citations. The rest of the paper describes the code organization and
+its usage briefly. There are no numerical examples demonstrating any advantages of using this
+particular software. There is no mention of existing forward/adjoint sensitivity analysis tool(s)
+with virtually identical capabilities, i.e., DASPKADJOINT.
+
+Considering the editorial charter which states that "..., papers that are essentially user manuals
+for a computer program are also not acceptable" and noting that most of the material presented
+in the paper can be found in [1], a significant rewrite of the paper is recommended emphasizing
+the advantages and novelties of the software with specific examples. However, it is not clear to this
+reviewer that there are sufficient advantages and novelties in the software to satisfy the requirements
+of the editorial charter.
+
+Detailed Comments
+* p. 7 paragraph 3: while it is indeed an important observation that the staggered corrector
+method combined with an iterative linear solver is equivalent to the staggered direct method,
+this observation has already been made in [2].
+
+{\em Response:}
+We have added the citation.
+
+* p. 14 paragraph 3 from bottom of the page: SPGMR is not a direct linear solver.
+
+{\em Response:}
+We have rephrased this sentence.
+
+* p. 15 paragraph 2:"sensitvity" should be "sensitivity".
+
+{\em Response:}
+fixed the typo.
+
+* the Maly and Petzold reference is from 1996.
+
+{\em Response: fixed biblio entry.}
+
+Experience with the Code
+The code is user friendly and has obvious advantages inherited from the usage of the C programming
+language. We did not undertake performance comparisons.
+
+\newpage
+\section{Answers to Referee 3 Comments}
+
+1 Summary of the contents
+The paper describes the software tool CVODES as a multistep ODE solver
+with comprehensive capabilities for sensitivity analysis. The ODE integra-
+tion itself is performed by a BDF method for stiff systems or an Adams-
+Moulton formula for non-stiff systems. Arising linear systems can be solved
+by either a dense direct method, a banded direct method or an iterative
+Krylov subspace method.
+The sensitivity analysis features of CVODES comprise forward sensitiv-
+ity analysis by the simultaneous corrector method as described in [5], or
+two versions of the staggered corrector method as introduced in [1]. The
+right-hand sides of the arising sensitivity systems can be currently obtained
+through analytical user input, finite differences or directional derivatives,
+and an automatic differentiation option is envisaged in the conclusion sec-
+tion.Furthermore, CVODES also allows to compute sensitivities via adjoint
+sensitivity analysis by implementing a check-pointing strategy.
+In Section 3, the paper describes details of the software setup and code
+organization, as part of a larger family of solvers, the SUNDIALS package.
+Section 4 of the paper is concerned with giving a detailed overview about
+the usage of the tool.
+
+2 Comments on the contents and assessment of relevance for a publication in TOMS
+The features of the tool mentioned in this paper are apparently not new. A
+BDF solver for DAE systems with dense direct, banded direct or Krylov sub-
+space based linear solvers is available as the well-established code DDASPK
+[2]. DDASPK also contains the three common methods for forward sensi-
+tivity analysis, i.e. the staggered direct, the simultaneous corrector and the
+staggered corrector method. The code DSL48S [1] contains a BDF solver
+for DAE systems with the staggered corrector sensitivity method using the
+sparse direct linear algebra solver MA48. 
+
+The statement in Section 2.2.1 of the paper, that the staggered direct method 
+is always unattractive, is not correct. As shown in [4], it can outperform the 
+other methods in case that Ns >>  N. 
+
+{\em Response:}
+We have changed this paragraph to include the citation [4] and 
+clarify that the staggered direct method is not attractive for problems that 
+have many states (such as those arising from semidiscretization of PDES).
+For the cases in which the number of parameters is very large (comparable
+to the problem size) adjoint sensitivity is (generally) a better choice than 
+any forward sensitivity method.
+
+In contrast to CVODES, DDASPK already contains automatic differentiation capabilities 
+according to [2].
+
+Regarding the adjoint approach, the concepts and implementation in
+this paper appear to be close to what has been reported in [3]. The check-
+pointing has already been described in that reference. 
+
+{\em Response:}
+We have changed this paragraph to mention that we are 
+using a checkpointing scheme similar to the one in DASPKADJOINT
+and a justification why truly optimal checkpointing (as described
+by Griewank and Walther) cannot be employed.
+
+DDASPKADJOINT additionally contains optional automatic differentiation facilities 
+for obtaining the required derivative information.
+
+According to the paper, the key benefit of CVODES appears to be the
+modular software implementation, which collects all subelements for ODE
+integration and sensitivity evaluation under one common roof. The modular
+approach allows an easy exchange of low-level tools such as linear solvers
+etc.The editorial charter of TOMS states that "the purpose of a TOMS
+communication is the presentation of the results of novel research and de-
+velopment efforts in support of significant mathematical computer applica-
+tion". Taking the findings above into account, it is rarely possible to accept
+the paper as "novel research". An acceptable paper should also contain "a
+demonstration of superiority compared to alternative approaches", typically
+carried out by an experimental evaluation of computer implementations.
+The paper at hand is completely lacking this issue. Basically it is a descrip-
+tion of a new software implementation of well-known numerical concepts.
+
+
+\end{document}
