@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # File tarsun: Script to build SUNDIALS tar-file.
-# Version of 30 August 2002.
+# Version of 4 September 2002.
 #
 
 #---------------------------------------------------------
@@ -105,6 +105,8 @@ echo "Generate $distrobase distribution tar-file $tarfile"
 echo "  Add top-level files/directories"
 
 tar cf $tarfile $distrobase/Makefile
+
+tar uf $tarfile $distrobase/doc/Readme
 
 tar uf $tarfile $distrobase/lib/.dontremove
 
