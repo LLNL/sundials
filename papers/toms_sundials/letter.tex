@@ -1,0 +1,548 @@
+\documentstyle[12pt]{letter}
+\batchmode
+
+\setlength{\textheight}{9.0in}
+\setlength{\topmargin}{-0.4in}
+
+\begin{document}
+\begin{letter}
+
+
+\reference{Manuscript TOMS-2003-0041}
+
+\opening{Dear Dr. Boisvert,}
+
+We are hereby submitting a revised version of our paper, ``SUNDIALS:
+Suite of Nonlinear and Differential/Algebraic Equation Solvers.''
+
+Attached below, we have reproduced the referees' comments, with our
+responses inserted.
+
+\closing{Sincerely,}
+
+Carol S. Woodward\\
+Center for Applied Scientific Computing\\
+Lawrence Livermore National Laboratory
+
+\end{letter}
+
+
+\newpage
+\section{Answers to Referee 1 Comments}
+
+General 
+
+This is a clearly written paper setting out the current state of the
+Lawrence Livermore National Laboratory project described in the title.
+It outlines how existing solvers were re-written with the aims of:
+better support for solving large systems in parallel, including a wide
+variety of linear system solvers both direct and iterative; better
+extraction of software components usable in several solvers; a user
+interface suitable for both `simple' and `expert' use. Also described
+is the partly completed work to add sensitivity analysis to the
+solvers. 
+
+The basic solvers (ODE, DAE, algebraic) are described.  Much of course
+is standard, but there is a wealth of detail about algorithm
+heuristics that have evolved over years of experience. This is
+invaluable information for any practitioner in the field. The more so
+because appearing in the open literature helps protect it from
+interest groups trying to patent common knowledge, as is currently
+happening in some areas of scientific computing.
+
+A detailed description of preconditioning methods and options follows. 
+
+Next is a description of the way in which forward and adjoint methods
+are applied to compute sensitivities. It is done at the model level,
+that is by discretizing the derivatives of the mathematical equations
+rather than the Automatic Differentiation route of differentiating the
+discretization.
+
+There follow sections on the code organization and on how a user sets
+up the system to solve a problem, and extracts the results. 
+
+The abstract and conclusions are appropriate. The references cover
+theory, usage and experience with the solvers and run from the
+seventies to the present.  
+
+I recommend publication subject to some minor improvements suggested
+below.  I would not wish to see the revised version before publication.
+
+
+Software architecture 
+
+In the abstract, the authors say "a highly modular structure to allow
+incorporation of different preconditioning and/or linear solver
+methods; and clear interfaces allowing for users to provide their own
+data structures underneath the solvers"; and in the conclusion section
+they state: "The design philosophy of providing clear interfaces to
+the user and allowing the user to supply their own data structures
+make the solvers reasonably easy to add into existing simulation
+codes".
+
+Designing good interfaces in complex numerical software, such as
+SUNDIALS, is not a trivial task. The authors have accumulated valuable
+experience doing that, and others should benefit from this
+experience. An illustration of how "clear" interfaces are achieved and
+how new methods can be added would be helpful.  A discussion on design
+decisions is valuable too. If it is impractical to add to the present
+paper and is explained elsewhere, references to where the reader can
+find such information should be given.
+
+
+Heuristics 
+
+Many heuristics are discussed in this paper. The authors give values
+for numerous constants, but do not explain why they chose these
+values.  On p.6, why is the safety factor 1/6? On p.5, the stepsize
+$h_n$ is replaced by $h_n/4$. Why not $h_n/2$ for example? On p.6, the
+safety factor is limited above by 0.2. Why is 0.2 chosen? 
+
+I accept this paper is not the place to justify `magic numbers' in
+heuristics. But a researcher or a practitioner may be interested in
+knowing the reasons for choosing a certain value of a constant or a
+parameter. If there are technical reports where they are justified, it
+would be useful to have references to them. 
+
+Also, wherever a snippet of rationale is provided, as p.12 `The above
+strategy balances ... ', it immediately makes the text more accessible
+to the non-specialist reader.
+
+{\em Response:} A paragraph on heuristics was added at the start of the section.
+
+
+Specific comments 
+
+General
+
+Quite a few paragraphs would read better if split. I have made some
+suggestions, and leave to the authors to decide on better paragraph
+splitting.
+
+
+Page 4. 
+
+The notation $y_{n(m)}$ jars. It means the approximation, at the $m$th
+(Newton or other) iteration, to the computed solution $y_n$ at time
+point $n$, but of course if read literally it indicates that $n$ is
+somehow a function of $m$.  I know you use $y^i_n$ to mean the $i$th
+component of $y_n$ so superscript $m$ is out, but I think $y_n(m)$ or
+$y_{n,m}$ reads a lot better.
+
+{\em Response:} done
+
+line -17. A formula for $\|\cdot\|_{WRMS}$ would be helpful. 
+
+{\em Response:} done
+
+Page 5. 
+line 2. What is "non-fatal convergence failure"? 
+ 
+Page 6.  
+
+line 6. A reference to Curtis-Powell-Reid might be included.  
+
+{\em Response:} done
+
+line 14. `A critical part of CVODE ... ' The comma should become a
+dash, or vice versa.  But is this sentence needed? Anyone reading this
+far knows well enough that professional ODE software controls local error.
+
+{\em Response:} done
+
+line -9. "the step is restarted from scratch" It is not clear what this means.
+
+{\em Response:} done
+
+line -8. The ratio $h'/h$ is limited above to 0.2. It is not clear if
+0.2 stays until the end of the integration. This should be clarified;
+the same for 0.1.
+
+{\em Response:} done
+ 
+Page 7.  
+
+line 1. `on the step just completed ... done'. Would `on the previous step ... 
+done on this step' be clearer?  
+
+{\em Response:} done
+
+line 19,22. It is little confusing with LTE denoting two different things. 
+I think a formula for LTE($q'$) would help the reader. 
+
+{\em Response:} fixed ambiguous notation, but a formula is not appropriate.
+ 
+Page 8.
+
+Inexact Newton Iteration. Using $m$ rather than $n$ fits with earlier
+notation.
+
+The assignment $u_{n+1} = u_n + \delta_n$ threw me, when it is clear
+from the next paragraph that a `cautious Newton' $u_{n+1} = u_n +
+\lambda\delta_n$ is actually used, and only part way down p9 is it
+explained that either of these may be used. Possibly change 2(b) to
+`Set $u_{n+1} = u_n + $ multiple of $\delta_n$'. Alter p9 text accordingly.
+
+line -13. `These solutions are only approximate ... new approximate
+solution.'  mixes up two meanings of approximate solution. It might
+better read `The update $\delta_n$ is only an approximate solution of
+system 2(a). At each stage in the iteration process, a scalar multiple
+of the update is added to the previous approximate solution, $u_n$, to
+produce a new approximate solution.'
+ 
+Page 10.  
+
+line 3, 5, 7, 9, 11. The $\eta$ symbol is also used on p. 7, line
+14,16, but for a different purpose.
+
+line 13. You should explain what KINSOL does if the solution it is
+seeking violates a constraint such as $u^i > 0$.
+ 
+Page 13.
+line -18. The strategy for starting IDA is described, but there is no
+corresponding description for CVODE. For consistency, such explanation
+could be given.
+
+{\em Response:} Actually it is given for CVODE, but it is short.
+CVODE starts at order 1 and then uses the same order change algorithm
+as on all steps.
+
+Page 14. The order selection approach may be easier to read if
+presented in the form of an algorithm.
+
+{\em Response:} We considered that but decided to leave it as is.
+ 
+Page 21. Sect 4.3 and elsewhere. I found it slightly confusing that a
+(purely) algebraic system is referred to as a `non linear system' as
+if `nonlinear' is the key aspect.  I suggest `algebraic system'.
+
+Page 22. Sect 5. It would be useful to give reasons for choosing C
+rather than Fortran 90/95, which (as far as I can see) can accommodate
+each of the listed design features.  `Our programmers know C best' is
+an acceptable reason.
+
+Wording and paragraphs
+ 
+Page 2. New paragraph e.g. at "SUNDIALS is being expanded ... ". 
+ 
+Page 3.  
+
+line 2, 3. "contained" is redundant.  
+
+line -22. "which" refers to $N$-space", not "ODE...". Reword.  
+
+line -21. You may omit "abstract".  
+
+{\em Response:} all done
+
+line -9. New paragraph at "For nonstiff problems, CVODE...".  
+
+{\em Response:} disagree
+
+line -4. "recent history of the step sizes" is not very precise. You
+may say which step sizes.
+
+{\em Response:} done
+
+Page 4.
+
+line 3. New paragraph at "Functional iteration...".  
+
+{\em Response:} disagree
+
+line 18. New paragraph at "For large..."  
+
+line -5. Comma after "as possible". 
+
+{\em Response:} both done
+ 
+Page 5.
+
+line 5, 7. See "reevaluate" and "re-evaluate".  
+
+{\em Response:} done
+
+line 20. New paragraph at "We initialize..."  
+
+{\em Response:} disagree
+
+Page 7.
+line -20. Comma before "but instead". 
+
+{\em Response:} done
+
+Page 8.  
+line 1. New paragraph at "The implementation...". 
+
+{\em Response:} done one sentence earlier
+ 
+Page 10.
+
+line 14. You may say that $i$ denotes the $i$th component of $u$.  
+
+line -5. New paragraph at "A second...".  
+
+{\em Response:} done
+
+Page 13.  
+line 10. For consistency, the subscript WRMS may be omitted. 
+
+{\em Response:} done
+ 
+Page 18.
+
+line -9. Period after "...each step".  
+
+line -5. Period after "matrix".  
+
+line -1. Period after "[Feehery ...]". 
+ 
+Page 22.  
+line 14. Remove " " in "NVECTOR". 
+
+{\em Response:} done
+ 
+Page 29. The formats of the first and the 17th reference are not consistent. 
+
+{\em Response:} fixed
+
+Software 
+
+The serial version installs nicely on Sun Solaris with the GNU C
+compiler, and all the examples execute without any problems. Since I
+do not have currently access to a parallel machine, I have not tried
+the parallel version of SUNDIALS.
+
+However, I had slight difficulties installing SUNDIALS on Macintosh
+running OS X. I believe this can be easily fixed by the authors, and I
+encourage them to do so.
+
+The SUNDIALS suite is very well organized across directories. The
+programs are clearly written and well commented.  As a minor remark, I
+find the main solver files quite long: kinsol.c 1410 lines, cvode.c
+3048, ida.c 3062 and cvodes.c 5791.
+
+
+\newpage
+\section{Answers to Referee 2 Comments}
+
+General Comments on the Manuscript 
+
+This paper provides a comprehensive description of a large software
+modification/development effort involving three codes, CVODE for
+initial value ordinary di erential equations, KINSOL, for nonlinear
+algebraic equations, and IDA for systems of differential algebraic
+equations, which are collectively referred to as the SUNDIAL suite. I
+found it very enjoyable to read a paper where lots of detail regarding
+the development of the software and in particular the underlying
+heuristics employed within the software is provided. The paper
+describes high quality software and is useful in directing attention
+to this important project.  I would therefore recommend in favor of
+its publication.
+
+(I) One point that arises in several places in the paper is that it is
+not clear in the paper if each code is written so that it can be run
+in serial or parallel mode or that there are separate serial and
+parallel versions of each code. There is a comment on Page 2 which
+indicates that CVODE is a single code that includes both options but I
+am not sure about the other two codes.  Throughout the paper there are
+references to serial and parallel versions of the codes.  Also it
+would be useful to include a brief comment on how the parallel mode
+would work.  To my knowledge ANSI standard C does not include parallel
+language features so it seems unclear what is meant by the phrase
+suitable for ... parallel machine environments in the abstract.  I
+assume that the authors mean that software is written in a highly
+modular fashion that means that it can easily be customized to run e
+ciently in a parallel environment based on a specific parallelization
+facility such as Open MP or MPI, for example.
+
+(II) A second point is that it would be useful to provide a paragraph
+commenting on the numerical performance for each of the SUNDIAL codes
+compared with other available codes, with appropriate references.
+
+Detailed Comments on the Manuscript
+
+Page 2, Line 8: Add an appropriate reference after "GMRES iteration".  
+
+Page 2, Line 17: After the sentence ending with "rewrite solvers in C",
+I think it would be helpful to the reader to explain why the desire
+for a parallel implementation forces one to choose the C language;
+this would seem to imply that one cannot have a parallel
+implementation unless it is written in C. Perhaps there are additional
+reasons one can mention for providing a C implementation. 
+
+Page 2, Lines 21-24: I would suggest a slight rewriting for
+clarification as I am not sure about the serial/parallel capabilities
+of the software packages mentioned here. It is quite clear the PVODE
+and the original CVODE have been merged into one code with both serial
+and parallel capabilities called CVODE. Is it also the case that NKSOL
+and DASPK have been rewritten as the new codes KINSOL and IDA,
+respectively, where the new codes are written in C with both serial
+and parallel capabilities? Or is it the case that the new codes are
+simply serial C codes?
+
+Page 2, Lines 27-28: These lines appear to say that all three codes,
+CVODE, KINSOL, and IDA, have been augmented to include sensitivity
+analysis capabilities. However, at the bottom of this same page the
+text appears to indicate that only CVODE has been transformed into
+CVODES, a new version with this capability, while for the other two
+codes, this capability is planned. It is clear from section 4 that
+only CVODES is currently available so it would be useful to clarify
+the statement in the introduction. Will the three codes CVODES,
+KINSOLS, and IDAS replace the CVODE, KINSOL, and IDA codes?
+
+Page 3, Lines 25-27: Add a reference to further reading after the
+brief explanation of stiffness given here.
+
+Page 3, Lines 32-33: I would suggest changing "one of two multistep
+methods" to "one of two families of multistep formulas".
+
+Page 4, Line 5 and 8: The notation, $y_{n(m+1)}$, has not been defined.  
+
+Page 4, Line 12: Perhaps the phrase "available history data" could be
+explained a bit; this may be more detail than you want to include so
+instead perhaps you could refer to "solution information associated
+with previous steps"?
+
+{\em Response:} all done
+
+Page 4, Lines 14-15: If the current CVODE runs in both sequential and
+parallel environments, i.e., there is no longer a separate version for
+sequential mode and one for parallel mode. Thus on page 4, I think it
+1 would be better to refer to "serial mode only" rather than "serial
+version only", here and elsewhere in the paper.
+
+{\em Response:} added explanatory note
+
+Page 4, Line 16-17: Add references directing the reader to additional
+descriptions for the diagonal approximate Jacobian solver and SPGMR.
+
+Page 4, Line 19: Replace "a preconditioned GMRES" with "the SPGMR"
+
+Page 4, Line 25: Add an equation showing the reader in more detail
+what the $\|\cdot\|_{WRMS}$ norm looks like.
+
+Page 4, Line 28: In equation (4), define RTOL, ATOLi, and $y^i$.
+
+{\em Response:} all done
+
+Page 4, Line 29: Replace "a vector whose norm" with "a vector whose $i$th
+component is an error-like quantity associated with $y^i$ which has a 
+$\|\cdot\|_{WRMS}$ norm of".
+
+{\em Response:} reworded
+
+Page 4, Line -1: Does "steps" here mean "time steps" rather than "iterations"?
+
+{\em Response:} clarified
+
+Page 5, Line 1: I suggest replacing the current text with "the value
+of $\gamma$ from the last update, which we will call $\bar{\gamma}$,
+and the current $\gamma$ value, which we will call $\gamma$, satisfy 
+$|\gamma/\bar{gamma} - 1| > 0.3 $"
+
+{\em Response:} reworded
+
+Page 5, Line 2: Explain what is meant by a "non-fatal convergence failure"?
+
+{\em Response:} reworded.  A non-fatal convergence refers to an fatal error flag that
+the user may have returned from the preconditioner routine.  Since this section
+is about algorithms, it seems best not to bother go into that here.
+
+Page 5, Line -14: Change "diverged" to "to have failed".
+
+{\em Response:} reworded
+
+Page 5, Lines 15-16: Change "final computed value" to "final iterate
+computed". Also define $y_{n(0)}$ and $\epsilon$.
+
+Page 5, Line -14,-15: Replace "convergence fails with J or P current" by
+"the iteration fails to converge with a current J or P".
+
+Page 5, Line -9: Define the "local error test constant".
+
+Page 6, Line 3: What is $\sigma_ 0$?  
+
+Page 6, Line 6: Provide a reference for the CPR algorithm.
+
+Page 6, Line 23: After "$ \leq 1$" add "(where we recall that we are
+using the $\|\cdot\|_{WRMS}$ norm)".
+
+Page 6, Line 23-26: I would suggest a rewrite of the sentence beginning 
+with "Using the above, ..."  to improve its clarity. Is $C'$ known?
+
+Page 6, Lines 33-34: Please clarify the wording: "limited above to" and
+"limited below to".
+
+{\em Response:} all done
+
+Page 9, Line 18: Since the reader will not see the details of the
+preconditioning schemes until Section 3, I would recommend deleting
+the sentence beginning with "In this case, ...".
+
+Page 9, Line -12: Give a brief indication of what criterion is used to
+decide when one is close to the solution.
+
+Page 10, Line -11: Add a reference after "so-called semi-explicit
+index-one systems".
+
+{\em Response:} done
+
+Page 11, Line 9: It would be helpful to the reader to point out that
+this equation is a special case of the more general equation (which
+could have a number) on Page 3.
+
+{\em Response:} disagree
+
+Page 11, Lines 27-28: Until the reader has seen Section 3, I think it
+is better to defer the details of the preconditioning so I would
+recommend leaving out the "so that GMRES is applied ..."  part of this
+sentence. Also I do not understand the footnote.
+
+{\em Response:} disagree.  This information is needed to understand the stopping
+test described a page later.
+
+Page 12, Lines 22, 23: Change "$S = 20$" to "20" and "$S = 100$" to "100".
+
+{\em Response:} done
+
+Page 13, Line 15: At this point in this section there is mention of "an
+associated polynomial interpolant".  I think it would be helpful to
+mention the existence of this interpolant right after the BDF methods
+are introduced in equation (10).
+
+{\em Response:} disagree.  This would seem to add considerable detail that has
+no purpose.
+
+Page 14, Line -3: Add a few sentences at the beginning of this section
+to introduce the basic idea of a Krylov method with a preconditioner.
+
+{\em Response:} done
+
+Page 17, Lines -4,-3: I would suggest replacing "dimension of the array
+of model parameters" with "number of model parameters" and "dimension of
+the array of outputs" with "number of output functionals".
+
+{\em Response:} done
+
+Page 22, First Paragraph: This material motivating the rewriting of
+the Fortran codes in C is very helpful, a nd I think should be moved
+to the introduction.
+
+Page 22, Lines 17-21: The discussion of the NVECTOR implementation and
+NVECTOR structure are not clear.  Reference to Section 5.2 with an
+example provided there might help.
+
+Page 26, Table I: On Page 12 the maximum number of Newton iterations
+for IDA is 4 while in this table it is 3.
+
+{\em Response:} fixed.  The correct value is 4.
+
+Pages 29-30: Some of the journal names are given in abbreviated form
+in some places and in full form in other places.
+
+{\em Response:} done.  All references use consistent formats now.
+
+
+
+\end{document}
