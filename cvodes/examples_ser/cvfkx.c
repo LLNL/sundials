@@ -3,7 +3,7 @@
  * File       : cvfkx.c                                                 *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh and                *
  *              Radu Serban @ LLNL                                      *
- * Version of : 22 July 2003                                            *
+ * Version of : 11 February 2004                                        *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -130,7 +130,9 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static void WrongArgs(char *argv[]);
+static void ProcessArgs(int argc, char *argv[],
+                        booleantype *sensi, int *sensi_meth, int *err_con);
+static void WrongArgs(char *name);
 static UserData AllocUserData(void);
 static void InitUserData(UserData data);
 static void FreeUserData(UserData data);
@@ -170,8 +172,8 @@ int main(int argc, char *argv[])
   realtype *pbar;
   int is, *plist;
   N_Vector *uS;
-  booleantype sensi=FALSE;
-  int sensi_meth=-1, err_con=-1;
+  booleantype sensi;
+  int sensi_meth, err_con;
 
   pbar = NULL;
   plist = NULL;
@@ -182,39 +184,7 @@ int main(int argc, char *argv[])
   cvode_mem = NULL;
 
   /* Process arguments */
-
-  if (argc < 2)
-    WrongArgs(argv);
-
-  if (strcmp(argv[1],"-nosensi") == 0)
-    sensi = FALSE;
-  else if (strcmp(argv[1],"-sensi") == 0)
-    sensi = TRUE;
-  else
-    WrongArgs(argv);
-
-  if (sensi) {
-
-    if (argc != 4)
-      WrongArgs(argv);
-
-    if (strcmp(argv[2],"sim") == 0)
-      sensi_meth = SIMULTANEOUS;
-    else if (strcmp(argv[2],"stg") == 0)
-      sensi_meth = STAGGERED;
-    else if (strcmp(argv[2],"stg1") == 0)
-      sensi_meth = STAGGERED1;
-    else 
-      WrongArgs(argv);
-
-    if (strcmp(argv[3],"full") == 0)
-      err_con = FULL;
-    else if (strcmp(argv[3],"partial") == 0)
-      err_con = PARTIAL;
-    else
-      WrongArgs(argv);
-
-  }
+  ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
 
   /* Initialize serial vector specification */
   nvSpec = NV_SpecInit_Serial(NEQ);
@@ -261,6 +231,8 @@ int main(int argc, char *argv[])
   flag = CVSpgmrSetPrecData(cvode_mem, data);
   if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
 
+  printf("\n2-species diurnal advection-diffusion problem\n");
+
   /* SENSITIVTY */
   if(sensi) {
     pbar = (realtype *) malloc(NP*sizeof(realtype));
@@ -286,12 +258,25 @@ int main(int argc, char *argv[])
 
     flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, plist, uS);
     if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
+
+    printf("Sensitivity: YES ");
+    if(sensi_meth == SIMULTANEOUS)   
+      printf("( SIMULTANEOUS +");
+    else 
+      if(sensi_meth == STAGGERED) printf("( STAGGERED +");
+      else                        printf("( STAGGERED1 +");   
+    if(err_con == FULL) printf(" FULL ERROR CONTROL )");
+    else                printf(" PARTIAL ERROR CONTROL )");
+    
+  } else {
+
+    printf("Sensitivity: NO ");
+
   }
 
   /* In loop over output points, call CVode, print results, test for error */
-  
-  printf("\n2-species diurnal advection-diffusion problem\n\n");
 
+  printf("\n\n");
   printf("========================================================================\n");
   printf("     T     Q       H      NST                    Bottom left  Top right \n");
   printf("========================================================================\n");
@@ -330,13 +315,53 @@ int main(int argc, char *argv[])
 /* ======================================================================= */
 /* Exit if arguments are incorrect */
 
-static void WrongArgs(char *argv[])
+static void ProcessArgs(int argc, char *argv[], 
+                        booleantype *sensi, int *sensi_meth, int *err_con)
 {
-  printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",argv[0]);
-  printf("         sensi_meth = sim, stg, or stg1\n");
-  printf("         err_con    = full or partial\n");
+  *sensi = FALSE;
+  *sensi_meth = -1;
+  *err_con = -1;
+
+  if (argc < 2) WrongArgs(argv[0]);
+
+  if (strcmp(argv[1],"-nosensi") == 0)
+    *sensi = FALSE;
+  else if (strcmp(argv[1],"-sensi") == 0)
+    *sensi = TRUE;
+  else
+    WrongArgs(argv[0]);
   
-  exit(0);
+  if (*sensi) {
+
+    if (argc != 4)
+      WrongArgs(argv[0]);
+
+    if (strcmp(argv[2],"sim") == 0)
+      *sensi_meth = SIMULTANEOUS;
+    else if (strcmp(argv[2],"stg") == 0)
+      *sensi_meth = STAGGERED;
+    else if (strcmp(argv[2],"stg1") == 0)
+      *sensi_meth = STAGGERED1;
+    else 
+      WrongArgs(argv[0]);
+
+    if (strcmp(argv[3],"full") == 0)
+      *err_con = FULL;
+    else if (strcmp(argv[3],"partial") == 0)
+      *err_con = PARTIAL;
+    else
+      WrongArgs(argv[0]);
+  }
+
+}
+
+static void WrongArgs(char *name)
+{
+    printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",name);
+    printf("         sensi_meth = sim, stg, or stg1\n");
+    printf("         err_con    = full or partial\n");
+    
+    exit(0);
 }
 
 /* ======================================================================= */
@@ -543,24 +568,7 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi, int sensi_meth, 
   flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
   check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
 
-  printf("\n\n========================================================");
-  printf("\nFinal Statistics");
-  printf("\nSensitivity: ");
-
-  if(sensi) {
-    printf("YES ");
-    if(sensi_meth == SIMULTANEOUS)   
-      printf("( SIMULTANEOUS +");
-    else 
-      if(sensi_meth == STAGGERED) printf("( STAGGERED +");
-      else                        printf("( STAGGERED1 +");   
-    if(err_con == FULL) printf(" FULL ERROR CONTROL )");
-    else                printf(" PARTIAL ERROR CONTROL )");
-  } else {
-    printf("NO");
-  }
-
-  printf("\n\n");
+  printf("\nFinal Statistics\n\n");
   printf("nst     = %5ld\n\n", nst);
   printf("nfe     = %5ld\n",   nfe);
   printf("netf    = %5ld    nsetups  = %5ld\n", netf, nsetups);
@@ -577,7 +585,6 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi, int sensi_meth, 
   printf("nli     = %5ld    ncfl     = %5ld\n", nli, ncfl);
   printf("npe     = %5ld    nps      = %5ld\n", npe, nps);
 
-  printf("========================================================\n");
 }
 
 /***************** Functions Called by the CVODES Solver ******************/
