@@ -4,8 +4,8 @@
 \index{adjoint sensitivity analysis!examples|see{examples, adjoint sensitivity}}
 
 \index{examples, adjoint sensitivity!list of|(}
-The {\cvodes} distribution contains, in the \id{sundials/cvodes/adj\_examples}
-directory, the following five examples for forward sensitivity analysis:
+The {\cvodes} distribution contains, in the \id{sundials/cvodes/examples\_ser}
+directory, the following four serial examples for forward sensitivity analysis:
 
 \begin{itemize}
 \item \id{cvadx}
@@ -42,6 +42,12 @@ directory, the following five examples for forward sensitivity analysis:
   solves the same problem as \id{cvakx}, but computes gradients
   of the average over space at the final time of the concentration of a selected species
   with respect to the initial conditions of all six species;
+\end{itemize}
+
+The {\cvodes} distribution contains, in the \id{sundials/cvodes/examples\_par}
+directory, the following parallel example for forward sensitivity analysis:
+
+\begin{itemize}
 \item \id{pvanx}
   solves the semi-discrete form of an advection-diffusion equation in 1-D.
 

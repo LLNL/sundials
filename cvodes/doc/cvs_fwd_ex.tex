@@ -4,8 +4,8 @@
 \index{forward sensitivity analysis!examples|see{examples, forward sensitivity}}
 
 \index{examples, forward sensitivity!list of|(}
-The {\cvodes} distribution contains, in the \id{sundials/cvodes/fwd\_examples}
-directory, the following five examples for forward sensitivity analysis:
+The {\cvodes} distribution contains, in the \id{sundials/cvodes/examples\_ser}
+directory, the following three serial examples for forward sensitivity analysis:
 
 \begin{itemize}
 \item \id{cvfnx}
@@ -32,6 +32,12 @@ directory, the following five examples for forward sensitivity analysis:
   The problem is solved with the BDF/GMRES method (i.e.    
   using the {\cvspgmr} linear solver) and the block-diagonal part of the  
   Newton matrix as a left preconditioner;
+\end{itemize
+
+The {\cvodes} distribution contains, in the \id{sundials/cvodes/examples\_par}
+directory, the following two parallel examples for forward sensitivity analysis:
+
+\begin{itemize}
 \item \id{pvfnx}
   is the parallel version of \id{cvfnx};
 \item \id{pvfkx}
