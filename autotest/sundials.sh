@@ -2,12 +2,12 @@
 
 
 ############################################################################
-# $Revision: 1.3 $
-# $Date: 2004-05-14 22:18:59 $
+# $Revision: 1.4 $
+# $Date: 2004-06-21 19:23:49 $
 ############################################################################
 #
 # Filename: sundials.sh
-# Programmer: Aaron Collier @ LLNL
+# Programmer(s): Aaron Collier @ LLNL
 #
 ############################################################################
 
@@ -26,6 +26,7 @@ REMOTE_LOGIN_CMD="/usr/bin/ssh"
 REMOTE_LOGIN_ARGS="-1"
 MAIL_CMD="/bin/mail"
 ERROR_FLAG="no"
+ERROR_DETECTED="no"
 
 # keywords used when searching build log files for errors
 ERROR_0="error"
@@ -927,7 +928,7 @@ echo "##################################" >> "${LOG_DIR}/${MAIL_FILE}"
 echo "#" >> "${LOG_DIR}/${MAIL_FILE}"
 echo "#  AUTOTEST INFORMATION" >> "${LOG_DIR}/${MAIL_FILE}"
 echo "#" >> "${LOG_DIR}/${MAIL_FILE}"
-echo "#  System(s): ${REMOTE_MACHINES}" >> "${LOG_DIR}/${MAIL_FILE}"
+echo "#  Tested System(s): ${REMOTE_MACHINES}" >> "${LOG_DIR}/${MAIL_FILE}"
 echo "#" >> "${LOG_DIR}/${MAIL_FILE}"
 echo "#  Date: ${TIME_STAMP}" >> "${LOG_DIR}/${MAIL_FILE}"
 echo "#" >> "${LOG_DIR}/${MAIL_FILE}"
@@ -1108,6 +1109,9 @@ echo -n "Zipping build log files..."
 # files with errors
 if [ "${ERROR_FLAG}" = "yes" ]; then
   ( cd "${LOG_DIR}" && tar -cf "${PROJECT_NAME}"-build-log-ERROR.tar *-build.log-ERROR && gzip "${PROJECT_NAME}"-build-log-ERROR.tar )
+  # reset error flag
+  ERROR_FLAG="no"
+  ERROR_DETECTED="yes"
 fi
 # create a tar ball containing build log files for successful builds
 ( cd "${LOG_DIR}" && tar -cf "${PROJECT_NAME}"-build-log.tar *-build.log && gzip "${PROJECT_NAME}"-build-log.tar )
@@ -1359,6 +1363,7 @@ echo -n "Zipping test log files..."
 # tar and compress files with errors separately
 if [ "${ERROR_FLAG}" = "yes" ]; then
   ( cd "${LOG_DIR}"/examples && tar -cf "${PROJECT_NAME}"-test-logs-ERROR.tar *.log-ERROR && gzip "${PROJECT_NAME}"-test-logs-ERROR.tar && mv -f "${PROJECT_NAME}"-test-logs-ERROR.tar.gz ../ )
+  ERROR_DETECTED="yes"
 fi
 # tar and compress normal log files
 ( cd "${LOG_DIR}"/examples && tar -cf "${PROJECT_NAME}"-test-logs.tar *.log && gzip "${PROJECT_NAME}"-test-logs.tar && mv -f "${PROJECT_NAME}"-test-logs.tar.gz ../ )
@@ -1401,7 +1406,7 @@ echo -e "Log file: ${LOG_DIR}/archive/${PROJECT_NAME}-logs.tar-${LOG_FILE}\n"
 ############################################################################
 
 # send e-mail only if errors were detected
-if [ "${ERROR_FLAG}" = "yes" ]; then
+if [ "${ERROR_DETECTED}" = "yes" ]; then
   echo -n "E-mailing error message(s) to: ${MAIL_RECIPIENTS}..."
   MAIL_SUBJECT="Autotest Message (${PROJECT_NAME}): Error"
   STATUS=`"${MAIL_CMD}" -s "${MAIL_SUBJECT}" "${MAIL_RECIPIENTS}" < "${LOG_DIR}/${MAIL_FILE}"`
