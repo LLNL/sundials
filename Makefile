@@ -27,9 +27,9 @@ all:
 	@(echo '                      remove symbolic links for all existing SUNDIALS modules')
 	@(echo)
 
-install: shared_lib cvode_lib ida_lib kinsol_lib
+install: shared_lib cvode_lib ida_lib kinsol_lib cvodes_lib
 
-purge: shared_purge cvode_purge ida_purge kinsol_purge
+purge: shared_purge cvode_purge ida_purge kinsol_purge cvode_purge
 
 #--------------------------------------------------------------------------------
 
@@ -57,6 +57,11 @@ kinsol_lib:
 		then cd kinsol/fcmix; make lib; \
 	fi
 
+cvodes_lib:
+	@if test -d cvodes; \
+		then cd cvodes/source; make lib; \
+	fi
+
 #--------------------------------------------------------------------------------
 
 shared_purge:
@@ -81,6 +86,11 @@ kinsol_purge:
 	fi
 	@if test -d kinsol; \
 		then cd kinsol/source; make purge; \
+	fi
+
+cvodes_purge:
+	@if test -d cvodes; \
+		then cd cvodes/source; make purge; \
 	fi
 
 #--------------------------------------------------------------------------------
