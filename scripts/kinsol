@@ -2,8 +2,7 @@
 
 tarfile=$1
 distrobase=$2
-ser=$3
-par=$4
+par=$3
 
 echo "  Add kinsol module"
 
@@ -31,16 +30,13 @@ tar uf $tarfile $distrobase/kinsol/fcmix/fkinjtimes.c
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbd.h
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbd.c
 
-if [ $ser = "T" ]
-then
-    tar uf $tarfile $distrobase/kinsol/examples_ser/Makefile.in
-    tar uf $tarfile $distrobase/kinsol/examples_ser/kinwebs.c
-    tar uf $tarfile $distrobase/kinsol/examples_ser/kinwebs.out
+tar uf $tarfile $distrobase/kinsol/examples_ser/Makefile.in
+tar uf $tarfile $distrobase/kinsol/examples_ser/kinwebs.c
+tar uf $tarfile $distrobase/kinsol/examples_ser/kinwebs.out
 
-    tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/Makefile.in
-    tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/kindiagsf.f
-    tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/kindiagsf.out
-fi
+tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/Makefile.in
+tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/kindiagsf.f
+tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/kindiagsf.out
     
 if [ $par = "T" ]
 then

@@ -2,8 +2,7 @@
 
 tarfile=$1
 distrobase=$2
-ser=$3
-par=$4
+par=$3
 
 echo "  Add cvode module"
 
@@ -41,30 +40,27 @@ tar uf $tarfile $distrobase/cvode/fcmix/fcvdense.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvbbd.h
 tar uf $tarfile $distrobase/cvode/fcmix/fcvbbd.c
 
-if [ $ser = "T" ]
-then
-    tar uf $tarfile $distrobase/cvode/examples_ser/Makefile.in
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvdx.c
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvdx.out
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvbx.c
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvbx.out
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvkx.c
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvkx.out
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvkxb.c
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvkxb.out
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvdemd.c
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvdemd.out
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvdemk.c
-    tar uf $tarfile $distrobase/cvode/examples_ser/cvdemk.out
+tar uf $tarfile $distrobase/cvode/examples_ser/Makefile.in
+tar uf $tarfile $distrobase/cvode/examples_ser/cvdx.c
+tar uf $tarfile $distrobase/cvode/examples_ser/cvdx.out
+tar uf $tarfile $distrobase/cvode/examples_ser/cvbx.c
+tar uf $tarfile $distrobase/cvode/examples_ser/cvbx.out
+tar uf $tarfile $distrobase/cvode/examples_ser/cvkx.c
+tar uf $tarfile $distrobase/cvode/examples_ser/cvkx.out
+tar uf $tarfile $distrobase/cvode/examples_ser/cvkxb.c
+tar uf $tarfile $distrobase/cvode/examples_ser/cvkxb.out
+tar uf $tarfile $distrobase/cvode/examples_ser/cvdemd.c
+tar uf $tarfile $distrobase/cvode/examples_ser/cvdemd.out
+tar uf $tarfile $distrobase/cvode/examples_ser/cvdemk.c
+tar uf $tarfile $distrobase/cvode/examples_ser/cvdemk.out
 
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/Makefile.in
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvdensef.f
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvdensef.out
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvbandf.f
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvbandf.out
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkryf.f
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkryf.out
-fi
+tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/Makefile.in
+tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvdensef.f
+tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvdensef.out
+tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvbandf.f
+tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvbandf.out
+tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkryf.f
+tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkryf.out
 
 if [ $par = "T" ]
 then

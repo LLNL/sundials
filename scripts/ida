@@ -2,8 +2,7 @@
 
 tarfile=$1
 distrobase=$2
-ser=$3
-par=$4
+par=$3
 
 echo "  Add ida module"
 
@@ -26,18 +25,15 @@ tar uf $tarfile $distrobase/ida/source/idaband.c
 tar uf $tarfile $distrobase/ida/source/idaspgmr.c
 tar uf $tarfile $distrobase/ida/source/idabbdpre.c
 
-if [ $ser = "T" ]
-then
-    tar uf $tarfile $distrobase/ida/examples_ser/Makefile.in
-    tar uf $tarfile $distrobase/ida/examples_ser/irobx.c
-    tar uf $tarfile $distrobase/ida/examples_ser/irobx.out
-    tar uf $tarfile $distrobase/ida/examples_ser/iheatsb.c
-    tar uf $tarfile $distrobase/ida/examples_ser/iheatsb.out
-    tar uf $tarfile $distrobase/ida/examples_ser/iheatsk.c
-    tar uf $tarfile $distrobase/ida/examples_ser/iheatsk.out
-    tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.c
-    tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.out
-fi
+tar uf $tarfile $distrobase/ida/examples_ser/Makefile.in
+tar uf $tarfile $distrobase/ida/examples_ser/irobx.c
+tar uf $tarfile $distrobase/ida/examples_ser/irobx.out
+tar uf $tarfile $distrobase/ida/examples_ser/iheatsb.c
+tar uf $tarfile $distrobase/ida/examples_ser/iheatsb.out
+tar uf $tarfile $distrobase/ida/examples_ser/iheatsk.c
+tar uf $tarfile $distrobase/ida/examples_ser/iheatsk.out
+tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.c
+tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.out
 
 if [ $par = "T" ]
 then

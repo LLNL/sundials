@@ -2,13 +2,14 @@
 
 tarfile=$1
 distrobase=$2
-ser=$3
-par=$4
+par=$3
 
 echo "  Add top-level files"
     
 tar cf $tarfile $distrobase/configure
-tar uf $tarfile $distrobase/tarch
+tar uf $tarfile $distrobase/config/config.guess
+tar uf $tarfile $distrobase/config/config.sub
+tar uf $tarfile $distrobase/config/install-sh
 
 tar uf $tarfile $distrobase/Makefile.in
 
@@ -28,8 +29,7 @@ tar uf $tarfile $distrobase/shared/include/dense.h
 tar uf $tarfile $distrobase/shared/include/smalldense.h
 tar uf $tarfile $distrobase/shared/include/band.h
 tar uf $tarfile $distrobase/shared/include/spgmr.h
-tar uf $tarfile $distrobase/shared/include/iterativ.h
-tar uf $tarfile $distrobase/shared/include/fcmixpar.h
+tar uf $tarfile $distrobase/shared/include/iterative.h
 
 tar uf $tarfile $distrobase/shared/source/Makefile.in
 tar uf $tarfile $distrobase/shared/source/sundialsmath.c
@@ -38,17 +38,14 @@ tar uf $tarfile $distrobase/shared/source/dense.c
 tar uf $tarfile $distrobase/shared/source/smalldense.c
 tar uf $tarfile $distrobase/shared/source/band.c
 tar uf $tarfile $distrobase/shared/source/spgmr.c
-tar uf $tarfile $distrobase/shared/source/iterativ.c
+tar uf $tarfile $distrobase/shared/source/iterative.c
 
-if [ $ser = "T" ]
-then
-    tar uf $tarfile $distrobase/nvec_ser/nvector_serial.h
-    tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.h
+tar uf $tarfile $distrobase/nvec_ser/nvector_serial.h
+tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.h
 
-    tar uf $tarfile $distrobase/nvec_ser/Makefile.in
-    tar uf $tarfile $distrobase/nvec_ser/nvector_serial.c
-    tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.c
-fi
+tar uf $tarfile $distrobase/nvec_ser/Makefile.in
+tar uf $tarfile $distrobase/nvec_ser/nvector_serial.c
+tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.c
 
 if [ $par = "T" ]
 then
