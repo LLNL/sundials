@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-01-26 22:23:29 $
+ * $Revision: 1.5 $
+ * $Date: 2005-01-26 22:27:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -83,7 +83,7 @@ typedef struct {
 
 /* CVBBDSpgmr/CVBBDSpbcg error message */
 
-#define MSGBBDP_NO_PDATA "CVBBDSpgmr/CVBBDSpgmr-- BBDPrecData is NULL.\n\n"
+#define MSGBBDP_NO_PDATA "CVBBDSpgmr/CVBBDSpbcg-- BBDPrecData is NULL.\n\n"
 
 #ifdef __cplusplus
 }
