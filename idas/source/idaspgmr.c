@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-04-29 23:15:34 $
+ * $Revision: 1.4 $
+ * $Date: 2004-06-18 21:37:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,12 +17,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "idas.h"
-#include "idaspgmr.h"
-#include "spgmr.h"
-#include "iterative.h"
-#include "sundialstypes.h"
-#include "nvector.h"
+
+#include "idaspgmr_impl.h"
+#include "idas_impl.h"
+
 #include "sundialsmath.h"
 
 /* Error Messages */

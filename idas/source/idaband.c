@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-04-29 23:15:34 $
+ * $Revision: 1.4 $
+ * $Date: 2004-06-18 21:37:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -22,8 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "idas.h"
-#include "idaband.h"
+#include "idas_impl.h"
+#include "idaband_impl.h"
 #include "band.h"
 #include "sundialstypes.h"
 #include "nvector.h"
@@ -128,8 +128,8 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
        of the NVECTOR package. Therefore, IDABand will first 
        test for compatible a compatible N_Vector internal
        representation by checking (1) the machine environment
-       ID tag and (2) that the functions N_VMake, N_VDispose,
-       N_VGetData, and N_VSetData are implemented.
+       ID tag and (2) that the functions N_VGetData, and N_VSetData 
+       are implemented.
 
 **********************************************************************/
 
@@ -149,8 +149,6 @@ int IDABand(void *ida_mem, long int Neq,
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if ((strcmp(nvspec->tag,"serial")) || 
-      nvspec->ops->nvmake    == NULL || 
-      nvspec->ops->nvdispose == NULL ||
       nvspec->ops->nvgetdata == NULL || 
       nvspec->ops->nvsetdata == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
@@ -445,9 +443,9 @@ static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
   idaband_mem = (IDABandMem) lmem;
   
-  bd = N_VGetData(b);
+  bd = (realtype *) N_VGetData(b);
   BandBacksolve(JJ, pivots, bd);
-  N_VSetData(bd, b);
+  N_VSetData((void *)bd, b);
 
   /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
@@ -520,16 +518,16 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
 
   /* Obtain pointers to the data for all eight vectors used.  */
 
-  ewt_data = N_VGetData(ewt);
-  r_data   = N_VGetData(resvec);
-  y_data   = N_VGetData(yy);
-  yp_data  = N_VGetData(yp);
+  ewt_data = (realtype *) N_VGetData(ewt);
+  r_data   = (realtype *) N_VGetData(resvec);
+  y_data   = (realtype *) N_VGetData(yy);
+  yp_data  = (realtype *) N_VGetData(yp);
 
-  rtemp_data   = N_VGetData(rtemp);
-  ytemp_data   = N_VGetData(ytemp);
-  yptemp_data  = N_VGetData(yptemp);
+  rtemp_data  = (realtype *) N_VGetData(rtemp);
+  ytemp_data  = (realtype *) N_VGetData(ytemp);
+  yptemp_data = (realtype *) N_VGetData(yptemp);
 
-  if (constraints != NULL) cns_data = N_VGetData(constraints);
+  if (constraints != NULL) cns_data = (realtype *) N_VGetData(constraints);
 
   /* Initialize ytemp and yptemp. */
 
@@ -574,14 +572,14 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
     }
 
     /* Call res routine with incremented arguments. */
-    N_VSetData(ytemp_data, ytemp);
-    N_VSetData(yptemp_data, yptemp);
+    N_VSetData((void *)ytemp_data, ytemp);
+    N_VSetData((void *)yptemp_data, yptemp);
 
     retval = res(tt, ytemp, yptemp, rtemp, rdata);
     nreB++;
     if (retval != SUCCESS) break;
 
-    rtemp_data = N_VGetData(rtemp);
+    rtemp_data = (realtype *) N_VGetData(rtemp);
 
     /* Loop over the indices j in this group again. */
 

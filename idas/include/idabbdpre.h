@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-04-29 23:15:12 $
+ * $Revision: 1.5 $
+ * $Date: 2004-06-18 21:37:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -164,39 +164,6 @@ typedef int (*IDACommFn)(long int Nlocal, realtype tt,
                          N_Vector yy, N_Vector yp, 
                          void *res_data);
 
-
-/*********************** Definition of IBBDPrecData *****************/
-
-typedef struct {
-
-  /* passed by user to IDABBDPrecAlloc, used by 
-     IDABBDPrecSetup/IDABBDPrecSolve functions: */
-  long int mudq, mldq, mukeep, mlkeep;
-  realtype rel_yy;
-  IDALocalFn glocal;
-  IDACommFn gcomm;
-
- /* allocated for use by IDABBDPrecSetup */
-  N_Vector tempv4;
-
-  /* set by IDABBDPrecon and used by IDABBDPrecSolve: */
-  BandMat PP;
-  long int *pivots;
-
-  /* set by IDABBDPrecAlloc and used by IDABBDPrecSetup */
-  long int n_local;
-
-  /* available for optional output: */
-  long int rpwsize;
-  long int ipwsize;
-  long int nge;
-
-  /* Pointer to ida_mem */
-  IDAMem IDA_mem;
-
-} *IBBDPrecData;
-
-
 /******************************************************************
  * Function : IDABBDPrecAlloc                                     *
  *----------------------------------------------------------------*
@@ -341,6 +308,7 @@ int IDABBDPrecSolve(realtype tt,
 		    void *p_data, N_Vector tempv);
 
 #endif
+
 #ifdef __cplusplus
 }
 #endif
