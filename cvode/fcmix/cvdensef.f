@@ -1,123 +1,131 @@
-C File: cvdensef.f
-C ODE example with BDF/DENSE (serial NVECTOR).
-C Version of 28 March 2002
+C File cvdensef.f
 C
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-C     
+C FCVODE Example Problem:  Robertson kinetics, dense user Jacobian.
+C Version of 19 July 2002.
+C
+C The following is a simple example problem, with the coding
+C needed for its solution by CVODE.  The problem is from chemical
+C kinetics, and consists of the following three rate equations..
+C     dy1/dt = -.04*y1 + 1.e4*y2*y3
+C     dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*y2**2
+C     dy3/dt = 3.e7*y2**2
+C on the interval from t = 0.0 to t = 4.e10, with initial conditions
+C y1 = 1.0, y2 = y3 = 0.  The problem is stiff.
+C
+C The following coding solves this problem with CVODE, using the
+C Fortran/C interface routine package.  This solution uses the BDF
+C method and user-supplied Jacobian routine, and prints results at
+C t = .4, 4., ..., 4.e10.  It uses ITOL = 2 and ATOL much smaller for
+C y2 than y1 or y3 because y2 has much smaller values.
+C At the end of the run, various counters of interest are printed.
+C
+      DOUBLE PRECISION RTOL, T, T0, TOUT
+      DOUBLE PRECISION Y(3), ATOL(3), ROPT(40)
       INTEGER*4 IOPT(40)
-      DIMENSION Y(3), ATOL(3), ROPT(40)
-      DATA Y1/1.0/, Y2/0.0/, Y3/0.0/
-      DATA ATOL1/1.0E-8/, ATOL2/1.0E-14/, ATOL3/1.0E-6/, RTOL/1.0E-4/
-      DATA NOUT/12/
-      DATA T1/0.4/, TMULT/10.0/
-      DATA LNST/4/, LNFE/5/, LNNI/7/, LNCF/8/, LNETF/9/, LNCFL/19/
-C     
-C     
-C     Set input arguments.
+      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
+     1     LNJE/16/
+C
       NEQ = 3
-      T = 0.0D0
+      T0 = 0.0D0
+      Y(1) = 1.0D0
+      Y(2) = 0.0D0
+      Y(3) = 0.0D0
       METH = 2
       ITMETH = 2
-      IATOL = 2
+      ITOL = 2
+      RTOL = 1.D-4
+      ATOL(1) = 1.D-8
+      ATOL(2) = 1.D-14
+      ATOL(3) = 1.D-6
       INOPT = 0
+      TOUT = 0.4D0
       ITASK = 0
-      IPRE = 1
-      IGS = 0
-C     
-      Y(1) = Y1
-      Y(2) = Y2
-      Y(3) = Y3
-      
-      ATOL(1) = ATOL1
-      ATOL(2) = ATOL2
-      ATOL(3) = ATOL3
-      
-      WRITE(6, 10) NEQ
- 10   FORMAT('BDF/DENSE test problem, size NEQ =',I3)
-
-C     
+C
+      WRITE(6,10)NEQ
+ 10   FORMAT('Dense example problem: Robertson kinetics, NEQ = ',I2//)
+C
       CALL FMENVINITS(NEQ, IER)
-C     
       IF (IER .NE. 0) THEN
-         WRITE(6,20) IER
- 20      FORMAT(///' FMENVINITS returned IER =',I5)
-         STOP
+        WRITE(6,20) IER
+ 20     FORMAT(///' FMENVINITS returned IER =',I5)
+        STOP
       ENDIF
-
-C     
-      CALL FCVMALLOC(NEQ, T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     &     INOPT, IOPT, ROPT, IER)
-C     
+C
+      CALL FCVMALLOC (NEQ, T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
+     1                INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,30) IER
- 30      FORMAT(///' FCVMALLOC returned IER =',I5)
-         STOP
+        WRITE(6,30) IER
+ 30     FORMAT(///' FCVMALLOC returned IER =',I5)
+        STOP
       ENDIF
-
-C     
-      CALL FCVDENSE0(IER)
+C
+      CALL FCVDENSE1(IER)
       IF (IER .NE. 0) THEN
-         WRITE(6,35) IER
- 35      FORMAT(///' FCVDENSE0 returned IER =',I5)
-         STOP
+        WRITE(6,40) IER
+ 40     FORMAT(///' FCVDENSE1 returned IER =',I5)
+        STOP
       ENDIF
-
-C     
-C     Loop through tout values, call solver, print output, test for failure.
-      TOUT = T1
-      DO 70 IOUT = 1, NOUT
-C     
-         CALL FCVODE(TOUT, T, Y, ITASK, IER)
-C     
-         WRITE(6,40) T, Y(1), Y(2), Y(3)
- 40      FORMAT(/' t =', E10.2, 5X, 'Y =', E14.6, E14.6, E14.6)
-C     
-         IF (IER .NE. 0) THEN
-            WRITE(6,60) IER
- 60         FORMAT(///' FCVODE returned IER =',I5)
-            STOP
-         ENDIF
-C     
-         TOUT = TOUT * TMULT
- 70   CONTINUE
-C     
-C     Print final statistics.
-      NST = IOPT(LNST)
-      NFE = IOPT(LNFE)
-      NNI = IOPT(LNNI)
-      NCFN = IOPT(LNCF)
-      NCFL = IOPT(LNCFL)
-      NETF = IOPT(LNETF)
-
-      WRITE (6,90) NST,NFE,NNI,NCFN,NCFL,NETF
-
- 90   FORMAT(//' Final statistics..'/
-     &     ' number of steps        =',I5/
-     &     ' number of f evals.     =',I5/
-     &     ' number of nonl. iters. =',I5/
-     &     ' number of conv. failures..  nonlinear =',I3,
-     &                                   '  linear =',I3/
-     &     ' number of error test failures =',I3)
-C     
-C     Free the memory.
+C
+      DO 70 IOUT = 1,12
+C
+        CALL FCVODE (TOUT, T, Y, ITASK, IER)
+C
+        WRITE(6,50)T,Y(1),Y(2),Y(3)
+ 50     FORMAT('At t =',D12.4,'   y =',3D14.6)
+C
+        IF (IER .NE. 0) THEN
+          WRITE(6,60) IER
+ 60       FORMAT(///' FCVODE returned IER =',I5)
+          STOP
+        ENDIF
+C
+ 70     TOUT = TOUT*10.0D0
+C
+      CALL FCVDKY (T, 1, Y, IER)
+      IF (IER .NE. 0) THEN
+        WRITE(6,80) IER
+ 80     FORMAT(///' FCVDKY returned IER =',I5)
+        STOP
+      ENDIF
+      WRITE(6,85)y(1),y(2),y(3)
+ 85   FORMAT(/'Final value of ydot =',3D11.3)
+C
+      WRITE(6,90) IOPT(LNST), IOPT(LNFE), IOPT(LNJE), IOPT(LNSETUP),
+     1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF)
+ 90   FORMAT(/'No. steps =',I4,'   No. f-s =',I4,
+     1       '   No. J-s =',I4,'   No. LU-s =',I4/
+     2       'No. nonlinear iterations =',I4/
+     3       'No. nonlinear convergence failures =',I4/
+     4       'No. error test failures =',I4/)
+C
       CALL FCVFREE
       CALL FMENVFREES
-C     
+C
       STOP
       END
-      
-C===============================================================================
-C===============================================================================
 
       SUBROUTINE CVFUN (NEQ, T, Y, YDOT)
-C     Routine for right-hand side function f
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-      DIMENSION Y(*), YDOT(*)
-      
-      YDOT(1) = -0.04 * Y(1) + 1.0E4 * Y(2) * Y(3)
-      YDOT(3) = 3.0E7 * Y(2) * Y(2)
-      YDOT(2) = - YDOT(1) - YDOT(3)
+C Fortran routine for right-hand side function.
+      DOUBLE PRECISION T, Y(*), YDOT(*)
+      YDOT(1) = -.04D0*Y(1) + 1.D4*Y(2)*Y(3)
+      YDOT(3) = 3.D7*Y(2)*Y(2)
+      YDOT(2) = -YDOT(1) - YDOT(3)
+      RETURN
+      END
 
+      SUBROUTINE CVDJAC(N, T, Y, FY, EWT, H, UR, JAC, NFE, V1, V2, V3)
+C Fortran routine for dense user-supplied Jacobian.
+      DOUBLE PRECISION T, Y(*), JAC(N,*), Y1, Y2, Y3
+      Y1 = Y(1)
+      Y2 = Y(2)
+      Y3 = Y(3)
+      JAC(1,1) = -0.04D0
+      JAC(1,2) = 1.D4*Y3
+      JAC(1,3) = 1.D4*Y2
+      JAC(2,1) =  0.04D0
+      JAC(2,2) = -1.D4*Y3 - 6.D7*Y2
+      JAC(2,3) = -1.D4*Y2
+      JAC(3,2) = 6.D7*Y2
       RETURN
       END
 
