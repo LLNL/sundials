@@ -1,6 +1,6 @@
 /*******************************************************************
  *                                                                 *
- * File          : iterativ.h                                      *
+ * File          : iterative.h                                     *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
  * Version of    : 26 June 2002                                    *
  *-----------------------------------------------------------------*
@@ -24,8 +24,8 @@
 extern "C" {
 #endif
 
-#ifndef _iterativ_h
-#define _iterativ_h
+#ifndef _iterative_h
+#define _iterative_h
 
 #include "sundialstypes.h"
 #include "nvector.h"
