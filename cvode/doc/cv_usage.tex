@@ -3979,7 +3979,9 @@ There are two optional output functions associated with rootfinding.
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
+{
+  Memory for the vector \id{rootsfound} is allocated and freed by {\cvode}.
+}
 %%
 %%
 \ucfunction{CVodeGetNumGEvals}
