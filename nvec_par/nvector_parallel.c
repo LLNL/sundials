@@ -226,7 +226,7 @@ void N_VFree_Parallel(N_Vector v)
   free(v);
 }
 
-N_Vector N_VMake_Parallel(realtype *v_data, NV_Spec nvspec)
+N_Vector N_VMake_Parallel(void *v_data, NV_Spec nvspec)
 {
   N_Vector v;
   long int N_local, N_global;
@@ -245,7 +245,7 @@ N_Vector N_VMake_Parallel(realtype *v_data, NV_Spec nvspec)
   N_local  = NS_CONTENT_P(nvspec)->local_vec_length;
   N_global = NS_CONTENT_P(nvspec)->global_vec_length;
 
-  NV_CONTENT_P(v)->data = v_data;
+  NV_CONTENT_P(v)->data = (realtype *)v_data;
 
   NV_CONTENT_P(v)->local_length  = N_local;
   NV_CONTENT_P(v)->global_length = N_global;
@@ -261,16 +261,16 @@ void N_VDispose_Parallel(N_Vector v)
   free(v);
 }
 
-realtype *N_VGetData_Parallel(N_Vector v)
+void *N_VGetData_Parallel(N_Vector v)
 {
   realtype *v_data;
   v_data = NV_CONTENT_P(v)->data;
-  return(v_data);
+  return((void *)v_data);
 }
 
-void N_VSetData_Parallel(realtype *v_data, N_Vector v)
+void N_VSetData_Parallel(void *v_data, N_Vector v)
 {
-  NV_CONTENT_P(v)->data = v_data;
+  NV_CONTENT_P(v)->data = (realtype *)v_data;
 }
 
 void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)

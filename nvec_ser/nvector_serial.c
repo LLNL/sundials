@@ -181,7 +181,7 @@ void N_VFree_Serial(N_Vector v)
 }
 
 
-N_Vector N_VMake_Serial(realtype *v_data, NV_Spec nvspec)
+N_Vector N_VMake_Serial(void *v_data, NV_Spec nvspec)
 {
   N_Vector v;
   long int length;
@@ -199,7 +199,7 @@ N_Vector N_VMake_Serial(realtype *v_data, NV_Spec nvspec)
 
   length = NS_CONTENT_S(nvspec)->length;
 
-  NV_CONTENT_S(v)->data = v_data;
+  NV_CONTENT_S(v)->data = (realtype *)v_data;
 
   NV_CONTENT_S(v)->length = length;
 
@@ -214,16 +214,16 @@ void N_VDispose_Serial(N_Vector v)
   free(v);
 }
 
-realtype *N_VGetData_Serial(N_Vector v)
+void *N_VGetData_Serial(N_Vector v)
 {
   realtype *v_data;
   v_data = NV_CONTENT_S(v)->data;
-  return(v_data);
+  return((void *)v_data);
 }
 
-void N_VSetData_Serial(realtype *v_data, N_Vector v)
+void N_VSetData_Serial(void *v_data, N_Vector v)
 {
-  NV_CONTENT_S(v)->data = v_data;
+  NV_CONTENT_S(v)->data = (realtype *)v_data;
 }
 
 void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
