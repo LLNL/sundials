@@ -3,7 +3,7 @@
  * File          : cvsband.h                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban  @ LLNL                            *
- * Version of    : 14 January 2002                                *
+ * Version of    : 20 March 2002                                  *
  *----------------------------------------------------------------*
  * This is the header file for the CVODES band linear solver,     *
  * CVSBAND.                                                       *
@@ -206,18 +206,35 @@ int CVBand(void *cvode_mem, integer mupper, integer mlower,
 
 /******************************************************************
  *                                                                *
- * Function : CVBandDQJac                                         *
+ * Function : CVReInitBand                                        *
  *----------------------------------------------------------------*
- * This routine generates a banded difference quotient            *
- * approximation to the Jacobian of f(t,y).                       *
+ * A call to the CVReInitBand function resets the link between    *
+ * the main CVODE integrator and the CVBAND linear solver.        *
+ * After solving one problem using CVBAND, call CVReInit and then *
+ * CVReInitBand to solve another problem of the same size, if     *
+ * there is a change in the CVBand parameters bjac or jac_data,   *
+ * but no change in mupper or mlower.  If there is a change in    *
+ * mupper or mlower, then CVBand must be called again, and the    *
+ * linear solver memory will be reallocated.                      *
+ * If there is no change in parameters, it is not necessary to    *
+ * call either CVReInitBand or CVBand for the new problem.        *
+ *                                                                *
+ * All arguments to CVReInitBand have the same names and meanings *
+ * as those of CVBand.  The cvode_mem argument must be identical  *
+ * to its value in the previous CVBand call.                      *
+ *                                                                *
+ * The return values of CVReInitBand are:                         *
+ *   SUCCESS   = 0      if successful                             *
+ *   LMEM_FAIL = -1     if the cvode_mem argument is NULL         *
+ *   LIN_ILL_INPUT = -2 if there was illegal input.               *
+ *                                                                *
+ * NOTE: CVReInitBand performs the same compatibility tests as    *
+ *       CVBand.                                                  *
  *                                                                *
  ******************************************************************/
 
-void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
-                 RhsFn f, void *f_data, real t, N_Vector y, N_Vector fy,
-                 N_Vector ewt, real h, real uround, void *jac_data,
-                 long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
-                 N_Vector vtemp3);
+int CVReInitBand (void *cvode_mem, integer mupper, integer mlower,
+                  CVBandJacFn bjac, void *jac_data);
 
 
 #endif

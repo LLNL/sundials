@@ -1,18 +1,19 @@
 /******************************************************************
  *                                                                *
- * File          : cvband.c                                       *
+ * File          : cvsband.c                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 14 January 2002                                *
+ * Version of    : 20 March 2002                                  *
  *----------------------------------------------------------------*
  * This is the implementation file for the CVODES band linear     *
- * solver, CVSBAND.                                                *
+ * solver, CVSBAND.                                               *
  *                                                                *
  ******************************************************************/
 
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cvsband.h"
 #include "cvodes.h"
 #include "band.h"
@@ -23,7 +24,7 @@
 
 /* Error Messages */
 
-#define CVBAND      "CVBand-- "
+#define CVBAND      "CVBand/CVReInitBand-- "
   
 #define MSG_MEM_FAIL     CVBAND "A memory request failed.\n\n"
 
@@ -34,6 +35,7 @@
 
 #define MSG_CVMEM_NULL   CVBAND "CVode Memory is NULL.\n\n"
 
+#define MSG_WRONG_NVEC  CVBAND "Incompatible NVECTOR implementation.\n\n"
 
 /* Other Constants */
 
@@ -93,6 +95,13 @@ static int  CVBandSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
 
 static void CVBandFree(CVodeMem cv_mem);
 
+/* CVBAND DQJac routine */
+
+static void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
+                        RhsFn f, void *f_data, real t, N_Vector y, N_Vector fy,
+                        N_Vector ewt, real h, real uround, void *jac_data,
+                        long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
+                        N_Vector vtemp3);
 
 /*************** CVBandDQJac *****************************************
 
@@ -105,11 +114,11 @@ static void CVBandFree(CVodeMem cv_mem);
 
 **********************************************************************/
 
-void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
-                 RhsFn f, void *f_data, real tn, N_Vector y,
-                 N_Vector fy, N_Vector ewt, real h, real uround,
-                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
-                 N_Vector vtemp2, N_Vector vtemp3)
+static void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
+                        RhsFn f, void *f_data, real tn, N_Vector y,
+                        N_Vector fy, N_Vector ewt, real h, real uround,
+                        void *jac_data, long int *nfePtr, N_Vector vtemp1,
+                        N_Vector vtemp2, N_Vector vtemp3)
 {
   real    fnorm, minInc, inc, inc_inv, srur;
   N_Vector ftemp, ytemp;
@@ -121,11 +130,11 @@ void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
   ytemp = vtemp2;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp */
-  ewt_data   = N_VDATA(ewt);
-  fy_data    = N_VDATA(fy);
-  ftemp_data = N_VDATA(ftemp);
-  y_data     = N_VDATA(y);
-  ytemp_data = N_VDATA(ytemp);
+  ewt_data   = N_VGetData(ewt);
+  fy_data    = N_VGetData(fy);
+  ftemp_data = N_VGetData(ftemp);
+  y_data     = N_VGetData(y);
+  ytemp_data = N_VGetData(ytemp);
 
   /* Load ytemp with y = predicted y vector */
   N_VScale(ONE, y, ytemp);
@@ -194,6 +203,7 @@ void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
 #define setupNonNull  (cv_mem->cv_setupNonNull)
+#define machenv   (cv_mem->cv_machenv)
 
 #define jac       (cvband_mem->b_jac)
 #define M         (cvband_mem->b_M)
@@ -225,6 +235,13 @@ void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
  Finally, it allocates memory for M, savedJ, and pivot.  The CVBand
  return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
 
+ NOTE: The band linear solver assumes a serial implementation
+       of the NVECTOR package. Therefore, CVBand will first 
+       test for compatible a compatible N_Vector internal
+       representation by checking (1) the machine environment
+       ID tag and (2) that the functions N_VMake, N_VDispose,
+       N_VGetData, and N_VSetData are implemented.
+
 **********************************************************************/
                   
 int CVBand(void *cvode_mem, integer mupper, integer mlower, CVBandJacFn bjac,
@@ -237,6 +254,16 @@ int CVBand(void *cvode_mem, integer mupper, integer mlower, CVBandJacFn bjac,
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem == NULL) {               /* CVode reports this error */
     fprintf(errfp, MSG_CVMEM_NULL);
+    return(LMEM_FAIL);
+  }
+
+  /* Test if the NVECTOR package is compatible with the BAND solver */
+  if ((strcmp(machenv->tag,"serial")) || 
+      machenv->ops->nvmake    == NULL || 
+      machenv->ops->nvdispose == NULL ||
+      machenv->ops->nvgetdata == NULL || 
+      machenv->ops->nvsetdata == NULL) {
+    fprintf(errfp, MSG_WRONG_NVEC);
     return(LMEM_FAIL);
   }
 
@@ -297,6 +324,73 @@ int CVBand(void *cvode_mem, integer mupper, integer mlower, CVBandJacFn bjac,
     BandFreeMat(savedJ);
     return(LMEM_FAIL);
   }
+
+  return(SUCCESS);
+}
+
+/*************** CVReInitBand****************************************
+
+ This routine resets the link between the main CVODE module and the
+ band linear solver module CVBand.  No memory freeing or allocation
+ operations are done, as the existing linear solver memory is assumed
+ sufficient.  All other initializations are the same as in CVBand.
+ The return value is SUCCESS=0, LMEM_FAIL=-1, or LIN_ILL_INPUT=-2.
+
+**********************************************************************/
+
+int CVReInitBand(void *cvode_mem, integer mupper, integer mlower,
+                 CVBandJacFn bjac, void *jac_data)
+{
+  CVodeMem cv_mem;
+  CVBandMem cvband_mem;
+  
+  /* Return immediately if cvode_mem is NULL */
+  cv_mem = (CVodeMem) cvode_mem;
+  if (cv_mem == NULL) {               /* CVode reports this error */
+    fprintf(errfp, MSG_CVMEM_NULL);
+    return(LMEM_FAIL);
+  }
+
+  /* Test if the NVECTOR package is compatible with the DENSE solver */
+  if ((strcmp(machenv->tag,"serial")) || 
+      machenv->ops->nvmake    == NULL || 
+      machenv->ops->nvdispose == NULL ||
+      machenv->ops->nvgetdata == NULL || 
+      machenv->ops->nvsetdata == NULL) {
+    fprintf(errfp, MSG_WRONG_NVEC);
+    return(LMEM_FAIL);
+  }
+
+  /* Set four main function fields in cv_mem */  
+  linit  = CVBandInit;
+  lsetup = CVBandSetup;
+  lsolve = CVBandSolve;
+  lsolveS= CVBandSolveS;
+  lfree  = CVBandFree;
+
+  cvband_mem = lmem;   /* Use existing linear solver memory pointer */
+  
+/* Set Jacobian routine field, J_data, and setupNonNull */
+  if (bjac == NULL) {
+    jac = CVBandDQJac;
+  } else {
+    jac = bjac;
+  }
+  J_data = jac_data;
+  setupNonNull = TRUE;
+  
+  /* Load half-bandwiths in cvband_mem */
+  ml = mlower;
+  mu = mupper;
+
+  /* Test ml and mu for legality */
+  if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
+    fprintf(errfp, MSG_BAD_SIZES, ml, mu, N-1);
+    return(LIN_ILL_INPUT);
+  }
+
+  /* Set extended upper half-bandwith for M (required for pivoting) */
+  storage_mu = MIN(N-1, mu + ml);
 
   return(SUCCESS);
 }
@@ -395,10 +489,13 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                        N_Vector fcur)
 {
   CVBandMem cvband_mem;
-  
+  real *bd;
+
   cvband_mem = (CVBandMem) lmem;
 
-  BandBacksolve(M, pivots, b);
+  bd = N_VGetData(b);
+  BandBacksolve(M, pivots, bd);
+  N_VSetData(bd, b);
 
   /* If BDF, scale the correction to account for change in gamma */
   if ((lmm == BDF) && (gamrat != ONE)) {
@@ -423,10 +520,13 @@ static int CVBandSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                         N_Vector fcur, integer is)
 {
   CVBandMem cvband_mem;
+  real *bd;
   
   cvband_mem = (CVBandMem) lmem;
 
-  BandBacksolve(M, pivots, b);
+  bd = N_VGetData(b);
+  BandBacksolve(M, pivots, bd);
+  N_VSetData(bd, b);
 
   /* If BDF, scale the correction to account for change in gamma */
   if ((lmm == BDF) && (gamrat != ONE)) {
