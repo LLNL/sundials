@@ -1,0 +1,9 @@
+Change "machine environment" to "vector specification":
+  M_Env -> NVSpec
+  machEnv -> nvSpec
+  
+  M_EnvInit_Serial -> NVSpecInit_Serial
+  M_EnvFree_Serial -> NVSpecFree_Serial
+
+
+Switch iopt/ropt mechanism to Set/Get mechanism
