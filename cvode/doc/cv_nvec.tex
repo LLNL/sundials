@@ -13,26 +13,26 @@
 \input{nvec_parallel}
 
 %---------------------------------------------------------------------------
-\section{NVECTOR kernels used by CVODE}
+\section{NVECTOR functions used by CVODE}
 
-In Table \ref{t:nvecuse} below, we list the vector kernels in the 
+In Table \ref{t:nvecuse} below, we list the vector functions in the 
 {\nvector} module within the {\cvode} package.
-The table also shows, for each kernel, which of the code modules uses
-the kernel. The {\cvode} column shows kernel usage within the main
-integrator module, while the remaining four columns show kernel usage
+The table also shows, for each function, which of the code modules uses
+the function. The {\cvode} column shows function usage within the main
+integrator module, while the remaining four columns show function usage
 within each of the four {\cvode} linear solvers. 
 
 There is one subtlety in the {\cvspgmr} column hidden by the table. 
-The dot product kernel \id{N\_VDotProd} is called both within the 
+The dot product function \id{N\_VDotProd} is called both within the 
 implementation file \id{cvspgmr.c} for the {\cvspgmr} solver and within 
 the implementation files \id{spgmr.c} and \id{iterative.c} for the generic {\spgmr} 
 solver upon which the {\cvspgmr} solver is implemented. 
 This issue does not arise for the other 
 three {\cvode} linear solvers because the generic {\dense} and {\band} solvers 
 (used in the implementation of {\cvdense} and {\cvband}) do not make calls to 
-any vector kernels and {\cvdiag} is not implemented using a generic diagonal solver. 
+any vector functions and {\cvdiag} is not implemented using a generic diagonal solver. 
 
-The vector kernels \id{N\_VMake}, \id{N\_VDispose}, \id{N\_VGetData}, and
+The vector functions \id{N\_VMake}, \id{N\_VDispose}, \id{N\_VGetData}, and
 \id{N\_VSetData} are only called by the {\cvode} direct linear solvers, 
 {\cvdense} and {\cvband}, and by preconditioner solve routines that use a 
 direct linear solver ({\cvbandpre}  and {\cvbbdpre}). They duplicate 
@@ -41,42 +41,51 @@ but are part of the specifications of the generic {\nvector} module to insure
 that the {\cvode} package is not dependent on any particular {\nvector} implementation.
 
 At this point, we should emphasize that the {\cvode} user does not need to know 
-anything about the usage of vector kernels by the {\cvode} code modules in order 
+anything about the usage of vector functions by the {\cvode} code modules in order 
 to use {\cvode}. The information is presented as an implementation detail for the 
 interested reader.
 
 \begin{table}[htb]
 \centering
-\caption{List of vector kernels usage by {\cvode} code modules}\label{t:nvecuse}
+\caption{List of vector functions usage by {\cvode} code modules}\label{t:nvecuse}
 \medskip
-\begin{tabular}{|l|c|c|c|c|c|} \hline
-{\bf Kernel}       & {\cvode}  & {\cvdense} & {\cvband} & {\cvdiag} & {\cvspgmr} \\ \hline\hline
-\id{N\_VNew}       &   X       &            &           &   X       &   X        \\ \hline
-\id{N\_VFree}      &   X       &            &           &   X       &   X        \\ \hline
-\id{N\_VSpace}     &   X       &            &           &           &   X        \\ \hline
-\id{N\_VMake}      &           &    X       &   X       &           &            \\ \hline
-\id{N\_VDispose}   &           &    X       &   X       &           &            \\ \hline
-\id{N\_VGetData}   &           &    X       &   X       &           &            \\ \hline
-\id{N\_VSetData}   &           &    X       &   X       &           &            \\ \hline
-\id{N\_VLinearSum} &   X       &    X       &           &   X       &   X        \\ \hline
-\id{N\_VConst}     &   X       &            &           &           &   X        \\ \hline
-\id{N\_VProd}      &   X       &            &           &   X       &   X        \\ \hline
-\id{N\_VDiv}       &   X       &            &           &   X       &   X        \\ \hline
-\id{N\_VScale}     &   X       &    X       &   X       &   X       &   X        \\ \hline
-\id{N\_VAbs}       &   X       &            &           &           &            \\ \hline
-\id{N\_VInv}       &   X       &            &           &   X       &            \\ \hline
-\id{N\_VAddConst}  &   X       &            &           &   X       &            \\ \hline
-\id{N\_VDotProd}   &           &            &           &           &   X        \\ \hline
-\id{N\_VMaxNorm}   &   X       &            &           &           &            \\ \hline
-\id{N\_VWrmsNorm}  &   X       &    X       &   X       &           &   X        \\ \hline
-\id{N\_VMin}       &   X       &            &           &           &            \\ \hline
-\id{N\_VCompare}   &           &            &           &   X       &            \\ \hline
-\id{N\_VInvTest}   &           &            &           &   X       &            \\ \hline
+\begin{tabular}{|r|c|c|c|c|c|c|c|c|} \hline
+                                             & 
+\begin{sideways}{\cvode}      \end{sideways} & 
+\begin{sideways}{\cvdense}    \end{sideways} & 
+\begin{sideways}{\cvband}     \end{sideways} & 
+\begin{sideways}{\cvdiag}     \end{sideways} & 
+\begin{sideways}{\cvspgmr}    \end{sideways} &
+\begin{sideways}{\cvbandpre}  \end{sideways} &
+\begin{sideways}{\cvbbdpre}   \end{sideways} &
+\begin{sideways}{\fcvode}     \end{sideways} \\ \hline\hline
+\id{N\_VNew}       & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VFree}      & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VSpace}     & \cm &     &     &     & \cm &     &     &     \\ \hline
+\id{N\_VMake}      &     & \cm & \cm &     &     &     &     & \cm \\ \hline
+\id{N\_VDispose}   &     & \cm & \cm &     &     &     &     &     \\ \hline
+\id{N\_VGetData}   &     & \cm & \cm &     &     & \cm & \cm & \cm \\ \hline
+\id{N\_VSetData}   &     & \cm & \cm &     &     & \cm & \cm & \cm \\ \hline
+\id{N\_VLinearSum} & \cm & \cm &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VConst}     & \cm &     &     &     & \cm &     &     &     \\ \hline
+\id{N\_VProd}      & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VDiv}       & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VScale}     & \cm & \cm & \cm & \cm & \cm & \cm & \cm &     \\ \hline
+\id{N\_VAbs}       & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VInv}       & \cm &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VAddConst}  & \cm &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VDotProd}   &     &     &     &     & \cm &     &     &     \\ \hline
+\id{N\_VMaxNorm}   & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VWrmsNorm}  & \cm & \cm & \cm &     & \cm & \cm & \cm &     \\ \hline
+\id{N\_VMin}       & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VCompare}   &     &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VInvTest}   &     &     &     & \cm &     &     &     &     \\ \hline
 \end{tabular}
 \end{table}
 
-The vector kernels listed in Table \ref{t:nvecops} that are {\em not} used by
+The vector functions listed in Table \ref{t:nvecops} that are {\em not} used by
 {\cvode} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VWrmsNormMask}, 
 \id{N\_VConstrMask}, \id{N\_VMinQuotient}, \id{N\_VNew\_S}, 
 and \id{N\_VFree\_S}. Therefore a user-supplied {\nvector} module for {\cvode} could 
-omit these seven kernels.
+omit these seven functions.
+

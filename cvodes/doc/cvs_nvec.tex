@@ -47,35 +47,44 @@ interested reader.
 
 \begin{table}[htb]
 \centering
-\caption{List of vector kernels usage by {\cvodes} code modules}\label{t:nvecuse}
+\caption{List of vector functions usage by {\cvodes} code modules}\label{t:nvecuse}
 \medskip
-\begin{tabular}{|l|c|c|c|c|c|} \hline
-{\bf Kernel}       & {\cvodes} & {\cvdense} & {\cvband} & {\cvdiag} & {\cvspgmr} \\ \hline\hline
-\id{N\_VNew}       &   X       &            &           &   X       &   X        \\ \hline
-\id{N\_VFree}      &   X       &            &           &   X       &   X        \\ \hline
-\id{N\_VSpace}     &   X       &            &           &           &   X        \\ \hline
-\id{N\_VNew\_S}    &   X       &            &           &           &            \\ \hline
-\id{N\_VFree\_S}   &   X       &            &           &           &            \\ \hline
-\id{N\_VMake}      &           &    X       &   X       &           &            \\ \hline
-\id{N\_VDispose}   &           &    X       &   X       &           &            \\ \hline
-\id{N\_VGetData}   &           &    X       &   X       &           &            \\ \hline
-\id{N\_VSetData}   &           &    X       &   X       &           &            \\ \hline
-\id{N\_VLinearSum} &   X       &    X       &           &   X       &   X        \\ \hline
-\id{N\_VConst}     &   X       &            &           &           &   X        \\ \hline
-\id{N\_VProd}      &   X       &            &           &   X       &   X        \\ \hline
-\id{N\_VDiv}       &   X       &            &           &   X       &   X        \\ \hline
-\id{N\_VScale}     &   X       &    X       &   X       &   X       &   X        \\ \hline
-\id{N\_VAbs}       &   X       &            &           &           &            \\ \hline
-\id{N\_VInv}       &   X       &            &           &   X       &            \\ \hline
-\id{N\_VAddConst}  &   X       &            &           &   X       &            \\ \hline
-\id{N\_VDotProd}   &           &            &           &           &   X        \\ \hline
-\id{N\_VMaxNorm}   &   X       &            &           &           &            \\ \hline
-\id{N\_VWrmsNorm}  &   X       &    X       &   X       &           &   X        \\ \hline
-\id{N\_VMin}       &   X       &            &           &           &            \\ \hline
-\id{N\_VCompare}   &           &            &           &   X       &            \\ \hline
-\id{N\_VInvTest}   &           &            &           &   X       &            \\ \hline
+\begin{tabular}{|r|c|c|c|c|c|c|c|c|} \hline
+                                             & 
+\begin{sideways}{\cvode}      \end{sideways} & 
+\begin{sideways}{\cvdense}    \end{sideways} & 
+\begin{sideways}{\cvband}     \end{sideways} & 
+\begin{sideways}{\cvdiag}     \end{sideways} & 
+\begin{sideways}{\cvspgmr}    \end{sideways} &
+\begin{sideways}{\cvbandpre}  \end{sideways} &
+\begin{sideways}{\cvbbdpre}   \end{sideways} &
+\begin{sideways}{\cvodea}     \end{sideways} \\ \hline\hline
+\id{N\_VNew}       & \cm &     &     & \cm & \cm &     &     & \cm \\ \hline
+\id{N\_VFree}      & \cm &     &     & \cm & \cm &     &     & \cm \\ \hline
+\id{N\_VSpace}     & \cm &     &     &     & \cm &     &     &     \\ \hline
+\id{N\_VNew\_S}    & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VFree\_S}   & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VMake}      &     & \cm & \cm &     &     &     &     &     \\ \hline
+\id{N\_VDispose}   &     & \cm & \cm &     &     &     &     &     \\ \hline
+\id{N\_VGetData}   &     & \cm & \cm &     &     & \cm & \cm &     \\ \hline
+\id{N\_VSetData}   &     & \cm & \cm &     &     & \cm & \cm &     \\ \hline
+\id{N\_VLinearSum} & \cm & \cm &     & \cm & \cm &     &     & \cm \\ \hline
+\id{N\_VConst}     & \cm &     &     &     & \cm &     &     &     \\ \hline
+\id{N\_VProd}      & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VDiv}       & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VScale}     & \cm & \cm & \cm & \cm & \cm & \cm & \cm & \cm \\ \hline
+\id{N\_VAbs}       & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VInv}       & \cm &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VAddConst}  & \cm &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VDotProd}   &     &     &     &     & \cm &     &     &     \\ \hline
+\id{N\_VMaxNorm}   & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VWrmsNorm}  & \cm & \cm & \cm &     & \cm & \cm & \cm &     \\ \hline
+\id{N\_VMin}       & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VCompare}   &     &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VInvTest}   &     &     &     & \cm &     &     &     &     \\ \hline
 \end{tabular}
 \end{table}
+
 
 The vector kernels listed in Table \ref{t:nvecops} that are {\em not} used by
 {\cvodes} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VWrmsNormMask},
