@@ -15,9 +15,7 @@
 AC_INIT(Sundials, 1.1, radu@llnl.gov)
 
 # Say Hi!
-USERNAME=`whoami`
 echo "----------------------------------"
-echo "Hi ${USERNAME}!"
 echo "Running SUNDIALS Configure Script"
 echo "----------------------------------"
 
@@ -103,28 +101,25 @@ fi
 
 AC_ARG_WITH([],[],[])
 
-AC_ARG_WITH(single-prec,[AC_HELP_STRING([--with-single-prec[[[[=ARG]]]]],[use single-precision rather than double-precision floating-point numeric datatype [ARG=no]],[])],
+EXTRA_CPPFLAGS=""
+AC_ARG_WITH(single-prec,
+[AC_HELP_STRING([--with-single-prec],[use single-precision arithmetic @<:@double prec@:>@])],
 [
-  if test "X${withval}" = "Xyes"; then
-    EXTRA_CFLAGS="-DSUNDIALS_FLOAT"
+  if test "X${withval}" != "Xno"; then
+    EXTRA_CPPFLAGS="-DSUNDIALS_SINGLE_PRECISION"
   fi
-],
-[
-  EXTRA_CFLAGS=""
 ])
 
 AC_ARG_WITH([],[ ],[])
 
 AC_ARG_WITH(cppflags,
 [AC_HELP_STRING([--with-cppflags],[add extra preprocessor flags])],
-[EXTRA_CPPFLAGS=${withval}]
+[EXTRA_CPPFLAGS="${EXTRA_CPPFLAGS} ${withval}"]
 )
 
 AC_ARG_WITH(cflags,
 [AC_HELP_STRING([--with-cflags],[add extra C compiler flags])],
-[
-  EXTRA_CFLAGS="${EXTRA_CFLAGS} ${withval}"
-]
+[EXTRA_CFLAGS=${withval}]
 )
 
 AC_ARG_WITH(ldflags,
@@ -147,14 +142,10 @@ AC_ARG_WITH([],[  ],[])
 CXX_ENABLED=no
 test -d ${srcdir}/xs4c && CXX_ENABLED=yes
 AC_ARG_WITH([cxx],
-[AC_HELP_STRING([--with-cxx[[[[=ARG]]]]],
-                [force (ARG=yes) or skip (ARG=no) C++ check [ARG=yes]],
-                [                                ])],
+[AC_HELP_STRING([--without-cxx], [skip C++ support])],
 [
   if test "X${withval}" = "Xno"; then
     CXX_ENABLED=no
-  else
-    CXX_ENABLED=yes
   fi
 ])
 
@@ -172,14 +163,10 @@ if test -d ${srcdir}/cvode || test -d ${srcdir}/kinsol ; then
   F77_ENABLED=yes
 fi
 AC_ARG_WITH([f77],
-[AC_HELP_STRING([--with-f77[[[[=ARG]]]]],
-                [force (ARG=yes) or skip (ARG=no) F77 check [ARG=yes]],
-                [                                ])],
+[AC_HELP_STRING([--without-f77], [skip F77 support])],
 [
   if test "X${withval}" = "Xno"; then
     F77_ENABLED=no
-  else
-    F77_ENABLED=yes
   fi
 ])
 
@@ -188,14 +175,13 @@ AC_ARG_WITH(fflags,
 [EXTRA_FFLAGS=${withval}]
 )
 
-AC_ARG_WITH(f77underscore, [AC_HELP_STRING([--with-f77underscore[[[[=ARG]]]]],[specify number of underscores to append to function names (none/one/two) [ARG=one]],[])],
+AC_ARG_WITH(f77underscore, 
+[AC_HELP_STRING([--with-f77underscore[[[[=ARG]]]]],[specify number of underscores to append to function names (none/one/two) [ARG=one]],[])],
 [
   if test "X${withval}" = "Xnone"; then
     FCFLAGS="-DSUNDIALS_UNDERSCORE_NONE"
   elif test "X${withval}" = "Xtwo"; then
     FCFLAGS="-DSUNDIALS_UNDERSCORE_TWO"
-  else
-    FCFLAGS=""
   fi
 ])
 
@@ -208,14 +194,10 @@ AC_ARG_WITH([],[   ],[])
 MPI_ENABLED=no
 test -d ${srcdir}/nvec_par && MPI_ENABLED=yes
 AC_ARG_WITH([mpi],
-[AC_HELP_STRING([--with-mpi[[[[=ARG]]]]],
-                [force (ARG=yes) or skip (ARG=no) MPI check [ARG=yes]],
-                [                                ])],
+[AC_HELP_STRING([--without-mpi], [skip MPI parallel support])],
 [
   if test "X${withval}" = "Xno"; then
     MPI_ENABLED=no
-  else
-    MPI_ENABLED=yes
   fi
 ])
 

@@ -881,24 +881,22 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
 
-  --with-single-prec[=ARG]
-                          use single-precision rather than double-precision
-                          floating-point numeric datatype [ARG=no]
+  --with-single-prec      use single-precision arithmetic [double prec]
 
   --with-cppflags         add extra preprocessor flags
   --with-cflags           add extra C compiler flags
   --with-ldflags          add extra linker flags
   --with-libs             add extra libraries
 
-  --with-cxx[=ARG]        force (ARG=yes) or skip (ARG=no) C++ check [ARG=yes]
+  --without-cxx           skip C++ support
   --with-cxxflags         add extra C++ compiler flags
-  --with-f77[=ARG]        force (ARG=yes) or skip (ARG=no) F77 check [ARG=yes]
+  --without-f77           skip F77 support
   --with-fflags           add extra Fortran compiler flags
   --with-f77underscore[=ARG]
                           specify number of underscores to append to function
                           names (none/one/two) [ARG=one]
 
-  --with-mpi[=ARG]        force (ARG=yes) or skip (ARG=no) MPI check [ARG=yes]
+  --without-mpi           skip MPI parallel support
   --with-mpicc[=ARG]      specify MPI C compiler to use [mpicc]
   --with-mpicxx[=ARG]     specify MPI C++ compiler to use [mpiCC]
   --with-mpif77[=ARG]     specify MPI Fortran compiler to use [mpif77]
@@ -1340,9 +1338,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 # Say Hi!
-USERNAME=`whoami`
 echo "----------------------------------"
-echo "Hi ${USERNAME}!"
 echo "Running SUNDIALS Configure Script"
 echo "----------------------------------"
 
@@ -1574,18 +1570,15 @@ if test "${with_+set}" = set; then
 
 fi;
 
+EXTRA_CPPFLAGS=""
 
 # Check whether --with-single-prec or --without-single-prec was given.
 if test "${with_single_prec+set}" = set; then
   withval="$with_single_prec"
 
-  if test "X${withval}" = "Xyes"; then
-    EXTRA_CFLAGS="-DSUNDIALS_FLOAT"
+  if test "X${withval}" != "Xno"; then
+    EXTRA_CPPFLAGS="-DSUNDIALS_SINGLE_PRECISION"
   fi
-
-else
-
-  EXTRA_CFLAGS=""
 
 fi;
 
@@ -1600,7 +1593,7 @@ fi;
 # Check whether --with-cppflags or --without-cppflags was given.
 if test "${with_cppflags+set}" = set; then
   withval="$with_cppflags"
-  EXTRA_CPPFLAGS=${withval}
+  EXTRA_CPPFLAGS="${EXTRA_CPPFLAGS} ${withval}"
 
 fi;
 
@@ -1608,9 +1601,7 @@ fi;
 # Check whether --with-cflags or --without-cflags was given.
 if test "${with_cflags+set}" = set; then
   withval="$with_cflags"
-
-  EXTRA_CFLAGS="${EXTRA_CFLAGS} ${withval}"
-
+  EXTRA_CFLAGS=${withval}
 
 fi;
 
@@ -1651,8 +1642,6 @@ if test "${with_cxx+set}" = set; then
 
   if test "X${withval}" = "Xno"; then
     CXX_ENABLED=no
-  else
-    CXX_ENABLED=yes
   fi
 
 fi;
@@ -1680,8 +1669,6 @@ if test "${with_f77+set}" = set; then
 
   if test "X${withval}" = "Xno"; then
     F77_ENABLED=no
-  else
-    F77_ENABLED=yes
   fi
 
 fi;
@@ -1703,8 +1690,6 @@ if test "${with_f77underscore+set}" = set; then
     FCFLAGS="-DSUNDIALS_UNDERSCORE_NONE"
   elif test "X${withval}" = "Xtwo"; then
     FCFLAGS="-DSUNDIALS_UNDERSCORE_TWO"
-  else
-    FCFLAGS=""
   fi
 
 fi;
@@ -1729,8 +1714,6 @@ if test "${with_mpi+set}" = set; then
 
   if test "X${withval}" = "Xno"; then
     MPI_ENABLED=no
-  else
-    MPI_ENABLED=yes
   fi
 
 fi;
@@ -4301,7 +4284,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:4304:" \
+echo "$as_me:4287:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -4508,7 +4491,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:4511: \"$ac_link\") >&5
+(eval echo $as_me:4494: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4588,7 +4571,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:4591: \"$ac_link\") >&5
+(eval echo $as_me:4574: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
