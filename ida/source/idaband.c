@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-10-08 15:26:54 $
+ * $Revision: 1.19 $
+ * $Date: 2004-10-22 19:14:39 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -468,7 +468,6 @@ static int IDABandFree(IDAMem IDA_mem)
   BandFreePiv(pivots);
   free(lmem);
 
-  last_flag = 0;
   return(0);
 
 }
