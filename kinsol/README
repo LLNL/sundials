@@ -56,10 +56,10 @@ C. References
 
 [1] A. M. Collier, A. C. Hindmarsh, R. Serban, and C. S. Woodward,
     "User Documentation for KINSOL v2.2.0," LLNL technical report
-    UCRL-MA-xxxxxx, November 2004. 
+    UCRL-SM-208116, November 2004. 
 
 [2] A. M. Collier and R. Serban, "Example Programs for KINSOL v2.2.0,"
-    LLNL technical report UCRL-MA-xxxxxx, November 2004.
+    LLNL technical report UCRL-SM-208114, November 2004.
 
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
