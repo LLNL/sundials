@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-07-22 21:19:23 $
+ * $Revision: 1.9 $
+ * $Date: 2004-08-25 16:20:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -38,7 +38,7 @@
  *   void *cvode_mem;                                              
  *   void *bbd_data;                                                 
  *   ...                                                           
- *   y0 = N_VNew_Parallel(...);                           
+ *   Set y0
  *   ...                                                           
  *   cvode_mem = CVodeCreate(...);                                 
  *   ier = CVodeMalloc(...);                                       
@@ -53,7 +53,7 @@
  *   ...                                                           
  *   CVodeFree(...);                                               
  *                                                                 
- *   N_VDestroy_Parallel(y0);                                 
+ *   Free y0
  *                                                                 
  *                                                                 
  * The user-supplied routines required are:                        
@@ -136,9 +136,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef void (*CVLocalFn)(long int Nlocal, realtype t, 
-                          N_Vector y, N_Vector g, 
-                          void *f_data);
+typedef void (*CVLocalFn)(long int Nlocal, realtype t, N_Vector y,
+                          N_Vector g, void *f_data);
 
 /*
  * -----------------------------------------------------------------
@@ -228,16 +227,15 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
  * Its first 3 arguments are the same as for CVSpgmr (see         
  * cvspgmr.h). The last argument is the pointer to the CVBBDPRE   
  * memory block returned by CVBBDPrecAlloc.  
- * Note that the user need not call CVSpgmr anymore.              
+ * Note that the user need not call CVSpgmr.
  *                                                                
  * Possible return values are:                                    
- *   (from cvode.h)  SUCCESS                                      
- *                   LIN_NO_MEM                                   
- *                   LMEM_FAIL                                    
- *                   LIN_NO_LMEM                                  
- *                   LIN_ILL_INPUT                                
- *   Additionaly, if CVBBDPrecAlloc was not previously called,    
- *   CVBBDSpgmr returns BBDP_NO_PDATA (defined below).            
+ *    CVSPGMR_SUCCESS     if successful                                
+ *    CVSPGMR_MEM_NULL    if the cvode memory was NULL
+ *    CVSPGMR_LMEM_NULL   if the cvspgmr memory was NULL
+ *    CVSPGMR_MEM_FAIL    if there was a memory allocation failure     
+ *    CVSPGMR_ILL_INPUT   if a required vector operation is missing
+ *    CVBBD_DATA_NULL     if the bbd_data was NULL
  * -----------------------------------------------------------------
  */                                                                
 
@@ -252,15 +250,16 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * provided there is no change in Nlocal, mukeep, or mlkeep.      
  * After solving one problem, and after calling CVodeReInit to    
  * re-initialize the integrator for a subsequent problem, call    
- * CVBBDPrecReInit.                                               
- * Then call CVReInitSpgmr or CVSpgmr if necessary, depending on  
- * changes made in the CVSpgmr parameters, before calling CVode.  
+ * CVBBDPrecReInit.  Then call CVSpgmrSet* or CVSpgmrReset*
+ * functions if necessary for any changes to CVSpgmr parameters,
+ * before calling CVode.
  *                                                                
  * The first argument to CVBBDPrecReInit must be the pointer pdata
  * that was returned by CVBBDPrecAlloc.  All other arguments have 
  * the same names and meanings as those of CVBBDPrecAlloc.        
  *                                                                
- * The return value of CVBBDPrecReInit is 0, indicating success.  
+ * The return value of CVBBDPrecReInit is CVBBD_SUCCESS, indicating 
+ * success, or CVBBD_DATA_NULL id bbd_data was NULL.  
  * -----------------------------------------------------------------
  */
 
@@ -282,21 +281,23 @@ void CVBBDPrecFree(void *bbd_data);
  * -----------------------------------------------------------------
  * BBDPRE optional output extraction routines                     
  * -----------------------------------------------------------------
- * CVBBDPrecGetIntWorkSpace returns the BBDPRE integer workspace  
- *     size.                                                      
- * CVBBDPrecGetRealWorkSpace returns the BBDPRE real workspace    
- *     size.                                                      
+ * CVBBDPrecGetWorkSpace returns the BBDPRE real and integer workspace  
+ *     sizes.                                                      
  * CVBBDPrecGetNumGfnEvals returns the number of calls to gfn.    
+ *
+ * The return value of CVBBDPrecGet* is one of:
+ *    CVBBD_SUCCESS   if successful
+ *    CVBBD_DATA_NULL if the bbd_data memory was NULL
  * -----------------------------------------------------------------
  */
 
-int CVBBDPrecGetIntWorkSpace(void *bbd_data, long int *leniwBBDP);
-int CVBBDPrecGetRealWorkSpace(void *bbd_data, long int *lenrwBBDP);
+int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP);
 int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 
-/* Return values for CVBBDPrecGet* functions */
-/* OKAY = 0 */
-enum { BBDP_NO_PDATA = -11 };
+/* CVBBDPRE return values */
+
+#define CVBBD_SUCCESS    0
+#define CVBBD_DATA_NULL -11
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-07-22 21:19:23 $
+ * $Revision: 1.8 $
+ * $Date: 2004-08-25 16:20:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -42,12 +42,12 @@
  *   ...                                                           
  *   void *bp_data;                                                
  *   ...                                                           
- *   y0 = N_VNew_Serial(...);                             
+ *   Set y0                             
  *   ...                                                           
  *   cvode_mem = CVodeCreate(...);                                 
  *   ier = CVodeMalloc(...);                                       
  *   ...                                                           
- *   bp_data = CVBandPrecAlloc(N, f, f_data, mu, ml, cvode_mem);   
+ *   bp_data = CVBandPrecAlloc(cvode_mem, N, mu, ml);   
  *   ...                                                           
  *   flag = CVBPSpgmr(cvode_mem, pretype, maxl, bp_data);          
  *   ...                                                           
@@ -55,18 +55,17 @@
  *   ...                                                           
  *   CVBandPrecFree(bp_data);                                      
  *   ...                                                           
- *   N_VDestroy_Serial(y0);                                   
+ *   Free y0
  *   ...                                                           
  *   CVodeFree(cvode_mem);                                         
  *                                                                 
  * Notes:                                                          
  * (1) Include this file for the CVBandPrecData type definition.   
- * (2) In the CVBandPrecAlloc call, the arguments N, f, and f_data 
- *     are the same as in the call to CVodeMalloc.                 
- * (3) In the CVSpgmr call, the user is free to specify the inputs 
- *     pretype and gstype, and the optional inputs maxl and delt.  
- *     But the last three arguments must be as shown, with the     
- *     last argument being the pointer returned by CVBandPreAlloc. 
+ * (2) In the CVBandPrecAlloc call, the arguments N is the same
+ *     as in the call to CVodeMalloc.                 
+ * (3) In the CVBPSpgmr call, the user is free to specify the input
+ *     pretype and the optional input maxl.  The last argument
+ *     must be the pointer returned by CVBandPrecAlloc. 
  * -----------------------------------------------------------------
  */
 
@@ -91,22 +90,22 @@ extern "C" {
  *                                                                
  * The parameters of CVBandPrecAlloc are as follows:              
  *                                                                
- * N       is the length of all vector arguments.                 
+ * cvode_mem is the pointer to CVODE memory returned by CVodeCreate.
+ *                                                                
+ * N       is the problem size.
  *                                                                
  * mu      is the upper half bandwidth.                           
  *                                                                
  * ml      is the lower half bandwidth.                           
  *                                                                
  * CVBandPrecAlloc returns the storage pointer of type            
- * CVBandPrecData or NULL if the request for storage cannot be    
+ * CVBandPrecData, or NULL if the request for storage cannot be    
  * satisfied.                                                     
  *                                                                
  * NOTE: The band preconditioner assumes a serial implementation  
  *       of the NVECTOR package. Therefore, CVBandPrecAlloc will  
  *       first test for a compatible N_Vector internal            
- *       representation by checking (1) the vector specification  
- *       ID tag and (2) that the functions N_VGetData, and        
- *       N_VSetData are implemented.                              
+ *       representation by checking for required functions.
  * -----------------------------------------------------------------
  */
 
@@ -128,16 +127,15 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
  * Its first 3 arguments are the same as for CVSpgmr (see         
  * cvspgmr.h). The last argument is the pointer to the CVBANDPPRE 
  * memory block returned by CVBandPrecAlloc.                      
- * Note that the user need not call CVSpgmr anymore.              
+ * Note that the user need not call CVSpgmr.
  *                                                                
  * Possible return values are:                                    
- *                   SUCCESS                                      
- *                   LIN_NO_MEM                                   
- *                   LMEM_FAIL                                    
- *                   LIN_NO_LMEM                                  
- *                   LIN_ILL_INPUT                                
- *   Additionaly, if CVBandPrecAlloc was not previously called,   
- *   CVBPSpgmr returns BP_NO_PDATA (defined below).               
+ *    CVSPGMR_SUCCESS     if successful                                
+ *    CVSPGMR_MEM_NULL    if the cvode memory was NULL
+ *    CVSPGMR_LMEM_NULL   if the cvspgmr memory was NULL
+ *    CVSPGMR_MEM_FAIL    if there was a memory allocation failure     
+ *    CVSPGMR_ILL_INPUT   if a required vector operation is missing
+ *    CVBP_DATA_NULL      if the bp_data was NULL
  * -----------------------------------------------------------------
  */
 
@@ -156,24 +154,26 @@ void CVBandPrecFree(void *bp_data);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVBandPrecGet*                                      
+ * Optional output functions : CVBandPrecGet*                                      
  * -----------------------------------------------------------------
- * CVBandPrecGetIntWorkSpace returns the integer workspace used   
- *    by CVBANDPRE.                                               
- * CVBandPrecGetRealWorkSpace returns the real workspace used     
+ * CVBandPrecGetWorkSpace returns the real and integer workspace used     
  *    by CVBANDPRE.                                               
  * CVBandPrecGetNumRhsEvals returns the number of calls made from 
- *    CVBANDPRE to the user's right hand side routine f.          
+ *    CVBANDPRE to the user's right hand side routine f. 
+ *
+ * The return value of CVBandPrecGet* is one of:
+ *    CVBP_SUCCESS   if successful
+ *    CVBP_DATA_NULL if the bp_data memory was NULL
  * -----------------------------------------------------------------
  */
 
-int CVBandPrecGetIntWorkSpace(void *bp_data, long int *leniwBP);
-int CVBandPrecGetRealWorkSpace(void *bp_data, long int *lenrwBP);
+int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP);
 int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 
-/* Return values for CVBandPrecGet* functions */
-/* OKAY = 0 */
-enum { BP_NO_PDATA = -11 };
+/* CVBANDPRE return values */
+
+#define CVBP_SUCCESS    0
+#define CVBP_DATA_NULL -11
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-08-10 22:55:50 $
+ * $Revision: 1.20 $
+ * $Date: 2004-08-25 16:20:32 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -230,13 +230,12 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
  * Note that the user need not call CVSpgmr.
  *                                                                
  * Possible return values are:                                    
- *   (from cvode.h)  SUCCESS                                      
- *                   LIN_NO_MEM                                   
- *                   LMEM_FAIL                                    
- *                   LIN_NO_LMEM                                  
- *                   LIN_ILL_INPUT                                
- *   Additionally, if CVBBDPrecAlloc was not previously called,    
- *   CVBBDSpgmr returns BBDP_NO_PDATA (defined below).            
+ *    CVSPGMR_SUCCESS     if successful                                
+ *    CVSPGMR_MEM_NULL    if the cvode memory was NULL
+ *    CVSPGMR_LMEM_NULL   if the cvspgmr memory was NULL
+ *    CVSPGMR_MEM_FAIL    if there was a memory allocation failure     
+ *    CVSPGMR_ILL_INPUT   if a required vector operation is missing
+ *    CVBBD_DATA_NULL     if the bbd_data was NULL
  * -----------------------------------------------------------------
  */                                                                
 
@@ -259,7 +258,8 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * that was returned by CVBBDPrecAlloc.  All other arguments have 
  * the same names and meanings as those of CVBBDPrecAlloc.        
  *                                                                
- * The return value of CVBBDPrecReInit is 0, indicating success.  
+ * The return value of CVBBDPrecReInit is CVBBD_SUCCESS, indicating 
+ * success, or CVBBD_DATA_NULL id bbd_data was NULL.  
  * -----------------------------------------------------------------
  */
 
@@ -281,21 +281,23 @@ void CVBBDPrecFree(void *bbd_data);
  * -----------------------------------------------------------------
  * BBDPRE optional output extraction routines                     
  * -----------------------------------------------------------------
- * CVBBDPrecGetIntWorkSpace returns the BBDPRE integer workspace  
- *     size.                                                      
- * CVBBDPrecGetRealWorkSpace returns the BBDPRE real workspace    
- *     size.                                                      
+ * CVBBDPrecGetWorkSpace returns the BBDPRE real and integer workspace  
+ *     sizes.                                                      
  * CVBBDPrecGetNumGfnEvals returns the number of calls to gfn.    
+ *
+ * The return value of CVBBDPrecGet* is one of:
+ *    CVBBD_SUCCESS   if successful
+ *    CVBBD_DATA_NULL if the bbd_data memory was NULL
  * -----------------------------------------------------------------
  */
 
-int CVBBDPrecGetIntWorkSpace(void *bbd_data, long int *leniwBBDP);
-int CVBBDPrecGetRealWorkSpace(void *bbd_data, long int *lenrwBBDP);
+int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP);
 int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 
-/* Return values for CVBBDPrecGet* functions */
-/* OKAY = 0 */
-enum { BBDP_NO_PDATA = -11 };
+/* CVBBDPRE return values */
+
+#define CVBBD_SUCCESS    0
+#define CVBBD_DATA_NULL -11
 
 #endif
 

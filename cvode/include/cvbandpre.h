@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-08-10 22:55:32 $
+ * $Revision: 1.20 $
+ * $Date: 2004-08-25 16:20:32 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -130,13 +130,12 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
  * Note that the user need not call CVSpgmr.
  *                                                                
  * Possible return values are:                                    
- *                   SUCCESS                                      
- *                   LIN_NO_MEM                                   
- *                   LMEM_FAIL                                    
- *                   LIN_NO_LMEM                                  
- *                   LIN_ILL_INPUT                                
- *   Additionaly, if CVBandPrecAlloc was not previously called,   
- *   CVBPSpgmr returns BP_NO_PDATA (defined below).               
+ *    CVSPGMR_SUCCESS     if successful                                
+ *    CVSPGMR_MEM_NULL    if the cvode memory was NULL
+ *    CVSPGMR_LMEM_NULL   if the cvspgmr memory was NULL
+ *    CVSPGMR_MEM_FAIL    if there was a memory allocation failure     
+ *    CVSPGMR_ILL_INPUT   if a required vector operation is missing
+ *    CVBP_DATA_NULL      if the bp_data was NULL
  * -----------------------------------------------------------------
  */
 
@@ -157,22 +156,24 @@ void CVBandPrecFree(void *bp_data);
  * -----------------------------------------------------------------
  * Optional output functions : CVBandPrecGet*                                      
  * -----------------------------------------------------------------
- * CVBandPrecGetIntWorkSpace returns the integer workspace used   
- *    by CVBANDPRE.                                               
- * CVBandPrecGetRealWorkSpace returns the real workspace used     
+ * CVBandPrecGetWorkSpace returns the real and integer workspace used     
  *    by CVBANDPRE.                                               
  * CVBandPrecGetNumRhsEvals returns the number of calls made from 
- *    CVBANDPRE to the user's right hand side routine f.          
+ *    CVBANDPRE to the user's right hand side routine f. 
+ *
+ * The return value of CVBandprecGet* is one of:
+ *    CVBP_SUCCESS   if successful
+ *    CVBP_DATA_NULL if the bp_data memory was NULL
  * -----------------------------------------------------------------
  */
 
-int CVBandPrecGetIntWorkSpace(void *bp_data, long int *leniwBP);
-int CVBandPrecGetRealWorkSpace(void *bp_data, long int *lenrwBP);
+int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP);
 int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 
-/* Return values for CVBandPrecGet* functions */
-/* OKAY = 0 */
-enum { BP_NO_PDATA = -11 };
+/* CVBANDPRE return values */
+
+#define CVBP_SUCCESS    0
+#define CVBP_DATA_NULL -11
 
 #endif
 
