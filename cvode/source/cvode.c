@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-05-04 16:41:35 $
+ * $Revision: 1.25 $
+ * $Date: 2004-05-12 17:21:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -267,6 +267,8 @@
 #define MSG_CVRT_NO_MEM      CVRT "cvode_mem = NULL illegal.\n\n"
 
 #define MSG_CVRT_MEM_FAIL    CVRT "A memory request failed.\n\n"
+
+#define MSG_CVRT_FUNC_NULL   CVRT "g = NULL illegal.\n\n"
 
 /* CVode error messages */
 
@@ -1111,6 +1113,14 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nscon   = 0;
   cv_mem->cv_nge     = 0;
 
+  /* Initialize root finding variables */
+  cv_mem->cv_glo    = NULL;
+  cv_mem->cv_ghi    = NULL;
+  cv_mem->cv_groot  = NULL;
+  cv_mem->cv_iroots = NULL;
+  cv_mem->cv_gfun   = NULL;
+  cv_mem->cv_nrtfn  = 0;
+
   /* Initialize Stablilty Limit Detection data */
   /* NOTE: We do this even if stab lim det was not
      turned on yet. This way, the user can turn it
@@ -1276,33 +1286,82 @@ int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn)
   CVodeMem cv_mem;
   int nrt;
 
-  /* Check cvode_mem */
-  if (cvode_mem==NULL) {
+  /* Check cvode_mem pointer */
+  if (cvode_mem == NULL) {
     fprintf(stderr, MSG_CVRT_NO_MEM);
     return(CVRT_NO_MEM);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   nrt = (nrtfn < 0) ? 0 : nrtfn;
+
+  /* If rerunning CVodeRootInit() with a different number of root
+     functions (changing number of gfun components), then free
+     currently held memory resources */
+  if ((nrt != cv_mem->cv_nrtfn) && (cv_mem->cv_nrtfn > 0)) {
+    free(glo);
+    free(ghi);
+    free(groot);
+    free(iroots);
+
+    /* Linux version of free() routine doesn't set pointer to NULL */
+    glo = ghi = groot = NULL;
+    iroots = NULL;
+  }
+
+  /* If CVodeRootInit() was called with nrtfn == 0, then set cv_nrtfn to
+     zero and cv_gfun to NULL before returning */
+  if (nrt == 0) {
+    cv_mem->cv_nrtfn = nrt;
+    gfun = NULL;
+    return(SUCCESS);
+  }
+
+  /* If rerunning CVodeRootInit() with the same number of root functions
+     (not changing number of gfun components), then check if the root
+     function argument has changed */
+  /* If g != NULL then return as currently reserved memory resources
+     will suffice */
+  if (nrt == cv_mem->cv_nrtfn) {
+    if (g != gfun) {
+      if (g == NULL) {
+	free(glo);
+	free(ghi);
+	free(groot);
+	free(iroots);
+	fprintf(errfp, MSG_CVRT_FUNC_NULL);
+	return(CVRT_FUNC_NULL);
+      }
+      else {
+	gfun = g;
+	return(SUCCESS);
+      }
+    }
+    else return(SUCCESS);
+  }
+
+  /* Set variable values in CVode memory block */
   cv_mem->cv_nrtfn = nrt;
+  if (g == NULL) {
+    fprintf(errfp, MSG_CVRT_FUNC_NULL);
+    return(CVRT_FUNC_NULL);
+  }
+  else gfun = g;
 
-  if (nrt == 0) return(SUCCESS);
-
-  gfun = g;
-
+  /* Allocate necessary memory and return */
   glo = (realtype *) malloc(nrt*sizeof(realtype));
   if (glo == NULL) {
     fprintf(stderr, MSG_CVRT_MEM_FAIL);
     return(CVRT_MEM_FAIL);
   }
-    
+
   ghi = (realtype *) malloc(nrt*sizeof(realtype));
   if (ghi == NULL) {
     free(glo);
     fprintf(stderr, MSG_CVRT_MEM_FAIL);
     return(CVRT_MEM_FAIL);
   }
-    
+
   groot = (realtype *) malloc(nrt*sizeof(realtype));
   if (groot == NULL) {
     free(glo); free(ghi);
