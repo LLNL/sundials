@@ -113,7 +113,7 @@ usually drop the subscript WRMS on norms in what follows.
 
 % Newton iteration
 %-----------------
-In the cases of a direct linear solver (dense or banded), the nonlinear 
+In the case of a direct linear solver (dense or banded), the nonlinear 
 iteration (\ref{e:DAE_Newtoncorr}) is a Modified Newton iteration, in
 that the Jacobian $J$ is fixed (and usually out of date), with
 a coefficient $\bar\alpha$ in place of $\alpha$ in $J$. When using
@@ -177,7 +177,8 @@ The safety factor $0.05$ can be changed by the user.
 
 % Jacobian DQ approximations
 %---------------------------
-In the direct cases, the Jacobian $J$ defined in (\ref{e:DAE_Jacobian}) 
+In the direct linear solver 
+cases, the Jacobian $J$ defined in (\ref{e:DAE_Jacobian}) 
 can be either supplied by the user or have IDA compute one internally 
 by difference quotients. In the latter case, we use the approximation
 \begin{gather*}
