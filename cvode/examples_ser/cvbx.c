@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-15 18:56:35 $
+ * $Revision: 1.17 $
+ * $Date: 2004-11-22 23:20:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -334,10 +334,9 @@ static void SetIC(N_Vector u, UserData data)
 
 static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
 {
-  printf("\n2-D Advection-Diffusion Equation -- CVODE (serial version)\n\n");
+  printf("\n2-D Advection-Diffusion Equation\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
-  printf("Total system size = %d\n\n", NEQ);
-  printf("Linear solver is CVBAND\n");
+  printf("Total system size = %d\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n", reltol, abstol);
   printf("At t = %Lg      max.norm(u) =%14.6Le \n", T0, umax);
