@@ -32,14 +32,6 @@ three {\cvode} linear solvers because the generic {\dense} and {\band} solvers
 (used in the implementation of {\cvdense} and {\cvband}) do not make calls to 
 any vector functions and {\cvdiag} is not implemented using a generic diagonal solver. 
 
-The vector functions \id{N\_VMake}, \id{N\_VDispose}, \id{N\_VGetData}, and
-\id{N\_VSetData} are only called by the {\cvode} direct linear solvers, 
-{\cvdense} and {\cvband}, and by preconditioner solve routines that use a 
-direct linear solver ({\cvbandpre}  and {\cvbbdpre}). They duplicate 
-functionality provided by macros in particular implementations of {\nvector},
-but are part of the specifications of the generic {\nvector} module to insure 
-that the {\cvode} package is not dependent on any particular {\nvector} implementation.
-
 At this point, we should emphasize that the {\cvode} user does not need to know 
 anything about the usage of vector functions by the {\cvode} code modules in order 
 to use {\cvode}. The information is presented as an implementation detail for the 
@@ -59,33 +51,33 @@ interested reader.
 \begin{sideways}{\cvbandpre}  \end{sideways} &
 \begin{sideways}{\cvbbdpre}   \end{sideways} &
 \begin{sideways}{\fcvode}     \end{sideways} \\ \hline\hline
-\id{N\_VNew}       & \cm &     &     & \cm & \cm &     &     &     \\ \hline
-\id{N\_VFree}      & \cm &     &     & \cm & \cm &     &     &     \\ \hline
-\id{N\_VSpace}     & \cm &     &     &     & \cm &     &     &     \\ \hline
-\id{N\_VMake}      &     & \cm & \cm &     &     &     &     & \cm \\ \hline
-\id{N\_VDispose}   &     & \cm & \cm &     &     &     &     &     \\ \hline
-\id{N\_VGetData}   &     & \cm & \cm &     &     & \cm & \cm & \cm \\ \hline
-\id{N\_VSetData}   &     & \cm & \cm &     &     & \cm & \cm & \cm \\ \hline
-\id{N\_VLinearSum} & \cm & \cm &     & \cm & \cm &     &     &     \\ \hline
-\id{N\_VConst}     & \cm &     &     &     & \cm &     &     &     \\ \hline
-\id{N\_VProd}      & \cm &     &     & \cm & \cm &     &     &     \\ \hline
-\id{N\_VDiv}       & \cm &     &     & \cm & \cm &     &     &     \\ \hline
-\id{N\_VScale}     & \cm & \cm & \cm & \cm & \cm & \cm & \cm &     \\ \hline
-\id{N\_VAbs}       & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VInv}       & \cm &     &     & \cm &     &     &     &     \\ \hline
-\id{N\_VAddConst}  & \cm &     &     & \cm &     &     &     &     \\ \hline
-\id{N\_VDotProd}   &     &     &     &     & \cm &     &     &     \\ \hline
-\id{N\_VMaxNorm}   & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VWrmsNorm}  & \cm & \cm & \cm &     & \cm & \cm & \cm &     \\ \hline
-\id{N\_VMin}       & \cm &     &     &     &     &     &     &     \\ \hline
-\id{N\_VCompare}   &     &     &     & \cm &     &     &     &     \\ \hline
-\id{N\_VInvTest}   &     &     &     & \cm &     &     &     &     \\ \hline
+%                         CVODE DENSE BAND  DIAG  SPGMR BPRE  BBD   FCVODE
+\id{N\_VClone}           & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VCloneEmpty}      &     &     &     &     &     &     &     & \cm \\ \hline
+\id{N\_VDestroy}         & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VDestroyEmpty}    &     &     &     &     &     &     &     & \cm \\ \hline
+\id{N\_VSpace}           & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VGetArrayPointer} &     & \cm & \cm &     &     & \cm & \cm & \cm \\ \hline
+\id{N\_VSetArrayPointer} &     & \cm &     &     &     &     &     & \cm \\ \hline
+\id{N\_VLinearSum}       & \cm & \cm &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VConst}           & \cm &     &     &     & \cm &     &     &     \\ \hline
+\id{N\_VProd}            & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VDiv}             & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VScale}           & \cm & \cm & \cm & \cm & \cm & \cm & \cm &     \\ \hline
+\id{N\_VAbs}             & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VInv}             & \cm &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VAddConst}        & \cm &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VDotProd}         &     &     &     &     & \cm &     &     &     \\ \hline
+\id{N\_VMaxNorm}         & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VWrmsNorm}        & \cm & \cm & \cm &     & \cm & \cm & \cm &     \\ \hline
+\id{N\_VMin}             & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VCompare}         &     &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VInvTest}         &     &     &     & \cm &     &     &     &     \\ \hline
 \end{tabular}
 \end{table}
 
 The vector functions listed in Table \ref{t:nvecops} that are {\em not} used by
 {\cvode} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VWrmsNormMask}, 
-\id{N\_VConstrMask}, \id{N\_VMinQuotient}, \id{N\_VNew\_S}, 
-and \id{N\_VFree\_S}. Therefore a user-supplied {\nvector} module for {\cvode} could 
-omit these seven functions.
+\id{N\_VConstrMask}, and \id{N\_VMinQuotient}.
+Therefore a user-supplied {\nvector} module for {\cvode} could omit these five functions.
 
