@@ -81,7 +81,7 @@ The counters are: \id{nst} (number of steps), \id{nfe} (number of
 nonlinear convergence failures).  This routine is suitable for general use
 with {\cvode} applications to nonstiff problems.
 
-The \id{f} function is an implementation of Eq.(\ref{pvnxode}), but preceded
+The \id{f} function is an implementation of Eq. (\ref{pvnxode}), but preceded
 by communication operations appropriate for the parallel setting.
 It copies the local vector \id{u} into a larger array \id{z}, shifted by 1
 to allow for the storage of immediate neighbor components.  The first and last
