@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-10-08 15:25:32 $
+ * $Revision: 1.20 $
+ * $Date: 2004-10-08 19:20:26 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,7 +43,7 @@
  *   ...                                                           
  *   p_data = IDABBDPrecAlloc(ida_mem, Nlocal, mudq, mldq,         
  *                      mukeep, mlkeep, dq_rel_yy, glocal, gcomm); 
- *   flag = IDABBDSpgmr(cvode_mem, maxl, p_data);                  
+ *   flag = IDABBDSpgmr(ida_mem, maxl, p_data);                  
  *   ...                                                           
  *   ier = IDASolve(...);                                          
  *   ...                                                           
@@ -234,14 +234,11 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
  * Note that the user need not call IDASpgmr anymore.             
  *                                                                
  * Possible return values are:                                    
- *   (from ida.h)    SUCCESS                                      
- *                   LIN_NO_MEM                                   
- *                   LMEM_FAIL                                    
- *                   LIN_NO_LMEM                                  
- *                   LIN_ILL_INPUT                                
- *   Additionaly, if IDABBDPrecAlloc was not previously called,   
- *   IDABBDSpgmr returns BBDP_NO_PDATA (defined below).           
- *                                                                
+ *    IDASPGMR_SUCCESS    if successful                            
+ *    IDASPGMR_MEM_NULL   if the ida memory was NULL
+ *    IDASPGMR_MEM_FAIL   if there was a memory allocation failure 
+ *    IDASPGMR_ILL_INPUT  if there was illegal input.      
+ *    IDASPGMR_DATA_NULL  if p_data was NULL.
  * -----------------------------------------------------------------
  */
 
@@ -302,10 +299,6 @@ void IDABBDPrecFree(void *p_data);
 int IDABBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP);
 int IDABBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 
-/* Return values for IDABBDPrecGet* functions */
-/* OKAY = 0 */
-enum { BBDP_NO_PDATA = -11 };
-
 /* Prototypes of IDABBDPrecSetup and IDABBDPrecSolve */
 
 int IDABBDPrecSetup(realtype tt, 
@@ -318,11 +311,6 @@ int IDABBDPrecSolve(realtype tt,
 		    N_Vector rvec, N_Vector zvec,
 		    realtype cj, realtype delta,
 		    void *p_data, N_Vector tempv);
-
-/* IDABBDPRE return values */
-
-#define IDABBD_SUCCESS    0
-#define IDABBD_DATA_NULL -11
 
 #endif
 

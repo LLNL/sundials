@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-10-08 15:25:32 $
+ * $Revision: 1.15 $
+ * $Date: 2004-10-08 19:20:26 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -221,9 +221,10 @@ typedef int (*IDASpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  *           MIN(Neq, 5).  Otherwise pass a positive integer.     
  *                                                                
  * The return values of IDASpgmr are:                             
- *    SUCCESS       = 0  if successful                            
- *    LMEM_FAIL     = -1 if there was a memory allocation failure 
- *    LIN_ILL_INPUT = -2 if there was illegal input.              
+ *    IDASPGMR_SUCCESS    if successful                            
+ *    IDASPGMR_MEM_NULL   if the ida memory was NULL
+ *    IDASPGMR_MEM_FAIL   if there was a memory allocation failure 
+ *    IDASPGMR_ILL_INPUT  if there was illegal input.              
  *                                                                
  * -----------------------------------------------------------------
  */                                                                
@@ -269,6 +270,10 @@ int IDASpgmr(void *ida_mem, int maxl);
  *           routine is called.                                   
  *           Default is NULL.                                     
  *                                                                
+ * The return value of IDASpgmrSet* is one of:
+ *    IDASPGMR_SUCCESS   if successful
+ *    IDASPGMR_MEM_NULL  if the ida memory was NULL
+ *    IDASPGMR_LMEM_NULL if the idaspgmr memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -318,7 +323,7 @@ int IDASpgmrGetNumLinIters(void *ida_mem, long int *nliters);
 int IDASpgmrGetNumConvFails(void *ida_mem, long int *nlcfails);
 int IDASpgmrGetNumJtimesEvals(void *ida_mem, long int *njvevals);
 int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG); 
-int CVSpgmrGetLastFlag(void *ida_mem, int *flag);
+int IDASpgmrGetLastFlag(void *ida_mem, int *flag);
 
 /* IDASPGMR return values */
 
