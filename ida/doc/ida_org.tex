@@ -26,7 +26,6 @@ The overall organization of the {\ida} package is shown in Figure
   generic solver and auxiliary modules are in square boxes.}
 \label{f:idaorg}
 \end{figure}
-
 The central integration module, implemented in the files 
 \id{ida.h} and \id{ida.c}, deals with the evaluation of integration coefficients,
 the Newton iteration process, estimation of local error,
@@ -53,12 +52,12 @@ In the case of the direct {\idadense} and {\idaband} methods, the package includ
 an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
 (or an approximation to it) directly. In the case of the iterative
-{\idaspgmr} method, the package includes and algorithm for the approximation
+{\idaspgmr} method, the package includes an algorithm for the approximation
 by difference quotients of the product between the Jacobian matrix and
 a vector of appropriate length. Again, the user has the option of providing
 a routine for this operation.
 In \index{preconditioning!setup and solve phases} the case of {\idaspgmr}, 
-the preconditioning must be supplied by the user, in two phases: 
+the preconditioning must be supplied by the user in two phases: 
 setup (preprocessing of Jacobian data) and solve.
 While\index{preconditioning!advice on} there is no default
 choice of preconditioner analogous to the difference quotient
@@ -102,9 +101,8 @@ All state information used by {\ida} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
 user.  There is no global data in the {\ida} package, and so in this
 respect it is reentrant. State information specific to the linear
-solver is saved in separate structure, a pointer to which resides in
+solver is saved in a separate structure, a pointer to which resides in
 the {\ida} memory structure. The reentrancy of {\ida} was motivated
-by the anticipated multicomputer extension, but is also essential
-in a uniprocessor setting where two or more problems are solved by
+by the situation where two or more problems are solved by
 intermixed calls to the package from one user program.
 
