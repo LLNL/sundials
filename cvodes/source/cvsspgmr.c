@@ -331,6 +331,84 @@ int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, real delt,
   return(SUCCESS);
 }
 
+/*************** CVReInitSpgmr****************************************
+
+ This routine resets the link between the main CVODE module and the
+ Spgmr linear solver module CVSPGMR.  No memory freeing or allocation
+ operations are done, as the existing linear solver memory is assumed
+ sufficient.  All other initializations are the same as in CVSpgmr.
+ The return value is SUCCESS=0, LMEM_FAIL=-1, or LIN_ILL_INPUT=-2.
+
+**********************************************************************/
+
+int CVReInitSpgmr(void *cvode_mem, int pretype, int gstype, int maxl,
+            real delt, CVSpgmrPrecondFn precond, CVSpgmrPSolveFn psolve,
+            void *P_data, CVSpgmrJtimesFn jtimes, void *jac_data)
+
+{
+  CVodeMem cv_mem;
+  CVSpgmrMem cvspgmr_mem;
+  int mxl;
+
+  /* Return immediately if cvode_mem is NULL */
+  cv_mem = (CVodeMem) cvode_mem;
+  if (cv_mem == NULL) {                /* CVode reports this error */
+    fprintf(errfp, MSG_CVMEM_NULL);
+    return(LMEM_FAIL);
+  }
+
+  /* Set five main function fields in cv_mem */
+  linit  = CVSpgmrInit;
+  lsetup = CVSpgmrSetup;
+  lsolve = CVSpgmrSolve;
+  lsolveS= CVSpgmrSolveS;
+  lfree  = CVSpgmrFree;
+
+  cvspgmr_mem = lmem;   /* Use existing linear solver memory pointer */
+
+  /* Set Spgmr parameters that have been passed in call sequence */
+  cvspgmr_mem->g_pretype    = pretype;
+  cvspgmr_mem->g_gstype     = gstype;
+  mxl = cvspgmr_mem->g_maxl = (maxl <= 0) ? MIN(CVSPGMR_MAXL, N) : maxl;
+  cvspgmr_mem->g_delt       = (delt == ZERO) ? CVSPGMR_DELT : delt;
+  cvspgmr_mem->g_P_data     = P_data;
+  cvspgmr_mem->g_precond    = precond;
+  cvspgmr_mem->g_psolve     = psolve;
+
+  /* Set Jacobian times vector routine to user's jtimes or CVSpgmrDQJtimes */
+  if(jtimes == NULL) {
+    cvspgmr_mem->g_jtimes = CVSpgmrDQJtimes;
+  } else {
+    cvspgmr_mem->g_jtimes = jtimes;
+  }
+
+  /* Set Jacobian data */
+  cvspgmr_mem->g_j_data = jac_data;
+
+  /* Check for legal pretype, precond, and psolve */ 
+  if ((pretype != NONE) && (pretype != LEFT) &&
+      (pretype != RIGHT) && (pretype != BOTH)) {
+    fprintf(errfp, MSG_BAD_PRETYPE, pretype, NONE, LEFT, RIGHT, BOTH);
+    return(LIN_ILL_INPUT);
+  }
+  if ((pretype != NONE) && (psolve == NULL)) {
+    fprintf(errfp, MSG_PSOLVE_REQ);
+    return(LIN_ILL_INPUT);
+  }
+
+  /* Check for legal gstype */
+  if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
+    fprintf(errfp, MSG_BAD_GSTYPE, gstype, MODIFIED_GS, CLASSICAL_GS);
+    return(LIN_ILL_INPUT);
+  }
+
+  /* Set setupNonNull = TRUE iff there is preconditioning (pretype != NONE)
+     and there is a preconditioning setup phase (precond != NULL)          */
+  setupNonNull = (pretype != NONE) && (precond != NULL);
+
+  return(SUCCESS);
+}
+
 
 /* Additional readability Replacements */
 
