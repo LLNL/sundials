@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-05-03 21:24:50 $
+ * $Revision: 1.18 $
+ * $Date: 2004-06-02 23:06:11 $
  * ----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -39,9 +39,8 @@ void FK_FUN(realtype*, realtype*);
  */
 
 void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
-                 realtype *constraints, 
-                 int *optin, long int *iopt, realtype *ropt,
-                 int *ier)
+                 realtype *constraints, int *optin, long int *iopt,
+		 realtype *ropt, int *ier)
 {
   N_Vector constr_vec;
 
@@ -103,10 +102,10 @@ void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
 void FKIN_SOL(realtype *uu, int *globalstrategy, 
               realtype *uscale , realtype *fscale, int *ier)
 
-{ 
-  N_Vector uuvec, uscalevec, fscalevec;
+{
   long int nniters, nfevals, nbcfails, nbacktr;
   long int nliters, npevals, npsolves, nlcfails;
+  N_Vector uuvec, uscalevec, fscalevec;
 
   uuvec = N_VMake(uu, F2C_nvspec);
   uscalevec = N_VMake(uscale, F2C_nvspec);

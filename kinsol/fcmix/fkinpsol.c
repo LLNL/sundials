@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-05-03 21:24:50 $
+ * $Revision: 1.10 $
+ * $Date: 2004-06-02 23:06:11 $
  * ----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -54,7 +54,7 @@ int FKINPSol(N_Vector uu, N_Vector uscale,
              N_Vector vv, void *P_data,
              N_Vector ftem)
 {
-  realtype *udata,*uscaledata, *fdata,*fscaledata, *vvdata, *ftemdata;
+  realtype *udata, *uscaledata, *fdata, *fscaledata, *vvdata, *ftemdata;
   int retcode;
 
   udata      = N_VGetData(uu);
