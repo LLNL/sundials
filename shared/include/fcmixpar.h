@@ -28,5 +28,9 @@
 #define CRAY        0
 #define UNDERSCORE  1
 
+#include "nvector.h"
+
+M_Env F2C_machEnv;
+
 #endif
 
