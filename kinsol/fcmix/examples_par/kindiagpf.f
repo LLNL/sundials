@@ -51,7 +51,7 @@ c     number of this process.
       
       call fnvspecinitp(nlocal, neq, ier)
       if (ier .ne. 0) then
-         write(6,1220),ier
+         write(6,1220)ier
  1220    format('fnvspecinitp failed, ier =',i2)
          stop
       endif
