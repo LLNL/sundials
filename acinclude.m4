@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2005-01-24 22:28:37 $
+# $Revision: 1.12 $
+# $Date: 2005-01-25 23:51:49 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -104,6 +104,13 @@ if test "X${FFLAGS}" = "X"; then
 else
   FFLAGS_USER_OVERRIDE="yes"
 fi
+
+# Set defaults for config/sundials_config.in file
+F77_MANGLE_MACRO=""
+F77_CASE=""
+F77_UNDERSCORES=""
+PRECISION_LEVEL=""
+GENERIC_MATH_LIB=""
 
 ]) dnl END SUNDIALS_INITIALIZE
 
@@ -371,14 +378,17 @@ if test "X${withval}" = "Xsingle"; then
   AC_MSG_RESULT([float])
   AC_DEFINE([SUNDIALS_SINGLE_PRECISION],[1],[])
   FLOAT_TYPE="single"
+  PRECISION_LEVEL="#define SUNDIALS_SINGLE_PRECISION 1"
 elif test "X${withval}" = "Xdouble"; then
   AC_MSG_RESULT([double])
   AC_DEFINE([SUNDIALS_DOUBLE_PRECISION],[1],[])
   FLOAT_TYPE="double"
+  PRECISION_LEVEL="#define SUNDIALS_DOUBLE_PRECISION 1"
 elif test "X${withval}" = "Xextended"; then
   AC_MSG_RESULT([long double])
   AC_DEFINE([SUNDIALS_EXTENDED_PRECISION],[1],[])
   FLOAT_TYPE="extended"
+  PRECISION_LEVEL="#define SUNDIALS_EXTENDED_PRECISION 1"
 else
   AC_MSG_ERROR([invalid input])
 fi
@@ -388,6 +398,7 @@ fi
 AC_MSG_RESULT([double])
 AC_DEFINE([SUNDIALS_DOUBLE_PRECISION],[1],[])
 FLOAT_TYPE="double"
+PRECISION_LEVEL="#define SUNDIALS_DOUBLE_PRECISION 1"
 ])
 
 AC_ARG_WITH([],[ ],[])
@@ -543,11 +554,13 @@ if test "X${MATH_FABS_OK}" = "Xno" || test "X${MATH_POW_OK}" = "Xno" || test "X$
   # If all generic math routines are available, then set SUNDIALS_USE_GENERIC_MATH flag
   # for use by shared/source/sundialsmath.c file (preprocessor macros)
   AC_DEFINE([SUNDIALS_USE_GENERIC_MATH],[1],[])
+  GENERIC_MATH_LIB="#define SUNDIALS_USE_GENERIC_MATH 1"
 # If found all precision-specific routines, then set SUNDIALS_USE_GENERIC_MATH only if
 # building SUNDIALS libraries with double-precision
 else
   if test "X${FLOAT_TYPE}" = "Xdouble"; then
     AC_DEFINE([SUNDIALS_USE_GENERIC_MATH],[1],[])
+    GENERIC_MATH_LIB="#define SUNDIALS_USE_GENERIC_MATH 1"
   else
     AC_DEFINE([SUNDIALS_USE_GENERIC_MATH],[0],[])
   fi
@@ -680,10 +693,13 @@ else
   UNDERSCORE_ARG_GIVEN="yes"
   if test "X${withval}" = "Xnone"; then
     AC_DEFINE([SUNDIALS_UNDERSCORE_NONE],[1],[])
+    F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_NONE 1"
   elif test "X${withval}" = "Xone"; then
     AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
+    F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_ONE 1"
   elif test "X${withval}" = "Xtwo"; then
     AC_DEFINE([SUNDIALS_UNDERSCORE_TWO],[1],[])
+    F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_TWO 1"
   else
     AC_MSG_ERROR([invalid input])
   fi
@@ -706,8 +722,10 @@ else
   CASE_ARG_GIVEN="yes"
   if test "X${withval}" = "Xupper"; then
     AC_DEFINE([SUNDIALS_CASE_UPPER],[1],[])
+    F77_CASE="#define SUNDIALS_CASE_UPPER 1"
   elif test "X${withval}" = "Xlower"; then
     AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
+    F77_CASE="#define SUNDIALS_CASE_LOWER 1"
   else
     AC_MSG_ERROR([invalid input])
   fi
@@ -722,9 +740,11 @@ else
     # Only used "--with-f77underscore" flag, so set default case
     if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" && test "X${CASE_ARG_GIVEN}" = "Xno"; then
       AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
+      F77_CASE="#define SUNDIALS_CASE_LOWER 1"
     # Only used "--with-f77case" flag, so set default number of underscores
     elif test "X${UNDERSCORE_ARG_GIVEN}" = "Xno" && test "X${CASE_ARG_GIVEN}" = "Xyes"; then
       AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
+      F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_ONE 1"
     fi
     RUN_F77_WRAPPERS="no"
   # Only call SUNDIALS_F77_WRAPPERS if user did NOT use "--with-f77underscore" or "--with-f77case" flags
@@ -883,18 +903,24 @@ if test "X${F77_WRAPPER_CHECK_OK}" = "Xyes"; then
   if test "X${F77_FUNC_CASE}" = "Xlowercase"; then
     if test "X${F77_FUNC_UNDERSCORES}" = "Xno underscores"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[name],[])
+      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) name"
     elif test "X${F77_FUNC_UNDERSCORES}" = "Xone underscore"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[name ## _],[])
+      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) name ## _"
     elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo underscores"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[name ## __],[])
+      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) name ## __"
     fi
   elif test "X${F77_FUNC_CASE}" = "Xuppercase"; then
     if test "X${F77_FUNC_UNDERSCORES}" = "Xno underscores"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[NAME],[])
+      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) NAME"
     elif test "X${F77_FUNC_UNDERSCORES}" = "Xone underscore"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## _],[])
+      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) NAME ## _"
     elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo underscores"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## __],[])
+      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) NAME ## __"
     fi
   fi
 # If test failed, then tell user to use '--with-f77case' and '--with-f77underscore'
@@ -2234,6 +2260,9 @@ fi
 if test "X${BUILD_F77_UPDATE_SCRIPT}" = "Xyes"; then
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/fortran_update"
 fi
+
+# Create sundials_config.h header file
+SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/sundials_config"
 
 ]) dnl END SUNDIALS_BUILD_MODULES_LIST
 

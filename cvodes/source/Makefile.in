@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2004-12-07 23:43:22 $
+# $Revision: 1.14 $
+# $Date: 2005-01-25 23:51:59 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -50,8 +50,8 @@ OBJECT_FILES = cvodes.o cvodesio.o cvodea.o cvband.o cvdense.o cvdiag.o cvspbcg.
 all: update $(CVODES_LIB_FILES)
 
 update:
-	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
-	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
+	@echo "${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h" ; \
+	 ${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h
 
 install: update $(CVODES_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODES_LIB) $(CVODES_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version
