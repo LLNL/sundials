@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2004-11-23 22:15:55 $
+# $Revision: 1.8 $
+# $Date: 2004-11-30 20:15:55 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -84,7 +84,7 @@ ug_pdf: ug ida_guide.ps
 
 ug_html: ug
 	cp ug_html.tex ug.tex
-	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -local_icons -white ida_guide.tex
+	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -local_icons -white -notransparent ida_guide.tex
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -106,7 +106,7 @@ ex_pdf: ex ida_examples.ps
 
 ex_html: ex
 	cp ug_html.tex ug.tex
-	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -local_icons -white ida_examples.tex
+	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -local_icons -white -notransparent ida_examples.tex
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \
