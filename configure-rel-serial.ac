@@ -1,27 +1,24 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2004-04-06 20:43:23 $
+# $Revision: 1.2 $
+# $Date: 2004-10-21 20:18:23 $
 # ------------------------------------------------------------------------
-# Programmers: Radu Serban @ LLNL
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
-# Copyright (c) 2002, The Regents of the University of California
-# Produced at the Lawrence Livermore National Laboratory
-# All rights reserved
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
 # ------------------------------------------------------------------------
 # Process this file with autoconf to produce a configure script.
 # ------------------------------------------------------------------------
 
 # Initialize configure
-AC_INIT(Sundials, 1.1, radu@llnl.gov)
+AC_INIT(SUNDIALS, 2.0, radu@llnl.gov)
 
-# Misc. sundials initializations
+# Display greeting
+SUNDIALS_GREETING
+
+# Miscellaneous SUNDIALS initializations
 SUNDIALS_INITIALIZE
-
-# Check for user overrides (some to be used later)
-SUNDIALS_CHECK_OVERRIDES
-
-# Archiver
-SUNDIALS_CHECK_AR
 
 # Set C compilation
 SUNDIALS_SET_CC
@@ -29,28 +26,29 @@ SUNDIALS_SET_CC
 # Set Fortran compilation
 SUNDIALS_SET_F77
 
-# Set modules to configure
+# Set modules to build
 SUNDIALS_ENABLE_MODULES
 
-# Set example modules
+# Set examples modules
 SUNDIALS_ENABLE_EXAMPLES
 
+# Run libtool checks
+AC_DISABLE_SHARED
+AC_PROG_LIBTOOL
+
 # Substitute variables
-AC_SUBST(FLIBS)
-AC_SUBST(FCFLAGS)
 AC_SUBST(MODULES)
 AC_SUBST(NVEC_MODULES)
-AC_SUBST(EX_MODULES)
+AC_SUBST(EXAMPLE_MODULES)
+AC_SUBST(F77_FLOAT_TYPE)
 
-# Set install path
+# Set installation path
 SUNDIALS_INSTALL_PATH
 
-# Set the lists of modules and generate makefiles
+# Generate makefiles
 SUNDIALS_BUILD_MODULES_LIST
 AC_CONFIG_FILES([${SUNDIALS_MAKEFILES}])
 AC_OUTPUT()
 
-# Report what we've decide to do
+# Display summary
 SUNDIALS_REPORT
-
-#that's all
