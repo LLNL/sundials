@@ -180,7 +180,7 @@ The output will vary slightly if the number of processors is changed.
 \subsection{A CVBBDPRE preconditioner example: \id{pvkxb}}\label{ss:pvkxb}
 
 In this example, \id{pvkxb}, we solve the same problem in \id{pvkx} above,
-but instead of supplying the preconditioner, we use the CVBBDPRE module,
+but instead of supplying the preconditioner, we use the {\cvbbdpre} module,
 which generates and uses a band-block-diagonal preconditioner.  The
 half-bandwidths of the Jacobian block on each processor are both equal to
 $2\cdot\id{MXSUB}$, and that is the value supplied as \id{mudq} and \id{mldq}
@@ -203,7 +203,7 @@ needed for \id{flocal} in the solver's calls to it have already been done.
 In \id{pvkxb.c}, the problem is solved twice --- first with preconditioning
 on the left, and then on the right.  Thus prior to the second solution, calls
 are made to reset the initial values (\id{SetInitialProfiles}), the main solver
-memory (\id{CVodeReInit}), the CVBBDPRE memory (\id{CVBBDPrecReInit}),
+memory (\id{CVodeReInit}), the {\cvbbdpre} memory (\id{CVBBDPrecReInit}),
 as well as the preconditioner type (\id{CVSpgmrSetPrecType}).
 
 Sample output from \id{pvkxb} follows, again using $5 \times 5$ subgrids 
