@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-04-29 22:09:52 $
+ * $Revision: 1.9 $
+ * $Date: 2004-05-26 18:37:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -85,12 +85,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
+#include "cvodes.h"
 #include "cvodea.h"
-#include "iterative.h"
 #include "cvspgmr.h"
-#include "dense.h"
 #include "nvector_serial.h"
+#include "sundialstypes.h"
 #include "sundialsmath.h"
 
 /* Problem Specification Constants */

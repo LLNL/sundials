@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-04-29 22:09:52 $
+ * $Revision: 1.7 $
+ * $Date: 2004-05-26 18:37:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,11 +42,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
+#include "cvodes.h"
 #include "cvodea.h"
 #include "cvband.h"
 #include "nvector_serial.h"
-#include "band.h"
+#include "sundialstypes.h"
 
 /* Problem Constants */
 

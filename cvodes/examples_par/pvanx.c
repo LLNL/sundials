@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-04-29 22:09:57 $
+ * $Revision: 1.8 $
+ * $Date: 2004-05-26 18:37:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,10 +45,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
+#include "mpi.h"
+#include "cvodes.h"
 #include "cvodea.h"
 #include "nvector_parallel.h"
-#include "mpi.h"
+#include "sundialstypes.h"
 
 
 /* Problem Constants */

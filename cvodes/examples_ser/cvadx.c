@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-04-29 22:09:52 $
+ * $Revision: 1.11 $
+ * $Date: 2004-05-26 18:37:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -54,11 +54,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"
+#include "cvodes.h"
 #include "cvodea.h"
 #include "cvdense.h"
 #include "nvector_serial.h"
-#include "dense.h"
+#include "sundialstypes.h"
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
