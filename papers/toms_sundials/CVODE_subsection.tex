@@ -1,0 +1,44 @@
+\subsection{CVODE}
+
+{\sf In this subsection, we need to include some information about the stability limit detection algorithms, cost, and performance.}
+
+CVODE solves ODE initial value problems, which we write in the form
+\[ \dot{y} = f(t,y),~~ y(t_0) = y_0,~~ y \in \mbox{\bf R}^N ~. \]
+
+The methods used in CVODE are the following variable-order,
+variable-step multistep methods:
+\vspace*{-.19in}
+\begin{itemize}
+\item BDF = Backward Differentiation Formulas, in the so-called
+fixed-leading coefficient form), suitable for stiff systems; and
+\item Implicit Adams methods, suitable for nonstiff systems.
+\end{itemize}
+
+The multistep methods are implicit, and CVODE offers a choice of two
+methods for solving the resulting nonlinear systems:
+\vspace*{-.19in}
+\begin{itemize}
+\item Newton iteration, suitable in the stiff case, and
+\item functional iteration, suitable in the nonstiff case.
+\end{itemize}
+
+In the stiff case, with Newton iteration specified, the linear systems
+are solved by one of four methods:
+\vspace*{-.19in}
+\begin{itemize}
+\item a dense direct solver (serial version only),
+\item a band direct solver (serial version only),
+\item a diagonal approximate Jacobian solver, or
+\item SPGMR = Scaled Preconditioned GMRES, implemented in a
+matrix-free manner, without restarts, with left and/or right
+preconditioning, and requiring user routines for the preconditioning
+setup and solve operations.
+
+\end{itemize}
+
+In the case of direct methods, the Jacobian may be supplied by a user
+routine, or approximated by difference quotients.  In the case of
+SPGMR, the user may supply a routine for the Jacobian-vector products,
+or they will be approximated by matrix-free difference quotients.
+
+

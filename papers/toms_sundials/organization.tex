@@ -1,0 +1,120 @@
+\section{Code Organization}
+
+The writing of CVODE from the Fortran solvers VODE and VODPK involved
+a complete redesign and reorganization.  This was done partly to
+exploit features of C not present in Fortran, partly to achieve a more
+object-oriented design, partly to maximize the reuse of code modules,
+and partly to facilitate the extension from a serial to a parallel
+implementation.
+
+The features of the design of CVODE include the following:
+\vspace*{-.19in}
+\begin{itemize}
+\item Memory allocation is heavily used.
+\item The linear solver modules are separate from the core integrator,
+so that the latter is independent of the method for solving linear
+systems.
+\item Each linear solver has generic solver, which is independent of
+the ODE contest, together with an interface to the CVODE core
+integrator module.
+\item The vector kernels (linear sums, dot products, norms, etc.) on
+$N-$vectors are isolated in a separate NVECTOR module.
+\end{itemize}
+
+The following Fig. \ref{fig-cvorg} shows the overall structure of
+CVODE, with the various separate modules.  The separation of the
+linear solvers from the core integrator allows for easy addition of
+other linear solver algorithms in the future.  At the bottom level are
+the NVECTOR module, and two small modules, SUNDIALSTYPS and
+SUNDIALSMATH dealing with data types and elementary mathematical
+operations.
+
+\begin{figure}[p]
+\centerline{\psfig{figure=cvorg.eps,height=5.5in}}
+\vspace{0.8in}
+\caption{Overall structure of the CVODE package.}
+\label{fig-cvorg}
+\end{figure}
+
+Not shown in the figure are the user-supplied routines for CVODE.
+These must include a routine for the evaluation of $f$, and may
+(depending on the options chosen) include routines for Jacobian
+evaluation (direct cases) or Jacobian-vector products (Krylov case),
+and routines for the Krylov preconditioner.
+
+The design of CVODE was also done with the addition of the other
+solvers in mind.  Thus KINSOL and IDA, the other two basic members of
+the SUNDIALS family, all share many of the same modules.  In fact
+their organization charts very much resemble that of CVODE.
+
+The KINSOL solver, which includes only one linear system solver at
+present, shares with CVODE the SPGMR module, the NVECTOR module, and
+the lower level modules SUNDIALSTYPS and SUNDIALSMATH.
+
+The KINSOL user must supply a routine for $F$ evaluation, and may
+(optionally) supply routines for $Jv$ products, and for the
+preconditioner.
+
+The structure and organization of IDA resembles that of CVODE even
+more.  It shares with CVODE all of the generic dense, band, SPGMR
+linear system solvers, the NVECTOR module, and the modules
+SUNDIALSTYPS and SUNDIALSMATH.
+
+The IDA user must supply a routine for the evaluation of $F$, and may
+(optionally) include routines for Jacobian evaluation, and routines
+for the preconditioner.
+
+\subsection{Shared Modules - NVECTOR}
+
+The NVECTOR module is shared among all the SUNDIALS solvers.
+Actually, as supplied with the complete package, this module
+includes three submodules:
+\vspace*{-.19in}
+\begin{itemize}
+\item Generic NVECTOR
+\item NVECTOR\_SERIAL
+\item NVECTOR\_PARALLEL
+\end{itemize}
+
+The Generic NVECTOR module defines:
+\vspace*{-.19in}
+\begin{itemize}
+\item a machine environment structure {\tt M\_Env}
+\item a data-independent {\tt N\_Vector} type
+\item (in {\tt M\_Env}) a set of operations
+\item a set of kernels, which are wrappers around the actual kernels
+accessed through the operation set
+\end{itemize}
+
+Each NVECTOR\_*** implementation supplied with the package (or any
+NVECTOR module defined by the user) defines:
+\vspace*{-.19in}
+\begin{itemize}
+\item a content field of {\tt M\_Env}
+\item a content field of {\tt N\_Vector}
+\item a set of implemented vector kernels
+\item a function to construct {\tt M\_Env} and fill the list of operations
+\end{itemize}
+
+More specifically, in NVECTOR\_PARALLEL, the types and kernels are
+defined so as to operate on distributed vectors, with all N-vectors
+distributed the same way.  The type {\tt M\_Env} includes
+\vspace*{-.19in}
+\begin{itemize}
+  \item the local vector length
+  \item the global vector length
+  \item the MPI communicator
+\end{itemize}
+and the {\tt N\_Vector} content field includes
+\vspace*{-.19in}
+\begin{itemize}
+  \item the local vector length
+  \item the global vector length
+  \item the local data array
+\end{itemize}
+
+If neither package NVECTOR implementation is suitable, the user can
+provide one.  For example, it might (and has been) more practical to
+substitute a more complex data structure.
+
+

@@ -1,0 +1,79 @@
+\section{Usage}
+
+Because of space limitations, we will not describe in complete detail
+the user interface for any of the SUNDIALS solvers here.  These are
+given in the documentation that accompanies each solver.  However, in
+order to convey the basic features of these interfaces, we give here a
+summary of the usage of the parallel version of CVODE.  The usage
+of the other solvers is quite similar.
+
+For users accustomed to Fortan ODE solvers, using CVODE is quite
+different, in that one calls several different routines for the
+different parts of the solution process.  The following is a template
+for the usage of parallel CVODE:
+
+\begin{itemize}
+
+\item Set local and global vector lengths, and specify active
+processors (MPI communicator)
+
+\item {\tt machEnv =  M\_EnvInit\_Parallel(comm, Nlocal, N, ...)}:
+initialize NVECTOR\_- \newline PARALLEL
+
+\item Set initial values of $t$ and $y$ (type {\tt N\_Vector})
+
+\item {\tt mem = CVodeMalloc(...)}: initialize CVODE (provide {\tt f},
+method options, tolerances, and allocate internal memory)
+
+\item {\tt CVSpgmr(...)}: if using Newton iteration, specify SPGMR
+(as linear solver) and routines for preconditioner setup and solve
+
+\item {\tt for (tout=...) ier = CVode(...)}: integrate system to
+$t =$ {\tt tout}
+
+\item {\tt CVodeFree}: free CVODE memory
+
+\item {\tt M\_EnvFree\_Parallel(machEnv)}: free NVECTOR\_PARALLEL memory
+
+\end{itemize}
+
+In addition to the name of the user function defining $f$ and the
+initial conditions, the call to {\tt CVodeMalloc} also specifies the
+ODE method (Adams or BDF), Newton iteration or functional iteration,
+and tolerances.  CVODE controls numerical errors by way of two input
+tolerances:
+\vspace*{-.19in}
+\begin{itemize}
+\item {\tt rtol} = scalar relative tolerance
+\item {\tt atol} = absolute tolerance = scalar or vector
+\end{itemize}
+The resulting error weights ~~{\tt rtol}$|y^i| + ${\tt atol}$^i~~$ are
+used to scale all vectors in the control of the local integration
+error, and are also used to scale the GMRES algoritm.
+
+The call to the integrator {\tt CVode} includes an option to specify
+either the normal mode (take steps until passing {\tt tout} and
+interpolate) or one-step mode (take one step and return).
+
+
+\section{Fortran Usage}
+
+For two of the SUNDIALS solvers -- CVODE and KINSOL, users with
+Fortran applications are accommodated.  This is done with a set of
+interface routines that connect the C solver with the user's Fortran
+routines.
+
+The cross-language calls go in both directions:
+\newline \hspace*{.5in} user's Fortran Main $\longrightarrow$
+interfaces $\longrightarrow$ solver routines, and
+\newline \hspace*{.5in} Solver routines $\longrightarrow$ interfaces
+$\longrightarrow$ user's {\tt f} routine etc.
+
+In order to achieve portability for these interfaces, all of the
+Fortran user-supplied routines have fixed names.
+
+These interfaces are provided as separate modules, called FCVODE and
+FKINSOL, for CVODE and KINSOL, respectively.  In each case, small
+examples programs are provided.
+
+

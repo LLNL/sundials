@@ -1,0 +1,117 @@
+\section{Sensitivity Analysis}
+
+When solving an ODE or DAE system or a nonlinear algebraic system, in
+addition to the solution $y$ or $u$, we often want its sensitivity
+(first-order) with respect to parameters in the problem (or with
+respect to initial conditions).
+
+Consider the different problem types in turn.
+
+\subsection{ODEs}
+
+Here the system is assumed to involve a vector of parameters,
+$p = (p_1,\cdots,p_m)$, so that we can write
+\[ \dot{y} = f(t,y,p),~~ y(t_0) = y_0(p) \]
+(including the case where components of the initial value vector $y_0$
+may be parameters).  In addition to $y$ as a function of $t$, we want
+the array $s = \partial y / \partial p ~~ (N \times m)$, whose columns
+are the sensitivities of $y$ with respect to the $p_i$.
+
+Each column $s_i = \partial y / \partial p_i$ satisfies another ODE
+\[ \dot{s}_i = J s_i + \partial f / \partial p_i ~~~~
+               (J = \partial f / \partial y) \]
+with initial values $s_i(t_0) = \partial y_0 / \partial p_i$.
+
+A code called {\bf SensPVODE}, by Lee, Hindmarsh, and Brown, was
+written as an extension of the parallel version of CVODE for this
+situation \cite{SensPV}.  It integrates the extended ODE system for
+$Y = (y,w_1,\cdots,w_m)$, where $w_i = \bar{p}_i s_i$ and $\bar{p}_i$
+is a scale factor for $p_i$ (it may equal $p_i$ if this is nonzero).
+
+In SensPVODE, the evaluation of $\dot{w}_i = \bar{p}_i \dot{s}_i$ is
+done by difference quotients, for which there is a range of choices
+in differencing strategy, or by Automatic Differentiation.
+
+It is important to note that the Jacobian of the extended system, of
+size $N(m+1)$, is approximated by $diag[J,\cdots,J]$.  So when the
+linear systems are solved with the SPGMR algorithm, an appropriate
+preconditioner is the block-diagonal matrix $diag[P,\cdots,P]$, where
+$P$ is the preconditioner used for the original problem $\dot{y} = f$.
+Thus the linear systems for the extended problem involve additional
+solve operations compared to the original problem, but no additional
+matrix setup operations.
+
+{\sf Think through this carefully and point to CVODES paper as
+appropriate - do not overlap with that paper here except for
+general introductory stuff.}
+
+In a second approach to the ODE sensitivity analysis, a code called
+{\bf CVODES} was written by Serban and Hindmarsh.  It has two
+different modes of operation.  In the first mode, it can be used to
+integrate an extended system $Y = (y,s_1,\cdots,s_m)$ forward.  (Here
+the scale factors $\bar{p}_i$ are not included in $Y$, but are used to
+set tolerances imposed on $Y$.)  This integration also includes two
+new options for the corrector iteration that is done on every step.
+In the second mode, CVODES can be used to carry out adjoint
+sensitivity analysis, in which the original system for $y$ is
+integrated forward, an adjoint system is then integrated backward, and
+finally the desired sensitivities are obtained from the backward
+solution.  This backward (adjoint) approach is more practical than
+the forward approach when the number of parameters $p_i$ is large.
+
+To be specific about how the adjoint approach works, we consider
+the following situation.  Assume as before that $f$ and/or $y_0$
+involves the parameter vector $p$, and also that there is a
+function $g(t,y,p)$ such that what we desire in the end is the
+sensitivity array $(dg/dp)|_{t=t_f}$, where $g$ is a vector of
+size $N_g$ and $t_f$ is the final time.  We first integrate the
+original problem $\dot{y} = f$ forward from $t_0$ to $t_f$. The
+next step in the procedure is to integrate from $t_f$ to $t_0$ the
+adjoint system whose size is $N \times N_g$,
+\[ \dot{\mu} = -J^* \mu ~,~~~
+   \mu(t_f) = \left. \left( \frac{\partial g}{\partial y}
+                     \right)^* \right| _{t=t_f} ~. \]
+When this backward integration is complete, then the desired
+sensitivity array is given by
+\[ (dg/dp)|_{t=t_f} = \mu^*(t_0)s(t_0)
+   ~+~ \int_{t_0}^{t_f} \mu^* f_p dt ~+~ g_p|_{t=t_f} ~. \]
+In the backward integration, we regenerate $y(t)$ values, as needed
+in right-hand side of the adjoint system, using a check-point scheme
+combined with cubic Hermite interpolation.
+
+Other situations, with different forms for the desired sensitvity
+information, are covered by different adjoint systems.
+
+
+\subsection{Nonlinear Systems}
+
+In the case of a nonlinear system, the sensitivity equations are
+considerably simpler.  If the system is written $F(u,p) = 0$ and we
+define $s = \partial u / \partial p$, then for the individual
+sensitivity vectors $s_i$,
+
+\[ J s_i = -\partial F / \partial p_i ~~\mbox{where} ~~
+          J = \partial F / \partial u ~. \]
+
+A code called {\bf SensKINSOL}, by Grant, Hindmarsh, and Taylor
+\cite{SensKIN} solves for $u$ (if not done already by KINSOL), then
+solves linear systems for the scaled sensitivities $w_i = \bar{p}_i s_i$.
+
+
+\subsection{DAEs}
+
+The case of a DAE system is similar to that for ODEs.  Writing the
+system as $F(t,y,y',p) = 0$ and defining $s = \partial y / \partial p$
+as before, we obtain DAEs for the individual sensitivity vectors,
+\[ \frac{\partial F}{\partial y} s_i + \frac{\partial F}{\partial y'} s'_i
+                                 + \frac{\partial F}{\partial p_i}  = 0 \]
+
+By analogy with SensPVODE, a code called {\bf SensIDA}, by Lee and
+Hindmarsh was written to integrate the extended DAE system for
+$Y = (y,w_1,\cdots,w_m)$, where $w_i = \bar{p}_i s_i$.
+
+Also by analogy with the ODE case, the Newton matrix for this extended
+system is approximated by $diag[J,\cdots,J]$, where $J$ is the Newton
+matrix for original system.
+
+

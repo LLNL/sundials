@@ -1,0 +1,137 @@
+\section{Preconditioning}
+
+Whenever a Krylov method is used for the linear systems within a
+Newton iteration, it is generally necessary to precondition the
+system in order to obtain acceptable efficiency.  The
+preconditioner matrix $P$ must approximate the Jacobian matrix
+involved, yet be reasonably efficient to evaluate and solve.
+
+\subsection{CVODE Preconditioners}
+
+To devise appropriate preconditioners for use with CVODE, we first
+identify the relevant Newton matrix.  Assuming that the stiff system
+options have been chosen, the BDF linear multistep method has the form
+\[ y_n = h \beta_0 \dot{y}_n + \mbox{sum of known past values} ~, \]
+where $\dot{y}_n = f(t_n,y_n)$, $h$ denotes the stepsize, and
+$\beta_0$ is the leading BDF coefficient.  Thus the Newton matrix is
+\[ I - \gamma J,~~~ J = \partial f / \partial y,
+   ~ \gamma \equiv h \beta_0 ~. \]
+
+Therefore, a typical choice for the preconditioner $P$ is
+$I - \gamma \tilde{J}$, with $\tilde{J} \sim J$, possibly a very crude
+approximation.
+
+Because the preconditioned Krylov method is being used within a time
+integration, the CVODE user must supply two routines for the treatment
+of $P$:
+\vspace*{-.19in}
+\begin{itemize}
+\item a setup routine, to evaluate and preprocess $P$ (infrequently)
+\item a solve routine, to solve systems $Px = b$ (frequently)
+\end{itemize}
+Because the setup of $P$ is generally more expensive than the solve
+operation, it is done as infrequently as possible, generally once
+every several time steps, whereas the preconditioner solve must be
+done on every Krylov iteration.  Within the setup routine, the user
+can save and reuse the relevant parts of the Jacobian $\tilde{J}$,
+as directed by CVODE (in its call to the user routine), so as to
+further reduce costs when $\gamma$ has changed since the last setup
+call.  However, this requires the user to manage the storage of the
+saved data involved, so there is a tradeoff of storage for potential
+savings in computation.
+
+The CVODE package offers help to user with respect to preconditioning
+in two ways.  First, there is an example problem program which
+illustrates a preconditioner, based on the operator splitting concept,
+for reaction-diffusion systems.  It does not perform operator
+splitting (which generally requires giving up error control), but the
+preconditioner is built from one of two operators (reaction) in the
+problem.  Second, the package includes a separate module with a
+band-block-diagonal preconditioner, for use with the parallel version
+of CVODE.  This is described in more detail below.  In any case, for
+any given choice of the approximate Jacobian $\tilde{J}$, it may be
+best to consider choices for the preconditioner linear solver that
+are more appropriate to the specific problem.
+
+With the parallel version of CVODE, there is a module called CVBBDPRE,
+which supplies a band-block-diagonal (BBD) preconditioner.  It is
+designed for PDE-based problems, and uses the idea of Domain
+Decomposition, as follows.
+
+Given a time-dependent PDE system, with the spatial operators suitably
+discretized, one has an ODE system $\dot{y} = f(t,y)$.  Now consider a
+decomposition of the (discretized) spatial domain into $M$
+non-overlapping subdomains.  This decomposition induces a block form
+$y = (y_1,\cdots,y_M)$ for the vector $y$, and similarly for $f$.  We
+will use this distribution for the solution with CVODE on $M$
+processors.
+
+The $m$-th block of $f$, $f_m(t,y)$ depends on both $y_m$ and ghost
+cell data from other blocks $y_{m'}$, typically in a local manner,
+according to the discretized spatial operators.  However, when we
+build the preconditioner $P$, we will ignore that coupling, and
+include only the diagonal blocks $\partial f_m / \partial y_m$.  In
+addition, it may be cost-effective to exclude from $P$ some parts of
+the function $f$.  Thus for the computation of these blocks, we
+replace $f$ by a function $g \approx f$ (where $g = f$ is certainly
+allowed).  For example, $g$ may be chosen to have smaller set of ghost
+cell data than $f$.
+
+In the CVBBDPRE module, the matrix blocks $\partial g_m/\partial y_m$
+are approximated by band matrices $J_m$, again exploiting the local
+spatial coupling, and on processor $m$ these are computed by a
+difference quotient scheme.  Then the complete preconditioner is given
+by
+\[ P = diag[P_1,\cdots,P_M] ~,~~~ P_m = I_m - \gamma J_m ~. \]
+Linear systems $Px = b$ are then solved by banded LU and backsolve
+operations on each processor.  The setup phase consists of the
+evaluation and banded LU decomposition of $P_m$, and the solve phase
+consists of a banded backsolve operation.
+
+The function $g$ is supplied by the user in the form of two routines:
+\vspace*{-.19in}
+\begin{itemize}
+\item {\tt gcomm} performs inter-processor communication of data needed to
+evaluate $g_m$ (called once per $P$ evaluation);
+\item {\tt glocal} evaluates $g_m$ on processor $m$.
+\end{itemize}
+The banded structure of the problem is expoited in two different ways.
+First, the user supplies a pair of half-bandwidths {\tt ml,mu} that
+define the shape of the matrix $J_m$; its full bandwidth is
+{\tt ml+mu+1}.  But the user also supplies a second pair of
+half-bandwidths {\tt mldq,mudq} for use in the difference quotient
+scheme, in which $J_m$ is computed by way of {\tt mldq+mudq+2}
+evaluations of $g_m$.  The values {\tt ml,mu} may be smaller than
+{\tt mldq,mudq} -- trading lower matrix costs for slower convergence.
+Thus for example, a matrix based on 5-point coupling in 2D
+({\tt mldq = mudq = } mesh dimension) might be well approximated by a
+tridiagonal matrix ({\tt ml = mu = 1}.  In any case, both pairs of
+half-bandwidths may be less than the true values for
+$\partial g_m / \partial y_m$, for efficiency, and both pairs may
+depend on $m$.
+
+\subsection{Preconditioners in KINSOL and IDA}
+
+The KINSOL package includes a module, called KINBBDPRE, that provides
+a band-block-diagonal preconditioner, analogous to that of CVODE's
+CVBBDPRE module.  There, where the problem to be solved is $F(u) = 0$,
+the preconditioner is defined by way of a functioin $g \approx F$, as
+\[ P = diag[P_1,\cdots,P_M] ~,~~
+P_m \approx \partial g_m / \partial u_m ~, \]
+in terms of the blocks of $g$ and $u$ on processor $m$.  Again, $P_m$
+is banded and computed using difference quotients, with user-supplied
+half-bandwidths for both the difference quotient scheme and the
+retained band matrix.
+
+Likewise, the IDA package includes a band-block-diagonal
+preconditioner module, called IDABBDPRE.  For the problem
+$F(t,y,y') = 0$, the preconditioner is defined by way of a function $G
+\approx F$.  Specifically, preconditioner is
+\[ P = diag[P_1,\cdots,P_M] ~,~~~
+   P_m \approx \partial G_m / \partial y_m
+        + \alpha \partial G_m / \partial y'_m ~. \]
+Each block $P_m$ is banded, computed using difference quotients, with
+user-supplied half-bandwidths for the difference quotient scheme and
+the retained matrix.
+
+
