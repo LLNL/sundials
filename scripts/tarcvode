@@ -1,7 +1,8 @@
 #!/bin/sh
 #
 # File tarcvode: Script to build CVODE tar-file.
-# Version of 4 April 2002.
+# Version of 29 August 2002.
+# Execution in /sundials/scripts/ creates tar-file at top level.
 #
 #-------------
 # Define flags
@@ -70,12 +71,7 @@ fi
 #----------------
 
 cd ../..
-if [ $fnm != "T" ]
-then
-    echo "Generate tar file $PWD/$filename"
-else
-    echo "Generate tar file $filename"
-fi
+echo "Generate tar file $filename"
 
 # Add top level files
 #--------------------
@@ -88,13 +84,12 @@ tar uf $filename sundials/lib/.dontremove
 
 tar uf $filename sundials/include/.dontremove
 
-tar uf $filename sundials/doc/Readme
-tar uf $filename sundials/doc/dirstruc
-
 # Add SHARED module
 #------------------
 
 echo "  Add shared module"
+
+tar uf $filename sundials/shared/LICENSE
 
 tar uf $filename sundials/shared/doc/nvecreadme
 
@@ -144,6 +139,8 @@ fi
 
 echo "  Add cvode module"
 
+tar uf $filename sundials/cvode/LICENSE
+
 tar uf $filename sundials/cvode/doc/cvreadme
 tar uf $filename sundials/cvode/doc/stald.doc
 
@@ -179,14 +176,17 @@ tar uf $filename sundials/cvode/fcmix/fcvspgmr21.c
 tar uf $filename sundials/cvode/fcmix/fcvpreco.c
 tar uf $filename sundials/cvode/fcmix/fcvpsol.c
 tar uf $filename sundials/cvode/fcmix/fcvjtimes.c
-tar uf $filename sundials/cvode/fcmix/fcvband1.c
 tar uf $filename sundials/cvode/fcmix/fcvdense1.c
+tar uf $filename sundials/cvode/fcmix/fcvband1.c
 tar uf $filename sundials/cvode/fcmix/fcvbbd.h
 tar uf $filename sundials/cvode/fcmix/fcvbbd.c
 tar uf $filename sundials/cvode/fcmix/fcvbbdin1.c
 
 if [ $ser = "T" ]
 then
+    tar uf $filename sundials/cvode/doc/cvudoc.ps
+    tar uf $filename sundials/cvode/doc/cvaddenda
+
     tar uf $filename sundials/cvode/examples/cvx_ser.mk
     tar uf $filename sundials/cvode/examples/cvdx.c
     tar uf $filename sundials/cvode/examples/cvdx.out
@@ -202,14 +202,19 @@ then
     tar uf $filename sundials/cvode/examples/cvdemk.out
 
     tar uf $filename sundials/cvode/fcmix/fcvx_ser.mk
-    tar uf $filename sundials/cvode/fcmix/cvbandf.f
-    tar uf $filename sundials/cvode/fcmix/cvbandf.out
     tar uf $filename sundials/cvode/fcmix/cvdensef.f
     tar uf $filename sundials/cvode/fcmix/cvdensef.out
+    tar uf $filename sundials/cvode/fcmix/cvbandf.f
+    tar uf $filename sundials/cvode/fcmix/cvbandf.out
+    tar uf $filename sundials/cvode/fcmix/cvkryf.f
+    tar uf $filename sundials/cvode/fcmix/cvkryf.out
 fi
 
 if [ $par = "T" ]
 then
+    tar uf $filename sundials/cvode/doc/pvudoc.ps
+    tar uf $filename sundials/cvode/doc/pvaddenda
+
     tar uf $filename sundials/cvode/examples/cvx_par.mk
     tar uf $filename sundials/cvode/examples/pvnx.c
     tar uf $filename sundials/cvode/examples/pvnx.out
