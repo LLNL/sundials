@@ -1,7 +1,7 @@
       program kindiagsf
 c     ----------------------------------------------------------------
-c     $Revision: 1.8 $
-c     $Date: 2004-10-11 16:56:47 $
+c     $Revision: 1.9 $
+c     $Date: 2004-10-12 21:54:27 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -19,25 +19,25 @@ c     An approximate diagonal preconditioner is used.
 c
 c     Execution command: kindiagsf
 c     ----------------------------------------------------------------
-c   
-      integer PROBSIZE
+c
+      implicit none
+
+      integer ier, globalstrat, inopt, maxl, maxlrst
+      integer*4 PROBSIZE
       parameter(PROBSIZE=128)
-      integer neq, ier, globalstrat
-      integer iopt(40)
-      
-      double precision fnormtol, scsteptol
-      double precision ropt(40)
-      double precision uu(PROBSIZE), scale(PROBSIZE)
+      integer*4 neq, i, msbpre
+      integer*4 iopt(40)
+      double precision pp, fnormtol, scsteptol
+      double precision ropt(40), uu(PROBSIZE), scale(PROBSIZE)
       double precision constr(PROBSIZE)
-      double precision pp
-      
+
       common /pcom/ pp(PROBSIZE)
       common /psize/ neq
 
       neq = PROBSIZE
       globalstrat = 1
-      fnormtol = 0.00001
-      scsteptol = 0.0001
+      fnormtol = 1.0d-5
+      scsteptol = 1.0d-4
       inopt = 0
       maxl = 10
       maxlrst = 2
@@ -53,9 +53,9 @@ c * * * * * * * * * * * * * * * * * * * * * *
       endif
 
       do 20 i = 1,neq
-         uu(i) = 2.0*i
-         scale(i) = 1.0
-         constr(i) = 0.0
+         uu(i) = 2.0d0 * i
+         scale(i) = 1.0d0
+         constr(i) = 0.0d0
   20  continue
 
       call fkinmalloc(msbpre, fnormtol, scsteptol, 
@@ -90,7 +90,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       if (ier .lt. 0) then
          write(6,1242) ier, iopt(15)
  1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ',i2,/,
-     1          '                LS returned IER = ',i2)
+     1          '                Linear Solver returned IER = ',i2)
          call fnvfrees
          call fkinfree
          stop
@@ -104,7 +104,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
 
       do 30 i = 1,neq,4
          write(6,1256) i, uu(i), uu(i+1), uu(i+2), uu(i+3)
- 1256    format(i4,4(1x,f10.6))
+ 1256    format(i4, 4(1x, f10.6))
  30   continue
 
       write(6,1267) iopt(4),iopt(11),iopt(5),iopt(12),iopt(13),iopt(14)
@@ -122,9 +122,12 @@ c     The function defining the system f(u) = 0 must be defined by a Fortran
 c     function of the following form.
       
       subroutine fkfun(uu, fval)
-      
+
+      implicit none
+
+      integer*4 neq, i
       double precision fval(*), uu(*)
-      integer neq
+
       common /psize/ neq
 
       do 10 i = 1,neq
@@ -141,19 +144,20 @@ c     to it.  The argument list must also be as illustrated below:
       
       subroutine fkpset(udata, uscale, fdata, fscale, 
      1                  vtemp1, vtemp2, ier)
-      
+
+      implicit none
+
       integer ier
+      integer*4 neq, i
+      double precision pp
       double precision udata(*), uscale(*), fdata(*), fscale(*)
       double precision vtemp1(*), vtemp2(*)
-      
-      double precision pp
+
       common /pcom/ pp(128)
-      
-      integer neq
       common /psize/ neq
 
       do 10 i = 1,neq
-         pp(i) = 0.5/(udata(i)+5.)
+         pp(i) = 0.5d0 / (udata(i) + 5.0d0)
  10   continue
       ier = 0
       
@@ -168,15 +172,16 @@ c     to it.  The argument list must also be as illustrated below:
       
       subroutine fkpsol(udata, uscale, fdata, fscale, 
      1                  vv, ftem, ier)
-      
+
+      implicit none
+
       integer ier
+      integer*4 neq, i
+      double precision pp
       double precision udata(*), uscale(*), fdata(*), fscale(*)
       double precision vv(*), ftem(*)
-      
-      double precision pp
-      common /pcom/ pp(128)
 
-      integer neq
+      common /pcom/ pp(128)
       common /psize/ neq
 
       do 10 i = 1,neq

@@ -1,7 +1,7 @@
       program kindiagpf
 c     ----------------------------------------------------------------
-c     $Revision: 1.8 $
-c     $Date: 2004-10-11 16:56:52 $
+c     $Revision: 1.9 $
+c     $Date: 2004-10-12 21:54:34 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -23,24 +23,23 @@ c     ----------------------------------------------------------------
 c
       include "mpif.h"
 
+      integer ier, size, globalstrat, rank, inopt, mype, npes
+      integer maxl, maxlrst
+      integer*4 localsize
       parameter(localsize=32)
-      integer neq, ier, size, globalstrat, rank
-      integer mype, npes, baseadd, nlocal
-      integer iopt(40)
-      
-      double precision fnormtol, scsteptol
-      double precision ropt(40)
+      integer*4 neq, nlocal, msbpre, baseadd, i, ii
+      integer*4 iopt(40)
+      double precision pp, fnormtol, scsteptol
       double precision uu(localsize), scale(localsize)
       double precision constr(localsize)
-      double precision pp
-      
+
       common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
 
       nlocal = localsize
       neq = 4*nlocal
       globalstrat = 1
-      fnormtol = 0.00001
-      scsteptol = 0.0001
+      fnormtol = 1.0d-5
+      scsteptol = 1.0d-4
       inopt = 0
       maxl = 10
       maxlrst = 2
@@ -97,9 +96,9 @@ c     number of this process.
       
       do 20 ii = 1,nlocal
          i = ii + baseadd
-         uu(ii) = 2.0*i
-         scale(ii) = 1.0
-         constr(ii) = 0.0
+         uu(ii) = 2.0d0 * i
+         scale(ii) = 1.0d0
+         constr(ii) = 0.0d0
  20   continue
       
       call fkinmalloc(msbpre, fnormtol, scsteptol, 
@@ -127,7 +126,7 @@ c     number of this process.
       if (ier .lt. 0) then
          write(6,1242) ier, iopt(15)
  1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ',i2,/,
-     1          '                LS returned IER = ',i2)
+     1          '                Linear Solver returned IER = ',i2)
          call mpi_abort(MPI_COMM_WORLD, 1, ier)
          stop
       endif
@@ -141,7 +140,7 @@ c     number of this process.
       do 30 i = 1,nlocal,4
          if(mype .eq. 0) write(6,1256)i+baseadd, uu(i), uu(i+1),
      1        uu(i+2), uu(i+3)
- 1256    format(i4,4(1x,f10.6))
+ 1256    format(i4, 4(1x, f10.6))
  30   continue
 
       if (mype .eq. 0) write(6,1267)iopt(4),iopt(11),iopt(5),iopt(12),
@@ -166,13 +165,16 @@ c     function with the following name and form.
       
       subroutine fkfun(uu, fval)
 
-      double precision fval(*), uu(*)
-      
+      implicit none
+
+      integer mype, npes
+      integer*4 baseadd, nlocal, i, localsize
       parameter(localsize=32)
       double precision pp
-      integer mype, npes, baseadd, nlocal
+      double precision fval(*), uu(*)
+
       common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
-      
+
       do 10 i = 1,nlocal
  10      fval(i) = uu(i)*uu(i) - (i+baseadd)*(i+baseadd)
       
@@ -187,21 +189,24 @@ c     to it.  The argument list must also be as illustrated below:
       
       subroutine fkpset(udata, uscale, fdata, fscale, 
      1                  vtemp1, vtemp2, ier)
-      
-      integer ier
+
+      implicit none
+
+      integer ier, mype, npes
+      integer*4 localsize
+      parameter(localsize=32)
+      integer*4 baseadd, nlocal, i
+      double precision pp
       double precision udata(*), uscale(*), fdata(*), fscale(*)
       double precision vtemp1(*), vtemp2(*)
-      
-      parameter(localsize=32)
-      double precision pp
-      integer mype, npes, baseadd, nlocal
+
       common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
-            
+
       do 10 i = 1,nlocal
- 10      pp(i) = 0.5/(udata(i)+5.0)
+ 10      pp(i) = 0.5d0 / (udata(i)+ 5.0d0)
 
       ier = 0
-      
+
       return
       end
       
@@ -213,16 +218,19 @@ c     to it.  The argument list must also be as illustrated below:
       
       subroutine fkpsol(udata, uscale, fdata, fscale, 
      1                  vv, ftem, ier)
-      
-      integer ier
+
+      implicit none
+
+      integer ier, mype, npes
+      integer*4 baseadd, nlocal, i
+      integer*4 localsize
+      parameter(localsize=32)
       double precision udata(*), uscale(*), fdata(*), fscale(*)
       double precision vv(*), ftem(*)
-      
-      parameter(localsize=32)
       double precision pp
-      integer mype, npes, baseadd, nlocal
+
       common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
-      
+
       do 10 i = 1,nlocal
  10      vv(i) = vv(i) * pp(i)
 
