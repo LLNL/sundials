@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : idabbdpre.c                                    *
- * Programmers   : Allan G Taylor and Alan C Hindmarsh @ LLNL     *
- * Version of    : 2 March 2001                                   *
+ * Programmers   : Allan G Taylor, Alan C Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 6 March 2002                                   *
  *----------------------------------------------------------------*
  * This file contains implementations of routines for a           *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -12,9 +13,11 @@
  * Diagonal blocking occurs at the processor level.               *
  ******************************************************************/
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "idabbdpre.h"
-#include "ida.h"   
+#include "ida.h"
 #include "llnltyps.h"
 #include "nvector.h"
 #include "llnlmath.h"
@@ -25,6 +28,10 @@
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
 
+
+/* Error messages */
+
+#define MSG_WRONG_NVEC   "IDABBDAlloc-- Incompatible NVECTOR implementation.\n\n"
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
@@ -38,13 +45,146 @@ static int IBBDDQJac(integer Nlocal, integer mudq, integer mldq,
                      N_Vector ytemp, N_Vector yptemp);
 
 
+/*************** IBBDDQJac *****************************************
+
+ This routine generates a banded difference quotient approximation to
+ the local block of the Jacobian of G(t,y,y').  It assumes that a
+ band matrix of type BandMat is stored column-wise, and that elements
+ within each column are contiguous.
+
+ All matrix elements are generated as difference quotients, by way
+ of calls to the user routine glocal.
+ By virtue of the band structure, the number of these calls is
+ bandwidth + 1, where bandwidth = mldq + mudq + 1.
+ But the band matrix kept has bandwidth = mlkeep + mukeep + 1.
+ This routine also assumes that the local elements of a vector are
+ stored contiguously.
+
+ Return values are: 0 (success), > 0 (recoverable error),
+ or < 0 (nonrecoverable error).
+**********************************************************************/
+
+
+static int IBBDDQJac(integer Nlocal, integer mudq, integer mldq, 
+                     integer mukeep, integer mlkeep, 
+                     real cj, real hh, real rel_yy, real tt,
+                     N_Vector ewt, N_Vector constraints,
+                     IDALocalFn glocal, IDACommFn gcomm, BandMat JJ, 
+                     integer *nginc, void *res_data, N_Vector yy, N_Vector yp, 
+                     N_Vector gref, N_Vector gtemp, 
+                     N_Vector ytemp, N_Vector yptemp)
+{
+  real inc, inc_inv;
+  int  retval;
+  integer group, i, j, width, ngroups, i1, i2;
+  real *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
+  real *cnsdata = NULL, *ewtdata;
+  real *col_j, conj, yj, ypj, ewtj;
+
+  /* Obtain pointers as required to the data array of vectors. */
+  ydata     = N_VGetData(yy);
+  ypdata    = N_VGetData(yp);
+  ytempdata = N_VGetData(ytemp);
+  yptempdata= N_VGetData(yptemp);
+
+  grefdata    = N_VGetData(gref);
+  gtempdata = N_VGetData(gtemp);
+
+  ewtdata = N_VGetData(ewt);
+  if(constraints != NULL) cnsdata = N_VGetData(constraints);
+
+  /* Initialize ytemp and yptemp. */
+
+  N_VScale(ONE, yy, ytemp);
+  N_VScale(ONE, yp, yptemp);
+
+  /* Call gcomm and glocal to get base value of G(t,y,y'). */
+  retval = gcomm(yy, yp, res_data);
+  if(retval != 0) return(retval);
+
+  retval = glocal(tt, yy, yp, gref, res_data); *nginc = 1;
+  if(retval != 0) return(retval);
+
+  /* Set bandwidth and number of column groups for band differencing. */
+  width = mldq + mudq + 1;
+  ngroups = MIN(width, Nlocal);
+
+  /* Loop over groups. */
+  for(group = 1; group <= ngroups; group++) {
+    
+    /* Loop over the components in this group. */
+    for(j = group-1; j < Nlocal; j += width) {
+      yj = ydata[j];
+      ypj = ypdata[j];
+      ewtj = ewtdata[j];
+      
+      /* Set increment inc to yj based on rel_yy*abs(yj), with
+         adjustments using ypj and ewtj if this is small, and a further
+         adjustment to give it the same sign as hh*ypj. */
+      inc = rel_yy*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
+      if(hh*ypj < ZERO) inc = -inc;
+      inc = (yj + inc) - yj;
+      
+      /* Adjust sign(inc) again if yj has an inequality constraint. */
+      if(constraints != NULL) {
+        conj = cnsdata[j];
+        if(ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
+        else if(ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+
+      /* Increment yj and ypj. */
+      ytempdata[j] += inc;
+      yptempdata[j] += cj*inc;
+      
+    }
+
+    /* Evaluate G with incremented y and yp arguments. */
+    retval = glocal(tt, ytemp, yptemp, gtemp, res_data); (*nginc)++;
+    if(retval != 0) return(retval);
+
+    /* Loop over components of the group again; restore ytemp and yptemp. */
+    for(j = group-1; j < Nlocal; j += width) {
+      yj  = ytempdata[j]  = ydata[j];
+      ypj = yptempdata[j] = ypdata[j];
+      ewtj = ewtdata[j];
+
+      /* Set increment inc as before .*/
+      inc = rel_yy*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
+      if(hh*ypj < ZERO) inc = -inc;
+      inc = (yj + inc) - yj;
+      if(constraints != NULL) {
+        conj = cnsdata[j];
+        if(ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
+        else if(ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+
+      /* Form difference quotients and load into JJ. */
+      inc_inv = ONE/inc;
+      col_j = BAND_COL(JJ,j);
+      i1 = MAX(0, j-mukeep);
+      i2 = MIN(j+mlkeep, Nlocal-1);
+      for(i = i1; i <= i2; i++) BAND_COL_ELEM(col_j,i,j) =
+                                  inc_inv * (gtempdata[i] - grefdata[i]);       
+    }
+  }
+  
+  return(SUCCESS);
+}
+
+/**********************************************************************/
+
+/* Readability Replacements */
+
+#define machenv     (ida_mem->ida_machenv)
+#define errfp       (ida_mem->ida_errfp)
+
 
 /***************** User-Callable Functions: malloc and free ******************/
 
 IBBDData IBBDAlloc(integer Nlocal, integer mudq, integer mldq, 
                    integer mukeep, integer mlkeep, real dq_rel_yy, 
                    IDALocalFn glocal, IDACommFn gcomm, 
-		   void *idamem, void *res_data)
+                   void *idamem, void *res_data)
 {
   IBBDData P_data;
   IDAMem ida_mem;
@@ -53,6 +193,16 @@ IBBDData IBBDAlloc(integer Nlocal, integer mudq, integer mldq,
   integer muk, mlk, storage_mu;
 
   ida_mem = (IDAMem)idamem;
+
+  /* Test if the NVECTOR package is compatible with the BLOCK BAND preconditioner  */
+  if ((strcmp(machenv->tag,"parallel")) || 
+      machenv->ops->nvmake    == NULL || 
+      machenv->ops->nvdispose == NULL ||
+      machenv->ops->nvgetdata == NULL || 
+      machenv->ops->nvsetdata == NULL) {
+    fprintf(errfp, MSG_WRONG_NVEC);
+    return(NULL);
+  }
 
   /* Allocate data memory. */
   P_data = (IBBDData) malloc(sizeof *P_data);
@@ -86,20 +236,23 @@ IBBDData IBBDAlloc(integer Nlocal, integer mudq, integer mldq,
 
   /* Allocate tempv4 for use by IBBDDQJac.  Note: Nlocal is a dummy,
      in that ida_machenv parameters are used to determine size. */
- tempv4 = N_VNew(Nlocal,ida_mem->ida_machenv); 
- if(tempv4 == NULL){
-   BandFreeMat(P_data->PP);
-   BandFreePiv(P_data->pivots);
-   free(P_data);
-   return(NULL);
- }
+  tempv4 = N_VNew(Nlocal, machenv); 
+  if(tempv4 == NULL){
+    BandFreeMat(P_data->PP);
+    BandFreePiv(P_data->pivots);
+    free(P_data);
+    return(NULL);
+  }
   P_data->tempv4 = tempv4;
-
+  
   /* Set rel_yy based on input value dq_rel_yy (0 implies default). */
   if(dq_rel_yy > ZERO) rel_yy = dq_rel_yy;
-  else               rel_yy = RSqrt(ida_mem->ida_uround); 
+  else                 rel_yy = RSqrt(ida_mem->ida_uround); 
   P_data->rel_yy = rel_yy;
 
+  /* Store Nlocal to be used in IBBDPrecond */
+  P_data->n_local = Nlocal;
+  
   /* Set work space sizes and initialize nge. */
   P_data->rpwsize = Nlocal*(mlk + storage_mu + 1);
   P_data->ipwsize = Nlocal;
@@ -195,7 +348,7 @@ int IBBDPrecon(integer Neq, real tt, N_Vector yy,
 
   pdata =(IBBDData)P_data;
   tempv4 = pdata->tempv4;
-  Nlocal = N_VLOCLENGTH(yy);
+  Nlocal = pdata->n_local;
 
   /* Call IBBDDQJac for a new Jacobian calculation and store in PP. */
   BandZero(PP);
@@ -203,8 +356,8 @@ int IBBDPrecon(integer Neq, real tt, N_Vector yy,
                      ewt, constraints, glocal, gcomm, PP, &nginc, res_data, 
                      yy, yp, tempv1, tempv2, tempv3,tempv4);
   nge += nginc;
-  if(retval<0)return(LSETUP_ERROR_NONRECVR);
-  if(retval>0)return(LSETUP_ERROR_RECVR);
+  if(retval<0) return(LSETUP_ERROR_NONRECVR);
+  if(retval>0) return(LSETUP_ERROR_RECVR);
  
   /* Do LU factorization of preconditioner block in place (in PP). */
   retfac = BandFactor(PP, pivots);
@@ -245,155 +398,18 @@ int IBBDPrecon(integer Neq, real tt, N_Vector yy,
               N_Vector zvec, long int *nrePtr, N_Vector tempv)
 {
   IBBDData pdata;
+  real *zd;
 
   pdata = (IBBDData)P_data;
 
   /* Copy rvec to zvec, do the backsolve, and return. */
   N_VScale(ONE, rvec, zvec);
-  BandBacksolve(PP, pivots, zvec);
- 
+  zd = N_VGetData(zvec);
+  BandBacksolve(PP, pivots, zd);
+  N_VSetData(zd, zvec);
+
   return(0);
 }
 
-#undef mudq
-#undef mukeep
-#undef mldq
-#undef mlkeep
-#undef cj
-#undef constraints
-#undef ewt
-#undef glocal
-#undef gcomm
-#undef pivots
-#undef PP
-#undef nge
-#undef rel_yy
 
 
-/*************** IBBDDQJac *****************************************
-
- This routine generates a banded difference quotient approximation to
- the local block of the Jacobian of G(t,y,y').  It assumes that a
- band matrix of type BandMat is stored column-wise, and that elements
- within each column are contiguous.
-
- All matrix elements are generated as difference quotients, by way
- of calls to the user routine glocal.
- By virtue of the band structure, the number of these calls is
- bandwidth + 1, where bandwidth = mldq + mudq + 1.
- But the band matrix kept has bandwidth = mlkeep + mukeep + 1.
- This routine also assumes that the local elements of a vector are
- stored contiguously.
-
- Return values are: 0 (success), > 0 (recoverable error),
- or < 0 (nonrecoverable error).
-**********************************************************************/
-
-
-/**********************************************************************/
-
-static int IBBDDQJac(integer Nlocal, integer mudq, integer mldq, 
-                     integer mukeep, integer mlkeep, 
-                     real cj, real hh, real rel_yy, real tt,
-                     N_Vector ewt, N_Vector constraints,
-                     IDALocalFn glocal, IDACommFn gcomm, BandMat JJ, 
-                     integer *nginc, void *res_data, N_Vector yy, N_Vector yp, 
-                     N_Vector gref, N_Vector gtemp, 
-                     N_Vector ytemp, N_Vector yptemp)
-{
-  real inc, inc_inv;
-  int  retval;
-  integer group, i, j, width, ngroups, i1, i2;
-  real *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
-  real *cnsdata, *ewtdata;
-  real *col_j, conj, yj, ypj, ewtj;
-
-  /* Obtain pointers as required to the data array of vectors. */
-  ydata     = N_VDATA(yy);
-  ypdata    = N_VDATA(yp);
-  ytempdata = N_VDATA(ytemp);
-  yptempdata= N_VDATA(yptemp);
-
-  grefdata    = N_VDATA(gref);
-  gtempdata = N_VDATA(gtemp);
-
-  ewtdata = N_VDATA(ewt);
-  if(constraints != NULL) cnsdata = N_VDATA(constraints);
-
-  /* Initialize ytemp and yptemp. */
-
-  N_VScale(ONE, yy, ytemp);
-  N_VScale(ONE, yp, yptemp);
-
-  /* Call gcomm and glocal to get base value of G(t,y,y'). */
-  retval = gcomm(yy, yp, res_data);
-  if(retval != 0) return(retval);
-
-  retval = glocal(tt, yy, yp, gref, res_data); *nginc = 1;
-  if(retval != 0) return(retval);
-
-  /* Set bandwidth and number of column groups for band differencing. */
-  width = mldq + mudq + 1;
-  ngroups = MIN(width, Nlocal);
-
-  /* Loop over groups. */
-  for(group = 1; group <= ngroups; group++) {
-    
-    /* Loop over the components in this group. */
-    for(j = group-1; j < Nlocal; j += width) {
-      yj = ydata[j];
-      ypj = ypdata[j];
-      ewtj = ewtdata[j];
-
-      /* Set increment inc to yj based on rel_yy*abs(yj), with
-         adjustments using ypj and ewtj if this is small, and a further
-         adjustment to give it the same sign as hh*ypj. */
-      inc = rel_yy*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
-      if(hh*ypj < ZERO) inc = -inc;
-      inc = (yj + inc) - yj;
-
-      /* Adjust sign(inc) again if yj has an inequality constraint. */
-      if(constraints != NULL) {
-        conj = cnsdata[j];
-        if(ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if(ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
-      }
-
-      /* Increment yj and ypj. */
-      ytempdata[j] += inc;
-      yptempdata[j] += cj*inc;
-      
-    }
-
-    /* Evaluate G with incremented y and yp arguments. */
-    retval = glocal(tt, ytemp, yptemp, gtemp, res_data); (*nginc)++;
-    if(retval != 0) return(retval);
-
-    /* Loop over components of the group again; restore ytemp and yptemp. */
-    for(j = group-1; j < Nlocal; j += width) {
-      yj  = ytempdata[j]  = ydata[j];
-      ypj = yptempdata[j] = ypdata[j];
-      ewtj = ewtdata[j];
-
-      /* Set increment inc as before .*/
-      inc = rel_yy*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
-      if(hh*ypj < ZERO) inc = -inc;
-      inc = (yj + inc) - yj;
-      if(constraints != NULL) {
-        conj = cnsdata[j];
-        if(ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if(ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
-      }
-
-      /* Form difference quotients and load into JJ. */
-      inc_inv = ONE/inc;
-      col_j = BAND_COL(JJ,j);
-      i1 = MAX(0, j-mukeep);
-      i2 = MIN(j+mlkeep, Nlocal-1);
-      for(i = i1; i <= i2; i++) BAND_COL_ELEM(col_j,i,j) =
-	                inc_inv * (gtempdata[i] - grefdata[i]);       
-    }
-  }
-
- return(SUCCESS);
-}

@@ -1,7 +1,8 @@
 /******************************************************************
  * File          : idabbdpre.h                                    *
- * Programmers   : Allan G. Taylor and Alan C Hindmarsh @ LLNL    *
- * Version of    : 8 December 1999                                *
+ * Programmers   : Allan G. Taylor, Alan C Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 6 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the IDABBDPRE module, for a        *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -24,10 +25,11 @@
  * The user's calling program should have the following form:     *
  *                                                                *
  *   #include "idabbdpre.h"                                       *
+ *   #include "nvector_parallel.h"                                *
  *   ...                                                          *
  *   IBBDData p_data;                                             *
  *   ...                                                          *
- *   machEnv = PVecInitMPI(...);                                  *
+ *   machEnv = M_EnvInit_Parallel(...);                           *
  *   ...                                                          *
  *   ida_mem = IDAMalloc(...);                                    *
  *   ...                                                          *
@@ -43,7 +45,7 @@
  *   ...                                                          *
  *   IDAFree(...);                                                *
  *                                                                *
- *   PVecFreeMPI(machEnv);                                        *
+ *   M_EnvFree_Parallel(machEnv);                                 *
  *                                                                *
  * The user-supplied routines required are:                       *
  *                                                                *
@@ -130,7 +132,7 @@ extern "C" {
  ******************************************************************/
 
 typedef int (*IDALocalFn)(real tt, N_Vector yy, 
-                       N_Vector yp, N_Vector gval, void *res_data);
+                          N_Vector yp, N_Vector gval, void *res_data);
  
 
 /******************************************************************
@@ -177,6 +179,9 @@ typedef struct {
   /* set by IBBDPrecon and used by IBBDPSol: */
   BandMat PP;
   integer *pivots;
+
+  /* set by IBBDAlloc and used by IBBDPrecond */
+  integer n_local;
 
   /* available for optional output: */
   integer rpwsize;
@@ -262,14 +267,13 @@ IBBDData IBBDAlloc(integer Nlocal, integer mudq, integer mldq,
 
 void IBBDFree(IBBDData p_data);
 
-
-   /* Prototypes of IBDPrecon and IBBDPSol */
+/* Prototypes of IBDPrecon and IBBDPSol */
 
 int IBBDPrecon(integer Neq, real tt, N_Vector yy,
-             N_Vector yp, N_Vector rr, real cj, ResFn res, 
-             void *res_data, void *P_data, N_Vector ewt, N_Vector constraints, 
-             real hh, real uround, long int *nrePtr,
-             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+               N_Vector yp, N_Vector rr, real cj, ResFn res, 
+               void *res_data, void *P_data, N_Vector ewt, N_Vector constraints, 
+               real hh, real uround, long int *nrePtr,
+               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
  
 int IBBDPSol(integer Neq, real tt, N_Vector yy, N_Vector yp, 
              N_Vector rr, real cj, ResFn res, void *res_data, 
