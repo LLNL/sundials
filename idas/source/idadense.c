@@ -1,17 +1,17 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-11-05 23:55:11 $
+ * $Revision: 1.9 $
+ * $Date: 2004-11-16 22:10:21 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California  
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/idas/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/idas/LICENSE.
  * -----------------------------------------------------------------
- * This is the implementation file for the IDAS dense linear        
- * solver module, IDADENSE.                                        
+ * This is the implementation file for the IDAS dense linear
+ * solver module, IDADENSE.
  * -----------------------------------------------------------------
  */
 
@@ -81,7 +81,7 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
                   
 /*
  * -----------------------------------------------------------------
- * CVDense
+ * IDADense
  * -----------------------------------------------------------------
  * This routine initializes the memory record and sets various function
  * fields specific to the IDADENSE linear solver module.  
@@ -97,11 +97,12 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
  *   (1) the input parameter djac, if djac != NULL, or                
  *   (2) IDADenseDQJac, if djac == NULL.                             
  * Finally, it allocates memory for JJ and pivots.
- * The return value is IDADENSE_SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
+ * The return value is IDADENSE_SUCCESS = 0, IDADENSE_LMEM_FAIL = -1,
+ * or IDADENSE_ILL_INPUT = -2.
  *
  * NOTE: The dense linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, IDADense will first 
- *       test for compatible a compatible N_Vector internal
+ *       test for a compatible N_Vector internal
  *       representation by checking that the functions N_VGetArrayPointer
  *       and N_VSetArrayPointer exist.
  * -----------------------------------------------------------------
@@ -325,7 +326,7 @@ int IDADenseGetLastFlag(void *ida_mem, int *flag)
 
 /*
   This routine does remaining initializations specific to the IDADENSE
-  linear solver module.  It returns LINIT_OK = 0.
+  linear solver module.  It returns 0.
 */
 
 static int IDADenseInit(IDAMem IDA_mem)
@@ -352,10 +353,10 @@ static int IDADenseInit(IDAMem IDA_mem)
   solver module.  It calls the Jacobian evaluation routine,
   updates counters, and calls the dense LU factorization routine.
   The return value is either
-     IDADENSE_SUCCESS = 0        if successful,
-     LSETUP_ERROR_RECVR if the jac routine failed recoverably or the
-                        LU factorization failed, or
-     LSETUP_ERROR_NONRECVR if the jac routine failed unrecoverably.
+     IDADENSE_SUCCESS = 0  if successful,
+     +1  if the jac routine failed recoverably or the
+         LU factorization failed, or
+     -1  if the jac routine failed unrecoverably.
 */
 
 static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
