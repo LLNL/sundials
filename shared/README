@@ -1,0 +1,35 @@
+Revision History for NVECTOR and Shared Modules, from 3/21/02           6/23/04
+
+Last log date: 6/18/04
+
+
+20020321  Defined and implemented generic NVECTOR module, and separate serial/
+          parallel NVECTOR modules, including serial/parallel F/C interfaces.
+          Modified dense and band backsolve routines to take real* type for
+          RHS and solution vector.
+          Added initializations for some local variables in spgmr.c.
+20020329  Named the DenseMat, BandMat, and SpgmrMemRec structures.
+20020626  Changed type names to realtype, integertype,booleantype.
+          Renamed llnltypes and llnlmath files.
+20030331  Removed length N from N_VNew and N_VMake; added N_VSpace.
+          Removed N from SpgmrMalloc call list and SPGMR memory.
+20030805  Changed 'machine environment' to 'vector specification'.
+20030923  Removed N_VOneMask and added N_VWrmsNormMask from NVECTOR.
+20031008  Moved include lines above #ifdef for C++ usage in nvector_**.h
+          Renamed iterativ.* as iterative.*
+20031118  Set BIG_REAL in sundialstypes.h.
+          Revised parallel N_VMin and N_VMinQuotient to use BIG_REAL if
+          local N is 0 or no quotients found.
+20031211  Revised all F/C modules to use underscore flags for name mapping
+          and to use precision flag from configure.
+20031222  Added FCFLAGS in NVECTOR makefiles.
+20040127  Revised F/C routine NVECTOR names for uniformity.
+          Removed UnitRoundoff, using float.h to set this.
+20040129  Revised to use SINGLE_PRECISION flag to define MPI real type.
+20040205  Removed integertype in favor of long int.
+20040302  Removed N_VConstrProdPos.
+20040311  Fixed bug in N_VFree_Parallel - possible non-allocated pointer.
+20040429  Changed *_GS constants from 0,1 to 1,2 in iterative.*
+          Changed file headings to new format.
+20040618  Changed realtype* to void* wherever possible in NVECTOR to provide
+          more generality for user-defined NVECTOR modules.
