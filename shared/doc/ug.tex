@@ -73,6 +73,11 @@
 \newcommand{\band}{{\normalfont\scshape band}}
 \newcommand{\spgmr}{{\normalfont\scshape spgmr}}
 
+%----- OS
+\newcommand{\linux}{{\sc LINUX}}
+\newcommand{\unix}{{\sc UNIX}}
+\newcommand{\mpi}{{\sc MPI}}
+
 %----- C and Fortran languages
 \newcommand{\C}{{\sc C}}
 \newcommand{\CPP}{{\sc C++}}
@@ -143,6 +148,17 @@
   \newpage\pagestyle{plain}\pagenumbering{arabic}
 }
 
+%%----------------------------------
+%% List of configure options
+%%---------------------------------
+\newenvironment{config}
+{\begin{list}{}{
+      \setlength{\leftmargin}{2em}
+      \setlength{\rightmargin}{0em}
+      \setlength{\topsep}{0.05in}
+      \setlength{\itemindent}{-2em}
+      \setlength{\itemsep}{0.05in}}}
+  {\end{list}}
 %%---------------------------------
 %% Steps used in skeleton programs
 %%---------------------------------
