@@ -72,7 +72,7 @@ from a shell command prompt.
 \label{t:sundials_files}
 \medskip
 \begin{tabular}{|l|l|l|}\hline
-{\bf MODULE} & {\bf Libraries} & {\bf Header files} \\
+{\bf Module} & {\bf Libraries} & {\bf Header files} \\
 \hline
 {\shared} &  \id{libsundials\_shared.{\em lib}} & \id{sundialstypes.h} \\
           &                                     & \id{dense.h}         \\
@@ -422,8 +422,7 @@ compilaton flag to the list of default flags.
 of the corresponding {\mpi} compiler script. In addition, since the 
 \id{--with-mpi-root} option is given, the compilation flag 
 \id{-I/usr/apps/mpich/1.2.4/include} is passed to \id{gcc} when compiling the
-{\mpi}-enabled functions. Although the \id{--disable-examples} option disables
-the examples (which means a {\F} compiler is not required), the
-\id{--with-mpi-libs} option is still needed so that the configure
+{\mpi}-enabled functions. 
+The \id{--with-mpi-libs} option is still needed so that the configure
 script can check if \id{gcc} can link with the appropriate {\mpi}
 library as \id{-lmpi} is the internal default.
