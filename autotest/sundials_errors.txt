@@ -1,0 +1,20 @@
+nonzero exit code
+no lamd running
+died from signal
+failed
+exceeded maximum allotted time
+killed
+segmentation fault
+floating point exception
+core dumped
+no host with the features you requested
+No such file or directory
+Error exit delayed from previous errors
+: Terminated
+Could not find enough machines
+Terminated
+SUNDIALS_ERROR
+MPI_ERROR
+MEMORY_ERROR
+FILE_ERROR
+nan

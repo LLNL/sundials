@@ -1,0 +1,21 @@
+#tux61  default_dir CC=gcc F77=g77 --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
+#frost /g/g23/collier6 CC=xlc F77=xlf --with-cflags="-qarch=pwr3 -qtune=pwr3 -qmaxmem=8192" --with-fflags="-qarch=pwr3 -qtune=pwr3 -qmaxmem=8192" --with-mpicc=mpcc --with-mpif77=mpxlf --with-f77underscore=none
+#blue  /g/g23/collier6 CC=xlc F77=xlf --with-cflags="-qarch=604 -qtune=604 -qmaxmem=8192" --with-fflags="-qarch=604 -qtune=604 -qmaxmem=8192" --with-mpicc=mpcc --with-mpif77=mpxlf --with-f77underscore=none
+#sundog default_dir CC=cc F77=g77 --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
+#gps /g/g23/collier6 CC=cc F77=f77 FFLAGS="-O1" --with-cflags="-arch ev6 -om" --with-fflags="-arch ev6" --with-mpicc=no --with-mpif77=no --with-mpi-incdir=/usr/include --with-mpi-libdir=/usr/lib --with-mpi-libs="-lfmpi -lmpi"
+
+PROJECT_NAME=sundials
+LOCAL_USERNAME=
+LOCAL_MACHINE=
+LOCAL_DIR=/home/username/sundials/autotest
+REMOTE_USERNAME=
+REMOTE_MACHINES="sundog gps frost"
+MAIL_RECIPIENTS="username@llnl.gov"
+AUTOTEST_ADMIN=username@llnl.gov
+MAX_TIME=5
+LOG_DIR=
+SCRIPT_DIR=/home/username/sundials/autotest
+MPI_HOST_FILE_DIR=/home/username/sundials/autotest
+MPI_OPT_DIR=/home/username/sundials/autotest
+SOURCE_DIR=
+NUM_LOG_FILES=1
