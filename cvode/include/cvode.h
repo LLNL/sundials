@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-08-25 16:16:56 $
+ * $Revision: 1.22 $
+ * $Date: 2004-10-08 15:11:08 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -715,28 +715,28 @@ void CVodeFree(void *cvode_mem);
  * -----------------------------------------------------------------
  * convfail (input to cv_lsetup)                              
  *                                                                
- * NO_FAILURES : Either this is the first cv_setup call for this  
- *               step, or the local error test failed on the      
- *               previous attempt at this step (but the Newton    
- *               iteration converged).   
+ * CV_NO_FAILURES : Either this is the first cv_setup call for this  
+ *                  step, or the local error test failed on the      
+ *                  previous attempt at this step (but the Newton    
+ *                  iteration converged).   
  *                                                                
- * FAIL_BAD_J  : This value is passed to cv_lsetup if             
+ * CV_FAIL_BAD_J  : This value is passed to cv_lsetup if             
  *                                                                
- *               (a) The previous Newton corrector iteration      
- *                   did not converge and the linear solver's     
- *                   setup routine indicated that its Jacobian-   
- *                   related data is not current                  
+ *                  (a) The previous Newton corrector iteration      
+ *                      did not converge and the linear solver's     
+ *                      setup routine indicated that its Jacobian-   
+ *                      related data is not current                  
  *                                   or                           
- *               (b) During the previous Newton corrector         
- *                   iteration, the linear solver's solve routine 
- *                   failed in a recoverable manner and the       
- *                   linear solver's setup routine indicated that 
- *                   its Jacobian-related data is not current.    
+ *                  (b) During the previous Newton corrector         
+ *                      iteration, the linear solver's solve routine 
+ *                      failed in a recoverable manner and the       
+ *                      linear solver's setup routine indicated that 
+ *                      its Jacobian-related data is not current.    
  *                                                                
- * FAIL_OTHER  : During the current internal step try, the        
- *               previous Newton iteration failed to converge     
- *               even though the linear solver was using current  
- *               Jacobian-related data.                           
+ * CV_FAIL_OTHER  : During the current internal step try, the        
+ *                  previous Newton iteration failed to converge     
+ *                  even though the linear solver was using current  
+ *                  Jacobian-related data.                           
  *                                                                
  * -----------------------------------------------------------------
  */
