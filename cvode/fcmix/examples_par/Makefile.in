@@ -8,27 +8,29 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
 
-# SUNDIALS library directory
-SUNDIALSLIBDIRS = -L${libdir}
-SUNDIALSLIBS    = -lfcvode -lcvode -lfnvecparallel -lnvecparallel -lshared
-
-# MPI library and include directories
-MPILIBDIRS = @MPILIBDIRS@
-MPILIBS    = @MPILIBS@
-MPIFLAGS   = @MPIFLAGS@
-
-# Libraries
-LIBDIRS = ${SUNDIALSLIBDIRS} ${MPILIBDIRS}
-LIBS    = ${SUNDIALSLIBS} ${MPILIBS} -lm
+# Path to sources
+srcdir = @srcdir@
 
 # Compiler and compiler options
-FC     = @MPIF77@
-FFLAGS = @FFLAGS@
+FFLAGS    = @FFLAGS@
+LDFLAGS   = @LDFLAGS@
+FLIBS     = @FLIBS@
+MPIF77    = @MPIF77@
+MPIINC    = @MPIINC@
+MPILIBDIR = @MPILIBDIR@
+MPILIBS   = @MPILIBS@
+
+# SUNDIALS library directory
+SUNDIALS_LIB_DIR = ${libdir}
+
+INCDIRS = ${MPIINC}
+LIBDIRS = -L${SUNDIALS_LIB_DIR} ${MPILIBDIR}
+LIBS    = -lfcvode -lcvode -lfnvecparallel -lnvecparallel -lshared -lm ${MPILIBS}
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -36,21 +38,12 @@ FFLAGS = @FFLAGS@
 
 all: pvdiagnf pvdiagkf pvdiagkbf
 
-pvdiagnf: pvdiagnf.o
-	${FC} ${FFLAGS} ${MPIFLAGS} -o pvdiagnf pvdiagnf.o ${LIBDIRS} ${LIBS}
-
-pvdiagkf: pvdiagkf.o
-	${FC} ${FFLAGS} ${MPIFLAGS} -o pvdiagkf pvdiagkf.o ${LIBDIRS} ${LIBS}
-
-pvdiagkbf: pvdiagkbf.o
-	${FC} ${FFLAGS} ${MPIFLAGS} -o pvdiagkbf pvdiagkbf.o ${LIBDIRS} ${LIBS}
-
+pvdiagnf pvdiagkf pvdiagkbf: % : ${srcdir}/%.f
+	${MPIF77} -c ${FFLAGS} ${INCDIRS} ${srcdir}/$@.f
+	${MPIF77} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
 
 clean:
 	rm -f *.o
 	rm -f pvdiagnf pvdiagkf pvdiagkbf
-
-.f.o:
-	${FC} -c ${FFLAGS} $*.f
 
 #---End of Makefile---

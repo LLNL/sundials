@@ -10,29 +10,37 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
+
+# Path to sources
+srcdir = @srcdir@
+
+# Archiver programs
+AR = @AR@
+
+# Compiler and compiler options
+CC       = @CC@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS   = @CFLAGS@
 
 # SHARED include directory
-SHARED_INC_DIR = ../shared/include
+SHARED_INC_DIR  = ${srcdir}/../shared/include
+NVECSER_INC_DIR = ${srcdir}
+
+INCDIRS = -I${SHARED_INC_DIR} -I${NVECSER_INC_DIR}
 
 # NVECSERIAL libraries
-NVECSER_LIB = libnvecserial.a
+NVECSER_LIB  = libnvecserial.a
 FNVECSER_LIB = libfnvecserial.a
 
 # Source and object files
-SRC = nvector_serial.c fnvector_serial.c
-OBJ = ${SRC:.c=.o}
+SRC =	${srcdir}/nvector_serial.c \
+	${srcdir}/fnvector_serial.c
 
-# Includes
-SHAREDINCLUDE = -I${SHARED_INC_DIR}
-INCS =  -I. ${SHAREDINCLUDE}
-
-# Compiler and compiler options
-CC     = @CC@
-CFLAGS = @CFLAGS@
+OBJ = nvector_serial.o fnvector_serial.o
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -40,13 +48,13 @@ CFLAGS = @CFLAGS@
 
 all: $(OBJ)
 
-install:
-	ar rc ${NVECSER_LIB} nvector_serial.o
-	ar rc ${FNVECSER_LIB} fnvector_serial.o
-	cp ${NVECSER_LIB}    ${libdir}
-	cp ${FNVECSER_LIB}   ${libdir}
-	cp nvector_serial.h  ${includedir}
-	cp fnvector_serial.h ${includedir}
+install: ${OBJ}
+	${AR} ${NVECSER_LIB}  nvector_serial.o
+	${AR} ${FNVECSER_LIB} fnvector_serial.o
+	cp ${NVECSER_LIB}  ${libdir}
+	cp ${FNVECSER_LIB} ${libdir}
+	cp ${NVECSER_INC_DIR}/nvector_serial.h  ${includedir}
+	cp ${NVECSER_INC_DIR}/fnvector_serial.h ${includedir}
 
 clean:
 	rm -f ${OBJ}
@@ -59,7 +67,7 @@ uninstall:
 	rm -f ${includedir}/nvector_serial.h
 	rm -f ${includedir}/fnvector_serial.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${INCS} $*.c
+${OBJ}: %.o : ${srcdir}/%.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

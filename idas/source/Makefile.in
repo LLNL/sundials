@@ -10,30 +10,41 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
+
+# Path to sources
+srcdir = @srcdir@
+
+# Archiver program
+AR = @AR@
+
+# Compiler and compiler options
+CC       = @CC@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS   = @CFLAGS@
 
 # IDAS and SHARED include directories
-SHARED_INC_DIR = ../../shared/include
-IDAS_INC_DIR  = ../include
+SHARED_INC_DIR = ${srcdir}/../../shared/include
+IDAS_INC_DIR   = ${srcdir}/../include
+
+INCDIRS = -I${IDAS_INC_DIR} -I${SHARED_INC_DIR}
 
 # IDAS library name
 IDAS_LIB = libidas.a
 
 # Source and object files
-SRC    = idas.c idasic.c idasio.c idasband.c idasdense.c idasspgmr.c idasbbdpre.c
-OBJ = ${SRC:.c=.o}
+SRC =	${srcdir}/idas.c \
+	${srcdir}/idasic.c \
+	${srcdir}/idasio.c \
+	${srcdir}/idasband.c \
+	${srcdir}/idasdense.c \
+	${srcdir}/idasspgmr.c \
+	${srcdir}/idasbbdpre.c
 
-# Includes
-SHAREDINCLUDE = -I${SHARED_INC_DIR}
-IDASINCLUDE = -I${IDAS_INC_DIR}
-INCS =  ${IDASINCLUDE} ${SHAREDINCLUDE}
-
-# Compiler and compiler options
-CC     = @CC@
-CFLAGS = @CFLAGS@
+OBJ = idas.o idasic.o idasio.o idasband.o idasdense.o idasspgmr.o idasbbdpre.o
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -41,8 +52,8 @@ CFLAGS = @CFLAGS@
 
 all: ${OBJ}
 
-install:
-	ar rc ${IDAS_LIB} ${OBJ}
+install: ${OBJ}
+	${AR} ${IDAS_LIB} ${OBJ}
 	cp ${IDAS_LIB} ${libdir}
 	cp ${IDAS_INC_DIR}/idas.h       ${includedir}
 	cp ${IDAS_INC_DIR}/idasdense.h  ${includedir}
@@ -62,7 +73,7 @@ uninstall:
 	rm -f ${includedir}/idasspgmr.h
 	rm -f ${includedir}/idasbbdpre.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${INCS} $*.c
+${OBJ}: %.o : ${srcdir}/%.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

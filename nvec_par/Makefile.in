@@ -10,30 +10,38 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
 
-# SHARED include directory
-SHARED_INC_DIR = ../shared/include
+# Path to sources
+srcdir = @srcdir@
+
+# Archiver program
+AR = @AR@
+
+# Compiler and compiler options
+CPPFLAGS  = @CPPFLAGS@
+CFLAGS    = @CFLAGS@
+MPICC     = @MPICC@
+MPIINC    = @MPIINC@
+
+# SHARED and NVECPAR include directory
+SHARED_INC_DIR  = ${srcdir}/../shared/include
+NVECPAR_INC_DIR = ${srcdir}
+
+INCDIRS = -I${SHARED_INC_DIR} -I${NVECPAR_INC_DIR} ${MPIINC}
 
 # NVECPARALLEL libraries
-NVECPAR_LIB = libnvecparallel.a
+NVECPAR_LIB  = libnvecparallel.a
 FNVECPAR_LIB = libfnvecparallel.a
 
 # Source and object files
-SRC = nvector_parallel.c fnvector_parallel.c
-OBJ = ${SRC:.c=.o}
+SRC =	${srcdir}/nvector_parallel.c \
+	${srcdir}/fnvector_parallel.c
 
-# Includes
-SHAREDINCLUDE = -I${SHARED_INC_DIR}
-MPIINCLUDE = @MPIINCLUDE@
-INCS = -I. ${SHAREDINCLUDE} ${MPIINCLUDE}
-
-# Compiler and compiler options
-CC     = @MPICC@
-CFLAGS = @CFLAGS@
+OBJ = nvector_parallel.o fnvector_parallel.o
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -42,13 +50,13 @@ CFLAGS = @CFLAGS@
 all: ${OBJ}
 
 
-install:
-	ar rc ${NVECPAR_LIB} nvector_parallel.o
-	ar rc ${FNVECPAR_LIB} fnvector_parallel.o
-	cp ${NVECPAR_LIB}      ${libdir}
-	cp ${FNVECPAR_LIB}     ${libdir}
-	cp nvector_parallel.h  ${includedir}
-	cp fnvector_parallel.h ${includedir}
+install: ${OBJ}
+	${AR} ${NVECPAR_LIB} nvector_parallel.o
+	${AR} ${FNVECPAR_LIB} fnvector_parallel.o
+	cp ${NVECPAR_LIB}  ${libdir}
+	cp ${FNVECPAR_LIB} ${libdir}
+	cp ${NVECPAR_INC_DIR}/nvector_parallel.h  ${includedir}
+	cp ${NVECPAR_INC_DIR}/fnvector_parallel.h ${includedir}
 
 clean:
 	rm -f ${OBJ}
@@ -61,7 +69,7 @@ uninstall:
 	rm -f ${includedir}/nvector_parallel.h
 	rm -f ${includedir}/fnvector_parallel.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${INCS} $*.c
+${OBJ}: %.o : ${srcdir}/%.c
+	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

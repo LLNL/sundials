@@ -10,30 +10,37 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
+
+# Path to sources
+srcdir = @srcdir@
+
+# Archiver program
+AR = @AR@
+
+# Compiler and compiler options
+CC       = @CC@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS   = @CFLAGS@
 
 # KINSOL and SHARED include directories
-SHARED_INC_DIR = ../../shared/include
-KINSOL_INC_DIR  = ../include
+SHARED_INC_DIR = ${srcdir}/../../shared/include
+KINSOL_INC_DIR  = ${srcdir}/../include
+
+INCDIRS = -I${KINSOL_INC_DIR} -I${SHARED_INC_DIR}
 
 # KINSOL library name
 KINSOL_LIB = libkinsol.a
 
 # Source and object files
-SRC = kinbbdpre.c kinsol.c kinspgmr.c
-OBJ = ${SRC:.c=.o}
+SRC =	${srcdir}/kinsol.c \
+	${srcdir}/kinspgmr.c \
+	${srcdir}/kinbbdpre.c
 
-# Includes
-SHAREDINCLUDE = -I${SHARED_INC_DIR}
-KINSOLINCLUDE = -I${KINSOL_INC_DIR}
-INCS =  ${KINSOLINCLUDE} ${SHAREDINCLUDE}
-
-# Compiler and compiler options
-CC     = @CC@
-CFLAGS = @CFLAGS@
+OBJ = kinsol.o kinspgmr.o kinbbdpre.o
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -41,8 +48,8 @@ CFLAGS = @CFLAGS@
 
 all: ${OBJ}
 
-install:
-	ar rc ${KINSOL_LIB} ${OBJ}
+install: ${OBJ}
+	${AR} ${KINSOL_LIB} ${OBJ}
 	cp ${KINSOL_LIB} ${libdir}
 	cp ${KINSOL_INC_DIR}/kinsol.h    ${includedir}
 	cp ${KINSOL_INC_DIR}/kinspgmr.h  ${includedir}
@@ -58,7 +65,7 @@ uninstall:
 	rm -f ${includedir}/kinspgmr.h
 	rm -f ${includedir}/kinbbdpre.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${INCS} $*.c
+${OBJ}: %.o : ${srcdir}/%.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

@@ -10,29 +10,40 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
+
+# Path to sources
+srcdir = @srcdir@
+
+# Archiver programs
+AR = @AR@
+
+# Compiler and compiler options
+CC       = @CC@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS   = @CFLAGS@
 
 # SHARED include directory
-SHARED_INC_DIR = ../include
+SHARED_INC_DIR = ${srcdir}/../include
+
+INCDIRS = -I${SHARED_INC_DIR} 
 
 # SHARED library
 SHARED_LIB = libshared.a
 
 # Source and object files
-SRC = band.c dense.c iterativ.c sundialsmath.c \
-      nvector.c smalldense.c spgmr.c
-OBJ = ${SRC:.c=.o}
+SRC =	${srcdir}/band.c \
+	${srcdir}/dense.c \
+	${srcdir}/iterativ.c \
+	${srcdir}/sundialsmath.c \
+	${srcdir}/nvector.c \
+	${srcdir}/smalldense.c \
+	${srcdir}/spgmr.c
 
-# Includes
-SHAREDINCLUDE = -I${SHARED_INC_DIR}
-INCS =  ${SHAREDINCLUDE}
-
-# Compiler and compiler options
-CC     = @CC@
-CFLAGS = @CFLAGS@
+OBJ = band.o dense.o iterative.o sundialsmath.o nvector.o smalldense.o spgmr.o
 
 #--------------------------------------------------------------------------------------
 # Make rules
@@ -40,13 +51,13 @@ CFLAGS = @CFLAGS@
 
 all: ${OBJ}
 
-install:
-	ar rc ${SHARED_LIB} ${OBJ}
+install: ${OBJ}
+	${AR} ${SHARED_LIB} ${OBJ}
 	cp ${SHARED_LIB} ${libdir}
 	cp ${SHARED_INC_DIR}/band.h             ${includedir}
 	cp ${SHARED_INC_DIR}/dense.h            ${includedir}
 	cp ${SHARED_INC_DIR}/fcmixpar.h         ${includedir}
-	cp ${SHARED_INC_DIR}/iterativ.h         ${includedir}
+	cp ${SHARED_INC_DIR}/iterative.h        ${includedir}
 	cp ${SHARED_INC_DIR}/sundialsmath.h     ${includedir}
 	cp ${SHARED_INC_DIR}/sundialstypes.h    ${includedir}
 	cp ${SHARED_INC_DIR}/nvector.h          ${includedir}
@@ -62,14 +73,15 @@ uninstall:
 	rm -f ${includedir}/band.h
 	rm -f ${includedir}/dense.h
 	rm -f ${includedir}/fcmixpar.h
-	rm -f ${includedir}/iterativ.h
+	rm -f ${includedir}/iterative.h
 	rm -f ${includedir}/sundialsmath.h
 	rm -f ${includedir}/sundialstypes.h
 	rm -f ${includedir}/nvector.h
 	rm -f ${includedir}/smalldense.h
 	rm -f ${includedir}/spgmr.h
+	rm -f ${includedir}/complexify.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${INCS} $*.c
+${OBJ}: %.o : ${srcdir}/%.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

@@ -8,27 +8,29 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
 
-# SUNDIALS library directory
-SUNDIALSLIBDIRS = -L${libdir}
-SUNDIALSLIBS    = -lfkinsol -lkinsol -lfnvecparallel -lnvecparallel -lshared
-
-# MPI library and include directories
-MPILIBDIRS = @MPILIBDIRS@
-MPILIBS    = @MPILIBS@
-MPIFLAGS   = @MPIFLAGS@
-
-# Libraries
-LIBDIRS = ${SUNDIALSLIBDIRS} ${MPILIBDIRS}
-LIBS    = ${SUNDIALSLIBS} ${MPILIBS} -lm
+# Path to sources
+srcdir = @srcdir@
 
 # Compiler and compiler options
-FC     = @MPIF77@
-FFLAGS = @FFLAGS@
+FFLAGS    = @FFLAGS@
+LDFLAGS   = @LDFLAGS@
+FLIBS     = @FLIBS@
+MPIF77    = @MPIF77@
+MPIINC    = @MPIINC@
+MPILIBDIR = @MPILIBDIR@
+MPILIBS   = @MPILIBS@
+
+# SUNDIALS library directory
+SUNDIALS_LIB_DIR = ${libdir}
+
+INCDIRS = ${MPIINC}
+LIBDIRS = -L${SUNDIALS_LIB_DIR} ${MPILIBDIR}
+LIBS    = -lfkinsol -lkinsol -lfnvecparallel -lnvecparallel -lshared -lm ${MPILIBS}
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -36,14 +38,12 @@ FFLAGS = @FFLAGS@
 
 all: kindiagpf
 
-kindiagpf: kindiagpf.o
-	${FC} ${FFLAGS} ${MPIFLAGS} -o kindiagpf kindiagpf.o ${LIBDIRS} ${LIBS}
+kindiagpf: % : ${srcdir}/%.f
+	${MPIF77} -c ${FFLAGS} ${INCDIRS} ${srcdir}/$@.f
+	${MPIF77} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
 
 clean:
 	rm -f *.o
 	rm -f kindiagpf
-
-.f.o:
-	${FC} -c ${FFLAGS} $*.f
 
 #---End of Makefile---

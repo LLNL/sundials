@@ -8,22 +8,27 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
 
-# SUNDIALS library directory
-SUNDIALSLIBDIRS = -L${libdir}
-SUNDIALSLIBS    = -lfkinsol -lkinsol -lfnvecserial -lnvecserial -lshared
-
-# Libraries
-LIBDIRS = ${SUNDIALSLIBDIRS}
-LIBS    = ${SUNDIALSLIBS}
+# Path to sources
+srcdir = @srcdir@
 
 # Compiler and compiler options
-FC     = @F77@
-FFLAGS = @FFLAGS@
+FC      = @F77@
+FFLAGS  = @FFLAGS@
+FLIBS   = @FLIBS@
+LDFLAGS = @LDFLAGS@
+
+# SUNDIALS library directory
+SUNDIALS_LIB_DIR = ${libdir}
+SUNDIALSLIBS    = 
+
+# Libraries
+LIBDIRS = -L${SUNDIALS_LIB_DIR}
+LIBS    = -lfkinsol -lkinsol -lfnvecserial -lnvecserial -lshared
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -31,14 +36,12 @@ FFLAGS = @FFLAGS@
 
 all: kindiagsf
 
-kindiagsf: kindiagsf.o
-	${FC} ${FFLAGS} -o kindiagsf kindiagsf.o ${LIBDIRS} ${LIBS}
+kindiagsf: % : ${srcdir}/%.f
+	${FC} -c ${FFLAGS} ${srcdir}/$@.f
+	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
 
 clean:
 	rm -f *.o
 	rm -f kindiagsf
-
-.f.o:
-	${FC} -c ${FFLAGS} $*.f
 
 #---End of Makefile---

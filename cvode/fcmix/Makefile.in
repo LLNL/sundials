@@ -11,31 +11,42 @@
 SHELL = /bin/sh
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
+
+# Path to sources
+srcdir = @srcdir@
+
+# Archiver program
+AR = @AR@
+
+# Compiler and compiler options
+CC       = @CC@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS   = @CFLAGS@
 
 # CVODE and SHARED include directories
-SHARED_INC_DIR = ../../shared/include
-CVODE_INC_DIR  = ../include
+SHARED_INC_DIR = ${srcdir}/../../shared/include
+CVODE_INC_DIR  = ${srcdir}/../include
+FCVODE_INC_DIR = ${srcdir}
+
+INCDIRS = -I${FCVODE_INC_DIR} -I${CVODE_INC_DIR} -I${SHARED_INC_DIR}
 
 # FCVODE library name
 FCVODE_LIB = libfcvode.a
 
 # Source and object files
-SRC = fcvode.c fcvdense.c fcvband.c fcvjtimes.c \
-      fcvpsol.c fcvpreco.c fcvbbd.c
+SRC =	${srcdir}/fcvode.c \
+	${srcdir}/fcvdense.c \
+	${srcdir}/fcvband.c \
+	${srcdir}/fcvjtimes.c \
+	${srcdir}/fcvpsol.c \
+	${srcdir}/fcvpreco.c \
+	${srcdir}/fcvbbd.c
 
-OBJ = ${SRC:.c=.o}
-
-# Includes
-SHAREDINCLUDE = -I${SHARED_INC_DIR}
-CVODEINCLUDE  = -I${CVODE_INC_DIR}
-INCS =  -I. ${CVODEINCLUDE} ${SHAREDINCLUDE}
-
-# Compiler and compiler options
-CC     = @CC@
-CFLAGS = @CFLAGS@
+OBJ = fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvpsol.o fcvbbd.o
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -43,8 +54,8 @@ CFLAGS = @CFLAGS@
 
 all: ${OBJ}
 
-install:
-	ar rc ${FCVODE_LIB} ${OBJ}
+install: ${OBJ}
+	${AR} ${FCVODE_LIB} ${OBJ}
 	cp ${FCVODE_LIB} ${libdir}
 
 clean:
@@ -54,7 +65,7 @@ clean:
 uninstall:
 	rm -f ${libdir}/${FCVODE_LIB}
 
-.c.o:
-	${CC} -c ${CFLAGS} ${INCS} $*.c
+${OBJ}: %.o : ${srcdir}/%.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

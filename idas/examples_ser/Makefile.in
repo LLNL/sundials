@@ -8,26 +8,27 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
 
-# SUNDIALS library and include directories
-SUNDIALSINCLUDE = -I${includedir}
-SUNDIALSLIBDIRS = -L${libdir}
-SUNDIALSLIBS    = -lidas -lshared -lnvecserial
-
-# Include
-INCDIRS = -I${includedir}
-
-# Libraries
-LIBDIRS = ${SUNDIALSLIBDIRS}
-LIBS    = ${SUNDIALSLIBS} -lm
+# Path to sources
+srcdir = @srcdir@
 
 # Compiler and compiler options
-CC     = @CC@
-CFLAGS = @CFLAGS@
+CC       = @CC@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+
+# SUNDIALS library and include directories
+SUNDIALS_INC_DIR = ${includedir}
+SUNDIALS_LIB_DIR = ${libdir}
+
+INCDIRS = -I${SUNDIALS_INC_DIR}
+LIBDIRS = -L${SUNDIALS_LIB_DIR}
+LIBS    = -lidas -lshared -lnvecserial -lm
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -35,23 +36,12 @@ CFLAGS = @CFLAGS@
 
 all: irobx iheatsb iheatsk iwebsb
 
-irobx: irobx.o
-	${CC} ${CFLAGS} -o irobx irobx.o ${LIBDIRS} ${LIBS}
-
-iheatsb: iheatsb.o
-	${CC} ${CFLAGS} -o iheatsb iheatsb.o ${LIBDIRS} ${LIBS}
-
-iheatsk: iheatsk.o
-	${CC} ${CFLAGS} -o iheatsk iheatsk.o ${LIBDIRS} ${LIBS}
-
-iwebsb: iwebsb.o
-	${CC} ${CFLAGS} -o iwebsb iwebsb.o ${LIBDIRS} ${LIBS}
+irobx iheatsb iheatsk iwebsb: % : ${srcdir}/%.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
 
 clean:
 	rm -f *.o
 	rm -f irobx iheatsb iheatsk iwebsb
-
-.c.o:
-	${CC} -c ${CFLAGS} ${INCDIRS} $*.c
 
 #---End of Makefile---

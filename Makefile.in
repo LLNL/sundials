@@ -1,10 +1,10 @@
-#--------------------------------------------------------------------------------------
+#-----------------------------------------------
 # File        : Makefile
 # Programmers : Radu Serban @ LLNL
-#--------------------------------------------------------------------------------------
+#-----------------------------------------------
 # Makefile for SUNDIALS suite
 # @configure_input@
-#--------------------------------------------------------------------------------------
+#-----------------------------------------------
 
 # Shell
 SHELL = @SHELL@
@@ -16,11 +16,11 @@ NVEC_MODULES = @NVEC_MODULES@
 EX_MODULES = @EX_MODULES@
 
 COMPONENTS = $(MODULES) $(NVEC_MODULES)
-EXAMPLES   = $(EX_MODULES)
+EXAMPLES = $(EX_MODULES)
 
-#--------------------------------------------------------------------------------------
+#-----------------------------------------------
 # Make rules
-#--------------------------------------------------------------------------------------
+#-----------------------------------------------
 
 all:
 	@for i in $(COMPONENTS); do  \
@@ -40,15 +40,6 @@ install:
 	  fi;                          \
 	done;
 
-examples:
-	@for i in $(EXAMPLES); do              \
-	  if [ -d $$i ]; then                  \
-	    echo "Making examples in $$i ..."; \
-	    (cd $$i; ${MAKE});                 \
-	    echo "";                           \
-	  fi;                                  \
-	done;
-
 clean:
 	@for i in $(COMPONENTS); do  \
 	  if [ -d $$i ]; then        \
@@ -56,24 +47,42 @@ clean:
 	  fi;                        \
 	done;
 
+examples:
+	@if [ "X${EXAMPLES}" = "Xno" ]; then             \
+	  echo "Examples were not configured";           \
+	  echo "Rerun configure with --enable-examples"; \
+	else                                             \
+	for i in $(EXAMPLES); do                         \
+	  if [ -d $$i ]; then                            \
+	    echo "Making examples in $$i ...";           \
+	    (cd $$i; ${MAKE});                           \
+	    echo "";                                     \
+	  fi;                                            \
+	done;                                            \
+	fi;
+
 examples_clean:
-	@for i in $(EXAMPLES); do    \
-	  if [ -d $$i ]; then        \
-	    (cd $$i; ${MAKE} clean); \
-	  fi;                        \
-	done;
+	@if [ "X${EXAMPLES}" != "Xno" ]; then            \
+	for i in $(EXAMPLES); do                         \
+	  if [ -d $$i ]; then                            \
+	    (cd $$i; ${MAKE} clean);                     \
+	  fi;                                            \
+	done;                                            \
+	fi;
 
 distclean: clean examples_clean
-	@for i in $(COMPONENTS); do      \
-	  if [ -d $$i ]; then            \
-	    (cd $$i; rm -f Makefile); \
-	  fi;                            \
+	@for i in $(COMPONENTS); do           \
+	  if [ -d $$i ]; then                 \
+	    (cd $$i; rm -f Makefile);         \
+	  fi;                                 \
 	done;
-	@for i in $(EXAMPLES); do        \
-	  if [ -d $$i ]; then            \
-	    (cd $$i; rm -f Makefile); \
-	  fi;                            \
-	done;
+	@if [ "X${EXAMPLES}" != "Xno" ]; then \
+	for i in $(EXAMPLES); do              \
+	  if [ -d $$i ]; then                 \
+	    (cd $$i; rm -f Makefile);         \
+	  fi;                                 \
+	done;                                 \
+	fi;
 	rm -f config.log config.status config.cache
 	rm -f Makefile
 
@@ -83,3 +92,4 @@ uninstall:
 	    (cd $$i; ${MAKE} uninstall); \
 	  fi;                            \
 	done;
+

@@ -8,22 +8,25 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
 
-# SUNDIALS library directory
-SUNDIALSLIBDIRS = -L${libdir}
-SUNDIALSLIBS    = -lfcvode -lcvode -lfnvecserial -lnvecserial -lshared
-
-# Libraries
-LIBDIRS = ${SUNDIALSLIBDIRS}
-LIBS    = ${SUNDIALSLIBS}
+# Path to sources
+srcdir = @srcdir@
 
 # Compiler and compiler options
-FC     = @F77@
-FFLAGS = @FFLAGS@
+FC      = @F77@
+FFLAGS  = @FFLAGS@
+FLIBS   = @FLIBS@
+LDFLAGS = @LDFLAGS@
+
+# SUNDIALS library directory
+SUNDIALS_LIB_DIR = ${libdir}
+
+LIBDIRS = -L${SUNDIALS_LIB_DIR}
+LIBS    = -lfcvode -lcvode -lfnvecserial -lnvecserial -lshared
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -31,20 +34,12 @@ FFLAGS = @FFLAGS@
 
 all: cvdensef cvbandf cvkryf
 
-cvdensef: cvdensef.o
-	${FC} ${FFLAGS} -o cvdensef cvdensef.o ${LIBDIRS} ${LIBS}
-
-cvbandf: cvbandf.o
-	${FC} ${FFLAGS} -o cvbandf cvbandf.o ${LIBDIRS} ${LIBS}
-
-cvkryf: cvkryf.o
-	${FC} ${FFLAGS} -o cvkryf cvkryf.o ${LIBDIRS} ${LIBS}
+cvdensef cvbandf cvkryf: % : ${srcdir}/%.f
+	${FC} -c ${FFLAGS} ${srcdir}/$@.f
+	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
 
 clean:
 	rm -f *.o
 	rm -f cvdensef cvbandf cvkryf
-
-.f.o:
-	${FC} -c ${FFLAGS} $*.f
 
 #---End of Makefile---

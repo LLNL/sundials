@@ -10,30 +10,41 @@
 SHELL = @SHELL@
 
 # SUNDIALS instalation directory
-prefix = @prefix@
+prefix      = @prefix@
 exec_prefix = @exec_prefix@
-includedir = @includedir@
-libdir = @libdir@
+includedir  = @includedir@
+libdir      = @libdir@
+
+# Path to sources
+srcdir = @srcdir@
+
+# Archiver program
+AR = @AR@
+
+# Compiler and compiler options
+CC       = @CC@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS   = @CFLAGS@
 
 # CVODE and SHARED include directories
-SHARED_INC_DIR = ../../shared/include
-CVODE_INC_DIR  = ../include
+SHARED_INC_DIR = ${srcdir}/../../shared/include
+CVODE_INC_DIR  = ${srcdir}/../include
+
+INCDIRS = -I${CVODE_INC_DIR} -I${SHARED_INC_DIR} 
 
 # CVODE library name
 CVODE_LIB = libcvode.a
 
 # Source and object files
-SRC = cvband.c cvbandpre.c cvdense.c cvdiag.c cvode.c cvspgmr.c cvbbdpre.c
-OBJ = ${SRC:.c=.o}
+SRC =	${srcdir}/cvode.c \
+	${srcdir}/cvband.c \
+	${srcdir}/cvdense.c \
+	${srcdir}/cvdiag.c \
+	${srcdir}/cvspgmr.c \
+	${srcdir}/cvbandpre.c \
+	${srcdir}/cvbbdpre.c
 
-# Includes
-SHAREDINCLUDE = -I${SHARED_INC_DIR}
-CVODEINCLUDE  = -I${CVODE_INC_DIR}
-INCS =  ${CVODEINCLUDE} ${SHAREDINCLUDE}
-
-# Compiler and compiler options
-CC     = @CC@
-CFLAGS = @CFLAGS@
+OBJ = cvode.o cvband.o cvdense.o cvdiag.o cvspgmr.o cvbandpre.o cvbbdpre.o
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -41,8 +52,8 @@ CFLAGS = @CFLAGS@
 
 all: ${OBJ}
 
-install:
-	ar rc ${CVODE_LIB} ${OBJ}
+install: ${OBJ}
+	${AR} ${CVODE_LIB} ${OBJ}
 	cp ${CVODE_LIB} ${libdir}
 	cp ${CVODE_INC_DIR}/cvode.h      ${includedir}
 	cp ${CVODE_INC_DIR}/cvdense.h    ${includedir}
@@ -66,7 +77,7 @@ uninstall:
 	rm -f ${includedir}/cvbandpre.h
 	rm -f ${includedir}/cvbbdpre.h
 
-.c.o:
-	${CC} -c ${CFLAGS} ${INCS} $*.c
+${OBJ}: %.o : ${srcdir}/%.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---
