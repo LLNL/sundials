@@ -5,7 +5,7 @@
     Difference-quotient half-bandwidths are mudq = 10,  mldq = 10
     Retained band block half-bandwidths are mukeep = 2,  mlkeep = 2
 
-Preconditioner type is:  jpre = LEFT
+Preconditioner type is:  jpre = PREC_LEFT
 
 t = 7.20e+03   no. steps = 190   order = 5   stepsize = 1.61e+02
 At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
@@ -15,56 +15,56 @@ t = 1.44e+04   no. steps = 221   order = 5   stepsize = 3.85e+02
 At bottom left:  c1, c2 =    6.659e+06    2.582e+11 
 At top right:    c1, c2 =    7.301e+06    2.833e+11 
 
-t = 2.16e+04   no. steps = 247   order = 5   stepsize = 3.00e+02
+t = 2.16e+04   no. steps = 247   order = 5   stepsize = 3.01e+02
 At bottom left:  c1, c2 =    2.665e+07    2.993e+11 
 At top right:    c1, c2 =    2.931e+07    3.313e+11 
 
-t = 2.88e+04   no. steps = 268   order = 5   stepsize = 1.40e+02
+t = 2.88e+04   no. steps = 268   order = 5   stepsize = 1.42e+02
 At bottom left:  c1, c2 =    8.702e+06    3.380e+11 
 At top right:    c1, c2 =    9.650e+06    3.751e+11 
 
-t = 3.60e+04   no. steps = 311   order = 4   stepsize = 9.25e+01
+t = 3.60e+04   no. steps = 314   order = 4   stepsize = 8.08e+01
 At bottom left:  c1, c2 =    1.404e+04    3.387e+11 
 At top right:    c1, c2 =    1.561e+04    3.765e+11 
 
-t = 4.32e+04   no. steps = 383   order = 4   stepsize = 3.20e+02
-At bottom left:  c1, c2 =    1.845e-09    3.382e+11 
-At top right:    c1, c2 =    4.983e-09    3.804e+11 
+t = 4.32e+04   no. steps = 386   order = 4   stepsize = 4.22e+02
+At bottom left:  c1, c2 =   -2.127e-07    3.382e+11 
+At top right:    c1, c2 =    3.231e-08    3.804e+11 
 
-t = 5.04e+04   no. steps = 398   order = 4   stepsize = 3.80e+02
-At bottom left:  c1, c2 =    1.122e-10    3.358e+11 
-At top right:    c1, c2 =    1.109e-10    3.864e+11 
+t = 5.04e+04   no. steps = 399   order = 5   stepsize = 4.74e+02
+At bottom left:  c1, c2 =    3.071e-09    3.358e+11 
+At top right:    c1, c2 =    8.013e-08    3.864e+11 
 
-t = 5.76e+04   no. steps = 419   order = 5   stepsize = 4.83e+01
-At bottom left:  c1, c2 =   -2.035e-09    3.320e+11 
-At top right:    c1, c2 =   -3.837e-09    3.909e+11 
+t = 5.76e+04   no. steps = 411   order = 5   stepsize = 4.15e+02
+At bottom left:  c1, c2 =    7.177e-11    3.320e+11 
+At top right:    c1, c2 =    1.449e-09    3.909e+11 
 
-t = 6.48e+04   no. steps = 450   order = 3   stepsize = 4.13e+02
-At bottom left:  c1, c2 =    5.226e-15    3.313e+11 
-At top right:    c1, c2 =    2.885e-16    3.963e+11 
+t = 6.48e+04   no. steps = 422   order = 5   stepsize = 6.69e+02
+At bottom left:  c1, c2 =   -4.098e-12    3.313e+11 
+At top right:    c1, c2 =   -8.238e-11    3.963e+11 
 
-t = 7.20e+04   no. steps = 468   order = 3   stepsize = 4.13e+02
-At bottom left:  c1, c2 =    6.918e-15    3.330e+11 
-At top right:    c1, c2 =   -7.484e-16    4.039e+11 
+t = 7.20e+04   no. steps = 433   order = 5   stepsize = 6.69e+02
+At bottom left:  c1, c2 =    6.565e-14    3.330e+11 
+At top right:    c1, c2 =    1.339e-12    4.039e+11 
 
-t = 7.92e+04   no. steps = 485   order = 3   stepsize = 4.13e+02
-At bottom left:  c1, c2 =    5.716e-15    3.334e+11 
-At top right:    c1, c2 =   -1.164e-15    4.120e+11 
+t = 7.92e+04   no. steps = 444   order = 5   stepsize = 6.69e+02
+At bottom left:  c1, c2 =   -2.015e-15    3.334e+11 
+At top right:    c1, c2 =   -5.290e-14    4.120e+11 
 
-t = 8.64e+04   no. steps = 503   order = 3   stepsize = 4.13e+02
-At bottom left:  c1, c2 =    3.803e-15    3.352e+11 
-At top right:    c1, c2 =   -3.010e-15    4.163e+11 
+t = 8.64e+04   no. steps = 454   order = 5   stepsize = 6.69e+02
+At bottom left:  c1, c2 =   -1.686e-17    3.352e+11 
+At top right:    c1, c2 =   -2.079e-16    4.163e+11 
 
 
-Final Statistics.. 
+Final Statistics: 
 
-lenrw   =  2000     leniw =    20
-llrw    =  2046     lliw  =    20
-nst     =   503
-nfe     =   672     nfel  =   624
-nni     =   669     nli   =   624
-nsetups =    94     netf  =    38
-npe     =     9     nps   =  1225
+lenrw   =  2000     leniw =    80
+llrw    =  2046     lliw  =    80
+nst     =   454
+nfe     =   592     nfel  =   558
+nni     =   589     nli   =   558
+nsetups =    80     netf  =    30
+npe     =     9     nps   =  1101
 ncfn    =     0     ncfl  =     0
 
 In CVBBDPRE: real/integer local work space sizes = 600, 50
@@ -74,7 +74,7 @@ In CVBBDPRE: real/integer local work space sizes = 600, 50
 -------------------------------------------------------------------
 
 
-Preconditioner type is:  jpre = RIGHT
+Preconditioner type is:  jpre = PREC_RIGHT
 
 t = 7.20e+03   no. steps = 191   order = 5   stepsize = 1.22e+02
 At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
@@ -88,52 +88,52 @@ t = 2.16e+04   no. steps = 249   order = 5   stepsize = 4.31e+02
 At bottom left:  c1, c2 =    2.665e+07    2.993e+11 
 At top right:    c1, c2 =    2.931e+07    3.313e+11 
 
-t = 2.88e+04   no. steps = 309   order = 4   stepsize = 1.41e+02
+t = 2.88e+04   no. steps = 322   order = 3   stepsize = 1.09e+02
 At bottom left:  c1, c2 =    8.702e+06    3.380e+11 
 At top right:    c1, c2 =    9.650e+06    3.751e+11 
 
-t = 3.60e+04   no. steps = 340   order = 5   stepsize = 8.99e+01
+t = 3.60e+04   no. steps = 361   order = 5   stepsize = 7.66e+01
 At bottom left:  c1, c2 =    1.404e+04    3.387e+11 
 At top right:    c1, c2 =    1.561e+04    3.765e+11 
 
-t = 4.32e+04   no. steps = 395   order = 4   stepsize = 4.24e+02
-At bottom left:  c1, c2 =   -3.304e-09    3.382e+11 
-At top right:    c1, c2 =   -5.681e-09    3.804e+11 
+t = 4.32e+04   no. steps = 415   order = 5   stepsize = 5.93e+02
+At bottom left:  c1, c2 =    7.315e-09    3.382e+11 
+At top right:    c1, c2 =    8.641e-09    3.804e+11 
 
-t = 5.04e+04   no. steps = 408   order = 5   stepsize = 4.51e+02
-At bottom left:  c1, c2 =    3.438e-11    3.358e+11 
-At top right:    c1, c2 =    4.369e-11    3.864e+11 
+t = 5.04e+04   no. steps = 428   order = 5   stepsize = 6.79e+02
+At bottom left:  c1, c2 =   -2.165e-11    3.358e+11 
+At top right:    c1, c2 =    4.943e-11    3.864e+11 
 
-t = 5.76e+04   no. steps = 420   order = 5   stepsize = 4.47e+02
-At bottom left:  c1, c2 =    7.673e-13    3.320e+11 
-At top right:    c1, c2 =    9.647e-13    3.909e+11 
+t = 5.76e+04   no. steps = 442   order = 4   stepsize = 2.01e+02
+At bottom left:  c1, c2 =    2.578e-09    3.320e+11 
+At top right:    c1, c2 =    1.422e-08    3.909e+11 
 
-t = 6.48e+04   no. steps = 432   order = 5   stepsize = 7.48e+02
-At bottom left:  c1, c2 =    7.510e-15    3.313e+11 
-At top right:    c1, c2 =    6.845e-15    3.963e+11 
+t = 6.48e+04   no. steps = 457   order = 4   stepsize = 5.51e+02
+At bottom left:  c1, c2 =   -7.868e-12    3.313e+11 
+At top right:    c1, c2 =    1.272e-11    3.963e+11 
 
-t = 7.20e+04   no. steps = 441   order = 5   stepsize = 7.48e+02
-At bottom left:  c1, c2 =   -1.987e-15    3.330e+11 
-At top right:    c1, c2 =   -1.341e-15    4.039e+11 
+t = 7.20e+04   no. steps = 470   order = 4   stepsize = 5.51e+02
+At bottom left:  c1, c2 =   -4.662e-13    3.330e+11 
+At top right:    c1, c2 =   -8.547e-13    4.039e+11 
 
-t = 7.92e+04   no. steps = 451   order = 5   stepsize = 7.48e+02
-At bottom left:  c1, c2 =   -3.826e-16    3.334e+11 
-At top right:    c1, c2 =   -1.942e-15    4.120e+11 
+t = 7.92e+04   no. steps = 483   order = 4   stepsize = 5.51e+02
+At bottom left:  c1, c2 =    1.121e-15    3.334e+11 
+At top right:    c1, c2 =    6.400e-16    4.120e+11 
 
-t = 8.64e+04   no. steps = 461   order = 5   stepsize = 7.48e+02
-At bottom left:  c1, c2 =   -1.413e-15    3.352e+11 
-At top right:    c1, c2 =   -1.067e-16    4.163e+11 
+t = 8.64e+04   no. steps = 496   order = 4   stepsize = 5.51e+02
+At bottom left:  c1, c2 =    7.299e-16    3.352e+11 
+At top right:    c1, c2 =   -3.965e-19    4.163e+11 
 
 
-Final Statistics.. 
+Final Statistics: 
 
-lenrw   =  2000     leniw =    20
-llrw    =  2046     lliw  =    20
-nst     =   461
-nfe     =   591     nfel  =   737
-nni     =   588     nli   =   737
-nsetups =    86     netf  =    27
-npe     =     9     nps   =  1224
+lenrw   =  2000     leniw =    80
+llrw    =  2046     lliw  =    80
+nst     =   496
+nfe     =   652     nfel  =   852
+nni     =   649     nli   =   852
+nsetups =   104     netf  =    35
+npe     =     9     nps   =  1381
 ncfn    =     0     ncfl  =     0
 
 In CVBBDPRE: real/integer local work space sizes = 600, 50

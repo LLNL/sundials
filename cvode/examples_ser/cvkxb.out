@@ -3,7 +3,7 @@ SPGMR solver; band preconditioner; mu = 2, ml = 2
 
 
 
-Preconditioner type is:  jpre = LEFT
+Preconditioner type is:  jpre = PREC_LEFT
 
 t = 7.20e+03   no. steps = 190   order = 5   stepsize = 1.61e+02
 c1 (bot.left/middle/top rt.) =    1.047e+04     2.964e+04     1.119e+04
@@ -17,41 +17,41 @@ t = 2.16e+04   no. steps = 246   order = 5   stepsize = 2.78e+02
 c1 (bot.left/middle/top rt.) =    2.665e+07     1.036e+07     2.931e+07
 c2 (bot.left/middle/top rt.) =    2.993e+11     1.028e+11     3.313e+11
 
-t = 2.88e+04   no. steps = 294   order = 4   stepsize = 4.42e+01
+t = 2.88e+04   no. steps = 294   order = 4   stepsize = 1.08e+02
 c1 (bot.left/middle/top rt.) =    8.702e+06     1.292e+07     9.650e+06
 c2 (bot.left/middle/top rt.) =    3.380e+11     5.029e+11     3.751e+11
 
-t = 3.60e+04   no. steps = 357   order = 4   stepsize = 6.77e+01
+t = 3.60e+04   no. steps = 337   order = 4   stepsize = 7.32e+01
 c1 (bot.left/middle/top rt.) =    1.404e+04     2.029e+04     1.561e+04
 c2 (bot.left/middle/top rt.) =    3.387e+11     4.894e+11     3.765e+11
 
-t = 4.32e+04   no. steps = 414   order = 5   stepsize = 8.33e+02
-c1 (bot.left/middle/top rt.) =    1.662e-06     1.392e-06     1.855e-06
+t = 4.32e+04   no. steps = 407   order = 4   stepsize = 3.20e+02
+c1 (bot.left/middle/top rt.) =   -1.138e-09    -5.449e-09    -1.155e-09
 c2 (bot.left/middle/top rt.) =    3.382e+11     1.355e+11     3.804e+11
 
-t = 5.04e+04   no. steps = 425   order = 5   stepsize = 3.99e+02
-c1 (bot.left/middle/top rt.) =   -9.138e-13    -5.988e-11    -1.246e-12
+t = 5.04e+04   no. steps = 421   order = 5   stepsize = 3.54e+02
+c1 (bot.left/middle/top rt.) =    2.576e-14    -6.164e-11    -7.300e-12
 c2 (bot.left/middle/top rt.) =    3.358e+11     4.930e+11     3.864e+11
 
-t = 5.76e+04   no. steps = 436   order = 5   stepsize = 4.62e+02
-c1 (bot.left/middle/top rt.) =    1.519e-12     1.948e-10     6.176e-13
+t = 5.76e+04   no. steps = 433   order = 5   stepsize = 4.33e+02
+c1 (bot.left/middle/top rt.) =   -3.577e-15    -1.027e-12    -5.498e-14
 c2 (bot.left/middle/top rt.) =    3.320e+11     9.650e+11     3.909e+11
 
-t = 6.48e+04   no. steps = 446   order = 5   stepsize = 8.27e+02
-c1 (bot.left/middle/top rt.) =    4.791e-11     6.789e-10    -5.837e-13
+t = 6.48e+04   no. steps = 445   order = 5   stepsize = 6.51e+02
+c1 (bot.left/middle/top rt.) =   -3.692e-20    -1.635e-17     1.121e-17
 c2 (bot.left/middle/top rt.) =    3.313e+11     8.922e+11     3.963e+11
 
-t = 7.20e+04   no. steps = 454   order = 5   stepsize = 8.27e+02
-c1 (bot.left/middle/top rt.) =   -4.638e-11    -9.445e-10    -2.984e-12
+t = 7.20e+04   no. steps = 456   order = 5   stepsize = 6.51e+02
+c1 (bot.left/middle/top rt.) =   -1.014e-22     8.751e-18     7.450e-17
 c2 (bot.left/middle/top rt.) =    3.330e+11     6.186e+11     4.039e+11
 
-t = 7.92e+04   no. steps = 463   order = 5   stepsize = 8.27e+02
-c1 (bot.left/middle/top rt.) =   -1.773e-14    -7.318e-13     1.417e-14
+t = 7.92e+04   no. steps = 467   order = 5   stepsize = 6.51e+02
+c1 (bot.left/middle/top rt.) =    3.173e-23     1.124e-17    -2.169e-15
 c2 (bot.left/middle/top rt.) =    3.334e+11     6.669e+11     4.120e+11
 
-t = 8.64e+04   no. steps = 472   order = 5   stepsize = 8.27e+02
-c1 (bot.left/middle/top rt.) =    5.194e-16     2.941e-20     3.041e-20
-c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.162e+11
+t = 8.64e+04   no. steps = 478   order = 5   stepsize = 6.51e+02
+c1 (bot.left/middle/top rt.) =   -1.712e-20    -1.276e-17     4.860e-16
+c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.163e+11
 
 
 Final Statistics.. 
@@ -59,12 +59,12 @@ Final Statistics..
 lenrw   =  2000     leniw  =    10
 llrw    =  2046     lliw   =    10
 llrw    =  2400     lliw   =   200
-nst     =   472
-nfe     =   636     nfetot =  1261
-nfeSPGMR=   580     nfeBP  =    45
-nni     =   633     nli    =   580
-nsetups =    96     netf   =    38
-npe     =     9     nps    =  1133
+nst     =   478
+nfe     =   623     nfetot =  1252
+nfeSPGMR=   584     nfeBP  =    45
+nni     =   620     nli    =   584
+nsetups =    87     netf   =    33
+npe     =     9     nps    =  1124
 ncfn    =     0     ncfl   =     0
 
 
@@ -72,7 +72,7 @@ ncfn    =     0     ncfl   =     0
 -------------------------------------------------------------------
 
 
-Preconditioner type is:  jpre = RIGHT
+Preconditioner type is:  jpre = PREC_RIGHT
 
 t = 7.20e+03   no. steps = 219   order = 5   stepsize = 1.55e+02
 c1 (bot.left/middle/top rt.) =    1.047e+04     2.964e+04     1.119e+04
@@ -90,36 +90,36 @@ t = 2.88e+04   no. steps = 301   order = 5   stepsize = 2.33e+02
 c1 (bot.left/middle/top rt.) =    8.702e+06     1.292e+07     9.650e+06
 c2 (bot.left/middle/top rt.) =    3.380e+11     5.029e+11     3.751e+11
 
-t = 3.60e+04   no. steps = 330   order = 5   stepsize = 9.94e+01
+t = 3.60e+04   no. steps = 330   order = 5   stepsize = 1.34e+02
 c1 (bot.left/middle/top rt.) =    1.404e+04     2.029e+04     1.561e+04
 c2 (bot.left/middle/top rt.) =    3.387e+11     4.894e+11     3.765e+11
 
-t = 4.32e+04   no. steps = 382   order = 4   stepsize = 4.44e+02
-c1 (bot.left/middle/top rt.) =   -2.906e-10    -3.624e-09    -2.770e-10
+t = 4.32e+04   no. steps = 380   order = 4   stepsize = 3.94e+02
+c1 (bot.left/middle/top rt.) =    2.728e-10     2.423e-10     3.057e-10
 c2 (bot.left/middle/top rt.) =    3.382e+11     1.355e+11     3.804e+11
 
-t = 5.04e+04   no. steps = 401   order = 4   stepsize = 2.93e+02
-c1 (bot.left/middle/top rt.) =    8.160e-13     7.366e-10    -4.791e-13
+t = 5.04e+04   no. steps = 399   order = 4   stepsize = 3.48e+02
+c1 (bot.left/middle/top rt.) =    5.244e-11     4.762e-08     1.318e-11
 c2 (bot.left/middle/top rt.) =    3.358e+11     4.930e+11     3.864e+11
 
-t = 5.76e+04   no. steps = 414   order = 5   stepsize = 3.43e+02
-c1 (bot.left/middle/top rt.) =    2.420e-13    -1.166e-09     1.304e-11
+t = 5.76e+04   no. steps = 413   order = 5   stepsize = 4.08e+02
+c1 (bot.left/middle/top rt.) =    1.350e-14     6.417e-11     1.001e-12
 c2 (bot.left/middle/top rt.) =    3.320e+11     9.650e+11     3.909e+11
 
-t = 6.48e+04   no. steps = 425   order = 5   stepsize = 7.11e+02
-c1 (bot.left/middle/top rt.) =    7.232e-11     1.450e-09    -4.487e-12
+t = 6.48e+04   no. steps = 424   order = 5   stepsize = 6.75e+02
+c1 (bot.left/middle/top rt.) =   -4.547e-15    -2.157e-15    -2.422e-16
 c2 (bot.left/middle/top rt.) =    3.313e+11     8.922e+11     3.963e+11
 
-t = 7.20e+04   no. steps = 435   order = 5   stepsize = 7.11e+02
-c1 (bot.left/middle/top rt.) =   -7.166e-11    -1.797e-09     3.506e-12
+t = 7.20e+04   no. steps = 435   order = 5   stepsize = 6.75e+02
+c1 (bot.left/middle/top rt.) =    7.148e-15     2.478e-14    -3.865e-17
 c2 (bot.left/middle/top rt.) =    3.330e+11     6.186e+11     4.039e+11
 
-t = 7.92e+04   no. steps = 445   order = 5   stepsize = 7.11e+02
-c1 (bot.left/middle/top rt.) =   -3.799e-15    -2.136e-13    -3.399e-16
+t = 7.92e+04   no. steps = 446   order = 5   stepsize = 6.75e+02
+c1 (bot.left/middle/top rt.) =    7.233e-16     8.882e-14     3.150e-16
 c2 (bot.left/middle/top rt.) =    3.334e+11     6.669e+11     4.120e+11
 
-t = 8.64e+04   no. steps = 455   order = 5   stepsize = 7.11e+02
-c1 (bot.left/middle/top rt.) =    2.001e-15     4.281e-14    -5.036e-15
+t = 8.64e+04   no. steps = 456   order = 5   stepsize = 6.75e+02
+c1 (bot.left/middle/top rt.) =   -1.368e-15    -2.800e-13    -6.608e-16
 c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.163e+11
 
 
@@ -128,11 +128,11 @@ Final Statistics..
 lenrw   =  2000     leniw  =    10
 llrw    =  2046     lliw   =    10
 llrw    =  2400     lliw   =   200
-nst     =   455
-nfe     =   569     nfetot =  1301
-nfeSPGMR=   647     nfeBP  =    85
-nni     =   566     nli    =   647
-nsetups =    73     netf   =    22
-npe     =     8     nps    =  1123
+nst     =   456
+nfe     =   567     nfetot =  1320
+nfeSPGMR=   668     nfeBP  =    85
+nni     =   564     nli    =   668
+nsetups =    76     netf   =    22
+npe     =     8     nps    =  1144
 ncfn    =     0     ncfl   =     0
 

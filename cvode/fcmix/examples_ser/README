@@ -1,16 +1,17 @@
 List of serial CVODE FCMIX examples
 
-  cvdensef  : chemical kinetics example (BDF/DENSE)
-  cvbandf   : advection-diffusion example (BDF/BAND)
-  cvkryf    : kinetics-transport example (BDF/SPGMR)
+  cvdensef : chemical kinetics example (BDF/DENSE)
+  cvbandf  : advection-diffusion example (BDF/BAND)
+  cvkrybf  : kinetics-transport example (BDF/BAND)
+  cvkryf   : kinetics-transport example (BDF/SPGMR)
 
 Sample results:
 
   SUNDIALS was built with the following options:
 
-  ./configure CC=gcc F77=g77 --without-mpi
+  ./configure CC=gcc F77=g77
 
   System Architecture: IA-32
   Processor Type: Intel Pentium 4 Xeon DP (i686)
-  Operating System: Red Hat Linux 7.2
-  C/Fortran Compilers: gcc/g77 v2.96 (Red Hat)
+  Operating System: Red Hat Enterprise Linux WS 3
+  C/Fortran Compilers: gcc/g77 v3.2.3-39 (Red Hat)
