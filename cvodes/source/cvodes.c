@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2004-08-25 16:17:22 $
+ * $Revision: 1.37 $
+ * $Date: 2004-09-28 23:44:21 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -733,6 +733,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
+  cv_mem->cv_f        = NULL;
   cv_mem->cv_f_data   = NULL;
   cv_mem->cv_errfp    = stderr;
   cv_mem->cv_qmax     = maxord;
@@ -747,15 +748,14 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_maxnef   = MXNEF;
   cv_mem->cv_maxncf   = MXNCF;
   cv_mem->cv_nlscoef  = CORTES;
-  cv_mem->cv_nrtfn    = 0;
-  cv_mem->cv_g_data   = NULL;
 
   /* Set default values for quad. optional inputs */
-  cv_mem->cv_quad     = FALSE;
-  cv_mem->cv_fQ_data  = NULL;
-  cv_mem->cv_errconQ  = FALSE;
-  cv_mem->cv_reltolQ  = NULL;
-  cv_mem->cv_abstolQ  = NULL;
+  cv_mem->cv_quad    = FALSE;
+  cv_mem->cv_fQ      = NULL;
+  cv_mem->cv_fQ_data = NULL;
+  cv_mem->cv_errconQ = FALSE;
+  cv_mem->cv_reltolQ = NULL;
+  cv_mem->cv_abstolQ = NULL;
 
   /* Set defaull values for sensi. optional inputs */
   cv_mem->cv_sensi    = FALSE;
@@ -766,11 +766,15 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_ifS      = CV_ONESENS;
   cv_mem->cv_rhomax   = ZERO;
   cv_mem->cv_pbar     = NULL;
+  cv_mem->cv_plist    = NULL;
   cv_mem->cv_errconS  = FALSE;
   cv_mem->cv_userStol = FALSE;
   cv_mem->cv_reltolS  = NULL;
   cv_mem->cv_abstolS  = NULL;
   cv_mem->cv_maxcorS  = NLS_MAXCOR;
+  cv_mem->cv_ncfS1    = NULL;
+  cv_mem->cv_ncfnS1   = NULL;
+  cv_mem->cv_nniS1    = NULL;
 
   /* No mallocs have been done yet */
   cv_mem->cv_MallocDone     = FALSE;
@@ -1324,6 +1328,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_groot  = NULL;
   cv_mem->cv_iroots = NULL;
   cv_mem->cv_gfun   = NULL;
+  cv_mem->cv_g_data = NULL;
   cv_mem->cv_nrtfn  = 0;  
 
   /* Initialize Stablilty Limit Detection data */
@@ -1453,14 +1458,6 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nstlp   = 0;
   cv_mem->cv_nscon   = 0;
   cv_mem->cv_nge     = 0;
-
-  /* Initialize root finding variables */
-  cv_mem->cv_glo    = NULL;
-  cv_mem->cv_ghi    = NULL;
-  cv_mem->cv_groot  = NULL;
-  cv_mem->cv_iroots = NULL;
-  cv_mem->cv_gfun   = NULL;
-  cv_mem->cv_nrtfn  = 0;    
 
   /* Initialize Stablilty Limit Detection data */
   cv_mem->cv_nor = 0;
@@ -2021,7 +2018,7 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
                     realtype *p, int *plist, N_Vector *yS0)
 {
   CVodeMem    cv_mem;
-  booleantype neg_abstol, allocOK, tolsetOK, ewtsetOK;
+  booleantype allocOK;
   int is;
   
   /* Check cvode_mem */
@@ -2134,7 +2131,6 @@ int CVodeSensReInit(void *cvode_mem, int ism,
                     realtype *p, int *plist, N_Vector *yS0)
 {
   CVodeMem    cv_mem;
-  booleantype neg_abstol, allocOK, tolsetOK, ewtsetOK;
   int Ns, is;  
 
   /* Check cvode_mem */

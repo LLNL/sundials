@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-08-25 16:21:51 $
+ * $Revision: 1.29 $
+ * $Date: 2004-09-28 23:44:21 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,6 +20,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "cvdiag.h"
 #include "cvodea_impl.h"
 #include "sundialsmath.h"
 
@@ -1492,7 +1494,7 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 static CkpntMem CVAckpntNew(CVodeMem cv_mem)
 {
   CkpntMem ck_mem;
-  int j, jj;
+  int j;
   int qmax; 
 
   /* Allocate space for ckdata */
@@ -1587,13 +1589,14 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
     /* free N_Vectors for quadratures in tmp 
      Note that at the check point at t_initial, only znQ_[0] 
      was allocated*/
-    if(tmp->ck_quad) 
+    if(tmp->ck_quad) {
       if(tmp->ck_next != NULL) {
         for (j=0;j<=tmp->ck_q;j++) N_VDestroy(tmp->ck_znQ[j]);
         if (tmp->ck_zqm != 0) N_VDestroy(tmp->ck_znQ[tmp->ck_zqm]);
       } else {
         N_VDestroy(tmp->ck_znQ[0]);
       }
+    }
 
     free(tmp);
 
