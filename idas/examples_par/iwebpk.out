@@ -1,0 +1,58 @@
+iwebpk: Predator-prey DAE parallel example problem for IDA 
+
+Number of species ns: 2     Mesh dimensions: 20 x 20     Total system size: 800
+Subgrid dimensions: 10 x 10     Processor array: 2 x 2
+Tolerance parameters:  rtol = 1e-05   atol = 1e-05
+Linear solver: IDASPGMR     Max. Krylov dimension maxl: 10
+Preconditioner: block diagonal, block size ns, via difference quotients
+CalcIC called to correct initial predator concentrations 
+
+
+TIME t = 0.000000e+00.     NST = 0,  k = 0,  h = 1.631027e-08
+NRE = 17,  NNI = 3,  NLI = 12,  NPE = 2,  NPS = 17
+At bottom left:  c1, c2 = 1.000000e+01 9.999900e+04 
+At top right:    c1, c2 = 1.000000e+01 9.994900e+04 
+
+
+TIME t = 1.000000e-03.     NST = 33,  k = 4,  h = 6.012614e-05
+NRE = 101,  NNI = 47,  NLI = 52,  NPE = 13,  NPS = 101
+At bottom left:  c1, c2 = 1.031834e+01 1.031876e+05 
+At top right:    c1, c2 = 1.082687e+01 1.082227e+05 
+
+
+TIME t = 1.000000e-02.     NST = 103,  k = 5,  h = 2.164541e-04
+NRE = 505,  NNI = 126,  NLI = 377,  NPE = 14,  NPS = 505
+At bottom left:  c1, c2 = 1.618873e+02 1.618888e+06 
+At top right:    c1, c2 = 1.973486e+02 1.973449e+06 
+
+
+TIME t = 1.000000e-01.     NST = 168,  k = 1,  h = 2.139013e-02
+NRE = 844,  NNI = 204,  NLI = 638,  NPE = 21,  NPS = 844
+At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
+At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
+
+
+TIME t = 4.000000e-01.     NST = 171,  k = 1,  h = 1.711210e-01
+NRE = 868,  NNI = 210,  NLI = 656,  NPE = 24,  NPS = 868
+At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
+At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
+
+
+TIME t = 7.000000e-01.     NST = 172,  k = 1,  h = 3.422421e-01
+NRE = 877,  NNI = 212,  NLI = 663,  NPE = 25,  NPS = 877
+At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
+At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
+
+
+TIME t = 1.000000e+00.     NST = 173,  k = 1,  h = 6.844841e-01
+NRE = 886,  NNI = 214,  NLI = 670,  NPE = 26,  NPS = 886
+At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
+At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
+
+
+Final statistics: 
+
+NST  =   173     NRE  =   886
+NNI  =   214     NLI  =   670
+NPE  =    26     NPS  =   886
+NETF =     1     NCFN =     0     NCFL =     0

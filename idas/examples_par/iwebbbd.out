@@ -1,0 +1,59 @@
+iwebbbd: Predator-prey DAE parallel example problem for IDA 
+
+Number of species ns: 2     Mesh dimensions: 20 x 20     Total system size: 800
+Subgrid dimensions: 10 x 10     Processor array: 2 x 2
+Tolerance parameters:  rtol = 1e-05   atol = 1e-05
+Linear solver: IDASPGMR     Max. Krylov dimension maxl: 12
+Preconditioner: band-block-diagonal (IDABBDPRE), with parameters
+     mudq = 20,  mldq = 20,  mukeep = 2,  mlkeep = 2
+CalcIC called to correct initial predator concentrations 
+
+
+TIME t = 0.000000e+00.     NST = 0,  k = 0,  h = 1.631027e-08
+NRE = 17,  NGE = 84,  NNI = 3,  NLI = 12,  NPE = 2,  NPS = 17
+At bottom left:  c1, c2 = 1.000000e+01 9.999900e+04 
+At top right:    c1, c2 = 1.000000e+01 9.994900e+04 
+
+
+TIME t = 1.000000e-03.     NST = 33,  k = 4,  h = 6.012614e-05
+NRE = 100,  NGE = 546,  NNI = 47,  NLI = 51,  NPE = 13,  NPS = 100
+At bottom left:  c1, c2 = 1.031834e+01 1.031877e+05 
+At top right:    c1, c2 = 1.082687e+01 1.082227e+05 
+
+
+TIME t = 1.000000e-02.     NST = 98,  k = 5,  h = 2.138906e-04
+NRE = 469,  NGE = 588,  NNI = 120,  NLI = 347,  NPE = 14,  NPS = 469
+At bottom left:  c1, c2 = 1.618875e+02 1.618890e+06 
+At top right:    c1, c2 = 1.973489e+02 1.973452e+06 
+
+
+TIME t = 1.000000e-01.     NST = 175,  k = 1,  h = 4.435235e-02
+NRE = 826,  NGE = 966,  NNI = 212,  NLI = 612,  NPE = 23,  NPS = 826
+At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
+At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
+
+
+TIME t = 4.000000e-01.     NST = 177,  k = 1,  h = 1.774094e-01
+NRE = 830,  NGE = 1050,  NNI = 214,  NLI = 614,  NPE = 25,  NPS = 830
+At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
+At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
+
+
+TIME t = 7.000000e-01.     NST = 178,  k = 1,  h = 3.548188e-01
+NRE = 831,  NGE = 1092,  NNI = 215,  NLI = 614,  NPE = 26,  NPS = 831
+At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
+At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
+
+
+TIME t = 1.000000e+00.     NST = 179,  k = 1,  h = 7.096376e-01
+NRE = 832,  NGE = 1134,  NNI = 216,  NLI = 614,  NPE = 27,  NPS = 832
+At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
+At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
+
+
+Final statistics: 
+
+NST  =   179     NRE  =   832     NGE  =  1134 
+NNI  =   216     NLI  =   614
+NPE  =    27     NPS  =   832
+NETF =     1     NCFN =     0     NCFL =     0
