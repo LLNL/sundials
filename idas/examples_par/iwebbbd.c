@@ -1,14 +1,12 @@
 /*************************************************************************
  * File       : iwebbbd.c                                                *
- * Written by : Allan G. Taylor and Alan C. Hindmarsh @ LLNL             *
- * Version of : 28 February 2003                                         *
- *-----------------------------------------------------------------------*
- * Modified by R. Serban to work with new parallel NVECTOR 8 March 2002.
+ * Written by : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL   *
+ * Version of : 31 March 2003                                            *
  *-----------------------------------------------------------------------*
  *
- * Example program for IDAS: Food web, parallel, GMRES, IDABBD preconditioner.
+ * Example program for IDA: Food web, parallel, GMRES, IDABBD preconditioner.
  *
- * This example program for IDAS uses IDASPGMR as the linear solver.
+ * This example program for IDA uses IDASPGMR as the linear solver.
  * It is written for a parallel computer system and uses the IDABBDPRE
  * band-block-diagonal preconditioner module for the IDASPGMR package.
  * It was originally run on a Sun SPARC cluster and used MPICH.
@@ -94,8 +92,8 @@
 #include <math.h>
 #include "sundialstypes.h"    /* Definitions of realtype, integertype, booleantype*/
 #include "iterativ.h"         /* Contains the enum for types of preconditioning.  */
-#include "idas.h"              /* Main IDA header file.                            */
-#include "idasspgmr.h"         /* Use IDASPGMR linear solver.                      */
+#include "idas.h"             /* Main IDA header file.                            */
+#include "idasspgmr.h"        /* Use IDASPGMR linear solver.                      */
 #include "nvector_parallel.h" /* Definitions of type N_Vector, macro NV_DATA_P    */
 #include "sundialsmath.h"     /* Contains RSqrt and UnitRoundoff routines.        */
 #include "smalldense.h"       /* Contains definitions for denalloc routine.       */
@@ -149,7 +147,7 @@
 /* Type: UserData.  Contains problem constants, preconditioner data, etc. */
 
 typedef struct {
-  integertype Neq, ns, np, thispe, npes, ixsub, jysub, npex, npey,
+  integertype ns, np, thispe, npes, ixsub, jysub, npex, npey,
     mxsub, mysub, nsmxsub, nsmxsub2;
   realtype dx, dy, **acoef;
   realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES],
@@ -195,7 +193,7 @@ static realtype dotprod(integertype size, realtype *x1, realtype *x2);
 
 /* Prototypes for functions called by the IDA Solver. */
 
-static int resweb(integertype Neq, realtype time, N_Vector cc, N_Vector cp,
+static int resweb(realtype time, N_Vector cc, N_Vector cp,
                   N_Vector resval, void *rdata);
 
 static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res, 
@@ -252,10 +250,10 @@ int main(int argc, char *argv[])
   /* Create needed vectors, and load initial values.
      The vector res is used temporarily only.        */
   
-  cc  = N_VNew(SystemSize, machEnv);
-  cp  = N_VNew(SystemSize, machEnv);
-  res = N_VNew(SystemSize, machEnv);
-  id  = N_VNew(SystemSize, machEnv);
+  cc  = N_VNew(machEnv);
+  cp  = N_VNew(machEnv);
+  res = N_VNew(machEnv);
+  id  = N_VNew(machEnv);
   
   SetInitialProfiles(cc, cp, id, res, webdata);
   
@@ -272,7 +270,7 @@ int main(int argc, char *argv[])
      Second NULL argument = file pointer for error messages (sent to stdout).
      A pointer to IDA problem memory is returned and stored in idamem.      */
   
-  mem = IDAMalloc(SystemSize, resweb, webdata, t0, cc, cp, itol,&rtol,&atol,
+  mem = IDAMalloc(resweb, webdata, t0, cc, cp, itol,&rtol,&atol,
                   id, NULL, NULL, optIn, iopt, ropt, machEnv);
   
   if (mem == NULL) {
@@ -379,7 +377,7 @@ static UserData AllocUserData(M_Env machEnv)
   
   webdata = (UserData) malloc(sizeof *webdata);
   
-  webdata->rates = N_VNew(NEQ, machEnv);
+  webdata->rates = N_VNew(machEnv);
 
   webdata->acoef = denalloc(NUM_SPECIES);
  
@@ -407,7 +405,6 @@ static void InitUserData(UserData webdata, int thispe, int npes,
   webdata->np = NPREY;
   webdata->dx = AX/(MX-1);
   webdata->dy = AY/(MY-1);
-  webdata->Neq = NEQ;
   webdata->thispe = thispe;
   webdata->npes   = npes;
   webdata->nsmxsub = MXSUB * NUM_SPECIES;
@@ -504,7 +501,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
   /* Set c' for the prey by calling the residual function with cp = 0. */
   
   N_VConst(ZERO, cp);
-  resweb(webdata->Neq, ZERO, cc, cp, res, webdata);
+  resweb(ZERO, cc, cp, res, webdata);
   N_VScale(-ONE, res, cp);
   
   /* Set c' for predators to 0. */
@@ -588,7 +585,7 @@ static void PrintFinalStats(long int iopt[], IBBDData P_data)
    rescomm, for needed communication, and then
    reslocal, for computation of the residuals on this processor.      */
 
-static int resweb(integertype Neq, realtype tt, N_Vector cc, N_Vector cp, 
+static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *rdata)
 {
   int retval;

@@ -1,15 +1,16 @@
 /*******************************************************************
+ *                                                                 *
  * File          : idasdense.h                                     *
  * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
  *                 Radu Serban @LLNL                               *
- * Version of    : 11 July 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
+ * For details, see sundials/ida/LICENSE                           *
  *-----------------------------------------------------------------*
- * This is the header file for the IDAS dense linear solver        *
+ * This is the header file for the IDA dense linear solver         *
  * module, IDADENSE.                                               *
  *                                                                 *
  *******************************************************************/
@@ -73,26 +74,10 @@ enum { DENSE_NJE=IDA_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  *                                                                *
  * cj  is the scalar in the system Jacobian, proportional to 1/hh.*
  *                                                                *
- * constraints is the vector of inequality constraint options     *
- *             (as passed to IDAMalloc).  Included here to allow  *
- *             for checking of incremented y values in difference *
- *             quotient calculations.                             *
- *                                                                *
- * res    is the residual function for the DAE problem.           *
- *                                                                *
- * rdata  is a pointer to user data to be passed to res, the same *
- *        as the rdata parameter passed to IDAMalloc.             *
- *                                                                *
  * jdata  is a pointer to user Jacobian data - the same as the    *
  *        jdata parameter passed to IDADense.                     *
  *                                                                *
  * resvec is the residual vector F(tt,yy,yp).                     *
- *                                                                *
- * ewt    is the error weight vector.                             *
- *                                                                *
- * hh     is a tentative step size in t.                          *
- *                                                                *
- * uround is the machine unit roundoff.                           *
  *                                                                *
  * JJ     is the dense matrix (of type DenseMat) to be loaded by  *
  *        an IDADenseJacFn routine with an approximation to the   *
@@ -101,14 +86,6 @@ enum { DENSE_NJE=IDA_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  *        at the given point (t,y,y'), where the DAE system is    *
  *        given by F(t,y,y') = 0.  JJ is preset to zero, so only  *
  *        the nonzero elements need to be loaded.  See note below.*
- *                                                                *
- * nrePtr is a pointer to the memory location containing the      *
- *        IDA problem data nre = number of calls to res. This     *
- *        Jacobian routine should update this counter by adding   *
- *        on the number of res calls it makes in order to         *
- *        approximate the Jacobian, if any.  For example, if this *
- *        routine calls res a total of Neq times, then it should  *
- *        perform the update *nrePtr += Neq.                      *
  *                                                                *
  * tempv1, tempv2, tempv3 are pointers to memory allocated for    *
  *        N_Vectors which can be used by an IDADenseJacFn routine *
@@ -143,13 +120,11 @@ enum { DENSE_NJE=IDA_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  * recover by reducing the stepsize (which changes cj).           *
  ******************************************************************/
   
-typedef int (*IDADenseJacFn)(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
-                             realtype cj, N_Vector constraints, ResFn res, void *rdata,
-                             void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
-                             realtype uround, DenseMat JJ, long int *nrePtr,
-                             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
-
-
+typedef int (*IDADenseJacFn)(integertype Neq, realtype tt, N_Vector yy, 
+                             N_Vector yp, realtype cj, void *jdata, 
+                             N_Vector resvec, DenseMat JJ, 
+                             N_Vector tempv1, N_Vector tempv2, 
+                             N_Vector tempv3);
 
  /******************************************************************
  *                                                                *
@@ -159,6 +134,8 @@ typedef int (*IDADenseJacFn)(integertype Neq, realtype tt, N_Vector yy, N_Vector
  * with the IDADENSE linear solver module.                        *
  *                                                                *
  * IDA_mem is the pointer to IDA memory returned by IDAMalloc.    *
+ *                                                                *
+ * neq  is the problem size                                       *
  *                                                                *
  * djac is the dense Jacobian approximation routine to be used.   *
  *         A user-supplied djac routine must be of type           *
@@ -183,7 +160,8 @@ typedef int (*IDADenseJacFn)(integertype Neq, realtype tt, N_Vector yy, N_Vector
  *                                                                *
  ******************************************************************/
 
-int IDADense(void *IDA_mem, IDADenseJacFn djac, void *jdata);
+int IDADense(void *IDA_mem, integertype neq, 
+             IDADenseJacFn djac, void *jdata);
 
  
 /******************************************************************

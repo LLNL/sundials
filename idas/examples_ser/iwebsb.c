@@ -1,12 +1,10 @@
 /*************************************************************************
  * File       : iwebsb.c                                                 *
- * Written by : Allan G. Taylor and Alan C. Hindmarsh @ LLNL             *
- * Version of : 28 February 2003                                         *
- *-----------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial NVECTOR 8 March 2002.
+ * Written by : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL   *
+ * Version of : 31 March 2003                                            *
  *-----------------------------------------------------------------------*
  *
- * Example program for IDAS: Food web, serial, band solve IDABAND.
+ * Example program for IDA: Food web, serial, band solve IDABAND.
  *
  * This example program for IDA (serial version) uses IDABAND as the
  * linear solver, and IDACalcIC for initial condition calculation.
@@ -85,7 +83,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "sundialstypes.h"   /* Definitions of realtype, integertype, booleantype*/
-#include "idas.h"            /* Main IDAS header file.                           */
+#include "idas.h"            /* Main IDA header file.                            */
 #include "idasband.h"        /* Use IDABAND linear solver.                       */
 #include "nvector_serial.h"  /* Definitions of type N_Vector, macro NV_DATA_S.   */
 #include "sundialsmath.h"    /* Contains RSqrt and UnitRoundoff routines.        */
@@ -157,8 +155,8 @@ static realtype dotprod(integertype size, realtype *x1, realtype *x2);
 
 /* Prototypes for functions called by the IDA Solver. */
 
-static int resweb(integertype Neq, realtype time, N_Vector cc, N_Vector cp,
-                  N_Vector resval, void *rdata);
+static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval, 
+                  void *rdata);
 
 /***************************** Main Program ******************************/
 
@@ -186,10 +184,10 @@ int main()
      The vector res is used temporarily only.           */ 
 
   SystemSize = NEQ;
-  cc  = N_VNew(SystemSize, machEnv);
-  cp  = N_VNew(SystemSize, machEnv);
-  res = N_VNew(SystemSize, machEnv);
-  id  = N_VNew(SystemSize, machEnv);
+  cc  = N_VNew(machEnv);
+  cp  = N_VNew(machEnv);
+  res = N_VNew(machEnv);
+  id  = N_VNew(machEnv);
   
   SetInitialProfiles(cc, cp, id, webdata);
   N_VFree(res);
@@ -205,14 +203,14 @@ int main()
   Second NULL argument = file pointer for error messages (sent to stdout).
   A pointer to IDA problem memory is returned and stored in mem.     */
 
-  mem = IDAMalloc(SystemSize, resweb, webdata, t0, cc, cp, itol,&rtol,&atol,
+  mem = IDAMalloc(resweb, webdata, t0, cc, cp, itol,&rtol,&atol,
                   id, NULL, NULL, optIn, iopt, ropt, machEnv);
   if (mem == NULL) { printf("IDAMalloc failed."); return(1); }
   
   /* Call IDABand to specify the IDA linear solver. */
 
   mu = ml = NSMX;
-  retval = IDABand(mem, mu, ml, NULL, NULL);
+  retval = IDABand(mem, SystemSize, mu, ml, NULL, NULL);
   
   if (retval != 0) {
     printf("IDABand failed, returning %d \n",retval);
@@ -281,7 +279,7 @@ static UserData AllocUserData(M_Env machEnv)
 
   webdata = (UserData) malloc(sizeof *webdata);
 
-  webdata->rates = N_VNew(NEQ, machEnv);
+  webdata->rates = N_VNew(machEnv);
 
   webdata->acoef = denalloc(NUM_SPECIES);
  
@@ -463,7 +461,7 @@ static void PrintFinalStats(long int iopt[])
 /* equations, then loads the residual vector accordingly,                */
 /* using cp in the case of prey species.                                 */
 
-static int resweb(integertype Neq, realtype tt, N_Vector cc, N_Vector cp, 
+static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *rdata)
 {
   integertype jx, jy, is, yloc, loc, np;

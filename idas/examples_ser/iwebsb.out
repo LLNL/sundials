@@ -18,31 +18,31 @@ At bottom left:  c1, c2 = 1.031837e+01 1.031879e+05
 At top right:    c1, c2 = 1.082689e+01 1.082230e+05 
 
 
-TIME t = 1.000000e-02.     NST = 133, k = 4, h = 1.254445e-04
+TIME t = 1.000000e-02.     NST = 133, k = 4, h = 1.254456e-04
 NRE = 1959, NNI = 256, NJE = 21
 At bottom left:  c1, c2 = 1.618889e+02 1.618898e+06 
 At top right:    c1, c2 = 1.973516e+02 1.973473e+06 
 
 
-TIME t = 1.000000e-01.     NST = 232, k = 1, h = 4.354715e-02
+TIME t = 1.000000e-01.     NST = 232, k = 1, h = 4.354891e-02
 NRE = 3257, NNI = 420, NJE = 35
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 4.000000e-01.     NST = 234, k = 1, h = 1.741886e-01
+TIME t = 4.000000e-01.     NST = 234, k = 1, h = 1.741956e-01
 NRE = 3421, NNI = 422, NJE = 37
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 7.000000e-01.     NST = 235, k = 1, h = 3.483772e-01
+TIME t = 7.000000e-01.     NST = 235, k = 1, h = 3.483913e-01
 NRE = 3503, NNI = 423, NJE = 38
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 1.000000e+00.     NST = 236, k = 1, h = 6.967544e-01
+TIME t = 1.000000e+00.     NST = 236, k = 1, h = 6.967826e-01
 NRE = 3585, NNI = 424, NJE = 39
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 

@@ -1,15 +1,16 @@
 /*******************************************************************
+ *                                                                 *
  * File          : idas.h                                          *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 July 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
+ * For details, see sundials/ida/LICENSE                           *
  *-----------------------------------------------------------------*
- * This is the header (include) file for the main IDAS solver.     *
+ * This is the header (include) file for the main IDA solver.      *
  *                                                                 *
  *******************************************************************/
 
@@ -26,7 +27,7 @@ extern "C" {
 
 /******************************************************************
  *                                                                *
- * IDAS is used to solve numerically the initial value problem    *
+ * IDA is used to solve numerically the initial value problem     *
  * for the differential algebraic equation (DAE) system           *
  *   F(t,y,y') = 0,                                               *
  * given initial conditions                                       *
@@ -63,8 +64,8 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-typedef int (*ResFn)(integertype Neq, realtype tres, N_Vector yy, 
-              N_Vector yp, N_Vector resval, void *rdata);
+typedef int (*ResFn)(realtype tres, N_Vector yy, N_Vector yp, 
+                     N_Vector resval, void *rdata);
  
 
 /******************************************************************
@@ -136,10 +137,6 @@ enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
  *----------------------------------------------------------------*
  * IDAMalloc allocates and initializes memory for a problem to    *
  * to be solved by IDA.                                           *
- *                                                                *
- * Neq     is the number of equations in the DAE system.          *
- *         (In the parallel case, Neq is the global system size,  *
- *         not the local size.)                                   *
  *                                                                *
  * res     is the residual function F in F(t,y,y') = 0.           *          
  *                                                                *
@@ -239,10 +236,11 @@ enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
  *                                                                *
  ******************************************************************/
 
-void *IDAMalloc(integertype Neq, ResFn res, void *rdata, realtype t0,
-              N_Vector y0, N_Vector yp0, int itol, realtype *rtol, void *atol,
-              N_Vector id, N_Vector constraints, FILE *errfp, booleantype optIn,
-              long int iopt[], realtype ropt[], M_Env machEnv);
+void *IDAMalloc(ResFn res, void *rdata, realtype t0, N_Vector y0, 
+                N_Vector yp0, int itol, realtype *rtol, void *atol,
+                N_Vector id, N_Vector constraints, FILE *errfp, 
+                booleantype optIn, long int iopt[], realtype ropt[], 
+                M_Env machEnv);
 
 /******************************************************************
  *                                                                *
@@ -296,11 +294,11 @@ void *IDAMalloc(integertype Neq, ResFn res, void *rdata, realtype t0,
  ******************************************************************/
 
 int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
-      N_Vector y0, N_Vector yp0, int itol, realtype *rtol, void *atol, 
-      N_Vector id, N_Vector constraints, FILE *errfp, booleantype optIn, 
-      long int iopt[], realtype ropt[], void *machEnv);
+              N_Vector y0, N_Vector yp0, int itol, realtype *rtol, 
+              void *atol, N_Vector id, N_Vector constraints, 
+              FILE *errfp, booleantype optIn, long int iopt[], 
+              realtype ropt[], void *machEnv);
  
-
 /******************************************************************
  *                                                                *
  * Optional Inputs and Outputs                                    *
@@ -541,8 +539,9 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
  *                                                                *
  ******************************************************************/
 
-int IDACalcIC (void *ida_mem, int icopt, realtype tout1, realtype epicfac, 
-               int maxnh, int maxnj, int maxnit, int lsoff, realtype steptol);
+int IDACalcIC (void *ida_mem, int icopt, realtype tout1, 
+               realtype epicfac, int maxnh, int maxnj, 
+               int maxnit, int lsoff, realtype steptol);
 
 
 /******************************************************************
@@ -654,7 +653,23 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1, realtype epicfac,
 int IDASolve(void *ida_mem, realtype tout, realtype tstop, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask);
 
+/******************************************************************
+ *                                                                *
+ * Function : IDAGetEwt                                           *
+ *----------------------------------------------------------------*
+ * This routine returns the weight vectors for states in weight   *
+ * It is provided for use in user-defined Jacobian routines       *
+ * routines based on finite differences. Note that the user need  *
+ * not allocate space for weight.                                 *
+ *                                                                *
+ ******************************************************************/
 
+int IDAGetEwt(void *cvode_mem, N_Vector weight);
+ 
+/* IDAGetEwt return values */
+
+/* SUCCESS = 0  */
+enum {GEWT_NO_MEM=-1};
 
 /******************************************************************
  *                                                                *
@@ -704,7 +719,6 @@ typedef struct IDAMemRec {
 
   /* Problem Specification Data */
 
-  integertype  ida_Neq;              /* DAE system size                    */
   ResFn    ida_res;                  /* F(t,y(t),y'(t))=0; the function F  */
   void    *ida_rdata;                /* user pointer passed to res         */
   int      ida_itol;                 /* itol = SS or SV                    */
@@ -798,9 +812,14 @@ typedef struct IDAMemRec {
   long int ida_ncfn;    /* number of corrector convergence failures   */
   long int ida_netf;    /* number of error test failures              */
   long int ida_nni;     /* number of Newton iterations performed      */
+  long int ida_nsetups; /* number of lsetup calls                     */
+
+  /* Space requirements for IDA */
+
+  long int ida_lrw1;    /* no. of realtype words in 1 N_Vector            */ 
+  long int ida_liw1;    /* no. of integertype words in 1 N_Vector         */ 
   long int ida_lrw;     /* number of realtype words in IDA work vectors   */
   long int ida_liw;     /* no. of integertype words in IDA work vectors   */
-  long int ida_nsetups; /* number of lsetup calls                     */
 
   /* Saved Values */
 

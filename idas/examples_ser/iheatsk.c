@@ -1,12 +1,10 @@
 /***********************************************************************
  * File       : iheatsk.c   
- * Written by : Allan G. Taylor and Alan C. Hindmarsh
- * Version of : 28 February 2003
- *----------------------------------------------------------------------
- * Modified by R. Serban to work with new serial NVECTOR 8 March 2002.
+ * Written by : Allan G. Taylor, Alan C. Hindmarsh, and Radu Serban
+ * Version of : 31 March 2003
  *----------------------------------------------------------------------
  *
- * Example problem for IDAS: 2D heat equation, serial, GMRES.
+ * Example problem for IDA: 2D heat equation, serial, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the Krylov solver IDASpgmr.
@@ -20,7 +18,7 @@
  * u = 0 at the boundaries are appended, to form a DAE system of size
  * N = M^2.  Here M = 10.
  *
- * The system is solved with IDAS using the Krylov linear solver IDASPGMR. 
+ * The system is solved with IDA using the Krylov linear solver IDASPGMR. 
  * The preconditioner uses the diagonal elements of the Jacobian only.
  * Routines for preconditioning, required by IDASPGMR, are supplied here.
  * The constraints u >= 0 are posed for all components.
@@ -43,7 +41,6 @@
 
 
 typedef struct {  
-  integertype neq;
   integertype mm; /* mm is the number of points in the grid. */
   realtype    dx;
   realtype    coeff;
@@ -54,17 +51,17 @@ typedef struct {
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res);
 
-int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
+int heatres(realtype tres, N_Vector uu, N_Vector up,
             N_Vector resval, void *rdata);
 
-int PrecondHeateq(integertype Neq, realtype tt, N_Vector uu,
+int PrecondHeateq(realtype tt, N_Vector uu,
                   N_Vector up, N_Vector rr, realtype cj,
                   ResFn res, void *rdata, void *pdata,
                   N_Vector ewt, N_Vector constraints, realtype hh, 
                   realtype uround, long int *nrePtr,
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-int PSolveHeateq(integertype Neq, realtype tt, N_Vector uu,
+int PSolveHeateq(realtype tt, N_Vector uu,
                  N_Vector up, N_Vector rr, realtype cj, ResFn res, void *rdata,
                  void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
                  N_Vector zvec, long int *nrePtr, N_Vector tempv);
@@ -93,21 +90,20 @@ int main()
 
   /* Allocate N-vectors and the user data structure. */
 
-  uu = N_VNew(NEQ, machEnv); 
-  up = N_VNew(NEQ, machEnv);
-  res = N_VNew(NEQ, machEnv);
-  constraints = N_VNew(NEQ, machEnv);
-  id = N_VNew(NEQ, machEnv);
+  uu = N_VNew(machEnv); 
+  up = N_VNew(machEnv);
+  res = N_VNew(machEnv);
+  constraints = N_VNew(machEnv);
+  id = N_VNew(machEnv);
 
   data = (UserData) malloc(sizeof *data);
 
   /* Assign parameters in the user data structure. */
 
-  data->neq = NEQ;
   data->mm  = MGRID;
   data->dx = ONE/(MGRID-ONE);
   data->coeff = ONE/(data->dx * data->dx);
-  data->pp = N_VNew(NEQ, machEnv);
+  data->pp = N_VNew(machEnv);
 
   /* Initialize uu, up, id. */
   SetInitialProfile(data, uu, up, id, res);
@@ -127,7 +123,7 @@ int main()
   /* Call IDAMalloc to initialize solution.
      NULL arguments are errfp and machEnv, respectively. */
 
-  mem = IDAMalloc(NEQ, heatres, data , t0, uu, up, itol, &rtol, &atol,
+  mem = IDAMalloc(heatres, data , t0, uu, up, itol, &rtol, &atol,
                   id , constraints , NULL, optIn, iopt, ropt,  machEnv);
   if (mem == NULL) { printf("IDAMalloc failed."); return(1); }
 
@@ -278,7 +274,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   N_VConst(ZERO, up);
 
   /* heatres sets res to negative of ODE RHS values at interior points. */
-  heatres(data->neq, ZERO, uu, up, res, data);
+  heatres(ZERO, uu, up, res, data);
 
   /* Copy -res into up to get correct interior initial up values. */
   N_VScale(-ONE, res, up);
@@ -308,8 +304,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
  *    res_i = u'_i - (central difference)_i                              *
  * while for each boundary point, it is res_i = u_i.                     */
 
-int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
-            N_Vector res, void *rdata)
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
 {
   integertype i, j, offset, loc, mm;
   realtype *uv, *upv, *resv, coeff;
@@ -356,7 +351,7 @@ int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
  * In this instance, only cj and data (user data structure, with   * 
  * pp etc.) are used from the PrecondHeateq argument list.         */
   
-int PrecondHeateq(integertype Neq, realtype tt, N_Vector uu,
+int PrecondHeateq(realtype tt, N_Vector uu,
                   N_Vector up, N_Vector rr, realtype cj,
                   ResFn res, void *rdata, void *pdata,
                   N_Vector ewt, N_Vector constraints, realtype hh, 
@@ -399,7 +394,7 @@ int PrecondHeateq(integertype Neq, realtype tt, N_Vector uu,
  * containing the inverse diagonal Jacobian elements (previously  *
  * computed in PrecondHeateq), returning the result in zvec.      */
 
-int PSolveHeateq(integertype Neq, realtype tt, N_Vector uu,
+int PSolveHeateq(realtype tt, N_Vector uu,
                  N_Vector up, N_Vector rr, realtype cj, ResFn res, void *rdata,
                  void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
                  N_Vector zvec, long int *nrePtr, N_Vector tempv)

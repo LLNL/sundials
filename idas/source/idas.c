@@ -2,14 +2,14 @@
  * File          : idas.c                                          *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 July 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
+ * For details, see sundials/ida/LICENSE                           *
  *-----------------------------------------------------------------*
- * This is the implementation file for the main IDAS solver.       *
+ * This is the implementation file for the main IDA solver.        *
  * It is independent of the linear solver in use.                  *
  *                                                                 *
  *******************************************************************/
@@ -205,8 +205,6 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_Y0_NULL        IDAM "y0 = NULL illegal.\n\n"
 #define MSG_YP0_NULL       IDAM "yp0 = NULL illegal.\n\n"
 
-#define MSG_BAD_NEQ        IDAM "Neq = %ld < 1 illegal.\n\n"
-
 #define MSG_BAD_ITOL_1     IDAM "itol = %d illegal.\n"
 #define MSG_BAD_ITOL_2     "The legal values are SS = %d and SV = %d.\n\n"
 #define MSG_BAD_ITOL       MSG_BAD_ITOL_1 MSG_BAD_ITOL_2
@@ -391,6 +389,11 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_FAILED_CONSTR2 "inequality constraints. \n\n"
 #define MSG_FAILED_CONSTR  MSG_FAILED_CONSTR1 MSG_FAILED_CONSTR2
 
+/* IDAGetEwt Error Messages */
+
+#define GEWT                "IDAGetEwt-- "
+#define MSG_GEWT_NO_MEM     GEWT NO_MEM
+
 /***************************************************************/
 /****************** END Error Messages *************************/
 /***************************************************************/
@@ -405,8 +408,7 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, integertype Neq,
-                                   M_Env machEnv);
+static booleantype IDAAllocVectors(IDAMem IDA_mem, M_Env machEnv);
 static void IDAFreeVectors(IDAMem IDA_mem);
 
 static int IDAnlsIC (IDAMem IDA_mem);
@@ -481,6 +483,8 @@ static int IDACompleteStep(IDAMem IDA_mem, realtype *est,
 #define nni      (IDA_mem->ida_nni)
 #define nsetups  (IDA_mem->ida_nsetups)
 #define ns       (IDA_mem->ida_ns)
+#define lrw1     (IDA_mem->ida_lrw1)
+#define liw1     (IDA_mem->ida_liw1)
 #define lrw      (IDA_mem->ida_lrw)
 #define liw      (IDA_mem->ida_liw)
 #define linit    (IDA_mem->ida_linit)
@@ -535,10 +539,11 @@ static int IDACompleteStep(IDAMem IDA_mem, realtype *est,
  
 *****************************************************************/
 
-void *IDAMalloc(integertype Neq, ResFn res, void *rdata, realtype t0,
-      N_Vector y0, N_Vector yp0, int itol, realtype *rtol, void *atol, 
-      N_Vector id, N_Vector constraints, FILE *errfp, booleantype optIn, 
-      long int iopt[], realtype ropt[], M_Env machEnv)
+void *IDAMalloc(ResFn res, void *rdata, realtype t0, N_Vector y0, 
+                N_Vector yp0, int itol, realtype *rtol, void *atol, 
+                N_Vector id, N_Vector constraints, FILE *errfp, 
+                booleantype optIn, long int iopt[], realtype ropt[], 
+                M_Env machEnv)
 {
   booleantype allocOK, ioptExists, roptExists, neg_atol, ewtsetOK, conOK;
   realtype temptest;
@@ -549,8 +554,6 @@ void *IDAMalloc(integertype Neq, ResFn res, void *rdata, realtype t0,
   /* Check for legal input parameters */
   
   fp = (errfp == NULL) ? stdout : errfp;
-
-  if (Neq <= 0) { fprintf(fp, MSG_BAD_NEQ, (long int) Neq); return(NULL); }
 
   if (y0 == NULL) { fprintf(fp, MSG_Y0_NULL); return(NULL); }
   
@@ -617,9 +620,13 @@ void *IDAMalloc(integertype Neq, ResFn res, void *rdata, realtype t0,
     if(temptest < ZERO){ fprintf(fp, MSG_BAD_ID); return(NULL); }
   }
 
+  /* Set space requirements for one N_Vector */
+
+  N_VSpace(machEnv, &lrw1, &liw1);
+
   /* Allocate the vectors */
 
-  allocOK = IDAAllocVectors(IDA_mem, Neq, machEnv);
+  allocOK = IDAAllocVectors(IDA_mem, machEnv);
   if (!allocOK) {
     fprintf(fp, MSG_MEM_FAIL);
     free(IDA_mem);
@@ -666,7 +673,6 @@ void *IDAMalloc(integertype Neq, ResFn res, void *rdata, realtype t0,
   /* Copy the input parameters into IDA memory block
      (Corresponding readability constants are defined below) */
 
-  IDA_mem->ida_Neq = Neq;
   IDA_mem->ida_res = res;
   IDA_mem->ida_constraints = constraints;
   IDA_mem->ida_rdata = rdata;
@@ -763,9 +769,10 @@ void *IDAMalloc(integertype Neq, ResFn res, void *rdata, realtype t0,
 *****************************************************************/
 
 int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
-      N_Vector y0, N_Vector yp0, int itol, realtype *rtol, void *atol, 
-      N_Vector id, N_Vector constraints, FILE *errfp, booleantype optIn, 
-      long int iopt[], realtype ropt[], void *machEnv)
+              N_Vector y0, N_Vector yp0, int itol, realtype *rtol, 
+              void *atol, N_Vector id, N_Vector constraints, 
+              FILE *errfp, booleantype optIn, long int iopt[], 
+              realtype ropt[], void *machEnv)
 {
   booleantype ioptExists, roptExists, neg_atol, ewtsetOK, conOK;
   realtype temptest;
@@ -1483,34 +1490,33 @@ void IDAFree(void *ida_mem)
 
 **********************************************************************/
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, integertype Neq,
-                                   M_Env machEnv)
+static booleantype IDAAllocVectors(IDAMem IDA_mem, M_Env machEnv)
 {
   int i, j, maxcol;
 
   /* Allocate ewt, ee, delta, tempv1, tempv2 */
   
-  ewt = N_VNew(Neq, machEnv);
+  ewt = N_VNew(machEnv);
   if (ewt == NULL) return(FALSE);
-  ee = N_VNew(Neq, machEnv);
+  ee = N_VNew(machEnv);
   if (ee == NULL) {
     N_VFree(ewt);
     return(FALSE);
   }
-  delta = N_VNew(Neq, machEnv);
+  delta = N_VNew(machEnv);
   if (delta == NULL) {
     N_VFree(ewt);
     N_VFree(ee);
     return(FALSE);
   }
-  tempv1 = N_VNew(Neq, machEnv);
+  tempv1 = N_VNew(machEnv);
   if (tempv1 == NULL) {
     N_VFree(ewt);
     N_VFree(ee);
     N_VFree(delta);
     return(FALSE);
   }
-   tempv2= N_VNew(Neq, machEnv);
+  tempv2= N_VNew(machEnv);
   if (tempv2 == NULL) {
     N_VFree(ewt);
     N_VFree(ee);
@@ -1526,7 +1532,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, integertype Neq,
 
   maxcol = MAX(maxord,3);
   for (j=0; j <= maxcol; j++) {
-    phi[j] = N_VNew(Neq, machEnv);
+    phi[j] = N_VNew(machEnv);
     if (phi[j] == NULL) {
       N_VFree(ewt);
       N_VFree(ee);
@@ -1540,14 +1546,11 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, integertype Neq,
 
   /* Set solver workspace lengths  */
 
-  lrw = (maxcol + 6)*Neq;
-  liw = 0;
+  lrw = (maxcol + 6) * lrw1;
+  liw = (maxcol + 6) * liw1;
 
   return(TRUE);
 }
-
-
-#define Neq    (IDA_mem->ida_Neq)
 
 
 /***************** IDAFreeVectors *********************************
@@ -1619,7 +1622,7 @@ static int IDAnlsIC (IDAMem IDA_mem)
   tv2 = tempv2;
   tv3 = phi[2];
 
-  retval = res (Neq, tn, y0, yp0, delta, rdata);
+  retval = res (tn, y0, yp0, delta, rdata);
   nre++;
   if(retval < 0) return(RES_NONRECOV_ERR);
   if(retval > 0) return(IC_FIRST_RES_FAIL);
@@ -1843,7 +1846,7 @@ static int IDAfnorm (IDAMem IDA_mem, realtype *fnorm)
   int retval;
 
   /* Get residual vector F, return if failed, and save F in savres. */
-  retval = res (Neq, tn, ynew, ypnew, delnew, rdata);
+  retval = res (tn, ynew, ypnew, delnew, rdata);
   nre++;
   if(retval < 0) return(RES_NONRECOV_ERR);
   if(retval > 0) return(IC_FAIL_RECOV);
@@ -2409,7 +2412,6 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
  tt -- Independent variable.
  yy -- Solution vector at tt.
  yp -- Derivative of solution vector after successful stelp.
- Neq -- Number of equations to be integrated.
  res -- User-supplied function to evaluate the residual. See the 
         description given in file ida.h .
  lsetup -- Routine to prepare for the linear solver call. It may either
@@ -2601,7 +2603,7 @@ static int IDAnls(IDAMem IDA_mem)
     /* Compute predicted values for yy and yp, and compute residual there. */
     ier = IDAPredict(IDA_mem);
 
-    retval = res(Neq, tn, yy, yp, delta, rdata);
+    retval = res(tn, yy, yp, delta, rdata);
     nre++;
     if(retval != SUCCESS) break;
 
@@ -2758,7 +2760,7 @@ static int IDANewtonIter(IDAMem IDA_mem)
     if (mnewt >= MAXIT) {retval = CONV_FAIL_NLINR_RECVR; break;}
 
     /* Call res for new residual and check error flag from res. */
-    retval = res(Neq, tn, yy, yp, delta, rdata);
+    retval = res(tn, yy, yp, delta, rdata);
     nre++;
     if (retval != SUCCESS) break;
 

@@ -3,14 +3,14 @@
  * File          : idasband.h                                      *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 July 2002                                    *
+ * Version of    : 30 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
+ * For details, see sundials/ida/LICENSE                           *
  *-----------------------------------------------------------------*
- * This is the header file for the IDAS band linear solver         *
+ * This is the header file for the IDA band linear solver          *
  * module, IDABAND. It interfaces between the band module and the  *
  * IDA package when a banded linear solver is appropriate.         *
  *                                                                 *
@@ -79,26 +79,10 @@ enum { BAND_NJE=IDA_IOPT_SIZE, BAND_LRW, BAND_LIW };
  *                                                                *
  * cj  is the scalar in the system Jacobian, proportional to 1/hh.*
  *                                                                *
- * constraints is the vector of inequality constraint options     *
- *             (as passed to IDAMalloc).  Included here to allow  *
- *             for checking of incremented y values in difference *
- *             quotient calculations.                             *
- *                                                                *
- * res    is the residual function for the DAE problem.           *
- *                                                                *
- * rdata  is a pointer to user data to be passed to res, the same *
- *        as the rdata parameter passed to IDAMalloc.             *
- *                                                                *
  * jdata  is a pointer to user Jacobian data - the same as the    *
  *        jdata parameter passed to IDABand.                      *
  *                                                                *
  * resvec is the residual vector F(tt,yy,yp).                     *
- *                                                                *
- * ewt    is the error weight vector.                             *
- *                                                                *
- * hh     is a tentative step size in t.                          *
- *                                                                *
- * uround is the machine unit roundoff.                           *
  *                                                                *
  * JJ     is the band matrix (of type BandMat) to be loaded by    *
  *        an IDABandJacFn routine with an approximation to the    *
@@ -107,14 +91,6 @@ enum { BAND_NJE=IDA_IOPT_SIZE, BAND_LRW, BAND_LIW };
  *        at the given point (t,y,y'), where the DAE system is    *
  *        given by F(t,y,y') = 0.  JJ is preset to zero, so only  *
  *        the nonzero elements need to be loaded.  See note below.*
- *                                                                *
- * nrePtr is a pointer to the memory location containing the      *
- *        IDA problem data nre = number of calls to res. This     *
- *        Jacobian routine should update this counter by adding   *
- *        on the number of res calls it makes in order to         *
- *        approximate the Jacobian, if any.  For example, if this *
- *        routine calls res a total of M times, then it should    *
- *        perform the update *nrePtr += M.                        *
  *                                                                *
  * tempv1, tempv2, tempv3 are pointers to memory allocated for    *
  *        N_Vectors which can be used by an IDABandJacFn routine  *
@@ -153,13 +129,12 @@ enum { BAND_NJE=IDA_IOPT_SIZE, BAND_LRW, BAND_LIW };
  * recover by reducing the stepsize (which changes cj).           *
  ******************************************************************/
   
-typedef int (*IDABandJacFn)(integertype Neq, integertype mupper, integertype mlower,
-                            realtype tt, N_Vector yy, N_Vector yp, realtype cj, 
-                            N_Vector constraints, ResFn res, void *rdata, void *jdata, 
-                            N_Vector resvec, N_Vector ewt, realtype hh, realtype uround, 
-                            BandMat JJ, long int *nrePtr, N_Vector tempv1,
-                            N_Vector tempv2, N_Vector tempv3);
-
+typedef int (*IDABandJacFn)(integertype neq, integertype mupper, 
+                            integertype mlower, realtype tt, 
+                            N_Vector yy, N_Vector yp, realtype cj, 
+                            void *jdata, N_Vector resvec, BandMat JJ, 
+                            N_Vector tempv1, N_Vector tempv2, 
+                            N_Vector tempv3);
  
 /******************************************************************
  *                                                                *
@@ -197,8 +172,8 @@ typedef int (*IDABandJacFn)(integertype Neq, integertype mupper, integertype mlo
  *                                                                *
  ******************************************************************/
 
-int IDABand(void *IDA_mem, integertype mupper, integertype mlower,
-            IDABandJacFn bjac, void *jdata);
+int IDABand(void *IDA_mem, integertype neq, integertype mupper, 
+            integertype mlower, IDABandJacFn bjac, void *jdata);
 
 
 /******************************************************************

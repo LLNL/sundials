@@ -2,18 +2,17 @@
  *                                                                 *
  * File          : idasspgmr.c                                     *
  * Programmers   : Alan C. Hindmarsh and Allan G. Taylor           *
- * Version of    : 11 July 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
+ * For details, see sundials/ida/LICENSE                           *
  *-----------------------------------------------------------------*
- * This is the implementation file for the IDAS Scaled             *
+ * This is the implementation file for the IDA Scaled              *
  * Preconditioned GMRES linear solver module, IDASPGMR.            *
  *                                                                 *
  *******************************************************************/
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +23,6 @@
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
-
 
 /* Error Messages */
 
@@ -145,7 +143,8 @@ static int IDASpgmrPSolve(void *lin_mem, N_Vector r, N_Vector z, int lr);
 
 /* Readability Replacements */
 
-#define Neq     (ida_mem->ida_Neq)      
+#define lrw1    (ida_mem->ida_lrw1)
+#define liw1    (ida_mem->ida_liw1)
 #define uround  (ida_mem->ida_uround)
 #define nst     (ida_mem->ida_nst)
 #define tn      (ida_mem->ida_tn)
@@ -263,11 +262,11 @@ int IDASpgmr(void *IDA_mem, IDASpgmrPrecondFn precond,
   }
 
   /* Set SPGMR parameters that were passed in call sequence */
-  maxl1 = (maxl <= 0) ? IDA_SPGMR_MAXL : maxl; maxl1 = MIN(maxl1, Neq);
+  maxl1 = (maxl <= 0) ? IDA_SPGMR_MAXL : maxl;
   IDASpgmr_mem->g_gstype   = gstype;
   IDASpgmr_mem->g_maxl     = maxl1;
   maxrs1 = (maxrs == 0) ? IDA_SPGMR_MAXRS : maxrs;
-  IDASpgmr_mem->g_maxrs    = (maxrs < 0) ? 0 : MIN(maxrs1, Neq/maxl1);
+  IDASpgmr_mem->g_maxrs    = (maxrs < 0) ? 0 : maxrs1;
   IDASpgmr_mem->g_eplifac  = (eplifac == ZERO) ? ONE : eplifac;
   IDASpgmr_mem->g_dqincfac = (dqincfac == ZERO) ? ONE : dqincfac;
   IDASpgmr_mem->g_precond  = precond;
@@ -278,18 +277,18 @@ int IDASpgmr(void *IDA_mem, IDASpgmrPrecondFn precond,
   setupNonNull = (psolve != NULL) && (precond != NULL);
 
   /* Allocate memory for ytemp, yptemp, and xx */
-  ytemp = N_VNew(Neq, machenv);
+  ytemp = N_VNew(machenv);
   if (ytemp == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
-  yptemp = N_VNew(Neq, machenv);
+  yptemp = N_VNew(machenv);
   if (yptemp == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(ytemp);
     return(LMEM_FAIL);
   }
-  xx = N_VNew(Neq, machenv);
+  xx = N_VNew(machenv);
   if (xx == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(ytemp);
@@ -297,8 +296,12 @@ int IDASpgmr(void *IDA_mem, IDASpgmrPrecondFn precond,
     return(LMEM_FAIL);
   }
 
+  /* Compute sqrtN from a dot product */
+  N_VConst(ONE, ytemp);
+  sqrtN = RSqrt( N_VDotProd(ytemp, ytemp) );
+
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
-  spgmr_mem = SpgmrMalloc(Neq, maxl1, machenv);
+  spgmr_mem = SpgmrMalloc(maxl1, machenv);
   if (spgmr_mem == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(ytemp);
@@ -353,11 +356,11 @@ int IDAReInitSpgmr(void *IDA_mem, IDASpgmrPrecondFn precond,
   }
 
   /* Set SPGMR parameters that were passed in call sequence */
-  maxl1 = (maxl <= 0) ? IDA_SPGMR_MAXL : maxl; maxl1 = MIN(maxl1, Neq);
+  maxl1 = (maxl <= 0) ? IDA_SPGMR_MAXL : maxl;
   IDASpgmr_mem->g_gstype   = gstype;
   IDASpgmr_mem->g_maxl     = maxl1;
   maxrs1 = (maxrs == 0) ? IDA_SPGMR_MAXRS : maxrs;
-  IDASpgmr_mem->g_maxrs    = (maxrs < 0) ? 0 : MIN(maxrs1, Neq/maxl1);
+  IDASpgmr_mem->g_maxrs    = (maxrs < 0) ? 0 : maxrs1;
   IDASpgmr_mem->g_eplifac  = (eplifac == ZERO) ? ONE : eplifac;
   IDASpgmr_mem->g_dqincfac = (dqincfac == ZERO) ? ONE : dqincfac;
   IDASpgmr_mem->g_precond  = precond;
@@ -397,7 +400,6 @@ static int IDASpgmrInit(IDAMem ida_mem)
 
   /* Initialize sqrtN, counters, and workspace lengths. */
 
-  sqrtN = RSqrt(Neq);
   npe = nli = nps = ncfl = 0;
 
   if (iopt != NULL) {
@@ -405,8 +407,8 @@ static int IDASpgmrInit(IDAMem ida_mem)
     iopt[SPGMR_NLI] = nli;
     iopt[SPGMR_NPS] = nps;
     iopt[SPGMR_NCFL] = ncfl;
-    iopt[SPGMR_LRW] = Neq*(maxl + 5) + maxl*(maxl + 4) + 1;
-    iopt[SPGMR_LIW] = 0;
+    iopt[SPGMR_LRW] = lrw1*(maxl + 5) + maxl*(maxl + 4) + 1;
+    iopt[SPGMR_LIW] = liw1*(maxl + 5);
   }
 
   return(LINIT_OK);
@@ -432,8 +434,9 @@ static int IDASpgmrSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
   IDASpgmr_mem = (IDASpgmrMem) lmem;
 
   /* Call user setup routine precond and update counter npe. */
-  retval = precond(Neq, tn, yyp, ypp, resp, cj, res, rdata, pdata,
-                   ewt, constraints, hh, uround, &nre, tempv1, tempv2, tempv3);
+  retval = precond(tn, yyp, ypp, resp, cj, res, rdata, pdata,
+                   ewt, constraints, hh, uround, &nre, 
+                   tempv1, tempv2, tempv3);
   npe++;
   if (iopt != NULL) iopt[SPGMR_NPE] = npe;
 
@@ -606,7 +609,7 @@ static int IDASpgmrAtimesDQ(void *idamem, N_Vector v, N_Vector z)
   N_VLinearSum(cj*sig, v, ONE, ypcur, yptemp);
 
   /* Call res for z = F(t, ytemp, yptemp), and return if it failed. */
-  ires = res(Neq, tn, ytemp, yptemp, z, rdata); 
+  ires = res(tn, ytemp, yptemp, z, rdata); 
   nre++;
   resflag = ires;
   if (ires != 0) return(ires);
@@ -638,7 +641,7 @@ static int IDASpgmrPSolve(void *idamem, N_Vector r, N_Vector z, int lr)
   ida_mem = (IDAMem) idamem;
   IDASpgmr_mem = (IDASpgmrMem) lmem;
 
-  retval = psolve(Neq, tn, ycur, ypcur, rcur, cj, res, rdata, pdata,
+  retval = psolve(tn, ycur, ypcur, rcur, cj, res, rdata, pdata,
                   ewt, epslin, r, z, &nre, ytemp);
   /* This call is counted in nps within the IDASpgmrSolve routine */
 

@@ -1,14 +1,15 @@
 /*******************************************************************
+ *                                                                 *
  * File          : idasspgmr.h                                     *
  * Programmers   : Alan C. Hindmarsh and Allan G. Taylor           *
- * Version of    : 2 July 2002                                     *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
+ * For details, see sundials/ida/LICENSE                           *
  *-----------------------------------------------------------------*
- * This is the header file for the IDAS Scaled Preconditioned      *
+ * This is the header file for the IDA Scaled Preconditioned       *
  * GMRES linear solver module, IDASPGMR.                           *
  *                                                                 *
  *******************************************************************/
@@ -96,8 +97,6 @@ enum { SPGMR_NPE=IDA_IOPT_SIZE, SPGMR_NLI, SPGMR_NPS, SPGMR_NCFL,
  * A preconditioner setup function Precond must have the          *
  * prototype given below.  Its parameters are as follows:         *
  *                                                                *
- * Neq is the problem size, and length of all vector arguments.   *
- *                                                                *
  * tt  is the current value of the independent variable t.        *
  *                                                                *
  * yy  is the current value of the dependent variable vector,     *
@@ -146,11 +145,13 @@ enum { SPGMR_NPE=IDA_IOPT_SIZE, SPGMR_NLI, SPGMR_NPS, SPGMR_NCFL,
  * recover by reducing the stepsize (which changes cj).           *
  ******************************************************************/
   
-typedef int (*IDASpgmrPrecondFn)(integertype Neq, realtype tt, N_Vector yy,
-         N_Vector yp, N_Vector rr, realtype cj, ResFn res, 
-         void *rdata, void *pdata, N_Vector ewt, N_Vector constraints, 
-         realtype hh, realtype uround,  long int *nrePtr, N_Vector tempv1, 
-         N_Vector tempv2, N_Vector tempv3);
+typedef int (*IDASpgmrPrecondFn)(realtype tt, N_Vector yy, N_Vector yp, 
+                                 N_Vector rr, realtype cj, ResFn res, 
+                                 void *rdata, void *pdata, N_Vector ewt, 
+                                 N_Vector constraints, realtype hh, 
+                                 realtype uround,  long int *nrePtr, 
+                                 N_Vector tempv1, N_Vector tempv2, 
+                                 N_Vector tempv3);
 
 
 /******************************************************************
@@ -164,8 +165,6 @@ typedef int (*IDASpgmrPrecondFn)(integertype Neq, realtype tt, N_Vector yy,
  *                                                                *
  * A preconditioner solve function PSolve must have the           *
  * prototype given below.  Its parameters are as follows:         *
- *                                                                *
- * Neq is the problem size, and length of all vector arguments.   *
  *                                                                *
  * tt  is the current value of the independent variable t.        *
  *                                                                *
@@ -216,11 +215,12 @@ typedef int (*IDASpgmrPrecondFn)(integertype Neq, realtype tt, N_Vector yy,
  * updating the preconditioner and/or reducing the stepsize.      *
  ******************************************************************/
   
-typedef int (*IDASpgmrPSolveFn)(integertype Neq, realtype tt, N_Vector yy,
-             N_Vector yp, N_Vector rr, realtype cj, ResFn res, void *rdata,
-             void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
-             N_Vector zvec, long int *nrePtr, N_Vector tempv);
-
+typedef int (*IDASpgmrPSolveFn)(realtype tt, N_Vector yy, N_Vector yp, 
+                                N_Vector rr, realtype cj, ResFn res, 
+                                void *rdata, void *pdata, N_Vector ewt, 
+                                realtype delta, N_Vector rvec, 
+                                N_Vector zvec, long int *nrePtr, 
+                                N_Vector tempv);
  
 /******************************************************************
  *                                                                *
