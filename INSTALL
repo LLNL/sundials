@@ -73,6 +73,47 @@ by giving 'configure' the option '--libdir=DIR'. Similarly, invoking
 Run `configure --help' for a list of the directories you can set and 
 what kinds of files go in them.
 
+The SUNDIALS libraries and header files are summarized below:
+
+SHARED module
+  library:      libsundials_shared.{a,so}  
+  header files: sundialstypes.h  sundialsmath.h  dense.h      smalldense.h
+                band.h           spgmr.h         iterative.h  nvector.h
+
+
+NVECTOR_SERIAL module
+  libraries:    libsundials_nvecserial.{a,so} libsundials_fnvecserial.a
+  header files: nvector_serial.h
+
+
+NVECTOR_PARALLEL module
+  libraries:    libsundials_nvecparallel.{a,so} libsundials_fnvecparallel.a
+  header files: nvector_parallel.h
+
+
+CVODE module
+  libraries:    libsundials_cvode.{a,so} libsundials_fcvode.a
+  header files: cvband.h  cvbandpre.h  cvbbdpre.h  cvdense.h  cvdiag.h  
+                cvode.h   cvspgmr.h
+
+
+CVODES module
+  library:      libsundials_cvodes.{a,so}
+  header files: cvband.h     cvbbdpre.h  cvdiag.h  cvodec.h  
+                cvbandpre.h  cvdense.h   cvodea.h  cvodes.h  cvspgmr.h
+
+
+IDA module
+  library:      libsundials_ida.{a,so}
+  header files: idaband.h  idabbdpre.h  idadense.h  ida.h  idaspgmr.h
+
+
+KINSOL module
+  libraries:    libsundials_kinsol.{a,so} libsundials_fkinsol.a
+  header files: kinbbdpre.h  kinsol.h  kinspgmr.h
+
+
+
 3. Compilers and Options
 ========================
 
