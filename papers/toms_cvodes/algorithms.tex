@@ -329,12 +329,12 @@ algorithm. However, especially for large-scale problems and long integration
 intervals, the number and size of the vectors $y$ and ${\dot y}$ that would 
 need to be stored make this approach computationally intractable. 
 
-CVODES settles for a compromise between storage space and execution time by
-implementing a check-pointing scheme which, at the cost of
-at most one additional forward integration, offers the best possible 
-estimate of memory requirements for adjoint sensitivity
-analysis.\footnote{Note that truly optimal checkpointing \cite{GrWa:00}
-cannot be used since the number of integration steps is not known apriori}
+CVODES settles for a compromise between storage space and execution
+time by implementing a check-pointing scheme which, at the cost of at
+most one additional forward integration, offers the best possible
+estimate of memory requirements for adjoint sensitivity analysis.
+Note that truly optimal checkpointing \cite{GrWa:00} cannot be used
+since the number of integration steps is not known apriori.
 
 %% To begin with,
 %% based on the problem size $N$ and the available memory, the user decides on 
@@ -380,4 +380,5 @@ functions for the evaluation of the adjoint systems that are generated through
 reverse automatic differentiation. Due to the current development stage of
 reverse AD tools for C codes, CVODES cannot provide generic wrappers
 (as done, for example, in DASPKADJOINT for Fortran77 codes). At this time, the
-burden of interfacing CVODE with AD-generated functions must rely on the user.
+burden of interfacing CVODE with AD-generated functions must rely on
+the user.
