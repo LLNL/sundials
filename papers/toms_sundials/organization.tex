@@ -22,7 +22,7 @@ KINSOL, and IDA. The SUNDIALS distribution now contains a number of common
 modules in a shared directory. Additionally, compilation of SUNDIALS is now
 independent of any prior specification of a particular NVECTOR
 implementation, facilitating the use of binary libraries. The current
-NVECTOR structure also allows the use of multiple implementations within the
+NVECTOR design also allows the use of multiple implementations within the
 same code, as may be required to meet user needs.
 
 Figure \ref{fig-sunorg} shows the overall structure of SUNDIALS, with the
@@ -32,7 +32,7 @@ much in their organization and have a number of common modules.  The
 separation of the linear solvers from the core integrators allows for easy
 addition of linear solvers not currently included in SUNDIALS. At the bottom
 level is the NVECTOR module, providing key vector operations such as
-creation, destruction, summation, and dot-products on potentially
+duplication, destruction, summation, and dot-products on potentially
 distributed data vectors. Serial and parallel NVECTOR implementations are
 included with SUNDIALS, but a user can substitute his/her own implementation
 as useful. Two small modules defining several data types and elementary
@@ -83,30 +83,32 @@ appropriate.
 \subsection{Shared Modules - NVECTOR}
 
 A generic NVECTOR implementation is used within SUNDIALS to
-operate on N-vectors. This generic implementation defines an NVECTOR
-structure specification, a data-independent NVECTOR type, a set of abstract
-vector operations, and a set of wrappers for accessing the actual vector
-operations of the implementation under which an NVECTOR was created. Because
-details of vector operations are thus encapsulated within each specific
-NVECTOR implementation, the solvers in SUNDIALS
-are now independent of a specific
+operate on vectors. This generic implementation defines an NVECTOR
+structure which consists of an implementation-specific content and a set 
+of abstract vector operations. The NVECTOR module also provides a set of 
+wrappers for accessing the actual vector operations of the implementation 
+under which an NVECTOR was created. 
+Because details of vector operations are thus encapsulated within each specific
+NVECTOR implementation, the solvers in SUNDIALS are now independent of a specific
 implementation. This allows the solvers to be precompiled as binary
 libraries and allows more than one NVECTOR implementation to be used within
 a single program.
 
 A particular NVECTOR implementation, such as the serial and parallel
 implementations included with SUNDIALS or a user-provided implementation,
-must provide certain functionalities. Each implementation must provide a
-specification of the data needed to generate a new NVECTOR and a menu to
-routines for operations on N-vectors, including, for example, creation,
-destruction, summation, element-by-element inversion, and dot product. Each
-NVECTOR includes data and descriptive fields as well as a pointer to the
-specification for the implementation to which it belongs.
+must provide certain functionalities. 
+At a minimum, each implementation must provide functions to create a new
+vector, a function to destroy such vectors, and the definitions of
+vector operations required by the SUNDIALS solvers, including, for example, 
+duplication, summation, element-by-element inversion, and dot product. 
 
-If neither the serial nor parallel package NVECTOR implementation is
-suitable, the user can provide one or more NVECTOR implementations.  For
-example, it might (and has been) more practical to substitute a more complex
+If neither the serial nor parallel NVECTOR implementation provided within
+SUNDIALS is suitable, the user can provide one or more NVECTOR implementations.  
+For example, it might (and has been) more practical to substitute a more complex
 data structure in a parallel implementation.
+
+For complete details, see the user documentation for any of the solvers in 
+SUNDIALS~\cite{HiSe:04cvode,HiSe:04cvodes,HiSe:04ida,HSW:04kinsol}.
 
 \subsection{User Interface Design}
 
@@ -120,9 +122,9 @@ SUNDIALS solvers involves many callable routines, each with only a few
 arguments.  The various routines specify the various aspects of the
 problem to be solved and of the solution method to be used, or
 retrieve information about the solution.  For each solver, there are
-separate (required) calls that initialize (and allocate memory for)
-the NVECTOR module, the problem solver, and the linear system solver
-it will use.  Then there are optional calls to specify various
+separate (required) calls that initialize and allocate memory for
+the problem solver and for the linear system solver it will use.  
+Then there are optional calls to specify various
 optional inputs (ranging from scalars like maximum method order to the
 user-supplied Jacobian routine), and optional calls to obtain optional
 outputs (mostly performance statistics).  Finally, there is a call to
