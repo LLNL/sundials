@@ -3,7 +3,7 @@
  * File          : band.c                                          *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh, and       *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -30,8 +30,7 @@
 
 /* Implementation */
 
-BandMat BandAllocMat(integertype N, integertype mu, integertype ml, 
-                     integertype smu)
+BandMat BandAllocMat(long int N, long int mu, long int ml, long int smu)
 {
   BandMat A;
 
@@ -55,21 +54,21 @@ BandMat BandAllocMat(integertype N, integertype mu, integertype ml,
 }
 
 
-integertype *BandAllocPiv(integertype N)
+long int *BandAllocPiv(long int N)
 {
   if (N <= 0) return(NULL);
   
-  return((integertype *) malloc(N * sizeof(integertype)));
+  return((long int *) malloc(N * sizeof(long int)));
 }
 
 
-integertype BandFactor(BandMat A, integertype *p)
+long int BandFactor(BandMat A, long int *p)
 {
   return(gbfa(A->data, A->size, A->mu, A->ml, A->smu, p));
 }
 
 
-void BandBacksolve(BandMat A, integertype *p, realtype *b)
+void BandBacksolve(BandMat A, long int *p, realtype *b)
 {
   gbsl(A->data, A->size, A->smu, A->ml, p, b);
 }
@@ -79,8 +78,8 @@ void BandZero(BandMat A)
   bandzero(A->data, A->size, A->mu, A->ml, A->smu);
 }
 
-void BandCopy(BandMat A, BandMat B, integertype copymu, 
-              integertype copyml)
+void BandCopy(BandMat A, BandMat B, long int copymu, 
+              long int copyml)
 {
   bandcopy(A->data, B->data, A->size, A->smu, B->smu, copymu, copyml);
 }
@@ -101,7 +100,7 @@ void BandFreeMat(BandMat A)
   free(A);
 }
 
-void BandFreePiv(integertype *p)
+void BandFreePiv(long int *p)
 { 
   free(p);
 }
@@ -112,11 +111,10 @@ void BandPrint(BandMat A)
 }
 
 
-realtype **bandalloc(integertype n, integertype smu, 
-                     integertype ml)
+realtype **bandalloc(long int n, long int smu, long int ml)
 {
   realtype **a;
-  integertype j, colSize;
+  long int j, colSize;
 
   if (n <= 0) return(NULL);
 
@@ -135,19 +133,19 @@ realtype **bandalloc(integertype n, integertype smu,
   return(a);
 }
 
-integertype *bandallocpiv(integertype n)
+long int *bandallocpiv(long int n)
 {
   if (n <= 0) return(NULL);
 
-  return((integertype *) malloc(n * sizeof(integertype)));
+  return((long int *) malloc(n * sizeof(long int)));
 }
 
 
-integertype gbfa(realtype **a, integertype n, integertype mu, 
-                 integertype ml, integertype smu, integertype *p)
+long int gbfa(realtype **a, long int n, long int mu, long int ml, 
+              long int smu, long int *p)
 {
-  integertype c, r, num_rows;
-  integertype i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
+  long int c, r, num_rows;
+  long int i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
   realtype *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
   realtype max, temp, mult, a_kj;
   booleantype swap;
@@ -250,10 +248,10 @@ integertype gbfa(realtype **a, integertype n, integertype mu,
   return(0);
 }
 
-void gbsl(realtype **a, integertype n, integertype smu, integertype ml, 
-          integertype *p, realtype *b)
+void gbsl(realtype **a, long int n, long int smu, long int ml, 
+          long int *p, realtype *b)
 {
-  integertype k, l, i, first_row_k, last_row_k;
+  long int k, l, i, first_row_k, last_row_k;
   realtype mult, *diag_k;
   
   /* Solve Ly = Pb, store solution y in b */
@@ -283,10 +281,10 @@ void gbsl(realtype **a, integertype n, integertype smu, integertype ml,
   }
 }
 
-void bandzero(realtype **a, integertype n, integertype mu, 
-              integertype ml, integertype smu)
+void bandzero(realtype **a, long int n, long int mu, long int ml, 
+              long int smu)
 {
-  integertype i, j, colSize;
+  long int i, j, colSize;
   realtype *col_j;
 
   colSize = mu + ml + 1;
@@ -297,10 +295,10 @@ void bandzero(realtype **a, integertype n, integertype mu,
   }
 }
 
-void bandcopy(realtype **a, realtype **b, integertype n, integertype a_smu, 
-              integertype b_smu, integertype copymu, integertype copyml)
+void bandcopy(realtype **a, realtype **b, long int n, long int a_smu, 
+              long int b_smu, long int copymu, long int copyml)
 {
-  integertype i, j, copySize;
+  long int i, j, copySize;
   realtype *a_col_j, *b_col_j;
 
   copySize = copymu + copyml + 1;
@@ -313,10 +311,10 @@ void bandcopy(realtype **a, realtype **b, integertype n, integertype a_smu,
   }
 }
 
-void bandscale(realtype c, realtype **a, integertype n, integertype mu, 
-               integertype ml, integertype smu)
+void bandscale(realtype c, realtype **a, long int n, long int mu, 
+               long int ml, long int smu)
 {
-  integertype i, j, colSize;
+  long int i, j, colSize;
   realtype *col_j;
 
   colSize = mu + ml + 1;
@@ -328,15 +326,15 @@ void bandscale(realtype c, realtype **a, integertype n, integertype mu,
   }
 }
 
-void bandaddI(realtype **a, integertype n, integertype smu)
+void bandaddI(realtype **a, long int n, long int smu)
 {
-  integertype j;
+  long int j;
  
   for(j=0; j < n; j++)
     a[j][smu] += ONE;
 }
 
-void bandfreepiv(integertype *p)
+void bandfreepiv(long int *p)
 {
   free(p);
 }
@@ -347,10 +345,10 @@ void bandfree(realtype **a)
   free(a);
 }
 
-void bandprint(realtype **a, integertype n, integertype mu, integertype ml, 
-               integertype smu)
+void bandprint(realtype **a, long int n, long int mu, long int ml, 
+               long int smu)
 {
-  integertype i, j, start, finish;
+  long int i, j, start, finish;
  
   printf("\n");
   for (i=0; i < n; i++) {

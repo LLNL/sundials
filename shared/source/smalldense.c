@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : smalldense.c                                    *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -28,9 +28,9 @@
 /* Implementation */
 
 
-realtype **denalloc(integertype n)
+realtype **denalloc(long int n)
 {
-  integertype j;
+  long int j;
   realtype **a;
 
   if (n <= 0) return(NULL);
@@ -49,16 +49,16 @@ realtype **denalloc(integertype n)
   return(a);
 }
 
-integertype *denallocpiv(integertype n)
+long int *denallocpiv(long int n)
 {
   if (n <= 0) return(NULL);
 
-  return((integertype *) malloc(n * sizeof(integertype)));
+  return((long int *) malloc(n * sizeof(long int)));
 }
 
-integertype gefa(realtype **a, integertype n, integertype *p)
+long int gefa(realtype **a, long int n, long int *p)
 {
-  integertype i, j, k, l;
+  long int i, j, k, l;
   realtype *col_j, *col_k, *diag_k;
   realtype temp, mult, a_kj;
   booleantype swap;
@@ -136,9 +136,9 @@ integertype gefa(realtype **a, integertype n, integertype *p)
   return(0);
 }
 
-void gesl(realtype **a, integertype n, integertype *p, realtype *b)
+void gesl(realtype **a, long int n, long int *p, realtype *b)
 {
-  integertype k, l, i;
+  long int k, l, i;
   realtype mult, *col_k;
 
   /* Solve Ly = Pb, store solution y in b */
@@ -166,9 +166,9 @@ void gesl(realtype **a, integertype n, integertype *p, realtype *b)
   }
 }
 
-void denzero(realtype **a, integertype n)
+void denzero(realtype **a, long int n)
 {
-  integertype i, j;
+  long int i, j;
   realtype *col_j;
 
   for (j=0; j < n; j++) {
@@ -178,9 +178,9 @@ void denzero(realtype **a, integertype n)
   }
 }
 
-void dencopy(realtype **a, realtype **b, integertype n)
+void dencopy(realtype **a, realtype **b, long int n)
 {
-  integertype i, j;
+  long int i, j;
   realtype *a_col_j, *b_col_j;
 
   for (j=0; j < n; j++) {
@@ -192,9 +192,9 @@ void dencopy(realtype **a, realtype **b, integertype n)
 
 }
 
-void denscale(realtype c, realtype **a, integertype n)
+void denscale(realtype c, realtype **a, long int n)
 {
-  integertype i, j;
+  long int i, j;
   realtype *col_j;
 
   for (j=0; j < n; j++) {
@@ -204,14 +204,14 @@ void denscale(realtype c, realtype **a, integertype n)
   }
 }
 
-void denaddI(realtype **a, integertype n)
+void denaddI(realtype **a, long int n)
 {
-  integertype i;
+  long int i;
   
   for (i=0; i < n; i++) a[i][i] += ONE;
 }
 
-void denfreepiv(integertype *p)
+void denfreepiv(long int *p)
 {
   free(p);
 }
@@ -222,9 +222,9 @@ void denfree(realtype **a)
   free(a);
 }
 
-void denprint(realtype **a, integertype n)
+void denprint(realtype **a, long int n)
 {
-  integertype i, j;
+  long int i, j;
 
   printf("\n");
   for (i=0; i < n; i++) {

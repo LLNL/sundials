@@ -3,7 +3,7 @@
  * File          : dense.h                                         *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -71,7 +71,7 @@ extern "C" {
  ******************************************************************/
 
 typedef struct _DenseMat {
-  integertype size;
+  long int size;
   realtype  **data;
 } *DenseMat;
  
@@ -126,7 +126,7 @@ typedef struct _DenseMat {
  *                                                                * 
  ******************************************************************/
 
-DenseMat DenseAllocMat(integertype N);
+DenseMat DenseAllocMat(long int N);
 
 
 /******************************************************************
@@ -144,7 +144,7 @@ DenseMat DenseAllocMat(integertype N);
  *                                                                * 
  ******************************************************************/
 
-integertype *DenseAllocPiv(integertype N);
+long int *DenseAllocPiv(long int N);
 
 
 /******************************************************************
@@ -177,7 +177,7 @@ integertype *DenseAllocPiv(integertype N);
  *                                                                *
  ******************************************************************/
 
-integertype DenseFactor(DenseMat A, integertype *p);
+long int DenseFactor(DenseMat A, long int *p);
 
 
 /******************************************************************
@@ -193,7 +193,7 @@ integertype DenseFactor(DenseMat A, integertype *p);
  *                                                                *
  ******************************************************************/
 
-void DenseBacksolve(DenseMat A, integertype *p, realtype *b);
+void DenseBacksolve(DenseMat A, long int *p, realtype *b);
 
 
 /******************************************************************
@@ -270,7 +270,7 @@ void DenseFreeMat(DenseMat A);
  *                                                                *
  ******************************************************************/
 
-void DenseFreePiv(integertype *p);
+void DenseFreePiv(long int *p);
 
 
 /******************************************************************

@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : nvector.c                                       *
  * Programmers   : Radu Serban, LLNL                               *
- * Version of    : 06 June 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -35,10 +35,10 @@ void N_VFree(N_Vector v)
   v->nvspec->ops->nvfree(v);
 }
 
-N_Vector_S N_VNew_S(integertype ns, NV_Spec nvSpec)
+N_Vector_S N_VNew_S(int ns, NV_Spec nvSpec)
 {
   N_Vector_S vs_new;
-  integertype is, js;
+  int is, js;
 
   if (ns <= 0) return(NULL);
   if (nvSpec == NULL) return(NULL);
@@ -57,9 +57,9 @@ N_Vector_S N_VNew_S(integertype ns, NV_Spec nvSpec)
   return(vs_new);
 }
 
-void N_VFree_S(integertype ns, N_Vector_S vs) 
+void N_VFree_S(int ns, N_Vector_S vs) 
 {
-  integertype is;
+  int is;
   
   for (is=0; is<ns; is++) N_VFree(vs[is]);
   free(vs);

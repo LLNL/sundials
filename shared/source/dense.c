@@ -3,7 +3,7 @@
  * File          : dense.c                                         *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -30,7 +30,7 @@
 /* Implementation */
 
 
-DenseMat DenseAllocMat(integertype N)
+DenseMat DenseAllocMat(long int N)
 {
   DenseMat A;
 
@@ -51,21 +51,21 @@ DenseMat DenseAllocMat(integertype N)
 }
 
 
-integertype *DenseAllocPiv(integertype N)
+long int *DenseAllocPiv(long int N)
 {
   if (N <= 0) return(NULL);
 
-  return((integertype *) malloc(N * sizeof(integertype)));
+  return((long int *) malloc(N * sizeof(long int)));
 }
 
 
-integertype DenseFactor(DenseMat A, integertype *p)
+long int DenseFactor(DenseMat A, long int *p)
 {
   return(gefa(A->data, A->size, p));
 }
 
 
-void DenseBacksolve(DenseMat A, integertype *p, realtype *b)
+void DenseBacksolve(DenseMat A, long int *p, realtype *b)
 {
   gesl(A->data, A->size, p, b);
 }
@@ -97,7 +97,7 @@ void DenseFreeMat(DenseMat A)
   free(A);
 }
 
-void DenseFreePiv(integertype *p)
+void DenseFreePiv(long int *p)
 {  
   free(p);
 }

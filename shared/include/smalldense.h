@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : smalldense.h                                    *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -50,29 +50,29 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-realtype **denalloc(integertype n);
+realtype **denalloc(long int n);
 
 
 /******************************************************************
  *                                                                *
  * Function : denallocpiv                                         *
- * Usage    : integertype *pivot;                                 *
+ * Usage    : long int *pivot;                                    *
  *            pivot = denallocpiv(n);                             *
  *            if (pivot == NULL) ... memory request failed        *
  *----------------------------------------------------------------*
- * denallocpiv(n) allocates an array of n integertype. It returns *
+ * denallocpiv(n) allocates an array of n long int. It returns    *
  * a pointer to the first element in the array if successful.     *
  * It returns NULL if the memory request could not be satisfied.  *
  *                                                                *
  ******************************************************************/
 
-integertype *denallocpiv(integertype n);
+long int *denallocpiv(long int n);
 
 
 /******************************************************************
  *                                                                *
  * Function : gefa                                                *
- * Usage    : integertype ier;                                    *
+ * Usage    : long int ier;                                       *
  *            ier = gefa(a,n,p);                                  *
  *            if (ier > 0) ... zero element encountered during    *
  *                             the factorization                  *
@@ -101,7 +101,7 @@ integertype *denallocpiv(integertype n);
  *                                                                *
  ******************************************************************/
 
-integertype gefa(realtype **a, integertype n, integertype *p);
+long int gefa(realtype **a, long int n, long int *p);
 
 
 /******************************************************************
@@ -118,7 +118,7 @@ integertype gefa(realtype **a, integertype n, integertype *p);
  *                                                                *
  ******************************************************************/
 
-void gesl(realtype **a, integertype n, integertype *p, realtype *b);
+void gesl(realtype **a, long int n, long int *p, realtype *b);
 
 
 /******************************************************************
@@ -131,7 +131,7 @@ void gesl(realtype **a, integertype n, integertype *p, realtype *b);
  *                                                                *
  ******************************************************************/
 
-void denzero(realtype **a, integertype n);
+void denzero(realtype **a, long int n);
 
 
 /******************************************************************
@@ -144,7 +144,7 @@ void denzero(realtype **a, integertype n);
  *                                                                *
  ******************************************************************/
 
-void dencopy(realtype **a, realtype **b, integertype n);
+void dencopy(realtype **a, realtype **b, long int n);
 
 
 /******************************************************************
@@ -157,7 +157,7 @@ void dencopy(realtype **a, realtype **b, integertype n);
  *                                                                *
  ******************************************************************/
 
-void denscale(realtype c, realtype **a, integertype n);
+void denscale(realtype c, realtype **a, long int n);
 
 
 /******************************************************************
@@ -170,7 +170,7 @@ void denscale(realtype c, realtype **a, integertype n);
  *                                                                *
  ******************************************************************/
 
-void denaddI(realtype **a, integertype n);
+void denaddI(realtype **a, long int n);
 
 
 /******************************************************************
@@ -183,7 +183,7 @@ void denaddI(realtype **a, integertype n);
  *                                                                *
  ******************************************************************/
 
-void denfreepiv(integertype *p);
+void denfreepiv(long int *p);
 
 
 /******************************************************************
@@ -211,7 +211,7 @@ void denfree(realtype **a);
  *                                                                *
  ******************************************************************/
 
-void denprint(realtype **a, integertype n);
+void denprint(realtype **a, long int n);
  
 
 #endif

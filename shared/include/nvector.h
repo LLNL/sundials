@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : nvector.h                                       *
  * Programmers   : Radu Serban, LLNL                               *
- * Version of    : 06 June 2003                                    *
+ * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -139,8 +139,8 @@ N_Vector N_VNew(NV_Spec nvSpec);
  * Function : N_VSpace                                          *
  * Usage    : N_VSpace(nvSpec, lrw, liw);                       *
  *--------------------------------------------------------------*
- * Returns space requirements for one N_Vector (realtype in lrw *
- * and integertype in liw).                                     *
+ * Returns space requirements for one N_Vector (type real in lrw*
+ * and type integer in liw).                                    *
  *--------------------------------------------------------------*/
 
 void N_VSpace(NV_Spec nvSpec, long int *lrw, long int *liw);
@@ -155,7 +155,7 @@ void N_VSpace(NV_Spec nvSpec, long int *lrw, long int *liw);
  * or for one of the components, then N_VNew_S returns NULL.    *
  *--------------------------------------------------------------*/
 
-N_Vector_S N_VNew_S(integertype ns, NV_Spec nvSpec);
+N_Vector_S N_VNew_S(int ns, NV_Spec nvSpec);
 
 /*--------------------------------------------------------------*
  * Function : N_VFree                                           *
@@ -175,7 +175,7 @@ void N_VFree(N_Vector v);
  * It is illegal to use vs after the call N_VFree_S(Ns,vs).     *
  *--------------------------------------------------------------*/
 
-void N_VFree_S(integertype ns, N_Vector_S vs);
+void N_VFree_S(int ns, N_Vector_S vs);
 
 /*--------------------------------------------------------------*
  * Function : N_VMake                                           *
