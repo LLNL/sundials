@@ -3,8 +3,9 @@
 CVODE solves ODE initial value problems in real $N$-space, which we
 write in the abstract form
 \begin{equation}\label{ODE} 
-  \dot{y} = f(t,y),~~ y(t_0) = y_0,~~ y \in \mbox{\bf R}^N ~.
+  \dot{y} = f(t,y) \, ,\quad y(t_0) = y_0 \, ,
 \end{equation}
+where $y \in \mbox{\bf R}^N$.
 Here we use $\dot{y}$ to denote $dy/dt$.  While we use $t$ to denote
 the independent variable, and usually this is time, it certainly need
 not be.  CVODE solves both stiff and nonstiff systems.  Roughly
@@ -16,7 +17,7 @@ The methods used in CVODE are variable-order, variable-step multistep
 methods, based on formulas of the form
 \begin{equation}\label{LMM} 
  \sum_{i = 0}^{K_1} \alpha_{n,i} y_{n-i} + 
-     h_n \sum_{i = 0}^{K_2} \beta_{n,i} \dot{y}_{n-i} = 0 ~.
+     h_n \sum_{i = 0}^{K_2} \beta_{n,i} \dot{y}_{n-i} = 0 \, .
 \end{equation}
 Here the $y_n$ are computed approximations to $y(t_n)$, and
 $h_n = t_n - t_{n-1}$ is the step size.  The user of CVODE must choose
@@ -33,7 +34,7 @@ $\alpha_{n,0} = -1$.
 
 For either choice of formula, the nonlinear system
 \begin{equation}\label{NLS}
-  G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0,
+  G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0 \, ,
 \end{equation}
 where $a_n \equiv \sum_{i>0}(\alpha_{n,i} y_{n-i} + h_n \beta_{n,i} \dot{y}_{n-i})$ 
 must be solved (approximately) at each time step.  For this, CVODE
@@ -47,8 +48,8 @@ iteration requires the solution of linear systems
 \end{equation}
 in which
 \begin{equation}\label{Newtonmat} 
-  M \approx I - \gamma J, ~~~J = \partial f / \partial y 
-  ~~~ \mbox{and} ~~~\gamma = h_n \beta_{n,0} ~. 
+  M \approx I - \gamma J \, , \quad J = \partial f / \partial y 
+  \, ,\quad \mbox{and} \quad \gamma = h_n \beta_{n,0} \, . 
 \end{equation}
 For the Newton corrections, CVODE provides a choice of four methods:
 \begin{itemize}
@@ -107,17 +108,23 @@ For this, we also estimate the linear convergence rate constant $R$ as
 follows: We initialize $R$ to 1, and reset $R = 1$ when $M$ or $P$ is
 updated.  After computing a correction $\delta_m = y_{n(m)}-y_{n(m-1)}$,
 we update $R$ if $m > 1$ as
-\[ R \leftarrow \max\{0.3R , \|\delta_m\| / \|\delta_{m-1}\| \} ~. \]
+\begin{equation*}
+  R \leftarrow \max\{0.3R , \|\delta_m\| / \|\delta_{m-1}\| \} \, . 
+\end{equation*}
 Now we use the estimate
-\[ \| y_n - y_{n(m)} \| \approx \| y_{n(m+1)} - y_{n(m)} \| 
-   \approx R \| y_{n(m)} - y_{n(m-1)} \|  =  R \|\delta_m \| ~. \]
+\begin{equation*}
+  \| y_n - y_{n(m)} \| \approx \| y_{n(m+1)} - y_{n(m)} \| 
+  \approx R \| y_{n(m)} - y_{n(m-1)} \|  =  R \|\delta_m \| \, . 
+\end{equation*}
 Therefore the convergence (stopping) test is 
-\[  R \|\delta_m \| < 0.1 \epsilon ~. \]
-We allow at most 3 Newton iterations, and declare the iteration
-diverged if any $\|\delta_m\| / \|\delta_{m-1}\| > 2$.  If convergence
-fails with $J$ or $P$ current, we are forced to reduce the stepsize
+\begin{equation*}
+  R \|\delta_m \| < 0.1 \epsilon \, , 
+\end{equation*}
+in which the default factor $0.1$ can be changed by the user. We declare the 
+iteration diverged if any $\|\delta_m\| / \|\delta_{m-1}\| > 2$ after a given 
+number of Newton iterations (the default value of 3 can be changed by the user).  
+If convergence fails with $J$ or $P$ current, we are forced to reduce the stepsize
 $h_n$, and we replace $h_n$ by $h_n/4$.
-{\sf Is the three Newton max a changeable param?}
 
 When SPGMR is used to solve the linear system, its errors must also be
 controlled, and this also involves the local error test constant.  The
@@ -164,10 +171,10 @@ local errors, at both actual order and contemplated nearby orders, the
 stepsize $h_n$ and the order $q$ are frequently varied, always in an
 attempt to maximize the stepsize, subject to the local error test.
 
-The various algorithmic features of CVODE, as inherited from VODE and
-VODPK, are documented in Refs. \cite{BBH:89}, \cite{Byr:92}, and
-\cite{Hin:00}.  A full description of the usage of CVODE is given in
-\cite{CoHi:94} and \cite{ByHi:98}.
+The algorithmic features of CVODE, as inherited from VODE and
+VODPK, are documented in \cite{BBH:89}, \cite{Byr:92}, and
+\cite{Hin:00}. A full description of the usage of CVODE is given in
+\cite{HiSe:03a}.
 
 There is an important additional part of the CVODE order selection
 algorithm that is not based on local error, but instead provides
