@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11.2.1 $
- * $Date: 2005-03-18 21:33:19 $
+ * $Revision: 1.11.2.2 $
+ * $Date: 2005-04-01 21:49:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -52,13 +52,7 @@ void FCV_ROOTINIT(int *nrtfn, int *ier)
 
 void FCV_ROOTINFO(int *nrtfn, int *info, int *ier)
 {
-  int *rootsfound;
-  int i;
-
-  *ier = CVodeGetRootInfo(CV_cvodemem, &rootsfound);
-
-  for (i = 0; i < *nrtfn; i++) info[i] = rootsfound[i];
-
+  *ier = CVodeGetRootInfo(CV_cvodemem, info);
   return; 
 }
 

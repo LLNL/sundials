@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9.2.1 $
- * $Date: 2005-03-18 21:33:19 $
+ * $Revision: 1.9.2.2 $
+ * $Date: 2005-04-01 21:49:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -68,7 +68,9 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
   realtype h;
   long int eband;
 
-  CVodeGetErrWeights(CV_cvodemem, &ewt);
+  ewt = N_VClone(y);
+
+  CVodeGetErrWeights(CV_cvodemem, ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
 
   ydata   = N_VGetArrayPointer(y);
@@ -85,5 +87,7 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
   FCV_BJAC(&N, &mupper, &mlower, &eband, 
            &t, ydata, fydata, jacdata, 
            ewtdata, &h, v1data, v2data, v3data);
+
+  N_VDestroy(ewt);
 
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13.2.1 $
- * $Date: 2005-03-18 21:33:19 $
+ * $Revision: 1.13.2.2 $
+ * $Date: 2005-04-01 21:49:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -66,8 +66,10 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
   realtype h;
 
   int ier = 0;
+  
+  ewt = N_VClone(y);
 
-  CVodeGetErrWeights(CV_cvodemem, &ewt);
+  CVodeGetErrWeights(CV_cvodemem, ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
 
   vdata   = N_VGetArrayPointer(v);
@@ -79,6 +81,8 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, 
               ewtdata, &h, wkdata, &ier);
+
+  N_VDestroy(ewt);
 
   return(ier);
 }
