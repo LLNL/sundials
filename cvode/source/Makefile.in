@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2004-10-26 18:01:21 $
+# $Revision: 1.7 $
+# $Date: 2004-10-27 18:35:53 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -65,7 +65,7 @@ install: $(CVODE_LIB_FILES)
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvbbdpre.h $(includedir)
 
 clean:
-	$(LIBTOOL) --mode=clean rm -f $(COVDE_LIB)
+	$(LIBTOOL) --mode=clean rm -f $(CVODE_LIB)
 	rm -f $(CVODE_LIB_FILES)
 	rm -f $(OBJECT_FILES)
 	rm -f sundials_config.h
