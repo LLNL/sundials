@@ -651,17 +651,22 @@ of the IVP.
   The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CVODE\_NO\_MALLOC]
   \item[\Id{SUCCESS}]
-    \id{CVode} succeeded.
+    \id{CVode} succeeded and no root was found.
   \item[\Id{TSTOP\_RETURN}]
     \id{CVode} succeeded by reaching the stopping point specified through
     the optional input function \id{CVodeSetStopTime} (see \S\ref{ss:optional_input}).
+  \item[\ID{ROOT\_RETURN}]
+    \id{CVode} succeeded and found one or more roots. 
+    See \S\ref{s:using_rootfinding} for more information.
   \item[\Id{CVODE\_NO\_MEM}]
     The \id{cvode\_mem} argument was \id{NULL}.
   \item[\Id{CVODE\_NO\_MALLOC}]
     The {\cvodes} memory was not allocated through a call to \id{CVodeMalloc}.
   \item[\Id{ILL\_INPUT}]
-    One of the inputs to \id{CVode} is illegal. This includes the situation when a 
-    component of the error weight vectors becomes negative during internal 
+    One of the inputs to \id{CVode} is illegal. This includes the situation where
+    a root of one of the root functions was found both at $t_0$ and very near $t_0$.
+    It also includes the situation 
+    where a component of the error weight vectors becomes negative during internal 
     time-stepping. The \id{ILL\_INPUT} flag will also be returned if the linear 
     solver function initialization (called by the user after calling 
     \id{CVodeMalloc}) failed to set one of the linear solver-related fields 
