@@ -39,13 +39,13 @@
  *   ida_mem = IDACreate(...);                                     *
  *   ier = IDAMalloc(...);                                         *
  *   ...                                                           *
- *   p_data = IBBDPrecAlloc(ida_mem, Nlocal, mudq, mldq,           *
+ *   p_data = IDABBDPrecAlloc(ida_mem, Nlocal, mudq, mldq,         *
  *                      mukeep, mlkeep, dq_rel_yy, glocal, gcomm); *
- *   flag = IBBDSpgmr(cvode_mem, maxl, p_data);                    *
+ *   flag = IDABBDSpgmr(cvode_mem, maxl, p_data);                  *
  *   ...                                                           *
  *   ier = IDASolve(...);                                          *
  *   ...                                                           *
- *   IBBDFree(p_data);                                             *
+ *   IDABBDFree(p_data);                                           *
  *   ...                                                           *
  *   IDAFree(...);                                                 *
  *                                                                 *
@@ -68,7 +68,7 @@
  * 1) This header file is included by the user for the definition  *
  *    of the IBBDPrecData type and for needed function prototypes. *
  *                                                                 *
- * 2) The IBBDPrecAlloc call includes half-bandwidths mudq and     *
+ * 2) The IDABBDPrecAlloc call includes half-bandwidths mudq and   *
  *    mldq to be used in the approximate Jacobian.  They need      *
  *    not be the true half-bandwidths of the Jacobian of the       *
  *    local block of G, when smaller values may provide a greater  *
@@ -79,7 +79,7 @@
  *                                                                 *
  * 3) The actual name of the user's res function is passed to      *
  *    IDAMalloc, and the names of the user's glocal and gcomm      *
- *    functions are passed to IBBDPrecAlloc.                       *
+ *    functions are passed to IDABBDPrecAlloc.                     *
  *                                                                 *
  * 4) The pointer to the user-defined data block res_data, which   *
  *    is set through IDASetRdata is also available to the user     *
@@ -167,21 +167,21 @@ typedef int (*IDACommFn)(long int Nlocal, realtype tt,
 
 typedef struct {
 
-  /* passed by user to IBBDPrecAlloc, used by 
-     IBBDPrecSetup/IBBDPrecSolve functions: */
+  /* passed by user to IDABBDPrecAlloc, used by 
+     IDABBDPrecSetup/IDABBDPrecSolve functions: */
   long int mudq, mldq, mukeep, mlkeep;
   realtype rel_yy;
   IDALocalFn glocal;
   IDACommFn gcomm;
 
- /* allocated for use by IBBDPrecSetup */
+ /* allocated for use by IDABBDPrecSetup */
   N_Vector tempv4;
 
-  /* set by IBBDPrecon and used by IBBDPrecSolve: */
+  /* set by IDABBDPrecon and used by IDABBDPrecSolve: */
   BandMat PP;
   long int *pivots;
 
-  /* set by IBBDPrecAlloc and used by IBBDPrecSetup */
+  /* set by IDABBDPrecAlloc and used by IDABBDPrecSetup */
   long int n_local;
 
   /* available for optional output: */
@@ -196,13 +196,13 @@ typedef struct {
 
 
 /******************************************************************
- * Function : IBBDPrecAlloc                                       *
+ * Function : IDABBDPrecAlloc                                     *
  *----------------------------------------------------------------*
- * IBBDPrecAlloc allocates and initializes an IBBDPrecData        *
- * structure to be passed to IDASpgmr (and used by IBBDPrecSetup  *
- * and IBBDPrecSol).                                              *
+ * IDABBDPrecAlloc allocates and initializes an IBBDPrecData      *
+ * structure to be passed to IDASpgmr (and used by                *
+ * IDABBDPrecSetup and IDABBDPrecSol).                            *
  *                                                                *
- * The parameters of IBBDPrecAlloc are as follows:                *
+ * The parameters of IDABBDPrecAlloc are as follows:              *
  *                                                                *
  * ida_mem  is a pointer to the memory blockreturned by IDACreate.*
  *                                                                *
@@ -230,20 +230,20 @@ typedef struct {
  *         necessary inter-processor communication for the        *
  *         execution of glocal.                                   *
  *                                                                *
- * IBBDPrecAlloc returns the storage allocated (type *void),      *
+ * IDABBDPrecAlloc returns the storage allocated (type *void),    *
  * or NULL if the request for storage cannot be satisfied.        *
  ******************************************************************/
 
-void *IBBDPrecAlloc(void *ida_mem, long int Nlocal, 
-                    long int mudq, long int mldq, 
-                    long int mukeep, long int mlkeep, 
-                    realtype dq_rel_yy, 
-                    IDALocalFn glocal, IDACommFn gcomm);
+void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal, 
+		      long int mudq, long int mldq, 
+		      long int mukeep, long int mlkeep, 
+		      realtype dq_rel_yy, 
+		      IDALocalFn glocal, IDACommFn gcomm);
 
 /******************************************************************
- * Function : IBBDSpgmr                                           *
+ * Function : IDABBDSpgmr                                         *
  *----------------------------------------------------------------*
- * IBBDSpgmr links the IDABBDPRE preconditioner to the IDASPGMR   *
+ * IDABBDSpgmr links the IDABBDPRE preconditioner to the IDASPGMR *
  * linear solver. It performs the following actions:              *
  *  1) Calls the IDASPGMR specification routine and attaches the  *
  *     IDASPGMR linear solver to the IDA solver;                  *
@@ -253,7 +253,7 @@ void *IBBDPrecAlloc(void *ida_mem, long int Nlocal,
  *                                                                *
  * Its first 2 arguments are the same as for IDASpgmr (see        *
  * idaspgmr.h). The last argument is the pointer to the IDABBDPRE *
- * memory block returned by IBBDPrecAlloc.                        * 
+ * memory block returned by IDABBDPrecAlloc.                      * 
  * Note that the user need not call IDASpgmr anymore.             *
  *                                                                *
  * Possible return values are:                                    *
@@ -262,80 +262,81 @@ void *IBBDPrecAlloc(void *ida_mem, long int Nlocal,
  *                   LMEM_FAIL                                    *
  *                   LIN_NO_LMEM                                  *
  *                   LIN_ILL_INPUT                                *
- *   Additionaly, if IBBDPrecAlloc was not previously called,     *
+ *   Additionaly, if IDABBDPrecAlloc was not previously called,   *
  *   IDABBDSpgmr returns BBDP_NO_PDATA (defined below).           *
  *                                                                *
  ******************************************************************/
 
-int IBBDSpgmr(void *ida_mem, int maxl, void *p_data);
+int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data);
 
 /******************************************************************
- * Function : IBBDPrecReInit                                      *
+ * Function : IDABBDPrecReInit                                    *
  *----------------------------------------------------------------*
- * IBBDPrecReInit re-initializes the IDABBDPRE module when solving*
- * a sequence of problems of the same size with IDASPGMR/IDABBDPRE*
- * provided there is no change in Nlocal, mukeep, or mlkeep.      *
- * After solving one problem, and after calling IDAReInit to      *
- * re-initialize the integrator for a subsequent problem, call    *
- * IBBDPrecReInit.                                                *
+ * IDABBDPrecReInit re-initializes the IDABBDPRE module when      *
+ * solving a sequence of problems of the same size with           *
+ * IDASPGMR/IDABBDPRE provided there is no change in Nlocal,      *
+ * mukeep, or mlkeep.  After solving one problem, and after       *
+ * calling IDAReInit to re-initialize the integrator for a        *
+ * subsequent problem, call IDABBDPrecReInit.                     *
  * Then call IDAReInitSpgmr or IDASpgmr, if necessary, to         *
  * re-initialize the Spgmr linear solver, depending on changes    *
  * made in its input parameters, before calling IDASolve.         *
  *                                                                *
- * The first argument to IBBDPrecReInit must be the pointer p_data*
- * that was returned by IBBDPrecAlloc.  All other arguments have  *
- * the same names and meanings as those of IBBDPrecAlloc.         *
+ * The first argument to IDABBDPrecReInit must be the pointer     *
+ * p_data that was returned by IDABBDPrecAlloc.  All other        *
+ * arguments have the same names and meanings as those of         *
+ * IDABBDPrecAlloc.                                               *
  *                                                                *
- * The return value of IBBDPrecReInit is 0, indicating success.   *
+ * The return value of IDABBDPrecReInit is 0, indicating success. *
  ******************************************************************/
 
-int IBBDPrecReInit(void *p_data, 
-                   long int mudq, long int mldq,
-                   realtype dq_rel_yy, 
-                   IDALocalFn glocal, IDACommFn gcomm); 
+int IDABBDPrecReInit(void *p_data, 
+		     long int mudq, long int mldq,
+		     realtype dq_rel_yy, 
+		     IDALocalFn glocal, IDACommFn gcomm); 
 
 /******************************************************************
- * Function : IBBDPrecFree                                        *
+ * Function : IDABBDPrecFree                                      *
  *----------------------------------------------------------------*
- * IBBDPrecFree frees the memory block p_data allocated by the    *
- * call to IBBDPrecAlloc.                                         *
+ * IDABBDPrecFree frees the memory block p_data allocated by the  *
+ * call to IDABBDPrecAlloc.                                       *
  ******************************************************************/
 
-void IBBDPrecFree(void *p_data);
+void IDABBDPrecFree(void *p_data);
 
 /******************************************************************
- * Optional outputs for IBBDPRE                                   *
+ * Optional outputs for IDABBDPRE                                 *
  *----------------------------------------------------------------*
  *                                                                *
- * IBBDPrecGetIntWorkSpace returns the integer workspace for      *
+ * IDABBDPrecGetIntWorkSpace returns the integer workspace for    *
  *    IBBDPRE.                                                    *
- * IBBDPrecGetRealWorkSpace returns the real workspace for        *
+ * IDABBDPrecGetRealWorkSpace returns the real workspace for      *
  *    IBBDPRE.                                                    *
- * IBBDPrecGetNumGfnEvals returns the number of calls to the user *
- *    glocal function.                                            *
+ * IDABBDPrecGetNumGfnEvals returns the number of calls to the    *
+ *    uer glocal function.                                        *
  *                                                                *
  ******************************************************************/
 
-int IBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP);
-int IBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP);
-int IBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
+int IDABBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP);
+int IDABBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP);
+int IDABBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 
-/* Return values for IBBDPrecGet* functions */
+/* Return values for IDABBDPrecGet* functions */
 /* OKAY = 0 */
 enum { BBDP_NO_PDATA = -1 };
 
-/* Prototypes of IBDPrecSetup and IBBDPrecSolve */
+/* Prototypes of IDABBDPrecSetup and IDABBDPrecSolve */
 
-int IBBDPrecSetup(realtype tt, 
-                  N_Vector yy, N_Vector yp, N_Vector rr, 
-                  realtype cj, void *p_data,
-                  N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+int IDABBDPrecSetup(realtype tt, 
+		    N_Vector yy, N_Vector yp, N_Vector rr, 
+		    realtype cj, void *p_data,
+		    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
  
-int IBBDPrecSolve(realtype tt, 
-                  N_Vector yy, N_Vector yp, N_Vector rr, 
-                  N_Vector rvec, N_Vector zvec,
-                  realtype cj, realtype delta,
-                  void *p_data, N_Vector tempv);
+int IDABBDPrecSolve(realtype tt, 
+		    N_Vector yy, N_Vector yp, N_Vector rr, 
+		    N_Vector rvec, N_Vector zvec,
+		    realtype cj, realtype delta,
+		    void *p_data, N_Vector tempv);
 
 #endif
 #ifdef __cplusplus
