@@ -47,8 +47,10 @@ To install the {\sundials} suite, given a downloaded file named
 {\em sundials\_file}\id{.tar.gz}, issue the following commands from
 a shell command prompt, while within the directory where {\em source\_tree}
 is to be located.  The names of the library and header files
-generated are listed in Table \ref{t:sundials_files} for reference.
-(For brevity, the corresponding \id{.c} files are not listed.)
+generated are listed in Table \ref{t:sundials_files} for reference.  Regarding the file
+extension .{\em lib} appearing in Table \ref{t:sundials_files}, shared libraries
+generally have an extension of \id{.so} and static libraries have an extension of
+\id{.a}.  (For brevity, the corresponding \id{.c} files are not listed.)
 \begin{enumerate}
 \item \id{gunzip} {\em sundials\_file}\id{.tar.gz}
 \item \id{tar -xf} {\em sundials\_file}\id{.tar}\hspace{3em} [creates \id{sundials} directory]
@@ -69,39 +71,39 @@ from a shell command prompt.
 \caption{{\sundials} libraries and header files}
 \label{t:sundials_files}
 \medskip
-\begin{tabular}{|c|c|c|c|}\hline
-{\bf CVODE} & {\bf CVODES} & {\bf IDA} & {\bf KINSOL} \\
+\begin{tabular}{|c|c|c|}\hline
+{\bf CVODE} & {\bf CVODES} & {\bf IDA} \\
 \hline
-\id{libcvode.a} & \id{libcvodes.a} & \id{libida.a} & \id{libkinsol.a} \\
-\id{libfcvode.a} & & & \id{libfkinsol.a} \\
+\id{libsundials\_cvode.{\em lib}} & \id{libsundials\_cvodes.{\em lib}} & \id{libsundials\_ida.{\em lib}} \\
+\id{libsundials\_fcvode.a} & & \\
 \hline
-\id{cvode.h} & \id{cvodes.h} & \id{ida.h} & \id{kinsol.h} \\
-\id{cvband.h} & \id{cvodea.h} & \id{idaband.h} & \id{kinbbdpre.h} \\
-\id{cvbandpre.h} & \id{cvband.h} & \id{idabbdpre.h} & \id{kinspgmr.h} \\
-\id{cvbbdpre.h} & \id{cvbandpre.h} & \id{idadense.h} & \\
-\id{cvdense.h} & \id{cvbbdpre.h} & \id{idaspgmr.h} & \\
-\id{cvdiag.h} & \id{cvdense.h} & & \\
-\id{cvspgmr.h} & \id{cvdiag.h} & & \\
-& \id{cvspgmr.h} & & \\
+\id{cvode.h} & \id{cvodes.h} & \id{ida.h} \\
+\id{cvband.h} & \id{cvodea.h} & \id{idaband.h} \\
+\id{cvbandpre.h} & \id{cvband.h} & \id{idabbdpre.h} \\
+\id{cvbbdpre.h} & \id{cvbandpre.h} & \id{idadense.h} \\
+\id{cvdense.h} & \id{cvbbdpre.h} & \id{idaspgmr.h} \\
+\id{cvdiag.h} & \id{cvdense.h} & \\
+\id{cvspgmr.h} & \id{cvdiag.h} & \\
+& \id{cvspgmr.h} & \\
 \hline
 \end{tabular}
 
 \medskip
-\begin{tabular}{|c|c|}\hline
-{\bf NVECTOR} & {\bf SHARED} \\
+\begin{tabular}{|c|c|c|}\hline
+{\bf KINSOL} & {\bf NVECTOR} & {\bf SHARED} \\
 \hline
-\id{libnvecserial.a} & \id{libshared.a} \\
-\id{libfnvecserial.a} & \\
-\id{libnvecparallel.a} & \\
-\id{libfnvecparallel.a} & \\
+\id{libsundials\_kinsol.{\em lib}} & \id{libsundials\_nvecserial.{\em lib}} & \id{libsundials\_shared.{\em lib}} \\
+\id{libsundials\_fkinsol.a} & \id{libsundials\_fnvecserial.a} & \\
+& \id{libsundials\_nvecparallel.{\em lib}} & \\
+& \id{libsundials\_fnvecparallel.a} & \\
 \hline
-\id{nvector.h} & \id{band.h} \\
-\id{nvector\_serial.h} & \id{dense.h} \\
-\id{fnvector\_serial.h} & \id{iterative.h} \\
-\id{nvector\_parallel.h} & \id{smalldense.h} \\
-\id{fnvector\_parallel.h} & \id{spgmr.h} \\
-& \id{sundialsmath.h} \\
-& \id{sundialstypes.h} \\
+\id{kinsol.h} & \id{nvector.h} & \id{band.h} \\
+\id{kinbbdpre.h} & \id{nvector\_serial.h} & \id{dense.h} \\
+\id{kinspgmr.h} & \id{fnvector\_serial.h} & \id{iterative.h} \\
+& \id{nvector\_parallel.h} & \id{smalldense.h} \\
+& \id{fnvector\_parallel.h} & \id{spgmr.h} \\
+& & \id{sundialsmath.h} \\
+& & \id{sundialstypes.h} \\
 \hline
 \end{tabular}
 
@@ -132,20 +134,20 @@ options.
   
   Location for architecture-independent files.
   
-  Default: \id{PREFIX =} {\em build\_tree}
+  Default: \id{PREFIX=}{\em build\_tree}
   
 \item \id{--includedir=DIR}
   
   Alternate location for header files.
   
-  Default: \id{DIR = PREFIX/include}
+  Default: \id{DIR=PREFIX/include}
   
 \item \id{--libdir=DIR}
   
   Alternate location for libraries.
   
-  Default: \id{DIR = PREFIX/lib}
-  
+  Default: \id{DIR=PREFIX/lib}
+
 \item \id{--disable-examples}
   
   All available example programs are automatically built unless this option is
@@ -179,7 +181,7 @@ options.
 \item \id{--with-cppflags=ARG}
 
   Specify additional {\C} preprocessor flags 
-  ({\em e.g.}, \id{ARG = -I<include\_dir>} if necessary header files are located in nonstandard locations).
+  ({\em e.g.}, \id{ARG=-I<include\_dir>} if necessary header files are located in nonstandard locations).
 
 \item \id{--with-cflags=ARG}
 
@@ -192,21 +194,32 @@ options.
 \item \id{--with-ldflags=ARG}
 
   Specify additional linker flags 
-  ({\em e.g.}, \id{ARG = -L<lib\_dir>} if required libraries are located in nonstandard locations).
+  ({\em e.g.}, \id{ARG=-L<lib\_dir>} if required libraries are located in nonstandard locations).
 
 \item \id{--with-libs=ARG}
 
   Specify additional libraries to be used 
-  ({\em e.g.}, \id{ARG = -l<foo>} to link with the library named \id{libfoo.a}).
+  ({\em e.g.}, \id{ARG=-l<foo>} to link with the library named \id{libfoo.a} or \id{libfoo.so}).
 
-\item \id{--with-single-prec}
+\item \id{--with-precision=ARG}
 
   By default, {\sundials} will define a real number (internally referred to as
-  \id{realtype}) to be a double-precision floating-point numeric data type via
-  a preprocessor directive in the header file \id{sundialstypes.h} (located under
-  the \id{sundials/shared/include} subdirectory); however, this option may be
-  used to build {\sundials} with \id{realtype} alternatively defined as a
-  single-precision floating-point numeric data type.
+  \id{realtype}) to be a double-precision floating-point numeric data (\id{double}
+  {\C}-type); however, this option may be used to build {\sundials} with \id{realtype}
+  alternatively defined as a single-precision floating-point numeric data type
+  (\id{float} {\C}-type) if \id{ARG=single}, or as a \id{long double} {\C}-type
+  if \\ \id{ARG=extended}.
+
+  Default: \id{ARG=double}
+
+\end{config}
+
+\vspace{0.25in}
+\noindent The configuration script will attempt to automatically determine the
+function name mangling scheme required by the specified {\F} compiler, but the
+following two options may be used to override the default behavior.
+
+\begin{config}
 
 \item \id{--with-f77underscore=ARG}
 
@@ -216,7 +229,7 @@ options.
   {\sundials} libraries. Valid values for \id{ARG} are: \id{none}, \id{one}
   and \id{two}.
 
-  Default: \id{ARG = one}
+  Default: \id{ARG=one}
 
 \item \id{--with-f77case=ARG}
 
@@ -225,7 +238,7 @@ options.
   {\F} routines can properly link with the associated {\sundials} libraries. 
   Valid values for \id{ARG} are: \id{lower} and \id{upper}.
 
-  Default: \id{ARG = lower}
+  Default: \id{ARG=lower}
 
 \end{config}
 
@@ -253,7 +266,7 @@ options.
 \item \id{FFLAGS}
 
   Use these environment variables to override the default {\C} and {\F}
-  compilation flags defined in the \id{sundials/aclocal.m4} script.
+  compilation flags defined in the \id{sundials/acinclude.m4} script.
 
 \end{config}
 
@@ -287,8 +300,8 @@ options.
   The {\sundials} configuration script will automatically check under the
   subdirectories \id{MPIDIR/include} and \id{MPIDIR/lib} for the necessary
   header files and libraries. The subdirectory \id{MPIDIR/bin} will also be
-  searched for the {\C} and {\F} {\mpi} compiler scripts, unless
-  \id{--with-mpicc=no} and/or \id{--with-mpif77=no}.
+  searched for the {\C} and {\F} {\mpi} compiler scripts, unless the user uses
+  \id{--with-mpicc=no} or \id{--with-mpif77=no}.
 
 \item \id{--with-mpi-incdir=INCDIR}
 \item \id{--with-mpi-libdir=LIBDIR}
@@ -301,12 +314,36 @@ options.
 
   Often an {\mpi} implementation will have unique library names and so it may
   be necessary to specify the appropriate libraries to use ({\em e.g.},
-  \id{LIBS = -lmpich}).
+  \id{LIBS=-lmpich}).
 
-  Default: \id{INCDIR = MPIDIR/include}, \id{LIBDIR = MPIDIR/lib}, \id{LIBS = -lmpi}
+  Default: \id{INCDIR=MPIDIR/include}, \id{LIBDIR=MPIDIR/lib} and \id{LIBS=-lmpi}
 
 \end{config}
 
+%%
+%% Shared or Static Libraries
+%%
+
+\vspace{0.25in}
+\noindent By default, only static libraries are built, but the following option
+may be used to build shared libraries on supported platforms.
+
+\begin{config}
+
+\item \id{--enable-shared}
+
+  Using this particular option will result in both static and shared versions
+  of the available {\sundials} libraries being built if the system supports
+  shared libraries. To build only shared libraries also specify \id{--disable-static}.
+
+  {\em Note}: The {\fcvode} and {\fkinsol} libraries can only be built as static
+  libraries because they contain references to externally defined symbols, namely
+  user-supplied {\F} subroutines.  Although the {\F} interfaces to the serial and
+  parallel implementations of the supplied {\nvector} module do not contain any
+  unresolvable external symbols, the libraries are still built as static libraries
+  for the purpose of consistency.
+
+\end{config}
 
 %%
 %% Cross-compilation
