@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-10-11 16:40:41 $
+ * $Revision: 1.18 $
+ * $Date: 2004-11-23 18:49:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -349,7 +349,7 @@ int KINSpgmrGetLastFlag(void *kinmem, int *flag);
  * The possible return values for the KINSpgmrGet* subroutines
  * are the following:
  *
- * KINSPGMR_SUCCES : means the routine exited normally [0]
+ * KINSPGMR_SUCCESS : means the routine exited normally [0]
  *
  * KINSPGMR_ILL_INPUT : means at least one input parameter was
  *                      invalid (check error message(s)) [-3]
