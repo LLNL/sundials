@@ -4,13 +4,14 @@
 \index{portability}
 The \ID{sundialstypes.h} file contains the definition of the type \ID{realtype},
 which is used by the {\sundials} solvers for all floating point data.
-The type \id{realtype} can be \id{double} or \id{float}, with the default setting 
-being \id{double}.
-The user can change the precision of the {\sundials} solvers arithmetic from double 
-to single at the configuration stage (see the {\sundials} installation procedures section).
+The type \id{realtype} can be \id{float}, \id{double} or \id{long double}, with
+the default setting being \id{double}.
+The user can change the precision of the {\sundials} solvers arithmetic at the
+configuration stage (see the {\sundials} installation procedures section).
 
 Additionally, based on the current precision, \id{sundialstypes.h} defines 
-\Id{BIG\_REAL} to be the largest value representable as a \id{realtype} and
+\Id{BIG\_REAL} to be the largest value representable as a \id{realtype}, \Id{SMALL\_REAL}
+to be the smallest value representable as a \id{realtype}, and
 \Id{UNIT\_ROUNDOFF} to be the difference between $1.0$ and the minimum \id{realtype}
 greater than $1.0$.
 
@@ -18,22 +19,25 @@ Within {\sundials}, real constants are set by way of a macro called
 \Id{RCONST}.  It is this macro that needs the ability to branch on the
 setting for \id{realtype}.  In ANSI {\C}, a floating point constant with no
 suffix is stored as a \id{double}.  Placing the suffix ``F'' at the
-end of a floating point constant makes it a \id{float}. For example,
+end of a floating point constant makes it a \id{float} whereas using the suffix
+``L'' makes it a \id{long double}.  For example,
 \begin{verbatim}
 #define A 1.0
 #define B 1.0F
+#define C 1.0L
 \end{verbatim}
-defines \id{A} to be a \id{double} constant 1.0 and \id{B} to be a
-\id{float} constant $1.0$. The macro call \id{RCONST(1.0)}
-expands to \id{1.0} if \id{realtype} is \id{double} and it expands to
-\id{1.0F} if \id{realtype} is \id{float}. {\sundials} uses the \id{RCONST} macro for
-all its floating point constants. 
+defines \id{A} to be a \id{double} constant $1.0$, \id{B} to be a
+\id{float} constant $1.0$, and \id{C} to be a \id{long double} constant
+$1.0$.  The macro call \id{RCONST(1.0)} automatically expands to \id{1.0}
+if \id{realtype} is \id{double}, to \id{1.0F} if \id{realtype} is \id{float},
+or to \id{1.0L} if \id{realtype} is \id{long double}.  {\sundials} uses the
+\id{RCONST} macro internally to declare all of its floating point constants. 
 
 A user program which uses the type \id{realtype} and the \id{RCONST} macro
 to handle floating point constants is precision-independent except for
-any calls to single or double precision standard math library
+any calls to precision-specific standard math library
 functions.  (Our example programs use \id{realtype} but not
-\id{RCONST}.)  Users can, however, use the type \id{double} or
-\id{float} in their code (assuming the typedef for \id{realtype} matches
+\id{RCONST}.)  Users can, however, use the type \id{double}, \id{float} or
+\id{long double} in their code (assuming the typedef for \id{realtype} matches
 this choice).  Thus, a previously existing piece of ANSI {\C} code can use
 {\sundials} without modifying the codes to use \id{realtype}.
