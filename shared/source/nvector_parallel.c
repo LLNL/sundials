@@ -3,23 +3,25 @@
  * File          : nvector.c                                    *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,           *
  *                 Radu Serban, and Allan G. Taylor, LLNL       *
- * Version of    : 30 October 2001                              *
+ * Version of    : 27 February 2002                             *
+ *                                                              *
  *--------------------------------------------------------------*
  *                                                              *
- * This is the implementation file for an MPI NVECTOR           *
- * package. It contains the implementation of the N_Vector      *
- * kernels listed in nvector.h.                                 *
+ * This is the implementation file for a parallel implementation*
+ * of the NVECTOR package. It contains the implementation of    *
+ * the parallel machine environment intialization and free      *
+ * routines (and of the Fortran callable interfaces to them)    *
+ * and of the N_Vector kernels listed in nvector_parallel.h.    *
  * It uses MPI for message-passing.                             *
  *                                                              *
  ****************************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
-#include "nvector.h"
+#include <string.h>
+#include "nvector_parallel.h"
 #include "llnltyps.h"
 #include "llnlmath.h" 
-
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -28,130 +30,230 @@
 
 /* Error message */
 
-#define BAD_N1  "PVecInitMPI-- Sum of local vector lengths differs from "
+#define BAD_N1  "M_EnvInit_Parallel -- Sum of local vector lengths differs from "
 #define BAD_N2  "input global length. \n\n"
 #define BAD_N    BAD_N1 BAD_N2
 
 /* Private Helper Prototypes */
 
-static real PVecAllReduce(real d, int op, machEnvType machEnv);
 /* Reduction operations add/max/min over the processor group */
-static void VCopy(N_Vector x, N_Vector z); /* z=x */
-static void VSum(N_Vector x, N_Vector y, N_Vector z); /* z=x+y */
-static void VDiff(N_Vector x, N_Vector y, N_Vector z); /* z=x-y */
-static void VNeg(N_Vector x, N_Vector z); /* z=-x */
+static real VAllReduce_Parallel(real d, int op, M_Env machEnv);
+/* z=x */
+static void VCopy_Parallel(N_Vector x, N_Vector z);
+/* z=x+y */
+static void VSum_Parallel(N_Vector x, N_Vector y, N_Vector z);
+/* z=x-y */
+static void VDiff_Parallel(N_Vector x, N_Vector y, N_Vector z);
+/* z=-x */
+static void VNeg_Parallel(N_Vector x, N_Vector z);
 /* z=c(x+y) */
-static void VScaleSum(real c, N_Vector x, N_Vector y, N_Vector z);
+static void VScaleSum_Parallel(real c, N_Vector x, N_Vector y, N_Vector z);
 /* z=c(x-y) */
-static void VScaleDiff(real c, N_Vector x, N_Vector y, N_Vector z); 
-static void VLin1(real a, N_Vector x, N_Vector y, N_Vector z); /* z=ax+y */
-static void VLin2(real a, N_Vector x, N_Vector y, N_Vector z); /* z=ax-y */
-static void Vaxpy(real a, N_Vector x, N_Vector y); /* y <- ax+y */
-static void VScaleBy(real a, N_Vector x); /* x <- ax */
+static void VScaleDiff_Parallel(real c, N_Vector x, N_Vector y, N_Vector z); 
+/* z=ax+y */
+static void VLin1_Parallel(real a, N_Vector x, N_Vector y, N_Vector z);
+/* z=ax-y */
+static void VLin2_Parallel(real a, N_Vector x, N_Vector y, N_Vector z);
+/* y <- ax+y */
+static void Vaxpy_Parallel(real a, N_Vector x, N_Vector y);
+/* x <- ax */
+static void VScaleBy_Parallel(real a, N_Vector x);
 
 
 /********************* Exported Functions ************************/
 
+/* Parallel implementation of the machine environment 
+   initialization routine */
 
-void *PVecInitMPI(MPI_Comm comm,  integer local_vec_length, 
-		  integer global_vec_length, int *argc, char ***argv)
+M_Env M_EnvInit_Parallel(MPI_Comm comm,  integer local_vec_length, 
+                         integer global_vec_length, int *argc, char ***argv)
 {
+  M_Env me;
   int initflag, initerr;
   integer n, Nsum;
-  machEnvType env;
 
-  /* Create structure env and begin loading it */
-  env = (machEnvType) malloc (sizeof *env);
-  if (env == NULL) return(NULL);
+  /* Create machine environment structure */
+  me = (M_Env) malloc (sizeof *me);
+  if (me == NULL) return(NULL);
+  
+  /* Create parallel content of machine environment structure */
+  me->content = (M_EnvParallelContent) malloc(sizeof(struct _M_EnvParallelContent));
+  if (me->content == NULL) {
+    free(me);
+    return(NULL);
+  }
 
-  env->local_vec_length = local_vec_length;
-  env->global_vec_length = global_vec_length;
-
+  /* Load parallel content of machine environment structure */
+  ME_CONTENT_P(me)->local_vec_length = local_vec_length;
+  ME_CONTENT_P(me)->global_vec_length = global_vec_length;
+  
   MPI_Initialized(&initflag);
   if (!initflag) {
     initerr = MPI_Init(argc,argv);
     if (initerr != MPI_SUCCESS) return(NULL);
-    }
-  env->init_by_user = initflag;
+  }
+  ME_CONTENT_P(me)->init_by_user = initflag;
+  
+  ME_CONTENT_P(me)->comm = comm;
+  
+  /* Attach vector operations */
+  me->ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
+  if (me->ops == NULL) {
+    free(me->content);
+    free(me);
+    return(NULL);
+  }
 
-  env->comm = comm;
+  me->ops->nvnew           = N_VNew_Parallel;
+  me->ops->nvnewS          = N_VNew_S_Parallel;
+  me->ops->nvfree          = N_VFree_Parallel;
+  me->ops->nvfreeS         = N_VFree_S_Parallel;
+  me->ops->nvmake          = N_VMake_Parallel;
+  me->ops->nvdispose       = N_VDispose_Parallel;
+  me->ops->nvgetdata       = N_VGetData_Parallel;
+  me->ops->nvsetdata       = N_VSetData_Parallel;
+  me->ops->nvlinearsum     = N_VLinearSum_Parallel;
+  me->ops->nvconst         = N_VConst_Parallel;
+  me->ops->nvprod          = N_VProd_Parallel;
+  me->ops->nvdiv           = N_VDiv_Parallel;
+  me->ops->nvscale         = N_VScale_Parallel;
+  me->ops->nvabs           = N_VAbs_Parallel;
+  me->ops->nvinv           = N_VInv_Parallel;
+  me->ops->nvaddconst      = N_VAddConst_Parallel;
+  me->ops->nvdotprod       = N_VDotProd_Parallel;
+  me->ops->nvmaxnorm       = N_VMaxNorm_Parallel;
+  me->ops->nvwrmsnorm      = N_VWrmsNorm_Parallel;
+  me->ops->nvmin           = N_VMin_Parallel;
+  me->ops->nvwl2norm       = N_VWL2Norm_Parallel;
+  me->ops->nvl1norm        = N_VL1Norm_Parallel;
+  me->ops->nvonemask       = N_VOneMask_Parallel;
+  me->ops->nvcompare       = N_VCompare_Parallel;
+  me->ops->nvinvtest       = N_VInvTest_Parallel;
+  me->ops->nvconstrprodpos = N_VConstrProdPos_Parallel;
+  me->ops->nvconstrmask    = N_VConstrMask_Parallel;
+  me->ops->nvminquotient   = N_VMinQuotient_Parallel;
+  me->ops->nvprint         = N_VPrint_Parallel;
 
   /* If this PE is inactive, return now */
-  if (local_vec_length <= 0) return((void *)env);
-
+  if (local_vec_length <= 0) return(me);
+  
   /* Compute global length as sum of local lengths */
   n = local_vec_length;
   MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
-  env->global_vec_length = Nsum;
-
+  ME_CONTENT_P(me)->global_vec_length = Nsum;
+  
   /* Check input global length against computed value */
   if (Nsum != global_vec_length) {
     printf(BAD_N);
-    PVecFreeMPI(env);
+    M_EnvFree_Parallel(me);
     return(NULL);
-    } 
+  } 
 
-  /* Return the pointer env */
-  return((void *)env);
+  /* Attach ID tag */
+  strcpy(me->tag, ID_TAG_P);
+  
+  /* Return the machine environment */
+  return(me);
 }
 
+/* Parallel implementation of the machine environment 
+   free routine */
 
-void PVecFreeMPI(void *machEnv)
+void M_EnvFree_Parallel(M_Env machEnv)
 {
-  machEnvType env;
+  if (machEnv == NULL) return;
 
-  env = (machEnvType) machEnv;
-  if (env == NULL) return;
+  if (!(ME_CONTENT_P(machEnv)->init_by_user)) MPI_Finalize();
 
-  if (!(env->init_by_user)) MPI_Finalize();
-
+  free(machEnv->content);
+  free(machEnv->ops);
   free(machEnv);
 }
-
  
-N_Vector N_VNew(integer N, machEnvType machEnv)
+
+/* Fortran callable interfaces to M_EnvInit_Serial
+   and M_EnvFree_serial */
+
+void F_MENVINITP(integer *nlocal, integer *nglobal, int *ier)
+{
+  
+  /* Call M_EnvInit_Parallel:
+     the first slot is for the communicator. 
+     (From Fortran, only MPI_COMM_WORLD is allowed)
+     *nlocal  is the local vector length
+     *nglobal is the global vector length */
+
+ int dumargc; char **dumargv;
+
+ F2C_machEnv = M_EnvInit_Parallel(MPI_COMM_WORLD, *nlocal, *nglobal,
+                                  &dumargc, &dumargv);
+
+ *ier = (F2C_machEnv == NULL) ? -1 : 0 ;
+}
+
+/***************************************************************************/
+
+void F_MENVFREEP()
+{
+  M_EnvFree_Parallel(F2C_machEnv);
+}
+
+/***************************************************************************/
+
+/* BEGIN implementation of vector operations */
+
+N_Vector N_VNew_Parallel(integer n, M_Env machEnv)
 {
   N_Vector v;
   int N_local, N_global;
 
-  if (N <= 0) return(NULL);
-  if (machEnv == NULL) return(NULL);
+  if (n <= 0) return(NULL);
 
-  N_local = machEnv->local_vec_length;
-  N_global = machEnv->global_vec_length;
+  if (machEnv == NULL) return(NULL);
 
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
-  v->data = (real *) malloc(N_local * sizeof(real));
-  if (v->data == NULL) {
+  v->content = (N_VectorParallelContent) malloc(sizeof(struct _N_VectorParallelContent));
+  if (v->content == NULL) {
     free(v);
     return(NULL);
   }
 
-  v->length = N_local;
-  v->global_length = N_global;
-  v->machEnv = machEnv;
+  N_local  = ME_CONTENT_P(machEnv)->local_vec_length;
+  N_global = ME_CONTENT_P(machEnv)->global_vec_length;
+
+  NV_CONTENT_P(v)->data = (real *) malloc(N_local * sizeof(real));
+  if (NV_CONTENT_P(v)->data == NULL) {
+    free(v->content);
+    free(v);
+    return(NULL);
+  }
+
+  NV_CONTENT_P(v)->local_length  = N_local;
+  NV_CONTENT_P(v)->global_length = N_global;
+
+  v->menv = machEnv;
   
   return(v);
 }
 
-
-N_Vector *N_VNew_S(integer Ns, integer N, machEnvType machEnv)
+N_Vector_S N_VNew_S_Parallel(integer ns, integer n, M_Env machEnv)
 {
-    N_Vector *vs;
+    N_Vector_S vs;
     integer is, j;
 
-    if (Ns <= 0 || N <= 0) return(NULL);
+    if (ns <= 0 || n <= 0) return(NULL);
+
     if (machEnv == NULL) return(NULL);
 
-    vs = (N_Vector *) malloc(Ns * sizeof(N_Vector *));
+    vs = (N_Vector_S) malloc(ns * sizeof(N_Vector *));
     if (vs == NULL) return(NULL);
 
-    for (is=0; is<Ns; is++) {
-        vs[is] = N_VNew(N,machEnv);
+    for (is=0; is<ns; is++) {
+        vs[is] = N_VNew_Parallel(n, machEnv);
         if (vs[is] == NULL) {
-            for (j=0; j<is; j++) N_VFree(vs[j]);
+            for (j=0; j<is; j++) N_VFree_Parallel(vs[j]);
             free(vs);
             return(NULL);
         }
@@ -160,24 +262,71 @@ N_Vector *N_VNew_S(integer Ns, integer N, machEnvType machEnv)
     return(vs);
 }
 
-
-void N_VFree(N_Vector x)
+void N_VFree_Parallel(N_Vector v)
 {
-  free(x->data);
-  free(x);
+  free(NV_DATA_P(v));
+  free(NV_CONTENT_P(v));
+  free(v);
 }
 
-
-void N_VFree_S(integer Ns, N_Vector *vs)
+void N_VFree_S_Parallel(integer ns, N_Vector_S vs)
 {
     integer is;
     
-    for (is=0; is<Ns; is++) N_VFree(vs[is]);
+    for (is=0; is<ns; is++) N_VFree_Parallel(vs[is]);
     free(vs);
 }
 
+N_Vector N_VMake_Parallel(integer n, real *v_data, M_Env machEnv)
+{
+  N_Vector v;
+  int N_local, N_global;
 
-void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
+  if (n <= 0) return(NULL);
+
+  if (machEnv == NULL) return(NULL);
+
+  v = (N_Vector) malloc(sizeof *v);
+  if (v == NULL) return(NULL);
+  
+  v->content = (N_VectorParallelContent) malloc(sizeof(struct _N_VectorParallelContent));
+  if (v->content == NULL) {
+    free(v);
+    return(NULL);
+  }
+
+  N_local  = ME_CONTENT_P(machEnv)->local_vec_length;
+  N_global = ME_CONTENT_P(machEnv)->global_vec_length;
+
+  NV_CONTENT_P(v)->data = v_data;
+
+  NV_CONTENT_P(v)->local_length  = N_local;
+  NV_CONTENT_P(v)->global_length = N_global;
+
+  v->menv = machEnv;
+  
+  return(v);
+}
+
+void N_VDispose_Parallel(N_Vector v)
+{
+  free(NV_CONTENT_P(v));
+  free(v);
+}
+
+real *N_VGetData_Parallel(N_Vector v)
+{
+  real *v_data;
+  v_data = NV_CONTENT_P(v)->data;
+  return(v_data);
+}
+
+void N_VSetData_Parallel(real *v_data, N_Vector v)
+{
+  NV_CONTENT_P(v)->data = v_data;
+}
+
+void N_VLinearSum_Parallel(real a, N_Vector x, real b, N_Vector y, N_Vector z)
 {
   integer i, N;
   real c, *xd, *yd, *zd;
@@ -185,19 +334,19 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
   boole test;
 
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
-    Vaxpy(a,x,y);
+    Vaxpy_Parallel(a,x,y);
     return;
   }
 
   if ((a == ONE) && (z == x)) {    /* BLAS usage: axpy x <- by+x */
-    Vaxpy(b,y,x);
+    Vaxpy_Parallel(b,y,x);
     return;
   }
 
   /* Case: a == b == 1.0 */
 
   if ((a == ONE) && (b == ONE)) {
-    VSum(x, y, z);
+    VSum_Parallel(x, y, z);
     return;
   }
 
@@ -206,7 +355,7 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
   if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VDiff(v2, v1, z);
+    VDiff_Parallel(v2, v1, z);
     return;
   }
 
@@ -217,7 +366,7 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
     c = test ? b : a;
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VLin1(c, v1, v2, z);
+    VLin1_Parallel(c, v1, v2, z);
     return;
   }
 
@@ -227,7 +376,7 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
     c = test ? b : a;
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VLin2(c, v1, v2, z);
+    VLin2_Parallel(c, v1, v2, z);
     return;
   }
 
@@ -235,14 +384,14 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
   /* catches case both a and b are 0.0 - user should have called N_VConst */
 
   if (a == b) {
-    VScaleSum(a, x, y, z);
+    VScaleSum_Parallel(a, x, y, z);
     return;
   }
 
   /* Case: a == -b */
 
   if (a == -b) {
-    VScaleDiff(a, x, y, z);
+    VScaleDiff_Parallel(a, x, y, z);
     return;
   }
 
@@ -251,249 +400,250 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
      (2) a == 0.0, b == other - user should have called N_VScale
      (3) a,b == other, a !=b, a != -b */
   
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++) 
     *zd++ = a * (*xd++) + b * (*yd++);
 }
 
 
-void N_VConst(real c, N_Vector z)
+void N_VConst_Parallel(real c, N_Vector z)
 {
   integer i, N;
   real *zd;
 
-  N = z->length;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(z);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++) 
     *zd++ = c;
 }
 
 
-void N_VProd(N_Vector x, N_Vector y, N_Vector z)
+void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = (*xd++) * (*yd++);
 }
 
 
-void N_VDiv(N_Vector x, N_Vector y, N_Vector z)
+void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = (*xd++) / (*yd++);
 }
 
 
-void N_VScale(real c, N_Vector x, N_Vector z)
+void N_VScale_Parallel(real c, N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
   if (z == x) {       /* BLAS usage: scale x <- cx */
-    VScaleBy(c, x);
+    VScaleBy_Parallel(c, x);
     return;
   }
 
   if (c == ONE) {
-    VCopy(x, z);
+    VCopy_Parallel(x, z);
   } else if (c == -ONE) {
-    VNeg(x, z);
+    VNeg_Parallel(x, z);
   } else {
-    N = x->length;
-    xd = x->data;
-    zd = z->data;
-    for (i=0; i < N; i++) *zd++ = c * (*xd++);
+    N  = NV_LOCLENGTH_P(x);
+    xd = NV_DATA_P(x);
+    zd = NV_DATA_P(z);
+    for (i=0; i < N; i++) 
+      *zd++ = c * (*xd++);
   }
 }
 
 
-void N_VAbs(N_Vector x, N_Vector z)
+void N_VAbs_Parallel(N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++, xd++, zd++)
     *zd = ABS(*xd);
 }
 
 
-void N_VInv(N_Vector x, N_Vector z)
+void N_VInv_Parallel(N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = ONE / (*xd++);
 }
 
 
-void N_VAddConst(N_Vector x, real b, N_Vector z)
+void N_VAddConst_Parallel(N_Vector x, real b, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
   
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  zd = NV_DATA_P(z);
   
   for (i=0; i < N; i++) *zd++ = (*xd++) + b; 
 }
 
 
-real N_VDotProd(N_Vector x, N_Vector y)
+real N_VDotProd_Parallel(N_Vector x, N_Vector y)
 {
-  integer i, loclen;
+  integer i, N;
   real sum = ZERO, *xd, *yd, gsum;
-  machEnvType machenv;
+  M_Env machEnv;
 
-  loclen = x->length;
-  xd = x->data;
-  yd = y->data;
-  machenv = x->machEnv;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
+  machEnv = x->menv; 
 
-  for (i=0; i < loclen; i++) sum += xd[i] * yd[i];
+  for (i=0; i < N; i++) sum += xd[i] * yd[i];
 
-  gsum = PVecAllReduce(sum, 1, machenv);
+  gsum = VAllReduce_Parallel(sum, 1, machEnv);
   return(gsum);
 }
 
 
-real N_VMaxNorm(N_Vector x)
+real N_VMaxNorm_Parallel(N_Vector x)
 {
   integer i, N;
   real max = ZERO, *xd, gmax;
-  machEnvType machenv;
+  M_Env machEnv;
 
-  N = x->length;
-  xd = x->data;
-  machenv = x->machEnv;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  machEnv = x->menv;
 
   for (i=0; i < N; i++, xd++) {
     if (ABS(*xd) > max) max = ABS(*xd);
   }
    
-  gmax = PVecAllReduce(max, 2, machenv);
+  gmax = VAllReduce_Parallel(max, 2, machEnv);
   return(gmax);
 }
 
 
-real N_VWrmsNorm(N_Vector x, N_Vector w)
+real N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
 {
   integer i, N, N_global;
   real sum = ZERO, prodi, *xd, *wd, gsum;
-  machEnvType machenv;
+  M_Env machEnv;
 
-  N = x->length;
-  N_global = x->global_length;
-  xd = x->data;
-  wd = w->data;
-  machenv = x->machEnv;
+  N  = NV_LOCLENGTH_P(x);
+  N_global = NV_GLOBLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  wd = NV_DATA_P(w);
+  machEnv = x->menv;
 
   for (i=0; i < N; i++) {
     prodi = (*xd++) * (*wd++);
     sum += prodi * prodi;
   }
 
-  gsum = PVecAllReduce(sum, 1, machenv);
+  gsum = VAllReduce_Parallel(sum, 1, machEnv);
   return(RSqrt(gsum / N_global));
 }
 
-real N_VMin(N_Vector x)
+real N_VMin_Parallel(N_Vector x)
 {
   integer i, N;
   real min, *xd, gmin;
-  machEnvType machenv;
+  M_Env machEnv;
 
-  N = x->length;
-  xd = x->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  machEnv = x->menv;
+
   min = xd[0];
-  machenv = x->machEnv;
 
   xd++;
   for (i=1; i < N; i++, xd++) {
     if ((*xd) < min) min = *xd;
   }
 
-  gmin = PVecAllReduce(min, 3, machenv);
+  gmin = VAllReduce_Parallel(min, 3, machEnv);
   return(gmin);
 }
 
 
-real N_VWL2Norm(N_Vector x, N_Vector w)
+real N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
 {
   integer i, N;
   real sum = ZERO, prodi, *xd, *wd, gsum;
-  machEnvType machenv;
+  M_Env machEnv;
 
-  N = x->length;
-  xd = x->data;
-  wd = w->data;
-  machenv = x->machEnv;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  wd = NV_DATA_P(w);
+  machEnv = x->menv;
 
   for (i=0; i < N; i++) {
     prodi = (*xd++) * (*wd++);
     sum += prodi * prodi;
   }
 
-  gsum = PVecAllReduce(sum, 1, machenv);
+  gsum = VAllReduce_Parallel(sum, 1, machEnv);
   return(RSqrt(gsum));
 }
 
 
-real N_VL1Norm(N_Vector x)
+real N_VL1Norm_Parallel(N_Vector x)
 {
   integer i, N;
   real sum = ZERO, gsum, *xd;
-  machEnvType machenv;
+  M_Env machEnv;
 
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  machEnv = x->menv;
 
-  N = x->length;
-  xd = x->data;
-  machenv = x->machEnv;
+  for (i=0; i<N; i++,xd++) 
+    sum += ABS(*xd);
 
-  for (i=0; i<N; i++,xd++) sum += ABS(*xd);
-
-  gsum = PVecAllReduce(sum, 1, machenv);
-
+  gsum = VAllReduce_Parallel(sum, 1, machEnv);
   return(gsum);
 }
 
 
-void N_VOneMask(N_Vector x)
+void N_VOneMask_Parallel(N_Vector x)
 {
   integer i, N;
   real *xd;
 
-  N = x->length;
-  xd = x->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
 
   for (i=0; i<N; i++,xd++) {
     if (*xd != ZERO) *xd = ONE;
@@ -501,31 +651,31 @@ void N_VOneMask(N_Vector x)
 }
 
 
-void N_VCompare(real c, N_Vector x, N_Vector z)
+void N_VCompare_Parallel(real c, N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
   
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
-  
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  zd = NV_DATA_P(z);
+
   for (i=0; i < N; i++, xd++, zd++) {
     *zd = (ABS(*xd) >= c) ? ONE : ZERO;
   }
 }
 
 
-boole N_VInvTest(N_Vector x, N_Vector z)
+boole N_VInvTest_Parallel(N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd, val, gval;
-  machEnvType machenv;
+  M_Env machEnv;
 
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
-  machenv = x->machEnv;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  zd = NV_DATA_P(z);
+  machEnv = x->menv; 
 
   val = ONE;
   for (i=0; i < N; i++) {
@@ -535,7 +685,7 @@ boole N_VInvTest(N_Vector x, N_Vector z)
       *zd++ = ONE / (*xd++);
   }
 
-  gval = PVecAllReduce(val, 3, machenv);
+  gval = VAllReduce_Parallel(val, 3, machEnv);
   if (gval == ZERO)
     return(FALSE);
   else
@@ -543,44 +693,46 @@ boole N_VInvTest(N_Vector x, N_Vector z)
 }
 
 
-boole N_VConstrProdPos(N_Vector c, N_Vector x)
+boole N_VConstrProdPos_Parallel(N_Vector c, N_Vector x)
 {
   integer i, N;
   boole test;
   real  *xd, *cd;
-  machEnvType machenv;
+  M_Env machEnv;
 
-  N =  x->length;
-  xd = x->data;
-  cd = c->data;
-  machenv = x->machEnv;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  cd = NV_DATA_P(c);
+  machEnv = x->menv;
 
   test = TRUE;
+
   for (i=0; i < N; i++, xd++,cd++) {
     if (*cd != ZERO) {
       if ( (*xd)*(*cd) <= ZERO) {
-	test = FALSE;
+        test = FALSE;
         break;
       }
     }
   }
-  return((boole)PVecAllReduce((real)test, 3, machenv));
+
+  return((boole)VAllReduce_Parallel((real)test, 3, machEnv));
 }
 
 
-boole N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
+boole N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
 {
   integer i, N;
   boole test;
   real *cd, *xd, *md;
-  machEnvType machenv;
+  M_Env machEnv;
  
-  N = x->length;
-  cd = c->data;
-  xd = x->data;
-  md = m->data;
-  machenv = x->machEnv;
-  
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  cd = NV_DATA_P(c);
+  md = NV_DATA_P(m);
+  machEnv = x->menv;
+
   test = TRUE;
 
   for (i=0; i<N; i++, cd++, xd++, md++) {
@@ -594,47 +746,50 @@ boole N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
       if ( (*xd)*(*cd) < ZERO ) {test = FALSE; *md = ONE; }
     }
   }
-  return((boole)PVecAllReduce((real)test, 3, machenv));
+
+  return((boole)VAllReduce_Parallel((real)test, 3, machEnv));
 }
 
 
-real N_VMinQuotient(N_Vector num, N_Vector denom)
+real N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
 {
   boole notEvenOnce;
   integer i, N;
   real *nd, *dd, min;
-  machEnvType machenv;
+  M_Env machEnv;
 
-  N = num->length;
-  nd = num->data;
-  dd = denom->data;
-  machenv = num->machEnv;
+  N  = NV_LOCLENGTH_P(num);
+  nd = NV_DATA_P(num);
+  dd = NV_DATA_P(denom);
+  machEnv = num->menv;
+
   notEvenOnce = TRUE;
 
+  min = 0.0;
   for (i=0; i<N; i++, nd++, dd++) {
     if (*dd == ZERO) continue;
     else {
       if (notEvenOnce) {
-	min = *nd / *dd ;
-	notEvenOnce = FALSE;
+        min = *nd / *dd ;
+        notEvenOnce = FALSE;
       }
       else 
-	min = MIN(min, (*nd)/(*dd));
+        min = MIN(min, (*nd)/(*dd));
     }
   }
   if (notEvenOnce) min = 1.e99;
-
-  return(PVecAllReduce(min, 3, machenv));
+  
+  return(VAllReduce_Parallel(min, 3, machEnv));
 }
 
  
-void N_VPrint(N_Vector x)
+void N_VPrint_Parallel(N_Vector x)
 {
   integer i, N;
   real *xd;
 
-  N = x->length;
-  xd = x->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
 
   for (i=0; i < N; i++) printf("%g\n", *xd++);
 
@@ -644,7 +799,7 @@ void N_VPrint(N_Vector x)
 
 /***************** Private Helper Functions **********************/
 
-static real PVecAllReduce(real d, int op, machEnvType machEnv)
+static real VAllReduce_Parallel(real d, int op, M_Env machEnv)
 {
   /* This function does a global reduction.  The operation is
        sum if op = 1,
@@ -656,7 +811,7 @@ static real PVecAllReduce(real d, int op, machEnvType machEnv)
   MPI_Comm comm;
   real out;
 
-  comm = machEnv->comm;
+  comm = ME_CONTENT_P(machEnv)->comm;
 
   switch (op) {
    case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
@@ -675,155 +830,155 @@ static real PVecAllReduce(real d, int op, machEnvType machEnv)
 }
 
 
-static void VCopy(N_Vector x, N_Vector z)
+static void VCopy_Parallel(N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = *xd++; 
 }
 
 
-static void VSum(N_Vector x, N_Vector y, N_Vector z)
+static void VSum_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = (*xd++) + (*yd++);
 }
 
 
-static void VDiff(N_Vector x, N_Vector y, N_Vector z)
+static void VDiff_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
  
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = (*xd++) - (*yd++);
 }
 
 
-static void VNeg(N_Vector x, N_Vector z)
+static void VNeg_Parallel(N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = -(*xd++);
 }
 
 
-static void VScaleSum(real c, N_Vector x, N_Vector y, N_Vector z)
+static void VScaleSum_Parallel(real c, N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = c * ((*xd++) + (*yd++));
 }
 
 
-static void VScaleDiff(real c, N_Vector x, N_Vector y, N_Vector z)
+static void VScaleDiff_Parallel(real c, N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = c * ((*xd++) - (*yd++));
 }
 
 
-static void VLin1(real a, N_Vector x, N_Vector y, N_Vector z)
+static void VLin1_Parallel(real a, N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = a * (*xd++) + (*yd++);
 }
 
 
-static void VLin2(real a, N_Vector x, N_Vector y, N_Vector z)
+static void VLin2_Parallel(real a, N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
+  zd = NV_DATA_P(z);
 
   for (i=0; i < N; i++)
     *zd++ = a * (*xd++) - (*yd++);
 }
 
-static void Vaxpy(real a, N_Vector x, N_Vector y)
+static void Vaxpy_Parallel(real a, N_Vector x, N_Vector y)
 {
   integer i, N;
   real *xd, *yd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  yd = NV_DATA_P(y);
 
   if (a == ONE) {
     for (i=0; i < N; i++)
       *yd++ += (*xd++);
     return;
   }
-
+  
   if (a == -ONE) {
     for (i=0; i < N; i++)
       *yd++ -= (*xd++);
     return;
   }    
-
+  
   for (i=0; i < N; i++)
     *yd++ += a * (*xd++);
 }
 
-static void VScaleBy(real a, N_Vector x)
+static void VScaleBy_Parallel(real a, N_Vector x)
 {
   integer i, N;
   real *xd;
 
-  N = x->length;
-  xd = x->data;
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
 
   for (i=0; i < N; i++)
     *xd++ *= a;

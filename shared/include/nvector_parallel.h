@@ -3,37 +3,52 @@
  * File          : nvector.h                                    *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,           *
  *               : Radu Serban, and Allan G. Taylor, LLNL       *
- * Version of    : 20 December 2001                             *
+ * Version of    : 27 February 2002                             *
  *--------------------------------------------------------------*
  *                                                              *
- * This is the header file for the MPI NVECTOR module.          *
- * It exports the type N_Vector.                                *
+ * This is the header file for a parallel MPI implementation of *
+ * NVECTOR package.                                             *
  *                                                              *
  * Part I of this file contains declarations which are specific *
  * to the particular machine environment in which this version  *
  * of the NVECTOR module is to be used. This includes the       *
- * typedef for the type machEnvType (machine environment data   *
- * block), type N_Vector, as well as accessor macros            *
- * that allow the user to use efficiently the type N_Vector     *
- * without making explicit references to its underlying         *
- * representation. The underlying type of N_Vector will always  *
- * be some pointer type.                                        *
+ * typedef for the 'content' fields of the structures M_Env and *
+ * N_Vector (M_EnvParallelContent and N_VectorParallelContent,  *
+ * respectively).                                               *
  *                                                              *
- * Part II of this file contains the prototypes for the vector  *
- * kernels which operate on the type N_Vector. These prototypes *
- * are fixed for all implementations of the NVECTOR module. The *
- * definitions of the types real and integer are in the header  *
- * file llnltyps.h and these may be changed according to the    *
- * user's needs. The llnltyps.h file also contains the          *
- * definition for the type boole (short for boolean) that is    *
- * the return type for the routine N_VInvTest.                  *
+ * Part II of this file defines accessor macros that allow the  *
+ * user to use efficiently the type N_Vector without making     *
+ * explicit references to its underlying representation.        *
  *                                                              *
- * Important Note: N_Vector arguments to arithmetic kernels     *
- * need not be distinct. Thus, for example, the call            *
- *         N_VLinearSum(a,x,b,y,y);    y <- ax+by               *
+ * Part III of this file contains the prototype for the         *
+ * initialization routine specific to this implementation       *
+ * (M_EnvInit_Parallel) as well as prototypes for the vector    *
+ * kernels which operate on the parallel N_Vector. These        *
+ * prototypes are unique to this particular implementation of   *
+ * the vector package.                                          *
+ *                  
+ * Part IV of this file contains the definitions needed for the *
+ * Fortran callable wrappers to M_EnvInit_Parallel and          *
+ * M_EnvFree_Parallel (these definitions are based on the       *
+ * machine specific information for Fortran externals given in  *
+ * the header file fcmixpar.h).                                 *
+ *                                                              *
+ * NOTES:                                                       *
+ *                                                              *
+ * The definitions of the generic M_Env and N_Vector structures *
+ * are in the header file nvector.h.                            *
+ *                                                              *
+ * The definitions of the types real and integer are in the     *
+ * header file llnltyps.h and these may be changed according to *
+ * the user's needs. The llnltyps.h file also contains the      *
+ * definition for the type boole (short for boolean).           *
+ *                                                              *
+ * N_Vector arguments to arithmetic kernels need not be         *
+ * distinct. Thus, for example, the call                        *
+ *         N_VLinearSum_Serial(a,x,b,y,y);   y <- ax+by         *
  * is legal.                                                    *
  *                                                              * 
- * This version of nvector.h is for the MPI (Message Passing    *
+ * This version of nvector is for the MPI (Message Passing      *
  * Interface) machine environment. In the documentation given   *
  * below, N is the local length of all N_Vector parameters and  *
  * x[i] denotes the ith component of the local part of the      *
@@ -46,19 +61,20 @@
 extern "C" {
 #endif
 
-#ifndef nvector_h
-#define nvector_h
+#ifndef included_nvector_parallel_h
+#define included_nvector_parallel_h
 
-
+#include "nvector.h"  /* Generic M_Env and N_Vector type definitions */
+#include "fcmixpar.h" /* Machine specific definitions for Fortran externals */
 #include "llnltyps.h"
 #include "mpi.h"
 
+/****************************************************************
+ * PART I:                                                      *
+ * Parallel MPI implementaion of M_Env and N_Vector             *
+ ****************************************************************/
 
-/* Part I: Machine Environment-Dependent Declarations */
-
-/* Environment: MPI      */
-
-
+/* Environment: MPI                          */
 /* Set types real and integer for MPI calls. */
 
 #if (LLNL_DOUBLE == 1)
@@ -73,650 +89,326 @@ extern "C" {
 #define PVEC_INTEGER_MPI_TYPE MPI_LONG
 #endif
 
+/* The parallel implementation of the machine environment has 
+   ID tag 'parallel' */
+#define ID_TAG_P "parallel"
 
-/***************************************************************
- *                                                             *
- * Function PVecInitMPI                                        *
- *-------------------------------------------------------------*
- * Function to set block of machine-dependent environment      *
- * information.                                                *
- *                                                             *
- * comm              is a pointer to the MPI communicator,     *
- *                   of type MPI_Comm.  Must be non-NULL.      *
- *                                                             *
- * local_vec_length  is the length of the piece of the vectors *
- *                   residing on this processor.               *
- *                   If the active processor set is a proper   *
- *                   subset of the full processor set assigned *
- *                   to the job, the value of local_vec_length *
- *                   should be 0 on the inactive processors.   *
- *                   (Otherwise, the two global length values  *
- *                   input and computed, may differ.)          *
- *                                                             *
- * global_vec_length is the global length of the vectors.      *
- *                   This must equal the sum of all local      *
- *                   lengths over the active processor set.    *
- *                   If not, a message is printed.             *
- *                                                             *
- * argc              is the command line arguments count from  *
- *                   the main program (or, a dummy if MPI_INIT *
- *                   has already been called).                 *
- *                                                             *
- * argv              is the command line argument character    *
- *                   array from the main program (or, a dummy  *
- *                   if MPI_INIT has already been called)      *
- *                                                             *
- * If successful, PVecInitMPI returns a pointer to a block     *
- * of machine-environment information, of type *machEnvType.   *
- * This pointer should in turn be passed in any user calls     *
- * to N_VNew, or uses of the macro N_VMAKE.                    *
- * If a memory allocation failure occurs, or if the global     *
- * length differs from the sum of the local lengths,           *
- * PVecInitMPI returns NULL.  In the latter case, an           *
- * error message is printed to stdout.                         *
- *                                                             *
- ***************************************************************/
+/* The parallel implementation of the machine environment 'content'
+   structure contains the global and local lengths of vectors, a
+   pointer to MPI communicator, and a flag showing if the user
+   called MPI_Init */
 
-void *PVecInitMPI(MPI_Comm comm, integer local_vec_length,
-		  integer global_vec_length, int *argc, char ***argv);
-
-
-/***************************************************************
- *                                                             *
- * Function PVecFreeMPI                                        *
- *-------------------------------------------------------------*
- * Function to free the block of machine-dependent environment *
- * information created by PVecInitMPI.                         *
- * Its only argument is the pointer machEnv returned by        *
- * PVecInitMPI.                                                *
- * NOTE: if MPI is initialized by other than PVecInitMPI, it   *
- * is necessary to call MPI_Finalize in addition to (after)    *
- * calling PVecFreeMPI.                                        *
- ***************************************************************/
-
-void PVecFreeMPI(void *machEnv);
-
-
-/***************************************************************
- *                                                             *
- * Type: machEnvType                                           *
- *-------------------------------------------------------------*
- * The type machEnvType is a type for the block of             *
- * machine-dependent information required for parallel         *
- * implementations.  In this implementation, blocks of this    *
- * type are created by a user call to PVecInitMPI.             *
- * A structure of this type is a member of the type N_Vector.  *
- ***************************************************************/
-
-typedef struct {
+struct _M_EnvParallelContent {
   MPI_Comm comm;             /* pointer to MPI communicator */
   integer local_vec_length;  /* local length of vectors */ 
   integer global_vec_length; /* global length of vectors */ 
   int init_by_user;          /* flag showing if user called MPI_Init */
-} *machEnvType;
+};
 
+typedef struct _M_EnvParallelContent *M_EnvParallelContent;
  
-/***************************************************************
- *                                                             *
- * Type: N_Vector                                              *
- *-------------------------------------------------------------*
- * The type N_Vector is an abstract vector type. The fields of *
- * its concrete representation should not be accessed          *
- * directly, but rather through the macros given below.        *
- *                                                             *
- * A user may assume that the N components of an N_Vector      *
- * are stored contiguously. A pointer to the first component   *
- * can be obtained via the macro N_VDATA.                      *
- *                                                             *
- * Machine environment pointer machEnv is for parallel version.*
- *                                                             *
- ***************************************************************/
+/* The parallel implementation of the N_Vector 'content' 
+   structure contains the global and local lengths of the vector 
+   and a pointer to an array of real components */
 
-typedef struct {
-  integer length;        /* local vector length */
+struct _N_VectorParallelContent {
+  integer local_length;  /* local vector length  */
   integer global_length; /* global vector length */
-  real   *data;          /* local data array */
-  machEnvType machEnv;   /* machine environment pointer */
-} *N_Vector;
- 
- 
-/***************************************************************
- *                                                             *
- * Macros: N_VMAKE, N_VDISPOSE, N_VMAKE_S, N_VDISPOSE_S,       *
- *         N_VDATA, N_VLOCLENGTH, N_VGLOBLENGTH, N_VIth        *
- *-------------------------------------------------------------*
- * In the descriptions below, the following user               *
- * declarations are assumed:                                   *
- *                                                             *
- * N_Vector v; real *v_data, r; integer v_len, i;              *
- *                                                             *
- * (1) N_VMAKE, N_VDISPOSE                                     *
- *                                                             *
- *     These companion routines are used to create and         *
- *     destroy an N_Vector with a component array v_data       *
- *     allocated by the user.                                  *
- *                                                             *
- *     The call N_VMAKE(v, v_data, machEnv) makes v an         *
- *     N_Vector with component array v_data.  The local and    *
- *     global vector lengths are taken from (*machEnv).        *
- *     N_VMAKE stores the pointer v_data so that               *
- *     changes made by the user to the elements of v_data are  *
- *     simultaneously reflected in v. There is no copying of   *
- *     elements.                                               *
- *                                                             *
- *     The call N_VDISPOSE(v) frees all memory associated      *
- *     with v except for its component array. This memory was  *
- *     allocated by the user and, therefore, should be         *
- *     deallocated by the user.                                *
- *                                                             *
- * (2) N_VMAKE_S, N_VDISPOSE_S                                 *
- *                                                             *
- *     These companion routines are used to create and         *
- *     destroy an array of N_Vectors with component sdata      *
- *     allocated by the user.                                  *
- *                                                             *
- *     The call N_VMAKE_S(vs, vs_data, s_len, machEnv) makes   *
- *     vs an array of s_len N_Vectors, each with component     *
- *     array vs_data[i] and local and global vector lengths    *
- *     taken from (*machEnv).                                  *
- *     N_VMAKE_S stores the pointers vs_data[i] so that        *
- *     changes made by the user to the elements of sdata are   *
- *     simultaneously reflected in vs. There is no copying of  *
- *     elements.                                               *
- *                                                             *
- *     The call N_VDISPOSE_S(vs) frees all memory associated   *
- *     with vs except for its components' component array.     *
- *     This memory was allocated by the user and, therefore,   *
- *     should be deallocated by the user.                      *
- *                                                             *
- * (3) N_VDATA, N_VLOCLENGTH, N_VGLOBLENGTH                    *
- *                                                             *
- *     These routines give individual access to the parts of   *
- *     an N_Vector.                                            *
- *                                                             *
- *     The assignment v_data=N_VDATA(v) sets v_data to be      *
- *     a pointer to the first component of the local data for  *
- *     the vector v. The assignment N_VDATA(v)=v_data sets the *
- *     component array of v to be v_data by storing the        *
- *     pointer v_data.                                         *  
- *                                                             *
- *     The assignment v_llen=N_VLOCLENGTH(v) sets v_llen to    *
- *     be the length of the local part of the vector v.        *
- *     The call N_VLOCLENGTH(v)=llen_v sets the local length   *
- *     of v to be llen_v.                                      *
- *                                                             *
- *     The assignment v_glen=N_VGLOBLENGTH(v) sets v_glen to   *
- *     be the global length of the vector v.                   *
- *     The call N_VGLOBLENGTH(v)=glen_v sets the global length *
- *     of v to be glen_v.                                      *
- *                                                             *
- * (4) N_VIth                                                  *
- *                                                             *
- *     In the following description, the components of the     *
- *     local part of an N_Vector are numbered 0..n-1, where n  *
- *     is the local length of (the local part of) v.           *
- *                                                             *
- *     The assignment r=N_VIth(v,i) sets r to be the value of  *
- *     the ith component of the local part of the vector v.    *
- *     The assignment N_VIth(v,i)=r sets the value of the      *
- *     ith local component of v to be r.                       *
- *                                                             *
- * Notes..                                                     *
- *                                                             *
- * Users who use the macros (1) and/or (2) must                *
- * #include<stdlib.h> since these macros expand to calls to    *
- * malloc and free.                                            *
- *                                                             *
- * When looping over the components of an N_Vector v, it is    *
- * more efficient to first obtain the component array via      *
- * v_data=N_VDATA(v) and then access v_data[i] within the      *
- * loop than it is to use N_VIth(v,i) within the loop.         *
- *                                                             *
- * N_VMAKE and N_VDISPOSE are similar to N_VNew and N_VFree.   *
- * The difference is one of responsibility for component       *
- * memory allocation and deallocation. N_VNew allocates memory *
- * for the N_Vector components and N_VFree frees the component *
- * memory allocated by N_VNew. For N_VMAKE and N_VDISPOSE, the *
- * component memory is allocated and freed by the user of      *
- * this module.                                                *
- *                                                             *
- * Similar remarks hold for N_VMAKE_S/N_VDISPOSE_S and         *
- * N_VNew_S/N_VFree_S.                                         *
- *                                                             *
- ***************************************************************/ 
+  real   *data;          /* local data array     */
+};
 
-#define N_VMAKE(v, v_data, machenv) \
+typedef struct _N_VectorParallelContent *N_VectorParallelContent;
+
+
+/****************************************************************
+ *                                                              *
+ * PART II: Macros                                              *
+ *    NV_MAKE_P, NV_DISPOSE_P, NVS_MAKE_P, NVS_DISPOSE_P        *
+ *    ME_CONTENT_P, NV_CONTENT_P                                *
+ *    NV_DATA_P, NV_LOCLENGTH_P, NV_GLOBLENGTH_P, NV_Ith_P      *
+ *--------------------------------------------------------------*
+ * In the descriptions below, the following user                *
+ * declarations are assumed:                                    *
+ *                                                              *
+ * M_Env    machenv;                                            *
+ * N_Vector v, *vs;                                             *
+ * real     *v_data, **vs_data, r;                              *
+ * integer  v_len, s_len, i;                                    *
+ *                                                              *
+ * (1) NV_MAKE_P, NV_DISPOSE_P                                  *
+ *                                                              *
+ *     These companion routines are used to create and          *
+ *     destroy an N_Vector with a component array v_data        *
+ *     allocated by the user.                                   *
+ *                                                              *
+ *     The call NV_MAKE_P(v, v_data, machenv) makes v an        *
+ *     N_Vector with component array v_data.  The local and     *
+ *     global vector lengths are taken from machenv.            *
+ *     NV_MAKE_P stores the pointer v_data so that              *
+ *     changes made by the user to the elements of v_data are   *
+ *     simultaneously reflected in v. There is no copying of    *
+ *     elements.                                                *
+ *                                                              *
+ *     The call NV_DISPOSE_P(v) frees all memory associated     *
+ *     with v except for its component array. This memory was   *
+ *     allocated by the user and, therefore, should be          *
+ *     deallocated by the user.                                 *
+ *                                                              *
+ * (2) NVS_MAKE_P, NVS_DISPOSE_P                                *
+ *                                                              *
+ *     These companion routines are used to create and          *
+ *     destroy an array of N_Vectors with component sdata       *
+ *     allocated by the user.                                   *
+ *                                                              * 
+ *     The call NVS_MAKE_P(vs, vs_data, s_len, machEnv) makes   *
+ *     vs an array of s_len N_Vectors, each with component      *
+ *     array vs_data[i] and local and global vector lengths     *
+ *     taken from machenv.                                      *
+ *     NVS_MAKE_P stores the pointers vs_data[i] so that        *
+ *     changes made by the user to the elements of sdata are    *
+ *     simultaneously reflected in vs. There is no copying of   *
+ *     elements.                                                *
+ *                                                              *
+ *     The call NVS_DISPOSE_P(vs) frees all memory associated   *
+ *     with vs except for its components' component array.      *
+ *     This memory was allocated by the user and, therefore,    *
+ *     should be deallocated by the user.                       *
+ *                                                              *
+ * (3) ME_CONTENT_P, NV_CONTENT_P                               *
+ *                                                              *
+ *     These routines give access to the contents of the        *
+ *     parallel machine environment and N_Vector, respectively. * 
+ *                                                              *
+ *     The assignment m_cont = ME_CONTENT_P(machenv) sets       *
+ *     m_cont to be a pointer to the parallel machine           *
+ *     environment content structure.                           * 
+ *                                                              *
+ *     The assignment v_cont = ME_CONTENT_P(machenv) sets       *
+ *     v_cont to be a pointer to the parallel N_Vector content  *
+ *     structure.                                               *
+ *                                                              *
+ * (4) NV_DATA_P, NV_LOCLENGTH_P, NV_GLOBLENGTH_P               *
+ *                                                              *
+ *     These routines give individual access to the parts of    *
+ *     the content of a parallel N_Vector.                      *
+ *                                                              *
+ *     The assignment v_data=NV_DATA_P(v) sets v_data to be     *
+ *     a pointer to the first component of the local data for   *
+ *     the vector v. The assignment NV_DATA_P(v)=v_data sets    *
+ *     the component array of v to be v_data by storing the     *
+ *     pointer v_data.                                          *  
+ *                                                              *
+ *     The assignment v_llen=NV_LOCLENGTH_P(v) sets v_llen to   *
+ *     be the length of the local part of the vector v.         *
+ *     The call NV_LOCLENGTH_P(v)=llen_v sets the local length  *
+ *     of v to be llen_v.                                       *
+ *                                                              *
+ *     The assignment v_glen=NV_GLOBLENGTH_P(v) sets v_glen to  *
+ *     be the global length of the vector v.                    *
+ *     The call NV_GLOBLENGTH_P(v)=glen_v sets the global       *
+ *     length of v to be glen_v.                                *
+ *                                                              *
+ * (4) NV_Ith_P                                                 *
+ *                                                              *
+ *     In the following description, the components of the      *
+ *     local part of an N_Vector are numbered 0..n-1, where n   *
+ *     is the local length of (the local part of) v.            *
+ *                                                              *
+ *     The assignment r=NV_Ith_P(v,i) sets r to be the value    *
+ *     of the ith component of the local part of the vector v.  *
+ *     The assignment NV_Ith_P(v,i)=r sets the value of the     *
+ *     ith local component of v to be r.                        *
+ *                                                              *
+ * Notes..                                                      *
+ *                                                              *
+ * Users who use the macros (1) and/or (2) must                 *
+ * #include<stdlib.h> since these macros expand to calls to     *
+ * malloc and free.                                             *
+ *                                                              *
+ * When looping over the components of an N_Vector v, it is     *
+ * more efficient to first obtain the component array via       *
+ * v_data=NV_DATA_P(v) and then access v_data[i] within the     *
+ * loop than it is to use NV_Ith_P(v,i) within the loop.        *
+ *                                                              *
+ * NV_MAKE_P and NV_DISPOSE_P are similar to N_VNew_Parallel    *
+ * and N_VFree_Parallel, while NVS_MAKE_P and NVS_DISPOSE_P     *
+ * are similar to  N_VNew_S_Parallel and N_VFree_S_Parallel.    *
+ * The difference is one of responsibility for component        *
+ * memory allocation and deallocation. N_VNew_Parallel          *
+ * allocates memory for the N_Vector components and             *
+ * N_VFree_Parallel frees the component memory allocated by     *
+ * N_VNew_Parallel. For NV_MAKE_P and NV_DISPOSE_P, the         *
+ * component memory is allocated and freed by the user of this  *
+ * package. Similar remarks hold for NVS_MAKE_P,                *
+ * NVS_DISPOSE_P and N_VNew_S_Parallel, N_VFree_S_Parallel.     *
+ *                                                              *
+ ****************************************************************/ 
+
+#define NV_MAKE_P(v, v_data, machenv) \
         v = (N_Vector) malloc(sizeof(*v)); \
-        v->data   = v_data; \
-        v->length = machenv->local_vec_length; \
-        v->global_length = machenv->global_vec_length; \
-        v->machEnv = machenv
+        v->content = (N_VectorParallelContent) malloc(sizeof(struct _N_VectorParallelContent)); \
+        v->content->data = v_data; \
+        v->content->local_length  = machenv->content->local_vec_length; \
+        v->content->global_length = machenv->content->global_vec_length; \
+        v->menv = machenv
 
-#define N_VDISPOSE(v) free(v)
+#define NV_DISPOSE_P(v) \
+        free((N_VectorParallelContent)(v->content)); \
+        free(v)
 
-#define N_VMAKE_S(vs, vs_data, s_len, machenv) \
-        vs = (N_Vector *)malloc(s_len*sizeof(N_Vector *)); \
-        for ((int)i=0; i<s_len; i++) { \
-           vs[i] = (N_Vector) malloc(sizeof(N_Vector)); \
-           vs[i]->data   = vs_data[i]; \
-           vs[i]->length = machenv->local_vec_length; \
-           vs[i]->global_length = machenv->global_vec_length; \
-           vs[i]->machEnv = machenv; \
+#define NVS_MAKE_P(vs, vs_data, s_len, machenv) \
+        vs = (N_Vector_S) malloc(s_len*sizeof(N_Vector *)); \
+        for ((int)is=0; is<s_len; is++) { \
+           NV_MAKE_P(vs[is], vs_data[is], machenv); \
         }
-
-#define N_VDISPOSE_S(vs, s_len) \
-        for ((int)i=0; i<s_len; i++) N_VDISPOSE(vs[i]); \
+#define NVS_DISPOSE_P(vs, s_len) \
+        for ((int)is=0; is<s_len; is++) NV_DISPOSE_P(vs[i]); \
         free(vs);
 
-#define N_VDATA(v) (v->data)
-
-#define N_VLOCLENGTH(v) (v->length)
-
-#define N_VGLOBLENGTH(v) (v->global_length)
-
-#define N_VIth(v,i) ((v->data)[i])
-
-
-/* Part II: N_Vector Kernel Prototypes (Machine Environment-Independent) */
-
- 
-/***************************************************************
- *                                                             *
- * Memory Allocation and Deallocation: N_VNew, N_VFree         *
- *                                                             *
- ***************************************************************/
-
-
-/***************************************************************
- *                                                             *
- * Function : N_VNew                                           *
- * Usage    : x = N_VNew(N, machEnv);                          *
- *-------------------------------------------------------------*
- *                                                             *
- * Returns a new N_Vector of length N. The parameter machEnv   *
- * is a pointer to machine environment-specific information.   *
- * It is ignored in the sequential machine environment and the *
- * user in this environment should simply pass NULL for this   *
- * argument. If there is not enough memory for a new N_Vector, *
- * then N_VNew returns NULL.                                   *
- *                                                             *
- ***************************************************************/
-
-N_Vector N_VNew(integer n, machEnvType machEnv);
-
-
-/***************************************************************
- *                                                             *
- * Function : N_VFree                                          *
- * Usage    : N_VFree(x);                                      *
- *-------------------------------------------------------------*
- *                                                             *
- * Frees the N_Vector x. It is illegal to use x after the call *
- * N_VFree(x).                                                 *
- *                                                             *
- ***************************************************************/
-
-void N_VFree(N_Vector x);
-
-/***************************************************************
- *                                                             *
- * Function : N_VNew_S                                         *
- * Usage    : x = N_VNew_S(Ns, N, machEnv);                    *
- *-------------------------------------------------------------*
- *                                                             *
- * Returns an array of Ns new N_Vectors of length N.           *
- * The parameter machEnv is a pointer to machine               *
- * environment-specific information. It is ignored in the      *
- * sequential machine environment and the user in this         *
- * environment should simply pass NULL for this argument.      * 
- * If there is not enough memory for a new array of N_Vectors  *
- * or for one of the components, then N_VNew_S returns NULL.   *
- *                                                             *
- ***************************************************************/
-
-N_Vector *N_VNew_S(integer ns, integer n, machEnvType machEnv);
-
-/***************************************************************
- *                                                             *
- * Function : N_VFree_S                                        *
- * Usage    : N_VFree_S(Ns, vs);                               *
- *-------------------------------------------------------------*
- *                                                             *
- * Frees the array of Ns N_Vectors vs.                         *
- * It is illegal to use vs after the call N_VFree_S(Ns,vs).    *
- *                                                             *
- ***************************************************************/
-
-void N_VFree_S(integer ns, N_Vector *vs); 
- 
-/***************************************************************
- *                                                             *
- * N_Vector Arithmetic: N_VLinearSum, N_VConst, N_VProd,       *
- *                      N_VDiv, N_VScale, N_VAbs, N_VInv,      *
- *                      N_VAddConst                            *
- *                                                             *
- ***************************************************************/
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VLinearSum                                    *
- * Operation : z = a x + b y                                   *
- *                                                             *
- ***************************************************************/
-
-void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z);
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VConst                                        *
- * Operation : z[i] = c for i=0, 1, ..., N-1                   *
- *                                                             *
- ***************************************************************/
-
-void N_VConst(real c, N_Vector z);
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VProd                                         *
- * Operation : z[i] = x[i] * y[i] for i=0, 1, ..., N-1         *
- *                                                             *
- ***************************************************************/
-
-void N_VProd(N_Vector x, N_Vector y, N_Vector z);
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VDiv                                          *
- * Operation : z[i] = x[i] / y[i] for i=0, 1, ..., N-1         *
- *                                                             *
- ***************************************************************/
-
-void N_VDiv(N_Vector x, N_Vector y, N_Vector z);
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VScale                                        *
- * Operation : z = c x                                         *
- *                                                             *
- ***************************************************************/
-
-void N_VScale(real c, N_Vector x, N_Vector z);
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VAbs                                          *
- * Operation : z[i] = |x[i]|,   for i=0, 1, ..., N-1           *
- *                                                             *
- ***************************************************************/
-
-void N_VAbs(N_Vector x, N_Vector z);
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VInv                                          *
- * Operation : z[i] = 1.0 / x[i] for i = 0, 1, ..., N-1        *
- *-------------------------------------------------------------*
- *                                                             *
- * This routine does not check for division by 0. It should be *
- * called only with an N_Vector x which is guaranteed to have  *
- * all non-zero components.                                    *
- *                                                             *
- ***************************************************************/
-
-void N_VInv(N_Vector x, N_Vector z);
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VAddConst                                     *
- * Operation : z[i] = x[i] + b   for i = 0, 1, ..., N-1        *
- *                                                             *
- ***************************************************************/
-
-void N_VAddConst(N_Vector x, real b, N_Vector z);
- 
- 
-/***************************************************************
- *                                                             *
- * N_Vector Measures: N_VDotProd, N_VMaxNorm, VWrmsNorm,       *
- *                    N_VMin,  N_VWL2Norm, N_VL1Norm           *
- *                                                             *
- ***************************************************************/
-
-
-/***************************************************************
- *                                                             *
- * Function : N_VDotProd                                       *
- * Usage    : dotprod = N_VDotProd(x, y);                      *
- *-------------------------------------------------------------*
- *                                                             *
- * Returns the value of the ordinary dot product of x and y:   *
- *                                                             *
- * -> sum (i=0 to N-1) {x[i] * y[i]}                           *
- *                                                             *
- * Returns 0.0 if N <= 0.                                      *
- *                                                             *
- ***************************************************************/
-
-real N_VDotProd(N_Vector x, N_Vector y);
-
-
-/***************************************************************
- *                                                             *
- * Function : N_VMaxNorm                                       *
- * Usage    : maxnorm = N_VMaxNorm(x);                         *
- *-------------------------------------------------------------*
- *                                                             *
- * Returns the maximum norm of x:                              *
- *                                                             *
- * -> max (i=0 to N-1) |x[i]|                                  *
- *                                                             *
- * Returns 0.0 if N <= 0.                                      *
- *                                                             *
- ***************************************************************/
-
-real N_VMaxNorm(N_Vector x);
-
-
-/***************************************************************
- *                                                             *
- * Function : N_VWrmsNorm                                      *
- * Usage    : wrmsnorm = N_VWrmsNorm(x, w);                    *
- *-------------------------------------------------------------*
- *                                                             *
- * Returns the weighted root mean square norm of x with        *
- * weight vector w:                                            *
- *                                                             *
- * -> sqrt [(sum (i=0 to N-1) {(x[i] * w[i])^2}) / N]          *
- *                                                             *
- * Returns 0.0 if N <= 0.                                      *
- *                                                             *
- ***************************************************************/
-
-real N_VWrmsNorm(N_Vector x, N_Vector w);
-
-
-/***************************************************************
- *                                                             *
- * Function : N_VMin                                           *
- * Usage    : min = N_VMin(x);                                 *
- *-------------------------------------------------------------*
- *                                                             *
- * Returns min x[i] if N > 0 and returns 0.0 if N <= 0.        *
- *          i                                                  *
- *                                                             *
- ***************************************************************/
-
-real N_VMin(N_Vector x);
-
-/***************************************************************
- *                                                             *
- * Function : N_VWL2Norm                                       *
- * Usage    : wl2norm = N_VWL2Norm(x, w);                      *
- *-------------------------------------------------------------*
- *                                                             *
- * Returns the weighted Euclidean L2 norm of x with            *
- * weight vector w:                                            *
- *                                                             *
- * -> sqrt [(sum (i=0 to N-1) {(x[i] * w[i])^2}) ]             *
- *                                                             *
- * Returns 0.0 if N <= 0.                                      *
- *                                                             *
- ***************************************************************/
-
-real N_VWL2Norm(N_Vector x, N_Vector w);
-
- 
-
-/***************************************************************
- *                                                             *
- * Function : N_VL1Norm                                        *
- * Usage    : l1norm = N_VL1Norm(x);                           *
- *-------------------------------------------------------------*
- *                                                             *
- * Returns sum of ABS(x[i]) if N > 0 and returns 0.0 if N <= 0.*
- *          i                                                  *
- *                                                             *
- *     i.e., calculates and returns the L1 norm of x           *
- *                                                             *
- ***************************************************************/
-
-real N_VL1Norm(N_Vector x);
- 
-
-/***************************************************************
- *                                                             *
- * Miscellaneous : N_VOneMask, N_VCompare, N_VInvTest,         *
- *        N_VConstrProdPos, N_VConstrMask, and N_VMinQuotient  *
- *                                                             *
- ***************************************************************/
-
-/***************************************************************
- *                                                             *
- * Function  : N_VOneMask                                      *
- * Operation : x[i] = 1.0 if |x[i]| != 0.  i = 0, 1, ..., N-1  *
- *                    0.0 otherwise                            *
- *                                                             *
- ***************************************************************/
-
-void N_VOneMask(N_Vector x);
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VCompare                                      *
- * Operation : z[i] = 1.0 if |x[i]| >= c   i = 0, 1, ..., N-1  *
- *                    0.0 otherwise                            *
- *                                                             *
- ***************************************************************/
-
-
-void N_VCompare(real c, N_Vector x, N_Vector z);
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VInvTest                                      *
- * Operation : z[i] = 1.0 / x[i] with a test for x[i]==0.0     *
- *             before inverting x[i].                          *
- *-------------------------------------------------------------*
- *                                                             *
- * This routine returns TRUE if all components of x are        *
- * non-zero (successful inversion) and returns FALSE           *
- * otherwise.                                                  *
- *                                                             *
- ***************************************************************/
-
-boole N_VInvTest(N_Vector x, N_Vector z);
- 
- 
-/***************************************************************
- *                                                             *
- * Function : N_VConstrProdPos                                 *
- * Usage    : booltest = N_VConstrProdPos(c,x);                *
- *-------------------------------------------------------------*
- *                                                             *
- * Returns a boolean equal to                                  *
- *   FALSE if some c[i] != 0.0 and x[i]*c[i] <= 0.0,  or       *
- *   TRUE otherwise.                                           *
- *                                                             *
- * This routine is used for constraint checking.               *
- *                                                             *
- ***************************************************************/
-
-boole N_VConstrProdPos(N_Vector c, N_Vector x);
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VConstrMask                                   *
- * Operation : m[i] = 1.0 if constraint test fails for x[i]    *
- *             m[i] = 0.0 if constraint test passes for x[i]   *
- * where the constraint tests are as follows:                  *
- *    If c[i] = 2.0,  then x[i] must be > 0.0.                 *
- *    If c[i] = 1.0,  then x[i] must be >= 0.0.                *
- *    If c[i] = -1.0, then x[i] must be <= 0.0.                *
- *    If c[i] = -2.0, then x[i] must be < 0.0.                 *
- *-------------------------------------------------------------*
- *                                                             *
- * This routine returns a boole FALSE if any element failed    *
- * the constraint test, TRUE if all passed.  It also sets a    *
- * mask vector m, with elements equal to 1.0 where the         *
- * corresponding constraint test failed, and equal to 0.0      *
- * where the constraint test passed.                           *
- * This routine is specialized in that it is used only for     *
- * constraint checking.                                        *
- *                                                             *
- ***************************************************************/
-
-boole N_VConstrMask(N_Vector c, N_Vector x, N_Vector m);   
-
-
-/***************************************************************
- *                                                             *
- * Function  : N_VMinQuotient                                  *
- * Operation : minq  = min ( num[i]/denom[i]) over all i such  *
- *             that   denom[i] != 0.                           *
- *-------------------------------------------------------------*
- *                                                             *
- * This routine returns the minimum of the quotients obtained  *
- * by term-wise dividing num[i] by denom[i]. A zero element    *
- * in denom will be skipped. If no such quotients are found,   *
- * then the large value 1.e99 is returned.                     *
- *                                                             *
- ***************************************************************/
-
-real N_VMinQuotient(N_Vector num, N_Vector denom);
-
- 
-/***************************************************************
- *                                                             *
- * Debugging Tools : N_VPrint                                  *
- *                                                             *
- ***************************************************************/
-
-/***************************************************************
- *                                                             *
- * Function : N_VPrint                                         *
- * Usage    : N_VPrint(x);                                     *
- *-------------------------------------------------------------*
- *                                                             *
- * Prints the N_Vector x to stdout. Each component of x is     *
- * printed on a separate line using the %g specification. This *
- * routine is provided as an aid in debugging code which uses  *
- * this vector package.                                        *
- *                                                             *
- ***************************************************************/
-
-void N_VPrint(N_Vector x);
- 
+#define ME_CONTENT_P(m) ( (M_EnvParallelContent)(m->content) )
+
+#define NV_CONTENT_P(v) ( (N_VectorParallelContent)(v->content) )
+
+#define NV_LOCLENGTH_P(v) ( NV_CONTENT_P(v)->local_length )
+
+#define NV_GLOBLENGTH_P(v) ( NV_CONTENT_P(v)->global_length )
+
+#define NV_DATA_P(v) ( NV_CONTENT_P(v)->data )
+
+#define NV_Ith_P(v,i) ( NV_DATA_P(v)[i] )
+
+
+/****************************************************************
+ * PART III:                                                    *
+ * Functions exported by nvector_serial                         *
+ ****************************************************************/
+
+/*--------------------------------------------------------------*
+ * Routine : M_EnvInit_Parallel                                 *
+ *--------------------------------------------------------------*
+ * This function sets the content field of the machine          *
+ * environment for the parallel MPI implementation to a         *
+ * structure of type _MEnvParallelContent and attaches the      *
+ * vector operations defined for this implementation.           *
+ *                                                              *
+ * If successful, M_EnvInit_Parallel returns a pointer of type  *
+ * M_Env. This pointer should in turn be passed in any user     *
+ * calls to N_VNew, or uses of the macros NV_MAKE_P and         *
+ * NVS_MAKE_P.                                                  *
+ * If a memory allocation failure occurs, or if the global      *
+ * length differs from the sum of the local lengths,            *
+ * M_EnvInit_Parallel returns NULL.  In the latter case, an     *
+ * error message is printed to stdout.                          *
+ *                                                              *
+ *--------------------------------------------------------------*
+ *                                                              *
+ * comm              is a pointer to the MPI communicator,      *
+ *                   of type MPI_Comm.  Must be non-NULL.       *
+ *                                                              *
+ * local_vec_length  is the length of the piece of the vectors  *
+ *                   residing on this processor.                *
+ *                   If the active processor set is a proper    *
+ *                   subset of the full processor set assigned  *
+ *                   to the job, the value of local_vec_length  *
+ *                   should be 0 on the inactive processors.    *
+ *                   (Otherwise, the two global length values   *
+ *                   input and computed, may differ.)           *
+ *                                                              *
+ * global_vec_length is the global length of the vectors.       *
+ *                   This must equal the sum of all local       *
+ *                   lengths over the active processor set.     *
+ *                   If not, a message is printed.              *
+ *                                                              *
+ * argc              is the command line arguments count from   *
+ *                   the main program (or, a dummy if MPI_INIT  *
+ *                   has already been called).                  *
+ *                                                              *
+ * argv              is the command line argument character     *
+ *                   array from the main program (or, a dummy   *
+ *                   if MPI_INIT has already been called)       *
+ *                                                              *
+ *--------------------------------------------------------------*/
+
+M_Env M_EnvInit_Parallel(MPI_Comm comm, integer local_vec_length,
+                         integer global_vec_length, 
+                         int *argc, char ***argv);
+
+/*--------------------------------------------------------------*
+ * Function M_EnvFree_Parallel                                  *
+ *--------------------------------------------------------------*
+ * Function to free the block of machine-dependent environment  *
+ * information created by N_VecInit_Parallel.                   *
+ * Its only argument is the pointer machenv returned by         *
+ * M_EnvInit_Parallel.                                          *
+ * NOTE: if MPI is initialized by other than M_EnvInit_Parallel *
+ * it is necessary to call MPI_Finalize in addition to (after)  *
+ * calling M_EnvFree_Parallel.                                  *
+ *--------------------------------------------------------------*/
+
+void M_EnvFree_Parallel(M_Env machenv);
+
+/*--------------------------------------------------------------*
+ * Parallel implementations of the vector operations            *
+ *                                                              *
+ * For a complete description of each of the following routines *
+ * see the header file nvector.h                                *
+ *--------------------------------------------------------------*/
+
+N_Vector N_VNew_Parallel(integer n, M_Env machEnv);
+N_Vector_S N_VNew_S_Parallel(integer ns, integer n, M_Env machEnv);
+void N_VFree_Parallel(N_Vector v);
+void N_VFree_S_Parallel(integer ns, N_Vector_S vs);
+N_Vector N_VMake_Parallel(integer n, real *v_data, M_Env machEnv);
+void N_VDispose_Parallel(N_Vector v);
+real *N_VGetData_Parallel(N_Vector v);
+void N_VSetData_Parallel(real *v_data, N_Vector v);
+void N_VLinearSum_Parallel(real a, N_Vector x, real b, N_Vector y, N_Vector z);
+void N_VConst_Parallel(real c, N_Vector z);
+void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z);
+void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z);
+void N_VScale_Parallel(real c, N_Vector x, N_Vector z);
+void N_VAbs_Parallel(N_Vector x, N_Vector z);
+void N_VInv_Parallel(N_Vector x, N_Vector z);
+void N_VAddConst_Parallel(N_Vector x, real b, N_Vector z);
+real N_VDotProd_Parallel(N_Vector x, N_Vector y);
+real N_VMaxNorm_Parallel(N_Vector x);
+real N_VWrmsNorm_Parallel(N_Vector x, N_Vector w);
+real N_VMin_Parallel(N_Vector x);
+real N_VWL2Norm_Parallel(N_Vector x, N_Vector w);
+real N_VL1Norm_Parallel(N_Vector x);
+void N_VOneMask_Parallel(N_Vector x);
+void N_VCompare_Parallel(real c, N_Vector x, N_Vector z);
+boole N_VInvTest_Parallel(N_Vector x, N_Vector z);
+boole N_VConstrProdPos_Parallel(N_Vector c, N_Vector x);
+boole N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m);   
+real N_VMinQuotient_Parallel(N_Vector num, N_Vector denom);
+void N_VPrint_Parallel(N_Vector x);
+
+
+/****************************************************************
+ * PART IV:                                                     *
+ * Definitions for Fortran interface                            *
+ ****************************************************************/
+
+/* Fortran callable wrappers to M_EnvInit_Serial and M_EnvFree_Serial */ 
+
+#if (CRAY)
+  
+#define F_MENVINITP  FMENVINITP
+#define F_MENVFREEP  FMENVFREEP
+
+#elif  (UNDERSCORE)
+
+#define F_MENVINITP  fmenvinitp_
+#define F_MENVFREEP  fmenvfreep_
+
+#else
+
+#define F_MENVINITP  fmenvinitp
+#define F_MENVFREEP  fmenvfreep
+
+#endif
+
 
 #endif
 #ifdef __cplusplus
