@@ -75,17 +75,17 @@ $Y = [y,s_1,\ldots,s_{N_s}]$ forward in time, where
 $[s_1,\ldots,s_{N_s}]$ are a subset of the columns of $s$.
 %
 CVODES provides the following three choices for the sequence in which
-the states and sensitivity variables are advanced in time at each step:
+the states and sensitivity variables are advanced in time at each step.
 %
 \begin{itemize}
 \item Simultaneous Corrector: the nonlinear system (\ref{NLS}) is solved
   simultaneously for the states and all sensitivity variables~\cite{MaPe:96},
   using a coefficient matrix for the Newton update, which is
-  simply the block-diagonal portion of the Newton matrix;
+  simply the block-diagonal portion of the Newton matrix.
 \item Staggered Corrector 1: the correction stages for the sensitivity
   variables take place after the states have been corrected and have passed
   the error test. To prevent frequent Jacobian updates, the linear sensitivity
-  systems are solved with a modified Newton iteration~\cite{FTB:97};
+  systems are solved with a modified Newton iteration~\cite{FTB:97}.
 \item Staggered Corrector 2: a variant of the previous one,
   in which the error test for the sensitivity variables is also staggered,
   one sensitivity system at a time.
