@@ -1,11 +1,10 @@
-#--------------------------------------------------------------------------------
+#--------------------------------------------------------------------------
 # File        : Makefile
 # Programmers : Radu Serban @ LLNL
-# Version of  : 27 March 2002
+# Version of  : 22 July 2002
 #--------------------------------------------------------------------------
 # Makefile for FCVODE, the Fortran interface package for CVODE and the
 # associated examples.
-#
 #
 # Type 'make' to see usage instructions.
 #--------------------------------------------------------------------------
@@ -32,9 +31,9 @@ OBJ = ${SRC:.c=.o}
 CC     = gcc
 CFLAGS = -Wall -ffloat-store -I$(CVODE_INC_DIR) -I$(SHARED_INC_DIR)
 
-#--------------------------------------------------------------------------------
+#--------------------------------------------------------------------------
 # Make rules
-#--------------------------------------------------------------------------------
+#--------------------------------------------------------------------------
 
 all:
 	@(echo)
@@ -85,7 +84,7 @@ fcvx_ser:
 fcvx_par:
 	@(if test -f fcvx_par.mk; then make -f fcvx_par.mk examples; fi)
 
-cvdensef:
+cvdensef cvbandf cvkryf:
 	@(make -f fcvx_ser.mk $@)
 
 pvdiagnf pvdiagkf pvdiagkbf:

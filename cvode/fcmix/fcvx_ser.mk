@@ -1,5 +1,5 @@
-# File fcvx_ser.mk.  Version of 27 March 2002
-#--------------------------------------------------------------------------
+# File fcvx_ser.mk.  Version of 22 July 2002
+#------------------------------------------------------------------------------
 # Makefile for the serial FCVODE example.
 #
 # This makefile compiles the source and generates the executable.
@@ -10,7 +10,7 @@
 #         make -f fcvx_ser.mk purge    [to remove all example executable files]
 #
 # Check, and modify if necessary, the machine-dependent variables below.
-#--------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 SHELL = /bin/sh
 
@@ -55,15 +55,27 @@ LIBS = -lfcvode.$(ARCH) -lcvode.$(ARCH) \
 all:
 	@(echo 'List of serial FCVODE examples (using the serial NVECTOR module):')
 	@(echo '  cvdensef  : chemical kinetics example (BDF/DENSE)')
+	@(echo '  cvbandf   : advection-diffusion example (BDF/BAND)')
+	@(echo '  cvkryf    : kinetics-transport example (BDF/SPGMR)')
 
 cvdensef:
 	@echo '...Compile cvdensef...'
 	@$(FC) $(FFLAGS) -o cvdensef cvdensef.f $(LIBS)
 	@rm -f cvdensef.o
 
-examples: cvdensef
+cvbandf:
+	@echo '...Compile cvbandf...'
+	@$(FC) $(FFLAGS) -o cvbandf cvbandf.f $(LIBS)
+	@rm -f cvbandf.o
+
+cvkryf:
+	@echo '...Compile cvkryf...'
+	@$(FC) $(FFLAGS) -o cvkryf cvkryf.f $(LIBS)
+	@rm -f cvkryf.o
+
+examples: cvdensef cvbandf cvkryf
 
 purge:
-	@(rm -f cvdensef)
+	@(rm -f cvdensef cvbandf cvkryf)
 
 #---end of fcvx_ser.mk---
