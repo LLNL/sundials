@@ -309,8 +309,8 @@ int main(int argc, char *argv[])
 
   /* Call IDASpgmr to specify the IDA linear solver IDASPGMR and specify
      the preconditioner routines supplied (Precondbd and PSolvebd).
-     Optional input maxl (max. Krylov subspace dim.) is set to 10.   */
-  maxl = 10;
+     maxl (max. Krylov subspace dim.) is set to 15.                      */
+  maxl = 15;
   retval = IDASpgmr(mem, maxl);
   if (check_flag(&retval, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
   retval = IDASpgmrSetPrecSetupFn(mem, Precondbd);
