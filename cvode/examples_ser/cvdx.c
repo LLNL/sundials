@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-04-29 15:32:24 $
+ * $Revision: 1.9 $
+ * $Date: 2004-06-29 00:51:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -79,11 +79,6 @@
 #define NOUT  12           /* number of output times */
 
 
-/* Private Helper Function */
-
-static void PrintFinalStats(void *cvode_mem);
-
-
 /* Functions Called by the Solver */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
@@ -94,6 +89,10 @@ static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
+
+/* Private function to print final statistics */
+
+static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
 
