@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-04-30 14:38:21 $
+ * $Revision: 1.29 $
+ * $Date: 2004-05-11 17:03:54 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -2435,7 +2435,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         ier = CVRcheck3(cv_mem);
         if (ier == OKAY) {     /* no root found */
           irfnd = 0;
-          if (irfndp == 1 & task == ONE_STEP) {
+          if (irfndp == 1 && task == ONE_STEP) {
             tretlast = *tret = tn;
             N_VScale(ONE, zn[0], yout);
             return(SUCCESS);
