@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-08-23 20:33:46 $
+ * $Revision: 1.13 $
+ * $Date: 2004-08-24 20:39:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -23,9 +23,8 @@
  * Newton iteration with the CVDENSE dense linear solver, and a
  * user-supplied Jacobian routine.
  * It uses a scalar relative tolerance and a vector absolute
- * tolerance. Output is printed in decades from t = .4 to
- * t = 4.e10. Run statistics (optional outputs) are printed at
- * the end.
+ * tolerance. Output is printed in decades from t = .4 to t = 4.e10.
+ * Run statistics (optional outputs) are printed at the end.
  * -----------------------------------------------------------------
  */
 
@@ -212,6 +211,60 @@ int main()
 
 /*
  *-------------------------------
+ * Functions called by the solver
+ *-------------------------------
+ */
+
+
+/*
+ * f routine. Compute function f(t,y). 
+ */
+
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+{
+  realtype y1, y2, y3, yd1, yd3;
+
+  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+
+  yd1 = Ith(ydot,1) = -0.04*y1 + 1e4*y2*y3;
+  yd3 = Ith(ydot,3) = 3e7*y2*y2;
+        Ith(ydot,2) = -yd1 - yd3;
+}
+
+/*
+ * g routine. Compute functions g_i(t,y) for i = 0,1. 
+ */
+
+static void g(realtype t, N_Vector y, realtype *gout, void *g_data)
+{
+  realtype y1, y3;
+
+  y1 = Ith(y,1); y3 = Ith(y,3);
+  gout[0] = y1 - 0.0001;
+  gout[1] = y3 - 0.01;
+}
+
+/*
+ * Jacobian routine. Compute J(t,y) = df/dy. *
+ */
+/* 
+
+static void Jac(long int N, DenseMat J, realtype t,
+                N_Vector y, N_Vector fy, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  realtype y1, y2, y3;
+
+  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+
+  IJth(J,1,1) = -0.04;  IJth(J,1,2) = 1e4*y3;          IJth(J,1,3) = 1e4*y2;
+  IJth(J,2,1) =  0.04;  IJth(J,2,2) = -1e4*y3-6e7*y2;  IJth(J,2,3) = -1e4*y2;
+                        IJth(J,3,2) = 6e7*y2;
+}
+
+
+/*
+ *-------------------------------
  * Private helper functions
  *-------------------------------
  */
@@ -252,51 +305,6 @@ static void PrintFinalStats(void *cvode_mem)
   printf("nni = %-6ld ncfn = %-6ld netf = %-6ld nge = %ld\n \n",
 	 nni, ncfn, netf, nge);
 }
-
-
-/*
- * f function. Compute f(t,y). 
- */
-
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
-{
-  realtype y1, y2, y3, yd1, yd3;
-
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-
-  yd1 = Ith(ydot,1) = -0.04*y1 + 1e4*y2*y3;
-  yd3 = Ith(ydot,3) = 3e7*y2*y2;
-        Ith(ydot,2) = -yd1 - yd3;
-}
-
-/*
- * g function. Compute g_i(t,y) for i = 0,1. 
- */
-
-static void g(realtype t, N_Vector y, realtype *gout, void *g_data)
-{
-  realtype y1, y3;
-
-  y1 = Ith(y,1); y3 = Ith(y,3);
-  gout[0] = y1 - 0.0001;
-  gout[1] = y3 - 0.01;
-}
-
-/* Jacobian function. Compute J(t,y). */
-
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype y1, y2, y3;
-
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-
-  IJth(J,1,1) = -0.04;  IJth(J,1,2) = 1e4*y3;          IJth(J,1,3) = 1e4*y2;
-  IJth(J,2,1) =  0.04;  IJth(J,2,2) = -1e4*y3-6e7*y2;  IJth(J,2,3) = -1e4*y2;
-                        IJth(J,3,2) = 6e7*y2;
-}
-
 
 /*
  * Check function return value...
