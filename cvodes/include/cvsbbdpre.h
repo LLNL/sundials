@@ -2,7 +2,7 @@
  * File          : cvsbbdpre.h                                    *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 20 March 2002                                  *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVBBDPRE module, for a         *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -106,7 +106,7 @@ extern "C" {
 #define _cvsbbdpre_h
 
 #include "cvodes.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
 
@@ -132,8 +132,9 @@ extern "C" {
  * A CVLocalFn gloc does not have a return value.                 *
  ******************************************************************/
 
-typedef void (*CVLocalFn)(integer Nlocal, real t, real *ylocal,
-                          real *glocal, void *f_data);
+typedef void (*CVLocalFn)(integertype Nlocal, realtype t, 
+                          realtype *ylocal, realtype *glocal, 
+                          void *f_data);
 
 
 /******************************************************************
@@ -156,7 +157,7 @@ typedef void (*CVLocalFn)(integer Nlocal, real t, real *ylocal,
  * communications done by f if relevant to the evaluation of g.   *
  ******************************************************************/
 
-typedef void (*CVCommFn)(integer Nlocal, real t, N_Vector y,
+typedef void (*CVCommFn)(integertype Nlocal, realtype t, N_Vector y,
                          void *f_data);
 
  
@@ -166,23 +167,23 @@ typedef struct {
 
   /* passed by user to CVBBDAlloc, used by Precond/Psolve functions: */
   void *f_data;
-  integer mudq, mldq, mukeep, mlkeep;
-  real dqrely;
+  integertype mudq, mldq, mukeep, mlkeep;
+  realtype dqrely;
   CVLocalFn gloc;
   CVCommFn cfn;
 
   /* set by CVBBDPrecon and used by CVBBDPSol: */
   BandMat savedJ;
   BandMat savedP;
-  integer *pivots;
+  integertype *pivots;
 
   /* set by CVBBDAlloc and used by CVBBDPrecon */
-  integer n_local;
+  integertype n_local;
 
   /* available for optional output: */
-  integer rpwsize;
-  integer ipwsize;
-  integer nge;
+  integertype rpwsize;
+  integertype ipwsize;
+  integertype nge;
 
 } *CVBBDData;
 
@@ -190,11 +191,11 @@ typedef struct {
 /*************** Macros for optional outputs **********************
  *                                                                *
  * CVBBD_RPWSIZE(pdata) returns the size of the real work space,  *
- * in real words, used by this preconditioner module.             *
+ * in realtype words, used by this preconditioner module.         *
  * This size is local to the current processor.                   *
  *                                                                *
  * CVBBD_IPWSIZE(pdata) returns the size of the integer work      *
- * space, in integer words, used by this preconditioner module.   *
+ * space, in integertype words, used by this preconditioner module*
  * This size is local to the current processor.                   *
  *                                                                *
  * CVBBD_NGE(pdata) returns the number of g(t,y) evaluations,     *
@@ -245,8 +246,9 @@ typedef struct {
  * or NULL if the request for storage cannot be satisfied.        *
  ******************************************************************/
 
-CVBBDData CVBBDAlloc(integer Nlocal, integer mudq, integer mldq,
-                     integer mukeep, integer mlkeep, real dqrely,
+CVBBDData CVBBDAlloc(integertype Nlocal, integertype mudq, 
+                     integertype mldq, integertype mukeep, 
+                     integertype mlkeep, realtype dqrely,
                      CVLocalFn gloc, CVCommFn cfn, 
                      void *f_data, void *cvode_mem );
 
@@ -269,9 +271,9 @@ CVBBDData CVBBDAlloc(integer Nlocal, integer mudq, integer mldq,
  * The return value of CVReInitBBD is 0, indicating success.      *
  ******************************************************************/
 
-int CVReInitBBD(CVBBDData pdata, integer Nlocal,
-                integer mudq, integer mldq,
-                integer mukeep, integer mlkeep, real dqrely,
+int CVReInitBBD(CVBBDData pdata, integertype Nlocal,
+                integertype mudq, integertype mldq,
+                integertype mukeep, integertype mlkeep, realtype dqrely,
                 CVLocalFn gloc, CVCommFn cfn, void *f_data);
 
 
@@ -287,13 +289,15 @@ void CVBBDFree(CVBBDData pdata);
 
 /****** Prototypes of functions CVBBDPrecon and CVBBDPSol *********/
   
-int CVBBDPrecon(integer N, real t, N_Vector y, N_Vector fy, boole jok,
-                boole *jcurPtr, real gamma, N_Vector ewt, real h, real uround,
+int CVBBDPrecon(integertype N, realtype t, N_Vector y, N_Vector fy, 
+                booleantype jok, booleantype *jcurPtr, realtype gamma, 
+                N_Vector ewt, realtype h, realtype uround,
                 long int *nfePtr, void *P_data, N_Vector vtemp1,
                 N_Vector vtemp2, N_Vector vtemp3);
 
-int CVBBDPSol(integer N, real t, N_Vector y, N_Vector fy, N_Vector vtemp,
-              real gamma, N_Vector ewt, real delta, long int *nfePtr,
+int CVBBDPSol(integertype N, realtype t, N_Vector y, N_Vector fy, 
+              N_Vector vtemp, realtype gamma, N_Vector ewt, 
+              realtype delta, long int *nfePtr,
               N_Vector r, int lr, void *P_data, N_Vector z);
 
 

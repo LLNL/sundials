@@ -2,7 +2,7 @@
  *                                                                        *
  * File        : cvdemd.c                                                 *
  * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL              *
- * Version of  : 5 March 2002                                             *
+ * Version of  : 26 June 2002                                             *
  *------------------------------------------------------------------------*
  * Modified by R. Serban to work with new serial nvector (5/3/2002)       *
  *------------------------------------------------------------------------*
@@ -54,13 +54,13 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "llnltyps.h"       /* contains the definition for real, integer    */
+#include "sundialstypes.h"  /* definitions for realtype, integertype        */
 #include "cvodes.h"         /* main CVODE header file                       */
 #include "cvsdense.h"       /* use CVDENSE linear solver each internal step */
 #include "cvsband.h"        /* use CVBAND linear solver each internal step  */
 #include "cvsdiag.h"        /* use CVDIAG linear solver each internal step  */
 #include "nvector_serial.h" /* contains the definition of type N_Vector     */
-#include "llnlmath.h"       /* contains the macros ABS, SQR                 */
+#include "sundialsmath.h"   /* contains the macros ABS, SQR                 */
 
 /* Shared Problem Constants */
 
@@ -105,25 +105,25 @@ static int  Problem1(void);
 static void PrintIntro1(void);
 static int  Problem2(void);
 static void PrintIntro2(void);
-static real MaxError(N_Vector y, real t);
-static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integer mu,
-			   integer ml);
-static void PrintFinalStats(long int iopt[], int miter, real ero);
+static realtype MaxError(N_Vector y, realtype t);
+static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integertype mu,
+                          integertype ml);
+static void PrintFinalStats(long int iopt[], int miter, realtype ero);
 
 /* Functions Called by the CVODE Solver */
 
-static void f1(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
+static void f1(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static void Jac1(integer N, DenseMat J, RhsFn f, void *f_data, real tn,
-                 N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+static void Jac1(integertype N, DenseMat J, RhsFn f, void *f_data, realtype tn,
+                 N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
                  void *jac_data, long int *nfePtr, N_Vector vtemp1,
                  N_Vector vtemp2, N_Vector vtemp3);
 
-static void f2(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
+static void f2(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static void Jac2(integer N, integer mu, integer ml, BandMat J, RhsFn f,
-                 void *f_data, real tn, N_Vector y, N_Vector fy, N_Vector ewt,
-                 real h, real uround, void *jac_data, long int *nfePtr,
+static void Jac2(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
+                 void *f_data, realtype tn, N_Vector y, N_Vector fy, N_Vector ewt,
+                 realtype h, realtype uround, void *jac_data, long int *nfePtr,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 
 /* Implementation */
@@ -143,12 +143,12 @@ int main()
 static int Problem1(void)
 {
   M_Env machEnv;
-  real ropt[OPT_SIZE], reltol=RTOL, abstol=ATOL, t, tout, ero, er;
+  realtype ropt[OPT_SIZE], reltol=RTOL, abstol=ATOL, t, tout, ero, er;
   long int iopt[OPT_SIZE];
   int lmm, miter, flag, iter, iout, nerr=0;
   N_Vector y;
   void *cvode_mem = NULL;
-  boole firstrun;
+  booleantype firstrun;
 
   machEnv = M_EnvInit_Serial(P1_NEQ);
 
@@ -220,9 +220,9 @@ static void PrintIntro1(void)
 }
 
 
-static void f1(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
+static void f1(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
-  real y0, y1;
+  realtype y0, y1;
   
   y0 = NV_Ith_S(y,0);
   y1 = NV_Ith_S(y,1);
@@ -231,12 +231,12 @@ static void f1(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
   NV_Ith_S(ydot,1) = (1.0 - SQR(y0))* P1_ETA * y1 - y0;
 } 
 
-static void Jac1(integer N, DenseMat J, RhsFn f, void *f_data, real tn,
-                 N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+static void Jac1(integertype N, DenseMat J, RhsFn f, void *f_data, realtype tn,
+                 N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
                  void *jac_data, long int *nfePtr, N_Vector vtemp1,
                  N_Vector vtemp2, N_Vector vtemp3)
 { 
-  real y0, y1;
+  realtype y0, y1;
 
   y0 = NV_Ith_S(y,0);
   y1 = NV_Ith_S(y,1);
@@ -249,12 +249,12 @@ static void Jac1(integer N, DenseMat J, RhsFn f, void *f_data, real tn,
 static int Problem2(void)
 {
   M_Env machEnv;
-  real ropt[OPT_SIZE], reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
+  realtype ropt[OPT_SIZE], reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
   long int iopt[OPT_SIZE];
   int lmm, miter, iter, flag, iout, nerr=0;
   N_Vector y;
   void *cvode_mem = NULL;
-  boole firstrun;
+  booleantype firstrun;
  
   machEnv = M_EnvInit_Serial(P2_NEQ);
 
@@ -328,10 +328,10 @@ static void PrintIntro2(void)
 }
 
 
-static void f2(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
+static void f2(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
-  integer i, j, k;
-  real d, *ydata, *dydata;
+  integertype i, j, k;
+  realtype d, *ydata, *dydata;
   
   ydata = NV_DATA_S(y);
   dydata = NV_DATA_S(ydot);
@@ -354,13 +354,13 @@ static void f2(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
   }
 }
 
-static void Jac2(integer N, integer mu, integer ml, BandMat J, RhsFn f,
-                 void *f_data, real tn, N_Vector y, N_Vector fy, N_Vector ewt,
-                 real h, real uround, void *jac_data, long int *nfePtr,
+static void Jac2(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
+                 void *f_data, realtype tn, N_Vector y, N_Vector fy, N_Vector ewt,
+                 realtype h, realtype uround, void *jac_data, long int *nfePtr,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  integer i, j, k;
-  real *kthCol;
+  integertype i, j, k;
+  realtype *kthCol;
 
   /*
      The components of f(t,y) which depend on y    are
@@ -389,10 +389,10 @@ static void Jac2(integer N, integer mu, integer ml, BandMat J, RhsFn f,
   }
 }
 
-static real MaxError(N_Vector y, real t)
+static realtype MaxError(N_Vector y, realtype t)
 {
-  integer i, j, k;
-  real *ydata, er, ex=0.0, yt, maxError=0.0, ifact_inv, jfact_inv=1.0;
+  integertype i, j, k;
+  realtype *ydata, er, ex=0.0, yt, maxError=0.0, ifact_inv, jfact_inv=1.0;
   
   if (t == 0.0) return(0.0);
 
@@ -413,8 +413,8 @@ static real MaxError(N_Vector y, real t)
   return(maxError);
 }
 
-static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integer mu,
-                          integer ml)
+static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integertype mu,
+                          integertype ml)
 {
   int flag = SUCCESS;
   
@@ -460,7 +460,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integer mu,
   
 }
 
-static void PrintFinalStats(long int iopt[], int miter, real ero)
+static void PrintFinalStats(long int iopt[], int miter, realtype ero)
 {
   int nje = 0, llrw = 0, lliw = 0;
   

@@ -2,7 +2,7 @@
  *                                                            *
  * File          : cvodea.c                                   *
  * Programmers   : Radu Serban @ LLNL                         *
- * Version of    : 9 January 2002                             *
+ * Version of    : 27 June 2002                               *
  *------------------------------------------------------------*
  * This is the implementation file for the CVODEA adjoint     *
  * integrator.                                                *
@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cvodea.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 
 /******************** END Imports *****************************/
 
@@ -61,55 +61,55 @@
 
 static CkpntMem CVAckpntInit(CVodeMem cv_mem);
 static CkpntMem CVAckpntNew(CVodeMem cv_mem);
-static int  CVAckpntAdd(CVadjMem ca_mem, real tout, N_Vector yout, 
-                        real *t, int itask);
+static int  CVAckpntAdd(CVadjMem ca_mem, realtype tout, N_Vector yout, 
+                        realtype *t, int itask);
 static void CVAckpntDelete(CkpntMem *ck_memPtr);
 
 static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, long int steps);
 static void CVAdataFree(DtpntMem *dt_mem, long int steps);
 
 static int  CVAdataStore(CVadjMem ca_mem, int icheck, 
-                         real *t0Ptr, real *t1Ptr, long int *npPtr);
+                         realtype *t0Ptr, realtype *t1Ptr, long int *npPtr);
 static int  CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem, 
                         DtpntMem dt_mem, int ncheck, int icheck, 
-                        real *t0Ptr, real *t1Ptr);
+                        realtype *t0Ptr, realtype *t1Ptr);
 static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, 
                               long int i);
 static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
-                                  long int i, real t, N_Vector y);
+                                  long int i, realtype t, N_Vector y);
 
-static void CVArhs(integer NB, real t, N_Vector yB, 
+static void CVArhs(integertype NB, realtype t, N_Vector yB, 
                    N_Vector yBdot, void *passed_data);
-static void CVAdenseJac(integer NB, DenseMat JB, RhsFn fB, 
-                        void *cvadj_mem, real t, 
+static void CVAdenseJac(integertype NB, DenseMat JB, RhsFn fB, 
+                        void *cvadj_mem, realtype t, 
                         N_Vector yB, N_Vector fyB, N_Vector ewtB,
-                        real hB, real uroundB, void *cvadj_mem_bis,
+                        realtype hB, realtype uroundB, void *cvadj_mem_bis,
                         long int *nfePtrB, N_Vector vtemp1B,
                         N_Vector vtemp2B, N_Vector vtemp3B);
-static void CVAbandJac(integer NB, integer mupperB, integer mlowerB,
-                       BandMat JB, RhsFn fB, void *cvadj_mem, real t,
+static void CVAbandJac(integertype NB, integertype mupperB, integertype mlowerB,
+                       BandMat JB, RhsFn fB, void *cvadj_mem, realtype t,
                        N_Vector yB, N_Vector fyB, N_Vector ewtB, 
-                       real hB, real uroundB, void *cvadj_mem_bis, 
+                       realtype hB, realtype uroundB, void *cvadj_mem_bis, 
                        long int *nfePtrB, N_Vector vtemp1B, 
                        N_Vector vtemp2B, N_Vector vtemp3B);
-static int CVAspgmrPrecond(integer NB, real t, N_Vector yB, 
-                           N_Vector fyB, boole jokB, 
-                           boole *jcurPtrB, real gammaB,
-                           N_Vector ewtB, real hB, real uroundB,
+static int CVAspgmrPrecond(integertype NB, realtype t, N_Vector yB, 
+                           N_Vector fyB, booleantype jokB, 
+                           booleantype *jcurPtrB, realtype gammaB,
+                           N_Vector ewtB, realtype hB, realtype uroundB,
                            long int *nfePtrB, void *cvadj_mem,
                            N_Vector vtemp1B, N_Vector vtemp2B,
                            N_Vector vtemp3B);
-static int CVAspgmrPsolve(integer NB, real t, N_Vector yB, 
+static int CVAspgmrPsolve(integertype NB, realtype t, N_Vector yB, 
                           N_Vector fyB, N_Vector vtempB, 
-                          real gammaB, N_Vector ewtB,
-                          real deltaB, long int *nfePtrB, 
+                          realtype gammaB, N_Vector ewtB,
+                          realtype deltaB, long int *nfePtrB, 
                           N_Vector rB, int lrB, void *cvadj_mem, 
                           N_Vector zB);
-static int CVAspgmrJtimes(integer NB, N_Vector vB, N_Vector JvB, 
-                          RhsFn fB, void *cvadj_mem, real t, 
+static int CVAspgmrJtimes(integertype NB, N_Vector vB, N_Vector JvB, 
+                          RhsFn fB, void *cvadj_mem, realtype t, 
                           N_Vector yB, N_Vector fyB,
-                          real vnrmB, N_Vector ewtB, real hB, 
-                          real uroundB, void *cvadj_mem_bis, 
+                          realtype vnrmB, N_Vector ewtB, realtype hB, 
+                          realtype uroundB, void *cvadj_mem_bis, 
                           long int *nfePtrB, N_Vector workB);
 
 /********** END Private Helper Functions Prototypes ***********/
@@ -307,7 +307,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
  ncheckPtr points to the number of check points stored so far.
 --------------------------------------------------------------*/
 
-int CVodeF(void *cvadj_mem, real tout, N_Vector yout, real *t, 
+int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t, 
            int itask, int *ncheckPtr)
 {
   CVadjMem ca_mem;
@@ -344,15 +344,15 @@ int CVodeF(void *cvadj_mem, real tout, N_Vector yout, real *t,
       integration at the current time).    
 --------------------------------------------------------------*/
 
-int CVodeMallocB(void *cvadj_mem, integer NB, RhsFnB fB, 
+int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB, 
                  N_Vector yB0, int lmmB, int iterB, int itolB, 
-                 real *reltolB, void *abstolB, void *f_dataB, 
-                 FILE *errfpB, boole optInB, 
-                 long int ioptB[], real roptB[], M_Env machEnv)
+                 realtype *reltolB, void *abstolB, void *f_dataB, 
+                 FILE *errfpB, booleantype optInB, 
+                 long int ioptB[], realtype roptB[], M_Env machEnv)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
-  real tout;
+  realtype tout;
   int j;
 
   if (cvadj_mem == NULL) {
@@ -373,7 +373,7 @@ int CVodeMallocB(void *cvadj_mem, integer NB, RhsFnB fB,
     ioptBalloc = FALSE;
   }
   if (roptB == NULL) {
-    roptB = (real *)malloc(OPT_SIZE*sizeof(real));
+    roptB = (realtype *)malloc(OPT_SIZE*sizeof(realtype));
     if (roptB == NULL) {
       fprintf(stdout, MSG_CVBM_MEM_FAIL);
       return(CVBM_MEM_FAIL);
@@ -443,7 +443,7 @@ int CVDenseB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB)
  linear solver for the backward integration.
 --------------------------------------------------------------*/
 
-int CVBandB(void *cvadj_mem, integer mupperB, integer mlowerB,
+int CVBandB(void *cvadj_mem, integertype mupperB, integertype mlowerB,
             CVBandJacFnB bjacB, void *jac_dataB)
 {
   CVadjMem ca_mem;
@@ -473,8 +473,8 @@ int CVBandB(void *cvadj_mem, integer mupperB, integer mlowerB,
   to CVSpgmrB. 
 --------------------------------------------------------------*/
 
-CVBandPreData CVBandPreAllocB(void *cvadj_mem, integer NB, 
-                              integer muB, integer mlB)
+CVBandPreData CVBandPreAllocB(void *cvadj_mem, integertype NB, 
+                              integertype muB, integertype mlB)
 {
   CVadjMem ca_mem;
   CVodeMem cvb_mem;
@@ -491,10 +491,10 @@ CVBandPreData CVBandPreAllocB(void *cvadj_mem, integer NB,
   CVBandPrecondB 
 --------------------------------------------------------------*/
 
-int CVBandPrecondB(integer NB, real t, N_Vector y, 
-                   N_Vector yB, N_Vector fyB, boole jokB, 
-                   boole *jcurPtrB, real gammaB,
-                   N_Vector ewtB, real hB, real uroundB,
+int CVBandPrecondB(integertype NB, realtype t, N_Vector y, 
+                   N_Vector yB, N_Vector fyB, booleantype jokB, 
+                   booleantype *jcurPtrB, realtype gammaB,
+                   N_Vector ewtB, realtype hB, realtype uroundB,
                    long int *nfePtrB, void *P_dataB,
                    N_Vector vtemp1B, N_Vector vtemp2B,
                    N_Vector vtemp3B)
@@ -510,10 +510,10 @@ int CVBandPrecondB(integer NB, real t, N_Vector y,
   CVBandPSolveB 
 --------------------------------------------------------------*/
 
-int CVBandPSolveB(integer NB, real t, N_Vector y, 
+int CVBandPSolveB(integertype NB, realtype t, N_Vector y, 
                   N_Vector yB, N_Vector fyB, 
-                  N_Vector vtempB,  real gammaB, 
-                  N_Vector ewtB, real deltaB, 
+                  N_Vector vtempB,  realtype gammaB, 
+                  N_Vector ewtB, realtype deltaB, 
                   long int *nfePtrB, N_Vector rB, 
                   int lrB, void *P_dataB, N_Vector zB)
 {
@@ -529,7 +529,7 @@ int CVBandPSolveB(integer NB, real t, N_Vector y,
 --------------------------------------------------------------*/
 
 int CVSpgmrB(void *cvadj_mem, int pretypeB, int gstypeB, 
-             int maxlB, real deltB, CVSpgmrPrecondFnB precondB, 
+             int maxlB, realtype deltB, CVSpgmrPrecondFnB precondB, 
              CVSpgmrPSolveFnB psolveB, void *P_dataB,
              CVSpgmrJtimesFnB jtimesB, void *jac_dataB)
 {
@@ -588,7 +588,7 @@ int CVodeB(void *cvadj_mem, N_Vector yB)
   CVadjMem ca_mem;
   CVodeMem cvb_mem;
   int start, flag;
-  real t, t0, t1;
+  realtype t, t0, t1;
   long int np_actual;
   
   ca_mem  = (CVadjMem) cvadj_mem;
@@ -665,14 +665,14 @@ void CVadjFree(void *cvadj_mem)
  calls.
 --------------------------------------------------------------*/
 
-int CVadjGetY(void *cvadj_mem, real t, N_Vector y)
+int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
 {
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   static long int i;
   long int inew;
-  boole to_left, to_right;
-  real troundoff;
+  booleantype to_left, to_right;
+  realtype troundoff;
 
   ca_mem = (CVadjMem) cvadj_mem;
   dt_mem = ca_mem->dt_mem;
@@ -766,7 +766,7 @@ void CVadjCheckPointsList(void *cvadj_mem)
 --------------------------------------------------------------*/
 
 void CVadjDataExtract(void *cvadj_mem, long int which, 
-                      real *t, N_Vector yout, N_Vector ydout)
+                      realtype *t, N_Vector yout, N_Vector ydout)
 {
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
@@ -821,8 +821,8 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
  point.
 --------------------------------------------------------------*/
 
-static int CVAckpntAdd(CVadjMem ca_mem, real tout, N_Vector yout, 
-                       real *t, int itask) 
+static int CVAckpntAdd(CVadjMem ca_mem, realtype tout, N_Vector yout, 
+                       realtype *t, int itask) 
 {
   CVodeMem cv_mem;
   CkpntMem tmp;
@@ -975,13 +975,13 @@ static void CVAdataFree(DtpntMem *dt_mem, long int steps)
 --------------------------------------------------------------*/
 
 int CVAdataStore(CVadjMem ca_mem, int icheck, 
-                 real *t0Ptr, real *t1Ptr, long int *npPtr)
+                 realtype *t0Ptr, realtype *t1Ptr, long int *npPtr)
 {
   CVodeMem cv_mem;
   CkpntMem ck_mem;
   DtpntMem *dt_mem;
   N_Vector y, yd;
-  real t0, t1, t;
+  realtype t0, t1, t;
   long int i;
   int flag;
 
@@ -1034,10 +1034,10 @@ int CVAdataStore(CVadjMem ca_mem, int icheck,
 
 static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem, 
                        DtpntMem dt_mem, int ncheck, int icheck, 
-                       real *t0Ptr, real *t1Ptr)
+                       realtype *t0Ptr, realtype *t1Ptr)
 {
   int j;
-  real t0;
+  realtype t0;
   N_Vector y0;
 
   /* First, find the structure for desired check point */
@@ -1059,7 +1059,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem,
     if (iopt == NULL)
       iopt = (long int *)malloc(OPT_SIZE*sizeof(long int));
     if (ropt == NULL)
-      ropt = (real *)malloc(OPT_SIZE*sizeof(real));
+      ropt = (realtype *)malloc(OPT_SIZE*sizeof(realtype));
     if (optIn == FALSE)
       for (j=0; j<OPT_SIZE; j++) {
         iopt[j] = 0;
@@ -1135,7 +1135,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem,
 static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, 
                               long int i)
 {
-  real t0, t1; 
+  realtype t0, t1; 
   N_Vector y0, y1, yd0, yd1;
 
   t0  = dt_mem[i-1]->t;
@@ -1159,11 +1159,11 @@ static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem,
 --------------------------------------------------------------*/
 
 static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
-                                  long int i, real t, N_Vector y)
+                                  long int i, realtype t, N_Vector y)
 {
-  real t0, t1;
+  realtype t0, t1;
   N_Vector y0, yd0;
-  real factor;
+  realtype factor;
 
   t0  = dt_mem[i-1]->t;
   t1  = dt_mem[i]->t;
@@ -1188,7 +1188,7 @@ static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
  the user.
 --------------------------------------------------------------*/
 
-static void CVArhs(integer NB, real t, N_Vector yB, 
+static void CVArhs(integertype NB, realtype t, N_Vector yB, 
                    N_Vector yBdot, void *cvadj_mem)
 {
   CVadjMem ca_mem;
@@ -1213,10 +1213,10 @@ static void CVArhs(integer NB, real t, N_Vector yB,
  by the user.
 --------------------------------------------------------------*/
 
-static void CVAdenseJac(integer NB, DenseMat JB, RhsFn fB, 
-                        void *cvadj_mem, real t, 
+static void CVAdenseJac(integertype NB, DenseMat JB, RhsFn fB, 
+                        void *cvadj_mem, realtype t, 
                         N_Vector yB, N_Vector fyB, N_Vector ewtB,
-                        real hB, real uroundB, void *cvadj_mem_bis,
+                        realtype hB, realtype uroundB, void *cvadj_mem_bis,
                         long int *nfePtrB, N_Vector vtemp1B,
                         N_Vector vtemp2B, N_Vector vtemp3B)
 {
@@ -1243,10 +1243,10 @@ static void CVAdenseJac(integer NB, DenseMat JB, RhsFn fB,
  by the user.
 --------------------------------------------------------------*/
 
-static void CVAbandJac(integer NB, integer mupperB, integer mlowerB,
-                       BandMat JB, RhsFn fB, void *cvadj_mem, real t,
+static void CVAbandJac(integertype NB, integertype mupperB, integertype mlowerB,
+                       BandMat JB, RhsFn fB, void *cvadj_mem, realtype t,
                        N_Vector yB, N_Vector fyB, N_Vector ewtB, 
-                       real hB, real uroundB, void *cvadj_mem_bis, 
+                       realtype hB, realtype uroundB, void *cvadj_mem_bis, 
                        long int *nfePtrB, N_Vector vtemp1B, 
                        N_Vector vtemp2B, N_Vector vtemp3B)
 {
@@ -1274,10 +1274,10 @@ static void CVAbandJac(integer NB, integer mupperB, integer mlowerB,
  provided by the user.
 --------------------------------------------------------------*/
 
-static int CVAspgmrPrecond(integer NB, real t, N_Vector yB, 
-                           N_Vector fyB, boole jokB, 
-                           boole *jcurPtrB, real gammaB,
-                           N_Vector ewtB, real hB, real uroundB,
+static int CVAspgmrPrecond(integertype NB, realtype t, N_Vector yB, 
+                           N_Vector fyB, booleantype jokB, 
+                           booleantype *jcurPtrB, realtype gammaB,
+                           N_Vector ewtB, realtype hB, realtype uroundB,
                            long int *nfePtrB, void *cvadj_mem,
                            N_Vector vtemp1B, N_Vector vtemp2B,
                            N_Vector vtemp3B)
@@ -1306,10 +1306,10 @@ static int CVAspgmrPrecond(integer NB, real t, N_Vector yB,
  provided by the user.
 --------------------------------------------------------------*/
 
-static int CVAspgmrPsolve(integer NB, real t, N_Vector yB, 
+static int CVAspgmrPsolve(integertype NB, realtype t, N_Vector yB, 
                           N_Vector fyB, N_Vector vtempB, 
-                          real gammaB, N_Vector ewtB,
-                          real deltaB, long int *nfePtrB, 
+                          realtype gammaB, N_Vector ewtB,
+                          realtype deltaB, long int *nfePtrB, 
                           N_Vector rB, int lrB, void *cvadj_mem, 
                           N_Vector zB)
 {
@@ -1337,11 +1337,11 @@ static int CVAspgmrPsolve(integer NB, real t, N_Vector yB,
  provided by the user.
 --------------------------------------------------------------*/
 
-static int CVAspgmrJtimes(integer NB, N_Vector vB, N_Vector JvB, 
-                          RhsFn fB, void *cvadj_mem, real t, 
+static int CVAspgmrJtimes(integertype NB, N_Vector vB, N_Vector JvB, 
+                          RhsFn fB, void *cvadj_mem, realtype t, 
                           N_Vector yB, N_Vector fyB,
-                          real vnrmB, N_Vector ewtB, real hB, 
-                          real uroundB, void *cvadj_mem_bis, 
+                          realtype vnrmB, N_Vector ewtB, realtype hB, 
+                          realtype uroundB, void *cvadj_mem_bis, 
                           long int *nfePtrB, N_Vector workB)
 {
   CVadjMem ca_mem;

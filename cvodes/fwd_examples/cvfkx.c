@@ -3,7 +3,7 @@
  * File       : cvfkx.c                                                 *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh and                *
  *              Radu Serban @ LLNL                                      *
- * Version of : 20 MArch 2002                                           *
+ * Version of : 27 June 2002                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -49,18 +49,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "llnltyps.h"          /* definitions of real, integer, boole, TRUE,FALSE */
+#include "sundialstypes.h"     /* definitions of realtype, integertype            */
 #include "cvodes.h"            /* main CVODES header file                         */
 #include "iterativ.h"          /* contains the enum for types of preconditioning  */
 #include "cvsspgmr.h"          /* use CVSPGMR linear solver each internal step    */
 #include "smalldense.h"        /* use generic DENSE solver for preconditioning    */
 #include "nvector_serial.h"    /* definitions of type N_Vector, macro NV_DATA_S   */
-#include "llnlmath.h"          /* contains SQR macro                              */
+#include "sundialsmath.h"      /* contains SQR macro                              */
 
 /* Problem Constants */
 
-#define NUM_SPECIES  2             /* number of species         */
-#define C1_SCALE     1.0e6         /* coefficients in initial profiles    */
+#define NUM_SPECIES  2             /* number of species */
+#define C1_SCALE     1.0e6         /* coefficients in initial profiles */
 #define C2_SCALE     1.0e12
 
 #define T0           0.0           /* initial time */
@@ -109,7 +109,7 @@
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
-   IJth(a,i,j) references the (i,j)th entry of the small matrix real **a,
+   IJth(a,i,j) references the (i,j)th entry of the small matrix realtype **a,
    where 1 <= i,j <= NUM_SPECIES. The small matrix routines in dense.h
    work with matrices stored by column in a 2-dimensional array. In C,
    arrays are indexed starting at 0, not 1. */
@@ -123,10 +123,10 @@
    problem parameters, and problem constants     */
 
 typedef struct {
-  real *p;
-  real **P[MX][MZ], **Jbd[MX][MZ];
-  integer *pivot[MX][MZ];
-  real q4, om, dx, dz, hdco, haco, vdco;
+  realtype *p;
+  realtype **P[MX][MZ], **Jbd[MX][MZ];
+  integertype *pivot[MX][MZ];
+  realtype q4, om, dx, dz, hdco, haco, vdco;
 } *UserData;
 
 
@@ -136,22 +136,22 @@ static void WrongArgs(char *argv[]);
 static UserData AllocUserData(void);
 static void InitUserData(UserData data);
 static void FreeUserData(UserData data);
-static void SetInitialProfiles(N_Vector y, real dx, real dz);
-static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector y);
+static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
+static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector y);
 static void PrintOutputS(N_Vector *uS);
-static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int iopt[]);
+static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, long int iopt[]);
 
 /* Functions Called by the CVODES Solver */
 
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static int Precond(integer N, real tn, N_Vector y, N_Vector fy, boole jok,
-                   boole *jcurPtr, real gamma, N_Vector ewt, real h,
-                   real uround, long int *nfePtr, void *P_data,
+static int Precond(integertype N, realtype tn, N_Vector y, N_Vector fy, booleantype jok,
+                   booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
+                   realtype uround, long int *nfePtr, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int PSolve(integer N, real tn, N_Vector y, N_Vector fy, N_Vector vtemp,
-                  real gamma, N_Vector ewt, real delta, long int *nfePtr,
+static int PSolve(integertype N, realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
+                  realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
                   N_Vector r, int lr, void *P_data, N_Vector z);
 
 
@@ -160,17 +160,17 @@ static int PSolve(integer N, real tn, N_Vector y, N_Vector fy, N_Vector vtemp,
 int main(int argc, char *argv[])
 {
   M_Env machEnv;  
-  real abstol, reltol, t, tout, ropt[OPT_SIZE];
+  realtype abstol, reltol, t, tout, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector y;
   UserData data;
   void *cvode_mem;
   int iout, flag, i;
 
-  real *pbar, rhomax;
-  integer is, *plist;
+  realtype *pbar, rhomax;
+  integertype is, *plist;
   N_Vector *uS;
-  boole sensi;
+  booleantype sensi;
   int sensi_meth, err_con, ifS;
 
   /* Process arguments */
@@ -244,9 +244,9 @@ int main(int argc, char *argv[])
 
   /* SENSITIVTY */
   if(sensi) {
-    pbar = (real *) malloc(NP*sizeof(real));
+    pbar = (realtype *) malloc(NP*sizeof(realtype));
     for(is=0; is<NP; is++) pbar[is] = data->p[is];
-    plist = (integer *) malloc(NS * sizeof(integer));
+    plist = (integertype *) malloc(NS * sizeof(integertype));
     for(is=0; is<NS; is++) plist[is] = is+1;
 
     uS = N_VNew_S(NS, NEQ, machEnv);
@@ -338,7 +338,7 @@ static UserData AllocUserData(void)
     }
   }
 
-  data->p = (real *) malloc(NP*sizeof(real));
+  data->p = (realtype *) malloc(NP*sizeof(realtype));
 
   return(data);
 }
@@ -348,7 +348,7 @@ static UserData AllocUserData(void)
 
 static void InitUserData(UserData data)
 {
-  real Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
   /* Set problem parameters */
   Q1 = 1.63e-16; /* Q1  coefficients q1, q2, c3             */
@@ -400,11 +400,11 @@ static void FreeUserData(UserData data)
 /* ======================================================================= */
 /* Set initial conditions in y */
 
-static void SetInitialProfiles(N_Vector y, real dx, real dz)
+static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
 {
   int jx, jz;
-  real x, z, cx, cz;
-  real *ydata;
+  realtype x, z, cx, cz;
+  realtype *ydata;
 
   /* Set pointer to data array in vector y. */
 
@@ -429,9 +429,9 @@ static void SetInitialProfiles(N_Vector y, real dx, real dz)
 /* ======================================================================= */
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector y)
+static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector y)
 {
-  real *ydata;
+  realtype *ydata;
 
   ydata = NV_DATA_S(y);
   
@@ -448,7 +448,7 @@ static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector y)
 
 static void PrintOutputS(N_Vector *uS)
 {
-  real *sdata;
+  realtype *sdata;
 
   sdata = NV_DATA_S(uS[0]);
 
@@ -471,7 +471,7 @@ static void PrintOutputS(N_Vector *uS)
 /* ======================================================================= */
 /* Print final statistics contained in iopt */
 
-static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int iopt[])
+static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, long int iopt[])
 {
 
   printf("\n\n========================================================");
@@ -515,16 +515,16 @@ static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int i
 /* ======================================================================= */
 /* f routine. Compute f(t,y). */
 
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
-  real q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
-  real c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;
-  real qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, zdn, zup;
-  real q4coef, delz, verdco, hordco, horaco;
-  real *ydata, *dydata;
+  realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
+  realtype c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;
+  realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, zdn, zup;
+  realtype q4coef, delz, verdco, hordco, horaco;
+  realtype *ydata, *dydata;
   int jx, jz, idn, iup, ileft, iright;
   UserData data;
-  real Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
   data = (UserData) f_data;
   ydata = NV_DATA_S(y);
@@ -618,18 +618,18 @@ static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
 /* ======================================================================= */
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(integer N, real tn, N_Vector y, N_Vector fy, boole jok,
-                   boole *jcurPtr, real gamma, N_Vector ewt, real h,
-                   real uround, long int *nfePtr, void *P_data,
+static int Precond(integertype N, realtype tn, N_Vector y, N_Vector fy, booleantype jok,
+                   booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
+                   realtype uround, long int *nfePtr, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  real c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
-  real **(*P)[MZ], **(*Jbd)[MZ];
-  integer *(*pivot)[MZ], ier;
+  realtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
+  realtype **(*P)[MZ], **(*Jbd)[MZ];
+  integertype *(*pivot)[MZ], ier;
   int jx, jz;
-  real *ydata, **a, **j;
+  realtype *ydata, **a, **j;
   UserData data;
-  real Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
   /* Make local copies of pointers in P_data, and of pointer to y's data */
   data = (UserData) P_data;
@@ -719,14 +719,14 @@ static int Precond(integer N, real tn, N_Vector y, N_Vector fy, boole jok,
 /* ======================================================================= */
 /* Preconditioner solve routine */
 
-static int PSolve(integer N, real tn, N_Vector y, N_Vector fy, N_Vector vtemp,
-                  real gamma, N_Vector ewt, real delta, long int *nfePtr,
+static int PSolve(integertype N, realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
+                  realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
                   N_Vector r, int lr, void *P_data, N_Vector z)
 {
-  real **(*P)[MZ];
-  integer *(*pivot)[MZ];
+  realtype **(*P)[MZ];
+  integertype *(*pivot)[MZ];
   int jx, jz;
-  real *zdata, *v;
+  realtype *zdata, *v;
   UserData data;
 
   /* Extract the P and pivot arrays from P_data. */

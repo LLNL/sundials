@@ -2,7 +2,7 @@
  *                                                                      *
  * File       : cvdx.c                                                  *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh @LLNL              *
- * Version of : 5 March 2002                                            *
+ * Version of : 26 June 2002                                            *
  *----------------------------------------------------------------------*
  * Modified by R. Serban to work with new serial nvector (5/3/2002)     *
  *----------------------------------------------------------------------*
@@ -28,8 +28,8 @@
 
 /* CVODE header files with a description of contents used in cvdx.c */
 
-#include "llnltyps.h"        /* definitions of types real (set to double) and     */
-                             /* integer (set to int), and the constant FALSE      */
+#include "sundialstypes.h"   /* definitions of types realtype (set to double) and */
+                             /* integertype (set to int), and the constant FALSE  */
 #include "cvodes.h"          /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
                              /* constants OPT_SIZE, BDF, NEWTON, SV, SUCCESS,     */
                              /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
@@ -80,10 +80,10 @@ static void PrintFinalStats(long int iopt[]);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
-                N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+static void Jac(integertype N, DenseMat J, RhsFn f, void *f_data, realtype t,
+                N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
                 N_Vector vtemp2, N_Vector vtemp3);
 
@@ -93,7 +93,7 @@ static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
 int main()
 {
   M_Env machEnv;
-  real ropt[OPT_SIZE], reltol, t, tout;
+  realtype ropt[OPT_SIZE], reltol, t, tout;
   long int iopt[OPT_SIZE];
   N_Vector y, abstol;
   void *cvode_mem;
@@ -179,9 +179,9 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,y). */
 
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
-  real y1, y2, y3, yd1, yd3;
+  realtype y1, y2, y3, yd1, yd3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
 
@@ -192,12 +192,12 @@ static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
 
 /* Jacobian routine. Compute J(t,y). */
 
-static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
-                N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+static void Jac(integertype N, DenseMat J, RhsFn f, void *f_data, realtype t,
+                N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
                 N_Vector vtemp2, N_Vector vtemp3)
 {
-  real y1, y2, y3;
+  realtype y1, y2, y3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
 

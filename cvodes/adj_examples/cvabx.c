@@ -1,7 +1,7 @@
 /************************************************************************
  * File       : cvabx.c                                                 *
  * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 22 March 2002                                           *
+ * Version of : 27 June 2002                                            *
  *----------------------------------------------------------------------*
  * Adjoint sensitivity example problem.                                 *
  * The following is a simple example problem with a banded Jacobian,    *
@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "cvodea.h"
 #include "cvsband.h"
 #include "nvector_serial.h"
@@ -79,7 +79,7 @@
    contains grid constants */
 
 typedef struct {
-  real dx, dy, hdcoef, hacoef, vdcoef;
+  realtype dx, dy, hdcoef, hacoef, vdcoef;
 } *UserData;
 
 
@@ -90,20 +90,20 @@ static void WriteLambda(N_Vector uB);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static void Jac(integer N, integer mu, integer ml, BandMat J, RhsFn f,
-                void *f_data, real t, N_Vector u, N_Vector fu, N_Vector ewt,
-                real h, real uround, void *jac_data, long int *nfePtr,
+static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
+                void *f_data, realtype t, N_Vector u, N_Vector fu, N_Vector ewt,
+                realtype h, realtype uround, void *jac_data, long int *nfePtr,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 
-static void fB(integer NB, real tB, N_Vector u, 
+static void fB(integertype NB, realtype tB, N_Vector u, 
                N_Vector uB, N_Vector uBdot, void *f_dataB);
 
-static void JacB(integer NB, integer muB, integer mlB, BandMat JB, RhsFnB fB,
-                 void *f_dataB, real tB, N_Vector u, 
+static void JacB(integertype NB, integertype muB, integertype mlB, BandMat JB, RhsFnB fB,
+                 void *f_dataB, realtype tB, N_Vector u, 
                  N_Vector uB, N_Vector fuB, N_Vector ewtB,
-                 real hB, real uroundB, void *jac_dataB, long int *nfePtrB,
+                 realtype hB, realtype uroundB, void *jac_dataB, long int *nfePtrB,
                  N_Vector vtemp1B, N_Vector vtemp2B, N_Vector vtemp3B); 
 
 
@@ -118,11 +118,11 @@ int main(int argc, char *argv[])
   void *cvadj_mem;
   void *cvode_mem;
 
-  real ropt[OPT_SIZE], dx, dy, reltol, abstol, t;
+  realtype ropt[OPT_SIZE], dx, dy, reltol, abstol, t;
   long int iopt[OPT_SIZE];
   N_Vector u;
 
-  real reltolB, abstolB;
+  realtype reltolB, abstolB;
   N_Vector uB;
   
   int flag, ncheck;
@@ -234,11 +234,11 @@ int main(int argc, char *argv[])
 static void SetIC(N_Vector u, UserData data)
 {
   int i, j;
-  real x, y, dx, dy;
-  real *udata;
+  realtype x, y, dx, dy;
+  realtype *udata;
 
   FILE *ff;
-  real uij;
+  realtype uij;
 
   /* Extract needed constants from data */
 
@@ -283,10 +283,10 @@ static void SetIC(N_Vector u, UserData data)
 
 /* f routine. Compute f(t,u). */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
-  real uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
-  real *udata, *dudata;
+  realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
+  realtype *udata, *dudata;
   int i, j;
   UserData data;
 
@@ -327,13 +327,13 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static void Jac(integer N, integer mu, integer ml, BandMat J, RhsFn f,
-		 void *f_data, real t, N_Vector u, N_Vector fu, N_Vector ewt,
-		 real h, real uround, void *jac_data, long int *nfePtr,
+static void Jac(integertype N, integertype mu, integertype ml, BandMat J, RhsFn f,
+		 void *f_data, realtype t, N_Vector u, N_Vector fu, N_Vector ewt,
+		 realtype h, realtype uround, void *jac_data, long int *nfePtr,
 		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  integer i, j, k;
-  real *kthCol, hordc, horac, verdc;
+  integertype i, j, k;
+  realtype *kthCol, hordc, horac, verdc;
   UserData data;
 
   /*
@@ -369,14 +369,14 @@ static void Jac(integer N, integer mu, integer ml, BandMat J, RhsFn f,
 
 /********** Functions Called by the backward CVODE Solver ****************/
 
-static void fB(integer NB, real tB, N_Vector u, 
+static void fB(integertype NB, realtype tB, N_Vector u, 
                N_Vector uB, N_Vector uBdot, void *f_dataB)
 {
   UserData data;
-  real *uBdata, *duBdata;
-  real hordc, horac, verdc;
-  real uBij, uBdn, uBup, uBlt, uBrt;
-  real hdiffB, hadvB, vdiffB;
+  realtype *uBdata, *duBdata;
+  realtype hordc, horac, verdc;
+  realtype uBij, uBdn, uBup, uBlt, uBrt;
+  realtype hdiffB, hadvB, vdiffB;
   int i, j;
 
   uBdata = NV_DATA_S(uB);
@@ -413,14 +413,14 @@ static void fB(integer NB, real tB, N_Vector u,
   }
 }
 
-static void JacB(integer NB, integer muB, integer mlB, BandMat JB, RhsFnB fB,
-                 void *f_dataB, real tB, N_Vector u, 
+static void JacB(integertype NB, integertype muB, integertype mlB, BandMat JB, RhsFnB fB,
+                 void *f_dataB, realtype tB, N_Vector u, 
                  N_Vector uB, N_Vector fuB, N_Vector ewtB,
-                 real hB, real uroundB, void *jac_dataB, long int *nfePtrB,
+                 realtype hB, realtype uroundB, void *jac_dataB, long int *nfePtrB,
                  N_Vector vtemp1B, N_Vector vtemp2B, N_Vector vtemp3B)
 {
-  integer i, j, k;
-  real *kthCol, hordc, horac, verdc;
+  integertype i, j, k;
+  realtype *kthCol, hordc, horac, verdc;
   UserData data;
 
   /* The Jacobian of the adjoint system is: JB = -J^T */
@@ -448,7 +448,7 @@ static void JacB(integer NB, integer muB, integer mlB, BandMat JB, RhsFnB fB,
 
 static void WriteLambda(N_Vector uB)
 {
-  real *uBdata, uBij;
+  realtype *uBdata, uBij;
   int i, j;
   FILE *ff;
 

@@ -2,7 +2,7 @@
  *                                                                *
  * File          : cvodea.h                                       *
  * Programmers   : Radu Serban @ LLNL                             *
- * Version of    : 21 November 2001                               *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the interface file for the CVODEA adjoint integrator.  *
  *                                                                *
@@ -57,9 +57,8 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-typedef void (*RhsFnB)(integer NB, real t, N_Vector y, 
-                       N_Vector yB, N_Vector yBdot, 
-                       void *f_dataB);
+typedef void (*RhsFnB)(integertype NB, realtype t, N_Vector y, 
+                       N_Vector yB, N_Vector yBdot, void *f_dataB);
 /******************************************************************
  *                                                                *
  * Type : CVDenseJacFnB                                           *
@@ -69,10 +68,11 @@ typedef void (*RhsFnB)(integer NB, real t, N_Vector y,
  *                                                                *
  ******************************************************************/
 
-typedef void (*CVDenseJacFnB)(integer NB, DenseMat JB, RhsFnB fB, 
-                              void *f_dataB, real t, N_Vector y, 
+typedef void (*CVDenseJacFnB)(integertype NB, DenseMat JB, RhsFnB fB, 
+                              void *f_dataB, realtype t, N_Vector y, 
                               N_Vector yB, N_Vector fyB, N_Vector ewtB,
-                              real hB, real uroundB, void *jac_dataB,
+                              realtype hB, realtype uroundB, 
+                              void *jac_dataB,
                               long int *nfePtrB, N_Vector vtemp1B,
                               N_Vector vtemp2B, N_Vector vtemp3B);
 
@@ -85,11 +85,12 @@ typedef void (*CVDenseJacFnB)(integer NB, DenseMat JB, RhsFnB fB,
  *                                                                *
  ******************************************************************/
 
-typedef void (*CVBandJacFnB)(integer NB, integer mupperB, 
-                             integer mlowerB, BandMat JB, RhsFnB fB, 
-                             void *f_dataB, real t, N_Vector y, 
+typedef void (*CVBandJacFnB)(integertype NB, integertype mupperB, 
+                             integertype mlowerB, BandMat JB, RhsFnB fB, 
+                             void *f_dataB, realtype t, N_Vector y, 
                              N_Vector yB, N_Vector fyB, N_Vector ewtB, 
-                             real hB, real uroundB, void *jac_dataB, 
+                             realtype hB, realtype uroundB, 
+                             void *jac_dataB, 
                              long int *nfePtrB, N_Vector vtemp1B, 
                              N_Vector vtemp2B, N_Vector vtemp3B);
 
@@ -102,10 +103,10 @@ typedef void (*CVBandJacFnB)(integer NB, integer mupperB,
  *                                                                *
  ******************************************************************/
 
-typedef int (*CVSpgmrPrecondFnB)(integer NB, real t, N_Vector y, 
-                                 N_Vector yB, N_Vector fyB, boole jokB, 
-                                 boole *jcurPtrB, real gammaB,
-                                 N_Vector ewtB, real hB, real uroundB,
+typedef int (*CVSpgmrPrecondFnB)(integertype NB, realtype t, N_Vector y, 
+                                 N_Vector yB, N_Vector fyB, booleantype jokB, 
+                                 booleantype *jcurPtrB, realtype gammaB,
+                                 N_Vector ewtB, realtype hB, realtype uroundB,
                                  long int *nfePtrB, void *P_dataB,
                                  N_Vector vtemp1B, N_Vector vtemp2B,
                                  N_Vector vtemp3B);
@@ -119,10 +120,10 @@ typedef int (*CVSpgmrPrecondFnB)(integer NB, real t, N_Vector y,
  *                                                                *
  ******************************************************************/
 
-typedef int (*CVSpgmrPSolveFnB)(integer NB, real t, N_Vector y, 
+typedef int (*CVSpgmrPSolveFnB)(integertype NB, realtype t, N_Vector y, 
                                 N_Vector yB, N_Vector fyB, 
-                                N_Vector vtempB,  real gammaB, 
-                                N_Vector ewtB, real deltaB, 
+                                N_Vector vtempB,  realtype gammaB, 
+                                N_Vector ewtB, realtype deltaB, 
                                 long int *nfePtrB, N_Vector rB, 
                                 int lrB, void *P_dataB, N_Vector zB);
 
@@ -135,11 +136,11 @@ typedef int (*CVSpgmrPSolveFnB)(integer NB, real t, N_Vector y,
  *                                                                *
  ******************************************************************/
 
-typedef int (*CVSpgmrJtimesFnB)(integer NB, N_Vector vB, N_Vector JvB, 
-                                RhsFnB fB, void *f_dataB, real t, 
+typedef int (*CVSpgmrJtimesFnB)(integertype NB, N_Vector vB, N_Vector JvB, 
+                                RhsFnB fB, void *f_dataB, realtype t, 
                                 N_Vector y, N_Vector yB, N_Vector fyB,
-                                real vnrmB, N_Vector ewtB, real hB, 
-                                real uroundB, void *jac_dataB, 
+                                realtype vnrmB, N_Vector ewtB, realtype hB, 
+                                realtype uroundB, void *jac_dataB, 
                                 long int *nfePtrB, N_Vector workB);
 
 /******************************************************************
@@ -166,7 +167,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps);
  *                                                                *
  ******************************************************************/
 
-int CVodeF(void *cvadj_mem, real tout, N_Vector yout, real *t,
+int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
            int itask, int *ncheckPtr);
 
 /* CVodeF return values */
@@ -183,11 +184,11 @@ int CVodeF(void *cvadj_mem, real tout, N_Vector yout, real *t,
  *                                                                *
  ******************************************************************/
 
-int CVodeMallocB(void *cvadj_mem, integer NB, RhsFnB fB, 
+int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB, 
                  N_Vector yB0, int lmmB, int iterB, int itolB, 
-                 real *reltolB, void *abstolB, void *f_dataB, 
-                 FILE *errfpB, boole optInB, 
-                 long int ioptB[], real roptB[], M_Env machEnv);
+                 realtype *reltolB, void *abstolB, void *f_dataB, 
+                 FILE *errfpB, booleantype optInB, 
+                 long int ioptB[], realtype roptB[], M_Env machEnv);
 
 /* CVodeMallocB return values */
 /* SUCCESS=0, defined under CVode return values */
@@ -214,7 +215,7 @@ int CVDenseB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB);
  *                                                                *
  ******************************************************************/
 
-int CVBandB(void *cvadj_mem, integer mupperB, integer mlowerB,
+int CVBandB(void *cvadj_mem, integertype mupperB, integertype mlowerB,
             CVBandJacFnB bjacB, void *jac_dataB);
 
 /******************************************************************
@@ -235,19 +236,19 @@ int CVBandB(void *cvadj_mem, integer mupperB, integer mlowerB,
  *                                                                *
  ******************************************************************/
 
-CVBandPreData CVBandPreAllocB(void *cvadj_mem, integer NB, 
-                              integer muB, integer mlB);
-int CVBandPrecondB(integer NB, real t, N_Vector y, 
-                   N_Vector yB, N_Vector fyB, boole jokB, 
-                   boole *jcurPtrB, real gammaB,
-                   N_Vector ewtB, real hB, real uroundB,
+CVBandPreData CVBandPreAllocB(void *cvadj_mem, integertype NB, 
+                              integertype muB, integertype mlB);
+int CVBandPrecondB(integertype NB, realtype t, N_Vector y, 
+                   N_Vector yB, N_Vector fyB, booleantype jokB, 
+                   booleantype *jcurPtrB, realtype gammaB,
+                   N_Vector ewtB, realtype hB, realtype uroundB,
                    long int *nfePtrB, void *P_dataB,
                    N_Vector vtemp1B, N_Vector vtemp2B,
                    N_Vector vtemp3B);
-int CVBandPSolveB(integer NB, real t, N_Vector y, 
+int CVBandPSolveB(integertype NB, realtype t, N_Vector y, 
                   N_Vector yB, N_Vector fyB, 
-                  N_Vector vtempB,  real gammaB, 
-                  N_Vector ewtB, real deltaB, 
+                  N_Vector vtempB,  realtype gammaB, 
+                  N_Vector ewtB, realtype deltaB, 
                   long int *nfePtrB, N_Vector rB, 
                   int lrB, void *P_dataB, N_Vector zB);
 
@@ -261,7 +262,7 @@ int CVBandPSolveB(integer NB, real t, N_Vector y,
  ******************************************************************/
 
 int CVSpgmrB(void *cvadj_mem, int pretypeB, int gstypeB, 
-             int maxlB, real deltB, CVSpgmrPrecondFnB precondB, 
+             int maxlB, realtype deltB, CVSpgmrPrecondFnB precondB, 
              CVSpgmrPSolveFnB psolveB, void *P_dataB,
              CVSpgmrJtimesFnB jtimesB, void *jac_dataB);
 
@@ -298,7 +299,7 @@ void CVadjFree(void *cvadj_mem);
  *                                                                *
  ******************************************************************/
 
-int   CVadjGetY(void *cvadj_mem, real t, N_Vector y);
+int   CVadjGetY(void *cvadj_mem, realtype t, N_Vector y);
 
 /* CVadjGetY return values */
 
@@ -321,7 +322,7 @@ void  CVadjCheckPointsList(void *cvadj_mem);
  ******************************************************************/
 
 void CVadjDataExtract(void *cvadj_mem, long int which, 
-                      real *t, N_Vector yout, N_Vector ydout);
+                      realtype *t, N_Vector yout, N_Vector ydout);
 
 
 /******************************************************************
@@ -337,30 +338,30 @@ void CVadjDataExtract(void *cvadj_mem, long int which,
 typedef struct CkpntMemRec {
 
   /* Integration limits */
-  real     ck_t0;
-  real     ck_t1;
+  realtype     ck_t0;
+  realtype     ck_t1;
    
   /* Nordsieck History Array */
   N_Vector ck_zn[L_MAX];
   
   /* Step data */
-  int      ck_nst;
-  int      ck_q;
-  int      ck_qprime;
-  int      ck_qwait;
-  int      ck_L;
-  real     ck_gammap;
-  real     ck_h;
-  real     ck_hprime;
-  real     ck_hscale;
-  real     ck_eta;
-  real     ck_etamax;
-  real     ck_tau[L_MAX+1];
-  real     ck_tq[NUM_TESTS+1];
-  real     ck_l[L_MAX];
+  int          ck_nst;
+  int          ck_q;
+  int          ck_qprime;
+  int          ck_qwait;
+  int          ck_L;
+  realtype     ck_gammap;
+  realtype     ck_h;
+  realtype     ck_hprime;
+  realtype     ck_hscale;
+  realtype     ck_eta;
+  realtype     ck_etamax;
+  realtype     ck_tau[L_MAX+1];
+  realtype     ck_tq[NUM_TESTS+1];
+  realtype     ck_l[L_MAX];
   
   /* Saved values */
-  real     ck_saved_tq5;
+  realtype     ck_saved_tq5;
 
   /* Pointer to next structure in list */
   struct CkpntMemRec *ck_next;
@@ -381,7 +382,7 @@ typedef struct CkpntMemRec {
 typedef struct DtpntMemRec {
   
   /* time */
-  real t;
+  realtype t;
   
   /* solution */
   N_Vector y;
@@ -417,8 +418,8 @@ typedef struct CVadjMemRec {
   struct DtpntMemRec **dt_mem;
 
   /* Does CVodeMalocB allocate memory for ioptB and roptB? */
-  boole ca_ioptBalloc;
-  boole ca_roptBalloc;
+  booleantype ca_ioptBalloc;
+  booleantype ca_roptBalloc;
 
   /* Right hand side function (fB) for backward run */
   RhsFnB ca_fB;
@@ -446,10 +447,10 @@ typedef struct CVadjMemRec {
   void *ca_P_dataB;
   
   /* Unit roundoff */
-  real ca_uround;
+  realtype ca_uround;
   
   /* Integration interval */
-  real ca_tinitial, ca_tfinal;
+  realtype ca_tinitial, ca_tfinal;
   
   /* Number of check points */
   int ca_nckpnts;
@@ -458,14 +459,14 @@ typedef struct CVadjMemRec {
   long int ca_nsteps;
 
   /* Flag to indicate that data in dt_mem is new */
-  boole ca_newData;
+  booleantype ca_newData;
 
   /* Actual number of data points saved in current dt_mem */
   /* Commonly, np = nsteps+1                              */
   long int ca_np;
   
   /* Temporary space used by the Hermite interpolation */
-  real ca_delta;
+  realtype ca_delta;
   N_Vector ca_Y0, ca_Y1;
   N_Vector ca_ytmp;
 

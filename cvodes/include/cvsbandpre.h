@@ -3,7 +3,7 @@
  * File          : cvsbandpre.h                                   *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 20 March 2002                                  *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVBANDPRE module, which        *
  * provides a banded difference quotient Jacobian-based           *
@@ -77,7 +77,7 @@ extern "C" {
 #define _cvsbandpre_h
 
 #include "cvodes.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
 
@@ -88,12 +88,12 @@ typedef struct {
   /* Data set by user in CVBandPreAlloc: */
   RhsFn f;
   void *f_data;
-  integer ml, mu;
+  integertype ml, mu;
 
   /* Data set by CVBandPrecond: */
   BandMat savedJ;
   BandMat savedP;
-  integer *pivots;
+  integertype *pivots;
 } *CVBandPreData;
 
 
@@ -129,8 +129,8 @@ typedef struct {
  *                                                                *
  ******************************************************************/
 
-CVBandPreData CVBandPreAlloc(integer N, RhsFn f, void *f_data,
-                             integer mu, integer ml, void *cvode_mem);
+CVBandPreData CVBandPreAlloc(integertype N, RhsFn f, void *f_data,
+                             integertype mu, integertype ml, void *cvode_mem);
 
 
 /******************************************************************
@@ -154,8 +154,8 @@ CVBandPreData CVBandPreAlloc(integer N, RhsFn f, void *f_data,
  * The return value of CVReInitBandPre is 0, indicating success.  *
  ******************************************************************/
 
-int CVReInitBandPre(CVBandPreData bpdata, integer N, RhsFn f,
-                    void *f_data, integer mu, integer ml);
+int CVReInitBandPre(CVBandPreData bpdata, integertype N, RhsFn f,
+                    void *f_data, integertype mu, integertype ml);
 
 
 /******************************************************************
@@ -174,14 +174,16 @@ void CVBandPreFree(CVBandPreData pdata);
 /* Prototypes of CVBandPrecond and CVBandPSolve */
 
   
-int CVBandPrecond(integer N, real t, N_Vector y, N_Vector fy, boole jok,
-                  boole *jcurPtr, real gamma, N_Vector ewt, real h,
-                  real uround, long int *nfePtr, void *bp_data,
+int CVBandPrecond(integertype N, realtype t, N_Vector y, N_Vector fy, 
+                  booleantype jok, booleantype *jcurPtr, 
+                  realtype gamma, N_Vector ewt, realtype h,
+                  realtype uround, long int *nfePtr, void *bp_data,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 
-int CVBandPSolve(integer N, real t, N_Vector y, N_Vector fy, N_Vector vtemp,
-                 real gamma, N_Vector ewt, real delta, long int *nfePtr,
+int CVBandPSolve(integertype N, realtype t, N_Vector y, N_Vector fy, 
+                 N_Vector vtemp, realtype gamma, N_Vector ewt, 
+                 realtype delta, long int *nfePtr,
                  N_Vector r, int lr, void *bp_data, N_Vector z);
 
 

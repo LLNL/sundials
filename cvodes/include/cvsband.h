@@ -3,14 +3,14 @@
  * File          : cvsband.h                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban  @ LLNL                            *
- * Version of    : 20 March 2002                                  *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVODES band linear solver,     *
  * CVSBAND.                                                       *
  *                                                                *
- * Note: The type integer must be large enough to store the value *
- * N + mupper + mlower, where N is the linear system size and     *
- * mupper and mlower are the upper and lower bandwidths,          *
+ * Note: The type integertype must be large enough to store the   *
+ * value N + mupper + mlower, where N is the linear system size   *
+ * and mupper and mlower are the upper and lower bandwidths,      *
  * respectively, passed to CVBand.                                *
  *                                                                *
  ******************************************************************/
@@ -25,7 +25,7 @@ extern "C" {
 
 #include <stdio.h>
 #include "cvodes.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "band.h"
 #include "nvector.h"
 
@@ -43,10 +43,10 @@ extern "C" {
  *                  calls made to the band Jacobian routine       *
  *                  (default or user-supplied).                   *
  *                                                                *
- * iopt[BAND_LRW] : size (in real words) of real workspace        *
+ * iopt[BAND_LRW] : size (in realtype words) of real workspace    *
  *                  matrices and vectors used by this solver.     *
  *                                                                *
- * iopt[BAND_LIW] : size (in integer words) of integer            *
+ * iopt[BAND_LIW] : size (in integertype words) of integer        *
  *                  workspace vectors used by this solver.        *
  *                                                                *
  ******************************************************************/
@@ -160,10 +160,10 @@ enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVBandJacFn)(integer N, integer mupper, integer mlower,
-                            BandMat J, RhsFn f, void *f_data, real t,
-                            N_Vector y, N_Vector fy, N_Vector ewt, real h,
-                            real uround, void *jac_data, long int *nfePtr,
+typedef void (*CVBandJacFn)(integertype N, integertype mupper, integertype mlower,
+                            BandMat J, RhsFn f, void *f_data, realtype t,
+                            N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
+                            realtype uround, void *jac_data, long int *nfePtr,
                             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
  
  
@@ -200,7 +200,7 @@ typedef void (*CVBandJacFn)(integer N, integer mupper, integer mlower,
  *                                                                *
  ******************************************************************/
 
-int CVBand(void *cvode_mem, integer mupper, integer mlower,
+int CVBand(void *cvode_mem, integertype mupper, integertype mlower,
            CVBandJacFn bjac, void *jac_data);
 
 
@@ -233,7 +233,7 @@ int CVBand(void *cvode_mem, integer mupper, integer mlower,
  *                                                                *
  ******************************************************************/
 
-int CVReInitBand (void *cvode_mem, integer mupper, integer mlower,
+int CVReInitBand (void *cvode_mem, integertype mupper, integertype mlower,
                   CVBandJacFn bjac, void *jac_data);
 
 

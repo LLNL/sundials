@@ -3,13 +3,13 @@
  * File          : cvsspgmr.h                                     *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 14 January 2002                                *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVODES scaled, preconditioned  *
  * GMRES linear solver, CVSSPGMR.                                 *
  *                                                                *
- * Note: The type integer must be large enough to store the value *
- * of the linear system size N.                                   *
+ * Note: The type integertype must be large enough to store the   *
+ * value of the linear system size N.                             *
  *                                                                *
  ******************************************************************/
 
@@ -25,7 +25,7 @@ extern "C" {
 #include <stdio.h>
 #include "cvodes.h"
 #include "spgmr.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 
  
@@ -49,11 +49,11 @@ extern "C" {
  *                                                                *
  * iopt[SPGMR_NCFL] : number of linear convergence failures.      *
  *                                                                *
- * iopt[SPGMR_LRW]  : size (in real words) of real workspace      *
+ * iopt[SPGMR_LRW]  : size (in realtype words) of real workspace  *
  *                    vectors and small matrices used by this     *
  *                    solver.                                     *
  *                                                                *
- * iopt[SPGMR_LIW]  : size (in integer words) of integer          *
+ * iopt[SPGMR_LIW]  : size (in integertype words) of integer      *
  *                    workspace vectors used by this solver.      *
  *                                                                *
  ******************************************************************/
@@ -193,10 +193,10 @@ enum { SPGMR_NPE = CVODE_IOPT_SIZE,
  *                                                                *
  ******************************************************************/
   
-typedef int (*CVSpgmrPrecondFn)(integer N, real t, N_Vector y, 
-                                N_Vector fy, boole jok, 
-                                boole *jcurPtr, real gamma,
-                                N_Vector ewt, real h, real uround,
+typedef int (*CVSpgmrPrecondFn)(integertype N, realtype t, N_Vector y, 
+                                N_Vector fy, booleantype jok, 
+                                booleantype *jcurPtr, realtype gamma,
+                                N_Vector ewt, realtype h, realtype uround,
                                 long int *nfePtr, void *P_data,
                                 N_Vector vtemp1, N_Vector vtemp2,
                                 N_Vector vtemp3);
@@ -263,10 +263,10 @@ typedef int (*CVSpgmrPrecondFn)(integer N, real t, N_Vector y,
  *                                                                *
  ******************************************************************/
   
-typedef int (*CVSpgmrPSolveFn)(integer N, real t, N_Vector y, 
+typedef int (*CVSpgmrPSolveFn)(integertype N, realtype t, N_Vector y, 
                                N_Vector fy, N_Vector vtemp, 
-                               real gamma, N_Vector ewt,
-                               real delta, long int *nfePtr, 
+                               realtype gamma, N_Vector ewt,
+                               realtype delta, long int *nfePtr, 
                                N_Vector r, int lr, void *P_data, 
                                N_Vector z);
  
@@ -323,11 +323,11 @@ typedef int (*CVSpgmrPSolveFn)(integer N, real t, N_Vector y,
  *                                                                *
  ******************************************************************/
 
-typedef int (*CVSpgmrJtimesFn)(integer N, N_Vector v, N_Vector Jv,
-                               RhsFn f, void *f_data, real t,
+typedef int (*CVSpgmrJtimesFn)(integertype N, N_Vector v, N_Vector Jv,
+                               RhsFn f, void *f_data, realtype t,
                                N_Vector y, N_Vector fy,
-                               real vnrm, N_Vector ewt, real h,
-                               real uround, void *jac_data,
+                               realtype vnrm, N_Vector ewt, realtype h,
+                               realtype uround, void *jac_data,
                                long int *nfePtr, N_Vector work);
  
 /******************************************************************
@@ -406,7 +406,7 @@ typedef int (*CVSpgmrJtimesFn)(integer N, N_Vector v, N_Vector Jv,
  ******************************************************************/
 
 int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, 
-            real delt, CVSpgmrPrecondFn precond, 
+            realtype delt, CVSpgmrPrecondFn precond, 
             CVSpgmrPSolveFn psolve, void *P_data,
             CVSpgmrJtimesFn jtimes, void *jac_data);
 
@@ -438,7 +438,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl,
  ******************************************************************/
   
 int CVReInitSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, 
-                  real delt, CVSpgmrPrecondFn precond, 
+                  realtype delt, CVSpgmrPrecondFn precond, 
                   CVSpgmrPSolveFn psolve, void *P_data,
                   CVSpgmrJtimesFn jtimes, void *jac_data);
 

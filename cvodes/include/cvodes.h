@@ -3,7 +3,7 @@
  * File          : cvodes.h                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban *
  *                 and Dan Shumaker @ LLNL                        *
- * Version of    : 20 March 2002                                  *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the interface file for the main CVODES integrator.     *
  *                                                                *
@@ -19,7 +19,7 @@ extern "C" {
 
 
 #include <stdio.h>
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 
 /******************************************************************
@@ -144,8 +144,8 @@ enum { NORMAL, ONE_STEP };        /* itask */
  *                                                                *
  ******************************************************************/
 
-typedef void (*RhsFn)(integer N, real t, N_Vector y, N_Vector ydot,
-                      void *f_data);
+typedef void (*RhsFn)(integertype N, realtype t, N_Vector y, 
+                      N_Vector ydot, void *f_data);
 
 /******************************************************************
  *                                                                *
@@ -157,13 +157,14 @@ typedef void (*RhsFn)(integer N, real t, N_Vector y, N_Vector ydot,
  *                                                                *
  ******************************************************************/
 
-typedef void (*SensRhsFn)(RhsFn f, integer Ns, integer N, real t,
-                          N_Vector y, N_Vector ydot, 
+typedef void (*SensRhsFn)(RhsFn f, integertype Ns, integertype N, 
+                          realtype t, N_Vector y, N_Vector ydot, 
                           N_Vector *yS, N_Vector *ySdot, 
-                          real *p, real *pbar, integer *plist, 
+                          realtype *p, realtype *pbar, integertype *plist, 
                           void *f_data, N_Vector ewt, N_Vector *ewtS, 
-                          real *reltol, real *reltolS,
-                          real uround, real rhomax, long int *nfePtr,
+                          realtype *reltol, realtype *reltolS,
+                          realtype uround, realtype rhomax, 
+                          long int *nfePtr, 
                           N_Vector ytemp, N_Vector ftemp);
 
 /******************************************************************
@@ -176,13 +177,14 @@ typedef void (*SensRhsFn)(RhsFn f, integer Ns, integer N, real t,
  *                                                                *
  ******************************************************************/
 
-typedef void (*SensRhs1Fn)(RhsFn f, integer Ns, integer N, real t,
-                           N_Vector y, N_Vector ydot, 
-                           integer i, N_Vector yS, N_Vector ySdot, 
-                           real *p, real *pbar, integer *plist, 
+typedef void (*SensRhs1Fn)(RhsFn f, integertype Ns, integertype N, 
+                           realtype t, N_Vector y, N_Vector ydot, 
+                           integertype i, N_Vector yS, N_Vector ySdot, 
+                           realtype *p, realtype *pbar, integertype *plist, 
                            void *f_data, N_Vector ewt, N_Vector ewtS, 
-                           real *reltol, real *reltolS,
-                           real uround, real rhomax, long int *nfePtr,
+                           realtype *reltol, realtype *reltolS,
+                           realtype uround, realtype rhomax, 
+                           long int *nfePtr,
                            N_Vector ytemp, N_Vector ftemp);
 
 /******************************************************************
@@ -274,10 +276,10 @@ typedef void (*SensRhs1Fn)(RhsFn f, integer Ns, integer N, real t,
  ******************************************************************/
 
 
-void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0, 
-                  int lmm, int iter, int itol, real *reltol, 
+void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0, 
+                  int lmm, int iter, int itol, realtype *reltol, 
                   void *abstol, void *f_data, FILE *errfp, 
-                  boole optIn, long int iopt[], real ropt[],
+                  booleantype optIn, long int iopt[], realtype ropt[],
                   M_Env machEnv);
  
  
@@ -356,10 +358,10 @@ void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0,
  *                                                                *
  ******************************************************************/
 
-int CVodeSensMalloc(void *cvode_mem, integer Ns, int ism, 
-                    real *p, real *pbar, integer *plist, 
-                    int ifS, void *fS, int errcon, real rhomax, 
-                    N_Vector *yS0, real *reltolS, void *abstolS);
+int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism, 
+                    realtype *p, realtype *pbar, integertype *plist, 
+                    int ifS, void *fS, int errcon, realtype rhomax, 
+                    N_Vector *yS0, realtype *reltolS, void *abstolS);
     
 /* CVodeSensMalloc return values: */
 
@@ -421,10 +423,11 @@ enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
  ******************************************************************/
 
 
-int CVReInit(void *cvode_mem, RhsFn f, real t0, N_Vector y0, 
-             int lmm, int iter, int itol, real *reltol, void *abstol, 
-             void *f_data, FILE *errfp, boole optIn, long int iopt[], 
-             real ropt[], M_Env machEnv);
+int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0, 
+             int lmm, int iter, int itol, realtype *reltol, 
+             void *abstol, void *f_data, FILE *errfp, 
+             booleantype optIn, long int iopt[], 
+             realtype ropt[], M_Env machEnv);
 
 
 /* CVReInit return values: */
@@ -464,9 +467,9 @@ enum {CVREI_NO_MEM = -1, CVREI_ILL_INPUT = -2};
  ******************************************************************/
 
 int CVSensReInit(void *cvode_mem, int ism, 
-                 real *p, real *pbar, integer *plist, 
-                 int ifS, void *fS, int errcon, real rhomax, 
-                 N_Vector *yS0, real *reltolS, void *abstolS);
+                 realtype *p, realtype *pbar, integertype *plist, 
+                 int ifS, void *fS, int errcon, realtype rhomax, 
+                 N_Vector *yS0, realtype *reltolS, void *abstolS);
 
 /* CVSensReInit return values: */
 
@@ -548,15 +551,15 @@ enum {SCVREI_NO_MEM    = -1, SCVREI_NO_SENSI = -2,
  ******************************************************************/
 
 
-int CVode(void *cvode_mem, real tout, N_Vector yout, real *t, 
+int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, 
           int itask);
 
 
 /* CVode return values */
 
-enum { SUCCESS=0, TSTOP_RETURN=1, CVODE_NO_MEM=-1, ILL_INPUT=-2, TOO_MUCH_WORK=-3,
-       TOO_MUCH_ACC=-4, ERR_FAILURE=-5, CONV_FAILURE=-6,
-       SETUP_FAILURE=-7, SOLVE_FAILURE=-8 };
+enum { SUCCESS=0, TSTOP_RETURN=1, CVODE_NO_MEM=-1, ILL_INPUT=-2, 
+       TOO_MUCH_WORK=-3, TOO_MUCH_ACC=-4, ERR_FAILURE=-5, 
+       CONV_FAILURE=-6, SETUP_FAILURE=-7, SOLVE_FAILURE=-8 };
 
 /******************************************************************
  *                                                                *
@@ -598,7 +601,7 @@ enum { SUCCESS=0, TSTOP_RETURN=1, CVODE_NO_MEM=-1, ILL_INPUT=-2, TOO_MUCH_WORK=-
  ******************************************************************/
 
 
-int CVodeDky(void *cvode_mem, real t, int k, N_Vector dky);
+int CVodeDky(void *cvode_mem, realtype t, int k, N_Vector dky);
 
 
 /* CVodeDky return values */
@@ -638,11 +641,11 @@ enum { OKAY=0, BAD_K=-1, BAD_T=-2, BAD_DKY=-3, DKY_NO_MEM=-4 };
  *                                                                * 
  ******************************************************************/
 
-int CVodeSensExtract(void *cvode_mem, real t, N_Vector *ySout);
+int CVodeSensExtract(void *cvode_mem, realtype t, N_Vector *ySout);
 
-int CVodeSensDkyAll(void *cvode_mem, real t, int k, N_Vector *dkyA);
+int CVodeSensDkyAll(void *cvode_mem, realtype t, int k, N_Vector *dkyA);
     
-int CVodeSensDky(void *cvode_mem, real t, int k, integer is, 
+int CVodeSensDky(void *cvode_mem, realtype t, int k, integertype is, 
                  N_Vector dky);
     
 #define DKY_NO_SENSI -5
@@ -701,7 +704,7 @@ void CVodeFree(void *cvode_mem);
  * So the user's declaration should look like:                    *
  *                                                                *
  * long int iopt[OPT_SIZE];                                       *
- * real     ropt[OPT_SIZE];                                       *
+ * realtype ropt[OPT_SIZE];                                       *
  *                                                                *
  * The enumerations below the OPT_SIZE definition                 *
  * are indices into the iopt and ropt arrays. Here is a brief     *
@@ -745,10 +748,10 @@ void CVodeFree(void *cvode_mem);
  *                 Optional output.                               *
  *                                                                *
  * iopt[LENRW]   : size of required CVODE internal real work      *
- *                 space, in real words.  Optional output.        *
+ *                 space, in realtype words.  Optional output.    *
  *                                                                *
  * iopt[LENIW]   : size of required CVODE internal integer work   *
- *                 space, in integer words.  Optional output.     *
+ *                 space, in integertype words.  Optional output. *
  *                                                                *
  * iopt[SLDET]   : Flag to turn on/off stability limit detection  *
  *                 (1 = on, 0 = off). When BDF is used and order  *
@@ -862,37 +865,37 @@ enum { H0, HMAX, HMIN, TSTOP, H0U,
   
 typedef struct CVodeMemRec {
     
-  real cv_uround;          /* machine unit roundoff               */
+  realtype cv_uround;      /* machine unit roundoff               */
 
   /*---------------------------- 
     Problem Specification Data 
   ----------------------------*/
 
-  integer  cv_N;           /* ODE system size                     */
+  integertype  cv_N;       /* ODE system size                     */
   RhsFn cv_f;              /* y' = f(t,y(t))                      */
   void *cv_f_data;         /* user pointer passed to f            */
   int cv_lmm;              /* lmm = ADAMS or BDF                  */
   int cv_iter;             /* iter = FUNCTIONAL or NEWTON         */
   int cv_itol;             /* itol = SS or SV                     */
-  real *cv_reltol;         /* ptr to relative tolerance           */
+  realtype *cv_reltol;     /* ptr to relative tolerance           */
   void *cv_abstol;         /* ptr to absolute tolerance           */
 
   /*--------------------------
     Sensitivity Related Data 
   --------------------------*/
 
-  boole cv_sensi;          /* TRUE if computing sensitivities     */
-  integer cv_Ns;           /* Number of sensitivities             */
+  booleantype cv_sensi;    /* TRUE if computing sensitivities     */
+  integertype cv_Ns;       /* Number of sensitivities             */
   SensRhsFn cv_fS;         /* fS = (df/dy)*yS + (df/dp)           */
   SensRhs1Fn cv_fS1;       /* fS1 = (df/dy)*yS_i + (df/dp)        */
   int cv_ifS;              /* ifS = ALLSENS or ONESENS            */
   int cv_ism;              /* ism = SIMULTANEOUS or STAGGERED     */
-  real *cv_p;              /* parameters in f(t,y,p)              */
-  real *cv_pbar;           /* scale factors for parameters        */
-  integer *cv_plist;       /* list of sensitivities               */
-  real *cv_reltolS;        /* ptr to relative tolerance for sensi */
+  realtype *cv_p;          /* parameters in f(t,y,p)              */
+  realtype *cv_pbar;       /* scale factors for parameters        */
+  integertype *cv_plist;   /* list of sensitivities               */
+  realtype *cv_reltolS;    /* ptr to relative tolerance for sensi */
   void *cv_abstolS;        /* ptr to absolute tolerance for sensi */
-  real cv_rhomax;          /* cut-off value for centered/forward
+  realtype cv_rhomax;      /* cut-off value for centered/forward
                               finite differences                  */
   int cv_errcon;           /* errcon = FULL or PARTIAL            */
 
@@ -938,8 +941,8 @@ typedef struct CVodeMemRec {
     Does CVodeSensMalloc allocate additional space?
   -------------------------------------------------*/  
 
-  boole cv_abstolSalloc;   /* Is abstolS allocated by CVODES?                   */
-  boole cv_stgr1alloc;     /* Are ncfS1, ncfnS1, and nniS1 allocated by CVODES? */
+  booleantype cv_abstolSalloc;   /* Is abstolS allocated by CVODES?                   */
+  booleantype cv_stgr1alloc;     /* Are ncfS1, ncfnS1, and nniS1 allocated by CVODES? */
 
   /*-----------
     Step Data 
@@ -952,29 +955,29 @@ typedef struct CVodeMemRec {
                            /* considering a change in q                    */
   int cv_L;                /* L = q + 1                                    */
 
-  real cv_h;               /* current step size                            */
-  real cv_hprime;          /* step size to be used on the next step        */ 
-  real cv_eta;             /* eta = hprime / h                             */
-  real cv_hscale;          /* value of h used in zn                        */
-  real cv_tn;              /* current internal value of t                  */
+  realtype cv_h;           /* current step size                            */
+  realtype cv_hprime;      /* step size to be used on the next step        */ 
+  realtype cv_eta;         /* eta = hprime / h                             */
+  realtype cv_hscale;      /* value of h used in zn                        */
+  realtype cv_tn;          /* current internal value of t                  */
 
-  real cv_tau[L_MAX+1];    /* array of previous q+1 successful step
-                              sizes indexed from 1 to q+1                  */
-  real cv_tq[NUM_TESTS+1]; /* array of test quantities indexed from
-                              1 to NUM_TESTS(=5)                           */
-  real cv_l[L_MAX];        /* coefficients of l(x) (degree q poly)         */
+  realtype cv_tau[L_MAX+1];    /* array of previous q+1 successful step
+                                  sizes indexed from 1 to q+1              */
+  realtype cv_tq[NUM_TESTS+1]; /* array of test quantities indexed from
+                                  1 to NUM_TESTS(=5)                       */
+  realtype cv_l[L_MAX];        /* coefficients of l(x) (degree q poly)     */
 
-  real cv_rl1;             /* 1 / l[1]                                     */
-  real cv_gamma;           /* gamma = h * rl1                              */
-  real cv_gammap;          /* gamma at the last setup call                 */
-  real cv_gamrat;          /* gamma / gammap                               */
+  realtype cv_rl1;             /* 1 / l[1]                                 */
+  realtype cv_gamma;           /* gamma = h * rl1                          */
+  realtype cv_gammap;          /* gamma at the last setup call             */
+  realtype cv_gamrat;          /* gamma / gammap                           */
 
-  real cv_crate;           /* estimated corrector convergence rate         */
-  real cv_acnrm;           /* | acor |                                     */
-  real cv_acnrmS;          /* | acorS |                                    */
-  int  cv_mnewt;           /* Newton iteration counter                     */
-  int  *cv_ncfS1;          /* Array of Ns local counters for convergence  
-                              failures (used in CVStep during STAGGERED1)  */
+  realtype cv_crate;           /* estimated corrector convergence rate     */
+  realtype cv_acnrm;           /* | acor |                                 */
+  realtype cv_acnrmS;          /* | acorS |                                */
+  int  cv_mnewt;               /* Newton iteration counter                 */
+  int  *cv_ncfS1;              /* Array of Ns local counters for conv.  
+                                  failures (used in CVStep for STAGGERED1) */
 
   /*--------
     Limits 
@@ -990,9 +993,9 @@ typedef struct CVodeMemRec {
                               the user that t + h == t for the next 
                               internal step                                */
 
-  real cv_hmin;            /* |h| >= hmin                                  */
-  real cv_hmax_inv;        /* |h| <= 1/hmax_inv                            */
-  real cv_etamax;          /* eta <= etamax                                */
+  realtype cv_hmin;        /* |h| >= hmin                                  */
+  realtype cv_hmax_inv;    /* |h| <= 1/hmax_inv                            */
+  realtype cv_etamax;      /* eta <= etamax                                */
 
   /*----------
     Counters 
@@ -1017,8 +1020,8 @@ typedef struct CVodeMemRec {
   int      cv_nhnil;       /* number of messages issued to the user that
                               t + h == t for the next iternal step         */
 
-  long int cv_lrw;         /* number of real words in CVODE work vectors   */
-  long int cv_liw;         /* no. of integer words in CVODE work vectors   */
+  long int cv_lrw;         /* number of realtype words in CVODE work vectors   */
+  long int cv_liw;         /* no. of integertype words in CVODE work vectors   */
 
   long int cv_nscon;       /* counter for STALD method                     */
 
@@ -1026,11 +1029,11 @@ typedef struct CVodeMemRec {
     Step size ratios
   ------------------*/
 
-  real cv_etaqm1;          /* ratio of new to old h for order q-1          */
-  real cv_etaq;            /* ratio of new to old h for order q            */
-  real cv_etaqp1;          /* ratio of new to old h for order q+1          */
+  realtype cv_etaqm1;      /* ratio of new to old h for order q-1          */
+  realtype cv_etaq;        /* ratio of new to old h for order q            */
+  realtype cv_etaqp1;      /* ratio of new to old h for order q+1          */
 
-  real cv_ssdat[6][4];     /* scaled data array for STALD                  */
+  realtype cv_ssdat[6][4]; /* scaled data array for STALD                  */
 
   /*--------------------
     Linear Solver Data 
@@ -1041,14 +1044,14 @@ typedef struct CVodeMemRec {
   int (*cv_linit)(struct CVodeMemRec *cv_mem);
 
   int (*cv_lsetup)(struct CVodeMemRec *cv_mem, int convfail, 
-                   N_Vector ypred, N_Vector fpred, boole *jcurPtr, 
+                   N_Vector ypred, N_Vector fpred, booleantype *jcurPtr, 
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 
   int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, 
                    N_Vector ycur, N_Vector fcur);
 
   int (*cv_lsolveS)(struct CVodeMemRec *cv_mem, N_Vector b, 
-                    N_Vector ycur, N_Vector fcur, integer is);
+                    N_Vector ycur, N_Vector fcur, integertype is);
 
   void (*cv_lfree)(struct CVodeMemRec *cv_mem);
 
@@ -1058,7 +1061,7 @@ typedef struct CVodeMemRec {
 
   /* Flag to request a call to the setup routine */
 
-  boole cv_forceSetup;
+  booleantype cv_forceSetup;
 
   /*--------------
     Saved Values
@@ -1066,21 +1069,22 @@ typedef struct CVodeMemRec {
 
   int cv_qu;               /* last successful q value used                 */
   long int cv_nstlp;       /* step number of last setup call               */
-  real cv_h0u;             /* actual initial stepsize                      */
-  real cv_hu;              /* last successful h value used                 */
-  real cv_saved_tq5;       /* saved value of tq[5]                         */
-  boole cv_jcur;           /* Is the Jacobian info used by
+  realtype cv_h0u;         /* actual initial stepsize                      */
+  realtype cv_hu;          /* last successful h value used                 */
+  realtype cv_saved_tq5;   /* saved value of tq[5]                         */
+  booleantype cv_jcur;     /* Is the Jacobian info used by
                               linear solver current?                       */
-  real cv_tolsf;           /* tolerance scale factor                       */
-  boole cv_setupNonNull;   /* Does setup do something?                     */
+  realtype cv_tolsf;       /* tolerance scale factor                       */
+  booleantype cv_setupNonNull;  /* Does setup do something?                */
 
   /*-----------------------------------------------
     Arrays for Optional Input and Optional Output 
   -----------------------------------------------*/
 
   long int *cv_iopt;       /* long int optional input, output              */
-  real     *cv_ropt;       /* real optional input, output                  */
-  boole    cv_optIn;       /* flag to indicate optional input (used by adjoint) */
+  realtype     *cv_ropt;   /* real optional input, output                  */
+  booleantype    cv_optIn; /* flag to indicate optional input 
+                              (used by adjoint)                            */
 
 
   /*------------
@@ -1099,7 +1103,7 @@ typedef struct CVodeMemRec {
     Stability Limit Detection control flag 
   ----------------------------------------*/
 
-  boole cv_sldeton;        /* Is Stability Limit Detection on?             */
+  booleantype cv_sldeton;  /* Is Stability Limit Detection on?             */
 
 } *CVodeMem;
 
@@ -1194,8 +1198,9 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2};
 /*******************************************************************
  *                                                                 *
  * int (*cv_lsetup)(CVodeMem cv_mem, int convfail, N_Vector ypred, *
- *                 N_Vector fpred, boole *jcurPtr, N_Vector vtemp1,*
- *                 N_Vector vtemp2, N_Vector vtemp3);              *
+ *                 N_Vector fpred, booleantype *jcurPtr,           *
+ *                 N_Vector vtemp1, N_Vector vtemp2,               *
+ *                 N_Vector vtemp3);                               *
  *-----------------------------------------------------------------*
  * The job of cv_lsetup is to prepare the linear solver for        *
  * subsequent calls to cv_lsolve. It may re-compute Jacobian-      *
@@ -1258,7 +1263,7 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2};
 /*******************************************************************
  *                                                                 *
  * int (*cv_lsolveS)(CVodeMem cv_mem, N_Vector b, N_Vector ycur,   *
- *                  N_Vector fcur, integer is);                    *
+ *                  N_Vector fcur, integertype is);                *
  *-----------------------------------------------------------------*
  *******************************************************************/
 

@@ -2,7 +2,7 @@
  *                                                                      *
  * File       : pvanx.c                                                 *
  * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 21 May 2002                                             *
+ * Version of : 27 June 2002                                             *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -42,7 +42,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "cvodea.h"
 #include "nvector_parallel.h"
 #include "mpi.h"
@@ -61,24 +61,24 @@
 
 /* Type : UserData */
 typedef struct {
-  real p[2];            /* model parameters                         */
-  real dx;              /* spatial discretization grid              */
-  real hdcoef, hacoef;  /* diffusion and advection coefficients     */
-  integer npes, my_pe;  /* total number of processes and current ID */
+  realtype p[2];            /* model parameters                         */
+  realtype dx;              /* spatial discretization grid              */
+  realtype hdcoef, hacoef;  /* diffusion and advection coefficients     */
+  integertype npes, my_pe;  /* total number of processes and current ID */
   MPI_Comm comm;        /* MPI communicator                         */
-  real *z1, *z2;        /* work space                               */
+  realtype *z1, *z2;        /* work space                               */
 } *UserData;
 
 
 /* Private Helper Functions */
-static void SetIC(N_Vector u, real dx, integer my_length, integer my_base);
-static void SetICback(N_Vector uB, integer my_base);
-static real Xintgr(real *z, integer l, real dx);
-static real Compute_g(N_Vector u, UserData data);
+static void SetIC(N_Vector u, realtype dx, integertype my_length, integertype my_base);
+static void SetICback(N_Vector uB, integertype my_base);
+static realtype Xintgr(realtype *z, integertype l, realtype dx);
+static realtype Compute_g(N_Vector u, UserData data);
 
 /* Functions Called by the CVODES Solver */
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
-static void fB(integer NB, real t, N_Vector u, 
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void fB(integertype NB, realtype t, N_Vector u, 
                N_Vector uB, N_Vector uBdot, void *f_dataB);
 
 
@@ -94,16 +94,16 @@ int main(int argc, char *argv[])
   void *cvode_mem;
   
   long int iopt[OPT_SIZE];
-  real ropt[OPT_SIZE];
+  realtype ropt[OPT_SIZE];
   N_Vector u;
-  real reltol, abstol;
+  realtype reltol, abstol;
 
   N_Vector uB;
-  real *uBdata;
+  realtype *uBdata;
 
-  real dx, t, umax, g_val;
+  realtype dx, t, umax, g_val;
   int flag, my_pe, nprocs, npes, ncheck;
-  integer local_N, nperpe, nrem, my_base, i, iglobal;
+  integertype local_N, nperpe, nrem, my_base, i, iglobal;
 
   MPI_Comm comm;
 
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);
   data->p[0] = 1.0;
   data->p[1] = 0.5;
-  dx = data->dx = XMAX/((real)(MX+1));
+  dx = data->dx = XMAX/((realtype)(MX+1));
   data->hdcoef = data->p[0]/(dx*dx);
   data->hacoef = data->p[1]/(2.0*dx);
   data->comm = comm;
@@ -186,8 +186,8 @@ int main(int argc, char *argv[])
   ----------------------------*/
 
   /* Allocate work space */
-  data->z1 = (real *)malloc(local_N*sizeof(real));
-  data->z2 = (real *)malloc(local_N*sizeof(real));
+  data->z1 = (realtype *)malloc(local_N*sizeof(realtype));
+  data->z2 = (realtype *)malloc(local_N*sizeof(realtype));
 
   /* Activate last process for integration of the quadrature equations */
   if(my_pe == npes) local_N = NP;
@@ -249,12 +249,12 @@ int main(int argc, char *argv[])
 /************************ Private Helper Functions ***********************/
 
 /* Set initial conditions in u vector */
-static void SetIC(N_Vector u, real dx, integer my_length, integer my_base)
+static void SetIC(N_Vector u, realtype dx, integertype my_length, integertype my_base)
 {
   int i;
-  integer iglobal;
-  real x;
-  real *udata;
+  integertype iglobal;
+  realtype x;
+  realtype *udata;
 
   /* Set pointer to data array and get local length of u */
   udata = NV_DATA_P(u);
@@ -269,11 +269,11 @@ static void SetIC(N_Vector u, real dx, integer my_length, integer my_base)
 }
 
 /* Set final conditions in uB vector */
-static void SetICback(N_Vector uB, integer my_base)
+static void SetICback(N_Vector uB, integertype my_base)
 {
   int i;
-  real *uBdata;
-  integer my_length;
+  realtype *uBdata;
+  integertype my_length;
 
   /* Set pointer to data array and get local length of uB */
   uBdata = NV_DATA_P(uB);
@@ -285,10 +285,10 @@ static void SetICback(N_Vector uB, integer my_base)
 }
 
 /* Compute local value of the space integral int_x z(x) dx */
-static real Xintgr(real *z, integer l, real dx)
+static realtype Xintgr(realtype *z, integertype l, realtype dx)
 {
-  real my_intgr;
-  integer i;
+  realtype my_intgr;
+  integertype i;
 
   my_intgr = 0.5*(z[0] + z[l-1]);
   for (i = 1; i < l-1; i++)
@@ -299,10 +299,10 @@ static real Xintgr(real *z, integer l, real dx)
 }
 
 /* Compute value of g(u) */
-static real Compute_g(N_Vector u, UserData data)
+static realtype Compute_g(N_Vector u, UserData data)
 {
-  real intgr, my_intgr, dx, *udata;
-  integer my_length;
+  realtype intgr, my_intgr, dx, *udata;
+  integertype my_length;
   int npes, my_pe, i;
   MPI_Status status;
   MPI_Comm comm;
@@ -333,12 +333,12 @@ static real Compute_g(N_Vector u, UserData data)
 /***************** Function Called by the CVODE Solver ******************/
 
 /* f routine. Compute f(t,u) for forward phase. */
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
-  real uLeft, uRight, ui, ult, urt;
-  real hordc, horac, hdiff, hadv;
-  real *udata, *dudata;
-  integer i, my_length;
+  realtype uLeft, uRight, ui, ult, urt;
+  realtype hordc, horac, hdiff, hadv;
+  realtype *udata, *dudata;
+  integertype i, my_length;
   int npes, my_pe, my_pe_m1, my_pe_p1, last_pe, my_last;
   UserData data;
   MPI_Status status;
@@ -399,15 +399,15 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
 }
 
 /* fB routine. Compute right hand side of backward problem */
-static void fB(integer NB, real t, N_Vector u, 
+static void fB(integertype NB, realtype t, N_Vector u, 
                N_Vector uB, N_Vector uBdot, void *f_dataB)
 {
-  real *uBdata, *duBdata, *udata, *zB;
-  real uBLeft, uBRight, uBi, uBlt, uBrt;
-  real uLeft, uRight, ui, ult, urt;
-  real dx, hordc, horac, hdiff, hadv;
-  real *z1, *z2, intgr1, intgr2;
-  integer i, my_length;
+  realtype *uBdata, *duBdata, *udata, *zB;
+  realtype uBLeft, uBRight, uBi, uBlt, uBrt;
+  realtype uLeft, uRight, ui, ult, urt;
+  realtype dx, hordc, horac, hdiff, hadv;
+  realtype *z1, *z2, intgr1, intgr2;
+  integertype i, my_length;
   int npes, my_pe, my_pe_m1, my_pe_p1, last_pe, my_last;
   UserData data;
   MPI_Status status;

@@ -3,13 +3,13 @@
  * File          : cvsdiag.h                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 14 January 2002                                *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVODES diagonal linear solver, *
  * CVSDIAG.                                                       *
  *                                                                *
- * Note: The type integer must be large enough to store the value *
- * of the linear system size N.                                   *
+ * Note: The type integertype must be large enough to store the   *
+ * value of the linear system size N.                             *
  *                                                                *
  ******************************************************************/
 
@@ -23,7 +23,7 @@ extern "C" {
 
 #include <stdio.h>
 #include "cvodes.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 
  
@@ -36,10 +36,10 @@ extern "C" {
  * the iopt and ropt arrays passed to CVodeMalloc.                *
  * The CVDIAG statistics are:                                     *
  *                                                                *
- * iopt[DIAG_LRW] : size (in real words) of real workspace        *
+ * iopt[DIAG_LRW] : size (in realtype words) of real workspace    *
  *                  vectors used by this solver.                  *
  *                                                                *
- * iopt[DIAG_LIW] : size (in integer words) of integer            *
+ * iopt[DIAG_LIW] : size (in integertype words) of integer        *
  *                  workspace vectors used by this solver.        *
  *                                                                *
  * The number of diagonal approximate Jacobians formed is equal   *

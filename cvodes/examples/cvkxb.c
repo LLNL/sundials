@@ -2,7 +2,7 @@
  *                                                                      *
  * File: cvkxb.c                                                        *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 7 March 2002                                              *
+ * Version of 26 June 2002                                              *
  *----------------------------------------------------------------------*
  * Modified by R. Serban to work with new serial nvector (7/3/2002)     *
  *----------------------------------------------------------------------*
@@ -31,13 +31,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"   /* definitions of real, integer, TRUE, FALSE       */
-#include "cvodes.h"     /* main CVODE header file                          */
-#include "iterativ.h"   /* contains the enum for types of preconditioning  */
-#include "cvsspgmr.h"   /* use CVSPGMR linear solver each internal step    */
-#include "cvsbandpre.h" /* band preconditioner function prototypes         */
-#include "nvector_serial.h"  /* definitions of type N_Vector, macro NV_DATA_S */
-#include "llnlmath.h"   /* contains SQR macro                              */
+#include "sundialstypes.h"  /* definitions of realtype, integertype            */
+#include "cvodes.h"         /* main CVODE header file                          */
+#include "iterativ.h"       /* contains the enum for types of preconditioning  */
+#include "cvsspgmr.h"       /* use CVSPGMR linear solver each internal step    */
+#include "cvsbandpre.h"     /* band preconditioner function prototypes         */
+#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S   */
+#include "sundialsmath.h"    /* contains SQR macro                              */
 
 
 /* Problem Constants */
@@ -96,7 +96,7 @@
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
-   IJth(a,i,j) references the (i,j)th entry of the small matrix real **a,
+   IJth(a,i,j) references the (i,j)th entry of the small matrix realtype **a,
    where 1 <= i,j <= NUM_SPECIES. The small matrix routines in dense.h
    work with matrices stored by column in a 2-dimensional array. In C,
    arrays are indexed starting at 0, not 1. */
@@ -110,20 +110,20 @@
    contains preconditioner blocks, pivot arrays, and problem constants */
 
 typedef struct {
-  real q4, om, dx, dz, hdco, haco, vdco;
+  realtype q4, om, dx, dz, hdco, haco, vdco;
 } *UserData;
 
 
 /* Private Helper Functions */
 
 static void InitUserData(UserData data);
-static void SetInitialProfiles(N_Vector y, real dx, real dz);
-static void PrintOutput(long int iopt[], real ropt[], N_Vector y, real t);
+static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
+static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y, realtype t);
 static void PrintFinalStats(long int iopt[]);
 
 /* Function Called by the CVODE Solver */
 
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -131,7 +131,7 @@ static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
 int main()
 {
   M_Env machEnv;
-  real abstol, reltol, t, tout, ropt[OPT_SIZE];
+  realtype abstol, reltol, t, tout, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector y;
   UserData data;
@@ -261,11 +261,11 @@ static void InitUserData(UserData data)
 
 /* Set initial conditions in y */
 
-static void SetInitialProfiles(N_Vector y, real dx, real dz)
+static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
 {
   int jx, jz;
-  real x, z, cx, cz;
-  real *ydata;
+  realtype x, z, cx, cz;
+  realtype *ydata;
 
   /* Set pointer to data array in vector y. */
 
@@ -289,9 +289,9 @@ static void SetInitialProfiles(N_Vector y, real dx, real dz)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(long int iopt[], real ropt[], N_Vector y, real t)
+static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y, realtype t)
 {
-  real *ydata;
+  realtype *ydata;
 
   ydata = NV_DATA_S(y);
 
@@ -322,13 +322,13 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,y). */
 
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
-  real q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
-  real c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;
-  real qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, zdn, zup;
-  real q4coef, delz, verdco, hordco, horaco;
-  real *ydata, *dydata;
+  realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
+  realtype c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;
+  realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, zdn, zup;
+  realtype q4coef, delz, verdco, hordco, horaco;
+  realtype *ydata, *dydata;
   int jx, jz, idn, iup, ileft, iright;
   UserData data;
 

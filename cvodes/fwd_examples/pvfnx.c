@@ -3,7 +3,7 @@
  * File       : pvfnx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne, and *
  *              Radu Serban @ LLNL                                      *
- * Version of : 21 March 2002                                           *
+ * Version of : 27 June 2002                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -49,7 +49,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "cvodes.h"
 #include "nvector_parallel.h"
 #include "mpi.h"
@@ -73,25 +73,27 @@
    contains problem parameters, grid constants, work array. */
 
 typedef struct {
-  real *p;
-  real dx;
-  integer npes, my_pe;
+  realtype *p;
+  realtype dx;
+  integertype npes, my_pe;
   MPI_Comm comm;
-  real z[100];
+  realtype z[100];
 } *UserData;
 
 
 /* Private Helper Functions */
 
-static void WrongArgs(integer my_pe, char *argv[]);
-static void SetIC(N_Vector u, real dx, integer my_length, integer my_base);
-static void PrintOutput(integer my_pe, long int iopt[], real ropt[], real t, N_Vector u);
-static void PrintOutputS(integer my_pe, N_Vector *uS);
-static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int iopt[]);
+static void WrongArgs(integertype my_pe, char *argv[]);
+static void SetIC(N_Vector u, realtype dx, integertype my_length, integertype my_base);
+static void PrintOutput(integertype my_pe, long int iopt[], realtype ropt[], 
+                        realtype t, N_Vector u);
+static void PrintOutputS(integertype my_pe, N_Vector *uS);
+static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
+                            long int iopt[]);
 
 /* Functions Called by the PVODES Solver */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -99,18 +101,18 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
 int main(int argc, char *argv[])
 {
   M_Env machEnv;
-  real ropt[OPT_SIZE], dx, reltol, abstol, t, tout, umax;
+  realtype ropt[OPT_SIZE], dx, reltol, abstol, t, tout;
   long int iopt[OPT_SIZE];
   N_Vector u;
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  integer local_N, nperpe, nrem, my_base;
+  integertype local_N, nperpe, nrem, my_base;
 
-  real *pbar, rhomax;
-  integer is, *plist;
+  realtype *pbar, rhomax;
+  integertype is, *plist;
   N_Vector *uS;
-  boole sensi;
+  booleantype sensi;
   int sensi_meth, err_con, ifS;
 
   MPI_Comm comm;
@@ -166,8 +168,8 @@ int main(int argc, char *argv[])
   data->comm = comm;
   data->npes = npes;
   data->my_pe = my_pe;
-  data->p = (real *) malloc(NP * sizeof(real));
-  dx = data->dx = XMAX/((real)(MX+1));
+  data->p = (realtype *) malloc(NP * sizeof(realtype));
+  dx = data->dx = XMAX/((realtype)(MX+1));
   data->p[0] = 1.0;
   data->p[1] = 0.5;
 
@@ -192,10 +194,10 @@ int main(int argc, char *argv[])
   }
 
   if(sensi) {
-    pbar  = (real *) malloc(NP * sizeof(real));
+    pbar  = (realtype *) malloc(NP * sizeof(realtype));
     pbar[0] = 1.0;
     pbar[1] = 0.5;
-    plist = (integer *) malloc(NS * sizeof(integer));
+    plist = (integertype *) malloc(NS * sizeof(integertype));
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 
@@ -212,19 +214,6 @@ int main(int argc, char *argv[])
       if (my_pe == 0) printf("CVodeSensMalloc failed, flag=%d\n",flag);
       return(1);
     }
-  }
-
-  umax = N_VMaxNorm(u);
-  if (my_pe == 0)
-    printf("At t = %4.2f    max.norm(u) =%14.6e \n", T0, umax);
-
-  if (sensi) {
-    for (is=0;is<NS;is++) {
-      umax = N_VMaxNorm(uS[is]);
-      if (my_pe == 0)
-        printf("sensitivity s_%d:  max.norm =%14.6e \n", is, umax);
-    }
-    if (my_pe == 0) printf("\n");
   }
 
   /* In loop over output points, call CVode, print results, test for error */
@@ -281,7 +270,7 @@ int main(int argc, char *argv[])
 /* ======================================================================= */
 /* Check arguments */
 
-static void WrongArgs(integer my_pe, char *argv[])
+static void WrongArgs(integertype my_pe, char *argv[])
 {
   if (my_pe == 0) {
     printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",argv[0]);
@@ -295,12 +284,13 @@ static void WrongArgs(integer my_pe, char *argv[])
 /* ======================================================================= */
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, real dx, integer my_length, integer my_base)
+static void SetIC(N_Vector u, realtype dx, integertype my_length, 
+                  integertype my_base)
 {
   int i;
-  integer iglobal;
-  real x;
-  real *udata;
+  integertype iglobal;
+  realtype x;
+  realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = NV_DATA_P(u);
@@ -317,9 +307,10 @@ static void SetIC(N_Vector u, real dx, integer my_length, integer my_base)
 /* ======================================================================= */
 /* Print current t, step count, order, stepsize, and max norm of solution  */
 
-static void PrintOutput(integer my_pe, long int iopt[], real ropt[], real t, N_Vector u)
+static void PrintOutput(integertype my_pe, long int iopt[], realtype ropt[], 
+                        realtype t, N_Vector u)
 {
-  real umax;
+  realtype umax;
 
   umax = N_VMaxNorm(u);
   if (my_pe == 0) {
@@ -333,9 +324,9 @@ static void PrintOutput(integer my_pe, long int iopt[], real ropt[], real t, N_V
 /* ======================================================================= */
 /* Print max norm of sensitivities */
 
-static void PrintOutputS(integer my_pe, N_Vector *uS)
+static void PrintOutputS(integertype my_pe, N_Vector *uS)
 {
-  real smax;
+  realtype smax;
 
   smax = N_VMaxNorm(uS[0]);
   if (my_pe == 0) {
@@ -354,7 +345,8 @@ static void PrintOutputS(integer my_pe, N_Vector *uS)
 /* ======================================================================= */
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int iopt[])
+static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
+                            long int iopt[])
 {
 
   printf("\n\n========================================================");
@@ -395,11 +387,11 @@ static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int i
 /* ======================================================================= */
 /* f routine. Compute f(t,u). */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
-  real ui, ult, urt, hordc, horac, hdiff, hadv;
-  real *udata, *dudata, *z;
-  real dx;
+  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
+  realtype *udata, *dudata, *z;
+  realtype dx;
   int i, j;
   int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe, my_last;
   UserData data;

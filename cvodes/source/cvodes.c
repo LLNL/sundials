@@ -8,6 +8,7 @@
 
 /*=============  CHANGE LOG ===================================
 
+20020627 Updated to use new type names (realtype, integertype)
 20020111 Initialize hmax_inv, nscon, and sldeton in CVodeMalloc
          and CVReInit.
 20020104 Optional input ropt[HMAX] examined on every call to CVode.
@@ -27,7 +28,7 @@
  * File          : cvodes.c                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban *
  *                 and Dan Shumaker @ LLNL                        *
- * Version of    : 20 March 2002                                  *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the main CVODES integrator *
  * with sensitivity analysis capabilities.                        *
@@ -43,9 +44,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cvodes.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
-#include "llnlmath.h"
+#include "sundialsmath.h"
 
 /************************************************************/
 /******************** END Imports ***************************/
@@ -447,20 +448,20 @@
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
 
-static boole CVAllocVectors(CVodeMem cv_mem, integer neq, int maxord,
-                            M_Env machEnv);
+static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq, int maxord,
+                                  M_Env machEnv);
 static void  CVFreeVectors(CVodeMem cv_mem, int maxord);
 
-static boole CVEwtSet(CVodeMem cv_mem, real *rtol, void *atol, 
-                      int tol_type, N_Vector ycur, integer neq);
-static boole CVEwtSetSS(CVodeMem cv_mem, real *rtol, real *atol,
-                        N_Vector ycur, integer neq);
-static boole CVEwtSetSV(CVodeMem cv_mem, real *rtol, N_Vector atol,
-                        N_Vector ycur, integer neq);
+static booleantype CVEwtSet(CVodeMem cv_mem, realtype *rtol, void *atol, 
+                            int tol_type, N_Vector ycur, integertype neq);
+static booleantype CVEwtSetSS(CVodeMem cv_mem, realtype *rtol, realtype *atol,
+                              N_Vector ycur, integertype neq);
+static booleantype CVEwtSetSV(CVodeMem cv_mem, realtype *rtol, N_Vector atol,
+                              N_Vector ycur, integertype neq);
 
-static boole CVHin(CVodeMem cv_mem, real tout);
-static real  CVUpperBoundH0(CVodeMem cv_mem, real tdist);
-static real  CVYddNorm(CVodeMem cv_mem, real hg);
+static booleantype CVHin(CVodeMem cv_mem, realtype tout);
+static realtype  CVUpperBoundH0(CVodeMem cv_mem, realtype tdist);
+static realtype  CVYddNorm(CVodeMem cv_mem, realtype hg);
 
 static int   CVStep(CVodeMem cv_mem);
 
@@ -479,32 +480,32 @@ static void  CVPredict(CVodeMem cv_mem);
 
 static void  CVSet(CVodeMem cv_mem);
 static void  CVSetAdams(CVodeMem cv_mem);
-static real  CVAdamsStart(CVodeMem cv_mem, real m[]);
-static void  CVAdamsFinish(CVodeMem cv_mem, real m[], real M[], real hsum);
-static real  CVAltSum(int iend, real a[], int k);
+static realtype  CVAdamsStart(CVodeMem cv_mem, realtype m[]);
+static void  CVAdamsFinish(CVodeMem cv_mem, realtype m[], realtype M[], realtype hsum);
+static realtype  CVAltSum(int iend, realtype a[], int k);
 static void  CVSetBDF(CVodeMem cv_mem);
-static void  CVSetTqBDF(CVodeMem cv_mem, real hsum, real alpha0,
-                        real alpha0_hat, real xi_inv, real xistar_inv);
+static void  CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
+                        realtype alpha0_hat, realtype xi_inv, realtype xistar_inv);
 
 static int   CVNls(CVodeMem cv_mem, int nflag);
 static int   CVNlsFunctional(CVodeMem cv_mem);
 static int   CVNlsNewton(CVodeMem cv_mem, int nflag);
 static int   CVNewtonIteration(CVodeMem cv_mem);
 
-static int   CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, real saved_t,
+static int   CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                            int *ncfPtr, long int *ncfnPtr);
 
-static void  CVRestore(CVodeMem cv_mem, real saved_t);
+static void  CVRestore(CVodeMem cv_mem, realtype saved_t);
 
-static boole CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
-                           real saved_t, int *nefPtr, real *dsmPtr);
+static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
+                                 realtype saved_t, int *nefPtr, realtype *dsmPtr);
 
 static void  CVCompleteStep(CVodeMem cv_mem);
 
-static void  CVPrepareNextStep(CVodeMem cv_mem, real dsm);
+static void  CVPrepareNextStep(CVodeMem cv_mem, realtype dsm);
 static void  CVSetEta(CVodeMem cv_mem);
-static real  CVComputeEtaqm1(CVodeMem cv_mem);
-static real  CVComputeEtaqp1(CVodeMem cv_mem);
+static realtype  CVComputeEtaqm1(CVodeMem cv_mem);
+static realtype  CVComputeEtaqp1(CVodeMem cv_mem);
 static void  CVChooseEta(CVodeMem cv_mem);
 static void  CVBDFStab(CVodeMem cv_mem);
 
@@ -513,31 +514,31 @@ static int   CVHandleFailure(CVodeMem cv_mem,int kflag);
 
 /*----------------*/
 
-static boole CVSensTestAtol(CVodeMem cv_mem, integer nsens, void *atolS);
+static booleantype CVSensTestAtol(CVodeMem cv_mem, integertype nsens, void *atolS);
 
-static boole CVSensAllocAtol(CVodeMem cv_mem, integer nsens, void **atolSPtr);
-static void  CVSensFreeAtol(CVodeMem cv_mem, integer nsens, void *atolS);
+static booleantype CVSensAllocAtol(CVodeMem cv_mem, integertype nsens, void **atolSPtr);
+static void  CVSensFreeAtol(CVodeMem cv_mem, integertype nsens, void *atolS);
 
-static boole CVSensSetAtol(CVodeMem cv_mem, integer nsens, 
-                           real *prmbar, integer *prmlist, void *atolS);
-static boole CVSensSetAtolSS(CVodeMem cv_mem, integer nsens,
-                             real *prmbar, integer *prmlist, real *atolS);
-static boole CVSensSetAtolSV(CVodeMem cv_mem, integer nsens, 
-                             real *prmbar, integer *prmlist, N_Vector *atolS);
-
-/*----------------*/
-
-static boole CVSensAllocVectors(CVodeMem cv_mem, integer nsens);
-static void  CVSensFreeVectors(CVodeMem cv_mem, int maxord, integer nsens);
+static booleantype CVSensSetAtol(CVodeMem cv_mem, integertype nsens, 
+                                 realtype *prmbar, integertype *prmlist, void *atolS);
+static booleantype CVSensSetAtolSS(CVodeMem cv_mem, integertype nsens,
+                                   realtype *prmbar, integertype *prmlist, realtype *atolS);
+static booleantype CVSensSetAtolSV(CVodeMem cv_mem, integertype nsens, 
+                                   realtype *prmbar, integertype *prmlist, N_Vector *atolS);
 
 /*----------------*/
 
-static boole CVSensEwtSet(CVodeMem cv_mem, real *rtolS, void *atolS, 
-                          int tol_type, N_Vector *ycur, integer nsens);
-static boole CVSensEwtSetSS(CVodeMem cv_mem, real *rtolS, real *atolS, 
-                            N_Vector *ycur, integer nsens);
-static boole CVSensEwtSetSV(CVodeMem cv_mem, real *rtolS, N_Vector *atolS, 
-                            N_Vector *ycur, integer nsens);
+static booleantype CVSensAllocVectors(CVodeMem cv_mem, integertype nsens);
+static void  CVSensFreeVectors(CVodeMem cv_mem, int maxord, integertype nsens);
+
+/*----------------*/
+
+static booleantype CVSensEwtSet(CVodeMem cv_mem, realtype *rtolS, void *atolS, 
+                                int tol_type, N_Vector *ycur, integertype nsens);
+static booleantype CVSensEwtSetSS(CVodeMem cv_mem, realtype *rtolS, realtype *atolS, 
+                                  N_Vector *ycur, integertype nsens);
+static booleantype CVSensEwtSetSV(CVodeMem cv_mem, realtype *rtolS, N_Vector *atolS, 
+                                  N_Vector *ycur, integertype nsens);
 
 /*----------------*/
 
@@ -545,46 +546,46 @@ static int   CVStgrNls(CVodeMem cv_mem);
 static int   CVStgrNlsFunctional(CVodeMem cv_mem);
 static int   CVStgrNlsNewton(CVodeMem cv_mem);
 static int   CVStgrNewtonIteration(CVodeMem cv_mem);
-static int   CVStgr1Nls(CVodeMem cv_mem, integer is);
-static int   CVStgr1NlsFunctional(CVodeMem cv_mem, integer is);
-static int   CVStgr1NlsNewton(CVodeMem cv_mem, integer is);
-static int   CVStgr1NewtonIteration(CVodeMem cv_mem, integer is);
-static boole CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr, 
-                               real saved_t, int *nefSPtr, real *dsmSPtr);
+static int   CVStgr1Nls(CVodeMem cv_mem, integertype is);
+static int   CVStgr1NlsFunctional(CVodeMem cv_mem, integertype is);
+static int   CVStgr1NlsNewton(CVodeMem cv_mem, integertype is);
+static int   CVStgr1NewtonIteration(CVodeMem cv_mem, integertype is);
+static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr, 
+                                     realtype saved_t, int *nefSPtr, realtype *dsmSPtr);
 
 /*----------------*/
 
-static real  CVSensNormAll(N_Vector x, N_Vector w, 
-                           N_Vector *xS, N_Vector *wS, integer nsens);
-static real  CVStgrNormSens(N_Vector *xS, N_Vector *wS, integer nsens);
-static real  CVStgrDsm(CVodeMem cv_mem, real dsm, real dsmS);
+static realtype  CVSensNormAll(N_Vector x, N_Vector w, 
+                               N_Vector *xS, N_Vector *wS, integertype nsens);
+static realtype  CVStgrNormSens(N_Vector *xS, N_Vector *wS, integertype nsens);
+static realtype  CVStgrDsm(CVodeMem cv_mem, realtype dsm, realtype dsmS);
 
 /*----------------*/
 
-static void CVSensRhs(CVodeMem cv_mem, real time, 
+static void CVSensRhs(CVodeMem cv_mem, realtype time, 
                       N_Vector ycur, N_Vector fcur, 
                       N_Vector *yScur, N_Vector *fScur,
                       N_Vector temp1, N_Vector temp2);
 
-static void CVSensRhs1(CVodeMem cv_mem, real time, 
+static void CVSensRhs1(CVodeMem cv_mem, realtype time, 
                        N_Vector ycur, N_Vector fcur, 
-                       integer is, N_Vector *yScur, N_Vector *fScur,
+                       integertype is, N_Vector *yScur, N_Vector *fScur,
                        N_Vector temp1, N_Vector temp2);
 
-static void CVSensRhsDQ(RhsFn f, integer Ns, integer N, real t,
+static void CVSensRhsDQ(RhsFn f, integertype Ns, integertype N, realtype t,
                         N_Vector y, N_Vector ydot, 
                         N_Vector *s,N_Vector *sdot, 
-                        real *p, real *pbar, integer *plist, void *f_data,
-                        N_Vector ewt, N_Vector *ewtS, real *reltol, real *reltolS,
-                        real uround, real rhomax, long int *nfePtr,
+                        realtype *p, realtype *pbar, integertype *plist, void *f_data,
+                        N_Vector ewt, N_Vector *ewtS, realtype *reltol, realtype *reltolS,
+                        realtype uround, realtype rhomax, long int *nfePtr,
                         N_Vector ytemp, N_Vector ftemp);
 
-static void CVSensRhs1DQ(RhsFn f, integer Ns, integer N, real t,
+static void CVSensRhs1DQ(RhsFn f, integertype Ns, integertype N, realtype t,
                          N_Vector y, N_Vector ydot, 
-                         integer is, N_Vector yS, N_Vector ySdot, 
-                         real *p, real *pbar, integer *plist, void *f_data,
-                         N_Vector ewt, N_Vector ewtS, real *reltol, real *reltolS, 
-                         real uround, real rhomax, long int *nfePtr,
+                         integertype is, N_Vector yS, N_Vector ySdot, 
+                         realtype *p, realtype *pbar, integertype *plist, void *f_data,
+                         N_Vector ewt, N_Vector ewtS, realtype *reltol, realtype *reltolS, 
+                         realtype uround, realtype rhomax, long int *nfePtr,
                          N_Vector ytemp, N_Vector ftemp);
 
 /*----------------*/
@@ -709,12 +710,12 @@ static void CVSensRhs1DQ(RhsFn f, integer Ns, integer N, real t,
  
 *****************************************************************/
 
-void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0, int lmm, int iter,
-                  int itol, real *reltol, void *abstol, void *f_data,
-                  FILE *errfp, boole optIn, long int iopt[], real ropt[],
+void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0, int lmm, int iter,
+                  int itol, realtype *reltol, void *abstol, void *f_data,
+                  FILE *errfp, booleantype optIn, long int iopt[], realtype ropt[],
                   M_Env machEnv)
 {
-  boole   allocOK, ioptExists, roptExists, neg_abstol, ewtsetOK;
+  booleantype   allocOK, ioptExists, roptExists, neg_abstol, ewtsetOK;
   int     maxord;
   CVodeMem cv_mem;
   FILE *fp;
@@ -770,7 +771,7 @@ void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0, int lmm, int iter,
   }
 
   if (itol == SS) {
-    neg_abstol = (*((real *)abstol) < ZERO);
+    neg_abstol = (*((realtype *)abstol) < ZERO);
   } else {
     neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
   }
@@ -941,18 +942,18 @@ void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0, int lmm, int iter,
 
 *****************************************************************/
 
-int CVodeSensMalloc(void *cvode_mem, integer Ns, int ism, 
-                    real *p, real *pbar, integer *plist, 
-                    int ifS, void *fS, int errcon, real rhomax, 
-                    N_Vector *yS0, real *reltolS, void *abstolS)
+int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism, 
+                    realtype *p, realtype *pbar, integertype *plist, 
+                    int ifS, void *fS, int errcon, realtype rhomax, 
+                    N_Vector *yS0, realtype *reltolS, void *abstolS)
 {
   CVodeMem cv_mem;
   FILE     *fp;
   int      itol;
-  real     *reltol;
+  realtype     *reltol;
   long int *iopt;
-  boole    neg_abstol, allocOK, tolsetOK, ewtsetOK, ioptExists;
-  integer  is;
+  booleantype    neg_abstol, allocOK, tolsetOK, ewtsetOK, ioptExists;
+  integertype  is;
   
   /*----------------------------------- 
      Check for legal input parameters 
@@ -1162,16 +1163,16 @@ int CVodeSensMalloc(void *cvode_mem, integer Ns, int ism,
  
 *****************************************************************/
 
-int CVReInit(void *cvode_mem, RhsFn f, real t0, N_Vector y0,
-             int lmm, int iter, int itol, real *reltol, void *abstol,
-             void *f_data, FILE *errfp, boole optIn, long int iopt[],
-             real ropt[], M_Env machEnv)
+int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
+             int lmm, int iter, int itol, realtype *reltol, void *abstol,
+             void *f_data, FILE *errfp, booleantype optIn, long int iopt[],
+             realtype ropt[], M_Env machEnv)
 {
-  boole   ioptExists, roptExists, neg_abstol, ewtsetOK;
+  booleantype   ioptExists, roptExists, neg_abstol, ewtsetOK;
   int     maxord;
   CVodeMem cv_mem;
   FILE *fp;
-  integer N;
+  integertype N;
   int i,k;
  
   /*----------------------------------- 
@@ -1227,7 +1228,7 @@ int CVReInit(void *cvode_mem, RhsFn f, real t0, N_Vector y0,
   }
 
   if (itol == SS) {
-    neg_abstol = (*((real *)abstol) < ZERO);
+    neg_abstol = (*((realtype *)abstol) < ZERO);
   } else {
     neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
   }
@@ -1384,17 +1385,17 @@ int CVReInit(void *cvode_mem, RhsFn f, real t0, N_Vector y0,
 *****************************************************************/
 
 int CVSensReInit(void *cvode_mem, int ism, 
-                 real *p, real *pbar, integer *plist, 
-                 int ifS, void *fS, int errcon, real rhomax, 
-                 N_Vector *yS0, real *reltolS, void *abstolS)
+                 realtype *p, realtype *pbar, integertype *plist, 
+                 int ifS, void *fS, int errcon, realtype rhomax, 
+                 N_Vector *yS0, realtype *reltolS, void *abstolS)
 {
   CVodeMem cv_mem;
   FILE     *fp;
   int      itol;
-  real     *reltol;
+  realtype     *reltol;
   long int *iopt;
-  integer  Ns, is;  
-  boole    neg_abstol, allocOK, tolsetOK, ewtsetOK;
+  integertype  Ns, is;  
+  booleantype    neg_abstol, allocOK, tolsetOK, ewtsetOK;
 
   /*----------------------------------- 
      Check for legal input parameters 
@@ -1629,12 +1630,12 @@ int CVSensReInit(void *cvode_mem, int ism,
 
 ********************************************************************/
 
-int CVode(void *cvode_mem, real tout, N_Vector yout, real *t, int itask)
+int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
 {
   int nstloc, kflag, istate, next_q, ier;
-  integer is;
-  real tstop, troundoff, rh, next_h;
-  boole istop, hOK, ewtsetOK, ewtSsetOK;
+  integertype is;
+  realtype tstop, troundoff, rh, next_h;
+  booleantype istop, hOK, ewtsetOK, ewtSsetOK;
   N_Vector wrk1, wrk2;
   CVodeMem cv_mem;
 
@@ -2003,10 +2004,10 @@ int CVode(void *cvode_mem, real tout, N_Vector yout, real *t, int itask)
 
 **********************************************************************/
 
-int CVodeDky(void *cvode_mem, real t, int k, N_Vector dky)
+int CVodeDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 {
-  real s, c, r;
-  real tfuzz, tp, tn1;
+  realtype s, c, r;
+  realtype tfuzz, tp, tn1;
   int i, j;
   CVodeMem cv_mem;
   
@@ -2064,7 +2065,7 @@ int CVodeDky(void *cvode_mem, real t, int k, N_Vector dky)
 
 *******************************************************************/
  
-int CVodeSensExtract(void *cvode_mem, real t, N_Vector *ySout)
+int CVodeSensExtract(void *cvode_mem, realtype t, N_Vector *ySout)
 {
   return (CVodeSensDkyAll(cvode_mem,t,0,ySout));
 }
@@ -2078,10 +2079,10 @@ int CVodeSensExtract(void *cvode_mem, real t, N_Vector *ySout)
                        
 *******************************************************************/
 
-int CVodeSensDkyAll(void *cvode_mem, real t, int k, N_Vector *dkyA)
+int CVodeSensDkyAll(void *cvode_mem, realtype t, int k, N_Vector *dkyA)
 {
   int ier;
-  integer is;
+  integertype is;
   CVodeMem cv_mem;
   
   cv_mem = (CVodeMem) cvode_mem;  
@@ -2118,10 +2119,10 @@ int CVodeSensDkyAll(void *cvode_mem, real t, int k, N_Vector *dkyA)
 
 *******************************************************************/
 
-int CVodeSensDky(void *cvode_mem, real t, int k, integer is, N_Vector dky)
+int CVodeSensDky(void *cvode_mem, realtype t, int k, integertype is, N_Vector dky)
 { 
-  real s, c, r;
-  real tfuzz, tp, tn1;
+  realtype s, c, r;
+  realtype tfuzz, tp, tn1;
   int i, j;
   CVodeMem cv_mem;
   
@@ -2227,7 +2228,7 @@ with the appropriate infromation from cvode_mem.
 
 int CVodeMemExtract(void *cvode_mem, long int *n_niS1, long int *n_cfnS1)
 {
-  integer is;
+  integertype is;
   CVodeMem cv_mem;
   
   cv_mem = (CVodeMem) cvode_mem; 
@@ -2284,8 +2285,8 @@ int CVodeMemExtract(void *cvode_mem, long int *n_niS1, long int *n_cfnS1)
 
 **********************************************************************/
 
-static boole CVAllocVectors(CVodeMem cv_mem, integer neq, int maxord,
-                            M_Env machEnv)
+static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq, int maxord,
+                                  M_Env machEnv)
 {
   int i, j;
 
@@ -2369,14 +2370,14 @@ static void CVFreeVectors(CVodeMem cv_mem, int maxord)
  
 ***********************************************************************/
 
-static boole CVEwtSet(CVodeMem cv_mem, real *rtol, void *atol, int tol_type, 
-                      N_Vector ycur, integer neq)
+static booleantype CVEwtSet(CVodeMem cv_mem, realtype *rtol, void *atol, int tol_type, 
+                            N_Vector ycur, integertype neq)
 {
-  boole flag;
+  booleantype flag;
 
   switch (tol_type) {
   case SS: 
-    flag = CVEwtSetSS(cv_mem, rtol, (real *)atol, ycur, neq);
+    flag = CVEwtSetSS(cv_mem, rtol, (realtype *)atol, ycur, neq);
     break;
   case SV: 
     flag = CVEwtSetSV(cv_mem, rtol, (N_Vector)atol, ycur, neq);
@@ -2397,10 +2398,10 @@ static boole CVEwtSet(CVodeMem cv_mem, real *rtol, void *atol, int tol_type,
 
 ********************************************************************/
 
-static boole CVEwtSetSS(CVodeMem cv_mem, real *rtol, real *atol,
-                        N_Vector ycur, integer neq)
+static booleantype CVEwtSetSS(CVodeMem cv_mem, realtype *rtol, realtype *atol,
+                              N_Vector ycur, integertype neq)
 {
-  real rtoli, atoli;
+  realtype rtoli, atoli;
   
   rtoli = *rtol;
   atoli = *atol;
@@ -2422,10 +2423,10 @@ static boole CVEwtSetSS(CVodeMem cv_mem, real *rtol, real *atol,
 
 ********************************************************************/
 
-static boole CVEwtSetSV(CVodeMem cv_mem, real *rtol, N_Vector atol,
-                        N_Vector ycur, integer neq)
+static booleantype CVEwtSetSV(CVodeMem cv_mem, realtype *rtol, N_Vector atol,
+                              N_Vector ycur, integertype neq)
 {
-  real rtoli;
+  realtype rtoli;
   
   rtoli = *rtol;
   N_VAbs(ycur, tempv);
@@ -2443,15 +2444,15 @@ static boole CVEwtSetSV(CVodeMem cv_mem, real *rtol, N_Vector atol,
 
 *****************************************************************/
 
-static boole CVSensTestAtol(CVodeMem cv_mem, integer nsens, void *atolS)
+static booleantype CVSensTestAtol(CVodeMem cv_mem, integertype nsens, void *atolS)
 {
-  integer is;
-  real *atolSS;
+  integertype is;
+  realtype *atolSS;
   N_Vector *atolSV;
   
   switch (itol) {
   case SS:
-    atolSS = (real *)atolS;
+    atolSS = (realtype *)atolS;
     for (is=0; is<nsens; is++)
       if (atolSS[is] < ZERO) return (TRUE);
     break;
@@ -2470,15 +2471,15 @@ static boole CVSensTestAtol(CVodeMem cv_mem, integer nsens, void *atolS)
 
 *****************************************************************/
 
-static boole CVSensAllocAtol(CVodeMem cv_mem, integer nsens, 
-                             void **atolSPtr)
+static booleantype CVSensAllocAtol(CVodeMem cv_mem, integertype nsens, 
+                                   void **atolSPtr)
 {
 
   *atolSPtr = (void *)malloc(sizeof(void *));
   
   switch (itol) {
   case SS:
-    *atolSPtr = (void *)malloc(nsens*sizeof(real));
+    *atolSPtr = (void *)malloc(nsens*sizeof(realtype));
     break;
   case SV:
     *atolSPtr = (void *)N_VNew_S(nsens,N,machenv);
@@ -2494,12 +2495,12 @@ static boole CVSensAllocAtol(CVodeMem cv_mem, integer nsens,
 
 *****************************************************************/
 
-static void CVSensFreeAtol(CVodeMem cv_mem, integer nsens, 
+static void CVSensFreeAtol(CVodeMem cv_mem, integertype nsens, 
                            void *atolS)
 {
   switch (itol) {
   case SS:
-    free((real*)atolS);
+    free((realtype*)atolS);
     break;
   case SV:
     N_VFree_S(nsens,(N_Vector *)atolS);
@@ -2517,14 +2518,14 @@ static void CVSensFreeAtol(CVodeMem cv_mem, integer nsens,
 
 *****************************************************************/
 
-static boole CVSensSetAtol(CVodeMem cv_mem, integer nsens, 
-                           real *prmbar, integer *prmlist, void *atolS)
+static booleantype CVSensSetAtol(CVodeMem cv_mem, integertype nsens, 
+                                 realtype *prmbar, integertype *prmlist, void *atolS)
 {
-  boole flag;
+  booleantype flag;
 
   switch (itol) {
   case SS: 
-    flag = CVSensSetAtolSS(cv_mem,nsens,prmbar,prmlist,(real *)atolS);
+    flag = CVSensSetAtolSS(cv_mem,nsens,prmbar,prmlist,(realtype *)atolS);
     break;
   case SV: 
     flag = CVSensSetAtolSV(cv_mem,nsens,prmbar,prmlist,(N_Vector *)atolS);
@@ -2538,18 +2539,19 @@ static boole CVSensSetAtol(CVodeMem cv_mem, integer nsens,
 /******************* CVSensSetAtolSS ****************************
 *****************************************************************/
 
-static boole CVSensSetAtolSS(CVodeMem cv_mem, integer nsens, 
-                             real *prmbar, integer *prmlist, real *atolS)
+static booleantype CVSensSetAtolSS(CVodeMem cv_mem, integertype nsens, 
+                                   realtype *prmbar, integertype *prmlist, 
+                                   realtype *atolS)
 {
-  integer is, which;
-  real rpbar;
+  integertype is, which;
+  realtype rpbar;
   
   for (is=0; is<nsens; is++) {
     if (prmlist!=NULL) which = abs(prmlist[is]) - 1; 
     else               which = is;
     if (prmbar[which]==ZERO) return (FALSE);
     rpbar = ONE/ABS(prmbar[which]);
-    atolS[is] = *((real *)abstol) * rpbar;
+    atolS[is] = *((realtype *)abstol) * rpbar;
   }
   
   return (TRUE);
@@ -2558,11 +2560,12 @@ static boole CVSensSetAtolSS(CVodeMem cv_mem, integer nsens,
 /******************* CVSensSetAtolSV ****************************
 *****************************************************************/
 
-static boole CVSensSetAtolSV(CVodeMem cv_mem, integer nsens,
-                             real *prmbar, integer *prmlist, N_Vector *atolS)
+static booleantype CVSensSetAtolSV(CVodeMem cv_mem, integertype nsens,
+                                   realtype *prmbar, integertype *prmlist, 
+                                   N_Vector *atolS)
 {
-  integer is, which;
-  real rpbar;
+  integertype is, which;
+  realtype rpbar;
   
   for (is=0; is<nsens; is++) {
     if (prmlist!=NULL) which = abs(prmlist[is]) - 1;
@@ -2578,7 +2581,7 @@ static boole CVSensSetAtolSV(CVodeMem cv_mem, integer nsens,
 /******************* CVSensAllocVectors *************************
 *****************************************************************/
 
-static boole CVSensAllocVectors(CVodeMem cv_mem, integer nsens) 
+static booleantype CVSensAllocVectors(CVodeMem cv_mem, integertype nsens) 
 {
   int i, j;
   
@@ -2634,7 +2637,7 @@ static boole CVSensAllocVectors(CVodeMem cv_mem, integer nsens)
 /******************* CVSensFreeVectors **************************
 *****************************************************************/
 
-static void CVSensFreeVectors(CVodeMem cv_mem, int maxord, integer nsens)
+static void CVSensFreeVectors(CVodeMem cv_mem, int maxord, integertype nsens)
 {
   int j;
   
@@ -2650,14 +2653,14 @@ static void CVSensFreeVectors(CVodeMem cv_mem, int maxord, integer nsens)
 /******************* CVSensEwtSet *******************************
 *****************************************************************/
 
-static boole CVSensEwtSet(CVodeMem cv_mem, real *rtolS, void *atolS, 
-                          int tol_type, N_Vector *ycur, integer nsens)
+static booleantype CVSensEwtSet(CVodeMem cv_mem, realtype *rtolS, void *atolS, 
+                                int tol_type, N_Vector *ycur, integertype nsens)
 {
-  boole flag;
+  booleantype flag;
 
   switch (tol_type) {
   case SS: 
-    flag = CVSensEwtSetSS(cv_mem, rtolS, (real *)atolS, ycur, nsens);
+    flag = CVSensEwtSetSS(cv_mem, rtolS, (realtype *)atolS, ycur, nsens);
     break;
   case SV: 
     flag = CVSensEwtSetSV(cv_mem, rtolS, (N_Vector *)atolS, ycur, nsens);
@@ -2671,11 +2674,11 @@ static boole CVSensEwtSet(CVodeMem cv_mem, real *rtolS, void *atolS,
 /******************* CVSensEwtSetSS *****************************
 *****************************************************************/
 
-static boole CVSensEwtSetSS(CVodeMem cv_mem, real *rtolS, real *atolS, 
-                            N_Vector *ycur, integer nsens)
+static booleantype CVSensEwtSetSS(CVodeMem cv_mem, realtype *rtolS, realtype *atolS, 
+                                  N_Vector *ycur, integertype nsens)
 {
-  integer is;
-  real rtoli, atoli;
+  integertype is;
+  realtype rtoli, atoli;
   
   for (is=0; is<nsens; is++) {
     rtoli = *rtolS;
@@ -2692,11 +2695,11 @@ static boole CVSensEwtSetSS(CVodeMem cv_mem, real *rtolS, real *atolS,
 /******************* CVSensEwtSetSS *****************************
 *****************************************************************/
 
-static boole CVSensEwtSetSV(CVodeMem cv_mem, real *rtolS, N_Vector *atolS, 
-                            N_Vector *ycur, integer nsens)
+static booleantype CVSensEwtSetSV(CVodeMem cv_mem, realtype *rtolS, N_Vector *atolS, 
+                                  N_Vector *ycur, integertype nsens)
 {
-  integer is;
-  real rtoli;
+  integertype is;
+  realtype rtoli;
   
   for (is=0; is<nsens; is++) {
     rtoli = *rtolS;
@@ -2721,11 +2724,11 @@ static boole CVSensEwtSetSV(CVodeMem cv_mem, real *rtolS, N_Vector *atolS,
 
 *****************************************************************/
 
-static boole CVHin(CVodeMem cv_mem, real tout)
+static booleantype CVHin(CVodeMem cv_mem, realtype tout)
 {
   int sign, count;
-  real tdiff, tdist, tround, hlb, hub;
-  real hg, hgs, hnew, hrat, h0, yddnrm;
+  realtype tdiff, tdist, tround, hlb, hub;
+  realtype hg, hgs, hnew, hrat, h0, yddnrm;
 
   /* Test for tout too close to tn */
   
@@ -2787,12 +2790,12 @@ static boole CVHin(CVodeMem cv_mem, real tout)
 
 ******************************************************************/
 
-static real CVUpperBoundH0(CVodeMem cv_mem, real tdist)
+static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 {
-  boole vectorAtol;
-  real atoli, *atolSS, hub_inv, hubS_inv, hub;
+  booleantype vectorAtol;
+  realtype atoli, *atolSS, hub_inv, hubS_inv, hub;
   N_Vector *atolSV, temp1, temp2;
-  integer is;
+  integertype is;
     
   vectorAtol = (itol == SV);
   temp1 = tempv;
@@ -2803,7 +2806,7 @@ static real CVUpperBoundH0(CVodeMem cv_mem, real tdist)
   if (vectorAtol) {
     N_VLinearSum(HUB_FACTOR, temp1, ONE, (N_Vector)abstol, temp1);
   } else {
-    atoli = *((real *) abstol);
+    atoli = *((realtype *) abstol);
     N_VScale(HUB_FACTOR, temp1, temp1);
     N_VAddConst(temp1, atoli, temp1);
   }
@@ -2812,7 +2815,7 @@ static real CVUpperBoundH0(CVodeMem cv_mem, real tdist)
   
   if (sensi && (errcon == FULL)) {
     if (vectorAtol) atolSV = (N_Vector *)abstolS;
-    else            atolSS = (real *)abstolS;
+    else            atolSS = (realtype *)abstolS;
     for (is=0; is<Ns; is++) {
       N_VAbs(znS[0][is], temp1);
       N_VAbs(znS[1][is], temp2);
@@ -2841,10 +2844,10 @@ static real CVUpperBoundH0(CVodeMem cv_mem, real tdist)
 
 ******************************************************************/
 
-static real CVYddNorm(CVodeMem cv_mem, real hg)
+static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
 {
-  real yddnrm;
-  integer is;
+  realtype yddnrm;
+  integertype is;
   N_Vector wrk1, wrk2;
   
   /* y     <- h*y'(t) + y(t) */
@@ -2908,10 +2911,10 @@ static real CVYddNorm(CVodeMem cv_mem, real hg)
 
 static int CVStep(CVodeMem cv_mem)
 {
-  real saved_t, dsm, dsmS;
+  realtype saved_t, dsm, dsmS;
   int ncf, nef, kflag, nflag, ncfS, nefS;
-  boole do_sensi_stg, do_sensi_stg1, passed;
-  integer is;
+  booleantype do_sensi_stg, do_sensi_stg1, passed;
+  integertype is;
 
   saved_t = tn;
 
@@ -3094,8 +3097,8 @@ static void CVAdjustOrder(CVodeMem cv_mem, int deltaq)
 static void CVAdjustAdams(CVodeMem cv_mem, int deltaq)
 {
   int i, j;
-  integer is;
-  real xi, hsum;
+  integertype is;
+  realtype xi, hsum;
 
   /* On an order increase, set new column of zn to zero and return */
   
@@ -3179,9 +3182,9 @@ static void CVAdjustBDF(CVodeMem cv_mem, int deltaq)
 
 static void CVIncreaseBDF(CVodeMem cv_mem)
 {
-  real alpha0, alpha1, prod, xi, xiold, hsum, A1;
+  realtype alpha0, alpha1, prod, xi, xiold, hsum, A1;
   int i, j;
-  integer is;
+  integertype is;
 
   for (i=0; i <= qmax; i++) l[i] = ZERO;
   l[2] = alpha1 = prod = xiold = ONE;
@@ -3233,9 +3236,9 @@ static void CVIncreaseBDF(CVodeMem cv_mem)
 
 static void CVDecreaseBDF(CVodeMem cv_mem)
 {
-  real hsum, xi;
+  realtype hsum, xi;
   int i, j;
-  integer is;
+  integertype is;
   
   for (i=0; i <= qmax; i++) l[i] = ZERO;
   l[2] = ONE;
@@ -3265,8 +3268,8 @@ static void CVDecreaseBDF(CVodeMem cv_mem)
 static void CVRescale(CVodeMem cv_mem)
 {
   int j;
-  integer is;
-  real factor;
+  integertype is;
+  realtype factor;
 
   factor = eta;
   for (j=1; j <= q; j++) {
@@ -3296,7 +3299,7 @@ static void CVRescale(CVodeMem cv_mem)
 static void CVPredict(CVodeMem cv_mem)
 {
   int j, k;
-  integer is;
+  integertype is;
 
   tn += h;
 
@@ -3356,7 +3359,7 @@ static void CVSet(CVodeMem cv_mem)
 
 static void CVSetAdams(CVodeMem cv_mem)
 {
-  real m[L_MAX], M[3], hsum;
+  realtype m[L_MAX], M[3], hsum;
   
   if (q == 1) {
     l[0] = l[1] = tq[1] = tq[5] = ONE;
@@ -3381,9 +3384,9 @@ static void CVSetAdams(CVodeMem cv_mem)
   
 ******************************************************************/
 
-static real CVAdamsStart(CVodeMem cv_mem, real m[])
+static realtype CVAdamsStart(CVodeMem cv_mem, realtype m[])
 {
-  real hsum, xi_inv, sum;
+  realtype hsum, xi_inv, sum;
   int i, j;
   
   hsum = h;
@@ -3408,10 +3411,10 @@ static real CVAdamsStart(CVodeMem cv_mem, real m[])
 
 ******************************************************************/
 
-static void CVAdamsFinish(CVodeMem cv_mem, real m[], real M[], real hsum)
+static void CVAdamsFinish(CVodeMem cv_mem, realtype m[], realtype M[], realtype hsum)
 {
   int i;
-  real M0_inv, xi, xi_inv;
+  realtype M0_inv, xi, xi_inv;
   
   M0_inv = ONE / M[0];
   
@@ -3442,10 +3445,10 @@ static void CVAdamsFinish(CVodeMem cv_mem, real m[], real M[], real hsum)
 
 ******************************************************************/
 
-static real CVAltSum(int iend, real a[], int k)
+static realtype CVAltSum(int iend, realtype a[], int k)
 {
   int i, sign;
-  real sum;
+  realtype sum;
   
   if (iend < 0) return (ZERO);
   
@@ -3479,7 +3482,7 @@ static real CVAltSum(int iend, real a[], int k)
 
 static void CVSetBDF(CVodeMem cv_mem)
 {
-  real alpha0, alpha0_hat, xi_inv, xistar_inv, hsum;
+  realtype alpha0, alpha0_hat, xi_inv, xistar_inv, hsum;
   int i,j;
   
   l[0] = l[1] = xi_inv = xistar_inv = ONE;
@@ -3514,11 +3517,11 @@ static void CVSetBDF(CVodeMem cv_mem)
 
 ******************************************************************/
 
-static void CVSetTqBDF(CVodeMem cv_mem, real hsum, real alpha0,
-               real alpha0_hat, real xi_inv, real xistar_inv)
+static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
+               realtype alpha0_hat, realtype xi_inv, realtype xistar_inv)
 {
-  real A1, A2, A3, A4, A5, A6;
-  real C, CPrime, CPrimePrime;
+  realtype A1, A2, A3, A4, A5, A6;
+  realtype C, CPrime, CPrimePrime;
   
   A1 = ONE - alpha0_hat + alpha0;
   A2 = ONE + q * A1;
@@ -3580,9 +3583,9 @@ static int CVNls(CVodeMem cv_mem, int nflag)
 static int CVNlsFunctional(CVodeMem cv_mem)
 {
   int m;
-  real del, delS, Del, Delp, dcon;
-  integer is;
-  boole do_sensi_sim;
+  realtype del, delS, Del, Delp, dcon;
+  integertype is;
+  booleantype do_sensi_sim;
   N_Vector wrk1, wrk2;
 
   /* Are we computing sensitivities with the SIMULTANEOUS approach? */
@@ -3711,8 +3714,8 @@ static int CVNlsNewton(CVodeMem cv_mem, int nflag)
 {
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
   int convfail, ier;
-  boole callSetup, do_sensi_sim;
-  integer is;
+  booleantype callSetup, do_sensi_sim;
+  integertype is;
   
   /* Are we computing sensitivities with the SIMULTANEOUS approach? */
   do_sensi_sim = (sensi && (ism==SIMULTANEOUS));
@@ -3815,10 +3818,10 @@ static int CVNlsNewton(CVodeMem cv_mem, int nflag)
 static int CVNewtonIteration(CVodeMem cv_mem)
 {
   int m, ret;
-  real del, delS, Del, Delp, dcon;
+  realtype del, delS, Del, Delp, dcon;
   N_Vector b, *bS, wrk1, wrk2;
-  boole do_sensi_sim;
-  integer is;
+  booleantype do_sensi_sim;
+  integertype is;
   
   /* Are we computing sensitivities with the SIMULTANEOUS approach? */
   do_sensi_sim = (sensi && (ism==SIMULTANEOUS));
@@ -3955,7 +3958,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
 
 *********************************************************************/
 
-static int CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, real saved_t,
+static int CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                          int *ncfPtr, long int *ncfnPtr)
 {
   int nflag;
@@ -3995,10 +3998,10 @@ static int CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, real saved_t,
 
 ********************************************************************/
 
-static void CVRestore(CVodeMem cv_mem, real saved_t)
+static void CVRestore(CVodeMem cv_mem, realtype saved_t)
 {
   int j, k;
-  integer is;
+  integertype is;
 
   tn = saved_t;
   for (k = 1; k <= q; k++)
@@ -4036,11 +4039,11 @@ static void CVRestore(CVodeMem cv_mem, real saved_t)
 
 ******************************************************************/
 
-static boole CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
-                           real saved_t, int *nefPtr, real *dsmPtr)
+static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
+                                 realtype saved_t, int *nefPtr, realtype *dsmPtr)
 {
-  real dsm;
-  integer is;
+  realtype dsm;
+  integertype is;
   N_Vector wrk1, wrk2;
 
   dsm = acnrm / tq[2];
@@ -4156,8 +4159,8 @@ static int CVStgrNls(CVodeMem cv_mem)
 static int CVStgrNlsFunctional(CVodeMem cv_mem)
 {
   int m;
-  integer is;
-  real Del, Delp, dcon;
+  integertype is;
+  realtype Del, Delp, dcon;
   N_Vector wrk1, wrk2;
 
   /* Initialize estimated conv. rate and counter */
@@ -4241,11 +4244,11 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
 
 static int CVStgrNlsNewton(CVodeMem cv_mem)
 {
-  integer is;
+  integertype is;
   int convfail, ier;
-  boole callSetup;
+  booleantype callSetup;
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
-  real saved_crate;
+  realtype saved_crate;
 
   saved_crate = crate;
 
@@ -4319,9 +4322,9 @@ static int CVStgrNlsNewton(CVodeMem cv_mem)
 static int CVStgrNewtonIteration(CVodeMem cv_mem)
 {
   int m, ret;
-  real Del, Delp, dcon;
+  realtype Del, Delp, dcon;
   N_Vector *bS, wrk1, wrk2;
-  integer is;
+  integertype is;
 
   m = 0;
 
@@ -4407,7 +4410,7 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
 
 ******************************************************************/
 
-static int CVStgr1Nls(CVodeMem cv_mem, integer is)
+static int CVStgr1Nls(CVodeMem cv_mem, integertype is)
 {
   int flag;
 
@@ -4437,10 +4440,10 @@ static int CVStgr1Nls(CVodeMem cv_mem, integer is)
 
 ******************************************************************/
 
-static int CVStgr1NlsFunctional(CVodeMem cv_mem, integer is)
+static int CVStgr1NlsFunctional(CVodeMem cv_mem, integertype is)
 {
   int m;
-  real Del, Delp, dcon;
+  realtype Del, Delp, dcon;
   N_Vector wrk1, wrk2;
 
   /* Initialize estimated conv. rate and counter */
@@ -4515,12 +4518,12 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, integer is)
 
 ***************************************************************************/
 
-static int CVStgr1NlsNewton(CVodeMem cv_mem, integer is)
+static int CVStgr1NlsNewton(CVodeMem cv_mem, integertype is)
 {
   int convfail, ier;
-  boole callSetup;
+  booleantype callSetup;
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
-  real saved_crate;
+  realtype saved_crate;
 
   saved_crate = crate;
 
@@ -4589,10 +4592,10 @@ static int CVStgr1NlsNewton(CVodeMem cv_mem, integer is)
 
 ******************************************************************************/
 
-static int CVStgr1NewtonIteration(CVodeMem cv_mem, integer is)
+static int CVStgr1NewtonIteration(CVodeMem cv_mem, integertype is)
 {
   int m, ret;
-  real Del, Delp, dcon;
+  realtype Del, Delp, dcon;
   N_Vector *bS, wrk1, wrk2;
 
   m = 0;
@@ -4675,11 +4678,11 @@ static int CVStgr1NewtonIteration(CVodeMem cv_mem, integer is)
 
 **********************************************************************/
 
-static boole CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr, 
-                               real saved_t, int *nefSPtr, real *dsmSPtr)
+static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr, 
+                                     realtype saved_t, int *nefSPtr, realtype *dsmSPtr)
 {
-  integer is;
-  real dsmS;
+  integertype is;
+  realtype dsmS;
   N_Vector wrk1, wrk2;
 
   dsmS = acnrmS / tq[2];
@@ -4765,7 +4768,7 @@ static boole CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
 static void CVCompleteStep(CVodeMem cv_mem)
 {
   int i, j;
-  integer is;
+  integertype is;
   
   nst++;
   nscon++;
@@ -4814,7 +4817,7 @@ static void CVCompleteStep(CVodeMem cv_mem)
 
 ******************************************************************/
 
-static void CVPrepareNextStep(CVodeMem cv_mem, real dsm)
+static void CVPrepareNextStep(CVodeMem cv_mem, realtype dsm)
 {
   /* If etamax = 1, defer step size or order changes */
   if (etamax == ONE) {
@@ -4879,9 +4882,9 @@ static void CVSetEta(CVodeMem cv_mem)
 
 ******************************************************************/
 
-static real CVComputeEtaqm1(CVodeMem cv_mem)
+static realtype CVComputeEtaqm1(CVodeMem cv_mem)
 {
-  real ddn;
+  realtype ddn;
   
   etaqm1 = ZERO;
 
@@ -4906,10 +4909,10 @@ static real CVComputeEtaqm1(CVodeMem cv_mem)
 
 ******************************************************************/
 
-static real CVComputeEtaqp1(CVodeMem cv_mem)
+static realtype CVComputeEtaqp1(CVodeMem cv_mem)
 {
-  real dup, cquot;
-  integer is;
+  realtype dup, cquot;
+  integertype is;
   
   etaqp1 = ZERO;
 
@@ -4949,8 +4952,8 @@ static real CVComputeEtaqp1(CVodeMem cv_mem)
 
 static void CVChooseEta(CVodeMem cv_mem)
 {
-  real etam;
-  integer is;
+  realtype etam;
+  integertype is;
   
   etam = MAX(etaqm1, MAX(etaq, etaqp1));
   
@@ -5033,7 +5036,7 @@ static int CVHandleFailure(CVodeMem cv_mem, int kflag)
 void CVBDFStab(CVodeMem cv_mem)
 {
   int i,k, ldflag, factorial;
-  real sq, sqm1, sqm2;
+  realtype sq, sqm1, sqm2;
       
   /* If order is 3 or greater, then save scaled derivative data,
      push old data down in i, then add current values to top.    */
@@ -5117,15 +5120,15 @@ void CVBDFStab(CVodeMem cv_mem)
 ********************************************************************/
 static int CVsldet(CVodeMem cv_mem)
 {
-  integer i, k, j, it, kmin, kflag;
-  real rat[5][4], rav[4], qkr[4], sigsq[4], smax[4], ssmax[4];
-  real drr[4], rrc[4],sqmx[4], qjk[4][4], vrat[5], qc[6][4], qco[6][4];
-  real rr, rrcut, vrrtol, vrrt2, sqtol, rrtol;
-  real smink, smaxk, sumrat, sumrsq, vmin, vmax, drrmax, adrr;
-  real small, tem, sqmax, saqk, qp, s, sqmaxk, saqj, sqmin;
-  real rsa, rsb, rsc, rsd, rse, rd1a, rd1b, rd1c, rd1d;
-  real rd2a, rd2b, rd2c, rd3a, rd3b, cest1, corr1; 
-  real ratp, ratm, qfac1, qfac2, bb, rrb;
+  integertype i, k, j, it, kmin, kflag;
+  realtype rat[5][4], rav[4], qkr[4], sigsq[4], smax[4], ssmax[4];
+  realtype drr[4], rrc[4],sqmx[4], qjk[4][4], vrat[5], qc[6][4], qco[6][4];
+  realtype rr, rrcut, vrrtol, vrrt2, sqtol, rrtol;
+  realtype smink, smaxk, sumrat, sumrsq, vmin, vmax, drrmax, adrr;
+  realtype small, tem, sqmax, saqk, qp, s, sqmaxk, saqj, sqmin;
+  realtype rsa, rsb, rsc, rsd, rse, rd1a, rd1b, rd1c, rd1d;
+  realtype rd2a, rd2b, rd2c, rd3a, rd3b, cest1, corr1; 
+  realtype ratp, ratm, qfac1, qfac2, bb, rrb;
 
  /* The following are cutoffs and tolerances used by this routine */
 
@@ -5414,11 +5417,11 @@ static int CVsldet(CVodeMem cv_mem)
 
 ********************************************************************/
 
-static real CVSensNormAll(N_Vector x, N_Vector w, 
-              N_Vector *xS, N_Vector *wS, integer nsens)
+static realtype CVSensNormAll(N_Vector x, N_Vector w, 
+              N_Vector *xS, N_Vector *wS, integertype nsens)
 {
-  integer is;
-  real nrm, snrm;
+  integertype is;
+  realtype nrm, snrm;
   
   if ( MAX_WRMS ) {
     nrm = N_VWrmsNorm(x,w);
@@ -5459,11 +5462,11 @@ static real CVSensNormAll(N_Vector x, N_Vector w,
 
 ********************************************************************/
 
-static real CVStgrNormSens(N_Vector *xS, N_Vector *wS, integer nsens)
+static realtype CVStgrNormSens(N_Vector *xS, N_Vector *wS, integertype nsens)
 {
 
-  integer is;
-  real nrm, snrm;
+  integertype is;
+  realtype nrm, snrm;
 
   if ( MAX_WRMS ) {
     nrm = N_VWrmsNorm(xS[0],wS[0]);
@@ -5502,9 +5505,9 @@ static real CVStgrNormSens(N_Vector *xS, N_Vector *wS, integer nsens)
 
 ********************************************************************/
 
-static real CVStgrDsm(CVodeMem cv_mem, real dsm, real dsmS)
+static realtype CVStgrDsm(CVodeMem cv_mem, realtype dsm, realtype dsmS)
 {
-  real dsml;
+  realtype dsml;
 
   if ( MAX_WRMS ) {
     if ( dsm > dsmS ) return (dsm);
@@ -5543,12 +5546,12 @@ static real CVStgrDsm(CVodeMem cv_mem, real dsm, real dsmS)
 
 *****************************************************************/
 
-static void CVSensRhs(CVodeMem cv_mem, real time, 
+static void CVSensRhs(CVodeMem cv_mem, realtype time, 
                       N_Vector ycur, N_Vector fcur, 
                       N_Vector *yScur, N_Vector *fScur,
                       N_Vector temp1, N_Vector temp2)
 {
-  integer is;
+  integertype is;
 
   if (ifS==ALLSENS) {
     fS(f, Ns, N, time, ycur, fcur, yScur, fScur,
@@ -5576,9 +5579,9 @@ static void CVSensRhs(CVodeMem cv_mem, real time,
 
 *****************************************************************/
 
-static void CVSensRhs1(CVodeMem cv_mem, real time, 
+static void CVSensRhs1(CVodeMem cv_mem, realtype time, 
                        N_Vector ycur, N_Vector fcur, 
-                       integer is, N_Vector *yScur, N_Vector *fScur,
+                       integertype is, N_Vector *yScur, N_Vector *fScur,
                        N_Vector temp1, N_Vector temp2)
 {
   fS1(f, Ns, N, time, ycur, fcur, is, yScur[is], fScur[is],
@@ -5614,14 +5617,14 @@ static void CVSensRhs1(CVodeMem cv_mem, real time,
 
 *******************************************************************/
 
-static void CVSensRhsDQ(RhsFn f, integer Ns, integer N, real t,
+static void CVSensRhsDQ(RhsFn f, integertype Ns, integertype N, realtype t,
                         N_Vector y, N_Vector ydot, N_Vector *yS, N_Vector *ySdot, 
-                        real *p, real *pbar, integer *plist, void *f_data,
-                        N_Vector ewt, N_Vector *ewtS, real *reltol, real *reltolS, 
-                        real uround, real rhomax, long int *nfePtr,
+                        realtype *p, realtype *pbar, integertype *plist, void *f_data,
+                        N_Vector ewt, N_Vector *ewtS, realtype *reltol, realtype *reltolS, 
+                        realtype uround, realtype rhomax, long int *nfePtr,
                         N_Vector ytemp, N_Vector ftemp)
 {
-  integer is;
+  integertype is;
   
   for (is=0; is<Ns; is++)
     CVSensRhs1DQ(f, Ns, N, t, y, ydot, is, yS[is], ySdot[is],
@@ -5637,23 +5640,23 @@ static void CVSensRhsDQ(RhsFn f, integer Ns, integer N, real t,
 
 ********************************************************************/
 
-static void CVSensRhs1DQ(RhsFn f, integer Ns, integer N, real t,
+static void CVSensRhs1DQ(RhsFn f, integertype Ns, integertype N, realtype t,
                          N_Vector y, N_Vector ydot, 
-                         integer is, N_Vector yS, N_Vector ySdot, 
-                         real *p, real *pbar, integer *plist, void *f_data,
-                         N_Vector ewt, N_Vector ewtS, real *reltol, real *reltolS, 
-                         real uround, real rhomax, long int *nfePtr,
+                         integertype is, N_Vector yS, N_Vector ySdot, 
+                         realtype *p, realtype *pbar, integertype *plist, void *f_data,
+                         N_Vector ewt, N_Vector ewtS, realtype *reltol, realtype *reltolS, 
+                         realtype uround, realtype rhomax, long int *nfePtr,
                          N_Vector ytemp, N_Vector ftemp)
 {
   int method;
-  integer nfel = 0, which;
-  boole skipFP;
-  real psave, pbari;
-  real delta , rdelta;
-  real Deltap, rDeltap, r2Deltap;
-  real Deltay, rDeltay, r2Deltay;
-  real Delta , rDelta , r2Delta ;
-  real norms, ratio;
+  integertype nfel = 0, which;
+  booleantype skipFP;
+  realtype psave, pbari;
+  realtype delta , rdelta;
+  realtype Deltap, rDeltap, r2Deltap;
+  realtype Deltay, rDeltay, r2Deltay;
+  realtype Delta , rDelta , r2Delta ;
+  realtype norms, ratio;
   
   delta  = RSqrt(MAX(*reltol, uround));
   rdelta = ONE/delta;

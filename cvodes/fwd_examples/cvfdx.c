@@ -3,7 +3,7 @@
  * File       : cvfdx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and Radu Serban      * 
  *              @ LLNL                                                  *
- * Version of : 20 March 2002                                           *
+ * Version of : 27 June 2002                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the coding           *
@@ -43,8 +43,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "llnltyps.h"        /* definitions of types real (set to double) and     */
-                             /* integer (set to int), and the constant FALSE      */
+#include "sundialstypes.h"   /* definitions of types realtype (set to double) and */
+                             /* integertype (set to int), and the constant FALSE  */
 #include "cvodes.h"          /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
                              /* constants OPT_SIZE, BDF, NEWTON, SV, SUCCESS,     */
                              /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
@@ -78,21 +78,21 @@
 
 /* Type : UserData */
 typedef struct {
-  real p[3];
+  realtype p[3];
 } *UserData;
 
 /* Private Helper Function */
 
 static void WrongArgs(char *argv[]);
-static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int iopt[]);
-static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector u);
+static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, long int iopt[]);
+static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
 
 /* Functions Called by the CVODES Solver */
 
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
-static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
-                N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static void Jac(integertype N, DenseMat J, RhsFn f, void *f_data, realtype t,
+                N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
                 N_Vector vtemp2, N_Vector vtemp3);
 
@@ -103,16 +103,16 @@ int main(int argc, char *argv[])
 {
   M_Env machEnv;
   UserData data;
-  real ropt[OPT_SIZE], reltol, t, tout;
+  realtype ropt[OPT_SIZE], reltol, t, tout;
   long int iopt[OPT_SIZE];
   N_Vector y, abstol;
   void *cvode_mem;
   int iout, flag;
 
-  real pbar[NP], rhomax;
-  integer is, *plist; 
+  realtype pbar[NP], rhomax;
+  integertype is, *plist; 
   N_Vector *yS;
-  boole sensi;
+  booleantype sensi;
   int sensi_meth, err_con, ifS;
 
   /* Process arguments */
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
     pbar[0] = data->p[0];
     pbar[1] = data->p[1];
     pbar[2] = data->p[2];
-    plist = (integer *) malloc(NS * sizeof(integer));
+    plist = (integertype *) malloc(NS * sizeof(integertype));
     for(is=0;is<NS;is++) plist[is] = is+1;
 
     yS = N_VNew_S(NS, NEQ, machEnv);
@@ -214,9 +214,12 @@ int main(int argc, char *argv[])
   /* In loop over output points, call CVode, print results, test for error */
 
   printf("\n3-species chemical kinetics problem\n\n");
-  printf("=====================================================================================\n");
-  printf("     T     Q       H      NST                    y1           y2           y3    \n");
-  printf("=====================================================================================\n");
+  printf("===================================================");
+  printf("==================================\n");
+  printf("     T     Q       H      NST                    y1");
+  printf("           y2           y3    \n");
+  printf("===================================================");
+  printf("==================================\n");
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
     flag = CVode(cvode_mem, tout, y, &t, NORMAL);
@@ -233,7 +236,8 @@ int main(int argc, char *argv[])
       }
       PrintOutputS(yS);
     } 
-    printf("-------------------------------------------------------------------------------------\n");
+    printf("-------------------------------------------------");
+    printf("------------------------------------\n");
   }
 
   /* Print final statistics */
@@ -268,10 +272,10 @@ static void WrongArgs(char *argv[])
 /* ======================================================================= */
 /* Print current t, step count, order, stepsize, and solution  */
 
-static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector u)
+static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector u)
 {
 
-  real *udata;
+  realtype *udata;
   
   udata = NV_DATA_S(u);
 
@@ -286,7 +290,7 @@ static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector u)
 static void PrintOutputS(N_Vector *uS)
 {
 
-  real *sdata;
+  realtype *sdata;
 
   sdata = NV_DATA_S(uS[0]);
   printf("                                Sensitivity 1  ");
@@ -305,7 +309,8 @@ static void PrintOutputS(N_Vector *uS)
 /* ======================================================================= */
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int iopt[])
+static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
+                            long int iopt[])
 {
 
   printf("\n\n========================================================");
@@ -348,11 +353,11 @@ static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int i
 /* ======================================================================= */
 /* f routine. Compute f(t,y). */
 
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
-  real y1, y2, y3, yd1, yd3;
+  realtype y1, y2, y3, yd1, yd3;
   UserData data;
-  real p1, p2, p3;
+  realtype p1, p2, p3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) f_data;
@@ -366,14 +371,14 @@ static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
 /* ======================================================================= */
 /* Jacobian routine. Compute J(t,y). */
 
-static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
-                N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+static void Jac(integertype N, DenseMat J, RhsFn f, void *f_data, realtype t,
+                N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
                 N_Vector vtemp2, N_Vector vtemp3)
 {
-  real y1, y2, y3;
+  realtype y1, y2, y3;
   UserData data;
-  real p1, p2, p3;
+  realtype p1, p2, p3;
  
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) f_data;

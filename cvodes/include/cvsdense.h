@@ -3,13 +3,13 @@
  * File          : cvsdense.h                                     *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 20 March 2002                                  *
+ * Version of    : 27 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVODES dense linear solver,    *
  * CVSDENSE.                                                      *
  *                                                                *
- * Note: The type integer must be large enough to store the value *
- * of the linear system size N.                                   *
+ * Note: The type integertype must be large enough to store the   *
+ * value of the linear system size N.                             *
  *                                                                *
  ******************************************************************/
 
@@ -23,7 +23,7 @@ extern "C" {
 
 #include <stdio.h>
 #include "cvodes.h"
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "dense.h"
 #include "nvector.h"
 
@@ -41,10 +41,10 @@ extern "C" {
  *                   calls made to the dense Jacobian routine     *
  *                   (default or user-supplied).                  *
  *                                                                *
- * iopt[DENSE_LRW] : size (in real words) of real workspace       *
+ * iopt[DENSE_LRW] : size (in realtype words) of real workspace   *
  *                   matrices and vectors used by this solver.    *
  *                                                                *
- * iopt[DENSE_LIW] : size (in integer words) of integer           *
+ * iopt[DENSE_LIW] : size (in integertype words) of integer       *
  *                   workspace vectors used by this solver.       *
  *                                                                *
  ******************************************************************/
@@ -139,9 +139,10 @@ enum { DENSE_NJE=CVODE_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVDenseJacFn)(integer N, DenseMat J, RhsFn f, void *f_data,
-                             real t, N_Vector y, N_Vector fy, N_Vector ewt,
-                             real h, real uround, void *jac_data,
+typedef void (*CVDenseJacFn)(integertype N, DenseMat J, RhsFn f, 
+                             void *f_data, realtype t, N_Vector y, 
+                             N_Vector fy, N_Vector ewt, realtype h, 
+                             realtype uround, void *jac_data,
                              long int *nfePtr, N_Vector vtemp1,
                              N_Vector vtemp2, N_Vector vtemp3);
  

@@ -2,7 +2,7 @@
  *                                                                      *
  * File       : cvadx.c                                                 *
  * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 22 March 2002                                           *
+ * Version of : 27 June 2002                                            *
  *----------------------------------------------------------------------*
  * Adjoint sensitivity example problem.                                 *
  * The following is a simple example problem, with the coding           *
@@ -47,7 +47,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "cvodea.h"
 #include "cvsdense.h"
 #include "nvector_serial.h"
@@ -80,25 +80,25 @@
 
 /* Type : UserData */
 typedef struct {
-  real p[3];
+  realtype p[3];
 } *UserData;
 
 /* Functions Called by the CVODES Solver */
 
 /* f is of type RhsFn */
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
 /* Jac is of type CVDenseJacFn */
-static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
-                N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+static void Jac(integertype N, DenseMat J, RhsFn f, void *f_data, realtype t,
+                N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
                 N_Vector vtemp2, N_Vector vtemp3);
 /* fB is of type RhsFnB */
-static void fB(integer NB, real t, N_Vector y, 
+static void fB(integertype NB, realtype t, N_Vector y, 
                N_Vector yB, N_Vector yBdot, void *f_dataB);
 /* JacB is of type CVDenseJacFnB */
-static void JacB(integer NB, DenseMat JB, RhsFnB fB, void *f_dataB, real t,
-                 N_Vector y, N_Vector yB, N_Vector fyB, N_Vector ewtB, real hB, 
-                 real uroundB, void *jac_dataB, long int *nfePtrB, N_Vector vtemp1B,
+static void JacB(integertype NB, DenseMat JB, RhsFnB fB, void *f_dataB, realtype t,
+                 N_Vector y, N_Vector yB, N_Vector fyB, N_Vector ewtB, realtype hB, 
+                 realtype uroundB, void *jac_dataB, long int *nfePtrB, N_Vector vtemp1B,
                  N_Vector vtemp2B, N_Vector vtemp3B);
 
 /***************************** Main Program ******************************/
@@ -112,13 +112,13 @@ int main(int argc, char *argv[])
   void *cvadj_mem;
   void *cvode_mem;
 
-  real reltol;
+  realtype reltol;
   N_Vector y, abstol;
 
-  real reltolB;
+  realtype reltolB;
   N_Vector yB, abstolB;
 
-  real time;
+  realtype time;
   int flag, ncheck;
 
 
@@ -234,11 +234,11 @@ int main(int argc, char *argv[])
 /***************** Functions Called by the CVODE Solver ******************/
 
 /* f routine. Compute f(t,y). */
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
-  real y1, y2, y3, yd1, yd3;
+  realtype y1, y2, y3, yd1, yd3;
   UserData data;
-  real p1, p2, p3;
+  realtype p1, p2, p3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) f_data;
@@ -250,14 +250,14 @@ static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data)
 }
 
 /* Jacobian routine. Compute J(t,y). */
-static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
-                N_Vector y, N_Vector fy, N_Vector ewt, real h, real uround,
+static void Jac(integertype N, DenseMat J, RhsFn f, void *f_data, realtype t,
+                N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
                 N_Vector vtemp2, N_Vector vtemp3)
 {
-  real y1, y2, y3;
+  realtype y1, y2, y3;
   UserData data;
-  real p1, p2, p3;
+  realtype p1, p2, p3;
  
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) f_data;
@@ -269,14 +269,14 @@ static void Jac(integer N, DenseMat J, RhsFn f, void *f_data, real t,
 }
  
 /* fB routine. Compute fB(t,y,yB). */
-static void fB(integer NB, real t, N_Vector y, 
+static void fB(integertype NB, realtype t, N_Vector y, 
                N_Vector yB, N_Vector yBdot, void *f_dataB)
 {
   UserData data;
-  real y1, y2, y3;
-  real p1, p2, p3;
-  real l1, l2, l3;
-  real l21, l32, y23;
+  realtype y1, y2, y3;
+  realtype p1, p2, p3;
+  realtype l1, l2, l3;
+  realtype l21, l32, y23;
   
   data = (UserData) f_dataB;
 
@@ -306,14 +306,14 @@ static void fB(integer NB, real t, N_Vector y,
 }
 
 /* JacB routine. Compute JB(t,y,yB). */
-static void JacB(integer NB, DenseMat JB, RhsFnB fB, void *f_dataB, real t,
-                 N_Vector y, N_Vector yB, N_Vector fyB, N_Vector ewtB, real hB, 
-                 real uroundB, void *jac_dataB, long int *nfePtrB, N_Vector vtemp1B,
+static void JacB(integertype NB, DenseMat JB, RhsFnB fB, void *f_dataB, realtype t,
+                 N_Vector y, N_Vector yB, N_Vector fyB, N_Vector ewtB, realtype hB, 
+                 realtype uroundB, void *jac_dataB, long int *nfePtrB, N_Vector vtemp1B,
                  N_Vector vtemp2B, N_Vector vtemp3B)
 {
   UserData data;
-  real y1, y2, y3;
-  real p1, p2, p3;
+  realtype y1, y2, y3;
+  realtype p1, p2, p3;
   
   data = (UserData) f_dataB;
 

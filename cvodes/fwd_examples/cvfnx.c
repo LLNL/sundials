@@ -3,7 +3,7 @@
  * File       : cvfnx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne, and *
  *              Radu Serban @ LLNL                                      *
- * Version of : 20 March 2002                                           *
+ * Version of : 27 June 2002                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -45,7 +45,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "cvodes.h"
 #include "nvector_serial.h"
 
@@ -68,22 +68,23 @@
    contains problem parameters, grid constants, work array. */
 
 typedef struct {
-  real *p;
-  real dx, hdcoef, hacoef;
+  realtype *p;
+  realtype dx, hdcoef, hacoef;
 } *UserData;
 
 
 /* Private Helper Functions */
 
 static void WrongArgs(char *argv[]);
-static void SetIC(N_Vector u, real dx, integer N);
-static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector u);
+static void SetIC(N_Vector u, realtype dx, integertype N);
+static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
-static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int iopt[]);
+static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
+                            long int iopt[]);
 
 /* Functions Called by the CVODES Solver */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -91,17 +92,17 @@ static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data);
 int main(int argc, char *argv[])
 {
   M_Env machEnv;
-  real ropt[OPT_SIZE], dx, reltol, abstol, t, tout;
+  realtype ropt[OPT_SIZE], dx, reltol, abstol, t, tout;
   long int iopt[OPT_SIZE];
   N_Vector u;
   UserData data;
   void *cvode_mem;
   int iout, flag;
 
-  real *pbar, rhomax;
-  integer is, *plist;
+  realtype *pbar, rhomax;
+  integertype is, *plist;
   N_Vector *uS;
-  boole sensi;
+  booleantype sensi;
   int sensi_meth, err_con, ifS;
 
   /* Process arguments */
@@ -143,8 +144,8 @@ int main(int argc, char *argv[])
 
   /* USER DATA STRUCTURE */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
-  data->p = (real *) malloc(NP * sizeof(real));
-  dx = data->dx = XMAX/((real)(MX+1));
+  data->p = (realtype *) malloc(NP * sizeof(realtype));
+  dx = data->dx = XMAX/((realtype)(MX+1));
   data->p[0] = 1.0;
   data->p[1] = 0.5;
 
@@ -166,10 +167,10 @@ int main(int argc, char *argv[])
 
   /* SENSITIVTY */
   if(sensi) {
-    pbar  = (real *) malloc(NP * sizeof(real));
+    pbar  = (realtype *) malloc(NP * sizeof(realtype));
     pbar[0] = 1.0;
     pbar[1] = 0.5;
-    plist = (integer *) malloc(NS * sizeof(integer));
+    plist = (integertype *) malloc(NS * sizeof(integertype));
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 
@@ -245,11 +246,11 @@ static void WrongArgs(char *argv[])
 /* ======================================================================= */
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, real dx, integer N)
+static void SetIC(N_Vector u, realtype dx, integertype N)
 {
   int i;
-  real x;
-  real *udata;
+  realtype x;
+  realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = NV_DATA_S(u);
@@ -264,7 +265,7 @@ static void SetIC(N_Vector u, real dx, integer N)
 /* ======================================================================= */
 /* Print current t, step count, order, stepsize, and max norm of solution  */
 
-static void PrintOutput(long int iopt[], real ropt[], real t, N_Vector u)
+static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector u)
 {
   
   printf("%8.3e %2ld  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
@@ -288,7 +289,8 @@ static void PrintOutputS(N_Vector *uS)
 /* ======================================================================= */
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int iopt[])
+static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
+                            long int iopt[])
 {
 
   printf("\n\n========================================================");
@@ -329,11 +331,11 @@ static void PrintFinalStats(boole sensi, int sensi_meth, int err_con, long int i
 /* ======================================================================= */
 /* f routine. Compute f(t,u). */
 
-static void f(integer N, real t, N_Vector u, N_Vector udot, void *f_data)
+static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
-  real ui, ult, urt, hordc, horac, hdiff, hadv;
-  real dx;
-  real *udata, *dudata;
+  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
+  realtype dx;
+  realtype *udata, *dudata;
   int i;
   UserData data;
 

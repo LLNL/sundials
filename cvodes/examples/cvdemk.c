@@ -2,7 +2,7 @@
  *                                                                       *
  * File        : cvdemk.c                                                *
  * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of  : 5 March 2002                                            * 
+ * Version of  : 26 June 2002                                            * 
  *-----------------------------------------------------------------------*
  * Modified by R. Serban to work with new serial nvector (5/3/2002)      *
  *-----------------------------------------------------------------------*
@@ -88,14 +88,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"        /* contains the definition for real, integer, boole  */
+#include "sundialstypes.h"   /* definitions for realtype, integertype, booleantype*/
 #include "cvodes.h"          /* main CVODE header file                            */
 #include "iterativ.h"        /* for types of preconditioning and Gram-Schmidt     */
 #include "cvsspgmr.h"        /* use CVSPGMR linear solver each internal step      */
 #include "smalldense.h"      /* use generic DENSE linear solver for "small" dense */
                              /* matrix blocks in right preconditioner             */
 #include "nvector_serial.h"  /* contains the definition of type N_Vector          */
-#include "llnlmath.h"        /* contains UnitRoundoff, RSqrt, SQR functions       */
+#include "sundialsmath.h"    /* contains UnitRoundoff, RSqrt, SQR functions       */
 
 /* Problem Specification Constants */
 
@@ -116,8 +116,8 @@
 #define MXNS (MX*NS)
 #define AX   1.0
 #define AY   1.0
-#define DX   (AX/(real)(MX-1))
-#define DY   (AY/(real)(MY-1))
+#define DX   (AX/(realtype)(MX-1))
+#define DY   (AY/(realtype)(MY-1))
 #define MP   NS
 #define MQ   (MX*MY)
 #define MXMP  (MX*MP)
@@ -157,14 +157,14 @@
 /* Structure for user data */
 
 typedef struct {
-  real   **P[NGRP];
-  integer *pivot[NGRP];
+  realtype   **P[NGRP];
+  integertype *pivot[NGRP];
   int ns,  mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
-  real acoef[NS][NS], bcoef[NS], diff[NS];
-  real cox[NS], coy[NS], dx, dy, srur;
-  real fsave[NEQ];
+  realtype acoef[NS][NS], bcoef[NS], diff[NS];
+  realtype cox[NS], coy[NS], dx, dy, srur;
+  realtype fsave[NEQ];
 } *WebData;
 
 /* Private Helper Functions */
@@ -174,35 +174,35 @@ static void InitUserData(WebData wdata);
 static void SetGroups(int m, int ng, int jg[], int jig[], int jr[]);
 static void CInit(N_Vector c, WebData wdata);
 static void PrintIntro(void);
-static void PrintAllSpecies(N_Vector c, int ns, int mxns, real t);
-static void PrintOutput(real t, long int iopt[], real ropt[]);
+static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t);
+static void PrintOutput(realtype t, long int iopt[], realtype ropt[]);
 static void PrintFinalStats(long int iopt[]);
 static void FreeUserData(WebData wdata);
-static void WebRates(real x, real y, real t, real c[], real rate[],
+static void WebRates(realtype x, realtype y, realtype t, realtype c[], realtype rate[],
 		     WebData wdata);
-static void fblock (real t, real cdata[], int jx, int jy, real cdotdata[],
+static void fblock (realtype t, realtype cdata[], int jx, int jy, realtype cdotdata[],
 		    WebData wdata);
-static void GSIter(int N, real gamma, N_Vector z, N_Vector x, WebData wdata);
+static void GSIter(int N, realtype gamma, N_Vector z, N_Vector x, WebData wdata);
 
 /* Small Vector Kernels */
 
-static void v_inc_by_prod(real u[], real v[], real w[], int n);
-static void v_sum_prods(real u[], real p[], real q[], real v[], real w[],
+static void v_inc_by_prod(realtype u[], realtype v[], realtype w[], int n);
+static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[], realtype w[],
 			int n);
-static void v_prod(real u[], real v[], real w[], int n);
-static void v_zero(real u[], int n);
+static void v_prod(realtype u[], realtype v[], realtype w[], int n);
+static void v_zero(realtype u[], int n);
 
 /* Functions Called By The CVODE Solver */
 
-static void f(integer N, real t, N_Vector y, N_Vector ydot, void *f_data);
+static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static int Precond(integer N, real tn, N_Vector c, N_Vector fc,
-		   boole jok, boole *jcurPtr, real gamma, N_Vector ewt, real h,
-		   real uround, long int *nfePtr, void *P_data,
+static int Precond(integertype N, realtype tn, N_Vector c, N_Vector fc,
+		   booleantype jok, booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
+		   realtype uround, long int *nfePtr, void *P_data,
 		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int PSolve(integer N, real tn, N_Vector c, N_Vector fc,
-		  N_Vector vtemp, real gamma, N_Vector ewt, real delta,
+static int PSolve(integertype N, realtype tn, N_Vector c, N_Vector fc,
+		  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
 		  long int *nfePtr, N_Vector r, int lr, void *P_data,
 		  N_Vector z);
      
@@ -211,12 +211,12 @@ static int PSolve(integer N, real tn, N_Vector c, N_Vector fc,
 int main()
 {
   M_Env machEnv;
-  real ropt[OPT_SIZE], abstol=ATOL, reltol=RTOL, t, tout;
+  realtype ropt[OPT_SIZE], abstol=ATOL, reltol=RTOL, t, tout;
   long int iopt[OPT_SIZE]; 
   N_Vector c;
   WebData wdata;
   void *cvode_mem = NULL;
-  boole firstrun;
+  booleantype firstrun;
   int jpre, gstype, iout, flag, ns, mxns;
 
   /* Initialize serial machine environment */
@@ -225,9 +225,9 @@ int main()
   /* Initializations */
   c = N_VNew(NEQ, machEnv);
   wdata = AllocUserData();
+  InitUserData(wdata);
   ns = wdata->ns;
   mxns = wdata->mxns;
-  InitUserData(wdata);
 
   /* Print problem description */
   PrintIntro();
@@ -306,8 +306,8 @@ static WebData AllocUserData(void)
 static void InitUserData(WebData wdata)
 {
   int i, j, ns;
-  real *bcoef, *diff, *cox, *coy, dx, dy;
-  real (*acoef)[NS];
+  realtype *bcoef, *diff, *cox, *coy, dx, dy;
+  realtype (*acoef)[NS];
   
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
@@ -332,6 +332,7 @@ static void InitUserData(WebData wdata)
 
   /* Set remaining problem parameters */
 
+  wdata->ns = NS;
   wdata->mxns = MXNS;
   dx = wdata->dx = DX;
   dy = wdata->dy = DY;
@@ -387,7 +388,7 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
 static void CInit(N_Vector c, WebData wdata)
 {
   int i, ici, ioff, iyoff, jx, jy, ns, mxns;
-  real argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
+  realtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
   
   cdata = NV_DATA_S(c);
   ns = wdata->ns;
@@ -440,10 +441,10 @@ static void PrintIntro(void)
   printf("--------------\n");
 }
 
-static void PrintAllSpecies(N_Vector c, int ns, int mxns, real t)
+static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
 {
   int i, jx, jy;
-  real *cdata;
+  realtype *cdata;
   
   cdata = NV_DATA_S(c);
   printf("c values at t = %g:\n\n", t);
@@ -459,7 +460,7 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, real t)
   }
 }
 
-static void PrintOutput(real t, long int iopt[], real ropt[])
+static void PrintOutput(realtype t, long int iopt[], realtype ropt[])
 {
   printf("t = %10.2e  nst = %ld  nfe = %ld  nni = %ld", t, iopt[NST],
          iopt[NFE], iopt[NNI]);
@@ -469,7 +470,7 @@ static void PrintOutput(real t, long int iopt[], real ropt[])
 static void PrintFinalStats(long int iopt[])
 {
   long int nni, nli;
-  real avdim;
+  realtype avdim;
   
   printf("\n\n Final statistics for this run:\n\n");
   printf(" CVode real workspace length           = %4ld \n", iopt[LENRW]);
@@ -487,7 +488,7 @@ static void PrintFinalStats(long int iopt[])
   printf(" Number of error test failures         = %4ld \n", iopt[NETF]);
   printf(" Number of nonlinear conv. failures    = %4ld \n", iopt[NCFN]);
   printf(" Number of linear convergence failures = %4ld \n", iopt[SPGMR_NCFL]);
-  avdim = (nni > 0) ? ((real)nli)/((real)nni) : 0.0;
+  avdim = (nni > 0) ? ((realtype)nli)/((realtype)nni) : 0.0;
   printf(" Average Krylov subspace dimension     = %.3f \n", avdim);
   printf("\n\n--------------------------------------------------------------");
   printf("--------------\n");
@@ -512,11 +513,11 @@ static void FreeUserData(WebData wdata)
  returns it in cdot. The interaction rates are computed by calls to WebRates,
  and these are saved in fsave for use in preconditioning.
 */
-static void f(integer N, real t, N_Vector c, N_Vector cdot, void *f_data)
+static void f(integertype N, realtype t, N_Vector c, N_Vector cdot, void *f_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
-  real dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
-  real *cdata, *cdotdata;
+  realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
+  realtype *cdata, *cdotdata;
   WebData wdata;
   
   wdata = (WebData) f_data;
@@ -565,12 +566,12 @@ static void f(integer N, real t, N_Vector c, N_Vector cdot, void *f_data)
   c_1, ... ,c_ns (stored in c[0],...,c[ns-1]), at one spatial point 
   and at time t.
 */
-static void WebRates(real x, real y, real t, real c[], real rate[],
+static void WebRates(realtype x, realtype y, realtype t, realtype c[], realtype rate[],
                      WebData wdata)
 {
   int i, j, ns;
-  real fac, *bcoef;
-  real (*acoef)[NS];
+  realtype fac, *bcoef;
+  realtype (*acoef)[NS];
   
   ns = wdata->ns;
   acoef = wdata->acoef;
@@ -601,17 +602,17 @@ static void WebRates(real x, real y, real t, real c[], real rate[],
  of a block-diagonal preconditioner. The blocks are of size mp, and
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */ 
-static int Precond(integer N, real t, N_Vector c, N_Vector fc, boole jok,
-                   boole *jcurPtr, real gamma, N_Vector rewt, real h,
-                   real uround, long int *nfePtr, void *P_data,
+static int Precond(integertype N, realtype t, N_Vector c, N_Vector fc, booleantype jok,
+                   booleantype *jcurPtr, realtype gamma, N_Vector rewt, realtype h,
+                   realtype uround, long int *nfePtr, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  real ***P;
-  integer **pivot, ier;
+  realtype ***P;
+  integertype **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp;
-  real fac, r, r0, save, srur;
-  real *f1, *fsave, *cdata, *rewtdata;
+  realtype fac, r, r0, save, srur;
+  realtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
   
   wdata = (WebData) P_data;
@@ -681,11 +682,11 @@ static int Precond(integer N, real t, N_Vector c, N_Vector fc, boole jok,
   system, namely block (jx,jy), for use in preconditioning.
   Here jx and jy count from 0.
 */
-static void fblock(real t, real cdata[], int jx, int jy, real cdotdata[],
+static void fblock(realtype t, realtype cdata[], int jx, int jy, realtype cdotdata[],
                    WebData wdata)
 {
   int iblok, ic;
-  real x, y;
+  realtype x, y;
   
   iblok = jx + jy*(wdata->mx);
   y = jy*(wdata->dy);
@@ -704,12 +705,12 @@ static void fblock(real t, real cdata[], int jx, int jy, real cdotdata[],
   Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
   blocks in P, and pivot information in pivot, and returns the result in z.
 */
-static int PSolve(integer N, real tn, N_Vector c, N_Vector fc, N_Vector vtemp,
-                  real gamma, N_Vector rewt, real delta, long int *nfePtr,
+static int PSolve(integertype N, realtype tn, N_Vector c, N_Vector fc, N_Vector vtemp,
+                  realtype gamma, N_Vector rewt, realtype delta, long int *nfePtr,
                   N_Vector r, int lr, void *P_data, N_Vector z)
 {
-  real   ***P;
-  integer **pivot;
+  realtype   ***P;
+  integertype **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
   
@@ -755,11 +756,11 @@ static int PSolve(integer N, real tn, N_Vector c, N_Vector fc, N_Vector vtemp,
   Some inner loops of length ns are implemented with the small
   vector kernels v_sum_prods, v_prod, v_inc_by_prod.
 */
-static void GSIter(int N, real gamma, N_Vector z, N_Vector x, WebData wdata)
+static void GSIter(int N, realtype gamma, N_Vector z, N_Vector x, WebData wdata)
 {
   int i, ic, iter, iyoff, jx, jy, ns, mxns, mx, my, x_loc, y_loc;
-  real beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
-  real temp, *cox, *coy, *xd, *zd;
+  realtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
+  realtype temp, *cox, *coy, *xd, *zd;
   
   xd = NV_DATA_S(x);
   zd = NV_DATA_S(z);
@@ -925,26 +926,26 @@ static void GSIter(int N, real gamma, N_Vector z, N_Vector x, WebData wdata)
   }
 }
 
-static void v_inc_by_prod(real u[], real v[], real w[], int n)
+static void v_inc_by_prod(realtype u[], realtype v[], realtype w[], int n)
 {
   int i;  
   for (i=0; i < n; i++) u[i] += v[i]*w[i];
 }
 
-static void v_sum_prods(real u[], real p[], real q[], real v[], real w[],
+static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[], realtype w[],
                         int n)
 {
   int i;  
   for (i=0; i < n; i++) u[i] = p[i]*q[i] + v[i]*w[i];
 }
 
-static void v_prod(real u[], real v[], real w[], int n)
+static void v_prod(realtype u[], realtype v[], realtype w[], int n)
 { 
   int i;
   for (i=0; i < n; i++) u[i] = v[i]*w[i];
 }
 
-static void v_zero(real u[], int n)
+static void v_zero(realtype u[], int n)
 {
   int i;  
   for (i=0; i < n; i++) u[i] = 0.0;
