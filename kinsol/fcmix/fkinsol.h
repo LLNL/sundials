@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-10-08 23:24:53 $
+ * $Revision: 1.21 $
+ * $Date: 2004-10-12 20:47:21 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -444,6 +444,8 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
  */
 
 extern N_Vector F2C_vec;
+
+realtype *data_F2C_vec;
 
 void *KIN_mem;
 long int *KIN_iopt;
