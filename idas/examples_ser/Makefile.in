@@ -36,7 +36,16 @@ LIBS    = -lidas -lshared -lnvecserial -lm
 
 all: irobx iheatsb iheatsk iwebsb
 
-irobx iheatsb iheatsk iwebsb: % : ${srcdir}/%.c
+irobx : ${srcdir}/irobx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+iheatsb : ${srcdir}/iheatsb.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+iheatsk : ${srcdir}/iheatsk.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+iwebsb : ${srcdir}/iwebsb.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
 
