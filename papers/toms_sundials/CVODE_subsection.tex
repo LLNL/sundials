@@ -83,7 +83,7 @@ error-like quantities.  The weights used are based on the current
 solution and on the relative and absolute tolerances input by the
 user, namely
 \begin{equation}\label{errwt}
- W_i = rtol |y^i| + atol_i \, .
+ W_i = \mbox{rtol} \cdot |y^i| + \mbox{atol}_i \, .
 \end{equation}
 Because $W_i$ represents a tolerance in the component $y^i$, a vector
 whose norm is 1 is regarded as ``small''.  For brevity, we will
@@ -175,7 +175,7 @@ at the user's option.  In the latter case, we use the usual
 approximation
 \[ J_{ij} = [f^i(t,y+\sigma_j e_j) - f^i(t,y)]/\sigma_j \, . \]
 The increments $\sigma_j$ are given by
-\[ \sigma_j = \max\left\{\sqrt{U} |y^j| , \sigma_0 W_j \right\} \, , \]
+\[ \sigma_j = \max\left\{\sqrt{U} \; |y^j| , \sigma_0 W_j \right\} \, , \]
 where $U$ is the unit roundoff, $\sigma_0$ is a dimensionless value,
 and $W_j$ is the error weight defined in (\ref{errwt}).  In the dense
 case, this scheme requires $N$ evaluations of $f$, one for each column
@@ -202,12 +202,12 @@ and the step is redone with reduced stepsize whenever that error test
 fails.  As with any linear multistep method, the local truncation
 error LTE, at order $q$ and stepsize $h$, satisfies an asymptotic
 relation
-\[ LTE = C h^{q+1} y^{(q+1)} + O(h^{q+2}) \]
+\[ \mbox{LTE} = C h^{q+1} y^{(q+1)} + O(h^{q+2}) \]
 for some constant $C$, under mild assumptions on the stepsizes.
 A similar relation holds for the error in the predictor $y_{n(0)}$.
 These are combined to get a relation
-\[ LTE = C' [y_n - y_{n(0)}] + O(h^{q+2}) \, . \]
-The local error test is simply $\|LTE\| \leq 1$.  Using the above,
+\[ \mbox{LTE} = C' [y_n - y_{n(0)}] + O(h^{q+2}) \, . \]
+The local error test is simply $\|\mbox{LTE}\| \leq 1$.  Using the above,
 it is performed on the predictor-corrector difference 
 $\Delta_n \equiv y_{n(m)} - y_{n(0)}$ (with $y_{n(m)}$ the final
 iterate computed), and takes the form
@@ -242,9 +242,9 @@ is estimated using the history data.  Then a tentative stepsize ratio
 is computed on the basis that this error, LTE$(q')$, behaves
 asymptotically as $h^{q'+1}$.  With safety factors of 1/6 and
 1/10 respectively, these ratios are:
-\[ h'/h = [1 / 6 \|LTE(q-1)\| ]^{1/q} \equiv \eta_{q-1} \]
+\[ h'/h = [1 / 6 \|\mbox{LTE}(q-1)\| ]^{1/q} \equiv \eta_{q-1} \]
 and
-\[ h'/h = [1 / 10 \|LTE(q+1)\| ]^{1/(q+2)} \equiv \eta_{q+1} \, . \]
+\[ h'/h = [1 / 10 \|\mbox{LTE}(q+1)\| ]^{1/(q+2)} \equiv \eta_{q+1} \, . \]
 The new order and stepsize are then set according to
 \[ \eta = \max\{\eta_{q-1},\eta_q,\eta_{q+1}\} ~,~~ h' = \eta h \, , \]
 with $q'$ set to the index achieving the above maximum.
@@ -299,8 +299,10 @@ turned off.
 
 % Output modes
 %-------------
-Normally, CVODE takes steps until a user-defined output value $t = t_{out}$
-is overtaken, and then computes $y(t_{out})$ by interpolation.  However,
-a ``one-step'' mode option is available, where control returns to the
-calling program after each step.  There are also options to force CVODE
-not to integrate past a given stopping point $t = t_{stop}$.
+Normally, CVODE takes steps until a user-defined output value $t =
+t_{\mbox{\scriptsize out}}$ is overtaken, and then computes
+$y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
+``one-step'' mode option is available, where control returns to the
+calling program after each step.  There are also options to force
+CVODE not to integrate past a given stopping point $t =
+t_{\mbox{\scriptsize stop}}$.
