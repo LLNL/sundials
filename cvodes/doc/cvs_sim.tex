@@ -1177,7 +1177,33 @@ ier = CVReInitSpgmr(cvode_mem, pretype, gstype, maxl, delt, Precond,
 
 \end{itemize}
 
-                                                                 
+%--------------------------------------------------------------------
+\subsubsection{Additional Extraction Routines}\label{sss:cvodegetewt}
+\index{access to additional data}
+
+Users that wish to supply thier own finite-difference based Jacobian routines
+(see \S\ref{ss:user_fct_sim}) may find it useful to have access to the
+vector of error weights that is already available in the {\cvodes} internal 
+memory block. This information can be extracted with a call to the function
+\ID{CVodeGetEwt}.
+The call to this function has the form
+\begin{verbatim}
+ier = CVodeGetEwt(cvode_mem, weight);
+\end{verbatim}
+where \id{cvode\_mem} is the pointer to the {\cvodes} memory returned by
+\id{CVodeMalloc} and \id{weight} is an {\nvector} wich will contain
+the solution error weights at the current time. Note that the user need not
+allocate space for \id{weight}. The possible return
+values for \id{ier} are \Id{OKAY} on successful return or \Id{GEWT\_NO\_MEM}
+if \id{cvode\_mem} was \id{NULL}.
+
+Additionally, the machine unit roundoff can be obtained by calling
+\begin{verbatim}
+uround = UnitRoundoff();
+\end{verbatim}
+The function \Id{UnitRoundoff}, defined in \id{sundialsmath}, returns a
+\id{realtype} value equal to the machine unit roundoff.
+
 %----------------------------------
 \subsection{User-Supplied Routines for IVP Solution}\label{ss:user_fct_sim}
 %----------------------------------
