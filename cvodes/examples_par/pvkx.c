@@ -1,5 +1,8 @@
 /*
  * -----------------------------------------------------------------
+ * $Revision: 1.11 $
+ * $Date: 2004-10-08 15:21:28 $
+ * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -21,7 +24,7 @@
  * The PDE system is treated by central differences on a uniform
  * mesh, with simple polynomial initial profiles.
  *
- * The problem is solved by CVODE/CVODE on NPE processors, treated
+ * The problem is solved by CVODES on NPE processors, treated
  * as a rectangular process grid of size NPEX by NPEY, with
  * NPE = NPEX*NPEY. Each processor contains a subgrid of size MXSUB
  * by MYSUB of the (x,y) mesh.  Thus the actual mesh sizes are
@@ -48,14 +51,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "cvodes.h"
-#include "cvspgmr.h"
-#include "smalldense.h"
-#include "nvector_parallel.h"
-#include "sundialsmath.h"
-#include "mpi.h"
-
+#include "sundialstypes.h"     /* defn. of realtype, booleantype, TRUE, FALSE */
+#include "sundialsmath.h"      /* definition of macro SQR                     */
+#include "cvodes.h"            /* prototypes for CVode***, various constants  */
+#include "cvspgmr.h"           /* prototypes and constants for CVSPGMR solver */
+#include "smalldense.h"        /* prototypes for small dense matrix functions */
+#include "nvector_parallel.h"  /* definition of type N_Vector, macro NV_DATA_P*/
+#include "mpi.h"               /* for MPI constants and types                 */
 
 /* Problem Constants */
 
@@ -152,7 +154,8 @@ static void BRecvWait(MPI_Request request[],
                       long int dsizex, realtype uext[],
                       realtype buffer[]);
 static void ucomm(realtype t, N_Vector u, UserData data);
-static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data);
+static void fcalc(realtype t, realtype udata[], realtype dudata[],
+                  UserData data);
 
 
 /* Functions Called by the Solver */
@@ -231,7 +234,7 @@ int main(int argc, char *argv[])
      CV_BDF     specifies the Backward Differentiation Formula
      CV_NEWTON  specifies a Newton iteration
 
-     A pointer to the integrator problem memory is returned and stored in cvode_mem.
+     A pointer to the integrator memory is returned and stored in cvode_mem.
   */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
@@ -804,7 +807,7 @@ static void fcalc(realtype t, realtype udata[],
 /* f routine.  Evaluate f(t,y).  First call ucomm to do communication of 
    subgrid boundary data into uext.  Then calculate f by a call to fcalc. */
 
-static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype *udata, *dudata;
   UserData data;
