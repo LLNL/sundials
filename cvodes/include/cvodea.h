@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29.2.2 $
- * $Date: 2005-04-01 21:48:13 $
+ * $Revision: 1.29.2.3 $
+ * $Date: 2005-04-06 23:39:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -263,8 +263,7 @@ int CVodeQuadReInitB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
 
 int CVDenseB(void *cvadj_mem, long int nB);
 
-int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB);
-int CVDenseSetJacDataB(void *cvadj_mem, void *jac_dataB);
+int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB);
 
 /*
  * -----------------------------------------------------------------
@@ -289,8 +288,7 @@ int CVDiagB(void *cvadj_mem);
 int CVBandB(void *cvadj_mem, long int nB,
             long int mupperB, long int mlowerB);
 
-int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB);
-int CVBandSetJacDataB(void *cvadj_mem, void *jac_dataB);
+int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB);
 
 /*
  * -----------------------------------------------------------------
@@ -307,12 +305,10 @@ int CVSpgmrSetPrecTypeB(void *cvadj_mem, int pretypeB);
 
 int CVSpgmrSetGSTypeB(void *cvadj_mem, int gstypeB);
 int CVSpgmrSetDeltB(void *cvadj_mem, realtype deltB);
-int CVSpgmrSetPrecSetupFnB(void *cvadj_mem, CVSpgmrPrecSetupFnB psetB);
-int CVSpgmrSetPrecSolveFnB(void *cvadj_mem, CVSpgmrPrecSolveFnB psolveB);
-int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpgmrJacTimesVecFnB jtimesB);
-int CVSpgmrSetPrecDataB(void *cvadj_mem, void *P_dataB);
-int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB);
-
+int CVSpgmrSetPreconditionerB(void *cvadj_mem, CVSpgmrPrecSetupFnB psetB,
+                              CVSpgmrPrecSolveFnB psolveB, void *P_dataB);
+int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpgmrJacTimesVecFnB jtimesB,
+                             void *jac_dataB);
 /*
  * -----------------------------------------------------------------
  * Function: CVBandPrecAllocB, CVBPSpgmrB

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6.2.1 $
- * $Date: 2005-01-24 21:40:56 $
+ * $Revision: 1.6.2.2 $
+ * $Date: 2005-04-06 23:39:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -137,8 +137,8 @@ int CVDense(void *cvode_mem, long int N);
  *                 must be of type CVDenseJacFn. By default, a
  *                 difference quotient routine CVDenseDQJac, supplied
  *                 with this solver is used.                     
- * CVDenseSetJacData specifies a pointer to user data which is
- *                   passed to the djac routine every time it is called.
+ *                 It also specifies a pointer to user data which is
+ *                 passed to the djac routine every time it is called.
  *
  * The return value of CVDenseSet* is one of:
  *    CVDENSE_SUCCESS   if successful
@@ -147,8 +147,7 @@ int CVDense(void *cvode_mem, long int N);
  * -----------------------------------------------------------------
  */
 
-int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac);
-int CVDenseSetJacData(void *cvode_mem, void *jac_data);
+int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac, void *jac_data);
 
 /*
  * -----------------------------------------------------------------

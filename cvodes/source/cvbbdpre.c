@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-06 01:02:02 $
+ * $Revision: 1.14.2.1 $
+ * $Date: 2005-04-06 23:39:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with CVODES, CVSpgmr, and
+ * matrix with banded blocks, for use with CVODE, CVSpgmr, and
  * the parallel implementation of NVECTOR.
  * -----------------------------------------------------------------
  */
@@ -144,13 +144,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   flag = CVSpgmr(cvode_mem, pretype, maxl);
   if(flag != CVSPGMR_SUCCESS) return(flag);
 
-  flag = CVSpgmrSetPrecData(cvode_mem, bbd_data);
-  if(flag != CVSPGMR_SUCCESS) return(flag);
-
-  flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBBDPrecSetup);
-  if(flag != CVSPGMR_SUCCESS) return(flag);
-
-  flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBBDPrecSolve);
+  flag = CVSpgmrSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
   if(flag != CVSPGMR_SUCCESS) return(flag);
 
   return(CVSPGMR_SUCCESS);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5.2.1 $
- * $Date: 2005-01-24 21:40:56 $
+ * $Revision: 1.5.2.2 $
+ * $Date: 2005-04-06 23:39:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -165,9 +165,8 @@ int CVBand(void *cvode_mem, long int N,
  *                must be of type CVBandJacFn. By default, a difference
  *                quotient routine CVBandDQJac, supplied with this
  *                solver is used.
- * CVBandSetJacData specifies a pointer to user data which is
- *                  passed to the bjac routine every time it is
- *                  called.
+ *                It also specifies a pointer to user data which is
+ *                passed to the bjac routine every time it is called.
  *
  * The return value of CVBandSet* is one of:
  *    CVBAND_SUCCESS   if successful
@@ -176,8 +175,7 @@ int CVBand(void *cvode_mem, long int N,
  * -----------------------------------------------------------------
  */
 
-int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac);
-int CVBandSetJacData(void *cvode_mem, void *jac_data);
+int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac, void *jac_data);
 
 /*
  * -----------------------------------------------------------------

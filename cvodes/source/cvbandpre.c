@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-11-06 01:02:03 $
+ * $Revision: 1.13.2.1 $
+ * $Date: 2005-04-06 23:39:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -134,13 +134,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   flag = CVSpgmr(cvode_mem, pretype, maxl);
   if(flag != CVSPGMR_SUCCESS) return(flag);
 
-  flag = CVSpgmrSetPrecData(cvode_mem, p_data);
-  if(flag != CVSPGMR_SUCCESS) return(flag);
-
-  flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBandPrecSetup);
-  if(flag != CVSPGMR_SUCCESS) return(flag);
-
-  flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBandPrecSolve);
+  flag = CVSpgmrSetPreconditioner(cvode_mem, CVBandPrecSetup, CVBandPrecSolve, p_data);
   if(flag != CVSPGMR_SUCCESS) return(flag);
 
   return(CVSPGMR_SUCCESS);
