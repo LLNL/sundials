@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-16 19:52:57 $
+ * $Revision: 1.17 $
+ * $Date: 2004-11-23 18:58:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -249,10 +249,6 @@ struct _generic_N_Vector {
  * BP   -  called by the band preconditioner module
  * BBDP -  called by the band-block diagonal preconditioner module
  * F    -  called by the Fortran-to-C interface
- *
- * Note: Although N_VDiv and N_VProd are not called within the
- * implementation files *spgmr.c, they are called within spgmr.c
- * and so are required by the *SPGMR module.
  *
  *                  ------------------------------------------------
  *                                         MODULES                  
