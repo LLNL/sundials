@@ -37,8 +37,8 @@ G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0
   \sum_{i>0}(\alpha_{n,i} y_{n-i} + h_n \beta_{n,i} \dot{y}_{n-i}),
 \label{NLS} \end{equation}
 must be solved (approximately) at each time step.  For this, CVODE
-offers the choice of either {\bf functional iteration}, suitable only
-for nonstiff systems, and various versions of {\bf Newton iteration}.
+offers the choice of either {\em functional iteration}, suitable only
+for nonstiff systems, and various versions of {\em Newton iteration}.
 Functional iteration involves evaluations of $f$ only, while Newton
 iteration requires the solution of linear systems
 \begin{equation} M (y_{n(m+1)} - y_{n(m)}) = -G(y_{n(m)}) ~,
@@ -48,14 +48,12 @@ in which
                  ~~~ \mbox{and} ~~~\gamma = h_n \beta_{n,0} ~. 
 \label{Newtonmat} \end{equation}
 For the Newton corrections, CVODE provides a choice of four methods:
-\vspace*{-.19in}
 \begin{itemize}
 \item a dense direct solver (serial version only),
 \item a band direct solver (serial version only),
 \item a diagonal approximate Jacobian solver, or
 \item SPGMR = Scaled Preconditioned GMRES, without restarts.
 \end{itemize}
-\vspace*{-.19in}
 For large stiff systems, where direct methods are not feasible, the
 combination of a BDF integrator and a preconditioned GMRES algorithm
 yields a powerful tool, because it combines established methods for
@@ -73,7 +71,6 @@ $M$ (direct cases) or preconditioner matrix $P$ (SPGMR case) is
 updated as infrequently as possible, to balance the high costs of
 matrix operations against other costs.  Specifically, this matrix
 update occurs when:
-\vspace*{-.19in}
 \begin{itemize}
 \item starting the problem,
 \item more than 20 steps have been taken since the last update,
@@ -82,13 +79,11 @@ satisfies $|\gamma/\bar{\gamma} - 1| > .3$,
 \item a non-fatal convergence failure just occurred, or
 \item an error test failure just occurred.
 \end{itemize}
-\vspace*{-.19in}
 When forced by a convergence failure, an update of $M$ or $P$ may or
 may not involve a re-evaluation of $J$ (in $M$) or of Jacobian data
 (in $P$), depending on whether Jacobian error was the likely cause of
 the failure.  More generally, the decision is made to re-evaluate $J$
 (or instruct the user to re-evaluate Jacobian data in $P$) when:
-\vspace*{-.19in}
 \begin{itemize}
 \item starting the problem,
 \item more than 50 steps have been taken since the last evaluation,
@@ -97,7 +92,6 @@ the value $\bar{\gamma}$ of $\gamma$ at the last update
 satisfies $|\gamma/\bar{\gamma} - 1| < .2$, or
 \item a convergence failure occurred that forced a stepsize reduction.
 \end{itemize}
-\vspace*{-.19in}
 
 The stopping test for the Newton iteration is related to the
 subsequent local error test, with the goal of keeping the nonlinear

@@ -21,12 +21,10 @@ well to using the Newton-Krylov method with no preconditioning.
 We further exploit this nested iteration setting, and differences in
 the costs of the various preconditioner operations, by treating the
 preconditioner matrix $P$ in two separate phases:
-\vspace*{-.2in}
 \begin{itemize}
 \item a setup phase: evaluate and preprocess $P$ (done infrequently), and
 \item a solve phase: solve systems $Px = b$ (done frequently).
 \end{itemize}
-\vspace*{-.2in}
 Accordingly, the user of each SUNDIALS solver must supply two separate
 routines for these operations.  The setup of $P$ is generally more
 expensive than the solve operation, and so it is done as infrequently
