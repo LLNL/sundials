@@ -152,8 +152,8 @@
  (4.3.1) To specify the SPGMR linear system solver, and to allocate memory 
  and initialize data associated with the SPGMR method and the BBD
  preconditioner, make the following call:
-      CALL FKINBBDSPGMR (MAXL, MAXLRST, IER)
       CALL FKINBBDINIT (NLOCAL, MU, ML, IER)
+      CALL FKINBBDSPGMR (MAXL, MAXLRST, IER)
 
  The arguments are:
  NLOCAL   = local size of vectors on this processor
