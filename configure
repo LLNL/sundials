@@ -1580,7 +1580,7 @@ if test "${with_single_prec+set}" = set; then
   withval="$with_single_prec"
 
   if test "X${withval}" = "Xyes"; then
-    EXTRA_CFLAGS="-DSUNDIALS_FLOAT=1"
+    EXTRA_CFLAGS="-DSUNDIALS_FLOAT"
   fi
 
 else
@@ -1699,10 +1699,10 @@ fi;
 if test "${with_f77underscore+set}" = set; then
   withval="$with_f77underscore"
 
-  if "X${withval}" = "Xnone"; then
-    FCFLAGS="-DSUNDIALS_UNDERSCORE_NONE=1"
-  elif "X${withval}" = "Xtwo"; then
-    FCFLAGS="-DSUNDIALS_UNDERSCORE_TWO=1"
+  if test "X${withval}" = "Xnone"; then
+    FCFLAGS="-DSUNDIALS_UNDERSCORE_NONE"
+  elif test "X${withval}" = "Xtwo"; then
+    FCFLAGS="-DSUNDIALS_UNDERSCORE_TWO"
   else
     FCFLAGS=""
   fi

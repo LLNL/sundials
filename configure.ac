@@ -106,7 +106,7 @@ AC_ARG_WITH([],[],[])
 AC_ARG_WITH(single-prec,[AC_HELP_STRING([--with-single-prec[[[[=ARG]]]]],[use single-precision rather than double-precision floating-point numeric datatype [ARG=no]],[])],
 [
   if test "X${withval}" = "Xyes"; then
-    EXTRA_CFLAGS="-DSUNDIALS_FLOAT=1"
+    EXTRA_CFLAGS="-DSUNDIALS_FLOAT"
   fi
 ],
 [
@@ -190,10 +190,10 @@ AC_ARG_WITH(fflags,
 
 AC_ARG_WITH(f77underscore, [AC_HELP_STRING([--with-f77underscore[[[[=ARG]]]]],[specify number of underscores to append to function names (none/one/two) [ARG=one]],[])],
 [
-  if "X${withval}" = "Xnone"; then
-    FCFLAGS="-DSUNDIALS_UNDERSCORE_NONE=1"
-  elif "X${withval}" = "Xtwo"; then
-    FCFLAGS="-DSUNDIALS_UNDERSCORE_TWO=1"
+  if test "X${withval}" = "Xnone"; then
+    FCFLAGS="-DSUNDIALS_UNDERSCORE_NONE"
+  elif test "X${withval}" = "Xtwo"; then
+    FCFLAGS="-DSUNDIALS_UNDERSCORE_TWO"
   else
     FCFLAGS=""
   fi
