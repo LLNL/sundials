@@ -148,10 +148,6 @@
 #define MSG_BAD_FSCALE      KINSI "fscale=NULL illegal.\n\n"
 #define MSG_FSCALE_NONPOSITIVE  KINSI "fscale has nonpositive elements.\n\n"
  
-#define MSG_BAD_FNORMTOL    KINSI "fnormtol=%g < 0 illegal.\n\n"
- 
-#define MSG_BAD_SCSTEPTOL   KINSI "scsteptol=%g < 0 illegal.\n\n"
-
 #define MSG_INITIAL_CNSTRNT KINSI "Initial guess does NOT meet constraints.\n\n"
 
 #define MSG_LINIT_FAIL      KINSI "The linear solver's init routine failed.\n\n"
