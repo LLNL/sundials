@@ -1,8 +1,9 @@
 /*******************************************************************
  *                                                                 *
  * File          : cvdiag.c                                        *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 June 2002                                    *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 28 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -78,7 +79,8 @@ static void CVDiagFree(CVodeMem cv_mem);
 
 /* Readability Replacements */
 
-#define N         (cv_mem->cv_N)
+#define lrw1      (cv_mem->cv_lrw1)
+#define liw1      (cv_mem->cv_liw1)
 #define f         (cv_mem->cv_f)
 #define f_data    (cv_mem->cv_f_data)
 #define uround    (cv_mem->cv_uround)
@@ -153,18 +155,18 @@ int CVDiag(void *cvode_mem)
 
   /* Allocate memory for M, bit, and bitcomp */
     
-  M = N_VNew(N, machenv);
+  M = N_VNew(machenv);
   if (M == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
-  bit = N_VNew(N, machenv);
+  bit = N_VNew(machenv);
   if (bit == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(M);
     return(LMEM_FAIL);
   }
-  bitcomp = N_VNew(N, machenv);
+  bitcomp = N_VNew(machenv);
   if (bitcomp == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(M);
@@ -189,8 +191,8 @@ static int CVDiagInit(CVodeMem cv_mem)
 
   /* Set workspace lengths */
   if (iopt != NULL) {
-    iopt[DIAG_LRW] = N*3;
-    iopt[DIAG_LIW] = 0;
+    iopt[DIAG_LRW] = 3*lrw1;
+    iopt[DIAG_LIW] = 3*liw1;
   }
     
   return(LINIT_OK);
@@ -225,7 +227,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   N_VLinearSum(r, ftemp, ONE, ypred, y);
 
   /* Evaluate f at perturbed y */
-  f(N, tn, y, M, f_data);
+  f(tn, y, M, f_data);
   nfe++;
 
   /* Construct M = I - gamma*J with J = diag(deltaf_i/deltay_i) */

@@ -1,8 +1,9 @@
 /*******************************************************************
  *                                                                 *
  * File          : cvdiag.h                                        *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 June 2002                                    *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 28 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
