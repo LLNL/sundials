@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-11-15 17:28:18 $
+ * $Revision: 1.19 $
+ * $Date: 2004-12-07 23:55:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -57,9 +57,11 @@
  * specified in the local variable globalstrat.
  *
  * The preconditioner matrix is a band-block-diagonal matrix
- * using the KINBBDPRE module. The half-bandwidths are:
+ * using the KINBBDPRE module. The half-bandwidths are as follows:
  *
- *   ml = mu = 2*ns - 1
+ *   Difference quotient half-bandwidths mldq = mudq = 2*ns - 1
+ *   Retained banded blocks have half-bandwidths mlkeep = mukeep = 8.
+ *
  * -----------------------------------------------------------------
  * References:
  *
@@ -164,7 +166,8 @@ static void InitUserData(long int my_pe, long int Nlocal, MPI_Comm comm, UserDat
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        long int mu, long int ml,
+                        long int mudq, long int mldq,
+			long int mukeep, long int mlkeep,
                         realtype fnormtol, realtype scsteptol);
 static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc);
 static void PrintFinalStats(void *kmem);
@@ -199,7 +202,7 @@ int main(int argc, char *argv[])
   long int Nlocal;
   realtype fnormtol, scsteptol, dq_rel_uu;
   int flag, maxl, maxlrst;
-  long int mu, ml;
+  long int mudq, mldq, mukeep, mlkeep;
   int my_pe, npes, npelast = NPEX*NPEY-1;
 
   data = NULL;
@@ -273,9 +276,11 @@ int main(int argc, char *argv[])
      communication functions func_local and gcomm=NULL (all communication
      needed for the func_local is already done in func). */
   dq_rel_uu = ZERO;
-  mu = ml = 2*NUM_SPECIES - 1;
+  mudq = mldq = 2*NUM_SPECIES - 1;
+  mukeep = mlkeep = 8;
 
-  pdata = KINBBDPrecAlloc(kmem, Nlocal, mu, ml, dq_rel_uu, func_local, NULL);
+  pdata = KINBBDPrecAlloc(kmem, Nlocal, mudq, mldq, mukeep, mlkeep,
+			  dq_rel_uu, func_local, NULL);
   if (check_flag((void *)pdata, "KINBBDPrecAlloc", 0, my_pe)) 
     MPI_Abort(comm, 1);
 
@@ -292,7 +297,8 @@ int main(int argc, char *argv[])
 
   /* Print out the problem size, solution parameters, initial guess. */
   if (my_pe == 0)
-    PrintHeader(globalstrategy, maxl, maxlrst, mu, ml, fnormtol, scsteptol);
+    PrintHeader(globalstrategy, maxl, maxlrst, mudq, mldq, mukeep,
+		mlkeep, fnormtol, scsteptol);
 
   /* call KINSol and print output concentration profile */
   flag = KINSol(kmem,           /* KINSol memory block */
@@ -671,7 +677,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
  */
 
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        long int mu, long int ml,
+                        long int mudq, long int mldq,
+			long int mukeep, long int mlkeep,
                         realtype fnormtol, realtype scsteptol)
 {
     printf("\nPredator-prey test problem--  KINSol (parallel-BBD version)\n\n");
@@ -686,7 +693,10 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
     printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
            maxl, maxlrst);
     printf("Preconditioning uses band-block-diagonal matrix from KINBBDPRE\n");
-    printf("  with matrix half-bandwidths ml, mu = %ld  %ld\n", ml, mu);
+    printf("  Difference quotient half-bandwidths are mudq = %ld, mldq = %ld\n",
+	   mudq, mldq);
+    printf("  Retained band block half-bandwidths are mukeep = %ld, mlkeep = %ld\n",
+	   mukeep, mlkeep);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
     printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",
            fnormtol, scsteptol);

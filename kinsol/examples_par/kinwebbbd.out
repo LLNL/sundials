@@ -11,7 +11,8 @@ Processor array is 2 X 2
 Flag globalstrategy = 1 (1 = Inex. Newton, 2 = Linesearch)
 Linear solver is SPGMR with maxl = 20, maxlrst = 2
 Preconditioning uses band-block-diagonal matrix from KINBBDPRE
-  with matrix half-bandwidths ml, mu = 11  11
+  Difference quotient half-bandwidths are mudq = 11, mldq = 11
+  Retained band block half-bandwidths are mukeep = 8, mlkeep = 8
 Tolerance parameters:  fnormtol = 1e-07   scsteptol = 1e-13
 
 Initial profile of concentration
@@ -30,6 +31,6 @@ At top right:
 
 Final Statistics.. 
 
-nni    =    10    nli   =   540
-nfe    =    11    nfeSG =   550
-nps    =   550    npe   =     1     ncfl  =     7
+nni    =     9    nli   =   464
+nfe    =    10    nfeSG =   473
+nps    =   473    npe   =     1     ncfl  =     6
