@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-08 17:40:54 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-08 20:35:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -97,8 +97,8 @@
 #define NPREY       1              /* No. of prey (= no. of predators). */
 #define NUM_SPECIES 2*NPREY
 
-#define PI          3.1415926535898
-#define FOURPI      (4.0*PI)
+#define PI          RCONST(3.1415926535898)
+#define FOURPI      (RCONST(4.0)*PI)
 
 #define MX          20             /* MX = number of x mesh points      */
 #define MY          20             /* MY = number of y mesh points      */

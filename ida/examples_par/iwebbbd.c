@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-11-08 17:40:51 $
+ * $Revision: 1.18 $
+ * $Date: 2004-11-08 20:35:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -111,11 +111,11 @@
 
 /* Problem Constants. */
 
-#define NPREY        1        /* Number of prey (= number of predators). */
-#define NUM_SPECIES  2*NPREY
+#define NPREY       1        /* Number of prey (= number of predators). */
+#define NUM_SPECIES 2*NPREY
 
-#define PI       3.1415926535898   /* pi */ 
-#define FOURPI   (4.0*PI)          /* 4 pi */
+#define PI          RCONST(3.1415926535898) /* pi */ 
+#define FOURPI      (RCONST(4.0)*PI)        /* 4 pi */
 
 #define MXSUB       10    /* Number of x mesh points per processor subgrid */
 #define MYSUB       10    /* Number of y mesh points per processor subgrid */
