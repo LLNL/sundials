@@ -68,16 +68,16 @@ extern "C" {
 /* Environment: MPI                                  */
 /* Set types realtype and integertype for MPI calls. */
 
-#if (SUNDIALS_DOUBLE == 1)
-#define PVEC_REAL_MPI_TYPE MPI_DOUBLE
-#else
-#define PVEC_REAL_MPI_TYPE MPI_FLOAT
-#endif
+#if defined(SUNDIALS_SINGLE_PRECISION)
 
-#if (SUNDIALS_INT == 1)
+#define PVEC_REAL_MPI_TYPE MPI_FLOAT
 #define PVEC_INTEGER_MPI_TYPE MPI_INT
+
 #else
+
+#define PVEC_REAL_MPI_TYPE MPI_DOUBLE
 #define PVEC_INTEGER_MPI_TYPE MPI_LONG
+
 #endif
 
 /* The parallel implementation of the machine environment has 
