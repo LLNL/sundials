@@ -1,11 +1,11 @@
 (PE# 3) Number of check points: 6
-Check point  6  addr: 80be1a0  time = [ 2.160249e+00 2.500066e+00 ]  next: 80bdf40
-Check point  5  addr: 80bdf40  time = [ 1.767476e+00 2.160249e+00 ]  next: 80bdce0
-Check point  4  addr: 80bdce0  time = [ 1.414486e+00 1.767476e+00 ]  next: 80bda80
-Check point  3  addr: 80bda80  time = [ 1.036598e+00 1.414486e+00 ]  next: 80bd820
-Check point  2  addr: 80bd820  time = [ 6.797546e-01 1.036598e+00 ]  next: 80bd590
-Check point  1  addr: 80bd590  time = [ 2.896095e-01 6.797546e-01 ]  next: 80b71a0
-Check point  0  addr: 80b71a0  time = [ 0.000000e+00 2.896095e-01 ]  next: 0
+Check point  6  addr: 0x80beec8  time = [ 2.160249e+00 2.500066e+00 ]  next: 0x80bec60
+Check point  5  addr: 0x80bec60  time = [ 1.767476e+00 2.160249e+00 ]  next: 0x80be9f8
+Check point  4  addr: 0x80be9f8  time = [ 1.414486e+00 1.767476e+00 ]  next: 0x80be790
+Check point  3  addr: 0x80be790  time = [ 1.036598e+00 1.414486e+00 ]  next: 0x80be528
+Check point  2  addr: 0x80be528  time = [ 6.797546e-01 1.036598e+00 ]  next: 0x80be290
+Check point  1  addr: 0x80be290  time = [ 2.896095e-01 6.797546e-01 ]  next: 0x80b7e98
+Check point  0  addr: 0x80b7e98  time = [ 0.000000e+00 2.896095e-01 ]  next: (nil)
 
 g(tf) = 2.130913e-02
 
