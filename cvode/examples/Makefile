@@ -1,20 +1,17 @@
-# File Makefile.  Version of 15 January 2002
-#--------------------------------------------------------------------------
-# Makefile for the CVODE (serial) and PVODE (parallel) examples.
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+# Version of  : 27 February 2002
+#--------------------------------------------------------------------------------
+# Makefile for the CVODE examples.
 #
-# This makefile invokes cvodex.mk or pvodex.mk to make the executable files
-# for the examples requested.  It first copies the appropriate version of
-# the NVECTOR module header file into place, and then removes this file.
-#
+# This makefile generates the executables for the CVODE examples requested.
+# 
 # Type 'make' to see usage instructions and list of examples.
-#--------------------------------------------------------------------------
+#
+#--------------------------------------------------------------------------------
 
-#---------------------
-# Path to shared files
-#---------------------
-SHARED_DIR	=	../../shared
-INC_SHARED	=	$(SHARED_DIR)/include
-
+SHELL = /bin/sh
 
 #======================================================
 # Make rules
@@ -22,37 +19,33 @@ INC_SHARED	=	$(SHARED_DIR)/include
 
 all:
 	@(echo)
-	@(echo 'Usage: make cvodex   - make all CVODE examples')
-	@(echo '       make pvodex   - make all PVODE examples')
-	@(echo '       make <ex>     - make example <ex>')
-	@(echo '       make examples - make all CVODE and PVODE examples')
+	@(echo 'Usage: make <ex>     - make example <ex>')
+	@(echo '       make cvx_ser  - make all serial CVODE examples')
+	@(echo '       make cvx_par  - make all parallel CVODE examples')
+	@(echo '       make examples - make all CVODE examples')
 	@(echo '       make purge    - remove all example executable files')
 	@(echo)
-	@(make -f cvodex.mk)
-	@(make -f pvodex.mk)
+	@(if test -f cvx_ser.mk; then make -f cvx_ser.mk; fi)
+	@(echo)
+	@(if test -f cvx_par.mk; then make -f cvx_par.mk; fi)
+	@(echo)
 
-examples: cvodex pvodex
+examples: cvx_ser cvx_par
 
-cvodex:
-	@(cp $(INC_SHARED)/nvector_serial.h $(INC_SHARED)/nvector.h)
-	@(make -f cvodex.mk examples)
-	@(rm $(INC_SHARED)/nvector.h)
+cvx_ser:
+	@(if test -f cvx_ser.mk; then make -f cvx_ser.mk examples; fi)
 
-pvodex:
-	@(cp $(INC_SHARED)/nvector_parallel.h $(INC_SHARED)/nvector.h)
-	@(make -f pvodex.mk examples)
-	@(rm $(INC_SHARED)/nvector.h)
+cvx_par:
+	@(if test -f cvx_par.mk; then make -f cvx_par.mk examples; fi)
 
-cvdx cvbx cvkx cvkxb cvdemd cvdemk:
-	@(cp $(INC_SHARED)/nvector_serial.h $(INC_SHARED)/nvector.h)
-	@(make -f cvodex.mk $@)
-	@(rm $(INC_SHARED)/nvector.h)
+cvbx cvdx cvdemd cvkx cvkxb cvdemk:
+	@(if test -f cvx_ser.mk; then make -f cvx_ser.mk $@; fi)
 
 pvnx pvkx pvkxb:
-	@(cp $(INC_SHARED)/nvector_parallel.h $(INC_SHARED)/nvector.h)
-	@(make -f pvodex.mk $@)
-	@(rm $(INC_SHARED)/nvector.h)
+	@(if test -f cvx_par.mk; then make -f cvx_par.mk $@; fi)
 
 purge:
-	@(make -f cvodex.mk purge)
-	@(make -f pvodex.mk purge)
+	@(if test -f cvx_ser.mk; then make -f cvx_ser.mk purge; fi)
+	@(if test -f cvx_par.mk; then make -f cvx_par.mk purge; fi)
+
+#---End of Makefile---
