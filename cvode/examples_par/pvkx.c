@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-31 22:58:46 $
+ * $Revision: 1.12 $
+ * $Date: 2004-09-01 22:46:11 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -154,7 +154,8 @@ static void BRecvWait(MPI_Request request[],
                       long int dsizex, realtype uext[],
                       realtype buffer[]);
 static void ucomm(realtype t, N_Vector u, UserData data);
-static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data);
+static void fcalc(realtype t, realtype udata[], realtype dudata[],
+                  UserData data);
 
 
 /* Functions Called by the Solver */
@@ -233,7 +234,7 @@ int main(int argc, char *argv[])
      CV_BDF     specifies the Backward Differentiation Formula
      CV_NEWTON  specifies a Newton iteration
 
-     A pointer to the integrator problem memory is returned and stored in cvode_mem.
+     A pointer to the integrator memory is returned and stored in cvode_mem.
   */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
@@ -806,7 +807,7 @@ static void fcalc(realtype t, realtype udata[],
 /* f routine.  Evaluate f(t,y).  First call ucomm to do communication of 
    subgrid boundary data into uext.  Then calculate f by a call to fcalc. */
 
-static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype *udata, *dudata;
   UserData data;
