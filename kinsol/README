@@ -78,7 +78,12 @@ D.1. Revision History since release 2.0 (July 2002)
 ---------------------------------------------------
 
 - New feature
-   - added option to disable all error messages
+   - added option to disable all error messages.
+   - added option to KINBBDPRE preconditioner module to allow specification
+     of different half-bandwidths for difference quotient approximation and
+     retained matrix.
+   - added KINSPBCG interface module to allow KINSOL to interface with the
+     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
 
 - Bug fixes
    - fixed constraints-related bug.
@@ -114,12 +119,15 @@ D.1. Revision History since release 2.0 (July 2002)
         -2  u[i] <  0
        where u is the solution vector (see the KINSOL User Guide [1] for
        additional details).
+   - modified the KINBBDPRE preconditioner module to allow the use of
+     different half-bandwidths for the difference quotient approximation
+     and the retained matrix.
 
 - Changes to optional input/output
    - added KINSet* and KINGet* functions for optional inputs/outputs,
      replacing the arrays iopt and ropt.
    - added new optional inputs (e.g. maximum number of nonlinear iterations
-     between calls to preconditioner setup routine, etc.)
+     between calls to preconditioner setup routine, etc.).
    - the value of the last return flag from any function within the SPGMR
      linear solver module can be obtained as an optional output using
      KINSpgmrGetLastFlag.
@@ -132,6 +140,13 @@ D.1. Revision History since release 2.0 (July 2002)
      were dropped can now be specified through KINSet* functions).
    - removed reinitialization functions for SPGMR linear solver (same
      functionality can be obtained using KINSpgmrSet* functions).
+   - modified the argument list of KINBBDPrecAlloc to allow specification
+     of the upper and lower half-bandwidths to be used in the computation
+     of the local Jacobian blocks (mudq, mldq), and the half-bandwidths
+     of the retained banded approximation to the local Jacobian block
+     (mukeep, mlkeep).
+   - added KINSPBCG module which defines appropriate KINSpbcg* functions to
+     allow KINSOL to interface with the shared SPBCG linear solver module.
 
 - Changes to user-supplied functions
    - removed N (problem dimension) from argument lists.
