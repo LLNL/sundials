@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-06-30 16:06:06 $
+ * $Revision: 1.20 $
+ * $Date: 2004-07-15 23:57:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -1684,7 +1684,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
       /* cubic is actually just a quadratic */
 
-      if (ABS(rl_a) < uround) rltmp = -slpi / (2.0 * rl_b);
+      if (ABS(rl_a) < (uround * ABS(rl_a))) rltmp = -slpi / (2.0 * rl_b);
 
       /* real cubic */
 
