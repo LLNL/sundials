@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-05-03 21:24:44 $
+ * $Revision: 1.10 $
+ * $Date: 2004-06-02 23:04:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -18,8 +18,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "kinspgmr.h"
-#include "kinsol.h"
+#include "kinspgmr_impl.h"
+#include "kinsol_impl.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
@@ -706,9 +706,8 @@ static int KINSpgmrInit(KINMem kin_mem)
 
 static int KINSpgmrSetup(KINMem kin_mem)
 {
-  
-  int  ret;
   KINSpgmrMem kinspgmr_mem;
+  int ret;
 
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
@@ -716,7 +715,7 @@ static int KINSpgmrSetup(KINMem kin_mem)
 
   ret = pset(uu, uscale, fval, fscale, P_data, vtemp1, vtemp2); 
 
-  if(ret != 0) return(1);
+  if (ret != 0) return(1);
   npe++;
   nnilpre = nni; 
   precondcurrent = TRUE; 
@@ -748,8 +747,7 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
                          realtype *res_norm)
 {
   KINSpgmrMem kinspgmr_mem;
-  int ret;
-  int nli_inc, nps_inc;
+  int ret, nli_inc, nps_inc;
   
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
@@ -793,8 +791,9 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   N_VProd(bb, fscale, bb);
   sfdotJp = N_VDotProd(fval, bb);
 
-  if (printfl > 2) fprintf(infofp, "linear (Krylov step) residual norm = %12.3g  eps = %12.3g\n",
-			   *res_norm, eps);
+  if (printfl > 2)
+    fprintf(infofp, "linear (Krylov step) residual norm = %12.3g  eps = %12.3g\n",
+	    *res_norm, eps);
 
   /* set return value to appropriate value */
 
@@ -841,7 +840,7 @@ static int KINSpgmrFree(KINMem kin_mem)
 
 static int KINSpgmrAtimes(void *kinsol_mem, N_Vector v, N_Vector z)
 {
-  KINMem   kin_mem;
+  KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
   int ret;
 
@@ -870,7 +869,7 @@ static int KINSpgmrAtimes(void *kinsol_mem, N_Vector v, N_Vector z)
 
 static int KINSpgmrPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lrdummy)
 {
-  KINMem   kin_mem;
+  KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
   int ret;
 
@@ -908,10 +907,9 @@ static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
                             N_Vector u, booleantype *new_u, 
                             void *jac_data)
 {
-  KINMem   kin_mem;
+  realtype sigma, sigma_inv, sutsv, sq1norm, sign, vtv;
+  KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
-  realtype sigma, sigma_inv;
-  realtype sutsv, sq1norm, sign, vtv;
 
   /* jac_data is kin_mem */
 

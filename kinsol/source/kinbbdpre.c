@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-05-03 21:24:44 $
+ * $Revision: 1.14 $
+ * $Date: 2004-06-02 23:04:40 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -25,8 +25,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "kinbbdpre.h"
-#include "kinspgmr.h"
+#include "kinbbdpre_impl.h"
+#include "kinspgmr_impl.h"
 #include "sundialsmath.h"
 #include "iterative.h"
 
@@ -96,10 +96,10 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
 		      realtype dq_rel_uu, 
 		      KINLocalFn gloc, KINCommFn gcomm)
 {
+  realtype rel_uu;
   KBBDPrecData pdata;
   KINMem kin_mem;
   N_Vector vtemp3;
-  realtype rel_uu;
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_KINMEM_NULL);
@@ -181,8 +181,8 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
 
 int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
 {
-  int flag;
   KINMem kin_mem;
+  int flag;
 
   kin_mem = (KINMem) kinmem;
 
@@ -192,16 +192,16 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
   }
 
   flag = KINSpgmr(kinmem, maxl);
-  if(flag != SUCCESS) return(flag);
+  if (flag != SUCCESS) return(flag);
 
   flag = KINSpgmrSetPrecData(kinmem, p_data);
-  if(flag != SUCCESS) return(flag);
+  if (flag != SUCCESS) return(flag);
 
   flag = KINSpgmrSetPrecSetupFn(kinmem, KINBBDPrecSetup);
-  if(flag != SUCCESS) return(flag);
+  if (flag != SUCCESS) return(flag);
 
   flag = KINSpgmrSetPrecSolveFn(kinmem, KINBBDPrecSolve);
-  if(flag != SUCCESS) return(flag);
+  if (flag != SUCCESS) return(flag);
 
   return(SUCCESS);
 }
@@ -453,9 +453,9 @@ static void KBBDDQJac(KBBDPrecData pdata,
                       N_Vector uu, N_Vector uscale,
                       N_Vector gu, N_Vector gtemp, N_Vector utemp)
 {
-  KINMem kin_mem;
   realtype inc, inc_inv;
   long int group, i, j, width, ngroups, i1, i2;
+  KINMem kin_mem;
   realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
 
   kin_mem = pdata->kin_mem;
