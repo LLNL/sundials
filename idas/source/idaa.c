@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-15 21:26:44 $
+ * $Revision: 1.16 $
+ * $Date: 2005-01-24 23:55:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,11 +23,6 @@
 
 #include "idaa_impl.h"
 #include "sundialsmath.h"
-
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
 
 /*=================================================================*/
 /*END               Import Header Files                            */
