@@ -57,7 +57,7 @@ all:
 	@(echo '  kindiagpf:  simple diagonal test with Fortran interface')
 
 kindiagpf: 
-	@echo '...Compile kindiagps...'
+	@echo '...Compile kindiagpf...'
 	@$(FC) $(FFLAGS) -o kindiagpf kindiagpf.f -lkinsol.$(ARCH) -lshared.$(ARCH) -lnvecparallel.$(ARCH)
 	@rm -f kindiagpf.o
 
