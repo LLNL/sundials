@@ -2,7 +2,7 @@
  * File          : cvsbbdpre.c                                     *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 27 June 2002                                    *
+ * Version of    : 28 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -278,8 +278,6 @@ void CVBBDFree(CVBBDData pdata)
  *                                                                *
  * The parameters of CVBBDPrecon used here are as follows:        *
  *                                                                *
- * Neq     is the system size (global vector length).             *
- *                                                                *
  * t       is the current value of the independent variable.      *
  *                                                                *
  * y       is the current value of the dependent variable vector, *
@@ -329,7 +327,7 @@ void CVBBDFree(CVBBDData pdata)
  *   1  for a recoverable error (step will be retried).           *
  ******************************************************************/
 
-int CVBBDPrecon(integertype Neq, realtype t, N_Vector y, N_Vector fy,
+int CVBBDPrecon(realtype t, N_Vector y, N_Vector fy,
                 booleantype jok, booleantype *jcurPtr, realtype gamma, 
                 N_Vector ewt, realtype h, realtype uround, 
                 long int *nfePtr, void *P_data,
@@ -390,7 +388,7 @@ int CVBBDPrecon(integertype Neq, realtype t, N_Vector y, N_Vector fy,
  * indicating success.                                            *
  ******************************************************************/
 
-int CVBBDPSol(integertype N, realtype t, N_Vector y, N_Vector fy,
+int CVBBDPSol(realtype t, N_Vector y, N_Vector fy,
               N_Vector vtemp, realtype gamma, N_Vector ewt,
               realtype delta, long int *nfePtr, N_Vector r,
               int lr, void *P_data, N_Vector z)

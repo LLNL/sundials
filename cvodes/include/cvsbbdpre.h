@@ -2,7 +2,7 @@
  * File          : cvsbbdpre.h                                     *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 27 June 2002                                    *
+ * Version of    : 28 MArch 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -294,13 +294,13 @@ void CVBBDFree(CVBBDData pdata);
 
 /****** Prototypes of functions CVBBDPrecon and CVBBDPSol *********/
   
-int CVBBDPrecon(integertype N, realtype t, N_Vector y, N_Vector fy, 
+int CVBBDPrecon(realtype t, N_Vector y, N_Vector fy, 
                 booleantype jok, booleantype *jcurPtr, realtype gamma, 
                 N_Vector ewt, realtype h, realtype uround,
                 long int *nfePtr, void *P_data, N_Vector vtemp1,
                 N_Vector vtemp2, N_Vector vtemp3);
 
-int CVBBDPSol(integertype N, realtype t, N_Vector y, N_Vector fy, 
+int CVBBDPSol(realtype t, N_Vector y, N_Vector fy, 
               N_Vector vtemp, realtype gamma, N_Vector ewt, 
               realtype delta, long int *nfePtr,
               N_Vector r, int lr, void *P_data, N_Vector z);
