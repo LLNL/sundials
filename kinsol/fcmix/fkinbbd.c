@@ -1,8 +1,8 @@
 /****************************************************************************
  *                                                                          *
- * File          : fkinbbd.c                                                *
- * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL              * 
- * Version of    : 18 January 2001                                          *
+ * File         : fkinbbd.c                                                 *
+ * Programmers  : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL * 
+ * Version of   : 8 March 2002                                              *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
@@ -18,21 +18,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "llnltyps.h"  /* definitions of types real and integer               */
-#include "nvector.h"   /* definitions of type N_Vector and vector macros      */
+#include "nvector.h"   /* definitions of type N_Vector                        */
 #include "kinsol.h"    /* KINSOL constants and prototypes                     */
+#include "fcmixpar.h"  /* definition of global F2C_machEnv variable           */
 #include "fkinsol.h"   /* prototypes of standard interfaces, global variables */
 #include "fkinbbd.h"   /* prototypes of interfaces to KINBBDPRE               */
+#include "kinspgmr.h"  /* prototypes of KINSPGMR interface routines           */
 #include "kinbbdpre.h" /* prototypes of KINBBDPRE functions, macros           */
 
 /***************************************************************************/
 
-void F_KINBBDINIT0 (int *maxl, int *maxlrst, int *msbpre,
-		    integer *mu, integer *ml, int *ier)
-{
-  integer Nlocal;
+/* Prototypes of the Fortran routines */
 
+void K_LOCFN(integer*, real*, real*);
+void K_COMMFN(integer*, real*);
+
+/***************************************************************************/
+
+void F_KINBBDINIT0(integer *nlocal, int *maxl, int *maxlrst, int *msbpre,
+                   integer *mu, integer *ml, int *ier)
+{
   /* First call KBBDAlloc to initialize KINBBDPRE module:
-     *Nlocal       is the local vector size
      *mu, *ml      are the half-bandwidths for the preconditioner blocks
      0.0           is the value for dq_rel_uu -- 0.0 triggers the default
      KINgloc       is a pointer to the KINLocalFn function
@@ -40,10 +46,7 @@ void F_KINBBDINIT0 (int *maxl, int *maxlrst, int *msbpre,
      NULL          is the pointer to f_data.  NULL is used here since handling
                    of local data in the func routines is done only in Fortran */
 
-  Nlocal = ((machEnvType)KIN_machEnv)->local_vec_length;
-  
-  KBBD_Data = KBBDAlloc (Nlocal, *mu, *ml, 0.0, KINgloc, KINgcomm, NULL, 
-                         KIN_kmem, KIN_machEnv);
+  KBBD_Data = KBBDAlloc(*nlocal, *mu, *ml, 0.0, KINgloc, KINgcomm, NULL, KIN_kmem);
   if (KBBD_Data == NULL) { *ier = -1; return; }
 
   /* Call KINSpgmr to specify the SPGMR linear solver:
@@ -55,7 +58,7 @@ void F_KINBBDINIT0 (int *maxl, int *maxlrst, int *msbpre,
      KBBDPSol    is a pointer to the preconditioner solve routine
      KBBD_Data   is the pointer to P_data                                  */
 
-  KINSpgmr (KIN_kmem, *maxl, *maxlrst, *msbpre,
+  KINSpgmr(KIN_kmem, *maxl, *maxlrst, *msbpre,
            KBBDPrecon, KBBDPSol, NULL, KBBD_Data);
 
   *ier = 0;
@@ -70,9 +73,12 @@ void KINgloc(integer Nloc, N_Vector uu, N_Vector gval, void *f_data)
 {
   real *uloc, *gloc;
 
-  uloc = N_VDATA(uu);
-  gloc = N_VDATA(gval) ;
+  uloc = N_VGetData(uu);
+  gloc = N_VGetData(gval) ;
+
   K_LOCFN(&Nloc, uloc, gloc);
+
+  N_VSetData(gloc, gval);
 
 }
 
