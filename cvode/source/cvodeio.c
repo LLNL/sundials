@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-11-23 20:48:24 $
+ * $Revision: 1.1.2.1 $
+ * $Date: 2005-04-01 21:43:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -442,11 +442,11 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
 /*
  * CVodeSetTolerances
  *
- * Changes te integration tolerances between calls to CVode()
+ * Changes the integration tolerances between calls to CVode()
  */
 
 int CVodeSetTolerances(void *cvode_mem, 
-                       int itol, realtype *reltol, void *abstol)
+                       int itol, realtype reltol, void *abstol)
 {
   CVodeMem cv_mem;
   booleantype neg_abstol;
@@ -458,13 +458,17 @@ int CVodeSetTolerances(void *cvode_mem,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if ((itol != CV_SS) && (itol != CV_SV)) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_ITOL);
-    return(CV_ILL_INPUT);
+  /* Check if cvode_mem was allocated */
+
+  if (cv_mem->cv_MallocDone == FALSE) {
+    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_NO_MALLOC);
+    return(CV_NO_MALLOC);
   }
 
-  if (*reltol < ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_RELTOL);
+  /* Check inputs */
+
+  if ((itol != CV_SS) && (itol != CV_SV) && (itol != CV_WF)) {
+    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_ITOL);
     return(CV_ILL_INPUT);
   }
 
@@ -473,19 +477,79 @@ int CVodeSetTolerances(void *cvode_mem,
     return(CV_ILL_INPUT);
   }
 
-  if (itol == CV_SS) {
-    neg_abstol = (*((realtype *)abstol) < ZERO);
-  } else {
-    neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
+  if (itol != CV_WF) {
+
+    if (reltol < ZERO) {
+      if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_RELTOL);
+      return(CV_ILL_INPUT);
+    }
+
+    if (itol == CV_SS)
+      neg_abstol = (*((realtype *)abstol) < ZERO);
+    else
+      neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
+    
+    if (neg_abstol) {
+      if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_ABSTOL);
+      return(CV_ILL_INPUT);
+    }
+
   }
-  if (neg_abstol) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_ABSTOL);
-    return(CV_ILL_INPUT);
+
+  /* Copy tolerances into memory */
+
+  if ( (itol != CV_SV) && (cv_mem->cv_VabstolMallocDone) ) {
+    N_VDestroy(cv_mem->cv_Vabstol);
+    cv_mem->cv_VabstolMallocDone = FALSE;
+  }
+
+  if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
+    cv_mem->cv_Vabstol = N_VClone(cv_mem->cv_ewt);
+    cv_mem->cv_VabstolMallocDone = TRUE;
   }
 
   cv_mem->cv_itol   = itol;
-  cv_mem->cv_reltol = reltol;      
-  cv_mem->cv_abstol = abstol;
+  cv_mem->cv_reltol = reltol;
+
+  if (itol == CV_WF)
+    cv_mem->cv_efun = (CVEwtFn)abstol;
+  else {
+    cv_mem->cv_efun = CVEwtSet;
+    cv_mem->cv_e_data = cvode_mem;
+    if (itol == CV_SS)
+      cv_mem->cv_Sabstol = *((realtype *)abstol);
+    else
+      N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
+  }
+
+  return(CV_SUCCESS);
+}
+
+/* 
+ * CVodeSetEdata
+ *
+ * Specifies the user data pointer for e
+ */
+
+int CVodeSetEdata(void *cvode_mem, void *e_data)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    fprintf(stderr, MSGCV_SET_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* To ensure that everything is in place, we enforce
+     that this function is called only if itol=CV_WF */
+  if (cv_mem->cv_itol != CV_WF) {
+    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_NO_EFUN);
+    return(CV_ILL_INPUT);
+  }
+
+  cv_mem->cv_e_data = e_data;
 
   return(CV_SUCCESS);
 }
@@ -801,7 +865,7 @@ int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
  * Note that weight need not be allocated by the user.
  */
 
-int CVodeGetErrWeights(void *cvode_mem, N_Vector *eweight)
+int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
 {
   CVodeMem cv_mem;
 
@@ -812,7 +876,7 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector *eweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *eweight = ewt;
+  N_VScale(ONE, ewt, eweight);
 
   return(CV_SUCCESS);
 }
@@ -823,7 +887,7 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector *eweight)
  * Returns an estimate of the local error
  */
 
-int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele)
+int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
 {
   CVodeMem cv_mem;
 
@@ -834,7 +898,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *ele = acor;
+  N_VScale(ONE, acor, ele);
 
   return(CV_SUCCESS);
 }
@@ -924,9 +988,10 @@ int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals)
  * Returns pointer to array rootsfound showing roots found
  */
 
-int CVodeGetRootInfo(void *cvode_mem, int **rootsfound)
+int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
 {
   CVodeMem cv_mem;
+  int i, nrt;
 
   if (cvode_mem==NULL) {
     fprintf(stderr, MSGCV_GET_NO_MEM);
@@ -935,7 +1000,9 @@ int CVodeGetRootInfo(void *cvode_mem, int **rootsfound)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *rootsfound = iroots;
+  nrt = cv_mem->cv_nrtfn;
+
+  for (i=0; i<nrt; i++) rootsfound[i] = iroots[i];
 
   return(CV_SUCCESS);
 }
