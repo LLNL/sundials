@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-11-15 17:11:47 $
+ * $Revision: 1.7.2.1 $
+ * $Date: 2005-01-24 21:50:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -47,13 +47,13 @@
  * described in the documentation for bandalloc.
  * -----------------------------------------------------------------
  */
- 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
 
 #ifndef _BAND_H
 #define _BAND_H
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 #include "sundialstypes.h"
 
@@ -599,8 +599,8 @@ void bandfree(realtype **a);
 void bandprint(realtype **a, long int n, long int mu, long int ml, 
                long int smu);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

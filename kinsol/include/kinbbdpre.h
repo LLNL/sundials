@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-10-18 22:16:02 $
+ * $Revision: 1.19.2.1 $
+ * $Date: 2005-01-24 21:46:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -91,12 +91,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _KBBDPRE_H
+#define _KBBDPRE_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _KBBDPRE_H
-#define _KBBDPRE_H
 
 #include "nvector.h"
 #include "sundialstypes.h"
@@ -257,8 +257,8 @@ int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
 		    N_Vector vv, void *p_data,
 		    N_Vector vtemp);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

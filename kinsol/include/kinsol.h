@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-11-17 00:49:01 $
+ * $Revision: 1.22.2.1 $
+ * $Date: 2005-01-24 21:46:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _KINSOL_H
+#define _KINSOL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _KINSOL_H
-#define _KINSOL_H
 
 #include "nvector.h"
 #include "sundialstypes.h"
@@ -744,8 +744,8 @@ void KINFree(void *kinmem);
  * -----------------------------------------------------------------
  */
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

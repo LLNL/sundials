@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-11-15 17:11:48 $
+ * $Revision: 1.10.2.1 $
+ * $Date: 2005-01-24 21:50:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -67,12 +67,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _SPGMR_H
+#define _SPGMR_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _SPGMR_H
-#define _SPGMR_H
 
 #include "sundialstypes.h"
 #include "iterative.h"
@@ -288,8 +288,8 @@ void SpgmrFree(SpgmrMem mem);
 
 #define SPGMR_VTEMP(mem) (mem->vtemp)
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif
