@@ -356,8 +356,6 @@ error test.
 In what follows we briefly describe three methods that have been proposed for the 
 solution of the combined ODE and sensitivity system for the vector
 ${\hat y} = [y, s_1, \ldots , s_{N_s}]$.
-Due to its inefficiency, especially for large-scale problems, the first approach 
-is not implemented in {\cvodes}.
 
 \begin{itemize}
 
@@ -370,9 +368,12 @@ is not implemented in {\cvodes}.
   Although the system matrix of the above linear system is based on exactly the same 
   information as the matrix $M$ in (\ref{e:Newtonmat}), it must be updated and factored 
   at every step of the integration, in contrast to $M$ which is updated only occasionally. 
-  The computational cost associated with these matrix updates and factorizations 
-  makes this method unattractive when compared with the methods described below and 
-  is therefore not implemented in {\cvodes}.
+  For problems with many parameters (relative to the problem size), the staggered direct 
+  method can outperform the methods described below~\cite{LPZ:99}.
+  However, the computational cost associated with matrix updates and factorizations 
+  makes this method unattractive for problems with many more states than parameters
+  (such as those arising from semidiscretization of PDEs) and is therefore not 
+  implemented in {\cvodes}.
   
 \item {\em Simultaneous Corrector}
 
