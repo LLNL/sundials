@@ -2,7 +2,7 @@
  * File          : idabbdpre.h                                     *
  * Programmers   : Allan G. Taylor, Alan C Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 July 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -298,13 +298,13 @@ void IBBDFree(IBBDData p_data);
 
 /* Prototypes of IBDPrecon and IBBDPSol */
 
-int IBBDPrecon(integertype Neq, realtype tt, N_Vector yy,
+int IBBDPrecon(realtype tt, N_Vector yy,
                N_Vector yp, N_Vector rr, realtype cj, ResFn res,
                void *res_data, void *P_data, N_Vector ewt, N_Vector constraints,
                realtype hh, realtype uround, long int *nrePtr,
                N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
  
-int IBBDPSol(integertype Neq, realtype tt, N_Vector yy, N_Vector yp, 
+int IBBDPSol(realtype tt, N_Vector yy, N_Vector yp, 
              N_Vector rr, realtype cj, ResFn res, void *res_data, 
              void *P_data, N_Vector ewt, realtype delta, N_Vector rvec, 
              N_Vector zvec, long int *nrePtr, N_Vector tempv);
