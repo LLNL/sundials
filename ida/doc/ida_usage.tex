@@ -246,18 +246,19 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
 \label{ss:ida_fct_sim}
 %%===================================================================================
 
-This section describes the {\ida} functions that are called by the user to set up 
-and solve a DAE. Some of these are required. However, starting with \S\ref{ss:optional_input},
-the functions listed involve optional inputs/outputs or restarting, and those paragraphs can 
-be skipped for a casual use of {\ida}. In any case, refer to \S\ref{ss:skeleton_sim} for
-the correct order of these calls.
+This section describes the {\ida} functions that are called by the
+user to set up and solve a DAE. Some of these are required. However,
+starting with \S\ref{ss:optional_input}, the functions listed involve
+optional inputs/outputs or restarting, and those paragraphs can be
+skipped for a casual use of {\ida}. In any case, refer to
+\S\ref{ss:skeleton_sim} for the correct order of these calls.
 
 \subsection{IDA initialization and deallocation functions}
 \label{sss:idamalloc}
 %%
-The following three functions must be called in the order listed. The last one is to be 
-called only after the DAE solution is complete, as it frees the {\ida} memory block
-created and allocated by the first two calls.
+The following three functions must be called in the order listed. The last one is to
+be called only after the DAE solution is complete, as it frees the {\ida} memory
+block created and allocated by the first two calls.
 %%
 \ucfunction{IDACreate}
 {
@@ -1550,9 +1551,9 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
 \index{optional input!iterative linear solver|(}
 \index{IDASPGMR@{\idaspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
-If preconditioning is to be done within the {\spgmr} method,
-then the user must supply a preconditioner solve function \id{psolve}
-and specify it through a call to \id{IDASpgmrSetPrecSolveFn}.
+If preconditioning is to be done within the {\spgmr} method, then the user
+must supply a preconditioner solve function, \id{psolve}, and specify its
+name through a call to \id{IDASpgmrSetPrecSolveFn}.
 \index{IDASPGMR@{\idaspgmr} linear solver!preconditioner solve function}
 %%
 The evaluation and preprocessing of any Jacobian-related data needed
@@ -1946,7 +1947,7 @@ flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
 
   This test uses a weighted RMS norm (with weights defined by the tolerances).
   For new initial value vectors $y$ and $y^\prime$ to be accepted, the norm
-  of $J^{-1}F(t_0, y, y^\prime)$ must be \le $\id{epiccon}, where $J$ is the
+  of $J^{-1}F(t_0, y, y^\prime)$ must be $\le$ \id{epiccon}, where $J$ is the
   system Jacobian.
 }
 %%
@@ -2109,7 +2110,7 @@ flag = IDASetStepToleranceIC(ida\_mem, steptol);
   \end{args}
 }
 {
-  The default value is $(\text{unit roundoff})$^{2/3}$.
+  The default value is (unit roundoff)$^{2/3}$.
 }
 %%
 \index{optional input!initial condition calculation|)}
