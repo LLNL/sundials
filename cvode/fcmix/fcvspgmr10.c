@@ -12,9 +12,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "sundialstypes.h" /* definitions of types realtype and integertype   */
-#include "nvector.h"      /* definitions of type N_Vector and vector macros  */
-#include "fcvode.h"       /* actual function names, prototypes, global vars. */
-#include "cvspgmr.h"      /* CVSpgmr prototype                               */
+#include "nvector.h"       /* definitions of type N_Vector and vector macros  */
+#include "fcvode.h"        /* actual function names, prototypes, global vars. */
+#include "cvspgmr.h"       /* CVSpgmr prototype                               */
 
 
 /***************************************************************************/
@@ -40,7 +40,8 @@ void FCV_SPGMR10(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 
 /***************************************************************************/
 
-void FCV_REINSPGMR10(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
+void FCV_REINSPGMR10(int *pretype, int *gstype, int *maxl, realtype *delt,
+                     int *ier)
 {
   /* Call CVReInitSpgmr to specify the SPGMR linear solver:
      CV_cvodemem is the pointer to the CVODE memory block

@@ -1,13 +1,12 @@
-/*******************************************************************
- * File          : fcvpreco.c                                      *
- * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL        *
- * Version of    : 26 June 2002                                    *
- *-----------------------------------------------------------------*
- * This C function CVPreco is to interface between routines that   *
- * call CVSpgmr(fcvspgmr20, fcvspgmr21) and the user-supplied      *
- * preconditioner setup routine CVPRECO. Note the use of generic   *
- * names below (FCV_PRECO)                                         *
- ******************************************************************/
+/**********************************************************************
+ * File          : fcvpreco.c                                         *
+ * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL           *
+ * Version of    : 18 July 2002                                       *
+ *--------------------------------------------------------------------*
+ * This C function CVPreco is to interface between the CVSPGMR module *
+ * and the user-supplied preconditioner setup routine CVPRECO.        *
+ * Note the use of the generic name FCV_PRECO below.                  *
+ *********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +17,7 @@
 
 /*********************************************************************/
 
-/* Prototypes of the Fortran routines */
+/* Prototype of the Fortran routine */
 void FCV_PRECO(integertype*, realtype*, realtype*, realtype*, booleantype*, 
                booleantype*, realtype*, realtype*, realtype*, realtype*, 
                long int *, realtype*, realtype*, realtype*, int*);

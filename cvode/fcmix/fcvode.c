@@ -1,14 +1,14 @@
 /******************************************************************
  * File          : fcvode.c                                       *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 26 June 2002                                   *
+ * Version of    : 17 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
- * the CVODE package. See fcvode.h for usage.                     *
+ * the CVODE package.  See fcvode.h for usage.                    *
  * NOTE: some routines are necessarily stored elsewhere to avoid  *
- * linking problems. See also, therefore, fcvpreco.c, fcvpsol.c   *
- * fcvjtimes.c, and the five fcvspgmr**.c where ** = 01, 10, 11   *
- * 20, 21, for all the options available                          *
+ * linking problems.  Therefore, see also fcvpreco.c, fcvpsol.c,  *
+ * fcvjtimes.c, and the five files fcvspgmr**.c (where ** is one  *
+ * 01, 10, 11, 20, 21) for all the options available.             *
  ******************************************************************/
 
 #include <stdio.h>
@@ -75,9 +75,10 @@ void FCV_MALLOC(integertype *neq, realtype *t0, realtype *y0,
 
 /***************************************************************************/
 
-void FCV_REINIT(realtype *t0, realtype *y0, integertype *meth, integertype *itmeth,
-                integertype *iatol, realtype *rtol, realtype *atol, integertype *optin,
-                long int *iopt, realtype *ropt, int *ier)
+void FCV_REINIT(realtype *t0, realtype *y0, integertype *meth,
+                integertype *itmeth, integertype *iatol, realtype *rtol,
+                realtype *atol, integertype *optin, long int *iopt,
+                realtype *ropt, int *ier)
 {
   int lmm, iter, itol;
   N_Vector atolvec;

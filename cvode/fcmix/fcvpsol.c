@@ -1,24 +1,23 @@
-/******************************************************************
- * File          : fcvpsol.c                                      *
- * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 26 June 2002                                   *
- *----------------------------------------------------------------*
- * This routine interfaces between the user-supplied Fortran      *
- * routine CVPSOL and the various routines that call CVSpgmr.     *
- * See the routines fcvspgmr10.c, fcvspgmr11.c, fcvspgmr20.c,     *
- * and fcvspgmr21.c                                               *
- ******************************************************************/
+/**********************************************************************
+ * File          : fcvpsol.c                                          *
+ * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL           *
+ * Version of    : 18 July 2002                                       *
+ *--------------------------------------------------------------------*
+ * This C function CVPSol is to interface between the CVSPGMR module  *
+ * and the user-supplied preconditioner solve routine CVPSOL.         *
+ * Note the use of the generic name FCV_PSOL below.                   *
+ **********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of types realtype and integertype     */
-#include "nvector.h"       /* definitions of type N_Vector and vector kernels   */
-#include "fcvode.h"        /* actual function names, prototypes, global vars.   */
-#include "cvspgmr.h"       /* CVSpgmr prototype                                 */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "nvector.h"       /* definitions of type N_Vector and vector kernels */
+#include "fcvode.h"        /* actual function names, prototypes, global vars. */
+#include "cvspgmr.h"       /* CVSpgmr prototype                               */
 
 /********************************************************************/
 
-/* Prototypes of the Fortran routines */
+/* Prototype of the Fortran routine */
 void FCV_PSOL(integertype*, realtype*, realtype*, realtype*, realtype*, 
               realtype*, realtype*, realtype*, 
               long int*, realtype*, int*, realtype*, int*);
