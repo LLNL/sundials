@@ -2,7 +2,7 @@
 
 KINSOL solves nonlinear algebraic systems in real space, which we write as
 \begin{equation}
-F(u) = 0,~~ F:R^N \rightarrow R^N, 
+F(u) = 0,~~ F:\mbox{\bf R}^N \rightarrow \mbox{\bf R}^N, 
 \label{nonlinear_system}
 \end{equation}
 given an initial guess $u_0$.  It is a rewrite in C of the Fortran
@@ -102,20 +102,22 @@ Three options for stopping criteria for the linear system solve are
 implemented, including the two 
 algorithms of Eisenstat and Walker \cite{EiWa:96}.
 The Krylov iteration must pass a stopping test,
-\[ \|J \delta_n + F\|_S < (\eta_k + U) \|F\|_S ~, \]
+\[ \|J \delta_n + F\| < (\eta_k + U) \|F\| ~, \]
 where $\eta_k$ is one of:
 \begin{itemize}
 \item Eisenstat and Walker Choice 1
 \[ \eta_n = \frac{\left|\; \|F(u_n)\|  
-                           - \|F(u_{n-1}) + J(u_{n-1}) * \delta_n \| 
+                           - \|F(u_{n-1}) + J(u_{n-1}) \delta_n \| 
                   \; \right|}
                {\|F(u_{n-1})\|},  \]
 \item Eisenstat and Walker Choice 2
 \[ \eta_n = \gamma \left( \frac{ \|F(u_n)\|}{\|F(u_{n-1})\|} \right)^{\alpha},
-\] 
+\] where default values of $\gamma$ and $\alpha$ are $0.9$ and $2$, 
+respectively. 
 \item  $\eta_n$ = constant with 0.1 as the default.
 \end{itemize}
-The default is choice 1.  For both options 1 and 2, appropriate 
+The default is Eisenstat and Walker Choice 1.  
+For both options 1 and 2, appropriate 
 safeguards are incorporated to ensure that $\eta$ does not decrease 
 too fast \cite{EiWa:96}.
 
