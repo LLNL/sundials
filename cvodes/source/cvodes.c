@@ -27,7 +27,7 @@
  * File          : cvodes.c                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban *
  *                 and Dan Shumaker @ LLNL                        *
- * Version of    : 15 January 2002                                *
+ * Version of    : 20 March 2002                                  *
  *----------------------------------------------------------------*
  * This is the implementation file for the main CVODES integrator *
  * with sensitivity analysis capabilities.                        *
@@ -448,7 +448,7 @@
 /**************************************************************/
 
 static boole CVAllocVectors(CVodeMem cv_mem, integer neq, int maxord,
-                            void *machEnv);
+                            M_Env machEnv);
 static void  CVFreeVectors(CVodeMem cv_mem, int maxord);
 
 static boole CVEwtSet(CVodeMem cv_mem, real *rtol, void *atol, 
@@ -712,7 +712,7 @@ static void CVSensRhs1DQ(RhsFn f, integer Ns, integer N, real t,
 void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0, int lmm, int iter,
                   int itol, real *reltol, void *abstol, void *f_data,
                   FILE *errfp, boole optIn, long int iopt[], real ropt[],
-                  void *machEnv)
+                  M_Env machEnv)
 {
   boole   allocOK, ioptExists, roptExists, neg_abstol, ewtsetOK;
   int     maxord;
@@ -1165,7 +1165,7 @@ int CVodeSensMalloc(void *cvode_mem, integer Ns, int ism,
 int CVReInit(void *cvode_mem, RhsFn f, real t0, N_Vector y0,
              int lmm, int iter, int itol, real *reltol, void *abstol,
              void *f_data, FILE *errfp, boole optIn, long int iopt[],
-             real ropt[], void *machEnv)
+             real ropt[], M_Env machEnv)
 {
   boole   ioptExists, roptExists, neg_abstol, ewtsetOK;
   int     maxord;
@@ -2285,7 +2285,7 @@ int CVodeMemExtract(void *cvode_mem, long int *n_niS1, long int *n_cfnS1)
 **********************************************************************/
 
 static boole CVAllocVectors(CVodeMem cv_mem, integer neq, int maxord,
-                            void *machEnv)
+                            M_Env machEnv)
 {
   int i, j;
 

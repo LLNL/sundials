@@ -3,7 +3,7 @@
  * File          : cvodes.h                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban *
  *                 and Dan Shumaker @ LLNL                        *
- * Version of    : 15 January 2002                                *
+ * Version of    : 20 March 2002                                  *
  *----------------------------------------------------------------*
  * This is the interface file for the main CVODES integrator.     *
  *                                                                *
@@ -278,7 +278,7 @@ void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0,
                   int lmm, int iter, int itol, real *reltol, 
                   void *abstol, void *f_data, FILE *errfp, 
                   boole optIn, long int iopt[], real ropt[],
-                  void *machEnv);
+                  M_Env machEnv);
  
  
 /******************************************************************
@@ -384,11 +384,19 @@ enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
  * is unchanged (or changed from ADAMS to BDF) and the default    *
  * value for maxord is specified.                                 *
  *                                                                *
- * If iter = NEWTON, the user need not call the linear solver     *
- * specification routine following the call to CVReInit, if the   *
- * choice of linear solver, and its input parameters, are         *
- * unchanged from the previous problem.  In that case, the linear *
- * solver memory is also reused.                                  *
+ * If iter = NEWTON, then following the call to CVReInit, a call  *
+ * to the linear solver specification routine is necessary if a   *
+ * different linear solver is chosen, but may not be otherwise.   *
+ * If the same linear solver is chosen, and there are no changes  *
+ * in the input parameters to the specification routine, then no  *
+ * call to that routine is needed.                                *
+ * If there are changes in parameters, but they do not increase   *
+ * the linear solver memory size, then a call to the corresponding*
+ * CVReInit<linsol> routine must made to communicate the new      *
+ * parameters; in that case the linear solver memory is reused.   *
+ * If the parameter changes do increase the linear solver memory  *
+ * size, then the main linear solver specification routine must be*
+ * called.  See the linear solver documentation for full details. *
  *                                                                *
  * The first argument to CVReInit is:                             *
  *                                                                *
@@ -415,7 +423,7 @@ enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
 int CVReInit(void *cvode_mem, RhsFn f, real t0, N_Vector y0, 
              int lmm, int iter, int itol, real *reltol, void *abstol, 
              void *f_data, FILE *errfp, boole optIn, long int iopt[], 
-             real ropt[], void *machEnv);
+             real ropt[], M_Env machEnv);
 
 
 /* CVReInit return values: */
@@ -1084,7 +1092,7 @@ typedef struct CVodeMemRec {
     Pointer to Machine Environment-Specific Information 
   -----------------------------------------------------*/
 
-  void *cv_machenv;
+  M_Env cv_machenv;
 
   /*----------------------------------------
     Stability Limit Detection control flag 
