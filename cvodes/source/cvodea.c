@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2004-09-28 23:44:21 $
+ * $Revision: 1.30 $
+ * $Date: 2004-10-08 15:23:29 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1048,7 +1048,7 @@ int CVBandPrecAllocB(void *cvadj_mem, long int nB,
 
   bp_data_B = bp_dataB;
 
-  return(CVBP_SUCCESS);
+  return(CVSPGMR_SUCCESS);
 
 }
 
@@ -1101,7 +1101,7 @@ int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
 
   bbd_data_B = bbd_dataB;
 
-  return(CVBBD_SUCCESS);
+  return(CVSPGMR_SUCCESS);
 
 }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-08-25 16:21:34 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-08 15:23:29 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -141,7 +141,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSG_NO_PDATA);
-    return(CVBP_DATA_NULL);
+    return(CVSPGMR_DATA_NULL);
   } 
 
   flag = CVSpgmr(cvode_mem, pretype, maxl);
@@ -156,7 +156,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBandPrecSolve);
   if(flag != CVSPGMR_SUCCESS) return(flag);
 
-  return(CVBP_SUCCESS);
+  return(CVSPGMR_SUCCESS);
 }
 
 void CVBandPrecFree(void *bp_data)
@@ -179,7 +179,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
 
   if ( bp_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(CVBP_DATA_NULL);
+    return(CVSPGMR_DATA_NULL);
   } 
 
   pdata = (CVBandPrecData) bp_data;
@@ -191,7 +191,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
   *leniwBP = pdata->N;
   *lenrwBP = N * ( 2*ml + smu + mu + 2 );
 
-  return(CVBP_SUCCESS);
+  return(CVSPGMR_SUCCESS);
 }
 
 int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
@@ -200,14 +200,14 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
 
   if ( bp_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(CVBP_DATA_NULL);
+    return(CVSPGMR_DATA_NULL);
   } 
 
   pdata = (CVBandPrecData) bp_data;
 
   *nfevalsBP = pdata->nfeBP;
 
-  return(CVBP_SUCCESS);
+  return(CVSPGMR_SUCCESS);
 }
 
 /* Readability Replacements */
