@@ -51,7 +51,7 @@ generated are listed in Table \ref{t:sundials_files} for reference.  (For brevit
 the corresponding \id{.c} files are not listed.)  Regarding the file
 extension .{\em lib} appearing in Table \ref{t:sundials_files}, shared libraries
 generally have an extension of \id{.so} and static libraries have an extension of
-\id{.a}.
+\id{.a}.  (See Options for library support, below.)
 \begin{enumerate}
 \item \id{gunzip} {\em sundials\_file}\id{.tar.gz}
 \item \id{tar -xf} {\em sundials\_file}\id{.tar}\hspace{2em} [creates \id{sundials} directory]
@@ -424,6 +424,8 @@ of the corresponding {\mpi} compiler script. In addition, since the
 \id{--with-mpi-root} option is given, the compilation flags
 \id{-I/usr/apps/mpich/1.2.4/include} and \id{-L/usr/apps/mpich/1.2.4/lib} are passed
 to \id{gcc} when compiling the {\mpi}-enabled functions. 
+The \id{--disable-examples} option disables the examples (which means
+a {\F} compiler is not required).
 The \id{--with-mpi-libs} option is still needed so that the configure
 script can check if \id{gcc} can link with the appropriate {\mpi}
 library as \id{-lmpi} is the internal default.
