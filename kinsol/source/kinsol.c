@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-08-17 20:55:20 $
+ * $Revision: 1.24 $
+ * $Date: 2004-08-17 22:42:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -802,7 +802,6 @@ int KINResetSysFunc(void *kinmem, SysFn func)
 #define vtemp2 (kin_mem->kin_vtemp2)
 #define eps (kin_mem->kin_eps)
 #define res_norm (kin_mem->kin_res_norm)
-#define precondflag (kin_mem->kin_precondflag)
 #define liw1 (kin_mem->kin_liw1)
 #define lrw1 (kin_mem->kin_lrw1)
 #define liw (kin_mem->kin_liw)
@@ -1339,11 +1338,6 @@ static int KINSolInit(KINMem kin_mem)
   
   /* all error checking is complete at this point */
 
-  /* copy the input parameters into KINSol state */
-
-  kin_mem->kin_precondflag = FALSE;  /* set to the correct state by the linear
-                                        solver routine */
-
   if (printfl > 0) {
     fprintf(infofp, "scsteptol used: %12.3g \n", scsteptol);
     fprintf(infofp, "fnormtol  used: %12.3g \n", fnormtol); }
@@ -1877,7 +1871,7 @@ static int KINLinSolDrv(KINMem kin_mem , N_Vector bb , N_Vector xx )
 
   if (ret <= 0) return(ret);
 
-  if (!precondflag) return(KINSOL_KRYLOV_FAILURE);
+  if (!setupNonNull) return(KINSOL_KRYLOV_FAILURE);
 
   if (precondcurrent) return(KINSOL_KRYLOV_FAILURE);
 
@@ -1944,7 +1938,7 @@ static int KINStop(KINMem kinmem, booleantype maxStepTaken, int globalstratret)
 
   if (globalstratret == 1){
 
-    if (precondflag && setupNonNull && !precondcurrent) {
+    if (setupNonNull && !precondcurrent) {
 
       /* if the globalstratret was caused (potentially) by the 
 	 preconditioner being out of date, then update the

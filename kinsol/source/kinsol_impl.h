@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-07-27 23:52:30 $
+ * $Revision: 1.3 $
+ * $Date: 2004-08-17 22:42:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -59,10 +59,9 @@ typedef struct KINMemRec {
 				  ETACHOICE2                                   */
   booleantype kin_noMinEps;    /* flag controlling whether or not the value
 				  of eps is bounded below                      */
-  booleantype kin_precondflag;     /* flag indicating if using preconditioning */
   booleantype kin_setupNonNull;    /* flag indicating if preconditioning setup
-				      routine is non-null and if preconditioning
-				      is being used                            */
+				      routine is non-null and if
+				      preconditioning is being used            */
   booleantype kin_constraintsSet;  /* flag indicating if constraints are being
 				      used                                     */
   booleantype kin_precondcurrent;  /* flag indicating if the preconditioner is

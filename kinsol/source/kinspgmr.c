@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-08-17 20:55:20 $
+ * $Revision: 1.14 $
+ * $Date: 2004-08-17 22:42:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -109,7 +109,6 @@ static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
 #define uscale         (kin_mem->kin_uscale)
 #define fscale         (kin_mem->kin_fscale)
 #define sqrt_relfunc   (kin_mem->kin_sqrt_relfunc)
-#define precondflag    (kin_mem->kin_precondflag)
 #define precondcurrent (kin_mem->kin_precondcurrent)
 #define eps            (kin_mem->kin_eps)
 #define sJpnorm        (kin_mem->kin_sJpnorm)
@@ -691,10 +690,8 @@ static int KINSpgmrInit(KINMem kin_mem)
   /* set preconditioner type */
 
   if (psolve != NULL) {
-    precondflag = TRUE;
     pretype = RIGHT;
   } else {
-    precondflag = FALSE;
     pretype = NONE;
   }
   
