@@ -79,27 +79,6 @@ extern "C" {
 #include "nvector.h"
 #include "band.h"
 
-/************* CVBandPrecData type definition ************/
-
-typedef struct {
-
-  /* Data set by user in CVBandPrecAlloc: */
-  long int N;
-  long int ml, mu;
-
-  /* Data set by CVBandPrecSetup: */
-  BandMat savedJ;
-  BandMat savedP;
-  long int *pivots;
-
-  /* Rhs calls */
-  long int nfeBP;
-
-  /* Pointer to cvode_mem */
-  CVodeMem cv_mem;
-
-} *CVBandPrecData;
-
 /******************************************************************
  * Function : CVBandPrecAlloc                                     *
  *----------------------------------------------------------------*
@@ -186,6 +165,27 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 /* Return values for CVBandPrecGet* functions */
 /* OKAY = 0 */
 enum { BP_NO_PDATA = -1 };
+
+/************* CVBandPrecData type definition ************/
+
+typedef struct {
+
+  /* Data set by user in CVBandPrecAlloc: */
+  long int N;
+  long int ml, mu;
+
+  /* Data set by CVBandPrecSetup: */
+  BandMat savedJ;
+  BandMat savedP;
+  long int *pivots;
+
+  /* Rhs calls */
+  long int nfeBP;
+
+  /* Pointer to cvode_mem */
+  void *cvode_mem;
+
+} *CVBandPrecData;
 
 #endif
 

@@ -159,34 +159,6 @@ typedef void (*CVLocalFn)(long int Nlocal, realtype t,
 typedef void (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
                          void *f_data);
 
-/*********************** Definition of CVBBDData *****************/
-
-typedef struct {
-
-  /* passed by user to CVBBDPrecAlloc, used by PrecSetup/PrecSolve */
-  long int mudq, mldq, mukeep, mlkeep;
-  realtype dqrely;
-  CVLocalFn gloc;
-  CVCommFn cfn;
-
-  /* set by CVBBDPrecSetup and used by CVBBDPrecSolve */
-  BandMat savedJ;
-  BandMat savedP;
-  long int *pivots;
-
-  /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
-  long int n_local;
-
-  /* available for optional output: */
-  long int rpwsize;
-  long int ipwsize;
-  long int nge;
-
-  /* Pointer to cvode_mem */
-  CVodeMem cv_mem;
-
-} *CVBBDPrecData;
-
 /******************************************************************
  * Function : CVBBDPrecAlloc                                      *
  *----------------------------------------------------------------*
@@ -309,6 +281,34 @@ int CVBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 /* Return values for CVBBDPrecGet* functions */
 /* OKAY = 0 */
 enum { BBDP_NO_PDATA = -1 };
+
+/*********************** Definition of CVBBDData *****************/
+
+typedef struct {
+
+  /* passed by user to CVBBDPrecAlloc, used by PrecSetup/PrecSolve */
+  long int mudq, mldq, mukeep, mlkeep;
+  realtype dqrely;
+  CVLocalFn gloc;
+  CVCommFn cfn;
+
+  /* set by CVBBDPrecSetup and used by CVBBDPrecSolve */
+  BandMat savedJ;
+  BandMat savedP;
+  long int *pivots;
+
+  /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
+  long int n_local;
+
+  /* available for optional output: */
+  long int rpwsize;
+  long int ipwsize;
+  long int nge;
+
+  /* Pointer to cvode_mem */
+  void *cvode_mem;
+
+} *CVBBDPrecData;
 
 #endif
 

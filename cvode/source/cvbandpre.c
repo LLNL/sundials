@@ -88,7 +88,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   if (pdata == NULL) return(NULL);
 
   /* Load pointers and bandwidths into pdata block. */
-  pdata->cv_mem = cv_mem;
+  pdata->cvode_mem = cvode_mem;
   pdata->N = N;
   pdata->mu = mup = MIN( N-1, MAX(0,mu) );
   pdata->ml = mlp = MIN( N-1, MAX(0,ml) );
@@ -381,7 +381,7 @@ static void CVBandPDQJac(CVBandPrecData pdata,
   long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
 
-  cv_mem = pdata->cv_mem;
+  cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
   ewt_data   = N_VGetData(ewt);

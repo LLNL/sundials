@@ -89,7 +89,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   if (pdata == NULL) return(NULL);
 
   /* Set pointers to gloc and cfn; load half-bandwidths */
-  pdata->cv_mem = cv_mem;
+  pdata->cvode_mem = cvode_mem;
   pdata->gloc = gloc;
   pdata->cfn = cfn;
   pdata->mudq = MIN( Nlocal-1, MAX(0,mudq) );
@@ -168,7 +168,7 @@ int CVBBDPrecReInit(void *p_data,
   long int Nlocal;
 
   pdata = (CVBBDPrecData) p_data;
-  cv_mem = pdata->cv_mem;
+  cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Set pointers to gloc and cfn; load half-bandwidths */
   pdata->gloc = gloc;
@@ -424,7 +424,7 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
   long int group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
 
-  cv_mem = pdata->cv_mem;
+  cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Obtain pointers to the data for the y and ewt vectors */
   y_data     = N_VGetData(y);
