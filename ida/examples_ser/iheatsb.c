@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11.2.1 $
- * $Date: 2005-03-17 22:50:54 $
+ * $Revision: 1.11.2.2 $
+ * $Date: 2005-04-04 22:36:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -124,13 +124,18 @@ int main(void)
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
+
   ier = IDASetRdata(mem, data);
   if(check_flag(&ier, "IDASetRdata", 1)) return(1);
+
   ier = IDASetId(mem, id);
   if(check_flag(&ier, "IDASetId", 1)) return(1);
+
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
-  ier = IDAMalloc(mem, heatres, t0, uu, up, IDA_SS, &rtol, &atol);
+  N_VDestroy_Serial(constraints);
+
+  ier = IDAMalloc(mem, heatres, t0, uu, up, IDA_SS, rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1)) return(1);
 
   /* Call IDABand to specify the linear solver. */
@@ -140,7 +145,7 @@ int main(void)
  
   /* Call IDACalcIC to correct the initial values. */
   
-  ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
+  ier = IDACalcIC(mem, t0, uu, up, IDA_YA_YDP_INIT, t1);
   if(check_flag(&ier, "IDACalcIC", 1)) return(1);
 
   /* Print output heading. */
@@ -170,7 +175,6 @@ int main(void)
   IDAFree(mem);
   N_VDestroy_Serial(uu);
   N_VDestroy_Serial(up);
-  N_VDestroy_Serial(constraints);
   N_VDestroy_Serial(id);
   N_VDestroy_Serial(res);
   free(data);

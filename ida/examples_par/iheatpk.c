@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15.2.1 $
- * $Date: 2005-03-17 22:50:50 $
+ * $Revision: 1.15.2.2 $
+ * $Date: 2005-04-04 22:36:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -225,8 +225,9 @@ int main(int argc, char *argv[])
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
+  N_VDestroy_Parallel(constraints);  
 
-  ier = IDAMalloc(mem, resHeat, t0, uu, up, IDA_SS, &rtol, &atol);
+  ier = IDAMalloc(mem, resHeat, t0, uu, up, IDA_SS, rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDASpgmr to specify the linear solver. */
@@ -268,7 +269,6 @@ int main(int argc, char *argv[])
   IDAFree(mem);
 
   N_VDestroy_Parallel(id);
-  N_VDestroy_Parallel(constraints);
   N_VDestroy_Parallel(res);
   N_VDestroy_Parallel(up);
   N_VDestroy_Parallel(uu);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16.2.2 $
- * $Date: 2005-03-17 22:50:54 $
+ * $Revision: 1.16.2.3 $
+ * $Date: 2005-04-04 22:36:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -109,12 +109,17 @@ int main(void)
   t0 = ZERO;
   t1 = RCONST(0.4);
 
+  PrintHeader(rtol, avtol, yy);
+
   /* Call IDACreate and IDAMalloc to initialize IDA memory */
 
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
-  retval = IDAMalloc(mem, resrob, t0, yy, yp, IDA_SV, &rtol, avtol);
+  retval = IDAMalloc(mem, resrob, t0, yy, yp, IDA_SV, rtol, avtol);
   if(check_flag(&retval, "IDAMalloc", 1)) return(1);
+  
+  /* Free avtol */
+  N_VDestroy_Serial(avtol);
 
   /* Call IDADense and set up the linear solver. */
 
@@ -124,8 +129,6 @@ int main(void)
   if(check_flag(&retval, "IDADenseSetJacFn", 1)) return(1);
 
   /* Loop over tout values and call IDASolve. */
-
-  PrintHeader(rtol, avtol, yy);
 
   for (tout = t1, iout = 1; iout <= NOUT ; iout++, tout *= RCONST(10.0)) {
     retval=IDASolve(mem, tout, &tret, yy, yp, IDA_NORMAL);
@@ -140,7 +143,6 @@ int main(void)
   IDAFree(mem);
   N_VDestroy_Serial(yy);
   N_VDestroy_Serial(yp);
-  N_VDestroy_Serial(avtol);
 
   return(0);
   

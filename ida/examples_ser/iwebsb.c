@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18.2.1 $
- * $Date: 2005-03-17 22:50:54 $
+ * $Revision: 1.18.2.2 $
+ * $Date: 2005-04-04 22:36:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -217,7 +217,7 @@ int main()
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1)) return(1);
 
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, &rtol, &atol);
+  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, rtol, &atol);
   if(check_flag(&retval, "IDAMalloc", 1)) return(1);
 
   /* Call IDABand to specify the IDA linear solver. */
@@ -229,7 +229,7 @@ int main()
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
-  retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
+  retval = IDACalcIC(mem, t0, cc, cp, IDA_YA_YDP_INIT, tout);
   if(check_flag(&retval, "IDACalcIC", 1)) return(1);
   
   /* Print heading, basic parameters, and initial values. */

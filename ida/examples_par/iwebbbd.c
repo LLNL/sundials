@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21.2.1 $
- * $Date: 2005-03-17 22:50:50 $
+ * $Revision: 1.21.2.2 $
+ * $Date: 2005-04-04 22:36:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, &rtol, &atol);
+  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, rtol, &atol);
   if(check_flag(&retval, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDABBDPrecAlloc to initialize the band-block-diagonal preconditioner.
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
   /* Call IDACalcIC (with default options) to correct the initial values. */
   
   tout = RCONST(0.001);
-  retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
+  retval = IDACalcIC(mem, t0, cc, cp, IDA_YA_YDP_INIT, tout);
   if(check_flag(&retval, "IDACalcIC", 1, thispe)) MPI_Abort(comm, 1);
   
   /* On PE 0, print heading, basic parameters, initial values. */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16.2.2 $
- * $Date: 2005-03-17 22:50:54 $
+ * $Revision: 1.16.2.3 $
+ * $Date: 2005-04-04 22:36:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -152,8 +152,9 @@ int main()
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
+  N_VDestroy_Serial(constraints);
 
-  ier = IDAMalloc(mem, resHeat, t0, uu, up, IDA_SS, &rtol, &atol);
+  ier = IDAMalloc(mem, resHeat, t0, uu, up, IDA_SS, rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1)) return(1);
 
   /* Call IDASpgmr to specify the linear solver. */
@@ -185,7 +186,6 @@ int main()
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreS     h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
-  PrintOutput(mem,t0,uu);
 
   /* Loop over output times, call IDASolve, and print results. */
 
@@ -222,7 +222,7 @@ int main()
   
   /* Re-initialize IDA and IDASPGMR */
 
-  ier = IDAReInit(mem, resHeat, t0, uu, up, IDA_SS, &rtol, &atol);
+  ier = IDAReInit(mem, resHeat, t0, uu, up, IDA_SS, rtol, &atol);
   if(check_flag(&ier, "IDAReInit", 1)) return(1);
   
   ier = IDASpgmrSetGSType(mem, CLASSICAL_GS);
@@ -234,7 +234,6 @@ int main()
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreS     h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
-  PrintOutput(mem,t0,uu);
 
   /* Loop over output times, call IDASolve, and print results. */
 
@@ -265,7 +264,6 @@ int main()
 
   N_VDestroy_Serial(uu);
   N_VDestroy_Serial(up);
-  N_VDestroy_Serial(constraints);
   N_VDestroy_Serial(res);
 
   N_VDestroy_Serial(data->pp);

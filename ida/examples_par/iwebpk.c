@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19.2.1 $
- * $Date: 2005-03-17 22:50:50 $
+ * $Revision: 1.19.2.2 $
+ * $Date: 2005-04-04 22:36:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -166,6 +166,7 @@ typedef struct {
   N_Vector rates;
   realtype **PP[MXSUB][MYSUB];
   long int *pivot[MXSUB][MYSUB];
+  N_Vector ewt;
   void *ida_mem;
 } *UserData;
 
@@ -316,7 +317,7 @@ int main(int argc, char *argv[])
   flag = IDASetId(mem, id);
   if (check_flag(&flag, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, &rtol, &atol);
+  flag = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, rtol, &atol);
   if (check_flag(&flag, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
 
   webdata->ida_mem = mem;
@@ -345,7 +346,7 @@ int main(int argc, char *argv[])
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
-  flag = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
+  flag = IDACalcIC(mem, t0, cc, cp, IDA_YA_YDP_INIT, tout);
   if (check_flag(&flag, "IDACalcIC", 1, thispe)) 
     MPI_Abort(comm, 1);
 
@@ -415,7 +416,7 @@ static UserData AllocUserData(MPI_Comm comm, long int local_N,
   }
   
   webdata->acoef = denalloc(NUM_SPECIES);
-  
+  webdata->ewt = N_VNew_Parallel(comm, local_N, SystemSize);
   return(webdata);
   
 }
@@ -497,6 +498,7 @@ static void FreeUserData(UserData webdata)
 
   denfree(webdata->acoef);
   N_VDestroy_Parallel(webdata->rates);
+  N_VDestroy_Parallel(webdata->ewt);
   free(webdata);
 
 }
@@ -1146,7 +1148,8 @@ static int Precondbd(realtype tt, N_Vector cc,
   thispe = webdata->thispe;
 
   mem = webdata->ida_mem;
-  flag = IDAGetErrWeights(mem, &ewt);
+  ewt = webdata->ewt;
+  flag = IDAGetErrWeights(mem, ewt);
   check_flag(&flag, "IDAGetErrWeights", 1, thispe);
   flag = IDAGetCurrentStep(mem, &hh);
   check_flag(&flag, "IDAGetCurrentStep", 1, thispe);
