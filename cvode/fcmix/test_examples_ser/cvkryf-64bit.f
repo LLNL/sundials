@@ -1,6 +1,6 @@
 C ------------------------------------------------------------------
-C $Revision: 1.2 $
-C $Date: 2004-05-17 18:50:13 $
+C $Revision: 1.3 $
+C $Date: 2004-07-29 23:48:33 $
 C ------------------------------------------------------------------
 C
 C File cvkryf.f
@@ -265,14 +265,14 @@ C Load all terms into YDOT.
       RETURN
       END
 
-      SUBROUTINE FCVPSET (T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UR,
+      SUBROUTINE FCVPSET (T, Y, FY, JOK, JCUR, GAMMA, EWT, H,
      1                    V1, V2, V3, IER)
 C Routine to set and preprocess block-diagonal preconditioner.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
       IMPLICIT NONE
       INTEGER IER, JOK, JCUR, H
       INTEGER*8 LENBD, JZ, JX, IBLOK, MX, MZ, MM, TEMPINT1, TEMPINT2
-      INTEGER*8 IBLOK0, UR, IPP
+      INTEGER*8 IBLOK0, IPP
       DOUBLE PRECISION T, Y(2,*), GAMMA
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3,A4, OM, C3, DZ, HDCO,VDCO,HACO
       DOUBLE PRECISION BD, P, FY, EWT, V1, V2, V3
@@ -329,7 +329,7 @@ C
       RETURN
       END
 
-      SUBROUTINE FCVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, DELTA,
+      SUBROUTINE FCVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, H, DELTA,
      1                   R, LR, Z, IER)
 C Routine to solve preconditioner linear system.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
@@ -338,7 +338,7 @@ C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
       INTEGER*8 I, NEQ, MX, MZ, MM, LR, IPP
       DOUBLE PRECISION R(*), Z(2,*)
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3,A4, OM, C3, DZ, HDCO,VDCO,HACO
-      DOUBLE PRECISION BD, P, T, Y, FY, VTEMP, EWT, DELTA, GAMMA
+      DOUBLE PRECISION BD, P, T, Y, FY, VTEMP, EWT, DELTA, GAMMA, H
       COMMON /PCOM/ Q1,Q2,Q3,Q4,A3,A4,OM,C3,DZ,HDCO,VDCO,HACO,MX,MZ,MM
       COMMON /BDJ/ BD(2,2,100), P(2,2,100), IPP(2,100)
       COMMON /PBDIM/ NEQ
