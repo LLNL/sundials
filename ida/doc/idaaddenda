@@ -15,3 +15,20 @@ MPI_Comm, and cannnot be NULL.
 2. In the file llnltyps.h, the default for type 'integer' is now
 'long int' instead of 'int'.  The usage instructions in the IDA User 
 Documentation for changing this type are to be altered accordingly.
+
+3. The NVECTOR module has been reorganized throughout SUNDIALS. For 
+more information, see the file idareadme and the files nvecreadme, 
+nvector.h, nvector_serial.h, and nvector_parallel.h in /sundials/shared/.
+A serial IDA example must include 'nvector_serial.h' and a parallel IDA
+example must include 'nvector_parallel.h'.
+
+4. Both the serial and parallel versions of IDA must now initialize the 
+machine environment through calls to M_EnvInit_Serial and M_EnvInit_Parallel
+(a rename of PVecInitMPI), respectively. As a consequence, the machine 
+environment argument to IDAMalloc (last argument) cannot be NULL anymore
+in the serial version.
+
+5. Vector accessor macros now have implementation-dependent names, such
+as NV_DATA_S, NV_LENGTH_S, NV_Ith_S for the serial NVECTOR (nvector_serial.h)
+and NV_DATA_P, NV_LOCLENGTH_P, NV_GLOBLENGTH_P, NV_Ith_P for the parallel
+NVECTOR (nvector_parallel.h).
