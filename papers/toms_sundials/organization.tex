@@ -61,12 +61,24 @@ packages are currently included with SUNDIALS: a direct dense matrix solver
 (DENSE); a direct band solver (BAND); and an iterative Krylov solver
 (SPGMR). These are stand-alone packages in their own right.
 
-The shared linear solvers are accessed from SUNDIALS via
-solver-specific wrappers.
-Thus, SPGMR is accessed via CVSPGMR, IDASPGMR, and
-KINSPGMR, for CVODE (and CVODES), IDA, and KINSOL, respectively. For the
-DENSE solver, the wrappers are CVDENSE and IDADENSE for CVODE/CVODES and
+The shared linear solvers are accessed from SUNDIALS via solver-specific
+wrappers.  Thus, SPGMR is accessed via CVSPGMR, IDASPGMR, and KINSPGMR,
+for CVODE (and CVODES), IDA, and KINSOL, respectively. For the DENSE
+solver, the wrappers are CVDENSE and IDADENSE for CVODE/CVODES and
 IDA, respectively. Similar wrappers for BAND are CVBAND and IDABAND.
+
+Within each solver, each linear solver module consists primarily of the
+user-callable function that specifies that linear solver, and four or five
+wrapper routines.  The wrappers conform to a fixed set of specifications,
+enabling the central solver routines to be independent of the linear
+system method used.  Specifically, for each such module, there are
+four wrappers --- for initialization, Jacobian/precondioner matrix
+setup, linear system solution, and memory freeing.  The IDA modules
+have a fifth wrapper, for linear solver performance monitoring.  These
+wrapper specifications are fully described in the user documentation
+for each solver.  By following those, and using any of the existing modules
+as a model, the user can add a linear solver module to the package, if
+appropriate.
 
 \subsection{Shared Modules - NVECTOR}
 
