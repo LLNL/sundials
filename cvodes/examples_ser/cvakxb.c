@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-09 00:14:08 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-09 18:46:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
   CInit(c, wdata);
 
   /* Call CVodeCreate/CVodeMalloc for forward run */
-  printf("\nCreate and allocate CVODE memory for forward run\n");
+  printf("\nCreate and allocate CVODES memory for forward run\n");
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   wdata->cvode_memF = cvode_mem; /* Used in Precond */
