@@ -1,7 +1,7 @@
       program kindiagsf
 c ------------------------------------------------------------------
-c $Revision: 1.1 $
-c $Date: 2004-03-31 21:25:55 $
+c $Revision: 1.2 $
+c $Date: 2004-05-04 16:35:44 $
 c ------------------------------------------------------------------
 c Programmers : Allan G. Taylor, Alan C. Hindmarsh, and
 c               Radu Serban @ LLNL
@@ -85,8 +85,8 @@ c * * * * * * * * * * * * * * * * * * * * * *
      3       ' interface'/' in a serial environment.'/
      4       ' globalstrategy = INEXACT_NEWTON'/)
 
-      call fkinsol(uu, 0, scale, scale, ier)
-      if (ier .ne. 0) then
+      call fkinsol(uu, globalstrat, scale, scale, ier)
+      if (ier .lt. 0) then
          write(6,1242) ier
  1242    format('SUNDIALS_ERROR: FKINSOL returned IER =',i2)
          call fnvfrees
