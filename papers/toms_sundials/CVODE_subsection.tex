@@ -19,10 +19,10 @@ scale of the solution itself.
 %-------------------------
 The methods used in CVODE are variable-order, variable-step multistep
 methods, based on formulas of the form
-\begin{equation}\label{LMM} 
+\begin{equation*}
  \sum_{i = 0}^{K_1} \alpha_{n,i} y_{n-i} + 
      h_n \sum_{i = 0}^{K_2} \beta_{n,i} \dot{y}_{n-i} = 0 \, .
-\end{equation}
+\end{equation*}
 Here the $y_n$ are computed approximations to $y(t_n)$, and
 $h_n = t_n - t_{n-1}$ is the step size.  The user of CVODE must choose
 appropriately one of two multistep methods.  For nonstiff problems,
@@ -49,9 +49,9 @@ Functional iteration, given by
 \[ y_{n(m+1)} = h_n \beta_{n,0} f(t_n,y_{n(m)}) + a_n \, , \]
 involves evaluations of $f$ only.  In contrast, Newton iteration requires
 the solution of linear systems
-\begin{equation}\label{Newtoncorr}
+\begin{equation*}
   M [y_{n(m+1)} - y_{n(m)}] = -G(y_{n(m)}) \, ,
-\end{equation}
+\end{equation*}
 in which
 \begin{equation}\label{Newtonmat} 
   M \approx I - \gamma J \, ,

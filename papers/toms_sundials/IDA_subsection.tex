@@ -188,9 +188,9 @@ be changed by the user).
 During the course of integrating the system, IDA computes an estimate
 of the local truncation error LTE at the $n$-th time step, and
 requires this to satisfy the inequality
-\begin{equation}\label{Errtest}
+\begin{equation*}
   \| \mbox{LTE} \|_{\mbox{\scriptsize WRMS}} \leq 1 \, .               
-\end{equation}
+\end{equation*}
 Asymptotically, LTE varies as $h^{q+1}$ at stepsize $h$ and order $q$, as
 does the predictor-corrector difference $\Delta_n \equiv y_n-y_{n(0)}$.  
 Thus there is a constant $C$ such that
