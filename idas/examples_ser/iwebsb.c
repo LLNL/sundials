@@ -1,83 +1,92 @@
-/*************************************************************************
- * File       : iwebsb.c                                                 *
- * Written by : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL   *
- * Version of : 11 February 2004                                         *
- *-----------------------------------------------------------------------*
- *
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-05-05 17:12:49 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Allan Taylor, Alan Hindmarsh and
+ *                Radu Serban @ LLNL
+ * -----------------------------------------------------------------
  * Example program for IDAS: Food web, serial, band solve IDABAND.
  *
- * This example program for IDAS (serial version) uses IDABAND as the
- * linear solver, and IDACalcIC for initial condition calculation.
- *                                         
- * The mathematical problem solved in this example is a DAE system that 
- * arises from a system of partial differential equations after spatial
- * discretization.  The PDE system is a food web population model, with
- * predator-prey interaction and diffusion on the unit square in two 
- * dimensions. The dependent variable vector is:
+ * This example program for IDAS (serial version) uses IDABAND as
+ * the linear solver, and IDACalcIC for initial condition
+ * calculation.
  *
- *       1   2         ns
- * c = (c , c ,  ..., c  ) ,   ns = 2 * np
- * 
+ * The mathematical problem solved in this example is a DAE system
+ * that arises from a system of partial differential equations after
+ * spatial discretization. The PDE system is a food web population
+ * model, with predator-prey interaction and diffusion on the unit
+ * square in two dimensions. The dependent variable vector is:
+ *
+ *         1   2         ns
+ *   c = (c , c ,  ..., c  ) , ns = 2 * np
+ *
  * and the PDE's are as follows:
  *
  *     i             i      i
- *   dc /dt = d(i)*(c    + c  )  +  R (x,y,c)    (i=1,...,np)
+ *   dc /dt = d(i)*(c    + c  )  +  R (x,y,c)   (i = 1,...,np)
  *                   xx     yy       i
  *
- *
- *                   i      i      
- *  0       = d(i)*(c    + c  )  +  R  (x,y,c)   (i=np+1,...,ns)
- *                   xx     yy       i
+ *              i      i
+ *   0 = d(i)*(c    + c  )  +  R  (x,y,c)   (i = np+1,...,ns)
+ *              xx     yy       i
  *
  *   where the reaction terms R are:
  *
- *                   i             ns         j  
+ *                   i             ns         j
  *   R  (x,y,c)  =  c  * (b(i)  + sum a(i,j)*c )
  *    i                           j=1
  *
- * The number of species is ns = 2 * np, with the first np being prey and
- * the last np being predators. The coefficients a(i,j), b(i), d(i) are:
+ * The number of species is ns = 2 * np, with the first np
+ * being prey and the last np being predators. The coefficients
+ * a(i,j), b(i), d(i) are:
  *
  *   a(i,i) = -AA  (all i)
  *   a(i,j) = -GG  (i <= np , j >  np)
  *   a(i,j) =  EE  (i >  np,  j <= np)
  *   all other a(i,j) = 0
  *   b(i) = BB*(1+ alpha * x*y + beta*sin(4 pi x)*sin(4 pi y))  (i <= np)
- *   b(i) =-BB*(1+ alpha * x*y + beta*sin(4 pi x)*sin(4 pi y))  (i  > np)
+ *   b(i) =-BB*(1+ alpha * x*y + beta*sin(4 pi x)*sin(4 pi y))  (i > np)
  *   d(i) = DPREY  (i <= np)
  *   d(i) = DPRED  (i > np)
- *  
- *  NOTE: The above equations are written in 1-based indices, whereas the
- *  code has 0-based indices, being written in C.
  *
- *  The various scalar parameters required are set using 'define' statements 
- *  or directly in routine InitUserData.  In this program, np = 1, ns = 2.
- *  The boundary conditions are homogeneous Neumann: normal derivative = 0.
+ * Note: The above equations are written in 1-based indices,
+ * whereas the code has 0-based indices, being written in C.
  *
- *  A polynomial in x and y is used to set the initial values of the first
- *  np variables (the prey variables) at each x,y location, while initial
- *  values for the remaining (predator) variables are set to a flat value,
- *  which is corrected by IDACalcIC.
+ * The various scalar parameters required are set using '#define'
+ * statements or directly in routine InitUserData. In this program,
+ * np = 1, ns = 2. The boundary conditions are homogeneous Neumann:
+ * normal derivative = 0.
  *
- *  The PDEs are discretized by central differencing on a MX by MY mesh.
- * 
- *  The DAE system is solved by IDA using the IDABAND linear solver.
- *  Output is printed at t = 0, .001, .01, .1, .4, .7, 1.
+ * A polynomial in x and y is used to set the initial values of
+ * the first np variables (the prey variables) at each x,y
+ * location, while initial values for the remaining (predator)
+ * variables are set to a flat value, which is corrected by
+ * IDACalcIC.
  *
+ * The PDEs are discretized by central differencing on a MX by MY
+ * mesh.
+ *
+ * The DAE system is solved by IDA using the IDABAND linear solver.
+ * Output is printed at t = 0, .001, .01, .1, .4, .7, 1.
+ * -----------------------------------------------------------------
  * References:
  * [1] Peter N. Brown and Alan C. Hindmarsh,
- *     Reduced Storage Matrix Methods in Stiff ODE systems, Journal of
- *     Applied Mathematics and Computation, Vol. 31 (May 1989), pp. 40-91.
+ *     Reduced Storage Matrix Methods in Stiff ODE systems, Journal
+ *     of Applied Mathematics and Computation, Vol. 31 (May 1989),
+ *     pp. 40-91.
  *
  * [2] Peter N. Brown, Alan C. Hindmarsh, and Linda R. Petzold,
- *     Using Krylov Methods in the Solution of Large-Scale Differential-
- *     Algebraic Systems, SIAM J. Sci. Comput., 15 (1994), pp. 1467-1488.
- * 
+ *     Using Krylov Methods in the Solution of Large-Scale
+ *     Differential-Algebraic Systems, SIAM J. Sci. Comput., 15
+ *     (1994), pp. 1467-1488.
+ *
  * [3] Peter N. Brown, Alan C. Hindmarsh, and Linda R. Petzold,
  *     Consistent Initial Condition Calculation for Differential-
- *     Algebraic Systems, SIAM J. Sci. Comput., 19 (1998), pp. 1495-1512.
- * 
- ************************************************************************/
+ *     Algebraic Systems, SIAM J. Sci. Comput., 19 (1998),
+ *     pp. 1495-1512.
+ * ----------------------------------------------------------------- 
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -613,9 +622,12 @@ static realtype dotprod(long int size, realtype *x1, realtype *x2)
 } /* End of dotprod. */
 
 /* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
-     opt == 2 means function allocates memory so check if returned NULL pointer */
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -626,10 +638,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
       return(1); }}
 

@@ -1,32 +1,35 @@
-/***********************************************************************
- * File       : iheatsb.c   
- * Written by : Allan G. Taylor, Alan C. Hindmarsh, and Radu Serban
- * Version of : 11 February 2004
- *----------------------------------------------------------------------
- *
- * Example problem for IDAS: 2D heat equation, serial, banded. 
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-05-05 17:12:48 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Allan Taylor, Alan Hindmarsh and
+ *                Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Example problem for IDAS: 2D heat equation, serial, banded.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the band solver IDABand, and IDACalcIC.
  *
- * The DAE system solved is a spatial discretization of the PDE 
+ * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
- * on the unit square.  The boundary condition is u = 0 on all edges.
+ * on the unit square. The boundary condition is u = 0 on all edges.
  * Initial conditions are given by u = 16 x (1 - x) y (1 - y).
- * The PDE is treated with central differences on a uniform MxM grid.
- * The values of u at the interior points satisfy ODEs, and equations
- * u = 0 at the boundaries are appended, to form a DAE system of size
- * N = M^2.  Here M = 10.
+ * The PDE is treated with central differences on a uniform M x M
+ * grid. The values of u at the interior points satisfy ODEs, and
+ * equations u = 0 at the boundaries are appended, to form a DAE
+ * system of size N = M^2. Here M = 10.
  *
- * The system is solved with IDAS using the banded linear system solver,
- * half-bandwidths equal to M, and default difference-quotient Jacobian.
- * For purposes of illustration, IDACalcIC is called to compute correct
- * values at the boundary, given incorrect values as input initial guesses.
- * The constraints u >= 0 are posed for all components.
- * Output is taken at t = 0, .01, .02, .04, ..., 10.24.
- * (Output at t = 0 is for IDACalcIC cost statistics only.)
- *
- ***********************************************************************/
+ * The system is solved with IDAS using the banded linear system
+ * solver, half-bandwidths equal to M, and default
+ * difference-quotient Jacobian. For purposes of illustration,
+ * IDACalcIC is called to compute correct values at the boundary,
+ * given incorrect values as input initial guesses. The constraints
+ * u >= 0 are posed for all components. Output is taken at
+ * t = 0, .01, .02, .04, ..., 10.24. (Output at t = 0 is for
+ * IDACalcIC cost statistics only.)
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -314,9 +317,12 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
 } /* End of residual function heatres. */
 
 /* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
-     opt == 2 means function allocates memory so check if returned NULL pointer */
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -327,10 +333,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
       return(1); }}
 

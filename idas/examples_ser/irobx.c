@@ -1,9 +1,11 @@
-/***********************************************************************
- * File       : irobx.c
- * Written by : Allan G. Taylor, Alan C. Hindmarsh, and Radu Serban
- * Version of : 11 February 2004
- *----------------------------------------------------------------------
- *
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-05-05 17:12:49 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Allan Taylor, Alan Hindmarsh and
+ *                Radu Serban @ LLNL
+ * -----------------------------------------------------------------
  * This simple example problem for IDAS, due to Robertson, is from
  * chemical kinetics, and consists of the following three equations:
  *
@@ -11,13 +13,14 @@
  *      dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*y2**2
  *         0   = y1 + y2 + y3 - 1
  *
- * on the interval from t = 0.0 to t = 4.e10, with initial conditions
- * y1 = 1, y2 = y3 = 0.
+ * on the interval from t = 0.0 to t = 4.e10, with initial
+ * conditions y1 = 1, y2 = y3 = 0.
  *
- * The problem is solved with IDAS using IDADENSE for the linear solver,
- * with a user-supplied Jacobian.
- * Output is printed at t = .4, 4, 40, ..., 4e10.
- *************************************************************************/
+ * The problem is solved with IDAS using IDADENSE for the linear
+ * solver, with a user-supplied Jacobian. Output is printed at
+ * t = .4, 4, 40, ..., 4e10.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <math.h>
@@ -206,9 +209,12 @@ int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
 } /* End of the Jacobian function jacrob. */
 
 /* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
-     opt == 2 means function allocates memory so check if returned NULL pointer */
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -219,10 +225,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
       return(1); }}
 
