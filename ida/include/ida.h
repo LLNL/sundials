@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-10-21 17:47:38 $
+ * $Revision: 1.26 $
+ * $Date: 2004-10-25 22:06:26 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -193,7 +193,7 @@ void *IDACreate(void);
  *                      | algebraic variable. 'id' is required    
  *                      | if optional input SUPPRESSALG is set,   
  *                      | or if IDACalcIC is to be called with    
- *                      | icopt = CALC_YA_YDP_INIT.               
+ *                      | icopt = IDA_YA_YDP_INIT.               
  *                      |                                         
  * IDASetConstraints    | an N_Vector defining inequality         
  *                      | constraints for each component of the   
@@ -357,7 +357,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
  *                        | [0.01 * 0.33]                          
  *                        |                                        
  * IDASetMaxNumStepsIC    | maximum number of values of h allowed 
- *                        | when icopt = CALC_YA_YDP_INIT, where  
+ *                        | when icopt = IDA_YA_YDP_INIT, where  
  *                        | h appears in the system Jacobian,     
  *                        | J = dF/dy + (1/h)dF/dy'.              
  *                        | [5]                                   
@@ -428,14 +428,14 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  * IDA_mem is the pointer to IDA memory returned by IDACreate.    
  *                                                                
  * icopt  is the option of IDACalcIC to be used.                  
- *        icopt = CALC_YA_YDP_INIT   directs IDACalcIC to compute 
+ *        icopt = IDA_YA_YDP_INIT   directs IDACalcIC to compute 
  *                the algebraic components of y and differential  
  *                components of y', given the differential        
  *                components of y.  This option requires that the 
  *                N_Vector id was set through a call to IDASetId  
  *                specifying the differential and algebraic       
  *                components.                                     
- *        icopt = CALC_Y_INIT   directs IDACalcIC to compute all  
+ *        icopt = IDA_Y_INIT   directs IDACalcIC to compute all  
  *                components of y, given y'.  id is not required. 
  *                                                                
  * tout1  is the first value of t at which a soluton will be      
