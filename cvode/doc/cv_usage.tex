@@ -713,8 +713,8 @@ perform the integration of the IVP.
     The {\cvode} memory was not allocated by a call to \id{CVodeMalloc}.
   \item[\Id{CV\_ILL\_INPUT}]
     One of the inputs to \id{CVode} is illegal. This includes the situation where
-    a root of one of the root functions was found both at $t_0$ and very near $t_0$.
-    It also includes the situation 
+    a root of one of the root functions was found both at a point $t$ and also
+    very near $t$.  It also includes the situation 
     where a component of the error weight vector becomes negative during internal 
     time-stepping. The \id{CV\_ILL\_INPUT} flag will also be returned if the linear 
     solver function initialization (called by the user after calling 
@@ -750,6 +750,12 @@ perform the integration of the IVP.
 
   All failure return values are negative and therefore a test \id{flag}$< 0$
   will trap all \id{CVode} failures.
+
+  On any error return in which one or more internal steps were taken by
+  \id{CVode}, the returned values of \id{tret} and \id{yout} correspond to
+  the farthest point reached in the integration.  On all other error returns,
+  \id{tret} and \id{yout} are left unchanged from the previous \id{CVode}
+  return.
 }
 
 %%==============================================================================
