@@ -98,6 +98,13 @@ D.1. Revision History since release 2.2.0 (November 2004)
    - added KINSPBCG module which defines appropriate KINSpbcg* functions to
      allow KINSOL to interface with the shared SPBCG linear solver module.
 
+- Changes to the FKINSOL module
+   - modified argument list of FKINBBDINIT to accomadate changes made
+     to KINBBDPRE module, so now user must specify the upper and lower
+     half-bandwidths for the difference quotient approximation (mudq, mldq)
+     and the retained matrix (mukeep, mlkeep).
+   - added support for KINSPBCG/SPBCG (added FKIN*SPBCG* functions).
+
 D.2. Revision History since release 2.0 (July 2002)
 ---------------------------------------------------
 
@@ -160,6 +167,15 @@ D.2. Revision History since release 2.0 (July 2002)
 - Changes to user-supplied functions
    - removed N (problem dimension) from argument lists.
    - in KINSPGMR, shortened argument lists for user preconditioner functions.
+
+- Changes to the FKINSOL module
+   - revised to use underscore and precision flags at compile time (from
+     configure); example sources are preprocessed accordingly.
+   - use KIN*Set* and KIN*Get* functions from KINSOL (although the optional
+     I/O is still communicated to the user of FKINSOL through arrays IOPT
+     and ROPT).
+   - added new optional inputs and outputs (e.g. last return flag from the
+     linear solver, etc.).
 
 D.3. Summary of previous revisions (YYYYMMDD) (significant revisions only)
 --------------------------------------------------------------------------
