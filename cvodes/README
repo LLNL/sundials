@@ -70,6 +70,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.1.3   - Apr. 2005
 v. 2.1.2   - Mar. 2005
 v. 2.1.1   - Jan. 2005
 v. 2.1.0   - Dec. 2004
@@ -79,7 +80,7 @@ v. 1.0     - Jul. 2002 (first SUNDIALS release)
 E. Revision History
 -------------------
 
-v. 2.1.2 (Mar. 2005) ---> 
+v. 2.1.3 (Apr. 2005) ---> 
 ---------------------------------------------------------
 
 - New features
@@ -90,28 +91,55 @@ v. 2.1.2 (Mar. 2005) --->
    - added function CVodeSensToggle to allow activation/deactivation of
      sensitivity calculations without memory allocation/deallocation.
 
-- Bug fixes
-   - fixed bug in CVCompleteStep related to quadrature and sensitivity variables
-     (leading to wrong values at a BDF order increase)
-   - in CVUpperBoundH0, fixed a potential, although not harmful, use of 
-     uninitialized memory
-   - changed implicit type conversion to explicit in check_flag() routine in
-     examples to avoid C++ compiler errors
-
 - Changes to user-callable functions
    - added CVSPBCG module which defines appropriate CVSpbcg* functions to
      allow CVODES to interface with the shared SPBCG linear solver module.
    - added CVBBDSpbcg function to CVBBDPRE module and CVBPSpbcg function to
      CVBANDPRE module to support SPBCG linear solver module.
 
-- Changes to documentation
-   - added description of --with-mpi-flags option
+v. 2.1.2 (Mar. 2005) ---> v. 2.1.3 (Apr. 2005)
+----------------------------------------------
 
-- Changes related to build system
-   - added --with-mpi-flags as a configure option to allow user to specify
-     MPI-specific flags
-   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
-     CC and MPICC to link)
+- New features
+   - added option for user-provided error weight computation function for
+     the solution vector.
+
+- Changes to user interface
+   - CVODE now stores tolerances through values rather than references 
+     (to resolve potential scoping issues). 
+   - CVODE now passes information back to the user through values rather
+     than references (error weights, estimated local errors, root info,
+     STAGGERED1 statistics, etc.)
+   - CVodeMalloc, CVodeReInit, CVodeSetTolerances: added option itol=CV_WF 
+     to indicate user-supplied function for computing the error weights; 
+     reltol is now declared as realtype. Note that it is now illegal to call
+     CVodeSetTolerances before CVodeMalloc. It is now legal to deallocate
+     the absolute tolerance N_Vector right after its use.
+   - Removed CVodeSetQuadtolerances. CVodeSetQuadErrCon now sets both the
+     error control flag and the tolerances for quadratures.
+   - CVodeSetQuadErrCon, CVodeSetSensTolerances: the relative tolerance
+     must now be passed as a realtype. It is now illegal to call 
+     CVodeSetQuadErrCon before CVodeQuadMalloc or to call CVodeSetSensTolerances
+     before CVodeSensMalloc.
+   - CvodeSensMalloc: removed p and plist from argument list.
+   - CVodeSensParams replaces CVodeSensPbar and sets p, pbar, and plist. NULL
+     can be passed for any of them if it will not be needed given the current
+     set of options. The array pbar must now contain Ns non-zero realtype
+     values giving order of magnitude for the parameters with respect to which
+     sensitivities will be computed. The array plist can now only have positive 
+     entries. 
+   - CVodeGetErrorWeights, CVodeGetQuadErrorWeights: the user is now responsible 
+     for allocating space for the N_Vector in which error weights will be copied.
+   - CVodeGetEstLocalErrors: the user is now responsible for allocating space
+     for the N_Vector in which estimated local errors will be copied.
+   - CVodeGetRootInfo: the user is now responsible for allocating space
+     for the int array in which root information will be copied.
+   - CVodeGetNumStgrSensNonlinSolvIters, CVodeGetNumStgrSensNonlinSolvConvFails:
+     the user is now responsible for allocating space for the long int arrays 
+     in which STAGGERED1 statistics will be copied.
+   - CVodeMallocB, CVodeReInitB, CVodeSetQuadErrConB: the relative tolerance
+     for the backward integration must now be passed as a realtype. It is now
+     illegal to call CVodeSetQuadErrConB before CVQuadMallocB.
 
 v. 2.1.1 (Jan. 2005) ---> v. 2.1.2 (Mar. 2005)
 ----------------------------------------------
@@ -120,17 +148,28 @@ v. 2.1.1 (Jan. 2005) ---> v. 2.1.2 (Mar. 2005)
    - fixed bug in CVode function:  Initial setting of tretlast = *tret = tn removed
      (correcting erroneous behavior at first call to CVRcheck3).
    - removed redundant setting of tretlast = *tret = tn at CLOSE_ROOTS return from CVode.
+   - fixed bug in CVCompleteStep related to quadrature and sensitivity variables
+     (leading to wrong values at a BDF order increase)
+   - in CVUpperBoundH0, fixed a potential, although not harmful, use of 
+     uninitialized memory
+   - changed implicit type conversion to explicit in check_flag() routine in
+     examples to avoid C++ compiler errors
 
 - Changes to documentation
    - added section with numerical values of all input and output solver constants
    - added more detailed notes on the type of absolute tolerances
    - added more details on ownership of memory for the array returned by CVodeGetRootInfo 
    - corrected/added descriptions of error returns.
+   - added description of --with-mpi-flags option
 
 - Changes related to the build system
    - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
    - modified to use customized detection of the Fortran name mangling scheme 
      (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
+   - added --with-mpi-flags as a configure option to allow user to specify
+     MPI-specific flags
+   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
+     CC and MPICC to link)
 
 
 v. 2.1.0 (Dec. 2004) ---> v. 2.1.1 (Jan. 2005)

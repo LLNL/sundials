@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-03-19 00:10:27 $
+ * $Revision: 1.18 $
+ * $Date: 2005-04-04 23:07:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -178,12 +178,12 @@ static int Problem1(void)
 
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, CV_SS, &reltol, &abstol);
+      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f1, P1_T0, y, CV_SS, &reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, f1, P1_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
@@ -229,12 +229,12 @@ static int Problem1(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, CV_SS, &reltol, &abstol);
+      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f1, P1_T0, y, CV_SS, &reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, f1, P1_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
@@ -276,7 +276,7 @@ static int Problem1(void)
 
 static void PrintIntro1(void)
 {
-  printf("Demonstration program for CVODES package - direct linear solvers\n");
+  printf("Demonstration program for CVODE package - direct linear solvers\n");
   printf("\n\n");
   printf("Problem 1: Van der Pol oscillator\n");
   printf(" xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0\n");
@@ -366,12 +366,12 @@ static int Problem2(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, CV_SS, &reltol, &abstol);
+      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f2, P2_T0, y, CV_SS, &reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, f2, P2_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
@@ -417,12 +417,12 @@ static int Problem2(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, CV_SS, &reltol, &abstol);
+      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f2, P2_T0, y, CV_SS, &reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, f2, P2_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
 
@@ -717,13 +717,12 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
     printf(" Number of Jacobian evaluations           = %4ld  \n", nje);
     printf(" Number of f-s evaluations                = %4ld \n\n", nfeL);
   }
-
+  
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" Error overrun = %.3Lf \n", ero);
 #else
   printf(" Error overrun = %.3f \n", ero);
 #endif
-  
 }
 
 static void PrintErrInfo(int nerr)

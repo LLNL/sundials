@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-03-19 00:10:27 $
+ * $Revision: 1.18 $
+ * $Date: 2005-04-04 23:07:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -97,10 +97,10 @@
 
 /* Problem Specification Constants */
 
-#define AA ONE       /* AA = a */
+#define AA ONE               /* AA = a */
 #define EE RCONST(1e4)       /* EE = e */
 #define GG RCONST(0.5e-6)    /* GG = g */
-#define BB ONE       /* BB = b */
+#define BB ONE               /* BB = b */
 #define DPREY ONE    
 #define DPRED RCONST(0.5)
 #define ALPH ONE
@@ -151,6 +151,7 @@ typedef struct {
   realtype cox[NS], coy[NS], dx, dy, srur;
   realtype fsave[NEQ];
   realtype fBsave[NEQ];
+  N_Vector rewt;
   void *cvadj_mem;
   void *cvode_memF;
 } *WebData;
@@ -262,7 +263,7 @@ int main(int argc, char *argv[])
   wdata->cvode_memF = cvode_mem; /* Used in Precond */
   flag = CVodeSetFdata(cvode_mem, wdata);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
-  flag = CVodeMalloc(cvode_mem, f, T0, c, CV_SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, c, CV_SS, reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
   
   /* Call CVSpgmr for forward run */
@@ -313,7 +314,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
   flag = CVodeSetFdataB(cvadj_mem, wdata);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, CV_SS, &reltolB, &abstolB);
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, CV_SS, reltolB, &abstolB);
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   /* Call CVSpgmr */
@@ -440,7 +441,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
 
   wdata = (WebData) P_data;
   cvode_mem = wdata->cvode_memF;
-  flag = CVodeGetErrWeights(cvode_mem, &rewt);
+  rewt = wdata->rewt;
+  flag = CVodeGetErrWeights(cvode_mem, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
 
   cdata = NV_DATA_S(c);
@@ -653,7 +655,8 @@ static int PrecondB(realtype t, N_Vector c,
   wdata = (WebData) P_data;
   cvode_mem = CVadjGetCVodeBmem(wdata->cvadj_mem);
   if(check_flag((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) return(1);
-  flag = CVodeGetErrWeights(cvode_mem, &rewt);
+  rewt = wdata->rewt;
+  flag = CVodeGetErrWeights(cvode_mem, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
 
   cdata = NV_DATA_S(c);
@@ -787,6 +790,7 @@ static WebData AllocUserData(void)
     (wdata->P)[i] = denalloc(ns);
     (wdata->pivot)[i] = denallocpiv(ns);
   }
+  wdata->rewt = N_VNew_Serial(NEQ);
   return(wdata);
 }
 
@@ -1304,6 +1308,7 @@ static void FreeUserData(WebData wdata)
     denfree((wdata->P)[i]);
     denfreepiv((wdata->pivot)[i]);
   }
+  N_VDestroy_Serial(wdata->rewt);
   free(wdata);
 }
 

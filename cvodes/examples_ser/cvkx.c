@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-03-19 00:10:27 $
+ * $Revision: 1.18 $
+ * $Date: 2005-04-04 23:07:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -191,8 +191,9 @@ int main()
      T0      is the initial time
      u       is the initial dependent variable vector
      CV_SS   specifies scalar relative and absolute tolerances
-     &reltol and &abstol are pointers to the scalar tolerances      */
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
+     reltol  is the relative tolerance
+     &abstol is a pointer to the scalar absolute tolerance      */
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVSpgmr to specify the linear solver CVSPGMR 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-03-19 00:10:27 $
+ * $Revision: 1.21 $
+ * $Date: 2005-04-04 23:07:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -169,6 +169,7 @@ typedef struct {
   realtype acoef[NS][NS], bcoef[NS], diff[NS];
   realtype cox[NS], coy[NS], dx, dy, srur;
   realtype fsave[NEQ];
+  N_Vector rewt;
   void *cvode_mem;
 } *WebData;
 
@@ -264,7 +265,7 @@ int main()
         flag = CVodeSetFdata(cvode_mem, wdata);
         if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-        flag = CVodeMalloc(cvode_mem, f, T0, c, CV_SS, &reltol, &abstol);
+        flag = CVodeMalloc(cvode_mem, f, T0, c, CV_SS, reltol, &abstol);
         if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
         flag = CVSpgmr(cvode_mem, jpre, MAXL);
@@ -287,7 +288,7 @@ int main()
 
       } else {
 
-        flag = CVodeReInit(cvode_mem, f, T0, c, CV_SS, &reltol, &abstol);
+        flag = CVodeReInit(cvode_mem, f, T0, c, CV_SS, reltol, &abstol);
         if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
         flag = CVSpgmrSetPrecType(cvode_mem, jpre);
@@ -335,6 +336,7 @@ static WebData AllocUserData(void)
     (wdata->P)[i] = denalloc(ns);
     (wdata->pivot)[i] = denallocpiv(ns);
   }
+  wdata->rewt = N_VNew_Serial(NEQ);
   return(wdata);
 }
 
@@ -646,6 +648,7 @@ static void FreeUserData(WebData wdata)
     denfree((wdata->P)[i]);
     denfreepiv((wdata->pivot)[i]);
   }
+  N_VDestroy_Serial(wdata->rewt);
   free(wdata);
 }
 
@@ -761,7 +764,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   wdata = (WebData) P_data;
   cvode_mem = wdata->cvode_mem;
   cdata = NV_DATA_S(c);
-  flag = CVodeGetErrWeights(cvode_mem, &rewt);
+  rewt = wdata->rewt;
+  flag = CVodeGetErrWeights(cvode_mem, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
   rewtdata = NV_DATA_S(rewt);
 

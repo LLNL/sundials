@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.42 $
- * $Date: 2005-03-19 00:10:30 $
+ * $Revision: 1.43 $
+ * $Date: 2005-04-04 23:07:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -168,7 +168,9 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
 #define iter       (cv_mem->cv_iter)
 #define itol       (cv_mem->cv_itol)
 #define reltol     (cv_mem->cv_reltol)
-#define abstol     (cv_mem->cv_abstol)
+#define Sabstol    (cv_mem->cv_Sabstol)
+#define Vabstol    (cv_mem->cv_Vabstol)
+#define efun       (cv_mem->cv_efun)
 #define f_data     (cv_mem->cv_f_data)
 #define errfp      (cv_mem->cv_errfp)
 #define h0u        (cv_mem->cv_h0u)
@@ -177,7 +179,8 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
 #define znQ        (cv_mem->cv_znQ)
 #define itolQ      (cv_mem->cv_itolQ)
 #define reltolQ    (cv_mem->cv_reltolQ)
-#define abstolQ    (cv_mem->cv_abstolQ)
+#define SabstolQ   (cv_mem->cv_SabstolQ)
+#define VabstolQ   (cv_mem->cv_VabstolQ)
 #define fQ         (cv_mem->cv_fQ)
 #define tempv      (cv_mem->cv_tempv)
 #define tempvQ     (cv_mem->cv_tempvQ)
@@ -614,7 +617,7 @@ int CVodeSetMaxStepB(void *cvadj_mem, realtype hmaxB)
 
 int CVodeMallocB(void *cvadj_mem, CVRhsFnB fB, 
                  realtype tB0, N_Vector yB0,
-                 int itolB, realtype *reltolB, void *abstolB)
+                 int itolB, realtype reltolB, void *abstolB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -648,7 +651,7 @@ int CVodeMallocB(void *cvadj_mem, CVRhsFnB fB,
 
 int CVodeReInitB(void *cvadj_mem, CVRhsFnB fB, 
                  realtype tB0, N_Vector yB0, 
-                 int itolB, realtype *reltolB, void *abstolB)
+                 int itolB, realtype reltolB, void *abstolB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -681,20 +684,6 @@ int CVodeReInitB(void *cvadj_mem, CVRhsFnB fB,
 /*-- CVodeSetQuad*B, CVodeQuadMallocB, and CVodeQuadReInitB -------*/
 /*-----------------------------------------------------------------*/
 
-int CVodeSetQuadErrConB(void *cvadj_mem, booleantype errconQB)
-{
-  CVadjMem ca_mem;
-  void *cvode_mem;
-  int flag;
-
-  ca_mem = (CVadjMem) cvadj_mem;
-  cvode_mem = (void *)ca_mem->cvb_mem;
-
-  flag = CVodeSetQuadErrCon(cvode_mem, errconQB);
-
-  return(flag);
-}
-
 int CVodeSetQuadFdataB(void *cvadj_mem, void *fQ_dataB)
 {
   CVadjMem ca_mem;
@@ -706,8 +695,8 @@ int CVodeSetQuadFdataB(void *cvadj_mem, void *fQ_dataB)
   return(CV_SUCCESS);
 }
 
-int CVodeSetQuadTolerancesB(void *cvadj_mem, int itolQB, 
-                            realtype *reltolQB, void *abstolQB)
+int CVodeSetQuadErrConB(void *cvadj_mem, booleantype errconQB,
+                        int itolQB, realtype reltolQB, void *abstolQB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -716,7 +705,7 @@ int CVodeSetQuadTolerancesB(void *cvadj_mem, int itolQB,
   ca_mem = (CVadjMem) cvadj_mem;
   cvode_mem = (void *)ca_mem->cvb_mem;
 
-  flag = CVodeSetQuadTolerances(cvode_mem, itolQB, reltolQB, abstolQB);
+  flag = CVodeSetQuadErrCon(cvode_mem, errconQB, itolQB, reltolQB, abstolQB);
 
   return(flag);
 }
@@ -1913,6 +1902,8 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
   int j;
   int flag;
   int qmax;
+  void *abstol;
+  
 
   if (next_ == NULL) {
 
@@ -1922,6 +1913,17 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
 
     CVodeSetInitStep(cv_mem, h0u);
 
+    switch (itol) {
+    case CV_SS:
+      abstol = (void *) &Sabstol;
+      break;
+    case CV_SV:
+      abstol = (void *)Vabstol;
+      break;
+    case CV_EE:
+      abstol = (void *)efun;
+      break;
+    }
     flag = CVodeReInit(cv_mem, f, t0_, zn_[0], itol, reltol, abstol);
     if (flag != CV_SUCCESS) return(flag);
 

@@ -4,58 +4,58 @@ Allocate global memory
  
 Forward integration
  
-   g = int_x int_y c6(Tfinal,x,y) dx dy = 35988.914420
+   g = int_x int_y c6(Tfinal,x,y) dx dy = 35988.918560
  
  
 List of Check Points (ncheck = 10)
-10  addr: 0x9269098  time = [ 9.863e+00 1.002e+01 ]  next: 0x92514e0
- 9  addr: 0x92514e0  time = [ 8.332e+00 9.863e+00 ]  next: 0x9239928
- 8  addr: 0x9239928  time = [ 6.801e+00 8.332e+00 ]  next: 0x9221d70
- 7  addr: 0x9221d70  time = [ 5.269e+00 6.801e+00 ]  next: 0x920a1b8
- 6  addr: 0x920a1b8  time = [ 3.738e+00 5.269e+00 ]  next: 0x91f2600
- 5  addr: 0x91f2600  time = [ 2.207e+00 3.738e+00 ]  next: 0x91daa48
- 4  addr: 0x91daa48  time = [ 8.782e-01 2.207e+00 ]  next: 0x91c2e90
- 3  addr: 0x91c2e90  time = [ 3.644e-01 8.782e-01 ]  next: 0x91a6748
- 2  addr: 0x91a6748  time = [ 4.787e-02 3.644e-01 ]  next: 0x918a000
- 1  addr: 0x918a000  time = [ 3.341e-05 4.787e-02 ]  next: 0x8e74a48
- 0  addr: 0x8e74a48  time = [ 0.000e+00 3.341e-05 ]  next: (nil)
+10  addr: 0x87af530  time = [ 9.196e+00 1.002e+01 ]  next: 0x8797978
+ 9  addr: 0x8797978  time = [ 7.802e+00 9.196e+00 ]  next: 0x877fdc0
+ 8  addr: 0x877fdc0  time = [ 6.407e+00 7.802e+00 ]  next: 0x8768208
+ 7  addr: 0x8768208  time = [ 5.013e+00 6.407e+00 ]  next: 0x8750650
+ 6  addr: 0x8750650  time = [ 3.618e+00 5.013e+00 ]  next: 0x8738a98
+ 5  addr: 0x8738a98  time = [ 2.224e+00 3.618e+00 ]  next: 0x8725a70
+ 4  addr: 0x8725a70  time = [ 9.022e-01 2.224e+00 ]  next: 0x870deb8
+ 3  addr: 0x870deb8  time = [ 3.644e-01 9.022e-01 ]  next: 0x86f1770
+ 2  addr: 0x86f1770  time = [ 4.787e-02 3.644e-01 ]  next: 0x86d5028
+ 1  addr: 0x86d5028  time = [ 3.341e-05 4.787e-02 ]  next: 0x83bfa70
+ 0  addr: 0x83bfa70  time = [ 0.000e+00 3.341e-05 ]  next: (nil)
  
 Create and allocate CVODES memory for backward run
  
 Backward integration
  
 Maximum sensitivity with respect to I.C. of species 1
-  mu max = 5.179241e-04
+  mu max = 5.040058e-04
 at
   x = 1.000000e+00
   y = 9.473684e-01
  
 Maximum sensitivity with respect to I.C. of species 2
-  mu max = 4.938641e-04
+  mu max = 4.800571e-04
 at
   x = 1.000000e+00
   y = 9.473684e-01
  
 Maximum sensitivity with respect to I.C. of species 3
-  mu max = 4.716977e-04
+  mu max = 4.579953e-04
 at
   x = 1.000000e+00
   y = 9.473684e-01
  
 Maximum sensitivity with respect to I.C. of species 4
-  mu max = 6.949258e-11
+  mu max = 3.133801e-11
 at
   x = 1.000000e+00
-  y = 5.789474e-01
+  y = 4.210526e-01
  
 Maximum sensitivity with respect to I.C. of species 5
-  mu max = 6.951403e-11
+  mu max = 3.203996e-11
 at
   x = 1.000000e+00
-  y = 5.789474e-01
+  y = 4.210526e-01
  
 Maximum sensitivity with respect to I.C. of species 6
-  mu max = 1.740829e-10
+  mu max = 4.554586e-11
 at
   x = 1.000000e+00
-  y = 6.315789e-01
+  y = 4.736842e-01

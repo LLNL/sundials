@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-03-19 00:10:27 $
+ * $Revision: 1.16 $
+ * $Date: 2005-04-04 23:07:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVBand with  bandwidths ml = mu = MY, */
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdataB(cvadj_mem, data);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
 
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, CV_SS, &reltolB, &abstolB);
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, CV_SS, reltolB, &abstolB);
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   flag = CVBandB(cvadj_mem, NEQ, MY, MY);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-03-19 00:10:25 $
+ * $Revision: 1.15 $
+ * $Date: 2005-04-04 23:06:59 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -24,7 +24,7 @@
  * The PDE system is treated by central differences on a uniform
  * mesh, with simple polynomial initial profiles.
  *
- * The problem is solved by CVODES on NPE processors, treated
+ * The problem is solved by CVODE on NPE processors, treated
  * as a rectangular process grid of size NPEX by NPEY, with
  * NPE = NPEX*NPEY. Each processor contains a subgrid of size MXSUB
  * by MYSUB of the (x,y) mesh.  Thus the actual mesh sizes are
@@ -253,9 +253,10 @@ int main(int argc, char *argv[])
      T0      is the initial time
      u       is the initial dependent variable vector
      CV_SS   specifies scalar relative and absolute tolerances
-     &reltol and &abstol are pointers to the scalar tolerances
+     reltol  is the relative tolerance
+     &abstol is a pointer to the scalar absolute tolerance
   */
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
   if (check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVSpgmr to specify the linear solver CVSPGMR 
@@ -445,6 +446,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
     check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
     flag = CVodeGetLastStep(cvode_mem, &hu);
     check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n",
            t, nst, qu, hu);

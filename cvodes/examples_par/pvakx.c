@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-11-22 20:50:33 $
+ * $Revision: 1.12 $
+ * $Date: 2005-04-04 23:06:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -275,7 +275,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, d);
   abstol = ATOL;  
   reltol = RTOL; 
-  flag = CVodeMalloc(cvode_mem, f, ti, y, CV_SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, ti, y, CV_SS, reltol, &abstol);
   
   /* Attach preconditioner and linear solver modules */
   mudq = mldq = d->l_m[0]+1;
@@ -288,10 +288,9 @@ int main(int argc, char *argv[])
   /* Initialize quadrature calculations */
   abstolQ = ATOL_Q;
   reltolQ = RTOL_Q;
-  flag = CVodeSetQuadFdata(cvode_mem, d);
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
-  flag = CVodeSetQuadTolerances(cvode_mem, CV_SS, &reltolQ, &abstolQ); 
   flag = CVodeQuadMalloc(cvode_mem, fQ, q);
+  flag = CVodeSetQuadFdata(cvode_mem, d);
+  flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ); 
 
   /* Allocate space for the adjoint calculation */
   cvadj_mem = CVadjMalloc(cvode_mem, STEPS);
@@ -333,7 +332,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdataB(cvadj_mem, d);
   abstolB = ATOL_B;  
   reltolB = RTOL_B; 
-  flag = CVodeMallocB(cvadj_mem, fB, tf, yB, CV_SS, &reltolB, &abstolB);
+  flag = CVodeMallocB(cvadj_mem, fB, tf, yB, CV_SS, reltolB, &abstolB);
 
   /* Attach preconditioner and linear solver modules */
   mudqB = mldqB = d->l_m[0]+1;
@@ -345,10 +344,9 @@ int main(int argc, char *argv[])
   /* Initialize quadrature calculations */
   abstolQB = ATOL_QB;
   reltolQB = RTOL_QB;
-  flag = CVodeSetQuadFdataB(cvadj_mem, d);
-  flag = CVodeSetQuadErrConB(cvadj_mem, TRUE);
-  flag = CVodeSetQuadTolerancesB(cvadj_mem, CV_SS, &reltolQB, &abstolQB); 
   flag = CVodeQuadMallocB(cvadj_mem, fQB, qB);
+  flag = CVodeSetQuadFdataB(cvadj_mem, d);
+  flag = CVodeSetQuadErrConB(cvadj_mem, TRUE, CV_SS, reltolQB, &abstolQB); 
 
   /* Integrate backwards */
   if (myId == 0) printf("Begin backward integration... ");
