@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-10-08 15:26:54 $
+ * $Revision: 1.19 $
+ * $Date: 2004-10-18 18:37:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -199,7 +199,6 @@ int IDASpgmr(void *ida_mem, int maxl)
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
   int flag, maxl1;
-  booleantype nvectorOK;
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {

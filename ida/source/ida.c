@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-10-08 23:45:20 $
+ * $Revision: 1.29 $
+ * $Date: 2004-10-18 18:37:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3535,7 +3535,7 @@ step size for recoverable failures.
 static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
                           int *ncfPtr, int *nefPtr, realtype *est)
 {
-  int j, retval;
+  int j;
   int *ncf, *nef;
   
   ncf = ncfPtr; nef = nefPtr;

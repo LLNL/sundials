@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-08 15:27:24 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-18 18:37:05 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1334,7 +1334,7 @@ static CkpntMem IDAAckpntInit(IDAMem IDA_mem)
 static CkpntMem IDAAckpntNew(IDAMem IDA_mem)
 {
   CkpntMem ck_mem;
-  int j, jj;
+  int j;
 
   /* Allocate space for ckdata */
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
@@ -1411,13 +1411,14 @@ static void IDAAckpntDelete(CkpntMem *ck_memPtr)
     /* free N_Vectors for quadratures in tmp,
        Note that at the check point at t_initial only phiQ_[0] 
        was allocated */
-    if(tmp->ck_quad) 
+    if(tmp->ck_quad) {
       if(tmp->ck_next != NULL) {
         for (j=0;j<=tmp->ck_kk;j++) N_VDestroy(tmp->ck_phiQ[j]);
       } else {
         N_VDestroy(tmp->ck_phiQ[0]);
       }
-    
+    }
+
     free(tmp);
   }
 }
