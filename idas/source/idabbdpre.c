@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-21 15:59:46 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-21 17:54:24 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -12,7 +12,7 @@
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a            
  * band-block-diagonal preconditioner, i.e. a block-diagonal       
- * matrix with banded blocks, for use with IDA and IDASpgmr.       
+ * matrix with banded blocks, for use with IDAS and IDASpgmr.       
  * NOTE: with only one processor in use, a banded matrix results   
  * rather than a block-diagonal matrix with banded blocks.         
  * Diagonal blocking occurs at the processor level.                
@@ -66,7 +66,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 		      long int mudq, long int mldq, 
 		      long int mukeep, long int mlkeep, 
 		      realtype dq_rel_yy, 
-		      IDABBDLocalFn glocal, IDABBDCommFn gcomm)
+		      IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
   IDAMem IDA_mem;
   IBBDPrecData pdata;
@@ -92,8 +92,8 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 
   /* Set pointers to glocal and gcomm; load half-bandwidths. */
   pdata->IDA_mem = IDA_mem;
-  pdata->glocal = glocal;
-  pdata->gcomm = gcomm;
+  pdata->glocal = Gres;
+  pdata->gcomm = Gcomm;
   pdata->mudq = MIN( Nlocal-1, MAX(0,mudq) );
   pdata->mldq = MIN( Nlocal-1, MAX(0,mldq) );
   muk = MIN( Nlocal-1, MAX(0,mukeep) );
@@ -140,11 +140,11 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   return((void *)pdata);
 }
 
-int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data)
+int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
 {
   int flag;
 
-  if ( p_data == NULL ) {
+  if ( bbd_data == NULL ) {
     fprintf(stderr, MSG_NO_PDATA);
     return(IDA_PDATA_NULL);
   }
@@ -152,7 +152,7 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data)
   flag = IDASpgmr(ida_mem, maxl);
   if(flag != IDASPGMR_SUCCESS) return(flag);
 
-  flag = IDASpgmrSetPrecData(ida_mem, p_data);
+  flag = IDASpgmrSetPrecData(ida_mem, bbd_data);
   if(flag != IDASPGMR_SUCCESS) return(flag);
 
   flag = IDASpgmrSetPrecSetupFn(ida_mem, IDABBDPrecSetup);
@@ -164,16 +164,16 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data)
   return(IDASPGMR_SUCCESS);
 }
 
-int IDABBDPrecReInit(void *p_data,
+int IDABBDPrecReInit(void *bbd_data,
 		     long int mudq, long int mldq, 
 		     realtype dq_rel_yy,  
-		     IDABBDLocalFn glocal, IDABBDCommFn gcomm)
+		     IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
   IBBDPrecData pdata;
   IDAMem IDA_mem;
   long int Nlocal;
 
-  pdata =(IBBDPrecData) p_data;
+  pdata =(IBBDPrecData) bbd_data;
   IDA_mem = pdata->IDA_mem;
 
   Nlocal = pdata->n_local;
@@ -181,8 +181,8 @@ int IDABBDPrecReInit(void *p_data,
   /* Set pointers to res_data, glocal, and gcomm; load half-bandwidths. */
   pdata->mudq = MIN( Nlocal-1, MAX(0,mudq) );
   pdata->mldq = MIN( Nlocal-1, MAX(0,mldq) );
-  pdata->glocal = glocal;
-  pdata->gcomm = gcomm;
+  pdata->glocal = Gres;
+  pdata->gcomm = Gcomm;
 
   /* Set rel_yy based on input value dq_rel_yy (0 implies default). */
   pdata->rel_yy = (dq_rel_yy > ZERO) ? dq_rel_yy : RSqrt(uround); 
@@ -194,12 +194,12 @@ int IDABBDPrecReInit(void *p_data,
 }
 
 
-void IDABBDPrecFree(void *p_data)
+void IDABBDPrecFree(void *bbd_data)
 {
   IBBDPrecData pdata;
   
-  if ( p_data != NULL ) {
-    pdata = (IBBDPrecData) p_data;
+  if ( bbd_data != NULL ) {
+    pdata = (IBBDPrecData) bbd_data;
     BandFreeMat(pdata->PP);
     BandFreePiv(pdata->pivots);
     N_VDestroy(pdata->tempv4);
@@ -207,16 +207,16 @@ void IDABBDPrecFree(void *p_data)
   }
 }
 
-int IDABBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP)
+int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP)
 {
   IBBDPrecData pdata;
 
-  if ( p_data == NULL ) {
+  if ( bbd_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
     return(IDA_PDATA_NULL);
   } 
 
-  pdata = (IBBDPrecData) p_data;
+  pdata = (IBBDPrecData) bbd_data;
 
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
@@ -224,16 +224,16 @@ int IDABBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBD
   return(IDA_SUCCESS);
 }
 
-int IDABBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
+int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
 {
   IBBDPrecData pdata;
 
-  if ( p_data == NULL ) {
+  if ( bbd_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
     return(IDA_PDATA_NULL);
   } 
 
-  pdata = (IBBDPrecData) p_data;
+  pdata = (IBBDPrecData) bbd_data;
 
   *ngevalsBBDP = pdata->nge;
 
