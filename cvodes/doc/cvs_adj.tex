@@ -232,8 +232,7 @@ The form of the call to this function is
 {
   The user must set \id{Nd} so that all data needed for interpolation of the 
   forward problem solution between two check points fits in memory. \id{CVadjMalloc}
-  attempts to allocate space for $(2$\id{Nd}$+3)$ vectors of length \id{N}, the
-  dimension of the forward problem.
+  attempts to allocate space for $(2$\id{Nd}$+3)$ variables of type \id{N\_Vector}.
 }
 %%
 %%
@@ -1472,7 +1471,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDense
   \item[tmp2B]
   \item[tmp3B]
     are pointers to memory allocated    
-    for vectors of length \id{nB} which can be used by           
+    for variables of type \id{N\_Vector} which can be used by           
     \id{CVDenseJacFnB} as temporary storage or work space.    
   \end{args}
 }
@@ -1537,7 +1536,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVBandS
   \item[tmp2B]
   \item[tmp3B]
     are pointers to memory allocated    
-    for vectors of length \id{nB} which can be used by           
+    for variables of type \id{N\_Vector} which can be used by           
     \id{CVBandJacFnB} as temporary storage or work space.    
   \end{args}
 }

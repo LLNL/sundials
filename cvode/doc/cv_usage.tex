@@ -3465,7 +3465,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
 {
   typedef void (*CVDenseJacFn)(&long int N, DenseMat J, realtype t, \\
                                &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                               &N\_Vector tm1, N\_Vector tm2, N\_Vector tm3);
+                               &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the dense Jacobian $J = \partial f / \partial y$ 
@@ -3487,9 +3487,11 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
   \item[jac\_data]
     is a pointer to user data --- the same as the \id{jac\_data}      
     parameter passed to \id{CVDenseSetJacData}.   
-  \item[tm1,tm2,tm3]
+  \item[tmp1]
+  \item[tmp2]
+  \item[tmp3]
     are pointers to memory allocated    
-    for vectors of length \id{N} which can be used by           
+    for variables of type \id{N\_Vector} which can be used by           
     \id{CVDenseJacFn} as temporary storage or work space.    
   \end{args}
 }
@@ -3549,7 +3551,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
  typedef void (*CVBandJacFn)(&long int N, long int mupper, \\
                              &long int mlower, BandMat J, realtype t, \\ 
                              &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                             &N\_Vector tm1, N\_Vector tm2, N\_Vector tm3);
+                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the banded Jacobian $J = \partial f / \partial y$ 
@@ -3574,9 +3576,11 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   \item[jac\_data]
     is a pointer to user data --- the same as the \id{jac\_data}      
     parameter passed to \id{CVBandSetJacData}.   
-  \item[tm1,tm2,tm3]
+  \item[tmp1]
+  \item[tmp2]
+  \item[tmp3]
     are pointers to memory allocated    
-    for vectors of length \id{N} which can be used by           
+    for variables of type \id{N\_Vector} which can be used by           
     \id{CVBandJacFn} as temporary storage or work space.    
   \end{args}
 }
@@ -3663,8 +3667,8 @@ of type \ID{CVSpgmrJacTimesVecFn} in the following form:
     is a pointer to user data --- the same as the \id{jac\_data}      
     parameter passed to \id{CVSpgmrSetJacData}.   
   \item[tmp]
-    is a pointer to memory allocated for a vector of        
-    length \id{N} which can be used for work space.
+    is a pointer to memory allocated for a variable of type \id{N\_Vector}
+    which can be used for work space.
   \end{args}
 }
 {  
@@ -3734,8 +3738,8 @@ This function must be of type \ID{CVSpgmrPrecSolveFn}, defined as follows:
     is a pointer to user data --- the same as the \id{P\_data}      
     parameter passed to the function \id{CVSpgmrSetPrecData}.
   \item[tmp]
-    is a pointer to memory allocated for a vector of        
-    length \id{N} which can be used for work space.
+    is a pointer to memory allocated for a variable of type \id{N\_Vector}
+    which can be used for work space.
   \end{args}
 }
 {
@@ -3760,8 +3764,8 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
   typedef int (*CVSpgmrPrecSetupFn&)(realtype t, N\_Vector y, N\_Vector fy,  \\
                                   &booleantype jok, booleantype *jcurPtr, \\
                                   &realtype gamma, void *P\_data,\\
-                                  &N\_Vector tm1, N\_Vector tm2,\\
-                                  &N\_Vector tm3);
+                                  &N\_Vector tmp1, N\_Vector tmp2,\\
+                                  &N\_Vector tmp3);
 }
 {
   This function evaluates and/or preprocesses Jacobian related data needed
@@ -3798,9 +3802,11 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
   \item[P\_data]
     is a pointer to user data, the same as the \id{P\_data}      
     parameter passed to \id{CVSpgmrSetPrecData}.
-  \item[tm1,tm2,tm3]
+  \item[tmp1]
+  \item[tmp2]
+  \item[tmp3]
     are pointers to memory allocated    
-    for vectors of length \id{N} which can be used by           
+    for variables of type \id{N\_Vector} which can be used by           
     \id{CVSpgmrPrecSetupFn} as temporary storage or work space.    
   \end{args}
 }
@@ -4533,7 +4539,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
     \item Sets the preconditioner solve function for {\cvbbdpre};
   \end{itemize}
   The arguments \id{pretype} and \id{maxl} are described below.
-  The last argument of \id{CVBPSpgmr} is the pointer to the {\cvbbdpre} data
+  The last argument of \id{CVBBDSpgmr} is the pointer to the {\cvbbdpre} data
   returned by \id{CVBBDPrecAlloc}.
 
 \item
@@ -4737,7 +4743,7 @@ used in the difference-quotient Jacobian approximations, the relative increment
 %%
 \index{optional output!band-block-diagonal preconditioner|(}
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!optional output|(}
-The following three optional output functions are available for use with
+The following two optional output functions are available for use with
 the {\cvbbdpre} module:
 %%
 \index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner}
