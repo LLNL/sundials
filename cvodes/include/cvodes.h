@@ -924,18 +924,18 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  * and statistics related to the integration of quadratures.      *
  * -------------------------------------------------------------- *
  *                                                                * 
- * CVodeGetNumQuadRhsEvals returns the number of calls to the     *
+ * CVodeGetQuadNumRhsEvals returns the number of calls to the     *
  *      user function fQ defining the right hand side of the      *
  *      quadrature variables.                                     *
- * CVodeGetNumQuadErrTestFails returns the number of local error  *
+ * CVodeGetQuadNumErrTestFails returns the number of local error  *
  *      test failures for quadrature variables.                   *
  * CVodeGetQuadErrWeights returns the vector of error weights for *
  *      the quadrature variables. The user need not allocate      *
  *      space for ewtQ.                                           *
  *----------------------------------------------------------------*/
 
-int CVodeGetNumQuadRhsEvals(void *cvode_mem, long int *nfQevals);
-int CVodeGetNumQuadErrTestFails(void *cvode_mem, long int *nQetfails);
+int CVodeGetQuadNumRhsEvals(void *cvode_mem, long int *nfQevals);
+int CVodeGetQuadNumErrTestFails(void *cvode_mem, long int *nQetfails);
 int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector *eQweight);
 
 /*----------------------------------------------------------------*

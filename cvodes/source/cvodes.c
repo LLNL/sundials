@@ -3218,7 +3218,7 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumQuadRhsEvals(void *cvode_mem, long int *nfQevals)
+int CVodeGetQuadNumRhsEvals(void *cvode_mem, long int *nfQevals)
 {
   CVodeMem cv_mem;
 
@@ -3241,7 +3241,7 @@ int CVodeGetNumQuadRhsEvals(void *cvode_mem, long int *nfQevals)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumQuadErrTestFails(void *cvode_mem, long int *nQetfails)
+int CVodeGetQuadNumErrTestFails(void *cvode_mem, long int *nQetfails)
 {
   CVodeMem cv_mem;
 
