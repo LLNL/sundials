@@ -145,18 +145,24 @@ called by {\cvodes}. The first two provide the right hand side and dense Jacobia
 for the forward problem and the last two provide the right hand side and dense Jacobian 
 for the backward problem.
 
-The \id{main} function begins with type declarations. Notice that we employ two machine 
-environment variables, \id{machEnvF} for the forward problem and \id{machEnvB} for
-the backward problem. The next code blocks allocate and initialize the user data
-structure with the values of the parameters $p$, initialize \id{machEnvF} by calling
-the serial machine environment initialization routine from {\nvecs}, allocate and
+The \id{main} function begins with type declarations. Notice that we employ three vector
+specification objects, \id{nvSpecF} for the forward problem, \id{nvSpecB} for
+the adjoint problem, and \id{nvSpecQB} for the quadrature variables integrated on
+the backward phase. The next code blocks allocate and initialize the user data
+structure with the values of the parameters $p$, initialize \id{nvSpecF} by calling
+the serial vector specification initialization routine from {\nvecs}, allocate and
 initialize \id{y} with the initial conditions of the forward problem, and finally
 set the tolerances \id{rtol} and \id{atol}.
 
-The call to \id{CVodeMalloc} sets-up the forward integration and specifies the
-\id{BDF} integration method with \id{NEWTON} iteration. The linear solver is
-selected to be {\cvdense} through the call to its initialization routine
-\id{CVDense}, with a non-\id{NULL} Jacobian routine \id{Jac}.
+The call to \id{CVodeCreate} creates the main integrator memory block for the 
+forward integration and specifies the \id{BDF} integration method with \id{NEWTON} 
+iteration. 
+The next call specifies the optional user data pointer, while the call to \id{CVodeMalloc} 
+sets-up the forward integration by specifying the intial conditions and integration 
+tolerances. The linear solver is selected to be {\cvdense} through the call to its 
+initialization routine \id{CVDense}. The user provided Jacobian routine \id{Jac}
+and user data structure \id{data} are specified through calls to \id{CVDenseSetJacFn} and
+\id{CVDenseSetJacData}, respectively.
 
 Allocation for the memory block of the combined forward-backward problem is
 acomplished through the call to \id{CVadjMalloc} which specifies \id{STEPS}=150,
@@ -164,31 +170,33 @@ the number of steps between two check points.
 
 The call to \id{CVodeF} requests the solution of the forward problem to \id{TOUT}.
 If successful, at the end of the integration, \id{CVodeF} will return the number
-of saved check points in the argument \id{ncheck}. A list of the check points
-is printed by \id{CVadjCheckPointsList}.
+of saved check points in the argument \id{ncheck} (optionally, a list of the check points
+can be printed by calling \id{CVadjCheckPointsList}).
 
 The next segment of code deals with the setup of the backward problem. First,
-a serial machine environment variable \id{machEnvB} is initialized for vectors
+a serial vector specification variable \id{nvSpecB} is initialized for vectors
 of length \id{NEQ} (dimension of $\lambda$). A second serial
-machine environmnet, \id{machEnvQB} is initializaed for vectors of
+machine environmnet, \id{nvSpecQB} is initializaed for vectors of
 dimension \id{NP+1} (dimension of $\xi$ $+$ one quadrature variable to evaluate $G$).
 Following that, the program allocates space and initializes the variables of the 
 backward problem and the relative and absolute tolerances for the backward integration.
-{\cvodes} memory for the integration of the backward integration is allocated
-by the call to the interface routine \id{CVodeMallocB} which specifies the
-right hand side user function \id{fB} and the \id{BDF}
-integration method with \id{NEWTON} iteration, among other things.
-Quadrature computation is then initialized by calling \id{CVodeQuadMallocB}
-which specifies the right hand side of the quadrature equations as \id{fQB}
-and indicates that $\xi$ should not be considered in the error test.
+{\cvodes} memory for the integration of the backward integration is created and allocated
+by the calls to the interface routines \id{CVodeCreateB} amd \id{CVodeMallocB} which 
+specify the \id{BDF} integration method with \id{NEWTON} iteration, among other things.
 The dense linear solver {\cvdense} is then initialized by calling the \id{CVDenseB}
-interface routine with a non-\id{NULL} Jacobian routine \id{JacB}.
+interface routine and specifying a non-\id{NULL} Jacobian routine \id{JacB} and user data
+\id{data}.
+Quadrature computation is initialized by calling \id{CVodeQuadMallocB}
+which specifies the right hand side of the quadrature equations as \id{fQB} and tolerances
+for the integration of quadrature variables.
+The preceding call to \id{CVodeSetQuadErrConB} indicates that $\xi$ should not be considered 
+in the error test.
 
 The actual solution of the backward problem is acomplished through the call to
 \id{CVodeB}. If successful, \id{CVodeB} returns the solution of the backward 
 problem at time \id{T0} in the vector \id{yB}. The values of the quadrature
 variables at time \id{T0} are loaded in \id{qB} by calling the extraction
-routine \id{CVodeQuadExtractB}. The values for $G$ and its gradient are printed next.
+routine \id{CVodeGetQuadB}. The values for $G$ and its gradient are printed next.
 
 The main program continues with a call to \id{CVodeReInitB} and
 \id{CVodeQuadReInitB} to reinitialize the 
@@ -199,8 +207,8 @@ return, reporting of the new values for $G$ and its gradient.
 The main program ends by freeing previously allocated memory through calls to 
 \id{CVodeFree} (for the {\cvodes} memory for the forward problem), \id{CVadjFree} 
 (for the memory allocated for the combined problem), \id{N\_VFree} 
-(for the various vectors), and \id{M\_EnvFree\_Serial} (for the two machine 
-environment variables \id{machEnvF} and \id{machEnvB}).
+(for the various vectors), and \id{NV\_SpecFree\_Serial} (for the three machine 
+environment variables \id{nvSpecF}, \id{nvSpecB}, and \id{nvSpecQB}).
 
 The user-supplied functions \id{f} and \id{Jac} for the right hand side and
 Jacobian of the forward problem are straightforward expressions of its 

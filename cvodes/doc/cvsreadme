@@ -36,12 +36,6 @@ and DIfferential/ALgebraic equation Solvers.  This suite consists of
 CVODE, KINSOL, and IDA, and variants of these.  The directory
 structure of the package supplied reflects this family relationship.
 
-In the package supplied, each Makefile is set up so that typing 'make'
-produces instructions for various make operations. In the package 
-supplied here, the makefiles are set up to access a workstation cluster, 
-but with commented lines for use on one or more other LLNL systems.  
-Changes for other environments can be made easily.
-
 The notes below provide instructions for the installation of the CVODES
 package.  Following that are notes on usage and the location of the full 
 user documentation.
@@ -58,28 +52,8 @@ A. Installation Notes for CVODES
    In addition, it contains a PostScript file cvs_guide.ps and a PDF
    file cvs_guide.pdf for the CVODES user document [1].
 
-3. /sundials/shared/ contains files (header and source) that are shared
-   with other members of SUNDIALS.  Installation requires two steps:
-   (a) Typing 'make lib' in /sundials/shared/source/ generates a library
-   file /sundials/shared/lib/libshared.***.a (where *** is a machine-
-   dependent identifier), creates a symbolic link to this library in 
-   /sundials/lib/ and symbolic links to the shared header files in
-   /sundials/include/, and removes the corresponding object files.
-   (b) Type 'make nvecserial' or 'make nvecparallel' (or both) in 
-   /sundials/shared/source/, according to which versions of CVODES are
-   being installed.  This generates library files libnvecserial.***.a
-   and libfnvecserial.***.a  and/or libnvecparallel.***.a and 
-   libfnvecparallel.***.a in /sundials/shared/lib/, creates symbolic
-   links to these library files in /sundials/lib/ and symbolic links
-   to the NVECTOR header files in /sundials/include/, and removes the
-   corresponding object files.
+3.4. Compiling and installing....
 
-4. /sundials/cvodes/source/ contains source files for CVODES and a
-   Makefile.  Typing 'make lib' there generates a library file
-   /sundials/cvodes/lib/libcvodes.***.a (where *** is a machine-
-   dependent identifier), creates a symbolic link to this library in 
-   /sundials/lib/ and symbolic links to the CVODES header files in
-   /sundials/include/, and removes the corresponding object files.
 
 5. /sundials/cvodes/include/ contains header files specific to CVODES.
 

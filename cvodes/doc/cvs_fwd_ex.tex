@@ -137,16 +137,16 @@ The first code block in \id{main} deals with reading and interpreting the
 command line arguments. \id{cvfdx} can be run with or without sensitivity computations
 turned on and with different selections for the sensitivity method and error control strategy.
 
-Next, the serial machine environment variable \id{machEnv} is initialized by calling
-the {\nvecs} function \id{M\_EnvInit\_Serial} and the user-data structure is allocated
+Next, the serial vector specification variable \id{nvSpec} is initialized by calling
+the {\nvecs} function \id{NV\_SpecInit\_Serial} and the user-data structure is allocated
 and initialized with the model parameter values.
 \index{examples, forward sensitivity!serial sample program!user data}
 
 The next block of code is identical to that in \id{cvdx.c} and involves allocation and 
 initialization of the state variables and integration tolerances for the state variables,
-initialization of \id{cvode\_mem} and of the {\cvodes} solver memory. It also attaches {\cvdense},
-with a non-\id{NULL} Jacobian function, as the linear solver to be used in the Newton 
-nonlinear solver.
+and creation and initialization of \id{cvode\_mem}, the {\cvodes} solver memory. 
+It also attaches {\cvdense}, with a non-\id{NULL} Jacobian function, as the linear solver 
+to be used in the Newton nonlinear solver.
 
 If sensitivity analysis is enabled (through the command line arguments), 
 the main program will then set the scaling parameters
@@ -156,18 +156,19 @@ indicates that sensitivities with respect to all model parameters will be comput
 Next, the program allocates memory for \id{yS}, by calling the {\nvector} function 
 \id{N\_VNew\_S}, and initializaes all sensitivity variables to $0.0$.
 
+The next four calls specify optional inputs for forward sensitivity analysis.
+\id{CVodeSetSensRhs1Fn} provides the user defined routine for evaluation of the right hand
+sides of sensitivity equations, \id{CVodeSetSensErrCon} sets the error control strategy
+(read from the command line arguments), \id{CVodeSetSensFdata} specifies the pointer to
+user data to be passed to \id{fS} whenever it is called, and \id{CVodeSetSensPbar} provides 
+the scalings for the model parameters. In this example, \id{pbar} is needed for the 
+estimation of absolute senisitivity variables tolerances.
 The call to \id{CVodeSensMalloc} specifies the sensitivity solution method through 
 \id{sensi\-meth} (read from the command line arguments) as \id{SIMULTANEOUS}, 
-\id{STAGGERED}, or \id{STAGGERED1} and the error control strategy through \id{err\_con}
-(also read from the command line arguments) as either \id{FULL} or \id{PARTIAL}.
-The \id{ifS = ONESENS} parameter indicates that the user-provided sensitivity right hand side
-routine \id{fS} computes the right hand side one sensitivity at a time. 
-The next two \id{NULL} parameters in the call to \id{CVodeSensMalloc}
-force {\cvodes} to set the relative and absolute
-tolerances \id{rtolS} and \id{atolS} for sensitivity variables based on the tolerances for 
-state variables and the scaling parameters \id{pbar} (see \S\ref{ss:fwd_sensi} for details).
-The last argument specifies that the structure \id{data} containing user-specified data
-should be passed to each call of \id{fS}.
+\id{STAGGERED}, or \id{STAGGERED1}.
+Note that this example uses the default estimates for the relative and absolute tolerances 
+\id{rtolS} and \id{atolS} for sensitivity variables, based on the tolerances for state 
+variables and the scaling parameters \id{pbar} (see \S\ref{ss:fwd_sensi} for details).
 
 The return value of \id{CVodeSensMalloc} is an \id{int} flag. In case of failure
 (\id{flag != SUCCESS}), the main program prints an error message and stops execution.
@@ -178,12 +179,12 @@ to \id{CVodeSensMalloc}, computes both state and sensitivity variables. However,
 \id{CVode} returns only the state solution at \id{tout} in the vector \id{y}.
 The program tests the return from \id{CVode} for a value other than \id{SUCCESS} and
 prints the state variables.
-Sensitivity variables at \id{tout} are loaded into \id{yS} by calling \id{CVodeSensExtract}.
-The program tests the return from \id{CVodeSensExtract} for a value other than \id{SUCCESS} 
+Sensitivity variables at \id{tout} are loaded into \id{yS} by calling \id{CVodeGetSens}.
+The program tests the return from \id{CVodeGetSens} for a value other than \id{SUCCESS} 
 and then prints the sensitivity variables.
 
 Finally, the program prints some final statistics and deallocates memory through calls
-to \id{N\_VFree}, \id{N\_VFree\_S}, \id{CVodeFree}, and \id{M\_EnvFree\_Serial}.
+to \id{N\_VFree}, \id{N\_VFree\_S}, \id{CVodeFree}, and \id{NV\_SpecFree\_Serial}.
 
 The user-supplied functions \id{f} for the right hand side of the original ODEs and
 \id{Jac} for the system Jacobian are identical to those in \id{cvdx.c} with the 
