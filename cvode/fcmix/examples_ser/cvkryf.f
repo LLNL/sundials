@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.19 $
-C     $Date: 2004-10-21 20:58:41 $
+C     $Revision: 1.20 $
+C     $Date: 2004-11-22 23:23:27 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
@@ -106,7 +106,7 @@ C
         CALL FCVODE(TOUT, T, U, ITASK, IER)
 C
         WRITE(6,50) T, IOPT(LNST), IOPT(LQ), ROPT(LH)
- 50     FORMAT(/' t = ', E14.6, 5X, 'no. steps = ', I5,
+ 50     FORMAT(/' t = ', E11.3, 5X, 'no. steps = ', I5,
      1         '   order = ', I3, '   stepsize = ', E14.6)
         WRITE(6,55) U(1,1,1), U(1,5,5), U(1,10,10),
      1              U(2,1,1), U(2,5,5), U(2,10,10)
