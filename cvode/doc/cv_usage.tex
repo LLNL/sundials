@@ -35,12 +35,15 @@ appropriate locations for the library and header files required by
 {\cvode}.  In terms of the directory {\em build\_tree} defined in
 Chapter \ref{s:install}, the relevant library files are
 \begin{itemize}
-\item {\em build\_tree}\id{/lib/libcvode.a},
-\item {\em build\_tree}\id{/lib/libfcvode.a},
-\item {\em build\_tree}\id{/lib/libshared.a}, and
-\item {\em build\_tree}\id{/lib/lib*nvec*.a} (up to four files)
+\item {\em build\_tree}\id{/lib/libsundials\_cvode.}{\em lib},
+\item {\em build\_tree}\id{/lib/libsundials\_fcvode.a},
+\item {\em build\_tree}\id{/lib/libsundials\_shared.}{\em lib},
+\item {\em build\_tree}\id{/lib/libsundials\_nvec*.}{\em lib} (up to two files), and
+\item {\em build\_tree}\id{/lib/libsundials\_fnvec*.a} (up to two files),
 \end{itemize}
-All relevant header files are all located in
+where the file extension .{\em lib} is typically \id{.so} for shared libraries
+and \id{.a} for static libraries. All relevant header files are all located under
+the subdirectory
 \begin{itemize}
 \item {\em build\_tree}\id{/include}
 \end{itemize}
@@ -51,8 +54,8 @@ references to the library files must be made carefully, because both
 of the associated solver library files contain a user-callable
 function called \Id{CVode}, although the version in {\cvodes} is fully
 compatible with that in {\cvode}.  In this case, the loader command
-must reference {\em build\_tree}\id{/lib/libcvodes.a}, and not 
-{\em build\_tree}\id{/lib/libcvode.a}.
+must reference {\em build\_tree}\id{/lib/libsundials\_cvodes.}{\em lib}, and not 
+{\em build\_tree}\id{/lib/libsundials\_cvode.}{\em lib}.
 
 %%==============================================================================
 \section{Data types}\label{s:types}
@@ -4872,21 +4875,25 @@ order to maximize portability for the resulting mixed-language program.
 In this package, the names of the interface functions, and the names of
 the {\F} user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
-header files \id{fcvode.h} and \id{fcvbbd.h}.  
-Those mapping definitions depend in turn on a set of flags --- 
-\Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},
-\Id{SUNDIALS\_UNDERSCORE\_NONE}, \Id{SUNDIALS\_UNDERSCORE\_TWO},
-which can be set when configuring {\sundials} (see Chapter \ref{s:install}).
-Depending on these flags, the names into which the dummy names are mapped
-are in upper or lower case and have up to two underscores appended.
+header files \id{fcvode.h} and \id{fcvbbd.h}.
+By default, those mapping definitions depend in turn on the {\C} macro
+\id{F77\_FUNC} defined in the header file \id{config.h} by \id{configure}. However,
+the set of flags --- \Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},
+\Id{SUNDIALS\_UNDERSCORE\_NONE}, \Id{SUNDIALS\_UNDERSCORE\_ONE}, and
+\Id{SUNDIALS\_UNDERSCORE\_TWO} can be explicitly defined in \id{config.h} when
+configuring {\sundials} via the \id{--with-f77underscore} and
+\id{--with-f77case} options to override the default behavior if necessary
+(see Chapter \ref{s:install}). Either way, the names into which the dummy names
+are mapped are in upper or lower case and have up to two underscores appended.
 
-The user must also ensure that variables in the user {F} code are
+The user must also ensure that variables in the user {\F} code are
 declared in a manner consistent with their counterparts in {\cvode}.
-All real variables must be declared as \id{REAL} or \id{DOUBLE PRECISION},
-depending on whether {\cvode} was built in single or double precision 
+All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
+or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
+depending on whether {\cvode} was built in single, double or extended precision 
 (see Chapter \ref{s:install}). Moreover, some of the {\F} integer variables
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-{\C} type \id{long int}. These integer variables are: the array
+{\C} type \id{long int}. These integer variables include: the array
 of integer optional inputs and outputs (\id{IOPT}), problem dimensions (\id{NEQ},
 \id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU}, \id{ML},
 \id{MUDQ}, and \id{MLDQ}). This is particularly important when using
