@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-11-08 19:47:24 $
+ * $Revision: 1.13 $
+ * $Date: 2004-11-08 21:29:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -142,17 +142,17 @@ typedef struct {
 
 /* Functions Called by the KINSOL Solver */
 
-static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
+static void func(N_Vector cc, N_Vector fval, void *f_data);
 
-static int Precondb(N_Vector cc, N_Vector cscale,
-                    N_Vector fval, N_Vector fscale,
-                    void *P_data,
-                    N_Vector vtemp1, N_Vector vtemp2);
+static int PrecSetupBD(N_Vector cc, N_Vector cscale,
+                       N_Vector fval, N_Vector fscale,
+                       void *P_data,
+                       N_Vector vtemp1, N_Vector vtemp2);
 
-static int PSolveb(N_Vector cc, N_Vector cscale, 
-                   N_Vector fval, N_Vector fscale, 
-                   N_Vector vv, void *P_data,
-                   N_Vector ftem);
+static int PrecSolveBD(N_Vector cc, N_Vector cscale, 
+                       N_Vector fval, N_Vector fscale, 
+                       N_Vector vv, void *P_data,
+                       N_Vector ftem);
 
 /* Private Helper Functions */
 
@@ -217,7 +217,7 @@ int main()
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
   /* Vector cc passed as template vector. */
-  flag = KINMalloc(kmem, funcprpr, cc);
+  flag = KINMalloc(kmem, func, cc);
   if (check_flag(&flag, "KINMalloc", 1)) return(1);
 
   flag = KINSetFdata(kmem, data);
@@ -230,16 +230,17 @@ int main()
   if (check_flag(&flag, "KINSetScaledStepTol", 1)) return(1);
 
   /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
-     routines Precondbd and PSolvebd, and the pointer to the user block data. */
-  maxl = 15; maxlrst = 2;
+     routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
+  maxl = 15; 
+  maxlrst = 2;
   flag = KINSpgmr(kmem, maxl);
   if (check_flag(&flag, "KINSpgmr", 1)) return(1);
 
   flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
   if (check_flag(&flag, "KINSpgmrSetMaxRestarts", 1)) return(1);
-  flag = KINSpgmrSetPrecSetupFn(kmem, Precondb);
+  flag = KINSpgmrSetPrecSetupFn(kmem, PrecSetupBD);
   if (check_flag(&flag, "KINSpgmrSetPrecSetupFn", 1)) return(1);
-  flag = KINSpgmrSetPrecSolveFn(kmem, PSolveb);
+  flag = KINSpgmrSetPrecSolveFn(kmem, PrecSolveBD);
   if (check_flag(&flag, "KINSpgmrSetPrecSolveFn", 1)) return(1);
   flag = KINSpgmrSetPrecData(kmem, data);
   if (check_flag(&flag, "KINSpgmrSetPrecData", 1)) return(1);
@@ -287,7 +288,7 @@ int main()
  * System function for predator-prey system 
  */
 
-static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
+static void func(N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
   long int jx, jy, is, idyu, idyl, idxr, idxl;
@@ -346,17 +347,17 @@ static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
  * Preconditioner setup routine. Generate and preprocess P. 
  */
 
-static int Precondb(N_Vector cc, N_Vector cscale,
-                    N_Vector fval, N_Vector fscale,
-                    void *P_data,
-                    N_Vector vtemp1, N_Vector vtemp2)
+static int PrecSetupBD(N_Vector cc, N_Vector cscale,
+                       N_Vector fval, N_Vector fscale,
+                       void *P_data,
+                       N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
   realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
   long int i, j, jx, jy, ret;
   UserData data;
   
-  data = (UserData)P_data;
+  data = (UserData) P_data;
   delx = data->dx;
   dely = data->dy;
   
@@ -413,10 +414,10 @@ static int Precondb(N_Vector cc, N_Vector cscale,
  * Preconditioner solve routine 
  */
 
-static int PSolveb(N_Vector cc, N_Vector cscale, 
-                   N_Vector fval, N_Vector fscale, 
-                   N_Vector vv, void *P_data,
-                   N_Vector ftem)
+static int PrecSolveBD(N_Vector cc, N_Vector cscale, 
+                       N_Vector fval, N_Vector fscale, 
+                       N_Vector vv, void *P_data,
+                       N_Vector ftem)
 {
   realtype **Pxy, *vxy;
   long int *piv, jx, jy;
@@ -648,11 +649,13 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 
   printf("\nInitial profile of concentration\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
-  printf("At all mesh points:  %Lg %Lg %Lg   %Lg %Lg %Lg\n", PREYIN,PREYIN,PREYIN,
-         PREDIN,PREDIN,PREDIN);
+  printf("At all mesh points:  %Lg %Lg %Lg   %Lg %Lg %Lg\n", 
+         PREYIN, PREYIN, PREYIN,
+         PREDIN, PREDIN, PREDIN);
 #else  
-  printf("At all mesh points:  %g %g %g   %g %g %g\n", PREYIN,PREYIN,PREYIN,
-         PREDIN,PREDIN,PREDIN);
+  printf("At all mesh points:  %g %g %g   %g %g %g\n", 
+         PREYIN, PREYIN, PREYIN,
+         PREDIN, PREDIN, PREDIN);
 #endif
 }
 
