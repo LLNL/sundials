@@ -1,0 +1,60 @@
+# File Makefile
+#--------------------------------------------------------------------------
+# Makefile for the CVODE examples using the parallel N_Vector implementation.
+# @configure_input@
+#--------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# SUNDIALS library and include directories
+SUNDIALSINCLUDE = -I${includedir}
+SUNDIALSLIBDIRS = -L${libdir}
+SUNDIALSLIBS    = -lcvode -lshared -lnvecparallel
+
+# MPI library and include directories
+MPIINCLUDE = @MPIINCLUDE@
+MPILIBDIRS = @MPILIBDIRS@
+MPILIBS    = @MPILIBS@
+MPIFLAGS   = @MPIFLAGS@
+
+# Include
+INCDIRS = ${SUNDIALSINCLUDE} ${MPIINCLUDE}
+
+# Libraries
+LIBDIRS = ${SUNDIALSLIBDIRS} ${MPILIBDIRS}
+LIBS    = ${SUNDIALSLIBS} ${MPILIBS} -lm
+
+# Compiler and compiler options
+CC     = @MPICC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: pvnx pvkx pvkxb
+
+pvnx: pvnx.o
+	${CC} ${CFLAGS} ${MPIFLAGS} -o pvnx pvnx.o ${LIBDIRS} ${LIBS}
+
+pvkx: pvkx.o
+	${CC} ${CFLAGS} ${MPIFLAGS} -o pvkx pvkx.o ${LIBDIRS} ${LIBS}
+
+pvkxb: pvkxb.o
+	${CC} ${CFLAGS} ${MPIFLAGS} -o pvkxb pvkxb.o ${LIBDIRS} ${LIBS}
+
+clean:
+	rm -f *.o
+	rm -f pvnx pvkx pvkxb
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCDIRS} $*.c
+
+#---End of Makefile---
