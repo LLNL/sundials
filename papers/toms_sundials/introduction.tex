@@ -45,8 +45,7 @@ CVODE \cite{ByHi:98,ByHi:99}. Similar rewrites of NKSOL and DASPK
 followed, using the same general design as CVODE and PVODE.  The
 resulting solvers are called KINSOL and IDA, respectively. More
 recently, we have merged the PVODE and CVODE codes into a single
-solver, CVODE, which runs in both serial and parallel
-environments.
+solver, CVODE.
 
 The main numerical operations performed in these codes are
 operations on data vectors, and the codes have been written in
@@ -54,17 +53,18 @@ terms of interfaces to these vector operations.  The result of
 this design is that users can relatively easily provide their own
 data structures to the solvers by telling the solver about their
 structures and providing the required operations on them. The
-codes also come with default vector structures (called NVECTORS)
+codes also come with default vector structures
 with pre-defined operation implementations for both serial and
 distributed memory parallel environments in case a user prefers to
 not supply their own structures. In addition, all parallelism is
 contained within specific vector operations (norms, dot products,
 etc.)  No other operations within the solvers require knowledge of
 parallelism. Thus, using a solver in parallel consists of using
-the parallel vector implementation provided or providing one's own
-parallel vector structure underneath the solver.  Hence, we no
-longer make a distinction between parallel and serial versions of
-the codes.
+a parallel vector implementation, either the one provided with
+SUNDIALS, or the user's own parallel vector structure, 
+underneath the solver.  
+Hence, we no longer make a distinction between parallel and serial 
+versions of the codes.
 
 These codes have been combined into the core of SUNDIALS, the
 SUite of Nonlinear and DIfferential/Algebraic equation Solvers.
