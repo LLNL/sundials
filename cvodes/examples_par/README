@@ -2,10 +2,10 @@ List of parallel CVODES examples
 
 1. Simulation
 
-  pvnx  :  1-D advection-diffusion; nonstiff
-  pvkx  :  2-D 2-species diurnal advection-diffusion
-  pvkxb :  pvkx problem with BBD preconditioner
-  pvkt  :  modified pvkx problem (upwind space discretization)
+  pvnx: 1-D advection-diffusion; nonstiff
+  pvkx: 2-D 2-species diurnal advection-diffusion
+  pvkxb: pvkx problem with BBD preconditioner
+  pvkt: modified pvkx problem (upwind space discretization)
 
 
 2. Forward sensitivity
@@ -18,7 +18,7 @@ List of parallel CVODES examples
 
 3. Adjoint sensitivity
 
-  pvanx  : 1-D advection-diffusion; adjoint sensitivity
+  pvanx: 1-D advection-diffusion; adjoint sensitivity
 
 Sample results:
 
@@ -29,6 +29,6 @@ Sample results:
 
   System Architecture: IA-32
   Processor Type: Intel Pentium 4 Xeon DP (i686)
-  Operating System: Red Hat Linux 7.2
-  C/Fortran Compilers: gcc/g77 v2.96 (Red Hat)
+  Operating System: Red Hat Enterprise Linux WS 3
+  C/Fortran Compilers: gcc/g77 v3.2.3-24 (Red Hat)
   MPI Implementation: MPICH-MPI v1.2.4

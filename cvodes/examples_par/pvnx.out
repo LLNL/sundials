@@ -7,15 +7,15 @@ At t = 0.00    max.norm(u) =  1.569909e+01
 At t = 0.50  max.norm(u) =  3.052881e+00  nst = 113 
 At t = 1.00  max.norm(u) =  8.753188e-01  nst = 191 
 At t = 1.50  max.norm(u) =  2.494926e-01  nst = 265 
-At t = 2.00  max.norm(u) =  7.109392e-02  nst = 333 
-At t = 2.50  max.norm(u) =  2.026151e-02  nst = 400 
-At t = 3.00  max.norm(u) =  5.769173e-03  nst = 473 
-At t = 3.50  max.norm(u) =  1.653019e-03  nst = 545 
-At t = 4.00  max.norm(u) =  4.767308e-04  nst = 627 
-At t = 4.50  max.norm(u) =  1.364866e-04  nst = 699 
-At t = 5.00  max.norm(u) =  4.000175e-05  nst = 770 
+At t = 2.00  max.norm(u) =  7.109707e-02  nst = 339 
+At t = 2.50  max.norm(u) =  2.026223e-02  nst = 418 
+At t = 3.00  max.norm(u) =  5.772861e-03  nst = 481 
+At t = 3.50  max.norm(u) =  1.650209e-03  nst = 551 
+At t = 4.00  max.norm(u) =  4.718756e-04  nst = 622 
+At t = 4.50  max.norm(u) =  1.360229e-04  nst = 695 
+At t = 5.00  max.norm(u) =  4.044654e-05  nst = 761 
 
 Final Statistics.. 
 
-nst = 770     nfe  = 1451    nni = 1448    ncfn = 149     netf = 5
+nst = 761     nfe  = 1380    nni = 1377    ncfn = 128     netf = 5
  

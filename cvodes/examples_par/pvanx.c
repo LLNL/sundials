@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-25 16:23:47 $
+ * $Revision: 1.12 $
+ * $Date: 2004-09-28 16:15:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -507,17 +507,17 @@ static void fB(realtype t, N_Vector u,
     z1    = data->z1;
     z2    = data->z2;
 
-    /* Compute related parameters. */
-    my_pe_m1 = my_pe - 1;
-    my_pe_p1 = my_pe + 1;
-    last_pe  = npes - 1;
-    my_last  = my_length - 1;
-    
     /* Obtain local arrays */
     uBdata = NV_DATA_P(uB);
     duBdata = NV_DATA_P(uBdot);
     udata = NV_DATA_P(u);
     my_length = NV_LOCLENGTH_P(uB);
+
+    /* Compute related parameters. */
+    my_pe_m1 = my_pe - 1;
+    my_pe_p1 = my_pe + 1;
+    last_pe  = npes - 1;
+    my_last  = my_length - 1;
 
     /* Pass needed data to processes before and after current process. */
     if (my_pe != 0) {
