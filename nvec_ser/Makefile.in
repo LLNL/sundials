@@ -70,6 +70,6 @@ uninstall:
 	rm -f ${includedir}/fnvector_serial.h
 
 .c.o:
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS} -o $@ $<
 
 #---End of Makefile---
