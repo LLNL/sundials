@@ -1,4 +1,4 @@
-                MPI_PVODE: Version of 15 January 2002
+                 MPI_PVODE: Version of 1 March 2002   
                    Notes on Installation and Usage
                          Alan C. Hindmarsh
               Center for Applied Scientific Computing, LLNL
@@ -266,6 +266,12 @@ D. Revision History (YYYYMMDD)
 20020115  Minor corrections to cvode.h (CVReInit description), cvode.c
           (formatting in CVsldet), and cvbandpre.c (include added).
 20020207  This file revised to reflect new package organization.
+20020301  Added ReInit routine to CVSPGMR module.
+          Corrected usage note on CVReInit in cvode.h.
+          Revised cvdemk to use CVReInitSpgmr.
+          Added six Fortran/C routines to interface to CVReInitSpgmr.
+          Revised pvdiagkf example to use FCVREINSPGMR10.
+          In pvaddenda file, revised two usage notes and added one.
 
 ......................................................................
 
