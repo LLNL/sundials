@@ -141,9 +141,7 @@ Optional outputs available for a solver are marked with a ``$\surd$''
 and those not available are marked by a ``-''.
 
 \begin{acmtable}{340pt}
-\label{t:optional_input}
 \centering
-\medskip
 \begin{tabular}{p{2.75in} c c c }
 Optional input & CVODE  & IDA & KINSOL \\
 \hline
@@ -180,12 +178,11 @@ Stopping tolerance on max. scaled step & - & - & $U^{2/3}$ \\
 \end{tabular}
 \caption{Optional inputs for the basic solvers in SUNDIALS. 
 The value of unit roundoff for the machine is denoted by $U$.}
+\label{t:optional_input}
 \end{acmtable}
 
 \begin{acmtable}{327pt}
-\label{t:optional_output}
 \centering
-\medskip
 \begin{tabular}{p{2.75in} c c c }
 Optional output & CVODE  & IDA & KINSOL \\
 \hline
@@ -212,6 +209,7 @@ Scaled norm at a given iteration & - & - & $\surd$ \\
 Last step length in the global strategy routine & - & - & $\surd$ \\
 \end{tabular}
 \caption{Optional outputs for the basic solvers in SUNDIALS.}
+\label{t:optional_output}
 \end{acmtable}
 
 \subsubsection*{Sensitivity Analysis}
