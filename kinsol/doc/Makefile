@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-11-30 20:15:57 $
+# $Revision: 1.10 $
+# $Date: 2005-02-11 17:28:47 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -25,7 +25,8 @@ kin_use.tex \
 kin_nvec.tex \
 kin_org.tex \
 kin_newlinsolv.tex \
-kin_linsolv.tex
+kin_linsolv.tex \
+kin_constants.tex
 
 UG_SHARED_FILES = \
 band.tex \
