@@ -59,15 +59,17 @@ preconditioners.
 
 A generic NVECTOR implementation is used within the SUNDIALS solvers to
 operate on NVECTORS. This generic implementation defines an NVECTOR
-structure specification, a data-independent NVECTOR type, a set of
-operations, and a set of wrappers for access to the actual operation set of
-the implementation under which an NVECTOR was created. Because details of
-vector operations are thus encapsulated within each specific implementation,
-compilation of SUNDIAL solvers is now independent of implementation,
-allowing the solvers to reside in precompiled libraries.
+structure specification, a data-independent NVECTOR type, a set of abstract
+vector operations, and a set of wrappers for accessing the actual vector
+operations of the implementation under which an NVECTOR was created. Because
+details of vector operations are thus encapsulated within each specific
+NVECTOR implementation, SUNDIALS solvers are now independent of a specific
+implementation. This allows the solvers to be precompiled as binary
+libraries and allows more than one NVECTOR implementation to be used within
+a single program.
 
 A particular NVECTOR implementation, such as the serial and parallel example
-implementations included with SUNDIALS of a user provided implementation,
+implementations included with SUNDIALS or a user provided implementation,
 must provide certain functionalities. Each implementation must provide a
 specification of the data needed to generate an new NVECTOR and a menu to
 routines for operations on NVECTORS, including, for example, creation,
