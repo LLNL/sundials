@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.6 $
-C     $Date: 2004-10-11 16:56:57 $
+C     $Revision: 1.7 $
+C     $Date: 2004-10-12 21:33:57 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -113,7 +113,7 @@ C
          IF (IER .NE. 0) THEN
             WRITE(6,60) IER, IOPT(26)
  60         FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ',I5,/,
-     1             '                 LS returned IER = ',I5)
+     1              '                 Linear Solver returned IER = ',I5)
             CALL FCVBPFREE
             CALL FNVFREES
             CALL FCVFREE

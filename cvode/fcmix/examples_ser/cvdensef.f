@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.16 $
-C     $Date: 2004-10-11 16:56:57 $
+C     $Revision: 1.17 $
+C     $Date: 2004-10-12 21:33:57 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -102,7 +102,7 @@ C
         IF (IER .LT. 0) THEN
            WRITE(6,60) IER, IOPT(26)
  60        FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ',I5,/,
-     1            '                 LS returned IER = ',I5)
+     1              '                 Linear Solver returned IER = ',I5)
            CALL FNVFREES
            CALL FCVROOTFREE
            CALL FCVFREE
