@@ -74,7 +74,10 @@ memory allocation.
 \item \label{sun_linear}
 Typically, preconditioning and/or linear solver methods are needed for
 solving the linear systems that may arise. These methods can now be
-attached to the block of memory allocated for the solver.
+attached to the block of memory allocated for the solver.  Likewise,
+if rootfinding is to be done (by CVODE or CVODES) along with the
+integration, then the user specifications for that task are also
+attached at this point.
 
 \item \label{sun_solve}
 The appropriate routine is called to solve the problem according to
@@ -209,6 +212,7 @@ Number of backtrack operations during linesearch & - & $\checkmark$ & $\checkmar
 Number of times the $\beta$ condition could not be met & - & - & $\checkmark$ \\
 Scaled norm at a given iteration & - & - & $\checkmark$ \\
 Last step length in the global strategy routine & - & - & $\checkmark$ \\
+Information on roots found & $\checkmark$ & - & - \\
 \end{tabular}
 \caption{Optional outputs for the basic solvers in SUNDIALS.}
 \label{t:optional_output}
