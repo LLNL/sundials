@@ -13,24 +13,19 @@ difference is in the NVECTOR module of vector kernels.  The desired
 version is obtained when compiling the example files by linking the
 appropriate library of NVECTOR kernels.  In the parallel version,
 communication between processors is done with the MPI (Message Passage
-Interface) system.  Throughout this document, we will refer to the
-combination of IDA with the serial implementation of the NVECTOR
-module as "the serial version of IDA".  Similarly, the combination of
-IDA with the parallel implementation of the NVECTOR module will be
-called "the parallel version of IDA".
+Interface) system.
 
-In addition, the available linear system solvers are different.  With
-the serial version of IDA, both direct (dense and band) solvers and a
-preconditioned Krylov (iterative) solver are available, but in the
-parallel version only the Krylov solver is available.  On the other
-hand, in addition to the basic solver, the IDA package also contains a
-preconditioner module called IDABBDPRE, which provides a
-band-block-diagonal preconditioner for use with the parallel version.
+When used with the serial NVECTOR module, IDA provides both direct 
+(dense and band) linear solvers and a preconditioned Krylov (iterative) 
+linear solver. When IDA is used with the parallel NVECTOR module, only the 
+Krylov linear solver is available.  For the latter case, in addition to the 
+basic solver, the IDA package also contains a preconditioner module called 
+IDABBDPRE, which provides a band-block-diagonal preconditioner.
 
-IDA is part of a software family called SUNDIALS: SUite of Nonlinear
-and DIfferential/ALgebraic equation Solvers.  This suite consists of
-CVODE, KINSOL, and IDA, and variants of these.  The directory
-structure of the package supplied reflects this family relationship.
+IDA is part of a software family called SUNDIALS: SUite of Nonlinear and 
+DIfferential/ALgebraic equation Solvers [3].  This suite consists of CVODE, 
+CVODES, IDA, and KINSOL.  The directory structure of the package supplied 
+reflects this family relationship.
 
 Several examples problem programs are included, covering both serial
 and parallel cases, both small and large problem sizes, and both
@@ -40,12 +35,14 @@ The notes below provide the location of documentation, directions for the
 installation of the IDA package, and relevant references. Following that 
 is a brief history of revisions to the package.
 
+
 A. Documentation
 ----------------
 
-/sundials/ida/doc contains PostScript and PDF files for the 
-IDA User Guide (ida_guide.ps and ida_guide.pdf) and the IDA
-Examples (ida_examples.ps and ida_examples.pdf) documents.
+/sundials/ida/doc contains PostScript and PDF files for the IDA User Guide [1] 
+(ida_guide.ps and ida_guide.pdf) and the IDA Examples [2] (ida_examples.ps and 
+ida_examples.pdf) documents.
+
 
 B. Installation
 ---------------
@@ -53,6 +50,7 @@ B. Installation
 For basic installation instructions see /sundials/INSTALL. 
 For complete installation instructions see the "IDA Installation Procedure"
 chapter in the IDA User Guide.
+
 
 C. References
 -------------
@@ -77,24 +75,70 @@ C. References
     SIAM J. Sci. Comp., 19 (1998), pp. 1495-1512.
 
 
-D. Revision History (YYYYMMDD)
-------------------------------
+D.1. Revision history since release 2.0 (July 2002)
+---------------------------------------------------
+
+- Bug fixes
+   - in the solution of the nonlinear system, the correction for small constraint 
+     violation is to ee, not y.
+   - besides delaying the order increase until the 2nd step, we now also delay
+     doubling the step size, to avoid using information from times before t0.
+
+- Changes related to the NVECTOR module 
+  (see also the file sundials/shared/README)
+   - removed machEnv, redefined table of vector operations (now contained
+     in the N_Vector structure itself).
+   - all IDA functions create new N_Vector variables through cloning, using
+     an N_Vector passed by the user as a template.
+
+- Changes to type names and IDA constants
+   - removed type 'integertype'; instead use int or long int, as appropriate.
+   - restructured the list of return values from the various IDA functions.
+   - changed all IDA constants (inputs and return values) to have the
+     prefix 'IDA_' (e.g. IDA_SUCCESS).
+   - renamed various function types to have the prefix 'IDA' (e.g. IDAResFn).
+
+- Changes to optional input/ouput
+   - added IDASet* and IDAGet* functions for optional inputs/outputs, 
+     replacing the arrays iopt and ropt.
+   - added new optional inputs (e.g. maximum number of Newton iterations,
+     maximum number of convergence failures, etc).
+   - added new function IDAGetSolution for dense output.
+   - the value of the last return flag from any function within a linear
+     solver module can be obtained as an optional output (e.g. IDADenseGetLastFlag).
+  
+- Changes to user-callable functions
+   - added new function IDACreate which initializes the IDA solver
+     object and returns a pointer to the IDA memory block.
+   - removed N (problem size) from all functions except the initialization
+     functions for the direct linear solvers (IDADense and IDABand).
+   - shortened argument lists of most IDA functions (the arguments that
+     were dropped can now be specified through IDASet* functions).
+   - removed reinitialization functions for band/dense/SPGMR linear
+     solvers (same functionality can be obtained using IDA*Set* functions).
+   - in IDABBDPRE, added a new function, IDABBDSpgmr to initialize the
+     SPGMR linear solver with the BBD preconditioner.
+   - function names changed in IDABBDPRE for uniformity.
+
+- Changes to user-supplied functions
+   - removed N (probem dimension) from argument lists.
+   - shortened argument lists for user dense/band/SPGMR Jacobian routines.
+   - in IDASPGMR, shortened argument lists for user preconditioner functions.
+   - in IDABBDPRE, added Nlocal, the local vector size, as an argument to 
+     IDABBDLocalFn and IDABBDCommFn.
+
+
+D.2. Previous revisions (YYYYMMDD)
+----------------------------------
 
 19990212  DATE WRITTEN; initial internal release (incomplete).
 19990514  IDABBDPRE preconditioner module added.
-19990520  Heat equation examples added.
 19990720  Initial condition calculation routines (IDACalcIC) added.
-19990813  Predator-prey examples added.
 19990831  Minor changes throughout; some linear solver initializations
           moved from linit routine to user-callable routine.
-19990915  Revised all example programs for clarity etc.
 19991208  In IDABBDPRE, user routine argument lists changed.
-19991215  Revised all example programs for uniformity, etc.
 19991217  Generic SPGMR module revised to correct scalings.
-19991217  Minor revisions to all NVECTOR files.
-20000207  Revised all examples -- t0 for dummy argument tstop.
 20000316  In parallel NVECTOR, comm arg. to PVecInitMPI is non-NULL.
-20000324  Minor corrections to example Makefile files.
 20000808  Fixed bug in N_VMin routine; minor changes in robx example.
           Added calculation of system index in IDACalcIC in CALC_YA_YDP_INIT
           case; added scaling of fnorm in IDACalcIC when index = 0.
@@ -104,36 +148,21 @@ D. Revision History (YYYYMMDD)
           Changed safety factor to .99 in step ratio in IDALineSrch
           on constraint violation.  Added .9 safety factor in step
           ratio in IDAnls on constraint violation.
-          Other minor changes in IDACalcIC and subordinate routines.
           Corrected #define ncfl0 line in idaspgmr.c.
           Minor changes in heatsb, websb, webpk, webbbd example programs.
 20011015  Fixed bug in IDAInterp (tn test).
           Fixed minor bugs in error messages (missing arguments etc.)
           Corrected missing return values (ida.c and idaspgmr.c).
-          Removed unused variables in declarations (ida.c).
           Corrected missing #include in idabbdpre.c.
-          Corrected missing Free statements in three examples.
           In serial and parallel nvector.*, rewrote N_VConstrMask loop;
-          revised descriptions of N_VConstrProdPos and N_VConstrMask.
-          In parallel nvector.c, changed POINT5 to HALF for consistency.
 20011016  Changed PVecInitMPI to return (void *)env (parallel nvector.c).
-20011119  Renamed all example files for uniqueness.
 20011220  Default type 'integer' changed to 'long int' in llnltyps.h.
 20011220  In parallel nvector.h, PVecInitMPI prototype, corrected type
           (int to integer) of length arguments.
-20011221  In all parallel examples, corrected type (integer to int) of
-          variables thispe and npes (local to Main and in InitUserData). 
-20020207  This file revised to reflect new package organization.
 20020313  Modified to work with new NVECTOR abstraction. (Radu Serban)
           Revised this file to reflect new N_Vector usage. (Radu Serban)
-20020327  In IDADENSE and IDABAND modules, moved DQJac routine
-          prototype from header to source file.
 20020626  Renamed types real, integer, boole as realtype, integertype,
           and booleantype, and renamed related constants.  Renamed files
           llnlmath.*, llnltypes.h as sundialsmath.*, sundialstypes.h.
 20020703  Added reinitialization routines for IDA, for each linear
-          solver module, and for IDABBDPRE.  Added second case to
-          examples iheatsk and iheatbbd illustrating reinitialization.
-20020705  Minor corrections to all example source files.
-20020711  Minor corrections throughout.
-20020830  Minor revisions to this file idareadme.
+          solver module, and for IDABBDPRE.
