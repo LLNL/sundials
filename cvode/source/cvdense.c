@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-06-18 21:33:52 $
+ * $Revision: 1.16 $
+ * $Date: 2004-06-22 20:29:02 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -115,7 +115,7 @@ static void CVDenseDQJac(long int n, DenseMat J, realtype t,
  * Finally, it allocates memory for M, savedJ, and pivots.
  * The return value is SUCCESS = 0, or LMEM_FAIL = -1.
  *
- * NOTE: The band linear solver assumes a serial implementation
+ * NOTE: The dense linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, CVDense will first 
  *       test for compatible a compatible N_Vector internal
  *       representation by checking (1) the vector specification
