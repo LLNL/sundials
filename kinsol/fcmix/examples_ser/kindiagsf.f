@@ -1,7 +1,7 @@
       program kindiagsf
 c     ----------------------------------------------------------------
-c     $Revision: 1.7 $
-c     $Date: 2004-05-03 21:36:45 $
+c     $Revision: 1.8 $
+c     $Date: 2004-10-11 16:56:47 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -48,7 +48,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fnvinits(neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
- 1220    format('SUNDIALS_ERROR: FNVINITS returned IER =',i2)
+ 1220    format('SUNDIALS_ERROR: FNVINITS returned IER = ',i2)
          stop
       endif
 
@@ -62,7 +62,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
      &                constr, inopt, iopt, ropt, ier)
       if (ier .ne. 0) then
          write(6,1230) ier
- 1230    format('SUNDIALS_ERROR: FKINMALLOC returned IER =',i2)
+ 1230    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ',i2)
          call fnvfrees
          stop
       endif
@@ -70,7 +70,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinspgmr(maxl, maxlrst, ier)
       if (ier .ne. 0) then
          write(6,1235) ier
- 1235    format('SUNDIALS_ERROR: FKINSPGMR returned IER =',i2)
+ 1235    format('SUNDIALS_ERROR: FKINSPGMR returned IER = ',i2)
          call fnvfrees
          call fkinfree
          stop
@@ -88,8 +88,9 @@ c * * * * * * * * * * * * * * * * * * * * * *
 
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then
-         write(6,1242) ier
- 1242    format('SUNDIALS_ERROR: FKINSOL returned IER =',i2)
+         write(6,1242) ier, iopt(15)
+ 1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ',i2,/,
+     1          '                LS returned IER = ',i2)
          call fnvfrees
          call fkinfree
          stop

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.10 $
-C     $Date: 2004-09-08 21:22:26 $
+C     $Revision: 1.11 $
+C     $Date: 2004-10-11 16:57:01 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -25,20 +25,20 @@ C     Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
       IF (IER .NE. 0) THEN
          WRITE(6,5) IER
- 5       FORMAT(///' MPI_ERROR: MPI_INIT returned IER =',I5)
+ 5       FORMAT(///' MPI_ERROR: MPI_INIT returned IER = ',I5)
          STOP
       ENDIF
       CALL MPI_COMM_SIZE(MPI_COMM_WORLD, NPES, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,6) IER
- 6       FORMAT(///' MPI_ERROR: MPI_COMM_SIZE returned IER =',I5)
+ 6       FORMAT(///' MPI_ERROR: MPI_COMM_SIZE returned IER = ',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
       CALL MPI_COMM_RANK(MPI_COMM_WORLD, MYPE, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,7) IER
- 7       FORMAT(///' MPI_ERROR: MPI_COMM_RANK returned IER =',I5)
+ 7       FORMAT(///' MPI_ERROR: MPI_COMM_RANK returned IER = ',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
@@ -76,7 +76,7 @@ C
 C     
       IF (IER .NE. 0) THEN
          WRITE(6,20) IER
- 20      FORMAT(///' SUNDIALS_ERROR: FNVINITP returned IER =',I5)
+ 20      FORMAT(///' SUNDIALS_ERROR: FNVINITP returned IER = ',I5)
          CALL MPI_FINALIZE(IER)
          STOP
       ENDIF
@@ -86,7 +86,7 @@ C
 C     
       IF (IER .NE. 0) THEN
          WRITE(6,30) IER
- 30      FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER =',I5)
+ 30      FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
@@ -98,7 +98,7 @@ C
       CALL FCVBBDINIT (NLOCAL, MUDQ, MLDQ, MU, ML, 0.0D0, IER) 
       IF (IER .NE. 0) THEN
          WRITE(6,35) IER
- 35      FORMAT(///' SUNDIALS_ERROR: FCVBBDINIT returned IER =',I5)
+ 35      FORMAT(///' SUNDIALS_ERROR: FCVBBDINIT returned IER = ',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
@@ -106,7 +106,7 @@ C
       CALL FCVBBDSPGMR(IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,36) IER
- 36      FORMAT(///' SUNDIALS_ERROR: FCVBBDSPGMR returned IER =',I5)
+ 36      FORMAT(///' SUNDIALS_ERROR: FCVBBDSPGMR returned IER = ',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
@@ -128,8 +128,9 @@ C
  45      FORMAT(/' t =',E10.2,5X,'no. steps =',I5,'   no. f-s =',I5)
 C     
          IF (IER .NE. 0) THEN
-            WRITE(6,50) IER
- 50         FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER =',I5)
+            WRITE(6,50) IER, IOPT(26)
+ 50         FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ',I5,/,
+     &             '                 LS returned IER = ',I5)
             CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
             STOP
          ENDIF
@@ -148,7 +149,7 @@ C     Get global max. error from MPI_REDUCE call.
      &     0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,70) IER
- 70      FORMAT(///' MPI_ERROR: MPI_REDUCE returned IER =',I5)
+ 70      FORMAT(///' MPI_ERROR: MPI_REDUCE returned IER = ',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
@@ -199,7 +200,7 @@ C     Otherwise jump to final block.
       CALL FCVREINIT (T, Y, IATOL, RTOL, ATOL,INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,91) IER
- 91      FORMAT(///' SUNDIALS_ERROR: FCVREINIT returned IER =',I5)
+ 91      FORMAT(///' SUNDIALS_ERROR: FCVREINIT returned IER = ',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
@@ -209,7 +210,7 @@ C     Otherwise jump to final block.
       CALL FCVBBDREINIT (NLOCAL, MUDQ, MLDQ, 0D0, IER) 
       IF (IER .NE. 0) THEN
          WRITE(6,92) IER
- 92      FORMAT(///' SUNDIALS_ERROR: FCVBBDREINIT returned IER =',I5)
+ 92      FORMAT(///' SUNDIALS_ERROR: FCVBBDREINIT returned IER = ',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
@@ -217,7 +218,7 @@ C     Otherwise jump to final block.
       CALL FCVSPGMRREINIT(IPRE, IGS, 0.0D0, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,93) IER
- 93      FORMAT(///' SUNDIALS_ERROR: FCVSPGMRREINIT returned IER =',I5)
+ 93      FORMAT(///' SUNDIALS_ERROR: FCVSPGMRREINIT returned IER = ',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF

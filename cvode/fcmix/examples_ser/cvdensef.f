@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.15 $
-C     $Date: 2004-09-21 22:59:49 $
+C     $Revision: 1.16 $
+C     $Date: 2004-10-11 16:56:57 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -59,7 +59,7 @@ C
       CALL FNVINITS (NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
- 20     FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER =',I5)
+ 20     FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER = ',I5)
         STOP
       ENDIF
 C
@@ -67,7 +67,7 @@ C
      1                INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
- 30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER =',I5)
+ 30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ',I5)
         CALL FNVFREES
         STOP
       ENDIF
@@ -75,7 +75,7 @@ C
       CALL FCVROOTINIT(2, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,45) IER
- 45      FORMAT(///' SUNDIALS_ERROR: FCVROOTINIT returned IER =',I5)
+ 45      FORMAT(///' SUNDIALS_ERROR: FCVROOTINIT returned IER = ',I5)
          CALL FNVFREES
          CALL FCVFREE
          STOP
@@ -84,7 +84,7 @@ C
       CALL FCVDENSE (NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FCVDENSE returned IER =',I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVDENSE returned IER = ',I5)
         CALL FNVFREES
         CALL FCVFREE
         STOP
@@ -100,8 +100,9 @@ C
  50     FORMAT('At t =',D12.4,'   y =',3D14.6)
 C
         IF (IER .LT. 0) THEN
-           WRITE(6,60) IER
- 60        FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER =',I5)
+           WRITE(6,60) IER, IOPT(26)
+ 60        FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ',I5,/,
+     1            '                 LS returned IER = ',I5)
            CALL FNVFREES
            CALL FCVROOTFREE
            CALL FCVFREE
@@ -112,7 +113,7 @@ C
            CALL FCVROOTINFO(2, INFO, IERROOT)
            IF (IERROOT .LT. 0) THEN
               WRITE(6,65) IER
- 65           FORMAT(///' SUNDIALS_ERROR: FCVROOTINFO returned IER =',
+ 65           FORMAT(///' SUNDIALS_ERROR: FCVROOTINFO returned IER = ',
      1              I5)
               CALL FNVFREES
               CALL FCVROOTFREE
@@ -133,7 +134,7 @@ C
       CALL FCVDKY (T, 1, Y, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,80) IER
- 80      FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER =',I5)
+ 80      FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER = ',I5)
          CALL FNVFREES
          CALL FCVROOTFREE
          CALL FCVFREE

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.5 $
-C     $Date: 2004-09-15 21:20:17 $
+C     $Revision: 1.6 $
+C     $Date: 2004-10-11 16:56:57 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -60,7 +60,7 @@ C     Initialize vector specification
       CALL FNVINITS (NEQ, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,20) IER
- 20      FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER =',I5)
+ 20      FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER = ',I5)
          STOP
       ENDIF
 C     
@@ -69,7 +69,7 @@ C     Initialize CVODE
      1     INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,30) IER
- 30      FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER =',I5)
+ 30      FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ',I5)
          CALL FNVFREES
          STOP
       ENDIF
@@ -80,7 +80,7 @@ C     Initialize band preconditioner
       CALL FCVBPINIT(NEQ, MU, ML, IER) 
       IF (IER .NE. 0) THEN
          WRITE(6,40) IER
- 40      FORMAT(///' SUNDIALS_ERROR: FCVBPINIT returned IER =',I5)
+ 40      FORMAT(///' SUNDIALS_ERROR: FCVBPINIT returned IER = ',I5)
          CALL FNVFREES
          CALL FCVFREE
          STOP
@@ -90,7 +90,7 @@ C     Initialize SPGMR solver with band preconditioner
       CALL FCVBPSPGMR(JPRETYPE, IGSTYPE, MAXL, DELT, IER) 
       IF (IER .NE. 0) THEN
          WRITE(6,45) IER
- 45      FORMAT(///' SUNDIALS_ERROR: FCVBPSPGMR returned IER =',I5)
+ 45      FORMAT(///' SUNDIALS_ERROR: FCVBPSPGMR returned IER = ',I5)
          CALL FNVFREES
          CALL FCVFREE
          STOP
@@ -111,8 +111,9 @@ C
      1        '  c2 (bot.left/middle/top rt.) =',3D12.3)
 C     
          IF (IER .NE. 0) THEN
-            WRITE(6,60) IER
- 60         FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER =',I5)
+            WRITE(6,60) IER, IOPT(26)
+ 60         FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ',I5,/,
+     1             '                 LS returned IER = ',I5)
             CALL FCVBPFREE
             CALL FNVFREES
             CALL FCVFREE
