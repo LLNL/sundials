@@ -37,7 +37,7 @@ fi
 #------------
 if [ $err = "T" -o $hlp = "T" ]
 then
-    echo "Usage: tarsundials [option | file]"
+    echo "Usage: tarcvode [option | file]"
     echo "   -a      : both serial and parallel"
     echo "   -s      : serial"
     echo "   -p      : parallel"
@@ -70,7 +70,12 @@ fi
 #----------------
 
 cd ../..
-echo "Generate tar file $PWD/$filename"
+if [ $fnm != "T" ]
+then
+    echo "Generate tar file $PWD/$filename"
+else
+    echo "Generate tar file $filename"
+fi
 
 # Add top level files
 #--------------------
