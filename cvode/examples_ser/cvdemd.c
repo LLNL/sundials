@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-08-31 20:35:14 $
+ * $Revision: 1.13 $
+ * $Date: 2004-08-31 20:41:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -69,8 +69,6 @@
 #define ATOL  1.0e-6
 #define RTOL  0.0
 #define ITOL  CV_SS
-#define ERRFP stdout
-#define OPTIN FALSE
 
 /* Problem #1 Constants */
 
