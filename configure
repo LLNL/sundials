@@ -2098,7 +2098,6 @@ echo $ECHO_N "checking floating-point data type to use... $ECHO_C" >&6
 if test "${with_precision+set}" = set; then
   withval="$with_precision"
 
-
 if test "X${withval}" = "Xsingle"; then
   echo "$as_me:$LINENO: result: float" >&5
 echo "${ECHO_T}float" >&6
@@ -2129,9 +2128,7 @@ echo "$as_me: error: invalid input" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-
 else
-
 
 # Use 'double' by default
 echo "$as_me:$LINENO: result: double" >&5
@@ -2141,7 +2138,6 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 FLOAT_TYPE="double"
-
 
 fi;
 
@@ -2812,11 +2808,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 # If CC="" then abort (means did NOT find a valid C compiler)
 if test "X${CC}" = "X"; then
-
   { { echo "$as_me:$LINENO: error: cannot find C compiler" >&5
 echo "$as_me: error: cannot find C compiler" >&2;}
    { (exit 1); exit 1; }; }
-
 fi
 
 # Determine absolute pathname for specified C compiler
@@ -3544,11 +3538,560 @@ fi
 done
 
 
-TEMP_LIBS="${LIBS}"
-LIBS=""
+# Set flag indicating if generic function names should be used
+# Provide variable description template for config.hin and config.h files
+# Required by autoheader utility
 
-# Check if math library contains pow() and sqrt() functions (required)
+
+
+# Check if math library contains abs(), fabs(), pow(), and sqrt() functions (required)
 # May update LIBS (meaning add additional library, namely libm)
+MATH_FABS_OK="yes"
+MATH_POW_OK="yes"
+MATH_SQRT_OK="yes"
+# Save copy of LIBS variable and unset LIBS
+SAVED_LIBS="${LIBS}"
+LIBS=""
+# The abs routine is defined for an integer argument, so check for it regardless of
+# the level of precision chosen
+
+echo "$as_me:$LINENO: checking for abs in -lm" >&5
+echo $ECHO_N "checking for abs in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_abs+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char abs ();
+int
+main ()
+{
+abs ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_abs=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_abs=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_abs" >&5
+echo "${ECHO_T}$ac_cv_lib_m_abs" >&6
+if test $ac_cv_lib_m_abs = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: cannot find abs function" >&5
+echo "$as_me: error: cannot find abs function" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+# Check for single-precision math routines
+if test "X${FLOAT_TYPE}" = "Xsingle"; then
+
+echo "$as_me:$LINENO: checking for fabsf in -lm" >&5
+echo $ECHO_N "checking for fabsf in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_fabsf+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char fabsf ();
+int
+main ()
+{
+fabsf ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_fabsf=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_fabsf=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_fabsf" >&5
+echo "${ECHO_T}$ac_cv_lib_m_fabsf" >&6
+if test $ac_cv_lib_m_fabsf = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  MATH_FABS_OK="no"
+fi
+
+
+echo "$as_me:$LINENO: checking for powf in -lm" >&5
+echo $ECHO_N "checking for powf in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_powf+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char powf ();
+int
+main ()
+{
+powf ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_powf=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_powf=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_powf" >&5
+echo "${ECHO_T}$ac_cv_lib_m_powf" >&6
+if test $ac_cv_lib_m_powf = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  MATH_POW_OK="no"
+fi
+
+
+echo "$as_me:$LINENO: checking for sqrtf in -lm" >&5
+echo $ECHO_N "checking for sqrtf in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_sqrtf+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char sqrtf ();
+int
+main ()
+{
+sqrtf ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_sqrtf=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_sqrtf=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_sqrtf" >&5
+echo "${ECHO_T}$ac_cv_lib_m_sqrtf" >&6
+if test $ac_cv_lib_m_sqrtf = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  MATH_SQRT_OK="no"
+fi
+
+# Check for extended-precision math routines
+elif test "X${FLOAT_TYPE}" = "Xextended"; then
+
+echo "$as_me:$LINENO: checking for fabsl in -lm" >&5
+echo $ECHO_N "checking for fabsl in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_fabsl+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char fabsl ();
+int
+main ()
+{
+fabsl ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_fabsl=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_fabsl=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_fabsl" >&5
+echo "${ECHO_T}$ac_cv_lib_m_fabsl" >&6
+if test $ac_cv_lib_m_fabsl = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  MATH_FABS_OK="no"
+fi
+
+
+echo "$as_me:$LINENO: checking for powl in -lm" >&5
+echo $ECHO_N "checking for powl in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_powl+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char powl ();
+int
+main ()
+{
+powl ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_powl=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_powl=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_powl" >&5
+echo "${ECHO_T}$ac_cv_lib_m_powl" >&6
+if test $ac_cv_lib_m_powl = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  MATH_POW_OK="no"
+fi
+
+
+echo "$as_me:$LINENO: checking for sqrtl in -lm" >&5
+echo $ECHO_N "checking for sqrtl in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_sqrtl+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char sqrtl ();
+int
+main ()
+{
+sqrtl ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_sqrtl=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_sqrtl=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_sqrtl" >&5
+echo "${ECHO_T}$ac_cv_lib_m_sqrtl" >&6
+if test $ac_cv_lib_m_sqrtl = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  MATH_SQRT_OK="no"
+fi
+
+# Check for (generic) double-precision math routines
+elif test "X${FLOAT_TYPE}" = "Xdouble"; then
+
+echo "$as_me:$LINENO: checking for fabs in -lm" >&5
+echo $ECHO_N "checking for fabs in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_fabs+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char fabs ();
+int
+main ()
+{
+fabs ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_fabs=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_fabs=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_fabs" >&5
+echo "${ECHO_T}$ac_cv_lib_m_fabs" >&6
+if test $ac_cv_lib_m_fabs = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: cannot find fabs function" >&5
+echo "$as_me: error: cannot find fabs function" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
 
 echo "$as_me:$LINENO: checking for pow in -lm" >&5
 echo $ECHO_N "checking for pow in -lm... $ECHO_C" >&6
@@ -3617,8 +4160,6 @@ echo "$as_me: error: cannot find pow function" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-LIBS_TEMP="${LIBS}"
-LIBS=""
 
 echo "$as_me:$LINENO: checking for sqrt in -lm" >&5
 echo $ECHO_N "checking for sqrt in -lm... $ECHO_C" >&6
@@ -3682,28 +4223,245 @@ _ACEOF
   LIBS="-lm $LIBS"
 
 else
-  { { echo "$as_me:$LINENO: error: cannt find sqrt function" >&5
-echo "$as_me: error: cannt find sqrt function" >&2;}
+  { { echo "$as_me:$LINENO: error: cannot find sqrt function" >&5
+echo "$as_me: error: cannot find sqrt function" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-# For the sake of clarity, do NOT include the same library twice
-if test "X${LIBS}" = "X"; then
-  if test "X${LIBS_TEMP}" = "X"; then
-    LIBS=""
-  else
-    LIBS="${LIBS_TEMP}"
-  fi
+fi
+# If cannot find precision-specific implementations, then check for generic versions
+if test "X${MATH_FABS_OK}" = "Xno" || test "X${MATH_POW_OK}" = "Xno" || test "X${MATH_SQRT_OK}" = "Xno"; then
+
+echo "$as_me:$LINENO: checking for fabs in -lm" >&5
+echo $ECHO_N "checking for fabs in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_fabs+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test "X${LIBS_TEMP}" = "X"; then
-    LIBS="${LIBS}"
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char fabs ();
+int
+main ()
+{
+fabs ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_fabs=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_fabs=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_fabs" >&5
+echo "${ECHO_T}$ac_cv_lib_m_fabs" >&6
+if test $ac_cv_lib_m_fabs = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: cannot find fabs function" >&5
+echo "$as_me: error: cannot find fabs function" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+
+echo "$as_me:$LINENO: checking for pow in -lm" >&5
+echo $ECHO_N "checking for pow in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_pow+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char pow ();
+int
+main ()
+{
+pow ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_pow=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_pow=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_pow" >&5
+echo "${ECHO_T}$ac_cv_lib_m_pow" >&6
+if test $ac_cv_lib_m_pow = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: cannot find pow function" >&5
+echo "$as_me: error: cannot find pow function" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+
+echo "$as_me:$LINENO: checking for sqrt in -lm" >&5
+echo $ECHO_N "checking for sqrt in -lm... $ECHO_C" >&6
+if test "${ac_cv_lib_m_sqrt+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char sqrt ();
+int
+main ()
+{
+sqrt ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_m_sqrt=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_m_sqrt=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_m_sqrt" >&5
+echo "${ECHO_T}$ac_cv_lib_m_sqrt" >&6
+if test $ac_cv_lib_m_sqrt = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: cannot find sqrt function" >&5
+echo "$as_me: error: cannot find sqrt function" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+  # If all generic math routines are available, then set SUNDIALS_USE_GENERIC_MATH flag
+  # for use by shared/source/sundialsmath.c file (preprocessor macros)
+  cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_USE_GENERIC_MATH 1
+_ACEOF
+
+# If found all precision-specific routines, then set SUNDIALS_USE_GENERIC_MATH only if
+# building SUNDIALS libraries with double-precision
+else
+  if test "X${FLOAT_TYPE}" = "Xdouble"; then
+    cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_USE_GENERIC_MATH 1
+_ACEOF
+
   else
-    if test "X${LIBS}" = "X${LIBS_TEMP}"; then
-      LIBS="${LIBS}"
-    else
-      LIBS="${LIBS} ${LIBS_TEMP}"
-    fi
+    cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_USE_GENERIC_MATH 0
+_ACEOF
+
   fi
+fi
+
+# Add math library to LIBS environment variable
+if test "X${LIBS_TEMP}" = "X"; then
+  LIBS="-lm"
+else
+  LIBS="-lm ${LIBS_TEMP}"
 fi
 
 echo "$as_me:$LINENO: checking for additional required C libraries" >&5
@@ -5628,7 +6386,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:5631: \"$ac_link\") >&5
+(eval echo $as_me:6389: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -5708,7 +6466,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:5711: \"$ac_link\") >&5
+(eval echo $as_me:6469: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -6319,7 +7077,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:6322:" \
+echo "$as_me:7080:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6471,7 +7229,6 @@ else
 if test "${with_f77underscore+set}" = set; then
   withval="$with_f77underscore"
 
-
   UNDERSCORE_ARG_GIVEN="yes"
   if test "X${withval}" = "Xnone"; then
     cat >>confdefs.h <<\_ACEOF
@@ -6494,12 +7251,9 @@ echo "$as_me: error: invalid input" >&2;}
    { (exit 1); exit 1; }; }
   fi
 
-
 else
 
-
   UNDERSCORE_ARG_GIVEN="no"
-
 
 fi;
 
@@ -6515,7 +7269,6 @@ fi;
 # Check whether --with-f77case or --without-f77case was given.
 if test "${with_f77case+set}" = set; then
   withval="$with_f77case"
-
 
   CASE_ARG_GIVEN="yes"
   if test "X${withval}" = "Xupper"; then
@@ -6534,12 +7287,9 @@ echo "$as_me: error: invalid input" >&2;}
    { (exit 1); exit 1; }; }
   fi
 
-
 else
 
-
   CASE_ARG_GIVEN="no"
-
 
 fi;
 
@@ -6833,7 +7583,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:6836: \"$ac_link\") >&5
+(eval echo $as_me:7586: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -6913,7 +7663,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:6916: \"$ac_link\") >&5
+(eval echo $as_me:7666: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -10281,7 +11031,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 10284 "configure"' > conftest.$ac_ext
+  echo '#line 11034 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -10828,7 +11578,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:10831: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:11581: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -12024,7 +12774,7 @@ linux-gnu*)
   libsuff=
   case "$host_cpu" in
   x86_64*|s390x*)
-    echo '#line 12027 "configure"' > conftest.$ac_ext
+    echo '#line 12777 "configure"' > conftest.$ac_ext
     if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -12732,7 +13482,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12735 "configure"
+#line 13485 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12830,7 +13580,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12833 "configure"
+#line 13583 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H

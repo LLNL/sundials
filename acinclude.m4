@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2004-11-06 00:52:22 $
+# $Revision: 1.9 $
+# $Date: 2004-11-15 17:07:44 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -367,7 +367,6 @@ AC_ARG_WITH(precision,
 [AC_HELP_STRING([--with-precision=ARG],
 [specify floating-point precision (single/double/extended) [double]])],
 [
-
 if test "X${withval}" = "Xsingle"; then
   AC_MSG_RESULT([float])
   AC_DEFINE([SUNDIALS_SINGLE_PRECISION],[1],[])
@@ -383,15 +382,12 @@ elif test "X${withval}" = "Xextended"; then
 else
   AC_MSG_ERROR([invalid input])
 fi
-
 ],
 [
-
 # Use 'double' by default
 AC_MSG_RESULT([double])
 AC_DEFINE([SUNDIALS_DOUBLE_PRECISION],[1],[])
 FLOAT_TYPE="double"
-
 ])
 
 AC_ARG_WITH([],[ ],[])
@@ -406,9 +402,7 @@ AC_PROG_CC(${USER_CC} cc gcc)
 
 # If CC="" then abort (means did NOT find a valid C compiler)
 if test "X${CC}" = "X"; then
-
   AC_MSG_ERROR([cannot find C compiler])
-
 fi
 
 # Determine absolute pathname for specified C compiler
@@ -506,32 +500,62 @@ AC_HEADER_STDC
 
 AC_CHECK_HEADERS([stdlib.h float.h math.h])
 
-TEMP_LIBS="${LIBS}"
-LIBS=""
+# Set flag indicating if generic function names should be used
+# Provide variable description template for config.hin and config.h files
+# Required by autoheader utility
+AH_TEMPLATE([SUNDIALS_USE_GENERIC_MATH],
+            [Use generic math functions])
 
-# Check if math library contains pow() and sqrt() functions (required)
+# Check if math library contains abs(), fabs(), pow(), and sqrt() functions (required)
 # May update LIBS (meaning add additional library, namely libm)
-AC_CHECK_LIB([m],pow,[],[AC_MSG_ERROR([cannot find pow function])])
-LIBS_TEMP="${LIBS}"
+MATH_FABS_OK="yes"
+MATH_POW_OK="yes"
+MATH_SQRT_OK="yes"
+# Save copy of LIBS variable and unset LIBS
+SAVED_LIBS="${LIBS}"
 LIBS=""
-AC_CHECK_LIB([m],sqrt,[],[AC_MSG_ERROR([cannt find sqrt function])])
-# For the sake of clarity, do NOT include the same library twice
-if test "X${LIBS}" = "X"; then
-  if test "X${LIBS_TEMP}" = "X"; then
-    LIBS=""
-  else
-    LIBS="${LIBS_TEMP}"
-  fi
+# The abs routine is defined for an integer argument, so check for it regardless of
+# the level of precision chosen
+AC_CHECK_LIB([m],abs,[],[AC_MSG_ERROR([cannot find abs function])])
+# Check for single-precision math routines
+if test "X${FLOAT_TYPE}" = "Xsingle"; then
+  AC_CHECK_LIB([m],fabsf,[],[MATH_FABS_OK="no"])
+  AC_CHECK_LIB([m],powf,[],[MATH_POW_OK="no"])
+  AC_CHECK_LIB([m],sqrtf,[],[MATH_SQRT_OK="no"])
+# Check for extended-precision math routines
+elif test "X${FLOAT_TYPE}" = "Xextended"; then
+  AC_CHECK_LIB([m],fabsl,[],[MATH_FABS_OK="no"])
+  AC_CHECK_LIB([m],powl,[],[MATH_POW_OK="no"])
+  AC_CHECK_LIB([m],sqrtl,[],[MATH_SQRT_OK="no"])
+# Check for (generic) double-precision math routines
+elif test "X${FLOAT_TYPE}" = "Xdouble"; then
+  AC_CHECK_LIB([m],fabs,[],[AC_MSG_ERROR([cannot find fabs function])])
+  AC_CHECK_LIB([m],pow,[],[AC_MSG_ERROR([cannot find pow function])])
+  AC_CHECK_LIB([m],sqrt,[],[AC_MSG_ERROR([cannot find sqrt function])])
+fi
+# If cannot find precision-specific implementations, then check for generic versions
+if test "X${MATH_FABS_OK}" = "Xno" || test "X${MATH_POW_OK}" = "Xno" || test "X${MATH_SQRT_OK}" = "Xno"; then
+  AC_CHECK_LIB([m],fabs,[],[AC_MSG_ERROR([cannot find fabs function])])
+  AC_CHECK_LIB([m],pow,[],[AC_MSG_ERROR([cannot find pow function])])
+  AC_CHECK_LIB([m],sqrt,[],[AC_MSG_ERROR([cannot find sqrt function])])
+  # If all generic math routines are available, then set SUNDIALS_USE_GENERIC_MATH flag
+  # for use by shared/source/sundialsmath.c file (preprocessor macros)
+  AC_DEFINE([SUNDIALS_USE_GENERIC_MATH],[1],[])
+# If found all precision-specific routines, then set SUNDIALS_USE_GENERIC_MATH only if
+# building SUNDIALS libraries with double-precision
 else
-  if test "X${LIBS_TEMP}" = "X"; then
-    LIBS="${LIBS}"
+  if test "X${FLOAT_TYPE}" = "Xdouble"; then
+    AC_DEFINE([SUNDIALS_USE_GENERIC_MATH],[1],[])
   else
-    if test "X${LIBS}" = "X${LIBS_TEMP}"; then
-      LIBS="${LIBS}"
-    else
-      LIBS="${LIBS} ${LIBS_TEMP}"
-    fi
+    AC_DEFINE([SUNDIALS_USE_GENERIC_MATH],[0],[])
   fi
+fi
+
+# Add math library to LIBS environment variable
+if test "X${LIBS_TEMP}" = "X"; then
+  LIBS="-lm"
+else
+  LIBS="-lm ${LIBS_TEMP}"
 fi
 
 AC_MSG_CHECKING([for additional required C libraries])
@@ -656,7 +680,6 @@ else
   AC_ARG_WITH(f77underscore, 
   [AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
   [
-
   UNDERSCORE_ARG_GIVEN="yes"
   if test "X${withval}" = "Xnone"; then
     AC_DEFINE([SUNDIALS_UNDERSCORE_NONE],[1],[])
@@ -667,12 +690,9 @@ else
   else
     AC_MSG_ERROR([invalid input])
   fi
-
   ],
   [
-
   UNDERSCORE_ARG_GIVEN="no"
-
   ])
 
   # Provide variable description templates for config.hin and config.h files
@@ -686,7 +706,6 @@ else
   AC_ARG_WITH(f77case, 
   [AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
   [
-
   CASE_ARG_GIVEN="yes"
   if test "X${withval}" = "Xupper"; then
     AC_DEFINE([SUNDIALS_CASE_UPPER],[1],[])
@@ -695,12 +714,9 @@ else
   else
     AC_MSG_ERROR([invalid input])
   fi
-
   ],
   [
-
   CASE_ARG_GIVEN="no"
-
   ])
 
   # Check if user used "--with-f77underscore" or "--with-f77case"

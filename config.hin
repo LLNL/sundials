@@ -106,3 +106,6 @@
 
 /* FCMIX: Append TWO underscores to function names */
 #undef SUNDIALS_UNDERSCORE_TWO
+
+/* Use generic math functions */
+#undef SUNDIALS_USE_GENERIC_MATH

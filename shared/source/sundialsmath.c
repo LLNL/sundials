@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-11-11 00:07:44 $
+ * $Revision: 1.5 $
+ * $Date: 2004-11-15 17:07:48 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Aaron Collier @ LLNL
@@ -33,7 +33,7 @@ realtype RPowerI(realtype base, int exponent)
 
   prod = ONE;
   expt = abs(exponent);
-  for(i=1; i <= expt; i++) prod *= base;
+  for(i = 1; i <= expt; i++) prod *= base;
   if (exponent < 0) prod = ONE/prod;
   return(prod);
 }
@@ -42,10 +42,10 @@ realtype RPowerR(realtype base, realtype exponent)
 {
   if (base <= ZERO) return(ZERO);
 
-#if defined(SUNDIALS_SINGLE_PRECISION)
+#if defined(SUNDIALS_USE_GENERIC_MATH)
+  return((realtype) pow((double) base, (double) exponent));
+#elif defined(SUNDIALS_SINGLE_PRECISION)
   return(powf(base, exponent));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(pow(base, exponent));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   return(powl(base, exponent));
 #endif
@@ -55,10 +55,10 @@ realtype RSqrt(realtype x)
 {
   if (x <= ZERO) return(ZERO);
 
-#if defined(SUNDIALS_SINGLE_PRECISION)
+#if defined(SUNDIALS_USE_GENERIC_MATH)
+  return((realtype) sqrt((double) x));
+#elif defined(SUNDIALS_SINGLE_PRECISION)
   return(sqrtf(x));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(sqrt(x));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   return(sqrtl(x));
 #endif
@@ -66,10 +66,10 @@ realtype RSqrt(realtype x)
 
 realtype RAbs(realtype x)
 {
-#if defined(SUNDIALS_SINGLE_PRECISION)
+#if defined(SUNDIALS_USE_GENERIC_MATH)
+  return((realtype) fabs((double) x));
+#elif defined(SUNDIALS_SINGLE_PRECISION)
   return(fabsf(x));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(fabs(x));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   return(fabsl(x));
 #endif
@@ -77,10 +77,10 @@ realtype RAbs(realtype x)
 
 realtype RPower2(realtype x)
 {
-#if defined(SUNDIALS_SINGLE_PRECISION)
+#if defined(SUNDIALS_USE_GENERIC_MATH)
+  return((realtype) pow((double) x, 2.0));
+#elif defined(SUNDIALS_SINGLE_PRECISION)
   return(powf(x, TWO));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(pow(x, TWO));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   return(powl(x, TWO));
 #endif
