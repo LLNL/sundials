@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-11-04 02:08:08 $
+ * $Revision: 1.5 $
+ * $Date: 2004-11-23 18:53:48 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -55,9 +55,9 @@ typedef struct {
   /* problem specification data */
 
   int  g_maxl;          /* maximum allowable dimension of Krylov subspace      */     
-  int  g_pretype;       /* preconditioning type: NONE, RIGHT, LEFT or BOTH
-			   (used by SPGMR module and defined in
-			   shared/include/iterative.h)                         */
+  int  g_pretype;       /* preconditioning type: PREC_NONE, PREC_RIGHT,
+			   PREC_LEFT or PREC_BOTH (used by SPGMR module and
+			   defined in shared/include/iterative.h)              */
   int  g_gstype;        /* Gram-Schmidt orthogonalization procedure:
 			   CLASSICAL_GS or MODIFIED_GS (used by SPGMR module
 			   and defined in shared/include/iterative.h)          */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-11-16 01:28:28 $
+ * $Revision: 1.25 $
+ * $Date: 2004-11-23 18:53:48 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -162,7 +162,7 @@ int KINSpgmr(void *kinmem, int maxl)
   /* check for required vector operations */
 
   /* Note: do NOT need to check for N_VClone, N_VDestory, N_VLinearSum, N_VProd,
-     N_VScale, or N_VWL2Norm because they are required by KINSOL */
+     N_VScale, N_VDiv, or N_VWL2Norm because they are required by KINSOL */
 
   if ((vec_tmpl->ops->nvconst == NULL) ||
       (vec_tmpl->ops->nvdotprod == NULL) ||
@@ -965,7 +965,7 @@ static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
 
 /*
  * -----------------------------------------------------------------
- * KINPrintInfo
+ * KINSpgmrPrintInfo
  * -----------------------------------------------------------------
  */
 
