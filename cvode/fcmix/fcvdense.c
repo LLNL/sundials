@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-06-18 21:33:49 $
+ * $Revision: 1.6 $
+ * $Date: 2004-06-21 23:07:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,7 +26,7 @@
 
 /* Prototype of the Fortran routine */
 void FCV_DJAC(long int*, realtype*, realtype*, realtype*, realtype*, 
-              realtype*, realtype*, realtype*);
+              realtype*, realtype*, realtype*, realtype*);
 
 /***************************************************************************/
 
@@ -48,16 +48,21 @@ void FCVDenseJac(long int N, DenseMat J, realtype t,
                  N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
+  N_Vector ewt;
+  realtype *ydata, *fydata, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
+
+  CVodeGetErrWeights(CV_cvodemem, &ewt);
 
   ydata   = (realtype *) N_VGetData(y);
   fydata  = (realtype *) N_VGetData(fy);
   v1data  = (realtype *) N_VGetData(vtemp1);
   v2data  = (realtype *) N_VGetData(vtemp2);
   v3data  = (realtype *) N_VGetData(vtemp3);
+  ewtdata = (realtype *) N_VGetData(ewt);
 
   jacdata = DENSE_COL(J,0);
 
-  FCV_DJAC(&N, &t, ydata, fydata, jacdata, v1data, v2data, v3data); 
+
+  FCV_DJAC(&N, &t, ydata, fydata, jacdata, ewtdata, v1data, v2data, v3data); 
 
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-06-09 18:41:07 $
+ * $Revision: 1.19 $
+ * $Date: 2004-06-21 23:07:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -113,7 +113,7 @@
  * As an option when using the DENSE linear solver, the user may supply a
  * routine that computes a dense approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
- *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, WK1, WK2, WK3)
+ *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, EWT, WK1, WK2, WK3)
  *       DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
  * the Jacobian and store it columnwise in DJAC.
@@ -123,7 +123,7 @@
  * routine that computes a band approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
  *       SUBROUTINE FCVBJAC (NEQ, MU, ML, MDIM, T, Y, FY,
- *      1                   BJAC, WK1, WK2, WK3)
+ *      1                    BJAC, EWT, WK1, WK2, WK3)
  *       DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. 
  * It must load the MDIM by N array BJAC with the Jacobian matrix at the
@@ -134,7 +134,7 @@
  * As an option when using the SPGMR linear solver, the user may supply a 
  * routine that computes the product of the system Jacobian J = df/dy and 
  * a given vector v.  If supplied, it must have the following form:
- *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, WORK, IER)
+ *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, WORK, IER)
  *       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
  * Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
  * compute the product vector Jv, where the vector v is stored in V, and store
@@ -379,7 +379,6 @@
 #define FCV_SPGMRSETPSET fcvspgmrsetpset
 #define FCV_CVODE        fcvode
 #define FCV_DKY          fcvdky
-#define FCV_GETEWT       fcvgetewt
 #define FCV_FREE         fcvfree
 #define FCV_FUN          fcvfun
 #define FCV_DJAC         fcvdjac
@@ -404,7 +403,6 @@
 #define FCV_SPGMRSETPSET fcvspgmrsetpset__
 #define FCV_CVODE        fcvode__
 #define FCV_DKY          fcvdky__
-#define FCV_GETEWT       fcvgetewt__
 #define FCV_FREE         fcvfree__
 #define FCV_FUN          fcvfun__
 #define FCV_DJAC         fcvdjac__
@@ -429,7 +427,6 @@
 #define FCV_SPGMRSETPSET fcvspgmrsetpset_
 #define FCV_CVODE        fcvode_
 #define FCV_DKY          fcvdky_
-#define FCV_GETEWT       fcvgetewt_
 #define FCV_FREE         fcvfree_
 #define FCV_FUN          fcvfun_
 #define FCV_DJAC         fcvdjac_

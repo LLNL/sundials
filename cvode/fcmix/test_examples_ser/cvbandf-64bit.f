@@ -1,6 +1,6 @@
 C ------------------------------------------------------------------
-C $Revision: 1.2 $
-C $Date: 2004-05-17 18:50:12 $
+C $Revision: 1.3 $
+C $Date: 2004-06-21 23:07:18 $
 C ------------------------------------------------------------------
 C
 C File cvbandf.f
@@ -204,14 +204,14 @@ C
       END
 
       SUBROUTINE FCVBJAC(N, MU, ML, MDIM, T, U, FU,
-     1                 BJAC, V1, V2, V3)
+     1                   BJAC, EWT, V1, V2, V3)
 C Load banded Jacobian
       IMPLICIT NONE
       INTEGER*8 MDIM, MBAND, MX, MY, N
       INTEGER*8 I, J, K, IOFF, MU1, MU2, MU, ML
       DOUBLE PRECISION BJAC(MDIM,*)
       DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF
-      DOUBLE PRECISION T, U, FU, V1, V2, V3
+      DOUBLE PRECISION T, U, FU, EWT, V1, V2, V3
       COMMON /PAR/ DX, DY, HDCOEF, HACOEF, VDCOEF, MX, MY
 C
       MU1 = MU + 1

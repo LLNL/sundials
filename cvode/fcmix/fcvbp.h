@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-04-29 22:23:21 $
+ * $Revision: 1.4 $
+ * $Date: 2004-06-21 23:07:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -72,7 +72,7 @@
  * As an option, the user may supply a routine that computes the product
  * of the system Jacobian J = df/dy and a given vector v.  If supplied, it
  * must have the following form:
- *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, WORK, IER)
+ *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, WORK, IER)
  *       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
  * Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
  * compute the product vector Jv, where the vector v is stored in V, and store

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-06-18 21:33:49 $
+ * $Revision: 1.10 $
+ * $Date: 2004-06-21 23:07:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,7 +25,7 @@
 
 /* Prototype of the Fortran routine */
 void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*, 
-                realtype*, realtype*, int*);
+                realtype*, realtype*, realtype*, int*);
 
 /***************************************************************************/
 
@@ -49,17 +49,20 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
               N_Vector y, N_Vector fy,
               void *jac_data, N_Vector work)
 {
-
-  realtype *vdata, *Jvdata, *ydata, *fydata, *wkdata;
+  N_Vector ewt;
+  realtype *vdata, *Jvdata, *ydata, *fydata, *ewtdata, *wkdata;
   int ier = 0;
 
-  vdata  = (realtype *) N_VGetData(v);
-  Jvdata = (realtype *) N_VGetData(Jv);
-  ydata  = (realtype *) N_VGetData(y);
-  fydata = (realtype *) N_VGetData(fy);
-  wkdata = (realtype *) N_VGetData(work);
+  CVodeGetErrWeights(CV_cvodemem, &ewt);
 
-  FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, wkdata, &ier);
+  vdata   = (realtype *) N_VGetData(v);
+  Jvdata  = (realtype *) N_VGetData(Jv);
+  ydata   = (realtype *) N_VGetData(y);
+  fydata  = (realtype *) N_VGetData(fy);
+  wkdata  = (realtype *) N_VGetData(work);
+  ewtdata = (realtype *) N_VGetData(ewt);
+
+  FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, ewtdata, wkdata, &ier);
 
   N_VSetData((void *)Jvdata, Jv);
 

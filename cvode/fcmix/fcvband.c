@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-06-18 21:33:49 $
+ * $Revision: 1.6 $
+ * $Date: 2004-06-21 23:07:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -27,7 +27,7 @@
 /* Prototype of the Fortran routine */
 void FCV_BJAC(long int*, long int*, long int*, long int*, 
               realtype*, realtype*, realtype*, realtype*,
-              realtype*, realtype*, realtype*);
+              realtype*, realtype*, realtype*, realtype*);
 
 
 /***************************************************************************/
@@ -54,20 +54,25 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
                 N_Vector y, N_Vector fy, void *jac_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
+  N_Vector ewt;
+  realtype *ydata, *fydata, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
   long int eband;
 
-  ydata  = (realtype *) N_VGetData(y);
-  fydata = (realtype *) N_VGetData(fy);
-  v1data = (realtype *) N_VGetData(vtemp1);
-  v2data = (realtype *) N_VGetData(vtemp2);
-  v3data = (realtype *) N_VGetData(vtemp3);
+  CVodeGetErrWeights(CV_cvodemem, &ewt);
+
+  ydata   = (realtype *) N_VGetData(y);
+  fydata  = (realtype *) N_VGetData(fy);
+  v1data  = (realtype *) N_VGetData(vtemp1);
+  v2data  = (realtype *) N_VGetData(vtemp2);
+  v3data  = (realtype *) N_VGetData(vtemp3);
+  ewtdata = (realtype *) N_VGetData(ewt);
 
   eband = (J->smu) + mlower + 1;
   jacdata = BAND_COL(J,0) - mupper;
 
+
   FCV_BJAC(&N, &mupper, &mlower, &eband, 
            &t, ydata, fydata, jacdata, 
-           v1data, v2data, v3data);
+           ewtdata, v1data, v2data, v3data);
 
 }

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.12 $
-C     $Date: 2004-06-09 18:41:42 $
+C     $Revision: 1.13 $
+C     $Date: 2004-06-21 23:07:15 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -160,7 +160,7 @@ C Fortran routine for root finding
       RETURN
       END
 
-      SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, V1, V2, V3)
+      SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, EWT, V1, V2, V3)
 C Fortran routine for dense user-supplied Jacobian.
       DOUBLE PRECISION T, Y(*), JAC(N,*), Y1, Y2, Y3
       Y1 = Y(1)

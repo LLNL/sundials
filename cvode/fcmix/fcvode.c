@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-06-18 21:33:49 $
+ * $Revision: 1.25 $
+ * $Date: 2004-06-21 23:07:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -364,16 +364,6 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 void FCV_FREE ()
 {
   CVodeFree(CV_cvodemem);
-}
-
-/***************************************************************************/
-
-void FCV_GETEWT (realtype *ewt, int *ier)
-{
-  N_Vector eweight;
-
-  *ier = CVodeGetErrWeights(CV_cvodemem, &eweight);
-  if (*ier == OKAY) ewt = (realtype *) N_VGetData(eweight);
 }
 
 /***************************************************************************/
