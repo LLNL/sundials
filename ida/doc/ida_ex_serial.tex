@@ -93,21 +93,36 @@ the loop over values of the output time \id{tout}.  In each pass of the
 loop, the program calls \id{IDASolve} in the \id{IDA\_NORMAL} mode, meaning that
 the integrator is to take steps until it overshoots \id{tout} and then
 interpolate to $t =  $\id{tout}, putting the computed value of $y$(\id{tout})
-and $y'$(\id{tout}) into \id{yy} and \id{yp}, respectively, with \id{t} = \id{tout}. 
-If an error occured during the call to \id{IDASolve}, the program returns $1$ \
+and $y'$(\id{tout}) into \id{yy} and \id{yp}, respectively, with \id{t} = \id{tout}.
+If an error occured during the call to \id{IDASolve}, the program returns $1$
 and terminates.
 On a successful return (indicated by a return value \id{IDA\_SUCCESS}), the program
-prints the solution, the cummulative number of steps taken so far, and the 
+prints the solution, the cumulative number of steps taken so far, and the 
 current method order and step size.
 
-Finally, the main program extracts and prints several relevant statistical quantities,
-such as the total number of steps, the number of residual and Jacobian evaluations, and
-the number of error test and convergence test failures.
-It then calls \id{IDAFree} to free the {\ida} memory block and \id{NV\_Destroy\_Serial} 
-to free the vectors \id{yy}, \id{yp}, and \id{avtol}. 
+Finally, the main program calls \id{PrintFinalStats} to extract and
+print several relevant statistical quantities, such as the total
+number of steps, the number of residual and Jacobian evaluations, and
+the number of error test and convergence test failures.  It then calls
+\id{IDAFree} to free the {\ida} memory block and \id{NV\_Destroy\_Serial}
+to free the vectors \id{yy}, \id{yp}, and \id{avtol}.
 
-The functions \id{resrob} (of type \id{IDAResFn}) and \id{jacrob} (of type \id{IDADenseJacFn}) 
-are straightforward expressions of the DAE system. 
+The function \id{PrintFinalStats} used here is actually suitable for
+general use in applications of {\ida} to any problem with a dense
+Jacobian.  It calls various \id{IDAGet***} and \id{IDADenseGet***}
+functions to obtain the relevant counters, and then prints them.
+Specifically, these are: the cumulative number of steps (\id{nst}), 
+the number of residual evaluations (\id{nre}) (excluding those for
+difference-quotient Jacobian evaluations),
+the number of residual evaluations for Jacobian evaluations (\id{nreD}),
+the number of Jacobian evaluations (\id{njeD}),
+the number of nonlinear (Newton) iterations (\id{nni}),
+the number of local error test failures (\id{netf}),
+and the number of nonlinear convergence failures (\id{ncfn}).
+These optional outputs are described in \ugref{ss:optional_output}.
+
+The functions \id{resrob} (of type \id{IDAResFn}) and \id{jacrob} (of type
+\id{IDADenseJacFn}) are straightforward expressions of the DAE system. 
 The function \id{jacrob} makes use of the macro \id{IJth} discussed above.
 See \ugref{ss:resFn} for detailed specifications of \id{IDAResFn}.
 
@@ -149,7 +164,7 @@ problem are as follows:
     -1                 & i=j \\
     -0.5 \cdot 10^{-6} & i \leq p , ~ j > p  \\
     10^4               & i > p , ~ j \leq p  \\
-    0                  & \mbox{all other } \, ,
+    0                  & \mbox{all other } (i,j) \, ,
   \end{cases}
 \end{equation*}
 %%
@@ -163,7 +178,7 @@ problem are as follows:
 and
 %%
 \begin{equation*}
-  d-i = 
+  d_i = 
   \begin{cases}
     1 & i \leq p  \\
     0.5 & i > p  \, .
@@ -197,8 +212,8 @@ consists of the values $c^i(x_j,y_k,t)$ grouped first by species index
 $i$, then by $x$, and lastly by $y$.  At each spatial mesh point, the
 system has a block of $p$ ODE's followed by a block of $p$ algebraic
 equations, all coupled.
-%%
 For this example, we take $p = 1, s = 2$, and $L = 20$.
+The Jacobian is banded, with half-bandwidths \id{mu = ml} $= sL = 40$.
 
 The \id{iwebsb.c} program (listed in Appendix \ref{s:iwebsb_c})
 includes the file \id{idaband.h} in order to use the {\idaband} linear solver. 
@@ -207,24 +222,24 @@ the definition for the band matrix type \id{BandMat}, and the
 \id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
 elements. See \ugref{ss:band}.
 The main {\ida} header file \id{ida.h} is included for the prototypes of the
-solver user-callable functions and {\ida} constants, while the file \id{nvector\_serial.h}
-is included for the definition of the serial \id{N\_Vector} type.
-The header file \id{smalldense.h} is included for the \id{denalloc} function
-used in allocating memory for the user data structure.
+solver user-callable functions and {\ida} constants, while the file
+\id{nvector\_serial.h} is included for the definition of the serial
+\id{N\_Vector} type.  The header file \id{smalldense.h} is included for the
+\id{denalloc} function used in allocating memory for the user data structure.
 
 The include lines at the top of the file are followed by definitions of
 problem constants which include the $x$ and $y$ mesh dimensions, \id{MX} and
-\id{MY}, the number of equations \id{NEQ}, the scalar relative and absolute tolerances
-\id{RTOL} and \id{ATOL}, and various parameters for the food-web problem.
+\id{MY}, the number of equations \id{NEQ}, the scalar relative and absolute
+tolerances \id{RTOL} and \id{ATOL}, and various parameters for the food-web problem.
 
 Spatial discretization of the PDE naturally produces a DAE system in
 which equations are numbered by mesh coordinates $(i,j)$. The
 user-defined macro \id{IJth\_Vptr} isolates the translation for the
 mathematical two-dimensional index to the one-dimensional
 \id{N\_Vector} index and allows the user to write clean, readable code
-to access components of the dependent variable. 
-\id{IJ\_Vptr(v,i,j)} returns a pointer to the location in \id{v} corresponding to 
-the species with index \id{is} $= 0$, x-index \id{ix} $= i$, and y-index \id{jy} $= j$.
+to access components of the dependent variable. \id{IJ\_Vptr(v,i,j)}
+returns a pointer to the location in \id{v} corresponding to the species
+with index \id{is} $= 0$, x-index \id{ix} $= i$, and y-index \id{jy} $= j$.
 
 The type \id{UserData} is a pointer to a structure containing problem
 data used in the \id{resweb} function.  This structure is
@@ -245,7 +260,8 @@ variables) and $0$ for the predators (algebraic variables).
 
 Next, the \id{IDASolve} function is called in a loop over the output times,
 and the solution for the species concentrations at the bottom-left and
-top-right corners is printed.
+top-right corners is printed, along with the cumulative number of time
+steps, current method order, and current step size.
 
 Finally, the main program calls \id{PrintFinalStats} to get and print
 all of the relevant statistical quantities.  It then calls \id{NV\_Destroy\_Serial}
@@ -266,10 +282,10 @@ the number of local error test failures (\id{netf}),
 and the number of nonlinear convergence failures (\id{ncfn}).
 These optional outputs are described in \ugref{ss:optional_output}.
 
-The function \id{resweb} is a direct translation of the residual of (\ref{e:iwebsb_PDE}).
-It first calls the private function \id{Fweb} to initialize the residual vector
-with the right-hand side of (\ref{e:iwebsb_PDE}) and then
-it loops over all grid points, setting residual values appropriately for 
+The function \id{resweb} is a direct translation of the residual of
+(\ref{e:iwebsb_PDE}).  It first calls the private function \id{Fweb} to
+initialize the residual vector with the right-hand side of (\ref{e:iwebsb_PDE})
+and then it loops over all grid points, setting residual values appropriately for 
 differential or algebraic components. The calculation of the interaction terms
 $R_i$ is done in the function \id{WebRates}.
 
@@ -288,15 +304,15 @@ arises from the Dirichlet boundary condition $u = 0$, along with the
 differential equations arising from the discretization of the interior 
 of the region. 
 
-The equations solved are:
+The domain is the unit square $\Omega = \{ 0 \le x,y \le 1 \}$ and the
+equations solved are:
 \begin{equation}\label{e:iheatsk_PDE}
 \begin{cases}
   \partial u / \partial t = u_{xx} + u_{yy}  & (x,y) \in \Omega \\
   u = 0 & (x,y) \in \partial\Omega\, .
 \end{cases}
 \end{equation}
-Initial conditions are given by $u = 16x(1-x)y(1-y)$, where the spatial domain
-is the unit square $0 \leq x,y \leq 1$, and the time interval is 
+Initial conditions are given by $u = 16x(1-x)y(1-y)$, where the time interval is 
 $0 \leq t \leq 10.24$.
 
 We discretize the PDE system (\ref{e:iheatsk_PDE}) (plus boundary conditions)
@@ -311,45 +327,42 @@ The source for this example is listed in appendix \ref{s:iheatsk_c}.
 In this case, \id{idaspgmr.h} is included for the definitions of
 constants and function prototypes associated with the {\spgmr} method.
 
-The program defines three user-supplied functions that will be called by the
-{\ida} solver: \id{resHeat} provides the residual of the DAE system, while
-\id{PsetupHeat} and \id{PsolveHeat} define the preconditioner to be used
-with the Krylov solver.
+After various initializations (including a vector of constraints with
+all components set to $1$ imposing all solution components to be
+non-negative), the main program creates and initializes the {\ida}
+memory block and then attaches the {\idaspgmr} linear solver using the
+default \id{MODIFIED\_GS} Gram-Scmidt orthogonalization algorithm.
 
-After various initializations (including a vector of constraints with all components
-set to $0$ imposing all solution components to be non-negative), the main program
-creates and initializes the {\ida} memory block and then attaches the {\idaspgmr} linear
-solver using the default \id{MODIFIED\_GS} Gram-Scmidt orthogonalization algorithm. 
-
-The calls to \id{IDASpgmrSetPrecSetupFn} and \id{IDASpgmrSetPsolveFn} specify
-the use of the user-supplied preconditioner with \id{data} being the pointer to user data
-passed to \id{PsolveHeat} and \id{PsetupHeat} whenever they are called (specified 
-with the call to \id{IDASpgmrSetPrecData}).
+The calls to \id{IDASpgmrSetPrecSetupFn} and \id{IDASpgmrSetPsolveFn}
+specify the use of the user-supplied preconditioner with \id{data}
+being the pointer to user data passed to \id{PsolveHeat} and \id{PsetupHeat} 
+whenever they are called (specified with the call to \id{IDASpgmrSetPrecData}).
 %%
 In a loop over the desired output times, \id{IDASolve} is called in \id{IDA\_NORMAL}
 mode and the maximum solution norm is printed.
 
-The \id{main} program then re-initializes the {\ida} solver and the {\idaspgmr} linear 
-solver and solves the problem again, this time using the \id{CLASSICAL\_GS} Gramm-Schmidt
-orthogonalization algorithm.
+The \id{main} program then re-initializes the {\ida} solver and the
+{\idaspgmr} linear solver and solves the problem again, this time
+using the \id{CLASSICAL\_GS} Gramm-Schmidt orthogonalization algorithm.
 %%
 Finally, memory for the {\ida} solver and for the various vectors used is deallocated.
 
-The user-supplied residual function \id{resHeat}, of type \id{IDAResFn}, loads the DAE
-residual with the value of $u$ on the boundary (representing the algebraic equations
-expressing the boundary conditions of (\ref{e:iheatsk_PDE})) and with the 
-spatial discretization of the PDE (using central differences) in the rest of the domain.
+The user-supplied residual function \id{resHeat}, of type \id{IDAResFn},
+loads the DAE residual with the value of $u$ on the boundary
+(representing the algebraic equations expressing the boundary
+conditions of (\ref{e:iheatsk_PDE})) and with the spatial discretization 
+of the PDE (using central differences) in the rest of the domain.
 
 The user-supplied functions \id{PsetupHeat} and \id{PsolveHeat} together define the 
-left preconditoner matrix $P$ approximating the system Jacobian matrix               
-$J = dF/du + \alpha*dF/du'$ (where the DAE system is $F(t,u,u') = 0$), and solve the linear   
-systems $P z = r$.   
+left preconditoner matrix $P$ approximating the system Jacobian matrix
+$J = \partial F/ \partial u + \alpha \partial F/ \partial u'$ (where the DAE
+system is $F(t,u,u') = 0$), and solve the linear systems $P z = r$.   
 Preconditioning  is done in this case by keeping only the diagonal elements of 
-the $J$ matrix above, storing them as inverses in a vector \id{pp}, when computed in 
-\id{PsetupHeat}, for subsequent use in \id{PsolveHeat}.                                 
+the $J$ matrix above, storing them as inverses in a vector \id{pp}, when computed
+in \id{PsetupHeat}, for subsequent use in \id{PsolveHeat}.
 %%
-In this instance, only \id{cj} $=\alpha$ and \id{data} (the user data structure) are 
-used from the \id{PsetupHeat} argument list.      
+In this instance, only \id{cj} $=\alpha$ and \id{data} (the user data
+structure) are used from the \id{PsetupHeat} argument list.
 
 Sample output from \id{iheatsk} follows.
 %%
