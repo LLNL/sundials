@@ -1,6 +1,6 @@
 /****************************************************************
  *                                                              *
- * File          : nvector.h                                    *
+ * File          : nvector_parallel.h                           *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,           *
  *               : Radu Serban, and Allan G. Taylor, LLNL       *
  * Version of    : 27 February 2002                             *
@@ -27,12 +27,6 @@
  * prototypes are unique to this particular implementation of   *
  * the vector package.                                          *
  *                  
- * Part IV of this file contains the definitions needed for the *
- * Fortran callable wrappers to M_EnvInit_Parallel and          *
- * M_EnvFree_Parallel (these definitions are based on the       *
- * machine specific information for Fortran externals given in  *
- * the header file fcmixpar.h).                                 *
- *                                                              *
  * NOTES:                                                       *
  *                                                              *
  * The definitions of the generic M_Env and N_Vector structures *
@@ -65,7 +59,6 @@ extern "C" {
 #define included_nvector_parallel_h
 
 #include "nvector.h"  /* Generic M_Env and N_Vector type definitions */
-#include "fcmixpar.h" /* Machine specific definitions for Fortran externals */
 #include "llnltyps.h"
 #include "mpi.h"
 
@@ -383,31 +376,6 @@ boole N_VConstrProdPos_Parallel(N_Vector c, N_Vector x);
 boole N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m);   
 real N_VMinQuotient_Parallel(N_Vector num, N_Vector denom);
 void N_VPrint_Parallel(N_Vector x);
-
-
-/****************************************************************
- * PART IV:                                                     *
- * Definitions for Fortran interface                            *
- ****************************************************************/
-
-/* Fortran callable wrappers to M_EnvInit_Serial and M_EnvFree_Serial */ 
-
-#if (CRAY)
-  
-#define F_MENVINITP  FMENVINITP
-#define F_MENVFREEP  FMENVFREEP
-
-#elif  (UNDERSCORE)
-
-#define F_MENVINITP  fmenvinitp_
-#define F_MENVFREEP  fmenvfreep_
-
-#else
-
-#define F_MENVINITP  fmenvinitp
-#define F_MENVFREEP  fmenvfreep
-
-#endif
 
 
 #endif
