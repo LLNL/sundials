@@ -2,98 +2,87 @@
 \chapter{Introduction}\label{s:intro}
 %===================================================================================
 
-{\cvodes} is part of a software family called {\sundials}: 
-SUite of Nonlinear and DIfferential/ALgebraic equation Solvers.  
-This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these. 
+{\kinsol} is part of a software family called {\sundials}: SUite
+of Nonlinear and DIfferential/ALgebraic equation Solvers. This
+suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of
+these.
 %
-{\cvodes}\index{CVODES@{\cvodes}!brief description of} is a solver for stiff and
-nonstiff initial value problems for systems of ordinary differential equation
-(ODEs). In addition to solving stiff and nonstiff ODE systems, {\cvodes} has sensitivity 
-analysis capabilities, using either the forward or the adjoint methods.
+{\kinsol}\index{KINSOL@{\kinsol}!brief description of} is a
+general purpose nonlinear system solver based on Newton-Krylov
+solver technology.
 
 %---------------------------------
 \section{Historical Background}\label{ss:history}
 %---------------------------------
 
-\index{CVODES@{\cvodes}!relationship to {\vode}, {\vodpk}|(}
-{\F} solvers for ODE initial value problems are widespread and heavily used. 
-Two solvers that have been written at LLNL in the past are {\vode} \cite{BBH:89} 
-and {\vodpk} \cite{Byr:92}.
-{\vode}\index{VODE@{\vode}} is a general purpose solver that includes methods for stiff
-and nonstiff systems, and in the stiff case uses direct methods (full or
-banded) for the solution of the linear systems that arise at each implicit
-step. Externally, {\vode} is very similar to the well known solver
-{\lsode}\index{LSODE@{\lsode}} \cite{RaHi:94}.
-{\vodpk}\index{VODPK@{\vodpk}} is a variant of {\vode} that uses a preconditioned Krylov 
-(iterative) method for the solution of the linear systems. {\vodpk} is a powerful 
-tool for large stiff systems because it combines established methods for stiff 
-integration, nonlinear iteration, and Krylov (linear) iteration with a problem-specific
-treatment of the dominant source of stiffness, in the form of the user-supplied
-preconditioner matrix \cite{BrHi:89}.
-The capabilities of both {\vode} and {\vodpk} have been combined in the {\C}-language 
-package {\cvode}\index{CVODE@{\cvode}} \cite{CoHi:94, CoHi:96}.
+\index{KINSOL@{\kinsol}!relationship to NKSOL}  The first
+nonlinear solver packages based on Newton-Krylov methods were
+written in {\F}.  In particular, the NKSOL package, written at
+LLNL, was the first Newton-Krylov solver package written for
+solution of systems arising in solution of partial differential
+equations \cite{BrSa:90}.  This {\F} code made use of Newton's
+method to solve the discrete nonlinear systems and applied a
+preconditioned Krylov linear solver for solution of the Jacobian
+system at each nonlinear iteration.  The key to the Newton-Krylov
+method was that the matrix-vector multiplies required by the
+Krylov method could effectively be approximated by a finite
+difference of the nonlinear system-defining function, preventing a
+requirement for the formation of the actual Jacobian matrix.
+Significantly less memory was required for solver as a result.  In
+addition, both Newton and Krylov methods are easily implemented in
+parallel.
 
-In the process of translating the {\vode} and {\vodpk} algorithms into {\C}, the overall 
-{\cvode} organization has been changed considerably.
-One key feature of the {\cvode} organization is that the linear system solvers comprise a
-layer of code modules that is separated from the integration algorithm, allowing for 
-easy modification and expansion of the linear solver array.
-A second key feature is a separate module devoted to vector operations; this 
-facilitated the extension to multiprosessor environments with minimal impacts 
-on the rest of the solver, resulting in {\pvode}\index{PVODE@{\pvode}} \cite{ByHi:99}, 
-the parallel variant of {\cvode}.
-\index{CVODES@{\cvodes}!relationship to {\vode}, {\vodpk}|)}
+In the late 1990's, there was a push at LLNL to rewrite the
+nonlinear solver into {\C} and port it to distributed memory
+parallel machines.  This effort gave rise to the {\kinsol}
+package. {\kinsol} is similar to NKSOL in functionality except
+that it provides for more options in the choice of linear system
+tolerances and has a more modular design providing flexibility for
+future enhancements. \index{KINSOL@{\kinsol}!relationship to
+NKSOL}
 
-\index{CVODES@{\cvodes}!relationship to {\cvode}, {\pvode}|(}
-{\cvodes} is written with a functionality that is a superset of that of the pair
-{\cvode}/{\pvode}. Sensitivity analysis capabilities, both forward and adjoint, 
-have been added to the main integrator. Enabling forward sensititivity computations 
-in {\cvodes} will result in the code integrating the so-called {\em sensitivity equations}
-simultaneously with the original IVP, yielding both the solution and its sensitivity
-with respect to parameters in the model. Adjoint sensitivity analysis, most useful
-when the gradients of relatively few functionals of the solution with respect to
-many parameters are sought, involves integration of the original IVP forward in time
-followed by the integration of the so-called {\em adjoint equations} backwards
-in time. {\cvodes} provides the infrastructure needed to integrate any final-condition ODE
-dependent on the solution of the original IVP (in particular the adjoint system). 
+\index{KINSOL@{\kinsol}!motivation for writing in C|(} There are
+several motivations for choosing the {\C} language for {\kinsol}.
+First, a general movement away from {\F} and toward {\C} in
+scientific computing is apparent. Second, the pointer, structure,
+and dynamic memory allocation features in C are extremely useful
+in software of this complexity, with the great variety of method
+options offered. Finally, we prefer {\C} over {\CPP} for {\kinsol}
+because of the wider availability of {\C} compilers, the
+potentially greater efficiency of {\C}, and the greater ease of
+interfacing the solver to applications written in extended {\F}.
+\index{KINSOL@{\kinsol}!motivation for writing in C|)}
 
-Development of {\cvodes} was concurrent with a redesign of the vector operations module
-across the {\sundials} suite. The key feature of the new {\nvector} module is that it
-is written in terms of abstract vector operations with the actual vector kernels attached
-by a particular implementation (such as serial or parallel) of {\nvector}. This allows
-writing the {\sundials} solvers in a manner independent of the actual {\nvector} 
-implementation (which can be user-supplied), as well as allowing more than one 
-{\nvector} module linked into an executable file.
-\index{CVODES@{\cvodes}!relationship to {\cvode}, {\pvode}|)}
+In the process of translating the NKSOL into {\C}, the overall
+{\kinsol} organization has been changed considerably. One key
+feature of the {\kinsol} organization is that a separate module
+devoted to vector operations has been created.  This module
+facilitated extension to multiprosessor environments with minimal
+impacts on the rest of the solver. The new vector module design is
+shared across the {\sundials} suite. This {\nvector} module is
+written in terms of abstract vector operations with the actual
+routines attached by a particular implementation (such as serial
+or parallel) of {\nvector}. This allows writing the {\sundials}
+solvers in a manner independent of the actual {\nvector}
+implementation (which can be user-supplied), as well as allowing
+more than one {\nvector} module linked into an executable file.
 
-\index{CVODES@{\cvodes}!motivation for writing in C|(}
-There are several motivations for choosing the {\C} language for {\cvode} and later
-for {\cvodes}.
-First, a general movement away from {\F} and toward {\C} in scientific
-computing is apparent.  Second, the pointer, structure, and dynamic
-memory allocation features in C are extremely useful in software of
-this complexity, with the great variety of method options offered.
-Finally, we prefer {\C} over {\CPP} for {\cvodes} because of the wider
-availability of {\C} compilers, the potentially greater efficiency of {\C},
-and the greater ease of interfacing the solver to applications written
-in extended {\F}.
-\index{CVODES@{\cvodes}!motivation for writing in C|)}
-
-\section{Changes in Version 2.1}
-The major changes from the previous version involve a redesign of the
-user interface across the entire {\sundials} suite. We have eliminated the
-mechanism of providing optional inputs and extracting optional statistics 
-from the solver through the \id{iopt} and \id{ropt} arrays. Instead,
-{\cvodes} now provides a set of routines (with prefix \id{CVodeSet})
-to change the default values for various quantities controlling the
-solver and a set of extraction routines (with prefix \id{CVodeGet})
-to extract statistics after return from the main solver routine.
-Similarly, each linear solver module provides its own set of {\id{set}-}
-and {\id{get}-type} routines. For more details see \S\ref{}.
+\section{Changes in Version 2.2.0}
+The major changes from the previous version involve a redesign of
+the user interface across the entire {\sundials} suite. We have
+eliminated the mechanism of providing optional inputs and
+extracting optional statistics from the solver through the
+\id{iopt} and \id{ropt} arrays. Instead, {\kinsol} now provides a
+set of routines (with prefix \id{KINSet}) to change the default
+values for various quantities controlling the solver and a set of
+extraction routines (with prefix \id{KINGet}) to extract
+statistics after return from the main solver routine. Similarly,
+each linear solver module provides its own set of {\id{set}-} and
+{\id{get}-type} routines. For more details see \S\ref{c:usage}.
 
 Additionally, the interfaces to several user-supplied routines
-(such as those providing Jacobians, preconditioner information, and
-sensitivity right hand sides) were simplified by reducing the number
+(such as those providing Jacobian-vector products and
+preconditioner information) were simplified by reducing the number
 of arguments. The same information that was previously accessible
 through such arguments can now be obtained through {\id{set}-type}
 functions.
@@ -106,81 +95,33 @@ concentrate on the general instructions, while others will refer
 mostly to the examples, and the organization is intended to
 accommodate both styles.
 
-There are different possible levels of usage of {\cvodes}. The most casual
-user, with an IVP problem only, can get by with reading \S\ref{ss:ivp_sol}, 
-then \S\ref{s:simulation} through \S\ref{sss:cvode} only, and looking at examples 
-in \S\ref{s:sim_examples} and \A\ref{s:sim_codes}. 
-In addition, to solve a forward sensitivity problem the user should read 
-\S\ref{ss:fwd_sensi}, followed by \S\ref{s:forward} through 
-\S\ref{sss:cvodesensextract} only, and look at examples in 
-\S\ref{s:fwd_examples} and \A\ref{s:fwd_codes}. 
-In a different direction, a more expert user with an IVP problem may want
-to (a) use a package preconditioner (\S\ref{ss:preconds}), (b) supply
-his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
-(c) do multiple runs of problems of the same size (\S\ref{sss:cvreinit} and
-\S\ref{sss:lin_solv_reinit}), (d) supply a new {\nvector} module
-(\S\ref{s:nvector}), or even (e) supply a different linear solver module
-(\S\ref{ss:cvodes_org} and \S\ref{s:gen_linsolv}).
-An advanced user with a forward sensitivity problem may also want to
-(a) provide his/her own sensitivity equations right-hand side routine
-(\S\ref{ss:user_fct_fwd}), (b) perform multiple runs with the same number of
-sensitivity parameters (\S\ref{sss:cvsreinit}), or (c) extract additional
-diagnostic information (\S\ref{sss:cvodesensextract}).
-A user with an adjoint sensitivity problem needs to understand the IVP 
-solution approach at the desired level and also go through 
-\S\ref{ss:adj_sensi} for a short mathematical description of the adjoint
-approach, \S\ref{s:adjoint} for the usage of the adjoint module in {\cvodes},
-and the examples in \S\ref{s:adj_examples} and \A\ref{s:adj_codes}.
-
 The structure of this document is as follows:
 \begin{itemize}
 \item
-  In \S\ref{s:math}, we begin with short descriptions of the numerical 
-  methods implemented by {\cvodes} for the solution of initial value problems
-  for systems of ODEs and continue with an overview of the mathematical aspects 
-  of sensitivity analysis, both forward (\S\ref{ss:fwd_sensi}) and adjoint
-  (\S\ref{ss:adj_sensi}).
+  In \S\ref{s:math}, we provide short descriptions of the numerical
+  methods implemented by {\kinsol} for the solution of nonlinear systems.
 \item
   The following section describes the structure of the {\sundials} suite
-  of solvers (\S\ref{ss:sun_org}) and the software organization of the {\cvodes}
-  solver (\S\ref{ss:cvodes_org}). 
+  of solvers (\S\ref{ss:sun_org}) and the software organization of the {\kinsol}
+  solver (\S\ref{ss:kinsol_org}).
 \item
-  In \S\ref{s:simulation}, we give an overview of the usage of {\cvodes},
-  as well as a complete description of the user interface and of the 
-  user-defined routines for integration of IVP ODEs. Readers that are not 
-  interested in using {\cvodes} for sensitivity analysis can then 
-  skip to the example programs.
+  In \S\ref{c:usage}, we give an overview of the usage of {\kinsol},
+  as well as a complete description of the user interface and of the
+  user-defined routines for solution of nonlinear systems.
 \item
-  The subsequent sections contain sample programs that illustrate
-  the usage of {\cvodes} with different choices of the linear system
-  solvers for integration of IVP ODEs (\S\ref{s:sim_examples}),
-  forward sensitivity analysis (\S\ref{s:fwd_examples}), and adjoint
-  sensitivity analysis (\S\ref{s:adj_examples}) with code listings provided
-  in Appendices \ref{s:sim_codes}, \ref{s:fwd_codes}, and \ref{s:adj_codes},
-  respectively. Each of these sections is self-contained and provides both
-  serial and parallel examples. In each case, we give the program source, 
-  a step-by-step explanation of the program, and the output.  
-  Our intention is that these programs will enable the user to learn {\cvodes} 
-  by example, and each can serve as a template for user programs.
-\item
-  Section \ref{s:types} describes the \id{realtype} and \id{integertype} type definitions used 
-  across the {\sundials} solvers, as well as instructions on changing these definitions.
-\item
-  Section \ref{s:nvector} gives a brief overview of the generic {\nvector} module 
+  Section \ref{s:nvector} gives a brief overview of the generic {\nvector} module
   shared among the various components of {\sundials}, as well as details on the two {\nvector}
   implementations provided with {\sundials}: a serial implementation
   (\S\ref{ss:nvec_ser}) and a parallel implementation, based on MPI\index{MPI}
   (\S\ref{ss:nvec_par}).
 \item
-  Section \ref{s:gen_linsolv} describes in details the generic linear solvers shared 
+  Section \ref{s:gen_linsolv} describes the generic linear solvers shared
   by all {\sundials} solvers.
-\item Appendices \ref{s:sim_codes}-\ref{s:adj_codes} contain the 
-  code listings of the six {\cvodes} sample programs described in detail
-  in this document.
 \end{itemize}
 
-Finally, the reader should be aware of the following notational conventions
-in this user guide:  program listings and identifiers (such as \id{CVodeMalloc}) 
-within textual explanations appear in typewriter type style; 
-fields in {\C} structures (such as {\em content}) appear in italics;
-and packages or modules, such as {\cvdense}, are written in all capitals. 
+Finally, the reader should be aware of the following notational
+conventions in this user guide:  program listings and identifiers
+(such as \id{KINMalloc}) within textual explanations appear in
+typewriter type style; fields in {\C} structures (such as {\em
+content}) appear in italics; and packages or modules are written
+in all capitals.
