@@ -18,19 +18,19 @@ Briefly, their purposes are as follows:
 %%
 A linear solver module must also provide a user-callable specification routine
 (like those described in \S\ref{sss:lin_solv_init}) which will attach the above four 
-routines to the main {\cvode} memory block. The return value of the specification 
-routine should be: \id{SUCCESS} = 0 if the routine was successful,
-\id{LMEM\_FAIL} = -1 if a memory allocation failed, or \id{LIN\_ILL\_INPUT} = -2
-if some input was illegal.
+routines to the main {\cvode} memory block.
+Note that of the four interface routines, only the \id{lsolve} routine is required. 
+The \id{lfree} routine must be provided only if the solver specification routine
+makes any memory allocation.
 
 These four routines that interface between {\cvode} and the linear solver module
-necessarily have fixed call sequences.  Thus a user wishing to implement another 
+necessarily have fixed call sequences.  Thus, a user wishing to implement another 
 linear solver within the {\cvode} package must adhere to this set of interfaces.
 The following is a complete description of the call list for each of
 these routines.  Note that the call list of each routine includes a
 pointer to the main {\cvode} memory block, by which the routine can access
 various data related to the {\cvode} solution.  The contents of this memory
-block are given in the file \id{cvode.h} (but not reproduced here, for
+block are given in the file \id{cvode\_impl.h} (but not reproduced here, for
 the sake of space).
 
 %------------------------------------------------------------------------------
@@ -52,9 +52,9 @@ The type definition of \ID{linit} is
   \end{args}
 }
 {
-  An \id{linit} function should return \ID{LINIT\_OK} = 0 if it 
+  An \id{linit} function should return $0$ if it 
   has successfully initialized the {\cvode} linear solver and 
-  \ID{LINIT\_ERR} = -1 otherwise. 
+  $-1$ otherwise. 
 }
 {
   If an error does occur, an appropriate message should be sent 
@@ -89,17 +89,17 @@ The type definition of \id{lsetup} is
      whether the Jacobian data kept by a {\cvode} linear solver needs to be updated 
      or not. Its possible values are:
      \begin{itemize}
-     \item \id{NO\_FAILURES}: this value is passed to \id{lsetup} if 
+     \item \id{CV\_NO\_FAILURES}: this value is passed to \id{lsetup} if 
        either this is the first call for this step, or the local error test failed on the 
        previous attempt at this step (but the Newton iteration converged).
-     \item \id{FAIL\_BAD\_J}: this value is passed to \id{lsetup} if
+     \item \id{CV\_FAIL\_BAD\_J}: this value is passed to \id{lsetup} if
        (a) the previous Newton corrector iteration did not converge and the linear solver's      
        setup routine indicated that its Jacobian-related data is not current,
        or                            
        (b) during the previous Newton corrector iteration, the linear solver's solve routine  
        failed in a recoverable manner and the linear solver's setup routine indicated that  
        its Jacobian-related data is not current.
-     \item \id{FAIL\_OTHER}: this value is passed to \id{lsetup} if 
+     \item \id{CV\_FAIL\_OTHER}: this value is passed to \id{lsetup} if 
        during the current internal step try, the previous Newton iteration failed to 
        converge even though the linear solver was using current Jacobian-related data.
      \end{itemize}
@@ -128,7 +128,7 @@ The type definition of \id{lsetup} is
    \end{args}
 }
 {
-  The \id{lsetup} routine should return \id{0} if successful,            
+  The \id{lsetup} routine should return $0$ if successful,            
   a positive value for a recoverable error, and a negative value  
   for an unrecoverable error.  
 }
@@ -167,7 +167,7 @@ The type definition of \id{lsolve} is
 {
   \id{lsolve} returns a positive value    
   for a recoverable error and a negative value for an             
-  unrecoverable error. Success is indicated by a \id{0} return value.
+  unrecoverable error. Success is indicated by a $0$ return value.
 }
 {}
 
