@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2004-11-11 01:26:46 $
+# $Revision: 1.12 $
+# $Date: 2004-11-23 19:53:34 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -74,6 +74,7 @@ all:
 	@echo "  make ug_pdf - compile LaTeX files to generate PS + PDF files for CVODE User's Guide"
 	@echo "  make ex     - compile LaTeX files to generate DVI file for CVODE Examples Guide"
 	@echo "  make ex_pdf - compile LaTeX files to generate PS + PDF files for CVODE Examples Guide"
+	@echo "       (make ex or make ex_pdf must be preceded by make ug or make ug_pdf)"
 	@echo "  make clean  - remove all temporary files"
 	@echo "  make purge  - remove temporary files + PS + PDF files"
 	@echo ""
