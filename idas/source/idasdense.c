@@ -8,9 +8,9 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/ida/LICENSE                           *
+ * For details, see sundials/idas/LICENSE                          *
  *-----------------------------------------------------------------*
- * This is the implementation file for the IDA dense linear        *
+ * This is the implementation file for the IDAS dense linear       *
  * solver module, IDADENSE.                                        *
  *                                                                 *
  *******************************************************************/
@@ -29,13 +29,17 @@
 
 /* Error Messages */
 
-#define IDADENSE         "IDADense/IDAReInitDense-- "
+#define IDADENSE               "IDADense-- "
 
-#define MSG_IDAMEM_NULL  IDADENSE "IDA memory is NULL.\n\n"
+#define MSG_IDAMEM_NULL        IDADENSE "IDAS memory is NULL.\n\n"
 
-#define MSG_MEM_FAIL     IDADENSE "A memory request failed.\n\n"
+#define MSG_MEM_FAIL           IDADENSE "A memory request failed.\n\n"
 
-#define MSG_WRONG_NVEC   IDADENSE "Incompatible NVECTOR implementation.\n\n"
+#define MSG_WRONG_NVEC         IDADENSE "Incompatible NVECTOR implementation.\n\n"
+
+#define MSG_SETGET_IDAMEM_NULL "IDADenseSet*/IDADenseGet*-- IDAS memory is NULL. \n\n"
+
+#define MSG_SETGET_LMEM_NULL   "IDADenseSet*/IDADenseGet*-- IDADENSE memory is NULL. \n\n"
 
 /* Constants */
 
@@ -55,7 +59,7 @@
 
 typedef struct {
 
-  integertype d_Neq;     /* Neq = problem dimension              */
+  integertype d_neq;     /* Neq = problem dimension              */
 
   IDADenseJacFn d_jac;   /* jac = Jacobian routine to be called  */
   
@@ -63,8 +67,10 @@ typedef struct {
   
   integertype *d_pivots; /* pivots = pivot array for PJ = LU     */
   
-  long int d_nje;        /* nje = no. of calls to jac            */
+  int d_nje;             /* nje = no. of calls to jac            */
   
+  int d_nreD;            /* nreD = no. of calls to res           */
+
   void *d_jdata;         /* jdata is passed to jac               */
 
 } IDADenseMemRec, *IDADenseMem;
@@ -72,52 +78,53 @@ typedef struct {
 
 /* IDADENSE linit, lsetup, lsolve, and lfree routines */
  
-static int IDADenseInit(IDAMem ida_mem);
+static int IDADenseInit(IDAMem IDA_mem);
 
-static int IDADenseSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
+static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector resp, N_Vector tempv1,
                          N_Vector tempv2, N_Vector tempv3);
 
-static int IDADenseSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
+static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
                          N_Vector ypcur, N_Vector rescur);
 
-static int IDADenseFree(IDAMem ida_mem);
+static int IDADenseFree(IDAMem IDA_mem);
 
-static int IDADenseDQJac(integertype neq, realtype tt, N_Vector yy, N_Vector yp,
-                         realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
+static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+                         realtype c_j, void *jdata, N_Vector resvec, DenseMat Jac,
                          N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 
 
 /* Readability Replacements */
 
-#define res         (ida_mem->ida_res)
-#define rdata       (ida_mem->ida_rdata)
-#define uround      (ida_mem->ida_uround)
-#define tn          (ida_mem->ida_tn)
-#define hh          (ida_mem->ida_hh)
-#define cj          (ida_mem->ida_cj)
-#define cjratio     (ida_mem->ida_cjratio)
-#define ewt         (ida_mem->ida_ewt)
-#define constraints (ida_mem->ida_constraints)
-#define nre         (ida_mem->ida_nre)
-#define errfp       (ida_mem->ida_errfp)
-#define iopt        (ida_mem->ida_iopt)
-#define linit       (ida_mem->ida_linit)
-#define lsetup      (ida_mem->ida_lsetup)
-#define lsolve      (ida_mem->ida_lsolve)
-#define lperf       (ida_mem->ida_lperf)
-#define lfree       (ida_mem->ida_lfree)
-#define lmem        (ida_mem->ida_lmem)
-#define machenv     (ida_mem->ida_machenv)
-#define setupNonNull  (ida_mem->ida_setupNonNull)
+#define res          (IDA_mem->ida_res)
+#define rdata        (IDA_mem->ida_rdata)
+#define uround       (IDA_mem->ida_uround)
+#define tn           (IDA_mem->ida_tn)
+#define hh           (IDA_mem->ida_hh)
+#define cj           (IDA_mem->ida_cj)
+#define cjratio      (IDA_mem->ida_cjratio)
+#define ewt          (IDA_mem->ida_ewt)
+#define constraints  (IDA_mem->ida_constraints)
+#define nre          (IDA_mem->ida_nre)
+#define errfp        (IDA_mem->ida_errfp)
+#define iopt         (IDA_mem->ida_iopt)
+#define linit        (IDA_mem->ida_linit)
+#define lsetup       (IDA_mem->ida_lsetup)
+#define lsolve       (IDA_mem->ida_lsolve)
+#define lperf        (IDA_mem->ida_lperf)
+#define lfree        (IDA_mem->ida_lfree)
+#define lmem         (IDA_mem->ida_lmem)
+#define setupNonNull (IDA_mem->ida_setupNonNull)
+#define nvspec       (IDA_mem->ida_nvspec)
 
-#define Neq         (idadense_mem->d_Neq)
-#define jac         (idadense_mem->d_jac)
-#define JJ          (idadense_mem->d_J)
-#define pivots      (idadense_mem->d_pivots)
-#define nje         (idadense_mem->d_nje)
-#define jacdata     (idadense_mem->d_jdata)
+#define neq          (idadense_mem->d_neq)
+#define jac          (idadense_mem->d_jac)
+#define JJ           (idadense_mem->d_J)
+#define pivots       (idadense_mem->d_pivots)
+#define nje          (idadense_mem->d_nje)
+#define nreD         (idadense_mem->d_nreD)
+#define jacdata      (idadense_mem->d_jdata)
  
                   
 /*************** IDADense *********************************************
@@ -141,38 +148,38 @@ static int IDADenseDQJac(integertype neq, realtype tt, N_Vector yy, N_Vector yp,
  NOTE: The dense linear solver assumes a serial implementation
        of the NVECTOR package. Therefore, IDADense will first 
        test for compatible a compatible N_Vector internal
-       representation by checking (1) the machine environment
+       representation by checking (1) the vector specification
        ID tag and (2) that the functions N_VMake, N_VDispose,
        N_VGetData, and N_VSetData are implemented.
 
 **********************************************************************/
 
-int IDADense(void *IDA_mem, integertype neq, IDADenseJacFn djac, void *jdata)
+int IDADense(void *ida_mem, integertype Neq)
 {
-  IDAMem ida_mem;
+  IDAMem IDA_mem;
   IDADenseMem idadense_mem;
   int flag;
 
-  /* Return immediately if IDA_mem is NULL. */
-  ida_mem = (IDAMem) IDA_mem;
+  /* Return immediately if ida_mem is NULL. */
   if (ida_mem == NULL) {
-    fprintf(errfp, MSG_IDAMEM_NULL);
+    fprintf(stdout, MSG_IDAMEM_NULL);
     return(LMEM_FAIL);
   }
+  IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
-  if ((strcmp(machenv->tag,"serial")) || 
-      machenv->ops->nvmake    == NULL || 
-      machenv->ops->nvdispose == NULL ||
-      machenv->ops->nvgetdata == NULL || 
-      machenv->ops->nvsetdata == NULL) {
+  if ((strcmp(nvspec->tag,"serial")) || 
+      nvspec->ops->nvmake    == NULL || 
+      nvspec->ops->nvdispose == NULL ||
+      nvspec->ops->nvgetdata == NULL || 
+      nvspec->ops->nvsetdata == NULL) {
     fprintf(errfp, MSG_WRONG_NVEC);
     return(LIN_ILL_INPUT);
   }
 
-  if (lfree != NULL) flag = lfree(ida_mem);
+  if (lfree != NULL) flag = lfree(IDA_mem);
 
-  /* Set five main function fields in ida_mem. */
+  /* Set five main function fields in IDA_mem. */
   linit  = IDADenseInit;
   lsetup = IDADenseSetup;
   lsolve = IDADenseSolve;
@@ -180,24 +187,20 @@ int IDADense(void *IDA_mem, integertype neq, IDADenseJacFn djac, void *jdata)
   lfree  = IDADenseFree;
 
   /* Get memory for IDADenseMemRec. */
-  lmem = idadense_mem = (IDADenseMem) malloc(sizeof(IDADenseMemRec));
+  idadense_mem = (IDADenseMem) malloc(sizeof(IDADenseMemRec));
   if (idadense_mem == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
 
-  /* Set Jacobian routine field to user's djac or IDADenseDQJac. */
-  if (djac == NULL) {
-    jac = IDADenseDQJac;
-    jacdata = IDA_mem;
-  } else {
-    jac = djac;
-    jacdata = jdata;
-  }
+  /* Set default Jacobian routine and Jacobian data */
+  jac = IDADenseDQJac;
+  jacdata = IDA_mem;
+
   setupNonNull = TRUE;
 
   /* Store problem size */
-  Neq = neq;
+  neq = Neq;
 
   /* Allocate memory for JJ and pivot array. */
   JJ = DenseAllocMat(Neq);
@@ -211,62 +214,161 @@ int IDADense(void *IDA_mem, integertype neq, IDADenseJacFn djac, void *jdata)
     DenseFreeMat(JJ);
     return(LMEM_FAIL);
   }
-  
+
+  /* Attach linear solver memory to IDAS memory */
+  lmem = idadense_mem;
+
   return(SUCCESS);
 }
 
-/*************** IDAReInitDense****************************************
+/*************  IDADenseSetJacFn **************************************/
 
- This routine resets the link between the main IDA module and the
- dense linear solver module IDADENSE.  No memory freeing or allocation
- operations are done, as the existing linear solver memory is assumed
- sufficient.  All other initializations are the same as in IDADense.
- The return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
-
-**********************************************************************/
-
-int IDAReInitDense(void *IDA_mem, IDADenseJacFn djac, void *jdata)
+int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac)
 {
-  IDAMem ida_mem;
+  IDAMem IDA_mem;
   IDADenseMem idadense_mem;
 
-  /* Return immediately if IDA_mem is NULL. */
-  ida_mem = (IDAMem) IDA_mem;
+  /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(errfp, MSG_IDAMEM_NULL);
-    return(LMEM_FAIL);
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
   }
+  IDA_mem = (IDAMem) ida_mem;
 
-  /* Test if the NVECTOR package is compatible with the DENSE solver */
-  if ((strcmp(machenv->tag,"serial")) || 
-      machenv->ops->nvmake    == NULL || 
-      machenv->ops->nvdispose == NULL ||
-      machenv->ops->nvgetdata == NULL || 
-      machenv->ops->nvsetdata == NULL) {
-    fprintf(errfp, MSG_WRONG_NVEC);
-    return(LIN_ILL_INPUT);
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
   }
+  idadense_mem = (IDADenseMem) lmem;
 
-  /* Set five main function fields in ida_mem. */
-  linit  = IDADenseInit;
-  lsetup = IDADenseSetup;
-  lsolve = IDADenseSolve;
-  lperf  = NULL;
-  lfree  = IDADenseFree;
-
-  idadense_mem = lmem;  /* Use existing linear solver memory pointer. */
-
-  /* Set Jacobian routine field to user's djac or IDADenseDQJac. */
-  if (djac == NULL) {
-    jac = IDADenseDQJac;
-    jacdata = IDA_mem;
-  } else {
-    jac = djac;
-    jacdata = jdata;
-  }
-  setupNonNull = TRUE;
+  jac = djac;
 
   return(SUCCESS);
+}
+
+/*************** IDADenseSetJacData ***********************************/
+
+int IDADenseSetJacData(void *ida_mem, void *jac_data)
+{
+  IDAMem IDA_mem;
+  IDADenseMem idadense_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  idadense_mem = (IDADenseMem) lmem;
+
+  jacdata = jac_data;
+
+  return(SUCCESS);
+}
+
+/*************** IDADenseGetIntWorkSpace ******************************/
+
+int IDADenseGetIntWorkSpace(void *ida_mem, long int *leniwD)
+{
+  IDAMem IDA_mem;
+  IDADenseMem idadense_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  idadense_mem = (IDADenseMem) lmem;
+
+  *leniwD = neq;
+
+  return(OKAY);
+}
+
+/*************** IDADenseGetRealWorkSpace *****************************/
+
+int IDADenseGetRealWorkSpace(void *ida_mem, long int *lenrwD)
+{
+  IDAMem IDA_mem;
+  IDADenseMem idadense_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  idadense_mem = (IDADenseMem) lmem;
+
+  *lenrwD = neq*neq;
+
+  return(OKAY);
+}
+
+/*************** IDADenseGetNumJacEvals *******************************/
+
+int IDADenseGetNumJacEvals(void *ida_mem, int *njevalsD)
+{
+  IDAMem IDA_mem;
+  IDADenseMem idadense_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  idadense_mem = (IDADenseMem) lmem;
+
+  *njevalsD = nje;
+
+  return(OKAY);
+}
+
+/*************** IDADenseGetNumResEvals *******************************/
+
+int IDADenseGetNumResEvals(void *ida_mem, int *nrevalsD)
+{
+  IDAMem IDA_mem;
+  IDADenseMem idadense_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  idadense_mem = (IDADenseMem) lmem;
+
+  *nrevalsD = nreD;
+
+  return(OKAY);
 }
 
 
@@ -277,19 +379,19 @@ int IDAReInitDense(void *IDA_mem, IDADenseJacFn djac, void *jdata)
 
 **********************************************************************/
 
-static int IDADenseInit(IDAMem ida_mem)
+static int IDADenseInit(IDAMem IDA_mem)
 {
   IDADenseMem idadense_mem;
   
   idadense_mem = (IDADenseMem) lmem;
 
-  /* Initialize nje and set workspace lengths. */
    
-  nje = 0;
-  if (iopt != NULL) {
-   iopt[DENSE_NJE] = nje;
-   iopt[DENSE_LRW] = Neq*Neq;
-   iopt[DENSE_LIW] = Neq;
+  nje  = 0;
+  nreD = 0;
+
+  if (jac == NULL) {
+    jac = IDADenseDQJac;
+    jacdata = IDA_mem;
   }
   
   return(LINIT_OK);
@@ -307,7 +409,7 @@ static int IDADenseInit(IDAMem ida_mem)
      LSETUP_ERROR_NONRECVR if the jac routine failed unrecoverably.
 **********************************************************************/
 
-static int IDADenseSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
+static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                          N_Vector resp, N_Vector tempv1, N_Vector tempv2,
                          N_Vector tempv3)
 {
@@ -319,11 +421,10 @@ static int IDADenseSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
 
   /* Increment nje counter. */
   nje++;
-  if (iopt != NULL) iopt[DENSE_NJE] = nje;
 
   /* Zero out JJ; call Jacobian routine jac; return if it failed. */
   DenseZero(JJ);
-  retval = jac(Neq, tn, yyp, ypp, cj, jacdata, resp, JJ, 
+  retval = jac(neq, tn, yyp, ypp, cj, jacdata, resp, JJ, 
                tempv1, tempv2, tempv3);
   if (retval < 0) return(LSETUP_ERROR_NONRECVR);
   if (retval > 0) return(LSETUP_ERROR_RECVR);
@@ -343,7 +444,7 @@ static int IDADenseSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
 
 **********************************************************************/
 
-static int IDADenseSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
+static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
                          N_Vector ypcur, N_Vector rescur)
 {
   IDADenseMem idadense_mem;
@@ -367,7 +468,7 @@ static int IDADenseSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
 
 **********************************************************************/
 
-static int IDADenseFree(IDAMem ida_mem)
+static int IDADenseFree(IDAMem IDA_mem)
 {
   IDADenseMem idadense_mem;
 
@@ -380,10 +481,6 @@ static int IDADenseFree(IDAMem ida_mem)
   return(0);
 
 }
-
-#undef cj
-#undef JJ
-
 
 /*************** IDADenseDQJac ****************************************
 
@@ -400,8 +497,8 @@ static int IDADenseFree(IDAMem ida_mem)
 
 **********************************************************************/
 
-static int IDADenseDQJac(integertype neq, realtype tt, N_Vector yy, N_Vector yp,
-                         realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
+static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+                         realtype c_j, void *jdata, N_Vector resvec, DenseMat Jac,
                          N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
  
 {
@@ -409,12 +506,14 @@ static int IDADenseDQJac(integertype neq, realtype tt, N_Vector yy, N_Vector yp,
   realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
   integertype j;
-  int retval;
+  int retval=0;
 
-  IDAMem ida_mem;
+  IDAMem IDA_mem;
+  IDADenseMem idadense_mem;
 
   /* jdata points to IDA_mem */
-  ida_mem = (IDAMem) jdata;
+  IDA_mem = (IDAMem) jdata;
+  idadense_mem = (IDADenseMem) lmem;
 
   rtemp = tempv1; /* Rename work vector for use as residual value. */
 
@@ -426,14 +525,14 @@ static int IDADenseDQJac(integertype neq, realtype tt, N_Vector yy, N_Vector yp,
 
   srur = RSqrt(uround);
 
-  jthCol = N_VMake(NULL, machenv); /* j loop overwrites this data address */
+  jthCol = N_VMake(NULL, nvspec); /* j loop overwrites this data address */
 
-  for (j=0; j < neq; j++) {
+  for (j=0; j < Neq; j++) {
 
     /* Generate the jth col of J(tt,yy,yp) as delta(F)/delta(y_j). */
 
     /* Set data address of jthCol, and save y_j and yp_j values. */
-    N_VSetData(DENSE_COL(JJ,j), jthCol);
+    N_VSetData(DENSE_COL(Jac,j), jthCol);
     yj = y_data[j];
     ypj = yp_data[j];
 
@@ -454,14 +553,21 @@ static int IDADenseDQJac(integertype neq, realtype tt, N_Vector yy, N_Vector yp,
 
     /* Increment y_j and yp_j, call res, and break on error return. */
     y_data[j] += inc;
-    yp_data[j] += cj*inc;
+    yp_data[j] += c_j*inc;
+
+    N_VSetData(y_data, yy);
+    N_VSetData(yp_data, yp);
+
     retval = res(tt, yy, yp, rtemp, rdata);
-    nre++;
+    nreD++;
     if (retval != SUCCESS) break;
 
-    /* Construct difference quotient in jthCol, and reset y_j, yp_j. */ 
+    /* Construct difference quotient in jthCol */
     inc_inv = ONE/inc;
     N_VLinearSum(inc_inv, rtemp, -inc_inv, resvec, jthCol);
+    DENSE_COL(Jac,j) = N_VGetData(jthCol);
+
+    /*  reset y_j, yp_j */     
     y_data[j] = yj;
     yp_data[j] = ypj;
   }

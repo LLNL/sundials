@@ -2,14 +2,14 @@
  *                                                                 *
  * File          : idasspgmr.h                                     *
  * Programmers   : Alan C. Hindmarsh and Allan G. Taylor           *
- * Version of    : 31 March 2003                                   *
+ * Version of    : 17 July 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/ida/LICENSE                           *
+ * For details, see sundials/idas/LICENSE                          *
  *-----------------------------------------------------------------*
- * This is the header file for the IDA Scaled Preconditioned       *
+ * This is the header file for the IDAS Scaled Preconditioned      *
  * GMRES linear solver module, IDASPGMR.                           *
  *                                                                 *
  *******************************************************************/
@@ -29,72 +29,40 @@ extern "C" {
 #include "spgmr.h"
 #include "nvector.h"
 
-
- 
-/******************************************************************
- *                                                                *
- * IDASPGMR solver optional output indices                        *
- *----------------------------------------------------------------*
- * The following enumeration gives a symbolic name to each        *
- * IDASPGMR optional output. The symbolic names are used as       *
- * indices into the iopt and ropt arrays passed to IDAMalloc.     *
- * The IDASPGMR optional outputs are:                             *
- *                                                                *
- * iopt[SPGMR_NPE]  : number of preconditioner evaluations, i.e.  *
- *                    of calls made to user's precond function.   *
- *                                                                *
- * iopt[SPGMR_NLI]  : number of linear iterations.                *
- *                                                                *
- * iopt[SPGMR_NPS]  : number of calls made to user's psolve       *
- *                    function.                                   *
- *                                                                *
- * iopt[SPGMR_NCFL] : number of linear convergence failures.      *
- *                                                                *
- * iopt[SPGMR_LRW]  : size (in realtype words) of real workspace  *
- *                    matrices and vectors used by this module.   *
- *                                                                *
- * iopt[SPGMR_LIW]  : size (in integertype words) of integer      *
- *                    workspace vectors used by this module.      *
- *                                                                *
- ******************************************************************/
- 
-enum { SPGMR_NPE=IDA_IOPT_SIZE, SPGMR_NLI, SPGMR_NPS, SPGMR_NCFL,
-       SPGMR_LRW, SPGMR_LIW };
-
- 
 /******************************************************************
  *                                                                *           
- * Type : IDASpgmrPrecondFn                                       *
+ * Type : IDASpgmrPrecSetupFn                                     *
  *----------------------------------------------------------------*
- * The optional user-supplied functions Precond and PSolve        *
+ * The optional user-supplied functions PrecSetup and PrecSolve   *
  * together must define the left preconditoner matrix P           *
  * approximating the system Jacobian matrix                       *
  *    J = dF/dy + cj*dF/dy'                                       *
  * (where the DAE system is F(t,y,y') = 0), and solve the linear  *
- * systems P z = r.   Precond is to do any necessary setup        *
- * operations, and PSolve is to compute the solution of P z = r.  *
+ * systems P z = r.   PrecSetup is to do any necessary setup      *
+ * operations, and PrecSolve is to compute the solution of        *
+ * P z = r.                                                       *
  *                                                                *
- * The preconditioner setup function Precond is to evaluate and   *
+ * The preconditioner setup function PrecSetup is to evaluate and *
  * preprocess any Jacobian-related data needed by the             *
- * preconditioner solve function PSolve.  This might include      *
+ * preconditioner solve function PrecSolve.  This might include   *
  * forming a crude approximate Jacobian, and performing an LU     *
  * factorization on it.  This function will not be called in      *
- * advance of every call to PSolve, but instead will be called    *
+ * advance of every call to PrecSolve, but instead will be called *
  * only as often as necessary to achieve convergence within the   *
- * Newton iteration in IDA.  If the PSolve function needs no      *
- * preparation, the Precond function can be NULL.                 *
+ * Newton iteration in IDAS.  If the PrecSolve function needs no  *
+ * preparation, the PrecSetup function can be NULL.               *
  *                                                                *
- * Each call to the Precond function is preceded by a call to     *
+ * Each call to the PrecSetup function is preceded by a call to   *
  * the system function res with the same (t,y,y') arguments.      *
- * Thus the Precond function can use any auxiliary data that is   *
+ * Thus the PrecSetup function can use any auxiliary data that is *
  * computed and saved by the res function and made accessible     *
- * to Precond.                                                    *
+ * to PrecSetup.                                                  *
  *                                                                *
  * The error weight vector ewt, step size hh, and unit roundoff   *
- * uround are provided to the Precond function for possible use   *
+ * uround are provided to the PrecSetup function for possible use *
  * in approximating Jacobian data, e.g. by difference quotients.  *
  *                                                                *
- * A preconditioner setup function Precond must have the          *
+ * A preconditioner setup function PrecSetup must have the        *
  * prototype given below.  Its parameters are as follows:         *
  *                                                                *
  * tt  is the current value of the independent variable t.        *
@@ -109,61 +77,39 @@ enum { SPGMR_NPE=IDA_IOPT_SIZE, SPGMR_NLI, SPGMR_NPS, SPGMR_NCFL,
  *                                                                *
  * cj  is the scalar in the system Jacobian, proportional to 1/hh.*
  *                                                                *
- * res    is the residual function for the DAE problem.           *
- *                                                                *
- * rdata  is a pointer to user data to be passed to res, the same *
- *        as the rdata parameter passed to IDAMalloc.             *
- *                                                                *
  * pdata  is a pointer to user preconditioner data - the same as  *
  *        the pdata parameter passed to IDASpgmr.                 *
  *                                                                *
- * ewt    is the error weight vector.                             *
- *                                                                *
- * constraints  is the constraints vector.                        *
- *                                                                *
- * hh     is a tentative step size in t.                          *
- *                                                                *
- * uround is the machine unit roundoff.                           *
- *                                                                *
- * nrePtr is a pointer to the memory location containing the      *
- * IDA problem data nre = number of calls to res.  This Precond   *
- * routine should update the counter nre by adding on the number  *
- * of res calls it makes in order to compute P, if any.           *
- * Thus if this routine calls res a total of W times, it should   *
- * perform the update *nrePtr += W.                               *
- *                                                                *
  * tempv1, tempv2, tempv3 are pointers to vectors of type         *
- * N_Vector which can be used by an IDASpgmrPrecondFn routine as  *
- * temporary storage or work space.                               *
+ * N_Vector which can be used by an IDASpgmrPrecSetupFn routine   *
+ * as temporary storage or work space.                            *
  *                                                                *
  *                                                                *
- * The IDASpgmrPrecondFn should return                            *
+ * The IDASpgmrPrecSetupFn should return                          *
  *     0 if successful,                                           *
  *     a positive int if a recoverable error occurred, or         *
  *     a negative int if a nonrecoverable error occurred.         *
- * In the case of a recoverable error return, IDA will attempt to *
- * recover by reducing the stepsize (which changes cj).           *
+ * In the case of a recoverable error return, IDAS will attempt   *
+ * to recover by reducing the stepsize (which changes cj).        *
  ******************************************************************/
   
-typedef int (*IDASpgmrPrecondFn)(realtype tt, N_Vector yy, N_Vector yp, 
-                                 N_Vector rr, realtype cj, ResFn res, 
-                                 void *rdata, void *pdata, N_Vector ewt, 
-                                 N_Vector constraints, realtype hh, 
-                                 realtype uround,  long int *nrePtr, 
-                                 N_Vector tempv1, N_Vector tempv2, 
-                                 N_Vector tempv3);
+typedef int (*IDASpgmrPrecSetupFn)(realtype tt, 
+                                   N_Vector yy, N_Vector yp, N_Vector rr, 
+                                   realtype cj, void *pdata,
+                                   N_Vector tempv1, N_Vector tempv2, 
+                                   N_Vector tempv3);
 
 
 /******************************************************************
  *                                                                *           
- * Type : IDASpgmrPSolveFn                                        *
+ * Type : IDASpgmrPrecSolveFn                                     *
  *----------------------------------------------------------------*
- * The optional user-supplied function PSolve must compute a      *
+ * The optional user-supplied function PrecSolve must compute a   *
  * solution to the linear system P z = r, where P is the left     *
  * preconditioner defined by the user.  If no preconditioning     *
- * is desired, pass NULL for PSolve to IDASpgmr.                  *
+ * is desired, pass NULL for PrecSolve to IDASpgmr.               *
  *                                                                *
- * A preconditioner solve function PSolve must have the           *
+ * A preconditioner solve function PrecSolve must have the        *
  * prototype given below.  Its parameters are as follows:         *
  *                                                                *
  * tt  is the current value of the independent variable t.        *
@@ -176,17 +122,10 @@ typedef int (*IDASpgmrPrecondFn)(realtype tt, N_Vector yy, N_Vector yp,
  *                                                                *
  * cj  is the scalar in the system Jacobian, proportional to 1/hh.*
  *                                                                *
- * res    is the residual function for the DAE problem.           *
- *                                                                *
- * rdata  is a pointer to user data to be passed to res, the same *
- *        as the rdata parameter passed to IDAMalloc.             *
- *                                                                *
  * pdata  is a pointer to user preconditioner data - the same as  *
  *        the pdata parameter passed to IDASpgmr.                 *
  *                                                                *
- * ewt    is the input error weight vector (see delta below).     *
- *                                                                *
- * delta  is an input tolerance for use by PSolve if it uses an   *
+ * delta  is an input tolerance for use by PrecSolve if it uses an*
  *        iterative method in its solution.   In that case, the   *
  *        the residual vector r - P z of the system should be     *
  *        made less than delta in weighted L2 norm, i.e.,         *
@@ -196,86 +135,78 @@ typedef int (*IDASpgmrPrecondFn)(realtype tt, N_Vector yy, N_Vector yp,
  *                                                                *
  * zvec   is the computed solution vector z.                      *
  *                                                                *
- * nrePtr is a pointer to the memory location containing the      *
- * IDA problem data nre = number of calls to res.  This PSolve    *
- * routine should update the counter nre by adding on the number  *
- * of res calls it makes in order to compute z, if any.           *
- * Thus if this routine calls res a total of W times, it should   *
- * perform the update *nrePtr += W.                               *
- *                                                                *
- * tempv  is an N_Vector which can be used by the PSolve          *
+ * tempv  is an N_Vector which can be used by the PrecSolve       *
  * routine as temporary storage or work space.                    *
  *                                                                *
  *                                                                *
- * The IDASpgmrPSolveFn should return                             *
+ * The IDASpgmrPrecSolveFn should return                          *
  *     0 if successful,                                           *
  *     a positive int if a recoverable error occurred, or         *
  *     a negative int if a nonrecoverable error occurred.         *
- * Following a recoverable error, IDA will attempt to recover by  *
+ * Following a recoverable error, IDAS will attempt to recover by *
  * updating the preconditioner and/or reducing the stepsize.      *
  ******************************************************************/
   
-typedef int (*IDASpgmrPSolveFn)(realtype tt, N_Vector yy, N_Vector yp, 
-                                N_Vector rr, realtype cj, ResFn res, 
-                                void *rdata, void *pdata, N_Vector ewt, 
-                                realtype delta, N_Vector rvec, 
-                                N_Vector zvec, long int *nrePtr, 
-                                N_Vector tempv);
- 
+typedef int (*IDASpgmrPrecSolveFn)(realtype tt, 
+                                   N_Vector yy, N_Vector yp, N_Vector rr, 
+                                   N_Vector rvec, N_Vector zvec,
+                                   realtype cj, realtype delta,
+                                   void *pdata, N_Vector tempv);
+/******************************************************************
+ *                                                                *           
+ * Type : IDASpgmrJacTimesVecFn                                   *
+ *----------------------------------------------------------------*
+ * The user-supplied function jtimes is to generate the product   *
+ * J*v for given v, where J is the Jacobian df/dy, or an          *
+ * approximation to it, and v is a given vector. It should return *
+ * 0 if successful and a nonzero int otherwise.                   *
+ *                                                                *
+ * A function jtimes must have the prototype given below. Its     *
+ * parameters are as follows:                                     *
+ *                                                                *
+ *   v        is the N_Vector to be multiplied by J.              *
+ *                                                                *
+ *   Jv       is the output N_Vector containing J*v.              *
+ *                                                                *
+ *   t        is the current value of the independent variable.   *
+ *                                                                *
+ *   y        is the current value of the dependent variable      *
+ *            vector.                                             *
+ *                                                                *
+ *   fy       is the vector f(t,y).                               *
+ *                                                                *
+ *   jac_data is a pointer to user Jacobian data, the same as the *
+ *            pointer passed to CVSpgmr.                          *
+ *                                                                *
+ *   tmp      is a pointer to memory allocated for an N_Vector    *
+ *            which can be used by Jtimes for work space.         *
+ *                                                                *
+ ******************************************************************/
+
+typedef int (*IDASpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
+                                     N_Vector yy, N_Vector yp, N_Vector rr,
+                                     realtype c_j, void *jac_data, 
+                                     N_Vector work1, N_Vector work2);
+
+
 /******************************************************************
  *                                                                *
  * Function : IDASpgmr                                            *
  *----------------------------------------------------------------*
- * A call to the IDASpgmr function links the main IDA integrator  *
+ * A call to the IDASpgmr function links the main IDAS integrator *
  * with the IDASPGMR linear solver module.  Its parameters are    *
  * as follows:                                                    *
  *                                                                *
- * IDA_mem   is the pointer to IDA memory returned by IDAMalloc.  *
- *                                                                *
- * precond   is the user's preconditioner setup routine. It is    *
- *           used to evaluate and preprocess any Jacobian-related *
- *           data needed by the psolve routine.  See the          *
- *           description of the type IDASpgmrPrecondFn above.     *
- *           Pass NULL if no such data setup is required.         *
- *                                                                *
- * psolve    is the user's preconditioner solve routine. It is    *
- *           used to solve linear systems P z = r, where P is the *
- *           preconditioner matrix.  See the description of the   *
- *           type IDASpgmrPSolveFn above.  Pass NULL for psolve   * 
- *           if no preconditioning is to be done.  However, a     *
- *           preconditioner of some form is strongly encouraged.  *
- *                                                                *
- * gstype    is the type of Gram-Schmidt orthogonalization to be  *
- *           used.  This must be one of the two enumeration       *
- *           constants MODIFIED_GS or CLASSICAL_GS defined in     *
- *           iterativ.h.  These correspond to using modified or   *
- *           classical Gram-Schmidt algorithms, respectively.     *
+ * IDA_mem   is the pointer to IDAS memory returned by IDACreate. *
  *                                                                *
  * maxl      is the maximum Krylov subspace dimension, an         *
  *           optional input.  Pass 0 to use the default value,    *
  *           MIN(Neq, 5).  Otherwise pass a positive integer.     *
  *                                                                *
- * maxrs     is the maximum number of restarts to be used in the  *
- *           GMRES algorithm, an optional input.  maxrs must be a *
- *           non-negative integer, or -1.  Pass 0 to use the      *
- *           default value, which is 5.  Pass -1 to use the       *
- *           value 0, meaning no restarts.  In any case, maxrs    *
- *           will be restricted to the range 0 to Neq/maxl.       *
- *                                                                *
  * eplifac   is a factor in the linear iteration convergence      *
  *           test constant, an optional input.  Pass 0.0 to use   *
  *           the default, which is 1.0.  Otherwise eplifac must   *
  *           be a positive real number.                           *
- *                                                                *
- * dqincfac  is a factor in the increments to yy used in the      *
- *           difference quotient approximations to matrix-vector  *
- *           products Jv, an optional input.  Pass 0.0 to use     *
- *           the default, which is 1.0.  Otherwise dqincfac must  *
- *           be a positive real number.                           *
- *                                                                *
- * pdata     is a pointer to user preconditioner data.  This      *
- *           pointer is passed to precond and psolve every time   *
- *           these routines are called.                           *
  *                                                                *
  * The return values of IDASpgmr are:                             *
  *    SUCCESS       = 0  if successful                            *
@@ -284,41 +215,146 @@ typedef int (*IDASpgmrPSolveFn)(realtype tt, N_Vector yy, N_Vector yp,
  *                                                                *
  ******************************************************************/
 
-int IDASpgmr(void *IDA_mem, IDASpgmrPrecondFn precond, 
-             IDASpgmrPSolveFn psolve, int gstype, int maxl, int maxrs,
-             realtype eplifac, realtype dqincfac, void *pdata);
-
+int IDASpgmr(void *ida_mem, int maxl);
 
 /******************************************************************
- *                                                                *
- * Function : IDAReInitSpgmr                                      *
+ * Optional inputs to the IDASPGMR linear solver                  *
  *----------------------------------------------------------------*
- * A call to the IDAReInitSpgmr function resets the link between  *
- * the main IDA integrator and the IDASPGMR linear solver.        *
- * After solving one problem using IDASPGMR, call IDAReInit and   *
- * then IDAReInitSpgmr to solve another problem of the same size, *
- * if there is a change in the IDASpgmr parameters precond,       *
- * psolve, gstype, maxrs, eplifac, dqincfac, or pdata, but not in *
- * maxl.  If there is a change in maxl, then IDASpgmr must be     *
- * called again, and the linear solver memory will be reallocated.*
- * If there is no change in parameters, it is not necessary to    *
- * call either IDAReInitSpgmr or IDASpgmr for the new problem.    *
  *                                                                *
- * All arguments to IDAReInitSpgmr have the same names and        * 
- * meanings as those of IDASpgmr.  The IDA_mem argument must be   *
- * identical to its value in the previous IDASpgmr call.          *
- *                                                                *
- * The return values of IDAReInitSpgmr are:                       *
- *    SUCCESS       = 0  if successful                            *
- *    LMEM_FAIL     = -1 if the IDA_mem argument is NULL          *
- *    LIN_ILL_INPUT = -2 if there was illegal input.              *
+ * IDASpgmrSetGSType specifies the type of Gram-Schmidt           *
+ *           orthogonalization to be used. This must be one of    *
+ *           the two enumeration constants MODIFIED_GS or         *
+ *           CLASSICAL_GS defined in iterativ.h. These correspond *
+ *           to using modified Gram-Schmidt and classical         *
+ *           Gram-Schmidt, respectively.                          *
+ *           Default value is MODIFIED_GS.                        *
+ * IDASpgmrSetMaxRestarts specifies the maximum number of restarts*
+ *           to be used in the GMRES algorithm.  maxrs must be a  *
+ *           non-negative integer.  Pass 0 to specify no restarts.*
+ *           Default is 5.                                        *
+ * IDASpgmrSetEpsLin specifies a factor in the linear iteration   *
+ *           convergence test constant.                           *
+ *           Default is 1.0                                       *
+ * IDASpgmrSetIncrementFactor specifies a factor in the increments*
+ *           to yy used in the difference quotient approximations *
+ *           to matrix-vector products Jv.                        *
+ *           Default is 1.0                                       *
+ * IDASpgmrSetPrecSetupFn specifies the PrecSetup function.       *
+ *           Default is NULL.                                     *
+ * IDASpgmrSetPrecSolveFn specifies the PrecSolve function.       *
+ *           Default is NULL.                                     *
+ * IDASpgmrSetPrecData specifies a pointer to user preconditioner *
+ *           data. This pointer is passed to PrecSetup and        *
+ *           PrecSolve every time these routines are called.      *
+ *           Default is NULL.                                     *
+ * IDASpgmrSetJacTimesVecFn specifies the jtimes function.        *
+ *           Default is to use an internal finite difference      *
+ *           approximation routine.                               *
+ * IDASpgmrSetJacData specifies a pointer to user Jacobian data.  *
+ *           This pointer is passed to jtimes every time this     *
+ *           routine is called.                                   *
+ *           Default is NULL.                                     *
  *                                                                *
  ******************************************************************/
 
-int IDAReInitSpgmr(void *IDA_mem, IDASpgmrPrecondFn precond, 
-             IDASpgmrPSolveFn psolve, int gstype, int maxl, int maxrs,
-             realtype eplifac, realtype dqincfac, void *pdata);
+int IDASpgmrSetGSType(void *ida_mem, int gstype);
+int IDASpgmrSetMaxRestarts(void *ida_mem, int maxrs);
+int IDASpgmrSetEpsLin(void *ida_mem, realtype eplifac);
+int IDASpgmrSetIncrementFactor(void *ida_mem, realtype dqincfac);
+int IDASpgmrSetPrecSetupFn(void *ida_mem, IDASpgmrPrecSetupFn pset);
+int IDASpgmrSetPrecSolveFn(void *ida_mem, IDASpgmrPrecSolveFn psolve);
+int IDASpgmrSetPrecData(void *ida_mem, void *pdata);
+int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes);
+int IDASpgmrSetJacData(void *ida_mem, void *jdata);
 
+/******************************************************************
+ * Optional outputs from the IDASPGMR linear solver               *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * IDASpgmrGetIntWorkSpace returns the integer workspace used by  *
+ *     IDASPGMR.                                                  *
+ * IDASpgmrGetRealWorkSpace returns the real workspace used by    *
+ *     IDASPGMR.                                                  *
+ * IDASpgmrGetNumPrecEvals returns the number of preconditioner   *
+ *     evaluations, i.e. the number of calls made to PrecSetup    *
+ *     with jok==FALSE.                                           *
+ * IDASpgmrGetNumPrecSolves returns the number of calls made to   *
+ *     PrecSolve.                                                 *
+ * IDASpgmrGetNumLinIters returns the number of linear iterations.*
+ * IDASpgmrGetNumConvFails returns the number of linear           *
+ *     convergence failures.                                      *
+ * IDASpgmrGetNumJtimesEvals returns the number of calls to jtimes*
+ * IDASpgmrGetNumResEvals returns the number of calls to the user *
+ *     res routine due to finite difference Jacobian times vector *
+ *     evaluation.                                                *
+ *                                                                *
+ ******************************************************************/
+
+int IDASpgmrGetIntWorkSpace(void *ida_mem, long int *leniwSG);
+int IDASpgmrGetRealWorkSpace(void *ida_mem, long int *lenrwSG);
+int IDASpgmrGetNumPrecEvals(void *ida_mem, int *npevals);
+int IDASpgmrGetNumPrecSolves(void *ida_mem, int *npsolves);
+int IDASpgmrGetNumLinIters(void *ida_mem, int *nliters);
+int IDASpgmrGetNumConvFails(void *ida_mem, int *nlcfails);
+int IDASpgmrGetNumJtimesEvals(void *ida_mem, int *njvevals);
+int IDASpgmrGetNumResEvals(void *ida_mem, int *nrevalsSG); 
+
+/******************************************************************
+ *                                                                *           
+ * Types : IDASpgmrMemRec, IDASpgmrMem                            *
+ *----------------------------------------------------------------*
+ * The type IDASpgmrMem is pointer to an IDASpgmrMemRec. This     *
+ * structure contains IDASpgmr solver-specific data.              *
+ *                                                                *
+ ******************************************************************/
+
+
+typedef struct {
+
+  int  g_gstype;       /* type of Gram-Schmidt orthogonalization       */
+  realtype g_sqrtN;    /* sqrt(N)                                      */
+  int  g_maxl;         /* maxl = maximum dimension of the Krylov space */
+  int  g_maxrs;        /* maxrs = max. number of GMRES restarts        */
+  realtype g_eplifac;  /* eplifac = optional linear convergence factor */
+  realtype g_dqincfac; /* dqincfac = optional increment factor in Jv   */
+  realtype g_epslin;   /* SpgrmSolve tolerance parameter               */
+
+  int g_resflag;       /* flag from last res call                      */
+  int g_npe;           /* npe = total number of precond calls          */   
+  int g_nli;           /* nli = total number of linear iterations      */
+  int g_nps;           /* nps = total number of psolve calls           */
+  int g_ncfl;          /* ncfl = total number of convergence failures  */
+  int g_nreSG;         /* nreSG = total number of calls to res         */    
+  int g_njtimes;       /* njtimes = total number of calls to jtimes    */
+
+  int g_nst0;          /* nst0 = saved nst (for performance monitor)   */   
+  int g_nni0;          /* nni0 = saved nni (for performance monitor)   */   
+  int g_nli0;          /* nli0 = saved nli (for performance monitor)   */   
+  int g_ncfn0;         /* ncfn0 = saved ncfn (for performance monitor) */   
+  int g_ncfl0;         /* ncfl0 = saved ncfl (for performance monitor) */   
+  int g_nwarn;         /* nwarn = no. of warnings (for perf. monitor)  */   
+
+  N_Vector g_ytemp;    /* temp vector used by IDAJtimesDQ              */ 
+  N_Vector g_yptemp;   /* temp vector used by IDAJtimesDQ              */ 
+  N_Vector g_xx;       /* temp vector used by IDASpgmrSolve            */
+  N_Vector g_ycur;     /* IDAS current y vector in Newton iteration    */
+  N_Vector g_ypcur;    /* IDAS current yp vector in Newton iteration   */
+  N_Vector g_rcur;     /* rcur = F(tn, ycur, ypcur)                    */
+
+  IDASpgmrPrecSetupFn g_pset;     /* pset = user-supplied routine      */
+                                  /* to compute a preconditioner       */
+
+  IDASpgmrPrecSolveFn g_psolve;   /* psolve = user-supplied routine to */
+                                  /* solve preconditioner linear system*/
+
+  void *g_pdata;                  /* pdata passed to psolve and precond*/
+  SpgmrMem g_spgmr_mem;           /* spgmr_mem is memory used by the   */
+                                  /* generic Spgmr solver              */
+
+  IDASpgmrJacTimesVecFn g_jtimes; /* Jacobian*vector routine           */ 
+  void *g_jdata;                  /* data passed to Jtimes             */
+
+} IDASpgmrMemRec, *IDASpgmrMem;
 
 #endif
 

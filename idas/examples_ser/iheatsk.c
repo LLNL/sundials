@@ -1,10 +1,10 @@
 /***********************************************************************
  * File       : iheatsk.c   
  * Written by : Allan G. Taylor, Alan C. Hindmarsh, and Radu Serban
- * Version of : 31 March 2003
+ * Version of : 23 July 2003
  *----------------------------------------------------------------------
  *
- * Example problem for IDA: 2D heat equation, serial, GMRES.
+ * Example problem for IDAS: 2D heat equation, serial, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the Krylov solver IDASpgmr.
@@ -18,7 +18,7 @@
  * u = 0 at the boundaries are appended, to form a DAE system of size
  * N = M^2.  Here M = 10.
  *
- * The system is solved with IDA using the Krylov linear solver IDASPGMR. 
+ * The system is solved with IDAS using the Krylov linear solver IDASPGMR. 
  * The preconditioner uses the diagonal elements of the Jacobian only.
  * Routines for preconditioning, required by IDASPGMR, are supplied here.
  * The constraints u >= 0 are posed for all components.
@@ -56,15 +56,14 @@ int heatres(realtype tres, N_Vector uu, N_Vector up,
 
 int PrecondHeateq(realtype tt, N_Vector uu,
                   N_Vector up, N_Vector rr, realtype cj,
-                  ResFn res, void *rdata, void *pdata,
-                  N_Vector ewt, N_Vector constraints, realtype hh, 
-                  realtype uround, long int *nrePtr,
+                  void *pdata, 
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 int PSolveHeateq(realtype tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, realtype cj, ResFn res, void *rdata,
-                 void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
-                 N_Vector zvec, long int *nrePtr, N_Vector tempv);
+                 N_Vector up, N_Vector rr, 
+                 N_Vector rvec, N_Vector zvec,
+                 realtype cj, realtype delta,
+                 void *pdata, N_Vector tempv);
 
 #define NOUT  11
 #define MGRID 10
@@ -76,25 +75,24 @@ int PSolveHeateq(realtype tt, N_Vector uu,
 
 int main()
 {
-  M_Env machEnv;
-  int retval, iout, itol, itask;
-  long int iopt[OPT_SIZE];
-  booleantype optIn;
-  realtype ropt[OPT_SIZE], rtol, atol, t0, t1, tout, tret, umax;
-  N_Vector uu, up, constraints, id, res;
-  UserData data;
   void *mem;
+  NV_Spec nvSpec;
+  UserData data;
+  N_Vector uu, up, constraints, id, res;
+  int ier, iout, itol, itask;
+  realtype rtol, atol, t0, t1, tout, tret, umax, hused;
+  int kused, nst, nni, nje, nre, nreS, nli, npe, nps, netf, ncfn, ncfl;
 
-  /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(NEQ);  
+  /* Initialize serial vector specification */
+  nvSpec = NV_SpecInit_Serial(NEQ);  
 
   /* Allocate N-vectors and the user data structure. */
 
-  uu = N_VNew(machEnv); 
-  up = N_VNew(machEnv);
-  res = N_VNew(machEnv);
-  constraints = N_VNew(machEnv);
-  id = N_VNew(machEnv);
+  uu = N_VNew(nvSpec); 
+  up = N_VNew(nvSpec);
+  res = N_VNew(nvSpec);
+  constraints = N_VNew(nvSpec);
+  id = N_VNew(nvSpec);
 
   data = (UserData) malloc(sizeof *data);
 
@@ -103,7 +101,7 @@ int main()
   data->mm  = MGRID;
   data->dx = ONE/(MGRID-ONE);
   data->coeff = ONE/(data->dx * data->dx);
-  data->pp = N_VNew(machEnv);
+  data->pp = N_VNew(nvSpec);
 
   /* Initialize uu, up, id. */
   SetInitialProfile(data, uu, up, id, res);
@@ -117,25 +115,34 @@ int main()
   itol = SS; /* Specify scalar relative and absolute tolerance. */
   rtol = ZERO;
   atol = 1.e-3; 
-  optIn = FALSE; 
   itask = NORMAL;
 
-  /* Call IDAMalloc to initialize solution.
-     NULL arguments are errfp and machEnv, respectively. */
-
-  mem = IDAMalloc(heatres, data , t0, uu, up, itol, &rtol, &atol,
-                  id , constraints , NULL, optIn, iopt, ropt,  machEnv);
-  if (mem == NULL) { printf("IDAMalloc failed."); return(1); }
+  /* Call IDACreate and IDAMalloc to initialize solution */
+  mem = IDACreate();
+  if (mem == NULL) { printf("IDACreate failed."); return(1); }
+  ier = IDASetRdata(mem, data);
+  if (ier != SUCCESS) { printf("IDASetRdata failed. "); return(1); }
+  ier = IDASetID(mem, id);
+  if (ier != SUCCESS) { printf("IDASetID failed. "); return(1); }
+  ier = IDASetConstraints(mem, constraints);
+  if (ier != SUCCESS) { printf("IDASetConstraints failed. "); return(1); }
+  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);
+  if (ier != SUCCESS) { printf("IDAMalloc failed. "); return(1); }
 
   /* Call IDASpgmr to specify the linear solver. */
 
-  retval = IDASpgmr(mem, PrecondHeateq, PSolveHeateq,  MODIFIED_GS, 
-                    0, 0, 0., 0., data);
-  if (retval != SUCCESS) {printf("IDASpgmr failed."); return(1); }
-  
+  ier = IDASpgmr(mem, 0.0);
+  if (ier != SUCCESS) {printf("IDASpgmr failed."); return(1); }
+  ier = IDASpgmrSetPrecSetupFn(mem, PrecondHeateq);
+  if (ier != SUCCESS) {printf("IDASpgmrSetPrecSetupFn failed."); return(1); }
+  ier = IDASpgmrSetPrecSolveFn(mem, PSolveHeateq);
+  if (ier != SUCCESS) {printf("IDASpgmrSetPrecSolveFn failed."); return(1); }
+  ier = IDASpgmrSetPrecData(mem, data);
+  if (ier != SUCCESS) {printf("IDASpgmrSetPrecData failed."); return(1); }
+
   /* Print output heading. */
   
-  printf("iheatsk: Heat equation, serial example problem for IDA \n");
+  printf("iheatsk: Heat equation, serial example problem for IDAS \n");
   printf("         Discretized heat equation on 2D unit square. \n");
   printf("         Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
@@ -150,32 +157,45 @@ int main()
   /* Print case number, output table heading, and initial line of table. */
   printf("\n\nCase 1: gsytpe = MODIFIED_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nli   nre     h       npe nps\n" );
-  printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
+  printf("  time     umax       k  nst  nni  nje   nre   nreS     h      npe nps\n" );
+  printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
   umax = N_VMaxNorm(uu);
-
-  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %9.2e  %3d %3d\n",
-         t0, umax, 0, 0, 0, 0, 0, 0.0, 0, 0);
+  
+  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e  %3d %3d\n",
+         t0, umax, 0, 0, 0, 0, 0, 0, 0.0, 0, 0);
 
   /* Loop over output times, call IDASolve, and print results. */
 
   for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
     
-    retval = IDASolve(mem, tout, t0, &tret, uu, up, itask);
+    ier = IDASolve(mem, tout, &tret, uu, up, itask);
     
     umax = N_VMaxNorm(uu);
-    printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld  %9.2e  %3ld %3ld\n",
-           tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
-           iopt[NRE],  ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
+    
+    IDAGetLastOrder(mem, &kused);
+    IDAGetNumSteps(mem, &nst);
+    IDAGetNumNonlinSolvIters(mem, &nni);
+    IDAGetNumResEvals(mem, &nre);
+    IDAGetLastStep(mem, &hused);
+    IDASpgmrGetNumJtimesEvals(mem, &nje);
+    IDASpgmrGetNumLinIters(mem, &nli);
+    IDASpgmrGetNumResEvals(mem, &nreS);
+    IDASpgmrGetNumPrecEvals(mem, &npe);
+    IDASpgmrGetNumPrecSolves(mem, &nps);
 
-    if (retval < 0) {printf("IDASolve returned %d.\n",retval); return(1); }
+    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e  %3d %3d\n",
+           tret, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+
+    if (ier < 0) {printf("IDASolve returned %d.\n",ier); return(1); }
 
     } /* End of tout loop. */
 
   /* Print remaining counters. */
 
-  printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", 
-         iopt[NETF], iopt[NCFN], iopt[SPGMR_NCFL]);
+  IDAGetNumErrTestFails(mem, &netf);
+  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  IDASpgmrGetNumConvFails(mem, &ncfl);
+  printf("\n netf = %d,   ncfn = %d,   ncfl = %d \n", netf, ncfn, ncfl);
 
   
   /* Case 2. */
@@ -184,44 +204,56 @@ int main()
   SetInitialProfile(data, uu, up, id, res);
   
   /* Re-initialize IDA and IDASPGMR */
-  retval = IDAReInit(mem, heatres, data , t0, uu, up, itol, &rtol, &atol,
-                     id , constraints , NULL, optIn, iopt, ropt,  NULL);
-  if (retval != SUCCESS) { printf("IDAReInit failed."); return(1); }
+  ier = IDAReInit(mem, heatres, t0, uu, up, itol, &rtol, &atol);
+  if (ier != SUCCESS) { printf("IDAReInit failed."); return(1); }
   
-  retval = IDAReInitSpgmr(mem, PrecondHeateq, PSolveHeateq,  CLASSICAL_GS, 
-                          0, 0, 0., 0., data);
-  if (retval != SUCCESS) {printf("IDAReInitSpgmr failed."); return(1); }
+  ier = IDASpgmrSetGSType(mem, CLASSICAL_GS);
   
   
   /* Print case number, output table heading, and initial line of table. */
   printf("\n\n\n\nCase 2: gstype = CLASSICAL_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nli   nre     h       npe nps\n" );
-  printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
+  printf("  time     umax       k  nst  nni  nje   nre   nreS     h      npe nps\n" );
+  printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
   umax = N_VMaxNorm(uu);
   
-  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %9.2e  %3d %3d\n",
-         t0, umax, 0, 0, 0, 0, 0, 0.0, 0, 0);
-  
+  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e  %3d %3d\n",
+         t0, umax, 0, 0, 0, 0, 0, 0, 0.0, 0, 0);
+
+   
   /* Loop over output times, call IDASolve, and print results. */
   
   for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
     
-    retval = IDASolve(mem, tout, t0, &tret, uu, up, itask);
+    ier = IDASolve(mem, tout, &tret, uu, up, itask);
     
     umax = N_VMaxNorm(uu);
-    printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld  %9.2e  %3ld %3ld\n",
-           tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
-           iopt[NRE],  ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
     
-    if (retval < 0) {printf("IDASolve returned %d.\n",retval); return(1); }
+    IDAGetLastOrder(mem, &kused);
+    IDAGetNumSteps(mem, &nst);
+    IDAGetNumNonlinSolvIters(mem, &nni);
+    IDAGetNumResEvals(mem, &nre);
+    IDAGetLastStep(mem, &hused);
+    IDASpgmrGetNumJtimesEvals(mem, &nje);
+    IDASpgmrGetNumLinIters(mem, &nli);
+    IDASpgmrGetNumResEvals(mem, &nreS);
+    IDASpgmrGetNumPrecEvals(mem, &npe);
+    IDASpgmrGetNumPrecSolves(mem, &nps);
+
+    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e  %3d %3d\n",
+           tret, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+
+    if (ier < 0) {printf("IDASolve returned %d.\n",ier); return(1); }
+    
     
   } /* End of tout loop. */
   
   /* Print remaining counters. */
   
-  printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", 
-         iopt[NETF], iopt[NCFN], iopt[SPGMR_NCFL]);
+  IDAGetNumErrTestFails(mem, &netf);
+  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  IDASpgmrGetNumConvFails(mem, &ncfl);
+  printf("\n netf = %d,   ncfn = %d,   ncfl = %d \n", netf, ncfn, ncfl);
   
   /* Free Memory */
   
@@ -233,7 +265,7 @@ int main()
   N_VFree(res);
   N_VFree(data->pp);
   free(data);
-  M_EnvFree_Serial(machEnv);
+  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 
@@ -353,9 +385,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
   
 int PrecondHeateq(realtype tt, N_Vector uu,
                   N_Vector up, N_Vector rr, realtype cj,
-                  ResFn res, void *rdata, void *pdata,
-                  N_Vector ewt, N_Vector constraints, realtype hh, 
-                  realtype uround, long int *nrePtr,
+                  void *pdata, 
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   
@@ -363,7 +393,7 @@ int PrecondHeateq(realtype tt, N_Vector uu,
   realtype *ppv, pelinv;
   UserData data;
   
-  data = (UserData) rdata;
+  data = (UserData) pdata;
   ppv = NV_DATA_S(data->pp);
   mm = data->mm;
 
@@ -395,13 +425,14 @@ int PrecondHeateq(realtype tt, N_Vector uu,
  * computed in PrecondHeateq), returning the result in zvec.      */
 
 int PSolveHeateq(realtype tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, realtype cj, ResFn res, void *rdata,
-                 void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
-                 N_Vector zvec, long int *nrePtr, N_Vector tempv)
+                 N_Vector up, N_Vector rr, 
+                 N_Vector rvec, N_Vector zvec,
+                 realtype cj, realtype delta,
+                 void *pdata, N_Vector tempv)
 {
   UserData data;
   
-  data = (UserData) rdata;
+  data = (UserData) pdata;
   
   N_VProd(data->pp, rvec, zvec);
   

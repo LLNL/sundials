@@ -1,6 +1,6 @@
 # File Makefile
 #--------------------------------------------------------------------------
-# Makefile for the IDAS examples using the serial N_Vector implementation.
+# Makefile for the IDA examples using the serial N_Vector implementation.
 # @configure_input@
 #--------------------------------------------------------------------------
 

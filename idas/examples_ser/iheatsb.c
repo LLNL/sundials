@@ -1,10 +1,10 @@
 /***********************************************************************
  * File       : iheatsb.c   
  * Written by : Allan G. Taylor, Alan C. Hindmarsh, and Radu Serban
- * Version of : 31 March 2003
+ * Version of : 23 July 2003
  *----------------------------------------------------------------------
  *
- * Example problem for IDA: 2D heat equation, serial, banded. 
+ * Example problem for IDAS: 2D heat equation, serial, banded. 
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the band solver IDABand, and IDACalcIC.
@@ -18,7 +18,7 @@
  * u = 0 at the boundaries are appended, to form a DAE system of size
  * N = M^2.  Here M = 10.
  *
- * The system is solved with IDA using the banded linear system solver,
+ * The system is solved with IDAS using the banded linear system solver,
  * half-bandwidths equal to M, and default difference-quotient Jacobian.
  * For purposes of illustration, IDACalcIC is called to compute correct
  * values at the boundary, given incorrect values as input initial guesses.
@@ -60,24 +60,24 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *rdat
 
 int main()
 {
-  M_Env machEnv;
-  integertype retval, iout, itol, itask, mu, ml;
-  long int iopt[OPT_SIZE];
-  booleantype optIn;
-  realtype ropt[OPT_SIZE], rtol, atol, t0, t1, tout, tret, umax;
-  N_Vector uu, up, constraints, id, res;
-  UserData data;
   void *mem;
+  UserData data;
+  NV_Spec nvSpec;
+  N_Vector uu, up, constraints, id, res;
+  int ier, iout, itol, itask;
+  integertype mu, ml;
+  realtype rtol, atol, t0, t1, tout, tret, umax, hused;
+  int kused, nst, nni, nje, nre, nreB, netf, ncfn;
 
-  /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(NEQ);
+  /* Initialize serial vector specification */
+  nvSpec = NV_SpecInit_Serial(NEQ);
 
   /* Create vectors uu, up, res, constraints, id. */
-  uu = N_VNew(machEnv); 
-  up = N_VNew(machEnv);
-  res = N_VNew(machEnv);
-  constraints = N_VNew(machEnv);
-  id = N_VNew(machEnv);
+  uu = N_VNew(nvSpec); 
+  up = N_VNew(nvSpec);
+  res = N_VNew(nvSpec);
+  constraints = N_VNew(nvSpec);
+  id = N_VNew(nvSpec);
 
   /* Create and load problem data block. */
   data = (UserData) malloc(sizeof *data);
@@ -97,28 +97,33 @@ int main()
   itol = SS;    /* Specify scalar relative and absolute tolerance. */
   rtol = ZERO;
   atol = 1.0e-3;
-  optIn = FALSE; 
   itask = NORMAL;
 
-  /* Call IDAMalloc to initialize solution.
-     NULL arguments are errfp and machEnv, respectively. */
-  mem = IDAMalloc(heatres, data, t0, uu, up, itol, &rtol, &atol,
-                  id, constraints, NULL, optIn, iopt, ropt,  machEnv);
-  if (mem == NULL) { printf("IDAMalloc failed."); return(1); }
-
+  /* Call IDACreate and IDAMalloc to initialize solution */
+  mem = IDACreate();
+  if (mem == NULL) { printf("IDACreate failed."); return(1); }
+  ier = IDASetRdata(mem, data);
+  if (ier != SUCCESS) { printf("IDASetRdata failed. "); return(1); }
+  ier = IDASetID(mem, id);
+  if (ier != SUCCESS) { printf("IDASetID failed. "); return(1); }
+  ier = IDASetConstraints(mem, constraints);
+  if (ier != SUCCESS) { printf("IDASetConstraints failed. "); return(1); }
+  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);
+  if (ier != SUCCESS) { printf("IDAMalloc failed. "); return(1); }
 
   /* Call IDABand to specify the linear solver. */
   mu = MGRID; ml = MGRID;
-  retval = IDABand(mem, NEQ, mu, ml, NULL, NULL);
-  if (retval != SUCCESS) { printf("IDABand failed."); return(1); }
+  ier = IDABand(mem, NEQ, mu, ml);
+  if (ier != SUCCESS) { printf("IDABand failed."); return(1); }
  
   /* Call IDACalcIC to correct the initial values. */
-  retval = IDACalcIC(mem, CALC_YA_YDP_INIT, t1, ZERO, 0, 0, 0, 0, ZERO);
-  if (retval != SUCCESS) { printf("IDACalcIC failed."); return(1); }
+  
+  ier = IDACalcIC(mem, CALC_YA_YDP_INIT, t1);
+  if (ier != SUCCESS) { printf("IDACalcIC failed. "); return(1); }
 
   /* Print output heading. */
 
-  printf("iheatsb: Heat equation, serial example problem for IDA \n");
+  printf("iheatsb: Heat equation, serial example problem for IDAS \n");
   printf("         Discretized heat equation on 2D unit square. \n");
   printf("         Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
@@ -132,31 +137,48 @@ int main()
 
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time       umax     k  nst  nni  nje   nre    h      \n" );
-  printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
+  printf("  time       umax     k  nst  nni  nje   nre   nreB     h      \n" );
+  printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
+
   umax = N_VMaxNorm(uu);
   
-  printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld  %9.2e \n",
-         t0, umax, iopt[KUSED], iopt[NST], iopt[NNI], 
-         iopt[BAND_NJE], iopt[NRE], ropt[HUSED]);
+  IDAGetLastOrder(mem, &kused);
+  IDAGetNumSteps(mem, &nst);
+  IDAGetNumNonlinSolvIters(mem, &nni);
+  IDAGetNumResEvals(mem, &nre);
+  IDAGetLastStep(mem, &hused);
+  IDABandGetNumJacEvals(mem, &nje);
+  IDABandGetNumResEvals(mem, &nreB);
+
+  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e \n",
+         t0, umax, kused, nst, nni, nje, nre, nreB, hused);
 
   /* Loop over output times, call IDASolve, and print results. */
   
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
     
-    retval = IDASolve(mem, tout, t0, &tret, uu, up, itask);
+    ier = IDASolve(mem, tout, &tret, uu, up, itask);
     
     umax = N_VMaxNorm(uu);
-    printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld  %9.2e \n",
-           tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], 
-           iopt[BAND_NJE], iopt[NRE], ropt[HUSED]);
+    IDAGetLastOrder(mem, &kused);
+    IDAGetNumSteps(mem, &nst);
+    IDAGetNumNonlinSolvIters(mem, &nni);
+    IDAGetNumResEvals(mem, &nre);
+    IDAGetLastStep(mem, &hused);
+    IDABandGetNumJacEvals(mem, &nje);
+    IDABandGetNumResEvals(mem, &nreB);
+
+    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e \n",
+           tret, umax, kused, nst, nni, nje, nre, nreB, hused);
     
-    if (retval < 0) { printf("IDASolve failed."); return(1); }
+    if (ier < 0) { printf("IDASolve failed."); return(1); }
 
   } /* End of tout loop. */
   
   /* Print remaining counters and free memory. */
-  printf("\n netf = %ld,   ncfn = %ld \n", iopt[NETF], iopt[NCFN]);
+  IDAGetNumErrTestFails(mem, &netf);
+  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  printf("\n netf = %d,   ncfn = %d \n", netf, ncfn);
 
   IDAFree(mem);
   N_VFree(uu);
@@ -165,7 +187,7 @@ int main()
   N_VFree(id);
   N_VFree(res);
   free(data);
-  M_EnvFree_Serial(machEnv);
+  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 

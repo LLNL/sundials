@@ -1,10 +1,10 @@
 /***********************************************************************
  * File       : irobx.c
  * Written by : Allan G. Taylor, Alan C. Hindmarsh, and Radu Serban
- * Version of : 31 March 2003
+ * Version of : 23 July 2003
  *----------------------------------------------------------------------
  *
- * This simple example problem for IDA, due to Robertson, is from
+ * This simple example problem for IDAS, due to Robertson, is from
  * chemical kinetics, and consists of the following three equations:
  *
  *      dy1/dt = -.04*y1 + 1.e4*y2*y3
@@ -14,7 +14,7 @@
  * on the interval from t = 0.0 to t = 4.e10, with initial conditions
  * y1 = 1, y2 = y3 = 0.
  *
- * The problem is solved with IDA using IDADENSE for the linear solver,
+ * The problem is solved with IDAS using IDADENSE for the linear solver,
  * with a user-supplied Jacobian.
  * Output is printed at t = .4, 4, 40, ..., 4e10.
  *************************************************************************/
@@ -41,23 +41,22 @@ int jacrob(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
 
 int main()
 {
-  M_Env machEnv;
-  int itol, itask;
-  integertype SystemSize = 3, retval, iout;
-  long int iopt[OPT_SIZE];
-  booleantype optIn;
-  realtype ropt[OPT_SIZE], rtol, *yval, *ypval, *atval;
-  realtype t0, t1, tout, tret;
-  N_Vector yy, yp, avtol;
   void *mem;
+  NV_Spec nvSpec;
+  N_Vector yy, yp, avtol;
+  integertype SystemSize = 3;
+  realtype rtol, *yval, *ypval, *atval;
+  realtype t0, t1, tout, tret, hused;
+  int iout, itol, itask;
+  int retval, kused, nst, nni, nje, nre, nreD, netf, ncfn;
 
   /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(SystemSize);
+  nvSpec = NV_SpecInit_Serial(SystemSize);
 
   /* Allocate N-vectors. */
-  yy = N_VNew(machEnv); 
-  yp = N_VNew(machEnv);
-  avtol = N_VNew(machEnv);
+  yy = N_VNew(nvSpec); 
+  yp = N_VNew(nvSpec);
+  avtol = N_VNew(nvSpec);
 
   /* Set various input parameters and initialize y and y'. */
   yval  = NV_DATA_S(yy);
@@ -76,22 +75,21 @@ int main()
   ypval[0]  = -0.04;
   ypval[1]  = +0.04;
   ypval[2]  =   0.;  
-  optIn = FALSE; 
   itask = NORMAL;
 
-  /* Call IDAMalloc to set up problem memory.
-  NULL arguments are: id, constraints, errfp, and machEnv, respectively. */
-
-  mem = IDAMalloc(resrob, NULL, t0, yy, yp, itol, &rtol, avtol,
-                  NULL , NULL , NULL, optIn, iopt, ropt,  machEnv);
-  if (mem == NULL) {printf("IDAMalloc failed.\n"); return(1); }
+  /* Call IDACreate and IDAMalloc to initialize solution */
+  mem = IDACreate();
+  if (mem == NULL) { printf("IDACreate failed."); return(1); }
+  retval = IDAMalloc(mem, resrob, t0, yy, yp, itol, &rtol, avtol, nvSpec);
+  if (retval != SUCCESS) {printf("IDAMalloc failed.\n"); return(1); }
 
   /* Call IDADense and set up the linear solver package. */
-
-  retval = IDADense(mem, SystemSize, jacrob, NULL);
+  retval = IDADense(mem, SystemSize);
   if (retval != SUCCESS) {printf("IDADense failed.\n"); return(1); }
+  retval = IDADenseSetJacFn(mem, jacrob);
+  if (retval != SUCCESS) {printf("IDADenseSetJacFn failed.\n"); return(1); }
 
-  printf("irobx: Robertson kinetics DAE serial example problem for IDA \n");
+  printf("irobx: Robertson kinetics DAE serial example problem for IDAS \n");
   printf("       Three equation chemical kinetics problem. \n\n");
   printf("Linear solver: IDADENSE, with user-supplied Jacobian.\n");
   printf("Tolerance parameters:  rtol = %g   atol = %g %g %g \n",
@@ -103,31 +101,40 @@ int main()
   /* Loop over tout values and call IDASolve. */
 
   for (tout = t1, iout = 1; iout <= NOUT ; iout++, tout *= 10.0) {
-    retval=IDASolve(mem, tout, t0, &tret, yy, yp, itask);
-    if (retval != SUCCESS) {printf("IDASolve returned %ld\n",retval); return(1); }
+    retval=IDASolve(mem, tout, &tret, yy, yp, itask);
+    if (retval != SUCCESS) {printf("IDASolve returned %d\n",retval); return(1); }
     
     printf("\nt = %g,  y = (%g, %g, %g)\n", tret, yval[0],yval[1],yval[2]);
     
-    printf("k = %ld, nst = %ld, nni = %ld, nje = %ld, nre = %ld, h = %g\n",
-           iopt[KUSED], iopt[NST],iopt[NNI], iopt[DENSE_NJE], 
-           iopt[NRE], ropt[HUSED]);
+    IDAGetLastOrder(mem, &kused);
+    IDAGetNumSteps(mem, &nst);
+    IDAGetNumNonlinSolvIters(mem, &nni);
+    IDAGetNumResEvals(mem, &nre);
+    IDAGetLastStep(mem, &hused);
+    IDADenseGetNumJacEvals(mem, &nje);
+    IDADenseGetNumResEvals(mem, &nreD);
+
+    printf("k = %d, nst = %d, nni = %d, nje = %d, nre = %d, nreD = %d  h = %g\n",
+           kused, nst, nni, nje, nre, nreD, hused);
 
   } /* End of tout loop. */
 
+  IDAGetNumErrTestFails(mem, &netf);
+  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+
   printf("\nFinal Run Statistics: \n\n");
-  printf("Number of steps =                %ld\n",iopt[NST]);
-  printf("Number of residual evaluations = %ld\n",iopt[NRE]);
-  printf("Number of Jacobian evaluations = %ld\n",iopt[DENSE_NJE]);
-  printf("Number of error test failures =  %ld\n",iopt[NETF]);
-  printf("Number of nonlinear (corrector) convergence failures = %ld\n",
-         iopt[NCFN]);
+  printf("Number of steps =                %d\n",nst);
+  printf("Number of residual evaluations = %d\n",nre+nreD);
+  printf("Number of Jacobian evaluations = %d\n",nje);
+  printf("Number of error test failures =  %d\n",netf);
+  printf("Number of nonlinear (corrector) convergence failures = %d\n",ncfn);
 
   IDAFree(mem);
   N_VFree(yy);
   N_VFree(yp);
   N_VFree(avtol);
   
-  M_EnvFree_Serial(machEnv);
+  NV_SpecFree_Serial(nvSpec);
 
   return(0);
   

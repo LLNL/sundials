@@ -3,16 +3,16 @@
  * File          : idasband.h                                      *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 30 March 2003                                   *
+ * Version of    : 11 August 2003                                  *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/ida/LICENSE                           *
+ * For details, see sundials/idas/LICENSE                          *
  *-----------------------------------------------------------------*
- * This is the header file for the IDA band linear solver          *
+ * This is the header file for the IDAS band linear solver         *
  * module, IDABAND. It interfaces between the band module and the  *
- * IDA package when a banded linear solver is appropriate.         *
+ * IDAS package when a banded linear solver is appropriate.        *
  *                                                                 *
  *******************************************************************/
 
@@ -29,31 +29,6 @@ extern "C" {
 #include "sundialstypes.h"
 #include "band.h"
 #include "nvector.h"
-
- 
-/******************************************************************
- *                                                                *
- * IDABAND solver optional output indices                         *
- *----------------------------------------------------------------*
- * The following enumeration gives a symbolic name to each        *
- * IDABAND optional output. The symbolic names are used as        *
- * indices into the iopt and ropt arrays passed to IDAMalloc.     *
- * The IDABAND optional outputs are:                              *
- *                                                                *
- * iopt[BAND_NJE] : number of Jacobian evaluations, i.e. of       *
- *                   calls made to the band Jacobian routine      *
- *                   (default or user-supplied).                  *
- *                                                                *
- * iopt[BAND_LRW] : size (in realtype words) of real workspace    *
- *                   matrices and vectors used by this module.    *
- *                                                                *
- * iopt[BAND_LIW] : size (in integertype words) of integer        *
- *                   workspace vectors used by this module.       *
- *                                                                *
- ******************************************************************/
- 
-enum { BAND_NJE=IDA_IOPT_SIZE, BAND_LRW, BAND_LIW };
-
 
  
 /******************************************************************
@@ -77,19 +52,19 @@ enum { BAND_NJE=IDA_IOPT_SIZE, BAND_LRW, BAND_LIW };
  * yp  is the current value of the derivative vector y',          *
  *        namely the predicted value of y'(t).                    *
  *                                                                *
- * cj  is the scalar in the system Jacobian, proportional to 1/hh.*
+ * c_j is the scalar in the system Jacobian, proportional to 1/hh.*
  *                                                                *
  * jdata  is a pointer to user Jacobian data - the same as the    *
  *        jdata parameter passed to IDABand.                      *
  *                                                                *
  * resvec is the residual vector F(tt,yy,yp).                     *
  *                                                                *
- * JJ     is the band matrix (of type BandMat) to be loaded by    *
+ * Jac    is the band matrix (of type BandMat) to be loaded by    *
  *        an IDABandJacFn routine with an approximation to the    *
  *        system Jacobian matrix                                  *
  *              J = dF/dy + cj*dF/dy'                             *
  *        at the given point (t,y,y'), where the DAE system is    *
- *        given by F(t,y,y') = 0.  JJ is preset to zero, so only  *
+ *        given by F(t,y,y') = 0.  Jac is preset to zero, so only *
  *        the nonzero elements need to be loaded.  See note below.*
  *                                                                *
  * tempv1, tempv2, tempv3 are pointers to memory allocated for    *
@@ -125,14 +100,14 @@ enum { BAND_NJE=IDA_IOPT_SIZE, BAND_LRW, BAND_LIW };
  *     0 if successful,                                           *
  *     a positive int if a recoverable error occurred, or         *
  *     a negative int if a nonrecoverable error occurred.         *
- * In the case of a recoverable error return, IDA will attempt to *
- * recover by reducing the stepsize (which changes cj).           *
+ * In the case of a recoverable error return, IDAS will attempt   *
+ * to recover by reducing the stepsize (which changes cj).        *
  ******************************************************************/
   
-typedef int (*IDABandJacFn)(integertype neq, integertype mupper, 
+typedef int (*IDABandJacFn)(integertype Neq, integertype mupper, 
                             integertype mlower, realtype tt, 
-                            N_Vector yy, N_Vector yp, realtype cj, 
-                            void *jdata, N_Vector resvec, BandMat JJ, 
+                            N_Vector yy, N_Vector yp, realtype c_j, 
+                            void *jdata, N_Vector resvec, BandMat Jac, 
                             N_Vector tempv1, N_Vector tempv2, 
                             N_Vector tempv3);
  
@@ -140,23 +115,14 @@ typedef int (*IDABandJacFn)(integertype neq, integertype mupper,
  *                                                                *
  * Function : IDABand                                             *
  *----------------------------------------------------------------*
- * A call to the IDABand function links the main IDA integrator   *
+ * A call to the IDABand function links the main IDAS integrator  *
  * with the IDABAND linear solver module.                         *
  *                                                                *
- * IDA_mem is the pointer to IDA memory returned by IDAMalloc.    *
+ * ida_mem is the pointer to IDAS memory returned by IDACreate.   *
  *                                                                *
  * mupper is the upper bandwidth of the banded Jacobian matrix.   *
  *                                                                *
  * mlower is the lower bandwidth of the banded Jacobian matrix.   *
- *                                                                *
- * bjac is the banded Jacobian approximation routine to be used.  *
- *         A user-supplied bjac routine must be of type           *
- *         IDABandJacFn (see above).  Pass NULL for bjac if IDA   *
- *         is to use the default difference quotient routine      *
- *         IDABandDQJac supplied with this module.                *
- *                                                                *
- * jdata is a pointer to user data which is passed to the bjac    *
- *         routine every time it is called.                       *
  *                                                                *
  * The return values of IDABand are:                              *
  *    SUCCESS       = 0  if successful                            *
@@ -172,39 +138,45 @@ typedef int (*IDABandJacFn)(integertype neq, integertype mupper,
  *                                                                *
  ******************************************************************/
 
-int IDABand(void *IDA_mem, integertype neq, integertype mupper, 
-            integertype mlower, IDABandJacFn bjac, void *jdata);
-
+int IDABand(void *ida_mem, integertype Neq, 
+            integertype mupper, integertype mlower);
 
 /******************************************************************
- *                                                                *
- * Function : IDAReInitBand                                       *
+ * Optional inputs to the IDABAND linear solver                   *
  *----------------------------------------------------------------*
- * A call to the IDAReInitBand function resets the link between   *
- * the main IDA integrator and the IDABand linear solver.         *
- * After solving one problem using IDABand, call IDAReInit and    *
- * then IDAReInitBand to solve another problem of the same size,  *
- * if there is a change in the IDABand parameters bjac or jdata,  *
- * but no change in mupper or mlower.  If there is a change in    *
- * mupper or mlower, then IDABand must be called again, and the   *
- * linear solver memory will be reallocated.                      *
- * If there is no change in parameters, it is not necessary to    *
- * call either IDAReInitBand or IDABand for the new problem.      *
  *                                                                *
- * All arguments to IDAReInitBand have the same names and         * 
- * meanings as those of IDABand.  The IDA_mem argument must be    *
- * identical to its value in the previous IDABand call.           *
- *                                                                *
- * The return values of IDAReInitBand are:                        *
- *    SUCCESS       = 0  if successful                            *
- *    LMEM_FAIL     = -1 if the IDA_mem argument is NULL          *
- *    LIN_ILL_INPUT = -2 if the input was illegal or NVECTOR bad. *
+ * IDABandSetJacFn specifies the dense Jacobian approximation     *
+ *         routine to be used. A user-supplied djac routine must  *
+ *         be of type IDABandJacFn.                               *
+ *         By default, a difference quotient routine IDABandDQJac,*
+ *         supplied with this solver is used.                     *
+ * IDABandSetJacData specifies a pointer to user data which is    *
+ *         passed to the bjac routine every time it is called.    *
  *                                                                *
  ******************************************************************/
 
-int IDAReInitBand(void *IDA_mem, integertype mupper, integertype mlower,
-                  IDABandJacFn bjac, void *jdata);
+int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac);
+int IDABandSetJacData(void *ida_mem, void *jdata);
 
+/******************************************************************
+ * Optional outputs from the IDABAND linear solver                *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * IDABandGetIntWorkSpace returns the integer workspace used by   *
+ *     IDABAND.                                                   *
+ * IDABandGetRealWorkSpace returns the real workspace used by     *
+ *     IDABAND.                                                   *
+ * IDABandGetNumJacEvals returns the number of calls made to the  *
+ *     Jacobian evaluation routine bjac.                          *
+ * IDABandGetNumResEvals returns the number of calls to the user  *
+ *     res routine due to finite difference Jacobian evaluation.  *
+ *                                                                *
+ ******************************************************************/
+
+int IDABandGetIntWorkSpace(void *ida_mem, long int *leniwB);
+int IDABandGetRealWorkSpace(void *ida_mem, long int *lenrwB);
+int IDABandGetNumJacEvals(void *ida_mem, int *njevalsB);
+int IDABandGetNumResEvals(void *ida_mem, int *nrevalsB);
 
 #endif
 
