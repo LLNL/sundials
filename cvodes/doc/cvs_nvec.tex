@@ -13,14 +13,16 @@
 \input{nvec_parallel}
 
 %---------------------------------------------------------------------------
-\section{NVECTOR kernels used by CVODES}
+\section{NVECTOR functions used by CVODES}
 
-In Table \ref{t:nvecuse} below, we list the vector kernels in the 
+In Table \ref{t:nvecuse} below, we list the vector functions in the 
 {\nvector} module within the {\cvodes} package.
-The table also shows, for each kernel, which of the code modules uses
-the kernel. The {\cvodes} column shows kernel usage within the main
-integrator module, while the remaining four columns show kernel usage
-within each of the four {\cvodes} linear solvers. 
+The table also shows, for each function, which of the code modules uses
+the function. The {\cvodes} column shows function usage within the main
+integrator module, while the remaining seven columns show function usage
+within each of the four {\cvodes} linear solvers, the {\cvbandpre} and
+{\cvbbdpre} preconditioner modules, and the {\cvodea} adjoint sensitivity
+module.
 
 There is one subtlety in the {\cvspgmr} column hidden by the table. 
 The dot product kernel \id{N\_VDotProd} is called both within the 
