@@ -3,9 +3,9 @@
 # Programmers : Radu Serban @ LLNL
 # Version of  : 27 February 2002
 #--------------------------------------------------------------------------------
-# Makefile for the CVODE examples.
+# Makefile for the CVODES simulation examples.
 #
-# This makefile generates the executables for the CVODE examples requested.
+# This makefile generates the executables for the CVODES examples requested.
 # 
 # Type 'make' to see usage instructions and list of examples.
 #
@@ -19,10 +19,18 @@ SHELL = /bin/sh
 
 all:
 	@(echo)
+	@(echo 'SIMULATION EXAMPLES FOR CVODES')
+	@(echo)
 	@(echo 'Usage: make <ex>     - make example <ex>')
-	@(echo '       make cvx_ser  - make all serial CVODE examples')
-	@(echo '       make cvx_par  - make all parallel CVODE examples')
-	@(echo '       make examples - make all CVODE examples')
+	@(if test -f cvx_ser.mk; \
+		then echo '       make cvx_ser  - make all serial CVODE examples'; \
+	fi)
+	@(if test -f cvx_par.mk; \
+		then echo '       make cvx_par  - make all parallel CVODE examples'; \
+	fi)
+	@(if (test -f cvx_ser.mk) && (test -f cvx_par.mk); \
+		then echo '       make examples - make all CVODE examples'; \
+	fi)
 	@(echo '       make purge    - remove all example executable files')
 	@(echo)
 	@(if test -f cvx_ser.mk; then make -f cvx_ser.mk; fi)

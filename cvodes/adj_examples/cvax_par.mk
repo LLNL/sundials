@@ -65,8 +65,8 @@ CFLAGS = -I$(INC_DIR) -L$(LIB_DIR)
 #======================================================
 
 all:
-	@(echo 'List of parallel adjoint CVODES examples (using the parallel NVECTOR module):')
-	@(echo)
+	@(echo 'List of parallel CVODES examples (using the parallel NVECTOR module):')
+	@(echo '  pvanx  : 1-D advection-diffusion; adjoint sensitivity')
 
 examples: pvanx
 

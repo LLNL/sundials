@@ -66,10 +66,10 @@ CFLAGS = -I$(INC_DIR) -L$(LIB_DIR)
 
 all:
 	@(echo 'List of parallel CVODES examples (using the parallel NVECTOR module):')
-	@(echo '    pvfnx: 1-D advection difusion PDE;')
-	@(echo '           Adams with Functional iteration')
-	@(echo '    pvfkx: 2-D 2-species diurnal advection-diffusion PDE;')
-	@(echo '           BDF with Newton GMRES')
+	@(echo '  pvfnx: 1-D advection difusion PDE;')
+	@(echo '         Adams with Functional iteration')
+	@(echo '  pvfkx: 2-D 2-species diurnal advection-diffusion PDE;')
+	@(echo '         BDF with Newton GMRES')
 
 pvfnx: pvfnx.c
 	@echo '...Compile pvfnx...'

@@ -54,12 +54,12 @@ CFLAGS = -Wall -ffloat-store -I$(INC_DIR) -L$(LIB_DIR)
 
 all:
 	@(echo 'List of serial CVODES examples (using the serial NVECTOR module):')
-	@(echo '    cvfnx: 1-D advection difusion PDE;')
-	@(echo '           Adams with Functional iteration')
-	@(echo '    cvfdx: chemical kinetics ODEs;')
-	@(echo '           BDF with Newton Dense')
-	@(echo '    cvfkx: 2-D 2-species diurnal advection-diffusion PDE;')
-	@(echo '           BDF with Newton GMRES')
+	@(echo '  cvfnx: 1-D advection difusion PDE;')
+	@(echo '         Adams with Functional iteration')
+	@(echo '  cvfdx: chemical kinetics ODEs;')
+	@(echo '         BDF with Newton Dense')
+	@(echo '  cvfkx: 2-D 2-species diurnal advection-diffusion PDE;')
+	@(echo '         BDF with Newton GMRES')
 
 cvfnx: cvfnx.c
 	@echo '...Compile cvfnx...'

@@ -3,7 +3,7 @@
 # Programmers : Radu Serban @ LLNL
 # Version of  : 22 March 2002
 #--------------------------------------------------------------------------------
-# Makefile for the adjoint CVODES examples.
+# Makefile for the CVODES adjoint sensitivity examples.
 #
 # This makefile generates the executables for the adjoint CVODES examples requested.
 # 
@@ -20,10 +20,18 @@ SHELL = /bin/sh
 
 all:
 	@(echo)
+	@(echo 'ADJOINT SENSITIVITY EXAMPLES FOR CVODES')
+	@(echo)
 	@(echo 'Usage: make <ex>     - make example <ex>')
-	@(echo '       make cvax_ser - make all serial adjoint CVODES examples')
-	@(echo '       make cvax_par - make all parallel adjoint CVODES examples')
-	@(echo '       make examples - make all adjoint CVODES examples')
+	@(if test -f cvax_ser.mk; \
+		then echo '       make cvfx_ser - make all serial CVODES examples'; \
+	fi)
+	@(if test -f cvax_par.mk; \
+		then echo '       make cvfx_par - make all parallel CVODES examples'; \
+	fi)
+	@(if (test -f cvax_ser.mk) && (test -f cvax_par.mk); \
+		then echo '       make examples - make all CVODES examples'; \
+	fi)
 	@(echo '       make purge    - remove all example executable files')
 	@(echo)
 	@(if test -f cvax_ser.mk; then make -f cvax_ser.mk; fi)

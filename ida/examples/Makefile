@@ -20,9 +20,15 @@ SHELL = /bin/sh
 all:
 	@(echo)
 	@(echo 'Usage: make <ex>     - make example <ex>')
-	@(echo '       make idax_ser - make all serial IDA examples')
-	@(echo '       make idax_par - make all parallel IDA examples')
-	@(echo '       make examples - make all IDA examples')
+	@(if test -f idax_ser.mk; \
+		then echo '       make idax_ser  - make all serial IDA examples'; \
+	fi)
+	@(if test -f idax_par.mk; \
+		then echo '       make idax_par  - make all parallel IDA examples'; \
+	fi)
+	@(if (test -f idax_ser.mk) && (test -f idax_par.mk); \
+		then echo '       make examples - make all IDA examples'; \
+	fi)
 	@(echo '       make purge    - remove all example executable files')
 	@(echo)
 	@(if test -f idax_ser.mk; then make -f idax_ser.mk; fi)

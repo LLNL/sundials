@@ -19,9 +19,15 @@ SHELL = /bin/sh
 all:
 	@(echo)
 	@(echo 'Usage: make <ex>     - make example <ex>')
-	@(echo '       make kinx_ser - make all serial KINSOL examples')
-	@(echo '       make kinx_par - make all parallel KINSOL examples')
-	@(echo '       make examples - make all KINSOL examples')
+	@(if test -f kinx_ser.mk; \
+		then echo '       make kinx_ser - make all serial KINSOL examples'; \
+	fi)
+	@(if test -f kinx_par.mk; \
+		then echo '       make kinx_par - make all parallel KINSOL examples'; \
+	fi)
+	@(if (test -f kinx_ser.mk) && (test -f kinx_par.mk); \
+		then echo '       make examples - make all KINSOL examples'; \
+	fi)
 	@(echo '       make purge    - remove all example executable files')
 	@(echo)
 	@(if test -f kinx_ser.mk; then make -f kinx_ser.mk; fi)

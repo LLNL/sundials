@@ -51,11 +51,11 @@ CFLAGS = -Wall -ffloat-store -I$(INC_DIR) -L$(LIB_DIR)
 #======================================================
 
 all:
-	@(echo 'List of serial adjoint CVODES examples (using the serial NVECTOR module):')
-	@(echo 'cvadx  - Chemical kinetics; adjoint sensitivity')
-	@(echo 'cvabx  - Advection-diffusion; adjoint sensitivity')
-	@(echo 'cvakx  - Food web; adjoint sensitivity for G') 
-	@(echo 'cvakxb - Food web; adjoint sensitivity for g') 
+	@(echo 'List of serial CVODES examples (using the serial NVECTOR module):')
+	@(echo '  cvadx  : Chemical kinetics; adjoint sensitivity')
+	@(echo '  cvabx  : Advection-diffusion; adjoint sensitivity')
+	@(echo '  cvakx  : Food web; adjoint sensitivity for G') 
+	@(echo '  cvakxb : Food web; adjoint sensitivity for g') 
 
 cvadx: cvadx.c
 	@echo '...Compile cvadx...'
