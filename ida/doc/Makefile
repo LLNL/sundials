@@ -37,6 +37,9 @@ ex:
 	cp $(SHARED_DOC)/Rule_and_address.ps .
 	cp $(SHARED_DOC)/chngpage.sty .
 	cp $(SHARED_DOC)/ug.tex .
+	cp $(SHARED_DOC)/biblio.bib .
+	latex ida_examples
+	bibtex ida_examples
 	latex ida_examples
 	latex ida_examples
 #	dvips -Ppdf -o ida_examples.ps ida_examples

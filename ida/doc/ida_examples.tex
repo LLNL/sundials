@@ -5,11 +5,12 @@
 \externaldocument{ida_math}
 \externaldocument{ida_usage}
 \externaldocument{ida_nvec}
+\externaldocument{cv_linsolv}
 
 \input{ug.tex}
 
 \newcommand{\idaucrl}{000000}
-\newcommand{\idadate}{June 2004}
+\newcommand{\idadate}{November 2004}
 \newcommand{\idarelease}{v2.2.0}
 
 \title{Example Programs for {\ida} {\idarelease}}
@@ -26,7 +27,7 @@
 
 %Create the LLNL Cover Page
 \makeLLNLCover{\idaucrl}%                       UCRL number
-{Example Programs for \\ {\ida} {\idarelease}}% Title on cover page
+{Example Programs for \\ IDA {\idarelease}}% Title on cover page
 {Alan C. Hindmarsh and Radu Serban}%            Authors
 {\idadate}%                                      Date
 {0in}{0in}
@@ -37,6 +38,10 @@
 \include{ida_ex_intro}
 \include{ida_ex_serial}
 \include{ida_ex_parallel}
+%===============================================================
+% References
+\bibliographystyle{plain}
+\bibliography{biblio}
 %===============================================================
 % Start appendices
 \appendix
