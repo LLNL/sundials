@@ -32,7 +32,7 @@ For stiff problems, CVODE includes the Backward Differentiation
 Formulas (BDFs) in so-called fixed-leading coefficient form, given by
 $K_1 = q$ and $K_2 = 0$, with order $q$ varying between $1$ and $5$.
 The coefficients are uniquely determined by the method type, its
-order, the recent history of the stepsizes, and the normalization
+order, the recent history of the step sizes, and the normalization
 $\alpha_{n,0} = -1$.  See \cite{ByHi:75} and \cite{JaSD:80}.
 
 % Nonlinear system
@@ -70,7 +70,7 @@ For the Newton corrections, CVODE provides a choice of four methods:
 \end{itemize}
 For large stiff systems, where direct methods are not feasible, the
 combination of a BDF integrator and a preconditioned GMRES algorithm
-yields a powerful tool, because it combines established methods for
+yields a powerful tool because it combines established methods for
 stiff integration, nonlinear iteration, and Krylov (linear) iteration
 with a problem-specific treatment of the dominant source of stiffness,
 in the form of the user-supplied preconditioner matrix \cite{BrHi:89}.
@@ -87,7 +87,7 @@ user, namely
  W_i = \mbox{\sc rtol} \cdot |y^i| + \mbox{\sc atol}_i \, .
 \end{equation}
 Because $W_i$ represents a tolerance in the component $y^i$, a vector
-whose norm is 1 is regarded as ``small''.  For brevity, we will
+whose norm is 1 is regarded as ``small.''  For brevity, we will
 usually drop the subscript WRMS on norms in what follows.
 
 % Newton iteration
@@ -99,7 +99,7 @@ it is an Inexact Newton iteration, in which $M$ is applied in a
 matrix-free manner, with matrix-vector products $Jv$ obtained by
 either difference quotients or a user-supplied routine.  The matrix
 $M$ (direct cases) or preconditioner matrix $P$ (SPGMR case) is
-updated as infrequently as possible, to balance the high costs of
+updated as infrequently as possible to balance the high costs of
 matrix operations against other costs.  Specifically, this matrix
 update occurs when:
 \begin{itemize}
@@ -121,7 +121,7 @@ the failure.  More generally, the decision is made to reevaluate $J$
 \item a convergence failure occurred with an outdated matrix, and
 the value $\bar{\gamma}$ of $\gamma$ at the last update
 satisfies $|\gamma/\bar{\gamma} - 1| < 0.2$, or
-\item a convergence failure occurred that forced a stepsize reduction.
+\item a convergence failure occurred that forced a step size reduction.
 \end{itemize}
 
 % Newton convergence test
@@ -154,7 +154,7 @@ Therefore the convergence (stopping) test is
 We allow at most 3 iterations (but this limit can be changed by the
 user).  We also declare the iteration diverged if any $\|\delta_m\| /
 \|\delta_{m-1}\| > 2$ with $m > 1$. If convergence fails with $J$ or
-$P$ current, we are forced to reduce the stepsize, and we replace
+$P$ current, we are forced to reduce the step size, and we replace
 $h_n$ by $h_n/4$.  The integration is halted after a preset number
 of convergence failures; the default value of this limit is 10, 
 but this can be changed by the user.
@@ -199,12 +199,12 @@ The increment $\sigma$ is $1/\|v\|$, so that $\sigma v$ has norm 1.
 A critical part of CVODE --- making it an ODE ``solver'' rather than
 just an ODE method, is its control of local error.  At every step, the
 local error is estimated and required to satisfy tolerance conditions,
-and the step is redone with reduced stepsize whenever that error test
+and the step is redone with reduced step size whenever that error test
 fails.  As with any linear multistep method, the local truncation
-error LTE, at order $q$ and stepsize $h$, satisfies an asymptotic
+error LTE, at order $q$ and step size $h$, satisfies an asymptotic
 relation
 \[ \mbox{LTE} = C h^{q+1} y^{(q+1)} + O(h^{q+2}) \]
-for some constant $C$, under mild assumptions on the stepsizes.
+for some constant $C$, under mild assumptions on the step sizes.
 A similar relation holds for the error in the predictor $y_{n(0)}$.
 These are combined to get a relation
 \[ \mbox{LTE} = C' [y_n - y_{n(0)}] + O(h^{q+2}) \, . \]
@@ -214,7 +214,7 @@ $\Delta_n \equiv y_{n(m)} - y_{n(0)}$ (with $y_{n(m)}$ the final
 iterate computed), and takes the form
 \[ \|\Delta_n\| \leq \epsilon \equiv 1/|C'| \, . \]
 If this test passes, the step is considered successful.  If it fails,
-the step is rejected and a new stepsize $h'$ is computed based on the
+the step is rejected and a new step size $h'$ is computed based on the
 asymptotic behavior of the local error, namely by the equation
 \[ (h'/h)^{q+1} \|\Delta_n\| = \epsilon/6 \, . \]
 Here 1/6 is a safety factor.  A new attempt at the step is made,
@@ -226,28 +226,28 @@ CVODE returns to the user with a give-up message.
 
 % Step/order control
 %-------------------
-In addition to adjusting the stepsize to meet the local error test,
+In addition to adjusting the step size to meet the local error test,
 CVODE periodically adjusts the order, with the goal of maximizing the
-stepsize.  The integration starts out at order 1, and varies the order
+step size.  The integration starts out at order 1 and varies the order
 dynamically after that.  The basic idea is to pick the order $q$ for
 which a polynomial of order $q$ best fits the discrete data involved
 in the multistep method.  However, if either a convergence failure or
 an error test failure occurred on the step just completed, no change
-in stepsize or order is done.  At the current order $q$, selecting a
-new stepsize is done exactly as when the error test fails, giving a
-tentative stepsize ratio
+in step size or order is done.  At the current order $q$, selecting a
+new step size is done exactly as when the error test fails, giving a
+tentative step size ratio
 \[ h'/h = (\epsilon / 6 \|\Delta_n\| )^{1/(q+1)} \equiv \eta_q \, . \]
 We consider changing order only after taking $q+1$ steps at order $q$,
-and then consider only orders $q' = q - 1$ (if $q > 1$) or
+and then we consider only orders $q' = q - 1$ (if $q > 1$) or
 $q' = q + 1$ (if $q < 5$).  The local truncation error at order $q'$
-is estimated using the history data.  Then a tentative stepsize ratio
+is estimated using the history data.  Then a tentative step size ratio
 is computed on the basis that this error, LTE$(q')$, behaves
 asymptotically as $h^{q'+1}$.  With safety factors of 1/6 and
 1/10 respectively, these ratios are:
 \[ h'/h = [1 / 6 \|\mbox{LTE}(q-1)\| ]^{1/q} \equiv \eta_{q-1} \]
 and
 \[ h'/h = [1 / 10 \|\mbox{LTE}(q+1)\| ]^{1/(q+2)} \equiv \eta_{q+1} \, . \]
-The new order and stepsize are then set according to
+The new order and step size are then set according to
 \[ \eta = \max\{\eta_{q-1},\eta_q,\eta_{q+1}\} ~,~~ h' = \eta h \, , \]
 with $q'$ set to the index achieving the above maximum.
 However, if we find that $\eta < 1.5$, we do not bother with the
@@ -262,13 +262,13 @@ of CVODE is given in \cite{HiSe:03a}.
 % Stability limit detection
 %--------------------------
 There is an important additional part of the CVODE order selection
-algorithm that is not based on local error, but instead provides
+algorithm that is not based on local error but instead provides
 protection against potentially unstable behavior of the BDF methods.
 At order 1 or 2, the BDF method is A-stable.  But at orders 3 to 5 it
 is not, and the region of instability includes a portion of the left
 half-plane that is concentrated near the imaginary axis.  The size of
 that region of instability grows as the order increases from 3 to 5.
-What this means is that, when running BDF at these higher orders, if
+What this means is that when running BDF at these higher orders, if
 an eigenvalue $\lambda$ of the system lies close enough to the
 imaginary axis, the step sizes $h$ for which the method is stable are
 limited (at least according to the linear stability theory) to a set
@@ -302,9 +302,9 @@ turned off.
 % Output modes
 %-------------
 Normally, CVODE takes steps until a user-defined output value 
-$t = t_{\mbox{\scriptsize out}}$ is overtaken, and then computes
+$t = t_{\mbox{\scriptsize out}}$ is overtaken, and then it computes
 $y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
-``one-step'' mode option is available, where control returns to the
+``one step'' mode option is available, where control returns to the
 calling program after each step.  There are also options to force
 CVODE not to integrate past a given stopping point 
 $t = t_{\mbox{\scriptsize stop}}$.
