@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.3 $
-C     $Date: 2004-04-29 22:23:33 $
+C     $Revision: 1.4 $
+C     $Date: 2004-09-08 21:06:17 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -37,8 +37,6 @@ C
      1     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
      1     LQ/11/, LH/5/, LNPE/18/, LNLI/19/, LNPS/20/, LNCFL/21/
-      INTEGER NEQ
-      COMMON /PBDIM/ NEQ
 C     
 C     Set mesh sizes
       MESHX = 10
