@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-23 21:35:15 $
+ * $Revision: 1.16.2.1 $
+ * $Date: 2005-01-24 18:14:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -282,13 +282,13 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
 static void PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, nje, nre, nreD, netf, ncfn;
+  long int nst, nni, njeD, nre, nreD, netf, ncfn;
 
   retval = IDAGetNumSteps(mem, &nst);
   check_flag(&retval, "IDAGetNumSteps", 1);
   retval = IDAGetNumResEvals(mem, &nre);
   check_flag(&retval, "IDAGetNumResEvals", 1);
-  retval = IDADenseGetNumJacEvals(mem, &nje);
+  retval = IDADenseGetNumJacEvals(mem, &njeD);
   check_flag(&retval, "IDADenseGetNumJacEvals", 1);
   retval = IDAGetNumNonlinSolvIters(mem, &nni);
   check_flag(&retval, "IDAGetNumNonlinSolvIters", 1);
@@ -302,7 +302,7 @@ static void PrintFinalStats(void *mem)
   printf("\nFinal Run Statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);
   printf("Number of residual evaluations     = %ld\n", nre+nreD);
-  printf("Number of Jacobian evaluations     = %ld\n", nje);
+  printf("Number of Jacobian evaluations     = %ld\n", njeD);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
