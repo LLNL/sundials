@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvode.h                                       *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 22 July 2002                                   *
+ * Version of    : 31 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for FCVODE, the Fortran interface to   *
  * the CVODE package.                                             *
@@ -159,6 +159,9 @@ NLOCAL  = local size of vectors on this processor
 NGLOBAL = the system size, and the global size of vectors (the sum 
           of all values of NLOCAL)
 IER     = return completion flag. Values are 0 = success, -1 = failure.
+Note: If MPI was initialized by the user, the communicator must be
+set to MPI_COMM_WORLD.  If not, this routine initializes MPI and sets
+the communicator equal to MPI_COMM_WORLD.
 
 (5.2) To set various problem and solution parameters and allocate
 internal memory, make the following call:
