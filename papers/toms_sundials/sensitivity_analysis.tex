@@ -5,7 +5,7 @@ function --- $f(t,y)$ for the ODE in (\ref{ODE}), $F(t,y,y')$ for the DAE
 (\ref{e:DAE}), and $F(u)$ for nonlinear systems (\ref{nonlinear_system}) 
 --- or through initial conditions in the case of ODEs and DAEs. 
 In addition to the solution $y$ or $u$, we often want to quantify how 
-the solution (or some other output functional depending on the solution) 
+the solution (or some other output functional that depends on the solution) 
 is influenced by changes in these model parameters.
 
 Depending on the dimension of the array of model parameters and the
@@ -17,7 +17,7 @@ the gradients of many outputs (for example the entire solution vector)
 with respect to relatively few parameters.
 In this approach, the model is differentiated with respect to each 
 parameter in turn to yield an additional system of the same size as
-the original one, the solution of which is the solution sensitivity.
+the original one, the result of which is the solution sensitivity.
 The gradient of any output function depending on the solution can
 then be directly obtained from these sensitivities by applying the
 chain rule of differentiation.
@@ -26,7 +26,7 @@ The {\em adjoint sensitivity} method is more practical than
 the forward approach when the number of parameters is large and
 we need the gradients of only few output functionals.
 In this approach, the solution sensitivities need not be computed
-explicitely. Instead, for each output functional of interest, we form
+explicitly. Instead, for each output functional of interest, we form
 and solve an additional system, adjoint to the original one, the 
 solution of which can then be used to evaluate the gradient of the
 output functional with respect to any set of model parameters.
@@ -46,7 +46,7 @@ in~\cite{HiSe:02}.
 
 \subsection{CVODES}\label{ss:cvodes}
 
-CVODES is an extension of CVODE which, besides solving ODE intial
+CVODES is an extension of CVODE which, besides solving ODE initial
 value problems of the form (\ref{ODE}), also provides forward and 
 adjoint sensitivity analysis capabilities.
 %
@@ -174,13 +174,13 @@ During the backward integration, we regenerate $y(t)$ values, as needed
 in evaluating the right-hand side of the adjoint system.
 %
 CVODES settles for a compromise storage space - execution time by implementing
-a check-point scheme combined with piecewise cubic Hermite interpolation: 
+a checkpoint scheme combined with piecewise cubic Hermite interpolation: 
 at the cost of at most one additional forward integration, this approach 
 offers the best possible estimate of memory requirements for adjoint 
 sensitivity analysis.
 %
 Finally, we note that the adjoint sensitivity module in CVODES provides 
-the infrastructure to integrate backwards in time any ODE terminal value 
+the infrastructure to integrate backwards in time any ODE terminal-value 
 problem dependent on the solution of the IVP (\ref{e:ODE_with_p}), 
 in particular adjoint systems such as (\ref{e:ODEadj}). In particular, 
 for ODE systems arising from semi-discretization of time-dependent PDEs, 
@@ -248,7 +248,7 @@ systems IDAS integrates backwards in time the so-called
 \end{equation}
 which can be shown to preserve stability~\cite{CLPS:03}.
 
-IDAS employs a combination of check-pointing with piecewise cubic Hermite 
+IDAS employs a combination of checkpointing with piecewise cubic Hermite 
 interpolation for generation of the solution $y(t)$ needed during the
 backward integration phase in (\ref{e:DAEadj}) or (\ref{e:DAEadj_augmented}).
 As in CVODES, for efficiency, pure quadrature equations are treated separately
@@ -282,7 +282,7 @@ where $\sigma_i = |{\bar p}_i| \sqrt{U}$.
 
 When the dimension $N_p$ of the problem parameters $p$ is large, the 
 {\em adjoint sensitivity} is again a much more efficient method for computing 
-the gradient of some functional $g(u,p)$. If $\lambda$ is solution of
+the gradient of some functional $g(u,p)$. If $\lambda$ is the solution of
 the adjoint system
 \begin{equation}\label{e:NLSadj}
   J^T \lambda = \left( \frac{\partial g}{\partial u} \right)^T \, ,
