@@ -1,0 +1,5 @@
+nvector_serial.h nvector_serial.c
+  - updated to conform to generic nvector
+  - removed dimension from N_VNew
+  - removed serial implementation of N_VNew_S and N_VFree_S
+

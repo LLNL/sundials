@@ -1,0 +1,10 @@
+nvector.h nvector.c
+  - took out vector dimension from N_VNew and N_VMake
+  - removed N_VNew_S and N_VFree_S from ops structure since 
+    for any nvector implementation, these routines are the 
+    same and should therefore be provided by the generic 
+    nvector module.
+  - added N_VSpace routine
+     
+spgmr.h spgmr.c
+  - took out N from SpgmrMalloc and spgmr memory structure
