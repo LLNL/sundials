@@ -796,7 +796,7 @@ int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetID(void *ida_mem, N_Vector id)
+int IDASetId(void *ida_mem, N_Vector id)
 {
   IDAMem IDA_mem;
 
@@ -1738,7 +1738,9 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
 
   N_VScale (ONE, phi[0], yret);
   N_VConst (ZERO, ypret);
-  kord = kused; if (kused == 0 || t == tn) kord = 1;
+  kord = kused; 
+  /*if (kused == 0 || t == tn) kord = 1;*/
+  if (kused == 0) kord = 1;
 
  /* Accumulate multiples of columns phi[j] into yret and ypret. */
 
