@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-06-18 21:37:55 $
+ * $Revision: 1.6 $
+ * $Date: 2004-07-22 23:02:41 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -35,7 +35,8 @@
  *   ...                                                           
  *   void *p_data;                                                 
  *   ...                                                           
- *   nvSpec = NV_SpecInit_Parallel(...);                           
+ *   y0  = N_VNew_Parallel(...);                           
+ *   yp0 = N_VNew_Parallel(...);                           
  *   ...                                                           
  *   ida_mem = IDACreate(...);                                     
  *   ier = IDAMalloc(...);                                         
@@ -50,7 +51,8 @@
  *   ...                                                           
  *   IDAFree(...);                                                 
  *                                                                 
- *   NV_SpecFree_Parallel(nvSpec);                                 
+ *   N_VDestroy(y0);
+ *   N_VDestroy(yp0);
  *                                                                 
  * The user-supplied routines required are:                        
  *                                                                 
