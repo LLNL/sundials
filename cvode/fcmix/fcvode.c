@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-04-29 22:23:21 $
+ * $Revision: 1.18 $
+ * $Date: 2004-05-14 21:53:26 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -248,7 +248,8 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
 void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
   CVodeMem CV_cvmem;
-  int qu, qcur;
+  int i, num_components, qu, qcur;
+  int *rootsfound, *flag;
   realtype h0u;
 
   /* 
@@ -260,12 +261,29 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   */
 
   *ier = CVode(CV_cvodemem, *tout, CV_yvec, t, *itask);
+  if (*ier < 0) return;
+
   y = N_VGetData(CV_yvec);
+
+  CV_cvmem = (CVodeMem) CV_cvodemem;
+
+  /* CVode() succeeded and found at least one root */
+  if (*ier == ROOT_RETURN) {
+    *flag = CVodeGetRootInfo(CV_cvodemem, &rootsfound);
+    if (*flag == SUCCESS) {
+      num_components = CV_cvmem->cv_nrtfn;
+      printf("   rootsfound[] = ");
+      for (i = 0; i < num_components; ++i) printf("%d ", *(rootsfound + i));
+      printf("\n");
+    }
+    else {
+      *ier = *flag;
+      return;
+    }
+  }
 
   /* Load optional outputs in iopt & ropt */
   if ( (CV_iopt != NULL) && (CV_ropt != NULL) ) {
-
-    CV_cvmem = (CVodeMem) CV_cvodemem;
 
     CVodeGetIntegratorStats(CV_cvodemem, 
                             &CV_iopt[3],  /* NST */
