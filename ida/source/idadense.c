@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : idadense.c                                     *
- * Programmers   : Alan C. Hindmarsh and Allan G. Taylor          *
- * Version of    : 30 August 1999                                 *
+ * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and        *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 6 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the IDA dense linear       *
  * solver module, IDADENSE.                                       *
@@ -12,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "idadense.h"
 #include "ida.h"
 #include "dense.h"
@@ -23,8 +25,10 @@
 /* Error Messages */
 
 #define IDADENSE_INIT  "IDADenseInit-- "
-#define MSG_MEM_FAIL  IDADENSE_INIT "A memory request failed.\n\n"
+#define MSG_MEM_FAIL   IDADENSE_INIT "A memory request failed.\n\n"
 
+#define IDADENSE       "IDADense-- "
+#define MSG_WRONG_NVEC IDADENSE "Incompatible NVECTOR implementation.\n\n"
 
 /* Constants */
 
@@ -70,6 +74,12 @@ static int  IDADenseSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
 
 static int IDADenseFree(IDAMem ida_mem);
 
+static int IDADenseDQJac(integer Neq, real tt, N_Vector yy, N_Vector yp,
+                         real cj, N_Vector constraints, ResFn res, void *rdata,
+                         void *jdata, N_Vector resvec, N_Vector ewt, real hh,
+                         real uround, DenseMat JJ, long int *nrePtr,
+                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+
 
 /*************** IDADenseDQJac ****************************************
 
@@ -93,28 +103,32 @@ int IDADenseDQJac(integer Neq, real tt, N_Vector yy, N_Vector yp, real cj,
  
 {
   real inc, inc_inv, yj, ypj, srur, conj;
-  real *y_data, *yp_data, *ewt_data, *cns_data;
+  real *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
+  M_Env machEnv;
   integer j;
-  int retval;
+  int retval = SUCCESS;
+
+  machEnv = yy->menv; /* Get machine environment */
 
   rtemp = tempv1; /* Rename work vector for use as residual value. */
 
   /* Obtain pointers to the data for ewt, yy, yp. */
-  ewt_data = N_VDATA(ewt);
-  y_data   = N_VDATA(yy);
-  yp_data  = N_VDATA(yp);
-  if(constraints!=NULL)cns_data = N_VDATA(constraints);
+  ewt_data = N_VGetData(ewt);
+  y_data   = N_VGetData(yy);
+  yp_data  = N_VGetData(yp);
+  if(constraints!=NULL) cns_data = N_VGetData(constraints);
 
   srur = RSqrt(uround);
-  N_VMAKE(jthCol, NULL, Neq);
+
+  jthCol = N_VMake(Neq, NULL, machEnv); /* j loop overwrites this data address */
 
   for (j=0; j < Neq; j++) {
 
     /* Generate the jth col of J(tt,yy,yp) as delta(F)/delta(y_j). */
 
     /* Set data address of jthCol, and save y_j and yp_j values. */
-    N_VDATA(jthCol) = DENSE_COL(JJ,j);
+    N_VSetData(DENSE_COL(JJ,j), jthCol);
     yj = y_data[j];
     ypj = yp_data[j];
 
@@ -147,7 +161,7 @@ int IDADenseDQJac(integer Neq, real tt, N_Vector yy, N_Vector yp, real cj,
     yp_data[j] = ypj;
   }
 
-  N_VDISPOSE(jthCol);
+  N_VDispose(jthCol);
   return(retval);
 
 }
@@ -174,6 +188,7 @@ int IDADenseDQJac(integer Neq, real tt, N_Vector yy, N_Vector yp, real cj,
 #define lperf       (ida_mem->ida_lperf)
 #define lfree       (ida_mem->ida_lfree)
 #define lmem        (ida_mem->ida_lmem)
+#define machenv     (ida_mem->ida_machenv)
 
 #define jac         (idadense_mem->d_jac)
 #define JJ          (idadense_mem->d_J)
@@ -199,6 +214,14 @@ int IDADenseDQJac(integer Neq, real tt, N_Vector yy, N_Vector yp, real cj,
 
  IDADense returns 0 if successful, or IDA_DENSE_FAIL if either 
  IDA_mem is NULL or the call to malloc failed.
+
+ NOTE: The dense linear solver assumes a serial implementation
+       of the NVECTOR package. Therefore, IDADense will first 
+       test for compatible a compatible N_Vector internal
+       representation by checking (1) the machine environment
+       ID tag and (2) that the functions N_VMake, N_VDispose,
+       N_VGetData, and N_VSetData are implemented.
+
 **********************************************************************/
 
 int IDADense(void *IDA_mem, IDADenseJacFn djac, void *jdata)
@@ -209,6 +232,16 @@ int IDADense(void *IDA_mem, IDADenseJacFn djac, void *jdata)
   /* Return immediately if IDA_mem is NULL. */
   ida_mem = (IDAMem) IDA_mem;
   if (ida_mem == NULL) return(IDA_DENSE_FAIL);
+
+  /* Test if the NVECTOR package is compatible with the DENSE solver */
+  if ((strcmp(machenv->tag,"serial")) || 
+      machenv->ops->nvmake    == NULL || 
+      machenv->ops->nvdispose == NULL ||
+      machenv->ops->nvgetdata == NULL || 
+      machenv->ops->nvsetdata == NULL) {
+    fprintf(errfp, MSG_WRONG_NVEC);
+    return(IDA_DENSE_FAIL);
+  }
 
   /* Set five main function fields in ida_mem. */
   linit  = IDADenseInit;
@@ -332,10 +365,13 @@ static int IDADenseSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
                          N_Vector ypcur, N_Vector rescur)
 {
   IDADenseMem idadense_mem;
+  real *bd;
   
   idadense_mem = (IDADenseMem) lmem;
   
-  DenseBacksolve(JJ, pivots, b);
+  bd = N_VGetData(b);
+  DenseBacksolve(JJ, pivots, bd);
+  N_VSetData(bd, b);
 
   /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
@@ -358,4 +394,7 @@ static int IDADenseFree(IDAMem ida_mem)
   DenseFreeMat(JJ);
   DenseFreePiv(pivots);
   free(lmem);
+
+  return(0);
+
 }

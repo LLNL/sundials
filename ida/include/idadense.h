@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : idadense.h                                     *
- * Programmers   : Alan C. Hindmarsh and Allan G. Taylor          *
- * Version of    : 30 August 1999                                 *
+ * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and        *
+ *                 Radu Serban @LLNL                              *
+ * Version of    : 6 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the IDA dense linear solver        *
  * module, IDADENSE.                                              *
@@ -144,10 +145,10 @@ enum { DENSE_NJE=IDA_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  ******************************************************************/
   
 typedef int (*IDADenseJacFn)(integer Neq, real tt, N_Vector yy, N_Vector yp,
-                  real cj, N_Vector constraints, ResFn res, void *rdata,
-                  void *jdata, N_Vector resvec, N_Vector ewt, real hh,
-                  real uround, DenseMat JJ, long int *nrePtr,
-                  N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+                             real cj, N_Vector constraints, ResFn res, void *rdata,
+                             void *jdata, N_Vector resvec, N_Vector ewt, real hh,
+                             real uround, DenseMat JJ, long int *nrePtr,
+                             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 
 
@@ -174,26 +175,18 @@ typedef int (*IDADenseJacFn)(integer Neq, real tt, N_Vector yy, N_Vector yp,
  *     SUCCESS = 0         if successful, or                      *
  *     IDA_DENSE_FAIL = -1 if either IDA_mem was null, or a       *
  *                         malloc failure occurred.               *
+ *                                                                *
+ * NOTE: The dense linear solver assumes a serial implementation  *
+ *       of the NVECTOR package. Therefore, IDADense will first   *
+ *       test for a compatible N_Vector internal representation   *
+ *       by checking (1) the machine environment ID tag and       *
+ *       (2) that the functions N_VMake, N_VDispose, N_VGetData,  *
+ *       and N_VSetData are implemented.                          *
+ *                                                                *
  ******************************************************************/
 
 int IDADense(void *IDA_mem, IDADenseJacFn djac, void *jdata);
 
-
-
-/******************************************************************
- *                                                                *
- * Function : IDADenseDQJac                                       *
- *----------------------------------------------------------------*  
- * This routine generates a dense difference quotient             *
- * approximation to the system Jacobian J = dF/dy + cj*dF/dy'     *
- *                                                                *
- ******************************************************************/
-
-int IDADenseDQJac(integer Neq, real tt, N_Vector yy, N_Vector yp,
-                  real cj, N_Vector constraints, ResFn res, void *rdata,
-                  void *jdata, N_Vector resvec, N_Vector ewt, real hh,
-                  real uround, DenseMat JJ, long int *nrePtr,
-                  N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 #endif
 
