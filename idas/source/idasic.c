@@ -64,20 +64,6 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 /*BEGIN        IDAS Error Messages                                 */
 /*=================================================================*/
 
-/* IDASet*IC error messages */
-
-#define MSG_IDAS_NO_MEM      "ida_mem=NULL in an IDASet routine illegal. \n\n"
-
-#define MSG_IDAS_BAD_EPICCON "IDASetNlinConvCoefIC-- epiccon < 0.0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_MAXNH   "IDASetMaxNumStepsIC-- maxnh < 0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_MAXNJ   "IDASetMaxNumJacsIC-- maxnj < 0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_MAXNIT  "IDASetMaxNumItersIC-- maxnit < 0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_STEPTOL "IDASetLineSearchOffIC-- steptol < 0.0 illegal.\n\n"
-
 /* IDACalcIC error messages */
 
 #define IDAIC              "IDACalcIC-- "
@@ -133,10 +119,6 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_IC_CONV_FAIL2  " Newton/Linesearch algorithm.\n\n"
 #define MSG_IC_CONV_FAILED MSG_IC_CONV_FAIL1 MSG_IC_CONV_FAIL2
 
-/* IDAGet Error Messages */
-
-#define MSG_IDAG_NO_MEM    "ida_mem=NULL in an IDAGet routine illegal. \n\n"
-
 /*=================================================================*/
 /*END          IDAS Error Messages                                 */
 /*=================================================================*/
@@ -146,10 +128,10 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 /*=================================================================*/
 
 extern int IDAInitialSetup(IDAMem IDA_mem);
-extern booleantype IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur);
-extern booleantype IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur);
+extern booleantype IDAEwtSet(IDAMem IDA_mem, N_Vector ycur);
+extern realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, 
+                            booleantype mask);
 
-static booleantype IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur);
 static int IDAnlsIC (IDAMem IDA_mem);
 static int IDANewtonIC (IDAMem IDA_mem);
 static int IDALineSrch (IDAMem IDA_mem, realtype *delnorm, realtype *fnorm);
@@ -163,206 +145,31 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval);
 /*=================================================================*/
 
 /*=================================================================*/
-/*BEGIN        EXPORTED FUNCTIONS IMPLEMENTATION                   */
-/*=================================================================*/
-
-#define errfp (IDA_mem->ida_errfp)
-#define id (IDA_mem->ida_id)
-#define suppressalg (IDA_mem->ida_suppressalg)
-#define constraints (IDA_mem->ida_constraints)
-#define rdata (IDA_mem->ida_rdata)
-#define res    (IDA_mem->ida_res)
-#define y0     (IDA_mem->ida_y0)
-#define yp0    (IDA_mem->ida_yp0)
-#define itol   (IDA_mem->ida_itol)
-
-/*=================================================================*/
-/*BEGIN  INITIAL CONDITION CALCULATION OPTIONAL INPUT FUNCTIONS    */
-/*=================================================================*/
-
-int IDASetNlinConvFactorIC(void *ida_mem, realtype epiccon)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (epiccon < ZERO) {
-    fprintf(errfp, MSG_IDAS_BAD_EPICCON);
-    return(IDAS_ILL_INPUT);
-  }
-
-  IDA_mem->ida_epiccon = epiccon;
-
-  return(SUCCESS);
-}
-
-#define epiccon (IDA_mem->ida_epiccon)
-
-/*-----------------------------------------------------------------*/
-
-int IDASetMaxNumStepsIC(void *ida_mem, int maxnh)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (maxnh < 0) {
-    fprintf(errfp, MSG_IDAS_BAD_MAXNH);
-    return(IDAS_ILL_INPUT);
-  }
-
-  IDA_mem->ida_maxnh = maxnh;
-
-  return(SUCCESS);
-}
-
-#define maxnh (IDA_mem->ida_maxnh)
-
-/*-----------------------------------------------------------------*/
-
-int IDASetMaxNumJacsIC(void *ida_mem, int maxnj)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-   if (maxnj < 0) {
-    fprintf(errfp, MSG_IDAS_BAD_MAXNJ);
-    return(IDAS_ILL_INPUT);
-  } 
-
-  IDA_mem->ida_maxnj = maxnj;
-
-  return(SUCCESS);
-}
-
-#define maxnj (IDA_mem->ida_maxnj)
-
-/*-----------------------------------------------------------------*/
-
-int IDASetMaxNumItersIC(void *ida_mem, int maxnit)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (maxnit < 0) {
-    fprintf(errfp, MSG_IDAS_BAD_MAXNIT);
-    return(IDAS_ILL_INPUT);
-  }
-
-  IDA_mem->ida_maxnit = maxnit;
-
-  return(SUCCESS);
-}
-
-#define maxnit (IDA_mem->ida_maxnit)
-
-/*-----------------------------------------------------------------*/
-
-int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  IDA_mem->ida_lsoff = lsoff;
-
-  return(SUCCESS);
-}
-
-#define lsoff (IDA_mem->ida_lsoff)
-
-/*-----------------------------------------------------------------*/
-
-int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
-    return(IDAS_NO_MEM);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (steptol < ZERO) {
-    fprintf(errfp, MSG_IDAS_BAD_STEPTOL);
-    return(IDAS_ILL_INPUT);
-  }
-
-  IDA_mem->ida_steptol = steptol;
-
-  return(SUCCESS);
-}
-
-#define steptol   (IDA_mem->ida_steptol)
-
-/*=================================================================*/
-/*END  INITIAL CONDITION CALCULATION OPTIONAL INPUT FUNCTIONS      */
-/*=================================================================*/
-
-/*=================================================================*/
 /*BEGIN        Readibility Constants                               */
 /*=================================================================*/
 
+#define errfp     (IDA_mem->ida_errfp)
+#define rdata    (IDA_mem->ida_rdata)
+#define res      (IDA_mem->ida_res)
+#define y0       (IDA_mem->ida_y0)
+#define yp0      (IDA_mem->ida_yp0)
 #define uround   (IDA_mem->ida_uround)  
 #define phi      (IDA_mem->ida_phi) 
 #define ewt      (IDA_mem->ida_ewt)  
-#define yy       (IDA_mem->ida_yy)
-#define yp       (IDA_mem->ida_yp)
 #define delta    (IDA_mem->ida_delta)
-#define mm       (IDA_mem->ida_mm)
 #define ee       (IDA_mem->ida_ee)
 #define savres   (IDA_mem->ida_savres)
-#define tempv1   (IDA_mem->ida_tempv1)
 #define tempv2   (IDA_mem->ida_tempv2) 
-#define kk       (IDA_mem->ida_kk)
 #define hh       (IDA_mem->ida_hh)
-#define h0u      (IDA_mem->ida_h0u)
 #define tn       (IDA_mem->ida_tn)
-#define tretp    (IDA_mem->ida_tretp)
 #define cj       (IDA_mem->ida_cj)
-#define cjold    (IDA_mem->ida_cjold)
 #define cjratio  (IDA_mem->ida_cjratio)
-#define cjlast   (IDA_mem->ida_cjlast)
 #define nbacktr  (IDA_mem->ida_nbacktr)
-#define nst      (IDA_mem->ida_nst)
 #define nre      (IDA_mem->ida_nre)
 #define ncfn     (IDA_mem->ida_ncfn)
-#define netf     (IDA_mem->ida_netf)
 #define nni      (IDA_mem->ida_nni)
 #define nsetups  (IDA_mem->ida_nsetups)
 #define ns       (IDA_mem->ida_ns)
-#define lrw1     (IDA_mem->ida_lrw1)
-#define liw1     (IDA_mem->ida_liw1)
-#define lrw      (IDA_mem->ida_lrw)
-#define liw      (IDA_mem->ida_liw)
 #define linit    (IDA_mem->ida_linit)
 #define lsetup   (IDA_mem->ida_lsetup)
 #define lsolve   (IDA_mem->ida_lsolve) 
@@ -370,26 +177,27 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 #define lfree    (IDA_mem->ida_lfree) 
 #define lmem     (IDA_mem->ida_lmem) 
 #define linitOK  (IDA_mem->ida_linitOK)
-#define knew     (IDA_mem->ida_knew)
-#define kused    (IDA_mem->ida_kused)          
 #define hused    (IDA_mem->ida_hused)         
-#define tolsf    (IDA_mem->ida_tolsf)      
-#define phase    (IDA_mem->ida_phase)
 #define epsNewt  (IDA_mem->ida_epsNewt)
-#define toldel   (IDA_mem->ida_toldel)
-#define ss       (IDA_mem->ida_ss)
-#define rr       (IDA_mem->ida_rr)
-#define psi      (IDA_mem->ida_psi)
-#define alpha    (IDA_mem->ida_alpha)
-#define beta     (IDA_mem->ida_beta)
-#define sigma    (IDA_mem->ida_sigma)
-#define gamma    (IDA_mem->ida_gamma)
-#define setupNonNull (IDA_mem->ida_setupNonNull) 
+#define id       (IDA_mem->ida_id)
+#define setupNonNull   (IDA_mem->ida_setupNonNull) 
+#define suppressalg    (IDA_mem->ida_suppressalg)
+#define constraints    (IDA_mem->ida_constraints)
 #define constraintsSet (IDA_mem->ida_constraintsSet)
-#define mskewt   (IDA_mem->ida_mskewt)
+
+#define epiccon  (IDA_mem->ida_epiccon)
+#define maxnh    (IDA_mem->ida_maxnh)
+#define maxnj    (IDA_mem->ida_maxnj)
+#define maxnit   (IDA_mem->ida_maxnit)
+#define lsoff    (IDA_mem->ida_lsoff)
+#define steptol  (IDA_mem->ida_steptol)
 
 /*=================================================================*/
 /*END          Readibility Constants                               */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        EXPORTED FUNCTIONS IMPLEMENTATION                   */
 /*=================================================================*/
 
 /*-------------------- IDACalcIC ----------------------------------*/
@@ -495,7 +303,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 
   /* Set hic, hh, cj, and mxnh. */
   hic = PT001*tdist;
-  ypnorm = N_VWrmsNorm (yp0, mskewt);
+  ypnorm = IDAWrmsNorm(IDA_mem, yp0, ewt, suppressalg);
   if (ypnorm > HALF/hic) hic = HALF/ypnorm;
   if( tout1 < tn) hic = -hic;
   hh = hic;
@@ -507,9 +315,6 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
     cj = ZERO;
     mxnh = 1;
   }
-
-  /* If suppressalg is on, reset id to bit vector form. */
-  if (suppressalg) N_VOneMask (id);
 
   /* Loop over nwt = number of evaluations of ewt vector. */
 
@@ -538,16 +343,12 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 
     /* Break on failure; else reset ewt, save y0,yp0 in phi, and loop. */
     if (retval != SUCCESS) break;
-    ewtsetOK = IDAEwtSet0(IDA_mem, y0);
+    ewtsetOK = IDAEwtSet(IDA_mem, y0);
     if (!ewtsetOK) { retval = IC_BAD_EWT; break; }
     N_VScale (ONE, y0,  phi[0]);
     N_VScale (ONE, yp0, phi[1]);
 
   }   /* End of nwt loop */
-
-
-  /* If suppressalg is on, reset mskewt. */
-  if (suppressalg) N_VProd (id, ewt, mskewt);
 
   /* Load the optional outputs. */
   if (icopt == CALC_YA_YDP_INIT)   hused = hic;
@@ -578,38 +379,6 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 #define ypnew    (IDA_mem->ida_ypnew)
 #define delnew   (IDA_mem->ida_delnew)
 #define dtemp    (IDA_mem->ida_dtemp)
-
-/*********************** IDAEwtSet0 *************************************
-  
- This routine is responsible for loading the error weight vector
- ewt, according to itol, as follows:
- (1) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + *atol), i=0,...,Neq-1
-     if itol = SS
- (2) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + atol[i]), i=0,...,Neq-1
-     if itol = SV
-
-  IDAEwtSet0 returns TRUE if ewt is successfully set as above to a
-  positive vector and FALSE otherwise. In the latter case, ewt is
-  considered undefined after the FALSE return from IDAEwtSet0.
-
-  All the real work is done in the routines IDAEwtSetSS, IDAEwtSetSV.
- 
-***********************************************************************/
-
-static booleantype IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur)
-{
-  booleantype ewtsetOK=TRUE;
-
-  switch(itol) {
-  case SS: 
-    ewtsetOK = IDAEwtSetSS(IDA_mem, ycur); 
-    break;
-  case SV: 
-    ewtsetOK = IDAEwtSetSV(IDA_mem, ycur); 
-    break;
-  }
-  return(ewtsetOK);
-}
 
 /******************** IDAnlsIC **********************************
 
@@ -716,7 +485,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
   if(retval > 0) return(IC_FAIL_RECOV);
 
   /* Compute the norm of the step; return now if this is small. */
-  fnorm = N_VWrmsNorm (delta, ewt);
+  fnorm = IDAWrmsNorm(IDA_mem, delta, ewt, FALSE);
   if (sysindex == 0) fnorm *= tscale*abs(cj);
   if (fnorm <= epsNewt) return(SUCCESS);
   fnorm0 = fnorm;
@@ -879,7 +648,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
   if(retval > 0) return(IC_FAIL_RECOV);
 
   /* Compute the WRMS-norm; rescale if index = 0. */
-  *fnorm = N_VWrmsNorm (delnew, ewt);
+  *fnorm = IDAWrmsNorm(IDA_mem, delnew, ewt, FALSE);
   if (sysindex == 0) (*fnorm) *= tscale*abs(cj);
 
   return(SUCCESS);
