@@ -1,5 +1,9 @@
 2-species diurnal advection-diffusion problem, 10 by 10 mesh
-SPGMR solver; band preconditioner on left; mu, ml = 2  2
+SPGMR solver; band preconditioner; mu = 2, ml = 2
+
+
+
+Preconditioner type is:  jpre = LEFT
 
 t = 7.20e+03   no. steps = 190   order = 5   stepsize = 1.61e+02
 c1 (bot.left/middle/top rt.) =    1.047e+04     2.964e+04     1.119e+04
@@ -50,13 +54,77 @@ c1 (bot.left/middle/top rt.) =    3.466e-21     3.817e-24     1.011e-15
 c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.163e+11
 
 
-Final Statistics.. 
-
+Final Statistics: 
 lenrw   =  2000    leniw =     0
 llrw    =  2046    lliw  =     0
 nst     =   484    nfe   =  1252
 nni     =   622    nli   =   582
 nsetups =    90    netf  =    31
 npe     =     9    nps   =  1125
+ncfn    =     0    ncfl  =     0
+ 
+
+
+-------------------------------------------------------------------
+
+
+Preconditioner type is:  jpre = RIGHT
+
+t = 7.20e+03   no. steps = 219   order = 5   stepsize = 1.55e+02
+c1 (bot.left/middle/top rt.) =    1.047e+04     2.964e+04     1.119e+04
+c2 (bot.left/middle/top rt.) =    2.527e+11     7.154e+11     2.700e+11
+
+t = 1.44e+04   no. steps = 251   order = 5   stepsize = 3.59e+02
+c1 (bot.left/middle/top rt.) =    6.659e+06     5.316e+06     7.301e+06
+c2 (bot.left/middle/top rt.) =    2.582e+11     2.057e+11     2.833e+11
+
+t = 2.16e+04   no. steps = 279   order = 5   stepsize = 3.58e+02
+c1 (bot.left/middle/top rt.) =    2.665e+07     1.036e+07     2.931e+07
+c2 (bot.left/middle/top rt.) =    2.993e+11     1.028e+11     3.313e+11
+
+t = 2.88e+04   no. steps = 301   order = 5   stepsize = 2.33e+02
+c1 (bot.left/middle/top rt.) =    8.702e+06     1.292e+07     9.650e+06
+c2 (bot.left/middle/top rt.) =    3.380e+11     5.029e+11     3.751e+11
+
+t = 3.60e+04   no. steps = 330   order = 5   stepsize = 1.34e+02
+c1 (bot.left/middle/top rt.) =    1.404e+04     2.029e+04     1.561e+04
+c2 (bot.left/middle/top rt.) =    3.387e+11     4.894e+11     3.765e+11
+
+t = 4.32e+04   no. steps = 380   order = 4   stepsize = 3.94e+02
+c1 (bot.left/middle/top rt.) =    2.727e-10     2.422e-10     3.056e-10
+c2 (bot.left/middle/top rt.) =    3.382e+11     1.355e+11     3.804e+11
+
+t = 5.04e+04   no. steps = 399   order = 4   stepsize = 3.49e+02
+c1 (bot.left/middle/top rt.) =    5.465e-11     4.824e-08     2.326e-11
+c2 (bot.left/middle/top rt.) =    3.358e+11     4.930e+11     3.864e+11
+
+t = 5.76e+04   no. steps = 413   order = 5   stepsize = 3.46e+02
+c1 (bot.left/middle/top rt.) =    1.348e-14     6.466e-11     1.013e-12
+c2 (bot.left/middle/top rt.) =    3.320e+11     9.650e+11     3.909e+11
+
+t = 6.48e+04   no. steps = 423   order = 5   stepsize = 8.60e+02
+c1 (bot.left/middle/top rt.) =    9.351e-19     2.981e-13     2.504e-17
+c2 (bot.left/middle/top rt.) =    3.313e+11     8.922e+11     3.963e+11
+
+t = 7.20e+04   no. steps = 431   order = 5   stepsize = 8.60e+02
+c1 (bot.left/middle/top rt.) =    5.829e-19     1.240e-14    -4.552e-19
+c2 (bot.left/middle/top rt.) =    3.330e+11     6.186e+11     4.039e+11
+
+t = 7.92e+04   no. steps = 439   order = 5   stepsize = 8.60e+02
+c1 (bot.left/middle/top rt.) =   -1.317e-19     2.077e-13     1.261e-19
+c2 (bot.left/middle/top rt.) =    3.334e+11     6.669e+11     4.120e+11
+
+t = 8.64e+04   no. steps = 448   order = 5   stepsize = 8.60e+02
+c1 (bot.left/middle/top rt.) =   -2.738e-19    -5.410e-13    -7.196e-20
+c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.163e+11
+
+
+Final Statistics: 
+lenrw   =  2000    leniw =     0
+llrw    =  2046    lliw  =     0
+nst     =   448    nfe   =  1261
+nni     =   558    nli   =   660
+nsetups =    76    netf  =    22
+npe     =     8    nps   =  1128
 ncfn    =     0    ncfl  =     0
  
