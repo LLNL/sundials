@@ -57,7 +57,7 @@
 
 /* Adjoint Problem Constants */
 #define NP    2            /* number of parameters       */
-#define STEPS 100          /* steps between check points */
+#define STEPS 200          /* steps between check points */
 
 /* Type : UserData */
 typedef struct {
@@ -103,9 +103,15 @@ int main(int argc, char *argv[])
   int flag, my_pe, nprocs, npes, ncheck;
   integertype local_N=0, nperpe, nrem, my_base=0, i, iglobal;
 
+  realtype *mu;
+  integertype indx, Ni;
+  MPI_Status status;
+
   MPI_Comm comm;
 
-  /* Initialize MPI and get total number of pe's, and my_pe. */
+  /*------------------------------------------------------
+    Initialize MPI and get total number of pe's, and my_pe
+    ------------------------------------------------------*/
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &nprocs);
@@ -113,7 +119,16 @@ int main(int argc, char *argv[])
 
   npes = nprocs - 1; /* pe's dedicated to PDE integration */
 
-  /* Allocate and load user data structure */
+  if ( npes <= 0 ) {
+    if (my_pe == npes)
+      printf("\nI need at least 2 proccesses!!\n\n");
+    exit(0);
+  }
+  
+
+  /*-------------------------------------
+    Allocate and load user data structure
+    -------------------------------------*/
   data = (UserData) malloc(sizeof *data);
   data->p[0] = 1.0;
   data->p[1] = 0.5;
@@ -124,25 +139,28 @@ int main(int argc, char *argv[])
   data->npes = npes;
   data->my_pe = my_pe;
 
-  /* Set local vector length. */
+  /*-----------------------
+    Set local vector length
+    -----------------------*/
+  nperpe = NEQ/npes;
+  nrem = NEQ - npes*nperpe;
   if (my_pe < npes) {
-    nperpe = NEQ/npes;
-    nrem = NEQ - npes*nperpe;
+    /* PDE vars. distributed to this proccess */
     local_N = (my_pe < nrem) ? nperpe+1 : nperpe;
     my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
+  } else {
+    /* Make last process inactive for forward phase */
+    local_N = 0;
   }
 
   /*------------------------- 
-    FORWARD INTEGRATION PHASE 
-  ---------------------------*/
-
-  /* Make last process inactive for forward phase */
-  if (my_pe == npes) local_N = 0;
-
+    Forward integration phase
+    -------------------------*/
+  
   /* Initialize vector specification for forward phase */
   nvSpecF = NV_SpecInit_Parallel(comm, local_N, NEQ, &argc, &argv);
   if (nvSpecF == NULL) {
-    if(my_pe == 0) printf("NV_SpecInit_Parallel failed.\n"); 
+    if(my_pe == npes) printf("NV_SpecInit_Parallel failed.\n"); 
     return(1);
   }
 
@@ -157,19 +175,19 @@ int main(int argc, char *argv[])
   /* Allocate CVODES memory for forward integration */
   cvode_mem = CVodeCreate(ADAMS, FUNCTIONAL);
   if (cvode_mem == NULL) { 
-    if (my_pe == 0) printf("CVodeCreate failed.\n"); 
+    if (my_pe == npes) printf("CVodeCreate failed.\n"); 
     return(1); 
   }
 
   flag = CVodeSetFdata(cvode_mem, data);
   if (flag != SUCCESS) { 
-    if (my_pe == 0) printf("CVodeSetFdata failed.\n"); 
+    if (my_pe == npes) printf("CVodeSetFdata failed.\n"); 
     return(1); 
   }
 
   flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpecF);
   if (flag != SUCCESS) { 
-    if (my_pe == 0) printf("CVodeMalloc failed.\n"); 
+    if (my_pe == npes) printf("CVodeMalloc failed.\n"); 
     return(1); 
   }
 
@@ -179,32 +197,37 @@ int main(int argc, char *argv[])
   /* Integrate to TOUT and collect check point information */
   flag = CVodeF(cvadj_mem, TOUT, u, &t, NORMAL, &ncheck);
   if (flag != SUCCESS) {
-    if(my_pe == 0) printf("CVode failed, flag=%d.\n", flag);
+    if(my_pe == npes) printf("CVode failed, flag=%d.\n", flag);
     return(1);
   }
 
-  /* Compute and print value of g(5) */
-  g_val = Compute_g(u, data);
   if(my_pe == npes) {
-    printf("\n (PE# %d)\n", my_pe);
-    printf("    g(t1) = %g\n", g_val);
+    printf("(PE# %d) Number of check points: %d\n",my_pe, ncheck);
+    CVadjGetCheckPointsList(cvadj_mem);
   }
 
+  /*---------------------------
+    Compute and value of g(t_f)
+    ---------------------------*/
+  g_val = Compute_g(u, data);
+
   /*-------------------------- 
-    BACKWARD INTEGRATION PHASE 
-  ----------------------------*/
+    Backward integration phase
+    --------------------------*/
 
-  /* Allocate work space */
-  data->z1 = (realtype *)malloc(local_N*sizeof(realtype));
-  data->z2 = (realtype *)malloc(local_N*sizeof(realtype));
-
-  /* Activate last process for integration of the quadrature equations */
-  if(my_pe == npes) local_N = NP;
+  if(my_pe == npes) {
+    /* Activate last process for integration of the quadrature equations */
+    local_N = NP;
+  } else {
+    /* Allocate work space */
+    data->z1 = (realtype *)malloc(local_N*sizeof(realtype));
+    data->z2 = (realtype *)malloc(local_N*sizeof(realtype));
+  }
 
   /* Initialize vector specification for backward phase */
   nvSpecB = NV_SpecInit_Parallel(comm, local_N, NEQ+NP, &argc, &argv);
   if (nvSpecB == NULL) {
-    if(my_pe == 0) printf("NV_SpecInit_Parallel failed.\n"); 
+    if(my_pe == npes) printf("NV_SpecInit_Parallel failed.\n"); 
     return(1);
   }
 
@@ -217,27 +240,44 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdataB(cvadj_mem, data);
   flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, SS, &reltol, &abstol, nvSpecB);
   if (flag != SUCCESS) { 
-    if(my_pe == 0) printf("CVodeMallocB failed, flag=%d.\n", flag);
+    if(my_pe == npes) printf("CVodeMallocB failed, flag=%d.\n", flag);
     return(1);
   }
 
   /* Integrate to T0 */
   flag = CVodeB(cvadj_mem, uB);
   if (flag < 0) { 
-    if(my_pe == 0) printf("CVodeB failed, flag=%d.\n", flag);
+    if(my_pe == npes) printf("CVodeB failed, flag=%d.\n", flag);
     return(1);
   }
 
-  /* Print results (adjoint states and quadrature variables) */
+  /*-------------------------------------------------------
+    Print results (adjoint states and quadrature variables)
+    -------------------------------------------------------*/
+
   uBdata = NV_DATA_P(uB);
-  printf("\n (PE# %d)\n", my_pe);
+
   if (my_pe == npes) {
-    printf("    dgdp(t1) = [ %g  %g ]\n", -uBdata[0], -uBdata[1]);
-  } else {
-    for (i=1; i<=local_N; i++) {
-      iglobal = my_base + i;
-      printf("    mu(t0)[%2ld] = %g\n", iglobal, uBdata[i-1]);
+
+    printf("\ng(tf) = %8e\n\n", g_val);
+    printf("dgdp(tf)\n  [ 1]: %8e\n  [ 2]: %8e\n\n", -uBdata[0], -uBdata[1]);
+
+    mu = (realtype *)malloc(NEQ*sizeof(realtype));
+    indx = 0;
+    for ( i = 0; i < npes; i++) {
+      Ni = ( i < nrem ) ? nperpe+1 : nperpe;
+      MPI_Recv(&mu[indx], Ni, PVEC_REAL_MPI_TYPE, i, 0, comm, &status);
+      indx += Ni;
     }
+
+    printf("mu(t0)\n");
+    for (i=0; i<NEQ; i++)
+      printf("  [%2d]: %8e\n", i+1, mu[i]);
+
+  } else {
+
+    MPI_Send(uBdata, local_N, PVEC_REAL_MPI_TYPE, npes, 0, comm);
+
   }
 
   /* Clean-Up */
@@ -245,7 +285,11 @@ int main(int argc, char *argv[])
   N_VFree(uB);                                 /* backward variables    */
   CVodeFree(cvode_mem);                        /* CVODES memory block   */    
   CVadjFree(cvadj_mem);                        /* combined memory block */
-  free(data->z1); free(data->z2); free(data);  /* user data structure   */
+  if (my_pe != npes) {
+    free(data->z1);                            /* workspace in data     */
+    free(data->z2);                            /* workspace in data     */
+  } 
+  free(data);                                  /* user data structure   */
   NV_SpecFree_Parallel(nvSpecF);               /* forward NV_Spec       */
   NV_SpecFree_Parallel(nvSpecB);               /* backward NV_Spec      */
   
@@ -420,6 +464,7 @@ static void fB(realtype t, N_Vector u,
   integertype i, my_length;
   int npes, my_pe, my_pe_m1, my_pe_p1, last_pe, my_last;
   UserData data;
+  realtype data_in[2], data_out[2];
   MPI_Status status;
   MPI_Comm comm;
 
@@ -466,27 +511,37 @@ static void fB(realtype t, N_Vector u,
     udata = NV_DATA_P(u);
     my_length = NV_LOCLENGTH_P(uB);
 
+
+
     /* Pass needed data to processes before and after current process. */
     if (my_pe != 0) {
-      MPI_Send(&udata[0], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm);
-      MPI_Send(&uBdata[0], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm);
+      data_out[0] = udata[0];
+      data_out[1] = uBdata[0];
+    
+      MPI_Send(data_out, 2, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm);
     }
     if (my_pe != last_pe) {
-       MPI_Send(&udata[my_length-1], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm);
-       MPI_Send(&uBdata[my_length-1], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm);
+      data_out[0] = udata[my_length-1];
+      data_out[1] = uBdata[my_length-1];
+
+      MPI_Send(data_out, 2, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm);
     }
     
     /* Receive needed data from processes before and after current process. */
     if (my_pe != 0) {
-      MPI_Recv(&uLeft, 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
-      MPI_Recv(&uBLeft, 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
+      MPI_Recv(data_in, 2, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
+      
+      uLeft = data_in[0];
+      uBLeft = data_in[1];
     } else {
       uLeft = 0.0;
       uBLeft = 0.0;
     }
     if (my_pe != last_pe) {
-      MPI_Recv(&uRight, 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm, &status);
-      MPI_Recv(&uBRight, 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm, &status);
+      MPI_Recv(data_in, 2, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm, &status);
+
+      uRight = data_in[0];
+      uBRight = data_in[1];
     } else {
       uRight = 0.0;
       uBRight = 0.0;
