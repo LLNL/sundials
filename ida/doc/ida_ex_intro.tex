@@ -20,8 +20,8 @@ directory, the following four serial examples (using the {\nvecs} module):
   a user-supplied Jacobian.
 
 \item \id{iwebsb}
-  solves a system of PDE modelling a food web problem, with predator-prey
-  interaction and diffusion on the unit square in 2-D.
+  solves a system of PDEs modelling a food web problem, with predator-prey
+  interaction and diffusion, on the unit square in 2-D.
 
   The PDEs are discretized in space to a system of DAEs which are solved
   using the {\idaband} linear solver with the default difference-quotient 
@@ -80,8 +80,8 @@ In the following sections, we give detailed descriptions of some (but
 not all) of these examples.  The Appendices contain complete listings
 of those examples described below.  We also give our output files for
 each of these examples, but users should be cautioned that their
-results may differ slightly from these.  Differences in solution
-values may differ within the tolerances, and differences in cumulative
+results may differ slightly from these.  Solution
+values may differ within tolerances, and differences in cumulative
 counters, such as numbers of steps or Newton iterations, may differ
 from one machine environment to another by as much as 10\% to 20\%.
 

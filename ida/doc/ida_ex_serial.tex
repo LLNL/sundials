@@ -15,7 +15,6 @@ equations for the system concentrations $y^i(t)$ are:
   0 &=  y_1 + y_2 + y_3 - 1 \, .
 \end{cases}
 \end{equation}
-
 The initial values are taken as $y_1 = 1$, $y_2 = 0$, and $y_3 = 0$
 This example computes the three concentration components on the interval
 from $t=0$ through $t=4 \cdot 10^{10}$.
@@ -63,7 +62,7 @@ allocating memory for the \id{yy}, \id{yp}, and \id{avtol} vectors using
 lines following that load the initial values of the dependendent
 variable vectors into \id{yy} and \id{yp} and set the realtive tolerance 
 \id{rtol} and absolute tolerance vector \id{avtol}. Serial \id{N\_Vector} 
-are set by first accessing the pointer to their underlying data using
+values are set by first accessing the pointer to their underlying data using
 the macro \id{NV\_DATA\_S} defined by {\nvecs} in \id{nvector\_serial.h}.
 
 The calls to \id{N\_VNew\_Serial}, and also later calls to \id{IDA***}
@@ -73,7 +72,7 @@ the return value and prints a message if there was a failure.  This
 application.
 
 The call to \id{IDACreate} creates the {\ida} solver memory block.
-The return value of is a pointer to that memory block for this
+The return value of this function is a pointer to the memory block for this
 problem.  In the case of failure, the return value is \id{NULL}.  This
 pointer must be passed in the remaining calls to {\ida} functions.
 
@@ -94,7 +93,7 @@ The actual solution of the DAE initial value problem is accomplished in
 the loop over values of the output time \id{tout}.  In each pass of the
 loop, the program calls \id{IDASolve} in the \id{IDA\_NORMAL} mode, meaning that
 the integrator is to take steps until it overshoots \id{tout} and then
-interpolate to $t = $\id{tout}, putting the computed value of $y$(\id{tout})
+interpolate to $t =  $\id{tout}, putting the computed value of $y$(\id{tout})
 and $y'$(\id{tout}) into \id{yy} and \id{yp}, respectively, with \id{t} = \id{tout}. 
 If an error occured during the call to \id{IDASolve}, the program returns $1$ \
 and terminates.
@@ -108,7 +107,7 @@ the number of error test and convergence test failures.
 It then calls \id{IDAFree} to free the {\ida} memory block and \id{NV\_Destroy\_Serial} 
 to free the vectors \id{yy}, \id{yp}, and \id{avtol}. 
 
-The functions \id{resrob} (of type \id{IDAResFn} and \id{jacrob} (of type \id{IDADenseJacFn}) 
+The functions \id{resrob} (of type \id{IDAResFn}) and \id{jacrob} (of type \id{IDADenseJacFn}) 
 are straightforward expressions of the DAE system. 
 The function \id{jacrob} makes use of the macro \id{IJth} discussed above.
 See \S\ref{ss:resFn} and \S\ref{ss:djacFn} for detailed specifications of \id{IDAResFn} and 
@@ -175,7 +174,8 @@ and
 
 The spatial domain is the unit square $0 \leq x,y \leq 1$, and the
 time interval is $0 \leq t \leq 1$.  The boundary conditions are of
-Neumann type (zero normal derivatives) everywhere.  The coefficients
+homogeneous Neumann type (zero normal derivatives) everywhere.  
+The coefficients
 are such that a unique stable equilibrium is guaranteed to exist when
 $\alpha = \beta = 0$ \cite{Bro:86}.  Empirically, a stable equilibrium
 appears to exist for (\ref{e:iwebsb_PDE}) when $\alpha$ and $\beta$ are
@@ -242,10 +242,10 @@ that {\ida} is to compute the algebraic components of $y$ and differential
 components of $y'$, given the differential components of $y$.  
 This option requires that the \id{N\_Vector} \id{id} be set through a call to 
 \id{IDASetId} specifying the differential and algebraic components. In this example,
-\id{id} has components equal to $1$ for the prey (indicating differential cariables)
-and $0$ for the predators (algebraic variables).
+\id{id} has components equal to $1$ for the prey (indicating differential 
+variables) and $0$ for the predators (algebraic variables).
 
-Next, the \id{IDASolve} function is called in a loop over the output times
+Next, the \id{IDASolve} function is called in a loop over the output times,
 and the solution for the species concentrations at the bottom-left and
 top-right corners is printed.
 
@@ -345,7 +345,8 @@ spatial discretization of the PDE (using central differences) in the rest of the
 The user-supplied functions \id{PsetupHeat} and \id{PsolveHeat} together define the 
 left preconditoner matrix $P$ approximating the system Jacobian matrix               
 $J = dF/du + \alpha*dF/du'$ (where the DAE system is $F(t,u,u') = 0$), and solve the linear   
-systems $P z = r$.   This is done in this case by keeping only the diagonal elements of 
+systems $P z = r$.   
+Preconditioning  is done in this case by keeping only the diagonal elements of 
 the $J$ matrix above, storing them as inverses in a vector \id{pp}, when computed in 
 \id{PsetupHeat}, for subsequent use in \id{PsolveHeat}.                                 
 %%

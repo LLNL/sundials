@@ -21,7 +21,7 @@ Appendix \ref{s:iwebbbd_c}.
 In the parallel setting, we can think of the processors as being laid out
 in a grid \id{NPEX} $\times$ \id{NPEY}, with each processor computing its
 contiguous subset of the solution vector. As a consequence, the computation 
-of the residual vector requires that each processor exchanges boundary information
+of the residual vector requires that each processor exchange boundary information
 (namely the components at all interior subgrid boundaries) with its neighboring processors.
 The message-passing (implemented in the function \id{rescomm}) uses blocking sends, 
 non-blocking receives, and receive-waiting, in routines \id{BSend}, \id{BRecvPost},
@@ -64,7 +64,7 @@ block, initializing the {\idabbdpre} preconditioner, and attaching the
 {\idaspgmr} linear solver to the {\ida} solver.
 
 In a loop over the desired output times, the main solver function \id{IDASolve}
-is called and selected solution components (at the bottom-left and top-right
+is called, and selected solution components (at the bottom-left and top-right
 corners of the computational domain) are collected on process 0 and printed
 to \id{stdout}. The main program ends by printing final solver statistics,
 freeing memory, and finalizing MPI.
@@ -85,12 +85,12 @@ linear solver {\idaspgmr} with user-defined preconditioner, we provide the examp
 The preconditioner (\id{PsolveHeat} and \id{PsetupHeat}) uses the diagonal 
 elements of the Jacobian only and therefore involves only local calculations. 
 The residual is formed on submeshes with an \id{MXSUB} $\times$ \id{MYSUB} mesh 
-on each of \id{NPEX} $\times$ \id{NPEY} processor. 
+on each of the \id{NPEX} $\times$ \id{NPEY} processors. 
 The MPI communication (implemented in \id{rescomm}) is basically the same
 as for the \id{iwebbbd} example described above and uses the \id{uext} array
 to collect ghost cell data from neighboring processes.
 
-As in \id{iheatsk}, additional constraints are passed to {\ida} through
+As in \id{iheatsk}, constraints are passed to {\ida} through
 the \id{N\_Vector} \id{constraints} and the function \id{IDASetConstraints}.
 All components of \id{constraints} are set to $1.0$ indicating that non-negativity
 constraints are to be imposed on each solutin component.
