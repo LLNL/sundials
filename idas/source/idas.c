@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-07-28 15:43:04 $
+ * $Revision: 1.23 $
+ * $Date: 2004-10-07 17:42:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3504,7 +3504,7 @@ static int IDANls(IDAMem IDA_mem)
       /* If vector v of constraint corrections is small
          in norm, correct and accept this step */      
       if(vnorm <= epsNewt){  
-        N_VLinearSum(ONE, yy, -ONE, tempv1, yy);  /* y <- y - v */
+        N_VLinearSum(ONE, ee, -ONE, tempv1, ee);  /* ee <- ee - v */
         return(SUCCESS);
       }
       else {
