@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2004-03-30 19:36:03 $
+# $Revision: 1.14 $
+# $Date: 2004-03-31 21:17:46 $
 # ------------------------------------------------------------------------
 # Programmers: Radu Serban @ LLNL
 # ------------------------------------------------------------------------
@@ -34,6 +34,17 @@ if test -z "${host}"; then
    AC_CANONICAL_BUILD
    AC_CANONICAL_HOST
 fi
+
+# Only systems running Tru64 Unix should compile the CVODE and KINSOL fcmix dev examples.
+case $host in
+
+  # Compaq/Tru64
+  *-*-osf* ) SUNDIALS_DEV_EXAMPLES="yes" ;;
+
+  # other
+  * ) SUNDIALS_DEV_EXAMPLES="no" ;;
+
+esac
 
 # Overwrite the default installation path
 DEFAULT_PREFIX=`pwd`
@@ -652,7 +663,7 @@ LIBS=${SAVED_LIBS}
 AC_DEFUN(SUNDIALS_SET_MPIF77,
 [
 
-if test "X${MPI_ENABLED}" = "Xyes"; then
+if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_ENABLED}" = "Xyes" ; then
 
   AC_ARG_WITH(mpif77,
   [AC_HELP_STRING([--with-mpif77[[[[=ARG]]]]],[specify MPI Fortran compiler to use @<:@mpif77@:>@],
@@ -797,7 +808,7 @@ LIBS=${SAVED_LIBS}
 AC_DEFUN(SUNDIALS_SET_MPICXX,
 [
 
-if test "X${MPI_ENABLED}" = "Xyes"; then
+if test "X${MPI_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes"; then
 
   AC_ARG_WITH(mpicxx,
   [AC_HELP_STRING([--with-mpicxx[[[[=ARG]]]]],[specify MPI C++ compiler to use @<:@mpiCC@:>@],
@@ -806,8 +817,10 @@ if test "X${MPI_ENABLED}" = "Xyes"; then
     if [ test "X${withval}" != "Xno" ]; then
       USE_MPICXX="yes"
       MPI_CXX="${withval}"
+      MPICXX_FLAG_USED=yes
     else
       USE_MPICXX="no"
+      MPICXX_FLAG_USED=yes
     fi
   ],
   [
@@ -815,14 +828,12 @@ if test "X${MPI_ENABLED}" = "Xyes"; then
     MPI_CXX="mpiCC"
   ])
 
-
   if test "X${USE_MPICXX}" = "Xyes"; then
     SUNDIALS_CHECK_MPICXX
   else
-    MPICXX=${CXX}
+     MPICXX=${CXX}
     SUNDIALS_CHECK_CXX_WITH_MPI
   fi
-
 
 fi
 ])
@@ -1001,7 +1012,7 @@ AC_ARG_ENABLE(idas,
 # Function to decide if and what examples will be built
 # Unless the user explicitely disables example building, all C examples will
 # be built, C++ examples are built only if either cvodes or idas are present,
-# and Fortran exmaples are built if either cvode or kinsol are present.
+# and Fortran examples are built if either cvode or kinsol are present.
 #---------------------------------------------------------------------------------------------
 
 AC_DEFUN(SUNDIALS_ENABLE_EXAMPLES,
@@ -1096,6 +1107,57 @@ fi
 ])
 
 #---------------------------------------------------------------------------------------------
+# Function to decide if and what dev examples will be built
+# Unless the user explicitely disables example building, all C dev examples will
+# be built and Fortran dev examples are built if either cvode or kinsol are present.
+#---------------------------------------------------------------------------------------------
+
+AC_DEFUN(SUNDIALS_ENABLE_DEV_EXAMPLES,
+[
+AC_ARG_ENABLE([],[ ],[])
+
+# Test whether dev examples can be built
+# ----------------------------------
+
+SERIAL_DEV_F77_EXAMPLES=no
+PARALLEL_DEV_F77_EXAMPLES=no
+PARALLEL_DEV_C_EXAMPLES=no
+
+# C examples
+
+if test "X${EXAMPLES}" = "Xyes"; then
+
+  if test "X${MPI_ENABLED}" = "Xyes"; then
+    AC_MSG_CHECKING([whether we can build the parallel dev C examples])
+    test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && PARALLEL_DEV_C_EXAMPLES=yes
+    AC_MSG_RESULT([${PARALLEL_DEV_C_EXAMPLES}])
+  fi
+
+fi
+
+# Fortran examples
+
+if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+
+  if test "X${F77_EXAMPLES}" = "Xyes"; then
+
+    AC_MSG_CHECKING([whether we can build the serial dev Fortran examples])
+    test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && SERIAL_DEV_F77_EXAMPLES=yes
+    AC_MSG_RESULT([${SERIAL_DEV_F77_EXAMPLES}])
+
+    if test "X${MPI_ENABLED}" = "Xyes"; then
+      AC_MSG_CHECKING([whether we can build the parallel dev Fortran examples])
+      test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && PARALLEL_DEV_F77_EXAMPLES=yes
+      AC_MSG_RESULT([${PARALLEL_DEV_F77_EXAMPLES}])
+    fi
+
+  fi
+
+fi
+
+])
+
+#---------------------------------------------------------------------------------------------
 # Function to collect the list of modules to be built
 # SUNDIALS_MAKEFILES will contain the list of all makefiles to be generated
 #---------------------------------------------------------------------------------------------
@@ -1154,9 +1216,23 @@ if test "X${CVODE_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/examples_ser/Makefile"
   fi
 
+  if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+    if test "X${SERIAL_DEV_F77_EXAMPLES}" = "Xyes"; then
+      EX_MODULES="$EX_MODULES cvode/fcmix/test_examples_ser"
+      SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/test_examples_ser/Makefile"
+    fi
+  fi
+
   if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/fcmix/examples_par; then
     EX_MODULES="$EX_MODULES cvode/fcmix/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/examples_par/Makefile"
+  fi
+
+  if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+    if test "X${PARALLEL_DEV_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/fcmix/test_examples_par; then
+      EX_MODULES="$EX_MODULES cvode/fcmix/test_examples_par"
+      SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/test_examples_par/Makefile"
+    fi
   fi
 
 fi
@@ -1176,6 +1252,11 @@ if test "X${CVODES_ENABLED}" = "Xyes"; then
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/examples_par; then
     EX_MODULES="$EX_MODULES cvodes/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/examples_par/Makefile"
+  fi
+
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/test_examples_par; then
+    EX_MODULES="$EX_MODULES cvodes/test_examples_par"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/test_examples_par/Makefile"
   fi
 
 fi
@@ -1243,9 +1324,23 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/examples_ser/Makefile"
   fi
 
+  if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+    if test "X${SERIAL_DEV_F77_EXAMPLES}" = "Xyes"; then
+      EX_MODULES="$EX_MODULES kinsol/fcmix/test_examples_ser"
+      SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/test_examples_ser/Makefile"
+    fi
+  fi
+
   if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/fcmix/examples_par; then
     EX_MODULES="$EX_MODULES kinsol/fcmix/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/examples_par/Makefile"
+  fi
+
+  if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+    if test "X${PARALLEL_DEV_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/fcmix/test_examples_par; then
+      EX_MODULES="$EX_MODULES kinsol/fcmix/test_examples_par"
+      SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/test_examples_par/Makefile"
+    fi
   fi
 
 fi
@@ -1374,6 +1469,11 @@ if test "X${PARALLEL_C_EXAMPLES}" = "Xyes"; then
 if test "X${MPICC_OK}" = "Xyes"; then
 echo "  Parallel C examples"
 fi
+if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes"; then
+if test "X${MPICC_OK}" = "Xyes"; then
+echo "  Parallel dev C examples"
+fi
+fi
 fi
 if test "X${SERIAL_CXX_EXAMPLES}" = "Xyes"; then
 if test "X${CXX_OK}" = "Xyes"; then
@@ -1390,9 +1490,23 @@ if test "X${F77_OK}" = "Xyes"; then
 echo "  Serial Fortran examples"
 fi
 fi
+if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+if test "X${SERIAL_DEV_F77_EXAMPLES}" = "Xyes"; then
+if test "X${F77_OK}" = "Xyes"; then
+echo "  Serial dev Fortran examples"
+fi
+fi
+fi
 if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes"; then
 if test "X${MPIF77_OK}" = "Xyes"; then
 echo "  Parallel Fortran examples"
+fi
+fi
+if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+if test "X${PARALLEL_DEV_F77_EXAMPLES}" = "Xyes"; then
+if test "X${MPIF77_OK}" = "Xyes"; then
+echo "  Parallel dev Fortran examples"
+fi
 fi
 fi
 

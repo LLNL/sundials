@@ -1435,6 +1435,17 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 fi
 
+# Only systems running Tru64 Unix should compile the CVODE and KINSOL fcmix dev examples.
+case $host in
+
+  # Compaq/Tru64
+  *-*-osf* ) SUNDIALS_DEV_EXAMPLES="yes" ;;
+
+  # other
+  * ) SUNDIALS_DEV_EXAMPLES="no" ;;
+
+esac
+
 # Overwrite the default installation path
 DEFAULT_PREFIX=`pwd`
 
@@ -3352,7 +3363,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3355:" \
+echo "$as_me:3366:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3567,7 +3578,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3570: \"$ac_link\") >&5
+(eval echo $as_me:3581: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3647,7 +3658,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3650: \"$ac_link\") >&5
+(eval echo $as_me:3661: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4910,7 +4921,7 @@ fi
 
 
 
-if test "X${MPI_ENABLED}" = "Xyes"; then
+if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_ENABLED}" = "Xyes" ; then
 
 
 # Check whether --with-mpif77 or --without-mpif77 was given.
@@ -5100,7 +5111,7 @@ fi
 
 
 
-if test "X${MPI_ENABLED}" = "Xyes"; then
+if test "X${MPI_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes"; then
 
 
 # Check whether --with-mpicxx or --without-mpicxx was given.
@@ -5110,8 +5121,10 @@ if test "${with_mpicxx+set}" = set; then
     if  test "X${withval}" != "Xno" ; then
       USE_MPICXX="yes"
       MPI_CXX="${withval}"
+      MPICXX_FLAG_USED=yes
     else
       USE_MPICXX="no"
+      MPICXX_FLAG_USED=yes
     fi
 
 else
@@ -5120,7 +5133,6 @@ else
     MPI_CXX="mpiCC"
 
 fi;
-
 
   if test "X${USE_MPICXX}" = "Xyes"; then
 
@@ -5188,7 +5200,7 @@ fi
 
 
   else
-    MPICXX=${CXX}
+     MPICXX=${CXX}
 
 
 # Save copies of current CPPFLAGS, LDFLAGS, LIBS
@@ -5295,7 +5307,6 @@ LIBS=${SAVED_LIBS}
 
 
   fi
-
 
 fi
 
@@ -5480,6 +5491,59 @@ fi
 
 
 
+# Check whether --enable- or --disable- was given.
+if test "${enable_+set}" = set; then
+  enableval="$enable_"
+
+fi;
+
+# Test whether dev examples can be built
+# ----------------------------------
+
+SERIAL_DEV_F77_EXAMPLES=no
+PARALLEL_DEV_F77_EXAMPLES=no
+PARALLEL_DEV_C_EXAMPLES=no
+
+# C examples
+
+if test "X${EXAMPLES}" = "Xyes"; then
+
+  if test "X${MPI_ENABLED}" = "Xyes"; then
+    echo "$as_me:$LINENO: checking whether we can build the parallel dev C examples" >&5
+echo $ECHO_N "checking whether we can build the parallel dev C examples... $ECHO_C" >&6
+    test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && PARALLEL_DEV_C_EXAMPLES=yes
+    echo "$as_me:$LINENO: result: ${PARALLEL_DEV_C_EXAMPLES}" >&5
+echo "${ECHO_T}${PARALLEL_DEV_C_EXAMPLES}" >&6
+  fi
+
+fi
+
+# Fortran examples
+
+if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+
+  if test "X${F77_EXAMPLES}" = "Xyes"; then
+
+    echo "$as_me:$LINENO: checking whether we can build the serial dev Fortran examples" >&5
+echo $ECHO_N "checking whether we can build the serial dev Fortran examples... $ECHO_C" >&6
+    test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && SERIAL_DEV_F77_EXAMPLES=yes
+    echo "$as_me:$LINENO: result: ${SERIAL_DEV_F77_EXAMPLES}" >&5
+echo "${ECHO_T}${SERIAL_DEV_F77_EXAMPLES}" >&6
+
+    if test "X${MPI_ENABLED}" = "Xyes"; then
+      echo "$as_me:$LINENO: checking whether we can build the parallel dev Fortran examples" >&5
+echo $ECHO_N "checking whether we can build the parallel dev Fortran examples... $ECHO_C" >&6
+      test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && PARALLEL_DEV_F77_EXAMPLES=yes
+      echo "$as_me:$LINENO: result: ${PARALLEL_DEV_F77_EXAMPLES}" >&5
+echo "${ECHO_T}${PARALLEL_DEV_F77_EXAMPLES}" >&6
+    fi
+
+  fi
+
+fi
+
+
+
 # Substitute variables
 
 
@@ -5581,9 +5645,23 @@ if test "X${CVODE_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/examples_ser/Makefile"
   fi
 
+  if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+    if test "X${SERIAL_DEV_F77_EXAMPLES}" = "Xyes"; then
+      EX_MODULES="$EX_MODULES cvode/fcmix/test_examples_ser"
+      SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/test_examples_ser/Makefile"
+    fi
+  fi
+
   if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/fcmix/examples_par; then
     EX_MODULES="$EX_MODULES cvode/fcmix/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/examples_par/Makefile"
+  fi
+
+  if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+    if test "X${PARALLEL_DEV_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/fcmix/test_examples_par; then
+      EX_MODULES="$EX_MODULES cvode/fcmix/test_examples_par"
+      SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/test_examples_par/Makefile"
+    fi
   fi
 
 fi
@@ -5603,6 +5681,11 @@ if test "X${CVODES_ENABLED}" = "Xyes"; then
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/examples_par; then
     EX_MODULES="$EX_MODULES cvodes/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/examples_par/Makefile"
+  fi
+
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/test_examples_par; then
+    EX_MODULES="$EX_MODULES cvodes/test_examples_par"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/test_examples_par/Makefile"
   fi
 
 fi
@@ -5670,9 +5753,23 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/examples_ser/Makefile"
   fi
 
+  if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+    if test "X${SERIAL_DEV_F77_EXAMPLES}" = "Xyes"; then
+      EX_MODULES="$EX_MODULES kinsol/fcmix/test_examples_ser"
+      SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/test_examples_ser/Makefile"
+    fi
+  fi
+
   if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/fcmix/examples_par; then
     EX_MODULES="$EX_MODULES kinsol/fcmix/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/examples_par/Makefile"
+  fi
+
+  if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+    if test "X${PARALLEL_DEV_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/fcmix/test_examples_par; then
+      EX_MODULES="$EX_MODULES kinsol/fcmix/test_examples_par"
+      SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/test_examples_par/Makefile"
+    fi
   fi
 
 fi
@@ -6670,6 +6767,11 @@ if test "X${PARALLEL_C_EXAMPLES}" = "Xyes"; then
 if test "X${MPICC_OK}" = "Xyes"; then
 echo "  Parallel C examples"
 fi
+if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes"; then
+if test "X${MPICC_OK}" = "Xyes"; then
+echo "  Parallel dev C examples"
+fi
+fi
 fi
 if test "X${SERIAL_CXX_EXAMPLES}" = "Xyes"; then
 if test "X${CXX_OK}" = "Xyes"; then
@@ -6686,9 +6788,23 @@ if test "X${F77_OK}" = "Xyes"; then
 echo "  Serial Fortran examples"
 fi
 fi
+if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+if test "X${SERIAL_DEV_F77_EXAMPLES}" = "Xyes"; then
+if test "X${F77_OK}" = "Xyes"; then
+echo "  Serial dev Fortran examples"
+fi
+fi
+fi
 if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes"; then
 if test "X${MPIF77_OK}" = "Xyes"; then
 echo "  Parallel Fortran examples"
+fi
+fi
+if test "X${SUNDIALS_DEV_EXAMPLES}" = "Xyes"; then
+if test "X${PARALLEL_DEV_F77_EXAMPLES}" = "Xyes"; then
+if test "X${MPIF77_OK}" = "Xyes"; then
+echo "  Parallel dev Fortran examples"
+fi
 fi
 fi
 

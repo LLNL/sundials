@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-03-30 19:36:03 $
+# $Revision: 1.10 $
+# $Date: 2004-03-31 21:17:46 $
 # ------------------------------------------------------------------------
 # Programmers: Radu Serban @ LLNL
 # ------------------------------------------------------------------------
@@ -43,6 +43,7 @@ SUNDIALS_ENABLE_DEV_MODULES
 
 # Set example modules
 SUNDIALS_ENABLE_EXAMPLES
+SUNDIALS_ENABLE_DEV_EXAMPLES
 
 # Substitute variables
 AC_SUBST(FLIBS)
