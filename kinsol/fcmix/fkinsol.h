@@ -1,13 +1,18 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-08-18 19:35:16 $
+ * $Revision: 1.20 $
+ * $Date: 2004-10-08 23:24:53 $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
+ *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- *  This is the header file for the FKINSOL Interface Package
- *  See below for usage details.
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
+ * -----------------------------------------------------------------
+ * This is the header file for the FKINSOL Interface Package.
+ * See below for usage details.
  * -----------------------------------------------------------------
  */
 
@@ -285,15 +290,16 @@
 
      The following optional outputs are specific to the SPGMR module:
 
-       NLI  = IOPT(11) = number of linear (Krylov) iterations
-       NPE  = IOPT(12) = number of preconditioner evaluations
-       NPS  = IOPT(13) = number of preconditioner solves
-       NCFL = IOPT(14) = number of linear convergence failures
+       NLI    = IOPT(11) = number of linear (Krylov) iterations
+       NPE    = IOPT(12) = number of preconditioner evaluations
+       NPS    = IOPT(13) = number of preconditioner solves
+       NCFL   = IOPT(14) = number of linear convergence failures
+       LSFLAG = IOPT(15) = last flag returned by linear solver
 
 *******************************************************************************/
 
-#ifndef _fkinsol_h
-#define _fkinsol_h
+#ifndef _FKINSOL_H
+#define _FKINSOL_H
 
 /*
  * -----------------------------------------------------------------
@@ -305,31 +311,31 @@
 
 #if defined(SUNDIALS_CASE_LOWER)
 
-#define FKIN_MALLOC        fkinmalloc
-#define FKIN_SPGMR         fkinspgmr
-#define FKIN_SPGMRSETJAC   fkinspgmrsetjac
-#define FKIN_SPGMRSETPSOL  fkinspgmrsetpsol
-#define FKIN_SPGMRSETPSET  fkinspgmrsetpset
-#define FKIN_SOL           fkinsol
-#define FKIN_FREE          fkinfree
-#define FK_FUN             fkfun
-#define FK_PSET            fkpset
-#define FK_PSOL            fkpsol
-#define FK_JTIMES          fkjtimes
+#define FKIN_MALLOC       fkinmalloc
+#define FKIN_SPGMR        fkinspgmr
+#define FKIN_SPGMRSETJAC  fkinspgmrsetjac
+#define FKIN_SPGMRSETPSOL fkinspgmrsetpsol
+#define FKIN_SPGMRSETPSET fkinspgmrsetpset
+#define FKIN_SOL          fkinsol
+#define FKIN_FREE         fkinfree
+#define FK_FUN            fkfun
+#define FK_PSET           fkpset
+#define FK_PSOL           fkpsol
+#define FK_JTIMES         fkjtimes
 
 #elif defined(SUNDIALS_CASE_UPPER)
 
-#define FKIN_MALLOC        FKINMALLOC
-#define FKIN_SPGMR         FKINSPGMR
-#define FKIN_SPGMRSETJAC   FKINSPGMRSETJAC
-#define FKIN_SPGMRSETPSOL  FKINSPGMRSETPSOL
-#define FKIN_SPGMRSETPSET  FKINSPGMRSETPSET
-#define FKIN_SOL           FKINSOL
-#define FKIN_FREE          FKINFREE
-#define FK_FUN             FKFUN
-#define FK_PSET            FKPSET
-#define FK_PSOL            FKPSOL
-#define FK_JTIMES          FKJTIMES
+#define FKIN_MALLOC       FKINMALLOC
+#define FKIN_SPGMR        FKINSPGMR
+#define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC
+#define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL
+#define FKIN_SPGMRSETPSET FKINSPGMRSETPSET
+#define FKIN_SOL          FKINSOL
+#define FKIN_FREE         FKINFREE
+#define FK_FUN            FKFUN
+#define FK_PSET           FKPSET
+#define FK_PSOL           FKPSOL
+#define FK_JTIMES         FKJTIMES
 
 #endif
 
@@ -337,31 +343,31 @@
 
 #if defined(SUNDIALS_CASE_LOWER)
 
-#define FKIN_MALLOC        fkinmalloc__
-#define FKIN_SPGMR         fkinspgmr__
-#define FKIN_SPGMRSETJAC   fkinspgmrsetjac__
-#define FKIN_SPGMRSETPSOL  fkinspgmrsetpsol__
-#define FKIN_SPGMRSETPSET  fkinspgmrsetpset__
-#define FKIN_SOL           fkinsol__
-#define FKIN_FREE          fkinfree__
-#define FK_FUN             fkfun__
-#define FK_PSET            fkpset__
-#define FK_PSOL            fkpsol__
-#define FK_JTIMES          fkjtimes__
+#define FKIN_MALLOC       fkinmalloc__
+#define FKIN_SPGMR        fkinspgmr__
+#define FKIN_SPGMRSETJAC  fkinspgmrsetjac__
+#define FKIN_SPGMRSETPSOL fkinspgmrsetpsol__
+#define FKIN_SPGMRSETPSET fkinspgmrsetpset__
+#define FKIN_SOL          fkinsol__
+#define FKIN_FREE         fkinfree__
+#define FK_FUN            fkfun__
+#define FK_PSET           fkpset__
+#define FK_PSOL           fkpsol__
+#define FK_JTIMES         fkjtimes__
 
 #elif defined(SUNDIALS_CASE_UPPER)
 
-#define FKIN_MALLOC        FKINMALLOC__
-#define FKIN_SPGMR         FKINSPGMR__
-#define FKIN_SPGMRSETJAC   FKINSPGMRSETJAC__
-#define FKIN_SPGMRSETPSOL  FKINSPGMRSETPSOL__
-#define FKIN_SPGMRSETPSET  FKINSPGMRSETPSET__
-#define FKIN_SOL           FKINSOL__
-#define FKIN_FREE          FKINFREE__
-#define FK_FUN             FKFUN__
-#define FK_PSET            FKPSET__
-#define FK_PSOL            FKPSOL__
-#define FK_JTIMES          FKJTIMES__
+#define FKIN_MALLOC       FKINMALLOC__
+#define FKIN_SPGMR        FKINSPGMR__
+#define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC__
+#define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL__
+#define FKIN_SPGMRSETPSET FKINSPGMRSETPSET__
+#define FKIN_SOL          FKINSOL__
+#define FKIN_FREE         FKINFREE__
+#define FK_FUN            FKFUN__
+#define FK_PSET           FKPSET__
+#define FK_PSOL           FKPSOL__
+#define FK_JTIMES         FKJTIMES__
 
 #endif
 
@@ -369,31 +375,31 @@
 
 #if defined(SUNDIALS_CASE_LOWER)
 
-#define FKIN_MALLOC        fkinmalloc_
-#define FKIN_SPGMR         fkinspgmr_
-#define FKIN_SPGMRSETJAC   fkinspgmrsetjac_
-#define FKIN_SPGMRSETPSOL  fkinspgmrsetpsol_
-#define FKIN_SPGMRSETPSET  fkinspgmrsetpset_
-#define FKIN_SOL           fkinsol_
-#define FKIN_FREE          fkinfree_
-#define FK_FUN             fkfun_
-#define FK_PSET            fkpset_
-#define FK_PSOL            fkpsol_
-#define FK_JTIMES          fkjtimes_
+#define FKIN_MALLOC       fkinmalloc_
+#define FKIN_SPGMR        fkinspgmr_
+#define FKIN_SPGMRSETJAC  fkinspgmrsetjac_
+#define FKIN_SPGMRSETPSOL fkinspgmrsetpsol_
+#define FKIN_SPGMRSETPSET fkinspgmrsetpset_
+#define FKIN_SOL          fkinsol_
+#define FKIN_FREE         fkinfree_
+#define FK_FUN            fkfun_
+#define FK_PSET           fkpset_
+#define FK_PSOL           fkpsol_
+#define FK_JTIMES         fkjtimes_
 
 #elif defined(SUNDIALS_CASE_UPPER)
 
-#define FKIN_MALLOC        FKINMALLOC_
-#define FKIN_SPGMR         FKINSPGMR_
-#define FKIN_SPGMRSETJAC   FKINSPGMRSETJAC_
-#define FKIN_SPGMRSETPSOL  FKINSPGMRSETPSOL_
-#define FKIN_SPGMRSETPSET  FKINSPGMRSETPSET_
-#define FKIN_SOL           FKINSOL_
-#define FKIN_FREE          FKINFREE_
-#define FK_FUN             FKFUN_
-#define FK_PSET            FKPSET_
-#define FK_PSOL            FKPSOL_
-#define FK_JTIMES          FKJTIMES_
+#define FKIN_MALLOC       FKINMALLOC_
+#define FKIN_SPGMR        FKINSPGMR_
+#define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC_
+#define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL_
+#define FKIN_SPGMRSETPSET FKINSPGMRSETPSET_
+#define FKIN_SOL          FKINSOL_
+#define FKIN_FREE         FKINFREE_
+#define FK_FUN            FKFUN_
+#define FK_PSET           FKPSET_
+#define FK_PSOL           FKPSOL_
+#define FK_JTIMES         FKJTIMES_
 
 #endif
 
@@ -401,13 +407,12 @@
 
 /*
  * -----------------------------------------------------------------
- * KINSOL header files
+ * header files
  * -----------------------------------------------------------------
  */
 
+#include "nvector.h"        /* definition of type N_Vector */
 #include "sundialstypes.h"  /* definition of type realtype */
-#include "kinsol.h"         /* definition of type SysFn */
-#include "nvector.h"        /* definitions of types N_Vector and N_VSpec */
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-07-27 23:53:09 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-08 23:25:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -191,7 +191,7 @@ int main()
   data = NULL;
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
-  globalstrategy = INEXACT_NEWTON;
+  globalstrategy = KIN_INEXACT_NEWTON;
 
   data = AllocUserData();
   if (check_flag((void *)data, "AllocUserData", 2)) return(1);

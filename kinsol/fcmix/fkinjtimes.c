@@ -1,23 +1,29 @@
 /*
- * ----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-07-27 23:52:49 $
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-10-08 23:24:53 $
+ * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
+ * -----------------------------------------------------------------
  * Routines used to interface between KINSOL and a Fortran
  * user-supplied routine FKJTIMES (Jacobian J times vector v).
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"
-#include "nvector.h"
-#include "kinsol.h"   /* prototypes of interfaces and global variables */
-#include "kinspgmr.h"
-#include "fkinsol.h"  /* prototypes of interfaces and global variables */
+
+#include "fkinsol.h"        /* prototypes of interfaces and global variables */
+#include "kinsol.h"         /* KINSOL constants and prototypes               */
+#include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
+#include "nvector.h"        /* definition of type N_Vector                   */
+#include "sundialstypes.h"  /* definition of type realtype                   */
 
 /*
  * ----------------------------------------------------------------

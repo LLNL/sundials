@@ -1,11 +1,16 @@
 /*
- * ----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-07-27 23:52:49 $
- * ----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
+ * $Revision: 1.16 $
+ * $Date: 2004-10-08 23:24:53 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
+ *                Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
+ * -----------------------------------------------------------------
  * This module contains the routines necessary to interface with
  * the KINBBDPRE module and user-supplied Fortran routines. Generic
  * names are used (e.g. FK_COMMFN). The routines here call the
@@ -16,14 +21,23 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"  /* definition of type realtype */
-#include "nvector.h"        /* definition of type N_Vector */
-#include "kinsol.h"         /* KINSOL constants and prototypes */
-#include "fkinsol.h"        /* prototypes of standard interfaces and
-                               global variables */
-#include "fkinbbd.h"        /* prototypes of interfaces to KINBBDPRE */
-#include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines */
+
+#include "fkinbbd.h"        /* prototypes of interfaces to KINBBDPRE        */
+#include "fkinsol.h"        /* prototypes of standard interfaces and global
+                               variables                                    */
 #include "kinbbdpre.h"      /* prototypes of KINBBDPRE functions and macros */
+#include "kinsol.h"         /* KINSOL constants and prototypes              */
+#include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines    */
+#include "nvector.h"        /* definition of type N_Vector                  */
+#include "sundialstypes.h"  /* definition of type realtype                  */
+
+/*
+ * ----------------------------------------------------------------
+ * private constants
+ * ----------------------------------------------------------------
+ */
+
+#define ZERO RCONST(0.0)
 
 /*
  * ----------------------------------------------------------------
@@ -42,7 +56,7 @@ void FK_COMMFN(long int*, realtype*);
 
 void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier)
 {
-  KBBD_Data = KINBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, 0.0, FKINgloc, FKINgcomm);
+  KBBD_Data = KINBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, ZERO, FKINgloc, FKINgcomm);
   if (KBBD_Data == NULL) { *ier = -1; return; }
 }
 
@@ -55,10 +69,10 @@ void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier)
 void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier)
 {
   *ier = KINBBDSpgmr(KIN_mem, *maxl, KBBD_Data);
-  if (*ier != 0) return;
+  if (*ier != KINSPGMR_SUCCESS) return;
 
   *ier = KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
-  if (*ier != 0) return;
+  if (*ier != KINSPGMR_SUCCESS) return;
 }
 
 /*
@@ -111,8 +125,7 @@ void FKINgcomm(long int Nloc, N_Vector uu, void *f_data)
 
 void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 {
-  KINBBDPrecGetIntWorkSpace(KBBD_Data, lenipw);
-  KINBBDPrecGetRealWorkSpace(KBBD_Data, lenrpw);
+  KINBBDPrecGetWorkSpace(KBBD_Data, lenrpw, lenipw);
   KINBBDPrecGetNumGfnEvals(KBBD_Data, nge);
 }
 

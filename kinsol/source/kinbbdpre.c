@@ -1,15 +1,15 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-08-18 19:35:23 $
+ * $Revision: 1.19 $
+ * $Date: 2004-10-08 23:24:43 $
  *-----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
+ *                Aaron Collier @ LLNL
  *-----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/kinsol/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
  *-----------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
@@ -24,11 +24,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+#include "iterative.h"
 #include "kinbbdpre_impl.h"
 #include "kinspgmr_impl.h"
 #include "sundialsmath.h"
-#include "iterative.h"
 
 /*
  *-----------------------------------------------------------------
@@ -53,11 +53,11 @@
 
 /* KINBBDPrecGet* error message */
 
-#define MSG_PDATA_NULL  "KINBBDPrecGet*-- KBBDPrecData is NULL. \n\n"
+#define MSG_PDATA_NULL "KINBBDPrecGet*-- KBBDPrecData is NULL. \n\n"
 
 /* KINBBDSpgmr error message */
 
-#define MSG_NO_PDATA    "KINBBDSpgmr-- KBBDPrecData is NULL.\n\n"
+#define MSG_NO_PDATA "KINBBDSpgmr-- KBBDPrecData is NULL.\n\n"
 
 /*
  *-----------------------------------------------------------------
@@ -191,22 +191,22 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
 
   if (p_data == NULL) {
     fprintf(errfp, MSG_NO_PDATA);
-    return(KIN_BBDP_NO_PDATA);
+    return(KINSPGMR_DATA_NULL);
   }
 
   flag = KINSpgmr(kinmem, maxl);
-  if (flag != KIN_SUCCESS) return(flag);
+  if (flag != KINSPGMR_SUCCESS) return(flag);
 
   flag = KINSpgmrSetPrecData(kinmem, p_data);
-  if (flag != KIN_SUCCESS) return(flag);
+  if (flag != KINSPGMR_SUCCESS) return(flag);
 
   flag = KINSpgmrSetPrecSetupFn(kinmem, KINBBDPrecSetup);
-  if (flag != KIN_SUCCESS) return(flag);
+  if (flag != KINSPGMR_SUCCESS) return(flag);
 
   flag = KINSpgmrSetPrecSolveFn(kinmem, KINBBDPrecSolve);
-  if (flag != KIN_SUCCESS) return(flag);
+  if (flag != KINSPGMR_SUCCESS) return(flag);
 
-  return(KIN_SUCCESS);
+  return(KINSPGMR_SUCCESS);
 }
 
 /*
@@ -230,44 +230,25 @@ void KINBBDPrecFree(void *p_data)
 
 /*
  *-----------------------------------------------------------------
- * Function : KINBBDPrecGetIntWorkSpace
+ * Function : KINBBDPrecGetWorkSpace
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP)
+int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP)
 {
   KBBDPrecData pdata;
 
   if (p_data == NULL) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(KIN_BBDP_NO_PDATA);
+    return(KINSPGMR_DATA_NULL);
   } 
 
   pdata = (KBBDPrecData) p_data;
+
+  *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(KING_OKAY);
-}
-
-/*
- *-----------------------------------------------------------------
- * Function : KINBBDPrecGetRealWorkSpace
- *-----------------------------------------------------------------
- */
-
-int KINBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
-{
-  KBBDPrecData pdata;
-
-  if (p_data == NULL) {
-    fprintf(stderr, MSG_PDATA_NULL);
-    return(KIN_BBDP_NO_PDATA);
-  } 
-
-  pdata = (KBBDPrecData) p_data;
-  *lenrwBBDP = pdata->rpwsize;
-
-  return(KING_OKAY);
+  return(KINSPGMR_SUCCESS);
 }
 
 /*
@@ -282,13 +263,13 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 
   if (p_data == NULL) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(KIN_BBDP_NO_PDATA);
+    return(KINSPGMR_DATA_NULL);
   } 
 
   pdata = (KBBDPrecData) p_data;
   *ngevalsBBDP = pdata->nge;
 
-  return(KING_OKAY);
+  return(KINSPGMR_SUCCESS);
 }
 
 /*

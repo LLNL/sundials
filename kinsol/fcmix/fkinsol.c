@@ -1,28 +1,42 @@
 /*
- * ----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-08-18 19:35:16 $
- * ----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
+ * $Revision: 1.22 $
+ * $Date: 2004-10-08 23:24:53 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
+ *                Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
+ * -----------------------------------------------------------------
  * This is the implementation file for the Fortran interface to
  * the KINSOL package. See fkinsol.h for usage.
  *
- * Note: some routines are necessarily stored elsewhere to avoid
+ * Note: Some routines are necessarily stored elsewhere to avoid
  * linking problems. See also, therefore, fkinpreco.c, fkinpsol.c
  * fkinjtimes.c, and fkinbbd.c.
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"  /* definition of type realtype */
-#include "nvector.h"        /* definition of type N_Vector and prototypes
-                               of related routines */
-#include "kinsol.h"         /* KINSOL constants and prototypes */
-#include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines */
+
 #include "fkinsol.h"        /* prototypes of interfaces and global variables */
+#include "kinsol.h"         /* KINSOL constants and prototypes               */
+#include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
+#include "nvector.h"        /* definition of type N_Vector and prototypes
+                               of related routines                           */
+#include "sundialstypes.h"  /* definition of type realtype                   */
+
+/*
+ * ----------------------------------------------------------------
+ * private constants
+ * ----------------------------------------------------------------
+ */
+
+#define ZERO RCONST(0.0)
 
 /*
  * ----------------------------------------------------------------
@@ -78,10 +92,10 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
     if (iopt[7] > 0) KINSetEtaForm(KIN_mem, (int) iopt[7]);
     if (iopt[8] > 0) KINSetNoMinEps(KIN_mem, TRUE);
 
-    if (ropt[0] > 0.0) KINSetMaxNewtonStep(KIN_mem, ropt[0]);
-    if (ropt[1] > 0.0) KINSetRelErrFunc(KIN_mem, ropt[1]);
-    if (ropt[4] > 0.0) KINSetEtaConstValue(KIN_mem, ropt[4]);
-    if (ropt[5] > 0.0 || ropt[6] > 0.0) 
+    if (ropt[0] > ZERO) KINSetMaxNewtonStep(KIN_mem, ropt[0]);
+    if (ropt[1] > ZERO) KINSetRelErrFunc(KIN_mem, ropt[1]);
+    if (ropt[4] > ZERO) KINSetEtaConstValue(KIN_mem, ropt[4]);
+    if (ropt[5] > ZERO || ropt[6] > ZERO) 
       KINSetEtaParams(KIN_mem, ropt[5], ropt[6]);
   }
 
@@ -119,6 +133,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
 {
   long int nniters, nfevals, nbcfails, nbacktr;
   long int nliters, npevals, npsolves, nlcfails;
+  int lsflag;
   N_Vector uuvec, uscalevec, fscalevec;
 
   uuvec = N_VCloneEmpty(F2C_vec);
@@ -159,6 +174,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
       KINSpgmrGetNumPrecEvals(KIN_mem, &npevals);
       KINSpgmrGetNumPrecSolves(KIN_mem, &npsolves);
       KINSpgmrGetNumConvFails(KIN_mem, &nlcfails);
+      KINSpgmrGetLastFlag(KIN_mem, &lsflag);
       break;
     }
 
@@ -166,6 +182,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KIN_iopt[11] = npevals;
     KIN_iopt[12] = npsolves;
     KIN_iopt[13] = nlcfails;
+    KIN_iopt[14] = lsflag;
   }
 }
 
@@ -177,8 +194,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
 
 void FKIN_FREE()
 {
-  /* Call KINFree:
-     KIN_mem is the pointer to the KINSOL memory block */
+  /* Call KINFree: KIN_mem is the pointer to the KINSOL memory block */
 
   KINFree(KIN_mem);
 }
@@ -187,12 +203,12 @@ void FKIN_FREE()
  * ----------------------------------------------------------------
  * Function : FKINfunc
  * ----------------------------------------------------------------
- * The C function FKINfunc acts as an interface between KINSol and
+ * The C function FKINfunc acts as an interface between KINSOL and
  * the Fortran user-supplied subroutine FKFUN. Addresses of the
- * data uu and fdata are passed to KFUN, using the routine
- * N_VGetData from the NVECTOR module. The data in the returned
- * N_Vector fval is set using N_VSetData. Auxiliary data is assumed
- * to be communicated by Common.
+ * data uu and fdata are passed to FKFUN, using the routine
+ * N_VGetArrayPointer from the NVECTOR module. The data in the
+ * returned N_Vector fval is set using N_VSetArrayPointer. Auxiliary
+ * data is assumed to be communicated by 'Common'.
  * ----------------------------------------------------------------
  */
 

@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-06-02 23:22:29 $
+ * $Revision: 1.2 $
+ * $Date: 2004-10-08 23:24:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  *  -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/kinsol/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
  * -----------------------------------------------------------------
  * KINBBDPRE module header file (private version)
  * -----------------------------------------------------------------
@@ -19,14 +19,14 @@
 extern "C" {
 #endif
 
-#ifndef _kbbdpre_impl_h
-#define _kbbdpre_impl_h
+#ifndef _KBBDPRE_IMPL_H
+#define _KBBDPRE_IMPL_H
 
-#include "kinsol_impl.h"
-#include "sundialstypes.h"
-#include "nvector.h"
 #include "band.h"
 #include "kinbbdpre.h"
+#include "kinsol_impl.h"
+#include "nvector.h"
+#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------

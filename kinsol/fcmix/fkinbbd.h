@@ -1,14 +1,19 @@
 /*
- * ----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-07-26 17:27:14 $
- * ----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
+ * $Revision: 1.17 $
+ * $Date: 2004-10-08 23:24:53 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
+ *                Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
+ * -----------------------------------------------------------------
  * This is the Fortran interface include file for the BBD
  * preconditioner module KINBBDPRE.
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
  */
 
 /*******************************************************************************
@@ -185,18 +190,18 @@
          IER      = return completion flag. Values are 0 = success, and
                     -1 = failure.
 
- (4.3.1) To specify the SPGMR linear system solver, and to allocate memory
-         and initialize data associated with the SPGMR method, make the
-         following call:
+ (4.4) To specify the SPGMR linear system solver, and to allocate memory
+       and initialize data associated with the SPGMR method, make the
+       following call:
 
-           CALL FKINBBDSPGMR (MAXL, MAXLRST, IER)
+         CALL FKINBBDSPGMR (MAXL, MAXLRST, IER)
 
-         The arguments are:
-           MAXL     = maximum Krylov subspace dimension
-                      Note: 0 indicates default.
-           MAXLRST  = maximum number of linear solver restarts
-           IER      = return completion flag. Values are 0 = success, and
-                      -1 = failure.
+       The arguments are:
+         MAXL     = maximum Krylov subspace dimension
+                    Note: 0 indicates default.
+         MAXLRST  = maximum number of linear solver restarts
+         IER      = return completion flag. Values are 0 = success, and
+                    -1 = failure.
 
  (5) To solve the system, make the following call:
 
@@ -239,8 +244,8 @@
 
 *******************************************************************************/
 
-#ifndef _fkinbbd_h
-#define _fkinbbd_h
+#ifndef _FKINBBD_H
+#define _FKINBBD_H
 
 /*
  * -----------------------------------------------------------------
@@ -316,16 +321,14 @@
 
 #endif
 
-
 /*
  * -----------------------------------------------------------------
- * KINSOL header files
+ * header files
  * -----------------------------------------------------------------
  */
 
-#include "sundialstypes.h"  /* definition of type realtype */
 #include "nvector.h"        /* definition of type N_Vector */
-
+#include "sundialstypes.h"  /* definition of type realtype */
 
 /*
  * -----------------------------------------------------------------

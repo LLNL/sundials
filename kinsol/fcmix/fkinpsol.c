@@ -1,23 +1,29 @@
 /*
- * ----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-07-27 23:52:49 $
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
+ * $Revision: 1.13 $
+ * $Date: 2004-10-08 23:24:53 $
+ * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
+ * -----------------------------------------------------------------
  * This routine interfaces between KINSOL and the user-supplied
  * Fortran routine FK_PSOL.
- * ----------------------------------------------------------------
+ * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"  /* definition of type realtype */
-#include "nvector.h"        /* definition of type N_Vector */
-#include "kinsol.h"         /* KINSOL constants and prototypes */
-#include "kinspgmr.h"
+
 #include "fkinsol.h"        /* prototypes of interfaces and global variables */
+#include "kinsol.h"         /* KINSOL constants and prototypes               */
+#include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
+#include "nvector.h"        /* definition of type N_Vector                   */
+#include "sundialstypes.h"  /* definition of type realtype                   */
 
 /*
  * ----------------------------------------------------------------

@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-08-17 22:42:17 $
+ * $Revision: 1.4 $
+ * $Date: 2004-10-08 23:24:44 $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
+ *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/kinsol/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
  * -----------------------------------------------------------------
  * KINSOL solver module header file (private version)
  * -----------------------------------------------------------------
@@ -19,12 +19,12 @@
 extern "C" {
 #endif
 
-#ifndef _kinsol_impl_h
-#define _kinsol_impl_h
+#ifndef _KINSOL_IMPL_H
+#define _KINSOL_IMPL_H
 
 #include "kinsol.h"
-#include "sundialstypes.h"
 #include "nvector.h"
+#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------

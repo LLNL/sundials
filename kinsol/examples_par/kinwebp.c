@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-07-27 23:53:16 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-08 23:25:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
   InitUserData(my_pe, comm, data);
 
   /* Set global strategy flag */
-  globalstrategy = INEXACT_NEWTON;
+  globalstrategy = KIN_INEXACT_NEWTON;
   
   /* Allocate and initialize vectors */
   cc = N_VNew_Parallel(comm, local_N, NEQ);

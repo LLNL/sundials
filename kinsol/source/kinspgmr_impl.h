@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-06-02 23:22:30 $
+ * $Revision: 1.2 $
+ * $Date: 2004-10-08 23:24:44 $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                 Radu Serban @ LLNL
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
+ *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/kinsol/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/kinsol/LICENSE.
  * -----------------------------------------------------------------
  * KINSPGMR linear solver module header file (private version)
  * -----------------------------------------------------------------
@@ -19,14 +19,13 @@
 extern "C" {
 #endif
 
-#ifndef _kinspgmr_impl_h
-#define _kinspgmr_impl_h
+#ifndef _KINSPGMR_IMPL_H
+#define _KINSPGMR_IMPL_H
 
-#include "kinsol.h"
+#include "kinspgmr.h"
+#include "nvector.h"
 #include "spgmr.h"
 #include "sundialstypes.h"
-#include "nvector.h"
-#include "kinspgmr.h"
 
 /*
  * -----------------------------------------------------------------
@@ -99,6 +98,10 @@ typedef struct {
 
   SpgmrMem g_spgmr_mem; /* pointer to SPGMR memory block (allocated by
 			   SpgmrMalloc routine)                                */
+
+  /* miscellaneous data */
+
+  int g_last_flag; /* last flag returned                                       */
 
 } KINSpgmrMemRec, *KINSpgmrMem;
 
