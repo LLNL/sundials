@@ -2,10 +2,11 @@
 %% the serial nvector implementation
 %%
 
-The serial implementation of the {\nvector} module defines the {\em content} 
-field of \id{N\_Vector} to be a structure containing the length of the vector,
-a pointer to the beginning of a contiguous data array, and a boolean flag
-{\em own\_data} which specifies the ownership of {\em data}.
+The serial implementation of the {\nvector} module provided with {\sundials},
+{\nvecs}, defines the {\em content} field of \id{N\_Vector} to be a structure 
+containing the length of the vector, a pointer to the beginning of a contiguous 
+data array, and a boolean flag {\em own\_data} which specifies the ownership 
+of {\em data}.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_Serial {
@@ -17,7 +18,7 @@ struct _N_VectorContent_Serial {
 %%
 %%--------------------------------------------
 %%
-The following five macros are provided to access the content of a {\nvecs}
+The following five macros are provided to access the content of an {\nvecs}
 vector. The suffix \id{\_S} in the names denotes serial version.
 %%
 \begin{itemize}
@@ -149,7 +150,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 
 \item \ID{N\_VDestroyVectorArray\_Serial}
 
- This function frees memory allocated for the array of \id{count} serial \id{N\_Vector}'s 
+ This function frees memory allocated for the array of \id{count} variables of type \id{N\_Vector}
  created with \id{N\_VNewVectorArray\_Serial} or with \id{N\_VNewVectorArrayEmpty\_Serial}.
 
  

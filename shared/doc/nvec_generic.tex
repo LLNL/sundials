@@ -4,7 +4,9 @@
 The {\sundials} solvers are written in a data-independent manner. 
 They all operate on generic vectors (of type \Id{N\_Vector}) through a set of
 operations defined by the particular {\nvector} implementation.
-
+Users can provide their own specific implementation of the {\nvector} module
+or use one of two provided within {\sundials}, a serial and an MPI parallel
+implementations.
 
 The generic \ID{N\_Vector} type is a pointer to a structure that has an 
 implementation-dependent {\em content} field containing the 
@@ -82,13 +84,13 @@ by the generic {\nvector} module.
 
 
 Finally, note that the generic {\nvector} module defines a function \ID{N\_VCloneVectorArray}
-which creates (by cloning) an array of \id{count} \id{N\_Vector}'s of the same type as an
-existing \id{N\_Vector}. Its prototype is
+which creates (by cloning) an array of \id{count} variables of type \id{N\_Vector}, each of the 
+same type as an existing \id{N\_Vector}. Its prototype is
 \begin{verbatim}
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
 \end{verbatim}
 and its definition is based on the implementation-specific \id{N\_VClone} operation.
-Such an array \id{vs} of \id{N\_Vector}'s can be destroyed by calling \ID{N\_VDestroyVectorArray},
+An array of variables of type \id{N\_Vector} can be destroyed by calling \ID{N\_VDestroyVectorArray},
 whose prototype is
 \begin{verbatim}
 void N_VDestroyVectorArray(N_Vector *vs, int count);
@@ -103,8 +105,8 @@ A particular implementation of the {\nvector} module must:
 \item Specify the {\em content} field of \id{N\_Vector}.
 \item Define and implement the vector operations. 
   Note that the names of these routines should be unique to that implementation in order 
-  to permit using \id{N\_Vector}'s with different 
-  internal representations in the same code.
+  to permit using more than one {\nvector} module (each with different \id{N\_Vector} 
+  internal data representations) in the same code.
 \item Define and implement user-callable constructor and destructor
   routines to create and free an \id{N\_Vector} with
   the new {\em content} field and with {\em ops} pointing to the
@@ -174,7 +176,7 @@ solver.
 &\\
 \id{N\_VLinearSum} & \id{N\_VLinearSum(a, x, b, y, z);} \\
 & Performs the operation $z = a x + b y$, where $a$ and $b$ are scalars
-and $x$ and $y$ are \id{N\_Vector}'s:
+and $x$ and $y$ are of type \id{N\_Vector}:
 $z_i = a x_i + b y_i, \: i=0,\ldots,n-1$.
 \\
 &\\
@@ -185,13 +187,13 @@ $z_i = c,\: i=0,\ldots,n-1$.
 &\\
 \id{N\_VProd} & \id{N\_VProd(x, y, z);} \\
 & Sets the \id{N\_Vector} \id{z} to be the component-wise product of the
-\id{N\_Vector}'s \id{x} and \id{y}:
+\id{N\_Vector} inputs \id{x} and \id{y}:
 $z_i = x_i y_i,\: i=0,\ldots,n-1$.
 \\
 &\\
 \id{N\_VDiv} & \id{N\_VDiv(x, y, z);} \\
 & Sets the \id{N\_Vector} \id{z} to be the component-wise ratio of the
-\id{N\_Vector}'s \id{x} and \id{y}:
+\id{N\_Vector} inputs \id{x} and \id{y}:
 $z_i = x_i / y_i,\: i=0,\ldots,n-1$. The $y_i$ may not be tested 
 for $0$ values. It should only be called with an \id{x} that is
 guaranteed to have all nonzero components.

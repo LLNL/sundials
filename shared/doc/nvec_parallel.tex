@@ -1,7 +1,8 @@
 % This is a shared SUNDIALS TEX file with description of
 % the parallel nvector implementation
 %
-The parallel implementation of the {\nvector} module defines the {\em content} 
+The parallel implementation of the {\nvector} module provided with {\sundials},
+{\nvecp}, defines the {\em content} 
 field of \id{N\_Vector} to be a structure containing the global and local lengths 
 of the vector, a pointer to the beginning of a contiguous local data array,
 an {\mpi} communicator, an a boolean flag {\em own\_data} indicating ownership of 
@@ -192,7 +193,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
 
 \item \ID{N\_VDestroyVectorArray\_Parallel}
  
- This function frees memory allocated for the array of \id{count} parallel \id{N\_Vector}'s 
+ This function frees memory allocated for the array of \id{count} variables of type \id{N\_Vector}
  created with \id{N\_VNewVectorArray\_Parallel} or with \id{N\_VNewVectorArrayEmpty\_Parallel}.
 
  
