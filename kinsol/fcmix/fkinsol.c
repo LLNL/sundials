@@ -85,7 +85,7 @@ void F_KINSOL(int *Neq, real *uu, int *globalstrategy,
 
   /* Call KINSol:
 
-  KIN_kmem is the pointer to the CVODE memory block
+  KIN_kmem is the pointer to the KINSOL memory block
   Neq is the total system size
   uuvec is the N_Vector containing the solution found by KINSol
   KINfunc   is the standard interface function to the user-supplied KFUN
@@ -119,7 +119,7 @@ void F_KINSOL(int *Neq, real *uu, int *globalstrategy,
 void F_KINFREE()
 {
   /* Call KINFree:
-     KIN_kmem is the pointer to the CVODE memory block */
+     KIN_kmem is the pointer to the KINSOL memory block */
 
   KINFree(KIN_kmem);
 }
