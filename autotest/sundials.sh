@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.2 $
-# $Date: 2004-04-27 22:11:40 $
+# $Revision: 1.3 $
+# $Date: 2004-05-14 22:18:59 $
 ############################################################################
 #
 # Filename: sundials.sh
@@ -925,7 +925,7 @@ touch "${LOG_DIR}/${MAIL_FILE}"
 TIME_STAMP=`date`
 echo "##################################" >> "${LOG_DIR}/${MAIL_FILE}"
 echo "#" >> "${LOG_DIR}/${MAIL_FILE}"
-echo "#  ERROR MESSAGE" >> "${LOG_DIR}/${MAIL_FILE}"
+echo "#  AUTOTEST INFORMATION" >> "${LOG_DIR}/${MAIL_FILE}"
 echo "#" >> "${LOG_DIR}/${MAIL_FILE}"
 echo "#  System(s): ${REMOTE_MACHINES}" >> "${LOG_DIR}/${MAIL_FILE}"
 echo "#" >> "${LOG_DIR}/${MAIL_FILE}"
