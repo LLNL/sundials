@@ -231,16 +231,11 @@ int main(int argc, char *argv[])
                          mukeep, mlkeep, 0.0, flocal, ucomm);
   if (pdata == NULL) { printf("CVBBDPrecAlloc failed."); return(1); }
 
-  /* Call CVSpgmr to specify the CVODE linear solver CVSPGMR 
-     with left preconditioning and the maximum Krylov dimension maxl */
-  flag = CVSpgmr(cvode_mem, LEFT, 0);
-  if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
-
-  /* Set preconditioner setup and solve routines CVBBDPrecSetup and 
-     CVBBDPrecSolve and the pointer to the user-defined block data */
-  flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBBDPrecSetup);
-  flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBBDPrecSolve);
-  flag = CVSpgmrSetPrecData(cvode_mem, pdata);
+  /* Call CVBBDSpgmr to specify the CVODE linear solver CVSPGMR 
+     with left preconditioning, the maximum Krylov dimension maxl,
+     and using the CVBBDPRE preconditioner */
+  flag = CVBBDSpgmr(cvode_mem, LEFT, 0, pdata);
+  if (flag != SUCCESS) { printf("CVBBDSpgmr failed."); return(1); }
 
   /* Print heading */
   if (my_pe == 0) {
@@ -251,7 +246,6 @@ int main(int argc, char *argv[])
     printf(" mudq = %ld,  mldq = %ld\n", mudq, mldq);
     printf("    Retained band block half-bandwidths are");
     printf(" mukeep = %ld,  mlkeep = %ld", mukeep, mlkeep); 
-
   }
 
   /* Loop over jpre (= LEFT, RIGHT), and solve the problem */
@@ -268,7 +262,7 @@ int main(int argc, char *argv[])
 
     flag = CVBBDPrecReInit(pdata, mudq, mldq, 0.0, flocal, ucomm);
 
-    flag = CVSpgmrSetPrecType(cvode_mem, RIGHT);
+    flag = CVSpgmrResetPrecType(cvode_mem, RIGHT);
 
     if (my_pe == 0) {
       printf("\n\n-------------------------------------------------------");
