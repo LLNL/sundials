@@ -3,7 +3,7 @@
 
 Many times, models depend on parameters, either through their defining
 function --- $f(t,y)$ for the ODE in (\ref{ODE}), $F(t,y,y')$ for the DAE
-(\ref{}), and $F(u)$ for nonlinear systems (\ref{nonlinear_system}) 
+(\ref{e:DAE}), and $F(u)$ for nonlinear systems (\ref{nonlinear_system}) 
 --- or through initial conditions in the case of ODEs and DAEs. 
 In addition to the solution $y$ or $u$, we often want to quantify how 
 the solution (or some other output functional depending on the solution) 
@@ -207,9 +207,9 @@ $s={dy}/{dp}$ as before, we obtain DAEs for the individual sensitivity vectors,
 %
 IDAS implements the same three options for correction of the sensitivity
 variables as CVODES. For the simultaneous corrector approach, the coefficient
-matrix for the Newton update of the extended system (\ref{})+(\ref{e:DAEfwd})
+matrix for the Newton update of the extended system (\ref{e:DAE})+(\ref{e:DAEfwd})
 is again approximated by its diagonal blocks, each of them identical to the
-matrix $J$ of (\ref{}). For the generation of the residuals of the sensitivity
+matrix $J$ of (\ref{e:DAE_Jacobian}). For the generation of the residuals of the sensitivity
 equations, IDAS provides several difference quotient approximations equivalent 
 to those described in \S\ref{ss:cvodes}.
 
@@ -235,7 +235,7 @@ adjoint variables may not always be enough (such is the case for
 Hessenberg index-2 DAEs).
 %
 Moreover, for implicit ODEs and index-1 DAEs the adjoint system may not
-be stable to integration from the right, even if the original system (\ref{}) 
+be stable to integration from the right, even if the original system (\ref{e:DAE}) 
 is stable from the left. To circumvent this problem, for such
 systems IDAS integrates backwards in time the so-called 
 {\em augmented adjoint DAE system} defined as
@@ -265,7 +265,7 @@ In the case of a nonlinear system, the sensitivity equations are
 considerably simpler.  If the system is written $F(u,p) = 0$ and we
 define $s = d u / d p$, then for the individual sensitivity vectors $s_i$,
 \begin{equation}\label{e:NLSfwd}
-  J s_i = -\partial F / \partial p_i \, ,
+  J s_i = -\frac{\partial F}{\partial p_i} \, ,
 \end{equation}
 where $ J = \partial F / \partial u$. 
 
@@ -276,7 +276,7 @@ by the user or evaluated with directional derivatives. In the latter case
 we approximate $J s_i$ with the formulas presented in \S\ref{ss:kinsol} 
 and ${\partial F}/{\partial p_i}$ with:
 \begin{equation*}
-{\partial F}/{\partial p_i} \approx \frac{F(u,p + \sigma_i e_i)-
+\frac{\partial F}{\partial p_i} \approx \frac{F(u,p + \sigma_i e_i)-
     F(u,p)}{\sigma_i} \, ,
 \end{equation*}
 where $\sigma_i = |{\bar p}_i| \sqrt{U}$.
