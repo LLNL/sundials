@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-08-25 16:18:34 $
+ * $Revision: 1.14 $
+ * $Date: 2004-09-14 18:51:32 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -63,7 +63,7 @@ int CVDiag(void *cvode_mem);
  * CVDiagGetLastFlag returns the last error flag set by any of
  *     the CVDIAG interface functions.
  *
- * The return value of CVDenseGet* is one of:
+ * The return value of CVDiagGet* is one of:
  *    CVDIAG_SUCCESS   if successful
  *    CVDIAG_MEM_NULL  if the cvode memory was NULL
  *    CVDIAG_LMEM_NULL if the cvdiag memory was NULL
