@@ -324,14 +324,14 @@ is to be called only after the IVP solution is complete, as it frees the
   \begin{args}[iter]
   \item[lmm] (\id{int})
     specifies the linear multistep method and may be one of two
-    possible values: \ID{ADAMS} or \ID{BDF}.     
+    possible values: \ID{CV\_ADAMS} or \ID{CV\_BDF}.     
   \item[iter] (\id{int})
     specifies the type of nonlinear solver iteration and may be
-    either \ID{NEWTON} or \ID{FUNCTIONAL}. 
+    either \ID{CV\_NEWTON} or \ID{CV\_FUNCTIONAL}. 
   \end{args}
   The recommended choices for (\ID{lmm}, \ID{iter}) are
-  (\id{ADAMS}, \id{FUNCTIONAL}) for nonstiff problems and
-  (\id{BDF}, \id{NEWTON}) for stiff problems.
+  (\id{CV\_ADAMS}, \id{CV\_FUNCTIONAL}) for nonstiff problems and
+  (\id{CV\_BDF}, \id{CV\_NEWTON}) for stiff problems.
 }
 {
   If successful, \id{CVodeCreate} returns a pointer to the newly created 
@@ -362,9 +362,9 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \ID{SS} or \ID{SV}, where \ID{itol}$=$\id{SS} indicates scalar
+    is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol}$=$\id{SS} indicates scalar
     relative error tolerance and scalar absolute error tolerance, while
-    \id{itol}$=$\id{SV} indicates scalar relative error tolerance and vector
+    \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
     error tolerance needs to be different for each component of the ODE. 
   \item[reltol] (\id{realtype *})
@@ -376,15 +376,15 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
 }
 {
   The return flag \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[CVM\_ILL\_INPUT]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeMalloc} was successful.
-  \item[\Id{CVM\_NO\_MEM}] 
+  \item[\Id{CV\_MEM\_NULL}] 
     The {\cvode} memory block was not initialized through a previous call
     to \id{CVodeCreate}.
-  \item[\Id{CVM\_MEM\_FAIL}] 
+  \item[\Id{CV\_MEM\_FAIL}] 
     A memory allocation request has failed.
-  \item[\Id{CVM\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}] 
     An input argument to \id{CVodeMalloc} has an illegal value.
   \end{args}
 }
@@ -475,14 +475,14 @@ separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVDENSE\_ILL\_INPUT]
+  \item[\Id{CVDENSE\_SUCCESS}] 
     The {\cvdense} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDENSE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVDENSE\_ILL\_INPUT}]
     The {\cvdense} solver is not compatible with the current {\nvector} module.
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{CVDENSE\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -522,16 +522,16 @@ separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVBAND\_ILL\_INPUT]
+  \item[\Id{CVBAND\_SUCCESS}] 
     The {\cvband} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVBAND\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVBAND\_ILL\_INPUT}]
     The {\cvband} solver is not compatible with the current {\nvector} module, or
     one of the Jacobian half-bandwidths is outside its valid range
     ($0 \ldots$ \id{N}$-1$).
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{CVBAND\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -566,12 +566,12 @@ separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LMEM\_FAIL]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CVDIAg\_MEM\_FAIL]
+  \item[\Id{CVDIAG\_SUCCESS}]
     The {\cvdiag} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDIAG\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{CVDIAG\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -601,8 +601,8 @@ separately in Chapter \ref{s:gen_linsolv}.
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}|textbf}
-    preconditioning type. Must be one of: \Id{NONE}, \Id{LEFT}, \Id{RIGHT},
-    or \Id{BOTH}.
+    preconditioning type. Must be one of: \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT},
+    or \Id{PREC\_BOTH}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
@@ -611,14 +611,14 @@ separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The {\cvspgmr} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The preconditioner type \id{pretype} is not valid.
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{CVSPGMR\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -671,14 +671,14 @@ perform the integration of the IVP.
   \item[itask] (\id{int})
     \index{itask@\texttt{itask}|textbf}
     a flag indicating the job of the solver for the next user step. 
-    The \Id{NORMAL} task is to have the solver take internal steps until   
+    The \Id{CV\_NORMAL} task is to have the solver take internal steps until   
     it has reached or just passed the user specified \id{tout}
     parameter. The solver then interpolates in order to   
     return an approximate value of $y($\id{tout}$)$. 
-    The \Id{ONE\_STEP} option tells the solver to just take one internal step  
+    The \Id{CV\_ONE\_STEP} option tells the solver to just take one internal step  
     and return the solution at the point reached by that step. 
-    The \Id{NORMAL\_TSTOP} and \Id{ONE\_STEP\_TSTOP} modes are     
-    similar to \id{NORMAL} and \id{ONE\_STEP}, respectively, except    
+    The \Id{CV\_NORMAL\_TSTOP} and \Id{CV\_ONE\_STEP\_TSTOP} modes are     
+    similar to \id{CV\_NORMAL} and \id{CV\_ONE\_STEP}, respectively, except    
     that the integration never proceeds past the value      
     \id{tstop} (specified through the function \id{CVodeSetStopTime}).
   \end{args}
@@ -688,49 +688,51 @@ perform the integration of the IVP.
   independent variable value $t=$\id{*tret}, such that \id{yout} is the computed 
   value of $y(t)$.
 
-  In \id{NORMAL} mode with no errors, \id{*tret} will be equal to \id{tout} 
+  In \id{CV\_NORMAL} mode with no errors, \id{*tret} will be equal to \id{tout} 
   and \id{yout} = $y($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[CVODE\_NO\_MALLOC]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_TOO\_MUCH\_WORK]
+  \item[\Id{CV\_SUCCESS}]
     \id{CVode} succeeded and no root was found.
-  \item[\ID{TSTOP\_RETURN}]
+  \item[\ID{CV\_TSTOP\_RETURN}]
     \id{CVode} succeeded by reaching the stopping point specified through
     the optional input function \id{CVodeSetStopTime} (see \S\ref{ss:optional_input}).
-  \item[\ID{ROOT\_RETURN}]
+  \item[\ID{CV\_ROOT\_RETURN}]
     \id{CVode} succeeded and found one or more roots.  If \id{nrtfn}
      $>1$, call \id{CVodeGetRootInfo} to see which $g_i$ were found to
      have a root.  See \S\ref{s:using_rootfinding} for more information.
-  \item[\ID{CVODE\_NO\_MEM}]
+  \item[\ID{CV\_MEM\_NULL}]
     The \id{cvode\_mem} argument was \id{NULL}.
-  \item[\ID{CVODE\_NO\_MALLOC}]
+  \item[\ID{CV\_NO\_MALLOC}]
     The {\cvode} memory was not allocated by a call to \id{CVodeMalloc}.
-  \item[\ID{ILL\_INPUT}]
+  \item[\ID{CV\_ILL\_INPUT}]
     One of the inputs to \id{CVode} is illegal. This includes the situation where
     a root of one of the root functions was found both at $t_0$ and very near $t_0$.
     It also includes the situation 
     where a component of the error weight vector becomes negative during internal 
-    time-stepping. The \id{ILL\_INPUT} flag will also be returned if the linear 
+    time-stepping. The \id{CV\_ILL\_INPUT} flag will also be returned if the linear 
     solver function initialization (called by the user after calling 
-    \id{CVodeCreate}) failed to set one of the linear solver-related fields 
-    in \id{cvode\_mem} or if the linear solver's initialization function failed. 
+    \id{CVodeCreate}) failed to set the linear solver-specific \id{lsolve} field
+    in \id{cvode\_mem}. 
     In any case, the user should see the printed error message for details.
-  \item[\ID{TOO\_MUCH\_WORK}] 
+  \item[\Id{CV\_LINIT\_FAIL}] 
+    The linear solver's initialization function failed. 
+  \item[\ID{CV\_TOO\_MUCH\_WORK}] 
     The solver took \id{mxstep} internal steps but could not reach tout. 
     The default value for \id{mxstep} is \id{MXSTEP\_DEFAULT = 500}.
-  \item[\ID{TOO\_MUCH\_ACC}] 
+  \item[\ID{CV\_TOO\_MUCH\_ACC}] 
     The solver could not satisfy the accuracy demanded by the user for some 
     internal step.
-  \item[\ID{ERR\_FAILURE}]
+  \item[\ID{CV\_ERR\_FAILURE}]
     Error test failures occurred too many times (\id{MXNEF = 7}) during one 
     internal time step or occurred with $|h| = h_{min}$.
-  \item[\ID{CONV\_FAILURE}] 
+  \item[\ID{CV\_CONV\_FAILURE}] 
     Convergence test failures occurred too many times (\id{MXNCF = 10}) during 
     one internal time step or occurred with $|h| = h_{min}$.             
-  \item[\ID{SETUP\_FAILURE}] 
+  \item[\ID{CV\_LSETUP\_FAIL}] 
     The linear solver's setup function failed in an unrecoverable manner.
-  \item[\ID{SOLVE\_FAILURE}] 
+  \item[\ID{CV\_LSOLVE\_FAIL}] 
     The linear solver's solve function failed in an unrecoverable manner.
   \end{args} 
 }
@@ -738,7 +740,7 @@ perform the integration of the IVP.
   The vector \id{yout} can occupy the same space as the \id{y0} vector of 
   initial conditions that was passed to \id{CVodeMalloc}. 
 
-  In the \id{ONE\_STEP} mode, \id{tout} is used on the first call only, 
+  In the \id{CV\_ONE\_STEP} mode, \id{tout} is used on the first call only, 
   to get the direction and rough scale of the independent variable.
 
   All failure return values are negative and therefore a test \id{ier}$< 0$
@@ -842,10 +844,10 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -871,18 +873,18 @@ flag = CVodeResetIterType(cvode\_mem, iter);
     pointer to the {\cvode} memory block.
   \item[iter] (\id{int})
     specifies the type of nonlinear solver iteration and may be
-    either \Id{NEWTON} or \Id{FUNCTIONAL}. 
+    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}. 
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVS\_ILL\_INPUT}]
-    The \id{iter} value passed is neither \Id{NEWTON} nor \Id{FUNCTIONAL}.
+  \item[\Id{CV\_ILL\_INPUT}]
+    The \id{iter} value passed is neither \Id{CV\_NEWTON} nor \Id{CV\_FUNCTIONAL}.
   \end{args}
 }
 {
@@ -912,10 +914,10 @@ flag = CVodeResetIterType(cvode\_mem, iter);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -943,12 +945,12 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVS\_ILL\_INPUT}]
+  \item[\Id{CV\_ILL\_INPUT}]
     The specified value \id{maxord} is negative, or larger than 
     its previous value.
   \end{args}
@@ -982,12 +984,12 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVS\_ILL\_INPUT}]
+  \item[\Id{CV\_ILL\_INPUT}]
     \id{mxsteps} is non-positive.
   \end{args}
 }
@@ -1014,10 +1016,10 @@ flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1046,13 +1048,13 @@ flag = CVodeSetstabLimDet(cvode\_mem, stldet);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVS\_ILL\_INPUT}]
-    The linear multistep method is not set to \id{BDF}.
+  \item[\Id{CV\_ILL\_INPUT}]
+    The linear multistep method is not set to \id{CV\_BDF}.
   \end{args}
 }
 {
@@ -1079,10 +1081,10 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1113,12 +1115,12 @@ flag = CVodeSetMinStep(cvode\_mem, hmin);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVS\_ILL\_INPUT}]
+  \item[\Id{CV\_ILL\_INPUT}]
     Either \id{hmin} is not positive or it is larger than the maximum allowable step.
   \end{args}
 }
@@ -1145,12 +1147,12 @@ flag = CVodeSetMaxStep(cvode\_mem, hmax);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVS\_ILL\_INPUT}]
+  \item[\Id{CV\_ILL\_INPUT}]
     Either \id{hmax} is not positive or it is smaller than the minimum allowable step.
   \end{args}
 }
@@ -1179,10 +1181,10 @@ flag = CVodeSetStopTime(cvode\_mem, tstop);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1209,10 +1211,10 @@ flag = CVodeSetMaxErrTestFails(cvode\_mem, maxnef);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1239,10 +1241,10 @@ flag = CVodeSetMaxNonlinIters(cvode\_mem, maxcor);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1270,10 +1272,10 @@ flag = CVodeSetMaxConvFails(cvode\_mem, maxncf);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1300,10 +1302,10 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1359,12 +1361,12 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVDENSE\_LMEM\_NULL]
+  \item[\Id{CVDENSE\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDENSE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVDENSE\_LMEM\_NULL}]
     The {\cvdense} linear solver has not been initialized.
   \end{args}
 }
@@ -1394,12 +1396,12 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVDENSE\_LMEM\_NULL]
+  \item[\Id{CVDENSE\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDENSE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVDENSE\_LMEM\_NULL}]
     The {\cvdense} linear solver has not been initialized.
   \end{args}
 }
@@ -1448,12 +1450,12 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVBAND\_LMEM\_NULL]
+  \item[\Id{CVBAND\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVBAND\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVBAND\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized.
   \end{args}
 }
@@ -1483,12 +1485,12 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVBAND\_LMEM\_NULL]
+  \item[\Id{CVBAND\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVBAND\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVBAND\_LMEM\_NULL}]
     The {\cvdense} linear solver has not been initialized.
   \end{args}
 }
@@ -1504,8 +1506,8 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{preconditioning!user-supplied|(}
 The call to \id{CVSpgmr} is used to communicate the type of preconditioning 
 (\id{pretype}) and the maximum dimension of the Krylov subspace to be used (\id{maxl}). 
-The \id{pretype} parameter can be \id{NONE}, \id{LEFT}, \id{RIGHT}, or \id{BOTH}.
-If no preconditioning is desired, pass \id{NONE} for \id{pretype}.
+The \id{pretype} parameter can be \id{PREC\_NONE}, \id{PREC\_LEFT}, \id{PREC\_RIGHT}, or \id{PREC\_BOTH}.
+If no preconditioning is desired, pass \id{PREC\_NONE} for \id{pretype}.
 Otherwise, a preconditioner solve function \id{psolve} is required.  
 Regardless of the type of preconditioning, a preconditioner setup function 
 \id{psetup} is sometimes useful, but is {\em not} required. 
@@ -1568,12 +1570,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -1600,12 +1602,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -1633,12 +1635,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -1665,12 +1667,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -1701,12 +1703,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -1735,14 +1737,14 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The Gram-Schmidt orthogonalization type \id{gstype} is not valid.
   \end{args}
 }
@@ -1770,14 +1772,14 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The factor \id{delt} is negative.  
   \end{args}
 }
@@ -1803,19 +1805,19 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}}
     specifies the type of preconditioning and may be
-    \Id{NONE}, \Id{LEFT}, \Id{RIGHT}, or \Id{BOTH}.
+    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREc\_RIGHT}, or \Id{PREC\_BOTH}.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The preconditioner type \id{pretype} is not valid.
   \end{args}
 }
@@ -1866,16 +1868,16 @@ The call to the \id{CVodeGetDky} function has the following form:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[DKY\_NO\_MEM] 
-  \item[\Id{OKAY}]
+  \begin{args}[CV\_MEM\_NULL] 
+  \item[\Id{CV\_SUCCESS}]
     \id{CVodeGetDky} succeeded.
-  \item[\Id{BAD\_K}] 
+  \item[\Id{CV\_BAD\_K}] 
     \id{k} is not in the range $0, 1, ..., q_u$.
-  \item[\Id{BAD\_T}] 
+  \item[\Id{CV\_BAD\_T}] 
     \id{t} is not in the interval $[t_n - h_u , t_n]$.
-  \item[\Id{BAD\_DKY}] 
+  \item[\Id{CV\_BAD\_DKY}] 
     The \id{dky} argument was \id{NULL}.
-  \item[\Id{DKY\_NO\_MEM}] 
+  \item[\Id{CV\_MEM\_NULL}] 
     The \id{cvode\_mem} argument was \id{NULL}.
   \end{args}
 
@@ -1998,10 +2000,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2032,10 +2034,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2060,10 +2062,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2092,10 +2094,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2120,10 +2122,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2148,10 +2150,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2176,10 +2178,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2204,10 +2206,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2232,10 +2234,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2260,10 +2262,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2294,10 +2296,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2323,12 +2325,12 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_SLDET]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_NO\_SLDET]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVG\_NO\_SLDET}]
+  \item[\Id{CV\_NO\_SLDET}]
     The stability limit detection algorithm was not activated 
     through a call to \id{CVodeSetStabLimDet}.
   \end{args}
@@ -2356,10 +2358,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2384,10 +2386,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2415,10 +2417,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2467,10 +2469,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     the optional output values have been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     the \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2495,10 +2497,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2523,10 +2525,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2553,10 +2555,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2599,12 +2601,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVDENSE\_LMEM\_NULL]
+  \item[\Id{CVDENSE\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDENSE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVDENSE\_LMEM\_NULL}]
     The {\cvdense} linear solver has not been initialized.
   \end{args}
 }
@@ -2636,12 +2638,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVDENSE\_LMEM\_NULL]
+  \item[\Id{CVDENSE\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDENSE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVDENSE\_LMEM\_NULL}]
     The {\cvdense} linear solver has not been initialized.
   \end{args}
 }
@@ -2667,12 +2669,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVDENSE\_LMEM\_NULL]
+  \item[\Id{CVDENSE\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDENSE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVDENSE\_LMEM\_NULL}]
     The {\cvdense} linear solver has not been initialized.
   \end{args}
 }
@@ -2714,12 +2716,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVBAND\_LMEM\_NULL]
+  \item[\Id{CVBAND\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVBAND\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVBAND\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized.
   \end{args}
 }
@@ -2752,12 +2754,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVBAND\_LMEM\_NULL]
+  \item[\Id{CVBAND\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVBAND\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVBAND\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized.
   \end{args}
 }
@@ -2783,12 +2785,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVBAND\_LMEM\_NULL]
+  \item[\Id{CVBAND\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVBAND\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVBAND\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized.
   \end{args}
 }
@@ -2830,12 +2832,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVDIAG\_LMEM\_NULL]
+  \item[\Id{CVDIAG\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDIAG\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVDIAG\_LMEM\_NULL}]
     The {\cvdiag} linear solver has not been initialized.
   \end{args}
 }
@@ -2867,12 +2869,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVDIAG\_LMEM\_NULL]
+  \item[\Id{CVDIAG\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDIAG\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVDIAG\_LMEM\_NULL}]
     The {\cvdiag} linear solver has not been initialized.
   \end{args}
 }
@@ -2915,12 +2917,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -2954,12 +2956,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -2984,12 +2986,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3015,12 +3017,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3046,12 +3048,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3077,12 +3079,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3108,12 +3110,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3170,9 +3172,9 @@ appropriate \id{Set} or \id{Reset} calls, as described in
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \Id{SS} or \Id{SV}, where \Id{itol}$=$\id{SS} indicates scalar
+    is either \Id{CV\_SS} or \Id{CV\_SV}, where \Id{itol}$=$\id{SS} indicates scalar
     relative error tolerance and scalar absolute error tolerance, while
-    \id{itol}$=$\id{SV} indicates scalar relative error tolerance and vector
+    \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
     error tolerance needs to be different for each component of the ODE. 
   \item[reltol] (\id{realtype *})
@@ -3183,16 +3185,16 @@ appropriate \id{Set} or \id{Reset} calls, as described in
 }
 {
   The return flag \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[CVREI\_NO\_MALLOC]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_NO\_MALLOC]
+  \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeReInit} was successful.
-  \item[\Id{CVREI\_NO\_MEM}] 
+  \item[\Id{CV\_MEM\_NULL}] 
     The {\cvode} memory block was not initialized through a 
     previous call to \id{CVodeCreate}.
-  \item[\Id{CVREI\_NO\_MALLOC}] 
+  \item[\Id{CV\_NO\_MALLOC}] 
     Memory space for the {\cvode} memory block was not allocated through a 
     previous call to \id{CVodeMalloc}.
-  \item[\Id{CVREI\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}] 
     An input argument to \id{CVodeReInit} has an illegal value.
   \end{args}
 }
@@ -3663,12 +3665,12 @@ required additional user-supplied function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVRT\_MEM\_FAIL]
-  \item[SUCCESS]
+  \begin{args}[CV\_MEM\_FAIL]
+  \item[CV\_SUCCESS]
     The call to \id{CVodeRootInit} was successful.
-  \item[CVRT\_NO\_MEM]
+  \item[CV\_MEM\_NULL]
     The \id{cvode\_mem} argument was \id{NULL}.
-  \item[CVRT\_MEM\_FAIL]
+  \item[CV\_MEM\_FAIL]
     A memory allocation failed.
   \end{args}
 }
@@ -3699,10 +3701,10 @@ There is one optional input function associated with rootfinding.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVS\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -3735,10 +3737,10 @@ There are two optional output functions associated with rootfinding.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output values have been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -3763,10 +3765,10 @@ There are two optional output functions associated with rootfinding.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -3986,16 +3988,16 @@ in more detail below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The {\cvspgmr} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The preconditioner type \id{pretype} is not valid.
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{CVSPGMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{BP\_NO\_DATA}]
+  \item[\Id{CV\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -4048,10 +4050,10 @@ the {\cvbandpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[BP\_NO\_DATA]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_PDATA\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{BP\_NO\_DATA}]
+  \item[\Id{CV\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -4084,10 +4086,10 @@ the {\cvbandpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[BP\_NO\_DATA]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_PDATA\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{BP\_NO\_DATA}]
+  \item[\Id{CV\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -4450,16 +4452,16 @@ next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The {\cvspgmr} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The preconditioner type \id{pretype} is not valid.
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{CVSPGMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{BBDP\_NO\_DATA}]
+  \item[\Id{CV\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -4518,7 +4520,7 @@ used in the difference-quotient Jacobian approximations, the relative increment
   \end{args}
 }
 {
-  The return value of \id{CVBBDPrecReInit} is always \Id{SUCCESS}.
+  The return value of \id{CVBBDPrecReInit} is always \Id{CVSPGMR\_SUCCESS}.
 }
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or
@@ -4554,10 +4556,10 @@ the {\cvbbdpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[BBDP\_NO\_DATA]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_PDATA\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{BBDP\_NO\_DATA}]
+  \item[\Id{CV\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -4592,10 +4594,10 @@ the {\cvbbdpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[BBDP\_NO\_DATA]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_PDATA\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{BBDP\_NO\_DATA}]
+  \item[\Id{CV\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
 }
