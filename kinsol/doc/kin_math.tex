@@ -147,14 +147,3 @@ found and $\delta_n$ in Step 2(b) is scaled to take a step of that
 length.
 
 
-% Output modes
-%-------------
-\index{output mode|(}
-Normally, {\cvodes} takes steps until a user-defined output value
-$t = t_{\mbox{\scriptsize out}}$ is overtaken, and then it computes
-$y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
-``one step'' mode option is available, where control returns to the
-calling program after each step.  There are also options to force
-{\cvodes} not to integrate past a given stopping point
-$t = t_{\mbox{\scriptsize stop}}$.
-\index{output mode|)}
