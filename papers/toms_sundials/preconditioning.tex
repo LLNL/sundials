@@ -71,7 +71,7 @@ Second, the SUNDIALS package includes some extra preconditioner
 modules, for optional use with the solvers.  For parallel environments,
 each of the SUNDIALS solvers provides a preconditioner module which
 generates a band-block-diagonal (BBD) preconditioner.  For serial
-environments, CVODE and CVODES also supply a band preconditioner module.  
+environments, CVODE and CVODES also supply a band preconditioner module.
 These band and BBD preconditioners are described below.  Full details on the
 usage of these optional modules are given in the respective user
 guides --- \cite{HiSe:04cvode,HiSe:04cvodes,HSW:04kinsol,HiSe:04ida}.
@@ -106,17 +106,17 @@ tradeoff of storage for potential savings in computation may be
 beneficial if the cost of evaluating $\tilde{J}$ is significant in
 comparison with the other operations performed on $P$.
 
-For serial environments, CVODE supplies a preconditioner module
-called CVBANDPRE, whose use is optional.  This preconditioner
-computes and solves a
-banded approximation $P$ to the Newton matrix, computed with
-difference quotient approximations.  The user supplies a pair of lower
-and upper half-bandwidths --- {\tt ml, mu} --- that define the shape of
-the approximate Jacobian $\tilde{J}$; its full bandwidth is
-{\tt ml+mu+1}.  $\tilde{J}$ is computed using difference quotients,
-with {\tt ml+mu+1} evaluations of $f$.  The true Jacobian need not be
-banded, or its true bandwidth may be larger, as long as $\tilde{J}$
-approximates $J$ sufficiently well.
+For serial environments, CVODE supplies a preconditioner called
+CVBANDPRE, whose use is optional.  This preconditioner computes
+and solves a banded approximation $P$ to the Newton matrix,
+computed with difference quotient approximations.  The user
+supplies a pair of lower and upper half-bandwidths --- {\tt ml,
+mu} --- that define the shape of the approximate Jacobian
+$\tilde{J}$; its full bandwidth is {\tt ml+mu+1}.  $\tilde{J}$ is
+computed using difference quotients, with {\tt ml+mu+1}
+evaluations of $f$.  The true Jacobian need not be banded, or its
+true bandwidth may be larger, as long as $\tilde{J}$ approximates
+$J$ sufficiently well.
 
 Extending this idea to the parallel setting, CVODE also includes a
 module, called CVBBDPRE, that generates a band-block-diagonal
