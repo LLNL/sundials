@@ -1,0 +1,61 @@
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+# Version of  : 
+#--------------------------------------------------------------------------------
+# Makefile for the FCVODE package.
+# @configure_input@
+#--------------------------------------------------------------------------------
+
+# Shell
+SHELL = /bin/sh
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+libdir = @libdir@
+
+# CVODE and SHARED include directories
+SHARED_INC_DIR = ../../shared/include
+CVODE_INC_DIR  = ../include
+
+# FCVODE library name
+FCVODE_LIB = libfcvode.a
+
+# Source and object files
+SRC = fcvode.c fcvpreco.c fcvpsol.c fcvjtimes.c fcvbbd.c fcvbbdin1.c \
+      fcvdense1.c fcvband1.c \
+      fcvspgmr01.c fcvspgmr11.c fcvspgmr21.c fcvspgmr10.c fcvspgmr20.c
+
+OBJ = ${SRC:.c=.o}
+
+# Includes
+SHAREDINCLUDE = -I${SHARED_INC_DIR}
+CVODEINCLUDE  = -I${CVODE_INC_DIR}
+INCS =  -I. ${CVODEINCLUDE} ${SHAREDINCLUDE}
+
+# Compiler and compiler options
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: ${OBJ}
+
+install:
+	ar rc ${FCVODE_LIB} ${OBJ}
+	cp ${FCVODE_LIB} ${libdir}
+
+clean:
+	rm -f ${OBJ}
+	rm -f ${FCVODE_LIB}
+
+uninstall:
+	rm -f ${libdir}/${FCVODE_LIB}
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCS} $*.c
+
+#---End of Makefile---
