@@ -2,12 +2,14 @@
 \chapter{Using KINSOL}\label{c:usage}
 %===================================================================================
 
-This section is concerned with the use of {\kinsol} for the solution of nonlinear systems.
-The following subsections treat the header files, the layout of the user's main
-program, description of the {\kinsol} user-callable routines, and user-supplied functions.
-The listings of the sample programs in the companion document \cite{kinsol2.2.0_ex} may also 
-be helpful. Those codes are intended to serve as templates and are included in the 
-{\kinsol} package.
+This chapter is concerned with the use of {\kinsol} for the solution
+of nonlinear systems.  The following subsections treat the header
+files, the layout of the user's main program, description of the
+{\kinsol} user-callable routines, and user-supplied functions.  The
+listings of the sample programs in the companion document
+\cite{kinsol2.2.0_ex} may also be helpful.  Those codes may be used as
+templates (with the removal of some lines involved in testing), and
+are included in the {\kinsol} package.
 
 %%----------------------------------
 \section{Data types}\label{s:types}
@@ -32,7 +34,7 @@ which defines the types \id{realtype} and \id{booleantype}
 and constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file
-(see \S\ref{s:nvector} for details).
+(see Chapter \ref{s:nvector} for details).
 For the two {\nvector} implementations that are included in the {\kinsol} package,
 the corresponding header files are:
 %
@@ -316,8 +318,8 @@ allows the user to specify parameters for {\kinspgmr}
 
 \index{KINSOL@{\kinsol} linear solvers!built on generic solvers} 
 The {\kinspgmr} linear solver is actually built on top of a generic
-linear system solver, which may be of interest in itself.  This
-generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
+linear system solver, which may be of interest in itself.  This generic
+solver, {\spgmr}, is described separately in Chapter \ref{s:gen_linsolv}.
 
 \index{KINSOL@{\kinsol} linear solvers!KINSPGMR@{\kinspgmr}}
 \ucfunction{KINSpgmr}
@@ -404,7 +406,7 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
 
   \item[\Id{KIN\_SUCCESS}]\rule{0pt}{0pt}
 
-    \id{KINSol} succeeded.
+    \id{KINSol} succeeded; the scaled norm of $F(u)$ is less than \id{fnormtol}.
 
   \item[\Id{KIN\_INITIAL\_GUESS\_OK}]\rule{0pt}{0pt}
 
@@ -456,7 +458,7 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
     
     Five consecutive steps have been taken
     that satisfy the inequality
-    $\|D_u p\|_{L2} > 0.99 \, mxnewtstep$,
+    $\|D_u p\|_{L2} > 0.99 \,$ \id{mxnewtstep},
     where $p$ denotes the current step and
     \id{mxnewtstep} is a scalar upper bound
     on the scaled step length.
@@ -851,7 +853,7 @@ flag = KINSetEtaForm(kin\_mem, etachoice);
   \item[etachoice] (\id{int})
     flag indicating the method for computing $\eta$. \id{etachoice} must be one
     of \Id{KIN\_ETACHOICE1}, \Id{KIN\_ETACHOICE2}, or \Id{KIN\_ETACONSTANT}
-    (see \S\ref{s:math} for details).
+    (see Chapter \ref{s:math} for details).
   \end{args}
 }
 {

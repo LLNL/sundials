@@ -80,7 +80,7 @@ values for various quantities controlling the solver and a set of
 extraction routines (with prefix \id{KINGet}) to extract
 statistics after return from the main solver routine. Similarly,
 each linear solver module provides its own set of {\id{set}-} and
-{\id{get}-type} routines. For more details see \S\ref{c:usage}.
+{\id{get}-type} routines. For more details see Chapter \ref{c:usage}.
 
 Additionally, the interfaces to several user-supplied routines
 (such as those providing Jacobian-vector products and
@@ -98,26 +98,29 @@ The changes in this minor {\sundials} release affect only the build system.
 The structure of this document is as follows:
 \begin{itemize}
 \item
-  The next section discusses how to install the \kinsol package.
+  The next chapter discusses how to install the \kinsol package.
 \item
-  In \S\ref{s:math}, we provide short descriptions of the numerical
+  In Chapter \ref{s:math}, we provide short descriptions of the numerical
   methods implemented by {\kinsol} for the solution of nonlinear systems.
 \item
-  The following section describes the structure of the {\sundials} suite
+  The following chapter describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\kinsol}
   solver (\S\ref{ss:kinsol_org}).
 \item
-  In \S\ref{c:usage}, we give an overview of the usage of {\kinsol},
+  In Chapter \ref{c:usage}, we give an overview of the usage of {\kinsol},
   as well as a complete description of the user interface and of the
   user-defined routines for solution of nonlinear systems.
 \item
-  Section \ref{s:nvector} gives a brief overview of the generic {\nvector} module
-  shared among the various components of {\sundials}, as well as details of the two {\nvector}
-  implementations provided with {\sundials}: a serial implementation
+  Chapter \ref{s:nvector} gives a brief overview of the generic {\nvector} module
+  shared among the various components of {\sundials}, as well as details of the
+  two {\nvector} implementations provided with {\sundials}: a serial implementation
   (\S\ref{ss:nvec_ser}) and a parallel implementation, based on {\mpi} \index{MPI}
   (\S\ref{ss:nvec_par}).
 \item
-  Section \ref{s:gen_linsolv} describes the generic linear solvers shared
+  Chapter \ref{s:new_linsolv} describes the interfaces to the linear solver
+  modules, so that a user can provide his/her own such module.
+\item
+  Chapter \ref{s:gen_linsolv} describes the generic linear solvers shared
   by all {\sundials} solvers.
 \end{itemize}
 

@@ -100,16 +100,19 @@ rate of decrease of $F$.  One property of the algorithm is that
 the full Newton step tends to be taken close to the solution.  For
 more details, the reader is referred to \cite{DeSc:96}.
 
-Stopping criteria for the Newton method can be required for either
-or both of the nonlinear residual and the step length.  For the
+Stopping criteria for the Newton method are applied to
+both of the nonlinear residual and the step length.  For the
 former, the Newton iteration must pass a stopping test
 \[ \|F(u_n)\|_{D_F,\infty} < \mbox{\sc ftol} \, , \]
 where {\sc ftol} is an input scalar tolerance with a default value
 of $U^{1/3}$. For the latter, the Newton method will terminate
 when the maximum scaled step is below a given tolerance
-\[ \|\delta_n\|_{D_u,\infty} < \mbox{\sc steptol} \, , \]
+\[ \|\lambda\delta_n\|_{D_u,\infty} < \mbox{\sc steptol} \, , \]
 where {\sc steptol} is an input scalar tolerance with a default
-value of $U^{2/3}$.
+value of $U^{2/3}$.  Only the first condition (small residual)
+is considered a successful completion of {\kinsol}.  The second
+condition (small step) may indicate that the iteration is stalled
+near a point for which the residual is still unacceptable.
 
 Three options for stopping criteria for the linear system solve
 are implemented, including the two algorithms of Eisenstat and
