@@ -67,9 +67,10 @@ the example and demonstration programs included with {\ida}, offer
 considerable assistance in building preconditioners.
 
 \index{IDA@{\ida} linear solvers!implementation details|(} 
-Each {\ida} linear solver module consists of four routines, devoted to (1)
-memory allocation and initialization, (2) setup of the matrix data
-involved, (3) solution of the system, and (4) freeing of memory.  
+Each {\ida} linear solver module consists of five routines, devoted to
+(1) memory allocation and initialization, (2) setup of the matrix data
+involved, (3) solution of the system, (4) monitoring performance,
+and (5) freeing of memory.  
 The setup and solution phases are separate because the evaluation of
 Jacobians and preconditioners is done only periodically during the
 integration, as required to achieve convergence. The call list within
