@@ -930,8 +930,6 @@ void *CVodeMalloc(RhsFn f, realtype t0, N_Vector y0,
   nst = nfe = ncfn = netf = nni = nsetups = nhnil = nstlp = 0;
   nscon = 0;
 
-  /* Initialize counters for sensitivities */
-
   qu = 0;
   hu = ZERO;
   tolsf = ONE;
@@ -947,6 +945,9 @@ void *CVodeMalloc(RhsFn f, realtype t0, N_Vector y0,
     iopt[QCUR] = 0;
     iopt[LENRW] = lrw;
     iopt[LENIW] = liw;
+    /* Quadratures */
+    iopt[NFQE]  = 0;
+    iopt[NETFQ] = 0;
     /* Sensitivity */
     iopt[NFSE]    = 0;
     iopt[NNIS]    = 0;
@@ -1000,7 +1001,7 @@ int CVodeQuadMalloc(void *cvode_mem,
   CVodeMem cv_mem;
   FILE     *fp;
   int      itol;
-  booleantype  neg_abstol, allocOK, ewtsetOK;
+  booleantype  ioptExists, neg_abstol, allocOK, ewtsetOK;
 
 
   /*----------------------------------- 
@@ -1080,6 +1081,12 @@ int CVodeQuadMalloc(void *cvode_mem,
   /* Initialize counters */
   nfQe = 0;
   netfQ = 0;
+
+  /* Initialize optional output locations in iopt */
+  ioptExists = (iopt != NULL);
+  if (ioptExists) {
+    iopt[NFQE] = iopt[NETFQ] = 0;
+  }
 
   /* Quadrature integration turned ON */
   quad = TRUE;
@@ -1308,7 +1315,7 @@ int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism,
   /* Initialize optional output locations in iopt */
   ioptExists = (iopt != NULL);
   if (ioptExists) {
-    iopt[NFSE] = iopt[NCFNS] = iopt[NETFS] = iopt[NNIS] = 0;
+    iopt[NFSE] = iopt[NCFNS] = iopt[NETFS] = iopt[NNIS] = iopt[NSETUPSS] = 0;
   }
 
   /* Sensitivities will be computed */
@@ -1514,6 +1521,9 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
     iopt[QCUR] = 0;
     iopt[LENRW] = lrw;
     iopt[LENIW] = liw;
+    /* Quadratures */
+    iopt[NFQE]  = 0;
+    iopt[NETFQ] = 0;
     /* Sensitivity */
     iopt[NFSE]    = 0;
     iopt[NNIS]    = 0;
@@ -1570,7 +1580,7 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, int errconQ,
   CVodeMem cv_mem;
   FILE     *fp;
   int      itol;
-  booleantype  neg_abstol, ewtsetOK;
+  booleantype  ioptExists, neg_abstol, ewtsetOK;
 
   /*----------------------------------- 
      Check for legal input parameters 
@@ -1646,6 +1656,12 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, int errconQ,
   nfQe = 0;
   netfQ = 0;
 
+  /* Initialize optional output locations in iopt */
+  ioptExists = (iopt != NULL);
+  if (ioptExists) {
+    iopt[NFQE] = iopt[NETFQ] = 0;
+  }
+
   /* Quadrature integration turned ON */
   quad = TRUE;
 
@@ -1681,7 +1697,7 @@ int CVodeSensReInit(void *cvode_mem, int ism,
   realtype    *reltol;
   long int    *iopt;
   integertype  Ns, is;  
-  booleantype  neg_abstol, allocOK, tolsetOK, ewtsetOK;
+  booleantype  ioptExists, neg_abstol, allocOK, tolsetOK, ewtsetOK;
 
   /*----------------------------------- 
      Check for legal input parameters 
@@ -1866,6 +1882,12 @@ int CVodeSensReInit(void *cvode_mem, int ism,
       ncfnS1[is] = 0;
       nniS1[is] = 0;
     }
+
+  /* Initialize optional output locations in iopt */
+  ioptExists = (iopt != NULL);
+  if (ioptExists) {
+    iopt[NFSE] = iopt[NCFNS] = iopt[NETFS] = iopt[NNIS] = iopt[NSETUPSS] = 0;
+  }
 
   /* Problem has been successfully re-initialized */
   sensi = TRUE;
@@ -3550,7 +3572,7 @@ static int CVStep(CVodeMem cv_mem)
   if (quad)
     nefQ = 0;
 
-  /* Are we computing sensitivities with the STAGGERED approach? */
+  /* Are we computing sensitivities with a staggered approach? */
   do_sensi_stg  = (sensi && (ism==STAGGERED));
   do_sensi_stg1 = (sensi && (ism==STAGGERED1));
 
