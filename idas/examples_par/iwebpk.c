@@ -1031,7 +1031,7 @@ static int Precondbd(realtype tt, N_Vector cc,
   
   mem = webdata->ida_mem;
   IDAGetErrWeights(mem, &ewt);
-  IDAGetNextStep(mem, &hh);
+  IDAGetCurrentStep(mem, &hh);
 
   for (jy = 0; jy < mysub; jy++) {
     yy = (jy + jysub*mysub)*dy;

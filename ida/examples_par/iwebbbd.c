@@ -289,20 +289,16 @@ int main(int argc, char *argv[])
     if (thispe == 0) printf("IBBDPrecAlloc failed.");
     return(1); }
   
-  /* Call IDASpgmr to specify the IDA linear solver IDASPGMR and specify
-     the preconditioner routines supplied (IBBDPrecon and IBBDPSol).
+  /* Call IBBDSpgmr to specify the IDA linear solver IDASPGMR and specify
+     the preconditioner routines supplied
      maxl (max. Krylov subspace dim.) is set to 12.   */
   
   maxl = 12;
-  retval = IDASpgmr(mem, maxl);
+  retval = IBBDSpgmr(mem, maxl, P_data);
   if (retval != 0) {
-    if (thispe == 0) printf("IDASpgmr call failed, returning %d \n",retval);
+    if (thispe == 0) printf("IBBDSpgmr call failed, returning %d \n",retval);
     return(1); 
   }
-  retval = IDASpgmrSetPrecSetupFn(mem, IBBDPrecSetup);
-  retval = IDASpgmrSetPrecSolveFn(mem, IBBDPrecSolve);
-  retval = IDASpgmrSetPrecData(mem, P_data);
-  
   
   /* Call IDACalcIC (with default options) to correct the initial values. */
   

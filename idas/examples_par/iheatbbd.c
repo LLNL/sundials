@@ -182,16 +182,12 @@ int main(int argc, char *argv[])
   P_data = IBBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
                          ZERO, reslocal, rescomm);
 
-  /* Call IDASpgmr to specify the linear solver. */
-  ier = IDASpgmr(mem, 0.0);
+  /* Call IBBDSpgmr to specify the linear solver. */
+  ier = IBBDSpgmr(mem, 0.0, P_data);
   if (ier != SUCCESS) {
-    if (thispe == 0) printf("IDASpgmr failed, returning %d.\n",ier);
+    if (thispe == 0) printf("IBBDSpgmr failed, returning %d.\n",ier);
     return(1);
   }
-  ier = IDASpgmrSetPrecSetupFn(mem, IBBDPrecSetup);
-  ier = IDASpgmrSetPrecSolveFn(mem, IBBDPrecSolve);
-  ier = IDASpgmrSetPrecData(mem, P_data);
-  
   
   /* Compute the max norm of uu. */
   umax = N_VMaxNorm(uu);
