@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-05-03 21:24:47 $
+ * $Revision: 1.14 $
+ * $Date: 2004-06-02 23:07:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -94,6 +94,7 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
 #ifndef _kbbdpre_h
 #define _kbbdpre_h
 
@@ -152,50 +153,6 @@ typedef void (*KINCommFn)(long int Nlocal, N_Vector u, void *f_data);
 
 typedef void (*KINLocalFn)(long int Nlocal, N_Vector uu,
                            N_Vector gval, void *f_data);
- 
-/*
- * -----------------------------------------------------------------
- * Definition of KBBDData
- * -----------------------------------------------------------------
- */
-
-typedef struct {
-
-  /* passed by user to KINBBDPrecAlloc, used by pset/psolve functions */
-
-  long int ml, mu;
-  KINLocalFn gloc;
-  KINCommFn gcomm;
-
-  /* relative error for the Jacobian DQ routine */
-
-  realtype rel_uu;
-
-  /* allocated for use by KINBBDPrecSetup */
-
-  N_Vector vtemp3;
-
-  /* set by KINBBDPrecSetup and used by KINBBDPrecSolve */
-
-  BandMat PP;
-  long int *pivots;
-
-  /* set by KINBBDPrecAlloc and used by KINBBDPrecSetup */
-
-  long int n_local;
-
-  /* available for optional output */
-
-  long int rpwsize;
-  long int ipwsize;
-  long int nge;
-
-  /* pointer to KINSol memory */
-
-  KINMem kin_mem;
-
-} *KBBDPrecData;
-
 
 /*
  * -----------------------------------------------------------------
@@ -307,6 +264,7 @@ int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
 		    N_Vector vtemp);
 
 #endif
+
 #ifdef __cplusplus
 }
 #endif

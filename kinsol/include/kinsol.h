@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-05-03 21:24:47 $
+ * $Revision: 1.14 $
+ * $Date: 2004-06-02 23:07:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -11,17 +11,17 @@
  * All rights reserved
  * For details, see sundials/kinsol/LICENSE
  * -----------------------------------------------------------------
- * This is the interface file for the main KINSol solver.
+ * KINSOL solver module header file
  * -----------------------------------------------------------------
  */
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
 #ifndef _kinsol_h
 #define _kinsol_h
 
-#include <stdio.h>
 #include "sundialstypes.h"
 #include "nvector.h"
 
@@ -29,38 +29,50 @@ extern "C" {
  * -----------------------------------------------------------------
  * Enumeration for inputs to KINSetEtaForm (eta choice)
  * -----------------------------------------------------------------
- * ETACONSTANT: use constant eta (default is 0.1 but value can be
- *              set by user). Note: Refer to KINSetEtaConstValue.
+ * ETACONSTANT : use constant value for eta (default value is 0.1
+ *               but a different value can be specified via a call
+ *               to KINSetEtaConstValue)
  *
- * ETACHOICE1: use choice #1 as given in Eisenstat and Walker's
- *             paper of SIAM J.Sci.Comput.,17 (1996), pp 16-32,
- *             wherein eta is:
+ * ETACHOICE1 : use choice #1 as given in Eisenstat and Walker's
+ *              paper of SIAM J.Sci.Comput.,17 (1996), pp 16-32,
+ *              wherein eta is defined to be:
  *
- *  eta(k) =
- *    ABS( norm(func(uu(k))) - norm(func(uu(k-1))+J(uu(k-1))*p) )
- *                       / norm(func(uu(k-1)))
+ *              eta(k+1) = ABS(||F(u_k+1)||_L2-||F(u_k)+J(u_k)*p_k||_L2)
+ *                       ---------------------------------------------
+ *                                       ||F(u_k)||_L2
  *
- * ETACHOICE2: use choice #2 as given in Eisenstat and Walker's,
- *             paper wherein eta is:
+ *                                                      1+sqrt(5)
+ *              eta_safe = eta(k)^ealpha where ealpha = ---------
+ *                                                          2
  *
- *  eta(k) =
- *    egamma * ( norm(func(uu(k))) / norm(func(u(k-1))) )^ealpha
+ * ETACHOICE2 : use choice #2 as given in Eisenstat and Walker's
+ *              paper wherein eta is defined to be:
  *
- *             Note: In choice #2, egamma and ealpha (both required)
- *             are either defaults (egamma = 0.9, ealpha = 2)
- *             or set via a call to KINSetEtaParams.
+ *                                  [ ||F(u_k+1)||_L2 ]^ealpha
+ *              eta(k+1) = egamma * [ --------------- ]
+ *                                  [  ||F(u_k)||_L2  ]
  *
- * For eta(k) as determined by either Choice #1 or Choice #2, a
- * value eta_safe is determined, and the safeguard
- *              eta(k) <- max(eta_safe,eta(k))
- * is applied to prevent eta from becoming too small too quickly.
+ *              where egamma = [0,1] and ealpha = (1,2]
  *
- * For Choice #1,
- *              eta_safe = eta(k-1)^((1+sqrt(5))/2)
- * and for Choice #2,
- *              eta_safe = egamma*eta(k-1)^ealpha.
- * These safeguards are turned off if they drop below 0.1.
- * Also, eta is never allowed to be less than eta_min = 1.e-4
+ *              eta_safe = egamma*(eta(k)^ealpha)
+ *
+ *              Note: The default values of the scalar coefficients
+ *              egamma and ealpha (both required) are egamma = 0.9
+ *              and ealpha = 2.0, but the routine KINSetEtaParams
+ *              can be used to specify different values.
+ *
+ * When using either ETACHOICE1 or ETACHOICE2, if eta_safe > 0.1
+ * then the following safeguard is applied:
+ *
+ *  eta(k+1) = MAX {eta(k+1), eta_safe}
+ *
+ * The following safeguards are always applied when using either
+ * ETACHOICE1 or ETACHOICE2 so that eta_min <= eta <= eta_max:
+ *
+ *  eta(k+1) = MAX {eta(k+1), eta_min}
+ *  eta(k+1) = MIN {eta(k+1), eta_max}
+ *
+ * where eta_min = 1.0e-4 and eta_max = 0.9 (see KINForcingTerm).
  * -----------------------------------------------------------------
  */
 
@@ -80,14 +92,16 @@ enum { INEXACT_NEWTON = 1 , LINESEARCH = 2 };
  * -----------------------------------------------------------------
  * Type : SysFn
  * -----------------------------------------------------------------
- * The func function defining the system to be solved:
- *              func(uu) = 0
- * must have type SysFn and take as input the dependent variable
- * vector uu (type N_Vector) and store the result of func(uu) in
- * fval. The necessary work space, besides uu and fval, is provided
- * by the pointer f_data.
+ * The user-supplied subroutine implementing the nonlinear system
+ * function (vector-valued function) F must take as input the
+ * dependent variable vector uu (type N_Vector), and set fval (type
+ * N_Vector) equal to F(uu) before returning. Additional workspace
+ * is allocated by the user and referenced by the f_data memory
+ * pointer.
  * 
- * Note: A SysFn function does not have a return value.
+ * Note: The user-defined routine (internally referenced by a
+ * a pointer (type SysFn) named func) should have a void return
+ * value type.
  * -----------------------------------------------------------------
  */
 
@@ -103,12 +117,12 @@ typedef void (*SysFn)(N_Vector uu, N_Vector fval, void *f_data );
  * -----------------------------------------------------------------
  * Function : KINCreate
  * -----------------------------------------------------------------
- * KINCreate creates an internal memory block for a problem to
- * be solved by KINSOL.
+ * KINCreate allocates and initializes an internal memory block for
+ * the KINSOL solver module.
  *
- * If successful, KINCreate returns a pointer to initialized
- * problem memory. This pointer should be passed to KINMalloc.
- * If an initialization error occurs, KINCreate returns NULL.
+ * If successful, KINCreate returns a pointer to the initialized
+ * memory block which should be passed to KINMalloc. If an
+ * error occurs, then KINCreate returns a NULL pointer.
  * -----------------------------------------------------------------
  */
 
@@ -116,145 +130,178 @@ void *KINCreate(void);
 
 /*
  * -----------------------------------------------------------------
- * Solver optional input specification functions
+ * Optional Input Specification Functions (KINSOL)
  * -----------------------------------------------------------------
- * The following functions can be called to set optional inputs
- * to values other than the defaults given below:
+ * The following functions can be called to set optional inputs:
  *
- * Function             |  Optional input / [ default value ]
+ *     Function Name    |      Optional Input  [Default Value]
  *                      |
  * -----------------------------------------------------------------
  *                      |
- * KINSetFdata          | a pointer to user data that will be
- *                      | passed to the user's func function
- *                      | every time func is called
+ * KINSetFdata          | pointer to user-allocated memory that is
+ *                      | passed to the user-supplied subroutine
+ *                      | implementing the nonlinear system function
+ *                      | F(u)
  *                      | [NULL]
  *                      |
- * KINSetErrFile        | the file pointer for an error file
- *                      | where all KINSOL warning and error
- *                      | messages will be written. This parameter
- *                      | can be stdout (standard output), stderr
- *                      | (standard error), a file pointer
- *                      | (corresponding to a user error file
- *                      | opened for writing) returned by fopen.
- *                      | If not called, then all messages will
- *                      | be written to standard error.
+ * KINSetErrFile        | pointer (type FILE) indicating where all
+ *                      | warning/error messages should be sent
  *                      | [stderr]
  *                      |
- * KINSetInfoFile       | the file pointer for a file where all
- *                      | KINSOL info messages will be written.
- *                      | This parameter can be stdout (standard
- *                      | output) or a file pointer (corresponding
- *                      | to a user file opened for writing)
- *                      | returned by fopen. If not called, then
- *                      | all messages will be written to
- *                      | standard output.
+ * KINSetInfoFile       | pointer (type FILE) specifying where
+ *                      | informative (non-error) messages should
+ *                      | be sent (see KINSetPrintLevel)
  *                      | [stdout]
  *                      |
- * KINSetPrintLevel     | allows user to select from 4 levels of
- *                      | output:
+ * KINSetPrintLevel     | level of verbosity of output:
  *                      |
- *                      |  0 no statistics printed
+ *                      |  0  no statistical information is
+ *                      |     displayed (default level)
  *                      |
- *                      |  1 output the nonlinear iteration
- *                      |    count, the scaled norm of func(uu),
- *                      |    and number of func calls
+ *                      |  1  for each nonlinear iteration display
+ *                      |     the following information: the scaled
+ *                      |     norm (L2) of the system function
+ *                      |     evaluated at the current iterate, the
+ *                      |     scaled norm of the Newton step (only if
+ *                      |     using INEXACT_NEWTON), and the number
+ *                      |     of function evaluations performed
+ *                      |     thus far
  *                      |
- *                      |  2 same as 1 with addition of global
- *                      |    strategy statistics:
- *                      |      f1 = 0.5*norm(fscale*func(uu))^2
- *                      |      f1new = 0.5*norm(fscale*func(unew))^2
+ *                      |  2  display level 1 output and the
+ *                      |     following values for each iteration:
  *                      |
- *                      |  3 same as 2 with addition of further
- *                      |    Krylov iteration statistics
+ *                      |       fnorm (L2) = ||fscale*func(u)||_L2
+ *                      |       (only for INEXACT_NEWTON)
+ *                      |
+ *                      |       scaled fnorm (for stopping) =
+ *                      |       ||fscale*ABS(func(u))||_L-infinity
+ *                      |       (for INEXACT_NEWTON and LINESEARCH)
+ *                      |
+ *                      |  3  display level 2 output plus additional
+ *                      |     values used by the global strategy
+ *                      |     (only if using LINESEARCH), and
+ *                      |     statistical information for the linear
+ *                      |     solver
  *                      | [0]
  *                      |
- * KINSetNumMaxIters    | maximum allowable number of nonlinear
- *                      | iterations
- *                      | [MXITER_DEFAULT]
+ * KINSetNumMaxIters    | maximum number of nonlinear iterations
+ *                      | [MXITER_DEFAULT] (defined in kinsol.c)
  *                      |
- * KINSetNoPrecInit     | flag to control the initial call to the
- *                      | preconditioner setup routine.
- *                      |   FALSE - force the initial call
- *                      |   TRUE  - prevent the initial call
- *                      | Use the choice TRUE only after a series
- *                      | of calls with a FALSE value.
+ * KINSetNoPrecInit     | flag controlling whether or not the
+ *                      | KINSol routine makes an initial call
+ *                      | to the preconditioner setup routine (pset)
+ *                      | (possible values are TRUE and FALSE)
  *                      | [FALSE]
  *                      |
- * KINSetMaxPrecCalls   | maximum number of steps calling the
- *                      | preconditioner solve without calling
- *                      | the preconditioner setup routine
- *                      | [10]
+ * KINSetMaxPrecCalls   | maximum number of nonlinear iterations
+ *                      | that may be performed between calls to
+ *                      | the preconditioner setup routine (pset)
+ *                      | [MSBPRE] (defined in kinsol.c)
  *                      |
- * KINSetEtaForm        | flag indicating which of three methods
- *                      | to use for computing eta, the coeff. in
- *                      | the linear solver convergence tolerance
- *                      | eps, given by
- *                      |    eps = (eta+u_round)*norm(func(uu))
- *                      | Here, all norms are the scaled L2 norm.
- *                      | The linear solver attempts to produce a
- *                      | step p such that
- *                      |    norm(func(u) + J(uu)*p) <= eps.
- *                      | Two of the methods for computing eta
- *                      | calculate it based on the convergence
- *                      | process in the routine KINForcingTerm.
- *                      | The third method does not require
- *                      | calculation; a constant eta is selected
- *                      | The allowed values are (see above)
- *                      | ETACONSTANT, ETACHOICE1, or ETACHOICE2
+ * KINSetEtaForm        | flag indicating which method to use to
+ *                      | compute the value of the eta coefficient
+ *                      | used in the calculation of the linear
+ *                      | solver convergence tolerance:
+ *                      |
+ *                      |  eps = (eta+uround)*||fscale*func(u)||_L2
+ *                      |
+ *                      | the linear solver tests for convergence by
+ *                      | checking if the following inequality has
+ *                      | been satisfied:
+ *                      |
+ *                      |  ||fscale*(func(u)+J(u)*p)||_L2 <= eps
+ *                      |
+ *                      | where J(u) is the system Jacobian
+ *                      | evaluated at the current iterate, and p
+ *                      | denotes the Newton step
+ *                      |
+ *                      | choices for computing eta are as follows:
+ *                      |
+ *                      |  ETACHOICE1  (refer to KINForcingTerm)
+ *                      |
+ *                      |  eta = ABS(||F(u_k+1)||_L2-||F(u_k)+J(u_k)*p_k||_L2)
+ *                      |        ---------------------------------------------
+ *                      |                        ||F(u_k)||_L2
+ *                      | 
+ *                      |  ETACHOICE2  (refer to KINForcingTerm)
+ *                      |
+ *                      |                [ ||F(u_k+1)||_L2 ]^alpha
+ *                      |  eta = gamma * [ --------------- ]
+ *                      |                [  ||F(u_k)||_L2  ]
+ *                      |
+ *                      |  where gamma = [0,1] and alpha = (1,2]
+ *                      |
+ *                      |  ETACONSTANT  use a constant value for eta
  *                      | [ETACHOICE1]
  *                      |
- * KINSetEtaConstValue  | constant value of eta for ETACONSTANT
+ * KINSetEtaConstValue  | constant value of eta - use with
+ *                      | ETACONSTANT option
  *                      | [0.1]
  *                      |
- * KINSetEtaParams      | parameter values for eta in the case
- *                      | ETACHOICE2: egamma and ealpha
+ * KINSetEtaParams      | values of eta_gamma (egamma) and eta_alpha
+ *                      | (ealpha) coefficients - use with ETACHOICE2
+ *                      | option
  *                      | [0.9 and 2.0]
  *                      |
- * KINSetNoMinEps       | flag to control lower bound on eps,
- *                      | the linear solver convergence tolerance
- *                      |   FALSE - use standard eps min testing
- *                      |   TRUE  - remove protection against eps
- *                      |           becoming too small
+ * KINSetNoMinEps       | flag controlling whether or not the value
+ *                      | of eps is bounded below by 0.01*fnormtol
+ *                      | (see KINSetFuncNormTol)
+ *                      |
+ *                      |  FALSE  constrain value of eps by setting
+ *                      |         to the following:
+ *                      |
+ *                      |          eps = MAX{0.01*fnormtol, eps}
+ *                      |
+ *                      |  TRUE  do not constrain value of eps
  *                      | [FALSE]
  *                      |
- * KINSetMaxNewtonStep  | maximum allowable length of a Newton
- *                      | step. Default value is calculated from
- *                      | 1000*max(norm(uscale*uu(0))
+ * KINSetMaxNewtonStep  | maximum scaled length of Newton step
+ *                      | (reset to value of one if user-supplied
+ *                      | value is less than one)
+ *                      | [1000*||uscale*u_0||_L2]
  *                      |
- * KINSetRelErrFunc     | relative error in computing func(uu)
- *                      | [roundoff unit]
+ * KINSetRelErrFunc     | real scalar equal to realative error in
+ *                      | computing F(u) (used in difference-
+ *                      | quotient approximation of matrix-vector
+ *                      | product J(u)*v)
+ *                      | [(uround)^1/2]
  *                      |
- * KINSetFuncNormTol    | a real (scalar) value containing the
- *                      | stopping tolerance on
- *                      |    maxnorm( fscale * func(uu) )
- *                      | The default value is:
- *                      |    (uround)^1/3
- *                      | where uround is the unit roundoff.
+ * KINSetFuncNormTol    | real scalar used as stopping tolerance on
+ *                      | ||fscale*ABS(func(u))||_L-infinity (see
+ *                      | KINStop and KINInitialStop)
+ *                      | [(uround)^1/3]
  *                      |
- * KINSetScaledStepTol  | a real (scalar) value containing the
- *                      | stopping tolerance on the maximum
- *                      | scaled step  uu(k) - uu(k-1).
- *                      | The default value is:
- *                      |     (uround)^2/3
+ * KINSetScaledStepTol  | real scalar used as stopping tolerance on
+ *                      | the maximum scaled step length:
  *                      |
- * KINSetConstraints    | pointer to an array (type N_Vector)
- *                      | of constraints on uu. If the pointer
- *                      | passed is NULL, then NO constraints
- *                      | are applied to uu. If constraints(i)
- *                      | = +2 or -2, then uu(i) will be
- *                      | constrained to be > 0.0 or < 0.0,
- *                      | respectively. If constraints(i) = +1
- *                      | or -1, then uu(i) will be constrained
- *                      | to be >= 0.0 or <= 0.0, respectively.
- *                      | A zero value in constraints(i) implies
- *                      | there is no constraint on uu(i).
+ *                      |  ||    u_k+1 - u_k    ||
+ *                      |  || ----------------- ||_L-infinity
+ *                      |  || ABS(u_k+1)+uscale ||
+ *                      |
+ *                      | (see KINStop)
+ *                      | [(uround)^2/3]
+ *                      |
+ * KINSetConstraints    | pointer to an array (type N_Vector) of
+ *                      | constraints on the solution vector u
+ *                      | 
+ *                      | if constraints[i] =
+ *                      |
+ *                      |   0  u[i] not constrained
+ *                      |
+ *                      |  +1  u[i] constrained to be >= 0
+ *                      |  -1  u[i] constrained to be <= 0
+ *                      |
+ *                      |  +2  u[i] constrained to be > 0
+ *                      |  -2  u[i] constrained to be < 0
+ *                      |
+ *                      | if a NULL pointer is given, then no
+ *                      | constraints are applied to vector u
+ *                      | [NULL]
  *                      |
  * -----------------------------------------------------------------
  * Note: If successful, these functions return SUCCESS. If an
  * argument has an illegal value, then an error message is printed
- * to the file specified by errfp and an error flag is returned
- * (defined below).
+ * to the file specified by errfp and an error code is returned.
  * -----------------------------------------------------------------
  */
 
@@ -267,13 +314,31 @@ int KINSetNoPrecInit(void *kinmem, booleantype noPrecInit);
 int KINSetMaxPrecCalls(void *kinmem, long int msbpre);
 int KINSetEtaForm(void *kinmem, int etachoice);
 int KINSetEtaConstValue(void *kinmem, realtype eta);
-int KINSetEtaParams(void *kinmem, realtype egamma, realtype eaplpha);
+int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha);
 int KINSetNoMinEps(void *kinmem, booleantype noMinEps);
 int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep);
 int KINSetRelErrFunc(void *kinmem, realtype relfunc);
 int KINSetFuncNormTol(void *kinmem, realtype fnormtol);
 int KINSetScaledStepTol(void *kinmem, realtype scsteptol);
 int KINSetConstraints(void *kinmem, N_Vector constraints);
+
+/*
+ * -----------------------------------------------------------------
+ * KINSet* Return Values
+ * -----------------------------------------------------------------
+ * The possible return values for the KINSet* subroutines are the
+ * following (all but SUCCESS are prefixed by "KINS_"):
+ *
+ * SUCCESS : means the associated variable was successfully set [0]
+ *
+ * NO_MEM : means a NULL KINSOL memory block pointer was given
+ *          (must call the KINCreate and KINMalloc memory
+ *          allocation subroutines prior to calling KINSol) [-1]
+ *
+ * ILL_INPUT : means the supplied parameter was invalid (check error
+ *             message) [-2]
+ * -----------------------------------------------------------------
+ */
 
 /* error return values for KINSet* functions */
 /* Note: SUCCESS = 0*/
@@ -284,21 +349,55 @@ enum { KINS_NO_MEM = -1, KINS_ILL_INPUT = -2 };
  * -----------------------------------------------------------------
  * Function : KINMalloc
  * -----------------------------------------------------------------
- * This function allocates main memory for the KINSol package. It
- * also allocates several N_Vectors used by the package. Other
- * N_Vectors are also to be allocated by the user and supplied to
- * KINSol.
+ * KINMalloc allocates additional memory for vector storage and
+ * sets a couple problem-specific KINSOL variables.
  *
- * nvspec is a pointer to a vector specification structure
+ * Note: Additional vectors must be initialized by the user and
+ * passed to the KINSol routine.
  *
- * If successful, KINMalloc returns SUCCESS; however, if an
- * initialization error occurs, then KINMalloc prints an error
- * message to the file specified by errfp and returns an error
- * flag.
+ *  kinmem  pointer to an internal memory block allocated during a
+ *          prior call to KINCreate
+ *
+ *  func  name of user-supplied subroutine implementing the
+ *        nonlinear function F(u)
+ *
+ *  nvspec  pointer to an internal vector specification structure
+ *          created by a prior call to either NV_SpecInit_Serial
+ *          or NV_SpecInit_Parallel
+ *
+ * If successful, KINMalloc returns SUCCESS. If an error occurs,
+ * then KINMalloc prints an error message and returns an error
+ * code.
  * -----------------------------------------------------------------
  */
 
 int KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec);
+
+/*
+ * -----------------------------------------------------------------
+ * KINMalloc Return Values
+ * -----------------------------------------------------------------
+ * The possible return values for the KINMalloc subroutine are the
+ * following (all but SUCCESS are prefixed by "KINM_"):
+ *
+ * SUCCESS : means the necessary system memory was successfully
+ *           allocated [0]
+ *
+ * NO_MEM : means a NULL KINSOL memory block pointer was given
+ *          (must call the KINCreate routine before calling
+ *          KINMalloc) [-1]
+ *
+ * ILL_INPUT : means the name of a user-supplied subroutine
+ *             implementing the nonlinear system function F(u)
+ *             was not given [-2]
+ *
+ * MEM_FAIL : means an error occurred during memory allocation
+ *            (either insufficient system resources are available
+ *            or the vector kernel has not yet been initialized via
+ *            a call to NV_SpecInit_Serial or
+ *            NV_SpecInit_Parallel) [-3]
+ * -----------------------------------------------------------------
+ */
 
 /* error return values for KINMalloc */
 /* Note: SUCCESS = 0 */
@@ -322,144 +421,176 @@ int KINResetSysFunc(void *kinmem, SysFn func);
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSol
+ * KINResetSysFunc Return Values
  * -----------------------------------------------------------------
- * KINSol initializes memory for a problem previously allocated
- * by a call to KINMalloc. It also checks the initial value of uu
- * (the initial guess) against the constraints and checks if the
- * initial guess is a solution of the system. It then attempts to
- * solve the system func(uu) = 0, where the function func is
- * supplied by the user. The Newton-Krylov iterations are stopped
- * if either func(uu) is smaller in norm than fnormtol(see below),
- * or the scaled difference between successive iterates is
- * smaller in norm than scsteptol (see below). However, the
- * second termination may mean the iterations have stalled at a
- * point that is not near a root.
+ * The possible return values for the KINResetSysFunc subroutine are
+ * the following (all but SUCCESS are prefixed by "KINS_"):
  *
- * The input arguments for KINSol and their meanings are as
- * follows:
+ * SUCCESS : means the associated variable was successfully set [0]
  *
- * kinmem  pointer to KINSol memory block returned by the
- *         preceding KINCreate call
+ * NO_MEM : means a NULL KINSOL memory block pointer was given
+ *          (must call the KINCreate and KINMalloc memory
+ *          allocation subroutines prior to calling KINSol) [-1]
  *
- * uu      is the solution vector for the system func(uu) = 0.
- *         uu is to be set to an initial value if a nonzero
- *         vector starting value is desired.
- *
- * func    is the system function for the system: func(uu) = 0.
- *
- * globalstrategy  is a variable indicating which global
- *         strategy to apply to the computed increment delta.
- *         Choices are INEXACT_NEWTON and LINESEARCH.
- *
- * uscale  is an array (type N_Vector) of diagonal elements of the
- *         scaling matrix for uu. The elements of uscale must be
- *         positive values. The scaling matrix uscale should be
- *         chosen so that uscale * uu (as a matrix multiplication)
- *         should have all its components with roughly the same
- *         magnitude when uu is close to a root of func.
- *
- * fscale  is an array (type N_Vector) of diagonal elements of the
- *         scaling matrix for func. The elements of fscale must be
- *         positive values. The scaling matrix fscale should be
- *         chosen so that fscale * func(uu) (as a matrix
- *         multiplication) should have all its components with
- *         roughly the same magnitude when uu is NOT too near a
- *         root of func.
+ * ILL_INPUT : means the supplied parameter was invalid (check error
+ *             message) [-2]
  * -----------------------------------------------------------------
  */
 
-int KINSol(void *kinmem, N_Vector u,
-           int strategy, N_Vector u_scale, N_Vector f_scale);
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSol
+ * -----------------------------------------------------------------
+ * KINSol (main KINSOL driver routine) manages the computational
+ * process of computing an approximate solution of the nonlinear
+ * system. If the initial guess (initial value assigned to vector u)
+ * doesn't violate any user-defined constraints, then the subroutine
+ * attempts to solve the system F(u) = 0 using a nonlinear Krylov
+ * subspace projection method. The Newton-Krylov iterations are
+ * stopped if either of the following conditions is satisfied:
+ *
+ *  ||F(u)||_L-infinity <= 0.01*fnormtol
+ *
+ *  ||u[i+1] - u[i]||_L-infinity <= scsteptol
+ *
+ * However, if the current iterate satisfies the second stopping
+ * criterion, it doesn't necessarily mean an approximate solution
+ * has been found since the algorithm may have stalled, or the
+ * user-specified step tolerance (scsteptol) may be too large.
+ *
+ *  kinmem  pointer to an internal memory block allocated during a
+ *          prior call to KINCreate
+ *
+ *  uu  vector set to initial guess by user before calling KINSol,
+ *      but which upon return contains an approximate solution of
+ *      the nonlinear system F(u) = 0
+ *
+ *  strategy  global strategy applied to Newton step if unsatisfactory
+ *            (INEXACT_NEWTON or LINESEARCH)
+ *
+ *  u_scale  vector containing diagonal elements of scaling matrix
+ *           for vector u chosen so that the components of
+ *           u_scale*u (as a matrix multiplication) all have
+ *           about the same magnitude when u is close to a root
+ *           of F(u)
+ *
+ *  f_scale  vector containing diagonal elements of scaling matrix
+ *           for F(u) chosen so that the components of
+ *           f_scale*F(u) (as a matrix multiplication) all have
+ *           roughly the same magnitude when u is not too near a
+ *           root of F(u)
+ *
+ * Note: The components of vectors u_scale and f_scale should be
+ * positive.
+ *
+ * If successful, KINSol returns a positive value (SUCCESS,
+ * KINSOL_INITIAL_GUESS_OK or KINSOL_STEP_LT_STPTOL) and vector uu
+ * contains an approximate solution of the given nonlinear system.
+ * If an error occurs, then an error message is printed and an
+ * error code is returned.
+ * -----------------------------------------------------------------
+ */
+
+int KINSol(void *kinmem, N_Vector uu, int strategy,
+	   N_Vector u_scale, N_Vector f_scale);
 
 /*
  * -----------------------------------------------------------------
- * KINSOL termination codes
+ * KINSol Return Values
  * -----------------------------------------------------------------
- * Note: KINSol returns integer-valued termination codes.
+ * The possible return values for the KINSol subroutine are the
+ * following (all but SUCCESS are prefixed by "KINSOL_"):
  *
- * The termination values SUCCESS and KINSOL_* are:
+ * SUCCESS : means ||fscale*ABS(func(u))||_L-infinity <= 0.01*fnormtol
+ *           and the current iterate uu is probably an approximate
+ *           solution of the nonlinear system F(u) = 0 [0]
  *
- * SUCCESS : means maxnorm(fscale*func(uu)) <= fnormtol, where
- *           maxnorm() is the maximum norm function N_VMaxNorm
- *           (uu is probably an approximate root of func).
+ * INITIAL_GUESS_OK : means the initial user-supplied guess already
+ *                    satisfies the stopping criterion given above
+ *                    [1]
  *
- * INITIAL_GUESS_OK : means the initial guess uu has been found
- *                    to already satisfy the system to the desired
- *                    accuracy. No calculation was performed other
- *                    than testing uu.
+ * STEP_LT_STPTOL : means the following inequality has been
+ *                  satisfied (stopping tolerance on scaled
+ *                  step length):
  *
- * STEP_LT_STPTOL : means the scaled distance between the last
- *                  two steps is less than scsteptol. uu may be an
- *                  approximate root of func, but it is also
- *                  possible that the algorithm is making very
- *                  slow progress and is not near a root or that
- *                  scsteptol is too large.
+ *                    ||    u_k+1 - u_k    ||
+ *                    || ----------------- ||_L-infinity <= scsteptol
+ *                    || ABS(u_k+1)+uscale ||
  *
- * LNSRCH_NONCONV : means the LineSearch module failed to reduce
- *                  norm(func) sufficiently on the last global step.
- *                  Either uu is close to a root of f and no more
- *                  accuracy is possible, or the finite-difference
- *                  approximation to J*v is inaccurate, or scsteptol
- *                  is too large. Check the outputs ncfl and nni. If
- *                  ncfl is close to nni, it may be the case that
- *                  the Krylov iteration is converging very slowly.
- *                  In this case, the user may want to use
- *                  preconditioning and/or increase the maxl value
- *                  in the KINSpgmr input list (that is, increase
- *                  the max dimension of the Krylov subspace by
- *                  setting maxl to nonzero (thus not using the
- *                  default value of KINSPGMR_MAXL, or if maxl is
- *                  being set, increase its value.
+ *                  so the current iterate (denoted above by u_k+1)
+ *                  may be an approximate solution of the given
+ *                  nonlinear system, but it is also quite possible
+ *                  that the algorithm is "stalled" (making
+ *                  insufficient progress) near an invalid solution,
+ *                  or the real scalar scsteptol is too large [2]
  *
- * MAXITER_REACHED : means that the maximum allowable number of
- *                   nonlinear iterations has been reached. This is
- *                   by default 200, but may be changed.
+ * LNSRCH_NONCONV : means the line search algorithm was unable to
+ *                  find an iterate sufficiently distinct from the
+ *                  current iterate
  *
- * MXNEWT_5X_EXCEEDED : means 5 consecutive steps of length
- *                      mxnewtstep (maximum Newton stepsize limit)
- *                      have been taken. Either norm(f) asymptotes
- *                      from above to a finite value in some
- *                      direction, or mxnewtstep is too small.
- *                      mxnewtstep is computed internally (by
- *                      default) as:
- *                      mxnewtstep = 1000*max(norm(uscale*uu0)),
- *                      where uu0 is the initial guess for uu, and
- *                      norm() is the Euclidean norm. mxnewtstep
- *                      can be  set by the user.
+ *                  failure to satisfy the sufficient decrease
+ *                  condition could mean the current iterate is
+ *                  "close" to an approximate solution of the given
+ *                  nonlinear system, the finite-difference
+ *                  approximation of the matrix-vector product
+ *                  J(u)*v is inaccurate, or the real scalar
+ *                  scsteptol is too large [-5]
  *
- * LINESEARCH_BCFAIL : means that more than the allowed maximum
- *                     number of failures (MXNBCF) occurred while
- *                     trying to satisfy the beta condition in the
- *                     line search algorithm. It is likely that the
- *                     iteration is making poor progress.
+ * MAXITER_REACHED : means the maximum number of nonlinear iterations
+ *                   has been reached [-6]
  *
- * KRYLOV_FAILURE : means there was a failure of the Krylov
- *                  iteration process to converge.
+ * MXNEWT_5X_EXCEEDED : means five consecutive steps have been taken
+ *                      that satisfy the following inequality:
  *
- * PRECONDSET_FAILURE : means there was a nonrecoverable error in
- *                      pset causing the iteration to halt.
+ *                       ||uscale*p||_L2 > 0.99*mxnewtstep
  *
- * PRECONDSOLVE_FAILURE : means there was a nonrecoverable error in
- *                        psolve causing the iteration to halt.
+ *                      where p denotes the current step and
+ *                      mxnewtstep is a real scalar upper bound
+ *                      on the scaled step length
  *
- * NO_MEM : the KINSol memory pointer received was NULL
+ *                      such a failure may mean ||fscale*func(u)||_L2
+ *                      asymptotes from above to a finite value, or
+ *                      the real scalar mxnewtstep is too small [-7]
  *
- * NO_MALLOC : the KINSol memory was not allocated
+ * LINESEARCH_BCFAIL : means the line search algorithm (implemented
+ *                     in KINLineSearch) was unable to satisfy the
+ *                     beta-condition for MXNBCF + 1 nonlinear
+ *                     iterations (not necessarily consecutive),
+ *                     which may indicate the algorithm is making
+ *                     poor progress [-8]
  *
- * INPUT_ERROR : one or more input parameters or arrays were in
- *               error. See the listing in errfp for further info.
+ * KRYLOV_FAILURE : means the Krylov subspace projection method
+ *                  failed to converge [-9]
  *
- * LSOLV_NO_MEM : the linear solver memory pointer (lmem) was
- *                received as NULL. The return value from the linear
- *                solver needs to be checked and the cause found.
+ * PRECONDSET_FAILURE : means the user-supplied routine pset
+ *                      (used to compute the preconditioner)
+ *                      encountered an unrecoverable error [-10]
+ *
+ * PRECONDSOLVE_FAILURE : means the user-supplied routine psolve
+ *                        (used to solve the preconditioned linear
+ *                        system) encountered an unrecoverable
+ *                        error [-11]
+ *
+ * NO_MEM : means a NULL KINSOL memory block pointer was given
+ *          (must call the KINCreate and KINMalloc memory
+ *          allocation subroutines prior to calling KINSol) [-1]
+ *
+ * NO_MALLOC : means additional system memory has not yet been
+ *             allocated for vector storage (forgot to call the
+ *             KINMalloc routine) [-2]
+ *
+ * INPUT_ERROR : means at least one input parameter was invalid
+ *               (check error output) [-3]
+ *
+ * LSOLV_NO_MEM : means system memory has not yet been allocated
+ *                for the linear solver (check linear solver error
+ *                code) [-4]
  * -----------------------------------------------------------------
  */
 
 /* KINSol return values */
   
-enum { SUCCESS = 0,
-       KINSOL_NO_MEM = -1, KINSOL_NO_MALLOC = -2,
+enum { SUCCESS = 0, KINSOL_NO_MEM = -1, KINSOL_NO_MALLOC = -2,
        KINSOL_INPUT_ERROR = -3, KINSOL_LSOLV_NO_MEM = -4,
        KINSOL_INITIAL_GUESS_OK = 1,KINSOL_STEP_LT_STPTOL = 2,
        KINSOL_LNSRCH_NONCONV = -5, KINSOL_MAXITER_REACHED = -6,
@@ -469,37 +600,56 @@ enum { SUCCESS = 0,
  
 /*
  * -----------------------------------------------------------------
- * Solver optional output extraction functions
+ * Optional Output Extraction Functions (KINSOL)
  * -----------------------------------------------------------------
  * The following functions can be called to get optional outputs
- * and statistics related to the KINSOL solver.
+ * and statistical information related to the KINSOL solver:
+ *
+ *       Function Name       |      Returned Value
+ *                           |
  * -----------------------------------------------------------------
- * KINGetIntWorkSpace returns the KINSOL integer workspace size
- *
- * KINGetRealWorkSpace returns the KINSOL real workspace size
- *
- * KINGetNumFuncEvals returns the number of calls to the user's
- *                    func function
- *
- * KINGetNumNonlinSolvIters returns the number of nonlinear
- *                          iterations performed
- *
- * KINGetNumBetaCondFails returns the total numebr of times the
- *                        beta condition could not be met in the
- *                        line search algorithm. The nonlinear
- *                        iteration is halted if this value ever
- *                        exceeds MXNBCF (10).
- *
- * KINGetNumBacktrackOps returns the number of backtrack
- *                       operations done in the linesearch
- *                       algorithm
- *
- * KINGetFuncNorm returns the scaled norm at a given iteration:
- *                        norm(fscale(func(uu))
- *
- * KINGetStepLength returns the last step length in the global
- *                  strategy routine (KINLineSearch or
- *                  KINInexactNewton)
+ *                           |
+ * KINGetIntWorkSpace        | integer workspace size (total number
+ *                           | of long int-sized blocks of memory
+ *                           | allocated by KINSOL for vector
+ *                           | storage)
+ *                           |
+ * KINGetRealWorkSpace       | real workspace size (total number of
+ *                           | double-sized blocks of memory
+ *                           | allocated by KINSOL for vector
+ *                           | storage)
+ *                           |
+ * KINGetNumFuncEvals        | total number evaluations of the
+ *                           | nonlinear system function F(u)
+ *                           | (number of direct calls made to the
+ *                           | user-supplied subroutine by KINSOL
+ *                           | module member functions)
+ *                           |
+ * KINGetNumNonlinSolvIters  | total number of nonlinear iterations
+ *                           | performed
+ *                           |
+ * KINGetNumBetaCondFails    | total number of beta-condition
+ *                           | failures (see KINLineSearch)
+ *                           |
+ *                           | KINSOL halts if the number of such
+ *                           | failures exceeds the value of the
+ *                           | constant MXNBCF (defined in kinsol.c)
+ *                           |
+ * KINGetNumBacktrackOps     | total number of backtrack operations
+ *                           | (step length adjustments) performed
+ *                           | by the line search algorithm (see
+ *                           | KINLineSearch)
+ *                           |
+ * KINGetFuncNorm            | scaled norm of the nonlinear system
+ *                           | function F(u) evaluated at the
+ *                           | current iterate:
+ *                           |
+ *                           |  ||fscale*func(u)||_L2
+ *                           |
+ * KINGetStepLength          | scaled norm (or length) of the step
+ *                           | used during the previous iteration:
+ *                           |
+ *                           |  ||uscale*p||_L2
  * -----------------------------------------------------------------
  */
 
@@ -512,6 +662,21 @@ int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
 int KINGetFuncNorm(void *kinmem, realtype *fnorm);
 int KINGetStepLength(void *kinmem, realtype *steplength);
 
+/*
+ * -----------------------------------------------------------------
+ * KINGet* Return Values
+ * -----------------------------------------------------------------
+ * The possible return values for the KINSet* subroutines are the
+ * following (NO_MEM is prefixed by "KING_"):
+ *
+ * OKAY : means the information was successfully retrieved [0]
+ * 
+ * NO_MEM : means a NULL KINSOL memory block pointer was given
+ *          (must call the KINCreate and KINMalloc memory
+ *          allocation subroutines prior to calling KINSol) [-1]
+ * -----------------------------------------------------------------
+ */
+
 /* KINGet* return values */
 
 enum { OKAY = 0, KING_NO_MEM = -1 };
@@ -520,187 +685,51 @@ enum { OKAY = 0, KING_NO_MEM = -1 };
  * -----------------------------------------------------------------
  * Function : KINFree
  * -----------------------------------------------------------------
- * KINFree frees the KINSOL problem memory allocated by KINMalloc.
- * Its only argument is the pointer kinmem returned by KINMalloc.
+ * KINFree frees system memory resources reserved for the KINSOL
+ * solver module.
+ *
+ *  kinmem  pointer to an internal memory block allocated during
+ *          prior calls to KINCreate and KINMalloc
  * -----------------------------------------------------------------
  */
 
 void KINFree(void *kinmem);
- 
+
 /*
  * -----------------------------------------------------------------
- * Types : struct KINMemRec, KINMem
+ * Function : int (*kin_linit)(KINMem kin_mem)
  * -----------------------------------------------------------------
- * The type KINMem is a pointer to struct KINMemRec. This structure
- * contains fields to keep track of problem status.
+ * kin_linit initializes solver-specific data structures (including
+ * variables used as counters or for storing statistical information),
+ * but system memory allocation should be done by the subroutine
+ * that actually initializes the environment for liner solver
+ * package. If the linear system is to be preconditioned, then the
+ * variable setupNonNull (type booleantype) should be set to TRUE
+ * (predefined constant) and the kin_lsetup routine should be
+ * appropriately defined.
+ *
+ *  kinmem  pointer to an internal memory block allocated during
+ *          prior calls to KINCreate and KINMalloc
+ *
+ * If the necessary variables have been successfully initialized,
+ * then the kin_linit function should return LINIT_OK. Otherwise,
+ * the subroutine should indicate a failure has occurred by
+ * returning LINIT_ERR and printing an informative error message
+ * to the kin_mem->kin_errfp pointer.
  * -----------------------------------------------------------------
  */
 
-typedef struct KINMemRec {
-
-  realtype kin_uround;  /* machine unit roundoff */
-
-  /* problem specification data */
-
-  SysFn kin_func;              /* system function                             */
-  void *kin_f_data;            /* func work space                             */
-  realtype kin_fnormtol;       /* func norm tolerance                         */
-  realtype kin_scsteptol;      /* scaled step tolerance                       */
-  int kin_globalstrategy;      /* choices are INEXACT_NEWTON & LINESEARCH     */
-  int kin_printfl;             /* print (output) option selected              */
-  long int kin_mxiter;         /* max number of nonlinear iterations          */
-  long int kin_msbpre;         /* max number of iterations without calling the
-                                  preconditioner                              */
-  int kin_etaflag;             /* eta computation choice                      */
-  booleantype kin_noMinEps;
-  booleantype kin_precondflag; /* preconditioning is in use                   */
-  booleantype kin_setupNonNull;/*  preconditioning setup routine is non-null
-                                   and preconditioning is in use              */
-  booleantype kin_constraintsSet; /* if set, user has given a valid constraints
-                                     array and constraints will be used       */
-  booleantype kin_precondcurrent; /* if set, the preconditioner is current,
-                                     else not                                 */
-  booleantype kin_callForcingTerm;/* if set, call the routine KINForcingTerm  */
-  realtype kin_mxnewtstep;     /* max allowable step length of a Newton step  */
-  realtype kin_sqrt_relfunc;   /* relative error bound for func(uu) 
-                                     (sqrt of error used in the code)         */
-  realtype kin_stepl;          /* step length of current step (w/scaling)     */
-  realtype kin_stepmul;        /* scalar quantity the step was scaled by      */
-  realtype kin_eps;            /* current eps value for the iteration         */
-  realtype kin_eta;            /* current eta value for the iteration         */
-  realtype kin_eta_gamma;      /* gamma value for use in eta calculation      */
-  realtype kin_eta_alpha;      /* alpha value for use in eta calculation      */
-  booleantype kin_noPrecInit;
-  realtype kin_pthrsh;         /* threshold value for calling preconditioner  */
-
-  /* counters */
-
-  long int  kin_nni;           /* number of nonlinear iterations              */
-  long int  kin_nfe;           /* number of func references/calls             */
-  long int  kin_nnilpre;       /* nni value at last preconditioner call       */
-  long int  kin_nbcf;          /* number of times the beta condition could not 
-                                  be met in KINLineSearch                     */
-  long int  kin_nbktrk;        /* number of backtracks                        */
-  long int  kin_ncscmx;        /* number of consecutive steps of size
-                                  mxnewtstep taken during the last nonlinear
-                                  iteration                                   */
-
-  /* vectors of length Neq */
-
-  N_Vector kin_uu;         /* pointer to user-supplied solution vector and
-                              current iterate during most of the process      */
-  N_Vector kin_unew;       /* pointer to the newly calculated iterate;
-                              also bb vector in linear solver                 */
-  N_Vector kin_fval;       /* pointer to returned func vector                 */
-  N_Vector kin_uscale;     /* pointer to user-supplied scaling vector 
-                              for uu                                          */
-  N_Vector kin_fscale;     /* pointer to user-supplied scaling vector 
-                              for func                                        */
-  N_Vector kin_pp;         /* pointer to the incremental change vector 
-                              for uu in this iteration; also vector xx
-                              in the linear solver                            */
-  N_Vector kin_constraints;/* pointer to user supplied constraints vector     */ 
-  N_Vector kin_vtemp1;     /* scratch vector #1                               */
-  N_Vector kin_vtemp2;     /* scratch vector #2                               */
-
-  /* space requirements for KINSOL */ 
-
-  long int kin_lrw1;        /* num of realtype words in 1 N_Vector            */ 
-  long int kin_liw1;        /* num of integer words in 1 N_Vector             */ 
-  long int kin_lrw;         /* num of realtype words in KINSOL work vectors   */
-  long int kin_liw;         /* num of integer words in KINSOL work vectors    */
-
-  /* linear solver data */
- 
-  /* linear solver functions to be called */
-
-  int (*kin_linit)(struct KINMemRec *kin_mem);
-
-  int (*kin_lsetup)(struct KINMemRec *kin_mem);
-
-  int (*kin_lsolve)(struct KINMemRec *kin_mem, N_Vector xx, N_Vector bb, 
-                    realtype *res_norm );
-  
-  int (*kin_lfree)(struct KINMemRec *kin_mem);
-  
-  
-  /* linear solver specific memory */
-  
-  void *kin_lmem;           
-
-  /* saved values */
-
-  realtype kin_fnorm;    /* current value for the norm of func(uu)            */
-  realtype kin_f1norm;   /* current value for the expression: fnorm*fnorm/2
-                            Note: The value f1normp is computed in
-                            KINLineSearch or KINInexactNewton and supplied
-                            to the calling routine to set this value.         */
-  realtype kin_res_norm; /* current value for the norm of the residual        */
-  realtype kin_sfdotJp;  /* scaled f value dotted with J*p, where p is the
-                            computed increment in the computed solution.
-                            Note: This term is used in the global strategy
-                            routine and in KINForcingTerm.                    */
-  realtype kin_sJpnorm;  /* norm of scaled J*p, as above, also used in
-                            the KINForcingTerm routine                        */
-  
 /*
  * -----------------------------------------------------------------
- * Note: In the last two descriptions above, J is the Jacobian
- * matrix evaluated at the last iterate u, and p is the current
- * increment from the last iterate u. In both cases, p is scaled by
- * a factor lambda (rl in KINLineSearch) to represent the actual step
- * chosen by the global strategy routine.
+ * kin_linit Return Values
  * -----------------------------------------------------------------
-*/
-
-  booleantype kin_MallocDone;
-
-  /* message files */
-  
-  FILE *kin_errfp;  /* where KINSol error/warning messages are sent           */
-  FILE *kin_infofp; /* where KINSol info messages are sent                    */
-
-  /* pointer to vector specification strucutre */
-  
-  NV_Spec kin_nvspec;
-
-} *KINMem;
-
-/*
- * -----------------------------------------------------------------
- * Communication between user and a KINSOL linear solver
- * -----------------------------------------------------------------
- * Return values of the linear solver specification routine:
+ * The possible return values for the kin_linit subroutine are the
+ * following:
  *
- * SUCCESS : the routine was successful
+ * LINIT_OK : means the kin_linit routine successfully initialized
+ *            the linear solver memory block [0]
  *
- * LIN_NO_MEM : KINSOL memory = NULL
- *
- * LMEM_FAIL : a memory allocation failed
- *
- * LIN_ILL_INPUT : some input was illegal (see message)
- *
- * LIN_NO_LMEM : the linear solver's memory = NULL
- *
- * -----------------------------------------------------------------
- */
-
-/* Note: SUCCESS = 0  */
-
-enum { LMEM_FAIL = -1, LIN_ILL_INPUT = -2,
-       LIN_NO_MEM = -3, LIN_NO_LMEM = -4 };
-
-/*
- * -----------------------------------------------------------------
- * Communication between kinsol.c and a KINSol linear solver
- * -----------------------------------------------------------------
- * Return values:
- *
- * LINIT_OK : the kin_linit routine succeeded
- *
- * LINIT_ERR : the kin_linit routine failed. Each linear solver
- *             init routine should print an appropriate error
- *             message to (kin_mem->kin_errfp).
+ * LINIT_ERR : means an error occurred [-1]
  * -----------------------------------------------------------------
  */
 
@@ -710,63 +739,103 @@ enum { LINIT_OK = 0, LINIT_ERR = -1 };
 
 /*
  * -----------------------------------------------------------------
- * Function : int (*kin_linit)(KINMem kin_mem)
- * -----------------------------------------------------------------
- * The purpose of kin_linit is to perform any needed initializations
- * of solver-specific memory, such as counters/statistics. Actual
- * memory allocation should be done by the routine that initializes
- * the linear solver package. The kin_linit routine should set
- * setupNonNull to be TRUE if the setup operation for the linear
- * solver is non-empty and FALSE if the setup operation does nothing.
- * A kin_linit should return LINIT_OK (= 0) if it has successfully
- * initialized the KINSol linear solver and LINIT_ERR (= -1)
- * otherwise. These constants are defined above. If an error does
- * occur, an appropriate message should be sent to
- * (kin_mem->kin_errfp).
- * -----------------------------------------------------------------
- */
-
-/*
- * -----------------------------------------------------------------
  * Function : int (*kin_lsetup)(KINMem kin_mem)
  * -----------------------------------------------------------------
- * The job of kin_lsetup is to prepare the linear solver for
- * subsequent calls to kin_lsolve.
+ * kin_lsetup interfaces with the user-supplied pset subroutine (the
+ * preconditioner setup routine), and updates relevant variable
+ * values (see KINSpgmrSetup). Simply stated, the kin_lsetup routine
+ * prepares the linear solver for a subsequent call to the
+ * user-supplied kin_lsolve function.
  *
- * kin_mem  problem memory pointer of type KINMem. See the big
- *          typedef earlier in this file.
+ *  kinmem  pointer to an internal memory block allocated during
+ *          prior calls to KINCreate and KINMalloc
  *
- * The kin_lsetup routine should return 0 if successful,
- * a positive value for a recoverable error, and a negative value
- * for an unrecoverable error.
+ * If successful, the kin_lsetup routine should return 0 (zero). If
+ * a recoverable error occurs, then the subroutine should return a
+ * positive integer value. However, if an unrecoverable error
+ * occurs, then the function should return a negative integer value.
  * -----------------------------------------------------------------
  */
 
 /*
  * -----------------------------------------------------------------
- * Function : int (*kin_lsolve)(KINMem kin_mem, N_Vector bb,
- *                              N_Vector xx, realtype *res_norm)
+ * Function : int (*kin_lsolve)(KINMem kin_mem, N_Vector xx,
+ *                              N_Vector bb, realtype *res_norm)
  * -----------------------------------------------------------------
- * kin_lsolve must solve the linear equation J x = b, where
- * J is an approximate Jacobian matrix, x is the approximate system
- * solution, and the RHS vector b is input. The solution is to be
- * returned in the vector b. kin_lsolve returns a positive value
- * for a recoverable error and a negative value for an
- * unrecoverable error. Success is indicated by a 0 return value.
+ * kin_lsolve interfaces with the subroutine implementing the
+ * numerical method to be used to solve the linear system J*xx = bb,
+ * and must increment the relevant counter variable values in
+ * addition to computing certain values used by the global strategy
+ * and forcing term routines (see KINInexactNewton, KINLineSearch,
+ * KINForcingTerm, and KINSpgmrSolve).
+ *
+ *  kinmem  pointer to an internal memory block allocated during
+ *          prior calls to KINCreate and KINMalloc
+ *
+ *  xx  vector (type N_Vector) set to initial guess by kin_lsolve
+ *      routine prior to calling the linear solver, but which upon
+ *      return contains an approximate solution of the linear
+ *      system J*xx = bb, where J denotes the system Jacobian
+ *
+ *  bb  vector (type N_Vector) set to -func(u) (negative of the
+ *      value of the system function evaluated at the current
+ *      iterate) by KINLinSolDrv before kin_lsolve is called
+ *
+ *  res_norm  holds the value of the L2-norm (Euclidean norm) of
+ *            the residual vector upon return
+ *
+ * If successful, the kin_lsolve routine should return 0 (zero). If
+ * a recoverable error occurs, then the subroutine should return a
+ * positive integer value. However, if an unrecoverable error
+ * occurs, then the function should return a negative integer value.
  * -----------------------------------------------------------------
  */
 
 /*
  * -----------------------------------------------------------------
- * Function : void (*kin_lfree)(KINMem kin_mem)
+ * Function : int (*kin_lfree)(KINMem kin_mem)
  * -----------------------------------------------------------------
- * kin_lfree should free up any memory allocated by the linear
- * solver. This routine is called once a problem has been completed
- * and the linear solver is no longer needed.
+ * kin_lfree is called by KINFree and should free (deallocate) all
+ * system memory resources allocated for the linear solver module
+ * (see KINSpgmrFree).
+ *
+ *  kinmem  pointer to an internal memory block allocated during
+ *          prior calls to KINCreate and KINMalloc
+ *
+ * If successful, the kin_lfree routine should return 0 (zero). If
+ * an error occurs, then the subroutine should return a negative
+ * integer value.
  * -----------------------------------------------------------------
  */
+
+/*
+ * -----------------------------------------------------------------
+ * Linear Solver Return Values
+ * -----------------------------------------------------------------
+ * The subset of possible linear solver error codes that are
+ * reported by KINSOL subroutines interfacing with the linear
+ * solver module are the following:
+ *
+ * SUCCESS : means the routine exited normally [0]
+ *
+ * LIN_NO_MEM : means a NULL KINSOL memory block pointer was
+ *              given (must call KINCreate and KINMalloc prior
+ *              to initializing the linear solver module) [-2]
+ *
+ * LIN_ILL_INPUT : means at least one input parameter was invalid
+ *                 (check error message(s)) [-1]
+ *
+ * LIN_NO_LMEM : means system memory has not yet been allocated for
+ *               the linear solver module [-3]
+ * -----------------------------------------------------------------
+ */
+
+/* Note: SUCCESS = 0  */
+
+enum { LIN_ILL_INPUT = -1, LIN_NO_MEM = -2, LIN_NO_LMEM = -3 };
 
 #endif
+
 #ifdef __cplusplus
 }
 #endif
