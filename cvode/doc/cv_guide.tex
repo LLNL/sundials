@@ -1,0 +1,181 @@
+\documentclass[11pt]{article}
+
+\usepackage{epsfig, supertabular, makeidx}
+\usepackage{amsmath}
+%\usepackage{showlabels}
+
+%----- Page formatting
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.5in}
+
+%----- Date and release info
+\newcommand{\cvsdate}{\date{???? 2003\\Release 2.1}}
+
+%----- SUNDIALS MODULES
+\newcommand{\sundials}{{\normalfont\scshape sundials}}
+\newcommand{\nvector}{{\normalfont\scshape nvector}}
+\newcommand{\nvecp}{{\normalfont\scshape nvector\_parallel}}
+\newcommand{\nvecs}{{\normalfont\scshape nvector\_serial}}
+\newcommand{\cvode}{{\normalfont\scshape cvode}}
+\newcommand{\pvode}{{\normalfont\scshape pvode}}
+\newcommand{\cvodes}{{\normalfont\scshape cvodes}}
+\newcommand{\ida}{{\normalfont\scshape ida}}
+\newcommand{\idas}{{\normalfont\scshape idas}}
+\newcommand{\kinsol}{{\normalfont\scshape kinsol}}
+\newcommand{\kinsols}{{\normalfont\scshape kinsols}}
+
+%----- OTHER PACKAGES
+\newcommand{\vode}{{\normalfont\scshape vode}}
+\newcommand{\vodpk}{{\normalfont\scshape vodpk}}
+\newcommand{\lsode}{{\normalfont\scshape lsode}}
+
+%----- CVODES COMPONENTS
+\newcommand{\cvdense}{{\normalfont\scshape cvdense}}
+\newcommand{\cvband}{{\normalfont\scshape cvband}}
+\newcommand{\cvdiag}{{\normalfont\scshape cvdiag}}
+\newcommand{\cvspgmr}{{\normalfont\scshape cvspgmr}}
+\newcommand{\cvbandpre}{{\normalfont\scshape cvbandpre}}
+\newcommand{\cvbbdpre}{{\normalfont\scshape cvbbdpre}}
+\newcommand{\stald}{{\normalfont\scshape stald}}
+
+%----- SHARED COMPONENTS
+\newcommand{\sundialsmath}{{\normalfont\scshape sundialsmath}}
+\newcommand{\dense}{{\normalfont\scshape dense}}
+\newcommand{\band}{{\normalfont\scshape band}}
+\newcommand{\spgmr}{{\normalfont\scshape spgmr}}
+
+%----- C and Fortran languages
+\newcommand{\C}{{\sc C}}
+\newcommand{\CPP}{{\sc C++}}
+\newcommand{\F}{{\sc Fortran}}
+
+%------ Serial or Parallel
+\newcommand{\p}{[{\bf P}]}
+\newcommand{\s}{[{\bf S}]}
+
+%------ Appendix in text
+\newcommand{\A}{App. }
+
+%------ Index entries
+\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}|textbf}}}
+\newcommand{\Id}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
+\newcommand{\id}[1]{{\tt #1}}
+
+
+%----- Shortcuts for math formulas
+\newcommand{\dfdy}{\frac{\partial f}{\partial y}}
+\newcommand{\dfdyI}{\partial f / \partial y}
+\newcommand{\dfdpi}{\frac{\partial f}{\partial p_i}}
+\newcommand{\dfdpiI}{\partial f / \partial p_i}
+\newcommand{\rhomax}{\rho_{\max}}
+
+\title{User Documentation for \cvode, \\ 
+An ODE Solver for Serial and Parallel Computers}
+\author{
+Alan C. Hindmarsh \and
+Radu Serban
+}
+\cvsdate
+
+\makeindex
+
+\begin{document}
+
+% First a title page without page number
+\maketitle\thispagestyle{empty}
+\vfill
+\noindent
+{\large\em Center for Applied Scientific Computing} \\
+{\large\em Lawrence Livermore National Laboratory}\\
+\vspace{0.1in}\\
+UCRL-MA-???????%\\
+%July 2002
+% Move to new page and add disclaimer
+\newpage\thispagestyle{empty}
+\vspace*{1.0in}
+\begin{center}
+\begin{minipage}{4.0in}
+\scriptsize
+\centerline{DISCLAIMER}
+This document was prepared as an account of work sponsored by an
+agency of the United States Government.
+Neither the United States Government nor the University of California
+nor any of their employees, makes any warranty, express or implied, or
+assumes any legal liability or responsibility for the accuracy,
+completeness, or usefulness of any information, apparatus, product, or
+process disclosed, or represents that its use would not infringe
+privately owned rights.
+Reference herein to any specific commercial products, process, or
+service by trade name, trademark, manufacturer, or otherwise, does not
+necessarily constitute or imply its endorsement, recommendation, or
+favoring by the United States Government or the University of
+California.
+The views and opinions of authors expressed herein do not necessarily
+state or reflect those of the United States Government or the
+University of California, and shall not be used for advertising or
+product endorsement purposes.  
+
+\vspace*{0.2in}
+
+Work performed under the auspicies of the U.S. Department of Energy by the 
+University of California Lawrence Livermore National Laboratory under Contract W-7405-Eng-48.
+\par\vspace*{1.0in}
+\end{minipage}
+\end{center}
+
+% Move to next page and start roman numbering
+\newpage\pagestyle{plain}\pagenumbering{roman}
+\tableofcontents
+\newpage
+\listoftables
+\newpage
+\listoffigures
+
+% Leave a blank page to get page numbers right for double printing.
+\newpage\thispagestyle{empty}\vspace*{1in}
+
+% Move to new page and start arabic numbering
+\newpage\pagestyle{plain}\pagenumbering{arabic}
+
+%===============================================================
+% Introduction
+\include{cv_intro}
+%===============================================================
+% Mathematical Considerations
+\include{cv_math}
+%===============================================================
+% CVODE Code Organization
+\include{cv_org}
+%===============================================================
+% Using CVODE for IVP Solution
+\include{cv_usage}
+%===============================================================
+% Example Problems
+\include{cv_examples}
+%===============================================================
+% Types realtype and integertype
+\include{cv_types}
+%===============================================================
+% Description of the NVECTOR Concept
+\include{cv_nvec}
+%===============================================================
+% Providing a new linear solver module
+\include{cv_newlinsolv}
+%===============================================================
+% Generic linear solvers
+\include{cv_linsolv}
+%===============================================================
+% References
+\include{cv_biblio}
+%===============================================================
+% Index
+\addcontentsline{toc}{section}{Index}
+\printindex
+%===============================================================
+% Start appendices
+\appendix
+\include{cv_codes}
+%===============================================================
+\end{document}

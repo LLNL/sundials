@@ -1,0 +1,209 @@
+%===================================================================================
+\section{Mathematical Considerations}\label{s:math}
+%===================================================================================
+
+{\cvode} solves initial-value problems (IVPs) for systems of ODEs. 
+Such problems can be stated as
+\begin{equation}\label{e:ivp}
+\begin{split}
+&\dot{y} = f(t,\,y) \\
+&y(t_0) = y_0 \, ,
+\end{split}
+\end{equation}
+where $y \in {\bf R}^N$, $\dot{y}\,=dy/dt$ and ${\bf R}^N$ is the real $N$-dimensional
+vector space. That is, (\ref{e:ivp}) represents a system of $N$ ordinary
+differential equations and their initial conditions at some $t_0$. The
+dependent variable is $y$ and the independent variable is $t$. The
+independent variable need not appear explicitly in the $N$-vector valued
+function $f$.
+
+%------------------------
+\subsection{IVP Solution}\label{ss:ivp_sol}
+%------------------------
+
+The IVP is solved by one of two numerical methods. These are the
+backward differentiation formula (BDF) \index{BDF method} and the 
+Adams-Moulton formula \index{Adams method}. 
+Both are implemented in a variable-stepsize, variable-order form. The BDF
+uses a fixed-leading-coefficient form. These formulas can both be
+represented by a linear multistep formula 
+\begin{equation}\label{e:lmm}
+\sum_{i=0}^{K_1}\alpha_{n,i}y_{n-i} + h_n\sum_{i=0}^{K_2}\beta_{n,i} 
+\dot{y}_{n-i}=0
+\end{equation}
+where the $N$-vector $y_n$ is the computed approximation to $y(t_n)$,
+the exact solution of (\ref{e:ivp}) at $t_n$. The stepsize is
+$h_n=t_n-t_{n-1}$.  The coefficients $\alpha_{n,i}$ and $\beta_{n,i}$
+are uniquely determined by the particular integration formula, the
+history of the stepsize, and the normalization $\alpha_{n,0}=-1$. The
+Adams-Moulton \index{Adams method} formula is recommended for nonstiff ODEs and is
+represented by (\ref{e:lmm}) with $K_1=1$ and $K_2=q-1$. The order
+of this formula is $q$ and its values range from 1 through 12. For
+stiff ODEs, BDF \index{BDF method} should be selected and is represented by 
+(\ref{e:lmm}) with $K_1=q$ and $K_2=0$. For BDF, the order $q$ may
+take on values from 1 through 5. In the case of either formula, the
+integration begins with $q=1$, and after that $q$ varies automatically
+and dynamically.
+
+For either BDF or the Adams formula, $\dot{y}_n$ denotes
+$f(t_n,\,y_n)$. That is, (\ref{e:lmm}) is an implicit formula, and 
+the nonlinear equation 
+\begin{equation}\label{e:nonlinear}
+\begin{split}
+G(y_n) &\equiv  y_n-h_n\beta_{n,0}f(t_n,\,y_n) - a_n=0   \\
+a_n &= \sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i}) 
+\end{split}
+\end{equation}
+must be solved for $y_{n}$ at each time step. For nonstiff problems,
+functional (or fixpoint) iteration is normally used and does not
+require the solution of a linear system of equations. For stiff
+problems, a Newton iteration is used and for each iteration an
+underlying linear system must be solved. This linear system of
+equations has the form
+\begin{equation}\label{e:Newton}
+M[y_{n(m+1)}-y_{n(m)}]=-G(y_{n(m)}) \, ,
+\end{equation}
+where $y_{n(m)}$ is the $m$th approximation to $y_n$, and $M$
+approximates $\partial G/ \partial y$:
+\begin{equation} \label{e:N_Matrix}
+M \approx I-\gamma J, ~~~~ J = \frac{\partial f}{\partial y}, ~~~~
+    \gamma = h_n\beta_{n,0} ~.
+\end{equation}
+At present, aside from a diagonal Jacobian approximation, the other
+options implemented in {\cvode} for solving the linear systems
+(\ref{e:Newton}) are:
+\begin{itemize}
+\item a direct method with dense treatment of the Jacobian;
+\item a direct method with band treatment of the Jacobian;
+\item an iterative method {\spgmr} (scaled, preconditioned
+GMRES) \cite{BrHi89}, which is a Krylov subspace method. In most
+cases, performance of {\spgmr} is improved by user-supplied
+preconditioners. The user may precondition the system on the left, on
+the right, on both the left and right, or use no preconditioner.
+\end{itemize}
+In most cases of interest to the {\cvode} user, the technique of
+integration will involve BDF and the Newton method coupled with one of the 
+linear solver modules.
+
+\index{error control|(}
+The integrator computes an estimate $E_{n}$ of the local error at each time
+step, and strives to satisfy the following inequality
+\begin{equation*}%\label{e:Err}
+\left\| E_n\right\|_{rms,w} < 1 ~.
+\end{equation*}
+Here the weighted root-mean-square norm is defined by
+\begin{equation}\label{e:rms}
+\left\| E_n\right\|_{rms,w}=\left[ \sum_{i=1}^N\frac{1}{N}\left(
+w_iE_{n,i}\right) ^2\right] ^{1/2} \, ,
+\end{equation}
+where $E_{n,i}$ denotes the $i$th component of $E_n$, and the $i$th 
+component of the weight vector is 
+\begin{equation}\label{e:weight}
+w_i=\frac{1}{rtol|y_i|+atol_i} \,.
+\end{equation}
+This permits an arbitrary combination of relative and absolute error control.
+The user-specified relative error tolerance is the scalar $rtol$ and the
+user-specified absolute error tolerance is $atol$ which may be an $N$-vector
+(as indicated above) or a scalar. The value for $rtol$
+indicates the number of digits of relative accuracy for a single time step.
+The specified value for $atol_{i}\;$indicates the values of the
+corresponding component of the solution vector which may be thought of as
+being zero, or at the noise level. In particular, if we set 
+$atol_i=rtol\times floor_i$ then $floor_i$ represents the floor value for the 
+$i$th component of the solution and is that magnitude of the component for
+which there is a crossover from relative error control to absolute error
+control. Since these tolerances define the allowed error per step, they
+should be chosen conservatively. Experience indicates that a conservative
+choice yields a more economical solution than error tolerances that are too
+large.
+\index{error control|)}
+
+The error control mechanism in {\cvode} varies the stepsize and order
+in an attempt to take minimum number of steps while satisfying the local
+error test. The order control can be (optionally) modified with an algorithm
+that attempts to detect limitations resulting from BDF stability properties.
+
+If the system of ODEs (\ref{e:ivp}) contains equations that are {\em pure quadratures}
+(i.e. the corresponding variables do not appear in the right hand side),
+{\cvode} implements an efficient staggered algorithm for their treatment, by not
+%-----------------------------------------------
+
+\subsection{BDF Stability Limit Detection}
+
+{\cvode} includes an algorithm, {\stald} (STAbility Limit Detection),
+which provides protection against potentially unstable behavior of the 
+BDF multistep integration methods is certain situations, as described below.
+
+When the BDF option is selected, {\cvode} uses Backward Differentiation 
+Formula methods of orders 1 to 5.  At order 1 or 2, the BDF
+method is A-stable, meaning that for any complex constant $\lambda$ in
+the open left half-plane, the method is unconditionally stable (for
+any step size) for the standard scalar model problem $dy/dt = \lambda y$.
+For an ODE system, this means that, roughly speaking, as long as all
+modes in the system are stable, the method is also stable for any
+choice of step size, at least in the sense of a local linear stability
+analysis.
+
+At orders 3 to 5, the BDF methods are not A-stable, although they are
+{\em stiffly stable}. In each case, in order for the method to be stable
+at step size $h$ on the scalar model problem, the product $h\lambda$ must
+lie in a {\em region of absolute stability}. 
+That region excludes a portion of the left half-plane that is concentrated 
+near the imaginary axis.  The size of that region of instability grows as the order
+increases from 3 to 5.  What this means is that, when running BDF at
+any of these orders, if an eigenvalue $\lambda$ of the system lies close
+enough to the imaginary axis, the step sizes $h$ for which the method is
+stable are limited (at least according to the linear stability theory)
+to a set that prevents $h\lambda$ from leaving the stability region.
+The meaning of {\em close enough} depends on the order.  
+At order 3, the unstable region is much narrower than at order 5, 
+so the potential for unstable behavior grows with order.
+
+System eigenvalues that are likely to run into this instability are
+ones that correspond to weakly damped oscillations.  A pure undamped
+oscillation corresponds to an eigenvalue on the imaginary axis.
+Problems with modes of that kind call for different considerations,
+since the oscillation generally must be followed by the solver, and
+this requires step sizes ($h \sim 1/\nu$, where $\nu$ is the frequency) 
+that are stable for BDF anyway.  But for a weakly damped oscillatory mode,
+the oscillation in the solution is eventually damped to the noise level, 
+and at that time it is important that the solver not be restricted to step 
+sizes on the order of $1/\nu$.  It is in this situation that the new option may
+be of great value.
+
+In terms of partial differential equations, the typical problems for
+which the stability limit detection option is appropriate are
+semi-discrete ODE systems (i.e. discretized in space) from PDEs with
+advection and diffusion, but with advection dominating over diffusion.
+Diffusion alone produces pure decay modes, while advection tends to
+produce undamped oscillatory modes.  A mix of the two with advection
+dominant will have weakly damped oscillatory modes.
+
+The {\stald} algorithm attempts to detect, in a direct
+manner, the presence of a stability region boundary that is limiting
+the step sizes in the presence of a weakly damped oscillation \cite{Hi92}.
+The algorithm supplements (but differs greatly from) the existing
+algorithms in {\cvode} for choosing step size and order based on
+estimated local truncation errors.  The {\stald} algorithm works directly
+with history data that is readily available in {\cvode}.  If it concludes
+that the step size is in fact stability-limited, it dictates a
+reduction in the method order, regardless of the outcome of the
+error-based algorithm.  The {\stald} algorithm has been tested in
+combination with the {\vode} solver on linear advection-dominated
+advection-diffusion problems \cite{Hi95}, where it works well.  The
+implementation in {\cvode} has been successfully tested on linear 
+and nonlinear advection-diffusion problems, among others.
+
+This stability limit detection option adds some overhead computational
+cost to the {\cvode} solution.  (In timing tests, these overhead costs
+have ranged from 2\% to 7\% of the total, depending on the size and
+complexity of the problem, with lower relative costs for larger
+problems.)  Therefore, it should be activated only when there is
+reasonable expectation of modes in the user's system for which it is
+appropriate.  In particular, if a {\cvode} solution with this option
+turned off appears to take an inordinately large number of steps at
+orders 3-5 for no apparent reason in terms of the solution time scale,
+then there is a good chance that step sizes are being limited by
+stability, and that turning on the option will improve the efficiency
+of the solution. 
+

@@ -1,0 +1,147 @@
+%===================================================================================
+\section{Code Organization}\label{s:organization}
+%===================================================================================
+
+%----------------------------------
+\subsection{{\sundials} Organization}\label{ss:sun_org}
+%----------------------------------
+\input{sun_org}
+
+%----------------------------------
+\subsection{{\cvode} Organization}\label{ss:cvodes_org}
+%----------------------------------
+
+\index{CVODE@{\cvode}!package structure}
+The {\cvode} package is written in the ANSI {\C} language. The following
+summarizes the basic structure of the package, although knowledge
+of this structure is not necessary for its use.
+
+The overall organization of the {\cvode} package is shown in Figure
+\ref{f:cvsorg}.  The basic elements of the structure are a module for
+the basic integration algorithm (including forward sensitivity analysis),
+a module for adjoint sensitivity analysis, and a set of modules for the solution
+of linear systems that arise in the case of a stiff system.  
+\begin{figure}
+\centerline{\psfig{figure=cvorg.eps,height=7.5in}}
+\caption [Overall structure diagram of the {\cvode} package]
+{Overall structure diagram of the {\cvode} package.
+  Modules specific to {\cvode} are distinguished by rounded boxes, while 
+  generic solver and auxiliary modules are in unrounded boxes.}
+\label{f:cvsorg}
+\end{figure}
+
+The central integration module, implemented in the files 
+\id{cvode.h} and \id{cvode.c}, deals with the evaluation of integration coefficients,
+the functional or Newton iteration process, estimation of local error,
+selection of stepsize and order, and interpolation to user output
+points, among other issues.  Although this module contains logic for
+the basic Newton iteration algorithm, it has no knowledge of the
+method being used to solve the linear systems that arise.  For any
+given user problem, one of the linear system modules is specified, and
+is then invoked as needed during the integration. 
+
+\index{CVODE@{\cvode} linear solvers!list of|(} 
+At present, the package includes the following four {\cvode} linear system
+modules:
+\begin{itemize} 
+\item {\cvdense}: LU factorization and backsolving with dense matrices; 
+\item {\cvband}: LU factorization and backsolving with banded matrices; 
+\item {\cvdiag}: an internally generated diagonal approximation to the 
+Jacobian; 
+\item {\cvspgmr}: scaled preconditioned GMRES method.
+\end{itemize}
+This set of linear solver modules is intended to be expanded in the
+future as new algorithms are developed.
+\index{CVODE@{\cvode} linear solvers!list of|)} 
+
+In the case of the direct {\cvdense} and {\cvband} methods, the package includes
+an algorithm for the approximation of the Jacobian by difference
+quotients, but the user also has the option of supplying the Jacobian
+(or an approximation to it) directly. In the case of the iterative
+{\cvspgmr} method, the package includes and algorithm for the approximation
+by difference quotients of the product between the Jacobian matrix and
+a vector of appropriate length. Again, the user has the option of providing
+a routine for this operation.
+In \index{preconditioning!setup and solve phases} the case of {\cvspgmr}, 
+the preconditioning must be supplied by the user, in two phases: 
+setup (preprocessing of Jacobian data) and solve.
+While\index{preconditioning!advice on} there is no default
+choice of preconditioner analogous to the difference quotient
+approximation in the direct case, the references
+\cite{BrHi89}-\cite{By92}, together with
+the example and demonstration programs included with {\cvodes}, offer
+considerable assistance in building preconditioners.
+
+\index{CVODE@{\cvode} linear solvers!implementation details|(} 
+Each {\cvode} linear solver module consists of five routines, devoted to (1)
+memory allocation and initialization, (2) setup of the matrix data
+involved, (3) solution of the system, (4) solution of the system in the
+context of forward sensitivity analysis, and (5) freeing of memory.  The
+setup and solution phases are separate because the evaluation of
+Jacobians and preconditioners is done only periodically during the
+integration, as required to achieve convergence. The call list within
+the central {\cvode} module to each of the five associated functions is
+fixed, thus allowing the central module to be completely independent
+of the linear system method.
+\index{CVODE@{\cvode} linear solvers!implementation details|)} 
+
+These modules are also decomposed in another way.
+\index{generic linear solvers!use in {\cvode}|(} 
+Each of the modules {\cvdense}, {\cvband}, and {\cvspgmr} is a set of 
+interface routines built on top of a generic solver module, 
+named {\dense}, {\band}, and {\spgmr}, respectively.  
+The interfaces deal with the use of these methods in the {\cvodes} context, 
+whereas the generic solver is independent of the context.
+While the generic solvers here were generated with {\sundials} in mind, our
+intention is that they be usable in other applications as
+general-purpose solvers.  This separation also allows for any generic
+solver to be replaced by an improved version, with no necessity to
+revise the {\cvode} package elsewhere.
+\index{generic linear solvers!use in {\cvode}|)}
+
+{\cvode} also provides two preconditioner modules. The first one, 
+{\cvbandpre}, is intended to be used with {\nvecs} and provides
+a banded difference quotient Jacobian based preconditioner and solver
+routines for use with {\cvspgmr}. The second preconditioner module, 
+{\cvbbdpre}, works in conjunction with {\nvecp} and generates a 
+preconditioner that is a block-diagonal matrix with each block being 
+a band matrix.
+
+All state information used by {\cvode} to solve a given problem is saved
+in a structure, and a pointer to that structure is returned to the
+user.  There is no global data in the {\cvode} package, and so in this
+respect it is reentrant. State information specific to the linear
+solver is saved in separate structure, a pointer to which resides in
+the {\cvode} memory structure. The reentrancy of {\cvode} was motivated
+by the anticipated multicomputer extension, but is also essential
+in a uniprocessor setting where two or more problems are solved by
+intermixed calls to the package from one user program.
+
+Table \ref{t:cvfiles} below is a complete list of files in the {\cvode}
+package and the routines in each file. 
+Header and source files are described as a single unit.
+
+\begin{table}[htb]
+\centering
+\caption{List of files in the {\cvode} package}\label{t:cvfiles}
+\medskip
+\begin{tabular}{|l|l|} \hline
+{\bf File(s)}  & {\bf Description and Contents} \\ \hline\hline
+cvode.h, .c    & Central {\cvode} integrator module \\
+               & \id{CVodeMalloc}, \id{CVodeReInit}, \id{CVode}, \id{CVodeFree}, \id{CVodeDky} \\ \hline
+cvdense.h, .c  & {\cvode} dense linear solver {\cvdense} \\
+               & \id{CVDense}, \id{CVReInitDense}, \id{CVDenseDQJac}\\ \hline
+cvband.h, .c   & {\cvode} band linear solver {\cvband} \\
+               & \id{CVBand}, \id{CVReInitBand}, \id{CVBandDQJac} \\ \hline
+cvdiag.h, .c   & {\cvode} diagonal linear solver {\cvdiag} \\
+               & \id{CVDiag} \\ \hline
+cvspgmr.h, .c  & {\cvode} GMRES linear solver {\cvspgmr} \\
+               & \id{CVSpgmr}, \id{CVReInitSpgmr}, \id{CVSpgmrDQJtimes} \\ \hline
+cvbandpre.h, .c & Band preconditioner module {\cvbandpre} \\
+                 & \id{CVBandPreAlloc}, \id{CVReInitBandPre}, \id{CVBandPreFree} \\ 
+                 & \id{CVBandPrecond}, \id{CVBandPSolve} \\ \hline
+cvbbdpre.h, .c  & Band-block-diagonal preconditioner module {\cvbbdpre} \\
+                 & \id{CVBBDAlloc}, \id{CVReInitBBD}, \id{CVBBDFree} \\ 
+                 & \id{CVBBDPrecon}, \id{CVBBDPSol} \\ \hline
+\end{tabular}
+\end{table}

@@ -1,0 +1,1626 @@
+%===================================================================================
+\section{Using {\cvode} for IVP Solution}\label{s:simulation}
+%===================================================================================
+
+This section is concerned with the use of {\cvode} for the integration of IVPs.
+The following subsections treat the header files, the layout of the user's main
+program, description of the {\cvode} user-callable routines, and user-supplied functions 
+or routines. The listings of the sample programs in \S\ref{s:sim_examples} may also be helpful. 
+Those codes are intended to serve as templates and are included in the {\cvode} package.
+
+The user should be aware that not all linear solver modules are compatible 
+with all {\nvector} implementations. 
+\index{CVODE@{\cvode} linear solvers!NVECTOR@{\nvector} compatibility}
+For example, {\nvecp} is not compatible with the direct dense or direct band 
+linear solvers since these linear solver modules need to form the system Jacobian.
+The following {\cvode} modules can only be used with {\nvecs}:
+{\cvdense}, {\cvband}, and {\cvbandpre}. The preconditioner module {\cvbbdpre}
+can only be used with {\nvecp}. 
+
+%------------------------
+\subsection{Header Files}\label{ss:header_sim}
+%------------------------
+
+The calling program must include several header files so that various macros
+and data types can be used. The header files that are always required are:
+%
+\begin{itemize}
+\item  \Id{sundialstypes.h}, 
+  which defines the types \id{realtype, integertype, booleantype}
+  and constants \id{FALSE} and \id{TRUE};
+\item  \Id{cvode.h}, 
+  the header file for {\cvode}, which defines the several
+  types and various constants, and includes function prototypes.
+\end{itemize}
+%
+The calling program must also include an {\nvector} implementation header file
+(see \S\ref{s:nvector} for details).
+For the two {\nvector} implementations that are included in the {\cvode} package,
+the corresponding header files are:
+%
+\begin{itemize}
+\item \Id{nvector\_serial.h}, 
+  which defines the serial implementation {\nvecs};
+\item \Id{nvector\_parallel.h}, 
+  which defines the parallel MPI implementation, {\nvecp}.
+\end{itemize}
+%
+Note that both these files include in turn the header file \Id{nvector.h} which 
+defines the abstract \Id{N\_Vector} and \Id{M\_Env} types. 
+
+Finally, if the user chooses Newton iteration for the solution of the nonlinear systems,
+then a linear solver module header file will be required. 
+\index{CVODE@{\cvode} linear solvers!header files}
+The header files corresponding to the various linear solver options in {\cvode} are:
+%
+\begin{itemize}
+\item \Id{cvdense.h}, 
+  which is used with the dense direct linear solver in 
+  the context of {\cvode}. This in turn includes a header file (\id{dense.h})
+  which defines the \Id{DenseMat} type and corresponding accessor macros; 
+\item \Id{cvband.h}, 
+  which is used with the band direct linear solver in the
+  context of {\cvode}. This in turn includes a header file (\id{band.h})
+  which defines the \Id{BandMat} type and corrsponding accessor macros;
+\item \Id{cvdiag.h}, which is used with a diagonal linear solver in the
+  context of {\cvode};
+\item \Id{cvspgmr.h}, 
+  which is used with the Krylov solver {\spgmr} in the
+  context of {\cvode}. This in turn includes a header file (\id{iterativ.h})
+  which enumerates the kind of preconditioning and the choices for the
+  Gram-Schmidt process.
+\end{itemize}
+
+Other headers may be needed, according as to the choice of
+preconditioner, etc. In one of the examples to follow, preconditioning
+is done with a block-diagonal matrix. For this, the header
+\id{smalldense.h} is included.
+
+
+%-------------------------------------------------
+\subsection{A Skeleton of the User's Main Program}\label{ss:skeleton_sim}
+%-------------------------------------------------
+
+A high-level view of the combined user program and {\cvode} package is
+shown in Figure~\ref{f:sim_overview}.
+\begin{figure}
+\centerline{\psfig{figure=cvsim.eps,width=\textwidth}}
+\caption {Diagram of the user program and 
+  {\cvode} package for integration of IVP}\label{f:sim_overview}
+\end{figure}
+The following is a skeleton of the user's main program (or calling
+program) for the integration of an ODE IVP. Most steps are independent of the {\nvector}
+implementation used; where this is not the case, usage specifications are given for the
+two implementations provided with {\cvode}: steps marked with {\p} correspond to 
+{\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
+%
+\begin{enumerate}
+  
+\item {\p}
+  \id{MPI\_Init(\&argc, \&argv);} to initialize MPI if used by
+  the user's program, aside from the internal use in {\nvecp}.  
+  Here \id{argc} and \id{argv} are the command line argument 
+  counter and array received by \id{main}.
+  
+\item Set the problem dimensions:
+  \begin{itemize}
+  \item {\s}
+    Set \id{N}, the problem size $N$.
+  \item {\p} 
+    Set \id{Nlocal}, the local vector length (the sub-vector
+    length for this processor); \id{N}, the global vector length (the
+    problem size $N$, and the sum of all the values of \id{Nlocal});
+    and the active set of processors.
+  \end{itemize}
+  
+\item Initialize the machine environment variable:
+  \begin{itemize}
+  \item {\s}
+    \id{machEnv = }\Id{M\_EnvInit\_Serial}\id{(N);}
+  \item {\p}
+    \id{machEnv = }\Id{M\_EnvInit\_Parallel}\id{(comm, Nlocal, N, \&argc, \&argv);}
+    Here \id{comm} is the MPI communicator, set in one of two ways: 
+    If a proper subset of active processors is to be used, \id{comm} 
+    must be set by suitable MPI calls. Otherwise, to specify that all 
+    processors are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
+  \end{itemize}
+  
+\item Set the vector \id{y0} of initial values.  Use macros
+  defined by a particular {\nvector} implementation:
+  \begin{itemize}
+  \item {\s} 
+    \id{NV\_MAKE\_S(y0, ydata, machEnv);}
+  \item {\p} 
+    \id{NV\_MAKE\_P(y0, ydata, machEnv);}
+  \end{itemize}
+  if an existing real array \id{ydata} contains the initial values of $y$.  
+  Otherwise, make the call \id{y0 = }\Id{N\_VNew}\id{(machEnv);} and load 
+  initial values into the real array defined by:
+  \begin{itemize}
+  \item {\s}
+    \id{NV\_DATA\_S(y0)}
+  \item {\p}
+    \id{NV\_DATA\_P(y0)}
+  \end{itemize}
+  
+\item\label{i:cvode_malloc} 
+  Call \id{cvode\_mem = }\id{CVodeMalloc}\id{(...);} 
+  to provide problem specifications,
+  allocate internal memory for {\cvode}, 
+  provide solution method options and tolerances, and initialize {\cvode}. 
+  \id{CVodeMalloc} returns a pointer to the {\cvode} memory structure 
+  (for details see \S\ref{sss:cvodemalloc}).
+  
+\item\label{i:lin_solver} If Newton iteration is chosen, initialize the linear solver module
+  with one of the following calls (for details see \S\ref{sss:lin_solv_init}):
+  \begin{itemize}
+  \item {\s} \id{ier = }\Id{CVDense}\id{(...);}
+  \item {\s} \id{ier = }\Id{CVBand}\id{(...);}
+  \item \id{ier = }\Id{CVDiag}\id{(...);}
+  \item \id{ier = }\Id{CVSpgmr}\id{(...);}
+  \end{itemize}
+  
+\item 
+  For each point at which output is desired, call
+  \id{ier = }\Id{CVode}\id{(cvode\_mem, tout, y, \&t, itask);}
+  Set \id{itask} to \Id{NORMAL} to have the integrator overshoot 
+  \id{tout} and interpolate, or \Id{ONE\_STEP} to take a single 
+  step and return. The vector \id{y} (which can be the same as
+  the vector \id{y0} above) will contain $y(t)$.
+  
+\item Upon completion of the integration, deallocate memory for the vector \id{y}
+  by either calling a macro defined by the {\nvector} implementation:
+  \begin{itemize}
+  \item {\s} 
+    \id{NV\_DISPOSE\_S(y);}
+  \item {\p}
+    \id{NV\_DISPOSE\_P(y);}
+  \end{itemize}
+  if \id{y} was created from \id{ydata}, or by making the call 
+  \Id{N\_VFree}\id{(y);} if \id{y} was created by a call to \id{N\_VNew}.
+  
+\item \Id{CVodeFree}\id{(cvode\_mem);} to free the memory allocated for {\cvode}.
+  
+\item Free the machine environment variable:
+  \begin{itemize}
+  \item {\s}
+    \Id{M\_EnvFree\_Serial}\id{(machEnv);}
+  \item {\p}
+    \Id{M\_EnvFree\_Parallel}\id{(machEnv);}
+  \end{itemize}
+  
+\end{enumerate}
+
+%-------------------------------------------------------
+\subsection{User-Callable Routines for IVP Solution}
+\label{ss:cvodes_fct_sim}
+%-------------------------------------------------------
+
+\subsubsection{{\cvode} Initialization Routine}\label{sss:cvodemalloc}
+
+The form of the call to \ID{CVodeMalloc} (step \ref{i:cvode_malloc}) is
+\begin{verbatim}
+cvode_mem = CVodeMalloc(f, t0, y0, lmm, iter, itol, &rtol, 
+                        atol, f_data, errfp, optIn, iopt, ropt, machEnv);
+\end{verbatim}
+\id{f} is the C function to compute $f$ in the ODE, \id{t0} is the initial
+value of $t $ and \id{y0} is the initial value of $y$. 
+\id{f} has the form \id{f(N, t, y, ydot, f\_data)} (for full details
+see \S\ref{ss:user_fct_sim}).
+The flag \id{lmm} is used to select the linear multistep method and may be one of two
+possible values: \Id{ADAMS} or \Id{BDF}. The type of iteration is
+selected by replacing \id{iter} with either \Id{NEWTON} or 
+\Id{FUNCTIONAL}. The typical choices for (\id{lmm}, \id{iter}) are
+(\id{ADAMS}, \id{FUNCTIONAL}) for nonstiff problems and
+(\id{BDF}, \id{NEWTON}) for stiff problems.
+The next three parameters are used to set the error control. 
+The flag \id{itol} is replaced by either \Id{SS} or 
+\Id{SV}, where \id{SS} indicates scalar relative error tolerance and
+scalar absolute error tolerance, while \id{SV} indicates scalar
+relative error tolerance and vector absolute error tolerance. The
+latter choice is important when the absolute error tolerance needs to
+be different for each component of the ODE. The arguments \id{\&rtol}
+and \id{atol} are pointers to the user's error tolerances, and 
+\id{f\_data} is a pointer to user-defined space passed directly to
+the user's \id{f} function. The file pointer \id{errfp} points to
+the file where error messages from {\cvode} are to be written 
+(\id{NULL} for \id{stdout}). 
+The final argument, \id{machEnv}, is a pointer to machine 
+environment-specific information.
+
+Provision is made for certain optional inputs and optional outputs.
+Optional inputs communicated in the \id{CVodeMalloc} call are placed
+in the arrays \Id{iopt} and \Id{ropt}.  These include the maximum
+order, the tentative initial stepsize, and the maximum stepsize.  Each
+{\cvode} linear solver may or may not have optional inputs, which are
+passed through the associated initialization call list.  Of the existing four
+linear solvers, only {\cvspgmr} has optional inputs.  In any case, there
+is a default available for every optional input.  Optional outputs
+from the central {\cvode} module are also communicated through the
+\id{iopt} and \id{ropt} arrays which are passed to \id{CVodeMalloc}.
+They include step and function evaluation counts, current stepsize and
+order, and workspace lengths.  Optional outputs
+specific to each linear solver are loaded into \id{iopt} and
+\id{ropt}, following those from the central integrator module.
+For full details on the optional inputs and outputs, see
+\S\ref{sss:optional_io}.
+
+If \id{optIn} is \id{FALSE}, then {\cvode} assumes that the user is not providing
+any optional input, while if it is \id{TRUE} then all optional inputs 
+are examined in \id{iopt} and \id{ropt}. 
+
+If there was a failure, the return value of \id{CVodeMalloc} is \id{NULL} and
+an error message is printed.
+
+\subsubsection{Linear Solver Specification Routines}\label{sss:lin_solv_init}
+
+As previously explained, Newton iteration requires the solution of
+linear systems of the form (\ref{e:Newton}).  There are four {\cvode} linear
+solvers currently available for this task: {\cvdense}, {\cvband}, {\cvdiag},
+and {\cvspgmr}.  The first three are direct solvers and derive their name
+from the type of approximation used for the Jacobian 
+$J = \partial{f}/\partial{y}$.  {\cvdense}, {\cvband}, and {\cvdiag} work with
+dense, banded, and diagonal approximations to $J$, respectively.  The
+fourth {\cvode} linear solver, {\cvspgmr}, is an iterative solver.  The {\spgmr}
+in the name indicates that it uses a scaled preconditioned
+GMRES method.
+
+\index{CVODE@{\cvode} linear solvers!selecting one|(} 
+To specify a {\cvode} linear solver, after the call to \id{CVodeMalloc}
+but before any calls to \id{CVode}, the user's program must call one
+of the functions \Id{CVDense}, \Id{CVBand}, \Id{CVDiag}, \Id{CVSpgmr},
+as documented below. The first argument passed to these functions is the {\cvode}
+memory pointer returned by \id{CVodeMalloc}.  A call to one of these
+functions links the main {\cvode} integrator to a linear solver and
+allows the user to specify parameters which are specific to a
+particular solver, such as the bandwidths in the {\cvband} case.
+
+The use of each of the linear solvers involves certain constants (such
+as locations of optional outputs in \Id{iopt}), and possibly some
+macros, that are likely to be needed in the user code.  These are
+available in the corresponding header file associated with the linear
+solver, as specified below.
+\index{CVODE@{\cvode} linear solvers!selecting one|)}
+
+\index{CVODE@{\cvode} linear solvers!built on generic solvers|(} 
+In each case except the diagonal approximation case {\cvdiag}, the linear
+solver module used by {\cvode} is actually built on top of a generic
+linear system solver, which may be of interest in itself.  These
+generic solvers, denoted {\dense}, {\band}, and {\spgmr}, are described
+separately in \S\ref{s:gen_linsolv}.
+\index{CVODE@{\cvode} linear solvers!built on generic solvers|)}
+%
+\begin{itemize}
+%
+%--------------------------------
+%
+\item {\em Dense linear solver specification} 
+  \index{CVODE@{\cvode} linear solvers!CVDENSE@{\cvdense}}
+
+  \index{CVDENSE@{\cvdense} linear solver!selection of|(}
+  In using the {\cvdense} solver with {\cvode}, the calling program must
+  include the corresponding header file, with the line
+\begin{verbatim}
+#include "cvdense.h"
+\end{verbatim}
+  \par After the call to \id{CVodeMalloc}, the user must call the routine \ID{CVDense}
+  to select the {\cvdense} solver. The call to this routine has the following form:
+\begin{verbatim}
+ier = CVDense(cvode_mem, N, djac, jac_data);
+\end{verbatim}
+  \index{CVDENSE@{\cvdense} linear solver!selection of|)}
+
+  \index{CVDENSE@{\cvdense} linear solver!NVECTOR@{\nvector} compatibility}
+  Note that the {\cvdense} linear solver may not be compatible with a particular
+  implementation of the {\nvector} module. Of the two {\nvector} modules 
+  provided by {\sundials}, only {\nvecs} is compatible, while {\nvecp} is not.
+
+  The \index{CVDENSE@{\cvdense} linear solver!Jacobian approximation used by}
+  {\cvdense} solver needs a routine to compute a dense approximation to
+  the Jacobian matrix $J(t,y)$.  This routine must be of type
+  \id{CVDenseJacFn}, and is communicated through the \id{CVDense} 
+  formal parameter \id{djac} (see \S\ref{ss:user_fct_sim} for specification
+  details).  The user can supply his/her own dense
+  Jacobian routine, or use the difference quotient routine \Id{CVDenseDQJac} 
+  \index{Jacobian approximation routine!dense!difference quotient}
+  that comes with the {\cvdense} solver.  To use \id{CVDenseDQJac}, the user 
+  must pass \id{NULL} for the \id{djac} parameter.
+  
+  The\index{Jacobian approximation routine!dense!user-supplied}
+  \id{CVDense} formal parameter \id{jac\_data} is a pointer that
+  accommodates a user-defined data structure. The {\cvdense} solver
+  passes the pointer it receives in the \id{CVDense} call to its dense
+  Jacobian function (the \id{djac} parameter). This allows the user to
+  create an arbitrary structure with relevant problem data and access it
+  during the execution of the user-supplied Jacobian routine, without
+  using global data in the program.  The pointer \id{jac\_data} may be
+  identical to \id{f\_data}, if the latter is passed to
+  \id{CVodeMalloc}.
+  
+  The return value \id{ier} of \id{CVDense} is
+  \begin{itemize}
+  \item \id{SUCCESS}
+    if the {\cvdense} initialization was successful;
+  \item \id{LMEM\_FAIL}
+    if \id{cvode\_mem} was \id{NULL}, if the {\nvector} module is incompatible 
+    with {\cvdense}, or if there was a memory allocation failure.
+  \end{itemize}
+  
+  The {\cvdense} module provides three optional outputs.
+  \index{CVDENSE@{\cvdense} linear solver!optional outputs}
+  One is the number of calls made to the Jacobian routine. It is placed
+  in \id{iopt[}\Id{DENSE\_NJE}\id{]}, where \id{iopt} is the array supplied by the
+  user in the \id{CVodeMalloc} call.  The other two are the sizes of the
+  real and integer workspaces used by {\cvdense}, stored in
+  \id{iopt[}\Id{DENSE\_LRW}\id{]} and \id{iopt[}\Id{DENSE\_LIW}\id{]},
+  respectively.
+  In \index{CVDENSE@{\cvdense} linear solver!memory requirements} 
+  terms of the problem size $N$, the actual sizes of these workspaces are 
+  $2N^2$ realtype words and $N$ integertype words.
+%
+%--------------------------------
+%
+\item {\em Banded linear solver specification}
+  \index{CVODE@{\cvode} linear solvers!CVBAND@{\cvband}}
+  
+  \index{CVBAND@{\cvband} linear solver!selection of|(}
+  In using the {\cvband} solver with {\cvode}, the calling program must
+  include the corresponding header file, with the line
+\begin{verbatim}
+#include "cvband.h"
+\end{verbatim}
+  \par After the call to \id{CVodeMalloc}, the user must call the routine \ID{CVBand}
+  to select the {\cvband} solver. The call to this routine has the following form:
+\begin{verbatim}
+ier = CVBand(cvode_mem, N, mupper, mlower, bjac, jac_data);
+\end{verbatim}
+  The upper and lower half-bandwidths of problem Jacobian (or of the
+  approximation of it to be used in {\cvode}) are specified in this call
+  through the \id{mupper} and \id{mlower} parameters.
+  \index{CVBAND@{\cvband} linear solver!selection of|)}
+  
+  \index{CVBAND@{\cvband} linear solver!NVECTOR@{\nvector} compatibility}
+  Note that the {\cvband} linear solver may not be compatible with a particular
+  implementation of the {\nvector} module. Of the two {\nvector} modules 
+  provided by {\sundials}, only {\nvecs} is compatible, while {\nvecp} is not.
+
+  The \index{CVBAND@{\cvband} linear solver!Jacobian approximation used by} 
+  {\cvband} solver requires a routine to compute a banded approximation
+  to the Jacobian matrix $J(t,y)$.  This routine must be of type
+  \id{CVBandJacFn}, and is communicated through the \id{CVBand} formal 
+  parameter \id{bjac} (see \S\ref{ss:user_fct_sim} for specification details).  
+  The user can supply his/her own banded Jacobian 
+  approximation routine, or use the difference quotient routine 
+  \Id{CVBandDQJac} \index{Jacobian approximation routine!band!difference quotient}
+  that comes with the {\cvband} solver.  To use the \id{CVBandDQJac}, the user 
+  must pass \id{NULL} for \id{bjac}.
+  
+  As\index{Jacobian approximation routine!band!user-supplied}
+  in the {\cvdense} case, the \id{CVBand} formal parameter
+  \id{jac\_data} is a pointer to a user-defined data structure, which
+  the {\cvband} solver passes to the Jacobian function \id{bjac}.  This
+  allows the user to create an arbitrary structure with relevant problem
+  data and access it during the execution of the user-supplied Jacobian
+  routine, without using global data in the program.  The pointer
+  \id{jac\_data} may be identical to \id{f\_data}, if the latter is
+  passed to \id{CVodeMalloc}.
+  
+  The return value \id{ier} of \id{CVBand} is
+  \begin{itemize}
+  \item \id{SUCCESS}
+    if the {\cvband} initialization was successful;
+  \item \id{LMEM\_FAIL}:
+    if \id{cvode\_mem} was \id{NULL}, if the {\nvector} module is incompatible 
+    with {\cvband}, or if there was a memory allocation failure;
+  \item \id{LIN\_ILL\_INPUT}
+    if there was an illegal input.
+  \end{itemize}
+  
+  The {\cvband} module provides three optional outputs.
+  \index{CVBAND@{\cvband} linear solver!optional outputs}
+  One is the number of calls made to the Jacobian routine. It is placed
+  in \id{iopt[}\Id{BAND\_NJE}\id{]}, where \id{iopt} is the array supplied by the
+  user in the \id{CVodeMalloc} call.  The other two are the sizes of the
+  real and integer workspaces used by {\cvband}, stored in
+  \id{iopt[}\Id{BAND\_LRW}\id{]} and \id{iopt[}\Id{BAND\_LIW}\id{]},
+  respectively.
+  In \index{CVBAND@{\cvband} linear solver!memory requirements} terms of the problem
+  size $N$, the actual sizes of these workspaces are (roughly)
+  $N*($2 \id{mupper} + 3 \id{mlower} + 2) realtype words and $N$ integertype
+  words.
+%
+%--------------------------------
+%
+\item {\em Diagonal linear solver specification}
+  \index{CVODE@{\cvode} linear solvers!CVDIAG@{\cvdiag}}
+  
+  \index{CVDIAG@{\cvdiag} linear solver!selection of|(}
+  In using the {\cvdiag} solver with {\cvode}, the calling program must
+  include the corresponding header file, with the line
+\begin{verbatim}
+#include "cvdiag.h"
+\end{verbatim}
+  \par After the call to \id{CVodeMalloc}, the user must call the routine \ID{CVDiag}
+  to select the {\cvdiag} solver. The call to this routine has the following form:
+\begin{verbatim}
+ier = CVDiag(cvode_mem);
+\end{verbatim}
+  \index{CVDIAG@{\cvdiag} linear solver!selection of|)}
+  
+  The {\cvdiag} solver is the simplest of all the current {\cvode} linear
+  solvers.  The \id{CVDiag} routine receives only the {\cvode} memory
+  pointer returned by \id{CVodeMalloc}.
+  The \index{CVDIAG@{\cvdiag} linear solver!Jacobian approximation used by}
+  {\cvdiag} solver uses an approximate diagonal Jacobian formed by way of a difference quotient.
+  The user does {\em not} have the option to supply a routine to compute
+  an approximate diagonal Jacobian.
+  
+  The return value \id{ier} of \id{CVDiag} is
+  \begin{itemize}
+  \item \id{SUCCESS}
+    if the {\cvdiag} initialization was successful;
+  \item \id{LMEM\_FAIL}
+    if \id{cvode\_mem} was \id{NULL}, or if there was a memory allocation failure.
+  \end{itemize}
+  
+  The {\cvdiag} module provides two optional outputs.
+  \index{CVDIAG@{\cvdiag} linear solver!optional outputs} 
+  These are the sizes of the real and integer workspaces used by {\cvdiag}, stored in
+  \id{iopt[}\Id{DIAG\_LRW}\id{]} and \id{iopt[}\Id{DIAG\_LIW}\id{]},
+  respectively.
+  In\index{CVDIAG@{\cvdiag} linear solver!memory requirements} terms of the
+  problem size $N$, the actual sizes of these workspaces are
+  $3N$ realtype words and no integertype words. The number of approximate
+  diagonal Jacobians formed is equal to \id{iopt[NSETUPS]}.
+%
+%--------------------------------
+%
+\item {\em {\spgmr} linear solver specification}
+  \index{CVODE@{\cvode} linear solvers!CVSPGMR@{\cvspgmr}}
+  
+  The {\cvspgmr} solver uses a scaled preconditioned GMRES iterative method
+  to solve the linear system (\ref{e:Newton}).
+  
+  \index{preconditioning!advice on|(} 
+  With this {\spgmr} method, preconditioning can be done on the left only,
+  on the right only, on both the left and the right, or not at all.  For
+  a given preconditioner matrix, the merits of left vs. right
+  preconditioning are unclear in general, and the user should experiment
+  with both choices.  Performance will differ because the inverse of the
+  left preconditioner is included in the linear system residual whose
+  norm is being tested in the {\spgmr} algorithm.  As a rule, however, if
+  the preconditioner is the product of two matrices, we recommend that
+  preconditioning be done either on the left only or the right only,
+  rather than using one factor on each side.
+  \index{preconditioning!advice on|)}
+  
+  \index{CVSPGMR@{\cvspgmr} linear solver!selection of|(} 
+  In using the {\cvspgmr} solver with {\cvode}, the calling program must
+  include two associated header files, with the lines
+\begin{verbatim}
+#include "iterativ.h"
+#include "cvspgmr.h"
+\end{verbatim}
+  \par After the call to \id{CVodeMalloc}, the user must call the routine \ID{CVSpgmr}
+  to select the {\cvdiag} solver. This routine has the following form:
+\begin{verbatim}
+ier = CVSpgmr(cvode_mem, pretype, gstype, maxl, delt, Precond, 
+              PSolve, P_data, jtimes, jac_data);
+\end{verbatim}
+  \index{CVSPGMR@{\cvspgmr} linear solver!selection of|)}
+  
+  The call to \id{CVSpgmr} is used to communicate the type of
+  preconditioning (\id{pretype}), the user's preconditioner setup
+  routine (\id{precond}), the preconditioner solve routine (\id{psolve}),
+  and the type of Gram-Schmidt procedure (\id{gstype}). The \id{pretype}
+  parameter can be \id{NONE}, \id{LEFT}, \id{RIGHT}, or \id{BOTH}.
+  (These constants are defined in \id{iterativ.h}.)  If no preconditioning
+  is desired (pass \id{NONE} for \id{pretype}), then both \id{precond} and
+  \id{psolve} are ignored.  Otherwise, a preconditioner solve function
+  \id{psolve} is required.  Regardless of the type of preconditioning,
+  a preconditioner setup function \id{precond} is {\em not} required. 
+  The \id{gstype} parameter can be \id{MODIFIED\_GS} or \id{CLASSICAL\_GS}
+  (these constants are also defined in \id{iterativ.h}) according to
+  whether the user wants the {\cvspgmr} solver to use modified or classical
+  Gram-Schmidt\index{Gram-Schmidt procedure} orthogonalization.
+  
+  \index{CVSPGMR@{\cvspgmr} linear solver!optional inputs|(}
+  The call to \id{CVSpgmr} is also used to communicate two optional
+  inputs to the {\cvspgmr} solver.  One is \id{maxl}, the maximum dimension
+  of the Krylov subspace to be used.  The other is \id{delt}, a factor
+  by which the GMRES\index{GMRES method} convergence test constant is reduced
+  from the Newton iteration test constant.  Both of these inputs have defaults,
+  which can be invoked by setting the actual parameter to zero in the
+  call.  The actual default values are $5$ for the maximum Krylov
+  dimension, and $.05$ for the test constant factor.
+  \index{CVSPGMR@{\cvspgmr} linear solver!optional inputs|)}
+  
+  The routine \id{CVSpgmr} takes in a parameter
+  \id{P\_data}, a pointer to a user-defined data structure, which
+  the {\cvspgmr} solver passes to the preconditioner setup and solve
+  functions \id{precond} and \id{psolve}.  This allows the user to
+  create an arbitrary structure with relevant problem data and access it
+  during the execution of the user-supplied preconditioner routines
+  without using global data in the program.  The pointer \id{P\_data}
+  may be identical to \id{f\_data}, if the latter is passed to
+  \id{CVodeMalloc}.
+  
+  If any type of preconditioning is to be done within the {\spgmr} method,
+  then the user must supply a preconditioner solve routine \id{psolve}
+  \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner solve routine}
+  (see \S\ref{ss:user_fct_sim}).
+  The evaluation and preprocessing of any Jacobian-related data needed
+  by the user's preconditioner solve routine is done in the optional
+  user-supplied routine \id{precond}
+  \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner setup routine}
+  (see \S\ref{ss:user_fct_sim}).
+  
+  The \index{CVSPGMR@{\cvspgmr} linear solver!Jacobian approximation used by}
+  {\cvspgmr} solver requires a routine to compute an approximation to the
+  product between the Jacobian matrix $J(t,y)$ and a vector $v$.
+  This routine must be of type \id{CVSpgmrJtimesFn}, and is communicated through
+  the \id{CVSpgmr} formal parameter \id{jtimes} (see \S\ref{ss:user_fct_sim} for
+  specification details).
+  The user can supply his/her own Jacobian times vector approximation routine, 
+  or use the difference quotient routine \Id{CVSpgmrDQJtimes} 
+  \index{Jacobian approximation routine!Jacobian times vector!difference quotient}
+  that comes with the {\cvspgmr} solver.  To use the \id{CVSpgmrDQJtimes}, the user 
+  must pass \id{NULL} for \id{jtimes}.
+  
+  As\index{Jacobian approximation routine!Jacobian times vector!user-supplied}
+  in the {\cvdense} and {\cvband} cases,  the \id{CVSpgmr} formal parameter
+  \id{jac\_data} is a pointer to a user-defined data structure, which
+  the {\cvspgmr} solver passes to the Jacobian times vector function \id{jtimes}.  
+  This allows the user to create an arbitrary structure with relevant problem
+  data and access it during the execution of the user-supplied Jacobian times
+  vector routine, without using global data in the program.  The pointer
+  \id{jac\_data} may be identical to \id{f\_data}, if the latter is
+  passed to \id{CVodeMalloc}.
+  
+  The return value \id{ier} of \id{CVSpgmr} is
+  \begin{itemize}
+  \item \id{SUCCESS}
+    if the {\cvspgmr} initialization was successful;
+  \item \id{LMEM\_FAIL}
+    if \id{cvode\_mem} was \id{NULL}, or if there was a memory allocation failure;
+  \item \id{LIN\_ILL\_INPUT}
+    if there was an illegal input.
+  \end{itemize}
+  
+  The {\cvspgmr} solver provides six optional outputs.
+  \index{CVSPGMR@{\cvspgmr} linear solver!optional outputs|(} 
+  The total number of calls to \id{precond} is given in \id{iopt[}\Id{SPGMR\_NPE}\id{]},
+  and the number of calls to \id{psolve} is in \id{iopt[}\Id{SPGMR\_NPS}\id{]}.
+  The number of linear iterations is in \id{iopt[}\Id{SPGMR\_NLI}\id{]},
+  and the number of linear convergence failures is in \id{iopt[}\Id{SPGMR\_NCFL}\id{]}.
+  The sizes of the real and integer workspaces used by {\cvspgmr} are stored in
+  \id{iopt[}\Id{SPGMR\_LRW}\id{]} and \id{iopt[}\Id{SPGMR\_LIW}\id{]}, respectively.
+  \index{CVSPGMR@{\cvspgmr} linear solver!optional outputs|)}
+  In\index{CVSPGMR@{\cvspgmr} linear solver!memory requirements} terms of the
+  problem size $N$ and the maximum Krylov dimension $\ell_{max}$,
+  the actual sizes of these workspaces are 
+  $N*(\ell_{max} + 5) + \ell_{max}*(\ell_{max} + 4) + 1$ realtype words and
+  no integertype words.
+  
+  \index{SPGMR@{\spgmr} generic linear solver!functions|(}
+  For users interested in the generic {\spgmr} solver used by {\cvspgmr}, 
+  a note of caution is in order: the routines in {\spgmr} have arguments
+  \id{l\_max}, \id{delta}, \id{psolve}, \id{P\_data}, which are {\em not} 
+  the same as the \id{CVSpgmr} arguments \id{maxl}, \id{delt}, \id{psolve}, 
+  \id{P\_data}, although the names are the same or very similar.
+  The arguments \id{pretype} and \id{gstype} are identical in meaning in both
+  contexts. For more on the generic {\spgmr} solver, see \S\ref{ss:spgmr}.
+  \index{SPGMR@{\spgmr} generic linear solver!functions|)}
+  
+
+\end{itemize}
+
+
+%--------------------------------------------------------------------
+\subsubsection{{\cvode} Solver Routine}\label{sss:cvode}
+
+The call to the \ID{CVode} function itself has the form
+\begin{verbatim}
+ier = CVode(cvode_mem, tout, y, &t, itask);
+\end{verbatim}
+In addition to the {\cvode} memory pointer \id{cvode\_mem}, it specifies only two
+inputs: (1) a flag \id{itask} showing whether the integration is to be done in
+the ``normal mode'' or in the ``one-step mode'' and (2) a value,
+\id{tout}, of the independent variable $t$ at which a computed
+solution is desired.  In the normal mode, the integration proceeds in
+steps (with stepsizes determined internally) up to and past \id{tout},
+and \id{CVode} interpolates $y$ at $t = $\id{tout}. In the one-step
+mode, \id{CVode} takes only one step in the desired direction and
+returns to the calling program.  In the one-step mode, \id{tout} is
+required on the first call only, to get the direction and rough scale
+of the independent variable.  On return, \id{CVode} returns a vector
+\id{y} and a corresponding independent variable value
+$t=$\id{*t}, such that \id{y} is the computed value of $y(t)$.
+In the normal mode, with no failures, \id{*t} will be equal to
+\id{tout}.
+
+Note that the vector \id{y} can be the same as the \id{y0} vector of 
+initial conditions that was passed to \id{CVodeMalloc}. 
+
+The return value \id{ier} for \id{CVode} will be one of the following:
+\begin{itemize}
+\item \Id{SUCCESS}=0:
+  \id{CVode} succeeded;
+\item \Id{TSTOP\_RETURN}=1:
+  \id{CVode} succeeded by reaching the stopping point specified through
+  the optional inputs \id{iopt[ISTOP]} and \id{ropt[TSTOP]} 
+  (see \S\ref{sss:optional_io});
+\item \Id{CVODE\_NO\_MEM}:
+  The \id{cvode\_mem} argument was \id{NULL};
+\item \Id{ILL\_INPUT}:
+  One of the inputs to CVode is illegal. This includes the situation when a 
+  component of the error weight vectors becomes negative during internal 
+  time-stepping. The \id{ILL\_INPUT} flag will also be returned if the linear 
+  solver routine initialization (called by the user after calling 
+  \id{CVodeMalloc}) failed to set one of the linear solver-related fields 
+  in \id{cvode\_mem} or if the linear solver's initialization routine failed. 
+  In any case, the user should see the printed error message for more details;
+\item \Id{TOO\_MUCH\_WORK}: 
+  The solver took mxstep internal steps but could not reach tout. 
+  The default value for mxstep is \id{MXSTEP\_DEFAULT = 500};      
+\item \Id{TOO\_MUCH\_ACC}: 
+  The solver could not satisfy the accuracy demanded by the user for some 
+  internal step;
+\item \Id{ERR\_FAILURE}: 
+  Error test failures occurred too many times (\id{MXNEF = 7}) during one 
+  internal time step or occurred with $|h| = h_{min}$;
+\item \Id{CONV\_FAILURE}: 
+  Convergence test failures occurred too many times (\id{MXNCF = 10}) during 
+  one internal time step or occurred with $|h| = h_{min}$;             
+\item \Id{SETUP\_FAILURE}: 
+  The linear solver's setup routine failed in an unrecoverable manner;
+\item \Id{SOLVE\_FAILURE}: 
+  The linear solver's solve routine failed in an unrecoverable manner.
+\end{itemize} 
+All failure return values are negative and therefore a test \id{ier < 0}
+will trap all \id{CVode} failures.
+
+
+%--------------------------------------------------------------------
+\subsubsection{Optional Input/Output}\label{sss:optional_io}
+
+In order to change some of the {\cvode} constants (such as the maximum method order) 
+or if additional diagnostic output values are desired, tthe user should declare two 
+arrays for optional input and output, an \ID{iopt} array for optional integer 
+input and output and an \ID{ropt} array for optional real input and output. 
+The size of both these arrays should be \id{OPT\_SIZE}.
+So the user's declarations should look like:
+\begin{verbatim}
+long int iopt[OPT_SIZE];
+realtype     ropt[OPT_SIZE];
+\end{verbatim}
+Tables \ref{t:iopt} and \ref{t:ropt} contain 
+detailed descriptions of the optional integer and real input-output arrays,
+respectively. Only locations corresponding to the main {\cvode} solver are 
+given in these tables. Locations beyond \id{CVODE\_IOPT\_SIZE} and
+\id{CVODE\_ROPT\_SIZE} in \id{iopt} and \id{ropt}, respectively, are used
+by the linear solvers and are described in \S\ref{sss:lin_solv_init}.
+
+Default values of the optional inputs are obtained by setting the corresponding
+entry to 0. If \id{FALSE} is passed for \id{optIn} in the call to \id{CVodeMalloc},
+no optional input is examined.
+%
+\begin{table}
+\centering
+\caption{Description of the optional integer input-output array \Id{iopt}}\label{t:iopt}
+\medskip
+\begin{tabular}{|l|c|p{1in}|p{3in}|}
+\hline
+{\bf Index} & {\bf I/O} & {\bf Default value} & {\bf Description} \\ 
+\hline\hline
+%
+\id{MAXORD} & I & 12 (\Id{ADAMS}) & 
+Maximum \id{lmm} order to be used by the solver. \\
+            &   & 5 (\Id{BDF}) &
+\\ \hline
+%
+\id{MXSTEP} & I & 500 & 
+Maximum number of internal steps to be taken by 
+the solver in its attempt to reach tout.
+\\ \hline
+%
+\id{MXHNIL} & I & 10 &
+Maximum number of warning messages issued by the solver 
+that $t+h==t$ on the next internal step. 
+A value of -1 means no such messages are issued.
+\\ \hline                                                    
+%
+\id{SLDET} & I & 0 & 
+Flag to turn on/off stability limit detection  
+(1 = on, 0 = off). When \Id{BDF} is used and order  
+is 3 or greater, \id{CVsldet} is called to detect     
+stability limit.  If limit is detected, the    
+order is reduced.
+\\ \hline                                                                 
+%
+\id{NST} & O & &
+Cumulative number of internal steps taken by    
+the solver (total so far).
+\\ \hline
+%                                                                
+\id{NFE} & O & &
+Number of calls to the user's \id{f} function.
+\\ \hline
+%
+\id{NSETUPS} & O & &
+Number of calls made to the linear solver's setup routine.
+\\ \hline
+%
+\id{NNI} & O & &
+Number of nonlinear (\Id{FUNCTIONAL} or \Id{NEWTON} iterations performed.         
+\\ \hline
+%
+\id{NCFN} & O & &
+Number of nonlinear convergence failures that have occurred.
+\\ \hline
+%
+\id{NETF} & O & &
+Number of local error test failures that have occurred.
+\\ \hline
+%
+\id{QU} & O & &
+Order used during the last internal step.      
+\\ \hline
+%
+\id{QCUR} & O & &
+Order to be used on the next internal step.    
+\\ \hline
+%
+\id{LENRW} & O & &
+Size of required {\cvode} internal real work      
+space, in realtype words.
+\\ \hline
+%
+\id{LENIW} & O && 
+Size of required {\cvode} internal integer work   
+space, in integertype words.
+\\ \hline                                                                 
+%
+\id{NOR} & O && 
+Number of order reductions due to stability limit detection.
+%
+\\ \hline
+
+\end{tabular}
+\end{table}
+
+\begin{table}
+\centering
+\caption{Description of the optional real input-output array \Id{ropt}}\label{t:ropt}
+\medskip
+\begin{tabular}{|l|c|p{1in}|p{3in}|}
+\hline
+{\bf Index} & {\bf I/O} & {\bf Default value} & {\bf Description} \\ 
+\hline\hline
+%
+\id{H0} & I & computed &
+Initial step size.
+\\ \hline
+%
+\id{HMAX} & I & $\infty$ & 
+Maximum absolute value of step size allowed.   
+Note: If \id{optIn=TRUE}, the value of \id{ropt[HMAX]} 
+is examined on every call to \id{CVode}, and so can 
+be changed between calls.
+\\ \hline
+%        
+\id{HMIN}    & I & 0.0 & 
+Minimum absolute value of step size allowed.   
+\\ \hline
+%                                                        
+\id{HU} & O && 
+Step size for the last internal step.          
+\\ \hline
+%
+\id{HCUR} & O && 
+Step size to be attempted on the next internal step.
+\\ \hline
+%
+\id{TCUR} & O && 
+Current internal time reached by the solver.   
+\\ \hline
+%
+\id{TOLSF} & O && 
+A suggested factor by which the user's tolerances 
+should be scaled when too much accuracy has been 
+requested for some internal step.
+\\ \hline
+%
+\end{tabular}
+\end{table}                                                                  
+
+%--------------------------------------------------------------------
+\subsubsection{Interpolated Output Routine}
+\index{interpolated output}
+
+An optionally callable function \ID{CVodeDky} is available
+to obtain additional output values.  This function must be called after a successful
+return from \id{CVode} and provides interpolated values of $y$ or its derivatives, 
+up to the current order of the integration method, interpolated to any value of $t$ 
+in the last internal step taken by {\cvode}.
+
+The call to the \id{CVodeDky} function has the form
+\begin{verbatim}
+ier = CVodeDky(cvode_mem, t, k, dky);
+\end{verbatim}
+and computes the \id{k}-th derivative of the \id{y} function at      
+time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$ \id{t} $\le t_n$, 
+$t_n$ denotes the current internal time reached, and $h_u$ is the 
+last internal step size successfully used by the solver. 
+The user may request \id{k} $= 0, 1, ..., q_u$, where $q_u$ is the 
+current order. The derivative vector is returned in \id{dky}. 
+This vector must be allocated by the caller. 
+The first argument \id{cvode\_mem} is the pointer to the {\cvode}
+memory returned by \id{CVodeMalloc}.
+
+Note that it is only legal to call the function \id{CVodeDky} after a 
+successful return from \id{CVode}.
+The return value \id{ier} for \id{CVodeDky} is
+\begin{itemize}
+\item \Id{OKAY} if \id{CVodeDky} succeeded;
+\item \Id{BAD\_K} if \id{k} is not in the range $0, 1, ..., q_u$;
+\item \Id{BAD\_T} if \id{t} is not in the interval $[t_n - h_u , t_n]$;
+\item \Id{BAD\_DKY} if the \id{dky} argument was \id{NULL};
+\item \Id{DKY\_NO\_MEM} if the \id{cvode\_mem} argument was \id{NULL}.
+\end{itemize}
+
+%--------------------------------------------------------------------
+\subsubsection{{\cvode} Reinitialization Routine}\label{sss:cvreinit}
+\index{reinitialization}
+
+The function \ID{CVodeReInit} reinitializes the main {\cvode} solver for
+the solution of a problem, where a prior call to \Id{CVodeMalloc} has
+been made with the same problem size \id{N}. \id{CVodeReInit} performs the 
+same input checking and initializations that \id{CVodeMalloc} does 
+(except for \id{N}), but does no memory allocation, assuming that the 
+existing internal memory is sufficient for the new problem.             
+                                                                 
+The use of \id{CVodeReInit} requires that the maximum method order,    
+\Id{maxord}, is no larger for the new problem than for the problem  
+specified in the last call to \id{CVodeMalloc}.  This condition is  
+automatically fulfilled if the multistep method parameter \id{lmm}  
+is unchanged (or changed from \Id{ADAMS} to \Id{BDF}) and the default    
+value for \id{maxord} is specified.                                 
+                                                                 
+If \id{iter = }\Id{NEWTON}, then following the call to \id{CVodeReInit}, a call  
+to the linear solver specification routine is necessary if a   
+different linear solver is chosen, but may not be otherwise.   
+If the same linear solver is chosen, and there are no changes  
+in the input parameters to the specification routine, then no  
+call to that routine is needed.                                
+If there are changes in parameters, but they do not increase   
+the linear solver memory size, then a call to the corresponding
+\id{CVReInit<linsol>} routine must made to communicate the new      
+parameters (see \S\ref{sss:lin_solv_reinit}); 
+in that case the linear solver memory is reused.   
+If the parameter changes do increase the linear solver memory  
+size, then the main linear solver specification routine must be
+called (\S\ref{sss:lin_solv_init}).
+
+The call to the \id{CVodeReInit} function has the form
+\begin{verbatim}
+ier = CVodeReInit(cvode_mem, f, t0, y0, lmm, iter, itol, &rtol, 
+                  atol, f_data, errfp, optIn, iopt, ropt, machEnv);
+\end{verbatim}
+Its first argument, \id{cvode\_mem} is the pointer to the {\cvode}
+memory returned by \id{CVodeMalloc}.
+All the remaining arguments to \id{CVodeReInit} have names and         
+meanings identical to those of \id{CVodeMalloc}.  Note that the     
+problem size \id{N} is not passed as an argument to \id{CVodeReInit},       
+as that is assumed to be unchanged since the \id{CVodeMalloc} call. 
+
+The return value \id{ier} of \id{CVodeReInit} is equal to: 
+\begin{itemize}
+\item \id{SUCCESS}=0 if there were no errors; 
+\item \id{CVREI\_NO\_MEM} if \id{cvode\_mem} was NULL;
+\item \id{CVREI\_ILL\_INPUT} if an input argument was illegal    
+      (including an attempt to increase \id{maxord}).
+\end{itemize}
+In case of an error return, an error message is also printed.  
+
+Finally, note that the reported workspace sizes \Id{iopt}\id{[LENRW]} 
+and \Id{iopt}\id{[LENIW]} are left unchanged from the values computed 
+by \id{CVodeMalloc}, and so may be larger than would be computed for 
+the new problem.
+
+%--------------------------------------------------------------------
+\subsubsection{Linear Solver Reinitialization Routines}\label{sss:lin_solv_reinit}
+\index{reinitialization}
+
+\index{CVODE@{\cvode} linear solvers!reinitializing one|(} 
+Linear solver reinitialization routines reset the link between the main {\cvode}
+integrator and the linear solver module. Such a routine must be called after a call
+to \Id{CVodeReInit} to solve another problem of the same size if there is a change
+in some of the linear solver parameters (such as the Jacobian data approximation
+routine or the user-defined data structure). Reinitialization routines exist for
+all but the {\cvdiag} linear solver.
+
+\begin{itemize}
+
+\item {\em Dense linear solver reinitialization} 
+  \index{CVODE@{\cvode} linear solvers!CVDENSE@{\cvdense}}
+
+  \index{CVDENSE@{\cvdense} linear solver!reinitialization|(}
+  A call to the \ID{CVReInitDense} function resets the link between   
+  the main {\cvode} integrator and the {\cvdense} linear solver.       
+  After solving one problem using {\cvdense}, call \id{CVodeReInit} and then
+  \id{CVReInitDense} to solve another problem of the same size, if    
+  there is a change in the \id{CVDense} parameters \id{djac} or \id{jac\_data}.  
+  If there is no change in parameters, it is not necessary to    
+  call either \id{CVReInitDense} or \id{CVDense} for the new problem.  
+
+  The call to the {\cvdense} reinitialization routine has the following form:
+\begin{verbatim}
+ier = CVReInitDense(cvode_mem, djac, jac_data);
+\end{verbatim}
+  All arguments to \id{CVReInitDense} have the same names and meanings
+  as those of \id{CVDense}.  The \id{cvode\_mem} argument must be identical 
+  to its value in the previous \id{CVDense} call.                     
+  
+  The return values of \id{CVReInitDense} are:
+  \begin{itemize}
+  \item \Id{SUCCESS} if successful;
+  \item \Id{LMEM\_FAIL} if the \id{cvode\_mem} argument is \id{NULL}.
+  \end{itemize}         
+  
+  Note that \id{CVReInitDense} performs the same tests for a compatible {\nvector} 
+  \index{CVDENSE@{\cvdense} linear solver!NVECTOR@{\nvector} compatibility} 
+  module as \id{CVDense}.
+  \index{CVDENSE@{\cvdense} linear solver!reinitialization|)}
+  
+\item {\em Banded linear solver reinitialization}
+  \index{CVODE@{\cvode} linear solvers!CVBAND@{\cvband}}
+  
+  \index{CVBAND@{\cvband} linear solver!reinitialization|(}
+  A call to the \ID{CVReInitBand} function resets the link between    
+  the main {\cvode} integrator and the {\cvband} linear solver.        
+  After solving one problem using {\cvband}, call \id{CVodeReInit} and then 
+  \id{CVReInitBand} to solve another problem of the same size, if     
+  there is a change in the \id{CVBand} parameters \id{bjac} or \id{jac\_data},   
+  but no change in \id{mupper} or \id{mlower}.  If there is a change in    
+  \id{mupper} or \id{mlower}, then \id{CVBand} must be called again, and the    
+  linear solver memory will be reallocated.                      
+  If there is no change in parameters, it is not necessary to    
+  call either \id{CVReInitBand} or \id{CVBand} for the new problem.
+
+  The call to the {\cvband} reinitialization routine has the following form:
+\begin{verbatim}
+ier = CVReInitBand(cvode_mem, mupper, mlower, bjac, jac_data);
+\end{verbatim}
+  All arguments to \id{CVReInitBand} have the same names and meanings
+  as those of \id{CVBand}.  The \id{cvode\_mem} argument must be identical 
+  to its value in the previous \id{CVBand} call.                     
+  
+  The return values of \id{CVReInitBand} are:
+  \begin{itemize}
+  \item \Id{SUCCESS} if successful;
+  \item \Id{LMEM\_FAIL} if the \id{cvode\_mem} argument is \id{NULL};
+  \item \Id{LIN\_ILL\_INPUT} if there was an illegal input.
+  \end{itemize}         
+  
+  Note that \id{CVReInitBand} performs the same tests for a compatible {\nvector} 
+  \index{CVBAND@{\cvband} linear solver!NVECTOR@{\nvector} compatibility} 
+  module as \id{CVBand}.  
+  \index{CVBAND@{\cvband} linear solver!reinitialization|)}
+
+\item {\em {\spgmr} linear solver reinitialization}
+  \index{CVODE@{\cvode} linear solvers!CVSPGMR@{\cvspgmr}}
+  
+  \index{CVSPGMR@{\cvspgmr} linear solver!reinitialization|(}
+  A call to the \ID{CVReInitSpgmr} function resets the link between   
+  the main {\cvode} integrator and the {\cvspgmr} linear solver.       
+  After solving one problem using {\cvspgmr}, call \id{CVodeReInit} and then
+  \id{CVReInitSpgmr} to solve another problem of the same size, if    
+  there is a change in the \id{CVSpgmr} parameters \id{pretype}, \id{gstype},   
+  \id{delt}, \id{precond}, \id{psolve}, \id{P\_data}, \id{jtimes}, or 
+  \id{jac\_data}, but not in \id{maxl}.  
+  If there is a change in \id{maxl}, then \id{CVSpgmr} must be      
+  called again, and the linear solver memory will be reallocated.
+  If there is no change in parameters, it is not necessary to    
+  call either \id{CVReInitSpgmr} or \id{CVSpgmr} for the new problem.
+
+  The call to the {\cvspgmr} reinitialization routine has the following form:
+\begin{verbatim}
+ier = CVReInitSpgmr(cvode_mem, pretype, gstype, maxl, delt, Precond, 
+                    PSolve, P_data, jtimes, jac_data);
+\end{verbatim}
+  All arguments to \id{CVReInitSpgmr} have the same names and meanings
+  as those of \id{CVSpgmr}.  The \id{cvode\_mem} argument must be identical 
+  to its value in the previous \id{CVSpgmr} call.                     
+  
+  The return values of \id{CVReInitSpgmr} are:
+  \begin{itemize}
+  \item \Id{SUCCESS} if successful;
+  \item \Id{LMEM\_FAIL} if the \id{cvode\_mem} argument is \id{NULL};
+  \item \Id{LIN\_ILL\_INPUT} if there was an illegal input.
+  \end{itemize}         
+  \index{CVSPGMR@{\cvspgmr} linear solver!reinitialization|)}
+
+\end{itemize}
+
+                                                                 
+%----------------------------------
+\subsection{User-Supplied Routines for IVP Solution}\label{ss:user_fct_sim}
+%----------------------------------
+
+The user-supplied routines consist of one function defining the ODE, 
+(optionally) a function that provides Jacobian related information for the linear 
+solver (if Newton iteration is chosen), and (optionally) one or two functions 
+that define the preconditioner for use in the {\spgmr} algorithm. 
+
+\begin{itemize}
+%
+%--------------
+%
+\item {\em ODE right hand side}
+  \index{right hand side function!initial value problem|(}
+
+  The user must provide a function of type \ID{RhsFn} defined by
+\begin{verbatim}
+typedef void (*RhsFn)(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+\end{verbatim}
+  to compute the right hand side of the ODE system.
+  
+  This function takes as input the independent variable  
+  value \id{t} and the dependent variable vector \id{y}.  It must store the    
+  result of $f(t,y)$ in the vector \id{ydot}.  The \id{y} and \id{ydot} arguments 
+  are of type \id{N\_Vector}. Allocation of memory for \id{ydot} is handled within {\cvode}.
+  The \id{f\_data} parameter is the same as the \id{f\_data} parameter passed by 
+  the user to the \id{CVodeMalloc} routine. This user-supplied pointer is passed to 
+  the user's \id{f} function every time it is called.                                       
+  A \id{RhsFn} function type does not have a return value.                        
+  \index{right hand side function!initial value problem|)}
+%
+%--------------
+%
+\item {\em Jacobian information (direct method with dense Jacobian)}
+  \label{p:djac}
+  \index{Jacobian approximation routine!dense!user-supplied|(}
+  
+  If the direct linear solver with dense treatment of the Jacobian is used 
+  (i.e. \Id{CVDense} is called in step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
+  the user may provide a function of type \ID{CVDenseJacFn} defined by
+\begin{verbatim}
+typedef void (*CVDenseJacFn)(integertype N, DenseMat J, realtype t, 
+                             N_Vector y, N_Vector fy, void *jac_data,
+                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+\end{verbatim}
+  to compute the dense Jacobian $J = \partial f / \partial y$ (or an approximation to it).
+  
+  A user-supplied dense Jacobian routine must load the \id{N} by \id{N}
+  dense matrix \id{J} with an approximation to the Jacobian matrix $J$
+  at the point (\id{t},\id{y}).  Only nonzero elements need to be loaded
+  into \id{J} because \id{J} is set to the zero matrix before the call
+  to the Jacobian routine. The type of \id{J} is \Id{DenseMat}. The
+  accessor macros \Id{DENSE\_ELEM} and \Id{DENSE\_COL} allow the user to
+  read and write dense matrix elements without making explicit
+  references to the underlying representation of the \id{DenseMat}
+  type. \id{DENSE\_ELEM(A,i,j)} references the (\id{i},\id{j})th
+  element of the dense matrix \id{A} (\id{i},\id{j} = 0..N-1). This macro
+  is for use in small problems in which efficiency of access is not a major
+  concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
+  $N$, the Jacobian element $J_{m,n}$ can be loaded with the statement
+  \id{DENSE\_ELEM(A,m-1,n-1) =} $J_{m,n}$.  Alternatively,
+  \id{DENSE\_COL(A,j)} returns a pointer to the storage for
+  the \id{j}th column of \id{A}, and the elements of the \id{j}th column
+  are then accessed via ordinary array indexing.  Thus $J_{m,n}$ can be 
+  loaded with the statements \id{col\_n = DENSE\_COL(J,n-1);}
+  \id{col\_n[m-1] =} $J_{m,n}$.  For large problems, it is more 
+  efficient to use \id{DENSE\_COL} than to use \id{DENSE\_ELEM}. 
+  Note that both of these macros number rows and columns
+  starting from $0$, not $1$.  The \id{DenseMat} type and the accessor
+  macros \id{DENSE\_ELEM} and \id{DENSE\_COL} are documented in
+  \S\ref{ss:dense}.
+  
+  The arguments \id{tmp1}, \id{tmp2}, and \id{tmp3} are pointers to 
+  memory allocated for vectors of length N which can be used 
+  as temporary storage or work space.
+  \index{Jacobian approximation routine!dense!user-supplied|)}
+%
+%--------------
+%
+\item {\em Jacobian information (direct method with banded Jacobian)}
+  \label{p:bjac}
+  \index{Jacobian approximation routine!band!user-supplied|(}
+  
+  If the direct linear solver with banded treatment of the Jacobian is used 
+  (i.e. \Id{CVBand} is called in step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
+  the user may provide a function of type \ID{CVBandJacFn} defined by
+\begin{verbatim}
+typedef void (*CVBandJacFn)(integertype N, integertype mupper, 
+                            integertype mlower, BandMat J, realtype t, 
+                            N_Vector y, N_Vector fy, void *jac_data,
+                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+\end{verbatim}
+  to generate the banded Jacobian $J = \partial f / \partial y$ 
+  (or a banded approximation to it).
+  
+  A user-supplied band Jacobian routine must load the band matrix \id{J}
+  of type \Id{BandMat} with the elements of the Jacobian $J(t,y)$ at the
+  point (\id{t},\id{y}).  Only nonzero elements need to be loaded into
+  \id{J} because \id{J} is preset to zero before the call to the
+  Jacobian routine.  The accessor macros \Id{BAND\_ELEM},
+  \Id{BAND\_COL}, and \Id{BAND\_COL\_ELEM} allow the user to read and 
+  write band matrix elements without making specific references to the 
+  underlying representation of the \id{BandMat} type.
+  \id{BAND\_ELEM(A,i,j)} references the (\id{i},\id{j})th element of the band matrix \id{A}.
+  This macro is for use in small problems in which efficiency of access is not
+  a major concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
+  $N$ with $(m,n)$ within the band defined by \id{mupper} and
+  \id{mlower}, the Jacobian element $J_{m,n}$ can be loaded with the 
+  statement \id{BAND\_ELEM(A,m-1,n-1) =} $J_{m,n}$. The elements within
+  the band are those with \id{-mupper} $\le$ \id{m-n} $\le$ \id{mlower}.
+  Alternatively, \id{BAND\_COL(A,j)} returns a pointer to the diagonal element of the
+  \id{j}th column of \id{A}, and if we assign this address to 
+  \id{realtype *col\_j}, then the \id{i}th element of the \id{j}th column is
+  given by \id{BAND\_COL\_ELEM(col\_j,i,j)}.
+  Thus for $(m,n)$ within the band, \\ $J_{m,n}$ can be loaded by setting 
+  \id{col\_n = BAND\_COL(J,n-1);} \id{BAND\_COL\_ELEM(col\_n,m-1,n-1) =} $J_{m,n}$.
+  The elements of the \id{j}th column can also be accessed
+  via ordinary array indexing, but this approach requires knowledge of
+  the underlying storage for a band matrix of type \id{BandMat}.  
+  The array \id{col\_n} can be indexed from $-$\id{mupper} to \id{mlower}.
+  For large problems, it is more efficient to use the combination of
+  \id{BAND\_COL} and \id{BAND\_COL\_ELEM} than to use the
+  \id{BAND\_ELEM}.  As in the dense case, these macros all number rows
+  and columns starting from $0$, not $1$.  The \id{BandMat} type and the
+  accessor macros \id{BAND\_ELEM}, \id{BAND\_COL}, and
+  \id{BAND\_COL\_ELEM} are documented in \S\ref{ss:band}.
+  
+  The arguments \id{tmp1}, \id{tmp2}, and \id{tmp3} are pointers to 
+  memory allocated for vectors of length N which can be used 
+  as temporary storage or work space.
+  \index{Jacobian approximation routine!band!user-supplied|)}
+%
+%----------------
+%
+\item {\em Jacobian information ({\spgmr} case)}
+  \label{p:jtimes}
+  \index{Jacobian approximation routine!Jacobian times vector!user-supplied|(}
+
+  If an iterative {\spgmr} linear solver is selected (\id{CVSpgmr} is called in step 
+  \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}) the user may provide a function
+  of type \ID{CVSpgmrJtimesFn} in the form 
+\begin{verbatim}
+typedef int (*CVSpgmrJtimesFn)(N_Vector v, N_Vector Jv, realtype t,
+                               N_Vector y, N_Vector fy, void *jac_data,
+                               N_Vector work);
+\end{verbatim} 
+  to compute the product $J v = (\partial f / \partial y) v$ (or an approximation to it).
+  
+  A user-supplied Jacobian-times-vector routine must load the vector \id{Jv}
+  with the result of the product between the Jacobian $J(t,y)$ at the
+  point (\id{t},\id{y}) and the vector \id{v} of dimension \id{N}.
+
+  The argument \id{work} is a pointer to 
+  memory allocated for a vector of length N which can be used 
+  as temporary storage or work space.
+
+  The value to be returned by the Jacobian times vector routine should be
+  $0$ if successful. Any other return value will result in an unrecoverable
+  error of the {\spgmr} generic solver, in which case the integration is halted.
+  
+  \index{Jacobian approximation routine!Jacobian times vector!user-supplied|)}
+%
+%--------------
+%
+\item {\em Preconditioning (linear system solution)}
+  \label{p:psolve}
+  \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner solve routine}
+  
+  If preconditioning is used, then the user must provide a {\C} function to
+  solve the linear system $Pz = r$ where $P$ may be either a left or a
+  right preconditioner matrix.
+  This function must be of type \ID{CVSpgmrPSolveFn} defined by
+\begin{verbatim}
+typedef int (*CVSpgmrPSolveFn)(realtype t, N_Vector y, 
+                            N_Vector fy, N_Vector vtemp, realtype gamma, 
+                            N_Vector ewt, realtype delta, long int *nfePtr, 
+                            N_Vector r, int lr, void *P_data, N_Vector z);
+\end{verbatim}
+  
+  Its parameters are as follows:
+  \begin{itemize}
+  \item 
+    \id{t} is the current value of the independent variable;       
+  \item 
+    \id{y} is the current value of the dependent variable vector;  
+  \item 
+    \id{fy} is the vector $f(t,y)$;    
+  \item 
+    \id{vtemp} is a pointer to memory allocated for a vector of        
+    length \id{N} which can be used for work space;    
+  \item 
+    \id{gamma} is the scalar appearing in the Newton matrix;         
+  \item 
+    \id{ewt} is the error weight vector (input). See \id{delta} below;   
+  \item 
+    \id{delta} is an input tolerance to be use if an iterative method 
+    is employed in the solution.  In that case, the residual 
+    vector $Res = r - P z$ of the system should be made less than 
+    \id{delta} in weighted $l_2$ norm,     
+    i.e., $\sqrt{\sum_i (Res_i \cdot ewt_i)^2 } < delta$;       
+  \item 
+    \id{nfePtr} is a pointer to the memory location containing the      
+    {\cvode} problem data \id{nfe} = number of calls to \id{f}. 
+    The preconditioner solve routine should update this counter by 
+    adding on the number of \id{f} calls made in order to carry out     
+    the solution, if any.  For example, if the routine      
+    calls \id{f} a total of W times, then the update is          
+    \id{*nfePtr += W;};         
+  \item 
+    \id{r} is the right-hand side vector of the linear system;     
+  \item 
+    \id{lr} is an input flag indicating whether the preconditioner solve
+    routine is to use the left preconditioner (\id{lr=1}) or 
+    the right preconditioner (\id{lr=2});
+  \item 
+    \id{P\_data} is a pointer to user data - the same as the \id{P\_data}      
+    parameter passed to \id{CVSpgmr};                         
+  \item 
+    \id{z} is the output vector computed.                
+  \end{itemize}
+  
+  The value to be returned by the preconditioner solve function is a flag indicating 
+  whether it was successful.  This value should be $0$ if successful, 
+  positive for a recoverable error (in which case the step will be retried),     
+  negative for an unrecoverable error (in which case the integration is halted). 
+%
+%-----------------
+%
+\item {\em Preconditioning (Jacobian data)}
+  \label{p:precond}
+  \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner setup routine}
+  
+  If the user's preconditioner requires that any Jacobian related data
+  be evaluated or preprocessed, then this needs to be done in a
+  user-supplied {\C} function of type \ID{CVSpgmrPrecondFn} as defined by
+\begin{verbatim}
+typedef int (*CVSpgmrPrecondFn)(realtype t, N_Vector y, 
+                                N_Vector fy, booleantype jok, 
+                                booleantype *jcurPtr, realtype gamma, 
+                                N_Vector ewt, realtype h, realtype uround, 
+                                long int *nfePtr, void *P_data, 
+                                N_Vector vtemp1, N_Vector vtemp2,
+                                N_Vector vtemp3);
+\end{verbatim}
+  
+  The operations performed by such a routine might include forming a crude 
+  approximate Jacobian, and performing an LU factorization on the resulting            
+  approximation to $M=I - \gamma J$.
+  
+  This routine is not called in advance of every call to the preconditioner solve
+  routine, but rather is called only as often as needed to achieve convergence in the
+  Newton iteration. 
+  
+  The \id{jok} argument provides for the re-use of
+  Jacobian data in the preconditioner solve routine.  When \id{jok == FALSE}, 
+  Jacobian data should be computed from scratch, but when \id{jok == TRUE}, 
+  Jacobian data saved earlier can be retrieved and used to form the 
+  preconditioner matrices (with the current $\gamma =$ \id{gamma}).
+  Each call to the preconditioner setup function is preceded by a call to     
+  the \id{RhsFn} user routine with the same \id{(t,y)} arguments.  
+  Thus the preconditoner setup function can use any auxiliary data that is 
+  computed and saved during the evaluation of the ODE right hand side.
+
+  The error weight vector \id{ewt}, step size \id{h}, and unit roundoff    
+  \id{uround} are provided for possible use   
+  in approximating Jacobian data, e.g. by difference quotients.
+  
+  The arguments of a \id{CVSpgmrPrecondFn} are as follows:
+  \begin{itemize}
+  \item 
+    \id{t} is the current value of the independent variable;
+  \item 
+    \id{y} is the current value of the dependent variable vector, 
+    namely the predicted value of $y(t)$;
+  \item 
+    \id{fy} is the vector $f(t,y)$;                                  
+  \item 
+    \id{jok} is an input flag indicating whether Jacobian-related   
+    data needs to be recomputed.
+    \id{jok == FALSE} means that Jacobian-related data   
+    must be recomputed from scratch.                                 
+    \id{jok == TRUE}  means that Jacobian data, if saved from 
+    the previous Precond call, can be reused      
+    (with the current value of \id{gamma}).            
+    A call with \id{jok == TRUE} can only occur after   
+    a call with \id{jok == FALSE};
+  \item 
+    \id{jcurPtr} is a pointer to an output integer flag which is        
+    to be set to \id{TRUE} if Jacobian data was recomputed or   
+    to \id{FALSE} if Jacobian data was not           
+    recomputed, but saved data was reused;
+  \item 
+    \id{gamma} is the scalar appearing in the Newton matrix;
+  \item 
+    \id{ewt} is the error weight vector;                  
+  \item 
+    \id{h} is a tentative step size in t;
+  \item 
+    \id{uround} is the machine unit roundoff;
+  \item 
+    \id{nfePtr} is a pointer to the memory location containing the      
+    {\cvode} problem data \id{nfe} = number of calls to \id{f}. 
+    The preconditioner solve routine should update this counter by 
+    adding on the number of \id{f} calls made in order to carry out     
+    the solution, if any.  For example, if the routine      
+    calls \id{f} a total of W times, then the update is          
+    \id{*nfePtr += W;};
+  \item 
+    \id{P\_data} is a pointer to user data, the same as the \id{P\_data}      
+    parameter passed to \id{CVSpgmr};
+  \item 
+    \id{vtemp1}, \id{vtemp2}, and \id{vtemp3} are pointers to memory allocated    
+    for vectors of length \id{N} which can be used by           
+    \id{CVSpgmrPrecondFn} as temporary storage or work space.    
+  \end{itemize}
+  
+  The value to be returned by the preconditioner setup function is a flag indicating 
+  whether it was successful.  This value should be $0$ if successful, 
+  positive for a recoverable error (in which case the step will be retried),     
+  negative for an unrecoverable error (in which case the integration is halted). 
+  
+\end{itemize}
+
+%------------------------------------------
+\subsection{{\cvode} Preconditioner Modules}\label{ss:preconds}
+%------------------------------------------
+
+\subsubsection{A Serial Banded Preconditioner Module}\label{sss:cvbandpre}
+
+The efficiency of Krylov iterative methods for the solution of linear systems 
+can be greatly enhanced through preconditioning. For problems in which the 
+user cannot define a more effective, problem-specific preconditioner,
+{\cvode} provides a banded preconditioner in the module {\cvbandpre}.
+
+\index{CVBANDPRE@{\cvbandpre} preconditioner!description}
+This preconditioner provides a band matrix preconditioner based on
+difference quotients of the ODE right-hand side function \id{f}.
+It generates a band matrix of bandwidth $m_l + m_u + 1$, where
+the number of super-diagonals ($m_u$, the upper bandwidth) and
+sub-diagonals ($m_l$, the lower bandwidth) are specified by
+the user and uses this to form a preconditioner for use with the Krylov
+linear solver in {\cvspgmr}.  Although this matrix is intended
+to approximate the Jacobian $\partial f / \partial y$, 
+it may be a very crude approximation.  The true Jacobian need not be banded, or its
+true bandwith may be larger than $m_l + m_u + 1$, as long as the
+banded approximation generated here is sufficiently accurate
+to speed convergence as a preconditioner. 
+
+\index{CVBANDPRE@{\cvbandpre} preconditioner!usage|(}
+In order to use the {\cvbandpre} module, the user needs not define any
+additional routines. The following is a summary of the usage of this 
+module and describes the sequence of calls in the user main program.
+\begin{itemize}
+  \item \id{\#include "cvbandpre.h"} 
+    for needed function prototypes and for type \id{CVBandPreData};
+
+  \item \id{\#include "nvector\_serial.h"} 
+    for the serial {\nvector} module;
+
+  \item \id{M\_Env machEnv;}
+
+  \item \id{CVBandPreData bp\_data;}
+
+  \item \id{machEnv = M\_EnvInit\_Serial(N);} 
+    to initialize the serial machine environment;
+
+  \item \id{cvode\_mem = CVodeMalloc(f, \ldots );}
+
+  \item \id{bp\_data = }\Id{CVBandPreAlloc}\id{(N, f, f\_data, mu, ml, cvode\_mem);}
+
+    where the upper and lower half-bandwidths are \id{mu} and \id{ml},
+    respectively; \id{f\_data} is a pointer to private data; and \id{cvode\_malloc}
+    is the pointer to {\cvode} memory returned by \id{CVodeMalloc};
+    
+  \item \id{ier = CVSpgmr(cvode\_mem, pretype, gstype, maxl, delt,}
+    \newline\hspace*{1in}\id{CVBandPrecond, CVBandPSolve, bp\_data,}
+    \newline\hspace*{1in}\id{jtimes, jac\_data);}
+
+    with the pointers \id{cvode\_mem} and \id{bp\_data} returned by the two previous calls, 
+    the six {\spgmr} parameters (\id{pretype, gstype, maxl, delt, jtimes, jac\_data}) and 
+    the names of the preconditioner routines (\Id{CVBandPrecon}, \Id{CVBandPSol}) supplied 
+    with the {\cvbandpre} module;
+
+  \item \id{ier = CVode(cvode\_mem, tout, y, \&t, itask);}
+    to carry out the integration;
+
+  \item \Id{CVBandPreFree}\id{(bp\_data);}
+        to free the {\cvbandpre} memory block;
+
+  \item  \id{CVodeFree(cvode\_mem);} 
+    to free the {\cvode} memory block;
+
+  \item \id{M\_EnvFree\_Serial(machEnv);}
+    to free the machine environment memory block.
+
+\end{itemize}
+Note that the \id{CVBandPrecond} and \id{CVBandPSolve} functions are never called 
+by the user explicitly; they are simply passed to the \id{CVSpgmr} function.
+\index{CVBANDPRE@{\cvbandpre} preconditioner!usage|)}
+
+%-------------------------------------------------------
+
+\subsubsection{A Parallel Band-Block-Diagonal Preconditioner Module}\label{sss:cvbbdpre}
+
+A principal reason for using a parallel ODE solver such as {\cvode} lies
+in the solution of partial differential equations (PDEs).  Moreover,
+the use of a Krylov iterative method for the solution of many such
+problems is motivated by the nature of the underlying linear system of
+equations (\ref{e:Newton}) that must be solved at each time step.  The
+linear algebraic system is large, sparse, and structured. However, if
+a Krylov iterative method is to be effective in this setting, then a
+nontrivial preconditioner needs to be used.  Otherwise, the rate of
+convergence of the Krylov iterative method is usually unacceptably
+slow.  Unfortunately, an effective preconditioner tends to be
+problem-specific.
+
+However, we have developed one type of preconditioner that treats a
+rather broad class of PDE-based problems.  It has been successfully
+used for several realistic, large-scale problems \cite{HT98} and is
+included in a software module within the {\cvode} package. This module
+works with the parallel vector module {\nvecp} and 
+generates a preconditioner that is a block-diagonal matrix with each
+block being a band matrix. The blocks need not have the same number of
+super- and sub-diagonals and these numbers may vary from block to
+block. This Band-Block-Diagonal Preconditioner module is called
+{\cvbbdpre}.
+
+\index{CVBBDPRE@{\cvbbdpre} preconditioner!description|(}
+One way to envision these preconditioners is to think of the domain of
+the computational PDE problem as being subdivided into $M$ non-overlapping
+subdomains.  Each of these subdomains is then assigned to one of the
+$M$ processors to be used to solve the ODE system. The basic idea is
+to isolate the preconditioning so that it is local to each processor,
+and also to use a (possibly cheaper) approximate right-hand side
+function. This requires the definition of a new function $g(t,y)$
+which approximates the function $f(t, y)$ in the definition of the ODE
+system (\ref{e:ivp}). However, the user may set $g = f$.  Corresponding
+to the domain decomposition, there is a decomposition of the solution
+vector $y$ into $M$ disjoint blocks $y_m$, and a decomposition of $g$
+into blocks $g_m$.  The block $g_m$ depends on $y_m$ and also on
+components of blocks $y_{m'}$ associated with neighboring subdomains
+(so-called ghost-cell data).  Let $\bar{y}_m$ denote $y_m$ augmented
+with those other components on which $g_m$ depends.  Then we have
+\begin{equation}
+g(t,y) = [g_1(t,\bar{y}_1), g_2(t,\bar{y}_2), \ldots, g_M(t,\bar{y}_M)]^T
+\end{equation}
+and each of the blocks $g_m(t, \bar{y}_m)$ is uncoupled from the others.
+
+The preconditioner associated with this decomposition has the form 
+\begin{equation}
+P= diag[P_1, P_2, \ldots, P_M]
+\end{equation}
+where 
+\begin{equation}
+P_m \approx I - \gamma J_m
+\end{equation}
+and $J_m$ is a difference quotient approximation to 
+$\partial g_m/\partial y_m$. This matrix is taken to be banded, with
+upper and lower half-bandwidths \id{mudq} and \id{mldq} defined as
+the number of non-zero diagonals above and below the main diagonal,
+respectively. The difference quotient approximation is computed using
+\id{mudq} $+$ \id{mldq} $+ 2$ evaluations of $g_m$, but only a matrix
+of bandwidth \id{mu} $+$ \id{ml} $+ 1$ is retained. 
+Neither pair of parameters need be the true half-bandwidths of the Jacobian of the
+local block of $g$, if smaller values provide a more efficient
+preconditioner. The solution of the complete linear system
+\begin{equation}
+Px = b
+\end{equation}
+reduces to solving each of the equations 
+\begin{equation}
+P_m x_m = b_m
+\end{equation}
+and this is done by banded LU factorization of $P_m$ followed by a banded
+backsolve.
+\index{CVBBDPRE@{\cvbbdpre} preconditioner!description|)}
+
+\index{CVBBDPRE@{\cvbbdpre} preconditioner!additional user-supplied functions|(}
+To use this {\cvbbdpre} module, the user must supply two functions which the
+module calls to construct $P$. These are in addition to the user-supplied
+right-hand side function \id{f}.
+\begin{itemize}
+\item A function \id{gloc(Nlocal,t,ylocal,glocal,f\_data)} must
+  be supplied by the user to compute $g(t,y)$. It loads the realtype array
+  \id{glocal} as a function of \id{t} and \id{ylocal}.  
+  Both \id{glocal} and \id{ylocal} are of length \id{Nlocal}, the
+  local vector length.
+\item  A function \id{cfn(Nlocal,t,y,f\_data)} which must be supplied to
+  perform all inter-processor communications necessary for the execution of
+  the \id{gloc} function, using the input vector \id{y} of type 
+  \id{N\_Vector}.
+\end{itemize}
+Both functions take as input the same pointer \id{f\_data} as that passed
+by the user to \id{CVodeMalloc} and passed to the user's function \id{f},
+and neither function has a return value. The user is responsible for
+providing space (presumably within \id{f\_data}) for components of \id{y}
+that are communicated by \id{cfn} from the other processors, and that are
+then used by \id{gloc}, which is not expected to do any communication.
+\index{CVBBDPRE@{\cvbbdpre} preconditioner!additional user-supplied functions|)}
+
+\index{CVBBDPRE@{\cvbbdpre} preconditioner!usage|(}
+The user's calling program should include the following elements:
+\begin{itemize}
+  
+\item  \id{\#include "cvbbdpre.h"} 
+  for needed function prototypes and for type \id{CVBBDData};
+  
+\item \id{\#include "nvector\_parallel.h"} 
+  for the parallel {\nvector} module;
+  
+\item  \id{CVBBDData p\_data};
+  
+\item  \id{machEnv = M\_EnvInit\_Parallel(comm, Nlocal, N, argc, argv)};
+
+\item  \id{y = N\_VNew(machEnv)};
+
+\item  \id{cvode\_mem = CVodeMaloc(f, \ldots )};
+
+\item  \id{p\_data = }\Id{CVBBDAlloc}\id{(Nlocal, mudq, mldq, mukeep, mlkeep,}
+  \newline\hspace*{1in}\id{dqrely, gloc, cfn, f\_data, cvode\_mem)};
+
+  where \id{gloc} and \id{cfn} are names of user-supplied
+  functions; \id{f\_data} is a pointer to private data; and \id{cvode\_malloc}
+  is the pointer to {\cvode} memory returned by \id{CVodeMalloc}.
+  The \id{CVBBDAlloc} call includes half-bandwiths \id{mudq} and \id{mldq}   
+  to be used in the difference-quotient calculation of the    
+  approximate Jacobian.  They need not be the true            
+  half-bandwidths of the Jacobian of the local block of $g$,    
+  when smaller values may provide a greater efficiency.       
+  Also, the half-bandwidths \id{mukeep} and \id{mlkeep} of the retained 
+  banded approximate Jacobian block may be even smaller,      
+  to reduce storage and computation costs further.            
+  For all four half-bandwidths, the values need not be the    
+  same on every processor.
+  
+\item  \id{ier = CVSpgmr(cvode\_mem, pretype, gstype, maxl, delt,}
+  \newline\hspace*{1in}\id{CVBBDPrecon, CVBBDPSol, p\_data)}; 
+
+  with the pointers \id{cvode\_mem} and \id{p\_data} returned by the two previous calls,
+  the four {\spgmr} parameters (\id{pretype, gstype, maxl, delt}) and the
+  names of the preconditioner routines (\Id{CVBBDPrecon}, \Id{CVBBDPSol})
+  supplied with the {\cvbbdpre} module;
+  
+\item  \id{ier = CVode(cvode\_mem, tout, y, \&t, itask);} 
+  to carry out the integration;
+  
+\item  \Id{CVBBDFree}\id{(p\_data);} 
+  to free the {\cvbbdpre} memory block;
+  
+\item  \id{CVodeFree(cvode\_mem);} 
+  to free the {\cvode} memory block;
+  
+\item  \id{M\_EnvFree\_Parallel(machEnv);}
+  to free the machine environment memory block.
+
+\end{itemize}
+\index{CVBBDPRE@{\cvbbdpre} preconditioner!usage|)}
+
+\noindent Three optional outputs associated with this module are available by way of
+macros\index{CVBBDPRE@{\cvbbdpre} preconditioner!optional output}. 
+These are:
+\begin{itemize}
+\item  \Id{CVBBD\_RPWSIZE}\id{(p\_data)} the size of the real workspace (local to
+  the current processor) used by {\cvbbdpre}.
+\item  \Id{CVBBD\_IPWSIZE}\id{(p\_data)} the size of the integer workspace (local to
+  the current processor) used by {\cvbbdpre}.
+\item  \Id{CVBBD\_NGE}\id{(p\_data)} the cumulative number of $g$ evaluations (calls
+  to \id{gloc}) so far.
+\end{itemize}
+
+The costs associated with {\cvbbdpre} also include \id{nsetups} LU
+factorizations, \id{nsetups} calls to \id{cfn}, and \id{nps} banded
+backsolve calls, where \id{nsetups} and \id{nps} are optional {\cvode}
+outputs.
+
+Similar block-diagonal preconditioners could be considered with different
+treatment of the blocks $P_m$. For example, incomplete LU factorization or
+an iterative method could be used instead of banded LU factorization.
+
