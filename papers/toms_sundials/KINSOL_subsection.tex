@@ -1,52 +1,127 @@
 \subsection{KINSOL}
 
-KINSOL solves nonlinear algebraic systems, which we write as
-\[ F(u) = 0,~~ F:R^N \rightarrow R^N, \]
+KINSOL solves nonlinear algebraic systems in real space, which we write as
+\begin{equation}
+F(u) = 0,~~ F:R^N \rightarrow R^N, 
+\label{nonlinear_system}
+\end{equation}
 given an initial guess $u_0$.  It is a rewrite in C of the Fortran
 code NKSOL of Brown and Saad \cite{BrSa:90}.
 
-The method used by KINSOL is Inexact Newton iteration.  The Newton
-correction equation $J \Delta u_n = -F(u_n)$ is solved only
-approximately, using a preconditioned Krylov method.  In this case,
-the solver is SPGMR = Scaled Preconditioned GMRES, with restarts
-allowed (optionally).  Preconditioning is done only on the right, so
-that GMRES is applied to the linear systems $(JP^{-1})(P\Delta) = -F$.
+KINSOL employs the Inexact Newton method developed in 
+\cite{BrSa:90,Bro:87,DES:82} 
+and further described in \cite{DeSc:96,Kel:95}, 
+resulting in the following iteration:
 
-The Krylov (GMRES) iteration requires matrix-vector products $J(u)v$,
-which are approximated in a matrix-free manner by difference quotients:
-\[ J(u)v \approx \frac{F(u+\sigma v) - F(u)}{\sigma} ~. \]
-However, there is an option for a user-supplied routine to compute
-these products.
+\vspace{0.2in}
+{\bf Inexact Newton iteration}
+\begin{enumerate}
+   \item Set $u_0 = $ an initial guess
+   \item For $n = 0, 1, 2,...$ until convergence do:\nonumber 
+      \begin{itemize}
+          \item[(a)] Solve $J(u_n)\delta_n = - F(u_n)$ 
+     	  \item[(b)] Set $u_{n+1} = u_n + \delta_n$
+          \item[(c)] Test for convergence
+      \end{itemize}
+\end{enumerate}
+Here, $J(u_n) = F'(u_n)$ is the system Jacobian. As this code module is
+anticipated for use on large systems, only iterative methods are provided 
+to solve the system in step 2(a). These solutions are only approximate. 
+At each stage in the iteration process, a multiple of the 
+approximate solution, $\delta_n$, is added 
+to the previously iterated approximate solution to produce a new 
+approximate solution. Convergence is tested before iteration continues. 
 
-KINSOL offers a choice of two Newton strategies: One is the basic
-Inexact Newton scheme outlined above.  The second is Inexact Newton
-augmented with a Linesearch/Backtrack algorithm to enhance global
-convergence.  (NKSOL also had a Dogleg Method, but KINSOL does not.)
+The linear iterative method currently implemented is one of the class of 
+Krylov methods, GMRES \cite{BrHi:89,SaSc:86}, 
+provided through the SPGMR module common to all SUNDIALS codes. 
+Use of SPGMR provides a linear solver which, by default, is applied in a 
+matrix-free manner, with matrix-vector products $Jv$ obtained by either 
+finite difference quotients or a user-supplied routine.
+In the case where finite differences are used, 
+the matrix-vector product $J(u)v$ is approximated by a quotient of the form
+given in (\ref{jacobv}),
+where $f(t, y) = F(y)$ for our nonlinear system, 
+$u$ is the current approximation to a root of (\ref{nonlinear_system}) 
+and $\sigma$ is a scalar.  The choice of $\sigma$ is taken from 
+\cite{BrSa:90} and is given by,
+\begin{equation}
+\sigma = \max\frac{\{|u^T v|, typ(u^T |v|)\}}{\|v\|_2} sign(u^T v) 
+\sqrt{U},
+\label{sigma_comp}
+\end{equation}
+where $typ(u)$ is a vector of typical values for the solution (can be 
+values used in scaling described below), and $U$ is unit roundoff.
+Convergence of the Newton method is maintained as long as the value
+of $\sigma$ remains appropriately small as shown in \cite{Bro:87}.
+
+To the above methods are added scaling and preconditioning. Scaling is allowed
+for both the approximate solution vector and the system function vector, 
+provided the user supplies typical values of each near the system solution.
+When typical values are provided for the solution vector, these values are 
+automatically incorporated into the calculation of $\sigma$ in
+(\ref{sigma_comp}).
+Additionally, right preconditioning is provided if the preconditioning 
+setup and solve routines are supplied by the user.  In this case,
+GMRES is applied to the linear systems $(JP^{-1})(P\delta) = -F$.
+In most cases, performance of SPGMR is significantly improved by user-supplied 
+preconditioners.  
+
+Two methods of applying a computed step $\delta_n$ to the previously computed
+approximate solution vector are implemented.  The 
+first and simplest is the Inexact Newton strategy which applies step 2(b) 
+as above.  
+The other method is a 'global strategy',
+which attempts to use the direction implied by $\delta_n$ 
+in the most efficient way for furthering convergence of the nonlinear problem. 
+This technique 
+is implemented in the second strategy, called Linesearch.  This option
+employs both the $\alpha$ and $\beta$ conditions of the Goldstein-Armijo
+search given in \cite{DeSc:96} and changes step 2(b) to
+\begin{enumerate}
+\addtocounter{enumi}{1}
+\item{(b)$\;$Set $u_{n+1} = u_n + \lambda \delta_n$},
+\end{enumerate}
+where $\lambda$ is chosen to guarantee a sufficient decrease in $F$ 
+relative to the step length as well as a minimum step length relative 
+to the initial rate of decrease of $F$.  The full Newton step is taken
+close to the solution.
+
+Stopping criteria for the Newton method can be required for either or 
+both of the nonlinear residual and the step length.  For the former, 
+the Newton iteration must pass a stopping test,
+\[ \|F(u_n)\|_{max} < ftol ~, \]
+where $ftol$ is an input scalar tolerance with a default value of $U^{1/3}$.
+For the latter, the Newton method will terminate when the maximum scaled step
+is below a given tolerance,
+\[ \|\delta_n\|_{max} < steptol ~, \]
+where $steptol$ is an input scalar tolerance with a default value of 
+$U^{2/3}$.
+
+Three options for stopping criteria for the linear system solve are
+implemented, including the two 
+algorithms of Eisenstat and Walker \cite{EiWa:96}.
+The Krylov iteration must pass a stopping test,
+\[ \|J \delta_n + F\|_S < (\eta_k + U) \|F\|_S ~, \]
+where $\eta_k$ is one of:
+\begin{itemize}
+\item Eisenstat and Walker Choice 1
+\[ \eta_n = \frac{\left|\; \|F(u_n)\|  
+                           - \|F(u_{n-1}) + J(u_{n-1}) * \delta_n \| 
+                  \; \right|}
+               {\|F(u_{n-1})\|},  \]
+\item Eisenstat and Walker Choice 2
+\[ \eta_n = \gamma \left( \frac{ \|F(u_n)\|}{\|F(u_{n-1})\|} \right)^{\alpha},
+\] 
+\item  $\eta_n$ = constant with 0.1 as the default.
+\end{itemize}
+The default is choice 1.  For both options 1 and 2, appropriate 
+safeguards are incorporated to ensure that $\eta$ does not decrease 
+too fast \cite{EiWa:96}.
 
 As a user option, KINSOL permits the application of inequality
-constraints -- either $u^i > 0$ or $u^i < 0$.  Either constraint, or
-no constraint, may be imposed on each component.
-
-KINSOL controls errors at three different levels:
-
-1. First, the Newton iteration must pass a stopping test,
-\[ \|D_F F(u_n)\| < ftol ~, \]
-where $D_F$ is an input scaling vector applied to $F$, and $ftol$ is
-an input scalar tolerance.
-
-2. The Krylov iteration must pass a stopping test,
-\[ \|J \Delta_k + F\|_S < \eta_k \|F\|_S ~, \]
-in which the norms are scaled using $D_S$.  There are three choices
-for the ``forcing term'' $\eta_k$:
-\vspace*{-.19in}
-\begin{itemize}
-\item two choices of Eisenstat and Walker \cite{EiWa:96}; the default
-is ``Choice 1''.
-\item  $\eta_k$ = constant
-\end{itemize}
-
-3. The size of the steps $\Delta_k$ in $u$ is controlled with the help
-of a user-supplied scaling vector $D_u$ = scaling for $u$.  This
-scaling is also used in the choice of $\sigma$.
+constraints, either $u^i > 0$ or $u^i < 0$.  Either constraint, or
+no constraint, may be imposed on each component.  KINSOL will reduce 
+step lengths in order to ensure that no constraint is violated.
 
 
