@@ -1,36 +1,37 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-10-26 20:14:55 $
+ * $Revision: 1.18 $
+ * $Date: 2004-11-16 21:36:34 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California  
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
- * This is the header file for the IDA/IDAS dense linear solver    
- * module, IDADENSE.                                               
+ * This is the header file for the IDA/IDAS dense linear solver
+ * module, IDADENSE.
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _idadense_h
-#define _idadense_h
+#ifndef _IDADENSE_H
+#define _IDADENSE_H
 
 #include <stdio.h>
-#include "sundialstypes.h"
+
 #include "dense.h"
 #include "nvector.h"
+#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------
- * Type : IDADenseJacFn                                           
- *----------------------------------------------------------------
+ * Type : IDADenseJacFn
+ * -----------------------------------------------------------------
  * A dense Jacobian approximation function djac must have the     
  * prototype given below. Its parameters are:                     
  *                                                                
@@ -109,8 +110,8 @@ typedef int (*IDADenseJacFn)(long int Neq, realtype tt,
 
 /*
  * -----------------------------------------------------------------
- * Function : IDADense                                            
- *----------------------------------------------------------------
+ * Function : IDADense
+ * -----------------------------------------------------------------
  * A call to the IDADense function links the main integrator      
  * with the IDADENSE linear solver module.                        
  *                                                                
@@ -120,17 +121,15 @@ typedef int (*IDADenseJacFn)(long int Neq, realtype tt,
  * Neq  is the problem size                                       
  *                                                                
  * IDADense returns:                                              
- *     SUCCESS   = 0   if successful                              
- *     LMEM_FAIL = -1  if there was a memory allocation failure   
- *     LIN_ILL_INPUT = -2 if NVECTOR found incompatible           
+ *     IDADENSE_SUCCESS   = 0  if successful                              
+ *     IDADENSE_LMEM_FAIL = -1 if there was a memory allocation failure   
+ *     IDADENSE_ILL_INPUT = -2 if NVECTOR found incompatible           
  *                                                                
  * NOTE: The dense linear solver assumes a serial implementation  
- *       of the NVECTOR package. Therefore, IDADense will first   
- *       test for a compatible N_Vector internal representation   
- *       by checking (1) the machine environment ID tag and       
- *       (2) that the functions N_VMake, N_VDispose, N_VGetData,  
- *       and N_VSetData are implemented.                          
- *                                                                
+ *       of the NVECTOR package. Therefore, IDADense will first
+ *       test for a compatible N_Vector internal representation
+ *       by checking that the functions N_VGetArrayPointer and
+ *       N_VSetArrayPointer exist.
  * -----------------------------------------------------------------
  */
 
@@ -138,9 +137,8 @@ int IDADense(void *ida_mem, long int Neq);
 
 /*
  * -----------------------------------------------------------------
- * Optional inputs to the IDADENSE linear solver                  
- *----------------------------------------------------------------
- *                                                                
+ * Optional inputs to the IDADENSE linear solver
+ * -----------------------------------------------------------------
  * IDADenseSetJacFn specifies the dense Jacobian approximation    
  *        routine to be used. A user-supplied djac routine must   
  *        be of type IDADenseJacFn.                               
@@ -153,7 +151,6 @@ int IDADense(void *ida_mem, long int Neq);
  *    IDADENSE_SUCCESS   if successful
  *    IDADENSE_MEM_NULL  if the ida memory was NULL
  *    IDaDENSE_LMEM_NULL if the idadense memory was NULL
- *                                                                
  * -----------------------------------------------------------------
  */
 
@@ -162,9 +159,8 @@ int IDADenseSetJacData(void *ida_mem, void *jac_data);
  
 /*
  * -----------------------------------------------------------------
- * Optional outputs from the IDADENSE linear solver               
- *----------------------------------------------------------------
- *                                                                
+ * Optional outputs from the IDADENSE linear solver
+ * -----------------------------------------------------------------
  * IDADenseGetWorkSpace returns the real and integer workspace used 
  *     by IDADENSE.                                                  
  * IDADenseGetNumJacEvals returns the number of calls made to the 
@@ -178,7 +174,6 @@ int IDADenseSetJacData(void *ida_mem, void *jac_data);
  *    IDADENSE_SUCCESS   if successful
  *    IDADENSE_MEM_NULL  if the ida memory was NULL
  *    IDaDENSE_LMEM_NULL if the idadense memory was NULL
- *                                                                
  * -----------------------------------------------------------------
  */
 
@@ -189,11 +184,11 @@ int IDADenseGetLastFlag(void *ida_mem, int *flag);
 
 /* IDADENSE return values */
 
-#define IDADENSE_SUCCESS     0
-#define IDADENSE_MEM_NULL   -1 
-#define IDADENSE_LMEM_NULL  -2 
-#define IDADENSE_ILL_INPUT  -3
-#define IDADENSE_MEM_FAIL   -4
+#define IDADENSE_SUCCESS    0
+#define IDADENSE_MEM_NULL  -1 
+#define IDADENSE_LMEM_NULL -2 
+#define IDADENSE_ILL_INPUT -3
+#define IDADENSE_MEM_FAIL  -4
 
 #endif
 

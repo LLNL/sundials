@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-10-26 20:14:55 $
+ * $Revision: 1.19 $
+ * $Date: 2004-11-16 21:36:34 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California  
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
  * This is the header file for the IDA/IDAS band linear solver
  * module, IDABAND. It interfaces between the band module and the
@@ -16,22 +16,23 @@
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _idaband_h
-#define _idaband_h
+#ifndef _IDABAND_H
+#define _IDABAND_H
 
 #include <stdio.h>
-#include "sundialstypes.h"
+
 #include "band.h"
 #include "nvector.h"
+#include "sundialstypes.h"
  
 /*
  * -----------------------------------------------------------------
- * Type : IDABandJacFn                                            
- *----------------------------------------------------------------
+ * Type : IDABandJacFn
+ * -----------------------------------------------------------------
  * A banded Jacobian approximation function bjac must have the    
  * prototype given below. Its parameters are:                     
  *                                                                
@@ -89,11 +90,11 @@ extern "C" {
  *     }                                                          
  *                                                                
  * NOTE: If the user's Jacobian routine needs other quantities,   
- *     they are accessible as follows: hcur (the current stepsize)
- *     and ewt (the error weight vector) are accessible through   
- *     IDAGetCurrentStep and IDAGetErrWeights, respectively (see  
- *     ida.h). The unit roundoff is available as                  
- *     UNIT_ROUNDOFF defined in sundialstypes.h                   
+ *       they are accessible as follows: hcur (the current stepsize)
+ *       and ewt (the error weight vector) are accessible through   
+ *       IDAGetCurrentStep and IDAGetErrWeights, respectively (see  
+ *       ida.h). The unit roundoff is available as                  
+ *       UNIT_ROUNDOFF defined in sundialstypes.h                   
  *                                                                
  * A third way, using the BAND_ELEM(A,i,j) macro, is much less    
  * efficient in general.  It is only appropriate for use in small 
@@ -117,30 +118,27 @@ typedef int (*IDABandJacFn)(long int Neq, long int mupper,
  
 /*
  * -----------------------------------------------------------------
- * Function : IDABand                                             
- *----------------------------------------------------------------
+ * Function : IDABand
+ * -----------------------------------------------------------------
  * A call to the IDABand function links the main integrator       
  * with the IDABAND linear solver module.                         
  *                                                                
  * ida_mem is the pointer to the integrator memory returned by    
- *   IDACreate.                                                   
+ *         IDACreate.                                                   
  *                                                                
  * mupper is the upper bandwidth of the banded Jacobian matrix.   
  *                                                                
  * mlower is the lower bandwidth of the banded Jacobian matrix.   
  *                                                                
  * The return values of IDABand are:                              
- *    SUCCESS       = 0  if successful                            
- *    LMEM_FAIL     = -1 if there was a memory allocation failure 
- *    LIN_ILL_INPUT = -2 if the input was illegal or NVECTOR bad. 
+ *     IDABAND_SUCCESS   = 0  if successful                            
+ *     IDABAND_LMEM_FAIL = -1 if there was a memory allocation failure 
+ *     IDABAND_ILL_INPUT = -2 if the input was illegal or NVECTOR bad. 
  *                                                                
  * NOTE: The band linear solver assumes a serial implementation   
- *       of the NVECTOR package. Therefore, IDABand will first    
- *       test for a compatible N_Vector internal representation   
- *       by checking (1) the machine environment ID tag and       
- *       (2) that the functions N_VMake, N_VDispose, N_VGetData,  
- *       and N_VSetData are implemented.                          
- *                                                                
+ *       of the NVECTOR package. Therefore, IDABand will first
+ *       test for a compatible N_Vector internal representation
+ *       by checking that the N_VGetArrayPointer function exists.
  * -----------------------------------------------------------------
  */
 
@@ -148,8 +146,8 @@ int IDABand(void *ida_mem, long int Neq, long int mupper, long int mlower);
 
 /*
  * -----------------------------------------------------------------
- * Optional inputs to the IDABAND linear solver                   
- *----------------------------------------------------------------
+ * Optional inputs to the IDABAND linear solver
+ * -----------------------------------------------------------------
  *                                                                
  * IDABandSetJacFn specifies the dense Jacobian approximation     
  *         routine to be used. A user-supplied djac routine must  
@@ -171,8 +169,8 @@ int IDABandSetJacData(void *ida_mem, void *jac_data);
 
 /*
  * -----------------------------------------------------------------
- * Optional outputs from the IDABAND linear solver                
- *----------------------------------------------------------------
+ * Optional outputs from the IDABAND linear solver
+ * -----------------------------------------------------------------
  *                                                                
  * IDABandGetWorkSpace returns the real and integer workspace used 
  *     by IDABAND.                                                   
@@ -187,7 +185,6 @@ int IDABandSetJacData(void *ida_mem, void *jac_data);
  *    IDABAND_SUCCESS   if successful
  *    IDABAND_MEM_NULL  if the ida memory was NULL
  *    IDABAND_LMEM_NULL if the idaband memory was NULL
- *                                                                
  * -----------------------------------------------------------------
  */
 
@@ -198,11 +195,11 @@ int IDABandGetLastFlag(void *ida_mem, int *flag);
 
 /* IDABAND return values */
 
-#define IDABAND_SUCCESS     0
-#define IDABAND_MEM_NULL   -1 
-#define IDABAND_LMEM_NULL  -2 
-#define IDABAND_ILL_INPUT  -3
-#define IDABAND_MEM_FAIL   -4
+#define IDABAND_SUCCESS    0
+#define IDABAND_MEM_NULL  -1 
+#define IDABAND_LMEM_NULL -2 
+#define IDABAND_ILL_INPUT -3
+#define IDABAND_MEM_FAIL  -4
 
 #endif
 
