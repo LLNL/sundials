@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-04-28 15:23:16 $
+ * $Revision: 1.15 $
+ * $Date: 2004-04-29 22:34:08 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -326,7 +326,7 @@ int IDABBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 
 /* Return values for IDABBDPrecGet* functions */
 /* OKAY = 0 */
-enum { BBDP_NO_PDATA = -1 };
+enum { BBDP_NO_PDATA = -11 };
 
 /* Prototypes of IDABBDPrecSetup and IDABBDPrecSolve */
 

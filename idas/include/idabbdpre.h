@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-04-28 15:34:51 $
+ * $Revision: 1.3 $
+ * $Date: 2004-04-29 22:34:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -325,7 +325,7 @@ int IBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 
 /* Return values for IBBDPrecGet* functions */
 /* OKAY = 0 */
-enum { BBDP_NO_PDATA = -1 };
+enum { BBDP_NO_PDATA = -11 };
 
 /* Prototypes of IBDPrecSetup and IBBDPrecSolve */
 
