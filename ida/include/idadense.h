@@ -3,7 +3,7 @@
  * File          : idadense.h                                     *
  * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and        *
  *                 Radu Serban @LLNL                              *
- * Version of    : 2 July 2002                                    *
+ * Version of    : 11 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the IDA dense linear solver        *
  * module, IDADENSE.                                              *
@@ -165,9 +165,10 @@ typedef int (*IDADenseJacFn)(integertype Neq, realtype tt, N_Vector yy, N_Vector
  * jdata is a pointer to user data which is passed to the djac    *
  *         routine every time it is called.                       *
  *                                                                *
- * IDADense returns either                                        *
- *     SUCCESS   = 0   if successful, or                          *
+ * IDADense returns:                                              *
+ *     SUCCESS   = 0   if successful                              *
  *     LMEM_FAIL = -1  if there was a memory allocation failure   *
+ *     LIN_ILL_INPUT = -2 if NVECTOR found incompatible           *
  *                                                                *
  * NOTE: The dense linear solver assumes a serial implementation  *
  *       of the NVECTOR package. Therefore, IDADense will first   *
@@ -198,8 +199,9 @@ int IDADense(void *IDA_mem, IDADenseJacFn djac, void *jdata);
  * identical to its value in the previous IDADense call.          *
  *                                                                *
  * The return values of IDAReInitDense are:                       *
- *     SUCCESS   = 0   if successful, or                          *
+ *     SUCCESS   = 0   if successful                              *
  *     LMEM_FAIL = -1  if the IDA_mem argument is NULL            *
+ *     LIN_ILL_INPUT = -2 if NVECTOR found incompatible           *
  *                                                                *
  ******************************************************************/
 
