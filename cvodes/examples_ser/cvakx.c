@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-23 21:35:03 $
+ * $Revision: 1.16.2.1 $
+ * $Date: 2005-03-03 19:59:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1221,9 +1221,9 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 #endif
     printf("at\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("  x = %Le\ny = %Le\n", x, y);
+    printf("  x = %Le\n  y = %Le\n", x, y);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("  x = %le\ny = %le\n", x, y);
+    printf("  x = %le\n  y = %le\n", x, y);
 #else
     printf("  x = %e\n  y = %e\n", x, y);
 #endif

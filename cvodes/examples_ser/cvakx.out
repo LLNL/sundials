@@ -1,54 +1,54 @@
-
 Create and allocate CVODE memory for forward run
-
+ 
 Allocate global memory
-
+ 
 Forward integration
-
-   G = int_t int_x int_y c6(t,x,y) dx dy dt = 422296.497491 
-
-
-List of Check Points (ncheck = 2)
- 2  addr: 0x8c206b8  time = [ 8.884e+00 1.004e+01 ]  next: 0x8c08ae0
- 1  addr: 0x8c08ae0  time = [ 6.284e-01 8.884e+00 ]  next: 0x80d2aa8
- 0  addr: 0x80d2aa8  time = [ 0.000e+00 6.284e-01 ]  next: (nil)
-
+ 
+   G = int_t int_x int_y c6(t,x,y) dx dy dt = 422296.110939
+ 
+ 
+List of Check Points (ncheck = 3)
+ 3  addr: 0xa540758  time = [ 8.506e+00 1.001e+01 ]  next: 0xa528b78
+ 2  addr: 0xa528b78  time = [ 4.540e+00 8.506e+00 ]  next: 0xa515b30
+ 1  addr: 0xa515b30  time = [ 5.863e-01 4.540e+00 ]  next: 0x99dfaf0
+ 0  addr: 0x99dfaf0  time = [ 0.000e+00 5.863e-01 ]  next: (nil)
+ 
 Create and allocate CVODES memory for backward run
-
+ 
 Backward integration
-
+ 
 Maximum sensitivity with respect to I.C. of species 1
-  lambda max = 9.568951e+02
+  lambda max = 9.575505e+02
 at
   x = 1.000000e+00
   y = 1.000000e+00
-
+ 
 Maximum sensitivity with respect to I.C. of species 2
-  lambda max = 9.379151e+02
+  lambda max = 9.385712e+02
 at
   x = 1.000000e+00
   y = 1.000000e+00
-
+ 
 Maximum sensitivity with respect to I.C. of species 3
-  lambda max = 9.199820e+02
+  lambda max = 9.206388e+02
 at
   x = 1.000000e+00
   y = 1.000000e+00
-
+ 
 Maximum sensitivity with respect to I.C. of species 4
-  lambda max = -4.052267e-03
+  lambda max = -6.431773e-03
 at
   x = 1.000000e+00
   y = 0.000000e+00
-
+ 
 Maximum sensitivity with respect to I.C. of species 5
-  lambda max = -4.044475e-03
+  lambda max = -6.422044e-03
 at
   x = 1.000000e+00
   y = 0.000000e+00
-
+ 
 Maximum sensitivity with respect to I.C. of species 6
-  lambda max = 3.149488e-01
+  lambda max = 5.407571e-01
 at
   x = 0.000000e+00
-  y = 0.000000e+00
+  y = 5.263158e-02
