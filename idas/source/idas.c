@@ -731,6 +731,12 @@ int IDAMalloc(void *ida_mem, ResFn res,
   IDA_mem->ida_hused = ZERO;
   IDA_mem->ida_tolsf = ONE;
 
+  /* Initialize quadrature data; default is NO quadratures */
+  IDA_mem->ida_quad  = FALSE;
+
+  /* Initialize sensitivity data; default is NO sensitivity */
+  IDA_mem->ida_sensi  = FALSE;
+
   /* Initial setup not done yet */
   IDA_mem->ida_SetupDone = FALSE;
 
@@ -852,6 +858,12 @@ int IDAReInit(void *ida_mem, ResFn res,
   IDA_mem->ida_kused = 0;
   IDA_mem->ida_hused = ZERO;
   IDA_mem->ida_tolsf = ONE;
+
+  /* Re-initialize quadrature data; default is NO quadratures */
+  IDA_mem->ida_quad  = FALSE;
+
+  /* Re-initialize sensitivity data; default is NO sensitivity */
+  IDA_mem->ida_sensi  = FALSE;
 
   /* Initial setup not done yet */
   IDA_mem->ida_SetupDone = FALSE;
