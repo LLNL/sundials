@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-06-18 21:37:59 $
+ * $Revision: 1.2 $
+ * $Date: 2004-07-22 23:07:43 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -337,20 +337,6 @@ typedef struct IDAMemRec {
   /* Flag to indicate successful ida_linit call */
 
   booleantype ida_linitOK;
-
-  /*-------------------------------------------------
-    Pointer to the vector specification structure for
-    state N_Vectors
-    -------------------------------------------------*/
-
-  NV_Spec ida_nvspec;
-
-  /*-------------------------------------------------
-    Pointer to the vector specification structure for 
-    quadrature N_Vectors
-    -------------------------------------------------*/
-
-  NV_Spec ida_nvspecQ;
 
 } *IDAMem;
 
