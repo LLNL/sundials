@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2004-10-26 23:44:59 $
+ * $Revision: 1.32 $
+ * $Date: 2004-11-05 01:19:39 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California  
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/idas/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/idas/LICENSE.
  * -----------------------------------------------------------------
  * This is the implementation file for the main IDAS solver.       
  * It is independent of the linear solver in use.                  
@@ -23,8 +23,8 @@
 #include <stdlib.h>
 
 #include "idas_impl.h"
-
 #include "sundialsmath.h"
+#include "sundialstypes.h"
 
 /*=================================================================*/
 /*END          Import Header Files                                 */
@@ -2676,7 +2676,7 @@ static booleantype IDASensSetAtolSS(IDAMem IDA_mem, realtype *atolS)
     if (plist!=NULL) which = abs(plist[is]) - 1; 
     else             which = is;
 
-    if (pbar == NULL) pb = 1.0;
+    if (pbar == NULL) pb = ONE;
     else              pb = ABS(pbar[which]);
 
     if (pb == ZERO) return (FALSE);
@@ -2700,7 +2700,7 @@ static booleantype IDASensSetAtolSV(IDAMem IDA_mem, N_Vector *atolS)
     if (plist!=NULL) which = abs(plist[is]) - 1;
     else             which = is;
 
-    if (pbar == NULL) pb = 1.0;
+    if (pbar == NULL) pb = ONE;
     else              pb = ABS(pbar[which]);
 
     if (pb == ZERO) return (FALSE);
@@ -4009,7 +4009,7 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
     *erkm1 = sigma[kk-1] * enorm_km1;
     terkm1 = kk * (*erkm1);
 
-    if ( (kk==2) && (terkm1 <= 0.5*terk) ) { knew = kk - 1; *est = *erkm1; } 
+    if ( (kk==2) && (terkm1 <= (HALF * terk)) ) { knew = kk - 1; *est = *erkm1; } 
 
     if ( kk > 2 ) {
       N_VLinearSum(ONE, phi[kk-1], ONE, delta, delta);
@@ -4865,7 +4865,7 @@ int IDASensRes1DQ(int Ns, realtype t,
     skipFP = FALSE;
   }
   psave   = p[which];
-  if (pbar == NULL) pbari = 1.0;
+  if (pbar == NULL) pbari = ONE;
   else              pbari = ABS(pbar[which]);
 
   Delp  = pbari * del;

@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-10-26 20:15:32 $
+ * $Revision: 1.22 $
+ * $Date: 2004-11-05 01:19:36 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California  
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
  * This is the implementation file for the IDA Scaled              
  * Preconditioned GMRES linear solver module, IDASPGMR.            
@@ -17,13 +17,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "ida_impl.h"
 #include "idaspgmr_impl.h"
-#include "spgmr.h"
 #include "iterative.h"
-#include "sundialstypes.h"
 #include "nvector.h"
+#include "spgmr.h"
 #include "sundialsmath.h"
+#include "sundialstypes.h"
 
 /* Error Messages */
 
@@ -35,18 +36,18 @@
 
 #define MSG_BAD_NVECTOR        IDASPGMR "A required vector operation is not implemented.\n\n"
 
-#define MSG_SETGET_IDAMEM_NULL "IDASpgmrSet*/IDASpgmrGet*-- Integrator memory is NULL. \n\n"
+#define MSG_SETGET_IDAMEM_NULL "IDASpgmrSet*/IDASpgmrGet*-- Integrator memory is NULL.\n\n"
 
-#define MSG_SETGET_LMEM_NULL   "IDASpgmrSet*/IDASpgmrGet*-- IDASPGMR memory is NULL. \n\n"
+#define MSG_SETGET_LMEM_NULL   "IDASpgmrSet*/IDASpgmrGet*-- IDASPGMR memory is NULL.\n\n"
 
 #define MSG_BAD_GSTYPE_1       "IDASpgmrSetGSType-- gstype = %d illegal.\n"
 #define MSG_BAD_GSTYPE_2       "The legal values are MODIFIED_GS = %d and "
 #define MSG_BAD_GSTYPE_3       "CLASSICAL_GS = %d.\n\n"
 #define MSG_BAD_GSTYPE         MSG_BAD_GSTYPE_1 MSG_BAD_GSTYPE_2 MSG_BAD_GSTYPE_3
 
-#define MSG_IDAS_NEG_MAXRS     "IDASpgmrSetMaxRestarts-- maxrs<0 illegal. \n\n"
+#define MSG_IDAS_NEG_MAXRS     "IDASpgmrSetMaxRestarts-- maxrs < 0 illegal.\n\n"
 
-#define MSG_IDAS_NEG_EPLIFAC   "IDASpgmrSetEpsLin-- eplifac < 0.0 illegal. \n\n"
+#define MSG_IDAS_NEG_EPLIFAC   "IDASpgmrSetEpsLin-- eplifac < 0.0 illegal.\n\n"
 
 #define MSG_IDAS_NEG_DQINCFAC  "IDASpgmrSetIncrementFactor-- dqincfac < 0.0 illegal. \n\n"
 
@@ -65,7 +66,6 @@
 
 #define MSG_CFL_WARN3  "Linear convergence failure rate is %e.\n\n"
 #define MSG_CFL_WARN   MSG_WARN1 MSG_WARN2 MSG_CFL_WARN3
-
 
 /* Constants */
 

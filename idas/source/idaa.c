@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-26 20:17:12 $
+ * $Revision: 1.13 $
+ * $Date: 2004-11-05 01:19:39 $
  * ----------------------------------------------------------------- 
- * Programmers: Radu Serban @ LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California  
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/idas/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/idas/LICENSE.
  * -----------------------------------------------------------------
  * This is the implementation file for the IDAA adjoint integrator.
  * -----------------------------------------------------------------
@@ -20,8 +20,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "idaa_impl.h"
 #include "sundialsmath.h"
+
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
+#endif
 
 /*=================================================================*/
 /*END               Import Header Files                            */
@@ -61,7 +67,7 @@
 /*=================================================================*/
 
 #define IDAAM                "IDAAdjMalloc-- "
-#define MSG_IDAAM_NO_MEM     IDAAM "ida_mem=NULL illegal.\n\n"
+#define MSG_IDAAM_NO_MEM     IDAAM "ida_mem = NULL illegal.\n\n"
 #define MSG_IDAAM_BAD_STEPS  IDAAM "steps non-positive illegal.\n\n"
 #define MSG_IDAAM_MEM_FAIL   IDAAM "a memory request failed.\n\n"
 
@@ -69,12 +75,12 @@
 #define MSG_IDASOLVEF_MEM_FAIL IDAF "a memory request failed.\n\n"
 
 #define IDABM                "IDAMallocB/IDAReInitB-- "
-#define MSG_IDABM_NO_MEM     IDABM "idaadj_mem=NULL illegal.\n\n"
+#define MSG_IDABM_NO_MEM     IDABM "idaadj_mem = NULL illegal.\n\n"
 #define MSG_IDABM_BAD_TB0    IDABM "tB0 out of range.\n\n"
 #define MSG_IDABM_MEM_FAIL   IDABM "a memory request failed.\n\n"
 
 #define IDABQM               "IDAQuadMallocB-- "
-#define MSG_IDABQM_NO_MEM    IDABQM "idaadj_mem=NULL illegal.\n\n"
+#define MSG_IDABQM_NO_MEM    IDABQM "idaadj_mem = NULL illegal.\n\n"
 
 #define IDAB                 "IDASOLVEBB-- "
 #define MSG_IDASOLVEB_FWD    IDAB "an error occured during the forward phase.\n\n"
@@ -427,8 +433,13 @@ void IDAAdjCheckPointsList(void *idaadj_mem)
   i = 0;
 
   while (ck_mem != NULL) {
+    #if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("Check point %2d  addr: %p  time = [ %5Le %5Le ]  next: %p\n", 
+           nckpnts-i, (void *)ck_mem, t0_, t1_, (void *)next_ );
+    #else
     printf("Check point %2d  addr: %p  time = [ %5e %5e ]  next: %p\n", 
            nckpnts-i, (void *)ck_mem, t0_, t1_, (void *)next_ );
+    #endif
     ck_mem = next_;
     i++;
   }
@@ -759,7 +770,7 @@ int IDAReInitB(void *idaadj_mem, IDAResFnB resB,
     return(IDA_BAD_TB0);
   }
 
-  res_B  = resB;
+  res_B = resB;
 
   ida_mem = (void *) IDAADJ_mem->IDAB_mem;
 
@@ -894,7 +905,7 @@ int IDADenseSetJacFnB(void *idaadj_mem, IDADenseJacFnB djacB)
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
-  djac_B     = djacB;
+  djac_B = djacB;
 
   ida_mem = (void *) IDAADJ_mem->IDAB_mem;
 
@@ -942,7 +953,7 @@ int IDABandSetJacFnB(void *idaadj_mem, IDABandJacFnB bjacB)
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
-  bjac_B     = bjacB;
+  bjac_B = bjacB;
 
   ida_mem = (void *) IDAADJ_mem->IDAB_mem;
 
@@ -1622,8 +1633,13 @@ static int IDAAgetY(void *idaadj_mem, realtype t, N_Vector yy, N_Vector yp)
     }
     else {
       printf("\n TROUBLE IN GETY\n ");
+      #if defined(SUNDIALS_EXTENDED_PRECISION)
+      printf("%Lg = ABS(t-dt_mem[0]->t) > troundoff = %Lg  uround = %Lg\n",
+             ABS(t-dt_mem[0]->t), troundoff, uround);
+      #else
       printf("%g = ABS(t-dt_mem[0]->t) > troundoff = %g  uround = %g\n",
              ABS(t-dt_mem[0]->t), troundoff, uround);
+      #endif
       return(GETY_BADT);
     }
   }

@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2004-10-26 23:43:07 $
+ * $Revision: 1.33 $
+ * $Date: 2004-11-05 01:19:35 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California  
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
  * This is the implementation file for the main IDA solver.
  * It is independent of the linear solver in use.
@@ -21,10 +21,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "ida_impl.h"
-#include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
+#include "sundialstypes.h"
 
 /* Macro: loop */
 
@@ -129,9 +130,9 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define RAISE 2     /* IDACompleteStep */
 #define MAINTAIN 3  /* IDACompleteStep */
 
-#define ERROR_TEST_FAIL       +7
+#define ERROR_TEST_FAIL +7
 
-#define XRATE                RCONST(0.25)        
+#define XRATE RCONST(0.25)        
 
 /***************************************************************/
 /***************** BEGIN Error Messages ************************/
@@ -139,23 +140,23 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 /* IDACreate error messages */
 
-#define MSG_IDAMEM_FAIL      "IDACreate-- Allocation of ida_mem failed. \n\n"
+#define MSG_IDAMEM_FAIL      "IDACreate-- Allocation of ida_mem failed.\n\n"
 
 /* IDASet* error messages */
 
-#define MSG_IDAS_NO_MEM      "ida_mem=NULL in an IDASet routine illegal. \n\n"
+#define MSG_IDAS_NO_MEM      "ida_mem = NULL in an IDASet routine illegal.\n\n"
 
-#define MSG_IDAS_NEG_MAXORD  "IDASetMaxOrd-- maxord<=0 illegal. \n\n"
+#define MSG_IDAS_NEG_MAXORD  "IDASetMaxOrd-- maxord <= 0 illegal.\n\n"
 
 #define MSG_IDAS_BAD_MAXORD1 "IDASetMaxOrd-- Illegal attempt to increase "
 #define MSG_IDAS_BAD_MAXORD2 "maximum method order from %d to %d.\n\n"
 #define MSG_IDAS_BAD_MAXORD  MSG_IDAS_BAD_MAXORD1 MSG_IDAS_BAD_MAXORD2 
 
-#define MSG_IDAS_NEG_MXSTEPS "IDASetMaxNumSteps-- mxsteps<=0 illegal. \n\n"
+#define MSG_IDAS_NEG_MXSTEPS "IDASetMaxNumSteps-- mxsteps <= 0 illegal.\n\n"
 
-#define MSG_IDAS_NEG_HMAX    "IDASetMaxStep-- hmax<=0 illegal. \n\n"
+#define MSG_IDAS_NEG_HMAX    "IDASetMaxStep-- hmax <= 0 illegal.\n\n"
 
-#define MSG_IDAS_NEG_EPCON   "IDASetNonlinConvCoef-- epcon < 0.0 illegal. \n\n"
+#define MSG_IDAS_NEG_EPCON   "IDASetNonlinConvCoef-- epcon < 0.0 illegal.\n\n"
 
 #define MSG_IDAS_BAD_EPICCON "IDASetNonlinConvcoefIC-- epiccon < 0.0 illegal.\n\n"
 
@@ -208,7 +209,7 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_MEM_FAIL       IDAM "A memory request failed.\n\n"
 
-#define MSG_REI_NO_MALLOC  "IDAReInit-- Attempt to call before IDAMalloc. \n\n"
+#define MSG_REI_NO_MALLOC  "IDAReInit-- Attempt to call before IDAMalloc.\n\n"
 
 /* IDAInitialSetup error messages -- called from IDACalcIC or IDASolve */
 
@@ -232,7 +233,7 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_IC_IDA_NO_MEM  IDAIC "IDA_mem = NULL illegal.\n\n"
 
-#define MSG_IC_NO_MALLOC   IDAIC "Attempt to call before IDAMalloc. \n\n"
+#define MSG_IC_NO_MALLOC   IDAIC "Attempt to call before IDAMalloc.\n\n"
  
 #define MSG_BAD_ICOPT      IDAIC "icopt = %d is illegal.\n\n"
 
@@ -247,11 +248,11 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_IC_BAD_EWT     IDAIC "Some ewt component = 0.0 illegal.\n\n"
 
 #define MSG_IC_RES_NONR1   IDAIC "Non-recoverable error return from"
-#define MSG_IC_RES_NONR2   " residual routine. \n\n"
+#define MSG_IC_RES_NONR2   " residual routine.\n\n"
 #define MSG_IC_RES_NONREC  MSG_IC_RES_NONR1 MSG_IC_RES_NONR2
 
 #define MSG_IC_RES_FAIL1   IDAIC "Recoverable error in first call to"
-#define MSG_IC_RES_FAIL2   " residual routine. Cannot recover. \n\n"
+#define MSG_IC_RES_FAIL2   " residual routine. Cannot recover.\n\n"
 #define MSG_IC_RES_FAIL    MSG_IC_RES_FAIL1 MSG_IC_RES_FAIL2
 
 #define MSG_IC_SETUP_FL1   IDAIC "The linear solver setup routine"
@@ -285,9 +286,9 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_IDA_NO_MEM     IDASLV "IDA_mem = NULL illegal.\n\n"
 
-#define MSG_NO_MALLOC      IDASLV "Attempt to call before IDAMalloc. \n\n"
+#define MSG_NO_MALLOC      IDASLV "Attempt to call before IDAMalloc.\n\n"
  
-#define MSG_BAD_HINIT      IDASLV "hinit=%g and tout-t0=%g inconsistent.\n\n"
+#define MSG_BAD_HINIT      IDASLV "hinit = %g and tout-t0 = %g inconsistent.\n\n"
 
 #define MSG_BAD_TOUT1      IDASLV "Trouble interpolating at tout = %g.\n"
 #define MSG_BAD_TOUT2      "tout too far back in direction of integration.\n\n"
@@ -298,64 +299,64 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 #define MSG_BAD_TSTOP      MSG_BAD_TSTOP1 MSG_BAD_TSTOP2
 
 
-#define MSG_MAX_STEPS1     IDASLV "At t=%g, mxstep=%d steps taken on "
-#define MSG_MAX_STEPS2     "this call before\nreaching tout=%g.\n\n"
+#define MSG_MAX_STEPS1     IDASLV "At t = %g, mxstep = %d steps taken on "
+#define MSG_MAX_STEPS2     "this call before\nreaching tout = %g.\n\n"
 #define MSG_MAX_STEPS      MSG_MAX_STEPS1 MSG_MAX_STEPS2
 
-#define MSG_EWT_NOW_BAD1   IDASLV "At t=%g, "
+#define MSG_EWT_NOW_BAD1   IDASLV "At t = %g, "
 #define MSG_EWT_NOW_BAD2   "some ewt component has become <= 0.0.\n\n"
 #define MSG_EWT_NOW_BAD    MSG_EWT_NOW_BAD1 MSG_EWT_NOW_BAD2
 
-#define MSG_TOO_MUCH_ACC   IDASLV "At t=%g, too much accuracy requested.\n\n"
+#define MSG_TOO_MUCH_ACC   IDASLV "At t = %g, too much accuracy requested.\n\n"
 
-#define MSG_ERR_FAILS1     IDASLV "At t=%g and step size h=%g, the error test\n"
+#define MSG_ERR_FAILS1     IDASLV "At t = %g and step size h = %g, the error test\n"
 #define MSG_ERR_FAILS2     "failed repeatedly or with |h| = hmin.\n\n"
 #define MSG_ERR_FAILS      MSG_ERR_FAILS1 MSG_ERR_FAILS2
 
-#define MSG_CONV_FAILS1    IDASLV "At t=%g and step size h=%g, the corrector\n"
+#define MSG_CONV_FAILS1    IDASLV "At t = %g and step size h = %g, the corrector\n"
 #define MSG_CONV_FAILS2    "convergence failed repeatedly.\n\n"
 #define MSG_CONV_FAILS     MSG_CONV_FAILS1 MSG_CONV_FAILS2
 
-#define MSG_SETUP_FAILED1  IDASLV "At t=%g, the linear solver setup routine "
+#define MSG_SETUP_FAILED1  IDASLV "At t = %g, the linear solver setup routine "
 #define MSG_SETUP_FAILED2  "failed in an unrecoverable manner.\n\n"
 #define MSG_SETUP_FAILED   MSG_SETUP_FAILED1 MSG_SETUP_FAILED2
 
-#define MSG_SOLVE_FAILED1  IDASLV "At t=%g, the linear solver solve routine "
+#define MSG_SOLVE_FAILED1  IDASLV "At t = %g, the linear solver solve routine "
 #define MSG_SOLVE_FAILED2  "failed in an unrecoverable manner.\n\n"
 #define MSG_SOLVE_FAILED   MSG_SOLVE_FAILED1 MSG_SOLVE_FAILED2
 
-#define MSG_TOO_CLOSE1     IDASLV "tout=%g too close to t0=%g to start"
+#define MSG_TOO_CLOSE1     IDASLV "tout = %g too close to t0 = %g to start"
 #define MSG_TOO_CLOSE2     " integration.\n\n"
 #define MSG_TOO_CLOSE      MSG_TOO_CLOSE1 MSG_TOO_CLOSE2
 
-#define MSG_YRET_NULL      IDASLV "yret=NULL illegal.\n\n"
-#define MSG_YPRET_NULL     IDASLV "ypret=NULL illegal.\n\n"
-#define MSG_TRET_NULL      IDASLV "tret=NULL illegal.\n\n"
+#define MSG_YRET_NULL      IDASLV "yret = NULL illegal.\n\n"
+#define MSG_YPRET_NULL     IDASLV "ypret = NULL illegal.\n\n"
+#define MSG_TRET_NULL      IDASLV "tret = NULL illegal.\n\n"
 
-#define MSG_BAD_ITASK      IDASLV "itask=%d illegal.\n\n"
+#define MSG_BAD_ITASK      IDASLV "itask = %d illegal.\n\n"
 
 #define MSG_NO_TSTOP1      IDASLV "itask = IDA_NORMAL_TSTOP or itask = IDA_ONE_STEP_TSTOP "
 #define MSG_NO_TSTOP2      "but tstop was not set.\n\n"
 #define MSG_NO_TSTOP       MSG_NO_TSTOP1 MSG_NO_TSTOP2
 
 #define MSG_REP_RES_ERR1   IDASLV "At t = %g, repeated recoverable error \n"
-#define MSG_REP_RES_ERR2   "returns from residual function. \n\n"
+#define MSG_REP_RES_ERR2   "returns from residual function.\n\n"
 #define MSG_REP_RES_ERR    MSG_REP_RES_ERR1 MSG_REP_RES_ERR2
 
 #define MSG_RES_NONRECOV1  IDASLV "At t = %g, nonrecoverable error \n"
-#define MSG_RES_NONRECOV2  "return from residual function. \n\n"
+#define MSG_RES_NONRECOV2  "return from residual function.\n\n"
 #define MSG_RES_NONRECOV   MSG_RES_NONRECOV1 MSG_RES_NONRECOV2
 
 #define MSG_FAILED_CONSTR1 IDASLV "At t = %g, unable to satisfy \n"
-#define MSG_FAILED_CONSTR2 "inequality constraints. \n\n"
+#define MSG_FAILED_CONSTR2 "inequality constraints.\n\n"
 #define MSG_FAILED_CONSTR  MSG_FAILED_CONSTR1 MSG_FAILED_CONSTR2
 
 /* IDAGet Error Messages */
 
-#define MSG_IDAG_NO_MEM "ida_mem=NULL in an IDAGet routine illegal. \n\n"
+#define MSG_IDAG_NO_MEM "ida_mem = NULL in an IDAGet routine illegal. \n\n"
 
-#define MSG_BAD_T1      "IDAGetSolution-- t=%g illegal.\n"
-#define MSG_BAD_T2      "t not in interval tcur-hu=%g to tcur=%g.\n\n"
+#define MSG_BAD_T1      "IDAGetSolution-- t = %g illegal.\n"
+#define MSG_BAD_T2      "t not in interval tcur-hu = %g to tcur = %g.\n\n"
 #define MSG_BAD_T       MSG_BAD_T1 MSG_BAD_T2
 
 /**************************************************************/
@@ -3497,7 +3498,7 @@ static int IDATestError(IDAMem IDA_mem, realtype *ck, realtype *est,
         if(MAX(*terkm1, terkm2) > *terk) goto evaltest;
       }
       
-      else if(*terkm1 > 0.5*(*terk)) goto evaltest; /* executed for kk=2 only */
+      else if(*terkm1 > (HALF * (*terk))) goto evaltest; /* executed for kk=2 only */
     }
     /* end of "kk>2" if/else block */
     
