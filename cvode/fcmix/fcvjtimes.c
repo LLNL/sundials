@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13.2.2 $
- * $Date: 2005-04-01 21:49:56 $
+ * $Revision: 1.13.2.3 $
+ * $Date: 2005-04-06 23:32:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,8 +43,8 @@ extern "C" {
 
 void FCV_SPGMRSETJAC(int *flag, int *ier)
 {
-  if (*flag == 0) CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL);
-  else CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes);
+  if (*flag == 0) CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
+  else CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
 }
 
 /***************************************************************************/
