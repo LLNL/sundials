@@ -153,9 +153,9 @@ constant $R$ as follows.  We initialize $R$ to 1, and reset $R = 1$
 when $M$ or $P$ is updated.  After computing a correction
 $\delta_m = y_{n,m} - y_{n,m-1}$, we update $R$ if $m > 1$ as
 \begin{equation*}
-  R \leftarrow \max\{0.3R , \|\delta_m\| / \|\delta_{m-1}\| \} \, .
+  R \leftarrow \max\{0.3R , \|\delta_m\| / \|\delta_{m-1}\| \} \, ,
 \end{equation*}
-Now we use the estimate
+and we use the estimate
 \begin{equation*}
   \| y_n - y_{n,m} \| \approx \| y_{n,m+1} - y_{n,m} \|
   \approx R \| y_{n,m} - y_{n,m-1} \|  =  R \|\delta_m \| \, .
