@@ -47,9 +47,10 @@ SRC =	${srcdir}/fcvode.c \
 	${srcdir}/fcvjtimes.c \
 	${srcdir}/fcvpsol.c \
 	${srcdir}/fcvpreco.c \
-	${srcdir}/fcvbbd.c
+	${srcdir}/fcvbbd.c \
+	${srcdir}/fcvbp.c
 
-OBJ = fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvpsol.o fcvbbd.o
+OBJ = fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvpsol.o fcvbbd.o fcvbp.o
 
 #--------------------------------------------------------------------------------
 # Make rules

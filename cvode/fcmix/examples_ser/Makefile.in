@@ -33,7 +33,7 @@ LIBS    = ${TEMP_LIBS} -lfcvode -lcvode -lfnvecserial -lnvecserial -lshared
 # Make rules
 #--------------------------------------------------------------------------------
 
-all: cvdensef cvbandf cvkryf
+all: cvdensef cvbandf cvkryf cvkrybf
 
 cvdensef : ${srcdir}/cvdensef.f
 	${FC} -c ${FFLAGS} ${srcdir}/$@.f
@@ -44,9 +44,12 @@ cvbandf : ${srcdir}/cvbandf.f
 cvkryf : ${srcdir}/cvkryf.f
 	${FC} -c ${FFLAGS} ${srcdir}/$@.f
 	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
+cvkrybf : ${srcdir}/cvkrybf.f
+	${FC} -c ${FFLAGS} ${srcdir}/$@.f
+	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
 
 clean:
 	rm -f *.o
-	rm -f cvdensef cvbandf cvkryf
+	rm -f cvdensef cvbandf cvkryf cvkrybf
 
 #---End of Makefile---
