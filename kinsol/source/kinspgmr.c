@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-11-15 17:10:20 $
+ * $Revision: 1.23 $
+ * $Date: 2004-11-16 01:17:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -973,6 +973,7 @@ static void KINSpgmrPrintInfo(KINMem kin_mem, char *funcname, int key,...)
 {
   va_list ap;
   realtype rnum1, rnum2;
+  int inum1;
 
   fprintf(infofp, "---%s\n   ", funcname);
 
@@ -983,7 +984,7 @@ static void KINSpgmrPrintInfo(KINMem kin_mem, char *funcname, int key,...)
   switch(key) {
 
   case PRNT_NLI:
-    rnum1 = *(va_arg(ap, int *));
+    inum1 = *(va_arg(ap, int *));
     fprintf(infofp, "nli_inc = %d\n", rnum1);
     break;
     
