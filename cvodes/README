@@ -1,5 +1,5 @@
                            CVODES 
-                 Release 2.1.1, January 2005
+                 Release 2.1.2, March 2005
                Alan C. Hindmarsh and Radu Serban
           Center for Applied Scientific Computing, LLNL
 
@@ -64,7 +64,23 @@ C. References
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
     accepted, 2004.
 
-D.1. Revision History since release 2.1.0 (December 2004)
+D.1.  Revision History since release 2.2.1 (January 2005)
+---------------------------------------------------------
+
+- Bug fixes
+   - 
+
+- Changes to documentation
+   - added section with numerical values of all input and output solver constants
+   - added more detailed notes on the type of absolute tolerances
+   - added more details on ownership of memory for the array returned by CVodeGetRootInfo 
+
+- Changes related to the build system
+   - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   - modified to use customized detection of the Fortran name mangling scheme 
+     (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
+
+D.2. Revision History since release 2.1.0 (December 2004)
 ---------------------------------------------------------
 
 - New features
@@ -83,7 +99,7 @@ D.1. Revision History since release 2.1.0 (December 2004)
    - changed order of compiler directives in header files to avoid compilation
      errors when using a C++ compiler.
 
-D.2. Revision History since release 1.0 (July 2002)
+D.3. Revision History since release 1.0 (July 2002)
 ---------------------------------------------------
 
 - New features

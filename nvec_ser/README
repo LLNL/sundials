@@ -1,5 +1,5 @@
                      NVECTOR_SERIAL
-                Release 2.0.1, January 2005
+                Release 2.0.2, March 2005
 
 Serial implementation of the NVECTOR module for SUNDIALS. 
 
@@ -45,14 +45,22 @@ C. References
     Documentation for KINSOL v2.2.0," LLNL technical report UCRL-MA-208116, 
     November 2004.
 
-D.1. Revision History since release 2.0 (December 2004)
+D.1.  Revision History since release 2.0.1 (January 2005)
+---------------------------------------------------------
+
+- Changes related to the build system
+   - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   - modified to use customized detection of the Fortran name mangling scheme 
+     (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
+
+D.2. Revision History since release 2.0 (December 2004)
 ---------------------------------------------------------
 
 - Changes related to the build system
    - changed order of compiler directives in header files to avoid compilation
      errors when using a C++ compiler.
 
-D.2. Revision history since release 1.0 (July 2002)
+D.3. Revision history since release 1.0 (July 2002)
 ---------------------------------------------------
 
 - Revised to correspond to new generic NVECTOR module

@@ -1,6 +1,6 @@
                            SUNDIALS 
                         Shared Module
-                   Release 2.0.1, January 2005
+                   Release 2.0.2, March 2005
 
 
 The family of solvers referred to as SUNDIALS consists of solvers CVODE 
@@ -43,14 +43,22 @@ C. References
     Documentation for KINSOL v2.2.0," LLNL technical report UCRL-MA-208116, 
     November 2004.
 
-D.1. Revision History since release 2.0 (December 2004)
+D.1.  Revision History since release 2.0.1 (January 2005)
 ---------------------------------------------------------
+
+- Changes related to the build system
+   - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   - modified to use customized detection of the Fortran name mangling scheme 
+     (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
+
+D.2. Revision History since release 2.0 (December 2004)
+-------------------------------------------------------
 
 - Changes related to the build system
    - changed order of compiler directives in header files to avoid compilation
      errors when using a C++ compiler.
 
-D.2. Revision history since release 1.0 (July 2002)
+D.3. Revision history since release 1.0 (July 2002)
 ---------------------------------------------------
 
 - Changes to the generic NVECTOR module
@@ -91,7 +99,7 @@ D.2. Revision history since release 1.0 (July 2002)
      values from float.h based on the precision.
    - changed definition of macro RCONST to depend on precision.
 
-D.2. Previous revisions (YYYYMMDD)
+D.4. Previous revisions (YYYYMMDD)
 ----------------------------------
 
 20020321  Defined and implemented generic NVECTOR module, and separate serial/
