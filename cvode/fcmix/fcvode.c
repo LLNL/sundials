@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2004-11-05 23:56:04 $
+ * $Revision: 1.38 $
+ * $Date: 2004-11-15 21:50:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -300,7 +300,6 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   */
 
   *ier = CVode(CV_cvodemem, *tout, F2C_vec, t, *itask);
-  if (*ier < 0) return;
 
   y = N_VGetArrayPointer(F2C_vec);
 
