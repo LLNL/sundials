@@ -93,7 +93,39 @@ VODPK, are documented in Refs. \cite{BBH:89}, \cite{Byr:92}, and
 \cite{CoHi:94} and \cite{ByHi:98}.
 
 There is an important additional part of the CVODE order selection
-algorithm that is not based on local error.  
-*** DAN *** 
-See Refs. \cite{Hin:92} and \cite{Hin:95} for details.
+algorithm that is not based on local error, but instead provides
+protection against potentially unstable behavior of the BDF methods.
+At order 1 or 2, the BDF method is A-stable.  But at orders 3 to 5 it
+is not, and the region of instability includes a portion of the left
+half-plane that is concentrated near the imaginary axis.  The size of
+that region of instability grows as the order increases from 3 to 5.
+What this means is that, when running BDF at these higher orders, if
+an eigenvalue $\lambda$ of the system lies close enough to the
+imaginary axis, the step sizes $h$ for which the method is stable are
+limited (at least according to the linear stability theory) to a set
+that prevents $h\lambda$ from leaving the stability region.  System
+eigenvalues that are likely to cause this instability are ones that
+correspond to weakly damped oscillations, such as might arise from a
+semi-discretized advection-diffusion PDE with advection dominating
+over diffusion.
 
+CVODE includes an optional algorithm called STALD (STAbility Limit
+Detection), which attempts to detect directly the presence of a
+stability region boundary that is limiting the step sizes in the
+presence of a weakly damped oscillation \cite{Hin:92}.  Working
+directly with history data that is readily available, if it concludes
+that the step size is in fact stability-limited, it dictates a
+reduction in the method order, regardless of the outcome of the
+error-based algorithm.  STALD has been tested in combination with the
+VODE solver on linear advection-dominated advection-diffusion problems
+\cite{Hin:95}, where it works well.  The implementation in CVODE has
+been successfully tested on linear and nonlinear advection-diffusion
+problems, among others.
+The STALD option adds some overhead computational cost to the CVODE
+solution.  In timing tests, these overhead costs have ranged from 2\%
+to 7\% of the total, depending on the size and complexity of the
+problem, with lower relative costs for larger problems.  Therefore, it
+should be activated only when there is reasonable expectation of modes
+in the user's system for which it is appropriate, together with poor
+performance at orders 3-5, for no apparent reason, with the option
+turned off.
