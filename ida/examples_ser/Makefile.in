@@ -1,0 +1,57 @@
+# File Makefile
+#--------------------------------------------------------------------------
+# Makefile for the IDA examples using the serial N_Vector implementation.
+# @configure_input@
+#--------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# SUNDIALS library and include directories
+SUNDIALSINCLUDE = -I${includedir}
+SUNDIALSLIBDIRS = -L${libdir}
+SUNDIALSLIBS    = -lida -lshared -lnvecserial
+
+# Include
+INCDIRS = -I${includedir}
+
+# Libraries
+LIBDIRS = ${SUNDIALSLIBDIRS}
+LIBS    = ${SUNDIALSLIBS} -lm
+
+# Compiler and compiler options
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: irobx iheatsb iheatsk iwebsb
+
+irobx: irobx.o
+	${CC} ${CFLAGS} -o irobx irobx.o ${LIBDIRS} ${LIBS}
+
+iheatsb: iheatsb.o
+	${CC} ${CFLAGS} -o iheatsb iheatsb.o ${LIBDIRS} ${LIBS}
+
+iheatsk: iheatsk.o
+	${CC} ${CFLAGS} -o iheatsk iheatsk.o ${LIBDIRS} ${LIBS}
+
+iwebsb: iwebsb.o
+	${CC} ${CFLAGS} -o iwebsb iwebsb.o ${LIBDIRS} ${LIBS}
+
+clean:
+	rm -f *.o
+	rm -f irobx iheatsb iheatsk iwebsb
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCDIRS} $*.c
+
+#---End of Makefile---
