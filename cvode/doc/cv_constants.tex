@@ -1,0 +1,163 @@
+%%========================================================================
+\chapter{CVODE Constants}\label{c:constants}
+%%========================================================================
+
+Below we list all input and output constants used by the main solver and 
+linear solver modules, together with their numerical values and a short
+description of their meaning.
+
+%%-------------------------------------------------------------------------
+%% Supertabular setings
+
+\newlength{\tcolone}
+\settowidth{\tcolone}{\id{SPGMR\_PSOLVE\_FAIL\_UNREC}}
+\newlength{\tcoltwo}
+\settowidth{\tcoltwo}{-20}
+\newlength{\tcolthree}
+\setlength{\tcolthree}{\textwidth}
+\addtolength{\tcolthree}{-0.5in}
+\addtolength{\tcolthree}{-\tcolone}
+\addtolength{\tcolthree}{-\tcoltwo}
+
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+
+%%-------------------------------------------------------------------------
+
+\section{CVODE input constants}
+
+\noindent {\bf {\cvode} main solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CV\_ADAMS}            & 1 & Adams-Moulton linear multistep method. \\
+\id{CV\_BDF}              & 2 & BDF linear multistep method. \\
+\id{CV\_FUNCTIONAL}       & 1 & Nonlinear system solution through functional iterations. \\
+\id{CV\_NEWTON}           & 2 & Nonlinear system solution through Newton iterations. \\
+\id{CV\_SS}               & 1 & Scalar relative tolerance, scalar absolute tolerance. \\
+\id{CV\_SV}               & 2 & Scalar relative tolerance, vector absolute tolerance. \\
+\id{CV\_NORMAL}           & 1 & Solver returns at specified output time. \\
+\id{CV\_ONE\_STEP}        & 2 & Solver returns after each successful step. \\
+\id{CV\_NORMAL\_TSTOP}    & 3 & Solver returns at specified output time, but does not proceed past the specified stopping time. \\
+\id{CV\_ONE\_STEP\_TSTOP} & 4 & Solver returns after each successful step, but does not proceed past the specified stopping time. \\
+\end{supertabular*}
+\vspace{0.1in}
+
+\noindent {\bf Iterative linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{PREC\_NONE} & 0 & No preconditioning \\
+\id{PREC\_LEFT} & 1 & Preconditioning on the left only. \\
+\id{PREC\_RIGHT} & 2 & Preconditioning on the right only. \\
+\id{PREC\_BOTH} & 3 & Preconditioning on both the left and the right. \\
+\id{MODIFIED\_GS} & 1 & Use modified Gram-Schmidt procedure. \\
+\id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure. \\
+\end{supertabular*}
+\vspace{0.1in}
+
+%%-------------------------------------------------------------------------
+
+\section{CVODE output constants}
+
+\noindent {\bf {\cvode} main solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CV\_SUCCESS}         &  0  & Successful function return. \\
+\id{CV\_TSTOP\_RETURN}   &  1  & \id{CVode} succeeded by reaching the specified stopping point. \\
+\id{CV\_ROOT\_RETURN}    &  2  & \id{CVode} succeeded and found one or more roots. \\
+\id{CV\_MEM\_NULL}       & -1  & The \id{cvode\_mem} argument was \id{NULL}. \\
+\id{CV\_ILL\_INPUT}      & -2  & One of the function inputs is illegal. \\
+\id{CV\_NO\_MALLOC}      & -3  & The {\cvode} memory was not allocated by a call to \id{CVodeMalloc}. \\
+\id{CV\_TOO\_MUCH\_WORK} & -4  & The solver took \id{mxstep} internal steps but could not reach tout.\\
+\id{CV\_TOO\_MUCH\_ACC}  & -5  & The solver could not satisfy the accuracy demanded by the user for some internal step.\\
+\id{CV\_ERR\_FAILURE}    & -6  & Error test failures occurred too many times during one internal time step or minimum step size was reached. \\
+\id{CV\_CONV\_FAILURE}   & -7  & Convergence test failures occurred too many times during one internal time step or minimum step size was reached. \\
+\id{CV\_LINIT\_FAIL}     & -8  & The linear solver's initialization function failed.  \\
+\id{CV\_LSETUP\_FAIL}    & -9  & The linear solver's setup function failed in an unrecoverable manner. \\
+\id{CV\_LSOLVE\_FAIL}    & -10 & The linear solver's solve function failed in an unrecoverable manner. \\
+\id{CV\_MEM\_FAIL}       & -11 & A memory allocation failed. \\
+\id{CV\_RTFUNC\_NULL}    & -12 & The user-supplied root function is \id{NULL}.\\
+\id{CV\_NO\_SLDET}       & -13 & The stability limit detection algorithm was not activated. \\
+\id{CV\_BAD\_K}          & -14 & The derivative order $k$ is larger than the order used. \\
+\id{CV\_BAD\_T}          & -15 & The time $t$ s outside the last step taken. \\
+\id{CV\_BAD\_DKY}        & -16 & The output derivative vector is \id{NULL}. \\
+\id{CV\_PDATA\_NULL}     & -17 & The preconditioner module has not been initialized. \\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\cvdense} linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CVDENSE\_SUCCESS}    &  0 & Successful function return. \\
+\id{CVDENSE\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVDENSE\_LMEM\_NULL} & -2 & The {\cvdense} linear solver has not been initialized.\\
+\id{CVDENSE\_ILL\_INPUT} & -3 & The {\cvdense} solver is not compatible with the current {\nvector} module.\\
+\id{CVDENSE\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\cvband} linar solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CVBAND\_SUCCESS}    &  0 & Successful function return. \\
+\id{CVBAND\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVBAND\_LMEM\_NULL} & -2 & The {\cvband} linear solver has not been initialized.\\
+\id{CVBAND\_ILL\_INPUT} & -3 & The {\cvband} solver is not compatible with the current {\nvector} module.\\
+\id{CVBAND\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\cvdiag} linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CVDIAG\_SUCCESS}    &  0 & Successful function return. \\
+\id{CVDIAG\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVDIAG\_LMEM\_NULL} & -2 & The {\cvdiag} linear solver has not been initialized.\\
+\id{CVDIAG\_ILL\_INPUT} & -3 & The {\cvdiag} solver is not compatible with the current {\nvector} module.\\
+\id{CVDIAG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\cvspgmr} linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CVSPGMR\_SUCCESS}    &  0 & Successful function return. \\
+\id{CVSPGMR\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVSPGMR\_LMEM\_NULL} & -2 & The {\cvspgmr} linear solver has not been initialized.\\
+\id{CVSPGMR\_ILL\_INPUT} & -3 & The {\cvspgmr} solver is not compatible with the current {\nvector} module.\\
+\id{CVSPGMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\spgmr} generic linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{SPGMR\_SUCCESS}            &  0 & Converged. \\
+\id{SPGMR\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
+\id{SPGMR\_CONV\_FAIL}         &  2 & Failure to converge. \\
+\id{SPGMR\_QRFACT\_FAIL}       &  3 & A singular matrix was found during the QR factorization. \\
+\id{SPGMR\_PSOLVE\_FAIL\_REC}  &  4 & The preconditioner solve function failed recoverably.\\
+\id{SPGMR\_MEM\_NULL}          & -1 & The {\spgmr} memory is \id{NULL}\\
+\id{SPGMR\_ATIMES\_FAIL}       & -2 & The Jacobian tims vector function failed. \\
+\id{SPGMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
+\id{SPGMR\_GS\_FAIL}           & -4 & Failure in the Gram-Schmidt procedure. \\
+\id{SPGMR\_QRSOL\_FAIL}        & -5 & The matrix $R$ was found to be singular during the QR solve phase. \\
+\end{supertabular*} 
+\vspace{0.1in}
