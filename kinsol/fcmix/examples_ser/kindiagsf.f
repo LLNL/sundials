@@ -1,7 +1,7 @@
       program kindiagsf
 c     ----------------------------------------------------------------
-c     $Revision: 1.10 $
-c     $Date: 2004-10-12 23:12:40 $
+c     $Revision: 1.11 $
+c     $Date: 2004-10-13 17:35:06 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -48,11 +48,11 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fnvinits(neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
- 1220    format('SUNDIALS_ERROR: FNVINITS returned IER = ',i2)
+ 1220    format('SUNDIALS_ERROR: FNVINITS returned IER = ', i2)
          stop
       endif
 
-      do 20 i = 1,neq
+      do 20 i = 1, neq
          uu(i) = 2.0d0 * i
          scale(i) = 1.0d0
          constr(i) = 0.0d0
@@ -62,7 +62,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
      &                constr, inopt, iopt, ropt, ier)
       if (ier .ne. 0) then
          write(6,1230) ier
- 1230    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ',i2)
+ 1230    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ', i2)
          call fnvfrees
          stop
       endif
@@ -70,7 +70,8 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinspgmr(maxl, maxlrst, ier)
       if (ier .ne. 0) then
          write(6,1235) ier
- 1235    format('SUNDIALS_ERROR: FKINSPGMR returned IER = ',i2)
+ 1235    format('SUNDIALS_ERROR: FKINSPGMR returned IER = ', i2)
+         call fkinfree
          call fnvfrees
          stop
       endif
@@ -88,27 +89,30 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then
          write(6,1242) ier, iopt(15)
- 1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ',i2,/,
-     1          '                Linear Solver returned IER = ',i2)
+ 1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ', i2, /,
+     1          '                Linear Solver returned IER = ', i2)
+         call fkinfree
          call fnvfrees
          stop
       endif
 
       write(6,1245) ier
- 1245 format(/' fkinsol return code is ',i5)
+ 1245 format(/' fkinsol return code is ', i5)
 
       write(6,1246)
  1246 format(/' The resultant values of uu are:'/)
 
-      do 30 i = 1,neq,4
+      do 30 i = 1, neq, 4
          write(6,1256) i, uu(i), uu(i+1), uu(i+2), uu(i+3)
  1256    format(i4, 4(1x, f10.6))
  30   continue
 
-      write(6,1267) iopt(4),iopt(11),iopt(5),iopt(12),iopt(13),iopt(14)
- 1267 format(//' nni=',i4,',  nli=',i4,',  nfe=',i4,',  npe=',i4,
-     1       ',  nps=',i4,',  ncfl=',i4)
+      write(6,1267) iopt(4), iopt(11), iopt(5), iopt(12), iopt(13),
+     1              iopt(14)
+ 1267 format(//' nni = ', i4, ',  nli = ', i4, ',  nfe = ', i4,
+     1       ',  npe = ', i4, ',  nps = ', i4, ',  ncfl = ', i4)
 
+      call fkinfree
       call fnvfrees
 
       stop
@@ -127,8 +131,8 @@ c     function of the following form.
 
       common /psize/ neq
 
-      do 10 i = 1,neq
-         fval(i) = uu(i)*uu(i) - i*i
+      do 10 i = 1, neq
+         fval(i) = uu(i) * uu(i) - i * i
  10   continue
       return
       end
@@ -153,7 +157,7 @@ c     to it.  The argument list must also be as illustrated below:
       common /pcom/ pp(128)
       common /psize/ neq
 
-      do 10 i = 1,neq
+      do 10 i = 1, neq
          pp(i) = 0.5d0 / (udata(i) + 5.0d0)
  10   continue
       ier = 0
@@ -181,7 +185,7 @@ c     to it.  The argument list must also be as illustrated below:
       common /pcom/ pp(128)
       common /psize/ neq
 
-      do 10 i = 1,neq
+      do 10 i = 1, neq
          vv(i) = vv(i) * pp(i)
  10   continue
       ier = 0

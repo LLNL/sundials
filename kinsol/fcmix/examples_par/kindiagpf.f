@@ -1,7 +1,7 @@
       program kindiagpf
 c     ----------------------------------------------------------------
-c     $Revision: 1.10 $
-c     $Date: 2004-10-12 23:12:46 $
+c     $Revision: 1.11 $
+c     $Date: 2004-10-13 17:35:11 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -36,7 +36,7 @@ c
       common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
 
       nlocal = localsize
-      neq = 4*nlocal
+      neq = 4 * nlocal
       globalstrat = 1
       fnormtol = 1.0d-5
       scsteptol = 1.0d-4
@@ -55,22 +55,22 @@ c     number of this process.
       call mpi_init(ier)
       if (ier .ne. 0) then
          write(6,1210) ier
- 1210    format('MPI_ERROR: MPI_INIT returned IER = ',i2)
+ 1210    format('MPI_ERROR: MPI_INIT returned IER = ', i2)
          stop
       endif
 
       call fnvinitp(nlocal, neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
- 1220    format('SUNDIALS_ERROR: FNVINITP returned IER = ',i2)
+ 1220    format('SUNDIALS_ERROR: FNVINITP returned IER = ', i2)
          call mpi_finalize(ier)
          stop
       endif
       
-      call mpi_comm_size(MPI_COMM_WORLD,size,ier)
+      call mpi_comm_size(MPI_COMM_WORLD, size, ier)
       if (ier .ne. 0) then
          write(6,1222) ier
- 1222    format('MPI_ERROR: MPI_COMM_SIZE returned IER = ',i2)
+ 1222    format('MPI_ERROR: MPI_COMM_SIZE returned IER = ', i2)
          call mpi_abort(MPI_COMM_WORLD, 1, ier)
          stop
       endif
@@ -86,15 +86,15 @@ c     number of this process.
       call mpi_comm_rank(MPI_COMM_WORLD, rank, ier)
       if (ier .ne. 0) then
          write(6,1224) ier
- 1224    format('MPI_ERROR: MPI_COMM_RANK returned IER = ',i2)
+ 1224    format('MPI_ERROR: MPI_COMM_RANK returned IER = ', i2)
          call mpi_abort(MPI_COMM_WORLD, 1, ier)
          stop
       endif
 
       mype = rank
       baseadd = mype * nlocal 
-      
-      do 20 ii = 1,nlocal
+
+      do 20 ii = 1, nlocal
          i = ii + baseadd
          uu(ii) = 2.0d0 * i
          scale(ii) = 1.0d0
@@ -106,7 +106,7 @@ c     number of this process.
       
       if (ier .ne. 0) then
          write(6,1231)ier
- 1231    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ',i2)
+ 1231    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ', i2)
          call mpi_abort(MPI_COMM_WORLD, 1, ier)
          stop
       endif
@@ -115,7 +115,7 @@ c     number of this process.
       call fkinspgmrsetpsol(1, ier)
       call fkinspgmrsetpset(1, ier)
       
-      if(mype .eq. 0)write(6,1240)
+      if (mype .eq. 0) write(6,1240)
  1240 format('Example program kindiagpf'/' This fkinsol example code',
      1       ' solves a 128 eqn diagonal algebraic system.'/
      2       ' Its purpose is to demonstrate the use of the Fortran',
@@ -125,29 +125,30 @@ c     number of this process.
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then
          write(6,1242) ier, iopt(15)
- 1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ',i2,/,
-     1          '                Linear Solver returned IER = ',i2)
+ 1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ', i2, /,
+     1          '                Linear Solver returned IER = ', i2)
          call mpi_abort(MPI_COMM_WORLD, 1, ier)
          stop
       endif
 
-      if (mype .eq. 0) write(6,1245)ier
- 1245 format(/' fkinsol return code is ',i5)
+      if (mype .eq. 0) write(6,1245) ier
+ 1245 format(/' fkinsol return code is ', i5)
 
       if (mype .eq. 0) write(6,1246)
  1246 format(/' The resultant values of uu (processor 0) are:'//)
       
-      do 30 i = 1,nlocal,4
-         if(mype .eq. 0) write(6,1256)i+baseadd, uu(i), uu(i+1),
+      do 30 i = 1, nlocal, 4
+         if(mype .eq. 0) write(6,1256) i + baseadd, uu(i), uu(i+1),
      1        uu(i+2), uu(i+3)
  1256    format(i4, 4(1x, f10.6))
  30   continue
 
-      if (mype .eq. 0) write(6,1267)iopt(4),iopt(11),iopt(5),iopt(12),
-     1                 iopt(13),iopt(14)
- 1267 format(//' nni=',i4,',  nli=',i4,',  nfe=',i4,',  npe=',i4,
-     1       ',  nps=',i4,',  ncfl=',i4)
+      if (mype .eq. 0) write(6,1267) iopt(4), iopt(11), iopt(5),
+     1                      iopt(12), iopt(13), iopt(14)
+ 1267 format(//' nni = ', i4, ',  nli = ', i4, ',  nfe = ', i4,
+     1       ',  npe = ', i4, ',  nps=', i4, ',  ncfl=', i4)
 
+      call fkinfree
       call fnvfreep
       
 c     An explicit call to mpi_finalize (Fortran binding) is required by 
@@ -174,8 +175,8 @@ c     function with the following name and form.
 
       common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
 
-      do 10 i = 1,nlocal
- 10      fval(i) = uu(i)*uu(i) - (i+baseadd)*(i+baseadd)
+      do 10 i = 1, nlocal
+ 10      fval(i) = uu(i) * uu(i) - (i + baseadd) * (i + baseadd)
       
       return
       end
@@ -201,7 +202,7 @@ c     to it.  The argument list must also be as illustrated below:
 
       common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
 
-      do 10 i = 1,nlocal
+      do 10 i = 1, nlocal
  10      pp(i) = 0.5d0 / (udata(i)+ 5.0d0)
 
       ier = 0
@@ -230,7 +231,7 @@ c     to it.  The argument list must also be as illustrated below:
 
       common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
 
-      do 10 i = 1,nlocal
+      do 10 i = 1, nlocal
  10      vv(i) = vv(i) * pp(i)
 
       ier = 0

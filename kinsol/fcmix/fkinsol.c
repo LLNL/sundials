@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-10-12 23:12:34 $
+ * $Revision: 1.25 $
+ * $Date: 2004-10-13 17:34:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -73,8 +73,9 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
   }
 
 
-  /* Save data array from F2C_vec into data_F2C_vec and then
-   overwrite it with constraints */
+  /* set pointer data_F2C_vec to point to data array from global F2C_vec
+     and then overwrite it with the user-supplied constraints */
+
   data_F2C_vec = N_VGetArrayPointer(F2C_vec);
   N_VSetArrayPointer(constraints, F2C_vec);
 
@@ -192,13 +193,27 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KIN_iopt[13] = nlcfails;
     KIN_iopt[14] = lsflag;
   }
+}
 
-  /* Call KINFree: KIN_mem is the pointer to the KINSOL memory block */
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_FREE
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_FREE()
+{
+
+  /* call KINFree: KIN_mem is the pointer to the KINSOL memory block */
+
   KINFree(KIN_mem);
 
-  /* Restore data array in F2C_vec */
+  /* restore data array in F2C_vec */
+
   N_VSetArrayPointer(data_F2C_vec, F2C_vec);
 }
+
 
 /*
  * ----------------------------------------------------------------
