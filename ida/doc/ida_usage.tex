@@ -643,12 +643,12 @@ will catch any error.
 \label{t:optional_input}
 \medskip
 \begin{tabular}{|l|l|l|}\hline
-{\bf Optional input} & {\bf Routine name} & {\bf Default} \\
+{\bf Optional input} & {\bf Function name} & {\bf Default} \\
 \hline
 \multicolumn{3}{|c|}{\bf IDA main solver} \\
 \hline
 Pointer to an error file & \id{IDASetErrFile} & \id{NULL}  \\
-Data for residual routine & \id{IDASetRdata} & \id{NULL} \\
+Data for residual function & \id{IDASetRdata} & \id{NULL} \\
 Maximum order for BDF method & \id{IDASetMaxOrd} & 5 \\
 Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & \id{IDASetMaxNumSteps} & 500 \\
 Initial step size & \id{IDASetInitStep} & estimated \\
@@ -673,21 +673,21 @@ Lower bound on Newton step & \id{IDASetStepToleranceIC} & (2/3)(unit roundoff) \
 \hline
 \multicolumn{3}{|c|}{\bf IDADENSE linear solver} \\
 \hline
-Dense Jacobian routine & \id{IDADenseSetJacFn} & internal DQ \\
-Data for Jacobian routine & \id{IDADenseSetJacData} & NULL \\
+Dense Jacobian function & \id{IDADenseSetJacFn} & internal DQ \\
+Data for Jacobian function & \id{IDADenseSetJacData} & NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf IDABAND linear solver} \\
 \hline
-Band Jacobian routine & \id{IDABandSetJacFn} & internal DQ \\
-Data for Jacobian routine & \id{IDABandSetJacData} & NULL \\
+Band Jacobian function & \id{IDABandSetJacFn} & internal DQ \\
+Data for Jacobian function & \id{IDABandSetJacData} & NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf IDASPGMR linear solver} \\
 \hline
-Preconditioner solve routine & \id{IDASpgmrSetPrecSolveFn} & NULL \\
-Preconditioner setup routine & \id{IDASpgmrSetPrecSetupFn} & NULL \\
-Data for preconditioner routines & \id{IDASpgmrSetPrecData} & NULL \\
-Jacobian times vector routine & \id{IDASpgmrSetJacTimesVecFn} & NULL \\
-Data for Jacobian times vector routine &\id{IDASpgmrSetJacData} & NULL \\ 
+Preconditioner solve function & \id{IDASpgmrSetPrecSolveFn} & NULL \\
+Preconditioner setup function & \id{IDASpgmrSetPrecSetupFn} & NULL \\
+Data for preconditioner functions & \id{IDASpgmrSetPrecData} & NULL \\
+Jacobian times vector function & \id{IDASpgmrSetJacTimesVecFn} & NULL \\
+Data for Jacobian times vector function &\id{IDASpgmrSetJacData} & NULL \\ 
 Type of Gram-Schmidt orthogonalization & \id{IDASpgmrSetGSType} & classical GS \\
 Maximum no. of restarts & \id{IDASpgmrSetMaxRestarts} & 5 \\
 Factor in linear convergence test & \id{IDASpgmrSetEpsLin} & 0.05 \\
@@ -1713,7 +1713,7 @@ which are then described in detail in the remainder of this section.
 \label{t:optional_output}
 \medskip
 \begin{tabular}{|l|l|}\hline
-{\bf Optional output} & {\bf Routine name} \\
+{\bf Optional output} & {\bf Function name} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDA main solver} \\
 \hline
@@ -1721,7 +1721,7 @@ Size of {\ida} integer workspace & \id{IDAGetIntWorkSpace} \\
 Size of {\ida} real workspace & \id{IDAGetRealWorkSpace} \\
 Cumulative number of internal steps & \id{IDAGetNumSteps} \\
 No. of calls to r.h.s. function & \id{IDAGetNumRhsEvals} \\
-No. of calls to linear solver setup routine & \id{IDAGetNumLinSolvSetups} \\
+No. of calls to linear solver setup function & \id{IDAGetNumLinSolvSetups} \\
 No. of local error test failures that have occurred & \id{IDAGetNumErrTestFails} \\
 Order used during the last step & \id{IDAGetLastOrder} \\
 Order to be attempted on the next step & \id{IDAGetCurrentOrder} \\
@@ -1940,7 +1940,7 @@ These optional output functions are described next.
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nlinsetups] (\id{long int *})
-    number of calls made to the linear solver setup routine.
+    number of calls made to the linear solver setup function.
   \end{args}
 }
 {
@@ -2301,7 +2301,7 @@ These optional output functions are described next.
   \item[nfevals] (\id{long int *})
     number of calls to the user's \id{f} function.
   \item[nlinsetups] (\id{long int *})
-    number of calls made to the linear solver setup routine.
+    number of calls made to the linear solver setup function.
   \item[netfails] (\id{long int *})
     number of error test failures.
   \item[qlast] (\id{int *})
@@ -3010,7 +3010,7 @@ will be reused for the new problem.
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[f] (\Id{RhsFn})
-    is the {\C} function which computes $f$ in the ODE. This function has the form 
+    is the {\C} function which computes $F$. This function has the form 
     \id{f(N, t, y, ydot, f\_data)} (for full details see \S\ref{ss:user_fct_sim}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
@@ -3060,17 +3060,17 @@ that define the preconditioner for use in the {\spgmr} algorithm.
 %%
 %%--------------
 %%
-\subsection{ODE right-hand side} 
+\subsection{Residual function} 
 \label{ss:rhsFn}
-\index{right-hand side function}
-The user must provide a function of type \ID{RhsFn} defined as follows:
-\usfunction{RhsFn}
+\index{residual function}
+The user must provide a function of type \ID{ResFn} defined as follows:
+\usfunction{ResFn}
 {
-  typedef void (*RhsFn)(realtype t, N\_Vector y, N\_Vector ydot, void *f\_data);
+  typedef void (*ResFn)(realtype t, N\_Vector y, N\_Vector ydot, void *f\_data);
 }
 {
-  This function computes the ODE right-hand side for a given value
-  of the independent variable $t$ and state vector $y$.
+  This function computes the problem residual for given value
+  of the independent variable $t$, state vector $y$, and derivative $\dot y$.
 }
 {
   \begin{args}[f\_data]
@@ -3587,7 +3587,7 @@ then used by \id{gloc}, which is not expected to do any communication.
   A \id{CVLocalFn} function type does not have a return value.
 }
 {
-  This routine assumes that all inter-processor communication of data needed to 
+  This function assumes that all inter-processor communication of data needed to 
   calculate \id{glocal} has already been done, and this data is accessible within
   \id{f\_data}.
 
@@ -3861,7 +3861,7 @@ next.
 }
 {}
 %%
-The {\idabbdpre} module also provides a reinitialization routine to allow
+The {\idabbdpre} module also provides a reinitialization function to allow
 solving  a sequence of problems of the same size with {\idaspgmr}/{\idabbdpre},
 provided there is no change in \id{local\_N}, \id{mukeep}, or \id{mlkeep}.
 After solving one problem, and after calling \id{IDAReInit} to re-initialize 
