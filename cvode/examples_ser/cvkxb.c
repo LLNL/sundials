@@ -230,11 +230,11 @@ int main()
   } /* End of jpre loop */
 
   /* Free memory */
-  if(y != NULL) N_VFree(y);
-  if(data != NULL) free(data);
-  if(bpdata != NULL) CVBandPrecFree(bpdata);
-  if(cvode_mem != NULL) CVodeFree(cvode_mem);
-  if(nvSpec != NULL) NV_SpecFree_Serial(nvSpec);
+  N_VFree(y);
+  free(data);
+  CVBandPrecFree(bpdata);
+  CVodeFree(cvode_mem);
+  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 }

@@ -167,13 +167,13 @@ int main()
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
   /* Free y vector */
-  if (y != NULL) N_VFree(y);
+  N_VFree(y);
   /* Free abstol vector */
-  if (abstol != NULL) N_VFree(abstol);
+  N_VFree(abstol);
   /* Free CVODE problem memory */
-  if (cvode_mem != NULL) CVodeFree(cvode_mem);
+  CVodeFree(cvode_mem);
   /* Free vector specification memory */
-  if (nvSpec != NULL) NV_SpecFree_Serial(nvSpec);
+  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 }

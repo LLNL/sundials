@@ -322,10 +322,10 @@ int main()
   }
 
   /* Free all memory */
-  if(cvode_mem != NULL) CVodeFree(cvode_mem);
-  if(c != NULL) N_VFree(c);
-  if(nvSpec != NULL) NV_SpecFree_Serial(nvSpec);
-  if(wdata != NULL) FreeUserData(wdata);
+  CVodeFree(cvode_mem);
+  N_VFree(c);
+  NV_SpecFree_Serial(nvSpec);
+  FreeUserData(wdata);
 
   return(0);
 }

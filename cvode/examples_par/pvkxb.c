@@ -312,11 +312,11 @@ int main(int argc, char *argv[])
   } /* End of jpre loop */
 
   /* Free memory */
-  if(u != NULL) N_VFree(u);
-  if(pdata != NULL) CVBBDPrecFree(pdata);
-  if(data != NULL) free(data);
-  if(cvode_mem != NULL) CVodeFree(cvode_mem);
-  if(nvSpec != NULL) NV_SpecFree_Parallel(nvSpec);
+  N_VFree(u);
+  CVBBDPrecFree(pdata);
+  free(data);
+  CVodeFree(cvode_mem);
+  NV_SpecFree_Parallel(nvSpec);
 
   MPI_Finalize();
 

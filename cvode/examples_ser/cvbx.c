@@ -187,10 +187,10 @@ int main()
 
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
-  if(u != NULL) N_VFree(u);                  /* Free the u vector */
-  if(cvode_mem != NULL) CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
-  if(data != NULL) free(data);                  /* Free the user data */
-  if(nvSpec != NULL) NV_SpecFree_Serial(nvSpec);  /* Free the vector specification memory */
+  N_VFree(u);                  /* Free the u vector */
+  CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
+  free(data);                  /* Free the user data */
+  NV_SpecFree_Serial(nvSpec);  /* Free the vector specification memory */
 
   return(0);
 }

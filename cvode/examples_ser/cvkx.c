@@ -220,10 +220,10 @@ int main()
   PrintFinalStats(cvode_mem);
 
   /* Free memory */
-  if(y != NULL) N_VFree(y);
-  if(data != NULL) FreeUserData(data);
-  if(cvode_mem != NULL) CVodeFree(cvode_mem);
-  if(nvSpec != NULL) NV_SpecFree_Serial(nvSpec);
+  N_VFree(y);
+  FreeUserData(data);
+  CVodeFree(cvode_mem);
+  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 }

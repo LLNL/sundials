@@ -269,9 +269,9 @@ static int Problem1(void)
     PrintFinalStats(cvode_mem, miter, ero);
   }
 
-  if(cvode_mem != NULL) CVodeFree(cvode_mem);
-  if(y != NULL) N_VFree(y);
-  if(nvSpec != NULL) NV_SpecFree_Serial(nvSpec);
+  CVodeFree(cvode_mem);
+  N_VFree(y);
+  NV_SpecFree_Serial(nvSpec);
 
   return(nerr);
 }
@@ -441,9 +441,9 @@ static int Problem2(void)
     PrintFinalStats(cvode_mem, miter, ero);
   }
 
-  if(cvode_mem != NULL) CVodeFree(cvode_mem);
-  if(y != NULL) N_VFree(y);
-  if(nvSpec != NULL) NV_SpecFree_Serial(nvSpec);
+  CVodeFree(cvode_mem);
+  N_VFree(y);
+  NV_SpecFree_Serial(nvSpec);
 
   return(nerr);
 }
