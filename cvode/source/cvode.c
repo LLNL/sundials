@@ -1270,12 +1270,12 @@ int CVodeGetEwt(void *cvode_mem, N_Vector weight)
 {
   CVodeMem cv_mem;
   
-  cv_mem = (CVodeMem) cvode_mem; 
-
   if (cvode_mem == NULL) {
     fprintf(stdout, MSG_GEWT_NO_MEM);
     return (GEWT_NO_MEM);
   }
+
+  cv_mem = (CVodeMem) cvode_mem; 
 
   weight = ewt;
 
