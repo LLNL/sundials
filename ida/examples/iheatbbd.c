@@ -1,9 +1,9 @@
 /***********************************************************************
  * File       : iheatbbd.c   
  * Written by : Allan G. Taylor and Alan C. Hindmarsh
- * Version of : 3 July 2002
+ * Version of : 11 July 2002
  *----------------------------------------------------------------------
- * Modified by R. Serban to work with new parallel nvector (8/3/2002)
+ * Modified by R. Serban to work with new parallel nvector (7/3/2002)
  *----------------------------------------------------------------------
  *
  * Example problem for IDA: 2D heat equation, parallel, GMRES, IDABBDPRE.
@@ -87,8 +87,9 @@ static int rescomm(N_Vector uu, N_Vector up, void *rdata);
 static int reslocal(realtype tres, N_Vector uu, N_Vector up, 
                     N_Vector res,  void *rdata);
 
-static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub, integertype jysub,
-                 integertype dsizex, integertype dsizey, realtype uarray[]);
+static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub,
+                 integertype jysub, integertype dsizex, integertype dsizey,
+                 realtype uarray[]);
 
 static int BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
                      integertype ixsub, integertype jysub,
@@ -102,8 +103,8 @@ static int BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub
 int main(int argc, char *argv[])
      
 {
-  int npes, thispe;
-  integertype i, iout, itol, itask, Neq, local_N, retval;
+  int npes, thispe, i, iout, itol, itask, retval;
+  integertype Neq, local_N;
   long int iopt[OPT_SIZE];
   integertype mudq, mldq, mukeep, mlkeep;
   booleantype optIn;
@@ -147,7 +148,7 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);
   retval = InitUserData(Neq, thispe, comm, data);
 
-  /* Initialize the uu, up, id, res, and constraints profiles. */
+  /* Initialize the uu, up, id, and constraints profiles. */
   retval = SetInitialProfile(uu, up, id, res, data);
   N_VConst(ONE, constraints);
 
@@ -214,15 +215,13 @@ int main(int argc, char *argv[])
     printf("   Difference quotient half-bandwidths = %ld",mudq);
     printf("   Retained matrix half-bandwidths = %ld \n",mukeep);
 
-
     /* Print output table heading and initial line of table. */
     printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-    printf("  time     umax       k  nst  nni  nli   nre    h      npe nps\n" );
+    printf("  time     umax       k  nst  nni  nli   nre    h       npe nps\n");
     printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
 
     printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld %9.2e  %3ld %3ld\n",
-           t0, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
-           iopt[NRE],  ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
+           t0, umax, 0, 0, 0, 0, 0, 0.0, 0, 0);
   }
 
   /* Loop over tout, call IDASolve, print output. */
@@ -231,10 +230,11 @@ int main(int argc, char *argv[])
     retval = IDASolve(mem, tout, t0, &tret, uu, up, itask);
     
     umax = N_VMaxNorm(uu);
-    if (thispe == 0) printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld %9.2e  %3ld %3ld\n",
-                            tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
-                            iopt[NRE], ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
-    
+    if (thispe == 0)
+      printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld %9.2e  %3ld %3ld\n",
+             tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI],
+             iopt[NRE], ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
+
     if (retval < 0) {
       if (thispe == 0) printf("IDASolve returned %ld.\n",retval);
       return(1);
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
 
     /* Print output table heading and initial line of table. */
     printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-    printf("  time     umax       k  nst  nni  nli   nre    h       npe nps\n" );
+    printf("  time     umax       k  nst  nni  nli   nre    h       npe nps\n");
     printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
 
     printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d %9.2e  %3d %3d\n",
@@ -305,9 +305,10 @@ int main(int argc, char *argv[])
     retval = IDASolve(mem, tout, t0, &tret, uu, up, itask);
     
     umax = N_VMaxNorm(uu);
-    if (thispe == 0) printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d %9.2e  %3d %3d\n",
-                            tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
-                            iopt[NRE], ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
+    if (thispe == 0)
+      printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d %9.2e  %3d %3d\n",
+             tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
+             iopt[NRE], ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
     
     if (retval < 0) {
       if (thispe == 0) printf("IDASolve returned %d.\n",retval);
@@ -340,7 +341,8 @@ int main(int argc, char *argv[])
 /********************************************************/
 /* InitUserData initializes the user's data block data. */
 
-static int InitUserData(integertype Neq, int thispe, MPI_Comm comm, UserData data)
+static int InitUserData(integertype Neq, int thispe, MPI_Comm comm,
+                        UserData data)
 {
   data->neq = Neq;
   data->thispe = thispe;
@@ -568,8 +570,9 @@ static int reslocal(realtype tres, N_Vector uu, N_Vector up, N_Vector res,
 /*************************************************************************/
 /* Routine to send boundary data to neighboring PEs.                     */
 
-static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub, integertype jysub,
-                 integertype dsizex, integertype dsizey, realtype uarray[])
+static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub,
+                 integertype jysub, integertype dsizex, integertype dsizey,
+                 realtype uarray[])
 {
   integertype ly, offsetu;
   realtype bufleft[MYSUB], bufright[MYSUB];
@@ -668,8 +671,9 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
    2) request should have four entries, and should be passed in both 
       calls also. */
 
-static int BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub,
-                     integertype dsizex, realtype uext[], realtype buffer[])
+static int BRecvWait(MPI_Request request[], integertype ixsub,
+                     integertype jysub, integertype dsizex, realtype uext[],
+                     realtype buffer[])
 {
   integertype ly, dsizex2, offsetue;
   realtype *bufleft = buffer, *bufright = buffer+MYSUB;

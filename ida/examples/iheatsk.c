@@ -1,9 +1,9 @@
 /***********************************************************************
  * File       : iheatsk.c   
  * Written by : Allan G. Taylor and Alan C. Hindmarsh
- * Version of : 8 March 2002
+ * Version of : 11 July 2002
  *----------------------------------------------------------------------
- * Modified by R. Serban to work with new serial nvector (8/3/2002)    
+ * Modified by R. Serban to work with new serial nvector (7/3/2002)    
  *----------------------------------------------------------------------
  *
  * Example problem for IDA: 2D heat equation, serial, GMRES.
@@ -25,6 +25,9 @@
  * Routines for preconditioning, required by IDASPGMR, are supplied here.
  * The constraints u >= 0 are posed for all components.
  * Output is taken at t = 0, .01, .02, .04, ..., 10.24.
+ * Two cases are run -- with the Gram-Schmidt type being Modified in
+ * the first case, and Classical in the second.  The second run uses
+ * IDAReInit and IDAReInitSpgmr.
  *
  ***********************************************************************/
 
@@ -33,7 +36,7 @@
 #include <math.h>
 #include "sundialstypes.h"
 #include "sundialsmath.h"
-#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S   */
+#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S  */
 #include "ida.h"
 #include "idaspgmr.h"
 #include "iterativ.h"
@@ -126,7 +129,6 @@ int main()
 
   mem = IDAMalloc(NEQ, heatres, data , t0, uu, up, itol, &rtol, &atol,
                   id , constraints , NULL, optIn, iopt, ropt,  machEnv);
-  /*mem = (IDAMem)mem;*/
   if (mem == NULL) { printf("IDAMalloc failed."); return(1); }
 
   /* Call IDASpgmr to specify the linear solver. */
@@ -149,7 +151,7 @@ int main()
 
   /* Case 1 */
 
-  /* Print output table heading and initial line of table. */
+  /* Print case number, output table heading, and initial line of table. */
   printf("\n\nCase 1: gsytpe = MODIFIED_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nli   nre     h       npe nps\n" );
