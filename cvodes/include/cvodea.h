@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29.2.1 $
- * $Date: 2005-01-24 21:40:57 $
+ * $Revision: 1.29.2.2 $
+ * $Date: 2005-04-01 21:48:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -234,11 +234,11 @@ int CVodeSetMaxStepB(void *cvadj_mem, realtype hmaxB);
 
 int CVodeMallocB(void *cvadj_mem, CVRhsFnB fB,
                  realtype tB0, N_Vector yB0,
-                 int itolB, realtype *reltolB, void *abstolB);
+                 int itolB, realtype reltolB, void *abstolB);
 
 int CVodeReInitB(void *cvadj_mem, CVRhsFnB fB,
                  realtype tB0, N_Vector yB0,
-                 int itolB, realtype *reltolB, void *abstolB);
+                 int itolB, realtype reltolB, void *abstolB);
 
 /*
  * -----------------------------------------------------------------
@@ -247,9 +247,8 @@ int CVodeReInitB(void *cvadj_mem, CVRhsFnB fB,
  */
 
 int CVodeSetQuadFdataB(void *cvadj_mem, void *fQ_dataB);
-int CVodeSetQuadErrConB(void *cvadj_mem, int errconQB);
-int CVodeSetQuadTolerancesB(void *cvadj_mem, int itolQB,
-                            realtype *reltolQB, void *abstolQB);
+int CVodeSetQuadErrConB(void *cvadj_mem, booleantype errconQB,
+                        int itolQB, realtype reltolQB, void *abstolQB);
 int CVodeQuadMallocB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
 int CVodeQuadReInitB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
 

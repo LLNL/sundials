@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9.2.3 $
- * $Date: 2005-01-27 17:39:30 $
+ * $Revision: 1.9.2.4 $
+ * $Date: 2005-04-01 21:48:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -27,6 +27,11 @@ extern "C" {
 #include "cvodes.h"
 #include "nvector.h"
 #include "sundialstypes.h"
+
+/* Prototype of internal ewtSet function */
+
+int CVEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
+
 
 /* Prototypes for internal sensitivity rhs DQ functions */
 
@@ -90,49 +95,56 @@ typedef struct CVodeMemRec {
   int cv_lmm;              /* lmm = ADAMS or BDF                           */
   int cv_iter;             /* iter = FUNCTIONAL or NEWTON                  */
   int cv_itol;             /* itol = SS or SV                              */
-  realtype *cv_reltol;     /* ptr to relative tolerance                    */
-  void *cv_abstol;         /* ptr to absolute tolerance                    */
+
+  realtype cv_reltol;      /* relative tolerance                           */
+  realtype cv_Sabstol;     /* scalar absolute tolerance                    */
+  N_Vector cv_Vabstol;     /* vector absolute tolerance                    */
+  void *cv_e_data;         /* user pointer passed to efun                  */
 
   /*-----------------------
     Quadrature Related Data 
     -----------------------*/
 
   booleantype cv_quadr;    /* TRUE if integrating quadratures              */
+
   CVQuadRhsFn cv_fQ;
-  int cv_itolQ;
-  realtype *cv_reltolQ;    /* ptr to relative tolerance for quad           */
-  void *cv_abstolQ;        /* ptr to absolute tolerance for quad           */
-  booleantype cv_errconQ;
   void *cv_fQ_data;        /* user pointer passed to fQ                    */
+  int cv_itolQ;
+  booleantype cv_errconQ;
+
+  realtype cv_reltolQ;     /* relative tolerance for quadratures           */
+  realtype cv_SabstolQ;    /* scalar absolute tolerance for quadratures    */
+  N_Vector cv_VabstolQ;    /* vector absolute tolerance for quadratures    */
+  CVEwtFn cv_efun;         /* function to set ewt                          */
 
   /*------------------------
     Sensitivity Related Data 
     ------------------------*/
 
   booleantype cv_sensi;    /* TRUE if computing sensitivities              */
+
   int cv_Ns;               /* Number of sensitivities                      */
+
+  int cv_ism;              /* ism = SIMULTANEOUS or STAGGERED              */
+
   CVSensRhsFn cv_fS;       /* fS = (df/dy)*yS + (df/dp)                    */
   CVSensRhs1Fn cv_fS1;     /* fS1 = (df/dy)*yS_i + (df/dp)                 */
+  void *cv_fS_data;        /* user pointer passed to fS                    */
   booleantype cv_fSDQ;
   int cv_ifS;              /* ifS = ALLSENS or ONESENS                     */
-  int cv_ism;              /* ism = SIMULTANEOUS or STAGGERED              */
+
   realtype *cv_p;          /* parameters in f(t,y,p)                       */
   realtype *cv_pbar;       /* scale factors for parameters                 */
   int *cv_plist;           /* list of sensitivities                        */
   realtype cv_rhomax;      /* cut-off value for centered/forward finite
                               differences                                  */
+
   booleantype cv_errconS;  /* TRUE if sensitivities are in err. control    */
-  void *cv_fS_data;        /* user pointer passed to fS                    */
 
   int cv_itolS;
-  realtype *cv_reltolS;          /* ptr to relative tolerance for sensi    */
-  void *cv_abstolS;              /* ptr to absolute tolerance for sensi    */
-  booleantype cv_testSensTol;    /* flag to indicate if sensi. tolerances
-                                    must be checked now                    */
-  booleantype cv_setSensTol;     /* flag to indicate if sensi. tolerances 
-                                    must be set now                        */
-  booleantype cv_atolSallocated; /* TRUE if CVODES has allocated space for
-                                    sensitivity absolute tolerances        */
+  realtype cv_reltolS;     /* relative tolerance for sensitivities         */
+  realtype *cv_SabstolS;   /* scalar absolute tolerances for sensi.        */
+  N_Vector *cv_VabstolS;   /* vector absolute tolerances for sensi.        */
 
   /*-----------------------
     Nordsieck History Array 
@@ -345,9 +357,15 @@ typedef struct CVodeMemRec {
     and read by CVodeReInit, CVodeSensReInit, and CVodeQuadReInit
     --------------------------------------------------------------------*/
 
+  booleantype cv_VabstolMallocDone;
   booleantype cv_MallocDone;
-  booleantype cv_sensMallocDone;
+
+  booleantype cv_VabstolQMallocDone;
   booleantype cv_quadMallocDone;
+
+  booleantype cv_VabstolSMallocDone;
+  booleantype cv_SabstolSMallocDone;
+  booleantype cv_sensMallocDone;
 
   /*----------
     Error File 
@@ -468,15 +486,21 @@ typedef struct CVodeMemRec {
 
 #define _CVSET_TOL_ "CVodeSetTolerances-- "
 
+#define MSGCVS_SET_NO_MALLOC _CVSET_TOL_ "Attempt to call before CVodeMalloc.\n\n"
+
 #define MSGCVS_SET_BAD_ITOL1 _CVSET_TOL_ "Illegal value for itol.\n"
-#define MSGCVS_SET_BAD_ITOL2 "The legal values are CV_SS and CV_SV.\n\n"
+#define MSGCVS_SET_BAD_ITOL2 "The legal values are CV_SS, CV_SV, and CV_WF.\n\n"
 #define MSGCVS_SET_BAD_ITOL  MSGCVS_SET_BAD_ITOL1 MSGCVS_SET_BAD_ITOL2
 
-#define MSGCVS_SET_BAD_RELTOL _CVSET_TOL_ "*reltol < 0 illegal.\n\n"
+#define MSGCVS_SET_BAD_RELTOL _CVSET_TOL_ "reltol < 0 illegal.\n\n"
 
 #define MSGCVS_SET_ABSTOL_NULL _CVSET_TOL_ "abstol = NULL illegal.\n\n"
 
 #define MSGCVS_SET_BAD_ABSTOL _CVSET_TOL_ "abstol has negative component(s) (illegal).\n\n"
+
+#define MSGCVS_SET_NO_EFUN1 "CVodeSetEdata-- Attempt to set e_data before specifying efun\n"
+#define MSGCVS_SET_NO_EFUN2 "(through CVodeMalloc or CVodeSetTolerances) illegal.\n\n"
+#define MSGCVS_SET_NO_EFUN MSGCVS_SET_NO_EFUN1 MSGCVS_SET_NO_EFUN2
 
 /* CVodeMalloc/CVodeReInit Error Messages */
 
@@ -487,14 +511,12 @@ typedef struct CVodeMemRec {
 #define MSGCVS_Y0_NULL _CVM_ "y0 = NULL illegal.\n\n"
 
 #define MSGCVS_BAD_ITOL1 _CVM_ "Illegal value for itol.\n"
-#define MSGCVS_BAD_ITOL2 "The legal values are CV_SS and CV_SV.\n\n"
+#define MSGCVS_BAD_ITOL2 "The legal values are CV_SS, CV_SV, and CV_WF.\n\n"
 #define MSGCVS_BAD_ITOL  MSGCVS_BAD_ITOL1 MSGCVS_BAD_ITOL2
 
 #define MSGCVS_F_NULL _CVM_ "f = NULL illegal.\n\n"
 
-#define MSGCVS_RELTOL_NULL _CVM_ "reltol = NULL illegal.\n\n"
-
-#define MSGCVS_BAD_RELTOL _CVM_ "*reltol < 0 illegal.\n\n"
+#define MSGCVS_BAD_RELTOL _CVM_ "reltol < 0 illegal.\n\n"
 
 #define MSGCVS_ABSTOL_NULL _CVM_ "abstol = NULL illegal.\n\n"
 
@@ -518,17 +540,18 @@ typedef struct CVodeMemRec {
 
 /* CVodeQuadMalloc/CVodeQuadReInit Error Messages */
 
-#define MSGCVS_BAD_ITOLQ1 "CVodeSetQuadTolerances-- Illegal value for itolQ.\n"
-#define MSGCVS_BAD_ITOLQ2 "The legal values are CV_SS and CV_SV.\n\n"
-#define MSGCVS_BAD_ITOLQ  MSGCVS_BAD_ITOLQ1 MSGCVS_BAD_ITOLQ2
+#define _CVSET_QTOL_ "CVodeSetQuadErrCon-- "
 
-#define MSGCVS_RELTOLQ_NULL "CVodeSetQuadTolerances-- reltolQ = NULL illegal.\n\n"
- 
-#define MSGCVS_ABSTOLQ_NULL "CVodeSetQuadTolerances-- abstolQ = NULL illegal.\n\n"
+#define MSGCVS_SET_NO_QUAD  _CVSET_QTOL_ "Illegal attempt to call before calling CVodeQuadMalloc.\n\n"
 
-#define MSGCVS_BAD_RELTOLQ "CVodeSetQuadTolerances-- *reltolQ < 0 illegal.\n\n"
+#define MSGCVS_BAD_ITOLQ1 "Illegal value for itolQ.\nThe legal values are CV_SS and CV_SV.\n\n"
+#define MSGCVS_BAD_ITOLQ  _CVSET_QTOL_ MSGCVS_BAD_ITOLQ1
 
-#define MSGCVS_BAD_ABSTOLQ "CVodeSetQuadTolerances-- abstolQ has negative component(s) (illegal).\n\n"  
+#define MSGCVS_ABSTOLQ_NULL _CVSET_QTOL_ "abstolQ = NULL illegal.\n\n"
+
+#define MSGCVS_BAD_RELTOLQ _CVSET_QTOL_ "reltolQ < 0 illegal.\n\n"
+
+#define MSGCVS_BAD_ABSTOLQ _CVSET_QTOL_ "abstolQ has negative component(s) (illegal).\n\n"  
 
 #define MSGCVS_QCVM_NO_MEM "CVodeQuadMalloc/CVodeQuadReInit-- cvode_mem = NULL illegal.\n\n"
 
@@ -540,13 +563,23 @@ typedef struct CVodeMemRec {
 
 /* CVodeSetSens* /CVodeSensMalloc/CVodeSensReInit Error Messages */
 
-#define MSGCVS_BAD_ITOLS1 "CVodeSetSensTolerances-- Illegal value for itolS.\n"
+#define _CVSET_STOL_ "CVodeSetSensTolerances-- "
+
+#define MSGCVS_SET_SENSI_1  "Illegal attempt to call before calling CVodeSensMalloc.\n\n"
+#define MSGCVS_SET_NO_SENSI _CVSET_STOL_ MSGCVS_SET_SENSI_1
+
+#define MSGCVS_BAD_ITOLS1 _CVSET_STOL_ "Illegal value for itolS.\n"
 #define MSGCVS_BAD_ITOLS2 "The legal values are CV_SS, CV_SV, and CV_EE.\n\n"
 #define MSGCVS_BAD_ITOLS  MSGCVS_BAD_ITOLS1 MSGCVS_BAD_ITOLS2
 
-#define MSGCVS_RELTOLS_NULL "CVodeSetSensTolerances-- reltolS = NULL illegal.\n\n"
- 
-#define MSGCVS_ABSTOLS_NULL "CVodeSetSensTolerances-- abstolS = NULL illegal.\n\n"
+#define MSGCVS_ABSTOLS_NULL _CVSET_STOL_ "abstolS = NULL illegal.\n\n"
+
+#define MSGCVS_BAD_RELTOLS _CVSET_STOL_ "reltolS < 0 illegal.\n\n"
+
+#define MSGCVS_BAD_ABSTOLS _CVSET_STOL_ "abstolS has negative component(s) (illegal).\n\n"  
+
+#define MSGCVS_BAD_PBAR "CVodeSetSensParams-- pbar has zero component(s) (illegal).\n\n"
+#define MSGCVS_BAD_PLIST "CVodeSetSensParams-- plist has nonpositive component(s) (illegal).\n\n"
 
 #define _SCVM_ "CVodeSensMalloc/CVodeSensReInit-- "
 
@@ -556,7 +589,6 @@ typedef struct CVodeMemRec {
 
 #define MSGCVS_BAD_NS _SCVM_ "NS <= 0 illegal.\n\n"
 
-#define MSGCVS_P_NULL _SCVM_ "p = NULL illegal.\n\n"
 
 #define MSGCVS_YS0_NULL _SCVM_ "yS0 = NULL illegal.\n\n"
 
@@ -584,14 +616,6 @@ typedef struct CVodeMemRec {
 
 #define MSGCVS_CVODE_NO_MALLOC _CVODE_ "CVodeMalloc has not been called yet.\n\n"
 
-#define MSGCVS_BAD_RELTOLS _CVODE_ "*reltolS < 0 illegal.\n\n"
-
-#define MSGCVS_BAD_ABSTOLS _CVODE_ "abstolS has negative component(s) (illegal).\n\n"  
-
-#define MSGCVS_ATOLS_MEM_FAIL _CVODE_ "A memory request failed (abstolS).\n\n"
-
-#define MSGCVS_BAD_PBAR _CVODE_ "pbar has component(s) equal to zero (illegal).\n\n"
-
 #define MSGCVS_BAD_EWT _CVODE_ _CVIS_ "Initial ewt has component(s) equal to zero (illegal).\n\n"
 
 #define MSGCVS_NO_QUADTOL _CVODE_ _CVIS_ "No quad tolerances set. Illegal for errconQ = TRUE.\n\n"
@@ -618,13 +642,13 @@ typedef struct CVodeMemRec {
 
 #define MSGCVS_BAD_H0 _CVODE_ "h0 and tout - t0 are inconsistent.\n\n"
 
+#define MSGCVS_P_NULL _CVODE_ "p = NULL when using internal DQ for sensitivity RHS illegal.\n\n"
+
 #define MSGCVS_HNIL_DONE_1 _CVODE_ "The above warning has been issued mxhnil times "
 #define MSGCVS_HNIL_DONE_2 "and will not be\nissued again for this problem.\n\n"
 #define MSGCVS_HNIL_DONE   MSGCVS_HNIL_DONE_1 MSGCVS_HNIL_DONE_2
 
-#define MSGCVS_TOO_CLOSE_1 _CVODE_ "tout too close to t0 to start"
-#define MSGCVS_TOO_CLOSE_2 " integration.\n\n"
-#define MSGCVS_TOO_CLOSE   MSGCVS_TOO_CLOSE_1 MSGCVS_TOO_CLOSE_2
+#define MSGCVS_TOO_CLOSE _CVODE_ "tout too close to t0 to start integration.\n\n"
 
 #define MSGCVS_BAD_INIT_ROOT _CVODE_ "Root found at and very near initial t.\n\n"
 
@@ -632,18 +656,13 @@ typedef struct CVodeMemRec {
 #define MSGCVS_BAD_TOUT_2 "tout too far back in direction of integration.\n\n"
 #define MSGCVS_BAD_TOUT   MSGCVS_BAD_TOUT_1 MSGCVS_BAD_TOUT_2
 
-#define MSGCVS_MAX_STEPS_1 _CVODE_ "At " MSG_TIME ", mxstep steps taken"
-#define MSGCVS_MAX_STEPS_2 "before reaching tout.\n\n"
-#define MSGCVS_MAX_STEPS   MSGCVS_MAX_STEPS_1 MSGCVS_MAX_STEPS_2
+#define MSGCVS_MAX_STEPS _CVODE_ "At " MSG_TIME ", mxstep steps taken before reaching tout.\n\n"
 
-#define MSGCVS_EWT_NOW_BAD_1 _CVODE_ "At " MSG_TIME ", a component of ewt has become <= 0.\n\n"
-#define MSGCVS_EWT_NOW_BAD   MSGCVS_EWT_NOW_BAD_1
+#define MSGCVS_EWT_NOW_BAD _CVODE_ "At " MSG_TIME ", a component of ewt has become <= 0.\n\n"
 
-#define MSGCVS_EWTS_NOW_BAD_1 _CVODE_ "At " MSG_TIME ", a component of ewtS has become <= 0.\n\n"
-#define MSGCVS_EWTS_NOW_BAD   MSGCVS_EWTS_NOW_BAD_1
+#define MSGCVS_EWTS_NOW_BAD _CVODE_ "At " MSG_TIME ", a component of ewtS has become <= 0.\n\n"
 
-#define MSGCVS_EWTQ_NOW_BAD_1 _CVODE_ "At " MSG_TIME ", a component of ewtQ has become <= 0.\n\n"
-#define MSGCVS_EWTQ_NOW_BAD   MSGCVS_EWTQ_NOW_BAD_1
+#define MSGCVS_EWTQ_NOW_BAD _CVODE_ "At " MSG_TIME ", a component of ewtQ has become <= 0.\n\n"
 
 #define MSGCVS_TOO_MUCH_ACC _CVODE_ "At " MSG_TIME ", too much accuracy requested.\n\n"
 
@@ -657,9 +676,8 @@ typedef struct CVodeMemRec {
 #define MSGCVS_ERR_FAILS   MSGCVS_ERR_FAILS_1 MSGCVS_ERR_FAILS_2
 
 #define MSGCVS_CONV_FAILS_1 _CVODE_ "At " MSG_TIME_H ", the corrector\n"
-#define MSGCVS_CONV_FAILS_2 "convergence failed repeatedly or "
-#define MSGCVS_CONV_FAILS_3 "with |h| = hmin.\n\n"
-#define MSGCVS_CONV_FAILS   MSGCVS_CONV_FAILS_1 MSGCVS_CONV_FAILS_2 MSGCVS_CONV_FAILS_3
+#define MSGCVS_CONV_FAILS_2 "convergence failed repeatedly or with |h| = hmin.\n\n"
+#define MSGCVS_CONV_FAILS   MSGCVS_CONV_FAILS_1 MSGCVS_CONV_FAILS_2
 
 #define MSGCVS_SETUP_FAILED_1 _CVODE_ "At " MSG_TIME ", the setup routine failed "
 #define MSGCVS_SETUP_FAILED_2 "in an unrecoverable manner.\n\n"
@@ -695,9 +713,8 @@ typedef struct CVodeMemRec {
 
 #define MSGCVS_SDKY_NO_MEM _SDKY_ "cvode_mem = NULL illegal.\n\n"
 
-#define MSGCVS_SDKY_SENSI_1  "Illegal attempt to call before "
-#define MSGCVS_SDKY_SENSI_2  "calling CVodeSensMalloc.\n\n"
-#define MSGCVS_SDKY_NO_SENSI _SDKY_ MSGCVS_SDKY_SENSI_1 MSGCVS_SDKY_SENSI_2
+#define MSGCVS_SDKY_SENSI_1  "Illegal attempt to call before calling CVodeSensMalloc.\n\n"
+#define MSGCVS_SDKY_NO_SENSI _SDKY_ MSGCVS_SDKY_SENSI_1
 
 #define MSGCVS_SBAD_IS _SDKY_ "Illegal value for is.\n\n"
 
@@ -716,9 +733,8 @@ typedef struct CVodeMemRec {
 
 #define MSGCVS_QDKY_NO_MEM _QDKY_ "cvode_mem = NULL illegal.\n\n"
 
-#define MSGCVS_QDKY_QUAD_1  "Illegal attempt to call before "
-#define MSGCVS_QDKY_QUAD_2  "calling CVodeQuadMalloc.\n\n"
-#define MSGCVS_QDKY_NO_QUAD _QDKY_ MSGCVS_QDKY_QUAD_1 MSGCVS_QDKY_QUAD_2
+#define MSGCVS_QDKY_QUAD_1  "Illegal attempt to call before calling CVodeQuadMalloc.\n\n"
+#define MSGCVS_QDKY_NO_QUAD _QDKY_ MSGCVS_QDKY_QUAD_1
 
 #define MSGCVS_QBAD_DKY _QDKY_ "dky = NULL illegal.\n\n"
 

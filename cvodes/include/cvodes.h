@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34.2.2 $
- * $Date: 2005-01-24 21:40:57 $
+ * $Revision: 1.34.2.3 $
+ * $Date: 2005-04-01 21:48:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -70,12 +70,12 @@ extern "C" {
  *
  * itol:  This parameter specifies the relative and absolute
  *        tolerance types to be used. The CV_SS tolerance type means
- *        a scalar relative and absolute tolerance, while the CV_SV
+ *        a scalar relative and absolute tolerance. The CV_SV
  *        tolerance type means a scalar relative tolerance and a
  *        vector absolute tolerance (a potentially different
- *        absolute tolerance for each vector component).
- *
- * itolQ: Same as itol for quadrature variables.
+ *        absolute tolerance for each vector component). The CV_WF
+ *        tolerance type means that the user provides a function
+ *        (of type CVEwtFn) to set the error weight vector.
  *
  * ism:   This parameter specifies the sensitivity corrector type
  *        to be used. In the CV_SIMULTANEOUS case, the nonlinear
@@ -112,7 +112,8 @@ extern "C" {
 /* itol */
 #define CV_SS 1
 #define CV_SV 2
-#define CV_EE 3
+#define CV_WF 3
+#define CV_EE 4
 
 /* itask */
 #define CV_NORMAL         1
@@ -172,6 +173,32 @@ typedef void (*CVRhsFn)(realtype t, N_Vector y,
 
 typedef void (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
 			 void *g_data);
+
+/*
+ * -----------------------------------------------------------------
+ * Type : CVEwtFn
+ * -----------------------------------------------------------------
+ * A function e, which sets the error weight vector ewt, must have
+ * type CVEwtFn.
+ * The function e takes as input the current dependent variable y.
+ * It must set the vector of error weights used in the WRMS norm:
+ * 
+ *   ||y||_WRMS = sqrt [ 1/N * sum ( ewt_i * y_i)^2 ]
+ *
+ * Typically, the vector ewt has components:
+ * 
+ *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
+ *
+ * The e_data parameter is the same as that passed by the user
+ * to the CVodeSetEdata routine.  This user-supplied pointer is
+ * passed to the user's e function every time it is called.
+ * A CVEwtFn e must return 0 if the error weight vector has been
+ * successfuly set and a non-zero value otherwise.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
+
 
 /*
  * -----------------------------------------------------------------
@@ -304,6 +331,11 @@ void *CVodeCreate(int lmm, int iter);
  *                         | time g is called.
  *                         | [NULL]
  *                         |
+ * CVodeSetEdata           | a pointer to user data that will be
+ *                         | passed to the user's e function every
+ *                         | time e is called.
+ *                         | [NULL]
+ *                         |
  * CVodeSetMaxOrd          | maximum lmm order to be used by the
  *                         | solver.
  *                         | [12 for Adams , 5 for BDF]
@@ -379,6 +411,7 @@ void *CVodeCreate(int lmm, int iter);
 int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 int CVodeSetFdata(void *cvode_mem, void *f_data);
 int CVodeSetGdata(void *cvode_mem, void *g_data);
+int CVodeSetEdata(void *cvode_mem, void *e_data);
 int CVodeSetMaxOrd(void *cvode_mem, int maxord);
 int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
@@ -394,7 +427,7 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
 
 int CVodeSetIterType(void *cvode_mem, int iter);
 int CVodeSetTolerances(void *cvode_mem,
-                       int itol, realtype *reltol, void *abstol);
+                       int itol, realtype reltol, void *abstol);
 
 /*
  * -----------------------------------------------------------------
@@ -417,7 +450,7 @@ int CVodeSetTolerances(void *cvode_mem,
  *            CV_SV (scalar relative tolerance and vector
  *                  absolute tolerance).
  *
- * reltol  is a pointer to the relative tolerance scalar.
+ * reltol  is the relative tolerance scalar.
  *
  * abstol  is a pointer to the absolute tolerance scalar or
  *         an N_Vector of absolute tolerances.
@@ -431,12 +464,6 @@ int CVodeSetTolerances(void *cvode_mem,
  *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),
  * where N is the problem dimension.
  *
- * Note: The tolerance values may be changed in between calls to
- *       CVode for the same problem. These values refer to
- *       (*reltol) and either (*abstol), for a scalar absolute
- *       tolerance, or the components of abstol, for a vector
- *       absolute tolerance.
- *
  * If successful, CVodeMalloc returns SUCCESS. If an argument has
  * an illegal value, CVodeMalloc prints an error message to the
  * file specified by errfp and returns one of the error flags
@@ -446,7 +473,7 @@ int CVodeSetTolerances(void *cvode_mem,
 
 int CVodeMalloc(void *cvode_mem, CVRhsFn f,
                 realtype t0, N_Vector y0,
-                int itol, realtype *reltol, void *abstol);
+                int itol, realtype reltol, void *abstol);
 
 /*
  * -----------------------------------------------------------------
@@ -488,7 +515,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f,
 
 int CVodeReInit(void *cvode_mem, CVRhsFn f,
                 realtype t0, N_Vector y0,
-                int itol, realtype *reltol, void *abstol);
+                int itol, realtype reltol, void *abstol);
 
 /*
  * -----------------------------------------------------------------
@@ -531,18 +558,18 @@ int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn);
  * Function             |  Optional input / [ default value ]
  * --------------------------------------------------------------
  *                      |
- * CVodeSetQuadErrCon   | are quadrature variables considered in
- *                      | the error control?
- *                      | [FALSE]
- *                      |
  * CVodeSetQuadFdata    | a pointer to user data that will be
  *                      | passed to the user's fQ function every
  *                      | time fQ is called.
  *                      | [NULL]
  *                      |
- *CVodeSetQuadTolerances| set tolerances for quadrature
- *                      | integration. Only needed if errconQ=TRUE
- *                      | [no default]
+ * CVodeSetQuadErrCon   | are quadrature variables considered in
+ *                      | the error control?
+ *                      | If yes, set tolerances for quadrature
+ *                      | integration. 
+ *                      | [errconQ = FALSE]
+ *                      | [ not tolerances]
+ *                      |
  * -----------------------------------------------------------------
  * If successful, these functions return CV_SUCCESS. If an argument
  * has an illegal value, they print an error message to the
@@ -552,9 +579,8 @@ int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn);
  */
 
 int CVodeSetQuadFdata(void *cvode_mem, void *fQ_data);
-int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ);
-int CVodeSetQuadTolerances(void *cvode_mem, int itolQ,
-                           realtype *reltolQ, void *abstolQ);
+int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ, 
+                       int itolQ, realtype reltolQ, void *abstolQ);
 
 /*
  * -----------------------------------------------------------------
@@ -626,15 +652,17 @@ int CVodeQuadReInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0);
  *                            | the sensitivity right hand sides.
  *                            | [0.0]
  *                            |
- * CVodeSetSensPbar           | a pointer to scaling factors used in
- *                            | computing sensitivity absolute
- *                            | tolerances as well as by the CVODES
- *                            | difference quotient routines for
- *                            | sensitivty right hand sides. pbar[i]
- *                            | must give the order of magnitude of
- *                            | parameter p[i]. Typically, if p[i] is
- *                            | nonzero, pbar[i]=p[i].
- *                            | [p_i = 1.0, for all i]
+ * CVodeSetSensParams         | parameter information:
+ *                            | p: pointer to problem parameters
+ *                            | plist: list of parameters with respect
+ *                            |        to which sensitivities are to be
+ *                            |        computed.
+ *                            | pbar: order of magnitude info. 
+ *                            |       Typically, if p[plist[i]] is nonzero, 
+ *                            |       pbar[i]=p[plist[i]].
+ *                            | [p=NULL]
+ *                            | [plist=NULL]
+ *                            | [pbar=NULL]
  *                            |
  * CVodeSetSensFdata          | a pointer to user data that will be
  *                            | passed to the user's fS function every
@@ -645,10 +673,9 @@ int CVodeQuadReInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0);
  *                            | the error control?
  *                            | [FALSE]
  *                            |
- * CVodeSetSensTolerances     | type of sensi absolute tolernaces.
+ * CVodeSetSensTolerances     | type of sensi absolute tolerances.
  *                            |
- *                            | pointer to the sensiti relative
- *                            | tolerance scalar.
+ *                            | sensitivity relative tolerance scalar.
  *                            |
  *                            | pointer to the array of sensi
  *                            | abs tol scalars or a pointer
@@ -669,13 +696,13 @@ int CVodeQuadReInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0);
 
 int CVodeSetSensRhsFn(void *cvode_mem, CVSensRhsFn fS);
 int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS);
-int CVodeSetSensRho(void *cvode_mem, realtype rho);
-int CVodeSetSensPbar(void *cvode_mem, realtype *pbar);
 int CVodeSetSensFdata(void *cvode_mem, void *fS_data);
+int CVodeSetSensRho(void *cvode_mem, realtype rho);
 int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS);
-int CVodeSetSensTolerances(void *cvode_mem, int itolS,
-                           realtype *reltolS, void *abstolS);
 int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS);
+int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist);
+int CVodeSetSensTolerances(void *cvode_mem, int itolS,
+                           realtype reltolS, void *abstolS);
 
 /*
  * -----------------------------------------------------------------
@@ -692,22 +719,6 @@ int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS);
  *           analysis. The legal values are: CV_SIMULTANEOUS,
  *           CV_STAGGERED, and CV_STAGGERED1 (see previous description)
  *
- * p         is a pointer to problem parameters with respect to
- *           which sensitivities may be computed (see description
- *           of plist below). If the right hand sides of the
- *           sensitivity equations are to be evaluated by the
- *           difference quotient routines provided with CVODES,
- *           then p must also be a field in the user data
- *           structure pointed to by f_data.
- *
- * plist     is a pointer to a list of parameters with respect to
- *           which sensitivities are to be computed.
- *           If plist[j]=i, then sensitivities with respect to
- *           the i-th parameter (i.e. p[i-1]) will be computed.
- *           A negative plist entry also indicates that the
- *           corresponding parameter affects only the initial
- *           conditions of the ODE and not its right hand side.
- *
  * yS0       is the array of initial condition vectors for
  *           sensitivity variables.
  *
@@ -719,8 +730,7 @@ int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS);
  * -----------------------------------------------------------------
  */
 
-int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
-                    realtype *p, int *plist, N_Vector *yS0);
+int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, N_Vector *yS0);
     
 /*
  * -----------------------------------------------------------------
@@ -752,8 +762,7 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
  * -----------------------------------------------------------------
  */
 
-int CVodeSensReInit(void *cvode_mem, int ism,
-                    realtype *p, int *plist, N_Vector *yS0);
+int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0);
 
 /*
  * -----------------------------------------------------------------
@@ -964,10 +973,10 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast);
 int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur);
 int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur);
 int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfac);
-int CVodeGetErrWeights(void *cvode_mem, N_Vector *eweight);
-int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele);
+int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight);
+int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele);
 int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals);
-int CVodeGetRootInfo(void *cvode_mem, int **rootsfound);
+int CVodeGetRootInfo(void *cvode_mem, int *rootsfound);
 
 /*
  * -----------------------------------------------------------------
@@ -1042,7 +1051,7 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky);
 
 int CVodeGetQuadNumRhsEvals(void *cvode_mem, long int *nfQevals);
 int CVodeGetQuadNumErrTestFails(void *cvode_mem, long int *nQetfails);
-int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector *eQweight);
+int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector eQweight);
 
 /*
  * -----------------------------------------------------------------
