@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-11-08 20:36:57 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-09 00:14:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -93,16 +93,17 @@
 #include "sundialsmath.h"
 
 #define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
 
 /* Problem Specification Constants */
 
-#define AA RCONST(1.0)       /* AA = a */
+#define AA ONE       /* AA = a */
 #define EE RCONST(1e4)       /* EE = e */
 #define GG RCONST(0.5e-6)    /* GG = g */
-#define BB RCONST(1.0)       /* BB = b */
-#define DPREY RCONST(1.0)    
+#define BB ONE       /* BB = b */
+#define DPREY ONE    
 #define DPRED RCONST(0.5)
-#define ALPH RCONST(1.0)
+#define ALPH ONE
 #define NP 3
 #define NS (2*NP)
 
@@ -111,8 +112,8 @@
 #define MX   20
 #define MY   20
 #define MXNS (MX*NS)
-#define AX   RCONST(1.0)
-#define AY   RCONST(1.0)
+#define AX   ONE
+#define AY   ONE
 #define DX   (AX/(realtype)(MX-1))
 #define DY   (AY/(realtype)(MY-1))
 #define MP   NS
@@ -132,7 +133,7 @@
 
 /* Output Constants */
 
-#define TOUT 10.0
+#define TOUT RCONST(10.0)
 
 /* Note: The value for species i at mesh point (j,k) is stored in */
 /* component number (i-1) + j*NS + k*NS*MX of an N_Vector,        */
@@ -141,7 +142,7 @@
 /* Structure for user data */
 
 typedef struct {
-  realtype   **P[NGRP];
+  realtype **P[NGRP];
   long int *pivot[NGRP];
   int ns,  mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
@@ -304,7 +305,7 @@ int main(int argc, char *argv[])
   cB = N_VNew_Serial(NEQ);
   if(check_flag((void *)cB, "N_VNew_Serial", 0)) return(1);
   /* Initialize cB = 0 */
-  N_VConst(0.0, cB);
+  N_VConst(ZERO, cB);
 
   /* Create and allocate CVODES memory for backward run */
   printf("\nCreate and allocate CVODES memory for backward run\n");
@@ -467,8 +468,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
 
   fac = N_VWrmsNorm (fc, rewt);
   N = NEQ+1;
-  r0 = 1000.0*ABS(gamma)*uround*N*fac;
-  if (r0 == 0.0) r0 = 1.0;
+  r0 = RCONST(1000.0)*ABS(gamma)*uround*N*fac;
+  if (r0 == ZERO) r0 = ONE;
 
   for (igy = 0; igy < ngy; igy++) {
     jy = jyr[igy];
@@ -522,14 +523,14 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   realtype gamma, realtype delta,
                   int lr, void *P_data, N_Vector vtemp)
 {
-  realtype   ***P;
+  realtype ***P;
   long int **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
   wdata = (WebData) P_data;
 
-  N_VScale(1.0, r, z);
+  N_VScale(ONE, r, z);
 
   /* call GSIter for Gauss-Seidel iterations */
 
@@ -595,8 +596,8 @@ static void fB(realtype t, N_Vector c, N_Vector cB,
   dx = wdata->dx;
   dy = wdata->dy;
 
-  for ( i = 0; i < ns; i++ ) gu[i] = 0.0; 
-  gu[ISPEC-1] = 1.0;
+  for ( i = 0; i < ns; i++ ) gu[i] = ZERO; 
+  gu[ISPEC-1] = ONE;
 
   for (jy = 0; jy < MY; jy++) {
     y = jy*dy;
@@ -679,8 +680,8 @@ static int PrecondB(realtype t, N_Vector c,
   f1 = NV_DATA_S(vtemp1);
   fac = N_VWrmsNorm (fcB, rewt);
   N = NEQ;
-  r0 = 1000.0*ABS(gamma)*uround*N*fac;
-  if (r0 == 0.0) r0 = 1.0;
+  r0 = RCONST(1000.0)*ABS(gamma)*uround*N*fac;
+  if (r0 == ZERO) r0 = ONE;
 
   for (igy = 0; igy < ngy; igy++) {
     jy = jyr[igy];
@@ -735,7 +736,7 @@ static int PSolveB(realtype t, N_Vector c,
 
   wdata = (WebData) P_data;
 
-  N_VScale(1.0, r, z);
+  N_VScale(ONE, r, z);
 
   /* call GSIter for Gauss-Seidel iterations (same routine but with gamma=-gamma) */
 
@@ -806,7 +807,7 @@ static void InitUserData(WebData wdata)
   coy = wdata->coy;
   ns = wdata->ns = NS;
 
-  for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = 0.; }
+  for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = ZERO; }
   for (j = 0; j < NP; j++) {
     for (i = 0; i < NP; i++) {
       acoef[NP+i][j] = EE;
@@ -889,8 +890,8 @@ static void CInit(N_Vector c, WebData wdata)
   dx = wdata->dx;
   dy = wdata->dy;
   
-  x_factor = 4.0/SQR(AX);
-  y_factor = 4.0/SQR(AY);
+  x_factor = RCONST(4.0)/SQR(AX);
+  y_factor = RCONST(4.0)/SQR(AY);
   for (jy = 0; jy < MY; jy++) {
     y = jy*dy;
     argy = SQR(y_factor*y*(AY-y)); 
@@ -901,16 +902,16 @@ static void CInit(N_Vector c, WebData wdata)
       ioff = iyoff + ns*jx;
       for (i = 1; i <= ns; i++) {
         ici = ioff + i-1;
-        cdata[ici] = 10.0 + i*argx*argy;
+        cdata[ici] = RCONST(10.0) + i*argx*argy;
 
-        /*if(i==1) cdata[ici] += 1.0;*/
+        /*if(i==1) cdata[ici] += ONE;*/
 
       }
     }
   }
 
   /* Initialize quadrature variable to zero */
-  cdata[NEQ] = 0.0;
+  cdata[NEQ] = ZERO;
 }
 
 /*
@@ -931,13 +932,13 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
   bcoef = wdata->bcoef;
 
   for (i = 0; i < ns; i++)
-    rate[i] = 0.0;
+    rate[i] = ZERO;
   
   for (j = 0; j < ns; j++) 
     for (i = 0; i < ns; i++) 
       rate[i] += c[j] * acoef[i][j];
   
-  fac = 1.0 + ALPH*x*y;
+  fac = ONE + ALPH*x*y;
   for (i = 0; i < ns; i++) 
     rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
 }
@@ -957,7 +958,7 @@ static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
 
-  fac = 1.0 + ALPH*x*y;
+  fac = ONE + ALPH*x*y;
 
   for (i = 0; i < ns; i++)
     rate[i] = bcoef[i]*fac;
@@ -1026,11 +1027,11 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x,
      Load local arrays beta, beta2, gam, gam2, and cof1. */
  
   for (i = 0; i < ns; i++) {
-    temp = 1.0/(1.0 + 2.0*gamma*(cox[i] + coy[i]));
+    temp = ONE/(ONE + RCONST(2.0)*gamma*(cox[i] + coy[i]));
     beta[i] = gamma*cox[i]*temp;
-    beta2[i] = 2.0*beta[i];
+    beta2[i] = RCONST(2.0)*beta[i];
     gam[i] = gamma*coy[i]*temp;
-    gam2[i] = 2.0*gam[i];
+    gam2[i] = RCONST(2.0)*gam[i];
     cof1[i] = temp;
   }
 
@@ -1044,7 +1045,7 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x,
       v_prod(xd+ic, cof1, zd+ic, ns); /* x[ic+i] = cof1[i]z[ic+i] */
     }
   }
-  N_VConst(0.0, z);
+  N_VConst(ZERO, z);
 
   /* Looping point for iterations. */
 
@@ -1093,7 +1094,7 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x,
             v_prod(xd+ic, beta, xd+ic+ns, ns);
             break;
           case 8 : /* jx == mx-1, jy == my-1 */
-            /* x[ic+i] = 0.0 */
+            /* x[ic+i] = ZERO */
             v_zero(xd+ic, ns);
             break;
           }
@@ -1154,7 +1155,7 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x,
     
     /* Add increment x to z : z <- z+x */
     
-    N_VLinearSum(1.0, z, 1.0, x, z);
+    N_VLinearSum(ONE, z, ONE, x, z);
     
   }
 }
@@ -1181,7 +1182,7 @@ static void v_prod(realtype u[], realtype v[], realtype w[], int n)
 static void v_zero(realtype u[], int n)
 {
   int i;  
-  for (i=0; i < n; i++) u[i] = 0.0;
+  for (i=0; i < n; i++) u[i] = ZERO;
 }
 
 /*
@@ -1251,10 +1252,10 @@ static realtype doubleIntgr(N_Vector c, int i, WebData wdata)
   jy = 0;
   intgr_x = cdata[(i-1)+jy*mxns];
   for (jx = 1; jx < mx-1; jx++) {
-    intgr_x += 2.0*cdata[(i-1) + jx*ns + jy*mxns]; 
+    intgr_x += RCONST(2.0)*cdata[(i-1) + jx*ns + jy*mxns]; 
   }
   intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-  intgr_x *= 0.5*dx;
+  intgr_x *= RCONST(0.5)*dx;
   
   intgr_xy = intgr_x;
   
@@ -1262,26 +1263,26 @@ static realtype doubleIntgr(N_Vector c, int i, WebData wdata)
     
     intgr_x = cdata[(i-1)+jy*mxns];
     for (jx = 1; jx < mx-1; jx++) {
-      intgr_x += 2.0*cdata[(i-1) + jx*ns + jy*mxns]; 
+      intgr_x += RCONST(2.0)*cdata[(i-1) + jx*ns + jy*mxns]; 
     }
     intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-    intgr_x *= 0.5*dx;
+    intgr_x *= RCONST(0.5)*dx;
     
-    intgr_xy += 2.0*intgr_x;
+    intgr_xy += RCONST(2.0)*intgr_x;
 
   }
   
   jy = my-1;
   intgr_x = cdata[(i-1)+jy*mxns];
   for (jx = 1; jx < mx-1; jx++) {
-    intgr_x += 2.0*cdata[(i-1) + jx*ns + jy*mxns]; 
+    intgr_x += RCONST(2.0)*cdata[(i-1) + jx*ns + jy*mxns]; 
   }
   intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-  intgr_x *= 0.5*dx;
+  intgr_x *= RCONST(0.5)*dx;
   
   intgr_xy += intgr_x;
   
-  intgr_xy *= 0.5*dy;
+  intgr_xy *= RCONST(0.5)*dy;
 
   return(intgr_xy);
 }

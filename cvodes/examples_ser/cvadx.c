@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-08 20:36:57 $
+ * $Revision: 1.17 $
+ * $Date: 2004-11-09 00:14:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -159,21 +159,21 @@ int main(int argc, char *argv[])
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2)) return(1);
-  data->p[0] = 0.04;
-  data->p[1] = 1.0e4;
-  data->p[2] = 3.0e7;
+  data->p[0] = RCONST(0.04);
+  data->p[1] = RCONST(1.0e4);
+  data->p[2] = RCONST(3.0e7);
 
   /* Initialize y */
   y = N_VNew_Serial(NEQ);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
-  Ith(y,1) = 1.0;
-  Ith(y,2) = 0.0;
-  Ith(y,3) = 0.0;
+  Ith(y,1) = RCONST(1.0);
+  Ith(y,2) = ZERO;
+  Ith(y,3) = ZERO;
 
   /* Initialize q */
   q = N_VNew_Serial(1);
   if (check_flag((void *)q, "N_VNew_Serial", 0)) return(1);
-  Ith(q,1) = 0.0;
+  Ith(q,1) = ZERO;
 
   /* Set the scalar relative tolerance reltol */
   reltol = RTOL;    
@@ -243,16 +243,16 @@ int main(int argc, char *argv[])
   /* Initialize yB */
   yB = N_VNew_Serial(NEQ);
   if (check_flag((void *)yB, "N_VNew_Serial", 0)) return(1);
-  Ith(yB,1) = 0.0;
-  Ith(yB,2) = 0.0;
-  Ith(yB,3) = 0.0;
+  Ith(yB,1) = ZERO;
+  Ith(yB,2) = ZERO;
+  Ith(yB,3) = ZERO;
 
   /* Initialize qB */
   qB = N_VNew_Serial(NP);
   if (check_flag((void *)qB, "N_VNew", 0)) return(1);
-  Ith(qB,1) = 0.0;
-  Ith(qB,2) = 0.0;
-  Ith(qB,3) = 0.0;
+  Ith(qB,1) = ZERO;
+  Ith(qB,2) = ZERO;
+  Ith(qB,3) = ZERO;
 
   /* Set the scalar relative tolerance reltolB */
   reltolB = RTOL;               
@@ -299,13 +299,13 @@ int main(int argc, char *argv[])
   PrintOutput(yB, qB);
 
   /* Reinitialize backward phase (new tB0) */
-  Ith(yB,1) = 0.0;
-  Ith(yB,2) = 0.0;
-  Ith(yB,3) = 0.0;
+  Ith(yB,1) = ZERO;
+  Ith(yB,2) = ZERO;
+  Ith(yB,3) = ZERO;
 
-  Ith(qB,1) = 0.0;
-  Ith(qB,2) = 0.0;
-  Ith(qB,3) = 0.0;
+  Ith(qB,1) = ZERO;
+  Ith(qB,2) = ZERO;
+  Ith(qB,3) = ZERO;
 
   printf("Re-initialize CVODES memory for backward run\n");
   flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, CV_SS, &reltolB, &abstolB);
@@ -425,8 +425,8 @@ static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_data
 
   /* Load yBdot */
   Ith(yBdot,1) = - p1*l21;
-  Ith(yBdot,2) = p2*y3*l21 - 2.0*p3*y2*l32;
-  Ith(yBdot,3) = p2*y2*l21 - 1.0;
+  Ith(yBdot,2) = p2*y3*l21 - RCONST(2.0)*p3*y2*l32;
+  Ith(yBdot,3) = p2*y2*l21 - RCONST(1.0);
 }
 
 /* 
@@ -451,7 +451,7 @@ static void JacB(long int NB, DenseMat JB, realtype t,
 
   /* Load JB */
   IJth(JB,1,1) = p1;     IJth(JB,1,2) = -p1; 
-  IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2; IJth(JB,2,3) = -2.0*p3*y2;
+  IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2; IJth(JB,2,3) = RCONST(-2.0)*p3*y2;
   IJth(JB,3,1) = -p2*y2; IJth(JB,3,2) = p2*y2;
 }
 

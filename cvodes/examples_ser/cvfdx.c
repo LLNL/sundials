@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-11-08 20:36:57 $
+ * $Revision: 1.19 $
+ * $Date: 2004-11-09 00:14:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -140,9 +140,9 @@ int main(int argc, char *argv[])
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2)) return(1);
-  data->p[0] = 0.04;
-  data->p[1] = 1.0e4;
-  data->p[2] = 3.0e7;
+  data->p[0] = RCONST(0.04);
+  data->p[1] = RCONST(1.0e4);
+  data->p[2] = RCONST(3.0e7);
 
   /* Initial conditions */
   y = N_VNew_Serial(NEQ);
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
     yS = N_VNewVectorArray_Serial(NS, NEQ);
     if (check_flag((void *)yS, "N_VNewVectorArray_Serial", 0)) return(1);
     for (is=0;is<NS;is++)
-      N_VConst(0.0, yS[is]);
+      N_VConst(ZERO, yS[is]);
 
     flag = CVodeSetSensRhs1Fn(cvode_mem, fS);
     if (check_flag(&flag, "CVodeSetSensRhs1Fn", 1)) return(1);

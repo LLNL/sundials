@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-08 20:36:57 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-09 00:14:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -58,7 +58,7 @@
 #define ATOL  RCONST(1.e-5) /* scalar absolute tolerance */
 #define T0    RCONST(0.0)   /* initial time              */
 #define T1    RCONST(0.5)   /* first output time         */
-#define DTOUT RCONST(0.50   /* output time increment     */
+#define DTOUT RCONST(0.5)   /* output time increment     */
 #define NOUT  10            /* number of output times    */
 
 #define NP    2
@@ -81,7 +81,8 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 /* Private Helper Functions */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con);
+                        booleantype *sensi, int *sensi_meth,
+			booleantype *err_con);
 static void WrongArgs(char *name);
 static void SetIC(N_Vector u, realtype dx);
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
@@ -125,8 +126,8 @@ int main(int argc, char *argv[])
   if(check_flag((void *)data, "malloc", 2)) return(1);
   data->p = (realtype *) malloc(NP * sizeof(realtype));
   dx = data->dx = XMAX/((realtype)(MX+1));
-  data->p[0] = 1.0;
-  data->p[1] = 0.5;
+  data->p[0] = RCONST(1.0);
+  data->p[1] = RCONST(0.5);
 
   /* Allocate and set initial states */
   u = N_VNew_Serial(NEQ);
@@ -134,7 +135,7 @@ int main(int argc, char *argv[])
   SetIC(u, dx);
 
   /* Set integration tolerances */
-  reltol = 0.0;
+  reltol = ZERO;
   abstol = ATOL;
 
   /* Create CVODES object */
@@ -155,8 +156,8 @@ int main(int argc, char *argv[])
 
     pbar  = (realtype *) malloc(NP * sizeof(realtype));
     if(check_flag((void *)pbar, "malloc", 2)) return(1);
-    pbar[0] = 1.0;
-    pbar[1] = 0.5;
+    pbar[0] = RCONST(1.0);
+    pbar[1] = RCONST(0.5);
     plist = (int *) malloc(NS * sizeof(int));
     if(check_flag((void *)plist, "malloc", 2)) return(1);
     for(is=0; is<NS; is++)
@@ -165,7 +166,7 @@ int main(int argc, char *argv[])
     uS = N_VNewVectorArray_Serial(NS, NEQ);
     if(check_flag((void *)uS, "N_VNew", 0)) return(1);
     for(is=0;is<NS;is++)
-      N_VConst(0.0, uS[is]);
+      N_VConst(ZERO, uS[is]);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if(check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
@@ -254,7 +255,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   data = (UserData) f_data;
   dx    = data->dx;
   hordc = data->p[0]/(dx*dx);
-  horac = data->p[1]/(2.0*dx);
+  horac = data->p[1]/(RCONST(2.0)*dx);
 
   /* Loop over all grid points. */
   for (i=0; i<NEQ; i++) {
@@ -264,14 +265,14 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     if(i!=0) 
       ult = udata[i-1];
     else
-      ult = 0.0;
+      ult = ZERO;
     if(i!=NEQ-1)
       urt = udata[i+1];
     else
-      urt = 0.0;
+      urt = ZERO;
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - 2.0*ui + urt);
+    hdiff = hordc*(ult - RCONST(2.0)*ui + urt);
     hadv = horac*(urt - ult);
     dudata[i] = hdiff + hadv;
   }
@@ -352,7 +353,7 @@ static void SetIC(N_Vector u, realtype dx)
   /* Load initial profile into u vector */
   for (i=0; i<NEQ; i++) {
     x = (i+1)*dx;
-    udata[i] = x*(XMAX - x)*exp(2.0*x);
+    udata[i] = x*(XMAX - x)*exp(RCONST(2.0)*x);
   }  
 }
 

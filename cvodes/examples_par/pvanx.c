@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-08 20:36:55 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-09 00:14:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -65,6 +65,10 @@
 
 #define NP    2            /* number of parameters       */
 #define STEPS 200          /* steps between check points */
+
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
+#define TWO  RCONST(2.0)
 
 /* Type : UserData */
 
@@ -164,11 +168,11 @@ int main(int argc, char *argv[])
     -------------------------------------*/
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data , "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-  data->p[0] = 1.0;
-  data->p[1] = 0.5;
+  data->p[0] = ONE;
+  data->p[1] = RCONST(0.5);
   dx = data->dx = XMAX/((realtype)(MX+1));
   data->hdcoef = data->p[0]/(dx*dx);
-  data->hacoef = data->p[1]/(2.0*dx);
+  data->hacoef = data->p[1]/(TWO*dx);
   data->comm = comm;
   data->npes = npes;
   data->my_pe = my_pe;
@@ -181,7 +185,7 @@ int main(int argc, char *argv[])
     -------------------------*/
   
   /* Set relative and absolute tolerances for forward phase */
-  reltol = 0.0;
+  reltol = ZERO;
   abstol = ATOL;
 
   /* Allocate and initialize forward variables */
@@ -327,11 +331,11 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   /* Receive needed data from processes before and after current process. */
    if (my_pe != 0)
      MPI_Recv(&uLeft, 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
-   else uLeft = 0.0;
+   else uLeft = ZERO;
    if (my_pe != last_pe)
      MPI_Recv(&uRight, 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm,
               &status);   
-   else uRight = 0.0;
+   else uRight = ZERO;
 
   /* Loop over all grid points in current process. */
   for (i=0; i<my_length; i++) {
@@ -342,7 +346,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     urt = (i==my_length-1) ? uRight : udata[i+1];
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - 2.0*ui + urt);
+    hdiff = hordc*(ult - TWO*ui + urt);
     hadv = horac*(urt - ult);
     dudata[i] = hdiff + hadv;
   }
@@ -380,8 +384,8 @@ static void fB(realtype t, N_Vector u,
     my_length = NV_LOCLENGTH_P(uB);
 
     /* Loop over all other processes and load right hand side of quadrature eqs. */
-    duBdata[0] = 0.0;
-    duBdata[1] = 0.0;
+    duBdata[0] = ZERO;
+    duBdata[1] = ZERO;
     for (i=0; i<npes; i++) {
       MPI_Recv(&intgr1, 1, PVEC_REAL_MPI_TYPE, i, 0, comm, &status); 
       duBdata[0] += intgr1;
@@ -431,8 +435,8 @@ static void fB(realtype t, N_Vector u,
       uLeft = data_in[0];
       uBLeft = data_in[1];
     } else {
-      uLeft = 0.0;
-      uBLeft = 0.0;
+      uLeft = ZERO;
+      uBLeft = ZERO;
     }
     if (my_pe != last_pe) {
       MPI_Recv(data_in, 2, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm, &status);
@@ -440,8 +444,8 @@ static void fB(realtype t, N_Vector u,
       uRight = data_in[0];
       uBRight = data_in[1];
     } else {
-      uRight = 0.0;
-      uBRight = 0.0;
+      uRight = ZERO;
+      uBRight = ZERO;
     }
 
     /* Loop over all grid points in current process. */
@@ -453,7 +457,7 @@ static void fB(realtype t, N_Vector u,
       uBrt = (i==my_length-1) ? uBRight : uBdata[i+1];
       
       /* Set diffusion and advection terms and load into udot */
-      hdiff = hordc*(uBlt - 2.0*uBi + uBrt);
+      hdiff = hordc*(uBlt - TWO*uBi + uBrt);
       hadv = horac*(uBrt - uBlt);
       duBdata[i] = - hdiff + hadv;
 
@@ -463,8 +467,8 @@ static void fB(realtype t, N_Vector u,
       urt = (i==my_length-1) ? uRight : udata[i+1];
 
       /* Load integrands of the two space integrals */
-      z1[i] = uBdata[i]*(ult - 2.0*ui + urt)/(dx*dx);
-      z2[i] = uBdata[i]*(urt - ult)/(2.0*dx);
+      z1[i] = uBdata[i]*(ult - TWO*ui + urt)/(dx*dx);
+      z2[i] = uBdata[i]*(urt - ult)/(TWO*dx);
     }
 
     /* Compute local integrals */
@@ -504,7 +508,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base)
   for (i=1; i<=my_length; i++) {
     iglobal = my_base + i;
     x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*exp(2.0*x);
+    udata[i-1] = x*(XMAX - x)*exp(TWO*x);
   }  
 }
 
@@ -523,8 +527,8 @@ static void SetICback(N_Vector uB, long int my_base)
   my_length = NV_LOCLENGTH_P(uB);
 
   /* Set adjoint states to 1.0 and quadrature variables to 0.0 */
-  if (my_base == -1) for (i=0; i<my_length; i++) uBdata[i] = 0.0;
-  else               for (i=0; i<my_length; i++) uBdata[i] = 1.0;
+  if (my_base == -1) for (i=0; i<my_length; i++) uBdata[i] = ZERO;
+  else               for (i=0; i<my_length; i++) uBdata[i] = ONE;
 }
 
 /*
@@ -536,7 +540,7 @@ static realtype Xintgr(realtype *z, long int l, realtype dx)
   realtype my_intgr;
   long int i;
 
-  my_intgr = 0.5*(z[0] + z[l-1]);
+  my_intgr = RCONST(0.5)*(z[0] + z[l-1]);
   for (i = 1; i < l-1; i++)
     my_intgr += z[i]; 
   my_intgr *= dx;
@@ -564,7 +568,7 @@ static realtype Compute_g(N_Vector u, UserData data)
   dx = data->dx;
 
   if (my_pe == npes) {  /* Loop over all other processes and sum */
-    intgr = 0.0;
+    intgr = ZERO;
     for (i=0; i<npes; i++) {
       MPI_Recv(&my_intgr, 1, PVEC_REAL_MPI_TYPE, i, 0, comm, &status); 
       intgr += my_intgr;

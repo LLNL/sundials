@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-11-08 20:36:57 $
+ * $Revision: 1.12 $
+ * $Date: 2004-11-09 00:14:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,7 +51,7 @@
 
 /* Problem Constants */
 
-#define XMAX  RCONST(2.00   /* domain boundaries             */
+#define XMAX  RCONST(2.0)   /* domain boundaries             */
 #define YMAX  RCONST(1.0)
 #define MX    40            /* mesh dimensions               */
 #define MY    20
@@ -66,6 +66,8 @@
 #define NSTEP 50            /* check point saved every NSTEP */
 
 #define ZERO  RCONST(0.0)
+#define ONE   RCONST(1.0)
+#define TWO   RCONST(2.0)
 
 /* User-defined vector access macro IJth */
 
@@ -140,9 +142,9 @@ int main(int argc, char *argv[])
 
   dx = data->dx = XMAX/(MX+1);
   dy = data->dy = YMAX/(MY+1);
-  data->hdcoef = 1.0/(dx*dx);
-  data->hacoef = 1.5/(2.0*dx);
-  data->vdcoef = 1.0/(dy*dy);
+  data->hdcoef = ONE/(dx*dx);
+  data->hacoef = RCONST(1.5)/(TWO*dx);
+  data->vdcoef = ONE/(dy*dy);
 
   /* Set the tolerances for the forward integration */
   reltol = ZERO;
@@ -285,9 +287,9 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
       /* Set diffusion and advection terms and load into udot */
 
-      hdiff = hordc*(ult - 2.0*uij + urt);
+      hdiff = hordc*(ult - TWO*uij + urt);
       hadv = horac*(urt - ult);
-      vdiff = verdc*(uup - 2.0*uij + udn);
+      vdiff = verdc*(uup - TWO*uij + udn);
       IJth(dudata, i, j) = hdiff + hadv + vdiff;
     }
   }
@@ -327,7 +329,7 @@ static void Jac(long int N, long int mu, long int ml, BandMat J,
 
       /* set the kth column of J */
 
-      BAND_COL_ELEM(kthCol,k,k) = -2.0*(verdc+hordc);
+      BAND_COL_ELEM(kthCol,k,k) = -TWO*(verdc+hordc);
       if (i != 1)  BAND_COL_ELEM(kthCol,k-MY,k) = hordc + horac;
       if (i != MX) BAND_COL_ELEM(kthCol,k+MY,k) = hordc - horac;
       if (j != 1)  BAND_COL_ELEM(kthCol,k-1,k)  = verdc;
@@ -376,10 +378,10 @@ static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
 
       /* Set diffusion and advection terms and load into udot */
 
-      hdiffB = hordc*(- uBlt + 2.0*uBij - uBrt);
+      hdiffB = hordc*(- uBlt + TWO*uBij - uBrt);
       hadvB  = horac*(uBrt - uBlt);
-      vdiffB = verdc*(- uBup + 2.0*uBij - uBdn);
-      IJth(duBdata, i, j) = hdiffB + hadvB + vdiffB - 1.0;
+      vdiffB = verdc*(- uBup + TWO*uBij - uBdn);
+      IJth(duBdata, i, j) = hdiffB + hadvB + vdiffB - ONE;
     }
   }
 }
@@ -411,7 +413,7 @@ static void JacB(long int NB, long int muB, long int mlB, BandMat JB,
 
       /* set the kth column of J */
 
-      BAND_COL_ELEM(kthCol,k,k) = 2.0*(verdc+hordc);
+      BAND_COL_ELEM(kthCol,k,k) = TWO*(verdc+hordc);
       if (i != 1)  BAND_COL_ELEM(kthCol,k-MY,k) = - hordc + horac;
       if (i != MX) BAND_COL_ELEM(kthCol,k+MY,k) = - hordc - horac;
       if (j != 1)  BAND_COL_ELEM(kthCol,k-1,k)  = - verdc;
@@ -451,7 +453,7 @@ static void SetIC(N_Vector u, UserData data)
     y = j*dy;
     for (i=1; i <= MX; i++) {
       x = i*dx;
-      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*exp(5.0*x*y);
+      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*exp(RCONST(5.0)*x*y);
     }
   }  
 
@@ -485,9 +487,9 @@ static void PrintOutput(N_Vector uB, UserData data)
 
   printf("\nMaximum sensitivity\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("  lambda max = %Le\n",uBmax);
+  printf("  lambda max = %Le\n", uBmax);
 #else
-  printf("  lambda max = %e\n",uBmax);
+  printf("  lambda max = %e\n", uBmax);
 #endif
   printf("at\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-11-08 20:36:55 $
+ * $Revision: 1.18 $
+ * $Date: 2004-11-09 00:14:12 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -463,11 +463,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
        computed on the last f call).  Load into P. */
     for (ly = 0; ly < MYSUB; ly++) {
       jy = ly + isuby*MYSUB;
-      ydn = YMIN + (jy - .5)*dely;
+      ydn = YMIN + (jy - RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*exp(0.2*ydn);
-      cyup = verdco*exp(0.2*yup);
-      diag = -(cydn + cyup + 2.0*hordco);
+      cydn = verdco*exp(RCONST(0.2)*ydn);
+      cyup = verdco*exp(RCONST(0.2)*yup);
+      diag = -(cydn + cyup + RCONST(2.0)*hordco);
       for (lx = 0; lx < MXSUB; lx++) {
         jx = lx + isubx*MXSUB;
         offset = lx*NVARS + ly*nvmxsub;
@@ -529,7 +529,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   /* Solve the block-diagonal system Px = r using LU factors stored
      in P and pivot data in pivot, and return the solution in z.
      First copy vector r to z. */
-  N_VScale(1.0, r, z);
+  N_VScale(RCONST(1.0), r, z);
 
   nvmxsub = data->nvmxsub;
   zdata = NV_DATA_P(z);
@@ -658,22 +658,22 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   realtype KH, VEL, KV0;
 
   /* Set problem parameters */
-  data->p[0]  = 1.63e-16;       /* Q1  coeffs. q1, q2, c3             */
-  data->p[1]  = 4.66e-16;       /* Q2                                 */
-  data->p[2]  = 3.7e16;         /* C3                                 */
-  data->p[3]  = 22.62;          /* A3  coeff. in expression for q3(t) */
-  data->p[4]  = 7.601;          /* A4  coeff. in expression for q4(t) */
-  KH  = data->p[5]  = 4.0e-6;   /* KH  horizontal diffusivity Kh      */ 
-  VEL = data->p[6]  = 0.001;    /* VEL advection velocity V           */
-  KV0 = data->p[7]  = 1.0e-8;   /* KV0 coeff. in Kv(z)                */ 
+  data->p[0]  = RCONST(1.63e-16);      /* Q1  coeffs. q1, q2, c3             */
+  data->p[1]  = RCONST(4.66e-16);      /* Q2                                 */
+  data->p[2]  = RCONST(3.7e16);        /* C3                                 */
+  data->p[3]  = RCONST(22.62);         /* A3  coeff. in expression for q3(t) */
+  data->p[4]  = RCONST(7.601);         /* A4  coeff. in expression for q4(t) */
+  KH  = data->p[5]  = RCONST(4.0e-6);  /* KH  horizontal diffusivity Kh      */ 
+  VEL = data->p[6]  = RCONST(0.001);   /* VEL advection velocity V           */
+  KV0 = data->p[7]  = RCONST(1.0e-8);  /* KV0 coeff. in Kv(z)                */ 
 
   /* Set problem constants */
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/((realtype)(MX-1));
   data->dy = (YMAX-YMIN)/((realtype)(MY-1));
   data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(2.0*data->dx);
-  data->vdco = (1.0/SQR(data->dy))*KV0;
+  data->haco = VEL/(RCONST(2.0)*data->dx);
+  data->vdco = (RCONST(1.0)/SQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -711,18 +711,18 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   Here lx and ly are local mesh point indices on the local subgrid,
   and jx and jy are the global mesh point indices. */
   offset = 0;
-  xmid = .5*(XMIN + XMAX);
-  ymid = .5*(YMIN + YMAX);
+  xmid = RCONST(0.5)*(XMIN + XMAX);
+  ymid = RCONST(0.5)*(YMIN + YMAX);
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + isuby*MYSUB;
     y = YMIN + jy*dy;
-    cy = SQR(0.1*(y - ymid));
-    cy = 1.0 - cy + 0.5*SQR(cy);
+    cy = SQR(RCONST(0.1)*(y - ymid));
+    cy = RCONST(1.0) - cy + RCONST(0.5)*SQR(cy);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
       x = XMIN + jx*dx;
-      cx = SQR(0.1*(x - xmid));
-      cx = 1.0 - cx + 0.5*SQR(cx);
+      cx = SQR(RCONST(0.1)*(x - xmid));
+      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
       udata[offset  ] = C1_SCALE*cx*cy; 
       udata[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;
@@ -989,12 +989,12 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
   /* Set diurnal rate coefficients as functions of t, and save q4 in 
   data block for use by preconditioner evaluation routine */
   s = sin((data->om)*t);
-  if (s > 0.0) {
+  if (s > ZERO) {
     q3 = exp(-A3/s);
     q4coef = exp(-A4/s);
   } else {
-    q3 = 0.0;
-    q4coef = 0.0;
+    q3 = ZERO;
+    q4coef = ZERO;
   }
   data->q4 = q4coef;
 
@@ -1005,8 +1005,8 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn = YMIN + (jy - .5)*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(0.2*ydn);
-    cyup = verdco*exp(0.2*yup);
+    cydn = verdco*exp(RCONST(0.2)*ydn);
+    cyup = verdco*exp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
 
@@ -1018,7 +1018,7 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
       qq2 = Q2*c1*c2;
       qq3 = q3*C3;
       qq4 = q4coef*c2;
-      rkin1 = -qq1 - qq2 + 2.0*qq3 + qq4;
+      rkin1 = -qq1 - qq2 + RCONST(2.0)*qq3 + qq4;
       rkin2 = qq1 - qq2 - qq4;
 
       /* Set vertical diffusion terms */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-11-08 20:36:55 $
+ * $Revision: 1.13 $
+ * $Date: 2004-11-09 00:14:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
@@ -154,8 +154,8 @@ int main(int argc, char *argv[])
   data->p = (realtype *) malloc(NP * sizeof(realtype));
   if(check_flag((void *)data->p, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   dx = data->dx = XMAX/((realtype)(MX+1));
-  data->p[0] = 1.0;
-  data->p[1] = 0.5;
+  data->p[0] = RCONST(1.0);
+  data->p[1] = RCONST(0.5);
 
   /* INITIAL STATES */
   u = N_VNew_Parallel(comm, local_N, NEQ);    /* Allocate u vector */
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
   SetIC(u, dx, local_N, my_base);    /* Initialize u vector */
 
   /* TOLERANCES */
-  reltol = 0.0;                /* Set the tolerances */
+  reltol = ZERO;                /* Set the tolerances */
   abstol = ATOL;
 
   /* CVODE_CREATE & CVODE_MALLOC */
@@ -185,8 +185,8 @@ int main(int argc, char *argv[])
 
     pbar  = (realtype *) malloc(NP * sizeof(realtype));
     if(check_flag((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-    pbar[0] = 1.0;
-    pbar[1] = 0.5;
+    pbar[0] = RCONST(1.0);
+    pbar[1] = RCONST(0.5);
     plist = (int *) malloc(NS * sizeof(int));
     if(check_flag((void *)plist, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for(is=0; is<NS; is++)
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
     if(check_flag((void *)uS, "N_VNewVectorArray_Parallel", 0, my_pe)) 
       MPI_Abort(comm, 1);
     for(is=0;is<NS;is++)
-      N_VConst(0.0,uS[is]);
+      N_VConst(ZERO,uS[is]);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if(check_flag(&flag, "CVodeSetSensErrCon", 1, my_pe)) MPI_Abort(comm, 1);
@@ -298,7 +298,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   data  = (UserData) f_data;
   dx    = data->dx; 
   hordc = data->p[0]/(dx*dx);
-  horac = data->p[1]/(2.0*dx);
+  horac = data->p[1]/(RCONST(2.0)*dx);
 
   /* Extract parameters for parallel computation. */
   comm = data->comm;
@@ -326,11 +326,11 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   /* Receive needed data from processes before and after current process. */
    if (my_pe != 0)
      MPI_Recv(&z[0], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
-   else z[0] = 0.0;
+   else z[0] = ZERO;
    if (my_pe != last_pe)
      MPI_Recv(&z[my_length+1], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm,
               &status);   
-   else z[my_length + 1] = 0.0;
+   else z[my_length + 1] = ZERO;
 
   /* Loop over all grid points in current process. */
   for (i=1; i<=my_length; i++) {
@@ -341,7 +341,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     urt = z[i+1];
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - 2.0*ui + urt);
+    hdiff = hordc*(ult - RCONST(2.0)*ui + urt);
     hadv = horac*(urt - ult);
     dudata[i-1] = hdiff + hadv;
   }

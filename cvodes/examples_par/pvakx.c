@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-11-08 20:36:55 $
+ * $Revision: 1.9 $
+ * $Date: 2004-11-09 00:14:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -102,6 +102,10 @@
 /* Steps between check points */
 
 #define STEPS 200
+
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
+#define TWO  RCONST(2.0)
 
 /*
  *------------------------------------------------------------------
@@ -260,11 +264,11 @@ int main(int argc, char *argv[])
 
   /* Allocate space for y and set it with the I.C. */
   y = N_VNew_Parallel(comm, l_neq, neq);
-  N_VConst(0.0, y);
+  N_VConst(ZERO, y);
   
   /* Allocate and initialize qB (local contributin to cost) */
   q = N_VNew_Parallel(comm, 1, npes); 
-  N_VConst(0.0, q);
+  N_VConst(ZERO, q);
 
   /* Create CVODES object, attach user data, and allocate space */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
@@ -277,7 +281,8 @@ int main(int argc, char *argv[])
   mudq = mldq = d->l_m[0]+1;
   mukeep = mlkeep = 2;  
   bbdp_data = (void *) CVBBDPrecAlloc(cvode_mem, l_neq, mudq, mldq, 
-                                      mukeep, mlkeep, 0.0, f_local, NULL);
+                                      mukeep, mlkeep, ZERO,
+				      f_local, NULL);
   flag = CVBBDSpgmr(cvode_mem, PREC_LEFT, 0, bbdp_data);
 
   /* Initialize quadrature calculations */
@@ -315,11 +320,11 @@ int main(int argc, char *argv[])
  
   /* Allocate and initialize yB */
   yB = N_VNew_Parallel(comm, l_neq, neq); 
-  N_VConst(0.0, yB);
+  N_VConst(ZERO, yB);
 
   /* Allocate and initialize qB (gradient) */
   qB = N_VNew_Parallel(comm, l_neq, neq); 
-  N_VConst(0.0, qB);
+  N_VConst(ZERO, qB);
 
   /* Create and allocate backward CVODE memory */
   flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
@@ -332,7 +337,7 @@ int main(int argc, char *argv[])
   mudqB = mldqB = d->l_m[0]+1;
   mukeepB = mlkeepB = 2;  
   flag = CVBBDPrecAllocB(cvadj_mem, l_neq, mudqB, mldqB, 
-                         mukeepB, mlkeepB, 0.0, fB_local, NULL);
+                         mukeepB, mlkeepB, ZERO, fB_local, NULL);
   flag = CVBBDSpgmrB(cvadj_mem, PREC_LEFT, 0); 
 
   /* Initialize quadrature calculations */
@@ -421,7 +426,7 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
 
   /* Calculate grid spacing and differential volume */
 
-  d->dOmega = 1.0;
+  d->dOmega = ONE;
   FOR_DIM {
     d->dx[dim] = (d->xmax[dim] - d->xmin[dim]) / d->m[dim];
     d->m[dim] +=1;
@@ -532,7 +537,7 @@ static void SetSource(ProblemData d)
           * exp( -SQR(G2_Y-x[1])/SQR(G2_SIGMA) )
           * exp( -SQR(G2_Z-x[2])/SQR(G2_SIGMA) ); 
         
-        if( g < G_MIN ) g = 0.0;
+        if( g < G_MIN ) g = ZERO;
 
         IJth(pdata, i) = g;
       }
@@ -545,7 +550,7 @@ static void SetSource(ProblemData d)
         * exp( -SQR(G2_X-x[0])/SQR(G2_SIGMA) ) 
         * exp( -SQR(G2_Y-x[1])/SQR(G2_SIGMA) ); 
       
-      if( g < G_MIN ) g = 0.0;
+      if( g < G_MIN ) g = ZERO;
 
       IJth(pdata, i) = g;
 #endif 
@@ -722,9 +727,9 @@ static void f_local(long int Nlocal, realtype t, N_Vector y,
   Ydata = d->y_ext;
 
   /* Velocity components in x1 and x2 directions (Poiseuille profile) */
-  v[1] = 0.0;
+  v[1] = ZERO;
 #ifdef USE3D
-  v[2] = 0.0;
+  v[2] = ZERO;
 #endif
 
   /* Local domain is [xmin+(m_start+1)*dx, xmin+(m_start+1+l_m-1)*dx] */
@@ -763,8 +768,8 @@ static void f_local(long int Nlocal, realtype t, N_Vector y,
           else if( i[dim]==0 && nbr_left[dim]==id )
             cl[dim] = cr[dim];
 
-          adv[dim]  = v[dim] * (cr[dim]-cl[dim]) / (2.0*dx[dim]);
-          diff[dim] = DIFF_COEF * (cr[dim]-2.*c+cl[dim]) / SQR(dx[dim]);
+          adv[dim]  = v[dim] * (cr[dim]-cl[dim]) / (TWO*dx[dim]);
+          diff[dim] = DIFF_COEF * (cr[dim]-TWO*c+cl[dim]) / SQR(dx[dim]);
 
           IJth(dydata, i) += (diff[dim] - adv[dim]);
         } 
@@ -794,7 +799,7 @@ static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
   dqdata = NV_DATA_P(qdot);
 
   dqdata[0] = N_VDotProd_Parallel(y,y);
-  dqdata[0] *= 0.5 * (d->dOmega);
+  dqdata[0] *= RCONST(0.5) * (d->dOmega);
 }
 
 /*
@@ -855,9 +860,9 @@ static void fB_local(long int NlocalB, realtype t,
   YBdata = d->y_ext;
 
   /* Velocity components in x1 and x2 directions (Poiseuille profile) */
-  v[1] = 0.0;
+  v[1] = ZERO;
 #ifdef USE3D
-  v[2] = 0.0;
+  v[2] = ZERO;
 #endif
  
   /* local domain is [xmin+(m_start)*dx, xmin+(m_start+l_m-1)*dx] */
@@ -894,12 +899,12 @@ static void fB_local(long int NlocalB, realtype t,
 
           /* Boundary conditions for the adjoint variables */
           if( i[dim]==l_m[dim]-1 && nbr_right[dim]==id)
-            cr[dim] = cl[dim]-(2.0*dx[dim]*v[dim]/DIFF_COEF)*c;
+	    cr[dim] = cl[dim]-(TWO*dx[dim]*v[dim]/DIFF_COEF)*c;
           else if( i[dim]==0 && nbr_left[dim]==id )
-            cl[dim] = cr[dim]+(2.0*dx[dim]*v[dim]/DIFF_COEF)*c;
+	      cl[dim] = cr[dim]+(TWO*dx[dim]*v[dim]/DIFF_COEF)*c;
 		  
-          adv[dim]  = v[dim] * (cr[dim]-cl[dim]) / (2.0*dx[dim]);
-          diff[dim] = DIFF_COEF * (cr[dim]-2.*c+cl[dim]) / SQR(dx[dim]);
+          adv[dim]  = v[dim] * (cr[dim]-cl[dim]) / (TWO*dx[dim]);
+          diff[dim] = DIFF_COEF * (cr[dim]-TWO*c+cl[dim]) / SQR(dx[dim]);
           
           IJth(dyBdata, i) -= (diff[dim] + adv[dim]);
         } 
