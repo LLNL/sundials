@@ -65,14 +65,16 @@ when $u_n$ is close to a solution, and $D_F F$ has all components
 roughly the same magnitude when $u_n$ is not too close to a
 solution. In the text below, we use the following scaled norms:
 \begin{equation}
-\|z\|_{D_u} = \|D_u z\|, \;\; {\rm and} \;\; \|z\|_{D_F} = \|D_F z\|.
+\|z\|_{D_u} = \|D_u z\|_2, \;\; \|z\|_{D_F} = \|D_F z\|_2, \;\;
+{\rm and} \;\; \|z\|_{D,\infty} = \|Dz\|_{\infty},
 \end{equation}
-When scaling values are provided for the solution vector, these values are
+where $\| \cdot \|_{\infty}$ is the max norm.  When scaling values
+are provided for the solution vector, these values are
 automatically incorporated into the calculation of $\sigma$ in
-(\ref{sigma_comp}).
-Additionally, right preconditioning is provided if the preconditioning
-setup and solve routines are supplied by the user.  In this case,
-GMRES is applied to the linear systems $(JP^{-1})(P\delta) = -F$.
+(\ref{sigma_comp}). Additionally, right preconditioning is
+provided if the preconditioning setup and solve routines are
+supplied by the user. In this case, GMRES is applied to the linear
+systems $(JP^{-1})(P\delta) = -F$.
 
 Two methods of applying a computed step $\delta_n$ to the
 previously computed solution vector are implemented. The first and
