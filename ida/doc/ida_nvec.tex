@@ -13,13 +13,13 @@
 \input{nvec_parallel}
 
 %---------------------------------------------------------------------------
-\section{NVECTOR kernels used by IDA}
+\section{NVECTOR functions used by IDA}
 
-In Table \ref{t:nvecuse} below, we list the vector kernels in the 
+In Table \ref{t:nvecuse} below, we list the vector functions in the 
 {\nvector} module within the {\ida} package.
-The table also shows, for each kernel, which of the code modules uses
-the kernel. The {\ida} column shows kernel usage within the main
-integrator module, while the remaining three columns show kernel usage
+The table also shows, for each function, which of the code modules uses
+the function. The {\ida} column shows function usage within the main
+integrator module, while the remaining three columns show function usage
 within each of the three {\ida} linear solvers. 
 
 There is one subtlety in the {\idaspgmr} column hidden by the table. 
@@ -29,23 +29,18 @@ the files \id{spgmr.c} and \id{iterative.c} for the generic {\spgmr}
 solver upon which the {\idaspgmr} solver is implemented. 
 This is not the case with {\idadense} and {\idaband}
 because the generic {\dense} and {\band} solvers 
-do not make calls to any vector kernels.
+do not make calls to any vector functions.
 
-The vector kernels \id{N\_VMake}, \id{N\_VDispose}, \id{N\_VGetData}, and
+The vector functions \id{N\_VMake}, \id{N\_VDispose}, \id{N\_VGetData}, and
 \id{N\_VSetData} are only called by the {\ida} direct linear solvers, 
 {\idadense} and {\idaband}, and by preconditioner solve routines that use a 
 direct linear solver ({\idabbdpre}). They duplicate 
 functionality provided by macros in particular implementations of {\nvector},
 but are part of the specifications of the generic {\nvector} module to insure 
 that the {\ida} package is not dependent on any particular {\nvector} implementation.
-%5
-The vector kernels listed in Table \ref{t:nvecops} that are {\em not} used by
-{\ida} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VInvTest}, \id{N\_VNew\_S}, 
-and \id{N\_VFree\_S}. Therefore a user-supplied {\nvector} module for {\ida} could 
-omit these five kernels.
-%%
+
 At this point, we should emphasize that the {\ida} user does not need to know 
-anything about the usage of vector kernels by the {\ida} code modules in order 
+anything about the usage of vector functions by the {\ida} code modules in order 
 to use {\ida}. The information is presented as an implementation detail for the 
 interested reader.
 
@@ -60,30 +55,31 @@ interested reader.
 \begin{sideways}{\idaband}   \end{sideways} & 
 \begin{sideways}{\idaspgmr}  \end{sideways} &
 \begin{sideways}{\idabbdpre} \end{sideways} \\ \hline\hline 
-\id{N\_VNew}          & \cm &     &     & \cm & \cm \\ \hline
-\id{N\_VFree}         & \cm &     &     & \cm & \cm \\ \hline
-\id{N\_VSpace}        & \cm &     &     &     &     \\ \hline
-\id{N\_VMake}         &     & \cm &     &     &     \\ \hline
-\id{N\_VDispose}      &     & \cm &     &     &     \\ \hline
-\id{N\_VGetData}      &     & \cm & \cm &     & \cm \\ \hline
-\id{N\_VSetData}      &     & \cm & \cm &     & \cm \\ \hline
-\id{N\_VLinearSum}    & \cm & \cm &     & \cm &     \\ \hline
-\id{N\_VConst}        & \cm &     &     & \cm &     \\ \hline
-\id{N\_VProd}         & \cm &     &     &     &     \\ \hline
-\id{N\_VDiv}          & \cm &     &     &     &     \\ \hline
-\id{N\_VScale}        & \cm & \cm & \cm & \cm & \cm \\ \hline
-\id{N\_VAbs}          & \cm &     &     &     &     \\ \hline
-\id{N\_VInv}          & \cm &     &     &     &     \\ \hline
-\id{N\_VAddConst}     & \cm &     &     &     &     \\ \hline
-\id{N\_VDotProd}      &     &     &     & \cm &     \\ \hline
-\id{N\_VMaxNorm}      & \cm &     &     &     &     \\ \hline
-\id{N\_VWrmsNorm}     & \cm &     &     &     &     \\ \hline
-\id{N\_VMin}          & \cm &     &     &     &     \\ \hline
-\id{N\_VMinQuotient}  & \cm &     &     &     &     \\ \hline
-\id{N\_VConstrMask}   & \cm &     &     &     &     \\ \hline
-\id{N\_VWrmsNormMask} & \cm &     &     &     &     \\ \hline
-\id{N\_VCompare}      & \cm &     &     &     &     \\ \hline
-\id{N\_VInvTest}      & \cm &     &     &     &     \\ \hline
+\id{N\_VClone}           & \cm &     &     & \cm & \cm \\ \hline
+\id{N\_VDestroy}         & \cm &     &     & \cm & \cm \\ \hline
+\id{N\_VSpace}           & \cm &     &     &     &     \\ \hline
+\id{N\_VGetArrayPointer} &     & \cm & \cm &     & \cm \\ \hline
+\id{N\_VSetArrayPointer} &     & \cm & \cm &     & \cm \\ \hline
+\id{N\_VLinearSum}       & \cm & \cm &     & \cm &     \\ \hline
+\id{N\_VConst}           & \cm &     &     & \cm &     \\ \hline
+\id{N\_VProd}            & \cm &     &     &     &     \\ \hline
+\id{N\_VDiv}             & \cm &     &     &     &     \\ \hline
+\id{N\_VScale}           & \cm & \cm & \cm & \cm & \cm \\ \hline
+\id{N\_VAbs}             & \cm &     &     &     &     \\ \hline
+\id{N\_VInv}             & \cm &     &     &     &     \\ \hline
+\id{N\_VAddConst}        & \cm &     &     &     &     \\ \hline
+\id{N\_VDotProd}         &     &     &     & \cm &     \\ \hline
+\id{N\_VMaxNorm}         & \cm &     &     &     &     \\ \hline
+\id{N\_VWrmsNorm}        & \cm &     &     &     &     \\ \hline
+\id{N\_VMin}             & \cm &     &     &     &     \\ \hline
+\id{N\_VMinQuotient}     & \cm &     &     &     &     \\ \hline
+\id{N\_VConstrMask}      & \cm &     &     &     &     \\ \hline
+\id{N\_VWrmsNormMask}    & \cm &     &     &     &     \\ \hline
+\id{N\_VCompare}         & \cm &     &     &     &     \\ \hline
 \end{tabular}
 \end{table}
 
+Two of the functions listed in Table \ref{t:nvecops}, \id{N\_VWL2Norm} and \id{N\_VL1Norm},
+are {\em not} used by {\ida}.
+Therefore a user-supplied {\nvector} module for {\ida} could omit these two functions.
+%%
