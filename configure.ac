@@ -103,6 +103,18 @@ fi
 
 AC_ARG_WITH([],[],[])
 
+AC_ARG_WITH(single-prec,[AC_HELP_STRING([--with-single-prec[[[[=ARG]]]]],[use single-precision rather than double-precision floating-point numeric datatype [ARG=no]],[])],
+[
+  if test "X${withval}" = "Xyes"; then
+    EXTRA_CFLAGS="-DSUNDIALS_FLOAT=1"
+  fi
+],
+[
+  EXTRA_CFLAGS=""
+])
+
+AC_ARG_WITH([],[ ],[])
+
 AC_ARG_WITH(cppflags,
 [AC_HELP_STRING([--with-cppflags],[add extra preprocessor flags])],
 [EXTRA_CPPFLAGS=${withval}]
@@ -110,7 +122,9 @@ AC_ARG_WITH(cppflags,
 
 AC_ARG_WITH(cflags,
 [AC_HELP_STRING([--with-cflags],[add extra C compiler flags])],
-[EXTRA_CFLAGS=${withval}]
+[
+  EXTRA_CFLAGS="${EXTRA_CFLAGS} ${withval}"
+]
 )
 
 AC_ARG_WITH(ldflags,
@@ -128,7 +142,7 @@ LIBS="${LIBS} ${EXTRA_LIBS}"
 # See whether we need a C++ compiler
 # ------------------------------------------------------------------------
 
-AC_ARG_WITH([],[ ],[])
+AC_ARG_WITH([],[  ],[])
 
 CXX_ENABLED=no
 test -d ${srcdir}/xs4c && CXX_ENABLED=yes
@@ -174,11 +188,22 @@ AC_ARG_WITH(fflags,
 [EXTRA_FFLAGS=${withval}]
 )
 
+AC_ARG_WITH(f77underscore, [AC_HELP_STRING([--with-f77underscore[[[[=ARG]]]]],[specify number of underscores to append to function names (none/one/two) [ARG=one]],[])],
+[
+  if "X${withval}" = "Xnone"; then
+    FCFLAGS="-DSUNDIALS_UNDERSCORE_NONE=1"
+  elif "X${withval}" = "Xtwo"; then
+    FCFLAGS="-DSUNDIALS_UNDERSCORE_TWO=1"
+  else
+    FCFLAGS=""
+  fi
+])
+
 # ------------------------------------------------------------------------
 # See whether we need MPI support 
 # ------------------------------------------------------------------------
 
-AC_ARG_WITH([],[  ],[])
+AC_ARG_WITH([],[   ],[])
 
 MPI_ENABLED=no
 test -d ${srcdir}/nvec_par && MPI_ENABLED=yes
@@ -500,38 +525,6 @@ if test "X${MPI_ENABLED}" = "Xyes"; then
       SUNDIALS_CHECK_F77_WITH_MPI
     fi
   fi
-
-
-
-#  if test "X${USE_MPI_COMPILERS}" = "Xyes"; then
-#
-#    SUNDIALS_CHECK_MPICC
-#
-#    if test "X${CXX_ENABLED}" = "Xyes"; then
-#      SUNDIALS_CHECK_MPICXX
-#    fi
-#
-#    if test "X${F77_EXAMPLES}" = "Xyes"; then
-#      SUNDIALS_CHECK_MPIF77
-#    fi
-#
-#  else
-#
-#    MPICC=${CC}
-#    SUNDIALS_CHECK_CC_WITH_MPI
-#
-#    if test "X${CXX_ENABLED}" = "Xyes"; then
-#      MPICXX=${CXX}
-#      SUNDIALS_CHECK_CXX_WITH_MPI
-#    fi
-#
-#    if test "X${F77_EXAMPLES}" = "Xyes"; then
-#      MPIF77=${F77}
-#      SUNDIALS_CHECK_F77_WITH_MPI
-#    fi
-#
-#  fi
-
 fi
 
 # ------------------------------------------------------------------------
@@ -641,6 +634,7 @@ SUNDIALS_BUILD_MODULES_LIST
 # ------------------------------------------------------------------------
 
 AC_SUBST(FLIBS)
+AC_SUBST(FCFLAGS)
 
 AC_SUBST(MPICC)
 AC_SUBST(MPICXX)

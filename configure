@@ -311,7 +311,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE AR CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP CXX CXXFLAGS ac_ct_CXX CXXCPP F77 FFLAGS ac_ct_F77 FLIBS MPI_CC_EXISTS MPI_CXX_EXISTS MPI_F77_EXISTS MPICC MPICXX MPIF77 MPIINC MPILIBDIR MPILIBS MODULES NVEC_MODULES EX_MODULES LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE AR CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP CXX CXXFLAGS ac_ct_CXX CXXCPP F77 FFLAGS ac_ct_F77 FLIBS MPI_CC_EXISTS MPI_CXX_EXISTS MPI_F77_EXISTS FCFLAGS MPICC MPICXX MPIF77 MPIINC MPILIBDIR MPILIBS MODULES NVEC_MODULES EX_MODULES LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -881,6 +881,10 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
 
+  --with-single-prec[=ARG]
+                          use single-precision rather than double-precision
+                          floating-point numeric datatype [ARG=no]
+
   --with-cppflags         add extra preprocessor flags
   --with-cflags           add extra C compiler flags
   --with-ldflags          add extra linker flags
@@ -890,6 +894,9 @@ Optional Packages:
   --with-cxxflags         add extra C++ compiler flags
   --with-f77[=ARG]        force (ARG=yes) or skip (ARG=no) F77 check [ARG=yes]
   --with-fflags           add extra Fortran compiler flags
+  --with-f77underscore[=ARG]
+                          specify number of underscores to append to function
+                          names (none/one/two) [ARG=one]
 
   --with-mpi[=ARG]        force (ARG=yes) or skip (ARG=no) MPI check [ARG=yes]
   --with-mpicc[=ARG]      specify MPI C compiler to use [mpicc]
@@ -1568,6 +1575,28 @@ if test "${with_+set}" = set; then
 fi;
 
 
+# Check whether --with-single-prec or --without-single-prec was given.
+if test "${with_single_prec+set}" = set; then
+  withval="$with_single_prec"
+
+  if test "X${withval}" = "Xyes"; then
+    EXTRA_CFLAGS="-DSUNDIALS_FLOAT=1"
+  fi
+
+else
+
+  EXTRA_CFLAGS=""
+
+fi;
+
+
+# Check whether --with- or --without- was given.
+if test "${with_+set}" = set; then
+  withval="$with_"
+
+fi;
+
+
 # Check whether --with-cppflags or --without-cppflags was given.
 if test "${with_cppflags+set}" = set; then
   withval="$with_cppflags"
@@ -1579,7 +1608,9 @@ fi;
 # Check whether --with-cflags or --without-cflags was given.
 if test "${with_cflags+set}" = set; then
   withval="$with_cflags"
-  EXTRA_CFLAGS=${withval}
+
+  EXTRA_CFLAGS="${EXTRA_CFLAGS} ${withval}"
+
 
 fi;
 
@@ -1660,6 +1691,21 @@ fi;
 if test "${with_fflags+set}" = set; then
   withval="$with_fflags"
   EXTRA_FFLAGS=${withval}
+
+fi;
+
+
+# Check whether --with-f77underscore or --without-f77underscore was given.
+if test "${with_f77underscore+set}" = set; then
+  withval="$with_f77underscore"
+
+  if "X${withval}" = "Xnone"; then
+    FCFLAGS="-DSUNDIALS_UNDERSCORE_NONE=1"
+  elif "X${withval}" = "Xtwo"; then
+    FCFLAGS="-DSUNDIALS_UNDERSCORE_TWO=1"
+  else
+    FCFLAGS=""
+  fi
 
 fi;
 
@@ -4255,7 +4301,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:4258:" \
+echo "$as_me:4304:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -4462,7 +4508,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:4465: \"$ac_link\") >&5
+(eval echo $as_me:4511: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4542,7 +4588,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:4545: \"$ac_link\") >&5
+(eval echo $as_me:4591: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -5393,38 +5439,6 @@ LIBS=${SAVED_LIBS}
 
     fi
   fi
-
-
-
-#  if test "X${USE_MPI_COMPILERS}" = "Xyes"; then
-#
-#    SUNDIALS_CHECK_MPICC
-#
-#    if test "X${CXX_ENABLED}" = "Xyes"; then
-#      SUNDIALS_CHECK_MPICXX
-#    fi
-#
-#    if test "X${F77_EXAMPLES}" = "Xyes"; then
-#      SUNDIALS_CHECK_MPIF77
-#    fi
-#
-#  else
-#
-#    MPICC=${CC}
-#    SUNDIALS_CHECK_CC_WITH_MPI
-#
-#    if test "X${CXX_ENABLED}" = "Xyes"; then
-#      MPICXX=${CXX}
-#      SUNDIALS_CHECK_CXX_WITH_MPI
-#    fi
-#
-#    if test "X${F77_EXAMPLES}" = "Xyes"; then
-#      MPIF77=${F77}
-#      SUNDIALS_CHECK_F77_WITH_MPI
-#    fi
-#
-#  fi
-
 fi
 
 # ------------------------------------------------------------------------
@@ -5566,7 +5580,7 @@ if test -d ${srcdir}/nvec_ser; then
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} nvec_ser/Makefile"
 fi
 
-if test -d ${srcdir}/nvec_par && test "X${MPICC_OK}" = "Xyes" ; then
+if test -d ${srcdir}/nvec_par && test "X${MPICC_OK}" = "Xyes"; then
   NVEC_MODULES="$NVEC_MODULES nvec_par"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} nvec_par/Makefile"
 fi
@@ -5588,7 +5602,7 @@ if test "X${CVODE_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/examples_ser/Makefile"
   fi
 
-  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes"; then
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/examples_par; then
     EX_MODULES="$EX_MODULES cvode/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/examples_par/Makefile"
   fi
@@ -5598,7 +5612,7 @@ if test "X${CVODE_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/examples_ser/Makefile"
   fi
 
-  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes"; then
+  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/fcmix/examples_par; then
     EX_MODULES="$EX_MODULES cvode/fcmix/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/examples_par/Makefile"
   fi
@@ -5617,7 +5631,7 @@ if test "X${CVODES_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/examples_ser/Makefile"
   fi
 
-  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes"; then
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/examples_par; then
     EX_MODULES="$EX_MODULES cvodes/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/examples_par/Makefile"
   fi
@@ -5636,7 +5650,7 @@ if test "X${IDA_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/examples_ser/Makefile"
   fi
 
-  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes"; then
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/examples_par; then
     EX_MODULES="$EX_MODULES ida/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/examples_par/Makefile"
   fi
@@ -5655,7 +5669,7 @@ if test "X${IDAS_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/examples_ser/Makefile"
   fi
 
-  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes"; then
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/idas/examples_par; then
     EX_MODULES="$EX_MODULES idas/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/examples_par/Makefile"
   fi
@@ -5679,7 +5693,7 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/examples_ser/Makefile"
   fi
 
-  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes"; then
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/examples_par; then
     EX_MODULES="$EX_MODULES kinsol/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/examples_par/Makefile"
   fi
@@ -5689,7 +5703,7 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/examples_ser/Makefile"
   fi
 
-  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes"; then
+  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/fcmix/examples_par; then
     EX_MODULES="$EX_MODULES kinsol/fcmix/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/examples_par/Makefile"
   fi
@@ -5701,6 +5715,7 @@ fi
 # ------------------------------------------------------------------------
 # Substitute variables
 # ------------------------------------------------------------------------
+
 
 
 
@@ -6386,6 +6401,7 @@ s,@FLIBS@,$FLIBS,;t t
 s,@MPI_CC_EXISTS@,$MPI_CC_EXISTS,;t t
 s,@MPI_CXX_EXISTS@,$MPI_CXX_EXISTS,;t t
 s,@MPI_F77_EXISTS@,$MPI_F77_EXISTS,;t t
+s,@FCFLAGS@,$FCFLAGS,;t t
 s,@MPICC@,$MPICC,;t t
 s,@MPICXX@,$MPICXX,;t t
 s,@MPIF77@,$MPIF77,;t t
