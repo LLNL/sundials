@@ -55,9 +55,6 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   \textcolor{gray}{\bf Set problem dimensions for the forward problem}
 
 \item
-  \textcolor{gray}{\bf Initialize the vector specification for the forward problem}
-
-\item
   \textcolor{gray}{\bf Set initial conditions for the forward problem}
 
 \item
@@ -86,8 +83,8 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   {\bf Integrate forward problem}
 
   Call \Id{CVodeF}, a wrapper around the {\cvodes} main integration
-  function \id{CVode}, either in \Id{NORMAL} mode to the time 
-  \id{tout} or in \Id{ONE\_STEP} mode inside a loop (if intermediate
+  function \id{CVode}, either in \Id{CV\_NORMAL} mode to the time 
+  \id{tout} or in \Id{Cv\_ONE\_STEP} mode inside a loop (if intermediate
   solutions of the forward problem are desired (see \S\ref{sss:cvodef}).
   The final value of of \id{tret}, denoted \id{tfinal}, is then
   the maximum allowable value for the endpoint $t_1$.
@@ -99,12 +96,6 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 
   {\s} set \id{NB}, the number of variables in the backward problem;
   {\p} set \id{NB} and \id{NBlocal};
-
-\item
-  {\bf Initialize the vector specification for the backward problem}
-
-  Call the appropriate implementation-dependent {\nvector} specification 
-  function (typically the same as for the forward problem).
 
 \item
   {\bf Set final values for the backward problem}
@@ -163,8 +154,8 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 
   Call \Id{CVodeB}, a second wrapper around the {\cvodes} main integration
   function \id{CVode}, to integrate the backward problem from \id{tB0}
-  (see \S\ref{sss:cvodeb}). This function can be called either in \id{NORMAL}
-  or \id{ONE\_STEP} mode. Typically, \id{CVodeB} will be called in \id{NORMAL}
+  (see \S\ref{sss:cvodeb}). This function can be called either in \id{Cv\_NORMAL}
+  or \id{CV\_ONE\_STEP} mode. Typically, \id{CVodeB} will be called in \id{CV\_NORMAL}
   mode with an end time equal to the initial time of the forward problem.
 
 \item \label{i:back_end}
@@ -178,13 +169,11 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   {\bf Deallocate memory}
 
   Upon completion of the backward integration, call all necessary deallocation
-  functions. These include calls to \id{NV\_Free} for the vectors \id{y} and \id{yB},
-  calls to the appropriate implementation-dependent {\nvector} free function for
-  the forward and backward vector specification blocks, and calls to \id{CVodeFree}
-  to free the {\cvodes} memory block for the forward problem and to
-  \id{CVadjFree} (see \S\ref{sss:cvadjmalloc}) to free the memory allocated for the 
-  combined problem. Note that \id{CVadjFree} also deallocates the {\cvodes} memory 
-  for the backward problem.
+  functions. These include appropriate destructors for the vectors 
+  \id{y} and \id{yB}, a call to \id{CVodeFree} to free the {\cvodes} memory block 
+  for the forward problem and a call to \id{CVadjFree} (see \S\ref{sss:cvadjmalloc}) to free 
+  the memory allocated for the combined problem. 
+  Note that \id{CVadjFree} also deallocates the {\cvodes} memory for the backward problem.
 
 \item
   \textcolor{gray}{\bf Finalize MPI}
@@ -220,9 +209,9 @@ The form of the call to this function is
 }
 {
   The function \ID{CVadjMalloc} allocates internal memory for the combined
-  forward-backward integration, other than the {\cvodes} memory block. Space is allocated 
-  for the $N_d$ interpolation data points and a linked list of check points is 
-  initialized.
+  forward and backward integration, other than the {\cvodes} memory block. 
+  Space is allocated for the $N_d$ interpolation data points and a linked 
+  list of check points is initialized.
 }
 {
   \begin{args}[cvode\_mem]
@@ -262,7 +251,11 @@ The form of the call to this function is
 {
   The function \id{CVadjFree} has no return value.
 }
-{}
+{
+  This function frees all memory allocate dby \id{CVadjMalloc}. This includes workspace memory, 
+  the linked list of check points, memory for the interpolation data, the {\cvodes} memory 
+  for the backward integration phase, and possibly memory for backward-phase preconditioners.
+}
 
 %%---------------------------------------------------------------------
 
@@ -297,14 +290,14 @@ The call to this function has the form
   \item[itask] (\id{int})
     \index{itask@\texttt{itask}}
     a flag indicating the job of the solver for the next user step. 
-    The \Id{NORMAL} task is to have the solver take internal steps until   
+    The \Id{CV\_NORMAL} task is to have the solver take internal steps until   
     it has reached or just passed the user specified \id{tout}
     parameter. The solver then interpolates in order to   
     return an approximate value of $y($\id{tout}$)$. 
-    The \Id{ONE\_STEP} option tells the solver to just take one internal step  
+    The \Id{CV\_ONE\_STEP} option tells the solver to just take one internal step  
     and return the solution at the point reached by that step. 
-    The \Id{NORMAL\_TSTOP} and \Id{ONE\_STEP\_TSTOP} modes are     
-    similar to \id{NORMAL} and \id{ONE\_STEP}, respectively, except    
+    The \Id{CV\_NORMAL\_TSTOP} and \Id{CV\_ONE\_STEP\_TSTOP} modes are     
+    similar to \id{CV\_NORMAL} and \id{CV\_ONE\_STEP}, respectively, except    
     that the integration never proceeds past the value      
     \id{tstop} (specified through the function \id{CVodeSetStopTime}).
   \end{args}
@@ -317,33 +310,33 @@ The call to this function has the form
 
   The return value \id{flag} (of type \id{int}) will be one of the following.
   For more details see \S\ref{sss:cvode}.
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_TOO\_MUCH\_WORK]
+  \item[\Id{CV\_SUCCESS}]
     \id{CVodeF} succeeded.
-  \item[\Id{TSTOP\_RETURN}]
+  \item[\Id{CV\_TSTOP\_RETURN}]
     \id{CVodeF} succeeded by reaching the optional stopping point.
-  \item[\Id{CVODE\_NO\_MALLOC}]
-    The {\cvodes} memory was not allocated through a call to \id{CVodeMalloc}.
-  \item[\Id{ILL\_INPUT}]
+  \item[\Id{CV\_NO\_MALLOC}]
+    The function \id{CVodeMalloc} has not been previously called.
+  \item[\Id{CV\_ILL\_IPUT}]
     One of the inputs to \id{CVodeF} is illegal.
-  \item[\Id{TOO\_MUCH\_WORK}] 
+  \item[\Id{CV\_TOO\_MUCH\_WORK}] 
     The solver took \id{mxstep} internal steps but could not reach tout. 
-  \item[\Id{TOO\_MUCH\_ACC}] 
+  \item[\Id{CV\_TOO\_MUCH\_ACC}] 
     The solver could not satisfy the accuracy demanded by the user for some 
     internal step.
-  \item[\Id{ERR\_FAILURE}]
+  \item[\Id{CV\_ERR\_FAILURE}]
     Error test failures occurred too many times during one 
     internal time step or occurred with $|h| = h_{min}$.
-  \item[\Id{CONV\_FAILURE}] 
+  \item[\Id{CV\_CONV\_FAILURE}] 
     Convergence test failures occurred too many times during 
     one internal time step or occurred with $|h| = h_{min}$.             
-  \item[\Id{SETUP\_FAILURE}] 
+  \item[\Id{CV\_LSETUP\_FAIL}] 
     The linear solver's setup function failed in an unrecoverable manner.
-  \item[\Id{SOLVE\_FAILURE}] 
+  \item[\Id{CV\_LSOLVE\_FAIL}] 
     The linear solver's solve function failed in an unrecoverable manner.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
-  \item[\Id{CVADJ\_NO\_MEM}]
+  \item[\Id{CV\_MEM\_FAIL}]
     A memory allocation request has failed (in an attempt to allocate space
     for a new checkpoint).
   \end{args} 
@@ -365,8 +358,8 @@ The call to this function has the form
   if no check points were necessary there is no need for the second forward integration phase.
 
   Although it is legal to define a value for \id{tstop} and then call \id{CVodeF}
-  with \id{itask}$=$\id{NORMAL\_TSTOP} or \id{itask}$=$\id{ONE\_STEP\_TSTOP}, after
-  a return with \id{flag}$=$\id{TSTOP\_RETURN}, the integration should not be 
+  with \id{itask} $=$ \id{CV\_NORMAL\_TSTOP} or \id{itask} $=$ \id{CV\_ONE\_STEP\_TSTOP}, 
+  after a return with \id{flag} $=$ \id{TSTOP\_RETURN}, the integration should not be 
   continued (no \id{tstop} information is stored at checkpoints).
 }  
 
@@ -393,22 +386,22 @@ and allocate internal memory for the backward problem.
     pointer to the adjoint memory block returned by \id{CVadjMalloc}.
   \item[lmm] (\id{int})
     specifies the linear multistep method and may be one of two
-    possible values: \Id{ADAMS} or \Id{BDF}.     
+    possible values: \Id{CV\_ADAMS} or \Id{CV\_BDF}.     
   \item[iter] (\id{int})
     specifies the type of nonlinear solver iteration and may be
-    either \Id{NEWTON} or \Id{FUNCTIONAL}. 
+    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}. 
   \end{args}
 }
 {
-  If successful, \id{CVodeCreateB} stores internally a pointer to the newly created 
+  If successful, \id{CVodeCreateB} stores a pointer to the newly created 
   {\cvodes} memory block (of type \id{void *}) for the backward problem.
    The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_ADJMEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeCreateB} was successful.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
-  \item[\Id{CVADJ\_MEM\_FAIL}]
+  \item[\Id{CV\_MEM\_FAIL}]
     An error occured while trying to create the {\cvodes} memory block for the backward 
     problem.
   \end{args}
@@ -420,7 +413,7 @@ The function \id{CVodeMallocB} is essentially a call to \id{CVodeMalloc} with so
 particularization for backward integration as described below.
 \ucfunction{CVodeMallocB}
 {
-  flag = CVodeMallocB(cvadj\_mem, fB, tB0, yB0, itolB, reltolB, abstolB, nvSpecB);
+  flag = CVodeMallocB(cvadj\_mem, fB, tB0, yB0, itolB, reltolB, abstolB);
 }
 {
   The function \ID{CVodeMallocB} provides required problem and solution specifications, 
@@ -448,26 +441,24 @@ particularization for backward integration as described below.
     is a pointer to the relative error tolerance.
   \item[abstolB] (\id{void *})
     is a pointer to the absolute error tolerance.
-  \item[nvSpecB] (\id{NV\_Spec})
-    is a pointer to the vector specification structure for the backward problem. 
   \end{args}
 }
 {
   The return flag \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_ADJMEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeMallocB} was successful.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
-  \item[\Id{CVADJ\_BAD\_TB0}]
+  \item[\Id{CV\_BAD\_TB0}]
     The final time \id{tB0} is outside the interval over which the forward problem
     was solved.
-  \item[\Id{CVM\_NO\_MEM}] 
+  \item[\Id{CV\_MEM\_NULL}] 
     The {\cvodes} memory block for the backward problem was not initialized through 
     a previous call to \id{CVodeCreateB}.
-  \item[\Id{CVM\_MEM\_FAIL}] 
+  \item[\Id{CV\_MEM\_FAIL}] 
     A memory allocation request has failed.
-  \item[\Id{CVM\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}] 
     An input argument to \id{CVodeMallocB} has an illegal value.
   \end{args}
 }
@@ -522,21 +513,21 @@ The call to the \id{CVodeReInitB} function has the form
 }
 {
   The return flag \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_ADJMEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeReInitB} was successful.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
-  \item[\Id{CVADJ\_BAD\_TB0}]
+  \item[\Id{CV\_BAD\_TB0}]
     The final time \id{tB0} is outside the interval over which the forward problem
     was solved.
-  \item[\Id{CVREI\_NO\_MEM}] 
+  \item[\Id{CV\_MEM\_NULL}] 
     The {\cvodes} memory block for the backward problem was not initialized through a 
     previous call to \id{CVodeCreateB}.
-  \item[\Id{CVREI\_NO\_MALLOC}] 
+  \item[\Id{CV\_NO\_MALLOC}] 
     Memory space for the {\cvodes} memory block for the backward problem was not 
     allocated through a previous call to \id{CVodeMallocB}.
-  \item[\Id{CVREI\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}] 
     An input argument to \id{CVodeReInitB} has an illegal value.
   \end{args}
 }
@@ -572,7 +563,7 @@ argument which must be the pointer to the adjoint memory block returned by
   flag = CVSpgmrB(cvadj_mem, pretypeB, maxlB);
 \end{verbatim}
 Their return flag \id{flag} (of type \id{int}) can have any of the return values 
-of their counterparts, but can also be \Id{CVADJ\_NO\_ADJMEM} if the \id{cvadj\_mem} 
+of their counterparts, but can also be \Id{CV\_ADJMEM\_NULL} if the \id{cvadj\_mem} 
 argument was \id{NULL}. 
 
 %%---------------------------------------------------------------------
@@ -611,11 +602,11 @@ The call to this function has the form
     the time reached by the solver.
   \item[itaskB] (\id{int})
     a flag indicating the job of the solver for the next user step. 
-    The \Id{NORMAL} task is to have the solver take internal steps until   
+    The \Id{CV\_NORMAL} task is to have the solver take internal steps until   
     it has reached or just passed the user specified \id{tBout}
     parameter. The solver then interpolates in order to   
     return an approximate value of $yB($\id{tBout}$)$. 
-    The \Id{ONE\_STEP} option tells the solver to just take one internal step  
+    The \Id{CV\_ONE\_STEP} option tells the solver to just take one internal step  
     and return the solution at the point reached by that step. 
   \end{args}
 }
@@ -626,39 +617,38 @@ The call to this function has the form
 
   The return value \id{flag} (of type \id{int}) will be one of the following.
   For more details see \S\ref{sss:cvode}.
-  \begin{args}[CVADJ\_REIFWD\_FAIL]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_TOO\_MUCH\_WORK]
+  \item[\Id{CV\_SUCCESS}]
     \id{CVodeB} succeeded.
-  \item[\Id{CVODE\_NO\_MALLOC}]
-    The {\cvodes} memory for the backward problem was not allocated through 
-    a call to \id{CVodeMallocB}.
-  \item[\Id{ILL\_INPUT}]
+  \item[\Id{CV\_NO\_MALLOC}]
+    The {\cvodes} memory for the backward problem was \id{NULL}.
+  \item[\Id{CV\_ILL\_INPUT}]
     One of the inputs to \id{CVode} is illegal.
-  \item[\Id{TOO\_MUCH\_WORK}] 
+  \item[\Id{CV\_TOO\_MUCH\_WORK}] 
     The solver took \id{mxstep} internal steps but could not reach \id{tBout}. 
-  \item[\Id{TOO\_MUCH\_ACC}] 
+  \item[\Id{CV\_TOO\_MUCH\_ACC}] 
     The solver could not satisfy the accuracy demanded by the user for some 
     internal step.
-  \item[\Id{ERR\_FAILURE}]
+  \item[\Id{CV\_ERR\_FAILURE}]
     Error test failures occurred too many times during one internal time step.
-  \item[\Id{CONV\_FAILURE}] 
+  \item[\Id{CV\_CONV\_FAILURE}] 
     Convergence test failures occurred too many times during one internal time step.
-  \item[\Id{SETUP\_FAILURE}] 
+  \item[\Id{CV\_LSETUP\_FAIL}] 
     The linear solver's setup function failed in an unrecoverable manner.
-  \item[\Id{SOLVE\_FAILURE}] 
+  \item[\Id{CV\_SOLVE\_FAIL}] 
     The linear solver's solve function failed in an unrecoverable manner.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
-  \item[\Id{CVADJ\_NO\_BCKMEM}]
+  \item[\Id{CV\_BCKMEM\_NULL}]
     The \id{cvodes} memory for the backward problem was not created through
     a call to \id{CVodeCreateB}.
-  \item[\Id{CVADJ\_BAD\_TBOUT}]
+  \item[\Id{CV\_BAD\_TBOUT}]
     The desired output time \id{tBout} is outside the interval over which the 
     forward problem was solved.
-  \item[\Id{CVADJ\_REIFWD\_FAIL}]
+  \item[\Id{CV\_REIFWD\_FAIL}]
     Reinitialization of the forward problem failed at the first checkpoint
     (corresponding to the initial time of the forward problem).
-  \item[\Id{CVADJ\_FWD\_FAIL}]
+  \item[\Id{CV\_FWD\_FAIL}]
     An error occured during the integration of the forward problem.
   \end{args} 
 }
@@ -691,7 +681,7 @@ The optional input functions defined for the backward problem are:
   flag = CVodeSetMaxStepB(cvadj_mem, hmaxB);
 \end{verbatim}
 Their return flag \id{flag} (of type \id{int}) can have any of the return values 
-of their counterparts, but can also be \Id{CVADJ\_NO\_ADJMEM} if the \id{cvadj\_mem} 
+of their counterparts, but can also be \Id{CV\_ADJMEM\_NULL} if the \id{cvadj\_mem} 
 argument was \id{NULL}.
 
 Optional inputs for the {\cvdense} linear solver module can be set for the backward
@@ -715,14 +705,14 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVDENSE\_LMEM\_NULL]
+  \item[\Id{CVDENSE\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDENSE\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVDENSE\_LMEM\_NULL}]
     The {\cvdense} linear solver has not been initialized through a call to \id{CVDenseB}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -749,14 +739,14 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVDENSE\_LMEM\_NULL]
+  \item[\Id{CVDENSE\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVDENSE\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVDENSE\_LMEM\_NULL}]
     The {\cvdense} linear solver has not been initialized through a call to \id{CVDenseB}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -784,14 +774,14 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVBAND\_LMEM\_NULL]
+  \item[\Id{CVBAND\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVBAND\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVBAND\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized through a call to \id{CVBandB}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -818,14 +808,14 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVBAND\_LMEM\_NULL]
+  \item[\Id{CVBAND\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVBAND\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVBAND\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized through a call to \id{CVBandB}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -853,14 +843,14 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized through a call to \id{CVBandB}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -887,14 +877,14 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized through a call to \id{CVBandB}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -922,14 +912,14 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized through a call to \id{CVBandB}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -954,14 +944,14 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized through a call to \id{CVBandB}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -989,14 +979,14 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_LMEM\_NULL]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized through a call to \id{CVBandB}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1025,16 +1015,16 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized through a call to \id{CVBandB}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The Gram-Schmidt orthogonalization type \id{gstypeB} is not valid.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1062,16 +1052,16 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized through a call to \id{CVBandB}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The factor \id{deltB} is negative.  
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1101,16 +1091,16 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized through a call to \id{CVBandB}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The preconditioner type \id{pretype} is not valid.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1124,7 +1114,7 @@ problem through the following functions:
 
 \subsubsection{Optional output functions}
 %%
-The use of the adjoint module in {\cvodes} has access to any of the optional output 
+The user of the adjoint module in {\cvodes} has access to any of the optional output 
 functions described in \S\ref{ss:optional_output}, both for the main solver and for
 the linear solver modules. The first argument of these \id{CVodeGet*} functions is
 the {\cvodes} memory block for the backward problem. In order to call any of these
@@ -1162,7 +1152,7 @@ integration of quadrature equations. It has the following form
 %%
 \ucfunction{CVodeQuadMallocB}
 {
-flag = CVodeQuadMallocB(cvadj\_mem, fQB, nvSpecQB);
+flag = CVodeQuadMallocB(cvadj\_mem, fQB, yQB0);
 }
 {
   The function \ID{CVodeQuadMallocB} provides required problem,
@@ -1176,21 +1166,21 @@ flag = CVodeQuadMallocB(cvadj\_mem, fQB, nvSpecQB);
     is the {\C} function which computes $fQB$, the right-hand side of the 
     backward quadrature equations. This function has the form 
     \id{fQB(t, y, yB, qBdot, fQ\_dataB)} (for full details see below).
-  \item[nvSpecQB] (\id{NV\_Spec})
-    is a pointer to the backward quadrature vector specification structure.
+  \item[yQB0] (\id{N\_Vector})
+    is the value of the quadrature variables at \id{tB0}.
   \end{args}
 }
 {
   The return flag \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_ADJMEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeQuadMallocB} was successful.
-  \item[\Id{QCVM\_NO\_MEM}] 
+  \item[\Id{CV\_MEM\_NULL}] 
     The {\cvodes} solver memory block was not created through a previous 
     call to \id{CVodeCreateB}.
-  \item[\Id{QCVM\_MEM\_FAIL}] 
+  \item[\Id{CV\_MEM\_FAIL}] 
     A memory allocation request has failed.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1203,7 +1193,7 @@ reinitialized by calling
 %%
 \ucfunction{CVodeQuadReInitB}
 {
-  flag = CVodeQuadReInitB(cvadj\_mem, fQB);
+  flag = CVodeQuadReInitB(cvadj\_mem, fQB, yQB0);
 }
 {
   The function \id{CVodeQuadReInitB} provides required problem specifications 
@@ -1216,20 +1206,22 @@ reinitialized by calling
   \item[fQB] (\Id{QuadRhsFnB})
     is the {\C} function which computes $fQB$, the right-hand side of the 
     backward quadrature equations.
+  \item[yQB0] (\id{N\_Vector})
+    is the value of the quadrature variables at \id{tB0}.
   \end{args}
 }
 {
   The return flag \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_ADJMEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeReInitB} was successful.
-  \item[\Id{QCVREI\_NO\_MEM}] 
+  \item[\Id{CV\_MEM\_NULL}] 
     The {\cvodes} solver memory block was not created through a 
     previous call to \id{CVodeCreateB}.
-  \item[\Id{QCVREI\_NO\_QUAD}] 
-    Memory space for the quadrature integration was not allocated through a 
+  \item[\Id{CV\_NO\_QUAD}] 
+    Quadrature integration was not activated through a 
     previous call to \id{CVodeQuadMallocB}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1253,25 +1245,25 @@ of \id{CVodeB}, {\cvodes} provides a wrapper around the function \ID{CVodeGetQua
 {
   \begin{args}[cvadj\_mem]
   \item[cvadj\_mem] (\id{void *})
-    pointer to the adjoint memory previously allocated by \id{CVadjMalloc}.
+    pointer to the adjoint memory returned by \id{CVadjMalloc}.
   \item[yQB] (\id{N\_Vector})
     the computed backward quadrature vector.
   \end{args}
 }
 {
   The return value \id{flag} of \id{CVodeGetQuadB} is one of:
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{OKAY}] 
+  \begin{args}[CV\_ADJMEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     \id{CVodeGetQuadB} was successful.
-  \item[CVG\_NO\_MEM] 
+  \item[\Id{CV\_MEM\_NULL}] 
     The {\cvodes} solver memory block was not created through a 
     previous call to \id{CVodeCreateB}.
-  \item[CVG\_NO\_QUAD] 
+  \item[\Id{CV\_NO\_QUAD}] 
     Quadrature integration was not initialized through a 
     previous call to \id{CVodeQuadMallocB}..
-  \item[BAD\_DKY] 
+  \item[\Id{Cv\_BAD\_DKY}] 
     \id{yQB} is \id{NULL}.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1288,7 +1280,7 @@ the corresponding optional input functions defined in \S\ref{ss:quad_optional_in
   flag = CVodeSetQuadTolerancesB(cvadj_mem, itolQB, reltolQB, abstolQB);
 \end{verbatim}
 Their return flag \id{flag} (of type \id{int}) can have any of the return values 
-of their counterparts, but can also be \Id{CVADJ\_NO\_ADJMEM} if the \id{cvadj\_mem} 
+of their counterparts, but can also be \Id{CV\_ADJMEM\_NULL} if the \id{cvadj\_mem} 
 argument was \id{NULL}. 
 
 Access to optional outputs related to backward quadrature integration can be obtained
@@ -1324,7 +1316,7 @@ displays partial information from the linked list of check points generated by
   This function has no return value.
 }
 {
-  For a typical output of \id{CVadjGetCheckPointsList}, see \cite{cvodes1.1_ex}.
+  For a typical output of \id{CVadjGetCheckPointsList}, see \cite{cvodes2.1.0_ex}.
 }
 %%
 %%
@@ -1740,11 +1732,11 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecondFnB} defined by
 
 %%
 %%-------------------------------------------------------------------
-\section{Using the CVODES preconditioner modules for the backward problem}
+\section{Using CVODES preconditioner modules for the backward problem}
 %%-------------------------------------------------------------------
 %%
 
-\subsection{Using the serial banded preconditioner CVBANDPRE}
+\subsection{Using the banded preconditioner CVBANDPRE}
 
 \index{CVBANDPRE@{\cvbandpre} preconditioner!usage with adjoint module|(}
 The adjoint module in {\cvodes} offers an interface to the banded 
@@ -1780,15 +1772,15 @@ the user need not define any additional functions. First, the user must initiali
   \end{args}
 }
 {
-  If successful, \id{CVBandPrecAlloc} stores internally a pointer to the newly created 
+  If successful, \id{CVBandPrecAlloc} stores a pointer to the newly created 
   {\cvbandpre} memory block.
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_ADJMEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
     The call to \id{CVBandPrecAllocB} was successful.
-  \item[\Id{CVADJ\_BP\_NULL}]
+  \item[\Id{CV\_PDATA\_NULL}]
     An error occured while trying to create the {\cvbandpre} memory block.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1813,7 +1805,7 @@ preconditioner module, make the following call:
     pointer to the adjoint memory block returned by \id{CVadjMalloc}.
   \item[pretypeB] (\id{int})
     \index{pretypeB@\texttt{pretypeB}}
-    preconditioning type. Can be one of \Id{LEFT} or \Id{RIGHT}.
+    preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
   \item[maxlB] (\id{int})
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
     default value \id{CVSPGMR\_MAXL}$=5$.
@@ -1821,19 +1813,19 @@ preconditioner module, make the following call:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}]
     The {\cvspgmr} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The {\cvodes} memory block for the backward problem was not initialized through a 
     previous call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The preconditioner type \id{pretypeB} is not valid.
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{CVSPGMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{BP\_NO\_DATA}]
+  \item[\Id{CV\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1846,7 +1838,7 @@ For more details on {\cvbandpre}, see \S\ref{sss:cvbandpre}.
 \index{CVBANDPRE@{\cvbandpre} preconditioner!usage with adjoint module|)}
 
 %%-------------------------------------------------------------------
-\subsection{Using the parallel band-block-diagonal preconditioner CVBBDPRE}
+\subsection{Using the band-block-diagonal preconditioner CVBBDPRE}
 
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!usage with adjoint module|(}
 The adjoint module in {\cvodes} offers an interface to the band-block-diagonal
@@ -1901,15 +1893,15 @@ The {\cvbbdpre} module is initialized by calling
   \end{args}
 }
 {
-  If successful, \id{CVBBDPrecAlloc} stores internally a pointer to the newly created 
+  If successful, \id{CVBBDPrecAlloc} stores a pointer to the newly created 
   {\cvbbdpre} memory block.
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}]
+  \begin{args}[CV\_ADJMEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
     The call to \id{CVBBDPrecAllocB} was successful.
-  \item[\Id{CVADJ\_BBD\_NULL}]
+  \item[\Id{CV\_PDATA\_NULL}]
     An error occured while trying to create the {\cvbbdpre} memory block.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1934,7 +1926,7 @@ preconditioner module, make the following call:
     pointer to the adjoint memory block returned by \id{CVadjMalloc}.
   \item[pretypeB] (\id{int})
     \index{pretypeB@\texttt{pretypeB}}
-    preconditioning type. Can be one of \Id{LEFT} or \Id{RIGHT}.
+    preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
   \item[maxlB] (\id{int})
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
     default value \id{CVSPGMR\_MAXL}$=5$.
@@ -1942,19 +1934,19 @@ preconditioner module, make the following call:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
     The {\cvspgmr} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
     The {\cvodes} memory block for the backward problem was not initialized through a 
     previous call to \id{CVodeCreateB}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
     The preconditioner type \id{pretypeB} is not valid.
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{CVSPGMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{BP\_NO\_DATA}]
+  \item[\Id{CV\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1993,10 +1985,10 @@ call the following function:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVADJ\_NO\_ADJMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[CV\_ADJMEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
     The {\cvspgmr} initialization was successful.
-  \item[\Id{CVADJ\_NO\_ADJMEM}]
+  \item[\Id{CV\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }

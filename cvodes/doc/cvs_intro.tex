@@ -4,7 +4,8 @@
 
 {\cvodes} is part of a software family called {\sundials}: 
 SUite of Nonlinear and DIfferential/ALgebraic equation Solvers.  
-This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these. 
+This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these
+with sensitivity analysis capabilities.
 %
 {\cvodes}\index{CVODES@{\cvodes}!brief description of} is a solver for stiff and
 nonstiff initial value problems (IVPs) for systems of ordinary differential equation
@@ -112,10 +113,10 @@ instructions, while others will refer mostly to the examples.
 There are different possible levels of usage of {\cvodes}. The most casual
 user, with an IVP problem only, can get by with reading \S\ref{ss:ivp_sol}, 
 then \S\ref{s:simulation} through \S\ref{sss:cvode} only, and looking at examples 
-in \cite{cvodes1.1_ex}.
+in \cite{cvodes2.1.0_ex}.
 In addition, to solve a forward sensitivity problem the user should read 
 \S\ref{ss:fwd_sensi}, followed by \S\ref{s:forward} through 
-\S\ref{sss:cvodesensextract} only, and look at examples in \cite{cvodes1.1_ex}.
+\S\ref{ss:sensi_get} only, and look at examples in \cite{cvodes2.1.0_ex}.
 
 %%
 %%
@@ -129,16 +130,16 @@ In a different direction, a more expert user with an IVP problem may want to
 %%
 An advanced user with a forward sensitivity problem may also want to
 (a) provide his/her own sensitivity equations right-hand side routine
-(\S\ref{ss:user_fct_fwd}), (b) perform multiple runs with the same number of
-sensitivity parameters (\S\ref{sss:cvsreinit}), or (c) extract additional
-diagnostic information (\S\ref{sss:cvodesensextract}).
+(\S\ref{s:user_fct_fwd}), (b) perform multiple runs with the same number of
+sensitivity parameters (\S\ref{ss:sensi_malloc}), or (c) extract additional
+diagnostic information (\S\ref{ss:sensi_get}).
 %%
 %%
 A user with an adjoint sensitivity problem needs to understand the IVP 
 solution approach at the desired level and also go through 
 \S\ref{ss:adj_sensi} for a short mathematical description of the adjoint
 approach, \S\ref{s:adjoint} for the usage of the adjoint module in {\cvodes},
-and the examples in \cite{cvodes1.1_ex}.
+and the examples in \cite{cvodes2.1.0_ex}.
 
 The structure of this document is as follows:
 \begin{itemize}
@@ -161,7 +162,7 @@ The structure of this document is as follows:
   as well as a complete description of the user interface and of the 
   user-defined routines for integration of IVP ODEs. Readers that are not 
   interested in using {\cvodes} for sensitivity analysis can then 
-  skip to the example programs in \cite{cvodes1.1_ex}.
+  skip to the example programs in \cite{cvode2.2.0_ex}.
 \item
   Section \ref{s:forward} describes the usage of {\cvodes} for forward
   sensitivity analysis as an extension of its IVP integration capabilities. 

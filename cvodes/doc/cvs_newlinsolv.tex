@@ -52,9 +52,9 @@ The type definition of \ID{linit} is
   \end{args}
 }
 {
-  An \id{linit} function should return \ID{LINIT\_OK} = 0 if it 
+  An \id{linit} function should return $0$ if it 
   has successfully initialized the {\cvodes} linear solver and 
-  \ID{LINIT\_ERR} = -1 otherwise. 
+  $-1$ otherwise. 
 }
 {
   If an error does occur, an appropriate message should be sent 
@@ -128,7 +128,7 @@ The type definition of \id{lsetup} is
    \end{args}
 }
 {
-  The \id{lsetup} routine should return \id{0} if successful,            
+  The \id{lsetup} routine should return $0$ if successful,            
   a positive value for a recoverable error, and a negative value  
   for an unrecoverable error.  
 }
@@ -167,7 +167,7 @@ The type definition of \id{lsolve} is
 {
   \id{lsolve} returns a positive value    
   for a recoverable error and a negative value for an             
-  unrecoverable error. Success is indicated by a \id{0} return value.
+  unrecoverable error. Success is indicated by a $0$ return value.
 }
 {}
 

@@ -289,8 +289,9 @@ step, when it is limited to $10^4$.
 \index{error control!order selection|)}
 
 The various algorithmic features of {\cvodes} described above, as
-inherited from VODE and VODPK, are documented in 
-\cite{BBH:89,Byr:92,Hin:00}.
+inherited from {\vode} and {\vodpk}, are documented in 
+\cite{BBH:89,Byr:92,Hin:00}.  They are also summarized in
+\cite{HBGLSSW:04}.
 
 % Output modes
 %-------------
@@ -702,9 +703,10 @@ discretized adjoint PDE system or the adjoint of the discretized PDE.
 \index{adjoint sensitivity analysis!implementation in {\cvodes}|)}
 \index{adjoint sensitivity analysis!mathematical background|)}
 
-%-----------------------------------------------
 
+%------------------------
 \section{BDF stability limit detection}\label{s:bdf_stab}
+%------------------------
 
 \index{Stability limit detection}
 {\cvodes} includes an algorithm, {\stald} (STAbility Limit Detection),
