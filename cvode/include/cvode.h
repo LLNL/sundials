@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26.2.2 $
- * $Date: 2005-04-01 21:43:43 $
+ * $Revision: 1.26.2.3 $
+ * $Date: 2005-04-06 23:36:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -234,14 +234,11 @@ void *CVodeCreate(int lmm, int iter);
  *                         | time f is called.
  *                         | [NULL]
  *                         |
- * CVodeSetGdata           | a pointer to user data that will be
- *                         | passed to the user's g function every
- *                         | time g is called.
- *                         | [NULL]
- *                         |
- * CVodeSetEdata           | a pointer to user data that will be
+ * CVodeSetEwtFn           | user-provide EwtSet function e and 
+ *                         | a pointer to user data that will be
  *                         | passed to the user's e function every
  *                         | time e is called.
+ *                         | [NULL]
  *                         | [NULL]
  *                         |
  * CVodeSetMaxOrd          | maximum lmm order to be used by the
@@ -318,8 +315,7 @@ void *CVodeCreate(int lmm, int iter);
 
 int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 int CVodeSetFdata(void *cvode_mem, void *f_data);
-int CVodeSetGdata(void *cvode_mem, void *g_data);
-int CVodeSetEdata(void *cvode_mem, void *e_data);
+int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data);
 int CVodeSetMaxOrd(void *cvode_mem, int maxord);
 int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
@@ -358,6 +354,9 @@ int CVodeSetTolerances(void *cvode_mem,
  *            CV_SS (scalar relative and absolute tolerances),
  *            CV_SV (scalar relative tolerance and vector
  *                absolute tolerance).
+ *            CV_WF (indicates that the user will provide a
+ *                function to evaluate the error weights.
+ *                In this case, reltol and abstol are ignored.)
  *
  * reltol  is the relative tolerance scalar.
  *
@@ -431,10 +430,12 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
  *
  * cvode_mem = pointer to CVODE memory returned by CVodeCreate.
  *
+ * nrtfn     = number of functions g_i, an int >= 0.
+ *
  * g         = name of user-supplied function, of type CVRootFn,
  *             defining the functions g_i whose roots are sought.
- *
- * nrtfn     = number of functions g_i, an int >= 0.
+ * g_data    = a pointer to user data that will be passed to the 
+ *             user's g function every time g is called.
  *
  * If a new problem is to be solved with a call to CVodeReInit,
  * where the new problem has no root functions but the prior one
@@ -450,7 +451,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
  * -----------------------------------------------------------------
  */
 
-int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn);
+int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *g_data);
 
 /*
  * -----------------------------------------------------------------
@@ -613,16 +614,16 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  *                        too much accuracy has been requested for
  *                        some internal step
  * CVodeGetErrWeights returns the state error weight vector.
- *                    The user need not allocate space for ewt.
+ *                    The user must allocate space for ewt.
  * CVodeGetEstLocalErrors returns the vector of estimated local
- *                        errors. The user need not allocate space
+ *                        errors. The user must allocate space
  *                        for ele.
  * CVodeGetNumGEvals returns the number of calls to the user's
  *                   g function (for rootfinding)
- * CVodeGetRootInfo returns an array of int's showing the indices
- *                  for which g_i was found to have a root.
- *                  For i = 0 ... nrtfn-1, rootsfound[i] = 1 if g_i
- *                  has a root, and = 0 if not.
+ * CVodeGetRootInfo returns the indices for which g_i was found to 
+ *                  have a root. The user must allocate space for 
+ *                  rootsfound. For i = 0 ... nrtfn-1, 
+ *                  rootsfound[i] = 1 if g_i has a root, and = 0 if not.
  *
  * CVodeGet* return values:
  *   CV_SUCCESS   if succesful

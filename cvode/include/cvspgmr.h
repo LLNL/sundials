@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19.2.1 $
- * $Date: 2005-01-24 21:38:36 $
+ * $Revision: 1.19.2.2 $
+ * $Date: 2005-04-06 23:36:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -287,32 +287,27 @@ int CVSpgmrSetPrecType(void *cvode_mem, int pretype);
  * Optional inputs to the CVSPGMR linear solver
  * -----------------------------------------------------------------
  * CVSpgmrSetGSType specifies the type of Gram-Schmidt
- *                  orthogonalization to be used. This must be one of
- *                  the two enumeration constants MODIFIED_GS or
- *                  CLASSICAL_GS defined in iterative.h. These correspond
- *                  to using modified Gram-Schmidt and classical
- *                  Gram-Schmidt, respectively.
- *                  Default value is MODIFIED_GS.
+ *                orthogonalization to be used. This must be one of
+ *                the two enumeration constants MODIFIED_GS or
+ *                CLASSICAL_GS defined in iterative.h. These correspond
+ *                to using modified Gram-Schmidt and classical
+ *                Gram-Schmidt, respectively.
+ *                Default value is MODIFIED_GS.
  * CVSpgmrSetDelt specifies the factor by which the tolerance on
  *                the nonlinear iteration is multiplied to get a
  *                tolerance on the linear iteration. This is an
  *                optional input to the CVSPGMR solver.
  *                Default value is 0.05.
- * CVSpgmrSetPrecSetupFn specifies the PrecSetup function.
- *                       Default is NULL.
- * CVSpgmrSetPrecSolveFn specifies the PrecSolve function.
- *                       Default is NULL.
- * CVSpgmrSetPrecData specifies a pointer to user preconditioner
- *                    data. This pointer is passed to PrecSetup and
- *                    PrecSolve every time these routines are called.
- *                    Default is NULL.
- * CVSpgmrSetJacTimesVecFn specifies the jtimes function.
- *                         Default is to use an internal finite
- *                         difference approximation routine.
- * CVSpgmrSetJacData specifies a pointer to user Jacobian data.
- *                   This pointer is passed to jtimes every time this
- *                   routine is called.
- *                   Default is NULL.
+ * CVSpgmrSetPreconditioner specifies the PrecSetup and PrecSolve functions.
+ *                as well as a pointer to user preconditioner data.
+ *                This pointer is passed to PrecSetup and PrecSolve
+ *                every time these routines are called.
+ *                Default is NULL for al three arguments.
+ * CVSpgmrSetJacTimesVecFn specifies the jtimes function and a pointer to
+ *                user Jacobian data. This pointer is passed to jtimes every 
+ *                time the jtimes routine is called.
+ *                Default is to use an internal finite difference
+ *                approximation routine.
  *
  * The return value of CVSpgmrSet* is one of:
  *    CVSPGMR_SUCCESS   if successful
@@ -324,11 +319,10 @@ int CVSpgmrSetPrecType(void *cvode_mem, int pretype);
 
 int CVSpgmrSetGSType(void *cvode_mem, int gstype);
 int CVSpgmrSetDelt(void *cvode_mem, realtype delt);
-int CVSpgmrSetPrecSetupFn(void *cvode_mem, CVSpgmrPrecSetupFn pset);
-int CVSpgmrSetPrecSolveFn(void *cvode_mem, CVSpgmrPrecSolveFn psolve);
-int CVSpgmrSetPrecData(void *cvode_mem, void *P_data);
-int CVSpgmrSetJacTimesVecFn(void *cvode_mem, CVSpgmrJacTimesVecFn jtimes);
-int CVSpgmrSetJacData(void *cvode_mem, void *jac_data);
+int CVSpgmrSetPrecSetupFn(void *cvode_mem, CVSpgmrPrecSetupFn pset, 
+                          CVSpgmrPrecSolveFn psolve, void *P_data);
+int CVSpgmrSetJacTimesVecFn(void *cvode_mem, 
+                            CVSpgmrJacTimesVecFn jtimes, void *jac_data);
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5.2.4 $
- * $Date: 2005-04-05 01:49:18 $
+ * $Revision: 1.5.2.5 $
+ * $Date: 2005-04-06 23:36:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -344,7 +344,7 @@ typedef struct CVodeMemRec {
 #define MSGCV_SET_NO_MALLOC _CVSET_TOL_ "Attempt to call before CVodeMalloc.\n\n"
 
 #define MSGCV_SET_BAD_ITOL1 _CVSET_TOL_ "Illegal value for itol.\n"
-#define MSGCV_SET_BAD_ITOL2 "The legal values are CV_SS, CV_SV, CV_WF.\n\n"
+#define MSGCV_SET_BAD_ITOL2 "The legal values are CV_SS and CV_SV.\n\n"
 #define MSGCV_SET_BAD_ITOL  MSGCV_SET_BAD_ITOL1 MSGCV_SET_BAD_ITOL2
 
 #define MSGCV_SET_BAD_RELTOL _CVSET_TOL_ "reltol < 0 illegal.\n\n"
@@ -352,10 +352,6 @@ typedef struct CVodeMemRec {
 #define MSGCV_SET_ABSTOL_NULL _CVSET_TOL_ "abstol = NULL illegal.\n\n"
 
 #define MSGCV_SET_BAD_ABSTOL _CVSET_TOL_ "abstol has negative component(s) (illegal).\n\n"
-
-#define MSGCV_SET_NO_EFUN1 "CVodeSetEdata-- Attempt to set e_data before specifying efun\n"
-#define MSGCV_SET_NO_EFUN2 "(through CVodeMalloc or CVodeSetTolerances) illegal.\n\n"
-#define MSGCV_SET_NO_EFUN MSGCV_SET_NO_EFUN1 MSGCV_SET_NO_EFUN2
 
 /* CVodeMalloc/CVodeReInit Error Messages */
 
@@ -381,8 +377,6 @@ typedef struct CVodeMemRec {
 
 #define MSGCV_MEM_FAIL _CVM_ "A memory request failed.\n\n"
 
-#define MSGCV_BAD_EWT _CVM_ "Initial ewt has component(s) equal to zero (illegal).\n\n"
-
 #define MSGCV_CVREI_NO_MALLOC "CVodeReInit-- Attempt to call before CVodeMalloc.\n\n"
 
 /* CVodeRootInit Error Messages */
@@ -398,16 +392,22 @@ typedef struct CVodeMemRec {
 /* CVode Error Messages */
 
 #define _CVODE_ "CVode-- "
-
+#define _CVIS_  "Initial Setup: "
 #define _NO_MEM_ "cvode_mem = NULL illegal.\n\n"
 
 #define MSGCV_CVODE_NO_MEM _CVODE_ _NO_MEM_
 
 #define MSGCV_CVODE_NO_MALLOC _CVODE_ "CVodeMalloc has not been called yet.\n\n"
  
-#define MSGCV_LSOLVE_NULL _CVODE_ "The linear solver's solve routine is NULL.\n\n"
+#define MSGCV_NO_EFUN _CVODE_ _CVIS_ "itol = CV_WF but no EwtSet function was provided.\n\n"
 
-#define MSGCV_LINIT_FAIL _CVODE_ "The linear solver's init routine failed.\n\n"
+#define MSGCV_FAIL_EWT _CVODE_ _CVIS_ "The user-provide EwtSet function failed.\n\n"
+
+#define MSGCV_BAD_EWT _CVODE_ _CVIS_ "Initial ewt has component(s) equal to zero (illegal).\n\n"
+
+#define MSGCV_LSOLVE_NULL _CVODE_ _CVIS_ "The linear solver's solve routine is NULL.\n\n"
+
+#define MSGCV_LINIT_FAIL _CVODE_ _CVIS_ "The linear solver's init routine failed.\n\n"
 
 #define MSGCV_YOUT_NULL _CVODE_ "yout = NULL illegal.\n\n"
 
@@ -425,9 +425,7 @@ typedef struct CVodeMemRec {
 #define MSGCV_HNIL_DONE_2 "and will not be\nissued again for this problem.\n\n"
 #define MSGCV_HNIL_DONE   MSGCV_HNIL_DONE_1 MSGCV_HNIL_DONE_2
 
-#define MSGCV_TOO_CLOSE_1 _CVODE_ "tout too close to t0 to start"
-#define MSGCV_TOO_CLOSE_2 " integration.\n\n"
-#define MSGCV_TOO_CLOSE   MSGCV_TOO_CLOSE_1 MSGCV_TOO_CLOSE_2
+#define MSGCV_TOO_CLOSE _CVODE_ "tout too close to t0 to start integration.\n\n"
 
 #define MSGCV_BAD_INIT_ROOT _CVODE_ "Root found at and very near initial t.\n\n"
 
@@ -435,12 +433,11 @@ typedef struct CVodeMemRec {
 #define MSGCV_BAD_TOUT_2 "tout too far back in direction of integration.\n\n"
 #define MSGCV_BAD_TOUT   MSGCV_BAD_TOUT_1 MSGCV_BAD_TOUT_2
 
-#define MSGCV_MAX_STEPS_1 _CVODE_ "At " MSG_TIME ", mxstep steps taken "
-#define MSGCV_MAX_STEPS_2 "before reaching tout.\n\n"
-#define MSGCV_MAX_STEPS   MSGCV_MAX_STEPS_1 MSGCV_MAX_STEPS_2
+#define MSGCV_MAX_STEPS _CVODE_ "At " MSG_TIME ", mxstep steps taken before reaching tout.\n\n"
 
-#define MSGCV_EWT_NOW_BAD_1 _CVODE_ "At " MSG_TIME ", a component of ewt has become <= 0.\n\n"
-#define MSGCV_EWT_NOW_BAD   MSGCV_EWT_NOW_BAD_1
+#define MSGCV_EWT_NOW_FAIL _CVODE_ "At " MSG_TIME ", the user-provide EwtSet function failed.\n\n"
+
+#define MSGCV_EWT_NOW_BAD _CVODE_ "At " MSG_TIME ", a component of ewt has become <= 0.\n\n"
 
 #define MSGCV_TOO_MUCH_ACC _CVODE_ "At " MSG_TIME ", too much accuracy requested.\n\n"
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-11-06 01:01:51 $
+ * $Revision: 1.19.2.1 $
+ * $Date: 2005-04-06 23:36:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -330,7 +330,8 @@ int CVSpgmrSetDelt(void *cvode_mem, realtype delt)
  * -----------------------------------------------------------------
  */
 
-int CVSpgmrSetPrecSetupFn(void *cvode_mem, CVSpgmrPrecSetupFn pset)
+int CVSpgmrSetPreconditioner(void *cvode_mem, CVSpgmrPrecSetupFn pset, 
+                             CVSpgmrPrecSolveFn psolve, void *P_data)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -349,64 +350,8 @@ int CVSpgmrSetPrecSetupFn(void *cvode_mem, CVSpgmrPrecSetupFn pset)
   cvspgmr_mem = (CVSpgmrMem) lmem;
 
   cvspgmr_mem->g_pset = pset;
-
-  return(CVSPGMR_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVSpgmrSetPrecSolveFn
- * -----------------------------------------------------------------
- */
-
-int CVSpgmrSetPrecSolveFn(void *cvode_mem, CVSpgmrPrecSolveFn psolve)
-{
-  CVodeMem cv_mem;
-  CVSpgmrMem cvspgmr_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    fprintf(stderr, MSGS_SETGET_CVMEM_NULL);
-    return(CVSPGMR_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGS_SETGET_LMEM_NULL);
-    return(CVSPGMR_LMEM_NULL);
-  }
-  cvspgmr_mem = (CVSpgmrMem) lmem;
-
   cvspgmr_mem->g_psolve = psolve;
-
-  return(CVSPGMR_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVSpgmrSetPrecData
- * -----------------------------------------------------------------
- */
-
-int CVSpgmrSetPrecData(void *cvode_mem, void *P_data)
-{
-  CVodeMem cv_mem;
-  CVSpgmrMem cvspgmr_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    fprintf(stderr, MSGS_SETGET_CVMEM_NULL);
-    return(CVSPGMR_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGS_SETGET_LMEM_NULL);
-    return(CVSPGMR_LMEM_NULL);
-  }
-  cvspgmr_mem = (CVSpgmrMem) lmem;
-
-  cvspgmr_mem->g_P_data = P_data;
+  if (psolve != NULL) cvspgmr_mem->g_P_data = P_data;
 
   return(CVSPGMR_SUCCESS);
 }
@@ -417,7 +362,7 @@ int CVSpgmrSetPrecData(void *cvode_mem, void *P_data)
  * -----------------------------------------------------------------
  */
 
-int CVSpgmrSetJacTimesVecFn(void *cvode_mem, CVSpgmrJacTimesVecFn jtimes)
+int CVSpgmrSetJacTimesVecFn(void *cvode_mem, CVSpgmrJacTimesVecFn jtimes, void *jac_data)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -436,35 +381,7 @@ int CVSpgmrSetJacTimesVecFn(void *cvode_mem, CVSpgmrJacTimesVecFn jtimes)
   cvspgmr_mem = (CVSpgmrMem) lmem;
 
   cvspgmr_mem->g_jtimes = jtimes;
-
-  return(CVSPGMR_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVSpgmrSetJacData
- * -----------------------------------------------------------------
- */
-
-int CVSpgmrSetJacData(void *cvode_mem, void *jac_data)
-{
-  CVodeMem cv_mem;
-  CVSpgmrMem cvspgmr_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    fprintf(stderr, MSGS_SETGET_CVMEM_NULL);
-    return(CVSPGMR_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGS_SETGET_LMEM_NULL);
-    return(CVSPGMR_LMEM_NULL);
-  }
-  cvspgmr_mem = (CVSpgmrMem) lmem;
-
-  cvspgmr_mem->g_j_data = jac_data;
+  if (jtimes != NULL) cvspgmr_mem->g_j_data = jac_data;
 
   return(CVSPGMR_SUCCESS);
 }
