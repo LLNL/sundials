@@ -104,6 +104,9 @@ v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
      for the N_Vector in which estimated local errors will be copied.
    - CVodeGetRootInfo: the user is now responsible for allocating space
      for the int array in which root information will be copied.
+   - Passing a value of 0 for the maximum step size, the minimum step
+     size, or for maxsteps results in the solver using the corresponding
+     default value (infinity, 0, 500, respectively)
 
 - Changes to the FCVODE module:
    - Added option for user-supplied error weight computation subroutine

@@ -120,6 +120,9 @@ v. 2.1.2 (Mar. 2005) ---> v. 2.1.3 (Apr. 2005)
    - CVodeMallocB, CVodeReInitB, CVodeSetQuadErrConB: the relative tolerance
      for the backward integration must now be passed as a realtype. It is now
      illegal to call CVodeSetQuadErrConB before CVQuadMallocB.
+   - Passing a value of 0 for the maximum step size, the minimum step
+     size, or for maxsteps results in the solver using the corresponding
+     default value (infinity, 0, 500, respectively)
 
 v. 2.1.1 (Jan. 2005) ---> v. 2.1.2 (Mar. 2005)
 ----------------------------------------------
