@@ -1,44 +1,50 @@
 \section{Conclusions}\label{s:conclusions}
 
-{\sf As discussed, mention all the cool applications here, to support
-the claim that SUNDIALS is the best thing since sliced bread}
+The time integrators and nonlinear solvers within SUNDIALS have been
+developed to take advantage of the long history of research and development
+of such codes at LLNL.  The codes feature state-of-the-art 
+technology for BDF time integration as well as for inexact Newton-Krylov
+methods.  The design philosophy of providing clean interfaces to the 
+user and allowing the user to supply their own data structures makes the 
+solvers reasonably easy to add into existing simulation codes.  As a result,
+these solvers have been applied to numerous applications.
 
-The following are brief descriptions of some of the major applications
-of the SUNDIALS solvers that we have been involved with.
-
-\begin{itemize}
-
-\item Parallel CVODE is being used in a 3D tokamak turbulence model in
-LLNL's Magnetic Fusion Energy Division.  A typical run has 7 unknowns
-on a $64 \times 64 \times 40$ mesh, with up to 60 processors~\cite{RXH:02}.
-
-\item A sensitivity analysis version of CVODE has been used to analyze
-radiation diffusion problems and their sensitivity to the parameters that
-characterize material opacity~\cite{LWG:03}, \cite{LHB:00}.
-
-\item KINSOL with a HYPRE Multigrid preconditioner is being applied within
-LLNL/CASC to solve a nonlinear Richards equation for pressures in
-porous media flows.  Fully scalable solution performance obtained on
-up to 225 processors of ASCI Blue.  SensKINSOL used to quantify
-uncertainty in these groundwater problems.
-
-\item CVODE, KINSOL, IDA, with MG preconditioner, are being used to
-solve 3D neutral particle transport problems within LLNL/CASC.
-Scalable performance obtained on up to 5800 processors on ASCI Red.
-
-\item SensPVODE, SensKINSOL, and SensIDA have been used to determine
-solution sensitivities of neutral particle transport applications at
-LLNL w.r.t. various material properties, for solution uncertainty
-quantification.
-
-\item IDA and SensIDA are being used in a cloud and aerosol microphysics
-model at LLNL to study cloud formation processes, in study of model
+In particular, CVODE has been used to solve 3-dimensional radiation diffusion
+problems on up to 5,800 processors of the ASCI Red machine and
+verifying the scalability 
+of a fully implicit approach for the problems \cite{BrWo:01}.
+The same code using a preliminary sensitivity version of CVODE was 
+further used to examine behaviors of solution sensitivities to 
+parameters that characterize material opacities for these
+diffusion problems \cite{LWG:03,LHB:00}.  CVODE is also being used in a 
+3-dimensional tokamak turbulence model within LLNL's 
+Magnetic Fusion Energy Division to solve fusion energy simulation problems
+with approximately 1.1 million unknowns on 60 processors \cite{RXH:02}.
+KINSOL is being applied within
+LLNL to solve a nonlinear Richards' equation model for pressures in
+variably saturated porous media flows.  
+Fully scalable solution performance of this code has been obtained on
+up to 225 processors of ASCI Blue \cite{JoWo:01,Woo:98}.  The same code using 
+a preliminary sensitivity version was used to quantify
+uncertainty due to variations in relative permeability input parameters
+within these groundwater problems \cite{WGM:02}.
+IDA has been used in a cloud and aerosol microphysics
+model at LLNL to study cloud formation processes and to study model
 parameter sensitivity.
+CVODE, CVODES, KINSOL, and IDA, with multigrid preconditioners, 
+are being used to
+solve 3D neutral particle transport problems within LLNL
 
-\end{itemize}
-
-{\sf Make some concluding remarks and comments on future development 
-directions.}
+Although the SUNDIALS codes have proven to be 
+versatile and robust, 
+further development of the suite is underway.  
+In particular, a sensitivity version of IDA, called IDAS, is 
+currently under development.  This code will have forward and adjoint
+sensitivity capabilities similar to CVODES.  Further nonlinear solver
+capabilities are being considered for extensions to KINSOL, including 
+a trust region globalization method as well as other strategies for
+choosing finite differencing parameters.  In addition, a Picard iteration 
+package is also planned for addition to SUNDIALS.  
 
 
 
