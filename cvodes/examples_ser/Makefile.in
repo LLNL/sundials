@@ -21,6 +21,7 @@ CC       = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
+TEMP_LIBS     = @LIBS@
 
 # SUNDIALS library and include directories
 SUNDIALS_INC_DIR = ${includedir}
@@ -28,7 +29,7 @@ SUNDIALS_LIB_DIR = ${libdir}
 
 INCDIRS = -I${SUNDIALS_INC_DIR}
 LIBDIRS = -L${SUNDIALS_LIB_DIR}
-LIBS    = -lcvodes -lshared -lnvecserial -lm
+LIBS    = ${TEMP_LIBS} -lcvodes -lshared -lnvecserial -lm
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -38,11 +39,43 @@ all: cvdx cvbx cvkx cvkxb cvdemd cvdemk \
      cvfnx cvfdx cvfkx \
      cvadx cvabx cvakx cvakxb
 
-#-------
-
-cvdx cvbx cvkx cvkxb cvdemd cvdemk \
-cvfnx cvfdx cvfkx \
-cvadx cvabx cvakx cvakxb: % : ${srcdir}/%.c
+cvdx : ${srcdir}/cvdx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvbx : ${srcdir}/cvbx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvkx : ${srcdir}/cvkx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvkxb : ${srcdir}/cvkxb.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvdemd : ${srcdir}/cvdemd.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvdemk : ${srcdir}/cvdemk.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvfnx : ${srcdir}/cvfnx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvfdx : ${srcdir}/cvfdx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvfkx : ${srcdir}/cvfkx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvadx : ${srcdir}/cvadx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvabx : ${srcdir}/cvabx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvakx : ${srcdir}/cvakx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+cvakxb : ${srcdir}/cvakxb.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
 

@@ -20,6 +20,7 @@ srcdir = @srcdir@
 CPPFLAGS  = @CPPFLAGS@
 CFLAGS    = @CFLAGS@
 LDFLAGS   = @LDFLAGS@
+TEMP_LIBS      = @LIBS@
 MPICC     = @MPICC@
 MPIINC    = @MPIINC@
 MPILIBDIR = @MPILIBDIR@
@@ -31,7 +32,7 @@ SUNDIALS_LIB_DIR = ${libdir}
 
 INCDIRS = -I${SUNDIALS_INC_DIR} ${MPIINC}
 LIBDIRS = -L${SUNDIALS_LIB_DIR} ${MPILIBDIR}
-LIBS    = -lcvode -lshared -lnvecparallel -lm ${MPILIBS}
+LIBS    = ${TEMP_LIBS} -lcvode -lshared -lnvecparallel -lm ${MPILIBS}
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -39,9 +40,16 @@ LIBS    = -lcvode -lshared -lnvecparallel -lm ${MPILIBS}
 
 all: pvnx pvkx pvkxb
 
-pvnx pvkx pvkxb: % : ${srcdir}/%.c
+pvnx: ${srcdir}/pvnx.c
 	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
 	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+pvkx: ${srcdir}/pvkx.c
+	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+pvkxb: ${srcdir}/pvkxb.c
+	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+
 clean:
 	rm -f *.o
 	rm -f pvnx pvkx pvkxb

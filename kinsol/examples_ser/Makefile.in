@@ -21,6 +21,7 @@ CC       = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
+TEMP_LIBS     = @LIBS@
 
 # SUNDIALS library and include directories
 SUNDIALS_INC_DIR = ${includedir}
@@ -28,7 +29,7 @@ SUNDIALS_LIB_DIR = ${libdir}
 
 INCDIRS = -I${SUNDIALS_INC_DIR}
 LIBDIRS = -L${SUNDIALS_LIB_DIR}
-LIBS    = -lkinsol -lshared -lnvecserial -lm
+LIBS    = ${TEMP_LIBS} -lkinsol -lshared -lnvecserial -lm
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -36,7 +37,7 @@ LIBS    = -lkinsol -lshared -lnvecserial -lm
 
 all: kinwebs
 
-kinwebs: % : ${srcdir}/%.c
+kinwebs : ${srcdir}/kinwebs.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
 

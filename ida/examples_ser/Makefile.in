@@ -21,6 +21,7 @@ CC       = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
+TEMP_LIBS     = @LIBS@
 
 # SUNDIALS library and include directories
 SUNDIALS_INC_DIR = ${includedir}
@@ -28,7 +29,7 @@ SUNDIALS_LIB_DIR = ${libdir}
 
 INCDIRS = -I${SUNDIALS_INC_DIR}
 LIBDIRS = -L${SUNDIALS_LIB_DIR}
-LIBS    = -lida -lshared -lnvecserial -lm
+LIBS    = ${TEMP_LIBS} -lida -lshared -lnvecserial -lm
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -36,7 +37,16 @@ LIBS    = -lida -lshared -lnvecserial -lm
 
 all: irobx iheatsb iheatsk iwebsb
 
-irobx iheatsb iheatsk iwebsb: % : ${srcdir}/%.c
+irobx : ${srcdir}/irobx.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+iheatsb : ${srcdir}/iheatsb.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+iheatsk : ${srcdir}/iheatsk.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+iwebsb : ${srcdir}/iwebsb.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
 

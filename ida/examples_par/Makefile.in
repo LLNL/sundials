@@ -20,6 +20,7 @@ srcdir = @srcdir@
 CPPFLAGS  = @CPPFLAGS@
 CFLAGS    = @CFLAGS@
 LDFLAGS   = @LDFLAGS@
+TEMP_LIBS      = @LIBS@
 MPICC     = @MPICC@
 MPIINC    = @MPIINC@
 MPILIBDIR = @MPILIBDIR@
@@ -31,7 +32,7 @@ SUNDIALS_LIB_DIR = ${libdir}
 
 INCDIRS = -I${SUNDIALS_INC_DIR} ${MPIINC}
 LIBDIRS = -L${SUNDIALS_LIB_DIR} ${MPILIBDIR}
-LIBS    = -lida -lshared -lnvecparallel -lm ${MPILIBS}
+LIBS    = ${TEMP_LIBS} -lida -lshared -lnvecparallel -lm ${MPILIBS}
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -39,7 +40,16 @@ LIBS    = -lida -lshared -lnvecparallel -lm ${MPILIBS}
 
 all: iheatpk iheatbbd iwebpk iwebbbd
 
-iheatpk iheatbbd iwebpk iwebbbd: % : ${srcdir}/%.c
+iheatpk : ${srcdir}/iheatpk.c
+	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+iheatbbd : ${srcdir}/iheatbbd.c
+	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+iwebpk : ${srcdir}/iwebpk.c
+	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+iwebbbd : ${srcdir}/iwebbbd.c
 	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
 	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
 

@@ -20,6 +20,7 @@ srcdir = @srcdir@
 CPPFLAGS  = @CPPFLAGS@
 CFLAGS    = @CFLAGS@
 LDFLAGS   = @LDFLAGS@
+TEMP_LIBS      = @LIBS@
 MPICC     = @MPICC@
 MPIINC    = @MPIINC@
 MPILIBDIR = @MPILIBDIR@
@@ -31,7 +32,7 @@ SUNDIALS_LIB_DIR = ${libdir}
 
 INCDIRS = -I${SUNDIALS_INC_DIR} ${MPIINC}
 LIBDIRS = -L${SUNDIALS_LIB_DIR} ${MPILIBDIR}
-LIBS    = -lkinsol -lshared -lnvecparallel -lm ${MPILIBS}
+LIBS    = ${TEMP_LIBS} -lkinsol -lshared -lnvecparallel -lm ${MPILIBS}
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -39,9 +40,13 @@ LIBS    = -lkinsol -lshared -lnvecparallel -lm ${MPILIBS}
 
 all: kinwebp kinwebbbd
 
-kinwebp kinwebbbd: % : ${srcdir}/%.c
+kinwebp : ${srcdir}/kinwebp.c
 	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
 	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+kinwebbbd : ${srcdir}/kinwebbbd.c
+	${MPICC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${srcdir}/$@.c
+	${MPICC} ${CFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS}
+
 clean:
 	rm -f *.o
 	rm -f kinwebp kinwebbbd

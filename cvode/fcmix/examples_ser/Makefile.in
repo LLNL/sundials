@@ -21,12 +21,13 @@ FC      = @F77@
 FFLAGS  = @FFLAGS@
 FLIBS   = @FLIBS@
 LDFLAGS = @LDFLAGS@
+TEMP_LIBS    = @LIBS@
 
 # SUNDIALS library directory
 SUNDIALS_LIB_DIR = ${libdir}
 
 LIBDIRS = -L${SUNDIALS_LIB_DIR}
-LIBS    = -lfcvode -lcvode -lfnvecserial -lnvecserial -lshared
+LIBS    = ${TEMP_LIBS} -lfcvode -lcvode -lfnvecserial -lnvecserial -lshared
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -34,7 +35,13 @@ LIBS    = -lfcvode -lcvode -lfnvecserial -lnvecserial -lshared
 
 all: cvdensef cvbandf cvkryf
 
-cvdensef cvbandf cvkryf: % : ${srcdir}/%.f
+cvdensef : ${srcdir}/cvdensef.f
+	${FC} -c ${FFLAGS} ${srcdir}/$@.f
+	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
+cvbandf : ${srcdir}/cvbandf.f
+	${FC} -c ${FFLAGS} ${srcdir}/$@.f
+	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
+cvkryf : ${srcdir}/cvkryf.f
 	${FC} -c ${FFLAGS} ${srcdir}/$@.f
 	${FC} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
 

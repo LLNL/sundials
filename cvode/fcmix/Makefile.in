@@ -65,7 +65,19 @@ clean:
 uninstall:
 	rm -f ${libdir}/${FCVODE_LIB}
 
-${OBJ}: %.o : ${srcdir}/%.c
+fcvode.o : ${srcdir}/fcvode.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+fcvband.o : ${srcdir}/fcvband.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+fcvdense.o : ${srcdir}/fcvdense.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+fcvjtimes.o : ${srcdir}/fcvjtimes.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+fcvpreco.o : ${srcdir}/fcvpreco.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+fcvpsol.o : ${srcdir}/fcvpsol.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+fcvbbd.o : ${srcdir}/fcvbbd.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

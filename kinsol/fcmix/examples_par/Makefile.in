@@ -19,6 +19,7 @@ srcdir = @srcdir@
 # Compiler and compiler options
 FFLAGS    = @FFLAGS@
 LDFLAGS   = @LDFLAGS@
+TEMP_LIBS      = @LIBS@
 FLIBS     = @FLIBS@
 MPIF77    = @MPIF77@
 MPIINC    = @MPIINC@
@@ -30,7 +31,7 @@ SUNDIALS_LIB_DIR = ${libdir}
 
 INCDIRS = ${MPIINC}
 LIBDIRS = -L${SUNDIALS_LIB_DIR} ${MPILIBDIR}
-LIBS    = -lfkinsol -lkinsol -lfnvecparallel -lnvecparallel -lshared -lm ${MPILIBS}
+LIBS    = ${TEMP_LIBS} -lfkinsol -lkinsol -lfnvecparallel -lnvecparallel -lshared -lm ${MPILIBS}
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -38,7 +39,7 @@ LIBS    = -lfkinsol -lkinsol -lfnvecparallel -lnvecparallel -lshared -lm ${MPILI
 
 all: kindiagpf
 
-kindiagpf: % : ${srcdir}/%.f
+kindiagpf : ${srcdir}/kindiagpf.f
 	${MPIF77} -c ${FFLAGS} ${INCDIRS} ${srcdir}/$@.f
 	${MPIF77} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
 

@@ -71,7 +71,15 @@ uninstall:
 	rm -f ${includedir}/idaspgmr.h
 	rm -f ${includedir}/idabbdpre.h
 
-${OBJ}: %.o : ${srcdir}/%.c
+ida.o : ${srcdir}/ida.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idaband.o : ${srcdir}/idaband.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idadense.o : ${srcdir}/idadense.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idaspgmr.o : ${srcdir}/idaspgmr.c
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+idabbdpre.o : ${srcdir}/idabbdpre.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

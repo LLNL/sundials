@@ -19,6 +19,7 @@ srcdir = @srcdir@
 # Compiler and compiler options
 FFLAGS    = @FFLAGS@
 LDFLAGS   = @LDFLAGS@
+TEMP_LIBS      = @LIBS@
 FLIBS     = @FLIBS@
 MPIF77    = @MPIF77@
 MPIINC    = @MPIINC@
@@ -30,7 +31,7 @@ SUNDIALS_LIB_DIR = ${libdir}
 
 INCDIRS = ${MPIINC}
 LIBDIRS = -L${SUNDIALS_LIB_DIR} ${MPILIBDIR}
-LIBS    = -lfcvode -lcvode -lfnvecparallel -lnvecparallel -lshared -lm ${MPILIBS}
+LIBS    = ${TEMP_LIBS} -lfcvode -lcvode -lfnvecparallel -lnvecparallel -lshared -lm ${MPILIBS}
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -38,7 +39,13 @@ LIBS    = -lfcvode -lcvode -lfnvecparallel -lnvecparallel -lshared -lm ${MPILIBS
 
 all: pvdiagnf pvdiagkf pvdiagkbf
 
-pvdiagnf pvdiagkf pvdiagkbf: % : ${srcdir}/%.f
+pvdiagnf : ${srcdir}/pvdiagnf.f
+	${MPIF77} -c ${FFLAGS} ${INCDIRS} ${srcdir}/$@.f
+	${MPIF77} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
+pvdiagkf : ${srcdir}/pvdiagkf.f
+	${MPIF77} -c ${FFLAGS} ${INCDIRS} ${srcdir}/$@.f
+	${MPIF77} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
+pvdiagkbf : ${srcdir}/pvdiagkbf.f
 	${MPIF77} -c ${FFLAGS} ${INCDIRS} ${srcdir}/$@.f
 	${MPIF77} ${FFLAGS} ${LDFLAGS} -o $@ $@.o ${LIBDIRS} ${LIBS} ${FLIBS}
 
