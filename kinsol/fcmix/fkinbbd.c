@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-10-08 23:24:53 $
+ * $Revision: 1.17 $
+ * $Date: 2004-10-21 21:01:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -45,8 +45,8 @@
  * ----------------------------------------------------------------
  */
 
-void FK_LOCFN(long int*, realtype*, realtype*);
-void FK_COMMFN(long int*, realtype*);
+extern void FK_LOCFN(long int*, realtype*, realtype*);
+extern void FK_COMMFN(long int*, realtype*);
 
 /*
  * ----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-08 23:24:53 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-21 21:01:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -33,8 +33,8 @@
  * ----------------------------------------------------------------
  */
 
-void FK_PSET(realtype*, realtype*, realtype*, realtype*, 
-             realtype*, realtype*, int*);
+extern void FK_PSET(realtype*, realtype*, realtype*, realtype*, 
+		    realtype*, realtype*, int*);
 
 /*
  * ----------------------------------------------------------------
