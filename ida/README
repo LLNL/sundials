@@ -47,7 +47,7 @@ ida_examples.pdf) documents.
 B. Installation
 ---------------
 
-For basic installation instructions see /sundials/INSTALL. 
+For basic installation instructions see the file /sundials/INSTALL. 
 For complete installation instructions see the "IDA Installation Procedure"
 chapter in the IDA User Guide.
 
@@ -64,7 +64,7 @@ C. References
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
-    accepted, 2004.
+    to appear.
 
 [4] P. N. Brown, A. C. Hindmarsh, and L. R. Petzold, Using Krylov Methods 
     in the Solution of Large-Scale Differential-Algebraic Systems, 
@@ -77,6 +77,9 @@ C. References
 
 D.1. Revision history since release 2.0 (July 2002)
 ---------------------------------------------------
+
+- New features
+   - added option to disable all error messages.
 
 - Bug fixes
    - in the solution of the nonlinear system, the correction for small constraint 
@@ -128,39 +131,25 @@ D.1. Revision history since release 2.0 (July 2002)
      IDABBDLocalFn and IDABBDCommFn.
 
 
-D.2. Previous revisions (YYYYMMDD)
-----------------------------------
+D.2. Summary of previous revisions (YYYYMMDD) (significant revisions only)
+--------------------------------------------------------------------------
 
 19990212  DATE WRITTEN; initial internal release (incomplete).
 19990514  IDABBDPRE preconditioner module added.
 19990720  Initial condition calculation routines (IDACalcIC) added.
-19990831  Minor changes throughout; some linear solver initializations
-          moved from linit routine to user-callable routine.
 19991208  In IDABBDPRE, user routine argument lists changed.
 19991217  Generic SPGMR module revised to correct scalings.
 20000316  In parallel NVECTOR, comm arg. to PVecInitMPI is non-NULL.
-20000808  Fixed bug in N_VMin routine; minor changes in robx example.
-          Added calculation of system index in IDACalcIC in CALC_YA_YDP_INIT
-          case; added scaling of fnorm in IDACalcIC when index = 0.
+20000808  Fixed bug in N_VMin.  In IDACalcIC: added calculation of system
+          index in CALC_YA_YDP_INIT case, added scaling of fnorm when index = 0.
 20010110  Fixed two bugs in IDACalcIC and subordinate routines:
           (1) Set hh in IDACalcIC independent of icopt, for lsetup.
           (2) Set ypnew = yp0 in IDALineSrch in CALC_Y_INIT case.
-          Changed safety factor to .99 in step ratio in IDALineSrch
-          on constraint violation.  Added .9 safety factor in step
-          ratio in IDAnls on constraint violation.
           Corrected #define ncfl0 line in idaspgmr.c.
-          Minor changes in heatsb, websb, webpk, webbbd example programs.
 20011015  Fixed bug in IDAInterp (tn test).
           Fixed minor bugs in error messages (missing arguments etc.)
-          Corrected missing return values (ida.c and idaspgmr.c).
-          Corrected missing #include in idabbdpre.c.
-          In serial and parallel nvector.*, rewrote N_VConstrMask loop;
-20011016  Changed PVecInitMPI to return (void *)env (parallel nvector.c).
 20011220  Default type 'integer' changed to 'long int' in llnltyps.h.
-20011220  In parallel nvector.h, PVecInitMPI prototype, corrected type
-          (int to integer) of length arguments.
-20020313  Modified to work with new NVECTOR abstraction. (Radu Serban)
-          Revised this file to reflect new N_Vector usage. (Radu Serban)
+20020313  Modified to work with new NVECTOR abstraction.
 20020626  Renamed types real, integer, boole as realtype, integertype,
           and booleantype, and renamed related constants.  Renamed files
           llnlmath.*, llnltypes.h as sundialsmath.*, sundialstypes.h.
