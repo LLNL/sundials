@@ -74,6 +74,8 @@ tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvbandf.f
 tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvbandf.out
 tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkryf.f
 tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkryf.out
+tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkrybf.f
+tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkrybf.out
 
 if [ $par = "T" ]
 then
