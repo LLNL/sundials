@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-19 15:38:08 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-20 19:19:32 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -71,7 +71,7 @@
 
 typedef struct {
   realtype *p;
-  realtype dx, hdcoef, hacoef;
+  realtype dx;
 } *UserData;
 
 /* Functions Called by the CVODES Solver */
