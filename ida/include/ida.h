@@ -1,17 +1,19 @@
-/*******************************************************************
- * File          : ida.h                                           *
- * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/ida/LICENSE                           *
- *-----------------------------------------------------------------*
- * This is the header (include) file for the main IDA solver.      *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.17 $
+ * $Date: 2004-04-08 21:34:35 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
+ *              Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California  
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/ida/LICENSE
+ * -----------------------------------------------------------------
+ * This is the header (include) file for the main IDA solver.
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -155,7 +157,7 @@ void *IDACreate(void);
  *                      | which the solution is not to proceed.   *
  *                      | [infinity]                              *
  *                      |                                         * 
- * IDASetNlinConvCoef   | Newton convergence test  constant       *
+ * IDASetNonlinConvCoef | Newton convergence test  constant       *
  *                      | for use during integration.             *
  *                      | [0.33]                                  *
  *                      |                                         * 
@@ -225,7 +227,7 @@ int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
 int IDASetInitStep(void *ida_mem, realtype hin);
 int IDASetMaxStep(void *ida_mem, realtype hmax);
 int IDASetStopTime(void *ida_mem, realtype tstop);
-int IDASetNlinConvCoef(void *ida_mem, realtype epcon);
+int IDASetNonlinConvCoef(void *ida_mem, realtype epcon);
 int IDASetMaxErrTestFails(void *ida_mem, int maxnef);
 int IDASetMaxNonlinIters(void *ida_mem, int maxcor);
 int IDASetMaxConvFails(void *ida_mem, int maxncf);
@@ -354,7 +356,7 @@ enum {IDAREI_NO_MEM = -1, IDAREI_NO_MALLOC = -2, IDAREI_ILL_INPUT = -3};
  *                        |                                       * 
  * -------------------------------------------------------------- *
  *                        |                                       * 
- * IDASetNlinConvCoefIC   | positive coeficient in the Newton     *
+ * IDASetNonlinConvCoefIC | positive coeficient in the Newton     *
  *                        | convergence test.  This test uses a   *
  *                        | weighted RMS norm (with weights       *
  *                        | defined by the tolerances, as in      *
@@ -392,7 +394,7 @@ enum {IDAREI_NO_MEM = -1, IDAREI_NO_MALLOC = -2, IDAREI_ILL_INPUT = -3};
  *                                                                *
  ******************************************************************/
 
-int IDASetNlinConvCoefIC(void *ida_mem, realtype epiccon);
+int IDASetNonlinConvCoefIC(void *ida_mem, realtype epiccon);
 int IDASetMaxNumStepsIC(void *ida_mem, int maxnh);
 int IDASetMaxNumJacsIC(void *ida_mem, int maxnj);
 int IDASetMaxNumItersIC(void *ida_mem, int maxnit);

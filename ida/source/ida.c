@@ -1,19 +1,20 @@
-/*******************************************************************
- * File          : ida.c                                           *
- * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/ida/LICENSE                           *
- *-----------------------------------------------------------------*
- * This is the implementation file for the main IDA solver.        *
- * It is independent of the linear solver in use.                  *
- *                                                                 *
- *******************************************************************/
-
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.20 $
+ * $Date: 2004-04-08 21:34:37 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
+ *              Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California  
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/ida/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for the main IDA solver.
+ * It is independent of the linear solver in use.
+ * -----------------------------------------------------------------
+ */
 
 /************************************************************/
 /******************* BEGIN Imports **************************/
@@ -209,9 +210,9 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_IDAS_NEG_HMAX    "IDASetMaxStep-- hmax<=0 illegal. \n\n"
 
-#define MSG_IDAS_NEG_EPCON   "IDASetNlinConvCoef-- epcon < 0.0 illegal. \n\n"
+#define MSG_IDAS_NEG_EPCON   "IDASetNonlinConvCoef-- epcon < 0.0 illegal. \n\n"
 
-#define MSG_IDAS_BAD_EPICCON "IDASetNlinConvcoefIC-- epiccon < 0.0 illegal.\n\n"
+#define MSG_IDAS_BAD_EPICCON "IDASetNonlinConvcoefIC-- epiccon < 0.0 illegal.\n\n"
 
 #define MSG_IDAS_BAD_MAXNH   "IDASetMaxNumStepsIC-- maxnh < 0 illegal.\n\n"
 
@@ -691,7 +692,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetNlinConvCoef(void *ida_mem, realtype epcon)
+int IDASetNonlinConvCoef(void *ida_mem, realtype epcon)
 {
   IDAMem IDA_mem;
 
@@ -1096,7 +1097,7 @@ int IDAReInit(void *ida_mem, ResFn res,
 
 /*-----------------------------------------------------------------*/
 
-int IDASetNlinConvCoefIC(void *ida_mem, realtype epiccon)
+int IDASetNonlinConvCoefIC(void *ida_mem, realtype epiccon)
 {
   IDAMem IDA_mem;
 
