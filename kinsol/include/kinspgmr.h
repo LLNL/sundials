@@ -2,7 +2,7 @@
  *                                                                *
  * File          : kinspgmr.h                                     *
  * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 26 July 2002                                   *
+ * Version of    : 30 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the KINSol scaled, preconditioned  *
  * GMRES linear solver, KINSpgmr.                                 *
@@ -187,10 +187,10 @@ typedef int (*KINSpgmrPrecondFn)(integertype Neq,
  * fscale  an N_Vector giving the diagonal entries of the func-   *
  *         scaling matrix.                                        *
  *                                                                *
- * vtem    an N_Vector to hold the RHS vector r on input and      *
+ * vv      an N_Vector to hold the RHS vector r on input and      *
  *         the result vector x on return                          *
  *                                                                *
- * ftem    an N_Vector work array, usually set on input as vtemp  *
+ * ftem    an N_Vector work space.                                *
  *                                                                *
  * func    the function func defines the system being solved:     *
  *         func(uu) = 0.                                          *
