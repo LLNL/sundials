@@ -1,5 +1,5 @@
                               CVODE
-                    Release 2.2.2, March 2005
+                    Release 2.2.3, April 2005
              Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -66,7 +66,34 @@ C. References
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
     to appear.
 
-D.1.  Revision History since release 2.2.1 (January 2005)
+D.1.   Revision History since release 2.2.2 (March 2005)
+---------------------------------------------------------
+
+- New features
+   - added option for user-provided error weight computation function
+
+- Changes to user interface
+   - CVODE now stores tolerances through values rather than references 
+     (to resolve potential scoping issues). 
+   - CVODE now passes information back to the user through values rather
+     than references (error weights, estimated local errors, root info)
+   - CVodeMalloc, CVodeReInit, CVodeSetTolerances: added option itol=CV_WF 
+     to indicate user-supplied function for computing the error weights; 
+     reltol is now declared as realtype. Note that it is now illegal to call
+     CVodeSetTolerances before CVodeMalloc. It is now legal to deallocate
+     the absolute tolerance N_Vector right after its use.
+   - CVodeGetErrorWeights: the user is now responsible for allocating space
+     for the N_Vector in which error weights will be copied.
+   - CVodeGetEstLocalErrors: the user is now responsible for allocating space
+     for the N_Vector in which estimated local errors will be copied.
+   - CVodeGetRootInfo: the user is now responsible for allocating space
+     for the int array in which root information will be copied.
+
+- Changes to the FCVODE module:
+   - Added option for user-supplied error weight computation subroutine
+     (FCVEWT). Use FCVEWTSET to indicate that FCVEWT is provided.
+
+D.2.  Revision History since release 2.2.1 (January 2005)
 ---------------------------------------------------------
 
 - Bug fixes
@@ -93,14 +120,14 @@ D.1.  Revision History since release 2.2.1 (January 2005)
    - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
      CC and MPICC to link)
 
-D.2. Revision History since release 2.2.0 (December 2004)
+D.3. Revision History since release 2.2.0 (December 2004)
 ---------------------------------------------------------
 
 - Changes related to the build system
    - changed order of compiler directives in header files to avoid compilation
      errors when using a C++ compiler
 
-D.3. Revision History since release 2.0 (August 2002)
+D.4. Revision History since release 2.0 (August 2002)
 -----------------------------------------------------
 
 - New features
@@ -160,10 +187,10 @@ D.3. Revision History since release 2.0 (August 2002)
      maxncf, etc.) and rearranged locations in IOPT and ROPT for uniformity.
 
 
-D.4. Summary of previous revisions (YYYYMMDD) (significant revisions only)
+D.5. Summary of previous revisions (YYYYMMDD) (significant revisions only)
 --------------------------------------------------------------------------
 
-D.4.1. Serial version of CVODE (1993 - March 2002)
+D.5.1. Serial version of CVODE (1993 - March 2002)
 --------------------------------------------------
 
 1993-94   DATE WRITTEN.  First released 2 September 1994.
@@ -189,7 +216,7 @@ D.4.1. Serial version of CVODE (1993 - March 2002)
 20020305  Added CVReInitBandPre routine to CVBANDPRE module.
 
 
-D.4.2. Parallel version of CVODE (PVODE)  (July 1995 - March 2002)
+D.5.2. Parallel version of CVODE (PVODE)  (July 1995 - March 2002)
 ------------------------------------------------------------------
 
 19950726  DATE WRITTEN; MPI version of VECTOR module written, creating 
@@ -232,7 +259,7 @@ D.4.2. Parallel version of CVODE (PVODE)  (July 1995 - March 2002)
           to it.  Revised pvkxb and pvidagkbf examples accordingly.
 
 
-D.4.3. Combined CVODE package (March 2002 - July 2002)
+D.5.3. Combined CVODE package (March 2002 - July 2002)
 ------------------------------------------------------
 
 20020313  Modified to work with new NVECTOR abstraction.

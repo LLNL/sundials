@@ -14,7 +14,7 @@ Iteration               : FUNCTIONAL
    1.39284     1.68010e+00   -2.91056e-01    5    9.8626e-02
    3.60761    -2.12392e-05   -3.16877e+00    5    2.2756e-02
    5.82239    -1.68010e+00    2.91060e-01    4    1.4079e-01
-   8.03716     9.57611e-05    3.16900e+00    5    2.0348e-02
+   8.03716     9.57612e-05    3.16900e+00    5    2.0348e-02
 
  Final statistics for this run:
 
@@ -70,8 +70,8 @@ Linear Solver           : Dense, Difference Quotient Jacobian
      t           x              xdot         qu     hu 
    1.39284     1.68010e+00   -2.91056e-01    5    6.5835e-02
    3.60761    -2.28046e-05   -3.16879e+00    6    3.1773e-02
-   5.82239    -1.68010e+00    2.91059e-01    6    9.3514e-02
-   8.03716    -9.84768e-06    3.16869e+00    6    2.8096e-02
+   5.82239    -1.68010e+00    2.91059e-01    6    9.3513e-02
+   8.03716    -9.84259e-06    3.16869e+00    6    2.8096e-02
 
  Final statistics for this run:
 
@@ -101,26 +101,26 @@ Linear Solver           : Diagonal Jacobian
      t           x              xdot         qu     hu 
    1.39284     1.68010e+00   -2.91054e-01    6    5.9553e-02
    3.60761     6.36071e-05   -3.16853e+00    6    2.8912e-02
-   5.82239    -1.68011e+00    2.91057e-01    5    9.8123e-02
-   8.03716    -8.21358e-05    3.16848e+00    6    2.2328e-02
+   5.82239    -1.68011e+00    2.91057e-01    5    9.8149e-02
+   8.03716    -6.97420e-05    3.16847e+00    6    3.1284e-02
 
  Final statistics for this run:
 
  CVode real workspace length              =   34 
  CVode integer workspace length           =   17 
- Number of steps                          =  241 
- Number of f-s                            =  339 
- Number of setups                         =   42 
- Number of nonlinear iterations           =  336 
+ Number of steps                          =  238 
+ Number of f-s                            =  326 
+ Number of setups                         =   39 
+ Number of nonlinear iterations           =  323 
  Number of nonlinear convergence failures =    0 
- Number of error test failures            =   20 
+ Number of error test failures            =   19 
 
  Linear solver real workspace length      =    6 
  Linear solver integer workspace length   =    3 
- Number of Jacobian evaluations           =   42  
- Number of f-s evaluations                =   42 
+ Number of Jacobian evaluations           =   39  
+ Number of f-s evaluations                =   39 
 
- Error overrun = 82.136 
+ Error overrun = 69.742 
 
 
 -------------------------------------------------------------
@@ -220,7 +220,7 @@ Linear Solver           : Diagonal Jacobian
    1.39284     1.68010e+00   -2.91056e-01    5    1.1430e-01
    3.60761    -9.83501e-05   -3.16900e+00    5    1.6712e-02
    5.82239    -1.68009e+00    2.91063e-01    4    8.1261e-02
-   8.03716     1.66644e-04    3.16920e+00    4    1.0547e-02
+   8.03716     1.66642e-04    3.16920e+00    4    1.0547e-02
 
  Final statistics for this run:
 
@@ -238,7 +238,7 @@ Linear Solver           : Diagonal Jacobian
  Number of Jacobian evaluations           =   39  
  Number of f-s evaluations                =   39 
 
- Error overrun = 166.644 
+ Error overrun = 166.642 
 
 
 -------------------------------------------------------------
