@@ -1,17 +1,19 @@
-/*******************************************************************
- * File          : idas.h                                          *
- * Programmers   : Alan C. Hindmarsh, Radu Serban and              *
- *                 Allan G. Taylor @ LLNL                          *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
- *-----------------------------------------------------------------*
- * This is the header (include) file for the main IDAS solver.     *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.14 $
+ * $Date: 2004-04-28 15:34:51 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
+ *              Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California  
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/ida/LICENSE
+ * -----------------------------------------------------------------
+ * This is the header (include) file for the main IDAS solver.
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -587,7 +589,7 @@ int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS);
  * IDASensMalloc allocates and initializes memory related to      *
  * sensitivity computations.                                      *
  *                                                                *
- * ida_mem is a pointer to IDAS memory returned by IDAMalloc      *
+ * ida_mem is a pointer to IDAS memory returned by IDACreate.     *
  *                                                                *
  * Ns        is the number of sensitivities to be computed.       *
  *                                                                *
@@ -734,8 +736,9 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  * successful call to the linear system solver specification      *
  * routine.                                                       *
  * In addition, IDACalcIC assumes that the vectors y0, yp0, and   *
- * (if relevant) id and constraints that were passed to IDAMalloc *
- * (or IDAReInit) remain unaltered since that call.               *
+ * (if relevant) id and constraints that were set through calls   *
+ * to IDASetId and IDASetConstraints, respectively remain         *
+ * unaltered since that call.                                     *
  *                                                                *
  * The call to IDACalcIC should precede the call(s) to IDASolve   *
  * for the given problem.                                         *  
@@ -749,7 +752,7 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  *                the algebraic components of y and differential  *
  *                components of y', given the differential        *
  *                components of y.  This option requires that the *
- *                N_Vector id was input to IDAMalloc or IDAReInit,*
+ *                N_Vector id was set through IDASetId            *
  *                specifying the differential and algebraic       *
  *                components.                                     *
  *        icopt = CALC_Y_INIT   directs IDACalcIC to compute all  *
@@ -842,7 +845,7 @@ enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
  * responsible for allocating the memory for this value.          *
  *                                                                *
  * IDA_mem is the pointer (void) to IDAS memory returned by       *
- *         IDAMalloc.                                             *
+ *         IDACreate.                                             *
  *                                                                *
  * tout    is the next independent variable value at which a      *
  *         computed solution is desired.                          *
@@ -883,7 +886,7 @@ enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
  *                 internal stepping. The ILL_INPUT flag          *
  *                 will also be returned if the linear solver     *
  *                 routine IDA--- (called by the user after       *
- *                 calling IDAMalloc) failed to set one of the    *
+ *                 calling IDACreate) failed to set one of the    *
  *                 linear solver-related fields in IDA_mem or     *
  *                 if the linear solver's init routine failed. In *
  *                 any case, the user should see the printed      *

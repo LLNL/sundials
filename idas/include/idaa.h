@@ -1,15 +1,19 @@
-/*******************************************************************
- * File          : idaa.h                                          *
- * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the interface file for the IDAA adjoint integrator.     *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-04-28 15:34:51 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
+ *              Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California  
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/ida/LICENSE
+ * -----------------------------------------------------------------
+ * This is the interface file for the IDAA adjoint integrator.
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

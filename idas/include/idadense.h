@@ -1,18 +1,20 @@
-/*******************************************************************
- * File          : idadense.h                                      *
- * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
- *                 Radu Serban @LLNL                               *
- * Version of    : 19 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * See sundials/ida/LICENSE or sundials/idas/LICENSE               *
- *-----------------------------------------------------------------*
- * This is the header file for the IDA/IDAS dense linear solver    *
- * module, IDADENSE.                                               *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.2 $
+ * $Date: 2004-04-28 15:34:51 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
+ *              Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California  
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/ida/LICENSE
+ * -----------------------------------------------------------------
+ * This is the header file for the IDA/IDAS dense linear solver
+ * module, IDADENSE.
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
