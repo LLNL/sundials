@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-04-29 00:15:16 $
+ * $Revision: 1.22 $
+ * $Date: 2004-04-29 14:53:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1238,6 +1238,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nhnil   = 0;
   cv_mem->cv_nstlp   = 0;
   cv_mem->cv_nscon   = 0;
+  cv_mem->cv_nge     = 0;
 
   /* Initialize Stablilty Limit Detection data */
   cv_mem->cv_nor = 0;
@@ -2403,7 +2404,8 @@ void CVodeFree(void *cvode_mem)
     free(glo);
     free(ghi);
     free(groot);
-    free(iroots); }
+    free(iroots); 
+  }
 
   free(cv_mem);
 }
