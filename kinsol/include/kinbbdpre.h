@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-10-08 23:28:39 $
+ * $Revision: 1.18 $
+ * $Date: 2004-10-11 16:40:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -217,7 +217,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
  *                     KINSPGMR_ILL_INPUT
  *
  *   Additionaly, if KINBBDPrecAlloc was not previously called,
- *   KINBBDSpgmr returns KINSPGMR_DATA_NULL (defined below).
+ *   KINBBDSpgmr returns KIN_PDATA_NULL (defined in kinsol.h).
  * -----------------------------------------------------------------
  */
 

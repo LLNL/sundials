@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-10-08 23:28:39 $
+ * $Revision: 1.17 $
+ * $Date: 2004-10-11 16:40:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -368,8 +368,6 @@ int KINSpgmrGetLastFlag(void *kinmem, int *flag);
 #define KINSPGMR_LMEM_NULL -2
 #define KINSPGMR_ILL_INPUT -3
 #define KINSPGMR_MEM_FAIL  -4
-
-#define KINSPGMR_DATA_NULL -13
 
 #endif
 

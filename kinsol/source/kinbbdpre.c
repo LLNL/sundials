@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-10-08 23:24:43 $
+ * $Revision: 1.20 $
+ * $Date: 2004-10-11 16:40:35 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -191,7 +191,7 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
 
   if (p_data == NULL) {
     fprintf(errfp, MSG_NO_PDATA);
-    return(KINSPGMR_DATA_NULL);
+    return(KIN_PDATA_NULL);
   }
 
   flag = KINSpgmr(kinmem, maxl);
@@ -240,7 +240,7 @@ int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBD
 
   if (p_data == NULL) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(KINSPGMR_DATA_NULL);
+    return(KIN_PDATA_NULL);
   } 
 
   pdata = (KBBDPrecData) p_data;
@@ -248,7 +248,7 @@ int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBD
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(KINSPGMR_SUCCESS);
+  return(KIN_SUCCESS);
 }
 
 /*
@@ -263,13 +263,13 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 
   if (p_data == NULL) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(KINSPGMR_DATA_NULL);
+    return(KIN_PDATA_NULL);
   } 
 
   pdata = (KBBDPrecData) p_data;
   *ngevalsBBDP = pdata->nge;
 
-  return(KINSPGMR_SUCCESS);
+  return(KIN_SUCCESS);
 }
 
 /*

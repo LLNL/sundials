@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-10-08 23:28:39 $
+ * $Revision: 1.19 $
+ * $Date: 2004-10-11 16:40:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -694,6 +694,7 @@ void KINFree(void *kinmem);
 #define KIN_LINIT_FAIL          -10
 #define KIN_LSETUP_FAIL         -11
 #define KIN_LSOLVE_FAIL         -12
+#define KIN_PDATA_NULL          -13
 
 /*
  * -----------------------------------------------------------------
