@@ -186,7 +186,7 @@ This section describes the {\cvodes} functions, additional to those presented
 in \S\ref{ss:cvodes_fct_sim}, that are called by the user to setup and solve
 a forward sensitivity problem.
 
-\subsection{Forward sensitivity initialization functions}
+\subsection{Forward sensitivity initialization and deallocation functions}
 \label{ss:sensi_malloc}
 %%
 Activation of forward sensitivity computation is done by calling
@@ -261,7 +261,7 @@ The form of the call to this routine is as follows:
 {
   The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_ILL\_INPUT]
-  \item[\Id{Cv\_SUCCESS}]
+  \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeSensMalloc} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
     The {\cvodes} memory block was not initialized through a 
@@ -345,6 +345,66 @@ The call to the \id{CVodeSensReInit} function has the form:
   If an error occured, \id{CVodeSensReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
 }
+%%
+%%
+To deallocate all forward sensitivity-related memory (allocated through a preious call
+to \id{CVodeSensMalloc}), the user must call
+%%
+\ucfunction{CVodeSensFree}
+{
+  CVodeSensFree(cvode\_mem);
+}
+{
+  The function \ID{CVodeSensFree} frees the memory allocated for forward sensitivity 
+  computaions by a previous call to \id{CVodeSensMalloc}.
+}
+{
+  The argument is the pointer to the {\cvodes} memory block (of type \id{void *}).
+}
+{
+  The function \id{CVodeSensFree} has no return value.
+}
+{
+  After a call to \id{CVodeSensFree}, forward sensitivity computations can be reactivated
+  only by calling again \id{CVodeSensMalloc}.
+}
+%%
+%%
+To activate and deactivate forward sensitivity calculations for successive {\cvodes} runs,
+without having to allocate and deallocate memory, the following function is provided:
+%%
+\ucfunction{CVodeSensToggle}
+{
+  CVodeSensToggle(cvode\_mem, sensi);
+}
+{
+  The function \ID{CVodeSensToggle} activates or deactivates forward sensitivity 
+  calculations. It does {\em not} deallocate sensitivity-related memory.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the memory previously allocated by \id{CVodeMalloc}.
+  \item[sensi] (\id{booleantype})
+    flag indicating activation (\id{sensi = TRUE}) or deactivation
+    (\id{sensi = FALSE}) of sensitivity computations.
+  \end{args}
+}
+{
+  The return value \id{flag} of \id{CVodeSensToggle} is one of:
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
+    \id{CVodeGetSens} was successful.
+  \item[\Id{CV\_MEM\_NULL}] 
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CV\_NO\_SENS}] 
+    Forward sensitivity analysis was not initialized.
+  \end{args}
+}
+{
+  It is allowed to set \id{sensi = TRUE} only if \id{CVodeSensMalloc} has been
+  previously called to alocate sensitivity-related memory.
+}
 
 %--------------------------
 
@@ -379,7 +439,7 @@ $y$ in \id{y}. Solution sensitivities can be obtained through one of the followi
 {
   The return value \id{flag} of \id{CVodeGetSens} is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{Cv\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}] 
     \id{CVodeGetSens} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
     \id{cvode\_mem} was \id{NULL}.
@@ -387,7 +447,7 @@ $y$ in \id{y}. Solution sensitivities can be obtained through one of the followi
     Forward sensitivity analysis was not initialized.
   \item[\Id{CV\_BAD\_DKY}] 
     \id{yQ} is \id{NULL}.
-  \item[\Id{Cv\_BAD\_T}]
+  \item[\Id{CV\_BAD\_T}]
     The time \id{t} is not in the allowed range.
   \end{args}
 }
@@ -473,7 +533,7 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
 {
   The return value \id{flag} of \id{CVodeGetSens1} is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{Cv\_SUCCESS}]
+  \item[\Id{CV\_SUCCESS}]
     \id{CVodeGetSens1} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
     \id{cvode\_mem} was \id{NULL}.
@@ -519,7 +579,7 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
 {
   The return value \id{flag} of \id{CVodeGetSensDky1} is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{Cv\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}] 
     \id{CVodeGetQuadDky1} succeeded.
   \item[\Id{CV\_MEM\_NULL}] 
     The pointer to \id{cvode\_mem} was \id{NULL}.
