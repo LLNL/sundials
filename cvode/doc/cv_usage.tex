@@ -207,13 +207,6 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
   \id{CVodeCreate} returns a pointer to the {\cvode} memory structure.
   See \S\ref{sss:cvodemalloc} for details.
 
-\item
-  {\bf Set optional inputs}
-
-  Call \id{CVodeSet*} functions to change from their default values any
-  optional inputs that control the behavior of {\cvode}.
-  See \S\ref{ss:optional_input} for details.
-
 \item\label{i:cvode_malloc} 
   {\bf Allocate internal memory}
 
@@ -224,6 +217,13 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
   \id{CVodeMalloc} returns an error flag to indicate success or an illegal
   argument value.  See \S\ref{sss:cvodemalloc} for details.
   
+\item
+  {\bf Set optional inputs}
+
+  Call \id{CVodeSet*} functions to change from their default values any
+  optional inputs that control the behavior of {\cvode}.
+  See \S\ref{ss:optional_input} for details.
+
 \item\label{i:lin_solver} 
   {\bf Attach linear solver module}
 
@@ -362,14 +362,17 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol}$=$\id{SS} indicates
+    is one of \ID{CV\_SS}, \ID{CV\_SV}, or \ID{CV\_WF}, where \ID{itol}$=$\id{SS} indicates
     scalar relative error tolerance and scalar absolute error tolerance, while
     \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
     error tolerance needs to be different for each component of the ODE. 
-  \item[reltol] (\id{realtype *})
+    If \id{itol}$=$\id{CV\_WF}, the arguments \id{reltol} and \id{abstol} are ignored
+    and the user is expected to provide a function to evaluate the error weight vector
+    $W$ from (\ref{e:errwt}). See \id{CVodeSetEwtFn} in \S\ref{ss:optional_input}.
+  \item[reltol] (\id{realtype})
     \index{tolerances}
-    is a pointer to the relative error tolerance.
+    is the relative error tolerance.
   \item[abstol] (\id{void *})
     is a pointer to the absolute error tolerance. If \id{itol}$=$\id{CV\_SS}, \id{abstol}
     must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{CV\_SV}, \id{abstol}
@@ -396,6 +399,9 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
 
   The tolerance values in \id{reltol} and \id{abstol} may be changed between
   calls to \id{CVode} (see \id{CVodeSetTolerances} in \S\ref{ss:optional_input}).
+
+  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  \id{abstol} arguments.
 }
 %%
 %%
@@ -803,24 +809,20 @@ Coefficient in the nonlinear convergence test & \id{CVodeSetNonlinConvCoef} & 0.
 Data for rootfinding function & \id{CVodeSetGdata} & NULL \\
 Nonlinear iteration type & \id{CVodeSetIterType} & none \\
 Integration tolerances & \id{CVodeSetTolerances} & none \\
+Ewt compuation function & \id{CVodeSetEwtFn} & internal fn. \\
 \hline
 \multicolumn{3}{|c|}{\bf CVDENSE linear solver} \\
 \hline
-Dense Jacobian function & \id{CVDenseSetJacFn} & internal DQ \\
-Data for Jacobian function & \id{CVDenseSetJacData} & NULL \\
+Dense Jacobian function and data & \id{CVDenseSetJacFn} & internal DQ, NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf CVBAND linear solver} \\
 \hline
-Band Jacobian function & \id{CVBandSetJacFn} & internal DQ \\
-Data for Jacobian function & \id{CVBandSetJacData} & NULL \\
+Band Jacobian function and data & \id{CVBandSetJacFn} & internal DQ, NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPGMR linear solver} \\
 \hline
-Preconditioner solve function & \id{CVSpgmrSetPrecSolveFn} & NULL \\
-Preconditioner setup function & \id{CVSpgmrSetPrecSetupFn} & NULL \\
-Data for preconditioner functions & \id{CVSpgmrSetPrecData} & NULL \\
-Jacobian times vector function & \id{CVSpgmrSetJacTimesVecFn} & internal DQ \\
-Data for Jacobian times vector function &\id{CVSpgmrSetJacData} & NULL \\ 
+Preconditioner functions and data & \id{CVSpgmrSetPreconditioner} & NULL, NULL, NULL \\
+Jacobian times vector function and data & \id{CVSpgmrSetJacTimesVecFn} & internal DQ, NULL \\
 Type of Gram-Schmidt orthogonalization & \id{CVSpgmrSetGSType} & classical GS \\
 Ratio between linear and nonlinear tolerances & \id{CVSpgmrSetDelt} & 0.05 \\
 Preconditioning type & \id{CVSpgmrSetPrecType} & none \\
@@ -833,9 +835,7 @@ Preconditioning type & \id{CVSpgmrSetPrecType} & none \\
 %%==============================================================================
 \index{optional input!solver|(}
 
-The calls listed here can be executed in any order. However, if
-\id{CVodeSetErrFile} is to be called, that call should be first, in order to
-take effect for any later error message.
+The calls listed here can be executed in any order. 
 
 \index{error message}
 \ucfunction{CVodeSetErrFile}
@@ -868,6 +868,9 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
 
   Passing a value of \id{NULL} disables all future error message output
   (except for the case in which the {\cvode} memory pointer is \id{NULL}).
+
+  {\warn} \id{CVodeSetErrFile} is to be called, it should be called before any
+  other optional input functions, in order to take effect for any later error message.
 }
 %%
 %%
@@ -970,7 +973,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
   \end{args}
 }
 {
-  The default value is $500$.
+  Passing \id{mxsteps}$=0$ results in {\cvode} using the default value ($500$).
 }
 %%
 %%
@@ -1133,7 +1136,7 @@ flag = CVodeSetMaxStep(cvode\_mem, hmax);
   \end{args}
 }
 {
-  The default value is $\infty$.
+  Pass \id{hmax}$=0$ to obtain the default value $\infty$.
 }
 \index{step size bounds|)}
 %%
@@ -1342,9 +1345,9 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
     \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
     error tolerance needs to be different for each component of the ODE. 
-  \item[reltol] (\id{realtype *})
+  \item[reltol] (\id{realtype})
     \index{tolerances}
-    is a pointer to the relative error tolerance.
+    is the relative error tolerance.
   \item[abstol] (\id{void *})
     is a pointer to the absolute error tolerance. If \id{itol}$=$\id{CV\_SS}, \id{abstol}
     must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{CV\_SV}, \id{abstol}
@@ -1367,6 +1370,47 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
   to \id{CVodeMalloc} (see \S\ref{sss:cvodemalloc}). This function call is
   needed only if the tolerances are being changed from their values between
   successive calls to \id{CVode}.
+
+  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  \id{abstol} arguments.
+
+  {\warn} It is illegal to call \id{CVodeSetTolerances} before a call to \id{CVodeMalloc}.
+}
+%%
+%%
+\ucfunction{CVodeSetEwtFn}
+{
+flag = CVodeSetEwtFn(cvode\_mem, efun, e\_data);
+}
+{
+  The function \ID{CVodeSetEwtFn} specifies the user-defined function
+  to be used in computing the error weight vector $W$ in (\ref{e:errwt}).
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[efun] (\id{CVEwtFn}) 
+    is the {\C} function which defines the \id{ewt} vector (see \S\ref{ss:ewtsetFn}).
+  \item[e\_data] (\id{void *})
+    pointer to user data passed to \id{efun} every time it is called.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
+    The function \id{efun} and data pointer \id{e\_data} have been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  This function can be called between successive calls to \id{CVode}.
+
+  If not needed, pass \id{NULL} for \id{edata}.
+
+  {\warn} It is illegal to call \id{CVodeSetEwtFn} before a call to \id{CVodeMalloc}.
 }
 %%
 \index{optional input!solver|)}
@@ -1391,9 +1435,8 @@ difference quotient function \Id{CVDenseDQJac}
 \index{Jacobian approximation function!dense!difference quotient}
 that comes with the {\cvdense} solver.
 To specify a user-supplied Jacobian function \id{djac} and associated user 
-data \id{jac\_data}, {\cvdense} provides the functions \id{CVDenseSetJacFn}
-and \id{CVDenseSetJacData}, respectively.
-The {\cvdense} solver passes the pointer it receives through \id{CVDenseSetJacData} 
+data \id{jac\_data}, {\cvdense} provides the function \id{CVDenseSetJacFn}.
+The {\cvdense} solver passes the pointer \id{jac\_data} 
 to its dense Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
@@ -1403,11 +1446,11 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{Jacobian approximation function!dense!user-supplied}
 \ucfunction{CVDenseSetJacFn}
 {
-  flag = CVDenseSetJacFn(cvode\_mem, djac);
+  flag = CVDenseSetJacFn(cvode\_mem, djac, jac\_data);
 }
 {
   The function \ID{CVDenseSetJacFn} specifies the dense Jacobian
-  approximation function to be used.
+  approximation function to be used and the pointer to user data.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1415,6 +1458,8 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
     pointer to the {\cvode} memory block.
   \item[djac] (\id{CVDenseJacFn})
     user-defined dense Jacobian approximation function.
+  \item[jac\_data] (\id{void *})
+    pointer to the user-defined data structure.
   \end{args}
 }
 {
@@ -1434,36 +1479,6 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 
   The function type \id{CVDenseJacFn} is described in \S\ref{ss:djacFn}.
 }
-%%
-\ucfunction{CVDenseSetJacData}
-{
-  flag = CVDenseSetJacData(cvode\_mem, jac\_data);
-}
-{
-  The function \ID{CVDenseSetJacData} specifies the data structure
-  to be passed to the user supplied dense Jacobian approximation 
-  function each time it is called.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[jac\_data] (\id{void *})
-    pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDENSE\_LMEM\_NULL]
-  \item[\Id{CVDENSE\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CVDENSE\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDENSE\_LMEM\_NULL}]
-    The {\cvdense} linear solver has not been initialized.
-  \end{args}
-}
-{}
 \index{CVDENSE@{\cvdense} linear solver!optional input|)}
 \index{optional input!dense linear solver|)}
 %%
@@ -1480,9 +1495,8 @@ or use the default difference quotient function \Id{CVBandDQJac}
 \index{Jacobian approximation function!band!difference quotient}
 that comes with the {\cvband} solver.
 To specify a user-supplied Jacobian function \id{bjac} and associated user 
-data \id{jac\_data}, {\cvband} provides the functions \id{CVBandSetJacFn}
-and \id{CVBandSetJacData}, respectively.
-The {\cvband} solver passes the pointer it receives through \id{CVBandSetJacData} 
+data \id{jac\_data}, {\cvband} provides the function \id{CVBandSetJacFn}.
+The {\cvband} solver passes the pointer \id{jac\_data}
 to its banded Jacobian approximation function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
@@ -1492,11 +1506,11 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{Jacobian approximation function!band!user-supplied}
 \ucfunction{CVBandSetJacFn}
 {
-  flag = CVBandSetJacFn(cvode\_mem, bjac);
+  flag = CVBandSetJacFn(cvode\_mem, bjac, jac\_data);
 }
 {
   The function \ID{CVBandSetJacFn} specifies the banded Jacobian
-  approximation function to be used.
+  approximation function to be used and the pointer to user data.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1504,6 +1518,8 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
     pointer to the {\cvode} memory block.
   \item[bjac] (\id{CVBandJacFn})
     user-defined banded Jacobian approximation function.
+  \item[jac\_data] (\id{void *})
+    pointer to the user-defined data structure.
   \end{args}
 }
 {
@@ -1523,36 +1539,6 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 
   The function type \id{CVBandJacFn} is described in \S\ref{ss:bjacFn}.
 }
-%%
-\ucfunction{CVBandSetJacData}
-{
-  flag = CVBandSetJacData(cvode\_mem, jac\_data);
-}
-{
-  The function \ID{CVBandSetJacData} specifies the data structure
-  to be passed to the user supplied banded Jacobian approximation 
-  function each time it is called.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[jac\_data] (\id{void *})
-    pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVBAND\_LMEM\_NULL]
-  \item[\Id{CVBAND\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CVBAND\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVBAND\_LMEM\_NULL}]
-    The {\cvdense} linear solver has not been initialized.
-  \end{args}
-}
-{}
 \index{CVBAND@{\cvband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
 %%
@@ -1564,23 +1550,23 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{preconditioning!user-supplied|(}
 If any type of preconditioning is to be done within the {\spgmr} method,
 then the user must supply a preconditioner solve function \id{psolve}
-and specify its name through a call to \id{CVSpgmrSetPrecSolveFn}.
+and specify its name through a call to \id{CVSpgmrSetPreconditioner}.
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner solve function}
 %%
 The evaluation and preprocessing of any Jacobian-related data needed
 by the user's preconditioner solve function is done in the optional
 user-supplied function \id{psetup}. Both of these functions are
 fully specified in \S\ref{ss:user_fct_sim}.
-If used, the \id{psetup} function should be specified through a call to
-\id{CVSpgmrSetPrecSetupFn}.
+If used, the \id{psetup} function should also be specified in the call to
+\id{CVSpgmrSetPreconditioner}.
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner setup function}
 %%
 Optionally, the {\cvspgmr} solver passes the pointer it receives through 
-\id{CVSpgmrSetPrecData} to the preconditioner setup and solve functions.  
+\id{CVSpgmrSetPreconditioner} to the preconditioner setup and solve functions.  
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
-The pointer \id{P\_data} may be identical to \id{f\_data}, if the latter was 
+The pointer \id{p\_data} may be identical to \id{f\_data}, if the latter was 
 specified through \id{CVodeSetFdata}.
 
 The \index{CVSPGMR@{\cvspgmr} linear solver!Jacobian approximation used by}
@@ -1594,21 +1580,21 @@ A user-defined Jacobian-vector function must be of type \id{CVSpgmrJtimesFn} and
 can be specified through a call to \id{CVSpgmrSetJacTimesVecFn} 
 (see \S\ref{ss:user_fct_sim} for specification details).
 %%
-As with the preconditioner user data structure \id{P\_data}, 
-the user can specify, through a call to \id{CVSpgmrSetJacData}, a pointer to a 
+As with the preconditioner user data structure \id{p\_data}, 
+the user can also specify int the call to \id{CVSpgmrSetJacFn}, a pointer to a 
 user-defined data structure, \id{jac\_data}, which
 the {\cvspgmr} solver passes to the Jacobian times vector function \id{jtimes}
 each time it is called.  
-The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
+The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 %%
 %%
-\ucfunction{CVSpgmrSetPrecSolveFn}
+\ucfunction{CVSpgmrSetPreconditioner}
 {
-  flag = CVSpgmrSetPrecSolveFn(cvode\_mem, psolve);
+  flag = CVSpgmrSetPrecSolveFn(cvode\_mem, psolve, psetup, p\_data);
 }
 {
   The function \ID{CVSpgmrSet} specifies the preconditioner
-  solve function.
+  setup and solve functions and the pointer to user data.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1616,6 +1602,10 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
     pointer to the {\cvode} memory block.
   \item[psolve] (\id{CVSpgmrPrecSolveFn})
     user-defined preconditioner solve function.
+  \item[psetup] (\id{CVSpgmrPrecSetupFn})
+    user-defined preconditioner setup function.
+  \item[p\_data] (\id{void *})
+     pointer to the user-defined data structure.
   \end{args}
 }
 {
@@ -1631,81 +1621,20 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
    The function type \id{CVSpgmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.
-}
-%%
-%%
-\ucfunction{CVSpgmrSetPrecSetupFn}
-{
-  flag = CVSpgmrSetPrecSetupFn(cvode\_mem, psetup);
-}
-{
-  The function \ID{CVSpgmrSetPrecSetupFn} specifies the preconditioner
-  preprocessing function.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[psetup] (\id{CVSpgmrPrecSetupFn})
-    user-defined preconditioner setup function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPGMR\_LMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{
    The function type \id{CVSpgmrPrecSetupFn} is described in \S\ref{ss:precondFn}.
 }
 %%
-%%
-\ucfunction{CVSpgmrSetPrecData}
-{
-  flag = CVSpgmrSetPrecData(cvode\_mem, P\_data);
-}
-{
-  The function \ID{CVSpgmrSetPrecData} specifies the data structure
-  to be passed to the user supplied preconditioner setup and solve
-  functions each time they are called.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[P\_data] (\id{void *})
-     pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPGMR\_LMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{}
 %%
 \index{preconditioning!user-supplied|)}
 %%
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
 \ucfunction{CVSpgmrSetJacTimesVecFn}
 {
-  flag = CVSpgmrSetJacTimesVecFn(cvode\_mem, jtimes);
+  flag = CVSpgmrSetJacTimesVecFn(cvode\_mem, jtimes, jac\_data);
 }
 {
   The function \ID{CVSpgmrSetJacTimesFn} specifies the Jacobian-vector 
-  function to be used.
+  function to be used and the pointer to user data.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1713,6 +1642,8 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
     pointer to the {\cvode} memory block.
   \item[jtimes] (\id{CVSpgmrJacTimesVecFn})
     user-defined Jacobian-vector product function.
+  \item[jac\_data] (\id{void *})
+     pointer to the user-defined data structure.
   \end{args}
 }
 {
@@ -1732,37 +1663,6 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 
   The function type \id{CVSpgmrJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
 }
-%%
-%%
-\ucfunction{CVSpgmrSetJacData}
-{
-  flag = CVSpgmrSetJacData(cvode\_mem, jac\_data);
-}
-{
-  The function \ID{CVSpgmrSetJacData} specifies the data structure
-  to be passed to the user supplied Jacobian-vector
-  function each time it is called.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[jac\_data] (\id{void *})
-     pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPGMR\_LMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{}
 %%
 %%
 \ucfunction{CVSpgmrSetGSType}
@@ -2425,7 +2325,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetErrWeights}
 {
-  flag = CVodeGetErrWeights(cvode\_mem, \&eweight);
+  flag = CVodeGetErrWeights(cvode\_mem, eweight);
 }
 {
   The function \ID{CVodeGetErrWeights} returns the solution error weights 
@@ -2449,14 +2349,13 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  The user need not allocate space for \id{eweight} and should not modify
-  any of its components.
+  {\warn} The user must allocate memory for \id{eweight}.
 }
 %%
 %%
 \ucfunction{CVodeGetEstLocalErrors}
 {
-  flag = CVodeGetEstLocalErrors(cvode\_mem, \&ele);
+  flag = CVodeGetEstLocalErrors(cvode\_mem, ele);
 }
 {
   The function \ID{CVodeGetEstLocalErrors} returns the
@@ -2480,7 +2379,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  The user need not allocate space for \id{ele}.
+  {\warn} The user must allocate memory for \id{ele}.
 }
 %%
 %%
@@ -3403,13 +3302,16 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is either \Id{CV\_SS} or \Id{CV\_SV}, where \Id{itol}$=$\id{SS} indicates
+    is one of \Id{CV\_SS}, \Id{CV\_SV}, or \Id{CV\_WF}, where \Id{itol}$=$\id{SS} indicates
     scalar relative error tolerance and scalar absolute error tolerance, while
     \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
     error tolerance needs to be different for each component of the ODE. 
-  \item[reltol] (\id{realtype *})
-    is a pointer to the relative error tolerance.
+    If \id{itol}$=$\id{CV\_WF}, the arguments \id{reltol} and \id{abstol} are ignored
+    and the user is expected to provide a function to evaluate the error weight vector
+    $W$ from (\ref{e:errwt}). See \id{CVodeSetEwtFn} in \S\ref{ss:optional_input}.
+  \item[reltol] (\id{realtype})
+    is the relative error tolerance.
   \item[abstol] (\id{void *})
     is a pointer to the absolute error tolerance. If \id{itol}$=$\id{CV\_SS}, \id{abstol}
     must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{CV\_SV}, \id{abstol}
@@ -3434,13 +3336,17 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}
 {
   If an error occurred, \id{CVodeReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
+
+  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  \id{abstol} arguments.
 }
 
 %%==============================================================================
 \section{User-supplied functions}\label{ss:user_fct_sim}
 %%==============================================================================
 
-The user-supplied functions consist of one function defining the ODE, 
+The user-supplied functions consist of one function defining the ODE, (optionally)
+a function that provides the error weight vector,
 (optionally) a function that provides Jacobian related information for the linear
 solver (if Newton iteration is chosen), and (optionally) one or two functions 
 that define the preconditioner for use in the {\spgmr} algorithm. 
@@ -3481,6 +3387,48 @@ Allocation of memory for \id{ydot} is handled within {\cvode}.
 }
 
 \index{right-hand side function}
+
+%%==============================================================================
+\subsection{Error weight function}
+\label{ss:ewtsetFn}
+%%==============================================================================
+\index{tolerances}
+As an alternative to providing the relative and absolute tolerances, the user may
+provide a function of type \ID{CVEwtFn} to compute a vector \id{ewt} containing the
+weights in the WRMS norm 
+$\|\ v \|_{\mbox{\scriptsize WRMS}} = \sqrt{(1/N)\sum_1^N W_i \cdot v_i}$.
+The function type \id{CVEwtFn} is defined as follows:
+\usfunction{CVEwtFn}
+{
+  typedef int (*CVEwtFn)(N\_Vector y, N\_Vector ewt, void *e\_data);
+}
+{
+  This function computes the WRMS error weights for the vector $y$.
+}
+{
+  \begin{args}[e\_data]
+  \item[y]
+    is the value of the vector for which the WRMS norm must be computed.
+  \item[ewt]
+    is the output vector containing the error weights.
+  \item[e\_data]
+    is a pointer to user data --- the same as the \Id{e\_data}      
+    parameter passed to \id{CVodeSetEwtFn}.   
+  \end{args}
+}
+{
+  A \id{CVEwtFn} function type must return $0$ if it successfuly set
+  the error weights and $-1$ otherwise. In case of failure, a message is printed
+  and the integration stops.
+}
+{
+  Allocation of memory for \id{ewt} is handled within {\cvode}.
+
+  {\warn} The error weight vector must have all components positive. It is the
+  user's responsiblity to perform this test and return $-1$ if it is not 
+  satisfied.
+}
+
 
 %%==============================================================================
 \subsection{Jacobian information (direct method with dense Jacobian)}
@@ -3733,13 +3681,13 @@ This function must be of type \ID{CVSpgmrPrecSolveFn}, defined as follows:
   typedef int (*CVSpgmrPrecSolveFn)(&realtype t, N\_Vector y, N\_Vector fy, \\
                                     &N\_Vector r, N\_Vector z, \\ 
                                     &realtype gamma, realtype delta, \\
-                                    &int lr, void *P\_data, N\_Vector tmp);
+                                    &int lr, void *p\_data, N\_Vector tmp);
 }
 {
   This function solves the preconditioning system $Pz = r$.
 }
 {  
-  \begin{args}[P\_data]
+  \begin{args}[p\_data]
   \item[t]
     is the current value of the independent variable.
   \item[y] 
@@ -3764,8 +3712,8 @@ This function must be of type \ID{CVSpgmrPrecSolveFn}, defined as follows:
     is an input flag indicating whether the preconditioner solve
     function is to use the left preconditioner (\id{lr=1}) or 
     the right preconditioner (\id{lr=2});
-  \item[P\_data]
-    is a pointer to user data --- the same as the \id{P\_data}      
+  \item[p\_data]
+    is a pointer to user data --- the same as the \id{p\_data}      
     parameter passed to the function \id{CVSpgmrSetPrecData}.
   \item[tmp]
     is a pointer to memory allocated for a variable of type \id{N\_Vector}
@@ -3793,7 +3741,7 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
 {
   typedef int (*CVSpgmrPrecSetupFn&)(realtype t, N\_Vector y, N\_Vector fy,  \\
                                   &booleantype jok, booleantype *jcurPtr, \\
-                                  &realtype gamma, void *P\_data,\\
+                                  &realtype gamma, void *p\_data,\\
                                   &N\_Vector tmp1, N\_Vector tmp2,\\
                                   &N\_Vector tmp3);
 }
@@ -3829,8 +3777,8 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
     recomputed, but saved data was reused.
   \item[gamma]
     is the scalar $\gamma$ appearing in the Newton matrix $M = I - \gamma P$.
-  \item[P\_data]
-    is a pointer to user data, the same as the \id{P\_data}      
+  \item[p\_data]
+    is a pointer to user data, the same as the \id{p\_data}      
     parameter passed to \id{CVSpgmrSetPrecData}.
   \item[tmp1]
   \item[tmp2]
@@ -3885,7 +3833,7 @@ required additional user-supplied function.
 
 \ucfunction{CVodeRootInit}
 {
-  flag = CVodeRootInit(cvode\_mem, g, nrtfn);
+  flag = CVodeRootInit(cvode\_mem, nrtfn, g, g\_data);
 }
 {
   The function \ID{CVodeRootInit} specifies that the roots of a set of
@@ -3895,12 +3843,14 @@ required additional user-supplied function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block returned by \id{CVodeCreate}.
+  \item[nrtfn] (\id{int})
+    is the number of root functions $g_i$.
   \item[g] (\id{CVRootFn})
     is the {\C} function which defines the \id{nrtfn} functions $g_i(t,y)$
     whose roots are sought. See \S\ref{ss:root_us} for details.
-  \item[nrtfn] (\id{int})
-    is the number of root functions $g_i$.
-  \end{args}
+  \item[g\_data] (\id{void *})
+    pointer to the user data for use by the user's root function $g$.
+ \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
@@ -3922,44 +3872,12 @@ required additional user-supplied function.
 }
 %%
 %%
-There is one optional input function associated with rootfinding. 
-%%
-\ucfunction{CVodeSetGdata}
-{
-  flag = CVodeSetGdata(cvode\_mem, g\_data);
-}
-{
-  The function \ID{CVodeSetGdata} specifies the user data block \ID{g\_data}
-  for use by the user's root function $g$.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[g\_data] (\id{void *})
-    pointer to the user data.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CV\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{
-  If \id{g\_data} is not specified, a \id{NULL} pointer is
-  passed to the $g$ function.
-}
-%%
 There are two optional output functions associated with rootfinding.
 %%
 %%
 \ucfunction{CVodeGetRootInfo}
 {
-  flag = CVodeGetRootInfo(cvode\_mem, \&rootsfound);
+  flag = CVodeGetRootInfo(cvode\_mem, rootsfound);
 }
 {
   The function \ID{CVodeGetRootInfo} returns an array showing which 
@@ -3970,8 +3888,7 @@ There are two optional output functions associated with rootfinding.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[rootsfound] (\id{int *})
-    an \id{int} array of length \id{nrtfn}, showing the indices
-    of the user functions $g_i$ found to have a root.  For
+    the indices of the user functions $g_i$ found to have a root.  For
     $i=0,\ldots,$\id{nrtfn}$-1$, \id{rootsfound}[$i$]$=1$ if $g_i$
     has a root, and $=0$ if not.
   \end{args}
@@ -3986,7 +3903,7 @@ There are two optional output functions associated with rootfinding.
   \end{args}
 }
 {
-  Memory for the vector \id{rootsfound} is allocated and freed by {\cvode}.
+  {\warn} The user must allocate memory for the vector \id{rootsfound}.
 }
 %%
 %%
@@ -4912,6 +4829,8 @@ are as follows:
     interfaces to the interpolated output function \id{CVodeGetDky}.
   \item \id{FCVFREE}    
     interfaces to \id{CVodeFree}.
+  \item \id{FCVEWTSET}    
+    interfaces to \id{CVodeSetEwtFn}.
   \end{itemize}  
 \item Interface to the linear solver modules
   \begin{itemize}
@@ -4931,10 +4850,8 @@ are as follows:
     interfaces to {\spgmr} optional input functions.
   \item \id{FCVSPGMRSETJAC}
    interfaces to \id{CVSpgmrSetJacTimesVecFn}.
- \item \id{FCVSPGMRSETPSOL}
-   interfaces to \id{CVSpgmrSetPrecSolveFn}.
- \item \id{FCVSPGMRSETPSET}
-   interfaces to \id{CVSpgmrSetPrecSetupFn}.
+ \item \id{FCVSPGMRSETPREC}
+   interfaces to \id{CVSpgmrSetPreconditioner}.
  \end{itemize}
 
 \end{itemize}
@@ -4948,6 +4865,7 @@ function which calls it (and its type within {\cvode}), are as follows:
 \hline
 {\fcvode} routine ({\F})  &  {\cvode} function ({\C}) & {\cvode} function type \\\hline
 \id{FCVFUN}    & \id{FCVf}        & \id{CVRhsFn} \\
+\id{FCVEWT}    & \id{FCVEwtSet}   & \id{CVEwtFn} \\
 \id{FCVDJAC}   & \id{FCVDenseJac} & \id{CVDenseJacFn} \\
 \id{FCVBJAC}   & \id{FCVBandJac}  & \id{CVBandJacFn} \\
 \id{FCVPSOL}   & \id{FCVPSol}     & \id{CVSpgmrPrecSolveFn} \\
@@ -5197,7 +5115,9 @@ apply to {\nvecp}.
     \item[ITMETH] specifies the nonlinear iteration method: 
       $1$ for functional iteration or $2$ for Newton iteration.
     \item[IATOL] specifies the type for absolute tolerance \id{ATOL}:
-      $1$ for scalar or $2$ for array.
+      $1$ for scalar or $2$ for array. If \id{IATOL}$=3$, the arguments
+      \id{RTOL} and \id{ATOL} are ignored and the user is expected to
+      subsequently call \id{FCVEWTSET} and provide the function \id{FCVEWT}.
     \item[RTOL] is the relative tolerance (scalar).
     \item[ATOL] is the absolute tolerance (scalar or array).
     \item[INOPT] is the optional input flag: $0$ if none or $1$ if optional 
@@ -5216,6 +5136,28 @@ apply to {\nvecp}.
     If any of the optional inputs are used, the others must be set
     to zero to indicate default values.
   }
+
+  As an alternative to providing tolerances in the call to \ID{FCVMALLOC}, the
+  user may provide a routine to compute the error weights used in the WRMS norm
+  evaluations. If supplied, it must have the following form:
+  \index{FCVEWT@\texttt{FCVEWT}}
+\begin{verbatim}
+      SUBROUTINE FCVEWT (Y, EWT, IER)
+      DIMENSION Y(*), EWT(*)
+\end{verbatim}
+  It must set the positive components of the error weight vector \id{EWT} for
+  the calculation of the WRMS norm of \id{Y}. On return, set
+  \id{IER=0} if \id{FCVEWT} was successful, and nonzero otherwise.
+
+  If the \id{FCVEWT} routine is provided, then, 
+  following the call to \id{FCVMALOC}, the user must make the call:
+  \index{FCVEWTSET@\texttt{FCVEWTSET}}
+\begin{verbatim}
+      CALL FCVEWTSET (FLAG, IER)
+\end{verbatim}
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied error weight routine.
+  The argument \id{IER} is an error return flag which can be $0$ 
+  for success or non-zero if an error occurred.
 
 \item\label{i:fcvode_lin_solv_spec} {\bf Linear solver specification} 
   
@@ -5386,9 +5328,9 @@ apply to {\nvecp}.
   
   If preconditioning is to be done (\id{IPRETYPE} $\neq 0$), then, following the
   call to \id{FCVSPGMR}, the user must call
-  \index{FCVSPGMRSETPSOL@\texttt{FCVSPGMRSETPSOL}}
+  \index{FCVSPGMRSETPREC@\texttt{FCVSPGMRSETPREC}}
 \begin{verbatim}
-      CALL FCVSPGMRSETPSOL(FLAG, IER)
+      CALL FCVSPGMRSETPREC(FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$, and the user program must include the following routine
   for solution of the preconditioner linear system:
@@ -5414,14 +5356,8 @@ apply to {\nvecp}.
   routine.
 
   If the user's preconditioner requires that any Jacobian related data be evaluated
-  or preprocessed, then, following the call to \id{FCVSPGMRSETPSOL}, the user must
-  call \index{FCVSPGMRSETPSET@\texttt{FCVSPGMRSETPSET}}
-\begin{verbatim}
-      CALL FCVSPGMRSETPSET(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$.
-  In this case, the user program must also include
-  the following routine for the evaluation and preprocessing of the preconditioner:
+  or preprocessed, then the following routine can be used for the evaluation and 
+  preprocessing of the preconditioner:
   \index{FCVPSET@\texttt{FCVPSET}}
 \begin{verbatim}
       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
@@ -5442,6 +5378,9 @@ apply to {\nvecp}.
   in the calculation of suitable increments.  It may also need the unit
   roundoff, which can be obtained as the optional output \id{ROPT(10)},
   passed from the calling program to this routine using \id{COMMON}.
+
+  {\warn} If the user calls \id{FCVSPGMRSETPREC}, the routine \id{FCVPSET} must
+  be provided, even if it's empty.
 
   Optional outputs specific to the {\spgmr} case are listed in Table~\ref{t:fcvode_io}.
   
