@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-06-21 23:07:12 $
+ * $Revision: 1.14 $
+ * $Date: 2004-07-26 17:26:30 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -279,6 +279,8 @@
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
+#if defined(SUNDIALS_CASE_LOWER)
+
 #define FCV_BBDINIT   fcvbbdinit
 #define FCV_BBDSPGMR  fcvbbdspgmr
 #define FCV_BBDREINIT fcvbbdreinit
@@ -287,7 +289,21 @@
 #define FCV_GLOCFN    fcvlocfn
 #define FCV_COMMFN    fcvcommf
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_BBDINIT   FCVBBDINIT
+#define FCV_BBDSPGMR  FCVBBDSPGMR
+#define FCV_BBDREINIT FCVBBDREINIT
+#define FCV_BBDOPT    FCVBBDOPT
+#define FCV_BBDFREE   FCVBBDFREE
+#define FCV_GLOCFN    FCVLOCFN
+#define FCV_COMMFN    FCVCOMMF
+
+#endif
+
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BBDINIT   fcvbbdinit__
 #define FCV_BBDSPGMR  fcvbbdspgmr__
@@ -297,7 +313,21 @@
 #define FCV_GLOCFN    fcvlocfn__
 #define FCV_COMMFN    fcvcommf__
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_BBDINIT   FCVBBDINIT__
+#define FCV_BBDSPGMR  FCVBBDSPGMR__
+#define FCV_BBDREINIT FCVBBDREINIT__
+#define FCV_BBDOPT    FCVBBDOPT__
+#define FCV_BBDFREE   FCVBBDFREE__
+#define FCV_GLOCFN    FCVLOCFN__
+#define FCV_COMMFN    FCVCOMMF__
+
+#endif
+
 #else
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BBDINIT   fcvbbdinit_
 #define FCV_BBDSPGMR  fcvbbdspgmr_
@@ -306,6 +336,18 @@
 #define FCV_BBDFREE   fcvbbdfree_
 #define FCV_GLOCFN    fcvlocfn_
 #define FCV_COMMFN    fcvcommf_
+
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_BBDINIT   FCVBBDINIT_
+#define FCV_BBDSPGMR  FCVBBDSPGMR_
+#define FCV_BBDREINIT FCVBBDREINIT_
+#define FCV_BBDOPT    FCVBBDOPT_
+#define FCV_BBDFREE   FCVBBDFREE_
+#define FCV_GLOCFN    FCVLOCFN_
+#define FCV_COMMFN    FCVCOMMF_
+
+#endif
 
 #endif
 

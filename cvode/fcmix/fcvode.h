@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-07-22 22:54:43 $
+ * $Revision: 1.21 $
+ * $Date: 2004-07-26 17:26:30 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -362,6 +362,8 @@
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
+#if defined(SUNDIALS_CASE_LOWER)
+
 #define FCV_MALLOC       fcvmalloc
 #define FCV_REINIT       fcvreinit
 #define FCV_DIAG         fcvdiag
@@ -384,7 +386,35 @@
 #define FCV_PSET         fcvpset
 #define FCV_JTIMES       fcvjtimes
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_MALLOC       FCVMALLOC
+#define FCV_REINIT       FCVREINIT
+#define FCV_DIAG         FCVDIAG
+#define FCV_DENSE        FCVDENSE
+#define FCV_DENSESETJAC  FCVDENSESETJAC
+#define FCV_BAND         FCVBAND
+#define FCV_BANDSETJAC   FCVBANDSETJAC
+#define FCV_SPGMR        FCVSPGMR
+#define FCV_SPGMRREINIT  FCVSPGMRREINIT
+#define FCV_SPGMRSETJAC  FCVSPGMRSETJAC
+#define FCV_SPGMRSETPSOL FCVSPGMRSETPSOL
+#define FCV_SPGMRSETPSET FCVSPGMRSETPSET
+#define FCV_CVODE        FCVODE
+#define FCV_DKY          FCVDKY
+#define FCV_FREE         FCVFREE
+#define FCV_FUN          FCVFUN
+#define FCV_DJAC         FCVDJAC
+#define FCV_BJAC         FCVBJAC
+#define FCV_PSOL         FCVPSOL
+#define FCV_PSET         FCVPSET
+#define FCV_JTIMES       FCVJTIMES
+
+#endif
+
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_MALLOC       fcvmalloc__
 #define FCV_REINIT       fcvreinit__
@@ -408,7 +438,35 @@
 #define FCV_PSET         fcvpset__
 #define FCV_JTIMES       fcvjtimes__
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_MALLOC       FCVMALLOC__
+#define FCV_REINIT       FCVREINIT__
+#define FCV_DIAG         FCVDIAG__
+#define FCV_DENSE        FCVDENSE__
+#define FCV_DENSESETJAC  FCVDENSESETJAC__
+#define FCV_BAND         FCVBAND__
+#define FCV_BANDSETJAC   FCVBANDSETJAC__
+#define FCV_SPGMR        FCVSPGMR__
+#define FCV_SPGMRREINIT  FCVSPGMRREINIT__
+#define FCV_SPGMRSETJAC  FCVSPGMRSETJAC__
+#define FCV_SPGMRSETPSOL FCVSPGMRSETPSOL__
+#define FCV_SPGMRSETPSET FCVSPGMRSETPSET__
+#define FCV_CVODE        FCVODE__
+#define FCV_DKY          FCVDKY__
+#define FCV_FREE         FCVFREE__
+#define FCV_FUN          FCVFUN__
+#define FCV_DJAC         FCVDJAC__
+#define FCV_BJAC         FCVBJAC__
+#define FCV_PSOL         FCVPSOL__
+#define FCV_PSET         FCVPSET__
+#define FCV_JTIMES       FCVJTIMES__
+
+#endif
+
 #else
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_MALLOC       fcvmalloc_
 #define FCV_REINIT       fcvreinit_
@@ -431,6 +489,32 @@
 #define FCV_PSOL         fcvpsol_
 #define FCV_PSET         fcvpset_
 #define FCV_JTIMES       fcvjtimes_
+
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_MALLOC       FCVMALLOC_
+#define FCV_REINIT       FCVREINIT_
+#define FCV_DIAG         FCVDIAG_
+#define FCV_DENSE        FCVDENSE_
+#define FCV_DENSESETJAC  FCVDENSESETJAC_
+#define FCV_BAND         FCVBAND_
+#define FCV_BANDSETJAC   FCVBANDSETJAC_
+#define FCV_SPGMR        FCVSPGMR_
+#define FCV_SPGMRREINIT  FCVSPGMRREINIT_
+#define FCV_SPGMRSETJAC  FCVSPGMRSETJAC_
+#define FCV_SPGMRSETPSOL FCVSPGMRSETPSOL_
+#define FCV_SPGMRSETPSET FCVSPGMRSETPSET_
+#define FCV_CVODE        FCVODE_
+#define FCV_DKY          FCVDKY_
+#define FCV_FREE         FCVFREE_
+#define FCV_FUN          FCVFUN_
+#define FCV_DJAC         FCVDJAC_
+#define FCV_BJAC         FCVBJAC_
+#define FCV_PSOL         FCVPSOL_
+#define FCV_PSET         FCVPSET_
+#define FCV_JTIMES       FCVJTIMES_
+
+#endif
 
 #endif
 

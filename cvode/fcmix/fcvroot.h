@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-06-09 18:10:06 $
+ * $Revision: 1.3 $
+ * $Date: 2004-07-26 17:26:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -81,21 +81,51 @@
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
+#if defined(SUNDIALS_CASE_LOWER)
+
 #define FCV_ROOTINIT   fcvrootinit
 #define FCV_ROOTFREE   fcvrootfree
 #define FCV_ROOTFN     fcvrootfn
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_ROOTINIT   FCVROOTINIT
+#define FCV_ROOTFREE   FCVROOTFREE
+#define FCV_ROOTFN     FCVROOTFN
+
+#endif
+
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_ROOTINIT   fcvrootinit__
 #define FCV_ROOTFREE   fcvrootfree__
 #define FCV_ROOTFN     fcvrootfn__
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_ROOTINIT   FCVROOTINIT__
+#define FCV_ROOTFREE   FCVROOTFREE__
+#define FCV_ROOTFN     FCVROOTFN__
+
+#endif
+
 #else
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_ROOTINIT   fcvrootinit_
 #define FCV_ROOTFREE   fcvrootfree_
 #define FCV_ROOTFN     fcvrootfn_
+
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_ROOTINIT   FCVROOTINIT_
+#define FCV_ROOTFREE   FCVROOTFREE_
+#define FCV_ROOTFN     FCVROOTFN_
+
+#endif
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-06-21 23:07:12 $
+ * $Revision: 1.5 $
+ * $Date: 2004-07-26 17:26:30 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -193,24 +193,57 @@
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
+#if defined(SUNDIALS_CASE_LOWER)
+
 #define FCV_BPINIT  fcvbpinit
 #define FCV_BPSPGMR fcvbpspgmr
 #define FCV_BPOPT   fcvbpopt
 #define FCV_BPFREE  fcvbpfree
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_BPINIT  FCVBPINIT
+#define FCV_BPSPGMR FCVBPSPGMR
+#define FCV_BPOPT   FCVBPOPT
+#define FCV_BPFREE  FCVBPFREE
+
+#endif
+
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BPINIT  fcvbpinit__
 #define FCV_BPSPGMR fcvbpspgmr__
 #define FCV_BPOPT   fcvbpopt__
 #define FCV_BPFREE  fcvbpfree__
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_BPINIT  FCVBPINIT__
+#define FCV_BPSPGMR FCVBPSPGMR__
+#define FCV_BPOPT   FCVBPOPT__
+#define FCV_BPFREE  FCVBPFREE__
+
+#endif
+
 #else
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FCV_BPINIT  fcvbpinit_
 #define FCV_BPSPGMR fcvbpspgmr_
 #define FCV_BPOPT   fcvbpopt_
 #define FCV_BPFREE  fcvbpfree_
+
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FCV_BPINIT  FCVBPINIT_
+#define FCV_BPSPGMR FCVBPSPGMR_
+#define FCV_BPOPT   FCVBPOPT_
+#define FCV_BPFREE  FCVBPFREE_
+
+#endif
 
 #endif
 

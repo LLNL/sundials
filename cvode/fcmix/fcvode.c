@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-07-22 22:54:43 $
+ * $Revision: 1.27 $
+ * $Date: 2004-07-26 17:26:30 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,7 +51,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
      CV_yvec->ops->nvdestroyempty    == NULL ||
      CV_yvec->ops->nvgetarraypointer == NULL ||
      CV_yvec->ops->nvsetarraypointer == NULL) {
-    ier = -1;
+    *ier = -1;
     printf("A required vector operation is not implemented.\n\n");
     return;
   }
