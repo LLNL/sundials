@@ -77,7 +77,6 @@
 #define MXNCF           10     /* max number of convergence failures allowed */
 #define MXETF           10     /* max number of error test failures allowed  */
 #define EPCON      RCONST(0.33)   /* Newton convergence test constant */
-#define EPICFAC    PT01 /* convergence test factor in IC calc. */
 #define MAXNH      5    /* max. number of h tries in IC calc. */
 #define MAXNJ      4    /* max. number of J tries in IC calc. */
 #define MAXNI      10   /* max. Newton iterations in IC calc. */
@@ -210,9 +209,9 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_IDAS_NEG_HMAX    "IDASetMaxStep-- hmax<=0 illegal. \n\n"
 
-#define MSG_IDAS_NEG_NCONFAC "IDASetNlinConvFactor-- nconfac<0 illegal. \n\n"
+#define MSG_IDAS_NEG_EPCON   "IDASetNlinConvCoef-- epcon < 0.0 illegal. \n\n"
 
-#define MSG_IDAS_BAD_EPICFAC "IDASetNlinConvFactorIC-- epicfac < 0.0 illegal.\n\n"
+#define MSG_IDAS_BAD_EPICCON "IDASetNlinConvcoefIC-- epiccon < 0.0 illegal.\n\n"
 
 #define MSG_IDAS_BAD_MAXNH   "IDASetMaxNumStepsIC-- maxnh < 0 illegal.\n\n"
 
@@ -500,7 +499,7 @@ void *IDACreate(void)
   IDA_mem->ida_mxstep      = MXSTEP_DEFAULT;
   IDA_mem->ida_hmax_inv    = ZERO;
   IDA_mem->ida_hin         = ZERO;
-  IDA_mem->ida_nconfac     = ONE;
+  IDA_mem->ida_epcon       = EPCON;
   IDA_mem->ida_suppressalg = FALSE;
   IDA_mem->ida_id          = NULL;
   IDA_mem->ida_constraints = NULL;
@@ -508,7 +507,7 @@ void *IDACreate(void)
   IDA_mem->ida_istop       = FALSE;
 
   /* Set default values for IC optional inputs */
-  IDA_mem->ida_epicfac = EPICFAC;
+  IDA_mem->ida_epiccon = PT01 * EPCON;
   IDA_mem->ida_maxnh   = MAXNH;
   IDA_mem->ida_maxnj   = MAXNJ;
   IDA_mem->ida_maxnit  = MAXNI;
@@ -686,7 +685,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetNlinConvFactor(void *ida_mem, realtype nconfac)
+int IDASetNlinConvCoef(void *ida_mem, realtype epcon)
 {
   IDAMem IDA_mem;
 
@@ -697,17 +696,17 @@ int IDASetNlinConvFactor(void *ida_mem, realtype nconfac)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (nconfac < ZERO) {
-    fprintf(errfp, MSG_IDAS_NEG_NCONFAC);
+  if (epcon < ZERO) {
+    fprintf(errfp, MSG_IDAS_NEG_EPCON);
     return(IDAS_ILL_INPUT);
   }
 
-  IDA_mem->ida_nconfac = nconfac;
+  IDA_mem->ida_epcon = epcon;
 
   return(SUCCESS);
 }
 
-#define nconfac (IDA_mem->ida_nconfac)
+#define epcon (IDA_mem->ida_epcon)
 
 /*-----------------------------------------------------------------*/
 
@@ -1031,7 +1030,7 @@ int IDAReInit(void *ida_mem, ResFn res,
 
 /*-----------------------------------------------------------------*/
 
-int IDASetNlinConvFactorIC(void *ida_mem, realtype epicfac)
+int IDASetNlinConvCoefIC(void *ida_mem, realtype epiccon)
 {
   IDAMem IDA_mem;
 
@@ -1042,17 +1041,17 @@ int IDASetNlinConvFactorIC(void *ida_mem, realtype epicfac)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (epicfac < ZERO) {
-    fprintf(errfp, MSG_IDAS_BAD_EPICFAC);
+  if (epiccon < ZERO) {
+    fprintf(errfp, MSG_IDAS_BAD_EPICCON);
     return(IDAS_ILL_INPUT);
   }
 
-  IDA_mem->ida_epicfac = epicfac;
+  IDA_mem->ida_epiccon = epiccon;
 
   return(SUCCESS);
 }
 
-#define epicfac (IDA_mem->ida_epicfac)
+#define epiccon (IDA_mem->ida_epiccon)
 
 /*-----------------------------------------------------------------*/
 
@@ -1328,7 +1327,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 
   /* Set the test constant in the Newton convergence test */
 
-  IDA_mem->ida_epsNewt = epicfac*EPCON;
+  IDA_mem->ida_epsNewt = epiccon;
 
   /* Initializations: cjratio = 1 (for use in direct linear solvers); 
      set nbacktr = 0; call linit routine. */
@@ -1549,7 +1548,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     /* Set the convergence test constants epsNewt and toldel */
 
-    epsNewt = nconfac * EPCON;
+    epsNewt = epcon;
     toldel = PT0001 * epsNewt;
 
   } /* end of first-call block. */

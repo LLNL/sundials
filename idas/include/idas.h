@@ -248,9 +248,9 @@ void *IDACreate(void);
  *                      | which the solution is not to proceed.   *
  *                      | [infinity]                              *
  *                      |                                         * 
- * IDASetNlinConvFactor | factor in nonlinear convergence test    *
+ * IDASetNlinConvCoef   | Newton convergence test constant        *
  *                      | for use during integration.             *
- *                      | [1.0]                                   *
+ *                      | [0.33]                                  *
  *                      |                                         * 
  * IDASetSuppressAlg    | flag to indicate whether or not to      *
  *                      | suppress algebraic variables in the     *
@@ -304,7 +304,8 @@ int IDASetMaxNumSteps(void *ida_mem, int mxsteps);
 int IDASetInitStep(void *ida_mem, realtype hin);
 int IDASetMaxStep(void *ida_mem, realtype hmax);
 int IDASetStopTime(void *ida_mem, realtype tstop);
-int IDASetNlinConvFactor(void *ida_mem, realtype nconfac);
+int IDASetNlinConvCoef(void *ida_mem, realtype epcon);
+
 int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
 int IDASetID(void *ida_mem, N_Vector id);
 int IDASetConstraints(void *ida_mem, N_Vector constraints);
@@ -670,16 +671,16 @@ enum {SIDAREI_NO_MEM    = -1, SIDAREI_NO_SENSI = -2,
  *                        |                                       * 
  * -------------------------------------------------------------- *
  *                        |                                       * 
- * IDASetNlinConvFactorIC | positive scalar factor in the Newton  *
+ * IDASetNlinConvCoefIC   | positive scalar factor in the Newton  *
  *                        | convergence test.  This test uses a   *
  *                        | weighted RMS norm (with weights       *
  *                        | defined by the tolerances, as in      *
  *                        | IDASolve).  For new initial value     *
  *                        | vectors y and y' to be accepted, the  *
  *                        | norm of J-inverse F(t0,y,y') is       *
- *                        | required to be less than epicfac*0.33,*
+ *                        | required to be less than epiccon,     *
  *                        | where J is the system Jacobian.       *
- *                        | [0.01]                                * 
+ *                        | [0.01 * 0.33]                         * 
  *                        |                                       * 
  * IDASetMaxNumStepsIC    | maximum number of values of h allowed *
  *                        | when icopt = CALC_YA_YDP_INIT, where  *
@@ -707,7 +708,7 @@ enum {SIDAREI_NO_MEM    = -1, SIDAREI_NO_SENSI = -2,
  *                        | [(unit roundoff)^(2/3)                *
  ******************************************************************/
 
-int IDASetNlinConvFactorIC(void *ida_mem, realtype epicfac);
+int IDASetNlinConvCoefIC(void *ida_mem, realtype epiccon);
 int IDASetMaxNumStepsIC(void *ida_mem, int maxnh);
 int IDASetMaxNumJacsIC(void *ida_mem, int maxnj);
 int IDASetMaxNumItersIC(void *ida_mem, int maxnit);
@@ -1057,8 +1058,7 @@ int IDAGetNonlinSolvStats(void *ida_mem, int *nniters, int *nncfails);
  * were not computed.                                             *
  *----------------------------------------------------------------*/
 
-int IDAGetQuad(void *ida_mem, realtype t, 
-               N_Vector yretQ, N_Vector ypretQ);
+int IDAGetQuad(void *ida_mem, realtype t, N_Vector yretQ);
 
 /*----------------------------------------------------------------*
  * Quadrature integration optional output extraction routines     *
@@ -1323,9 +1323,11 @@ typedef struct IDAMemRec {
     Quadrature Related N_Vectors 
     ----------------------------*/
 
-  N_Vector ida_ewtQ;
   N_Vector ida_phiQ[MXORDP1];
-  N_Vector ida_tempvQ;
+  N_Vector ida_yyQ;
+  N_Vector ida_ypQ;
+  N_Vector ida_ewtQ;
+  N_Vector ida_eeQ;
 
   /*---------------------------
     Sensitivity Related Vectors 
@@ -1345,7 +1347,7 @@ typedef struct IDAMemRec {
   int ida_maxnit;           /* max. number of Netwon iterations in IC calc.  */
   int ida_nbacktr;          /* number of IC linesearch backtrack operations  */
   int ida_sysindex;         /* computed system index (0 or 1)                */
-  realtype ida_epicfac;     /* IC nonlinear convergence test constant        */
+  realtype ida_epiccon;     /* IC nonlinear convergence test constant        */
   realtype ida_steptol;     /* minimum Newton step size in IC calculation    */
   realtype ida_tscale;      /* time scale factor = abs(tout1 - t0)           */
 
@@ -1372,7 +1374,7 @@ typedef struct IDAMemRec {
   int ida_knew;      /* order for next step from order decrease decision  */
   int ida_phase;     /* flag to trigger step doubling in first few steps  */
   int ida_ns;        /* counts steps at fixed stepsize and order          */
-  int  *ida_ncfS1;   /* Array of Ns local counters for conv. failures 
+  int *ida_ncfS1;    /* Array of Ns local counters for conv. failures 
                                 (used in IDAStep for STAGGERED1)          */
 
   realtype ida_hin;      /* initial step                                      */
@@ -1388,7 +1390,7 @@ typedef struct IDAMemRec {
   realtype ida_cjratio;  /* ratio of cj values: cj/cjold                      */
   realtype ida_ss;       /* scalar used in Newton iteration convergence test  */
   realtype ida_epsNewt;  /* test constant in Newton convergence test          */
-  realtype ida_nconfac;  /* optional factor in Newton covergence test constant*/
+  realtype ida_epcon;    /* Newton convergence test constant                  */
   realtype ida_toldel;   /* tolerance in direct test on Newton corrections    */
   
 
