@@ -44,10 +44,10 @@ one solver, CVODE, which runs in both serial and parallel environments.
 
 These codes have been combined into the core of SUNDIALS, the  
 SUite of Nonlinear and DIfferential/ALgebraic equation Solvers.  
-This suite, consisting of CVODE, KINSOL, and IDA including current 
-and future implementations with forward and adjoint sensitivity 
+This suite, consisting of CVODE, KINSOL, and IDA including 
+forward and adjoint sensitivity 
 analysis capabilities, was implemented with the goal of providing
-time integrators and nonlinear solvers which can easily be 
+robust time integrators and nonlinear solvers which can easily be 
 incorporated into existing simulation codes.  The primary design 
 goals were to require minimal information from the user, allow users 
 to easily supply their own data structures underneath the solvers, 
@@ -75,7 +75,7 @@ paper \cite{SeHi:03}.
 
 The rest of this paper is organized as follows.  In Section 
 \ref{s:basic_solvers} the algorithms contained in the three 
-core SUNDIALS solvers, CVODE, KINSOL, and IDA, are presented.  
+core SUNDIALS solvers are presented.  
 We have attempted to capture many of the heuristics related to 
 stopping criteria and finite-difference parameter selection
 where appropriate as these items are generally not included in 
@@ -84,7 +84,7 @@ preconditioning packages supplied with the SUNDIALS suite are
 described.  Section \ref{s:sensitivity_analysis} overviews
 the CVODES package and strategies for adding sensitivity 
 capabilities to the codes.  Sections \ref{s:organization} and 
-\ref{s:usage} describe the organization of teh codes within the 
+\ref{s:usage} describe the organization of the codes within the 
 suite and the philosophy of the user interface.  Lastly, 
 applications and availability of the codes are given in 
 Sections \ref{s:applications} and \ref{s:availability}.  Some
