@@ -69,6 +69,10 @@ v. 2.0.1 (Jan. 2005) ---> v. 2.0.2 (Mar. 2005)
    - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
    - modified to use customized detection of the Fortran name mangling scheme 
      (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
+   - added --with-mpi-flags as a configure option to allow user to specify
+     MPI-specific flags
+   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
+     CC and MPICC to link)
 
 v. 2.0 (Dec. 2004) ---> v. 2.0.1 (Jan. 2005)
 --------------------------------------------

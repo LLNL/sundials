@@ -103,13 +103,27 @@ v. 2.2.2 (Mar. 2005) --->
 - Changes to the FCVODE module
    - added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
 
+- Bug fixes
+   - modified FCMIX files to avoid C++ compiler errors
+   - changed implicit type conversion to explicit in check_flag() routine in
+     examples to avoid C++ compiler errors
+
+- Changes to documentation
+   - added description of --with-mpi-flags option
+
+- Changes related to build system
+   - added --with-mpi-flags as a configure option to allow user to specify
+     MPI-specific flags
+   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
+     CC and MPICC to link)
+
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------
 
 - Bug fixes
    - fixed bug in CVode function:  Initial setting of tretlast = *tret = tn removed
-  (correcting erroneous behavior at first call to CVRcheck3).
-  - Removed redundant setting of tretlast = *tret = tn at CLOSE_ROOTS return from CVode.
+     (correcting erroneous behavior at first call to CVRcheck3).
+   - removed redundant setting of tretlast = *tret = tn at CLOSE_ROOTS return from CVode.
 
 - Changes to documentation
    - added section with numerical values of all input and output solver constants

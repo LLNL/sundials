@@ -125,6 +125,20 @@ v. 2.2.2 (Mar. 2005) --->
      and the retained matrix (mukeep, mlkeep).
    - added support for KINSPBCG/SPBCG (added FKIN*SPBCG* functions).
 
+- Bug fixes
+   - modified FCMIX files to avoid C++ compiler errors
+   - changed implicit type conversion to explicit in check_flag() routine in
+     examples to avoid C++ compiler errors
+
+- Changes to documentation
+   - added description of --with-mpi-flags option
+
+- Changes related to build system
+   - added --with-mpi-flags as a configure option to allow user to specify
+     MPI-specific flags
+   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
+     CC and MPICC to link)
+
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------
 
