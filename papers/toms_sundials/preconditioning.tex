@@ -1,26 +1,48 @@
 \section{Preconditioning}\label{s:preconditioning}
 
-Whenever a Krylov method is used for the linear systems within a
-Newton iteration, it is generally necessary to precondition the system
-in order to obtain acceptable efficiency.  To be effective, the
-preconditioner matrix must in some sense approximate the relevant
-matrix (Jacobian matrix or Newton matrix), and yet be reasonably
-efficient to evaluate and solve.  Typical preconditioners used with
-the solvers in SUNDIALS are based on approximations to the Jacobian matrices
-of the systems involved.  Because the Krylov iteration occurs within a
-Newton iteration, and often also within a time integration, and each
-of these iterations has its own test for convergence, the
-preconditioner may use a very crude approximation, as long as it
-captures the dominant numerical feature(s) of the system.  
-We have found that the combination of a preconditioner with the
-Newton-Krylov iteration, using even a fairly poor approximation to
-the Jacobian, can be surprisingly superior to using the same matrix
-without Krylov acceleration (i.e., a modified Newton iteration), as
-well as to using the Newton-Krylov method with no preconditioning.
+All of the SUNDIALS solvers make repeated use of a Krylov method to
+solve linear systems of the form $A$ (correction vector) =
+-(residual vector), where $A$ is an appropriate Jacobian or Newton
+matrix.  But simple (unpreconditioned) Krylov methods are rarely
+successful; it is generally necessary to precondition the system
+in order to obtain acceptable efficiency.  A system $A x = b$ can be
+preconditioned on the left, as $(P^{-1}A) x = P^{-1} b$;
+on the right, as $(A P^{-1}) P x = b$; or on both sides, as
+$(P_L^{-1} A P_R^{-1}) P_R x = P_L^{-1}b$.  The Krylov method is then
+applied to a system with the matrix $P^{-1}A$, or $AP^{-1}$, or
+$P_L^{-1} A P_R^{-1}$, instead of $A$.  In order to improve the
+convergence of the Krylov iteration, the preconditioner matrix $P$, or
+the product $P_L P_R$ in the last case, should in some sense
+approximate the system matrix $A$.  Yet at the same time, in order to
+be cost-effective, the matrix $P$, or matrices $P_L$ and $P_R$, should
+be reasonably efficient to evaluate and solve.  Finding a good point
+in this tradeoff between rapid convergence and low cost can be very
+difficult.  Good choices are often problem-dependent, but not always,
+as we show below.
+
+The CVODE and CVODES solvers allow for preconditioning either side, or
+on both sides, although we know of no situation where preconditioning
+on both sides clearly superior to preconditioning on one side only
+(with the product $P_L P_R$).  In contrast, as noted in the previous
+section, KINSOL allows only right preconditioning, and IDA allows only
+left preconditioning.
+
+Typical preconditioners used with the solvers in SUNDIALS are based on
+approximations to the Jacobian matrices of the systems involved.
+Because the Krylov iteration occurs within a Newton iteration, and
+often also within a time integration, and each of these iterations has
+its own test for convergence, the preconditioner may use a very crude
+approximation, as long as it captures the dominant numerical
+feature(s) of the system.  We have found that the combination of a
+preconditioner with the Newton-Krylov iteration, using even a fairly
+poor approximation to the Jacobian, can be surprisingly superior to
+using the same matrix without Krylov acceleration (i.e., a modified
+Newton iteration), as well as to using the Newton-Krylov method with
+no preconditioning.
 
 We further exploit this nested iteration setting, and differences in
-the costs of the various preconditioner operations, by treating the
-preconditioner matrix $P$ in two separate phases:
+the costs of the various preconditioner operations, by treating in two
+separate phases each preconditioner matrix $P$ involved:
 \begin{itemize}
 \item a setup phase: evaluate and preprocess $P$ (done infrequently), and
 \item a solve phase: solve systems $Px = b$ (done frequently).
@@ -30,7 +52,8 @@ routines for these operations.  The setup of $P$ is generally more
 expensive than the solve operation, and so it is done as infrequently
 as possible, with updates to $P$ dictated primarily by convergence
 failures of the Newton iteration.  The system solves $Px = b$ must of
-course be done at every Krylov iteration.
+course be done at every Krylov iteration (once for each matrix in
+the case of two-sided preconditioning).
 
 We provide help to SUNDIALS users with respect to preconditioning in
 two ways.  First, for each solver, there is at least one example
@@ -48,10 +71,10 @@ Second, the SUNDIALS package includes some extra preconditioner
 modules, for optional use with the solvers.  For the parallel version
 of each of the basic solvers, we provide a preconditioner module which
 generates a band-block-diagonal (BBD) preconditioner.  With serial
-CVODE, we also supply a band preconditioner module.  These band and
-BBD preconditioners are described below.  Full details on the usage
-of these optional modules are given in the respective user guides
---- \cite{HiSe:04cvode,HiSe:04cvodes,HSW:04kinsol,HiSe:04ida}.
+CVODE/CVODES, we also supply a band preconditioner module.  These band
+and BBD preconditioners are described below.  Full details on the
+usage of these optional modules are given in the respective user
+guides --- \cite{HiSe:04cvode,HiSe:04cvodes,HSW:04kinsol,HiSe:04ida}.
 
 In any case, for any given choice of the approximate Jacobian, it may
 be best to consider choices for the preconditioner linear solver that
@@ -154,9 +177,8 @@ $m$.
 
 \subsection{Preconditioners for KINSOL and IDA}
 
-The KINSOL package includes a module, called
-KINBBDPRE, that provides a band-block-diagonal preconditioner
-for use in parallel environments,
+The KINSOL package includes a module, called KINBBDPRE, that provides
+a band-block-diagonal preconditioner for use in parallel environments,
 analogous to that of the CVODE module CVBBDPRE.  Here the problem to
 be solved is $F(u) = 0$, and the preconditioner is constructed by way
 of a function $g \approx F$.  Namely, it is defined as
