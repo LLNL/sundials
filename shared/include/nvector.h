@@ -89,10 +89,10 @@ struct _generic_N_Vector_Ops {
   realtype    (*nvdotprod)(N_Vector, N_Vector);
   realtype    (*nvmaxnorm)(N_Vector);
   realtype    (*nvwrmsnorm)(N_Vector, N_Vector);
+  realtype    (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
   realtype    (*nvmin)(N_Vector);
   realtype    (*nvwl2norm)(N_Vector, N_Vector);
   realtype    (*nvl1norm)(N_Vector);
-  void        (*nvonemask)(N_Vector);
   void        (*nvcompare)(realtype, N_Vector, N_Vector);
   booleantype (*nvinvtest)(N_Vector, N_Vector);
   booleantype (*nvconstrprodpos)(N_Vector, N_Vector);
@@ -323,6 +323,20 @@ realtype N_VMaxNorm(N_Vector x);
 realtype N_VWrmsNorm(N_Vector x, N_Vector w);
 
 /*--------------------------------------------------------------*
+ * Function : N_VWrmsNormMask                                   *
+ * Usage    : wrmsnorm = N_VWrmsNormMask(x, w, id);             *
+ *--------------------------------------------------------------*
+ * Returns the weighted root mean square norm of x with         *
+ * weight vector w, masked by the elements of id:               *
+ * -> sqrt [(sum (i=0 to N-1) {(x[i] * w[i] * msk[i])^2}) / N]  *
+ * where msk[i] = 1.0 if id[i] > 0 and                          *
+ *       msk[i] = 0.0 if id[i] < 0                              *
+ * Returns 0.0 if N <= 0.                                       *
+ *--------------------------------------------------------------*/
+
+realtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id);
+
+/*--------------------------------------------------------------*
  * Function : N_VMin                                            *
  * Usage    : min = N_VMin(x);                                  *
  *--------------------------------------------------------------*
@@ -355,14 +369,6 @@ realtype N_VWL2Norm(N_Vector x, N_Vector w);
  *--------------------------------------------------------------*/
 
 realtype N_VL1Norm(N_Vector x);
-
-/*--------------------------------------------------------------*
- * Function  : N_VOneMask                                       *
- * Operation : x[i] = 1.0 if |x[i]| != 0.  i = 0, 1, ..., N-1   *
- *                    0.0 otherwise                             *
- *--------------------------------------------------------------*/
-
-void N_VOneMask(N_Vector x);
 
 /*--------------------------------------------------------------*
  * Function  : N_VCompare                                       *

@@ -150,6 +150,13 @@ realtype N_VWrmsNorm(N_Vector x, N_Vector w)
   return(norm);
 }
 
+realtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id)
+{
+  realtype norm;
+  norm = x->nvspec->ops->nvwrmsnormmask(x, w, id);
+  return(norm);
+}
+
 realtype N_VMin(N_Vector x)
 {
   realtype minval;
@@ -169,11 +176,6 @@ realtype N_VL1Norm(N_Vector x)
   realtype norm;
   norm = x->nvspec->ops->nvl1norm(x);
   return(norm);
-}
-
-void N_VOneMask(N_Vector x)
-{
-  x->nvspec->ops->nvonemask(x);
 }
 
 void N_VCompare(realtype c, N_Vector x, N_Vector z)
