@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-05-26 18:35:41 $
+ * $Revision: 1.26 $
+ * $Date: 2004-06-09 18:45:14 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -594,7 +594,7 @@ int CVodeSetQuadTolerances(void *cvode_mem, int itolQ,
 
 int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, NV_Spec nvspecQ);
     
-enum {QCVM_NO_MEM = -1, QCVM_ILL_INPUT = -2, QCVM_MEM_FAIL = -3};
+enum {QCVM_NO_MEM = -1, QCVM_MEM_FAIL = -2};
 
 /*
  * -----------------------------------------------------------------
@@ -615,7 +615,7 @@ enum {QCVM_NO_MEM = -1, QCVM_ILL_INPUT = -2, QCVM_MEM_FAIL = -3};
 
 int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ);
 
-enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2, QCVREI_ILL_INPUT = -3};
+enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2};
 
 /*
  * -----------------------------------------------------------------
