@@ -11,18 +11,18 @@ with sensitivity analysis capabilities.
 IDA is a general purpose solver for the initial value problem for
 systems of differential-algebraic equations (DAEs).  The name IDA
 stands for Implicit Differential-Algebraic solver.  IDA is based on
-DASPK \cite{BrHiPe94,BrHiPe98}, but is written in ANSI-standard C
+DASPK \cite{BHP:94,BHP:98}, but is written in ANSI-standard C
 rather than Fortran 77.  Its most notable feature is that, in the
 solution of the underlying nonlinear system at each time step, it
 offers a choice of Newton/direct methods or an Inexact Newton/Krylov
 (iterative) method.  Thus IDA shares significant modules previously
 written within CASC at LLNL to support the ordinary differential
-equation (ODE) solvers CVODE \cite{CoHi94,CoHi96} and PVODE
-\cite{ByHi98,ByHi99}, and also the nonlinear system solver KINSOL
-\cite{TaHi98}.
+equation (ODE) solvers CVODE \cite{CoHi:94,CoHi:96} and PVODE
+\cite{ByHi:98,ByHi:99}, and also the nonlinear system solver KINSOL
+\cite{TaHi:98}.
 
 The Newton/Krylov method uses the GMRES (Generalized Minimal RESidual)
-linear iterative method \cite{SaSc86}, and requires almost no matrix
+linear iterative method \cite{SaSc:86}, and requires almost no matrix
 storage for solving the Newton equations as compared to direct
 methods.  However, the GMRES algorithm allows for a user-supplied
 preconditioner matrix, and for most problems preconditioning is
@@ -40,7 +40,7 @@ and the greater ease of interfacing the solver to applications written
 in extended {\F}.
 \index{IDA@{\ida}!motivation for writing in C|)}
 
-\section{Changes in version 2.1}
+\section{Changes in version {\idarelease}}
 The major changes from the previous version involve a redesign of the
 user interface across the entire {\sundials} suite. We have eliminated the
 mechanism of providing optional inputs and extracting optional statistics 

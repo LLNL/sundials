@@ -95,11 +95,21 @@ so that GMRES is applied to systems $(P^{-1}J)\Delta y = -P^{-1}G$.
 
 % WRMS Norm
 %----------
-In the process of controlling the various errors, IDA uses the
-same weighted root-mean-square norm as CVODE,
-$\|\cdot\|_{\mbox{\scriptsize WRMS}}$, for all error-like quantities.
-The weights used are based on the current solution and on input
-tolerances, as given by (\ref{errwt}).
+\index{norm!weighted root-mean-square|(}
+In the process of controlling errors at various levels, {\ida} uses a
+weighted root-mean-square norm, denoted 
+$\|\cdot\|_{\mbox{\scriptsize WRMS}}$, for all 
+error-like quantities.  The weights used are based on the current
+solution and on the relative and absolute tolerances input by the
+user, namely
+\index{tolerances}
+\begin{equation}\label{e:errwt}
+ W_i = \mbox{\sc rtol} \cdot |y^i| + \mbox{\sc atol}_i \, .
+\end{equation}
+Because $W_i$ represents a tolerance in the component $y^i$, a vector
+whose norm is 1 is regarded as ``small.''  For brevity, we will
+usually drop the subscript WRMS on norms in what follows.
+\index{norm!weighted root-mean-square|)}
 
 % Newton iteration
 %-----------------
@@ -177,7 +187,7 @@ by difference quotients. In the latter case, we use the approximation
              \mbox{sign}(h {\dot y}^j) \, ,
 \end{gather*}
 where $U$ is the unit roundoff, $h$ is the current step size, and $W_j$ is 
-the error weight for $y^j$ defined by (\ref{errwt}).
+the error weight for $y^j$ defined by (\ref{e:errwt}).
 In the SPGMR case, if a routine for $Jv$ is not supplied, such products are
 approximated by
 \begin{equation*}

@@ -78,8 +78,8 @@ The header files corresponding to the various linear solver options in {\ida} ar
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
 %%===================================================================================
 
-A high-level view of the combined user program and {\ida} package is
-shown in Figure~\ref{f:sim_overview}.
+%A high-level view of the combined user program and {\ida} package is
+%shown in Figure~\ref{f:sim_overview}.
 %%
 %\begin{figure}
 %\centerline{\psfig{figure=idasim.eps,width=\textwidth}}
@@ -190,6 +190,12 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
   change optional inputs specific to that linear solver.
   See \S\ref{ss:optional_input} for details.
 
+\item 
+  {\bf Correct initial values}
+
+  Optionally, call \id{IDACalcIC} to correct the initial values
+  \id{y0} and \id{yp0}.
+
 \item
   {\bf Advance solution in time}
 
@@ -268,7 +274,7 @@ created and allocated by the first two calls.
 {
   If successful, \id{IDACreate} returns a pointer to the newly created 
   {\ida} memory block (of type \id{void *}).
-  If an error occured, \id{IDACreate} prints an error message to \id{stdout}
+  If an error occured, \id{IDACreate} prints an error message to \id{stderr}
   and returns \id{NULL}.
 }
 {}
@@ -351,7 +357,7 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol, nvSpec);
 \subsection{Linear solver specification functions}\label{sss:lin_solv_init}
 
 As previously explained, Newton iteration requires the solution of
-linear systems of the form (\ref{e:Newton}).  There are three {\ida} linear
+linear systems of the form (\ref{e:DAE_Newtoncorr}).  There are three {\ida} linear
 solvers currently available for this task: {\idadense}, {\idaband}, 
 and {\idaspgmr}.  The first two are direct solvers and derive their name
 from the type of approximation used for the Jacobian 
@@ -515,6 +521,122 @@ separately in \S\ref{s:gen_linsolv}.
 
 %%===================================================================================
 
+\subsection{Initial condition calculation function}\label{ss:idacalcic}
+
+\id{IDACalcIC} calculates corrected initial conditions for the DAE 
+system for a class of index-one problems of semi-implicit form.
+It uses Newton iteration combined with a linesearch algorithm.
+Calling \id{IDACalcIC} is optional. It is only necessary when the  
+initial conditions do not solve the given system;  i.e., if   
+\id{y0} and \id{yp0} are known to satisfy $F(t_0, y_0, {\dot y}_0) = 0$, 
+then a call to \id{IDACalcIC} is {\em not} necessary.
+
+A call to \id{IDACalcIC} must be preceded by successful calls to  
+\id{IDACreate} and \id{IDAMalloc}, and by a successful call to the 
+linear system solver specification function.  
+In addition, \id{IDACalcIC} assumes that the vectors \id{y0} and \id{yp0},
+passed to \id{IDAMalloc}, and (if relevant) \id{id} and \id{constraints},
+set through \id{IDASetId} and \id{IDASetConstraints}, respectively
+(see \S\ref{ss:optional_input}), remain unaltered since that call.
+
+The call to \id{IDACalcIC} should precede the call(s) to \id{IDASolve}  
+for the given problem.           
+
+%
+\ucfunction{IDACalcIC}
+{
+  flag = IDASolve(ida\_mem, icopt, tout1);
+}
+{
+  The function \ID{IDACalcIC} corrects the intial values \id{y0}, \id{yp0}.
+}
+{
+  \begin{args}[ida\_mem]
+
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+
+  \item[icopt] (\id{int})
+    is the option of IDACalcIC to be used.
+    
+    \id{icopt}$=$\ID{CALC\_YA\_YDP\_INIT} directs \id{IDACalcIC} to compute 
+    the algebraic components of $y$ and differential components of ${\dot y}$, 
+    given the differential components of $y$.  
+    This option requires that the \id{N\_Vector} \id{id} was set through 
+    \id{IDASetId}, specifying the differential and algebraic components.  
+    
+    \id{icopt}$=$\ID{CALC\_Y\_INIT} directs \id{IDACalcIC} to compute all  
+    components of $y$, given ${\dot y}$.  \id{id} is not required.
+
+  \item[tout1] (\id{realtype})
+    is the first value of $t$ at which a soluton will be requested (from \id{IDASolve}).
+    This is needed here to determine the direction of integration and rough scale  
+    in the independent variable $t$.   
+
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) will be one of the following:
+
+  \begin{args}[IC\_FAILED\_LINESRCH]
+
+  \item[\Id{SUCCESS}]
+    \id{IDASolve} succeeded.
+
+  \item[\ID{IC\_IDA\_NO\_MEM}]
+    The argument \id{ida\_mem} was \id{NULL}.             
+               
+  \item[\ID{IC\_NO\_MALLOC}]
+    The allocation function \id{IDAMalloc} has not been called.
+                                                  
+  \item[\ID{IC\_ILL\_INPUT}]
+    One of the input arguments was illegal.    
+                                                                 
+  \item[\ID{SETUP\_FAILURE}] 
+    The linear solver's setup function failed in an unrecoverable manner.
+
+  \item[\ID{IC\_LINIT\_FAIL}]
+    The linear solver's init function failed.   
+                                                                 
+  \item[\ID{SOLVE\_FAILURE}] 
+    The linear solver's solve function failed in an unrecoverable manner.
+
+  \item[\ID{IC\_BAD\_EWT}]
+    Some component of the error weight vector is zero (illegal), either for 
+    the input value of \id{y0} or a corrected value.          
+                                                                 
+  \item[\ID{IC\_FIRST\_RES\_FAIL}]
+    The user's residual function returned a recoverable error flag on the first call,
+    but \id{IDACalcIC} was unable to recover.       
+                                                                 
+  \item[\ID{RES\_NONRECOV\_ERR}]
+    The user's residual function returned a nonrecoverable error flag.
+
+  \item[\ID{IC\_NO\_RECOVERY}]
+    The user's residual function, or the linear solver's setup or solve function had a      
+    recoverable error, but \id{IDACalcIC} was unable to recover.
+                                                                 
+  \item[\ID{IC\_FAILED\_CONSTR}]
+    \id{IDACalcIC} was unable to find a solution    
+    satisfying the inequality constraints.     
+                                                                 
+  \item[\ID{IC\_FAILED\_LINESRCH}]
+    The linesearch algorithm failed to find a solution with a step larger than 
+    \id{steptol} in weighted RMS norm.                      
+                                                                 
+  \item[\ID{IC\_CONV\_FAILURE}]
+    \id{IDACalcIC} failed to get convergence of the Newton iterations.
+
+  \end{args} 
+}
+{
+  All failure return values are negative and therefore a test \id{flag}$< 0$
+  will trap all \id{IDACalcIC} failures.
+}
+
+
+%%===================================================================================
+
 \subsection{IDA solver function}\label{sss:idasolve}
 %
 This is the central step in the solution process - the call to perform the integration 
@@ -563,7 +685,7 @@ of the DAE.
   and \id{yret} = $y($\id{tout}$)$, \id{ypret} = $y^\prime($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[INTERMEDIAT\_RETURN]
+  \begin{args}[INTERMEDIATE\_RETURN]
   \item[\Id{SUCCESS}]
     \id{IDASolve} succeeded.
   \item[\ID{INTERMEDIATE\_RETURN}]
@@ -616,7 +738,7 @@ of the DAE.
   In the \id{ONE\_STEP} mode, \id{tout} is used on the first call only, 
   to get the direction and rough scale of the independent variable.
 
-  All failure return values are negative and therefore a test \id{ier}$< 0$
+  All failure return values are negative and therefore a test \id{flag}$< 0$
   will trap all \id{IDASolve} failures.
 }
 
@@ -631,8 +753,8 @@ Table \ref{t:optional_input} lists all optional input functions in {\ida} which
 are then described in detail in the remainder of this section.
 For the most casual use of {\ida}, the reader can skip to \S\ref{ss:user_fct_sim}.
 
-We note that, on error return, all these functions also print an error message to \id{stdout} 
-(or to the file pointed to by \id{errfp} if already specified).
+We note that, on error return, all these functions also print an error message to 
+\id{stderr} (or to the file pointed to by \id{errfp} if already specified).
 \index{error message}
 We also note that all error return values are negative, so a test \id{flag}$==0$
 will catch any error.
@@ -657,6 +779,7 @@ Value of $t_{stop}$ & \id{IDASetStopTime} & $\infty$ \\
 Maximum no. of error test failures & \id{IDAMaxErrTestFails} & 10 \\
 Maximum no. of nonlinear iterations & \id{IDASetMaxNonlinIters} & 4 \\
 Maximum no. of convergence failures & \id{IDASetMaxConvFails} & 10 \\
+Maximum no. of error test failures & \id{IDASetMaxErrTestFails} & 7 \\
 Coefficient in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
 Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{FALSE} \\
 Variable types (differential/algebraic) & \id{IDASetId} & \\
@@ -729,8 +852,9 @@ flag = IDASetErrFile(ida\_mem, errfp);
   \end{args}
 }
 {
-  The default value for \id{errfp} is \id{NULL}, in which case
-  all output is directed to \id{stdout}.
+  The default value for \id{errfp} is \id{stderr}.
+
+  Passing a value \id{errfp}$=$\id{NULL} disables all future error message printing.
 }
 %%
 %%
@@ -739,7 +863,7 @@ flag = IDASetErrFile(ida\_mem, errfp);
   flag = IDASetRdata(ida\_mem, r\_data);
 }
 {
-  The function \ID{IDASetFdata} specifies the user data block \Id{r\_data}
+  The function \ID{IDASetRdata} specifies the user data block \Id{r\_data}
   and attaches it to the main {\ida} memory block.
 }
 {
@@ -831,38 +955,6 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
 }
 {
   The default value is $500$.
-}
-%%
-%%
-\ucfunction{IDASetMaxHnilWarns}
-{
-flag = IDASetMaxHnilWarns(ida\_mem, mxhnil);
-}
-{
-  The function \ID{IDASetMaxHnilWarns} specifies the maximum number of warning messages
-  issued by the solver that $t+h=t$ on the next internal step.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[mxhnil] (\id{int})
-    maximum number of warning messages
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDAS\_NO\_MEM}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{
-  The default value is $10$.
-  A negative \id{mxhnil} value indicates that no warning messages should
-  be issued.
 }
 %%
 %%
@@ -1092,7 +1184,7 @@ flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
 }
 {
   The function \ID{IDASetNonlinConvCoef} specifies the safety factor
-  in the nonlinear convergence test (see \S\ref{ss:ivp_sol}).
+  in the nonlinear convergence test (see \S\ref{s:math}).
 }
 {
   \begin{args}[ida\_mem]
@@ -1113,6 +1205,109 @@ flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
 }
 {
   The default value is $0.1$.
+}
+%%
+%%
+\ucfunction{IDASetSuppressAlg}
+{
+flag = IDASetSuppressAlg(ida\_mem, suppressalg);
+}
+{
+  The function \ID{IDASetNonlinConvCoef} indicates whether or not to
+  suppress algebraic variables in the local error test.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[suppresslag] (\id{booleantype})
+    flag to indicate whether to suppress (\id{TRUE}) or not
+    (\id{FALSE}) the algebaric variables in the local error test.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDAS\_NO\_MEM]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDAS\_NO\_MEM}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The default value is \id{FALSE}.
+
+  If \id{suppresslag}$=$\id{TRUE} is selected, then the \id{id} vector
+  must be set (through \id{IDASetId}) to specify the algebnraic components.
+}
+%%
+%%
+\ucfunction{IDASetId}
+{
+flag = IDASetId(ida\_mem, id);
+}
+{
+  The function \ID{IDASetId} specifies algebraic/differential
+  components in the $y$ vector.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[id] (\id{N\_Vector})
+    state vector. A value of $1.0$ indicates an algebraic variable.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDAS\_NO\_MEM]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDAS\_NO\_MEM}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The vactor \id{id} is required if the algebraic variables are to be 
+  suppressed from the local error test (see \id{IDASetSuppressAlg}) or
+  if \id{IDACalcIC} is to be called with \id{icopt}$=$\id{CALC\_YA\_YDP\_INIT}
+  (see \S\ref{ss:idacalcic}).
+}
+%%
+%%
+\ucfunction{IDASetConstraints}
+{
+flag = IDASetConstraints(ida\_mem, constraints);
+}
+{
+  The function \ID{IDASetConstraints} specifies a vector defining
+  inequality constraints for each component of the solution vector $y$.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[constraints] (\id{N\_Vector})
+    vector of constraint flags. A value of \id{constraints[i]}$=0.0$ indicates that no 
+    constraint is imposed on $y_i$. 
+    If \id{constraints[i]}$=1.0$ then $y_i$ will be constrained to be $y_i > 0.0$.
+    If \id{constraints[i]}$=-1.0$ then $y_i$ will be constrained to be $y_i < 0.0$.
+    If \id{constraints[i]}$=2.0$ then $y_i$ will be constrained to be $y_i \ge 0.0$.
+    If \id{constraints[i]}$=-2.0$ then $y_i$ will be constrained to be $y_i \le 0.0$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDAS\_NO\_MEM]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDAS\_NO\_MEM}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The presence of a non-\id{NULL} constraints vector that is not $0.0$ in
+  all components will caouse constraint checking to be performed.
 }
 %%
 \index{optional input!solver|)}
@@ -1636,6 +1831,215 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 \index{optional input!iterative linear solver|)}
 
 %%
+%%
+%%===================================================================================
+%%
+\subsubsection{Initial condition calculation optional input functions}
+\index{optional input!initial condition calculation|(}
+
+The following functions can be called to set optional inputs to control the initial 
+conditions calculations.
+%%
+\ucfunction{IDASetNonlinConvCoefIC}
+{
+flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
+}
+{
+  The function \ID{IDASetNonlinConvCoefIC} specifies the positive
+  coefficient in the Newton initial condition test.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[epiccon] (\id{realtype})
+    coefficient in the Newton convergence test.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDAS\_ILL\_INPUT]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDAS\_NO\_MEM}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDAS\_ILL\_INPUT}]
+    The \id{epiccon} factor is negative (illegal).
+  \end{args}
+}
+{
+  The default value is $0.01 \cdot 0.33$.
+
+  This test uses a weighted RMS norm (with weights defined by the tolerances).
+  For new initial value vectors $y$ and ${\dot y}$ to be accepted, the norm
+  of $J^{-1}F(t_0, y, {\dot y}) \le $\id{epicon}, where $J$ is the system Jacobian.
+}
+%%
+\ucfunction{IDASetMaxNumStepsIC}
+{
+flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
+}
+{
+  The function \ID{IDASetMaxNumStepsIC} specifies the maximum number
+  of values of $h$ allowed when \id{icopt}$=$\id{CALC\_YA\_YDP\_INIT}
+  in \id{IDACalcIC}, where $h$ appears in the system Jacobian,
+  $J = dF / dy + (1/h) \cdot dF / d{\dot y}$.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxnh] (\id{int})
+    maximum allowed number of values for $h$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDAS\_ILL\_INPUT]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDAS\_NO\_MEM}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDAS\_ILL\_INPUT}]
+    \id{maxnh} is non-positive.
+  \end{args}
+}
+{
+  The default value is $5$.
+}
+%%
+%%
+\ucfunction{IDASetMaxNumJacsIC}
+{
+flag = IDASetMaxNumJacsIC(ida\_mem, maxnj);
+}
+{
+  The function \ID{IDASetMaxNumJacsIC} specifies the maximum number
+  of the approximate Jacobian or preconditioner allowed, when the
+  Newton iteration appear to be slowly converging.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxnj] (\id{int})
+    maximum allowed number of Jacobian or preconditioner evaluations.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDAS\_ILL\_INPUT]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDAS\_NO\_MEM}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDAS\_ILL\_INPUT}]
+    \id{maxnj} is non-positive.
+  \end{args}
+}
+{
+  The default value is $4$.
+}
+%%
+%%
+\ucfunction{IDASetMaxNumItersIC}
+{
+flag = IDASetMaxNumItersIC(ida\_mem, maxnit);
+}
+{
+  The function \ID{IDASetNumItersIC} specifies the maximum
+  number of Newton iterations allowed in any one attempt to solve
+  the initial conditions calculation problem.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxnit] (\id{int})
+    maximum number of Newton iterations.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDAS\_ILL\_INPUT]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDAS\_NO\_MEM}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDAS\_ILL\_INPUT}]
+    \id{maxnit} is non-positive.
+  \end{args}
+}
+{
+  The default value is $10$.
+}
+%%
+%%
+\ucfunction{IDASetLineSearchOffIC}
+{
+flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
+}
+{
+  The function \ID{IDASetLineSearchOffIC} specifies whether to turn
+  on or off the linesearch algorithm.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[lsoff] (\id{booleantype})
+    a flag to turn off (\id{TRUE}) or keep (\id{FALSE}) the linesearch
+    algorithm.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDAS\_NO\_MEM]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDAS\_NO\_MEM}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The default value is \id{FALSE}.
+}
+%%
+%%
+\ucfunction{IDASetStepToleranceIC}
+{
+flag = IDASetStepToleranceIC(ida\_mem, steptol);
+}
+{
+  The function \ID{IDASetStepToleranceIC} specifies a positve lower bound
+  on the Newton step.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[steptol] (\id{int})
+    Newton step tolerance.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDAS\_ILL\_INPUT]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDAS\_NO\_MEM}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDAS\_ILL\_INPUT}]
+    The \id{steptol} tolerance is negative (illegal).
+  \end{args}
+}
+{
+  The default value is $\sqrt{(\text{unit roundoff})^3}$.
+}
+%%
+\index{optional input!initial condition calculation|)}
+
+%%
 %%===================================================================================
 %%
 
@@ -1783,7 +2187,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetIntWorkSpace}
 {
-  flag = IDAGetIntWorkSpace(ida\_mem, leniw);
+  flag = IDAGetIntWorkSpace(ida\_mem, \&leniw);
 }
 {
   The function \ID{IDAGetIntWorkSpace} returns the
@@ -1793,7 +2197,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[leniw] (\id{long int *})
+  \item[leniw] (\id{long int})
     number of integer values in the {\ida} workspace.
   \end{args}
 }
@@ -1810,7 +2214,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetRealWorkSpace}
 {
-  flag = IDAGetRealWorkSpace(ida\_mem, lenrw);
+  flag = IDAGetRealWorkSpace(ida\_mem, \&lenrw);
 }
 {
   The function \ID{IDAGetRealWorkSpace} returns the
@@ -1820,7 +2224,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lenrw] (\id{long int *})
+  \item[lenrw] (\id{long int})
     number of \id{realtype} values in the {\ida} workspace.
   \end{args}
 }
@@ -1838,7 +2242,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetWorkSpace}
 {
-  flag = IDAGetWorkSpace(ida\_mem, leniw, lenrw);
+  flag = IDAGetWorkSpace(ida\_mem, \&leniw, \&lenrw);
 }
 {
   The function \ID{IDAGetWorkSpace} returns the
@@ -1848,9 +2252,9 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[leniw] (\id{long int *})
+  \item[leniw] (\id{long int})
     number of integer values in the {\ida} workspace.
-  \item[lenrw] (\id{long int *})
+  \item[lenrw] (\id{long int})
     number of \id{realtype} values in the {\ida} workspace.
   \end{args}
 }
@@ -1869,7 +2273,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetNumSteps}
 {
-  flag = IDAGetNumSteps(ida\_mem, nsteps);
+  flag = IDAGetNumSteps(ida\_mem, \&nsteps);
 }
 {
   The function \ID{IDAGetNumSteps} returns the cumulative number of internal 
@@ -1879,7 +2283,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nsteps] (\id{long int *})
+  \item[nsteps] (\id{long int})
     number of steps taken by {\ida}.
   \end{args}
 }
@@ -1897,7 +2301,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetNumRhsEvals}
 {
-  flag = IDAGetNumRhsEvals(ida\_mem, nfevals);
+  flag = IDAGetNumRhsEvals(ida\_mem, \&nfevals);
 }
 {
   The function \ID{IDAGetNumRhsEvals} returns the 
@@ -1907,7 +2311,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nfevals] (\id{long int *})
+  \item[nfevals] (\id{long int})
     number of calls to the user's \id{f} function.
   \end{args}
 }
@@ -1929,7 +2333,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetNumLinSolvSetups}
 {
-  flag = IDAGetNumLinSolvSetups(ida\_mem, nlinsetups);
+  flag = IDAGetNumLinSolvSetups(ida\_mem, \&nlinsetups);
 }
 {
   The function \ID{IDAGetNumLinSolvSetups} returns the
@@ -1939,7 +2343,7 @@ These optional output functions are described next.
   \begin{args}[nlinsetups]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nlinsetups] (\id{long int *})
+  \item[nlinsetups] (\id{long int})
     number of calls made to the linear solver setup function.
   \end{args}
 }
@@ -1957,7 +2361,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetNumErrTestFails}
 {
-  flag = IDAGetNumErrTestFails(ida\_mem, netfails);
+  flag = IDAGetNumErrTestFails(ida\_mem, \&netfails);
 }
 {
   The function \ID{IDAGetNumErrTestFails} returns the
@@ -1967,7 +2371,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[netfails] (\id{long int *})
+  \item[netfails] (\id{long int})
     number of error test failures.
   \end{args}
 }
@@ -1985,7 +2389,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetLastOrder}
 {
-  flag = IDAGetLastOrder(ida\_mem, qlast);
+  flag = IDAGetLastOrder(ida\_mem, \&qlast);
 }
 {
   The function \ID{IDAGetLastOrder} returns the
@@ -1995,7 +2399,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[qlast] (\id{int *})
+  \item[qlast] (\id{int})
     method order used on the last internal step.
   \end{args}
 }
@@ -2013,7 +2417,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetCurrentOrder}
 {
-  flag = IDAGetCurrentOrder(ida\_mem, qcur);
+  flag = IDAGetCurrentOrder(ida\_mem, \&qcur);
 }
 {
   The function \ID{IDAGetCurrentOrder} returns the
@@ -2023,7 +2427,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[qcur] (\id{int *})
+  \item[qcur] (\id{int})
     method order to be used on the next internal step.
   \end{args}
 }
@@ -2041,7 +2445,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetLastStep}
 {
-  flag = IDAGetLastStep(ida\_mem, hlast);
+  flag = IDAGetLastStep(ida\_mem, \&hlast);
 }
 {
   The function \ID{IDAGetLastStep} returns the
@@ -2051,7 +2455,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[hlast] (\id{realtype *})
+  \item[hlast] (\id{realtype})
     step size taken on the last internal step.
   \end{args}
 }
@@ -2069,7 +2473,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetCurrentStep}
 {
-  flag = IDAGetCurrentStep(ida\_mem, hcur);
+  flag = IDAGetCurrentStep(ida\_mem, \&hcur);
 }
 {
   The function \ID{IDAGetCurrentStep} returns the
@@ -2079,7 +2483,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[hcur] (\id{realtype 8})
+  \item[hcur] (\id{realtype})
     step size to be attempted on the next internal step.
   \end{args}
 }
@@ -2097,7 +2501,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetActualInitStep}
 {
-  flag = IDAGetActualInitStep(ida\_mem, hinused);
+  flag = IDAGetActualInitStep(ida\_mem, \&hinused);
 }
 {
   The function \ID{IDAGetActualInitStep} returns the
@@ -2107,7 +2511,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[hinused] (\id{realtype *})
+  \item[hinused] (\id{realtype})
     actual value of initial step size.
   \end{args}
 }
@@ -2131,7 +2535,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetCurrentTime}
 {
-  flag = IDAGetCurrentTime(ida\_mem, tcur);
+  flag = IDAGetCurrentTime(ida\_mem, \&tcur);
 }
 {
   The function \ID{IDAGetCurrentTime} returns the
@@ -2141,7 +2545,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[tcur] (\id{realtype *})
+  \item[tcur] (\id{realtype})
     current internal time reached.
   \end{args}
 }
@@ -2157,41 +2561,9 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNumStabLimOrderReds}
-{
-  flag = IDAGetNumStabLimOrderReds(ida\_mem, nslred);
-}
-{
-  The function \ID{IDAGetNumStabLimOrderReds} returns the
-  number of order reductions dictated by the BDF stability limit 
-  detection algorithm (see \S\ref{s:bdf_stab}).
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[nslred] (\id{long int *})
-    number of order reductions due to stability limit detection.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_SLDET]
-  \item[OKAY] 
-    The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDAG\_NO\_SLDET}]
-    The stability limit detection algorithm was not activated 
-    through a call to \id{IDASetStabLimDet}.
-  \end{args}
-}
-{}
-%%
-%%
 \ucfunction{IDAGetTolScaleFactor}
 {
-  flag = IDAGetTolScaleFactor(ida\_mem, tolsfac);
+  flag = IDAGetTolScaleFactor(ida\_mem, \&tolsfac);
 }
 {
   The function \ID{IDAGetTolScaleFactor} returns a
@@ -2203,7 +2575,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[tolsfac] (\id{realtype *})
+  \item[tolsfac] (\id{realtype})
     suggested scaling factor for user tolerances.
   \end{args}
 }
@@ -2221,7 +2593,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetErrWeights}
 {
-  flag = IDAGetErrWeights(ida\_mem, eweight);
+  flag = IDAGetErrWeights(ida\_mem, \&eweight);
 }
 {
   The function \ID{IDAGetErrWeights} returns the solution error weights 
@@ -2231,7 +2603,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[eweight] (\id{N\_Vector *})
+  \item[eweight] (\id{N\_Vector})
     solution error weights at the current time.
   \end{args}
 }
@@ -2252,7 +2624,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetEstLocalErrors}
 {
-  flag = IDAGetEstLocalErrors(ida\_mem, ele);
+  flag = IDAGetEstLocalErrors(ida\_mem, \&ele);
 }
 {
   The function \ID{IDAGetEstLocalErrors} returns the
@@ -2262,8 +2634,8 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[ele] (\id{N\_Vector *})
-    
+  \item[ele] (\id{N\_Vector})
+    estimated local errors.
   \end{args}
 }
 {
@@ -2283,9 +2655,9 @@ These optional output functions are described next.
 \ucfunction{IDAGetIntegratorStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
-    flag = IDAGetIntegratorStats(&ida\_mem, nsteps, nfevals, nlinsetups, \\
-                                   &netfails, qlast, qcur, hinused, hlast, \\
-                                   &hcur, tcur);
+    flag = IDAGetIntegratorStats(&ida\_mem, \&nsteps, \&nfevals, \&nlinsetups, \\
+                                 &\&netfails, \&qlast, \&qcur, \&hinused, \&hlast, \\
+                                 &\&hcur, \&tcur);
   \end{tabular}
 }
 {
@@ -2296,25 +2668,25 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nsteps] (\id{long int *})
+  \item[nsteps] (\id{long int})
     number of steps taken by {\ida}.
-  \item[nfevals] (\id{long int *})
+  \item[nfevals] (\id{long int})
     number of calls to the user's \id{f} function.
-  \item[nlinsetups] (\id{long int *})
+  \item[nlinsetups] (\id{long int})
     number of calls made to the linear solver setup function.
-  \item[netfails] (\id{long int *})
+  \item[netfails] (\id{long int})
     number of error test failures.
-  \item[qlast] (\id{int *})
+  \item[qlast] (\id{int})
     method order used on the last internal step.
-  \item[qcur] (\id{int *})
+  \item[qcur] (\id{int})
     method order to be used on the next internal step.
-  \item[hinused] (\id{realtype *})
+  \item[hinused] (\id{realtype})
     actual value of initial step size.
-  \item[hlast] (\id{realtype *})
+  \item[hlast] (\id{realtype})
     step size taken on the last internal step.
-  \item[hcur] (\id{realtype *})
+  \item[hcur] (\id{realtype})
     step size to be attempted on the next internal step.
-  \item[tcur] (\id{realtype *})
+  \item[tcur] (\id{realtype})
     current internal time reached.
   \end{args}
 }
@@ -2332,7 +2704,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetNumNonlinSolvIters}
 {
-  flag = IDAGetNumNonlinSolvIters(ida\_mem, nniters);
+  flag = IDAGetNumNonlinSolvIters(ida\_mem, \&nniters);
 }
 {
   The function \ID{IDAGetNumNonlinSolvIters} returns the
@@ -2342,7 +2714,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nniters] (\id{long int *})
+  \item[nniters] (\id{long int})
     number of nonlinear iterations performed.
   \end{args}
 }
@@ -2360,7 +2732,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetNumNonlinSolvConvFails}
 {
-  flag = IDAGetNumNonlinSolvConvFails(ida\_mem, nncfails);
+  flag = IDAGetNumNonlinSolvConvFails(ida\_mem, \&nncfails);
 }
 {
   The function \ID{IDAGetNumNonlinSolvConvFails} returns the
@@ -2370,7 +2742,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nncfails] (\id{long int *})
+  \item[nncfails] (\id{long int})
     number of nonlinear convergence failures.
   \end{args}
 }
@@ -2388,7 +2760,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetNonlinSolvStats}
 {
-  flag = IDAGetNonlinSolvStats(ida\_mem, nniters, nncfails);
+  flag = IDAGetNonlinSolvStats(ida\_mem, \&nniters, \&nncfails);
 }
 {
   The function \ID{IDAGetNonlinSolvStats} returns the the
@@ -2398,9 +2770,9 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nniters] (\id{long int *})
+  \item[nniters] (\id{long int})
     number of nonlinear iterations performed.
-  \item[nncfails] (\id{long int *})
+  \item[nncfails] (\id{long int})
     number of nonlinear convergence failures.
   \end{args}
 }
@@ -2434,7 +2806,7 @@ to access these are described below.
 %%
 \ucfunction{IDADenseGetIntWorkSpace}
 {
-  flag = IDADenseGetIntWorkSpace(ida\_mem, leniwD);
+  flag = IDADenseGetIntWorkSpace(ida\_mem, \&leniwD);
 }
 {
   The function \ID{IDADenseGetIntWorkSpace} returns the
@@ -2444,7 +2816,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[leniwD] (\id{long int *})
+  \item[leniwD] (\id{long int})
     the number of integer values in the {\idadense} workspace.
   \end{args}
 }
@@ -2466,7 +2838,7 @@ to access these are described below.
 %%
 \ucfunction{IDADenseGetRealWorkSpace}
 {
-  flag = IDADenseGetRealWorkSpace(ida\_mem, lenrwD);
+  flag = IDADenseGetRealWorkSpace(ida\_mem, \&lenrwD);
 }
 {
   The function \ID{IDADenseGetRealWorkSpace} returns the
@@ -2476,7 +2848,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lenrwD] (\id{long int *})
+  \item[lenrwD] (\id{long int})
     the number of \id{realtype} values in the {\idadense} workspace.
   \end{args}
 }
@@ -2502,7 +2874,7 @@ to access these are described below.
 %%
 \ucfunction{IDADenseGetNumJacEvals}
 {
-  flag = IDADenseGetNumJacEvals(ida\_mem, njevalsD);
+  flag = IDADenseGetNumJacEvals(ida\_mem, \&njevalsD);
 }
 {
   The function \ID{IDADenseGetNumJacEvals} returns the
@@ -2512,7 +2884,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[njevalsD] (\id{long int *})
+  \item[njevalsD] (\id{long int})
     the number of calls to the Jacobian function.
   \end{args}
 }
@@ -2530,21 +2902,21 @@ to access these are described below.
 {}
 %%
 %%
-\ucfunction{IDADenseGetNumRhsEvals}
+\ucfunction{IDADenseGetNumResEvals}
 {
-  flag = IDADenseGetNumRhsEvals(ida\_mem, nfevalsD);
+  flag = IDADenseGetNumResEvals(ida\_mem, \&nrevalsD);
 }
 {
-  The function \ID{IDADenseGetNumRhsEvals} returns the
-  number of calls to the user right-hand side function due to the 
+  The function \ID{IDADenseGetNumResEvals} returns the
+  number of calls to the user residual function due to the 
   finite difference dense Jacobian approximation.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nfevalsD] (\id{long int *})
-    the number of calls to the user right-hand side function.
+  \item[nrevalsD] (\id{long int})
+    the number of calls to the user residual function.
   \end{args}
 }
 {
@@ -2559,7 +2931,7 @@ to access these are described below.
   \end{args}
 }
 {
-  The value \id{nfevalsD} is incremented only if the default 
+  The value \id{nrevalsD} is incremented only if the default 
   \id{IDADenseDQJac} difference quotient function is used.
 }
 %%
@@ -2578,7 +2950,7 @@ to access these are described below.
 %%
 \ucfunction{IDABandGetIntWorkSpace}
 {
-  flag = IDABandGetIntWorkSpace(ida\_mem, leniwB);
+  flag = IDABandGetIntWorkSpace(ida\_mem, \&leniwB);
 }
 {
   The function \ID{IDABandGetIntWorkSpace} returns the
@@ -2588,7 +2960,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[leniwB] (\id{long int *})
+  \item[leniwB] (\id{long int})
     the number of integer values in the {\idaband} workspace.
   \end{args}
 }
@@ -2610,7 +2982,7 @@ to access these are described below.
 %%
 \ucfunction{IDABandGetRealWorkSpace}
 {
-  flag = IDABandGetRealWorkSpace(ida\_mem, lenrwB);
+  flag = IDABandGetRealWorkSpace(ida\_mem, \&lenrwB);
 }
 {
   The function \ID{IDABandGetRealWorkSpace} returns the
@@ -2620,7 +2992,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lenrwB] (\id{long int *})
+  \item[lenrwB] (\id{long int})
     the number of \id{realtype} values in the {\idaband} workspace.
   \end{args}
 }
@@ -2647,7 +3019,7 @@ to access these are described below.
 %%
 \ucfunction{IDABandGetNumJacEvals}
 {
-  flag = IDABandGetNumJacEvals(ida\_mem, njevalsB);
+  flag = IDABandGetNumJacEvals(ida\_mem, \&njevalsB);
 }
 {
   The function \ID{IDABandGetNumJacEvals} returns the
@@ -2657,7 +3029,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[njevalsB] (\id{long int *})
+  \item[njevalsB] (\id{long int})
     the number of calls to the Jacobian function.
   \end{args}
 }
@@ -2675,21 +3047,21 @@ to access these are described below.
 {}
 %%
 %%
-\ucfunction{IDABandGetNumRhsEvals}
+\ucfunction{IDABandGetNumResEvals}
 {
-  flag = IDABandGetNumRhsEvals(ida\_mem, nfevalsB);
+  flag = IDABandGetNumResEvals(ida\_mem, \&nrevalsB);
 }
 {
-  The function \ID{IDABandGetNumRhsEvals} returns the
-  number of calls to the user right-hand side function due to the 
+  The function \ID{IDABandGetNumResEvals} returns the
+  number of calls to the user residual function due to the 
   finite difference banded Jacobian approximation.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nfevalsB] (\id{long int *})
-    the number of calls to the user right-hand side function.
+  \item[nrevalsB] (\id{long int})
+    the number of calls to the user residual function.
   \end{args}
 }
 {
@@ -2704,7 +3076,7 @@ to access these are described below.
   \end{args}
 }
 {
-  The value \id{nfevalsB} is incremented only if the default 
+  The value \id{nrevalsB} is incremented only if the default 
   \id{IDABandDQJac} difference quotient function is used.
 }
 %%
@@ -2723,7 +3095,7 @@ to access these are described below.
 %%
 \ucfunction{IDASpgmrGetIntWorkSpace}
 {
-  flag = IDASpgmrGetIntWorkSpace(ida\_mem, leniwSG);
+  flag = IDASpgmrGetIntWorkSpace(ida\_mem, \&leniwSG);
 }
 {
   The function \ID{IDASpgmrGetIntWorkSpace} returns the
@@ -2733,7 +3105,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[leniwSG] (\id{long int *})
+  \item[leniwSG] (\id{long int})
     the number of integer values in the {\idaspgmr} workspace.
   \end{args}
 }
@@ -2752,7 +3124,7 @@ to access these are described below.
 %%
 \ucfunction{IDASpgmrGetRealWorkSpace}
 {
-  flag = IDASpgmrGetRealWorkSpace(ida\_mem, lenrwSG);
+  flag = IDASpgmrGetRealWorkSpace(ida\_mem, \&lenrwSG);
 }
 {
   The function \ID{IDASpgmrGetRealWorkSpace} returns the
@@ -2762,7 +3134,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lenrwSG] (\id{long int *})
+  \item[lenrwSG] (\id{long int})
     the number of \id{realtype} values in the {\idaspgmr} workspace.
   \end{args}
 }
@@ -2789,7 +3161,7 @@ to access these are described below.
 %%
 \ucfunction{IDASpgmrGetNumLinIters}
 {
-  flag = IDASpgmrGetNumLinIters(ida\_mem, nliters);
+  flag = IDASpgmrGetNumLinIters(ida\_mem, \&nliters);
 }
 {
   The function \ID{IDASpgmrGetNumLinIters} returns the
@@ -2799,7 +3171,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nliters] (\id{long int *})
+  \item[nliters] (\id{long int})
     the current number of linear iterations.
   \end{args}
 }
@@ -2819,7 +3191,7 @@ to access these are described below.
 %%
 \ucfunction{IDASpgmrGetNumConvFails}
 {
-  flag = IDASpgmrGetNumConvFails(ida\_mem, nlcfails);
+  flag = IDASpgmrGetNumConvFails(ida\_mem, \&nlcfails);
 }
 {
   The function \ID{IDASpgmrGetNumConvFails} returns the
@@ -2829,7 +3201,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nlcfails] (\id{long int *})
+  \item[nlcfails] (\id{long int})
     the current number of linear convergence failures.
   \end{args}
 }
@@ -2849,7 +3221,7 @@ to access these are described below.
 %%
 \ucfunction{IDASpgmrGetNumPrecEvals}
 {
-  flag = IDASpgmrGetNumPrecEvals(ida\_mem, npevals);
+  flag = IDASpgmrGetNumPrecEvals(ida\_mem, \&npevals);
 }
 {
   The function \ID{IDASpgmrGetNumPrecEvals} returns the
@@ -2860,7 +3232,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[npevals] (\id{long int *})
+  \item[npevals] (\id{long int})
     the current number of calls to \id{psetup}.
   \end{args}
 }
@@ -2880,7 +3252,7 @@ to access these are described below.
 %%
 \ucfunction{IDASpgmrGetNumPrecSolves}
 {
-  flag = IDASpgmrGetNumPrecSolves(ida\_mem, npsolves);
+  flag = IDASpgmrGetNumPrecSolves(ida\_mem, \&npsolves);
 }
 {
   The function \ID{IDASpgmrGetNumPrecSolves} returns the
@@ -2891,7 +3263,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[npsolves] (\id{long int *})
+  \item[npsolves] (\id{long int})
     the current number of calls to \id{psolve}.
   \end{args}
 }
@@ -2911,7 +3283,7 @@ to access these are described below.
 %%
 \ucfunction{IDASpgmrGetNumJtimesEvals}
 {
-  flag = IDASpgmrGetNumJtimesEvals(ida\_mem, njvevals);
+  flag = IDASpgmrGetNumJtimesEvals(ida\_mem, \&njvevals);
 }
 {
   The function \ID{IDASpgmrGetNumJtimesEvals} returns the
@@ -2922,7 +3294,7 @@ to access these are described below.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[njvevals] (\id{long int *})
+  \item[njvevals] (\id{long int})
     the current number of calls to \id{jtimes}.
   \end{args}
 }
@@ -2940,21 +3312,21 @@ to access these are described below.
 {}
 %%
 %%
-\ucfunction{IDASpgmrGetNumRhsEvals}
+\ucfunction{IDASpgmrGetNumResEvals}
 {
-  flag = IDASpgmrGetNumRhsEvals(ida\_mem, nfevalsSG);
+  flag = IDASpgmrGetNumResEvals(ida\_mem, \&nrevalsSG);
 }
 {
-  The function \ID{IDASpgmrGetNumRhsEvals} returns the
-  number of calls to the user right-hand side function for
+  The function \ID{IDASpgmrGetNumResEvals} returns the
+  number of calls to the user residual function for
   finite difference Jacobian-vector product approximation.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nfevalsSG] (\id{long int *})
-    the number of calls to the user right-hand side function.
+  \item[nrevalsSG] (\id{long int})
+    the number of calls to the user residual function.
   \end{args}
 }
 {
@@ -2969,7 +3341,7 @@ to access these are described below.
   \end{args}
 }
 {
-  The value \id{nfevalsSG} is incremented only if the default 
+  The value \id{nrevalsSG} is incremented only if the default 
   \id{IDASpgmrDQJtimes} difference quotient function is used.
 }
 %%
@@ -3169,7 +3541,7 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
 
   If the user's \id{IDADenseJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
-  stepsize, the error weights, etc. To obtain these, use the \id{IDAGet} functions 
+  stepsize, the error weights, etc. To obtain these, use the \id{IDAGet*} functions 
   described in \S\ref{ss:optional_output}. The unit roundoff can be accessed through
   the macro \id{DBL\_EPSILON} defined in \id{float.h}.
 }
@@ -3263,7 +3635,7 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
 
   If the user's \id{IDABandJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
-  stepsize, the error weights, etc. To obtain these, use the \id{IDAGet} functions 
+  stepsize, the error weights, etc. To obtain these, use the \id{IDAGet*} functions 
   described in \S\ref{ss:optional_output}. The unit roundoff can be accessed through
   the macro \id{DBL\_EPSILON} defined in \id{float.h}.
 }
@@ -3469,7 +3841,7 @@ A principal reason for using a parallel DAE solver such as {\ida} lies
 in the solution of partial differential equations (PDEs).  Moreover,
 the use of a Krylov iterative method for the solution of many such
 problems is motivated by the nature of the underlying linear system of
-equations (\ref{e:Newton}) that must be solved at each time step.  The
+equations (\ref{e:DAE_Newtoncorr}) that must be solved at each time step.  The
 linear algebraic system is large, sparse, and structured. However, if
 a Krylov iterative method is to be effective in this setting, then a
 nontrivial preconditioner needs to be used.  Otherwise, the rate of
@@ -3496,9 +3868,9 @@ subdomains.  Each of these subdomains is then assigned to one of the
 $M$ processors to be used to solve the DAE system. The basic idea is
 to isolate the preconditioning so that it is local to each processor,
 and also to use a (possibly cheaper) approximate right-hand side
-function. This requires the definition of a new function $g(t,y)$
-which approximates the function $f(t, y)$ in the definition of the DAE
-system (\ref{e:ivp}). However, the user may set $g = f$.  Corresponding
+function. This requires the definition of a new function $G(t,y,{\dot y})$
+which approximates the function $F(t, y, {\dot y})$ in the definition of the DAE
+system (\ref{e:DAE}). However, the user may set $g = f$.  Corresponding
 to the domain decomposition, there is a decomposition of the solution
 vector $y$ into $M$ disjoint blocks $y_m$, and a decomposition of $g$
 into blocks $g_m$.  The block $g_m$ depends on $y_m$ and also on
@@ -3545,88 +3917,95 @@ backsolve.
 
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-supplied functions|(}
 To use this {\idabbdpre} module, the user must supply two functions which the
-module calls to construct $P$: a function \id{gloc} (of type \id{CVLocalFn}) 
-which approximates the right-hand side function $g(t,y) \approx f(t,y)$ and which 
-is computed locally, and a function \id{cfn} (of type \id{CVCommFn}) which performs 
-all inter-process communication necessary to evaluate the approximate right-hand side $g$.
-These are in addition to the user-supplied right-hand side function \id{f}.
-Both functions take as input the same pointer \id{f\_data} as that passed
-by the user to \id{IDASetFdata} and passed to the user's function \id{f},
+module calls to construct $P$: a function \id{glocal} (of type \id{IDALocalFn}) 
+which approximates the right-hand side function $G(t,y,{\dot y}) \approx F(t,y,{\dot y})$ 
+and which is computed locally, and a function \id{gcomm} (of type \id{IDACommFn}) which 
+performs all inter-process communication necessary to evaluate the approximate 
+residual $G$.
+These are in addition to the user-supplied residual function \id{res}.
+Both functions take as input the same pointer \id{res\_data} as that passed
+by the user to \id{IDASetRdata} and passed to the user's function \id{res},
 and neither function has a return value. The user is responsible for
-providing space (presumably within \id{f\_data}) for components of \id{y}
-that are communicated by \id{cfn} from the other processors, and that are
-then used by \id{gloc}, which is not expected to do any communication.
+providing space (presumably within \id{res\_data}) for components of \id{y}
+and \id{yp} that are communicated by \id{gcomm} from the other processors, and that are
+then used by \id{glocal}, which is not expected to do any communication.
 %%
 %%
-\usfunction{CVLocalFn}
+\usfunction{IDALocalFn}
 {
-  typedef void (*CVLocalFn)(&long int Nlocal, realtype t,  \\
-                            &N\_Vector y, N\_Vector glocal, \\
-                            &void *f\_data);
+  typedef void (*IDALocalFn)(&long int Nlocal, realtype tt,  \\
+                             &N\_Vector yy, N\_Vector yp, \\
+                             &N\_Vector gval, void *res\_data);
 }
 {
-  This function computes $g(t,y)$. It loads the vector
-  \id{glocal} as a function of \id{t} and \id{y}.  
+  This function computes $G(t,y,{\dot y})$. It loads the vector
+  \id{glocal} as a function of \id{tt}, \id{yy}, and \id{yp}.  
 }
 {
   \begin{args}[Nlocal]
   \item[Nlocal] 
     is the local vector length.
-  \item[t]
+  \item[tt]
     is the value of the independent variable.
-  \item[y]
+  \item[yy]
     is the dependent variable. 
-  \item[glocal]
+  \item[yp]
+    is the derivative of the dependent variable. 
+  \item[gval]
     is the output vector.
-  \item[f\_data]
-    is a pointer to user data - the same as the \Id{f\_data}      
-    parameter passed to \id{IDASetFdata}.  
+  \item[res\_data]
+    is a pointer to user data - the same as the \Id{res\_data}      
+    parameter passed to \id{IDASetRdata}.  
   \end{args}
 }
 {
-  A \id{CVLocalFn} function type does not have a return value.
+  An \id{IDALocalFn} function type does not have a return value.
 }
 {
   This function assumes that all inter-processor communication of data needed to 
   calculate \id{glocal} has already been done, and this data is accessible within
-  \id{f\_data}.
+  \id{res\_data}.
 
-  The case where $g$ is mathematically identical to $f$ is allowed.
+  The case where $G$ is mathematically identical to $F$ is allowed.
 }
 %%
 %%
-\usfunction{CVCommFn}
+\usfunction{IDACommFn}
 {
-  typedef void (*CVCommFn)(&long int Nlocal, realtype t,  \\
-                           &N\_Vector y, void *f\_data);
+  typedef void (*IDACommFn)(&long int Nlocal, realtype tt,  \\
+                           &N\_Vector yy, N\_Vector yp, void *f\_data);
 }
 {
   This function performs all inter-processor communications necessary 
-  for the execution of the \id{gloc} function above, using the input vector \id{y}.
+  for the execution of the \id{glocal} function above, using the input 
+  vectors \id{yy} and \id{yp}.
 }
 {
   \begin{args}[Nlocal]
   \item[Nlocal] 
     is the local vector length.
-  \item[t]
+  \item[tt]
     is the value of the independent variable.
-  \item[y]
+  \item[yy]
     is the dependent variable. 
-  \item[f\_data]
-    is a pointer to user data - the same as the \Id{f\_data}      
-    parameter passed to \id{IDASetFdata}.  
+  \item[yp]
+    is the derivative of the dependent variable. 
+  \item[res\_data]
+    is a pointer to user data - the same as the \Id{res\_data}      
+    parameter passed to \id{IDASetRdata}.  
   \end{args}
 }
 {
-  A \id{CVCommFn} function type does not have a return value.
+  An \id{IDACommFn} function type does not have a return value.
 }
 {
-  The \id{cfn} function is expected to save communicated data in space defined within the
-  structure \id{f\_data}. 
+  The \id{gcomm} function is expected to save communicated data in space defined within the
+  structure \id{res\_data}. 
 
-  Each call to the \id{cfn} function is preceded by a call to the right-hand side
-  function \id{f} with the same (\id{t}, \id{y}) arguments.  Thus \id{cfn} can omit 
-  any communications done by \id{f} if relevant to the evaluation of \id{glocal}.  
+  Each call to the \id{gcomm} function is preceded by a call to the residual
+  function \id{res} with the same (\id{tt}, \id{yy}, \id{yp}) arguments.  
+  Thus \id{gcomm} can omit 
+  any communications done by \id{res} if relevant to the evaluation of \id{glocal}.  
 }
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-supplied functions|)}
@@ -3639,7 +4018,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 Besides the header files required for the integration of the ODE problem
 (see \S\ref{ss:header_sim}),  to use the {\idabbdpre} module, the main program 
-must include the header file \id{cvbbdpre.h} which declares the needed
+must include the header file \id{idabbdpre.h} which declares the needed
 function prototypes.\index{header files}
 
 The following is a summary of the usage of this module and describes the sequence 
@@ -3679,7 +4058,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
    \id{
      \begin{tabular}[t]{@{}r@{}l@{}}
        bbd\_data = IBBDPrecAlloc(&ida\_mem, local\_N, mudq, mldq, \\
-                                  &mukeep, mlkeep, dqrely, gloc, cfn);
+                                  &mukeep, mlkeep, dqrely, glocal, gcomm);
      \end{tabular}
    }
 
@@ -3690,7 +4069,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item \label{i:bbdpre_attach}
   {\bf Attach the {\idaspgmr} linear solver}
 
-  \id{flag = CVBBDSpgmr(ida\_mem, pretype, maxl, bbd\_data);}
+  \id{flag = IDABBDSpgmr(ida\_mem, maxl, bbd\_data);}
 
   The function \Id{CVBPSpgmr} is a wrapper around the {\idaspgmr} specification
   function \id{IDASpgmr} and performs the following actions:
@@ -3700,9 +4079,6 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
     \item Sets the preconditioner setup function for {\idabbdpre};
     \item Sets the preconditioner solve function for {\idabbdpre};
   \end{itemize}
-  The arguments \id{pretype} and \id{maxl} are described below.
-  The last argument of \id{CVBPSpgmr} is the pointer to the {\idabbdpre} data
-  returned by \id{IBBDPrecAlloc}.
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
@@ -3748,7 +4124,7 @@ next.
 {
    \begin{tabular}[t]{@{}r@{}l@{}}
      bbd\_data = IBBDPrecAlloc(&ida\_mem, local\_N, mudq, mldq, \\
-                                &mukeep, mlkeep, dqrely, gloc, cfn);
+                                &mukeep, mlkeep, dqrely, glocal, gcomm);
    \end{tabular}
 }
 {
@@ -3773,11 +4149,12 @@ next.
     the relative increment in components of \id{y} used in the difference quotient
     approximations.  The default is \id{dqrely}$ = \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dqrely}$ = 0.0$.
-  \item[gloc] (\id{CVLocalFn})
-    the {\C} function which computes the approximation $g(t,y) \approx f(t,y)$. 
-  \item[cfn] (\id{CVCommFn})
+  \item[glocal] (\id{IDALocalFn})
+    the {\C} function which computes the approximation 
+    $G(t,y,{\dot y}) \approx F(t,y,{\dot y})$. 
+  \item[gcomm] (\id{IDACommFn})
     the {\C} function which performs all inter-process communication required for
-    the computation of $g(t,y)$.
+    the computation of $G(t,y,{\dot y})$.
   \end{args}
 }
 {
@@ -3803,12 +4180,12 @@ next.
 }
 %%
 %%
-\ucfunction{CVBBDSpgmr}
+\ucfunction{IDABBDSpgmr}
 {
-  flag = CVBBDSpgmr(ida\_mem, pretype, maxl, bbd\_data);
+  flag = IDABBDSpgmr(ida\_mem, maxl, bbd\_data);
 }
 {
-  The function \ID{CVBBDSpgmr} links the {\idabbdpre} data to the
+  The function \ID{IDABBDSpgmr} links the {\idabbdpre} data to the
   {\idaspgmr} linear solver and attaches the latter to the {\ida}
   memory block.
 }
@@ -3816,9 +4193,6 @@ next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[pretype] (\id{int})
-    \index{pretype@\texttt{pretype}}
-    preconditioning type. Can be one of \Id{LEFT} or \Id{RIGHT}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
@@ -3834,8 +4208,6 @@ next.
     The {\idaspgmr} initialization was successful.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_ILL\_INPUT}]
-    The preconditioner type \id{pretype} is not valid.
   \item[\Id{LMEM\_FAIL}]
     A memory allocation request failed.
   \item[\Id{BBDP\_NO\_DATA}]
@@ -3867,12 +4239,12 @@ provided there is no change in \id{local\_N}, \id{mukeep}, or \id{mlkeep}.
 After solving one problem, and after calling \id{IDAReInit} to re-initialize 
 {\ida} for a subsequent problem, a call to \id{IBBDPrecReInit} can be made
 to change any of the following: the half-bandwidths \id{mudq} and \id{mldq} 
-used in the difference-quotient Jacobian approximations, the relative increment \id{dqrely}, 
-or one of the user-supplied functions \id{gloc} and \id{cfn}.
+used in the difference-quotient Jacobian approximations, the relative increment 
+\id{dqrely}, or one of the user-supplied functions \id{glocal} and \id{gcomm}.
 %%
 \ucfunction{IBBDPrecReInit}
 {
-  flag = IBBDPrecReInit(bbd\_data, mudq, mldq, dqrely, gloc, cfn);
+  flag = IBBDPrecReInit(bbd\_data, mudq, mldq, dqrely, glocal, gcomm);
 }
 {
   The function \ID{IBBDPrecReInit} reinitializes the {\idabbdpre} preconditioner.
@@ -3889,11 +4261,12 @@ or one of the user-supplied functions \id{gloc} and \id{cfn}.
     the relative increment in components of \id{y} used in the difference quotient
     approximations.  The default is \id{dqrely} $= \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dqrely} $= 0.0$.
-  \item[gloc] (\id{CVLocalFn})
-    the {\C} function which computes the approximation $g(t,y) \approx f(t,y)$. 
-  \item[cfn] (\id{CVCommFn})
+  \item[glocal] (\id{IDALocalFn})
+    the {\C} function which computes the approximation 
+    $G(t,y,{\dot y}) \approx F(t,y,{\dot y})$. 
+  \item[gcomm] (\id{IDACommFn})
     the {\C} function which performs all inter-process communication required for
-    the computation of $g(t,y)$.
+    the computation of $G(t,y,{\dot y})$.
   \end{args}
 }
 {
@@ -3916,7 +4289,7 @@ the {\idabbdpre} module:
 \index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner|(}
 \ucfunction{IBBDPrecGetIntWorkSpace}
 {
-  flag = IBBDPrecGetIntWorkSpace(bbd\_data, leniwBP);
+  flag = IBBDPrecGetIntWorkSpace(bbd\_data, \&leniwBP);
 }
 {
   The function \ID{IBBDPrecGetIntWorkSpace} returns the
@@ -3926,7 +4299,7 @@ the {\idabbdpre} module:
   \begin{args}[leniwBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
-  \item[leniwBBDP] (\id{long int *})
+  \item[leniwBBDP] (\id{long int})
     the number of integer values in the {\idabbdpre} workspace.
   \end{args}
 }
@@ -3947,7 +4320,7 @@ the {\idabbdpre} module:
 %%
 \ucfunction{IBBDPrecGetRealWorkSpace}
 {
-  flag = IBBDPrecGetRealWorkSpace(bbd\_data, lenrwBBDP);
+  flag = IBBDPrecGetRealWorkSpace(bbd\_data, \&lenrwBBDP);
 }
 {
   The function \ID{IBBDPrecGetRealWorkSpace} returns the
@@ -3957,7 +4330,7 @@ the {\idabbdpre} module:
   \begin{args}[lenrwBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
-  \item[lenrwBBDP] (\id{long int *})
+  \item[lenrwBBDP] (\id{long int})
     the number of \id{realtype} values in the {\idabbdpre} workspace.
   \end{args}
 }
@@ -3980,7 +4353,7 @@ the {\idabbdpre} module:
 %%
 \ucfunction{IBBDPrecGetNumGfnEvals}
 {
-  flag = IBBDPrecGetNumGfnEvals(bbd\_data, ngevalsBBDP);
+  flag = IBBDPrecGetNumGfnEvals(bbd\_data, \&ngevalsBBDP);
 }
 {
   The function \ID{IBBDPrecGetNumGfnEvals} returns the
@@ -3992,7 +4365,7 @@ the {\idabbdpre} module:
   \begin{args}[ngevalsBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
-  \item[ngevalsBBDP] (\id{long int *})
+  \item[ngevalsBBDP] (\id{long int})
     the number of calls to the user \id{gloc} function.
   \end{args}
 }

@@ -47,33 +47,39 @@ interested reader.
 
 \begin{table}[htb]
 \centering
-\caption{List of vector kernels usage by {\ida} code modules}\label{t:nvecuse}
+\caption{List of vector functions usage by {\ida} code modules}\label{t:nvecuse}
 \medskip
-\begin{tabular}{|l|c|c|c|c|c|} \hline
-{\bf Kernel}          & {\ida}    & {\idadense}& {\idaband}& {\idaspgmr} \\ \hline\hline
-\id{N\_VNew}          &   X       &            &           &   X        \\ \hline
-\id{N\_VFree}         &   X       &            &           &   X        \\ \hline
-\id{N\_VSpace}        &   X       &            &           &   X        \\ \hline
-\id{N\_VMake}         &           &    X       &   X       &            \\ \hline
-\id{N\_VDispose}      &           &    X       &   X       &            \\ \hline
-\id{N\_VGetData}      &           &    X       &   X       &            \\ \hline
-\id{N\_VSetData}      &           &    X       &   X       &            \\ \hline
-\id{N\_VLinearSum}    &   X       &    X       &           &   X        \\ \hline
-\id{N\_VConst}        &   X       &            &           &   X        \\ \hline
-\id{N\_VProd}         &   X       &            &           &   X        \\ \hline
-\id{N\_VDiv}          &   X       &            &           &   X        \\ \hline
-\id{N\_VScale}        &   X       &    X       &   X       &   X        \\ \hline
-\id{N\_VAbs}          &   X       &            &           &            \\ \hline
-\id{N\_VInv}          &   X       &            &           &            \\ \hline
-\id{N\_VAddConst}     &   X       &            &           &            \\ \hline
-\id{N\_VDotProd}      &           &            &           &   X        \\ \hline
-\id{N\_VMaxNorm}      &   X       &            &           &            \\ \hline
-\id{N\_VWrmsNorm}     &   X       &    X       &   X       &   X        \\ \hline
-\id{N\_VMin}          &   X       &            &           &            \\ \hline
-\id{N\_VMinQuotient}  &   X       &            &           &            \\ \hline
-\id{N\_VConstrMask}   &   X       &            &           &            \\ \hline
-\id{N\_VWrmsNormMask} &   X       &            &           &            \\ \hline
-\id{N\_VCompare}      &   X       &            &           &            \\ \hline
+\begin{tabular}{|r|c|c|c|c|c|} \hline
+                                            & 
+\begin{sideways}{\ida}       \end{sideways} & 
+\begin{sideways}{\idadense}  \end{sideways} & 
+\begin{sideways}{\idaband}   \end{sideways} & 
+\begin{sideways}{\idaspgmr}  \end{sideways} &
+\begin{sideways}{\idabbdpre} \end{sideways} \\ \hline\hline 
+\id{N\_VNew}          & \cm &     &     & \cm & \cm \\ \hline
+\id{N\_VFree}         & \cm &     &     & \cm & \cm \\ \hline
+\id{N\_VSpace}        & \cm &     &     &     &     \\ \hline
+\id{N\_VMake}         &     & \cm &     &     &     \\ \hline
+\id{N\_VDispose}      &     & \cm &     &     &     \\ \hline
+\id{N\_VGetData}      &     & \cm & \cm &     & \cm \\ \hline
+\id{N\_VSetData}      &     & \cm & \cm &     & \cm \\ \hline
+\id{N\_VLinearSum}    & \cm & \cm &     & \cm &     \\ \hline
+\id{N\_VConst}        & \cm &     &     & \cm &     \\ \hline
+\id{N\_VProd}         & \cm &     &     &     &     \\ \hline
+\id{N\_VDiv}          & \cm &     &     &     &     \\ \hline
+\id{N\_VScale}        & \cm & \cm & \cm & \cm & \cm \\ \hline
+\id{N\_VAbs}          & \cm &     &     &     &     \\ \hline
+\id{N\_VInv}          & \cm &     &     &     &     \\ \hline
+\id{N\_VAddConst}     & \cm &     &     &     &     \\ \hline
+\id{N\_VDotProd}      &     &     &     & \cm &     \\ \hline
+\id{N\_VMaxNorm}      & \cm &     &     &     &     \\ \hline
+\id{N\_VWrmsNorm}     & \cm &     &     &     &     \\ \hline
+\id{N\_VMin}          & \cm &     &     &     &     \\ \hline
+\id{N\_VMinQuotient}  & \cm &     &     &     &     \\ \hline
+\id{N\_VConstrMask}   & \cm &     &     &     &     \\ \hline
+\id{N\_VWrmsNormMask} & \cm &     &     &     &     \\ \hline
+\id{N\_VCompare}      & \cm &     &     &     &     \\ \hline
+\id{N\_VInvTest}      & \cm &     &     &     &     \\ \hline
 \end{tabular}
 \end{table}
 
