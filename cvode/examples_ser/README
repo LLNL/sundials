@@ -1,0 +1,9 @@
+List of serial CVODE examples
+
+  cvdx  :  dense example
+  cvbx  :  banded example
+  cvkx  :  Krylov example
+  cvkxb :  Krylov example with banded preconditioner
+  cvdemd: demonstration program for direct methods
+  cvdemk: demonstration program for Krylov methods
+
