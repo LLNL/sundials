@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
   flag = CVDenseSetJacDataB(cvadj_mem, data);
   if (check_flag(&flag, "CVDenseSetJacDataB", 1)) return(1);
 
-  flag = CVodeSetQuadErrConB(cvadj_mem, PARTIAL);
+  flag = CVodeSetQuadErrConB(cvadj_mem, FALSE);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
   flag = CVodeSetQuadFdataB(cvadj_mem, data);
   if (check_flag(&flag, "CVodeSetQuadFdataB", 1)) return(1);

@@ -227,14 +227,6 @@
 #define MSG_CVS_BAD_HMM2    "step size limits: hmin=%g > hmax=%g.\n\n"
 #define MSG_CVS_BAD_HMIN_HMAX  MSG_CVS_BAD_HMM1 MSG_CVS_BAD_HMM2
 
-#define MSG_CVS_BAD_ECONQ1  "CVodeSetQuadErrCon-- errconQ=%d illegal.\n"
-#define MSG_CVS_BAD_ECONQ2  "The legal values are FULL=%d and PARTIAL=%d.\n\n"
-#define MSG_CVS_BAD_ECONQ   MSG_CVS_BAD_ECONQ1 MSG_CVS_BAD_ECONQ2
-
-#define MSG_CVS_BAD_ECON1   "CVodeSetSensErrCon-- errcon=%d illegal.\n"
-#define MSG_CVS_BAD_ECON2   "The legal values are FULL=%d and PARTIAL=%d.\n\n"
-#define MSG_CVS_BAD_ECON    MSG_CVS_BAD_ECON1 MSG_CVS_BAD_ECON2
-
 /* CVodeMalloc/CVodeReInit Error Messages */
 
 #define CVM                 "CVodeMalloc/CVodeReInit-- "
@@ -703,7 +695,9 @@ void *CVodeCreate(int lmm, int iter)
 
   /* Set default values for quad. optional inputs */
   cv_mem->cv_fQ_data  = NULL;
-  cv_mem->cv_errconQ  = FULL;
+  cv_mem->cv_errconQ  = FALSE;
+  cv_mem->cv_reltolQ  = NULL;
+  cv_mem->cv_abstolQ  = NULL;
 
   /* Set defaull values for sensi. optional inputs */
   cv_mem->cv_fS_data = (void *)cv_mem;
@@ -711,7 +705,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_fS1     = CVSensRhs1DQ;
   cv_mem->cv_fSDQ    = TRUE;
   cv_mem->cv_ifS     = ONESENS;
-  cv_mem->cv_errcon  = FULL;
+  cv_mem->cv_errconS = TRUE;
   cv_mem->cv_rhomax  = ZERO;
   cv_mem->cv_pbar    = NULL;
   cv_mem->cv_reltolS = NULL;
@@ -1420,7 +1414,7 @@ int CVodeSetQuadFdata(void *cvode_mem, void *fQ_data)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetQuadErrCon(void *cvode_mem, int errconQ)
+int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ)
 {
   CVodeMem cv_mem;
 
@@ -1430,11 +1424,6 @@ int CVodeSetQuadErrCon(void *cvode_mem, int errconQ)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
-
-  if ((errconQ!=FULL) && (errconQ!=PARTIAL)) {
-    fprintf(errfp, MSG_CVS_BAD_ECONQ, errconQ, FULL, PARTIAL);
-    return(CVS_ILL_INPUT);
-  }
 
   cv_mem->cv_errconQ = errconQ;
 
@@ -1475,7 +1464,7 @@ int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ,
 
   /* Check for legal input parameters */
 
-  if (errconQ == FULL) {
+  if (errconQ) {
     if ((itolQ != SS) && (itolQ != SV)) {
       fprintf(errfp, MSG_BAD_ITOLQ, itolQ, SS, SV);
       return(QCVM_ILL_INPUT);
@@ -1512,7 +1501,7 @@ int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ,
   N_VConst(ZERO, cv_mem->cv_znQ[0]);
 
   /* Copy tolerances into memory and set the ewtQ vector */
-  if (errconQ == FULL) {
+  if (errconQ) {
     cv_mem->cv_itolQ    = itolQ;
     cv_mem->cv_reltolQ  = reltolQ;
     cv_mem->cv_abstolQ  = abstolQ;
@@ -1574,7 +1563,7 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ,
   }
 
   /* Check if reltolQ and abstolQ are non-null and legal */
-  if (errconQ == FULL) {
+  if (errconQ) {
     if ((itolQ != SS) && (itolQ != SV)) {
       fprintf(errfp, MSG_BAD_ITOLQ, itolQ, SS, SV);
       return(QCVM_ILL_INPUT);
@@ -1598,7 +1587,7 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ,
   N_VConst(ZERO, cv_mem->cv_znQ[0]);
 
   /* Copy tolerances into memory and set the ewtQ vector */
-  if (errconQ == FULL) {
+  if (errconQ) {
     cv_mem->cv_itolQ    = itolQ;
     cv_mem->cv_reltolQ  = reltolQ;
     cv_mem->cv_abstolQ  = abstolQ;
@@ -1714,7 +1703,7 @@ int CVodeSetSensFdata(void *cvode_mem, void *fS_data)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetSensErrCon(void *cvode_mem, int errconS)
+int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS)
 {
   CVodeMem cv_mem;
 
@@ -1725,17 +1714,12 @@ int CVodeSetSensErrCon(void *cvode_mem, int errconS)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if ((errconS!=FULL) && (errconS!=PARTIAL)) {
-    fprintf(errfp, MSG_CVS_BAD_ECON, errconS, FULL, PARTIAL);
-    return(CVS_ILL_INPUT);
-  }
-
-  cv_mem->cv_errcon = errconS;
+  cv_mem->cv_errconS = errconS;
 
   return(SUCCESS);
 }
 
-#define errcon (cv_mem->cv_errcon)
+#define errconS (cv_mem->cv_errconS)
 
 /*-----------------------------------------------------------------*/
 
@@ -1921,7 +1905,7 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
     return (SCVM_ILL_INPUT);
   }    
 
-  /* NOTE: Even if errcon=PARTIAL, tolerances 
+  /* NOTE: Even if errconS=FALSE, tolerances 
      are still needed for the convergence test
      in the nonlinear solver!!! */
 
@@ -2545,7 +2529,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       else
         ewtSsetOK = TRUE;
 
-      if (quad && (errconQ == FULL))
+      if (quad && errconQ)
         ewtQsetOK = CVQuadEwtSet(cv_mem, znQ[0]);
       else
         ewtQsetOK = TRUE;
@@ -2578,10 +2562,10 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* Check for too much accuracy requested */
 
     nrm = N_VWrmsNorm(zn[0], ewt);
-    if (quad && (errconQ == FULL)) {
+    if (quad && errconQ) {
       nrm = CVQuadUpdateNorm(cv_mem, nrm, znQ[0], ewtQ); 
     }
-    if (sensi && (errcon == FULL)) {
+    if (sensi && errconS) {
       nrm = CVSensUpdateNorm(cv_mem, nrm, znS[0], ewtS);
     }
     tolsf = uround * nrm;
@@ -3296,8 +3280,8 @@ int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector *eQweight)
     return(CVG_NO_QUAD);
   }
 
-  if(errconQ==FULL) *eQweight = ewtQ;
-  else              *eQweight = NULL;
+  if(errconQ) *eQweight = ewtQ;
+  else        *eQweight = NULL;
 
   return(OKAY);
 }
@@ -3997,10 +3981,10 @@ static booleantype CVEwtSetSV(CVodeMem cv_mem, N_Vector ycur)
 
 /*------------------ CVQuadAllocVectors  --------------------------*/
 /*
-  NOTE: Space for ewtQ is allocated even when errconQ=PARTIAL, 
+  NOTE: Space for ewtQ is allocated even when errconQ=FALSE, 
   although in this case, ewtQ is never used. The reason for this
   decision is to allow the user to re-initialize the quadrature
-  computation with errconQ=FULL, after an initialization with
+  computation with errconQ=TRUE, after an initialization with
   errconQ=FALSE, without new memory allocation within 
   CVodeQuadReInit.
 */
@@ -4505,7 +4489,7 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   N_VDiv(temp2, temp1, temp1);
   hub_inv = N_VMaxNorm(temp1);
   
-  if (quad && (errconQ == FULL)) {
+  if (quad && errconQ) {
     tempQ1 = tempvQ;
     tempQ2 = acorQ;
     N_VAbs(znQ[0], tempQ1);
@@ -4522,7 +4506,7 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
     if (hubQ_inv > hub_inv) hub_inv = hubQ_inv;
   }
 
-  if (sensi && (errcon == FULL)) {
+  if (sensi && errconS) {
     if (vectorAtol) atolSV = (N_Vector *)abstolS;
     else            atolSS = (realtype *)abstolS;
     for (is=0; is<Ns; is++) {
@@ -4563,7 +4547,7 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   
   N_VLinearSum(hg, zn[1], ONE, zn[0], y);
   
-  if (sensi && (errcon == FULL)) 
+  if (sensi && errconS) 
     for (is=0; is<Ns; is++)
       N_VLinearSum(hg, znS[1][is], ONE, znS[0][is], yS[is]);
   
@@ -4572,12 +4556,12 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   f(tn+hg, y, tempv, f_data);
   nfe++;
 
-  if (quad && (errconQ == FULL)) {
+  if (quad && errconQ) {
     fQ(tn+hg, y, tempvQ, fQ_data);
     nfQe++;
   }
 
-  if (sensi && (errcon == FULL)) {
+  if (sensi && errconS) {
     wrk1 = ftemp;
     wrk2 = acor;
     CVSensRhs(cv_mem, tn+hg, y, tempv, yS, tempvS, wrk1, wrk2);
@@ -4589,12 +4573,12 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   N_VLinearSum(ONE, tempv, -ONE, zn[1], tempv);
   N_VScale(ONE/hg, tempv, tempv);
   
-  if (quad && (errconQ == FULL)) {
+  if (quad && errconQ) {
     N_VLinearSum(ONE, tempvQ, -ONE, znQ[1], tempvQ);
     N_VScale(ONE/hg, tempvQ, tempvQ);
   }
 
-  if (sensi && (errcon == FULL))
+  if (sensi && errconS)
     for (is=0; is<Ns; is++) {
       N_VLinearSum(ONE, tempvS[is], -ONE, znS[1][is], tempvS[is]);
       N_VScale(ONE/hg, tempvS[is], tempvS[is]);
@@ -4603,10 +4587,10 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   /* Estimate ||y''|| */
   
   yddnrm = N_VWrmsNorm(tempv, ewt);
-  if (quad && (errconQ == FULL)) {
+  if (quad && errconQ) {
     yddnrm = CVQuadUpdateNorm(cv_mem, yddnrm, tempvQ, ewtQ);
   }
-  if (sensi && (errcon == FULL)) {
+  if (sensi && errconS) {
     yddnrm = CVSensUpdateNorm(cv_mem, yddnrm, tempvS, ewtS);
   }
 
@@ -4696,7 +4680,7 @@ static int CVStep(CVodeMem cv_mem)
       /* Apply correction to quadrature variables */
       N_VLinearSum(ONE, znQ[0], ONE, acorQ, yQ);
       /* Error test on quadratures */
-      if (errconQ == FULL) {
+      if (errconQ) {
         acnrmQ = N_VWrmsNorm(acorQ, ewtQ);
         passed = CVQuadDoErrorTest(cv_mem, &nflag, &kflag, saved_t, &nefQ, &dsmQ);
         if ((!passed) && (kflag == REP_ERR_FAIL)) return (kflag);
@@ -4719,7 +4703,7 @@ static int CVStep(CVodeMem cv_mem)
       if (kflag == PREDICT_AGAIN) continue;
       if (kflag != DO_ERROR_TEST) return (kflag);
       /* Error test on sensitivities */
-      if (errcon == FULL) {
+      if (errconS) {
         passed = CVStgrDoErrorTest(cv_mem,&nflag,&kflag,saved_t,&nefS,&dsmS);
         if ((!passed) && (kflag == REP_ERR_FAIL)) return (kflag);
         if (!passed) continue;
@@ -4744,7 +4728,7 @@ static int CVStep(CVodeMem cv_mem)
       if (kflag == PREDICT_AGAIN) continue;
       if (kflag != DO_ERROR_TEST) return (kflag);
       /* Error test on sensitivities */
-      if (errcon == FULL) {
+      if (errconS) {
         acnrmS = CVSensNorm(cv_mem, acorS, ewtS);
         passed = CVStgrDoErrorTest(cv_mem,&nflag,&kflag,saved_t,&nefS,&dsmS);
         if ((!passed) && (kflag == REP_ERR_FAIL)) return (kflag);
@@ -5420,10 +5404,10 @@ static int CVNlsFunctional(CVodeMem cv_mem)
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test. 
 
-       Recall that, even when errcon=PARTIAL, all variables are used in the
+       Recall that, even when errconS=FALSE, all variables are used in the
        convergence test. Hence, we use Del (and not del). However, acnrm
        is used in the error test and thus it has different forms
-       depending on errcon (and this explains why we have to carry around
+       depending on errconS (and this explains why we have to carry around
        del and delS)
     */
     
@@ -5433,11 +5417,11 @@ static int CVNlsFunctional(CVodeMem cv_mem)
 
     if (dcon <= ONE) {
       if (m == 0)
-        if (do_sensi_sim && (errcon == FULL)) acnrm = delS;
+        if (do_sensi_sim && errconS) acnrm = delS;
         else                                  acnrm = del;
       else {
         acnrm = N_VWrmsNorm(acor, ewt);
-        if (do_sensi_sim && (errcon == FULL))
+        if (do_sensi_sim && errconS)
           acnrm = CVSensUpdateNorm(cv_mem, acnrm, acorS, ewtS);
       }
       return (SOLVED);  /* Convergence achieved */
@@ -5676,11 +5660,11 @@ static int CVNewtonIteration(CVodeMem cv_mem)
     
     if (dcon <= ONE) {
       if (m == 0)
-        if (do_sensi_sim && (errcon == FULL)) acnrm = delS;
+        if (do_sensi_sim && errconS) acnrm = delS;
         else                                  acnrm = del;
       else {
         acnrm = N_VWrmsNorm(acor, ewt);
-        if (do_sensi_sim && (errcon == FULL))
+        if (do_sensi_sim && errconS)
           acnrm = CVSensUpdateNorm(cv_mem, acnrm, acorS, ewtS);
       }
       jcur = FALSE;
@@ -5823,7 +5807,7 @@ static void CVRestore(CVodeMem cv_mem, realtype saved_t)
   If more than MXNEF1 error test failures have occurred, an order
   reduction is forced. If already at order 1 restart by reloading 
   zn from scratch. Note that if sensitivities are computed, znS is
-  also reloaded, no matter what 'ism' or 'errcon' are. Same for 
+  also reloaded, no matter what 'ism' or 'errconS' are. Same for 
   quadratures.
 */
 /*-----------------------------------------------------------------*/
@@ -6090,12 +6074,12 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crateS, and used in the test. 
        acnrmS contains the norm of the corrections (yS_n-yS_n(0)) and
-       will be used in the error test (if errcon==FULL)                */
+       will be used in the error test (if errconS==TRUE)              */
     if (m > 0) crateS = MAX(CRDOWN * crateS, Del / Delp);
     dcon = Del * MIN(ONE, crateS) / tq[4];
     
     if (dcon <= ONE) {
-      if (errcon==FULL)
+      if (errconS)
         acnrmS = (m==0)? Del : CVSensNorm(cv_mem, acorS, ewtS);
       return (SOLVED);  /* Convergence achieved */
     }
@@ -6261,7 +6245,7 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
     if (m > 0) crateS = MAX(CRDOWN * crateS, Del/Delp);
     dcon = Del * MIN(ONE, crateS) / tq[4];
     if (dcon <= ONE) {
-      if (errcon==FULL)
+      if (errconS)
         acnrmS = (m==0) ? Del : CVSensNorm(cv_mem, acorS, ewtS);
       jcur = FALSE;
       return (SOLVED);  /* Convergence achieved */
@@ -6703,10 +6687,10 @@ static void CVCompleteStep(CVodeMem cv_mem)
     
     N_VScale(ONE, acor, zn[qmax]);
     
-    if (quad && (errconQ == FULL))
+    if (quad && errconQ)
       N_VScale(ONE, acorQ, znQ[qmax]);
 
-    if (sensi && (errcon == FULL))
+    if (sensi && errconS)
       for (is=0; is<Ns; is++)
         N_VScale(ONE, acorS[is], znS[qmax][is]);
     
@@ -6800,11 +6784,11 @@ static realtype CVComputeEtaqm1(CVodeMem cv_mem)
 
     ddn = N_VWrmsNorm(zn[q], ewt);
 
-    if ( quad && (errconQ == FULL)) {
+    if ( quad && errconQ) {
       ddn = CVQuadUpdateNorm(cv_mem, ddn, znQ[q], ewtQ);
     }
 
-    if ( sensi && (errcon == FULL) ) {
+    if ( sensi && errconS ) {
       ddn = CVSensUpdateNorm(cv_mem, ddn, znS[q], ewtS);
     }
 
@@ -6839,12 +6823,12 @@ static realtype CVComputeEtaqp1(CVodeMem cv_mem)
 
     dup = N_VWrmsNorm(tempv, ewt);
 
-    if ( quad && (errconQ == FULL)) {
+    if ( quad && errconQ ) {
       N_VLinearSum(-cquot, znQ[qmax], ONE, acorQ, tempvQ);
       dup = CVQuadUpdateNorm(cv_mem, dup, tempvQ, ewtQ);
     }
 
-    if ( sensi && (errcon == FULL) ) {
+    if ( sensi && errconS ) {
       for (is=0; is<Ns; is++) 
         N_VLinearSum(-cquot, znS[qmax][is], ONE, acorS[is], tempvS[is]);
       dup = CVSensUpdateNorm(cv_mem, dup, tempvS, ewtS);
@@ -6903,10 +6887,10 @@ static void CVChooseEta(CVodeMem cv_mem)
     
     N_VScale(ONE, acor, zn[qmax]);
     
-    if (quad && (errconQ == FULL))
+    if (quad && errconQ)
       N_VScale(ONE, acorQ, znQ[qmax]);
 
-    if (sensi && (errcon == FULL))
+    if (sensi && errconS)
       for (is=0; is<Ns; is++)
         N_VScale(ONE, acorS[is], znS[qmax][is]);
     
@@ -7428,7 +7412,7 @@ static realtype CVSensUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
   related information. Used only in the STAGGERED or STAGGERED1 
   approach with FULL error control.This value is consistent with 
   the one computed in CVDoErrorTest when ism=SIMULTANEOUS and 
-  errcon=FULL.
+  errconS=TRUE.
   
   Returns the maximum over the wheighted local error norms.
 */
@@ -7458,7 +7442,7 @@ static realtype CVStgrUpdateDsm(CVodeMem cv_mem, realtype old_dsm,
 
   CVSensRhs is called:
    (*) by Cvode at the first step
-   (*) by CVYddNorm if errcon=FULL
+   (*) by CVYddNorm if errcon=TRUE
    (*) by CVnlsFunctional, CVnlsNewton, and CVNewtonIteration
        if ism=SIMULTANEOUS
    (*) by CVDoErrorTest when restarting from scratch

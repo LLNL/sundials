@@ -41,7 +41,7 @@
  * If sensitivities are to be computed:                                 *
  *    % mpirun -np N pvsnx -sensi sensi_meth err_con                    *
  * where sensi_meth is one of {sim, stg, stg1} and err_con is one of    *
- * {full, partial}.                                                     *
+ * {t, f}.                                                              *
  *                                                                      *
  ************************************************************************/
 
@@ -84,13 +84,12 @@ typedef struct {
 /* Private Helper Functions */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, int *err_con);
+                        booleantype *sensi, int *sensi_meth, booleantype *err_con);
 static void WrongArgs(int my_pe, char *name);
 static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base);
 static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u);
 static void PrintOutputS(int my_pe, N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi, 
-                            int sensi_meth, int err_con);
+static void PrintFinalStats(void *cvode_mem, booleantype sensi); 
 
 /* Functions Called by the PVODES Solver */
 
@@ -115,8 +114,8 @@ int main(int argc, char *argv[])
   realtype *pbar;
   int is, *plist;
   N_Vector *uS;
-  booleantype sensi;
-  int sensi_meth, err_con;
+  booleantype sensi, err_con;
+  int sensi_meth;
 
   MPI_Comm comm;
 
@@ -222,8 +221,8 @@ int main(int argc, char *argv[])
       else 
         if(sensi_meth == STAGGERED) printf("( STAGGERED +");
         else                        printf("( STAGGERED1 +");   
-      if(err_con == FULL) printf(" FULL ERROR CONTROL )");
-      else                printf(" PARTIAL ERROR CONTROL )");
+      if(err_con) printf(" FULL ERROR CONTROL )");
+      else        printf(" PARTIAL ERROR CONTROL )");
     }
 
   } else {
@@ -259,7 +258,7 @@ int main(int argc, char *argv[])
 
   /* Print final statistics */
   if (my_pe == 0) 
-    PrintFinalStats(cvode_mem, sensi,sensi_meth,err_con);
+    PrintFinalStats(cvode_mem, sensi);
 
   /* Free memory */
   N_VFree(u);                  /* Free the u vector              */
@@ -282,11 +281,11 @@ int main(int argc, char *argv[])
 /* Check arguments */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, int *err_con)
+                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
 {
   *sensi = FALSE;
   *sensi_meth = -1;
-  *err_con = -1;
+  *err_con = FALSE;
 
   if (argc < 2) WrongArgs(my_pe, argv[0]);
 
@@ -311,10 +310,10 @@ static void ProcessArgs(int argc, char *argv[], int my_pe,
     else 
       WrongArgs(my_pe, argv[0]);
 
-    if (strcmp(argv[3],"full") == 0)
-      *err_con = FULL;
-    else if (strcmp(argv[3],"partial") == 0)
-      *err_con = PARTIAL;
+    if (strcmp(argv[3],"t") == 0)
+      *err_con = TRUE;
+    else if (strcmp(argv[3],"f") == 0)
+      *err_con = FALSE;
     else
       WrongArgs(my_pe, argv[0]);
   }
@@ -326,7 +325,7 @@ static void WrongArgs(int my_pe, char *name)
   if (my_pe == 0) {
     printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",name);
     printf("         sensi_meth = sim, stg, or stg1\n");
-    printf("         err_con    = full or partial\n");
+    printf("         err_con    = t or f\n");
   }  
   MPI_Finalize();
   exit(0);
@@ -404,8 +403,7 @@ static void PrintOutputS(int my_pe, N_Vector *uS)
 /* ======================================================================= */
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi, 
-                            int sensi_meth, int err_con)
+static void PrintFinalStats(void *cvode_mem, booleantype sensi) 
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;

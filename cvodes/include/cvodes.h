@@ -88,14 +88,6 @@ extern "C" {
  *        (of type SensRhs1Fn) returns the right hand side of one *
  *        sensitivity system at a time.                           *
  *                                                                *
- * errcon:Error control flag for sensitivity variables. It can be *
- *        either FULL if the sensitivity variables are to be      *
- *        considered in the error test, or PARTIAL otherwise.     *
- *        Note that, in either case, the sensitivity variables    *
- *        are included in the convergence test.                   *
- *                                                                *
- * errconQ: same as errcon for quadrature variables.              *
- *                                                                *
  * itask: The itask input parameter to CVode indicates the job    *
  *        of the solver for the next user step. The NORMAL        *
  *        itask is to have the solver take internal steps until   *
@@ -121,8 +113,6 @@ enum { SIMULTANEOUS, STAGGERED, STAGGERED1 };             /* ism */
 enum { NORMAL, ONE_STEP, NORMAL_TSTOP, ONE_STEP_TSTOP}; /* itask */
 
 enum { ALLSENS, ONESENS };                                /* ifS */
-
-enum { FULL, PARTIAL };                       /* errcon, errconQ */
 
 /*================================================================*
  *                                                                *
@@ -474,9 +464,9 @@ enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
  *                      |                                         * 
  * -------------------------------------------------------------- *
  *                      |                                         *
- * CVodeSetQuadErrCon   | the type of error control. The legal    *
- *                      | values are FULL and PARTIAL.            *
- *                      | [FULL]                                  *
+ * CVodeSetQuadErrCon   | are quadrature variables considered in  *
+ *                      | the error control?                      *
+ *                      | [TRUE]                                  *
  *                      |                                         *
  * CVodeSetQuadFdata    | a pointer to user data that will be     *
  *                      | passed to the user's fQ function every  *
@@ -490,7 +480,7 @@ enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
  * defined for the CVodeSet* routines.                            *
  *----------------------------------------------------------------*/
 
-int CVodeSetQuadErrCon(void *cvode_mem, int errconQ);
+int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ);
 int CVodeSetQuadFdata(void *cvode_mem, void *fQ_data);
 
 /*----------------------------------------------------------------*
@@ -572,9 +562,9 @@ enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2, QCVREI_ILL_INPUT = -3};
  *                      | time.                                   *
  *                      | [CVODES difference quotient approx.]    *
  *                      |                                         *
- * CVodeSetSensErrCon   | the type of error control. The legal    *
- *                      | values are FULL and PARTIAL.            *
- *                      | [FULL]                                  *
+ * CVodeSetSensErrCon   | are sensitivity variables considered in *
+ *                      | the error control?                      *
+ *                      | [TRUE]                                  *
  *                      |                                         *
  * CVodeSetSensRho      | controls the selection of finite        *
  *                      | difference schemes used in evaluating   *
@@ -619,7 +609,7 @@ enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2, QCVREI_ILL_INPUT = -3};
 
 int CVodeSetSensRhsFn(void *cvode_mem, SensRhsFn fS);
 int CVodeSetSensRhs1Fn(void *cvode_mem, SensRhs1Fn fS);
-int CVodeSetSensErrCon(void *cvode_mem, int errconS);
+int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS);
 int CVodeSetSensRho(void *cvode_mem, realtype rho);
 int CVodeSetSensPbar(void *cvode_mem, realtype *pbar);
 int CVodeSetSensReltol(void *cvode_mem, realtype *reltolS);
@@ -1143,7 +1133,7 @@ typedef struct CVodeMemRec {
   int cv_itolQ;
   realtype *cv_reltolQ;    /* ptr to relative tolerance for quad           */
   void *cv_abstolQ;        /* ptr to absolute tolerance for quad           */
-  int cv_errconQ;
+  booleantype cv_errconQ;
   void *cv_fQ_data;        /* user pointer passed to fQ                    */
 
   /*--------------------------
@@ -1164,7 +1154,7 @@ typedef struct CVodeMemRec {
   void *cv_abstolS;        /* ptr to absolute tolerance for sensi          */
   realtype cv_rhomax;      /* cut-off value for centered/forward finite
                               differences                                  */
-  int cv_errcon;           /* errcon = FULL or PARTIAL                     */
+  booleantype cv_errconS;  /* TRUE if sensitivities are in err. control    */
   void *cv_fS_data;        /* user pointer passed to fS                    */
 
   /*-------------------------

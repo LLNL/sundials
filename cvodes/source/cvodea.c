@@ -69,9 +69,6 @@
 
 #define CVBQM               "CVodeQuadMallocB-- "
 #define MSG_CVBQM_NO_MEM    CVBQM "cvadj_mem=NULL illegal.\n\n"
-#define MSG_BAD_ECONQB_1    CVBQM "errconQB=%d illegal.\n"
-#define MSG_BAD_ECONQB_2    "The legal values are FULL=%d and PARTIAL=%d.\n\n"
-#define MSG_BAD_ECONQB      MSG_BAD_ECONQB_1 MSG_BAD_ECONQB_2
 
 #define CVB                 "CVodeB-- "
 #define MSG_CVODEB_FWD      CVB "an error occured during the forward phase.\n\n"
@@ -648,7 +645,7 @@ int CVodeReInitB(void *cvadj_mem, RhsFnB fB,
 /*-- CVodeSetQuad*B, CVodeQuadMallocB, and CVodeQuadReInitB -------*/
 /*-----------------------------------------------------------------*/
 
-int CVodeSetQuadErrConB(void *cvadj_mem, int errconQB)
+int CVodeSetQuadErrConB(void *cvadj_mem, booleantype errconQB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
