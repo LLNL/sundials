@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-10-18 18:40:37 $
+ * $Revision: 1.8 $
+ * $Date: 2004-11-15 19:01:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -63,27 +63,27 @@
 /* Problem Constants */
 
 #define NVARS        2             /* number of species         */
-#define KH           4.0e-6        /* horizontal diffusivity Kh */
-#define VEL          0.001         /* advection velocity V      */
-#define KV0          1.0e-8        /* coefficient in Kv(y)      */
-#define Q1           1.63e-16      /* coefficients q1, q2, c3   */
-#define Q2           4.66e-16
-#define C3           3.7e16
-#define A3           22.62         /* coefficient in expression for q3(t) */
-#define A4           7.601         /* coefficient in expression for q4(t) */
-#define C1_SCALE     1.0e6         /* coefficients in initial profiles    */
-#define C2_SCALE     1.0e12
+#define KH           RCONST(4.0e-6)        /* horizontal diffusivity Kh */
+#define VEL          RCONST(0.001)         /* advection velocity V      */
+#define KV0          RCONST(1.0e-8)        /* coefficient in Kv(y)      */
+#define Q1           RCONST(1.63e-16)      /* coefficients q1, q2, c3   */
+#define Q2           RCONST(4.66e-16)
+#define C3           RCONST(3.7e16)
+#define A3           RCONST(22.62)         /* coefficient in expression for q3(t) */
+#define A4           RCONST(7.601)         /* coefficient in expression for q4(t) */
+#define C1_SCALE     RCONST(1.0e6)         /* coefficients in initial profiles    */
+#define C2_SCALE     RCONST(1.0e12)
 
-#define T0           0.0           /* initial time */
+#define T0           RCONST(0.0)           /* initial time */
 #define NOUT         12            /* number of output times */
-#define TWOHR        7200.0        /* number of seconds in two hours  */
-#define HALFDAY      4.32e4        /* number of seconds in a half day */
-#define PI       3.1415926535898   /* pi */
+#define TWOHR        RCONST(7200.0)        /* number of seconds in two hours  */
+#define HALFDAY      RCONST(4.32e4)        /* number of seconds in a half day */
+#define PI       RCONST(3.1415926535898)   /* pi */
 
-#define XMIN          0.0          /* grid boundaries in x  */
-#define XMAX         20.0
-#define YMIN         30.0          /* grid boundaries in y  */
-#define YMAX         50.0
+#define XMIN         RCONST(0.0)          /* grid boundaries in x  */
+#define XMAX         RCONST(20.0)
+#define YMIN         RCONST(30.0)          /* grid boundaries in y  */
+#define YMAX         RCONST(50.0)
 
 /* no. PEs in x and y directions of the PE matrix */
 /* Total no. PEs = NPEX*NPEY */
@@ -109,7 +109,7 @@
                                     /* Spatial mesh is MX by MY */
 
 /* These are (the only) testing-related definitions */
-#define DELTA        0.01
+#define DELTA        RCONST(0.01)
 #define OUTPUT_PATH  "data"         /* Directory where grid output goes */
 #define PRINT_GRIDINFO -1
 #define PRINT_BINARY 1
@@ -117,8 +117,8 @@
 
 /* CVodeMalloc Constants */
 
-#define RTOL    1.0e-5            /* scalar relative tolerance */
-#define FLOOR   100.0             /* value of C1 or C2 at which tolerances */
+#define RTOL    RCONST(1.0e-5)            /* scalar relative tolerance */
+#define FLOOR   RCONST(100.0)             /* value of C1 or C2 at which tolerances */
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 
@@ -308,8 +308,16 @@ int main(int argc, char *argv[])
 
     sprintf(filename,"%s/gridinfo",OUTPUT_PATH);
     griddata = fopen(filename,"w");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(griddata,"%d %d %d %d %Lg %Lg %Lg %Lg\n",NPEX,NPEY,MXSUB,MYSUB,
+	    XMIN,XMAX,YMIN,YMAX);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(griddata,"%d %d %d %d %lg %lg %lg %lg\n",NPEX,NPEY,MXSUB,MYSUB,
+	    XMIN,XMAX,YMIN,YMAX);
+#else
     fprintf(griddata,"%d %d %d %d %g %g %g %g\n",NPEX,NPEY,MXSUB,MYSUB,
-						 XMIN,XMAX,YMIN,YMAX);
+	    XMIN,XMAX,YMIN,YMAX);
+#endif
     fclose(griddata);
   }
 #endif
@@ -333,7 +341,13 @@ int main(int argc, char *argv[])
       PrintGrids(NULL,NULL, my_pe, comm, u);
       
       if (my_pe == 0)
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+        fprintf(timesteps,"%8.3Le\n",tout);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+        fprintf(timesteps,"%8.3le\n",tout);
+#else
         fprintf(timesteps,"%8.3e\n",tout);
+#endif
     }
 #endif
 
@@ -351,18 +365,32 @@ int main(int argc, char *argv[])
   /* do timing */
   mpi_time = MPI_Wtime() - mpi_time_start;
   if (my_pe == 0) {
+#if defined(SUNDIALS_EXTENED_PRECISION)
+    printf("seconds used: %Lg\n",mpi_time);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("seconds used: %lg\n",mpi_time);
+#else
     printf("seconds used: %g\n",mpi_time);
+#endif
 
     if (PRINT_GRIDINFO == 0) {
       times = fopen("test_times","a");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+      fprintf(times,"%d %d %d %d %Lg\n",NPEX,NPEY,MXSUB,MYSUB,
+	      mpi_time);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+      fprintf(times,"%d %d %d %d %lg\n",NPEX,NPEY,MXSUB,MYSUB,
+	      mpi_time);
+#else
       fprintf(times,"%d %d %d %d %g\n",NPEX,NPEY,MXSUB,MYSUB,
-					  mpi_time);
+	      mpi_time);
+#endif
       fclose(times);
     }
   }
 
   /* Free memory */
-  N_VDestroy(u);
+  N_VDestroy_Parallel(u);
   FreeUserData(data);
   CVodeFree(cvode_mem);
 
@@ -404,8 +432,8 @@ static void InitUserData(long int my_pe, MPI_Comm comm, UserData data)
   data->dx = (XMAX-XMIN)/((realtype)(MX-1));
   data->dy = (YMAX-YMIN)/((realtype)(MY-1));
   data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(2.0*data->dx);
-  data->vdco = (1.0/SQR(data->dy))*KV0;
+  data->haco = VEL/(RCONST(2.0)*data->dx);
+  data->vdco = (RCONST(1.0)/SQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -459,18 +487,18 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   and jx and jy are the global mesh point indices. */
 
   offset = 0;
-  xmid = .5*(XMIN + XMAX);
-  ymid = .5*(YMIN + YMAX);
+  xmid = RCONST(0.5)*(XMIN + XMAX);
+  ymid = RCONST(0.5)*(YMIN + YMAX);
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + isuby*MYSUB;
     y = YMIN + jy*dy;
-    cy = 0.1*(y - ymid);
-    cy = 0.75 + 0.25*tanh(cy/DELTA);
+    cy = RCONST(0.1)*(y - ymid);
+    cy = RCONST(0.75) + RCONST(0.25)*tanh(cy/DELTA);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
       x = XMIN + jx*dx;
-      cx = SQR(0.1*(x - xmid));
-      cx = 1.0 - cx + 0.5*SQR(cx);
+      cx = SQR(RCONST(0.1)*(x - xmid));
+      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
       udata[offset  ] = C1_SCALE*cx*cy;
       udata[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;
@@ -517,10 +545,22 @@ static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
     flag = CVodeGetCurrentStep(cvode_mem, &hu);
     check_flag(&flag, "CVodeGetCurrentStep", 1, 0);
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n",
+           t, nst, qu, hu);
+    printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", udata[0], udata[1]);
+    printf("At top right:    c1, c2 = %12.3Le %12.3Le \n\n", tempu[0], tempu[1]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("t = %.2le   no. steps = %ld   order = %d   stepsize = %.2le\n",
+           t, nst, qu, hu);
+    printf("At bottom left:  c1, c2 = %12.3le %12.3le \n", udata[0], udata[1]);
+    printf("At top right:    c1, c2 = %12.3le %12.3le \n\n", tempu[0], tempu[1]);
+#else
     printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
            t, nst, qu, hu);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", udata[0], udata[1]);
     printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
+#endif
   }
 }
 
@@ -598,8 +638,16 @@ static void PrintRow(realtype *row, FILE* f1, FILE* f2)
     fwrite(row+2*i,sizeof(realtype),1,f1);
     fwrite(row+2*i+1,sizeof(realtype),1,f2);
 #else
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(f1,"%8.3Le ",row[2*i]);
+    fprintf(f2,"%8.3Le ",row[2*i+1]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(f1,"%8.3le ",row[2*i]);
+    fprintf(f2,"%8.3le ",row[2*i+1]);
+#else
     fprintf(f1,"%8.3e ",row[2*i]);
     fprintf(f2,"%8.3e ",row[2*i+1]);
+#endif
 #endif
   }
 }
@@ -834,12 +882,12 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   /* Set diurnal rate coefficients as functions of t */
 
   s = sin((data->om)*t);
-  if (s > 0.0) {
+  if (s > RCONST(0.0)) {
     q3 = exp(-A3/s);
     data->q4 = exp(-A4/s);
   } else {
-    q3 = 0.0;
-    data->q4 = 0.0;
+    q3 = RCONST(0.0);
+    data->q4 = RCONST(0.0);
   }
   
   /* Make local copies of problem variables, for efficiency */
@@ -913,10 +961,10 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     
     /* Set vertical diffusion coefficients at jy +- 1/2 */
 
-    ydn = YMIN + (jy - .5)*dely;
+    ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(0.2*ydn);
-    cyup = verdco*exp(0.2*yup);
+    cydn = verdco*exp(RCONST(0.2)*ydn);
+    cyup = verdco*exp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
       
       jx = lx + isubx*MXSUB;
@@ -930,7 +978,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
       qq2 = Q2*c1*c2;
       qq3 = q3*C3;
       qq4 = q4coef*c2;
-      rkin1 = -qq1 - qq2 + 2.0*qq3 + qq4;
+      rkin1 = -qq1 - qq2 + RCONST(2.0)*qq3 + qq4;
       rkin2 = qq1 - qq2 - qq4;
 
       /* Set vertical diffusion terms */
@@ -948,11 +996,11 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
       c2lt = uext[offsetue-1];
       c1rt = uext[offsetue+2];
       c2rt = uext[offsetue+3];
-      hord1 = hordco*(c1rt - 2.0*c1 + c1lt);
-      hord2 = hordco*(c2rt - 2.0*c2 + c2lt);
-      bcfac = (jx==0 || jx==MX-1) ? 0.0 : 1.0;
-      horad1 = horaco*(1.5*c1rt - c1 - .5*c1lt)*bcfac;
-      horad2 = horaco*(1.5*c2rt - c2 - .5*c2lt)*bcfac;
+      hord1 = hordco*(c1rt - RCONST(2.0)*c1 + c1lt);
+      hord2 = hordco*(c2rt - RCONST(2.0)*c2 + c2lt);
+      bcfac = (jx==0 || jx==MX-1) ? RCONST(0.0) : RCONST(1.0);
+      horad1 = horaco*(RCONST(1.5)*c1rt - c1 - RCONST(0.5)*c1lt)*bcfac;
+      horad2 = horaco*(RCONST(1.5)*c2rt - c2 - RCONST(0.5)*c2lt)*bcfac;
 
       /* Load all terms into udot */
 
@@ -1018,11 +1066,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
     
     for (ly = 0; ly < MYSUB; ly++) {
       jy = ly + isuby*MYSUB;
-      ydn = YMIN + (jy - .5)*dely;
+      ydn = YMIN + (jy - RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*exp(0.2*ydn);
-      cyup = verdco*exp(0.2*yup);
-      diagd = -(cydn + cyup + 2.0*hordco);
+      cydn = verdco*exp(RCONST(0.2)*ydn);
+      cyup = verdco*exp(RCONST(0.2)*yup);
+      diagd = -(cydn + cyup + RCONST(2.0)*hordco);
       for (lx = 0; lx < MXSUB; lx++) {
         jx = lx + isubx*MXSUB;
         diag = (jx==0 || jx==MX-1) ? diagd : diagd - horaco;
