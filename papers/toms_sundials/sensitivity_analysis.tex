@@ -33,8 +33,9 @@ output functional with respect to any set of model parameters.
 
 For each of the basic solvers described in Section~\ref{s:basic_solvers},
 extensions that are sensitivity-enabled are already available (CVODES)
-or under development (IDAS). Current plans include a sensitivity
-enabled extension to the nonlinear solver, KINSOLS.
+or under development (IDAS). 
+%%Current plans include a sensitivity
+%%enabled extension to the nonlinear solver, KINSOLS.
 The various algorithmic features of CVODES and IDAS are documented
 in~\cite{CLPS:03}. A detailed description of the CVODES software package
 is presented in~\cite{SeHi:03}, while full usage description is given
@@ -57,7 +58,7 @@ $p = [p_1,\ldots,p_{N_p}]$,
 including the case where the initial value vector $y_0$ depends on $p$,
 and we consider a scalar output functional of the form $g(t,y,p)$.
 %
-In addition to $y$ as a function of $t$, we want the gradient
+In addition to $y$ as a function of $t$, we want the total derivative
 $d g / d p  = ({\partial g}/{\partial y}) s + {\partial g}/{\partial p}$,
 where $s = dy/dp \in R^{N \times N_p}$ is the so-called sensitivity matrix.
 %
@@ -144,7 +145,7 @@ To be specific about how the adjoint approach works, we consider
 the following situation. We assume as before that $f$ and/or $y_0$
 involves the parameter vector $p$ and that there is a
 functional $g(t,y,p)$ for which we desire the
-gradient $(dg/dp)|_{t=t_{\mbox{\tiny f}}}$
+total derivative $(dg/dp)|_{t=t_{\mbox{\tiny f}}}$
 at the final time $t_{\mbox{\scriptsize f}}$.
 We first integrate the original problem (\ref{e:ODE_with_p}) forward
 from $t_0$ to $t_{\mbox{\scriptsize f}}$. The next step in the procedure is to integrate
@@ -219,7 +220,7 @@ similar to the ODE case. As an example, if $\lambda$ satisfies
   - \left(\frac{\partial F}{\partial y}\right)^T \lambda
   = - \left( \frac{\partial g}{\partial y}\right)^T \, ,
 \end{equation}
-with appropriate conditions at $t_{\mbox{\scriptsize f}}$, then the gradient of
+with appropriate conditions at $t_{\mbox{\scriptsize f}}$, then the total derivative of
 $G(p) = \int_{t_0}^{t_{\mbox{\tiny f}}} g(t,y,p) dt$ is obtained as
 \begin{equation*}
   \frac{dG}{dp} =
@@ -284,7 +285,7 @@ where $\sigma_i = |{\bar p}_i| \sqrt{U}$.
 
 When the dimension $N_p$ of the problem parameters $p$ is large, the
 {\em adjoint sensitivity} is again a much more efficient method for computing
-the gradient of some functional $g(u,p)$. If $\lambda$ is the solution of
+the total derivative of some functional $g(u,p)$. If $\lambda$ is the solution of
 the adjoint system
 \begin{equation*}
   J^T \lambda = \left( \frac{\partial g}{\partial u} \right)^T \, ,
