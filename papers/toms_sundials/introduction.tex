@@ -1,59 +1,95 @@
 \section{Introduction}
 
-{\sf need for time integrators and solvers, need for robust
-software that can be added to existing codes, introduce SUNDIALS
-and its basic design principles (restrict to minimal info. from
-user, let user supply data structures underneath, allow swap of
-linear solvers), introduce need for sensitivity and ease of adding
-it to existing codes for these problem classes. }
+With the ever-increasing capabilities of modern computers, simulation 
+code developers are challenged to develop fast and robust software 
+capable of solving problems with increasingly higher resolutions and 
+modeling more complex 
+physical phenomena.  At the heart of many numerical simulation codes
+lie systems of nonlinear algebraic or time-dependent equations, and 
+simulation scientists continue to require efficient solvers for these 
+systems.  
 
-LLNL has a long history of research and development in ordinary
-differential equation (ODE) methods and software, and closely related
+To meet this need, LLNL has a long history of research and 
+development in ordinary
+differential equation (ODE) methods and software, along with closely related
 areas, with emphasis on applications to partial differential equations
 (PDEs).  Among the popular Fortran solvers written at LLNL are the
 following:
-\vspace*{-.19in}
 \begin{itemize}
-
 \item VODE: a solver for ODE initial value problems for stiff/nonstiff
 systems, with direct solution of linear systems, by Brown, Byrne, and
 Hindmarsh \cite{BBH:89}.
-
 \item VODPK: a variant of VODE with preconditioned Krylov (GMRES
 iteration) solution of the linear systems in place of direct methods,
 by Brown, Byrne, and Hindmarsh \cite{Byr:92}.
-
 \item NKSOL: a Newton-Krylov (GMRES) solver for nonlinear algebraic
 systems, by Brown and Saad \cite{BrSa:90}.
-
 \item DASPK: a solver for differential-algebraic equation (DAE)
 systems (a variant of DASSL) with both direct and preconditioned
 Krylov solution methods for the linear systems, by Brown, Hindmarsh,
 and Petzold \cite{BHP:94}.
-
 \end{itemize}
-
-In recent years, there has been special interest in two kinds of
-extensions of this software.  One is the extension to parallel
-solution of large problems, especially on massively parallel machines.
-The other is extensions to do sensitivity analysis, which centers
-on the calculation of sensitivity of solution with respect to model
-parameters.
-
 Starting in 1993, the push to solve large systems in parallel
 motivated work to write or rewrite solvers in C.  The first result of
 that effort was CVODE.  This was a rewrite in ANSI standard C of the
 VODE and VODPK solvers combined, for serial machines
 \cite{CoHi:94,CoHi:96}.  The next result of this effort was PVODE, a
 parallel extension of CVODE \cite{ByHi:98,ByHi:99}.
-
 Similar rewrites of NKSOL and DASPK were then done, using the same
 general design as CVODE and PVODE.  The resulting solvers are called
 KINSOL and IDA, respectively.
-
-More recently, we have changed the naming of these codes, in order
+More recently, we have changed the naming of PVODE in order
 to be consistent throughout the family.  Specifically, there is
-one solver, CVODE, in two versions -- serial and parallel.  Thus
-we refer to the parallel version of CVODE, rather than PVODE.
+one solver, CVODE, which runs in both serial and parallel environments. 
+
+These codes have been combined into the core of SUNDIALS, the  
+SUite of Nonlinear and DIfferential/ALgebraic equation Solvers.  
+This suite, consisting of CVODE, KINSOL, and IDA including current 
+and future implementations with forward and adjoint sensitivity 
+analysis capabilities, was implemented with the goal of providing
+time integrators and nonlinear solvers which can easily be 
+incorporated into existing simulation codes.  The primary design 
+goals were to require minimal information from the user, allow users 
+to easily supply their own data structures underneath the solvers, 
+and allow for easy incorporation of user-supplied linear solvers
+and preconditioners.
+
+As simulations have increased in size and complexity, the 
+relationship between computed results and problem parameters has 
+become harder to establish.  Scientists have a grater need to
+understand answers to questions like: ``Which parameters are 
+most influencial?'', ``How can parameters be adjusted to better 
+match experimental data?'', and ``What is the uncertainty in solutions 
+given uncertainty in data?''  Sensitivity analysis provides 
+information about the relationship of simulation results and model data 
+ which can be critcal to answering these questions.  In addition, for 
+a given parameter, sensitivities can be computed in a modest multiple of 
+the computing time of the simulation itself.  
+The SUNDIALS suite is being expanded to 
+include forward and adjoint sensitivity versions of the solvers.
+The first of these, CVODES, is complete.  A brief description of the
+strategy for adding sensitivity analysis in a way that respects the
+user interfaces of the SUNDIALS codes is contained in this paper, and 
+a more thorough description of the CVODES package is contained in a sister 
+paper \cite{SeHi:03}.
+
+The rest of this paper is organized as follows.  In Section 
+\ref{s:basic_solvers} the algorithms contained in the three 
+core SUNDIALS solvers, CVODE, KINSOL, and IDA, are presented.  
+We have attempted to capture many of the heuristics related to 
+stopping criteria and finite-difference parameter selection
+where appropriate as these items are generally not included in 
+user documentation.  In Section \ref{s:preconditioning}, the
+preconditioning packages supplied with the SUNDIALS suite are
+described.  Section \ref{s:sensitivity_analysis} overviews
+the CVODES package and strategies for adding sensitivity 
+capabilities to the codes.  Sections \ref{s:organization} and 
+\ref{s:usage} describe the organization of teh codes within the 
+suite and the philosophy of the user interface.  Lastly, 
+applications and availability of the codes are given in 
+Sections \ref{s:applications} and \ref{s:availability}.  Some
+concluding remarks and indication of future development
+are contained in the last section.
+
 
 
