@@ -12,7 +12,7 @@
 %----------------------------------
 
 \index{KINSOL@{\kinsol}!package structure}
-The {\kinsol} package is written in the ANSI {\C} language. The following
+The {\kinsol} package is written in the ANSI {\C} language. This section
 summarizes the basic structure of the package, although knowledge
 of this structure is not necessary for its use.
 
@@ -23,7 +23,8 @@ The overall organization of the {\kinsol} package is shown in Figure
 \caption [Overall structure diagram of the {\kinsol} package]
 {Overall structure diagram of the {\kinsol} package.
   Modules specific to {\kinsol} are distinguished by rounded boxes, while
-  generic solver and auxiliary modules are in rectangular boxes.}
+  generic solver and auxiliary modules are in rectangular boxes.
+  Grayed boxes refer to the encompassing {\sundials} structure.}
 \label{f:kinorg}
 \end{figure}
 
@@ -51,7 +52,7 @@ a vector of appropriate length. The user has the option of providing
 a routine for this operation.
 With \index{preconditioning!setup and solve phases} {\kinspgmr},
 the preconditioning must be supplied by the user, in two phases:
-setup (preprocessing of Jacobian data) and solve.
+setup (preprocessing of preconditioner data) and solve.
 
 \index{KINSOL@{\kinsol} linear solvers!implementation details|(}
 A {\kinsol} linear solver module consists of four routines, devoted to (1)
@@ -79,8 +80,9 @@ revise the {\kinsol} package elsewhere.
 \index{generic linear solvers!use in {\kinsol}|)}
 
 {\kinsol} also provides a preconditioner module called {\kinbbdpre} which
-works in conjunction with {\nvecp} and generates a preconditioner that is
-a block-diagonal matrix with each block being a band matrix.
+works in conjunction with {\nvecp} to generate a preconditioner that is
+a block-diagonal matrix with each block being a band matrix, as
+further described in \S\ref{sss:kinbbdpre}.
 
 All state information used by {\kinsol} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
@@ -89,5 +91,5 @@ respect it is reentrant. State information specific to the linear
 solver is saved in a separate structure, a pointer to which resides in
 the {\kinsol} memory structure. The reentrancy of {\kinsol} was motivated
 by the anticipated multicomputer extension, but is also essential
-in a uniprocessor setting where two or more problems are solved by
+in a uniprocessor setting where two or more different problems are solved by
 intermixed calls to the package from one user program.
