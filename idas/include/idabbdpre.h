@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-10-08 19:20:57 $
+ * $Revision: 1.9 $
+ * $Date: 2004-10-11 17:01:21 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -238,7 +238,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
  *    IDASPGMR_MEM_NULL   if the ida memory was NULL
  *    IDASPGMR_MEM_FAIL   if there was a memory allocation failure 
  *    IDASPGMR_ILL_INPUT  if there was illegal input.      
- *    IDASPGMR_DATA_NULL  if p_data was NULL.
+ *    IDA_PDATA_NULL      if p_data was NULL.
  * -----------------------------------------------------------------
  */
 

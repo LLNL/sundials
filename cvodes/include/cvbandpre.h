@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-08 15:21:59 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-11 17:00:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -135,7 +135,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
  *    CVSPGMR_LMEM_NULL   if the cvspgmr memory was NULL
  *    CVSPGMR_MEM_FAIL    if there was a memory allocation failure     
  *    CVSPGMR_ILL_INPUT   if a required vector operation is missing
- *    CVBP_DATA_NULL      if the bp_data was NULL
+ *    CV_PDATA_NULL       if the bp_data was NULL
  * -----------------------------------------------------------------
  */
 
@@ -162,8 +162,8 @@ void CVBandPrecFree(void *bp_data);
  *    CVBANDPRE to the user's right hand side routine f. 
  *
  * The return value of CVBandPrecGet* is one of:
- *    CVBP_SUCCESS   if successful
- *    CVBP_DATA_NULL if the bp_data memory was NULL
+ *    CV_SUCCESS    if successful
+ *    CV_PDATA_NULL if the bp_data memory was NULL
  * -----------------------------------------------------------------
  */
 
