@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-08-12 22:25:01 $
+ * $Revision: 1.26 $
+ * $Date: 2004-08-17 21:12:21 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -60,8 +60,8 @@
  * 
  *   FCVFREE    interfaces to CVodeFree
  * 
- *   FNVFREES and FNVFREEP finalize serial and parallel vector
- *              computations, respectively
+ *   FNVFREES and FNVFREEP interface to N_VDestroyEmpty_Serial and
+ *              N_VDestroyEmpty_Parallel, respectively.
  * 
  * The user-supplied functions, each listed with the corresponding interface
  * function which calls it (and its type within CVODE), are as follows:
