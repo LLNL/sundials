@@ -270,7 +270,7 @@
 
 #define MSG_BAD_ABSTOLS     IDAIS "Some abstolS component < 0.0 illegal.\n\n"  
 
-#define MSG_IDAIS_MEM_FAIL  IDAIS "A memory request failed.\n\n"
+#define MSG_IDAIS_MEM_FAIL  IDAIS "A memory request failed (abstolS).\n\n"
 
 #define MSG_BAD_PBAR        IDAIS "Some pbar component = 0.0 illegal.\n\n"
 
