@@ -316,8 +316,7 @@ The arguments are:
 TOUT  = next value of t at which a solution is desired (input)
 T     = value of t reached by the solver on output
 Y     = array containing the computed solution on output
-ITASK = task indicator: 0 = default (normal mode)
-        1 = normal mode (overshoot TOUT and interpolate)
+ITASK = task indicator: 1 = normal mode (overshoot TOUT and interpolate)
         2 = one-step mode (return after each internal step taken)
         3 = normal tstop mode (like 0, but integration never proceeds past 
             TSTOP, which must be specified through the user input ROPT(8))
