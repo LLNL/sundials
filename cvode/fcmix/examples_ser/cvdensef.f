@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.17 $
-C     $Date: 2004-10-12 21:33:57 $
+C     $Revision: 1.18 $
+C     $Date: 2004-10-14 23:38:59 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -28,10 +28,16 @@ C     because y2 has much smaller values. At the end of the run,
 C     various counters of interest are printed.
 C     ----------------------------------------------------------------
 C
+      IMPLICIT NONE
+C
+      INTEGER IER, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE, I
+      INTEGER METH, ITMETH, ITOL, INOPT, ITASK, IOUT, NOUT, IERROOT
+      INTEGER INFO(2)
+      INTEGER*4 IOPT(40)
+      INTEGER*4 NEQ, NGE
       DOUBLE PRECISION RTOL, T, T0, TOUT
       DOUBLE PRECISION Y(3), ATOL(3), ROPT(40)
-      INTEGER IOUT, NOUT, NGE
-      INTEGER IOPT(40), INFO(2)
+C
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
      1     LNJE/18/, NGE/25/
 C
@@ -43,10 +49,10 @@ C
       METH = 2
       ITMETH = 2
       ITOL = 2
-      RTOL = 1.D-4
-      ATOL(1) = 1.D-8
-      ATOL(2) = 1.D-14
-      ATOL(3) = 1.D-6
+      RTOL = 1.0D-4
+      ATOL(1) = 1.0D-8
+      ATOL(2) = 1.0D-14
+      ATOL(3) = 1.0D-6
       INOPT = 0
       TOUT = 0.4D0
       ITASK = 1
@@ -54,20 +60,20 @@ C
       NOUT = 12
 C
       WRITE(6,10) NEQ
- 10   FORMAT('Dense example problem: Robertson kinetics, NEQ = ',I2/)
+ 10   FORMAT('Dense example problem: Robertson kinetics, NEQ = ', I2//)
 C
-      CALL FNVINITS (NEQ, IER)
+      CALL FNVINITS(NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
- 20     FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER = ',I5)
+ 20     FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER = ', I5)
         STOP
       ENDIF
 C
-      CALL FCVMALLOC (T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
-     1                INOPT, IOPT, ROPT, IER)
+      CALL FCVMALLOC(T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
+     1               INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
- 30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ',I5)
+ 30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
         CALL FNVFREES
         STOP
       ENDIF
@@ -75,16 +81,16 @@ C
       CALL FCVROOTINIT(2, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,45) IER
- 45      FORMAT(///' SUNDIALS_ERROR: FCVROOTINIT returned IER = ',I5)
+ 45      FORMAT(///' SUNDIALS_ERROR: FCVROOTINIT returned IER = ', I5)
          CALL FNVFREES
          CALL FCVFREE
          STOP
       ENDIF
 C
-      CALL FCVDENSE (NEQ, IER)
+      CALL FCVDENSE(NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FCVDENSE returned IER = ',I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVDENSE returned IER = ', I5)
         CALL FNVFREES
         CALL FCVFREE
         STOP
@@ -92,17 +98,17 @@ C
 C
       CALL FCVDENSESETJAC(1, IER)
 C
-      DO WHILE (IOUT .LT. NOUT)
+      DO WHILE(IOUT .LT. NOUT)
 C
-        CALL FCVODE (TOUT, T, Y, ITASK, IER)
+        CALL FCVODE(TOUT, T, Y, ITASK, IER)
 C
-        WRITE(6,50)T,Y(1),Y(2),Y(3)
- 50     FORMAT('At t =',D12.4,'   y =',3D14.6)
+        WRITE(6,50) T, Y(1), Y(2), Y(3)
+ 50     FORMAT('At t = ', E14.6, '   y = ', 3E14.6)
 C
         IF (IER .LT. 0) THEN
            WRITE(6,60) IER, IOPT(26)
- 60        FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ',I5,/,
-     1              '                 Linear Solver returned IER = ',I5)
+ 60        FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
+     1            '                 Linear Solver returned IER = ', I5)
            CALL FNVFREES
            CALL FCVROOTFREE
            CALL FCVFREE
@@ -120,37 +126,37 @@ C
               CALL FCVFREE
               STOP
            ENDIF
-           WRITE(6,70)(INFO(I),I=1,2)
- 70        FORMAT(5X,'Above is a root, INFO() =',2I3)
+           WRITE(6,70) (INFO(I), I = 1, 2)
+ 70        FORMAT(5X, 'Above is a root, INFO() = ', 2I3)
         ENDIF                   
 C
         IF (IER .EQ. 0) THEN
-           TOUT = TOUT*10.0D0
-           IOUT = IOUT+1
+           TOUT = TOUT * 10.0D0
+           IOUT = IOUT + 1
         ENDIF
 C
       ENDDO
 C
-      CALL FCVDKY (T, 1, Y, IER)
+      CALL FCVDKY(T, 1, Y, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,80) IER
- 80      FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER = ',I5)
+ 80      FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER = ', I5)
          CALL FNVFREES
          CALL FCVROOTFREE
          CALL FCVFREE
          STOP
       ENDIF
-      WRITE(6,85)Y(1),Y(2),Y(3)
- 85   FORMAT(/'Final value of ydot =',3D11.3)
+      WRITE(6,85) Y(1), Y(2), Y(3)
+ 85   FORMAT(/'Final value of ydot = ', 3E14.6)
 C
       WRITE(6,90) IOPT(LNST), IOPT(LNFE), IOPT(LNJE), IOPT(LNSETUP),
      1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF), IOPT(NGE)
- 90   FORMAT(/'No. steps =',I4,'   No. f-s =',I4,
-     1       '   No. J-s =',I4,'   No. LU-s =',I4/
-     2       'No. nonlinear iterations =',I4/
-     3       'No. nonlinear convergence failures =',I4/
-     4       'No. error test failures =',I4/
-     5       'No. root function evals =',I4)
+ 90   FORMAT(//'No. steps = ', I4, '   No. f-s = ', I4,
+     1       '   No. J-s = ', I4, '   No. LU-s = ', I4/
+     2       'No. nonlinear iterations = ', I4/
+     3       'No. nonlinear convergence failures = ', I4/
+     4       'No. error test failures = ', I4/
+     5       'No. root function evals = ', I4)
 C
       CALL FCVROOTFREE
       CALL FCVFREE
@@ -159,35 +165,46 @@ C
       STOP
       END
 
-      SUBROUTINE FCVFUN (T, Y, YDOT)
+      SUBROUTINE FCVFUN(T, Y, YDOT)
 C Fortran routine for right-hand side function.
+      IMPLICIT NONE
+C
       DOUBLE PRECISION T, Y(*), YDOT(*)
-      YDOT(1) = -.04D0*Y(1) + 1.D4*Y(2)*Y(3)
-      YDOT(3) = 3.D7*Y(2)*Y(2)
+C
+      YDOT(1) = -0.04D0 * Y(1) + 1.0D4 * Y(2) * Y(3)
+      YDOT(3) = 3.0D7 * Y(2) * Y(2)
       YDOT(2) = -YDOT(1) - YDOT(3)
       RETURN
       END
 
-      SUBROUTINE FCVROOTFN (T, Y, G)
+      SUBROUTINE FCVROOTFN(T, Y, G)
 C Fortran routine for root finding
+      IMPLICIT NONE
+C
       DOUBLE PRECISION T, Y(*), G(*)
-      G(1) = Y(1) - 1.D-4
-      G(2) = Y(3) - 1.D-2
+C
+      G(1) = Y(1) - 1.0D-4
+      G(2) = Y(3) - 1.0D-2
       RETURN
       END
 
       SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, EWT, H, V1, V2, V3)
 C Fortran routine for dense user-supplied Jacobian.
+      IMPLICIT NONE
+C
+      INTEGER*4 N
       DOUBLE PRECISION T, Y(*), JAC(N,*), Y1, Y2, Y3
+      DOUBLE PRECISION FY, EWT, V1, V2, V3, H
+C
       Y1 = Y(1)
       Y2 = Y(2)
       Y3 = Y(3)
       JAC(1,1) = -0.04D0
-      JAC(1,2) = 1.D4*Y3
-      JAC(1,3) = 1.D4*Y2
+      JAC(1,2) = 1.0D4 * Y3
+      JAC(1,3) = 1.0D4 * Y2
       JAC(2,1) =  0.04D0
-      JAC(2,2) = -1.D4*Y3 - 6.D7*Y2
-      JAC(2,3) = -1.D4*Y2
-      JAC(3,2) = 6.D7*Y2
+      JAC(2,2) = -1.0D4 * Y3 - 6.0D7 * Y2
+      JAC(2,3) = -1.0D4 * Y2
+      JAC(3,2) = 6.0D7 * Y2
       RETURN
       END
