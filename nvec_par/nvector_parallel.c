@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-11-03 23:14:43 $
+ * $Revision: 1.18 $
+ * $Date: 2004-12-01 18:37:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -375,6 +375,7 @@ N_Vector N_VClone_Parallel(N_Vector w)
     if(data == NULL) {N_VDestroy_Parallel(v);return(NULL);}
 
     /* Attach data */
+    NV_OWN_DATA_P(v) = TRUE;
     NV_DATA_P(v) = data;
   }
 
