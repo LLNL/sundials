@@ -1,44 +1,46 @@
-/*******************************************************************
- *                                                                 *
- * File          : cvodea.h                                        *
- * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 07 January 2004                                 *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the interface file for the CVODEA adjoint integrator.   *
- *                                                                 *
- * Function types:                                                 *
- *    RhsFnB                                                       *
- *    CVDenseJacFnB                                                *
- *    CVBandJacFnB                                                 *
- *    CVSpgmrPrecSetupFnB                                          *
- *    CVSpgmrPrecSolveB                                            *
- *    CVSpgmrJacTimesVecFnB                                        *
- * Exported functions prototypes:                                  *
- *    CVadjMalloc                                                  *
- *    CVodeF                                                       *
- *    CVodeCreateB                                                 *
- *    CVodeMallocB                                                 *
- *    CVDenseB                                                     *
- *    CVBandB                                                      *
- *    CVBandPrecAllocB                                             *
- *    CVBandPrecFreeB                                              *
- *    CVSpgmrB                                                     *
- *    CVodeB                                                       *
- *    CVadjFree                                                    *
- *    CVadjGetY                                                    *
- *    CVadjCheckPointsList                                         *
- *    CVadjDataExtract                                             *
- * Type definitions:                                               *
- *    struct CkpntMemRec, CkpntMem                                 *
- *    struct DtpntMemRec, DtpntMem                                 *
- *    struct CVadjMemRec, CVadjMem                                 *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.19 $
+ * $Date: 2004-04-03 00:28:06 $
+ * ----------------------------------------------------------------- 
+ * Programmers   : Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California 
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvodes/LICENSE
+ * -----------------------------------------------------------------
+ * This is the interface file for the CVODEA adjoint integrator.
+ * 
+ * Function types:
+ *    RhsFnB      
+ *    CVDenseJacFnB
+ *    CVBandJacFnB 
+ *    CVSpgmrPrecSetupFnB
+ *    CVSpgmrPrecSolveB  
+ *    CVSpgmrJacTimesVecFnB
+ * Exported functions prototypes:
+ *    CVadjMalloc
+ *    CVodeF     
+ *    CVodeCreateB
+ *    CVodeMallocB
+ *    CVDenseB    
+ *    CVBandB 
+ *    CVBandPrecAllocB
+ *    CVBandPrecFreeB 
+ *    CVSpgmrB
+ *    CVodeB  
+ *    CVadjFree
+ *    CVadjGetY
+ *    CVadjCheckPointsList
+ *    CVadjDataExtract    
+ * Type definitions:      
+ *    struct CkpntMemRec, CkpntMem
+ *    struct DtpntMemRec, DtpntMem
+ *    struct CVadjMemRec, CVadjMem
+ * 
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -236,34 +238,22 @@ int CVodeReInitB(void *cvadj_mem, RhsFnB fB,
 
 /******************************************************************
  *                                                                *
- * Function : CVodeSetQuad*B, CVodeQuadMallocB                    *
+ * Function : CVodeSetQuad*B, CVodeQuadMallocB, CVodeQuadReInitB  *
  *----------------------------------------------------------------*
  *                                                                *
  ******************************************************************/
 
-int CVodeSetQuadErrConB(void *cvadj_mem, int errconQB);
 int CVodeSetQuadFdataB(void *cvadj_mem, void *fQ_dataB);
-
-int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB,
-                     int itolQB, realtype *reltolQB, void *abstolQB,
-                     NV_Spec nvspecQB);
+int CVodeSetQuadErrConB(void *cvadj_mem, int errconQB);
+int CVodeSetQuadTolerancesB(void *cvadj_mem, int itolQB, 
+                            realtype *reltolQB, void *abstolQB);
+int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, NV_Spec nvspecQB);
+int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB);
 
 /* CVodeQuadMallocB return values               */
 /* SUCCESS=0, defined under CVode return values */
 /* CVBM_NO_MEM, defined under CVodeMallocB      */
 #define CVBM_ILL_INPUT   -104
-
-/******************************************************************
- *                                                                *
- * Function : CVodeQuadReInitB                                    *
- *----------------------------------------------------------------*
- * CVodeQuadReInitB re-initializaes memory for quadrature         *
- * integration during the backward phase                          *
- *                                                                *
- ******************************************************************/
-
-int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB,
-                     int itolQB, realtype *reltolQB, void *abstolQB);
 
 /******************************************************************
  *                                                                *

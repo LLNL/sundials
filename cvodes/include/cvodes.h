@@ -1,16 +1,19 @@
-/*******************************************************************
- * File          : cvodes.h                                        *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
- *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the interface file for the main CVODES integrator.      *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.19 $
+ * $Date: 2004-04-03 00:28:06 $
+ * ----------------------------------------------------------------- 
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
+ *                 and Dan Shumaker @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvodes/LICENSE
+ * -----------------------------------------------------------------
+ * This is the interface file for the main CVODES integrator.
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -106,7 +109,7 @@ enum { ADAMS, BDF };                                      /* lmm */
 
 enum { FUNCTIONAL, NEWTON };                             /* iter */
 
-enum { SS, SV };                                  /* itol, itolQ */
+enum { SS, SV, EE };                       /* itol, itolQ, itolS */
 
 enum { SIMULTANEOUS, STAGGERED, STAGGERED1 };             /* ism */
 
@@ -193,15 +196,15 @@ typedef void (*SensRhs1Fn)(int Ns, realtype t,
  * The fQ function which defines the right hand side of the       *
  * quadrature equations yQ' = fQ(t,y) must have type QuadRhsFn.   *
  * fQ takes as input the value of the independent variable t,     *
- * the vector of states y and must store the result of fQ in qdot.*
- * (Allocation of memory for qdot is handled within CVODES)       *
+ * the vector of states y and must store the result of fQ in      *
+ * yQdot. (Allocation of memory for yQdot is handled by CVODES).  *
  * The fQ_data parameter is the same as the fQ_data parameter     *
  * set by the user through the CVodeSetQuadFdata routine and is   *
  * passed to the fQ function every time it is called.             *
  * A QuadRhsFn function does not have a return value.             *
  *----------------------------------------------------------------*/
 
-typedef void (*QuadRhsFn)(realtype t, N_Vector y, N_Vector qdot, 
+typedef void (*QuadRhsFn)(realtype t, N_Vector y, N_Vector yQdot, 
                           void *fQ_data);
 
 /*================================================================*
@@ -466,13 +469,16 @@ enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
  *                      |                                         *
  * CVodeSetQuadErrCon   | are quadrature variables considered in  *
  *                      | the error control?                      *
- *                      | [TRUE]                                  *
+ *                      | [FALSE]                                 *
  *                      |                                         *
  * CVodeSetQuadFdata    | a pointer to user data that will be     *
  *                      | passed to the user's fQ function every  *
  *                      | time fQ is called.                      *
  *                      | [NULL]                                  *
  *                      |                                         *
+ *CVodeSetQuadTolerances| set tolerances for quadrature           *
+ *                      | integration. Only needed if errconQ=TRUE*
+ *                      | [no default]                            *
  * -------------------------------------------------------------- *
  * If successful, these functions return SUCCESS. If an argument  *
  * has an illegal value, they print an error message to the       *
@@ -480,8 +486,10 @@ enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
  * defined for the CVodeSet* routines.                            *
  *----------------------------------------------------------------*/
 
-int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ);
 int CVodeSetQuadFdata(void *cvode_mem, void *fQ_data);
+int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ);
+int CVodeSetQuadTolerances(void *cvode_mem, int itolQ, 
+                           realtype *reltolQ, void *abstolQ);
 
 /*----------------------------------------------------------------*
  * Function : CVodeQuadMalloc                                     *
@@ -493,19 +501,6 @@ int CVodeSetQuadFdata(void *cvode_mem, void *fQ_data);
  *                                                                *
  * fQ        is the user-provided integrand routine.              *
  *                                                                *
- * itolQ   is the type of tolerances to be used.                  *
- *            The legal values are:                               *
- *               SS (scalar relative and absolute  tolerances),   *
- *               SV (scalar relative tolerance and vector         *
- *                   absolute tolerance).                         *
- *                                                                *
- * reltolQ   is a pointer to the quadrature relative tolerance    *
- *           scalar.                                              *
- *                                                                *
- * abstolQ   is a pointer to the absolute tolerance scalar or     *
- *           an N_Vector of absolute tolerances for quadrature    *
- *           variables.                                           *
- *                                                                *
  * nvspecQ   is a pointer to a vector specification structure     *
  *           for N_Vectors containing quadrature variables.       *
  *                                                                *
@@ -515,9 +510,7 @@ int CVodeSetQuadFdata(void *cvode_mem, void *fQ_data);
  * the error flags defined below.                                 *
  *----------------------------------------------------------------*/
 
-int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ,
-                    int itolQ, realtype *reltolQ, void *abstolQ,
-                    NV_Spec nvspecQ);
+int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, NV_Spec nvspecQ);
     
 enum {QCVM_NO_MEM = -1, QCVM_ILL_INPUT = -2, QCVM_MEM_FAIL = -3};
 
@@ -536,8 +529,7 @@ enum {QCVM_NO_MEM = -1, QCVM_ILL_INPUT = -2, QCVM_MEM_FAIL = -3};
  * flags defined below is returned.                               *
  *----------------------------------------------------------------*/
 
-int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ,
-                    int itolQ, realtype *reltolQ, void *abstolQ); 
+int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ);
 
 enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2, QCVREI_ILL_INPUT = -3};
 
@@ -562,10 +554,6 @@ enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2, QCVREI_ILL_INPUT = -3};
  *                      | time.                                   *
  *                      | [CVODES difference quotient approx.]    *
  *                      |                                         *
- * CVodeSetSensErrCon   | are sensitivity variables considered in *
- *                      | the error control?                      *
- *                      | [TRUE]                                  *
- *                      |                                         *
  * CVodeSetSensRho      | controls the selection of finite        *
  *                      | difference schemes used in evaluating   *
  *                      | the sensitivity right hand sides.       *
@@ -579,23 +567,30 @@ enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2, QCVREI_ILL_INPUT = -3};
  *                      | must give the order of magnitude of     *
  *                      | parameter p[i]. Typically, if p[i] is   *
  *                      | nonzero, pbar[i]=p[i].                  *
- *                      | [NULL]                                  *
- *                      |                                         *
- * CVodeSetSensReltol   | a pointer to the sensitivity relative   *
- *                      | tolerance scalar.                       *
- *                      | [same as for states]                    *
- *                      |                                         *
- * CVodeSetSensAbstol   | a pointer to the array of sensitivity   *
- *                      | absolute tolerance scalars or a pointer *
- *                      | to the array of N_Vector sensitivity    *
- *                      | absolute tolerances.                    *
- *                      | [estimated by CVODES]                   *
+ *                      | [p_i = 1.0, for all i]                  *
  *                      |                                         *
  * CVodeSetSensFdata    | a pointer to user data that will be     *
  *                      | passed to the user's fS function every  *
  *                      | time fS is called.                      *
  *                      | [NULL]                                  *
  *                                                                *
+ * CVodeSetSensErrCon   | are sensitivity variables considered in *
+ *                      | the error control?                      *
+ *                      | [FALSE]                                 *
+ *                      |                                         *
+ * CVodeSetSensTolerances     | type of sensi absolute tolernaces *
+ *                            |                                   *
+ *                            | pointer to the sensiti relative   *
+ *                            | tolerance scalar.                 *
+ *                            |                                   *
+ *                            | pointer to the array of sensi     *
+ *                            | abs tol scalars or a pointer      *
+ *                            | to the array of N_Vector sensi    *
+ *                            | absolute tolerances.              *
+ *                            | [itolS = itol]                    *
+ *                            | [reltolS = reltol]                *
+ *                            | [abstolS estimated by CVODES]     *
+ *                            |                                   *
  * CVodeSetSensMaxNonlinIters | Maximum number of nonlinear solver*
  *                            | iterations at one solution.       *
  *                            | [3]                               *
@@ -609,12 +604,12 @@ enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2, QCVREI_ILL_INPUT = -3};
 
 int CVodeSetSensRhsFn(void *cvode_mem, SensRhsFn fS);
 int CVodeSetSensRhs1Fn(void *cvode_mem, SensRhs1Fn fS);
-int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS);
 int CVodeSetSensRho(void *cvode_mem, realtype rho);
 int CVodeSetSensPbar(void *cvode_mem, realtype *pbar);
-int CVodeSetSensReltol(void *cvode_mem, realtype *reltolS);
-int CVodeSetSensAbstol(void *cvode_mem, void *abstolS);
 int CVodeSetSensFdata(void *cvode_mem, void *fS_data);
+int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS);
+int CVodeSetSensTolerances(void *cvode_mem, int itolS, 
+                           realtype *reltolS, void *abstolS);
 int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS);
 
 /*----------------------------------------------------------------*
@@ -1150,6 +1145,8 @@ typedef struct CVodeMemRec {
   realtype *cv_p;          /* parameters in f(t,y,p)                       */
   realtype *cv_pbar;       /* scale factors for parameters                 */
   int *cv_plist;           /* list of sensitivities                        */
+  booleantype cv_userStol; /* TRUE if user specifies sensi tolerances      */
+  int cv_itolS;
   realtype *cv_reltolS;    /* ptr to relative tolerance for sensi          */
   void *cv_abstolS;        /* ptr to absolute tolerance for sensi          */
   realtype cv_rhomax;      /* cut-off value for centered/forward finite
@@ -1207,7 +1204,6 @@ typedef struct CVodeMemRec {
     Does CVodeSensMalloc allocate additional space?
   -------------------------------------------------*/  
 
-  booleantype cv_abstolSalloc;   /* Is abstolS allocated by CVODES?        */
   booleantype cv_stgr1alloc;     /* Are ncfS1, ncfnS1, and nniS1 allocated 
                                     by CVODES?                             */
 

@@ -1,16 +1,18 @@
-/*******************************************************************
- * File          : cvodea.c                                        *
- * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 07 January 2004                                 *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the implementation file for the CVODEA adjoint          *
- * integrator.                                                     *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.21 $
+ * $Date: 2004-04-03 00:27:46 $
+ * ----------------------------------------------------------------- 
+ * Programmers   : Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California 
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvodes/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for the CVODEA adjoint integrator.
+ * -----------------------------------------------------------------
+ */
 
 /*=================================================================*/
 /*BEGIN             Import Header Files                            */
@@ -680,11 +682,24 @@ int CVodeSetQuadFdataB(void *cvadj_mem, void *fQ_dataB)
   return(SUCCESS);
 }
 
+int CVodeSetQuadTolerancesB(void *cvadj_mem, int itolQB, 
+                            realtype *reltolQB, void *abstolQB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetQuadTolerances(cvode_mem, itolQB, reltolQB, abstolQB);
+
+  return(flag);
+}
+
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB,
-                     int itolQB, realtype *reltolQB, void *abstolQB,
-                     NV_Spec nvspecQB)
+int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, NV_Spec nvspecQB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -703,8 +718,7 @@ int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB,
 
   CVodeSetQuadFdata(cvode_mem, cvadj_mem);
 
-  flag = CVodeQuadMalloc(cvode_mem, CVArhsQ, 
-                         itolQB, reltolQB, abstolQB, nvspecQB);
+  flag = CVodeQuadMalloc(cvode_mem, CVArhsQ, nvspecQB);
 
   return(flag);
 
@@ -712,8 +726,7 @@ int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB,
 
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB,
-                     int itolQB, realtype *reltolQB, void *abstolQB)
+int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -730,7 +743,7 @@ int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB,
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVodeQuadReInit(cvode_mem, CVArhsQ, itolQB, reltolQB, abstolQB);
+  flag = CVodeQuadReInit(cvode_mem, CVArhsQ);
 
   return(flag);
 
@@ -1553,7 +1566,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     flag = CVodeReInit(cv_mem, f, t0_, zn_[0], itol, reltol, abstol);
 
     if(quad_)
-      flag = CVodeQuadReInit(cv_mem, fQ, itolQ, reltolQ, abstolQ);
+      flag = CVodeQuadReInit(cv_mem, fQ);
     
   } else {
     
