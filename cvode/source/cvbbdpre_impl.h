@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-11-06 01:01:51 $
+ * $Revision: 1.3 $
+ * $Date: 2004-12-07 19:43:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -36,40 +36,54 @@ extern "C" {
 
 typedef struct {
 
-  /* passed by user to CVBBDPrecAlloc, used by PrecSetup/PrecSolve */
+  /* passed by user to CVBBDPrecAlloc and used by PrecSetup/PrecSolve */
+
   long int mudq, mldq, mukeep, mlkeep;
   realtype dqrely;
   CVLocalFn gloc;
   CVCommFn cfn;
 
   /* set by CVBBDPrecSetup and used by CVBBDPrecSolve */
+
   BandMat savedJ;
   BandMat savedP;
   long int *pivots;
 
   /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
+
   long int n_local;
 
-  /* available for optional output: */
+  /* available for optional output */
+
   long int rpwsize;
   long int ipwsize;
   long int nge;
 
-  /* Pointer to cvode_mem */
+  /* pointer to cvode_mem */
+
   void *cvode_mem;
 
 } *CVBBDPrecData;
 
+/*
+ * -----------------------------------------------------------------
+ * CVBBDPRE error messages
+ * -----------------------------------------------------------------
+ */
 
-/* Error Messages */
+/* CVBBDAlloc error messages */
 
 #define _CVBBDALLOC_        "CVBBDAlloc-- "
 #define MSGBBDP_CVMEM_NULL  _CVBBDALLOC_ "Integrator memory is NULL.\n\n"
 #define MSGBBDP_BAD_NVECTOR _CVBBDALLOC_ "A required vector operation is not implemented.\n\n"
 
+/* CVBBDPrecGet* error message */
+
 #define MSGBBDP_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL.\n\n"
 
-#define MSGBBDP_NO_PDATA "CVBBDSpgmr-- BBDPrecData is NULL.\n\n"
+/* CVBBDSpgmr/CVBBDSpbcg error message */
+
+#define MSGBBDP_NO_PDATA "CVBBDSpgmr/CVBBDSpgmr-- BBDPrecData is NULL.\n\n"
 
 #endif
 

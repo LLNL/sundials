@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-11-06 01:01:51 $
+ * $Revision: 1.3 $
+ * $Date: 2004-12-07 19:43:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -36,32 +36,46 @@ extern "C" {
 
 typedef struct {
 
-  /* Data set by user in CVBandPrecAlloc: */
+  /* Data set by user in CVBandPrecAlloc */
+
   long int N;
   long int ml, mu;
 
-  /* Data set by CVBandPrecSetup: */
+  /* Data set by CVBandPrecSetup */
+
   BandMat savedJ;
   BandMat savedP;
   long int *pivots;
 
   /* Rhs calls */
+
   long int nfeBP;
 
   /* Pointer to cvode_mem */
+
   void *cvode_mem;
 
 } *CVBandPrecData;
 
-/* Error Messages */
+/*
+ * -----------------------------------------------------------------
+ * CVBANDPRE error messages
+ * -----------------------------------------------------------------
+ */
+
+/* CVBandPrecAlloc error messages */
 
 #define _CVBALLOC_        "CVBandPreAlloc-- "
 #define MSGBP_CVMEM_NULL  _CVBALLOC_ "Integrator memory is NULL.\n\n"
 #define MSGBP_BAD_NVECTOR _CVBALLOC_ "A required vector operation is not implemented.\n\n"
 
+/* CVBandPrecGet* error message */
+
 #define MSGBP_PDATA_NULL "CVBandPrecGet*-- BandPrecData is NULL.\n\n"
 
-#define MSGBP_NO_PDATA "CVBPSpgmr-- BandPrecData is NULL.\n\n"
+/* CVBPSpgmr/CVBPSpbcg error message */
+
+#define MSGBP_NO_PDATA "CVBPSpgmr/CVBPSpbcg-- BandPrecData is NULL.\n\n"
 
 #endif
 
