@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37.2.1 $
- * $Date: 2005-01-19 16:44:00 $
+ * $Revision: 1.37.2.2 $
+ * $Date: 2005-01-27 17:39:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,11 +24,7 @@
 #include "cvdiag.h"
 #include "cvodea_impl.h"
 #include "sundialsmath.h"
-
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
+#include "sundialstypes.h"
 
 /*=================================================================*/
 /*BEGIN             Macros                                         */
