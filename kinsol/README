@@ -81,6 +81,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.2.2   - Mar. 2005
 v. 2.2.1   - Jan. 2005
 v. 2.2.0   - Dec. 2004
 v. 2.0     - Jul. 2002 (first SUNDIALS release)
@@ -90,7 +91,7 @@ v. 1.0     - Aug. 1998 (date written)
 E. Revision History
 -------------------
 
-v. 2.2.1 (Jan. 2005) ---> 
+v. 2.2.2 (Mar. 2005) ---> 
 ---------------------------------------------------------
 
 - New feature
@@ -123,6 +124,22 @@ v. 2.2.1 (Jan. 2005) --->
      half-bandwidths for the difference quotient approximation (mudq, mldq)
      and the retained matrix (mukeep, mlkeep).
    - added support for KINSPBCG/SPBCG (added FKIN*SPBCG* functions).
+
+v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
+----------------------------------------------
+
+- Bug fixes
+   - fixed bug in computation of the scaled step length
+   - fixed bug in logic for disabling the call to the preconditioner setup function 
+     at the first iteration
+
+- Changes to documentation
+   - added section with numerical values of all input and output solver constants
+
+- Changes related to the build system
+   - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   - modified to use customized detection of the Fortran name mangling scheme 
+     (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
 
 v. 2.2.0 (Dec. 2004) ---> v. 2.2.1 (Jan. 2005)
 ----------------------------------------------

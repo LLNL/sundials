@@ -50,6 +50,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.0.2 - Mar. 2005
 v. 2.0.1 - Jan. 2005
 v. 2.0   - Dec. 2004
 v. 1.0   - Jul. 2002 (first SUNDIALS release)
@@ -58,6 +59,14 @@ v. 0.0   - Mar. 2002
 
 E. Revision History
 -------------------
+
+v. 2.0.1 (Jan. 2005) ---> v. 2.0.2 (Mar. 2005)
+----------------------------------------------
+
+- Changes related to the build system
+   - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   - modified to use customized detection of the Fortran name mangling scheme 
+     (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
 
 v. 2.0 (Dec. 2004) ---> v. 2.0.1 (Jan. 2005)
 --------------------------------------------
