@@ -29,8 +29,8 @@ ug:
 	makeindex -s cv_indx.ist cv_guide
 	latex cv_guide
 	latex cv_guide
-	dvips -Ppdf -o cv_guide.ps cv_guide
-	ps2pdf cv_guide.ps cv_guide.pdf
+#	dvips -Ppdf -o cv_guide.ps cv_guide
+#	ps2pdf cv_guide.ps cv_guide.pdf
 ex:
 	cp $(SHARED_DOC)/llnlCoverPage.tex .
 	cp $(SHARED_DOC)/Logo_for_papers.ps .
@@ -42,8 +42,8 @@ ex:
 	bibtex cv_examples
 	latex cv_examples
 	latex cv_examples
-	dvips -Ppdf -o cv_examples.ps cv_examples
-	ps2pdf cv_examples.ps cv_examples.pdf
+#	dvips -Ppdf -o cv_examples.ps cv_examples
+#	ps2pdf cv_examples.ps cv_examples.pdf
 clean:
 	rm -f bandmat.eps
 	rm -f band.tex
