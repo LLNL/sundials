@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2004-05-13 22:42:40 $
+ * $Revision: 1.28 $
+ * $Date: 2004-05-26 19:54:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -23,9 +23,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "cvode.h"
-#include "sundialstypes.h"
-#include "nvector.h"
+
+#include "cvode_impl.h"
+
 #include "sundialsmath.h"
 
 /************************************************************/

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-04-29 19:16:39 $
+ * $Revision: 1.16 $
+ * $Date: 2004-05-26 19:54:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -21,11 +21,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cvode.h"
-#include "cvbbdpre.h"
-#include "cvspgmr.h"
+
+#include "cvbbdpre_impl.h"
+#include "cvode_impl.h"
+#include "cvspgmr_impl.h"
+
 #include "sundialsmath.h"
-#include "iterative.h"
 
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)
@@ -57,14 +58,17 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
                        N_Vector y, N_Vector gy, 
                        N_Vector ytemp, N_Vector gtemp);
 
-/*****************************************************************************/
 
 /* Redability replacements */
 #define nvspec (cv_mem->cv_nvspec)
 #define errfp  (cv_mem->cv_errfp)
 #define uround (cv_mem->cv_uround)
 
-/*********** User-Callable Functions: malloc, reinit, and free ***************/
+/*
+ * -----------------------------------------------------------------
+ * User-Callable Functions: malloc, reinit, and free
+ * -----------------------------------------------------------------
+ */
 
 void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal, 
                      long int mudq, long int mldq,
@@ -88,7 +92,8 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
     return(NULL);
   }
 
-  pdata = (CVBBDPrecData) malloc(sizeof *pdata);  /* Allocate data memory */
+  /* Allocate data memory */
+  pdata = (CVBBDPrecData) malloc(sizeof *pdata);  
   if (pdata == NULL) return(NULL);
 
   /* Set pointers to gloc and cfn; load half-bandwidths */
@@ -250,8 +255,6 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
   return(OKAY);
 }
 
-/***************** Preconditioner setup and solve Functions ****************/
- 
 
 /* Readability Replacements */
 
@@ -269,58 +272,60 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
 #define nge       (pdata->nge)
 
 
-/******************************************************************
- * Function : CVBBDPrecSetup                                      *
- *----------------------------------------------------------------*
- * CVBBDPrecSetup generates and factors a banded block of the     *
- * preconditioner matrix on each processor, via calls to the      *
- * user-supplied gloc and cfn functions. It uses difference       *
- * quotient approximations to the Jacobian elements.              *
- *                                                                *
- * CVBBDPrecSetup calculates a new J,if necessary, then calculates*
- * P = I - gamma*J, and does an LU factorization of P.            *
- *                                                                *
- * The parameters of CVBBDPrecSetup used here are as follows:     *
- *                                                                *
- * t       is the current value of the independent variable.      *
- *                                                                *
- * y       is the current value of the dependent variable vector, *
- *         namely the predicted value of y(t).                    *
- *                                                                *
- * fy      is the vector f(t,y).                                  *
- *                                                                *
- * jok     is an input flag indicating whether Jacobian-related   *
- *         data needs to be recomputed, as follows:               *
- *           jok == FALSE means recompute Jacobian-related data   *
- *                  from scratch.                                 *
- *           jok == TRUE  means that Jacobian data from the       *
- *                  previous CVBBDPrecon call can be reused       *
- *                  (with the current value of gamma).            *
- *         A CVBBDPrecon call with jok == TRUE should only occur  *
- *         after a call with jok == FALSE.                        *
- *                                                                *
- * jcurPtr is a pointer to an output integer flag which is        *
- *         set by CVBBDPrecon as follows:                         *
- *           *jcurPtr = TRUE if Jacobian data was recomputed.     *
- *           *jcurPtr = FALSE if Jacobian data was not            * 
- *                      recomputed, but saved data was reused.    *
- *                                                                *
- * gamma   is the scalar appearing in the Newton matrix.          *
- *                                                                *
- * bbd_data  is a pointer to user data - the same as the P_data   *
- *           parameter passed to CVSpgmr. For CVBBDPrecon, this   *
- *           should be of type CVBBDData.                         *
- *                                                                *
- * tmp1, tmp2, and tmp3 are pointers to memory allocated          *
- *           for NVectors which are be used by CVBBDPrecSetup     *
- *           as temporary storage or work space.                  *
- *                                                                *
- *                                                                *
- * Return value:                                                  *
- * The value returned by this CVBBDPrecSetup function is the int  *
- *   0  if successful,                                            *
- *   1  for a recoverable error (step will be retried).           *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function : CVBBDPrecSetup                                      
+ * -----------------------------------------------------------------
+ * CVBBDPrecSetup generates and factors a banded block of the     
+ * preconditioner matrix on each processor, via calls to the      
+ * user-supplied gloc and cfn functions. It uses difference       
+ * quotient approximations to the Jacobian elements.              
+ *                                                                
+ * CVBBDPrecSetup calculates a new J,if necessary, then calculates
+ * P = I - gamma*J, and does an LU factorization of P.            
+ *                                                                
+ * The parameters of CVBBDPrecSetup used here are as follows:     
+ *                                                                
+ * t       is the current value of the independent variable.      
+ *                                                                
+ * y       is the current value of the dependent variable vector, 
+ *         namely the predicted value of y(t).                    
+ *                                                                
+ * fy      is the vector f(t,y).                                  
+ *                                                                
+ * jok     is an input flag indicating whether Jacobian-related   
+ *         data needs to be recomputed, as follows:               
+ *           jok == FALSE means recompute Jacobian-related data   
+ *                  from scratch.                                 
+ *           jok == TRUE  means that Jacobian data from the       
+ *                  previous CVBBDPrecon call can be reused       
+ *                  (with the current value of gamma).            
+ *         A CVBBDPrecon call with jok == TRUE should only occur  
+ *         after a call with jok == FALSE.                        
+ *                                                                
+ * jcurPtr is a pointer to an output integer flag which is        
+ *         set by CVBBDPrecon as follows:                         
+ *           *jcurPtr = TRUE if Jacobian data was recomputed.     
+ *           *jcurPtr = FALSE if Jacobian data was not recomputed,
+ *                      but saved data was reused.    
+ *                                                                
+ * gamma   is the scalar appearing in the Newton matrix.          
+ *                                                                
+ * bbd_data  is a pointer to user data - the same as the P_data   
+ *           parameter passed to CVSpgmr. For CVBBDPrecon, this   
+ *           should be of type CVBBDData.                         
+ *                                                                
+ * tmp1, tmp2, and tmp3 are pointers to memory allocated          
+ *           for NVectors which are be used by CVBBDPrecSetup     
+ *           as temporary storage or work space.                  
+ *                                                                
+ *                                                                
+ * Return value:                                                  
+ * The value returned by this CVBBDPrecSetup function is the int  
+ *   0  if successful,                                            
+ *   1  for a recoverable error (step will be retried).           
+ * -----------------------------------------------------------------
+ */
 
 static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
                           booleantype jok, booleantype *jcurPtr, 
@@ -358,25 +363,27 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 }
 
 
-/******************************************************************
- * Function : CVBBDPrecSolve                                      *
- *----------------------------------------------------------------*
- * CVBBDPrecSolve solves a linear system P z = r, with the        *
- * band-block-diagonal preconditioner matrix P generated and      *
- * factored by CVBBDPrecSetup.                                    *
- *                                                                *
- * The parameters of CVBBDPrecSolve used here are as follows:     *
- *                                                                *
- * r      is the right-hand side vector of the linear system.     *
- *                                                                *
- * bbd_data is a pointer to the preconditioner data returned by   *
- *        CVBBDPrecAlloc.                                         *
- *                                                                *
- * z      is the output vector computed by CVBBDPrecSolve.        *
- *                                                                *
- * The value returned by the CVBBDPrecSolve function is always 0, *
- * indicating success.                                            *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function : CVBBDPrecSolve                                      
+ * -----------------------------------------------------------------
+ * CVBBDPrecSolve solves a linear system P z = r, with the        
+ * band-block-diagonal preconditioner matrix P generated and      
+ * factored by CVBBDPrecSetup.                                    
+ *                                                                
+ * The parameters of CVBBDPrecSolve used here are as follows:     
+ *                                                                
+ * r      is the right-hand side vector of the linear system.     
+ *                                                                
+ * bbd_data is a pointer to the preconditioner data returned by   
+ *        CVBBDPrecAlloc.                                         
+ *                                                                
+ * z      is the output vector computed by CVBBDPrecSolve.        
+ *                                                                
+ * The value returned by the CVBBDPrecSolve function is always 0, 
+ * indicating success.                                            
+ * -----------------------------------------------------------------
+ */
 
 static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
                           N_Vector r, N_Vector z, 
@@ -399,20 +406,22 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 }
 
 
-/*************** CVBBDDQJac *****************************************
-
- This routine generates a banded difference quotient approximation to
- the local block of the Jacobian of g(t,y).  It assumes that a band 
- matrix of type BandMat is stored columnwise, and that elements within
- each column are contiguous.  All matrix elements are generated as
- difference quotients, by way of calls to the user routine gloc.
- By virtue of the band structure, the number of these calls is
- bandwidth + 1, where bandwidth = mldq + mudq + 1.
- But the band matrix kept has bandwidth = mlkeep + mukeep + 1.
- This routine also assumes that the local elements of a vector are
- stored contiguously.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBBDDQJac 
+ * -----------------------------------------------------------------
+ * This routine generates a banded difference quotient approximation to
+ * the local block of the Jacobian of g(t,y).  It assumes that a band 
+ * matrix of type BandMat is stored columnwise, and that elements within
+ * each column are contiguous.  All matrix elements are generated as
+ * difference quotients, by way of calls to the user routine gloc.
+ * By virtue of the band structure, the number of these calls is
+ * bandwidth + 1, where bandwidth = mldq + mudq + 1.
+ * But the band matrix kept has bandwidth = mlkeep + mukeep + 1.
+ * This routine also assumes that the local elements of a vector are
+ * stored contiguously.
+ * -----------------------------------------------------------------
+ */
 
 #define ewt    (cv_mem->cv_ewt)
 #define h      (cv_mem->cv_h)

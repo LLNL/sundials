@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-04-29 19:16:39 $
+ * $Revision: 1.14 $
+ * $Date: 2004-05-26 19:54:26 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
  *                 Radu Serban @ LLNL
@@ -19,13 +19,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "cvspgmr.h"
-#include "cvode.h"
-#include "sundialstypes.h"
-#include "nvector.h"
+
+#include "cvspgmr_impl.h"
+#include "cvode_impl.h"
+
 #include "sundialsmath.h"
-#include "iterative.h"
-#include "spgmr.h"
 
 /* Error Messages */
 
@@ -88,8 +86,6 @@ static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                            N_Vector y, N_Vector fy, void *jac_data,
                            N_Vector work);
 
-/**********************************************************************/
-
 /* Readability Replacements */
 
 #define lrw1    (cv_mem->cv_lrw1)
@@ -132,35 +128,36 @@ static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define nfeSG   (cvspgmr_mem->g_nfeSG)
 #define spgmr_mem (cvspgmr_mem->g_spgmr_mem)
 
-
-/*************** CVSpgmr *********************************************
-
- This routine initializes the memory record and sets various function
- fields specific to the Spgmr linear solver module. CVSpgmr first
- calls the existing lfree routine if this is not NULL.  It then sets
- the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
- to be CVSpgmrInit, CVSpgmrSetup, CVSpgmrSolve, and CVSpgmrFree,
- respectively.  It allocates memory for a structure of type
- CVSpgmrMemRec and sets the cv_lmem field in (*cvode_mem) to the
- address of this structure.  It sets setupNonNull in (*cvode_mem),
- and sets the following fields in the CVSpgmrMemRec structure:
-   g_pretype = pretype                                       
-   g_gstype  = gstype                                       
-   g_maxl    = MIN(N,CVSPGMR_MAXL)  if maxl <= 0             
-             = maxl                 if maxl > 0              
-   g_delt    = CVSPGMR_DELT if delt == 0.0                     
-             = delt         if delt != 0.0                     
-   g_P_data  = P_data                                        
-   g_pset    = pset                                       
-   g_psolve  = psolve                                        
-   g_jtimes  = input parameter jtimes  if jtimes != NULL
-             = CVSpgmrDQJtimes         otherwise
-   g_j_data  = input parameter jac_data
- Finally, CVSpgmr allocates memory for ytemp and x, and calls
- SpgmrMalloc to allocate memory for the Spgmr solver.  The CVSpgmr
- return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmr
+ * -----------------------------------------------------------------
+ * This routine initializes the memory record and sets various function
+ * fields specific to the Spgmr linear solver module. CVSpgmr first
+ * calls the existing lfree routine if this is not NULL.  It then sets
+ * the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
+ * to be CVSpgmrInit, CVSpgmrSetup, CVSpgmrSolve, and CVSpgmrFree,
+ * respectively.  It allocates memory for a structure of type
+ * CVSpgmrMemRec and sets the cv_lmem field in (*cvode_mem) to the
+ * address of this structure.  It sets setupNonNull in (*cvode_mem),
+ * and sets the following fields in the CVSpgmrMemRec structure:
+ *   g_pretype = pretype                                       
+ *   g_gstype  = gstype                                       
+ *   g_maxl    = MIN(N,CVSPGMR_MAXL)  if maxl <= 0             
+ *             = maxl                 if maxl > 0              
+ *   g_delt    = CVSPGMR_DELT if delt == 0.0                     
+ *             = delt         if delt != 0.0                     
+ *   g_P_data  = P_data                                        
+ *   g_pset    = pset                                       
+ *   g_psolve  = psolve                                        
+ *   g_jtimes  = input parameter jtimes  if jtimes != NULL
+ *             = CVSpgmrDQJtimes         otherwise
+ *   g_j_data  = input parameter jac_data
+ * Finally, CVSpgmr allocates memory for ytemp and x, and calls
+ * SpgmrMalloc to allocate memory for the Spgmr solver.  The CVSpgmr
+ * return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmr(void *cvode_mem, int pretype, int maxl)
 {
@@ -208,7 +205,8 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   /* Check for legal pretype */ 
   if ((pretype != NONE) && (pretype != LEFT) &&
       (pretype != RIGHT) && (pretype != BOTH)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_PRETYPE, pretype, NONE, LEFT, RIGHT, BOTH);
+    if(errfp!=NULL) 
+      fprintf(errfp, MSG_BAD_PRETYPE, pretype, NONE, LEFT, RIGHT, BOTH);
     return(LIN_ILL_INPUT);
   }
 
@@ -244,7 +242,11 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   return(SUCCESS);
 }
 
-/*************** CVSpgmrResetPrecType **********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrResetPrecType
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrResetPrecType(void *cvode_mem, int pretype)
 {
@@ -267,7 +269,8 @@ int CVSpgmrResetPrecType(void *cvode_mem, int pretype)
   /* Check for legal pretype */ 
   if ((pretype != NONE) && (pretype != LEFT) &&
       (pretype != RIGHT) && (pretype != BOTH)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_CVS_BAD_PRETYPE, pretype, NONE, LEFT, RIGHT, BOTH);
+    if(errfp!=NULL) 
+      fprintf(errfp, MSG_CVS_BAD_PRETYPE, pretype, NONE, LEFT, RIGHT, BOTH);
     return(LIN_ILL_INPUT);
   }
 
@@ -276,7 +279,11 @@ int CVSpgmrResetPrecType(void *cvode_mem, int pretype)
   return(SUCCESS);
 }
 
-/*************** CVSpgmrSetGSType ************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrSetGSType
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrSetGSType(void *cvode_mem, int gstype)
 {
@@ -298,7 +305,8 @@ int CVSpgmrSetGSType(void *cvode_mem, int gstype)
 
   /* Check for legal gstype */
   if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_CVS_BAD_GSTYPE, gstype, MODIFIED_GS, CLASSICAL_GS);
+    if(errfp!=NULL) 
+      fprintf(errfp, MSG_CVS_BAD_GSTYPE, gstype, MODIFIED_GS, CLASSICAL_GS);
     return(LIN_ILL_INPUT);
   }
 
@@ -307,7 +315,11 @@ int CVSpgmrSetGSType(void *cvode_mem, int gstype)
   return(SUCCESS);
 }
 
-/*************** CVSpgmrSetDelt **************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrSetDelt
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrSetDelt(void *cvode_mem, realtype delt)
 {
@@ -338,7 +350,11 @@ int CVSpgmrSetDelt(void *cvode_mem, realtype delt)
   return(SUCCESS);
 }
 
-/*************** CVSpgmrSetPrecSetupFn *******************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrSetPrecSetupFn
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrSetPrecSetupFn(void *cvode_mem, CVSpgmrPrecSetupFn pset)
 {
@@ -363,7 +379,11 @@ int CVSpgmrSetPrecSetupFn(void *cvode_mem, CVSpgmrPrecSetupFn pset)
   return(SUCCESS);
 }
 
-/*************** CVSpgmrSetPrecSolveFn *******************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrSetPrecSolveFn
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrSetPrecSolveFn(void *cvode_mem, CVSpgmrPrecSolveFn psolve)
 {
@@ -388,7 +408,11 @@ int CVSpgmrSetPrecSolveFn(void *cvode_mem, CVSpgmrPrecSolveFn psolve)
   return(SUCCESS);
 }
 
-/*************** CVSpgmrSetPrecData **********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrSetPrecData
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrSetPrecData(void *cvode_mem, void *P_data)
 {
@@ -413,7 +437,11 @@ int CVSpgmrSetPrecData(void *cvode_mem, void *P_data)
   return(SUCCESS);
 }
 
-/*************** CVSpgmrSetJacTimesVecFn *****************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrSetJacTimesVecFn
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrSetJacTimesVecFn(void *cvode_mem, CVSpgmrJacTimesVecFn jtimes)
 {
@@ -438,7 +466,11 @@ int CVSpgmrSetJacTimesVecFn(void *cvode_mem, CVSpgmrJacTimesVecFn jtimes)
   return(SUCCESS);
 }
 
-/*************** CVSpgmrSetJacData ***********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrSetJacData
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrSetJacData(void *cvode_mem, void *jac_data)
 {
@@ -463,8 +495,11 @@ int CVSpgmrSetJacData(void *cvode_mem, void *jac_data)
   return(SUCCESS);
 }
 
-
-/*************** CVSpgmrGetIntWorkSpace ******************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrGetIntWorkSpace
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrGetIntWorkSpace(void *cvode_mem, long int *leniwSG)
 {
@@ -491,7 +526,11 @@ int CVSpgmrGetIntWorkSpace(void *cvode_mem, long int *leniwSG)
   return(OKAY);
 }
 
-/*************** CVSpgmrGetRealWorkSpace *****************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrGetRealWorkSpace
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrGetRealWorkSpace(void *cvode_mem, long int *lenrwSG)
 {
@@ -518,7 +557,11 @@ int CVSpgmrGetRealWorkSpace(void *cvode_mem, long int *lenrwSG)
   return(OKAY);
 }
 
-/*************** CVSpgmrGetNumPrecEvals ******************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrGetNumPrecEvals
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrGetNumPrecEvals(void *cvode_mem, long int *npevals)
 {
@@ -543,7 +586,11 @@ int CVSpgmrGetNumPrecEvals(void *cvode_mem, long int *npevals)
   return(OKAY);
 }
 
-/*************** CVSpgmrGetNumPrecSolves *****************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrGetNumPrecSolves
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrGetNumPrecSolves(void *cvode_mem, long int *npsolves)
 {
@@ -568,7 +615,11 @@ int CVSpgmrGetNumPrecSolves(void *cvode_mem, long int *npsolves)
   return(OKAY);
 }
 
-/*************** CVSpgmrGetNumLinIters *******************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrGetNumLinIters
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrGetNumLinIters(void *cvode_mem, long int *nliters)
 {
@@ -593,7 +644,11 @@ int CVSpgmrGetNumLinIters(void *cvode_mem, long int *nliters)
   return(OKAY);
 }
 
-/*************** CVSpgmrGetNumConvFails ******************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrGetNumConvFails
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrGetNumConvFails(void *cvode_mem, long int *nlcfails)
 {
@@ -618,7 +673,11 @@ int CVSpgmrGetNumConvFails(void *cvode_mem, long int *nlcfails)
   return(OKAY);
 }
 
-/*************** CVSpgmrGetNumJtimesEvals ****************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrGetNumJtimesEvals
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
 {
@@ -643,7 +702,11 @@ int CVSpgmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
   return(OKAY);
 }
 
-/*************** CVSpgmrGetNumRhsEvals *******************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrGetNumRhsEvals
+ * -----------------------------------------------------------------
+ */
 
 int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
 {
@@ -681,13 +744,14 @@ int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
 #define jtimes  (cvspgmr_mem->g_jtimes)
 #define j_data  (cvspgmr_mem->g_j_data)
 
-
-/*************** CVSpgmrInit *****************************************
-
- This routine does remaining initializations specific to the Spgmr 
- linear solver.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrInit
+ * -----------------------------------------------------------------
+ * This routine does remaining initializations specific to the Spgmr 
+ * linear solver.
+ * -----------------------------------------------------------------
+ */
 
 static int CVSpgmrInit(CVodeMem cv_mem)
 {
@@ -717,16 +781,18 @@ static int CVSpgmrInit(CVodeMem cv_mem)
   return(LINIT_OK);
 }
 
-/*************** CVSpgmrSetup ****************************************
-
- This routine does the setup operations for the Spgmr linear solver.
- It makes a decision as to whether or not to signal for re-evaluation
- of Jacobian data in the pset routine, based on various state
- variables, then it calls pset.  If we signal for re-evaluation,
- then we reset jcur = *jcurPtr to TRUE, regardless of the pset output.
- In any case, if jcur == TRUE, we increment npe and save nst in nstlpre.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrSetup
+ * -----------------------------------------------------------------
+ * This routine does the setup operations for the Spgmr linear solver.
+ * It makes a decision as to whether or not to signal for re-evaluation
+ * of Jacobian data in the pset routine, based on various state
+ * variables, then it calls pset.  If we signal for re-evaluation,
+ * then we reset jcur = *jcurPtr to TRUE, regardless of the pset output.
+ * In any case, if jcur == TRUE, we increment npe and save nst in nstlpre.
+ * -----------------------------------------------------------------
+ */
 
 static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                         N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
@@ -762,25 +828,27 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   return(ier);
 }
 
-/*************** CVSpgmrSolve ****************************************
-
- This routine handles the call to the generic solver SpgmrSolve
- for the solution of the linear system Ax = b with the SPGMR method,
- without restarts.  The solution x is returned in the vector b.
-
- If the WRMS norm of b is small, we return x = b (if this is the first
- Newton iteration) or x = 0 (if a later Newton iteration).
-
- Otherwise, we set the tolerance parameter and initial guess (x = 0),
- call SpgmrSolve, and copy the solution x into b.  The x-scaling and
- b-scaling arrays are both equal to weight, and no restarts are allowed.
-
- The counters nli, nps, and ncfl are incremented, and the return value
- is set according to the success of SpgmrSolve.  The success flag is
- returned if SpgmrSolve converged, or if this is the first Newton
- iteration and the residual norm was reduced below its initial value.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrSolve
+ * -----------------------------------------------------------------
+ * This routine handles the call to the generic solver SpgmrSolve
+ * for the solution of the linear system Ax = b with the SPGMR method,
+ * without restarts.  The solution x is returned in the vector b.
+ *
+ * If the WRMS norm of b is small, we return x = b (if this is the first
+ * Newton iteration) or x = 0 (if a later Newton iteration).
+ *
+ * Otherwise, we set the tolerance parameter and initial guess (x = 0),
+ * call SpgmrSolve, and copy the solution x into b.  The x-scaling and
+ * b-scaling arrays are both equal to weight, and no restarts are allowed.
+ *
+ * The counters nli, nps, and ncfl are incremented, and the return value
+ * is set according to the success of SpgmrSolve.  The success flag is
+ * returned if SpgmrSolve converged, or if this is the first Newton
+ * iteration and the residual norm was reduced below its initial value.
+ * -----------------------------------------------------------------
+ */
 
 static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                         N_Vector ynow, N_Vector fnow)
@@ -828,11 +896,13 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   return(1);  
 }
 
-/*************** CVSpgmrFree *****************************************
-
- This routine frees memory specific to the Spgmr linear solver.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrFree
+ * -----------------------------------------------------------------
+ * This routine frees memory specific to the Spgmr linear solver.
+ * -----------------------------------------------------------------
+ */
 
 static void CVSpgmrFree(CVodeMem cv_mem)
 {
@@ -846,15 +916,17 @@ static void CVSpgmrFree(CVodeMem cv_mem)
   free(cvspgmr_mem);
 }
 
-/***************** CVSpgmrAtimes *************************************
-
- This routine generates the matrix-vector product z = Mv, where
- M = I - gamma*J. The product J*v is obtained by calling the jtimes 
- routine. It is then scaled by -gamma and added to v to obtain M*v.
- The return value is the same as the value returned by jtimes --
- 0 if successful, nonzero otherwise.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrAtimes
+ * -----------------------------------------------------------------
+ * This routine generates the matrix-vector product z = Mv, where
+ * M = I - gamma*J. The product J*v is obtained by calling the jtimes 
+ * routine. It is then scaled by -gamma and added to v to obtain M*v.
+ * The return value is the same as the value returned by jtimes --
+ * 0 if successful, nonzero otherwise.
+ * -----------------------------------------------------------------
+ */
 
 static int CVSpgmrAtimes(void *cvode_mem, N_Vector v, N_Vector z)
 {
@@ -874,17 +946,19 @@ static int CVSpgmrAtimes(void *cvode_mem, N_Vector v, N_Vector z)
   return(0);
 }
 
-/*************** CVSpgmrPSolve ***************************************
-
- This routine interfaces between the generic SpgmrSolve routine and
- the user's psolve routine.  It passes to psolve all required state 
- information from cvode_mem.  Its return value is the same as that
- returned by psolve. Note that the generic SPGMR solver guarantees
- that CVSpgmrPSolve will not be called in the case in which
- preconditioning is not done. This is the only case in which the
- user's psolve routine is allowed to be NULL.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrPSolve
+ * -----------------------------------------------------------------
+ * This routine interfaces between the generic SpgmrSolve routine and
+ * the user's psolve routine.  It passes to psolve all required state 
+ * information from cvode_mem.  Its return value is the same as that
+ * returned by psolve. Note that the generic SPGMR solver guarantees
+ * that CVSpgmrPSolve will not be called in the case in which
+ * preconditioning is not done. This is the only case in which the
+ * user's psolve routine is allowed to be NULL.
+ * -----------------------------------------------------------------
+ */
 
 static int CVSpgmrPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr)
 {
@@ -901,15 +975,16 @@ static int CVSpgmrPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr)
   return(ier);     
 }
 
-
-/*************** CVSpgmrDQJtimes *************************************
-
- This routine generates a difference quotient approximation to
- the Jacobian times vector f_y(t,y) * v. The approximation is 
- Jv = vnrm[f(y + v/vnrm) - f(y)], where vnrm = (WRMS norm of v) is
- input, i.e. the WRMS norm of v/vnrm is 1.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVSpgmrDQJtimes
+ * -----------------------------------------------------------------
+ * This routine generates a difference quotient approximation to
+ * the Jacobian times vector f_y(t,y) * v. The approximation is 
+ * Jv = vnrm[f(y + v/vnrm) - f(y)], where vnrm = (WRMS norm of v) is
+ * input, i.e. the WRMS norm of v/vnrm is 1.
+ * -----------------------------------------------------------------
+ */
 
 static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t, 
                            N_Vector y, N_Vector fy,
