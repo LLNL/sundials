@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-08-25 16:23:06 $
+ * $Revision: 1.11 $
+ * $Date: 2004-08-25 22:15:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -35,11 +35,13 @@
 
 /* Header files with a description of contents used in cvbx.c */
 
-#include "sundialstypes.h"
-#include "cvode.h"
-#include "cvband.h"
-#include "nvector_serial.h"
-#include "band.h"
+#include "sundialstypes.h"   /* definition of type realtype                   */
+#include "cvode.h"           /* prototypes for CVode*** functions; constants  */
+                             /* CV_BDF, CV_NEWTON, CV_SS, CV_NORMAL,CV_SUCCESS*/
+#include "cvband.h"          /* prototype for CVBand                          */
+#include "nvector_serial.h"  /* definitions of type N_Vector, macro NV_Ith_S, */
+                             /* prototypes for N_VNew_Serial and N_VDestroy   */
+#include "band.h"            /* definition of type BandMat, macros            */
 
 /* Problem Constants */
 
@@ -80,6 +82,10 @@ static void SetIC(N_Vector u, UserData data);
 
 static void PrintFinalStats(void *cvode_mem);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
+
 /* Functions Called by the Solver */
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
@@ -88,11 +94,11 @@ static void Jac(long int N, long int mu, long int ml, BandMat J,
                 realtype t, N_Vector u, N_Vector fu, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-/* Private function to check function return values */
-
-static int check_flag(void *flagvalue, char *funcname, int opt);
-
-/***************************** Main Program ******************************/
+/*
+ *-------------------------------
+ * Main Program
+ *-------------------------------
+ */
 
 int main()
 {
@@ -171,7 +177,7 @@ int main()
   printf(" \n2-D advection-diffusion equation, mesh dimensions =%3d %3d\n\n",
          MX,MY);
   umax = N_VMaxNorm(u);
-  printf("At t = %4.2f    max.norm(u) =%14.6e \n", T0,umax);
+  printf("At t = %4.2f  max.norm(u) =%14.6e \n", T0,umax);
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
     flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if(check_flag(&flag, "CVode", 1)) break;
@@ -190,69 +196,11 @@ int main()
   return(0);
 }
 
-/************************ Private Helper Functions ***********************/
-
-/* Set initial conditions in u vector */
-
-static void SetIC(N_Vector u, UserData data)
-{
-  int i, j;
-  realtype x, y, dx, dy;
-  realtype *udata;
-
-  /* Extract needed constants from data */
-
-  dx = data->dx;
-  dy = data->dy;
-
-  /* Set pointer to data array in vector u. */
-
-  udata = NV_DATA_S(u);
-
-  /* Load initial profile into u vector */
-  
-  for (j=1; j <= MY; j++) {
-    y = j*dy;
-    for (i=1; i <= MX; i++) {
-      x = i*dx;
-      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*exp(5.0*x*y);
-    }
-  }  
-}
-
-/* Print some final statistics located in the iopt array */
-
-static void PrintFinalStats(void *cvode_mem)
-{
-  int flag;
-  long int nst, nfe, nsetups, netf, nni, ncfn, njeB, nfeB;
-
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
-
-  flag = CVBandGetNumJacEvals(cvode_mem, &njeB);
-  check_flag(&flag, "CVBandGetNumJacEvals", 1);
-  flag = CVBandGetNumRhsEvals(cvode_mem, &nfeB);
-  check_flag(&flag, "CVBandGetNumRhsEvals", 1);
-
-  printf("\nFinal Statistics.. \n\n");
-  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeB = %-6ld njeB = %ld\n",
-	 nst, nfe, nsetups, nfeB, njeB);
-  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",
-	 nni, ncfn, netf);
-}
-
-/***************** Functions Called by the Solver ******************/
+/*
+ *-------------------------------
+ * Functions called by the solver
+ *-------------------------------
+ */
 
 /* f routine. Compute f(t,u). */
 
@@ -336,6 +284,72 @@ static void Jac(long int N, long int mu, long int ml, BandMat J,
       if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = verdc;
     }
   }
+}
+
+/*
+ *-------------------------------
+ * Private helper functions
+ *-------------------------------
+ */
+
+/* Set initial conditions in u vector */
+
+static void SetIC(N_Vector u, UserData data)
+{
+  int i, j;
+  realtype x, y, dx, dy;
+  realtype *udata;
+
+  /* Extract needed constants from data */
+
+  dx = data->dx;
+  dy = data->dy;
+
+  /* Set pointer to data array in vector u. */
+
+  udata = NV_DATA_S(u);
+
+  /* Load initial profile into u vector */
+  
+  for (j=1; j <= MY; j++) {
+    y = j*dy;
+    for (i=1; i <= MX; i++) {
+      x = i*dx;
+      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*exp(5.0*x*y);
+    }
+  }  
+}
+
+/* Get and print some final statistics */
+
+static void PrintFinalStats(void *cvode_mem)
+{
+  int flag;
+  long int nst, nfe, nsetups, netf, nni, ncfn, njeB, nfeB;
+
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+
+  flag = CVBandGetNumJacEvals(cvode_mem, &njeB);
+  check_flag(&flag, "CVBandGetNumJacEvals", 1);
+  flag = CVBandGetNumRhsEvals(cvode_mem, &nfeB);
+  check_flag(&flag, "CVBandGetNumRhsEvals", 1);
+
+  printf("\nFinal Statistics.. \n\n");
+  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeB = %-6ld njeB = %ld\n",
+	 nst, nfe, nsetups, nfeB, njeB);
+  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",
+	 nni, ncfn, netf);
 }
 
 /* Check function return value...
