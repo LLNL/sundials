@@ -386,9 +386,10 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
 }
 {
   If an error occurred, \id{CVodeMalloc} also prints an error message to the
-  file specified by the optional input \id{errfp}. \\
+  file specified by the optional input \id{errfp}.
+
   The tolerance values in \id{reltol} and \id{abstol} may be changed between
-  calls to \id{CVode}.
+  calls to \id{CVode} (see \id{CVodesetTolerances} in \S\ref{ss:optional_input}).
 }
 %%
 %%
