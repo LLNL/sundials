@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-07-22 23:01:38 $
+ * $Revision: 1.9 $
+ * $Date: 2004-10-08 15:27:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -126,10 +126,10 @@ int main()
   /* Assign various parameters. */
   t0   = ZERO;
   t1   = 0.01;
-  itol = SS; /* Specify scalar relative and absolute tolerance. */
+  itol = IDA_SS; /* Specify scalar relative and absolute tolerance. */
   rtol = ZERO;
   atol = 1.e-3; 
-  itask = NORMAL;
+  itask = IDA_NORMAL;
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
@@ -355,7 +355,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
     }
   }
   
-  return(SUCCESS);
+  return(0);
   
 }
 
@@ -394,7 +394,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
     }
   }
 
-  return(SUCCESS);
+  return(0);
 
 }
 
@@ -445,7 +445,7 @@ int PrecondHeateq(realtype tt, N_Vector uu,
     }
   }
   
-  return(SUCCESS);
+  return(0);
   
 }
 
@@ -468,7 +468,7 @@ int PSolveHeateq(realtype tt, N_Vector uu,
   
   N_VProd(data->pp, rvec, zvec);
   
-  return(SUCCESS);
+  return(0);
 
 }
 

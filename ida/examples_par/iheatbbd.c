@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-07-22 23:01:44 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-08 15:28:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 
   /* Scalar relative and absolute tolerance. */
 
-  itol = SS;
+  itol = IDA_SS;
   rtol = 0.0;
   atol = 1.e-3;
 
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
   }
 
   /* Loop over tout, call IDASolve, print output. */
-  itask = NORMAL;
+  itask = IDA_NORMAL;
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
     
     ier = IDASolve(mem, tout, &tret, uu, up, itask);
