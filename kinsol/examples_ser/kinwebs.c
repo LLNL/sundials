@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-01-24 22:28:59 $
+ * $Revision: 1.16 $
+ * $Date: 2005-02-02 22:50:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -256,7 +256,7 @@ int main()
                 sc);            /* scaling vector for function values fval */
   if (check_flag(&flag, "KINSol", 1)) return(1);
 
-  printf("\n\n\nComputed equilibrium species concentrations:\n");
+  printf("\n\nComputed equilibrium species concentrations:\n");
   PrintOutput(cc);
 
   /* Print final statistics and free memory */  
@@ -734,7 +734,7 @@ static void PrintFinalStats(void *kmem)
   flag = KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
   check_flag(&flag, "KINSpgmrGetNumFuncEvals", 1);
 
-  printf("\nFinal Statistics.. \n\n");
+  printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
   printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
   printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);

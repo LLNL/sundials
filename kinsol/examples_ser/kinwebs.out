@@ -15,7 +15,6 @@ Initial profile of concentration
 At all mesh points:  1 1 1   30000 30000 30000
 
 
-
 Computed equilibrium species concentrations:
 
 At bottom left:
@@ -24,9 +23,7 @@ At bottom left:
 At top right:
  1.25797 1.25797 1.25797 37736.7 37736.7 37736.7
 
-
 Final Statistics.. 
-
 nni    =     7    nli   =   230
 nfe    =     8    nfeSG =   237
 nps    =   237    npe   =     1     ncfl  =     4
