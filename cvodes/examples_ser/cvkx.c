@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-26 15:32:01 $
+ * $Revision: 1.12 $
+ * $Date: 2004-09-27 18:45:05 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -36,7 +36,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "sundialstypes.h"  /* definitions of realtype                        */
-#include "cvode.h"          /* CVode*** prototypes, various constants         */
+#include "cvodes.h"         /* CVode*** prototypes and various constants      */
 #include "cvspgmr.h"        /* prototypes & constants for CVSPGMR solver      */
 #include "smalldense.h"     /* use generic DENSE solver in preconditioning    */
 #include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S  */
