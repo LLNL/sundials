@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-06-18 21:36:31 $
+ * $Revision: 1.16 $
+ * $Date: 2004-07-27 23:52:30 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -47,9 +47,9 @@
 
 /* KINBBDPrecAlloc error messages */
 
-#define KINBBDALLOC     "KINBBDPrecAlloc-- "
-#define MSG_KINMEM_NULL KINBBDALLOC "KINSOL Memory is NULL.\n\n"
-#define MSG_WRONG_NVEC  KINBBDALLOC "Incompatible NVECTOR implementation.\n\n"
+#define KINBBDALLOC      "KINBBDPrecAlloc-- "
+#define MSG_KINMEM_NULL  KINBBDALLOC "KINSOL Memory is NULL.\n\n"
+#define MSG_BAD_NVECTOR  KINBBDALLOC "A required vector operation is not implemented.\n\n"
 
 /* KINBBDPrecGet* error message */
 
@@ -75,9 +75,9 @@ static void KBBDDQJac(KBBDPrecData pdata,
  *-----------------------------------------------------------------
  */
 
-#define nvspec (kin_mem->kin_nvspec)
-#define errfp  (kin_mem->kin_errfp)
-#define uround (kin_mem->kin_uround)
+#define errfp    (kin_mem->kin_errfp)
+#define uround   (kin_mem->kin_uround)
+#define vec_tmpl (kin_mem->kin_vtemp1)
 
 /*
  *-----------------------------------------------------------------
@@ -109,8 +109,12 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
 
   /* test if the NVECTOR package is compatible with BLOCK BAND preconditioner */
 
-  if (nvspec->ops->nvgetdata == NULL || nvspec->ops->nvsetdata == NULL) {
-    fprintf(stderr, MSG_WRONG_NVEC);
+  /* Note: do NOT need to check for N_VScale since it is required by KINSOL and
+     so has already been checked for (see KINMalloc) */
+
+  if ((vec_tmpl->ops->nvgetarraypointer == NULL) ||
+      (vec_tmpl->ops->nvsetarraypointer == NULL)) {
+    if (errfp != NULL) fprintf(errfp, MSG_BAD_NVECTOR);
     return(NULL);
   }
 
@@ -144,7 +148,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
 
   /* allocate vtemp3 for use by KBBDDQJac routine */
 
-  vtemp3 = N_VNew(nvspec);
+  vtemp3 = N_VClone(kin_mem->kin_vtemp1);
   if (vtemp3 == NULL) {
     BandFreePiv(pdata->pivots);
     BandFreeMat(pdata->PP);
@@ -156,7 +160,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
   /* set rel_uu based on input value dq_rel_uu */
 
   if (dq_rel_uu > ZERO) rel_uu = dq_rel_uu;
-  else rel_uu = RSqrt(kin_mem->kin_uround);  /* using dq_rel_uu = 0.0 means use default */
+  else rel_uu = RSqrt(uround);  /* using dq_rel_uu = 0.0 means use default */
 
   pdata->rel_uu = rel_uu;
 
@@ -218,7 +222,7 @@ void KINBBDPrecFree(void *p_data)
 
   if (p_data != NULL) {
     pdata = (KBBDPrecData) p_data;
-    N_VFree(pdata->vtemp3);
+    N_VDestroy(pdata->vtemp3);
     BandFreeMat(pdata->PP);
     BandFreePiv(pdata->pivots);
     free(pdata);
@@ -424,9 +428,9 @@ int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
 
   /* do the backsolve and return */
 
-  vd = (realtype *) N_VGetData(vv);
+  vd = N_VGetArrayPointer(vv);
   BandBacksolve(PP, pivots, vd);
-  N_VSetData((void *)vd, vv);
+  N_VSetArrayPointer(vd, vv);
 
   return(0);
 }
@@ -462,11 +466,11 @@ static void KBBDDQJac(KBBDPrecData pdata,
 
   /* set pointers to the data for all vectors */
 
-  udata     = (realtype *) N_VGetData(uu);
-  uscdata   = (realtype *) N_VGetData(uscale);
-  gudata    = (realtype *) N_VGetData(gu);
-  gtempdata = (realtype *) N_VGetData(gtemp);
-  utempdata = (realtype *) N_VGetData(utemp);
+  udata     = N_VGetArrayPointer(uu);
+  uscdata   = N_VGetArrayPointer(uscale);
+  gudata    = N_VGetArrayPointer(gu);
+  gtempdata = N_VGetArrayPointer(gtemp);
+  utempdata = N_VGetArrayPointer(utemp);
 
   /* load utemp with uu = predicted solution vector */
 
@@ -495,9 +499,9 @@ static void KBBDDQJac(KBBDPrecData pdata,
   
     /* evaluate g with incremented u */
 
-    N_VSetData((void *)utempdata, utemp);
+    N_VSetArrayPointer(utempdata, utemp);
     gloc(Nlocal, utemp, gtemp, f_data);
-    gtempdata = (realtype *) N_VGetData(gtemp);
+    gtempdata = N_VGetArrayPointer(gtemp);
 
     /* restore utemp, then form and load difference quotients */
 

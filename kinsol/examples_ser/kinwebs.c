@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-05-03 21:36:39 $
+ * $Revision: 1.9 $
+ * $Date: 2004-07-27 23:53:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -179,7 +179,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main()
 {
-  NV_Spec nvSpec;
   int globalstrategy;
   realtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
@@ -187,14 +186,9 @@ int main()
   int flag, maxl, maxlrst;
   void *kmem;
 
-  nvSpec = NULL;
   cc = sc = constraints = NULL;
   kmem = NULL;
   data = NULL;
-
-  /* Initialize serial machine environment */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if (check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
   globalstrategy = INEXACT_NEWTON;
@@ -203,17 +197,18 @@ int main()
   if (check_flag((void *)data, "AllocUserData", 2)) return(1);
   InitUserData(data);
 
-  cc = N_VNew(nvSpec);
-  if (check_flag((void *)cc, "N_VNew", 0)) return(1);
-  sc = N_VNew(nvSpec);
-  if (check_flag((void *)sc, "N_VNew", 0)) return(1);
-  data->rates= N_VNew(nvSpec);
-  if (check_flag((void *)data->rates, "N_VNew", 0)) return(1);
+  /* Create serial vectors of length NEQ */
+  cc = N_VNew_Serial(NEQ);
+  if (check_flag((void *)cc, "N_VNew_Serial", 0)) return(1);
+  sc = N_VNew_Serial(NEQ);
+  if (check_flag((void *)sc, "N_VNew_Serial", 0)) return(1);
+  data->rates = N_VNew_Serial(NEQ);
+  if (check_flag((void *)data->rates, "N_VNew_Serial", 0)) return(1);
 
-  constraints = N_VNew(nvSpec);
-  if (check_flag((void *)constraints, "N_VNew", 0)) return(1);
-  N_VConst(2.0,constraints);
-  
+  constraints = N_VNew_Serial(NEQ);
+  if (check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  N_VConst(2.0, constraints);
+
   SetInitialProfiles(cc, sc);
 
   fnormtol=FTOL; scsteptol=STOL;
@@ -223,7 +218,8 @@ int main()
      A pointer to KINSOL problem memory is returned and stored in kmem. */
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
-  flag = KINMalloc(kmem, funcprpr, nvSpec);
+  /* Vector cc passed as template vector. */
+  flag = KINMalloc(kmem, funcprpr, cc);
   if (check_flag(&flag, "KINMalloc", 1)) return(1);
 
   flag = KINSetFdata(kmem, data);
@@ -282,12 +278,11 @@ int main()
   /* Print final statistics and free memory */  
   PrintFinalStats(kmem);
 
-  N_VFree(cc);
-  N_VFree(sc);
-  N_VFree(constraints);
+  N_VDestroy(cc);
+  N_VDestroy(sc);
+  N_VDestroy(constraints);
   KINFree(kmem);
   FreeUserData(data);
-  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 
@@ -397,7 +392,7 @@ static void FreeUserData(UserData data)
   denfree(acoef);
   free(bcoef);
   free(cox);
-  N_VFree(data->rates);
+  N_VDestroy(data->rates);
   free(data);
   
 } /* end of routine FreeUserData *****************************************/

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-06-30 17:52:45 $
+ * $Revision: 1.16 $
+ * $Date: 2004-07-27 23:52:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -361,9 +361,8 @@ enum { KINS_NO_MEM = -1, KINS_ILL_INPUT = -2 };
  *  func  name of user-supplied subroutine implementing the
  *        nonlinear function F(u)
  *
- *  nvspec  pointer to an internal vector specification structure
- *          created by a prior call to either NV_SpecInit_Serial
- *          or NV_SpecInit_Parallel
+ *  tmpl  implementation-specific template vector (type N_Vector)
+ *        (created using either N_VNew_Serial or N_VNew_Parallel)
  *
  * If successful, KINMalloc returns SUCCESS. If an error occurs,
  * then KINMalloc prints an error message and returns an error
@@ -371,7 +370,7 @@ enum { KINS_NO_MEM = -1, KINS_ILL_INPUT = -2 };
  * -----------------------------------------------------------------
  */
 
-int KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec);
+int KINMalloc(void *kinmem, SysFn func, N_Vector tmpl);
 
 /*
  * -----------------------------------------------------------------

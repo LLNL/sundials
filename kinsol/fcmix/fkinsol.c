@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-06-18 21:36:28 $
+ * $Revision: 1.20 $
+ * $Date: 2004-07-27 23:52:49 $
  * ----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -51,7 +51,19 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
     return;
   }
 
-  constr_vec = N_VMake((void *)constraints, F2C_nvspec);
+  /* check for required vector operations */
+
+  if ((F2C_vec->ops->nvcloneempty      == NULL) ||
+      (F2C_vec->ops->nvdestroyempty    == NULL) ||
+      (F2C_vec->ops->nvgetarraypointer == NULL) ||
+      (F2C_vec->ops->nvsetarraypointer == NULL)) {
+    *ier = -1;
+    printf("A required vector operation is not implemented.\n\n");
+    return;
+  }
+
+  constr_vec = N_VCloneEmpty(F2C_vec);
+  N_VSetArrayPointer(constraints, constr_vec);
 
   KINSetMaxPrecCalls(KIN_mem, *msbpre);
   KINSetFuncNormTol(KIN_mem, *fnormtol);
@@ -73,7 +85,9 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
       KINSetEtaParams(KIN_mem, ropt[5], ropt[6]);
   }
 
-  *ier = KINMalloc(KIN_mem, FKINfunc, F2C_nvspec);
+  /* constr_vec used as template vector */
+
+  *ier = KINMalloc(KIN_mem, FKINfunc, constr_vec);
 
   KIN_iopt = iopt;
   KIN_ropt = ropt;
@@ -107,15 +121,20 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   long int nliters, npevals, npsolves, nlcfails;
   N_Vector uuvec, uscalevec, fscalevec;
 
-  uuvec = N_VMake((void *)uu, F2C_nvspec);
-  uscalevec = N_VMake((void *)uscale, F2C_nvspec);
-  fscalevec = N_VMake((void *)fscale, F2C_nvspec);
+  uuvec = N_VCloneEmpty(F2C_vec);
+  N_VSetArrayPointer(uu, uuvec);
+
+  uscalevec = N_VCloneEmpty(F2C_vec);
+  N_VSetArrayPointer(uscale, uscalevec);
+
+  fscalevec = N_VCloneEmpty(F2C_vec);
+  N_VSetArrayPointer(fscale, fscalevec);
 
   *ier = KINSol(KIN_mem, uuvec, *globalstrategy, uscalevec, fscalevec);
 
-  N_VDispose(uuvec);
-  N_VDispose(uscalevec);
-  N_VDispose(fscalevec);
+  N_VDestroyEmpty(uuvec);
+  N_VDestroyEmpty(uscalevec);
+  N_VDestroyEmpty(fscalevec);
 
   /* load optional outputs into iopt[] and ropt[] */
 
@@ -181,10 +200,10 @@ void FKINfunc(N_Vector uu, N_Vector fval, void *f_data)
 {
   realtype *udata, *fdata;
 
-  udata = (realtype *) N_VGetData(uu);
-  fdata = (realtype *) N_VGetData(fval);
+  udata = N_VGetArrayPointer(uu);
+  fdata = N_VGetArrayPointer(fval);
 
   FK_FUN(udata, fdata);
 
-  N_VSetData((void *)fdata, fval);
+  N_VSetArrayPointer(fdata, fval);
 }

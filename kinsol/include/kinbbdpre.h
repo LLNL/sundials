@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-06-02 23:07:46 $
+ * $Revision: 1.15 $
+ * $Date: 2004-07-27 23:52:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -41,10 +41,10 @@
  *   ...
  *   MPI_Init(&argc,&argv);
  *   ...
- *   nvSpec = NV_SpecInit_Parallel(...);
+ *   tmpl = N_VNew_Parallel(...);
  *   ...
  *   kin_mem = KINCreate();
- *   KINMalloc(kin_mem,...,nvSpec);
+ *   KINMalloc(kin_mem,...,tmpl);
  *   ...
  *   p_data = KINBBDPrecAlloc(kin_mem,...);
  *   ...
@@ -56,7 +56,7 @@
  *   ...
  *   KINFree(kin_mem);
  *   ...
- *   NV_SpecFree_Parallel(nvSpec);
+ *   N_VDestroy_Parallel(tmpl);
  *   ...
  *   MPI_Finalize();
  *

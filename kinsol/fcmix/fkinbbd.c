@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-06-18 21:36:28 $
+ * $Revision: 1.15 $
+ * $Date: 2004-07-27 23:52:49 $
  * ----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -74,12 +74,12 @@ void FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data)
 {
   realtype *uloc, *gloc;
 
-  uloc = (realtype *) N_VGetData(uu);
-  gloc = (realtype *) N_VGetData(gval);
+  uloc = N_VGetArrayPointer(uu);
+  gloc = N_VGetArrayPointer(gval);
 
   FK_LOCFN(&Nloc, uloc, gloc);
 
-  N_VSetData((void *)gloc, gval);
+  N_VSetArrayPointer(gloc, gval);
 }
 
 /*
@@ -95,7 +95,7 @@ void FKINgcomm(long int Nloc, N_Vector uu, void *f_data)
 {
   realtype *uloc;
 
-  uloc = (realtype *) N_VGetData(uu);
+  uloc = N_VGetArrayPointer(uu);
   
   FK_COMMFN(&Nloc, uloc);
 }

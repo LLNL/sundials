@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-07-26 17:27:14 $
+ * $Revision: 1.18 $
+ * $Date: 2004-07-27 23:52:49 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -26,16 +26,14 @@
  The user-callable functions, with the corresponding KINSOL functions,
  are as follows:
 
-   FNVINITS and FNVINITP : interface to NV_SpecInit_Serial and
-                           NV_SpecInit_Parallel (defined by nvector_serial
-                           and nvector_parallel, respectively)
+   FNVINITS and FNVINITP : initialize serial and parallel vector
+                           computations, respectively
    FKINMALLOC :  interfaces to KINMalloc 
    FKINSPGMR : interfaces to KINSpgmr
    FKINSOL : interfaces to KINSol
    FKINFREE : interfaces to KINFree
-   FNVFREES and FNVFREEP : interface to NV_SpecFree_Serial and
-                           NV_SpecFree_Parallel (defined by nvector_serial
-                           and nvector_parallel, respectively)
+   FNVFREES and FNVFREEP : finalize serial and parallel vector
+                           computations, respectively
 
  The user-supplied functions, each with the corresponding interface function
  which calls it (and its type within KINSOL), are as follows:
@@ -440,7 +438,7 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
  * -----------------------------------------------------------------
  */
 
-extern NV_Spec F2C_nvspec;
+extern N_Vector F2C_vec;
 
 void *KIN_mem;
 long int *KIN_iopt;

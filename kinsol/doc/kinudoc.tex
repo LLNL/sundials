@@ -458,11 +458,10 @@ void *KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec);
  *          prior call to KINCreate
  *
  *  func  name of user-supplied subroutine implementing the
- *        nonlinear system function F(u)
+ *        nonlinear function F(u)
  *
- *  nvspec  pointer to an internal vector specification structure
- *          created by a prior call to either NV_SpecInit_Serial
- *          or NV_SpecInit_Parallel
+ *  tmpl  implementation-specific template vector (type N_Vector)
+ *        (created using either N_VNew_Serial or N_VNew_Parallel)
  *
  * If successful, KINMalloc returns SUCCESS. If an error occurs,
  * then KINMalloc prints an error message and returns an error

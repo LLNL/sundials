@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-06-02 23:04:40 $
+ * $Revision: 1.11 $
+ * $Date: 2004-07-27 23:52:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -34,9 +34,10 @@
 
 /* KINSpgmr error messages */
 
-#define KINSPGMR               "KINSpgmr-- "
-#define MSG_KINMEM_NULL        KINSPGMR "KINSOL memory is NULL.\n\n"
-#define MSG_MEM_FAIL           KINSPGMR "A memory request failed.\n\n"
+#define KINSPGMR        "KINSpgmr-- "
+#define MSG_KINMEM_NULL KINSPGMR "KINSOL memory is NULL.\n\n"
+#define MSG_MEM_FAIL    KINSPGMR "A memory request failed.\n\n"
+#define MSG_BAD_NVECTOR KINSPGMR "A required vector operation is not implemented.\n\n"
 
 /* KINSpgmrSet* and KINSpgmrGet* error messages */
 
@@ -45,7 +46,7 @@
 
 /* KINSpgmrSetMaxRestarts error message */
 
-#define MSG_KINS_NEG_MAXRS     "KINSpgmrSetMaxRestarts-- maxrs < 0 illegal.\n\n"
+#define MSG_KINS_NEG_MAXRS "KINSpgmrSetMaxRestarts-- maxrs < 0 illegal.\n\n"
 
 /*
  * -----------------------------------------------------------------
@@ -89,45 +90,46 @@ static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
  * -----------------------------------------------------------------
  */
 
-#define lrw1 (kin_mem->kin_lrw1)
-#define liw1 (kin_mem->kin_liw1)
-#define uround (kin_mem->kin_uround)
-#define nfe (kin_mem->kin_nfe)
-#define nni (kin_mem->kin_nni)
-#define nnilpre (kin_mem->kin_nnilpre)
-#define func (kin_mem->kin_func)
-#define f_data (kin_mem->kin_f_data)
-#define printfl (kin_mem->kin_printfl)
-#define linit (kin_mem->kin_linit)
-#define lsetup (kin_mem->kin_lsetup)
-#define lsolve (kin_mem->kin_lsolve)
-#define lfree (kin_mem->kin_lfree)
-#define lmem (kin_mem->kin_lmem)
-#define uu (kin_mem->kin_uu)
-#define fval (kin_mem->kin_fval)
-#define uscale (kin_mem->kin_uscale)
-#define fscale (kin_mem->kin_fscale)
-#define sqrt_relfunc (kin_mem->kin_sqrt_relfunc)
-#define precondflag (kin_mem->kin_precondflag)
+#define lrw1           (kin_mem->kin_lrw1)
+#define liw1           (kin_mem->kin_liw1)
+#define uround         (kin_mem->kin_uround)
+#define nfe            (kin_mem->kin_nfe)
+#define nni            (kin_mem->kin_nni)
+#define nnilpre        (kin_mem->kin_nnilpre)
+#define func           (kin_mem->kin_func)
+#define f_data         (kin_mem->kin_f_data)
+#define printfl        (kin_mem->kin_printfl)
+#define linit          (kin_mem->kin_linit)
+#define lsetup         (kin_mem->kin_lsetup)
+#define lsolve         (kin_mem->kin_lsolve)
+#define lfree          (kin_mem->kin_lfree)
+#define lmem           (kin_mem->kin_lmem)
+#define uu             (kin_mem->kin_uu)
+#define fval           (kin_mem->kin_fval)
+#define uscale         (kin_mem->kin_uscale)
+#define fscale         (kin_mem->kin_fscale)
+#define sqrt_relfunc   (kin_mem->kin_sqrt_relfunc)
+#define precondflag    (kin_mem->kin_precondflag)
 #define precondcurrent (kin_mem->kin_precondcurrent)
-#define eps (kin_mem->kin_eps)
-#define sJpnorm (kin_mem->kin_sJpnorm)
-#define sfdotJp (kin_mem->kin_sfdotJp)
-#define errfp (kin_mem->kin_errfp)
-#define infofp (kin_mem->kin_infofp)
-#define setupNonNull (kin_mem->kin_setupNonNull)
-#define vtemp1 (kin_mem->kin_vtemp1)
-#define vtemp2 (kin_mem->kin_vtemp2)
-#define nvspec (kin_mem->kin_nvspec)
-#define pretype (kinspgmr_mem->g_pretype)
-#define gstype (kinspgmr_mem->g_gstype)
-#define nli (kinspgmr_mem->g_nli)
-#define npe (kinspgmr_mem->g_npe)
-#define nps (kinspgmr_mem->g_nps)
-#define ncfl (kinspgmr_mem->g_ncfl)
-#define njtimes (kinspgmr_mem->g_njtimes)
-#define nfeSG (kinspgmr_mem->g_nfeSG)
-#define new_uu (kinspgmr_mem->g_new_uu)
+#define eps            (kin_mem->kin_eps)
+#define sJpnorm        (kin_mem->kin_sJpnorm)
+#define sfdotJp        (kin_mem->kin_sfdotJp)
+#define errfp          (kin_mem->kin_errfp)
+#define infofp         (kin_mem->kin_infofp)
+#define setupNonNull   (kin_mem->kin_setupNonNull)
+#define vtemp1         (kin_mem->kin_vtemp1)
+#define vec_tmpl       (kin_mem->kin_vtemp1)
+#define vtemp2         (kin_mem->kin_vtemp2)
+
+#define pretype   (kinspgmr_mem->g_pretype)
+#define gstype    (kinspgmr_mem->g_gstype)
+#define nli       (kinspgmr_mem->g_nli)
+#define npe       (kinspgmr_mem->g_npe)
+#define nps       (kinspgmr_mem->g_nps)
+#define ncfl      (kinspgmr_mem->g_ncfl)
+#define njtimes   (kinspgmr_mem->g_njtimes)
+#define nfeSG     (kinspgmr_mem->g_nfeSG)
+#define new_uu    (kinspgmr_mem->g_new_uu)
 #define spgmr_mem (kinspgmr_mem->g_spgmr_mem)
 
 /*
@@ -169,6 +171,18 @@ int KINSpgmr(void *kinmem, int maxl)
   }
   kin_mem = (KINMem) kinmem;
 
+  /* check for required vector operations */
+
+  /* Note: do NOT need to check for N_VClone, N_VDestory, N_VLinearSum, N_VProd,
+     N_VScale, or N_VWL2Norm because they are required by KINSOL */
+
+  if ((vec_tmpl->ops->nvconst == NULL) ||
+      (vec_tmpl->ops->nvdotprod == NULL) ||
+      (vec_tmpl->ops->nvl1norm == NULL)) {
+    if (errfp != NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    return(LIN_ILL_INPUT);
+  }
+
   /* set four main function fields in kin_mem */
 
   linit  = KINSpgmrInit; 
@@ -201,7 +215,9 @@ int KINSpgmr(void *kinmem, int maxl)
 
   /* call SpgmrMalloc to allocate workspace for SPGMR */
 
-  spgmr_mem = SpgmrMalloc(maxl1, nvspec);
+  /* vec_templ passed as template vector */
+
+  spgmr_mem = SpgmrMalloc(maxl1, vec_tmpl);
   if (spgmr_mem == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     lmem = NULL;  /* set lmem to NULL and free that memory as a flag to a

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-07-16 15:34:16 $
+ * $Revision: 1.22 $
+ * $Date: 2004-07-27 23:52:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -100,6 +100,7 @@
 #define MSG_KINM_NO_MEM    "KINMalloc-- kin_mem == NULL illegal.\n\n"
 #define MSG_MEM_FAIL       "KINMalloc-- A memory request failed.\n\n"
 #define MSG_FUNC_NULL      "KINMalloc-- func == NULL illegal.\n\n"
+#define MSG_BAD_NVECTOR    "KINMalloc-- A required vector operation is not implemented.\n\n"
 #define MSG_KINS_FUNC_NULL "KINResetSysFunc-- func == NULL illegal.\n\n"
 
 /* KINSol error messages */
@@ -133,7 +134,8 @@
  * -----------------------------------------------------------------
  */
 
-static booleantype KINAllocVectors(KINMem kin_mem, NV_Spec NVSpec);
+static booleantype KINCheckNvector(N_Vector tmpl);
+static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl);
 static int KINSolInit(KINMem kin_mem);
 static int KINConstraint(KINMem kin_mem );
 static void KINForcingTerm(KINMem kin_mem, realtype fnormp);
@@ -663,11 +665,11 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
  * -----------------------------------------------------------------
  */
 
-int KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec)
+int KINMalloc(void *kinmem, SysFn func, N_Vector tmpl)
 {
   long int liw1, lrw1;
   KINMem kin_mem;
-  booleantype allocOK;
+  booleantype allocOK, nvectorOK;
   
   /* check kinmem */
 
@@ -682,25 +684,38 @@ int KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec)
     return(KINM_ILL_INPUT);
   }
 
+  /* check if all required vector operations are implemented */
+
+  nvectorOK = KINCheckNvector(tmpl);
+  if (!nvectorOK) {
+    if (errfp != NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    return(KINM_ILL_INPUT);
+  }
+
   /* set space requirements for one N_Vector */
 
-  N_VSpace(nvspec, &lrw1, &liw1);
-  kin_mem->kin_lrw1 = lrw1;
-  kin_mem->kin_liw1 = liw1;  
-  
+  if (tmpl->ops->nvspace != NULL) {
+    N_VSpace(tmpl, &lrw1, &liw1);
+    kin_mem->kin_lrw1 = lrw1;
+    kin_mem->kin_liw1 = liw1;
+  }
+  else {
+    kin_mem->kin_lrw1 = 0;
+    kin_mem->kin_liw1 = 0;
+  }
+
   /* allocate necessary vectors */
 
-  allocOK = KINAllocVectors(kin_mem, nvspec);
+  allocOK = KINAllocVectors(kin_mem, tmpl);
   if (!allocOK) {
     fprintf(errfp, MSG_MEM_FAIL);
     free(kin_mem);
     return(KINM_MEM_FAIL);
   }
 
-  /* copy the input parameters into KINSol state */
+  /* copy the input parameter into KINSol state */
 
   kin_mem->kin_func = func;
-  kin_mem->kin_nvspec = nvspec;
 
   /* set the linear solver addresses to NULL */
 
@@ -716,8 +731,6 @@ int KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec)
 
   return(SUCCESS);
 }
-
-#define nvspec (kin_mem->kin_nvspec)
 
 /*
  * -----------------------------------------------------------------
@@ -863,7 +876,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
      KINSol. */
 
   if (noPrecInit == FALSE) pthrsh = TWO;
-  if (noMinEps == FALSE) epsmin = POINTOH1*fnormtol;
+  if (noMinEps == FALSE) epsmin = POINTOH1 * fnormtol;
 
   loop{
 
@@ -1156,6 +1169,35 @@ void KINFree(void *kinmem)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINCheckNvector
+ * -----------------------------------------------------------------
+ * This routine checks if all required vector operations are
+ * implemented (excluding those required by KINConstraint). If all
+ * necessary operations are present, then KINCheckNvector returns
+ * TRUE. Otherwise, FALSE is returned.
+ * -----------------------------------------------------------------
+ */
+
+static booleantype KINCheckNvector(N_Vector tmpl)
+{
+  if ((tmpl->ops->nvclone     == NULL) ||
+      (tmpl->ops->nvdestroy   == NULL) ||
+      (tmpl->ops->nvlinearsum == NULL) ||
+      (tmpl->ops->nvprod      == NULL) ||
+      (tmpl->ops->nvdiv       == NULL) ||
+      (tmpl->ops->nvscale     == NULL) ||
+      (tmpl->ops->nvabs       == NULL) ||
+      (tmpl->ops->nvinv       == NULL) ||
+      (tmpl->ops->nvmaxnorm   == NULL) ||
+      (tmpl->ops->nvmin       == NULL) ||
+      (tmpl->ops->nvwl2norm   == NULL))
+    return(FALSE);
+  else
+    return(TRUE);
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINAllocVectors
  * -----------------------------------------------------------------
  * This routine allocates the KINSol vectors. If all memory
@@ -1165,40 +1207,40 @@ void KINFree(void *kinmem)
  * -----------------------------------------------------------------
  */
 
-static booleantype KINAllocVectors(KINMem kin_mem, NV_Spec NVSpec)
+static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 {
   /* allocate unew, fval, pp, vtemp1 and vtemp2 */
   
-  unew = N_VNew(NVSpec);
+  unew = N_VClone(tmpl);
   if (unew == NULL) return(FALSE);
 
-  fval = N_VNew(NVSpec);
+  fval = N_VClone(tmpl);
   if (fval == NULL) {
-    N_VFree(unew);
+    N_VDestroy(unew);
     return(FALSE);
   }
 
-  pp = N_VNew(NVSpec);
+  pp = N_VClone(tmpl);
   if (pp == NULL) {
-    N_VFree(unew);
-    N_VFree(fval);
+    N_VDestroy(unew);
+    N_VDestroy(fval);
     return(FALSE);
   }
 
-  vtemp1 = N_VNew(NVSpec);
+  vtemp1 = N_VClone(tmpl);
   if (vtemp1 == NULL) {
-    N_VFree(unew);
-    N_VFree(fval);
-    N_VFree(pp);
+    N_VDestroy(unew);
+    N_VDestroy(fval);
+    N_VDestroy(pp);
     return(FALSE);
   }
 
-  vtemp2 = N_VNew(NVSpec);
+  vtemp2 = N_VClone(tmpl);
   if (vtemp2 == NULL) {
-    N_VFree(unew);
-    N_VFree(fval);
-    N_VFree(pp);
-    N_VFree(vtemp1);
+    N_VDestroy(unew);
+    N_VDestroy(fval);
+    N_VDestroy(pp);
+    N_VDestroy(vtemp1);
     return(FALSE);
   }
 
@@ -1275,8 +1317,14 @@ static int KINSolInit(KINMem kin_mem)
 
   if (constraints == NULL) 
     constraintsSet = FALSE;
-  else
+  else {
     constraintsSet = TRUE;
+    if ((constraints->ops->nvconstrmask  == NULL) ||
+	(constraints->ops->nvminquotient == NULL)) {
+      if (errfp != NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+      return(KINSOL_INPUT_ERROR);
+    }
+  }
 
   /* check the initial guess uu against the constraints */
 
@@ -1303,7 +1351,7 @@ static int KINSolInit(KINMem kin_mem)
   /* calculate the default value for mxnewtstep (maximum Newton step) */
 
   if (mxnewtstep == ZERO)
-    mxnewtstep = THOUSAND * N_VWL2Norm(uu,uscale);
+    mxnewtstep = THOUSAND * N_VWL2Norm(uu, uscale);
   if (mxnewtstep < ONE) mxnewtstep = ONE;
 
   /* set up the coefficients for the eta calculation */
@@ -1361,7 +1409,7 @@ static int KINSolInit(KINMem kin_mem)
  * -----------------------------------------------------------------
  */
 
-static int KINConstraint(KINMem kin_mem) 
+static int KINConstraint(KINMem kin_mem)
 {
   N_VLinearSum(ONE, uu, ONE, pp, vtemp1);
 
@@ -1454,11 +1502,11 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
 
 static void KINFreeVectors(KINMem kin_mem)
 {
-  N_VFree(unew);
-  N_VFree(fval);
-  N_VFree(pp);
-  N_VFree(vtemp1);
-  N_VFree(vtemp2);
+  N_VDestroy(unew);
+  N_VDestroy(fval);
+  N_VDestroy(pp);
+  N_VDestroy(vtemp1);
+  N_VDestroy(vtemp2);
 }
 
 /*

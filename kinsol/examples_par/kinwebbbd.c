@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-05-03 21:36:42 $
+ * $Revision: 1.12 $
+ * $Date: 2004-07-27 23:53:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -194,7 +194,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  NV_Spec nvSpec;
   void *kmem, *pdata;
   UserData data;
   N_Vector cc, sc, constraints;
@@ -205,7 +204,6 @@ int main(int argc, char *argv[])
   int my_pe, npes, npelast = NPEX*NPEY-1;
 
   data = NULL;
-  nvSpec = NULL;
   kmem = pdata = NULL;
   cc = sc = constraints = NULL;
 
@@ -226,13 +224,6 @@ int main(int argc, char *argv[])
   /* Set local length */
   Nlocal = NUM_SPECIES*MXSUB*MYSUB;
 
-  /* Set nvSpec block */
-  nvSpec = NV_SpecInit_Parallel(comm, Nlocal, NEQ, &argc, &argv);
-  if (nvSpec==NULL) {
-    if (my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
-    MPI_Finalize();
-    return(1); }
-
   /* Allocate and initialize user data block */
   data = AllocUserData();
   if (check_flag((void *)data, "AllocUserData", 2, my_pe)) MPI_Abort(comm, 1);
@@ -242,14 +233,14 @@ int main(int argc, char *argv[])
   globalstrategy = INEXACT_NEWTON;
 
   /* Allocate and initialize vectors */
-  cc = N_VNew(nvSpec);
-  if (check_flag((void *)cc, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
-  sc = N_VNew(nvSpec);
-  if (check_flag((void *)sc, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
-  data->rates = N_VNew(nvSpec);
-  if (check_flag((void *)data->rates, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
-  constraints = N_VNew(nvSpec);
-  if (check_flag((void *)constraints, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  cc = N_VNew_Parallel(comm, Nlocal, NEQ);
+  if (check_flag((void *)cc, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  sc = N_VNew_Parallel(comm, Nlocal, NEQ);
+  if (check_flag((void *)sc, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  data->rates = N_VNew_Parallel(comm, Nlocal, NEQ);
+  if (check_flag((void *)data->rates, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  constraints = N_VNew_Parallel(comm, Nlocal, NEQ);
+  if (check_flag((void *)constraints, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   N_VConst(0.,constraints);
   
   SetInitialProfiles(cc, sc);
@@ -261,7 +252,8 @@ int main(int argc, char *argv[])
      A pointer to KINSOL problem memory is returned and stored in kmem. */
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0, my_pe)) MPI_Abort(comm, 1);
-  flag = KINMalloc(kmem, funcprpr, nvSpec);
+  /* Vector cc passed as template vector. */
+  flag = KINMalloc(kmem, funcprpr, cc);
   if (check_flag(&flag, "KINMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = KINSetFdata(kmem, data);
@@ -328,13 +320,12 @@ int main(int argc, char *argv[])
   /* Print final statistics and free memory */
   if (my_pe == 0) PrintFinalStats(kmem);
 
-  N_VFree(cc);
-  N_VFree(sc);
-  N_VFree(constraints);
+  N_VDestroy(cc);
+  N_VDestroy(sc);
+  N_VDestroy(constraints);
   KINBBDPrecFree(pdata);
   KINFree(kmem);
   FreeUserData(data);
-  NV_SpecFree_Parallel(nvSpec);
 
   MPI_Finalize();
 
@@ -436,7 +427,7 @@ static void FreeUserData(UserData data)
   denfree(acoef);
   free(bcoef);
   free(cox); free(coy);
-  N_VFree(data->rates);
+  N_VDestroy(data->rates);
 
   free(data);
 

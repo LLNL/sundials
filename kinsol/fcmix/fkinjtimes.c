@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-06-18 21:36:28 $
+ * $Revision: 1.5 $
+ * $Date: 2004-07-27 23:52:49 $
  * ----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -56,13 +56,13 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
  int retcode;
  realtype *vdata, *Jvdata, *uudata;
  
- vdata  = (realtype *) N_VGetData(v);
- uudata = (realtype *) N_VGetData(uu);
- Jvdata = (realtype *) N_VGetData(Jv);
+ vdata  = N_VGetArrayPointer(v);
+ uudata = N_VGetArrayPointer(uu);
+ Jvdata = N_VGetArrayPointer(Jv);
  
  FK_JTIMES(vdata, Jvdata, (int *)new_uu, uudata, &retcode);
 
- N_VSetData((void *)Jvdata, Jv);
+ N_VSetArrayPointer(Jvdata, Jv);
 
  return(retcode);
 }

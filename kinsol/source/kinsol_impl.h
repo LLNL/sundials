@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-06-02 23:22:30 $
+ * $Revision: 1.2 $
+ * $Date: 2004-07-27 23:52:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -171,8 +171,6 @@ typedef struct KINMemRec {
   
   FILE *kin_errfp;  /* where KINSol error/warning messages are sent            */
   FILE *kin_infofp; /* where KINSol info messages are sent                     */
-
-  NV_Spec kin_nvspec; /* pointer to vector specification structure             */
 
 } *KINMem;
 
