@@ -1,0 +1,50 @@
+# File Makefile
+#--------------------------------------------------------------------------
+# Makefile for the FCVODE examples using the serial N_Vector implementation.
+# @configure_input@
+#--------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# SUNDIALS library directory
+SUNDIALSLIBDIRS = -L${libdir}
+SUNDIALSLIBS    = -lfcvode -lcvode -lfnvecserial -lnvecserial -lshared
+
+# Libraries
+LIBDIRS = ${SUNDIALSLIBDIRS}
+LIBS    = ${SUNDIALSLIBS}
+
+# Compiler and compiler options
+FC     = @F77@
+FFLAGS = @FFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: cvdensef cvbandf cvkryf
+
+cvdensef: cvdensef.o
+	${FC} ${FFLAGS} -o cvdensef cvdensef.o ${LIBDIRS} ${LIBS}
+
+cvbandf: cvbandf.o
+	${FC} ${FFLAGS} -o cvbandf cvbandf.o ${LIBDIRS} ${LIBS}
+
+cvkryf: cvkryf.o
+	${FC} ${FFLAGS} -o cvkryf cvkryf.o ${LIBDIRS} ${LIBS}
+
+clean:
+	rm -f *.o
+	rm -f cvdensef cvbandf cvkryf
+
+.f.o:
+	${FC} -c ${FFLAGS} $*.f
+
+#---End of Makefile---
