@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-21 19:15:55 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-26 20:17:09 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -35,8 +35,9 @@ extern "C" {
    *                                                                *
    ******************************************************************/
   
-  typedef int (*IDAResFnB)(realtype t, N_Vector yy, N_Vector yp,
-                           N_Vector yyB, N_Vector ypB, N_Vector resvalB,
+  typedef int (*IDAResFnB)(realtype tt, 
+                           N_Vector yy, N_Vector yp,
+                           N_Vector yyB, N_Vector ypB, N_Vector rrB,
                            void *rdataB);
 
   /******************************************************************
@@ -48,7 +49,8 @@ extern "C" {
    *                                                                *
    ******************************************************************/
   
-  typedef void (*IDAQuadRhsFnB)(realtype t, N_Vector yy, N_Vector yp, 
+  typedef void (*IDAQuadRhsFnB)(realtype tt, 
+                                N_Vector yy, N_Vector yp, 
                                 N_Vector yyB, N_Vector ypB,
                                 N_Vector ypQB, void *rdataQB);
   
@@ -61,11 +63,11 @@ extern "C" {
    *                                                                *
    ******************************************************************/
   
-  typedef int (*IDADenseJacFnB)(long int NeqB, realtype t, 
+  typedef int (*IDADenseJacFnB)(long int NeqB, realtype tt, 
                                 N_Vector yy, N_Vector yp,
-                                N_Vector yyB, N_Vector ypB, realtype cjB, 
-                                void *jdataB, 
-                                N_Vector resvecB, DenseMat JacB, 
+                                N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                                realtype c_jB, void *jac_dataB, 
+                                DenseMat JacB, 
                                 N_Vector tmp1B, N_Vector tmp2B, 
                                 N_Vector tmp3B);
 
@@ -80,11 +82,11 @@ extern "C" {
 
   typedef int (*IDABandJacFnB)(long int NeqB, 
                                long int mupperB, long int mlowerB, 
-                               realtype t, 
+                               realtype tt, 
                                N_Vector yy, N_Vector yp,
-                               N_Vector yyB, N_Vector ypB, realtype cjB, 
-                               void *jdataB,
-                               N_Vector resvecB, BandMat JacB, 
+                               N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                               realtype c_jB, void *jac_dataB,
+                               BandMat JacB, 
                                N_Vector tmp1B, N_Vector tmp2B, 
                                N_Vector tmp3B);
 
@@ -97,10 +99,10 @@ extern "C" {
    *                                                                *
    ******************************************************************/
 
-  typedef int (*IDASpgmrPrecSetupFnB)(realtype t, 
+  typedef int (*IDASpgmrPrecSetupFnB)(realtype tt, 
                                       N_Vector yy, N_Vector yp,
                                       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                                      realtype cjB, void *pdataB,
+                                      realtype c_jB, void *prec_dataB,
                                       N_Vector tmp1B, N_Vector tmp2B, 
                                       N_Vector tmp3B);
 
@@ -113,12 +115,12 @@ extern "C" {
    *                                                                *
    ******************************************************************/
 
-  typedef int (*IDASpgmrPrecSolveFnB)(realtype t, 
+  typedef int (*IDASpgmrPrecSolveFnB)(realtype tt, 
                                       N_Vector yy, N_Vector yp,
                                       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
                                       N_Vector rvecB, N_Vector zvecB,
-                                      realtype cjB, realtype deltaB,
-                                      void *pdataB, N_Vector tmpB);
+                                      realtype c_jB, realtype deltaB,
+                                      void *prec_dataB, N_Vector tmpB);
 
   /******************************************************************
    *                                                                *
@@ -129,10 +131,11 @@ extern "C" {
    *                                                                *
    ******************************************************************/
 
-  typedef int (*IDASpgmrJacTimesVecFnB)(N_Vector vB, N_Vector JvB, realtype t,
+  typedef int (*IDASpgmrJacTimesVecFnB)(realtype t,
                                         N_Vector yy, N_Vector yp,
                                         N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                                        realtype cjB, void *jdataB, 
+                                        N_Vector vB, N_Vector JvB, 
+                                        realtype c_jB, void *jac_dataB, 
                                         N_Vector tmp1B, N_Vector tmp2B);
 
   /******************************************************************
@@ -189,14 +192,13 @@ extern "C" {
    *                                                                *
    * ncheckPtr points to the number of check points stored so far.  *
    *                                                                *
+   * Return:
+   * IDA_MEM_FAIL or any IDASolve return value
    ******************************************************************/
 
   int IDASolveF(void *idaadj_mem, realtype tout, realtype *tret,
                 N_Vector yret, N_Vector ypret, int itask, int *ncheckPtr);
 
-  /* IDASolveF return values */
-#define IDASOLVEF_MEM_FAIL -20
-  /* or any IDASolve return value */ 
 
   /******************************************************************
    *                                                                *
@@ -210,7 +212,7 @@ extern "C" {
 
   int IDACreateB(void *ida_mem);
   
-  int IDASetRdataB(void *idaadj_mem, void *rdataB);
+  int IDASetRdataB(void *idaadj_mem, void *res_dataB);
   int IDASetErrFileB(void *idaadj_mem, FILE *errfpB);
   int IDASetMaxOrdB(void *idaadj_mem, int maxordB);
   int IDASetMaxNumStepsB(void *idaadj_mem, long int mxstepsB);
@@ -227,12 +229,6 @@ extern "C" {
   int IDAReInitB(void *idaadj_mem, IDAResFnB resB,
                  realtype tB0, N_Vector yyB0, N_Vector ypB0,
                  int itolB, realtype *reltolB, void *abstolB);
-
-  /* IDAMallocB return values */
-  /* SUCCESS=0 */
-#define IDABM_NO_MEM   -101
-#define IDABM_MEM_FAIL -102
-#define IDABM_BAD_TB0  -103
 
   /******************************************************************
    *                                                                *
@@ -256,16 +252,11 @@ extern "C" {
    ******************************************************************/
 
   int IDASetQuadErrConB(void *idaadj_mem, booleantype errconQB);
-  int IDASetQuadRdataB(void *idaadj_mem, void *rdataQB);
+  int IDASetQuadRdataB(void *idaadj_mem, void *rhs_dataQB);
   int IDASetQuadTolerancesB(void *idaadj_mem, int itolQB, 
                             realtype *reltolQB, void *abstolQB);
 
   int IDAQuadMallocB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0);
-
-  /* IDAQuadMallocB return values */
-  /* SUCCESS=0                    */
-  /* IDABM_NO_MEM                 */
-#define IDABM_ILL_INPUT   -104
 
   /******************************************************************
    *                                                                *

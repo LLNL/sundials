@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2004-10-21 15:59:46 $
+ * $Revision: 1.30 $
+ * $Date: 2004-10-26 20:17:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -592,7 +592,7 @@ void *IDACreate(void)
 /*-----------------------------------------------------------------*/
 
 int IDAMalloc(void *ida_mem, IDAResFn res,
-              realtype t0, N_Vector y0, N_Vector yp0, 
+              realtype t0, N_Vector yy0, N_Vector yp0, 
               int itol, realtype *reltol, void *abstol)
 {
   IDAMem IDA_mem;
@@ -608,7 +608,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   
   /* Check for legal input parameters */
   
-  if (y0 == NULL) { 
+  if (yy0 == NULL) { 
     if(errfp!=NULL) fprintf(errfp, MSG_Y0_NULL); 
     return(IDA_ILL_INPUT); 
   }
@@ -644,7 +644,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   }
 
   /* Test if all required vector operations are implemented */
-  nvectorOK = IDACheckNvector(y0);
+  nvectorOK = IDACheckNvector(yy0);
   if(!nvectorOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
     return(IDA_ILL_INPUT);
@@ -662,8 +662,8 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   }
 
   /* Set space requirements for one N_Vector */
-  if (y0->ops->nvspace != NULL) {
-    N_VSpace(y0, &lrw1, &liw1);
+  if (yy0->ops->nvspace != NULL) {
+    N_VSpace(yy0, &lrw1, &liw1);
   } else {
     lrw1 = 0;
     liw1 = 0;
@@ -672,7 +672,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   IDA_mem->ida_liw1 = liw1;
 
   /* Allocate the vectors */
-  allocOK = IDAAllocVectors(IDA_mem, y0);
+  allocOK = IDAAllocVectors(IDA_mem, yy0);
   if (!allocOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(IDA_MEM_FAIL);
@@ -683,7 +683,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   /* Copy the input parameters into IDA memory block */
   IDA_mem->ida_res = res;
   IDA_mem->ida_tn = t0;
-  IDA_mem->ida_y0  = y0;
+  IDA_mem->ida_y0  = yy0;
   IDA_mem->ida_yp0 = yp0;
   IDA_mem->ida_itol = itol;
   IDA_mem->ida_reltol = reltol;      
@@ -699,7 +699,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   IDA_mem->ida_forceSetup = FALSE;
 
   /* Initialize the phi array */
-  N_VScale(ONE, y0, IDA_mem->ida_phi[0]);  
+  N_VScale(ONE, yy0, IDA_mem->ida_phi[0]);  
   N_VScale(ONE, yp0, IDA_mem->ida_phi[1]);  
  
   /* Initialize all the counters and other optional output values */
@@ -743,7 +743,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
 /*-----------------------------------------------------------------*/
 
 int IDAReInit(void *ida_mem, IDAResFn res,
-              realtype t0, N_Vector y0, N_Vector yp0,
+              realtype t0, N_Vector yy0, N_Vector yp0,
               int itol, realtype *reltol, void *abstol)
 {
   IDAMem IDA_mem;
@@ -766,7 +766,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
 
   /* Check for legal input parameters */
   
-  if (y0 == NULL) { 
+  if (yy0 == NULL) { 
     if(errfp!=NULL) fprintf(errfp, MSG_Y0_NULL); 
     return(IDA_ILL_INPUT); 
   }
@@ -815,7 +815,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
 
   /* Copy the input parameters into IDA memory block */
   IDA_mem->ida_res = res;
-  IDA_mem->ida_y0  = y0;
+  IDA_mem->ida_y0  = yy0;
   IDA_mem->ida_yp0 = yp0;
   IDA_mem->ida_tn = t0;
   IDA_mem->ida_itol = itol;
@@ -825,7 +825,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
   IDA_mem->ida_forceSetup = FALSE;
 
   /* Initialize the phi array */
-  N_VScale(ONE, y0, IDA_mem->ida_phi[0]);  
+  N_VScale(ONE, yy0, IDA_mem->ida_phi[0]);  
   N_VScale(ONE, yp0, IDA_mem->ida_phi[1]);  
  
   /* Initialize all the counters and other optional output values */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-10-21 15:59:06 $
+ * $Revision: 1.24 $
+ * $Date: 2004-10-26 20:17:09 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -98,36 +98,36 @@ extern "C" {
 #define IDA_STAGGERED    2
 #define IDA_STAGGERED1   3
 
-/******************************************************************
- * Type : IDAResFn                                                   *
- *----------------------------------------------------------------*        
- * The F function which defines the DAE system   F(t,y,y')=0      *
- * must have type IDAResFn.                                          *
- * Symbols are as follows: t  <-> tres     y <-> yy               *
- *                         y' <-> yp       F <-> res (type IDAResFn) *
- * A IDAResFn takes as input the independent variable value tres,    *
- * the dependent variable vector yy, and the derivative (with     *
- * respect to t) of the yy vector, yp.  It stores the result of   *
- * F(t,y,y') in the vector resval. The yy, yp, and resval         *
- * arguments are of type N_Vector. The rdata parameter is to be   *
- * of the same type as the rdata parameter passed by the user to  *
- * the IDASetRdata routine. This user-supplied pointer is passed  *
- * to the user's res function every time it is called, to provide *
- * access in res to user data.                                    *
- *                                                                *
- * A IDAResFn res will return the value ires, which has possible     *
- * values RES_ERROR_RECVR = 1, RES_ERROR_NONRECVR = -1,           *
- * and SUCCESS = 0. The file idas.h may be used to obtain these   *
- * values but is not required; returning 0, +1, or -1 suffices.   *
- * RES_ERROR_NONRECVR will ensure that the program halts.         *
- * RES_ERROR_RECVR should be returned if, say, a yy or other input*
- * value is illegal. IDAS will attempt to correct and retry.      *
- *                                                                *
- ******************************************************************/
 
-typedef int (*IDAResFn)(realtype tres, 
-                        N_Vector yy, N_Vector yp, N_Vector resval, 
-                        void *rdata);
+/*
+ * ----------------------------------------------------------------
+ * Type : IDAResFn                                                   
+ * ----------------------------------------------------------------
+ * The F function which defines the DAE system   F(t,y,y')=0      
+ * must have type IDAResFn.                                          
+ * Symbols are as follows: 
+ *                  t  <-> t        y <-> yy               
+ *                  y' <-> yp       F <-> rr
+ * A IDAResFn takes as input the independent variable value t,    
+ * the dependent variable vector yy, and the derivative (with     
+ * respect to t) of the yy vector, yp.  It stores the result of   
+ * F(t,y,y') in the vector rr. The yy, yp, and rr arguments are of 
+ * type N_Vector. The res_data parameter is the pointer res_data 
+ * passed by the user to the IDASetRdata routine. This user-supplied 
+ * pointer is passed to the user's res function every time it is called, 
+ * to provide access in res to user data.                                    
+ *                                                                
+ * A IDAResFn res should return a value of 0 if successful, a positive
+ * value if a recoverable error occured (e.g. yy has an illegal value),
+ * or a negative value if a nonrecoverable error occured. In the latter
+ * case, the program halts. If a recoverable error occured, the integrator
+ * will attempt to correct and retry.
+ * ----------------------------------------------------------------
+ */
+
+typedef int (*IDAResFn)(realtype tt, 
+                        N_Vector yy, N_Vector yp, N_Vector rr, 
+                        void *res_data);
 
 /******************************************************************
  * Type : IDASensResFn                                               *
@@ -326,7 +326,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints);
  *                                                                *
  * t0      is the initial value of t, the independent variable.   *
  *                                                                *
- * y0      is the initial condition vector y(t0).                 *
+ * yy0     is the initial condition vector y(t0).                 *
  *                                                                *
  * yp0     is the initial condition vector y'(t0)                 *
  *                                                                *
@@ -364,7 +364,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints);
  ******************************************************************/
 
 int IDAMalloc(void *ida_mem, IDAResFn res,
-              realtype t0, N_Vector y0, N_Vector yp0, 
+              realtype t0, N_Vector yy0, N_Vector yp0, 
               int itol, realtype *reltol, void *abstol);
 
 /* Error return values for IDAMalloc */
@@ -410,7 +410,7 @@ enum {IDAM_NO_MEM = -1, IDAM_MEM_FAIL=-2, IDAM_ILL_INPUT = -2};
  ******************************************************************/
 
 int IDAReInit(void *ida_mem, IDAResFn res,
-              realtype t0, N_Vector y0, N_Vector yp0,
+              realtype t0, N_Vector yy0, N_Vector yp0,
               int itol, realtype *reltol, void *abstol);
  
 /*----------------------------------------------------------------*
@@ -1112,6 +1112,11 @@ void IDASensFree(void *ida_mem);
 #define IDA_BAD_IS          -22
 #define IDA_NO_SENS         -23
 #define IDA_NO_STGR1        -24
+
+/* Flags specific to IDAA */
+
+#define IDA_AMEM_NULL       -25
+#define IDA_BAD_TB0         -26
 
 /*
  * =================================================================

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-10-08 15:27:24 $
+ * $Revision: 1.7 $
+ * $Date: 2004-10-26 20:17:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,7 +10,7 @@
  * All rights reserved
  * For details, see sundials/idas/LICENSE
  * -----------------------------------------------------------------
- * This is the implementation file for the IDA dense linear        
+ * This is the implementation file for the IDAS dense linear        
  * solver module, IDADENSE.                                        
  * -----------------------------------------------------------------
  */
@@ -52,17 +52,17 @@
 static int IDADenseInit(IDAMem IDA_mem);
 
 static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
-                         N_Vector resp, N_Vector tempv1,
-                         N_Vector tempv2, N_Vector tempv3);
+                         N_Vector rrp, N_Vector tmp1,
+                         N_Vector tmp2, N_Vector tmp3);
 
 static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
-                         N_Vector ycur, N_Vector ypcur, N_Vector rescur);
+                         N_Vector ycur, N_Vector ypcur, N_Vector rrcur);
 
 static int IDADenseFree(IDAMem IDA_mem);
 
 static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
-                         realtype c_j, void *jdata, N_Vector resvec, DenseMat Jac,
-                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+                         N_Vector rr, realtype c_j, void *jac_data, DenseMat Jac,
+                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Readability Replacements */
 
@@ -376,8 +376,8 @@ static int IDADenseInit(IDAMem IDA_mem)
 */
 
 static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
-                         N_Vector resp, N_Vector tempv1, N_Vector tempv2,
-                         N_Vector tempv3)
+                         N_Vector rrp, N_Vector tmp1, N_Vector tmp2,
+                         N_Vector tmp3)
 {
   int retval;
   long int retfac;
@@ -390,8 +390,8 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
   /* Zero out JJ; call Jacobian routine jac; return if it failed. */
   DenseZero(JJ);
-  retval = jac(neq, tn, yyp, ypp, cj, jacdata, resp, JJ, 
-               tempv1, tempv2, tempv3);
+  retval = jac(neq, tn, yyp, ypp, rrp, cj, jacdata, JJ, 
+               tmp1, tmp2, tmp3);
   last_flag = retval;
   if (retval < 0) return(-1);
   if (retval > 0) return(+1);
@@ -414,7 +414,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 */
 
 static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
-                         N_Vector ycur, N_Vector ypcur, N_Vector rescur)
+                         N_Vector ycur, N_Vector ypcur, N_Vector rrcur)
 {
   IDADenseMem idadense_mem;
   realtype *bd;
@@ -456,10 +456,10 @@ static int IDADenseFree(IDAMem IDA_mem)
  */
 
 /*
-  This routine generates a dense difference quotient approximation JJ to
+  This routine generates a dense difference quotient approximation Jac to
   the DAE system Jacobian J.  It assumes that a dense matrix of type
   DenseMat is stored column-wise, and that elements within each column
-  are contiguous.  The address of the jth column of JJ is obtained via
+  are contiguous.  The address of the jth column of Jac is obtained via
   the macro DENSE_COL and this pointer is associated with an N_Vector
   using the N_VGetArrayPointer/N_VSetArrayPointer functions. 
   The jth column of the Jacobian is constructed using a call to the res 
@@ -469,12 +469,11 @@ static int IDADenseFree(IDAMem IDA_mem)
 */
 
 static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
-                         realtype c_j, void *jdata, N_Vector resvec, DenseMat Jac,
-                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
- 
+                         N_Vector rr, realtype c_j, void *jac_data, DenseMat Jac,
+                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype inc, inc_inv, yj, ypj, srur, conj;
-  realtype *tempv2_data, *y_data, *yp_data, *ewt_data, *cns_data = NULL;
+  realtype *tmp2_data, *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
   long int j;
   int retval=0;
@@ -482,16 +481,16 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
   IDAMem IDA_mem;
   IDADenseMem idadense_mem;
 
-  /* jdata points to IDA_mem */
-  IDA_mem = (IDAMem) jdata;
+  /* jac_data points to IDA_mem */
+  IDA_mem = (IDAMem) jac_data;
   idadense_mem = (IDADenseMem) lmem;
 
-  /* Save pointer to the array in tempv2 */
-  tempv2_data = N_VGetArrayPointer(tempv2);
+  /* Save pointer to the array in tmp2 */
+  tmp2_data = N_VGetArrayPointer(tmp2);
 
   /* Rename work vectors for readibility */
-  rtemp = tempv1;
-  jthCol = tempv2;
+  rtemp  = tmp1;
+  jthCol = tmp2;
 
   /* Obtain pointers to the data for ewt, yy, yp. */
   ewt_data = N_VGetArrayPointer(ewt);
@@ -535,7 +534,7 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
 
     /* Construct difference quotient in jthCol */
     inc_inv = ONE/inc;
-    N_VLinearSum(inc_inv, rtemp, -inc_inv, resvec, jthCol);
+    N_VLinearSum(inc_inv, rtemp, -inc_inv, rr, jthCol);
 
     DENSE_COL(Jac,j) = N_VGetArrayPointer(jthCol);
 
@@ -544,8 +543,8 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
     yp_data[j] = ypj;
   }
 
-  /* Restore original array pointer in tempv2 */
-  N_VSetArrayPointer(tempv2_data, tempv2);
+  /* Restore original array pointer in tmp2 */
+  N_VSetArrayPointer(tmp2_data, tmp2);
 
   return(retval);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-21 15:59:46 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-26 20:17:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -102,36 +102,40 @@ static void IDAAhermitePrepare(IDAadjMem IDAADJ_mem, DtpntMem *dt_mem, long int 
 static void IDAAhermiteInterpolate(IDAadjMem IDAADJ_mem, DtpntMem *dt_mem,
                                    long int i, realtype t, N_Vector y, N_Vector yd);
 
-static int IDAAres(realtype tres, 
-                    N_Vector yyB, N_Vector ypB, N_Vector resvalB, 
-                    void *idaadj_mem);
+static int IDAAres(realtype tt, 
+                   N_Vector yyB, N_Vector ypB, N_Vector resvalB, 
+                   void *idaadj_mem);
 
-static void IDAArhsQ(realtype tres, N_Vector yyB, N_Vector ypB,
+static void IDAArhsQ(realtype tt, N_Vector yyB, N_Vector ypB,
                      N_Vector ypQB, void *idaadj_mem);
 
-static int IDAAdenseJac(long int NeqB, realtype t, N_Vector yyB, 
-                        N_Vector ypB, realtype cjB, void *idaadj_mem, 
-                        N_Vector resvecB, DenseMat JacB, 
+static int IDAAdenseJac(long int NeqB, 
+                        realtype tt, 
+                        N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                        realtype c_jB, void *idaadj_mem, 
+                        DenseMat JacB, 
                         N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-static int IDAAbandJac(long int NeqB, long int mupperB, 
-                       long int mlowerB, realtype t, 
-                       N_Vector yyB, N_Vector ypB, realtype cjB, 
-                       void *idaadj_mem, N_Vector resvecB, BandMat JacB, 
+static int IDAAbandJac(long int NeqB, long int mupperB, long int mlowerB, 
+                       realtype tt, 
+                       N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                       realtype c_jB, void *idaadj_mem, 
+                       BandMat JacB, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-static int IDAAspgmrPrecSetup(realtype t, 
+static int IDAAspgmrPrecSetup(realtype tt, 
                               N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                              realtype cjB, void *idaadj_mem,
+                              realtype c_jB, void *idaadj_mem,
                               N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-static int IDAAspgmrPrecSolve(realtype t, 
+static int IDAAspgmrPrecSolve(realtype tt, 
                               N_Vector yyB, N_Vector ypB, N_Vector rrB, 
                               N_Vector rvecB, N_Vector zvecB,
-                              realtype cjb, realtype deltaB,
+                              realtype c_jB, realtype deltaB,
                               void *idaadj_mem, N_Vector tmpB);
-static int IDAAspgmrJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
+static int IDAAspgmrJacTimesVec(realtype tt,
                                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                                realtype cjB, void *idaadj_mem, 
+                                N_Vector vB, N_Vector JvB, 
+                                realtype c_jB, void *idaadj_mem, 
                                 N_Vector tmp1B, N_Vector tmp2B);
 
 /*=================================================================*/
@@ -485,7 +489,7 @@ int IDASolveF(void *idaadj_mem, realtype tout, realtype *tret,
       /* Create a new check point, load it, and append it to the list */
       tmp = IDAAckpntNew(IDA_mem);
       if (tmp == NULL) {
-        flag = IDASOLVEF_MEM_FAIL;
+        flag = IDA_MEM_FAIL;
         break;
       }
       tmp->ck_next = IDAADJ_mem->ck_mem;
@@ -529,7 +533,7 @@ int IDASolveF(void *idaadj_mem, realtype tout, realtype *tret,
 
   }
 
-  if (flag == IDASOLVEF_MEM_FAIL) 
+  if (flag == IDA_MEM_FAIL) 
     fprintf(stderr, MSG_IDASOLVEF_MEM_FAIL);
 
   /* Get ncheck from IDAADJ_mem */ 
@@ -554,7 +558,7 @@ int IDACreateB(void *idaadj_mem)
 
   if (idaadj_mem == NULL) {
     fprintf(stderr, MSG_IDABM_NO_MEM);
-    return(IDABM_NO_MEM);
+    return(IDA_AMEM_NULL);
   }
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
@@ -563,7 +567,7 @@ int IDACreateB(void *idaadj_mem)
 
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDABM_MEM_FAIL);
-    return(IDABM_MEM_FAIL);
+    return(IDA_MEM_FAIL);
   }
 
   IDAADJ_mem->IDAB_mem = (IDAMem) ida_mem;
@@ -574,13 +578,13 @@ int IDACreateB(void *idaadj_mem)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetRdataB(void *idaadj_mem, void *rdataB)
+int IDASetRdataB(void *idaadj_mem, void *res_dataB)
 {
   IDAadjMem IDAADJ_mem;
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
-  rdata_B = rdataB;
+  rdata_B = res_dataB;
 
   return(IDA_SUCCESS);
 }
@@ -710,14 +714,14 @@ int IDAMallocB(void *idaadj_mem, IDAResFnB resB,
 
   if (idaadj_mem == NULL) {
     fprintf(stderr, MSG_IDABM_NO_MEM);
-    return(IDABM_NO_MEM);
+    return(IDA_AMEM_NULL);
   }
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
     fprintf(stderr, MSG_IDABM_BAD_TB0);
-    return(IDABM_BAD_TB0);
+    return(IDA_BAD_TB0);
   }
 
   res_B = resB;
@@ -745,14 +749,14 @@ int IDAReInitB(void *idaadj_mem, IDAResFnB resB,
 
   if (idaadj_mem == NULL) {
     fprintf(stderr, MSG_IDABM_NO_MEM);
-    return(IDABM_NO_MEM);
+    return(IDA_AMEM_NULL);
   }
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
     fprintf(stderr, MSG_IDABM_BAD_TB0);
-    return(IDABM_BAD_TB0);
+    return(IDA_BAD_TB0);
   }
 
   res_B  = resB;
@@ -785,13 +789,13 @@ int IDASetQuadErrConB(void *idaadj_mem, int errconQB)
   return(flag);
 }
 
-int IDASetQuadRdataB(void *idaadj_mem, void *rdataQB)
+int IDASetQuadRdataB(void *idaadj_mem, void *rhs_dataQB)
 {
   IDAadjMem IDAADJ_mem;
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
-  rdataQ_B = rdataQB;
+  rdataQ_B = rhs_dataQB;
 
   return(IDA_SUCCESS);
 }
@@ -821,7 +825,7 @@ int IDAQuadMallocB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0)
 
   if (idaadj_mem == NULL) {
     fprintf(stderr, MSG_IDABQM_NO_MEM);
-    return(IDABM_NO_MEM);
+    return(IDA_AMEM_NULL);
   }
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
@@ -849,7 +853,7 @@ int IDAQuadReInitB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0)
 
   if (idaadj_mem == NULL) {
     fprintf(stderr, MSG_IDABQM_NO_MEM);
-    return(IDABM_NO_MEM);
+    return(IDA_AMEM_NULL);
   }
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
@@ -1729,9 +1733,9 @@ static void IDAAhermiteInterpolate(IDAadjMem IDAADJ_mem, DtpntMem *dt_mem,
 */
 /*-----------------------------------------------------------------*/
 
-static int IDAAres(realtype tres, 
-                    N_Vector yyB, N_Vector ypB, N_Vector resvalB, 
-                    void *idaadj_mem)
+static int IDAAres(realtype tt, 
+                   N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+                   void *idaadj_mem)
 {
   IDAadjMem IDAADJ_mem;
   int flag;
@@ -1739,14 +1743,14 @@ static int IDAAres(realtype tres,
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   /* Forward solution from Hermite interpolation */
-  flag = IDAAgetY(IDAADJ_mem, tres, ytmp, yptmp);
+  flag = IDAAgetY(IDAADJ_mem, tt, ytmp, yptmp);
   if (flag != GETY_OK) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
   }
 
   /* Call user's adjoint RES routine */
-  flag = res_B(tres, ytmp, yptmp, yyB, ypB, resvalB, rdata_B);
+  flag = res_B(tt, ytmp, yptmp, yyB, ypB, rrB, rdata_B);
 
   return(flag);
 
@@ -1759,7 +1763,7 @@ static int IDAAres(realtype tres,
 */
 /*-----------------------------------------------------------------*/
 
-static void IDAArhsQ(realtype tres, N_Vector yyB, N_Vector ypB,
+static void IDAArhsQ(realtype tt, N_Vector yyB, N_Vector ypB,
                      N_Vector ypQB, void *idaadj_mem)
 {
   IDAadjMem IDAADJ_mem;
@@ -1768,14 +1772,14 @@ static void IDAArhsQ(realtype tres, N_Vector yyB, N_Vector ypB,
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   /* Forward solution from Hermite interpolation */
-  flag = IDAAgetY(IDAADJ_mem, tres, ytmp, yptmp);
+  flag = IDAAgetY(IDAADJ_mem, tt, ytmp, yptmp);
   if (flag != GETY_OK) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
   }
 
   /* Call user's adjoint quadrature RHS routine */
-  rhsQ_B(tres, ytmp, yptmp, yyB, ypB, ypQB, rdataQ_B);
+  rhsQ_B(tt, ytmp, yptmp, yyB, ypB, ypQB, rdataQ_B);
 
 }
 
@@ -1786,9 +1790,10 @@ static void IDAArhsQ(realtype tres, N_Vector yyB, N_Vector ypB,
 */
 /*-----------------------------------------------------------------*/
 
-static int IDAAdenseJac(long int NeqB, realtype t, N_Vector yyB, 
-                        N_Vector ypB, realtype cjB, void *idaadj_mem, 
-                        N_Vector resvecB, DenseMat JacB, 
+static int IDAAdenseJac(long int NeqB, realtype tt, 
+                        N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                        realtype c_jB, void *idaadj_mem, 
+                        DenseMat JacB, 
                         N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   IDAadjMem IDAADJ_mem;
@@ -1797,15 +1802,18 @@ static int IDAAdenseJac(long int NeqB, realtype t, N_Vector yyB,
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   /* Forward solution from Hermite interpolation */
-  flag = IDAAgetY(IDAADJ_mem, t, ytmp, yptmp);
+  flag = IDAAgetY(IDAADJ_mem, tt, ytmp, yptmp);
   if (flag != GETY_OK) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
   }
 
   /* Call user's adjoint dense djacB routine */
-  flag = djac_B(NeqB, t, ytmp, yptmp, yyB, ypB, cjB, 
-                jdata_B, resvecB, JacB, 
+  flag = djac_B(NeqB, tt, 
+                ytmp, yptmp, 
+                yyB, ypB, rrB, 
+                c_jB, jdata_B, 
+                JacB, 
                 tmp1B, tmp2B, tmp3B);
 
   return(flag);
@@ -1818,10 +1826,11 @@ static int IDAAdenseJac(long int NeqB, realtype t, N_Vector yyB,
 */
 /*-----------------------------------------------------------------*/
 
-static int IDAAbandJac(long int NeqB, long int mupperB, 
-                       long int mlowerB, realtype t, 
-                       N_Vector yyB, N_Vector ypB, realtype cjB, 
-                       void *idaadj_mem, N_Vector resvecB, BandMat JacB, 
+static int IDAAbandJac(long int NeqB, long int mupperB, long int mlowerB, 
+                       realtype tt, 
+                       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+                       realtype c_jB, void *idaadj_mem, 
+                       BandMat JacB, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   IDAadjMem IDAADJ_mem;
@@ -1830,15 +1839,20 @@ static int IDAAbandJac(long int NeqB, long int mupperB,
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   /* Forward solution from Hermite interpolation */
-  flag = IDAAgetY(IDAADJ_mem, t, ytmp, yptmp);
+  flag = IDAAgetY(IDAADJ_mem, tt, ytmp, yptmp);
   if (flag != GETY_OK) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
   }
 
   /* Call user's adjoint band bjacB routine */
-  flag = bjac_B(NeqB, mupperB, mlowerB, t, ytmp, yptmp, yyB, ypB, cjB, 
-                jdata_B, resvecB, JacB, tmp1B, tmp2B, tmp3B);
+  flag = bjac_B(NeqB, mupperB, mlowerB, 
+                tt, 
+                ytmp, yptmp, 
+                yyB, ypB, rrB,
+                c_jB, jdata_B, 
+                JacB, 
+                tmp1B, tmp2B, tmp3B);
 
   return(flag);
 }
@@ -1850,9 +1864,9 @@ static int IDAAbandJac(long int NeqB, long int mupperB,
 */
 /*-----------------------------------------------------------------*/
 
-static int IDAAspgmrPrecSetup(realtype t, 
+static int IDAAspgmrPrecSetup(realtype tt, 
                               N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                              realtype cjB, void *idaadj_mem,
+                              realtype c_jB, void *idaadj_mem,
                               N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   IDAadjMem IDAADJ_mem;
@@ -1861,14 +1875,15 @@ static int IDAAspgmrPrecSetup(realtype t,
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   /* Forward solution from Hermite interpolation */
-  flag = IDAAgetY(IDAADJ_mem, t, ytmp, yptmp);
+  flag = IDAAgetY(IDAADJ_mem, tt, ytmp, yptmp);
   if (flag != GETY_OK) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
   } 
 
   /* Call user's adjoint precondB routine */
-  flag = pset_B(t, ytmp, yptmp, yyB, ypB, rrB, cjB, pdata_B,
+  flag = pset_B(tt, ytmp, yptmp, yyB, ypB, rrB, 
+                c_jB, pdata_B,
                 tmp1B, tmp2B, tmp3B);
 
   return(flag);
@@ -1881,10 +1896,10 @@ static int IDAAspgmrPrecSetup(realtype t,
 */
 /*-----------------------------------------------------------------*/
 
-static int IDAAspgmrPrecSolve(realtype t, 
+static int IDAAspgmrPrecSolve(realtype tt, 
                               N_Vector yyB, N_Vector ypB, N_Vector rrB, 
                               N_Vector rvecB, N_Vector zvecB,
-                              realtype cjB, realtype deltaB,
+                              realtype c_jB, realtype deltaB,
                               void *idaadj_mem, N_Vector tmpB)
 {
   IDAadjMem IDAADJ_mem;
@@ -1893,15 +1908,19 @@ static int IDAAspgmrPrecSolve(realtype t,
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   /* Forward solution from Hermite interpolation */
-  flag = IDAAgetY(IDAADJ_mem, t, ytmp, yptmp);
+  flag = IDAAgetY(IDAADJ_mem, tt, ytmp, yptmp);
   if (flag != GETY_OK) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
   } 
 
   /* Call user's adjoint psolveB routine */
-  flag = psolve_B(t, ytmp, yptmp, yyB, ypB, rrB, rvecB, zvecB, cjB, 
-                  deltaB, pdata_B, tmpB);
+  flag = psolve_B(tt, 
+                  ytmp, yptmp, 
+                  yyB, ypB, rrB, 
+                  rvecB, zvecB, 
+                  c_jB, deltaB, 
+                  pdata_B, tmpB);
 
   return(flag);
 }
@@ -1913,9 +1932,10 @@ static int IDAAspgmrPrecSolve(realtype t,
 */
 /*-----------------------------------------------------------------*/
 
-static int IDAAspgmrJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
+static int IDAAspgmrJacTimesVec(realtype tt,
                                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                                realtype cjB, void *idaadj_mem, 
+                                N_Vector vB, N_Vector JvB, 
+                                realtype c_jB, void *idaadj_mem, 
                                 N_Vector tmp1B, N_Vector tmp2B)
 {
   IDAadjMem IDAADJ_mem;
@@ -1924,14 +1944,18 @@ static int IDAAspgmrJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   /* Forward solution from Hermite interpolation */
-  flag = IDAAgetY(IDAADJ_mem, t, ytmp, yptmp);
+  flag = IDAAgetY(IDAADJ_mem, tt, ytmp, yptmp);
   if (flag != GETY_OK) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
   } 
 
   /* Call user's adjoint jtimesB routine */
-  flag = jtimes_B(vB, JvB, t, ytmp, yptmp, yyB, ypB, rrB, cjB, jdata_B, 
+  flag = jtimes_B(tt, 
+                  ytmp, yptmp, 
+                  yyB, ypB, rrB, 
+                  vB, JvB, 
+                  c_jB, jdata_B, 
                   tmp1B, tmp2B);
 
   return(flag);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-21 18:19:52 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-26 20:17:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -82,12 +82,12 @@
 
 static int IDASpgmrInit(IDAMem IDA_mem);
 
-static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
-                         N_Vector resp, N_Vector tempv1,
-                         N_Vector tempv2, N_Vector tempv3);
+static int IDASpgmrSetup(IDAMem IDA_mem, 
+                         N_Vector yy_p, N_Vector yp_p, N_Vector rr_p, 
+                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
-                         N_Vector ynow, N_Vector ypnow, N_Vector rnow);
+                         N_Vector yy_now, N_Vector yp_now, N_Vector rr_now);
 
 static int IDASpgmrPerf(IDAMem IDA_mem, int perftask);
 
@@ -102,8 +102,9 @@ static int IDASpgmrPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr);
 
 /* Difference quotient approximation for Jac times vector */
 
-static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
+static int IDASpgmrDQJtimes(realtype tt,
                             N_Vector yy, N_Vector yp, N_Vector rr,
+                            N_Vector v, N_Vector Jv, 
                             realtype c_j, void *jac_data, 
                             N_Vector work1, N_Vector work2);
 /* Readability Replacements */
@@ -459,7 +460,7 @@ int IDASpgmrSetPrecSolveFn(void *ida_mem, IDASpgmrPrecSolveFn psolve)
   return(IDASPGMR_SUCCESS);
 }
 
-int IDASpgmrSetPrecData(void *ida_mem, void *pdata)
+int IDASpgmrSetPrecData(void *ida_mem, void *prec_data)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -477,7 +478,7 @@ int IDASpgmrSetPrecData(void *ida_mem, void *pdata)
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
-  idaspgmr_mem->g_pdata = pdata;
+  idaspgmr_mem->g_pdata = prec_data;
 
   return(IDASPGMR_SUCCESS);
 }
@@ -505,7 +506,7 @@ int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes)
   return(IDASPGMR_SUCCESS);
 }
 
-int IDASpgmrSetJacData(void *ida_mem, void *jdata)
+int IDASpgmrSetJacData(void *ida_mem, void *jac_data)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -523,7 +524,7 @@ int IDASpgmrSetJacData(void *ida_mem, void *jdata)
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
-  idaspgmr_mem->g_jdata = jdata;
+  idaspgmr_mem->g_jdata = jac_data;
 
   return(IDASPGMR_SUCCESS);
 }
@@ -758,9 +759,10 @@ static int IDASpgmrInit(IDAMem IDA_mem)
   return(0);
 }
 
-static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
-                         N_Vector resp, N_Vector tempv1, N_Vector tempv2,
-                         N_Vector tempv3)
+static int IDASpgmrSetup(IDAMem IDA_mem, 
+                         N_Vector yy_p, N_Vector yp_p, N_Vector rr_p, 
+                         N_Vector tmp1, N_Vector tmp2,
+                         N_Vector tmp3)
 {
   int retval;
   IDASpgmrMem idaspgmr_mem;
@@ -768,8 +770,8 @@ static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   /* Call user setup routine pset and update counter npe. */
-  retval = pset(tn, yyp, ypp, resp, cj, pdata,
-                tempv1, tempv2, tempv3);
+  retval = pset(tn, yy_p, yp_p, rr_p, cj, pdata,
+                tmp1, tmp2, tmp3);
   npe++;
 
   last_flag = retval;
@@ -791,7 +793,7 @@ static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
  */
 
 static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
-                         N_Vector ynow, N_Vector ypnow, N_Vector rnow)
+                         N_Vector yy_now, N_Vector yp_now, N_Vector rr_now)
 {
   IDASpgmrMem idaspgmr_mem;
   int pretype, nli_inc, nps_inc, retval;
@@ -807,9 +809,9 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   epslin = sqrtN*eplifac*epsNewt;
 
   /* Set vectors ycur, ypcur, and rcur for use by the Atimes and Psolve */
-  ycur = ynow;
-  ypcur = ypnow;
-  rcur = rnow;
+  ycur = yy_now;
+  ypcur = yp_now;
+  rcur = rr_now;
 
   /* Set SpgmrSolve inputs pretype and initial guess xx = 0. */  
   pretype = (psolve == NULL) ? PREC_NONE : PREC_LEFT;
@@ -917,7 +919,7 @@ static int IDASpgmrAtimes(void *ida_mem, N_Vector v, N_Vector z)
   IDA_mem = (IDAMem) ida_mem;
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
-  jtflag = jtimes(v, z, tn, ycur, ypcur, rcur, cj, jdata, ytemp, yptemp);
+  jtflag = jtimes(tn, ycur, ypcur, rcur, v, z, cj, jdata, ytemp, yptemp);
   njtimes++;
 
   return(jtflag);
@@ -959,10 +961,11 @@ static int IDASpgmrPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr)
  * return flag from IDASpgmrSolve.
  */
 
-static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
+static int IDASpgmrDQJtimes(realtype tt,
                             N_Vector yy, N_Vector yp, N_Vector rr,
+                            N_Vector v, N_Vector Jv, 
                             realtype c_j, void *jac_data, 
-                            N_Vector work1, N_Vector work2)
+                            N_Vector tmp1, N_Vector tmp2)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -976,16 +979,16 @@ static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   sig = sqrtN*dqincfac;
 
-  /* Rename work1 and work2 for readibility */
-  y_tmp  = work1;
-  yp_tmp = work2;
+  /* Rename tmp1 and tmp2 for readibility */
+  y_tmp  = tmp1;
+  yp_tmp = tmp2;
 
   /* Set y_tmp = yy + sig*v, yp_tmp = yp + cj*sig*v. */
   N_VLinearSum(sig, v, ONE, yy, ytemp);
   N_VLinearSum(c_j*sig, v, ONE, yp, yptemp);
 
   /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
-  ires = res(t, y_tmp, yp_tmp, Jv, rdata); 
+  ires = res(tt, y_tmp, yp_tmp, Jv, rdata); 
   nreSG++;
   resflag = ires;
   if (ires != 0) return(ires);

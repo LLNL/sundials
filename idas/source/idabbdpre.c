@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-21 17:54:24 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-26 20:17:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -12,7 +12,7 @@
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a            
  * band-block-diagonal preconditioner, i.e. a block-diagonal       
- * matrix with banded blocks, for use with IDAS and IDASpgmr.       
+ * matrix with banded blocks, for use with IDA and IDASpgmr.       
  * NOTE: with only one processor in use, a banded matrix results   
  * rather than a block-diagonal matrix with banded blocks.         
  * Diagonal blocking occurs at the processor level.                
@@ -267,21 +267,21 @@ int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
  *                                                                
  * The IDABBDPrecSetup parameters used here are as follows:       
  *                                                                
- * tt  is the current value of the independent variable t.        
+ * tt is the current value of the independent variable t.        
  *                                                                
- * yy      is the current value of the dependent variable vector, 
- *         namely the predicted value of y(t).                    
+ * yy is the current value of the dependent variable vector, 
+ *    namely the predicted value of y(t).                    
  *                                                                
- * yp  is the current value of the derivative vector y',          
- *        namely the predicted value of y'(t).                    
+ * yp is the current value of the derivative vector y',          
+ *    namely the predicted value of y'(t).                    
  *                                                                
- * cj  is the scalar in the system Jacobian, proportional to 1/hh.
+ * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *                                                                
- * p_data  is a pointer to user preconditioner data - the same as 
- *        the p_data parameter passed to IDASpgmr.                
+ * prec_data is a pointer to user preconditioner data - the same as 
+ *    the p_data parameter passed to IDASpgmr.                
  *                                                                
- * tempv1, tempv2, tempv3 are pointers to vectors of type         
- * N_Vector, used for temporary storage or work space.            
+ * tmp1, tmp2, tmp3 are pointers to vectors of type         
+ *    N_Vector, used for temporary storage or work space.            
  *                                                                  
  * The arguments Neq, rr, res, uround, and nrePtr are not used.   
  *                                                                  
@@ -297,18 +297,18 @@ int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
 
 int IDABBDPrecSetup(realtype tt, 
 		    N_Vector yy, N_Vector yp, N_Vector rr, 
-		    realtype cj, void *p_data,
+		    realtype c_j, void *prec_data,
 		    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   long int retfac;
   int retval;
   IBBDPrecData pdata;
 
-  pdata =(IBBDPrecData) p_data;
+  pdata =(IBBDPrecData) prec_data;
 
   /* Call IBBDDQJac for a new Jacobian calculation and store in PP. */
   BandZero(PP);
-  retval = IBBDDQJac(pdata, tt, cj, yy, yp,
+  retval = IBBDDQJac(pdata, tt, c_j, yy, yp,
                      tempv1, tempv2, tempv3, pdata->tempv4);
   if (retval < 0) return(-1);
   if (retval > 0) return(+1);
@@ -332,15 +332,14 @@ int IDABBDPrecSetup(realtype tt,
  *                                                                
  * The IDABBDPrecSolve parameters used here are as follows:       
  *                                                                
- * P_data is a pointer to user preconditioner data - the same as  
- *        the p_data parameter passed to IDASpgmr.                
+ * rvec is the input right-hand side vector r.                  
  *                                                                
- * rvec   is the input right-hand side vector r.                  
+ * zvec is the computed solution vector z.                      
  *                                                                
- * zvec   is the computed solution vector z.                      
+ * prec_data is a pointer to user preconditioner data - the same as  
+ *     the p_data parameter passed to IDASpgmr.                
  *                                                                
- * The arguments Neq, tt, yy, yp, rr, cj, res, res_data, ewt,     
- * delta, nrePtr, and tempv are NOT used.                         
+ * The arguments tt, yy, yp, rr, c_j, delta, and tmp are NOT used.
  *                                                                
  * IDABBDPrecSolve always returns 0, indicating success.          
  *                                                                
@@ -350,13 +349,13 @@ int IDABBDPrecSetup(realtype tt,
 int IDABBDPrecSolve(realtype tt, 
 		    N_Vector yy, N_Vector yp, N_Vector rr, 
 		    N_Vector rvec, N_Vector zvec,
-		    realtype cj, realtype delta,
-		    void *p_data, N_Vector tempv)
+		    realtype c_j, realtype delta, void *prec_data, 
+                    N_Vector tmp)
 {
   IBBDPrecData pdata;
   realtype *zd;
 
-  pdata = (IBBDPrecData) p_data;
+  pdata = (IBBDPrecData) prec_data;
 
   /* Copy rvec to zvec, do the backsolve, and return. */
   N_VScale(ONE, rvec, zvec);

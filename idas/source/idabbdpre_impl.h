@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-10-21 17:54:24 $
+ * $Revision: 1.6 $
+ * $Date: 2004-10-26 20:17:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/idas/LICENSE
+ * For details, see sundials/ida/LICENSE
  * -----------------------------------------------------------------
  * This is the header file (private version) for the IDABBDPRE
  * module, for a band-block-diagonal preconditioner, i.e. a
@@ -33,14 +33,14 @@ extern "C" {
 
 int IDABBDPrecSetup(realtype tt, 
 		    N_Vector yy, N_Vector yp, N_Vector rr, 
-		    realtype cj, void *p_data,
-		    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+		    realtype c_j, void *prec_data,
+		    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
  
 int IDABBDPrecSolve(realtype tt, 
 		    N_Vector yy, N_Vector yp, N_Vector rr, 
 		    N_Vector rvec, N_Vector zvec,
-		    realtype cj, realtype delta,
-		    void *p_data, N_Vector tempv);
+		    realtype c_j, realtype delta, void *prec_data, 
+                    N_Vector tmp);
 
 /* Definition of IBBDPrecData */
 

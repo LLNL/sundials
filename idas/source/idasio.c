@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-21 15:59:46 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-26 20:17:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -118,7 +118,7 @@ int IDASetErrFile(void *ida_mem, FILE *errfp)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetRdata(void *ida_mem, void *rdata)
+int IDASetRdata(void *ida_mem, void *res_data)
 {
   IDAMem IDA_mem;
 
@@ -129,7 +129,7 @@ int IDASetRdata(void *ida_mem, void *rdata)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  IDA_mem->ida_rdata = rdata;
+  IDA_mem->ida_rdata = res_data;
 
   return(IDA_SUCCESS);
 }
