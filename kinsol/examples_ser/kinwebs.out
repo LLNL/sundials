@@ -5,7 +5,7 @@ Mesh dimensions = 8 X 8
 Number of species = 6
 Total system size = 384
 
-Flag globalstrategy = 0 (0 = Inex. Newton, 1 = Linesearch)
+Flag globalstrategy = 1 (1 = Inex. Newton, 2 = Linesearch)
 Linear solver is SPGMR with maxl = 15, maxlrst = 2
 Preconditioning uses interaction-only block-diagonal matrix
 Tolerance parameters:  fnormtol = 1e-07   scsteptol = 1e-13
@@ -27,6 +27,6 @@ At top right:
 
 Final Statistics.. 
 
-nni    =     9    nli   =   352
-nfe    =    10    nfeSG =   361
-nps    =   361    npe   =     1     ncfl  =     7
+nni    =     8    nli   =   308
+nfe    =     9    nfeSG =   316
+nps    =   316    npe   =     1     ncfl  =     6

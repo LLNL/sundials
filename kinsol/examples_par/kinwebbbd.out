@@ -8,7 +8,7 @@ Total system size = 2400
 Subgrid dimensions = 10 X 10
 Processor array is 2 X 2
 
-Flag globalstrategy = 0 (0 = Inex. Newton, 1 = Linesearch)
+Flag globalstrategy = 1 (1 = Inex. Newton, 2 = Linesearch)
 Linear solver is SPGMR with maxl = 20, maxlrst = 2
 Preconditioning uses band-block-diagonal matrix from KINBBDPRE
   with matrix half-bandwidths ml, mu = 11  11

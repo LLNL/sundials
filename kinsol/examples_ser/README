@@ -10,5 +10,5 @@ Sample result:
 
   System Architecture: IA-32
   Processor Type: Intel Pentium 4 Xeon DP (i686)
-  Operating System: Red Hat Linux 7.2
-  C/Fortran Compilers: gcc/g77 v2.96 (Red Hat)
+  Operating System: Red Hat Enterprise Linux WS 3
+  C/Fortran Compilers: gcc/g77 v3.2.3-24 (Red Hat)
