@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-04-29 22:53:28 $
+ * $Revision: 1.16 $
+ * $Date: 2004-06-02 23:14:21 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -22,9 +22,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ida.h"
-#include "idabbdpre.h"
-#include "idaspgmr.h"
+#include "ida_impl.h"
+#include "idabbdpre_impl.h"
+#include "idaspgmr_impl.h"
 #include "sundialsmath.h"
 #include "iterative.h"
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-04-29 22:53:28 $
+ * $Revision: 1.23 $
+ * $Date: 2004-06-02 23:14:21 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "ida.h"
+#include "ida_impl.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"

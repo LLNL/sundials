@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-04-29 22:53:28 $
+ * $Revision: 1.15 $
+ * $Date: 2004-06-02 23:14:21 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -22,8 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ida.h"
-#include "idaband.h"
+#include "ida_impl.h"
+#include "idaband_impl.h"
 #include "band.h"
 #include "sundialstypes.h"
 #include "nvector.h"
