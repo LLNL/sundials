@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-04-29 22:45:52 $
+ * $Revision: 1.14 $
+ * $Date: 2004-06-02 23:16:19 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,7 +26,7 @@ extern "C" {
 #include "sundialstypes.h"
 #include "dense.h"
 #include "nvector.h"
- 
+
 /******************************************************************
  * Type : IDADenseJacFn                                           *
  *----------------------------------------------------------------*
@@ -168,34 +168,6 @@ int IDADenseGetIntWorkSpace(void *ida_mem, long int *leniwD);
 int IDADenseGetRealWorkSpace(void *ida_mem, long int *lenrwD);
 int IDADenseGetNumJacEvals(void *ida_mem, long int *njevalsD);
 int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsD);
-
-/******************************************************************
- *                                                                *           
- * Types : IDADenseMemRec, IDADenseMem                            *
- *----------------------------------------------------------------*
- * The type IDADenseMem is pointer to an IDADenseMemRec. This     *
- * structure contains IDADense solver-specific data.              *
- *                                                                *
- ******************************************************************/
-
-typedef struct {
-
-  long int d_neq;        /* Neq = problem dimension              */
-
-  IDADenseJacFn d_jac;   /* jac = Jacobian routine to be called  */
-  
-  DenseMat d_J;          /* J = dF/dy + cj*dF/dy'                */
-  
-  long int *d_pivots;    /* pivots = pivot array for PJ = LU     */
-  
-  long int d_nje;        /* nje = no. of calls to jac            */
-  
-  long int d_nreD;       /* nreD = no. of calls to res due to 
-                            difference quotient Jacobian evaluation */
-
-  void *d_jdata;         /* jdata is passed to jac               */
-
-} IDADenseMemRec, *IDADenseMem;
 
 #endif
 
