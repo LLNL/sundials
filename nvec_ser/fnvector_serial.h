@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : fnvector_serial.h                               *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 06 June 2003                                    *
+ * Version of    : 27 January 2004                                 *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -11,9 +11,7 @@
  *-----------------------------------------------------------------*
  * This file (companion of nvector_serial.h) contains the          *
  * definitions needed for the Fortran callable wrappers to         *
- * NV_SpecInit_Serial and NV_SpecFree_Serial (these definitions    *
- * are based on the machine specific information for Fortran       *
- * externals given in the header file fcmixpar.h).                 *
+ * NV_SpecInit_Serial and NV_SpecFree_Serial                       *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
@@ -27,18 +25,18 @@ extern "C" {
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
-#define F_NVSPECINITS  fnvspecinits
-#define F_NVSPECFREES  fnvspecfrees
+#define FNV_INITS  fnvinits
+#define FNV_FREES  fnvfrees
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
 
-#define F_NVSPECINITS  fnvspecinits__
-#define F_NVSPECFREES  fnvspecfrees__
+#define FNV_INITS  fnvinits__
+#define FNV_FREES  fnvfrees__
 
 #else
 
-#define F_NVSPECINITS  fnvspecinits_
-#define F_NVSPECFREES  fnvspecfrees_
+#define FNV_INITS  fnvinits_
+#define FNV_FREES  fnvfrees_
 
 #endif
 

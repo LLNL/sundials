@@ -29,7 +29,7 @@ NV_Spec F2C_nvspec;
 /* Fortran callable interfaces to NV_SpecInit_Parallel
    and NV_SpecFree_Parallel */
 
-void F_NVSPECINITP(integertype *nlocal, integertype *nglobal, int *ier)
+void FNV_INITP(integertype *nlocal, integertype *nglobal, int *ier)
 {
   
   /* Call NV_SpecInit_Parallel:
@@ -47,7 +47,7 @@ void F_NVSPECINITP(integertype *nlocal, integertype *nglobal, int *ier)
 }
 
 
-void F_NVSPECFREEP()
+void FNV_FREEP()
 {
   NV_SpecFree_Parallel(F2C_nvspec);
 }

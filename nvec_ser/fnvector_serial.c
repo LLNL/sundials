@@ -27,7 +27,7 @@ NV_Spec F2C_nvspec;
 /* Fortran callable interfaces to NV_SpecInit_Serial
    and NV_SpecFree_Serial */
 
-void F_NVSPECINITS(integertype *neq, int *ier)
+void FNV_INITS(integertype *neq, int *ier)
 {
  F2C_nvspec = NV_SpecInit_Serial(*neq);
 
@@ -35,7 +35,7 @@ void F_NVSPECINITS(integertype *neq, int *ier)
 }
 
 
-void F_NVSPECFREES()
+void FNV_FREES()
 {
   NV_SpecFree_Serial(F2C_nvspec);
 }

@@ -11,9 +11,7 @@
  *-----------------------------------------------------------------*
  * This file (companion of nvector_parallel.h) contains the        *
  * definitions needed for the Fortran callable wrappers to         *
- * NV_SpecInit_Parallel and NV_SpecFree_Parallel (these definitions*
- * are based on the machine specific information for Fortran       *
- * externals given in the header file fcmixpar.h).                 *
+ * NV_SpecInit_Parallel and NV_SpecFree_Parallel                   *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
@@ -27,18 +25,18 @@ extern "C" {
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
-#define F_NVSPECINITP  fnvspecinitp
-#define F_NVSPECFREEP  fnvspecfreep
+#define FNV_INITP  fnvinitp
+#define FNV_FREEP  fnvfreep
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
 
-#define F_NVSPECINITP  fnvspecinitp__
-#define F_NVSPECFREEP  fnvspecfreep__
+#define FNV_INITP  fnvinitp__
+#define FNV_FREEP  fnvfreep__
 
 #else
 
-#define F_NVSPECINITP  fnvspecinitp_
-#define F_NVSPECFREEP  fnvspecfreep_
+#define FNV_INITP  fnvinitp_
+#define FNV_FREEP  fnvfreep_
 
 #endif
 
