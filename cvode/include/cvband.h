@@ -83,7 +83,7 @@ enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
  * A band Jacobian approximation function Jac must have the       *
  * prototype given below. Its parameters are:                     *
  *                                                                *
- * N is the length of all vector arguments.                       *
+ * n is the length of all vector arguments.                       *
  *                                                                *
  * mupper is the upper half-bandwidth of the approximate banded   *
  * Jacobian. This parameter is the same as the mupper parameter   *
@@ -100,7 +100,7 @@ enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
  * loaded. Three efficient ways to load J are:                    *
  *                                                                *
  * (1) (with macros - no explicit data structure references)      *
- *    for (j=0; j < N; j++) {                                     *
+ *    for (j=0; j < n; j++) {                                     *
  *       col_j = BAND_COL(J,j);                                   *
  *       for (i=j-mupper; i <= j+mlower; i++) {                   *
  *         generate J_ij = the (i,j)th Jacobian element           *
@@ -109,7 +109,7 @@ enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
  *     }                                                          *
  *                                                                *
  * (2) (with BAND_COL macro, but without BAND_COL_ELEM macro)     *
- *    for (j=0; j < N; j++) {                                     *
+ *    for (j=0; j < n; j++) {                                     *
  *       col_j = BAND_COL(J,j);                                   *
  *       for (k=-mupper; k <= mlower; k++) {                      *
  *         generate J_ij = the (i,j)th Jacobian element, i=j+k    *
@@ -119,7 +119,7 @@ enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
  *                                                                *  
  * (3) (without macros - explicit data structure references)      *
  *     offset = J->smu;                                           *
- *     for (j=0; j < N; j++) {                                    *
+ *     for (j=0; j < n; j++) {                                    *
  *       col_j = ((J->data)[j])+offset;                           *
  *       for (k=-mupper; k <= mlower; k++) {                      *
  *         generate J_ij = the (i,j)th Jacobian element, i=j+k    *
@@ -131,11 +131,6 @@ enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
  * The BAND_ELEM(A,i,j) macro is appropriate for use in small     *
  * problems in which efficiency of access is NOT a major concern. *
  *                                                                *
- * f is the right hand side function for the ODE problem.         *
- *                                                                *
- * f_data is a pointer to user data to be passed to f, the same   *
- *        as the F_data parameter passed to CVodeMalloc.          *
- *                                                                *
  * t is the current value of the independent variable.            *
  *                                                                *
  * y is the current value of the dependent variable vector,       *
@@ -143,33 +138,20 @@ enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
  *                                                                *
  * fy is the vector f(t,y).                                       *
  *                                                                *
- * ewt is the error weight vector.                                *
- *                                                                *
- * h is a tentative step size in t.                               *
- *                                                                *
- * uround is the machine unit roundoff.                           *
- *                                                                *
  * jac_data is a pointer to user data - the same as the jac_data  *
  *          parameter passed to CVBand.                           *
  *                                                                *
- * nfePtr is a pointer to the memory location containing the      *
- * CVODE problem data nfe = number of calls to f. The Jacobian    *
- * routine should update this counter by adding on the number     *
- * of f calls made in order to approximate the Jacobian, if any.  *
- * For example, if the routine calls f a total of N times, then   *
- * the update is *nfePtr += N.                                    *
- *                                                                *
- * vtemp1, vtemp2, and vtemp3 are pointers to memory allocated    *
- * for vectors of length N which can be used by a CVBandJacFn     *
+ * tmp1, tmp2, and tmp3 are pointers to memory allocated  for     *
+ * vectors of length N which can be used by a CVBandJacFn         *
  * as temporary storage or work space.                            *
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVBandJacFn)(integertype N,integertype mupper,integertype mlower,
-                            BandMat J, RhsFn f, void *f_data, realtype t,
-                            N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
-                            realtype uround, void *jac_data, long int *nfePtr,
-                            N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+typedef void (*CVBandJacFn)(integertype n, 
+                            integertype mupper, integertype mlower,
+                            BandMat J, realtype t,
+                            N_Vector y, N_Vector fy, void *jac_data,
+                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
  
  
 /******************************************************************
@@ -181,6 +163,8 @@ typedef void (*CVBandJacFn)(integertype N,integertype mupper,integertype mlower,
  *                                                                *
  * cvode_mem is the pointer to CVODE memory returned by           *
  *              CVodeMalloc.                                      *
+ *                                                                *
+ * n is the length of all vector arguments.                       *
  *                                                                *
  * mupper is the upper bandwidth of the band Jacobian             *
  *           approximation.                                       *
@@ -212,7 +196,8 @@ typedef void (*CVBandJacFn)(integertype N,integertype mupper,integertype mlower,
  *                                                                *
  ******************************************************************/
 
-int CVBand(void *cvode_mem, integertype mupper, integertype mlower,
+int CVBand(void *cvode_mem, integertype n, 
+           integertype mupper, integertype mlower,
            CVBandJacFn bjac, void *jac_data);
 
 
