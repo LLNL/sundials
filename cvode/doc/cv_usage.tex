@@ -1980,7 +1980,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetWorkSpace}
 {
-  flag = CVodeGetWorkSpace(cvode\_mem, \&leniw, \&lenrw);
+  flag = CVodeGetWorkSpace(cvode\_mem, \&lenrw, \&leniw);
 }
 {
   The function \ID{CVodeGetWorkSpace} returns the
@@ -1990,10 +1990,10 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[leniw] (\id{long int})
-    number of integer values in the {\cvode} workspace.
   \item[lenrw] (\id{long int})
-    number of \id{realtype} values in the {\cvode} workspace.
+    the global number of \id{realtype} values in the {\cvode} workspace.
+  \item[leniw] (\id{long int})
+    the global number of integer values in the {\cvode} workspace.
   \end{args}
 }
 {
@@ -2005,7 +2005,12 @@ These optional output functions are described next.
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
+{
+  In terms of the problem size $N$ and maximum method order \id{maxord},
+  the actual size of the real workspace is (\id{maxord+5})$N$ \id{realtype}
+  words.  For the default values, this size is $17 N$ for the Adams method
+  and $10 N$ for the BDF method.
+}
 %%
 \index{memory requirements!CVODE@{\cvode} solver|)}
 %%
@@ -2818,9 +2823,9 @@ to access these are described below.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[lenrwDI] (\id{long int})
-    the number of \id{realtype} values in the {\cvdiag} workspace.
+    the global number of \id{realtype} values in the {\cvdiag} workspace.
   \item[leniwDI] (\id{long int})
-    the number of integer values in the {\cvdiag} workspace.
+    the global number of integer values in the {\cvdiag} workspace.
   \end{args}
 }
 {
@@ -2903,9 +2908,9 @@ to access these are described below.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[lenrwSG] (\id{long int})
-    the global number of \id{realtype} values in the {\cvspgmr} workspace.
+    global number of \id{realtype} values in the {\cvspgmr} workspace.
   \item[leniwSG] (\id{long int})
-    the global number of integer values in the {\cvspgmr} workspace.
+    global number of integer values in the {\cvspgmr} workspace.
   \end{args}
 }
 {
@@ -2922,8 +2927,8 @@ to access these are described below.
 {
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is
-  $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$ \id{realtype}
-  words.  (In a parallel setting, this value is global --- totalled over
+  (\id{maxl}$+ 5)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ \id{realtype}
+  words.  (In a parallel setting, this value is global --- summed over
   all processors.)
 }
 %%
@@ -4051,11 +4056,10 @@ the {\cvbandpre} module:
   \end{args}
 }
 {
-  In terms of the problem size $N$, and the extended upper half-bandwidth
-  \id{smu} = $\min(N-1 ,$ \id{mu} $+$ \id{ml}$)$, the actual size of the
-  real workspace is $N\,(2$ \id{ml} $+$ \id{mu} $+$ \id{smu} $+2)$
-  \id{realtype} words, and the actual size of the integer workspace is $N$
-  integer words.
+  In terms of problem size $N$, and \id{smu} = $\min(N-1,\,$\id{mu+ml}),
+  the actual size of the real workspace is
+  $(2$ \id{ml} $+$ \id{mu} $+$ \id{smu} $+2)\, N$ \id{realtype} words,
+  and the actual size of the integer workspace is $N$ integer words.
 }
 %%
 \index{memory requirements!CVBANDPRE@{\cvbandpre} preconditioner|)}
@@ -4376,7 +4380,7 @@ next.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[local\_N] (\id{long int})
-    local vector dimension.
+    local vector length.
   \item[mudq] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[mldq] (\id{long int})
@@ -4535,7 +4539,7 @@ the {\cvbbdpre} module:
   flag = CVBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
 }
 {
-  The function \ID{CVBBDPrecGetWorkSpace} returns the
+  The function \ID{CVBBDPrecGetWorkSpace} returns the local
   {\cvbbdpre} real and integer workspace sizes.
 }
 {
@@ -4543,9 +4547,9 @@ the {\cvbbdpre} module:
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
   \item[lenrwBBDP] (\id{long int})
-    the local number of \id{realtype} values in the {\cvbbdpre} workspace.
+    local number of \id{realtype} values in the {\cvbbdpre} workspace.
   \item[leniwBBDP] (\id{long int})
-    the local number of integer values in the {\cvbbdpre} workspace.
+    local number of integer values in the {\cvbbdpre} workspace.
   \end{args}
 }
 {
@@ -4558,12 +4562,12 @@ the {\cvbbdpre} module:
   \end{args}
 }
 {
-  In terms of the local vector dimension $N_l$, and the local extended upper
-  half-bandwidth \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep} $+$ \id{mlkeep}$)$,
+  In terms of \id{local\_N} and
+  \id{smu} = $\min$(\id{local\_N - 1, mukeep} $+$ \id{mlkeep}),
   the actual size of the real workspace is
-  $N_l \,(2$ \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2)$
+  (2 \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2) \, $\id{local\_N} $~$
   \id{realtype} words, and the actual size of the integer workspace is
-  $N_l$ integer words.  (These values are local to the current processor.)
+  \id{local\_N} integer words.  These values are local to the current processor.
 }
 %%
 \index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner|)}
@@ -4780,7 +4784,7 @@ and \S\ref{ss:optional_output}.
 %
 11 & O & \id{FCVODE}                   & \id{CVodeGetCurrentOrder} \\
 %
-12 & O & \id{FCVODE}                   & \id{CVodeGetWorkSpace} [real \\
+12 & O & \id{FCVODE}                   & \id{CVodeGetWorkSpace} [real] \\
 %
 13 & O & \id{FCVODE}                   & \id{CVodeGetWorkSpace} [integer] \\
 %
