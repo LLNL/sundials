@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-11-23 21:35:03 $
+ * $Revision: 1.19 $
+ * $Date: 2005-03-03 20:03:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -151,7 +151,7 @@ typedef struct {
 
 /* Adjoint calculation constants */
 /* g = int_x int_y c(ISPEC) dy dx at t = Tfinal */
-#define NSTEPS 100 /* check points every NSTEPS steps */
+#define NSTEPS 80  /* check points every NSTEPS steps */
 #define ISPEC  6   /* species # in objective */
 
 /* Prototypes for user-supplied functions */
@@ -1221,9 +1221,9 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 #endif
     printf("at\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("  x = %Le\ny = %Le\n", x, y);
+    printf("  x = %Le\n  y = %Le\n", x, y);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("  x = %le\ny = %le\n", x, y);
+    printf("  x = %le\n  y = %le\n", x, y);
 #else
     printf("  x = %e\n  y = %e\n", x, y);
 #endif
