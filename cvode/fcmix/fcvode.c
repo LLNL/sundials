@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-05-14 21:53:26 $
+ * $Revision: 1.19 $
+ * $Date: 2004-05-17 18:56:06 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -248,9 +248,9 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
 void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
   CVodeMem CV_cvmem;
-  int i, num_components, qu, qcur;
-  int *rootsfound, *flag;
   realtype h0u;
+  int i, num_components, qu, qcur, flag;
+  int *rootsfound;
 
   /* 
      tout      is the t value where output is desired
@@ -269,15 +269,15 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 
   /* CVode() succeeded and found at least one root */
   if (*ier == ROOT_RETURN) {
-    *flag = CVodeGetRootInfo(CV_cvodemem, &rootsfound);
-    if (*flag == SUCCESS) {
+    flag = CVodeGetRootInfo(CV_cvodemem, &rootsfound);
+    if (flag == SUCCESS) {
       num_components = CV_cvmem->cv_nrtfn;
       printf("   rootsfound[] = ");
       for (i = 0; i < num_components; ++i) printf("%d ", *(rootsfound + i));
       printf("\n");
     }
     else {
-      *ier = *flag;
+      *ier = flag;
       return;
     }
   }
