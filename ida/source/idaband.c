@@ -3,7 +3,7 @@
  * File          : idaband.c                                      *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 3 July 2002                                    *
+ * Version of    : 11 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the IDA banded linear      *
  * solver module, IDABAND. This module uses standard banded       *
@@ -37,9 +37,9 @@
 #define MSG_BAD_SIZES_3  "Must have 0 <=  mlower, mupper <= N-1 =%ld.\n\n"
 #define MSG_BAD_SIZES    MSG_BAD_SIZES_1 MSG_BAD_SIZES_2 MSG_BAD_SIZES_3
 
-#define MSG_MEM_FAIL     "IDABandInit-- A memory request failed.\n\n"
+#define MSG_MEM_FAIL     IDABAND "A memory request failed.\n\n"
 
-#define MSG_WRONG_NVEC   "IDABand-- Incompatible NVECTOR implementation.\n\n"
+#define MSG_WRONG_NVEC   IDABAND "Incompatible NVECTOR implementation.\n\n"
 
 /* Constants */
 
@@ -82,23 +82,23 @@ typedef struct {
 
 /* IDABAND linit, lsetup, lsolve, and lfree routines */
  
-static int  IDABandInit(IDAMem ida_mem);
+static int IDABandInit(IDAMem ida_mem);
 
-static int  IDABandSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
-                          N_Vector resp, N_Vector tempv1,
-                          N_Vector tempv2, N_Vector tempv3);
+static int IDABandSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
+                        N_Vector resp, N_Vector tempv1,
+                        N_Vector tempv2, N_Vector tempv3);
 
-static int  IDABandSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
-                          N_Vector ypcur, N_Vector rescur);
+static int IDABandSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
+                        N_Vector ypcur, N_Vector rescur);
 
 static int IDABandFree(IDAMem ida_mem);
 
-static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower, realtype tt, 
-                        N_Vector yy, N_Vector yp, realtype cj, N_Vector constraints, 
-                        ResFn res, void *rdata,  void *jdata, N_Vector resvec, 
-                        N_Vector ewt, realtype hh, realtype uround, BandMat JJ, 
-                        long int *nrePtr,  N_Vector tempv1, N_Vector tempv2,
-                        N_Vector tempv3);
+static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
+                        realtype tt, N_Vector yy, N_Vector yp, realtype cj,
+                        N_Vector constraints, ResFn res, void *rdata,
+                        void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
+                        realtype uround, BandMat JJ, long int *nrePtr,
+                        N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /*************** IDABandDQJac ****************************************
 
@@ -113,13 +113,13 @@ static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
  by the res routine, if any.
 **********************************************************************/
 
-static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower, realtype tt, 
-                        N_Vector yy, N_Vector yp, realtype cj,  N_Vector constraints, 
-                        ResFn res, void *rdata, void *jdata, N_Vector resvec, 
-                        N_Vector ewt, realtype hh, realtype uround, BandMat JJ, 
-                        long int *nrePtr, N_Vector tempv1, N_Vector tempv2, 
-                        N_Vector tempv3)
- 
+static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
+                        realtype tt, N_Vector yy, N_Vector yp, realtype cj,
+                        N_Vector constraints, ResFn res, void *rdata,
+                        void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
+                        realtype uround, BandMat JJ, long int *nrePtr,
+                        N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+
 {
   realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
   realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
