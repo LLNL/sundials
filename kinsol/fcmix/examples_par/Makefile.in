@@ -1,0 +1,49 @@
+# File Makefile
+#--------------------------------------------------------------------------
+# Makefile for the FKINSOL examples using the parallel N_Vector implementation.
+# @configure_input@
+#--------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# SUNDIALS library directory
+SUNDIALSLIBDIRS = -L${libdir}
+SUNDIALSLIBS    = -lfkinsol -lkinsol -lfnvecparallel -lnvecparallel -lshared
+
+# MPI library and include directories
+MPILIBDIRS = @MPILIBDIRS@
+MPILIBS    = @MPILIBS@
+MPIFLAGS   = @MPIFLAGS@
+
+# Libraries
+LIBDIRS = ${SUNDIALSLIBDIRS} ${MPILIBDIRS}
+LIBS    = ${SUNDIALSLIBS} ${MPILIBS} -lm
+
+# Compiler and compiler options
+FC     = @MPIF77@
+FFLAGS = @FFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: kindiagpf
+
+kindiagpf: kindiagpf.o
+	${FC} ${FFLAGS} ${MPIFLAGS} -o kindiagpf kindiagpf.o ${LIBDIRS} ${LIBS}
+
+clean:
+	rm -f *.o
+	rm -f kindiagpf
+
+.f.o:
+	${FC} -c ${FFLAGS} $*.f
+
+#---End of Makefile---

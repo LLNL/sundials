@@ -1,0 +1,3 @@
+List of parallel KINSOL FCMIX examples
+
+  kindiagpf:  simple diagonal test with Fortran interface
