@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-10-08 23:24:44 $
+ * $Revision: 1.3 $
+ * $Date: 2004-11-04 01:56:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -104,6 +104,29 @@ typedef struct {
   int g_last_flag; /* last flag returned                                       */
 
 } KINSpgmrMemRec, *KINSpgmrMem;
+
+/*
+ * -----------------------------------------------------------------
+ * KINSPGMR error messages
+ * -----------------------------------------------------------------
+ */
+
+/* KINSpgmr error messages */
+
+#define KINSPGMR        "KINSpgmr-- "
+#define MSGS_KINMEM_NULL KINSPGMR "KINSOL memory is NULL.\n\n"
+#define MSGS_MEM_FAIL    KINSPGMR "A memory request failed.\n\n"
+#define MSGS_BAD_NVECTOR KINSPGMR "A required vector operation is not implemented.\n\n"
+
+/* KINSpgmrSet* and KINSpgmrGet* error messages */
+
+#define KINSPGMR_SETGET        "KINSpgmrSet*/KINSpgmrGet*-- "
+#define MSGS_SETGET_KINMEM_NULL KINSPGMR_SETGET "KINSOL memory is NULL. \n\n"
+#define MSGS_SETGET_LMEM_NULL   KINSPGMR_SETGET "KINSPGMR memory is NULL.\n\n"
+
+/* KINSpgmrSetMaxRestarts error message */
+
+#define MSGS_KINS_NEG_MAXRS "KINSpgmrSetMaxRestarts-- maxrs < 0 illegal.\n\n"
 
 #endif
 

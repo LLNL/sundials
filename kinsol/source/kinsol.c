@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2004-11-03 23:09:28 $
+ * $Revision: 1.32 $
+ * $Date: 2004-11-04 01:56:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -18,19 +18,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "kinsol_impl.h"
 #include "nvector.h"
 #include "sundialsmath.h"
 #include "sundialstypes.h"
-
-/*
- * -----------------------------------------------------------------
- * Macro : loop
- * -----------------------------------------------------------------
- */
-
-#define loop for(;;)
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
+#endif
 
 /*
  * -----------------------------------------------------------------
@@ -74,61 +71,22 @@
 
 /*
  * -----------------------------------------------------------------
- * error messages
+ * keys for KINPrintInfo
  * -----------------------------------------------------------------
  */
 
-/* KINCreate error messages */
-
-#define MSG_KINMEM_FAIL "KINCreate-- Allocation of kin_mem failed.\n\n "
-
-/* KINSet* error messages */
-
-#define MSG_KINS_NO_MEM    "kin_mem == NULL in a KINSet* routine illegal.\n\n"
-#define MSG_BAD_PRINTFL    "KINSetPrintLevel-- illegal value for printfl.\n\n"
-#define MSG_BAD_MXITER     "KINSetNumMaxIters-- illegal value for mxiter.\n\n"
-#define MSG_BAD_MSBPRE     "KINSetMaxPrecCalls-- illegal msbpre < 0. \n\n"
-#define MSG_BAD_ETACHOICE  "KINSetEtaForm-- illegal value for etachoice.\n\n"
-#define MSG_BAD_ETACONST   "KINSetEtaConstValue-- eta out of range.\n\n"
-#define MSG_BAD_GAMMA      "KINSetEtaParams-- gamma out of range.\n\n"
-#define MSG_BAD_ALPHA      "KINSetEtaParams-- alpha out of range.\n\n"
-#define MSG_BAD_MXNEWTSTEP "KINSetMaxNewtonStep-- mxnewtstep nonpositive.\n\n"
-#define MSG_BAD_RELFUNC    "KINSetRelErrFunc-- relfunc = %g < 0 illegal.\n\n"
-#define MSG_BAD_FNORMTOL   "KINSetFuncNormTol-- fnormtol = %g < 0 illegal.\n\n"
-#define MSG_BAD_SCSTEPTOL  "KINSetScaledStepTol-- scsteptol = %g < 0 illegal.\n\n"
-
-/* KINMalloc error messages */
-
-#define MSG_KINM_NO_MEM    "KINMalloc-- kin_mem == NULL illegal.\n\n"
-#define MSG_MEM_FAIL       "KINMalloc-- A memory request failed.\n\n"
-#define MSG_FUNC_NULL      "KINMalloc-- func == NULL illegal.\n\n"
-#define MSG_BAD_NVECTOR    "KINMalloc-- A required vector operation is not implemented.\n\n"
-#define MSG_KINS_FUNC_NULL "KINSetSysFunc-- func == NULL illegal.\n\n"
-
-/* KINSol error messages */
-
-#define MSG_KINSOL_NO_MEM    "KINSol-- kinsol_mem == NULL illegal.\n\n"
-#define MSG_KINSOL_NO_MALLOC "KINSol-- Attempt to call before KINMalloc illegal.\n\n"
-
-/* KINSolInit error messages */
-
-#define KINSI                  "KINSolInit--"
-#define MSG_LSOLV_NO_MEM       KINSI "The linear solver memory pointer is NULL.\n\n"
-#define MSG_UU_NULL            KINSI "uu == NULL illegal.\n\n"
-#define MSG_BAD_GLSTRAT1       KINSI "globalstrategy = %d illegal.\n"
-#define MSG_BAD_GLSTRAT2       "The legal values are KIN_INEXACT_NEWTON = %d"
-#define MSG_BAD_GLSTRAT3       " and KIN_LINESEARCH = %d\n\n"
-#define MSG_BAD_GLSTRAT        MSG_BAD_GLSTRAT1 MSG_BAD_GLSTRAT2 MSG_BAD_GLSTRAT3
-#define MSG_BAD_USCALE         KINSI "uscale == NULL illegal.\n\n"
-#define MSG_USCALE_NONPOSITIVE KINSI "uscale has nonpositive elements.\n\n"
-#define MSG_BAD_FSCALE         KINSI "fscale == NULL illegal.\n\n"
-#define MSG_FSCALE_NONPOSITIVE KINSI "fscale has nonpositive elements.\n\n"
-#define MSG_INITIAL_CNSTRNT    KINSI "Initial guess does NOT meet constraints.\n\n"
-#define MSG_LINIT_FAIL         KINSI "The linear solver's init routine failed.\n\n"
-
-/* KINGet* error messages */
-
-#define MSG_KING_NO_MEM "kin_mem == NULL in a KINGet* routine illegal.\n\n"
+#define PRNT_RETVAL      1
+#define PRNT_NNI         2
+#define PRNT_TOL         3
+#define PRNT_FMAX        4
+#define PRNT_PNORM       5
+#define PRNT_PNORM1      6
+#define PRNT_FNORM       7
+#define PRNT_LAM         8
+#define PRNT_ALPHA       9
+#define PRNT_BETA       10
+#define PRNT_ALPHABETA  11
+#define PRNT_ADJ        12
 
 /*
  * -----------------------------------------------------------------
@@ -152,6 +110,11 @@ static realtype KINScFNorm(N_Vector vv , N_Vector scale , N_Vector wrkv);
 static realtype KINScSteplength(KINMem kin_mem, N_Vector ucur,
 				N_Vector ss, N_Vector usc);
 static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret);
+
+static void KINPrintInfo(KINMem kin_mem, char *funcname, int key,...);
+
+/* loop macro */
+#define loop for(;;)
 
 /*
  * -----------------------------------------------------------------
@@ -938,8 +901,8 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
 
     /* print the current nni, fnorm, and nfe values if printfl > 0 */
 
-    if (printfl>0) fprintf(infofp,"KINSol nni= %4ld fnorm= %26.16g nfe=%6ld\n",
-                           nni, fnorm, nfe);
+    if (printfl>0) 
+      KINPrintInfo(kin_mem, "KINSol",PRNT_NNI,nni,nfe,fnorm);
 
     if (ret != CONTINUE_ITERATIONS) break; 
 
@@ -947,27 +910,8 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
 
  }  /* end of loop so load optional outputs and return */
 
-  if (printfl > 0){
-    fprintf(infofp, "KINSol return value %d\n", ret);
-    if(ret == KIN_SUCCESS)
-        fprintf(infofp, "---KIN_SUCCESS\n");
-    if(ret == KIN_STEP_LT_STPTOL)
-        fprintf(infofp, "---KIN_STEP_LT_STPTOL\n");
-    if(ret == KIN_LINESEARCH_NONCONV)
-        fprintf(infofp, "---KIN_LINESEARCH_NONCONV");
-    if(ret == KIN_LINESEARCH_BCFAIL)
-        fprintf(infofp, "---KIN_LINESEARCH_BCFAIL");
-    if(ret == KIN_MAXITER_REACHED)
-        fprintf(infofp, "---KIN_MAXITER_REACHED\n");
-    if(ret == KIN_MXNEWT_5X_EXCEEDED)
-        fprintf(infofp, "---KIN_MXNEWT_5X_EXCEEDED\n");
-    if(ret == KIN_LINSOLV_NO_RECOVERY)
-        fprintf(infofp, "---KIN_LINSOLV_NO_RECOVERY\n");
-    if(ret == KIN_LSETUP_FAIL)
-        fprintf(infofp, "---KIN_PRECONDSET_FAILURE\n");
-    if(ret == KIN_LSOLVE_FAIL)
-        fprintf(infofp, "---KIN_PRECONDSOLVE_FAILURE\n");
-  }
+  if (printfl > 0)
+    KINPrintInfo(kin_mem, "KINSol",PRNT_RETVAL,ret);
 
   fflush(infofp);
 
@@ -1320,9 +1264,8 @@ static int KINSolInit(KINMem kin_mem)
   
   /* all error checking is complete at this point */
 
-  if (printfl > 0) {
-    fprintf(infofp, "scsteptol used: %12.3g \n", scsteptol);
-    fprintf(infofp, "fnormtol  used: %12.3g \n", fnormtol); }
+  if (printfl > 0)
+    KINPrintInfo(kin_mem, "KINSolInit", PRNT_TOL, scsteptol, fnormtol);
 
   /* calculate the default value for mxnewtstep (maximum Newton step) */
 
@@ -1365,8 +1308,7 @@ static int KINSolInit(KINMem kin_mem)
   f1norm = HALF * fnorm * fnorm;
 
   if (printfl > 0)
-    fprintf(infofp, "KINSolInit nni = %4ld  fnorm = %26.16g  nfe = %6ld \n",
-	    nni, fnorm, nfe);
+    KINPrintInfo(kin_mem, "KINSolInit", PRNT_NNI, nni, nfe, fnorm);
 
   /* problem has now been successfully initialized */
 
@@ -1503,7 +1445,8 @@ static booleantype KINInitialStop(KINMem kin_mem)
   func(uu, fval, f_data); nfe++;
   fmax = KINScFNorm(fval, fscale, vtemp1);
   if (printfl > 1)
-    fprintf(infofp, "KINInitialStop: scaled f norm (for stopping) = %12.3g\n", fmax);
+    KINPrintInfo(kin_mem, "KINInitialStop", PRNT_FMAX, fmax);
+
   return(fmax <= (POINTOH1 * fnormtol));
 }
 
@@ -1535,7 +1478,7 @@ static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   }
 
   if (printfl > 0)
-    fprintf(infofp, " ----- in routine KINInexactNewton (pnorm = %12.4e ) -----\n", pnorm);
+    KINPrintInfo(kin_mem,"KINInexactNewton",PRNT_PNORM,pnorm);
 
   /* if constraints are active, then constrain the step accordingly */
 
@@ -1549,7 +1492,7 @@ static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       pnorm *= stepmul;
       stepl = pnorm;
       if (printfl > 0)
-	fprintf(infofp, " --- in routine KINInexactNewton (pnorm = %12.4e \n", pnorm);
+        KINPrintInfo(kin_mem,"KINInexactNewton",PRNT_PNORM,pnorm);
       if (pnorm <= scsteptol) return(1);
     }
   }
@@ -1568,7 +1511,8 @@ static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   func(unew, fval, f_data); nfe++;
   *fnormp = N_VWL2Norm(fval,fscale);
   *f1normp = HALF * (*fnormp) * (*fnormp);
-  if (printfl > 1) fprintf(infofp, " fnorm (L2) = %20.8e\n", (*fnormp));
+  if (printfl > 1) 
+    KINPrintInfo(kin_mem,"KINInexactNewton",PRNT_FNORM,*fnormp);
   if (pnorm > (POINT99 * mxnewtstep)) *maxStepTaken = TRUE; 
   return(0);
 
@@ -1646,8 +1590,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       pnorm *= stepmul;
       stepl = pnorm;
       if (printfl > 0)
-	fprintf(infofp, " --- in routine KINLineSearch (ivio = 1, pnorm = %12.4e )\n",
-		pnorm);
+        KINPrintInfo(kin_mem,"KINLineSearch",PRNT_PNORM1,pnorm);
     }
   }
 
@@ -1657,8 +1600,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   rl = ONE;
 
   if (printfl > 2)
-    fprintf(infofp, "KINLineSearch -----\n min_lam = %11.4e  f1norm = %11.4e  pnorm = %11.4e\n",
-	    rlmin, f1norm, pnorm);
+    KINPrintInfo(kin_mem,"KINLineSearch",PRNT_LAM,rlmin,f1norm,pnorm);
 
   /* now begin the iteration to find an rl value which satisfies both the
      alpha and beta conditions */
@@ -1676,8 +1618,8 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
     alpha_cond = f1norm + (alpha * slpi * rl);
 
     if (printfl > 2 && rladjust > 0)
-      fprintf(infofp, " fnormp=%15.8e  f1normp = %15.8e  alpha_cond = %15.8e  lam = %15.8e\n",
-	      *fnormp, *f1normp, alpha_cond, rl);
+      KINPrintInfo(kin_mem,"KINLinesearch",PRNT_ALPHA,*fnormp,*f1normp,alpha_cond,rl);
+
     if ((*f1normp) <= alpha_cond) break;
 
     /* alpha condition not satisfied so perform backtracking to compute a new rl value */
@@ -1751,8 +1693,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
         alpha_cond = f1norm + (alpha * slpi * rl);
         beta_cond = f1norm + (beta * slpi * rl);
         if (printfl > 2)
-	  fprintf(infofp, "  f1normp = %15.8e  beta_cond = %15.8e  lam = %15.8e\n",
-		  *f1normp, beta_cond, rl);
+          KINPrintInfo(kin_mem,"KINLineSearch",PRNT_BETA,*f1normp, beta_cond, rl);
       } while (((*f1normp) <= alpha_cond) && 
 	       ((*f1normp) < beta_cond) && (rl < rlmax));
     }
@@ -1771,9 +1712,8 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
         alpha_cond = f1norm + (alpha * slpi * rl);
         beta_cond = f1norm + (beta * slpi * rl);
         if ((printfl > 2) && (rladjust > 0))
-	  fprintf(infofp,"  f1normp = %12.5e  alpha_cond = %12.5e  beta_cond = %12.5e  lam = %12.5e\n",
-		  *f1normp, alpha_cond, beta_cond, rl);
-
+          KINPrintInfo(kin_mem, "KINLineSearch", PRNT_ALPHABETA, 
+                       *f1normp, alpha_cond, beta_cond, rl);
         if ((*f1normp) > alpha_cond) rldiff = rlinc;
         else if (*f1normp < beta_cond) {
           rllo = rl;
@@ -1801,7 +1741,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
   nbktrk= nfe - nfesave;
   if ((printfl > 1) && (rladjust > 0))
-    fprintf(infofp, "Number of lambda adjustments = %ld\n", rladjust);
+    KINPrintInfo(kin_mem, "KINLineSearch", PRNT_ADJ, rladjust);
 
   /* scale these two expressions by rl * ratio for later use in KINForcingTerm */
 
@@ -1936,7 +1876,8 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret)
 
   fmax = KINScFNorm(fval, fscale, vtemp1);
 
-  if (printfl > 1) fprintf(infofp, " scaled f norm (for stopping) = %12.3g\n", fmax);
+  if (printfl > 1) 
+    KINPrintInfo(kin_mem, "KINStop", PRNT_FMAX, fmax);
 
   if (fmax <= fnormtol) return(KIN_SUCCESS);
 
@@ -1983,4 +1924,175 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret)
      so return CONTINUE_ITERATIONS flag */
 
   return(CONTINUE_ITERATIONS);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * KINPrintInfo
+ * -----------------------------------------------------------------
+ */
+
+static void KINPrintInfo(KINMem kin_mem, char *funcname, int key,...)
+{
+  va_list ap;
+  int ret;
+
+  fprintf(infofp, "---%s\n   ", funcname);
+
+  /* initialize argument processing */
+  va_start(ap, key); 
+
+  switch(key) {
+
+  case PRNT_RETVAL:
+    ret = va_arg(ap,int);
+    fprintf(infofp,"return value: %d ",ret);
+    switch(ret) {
+    case KIN_SUCCESS:
+      fprintf(infofp, "(KIN_SUCCESS)\n");
+      break;
+    case KIN_STEP_LT_STPTOL:
+      fprintf(infofp, "(KIN_STEP_LT_STPTOL)\n");
+      break;
+    case KIN_LINESEARCH_NONCONV:
+      fprintf(infofp, "(KIN_LINESEARCH_NONCONV)\n");
+      break;
+    case KIN_LINESEARCH_BCFAIL:
+      fprintf(infofp, "(KIN_LINESEARCH_BCFAIL)\n");
+      break;
+    case KIN_MAXITER_REACHED:
+      fprintf(infofp, "(KIN_MAXITER_REACHED)\n");
+      break;
+    case KIN_MXNEWT_5X_EXCEEDED:
+      fprintf(infofp, "(KIN_MXNEWT_5X_EXCEEDED)\n");
+      break;
+    case KIN_LINSOLV_NO_RECOVERY:
+      fprintf(infofp, "(KIN_LINSOLV_NO_RECOVERY)\n");
+      break;
+    case KIN_LSETUP_FAIL:
+      fprintf(infofp, "(KIN_PRECONDSET_FAILURE)\n");
+      break;
+    case KIN_LSOLVE_FAIL:
+      fprintf(infofp, "(KIN_PRECONDSOLVE_FAILURE)\n");
+      break;
+    }
+    break;
+
+  case PRNT_NNI:
+    fprintf(infofp, "nni = %4ld  ", va_arg(ap,long int));
+    fprintf(infofp, "nfe = %6ld  ", va_arg(ap,long int));
+          
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "fnorm = %26.16Lg\n", va_arg(ap,realtype));
+#else
+    fprintf(infofp, "fnorm = %26.16g\n", va_arg(ap,realtype));
+#endif
+    break;
+
+  case PRNT_TOL:
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "scsteptol = %12.3Lg  fnormtol = %12.3Lg\n", 
+            va_arg(ap,realtype), va_arg(ap,realtype));
+#else
+    fprintf(infofp, "scsteptol = %12.3g  fnormtol = %12.3g\n", 
+            va_arg(ap,realtype), va_arg(ap,realtype));
+#endif
+    break;
+    
+  case PRNT_FMAX:
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "scaled f norm (for stopping) = %12.3Lg\n",
+            va_arg(ap,realtype));
+#else
+    fprintf(infofp, "scaled f norm (for stopping) = %12.3g\n",
+            va_arg(ap,realtype));
+#endif
+    break;
+    
+  case PRNT_PNORM:
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "pnorm = %12.4Le\n", va_arg(ap,realtype));
+#else
+    fprintf(infofp, "pnorm = %12.4e\n", va_arg(ap,realtype));
+#endif
+    break;
+
+  case PRNT_PNORM1:
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "(ivio=1) pnorm = %12.4Le\n", va_arg(ap,realtype));
+#else
+    fprintf(infofp, "(ivio=1) pnorm = %12.4e\n", va_arg(ap,realtype));
+#endif
+    break;
+     
+  case PRNT_FNORM:
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "fnorm(L2) = %20.8Le\n", va_arg(ap,realtype));
+#else
+    fprintf(infofp, "fnorm(L2) = %20.8e\n", va_arg(ap,realtype));
+#endif
+    break;
+
+  case PRNT_LAM:
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "min_lam = %11.4Le  ", va_arg(ap,realtype));
+    fprintf(infofp, "f1norm = %11.4Le  ", va_arg(ap,realtype));
+    fprintf(infofp, "pnorm = %11.4Le\n", va_arg(ap,realtype));
+#else
+    fprintf(infofp, "min_lam = %11.4e  ", va_arg(ap,realtype));
+    fprintf(infofp, "f1norm = %11.4e  ", va_arg(ap,realtype));
+    fprintf(infofp, "pnorm = %11.4e\n", va_arg(ap,realtype));
+#endif
+    break;
+
+  case PRNT_ALPHA:
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "fnorm = %15.8Le  ", va_arg(ap,realtype));
+    fprintf(infofp, "f1norm = %15.8Le  ", va_arg(ap,realtype));
+    fprintf(infofp, "alpha_cond = %15.8Le  ", va_arg(ap,realtype));
+    fprintf(infofp, "pnorm = %15.8Le\n", va_arg(ap,realtype));
+#else
+    fprintf(infofp, "fnorm = %15.8e  ", va_arg(ap,realtype));
+    fprintf(infofp, "f1norm = %15.8e  ", va_arg(ap,realtype));
+    fprintf(infofp, "alpha_cond = %15.8e  ", va_arg(ap,realtype));
+    fprintf(infofp, "pnorm = %15.8e\n", va_arg(ap,realtype));
+#endif
+    break;
+
+  case PRNT_BETA:
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "f1norm = %15.8Le  ", va_arg(ap,realtype));
+    fprintf(infofp, "beta_cond = %15.8Le  ", va_arg(ap,realtype));
+    fprintf(infofp, "lam = %15.8Le\n", va_arg(ap,realtype));
+#else
+    fprintf(infofp, "f1norm = %15.8e  ", va_arg(ap,realtype));
+    fprintf(infofp, "beta_cond = %15.8e  ", va_arg(ap,realtype));
+    fprintf(infofp, "lam = %15.8e\n", va_arg(ap,realtype));
+#endif
+    break;
+
+  case PRNT_ALPHABETA:
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "f1norm = %15.8Le  ", va_arg(ap,realtype));
+    fprintf(infofp, "alpha_cond = %15.8Le  ", va_arg(ap,realtype));
+    fprintf(infofp, "beta_cond = %15.8Le  ", va_arg(ap,realtype));
+    fprintf(infofp, "lam = %15.8Le\n", va_arg(ap,realtype));
+#else
+    fprintf(infofp, "f1norm = %15.8e  ", va_arg(ap,realtype));
+    fprintf(infofp, "alpha_cond = %15.8e  ", va_arg(ap,realtype));
+    fprintf(infofp, "beta_cond = %15.8e  ", va_arg(ap,realtype));
+    fprintf(infofp, "lam = %15.8e\n", va_arg(ap,realtype));
+#endif
+    break;
+
+  case PRNT_ADJ:
+    fprintf(infofp, "no. of lambda adjustments = %ld\n", va_arg(ap,long int));
+    break;
+
+  }
+
+  /* finalize argument processing */
+  va_end(ap);
+
 }

@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-10-18 22:16:04 $
+ * $Revision: 1.22 $
+ * $Date: 2004-11-04 01:56:11 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -38,26 +38,6 @@
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
-
-/*
- *-----------------------------------------------------------------
- * error messages
- *-----------------------------------------------------------------
- */
-
-/* KINBBDPrecAlloc error messages */
-
-#define KINBBDALLOC      "KINBBDPrecAlloc-- "
-#define MSG_KINMEM_NULL  KINBBDALLOC "KINSOL Memory is NULL.\n\n"
-#define MSG_BAD_NVECTOR  KINBBDALLOC "A required vector operation is not implemented.\n\n"
-
-/* KINBBDPrecGet* error message */
-
-#define MSG_PDATA_NULL "KINBBDPrecGet*-- KBBDPrecData is NULL. \n\n"
-
-/* KINBBDSpgmr error message */
-
-#define MSG_NO_PDATA "KINBBDSpgmr-- KBBDPrecData is NULL.\n\n"
 
 /*
  *-----------------------------------------------------------------
@@ -102,7 +82,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
   N_Vector vtemp3;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINMEM_NULL);
+    fprintf(stderr, MSGBBD_KINMEM_NULL);
     return(NULL);
   }
   kin_mem = (KINMem) kinmem;
@@ -113,7 +93,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
      so has already been checked for (see KINMalloc) */
 
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    if (errfp != NULL) fprintf(errfp, MSGBBD_BAD_NVECTOR);
     return(NULL);
   }
 
@@ -190,7 +170,7 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
   kin_mem = (KINMem) kinmem;
 
   if (p_data == NULL) {
-    fprintf(errfp, MSG_NO_PDATA);
+    fprintf(errfp, MSGBBD_NO_PDATA);
     return(KIN_PDATA_NULL);
   }
 
@@ -239,7 +219,7 @@ int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBD
   KBBDPrecData pdata;
 
   if (p_data == NULL) {
-    fprintf(stderr, MSG_PDATA_NULL);
+    fprintf(stderr, MSGBBD_PDATA_NULL);
     return(KIN_PDATA_NULL);
   } 
 
@@ -262,7 +242,7 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
   KBBDPrecData pdata;
 
   if (p_data == NULL) {
-    fprintf(stderr, MSG_PDATA_NULL);
+    fprintf(stderr, MSGBBD_PDATA_NULL);
     return(KIN_PDATA_NULL);
   } 
 

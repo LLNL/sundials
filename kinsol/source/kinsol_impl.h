@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-10-22 22:35:28 $
+ * $Revision: 1.6 $
+ * $Date: 2004-11-04 01:56:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -172,6 +172,64 @@ typedef struct KINMemRec {
   FILE *kin_infofp; /* where KINSol info messages are sent                     */
 
 } *KINMem;
+
+/*
+ * -----------------------------------------------------------------
+ * KINSOL error messages
+ * -----------------------------------------------------------------
+ */
+
+/* KINCreate error messages */
+
+#define MSG_KINMEM_FAIL "KINCreate-- Allocation of kin_mem failed.\n\n "
+
+/* KINSet* error messages */
+
+#define MSG_KINS_NO_MEM    "kin_mem == NULL in a KINSet* routine illegal.\n\n"
+#define MSG_BAD_PRINTFL    "KINSetPrintLevel-- illegal value for printfl.\n\n"
+#define MSG_BAD_MXITER     "KINSetNumMaxIters-- illegal value for mxiter.\n\n"
+#define MSG_BAD_MSBPRE     "KINSetMaxPrecCalls-- illegal msbpre < 0. \n\n"
+#define MSG_BAD_ETACHOICE  "KINSetEtaForm-- illegal value for etachoice.\n\n"
+#define MSG_BAD_ETACONST   "KINSetEtaConstValue-- eta out of range.\n\n"
+#define MSG_BAD_GAMMA      "KINSetEtaParams-- gamma out of range.\n\n"
+#define MSG_BAD_ALPHA      "KINSetEtaParams-- alpha out of range.\n\n"
+#define MSG_BAD_MXNEWTSTEP "KINSetMaxNewtonStep-- mxnewtstep nonpositive.\n\n"
+#define MSG_BAD_RELFUNC    "KINSetRelErrFunc-- relfunc = %g < 0 illegal.\n\n"
+#define MSG_BAD_FNORMTOL   "KINSetFuncNormTol-- fnormtol = %g < 0 illegal.\n\n"
+#define MSG_BAD_SCSTEPTOL  "KINSetScaledStepTol-- scsteptol = %g < 0 illegal.\n\n"
+
+/* KINMalloc error messages */
+
+#define MSG_KINM_NO_MEM    "KINMalloc-- kin_mem == NULL illegal.\n\n"
+#define MSG_MEM_FAIL       "KINMalloc-- A memory request failed.\n\n"
+#define MSG_FUNC_NULL      "KINMalloc-- func == NULL illegal.\n\n"
+#define MSG_BAD_NVECTOR    "KINMalloc-- A required vector operation is not implemented.\n\n"
+#define MSG_KINS_FUNC_NULL "KINSetSysFunc-- func == NULL illegal.\n\n"
+
+/* KINSol error messages */
+
+#define MSG_KINSOL_NO_MEM    "KINSol-- kinsol_mem == NULL illegal.\n\n"
+#define MSG_KINSOL_NO_MALLOC "KINSol-- Attempt to call before KINMalloc illegal.\n\n"
+
+/* KINSolInit error messages */
+
+#define KINSI                  "KINSolInit--"
+#define MSG_LSOLV_NO_MEM       KINSI "The linear solver memory pointer is NULL.\n\n"
+#define MSG_UU_NULL            KINSI "uu == NULL illegal.\n\n"
+#define MSG_BAD_GLSTRAT1       KINSI "globalstrategy = %d illegal.\n"
+#define MSG_BAD_GLSTRAT2       "The legal values are KIN_INEXACT_NEWTON = %d"
+#define MSG_BAD_GLSTRAT3       " and KIN_LINESEARCH = %d\n\n"
+#define MSG_BAD_GLSTRAT        MSG_BAD_GLSTRAT1 MSG_BAD_GLSTRAT2 MSG_BAD_GLSTRAT3
+#define MSG_BAD_USCALE         KINSI "uscale == NULL illegal.\n\n"
+#define MSG_USCALE_NONPOSITIVE KINSI "uscale has nonpositive elements.\n\n"
+#define MSG_BAD_FSCALE         KINSI "fscale == NULL illegal.\n\n"
+#define MSG_FSCALE_NONPOSITIVE KINSI "fscale has nonpositive elements.\n\n"
+#define MSG_INITIAL_CNSTRNT    KINSI "Initial guess does NOT meet constraints.\n\n"
+#define MSG_LINIT_FAIL         KINSI "The linear solver's init routine failed.\n\n"
+
+/* KINGet* error messages */
+
+#define MSG_KING_NO_MEM "kin_mem == NULL in a KINGet* routine illegal.\n\n"
 
 #endif
 

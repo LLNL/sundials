@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-10-08 23:24:44 $
+ * $Revision: 1.20 $
+ * $Date: 2004-11-04 01:56:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "iterative.h"
 #include "kinsol_impl.h"
@@ -26,29 +27,10 @@
 #include "spgmr.h"
 #include "sundialsmath.h"
 #include "sundialstypes.h"
-
-/*
- * -----------------------------------------------------------------
- * error messages
- * -----------------------------------------------------------------
- */
-
-/* KINSpgmr error messages */
-
-#define KINSPGMR        "KINSpgmr-- "
-#define MSG_KINMEM_NULL KINSPGMR "KINSOL memory is NULL.\n\n"
-#define MSG_MEM_FAIL    KINSPGMR "A memory request failed.\n\n"
-#define MSG_BAD_NVECTOR KINSPGMR "A required vector operation is not implemented.\n\n"
-
-/* KINSpgmrSet* and KINSpgmrGet* error messages */
-
-#define KINSPGMR_SETGET        "KINSpgmrSet*/KINSpgmrGet*-- "
-#define MSG_SETGET_KINMEM_NULL KINSPGMR_SETGET "KINSOL memory is NULL. \n\n"
-#define MSG_SETGET_LMEM_NULL   KINSPGMR_SETGET "KINSPGMR memory is NULL.\n\n"
-
-/* KINSpgmrSetMaxRestarts error message */
-
-#define MSG_KINS_NEG_MAXRS "KINSpgmrSetMaxRestarts-- maxrs < 0 illegal.\n\n"
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
+#endif
 
 /*
  * -----------------------------------------------------------------
@@ -59,6 +41,15 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 #define TWO  RCONST(2.0)
+
+/*
+ * -----------------------------------------------------------------
+ * keys for KINSpgmrPrintInfo
+ * -----------------------------------------------------------------
+ */
+
+#define PRNT_NLI   1
+#define PRNT_EPS   2
 
 /*
  * -----------------------------------------------------------------
@@ -85,6 +76,7 @@ static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
                             N_Vector u, booleantype *new_u, 
                             void *jac_data);
 
+static void KINSpgmrPrintInfo(KINMem kin_mem, char *funcname, int key,...);
 
 /*
  * -----------------------------------------------------------------
@@ -170,7 +162,7 @@ int KINSpgmr(void *kinmem, int maxl)
   int maxl1;
 
   if (kinmem == NULL){
-    fprintf(stderr, MSG_KINMEM_NULL);
+    fprintf(stderr, MSGS_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);  
   }
   kin_mem = (KINMem) kinmem;
@@ -183,7 +175,7 @@ int KINSpgmr(void *kinmem, int maxl)
   if ((vec_tmpl->ops->nvconst == NULL) ||
       (vec_tmpl->ops->nvdotprod == NULL) ||
       (vec_tmpl->ops->nvl1norm == NULL)) {
-    if (errfp != NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    if (errfp != NULL) fprintf(errfp, MSGS_BAD_NVECTOR);
     return(KINSPGMR_ILL_INPUT);
   }
 
@@ -198,7 +190,7 @@ int KINSpgmr(void *kinmem, int maxl)
 
   kinspgmr_mem = (KINSpgmrMem) malloc(sizeof(KINSpgmrMemRec));
   if (kinspgmr_mem == NULL){
-    fprintf(errfp, MSG_MEM_FAIL);
+    fprintf(errfp, MSGS_MEM_FAIL);
     return(KINSPGMR_MEM_FAIL);  
   }
 
@@ -225,7 +217,7 @@ int KINSpgmr(void *kinmem, int maxl)
 
   spgmr_mem = SpgmrMalloc(maxl1, vec_tmpl);
   if (spgmr_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    fprintf(errfp, MSGS_MEM_FAIL);
     lmem = NULL;  /* set lmem to NULL and free that memory as a flag to a
                      later inadvertent KINSol call that SpgmrMalloc failed */
     free(lmem);
@@ -253,13 +245,13 @@ int KINSpgmrSetMaxRestarts(void *kinmem, int maxrs)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -267,7 +259,7 @@ int KINSpgmrSetMaxRestarts(void *kinmem, int maxrs)
   /* check for legal maxrs */
 
   if (maxrs < 0) {
-    fprintf(errfp, MSG_KINS_NEG_MAXRS);
+    fprintf(errfp, MSGS_KINS_NEG_MAXRS);
     return(KINSPGMR_ILL_INPUT);
   }
   kinspgmr_mem->g_maxlrst = maxrs;
@@ -289,13 +281,13 @@ int KINSpgmrSetPrecSetupFn(void *kinmem, KINSpgmrPrecSetupFn pset)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -318,13 +310,13 @@ int KINSpgmrSetPrecSolveFn(void *kinmem, KINSpgmrPrecSolveFn psolve)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -347,13 +339,13 @@ int KINSpgmrSetPrecData(void *kinmem, void *P_data)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -376,13 +368,13 @@ int KINSpgmrSetJacTimesVecFn(void *kinmem, KINSpgmrJacTimesVecFn jtimes)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -405,13 +397,13 @@ int KINSpgmrSetJacData(void *kinmem, void *J_data)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -435,13 +427,13 @@ int KINSpgmrGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -468,13 +460,13 @@ int KINSpgmrGetNumPrecEvals(void *kinmem, long int *npevals)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -497,13 +489,13 @@ int KINSpgmrGetNumPrecSolves(void *kinmem, long int *npsolves)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -526,13 +518,13 @@ int KINSpgmrGetNumLinIters(void *kinmem, long int *nliters)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -555,13 +547,13 @@ int KINSpgmrGetNumConvFails(void *kinmem, long int *nlcfails)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -584,13 +576,13 @@ int KINSpgmrGetNumJtimesEvals(void *kinmem, long int *njvevals)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -613,13 +605,13 @@ int KINSpgmrGetNumFuncEvals(void *kinmem, long int *nfevalsSG)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -642,13 +634,13 @@ int KINSpgmrGetLastFlag(void *kinmem, int *flag)
   /* return immediately if kinmem is NULL */
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_SETGET_KINMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
     return(KINSPGMR_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    fprintf(stderr, MSG_SETGET_LMEM_NULL);
+    fprintf(stderr, MSGS_SETGET_LMEM_NULL);
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
@@ -794,7 +786,8 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   nli = nli + (long int) nli_inc;
   nps = nps + (long int) nps_inc;
 
-  if (printfl == 3) fprintf(infofp, "KINSpgmrSolve: nli_inc = %d\n", nli_inc);
+  if (printfl > 2) 
+    KINSpgmrPrintInfo(kin_mem, "KINSpgmrSolve", PRNT_NLI, nli_inc);
 
   if (ret != 0) ncfl++;
 
@@ -815,8 +808,7 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   sfdotJp = N_VDotProd(fval, bb);
 
   if (printfl > 2)
-    fprintf(infofp, "linear (Krylov step) residual norm = %12.3g  eps = %12.3g\n",
-	    *res_norm, eps);
+    KINSpgmrPrintInfo(kin_mem, "KINSpgmrSolve", PRNT_EPS, *res_norm, eps);
 
   /* set return value to appropriate value */
 
@@ -976,4 +968,43 @@ static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
   N_VLinearSum(sigma_inv, vtemp2, -sigma_inv, fval, Jv);
 
   return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * KINPrintInfo
+ * -----------------------------------------------------------------
+ */
+
+static void KINSpgmrPrintInfo(KINMem kin_mem, char *funcname, int key,...)
+{
+  va_list ap;
+
+  fprintf(infofp, "---%s\n   ", funcname);
+
+  /* initialize argument processing */
+  va_start(ap, key); 
+
+  switch(key) {
+
+  case PRNT_NLI:
+    fprintf(infofp, "nli_inc = %d\n", va_arg(ap,int));
+    break;
+    
+  case PRNT_EPS:
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(infofp, "residual norm = %12.3Lg  eps = %12.3Lg\n", 
+            va_arg(ap,realtype), va_arg(ap,realtype));
+#else
+    fprintf(infofp, "residual norm = %12.3g  eps = %12.3g\n", 
+            va_arg(ap,realtype), va_arg(ap,realtype));
+#endif
+      break;
+
+  }
+
+  /* finalize argument processing */
+  va_end(ap);
+
 }
