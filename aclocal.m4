@@ -1,11 +1,7 @@
-sinclude(autoconf_macros/casc_fortran.m4)
+dnl sinclude(autoconf_macros/casc_fortran.m4)
 sinclude(autoconf_macros/casc_libs_and_headers.m4)
 sinclude(autoconf_macros/casc_mpi.m4)
-sinclude(/home/casc/software/autoconfig/macros/casc_cxx.m4)
-sinclude(/home/casc/software/autoconfig/macros/casc_lang.m4)
-sinclude(/home/casc/software/autoconfig/macros/casc_misc.m4)
-sinclude(/home/casc/software/autoconfig/macros/casc_opt_debug.m4)
-sinclude(/home/casc/software/autoconfig/macros/casc_specific_libs.m4)
+sinclude(autoconf_macros/casc_misc.m4)
 
 dnl ***********************************************************************
 
@@ -103,29 +99,13 @@ dnl ***********************************************************************
 AC_DEFUN(SUNDIALS_FIND_MPI,
 [
 case $ARCH in
-  AIX | rs6000)
-	CASC_FIND_MPI
-  ;;
-  sun4 | solaris)
-	CASC_FIND_MPI
-  ;;
-  LINUX)
-        CASC_FIND_MPI
-  ;;
   OSF1 | alpha)
 	CASC_FIND_MPI
   ;;		
+  *)
+        CASC_FIND_MPI
+  ;;
 esac
-])
-
-dnl ***********************************************************************
-
-AC_DEFUN(SUNDIALS_FIND_MPIF77,
-[
-   AC_ARG_WITH(MPIF77,
-       AC_HELP_STRING([--with-MPIF77=ARG], [manually set MPIF77 to ARG]),
-       [AC_MSG_RESULT([setting MPIF77 to $withval]); MPIF77=$withval],
-       [CASC_PROG_MPIF77])
 ])
 
 dnl that's all

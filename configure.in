@@ -44,13 +44,12 @@ AC_ARG_WITH(FFLAGS,
    [SUNDIALS_PROG_FFLAGS])
 
 dnl *********************************************************************
-dnl * Sets MPIINCLUDE, MPILIBDIRS, MPILIBS, MPIFLAGS
+dnl * Sets MPICC, MPIF77, MPIINCLUDE, MPILIBDIRS, MPILIBS, MPIFLAGS
 dnl *********************************************************************
 
 if test -d nvec_par; \
 then \
   SUNDIALS_FIND_MPI
-  SUNDIALS_FIND_MPIF77
 fi
 
 dnl *********************************************************************
@@ -187,6 +186,7 @@ dnl * Report on what we decided to do
 dnl *********************************************************************
 
 AC_CONFIG_COMMANDS_PRE([
+
 my_prefix=${prefix}
 
 if test "${exec_prefix}" = '${prefix}'; 
@@ -213,25 +213,50 @@ fi
 test ! -d $my_includedir && mkdir -p $my_includedir
 test ! -d $my_libdir && mkdir -p $my_libdir
 
-echo "
-Configured for $ARCH
-  Where should we install header files?                ${my_includedir}
-  Where should we install libraries?                   ${my_libdir}
-  What C compiler should we use?                       ${CC}
-  What flags should be passed to the C compiler?       ${CFLAGS}
-  What Fortran compiler should we use?                 ${F77}
-  What flags should be passed to the Fortran compiler? ${FFLAGS}"
+echo ""
+echo "Configured for $ARCH"
+echo ""
+echo "Where should we install header files?                ${my_includedir}"
+echo "Where should we install libraries?                   ${my_libdir}"
+echo "What C compiler should we use?                       ${CC}"
+echo "What flags should be passed to the C compiler?       ${CFLAGS}"
 
-if test -d nvec_par; \
-then \
-  echo "  What should we use for MPICC?                        ${MPICC}"
-  echo "  What should we use for MPIF77?                       ${MPIF77}"
-  echo "  Where should we look for MPI header files?          ${MPIINCLUDE}"
-  echo "  Where should we look for MPI libraries?             ${MPILIBDIRS}"
-  echo "  What MPI libraries should we use?                   ${MPILIBS}"
-  echo "  What other flags should we use for MPI?             ${MPIFLAGS}"
+if test "${F77}" != '';
+then
+  echo "What Fortran compiler should we use?                 ${F77}"
+  echo "What flags should be passed to the Fortran compiler? ${FFLAGS}"
 fi
-echo ""  
+
+if test -d nvec_par;
+then
+  echo "What should we use for MPICC?                        ${MPICC}"
+  echo "Where should we look for MPI header files?          ${MPIINCLUDE}"
+  echo "Where should we look for MPI libraries?             ${MPILIBDIRS}"
+  echo "What MPI libraries should we use?                   ${MPILIBS}"
+  echo "What other flags should we use for MPI?             ${MPIFLAGS}"
+  if test "${F77}" != '';
+  then
+    if test "${MPIF77}" != '';
+    then
+      echo "What should we use for MPIF77?                       ${MPIF77}"
+    fi
+  fi
+fi
+echo ""
+
+if test "${F77}" = '';
+then
+  echo "WARNING! NO Fortran compiler found!"
+  echo "You will be unable to compile the FCMIX examples"
+  echo ""
+else 
+  if test "${MPIF77}" = '';
+  then
+    echo "WARNING! NO mpif77 wrapper found!"
+    echo "You will be unable to compile the parallel FCMIX examples"
+    echo ""
+  fi
+fi
 ])
 
 dnl *********************************************************************

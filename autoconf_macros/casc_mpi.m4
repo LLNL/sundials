@@ -33,17 +33,6 @@ AC_DEFUN(CASC_PROG_MPIF77,
    AC_CHECK_PROGS(MPIF77, mpf77 mpxlf mpif77 mpixlf tmf77 hf77)
    test -z "$MPIF77" && AC_MSG_ERROR([no acceptable mpif77 found in \$PATH])
 ])dnl
-dnl AC_DEFUN(CASC_PROG_MPIF77,
-dnl [
-dnl    AC_ARG_WITH(MPIF77,
-dnl        AC_HELP_STRING([--with-MPIF77=ARG], [HI manually set MPIF77 to ARG]),
-dnl        [AC_MSG_RESULT([setting MPIF77 to $withval]); MPIF77=$withval],
-dnl        [
-dnl          AC_CHECK_PROGS(MPIF77, mpf77 mpxlf mpif77 mpixlf tmf77 hf77)
-dnl          test -z "$MPIF77" && AC_MSG_ERROR([no acceptable mpif77 found in \$PATH])
-dnl        ])
-dnl ])dnl
-
 
 dnl ***********************************************************************
 dnl * CASC_CHECK_MPIF77_PP checks whether the preprocessor needs to
@@ -93,6 +82,47 @@ EOF
    AC_SUBST(MPIF77NEEDSPP)
 ])dnl
 
+dnl ***********************************************************************
+dnl MPI_OPTIONS sets the user options for MPI libs, dirs, flags
+dnl ***********************************************************************
+
+AC_DEFUN(MPI_OPTIONS,
+[       
+   AC_ARG_WITH(mpi-include, 
+      AC_HELP_STRING([--with-mpi-include=DIR],
+                     [ mpi.h is in DIR]),
+      for mpi_dir in $withval; do
+         MPIINCLUDE="$MPIINCLUDE -I$withval"
+      done; casc_user_chose_mpi=yes)
+
+   AC_ARG_WITH(mpi-libs,
+      AC_HELP_STRING([--with-mpi-libs=LIBS],
+                     [LIBS is space-separated list of library names 
+                      needed for MPI, e.g. "nsl socket mpi"]),  
+      for mpi_lib in $withval; do
+         MPILIBS="$MPILIBS -l$mpi_lib"
+      done; casc_user_chose_mpi=yes)
+
+
+   AC_ARG_WITH(mpi-lib-dirs,
+      AC_HELP_STRING([--with-mpi-lib-dirs=DIRS],
+                     [DIRS is space-separated list of directories
+                      containing the libraries specified by
+                      `--with-mpi-libs', e.g "/usr/lib /usr/local/mpi/lib"]),
+      for mpi_lib_dir in $withval; do
+         MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
+      done; casc_user_chose_mpi=yes)
+
+      dnl * --with-mpi-flags only adds to automatic selections, 
+      dnl * does not override
+
+   AC_ARG_WITH(mpi-flags,
+     AC_HELP_STRING([--with-mpi-flags=FLAGS],
+                    [FLAGS is space-separated list of whatever flags other
+                     than -l and -L are needed to link with mpi libraries]),
+     MPIFLAGS=$withval)
+])
+
 
 dnl *********************************************************************
 dnl * CASC_SET_MPI sets up the needed MPI library and directory flags.   
@@ -122,22 +152,7 @@ AC_DEFUN(CASC_SET_MPI,
 
    dnl * If called from within CASC_FIND_MPI, then the configure-line
    dnl * options will already exist.  This ifdef creates them otherwise.
-   ifdef([AC_PROVIDE_CASC_FIND_MPI], ,
-      [AC_ARG_WITH(mpi-include, [  --with-mpi-include=DIR  mpi.h is in DIR],
-                  casc_mpi_include_dir=$withval)
-
-      AC_ARG_WITH(mpi-libs, 
-[  --with-mpi-libs=LIBS    LIBS is space-separated list of library names
-                          needed for MPI, e.g. \"nsl socket mpi\"],
-                  casc_mpi_libs=$withval)
-
-      AC_ARG_WITH(mpi-lib-dirs, 
-[  --with-mpi-lib-dirs=DIRS
-                          DIRS is space-separated list of directories
-                          containing the libraries specified by
-                          \`--with-mpi-libs', e.g \"/usr/lib /usr/local/mpi/lib\"],
-                  casc_mpi_lib_dirs=$withval)]
-   )
+   ifdef([AC_PROVIDE_CASC_FIND_MPI],,MPI_OPTIONS)
 
    if test -z "$casc_mpi_libs"; then
       AC_REQUIRE([CASC_GUESS_ARCH])
@@ -331,36 +346,8 @@ AC_DEFUN(CASC_FIND_MPI,
       dnl * then automatic tests are not run.
 
       casc_user_chose_mpi=no
-      AC_ARG_WITH(mpi-include, [  --with-mpi-include=DIR  mpi.h is in DIR],
-                  for mpi_dir in $withval; do
-                     MPIINCLUDE="$MPIINCLUDE -I$withval"
-                  done; casc_user_chose_mpi=yes)
 
-      AC_ARG_WITH(mpi-libs,
-[  --with-mpi-libs=LIBS    LIBS is space-separated list of library names 
-                          needed for MPI, e.g. \"nsl socket mpi\"],  
-                  for mpi_lib in $withval; do
-                     MPILIBS="$MPILIBS -l$mpi_lib"
-                  done; casc_user_chose_mpi=yes)
-
-
-      AC_ARG_WITH(mpi-lib-dirs,
-[  --with-mpi-lib-dirs=DIRS
-                          DIRS is space-separated list of directories
-                          containing the libraries specified by
-                          \`--with-mpi-libs', e.g \"/usr/lib /usr/local/mpi/lib\"],
-                  for mpi_lib_dir in $withval; do
-                     MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
-                  done; casc_user_chose_mpi=yes)
-
-      dnl * --with-mpi-flags only adds to automatic selections, 
-      dnl * does not override
-
-      AC_ARG_WITH(mpi-flags,
-[  --with-mpi-flags=FLAGS  FLAGS is space-separated list of whatever flags other
-                          than -l and -L are needed to link with mpi libraries],
-                          MPIFLAGS=$withval)
-
+      MPI_OPTIONS
 
       if test "$casc_user_chose_mpi" = "no"; then
 
@@ -369,7 +356,8 @@ AC_DEFUN(CASC_FIND_MPI,
       dnl * print warning message.  Manual MPI settings must be used.
 
          AC_ARG_WITH(MPICC,
-[  --with-MPICC=ARG        ARG is mpicc or similar MPI C compiling tool],
+           AC_HELP_STRING([--with-MPICC=ARG],
+                          [ARG is mpicc or similar MPI C compiling tool]),
             MPICC=$withval,
             [AC_CHECK_PROGS(MPICC, mpcc mpicc tmcc hcc)])
 
@@ -733,6 +721,13 @@ dnl ])dnl
       AC_CACHE_VAL(casc_cv_mpi_flags, casc_cv_mpi_flags=$MPIFLAGS)
    fi
 
+dnl Find MPIF77
+   AC_ARG_WITH(MPIF77,
+       AC_HELP_STRING([--with-MPIF77=ARG], [manually set MPIF77 to ARG]),
+       [AC_MSG_RESULT([setting MPIF77 to $withval]); MPIF77=$withval],
+       [CASC_PROG_MPIF77])
+
+
    AC_SUBST(MPIINCLUDE)
    AC_SUBST(MPILIBDIRS)
    AC_SUBST(MPILIBS)
@@ -784,36 +779,8 @@ AC_DEFUN(CASC_FIND_MPI_ALPHA,
       dnl * then automatic tests are not run.
 
       casc_user_chose_mpi=no
-      AC_ARG_WITH(mpi-include, [  --with-mpi-include=DIR  mpi.h is in DIR],
-                  for mpi_dir in $withval; do
-                     MPIINCLUDE="$MPIINCLUDE -I$withval"
-                  done; casc_user_chose_mpi=yes)
 
-      AC_ARG_WITH(mpi-libs,
-[  --with-mpi-libs=LIBS    LIBS is space-separated list of library names 
-                          needed for MPI, e.g. \"nsl socket mpi\"],  
-                  for mpi_lib in $withval; do
-                     MPILIBS="$MPILIBS -l$mpi_lib"
-                  done; casc_user_chose_mpi=yes)
-
-
-      AC_ARG_WITH(mpi-lib-dirs,
-[  --with-mpi-lib-dirs=DIRS
-                          DIRS is space-separated list of directories
-                          containing the libraries specified by
-                          \`--with-mpi-libs', e.g \"/usr/lib /usr/local/mpi/lib\"],
-                  for mpi_lib_dir in $withval; do
-                     MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
-                  done; casc_user_chose_mpi=yes)
-
-      dnl * --with-mpi-flags only adds to automatic selections, 
-      dnl * does not override
-
-      AC_ARG_WITH(mpi-flags,
-[  --with-mpi-flags=FLAGS  FLAGS is space-separated list of whatever flags other
-                          than -l and -L are needed to link with mpi libraries],
-                          MPIFLAGS=$withval)
-
+      MPI_OPTIONS
 
       if test "$casc_user_chose_mpi" = "no"; then
  

@@ -644,17 +644,16 @@ Optional Packages:
   --with-CFLAGS=ARG       manually set CFLAGS to ARG
   --with-FFLAGS=ARG       manually set FFLAGS to ARG
   --with-mpi-include=DIR  mpi.h is in DIR
-  --with-mpi-libs=LIBS    LIBS is space-separated list of library names
-                          needed for MPI, e.g. \"nsl socket mpi\"
+  --with-mpi-libs=LIBS    LIBS is space-separated list of library names needed
+                          for MPI, e.g. "nsl socket mpi"
   --with-mpi-lib-dirs=DIRS
                           DIRS is space-separated list of directories
                           containing the libraries specified by
-                          \`--with-mpi-libs', e.g \"/usr/lib /usr/local/mpi/lib\"
-  --with-mpi-flags=FLAGS  FLAGS is space-separated list of whatever flags other
-                          than -l and -L are needed to link with mpi libraries
+                          `--with-mpi-libs', e.g "/usr/lib /usr/local/mpi/lib"
+  --with-mpi-flags=FLAGS  FLAGS is space-separated list of whatever flags
+                          other than -l and -L are needed to link with mpi
+                          libraries
   --with-MPICC=ARG        ARG is mpicc or similar MPI C compiling tool
-  --with-mpi-libs=LIBS    LIBS is space-separated list of library names
-                          needed for MPI, e.g. \"nsl socket mpi\"
   --with-MPIF77=ARG       manually set MPIF77 to ARG
 
 Some influential environment variables:
@@ -851,7 +850,7 @@ if test -z "$CONFIG_SITE"; then
 fi
 for ac_site_file in $CONFIG_SITE; do
   if test -r "$ac_site_file"; then
-    { echo "$as_me:854: loading site script $ac_site_file" >&5
+    { echo "$as_me:853: loading site script $ac_site_file" >&5
 echo "$as_me: loading site script $ac_site_file" >&6;}
     cat "$ac_site_file" >&5
     . "$ac_site_file"
@@ -862,7 +861,7 @@ if test -r "$cache_file"; then
   # Some versions of bash will fail to source /dev/null (special
   # files actually), so we avoid doing that.
   if test -f "$cache_file"; then
-    { echo "$as_me:865: loading cache $cache_file" >&5
+    { echo "$as_me:864: loading cache $cache_file" >&5
 echo "$as_me: loading cache $cache_file" >&6;}
     case $cache_file in
       [\\/]* | ?:[\\/]* ) . $cache_file;;
@@ -870,7 +869,7 @@ echo "$as_me: loading cache $cache_file" >&6;}
     esac
   fi
 else
-  { echo "$as_me:873: creating cache $cache_file" >&5
+  { echo "$as_me:872: creating cache $cache_file" >&5
 echo "$as_me: creating cache $cache_file" >&6;}
   >$cache_file
 fi
@@ -886,21 +885,21 @@ for ac_var in `(set) 2>&1 |
   eval ac_new_val="\$ac_env_${ac_var}_value"
   case $ac_old_set,$ac_new_set in
     set,)
-      { echo "$as_me:889: error: \`$ac_var' was set to \`$ac_old_val' in the previous run" >&5
+      { echo "$as_me:888: error: \`$ac_var' was set to \`$ac_old_val' in the previous run" >&5
 echo "$as_me: error: \`$ac_var' was set to \`$ac_old_val' in the previous run" >&2;}
       ac_cache_corrupted=: ;;
     ,set)
-      { echo "$as_me:893: error: \`$ac_var' was not set in the previous run" >&5
+      { echo "$as_me:892: error: \`$ac_var' was not set in the previous run" >&5
 echo "$as_me: error: \`$ac_var' was not set in the previous run" >&2;}
       ac_cache_corrupted=: ;;
     ,);;
     *)
       if test "x$ac_old_val" != "x$ac_new_val"; then
-        { echo "$as_me:899: error: \`$ac_var' has changed since the previous run:" >&5
+        { echo "$as_me:898: error: \`$ac_var' has changed since the previous run:" >&5
 echo "$as_me: error: \`$ac_var' has changed since the previous run:" >&2;}
-        { echo "$as_me:901:   former value:  $ac_old_val" >&5
+        { echo "$as_me:900:   former value:  $ac_old_val" >&5
 echo "$as_me:   former value:  $ac_old_val" >&2;}
-        { echo "$as_me:903:   current value: $ac_new_val" >&5
+        { echo "$as_me:902:   current value: $ac_new_val" >&5
 echo "$as_me:   current value: $ac_new_val" >&2;}
         ac_cache_corrupted=:
       fi;;
@@ -919,9 +918,9 @@ echo "$as_me:   current value: $ac_new_val" >&2;}
   fi
 done
 if $ac_cache_corrupted; then
-  { echo "$as_me:922: error: changes in the environment can compromise the build" >&5
+  { echo "$as_me:921: error: changes in the environment can compromise the build" >&5
 echo "$as_me: error: changes in the environment can compromise the build" >&2;}
-  { { echo "$as_me:924: error: run \`make distclean' and/or \`rm $cache_file' and start over" >&5
+  { { echo "$as_me:923: error: run \`make distclean' and/or \`rm $cache_file' and start over" >&5
 echo "$as_me: error: run \`make distclean' and/or \`rm $cache_file' and start over" >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -941,10 +940,10 @@ esac
 echo "#! $SHELL" >conftest.sh
 echo  "exit 0"   >>conftest.sh
 chmod +x conftest.sh
-if { (echo "$as_me:944: PATH=\".;.\"; conftest.sh") >&5
+if { (echo "$as_me:943: PATH=\".;.\"; conftest.sh") >&5
   (PATH=".;."; conftest.sh) 2>&5
   ac_status=$?
-  echo "$as_me:947: \$? = $ac_status" >&5
+  echo "$as_me:946: \$? = $ac_status" >&5
   (exit $ac_status); }; then
   ac_path_separator=';'
 else
@@ -956,12 +955,12 @@ rm -f conftest.sh
 # Check whether --with-ARCH or --without-ARCH was given.
 if test "${with_ARCH+set}" = set; then
   withval="$with_ARCH"
-  echo "$as_me:959: result: setting ARCH to $withval" >&5
+  echo "$as_me:958: result: setting ARCH to $withval" >&5
 echo "${ECHO_T}setting ARCH to $withval" >&6
    ARCH=$withval
 else
 
-   echo "$as_me:964: checking the architecture" >&5
+   echo "$as_me:963: checking the architecture" >&5
 echo $ECHO_N "checking the architecture... $ECHO_C" >&6
 
          if test -z "$ARCH"; then
@@ -976,7 +975,7 @@ echo $ECHO_N "checking the architecture... $ECHO_C" >&6
       done
 
                   if test -z "$casc_tarch_dir"; then
-         { echo "$as_me:979: WARNING: cannot find tarch, using \$HOSTTYPE as the architecture" >&5
+         { echo "$as_me:978: WARNING: cannot find tarch, using \$HOSTTYPE as the architecture" >&5
 echo "$as_me: WARNING: cannot find tarch, using \$HOSTTYPE as the architecture" >&2;}
          ARCH=$HOSTTYPE
       else
@@ -989,14 +988,14 @@ echo "$as_me: WARNING: cannot find tarch, using \$HOSTTYPE as the architecture" 
 
             if test -z "$ARCH"; then
          ARCH=unknown
-         { echo "$as_me:992: WARNING: architecture is unknown" >&5
+         { echo "$as_me:991: WARNING: architecture is unknown" >&5
 echo "$as_me: WARNING: architecture is unknown" >&2;}
       else
-         echo "$as_me:995: result: $ARCH" >&5
+         echo "$as_me:994: result: $ARCH" >&5
 echo "${ECHO_T}$ARCH" >&6
       fi
    else
-      echo "$as_me:999: result: $ARCH" >&5
+      echo "$as_me:998: result: $ARCH" >&5
 echo "${ECHO_T}$ARCH" >&6
    fi
 
@@ -1005,24 +1004,24 @@ fi;
 # Check whether --with-CC or --without-CC was given.
 if test "${with_CC+set}" = set; then
   withval="$with_CC"
-  echo "$as_me:1008: result: setting CC to $withval" >&5
+  echo "$as_me:1007: result: setting CC to $withval" >&5
 echo "${ECHO_T}setting CC to $withval" >&6
    CC=$withval
 else
 
    case $ARCH in
       OSF1 | alpha)
-        echo "$as_me:1015: checking for C compiler" >&5
+        echo "$as_me:1014: checking for C compiler" >&5
 echo $ECHO_N "checking for C compiler... $ECHO_C" >&6
         CC=cc
-        echo "$as_me:1018: result: $CC" >&5
+        echo "$as_me:1017: result: $CC" >&5
 echo "${ECHO_T}$CC" >&6
       ;;
       AIX | rs6000)
-        echo "$as_me:1022: checking for C compiler" >&5
+        echo "$as_me:1021: checking for C compiler" >&5
 echo $ECHO_N "checking for C compiler... $ECHO_C" >&6
         CC=xlc
-        echo "$as_me:1025: result: $CC" >&5
+        echo "$as_me:1024: result: $CC" >&5
 echo "${ECHO_T}$CC" >&6
       ;;
       *)
@@ -1034,7 +1033,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}gcc", so it can be a program name with args.
 set dummy ${ac_tool_prefix}gcc; ac_word=$2
-echo "$as_me:1037: checking for $ac_word" >&5
+echo "$as_me:1036: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_CC+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1049,7 +1048,7 @@ for ac_dir in $ac_dummy; do
   test -z "$ac_dir" && ac_dir=.
   $as_executable_p "$ac_dir/$ac_word" || continue
 ac_cv_prog_CC="${ac_tool_prefix}gcc"
-echo "$as_me:1052: found $ac_dir/$ac_word" >&5
+echo "$as_me:1051: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -1057,10 +1056,10 @@ fi
 fi
 CC=$ac_cv_prog_CC
 if test -n "$CC"; then
-  echo "$as_me:1060: result: $CC" >&5
+  echo "$as_me:1059: result: $CC" >&5
 echo "${ECHO_T}$CC" >&6
 else
-  echo "$as_me:1063: result: no" >&5
+  echo "$as_me:1062: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
@@ -1069,7 +1068,7 @@ if test -z "$ac_cv_prog_CC"; then
   ac_ct_CC=$CC
   # Extract the first word of "gcc", so it can be a program name with args.
 set dummy gcc; ac_word=$2
-echo "$as_me:1072: checking for $ac_word" >&5
+echo "$as_me:1071: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_ac_ct_CC+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1084,7 +1083,7 @@ for ac_dir in $ac_dummy; do
   test -z "$ac_dir" && ac_dir=.
   $as_executable_p "$ac_dir/$ac_word" || continue
 ac_cv_prog_ac_ct_CC="gcc"
-echo "$as_me:1087: found $ac_dir/$ac_word" >&5
+echo "$as_me:1086: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -1092,10 +1091,10 @@ fi
 fi
 ac_ct_CC=$ac_cv_prog_ac_ct_CC
 if test -n "$ac_ct_CC"; then
-  echo "$as_me:1095: result: $ac_ct_CC" >&5
+  echo "$as_me:1094: result: $ac_ct_CC" >&5
 echo "${ECHO_T}$ac_ct_CC" >&6
 else
-  echo "$as_me:1098: result: no" >&5
+  echo "$as_me:1097: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
@@ -1108,7 +1107,7 @@ if test -z "$CC"; then
   if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}cc", so it can be a program name with args.
 set dummy ${ac_tool_prefix}cc; ac_word=$2
-echo "$as_me:1111: checking for $ac_word" >&5
+echo "$as_me:1110: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_CC+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1123,7 +1122,7 @@ for ac_dir in $ac_dummy; do
   test -z "$ac_dir" && ac_dir=.
   $as_executable_p "$ac_dir/$ac_word" || continue
 ac_cv_prog_CC="${ac_tool_prefix}cc"
-echo "$as_me:1126: found $ac_dir/$ac_word" >&5
+echo "$as_me:1125: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -1131,10 +1130,10 @@ fi
 fi
 CC=$ac_cv_prog_CC
 if test -n "$CC"; then
-  echo "$as_me:1134: result: $CC" >&5
+  echo "$as_me:1133: result: $CC" >&5
 echo "${ECHO_T}$CC" >&6
 else
-  echo "$as_me:1137: result: no" >&5
+  echo "$as_me:1136: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
@@ -1143,7 +1142,7 @@ if test -z "$ac_cv_prog_CC"; then
   ac_ct_CC=$CC
   # Extract the first word of "cc", so it can be a program name with args.
 set dummy cc; ac_word=$2
-echo "$as_me:1146: checking for $ac_word" >&5
+echo "$as_me:1145: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_ac_ct_CC+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1158,7 +1157,7 @@ for ac_dir in $ac_dummy; do
   test -z "$ac_dir" && ac_dir=.
   $as_executable_p "$ac_dir/$ac_word" || continue
 ac_cv_prog_ac_ct_CC="cc"
-echo "$as_me:1161: found $ac_dir/$ac_word" >&5
+echo "$as_me:1160: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -1166,10 +1165,10 @@ fi
 fi
 ac_ct_CC=$ac_cv_prog_ac_ct_CC
 if test -n "$ac_ct_CC"; then
-  echo "$as_me:1169: result: $ac_ct_CC" >&5
+  echo "$as_me:1168: result: $ac_ct_CC" >&5
 echo "${ECHO_T}$ac_ct_CC" >&6
 else
-  echo "$as_me:1172: result: no" >&5
+  echo "$as_me:1171: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
@@ -1182,7 +1181,7 @@ fi
 if test -z "$CC"; then
   # Extract the first word of "cc", so it can be a program name with args.
 set dummy cc; ac_word=$2
-echo "$as_me:1185: checking for $ac_word" >&5
+echo "$as_me:1184: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_CC+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1202,7 +1201,7 @@ if test "$ac_dir/$ac_word" = "/usr/ucb/cc"; then
   continue
 fi
 ac_cv_prog_CC="cc"
-echo "$as_me:1205: found $ac_dir/$ac_word" >&5
+echo "$as_me:1204: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -1224,10 +1223,10 @@ fi
 fi
 CC=$ac_cv_prog_CC
 if test -n "$CC"; then
-  echo "$as_me:1227: result: $CC" >&5
+  echo "$as_me:1226: result: $CC" >&5
 echo "${ECHO_T}$CC" >&6
 else
-  echo "$as_me:1230: result: no" >&5
+  echo "$as_me:1229: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
@@ -1238,7 +1237,7 @@ if test -z "$CC"; then
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
-echo "$as_me:1241: checking for $ac_word" >&5
+echo "$as_me:1240: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_CC+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1253,7 +1252,7 @@ for ac_dir in $ac_dummy; do
   test -z "$ac_dir" && ac_dir=.
   $as_executable_p "$ac_dir/$ac_word" || continue
 ac_cv_prog_CC="$ac_tool_prefix$ac_prog"
-echo "$as_me:1256: found $ac_dir/$ac_word" >&5
+echo "$as_me:1255: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -1261,10 +1260,10 @@ fi
 fi
 CC=$ac_cv_prog_CC
 if test -n "$CC"; then
-  echo "$as_me:1264: result: $CC" >&5
+  echo "$as_me:1263: result: $CC" >&5
 echo "${ECHO_T}$CC" >&6
 else
-  echo "$as_me:1267: result: no" >&5
+  echo "$as_me:1266: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
@@ -1277,7 +1276,7 @@ if test -z "$CC"; then
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
-echo "$as_me:1280: checking for $ac_word" >&5
+echo "$as_me:1279: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_ac_ct_CC+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1292,7 +1291,7 @@ for ac_dir in $ac_dummy; do
   test -z "$ac_dir" && ac_dir=.
   $as_executable_p "$ac_dir/$ac_word" || continue
 ac_cv_prog_ac_ct_CC="$ac_prog"
-echo "$as_me:1295: found $ac_dir/$ac_word" >&5
+echo "$as_me:1294: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -1300,10 +1299,10 @@ fi
 fi
 ac_ct_CC=$ac_cv_prog_ac_ct_CC
 if test -n "$ac_ct_CC"; then
-  echo "$as_me:1303: result: $ac_ct_CC" >&5
+  echo "$as_me:1302: result: $ac_ct_CC" >&5
 echo "${ECHO_T}$ac_ct_CC" >&6
 else
-  echo "$as_me:1306: result: no" >&5
+  echo "$as_me:1305: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
@@ -1315,32 +1314,32 @@ fi
 
 fi
 
-test -z "$CC" && { { echo "$as_me:1318: error: no acceptable cc found in \$PATH" >&5
+test -z "$CC" && { { echo "$as_me:1317: error: no acceptable cc found in \$PATH" >&5
 echo "$as_me: error: no acceptable cc found in \$PATH" >&2;}
    { (exit 1); exit 1; }; }
 
 # Provide some information about the compiler.
-echo "$as_me:1323:" \
+echo "$as_me:1322:" \
      "checking for C compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
-{ (eval echo "$as_me:1326: \"$ac_compiler --version </dev/null >&5\"") >&5
+{ (eval echo "$as_me:1325: \"$ac_compiler --version </dev/null >&5\"") >&5
   (eval $ac_compiler --version </dev/null >&5) 2>&5
   ac_status=$?
-  echo "$as_me:1329: \$? = $ac_status" >&5
+  echo "$as_me:1328: \$? = $ac_status" >&5
   (exit $ac_status); }
-{ (eval echo "$as_me:1331: \"$ac_compiler -v </dev/null >&5\"") >&5
+{ (eval echo "$as_me:1330: \"$ac_compiler -v </dev/null >&5\"") >&5
   (eval $ac_compiler -v </dev/null >&5) 2>&5
   ac_status=$?
-  echo "$as_me:1334: \$? = $ac_status" >&5
+  echo "$as_me:1333: \$? = $ac_status" >&5
   (exit $ac_status); }
-{ (eval echo "$as_me:1336: \"$ac_compiler -V </dev/null >&5\"") >&5
+{ (eval echo "$as_me:1335: \"$ac_compiler -V </dev/null >&5\"") >&5
   (eval $ac_compiler -V </dev/null >&5) 2>&5
   ac_status=$?
-  echo "$as_me:1339: \$? = $ac_status" >&5
+  echo "$as_me:1338: \$? = $ac_status" >&5
   (exit $ac_status); }
 
 cat >conftest.$ac_ext <<_ACEOF
-#line 1343 "configure"
+#line 1342 "configure"
 #include "confdefs.h"
 
 int
@@ -1356,13 +1355,13 @@ ac_clean_files="$ac_clean_files a.out a.exe"
 # Try to create an executable without -o first, disregard a.out.
 # It will help us diagnose broken compilers, and finding out an intuition
 # of exeext.
-echo "$as_me:1359: checking for C compiler default output" >&5
+echo "$as_me:1358: checking for C compiler default output" >&5
 echo $ECHO_N "checking for C compiler default output... $ECHO_C" >&6
 ac_link_default=`echo "$ac_link" | sed 's/ -o *conftest[^ ]*//'`
-if { (eval echo "$as_me:1362: \"$ac_link_default\"") >&5
+if { (eval echo "$as_me:1361: \"$ac_link_default\"") >&5
   (eval $ac_link_default) 2>&5
   ac_status=$?
-  echo "$as_me:1365: \$? = $ac_status" >&5
+  echo "$as_me:1364: \$? = $ac_status" >&5
   (exit $ac_status); }; then
   # Find the output, starting from the most likely.  This scheme is
 # not robust to junk in `.', hence go to wildcards (a.*) only as a last
@@ -1385,34 +1384,34 @@ done
 else
   echo "$as_me: failed program was:" >&5
 cat conftest.$ac_ext >&5
-{ { echo "$as_me:1388: error: C compiler cannot create executables" >&5
+{ { echo "$as_me:1387: error: C compiler cannot create executables" >&5
 echo "$as_me: error: C compiler cannot create executables" >&2;}
    { (exit 77); exit 77; }; }
 fi
 
 ac_exeext=$ac_cv_exeext
-echo "$as_me:1394: result: $ac_file" >&5
+echo "$as_me:1393: result: $ac_file" >&5
 echo "${ECHO_T}$ac_file" >&6
 
 # Check the compiler produces executables we can run.  If not, either
 # the compiler is broken, or we cross compile.
-echo "$as_me:1399: checking whether the C compiler works" >&5
+echo "$as_me:1398: checking whether the C compiler works" >&5
 echo $ECHO_N "checking whether the C compiler works... $ECHO_C" >&6
 # FIXME: These cross compiler hacks should be removed for Autoconf 3.0
 # If not cross compiling, check that we can run a simple program.
 if test "$cross_compiling" != yes; then
   if { ac_try='./$ac_file'
-  { (eval echo "$as_me:1405: \"$ac_try\"") >&5
+  { (eval echo "$as_me:1404: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:1408: \$? = $ac_status" >&5
+  echo "$as_me:1407: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
     cross_compiling=no
   else
     if test "$cross_compiling" = maybe; then
 	cross_compiling=yes
     else
-	{ { echo "$as_me:1415: error: cannot run C compiled programs.
+	{ { echo "$as_me:1414: error: cannot run C compiled programs.
 If you meant to cross compile, use \`--host'." >&5
 echo "$as_me: error: cannot run C compiled programs.
 If you meant to cross compile, use \`--host'." >&2;}
@@ -1420,24 +1419,24 @@ If you meant to cross compile, use \`--host'." >&2;}
     fi
   fi
 fi
-echo "$as_me:1423: result: yes" >&5
+echo "$as_me:1422: result: yes" >&5
 echo "${ECHO_T}yes" >&6
 
 rm -f a.out a.exe conftest$ac_cv_exeext
 ac_clean_files=$ac_clean_files_save
 # Check the compiler produces executables we can run.  If not, either
 # the compiler is broken, or we cross compile.
-echo "$as_me:1430: checking whether we are cross compiling" >&5
+echo "$as_me:1429: checking whether we are cross compiling" >&5
 echo $ECHO_N "checking whether we are cross compiling... $ECHO_C" >&6
-echo "$as_me:1432: result: $cross_compiling" >&5
+echo "$as_me:1431: result: $cross_compiling" >&5
 echo "${ECHO_T}$cross_compiling" >&6
 
-echo "$as_me:1435: checking for executable suffix" >&5
+echo "$as_me:1434: checking for executable suffix" >&5
 echo $ECHO_N "checking for executable suffix... $ECHO_C" >&6
-if { (eval echo "$as_me:1437: \"$ac_link\"") >&5
+if { (eval echo "$as_me:1436: \"$ac_link\"") >&5
   (eval $ac_link) 2>&5
   ac_status=$?
-  echo "$as_me:1440: \$? = $ac_status" >&5
+  echo "$as_me:1439: \$? = $ac_status" >&5
   (exit $ac_status); }; then
   # If both `conftest.exe' and `conftest' are `present' (well, observable)
 # catch `conftest.exe'.  For instance with Cygwin, `ls conftest' will
@@ -1453,25 +1452,25 @@ for ac_file in `(ls conftest.exe; ls conftest; ls conftest.*) 2>/dev/null`; do
   esac
 done
 else
-  { { echo "$as_me:1456: error: cannot compute EXEEXT: cannot compile and link" >&5
+  { { echo "$as_me:1455: error: cannot compute EXEEXT: cannot compile and link" >&5
 echo "$as_me: error: cannot compute EXEEXT: cannot compile and link" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
 rm -f conftest$ac_cv_exeext
-echo "$as_me:1462: result: $ac_cv_exeext" >&5
+echo "$as_me:1461: result: $ac_cv_exeext" >&5
 echo "${ECHO_T}$ac_cv_exeext" >&6
 
 rm -f conftest.$ac_ext
 EXEEXT=$ac_cv_exeext
 ac_exeext=$EXEEXT
-echo "$as_me:1468: checking for object suffix" >&5
+echo "$as_me:1467: checking for object suffix" >&5
 echo $ECHO_N "checking for object suffix... $ECHO_C" >&6
 if test "${ac_cv_objext+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
-#line 1474 "configure"
+#line 1473 "configure"
 #include "confdefs.h"
 
 int
@@ -1483,10 +1482,10 @@ main ()
 }
 _ACEOF
 rm -f conftest.o conftest.obj
-if { (eval echo "$as_me:1486: \"$ac_compile\"") >&5
+if { (eval echo "$as_me:1485: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
-  echo "$as_me:1489: \$? = $ac_status" >&5
+  echo "$as_me:1488: \$? = $ac_status" >&5
   (exit $ac_status); }; then
   for ac_file in `(ls conftest.o conftest.obj; ls conftest.*) 2>/dev/null`; do
   case $ac_file in
@@ -1498,24 +1497,24 @@ done
 else
   echo "$as_me: failed program was:" >&5
 cat conftest.$ac_ext >&5
-{ { echo "$as_me:1501: error: cannot compute OBJEXT: cannot compile" >&5
+{ { echo "$as_me:1500: error: cannot compute OBJEXT: cannot compile" >&5
 echo "$as_me: error: cannot compute OBJEXT: cannot compile" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
 rm -f conftest.$ac_cv_objext conftest.$ac_ext
 fi
-echo "$as_me:1508: result: $ac_cv_objext" >&5
+echo "$as_me:1507: result: $ac_cv_objext" >&5
 echo "${ECHO_T}$ac_cv_objext" >&6
 OBJEXT=$ac_cv_objext
 ac_objext=$OBJEXT
-echo "$as_me:1512: checking whether we are using the GNU C compiler" >&5
+echo "$as_me:1511: checking whether we are using the GNU C compiler" >&5
 echo $ECHO_N "checking whether we are using the GNU C compiler... $ECHO_C" >&6
 if test "${ac_cv_c_compiler_gnu+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
-#line 1518 "configure"
+#line 1517 "configure"
 #include "confdefs.h"
 
 int
@@ -1530,16 +1529,16 @@ main ()
 }
 _ACEOF
 rm -f conftest.$ac_objext
-if { (eval echo "$as_me:1533: \"$ac_compile\"") >&5
+if { (eval echo "$as_me:1532: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
-  echo "$as_me:1536: \$? = $ac_status" >&5
+  echo "$as_me:1535: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:1539: \"$ac_try\"") >&5
+  { (eval echo "$as_me:1538: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:1542: \$? = $ac_status" >&5
+  echo "$as_me:1541: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   ac_compiler_gnu=yes
 else
@@ -1551,19 +1550,19 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 ac_cv_c_compiler_gnu=$ac_compiler_gnu
 
 fi
-echo "$as_me:1554: result: $ac_cv_c_compiler_gnu" >&5
+echo "$as_me:1553: result: $ac_cv_c_compiler_gnu" >&5
 echo "${ECHO_T}$ac_cv_c_compiler_gnu" >&6
 GCC=`test $ac_compiler_gnu = yes && echo yes`
 ac_test_CFLAGS=${CFLAGS+set}
 ac_save_CFLAGS=$CFLAGS
 CFLAGS="-g"
-echo "$as_me:1560: checking whether $CC accepts -g" >&5
+echo "$as_me:1559: checking whether $CC accepts -g" >&5
 echo $ECHO_N "checking whether $CC accepts -g... $ECHO_C" >&6
 if test "${ac_cv_prog_cc_g+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
-#line 1566 "configure"
+#line 1565 "configure"
 #include "confdefs.h"
 
 int
@@ -1575,16 +1574,16 @@ main ()
 }
 _ACEOF
 rm -f conftest.$ac_objext
-if { (eval echo "$as_me:1578: \"$ac_compile\"") >&5
+if { (eval echo "$as_me:1577: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
-  echo "$as_me:1581: \$? = $ac_status" >&5
+  echo "$as_me:1580: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:1584: \"$ac_try\"") >&5
+  { (eval echo "$as_me:1583: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:1587: \$? = $ac_status" >&5
+  echo "$as_me:1586: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   ac_cv_prog_cc_g=yes
 else
@@ -1594,7 +1593,7 @@ ac_cv_prog_cc_g=no
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
 fi
-echo "$as_me:1597: result: $ac_cv_prog_cc_g" >&5
+echo "$as_me:1596: result: $ac_cv_prog_cc_g" >&5
 echo "${ECHO_T}$ac_cv_prog_cc_g" >&6
 if test "$ac_test_CFLAGS" = set; then
   CFLAGS=$ac_save_CFLAGS
@@ -1621,16 +1620,16 @@ cat >conftest.$ac_ext <<_ACEOF
 #endif
 _ACEOF
 rm -f conftest.$ac_objext
-if { (eval echo "$as_me:1624: \"$ac_compile\"") >&5
+if { (eval echo "$as_me:1623: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
-  echo "$as_me:1627: \$? = $ac_status" >&5
+  echo "$as_me:1626: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:1630: \"$ac_try\"") >&5
+  { (eval echo "$as_me:1629: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:1633: \$? = $ac_status" >&5
+  echo "$as_me:1632: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   for ac_declaration in \
    ''\
@@ -1642,7 +1641,7 @@ if { (eval echo "$as_me:1624: \"$ac_compile\"") >&5
    'void exit (int);'
 do
   cat >conftest.$ac_ext <<_ACEOF
-#line 1645 "configure"
+#line 1644 "configure"
 #include "confdefs.h"
 #include <stdlib.h>
 $ac_declaration
@@ -1655,16 +1654,16 @@ exit (42);
 }
 _ACEOF
 rm -f conftest.$ac_objext
-if { (eval echo "$as_me:1658: \"$ac_compile\"") >&5
+if { (eval echo "$as_me:1657: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
-  echo "$as_me:1661: \$? = $ac_status" >&5
+  echo "$as_me:1660: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:1664: \"$ac_try\"") >&5
+  { (eval echo "$as_me:1663: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:1667: \$? = $ac_status" >&5
+  echo "$as_me:1666: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   :
 else
@@ -1674,7 +1673,7 @@ continue
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
   cat >conftest.$ac_ext <<_ACEOF
-#line 1677 "configure"
+#line 1676 "configure"
 #include "confdefs.h"
 $ac_declaration
 int
@@ -1686,16 +1685,16 @@ exit (42);
 }
 _ACEOF
 rm -f conftest.$ac_objext
-if { (eval echo "$as_me:1689: \"$ac_compile\"") >&5
+if { (eval echo "$as_me:1688: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
-  echo "$as_me:1692: \$? = $ac_status" >&5
+  echo "$as_me:1691: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:1695: \"$ac_try\"") >&5
+  { (eval echo "$as_me:1694: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:1698: \$? = $ac_status" >&5
+  echo "$as_me:1697: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   break
 else
@@ -1730,24 +1729,24 @@ fi;
 # Check whether --with-F77 or --without-F77 was given.
 if test "${with_F77+set}" = set; then
   withval="$with_F77"
-  echo "$as_me:1733: result: setting F77 to $withval" >&5
+  echo "$as_me:1732: result: setting F77 to $withval" >&5
 echo "${ECHO_T}setting F77 to $withval" >&6
    F77=$withval
 else
 
    case $ARCH in
       OSF1 | alpha)
-        echo "$as_me:1740: checking for Fortran compiler" >&5
+        echo "$as_me:1739: checking for Fortran compiler" >&5
 echo $ECHO_N "checking for Fortran compiler... $ECHO_C" >&6
         F77=f77
-        echo "$as_me:1743: result: $F77" >&5
+        echo "$as_me:1742: result: $F77" >&5
 echo "${ECHO_T}$F77" >&6
       ;;
       AIX | rs6000)
-        echo "$as_me:1747: checking for Fortran compiler" >&5
+        echo "$as_me:1746: checking for Fortran compiler" >&5
 echo $ECHO_N "checking for Fortran compiler... $ECHO_C" >&6
         F77=xlf
-        echo "$as_me:1750: result: $F77" >&5
+        echo "$as_me:1749: result: $F77" >&5
 echo "${ECHO_T}$F77" >&6
       ;;
       *)
@@ -1760,7 +1759,7 @@ if test -n "$ac_tool_prefix"; then
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
-echo "$as_me:1763: checking for $ac_word" >&5
+echo "$as_me:1762: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_F77+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1775,7 +1774,7 @@ for ac_dir in $ac_dummy; do
   test -z "$ac_dir" && ac_dir=.
   $as_executable_p "$ac_dir/$ac_word" || continue
 ac_cv_prog_F77="$ac_tool_prefix$ac_prog"
-echo "$as_me:1778: found $ac_dir/$ac_word" >&5
+echo "$as_me:1777: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -1783,10 +1782,10 @@ fi
 fi
 F77=$ac_cv_prog_F77
 if test -n "$F77"; then
-  echo "$as_me:1786: result: $F77" >&5
+  echo "$as_me:1785: result: $F77" >&5
 echo "${ECHO_T}$F77" >&6
 else
-  echo "$as_me:1789: result: no" >&5
+  echo "$as_me:1788: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
@@ -1799,7 +1798,7 @@ if test -z "$F77"; then
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
-echo "$as_me:1802: checking for $ac_word" >&5
+echo "$as_me:1801: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_ac_ct_F77+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1814,7 +1813,7 @@ for ac_dir in $ac_dummy; do
   test -z "$ac_dir" && ac_dir=.
   $as_executable_p "$ac_dir/$ac_word" || continue
 ac_cv_prog_ac_ct_F77="$ac_prog"
-echo "$as_me:1817: found $ac_dir/$ac_word" >&5
+echo "$as_me:1816: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -1822,10 +1821,10 @@ fi
 fi
 ac_ct_F77=$ac_cv_prog_ac_ct_F77
 if test -n "$ac_ct_F77"; then
-  echo "$as_me:1825: result: $ac_ct_F77" >&5
+  echo "$as_me:1824: result: $ac_ct_F77" >&5
 echo "${ECHO_T}$ac_ct_F77" >&6
 else
-  echo "$as_me:1828: result: no" >&5
+  echo "$as_me:1827: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
@@ -1836,30 +1835,30 @@ done
 fi
 
 # Provide some information about the compiler.
-echo "$as_me:1839:" \
+echo "$as_me:1838:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
-{ (eval echo "$as_me:1842: \"$ac_compiler --version </dev/null >&5\"") >&5
+{ (eval echo "$as_me:1841: \"$ac_compiler --version </dev/null >&5\"") >&5
   (eval $ac_compiler --version </dev/null >&5) 2>&5
   ac_status=$?
-  echo "$as_me:1845: \$? = $ac_status" >&5
+  echo "$as_me:1844: \$? = $ac_status" >&5
   (exit $ac_status); }
-{ (eval echo "$as_me:1847: \"$ac_compiler -v </dev/null >&5\"") >&5
+{ (eval echo "$as_me:1846: \"$ac_compiler -v </dev/null >&5\"") >&5
   (eval $ac_compiler -v </dev/null >&5) 2>&5
   ac_status=$?
-  echo "$as_me:1850: \$? = $ac_status" >&5
+  echo "$as_me:1849: \$? = $ac_status" >&5
   (exit $ac_status); }
-{ (eval echo "$as_me:1852: \"$ac_compiler -V </dev/null >&5\"") >&5
+{ (eval echo "$as_me:1851: \"$ac_compiler -V </dev/null >&5\"") >&5
   (eval $ac_compiler -V </dev/null >&5) 2>&5
   ac_status=$?
-  echo "$as_me:1855: \$? = $ac_status" >&5
+  echo "$as_me:1854: \$? = $ac_status" >&5
   (exit $ac_status); }
 
 # If we don't use `.F' as extension, the preprocessor is not run on the
 # input file.
 ac_save_ext=$ac_ext
 ac_ext=F
-echo "$as_me:1862: checking whether we are using the GNU Fortran 77 compiler" >&5
+echo "$as_me:1861: checking whether we are using the GNU Fortran 77 compiler" >&5
 echo $ECHO_N "checking whether we are using the GNU Fortran 77 compiler... $ECHO_C" >&6
 if test "${ac_cv_f77_compiler_gnu+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1873,16 +1872,16 @@ else
       end
 _ACEOF
 rm -f conftest.$ac_objext
-if { (eval echo "$as_me:1876: \"$ac_compile\"") >&5
+if { (eval echo "$as_me:1875: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
-  echo "$as_me:1879: \$? = $ac_status" >&5
+  echo "$as_me:1878: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:1882: \"$ac_try\"") >&5
+  { (eval echo "$as_me:1881: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:1885: \$? = $ac_status" >&5
+  echo "$as_me:1884: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   ac_compiler_gnu=yes
 else
@@ -1894,14 +1893,14 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 ac_cv_f77_compiler_gnu=$ac_compiler_gnu
 
 fi
-echo "$as_me:1897: result: $ac_cv_f77_compiler_gnu" >&5
+echo "$as_me:1896: result: $ac_cv_f77_compiler_gnu" >&5
 echo "${ECHO_T}$ac_cv_f77_compiler_gnu" >&6
 ac_ext=$ac_save_ext
 G77=`test $ac_compiler_gnu = yes && echo yes`
 ac_test_FFLAGS=${FFLAGS+set}
 ac_save_FFLAGS=$FFLAGS
 FFLAGS=
-echo "$as_me:1904: checking whether $F77 accepts -g" >&5
+echo "$as_me:1903: checking whether $F77 accepts -g" >&5
 echo $ECHO_N "checking whether $F77 accepts -g... $ECHO_C" >&6
 if test "${ac_cv_prog_f77_g+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -1913,16 +1912,16 @@ cat >conftest.$ac_ext <<_ACEOF
       end
 _ACEOF
 rm -f conftest.$ac_objext
-if { (eval echo "$as_me:1916: \"$ac_compile\"") >&5
+if { (eval echo "$as_me:1915: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
-  echo "$as_me:1919: \$? = $ac_status" >&5
+  echo "$as_me:1918: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:1922: \"$ac_try\"") >&5
+  { (eval echo "$as_me:1921: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:1925: \$? = $ac_status" >&5
+  echo "$as_me:1924: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   ac_cv_prog_f77_g=yes
 else
@@ -1933,7 +1932,7 @@ fi
 rm -f conftest.$ac_objext conftest.$ac_ext
 
 fi
-echo "$as_me:1936: result: $ac_cv_prog_f77_g" >&5
+echo "$as_me:1935: result: $ac_cv_prog_f77_g" >&5
 echo "${ECHO_T}$ac_cv_prog_f77_g" >&6
 if test "$ac_test_FFLAGS" = set; then
   FFLAGS=$ac_save_FFLAGS
@@ -1972,7 +1971,7 @@ fi;
 # Check whether --with-CFLAGS or --without-CFLAGS was given.
 if test "${with_CFLAGS+set}" = set; then
   withval="$with_CFLAGS"
-  echo "$as_me:1975: result: setting CFLAGS to $withval" >&5
+  echo "$as_me:1974: result: setting CFLAGS to $withval" >&5
 echo "${ECHO_T}setting CFLAGS to $withval" >&6
    CFLAGS=$withval
 else
@@ -1998,9 +1997,9 @@ case $ARCH in
    ;;
 esac
 
-echo "$as_me:2001: checking for C compiler flags" >&5
+echo "$as_me:2000: checking for C compiler flags" >&5
 echo $ECHO_N "checking for C compiler flags... $ECHO_C" >&6
-echo "$as_me:2003: result: $CFLAGS" >&5
+echo "$as_me:2002: result: $CFLAGS" >&5
 echo "${ECHO_T}$CFLAGS" >&6
 
 fi;
@@ -2008,7 +2007,7 @@ fi;
 # Check whether --with-FFLAGS or --without-FFLAGS was given.
 if test "${with_FFLAGS+set}" = set; then
   withval="$with_FFLAGS"
-  echo "$as_me:2011: result: setting FFLAGS to $withval" >&5
+  echo "$as_me:2010: result: setting FFLAGS to $withval" >&5
 echo "${ECHO_T}setting FFLAGS to $withval" >&6
    FFLAGS=$withval
 else
@@ -2025,9 +2024,9 @@ case $debug in
    ;;
 esac
 
-echo "$as_me:2028: checking for Fortran compiler flags" >&5
+echo "$as_me:2027: checking for Fortran compiler flags" >&5
 echo $ECHO_N "checking for Fortran compiler flags... $ECHO_C" >&6
-echo "$as_me:2030: result: $FFLAGS" >&5
+echo "$as_me:2029: result: $FFLAGS" >&5
 echo "${ECHO_T}$FFLAGS" >&6
 
 fi;
@@ -2040,7 +2039,7 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
-echo "$as_me:2043: checking how to run the C preprocessor" >&5
+echo "$as_me:2042: checking how to run the C preprocessor" >&5
 echo $ECHO_N "checking how to run the C preprocessor... $ECHO_C" >&6
 # On Suns, sometimes $CPP names a directory.
 if test -n "$CPP" && test -d "$CPP"; then
@@ -2061,18 +2060,18 @@ do
   # On the NeXT, cc -E runs the code through the compiler's parser,
   # not just through cpp. "Syntax error" is here to catch this case.
   cat >conftest.$ac_ext <<_ACEOF
-#line 2064 "configure"
+#line 2063 "configure"
 #include "confdefs.h"
 #include <assert.h>
                      Syntax error
 _ACEOF
-if { (eval echo "$as_me:2069: \"$ac_cpp conftest.$ac_ext\"") >&5
+if { (eval echo "$as_me:2068: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
   ac_status=$?
   egrep -v '^ *\+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&5
-  echo "$as_me:2075: \$? = $ac_status" >&5
+  echo "$as_me:2074: \$? = $ac_status" >&5
   (exit $ac_status); } >/dev/null; then
   if test -s conftest.err; then
     ac_cpp_err=$ac_c_preproc_warn_flag
@@ -2095,17 +2094,17 @@ rm -f conftest.err conftest.$ac_ext
   # OK, works on sane cases.  Now check whether non-existent headers
   # can be detected and how.
   cat >conftest.$ac_ext <<_ACEOF
-#line 2098 "configure"
+#line 2097 "configure"
 #include "confdefs.h"
 #include <ac_nonexistent.h>
 _ACEOF
-if { (eval echo "$as_me:2102: \"$ac_cpp conftest.$ac_ext\"") >&5
+if { (eval echo "$as_me:2101: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
   ac_status=$?
   egrep -v '^ *\+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&5
-  echo "$as_me:2108: \$? = $ac_status" >&5
+  echo "$as_me:2107: \$? = $ac_status" >&5
   (exit $ac_status); } >/dev/null; then
   if test -s conftest.err; then
     ac_cpp_err=$ac_c_preproc_warn_flag
@@ -2142,7 +2141,7 @@ fi
 else
   ac_cv_prog_CPP=$CPP
 fi
-echo "$as_me:2145: result: $CPP" >&5
+echo "$as_me:2144: result: $CPP" >&5
 echo "${ECHO_T}$CPP" >&6
 ac_preproc_ok=false
 for ac_c_preproc_warn_flag in '' yes
@@ -2152,18 +2151,18 @@ do
   # On the NeXT, cc -E runs the code through the compiler's parser,
   # not just through cpp. "Syntax error" is here to catch this case.
   cat >conftest.$ac_ext <<_ACEOF
-#line 2155 "configure"
+#line 2154 "configure"
 #include "confdefs.h"
 #include <assert.h>
                      Syntax error
 _ACEOF
-if { (eval echo "$as_me:2160: \"$ac_cpp conftest.$ac_ext\"") >&5
+if { (eval echo "$as_me:2159: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
   ac_status=$?
   egrep -v '^ *\+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&5
-  echo "$as_me:2166: \$? = $ac_status" >&5
+  echo "$as_me:2165: \$? = $ac_status" >&5
   (exit $ac_status); } >/dev/null; then
   if test -s conftest.err; then
     ac_cpp_err=$ac_c_preproc_warn_flag
@@ -2186,17 +2185,17 @@ rm -f conftest.err conftest.$ac_ext
   # OK, works on sane cases.  Now check whether non-existent headers
   # can be detected and how.
   cat >conftest.$ac_ext <<_ACEOF
-#line 2189 "configure"
+#line 2188 "configure"
 #include "confdefs.h"
 #include <ac_nonexistent.h>
 _ACEOF
-if { (eval echo "$as_me:2193: \"$ac_cpp conftest.$ac_ext\"") >&5
+if { (eval echo "$as_me:2192: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
   ac_status=$?
   egrep -v '^ *\+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&5
-  echo "$as_me:2199: \$? = $ac_status" >&5
+  echo "$as_me:2198: \$? = $ac_status" >&5
   (exit $ac_status); } >/dev/null; then
   if test -s conftest.err; then
     ac_cpp_err=$ac_c_preproc_warn_flag
@@ -2224,7 +2223,7 @@ rm -f conftest.err conftest.$ac_ext
 if $ac_preproc_ok; then
   :
 else
-  { { echo "$as_me:2227: error: C preprocessor \"$CPP\" fails sanity check" >&5
+  { { echo "$as_me:2226: error: C preprocessor \"$CPP\" fails sanity check" >&5
 echo "$as_me: error: C preprocessor \"$CPP\" fails sanity check" >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -2236,2865 +2235,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 case $ARCH in
-  AIX | rs6000)
-
-   casc_find_mpi_cache_used=yes
-
-   if test "${casc_cv_mpi_include+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "${casc_cv_mpi_libs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "${casc_cv_mpi_lib_dirs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "${casc_cv_mpi_flags+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "$casc_find_mpi_cache_used" = "yes"; then
-      echo "$as_me:2268: checking for location of mpi.h" >&5
-echo $ECHO_N "checking for location of mpi.h... $ECHO_C" >&6
-      MPIINCLUDE=$casc_cv_mpi_include
-      echo "$as_me:2271: result: \"\(cached\) $MPIINCLUDE\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPIINCLUDE\"" >&6
-
-      echo "$as_me:2274: checking for MPI library directories" >&5
-echo $ECHO_N "checking for MPI library directories... $ECHO_C" >&6
-      MPILIBDIRS=$casc_cv_mpi_lib_dirs
-      echo "$as_me:2277: result: \"\(cached\) $MPILIBDIRS\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPILIBDIRS\"" >&6
-
-      echo "$as_me:2280: checking for MPI libraries" >&5
-echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
-      MPILIBS=$casc_cv_mpi_libs
-      echo "$as_me:2283: result: \"\(cached\) $MPILIBS\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPILIBS\"" >&6
-
-      echo "$as_me:2286: checking for other MPI-related flags" >&5
-echo $ECHO_N "checking for other MPI-related flags... $ECHO_C" >&6
-      MPIFLAGS=$casc_cv_mpi_flags
-      echo "$as_me:2289: result: \"\(cached\) $MPIFLAGS\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPIFLAGS\"" >&6
-   else
-
-      casc_user_chose_mpi=no
-
-# Check whether --with-mpi-include or --without-mpi-include was given.
-if test "${with_mpi_include+set}" = set; then
-  withval="$with_mpi_include"
-  for mpi_dir in $withval; do
-                     MPIINCLUDE="$MPIINCLUDE -I$withval"
-                  done; casc_user_chose_mpi=yes
-fi;
-
-# Check whether --with-mpi-libs or --without-mpi-libs was given.
-if test "${with_mpi_libs+set}" = set; then
-  withval="$with_mpi_libs"
-  for mpi_lib in $withval; do
-                     MPILIBS="$MPILIBS -l$mpi_lib"
-                  done; casc_user_chose_mpi=yes
-fi;
-
-# Check whether --with-mpi-lib-dirs or --without-mpi-lib-dirs was given.
-if test "${with_mpi_lib_dirs+set}" = set; then
-  withval="$with_mpi_lib_dirs"
-  for mpi_lib_dir in $withval; do
-                     MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
-                  done; casc_user_chose_mpi=yes
-fi;
-
-# Check whether --with-mpi-flags or --without-mpi-flags was given.
-if test "${with_mpi_flags+set}" = set; then
-  withval="$with_mpi_flags"
-  MPIFLAGS=$withval
-fi;
-
-      if test "$casc_user_chose_mpi" = "no"; then
-
-# Check whether --with-MPICC or --without-MPICC was given.
-if test "${with_MPICC+set}" = set; then
-  withval="$with_MPICC"
-  MPICC=$withval
-else
-  for ac_prog in mpcc mpicc tmcc hcc
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-echo "$as_me:2336: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_MPICC+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$MPICC"; then
-  ac_cv_prog_MPICC="$MPICC" # Let the user override the test.
-else
-  ac_save_IFS=$IFS; IFS=$ac_path_separator
-ac_dummy="$PATH"
-for ac_dir in $ac_dummy; do
-  IFS=$ac_save_IFS
-  test -z "$ac_dir" && ac_dir=.
-  $as_executable_p "$ac_dir/$ac_word" || continue
-ac_cv_prog_MPICC="$ac_prog"
-echo "$as_me:2351: found $ac_dir/$ac_word" >&5
-break
-done
-
-fi
-fi
-MPICC=$ac_cv_prog_MPICC
-if test -n "$MPICC"; then
-  echo "$as_me:2359: result: $MPICC" >&5
-echo "${ECHO_T}$MPICC" >&6
-else
-  echo "$as_me:2362: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-  test -n "$MPICC" && break
-done
-
-fi;
-
-         if test -z "$MPICC"; then
-            { echo "$as_me:2372: WARNING: no acceptable mpicc found in \$PATH" >&5
-echo "$as_me: WARNING: no acceptable mpicc found in \$PATH" >&2;}
-
-# Check whether --with-mpi-include or --without-mpi-include was given.
-if test "${with_mpi_include+set}" = set; then
-  withval="$with_mpi_include"
-  casc_mpi_include_dir=$withval
-fi;
-
-# Check whether --with-mpi-libs or --without-mpi-libs was given.
-if test "${with_mpi_libs+set}" = set; then
-  withval="$with_mpi_libs"
-  casc_mpi_libs=$withval
-fi;
-
-# Check whether --with-mpi-lib-dirs or --without-mpi-lib-dirs was given.
-if test "${with_mpi_lib_dirs+set}" = set; then
-  withval="$with_mpi_lib_dirs"
-  casc_mpi_lib_dirs=$withval
-fi;
-
-   if test -z "$casc_mpi_libs"; then
-
-            case $ARCH in
-
-         sun4 | solaris)
-            case $F77 in
-               *g77)
-                   if test -z "$casc_mpi_include_dir"; then
-                      casc_mpi_include_dir=/usr/local/mpi/lam/h
-                   fi
-
-                   if test -z "$casc_mpi_lib_dirs"; then
-                      casc_mpi_lib_dirs="/usr/local/mpi/lam/lib"
-                   fi
-
-                   casc_mpi_libs="socket mpi trillium args tstdio t";;
-
-               *)
-
-                  if test -z "$casc_mpi_include_dir"; then
-                     MPIINCLUDE="-I/usr/local/mpi/mpich/include \
-                                 -I/usr/local/mpi/mpich/lib/solaris/ch_p4"
-                  fi
-
-                  if test -z "$casc_mpi_lib_dirs"; then
-                     casc_mpi_lib_dirs="/usr/local/mpi/mpich/lib/solaris/ch_p4 \
-                                       /usr/lib"
-                  fi
-
-               casc_mpi_libs="nsl socket mpi";;
-               esac
-
-            if test -z "$MPIINCLUDE"; then
-               as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:2427: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 2433 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:2437: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:2443: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:2462: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            fi
-         ;;
-
-         alpha)
-            if test -z "$casc_mpi_include_dir"; then
-               casc_mpi_include_dir=/usr/local/mpi/include
-            fi
-            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:2476: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 2482 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:2486: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:2492: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:2511: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            if test -z "$casc_mpi_lib_dirs"; then
-               casc_mpi_lib_dirs="/usr/local/mpi/lib/alpha/ch_shmem \
-                                  /usr/local/lib"
-            fi
-
-            casc_mpi_libs="mpich gs";;
-
-         rs6000)
-
-            casc_mpi_libs=mpi
-
-            MPIFLAGS="-binitfini:poe_remote_main";;
-
-         IRIX64 | iris4d)
-            if test -z "$casc_mpi_include_dir"; then
-               casc_mpi_include_dir=/usr/local/mpi/include
-            fi
-            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:2535: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 2541 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:2545: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:2551: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:2570: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            if test -z "$casc_mpi_lib_dirs"; then
-               casc_mpi_lib_dirs=/usr/local/mpi/lib/IRIX64/ch_p4
-            fi
-
-            casc_mpi_libs=mpi;;
-
-         *)
-{ echo "$as_me:2583: WARNING: trying naive MPI settings - can use --with flags to change" >&5
-echo "$as_me: WARNING: trying naive MPI settings - can use --with flags to change" >&2;}
-            if test -z "$casc_mpi_include_dir"; then
-               casc_mpi_include_dir=/usr/local/mpi/include
-            fi
-            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:2589: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 2595 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:2599: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:2605: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:2624: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            if test -z "$casc_mpi_lib_dirs"; then
-               casc_mpi_lib_dirs=/usr/local/mpi/lib
-            fi
-            casc_mpi_libs=mpi ;;
-      esac
-
-      for casc_lib in $casc_mpi_libs; do
-
-   # define some macros to hopefully improve readability
-
-   # check for the library from first argument.  If linking is successful
-   # the first time, the job is done, otherwise loop through DIRECTORY-LIST
-   as_ac_Lib=`echo "ac_cv_lib_$casc_lib''_main" | $as_tr_sh`
-echo "$as_me:2643: checking for main in -l$casc_lib" >&5
-echo $ECHO_N "checking for main in -l$casc_lib... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Lib+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-l$casc_lib $MPILIBDIRS $MPILIBS $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-#line 2651 "configure"
-#include "confdefs.h"
-
-int
-main ()
-{
-main ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:2663: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:2666: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:2669: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:2672: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  eval "$as_ac_Lib=yes"
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-eval "$as_ac_Lib=no"
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:2683: result: `eval echo '${'$as_ac_Lib'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
-if test `eval echo '${'$as_ac_Lib'}'` = yes; then
-  MPILIBS="$MPILIBS -l$casc_lib"
-                          casc_lib_found=yes
-
-else
-        for casc_lib_dir in $casc_mpi_lib_dirs; do
-
-         as_ac_Lib=`echo "ac_cv_lib_$casc_lib''_main" | $as_tr_sh`
-echo "$as_me:2693: checking for main in -l$casc_lib" >&5
-echo $ECHO_N "checking for main in -l$casc_lib... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Lib+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-l$casc_lib -L$casc_lib_dir $MPILIBDIRS $MPILIBS -l$casc_lib $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-#line 2701 "configure"
-#include "confdefs.h"
-
-int
-main ()
-{
-main ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:2713: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:2716: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:2719: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:2722: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  eval "$as_ac_Lib=yes"
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-eval "$as_ac_Lib=no"
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:2733: result: `eval echo '${'$as_ac_Lib'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
-if test `eval echo '${'$as_ac_Lib'}'` = yes; then
-  MPILIBDIRS="-L$casc_lib_dir $MPILIBDIRS"
-            MPILIBS="$MPILIBS -l$casc_lib"
-            casc_lib_found=yes
-
-            break
-
-fi
-
-      done
-
-fi
-
-   # ACTION-IF-NOT_FOUND for when the library is found nowhere
-
-   unset casc_lib_found
-
-      done
-
-   else
-      if test -n "$casc_mpi_include_dir"; then
-         MPIINCLUDE="-I$casc_mpi_include_dir"
-      else
-         MPIINCLUDE=
-      fi
-
-      if test -n "$casc_mpi_lib_dirs"; then
-         for casc_lib_dir in $casc_mpi_lib_dirs; do
-            MPILIBDIRS="-L$casc_lib_dir $MPILIBDIRS"
-         done
-      else
-         MPILIBDIRS=
-      fi
-
-      for casc_lib in $casc_mpi_libs; do
-         MPILIBS="$MPILIBS -l$casc_lib"
-      done
-   fi
-
-            if test -z "$MPILIBS"; then
-             { echo "$as_me:2775: WARNING: MPI not found - must set manually using --with flags" >&5
-echo "$as_me: WARNING: MPI not found - must set manually using --with flags" >&2;}
-            fi
-
-         else
-
-                                    cat > mpconftest.c << EOF
-#include "mpi.h"
-
-main(int argc, char **argv)
-{
-   int rank, size;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-   return 0;
-}
-EOF
-
-            casc_mplibs=
-            casc_mplibdirs=
-            casc_flags=
-            casc_lmpi_exists=no
-
-            for casc_command in "$MPICC -show"\
-                                "$MPICC -v"\
-                                "$MPICC -#"\
-                                "$MPICC"; do
-
-               casc_this_output=`$casc_command mpconftest.c -o mpconftest 2>&1`
-
-                              xlc_p=`echo $casc_this_output | grep xlcentry`
-               if test -n "$xlc_p"; then
-                  casc_this_output=`echo $casc_this_output | sed 's/,/ /g'`
-               fi
-
-                              lmpi_p=`echo $casc_this_output | grep "\-lmpi"`
-               if test -n "$lmpi_p"; then
-                  casc_lmpi_exists=yes
-               fi
-
-               casc_mpoutput="$casc_mpoutput $casc_this_output"
-               casc_this_output=
-
-            done
-
-            rm -rf mpconftest*
-
-                        echo "main() {}" > cc_conftest.c
-            cc_output=`${CC-cc} -v -o cc_conftest cc_conftest.c 2>&1`
-            xlc_p=`echo $cc_output | grep xlcentry`
-            if test -n "$xlc_p"; then
-               casc_compiler_is_xlc=yes
-            fi
-            rm -rf cc_conftest*
-
-                                    if test "$casc_lmpi_exists" = "no"; then
-               casc_mplibs="-lmpi"
-            else
-               casc_mplibs=
-            fi
-
-            casc_want_arg=
-
-            for casc_arg in $casc_mpoutput; do
-
-               casc_old_want_arg=$casc_want_arg
-               casc_want_arg=
-
-               if test -n "$casc_old_want_arg"; then
-                  case "$casc_arg" in
-                  -*)
-                     casc_old_want_arg=
-                  ;;
-                  esac
-               fi
-
-               case "$casc_old_want_arg" in
-               '')
-                  case $casc_arg in
-                  /*.a)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  -binitfini:poe_remote_main)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  -lang*)
-                     casc_arg=
-                  ;;
-                  -[lLR])
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -[lLR]*)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                       casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                 -u)
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -Y)
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -I)
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -I*)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  *)
-                     casc_arg=
-                  ;;
-                  esac
-
-               ;;
-               -[lLRI])
-                  casc_arg="casc_old_want_arg $casc_arg"
-               ;;
-               -u)
-                  casc_arg="-u $casc_arg"
-               ;;
-               -Y)
-                  casc_arg=`echo $casc_arg | sed -e 's%^P,%%'`
-                  SAVE_IFS=$IFS
-                  IFS=:
-                  casc_list=
-                  for casc_elt in $casc_arg; do
-                     casc_list="$casc_list -L$casc_elt"
-                  done
-                  IFS=$SAVE_IFS
-                  casc_arg="$casc_list"
-               ;;
-               esac
-
-                                             if test -n "$casc_arg"; then
-                  case $casc_arg in
-                  -I*)
-
-                                                               if test -z "$MPIINCLUDE"; then
-                        casc_cppflags="$casc_cppflags $casc_arg"
-                        casc_include_dir=`echo "$casc_arg" | sed 's/-I//g'`
-
-                        SAVE_CPPFLAGS="$CPPFLAGS"
-                        CPPFLAGS="$casc_cppflags"
-
-                        unset ac_cv_header_mpi_h
-                        echo "$as_me:2964: checking for mpi.h" >&5
-echo $ECHO_N "checking for mpi.h... $ECHO_C" >&6
-if test "${ac_cv_header_mpi_h+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 2970 "configure"
-#include "confdefs.h"
-#include <mpi.h>
-_ACEOF
-if { (eval echo "$as_me:2974: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:2980: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  ac_cv_header_mpi_h=yes
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  ac_cv_header_mpi_h=no
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:2999: result: $ac_cv_header_mpi_h" >&5
-echo "${ECHO_T}$ac_cv_header_mpi_h" >&6
-if test $ac_cv_header_mpi_h = yes; then
-  MPIINCLUDE="$casc_cppflags"
-fi
-
-                                                CPPFLAGS="$SAVE_CPPFLAGS"
-
-                     else
-                        casc_arg=
-                     fi
-                  ;;
-                  -[LR]*)
-
-                                          casc_mplibdirs="$casc_mplibdirs $casc_arg"
-                  ;;
-                  -l* | /*)
-
-                                          casc_mplibs="$casc_mplibs $casc_arg"
-                  ;;
-                  -binitfini:poe_remote_main)
-                     if test "$casc_compiler_is_xlc" = "yes"; then
-                        casc_mpflags="$casc_mpflags $casc_arg"
-                     fi
-                  ;;
-                  *)
-                                          casc_mpflags="$casc_mpflags $casc_arg"
-                  ;;
-                  esac
-
-                                                      LIBS_SAVE=$LIBS
-                  LIBS="$MPIINCLUDE $casc_mpflags $casc_mplibdirs $casc_mplibs"
-
-                  if test -n "`echo $LIBS | grep '\-R/'`"; then
-                     LIBS=`echo $LIBS | sed 's/-R\//-R \//'`
-                  fi
-
-                                                                        ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  cat >conftest.$ac_ext <<_ACEOF
-#line 3043 "configure"
-#include "confdefs.h"
-
-#include "mpi.h"
-
-int
-main ()
-{
-int rank, size;
-   int argc;
-   char **argv;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:3064: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:3067: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:3070: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:3073: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  casc_result=yes
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-                  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  LIBS=$LIBS_SAVE
-
-                  if test "$casc_result" = yes; then
-                     casc_result=
-                     break
-                  fi
-               fi
-            done
-
-                        MPILIBS=$casc_mplibs
-            MPILIBDIRS=$casc_mplibdirs
-            MPIFLAGS="$MPIFLAGS $casc_mpflags"
-
-            if test -n "`echo $MPILIBS | grep pmpich`" &&
-               test -z "`echo $MPILIBS | grep pthread`"; then
-                  LIBS_SAVE=$LIBS
-                  LIBS="$MPIINCLUDE $MPIFLAGS $MPILIBDIRS $MPILIBS -lpthread"
-                  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  cat >conftest.$ac_ext <<_ACEOF
-#line 3111 "configure"
-#include "confdefs.h"
-
-#include "mpi.h"
-
-int
-main ()
-{
-int rank, size;
-   int argc;
-   char **argv;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:3132: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:3135: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:3138: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:3141: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  MPILIBS="$MPILIBS -lpthread"
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-                  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  LIBS=$LIBS_SAVE
-            fi
-
-            echo "$as_me:3158: checking for MPI include directories" >&5
-echo $ECHO_N "checking for MPI include directories... $ECHO_C" >&6
-            echo "$as_me:3160: result: $MPIINCLUDE" >&5
-echo "${ECHO_T}$MPIINCLUDE" >&6
-            echo "$as_me:3162: checking for MPI library directories" >&5
-echo $ECHO_N "checking for MPI library directories... $ECHO_C" >&6
-            echo "$as_me:3164: result: $MPILIBDIRS" >&5
-echo "${ECHO_T}$MPILIBDIRS" >&6
-            echo "$as_me:3166: checking for MPI libraries" >&5
-echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
-            echo "$as_me:3168: result: $MPILIBS" >&5
-echo "${ECHO_T}$MPILIBS" >&6
-            echo "$as_me:3170: checking for other MPI-related flags" >&5
-echo $ECHO_N "checking for other MPI-related flags... $ECHO_C" >&6
-            echo "$as_me:3172: result: $MPIFLAGS" >&5
-echo "${ECHO_T}$MPIFLAGS" >&6
-         fi
-      fi
-
-      if test "${casc_cv_mpi_include+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_include=$MPIINCLUDE
-fi
-
-      if test "${casc_cv_mpi_lib_dirs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_lib_dirs=$MPILIBDIRS
-fi
-
-      if test "${casc_cv_mpi_libs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_libs=$MPILIBS
-fi
-
-      if test "${casc_cv_mpi_flags+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_flags=$MPIFLAGS
-fi
-
-   fi
-
-  ;;
-  sun4 | solaris)
-
-   casc_find_mpi_cache_used=yes
-
-   if test "${casc_cv_mpi_include+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "${casc_cv_mpi_libs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "${casc_cv_mpi_lib_dirs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "${casc_cv_mpi_flags+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "$casc_find_mpi_cache_used" = "yes"; then
-      echo "$as_me:3233: checking for location of mpi.h" >&5
-echo $ECHO_N "checking for location of mpi.h... $ECHO_C" >&6
-      MPIINCLUDE=$casc_cv_mpi_include
-      echo "$as_me:3236: result: \"\(cached\) $MPIINCLUDE\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPIINCLUDE\"" >&6
-
-      echo "$as_me:3239: checking for MPI library directories" >&5
-echo $ECHO_N "checking for MPI library directories... $ECHO_C" >&6
-      MPILIBDIRS=$casc_cv_mpi_lib_dirs
-      echo "$as_me:3242: result: \"\(cached\) $MPILIBDIRS\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPILIBDIRS\"" >&6
-
-      echo "$as_me:3245: checking for MPI libraries" >&5
-echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
-      MPILIBS=$casc_cv_mpi_libs
-      echo "$as_me:3248: result: \"\(cached\) $MPILIBS\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPILIBS\"" >&6
-
-      echo "$as_me:3251: checking for other MPI-related flags" >&5
-echo $ECHO_N "checking for other MPI-related flags... $ECHO_C" >&6
-      MPIFLAGS=$casc_cv_mpi_flags
-      echo "$as_me:3254: result: \"\(cached\) $MPIFLAGS\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPIFLAGS\"" >&6
-   else
-
-      casc_user_chose_mpi=no
-
-# Check whether --with-mpi-include or --without-mpi-include was given.
-if test "${with_mpi_include+set}" = set; then
-  withval="$with_mpi_include"
-  for mpi_dir in $withval; do
-                     MPIINCLUDE="$MPIINCLUDE -I$withval"
-                  done; casc_user_chose_mpi=yes
-fi;
-
-# Check whether --with-mpi-libs or --without-mpi-libs was given.
-if test "${with_mpi_libs+set}" = set; then
-  withval="$with_mpi_libs"
-  for mpi_lib in $withval; do
-                     MPILIBS="$MPILIBS -l$mpi_lib"
-                  done; casc_user_chose_mpi=yes
-fi;
-
-# Check whether --with-mpi-lib-dirs or --without-mpi-lib-dirs was given.
-if test "${with_mpi_lib_dirs+set}" = set; then
-  withval="$with_mpi_lib_dirs"
-  for mpi_lib_dir in $withval; do
-                     MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
-                  done; casc_user_chose_mpi=yes
-fi;
-
-# Check whether --with-mpi-flags or --without-mpi-flags was given.
-if test "${with_mpi_flags+set}" = set; then
-  withval="$with_mpi_flags"
-  MPIFLAGS=$withval
-fi;
-
-      if test "$casc_user_chose_mpi" = "no"; then
-
-# Check whether --with-MPICC or --without-MPICC was given.
-if test "${with_MPICC+set}" = set; then
-  withval="$with_MPICC"
-  MPICC=$withval
-else
-  for ac_prog in mpcc mpicc tmcc hcc
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-echo "$as_me:3301: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_MPICC+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$MPICC"; then
-  ac_cv_prog_MPICC="$MPICC" # Let the user override the test.
-else
-  ac_save_IFS=$IFS; IFS=$ac_path_separator
-ac_dummy="$PATH"
-for ac_dir in $ac_dummy; do
-  IFS=$ac_save_IFS
-  test -z "$ac_dir" && ac_dir=.
-  $as_executable_p "$ac_dir/$ac_word" || continue
-ac_cv_prog_MPICC="$ac_prog"
-echo "$as_me:3316: found $ac_dir/$ac_word" >&5
-break
-done
-
-fi
-fi
-MPICC=$ac_cv_prog_MPICC
-if test -n "$MPICC"; then
-  echo "$as_me:3324: result: $MPICC" >&5
-echo "${ECHO_T}$MPICC" >&6
-else
-  echo "$as_me:3327: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-  test -n "$MPICC" && break
-done
-
-fi;
-
-         if test -z "$MPICC"; then
-            { echo "$as_me:3337: WARNING: no acceptable mpicc found in \$PATH" >&5
-echo "$as_me: WARNING: no acceptable mpicc found in \$PATH" >&2;}
-
-   if test -z "$casc_mpi_libs"; then
-
-            case $ARCH in
-
-         sun4 | solaris)
-            case $F77 in
-               *g77)
-                   if test -z "$casc_mpi_include_dir"; then
-                      casc_mpi_include_dir=/usr/local/mpi/lam/h
-                   fi
-
-                   if test -z "$casc_mpi_lib_dirs"; then
-                      casc_mpi_lib_dirs="/usr/local/mpi/lam/lib"
-                   fi
-
-                   casc_mpi_libs="socket mpi trillium args tstdio t";;
-
-               *)
-
-                  if test -z "$casc_mpi_include_dir"; then
-                     MPIINCLUDE="-I/usr/local/mpi/mpich/include \
-                                 -I/usr/local/mpi/mpich/lib/solaris/ch_p4"
-                  fi
-
-                  if test -z "$casc_mpi_lib_dirs"; then
-                     casc_mpi_lib_dirs="/usr/local/mpi/mpich/lib/solaris/ch_p4 \
-                                       /usr/lib"
-                  fi
-
-               casc_mpi_libs="nsl socket mpi";;
-               esac
-
-            if test -z "$MPIINCLUDE"; then
-               as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:3374: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 3380 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:3384: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:3390: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:3409: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            fi
-         ;;
-
-         alpha)
-            if test -z "$casc_mpi_include_dir"; then
-               casc_mpi_include_dir=/usr/local/mpi/include
-            fi
-            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:3423: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 3429 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:3433: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:3439: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:3458: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            if test -z "$casc_mpi_lib_dirs"; then
-               casc_mpi_lib_dirs="/usr/local/mpi/lib/alpha/ch_shmem \
-                                  /usr/local/lib"
-            fi
-
-            casc_mpi_libs="mpich gs";;
-
-         rs6000)
-
-            casc_mpi_libs=mpi
-
-            MPIFLAGS="-binitfini:poe_remote_main";;
-
-         IRIX64 | iris4d)
-            if test -z "$casc_mpi_include_dir"; then
-               casc_mpi_include_dir=/usr/local/mpi/include
-            fi
-            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:3482: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 3488 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:3492: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:3498: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:3517: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            if test -z "$casc_mpi_lib_dirs"; then
-               casc_mpi_lib_dirs=/usr/local/mpi/lib/IRIX64/ch_p4
-            fi
-
-            casc_mpi_libs=mpi;;
-
-         *)
-{ echo "$as_me:3530: WARNING: trying naive MPI settings - can use --with flags to change" >&5
-echo "$as_me: WARNING: trying naive MPI settings - can use --with flags to change" >&2;}
-            if test -z "$casc_mpi_include_dir"; then
-               casc_mpi_include_dir=/usr/local/mpi/include
-            fi
-            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:3536: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 3542 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:3546: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:3552: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:3571: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            if test -z "$casc_mpi_lib_dirs"; then
-               casc_mpi_lib_dirs=/usr/local/mpi/lib
-            fi
-            casc_mpi_libs=mpi ;;
-      esac
-
-      for casc_lib in $casc_mpi_libs; do
-
-   # define some macros to hopefully improve readability
-
-   # check for the library from first argument.  If linking is successful
-   # the first time, the job is done, otherwise loop through DIRECTORY-LIST
-   as_ac_Lib=`echo "ac_cv_lib_$casc_lib''_main" | $as_tr_sh`
-echo "$as_me:3590: checking for main in -l$casc_lib" >&5
-echo $ECHO_N "checking for main in -l$casc_lib... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Lib+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-l$casc_lib $MPILIBDIRS $MPILIBS $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-#line 3598 "configure"
-#include "confdefs.h"
-
-int
-main ()
-{
-main ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:3610: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:3613: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:3616: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:3619: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  eval "$as_ac_Lib=yes"
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-eval "$as_ac_Lib=no"
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:3630: result: `eval echo '${'$as_ac_Lib'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
-if test `eval echo '${'$as_ac_Lib'}'` = yes; then
-  MPILIBS="$MPILIBS -l$casc_lib"
-                          casc_lib_found=yes
-
-else
-        for casc_lib_dir in $casc_mpi_lib_dirs; do
-
-         as_ac_Lib=`echo "ac_cv_lib_$casc_lib''_main" | $as_tr_sh`
-echo "$as_me:3640: checking for main in -l$casc_lib" >&5
-echo $ECHO_N "checking for main in -l$casc_lib... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Lib+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-l$casc_lib -L$casc_lib_dir $MPILIBDIRS $MPILIBS -l$casc_lib $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-#line 3648 "configure"
-#include "confdefs.h"
-
-int
-main ()
-{
-main ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:3660: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:3663: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:3666: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:3669: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  eval "$as_ac_Lib=yes"
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-eval "$as_ac_Lib=no"
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:3680: result: `eval echo '${'$as_ac_Lib'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
-if test `eval echo '${'$as_ac_Lib'}'` = yes; then
-  MPILIBDIRS="-L$casc_lib_dir $MPILIBDIRS"
-            MPILIBS="$MPILIBS -l$casc_lib"
-            casc_lib_found=yes
-
-            break
-
-fi
-
-      done
-
-fi
-
-   # ACTION-IF-NOT_FOUND for when the library is found nowhere
-
-   unset casc_lib_found
-
-      done
-
-   else
-      if test -n "$casc_mpi_include_dir"; then
-         MPIINCLUDE="-I$casc_mpi_include_dir"
-      else
-         MPIINCLUDE=
-      fi
-
-      if test -n "$casc_mpi_lib_dirs"; then
-         for casc_lib_dir in $casc_mpi_lib_dirs; do
-            MPILIBDIRS="-L$casc_lib_dir $MPILIBDIRS"
-         done
-      else
-         MPILIBDIRS=
-      fi
-
-      for casc_lib in $casc_mpi_libs; do
-         MPILIBS="$MPILIBS -l$casc_lib"
-      done
-   fi
-
-            if test -z "$MPILIBS"; then
-             { echo "$as_me:3722: WARNING: MPI not found - must set manually using --with flags" >&5
-echo "$as_me: WARNING: MPI not found - must set manually using --with flags" >&2;}
-            fi
-
-         else
-
-                                    cat > mpconftest.c << EOF
-#include "mpi.h"
-
-main(int argc, char **argv)
-{
-   int rank, size;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-   return 0;
-}
-EOF
-
-            casc_mplibs=
-            casc_mplibdirs=
-            casc_flags=
-            casc_lmpi_exists=no
-
-            for casc_command in "$MPICC -show"\
-                                "$MPICC -v"\
-                                "$MPICC -#"\
-                                "$MPICC"; do
-
-               casc_this_output=`$casc_command mpconftest.c -o mpconftest 2>&1`
-
-                              xlc_p=`echo $casc_this_output | grep xlcentry`
-               if test -n "$xlc_p"; then
-                  casc_this_output=`echo $casc_this_output | sed 's/,/ /g'`
-               fi
-
-                              lmpi_p=`echo $casc_this_output | grep "\-lmpi"`
-               if test -n "$lmpi_p"; then
-                  casc_lmpi_exists=yes
-               fi
-
-               casc_mpoutput="$casc_mpoutput $casc_this_output"
-               casc_this_output=
-
-            done
-
-            rm -rf mpconftest*
-
-                        echo "main() {}" > cc_conftest.c
-            cc_output=`${CC-cc} -v -o cc_conftest cc_conftest.c 2>&1`
-            xlc_p=`echo $cc_output | grep xlcentry`
-            if test -n "$xlc_p"; then
-               casc_compiler_is_xlc=yes
-            fi
-            rm -rf cc_conftest*
-
-                                    if test "$casc_lmpi_exists" = "no"; then
-               casc_mplibs="-lmpi"
-            else
-               casc_mplibs=
-            fi
-
-            casc_want_arg=
-
-            for casc_arg in $casc_mpoutput; do
-
-               casc_old_want_arg=$casc_want_arg
-               casc_want_arg=
-
-               if test -n "$casc_old_want_arg"; then
-                  case "$casc_arg" in
-                  -*)
-                     casc_old_want_arg=
-                  ;;
-                  esac
-               fi
-
-               case "$casc_old_want_arg" in
-               '')
-                  case $casc_arg in
-                  /*.a)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  -binitfini:poe_remote_main)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  -lang*)
-                     casc_arg=
-                  ;;
-                  -[lLR])
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -[lLR]*)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                       casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                 -u)
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -Y)
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -I)
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -I*)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  *)
-                     casc_arg=
-                  ;;
-                  esac
-
-               ;;
-               -[lLRI])
-                  casc_arg="casc_old_want_arg $casc_arg"
-               ;;
-               -u)
-                  casc_arg="-u $casc_arg"
-               ;;
-               -Y)
-                  casc_arg=`echo $casc_arg | sed -e 's%^P,%%'`
-                  SAVE_IFS=$IFS
-                  IFS=:
-                  casc_list=
-                  for casc_elt in $casc_arg; do
-                     casc_list="$casc_list -L$casc_elt"
-                  done
-                  IFS=$SAVE_IFS
-                  casc_arg="$casc_list"
-               ;;
-               esac
-
-                                             if test -n "$casc_arg"; then
-                  case $casc_arg in
-                  -I*)
-
-                                                               if test -z "$MPIINCLUDE"; then
-                        casc_cppflags="$casc_cppflags $casc_arg"
-                        casc_include_dir=`echo "$casc_arg" | sed 's/-I//g'`
-
-                        SAVE_CPPFLAGS="$CPPFLAGS"
-                        CPPFLAGS="$casc_cppflags"
-
-                        unset ac_cv_header_mpi_h
-                        echo "$as_me:3911: checking for mpi.h" >&5
-echo $ECHO_N "checking for mpi.h... $ECHO_C" >&6
-if test "${ac_cv_header_mpi_h+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 3917 "configure"
-#include "confdefs.h"
-#include <mpi.h>
-_ACEOF
-if { (eval echo "$as_me:3921: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:3927: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  ac_cv_header_mpi_h=yes
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  ac_cv_header_mpi_h=no
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:3946: result: $ac_cv_header_mpi_h" >&5
-echo "${ECHO_T}$ac_cv_header_mpi_h" >&6
-if test $ac_cv_header_mpi_h = yes; then
-  MPIINCLUDE="$casc_cppflags"
-fi
-
-                                                CPPFLAGS="$SAVE_CPPFLAGS"
-
-                     else
-                        casc_arg=
-                     fi
-                  ;;
-                  -[LR]*)
-
-                                          casc_mplibdirs="$casc_mplibdirs $casc_arg"
-                  ;;
-                  -l* | /*)
-
-                                          casc_mplibs="$casc_mplibs $casc_arg"
-                  ;;
-                  -binitfini:poe_remote_main)
-                     if test "$casc_compiler_is_xlc" = "yes"; then
-                        casc_mpflags="$casc_mpflags $casc_arg"
-                     fi
-                  ;;
-                  *)
-                                          casc_mpflags="$casc_mpflags $casc_arg"
-                  ;;
-                  esac
-
-                                                      LIBS_SAVE=$LIBS
-                  LIBS="$MPIINCLUDE $casc_mpflags $casc_mplibdirs $casc_mplibs"
-
-                  if test -n "`echo $LIBS | grep '\-R/'`"; then
-                     LIBS=`echo $LIBS | sed 's/-R\//-R \//'`
-                  fi
-
-                                                                        ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  cat >conftest.$ac_ext <<_ACEOF
-#line 3990 "configure"
-#include "confdefs.h"
-
-#include "mpi.h"
-
-int
-main ()
-{
-int rank, size;
-   int argc;
-   char **argv;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:4011: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:4014: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:4017: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:4020: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  casc_result=yes
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-                  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  LIBS=$LIBS_SAVE
-
-                  if test "$casc_result" = yes; then
-                     casc_result=
-                     break
-                  fi
-               fi
-            done
-
-                        MPILIBS=$casc_mplibs
-            MPILIBDIRS=$casc_mplibdirs
-            MPIFLAGS="$MPIFLAGS $casc_mpflags"
-
-            if test -n "`echo $MPILIBS | grep pmpich`" &&
-               test -z "`echo $MPILIBS | grep pthread`"; then
-                  LIBS_SAVE=$LIBS
-                  LIBS="$MPIINCLUDE $MPIFLAGS $MPILIBDIRS $MPILIBS -lpthread"
-                  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  cat >conftest.$ac_ext <<_ACEOF
-#line 4058 "configure"
-#include "confdefs.h"
-
-#include "mpi.h"
-
-int
-main ()
-{
-int rank, size;
-   int argc;
-   char **argv;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:4079: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:4082: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:4085: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:4088: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  MPILIBS="$MPILIBS -lpthread"
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-                  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  LIBS=$LIBS_SAVE
-            fi
-
-            echo "$as_me:4105: checking for MPI include directories" >&5
-echo $ECHO_N "checking for MPI include directories... $ECHO_C" >&6
-            echo "$as_me:4107: result: $MPIINCLUDE" >&5
-echo "${ECHO_T}$MPIINCLUDE" >&6
-            echo "$as_me:4109: checking for MPI library directories" >&5
-echo $ECHO_N "checking for MPI library directories... $ECHO_C" >&6
-            echo "$as_me:4111: result: $MPILIBDIRS" >&5
-echo "${ECHO_T}$MPILIBDIRS" >&6
-            echo "$as_me:4113: checking for MPI libraries" >&5
-echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
-            echo "$as_me:4115: result: $MPILIBS" >&5
-echo "${ECHO_T}$MPILIBS" >&6
-            echo "$as_me:4117: checking for other MPI-related flags" >&5
-echo $ECHO_N "checking for other MPI-related flags... $ECHO_C" >&6
-            echo "$as_me:4119: result: $MPIFLAGS" >&5
-echo "${ECHO_T}$MPIFLAGS" >&6
-         fi
-      fi
-
-      if test "${casc_cv_mpi_include+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_include=$MPIINCLUDE
-fi
-
-      if test "${casc_cv_mpi_lib_dirs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_lib_dirs=$MPILIBDIRS
-fi
-
-      if test "${casc_cv_mpi_libs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_libs=$MPILIBS
-fi
-
-      if test "${casc_cv_mpi_flags+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_flags=$MPIFLAGS
-fi
-
-   fi
-
-  ;;
-  LINUX)
-
-   casc_find_mpi_cache_used=yes
-
-   if test "${casc_cv_mpi_include+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "${casc_cv_mpi_libs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "${casc_cv_mpi_lib_dirs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "${casc_cv_mpi_flags+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_find_mpi_cache_used=no
-fi
-
-   if test "$casc_find_mpi_cache_used" = "yes"; then
-      echo "$as_me:4180: checking for location of mpi.h" >&5
-echo $ECHO_N "checking for location of mpi.h... $ECHO_C" >&6
-      MPIINCLUDE=$casc_cv_mpi_include
-      echo "$as_me:4183: result: \"\(cached\) $MPIINCLUDE\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPIINCLUDE\"" >&6
-
-      echo "$as_me:4186: checking for MPI library directories" >&5
-echo $ECHO_N "checking for MPI library directories... $ECHO_C" >&6
-      MPILIBDIRS=$casc_cv_mpi_lib_dirs
-      echo "$as_me:4189: result: \"\(cached\) $MPILIBDIRS\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPILIBDIRS\"" >&6
-
-      echo "$as_me:4192: checking for MPI libraries" >&5
-echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
-      MPILIBS=$casc_cv_mpi_libs
-      echo "$as_me:4195: result: \"\(cached\) $MPILIBS\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPILIBS\"" >&6
-
-      echo "$as_me:4198: checking for other MPI-related flags" >&5
-echo $ECHO_N "checking for other MPI-related flags... $ECHO_C" >&6
-      MPIFLAGS=$casc_cv_mpi_flags
-      echo "$as_me:4201: result: \"\(cached\) $MPIFLAGS\"" >&5
-echo "${ECHO_T}\"\(cached\) $MPIFLAGS\"" >&6
-   else
-
-      casc_user_chose_mpi=no
-
-# Check whether --with-mpi-include or --without-mpi-include was given.
-if test "${with_mpi_include+set}" = set; then
-  withval="$with_mpi_include"
-  for mpi_dir in $withval; do
-                     MPIINCLUDE="$MPIINCLUDE -I$withval"
-                  done; casc_user_chose_mpi=yes
-fi;
-
-# Check whether --with-mpi-libs or --without-mpi-libs was given.
-if test "${with_mpi_libs+set}" = set; then
-  withval="$with_mpi_libs"
-  for mpi_lib in $withval; do
-                     MPILIBS="$MPILIBS -l$mpi_lib"
-                  done; casc_user_chose_mpi=yes
-fi;
-
-# Check whether --with-mpi-lib-dirs or --without-mpi-lib-dirs was given.
-if test "${with_mpi_lib_dirs+set}" = set; then
-  withval="$with_mpi_lib_dirs"
-  for mpi_lib_dir in $withval; do
-                     MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
-                  done; casc_user_chose_mpi=yes
-fi;
-
-# Check whether --with-mpi-flags or --without-mpi-flags was given.
-if test "${with_mpi_flags+set}" = set; then
-  withval="$with_mpi_flags"
-  MPIFLAGS=$withval
-fi;
-
-      if test "$casc_user_chose_mpi" = "no"; then
-
-# Check whether --with-MPICC or --without-MPICC was given.
-if test "${with_MPICC+set}" = set; then
-  withval="$with_MPICC"
-  MPICC=$withval
-else
-  for ac_prog in mpcc mpicc tmcc hcc
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-echo "$as_me:4248: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_MPICC+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$MPICC"; then
-  ac_cv_prog_MPICC="$MPICC" # Let the user override the test.
-else
-  ac_save_IFS=$IFS; IFS=$ac_path_separator
-ac_dummy="$PATH"
-for ac_dir in $ac_dummy; do
-  IFS=$ac_save_IFS
-  test -z "$ac_dir" && ac_dir=.
-  $as_executable_p "$ac_dir/$ac_word" || continue
-ac_cv_prog_MPICC="$ac_prog"
-echo "$as_me:4263: found $ac_dir/$ac_word" >&5
-break
-done
-
-fi
-fi
-MPICC=$ac_cv_prog_MPICC
-if test -n "$MPICC"; then
-  echo "$as_me:4271: result: $MPICC" >&5
-echo "${ECHO_T}$MPICC" >&6
-else
-  echo "$as_me:4274: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-  test -n "$MPICC" && break
-done
-
-fi;
-
-         if test -z "$MPICC"; then
-            { echo "$as_me:4284: WARNING: no acceptable mpicc found in \$PATH" >&5
-echo "$as_me: WARNING: no acceptable mpicc found in \$PATH" >&2;}
-
-   if test -z "$casc_mpi_libs"; then
-
-            case $ARCH in
-
-         sun4 | solaris)
-            case $F77 in
-               *g77)
-                   if test -z "$casc_mpi_include_dir"; then
-                      casc_mpi_include_dir=/usr/local/mpi/lam/h
-                   fi
-
-                   if test -z "$casc_mpi_lib_dirs"; then
-                      casc_mpi_lib_dirs="/usr/local/mpi/lam/lib"
-                   fi
-
-                   casc_mpi_libs="socket mpi trillium args tstdio t";;
-
-               *)
-
-                  if test -z "$casc_mpi_include_dir"; then
-                     MPIINCLUDE="-I/usr/local/mpi/mpich/include \
-                                 -I/usr/local/mpi/mpich/lib/solaris/ch_p4"
-                  fi
-
-                  if test -z "$casc_mpi_lib_dirs"; then
-                     casc_mpi_lib_dirs="/usr/local/mpi/mpich/lib/solaris/ch_p4 \
-                                       /usr/lib"
-                  fi
-
-               casc_mpi_libs="nsl socket mpi";;
-               esac
-
-            if test -z "$MPIINCLUDE"; then
-               as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:4321: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 4327 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:4331: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:4337: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:4356: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            fi
-         ;;
-
-         alpha)
-            if test -z "$casc_mpi_include_dir"; then
-               casc_mpi_include_dir=/usr/local/mpi/include
-            fi
-            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:4370: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 4376 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:4380: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:4386: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:4405: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            if test -z "$casc_mpi_lib_dirs"; then
-               casc_mpi_lib_dirs="/usr/local/mpi/lib/alpha/ch_shmem \
-                                  /usr/local/lib"
-            fi
-
-            casc_mpi_libs="mpich gs";;
-
-         rs6000)
-
-            casc_mpi_libs=mpi
-
-            MPIFLAGS="-binitfini:poe_remote_main";;
-
-         IRIX64 | iris4d)
-            if test -z "$casc_mpi_include_dir"; then
-               casc_mpi_include_dir=/usr/local/mpi/include
-            fi
-            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:4429: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 4435 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:4439: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:4445: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:4464: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            if test -z "$casc_mpi_lib_dirs"; then
-               casc_mpi_lib_dirs=/usr/local/mpi/lib/IRIX64/ch_p4
-            fi
-
-            casc_mpi_libs=mpi;;
-
-         *)
-{ echo "$as_me:4477: WARNING: trying naive MPI settings - can use --with flags to change" >&5
-echo "$as_me: WARNING: trying naive MPI settings - can use --with flags to change" >&2;}
-            if test -z "$casc_mpi_include_dir"; then
-               casc_mpi_include_dir=/usr/local/mpi/include
-            fi
-            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:4483: checking for $casc_mpi_include_dir/mpi.h" >&5
-echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 4489 "configure"
-#include "confdefs.h"
-#include <$casc_mpi_include_dir/mpi.h>
-_ACEOF
-if { (eval echo "$as_me:4493: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:4499: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:4518: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  MPIINCLUDE="-I$casc_mpi_include_dir"
-fi
-
-            if test -z "$casc_mpi_lib_dirs"; then
-               casc_mpi_lib_dirs=/usr/local/mpi/lib
-            fi
-            casc_mpi_libs=mpi ;;
-      esac
-
-      for casc_lib in $casc_mpi_libs; do
-
-   # define some macros to hopefully improve readability
-
-   # check for the library from first argument.  If linking is successful
-   # the first time, the job is done, otherwise loop through DIRECTORY-LIST
-   as_ac_Lib=`echo "ac_cv_lib_$casc_lib''_main" | $as_tr_sh`
-echo "$as_me:4537: checking for main in -l$casc_lib" >&5
-echo $ECHO_N "checking for main in -l$casc_lib... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Lib+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-l$casc_lib $MPILIBDIRS $MPILIBS $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-#line 4545 "configure"
-#include "confdefs.h"
-
-int
-main ()
-{
-main ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:4557: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:4560: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:4563: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:4566: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  eval "$as_ac_Lib=yes"
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-eval "$as_ac_Lib=no"
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:4577: result: `eval echo '${'$as_ac_Lib'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
-if test `eval echo '${'$as_ac_Lib'}'` = yes; then
-  MPILIBS="$MPILIBS -l$casc_lib"
-                          casc_lib_found=yes
-
-else
-        for casc_lib_dir in $casc_mpi_lib_dirs; do
-
-         as_ac_Lib=`echo "ac_cv_lib_$casc_lib''_main" | $as_tr_sh`
-echo "$as_me:4587: checking for main in -l$casc_lib" >&5
-echo $ECHO_N "checking for main in -l$casc_lib... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Lib+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-l$casc_lib -L$casc_lib_dir $MPILIBDIRS $MPILIBS -l$casc_lib $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-#line 4595 "configure"
-#include "confdefs.h"
-
-int
-main ()
-{
-main ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:4607: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:4610: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:4613: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:4616: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  eval "$as_ac_Lib=yes"
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-eval "$as_ac_Lib=no"
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:4627: result: `eval echo '${'$as_ac_Lib'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
-if test `eval echo '${'$as_ac_Lib'}'` = yes; then
-  MPILIBDIRS="-L$casc_lib_dir $MPILIBDIRS"
-            MPILIBS="$MPILIBS -l$casc_lib"
-            casc_lib_found=yes
-
-            break
-
-fi
-
-      done
-
-fi
-
-   # ACTION-IF-NOT_FOUND for when the library is found nowhere
-
-   unset casc_lib_found
-
-      done
-
-   else
-      if test -n "$casc_mpi_include_dir"; then
-         MPIINCLUDE="-I$casc_mpi_include_dir"
-      else
-         MPIINCLUDE=
-      fi
-
-      if test -n "$casc_mpi_lib_dirs"; then
-         for casc_lib_dir in $casc_mpi_lib_dirs; do
-            MPILIBDIRS="-L$casc_lib_dir $MPILIBDIRS"
-         done
-      else
-         MPILIBDIRS=
-      fi
-
-      for casc_lib in $casc_mpi_libs; do
-         MPILIBS="$MPILIBS -l$casc_lib"
-      done
-   fi
-
-            if test -z "$MPILIBS"; then
-             { echo "$as_me:4669: WARNING: MPI not found - must set manually using --with flags" >&5
-echo "$as_me: WARNING: MPI not found - must set manually using --with flags" >&2;}
-            fi
-
-         else
-
-                                    cat > mpconftest.c << EOF
-#include "mpi.h"
-
-main(int argc, char **argv)
-{
-   int rank, size;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-   return 0;
-}
-EOF
-
-            casc_mplibs=
-            casc_mplibdirs=
-            casc_flags=
-            casc_lmpi_exists=no
-
-            for casc_command in "$MPICC -show"\
-                                "$MPICC -v"\
-                                "$MPICC -#"\
-                                "$MPICC"; do
-
-               casc_this_output=`$casc_command mpconftest.c -o mpconftest 2>&1`
-
-                              xlc_p=`echo $casc_this_output | grep xlcentry`
-               if test -n "$xlc_p"; then
-                  casc_this_output=`echo $casc_this_output | sed 's/,/ /g'`
-               fi
-
-                              lmpi_p=`echo $casc_this_output | grep "\-lmpi"`
-               if test -n "$lmpi_p"; then
-                  casc_lmpi_exists=yes
-               fi
-
-               casc_mpoutput="$casc_mpoutput $casc_this_output"
-               casc_this_output=
-
-            done
-
-            rm -rf mpconftest*
-
-                        echo "main() {}" > cc_conftest.c
-            cc_output=`${CC-cc} -v -o cc_conftest cc_conftest.c 2>&1`
-            xlc_p=`echo $cc_output | grep xlcentry`
-            if test -n "$xlc_p"; then
-               casc_compiler_is_xlc=yes
-            fi
-            rm -rf cc_conftest*
-
-                                    if test "$casc_lmpi_exists" = "no"; then
-               casc_mplibs="-lmpi"
-            else
-               casc_mplibs=
-            fi
-
-            casc_want_arg=
-
-            for casc_arg in $casc_mpoutput; do
-
-               casc_old_want_arg=$casc_want_arg
-               casc_want_arg=
-
-               if test -n "$casc_old_want_arg"; then
-                  case "$casc_arg" in
-                  -*)
-                     casc_old_want_arg=
-                  ;;
-                  esac
-               fi
-
-               case "$casc_old_want_arg" in
-               '')
-                  case $casc_arg in
-                  /*.a)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  -binitfini:poe_remote_main)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  -lang*)
-                     casc_arg=
-                  ;;
-                  -[lLR])
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -[lLR]*)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                       casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                 -u)
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -Y)
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -I)
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  -I*)
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  *)
-                     casc_arg=
-                  ;;
-                  esac
-
-               ;;
-               -[lLRI])
-                  casc_arg="casc_old_want_arg $casc_arg"
-               ;;
-               -u)
-                  casc_arg="-u $casc_arg"
-               ;;
-               -Y)
-                  casc_arg=`echo $casc_arg | sed -e 's%^P,%%'`
-                  SAVE_IFS=$IFS
-                  IFS=:
-                  casc_list=
-                  for casc_elt in $casc_arg; do
-                     casc_list="$casc_list -L$casc_elt"
-                  done
-                  IFS=$SAVE_IFS
-                  casc_arg="$casc_list"
-               ;;
-               esac
-
-                                             if test -n "$casc_arg"; then
-                  case $casc_arg in
-                  -I*)
-
-                                                               if test -z "$MPIINCLUDE"; then
-                        casc_cppflags="$casc_cppflags $casc_arg"
-                        casc_include_dir=`echo "$casc_arg" | sed 's/-I//g'`
-
-                        SAVE_CPPFLAGS="$CPPFLAGS"
-                        CPPFLAGS="$casc_cppflags"
-
-                        unset ac_cv_header_mpi_h
-                        echo "$as_me:4858: checking for mpi.h" >&5
-echo $ECHO_N "checking for mpi.h... $ECHO_C" >&6
-if test "${ac_cv_header_mpi_h+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line 4864 "configure"
-#include "confdefs.h"
-#include <mpi.h>
-_ACEOF
-if { (eval echo "$as_me:4868: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:4874: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  ac_cv_header_mpi_h=yes
-else
-  echo "$as_me: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  ac_cv_header_mpi_h=no
-fi
-rm -f conftest.err conftest.$ac_ext
-fi
-echo "$as_me:4893: result: $ac_cv_header_mpi_h" >&5
-echo "${ECHO_T}$ac_cv_header_mpi_h" >&6
-if test $ac_cv_header_mpi_h = yes; then
-  MPIINCLUDE="$casc_cppflags"
-fi
-
-                                                CPPFLAGS="$SAVE_CPPFLAGS"
-
-                     else
-                        casc_arg=
-                     fi
-                  ;;
-                  -[LR]*)
-
-                                          casc_mplibdirs="$casc_mplibdirs $casc_arg"
-                  ;;
-                  -l* | /*)
-
-                                          casc_mplibs="$casc_mplibs $casc_arg"
-                  ;;
-                  -binitfini:poe_remote_main)
-                     if test "$casc_compiler_is_xlc" = "yes"; then
-                        casc_mpflags="$casc_mpflags $casc_arg"
-                     fi
-                  ;;
-                  *)
-                                          casc_mpflags="$casc_mpflags $casc_arg"
-                  ;;
-                  esac
-
-                                                      LIBS_SAVE=$LIBS
-                  LIBS="$MPIINCLUDE $casc_mpflags $casc_mplibdirs $casc_mplibs"
-
-                  if test -n "`echo $LIBS | grep '\-R/'`"; then
-                     LIBS=`echo $LIBS | sed 's/-R\//-R \//'`
-                  fi
-
-                                                                        ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  cat >conftest.$ac_ext <<_ACEOF
-#line 4937 "configure"
-#include "confdefs.h"
-
-#include "mpi.h"
-
-int
-main ()
-{
-int rank, size;
-   int argc;
-   char **argv;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:4958: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:4961: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:4964: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:4967: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  casc_result=yes
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-                  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  LIBS=$LIBS_SAVE
-
-                  if test "$casc_result" = yes; then
-                     casc_result=
-                     break
-                  fi
-               fi
-            done
-
-                        MPILIBS=$casc_mplibs
-            MPILIBDIRS=$casc_mplibdirs
-            MPIFLAGS="$MPIFLAGS $casc_mpflags"
-
-            if test -n "`echo $MPILIBS | grep pmpich`" &&
-               test -z "`echo $MPILIBS | grep pthread`"; then
-                  LIBS_SAVE=$LIBS
-                  LIBS="$MPIINCLUDE $MPIFLAGS $MPILIBDIRS $MPILIBS -lpthread"
-                  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  cat >conftest.$ac_ext <<_ACEOF
-#line 5005 "configure"
-#include "confdefs.h"
-
-#include "mpi.h"
-
-int
-main ()
-{
-int rank, size;
-   int argc;
-   char **argv;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:5026: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:5029: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:5032: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:5035: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  MPILIBS="$MPILIBS -lpthread"
-else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-                  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-                  LIBS=$LIBS_SAVE
-            fi
-
-            echo "$as_me:5052: checking for MPI include directories" >&5
-echo $ECHO_N "checking for MPI include directories... $ECHO_C" >&6
-            echo "$as_me:5054: result: $MPIINCLUDE" >&5
-echo "${ECHO_T}$MPIINCLUDE" >&6
-            echo "$as_me:5056: checking for MPI library directories" >&5
-echo $ECHO_N "checking for MPI library directories... $ECHO_C" >&6
-            echo "$as_me:5058: result: $MPILIBDIRS" >&5
-echo "${ECHO_T}$MPILIBDIRS" >&6
-            echo "$as_me:5060: checking for MPI libraries" >&5
-echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
-            echo "$as_me:5062: result: $MPILIBS" >&5
-echo "${ECHO_T}$MPILIBS" >&6
-            echo "$as_me:5064: checking for other MPI-related flags" >&5
-echo $ECHO_N "checking for other MPI-related flags... $ECHO_C" >&6
-            echo "$as_me:5066: result: $MPIFLAGS" >&5
-echo "${ECHO_T}$MPIFLAGS" >&6
-         fi
-      fi
-
-      if test "${casc_cv_mpi_include+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_include=$MPIINCLUDE
-fi
-
-      if test "${casc_cv_mpi_lib_dirs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_lib_dirs=$MPILIBDIRS
-fi
-
-      if test "${casc_cv_mpi_libs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_libs=$MPILIBS
-fi
-
-      if test "${casc_cv_mpi_flags+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  casc_cv_mpi_flags=$MPIFLAGS
-fi
-
-   fi
-
-  ;;
   OSF1 | alpha)
 
    casc_find_mpi_cache_used=yes
@@ -5124,28 +2264,28 @@ else
 fi
 
    if test "$casc_find_mpi_cache_used" = "yes"; then
-      echo "$as_me:5127: checking for location of mpi.h" >&5
+      echo "$as_me:2267: checking for location of mpi.h" >&5
 echo $ECHO_N "checking for location of mpi.h... $ECHO_C" >&6
       MPIINCLUDE=$casc_cv_mpi_include
-      echo "$as_me:5130: result: \"\(cached\) $MPIINCLUDE\"" >&5
+      echo "$as_me:2270: result: \"\(cached\) $MPIINCLUDE\"" >&5
 echo "${ECHO_T}\"\(cached\) $MPIINCLUDE\"" >&6
 
-      echo "$as_me:5133: checking for MPI library directories" >&5
+      echo "$as_me:2273: checking for MPI library directories" >&5
 echo $ECHO_N "checking for MPI library directories... $ECHO_C" >&6
       MPILIBDIRS=$casc_cv_mpi_lib_dirs
-      echo "$as_me:5136: result: \"\(cached\) $MPILIBDIRS\"" >&5
+      echo "$as_me:2276: result: \"\(cached\) $MPILIBDIRS\"" >&5
 echo "${ECHO_T}\"\(cached\) $MPILIBDIRS\"" >&6
 
-      echo "$as_me:5139: checking for MPI libraries" >&5
+      echo "$as_me:2279: checking for MPI libraries" >&5
 echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
       MPILIBS=$casc_cv_mpi_libs
-      echo "$as_me:5142: result: \"\(cached\) $MPILIBS\"" >&5
+      echo "$as_me:2282: result: \"\(cached\) $MPILIBS\"" >&5
 echo "${ECHO_T}\"\(cached\) $MPILIBS\"" >&6
 
-      echo "$as_me:5145: checking for other MPI-related flags" >&5
+      echo "$as_me:2285: checking for other MPI-related flags" >&5
 echo $ECHO_N "checking for other MPI-related flags... $ECHO_C" >&6
       MPIFLAGS=$casc_cv_mpi_flags
-      echo "$as_me:5148: result: \"\(cached\) $MPIFLAGS\"" >&5
+      echo "$as_me:2288: result: \"\(cached\) $MPIFLAGS\"" >&5
 echo "${ECHO_T}\"\(cached\) $MPIFLAGS\"" >&6
    else
 
@@ -5155,24 +2295,24 @@ echo "${ECHO_T}\"\(cached\) $MPIFLAGS\"" >&6
 if test "${with_mpi_include+set}" = set; then
   withval="$with_mpi_include"
   for mpi_dir in $withval; do
-                     MPIINCLUDE="$MPIINCLUDE -I$withval"
-                  done; casc_user_chose_mpi=yes
+         MPIINCLUDE="$MPIINCLUDE -I$withval"
+      done; casc_user_chose_mpi=yes
 fi;
 
 # Check whether --with-mpi-libs or --without-mpi-libs was given.
 if test "${with_mpi_libs+set}" = set; then
   withval="$with_mpi_libs"
   for mpi_lib in $withval; do
-                     MPILIBS="$MPILIBS -l$mpi_lib"
-                  done; casc_user_chose_mpi=yes
+         MPILIBS="$MPILIBS -l$mpi_lib"
+      done; casc_user_chose_mpi=yes
 fi;
 
 # Check whether --with-mpi-lib-dirs or --without-mpi-lib-dirs was given.
 if test "${with_mpi_lib_dirs+set}" = set; then
   withval="$with_mpi_lib_dirs"
   for mpi_lib_dir in $withval; do
-                     MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
-                  done; casc_user_chose_mpi=yes
+         MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
+      done; casc_user_chose_mpi=yes
 fi;
 
 # Check whether --with-mpi-flags or --without-mpi-flags was given.
@@ -5192,7 +2332,7 @@ else
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
-echo "$as_me:5195: checking for $ac_word" >&5
+echo "$as_me:2335: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_MPICC+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -5207,7 +2347,7 @@ for ac_dir in $ac_dummy; do
   test -z "$ac_dir" && ac_dir=.
   $as_executable_p "$ac_dir/$ac_word" || continue
 ac_cv_prog_MPICC="$ac_prog"
-echo "$as_me:5210: found $ac_dir/$ac_word" >&5
+echo "$as_me:2350: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -5215,10 +2355,10 @@ fi
 fi
 MPICC=$ac_cv_prog_MPICC
 if test -n "$MPICC"; then
-  echo "$as_me:5218: result: $MPICC" >&5
+  echo "$as_me:2358: result: $MPICC" >&5
 echo "${ECHO_T}$MPICC" >&6
 else
-  echo "$as_me:5221: result: no" >&5
+  echo "$as_me:2361: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
@@ -5228,8 +2368,38 @@ done
 fi;
 
          if test -z "$MPICC"; then
-            { echo "$as_me:5231: WARNING: no acceptable mpicc found in \$PATH" >&5
+            { echo "$as_me:2371: WARNING: no acceptable mpicc found in \$PATH" >&5
 echo "$as_me: WARNING: no acceptable mpicc found in \$PATH" >&2;}
+
+# Check whether --with-mpi-include or --without-mpi-include was given.
+if test "${with_mpi_include+set}" = set; then
+  withval="$with_mpi_include"
+  for mpi_dir in $withval; do
+         MPIINCLUDE="$MPIINCLUDE -I$withval"
+      done; casc_user_chose_mpi=yes
+fi;
+
+# Check whether --with-mpi-libs or --without-mpi-libs was given.
+if test "${with_mpi_libs+set}" = set; then
+  withval="$with_mpi_libs"
+  for mpi_lib in $withval; do
+         MPILIBS="$MPILIBS -l$mpi_lib"
+      done; casc_user_chose_mpi=yes
+fi;
+
+# Check whether --with-mpi-lib-dirs or --without-mpi-lib-dirs was given.
+if test "${with_mpi_lib_dirs+set}" = set; then
+  withval="$with_mpi_lib_dirs"
+  for mpi_lib_dir in $withval; do
+         MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
+      done; casc_user_chose_mpi=yes
+fi;
+
+# Check whether --with-mpi-flags or --without-mpi-flags was given.
+if test "${with_mpi_flags+set}" = set; then
+  withval="$with_mpi_flags"
+  MPIFLAGS=$withval
+fi;
 
    if test -z "$casc_mpi_libs"; then
 
@@ -5265,23 +2435,23 @@ echo "$as_me: WARNING: no acceptable mpicc found in \$PATH" >&2;}
 
             if test -z "$MPIINCLUDE"; then
                as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:5268: checking for $casc_mpi_include_dir/mpi.h" >&5
+echo "$as_me:2438: checking for $casc_mpi_include_dir/mpi.h" >&5
 echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
-#line 5274 "configure"
+#line 2444 "configure"
 #include "confdefs.h"
 #include <$casc_mpi_include_dir/mpi.h>
 _ACEOF
-if { (eval echo "$as_me:5278: \"$ac_cpp conftest.$ac_ext\"") >&5
+if { (eval echo "$as_me:2448: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
   ac_status=$?
   egrep -v '^ *\+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&5
-  echo "$as_me:5284: \$? = $ac_status" >&5
+  echo "$as_me:2454: \$? = $ac_status" >&5
   (exit $ac_status); } >/dev/null; then
   if test -s conftest.err; then
     ac_cpp_err=$ac_c_preproc_warn_flag
@@ -5300,7 +2470,7 @@ else
 fi
 rm -f conftest.err conftest.$ac_ext
 fi
-echo "$as_me:5303: result: `eval echo '${'$as_ac_Header'}'`" >&5
+echo "$as_me:2473: result: `eval echo '${'$as_ac_Header'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
 if test `eval echo '${'$as_ac_Header'}'` = yes; then
   MPIINCLUDE="-I$casc_mpi_include_dir"
@@ -5314,23 +2484,23 @@ fi
                casc_mpi_include_dir=/usr/local/mpi/include
             fi
             as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:5317: checking for $casc_mpi_include_dir/mpi.h" >&5
+echo "$as_me:2487: checking for $casc_mpi_include_dir/mpi.h" >&5
 echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
-#line 5323 "configure"
+#line 2493 "configure"
 #include "confdefs.h"
 #include <$casc_mpi_include_dir/mpi.h>
 _ACEOF
-if { (eval echo "$as_me:5327: \"$ac_cpp conftest.$ac_ext\"") >&5
+if { (eval echo "$as_me:2497: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
   ac_status=$?
   egrep -v '^ *\+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&5
-  echo "$as_me:5333: \$? = $ac_status" >&5
+  echo "$as_me:2503: \$? = $ac_status" >&5
   (exit $ac_status); } >/dev/null; then
   if test -s conftest.err; then
     ac_cpp_err=$ac_c_preproc_warn_flag
@@ -5349,7 +2519,7 @@ else
 fi
 rm -f conftest.err conftest.$ac_ext
 fi
-echo "$as_me:5352: result: `eval echo '${'$as_ac_Header'}'`" >&5
+echo "$as_me:2522: result: `eval echo '${'$as_ac_Header'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
 if test `eval echo '${'$as_ac_Header'}'` = yes; then
   MPIINCLUDE="-I$casc_mpi_include_dir"
@@ -5373,23 +2543,23 @@ fi
                casc_mpi_include_dir=/usr/local/mpi/include
             fi
             as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:5376: checking for $casc_mpi_include_dir/mpi.h" >&5
+echo "$as_me:2546: checking for $casc_mpi_include_dir/mpi.h" >&5
 echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
-#line 5382 "configure"
+#line 2552 "configure"
 #include "confdefs.h"
 #include <$casc_mpi_include_dir/mpi.h>
 _ACEOF
-if { (eval echo "$as_me:5386: \"$ac_cpp conftest.$ac_ext\"") >&5
+if { (eval echo "$as_me:2556: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
   ac_status=$?
   egrep -v '^ *\+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&5
-  echo "$as_me:5392: \$? = $ac_status" >&5
+  echo "$as_me:2562: \$? = $ac_status" >&5
   (exit $ac_status); } >/dev/null; then
   if test -s conftest.err; then
     ac_cpp_err=$ac_c_preproc_warn_flag
@@ -5408,7 +2578,7 @@ else
 fi
 rm -f conftest.err conftest.$ac_ext
 fi
-echo "$as_me:5411: result: `eval echo '${'$as_ac_Header'}'`" >&5
+echo "$as_me:2581: result: `eval echo '${'$as_ac_Header'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
 if test `eval echo '${'$as_ac_Header'}'` = yes; then
   MPIINCLUDE="-I$casc_mpi_include_dir"
@@ -5421,29 +2591,29 @@ fi
             casc_mpi_libs=mpi;;
 
          *)
-{ echo "$as_me:5424: WARNING: trying naive MPI settings - can use --with flags to change" >&5
+{ echo "$as_me:2594: WARNING: trying naive MPI settings - can use --with flags to change" >&5
 echo "$as_me: WARNING: trying naive MPI settings - can use --with flags to change" >&2;}
             if test -z "$casc_mpi_include_dir"; then
                casc_mpi_include_dir=/usr/local/mpi/include
             fi
             as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
-echo "$as_me:5430: checking for $casc_mpi_include_dir/mpi.h" >&5
+echo "$as_me:2600: checking for $casc_mpi_include_dir/mpi.h" >&5
 echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
-#line 5436 "configure"
+#line 2606 "configure"
 #include "confdefs.h"
 #include <$casc_mpi_include_dir/mpi.h>
 _ACEOF
-if { (eval echo "$as_me:5440: \"$ac_cpp conftest.$ac_ext\"") >&5
+if { (eval echo "$as_me:2610: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
   ac_status=$?
   egrep -v '^ *\+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&5
-  echo "$as_me:5446: \$? = $ac_status" >&5
+  echo "$as_me:2616: \$? = $ac_status" >&5
   (exit $ac_status); } >/dev/null; then
   if test -s conftest.err; then
     ac_cpp_err=$ac_c_preproc_warn_flag
@@ -5462,7 +2632,7 @@ else
 fi
 rm -f conftest.err conftest.$ac_ext
 fi
-echo "$as_me:5465: result: `eval echo '${'$as_ac_Header'}'`" >&5
+echo "$as_me:2635: result: `eval echo '${'$as_ac_Header'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
 if test `eval echo '${'$as_ac_Header'}'` = yes; then
   MPIINCLUDE="-I$casc_mpi_include_dir"
@@ -5481,7 +2651,7 @@ fi
    # check for the library from first argument.  If linking is successful
    # the first time, the job is done, otherwise loop through DIRECTORY-LIST
    as_ac_Lib=`echo "ac_cv_lib_$casc_lib''_main" | $as_tr_sh`
-echo "$as_me:5484: checking for main in -l$casc_lib" >&5
+echo "$as_me:2654: checking for main in -l$casc_lib" >&5
 echo $ECHO_N "checking for main in -l$casc_lib... $ECHO_C" >&6
 if eval "test \"\${$as_ac_Lib+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -5489,7 +2659,7 @@ else
   ac_check_lib_save_LIBS=$LIBS
 LIBS="-l$casc_lib $MPILIBDIRS $MPILIBS $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
-#line 5492 "configure"
+#line 2662 "configure"
 #include "confdefs.h"
 
 int
@@ -5501,16 +2671,16 @@ main ();
 }
 _ACEOF
 rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:5504: \"$ac_link\"") >&5
+if { (eval echo "$as_me:2674: \"$ac_link\"") >&5
   (eval $ac_link) 2>&5
   ac_status=$?
-  echo "$as_me:5507: \$? = $ac_status" >&5
+  echo "$as_me:2677: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:5510: \"$ac_try\"") >&5
+  { (eval echo "$as_me:2680: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:5513: \$? = $ac_status" >&5
+  echo "$as_me:2683: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   eval "$as_ac_Lib=yes"
 else
@@ -5521,7 +2691,7 @@ fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:5524: result: `eval echo '${'$as_ac_Lib'}'`" >&5
+echo "$as_me:2694: result: `eval echo '${'$as_ac_Lib'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
 if test `eval echo '${'$as_ac_Lib'}'` = yes; then
   MPILIBS="$MPILIBS -l$casc_lib"
@@ -5531,7 +2701,7 @@ else
         for casc_lib_dir in $casc_mpi_lib_dirs; do
 
          as_ac_Lib=`echo "ac_cv_lib_$casc_lib''_main" | $as_tr_sh`
-echo "$as_me:5534: checking for main in -l$casc_lib" >&5
+echo "$as_me:2704: checking for main in -l$casc_lib" >&5
 echo $ECHO_N "checking for main in -l$casc_lib... $ECHO_C" >&6
 if eval "test \"\${$as_ac_Lib+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -5539,7 +2709,7 @@ else
   ac_check_lib_save_LIBS=$LIBS
 LIBS="-l$casc_lib -L$casc_lib_dir $MPILIBDIRS $MPILIBS -l$casc_lib $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
-#line 5542 "configure"
+#line 2712 "configure"
 #include "confdefs.h"
 
 int
@@ -5551,16 +2721,16 @@ main ();
 }
 _ACEOF
 rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:5554: \"$ac_link\"") >&5
+if { (eval echo "$as_me:2724: \"$ac_link\"") >&5
   (eval $ac_link) 2>&5
   ac_status=$?
-  echo "$as_me:5557: \$? = $ac_status" >&5
+  echo "$as_me:2727: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:5560: \"$ac_try\"") >&5
+  { (eval echo "$as_me:2730: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:5563: \$? = $ac_status" >&5
+  echo "$as_me:2733: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   eval "$as_ac_Lib=yes"
 else
@@ -5571,7 +2741,7 @@ fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:5574: result: `eval echo '${'$as_ac_Lib'}'`" >&5
+echo "$as_me:2744: result: `eval echo '${'$as_ac_Lib'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
 if test `eval echo '${'$as_ac_Lib'}'` = yes; then
   MPILIBDIRS="-L$casc_lib_dir $MPILIBDIRS"
@@ -5613,7 +2783,7 @@ fi
    fi
 
             if test -z "$MPILIBS"; then
-             { echo "$as_me:5616: WARNING: MPI not found - must set manually using --with flags" >&5
+             { echo "$as_me:2786: WARNING: MPI not found - must set manually using --with flags" >&5
 echo "$as_me: WARNING: MPI not found - must set manually using --with flags" >&2;}
             fi
 
@@ -5802,23 +2972,23 @@ EOF
                         CPPFLAGS="$casc_cppflags"
 
                         unset ac_cv_header_mpi_h
-                        echo "$as_me:5805: checking for mpi.h" >&5
+                        echo "$as_me:2975: checking for mpi.h" >&5
 echo $ECHO_N "checking for mpi.h... $ECHO_C" >&6
 if test "${ac_cv_header_mpi_h+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
-#line 5811 "configure"
+#line 2981 "configure"
 #include "confdefs.h"
 #include <mpi.h>
 _ACEOF
-if { (eval echo "$as_me:5815: \"$ac_cpp conftest.$ac_ext\"") >&5
+if { (eval echo "$as_me:2985: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
   ac_status=$?
   egrep -v '^ *\+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&5
-  echo "$as_me:5821: \$? = $ac_status" >&5
+  echo "$as_me:2991: \$? = $ac_status" >&5
   (exit $ac_status); } >/dev/null; then
   if test -s conftest.err; then
     ac_cpp_err=$ac_c_preproc_warn_flag
@@ -5837,7 +3007,7 @@ else
 fi
 rm -f conftest.err conftest.$ac_ext
 fi
-echo "$as_me:5840: result: $ac_cv_header_mpi_h" >&5
+echo "$as_me:3010: result: $ac_cv_header_mpi_h" >&5
 echo "${ECHO_T}$ac_cv_header_mpi_h" >&6
 if test $ac_cv_header_mpi_h = yes; then
   MPIINCLUDE="$casc_cppflags"
@@ -5881,7 +3051,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
                   cat >conftest.$ac_ext <<_ACEOF
-#line 5884 "configure"
+#line 3054 "configure"
 #include "confdefs.h"
 
 #include "mpi.h"
@@ -5902,16 +3072,16 @@ int rank, size;
 }
 _ACEOF
 rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:5905: \"$ac_link\"") >&5
+if { (eval echo "$as_me:3075: \"$ac_link\"") >&5
   (eval $ac_link) 2>&5
   ac_status=$?
-  echo "$as_me:5908: \$? = $ac_status" >&5
+  echo "$as_me:3078: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:5911: \"$ac_try\"") >&5
+  { (eval echo "$as_me:3081: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:5914: \$? = $ac_status" >&5
+  echo "$as_me:3084: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   casc_result=yes
 else
@@ -5949,7 +3119,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
                   cat >conftest.$ac_ext <<_ACEOF
-#line 5952 "configure"
+#line 3122 "configure"
 #include "confdefs.h"
 
 #include "mpi.h"
@@ -5970,16 +3140,16 @@ int rank, size;
 }
 _ACEOF
 rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:5973: \"$ac_link\"") >&5
+if { (eval echo "$as_me:3143: \"$ac_link\"") >&5
   (eval $ac_link) 2>&5
   ac_status=$?
-  echo "$as_me:5976: \$? = $ac_status" >&5
+  echo "$as_me:3146: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:5979: \"$ac_try\"") >&5
+  { (eval echo "$as_me:3149: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:5982: \$? = $ac_status" >&5
+  echo "$as_me:3152: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   MPILIBS="$MPILIBS -lpthread"
 else
@@ -5996,21 +3166,21 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
                   LIBS=$LIBS_SAVE
             fi
 
-            echo "$as_me:5999: checking for MPI include directories" >&5
+            echo "$as_me:3169: checking for MPI include directories" >&5
 echo $ECHO_N "checking for MPI include directories... $ECHO_C" >&6
-            echo "$as_me:6001: result: $MPIINCLUDE" >&5
+            echo "$as_me:3171: result: $MPIINCLUDE" >&5
 echo "${ECHO_T}$MPIINCLUDE" >&6
-            echo "$as_me:6003: checking for MPI library directories" >&5
+            echo "$as_me:3173: checking for MPI library directories" >&5
 echo $ECHO_N "checking for MPI library directories... $ECHO_C" >&6
-            echo "$as_me:6005: result: $MPILIBDIRS" >&5
+            echo "$as_me:3175: result: $MPILIBDIRS" >&5
 echo "${ECHO_T}$MPILIBDIRS" >&6
-            echo "$as_me:6007: checking for MPI libraries" >&5
+            echo "$as_me:3177: checking for MPI libraries" >&5
 echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
-            echo "$as_me:6009: result: $MPILIBS" >&5
+            echo "$as_me:3179: result: $MPILIBS" >&5
 echo "${ECHO_T}$MPILIBS" >&6
-            echo "$as_me:6011: checking for other MPI-related flags" >&5
+            echo "$as_me:3181: checking for other MPI-related flags" >&5
 echo $ECHO_N "checking for other MPI-related flags... $ECHO_C" >&6
-            echo "$as_me:6013: result: $MPIFLAGS" >&5
+            echo "$as_me:3183: result: $MPIFLAGS" >&5
 echo "${ECHO_T}$MPIFLAGS" >&6
          fi
       fi
@@ -6041,13 +3211,10 @@ fi
 
    fi
 
-  ;;
-esac
-
 # Check whether --with-MPIF77 or --without-MPIF77 was given.
 if test "${with_MPIF77+set}" = set; then
   withval="$with_MPIF77"
-  echo "$as_me:6050: result: setting MPIF77 to $withval" >&5
+  echo "$as_me:3217: result: setting MPIF77 to $withval" >&5
 echo "${ECHO_T}setting MPIF77 to $withval" >&6; MPIF77=$withval
 else
 
@@ -6055,7 +3222,7 @@ else
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
-echo "$as_me:6058: checking for $ac_word" >&5
+echo "$as_me:3225: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_prog_MPIF77+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -6070,7 +3237,7 @@ for ac_dir in $ac_dummy; do
   test -z "$ac_dir" && ac_dir=.
   $as_executable_p "$ac_dir/$ac_word" || continue
 ac_cv_prog_MPIF77="$ac_prog"
-echo "$as_me:6073: found $ac_dir/$ac_word" >&5
+echo "$as_me:3240: found $ac_dir/$ac_word" >&5
 break
 done
 
@@ -6078,25 +3245,1025 @@ fi
 fi
 MPIF77=$ac_cv_prog_MPIF77
 if test -n "$MPIF77"; then
-  echo "$as_me:6081: result: $MPIF77" >&5
+  echo "$as_me:3248: result: $MPIF77" >&5
 echo "${ECHO_T}$MPIF77" >&6
 else
-  echo "$as_me:6084: result: no" >&5
+  echo "$as_me:3251: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
   test -n "$MPIF77" && break
 done
 
-   test -z "$MPIF77" && { { echo "$as_me:6091: error: no acceptable mpif77 found in \$PATH" >&5
+   test -z "$MPIF77" && { { echo "$as_me:3258: error: no acceptable mpif77 found in \$PATH" >&5
 echo "$as_me: error: no acceptable mpif77 found in \$PATH" >&2;}
    { (exit 1); exit 1; }; }
 
 fi;
 
+  ;;
+  *)
+
+   casc_find_mpi_cache_used=yes
+
+   if test "${casc_cv_mpi_include+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  casc_find_mpi_cache_used=no
 fi
 
-echo "$as_me:6099: checking whether ${MAKE-make} sets \${MAKE}" >&5
+   if test "${casc_cv_mpi_libs+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  casc_find_mpi_cache_used=no
+fi
+
+   if test "${casc_cv_mpi_lib_dirs+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  casc_find_mpi_cache_used=no
+fi
+
+   if test "${casc_cv_mpi_flags+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  casc_find_mpi_cache_used=no
+fi
+
+   if test "$casc_find_mpi_cache_used" = "yes"; then
+      echo "$as_me:3294: checking for location of mpi.h" >&5
+echo $ECHO_N "checking for location of mpi.h... $ECHO_C" >&6
+      MPIINCLUDE=$casc_cv_mpi_include
+      echo "$as_me:3297: result: \"\(cached\) $MPIINCLUDE\"" >&5
+echo "${ECHO_T}\"\(cached\) $MPIINCLUDE\"" >&6
+
+      echo "$as_me:3300: checking for MPI library directories" >&5
+echo $ECHO_N "checking for MPI library directories... $ECHO_C" >&6
+      MPILIBDIRS=$casc_cv_mpi_lib_dirs
+      echo "$as_me:3303: result: \"\(cached\) $MPILIBDIRS\"" >&5
+echo "${ECHO_T}\"\(cached\) $MPILIBDIRS\"" >&6
+
+      echo "$as_me:3306: checking for MPI libraries" >&5
+echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
+      MPILIBS=$casc_cv_mpi_libs
+      echo "$as_me:3309: result: \"\(cached\) $MPILIBS\"" >&5
+echo "${ECHO_T}\"\(cached\) $MPILIBS\"" >&6
+
+      echo "$as_me:3312: checking for other MPI-related flags" >&5
+echo $ECHO_N "checking for other MPI-related flags... $ECHO_C" >&6
+      MPIFLAGS=$casc_cv_mpi_flags
+      echo "$as_me:3315: result: \"\(cached\) $MPIFLAGS\"" >&5
+echo "${ECHO_T}\"\(cached\) $MPIFLAGS\"" >&6
+   else
+
+      casc_user_chose_mpi=no
+
+# Check whether --with-mpi-include or --without-mpi-include was given.
+if test "${with_mpi_include+set}" = set; then
+  withval="$with_mpi_include"
+  for mpi_dir in $withval; do
+         MPIINCLUDE="$MPIINCLUDE -I$withval"
+      done; casc_user_chose_mpi=yes
+fi;
+
+# Check whether --with-mpi-libs or --without-mpi-libs was given.
+if test "${with_mpi_libs+set}" = set; then
+  withval="$with_mpi_libs"
+  for mpi_lib in $withval; do
+         MPILIBS="$MPILIBS -l$mpi_lib"
+      done; casc_user_chose_mpi=yes
+fi;
+
+# Check whether --with-mpi-lib-dirs or --without-mpi-lib-dirs was given.
+if test "${with_mpi_lib_dirs+set}" = set; then
+  withval="$with_mpi_lib_dirs"
+  for mpi_lib_dir in $withval; do
+         MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
+      done; casc_user_chose_mpi=yes
+fi;
+
+# Check whether --with-mpi-flags or --without-mpi-flags was given.
+if test "${with_mpi_flags+set}" = set; then
+  withval="$with_mpi_flags"
+  MPIFLAGS=$withval
+fi;
+
+      if test "$casc_user_chose_mpi" = "no"; then
+
+# Check whether --with-MPICC or --without-MPICC was given.
+if test "${with_MPICC+set}" = set; then
+  withval="$with_MPICC"
+  MPICC=$withval
+else
+  for ac_prog in mpcc mpicc tmcc hcc
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+echo "$as_me:3362: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_MPICC+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$MPICC"; then
+  ac_cv_prog_MPICC="$MPICC" # Let the user override the test.
+else
+  ac_save_IFS=$IFS; IFS=$ac_path_separator
+ac_dummy="$PATH"
+for ac_dir in $ac_dummy; do
+  IFS=$ac_save_IFS
+  test -z "$ac_dir" && ac_dir=.
+  $as_executable_p "$ac_dir/$ac_word" || continue
+ac_cv_prog_MPICC="$ac_prog"
+echo "$as_me:3377: found $ac_dir/$ac_word" >&5
+break
+done
+
+fi
+fi
+MPICC=$ac_cv_prog_MPICC
+if test -n "$MPICC"; then
+  echo "$as_me:3385: result: $MPICC" >&5
+echo "${ECHO_T}$MPICC" >&6
+else
+  echo "$as_me:3388: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  test -n "$MPICC" && break
+done
+
+fi;
+
+         if test -z "$MPICC"; then
+            { echo "$as_me:3398: WARNING: no acceptable mpicc found in \$PATH" >&5
+echo "$as_me: WARNING: no acceptable mpicc found in \$PATH" >&2;}
+
+   if test -z "$casc_mpi_libs"; then
+
+            case $ARCH in
+
+         sun4 | solaris)
+            case $F77 in
+               *g77)
+                   if test -z "$casc_mpi_include_dir"; then
+                      casc_mpi_include_dir=/usr/local/mpi/lam/h
+                   fi
+
+                   if test -z "$casc_mpi_lib_dirs"; then
+                      casc_mpi_lib_dirs="/usr/local/mpi/lam/lib"
+                   fi
+
+                   casc_mpi_libs="socket mpi trillium args tstdio t";;
+
+               *)
+
+                  if test -z "$casc_mpi_include_dir"; then
+                     MPIINCLUDE="-I/usr/local/mpi/mpich/include \
+                                 -I/usr/local/mpi/mpich/lib/solaris/ch_p4"
+                  fi
+
+                  if test -z "$casc_mpi_lib_dirs"; then
+                     casc_mpi_lib_dirs="/usr/local/mpi/mpich/lib/solaris/ch_p4 \
+                                       /usr/lib"
+                  fi
+
+               casc_mpi_libs="nsl socket mpi";;
+               esac
+
+            if test -z "$MPIINCLUDE"; then
+               as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
+echo "$as_me:3435: checking for $casc_mpi_include_dir/mpi.h" >&5
+echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Header+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line 3441 "configure"
+#include "confdefs.h"
+#include <$casc_mpi_include_dir/mpi.h>
+_ACEOF
+if { (eval echo "$as_me:3445: \"$ac_cpp conftest.$ac_ext\"") >&5
+  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+  ac_status=$?
+  egrep -v '^ *\+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:3451: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null; then
+  if test -s conftest.err; then
+    ac_cpp_err=$ac_c_preproc_warn_flag
+  else
+    ac_cpp_err=
+  fi
+else
+  ac_cpp_err=yes
+fi
+if test -z "$ac_cpp_err"; then
+  eval "$as_ac_Header=yes"
+else
+  echo "$as_me: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  eval "$as_ac_Header=no"
+fi
+rm -f conftest.err conftest.$ac_ext
+fi
+echo "$as_me:3470: result: `eval echo '${'$as_ac_Header'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
+if test `eval echo '${'$as_ac_Header'}'` = yes; then
+  MPIINCLUDE="-I$casc_mpi_include_dir"
+fi
+
+            fi
+         ;;
+
+         alpha)
+            if test -z "$casc_mpi_include_dir"; then
+               casc_mpi_include_dir=/usr/local/mpi/include
+            fi
+            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
+echo "$as_me:3484: checking for $casc_mpi_include_dir/mpi.h" >&5
+echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Header+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line 3490 "configure"
+#include "confdefs.h"
+#include <$casc_mpi_include_dir/mpi.h>
+_ACEOF
+if { (eval echo "$as_me:3494: \"$ac_cpp conftest.$ac_ext\"") >&5
+  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+  ac_status=$?
+  egrep -v '^ *\+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:3500: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null; then
+  if test -s conftest.err; then
+    ac_cpp_err=$ac_c_preproc_warn_flag
+  else
+    ac_cpp_err=
+  fi
+else
+  ac_cpp_err=yes
+fi
+if test -z "$ac_cpp_err"; then
+  eval "$as_ac_Header=yes"
+else
+  echo "$as_me: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  eval "$as_ac_Header=no"
+fi
+rm -f conftest.err conftest.$ac_ext
+fi
+echo "$as_me:3519: result: `eval echo '${'$as_ac_Header'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
+if test `eval echo '${'$as_ac_Header'}'` = yes; then
+  MPIINCLUDE="-I$casc_mpi_include_dir"
+fi
+
+            if test -z "$casc_mpi_lib_dirs"; then
+               casc_mpi_lib_dirs="/usr/local/mpi/lib/alpha/ch_shmem \
+                                  /usr/local/lib"
+            fi
+
+            casc_mpi_libs="mpich gs";;
+
+         rs6000)
+
+            casc_mpi_libs=mpi
+
+            MPIFLAGS="-binitfini:poe_remote_main";;
+
+         IRIX64 | iris4d)
+            if test -z "$casc_mpi_include_dir"; then
+               casc_mpi_include_dir=/usr/local/mpi/include
+            fi
+            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
+echo "$as_me:3543: checking for $casc_mpi_include_dir/mpi.h" >&5
+echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Header+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line 3549 "configure"
+#include "confdefs.h"
+#include <$casc_mpi_include_dir/mpi.h>
+_ACEOF
+if { (eval echo "$as_me:3553: \"$ac_cpp conftest.$ac_ext\"") >&5
+  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+  ac_status=$?
+  egrep -v '^ *\+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:3559: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null; then
+  if test -s conftest.err; then
+    ac_cpp_err=$ac_c_preproc_warn_flag
+  else
+    ac_cpp_err=
+  fi
+else
+  ac_cpp_err=yes
+fi
+if test -z "$ac_cpp_err"; then
+  eval "$as_ac_Header=yes"
+else
+  echo "$as_me: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  eval "$as_ac_Header=no"
+fi
+rm -f conftest.err conftest.$ac_ext
+fi
+echo "$as_me:3578: result: `eval echo '${'$as_ac_Header'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
+if test `eval echo '${'$as_ac_Header'}'` = yes; then
+  MPIINCLUDE="-I$casc_mpi_include_dir"
+fi
+
+            if test -z "$casc_mpi_lib_dirs"; then
+               casc_mpi_lib_dirs=/usr/local/mpi/lib/IRIX64/ch_p4
+            fi
+
+            casc_mpi_libs=mpi;;
+
+         *)
+{ echo "$as_me:3591: WARNING: trying naive MPI settings - can use --with flags to change" >&5
+echo "$as_me: WARNING: trying naive MPI settings - can use --with flags to change" >&2;}
+            if test -z "$casc_mpi_include_dir"; then
+               casc_mpi_include_dir=/usr/local/mpi/include
+            fi
+            as_ac_Header=`echo "ac_cv_header_$casc_mpi_include_dir/mpi.h" | $as_tr_sh`
+echo "$as_me:3597: checking for $casc_mpi_include_dir/mpi.h" >&5
+echo $ECHO_N "checking for $casc_mpi_include_dir/mpi.h... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Header+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line 3603 "configure"
+#include "confdefs.h"
+#include <$casc_mpi_include_dir/mpi.h>
+_ACEOF
+if { (eval echo "$as_me:3607: \"$ac_cpp conftest.$ac_ext\"") >&5
+  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+  ac_status=$?
+  egrep -v '^ *\+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:3613: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null; then
+  if test -s conftest.err; then
+    ac_cpp_err=$ac_c_preproc_warn_flag
+  else
+    ac_cpp_err=
+  fi
+else
+  ac_cpp_err=yes
+fi
+if test -z "$ac_cpp_err"; then
+  eval "$as_ac_Header=yes"
+else
+  echo "$as_me: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  eval "$as_ac_Header=no"
+fi
+rm -f conftest.err conftest.$ac_ext
+fi
+echo "$as_me:3632: result: `eval echo '${'$as_ac_Header'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
+if test `eval echo '${'$as_ac_Header'}'` = yes; then
+  MPIINCLUDE="-I$casc_mpi_include_dir"
+fi
+
+            if test -z "$casc_mpi_lib_dirs"; then
+               casc_mpi_lib_dirs=/usr/local/mpi/lib
+            fi
+            casc_mpi_libs=mpi ;;
+      esac
+
+      for casc_lib in $casc_mpi_libs; do
+
+   # define some macros to hopefully improve readability
+
+   # check for the library from first argument.  If linking is successful
+   # the first time, the job is done, otherwise loop through DIRECTORY-LIST
+   as_ac_Lib=`echo "ac_cv_lib_$casc_lib''_main" | $as_tr_sh`
+echo "$as_me:3651: checking for main in -l$casc_lib" >&5
+echo $ECHO_N "checking for main in -l$casc_lib... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Lib+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l$casc_lib $MPILIBDIRS $MPILIBS $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line 3659 "configure"
+#include "confdefs.h"
+
+int
+main ()
+{
+main ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:3671: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:3674: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:3677: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:3680: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  eval "$as_ac_Lib=yes"
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+eval "$as_ac_Lib=no"
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:3691: result: `eval echo '${'$as_ac_Lib'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
+if test `eval echo '${'$as_ac_Lib'}'` = yes; then
+  MPILIBS="$MPILIBS -l$casc_lib"
+                          casc_lib_found=yes
+
+else
+        for casc_lib_dir in $casc_mpi_lib_dirs; do
+
+         as_ac_Lib=`echo "ac_cv_lib_$casc_lib''_main" | $as_tr_sh`
+echo "$as_me:3701: checking for main in -l$casc_lib" >&5
+echo $ECHO_N "checking for main in -l$casc_lib... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Lib+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l$casc_lib -L$casc_lib_dir $MPILIBDIRS $MPILIBS -l$casc_lib $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line 3709 "configure"
+#include "confdefs.h"
+
+int
+main ()
+{
+main ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:3721: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:3724: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:3727: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:3730: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  eval "$as_ac_Lib=yes"
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+eval "$as_ac_Lib=no"
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:3741: result: `eval echo '${'$as_ac_Lib'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
+if test `eval echo '${'$as_ac_Lib'}'` = yes; then
+  MPILIBDIRS="-L$casc_lib_dir $MPILIBDIRS"
+            MPILIBS="$MPILIBS -l$casc_lib"
+            casc_lib_found=yes
+
+            break
+
+fi
+
+      done
+
+fi
+
+   # ACTION-IF-NOT_FOUND for when the library is found nowhere
+
+   unset casc_lib_found
+
+      done
+
+   else
+      if test -n "$casc_mpi_include_dir"; then
+         MPIINCLUDE="-I$casc_mpi_include_dir"
+      else
+         MPIINCLUDE=
+      fi
+
+      if test -n "$casc_mpi_lib_dirs"; then
+         for casc_lib_dir in $casc_mpi_lib_dirs; do
+            MPILIBDIRS="-L$casc_lib_dir $MPILIBDIRS"
+         done
+      else
+         MPILIBDIRS=
+      fi
+
+      for casc_lib in $casc_mpi_libs; do
+         MPILIBS="$MPILIBS -l$casc_lib"
+      done
+   fi
+
+            if test -z "$MPILIBS"; then
+             { echo "$as_me:3783: WARNING: MPI not found - must set manually using --with flags" >&5
+echo "$as_me: WARNING: MPI not found - must set manually using --with flags" >&2;}
+            fi
+
+         else
+
+                                    cat > mpconftest.c << EOF
+#include "mpi.h"
+
+main(int argc, char **argv)
+{
+   int rank, size;
+   MPI_Init(&argc, &argv);
+   MPI_Comm_size(MPI_COMM_WORLD, &size);
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Finalize();
+   return 0;
+}
+EOF
+
+            casc_mplibs=
+            casc_mplibdirs=
+            casc_flags=
+            casc_lmpi_exists=no
+
+            for casc_command in "$MPICC -show"\
+                                "$MPICC -v"\
+                                "$MPICC -#"\
+                                "$MPICC"; do
+
+               casc_this_output=`$casc_command mpconftest.c -o mpconftest 2>&1`
+
+                              xlc_p=`echo $casc_this_output | grep xlcentry`
+               if test -n "$xlc_p"; then
+                  casc_this_output=`echo $casc_this_output | sed 's/,/ /g'`
+               fi
+
+                              lmpi_p=`echo $casc_this_output | grep "\-lmpi"`
+               if test -n "$lmpi_p"; then
+                  casc_lmpi_exists=yes
+               fi
+
+               casc_mpoutput="$casc_mpoutput $casc_this_output"
+               casc_this_output=
+
+            done
+
+            rm -rf mpconftest*
+
+                        echo "main() {}" > cc_conftest.c
+            cc_output=`${CC-cc} -v -o cc_conftest cc_conftest.c 2>&1`
+            xlc_p=`echo $cc_output | grep xlcentry`
+            if test -n "$xlc_p"; then
+               casc_compiler_is_xlc=yes
+            fi
+            rm -rf cc_conftest*
+
+                                    if test "$casc_lmpi_exists" = "no"; then
+               casc_mplibs="-lmpi"
+            else
+               casc_mplibs=
+            fi
+
+            casc_want_arg=
+
+            for casc_arg in $casc_mpoutput; do
+
+               casc_old_want_arg=$casc_want_arg
+               casc_want_arg=
+
+               if test -n "$casc_old_want_arg"; then
+                  case "$casc_arg" in
+                  -*)
+                     casc_old_want_arg=
+                  ;;
+                  esac
+               fi
+
+               case "$casc_old_want_arg" in
+               '')
+                  case $casc_arg in
+                  /*.a)
+                     exists=false
+                     for f in $casc_flags; do
+                        if test x$casc_arg = x$f; then
+                           exists=true
+                        fi
+                     done
+                     if $exists; then
+                        casc_arg=
+                     else
+                        casc_flags="$casc_flags $casc_arg"
+                     fi
+                  ;;
+                  -binitfini:poe_remote_main)
+                     exists=false
+                     for f in $casc_flags; do
+                        if test x$casc_arg = x$f; then
+                           exists=true
+                        fi
+                     done
+                     if $exists; then
+                        casc_arg=
+                     else
+                        casc_flags="$casc_flags $casc_arg"
+                     fi
+                  ;;
+                  -lang*)
+                     casc_arg=
+                  ;;
+                  -[lLR])
+                     casc_want_arg=$casc_arg
+                     casc_arg=
+                  ;;
+                  -[lLR]*)
+                     exists=false
+                     for f in $casc_flags; do
+                        if test x$casc_arg = x$f; then
+                           exists=true
+                        fi
+                     done
+                     if $exists; then
+                        casc_arg=
+                     else
+                       casc_flags="$casc_flags $casc_arg"
+                     fi
+                  ;;
+                 -u)
+                     casc_want_arg=$casc_arg
+                     casc_arg=
+                  ;;
+                  -Y)
+                     casc_want_arg=$casc_arg
+                     casc_arg=
+                  ;;
+                  -I)
+                     casc_want_arg=$casc_arg
+                     casc_arg=
+                  ;;
+                  -I*)
+                     exists=false
+                     for f in $casc_flags; do
+                        if test x$casc_arg = x$f; then
+                           exists=true
+                        fi
+                     done
+                     if $exists; then
+                        casc_arg=
+                     else
+                        casc_flags="$casc_flags $casc_arg"
+                     fi
+                  ;;
+                  *)
+                     casc_arg=
+                  ;;
+                  esac
+
+               ;;
+               -[lLRI])
+                  casc_arg="casc_old_want_arg $casc_arg"
+               ;;
+               -u)
+                  casc_arg="-u $casc_arg"
+               ;;
+               -Y)
+                  casc_arg=`echo $casc_arg | sed -e 's%^P,%%'`
+                  SAVE_IFS=$IFS
+                  IFS=:
+                  casc_list=
+                  for casc_elt in $casc_arg; do
+                     casc_list="$casc_list -L$casc_elt"
+                  done
+                  IFS=$SAVE_IFS
+                  casc_arg="$casc_list"
+               ;;
+               esac
+
+                                             if test -n "$casc_arg"; then
+                  case $casc_arg in
+                  -I*)
+
+                                                               if test -z "$MPIINCLUDE"; then
+                        casc_cppflags="$casc_cppflags $casc_arg"
+                        casc_include_dir=`echo "$casc_arg" | sed 's/-I//g'`
+
+                        SAVE_CPPFLAGS="$CPPFLAGS"
+                        CPPFLAGS="$casc_cppflags"
+
+                        unset ac_cv_header_mpi_h
+                        echo "$as_me:3972: checking for mpi.h" >&5
+echo $ECHO_N "checking for mpi.h... $ECHO_C" >&6
+if test "${ac_cv_header_mpi_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line 3978 "configure"
+#include "confdefs.h"
+#include <mpi.h>
+_ACEOF
+if { (eval echo "$as_me:3982: \"$ac_cpp conftest.$ac_ext\"") >&5
+  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+  ac_status=$?
+  egrep -v '^ *\+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:3988: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null; then
+  if test -s conftest.err; then
+    ac_cpp_err=$ac_c_preproc_warn_flag
+  else
+    ac_cpp_err=
+  fi
+else
+  ac_cpp_err=yes
+fi
+if test -z "$ac_cpp_err"; then
+  ac_cv_header_mpi_h=yes
+else
+  echo "$as_me: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  ac_cv_header_mpi_h=no
+fi
+rm -f conftest.err conftest.$ac_ext
+fi
+echo "$as_me:4007: result: $ac_cv_header_mpi_h" >&5
+echo "${ECHO_T}$ac_cv_header_mpi_h" >&6
+if test $ac_cv_header_mpi_h = yes; then
+  MPIINCLUDE="$casc_cppflags"
+fi
+
+                                                CPPFLAGS="$SAVE_CPPFLAGS"
+
+                     else
+                        casc_arg=
+                     fi
+                  ;;
+                  -[LR]*)
+
+                                          casc_mplibdirs="$casc_mplibdirs $casc_arg"
+                  ;;
+                  -l* | /*)
+
+                                          casc_mplibs="$casc_mplibs $casc_arg"
+                  ;;
+                  -binitfini:poe_remote_main)
+                     if test "$casc_compiler_is_xlc" = "yes"; then
+                        casc_mpflags="$casc_mpflags $casc_arg"
+                     fi
+                  ;;
+                  *)
+                                          casc_mpflags="$casc_mpflags $casc_arg"
+                  ;;
+                  esac
+
+                                                      LIBS_SAVE=$LIBS
+                  LIBS="$MPIINCLUDE $casc_mpflags $casc_mplibdirs $casc_mplibs"
+
+                  if test -n "`echo $LIBS | grep '\-R/'`"; then
+                     LIBS=`echo $LIBS | sed 's/-R\//-R \//'`
+                  fi
+
+                                                                        ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+                  cat >conftest.$ac_ext <<_ACEOF
+#line 4051 "configure"
+#include "confdefs.h"
+
+#include "mpi.h"
+
+int
+main ()
+{
+int rank, size;
+   int argc;
+   char **argv;
+   MPI_Init(&argc, &argv);
+   MPI_Comm_size(MPI_COMM_WORLD, &size);
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Finalize();
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:4072: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:4075: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:4078: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:4081: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  casc_result=yes
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+                  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+                  LIBS=$LIBS_SAVE
+
+                  if test "$casc_result" = yes; then
+                     casc_result=
+                     break
+                  fi
+               fi
+            done
+
+                        MPILIBS=$casc_mplibs
+            MPILIBDIRS=$casc_mplibdirs
+            MPIFLAGS="$MPIFLAGS $casc_mpflags"
+
+            if test -n "`echo $MPILIBS | grep pmpich`" &&
+               test -z "`echo $MPILIBS | grep pthread`"; then
+                  LIBS_SAVE=$LIBS
+                  LIBS="$MPIINCLUDE $MPIFLAGS $MPILIBDIRS $MPILIBS -lpthread"
+                  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+                  cat >conftest.$ac_ext <<_ACEOF
+#line 4119 "configure"
+#include "confdefs.h"
+
+#include "mpi.h"
+
+int
+main ()
+{
+int rank, size;
+   int argc;
+   char **argv;
+   MPI_Init(&argc, &argv);
+   MPI_Comm_size(MPI_COMM_WORLD, &size);
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Finalize();
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:4140: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:4143: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:4146: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:4149: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  MPILIBS="$MPILIBS -lpthread"
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+                  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+                  LIBS=$LIBS_SAVE
+            fi
+
+            echo "$as_me:4166: checking for MPI include directories" >&5
+echo $ECHO_N "checking for MPI include directories... $ECHO_C" >&6
+            echo "$as_me:4168: result: $MPIINCLUDE" >&5
+echo "${ECHO_T}$MPIINCLUDE" >&6
+            echo "$as_me:4170: checking for MPI library directories" >&5
+echo $ECHO_N "checking for MPI library directories... $ECHO_C" >&6
+            echo "$as_me:4172: result: $MPILIBDIRS" >&5
+echo "${ECHO_T}$MPILIBDIRS" >&6
+            echo "$as_me:4174: checking for MPI libraries" >&5
+echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
+            echo "$as_me:4176: result: $MPILIBS" >&5
+echo "${ECHO_T}$MPILIBS" >&6
+            echo "$as_me:4178: checking for other MPI-related flags" >&5
+echo $ECHO_N "checking for other MPI-related flags... $ECHO_C" >&6
+            echo "$as_me:4180: result: $MPIFLAGS" >&5
+echo "${ECHO_T}$MPIFLAGS" >&6
+         fi
+      fi
+
+      if test "${casc_cv_mpi_include+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  casc_cv_mpi_include=$MPIINCLUDE
+fi
+
+      if test "${casc_cv_mpi_lib_dirs+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  casc_cv_mpi_lib_dirs=$MPILIBDIRS
+fi
+
+      if test "${casc_cv_mpi_libs+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  casc_cv_mpi_libs=$MPILIBS
+fi
+
+      if test "${casc_cv_mpi_flags+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  casc_cv_mpi_flags=$MPIFLAGS
+fi
+
+   fi
+
+# Check whether --with-MPIF77 or --without-MPIF77 was given.
+if test "${with_MPIF77+set}" = set; then
+  withval="$with_MPIF77"
+  echo "$as_me:4214: result: setting MPIF77 to $withval" >&5
+echo "${ECHO_T}setting MPIF77 to $withval" >&6; MPIF77=$withval
+else
+
+   for ac_prog in mpf77 mpxlf mpif77 mpixlf tmf77 hf77
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+echo "$as_me:4222: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_MPIF77+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$MPIF77"; then
+  ac_cv_prog_MPIF77="$MPIF77" # Let the user override the test.
+else
+  ac_save_IFS=$IFS; IFS=$ac_path_separator
+ac_dummy="$PATH"
+for ac_dir in $ac_dummy; do
+  IFS=$ac_save_IFS
+  test -z "$ac_dir" && ac_dir=.
+  $as_executable_p "$ac_dir/$ac_word" || continue
+ac_cv_prog_MPIF77="$ac_prog"
+echo "$as_me:4237: found $ac_dir/$ac_word" >&5
+break
+done
+
+fi
+fi
+MPIF77=$ac_cv_prog_MPIF77
+if test -n "$MPIF77"; then
+  echo "$as_me:4245: result: $MPIF77" >&5
+echo "${ECHO_T}$MPIF77" >&6
+else
+  echo "$as_me:4248: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  test -n "$MPIF77" && break
+done
+
+   test -z "$MPIF77" && { { echo "$as_me:4255: error: no acceptable mpif77 found in \$PATH" >&5
+echo "$as_me: error: no acceptable mpif77 found in \$PATH" >&2;}
+   { (exit 1); exit 1; }; }
+
+fi;
+
+  ;;
+esac
+
+fi
+
+echo "$as_me:4266: checking whether ${MAKE-make} sets \${MAKE}" >&5
 echo $ECHO_N "checking whether ${MAKE-make} sets \${MAKE}... $ECHO_C" >&6
 set dummy ${MAKE-make}; ac_make=`echo "$2" | sed 'y,./+-,__p_,'`
 if eval "test \"\${ac_cv_prog_make_${ac_make}_set+set}\" = set"; then
@@ -6116,11 +4283,11 @@ fi
 rm -f conftest.make
 fi
 if eval "test \"`echo '$ac_cv_prog_make_'${ac_make}_set`\" = yes"; then
-  echo "$as_me:6119: result: yes" >&5
+  echo "$as_me:4286: result: yes" >&5
 echo "${ECHO_T}yes" >&6
   SET_MAKE=
 else
-  echo "$as_me:6123: result: no" >&5
+  echo "$as_me:4290: result: no" >&5
 echo "${ECHO_T}no" >&6
   SET_MAKE="MAKE=${MAKE-make}"
 fi
@@ -6462,30 +4629,55 @@ fi
 test ! -d $my_includedir && mkdir -p $my_includedir
 test ! -d $my_libdir && mkdir -p $my_libdir
 
-echo "
-Configured for $ARCH
-  Where should we install header files?                ${my_includedir}
-  Where should we install libraries?                   ${my_libdir}
-  What C compiler should we use?                       ${CC}
-  What flags should be passed to the C compiler?       ${CFLAGS}
-  What Fortran compiler should we use?                 ${F77}
-  What flags should be passed to the Fortran compiler? ${FFLAGS}"
+echo ""
+echo "Configured for $ARCH"
+echo ""
+echo "Where should we install header files?                ${my_includedir}"
+echo "Where should we install libraries?                   ${my_libdir}"
+echo "What C compiler should we use?                       ${CC}"
+echo "What flags should be passed to the C compiler?       ${CFLAGS}"
 
-if test -d nvec_par; \
-then \
-  echo "  What should we use for MPICC?                        ${MPICC}"
-  echo "  What should we use for MPIF77?                       ${MPIF77}"
-  echo "  Where should we look for MPI header files?          ${MPIINCLUDE}"
-  echo "  Where should we look for MPI libraries?             ${MPILIBDIRS}"
-  echo "  What MPI libraries should we use?                   ${MPILIBS}"
-  echo "  What other flags should we use for MPI?             ${MPIFLAGS}"
+if test "${F77}" != '';
+then
+  echo "What Fortran compiler should we use?                 ${F77}"
+  echo "What flags should be passed to the Fortran compiler? ${FFLAGS}"
+fi
+
+if test -d nvec_par;
+then
+  echo "What should we use for MPICC?                        ${MPICC}"
+  echo "Where should we look for MPI header files?          ${MPIINCLUDE}"
+  echo "Where should we look for MPI libraries?             ${MPILIBDIRS}"
+  echo "What MPI libraries should we use?                   ${MPILIBS}"
+  echo "What other flags should we use for MPI?             ${MPIFLAGS}"
+  if test "${F77}" != '';
+  then
+    if test "${MPIF77}" != '';
+    then
+      echo "What should we use for MPIF77?                       ${MPIF77}"
+    fi
+  fi
 fi
 echo ""
+
+if test "${F77}" = '';
+then
+  echo "WARNING! NO Fortran compiler found!"
+  echo "You will be unable to compile the FCMIX examples"
+  echo ""
+else
+  if test "${MPIF77}" = '';
+  then
+    echo "WARNING! NO mpif77 wrapper found!"
+    echo "You will be unable to compile the parallel FCMIX examples"
+    echo ""
+  fi
+fi
 
 : ${CONFIG_STATUS=./config.status}
 ac_clean_files_save=$ac_clean_files
 ac_clean_files="$ac_clean_files $CONFIG_STATUS"
-{ echo "$as_me:6488: creating $CONFIG_STATUS" >&5
+{ echo "$as_me:4680: creating $CONFIG_STATUS" >&5
 echo "$as_me: creating $CONFIG_STATUS" >&6;}
 cat >$CONFIG_STATUS <<_ACEOF
 #! $SHELL
@@ -6652,7 +4844,7 @@ cat >>$CONFIG_STATUS <<\EOF
     echo "$ac_cs_version"; exit 0 ;;
   --he | --h)
     # Conflict between --help and --header
-    { { echo "$as_me:6655: error: ambiguous option: $1
+    { { echo "$as_me:4847: error: ambiguous option: $1
 Try \`$0 --help' for more information." >&5
 echo "$as_me: error: ambiguous option: $1
 Try \`$0 --help' for more information." >&2;}
@@ -6671,7 +4863,7 @@ Try \`$0 --help' for more information." >&2;}
     ac_need_defaults=false;;
 
   # This is an error.
-  -*) { { echo "$as_me:6674: error: unrecognized option: $1
+  -*) { { echo "$as_me:4866: error: unrecognized option: $1
 Try \`$0 --help' for more information." >&5
 echo "$as_me: error: unrecognized option: $1
 Try \`$0 --help' for more information." >&2;}
@@ -6728,7 +4920,7 @@ do
   "kinsol/examples_par/Makefile" ) CONFIG_FILES="$CONFIG_FILES kinsol/examples_par/Makefile" ;;
   "kinsol/fcmix/examples_ser/Makefile" ) CONFIG_FILES="$CONFIG_FILES kinsol/fcmix/examples_ser/Makefile" ;;
   "kinsol/fcmix/examples_par/Makefile" ) CONFIG_FILES="$CONFIG_FILES kinsol/fcmix/examples_par/Makefile" ;;
-  *) { { echo "$as_me:6731: error: invalid argument: $ac_config_target" >&5
+  *) { { echo "$as_me:4923: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
   esac
@@ -6821,11 +5013,11 @@ s,@FFLAGS@,$FFLAGS,;t t
 s,@ac_ct_F77@,$ac_ct_F77,;t t
 s,@MPICC@,$MPICC,;t t
 s,@CPP@,$CPP,;t t
+s,@MPIF77@,$MPIF77,;t t
 s,@MPIINCLUDE@,$MPIINCLUDE,;t t
 s,@MPILIBDIRS@,$MPILIBDIRS,;t t
 s,@MPILIBS@,$MPILIBS,;t t
 s,@MPIFLAGS@,$MPIFLAGS,;t t
-s,@MPIF77@,$MPIF77,;t t
 s,@SET_MAKE@,$SET_MAKE,;t t
 s,@INSTALL@,$INSTALL,;t t
 s,@MODULES@,$MODULES,;t t
@@ -6940,7 +5132,7 @@ done; }
   esac
 
   if test x"$ac_file" != x-; then
-    { echo "$as_me:6943: creating $ac_file" >&5
+    { echo "$as_me:5135: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
     rm -f "$ac_file"
   fi
@@ -6958,7 +5150,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:6961: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:5153: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -6971,7 +5163,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:6974: error: cannot find input file: $f" >&5
+           { { echo "$as_me:5166: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
