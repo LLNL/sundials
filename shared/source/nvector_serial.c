@@ -1,6 +1,6 @@
 /****************************************************************
  *                                                              *
- * File          : nvector.c                                    *
+ * File          : nvector_serial.c                             *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,           *
  *                 Radu Serban, and Allan G. Taylor, LLNL       *
  * Version of    : 26 February 2002                             *
@@ -128,23 +128,6 @@ void M_EnvFree_Serial(M_Env machEnv)
   free(machEnv->content);
   free(machEnv->ops);
   free(machEnv);
-}
-
-
-/* Fortran callable interfaces to M_EnvInit_Serial
-   and M_EnvFree_serial */
-
-void F_MENVINITS(integer *neq, int *ier)
-{
- F2C_machEnv = M_EnvInit_Serial(*neq);
-
- *ier = (F2C_machEnv == NULL) ? -1 : 0 ;
-}
-
-
-void F_MENVFREES()
-{
-  M_EnvFree_Serial(F2C_machEnv);
 }
 
 /***************************************************************************/

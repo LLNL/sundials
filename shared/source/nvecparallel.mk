@@ -21,6 +21,7 @@ SHARED_INC_DIR = ../include
 ARCH             = `uname -s`.`uname -m`
 SHARED_LIB_DIR   = ../lib
 NVECPAR_LIB_NAME = libnvecparallel.$(ARCH).a
+FNVECPAR_LIB_NAME = libfnvecparallel.$(ARCH).a
 
 #==========================================================================
 # Machine-dependent variables
@@ -60,16 +61,24 @@ CFLAGS = -I$(MPI_INC_DIR) -I$(SHARED_INC_DIR)
 lib:
 	@(echo '...Compile parallel NVECTOR object files...')
 	@($(CC) $(CFLAGS) -c nvector_parallel.c)
+	@($(CC) $(CFLAGS) -c fnvector_parallel.c)
 	@(echo '...Create parallel NVECTOR library file...')
 	@(ar rc $(SHARED_LIB_DIR)/$(NVECPAR_LIB_NAME) nvector_parallel.o)
 	@(rm -f nvector_parallel.o)
+	@(ar rc $(SHARED_LIB_DIR)/$(FNVECPAR_LIB_NAME) fnvector_parallel.o)
+	@(rm -f fnvector_parallel.o)
 	@(echo '...Create symbolic links to parallel NVECTOR...')
 	@(cd ../../lib;     rm -f $(NVECPAR_LIB_NAME);  ln -fs ../shared/lib/$(NVECPAR_LIB_NAME) .)
 	@(cd ../../include; rm -f nvector_parallel.h; ln -fs ../shared/include/nvector_parallel.h .)
+	@(cd ../../lib;     rm -f $(FNVECPAR_LIB_NAME);  ln -fs ../shared/lib/$(FNVECPAR_LIB_NAME) .)
+	@(cd ../../include; rm -f fnvector_parallel.h; ln -fs ../shared/include/fnvector_parallel.h .)
 
 purge:
 	@(rm -f $(SHARED_LIB_DIR)/$(NVECPAR_LIB_NAME))
 	@(cd ../../lib;     rm -f $(NVECPAR_LIB_NAME);)
 	@(cd ../../include; rm -f nvector_parallel.h;)
+	@(rm -f $(SHARED_LIB_DIR)/$(FNVECPAR_LIB_NAME))
+	@(cd ../../lib;     rm -f $(FNVECPAR_LIB_NAME);)
+	@(cd ../../include; rm -f fnvector_parallel.h;)
 
 #---End of nvecparallel.mk---

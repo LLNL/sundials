@@ -1,6 +1,6 @@
 /****************************************************************
  *                                                              *
- * File          : nvector.c                                    *
+ * File          : nvector_parallel.c                           *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,           *
  *                 Radu Serban, and Allan G. Taylor, LLNL       *
  * Version of    : 27 February 2002                             *
@@ -170,34 +170,6 @@ void M_EnvFree_Parallel(M_Env machEnv)
   free(machEnv);
 }
  
-
-/* Fortran callable interfaces to M_EnvInit_Serial
-   and M_EnvFree_serial */
-
-void F_MENVINITP(integer *nlocal, integer *nglobal, int *ier)
-{
-  
-  /* Call M_EnvInit_Parallel:
-     the first slot is for the communicator. 
-     (From Fortran, only MPI_COMM_WORLD is allowed)
-     *nlocal  is the local vector length
-     *nglobal is the global vector length */
-
- int dumargc; char **dumargv;
-
- F2C_machEnv = M_EnvInit_Parallel(MPI_COMM_WORLD, *nlocal, *nglobal,
-                                  &dumargc, &dumargv);
-
- *ier = (F2C_machEnv == NULL) ? -1 : 0 ;
-}
-
-/***************************************************************************/
-
-void F_MENVFREEP()
-{
-  M_EnvFree_Parallel(F2C_machEnv);
-}
-
 /***************************************************************************/
 
 /* BEGIN implementation of vector operations */
