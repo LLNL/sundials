@@ -6,5 +6,13 @@ nvector.h nvector.c
     nvector module.
   - added N_VSpace routine
      
+  - changed "machine environment" to "Nvector specification"
+    M_Env -> NV_Spec , machEnv -> nvSpec
+
+fcmixpar.h
+
+  - changed F2C_machEnv -> F2C_nvspec
+
+
 spgmr.h spgmr.c
   - took out N from SpgmrMalloc and spgmr memory structure
