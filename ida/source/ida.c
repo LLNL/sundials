@@ -1837,7 +1837,7 @@ int IDAGetLastOrder(void *ida_mem, int *klast)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNextOrder(void *ida_mem, int *kcur)
+int IDAGetCurrentOrder(void *ida_mem, int *kcur)
 {
   IDAMem IDA_mem;
 
@@ -1891,7 +1891,7 @@ int IDAGetLastStep(void *ida_mem, realtype *hlast)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNextStep(void *ida_mem, realtype *hcur)
+int IDAGetCurrentStep(void *ida_mem, realtype *hcur)
 {
   IDAMem IDA_mem;
 

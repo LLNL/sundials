@@ -23,12 +23,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "idabbdpre.h"
-#include "ida.h"
-#include "sundialstypes.h"
-#include "nvector.h"
+#include "idaspgmr.h"
 #include "sundialsmath.h"
 #include "iterativ.h"
-#include "band.h"
 
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
@@ -41,6 +38,8 @@
 #define MSG_IDAMEM_NULL  IDABBDALLOC "IDA Memory is NULL.\n\n"
 #define MSG_WRONG_NVEC   IDABBDALLOC "Incompatible NVECTOR implementation.\n\n"
 #define MSG_PDATA_NULL   "IBBDPrecGet*-- BBDPrecData is NULL. \n\n"
+
+#define MSG_NO_PDATA   "IBBDSpgmr-- BBDPrecData is NULL. \n\n"
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
@@ -134,6 +133,30 @@ void *IBBDPrecAlloc(void *ida_mem, integertype Nlocal,
   pdata->nge = 0;
 
   return((void *)pdata);
+}
+
+int IBBDSpgmr(void *ida_mem, int maxl, void *p_data)
+{
+  int flag;
+
+  if ( p_data == NULL ) {
+    fprintf(stdout, MSG_NO_PDATA);
+    return(BBDP_NO_PDATA);
+  }
+
+  flag = IDASpgmr(ida_mem, maxl);
+  if(flag != SUCCESS) return(flag);
+
+  flag = IDASpgmrSetPrecData(ida_mem, p_data);
+  if(flag != SUCCESS) return(flag);
+
+  flag = IDASpgmrSetPrecSetupFn(ida_mem, IBBDPrecSetup);
+  if(flag != SUCCESS) return(flag);
+
+  flag = IDASpgmrSetPrecSolveFn(ida_mem, IBBDPrecSolve);
+  if(flag != SUCCESS) return(flag);
+
+  return(SUCCESS);
 }
 
 int IBBDPrecReInit(void *p_data,

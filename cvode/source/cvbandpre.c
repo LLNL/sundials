@@ -19,12 +19,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "nvector.h"
-#include "cvode.h"
 #include "cvbandpre.h"
-#include "band.h"
-#include "sundialstypes.h"
+#include "cvspgmr.h"
 #include "sundialsmath.h"
+#include "nvector.h"
 
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)
@@ -38,12 +36,13 @@
 
 #define MSG_PDATA_NULL "CVBandPrecGet*-- BandPrecData is NULL. \n\n"
 
+#define MSG_NO_PDATA   "CVBPSpgmr-- BandPrecData is NULL. \n\n"
+
 /* Prototype for difference quotient Jacobian calculation routine */
 
 static void CVBandPDQJac(CVBandPrecData pdata, 
                          realtype t, N_Vector y, N_Vector fy, 
                          N_Vector ftemp, N_Vector ytemp);
-
 
 /* Redability replacements */
 #define nvspec (cv_mem->cv_nvspec)
@@ -110,6 +109,30 @@ void *CVBandPrecAlloc(void *cvode_mem, integertype N,
   }
 
   return((void *) pdata);
+}
+
+int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
+{
+  int flag;
+
+  if ( p_data == NULL ) {
+    fprintf(stdout, MSG_NO_PDATA);
+    return(BP_NO_PDATA);
+  } 
+
+  flag = CVSpgmr(cvode_mem, pretype, maxl);
+  if(flag != SUCCESS) return(flag);
+
+  flag = CVSpgmrSetPrecData(cvode_mem, p_data);
+  if(flag != SUCCESS) return(flag);
+
+  flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBandPrecSetup);
+  if(flag != SUCCESS) return(flag);
+
+  flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBandPrecSolve);
+  if(flag != SUCCESS) return(flag);
+
+  return(SUCCESS);
 }
 
 void CVBandPrecFree(void *bp_data)

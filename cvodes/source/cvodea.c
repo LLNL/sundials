@@ -1,5 +1,4 @@
 /*******************************************************************
- *                                                                 *
  * File          : cvodea.c                                        *
  * Programmers   : Radu Serban @ LLNL                              *
  * Version of    : 14 July 2003                                    *
@@ -11,7 +10,6 @@
  *-----------------------------------------------------------------*
  * This is the implementation file for the CVODEA adjoint          *
  * integrator.                                                     *
- *                                                                 *
  *******************************************************************/
 
 /*=================================================================*/
@@ -448,7 +446,7 @@ int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetIterTypeB(void *cvadj_mem, int iterB)
+int CVodeResetIterTypeB(void *cvadj_mem, int iterB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -457,7 +455,7 @@ int CVodeSetIterTypeB(void *cvadj_mem, int iterB)
   ca_mem = (CVadjMem) cvadj_mem;
   cvode_mem = (void *)ca_mem->cvb_mem;
 
-  flag = CVodeSetIterType(cvode_mem, iterB);
+  flag = CVodeResetIterType(cvode_mem, iterB);
   
   return(flag);
 }
@@ -842,7 +840,7 @@ int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   return(flag);
 }
 
-int CVSpgmrSetPrecTypeB(void *cvadj_mem, int pretypeB)
+int CVSpgmrResetPrecTypeB(void *cvadj_mem, int pretypeB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -852,7 +850,7 @@ int CVSpgmrSetPrecTypeB(void *cvadj_mem, int pretypeB)
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVSpgmrSetPrecType(cvode_mem,pretypeB);
+  flag = CVSpgmrResetPrecType(cvode_mem, pretypeB);
 
   return(flag);
 }

@@ -65,7 +65,7 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                        N_Vector fcur);
 
 static int  CVBandSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                         N_Vector fcur, integertype is);
+                         N_Vector fcur, int is);
 
 static void CVBandFree(CVodeMem cv_mem);
 
@@ -416,7 +416,7 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  integertype ier;
+  int ier;
   CVBandMem cvband_mem;
   
   cvband_mem = (CVBandMem) lmem;
@@ -494,7 +494,7 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
 **********************************************************************/
 
 static int CVBandSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                        N_Vector fcur, integertype is)
+                        N_Vector fcur, int is)
 {
   CVBandMem cvband_mem;
   realtype *bd;

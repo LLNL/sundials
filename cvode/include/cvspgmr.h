@@ -1,6 +1,5 @@
 /*******************************************************************
- *                                                                 *
- * File          : cvsspgmr.h                                      *
+ * File          : cvspgmr.h                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
  * Version of    : 31 July 2003                                    *
@@ -22,8 +21,8 @@
 extern "C" {
 #endif
 
-#ifndef _cvsspgmr_h
-#define _cvsspgmr_h
+#ifndef _cvspgmr_h
+#define _cvspgmr_h
 
 #include <stdio.h>
 #include "cvode.h"
@@ -31,9 +30,7 @@ extern "C" {
 #include "sundialstypes.h"
 #include "nvector.h"
 
- 
 /******************************************************************
- *                                                                *
  * CVSPGMR solver constants                                       *
  *----------------------------------------------------------------*
  * CVSPGMR_MAXL    : default value for the maximum Krylov         *
@@ -49,7 +46,6 @@ extern "C" {
  *                   tolerance on the nonlinear iteration is      *
  *                   multiplied to get a tolerance on the linear  *
  *                   iteration                                    *
- *                                                                *
  ******************************************************************/
 
 #define CVSPGMR_MAXL    5
@@ -59,10 +55,8 @@ extern "C" {
 #define CVSPGMR_DGMAX   RCONST(0.2)  
 
 #define CVSPGMR_DELT    RCONST(0.05) 
-
  
 /******************************************************************
- *                                                                *           
  * Type : CVSpgmrPrecSetupFn                                      *
  *----------------------------------------------------------------*
  * The user-supplied preconditioner setup function PrecSetup and  *
@@ -73,8 +67,8 @@ extern "C" {
  * M = I - gamma*J.  Here J is the system Jacobian J = df/dy,     *
  * and gamma is a scalar proportional to the integration step     *
  * size h.  The solution of systems P z = r, with P = P1 or P2,   *
- * is to be carried out by the PrecSolve function, and PrecSet is *
- * to do any necessary setup operations.                          *
+ * is to be carried out by the PrecSolve function, and PrecSetup  *
+ * is to do any necessary setup operations.                       *
  *                                                                *
  * The user-supplied preconditioner setup function PrecSetup      *
  * is to evaluate and preprocess any Jacobian-related data        *
@@ -93,16 +87,12 @@ extern "C" {
  * to decide whether to recompute the data, and set the output    *
  * flag *jcurPtr accordingly.                                     *
  *                                                                *
- * Each call to the PrecSet function is preceded by a call to     *
- * the RhsFn f with the same (t,y) arguments.  Thus the PrecSet   *
+ * Each call to the PrecSetup function is preceded by a call to   *
+ * the RhsFn f with the same (t,y) arguments.  Thus the PrecSetup *
  * function can use any auxiliary data that is computed and       *
- * saved by the f function and made accessible to PrecSet.        *
+ * saved by the f function and made accessible to PrecSetup.      *
  *                                                                *
- * The error weight vector ewt, step size h, and unit roundoff    *
- * uround are provided to the PrecSet function for possible use   *
- * in approximating Jacobian data, e.g. by difference quotients.  *
- *                                                                *
- * A function PrecSet must have the prototype given below.        *
+ * A function PrecSetup must have the prototype given below.      *
  * Its parameters are as follows:                                 *
  *                                                                *
  * t       is the current value of the independent variable.      *
@@ -117,7 +107,7 @@ extern "C" {
  *           jok == FALSE means recompute Jacobian-related data   *
  *                  from scratch.                                 *
  *           jok == TRUE  means that Jacobian data, if saved from *
- *                  the previous PrecSet call, can be reused      *
+ *                  the previous PrecSetup call, can be reused    *
  *                  (with the current value of gamma).            *
  *         A Precset call with jok == TRUE can only occur after   *
  *         a call with jok == FALSE.                              *
@@ -137,6 +127,12 @@ extern "C" {
  *         for N_Vectors which can be used by CVSpgmrPrecSetupFn  *
  *         as temporary storage or work space.                    *
  *                                                                *
+ * NOTE: If the user's preconditioner needs other quantities,     *
+ *     they are accessible as follows: hcur (the current stepsize)*
+ *     and ewt (the error weight vector) are accessible through   *
+ *     IDAGetCurrentStep and CVodeGetErrWeights, respectively     *
+ *     see cvode.h). The unit roundoff is available through a     *
+ *     call to UnitRoundoff.                                      *
  *                                                                *
  * Returned value:                                                *
  * The value to be returned by the PrecSetup function is a flag   *
@@ -144,7 +140,6 @@ extern "C" {
  *   0   if successful,                                           *
  *   > 0 for a recoverable error (step will be retried),          *
  *   < 0 for an unrecoverable error (integration is halted).      *
- *                                                                *
  ******************************************************************/
   
 typedef int (*CVSpgmrPrecSetupFn)(realtype t, N_Vector y, N_Vector fy, 
@@ -153,9 +148,7 @@ typedef int (*CVSpgmrPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
                                   N_Vector tmp1, N_Vector tmp2,
                                   N_Vector tmp3);
  
- 
 /******************************************************************
- *                                                                *           
  * Type : CVSpgmrPrecSolveFn                                      *
  *----------------------------------------------------------------*
  * The user-supplied preconditioner solve function PrecSolve      *
@@ -183,6 +176,8 @@ typedef int (*CVSpgmrPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
  *        the residual vector Res = r - P z of the system         *
  *        should be made less than delta in weighted L2 norm,     *
  *        i.e., sqrt [ Sum (Res[i]*ewt[i])^2 ] < delta .          *
+ *        Note: the error weight vector ewt can be obtained       *
+ *        through a call to the routine CVodeGetErrWeights.       *
  *                                                                *
  * lr     is an input flag indicating whether PrecSolve is to use *
  *        the left preconditioner P1 or right preconditioner      *
@@ -200,7 +195,6 @@ typedef int (*CVSpgmrPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
  *   0 if successful,                                             *
  *   positive for a recoverable error (step will be retried),     *
  *   negative for an unrecoverable error (integration is halted). *
- *                                                                *
  ******************************************************************/
   
 typedef int (*CVSpgmrPrecSolveFn)(realtype t, N_Vector y, N_Vector fy, 
@@ -209,7 +203,6 @@ typedef int (*CVSpgmrPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
                                   int lr, void *P_data, N_Vector tmp);
  
 /******************************************************************
- *                                                                *           
  * Type : CVSpgmrJacTimesVecFn                                    *
  *----------------------------------------------------------------*
  * The user-supplied function jtimes is to generate the product   *
@@ -236,7 +229,6 @@ typedef int (*CVSpgmrPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
  *                                                                *
  *   tmp      is a pointer to memory allocated for an N_Vector    *
  *            which can be used by Jtimes for work space.         *
- *                                                                *
  ******************************************************************/
 
 typedef int (*CVSpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
@@ -244,10 +236,9 @@ typedef int (*CVSpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
                                     void *jac_data, N_Vector tmp);
  
 /******************************************************************
- *                                                                *
  * Function : CVSpgmr                                             *
  *----------------------------------------------------------------*
- * A call to the CVSpgmr function links the main CVODE integrator*
+ * A call to the CVSpgmr function links the main CVODE integrator *
  * with the CVSPGMR linear solver.                                *
  *                                                                *
  * cvode_mem is the pointer to CVODE memory returned by           *
@@ -269,18 +260,23 @@ typedef int (*CVSpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  *   SUCCESS       = 0  if successful                             *
  *   LMEM_FAIL     = -1 if there was a memory allocation failure. *
  *   LIN_ILL_INPUT = -2 if there was illegal input.               *
- *                                                                *
  ******************************************************************/
 
 int CVSpgmr(void *cvode_mem, int pretype, int maxl);
 
+/******************************************************************
+ * Function: CVSpgmrResetPrecType                                 *
+ *----------------------------------------------------------------*
+ * CVSpgmrResetPrecType specifies the type of preconditioner.     *
+ *     This must be one of NONE, LEFT, RIGHT, or BOTH.            *
+ ******************************************************************/
+
+int CVSpgmrResetPrecType(void *cvode_mem, int pretype);
 
 /******************************************************************
  * Optional inputs to the CVSPGMR linear solver                   *
  *----------------------------------------------------------------*
  *                                                                *
- * CVSpgmrSetPrecType specifies the type of preconditioner. This  *
- *           must be one of NONE, LEFT, RIGHT, or BOTH.           *
  * CVSpgmrSetGSType specifies the type of Gram-Schmidt            *
  *           orthogonalization to be used. This must be one of    *
  *           the two enumeration constants MODIFIED_GS or         *
@@ -308,10 +304,8 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl);
  *           This pointer is passed to jtimes every time this     *
  *           routine is called.                                   *
  *           Default is NULL.                                     *
- *                                                                *
  ******************************************************************/
 
-int CVSpgmrSetPrecType(void *cvode_mem, int pretype);
 int CVSpgmrSetGSType(void *cvode_mem, int gstype);
 int CVSpgmrSetDelt(void *cvode_mem, realtype delt);
 int CVSpgmrSetPrecSetupFn(void *cvode_mem, CVSpgmrPrecSetupFn pset);
@@ -377,7 +371,8 @@ typedef struct {
   int g_nps;           /* nps = total number of psolve calls          */
   int g_ncfl;          /* ncfl = total number of convergence failures */
   int g_njtimes;       /* njtimes = total number of calls to jtimes   */
-  int g_nfeSG;         /* nfeSG = total number of calls to f          */
+  int g_nfeSG;         /* nfeSG = total number of calls to f for     
+                          difference quotient Jacobian-vector products*/
 
   N_Vector g_ytemp;    /* temp vector passed to jtimes and psolve     */
   N_Vector g_x;        /* temp vector used by CVSpgmrSolve            */

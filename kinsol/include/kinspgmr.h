@@ -119,7 +119,6 @@ typedef int (*KINSpgmrPrecSetupFn)(N_Vector uu, N_Vector uscale,
                                    void *P_data,
                                    N_Vector vtemp1, N_Vector vtemp2);
 
-
 /******************************************************************
  *                                                                *           
  * Type : KINSpgmrPrecSolveFn                                     *

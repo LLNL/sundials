@@ -59,7 +59,7 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                         N_Vector fcur);
 
 static int CVDenseSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                         N_Vector fcur, integertype is);
+                         N_Vector fcur, int is);
 
 static void CVDenseFree(CVodeMem cv_mem);
 
@@ -385,7 +385,7 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  integertype ier;
+  int ier;
   CVDenseMem cvdense_mem;
   
   cvdense_mem = (CVDenseMem) lmem;
@@ -463,7 +463,7 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
 **********************************************************************/
 
 static int CVDenseSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                         N_Vector fcur, integertype is)
+                         N_Vector fcur, int is)
 {
   CVDenseMem cvdense_mem;
   realtype *bd;

@@ -12,7 +12,7 @@
  * This is the header file for the CVBBDPRE module, for a          *
  * band-block-diagonal preconditioner, i.e. a block-diagonal       *
  * matrix with banded blocks, for use with CVODE, CVSpgmr, and     *
- * the parallel implementation of the N_Vector module.             *
+ * the parallel implementation of the NVECTOR module.              *
  *                                                                 *
  * Summary:                                                        *
  *                                                                 *
@@ -33,6 +33,7 @@
  *   #include "nvector_parallel.h"                                 *
  *   #include "cvbbdpre.h"                                         *
  *   ...                                                           *
+ *   void *cvode_mem;                                              *
  *   void *p_data;                                                 *
  *   ...                                                           *
  *   nvspec = NV_SpecInit_Parallel(...);                           *
@@ -42,11 +43,7 @@
  *   ...                                                           *
  *   p_data = CVBBDPrecAlloc(cvode_mem, Nlocal, mudq ,mldq,        *
  *                           mukeep, mlkeep, dqrely, gloc, cfn);   *
- *   ...                                                           *
- *   flag = CVSpgmr(cvode_mem, pretype, maxl);                     *
- *   flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBBDPrecSetup);      *
- *   flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBBDPrecSolve);      *
- *   flag = CVSpgmrSetPrecData(cvode_mem, p_data);                 *
+ *   flag = CVBBDSpgmr(cvode_mem, pretype, maxl, p_data);          *
  *   ...                                                           *
  *   ier = CVode(...);                                             *
  *   ...                                                           *
@@ -87,24 +84,20 @@
  *    functions are passed to CVBBDPrecAlloc.                      *
  *                                                                 *
  * 4) The pointer to the user-defined data block f_data, which is  *
- *    set through CvodeetFdata is also available to the user in    *
+ *    set through CVodeSetFdata is also available to the user in   *
  *    gloc and cfn.                                                *
  *                                                                 *
- * 5) For the CVSpgmr solver, the preconditioning and Gram-Schmidt *
- *    types, pretype and gstype, are left to the user to specify.  *
+ * 5) For the CVSpgmr solver, the Gram-Schmidt type gstype, is     *
+ *    left to the user to specify through CVSpgmrSetGStype         *
  *                                                                 *
- * 6) Functions CVBBDPrecSetup and CVBBDPrecSolve are never called *
- *    by the user explicitly.                                      *
- *                                                                 *
- * 7) Optional outputs specific to this module are available by    *
+ * 6) Optional outputs specific to this module are available by    *
  *    way of routines listed below.  These include work space sizes*
  *    and the cumulative number of gloc calls.  The costs          *
  *    associated with this module also include nsetups banded LU   *
- *    factorizations, nsetups cfn calls, and nps banded            *
- *    backsolve calls, where nsetups and nps are CVODE optional    *
- *    outputs.                                                     *
+ *    factorizations, nlinsetups cfn calls, and npsolves banded    *
+ *    backsolve calls, where nlinsetups and npsolves are           *
+ *    CVODE/CVSPGMR optional outputs.                              *
  *******************************************************************/
-
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -117,7 +110,6 @@ extern "C" {
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
-
 
 /******************************************************************
  * Type : CVLocalFn                                               *
@@ -136,7 +128,7 @@ extern "C" {
  * (Allocation of memory for ylocal and glocal is handled within  *
  * the preconditioner module.)                                    *
  * The f_data parameter is the same as that specified by the user *
- * through the CvodeetFdata routine.                              *
+ * through the CVodeSetFdata routine.                             *
  * A CVLocalFn gloc does not have a return value.                 *
  ******************************************************************/
 
@@ -155,7 +147,7 @@ typedef void (*CVLocalFn)(integertype Nlocal, realtype t,
  * the independent variable value t, the dependent variable       *
  * vector y, and a pointer to the user-defined data block f_data. *
  * The f_data parameter is the same as that specified by the user *
- * through the CvodeetFdata routine.  The CVCommFn cfn is         *
+ * through the CVodeSetFdata routine.  The CVCommFn cfn is        *
  * expected to save communicated data in space defined within the *
  * structure f_data.                                              *
  * A CVCommFn cfn does not have a return value.                   *
@@ -168,7 +160,6 @@ typedef void (*CVLocalFn)(integertype Nlocal, realtype t,
 typedef void (*CVCommFn)(integertype Nlocal, realtype t, N_Vector y,
                          void *f_data);
 
- 
 /*********************** Definition of CVBBDData *****************/
 
 typedef struct {
@@ -196,7 +187,6 @@ typedef struct {
   CVodeMem cv_mem;
 
 } *CVBBDPrecData;
-
 
 /******************************************************************
  * Function : CVBBDPrecAlloc                                      *
@@ -244,6 +234,35 @@ void *CVBBDPrecAlloc(void *cvode_mem, integertype Nlocal,
                      CVLocalFn gloc, CVCommFn cfn);
 
 /******************************************************************
+ * Function : CVBBDSpgmr                                          *
+ *----------------------------------------------------------------*
+ * CVBBDSpgmr links the CVBBDPRE preconditioner to the CVSPGMR    *
+ * linear solver. It performs the following actions:              *
+ *  1) Calls the CVSPGMR specification routine and attaches the   *
+ *     CVSPGMR linear solver to the CVODE solver;                 *
+ *  2) Sets the preconditioner data structure for CVSPGMR         *
+ *  3) Sets the preconditioner setup routine for CVSPGMR          *
+ *  4) Sets the preconditioner solve routine for CVSPGMR          *
+ *                                                                *
+ * Its first 3 arguments are the same as for CVSpgmr (see         *
+ * cvspgmr.h). The last argument is the pointer to the CVBBDPRE   *
+ * memory block returned by CVBBDPrecAlloc.                       * 
+ * Note that the user need not call CVSpgmr anymore.              *
+ *                                                                *
+ * Possible return values are:                                    *
+ *   (from cvode.h)  SUCCESS                                      *
+ *                   LIN_NO_MEM                                   *
+ *                   LMEM_FAIL                                    *
+ *                   LIN_NO_LMEM                                  *
+ *                   LIN_ILL_INPUT                                *
+ *   Additionaly, if CVBBDPrecAlloc was not previously called,    *
+ *   CVBBDSpgmr returns BBDP_NO_PDATA (defined below).            *
+ *                                                                *
+ ******************************************************************/
+
+int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
+
+/******************************************************************
  * Function : CVBBDPrecReInit                                     *
  *----------------------------------------------------------------*
  * CVBBDPrecReInit re-initializes the BBDPRE module when solving a*
@@ -277,9 +296,13 @@ int CVBBDPrecReInit(void *p_data,
 void CVBBDPrecFree(void *p_data);
 
 /******************************************************************
- * Function : CVBBDPrecGet*                                       *
+ * BBDPRE optional output extraction routines                     *
  *----------------------------------------------------------------*
- *                                                                *
+ * CVBBDPrecGetIntWorkSpace returns the BBDPRE integer workspace  *
+ *     size.                                                      *
+ * CVBBDPrecGetRealWorkSpace returns the BBDPRE real workspace    *
+ *     size.                                                      *
+ * CVBBDPrecGetNumGfnEvals returns the number of calls to glocal. *
  ******************************************************************/
 
 int CVBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP);
@@ -301,7 +324,6 @@ int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
                    N_Vector r, N_Vector z, 
                    realtype gamma, realtype delta,
                    int lr, void *p_data, N_Vector tmp);
-
 
 #endif
 

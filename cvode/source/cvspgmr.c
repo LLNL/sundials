@@ -1,5 +1,4 @@
 /*******************************************************************
- *                                                                 *
  * File          : cvspgmr.c                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
  *                 Radu Serban @ LLNL                              *
@@ -8,13 +7,11 @@
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                        *
+ * For details, see sundials/cvode/LICENSE                         *
  *-----------------------------------------------------------------*
- * This is the implementation file for the CVODE scaled,          *
- * preconditioned GMRES linear solver, CVSPGMR.                   *
- *                                                                 *
+ * This is the implementation file for the CVODE scaled,           *
+ * preconditioned GMRES linear solver, CVSPGMR.                    *
  *******************************************************************/
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +22,6 @@
 #include "sundialsmath.h"
 #include "iterativ.h"
 #include "spgmr.h"
-
 
 /* Error Messages */
 
@@ -46,7 +42,7 @@
 
 #define MSG_SETGET_LMEM_NULL  "CVSpgmrSet*/CVSpgmrGet*-- cvspgmr memory is NULL. \n\n"
 
-#define MSG_CVS_BAD_PRETYPE1  "CVSpgmrSetPrecType-- pretype=%d illegal.\n"
+#define MSG_CVS_BAD_PRETYPE1  "CVSpgmrResetPrecType-- pretype=%d illegal.\n"
 #define MSG_CVS_BAD_PRETYPE2  "The legal values are NONE=%d, LEFT=%d, "
 #define MSG_CVS_BAD_PRETYPE3  "RIGHT=%d, and BOTH=%d.\n\n"
 #define MSG_CVS_BAD_PRETYPE   MSG_CVS_BAD_PRETYPE1 MSG_CVS_BAD_PRETYPE2 MSG_CVS_BAD_PRETYPE3
@@ -246,9 +242,9 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   return(SUCCESS);
 }
 
-/*************** CVSpgmrSetPrecType **********************************/
+/*************** CVSpgmrResetPrecType **********************************/
 
-int CVSpgmrSetPrecType(void *cvode_mem, int pretype)
+int CVSpgmrResetPrecType(void *cvode_mem, int pretype)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;

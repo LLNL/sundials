@@ -70,6 +70,32 @@ int CVDiagGetIntWorkSpace(void *cvode_mem, long int *leniwDI);
 int CVDiagGetRealWorkSpace(void *cvode_mem, long int *lenrwDI);
 int CVDiagGetNumRhsEvals(void *cvode_mem, int *nfevalsDI);
 
+
+/******************************************************************
+ *                                                                *           
+ * Types : CVDiagMemRec, CVDiagMem                                *
+ *----------------------------------------------------------------*
+ * The type CVDiagMem is pointer to a CVDiagMemRec. This          *
+ * structure contains CVDiag solver-specific data.                *
+ *                                                                *
+ ******************************************************************/
+
+typedef struct {
+
+  realtype di_gammasv; /* gammasv = gamma at the last call to setup */
+                       /* or solve                                  */
+
+  N_Vector di_M;       /* M = (I - gamma J)^{-1} , gamma = h / l1   */
+
+  N_Vector di_bit;     /* temporary storage vector                  */
+
+  N_Vector di_bitcomp; /* temporary storage vector                  */
+
+  int di_nfeDI;        /* no. of calls to f due to difference 
+                          quotient diagonal Jacobian approximation  */
+
+} CVDiagMemRec, *CVDiagMem;
+
  
 #endif
 

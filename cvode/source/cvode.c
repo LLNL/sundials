@@ -199,7 +199,7 @@
 
 #define MSG_CVS_NO_MEM      "cvode_mem=NULL in a CVodeSet routine illegal. \n\n"
 
-#define MSG_CVS_BAD_ITER1    "CVodeSetIterType-- iter=%d illegal.\n"
+#define MSG_CVS_BAD_ITER1    "CVodeResetIterType-- iter=%d illegal.\n"
 #define MSG_CVS_BAD_ITER2    "The legal values are FUNCTIONAL=%d "
 #define MSG_CVS_BAD_ITER3    "and NEWTON=%d.\n\n"
 #define MSG_CVS_BAD_ITER      MSG_CVS_BAD_ITER1 MSG_CVS_BAD_ITER2 MSG_CVS_BAD_ITER3
@@ -512,13 +512,13 @@ void *CVodeCreate(int lmm, int iter)
 /*BEGIN        INTEGRATOR OPTIONAL INPUT FUNCTIONS                 */
 /*=================================================================*/
 
-/*------------------  CVodeSetIterType   --------------------------*/
+/*------------------  CVodeResetIterType   --------------------------*/
 /* 
    Specifies the iteration type (FUNCTIONAL or NEWTON)
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeSetIterType(void *cvode_mem, int iter)
+int CVodeResetIterType(void *cvode_mem, int iter)
 {
   CVodeMem cv_mem;
 
@@ -1709,13 +1709,13 @@ int CVodeGetLastOrder(void *cvode_mem, int *qlast)
   return(OKAY);
 }
 
-/*------------------ CVodeGetNextOrder   --------------------------*/
+/*------------------ CVodeGetCurrentOrder   --------------------------*/
 /* 
    Returns the order to be attempted on the next step
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNextOrder(void *cvode_mem, int *qcur)
+int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
 {
   CVodeMem cv_mem;
 
@@ -1803,13 +1803,13 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
   return(OKAY);
 }
 
-/*------------------ CVodeGetNextStep    --------------------------*/
+/*------------------ CVodeGetCurrentStep    --------------------------*/
 /* 
    Returns the step size to be attempted on the next step
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNextStep(void *cvode_mem, realtype *hcur)
+int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur)
 {
   CVodeMem cv_mem;
 

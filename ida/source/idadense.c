@@ -15,7 +15,6 @@
  *                                                                 *
  *******************************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +24,6 @@
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
-
 
 /* Error Messages */
 
@@ -47,35 +45,6 @@
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
 
-
-/******************************************************************
- *                                                                *           
- * Types : IDADenseMemRec, IDADenseMem                            *
- *----------------------------------------------------------------*
- * The type IDADenseMem is pointer to an IDADenseMemRec. This     *
- * structure contains IDADense solver-specific data.              *
- *                                                                *
- ******************************************************************/
-
-typedef struct {
-
-  integertype d_neq;     /* Neq = problem dimension              */
-
-  IDADenseJacFn d_jac;   /* jac = Jacobian routine to be called  */
-  
-  DenseMat d_J;          /* J = dF/dy + cj*dF/dy'                */
-  
-  integertype *d_pivots; /* pivots = pivot array for PJ = LU     */
-  
-  int d_nje;             /* nje = no. of calls to jac            */
-  
-  int d_nreD;            /* nreD = no. of calls to res           */
-
-  void *d_jdata;         /* jdata is passed to jac               */
-
-} IDADenseMemRec, *IDADenseMem;
-
-
 /* IDADENSE linit, lsetup, lsolve, and lfree routines */
  
 static int IDADenseInit(IDAMem IDA_mem);
@@ -92,8 +61,6 @@ static int IDADenseFree(IDAMem IDA_mem);
 static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
                          realtype c_j, void *jdata, N_Vector resvec, DenseMat Jac,
                          N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
-
-
 
 /* Readability Replacements */
 

@@ -19,7 +19,6 @@
  *                                                                 *
  *******************************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +28,6 @@
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
-
 
 /* Error Messages */
 
@@ -54,43 +52,6 @@
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
-
-
-
-/******************************************************************
- *                                                                *           
- * Types : IDABandMemRec, IDABandMem                              *
- *----------------------------------------------------------------*
- * The type IDABandMem is pointer to an IDABandMemRec. This       *
- * structure contains IDABand solver-specific data.               *
- *                                                                *
- ******************************************************************/
-
-typedef struct {
-
-  integertype b_neq;        /* Neq = problem size                           */
-
-  IDABandJacFn b_jac;       /* jac = banded Jacobian routine to be called   */
-  
-  BandMat b_J;              /* J = dF/dy + cj*dF/dy', banded approximation. */
-  
-  integertype b_mupper;     /* mupper = upper bandwidth of Jacobian matrix. */
-  
-  integertype b_mlower;     /* mlower = lower bandwidth of Jacobian matrix. */
-  
-  integertype b_storage_mu; /* storage_mu = upper bandwidth with storage for
-                               factoring = min(Neq-1, mupper+mlower).       */
-  
-  integertype *b_pivots;    /* pivots = pivot array for PJ = LU             */
-  
-  int b_nje;                /* nje = no. of calls to jac                    */
-  
-  int b_nreB;               /* nreB = no. of calls to res                   */
-
-  void *b_jdata;            /* jdata = data structure required by jac.      */
-  
-} IDABandMemRec, *IDABandMem;
-
 
 /* IDABAND linit, lsetup, lsolve, and lfree routines */
  

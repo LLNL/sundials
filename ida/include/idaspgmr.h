@@ -36,7 +36,7 @@ extern "C" {
  * The optional user-supplied functions PrecSetup and PrecSolve   *
  * together must define the left preconditoner matrix P           *
  * approximating the system Jacobian matrix                       *
- *    J = dF/dy + cj*dF/dy'                                       *
+ *    J = dF/dy + c_j*dF/dy'                                      *
  * (where the DAE system is F(t,y,y') = 0), and solve the linear  *
  * systems P z = r.   PrecSetup is to do any necessary setup      *
  * operations, and PrecSolve is to compute the solution of        *
@@ -58,10 +58,6 @@ extern "C" {
  * computed and saved by the res function and made accessible     *
  * to PrecSetup.                                                  *
  *                                                                *
- * The error weight vector ewt, step size hh, and unit roundoff   *
- * uround are provided to the PrecSetup function for possible use *
- * in approximating Jacobian data, e.g. by difference quotients.  *
- *                                                                *
  * A preconditioner setup function PrecSetup must have the        *
  * prototype given below.  Its parameters are as follows:         *
  *                                                                *
@@ -80,10 +76,16 @@ extern "C" {
  * pdata  is a pointer to user preconditioner data - the same as  *
  *        the pdata parameter passed to IDASpgmr.                 *
  *                                                                *
- * tempv1, tempv2, tempv3 are pointers to vectors of type         *
- * N_Vector which can be used by an IDASpgmrPrecSetupFn routine   *
+ * tmp1, tmp2, tmp3 are pointers to vectors of type N_Vector      *
+ * which can be used by an IDASpgmrPrecSetupFn routine            *
  * as temporary storage or work space.                            *
  *                                                                *
+ * NOTE: If the user's preconditioner needs other quantities,     *
+ *     they are accessible as follows: hcur (the current stepsize)*
+ *     and ewt (the error weight vector) are accessible through   *
+ *     IDAGetCurrentStep and IDAGetErrWeights, respectively (see  *
+ *     ida.h). The unit roundoff is available through a call to   *
+ *     UnitRoundoff.                                              *
  *                                                                *
  * The IDASpgmrPrecSetupFn should return                          *
  *     0 if successful,                                           *
@@ -96,9 +98,8 @@ extern "C" {
 typedef int (*IDASpgmrPrecSetupFn)(realtype tt, 
                                    N_Vector yy, N_Vector yp, N_Vector rr, 
                                    realtype cj, void *pdata,
-                                   N_Vector tempv1, N_Vector tempv2, 
-                                   N_Vector tempv3);
-
+                                   N_Vector tmp1, N_Vector tmp2, 
+                                   N_Vector tmp3);
 
 /******************************************************************
  *                                                                *           
@@ -130,12 +131,14 @@ typedef int (*IDASpgmrPrecSetupFn)(realtype tt,
  *        the residual vector r - P z of the system should be     *
  *        made less than delta in weighted L2 norm, i.e.,         *
  *            sqrt [ Sum (Res[i]*ewt[i])^2 ] < delta .            *
+ *        Note: the error weight vector ewt can be obtained       *
+ *        through a call to the routine IDAGetErrWeights.         *
  *                                                                *
  * rvec   is the input right-hand side vector r.                  *
  *                                                                *
  * zvec   is the computed solution vector z.                      *
  *                                                                *
- * tempv  is an N_Vector which can be used by the PrecSolve       *
+ * tmp  is an N_Vector which can be used by the PrecSolve         *
  * routine as temporary storage or work space.                    *
  *                                                                *
  *                                                                *
@@ -145,49 +148,57 @@ typedef int (*IDASpgmrPrecSetupFn)(realtype tt,
  *     a negative int if a nonrecoverable error occurred.         *
  * Following a recoverable error, IDA will attempt to recover by  *
  * updating the preconditioner and/or reducing the stepsize.      *
+ *                                                                *
  ******************************************************************/
   
 typedef int (*IDASpgmrPrecSolveFn)(realtype tt, 
                                    N_Vector yy, N_Vector yp, N_Vector rr, 
                                    N_Vector rvec, N_Vector zvec,
                                    realtype cj, realtype delta,
-                                   void *pdata, N_Vector tempv);
+                                   void *pdata, N_Vector tmp);
+
 /******************************************************************
  *                                                                *           
  * Type : IDASpgmrJacTimesVecFn                                   *
  *----------------------------------------------------------------*
  * The user-supplied function jtimes is to generate the product   *
- * J*v for given v, where J is the Jacobian df/dy, or an          *
- * approximation to it, and v is a given vector. It should return *
- * 0 if successful and a nonzero int otherwise.                   *
+ * J*v for given v, where J is the Jacobian matrix                *
+ *    J = dF/dy + c_j*dF/dy'                                      *
+ *  or an approximation to it, and v is a given vector.           *
+ * It should return 0 if successful and a nonzero int otherwise.  *
  *                                                                *
  * A function jtimes must have the prototype given below. Its     *
  * parameters are as follows:                                     *
  *                                                                *
- *   v        is the N_Vector to be multiplied by J.              *
+ *   v    is the N_Vector to be multiplied by J.                  *
  *                                                                *
- *   Jv       is the output N_Vector containing J*v.              *
+ *   Jv   is the output N_Vector containing J*v.                  *
  *                                                                *
- *   t        is the current value of the independent variable.   *
+ *   t    is the current value of the independent variable.       *
  *                                                                *
- *   y        is the current value of the dependent variable      *
- *            vector.                                             *
+ *   yy   is the current value of the dependent variable vector,  *
+ *        namely the predicted value of y(t).                     *
  *                                                                *
- *   fy       is the vector f(t,y).                               *
+ *   yp   is the current value of the derivative vector y',       *
+ *        namely the predicted value of y'(t).                    *
+ *                                                                *
+ *   rr   is the current value of the residual vector F(t,y,y').  *
+ *                                                                *
+ *   cj   is the scalar in the system Jacobian, proportional      *
+ *        to 1/hh.                                                *
  *                                                                *
  *   jac_data is a pointer to user Jacobian data, the same as the *
- *            pointer passed to CVSpgmr.                          *
+ *        pointer passed to CVSpgmr.                              *
  *                                                                *
- *   tmp      is a pointer to memory allocated for an N_Vector    *
- *            which can be used by Jtimes for work space.         *
+ *   tmp1, tmp2 are two N_Vectors which can be used by Jtimes for *
+ *         work space.                                            *
  *                                                                *
  ******************************************************************/
 
 typedef int (*IDASpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
                                      N_Vector yy, N_Vector yp, N_Vector rr,
                                      realtype c_j, void *jac_data, 
-                                     N_Vector work1, N_Vector work2);
-
+                                     N_Vector tmp1, N_Vector tmp2);
 
 /******************************************************************
  *                                                                *

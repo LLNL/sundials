@@ -1,5 +1,4 @@
 /*******************************************************************
- *                                                                 *
  * File          : cvsspgmr.h                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
@@ -11,11 +10,7 @@
  * For details, see sundials/cvodes/LICENSE                        *
  *-----------------------------------------------------------------*
  * This is the header file for the CVODES scaled, preconditioned   *
- * GMRES linear solver, CVSSPGMR.                                  *
- *                                                                 *
- * Note: The type integertype must be large enough to store the    *
- * value of the linear system size N.                              *
- *                                                                 *
+ * GMRES linear solver, CVSPGMR.                                   *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
@@ -30,11 +25,9 @@ extern "C" {
 #include "spgmr.h"
 #include "sundialstypes.h"
 #include "nvector.h"
-
  
 /******************************************************************
- *                                                                *
- * CVSSPGMR solver constants                                      *
+ * CVSPGMR solver constants                                       *
  *----------------------------------------------------------------*
  * CVSPGMR_MAXL    : default value for the maximum Krylov         *
  *                   dimension.                                   *
@@ -49,7 +42,6 @@ extern "C" {
  *                   tolerance on the nonlinear iteration is      *
  *                   multiplied to get a tolerance on the linear  *
  *                   iteration                                    *
- *                                                                *
  ******************************************************************/
 
 #define CVSPGMR_MAXL    5
@@ -59,10 +51,8 @@ extern "C" {
 #define CVSPGMR_DGMAX   RCONST(0.2)  
 
 #define CVSPGMR_DELT    RCONST(0.05) 
-
  
 /******************************************************************
- *                                                                *           
  * Type : CVSpgmrPrecSetupFn                                      *
  *----------------------------------------------------------------*
  * The user-supplied preconditioner setup function PrecSetup and  *
@@ -73,8 +63,8 @@ extern "C" {
  * M = I - gamma*J.  Here J is the system Jacobian J = df/dy,     *
  * and gamma is a scalar proportional to the integration step     *
  * size h.  The solution of systems P z = r, with P = P1 or P2,   *
- * is to be carried out by the PrecSolve function, and PrecSet is *
- * to do any necessary setup operations.                          *
+ * is to be carried out by the PrecSolve function, and PrecSetup  *
+ * is to do any necessary setup operations.                       *
  *                                                                *
  * The user-supplied preconditioner setup function PrecSetup      *
  * is to evaluate and preprocess any Jacobian-related data        *
@@ -93,16 +83,12 @@ extern "C" {
  * to decide whether to recompute the data, and set the output    *
  * flag *jcurPtr accordingly.                                     *
  *                                                                *
- * Each call to the PrecSet function is preceded by a call to     *
- * the RhsFn f with the same (t,y) arguments.  Thus the PrecSet   *
+ * Each call to the PrecSetup function is preceded by a call to   *
+ * the RhsFn f with the same (t,y) arguments.  Thus the PrecSetup *
  * function can use any auxiliary data that is computed and       *
- * saved by the f function and made accessible to PrecSet.        *
+ * saved by the f function and made accessible to PrecSetup.      *
  *                                                                *
- * The error weight vector ewt, step size h, and unit roundoff    *
- * uround are provided to the PrecSet function for possible use   *
- * in approximating Jacobian data, e.g. by difference quotients.  *
- *                                                                *
- * A function PrecSet must have the prototype given below.        *
+ * A function PrecSetup must have the prototype given below.      *
  * Its parameters are as follows:                                 *
  *                                                                *
  * t       is the current value of the independent variable.      *
@@ -117,7 +103,7 @@ extern "C" {
  *           jok == FALSE means recompute Jacobian-related data   *
  *                  from scratch.                                 *
  *           jok == TRUE  means that Jacobian data, if saved from *
- *                  the previous PrecSet call, can be reused      *
+ *                  the previous PrecSetup call, can be reused    *
  *                  (with the current value of gamma).            *
  *         A Precset call with jok == TRUE can only occur after   *
  *         a call with jok == FALSE.                              *
@@ -137,6 +123,12 @@ extern "C" {
  *         for N_Vectors which can be used by CVSpgmrPrecSetupFn  *
  *         as temporary storage or work space.                    *
  *                                                                *
+ * NOTE: If the user's preconditioner needs other quantities,     *
+ *     they are accessible as follows: hcur (the current stepsize)*
+ *     and ewt (the error weight vector) are accessible through   *
+ *     IDAGetCurrentStep and CVodeGetErrWeights, respectively     *
+ *     see cvode.h). The unit roundoff is available through a     *
+ *     call to UnitRoundoff.                                      *
  *                                                                *
  * Returned value:                                                *
  * The value to be returned by the PrecSetup function is a flag   *
@@ -144,7 +136,6 @@ extern "C" {
  *   0   if successful,                                           *
  *   > 0 for a recoverable error (step will be retried),          *
  *   < 0 for an unrecoverable error (integration is halted).      *
- *                                                                *
  ******************************************************************/
   
 typedef int (*CVSpgmrPrecSetupFn)(realtype t, N_Vector y, N_Vector fy, 
@@ -153,9 +144,7 @@ typedef int (*CVSpgmrPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
                                   N_Vector tmp1, N_Vector tmp2,
                                   N_Vector tmp3);
  
- 
 /******************************************************************
- *                                                                *           
  * Type : CVSpgmrPrecSolveFn                                      *
  *----------------------------------------------------------------*
  * The user-supplied preconditioner solve function PrecSolve      *
@@ -183,6 +172,8 @@ typedef int (*CVSpgmrPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
  *        the residual vector Res = r - P z of the system         *
  *        should be made less than delta in weighted L2 norm,     *
  *        i.e., sqrt [ Sum (Res[i]*ewt[i])^2 ] < delta .          *
+ *        Note: the error weight vector ewt can be obtained       *
+ *        through a call to the routine CVodeGetErrWeights.       *
  *                                                                *
  * lr     is an input flag indicating whether PrecSolve is to use *
  *        the left preconditioner P1 or right preconditioner      *
@@ -200,7 +191,6 @@ typedef int (*CVSpgmrPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
  *   0 if successful,                                             *
  *   positive for a recoverable error (step will be retried),     *
  *   negative for an unrecoverable error (integration is halted). *
- *                                                                *
  ******************************************************************/
   
 typedef int (*CVSpgmrPrecSolveFn)(realtype t, N_Vector y, N_Vector fy, 
@@ -209,7 +199,6 @@ typedef int (*CVSpgmrPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
                                   int lr, void *P_data, N_Vector tmp);
  
 /******************************************************************
- *                                                                *           
  * Type : CVSpgmrJacTimesVecFn                                    *
  *----------------------------------------------------------------*
  * The user-supplied function jtimes is to generate the product   *
@@ -236,7 +225,6 @@ typedef int (*CVSpgmrPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
  *                                                                *
  *   tmp      is a pointer to memory allocated for an N_Vector    *
  *            which can be used by Jtimes for work space.         *
- *                                                                *
  ******************************************************************/
 
 typedef int (*CVSpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
@@ -244,7 +232,6 @@ typedef int (*CVSpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
                                     void *jac_data, N_Vector tmp);
  
 /******************************************************************
- *                                                                *
  * Function : CVSpgmr                                             *
  *----------------------------------------------------------------*
  * A call to the CVSpgmr function links the main CVODES integrator*
@@ -269,18 +256,23 @@ typedef int (*CVSpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  *   SUCCESS       = 0  if successful                             *
  *   LMEM_FAIL     = -1 if there was a memory allocation failure. *
  *   LIN_ILL_INPUT = -2 if there was illegal input.               *
- *                                                                *
  ******************************************************************/
 
 int CVSpgmr(void *cvode_mem, int pretype, int maxl);
 
+/******************************************************************
+ * Function: CVSpgmrResetPrecType                                 *
+ *----------------------------------------------------------------*
+ * CVSpgmrResetPrecType specifies the type of preconditioner.     *
+ *     This must be one of NONE, LEFT, RIGHT, or BOTH.            *
+ ******************************************************************/
+
+int CVSpgmrResetPrecType(void *cvode_mem, int pretype);
 
 /******************************************************************
- * Optional inputs to the CVSSPGMR linear solver                  *
+ * Optional inputs to the CVSPGMR linear solver                   *
  *----------------------------------------------------------------*
  *                                                                *
- * CVSpgmrSetPrecType specifies the type of preconditioner. This  *
- *           must be one of NONE, LEFT, RIGHT, or BOTH.           *
  * CVSpgmrSetGSType specifies the type of Gram-Schmidt            *
  *           orthogonalization to be used. This must be one of    *
  *           the two enumeration constants MODIFIED_GS or         *
@@ -291,7 +283,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl);
  * CVSpgmrSetDelt specifies the factor by which the tolerance on  *
  *           the nonlinear iteration is multiplied to get a       *
  *           tolerance on the linear iteration. This is an        *
- *           optional input to the CVSSPGMR solver.               *
+ *           optional input to the CVSPGMR solver.                *
  *           Default value is 0.05.                               *
  * CVSpgmrSetPrecSetupFn specifies the PrecSetup function.        *
  *           Default is NULL.                                     *
@@ -308,10 +300,8 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl);
  *           This pointer is passed to jtimes every time this     *
  *           routine is called.                                   *
  *           Default is NULL.                                     *
- *                                                                *
  ******************************************************************/
 
-int CVSpgmrSetPrecType(void *cvode_mem, int pretype);
 int CVSpgmrSetGSType(void *cvode_mem, int gstype);
 int CVSpgmrSetDelt(void *cvode_mem, realtype delt);
 int CVSpgmrSetPrecSetupFn(void *cvode_mem, CVSpgmrPrecSetupFn pset);
@@ -321,13 +311,13 @@ int CVSpgmrSetJacTimesVecFn(void *cvode_mem, CVSpgmrJacTimesVecFn jtimes);
 int CVSpgmrSetJacData(void *cvode_mem, void *jac_data);
 
 /******************************************************************
- * Optional outputs from the CVSSPGMR linear solver               *
+ * Optional outputs from the CVSPGMR linear solver                *
  *----------------------------------------------------------------*
  *                                                                *
  * CVSpgmrGetIntWorkSpace returns the integer workspace used by   *
- *     CVSSPGMR.                                                  *
+ *     CVSPGMR.                                                   *
  * CVSpgmrGetRealWorkSpace returns the real workspace used by     *
- *     CVSSPGMR.                                                  *
+ *     CVSPGMR.                                                   *
  * CVSpgmrGetNumPrecEvals returns the number of preconditioner    *
  *     evaluations, i.e. the number of calls made to PrecSetup    *
  *     with jok==FALSE.                                           *
@@ -340,7 +330,6 @@ int CVSpgmrSetJacData(void *cvode_mem, void *jac_data);
  * CVSpgmrGetNumRhsEvals returns the number of calls to the user  *
  *     f routine due to finite difference Jacobian times vector   *
  *     evaluation.                                                *
- *                                                                *
  ******************************************************************/
 
 int CVSpgmrGetIntWorkSpace(void *cvode_mem, long int *leniwSG);
@@ -353,7 +342,6 @@ int CVSpgmrGetNumJtimesEvals(void *cvode_mem, int *njvevals);
 int CVSpgmrGetNumRhsEvals(void *cvode_mem, int *nfevalsSG); 
 
 /******************************************************************
- *                                                                *           
  * Types : CVSpgmrMemRec, CVSpgmrMem                              *
  *----------------------------------------------------------------*
  * The type CVSpgmrMem is pointer to a CVSpgmrMemRec. This        *
@@ -377,7 +365,8 @@ typedef struct {
   int g_nps;           /* nps = total number of psolve calls          */
   int g_ncfl;          /* ncfl = total number of convergence failures */
   int g_njtimes;       /* njtimes = total number of calls to jtimes   */
-  int g_nfeSG;         /* nfeSG = total number of calls to f          */
+  int g_nfeSG;         /* nfeSG = total number of calls to f  for     
+                          difference quotient Jacobian-vector products*/
 
   N_Vector g_ytemp;    /* temp vector passed to jtimes and psolve     */
   N_Vector g_x;        /* temp vector used by CVSpgmrSolve            */
@@ -401,7 +390,6 @@ typedef struct {
   void *g_j_data;       /* j_data is passed to jtimes                 */
 
 } CVSpgmrMemRec, *CVSpgmrMem;
-
 
 #endif
 

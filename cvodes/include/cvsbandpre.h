@@ -49,10 +49,7 @@
  *   ...                                                           *
  *   bp_data = CVBandPrecAlloc(N, f, f_data, mu, ml, cvode_mem);   *
  *   ...                                                           *
- *   flag = CVSpgmr(cvode_mem, pretype, maxl);                     *
- *   flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBandPrecSetup);     *
- *   flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBandPrecSolve);     *
- *   flag = CVSpgmrSetPrecData(cvode_mem, bp_data);                *
+ *   flag = CVBPSpgmr(cvode_mem, pretype, maxl, bp_data);          *
  *   ...                                                           *
  *   flag = CVode(...);                                            *
  *   ...                                                           *
@@ -70,13 +67,9 @@
  *     pretype and gstype, and the optional inputs maxl and delt.  *
  *     But the last three arguments must be as shown, with the     *
  *     last argument being the pointer returned by CVBandPreAlloc. *
- * (4) The CVBandPrecSetup and CVBandPrecSolve functions are never *
- *     called by the user explicitly; they are simply passed to    *
- *     the CVSpgmr function.                                       *
  *                                                                 *
  *******************************************************************/
 
- 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -88,7 +81,6 @@ extern "C" {
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
-
 
 /************* CVBandPrecData type definition ************/
 
@@ -122,7 +114,7 @@ typedef struct {
  *                                                                *
  * The parameters of CVBandPrecAlloc are as follows:              *
  *                                                                *
- * n       is the length of all vector arguments.                 *
+ * N       is the length of all vector arguments.                 *
  *                                                                *
  * mu      is the upper half bandwidth.                           *
  *                                                                *
@@ -141,9 +133,37 @@ typedef struct {
  *                                                                *
  ******************************************************************/
 
-void *CVBandPrecAlloc(void *cvode_mem, integertype n,
+void *CVBandPrecAlloc(void *cvode_mem, integertype N,
                       integertype mu, integertype ml);
 
+/******************************************************************
+ * Function : CVBPSpgmr                                           *
+ *----------------------------------------------------------------*
+ * CVBPSpgmr links the CVBANDPPRE preconditioner to the CVSSPGMR  *
+ * linear solver. It performs the following actions:              *
+ *  1) Calls the CVSPGMR specification routine and attaches the   *
+ *     CVSSPGMR linear solver to the CVODE solver;                *
+ *  2) Sets the preconditioner data structure for CVSSPGMR        *
+ *  3) Sets the preconditioner setup routine for CVSSPGMR         *
+ *  4) Sets the preconditioner solve routine for CVSSPGMR         *
+ *                                                                *
+ * Its first 3 arguments are the same as for CVSpgmr (see         *
+ * cvspgmr.h). The last argument is the pointer to the CVBANDPPRE *
+ * memory block returned by CVBandPrecAlloc.                      * 
+ * Note that the user need not call CVSpgmr anymore.              *
+ *                                                                *
+ * Possible return values are:                                    *
+ *   (from cvodes.h)  SUCCESS                                     *
+ *                   LIN_NO_MEM                                   *
+ *                   LMEM_FAIL                                    *
+ *                   LIN_NO_LMEM                                  *
+ *                   LIN_ILL_INPUT                                *
+ *   Additionaly, if CVBandPrecAlloc was not previously called,   *
+ *   CVBPSpgmr returns BP_NO_PDATA (defined below).               *
+ *                                                                *
+ ******************************************************************/
+
+int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
 
 /******************************************************************
  * Function : CVBandPrecFree                                      *
@@ -158,6 +178,13 @@ void CVBandPrecFree(void *bp_data);
 /******************************************************************
  * Function : CVBandPrecGet*                                      *
  *----------------------------------------------------------------*
+ *                                                                *
+ * CVBandPrecGetIntWorkSpace returns the integer workspace used   *
+ *    by CVBANDPRE.                                               *
+ * CVBandPrecGetRealWorkSpace returns the real workspace used     *
+ *    by CVBANDPRE.                                               *
+ * CVBandPrecGetNumRhsEvals returns the number of calls made from *
+ *    CVBANDPRE to the user's right hand side routine f.          *
  *                                                                *
  ******************************************************************/
 

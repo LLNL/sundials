@@ -1,5 +1,4 @@
 /*******************************************************************
- *                                                                 *
  * File          : kinsol.h                                        *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
@@ -20,19 +19,14 @@ extern "C" {
 #ifndef _kinsol_h
 #define _kinsol_h
 
-
 #include <stdio.h>
 #include "sundialstypes.h"
 #include "nvector.h"
 
-
 /******************************************************************
- *                                                                *
  * Enumeration for inputs to KINSetEtaForm                        *
  *----------------------------------------------------------------*
- *                                                                *
  * Eta choice                                                     *
- *----------------------------------------------------------------*
  *                                                                *
  * ETACONSTANT: constant eta, default of 0.1 or user supplied     *
  *               choice, for which see KINSetEtaConstValue        *
@@ -65,11 +59,8 @@ extern "C" {
  *              eta_safe = egamma*eta(k-1)^ealpha.                *
  * These safeguards are turned off if they drop below 0.1.        *
  * Also, eta is never allowed to be less than eta_min = 1.e-4     *
- *                                                                *
  *----------------------------------------------------------------*
- *                                                                *
  * Global strategy                                                *
- *----------------------------------------------------------------*
  *                                                                *
  * Choices are INEXACT_NEWTON or LINESEARCH                       *
  *----------------------------------------------------------------*/
@@ -78,9 +69,7 @@ enum { ETACHOICE1, ETACHOICE2, ETACONSTANT };
 
 enum { INEXACT_NEWTON , LINESEARCH };
  
-
 /******************************************************************
- *                                                                *
  * Type : SysFn                                                   *
  *----------------------------------------------------------------*        
  * The func function which defines the system to be solved :      *
@@ -91,7 +80,6 @@ enum { INEXACT_NEWTON , LINESEARCH };
  * provided by the pointer f_data.                                *
  * The uu argument is of type N_Vector.                           *
  * A SysFn function does not have a return value.                 *
- *                                                                *
  ******************************************************************/
 
 typedef void (*SysFn)(N_Vector uu, N_Vector fval, void *f_data );
@@ -103,7 +91,6 @@ typedef void (*SysFn)(N_Vector uu, N_Vector fval, void *f_data );
  *================================================================*/
 
 /*----------------------------------------------------------------*
- *                                                                *
  * Function : KINCreate                                           *
  *----------------------------------------------------------------*
  * KINCreate creates an internal memory block for a problem to    *
@@ -113,19 +100,16 @@ typedef void (*SysFn)(N_Vector uu, N_Vector fval, void *f_data );
  * problem memory. This pointer should be passed to KINMalloc.    *
  * If an initialization error occurs, KINCreate prints an error   *
  * message to standard err and returns NULL.                      *
- *                                                                *
  *----------------------------------------------------------------*/
 
 void *KINCreate(void);
 
 /*----------------------------------------------------------------*
- *                                                                *
  * Solver optional input specification functions                  *
  *----------------------------------------------------------------*
  * The following functions can be called to set optional inputs   *
  * to values other than the defaults given below:                 *
  *                                                                *
- *                      |                                         * 
  * Function             |  Optional input / [ default value ]     *
  *                      |                                         * 
  * -------------------------------------------------------------- *
@@ -259,12 +243,10 @@ void *KINCreate(void);
  *                      | [NULL]                                  *
  *                      |                                         * 
  * -------------------------------------------------------------- *
- *                                                                *
  * If successful, these functions return SUCCESS. If an argument  *
  * has an illegal value, they print an error message to the       *
  * file specified by errfp and return one of the error flags      *  
  * defined below.                                                 *
- *                                                                * 
  *----------------------------------------------------------------*/
 
 int KINSetFdata(void *kinmem, void *f_data);
@@ -289,13 +271,13 @@ int KINSetConstraints(void *kinmem, N_Vector constraints);
 enum {KINS_NO_MEM = -1, KINS_ILL_INPUT = -2};
 
 /******************************************************************
- *                                                                *
  * Function   : KINMalloc                                         *
+ * -------------------------------------------------------------- *
  *                                                                *
  *            This function allocates main memory for the KINSol  *
- *            package. It also allocates several vectors of size  *
- *            Neq used by the package. Other N_Vectors are also   *
- *            to be allocated by the user and supplied to KINSol. *
+ *            package. It also allocates several N_Vectors used   *
+ *            by the package. Other N_Vectors are also to be      *
+ *            allocated by the user and supplied to KINSol.       *
  *                                                                *
  * nvspec  is a pointer to a vector specification structure       *
  *                                                                *
@@ -303,7 +285,6 @@ enum {KINS_NO_MEM = -1, KINS_ILL_INPUT = -2};
  * If an initialization error occurs, KINMalloc prints an error   *
  * message to the file specified by errfp and returns an error    *
  * flag                                                           *
- *                                                                *
  *****************************************************************/
 
 int KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec);
@@ -313,7 +294,18 @@ int KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec);
 enum {KINM_NO_MEM = -1, KINM_ILL_INPUT = -2, KINM_MEM_FAIL = -3};
 
 /******************************************************************
- *                                                                *
+ * Function: KINResetSysFunc                                      *
+ *----------------------------------------------------------------*
+ * KINResetSysFunc changes the user-provided routine which        *
+ *   defines the nonlinear problem to be solved.                  *
+ *   KINResetSysFunc is provided for user who wish to solve       *
+ *   several problems of the same size but with different         *
+ *   functions.                                                   *
+ ******************************************************************/
+
+int KINResetSysFunc(void *kinmem, SysFn func);
+
+/******************************************************************
  * Function : KINSol                                              *
  *----------------------------------------------------------------*
  * KINSol initializes memory for a problem previously allocated   *
@@ -357,14 +349,12 @@ enum {KINM_NO_MEM = -1, KINM_ILL_INPUT = -2, KINM_MEM_FAIL = -3};
  *         multiplication) should have all its components with    *
  *         roughly the same magnitude when uu is NOT too near a   *
  *         root of func.                                          *
- *                                                                *
  *****************************************************************/
 
 int KINSol(void *kinmem, N_Vector u,
            int strategy, N_Vector u_scale, N_Vector f_scale);
 
 /******************************************************************
- *                                                                *
  *         KINSOL termination codes                               *
  ******************************************************************     
  *  KINSol returns an integer-valued termination code             *
@@ -443,7 +433,6 @@ int KINSol(void *kinmem, N_Vector u,
  *  LSOLV_NO_MEM: The linear solver memory pointer (lmem) was     *
  *             received as NULL. The return value from the linear *
  *             solver needs to be checked and the cause found.    *
- *                                                                *
  ******************************************************************/
 
 /* KINSol return values */
@@ -458,10 +447,8 @@ enum { SUCCESS = 0,
        KINSOL_PRECONDSOLVE_FAILURE = 9 };
  
 /*----------------------------------------------------------------*
- *                                                                *
  * Solver optional output extraction functions                    *
  *----------------------------------------------------------------*
- *                                                                *
  * The following functions can be called to get optional outputs  *
  * and statistics related to the KINSOL solver.                   *
  * -------------------------------------------------------------- *
@@ -481,7 +468,6 @@ enum { SUCCESS = 0,
  *       norm(fscale(func(uu))                                    *
  * KINGetStepLength returns the last step length in the global    *
  *       strategy routine (KINLineSearch or KINInexactNewton).    *
- *                                                                *
  *****************************************************************/
 
 int KINGetIntWorkSpace(void *kinmem, long int *leniw);
@@ -497,7 +483,6 @@ int KINGetStepLength(void *kinmem, realtype *stepl);
 enum { OKAY=0, KING_NO_MEM=-1 };
 
 /******************************************************************
- *                                                                *
  * Function : KINFree                                             *
  *----------------------------------------------------------------*
  * KINFree frees the problem memory kinsol_mem allocated by       *
@@ -509,14 +494,11 @@ enum { OKAY=0, KING_NO_MEM=-1 };
 void KINFree(void *kinmem);
  
 /******************************************************************
- *                                                                *
  * Types : struct KINMemRec, KINMem                               *
  *----------------------------------------------------------------*
  * The type KINMem is type pointer to struct KINMemRec. This      *
  * structure contains fields to keep track of problem status.     *
- *                                                                *
  ******************************************************************/
-
 
 typedef struct KINMemRec {
 
@@ -647,7 +629,6 @@ typedef struct KINMemRec {
 
 
 /******************************************************************
- *                                                                *
  * Communication between user and a KINSOL Linear Solver           *
  *----------------------------------------------------------------*
  * Return values of the linear solver specification routine.      *
@@ -655,21 +636,19 @@ typedef struct KINMemRec {
  *                                                                *
  *    SUCCESS      : The routine was successful.                  *
  *                                                                *
- *    LIN_NO_MEM   : CVODES memory = NULL.                        *
+ *    LIN_NO_MEM   : KINSOL memory = NULL.                        *
  *                                                                *
  *    LMEM_FAIL    : A memory allocation failed.                  *
  *                                                                *
  *    LIN_ILL_INPUT: Some input was illegal (see message).        *
  *                                                                *
  *    LIN_NO_LMEM  : The linear solver's memory = NULL.           *
- *                                                                *
  *----------------------------------------------------------------*/
 
 /* SUCCESS = 0  */
 enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
 
 /******************************************************************
- *                                                                *
  * Communication between kinsol.c and a KINSol Linear Solver      *
  *----------------------------------------------------------------*
  * (1) kin_linit return values                                    *
@@ -679,8 +658,6 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * LINIT_ERR   : The kin_linit routine failed. Each linear solver *
  *               init routine should print an appropriate error   *
  *               message to (kin_mem->kin_errfp).                 *
- *                                                                *
- *                                                                *
  ******************************************************************/
 
 /* kin_linit return values */
@@ -689,7 +666,6 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
 #define LINIT_ERR      -1
 
 /*******************************************************************
- *                                                                 *
  * int (*kin_linit)(KINMem kin_mem);                               *
  *-----------------------------------------------------------------*
  * The purpose of kin_linit is to perform any needed               *
@@ -703,11 +679,9 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * KINSol linear solver and LINIT_ERR (= -1) otherwise. These      *
  * constants are defined above. If an error does occur, an         *
  * appropriate message should be sent to (kin_mem->kin_errfp).     *
- *                                                                 *
  *******************************************************************/
 
 /*******************************************************************
- *                                                                 *
  * int (*kin_lsetup)(KINMem kin_mem);                              *
  *-----------------------------------------------------------------*
  * The job of kin_lsetup is to prepare the linear solver for       *
@@ -719,11 +693,9 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * The kin_lsetup routine should return 0 if successful,           *
  * a positive value for a recoverable error, and a negative value  *
  * for an unrecoverable error.                                     *
- *                                                                 *
  *******************************************************************/
 
 /*******************************************************************
- *                                                                 *
  * int (*kin_lsolve)(KINMem kin_mem, N_Vector bb, N_Vector xx,     *
  *                   realtype *res_norm);                          *
  *-----------------------------------------------------------------*
@@ -733,19 +705,15 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * returned in the vector b. kin_lsolve returns a positive value   *
  * for a recoverable error and a negative value for an             *
  * unrecoverable error. Success is indicated by a 0 return value.  *
- *                                                                 *
  *******************************************************************/
 
 /*******************************************************************
- *                                                                 *
  * void (*kin_lfree)(KINMem kin_mem);                              *
  *-----------------------------------------------------------------*
  * kin_lfree should free up any memory allocated by the linear     *
  * solver. This routine is called once a problem has been          *
  * completed and the linear solver is no longer needed.            *
- *                                                                 *
  *******************************************************************/
-
 
 #endif
 #ifdef __cplusplus

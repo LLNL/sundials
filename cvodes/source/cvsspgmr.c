@@ -1,5 +1,4 @@
 /*******************************************************************
- *                                                                 *
  * File          : cvsspgmr.c                                      *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
  *                 Radu Serban @ LLNL                              *
@@ -12,9 +11,7 @@
  *-----------------------------------------------------------------*
  * This is the implementation file for the CVODES scaled,          *
  * preconditioned GMRES linear solver, CVSSPGMR.                   *
- *                                                                 *
  *******************************************************************/
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +22,6 @@
 #include "sundialsmath.h"
 #include "iterativ.h"
 #include "spgmr.h"
-
 
 /* Error Messages */
 
@@ -46,7 +42,7 @@
 
 #define MSG_SETGET_LMEM_NULL  "CVSpgmrSet*/CVSpgmrGet*-- cvsspgmr memory is NULL. \n\n"
 
-#define MSG_CVS_BAD_PRETYPE1  "CVSpgmrSetPrecType-- pretype=%d illegal.\n"
+#define MSG_CVS_BAD_PRETYPE1  "CVSpgmrResetPrecType-- pretype=%d illegal.\n"
 #define MSG_CVS_BAD_PRETYPE2  "The legal values are NONE=%d, LEFT=%d, "
 #define MSG_CVS_BAD_PRETYPE3  "RIGHT=%d, and BOTH=%d.\n\n"
 #define MSG_CVS_BAD_PRETYPE   MSG_CVS_BAD_PRETYPE1 MSG_CVS_BAD_PRETYPE2 MSG_CVS_BAD_PRETYPE3
@@ -75,7 +71,7 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                         N_Vector fcur);
 
 static int CVSpgmrSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                         N_Vector fcur, integertype is);
+                         N_Vector fcur, int is);
 
 static void CVSpgmrFree(CVodeMem cv_mem);
 
@@ -251,9 +247,9 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   return(SUCCESS);
 }
 
-/*************** CVSpgmrSetPrecType **********************************/
+/*************** CVSpgmrResetPrecType **********************************/
 
-int CVSpgmrSetPrecType(void *cvode_mem, int pretype)
+int CVSpgmrResetPrecType(void *cvode_mem, int pretype)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -845,7 +841,7 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector ynow,
 **********************************************************************/
 
 static int CVSpgmrSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ynow,
-                         N_Vector fnow, integertype is)
+                         N_Vector fnow, int is)
 {
   realtype bnorm, res_norm;
   CVSpgmrMem cvspgmr_mem;

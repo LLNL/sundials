@@ -42,15 +42,15 @@ extern "C" {
  * must have type ResFn.                                          *
  * Symbols are as follows: t  <-> tres     y <-> yy               *
  *                         y' <-> yp       F <-> res (type ResFn) *
- * A ResFn takes as input the problem size Neq, the independent   *
- * variable value tres, the dependent variable vector yy, and the *
- * derivative (with respect to t) of the yy vector, yp.  It       *
- * stores the result of F(t,y,y') in the vector resval.  The      *
- * yy, yp, and resval arguments are of type N_Vector.             *
- * The rdata parameter is to be of the same type as the rdata     *
- * parameter passed by the user to the IDAMalloc routine. This    *
- * user-supplied pointer is passed to the user's res function     *
- * every time it is called, to provide access in res to user data.*
+ * A ResFn takes as input the independent variable value tres,    *
+ * the dependent variable vector yy, and the derivative (with     *
+ * respect to t) of the yy vector, yp.  It stores the result of   *
+ * F(t,y,y') in the vector resval. The yy, yp, and resval         *
+ * arguments are of type N_Vector. The rdata parameter is to be   *
+ * of the same type as the rdata parameter passed by the user to  *
+ * the IDASetRdata routine. This user-supplied pointer is passed  *
+ * to the user's res function every time it is called, to provide *
+ * access in res to user data.                                    *
  *                                                                *
  * A ResFn res will return the value ires, which has possible     *
  * values RES_ERROR_RECVR = 1, RES_ERROR_NONRECVR = -1,           *
@@ -137,7 +137,7 @@ void *IDACreate(void);
  *                      |                                         * 
  * IDASetMaxOrd         | maximum lmm order to be used by the     *
  *                      | solver.                                 *
- *                      | [5 (BDF)]                               * 
+ *                      | [5]                                     * 
  *                      |                                         * 
  * IDASetMaxNumSteps    | maximum number of internal steps to be  *
  *                      | taken by the solver in its attempt to   *
@@ -287,7 +287,7 @@ enum {IDAM_NO_MEM = -1, IDAM_MEM_FAIL=-2, IDAM_ILL_INPUT = -2};
  * IDAReInit re-initializes IDA for the solution of a problem,    *
  * where a prior call to IDAMalloc has been made.                 *
  * IDAReInit performs the same input checking and initializations *
- * that IDAMalloc does (except for Neq).                          *
+ * that IDAMalloc does.                                           *
  * But it does no memory allocation, assuming that the existing   *
  * internal memory is sufficient for the new problem.             *
  *                                                                *
@@ -648,14 +648,14 @@ int IDAGetSolution(void *ida_mem, realtype t,
  *       operations done in the linesearch algorithm in IDACalcIC *
  * IDAGetLastOrder returns the order used during the last         *
  *       internal step                                            *
- * IDAGetNextOrder returns the order to be used on the next       *
+ * IDAGetCurentOrder returns the order to be used on the next     *
  *       internal step                                            *
  * IDAGetActualInitStep returns the actual initial step size      *
  *       used by IDA                                              *
- * IDAGetLastStep returns the step size for the last internal     *
+ * IDAGetLAstStep returns the step size for the last internal     *
  *       step (if from IDASolve), or the last value of the        *
  *       artificial step size h (if from IDACalcIC)               *
- * IDAGetNextStep returns the step size to be attempted on the    *
+ * IDAGetCurrentStep returns the step size to be attempted on the *
  *       next internal step                                       *
  * IDAGetCurrentTime returns the current internal time reached    *
  *       by the solver                                            *
@@ -677,10 +677,10 @@ int IDAGetNumLinSolvSetups(void *ida_mem, int *nlinsetups);
 int IDAGetNumErrTestFails(void *ida_mem, int *netfails);
 int IDAGetNumBacktrackOps(void *ida_mem, int *nbacktr);
 int IDAGetLastOrder(void *ida_mem, int *klast);
-int IDAGetNextOrder(void *ida_mem, int *kcur);
+int IDAGetCurrentOrder(void *ida_mem, int *kcur);
 int IDAGetActualInitStep(void *ida_mem, realtype *hinused);
 int IDAGetLastStep(void *ida_mem, realtype *hlast);
-int IDAGetNextStep(void *ida_mem, realtype *hcur);
+int IDAGetCurrentStep(void *ida_mem, realtype *hcur);
 int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
 int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
 int IDAGetErrWeights(void *ida_mem, N_Vector *eweight);
@@ -738,8 +738,7 @@ void IDAFree(void *ida_mem);
 
 /* Basic IDA constants */
 
-#define MXORDP1       6     /* max value 'small' dimension for 
-                               phi array size   (other dimension is Neq)  */
+#define MXORDP1   6     /* max. number of N_Vectors kept in the phi array */
 
 /******************************************************************
  * Types : struct IDAMemRec, IDAMem                               *
@@ -776,7 +775,7 @@ typedef struct IDAMemRec {
   realtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
   realtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
 
-  /* Vectors of length Neq */
+  /* N_Vectors */
 
   N_Vector ida_ewt;         /* error weight vector                           */
   N_Vector ida_mskewt;      /* masked error weight vector (uses ID)          */
@@ -810,9 +809,8 @@ typedef struct IDAMemRec {
   realtype ida_steptol;     /* minimum Newton step size in IC calculation    */
   realtype ida_tscale;      /* time scale factor = abs(tout1 - t0)           */
 
-  /*-----------------
-    Tstop information
-  -------------------*/
+  /* Tstop information */
+
   booleantype ida_istop;
   realtype ida_tstop;
 
@@ -848,12 +846,12 @@ typedef struct IDAMemRec {
 
   /* Counters */
 
-  long int ida_nst;      /* number of internal steps taken                    */
-  long int ida_nre;      /* number of function (res) calls                    */
-  long int ida_ncfn;     /* number of corrector convergence failures          */
-  long int ida_netf;     /* number of error test failures                     */
-  long int ida_nni;      /* number of Newton iterations performed             */
-  long int ida_nsetups;  /* number of lsetup calls                            */
+  int ida_nst;           /* number of internal steps taken                    */
+  int ida_nre;           /* number of function (res) calls                    */
+  int ida_ncfn;          /* number of corrector convergence failures          */
+  int ida_netf;          /* number of error test failures                     */
+  int ida_nni;           /* number of Newton iterations performed             */
+  int ida_nsetups;       /* number of lsetup calls                            */
 
   /* Space requirements for IDA */
 
@@ -864,7 +862,7 @@ typedef struct IDAMemRec {
 
   realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
-  FILE *ida_errfp;               /* IDA error messages are sent to errfp    */
+  FILE *ida_errfp;       /* IDA error messages are sent to errfp              */
 
   /* Flags to verify correct calling sequence */
 

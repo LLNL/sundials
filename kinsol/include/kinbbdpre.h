@@ -40,10 +40,7 @@
  *   ...                                                           *
  *   p_data = KBBDPrecAlloc(Nlocal, mu, ml, ...);                  *
  *   ...                                                           *
- *   flag = KINSpgmr(kin_mem, maxl);                               *
- *   flag = KINSpgmrSetPrecSetupFn(kin_mem, KBBDPrecSetup);        *
- *   flag = KINSpgmrSetPrecSolveFn(kin_mem, KBBDPrecSolve);        *
- *   flag = KINSpgmrSetPrecData(kin_mem, p_data);                  *
+ *   flag = KBBDSpgmr(kin_mem, maxl, p_data);                      *
  *   ...                                                           *
  *   KINSol(...);                                                  *
  *   ...                                                           *
@@ -83,11 +80,7 @@
  *    passed to KINMalloc, is also passed to KBBDPrecAlloc, and    *
  *    is available to the user in glocal and gcomm.                *
  *                                                                 *
- * 5) The two functions KBBDPrecSetup and KBBDPrecSolve are never  *
- *    called by the user explicitly; their names are simply passed *
- *    to KINSpgmr as in the above.                                 *
- *                                                                 *
- * 6) Optional outputs specific to this module are available by    *
+ * 5) Optional outputs specific to this module are available by    *
  *    way of macros listed below.  These include work space sizes  *
  *    and the cumulative number of glocal calls.  The costs        *
  *    associated with this module also include nsetups banded LU   *
@@ -227,6 +220,35 @@ void *KBBDPrecAlloc(void *kinmem, integertype Nlocal,
                     integertype mu, integertype ml,
                     realtype dq_rel_uu, 
                     KINLocalFn gloc, KINCommFn gcomm);
+
+/******************************************************************
+ * Function : KBBDSpgmr                                           *
+ *----------------------------------------------------------------*
+ * KBBDSpgmr links the KINBBDPRE preconditioner to the KINSPGMR   *
+ * linear solver. It performs the following actions:              *
+ *  1) Calls the KINSPGMR specification routine and attaches the  *
+ *     KINSPGMR linear solver to the KINSOL solver;               *
+ *  2) Sets the preconditioner data structure for KINSPGMR        *
+ *  3) Sets the preconditioner setup routine for KINSPGMR         *
+ *  4) Sets the preconditioner solve routine for KINSPGMR         *
+ *                                                                *
+ * Its first 3 arguments are the same as for KINSpgmr (see        *
+ * kinspgmr.h). The last argument is the pointer to the KBBDPRE   *
+ * memory block returned by KBBDPrecAlloc.                        * 
+ * Note that the user need not call KINSpgmr anymore.             *
+ *                                                                *
+ * Possible return values are:                                    *
+ *   (from kinsol.h) SUCCESS                                      *
+ *                   LIN_NO_MEM                                   *
+ *                   LMEM_FAIL                                    *
+ *                   LIN_NO_LMEM                                  *
+ *                   LIN_ILL_INPUT                                *
+ *   Additionaly, if KBBDPrecAlloc was not previously called,     *
+ *   KBBDSpgmr returns BBDP_NO_PDATA (defined below).             *
+ *                                                                *
+ ******************************************************************/
+
+int KBBDSpgmr(void *kinmem, int maxl, void *p_data);
 
 /******************************************************************
  * Function : KBBDPrecFree                                        *

@@ -114,6 +114,13 @@ extern "C" {
  * jac_data is a pointer to user data - the same as the jac_data  *
  *          parameter passed to CVBand.                           *
  *                                                                *
+ * NOTE: If the user's Jacobian routine needs other quantities,   *
+ *     they are accessible as follows: hcur (the current stepsize)*
+ *     and ewt (the error weight vector) are accessible through   *
+ *     CVodeGetCurrentStep and CVodeGetErrWeights, respectively   *
+ *     (see cvode.h). The unit roundoff is available through a    *
+ *     call to UnitRoundoff.                                      *
+ *                                                                *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated for      *
  * vectors of length N which can be used by a CVBandJacFn         *
  * as temporary storage or work space.                            *
@@ -147,7 +154,7 @@ typedef void (*CVBandJacFn)(integertype N, integertype mupper,
  * The return values of CVBand are:                               *
  *   SUCCESS       = 0  if successful                             *
  *   LMEM_FAIL     = -1 if there was a memory allocation failure. *
- *   LIN_ILL_INPUT = -2 if there illegal input.                   *
+ *   LIN_ILL_INPUT = -2 if there was an illegal input.            *
  *                                                                *
  ******************************************************************/
 
@@ -158,8 +165,8 @@ int CVBand(void *cvode_mem, integertype N,
  * Optional inputs to the CVBAND linear solver                    *
  *----------------------------------------------------------------*
  *                                                                *
- * CVBandSetJacFn specifies the dense Jacobian approximation      *
- *         routine to be used. A user-supplied djac routine must  *
+ * CVBandSetJacFn specifies the band Jacobian approximation       *
+ *         routine to be used. A user-supplied bjac routine must  *
  *         be of type CVBandJacFn.                                *
  *         By default, a difference quotient routine CVBandDQJac, *
  *         supplied with this solver is used.                     *
@@ -223,7 +230,8 @@ typedef struct {
   
   int b_nje;              /* nje = no. of calls to jac                */
   
-  int b_nfeB;             /* nfeB = no. of calls to f               */
+  int b_nfeB;             /* nfeB = no. of calls to f due to difference
+                             quotient band Jacobian approximation     */
 
   void *b_J_data;         /* J_data is passed to jac                  */
   

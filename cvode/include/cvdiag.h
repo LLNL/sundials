@@ -91,7 +91,8 @@ typedef struct {
 
   N_Vector di_bitcomp; /* temporary storage vector                  */
 
-  int di_nfeDI;        /* no. of calls to f                         */
+  int di_nfeDI;        /* no. of calls to f due to difference 
+                          quotient diagonal Jacobian approximation  */
 
 } CVDiagMemRec, *CVDiagMem;
 

@@ -19,12 +19,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cvbbdpre.h"
-#include "cvode.h"
-#include "sundialstypes.h"
-#include "nvector.h"
+#include "cvspgmr.h"
 #include "sundialsmath.h"
 #include "iterativ.h"
-#include "band.h"
 
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)
@@ -35,6 +32,8 @@
 #define MSG_CVMEM_NULL CVBBDALLOC "CVODE Memory is NULL.\n\n"
 #define MSG_WRONG_NVEC CVBBDALLOC "Incompatible NVECTOR implementation.\n\n"
 #define MSG_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL. \n\n"
+
+#define MSG_NO_PDATA   "CVBBDSpgmr-- BBDPrecData is NULL. \n\n"
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static void CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
@@ -119,6 +118,30 @@ void *CVBBDPrecAlloc(void *cvode_mem, integertype Nlocal,
   pdata->nge = 0;
 
   return((void *)pdata);
+}
+
+int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
+{
+  int flag;
+
+  if ( p_data == NULL ) {
+    fprintf(stdout, MSG_NO_PDATA);
+    return(BBDP_NO_PDATA);
+  } 
+
+  flag = CVSpgmr(cvode_mem, pretype, maxl);
+  if(flag != SUCCESS) return(flag);
+
+  flag = CVSpgmrSetPrecData(cvode_mem, p_data);
+  if(flag != SUCCESS) return(flag);
+
+  flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBBDPrecSetup);
+  if(flag != SUCCESS) return(flag);
+
+  flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBBDPrecSolve);
+  if(flag != SUCCESS) return(flag);
+
+  return(SUCCESS);
 }
 
 int CVBBDPrecReInit(void *p_data, 

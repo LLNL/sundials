@@ -23,12 +23,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "kinbbdpre.h"
-#include "kinsol.h"
-#include "sundialstypes.h"
-#include "nvector.h"
+#include "kinspgmr.h"
 #include "sundialsmath.h"
 #include "iterativ.h"
-#include "band.h"
 
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
@@ -38,6 +35,8 @@
 #define MSG_KINMEM_NULL KBBDALLOC "KINSOL Memory is NULL.\n\n"
 #define MSG_WRONG_NVEC  KBBDALLOC "Incompatible NVECTOR implementation.\n\n"
 #define MSG_PDATA_NULL  "KBBDPrecGet*-- BBDPrecData is NULL. \n\n"
+
+#define MSG_NO_PDATA   "KBBDSpgmr-- BBDPrecData is NULL. \n\n"
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
@@ -129,6 +128,29 @@ void *KBBDPrecAlloc(void *kinmem, integertype Nlocal,
   return((void *)pdata);
 }
 
+int KBBDSpgmr(void *kinmem, int maxl, void *p_data)
+{
+  int flag;
+
+  if ( p_data == NULL ) {
+    fprintf(stdout, MSG_NO_PDATA);
+    return(BBDP_NO_PDATA);
+  }
+
+  flag = KINSpgmr(kinmem, maxl);
+  if(flag != SUCCESS) return(flag);
+
+  flag = KINSpgmrSetPrecData(kinmem, p_data);
+  if(flag != SUCCESS) return(flag);
+
+  flag = KINSpgmrSetPrecSetupFn(kinmem, KBBDPrecSetup);
+  if(flag != SUCCESS) return(flag);
+
+  flag = KINSpgmrSetPrecSolveFn(kinmem, KBBDPrecSolve);
+  if(flag != SUCCESS) return(flag);
+
+  return(SUCCESS);
+}
 
 void KBBDPrecFree(void *p_data)
 {

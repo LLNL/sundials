@@ -15,14 +15,12 @@
  *                                                                 *
  *******************************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "cvsdiag.h"
 #include "cvodes.h"
 #include "sundialstypes.h"
 #include "nvector.h"
-
 
 /* Error Messages */
 
@@ -41,33 +39,6 @@
 #define FRACT RCONST(0.1)
 #define ONE   RCONST(1.0)
 
-
-/******************************************************************
- *                                                                *           
- * Types : CVDiagMemRec, CVDiagMem                                *
- *----------------------------------------------------------------*
- * The type CVDiagMem is pointer to a CVDiagMemRec. This          *
- * structure contains CVDiag solver-specific data.                *
- *                                                                *
- ******************************************************************/
-
-
-typedef struct {
-
-  realtype di_gammasv; /* gammasv = gamma at the last call to setup */
-                       /* or solve                                  */
-
-  N_Vector di_M;       /* M = (I - gamma J)^{-1} , gamma = h / l1   */
-
-  N_Vector di_bit;     /* temporary storage vector                  */
-
-  N_Vector di_bitcomp; /* temporary storage vector                  */
-
-  int di_nfeDI;        /* no. of calls to f                         */
-
-} CVDiagMemRec, *CVDiagMem;
-
-
 /* CVDIAG linit, lsetup, lsolve, lsolveS, and lfree routines */
 
 static int CVDiagInit(CVodeMem cv_mem);
@@ -80,7 +51,7 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                        N_Vector fcur);
 
 static int CVDiagSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                        N_Vector fcur, integertype is);
+                        N_Vector fcur, int is);
 
 static void CVDiagFree(CVodeMem cv_mem);
 
@@ -368,7 +339,7 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
 **********************************************************************/
 
 static int CVDiagSolveS(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
-                        N_Vector fcur, integertype is)
+                        N_Vector fcur, int is)
 {
   booleantype invOK;
   realtype r;

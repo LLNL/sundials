@@ -1,5 +1,4 @@
 /*******************************************************************
- *                                                                 *
  * File          : kinsol.c                                        *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
@@ -31,19 +30,15 @@
 /******************** END Imports ***************************/
 /************************************************************/
 
-
 /***************************************************************/
 /*********************** BEGIN Macros **************************/
 /***************************************************************/
-
 /* Macro: loop */
 
 #define loop for(;;)
 /***************************************************************/
 /************************ END Macros ***************************/
 /***************************************************************/
-
-
 
 /************************************************************/
 /************** BEGIN KINSol Private Constants ***************/
@@ -125,6 +120,8 @@
 #define MSG_MEM_FAIL      "KINMalloc-- A memory request failed.\n\n"
 
 #define MSG_FUNC_NULL     "KINMalloc-- func=NULL illegal.\n\n"
+
+#define MSG_KINS_FUNC_NULL "KINResetSysFunc-- func=NULL illegal.\n\n"
 
 /* KINSol error messages */
 
@@ -719,8 +716,32 @@ int KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec)
   return(SUCCESS);
 }
 
-#define func (kin_mem->kin_func)
 #define nvspec (kin_mem->kin_nvspec)
+
+/*-----------------------------------------------------------------*/
+
+int KINResetSysFunc(void *kinmem, SysFn func)
+{
+  KINMem kin_mem;
+
+  if (kinmem==NULL) {
+    fprintf(stdout, MSG_KINS_NO_MEM);
+    return(KINS_NO_MEM);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  if (func == NULL) {
+    fprintf(errfp, MSG_KINS_FUNC_NULL);
+    return(KINS_ILL_INPUT);
+  }
+
+  kin_mem->kin_func = func;
+
+  return(SUCCESS);
+}
+
+#define func (kin_mem->kin_func)
 
 /**************************************************************/
 /*********** BEGIN More Readability Constants *****************/

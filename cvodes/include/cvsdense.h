@@ -54,7 +54,7 @@ extern "C" {
  * A dense Jacobian approximation function Jac must have the      *
  * prototype given below. Its parameters are:                     *
  *                                                                *
- * N is the length of all vector arguments.                       *
+ * N is the problem size.                                         *
  *                                                                *
  * J is the dense matrix (of type DenseMat) that will be loaded   *
  * by a CVDenseJacFn with an approximation to the Jacobian matrix *
@@ -92,6 +92,13 @@ extern "C" {
  *                                                                *
  * jac_data is a pointer to user data - the same as the jac_data  *
  *          parameter passed to CVDense.                          *
+ *                                                                *
+ * NOTE: If the user's Jacobian routine needs other quantities,   *
+ *     they are accessible as follows: hcur (the current stepsize)*
+ *     and ewt (the error weight vector) are accessible through   *
+ *     CVodeGetCurrentStep and CVodeGetErrWeights, respectively   *
+ *     (see cvode.h). The unit roundoff is available through a    *
+ *     call to UnitRoundoff.                                      *
  *                                                                *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated for      *
  * vectors of length N which can be used by a CVDenseJacFn        *
@@ -186,7 +193,8 @@ typedef struct {
   
   int d_nje;          /* nje = no. of calls to jac              */
 
-  int d_nfeD;         /* nfeD = no. of calls to f               */
+  int d_nfeD;         /* nfeD = no. of calls to f due to
+                         difference quotient approximation of J */
   
   void *d_J_data;     /* J_data is passed to jac                */
   

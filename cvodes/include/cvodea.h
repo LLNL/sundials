@@ -198,7 +198,8 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
 
 int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB);
 
-int CVodeSetIterTypeB(void *cvadj_mem, int iterB);
+int CVodeResetIterTypeB(void *cvadj_mem, int iterB);
+
 int CVodeSetFdataB(void *cvadj_mem, void *f_dataB);
 int CVodeSetErrFileB(void *cvadj_mem, FILE *errfpB);
 int CVodeSetMaxOrdB(void *cvadj_mem, int maxordB);
@@ -304,7 +305,8 @@ int CVBandSetJacDataB(void *cvadj_mem, void *jac_dataB);
 
 int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
 
-int CVSpgmrSetPrecTypeB(void *cvadj_mem, int pretypeB);
+int CVSpgmrResetPrecTypeB(void *cvadj_mem, int pretypeB);
+
 int CVSpgmrSetGSTypeB(void *cvadj_mem, int gstypeB);
 int CVSpgmrSetDeltB(void *cvadj_mem, realtype deltB);
 int CVSpgmrSetPrecSetupFnB(void *cvadj_mem, CVSpgmrPrecSetupFnB psetB);

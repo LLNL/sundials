@@ -1,7 +1,8 @@
 /*******************************************************************
  *                                                                 *
  * File          : idaspgmr.c                                      *
- * Programmers   : Alan C. Hindmarsh and Allan G. Taylor           *
+ * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
+ *                 Radu Serban @ LLNL                              *
  * Version of    : 18 July 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
