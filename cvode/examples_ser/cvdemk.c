@@ -1,9 +1,7 @@
 /*************************************************************************
- * File        : cvdemk.c                                                *
- * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of  : 17 July 2002                                            * 
- *-----------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial nvector 5 March 2002.   *
+ * File       : cvdemk.c                                                 *
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL  *
+ * Version of : 30 March 2003                                            *
  *-----------------------------------------------------------------------*
  * Demonstration program for CVODE - Krylov linear solver.               *
  * ODE system from ns-species interaction PDE in 2 dimensions.           *
@@ -182,7 +180,7 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
 		     realtype rate[], WebData wdata);
 static void fblock (realtype t, realtype cdata[], int jx, int jy,
 		    realtype cdotdata[], WebData wdata);
-static void GSIter(int N, realtype gamma, N_Vector z, N_Vector x,WebData wdata);
+static void GSIter(realtype gamma, N_Vector z, N_Vector x,WebData wdata);
 
 /* Small Vector Kernels */
 
@@ -194,16 +192,15 @@ static void v_zero(realtype u[], int n);
 
 /* Functions Called By The CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot,
-              void *f_data);
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static int Precond(integertype N, realtype tn, N_Vector c, N_Vector fc,
+static int Precond(realtype tn, N_Vector c, N_Vector fc,
 		   booleantype jok, booleantype *jcurPtr, realtype gamma,
 		   N_Vector ewt, realtype h, realtype uround, long int *nfePtr,
 		   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3);
 
-static int PSolve(integertype N, realtype tn, N_Vector c, N_Vector fc,
+static int PSolve(realtype tn, N_Vector c, N_Vector fc,
 		  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
 		  long int *nfePtr, N_Vector r, int lr, void *P_data,
 		  N_Vector z);
@@ -225,7 +222,7 @@ int main()
   machEnv = M_EnvInit_Serial(NEQ);
 
   /* Initializations */
-  c = N_VNew(NEQ, machEnv);
+  c = N_VNew(machEnv);
   wdata = AllocUserData();
   InitUserData(wdata);
   ns = wdata->ns;
@@ -249,7 +246,7 @@ int main()
       
       firstrun = (jpre == LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
-        cvode_mem = CVodeMalloc(NEQ, f, T0, c, LMM, ITER, ITOL, &reltol,
+        cvode_mem = CVodeMalloc(f, T0, c, LMM, ITER, ITOL, &reltol,
                                 &abstol, wdata, ERRFP, OPTIN, iopt, ropt,
                                 machEnv);
         if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
@@ -515,7 +512,7 @@ static void FreeUserData(WebData wdata)
  returns it in cdot. The interaction rates are computed by calls to WebRates,
  and these are saved in fsave for use in preconditioning.
 */
-static void f(integertype N, realtype t, N_Vector c, N_Vector cdot,void *f_data)
+static void f(realtype t, N_Vector c, N_Vector cdot,void *f_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
   realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
@@ -604,7 +601,7 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
  of a block-diagonal preconditioner. The blocks are of size mp, and
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */ 
-static int Precond(integertype N, realtype t, N_Vector c, N_Vector fc,
+static int Precond(realtype t, N_Vector c, N_Vector fc,
                 booleantype jok, booleantype *jcurPtr, realtype gamma,
                 N_Vector rewt, realtype h, realtype uround, long int *nfePtr,
                 void *P_data, N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -640,7 +637,7 @@ static int Precond(integertype N, realtype t, N_Vector c, N_Vector fc,
   f1 = NV_DATA_S(vtemp1);
   
   fac = N_VWrmsNorm (fc, rewt);
-  r0 = 1000.0*ABS(gamma)*uround*N*fac;
+  r0 = 1000.0*ABS(gamma)*uround*NEQ*fac;
   if (r0 == 0.0) r0 = 1.0;
   
   for (igy = 0; igy < ngy; igy++) {
@@ -707,7 +704,7 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
   Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
   blocks in P, and pivot information in pivot, and returns the result in z.
 */
-static int PSolve(integertype N, realtype tn, N_Vector c, N_Vector fc,
+static int PSolve(realtype tn, N_Vector c, N_Vector fc,
                   N_Vector vtemp, realtype gamma, N_Vector rewt,
                   realtype delta, long int *nfePtr, N_Vector r, int lr,
                   void *P_data, N_Vector z)
@@ -723,7 +720,7 @@ static int PSolve(integertype N, realtype tn, N_Vector c, N_Vector fc,
   
   /* call GSIter for Gauss-Seidel iterations */
   
-  GSIter(N, gamma, z, vtemp, wdata);
+  GSIter(gamma, z, vtemp, wdata);
   
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
   
@@ -759,7 +756,7 @@ static int PSolve(integertype N, realtype tn, N_Vector c, N_Vector fc,
   Some inner loops of length ns are implemented with the small
   vector kernels v_sum_prods, v_prod, v_inc_by_prod.
 */
-static void GSIter(int N, realtype gamma, N_Vector z, N_Vector x, WebData wdata)
+static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
 {
   int i, ic, iter, iyoff, jx, jy, ns, mxns, mx, my, x_loc, y_loc;
   realtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];

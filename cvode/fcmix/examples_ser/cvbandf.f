@@ -1,7 +1,7 @@
 C File cvbandf.f
 C
 C FCVODE Example Problem: Advection-diffusion, banded user Jacobian.
-C Version of 22 July 2002.
+C Version of 30 March 2003
 C
 C The following is a simple example problem with a banded Jacobian.
 C The problem is the semi-discrete form of the advection-diffusion
@@ -52,7 +52,7 @@ C
         STOP
       ENDIF
 C
-      CALL FCVMALLOC (NEQ, T0, U, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVMALLOC (T0, U, METH, ITMETH, IATOL, RTOL, ATOL,
      1                INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -60,7 +60,7 @@ C
         STOP
         ENDIF
 C
-      CALL FCVBAND1 (MU, ML, IER)
+      CALL FCVBAND1 (NEQ, MU, ML, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
  40     FORMAT(///' FCVBAND1 returned IER =',I5)
@@ -141,7 +141,7 @@ C Compute max-norm of array U
       RETURN
       END
 
-      SUBROUTINE CVFUN (NEQ, T, U, UDOT)
+      SUBROUTINE CVFUN (T, U, UDOT)
 C Right-hand side routine
       DOUBLE PRECISION T, U(*), UDOT(*)
       DOUBLE PRECISION UIJ, UDN, UUP, ULT, URT, HDIFF, HADV, VDIFF
@@ -176,8 +176,8 @@ C
       RETURN
       END
 
-      SUBROUTINE CVBJAC(N, MU, ML, MDIM, T, U, FU, EWT, H, UR,
-     1                 BJAC, NFE, V1, V2, V3)
+      SUBROUTINE CVBJAC(N, MU, ML, MDIM, T, U, FU,
+     1                 BJAC, V1, V2, V3)
 C Load banded Jacobian
       DOUBLE PRECISION BJAC(MDIM,*)
       DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF

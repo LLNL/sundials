@@ -1,7 +1,7 @@
 C File cvdensef.f
 C
 C FCVODE Example Problem:  Robertson kinetics, dense user Jacobian.
-C Version of 19 July 2002.
+C Version of 30 March 2003
 C
 C The following is a simple example problem, with the coding
 C needed for its solution by CVODE.  The problem is from chemical
@@ -51,7 +51,7 @@ C
         STOP
       ENDIF
 C
-      CALL FCVMALLOC (NEQ, T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
+      CALL FCVMALLOC (T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
      1                INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -59,7 +59,7 @@ C
         STOP
       ENDIF
 C
-      CALL FCVDENSE1(IER)
+      CALL FCVDENSE1(NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
  40     FORMAT(///' FCVDENSE1 returned IER =',I5)
@@ -104,7 +104,7 @@ C
       STOP
       END
 
-      SUBROUTINE CVFUN (NEQ, T, Y, YDOT)
+      SUBROUTINE CVFUN (T, Y, YDOT)
 C Fortran routine for right-hand side function.
       DOUBLE PRECISION T, Y(*), YDOT(*)
       YDOT(1) = -.04D0*Y(1) + 1.D4*Y(2)*Y(3)
@@ -113,7 +113,7 @@ C Fortran routine for right-hand side function.
       RETURN
       END
 
-      SUBROUTINE CVDJAC(N, T, Y, FY, EWT, H, UR, JAC, NFE, V1, V2, V3)
+      SUBROUTINE CVDJAC(N, T, Y, FY, JAC, V1, V2, V3)
 C Fortran routine for dense user-supplied Jacobian.
       DOUBLE PRECISION T, Y(*), JAC(N,*), Y1, Y2, Y3
       Y1 = Y(1)

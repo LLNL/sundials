@@ -1,59 +1,59 @@
 Krylov example problem: Kinetics-transport, NEQ =  200
 
 
- t =  0.72D+04     no. steps =  219   order =  5   stepsize =  0.16D+03
-  c1 (bot.left/middle/top rt.) =   0.105D+05   0.296D+05   0.112D+05
-  c2 (bot.left/middle/top rt.) =   0.253D+12   0.715D+12   0.270D+12
+ t =  0.72E+04     no. steps =  219   order =  5   stepsize =  0.16E+03
+  c1 (bot.left/middle/top rt.) =   0.105E+05   0.296E+05   0.112E+05
+  c2 (bot.left/middle/top rt.) =   0.253E+12   0.715E+12   0.270E+12
 
- t =  0.14D+05     no. steps =  251   order =  5   stepsize =  0.38D+03
-  c1 (bot.left/middle/top rt.) =   0.666D+07   0.532D+07   0.730D+07
-  c2 (bot.left/middle/top rt.) =   0.258D+12   0.206D+12   0.283D+12
+ t =  0.14E+05     no. steps =  251   order =  5   stepsize =  0.38E+03
+  c1 (bot.left/middle/top rt.) =   0.666E+07   0.532E+07   0.730E+07
+  c2 (bot.left/middle/top rt.) =   0.258E+12   0.206E+12   0.283E+12
 
- t =  0.22D+05     no. steps =  277   order =  5   stepsize =  0.27D+03
-  c1 (bot.left/middle/top rt.) =   0.266D+08   0.104D+08   0.293D+08
-  c2 (bot.left/middle/top rt.) =   0.299D+12   0.103D+12   0.331D+12
+ t =  0.22E+05     no. steps =  277   order =  5   stepsize =  0.27E+03
+  c1 (bot.left/middle/top rt.) =   0.266E+08   0.104E+08   0.293E+08
+  c2 (bot.left/middle/top rt.) =   0.299E+12   0.103E+12   0.331E+12
 
- t =  0.29D+05     no. steps =  319   order =  3   stepsize =  0.10D+03
-  c1 (bot.left/middle/top rt.) =   0.870D+07   0.129D+08   0.965D+07
-  c2 (bot.left/middle/top rt.) =   0.338D+12   0.503D+12   0.375D+12
+ t =  0.29E+05     no. steps =  307   order =  4   stepsize =  0.20E+03
+  c1 (bot.left/middle/top rt.) =   0.870E+07   0.129E+08   0.965E+07
+  c2 (bot.left/middle/top rt.) =   0.338E+12   0.503E+12   0.375E+12
 
- t =  0.36D+05     no. steps =  363   order =  4   stepsize =  0.86D+02
-  c1 (bot.left/middle/top rt.) =   0.140D+05   0.203D+05   0.156D+05
-  c2 (bot.left/middle/top rt.) =   0.339D+12   0.489D+12   0.377D+12
+ t =  0.36E+05     no. steps =  337   order =  5   stepsize =  0.11E+03
+  c1 (bot.left/middle/top rt.) =   0.140E+05   0.203E+05   0.156E+05
+  c2 (bot.left/middle/top rt.) =   0.339E+12   0.489E+12   0.377E+12
 
- t =  0.43D+05     no. steps =  434   order =  4   stepsize =  0.60D+03
-  c1 (bot.left/middle/top rt.) =  -0.581D-08  -0.364D-07   0.199D-07
-  c2 (bot.left/middle/top rt.) =   0.338D+12   0.135D+12   0.380D+12
+ t =  0.43E+05     no. steps =  391   order =  4   stepsize =  0.46E+03
+  c1 (bot.left/middle/top rt.) =   0.141E-06   0.355E-04   0.272E-06
+  c2 (bot.left/middle/top rt.) =   0.338E+12   0.135E+12   0.380E+12
 
- t =  0.50D+05     no. steps =  448   order =  4   stepsize =  0.34D+03
-  c1 (bot.left/middle/top rt.) =  -0.524D-09   0.346D-07  -0.169D-09
-  c2 (bot.left/middle/top rt.) =   0.336D+12   0.493D+12   0.386D+12
+ t =  0.50E+05     no. steps =  409   order =  4   stepsize =  0.28E+03
+  c1 (bot.left/middle/top rt.) =  -0.225E-07  -0.180E-06  -0.597E-07
+  c2 (bot.left/middle/top rt.) =   0.336E+12   0.493E+12   0.386E+12
 
- t =  0.58D+05     no. steps =  462   order =  5   stepsize =  0.36D+03
-  c1 (bot.left/middle/top rt.) =   0.568D-09  -0.340D-07  -0.444D-10
-  c2 (bot.left/middle/top rt.) =   0.332D+12   0.965D+12   0.391D+12
+ t =  0.58E+05     no. steps =  425   order =  5   stepsize =  0.42E+03
+  c1 (bot.left/middle/top rt.) =  -0.822E-10  -0.136E-07  -0.127E-09
+  c2 (bot.left/middle/top rt.) =   0.332E+12   0.965E+12   0.391E+12
 
- t =  0.65D+05     no. steps =  475   order =  5   stepsize =  0.63D+03
-  c1 (bot.left/middle/top rt.) =  -0.648D-09   0.397D-07   0.472D-10
-  c2 (bot.left/middle/top rt.) =   0.331D+12   0.892D+12   0.396D+12
+ t =  0.65E+05     no. steps =  436   order =  5   stepsize =  0.67E+03
+  c1 (bot.left/middle/top rt.) =  -0.326E-10  -0.537E-08  -0.504E-10
+  c2 (bot.left/middle/top rt.) =   0.331E+12   0.892E+12   0.396E+12
 
- t =  0.72D+05     no. steps =  486   order =  5   stepsize =  0.63D+03
-  c1 (bot.left/middle/top rt.) =  -0.327D-10   0.188D-08   0.481D-11
-  c2 (bot.left/middle/top rt.) =   0.333D+12   0.619D+12   0.404D+12
+ t =  0.72E+05     no. steps =  447   order =  5   stepsize =  0.67E+03
+  c1 (bot.left/middle/top rt.) =  -0.446E-12  -0.743E-10  -0.689E-12
+  c2 (bot.left/middle/top rt.) =   0.333E+12   0.619E+12   0.404E+12
 
- t =  0.79D+05     no. steps =  498   order =  5   stepsize =  0.63D+03
-  c1 (bot.left/middle/top rt.) =   0.439D-12  -0.259D-10  -0.349D-13
-  c2 (bot.left/middle/top rt.) =   0.333D+12   0.667D+12   0.412D+12
+ t =  0.79E+05     no. steps =  458   order =  5   stepsize =  0.67E+03
+  c1 (bot.left/middle/top rt.) =   0.402E-14   0.647E-12   0.628E-14
+  c2 (bot.left/middle/top rt.) =   0.333E+12   0.667E+12   0.412E+12
 
- t =  0.86D+05     no. steps =  509   order =  5   stepsize =  0.63D+03
-  c1 (bot.left/middle/top rt.) =   0.509D-14  -0.300D-12  -0.270D-15
-  c2 (bot.left/middle/top rt.) =   0.335D+12   0.911D+12   0.416D+12
+ t =  0.86E+05     no. steps =  468   order =  5   stepsize =  0.67E+03
+  c1 (bot.left/middle/top rt.) =   0.823E-15   0.136E-12   0.127E-14
+  c2 (bot.left/middle/top rt.) =   0.335E+12   0.911E+12   0.416E+12
 
 
  final statistics..
- number of steps        =  509     number of f evals.     = 1277
- number of prec. setups =   88
- number of prec. evals. =    9     number of prec. solves = 1213
- number of nonl. iters. =  657     number of lin. iters.  =  617
- average Krylov subspace dimension (NLI/NNI)  =  0.9391
+ number of steps        =  468     number of f evals.     = 1232
+ number of prec. setups =   76
+ number of prec. evals. =    9     number of prec. solves = 1172
+ number of nonl. iters. =  595     number of lin. iters.  =  634
+ average Krylov subspace dimension (NLI/NNI)  =  1.0655
  number of conv. failures..  nonlinear =  0  linear =  0

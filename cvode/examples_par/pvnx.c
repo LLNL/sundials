@@ -1,9 +1,8 @@
 /************************************************************************
  * File       : pvnx.c                                                  *
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne      *
- * Version of : 17 July 2002                                            *
- *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new parallel nvector 6 March 2002.*
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George Byrne, and    *
+ *              Radu Serban @LLNL                                       *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -34,7 +33,7 @@
 /* CVODE header files with a description of contents used here */
 
 #include "sundialstypes.h"     /* definitions of realtype, integertype        */
-#include "cvode.h"             /* prototypes for CVodeMalloc, CVode, and      */
+#include "cvode.h"            /* prototypes for CVodeMalloc, CVode, and      */
                                /* CVodeFree, constants OPT_SIZE, FUNCTIONAL,  */
                                /* ADAMS, SS, SUCCESS, NST,NFE, NNI, NCFN,NETF */
 #include "nvector_parallel.h"  /* definitions of type N_Vector and vector     */
@@ -74,8 +73,7 @@ static void PrintFinalStats(long int iopt[]);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot,
-              void *f_data);
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -116,9 +114,9 @@ int main(int argc, char *argv[])
   machEnv = M_EnvInit_Parallel(comm, local_N, NEQ, &argc, &argv);
   if (machEnv == NULL) return(1);
 
-  u = N_VNew(NEQ, machEnv);    /* Allocate u vector */
+  u = N_VNew(machEnv);    /* Allocate u vector */
 
-  reltol = 0.0;                /* Set the tolerances */
+  reltol = 0.0;           /* Set the tolerances */
   abstol = ATOL;
 
   dx = data->dx = XMAX/((realtype)(MX+1));   /* Set grid coefficients in data */
@@ -130,7 +128,6 @@ int main(int argc, char *argv[])
 
   /* Call CVodeMalloc to initialize CVODE: 
 
-     NEQ     is the problem size = number of equations
      f       is the user's right hand side function in u'=f(t,u)
      T0      is the initial time
      u       is the initial dependent variable vector
@@ -144,7 +141,7 @@ int main(int argc, char *argv[])
 
      A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
 
-  cvode_mem = CVodeMalloc(NEQ, f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
                           &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
 
@@ -221,7 +218,7 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,u). */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot,void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;

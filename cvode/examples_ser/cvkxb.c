@@ -1,9 +1,7 @@
 /************************************************************************
  * File: cvkxb.c                                                        *
- * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 17 July 2002                                              *
- *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial nvector 7 March 2002.  *
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -123,8 +121,7 @@ static void PrintFinalStats(long int iopt[]);
 
 /* Function Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot,
-              void *f_data);
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -145,14 +142,13 @@ int main()
 
   /* Allocate and initialize y, and set problem data and tolerances */ 
 
-  y = N_VNew(NEQ, machEnv);
+  y = N_VNew(machEnv);
   data = (UserData) malloc(sizeof *data);
   InitUserData(data);
   SetInitialProfiles(y, data->dx, data->dz);
   abstol = ATOL; reltol = RTOL;
 
   /* Call CVodeMalloc to initialize CVODE: 
-     NEQ     is the problem size = number of equations
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      y       is the initial dependent variable vector
@@ -166,7 +162,7 @@ int main()
 
      A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
 
-  cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SS, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, y, BDF, NEWTON, SS, &reltol,
                           &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
 
@@ -182,7 +178,7 @@ int main()
      NULL for the user jtimes routine and Jacobian data pointer.             */
 
   flag = CVSpgmr(cvode_mem, LEFT, MODIFIED_GS, 0, 0.0, CVBandPrecond,
-                  CVBandPSolve, bpdata, NULL, NULL);
+                 CVBandPSolve, bpdata, NULL, NULL);
   if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
 
   printf("2-species diurnal advection-diffusion problem, %d by %d mesh\n",
@@ -204,7 +200,7 @@ int main()
                        &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
     if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
 
-    flag = CVReInitBandPre(bpdata, NEQ, f, data, mu, ml);
+    flag = CVReInitBandPre(bpdata, f, data, mu, ml);
 
     flag = CVReInitSpgmr(cvode_mem, jpre, MODIFIED_GS, 0, 0.0,
                          CVBandPrecond, CVBandPSolve, bpdata, NULL, NULL);
@@ -323,7 +319,7 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,y). */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot,void *f_data)
+static void f(realtype t, N_Vector y, N_Vector ydot,void *f_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;

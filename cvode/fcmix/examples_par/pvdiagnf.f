@@ -1,6 +1,6 @@
 C File: pvdiagnf.f
 C Diagonal ODE example.  Nonstiff case: alpha = 10/NEQ.
-C Version of 27 March 2002
+C Version of 30 March 2003
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
@@ -71,7 +71,7 @@ C
         STOP
         ENDIF
 C
-      CALL FCVMALLOC(NEQ, T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
      1               INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
@@ -141,7 +141,7 @@ C
       STOP
       END
 
-      SUBROUTINE CVFUN(NEQ, T, Y, YDOT)
+      SUBROUTINE CVFUN(T, Y, YDOT)
 C Routine for right-hand side function f
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       DIMENSION Y(*), YDOT(*)

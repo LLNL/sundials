@@ -1,9 +1,7 @@
 /**************************************************************************
- * File        : cvdemd.c                                                 *
- * Programmers : Scott D. Cohen and Alan C. Hindmarsh @ LLNL              *
- * Version of  : 17 July 2002                                             *
- *------------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial nvector 5 March 2002.    *
+ * File       : cvdemd.c                                                  *
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL   *
+ * Version of : 30 March 2003                                             *
  *------------------------------------------------------------------------*
  *                                                                        *
  * Demonstration program for CVODE - direct linear solvers. Two           *
@@ -111,22 +109,17 @@ static void PrintFinalStats(long int iopt[], int miter, realtype ero);
 
 /* Functions Called by the CVODE Solver */
 
-static void f1(integertype N, realtype t, N_Vector y, N_Vector ydot,
-               void *f_data);
+static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static void Jac1(integertype N, DenseMat J, RhsFn f, void *f_data, realtype tn,
-                 N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
-                 realtype uround, void *jac_data, long int *nfePtr,
-                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+static void Jac1(integertype N, DenseMat J, realtype tn,
+                 N_Vector y, N_Vector fy, void *jac_data,
+                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static void f2(integertype N, realtype t, N_Vector y, N_Vector ydot,
-               void *f_data);
+static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 static void Jac2(integertype N, integertype mu, integertype ml, BandMat J,
-                 RhsFn f, void *f_data, realtype tn, N_Vector y, N_Vector fy,
-                 N_Vector ewt, realtype h, realtype uround, void *jac_data,
-                 long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
-                 N_Vector vtemp3);
+                 realtype tn, N_Vector y, N_Vector fy, void *jac_data,
+                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Implementation */
 
@@ -154,7 +147,7 @@ static int Problem1(void)
 
   machEnv = M_EnvInit_Serial(P1_NEQ);
 
-  y = N_VNew(P1_NEQ, machEnv);
+  y = N_VNew(machEnv);
   PrintIntro1();
 
   for (lmm=ADAMS; lmm <= BDF; lmm++) {
@@ -166,7 +159,7 @@ static int Problem1(void)
       
       firstrun = (lmm==ADAMS) && (miter==FUNC);
       if (firstrun) {
-        cvode_mem = CVodeMalloc(P1_NEQ, f1, P1_T0, y, lmm, iter, ITOL, &reltol,
+        cvode_mem = CVodeMalloc(f1, P1_T0, y, lmm, iter, ITOL, &reltol,
                               &abstol, NULL, ERRFP, OPTIN, iopt, ropt, machEnv);
         if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
       } else {
@@ -222,8 +215,7 @@ static void PrintIntro1(void)
 }
 
 
-static void f1(integertype N, realtype t, N_Vector y, N_Vector ydot,
-               void *f_data)
+static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype y0, y1;
   
@@ -234,10 +226,9 @@ static void f1(integertype N, realtype t, N_Vector y, N_Vector ydot,
   NV_Ith_S(ydot,1) = (1.0 - SQR(y0))* P1_ETA * y1 - y0;
 } 
 
-static void Jac1(integertype N, DenseMat J, RhsFn f, void *f_data, realtype tn,
-                 N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
-                 realtype uround, void *jac_data, long int *nfePtr,
-                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static void Jac1(integertype N, DenseMat J, realtype tn,
+                 N_Vector y, N_Vector fy, void *jac_data,
+                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y0, y1;
 
@@ -261,7 +252,7 @@ static int Problem2(void)
  
   machEnv = M_EnvInit_Serial(P2_NEQ);
 
-  y = N_VNew(P2_NEQ, machEnv);
+  y = N_VNew(machEnv);
   PrintIntro2();
   
   for (lmm=ADAMS; lmm <= BDF; lmm++) {
@@ -275,7 +266,7 @@ static int Problem2(void)
       firstrun = (lmm==ADAMS) && (miter==FUNC);
 
       if (firstrun) {
-        cvode_mem = CVodeMalloc(P2_NEQ, f2, P2_T0, y, lmm, iter, ITOL,
+        cvode_mem = CVodeMalloc(f2, P2_T0, y, lmm, iter, ITOL,
                                 &reltol, &abstol, NULL, ERRFP, OPTIN, 
                                 iopt, ropt, machEnv);
         if (cvode_mem == NULL) { printf("CVodeMalloc failed."); continue; }
@@ -331,8 +322,7 @@ static void PrintIntro2(void)
 }
 
 
-static void f2(integertype N, realtype t, N_Vector y, N_Vector ydot,
-               void *f_data)
+static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   integertype i, j, k;
   realtype d, *ydata, *dydata;
@@ -359,10 +349,8 @@ static void f2(integertype N, realtype t, N_Vector y, N_Vector ydot,
 }
 
 static void Jac2(integertype N, integertype mu, integertype ml, BandMat J,
-                 RhsFn f, void *f_data, realtype tn, N_Vector y, N_Vector fy,
-                 N_Vector ewt, realtype h, realtype uround, void *jac_data,
-                 long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
-                 N_Vector vtemp3)
+                 realtype tn, N_Vector y, N_Vector fy, void *jac_data,
+                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   integertype i, j, k;
   realtype *kthCol;
@@ -441,7 +429,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integertype mu,
     switch(miter) {
     case DENSE_USER : 
       printf("Dense, User-Supplied Jacobian\n");
-      flag = CVDense(cvode_mem, Jac1, NULL);
+      flag = CVDense(cvode_mem, P1_NEQ, Jac1, NULL);
       break;
     case DENSE_DQ   : 
       printf("Dense, Difference Quotient Jacobian\n");
@@ -453,7 +441,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integertype mu,
       break;
     case BAND_USER  : 
       printf("Band, User-Supplied Jacobian\n");
-      flag = CVBand(cvode_mem, mu, ml, Jac2, NULL);
+      flag = CVBand(cvode_mem, P2_NEQ, mu, ml, Jac2, NULL);
       break;
     case BAND_DQ  :   
       printf("Band, Difference Quotient Jacobian\n");

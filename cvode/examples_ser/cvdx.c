@@ -1,9 +1,7 @@
 /************************************************************************
  * File       : cvdx.c                                                  *
- * Programmers: Scott D. Cohen and Alan C. Hindmarsh @LLNL              *
- * Version of : 17 July 2002                                            *
- *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new serial nvector 5 March 2002.  *
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
+ * Version of : 31 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the coding           *
@@ -23,7 +21,6 @@
  ************************************************************************/
 
 #include <stdio.h>
-
 
 /* CVODE header files with a description of contents used in cvdx.c */
 
@@ -79,13 +76,11 @@ static void PrintFinalStats(long int iopt[]);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot,
-              void *f_data);
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static void Jac(integertype N, DenseMat J, RhsFn f, void *f_data, realtype t,
-                N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
-                realtype uround, void *jac_data, long int *nfePtr,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+static void Jac(integertype N, DenseMat J, realtype t,
+                N_Vector y, N_Vector fy, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 
 /***************************** Main Program ******************************/
@@ -102,8 +97,8 @@ int main()
   /* Initialize serial machine environment */
   machEnv = M_EnvInit_Serial(NEQ);
 
-  y = N_VNew(NEQ, machEnv);    /* Allocate y, abstol vectors */
-  abstol = N_VNew(NEQ, machEnv); 
+  y = N_VNew(machEnv);    /* Allocate y, abstol vectors */
+  abstol = N_VNew(machEnv); 
 
   Ith(y,1) = Y1;               /* Initialize y */
   Ith(y,2) = Y2;
@@ -116,7 +111,6 @@ int main()
 
   /* Call CVodeMalloc to initialize CVODE: 
 
-     NEQ     is the problem size = number of equations
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      y       is the initial dependent variable vector
@@ -131,14 +125,14 @@ int main()
 
      A pointer to CVODE problem memory is returned and stored in cvode_mem. */
 
-  cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
+  cvode_mem = CVodeMalloc(f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
                           NULL, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
 
   /* Call CVDense to specify the CVODE dense linear solver with the
      user-supplied Jacobian routine Jac. */
 
-  flag = CVDense(cvode_mem, Jac, NULL);
+  flag = CVDense(cvode_mem, NEQ, Jac, NULL);
   if (flag != SUCCESS) { printf("CVDense failed.\n"); return(1); }
 
   /* In loop over output points, call CVode, print results, test for error */
@@ -179,8 +173,7 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,y). */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot,
-              void *f_data)
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype y1, y2, y3, yd1, yd3;
 
@@ -193,10 +186,9 @@ static void f(integertype N, realtype t, N_Vector y, N_Vector ydot,
 
 /* Jacobian routine. Compute J(t,y). */
 
-static void Jac(integertype N, DenseMat J, RhsFn f, void *f_data, realtype t,
-                N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
-                realtype uround, void *jac_data, long int *nfePtr,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static void Jac(integertype N, DenseMat J, realtype t,
+                N_Vector y, N_Vector fy, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
 

@@ -1,7 +1,7 @@
 C File cvkryf.f
 C
 C FCVODE Example Problem: 2D kinetics-transport, precond. Krylov solver. 
-C Version of 22 July 2002.
+C Version of 30 March 2003
 C
 C An ODE system is generated from the following 2-species diurnal
 C kinetics advection-diffusion PDE system in 2 space dimensions:
@@ -33,6 +33,8 @@ C MESHX and MESHY, for consistency with the output statements below.
      1     JPRETYPE/1/, IGSTYPE/0/, MAXL/0/, DELT/0.0D0/
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
      1     LQ/11/, LH/5/, LNPE/16/, LNLI/17/, LNPS/18/, LNCFL/19/
+      INTEGER NEQ
+      COMMON /PBDIM/ NEQ
 C
 C Set mesh sizes
       MESHX = 10
@@ -59,7 +61,7 @@ C
         STOP
       ENDIF
 C
-      CALL FCVMALLOC (NEQ, T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVMALLOC (T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
      1                INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -166,7 +168,7 @@ C
       RETURN
       END
 
-      SUBROUTINE CVFUN (NEQ, T, Y, YDOT)
+      SUBROUTINE CVFUN (T, Y, YDOT)
 C Routine for right-hand side function f
       DOUBLE PRECISION T, Y(2,*), YDOT(2,*)
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3,A4, OM, C3, DZ, HDCO,VDCO,HACO
@@ -235,7 +237,7 @@ C Load all terms into YDOT.
       RETURN
       END
 
-      SUBROUTINE CVPRECO (NEQ, T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UR,
+      SUBROUTINE CVPRECO (T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UR,
      1                    NFE, V1, V2, V3, IER)
 C Routine to set and preprocess block-diagonal preconditioner.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
@@ -293,7 +295,7 @@ C
       RETURN
       END
 
-      SUBROUTINE CVPSOL (NEQ, T, Y, FY, VTEMP, GAMMA, EWT, DELTA, NFE,
+      SUBROUTINE CVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, DELTA, NFE,
      1                   R, LR, Z, IER)
 C Routine to solve preconditioner linear system.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
@@ -302,6 +304,8 @@ C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
       COMMON /PCOM/ Q1,Q2,Q3,Q4,A3,A4,OM,C3,DZ,HDCO,VDCO,HACO,MX,MZ,MM
       DOUBLE PRECISION BD, P
       COMMON /BDJ/ BD(2,2,100), P(2,2,100), IPP(2,100)
+      INTEGER NEQ
+      COMMON /PBDIM/ NEQ
 C Solve the block-diagonal system Px = r using LU factors stored in P
 C and pivot data in IPP, and return the solution in Z.
       IER = 0
