@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.12 $
-C     $Date: 2004-10-11 20:21:02 $
+C     $Revision: 1.13 $
+C     $Date: 2004-10-11 20:25:03 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -112,7 +112,7 @@ C
       ENDIF
 
       IF (MYPE.EQ. 0) WRITE(6,38)
- 38   FORMAT(///'Preconditioning on left'//)
+ 38   FORMAT(//'Preconditioning on left'//)
 C     
 C     Looping point for cases IPRE = 1 and 2.
 C     
@@ -125,7 +125,7 @@ C
          CALL FCVODE (TOUT, T, Y, ITASK, IER)
 C     
          IF (MYPE .EQ. 0) WRITE(6,45) T,IOPT(LNST),IOPT(LNFE)
- 45      FORMAT(/' t =',E10.2,5X,'no. steps =',I5,'   no. f-s =',I5)
+ 45      FORMAT(' t =',E10.2,5X,'no. steps =',I5,'   no. f-s =',I5)
 C     
          IF (IER .NE. 0) THEN
             WRITE(6,50) IER, IOPT(26)
@@ -154,7 +154,7 @@ C     Get global max. error from MPI_REDUCE call.
          STOP
       ENDIF
       IF (MYPE .EQ. 0) WRITE(6,75) GERMAX
- 75   FORMAT(//'Max. absolute error is',E10.2)
+ 75   FORMAT(/'Max. absolute error is',E10.2)
 C     
 C     Print final statistics.
       IF (MYPE .EQ. 0) THEN
@@ -224,7 +224,7 @@ C     Otherwise jump to final block.
       ENDIF
 
       IF (MYPE .EQ. 0) WRITE (6,95)
- 95   FORMAT(///60('-')///'Preconditioning on right'//)
+ 95   FORMAT(//60('-')///'Preconditioning on right'//)
       GO TO 40
 C     
 C     Free the memory and finalize MPI.
