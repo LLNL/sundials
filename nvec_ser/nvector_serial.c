@@ -101,11 +101,11 @@ NV_Spec NV_SpecInit_Serial(integertype vec_length)
   nvspec->ops->nvaddconst      = N_VAddConst_Serial;
   nvspec->ops->nvdotprod       = N_VDotProd_Serial;
   nvspec->ops->nvmaxnorm       = N_VMaxNorm_Serial;
+  nvspec->ops->nvwrmsnormmask  = N_VWrmsNormMask_Serial;
   nvspec->ops->nvwrmsnorm      = N_VWrmsNorm_Serial;
   nvspec->ops->nvmin           = N_VMin_Serial;
   nvspec->ops->nvwl2norm       = N_VWL2Norm_Serial;
   nvspec->ops->nvl1norm        = N_VL1Norm_Serial;
-  nvspec->ops->nvonemask       = N_VOneMask_Serial;
   nvspec->ops->nvcompare       = N_VCompare_Serial;
   nvspec->ops->nvinvtest       = N_VInvTest_Serial;
   nvspec->ops->nvconstrprodpos = N_VConstrProdPos_Serial;
@@ -464,6 +464,26 @@ realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
   for (i=0; i < N; i++) {
     prodi = (*xd++) * (*wd++);
     sum += prodi * prodi;
+  }
+
+  return(RSqrt(sum / N));
+}
+
+realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
+{
+  integertype i, N;
+  realtype sum = ZERO, prodi, *xd, *wd, *idd;
+
+  N  = NV_LENGTH_S(x);
+  xd  = NV_DATA_S(x);
+  wd  = NV_DATA_S(w);
+  idd = NV_DATA_S(id);
+
+  for (i=0; i < N; i++) {
+    if (idd[i] > ZERO) {
+      prodi = xd[i] * wd[i];
+      sum += prodi * prodi;
+    }
   }
 
   return(RSqrt(sum / N));

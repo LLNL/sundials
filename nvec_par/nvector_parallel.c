@@ -125,10 +125,10 @@ NV_Spec NV_SpecInit_Parallel(MPI_Comm comm,  integertype local_vec_length,
   nvspec->ops->nvdotprod       = N_VDotProd_Parallel;
   nvspec->ops->nvmaxnorm       = N_VMaxNorm_Parallel;
   nvspec->ops->nvwrmsnorm      = N_VWrmsNorm_Parallel;
+  nvspec->ops->nvwrmsnormmask  = N_VWrmsNormMask_Parallel;
   nvspec->ops->nvmin           = N_VMin_Parallel;
   nvspec->ops->nvwl2norm       = N_VWL2Norm_Parallel;
   nvspec->ops->nvl1norm        = N_VL1Norm_Parallel;
-  nvspec->ops->nvonemask       = N_VOneMask_Parallel;
   nvspec->ops->nvcompare       = N_VCompare_Parallel;
   nvspec->ops->nvinvtest       = N_VInvTest_Parallel;
   nvspec->ops->nvconstrprodpos = N_VConstrProdPos_Parallel;
@@ -520,6 +520,30 @@ realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
   return(RSqrt(gsum / N_global));
 }
 
+realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
+{
+  integertype i, N, N_global;
+  realtype sum = ZERO, prodi, *xd, *wd, *idd, gsum;
+  NV_Spec nvspec;
+
+  N  = NV_LOCLENGTH_P(x);
+  N_global = NV_GLOBLENGTH_P(x);
+  xd = NV_DATA_P(x);
+  wd = NV_DATA_P(w);
+  idd = NV_DATA_P(id);
+  nvspec = x->nvspec;
+
+  for (i=0; i < N; i++) {
+    if (idd[i] > ZERO) {
+      prodi = xd[i] * wd[i];
+      sum += prodi * prodi;
+    }
+  }
+
+  gsum = VAllReduce_Parallel(sum, 1, nvspec);
+  return(RSqrt(gsum / N_global));
+}
+
 realtype N_VMin_Parallel(N_Vector x)
 {
   integertype i, N;
@@ -578,20 +602,6 @@ realtype N_VL1Norm_Parallel(N_Vector x)
 
   gsum = VAllReduce_Parallel(sum, 1, nvspec);
   return(gsum);
-}
-
-
-void N_VOneMask_Parallel(N_Vector x)
-{
-  integertype i, N;
-  realtype *xd;
-
-  N  = NV_LOCLENGTH_P(x);
-  xd = NV_DATA_P(x);
-
-  for (i=0; i<N; i++,xd++) {
-    if (*xd != ZERO) *xd = ONE;
-  }
 }
 
 
