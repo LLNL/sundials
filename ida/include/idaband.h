@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : idaband.h                                      *
- * Programmers   : Allan G. Taylor and Alan C. Hindmarsh          *
- * Version of    : 30 August 1999                                 *
+ * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 6 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the IDA band linear solver         *
  * module, IDABAND. It interfaces between the band module and the *
@@ -153,11 +154,11 @@ enum { BAND_NJE=IDA_IOPT_SIZE, BAND_LRW, BAND_LIW };
  ******************************************************************/
   
 typedef int (*IDABandJacFn)(integer Neq, integer mupper, integer mlower,
-                  real tt, N_Vector yy, N_Vector yp, real cj, 
-                  N_Vector constraints, ResFn res, void *rdata, void *jdata, 
-                  N_Vector resvec, N_Vector ewt, real hh, real uround, 
-                  BandMat JJ, long int *nrePtr, N_Vector tempv1,
-                  N_Vector tempv2, N_Vector tempv3);
+                            real tt, N_Vector yy, N_Vector yp, real cj, 
+                            N_Vector constraints, ResFn res, void *rdata, void *jdata, 
+                            N_Vector resvec, N_Vector ewt, real hh, real uround, 
+                            BandMat JJ, long int *nrePtr, N_Vector tempv1,
+                            N_Vector tempv2, N_Vector tempv3);
 
  
 /******************************************************************
@@ -187,28 +188,19 @@ typedef int (*IDABandJacFn)(integer Neq, integer mupper, integer mlower,
  *    IDA_BAND_FAIL = -1     if either IDA_mem was NULL or a      *
  *                           malloc failure occurred, or          *
  *    IDA_BAND_BAD_ARG = -2  if mupper or mlower is illegal.      *
+ *                                                                *
+ * NOTE: The band linear solver assumes a serial implementation   *
+ *       of the NVECTOR package. Therefore, IDABand will first    *
+ *       test for a compatible N_Vector internal representation   *
+ *       by checking (1) the machine environment ID tag and       *
+ *       (2) that the functions N_VMake, N_VDispose, N_VGetData,  *
+ *       and N_VSetData are implemented.                          *
+ *                                                                *
  ******************************************************************/
 
 int IDABand(void *IDA_mem, integer mupper, integer mlower,
-              IDABandJacFn bjac, void *jdata);
+            IDABandJacFn bjac, void *jdata);
 
-
-
-/******************************************************************
- *                                                                *
- * Function : IDABandDQJac                                        *
- *----------------------------------------------------------------*  
- * This routine generates a banded difference quotient            *
- * approximation to the system Jacobian J = dF/dy + cj*dF/dy'     *
- *                                                                *
- ******************************************************************/
-
-int IDABandDQJac(integer Neq, integer mupper, integer mlower, real tt, 
-                 N_Vector yy, N_Vector yp, real cj, N_Vector constraints, 
-                 ResFn res, void *rdata,  void *jdata, N_Vector resvec, 
-                 N_Vector ewt, real hh, real uround, BandMat JJ, 
-                 long int *nrePtr,  N_Vector tempv1, N_Vector tempv2,
-                 N_Vector tempv3);
 
 #endif
 
