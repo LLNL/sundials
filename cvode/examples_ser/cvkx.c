@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-25 22:50:23 $
+ * $Revision: 1.12 $
+ * $Date: 2004-08-26 23:32:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -337,7 +337,7 @@ static void PrintOutput(void *cvode_mem, N_Vector y,realtype t)
          IJKth(ydata,2,0,0), IJKth(ydata,2,mxh,mzh), IJKth(ydata,2,mx1,mz1));
 }
 
-/* Print final statistics contained in iopt */
+/* Get and print final statistics */
 
 static void PrintFinalStats(void *cvode_mem)
 {
