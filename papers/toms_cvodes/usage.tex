@@ -2,7 +2,7 @@
 
 In this section we give an overview of the usage of CVODES for ODE integration, 
 forward sensitivity analysis, and adjoint sensitivity analysis. 
-Complete documentation of the code usage is given in~\cite{HiSe:02}.
+Complete documentation of the code usage is given in~\cite{HiSe:04cvodes}.
 
 %------------------------------------------------------
 % Integration and forward SA
@@ -57,7 +57,7 @@ follow the memory allocation step \ref{i:malloc}.
   {\tt CVDense}, {\tt CVBand}, {\tt CVDiag}, or {\tt CVSpgmr}
   If Newton iteration was selected in step (\ref{i:create}), a linear solver  
   is needed for solving the linear systems that arise during the Newton iterations. 
-  A direct linear solver (dense, band, diagonal, or SPGMR) must now be created
+  A linear solver object (dense, band, diagonal, or SPGMR) must now be created
   and attached to the block of memory allocated for the solver.
   Various options controlling the linear solver are set to their default values.
 \item \label{i:ls_set}
@@ -75,7 +75,7 @@ follow the memory allocation step \ref{i:malloc}.
   must be called if solution sensitivities are desired.
   This routine initializes and allocates memory for forward sensitivity calculations.
   At this stage the user specifies the number of sensitivities to be computed, 
-  the forward sensitvity method (simultaneous corrector or staggered corrector), 
+  the forward sensitivity method 
   the model parameters, as well as the initial values for the sensitivity variables.
 \item \label{i:solve}
   {\tt CVode} 
@@ -98,14 +98,13 @@ follow the memory allocation step \ref{i:malloc}.
   extraction functions. A complete list of the optional outputs from CVODES 
   is given in Table~\ref{t:optional_outputs}.
 \item \label{i:sensi_get}
-  {\tt CVodeSensGet*}
+  {\tt CVodeGet*Sens*}
   Optional outputs and statistics related to the solution of the sensitivity 
   systems are available through additional extraction functions 
   (see Table~\ref{t:optional_outputs}).
 \item \label{i:ls_get}  
   {\tt CVDenseGet*}, {\tt CVBandGet*}, {\tt CVDiagGet*} or {\tt CVSpgmrGet*}
-  Optional statistics from the linear solver module can be obtained through
-  some of the routines given in Table~\ref{t:optional_outputs}.
+  provide optional statistics from the linear solver module.
 \item \label{i:free}
   {\tt CVodeFree} and the vector specification destructor.
   To complete the process, the user must make the appropriate calls to
@@ -170,8 +169,8 @@ and {\tt CVodeB}.
 \hline
 \multicolumn{3}{c}{\bf CVODES solver} \\
 \hline
+Pointer to an error output file & {\tt CVodeSetErrFile} & NULL  \\
 Data for right-hand side routine & {\tt CVodeSetFdata} & NULL \\
-Pointer to an error file & {\tt CVodeSetErrFile} & NULL  \\
 Maximum order for BDF method & {\tt CVodeSetMaxOrd} & 5 \\
 Maximum order for Adams method & {\tt CVodeSetMaxOrd} & 12  \\
 Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & {\tt CVodeSetMaxNumSteps} & 500 \\

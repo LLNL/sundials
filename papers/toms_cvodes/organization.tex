@@ -1,6 +1,6 @@
 \section{Code Organization}\label{s:organization}
 
-As mentioned before, the SUNDIALS family of solvers consists of 
+As mentioned before, the SUNDIALS family of solvers consists primarily of 
 CVODE (for ODE systems), KINSOL (for nonlinear algebraic
 systems), and IDA (for DAE systems).  
 In addition, variants of these which also do sensitivity analysis calculations are
@@ -8,7 +8,7 @@ available (CVODES) or in development (IDAS and KINSOLS).
 %
 The overall organization of the CVODES package, as well as its relationship
 to SUNDIALS, is shown in Fig.~\ref{f:cvsorg}.  
-The basic elements of the structure are a module for
+The basic elements of the CVODES structure are a module for
 the basic integration algorithm (including forward sensitivity analysis),
 a module for adjoint sensitivity analysis, and a set of modules for the solution
 of linear systems that arise in the case of a stiff system.  
@@ -74,14 +74,13 @@ difference quotient approximation in the direct case, the references
 the example and demonstration programs included with CVODES, offer
 considerable assistance in building preconditioners.
 
-Each CVODES linear solver module consists of five routines devoted to: (1)
+Each CVODES linear solver module consists of four routines devoted to: (1)
 memory allocation and initialization, (2) setup of the matrix data
-involved, (3) solution of the system, (4) solution of the system in the
-context of forward sensitivity analysis, and (5) freeing of memory.  The
+involved, (3) solution of the system, and (4) freeing of memory.  The
 setup and solution phases are separate because the evaluation of
 Jacobians and preconditioners is done only periodically during the
 integration, as required to achieve convergence. The call list within
-the central CVODES module to each of the five associated functions is
+the central CVODES module to each of the four associated functions is
 fixed, thus allowing the central module to be completely independent
 of the linear system method.
 
@@ -104,7 +103,7 @@ routines for use with CVSPGMR. The second preconditioner module,
 CVBBDPRE, developed for parallel computers, generates a 
 preconditioner that is a block-diagonal matrix with each block being 
 a band matrix. A detailed description of these two modules, including
-usage guidelines, is given in ~\cite{HBGLSSW:03}.
+usage guidelines, is given in ~\cite{HBGLSSW:04}.
 
 All state information used by CVODES to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the

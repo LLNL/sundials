@@ -14,6 +14,11 @@
 
 \newcommand{\mb}[1]{{\mbox{\scriptsize #1}}}
 
+\makeatletter
+\newcommand{\figcaption}{\def\@captype{figure}\caption}
+\newcommand{\tabcaption}{\def\@captype{table}\caption}
+\makeatother
+
 \acmVolume{V}
 \acmNumber{N}
 \acmYear{Y}
@@ -98,6 +103,7 @@ W-7405-Eng-48.
 \input{algorithms.tex}
 \input{organization.tex}
 \input{usage.tex}
+\input{parallel.tex}
 \input{conclusions.tex}
 
 %=======================================================================
