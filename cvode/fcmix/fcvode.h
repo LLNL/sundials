@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2004-10-12 20:11:13 $
+ * $Revision: 1.31 $
+ * $Date: 2004-10-12 21:07:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -185,9 +185,9 @@
  *          ROPT(3), ROPT(8), ROPT(9), respectively.  If any of these optional
  *          inputs are used, set the others to zero to indicate default values.
  *             The optional outputs are NST, NFE, NSETUPS, NNI, NCFN, NETF, QU,
- *          QCUR, LENRW, LENIW, NOR, HU, HCUR, TCUR, TOLSF, UROUND, NGE stored
- *          in IOPT(4) .. IOPT(13), IOPT(15), ROPT(4) .. ROPT(7), ROPT(10),
- *          and ROPT(25), respectively. Also, the last flag returned by the
+ *          QCUR, LENRW, LENIW, NOR, NGE, HU, HCUR, TCUR, TOLSF, UROUND, stored
+ *          in IOPT(4) .. IOPT(13), IOPT(15), IOPT(25), ROPT(4) .. ROPT(7),
+ *          and ROPT(10), respectively. Also, the last flag returned by the
  *          linear solver is stored in IOPT(26). See the CVODE manual for
  *          details. 
  * IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
