@@ -201,11 +201,11 @@ and the step is redone with reduced stepsize whenever that error test
 fails.  As with any linear multistep method, the local truncation
 error LTE, at order $q$ and stepsize $h$, satisfies an asymptotic
 relation
-\[ LTE = C h^{q+1} y^{(q+1)} + O(h^{q+2} \]
+\[ LTE = C h^{q+1} y^{(q+1)} + O(h^{q+2}) \]
 for some constant $C$, under mild assumptions on the stepsizes.
 A similar relation holds for the error in the predictor $y_{n(0)}$.
 These are combined to get a relation
-\[ LTE = C' [y_n - y_{n(0)}] + O(h^{q+2} \, . \]
+\[ LTE = C' [y_n - y_{n(0)}] + O(h^{q+2}) \, . \]
 The local error test is simply $\|LTE\| \leq 1$.  Using the above,
 it is performed on the predictor-corrector difference 
 $\Delta \equiv y_n - y_{n(0)}$ and takes the form
