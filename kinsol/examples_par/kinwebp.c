@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-11-04 20:42:18 $
+ * $Revision: 1.12 $
+ * $Date: 2004-11-05 01:10:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -717,14 +717,22 @@ static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc)
     
     printf("\nAt bottom left:");
     for (is = 0; is < NUM_SPECIES; is++) {
-      if ((is%6)*6== is) printf("\n");
+      if ((is%6)*6 == is) printf("\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+      printf(" %Lg",ct[is]);
+#else
       printf(" %g",ct[is]);
+#endif
     }
     
     printf("\n\nAt top right:");
     for (is = 0; is < NUM_SPECIES; is++) {
       if ((is%6)*6 == is) printf("\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+      printf(" %Lg",tempc[is]);
+#else
       printf(" %g",tempc[is]);
+#endif
     }
     printf("\n\n");
   } 
