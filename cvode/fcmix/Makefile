@@ -23,6 +23,7 @@ CVODE_LIB_NAME = libcvode.$(ARCH).a
 
 # Source and object files
 SRC = fcvode.c fcvpreco.c fcvpsol.c fcvjtimes.c fcvbbd.c fcvbbdin1.c \
+      fcvdense1.c fcvband1.c \
       fcvspgmr01.c fcvspgmr11.c fcvspgmr21.c fcvspgmr10.c fcvspgmr20.c
 
 OBJ = ${SRC:.c=.o}
@@ -90,8 +91,8 @@ fcvx_ser:
 fcvx_par:
 	@(if test -f fcvx_par.mk; then make -f fcvx_par.mk examples; fi)
 
-#serial_ex:
-#	@(make -f fcvx_ser.mk $@)
+cvdensef:
+	@(make -f fcvx_ser.mk $@)
 
 pvdiagnf pvdiagkf pvdiagkbf:
 	@(make -f fcvx_par.mk $@)
