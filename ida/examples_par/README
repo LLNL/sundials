@@ -9,11 +9,11 @@ Sample results:
 
   SUNDIALS was built with the following options:
 
-  ./configure CC=gcc F77=g77 --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \
-  --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
+  ./configure CC=gcc F77=g77 --with-mpicc=<MPI_path> \
+  --with-mpif77=<MPI_path>
 
   System Architecture: IA-32
   Processor Type: Intel Pentium 4 Xeon DP (i686)
-  Operating System: Red Hat Linux 7.2
-  C/Fortran Compilers: gcc/g77 v2.96 (Red Hat)
+  Operating System: Red Hat Enterprise Linux WS 3
+  C/Fortran Compilers: gcc/g77 v3.2.3-24 (Red Hat)
   MPI Implementation: MPICH-MPI v1.2.4

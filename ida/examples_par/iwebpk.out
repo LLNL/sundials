@@ -26,33 +26,33 @@ At bottom left:  c1, c2 = 1.618890e+02 1.618905e+06
 At top right:    c1, c2 = 1.973506e+02 1.973470e+06 
 
 
-TIME t = 1.000000e-01.     NST = 164,  k = 1,  h = 4.039553e-02
-NRE = 200,  NRE_S = 970,  NNI = 198,  NLI = 970,  NPE = 22,  NPS = 1170
+TIME t = 1.000000e-01.     NST = 162,  k = 1,  h = 4.039553e-02
+NRE = 196,  NRE_S = 966,  NNI = 194,  NLI = 966,  NPE = 22,  NPS = 1162
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 4.000000e-01.     NST = 167,  k = 1,  h = 3.231642e-01
-NRE = 206,  NRE_S = 993,  NNI = 204,  NLI = 993,  NPE = 25,  NPS = 1199
+TIME t = 4.000000e-01.     NST = 165,  k = 1,  h = 3.231642e-01
+NRE = 199,  NRE_S = 977,  NNI = 197,  NLI = 977,  NPE = 25,  NPS = 1176
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 7.000000e-01.     NST = 168,  k = 1,  h = 6.463285e-01
-NRE = 208,  NRE_S = 1001,  NNI = 206,  NLI = 1001,  NPE = 26,  NPS = 1209
-At bottom left:  c1, c2 = 2.401905e+02 2.401916e+06 
+TIME t = 7.000000e-01.     NST = 165,  k = 1,  h = 3.231642e-01
+NRE = 199,  NRE_S = 977,  NNI = 197,  NLI = 977,  NPE = 25,  NPS = 1176
+At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 1.000000e+00.     NST = 168,  k = 1,  h = 6.463285e-01
-NRE = 208,  NRE_S = 1001,  NNI = 206,  NLI = 1001,  NPE = 26,  NPS = 1209
-At bottom left:  c1, c2 = 2.401905e+02 2.401916e+06 
+TIME t = 1.000000e+00.     NST = 166,  k = 1,  h = 6.463285e-01
+NRE = 200,  NRE_S = 980,  NNI = 198,  NLI = 980,  NPE = 26,  NPS = 1180
+At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
 Final statistics: 
 
-NST  =   168     NRE  =  1209
-NNI  =   206     NLI  =  1001
-NPE  =    26     NPS  =  1209
+NST  =   166     NRE  =  1180
+NNI  =   198     NLI  =   980
+NPE  =    26     NPS  =  1180
 NETF =     0     NCFN =     0     NCFL =     0
