@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-07-22 21:10:40 $
+ * $Revision: 1.11 $
+ * $Date: 2004-07-22 22:21:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -95,6 +95,8 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
   ops->nvclone           = N_VClone_Parallel;
   ops->nvdestroy         = N_VDestroy_Parallel;
+  ops->nvcloneempty      = N_VCloneEmpty_Parallel;
+  ops->nvdestroyempty    = N_VDestroyEmpty_Parallel;
   ops->nvspace           = N_VSpace_Parallel;
   ops->nvgetarraypointer = N_VGetArrayPointer_Parallel;
   ops->nvsetarraypointer = N_VSetArrayPointer_Parallel;
@@ -203,16 +205,6 @@ N_Vector *N_VNewVectorArray_Parallel(int count,
   return(vs);
 }
 
-/* Function to free an N_Vector created with N_VNewEmpty_Parallel
-   N_VCloneEmpty_Parallel */
-
-void N_VDestroyEmpty_Parallel(N_Vector v)
-{
-  free(v->content);
-  free(v->ops);
-  free(v);
-}
-
 /* Function to deallocate an array created with N_VMake_Parallel */
 
 void N_VDispose_Parallel(N_Vector v)
@@ -259,6 +251,8 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
   
   ops->nvclone           = w->ops->nvclone;
   ops->nvdestroy         = w->ops->nvdestroy;
+  ops->nvcloneempty      = w->ops->nvcloneempty;
+  ops->nvdestroyempty    = w->ops->nvdestroyempty;
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
@@ -321,6 +315,13 @@ N_Vector N_VClone_Parallel(N_Vector w)
   NV_DATA_P(v) = data;
 
   return(v);
+}
+
+void N_VDestroyEmpty_Parallel(N_Vector v)
+{
+  free(v->content);
+  free(v->ops);
+  free(v);
 }
 
 void N_VDestroy_Parallel(N_Vector v)
