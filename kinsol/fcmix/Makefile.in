@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8.2.1 $
-# $Date: 2005-01-25 23:33:19 $
+# $Revision: 1.8.2.2 $
+# $Date: 2005-02-14 23:15:14 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -51,8 +51,7 @@ OBJECT_FILES = fkinsol.o fkinpreco.o fkinpsol.o fkinjtimes.o fkinbbd.o
 all: update $(FKINSOL_LIB_FILES)
 
 update:
-	@echo "${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h" ; \
-	 ${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h
+	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
 
 install: update $(FKINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FKINSOL_LIB) $(FKINSOL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -avoid-version

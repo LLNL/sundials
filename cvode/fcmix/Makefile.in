@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.10.2.1 $
-# $Date: 2005-01-25 23:33:03 $
+# $Revision: 1.10.2.2 $
+# $Date: 2005-02-14 23:14:48 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -51,8 +51,7 @@ OBJECT_FILES = fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvpsol.o fc
 all: update $(FCVODE_LIB_FILES)
 
 update:
-	@echo "${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h" ; \
-	 ${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h
+	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
 
 install: update $(FCVODE_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FCVODE_LIB) $(FCVODE_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -avoid-version

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2004-11-03 23:27:04 $
+# $Revision: 1.6.2.1 $
+# $Date: 2005-02-14 23:15:03 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -50,16 +50,16 @@ all: $(EXEC_FILES)
 
 iheatpk: $(srcdir)/iheatpk.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatpk.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/iheatpk $(builddir)/iheatpk.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/iheatpk $(builddir)/iheatpk.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 iheatbbd: $(srcdir)/iheatbbd.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatbbd.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/iheatbbd $(builddir)/iheatbbd.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/iheatbbd $(builddir)/iheatbbd.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 iwebpk: $(srcdir)/iwebpk.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/iwebpk.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/iwebpk $(builddir)/iwebpk.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/iwebpk $(builddir)/iwebpk.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 iwebbbd: $(srcdir)/iwebbbd.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/iwebbbd.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/iwebbbd $(builddir)/iwebbbd.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/iwebbbd $(builddir)/iwebbbd.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 
 clean:
 	rm -rf .libs

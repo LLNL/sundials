@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2004-11-03 23:27:00 $
+# $Revision: 1.6.2.1 $
+# $Date: 2005-02-14 23:15:06 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -46,16 +46,16 @@ all: $(EXEC_FILES)
 
 irobx: $(srcdir)/irobx.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/irobx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/irobx $(builddir)/irobx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/irobx $(builddir)/irobx.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) 
 iheatsb: $(srcdir)/iheatsb.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatsb.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/iheatsb $(builddir)/iheatsb.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/iheatsb $(builddir)/iheatsb.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) 
 iheatsk: $(srcdir)/iheatsk.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatsk.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/iheatsk $(builddir)/iheatsk.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/iheatsk $(builddir)/iheatsk.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) 
 iwebsb: $(srcdir)/iwebsb.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iwebsb.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/iwebsb $(builddir)/iwebsb.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/iwebsb $(builddir)/iwebsb.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) 
 
 clean:
 	rm -rf .libs
