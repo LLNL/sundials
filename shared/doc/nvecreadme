@@ -1,0 +1,214 @@
+
+             ==========================
+             NVECTOR MODULE DESCRIPTION
+             ==========================
+    
+              Version of 18 March 2002
+
+
+Content:
+
+[A] Description of the NVECTOR abstraction in SUNDIALS
+[B] NVECTOR implementations provided by SUNDIALS
+[C] Writing a new NVECTOR implementation
+[D] Vector kernels used by the SUNDIALS solvers
+
+
+-------------------------------------------------------
+[A] Description of the NVECTOR abstraction in SUNDIALS
+-------------------------------------------------------
+
+The SUNDIALS solvers (CVODE, IDA, KINSOL, CVODES) are
+written in a data independent manner. They all operate 
+on generic vectors (of type N_Vector) through a set of
+operations defined by a generic machine environment
+(of type M_Env). 
+
+N_Vector has an implementation-dependent 'content' field
+which contains the description and actual data of the 
+vector and a 'menv' field which points to the M_Env 
+structure used in creating the vector.
+
+M_Env has an implementation-dependent 'content' field
+which contains the data needed to generate a new vector 
+in that implementation and an 'ops' field which is a 
+structure listing operations acting on such vectors.    
+
+A particular implementation of NVECTOR must provide
+implementation-specific routines to create and free
+a machine environment variable (of type M_Env).
+
+For more information on the N_Vector abstraction, as well
+as the vector kernel descriptions, see the header file 
+nvector.h in shared/include/.
+
+
+-------------------------------------------------
+[B] NVECTOR implementations provided by SUNDIALS
+-------------------------------------------------
+
+SUNDIALS provides (in the shared/ module) two implementations
+of N_VECTOR:
+
+(a) nvector_serial - for serial machines
+
+    Defines the 'content' field of N_Vector to be a structure 
+    containing the length of the vector and a pointer to the 
+    beginning of a contiguous data array;
+
+    Provides user-callable routines M_EnvInit_Serial to create 
+    a structure of type M_Env whose 'content' field is a 
+    structure containing the vector length, and M_EnvFree_Serial 
+    to deallocate the space used by such a structure.
+
+(b) nvector_parallel - for parallel machines (MPI)
+
+    Defines the 'content' field of N_Vector to be a structure
+    containing the global length of the vector, its local
+    length, and a pointer to the beginning of a contiguous
+    data array containing the local portion of the vector;
+    
+    Provides user-callable routines M_EnvInit_Parallel to create 
+    a structure of type M_Env whose 'content' field is a 
+    structure containing the local and global vector lengths,
+    and M_EnvFree_Parallel to deallocate the space used by such 
+    a structure.
+
+    It uses MPI for message-passing.
+
+For more information on these two implementations of
+NVECTOR, see the header files nvector_serial.h and
+nvector_parallel.h in /shared/include/.
+
+
+-----------------------------------------
+[C] Writing a new NVECTOR implementation
+-----------------------------------------
+
+A new N_VECTOR implementation must:
+
+(1) specify the 'content' fields of the structures of type
+    M_Env and N_Vector;
+(2) define the prototypes for kernel operations on 
+    those N_Vectors and implement them; 
+(3) provide an initialization routine, which generates 
+    an M_Env with that particular 'content' field and 
+    links the defined vector kernel routines into the 
+    'ops' field.
+We also strongly recommend that the developer of a new 
+NVECTOR implementation provides as many accessor macros 
+as it makes sense for that particular implementation to 
+be used to access different parts in the 'content' field
+of the newly defined N_Vector.
+
+NOTES: 
+
+The kernel routine names should be unique to that implementation 
+to provide the option of using N_Vectors with different 
+internal representations in the same code.
+
+In order to use the FORTRAN - C interface (for CVODE 
+or KINSOL), the N_VECTOR implementation must also provide 
+FORTRAN callable wrappers around the machine environment
+initialization and free routines.
+
+
+-----------------------------------------------
+[D] Vector kernels used by the SUNDIALS solvers
+-----------------------------------------------
+
+The following table lists the vector kernels used by
+different modules in SUNDIALS. The symbols in the table
+have the following meaning:
+S  -  the vector kernel is called by the solver;
+D  -  the vector kernel is only called by a direct linear solver
+      (such as dense or band), or by a solver interface to
+      a direct linear solver (such as CVDense, CVBand, 
+      IDADense, IDABand), or by a preconditioner solve routine 
+      that uses a direct linear solver (such as banded or 
+      banded-block-diagonal preconditioners);
+I  -  the vector kernel is only called by the iterative linear
+      solver.
+
+A new NVECTOR implementation does not need to define vector 
+kernels that are required by modules or options that will 
+not be used. For example, a new NVECTOR implementation that 
+is not meant to be used with IDA does not have to implement 
+N_VConstrMask. Also, an NVECTOR implementation for CVODE 
+that will not use direct linear solvers or the provided 
+banded-block-diagonal preconditioner, does not have to 
+implement N_VMake and N_VDispose.
+
+
+                 +---------------------------------+
+                 |           MODULES               |
+NVECTOR          +-------+-------+--------+--------+
+KERNELS          | CVODE |  IDA  | KINSOL | CVODES | 
+-----------------+-------+-------+--------+--------+
+N_VNew           |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VFree          |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VNew_S         |       |       |        |   S    |
+-----------------+-------+-------+--------+--------+
+N_VFree_S        |       |       |        |   S    |
+-----------------+-------+-------+--------+--------+
+N_VMake          |   D   |   D   |   D    |   D    |
+-----------------+-------+-------+--------+--------+
+N_VDispose       |   D   |   D   |   D    |   D    |
+-----------------+-------+-------+--------+--------+
+N_VGetData       |   D   |   D   |   D    |   D    |
+-----------------+-------+-------+--------+--------+
+N_VSetData       |   D   |   D   |   D    |   D    |
+-----------------+-------+-------+--------+--------+
+N_VLinearSum     |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VConst         |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VProd          |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VDiv           |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VScale         |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VAbs           |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VInv           |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VAddConst      |   S   |   S   |        |   S    |
+-----------------+-------+-------+--------+--------+
+N_VDotProd       |   I   |       |   S    |        |
+-----------------+-------+-------+--------+--------+
+N_VMaxNorm       |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VWrmsNorm      |   S   |   S   |        |   S    |
+-----------------+-------+-------+--------+--------+
+N_VMin           |   S   |   S   |   S    |   S    |
+-----------------+-------+-------+--------+--------+
+N_VWL2Norm       |       |       |   S    |        |
+-----------------+-------+-------+--------+--------+
+N_VL1norm        |       |       |   S    |        |
+-----------------+-------+-------+--------+--------+
+N_VOneMask       |       |   S   |        |        |
+-----------------+-------+-------+--------+--------+
+N_VCompare       |   D   |   S   |        |   D    |
+-----------------+-------+-------+--------+--------+
+N_VInvTest       |   S   |       |        |   S    |
+-----------------+-------+-------+--------+--------+
+N_VConstrProdPos |       |       |   S    |        |
+-----------------+-------+-------+--------+--------+
+N_VConstrMask    |       |   S   |        |        |
+-----------------+-------+-------+--------+--------+
+N_VMinQuotient   |       |   S   |        |        |
+-----------------+-------+-------+--------+--------+
+N_VPrint         |       |       |        |        |
+-----------------+-------+-------+--------+--------+
+
+Note that, in order to reduce overhead, the two 
+implementations provided by SUNDIALS assume that
+N_Vectors sent as arguments to a given vector kernel
+are consistent, i.e. they were created with the same 
+machine environment.
+
+Do not add apples and oranges :-)
+
