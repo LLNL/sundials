@@ -26,8 +26,6 @@ echo "  Add shared module"
 tar uf $tarfile $distrobase/shared/LICENSE
 tar uf $tarfile $distrobase/shared/README
 
-tar uf $tarfile $distrobase/shared/doc/nvecreadme
-
 tar uf $tarfile $distrobase/shared/include/sundialstypes.h
 tar uf $tarfile $distrobase/shared/include/sundialsmath.h
 tar uf $tarfile $distrobase/shared/include/nvector.h
