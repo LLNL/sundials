@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11.2.2 $
-# $Date: 2005-02-14 23:15:23 $
+# $Revision: 1.11.2.3 $
+# $Date: 2005-03-17 22:54:31 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -91,9 +91,9 @@ uninstall: clean
 nvector_parallel.lo: $(srcdir)/nvector_parallel.c
 	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(NVECTOR_PARALLEL_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector_parallel.c
 fnvector_parallel.lo: $(srcdir)/fnvector_parallel.c
-	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                 \
-	   echo "${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} -I. -I${SHARED_INC_DIR} -I${NVECTOR_PARALLEL_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_parallel.c" ; \
-	   ${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} -I. -I${SHARED_INC_DIR} -I${NVECTOR_PARALLEL_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_parallel.c ;        \
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                  \
+	   echo "${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} -I. -I${SHARED_INC_DIR} -I${NVECTOR_PARALLEL_INC_DIR} -I${MPI_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_parallel.c" ; \
+	   ${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} -I. -I${SHARED_INC_DIR} -I${NVECTOR_PARALLEL_INC_DIR} -I${MPI_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_parallel.c ;        \
 	 fi
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
