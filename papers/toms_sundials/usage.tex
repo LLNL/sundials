@@ -88,183 +88,126 @@ Step~\ref{sun_finalize}.
 {\sf For adjoint sensitivity analysis, we refer the interested reader to
 the user's guide.}
 
-\subsection{CVODE and CVODES} 
-\label{ss:CVODE_usage}
+\subsection{Optional inputs and outputs}\label{ss:optional_io}
 
-The following options can be set by the user; otherwise, the option
-retains the default setting that appears in the brackets {\tt []}:
-a pointer to the user-defined data structure that is passed to the
-user's $f$ routine [{\tt NULL}]; a pointer to an error file where all
-warning and error messages will be written [{\tt NULL} means standard
-output]; the maximum order used by the Adams method [12] or BDF method
-[5]; the maximum number of internal steps to be taken in its attempt
-to reach the next output time [500]; the maximum number of warning
-messages issued when the internal step size is below machine epsilon
-[10]; a flag to activate stability limit detection [{\tt FALSE}]; the
-initial step size [estimated by the solver]; the minimum absolute step
-size value allowed [0.0]; the maximum absolute step size value allowed
-[infinity]; and, the independent variable value past which the
-solution is not to proceed [infinity].
-Additional optional inputs include: the maximum number of Newton
-iterations [3]; the maximum number of convergence failures [10]; the
-maximum number of error test failures [7]; and, the proportionality
-coefficient in the nonlinear convergence test [0.1].
+{\sf Some intro here}
 
-If desired, the user can request the following information from the
-solver: the amount of integer workspace allocated by CVODE; the amount
-of real workspace allocated by CVODE; the cumulative number of
-internal steps taken; the number of calls to the user's
-f function; the number of calls made to the linear solver's setup
-routine; the number of local error test failures that have occurred;
-the order used during the last internal step; the number of order
-reductions due to stability limit detection; the actual initial step
-size used; the step size used for the last internal step; the step
-size to be attempted on the next internal step; the current internal
-time reached by the solver; a suggested factor by which the user's
-tolerances should be scaled when too much accuracy has been requested
-for some internal time steps; the vector containing the error weights
-for the state variables; and, the vector containing the estimated
-local errors at the current internal time step.
+\subsubsection*{Basic Solvers} 
+Table \ref{t:optional_io} lists in its top half the various optional 
+inputs that users can change to control the basic SUNDIALS solvers.
+Under each solver column we give the default value for the optional 
+input. Inputs marked with a ``-'' are not applicable to that particular 
+solver. The bottom half of the table lists the various optional 
+outputs that the users can access to monitor solver performance.
+Optional outputs available for a solver are marked with a ``$\surd$''
+and those not available are marked by a ``-''.
 
-\subsection{KINSOL} 
-\label{ss:KINSOL_usage}
+\begin{table}[tp]
+\label{t:optional_io}
+\centering
+\caption{List of optional inputs and outputs for the basic SUNDIALS solvers}
+\medskip
+\begin{tabular}{|p{2.75in}|c|c|c|}
+\hline
+{\bf Optional input} & CVODE  & IDA & KINSOL \\
+\hline
+Pointer to the user-defined data & NULL & NULL& NULL \\
+Pointer to an error file & NULL & NULL & NULL \\
+Maximum order for BDF method & 5 & 5 & - \\
+Maximum order for Admas method& 12  & - & - \\
+Maximum number of internal steps before $t_{out}$ & 500 & 500 & - \\
+Maximum number of warnings for $h < U$ & 10 & - & - \\
+Flag to activate stability limit detection & FALSE & - & - \\
+Initial step size & est. & est. & - \\
+Minimum absolute step size & 0.0 & - & - \\
+Maximum absolute step size & $\infty$ & $\infty$ & - \\
+Value of $t_{stop}$ & - & $\infty$ & - \\
+Maximum number of Newton iterations & 3 & 3 & 200 \\
+Maximum number of convergence failures & 10 & 10 & - \\
+Maximum number of error test failures & 7 & 10 & - \\
+Coefficient in the nonlinear convergence test & 0.1 & 0.33 & - \\
+Flag to exclude algebraic variables from error test & - & FALSE & - \\
+differential-algebraic identification vector & - & NULL & - \\
+Vector with additional constraints & - & NULL & NULL \\
+Level of printing & - & - & none \\
+Flag to skip initial linear solver setup call & - & - & FALSE \\
+Maximum number of prec. solves without setup & - & - & 10 \\
+Flag for selection of $\eta$ computation & - & - & choice 1 \\
+Constant $\eta$ value & - & - & 0.1 \\
+Parameters $\alpha$ and $\gamma$ in $\eta$ choice 2 & - & - & $2.0$,$0.9$\\
+Flag to control minimum value for $\epsilon$ & - & - & FALSE \\
+Maximum length of Newton step & - & - & est. \\
+Relative error in computing $F(u)$ & - & - & $U$ \\
+%Constant to restrict solution update & - & - & $\infty$ \\
+Stopping tolerance on residual & - & - & $U^{1/3}$ \\
+Stopping tolerance on max. scaled step & - & - & $U^{2/3}$ \\
+\hline
+\hline
+{\bf Optional output} &  &  & \\
+\hline
+Size of workspace allocated by the solver & $\surd$ & $\surd$ & $\surd$ \\
+Cumulative number of internal steps taken & $\surd$ & $\surd$ & - \\
+Number of calls to the user's function & $\surd$ & $\surd$ & $\surd$ \\
+Number of calls to the linear solver's setup routine & $\surd$ & $\surd$ & - \\
+Number of local error test failures that have occurred & $\surd$ & $\surd$ & - \\
+Number of nonlinear solver iterations & $\surd$ & $\surd$ & $\surd$ \\
+Number of nonlinear convergence failures & $\surd$ & $\surd$ & - \\
+Order used during the last step & $\surd$ & $\surd$ & - \\
+Order to be attempted on the next step & $\surd$ & $\surd$ & - \\
+Number of order reductions due to stability limit detection & $\surd$ & - & - \\
+Actual initial step size used & $\surd$ & $\surd$ & - \\
+Step size used for the last step & $\surd$ & $\surd$ & - \\
+Step size to be attempted on the next step & $\surd$ & $\surd$ & - \\
+Current internal time reached by the solver & $\surd$ & $\surd$ & - \\
+%Suggested factor for tolerance scaling & $\surd$ & - & - \\
+Vector containing the error weights for state variables & $\surd$ & $\surd$ & - \\
+Vector containing the est. local errors & $\surd$ & - & - \\
+Number of backtrack operations during linesearch & - & $\surd$ & $\surd$ \\
+Number of times the $\beta$ condition could not & - & - & $\surd$ \\
+Scaled norm at a given iteration & - & - & $\surd$ \\
+Last step length in the global strategy routine & - & - & $\surd$ \\
+\hline
+\end{tabular}
+\end{table}
 
-The following options can be set by the user; otherwise, the option
-retains the default setting that appears in the brackets {\tt []}:
-a pointer to the user data that will be passed to the user's $F$
-routine [{\tt NULL}]; a pointer to an error file where all
-warning and error messages will be written [{\tt NULL} means standard
-output]; an integer value between 0--3 to indicated the desired amount
-of convergence-related output [{\tt 0} means no statistics printed];
-the maximum allowable number of nonlinear iterations [{\tt
-MXITER\_DEFAULT}]; a flag to control the initial call to the
-preconditioner setup routine [{\tt FALSE} forces the initial call];
-the maximum number of steps calling the preconditioner solve without
-calling the preconditioner setup [10]; a flag indicating which of
-three methods to use for computing the coefficient ($\eta$) in the linear
-solver convergence tolerance epsilon~(?) [{\tt ETACHOICE1}]; the
-constant value of $\eta$ for {\tt ETACONSTANT} [0.1]; the parameter
-values for $\eta$ in the case {\tt ETACHOICE2} [egamma=0.9,
-ealpha=2.0]; the flag to control the lower bound on the linear solver
-convergence tolerance ($\epsilon$) [{\tt FALSE}]; the maximum
-allowable length of a Newton step [{\tt default}]; the relative error
-in computing {\tt func(uu)} [{\tt unit roundoff}]; a scalar constant
-which restricts the update of uu [{\tt infinity}]; a real scalar value
-containing the stopping tolerance; a real scalar value containing the
-stopping tolerance on the maximum scaled step [{\tt default}]; a
-pointer to an array of constraints on uu [{\tt NULL}].
+\subsubsection*{Sensitivity Analysis}
+Each sensitivity solver (CVODES and IDAS) offers the complete list
+of optional inputs and outputs of the corresponding basic solver
+(CVODE and IDA, respectively). In addition the user has control over
+various inputs that affect sensitivity calculations. Examples of
+such optional inputs are: {\sf list a few representative ones here}.
+For more details see \cite{SeHi:03}, \cite{HiSe:02}.
 
-If desired, the user can request the following information from the
-solver: the amount of integer workspace allocated by KINSOL; the
-amount of real workspace allocated by KINSOL; the number of calls to
-the user's {\tt func} function; the number of nonlinear iterations
-performed; the total number of times the $\beta$ condition could not
-be met in the line search algorithm; the number of backtrack
-operations done in the linesearch algorithm; the scaled norm at a
-given iteration; and, the last step length in the global strategy
-routine.
+\subsubsection*{Linear Solvers and Preconditioners}
 
-\subsection{IDA} 
-\label{ss:IDA_usage}
-
-The following options can be set by the user; otherwise, the option
-retains the default setting that appears in the brackets {\tt []}:
-a pointer to the user data structure that will be passed to the user's
-$F$ routine [{\tt NULL}]; a file pointer to an error file where
-all warning and error messages will be written [{\tt NULL}]; the
-maximum order used by the BDF method [5]; the maximum number of
-internal steps to be taken in an attempt to reach the next output time
-[500]; the initial step size [estimated by the solver]; the maximum
-absolute step size allowed [{\tt infinity}]; the independent variable
-value past which the solution is not to proceed [{\tt infinity}]; the
-factor in nonlinear convergence test for use during integration [1.0];
-a flag to indicate whether or not to suppress algebraic variables in
-the local error test [{\tt FALSE}]; a vector which indicates whether a
-given component is either an algebraic or differential variable [0.0
-and 1.0 indicate algebraic and differential variables, respectively];
-a vector defining inequality constraints for each component of the
-solution vector [0.0 means the corresponding component has no
-constraint; etc.].
-Additional optional inputs include: the maximum number of Newton
-iterations [3]; the maximum number of convergence failures [10]; the
-maximum number of error test failures [10]; and, the constant in the
-nonlinear solver convergence test [0.33].
-
-If desired, the user can request the following information from the
-solver: the amount of integer workspace allocated by IDA; the amount
-of real workspace allocated by IDA; the cumulative number of internal
-steps taken; the number of calls to the user's {\tt res} function; the
-number of calls made to the linear solver's setup routine; the number
-of local error test failures that have occurred; the number of
-backtrack operations done in the linesearch algorithm of the
-consistent initialization routine; the order used during the last
-internal step; the order to be used on the next internal step; the
-actual initial step size used; the step size for the last internal
-step, or the last value of the artificial step size in calculating
-consistent initial conditions; the step size to be attempted on the
-next internal step; the current internal time reached; a suggested
-factor by which the user's tolerances should be scaled when too much
-accuracy has been requested for some internal step; the vector
-containing the error weights for the state variables; and, the vector
-containing the estimated local error at the current internal time steps.
-
-\subsection{Preconditioners and Linear Solvers}
-\label{ss:linear_usage}
-
-For the scaled preconditioned GMRES solver, the following options can
-be set by the user; otherwise, the option retains the default setting
-that appears in the brackets {\tt []}:
-a classical Gram-Schmidt orthogonalization can be used [modified Gram-Schmidt];
-the factor by which the tolerance on the
+For any of the linear solvers, the user can set optional inputs so 
+that a user-supplied routine providing Jacobian-related information
+is used instead of the default difference quotient routine. 
+Also, a pointer can be set so that user data is passed each time this
+user-supplied routine is called. In addition, for the SPGMR case,
+the following can be optionally changed from their default values
+(provided in parentheses): a classical Gram-Schmidt orthogonalization 
+can be used (modified Gram-Schmidt), the factor by which the tolerance on the
 nonlinear iteration is multiplied to get a tolerance on the linear
-iteration [0.05]; the preconditioner setup routine [NULL]; the
-preconditioner solver routine [NULL]; a pointer to the user
-preconditioner data [NULL]; the Jacobian-vector product routine
-[internal finite difference approximation]; and, a pointer to user
-Jacobian data. The optional outputs are: the amount of integer
-workspace; the amount of real workspace; the number of preconditioner
-evaluations; the number of calls made to the preconditioner solve
-routine; the number of linear iterations; the number of linear
-convergence failures; the number of calls to the Jacobian-vector
-product routines; and, the number of calls to the user's function due
-to finite difference Jacobian-vector products.
+iteration (0.05), the preconditioner setup routine (NULL), the
+preconditioner solver routine (NULL), and a pointer to the user
+preconditioner data (NULL).
+
+The optional outputs for any of the linear solvers are: the amount of 
+integer and real workspace used; the number of calls made to the user-supplied 
+Jacobian evaluation routine; and, the number of calls to the user's function 
+due to the default difference quotient routine.
+In addition, for the SPGMR case, user can obtain the number of preconditioner
+evaluations, the number of calls made to the preconditioner solve
+routine, the number of linear iteration, and the number of linear
+convergence failures.
 
 For the band block diagonal preconditioner, the optional outputs are:
 the amount of integer workspace used, the amount of real workspace
 used; and, the number of calls to the local function that approximates
 the user's function.
 
-For the dense linear solver, the user can set optional inputs so that a
-user-supplied dense Jacobian approximation is used instead of the
-default difference quotient routine. Also, a pointer can be set so
-that user data is passed each time the user-supplied dense Jacobian
-routine is called. The optional outputs are: the amount of integer
-workspace used; the amount of real workspace used; the number of calls
-made to the user-supplied Jacobian evaluation routine; and, the number
-of calls to the user's function due to the default difference quotient
-routine.
-
-For the band linear solver, the user can set optional inputs so that a
-user-supplied band Jacobian approximation routine is used instead of
-the default difference quotient routine. Furthermore, a pointer can be
-set so that user data is passed each time the user-supplied banded
-Jacobian routine is called. The optional outputs are: the amount
-of integer workspace used; the amount of real workspace used; the
-number of calls made to the Jacobian evaluation routine; and, the
-number of calls made to the user's function due to the default
-difference quotient routine.
-
-For the diagonal linear solver, the optional outputs are: the amount
-of integer workspace used; the amount of real workspace used; and, the
-number of calls due to computing the diagonal Jacobian via finite differences.
-
-\subsection{Sensitivity Analysis}
-\label{ss:sensitivity_analysis}
-
-{\sf Is this needed?}
-
-\subsection{Fortran Usage} 
-\label{ss:Fortran_usage}
+\subsection{Fortran Usage} \label{ss:Fortran_usage}
 
 For two of the SUNDIALS solvers -- CVODE and KINSOL, users with
 Fortran applications are accommodated.  This is done with a set of
@@ -278,8 +221,8 @@ These interfaces are provided as separate modules, called FCVODE and
 FKINSOL, for CVODE and KINSOL, respectively.  In each case, small
 examples programs are provided.
 
-For complete details,
-see the user documentation for each of the solvers in SUNDIALS.
+For complete details, see the user documentation for each of the solvers 
+in SUNDIALS (\cite{HiSe:03a}, \cite{HiSe:03c}).
 
 
 
