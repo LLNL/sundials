@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-07-28 15:45:32 $
+ * $Revision: 1.29 $
+ * $Date: 2004-07-29 21:02:21 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -133,7 +133,6 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
                 realtype *ropt, int *ier)
 {
   int itol;
-  N_Vector atolvec;
   void *atolptr;
 
   N_VSetArrayPointer(y0, CV_yvec);
@@ -146,7 +145,7 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
       CV_atolvec = N_VCloneEmpty(F2C_vec);
     N_VSetArrayPointer(atol, CV_atolvec);
     itol = SV; 
-    atolptr = atolvec; 
+    atolptr = (void *) CV_atolvec; 
   }
 
   /* 
