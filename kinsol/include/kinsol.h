@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-10-11 16:40:41 $
+ * $Revision: 1.20 $
+ * $Date: 2004-10-22 22:35:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -94,7 +94,7 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Type : SysFn
+ * Type : KINSysFn
  * -----------------------------------------------------------------
  * The user-supplied subroutine implementing the nonlinear system
  * function (vector-valued function) F must take as input the
@@ -104,12 +104,12 @@ extern "C" {
  * pointer.
  * 
  * Note: The user-defined routine (internally referenced by a
- * a pointer (type SysFn) named func) should have a void return
+ * a pointer (type KINSysFn) named func) should have a void return
  * value type.
  * -----------------------------------------------------------------
  */
 
-typedef void (*SysFn)(N_Vector uu, N_Vector fval, void *f_data );
+typedef void (*KINSysFn)(N_Vector uu, N_Vector fval, void *f_data );
 
 /*
  * -----------------------------------------------------------------
@@ -371,7 +371,7 @@ int KINSetConstraints(void *kinmem, N_Vector constraints);
  * -----------------------------------------------------------------
  */
 
-int KINMalloc(void *kinmem, SysFn func, N_Vector tmpl);
+int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl);
 
 /*
  * -----------------------------------------------------------------
@@ -411,7 +411,7 @@ int KINMalloc(void *kinmem, SysFn func, N_Vector tmpl);
  * -----------------------------------------------------------------
  */
 
-int KINResetSysFunc(void *kinmem, SysFn func);
+int KINResetSysFunc(void *kinmem, KINSysFn func);
 
 /*
  * -----------------------------------------------------------------

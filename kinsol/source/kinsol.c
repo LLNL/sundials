@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2004-10-08 23:24:44 $
+ * $Revision: 1.28 $
+ * $Date: 2004-10-22 22:35:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -669,7 +669,7 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
  * -----------------------------------------------------------------
  */
 
-int KINMalloc(void *kinmem, SysFn func, N_Vector tmpl)
+int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
 {
   long int liw1, lrw1;
   KINMem kin_mem;
@@ -742,7 +742,7 @@ int KINMalloc(void *kinmem, SysFn func, N_Vector tmpl)
  * -----------------------------------------------------------------
  */
 
-int KINResetSysFunc(void *kinmem, SysFn func)
+int KINResetSysFunc(void *kinmem, KINSysFn func)
 {
   KINMem kin_mem;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-10-08 23:24:44 $
+ * $Revision: 1.5 $
+ * $Date: 2004-10-22 22:35:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -44,7 +44,7 @@ typedef struct KINMemRec {
 
   /* problem specification data */
 
-  SysFn kin_func;              /* nonlinear system function implementation     */
+  KINSysFn kin_func;           /* nonlinear system function implementation     */
   void *kin_f_data;            /* work space available to func routine         */
   realtype kin_fnormtol;       /* stopping tolerance on L2-norm of function
 				  value                                        */
