@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28.2.1 $
- * $Date: 2005-01-24 21:41:07 $
+ * $Revision: 1.28.2.2 $
+ * $Date: 2005-04-04 22:33:10 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -66,6 +66,34 @@ extern "C" {
 typedef int (*IDAResFn)(realtype tt, 
                         N_Vector yy, N_Vector yp, N_Vector rr, 
                         void *res_data);
+
+
+
+/*
+ * -----------------------------------------------------------------
+ * Type : IDAEwtFn
+ * -----------------------------------------------------------------
+ * A function e, which sets the error weight vector ewt, must have
+ * type IDAEwtFn.
+ * The function e takes as input the current dependent variable y.
+ * It must set the vector of error weights used in the WRMS norm:
+ * 
+ *   ||y||_WRMS = sqrt [ 1/N * sum ( ewt_i * y_i)^2 ]
+ *
+ * Typically, the vector ewt has components:
+ * 
+ *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
+ *
+ * The e_data parameter is the same as that passed by the user
+ * to the IDASetEdata routine.  This user-supplied pointer is
+ * passed to the user's e function every time it is called.
+ * An IDAEwtFn e must return 0 if the error weight vector has been
+ * successfuly set and a non-zero value otherwise.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
+
  
 /*
  * ----------------------------------------------------------------
@@ -76,6 +104,7 @@ typedef int (*IDAResFn)(realtype tt,
 /* itol */
 #define IDA_SS 1
 #define IDA_SV 2
+#define IDA_WF 3
 
 /* itask */
 #define IDA_NORMAL         1
@@ -126,7 +155,12 @@ void *IDACreate(void);
  *                      | passed to the user's res function every 
  *                      | time res is called.                     
  *                      | [NULL]                                  
- *                      |                                          
+ *                      |         
+ * IDASetEdata          | a pointer to user data that will be
+ *                      | passed to the user's e function every
+ *                      | time e is called.
+ *                      | [NULL]
+ *                      |
  * IDASetErrFile        | the file pointer for an error file      
  *                      | where all IDA warning and error         
  *                      | messages will be written. This parameter
@@ -242,7 +276,7 @@ int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
 int IDASetId(void *ida_mem, N_Vector id);
 int IDASetConstraints(void *ida_mem, N_Vector constraints);
 
-int IDASetTolerances(void *cvode_mem, int itol, realtype *rtol, void *atol);
+int IDASetTolerances(void *ida_mem, int itol, realtype rtol, void *atol);
 
 /*
  * ----------------------------------------------------------------
@@ -265,10 +299,10 @@ int IDASetTolerances(void *cvode_mem, int itol, realtype *rtol, void *atol);
  *               SV (scalar relative tolerance and vector         
  *                   absolute tolerance).                         
  *                                                                
- * rtol    is a pointer to the relative tolerance scalar.         
+ * rtol    is the relative tolerance scalar.         
  *                                                                
  * atol    is a pointer (void) to the absolute tolerance scalar or
- *            an N_Vector tolerance.                              
+ *            an N_Vector tolerance or an IDAEwtFn funciton.                              
  * (ewt)                                                          
  *         Both rtol and atol are used to compute the error weight
  *         vector, ewt. The error test required of a correction   
@@ -296,7 +330,7 @@ int IDASetTolerances(void *cvode_mem, int itol, realtype *rtol, void *atol);
 
 int IDAMalloc(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector yy0, N_Vector yp0, 
-              int itol, realtype *rtol, void *atol);
+              int itol, realtype rtol, void *atol);
 
 /*
  * ----------------------------------------------------------------
@@ -340,7 +374,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
 
 int IDAReInit(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector yy0, N_Vector yp0,
-              int itol, realtype *rtol, void *atol);
+              int itol, realtype rtol, void *atol);
  
 /* ----------------------------------------------------------------
  * Initial Conditions optional input specification functions      
@@ -435,6 +469,12 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  *                                                                
  * IDA_mem is the pointer to IDA memory returned by IDACreate.    
  *                                                                
+ * t0      is the initial value of t, the independent variable.   
+ *                                                                
+ * yy0     is the initial condition vector y(t0).                 
+ *                                                                
+ * yp0     is the initial condition vector y'(t0)                 
+ *                                                                
  * icopt  is the option of IDACalcIC to be used.                  
  *        icopt = IDA_YA_YDP_INIT   directs IDACalcIC to compute 
  *                the algebraic components of y and differential  
@@ -503,7 +543,8 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  * ----------------------------------------------------------------
  */
 
-int IDACalcIC (void *ida_mem, int icopt, realtype tout1); 
+int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0, 
+               int icopt, realtype tout1); 
 
 /*
  * ----------------------------------------------------------------
@@ -673,7 +714,7 @@ int IDAGetSolution(void *ida_mem, realtype t,
  *       user's tolerances should be scaled when too much         
  *       accuracy has been requested for some internal step       
  * IDAGetErrWeights returns the state error weight vector.        
- *       The user need not allocate space for ewt.                
+ *       The user must allocate space for ewt.                
  * IDAGetEstLocalErrors returns the vector of estimated local     
  *       errors. The user need not allocate space for ele.        
  *                                                                
@@ -697,7 +738,7 @@ int IDAGetLastStep(void *ida_mem, realtype *hlast);
 int IDAGetCurrentStep(void *ida_mem, realtype *hcur);
 int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
 int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
-int IDAGetErrWeights(void *ida_mem, N_Vector *eweight);
+int IDAGetErrWeights(void *ida_mem, N_Vector eweight);
 
 int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, 
                           long int *nrevals, long int *nlinsetups, 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2.2.1 $
- * $Date: 2005-02-14 20:20:46 $
+ * $Revision: 1.2.2.2 $
+ * $Date: 2005-04-04 22:33:04 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -59,7 +59,6 @@
  */
 
 extern int IDAInitialSetup(IDAMem IDA_mem);
-extern booleantype IDAEwtSet(IDAMem IDA_mem, N_Vector ycur);
 extern realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, 
                             booleantype mask);
 
@@ -80,8 +79,8 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval);
 #define errfp    (IDA_mem->ida_errfp)
 #define rdata    (IDA_mem->ida_rdata)
 #define res      (IDA_mem->ida_res)
-#define y0       (IDA_mem->ida_y0)
-#define yp0      (IDA_mem->ida_yp0)
+#define efun     (IDA_mem->ida_efun)
+#define edata    (IDA_mem->ida_edata)
 #define uround   (IDA_mem->ida_uround)  
 #define phi      (IDA_mem->ida_phi) 
 #define ewt      (IDA_mem->ida_ewt)  
@@ -127,7 +126,7 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval);
  * IDACalcIC
  * -----------------------------------------------------------------
  * IDACalcIC computes consistent initial conditions, given the 
- * user's initial guess for unknown components of y0 and/or yp0.
+ * user's initial guess for unknown components of yy0 and/or yp0.
  *
  * The return value is IDA_SUCCESS = 0 if no error occurred.
  *
@@ -149,9 +148,10 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval);
  * -----------------------------------------------------------------
  */
 
-int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
+int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0, 
+               int icopt, realtype tout1)
 {
-  booleantype ewtsetOK;
+  int ewtsetOK;
   int ier, nwt, nh, mxnh, icret, retval=0;
   realtype tdist, troundoff, minid, hic, ypnorm;
   IDAMem IDA_mem;
@@ -178,6 +178,20 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   IDA_mem->ida_SetupDone = TRUE;
 
   /* Check legality of input arguments, and set IDA memory copies. */
+
+  IDA_mem->ida_t0 = t0;
+
+  if (yy0 == NULL) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_Y0_NULL); 
+    return(IDA_ILL_INPUT); 
+  }
+  IDA_mem->ida_yy0 = yy0;
+
+  if (yp0 == NULL) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_YP0_NULL); 
+    return(IDA_ILL_INPUT); 
+  }
+  IDA_mem->ida_yp0 = yp0;
 
   if (icopt < IDA_YA_YDP_INIT || icopt > IDA_Y_INIT) {
     if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_ICOPT);
@@ -251,9 +265,9 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
       ncfn++;
       if (retval < 0) break;
       if (nh == mxnh) break;
-      /* If looping to try again, reset y0 and yp0 if not converging. */
+      /* If looping to try again, reset yy0 and yp0 if not converging. */
       if (retval != IC_SLOW_CONVRG) {
-        N_VScale (ONE, phi[0], y0);
+        N_VScale (ONE, phi[0], yy0);
         N_VScale (ONE, phi[1], yp0);
       }
       hic *= PT1;
@@ -261,11 +275,14 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
       hh = hic;
     }   /* End of nh loop */
 
-    /* Break on failure; else reset ewt, save y0,yp0 in phi, and loop. */
+    /* Break on failure; else reset ewt, save yy0, yp0 in phi, and loop. */
     if (retval != IDA_SUCCESS) break;
-    ewtsetOK = IDAEwtSet(IDA_mem, y0);
-    if (!ewtsetOK) { retval = IDA_BAD_EWT; break; }
-    N_VScale (ONE, y0,  phi[0]);
+    ewtsetOK = efun(yy0, ewt, edata);
+    if (ewtsetOK != 0) { 
+      retval = IDA_BAD_EWT; 
+      break; 
+    }
+    N_VScale (ONE, yy0, phi[0]);
     N_VScale (ONE, yp0, phi[1]);
 
   }   /* End of nwt loop */
@@ -281,6 +298,9 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   }
 
   /* Otherwise return success flag. */
+
+  IDA_mem->ida_tn = t0;
+
   return(IDA_SUCCESS);
 
 }
@@ -290,6 +310,10 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
  * PRIVATE FUNCTIONS IMPLEMENTATION
  * =================================================================
  */
+
+#define t0       (IDA_mem->ida_t0)
+#define yy0      (IDA_mem->ida_yy0)
+#define yp0      (IDA_mem->ida_yp0)
 
 #define icopt    (IDA_mem->ida_icopt)
 #define sysindex (IDA_mem->ida_sysindex)
@@ -332,7 +356,7 @@ static int IDAnlsIC (IDAMem IDA_mem)
   tv2 = tempv2;
   tv3 = phi[2];
 
-  retval = res(tn, y0, yp0, delta, rdata);
+  retval = res(t0, yy0, yp0, delta, rdata);
   nre++;
   if(retval < 0) return(IDA_RES_FAIL);
   if(retval > 0) return(IDA_FIRST_RES_FAIL);
@@ -346,7 +370,7 @@ static int IDAnlsIC (IDAMem IDA_mem)
     /* If there is a setup routine, call it. */
     if (setupNonNull) {
       nsetups++;
-      retval = lsetup(IDA_mem, y0, yp0, delta, tv1, tv2, tv3);
+      retval = lsetup(IDA_mem, yy0, yp0, delta, tv1, tv2, tv3);
       if(retval < 0) return(IDA_LSETUP_FAIL);
       if(retval > 0) return(IC_FAIL_RECOV);
     }
@@ -403,7 +427,7 @@ static int IDANewtonIC (IDAMem IDA_mem)
   delnew = phi[2];
 
   /* Call the linear solve function to get the Newton step, delta. */
-  retval = lsolve(IDA_mem, delta, ewt, y0, yp0, savres);
+  retval = lsolve(IDA_mem, delta, ewt, yy0, yp0, savres);
   if(retval < 0) return(IDA_LSOLVE_FAIL);
   if(retval > 0) return(IC_FAIL_RECOV);
 
@@ -448,12 +472,12 @@ static int IDANewtonIC (IDAMem IDA_mem)
  * IDALineSrch performs the Linesearch algorithm with the 
  * calculation of consistent initial conditions.
  *
- * On entry, y0 and yp0 are the current values of y and y', the 
+ * On entry, yy0 and yp0 are the current values of y and y', the 
  * Newton step is delta, the current residual vector F is savres,
  * delnorm is WRMS-norm(delta), and fnorm is the norm of the vector
  * J-inverse F.
  *
- * On a successful return, y0, yp0, and savres have been updated, 
+ * On a successful return, yy0, yp0, and savres have been updated, 
  * delnew contains the current value of J-inverse F, and fnorm is
  * WRMS-norm(delnew).
  *
@@ -494,7 +518,7 @@ static int IDALineSrch (IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
     if (!conOK) {
       /* Not satisfied.  Compute scaled step to satisfy constraints. */
       N_VProd (mc, delta, dtemp);
-      ratio = PT99*N_VMinQuotient (y0, dtemp);
+      ratio = PT99*N_VMinQuotient (yy0, dtemp);
       (*delnorm) *= ratio;
       if ((*delnorm) <= steptol) return(IC_CONSTR_FAILED);
       N_VScale (ratio, delta, delta);
@@ -530,8 +554,8 @@ static int IDALineSrch (IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
   }  /* End of breakout linesearch loop */
 
-  /* Update y0, yp0, and fnorm, then return. */
-  N_VScale (ONE, ynew,  y0);
+  /* Update yy0, yp0, and fnorm, then return. */
+  N_VScale (ONE, ynew,  yy0);
   if (icopt == IDA_YA_YDP_INIT) N_VScale (ONE, ypnew, yp0);
   *fnorm = fnormp;
   return(IDA_SUCCESS);
@@ -562,7 +586,7 @@ static int IDAfnorm (IDAMem IDA_mem, realtype *fnorm)
   int retval;
 
   /* Get residual vector F, return if failed, and save F in savres. */
-  retval = res(tn, ynew, ypnew, delnew, rdata);
+  retval = res(t0, ynew, ypnew, delnew, rdata);
   nre++;
   if(retval < 0) return(IDA_RES_FAIL);
   if(retval > 0) return(IC_FAIL_RECOV);
@@ -586,7 +610,7 @@ static int IDAfnorm (IDAMem IDA_mem, realtype *fnorm)
  * -----------------------------------------------------------------
  * IDANewyyp
  * -----------------------------------------------------------------
- * IDANewyyp updates the vectors ynew and ypnew from y0 and yp0,
+ * IDANewyyp updates the vectors ynew and ypnew from yy0 and yp0,
  * using the current step vector lambda*delta, in a manner
  * depending on icopt and the input id vector.
  *
@@ -597,18 +621,18 @@ static int IDAfnorm (IDAMem IDA_mem, realtype *fnorm)
 static int IDANewyyp (IDAMem IDA_mem, realtype lambda)
 {
   
-  /* IDA_YA_YDP_INIT case: ynew = y0  - lambda*delta    where id_i = 0
+  /* IDA_YA_YDP_INIT case: ynew  = yy0 - lambda*delta    where id_i = 0
                            ypnew = yp0 - cj*lambda*delta where id_i = 1. */
   if (icopt == IDA_YA_YDP_INIT) {
     N_VProd (id, delta, dtemp);
     N_VLinearSum (ONE, yp0, -cj*lambda, dtemp, ypnew);
     N_VLinearSum (ONE, delta, -ONE, dtemp, dtemp);
-    N_VLinearSum (ONE, y0, -lambda, dtemp, ynew);
+    N_VLinearSum (ONE, yy0, -lambda, dtemp, ynew);
     return(IDA_SUCCESS);
   }
 
-  /* IDA_Y_INIT case: ynew = y0 - lambda*delta. (ypnew = yp0 preset.) */
-  N_VLinearSum (ONE, y0, -lambda, delta, ynew);
+  /* IDA_Y_INIT case: ynew = yy0 - lambda*delta. (ypnew = yp0 preset.) */
+  N_VLinearSum (ONE, yy0, -lambda, delta, ynew);
   return(IDA_SUCCESS);
 
 }
@@ -617,7 +641,7 @@ static int IDANewyyp (IDAMem IDA_mem, realtype lambda)
  * -----------------------------------------------------------------
  * IDANewy
  * -----------------------------------------------------------------
- * IDANewy updates the vector ynew from y0,
+ * IDANewy updates the vector ynew from yy0,
  * using the current step vector delta, in a manner
  * depending on icopt and the input id vector.
  *
@@ -628,16 +652,16 @@ static int IDANewyyp (IDAMem IDA_mem, realtype lambda)
 static int IDANewy (IDAMem IDA_mem)
 {
   
-  /* IDA_YA_YDP_INIT case: ynew = y0  - delta    where id_i = 0. */
+  /* IDA_YA_YDP_INIT case: ynew = yy0 - delta    where id_i = 0. */
   if (icopt == IDA_YA_YDP_INIT) {
     N_VProd (id, delta, dtemp);
     N_VLinearSum (ONE, delta, -ONE, dtemp, dtemp);
-    N_VLinearSum (ONE, y0, -ONE, dtemp, ynew);
+    N_VLinearSum (ONE, yy0, -ONE, dtemp, ynew);
     return(IDA_SUCCESS);
   }
 
-  /* IDA_Y_INIT case: ynew = y0 - delta. */
-  N_VLinearSum (ONE, y0, -ONE, delta, ynew);
+  /* IDA_Y_INIT case: ynew = yy0 - delta. */
+  N_VLinearSum (ONE, yy0, -ONE, delta, ynew);
   return(IDA_SUCCESS);
 
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38.2.1 $
- * $Date: 2005-02-14 20:21:48 $
+ * $Revision: 1.38.2.2 $
+ * $Date: 2005-04-04 22:33:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -34,7 +34,6 @@
 #define ONE        RCONST(1.0)    /* real 1.0    */
 #define ONEPT5     RCONST(1.5)    /* real 1.5    */
 #define TWO        RCONST(2.0)    /* real 2.0    */
-#define TWOPT5     RCONST(2.5)    /* real 2.5    */
 #define TEN        RCONST(10.0)   /* real 10.0   */
 #define TWELVE     RCONST(12.0)   /* real 12.0   */
 #define TWENTY     RCONST(20.0)   /* real 20.0   */
@@ -110,16 +109,15 @@
 
 static booleantype IDACheckNvector(N_Vector tmpl);
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
+static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol);
 static void IDAFreeVectors(IDAMem IDA_mem);
 
 realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, 
                      booleantype mask);
 int IDAInitialSetup(IDAMem IDA_mem);
-booleantype IDAEwtSet(IDAMem IDA_mem, N_Vector ycur);
 
-static booleantype IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur);
-static booleantype IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur);
+static int IDAEwtSetSS(N_Vector ycur, N_Vector weight, IDAMem IDA_mem);
+static int IDAEwtSetSV(N_Vector ycur, N_Vector weight, IDAMem IDA_mem);
 
 static int IDAStopTest1(IDAMem IDA_mem, realtype tout,realtype *tret, 
                         N_Vector yret, N_Vector ypret, int itask);
@@ -172,7 +170,10 @@ void *IDACreate(void)
   IDA_mem->ida_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
+  IDA_mem->ida_res         = NULL;
   IDA_mem->ida_rdata       = NULL;
+  IDA_mem->ida_efun        = NULL;
+  IDA_mem->ida_edata       = NULL;
   IDA_mem->ida_errfp       = stderr;
   IDA_mem->ida_maxord      = MAXORD_DEFAULT;
   IDA_mem->ida_mxstep      = MXSTEP_DEFAULT;
@@ -185,6 +186,7 @@ void *IDACreate(void)
   IDA_mem->ida_suppressalg = FALSE;
   IDA_mem->ida_id          = NULL;
   IDA_mem->ida_constraints = NULL;
+  IDA_mem->ida_constraintsSet = FALSE;
   IDA_mem->ida_tstopset    = FALSE;
 
   /* Set default values for IC optional inputs */
@@ -196,6 +198,9 @@ void *IDACreate(void)
   IDA_mem->ida_steptol = RPowerR(IDA_mem->ida_uround, TWOTHIRDS);
 
   /* No mallocs have been done yet */
+  IDA_mem->ida_VatolMallocDone = FALSE;
+  IDA_mem->ida_constraintsMallocDone = FALSE;
+  IDA_mem->ida_idMallocDone = FALSE;
   IDA_mem->ida_MallocDone = FALSE;
 
   /* Return pointer to IDA memory block */
@@ -221,7 +226,7 @@ void *IDACreate(void)
 
 int IDAMalloc(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector yy0, N_Vector yp0, 
-              int itol, realtype *rtol, void *atol)
+              int itol, realtype rtol, void *atol)
 {
   IDAMem IDA_mem;
   booleantype nvectorOK, allocOK, neg_atol;
@@ -246,28 +251,13 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
     return(IDA_ILL_INPUT); 
   }
 
-  if ((itol != IDA_SS) && (itol != IDA_SV)) {
+  if ((itol != IDA_SS) && (itol != IDA_SV) && (itol != IDA_WF)) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOL);
     return(IDA_ILL_INPUT);
   }
 
   if (res == NULL) { 
     if(errfp!=NULL) fprintf(errfp, MSG_RES_NULL); 
-    return(IDA_ILL_INPUT); 
-  }
-
-  if (rtol == NULL) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_RTOL_NULL); 
-    return(IDA_ILL_INPUT); 
-  }
-
-  if (*rtol < ZERO) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL); 
-    return(IDA_ILL_INPUT); 
-  }
-   
-  if (atol == NULL) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
     return(IDA_ILL_INPUT); 
   }
 
@@ -278,15 +268,31 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
     return(IDA_ILL_INPUT);
   }
 
-  /* Test absolute tolerances */
-  if (itol == IDA_SS) { 
-    neg_atol = (*((realtype *)atol) < ZERO); 
-  } else { 
-    neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
-  }
-  if (neg_atol) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ATOL); 
+  /* Test tolerances */
+
+  if (atol == NULL) { 
+    if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
     return(IDA_ILL_INPUT); 
+  }
+
+  if (itol != IDA_WF) {
+
+    if (rtol < ZERO) { 
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL); 
+      return(IDA_ILL_INPUT); 
+    }
+   
+    if (itol == IDA_SS) { 
+      neg_atol = (*((realtype *)atol) < ZERO); 
+    } else { 
+      neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
+    }
+
+    if (neg_atol) { 
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_ATOL); 
+      return(IDA_ILL_INPUT); 
+    }
+
   }
 
   /* Set space requirements for one N_Vector */
@@ -300,7 +306,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   IDA_mem->ida_liw1 = liw1;
 
   /* Allocate the vectors (using yy0 as a template) */
-  allocOK = IDAAllocVectors(IDA_mem, yy0);
+  allocOK = IDAAllocVectors(IDA_mem, yy0, itol);
   if (!allocOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(IDA_MEM_FAIL);
@@ -309,13 +315,24 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   /* All error checking is complete at this point */
 
   /* Copy the input parameters into IDA memory block */
+
   IDA_mem->ida_res = res;
-  IDA_mem->ida_tn = t0;
-  IDA_mem->ida_y0  = yy0;
-  IDA_mem->ida_yp0 = yp0;
+  IDA_mem->ida_tn  = t0;
+
+  /* Copy tolerances into memory */
+
   IDA_mem->ida_itol = itol;
   IDA_mem->ida_rtol = rtol;      
-  IDA_mem->ida_atol = atol;  
+
+  if (itol == IDA_WF)
+    IDA_mem->ida_efun = (IDAEwtFn)atol;
+  else {
+    IDA_mem->ida_efun = IDAEwtSet;
+    if (itol == IDA_SS)
+      IDA_mem->ida_Satol = *((realtype *)atol);
+    else 
+      N_VScale(ONE, (N_Vector)atol, IDA_mem->ida_Vatol);
+  }
 
   /* Set the linear solver addresses to NULL */
   IDA_mem->ida_linit  = NULL;
@@ -323,7 +340,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   IDA_mem->ida_lsolve = NULL;
   IDA_mem->ida_lperf  = NULL;
   IDA_mem->ida_lfree  = NULL;
-  IDA_mem->ida_lmem = NULL;
+  IDA_mem->ida_lmem   = NULL;
 
   /* Initialize the phi array */
   N_VScale(ONE, yy0, IDA_mem->ida_phi[0]);  
@@ -367,7 +384,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
 
 int IDAReInit(void *ida_mem, IDAResFn res,
               realtype t0, N_Vector yy0, N_Vector yp0,
-              int itol, realtype *rtol, void *atol)
+              int itol, realtype rtol, void *atol)
 {
   IDAMem IDA_mem;
   booleantype neg_atol;
@@ -399,7 +416,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
     return(IDA_ILL_INPUT); 
   }
 
-  if ((itol != IDA_SS) && (itol != IDA_SV)) {
+  if ((itol != IDA_SS) && (itol != IDA_SV) && (itol != IDA_WF)) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOL);
     return(IDA_ILL_INPUT);
   }
@@ -409,41 +426,60 @@ int IDAReInit(void *ida_mem, IDAResFn res,
     return(IDA_ILL_INPUT); 
   }
 
-  if (rtol == NULL) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_RTOL_NULL); 
-    return(IDA_ILL_INPUT); 
-  }
+  /* Test tolerances */
 
-  if (*rtol < ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL); 
-    return(IDA_ILL_INPUT); 
-  }
-   
   if (atol == NULL) { 
     if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
     return(IDA_ILL_INPUT); 
   }
 
-  if (itol == IDA_SS) { 
-    neg_atol = (*((realtype *)atol) < ZERO); 
-  } else { 
-    neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
-  }
-  if (neg_atol) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ATOL); 
-    return(IDA_ILL_INPUT); 
+  if (itol != IDA_WF) {
+
+    if (rtol < ZERO) {
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL); 
+      return(IDA_ILL_INPUT); 
+    }
+   
+    if (itol == IDA_SS) { 
+      neg_atol = (*((realtype *)atol) < ZERO); 
+    } else { 
+      neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
+    }
+    if (neg_atol) { 
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_ATOL); 
+      return(IDA_ILL_INPUT); 
+    }
+
   }
 
   /* All error checking is complete at this point */
 
   /* Copy the input parameters into IDA memory block */
   IDA_mem->ida_res = res;
-  IDA_mem->ida_y0  = yy0;
-  IDA_mem->ida_yp0 = yp0;
-  IDA_mem->ida_tn = t0;
+  IDA_mem->ida_tn  = t0;
+
+  if ( (itol != IDA_SV) && (IDA_mem->ida_VatolMallocDone) ) {
+    N_VDestroy(IDA_mem->ida_Vatol);
+    IDA_mem->ida_VatolMallocDone = FALSE;
+  }
+
+  if ( (itol == IDA_SV) && !(IDA_mem->ida_VatolMallocDone) ) {
+    IDA_mem->ida_Vatol = N_VClone(yy0);
+    IDA_mem->ida_VatolMallocDone = TRUE;
+  }
+
   IDA_mem->ida_itol = itol;
   IDA_mem->ida_rtol = rtol;      
-  IDA_mem->ida_atol = atol;  
+
+  if (itol == IDA_WF)
+    IDA_mem->ida_efun = (IDAEwtFn)atol;
+  else {
+    IDA_mem->ida_efun = IDAEwtSet;
+    if (itol == IDA_SS)
+      IDA_mem->ida_Satol = *((realtype *)atol);
+    else 
+      N_VScale(ONE, (N_Vector)atol, IDA_mem->ida_Vatol);
+  }
 
   /* Initialize the phi array */
   N_VScale(ONE, yy0, IDA_mem->ida_phi[0]);  
@@ -479,9 +515,13 @@ int IDAReInit(void *ida_mem, IDAResFn res,
 #define res         (IDA_mem->ida_res)
 #define y0          (IDA_mem->ida_y0)
 #define yp0         (IDA_mem->ida_yp0)
+
 #define itol        (IDA_mem->ida_itol)
 #define rtol        (IDA_mem->ida_rtol)
-#define atol        (IDA_mem->ida_atol)
+#define Satol       (IDA_mem->ida_Satol)
+#define Vatol       (IDA_mem->ida_Vatol)
+#define efun        (IDA_mem->ida_efun)
+#define edata       (IDA_mem->ida_edata)
 
 #define rdata       (IDA_mem->ida_rdata)
 #define maxord      (IDA_mem->ida_maxord)
@@ -609,7 +649,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   long int nstloc;
   int sflag, istate, ier;
   realtype tdist, troundoff, ypnorm, rh, nrm;
-  booleantype istop, ewtsetOK;
+  booleantype istop;
+  int ewtsetOK;
   IDAMem IDA_mem;
 
   /* Check for legal inputs in all cases. */
@@ -752,8 +793,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     /* Reset and check ewt (if not first call). */
 
     if (nst > 0) {
-      ewtsetOK = IDAEwtSet(IDA_mem, phi[0]);
-      if (!ewtsetOK) {
+      ewtsetOK = efun(phi[0], ewt, edata);
+      if (ewtsetOK != 0) {
         if(errfp!=NULL) fprintf(errfp, MSG_EWT_NOW_BAD, tn);
         istate = IDA_ILL_INPUT;
         ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
@@ -924,18 +965,18 @@ static booleantype IDACheckNvector(N_Vector tmpl)
  * IDAAllocVectors
  * -----------------------------------------------------------------
  * This routine allocates the IDA vectors ewt, tempv1, tempv2, and
- * phi[0], ..., phi[maxord]. The length of the vectors is the input
- * parameter Neq and the maximum order (needed to allocate phi) is the
- * input parameter maxord. If all memory allocations are successful,
- * IDAAllocVectors returns TRUE. Otherwise all allocated memory is freed
- * and IDAAllocVectors returns FALSE.
+ * phi[0], ..., phi[maxord]. If tol=IDA_SV, it also allocates space 
+ * for Vatol.
+ * If all memory allocations are successful, IDAAllocVectors returns 
+ * TRUE. Otherwise all allocated memory is freed and IDAAllocVectors 
+ * returns FALSE.
  * This routine also sets the optional outputs lrw and liw, which are
  * (respectively) the lengths of the real and integer work spaces
  * allocated here.
  * -----------------------------------------------------------------
  */
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
+static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
 {
   int i, j, maxcol;
 
@@ -990,6 +1031,19 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     }
   }
 
+  if (tol == IDA_SV) {
+    Vatol = N_VClone(tmpl);
+    if (Vatol == NULL) {
+      N_VDestroy(ewt);
+      N_VDestroy(ee);
+      N_VDestroy(delta);
+      N_VDestroy(tempv1);
+      N_VDestroy(tempv2);
+      for (i=0; i <= maxcol; i++) N_VDestroy(phi[i]);
+    }
+    IDA_mem->ida_VatolMallocDone = TRUE;
+  }
+
   /* Set solver workspace lengths  */
 
   lrw = (maxcol + 6) * lrw1;
@@ -1002,7 +1056,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
  * -----------------------------------------------------------------
  * IDAfreeVectors
  * -----------------------------------------------------------------
- * This routine frees the IDA vectors allocated in IDAAllocVectors.
+ * This routine frees the IDA vectors allocated for IDA.
  * -----------------------------------------------------------------
  */
 
@@ -1017,6 +1071,10 @@ static void IDAFreeVectors(IDAMem IDA_mem)
   N_VDestroy(tempv2);
   maxcol = MAX(maxord,3);
   for(j=0; j <= maxcol; j++) N_VDestroy(phi[j]);
+  if (IDA_mem->ida_VatolMallocDone) N_VDestroy(Vatol);
+  if (IDA_mem->ida_constraintsMallocDone) N_VDestroy(constraints);
+  if (IDA_mem->ida_idMallocDone) N_VDestroy(id);
+
 }
 
 /*
@@ -1034,8 +1092,8 @@ static void IDAFreeVectors(IDAMem IDA_mem)
 
 int IDAInitialSetup(IDAMem IDA_mem)
 {
-  realtype temptest;
-  booleantype ewtsetOK, conOK;
+  booleantype conOK;
+  int ewtsetOK;
   int ier;
   
   /* Test for more vector operations, depending on options */
@@ -1046,16 +1104,6 @@ int IDAInitialSetup(IDAMem IDA_mem)
       return(IDA_ILL_INPUT);
   }
 
-  if (constraints != NULL)
-    if (constraints->ops->nvdiv         == NULL ||
-        constraints->ops->nvmaxnorm     == NULL ||
-        constraints->ops->nvcompare     == NULL ||
-        constraints->ops->nvconstrmask  == NULL ||
-        constraints->ops->nvminquotient == NULL) {
-      if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
-      return(IDA_ILL_INPUT);
-    }
-
   /* Test id vector for legality */
   
   if(suppressalg && (id==NULL)){ 
@@ -1065,23 +1113,13 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
   /* Load ewt */
 
-  ewtsetOK = IDAEwtSet(IDA_mem, phi[0]);
-  if (!ewtsetOK) {
+  if (itol != IDA_WF)
+    edata = (void *)IDA_mem;
+
+  ewtsetOK = efun(phi[0], ewt, edata);
+  if (ewtsetOK != 0) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_EWT);
     return(IDA_ILL_INPUT);
-  }
-
-  /*  Check the constraints pointer and vector */
-  
-  if (constraints == NULL) 
-    constraintsSet = FALSE;
-  else {
-    constraintsSet = TRUE;
-    temptest = N_VMaxNorm(constraints);
-    if(temptest > TWOPT5){ 
-      if(errfp!=NULL) fprintf(errfp, MSG_BAD_CONSTRAINTS); 
-      return(IDA_ILL_INPUT); 
-    } else if(temptest < HALF) constraintsSet = FALSE; /* constraints empty */
   }
 
   /* Check to see if y0 satisfies constraints. */
@@ -1111,92 +1149,6 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
   return(IDA_SUCCESS);
 
-}
-
-/*  
- * -----------------------------------------------------------------
- * IDAEwtSet
- * -----------------------------------------------------------------
- * This routine is responsible for loading the error weight vector
- * ewt, according to itol, as follows:
- * (1) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + *atol), i=0,...,Neq-1
- *     if itol = IDA_SS
- * (2) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + atol[i]), i=0,...,Neq-1
- *     if itol = IDA_SV
- *
- *  IDAEwtSet returns TRUE if ewt is successfully set as above to a
- *  positive vector and FALSE otherwise. In the latter case, ewt is
- *  considered undefined after the FALSE return from IDAEwtSet.
- *
- * All the real work is done in the routines IDAEwtSetSS, IDAEwtSetSV.
- * -----------------------------------------------------------------
- */
-
-booleantype IDAEwtSet(IDAMem IDA_mem, N_Vector ycur)
-{
-  booleantype ewtsetOK=TRUE;
-
-  switch(itol) {
-  case IDA_SS: 
-    ewtsetOK = IDAEwtSetSS(IDA_mem, ycur); 
-    break;
-  case IDA_SV: 
-    ewtsetOK = IDAEwtSetSV(IDA_mem, ycur); 
-    break;
-  }
-  return(ewtsetOK);
-}
-
-/*
- * -----------------------------------------------------------------
- * IDAEwtSetSS
- * -----------------------------------------------------------------
- * This routine sets ewt as decribed above in the case itol=IDA_SS.
- * It tests for non-positive components before inverting. IDAEwtSetSS
- * returns TRUE if ewt is successfully set to a positive vector
- * and FALSE otherwise. In the latter case, ewt is considered
- * undefined after the FALSE return from IDAEwtSetSS.
- * -----------------------------------------------------------------
- */
-
-static booleantype IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur)
-{
-  realtype rtoli, *atoli;
-  
-  rtoli = *rtol;
-  atoli = (realtype *)atol;
-  N_VAbs(ycur, tempv1);
-  N_VScale(rtoli, tempv1, tempv1);
-  N_VAddConst(tempv1, *atoli, tempv1);
-  if (N_VMin(tempv1) <= ZERO) return(FALSE);
-  N_VInv(tempv1, ewt);
-  return(TRUE);
-}
-
-/*
- * -----------------------------------------------------------------
- * IDAEwtSetSV
- * -----------------------------------------------------------------
- * This routine sets ewt as decribed above in the case itol=IDA_SV.
- * It tests for non-positive components before inverting. IDAEwtSetSV
- * returns TRUE if ewt is successfully set to a positive vector
- * and FALSE otherwise. In the latter case, ewt is considered
- * undefined after the FALSE return from IDAEwtSetSV.
- * -----------------------------------------------------------------
- */
-
-static booleantype IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur)
-{
-  realtype rtoli;
-  N_Vector atoli;
-  
-  rtoli = *rtol;
-  atoli = (N_Vector)atol;
-  N_VAbs(ycur, tempv1);
-  N_VLinearSum(rtoli, tempv1, ONE, atoli, tempv1);
-  if (N_VMin(tempv1) <= ZERO) return(FALSE);
-  N_VInv(tempv1, ewt);
-  return(TRUE);
 }
 
 /*
@@ -2155,5 +2107,93 @@ realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
   else      nrm = N_VWrmsNorm(x, w);
 
   return(nrm);
+}
+
+
+/*=================================================================*/
+/*      Internal EWT function                                      */
+/*=================================================================*/
+
+
+/*  
+ * -----------------------------------------------------------------
+ * IDAEwtSet
+ * -----------------------------------------------------------------
+ * This routine is responsible for loading the error weight vector
+ * ewt, according to itol, as follows:
+ * (1) ewt[i] = 1 / (rtol * ABS(ycur[i]) + atol), i=0,...,Neq-1
+ *     if itol = IDA_SS
+ * (2) ewt[i] = 1 / (rtol * ABS(ycur[i]) + atol[i]), i=0,...,Neq-1
+ *     if itol = IDA_SV
+ *
+ *  IDAEwtSet returns 0 if ewt is successfully set as above to a
+ *  positive vector and -1 otherwise. In the latter case, ewt is
+ *  considered undefined.
+ *
+ * All the real work is done in the routines IDAEwtSetSS, IDAEwtSetSV.
+ * -----------------------------------------------------------------
+ */
+
+int IDAEwtSet(N_Vector ycur, N_Vector weight, void *data)
+{
+  IDAMem IDA_mem;
+  int flag = 0;
+
+  /* data points to IDA_mem here */
+
+  IDA_mem = (IDAMem) data;
+
+  switch(itol) {
+  case IDA_SS: 
+    flag = IDAEwtSetSS(ycur, weight, IDA_mem); 
+    break;
+  case IDA_SV: 
+    flag = IDAEwtSetSV(ycur, weight, IDA_mem); 
+    break;
+  }
+  return(flag);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * IDAEwtSetSS
+ * -----------------------------------------------------------------
+ * This routine sets ewt as decribed above in the case itol=IDA_SS.
+ * It tests for non-positive components before inverting. IDAEwtSetSS
+ * returns 0 if ewt is successfully set to a positive vector
+ * and -1 otherwise. In the latter case, ewt is considered
+ * undefined.
+ * -----------------------------------------------------------------
+ */
+
+static int IDAEwtSetSS(N_Vector ycur, N_Vector weight, IDAMem IDA_mem)
+{
+  N_VAbs(ycur, tempv1);
+  N_VScale(rtol, tempv1, tempv1);
+  N_VAddConst(tempv1, Satol, tempv1);
+  if (N_VMin(tempv1) <= ZERO) return(-1);
+  N_VInv(tempv1, ewt);
+  return(0);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * IDAEwtSetSV
+ * -----------------------------------------------------------------
+ * This routine sets ewt as decribed above in the case itol=IDA_SV.
+ * It tests for non-positive components before inverting. IDAEwtSetSV
+ * returns 0 if ewt is successfully set to a positive vector
+ * and -1 otherwise. In the latter case, ewt is considered
+ * undefined.
+ * -----------------------------------------------------------------
+ */
+
+static int IDAEwtSetSV(N_Vector ycur, N_Vector weight, IDAMem IDA_mem)
+{
+  N_VAbs(ycur, tempv1);
+  N_VLinearSum(rtol, tempv1, ONE, Vatol, tempv1);
+  if (N_VMin(tempv1) <= ZERO) return(-1);
+  N_VInv(tempv1, ewt);
+  return(0);
 }
 
