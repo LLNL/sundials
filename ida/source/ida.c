@@ -75,7 +75,7 @@
 #define MXSTEP_DEFAULT   500   /* mxstep default value   */
 #define MAXORD_DEFAULT   5     /* maxord default value   */
 #define MXNCF           10     /* max number of convergence failures allowed */
-#define MXETF           10     /* max number of error test failures allowed  */
+#define MXNEF           10     /* max number of error test failures allowed  */
 #define EPCON      RCONST(0.33)   /* Newton convergence test constant */
 #define MAXNH      5    /* max. number of h tries in IC calc. */
 #define MAXNJ      4    /* max. number of J tries in IC calc. */
@@ -382,6 +382,10 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_BAD_ITASK      IDASLV "itask=%d illegal.\n\n"
 
+#define MSG_NO_TSTOP1      IDASLV "itask = NORMAL_TSTOP or itask = ONE_STEP_TSTOP "
+#define MSG_NO_TSTOP2      "but tstop was not set.\n\n"
+#define MSG_NO_TSTOP       MSG_NO_TSTOP1 MSG_NO_TSTOP2
+
 #define MSG_REP_RES_ERR1   IDASLV "At t = %g, repeated recoverable error \n"
 #define MSG_REP_RES_ERR2   "returns from ResFn residual function. \n\n"
 #define MSG_REP_RES_ERR    MSG_REP_RES_ERR1 MSG_REP_RES_ERR2
@@ -500,11 +504,13 @@ void *IDACreate(void)
   IDA_mem->ida_hmax_inv    = ZERO;
   IDA_mem->ida_hin         = ZERO;
   IDA_mem->ida_epcon       = EPCON;
+  IDA_mem->ida_maxnef      = MXNEF;
+  IDA_mem->ida_maxncf      = MXNCF;
+  IDA_mem->ida_maxcor      = MAXIT;
   IDA_mem->ida_suppressalg = FALSE;
   IDA_mem->ida_id          = NULL;
   IDA_mem->ida_constraints = NULL;
-
-  IDA_mem->ida_istop       = FALSE;
+  IDA_mem->ida_tstopset    = FALSE;
 
   /* Set default values for IC optional inputs */
   IDA_mem->ida_epiccon = PT01 * EPCON;
@@ -676,12 +682,13 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_tstop = tstop;
+  IDA_mem->ida_tstopset = TRUE;
 
   return(SUCCESS);
 }
 
 #define tstop (IDA_mem->ida_tstop)
-#define istop (IDA_mem->ida_istop)
+#define tstopset (IDA_mem->ida_tstopset)
 
 /*-----------------------------------------------------------------*/
 
@@ -707,6 +714,66 @@ int IDASetNlinConvCoef(void *ida_mem, realtype epcon)
 }
 
 #define epcon (IDA_mem->ida_epcon)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetMaxErrTestFails(void *ida_mem, int maxnef)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return (IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_maxnef = maxnef;
+
+  return(SUCCESS);
+}
+
+#define maxnef (IDA_mem->ida_maxnef)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetMaxConvFails(void *ida_mem, int maxncf)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return (IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_maxncf = maxncf;
+
+  return(SUCCESS);
+}
+
+#define maxncf (IDA_mem->ida_maxncf)
+
+/*-----------------------------------------------------------------*/
+
+int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stdout, MSG_IDAS_NO_MEM);
+    return (IDAS_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_maxcor = maxcor;
+
+  return(SUCCESS);
+}
+
+#define maxcor (IDA_mem->ida_maxcor)
 
 /*-----------------------------------------------------------------*/
 
@@ -1446,7 +1513,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 {
   int nstloc, sflag, istate, ier;
   realtype tdist, troundoff, ypnorm, rh;
-  booleantype ewtsetOK;
+  booleantype istop, ewtsetOK;
   IDAMem IDA_mem;
 
   /* Check for legal inputs in all cases. */
@@ -1489,11 +1556,15 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     return(ILL_INPUT);
   }
   
-  if ( (itask == NORMAL_TSTOP) || (itask == ONE_STEP_TSTOP) )
+  if ( (itask == NORMAL_TSTOP) || (itask == ONE_STEP_TSTOP) ) {
+    if ( tstopset == FALSE ) {
+      fprintf(errfp, MSG_NO_TSTOP);
+      return(ILL_INPUT);
+    }
     istop = TRUE;
-  else
-    istop = FALSE;
-
+  } else {
+      istop = FALSE;
+  }
 
 
   if (nst == 0) {       /* THIS IS THE FIRST CALL */
@@ -3421,7 +3492,7 @@ static int IDANewtonIter(IDAMem IDA_mem)
 
     /* Not yet converged.  Increment mnewt and test for max allowed. */
     mnewt++;
-    if (mnewt >= MAXIT) {retval = CONV_FAIL_NLINR_RECVR; break;}
+    if (mnewt >= maxcor) {retval = CONV_FAIL_NLINR_RECVR; break;}
 
     /* Call res for new residual and check error flag from res. */
     retval = res(tn, yy, yp, delta, rdata);
@@ -3542,7 +3613,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
       (*ncf)++; ncfn++;
       if (nflag != CONSTRAINT_FAIL_RECVR) rr = QUARTER;
       hh *= rr;
-      if (*ncf < MXNCF){
+      if (*ncf < maxncf){
         retval = PREDICT_AGAIN;
         break;
       }
@@ -3587,7 +3658,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
       else if (*nef > 2){
         /* On third and subsequent error test failures, set order to 1 and
            reduce stepsize h by factor of 1/4. */
-        if (*nef<MXETF){
+        if (*nef<maxnef){
           kk = 1;
           rr = QUARTER;
           hh *= rr;

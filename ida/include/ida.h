@@ -159,6 +159,18 @@ void *IDACreate(void);
  *                      | for use during integration.             *
  *                      | [0.33]                                  *
  *                      |                                         * 
+ * IDASetMaxErrTestFails| Maximum number of error test failures   *
+ *                      | in attempting one step.                 *
+ *                      | [10]                                    *
+ *                      |                                         *
+ * IDASetMaxNonlinIters | Maximum number of nonlinear solver      *
+ *                      | iterations at one solution.             *
+ *                      | [4]                                     *
+ *                      |                                         *
+ * IDASetMaxConvFails   | Maximum number of allowable conv.       *
+ *                      | failures in attempting one step.        *
+ *                      | [10]                                    *
+ *                      |                                         *
  * IDASetSuppressAlg    | flag to indicate whether or not to      *
  *                      | suppress algebraic variables in the     *
  *                      | local error tests:                      *
@@ -214,7 +226,9 @@ int IDASetInitStep(void *ida_mem, realtype hin);
 int IDASetMaxStep(void *ida_mem, realtype hmax);
 int IDASetStopTime(void *ida_mem, realtype tstop);
 int IDASetNlinConvCoef(void *ida_mem, realtype epcon);
-
+int IDASetMaxErrTestFails(void *ida_mem, int maxnef);
+int IDASetMaxNonlinIters(void *ida_mem, int maxcor);
+int IDASetMaxConvFails(void *ida_mem, int maxncf);
 int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
 int IDASetID(void *ida_mem, N_Vector id);
 int IDASetConstraints(void *ida_mem, N_Vector constraints);
@@ -812,7 +826,7 @@ typedef struct IDAMemRec {
 
   /* Tstop information */
 
-  booleantype ida_istop;
+  booleantype ida_tstopset;
   realtype ida_tstop;
 
   /* Step Data */
@@ -840,6 +854,10 @@ typedef struct IDAMemRec {
   realtype ida_toldel;   /* tolerance in direct test on Newton corrections    */
 
  /* Limits */
+
+  int ida_maxncf;        /* max numer of convergence failures                 */
+  int ida_maxcor;        /* max number of Newton corrections                  */
+  int ida_maxnef;        /* max number of error test failures                 */
 
   int ida_maxord;        /* max value of method order k:                      */
   int ida_mxstep;        /* max number of internal steps for one user call    */
