@@ -25,7 +25,7 @@ methods, based on formulas of the form
 \end{equation}
 Here the $y_n$ are computed approximations to $y(t_n)$, and
 $h_n = t_n - t_{n-1}$ is the step size.  The user of CVODE must choose
-appropriately one of two multistep methods: For nonstiff problems,
+appropriately one of two multistep methods.  For nonstiff problems,
 CVODE includes the Adams-Moulton formulas, characterized by $K_1 = 1$
 and $K_2 = q$ above, where the order $q$ varies between $1$ and $12$.
 For stiff problems, CVODE includes the Backward Differentiation
@@ -83,7 +83,7 @@ error-like quantities.  The weights used are based on the current
 solution and on the relative and absolute tolerances input by the
 user, namely
 \begin{equation}\label{errwt}
- W_i = rtol_i |y^i| + atol_i \, .
+ W_i = rtol |y^i| + atol_i \, .
 \end{equation}
 Because $W_i$ represents a tolerance in the component $y^i$, a vector
 whose norm is 1 is regarded as ``small''.  For brevity, we will
@@ -134,7 +134,7 @@ Letting $y_n$ denote the exact solution of (\ref{NLS}), we want
 to insure that the iteration error $y_n - y_{n(m)}$ is small relative
 to $\epsilon$, specifically that it is less than $0.1 \epsilon$.
 (The safety factor $0.1$ can be changed by the user.)  For this, we
-also estimate the linear convergence rate constant $R$ as follows:
+also estimate the linear convergence rate constant $R$ as follows.
 We initialize $R$ to 1, and reset $R = 1$ when $M$ or $P$ is updated.
 After computing a correction $\delta_m = y_{n(m)}-y_{n(m-1)}$, we
 update $R$ if $m > 1$ as
@@ -180,7 +180,7 @@ where $U$ is the unit roundoff, $\sigma_0$ is a dimensionless value,
 and $W_j$ is the error weight defined in (\ref{errwt}).  In the dense
 case, this scheme requires $N$ evaluations of $f$, one for each column
 of $J$.  In the band case, the columns of $J$ are computed in groups,
-by the Curtis-Powell-Reid algorithm, with a number of $f$ evaluations
+by the Curtis-Powell-Reid algorithm, with the number of $f$ evaluations
 equal to the bandwidth.
 
 In the case of SPGMR, preconditioning may be used on the left, on the
@@ -253,8 +253,8 @@ change.  Also, $h'/h$ is always limited to 10, except on the first
 step, when it is limited to $10^4$.
 
 The various algorithmic features of CVODE described above, as
-inherited from VODE and VODPK, are documented in \cite{BBH:89},
-\cite{Byr:92}, and \cite{Hin:00}.  A full description of the usage
+inherited from VODE and VODPK, are documented in 
+\cite{BBH:89,Byr:92,Hin:00}.  A full description of the usage
 of CVODE is given in \cite{HiSe:03a}.
 
 % Stability limit detection
