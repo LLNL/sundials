@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-07-22 21:14:15 $
+ * $Revision: 1.20 $
+ * $Date: 2004-08-10 22:54:05 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -28,14 +28,13 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * CVODES is used to solve numerically the ordinary initial value 
+ * CVODE is used to solve numerically the ordinary initial value 
  * problem :                                                      
  *                                                                
  *                 y' = f(t,y),                                   
  *                 y(t0) = y0,                                    
  *                                                                
  * where t0, y0 in R^N, and f: R x R^N -> R^N are given.          
- *                                                                
  * -----------------------------------------------------------------
  */
 
@@ -48,11 +47,11 @@ extern "C" {
  * parameters to CVodeMalloc and CVodeReInit, as well as the      
  * input parameter itask to CVode, are given below.               
  *                                                                
- * lmm:   The user of the CVODES package specifies whether to use 
- *        the ADAMS or BDF (backward differentiation formula)     
- *        linear multistep method. The BDF method is recommended  
- *        for stiff problems, and the ADAMS method is recommended 
- *        for nonstiff problems.                                  
+ * lmm:   The user of the CVODE package specifies whether to use the 
+ *        ADAMS (Adams-Moulton) or BDF (Backward Differentiation
+ *        Formula) linear multistep method. The BDF method is
+ *        recommended for stiff problems, and the ADAMS method is
+ *        recommended for nonstiff problems.
  *                                                                
  * iter:  At each internal time step, a nonlinear equation must   
  *        be solved. The user can specify either FUNCTIONAL       
@@ -109,7 +108,7 @@ enum { NORMAL=1, ONE_STEP=2,
  * dependent variable vector y.  It stores the result of f(t,y)   
  * in the vector ydot.  The y and ydot arguments are of type      
  * N_Vector.                                                      
- * (Allocation of memory for ydot is handled within CVODES)       
+ * (Allocation of memory for ydot is handled within CVODE)       
  * The f_data parameter is the same as the f_data                 
  * parameter set by the user through the CVodeSetFdata routine.   
  * This user-supplied pointer is passed to the user's f function  
@@ -153,7 +152,7 @@ typedef void (*RootFn)(realtype t, N_Vector y, realtype *gout,
  * Function : CVodeCreate                                         
  * -----------------------------------------------------------------
  * CVodeCreate creates an internal memory block for a problem to  
- * be solved by CVODES.                                           
+ * be solved by CVODE.                                           
  *                                                                
  * lmm     is the type of linear multistep method to be used.     
  *            The legal values are ADAMS and BDF (see previous    
@@ -198,7 +197,7 @@ int CVodeResetIterType(void *cvode_mem, int iter);
  * -----------------------------------------------------------------
  *                         | 
  * CVodeSetErrFile         | the file pointer for an error file      
- *                         | where all CVODES warning and error      
+ *                         | where all CVODE warning and error      
  *                         | messages will be written. This parameter
  *                         | can be stdout (standard output), stderr 
  *                         | (standard error), a file pointer        
@@ -242,7 +241,7 @@ int CVodeResetIterType(void *cvode_mem, int iter);
  *                         | [FALSE]                                 
  *                         |
  * CVodeSetInitStep        | initial step size.
- *                         | [estimated by CVODES]
+ *                         | [estimated by CVODE]
  *                         |
  * CVodeSetMinStep         | minimum absolute value of step size     
  *                         | allowed.                                
@@ -264,14 +263,13 @@ int CVodeResetIterType(void *cvode_mem, int iter);
  *                         | iterations at one solution.          
  *                         | [3]                                  
  *                         |                                      
- * CVodeSetMaxConvFails    | Maximum number of allowable conv.    
- *                         | failures in attempting one step.     
+ * CVodeSetMaxConvFails    | Maximum number of convergence failures
+ *                         | allowed in attempting one step.
  *                         | [10]                                 
  *                         |                                      
- * CVodeSetNonlinConvCoef  | Coeficient in the nonlinear conv.    
- *                         | test.                                
+ * CVodeSetNonlinConvCoef  | Coefficient in the nonlinear
+ *                         | convergence test.
  *                         | [0.1]                                
- *                         |                                      
  * -----------------------------------------------------------------
  * If successful, these functions return SUCCESS. If an argument  
  * has an illegal value, they print an error message to the file
@@ -304,26 +302,27 @@ enum {CVS_NO_MEM = -1, CVS_ILL_INPUT = -2};
  * Function : CVodeMalloc                                         
  * -----------------------------------------------------------------
  * CVodeMalloc allocates and initializes memory for a problem to  
- * to be solved by CVODES.                                        
+ * to be solved by CVODE.                                        
  *                                                                
- * cvode_mem is pointer to CVODES memory returned by CVodeCreate. 
+ * cvode_mem is pointer to CVODE memory returned by CVodeCreate. 
  *                                                                
- * f       is the right hand side function in y' = f(t,y).
+ * f       is the name of the C function defining the right-hand
+ *         side function in y' = f(t,y).
  *                                                                
  * t0      is the initial value of t.                             
  *                                                                
  * y0      is the initial condition vector y(t0).                 
  *                                                                
  * itol    is the type of tolerances to be used.                  
- *            The legal values are:                               
- *               SS (scalar relative and absolute  tolerances),   
- *               SV (scalar relative tolerance and vector         
- *                   absolute tolerance).                         
+ *         The legal values are:                               
+ *            SS (scalar relative and absolute tolerances),   
+ *            SV (scalar relative tolerance and vector         
+ *                absolute tolerance).                         
  *                                                                
  * reltol  is a pointer to the relative tolerance scalar.         
  *                                                                
  * abstol  is a pointer to the absolute tolerance scalar or       
- *            an N_Vector of absolute tolerances.                 
+ *         an N_Vector of absolute tolerances.                 
  *                                                                
  * The parameters itol, reltol, and abstol define a vector of     
  * error weights, ewt, with components                            
@@ -334,8 +333,8 @@ enum {CVS_NO_MEM = -1, CVS_ILL_INPUT = -2};
  *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),    
  * where N is the problem dimension.                              
  *                                                                
- * Note: The tolerance values may be changed in between calls to  
- *       CVode for the same problem. These values refer to        
+ * Note: The tolerance values may be changed between calls to  
+ *       CVode for the same problem.  These values refer to        
  *       (*reltol) and either (*abstol), for a scalar absolute    
  *       tolerance, or the components of abstol, for a vector     
  *       absolute tolerance.                                      
@@ -347,8 +346,7 @@ enum {CVS_NO_MEM = -1, CVS_ILL_INPUT = -2};
  * -----------------------------------------------------------------
  */
 
-int CVodeMalloc(void *cvode_mem, RhsFn f,
-                realtype t0, N_Vector y0, 
+int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
                 int itol, realtype *reltol, void *abstol);
 
 /* Error return values for CVodeMalloc */
@@ -373,12 +371,8 @@ enum {CVM_NO_MEM = -1, CVM_MEM_FAIL=-2, CVM_ILL_INPUT = -3};
  * is unchanged (or changed from ADAMS to BDF) and the default    
  * value for maxord is specified.                                 
  *                                                                
- * The first argument to CVodeReInit is:                          
- *                                                                
- * cvode_mem = pointer to CVODES memory returned by CVodeCreate.  
- *                                                                
- * All the remaining arguments to CVodeReInit have names and      
- * meanings identical to those of CVodeMalloc.                    
+ * All of the arguments to CVodeReInit have names and meanings
+ * identical to those of CVodeMalloc.                    
  *                                                                
  * The return value of CVodeReInit is equal to SUCCESS = 0 if     
  * there were no errors; otherwise it is a negative int equal to: 
@@ -393,8 +387,7 @@ enum {CVM_NO_MEM = -1, CVM_MEM_FAIL=-2, CVM_ILL_INPUT = -3};
  * -----------------------------------------------------------------
  */
 
-int CVodeReInit(void *cvode_mem, RhsFn f,
-                realtype t0, N_Vector y0, 
+int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
                 int itol, realtype *reltol, void *abstol);
 
 /* Error return values for CVodeReInit */
@@ -431,6 +424,7 @@ enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
  */
 
 int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn);
+
 /* CVodeRootInit return values: */
 /* SUCCESS = 0 */ 
 enum {CVRT_NO_MEM = -1, CVRT_MEM_FAIL = -2, CVRT_FUNC_NULL = -3};
@@ -447,11 +441,11 @@ enum {CVRT_NO_MEM = -1, CVRT_MEM_FAIL = -2, CVRT_FUNC_NULL = -3};
  * takes one internal time step and returns in yout the value of  
  * y at the new internal time. In this case, tout is used only    
  * during the first call to CVode to determine the direction of   
- * integration and the rough scale of the problem. In either      
- * case, the time reached by the solver is placed in (*t). The    
+ * integration and the rough scale of the t variable. In either      
+ * case, the time reached by the solver is placed in (*tret). The    
  * user is responsible for allocating the memory for this value.  
  *                                                                
- * cvode_mem is the pointer to CVODES memory returned by          
+ * cvode_mem is the pointer to CVODE memory returned by          
  *              CVodeCreate.                                      
  *                                                                
  * tout  is the next time at which a computed solution is desired.
@@ -474,7 +468,7 @@ enum {CVRT_NO_MEM = -1, CVRT_MEM_FAIL = -2, CVRT_FUNC_NULL = -3};
  *                 If nrtfn > 1, call CVodeGetRootInfo to see     
  *                 which g_i were found to have a root at (*tret).
  *                                                                
- * TSTOP_RETURN  : CVode succeded and returned at tstop.          
+ * TSTOP_RETURN  : CVode succeeded and returned at tstop.          
  *                                                                
  * CVODE_NO_MEM  : The cvode_mem argument was NULL.               
  *                                                                
@@ -483,11 +477,13 @@ enum {CVRT_NO_MEM = -1, CVRT_MEM_FAIL = -2, CVRT_FUNC_NULL = -3};
  * ILL_INPUT     : One of the inputs to CVode is illegal. This    
  *                 includes the situation when a component of the 
  *                 error weight vectors becomes < 0 during        
- *                 internal time-stepping. The ILL_INPUT flag     
- *                 will also be returned if the linear solver     
- *                 routine CV--- (called by the user after        
- *                 calling CVodeCreate) failed to set one of the  
- *                 linear solver-related fields in cvode_mem or   
+ *                 internal time-stepping.  It also includes the
+ *                 situation where a root of one of the root
+ *                 functions was found both at t0 and very near t0.
+ *                 The ILL_INPUT flag will also be returned if the
+ *                 linear solver routine CV--- (called by the user
+ *                 after calling CVodeCreate) failed to set one of
+ *                 the linear solver-related fields in cvode_mem or   
  *                 if the linear solver's init routine failed. In 
  *                 any case, the user should see the printed      
  *                 error message for more details.                
@@ -532,12 +528,12 @@ enum { SUCCESS=0, TSTOP_RETURN=1, ROOT_RETURN=2,
  * time t, where tn-hu <= t <= tn, tn denotes the current         
  * internal time reached, and hu is the last internal step size   
  * successfully used by the solver. The user may request          
- * k=0, 1, ..., qu, where qu is the current order. The            
+ * k=0, 1, ..., qu, where qu is the order last used. The            
  * derivative vector is returned in dky. This vector must be      
  * allocated by the caller. It is only legal to call this         
  * function after a successful return from CVode.                 
  *                                                                
- * cvode_mem is the pointer to CVODES memory returned by          
+ * cvode_mem is the pointer to CVODE memory returned by          
  *              CVodeCreate.                                      
  *                                                                
  * t   is the time at which the kth derivative of y is evaluated. 
@@ -546,7 +542,7 @@ enum { SUCCESS=0, TSTOP_RETURN=1, ROOT_RETURN=2,
  * k   is the order of the derivative of y to be computed. The    
  *        legal range for k is [0,qu] as described above.         
  *                                                                
- * dky is the output derivative vector [(D_k)y](t).               
+ * dky is the output derivative vector [((d/dy)^k)y](t).               
  *                                                                
  * The return values for CVodeGetDky are defined below.           
  * Here is a brief description of each return value:              
@@ -573,8 +569,8 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  * and statistics related to the main integrator.                 
  * -----------------------------------------------------------------
  *                                                                
- * CVodeGetIntWorkSpace returns the CVODES integer workspace size 
- * CVodeGetRealWorkSpace returns the CVODES real workspace size   
+ * CVodeGetIntWorkSpace returns the CVODE integer workspace size 
+ * CVodeGetRealWorkSpace returns the CVODE real workspace size   
  * CVodeGetNumSteps returns the cumulative number of internal     
  *       steps taken by the solver                                
  * CVodeGetNumRhsEvals returns the number of calls to the user's  
@@ -590,7 +586,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  * CVodeGetNumStabLimOrderReds returns the number of order        
  *       reductions due to stability limit detection              
  * CVodeGetActualInitStep returns the actual initial step size    
- *       used by CVODES                                           
+ *       used by CVODE                                           
  * CVodeGetLastStep returns the step size for the last internal   
  *       step                                                     
  * CVodeGetCurrentStep returns the step size to be attempted on   
@@ -682,9 +678,9 @@ enum { OKAY=0, CVG_NO_MEM=-1, CVG_NO_SLDET=-2,
  * -----------------------------------------------------------------
  * Function : CVodeFree                                           
  * -----------------------------------------------------------------
- * CVodeFree frees the problem memory cvode_mem allocated by      
- * CVodeMalloc.  Its only argument is the pointer cvode_mem       
- * returned by CVodeCreate.                                       
+ * CVodeFree frees the problem memory cvode_mem allocated by
+ * CVodeCreate and CVodeMalloc.  Its only argument is the pointer
+ * cvode_mem returned by CVodeCreate.
  * -----------------------------------------------------------------
  */
 
@@ -698,14 +694,14 @@ void CVodeFree(void *cvode_mem);
 
 /*
  * -----------------------------------------------------------------
- * Communication between user and a CVODES Linear Solver          
+ * Communication between user and a CVODE Linear Solver          
  * -----------------------------------------------------------------
  * Return values of the linear solver specification routine       
  * and of the linear solver set / get routines:                   
  *                                                                
  *    SUCCESS      : The routine was successful.                  
  *                                                                
- *    LIN_NO_MEM   : CVODES memory = NULL.                        
+ *    LIN_NO_MEM   : CVODE memory = NULL.                        
  *                                                                
  *    LMEM_FAIL    : A memory allocation failed.                  
  *                                                                
@@ -720,7 +716,7 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
 
 /*
  * -----------------------------------------------------------------
- * Communication between CVODES and a CVODE Linear Solver         
+ * Communication between CVODE and a CVODE Linear Solver         
  * -----------------------------------------------------------------
  * (1) cv_linit return values                                     
  *                                                                
@@ -739,12 +735,12 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  *                                                                
  * FAIL_BAD_J  : This value is passed to cv_lsetup if             
  *                                                                
- *               (1) The previous Newton corrector iteration      
+ *               (a) The previous Newton corrector iteration      
  *                   did not converge and the linear solver's     
  *                   setup routine indicated that its Jacobian-   
  *                   related data is not current                  
  *                                   or                           
- *               (2) During the previous Newton corrector         
+ *               (b) During the previous Newton corrector         
  *                   iteration, the linear solver's solve routine 
  *                   failed in a recoverable manner and the       
  *                   linear solver's setup routine indicated that 
@@ -755,10 +751,9 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  *               even though the linear solver was using current  
  *               Jacobian-related data.                           
  *                                                                
- * (3) Parameter documentation, as well as a brief description    
- *     of purpose, for each CVODES linear solver routine to be    
- *     called in cvodes.c is given below the constant declarations
- *     that follow.                                               
+ * (3) Parameter documentation, as well as a brief description of
+ *     purpose, for each CVODE linear solver routine to be called in
+ *     cvode.c, is given below the constant declarations that follow.
  * -----------------------------------------------------------------
  */
 
@@ -780,7 +775,7 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * The purpose of cv_linit is to complete initializations for a   
  * specific linear solver, such as counters and statistics.       
  * An LInitFn should return LINIT_OK (= 0) if it has successfully 
- * initialized the CVODES linear solver and LINIT_ERR (= -1)      
+ * initialized the CVODE linear solver and LINIT_ERR (= -1)      
  * otherwise. These constants are defined above.  If an error does
  * occur, an appropriate message should be sent to (cv_mem->errfp)
  * -----------------------------------------------------------------
@@ -805,11 +800,11 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  *            the solution of the nonlinear equation on the       
  *            current time step for which the linear solver is    
  *            being used. This flag can be used to help decide    
- *            whether the Jacobian data kept by a CVODES linear   
+ *            whether the Jacobian data kept by a CVODE linear   
  *            solver needs to be updated or not.                  
  *            Its possible values have been documented above.     
  *                                                                
- * ypred - the predicted y vector for the current CVODES internal 
+ * ypred - the predicted y vector for the current CVODE internal 
  *         step.                                                  
  *                                                                
  * fpred - f(tn, ypred).                                          
@@ -819,7 +814,7 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  *           data is current after the call and should set        
  *           *jcurPtr=FALSE if its Jacobian data is not current.  
  *           Note: If cv_lsetup calls for re-evaluation of        
- *           Jacobian data (based on convfail and CVODES state    
+ *           Jacobian data (based on convfail and CVODE state    
  *           data), it should return *jcurPtr=TRUE always;        
  *           otherwise an infinite loop can result.               
  *                                                                
