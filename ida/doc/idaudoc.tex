@@ -1,14 +1,13 @@
 % LaTeX source for IDA user's guide.
 % Last revised 7 February 2000.
 
-\input{prtgrph}
-
-\documentstyle[12pt]{siam}
+\documentclass[11pt]{article}
+\usepackage{epsfig}
 
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
 \setlength{\textwidth}{6.5in}
-
+\setlength{\textheight}{8.5in}
 
 \title{User Documentation for IDA, a Differential-Algebraic Equation
        Solver for Sequential and Parallel Computers%
@@ -34,34 +33,28 @@ contract W-7405-ENG-48. } }
 
 % Generate cover page
 %
-\vspace*{\fill}
-\vspace*{0.1in}
-
+\vspace{2in}
 \begin{center}
-
-\LARGE
-User Documentation for IDA, \\ a Differential-Algebraic Equation Solver \\
-       for Sequential and Parallel Computers
-
-\par\vspace*{0.7in}
-\large
-Alan C. Hindmarsh\\{\em Lawrence Livermore National Laboratory}
-\par\bigskip
-Allan G. Taylor\\{\em Lawrence Livermore National Laboratory}
-
+  {\LARGE 
+    User Documentation for IDA, \\ 
+    A Differential-Algebraic Equation Solver \\
+    for Sequential and Parallel Computers
+    } 
+  \\
+  \vspace{1in}
+  {\large Alan C. Hindmarsh}\\
+  {\large\em Lawrence Livermore National Laboratory}\\
+  \vspace{0.25in}
+  {\large Allan G. Taylor}\\
+  {\large\em Lawrence Livermore National Laboratory}
 \end{center}
-
 \vfill
-\mbox{}
-\vfill
-\vspace*{3.5in}
-
 % LLNL report info
-%
-\par\Large\it Center for Applied Scientific Computing
-\vspace*{0.7in}
-\par\large UCRL-MA-136910
-\par\large December 1999
+{\large\it Center for Applied Scientific Computing}\\
+\vspace{0.7in}\\
+{\large UCRL-MA-136910}\\
+{\large December 1999}
+
 
 \newpage
 
@@ -94,7 +87,6 @@ state or reflect those of the United States Government or the
 University of California, and shall not be used for advertising or
 product endorsement purposes.  
 \par\vspace*{1.0in}
-
 \end{minipage}
 \end{center}
 
@@ -309,8 +301,7 @@ during the optional calculation of consistent initial conditions.
 \section{Code Organization}
 
 \begin{figure}[p]
-\VGPrint{idaorg.ps}{5.5}{8}{1.4}{1.5}{1.0}
-\vspace{0.8in}
+\centerline{\psfig{figure=idaorg.eps,height=7.0in}}
 \caption{Overall structure of the IDA package.
   Modules comprising the central solver are distinguished by rounded
   boxes, while the user program, generic linear solvers, and generic 
@@ -442,8 +433,11 @@ their content, are shown in Table \ref{IDAmodules}.  For each module
 there is a source file and a header file (except for {\tt LLNLTYPS},
 which has only a header file).
 
-\begin{table}[htb]
+\begin{table}%[htb]
 \begin{center}
+\caption{Modules in the IDA solver package}
+\label{IDAmodules}
+\vspace{0.1 in}
 \begin{tabular}{|l|l|l|} \hline
 Module name & User-callable routines & other contents \\ \hline \hline
 {\tt IDA}      & {\tt IDAMalloc}, {\tt IDACalcIC}, 
@@ -475,9 +469,6 @@ Module name & User-callable routines & other contents \\ \hline \hline
 {\tt LLNLTYPS} & & Types {\tt real}, {\tt integer}, {\tt boole} \\ \hline
 
 \end{tabular}
-\vspace{0.1 in}
-\caption{Modules in the IDA solver package}
-\label{IDAmodules}
 \end{center}
 \end{table}
 
@@ -509,7 +500,7 @@ given are relevant only to a parallel machine environment.  For the
 sake of brevity, we defer many of the details to the later
 subsections.
 
-\newpage
+%\newpage
 
 \begin{enumerate}
 
@@ -576,7 +567,7 @@ and return.)  Following the call, process the vectors {\tt yy} and
 Also, test for the condition {\tt flag < 0} to detect a failure.
 
 \item {\tt IDAFree(idamem); PVecFreeMPI(machEnv); MPI\_Finalize()} to
-free the IDA internal memory block and machine-dependent data, and 
+free the internal memory block and machine-dependent data, and 
 to close MPI.
 
 \item Supply a function {\tt resfn} to define the DAE system residual 
@@ -665,7 +656,7 @@ the user in the form of a C function, denoted {\tt resfn} in the above
 Overview of Usage.  The type and call list for this function must be
 as given by the following {\tt typedef} (extracted from {\tt ida.h}):
 
-\newpage
+%\newpage
 
 \small
 \begin{verbatim}
@@ -726,7 +717,7 @@ values for certain integer inputs, possible return values for the
 routines, and indices into {\tt iopt} and {\tt ropt} are defined in
 {\tt ida.h}.
 
-\newpage
+%\newpage
 
 \subsubsection{Memory allocation routine: {\tt IDAMalloc}}
 
@@ -1132,7 +1123,7 @@ rest are for a variety of possible failures.
 \normalsize
 
 
-\newpage
+%\newpage
 
 \subsubsection{Deallocation routine: {\tt IDAFree}}
 
@@ -2729,7 +2720,7 @@ Lawrence Livermore National Laboratory report UCRL-ID-131185, July 1998.
 
 \newpage
 
-\section{Appendix: Listing and Output of Predator-Prey Example Program}
+\section{Appendix: Listing and Output of Predator-Prey \\ Example Program}
 
 \small
 \begin{verbatim}
@@ -2927,7 +2918,7 @@ static void BRecvWait(MPI_Request request[], integer ixsub, integer jysub,
                       integer dsizex, real cext[], real buffer[]);
 
 static int reslocal(real tt, N_Vector cc, N_Vector cp, N_Vector res, 
-		    void *rdata);
+            void *rdata);
 
 static void WebRates(real xx, real yy, real *cxy, real *ratesxy, 
                      UserData webdata);
@@ -3244,7 +3235,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       idxy = IJ_Vptr(id,ix,jy); 
       for (is = 0; is < NUM_SPECIES; is++) {
         if (is < np) { cxy[is] = 10. + (real)(is+1)*xyfactor; idxy[is] = ONE; }
-	else { cxy[is] = 1.0e5; idxy[is] = ZERO; }
+    else { cxy[is] = 1.0e5; idxy[is] = ZERO; }
       }
     }
   }
@@ -3460,9 +3451,9 @@ static void BSend(MPI_Comm comm, integer my_pe, integer ixsub, integer jysub,
    (2) request should have 4 entries, and is also passed in both calls.  */
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
-		      integer ixsub, integer jysub,
-		      integer dsizex, integer dsizey,
-		      real cext[], real buffer[])
+              integer ixsub, integer jysub,
+              integer dsizex, integer dsizey,
+              real cext[], real buffer[])
 {
   integer offsetce;
   /* Have bufleft and bufright use the same buffer. */
@@ -3471,7 +3462,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
   /* If jysub > 0, receive data for bottom x-line of cext. */
   if (jysub != 0)
     MPI_Irecv(&cext[NUM_SPECIES], dsizex, PVEC_REAL_MPI_TYPE,
-    					 my_pe-NPEX, 0, comm, &request[0]);
+                         my_pe-NPEX, 0, comm, &request[0]);
 
   /* If jysub < NPEY-1, receive data for top x-line of cext. */
   if (jysub != NPEY-1) {
@@ -3503,7 +3494,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
    (2) request should have 4 entries, and is also passed in both calls.  */
 
 static void BRecvWait(MPI_Request request[], integer ixsub, integer jysub,
-		      integer dsizex, real cext[], real buffer[])
+              integer dsizex, real cext[], real buffer[])
 {
   int i;
   integer ly, dsizex2, offsetce, offsetbuf;
