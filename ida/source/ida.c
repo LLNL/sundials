@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2004-11-30 21:07:00 $
+ * $Revision: 1.38.2.1 $
+ * $Date: 2005-02-14 20:21:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1065,7 +1065,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
   /* Load ewt */
 
-  ewtsetOK = IDAEwtSet(IDA_mem, y0);
+  ewtsetOK = IDAEwtSet(IDA_mem, phi[0]);
   if (!ewtsetOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_EWT);
     return(IDA_ILL_INPUT);
@@ -1087,7 +1087,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
   /* Check to see if y0 satisfies constraints. */
 
   if (constraintsSet) {
-    conOK = N_VConstrMask (constraints, y0, tempv2);
+    conOK = N_VConstrMask (constraints, phi[0], tempv2);
     if (!conOK) { 
       if(errfp!=NULL) fprintf(errfp, MSG_Y0_FAIL_CONSTR); 
       return(IDA_ILL_INPUT); 
