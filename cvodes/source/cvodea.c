@@ -413,8 +413,6 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
     - it takes as an argument a pointer to the adjoint memory    
       structure and sets the cvode memory for the backward run   
       as a field of this structure.
-    - no 'initial time' is required as the backward integration  
-      starts at the last tout with which CVodeF was called;      
     - the routine that provides the ODE right hand side is of a  
       different type (it also gets the solution of the forward   
       integration at the current time).    
@@ -496,20 +494,16 @@ int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB,
  backward problem.
 --------------------------------------------------------------*/
 
-int CVReInitB(void *cvadj_mem, realtype tB0, N_Vector yB0)
+int CVReInitB(void *cvadj_mem, RhsFnB fB, 
+              realtype tB0, N_Vector yB0, int lmmB, int iterB, int itolB, 
+              realtype *reltolB, void *abstolB, void *f_dataB, 
+              FILE *errfpB, booleantype optInB, 
+              long int ioptB[], realtype roptB[], M_Env machEnvB)
+/*int CVReInitB(void *cvadj_mem, realtype tB0, N_Vector yB0)*/
 {
-  int flag;
-
   CVadjMem ca_mem;
   CVodeMem cvb_mem;
-
-  int lmmB, iterB, itolB;
-  realtype *reltolB, *roptB;
-  void *abstolB;
-  FILE *errfpB;
-  booleantype optInB;
-  long int *ioptB;
-  M_Env machEnvB;
+  int flag, j;
 
   if (cvadj_mem == NULL) {
     fprintf(stdout, MSG_CVBM_NO_MEM);
@@ -523,25 +517,48 @@ int CVReInitB(void *cvadj_mem, realtype tB0, N_Vector yB0)
     return(CVBM_BAD_TB0);
   }
 
-  cvb_mem = ca_mem->cvb_mem;
+  if (ioptB == NULL) {
+    ioptB = (long int *)malloc(OPT_SIZE*sizeof(long int));
+    if (ioptB == NULL) {
+      fprintf(stdout, MSG_CVBM_MEM_FAIL);
+      return(CVBM_MEM_FAIL);
+    }
+    ioptBalloc = TRUE;
+  } else {
+    ioptBalloc = FALSE;
+  }
+  if (roptB == NULL) {
+    roptB = (realtype *)malloc(OPT_SIZE*sizeof(realtype));
+    if (roptB == NULL) {
+      fprintf(stdout, MSG_CVBM_MEM_FAIL);
+      return(CVBM_MEM_FAIL);
+    }
+    roptBalloc = TRUE;
+  } else {
+    roptBalloc = FALSE;
+  }
+  if (optInB == FALSE)
+    for (j=0; j<OPT_SIZE; j++) {
+      ioptB[j] = 0;
+      roptB[j] = 0.0;
+    }
+  optInB = TRUE;
+  ioptB[MXHNIL] = -1;
+  ioptB[ISTOP]  =  1;
 
-  /* Most stuff is unchanged. Get it from cvb_mem */
-  lmmB = cvb_mem->cv_lmm;
-  iterB = cvb_mem->cv_iter;
-  itolB = cvb_mem->cv_itol;
-  reltolB = cvb_mem->cv_reltol;
-  abstolB = cvb_mem->cv_abstol;
-  errfpB = cvb_mem->cv_errfp;
-  optInB = cvb_mem->cv_optIn;
-  ioptB = cvb_mem->cv_iopt;
-  roptB = cvb_mem->cv_ropt;
-  machEnvB = cvb_mem->cv_machenv;
+  cvb_mem = ca_mem->cvb_mem;
 
   flag = CVReInit(cvb_mem, CVArhs, tB0, yB0, lmmB, iterB,
                   itolB, reltolB, abstolB, cvadj_mem,
                   errfpB, optInB, ioptB, roptB, machEnvB);
+  if (flag != SUCCESS)
+    return(flag);
 
-  return(flag);
+  f_B      = fB;
+  f_data_B = f_dataB;
+
+  return(SUCCESS);
+
 }
 
 /*------------------------- CVDenseB ---------------------------

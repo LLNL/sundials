@@ -207,12 +207,16 @@ int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB,
  *----------------------------------------------------------------*
  * CVReInitB resets the final time and final condition for the    *
  * backward system, assuming a prior call to CVodeMallocB has     *
- * been made. Except for tB0 and yB0, all other settings are kept *
- * unchanged from the preevious call to CvodeMallocB.             *
+ * been made.                                                     *
  *                                                                *
  ******************************************************************/
 
-int CVReInitB(void *cvadj_mem, realtype tB0, N_Vector yB0);
+int CVReInitB(void *cvadj_mem, RhsFnB fB, 
+              realtype tB0, N_Vector yB0, int lmmB, int iterB, int itolB, 
+              realtype *reltolB, void *abstolB, void *f_dataB, 
+              FILE *errfpB, booleantype optInB, 
+              long int ioptB[], realtype roptB[], M_Env machEnvB);
+/*int CVReInitB(void *cvadj_mem, realtype tB0, N_Vector yB0);*/
 
 /******************************************************************
  *                                                                *
