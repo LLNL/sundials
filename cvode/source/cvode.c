@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2004-09-28 23:37:10 $
+ * $Revision: 1.33 $
+ * $Date: 2004-10-08 23:42:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -256,13 +256,7 @@
 
 #define MSG_CVODE_NO_MALLOC CVODE "CVodeMalloc has not been called yet.\n\n"
  
-#define MSG_LINIT_NULL      CVODE "The linear solver's init routine is NULL.\n\n"
-
-#define MSG_LSETUP_NULL     CVODE "The linear solver's setup routine is NULL.\n\n"
-
 #define MSG_LSOLVE_NULL     CVODE "The linear solver's solve routine is NULL.\n\n"
-
-#define MSG_LFREE_NULL      CVODE "The linear solver's free routine is NULL.\n\n"
 
 #define MSG_LINIT_FAIL      CVODE "The linear solver's init routine failed.\n\n"
 
@@ -1525,26 +1519,16 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* On first call, check solver functions and call linit function */
 
     if (iter == CV_NEWTON) {
-      if (linit == NULL) {
-        if(errfp!=NULL) fprintf(errfp, MSG_LINIT_NULL);
-        return(CV_ILL_INPUT);
-      }
-      if (lsetup == NULL) {
-        if(errfp!=NULL) fprintf(errfp, MSG_LSETUP_NULL);
-        return(CV_ILL_INPUT);
-      }
       if (lsolve == NULL) {
         if(errfp!=NULL) fprintf(errfp, MSG_LSOLVE_NULL);
         return(CV_ILL_INPUT);
       }
-      if (lfree == NULL) {
-        if(errfp!=NULL) fprintf(errfp, MSG_LFREE_NULL);
-        return(CV_ILL_INPUT);
-      }
-      ier = linit(cv_mem);
-      if (ier != 0) {
-        if(errfp!=NULL) fprintf(errfp, MSG_LINIT_FAIL);
-        return(CV_LINIT_FAIL);
+      if (linit != NULL) {
+        ier = linit(cv_mem);
+        if (ier != 0) {
+          if(errfp!=NULL) fprintf(errfp, MSG_LINIT_FAIL);
+          return(CV_LINIT_FAIL);
+        }
       }
     }
     
@@ -2394,7 +2378,7 @@ void CVodeFree(void *cvode_mem)
 
   CVFreeVectors(cv_mem, qmax);
 
-  if (iter == CV_NEWTON) lfree(cv_mem);
+  if (iter == CV_NEWTON && lfree != NULL) lfree(cv_mem);
 
   if (nrtfn > 0) {
     free(glo);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2004-09-28 23:44:21 $
+ * $Revision: 1.38 $
+ * $Date: 2004-10-08 23:43:01 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -363,13 +363,7 @@
 
 #define MSG_BAD_EWTS        CVODE CVIS "Some initial ewtS component = 0.0 illegal.\n\n"
 
-#define MSG_LINIT_NULL      CVODE CVIS "The linear solver's init routine is NULL.\n\n"
-
-#define MSG_LSETUP_NULL     CVODE CVIS "The linear solver's setup routine is NULL.\n\n"
-
 #define MSG_LSOLVE_NULL     CVODE CVIS "The linear solver's solve routine is NULL.\n\n"
-
-#define MSG_LFREE_NULL      CVODE CVIS "The linear solver's free routine is NULL.\n\n"
 
 #define MSG_LINIT_FAIL      CVODE CVIS "The linear solver's init routine failed.\n\n"
 
@@ -3894,7 +3888,7 @@ void CVodeFree(void *cvode_mem)
 
   CVodeSensFree(cv_mem);
 
-  if (iter == CV_NEWTON) lfree(cv_mem);
+  if (iter == CV_NEWTON && lfree != NULL) lfree(cv_mem);
 
   if (nrtfn > 0) {
     free(glo); 
@@ -4183,26 +4177,16 @@ static int CVInitialSetup(CVodeMem cv_mem)
   /* Check linear solver functions and call linit function. */
 
   if (iter == CV_NEWTON) {
-    if (linit == NULL) {
-      if(errfp!=NULL) fprintf(errfp, MSG_LINIT_NULL);
-      return (CV_ILL_INPUT);
-    }
-    if (lsetup == NULL) {
-      if(errfp!=NULL) fprintf(errfp, MSG_LSETUP_NULL);
-      return (CV_ILL_INPUT);
-    }
     if (lsolve == NULL) {
       if(errfp!=NULL) fprintf(errfp, MSG_LSOLVE_NULL);
       return (CV_ILL_INPUT);
     }
-    if (lfree == NULL) {
-      if(errfp!=NULL) fprintf(errfp, MSG_LFREE_NULL);
-      return (CV_ILL_INPUT);
-    }
-    ier = linit(cv_mem);
-    if (ier != 0) {
-      if(errfp!=NULL) fprintf(errfp, MSG_LINIT_FAIL);
-      return (CV_ILL_INPUT);
+    if (linit != NULL) {
+      ier = linit(cv_mem);
+      if (ier != 0) {
+        if(errfp!=NULL) fprintf(errfp, MSG_LINIT_FAIL);
+        return (CV_ILL_INPUT);
+      }
     }
   }
     
