@@ -10,9 +10,8 @@ directed to the comments in their source files.
 \subsection{A serial dense example: \id{cvadx}}\label{ss:cvadx}
 
 As a first example of using {\cvodes} for adjoint sensitivity analysis
-we examine the chemical kinetics problem of \S\ref{ss:serial_sim_ex} and
-\S\ref{ss:serial_fwd_ex}:
-\begin{equation}\label{e:chemkin:ivp}
+we examine the chemical kinetics problem 
+\begin{equation}\label{e:cvadx_ODE}
   \begin{split}
     &{\dot y}_1 = -p_1 y_1 + p_2 y_2 y_3   \\
     &{\dot y}_2 =  p_1 y_1 - p_2 y_2 y_3 - p_3 y_2^2 \\
@@ -21,21 +20,21 @@ we examine the chemical kinetics problem of \S\ref{ss:serial_sim_ex} and
   \end{split}
 \end{equation}
 for which we want to compute the gradient with respect to $p$ of 
-\begin{equation}\label{e:chemkin:G}
+\begin{equation}\label{e:cvadx_G}
   G(p) = \int_{t_0}^{t_1}  y_3  dt ,
 \end{equation}
 without having to compute the solution sensitivities ${dy}/{dp}$.
 Following the derivation of \S\ref{ss:adj_sensi} and taking into account
-the fact that the initial values of (\ref{e:chemkin:ivp}) do not depend on 
+the fact that the initial values of (\ref{e:cvadx_ODE}) do not depend on 
 the parameters $p$, by (\ref{e:dGdp}) this gradient is simply
-\begin{equation}\label{e:chemkin:dGdp}
+\begin{equation}\label{e:cvadx_dGdp}
 \frac{dG}{dp} = \int_{t_0}^{t_1} 
 \left( g_p + \lambda^T f_p \right) dt \, ,
 \end{equation}
 where $g(t,y,p) = y_3$, $f$ is the vector valued function 
-defining the right hand side of (\ref{e:chemkin:ivp}), and $\lambda$ is 
+defining the right hand side of (\ref{e:cvadx_ODE}), and $\lambda$ is 
 the solution of the adjoint problem (\ref{e:adj_eqns}),
-\begin{equation}\label{e:chemkin:adj}
+\begin{equation}\label{e:cvadx_ADJ}
   \begin{split}
     &{\dot \lambda} = - (f_y)^T  \lambda - (g_y)^T \\
     &\lambda(t_1) = 0 \, .
@@ -43,9 +42,9 @@ the solution of the adjoint problem (\ref{e:adj_eqns}),
 \end{equation}
 
 In order to avoid saving intermediate $\lambda$ values just for the
-evaluation of the integral in (\ref{e:chemkin:dGdp}), we extend the
+evaluation of the integral in (\ref{e:cvadx_dGdp}), we extend the
 backward problem with the following $N_p$ quadrature equations
-\begin{equation}\label{e:chemkin:xi}
+\begin{equation}\label{e:cvadx_XI}
   \begin{split}
     &{\dot \xi} = g_p^T + f_p^T \lambda \\
     &\xi (t_1) = 0 \, ,
@@ -53,23 +52,26 @@ backward problem with the following $N_p$ quadrature equations
 \end{equation}
 which yield $\xi(t_0) = - \int_{t_0}^{t_1} ( g_p^T + f_p^T \lambda) dt$
 and thus ${dG}/{dp} = -\xi^T(t_0)$.
-Similarly, the value of $G$ in (\ref{e:chemkin:G}) can be obtained as
+Similarly, the value of $G$ in (\ref{e:cvadx_G}) can be obtained as
 $G = - \zeta(t_0)$, where $\zeta$ is solution of the following quadrature
 equation:
-\begin{equation}\label{e:chemkin:zeta}
+\begin{equation}\label{e:cvadx_ZETA}
   \begin{split}
     &{\dot\zeta} = g \\
     &\zeta(t_1) = 0 \, .
   \end{split}
 \end{equation}
 
-The source code for this example is listed in \A\ref{ss:cvadx}.
+The source code for this example is listed in \A\ref{s:cvadx_c}.
 The main program and the user-defined routines are described below, 
 with emphasis on the aspects particular to adjoint sensitivity calculations.
-The calling program must include the {\cvodes} header file \id{cvodea.h} which
-in turn includes \id{cvodes.h} and thus provides {\cvodes} function prototypes
-and constants, including those in the adjoint sensitivity module.
- 
+
+The calling program includes the {\cvodes} header files \id{cvodes.h} 
+and \id{cvodea.h} for {\cvodes} definitions and interface function prototypes,
+the header file \id{cvdense.h} for the {\cvdense} linear solver module, and
+the header file \id{nvector\_serial.h} for the definition of the serial implementation
+of the {\nvector} module, {\nvecs}.
+%% 
 This program also includes two user-defined accessor macros,
 \id{Ith} and \id{IJth}
 that are useful in writing the problem functions in a form closely
@@ -83,52 +85,62 @@ called by {\cvodes}. The first two provide the right hand side and dense Jacobia
 for the forward problem and the last two provide the right hand side and dense Jacobian 
 for the backward problem.
 
-The \id{main} function begins with type declarations. Notice that we employ three vector
-specification objects, \id{nvSpecF} for the forward problem, \id{nvSpecB} for
-the adjoint problem, and \id{nvSpecQB} for the quadrature variables integrated on
-the backward phase. The next code blocks allocate and initialize the user data
-structure with the values of the parameters $p$, initialize \id{nvSpecF} by calling
-the serial vector specification initialization routine from {\nvecs}, allocate and
-initialize \id{y} with the initial conditions of the forward problem, and finally
-set the tolerances \id{rtol} and \id{atol}.
+The \id{main} function begins with type declarations and continues with
+allocation and initialization of the user data structure which contains the values 
+of the parameters $p$. Next, it allocates and
+initializes \id{y} with the initial conditions of the forward problem, allocates and 
+initializes \id{q} for the quadrature used in computing the value $G$ and finally
+sets the scalar relative tolerance \id{reltol} and vector absolute tolerance \id{abstol}
+for the state variables as well as the absolute tolerance for the quadrature variable.
 
 The call to \id{CVodeCreate} creates the main integrator memory block for the 
-forward integration and specifies the \id{BDF} integration method with \id{NEWTON} 
-iteration. 
+forward integration and specifies the \id{CV\_BDF} integration method with 
+\id{CV\_NEWTON} iteration. 
 The next call specifies the optional user data pointer, while the call to \id{CVodeMalloc} 
-sets-up the forward integration by specifying the intial conditions and integration 
+sets-up the forward integration by specifying the initial conditions and integration 
 tolerances. The linear solver is selected to be {\cvdense} through the call to its 
 initialization routine \id{CVDense}. The user provided Jacobian routine \id{Jac}
 and user data structure \id{data} are specified through calls to \id{CVDenseSetJacFn} and
 \id{CVDenseSetJacData}, respectively.
 
+The next code block initializes quadrature computations on the forward phase, by
+specifying the user data structure to be passed to the function \id{fQ},
+including the quadrature variable in the error test, setting the integration tolerances
+for the quadrature variable and finally allocating {\cvodes} memory for quadrature
+integration (the call to \id{CVodeQuadMalloc} specifies the right-hand side
+of the quadrature equation and the initial values of the quadrature variable).
+
 Allocation for the memory block of the combined forward-backward problem is
-acomplished through the call to \id{CVadjMalloc} which specifies \id{STEPS}=150,
+acomplished through the call to \id{CVadjMalloc} which specifies \id{STEPS = 150},
 the number of steps between two check points.
 
 The call to \id{CVodeF} requests the solution of the forward problem to \id{TOUT}.
 If successful, at the end of the integration, \id{CVodeF} will return the number
 of saved check points in the argument \id{ncheck} (optionally, a list of the check points
-can be printed by calling \id{CVadjCheckPointsList}).
+can be printed by calling \id{CVadjGetCheckPointsList}).
 
-The next segment of code deals with the setup of the backward problem. First,
-a serial vector specification variable \id{nvSpecB} is initialized for vectors
-of length \id{NEQ} (dimension of $\lambda$). A second serial
-machine environmnet, \id{nvSpecQB} is initializaed for vectors of
-dimension \id{NP+1} (dimension of $\xi$ $+$ one quadrature variable to evaluate $G$).
-Following that, the program allocates space and initializes the variables of the 
-backward problem and the relative and absolute tolerances for the backward integration.
-{\cvodes} memory for the integration of the backward integration is created and allocated
+The next segment of code deals with the setup of the backward problem. 
+First, a serial vector \id{yB} of length \id{NEQ} is allocated and initalized with the
+value of $\lambda$ at the final time ($0.0$). 
+A second serial vector, \id{qB} of dimension \id{NP} is created and initialized to $0.0$.
+This vector corresponds to the quadrature variables $\xi$ whose values at $t_0$ 
+are the components of the gradient of $G$ with respect to the problem parameters $p$.
+%%
+Following that, the program sets the relative and absolute tolerances for the backward integration.
+
+The {\cvodes} memory for the integration of the backward integration is created and allocated
 by the calls to the interface routines \id{CVodeCreateB} amd \id{CVodeMallocB} which 
-specify the \id{BDF} integration method with \id{NEWTON} iteration, among other things.
+specify the \id{Cv\_BDF} integration method with \id{CV\_NEWTON} iteration, among other things.
 The dense linear solver {\cvdense} is then initialized by calling the \id{CVDenseB}
 interface routine and specifying a non-\id{NULL} Jacobian routine \id{JacB} and user data
 \id{data}.
-Quadrature computation is initialized by calling \id{CVodeQuadMallocB}
-which specifies the right hand side of the quadrature equations as \id{fQB} and tolerances
-for the integration of quadrature variables.
-The preceding call to \id{CVodeSetQuadErrConB} indicates that $\xi$ should not be considered 
+
+The tolerances for the integration of quadrature variables, \id{reltolB} and
+\id{abstolQB}, are specified through \id{CVodeSetQuadTolerancesB}.
+The call to \id{CVodeSetQuadErrConB} indicates that $\xi$ should be included
 in the error test.
+Quadrature computation is initialized by calling \id{CVodeQuadMallocB}
+which specifies the right hand side of the quadrature equations as \id{fQB}.
 
 The actual solution of the backward problem is acomplished through the call to
 \id{CVodeB}. If successful, \id{CVodeB} returns the solution of the backward 
@@ -142,17 +154,16 @@ backward memory block for a new adjoint computation with a different final
 time (\id{TB2}), followed by a second call to \id{CVodeB} and, upon successful
 return, reporting of the new values for $G$ and its gradient.
 
-The main program ends by freeing previously allocated memory through calls to 
+The main program ends by freeing previously allocated memory by calling 
 \id{CVodeFree} (for the {\cvodes} memory for the forward problem), \id{CVadjFree} 
-(for the memory allocated for the combined problem), \id{N\_VFree} 
-(for the various vectors), and \id{NV\_SpecFree\_Serial} (for the three machine 
-environment variables \id{nvSpecF}, \id{nvSpecB}, and \id{nvSpecQB}).
+(for the memory allocated for the combined problem), and \id{N\_VFree\_Serial} 
+(for the various vectors).
 
 The user-supplied functions \id{f} and \id{Jac} for the right hand side and
 Jacobian of the forward problem are straightforward expressions of its 
-mathematical formulation (\ref{e:chemkin:ivp}), while \id{fB}, \id{fQB}, and \id{JacB}
-are mere translations of the backward problem
-(\ref{e:chemkin:adj})--(\ref{e:chemkin:xi})--(\ref{e:chemkin:zeta}).
+mathematical formulation (\ref{e:cvadx_ODE}). The fucntion \id{fQ} implements
+(\ref{e:cvadx_ZETA}), while \id{fB}, \id{JacB}, and \id{fQB} are mere translations 
+of the backward problem (\ref{e:cvadx_ADJ}) and (\ref{e:cvadx_XI}).
 
 The output generated by \id{cvadx} is shown below.
 
@@ -239,11 +250,11 @@ due to a perturbation $\delta u_0(x) = \delta(x-x^*)$ in the initial conditions.
 Therefore, $\mu(t_0,x)$ completely describes $\delta g(t_1)$ for any
 perturbation $\delta u_0$.
 
-The source code for this example is listed in \A\ref{ss:pvanx}. Both the forward
+The source code for this example is listed in \A\ref{s:pvanx_c}. Both the forward
 and the backward problems are solved with the option for nonstiff systems,
 i.e. using the Adams method with functional iteration for the solution of
 the nonlinear systems. The overall structure of the \id{main} function is very
-similar to that of the code \id{cvadx} (\S\ref{ss:serial_adj_ex}) with 
+similar to that of the code \id{cvadx} discussed previously with 
 differences arising from the use of the parallel vector module. Unlike 
 \id{cvadx}, the example \id{pvanx} illustrates computation of the additional
 quadrature variables by appending \id{NP} equations to the adjoint system.
@@ -282,7 +293,21 @@ This is because, during the backward integration phase, this process must
 have its own local copy of variables (such as \id{cvadj\_mem}) that were set
 only during the forward phase.
 
-Sample output generated by \id{pvanx} is shown below.
+Using \id{MX} $=40$ on 4 procesors, the gradient of $g(t_f)$ with respect to 
+the two problem parameters is obtained as $dg/dp(t_f) = [ -1.13856; -1.01023]$.
+The gradient of $g(t_f)$ with respect to the initial conditions is shown in
+Fig.~\ref{f:pvanx}. The gradient is plotted superimposed over the initial conditions.
+%%
+\begin{figure}
+  {\centerline{\psfig{figure=pvanx.eps,width=0.75\textwidth}}}
+  \caption[Results for the \id{pvanx} example problem.]
+  {Results for the \id{pvanx} example problem.
+    The gradient of $g(t_f)$ with respect to the initial conditions $u_0$ 
+    is shown superimposed over the values $u_0$.}
+  \label{f:pvanx}
+\end{figure}
+%%
+Sample output generated by \id{pvanx}, for \id{MX} $=20$, is shown below.
 
 \vspace{0.1in}
 \VerbatimInput[frame=single,framesep=0.1in,label={\tt pvanx} sample output,fontsize=\small]
