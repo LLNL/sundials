@@ -1,13 +1,12 @@
 /************************************************************************
  *                                                                      *
- * File: cvdx.c                                                         *
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and Radu Serban      * 
- *              @ LLNL                                                  *
- * Version of 25 February 2000                                          *
+ * File       : chemadj.c                                               *
+ * Programmers: Radu Serban @ LLNL                                      *
+ * Version of : 22 March 2002                                           *
  *----------------------------------------------------------------------*
- * Example problem.                                                     *
+ * Adjoint sensitivity example problem.                                 *
  * The following is a simple example problem, with the coding           *
- * needed for its solution by CVODE.  The problem is from chemical      *
+ * needed for its solution by CVODES.  The problem is from chemical     *
  * kinetics, and consists of the following three rate equations..       *
  *    dy1/dt = -p1*y1 + p2*y2*y3                                        *
  *    dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2                            *
@@ -23,20 +22,26 @@
  * Run statistics (optional outputs) are printed at the end.            *
  *                                                                      *
  * Optionally, CVODES can compute sensitivities with respect to the     *
- * problem parameters p1, p2, and p3.                                   *
- * Any of three sensitivity methods (SIMULTANEOUS, STAGGERED, and       *
- * STAGGERED1) can be used and sensitivities may be included in the     *
- * error test or not (error control set on FULL or PARTIAL,             *
- * respectively).                                                       *
+ * problem parameters p1, p2, and p3 of the following quantity:         *
+ *   G = int_t0^t1 g(t,p,y) dt                                          *
+ * where                                                                *
+ *   g(t,p,y) = y1 + p2 * y2 * y3                                       *
  *                                                                      *
- * Execution:                                                           *
+ * The gradient dG/dp is obtained as:                                   *
+ *   dG/dp = int_t0^t1 (g_p - lambda^T f_p ) dt - lambda^T(t0)*y0_p     *
+ *         = - xi^T(t0) - lambda^T(t0)*y0_p                             *
+ * where lambda and xi are solutions of:                                *
+ *   d(lambda)/dt = - (f_y)^T * lambda + (g_y)^T                        *
+ *   lambda(t1) = 0                                                     *
+ * and                                                                  *
+ *   d(xi)/dt = - (f_p)^T + (g_p)^T                                     *
+ *   xi(t1) = 0                                                         *
  *                                                                      *
- * If no sensitivities are desired:                                     *
- *    % cvsdx -nosensi                                                  *
- * If sensitivities are to be computed:                                 *
- *    % cvsdx -sensi sensi_meth err_con                                 *
- * where sensi_meth is one of {sim, stg, stg1} and err_con is one of    *
- * {full, partial}.                                                     * 
+ * During the backward integration, CVODES also evaluates G as          *
+ *   G = - phi(t0)                                                      *
+ * where                                                                *
+ *   d(phi)/dt = g(t,y,p)                                               *
+ *   phi(t1) = 0                                                        *
  *                                                                      *
  ************************************************************************/
 
@@ -45,11 +50,11 @@
 #include "llnltyps.h"
 #include "cvodea.h"
 #include "cvsdense.h"
-#include "nvector.h"
+#include "nvector_serial.h"
 #include "dense.h"
 
 
-#define Ith(v,i)    N_VIth(v,i-1)         /* Ith numbers components 1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
 
 /* Problem Constants */
@@ -99,6 +104,8 @@ static void JacB(integer NB, DenseMat JB, RhsFnB fB, void *f_dataB, real t,
 
 int main(int argc, char *argv[])
 {
+  M_Env machEnvF, machEnvB;
+
   UserData data;
 
   void *cvadj_mem;
@@ -122,8 +129,11 @@ int main(int argc, char *argv[])
   data->p[1] = 1.0e4;
   data->p[2] = 3.0e7;
 
+  /* Initialize serial machine environment for forward integration */
+  machEnvF = M_EnvInit_Serial(NEQ);
+
   /* Initialize y */
-  y = N_VNew(NEQ, NULL); 
+  y = N_VNew(NEQ, machEnvF); 
   Ith(y,1) = 1.0;                
   Ith(y,2) = 0.0;
   Ith(y,3) = 0.0;
@@ -131,7 +141,7 @@ int main(int argc, char *argv[])
   /* Set the scalar relative tolerance reltol */
   reltol = RTOL;               
   /* Set the vector absolute tolerance abstol */
-  abstol = N_VNew(NEQ, NULL); 
+  abstol = N_VNew(NEQ, machEnvF); 
   Ith(abstol,1) = ATOL1;       
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
@@ -145,7 +155,7 @@ int main(int argc, char *argv[])
   /* Allocate CVODE memory for forward run */
   printf("\nAllocate CVODE memory for forward runs\n");
   cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
-                          data, NULL, TRUE, iopt, ropt, NULL);
+                          data, NULL, TRUE, iopt, ropt, machEnvF);
   flag = CVDense(cvode_mem, Jac, NULL);
   if (flag != SUCCESS) { printf("CVDense failed.\n"); return(1); }
 
@@ -158,20 +168,15 @@ int main(int argc, char *argv[])
   
   flag = CVodeF(cvadj_mem, TOUT, y, &time, NORMAL, &ncheck);
 
-  /*
-  iopt[ISTOP] = 1;
-  ropt[TSTOP] = TOUT;
-  do {
-    flag = CVodeF(cvadj_mem, TOUT, y, &time, ONE_STEP, &ncheck);
-  } while (time<TOUT);
-  */
-
   /* Test check point linked list */
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
   CVadjCheckPointsList(cvadj_mem);
 
+  /* Initialize serial machine environment for backward run */ 
+  machEnvB = M_EnvInit_Serial(NEQ+NP+1);
+
   /* Initialize yB */
-  yB = N_VNew(NEQ+NP+1, NULL);
+  yB = N_VNew(NEQ+NP+1, machEnvB);
   Ith(yB,1) = 0.0;
   Ith(yB,2) = 0.0;
   Ith(yB,3) = 0.0;
@@ -183,7 +188,7 @@ int main(int argc, char *argv[])
   /* Set the scalar relative tolerance reltolB */
   reltolB = RTOL;               
   /* Set the vector absolute tolerance abstolB */
-  abstolB = N_VNew(NEQ+NP+1, NULL); 
+  abstolB = N_VNew(NEQ+NP+1, machEnvB); 
   Ith(abstolB,1) = ATOL1;       
   Ith(abstolB,2) = ATOL2;
   Ith(abstolB,3) = ATOL3;
@@ -196,7 +201,7 @@ int main(int argc, char *argv[])
   printf("\nAllocate CVODE memory for backward run\n");
   flag = CVodeMallocB(cvadj_mem, NEQ+NP+1, fB, yB, BDF, NEWTON, SV, 
                       &reltolB, abstolB, data, NULL, 
-                      FALSE, NULL, NULL, NULL);
+                      FALSE, NULL, NULL, machEnvB);
   flag = CVDenseB(cvadj_mem, JacB, NULL);
   if (flag != SUCCESS) { printf("CVDenseB failed.\n"); return(1); }
 
@@ -204,8 +209,8 @@ int main(int argc, char *argv[])
   flag = CVodeB(cvadj_mem, yB);
 
   printf("\n\n========================================================\n");
-  printf("G:  %12.4e \n",-yB->data[6]);
-  printf("Gp: %12.4e %12.4e %12.4e\n", -yB->data[3], -yB->data[4], -yB->data[5]);
+  printf("G:  %12.4e \n",-Ith(yB,7));
+  printf("Gp: %12.4e %12.4e %12.4e\n", -Ith(yB,4), -Ith(yB,5), -Ith(yB,6));
   printf("========================================================\n");
 
   /* Free memory */
@@ -217,6 +222,8 @@ int main(int argc, char *argv[])
   N_VFree(abstol);
   N_VFree(abstolB);
   free(data);
+  M_EnvFree_Serial(machEnvF);
+  M_EnvFree_Serial(machEnvB);
 
   return(0);
 
