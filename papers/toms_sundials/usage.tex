@@ -17,7 +17,7 @@ Additionally, SUNDIALS provides the user with a fine level of control
 over various algorithmic parameters, heuristic values, and data
 structure pointers contained within the codes.
 Finally, SUNDIALS provides optional routines for extracting the
-solution, solver statistics and other useful information from the codes.
+solution, solver statistics, and other useful information from the codes.
 
 A general approach for using SUNDIALS is given below. 
 The outline conveys the basic elements of what is needed to properly
@@ -48,7 +48,7 @@ specification data structure so that new vectors can be created as needed.
 
 \item \label{sun_size}
 To completely specify the problem, the user must define the problem
-size, give whatever initial guesses and/or initial values that are
+size, give whatever initial guesses and/or initial values are
 needed, specify solution error tolerances, and so on. 
 
 \item \label{sun_create}
@@ -62,7 +62,8 @@ structure to be passed in evaluating the user's function.
 \item \label{sun_set}
 At this stage, the default values in the solver memory block can be
 changed if so desired. Choices and default values are given in
-Table~\ref{t:optional_input} for each of the basic solvers.
+Table~\ref{t:optional_input} for each of the basic solvers, and
+are discussed further below.
 
 \item \label{sun_malloc}
 After checking the initialized memory block for
@@ -115,7 +116,7 @@ adjoint sensitivity analysis for CVODES, the reader is referred to~\cite{SeHi:03
 For a parallel machine environment, the MPI header file must be
 specified in Step~\ref{sun_headers} so that in Step~\ref{sun_size}: the MPI
 communicator can be initialized, the set of active processors can be
-established; and the global and local vector lengths can be set.
+established, and the global and local vector lengths can be set.
 In Step~\ref{sun_finalize}, memory allocated for MPI must be freed.
 
 \subsection{Optional inputs and outputs}\label{ss:optional_io}
@@ -236,7 +237,7 @@ Also, a pointer can be set so that user data is passed each time this
 user-supplied routine is called. In addition, for the SPGMR case,
 the following can be optionally changed from their default values
 (provided in parentheses): a classical Gram-Schmidt orthogonalization 
-can be used (modified Gram-Schmidt), the factor by which the tolerance on the
+(modified Gram-Schmidt), the factor by which the tolerance on the
 nonlinear iteration is multiplied to get a tolerance on the linear
 iteration (0.05), the preconditioner setup routine (NULL), the
 preconditioner solver routine (NULL), and a pointer to the user
@@ -245,7 +246,7 @@ preconditioner data (NULL).
 The optional outputs for any of the linear solvers are: the amount of 
 integer and real workspace used; the number of calls made to the user-supplied 
 Jacobian evaluation routine; and the number of calls to the user's function 
-due to the default difference quotient routine.
+within the default difference quotient routine.
 In addition, for the SPGMR case, the user can obtain the number of preconditioner
 evaluations, the number of calls made to the preconditioner solve
 routine, the number of linear iterations, and the number of linear
@@ -259,15 +260,14 @@ the user's function.
 \subsection{Fortran Usage} 
 \label{ss:Fortran_usage}
 
-Some support is available for using Fortran77 applications with SUNDIALS.
-In particular, a Fortran/C interface package is provided with CVODE
-and KINSOL.
-Each package is a collection of C header files and functions which
-enables the user to write a main program and all user-supplied
-routines in Fortran77, and then use either CVODE or KINSOL to solve the
-problem.
-This mixed-language capability entails some compromises in
-portability, such as requiring fixed names for the user-supplied
-routines, but the restrictions are minor.
-For complete details, see the user documentation for each of the solvers 
-in SUNDIALS (\cite{HiSe:03a}, \cite{HiSe:03c}).
+Some support is available for using Fortran77 applications with
+SUNDIALS.  In particular, a Fortran/C interface package is provided
+with CVODE and KINSOL.  Each package is a collection of C header files
+and functions which provide interfaces from user Fortran routines to
+solver C routines, and the reverse.  These enable the user to write a
+main program and all user-supplied routines in Fortran77, and then use
+either CVODE or KINSOL to solve the problem.  This mixed-language
+capability entails some compromises in portability, such as requiring
+fixed names for the user-supplied routines, but the restrictions are
+minor.  For complete details, see the user documentation for each of
+the solvers in SUNDIALS (\cite{HiSe:03a}, \cite{HiSe:03c}).
