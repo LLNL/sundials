@@ -121,19 +121,19 @@ extern "C" {
  * The implementation of this function must have type CVLocalFn.  *
  *                                                                *
  * This function takes as input the local vector size Nlocal, the *
- * independent variable value t, the local real dependent         *
- * variable vector ylocal, and a pointer to the user-defined data *
- * block f_data.  It is to compute the local part of g(t,y) and   *
- * store this in the vector glocal.                               *
- * (Allocation of memory for ylocal and glocal is handled within  *
- * the preconditioner module.)                                    *
+ * independent variable value t, the dependent variable vector    *
+ * ylocal, and a pointer to the user-defined data block f_data.   *
+ * It is to compute the local part of g(t,y) and store this in    *
+ * the vector glocal.                                             *
+ * (Allocation of memory for y and glocal is handled within the   *
+ * preconditioner module.)                                        *
  * The f_data parameter is the same as that specified by the user *
  * through the CVodeSetFdata routine.                             *
  * A CVLocalFn gloc does not have a return value.                 *
  ******************************************************************/
 
 typedef void (*CVLocalFn)(integertype Nlocal, realtype t, 
-                          N_Vector ylocal, N_Vector glocal, 
+                          N_Vector y, N_Vector glocal, 
                           void *f_data);
 
 /******************************************************************

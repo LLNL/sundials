@@ -436,21 +436,6 @@ enum {CVM_NO_MEM = -1, CVM_MEM_FAIL=-2, CVM_ILL_INPUT = -3};
  * is unchanged (or changed from ADAMS to BDF) and the default    *
  * value for maxord is specified.                                 *
  *                                                                *
- * If iter=NEWTON, then following the call to CVodeReInit, a call *
- * to the linear solver specification routine is necessary if a   *
- * different linear solver is chosen, but may not be otherwise.   *
- * If the same linear solver is chosen, and there are no changes  *
- * in the input parameters to the specification routine, then no  *
- * call to that routine is needed. Similarly for the optional     *
- * inputs to the linear solver.                                   *
- * If there are changes in parameters, but they do not increase   *
- * the linear solver memory size, then a call to the corresponding*
- * CVReInit<linsol> routine must made to communicate the new      *
- * parameters; in that case the linear solver memory is reused.   *
- * If the parameter changes do increase the linear solver memory  *
- * size, then the main linear solver specification routine must be*
- * called.  See the linear solver documentation for full details. *
- *                                                                *
  * The first argument to CVodeReInit is:                          *
  *                                                                *
  * cvode_mem = pointer to CVODES memory returned by CVodeMalloc.  *
@@ -460,7 +445,11 @@ enum {CVM_NO_MEM = -1, CVM_MEM_FAIL=-2, CVM_ILL_INPUT = -3};
  *                                                                *
  * The return value of CVodeReInit is equal to SUCCESS = 0 if     *
  * there were no errors; otherwise it is a negative int equal to: *
- *   CVREI_NO_MEM     indicating cvode_mem was NULL, or           *
+ *   CVREI_NO_MEM     indicating cvode_mem was NULL (i.e.,        *
+ *                    CVodeCreate has not been called).           *
+ *   CVREI_NO_MALLOC  indicating that cvode_mem has not been      *
+ *                    allocated (i.e., CVodeMalloc has not been   *
+ *                    called).                                    *
  *   CVREI_ILL_INPUT  indicating an input argument was illegal    *
  *                    (including an attempt to increase maxord).  *
  * In case of an error return, an error message is also printed.  *
@@ -889,7 +878,7 @@ int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused);
 int CVodeGetLastStep(void *cvode_mem, realtype *hlast);
 int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur);
 int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur);
-int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact);
+int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfac);
 int CVodeGetErrWeights(void *cvode_mem, N_Vector *eweight);
 int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele);
  
