@@ -37,7 +37,7 @@ fi
 #------------
 if [ $err = "T" -o $hlp = "T" ]
 then
-    echo "Usage: tarsundials [option | file]"
+    echo "Usage: tarcvodes [option | file]"
     echo "   -a      : both serial and parallel"
     echo "   -s      : serial"
     echo "   -p      : parallel"
@@ -70,7 +70,12 @@ fi
 #----------------
 
 cd ../..
-echo "Generate tar file $PWD/$filename"
+if [ $fnm != "T" ]
+then
+    echo "Generate tar file $PWD/$filename"
+else
+    echo "Generate tar file $filename"
+fi
 
 # Add top level files
 #--------------------
@@ -170,22 +175,38 @@ if [ $ser = "T" ]
 then
     tar uf $filename sundials/cvodes/examples/cvx_ser.mk
     tar uf $filename sundials/cvodes/examples/cvdx.c
+    tar uf $filename sundials/cvodes/examples/cvdx.out
     tar uf $filename sundials/cvodes/examples/cvbx.c
+    tar uf $filename sundials/cvodes/examples/cvbx.out
     tar uf $filename sundials/cvodes/examples/cvkx.c
+    tar uf $filename sundials/cvodes/examples/cvkx.out
     tar uf $filename sundials/cvodes/examples/cvkxb.c
+    tar uf $filename sundials/cvodes/examples/cvkxb.out
     tar uf $filename sundials/cvodes/examples/cvdemd.c
+    tar uf $filename sundials/cvodes/examples/cvdemd.out
     tar uf $filename sundials/cvodes/examples/cvdemk.c
+    tar uf $filename sundials/cvodes/examples/cvdemk.out
 
-    tar uf $filename sundials/cvodes/fwd_examples/cvsx_ser.mk
-    tar uf $filename sundials/cvodes/fwd_examples/cvsdx.c
-    tar uf $filename sundials/cvodes/fwd_examples/cvsnx.c
-    tar uf $filename sundials/cvodes/fwd_examples/cvskx.c
+    tar uf $filename sundials/cvodes/fwd_examples/cvfx_ser.mk
+    tar uf $filename sundials/cvodes/fwd_examples/cvfdx.c
+    tar uf $filename sundials/cvodes/fwd_examples/cvfdx.out1
+    tar uf $filename sundials/cvodes/fwd_examples/cvfdx.out2
+    tar uf $filename sundials/cvodes/fwd_examples/cvfnx.c
+    tar uf $filename sundials/cvodes/fwd_examples/cvfnx.out1
+    tar uf $filename sundials/cvodes/fwd_examples/cvfnx.out2
+    tar uf $filename sundials/cvodes/fwd_examples/cvfkx.c
+    tar uf $filename sundials/cvodes/fwd_examples/cvfkx.out1
+    tar uf $filename sundials/cvodes/fwd_examples/cvfkx.out2
 
     tar uf $filename sundials/cvodes/adj_examples/cvax_ser.mk
-    tar uf $filename sundials/cvodes/adj_examples/adadj.c
-    tar uf $filename sundials/cvodes/adj_examples/chemadj.c
-    tar uf $filename sundials/cvodes/adj_examples/foodadj.c
-    tar uf $filename sundials/cvodes/adj_examples/foodadj1.c
+    tar uf $filename sundials/cvodes/adj_examples/cvadx.c
+    tar uf $filename sundials/cvodes/adj_examples/cvadx.out
+    tar uf $filename sundials/cvodes/adj_examples/cvabx.c
+    tar uf $filename sundials/cvodes/adj_examples/cvabx.out
+    tar uf $filename sundials/cvodes/adj_examples/cvakx.c
+    tar uf $filename sundials/cvodes/adj_examples/cvakx.out
+    tar uf $filename sundials/cvodes/adj_examples/cvakxb.c
+    tar uf $filename sundials/cvodes/adj_examples/cvakxb.out
 fi
 
 
@@ -193,14 +214,23 @@ if [ $par = "T" ]
 then
     tar uf $filename sundials/cvodes/examples/cvx_par.mk
     tar uf $filename sundials/cvodes/examples/pvnx.c
+    tar uf $filename sundials/cvodes/examples/pvnx.out
     tar uf $filename sundials/cvodes/examples/pvkx.c
+    tar uf $filename sundials/cvodes/examples/pvkx.out
     tar uf $filename sundials/cvodes/examples/pvkxb.c
+    tar uf $filename sundials/cvodes/examples/pvkxb.out
 
-    tar uf $filename sundials/cvodes/fwd_examples/cvsx_par.mk
-    tar uf $filename sundials/cvodes/fwd_examples/pvsnx.c
-    tar uf $filename sundials/cvodes/fwd_examples/pvskx.c
+    tar uf $filename sundials/cvodes/fwd_examples/cvfx_par.mk
+    tar uf $filename sundials/cvodes/fwd_examples/pvfnx.c
+    tar uf $filename sundials/cvodes/fwd_examples/pvfnx.out1
+    tar uf $filename sundials/cvodes/fwd_examples/pvfnx.out2
+    tar uf $filename sundials/cvodes/fwd_examples/pvfkx.c
+    tar uf $filename sundials/cvodes/fwd_examples/pvfkx.out1
+    tar uf $filename sundials/cvodes/fwd_examples/pvfkx.out2
 
     tar uf $filename sundials/cvodes/adj_examples/cvax_par.mk
+    tar uf $filename sundials/cvodes/adj_examples/pvanx.c
+    tar uf $filename sundials/cvodes/adj_examples/pvanx.out
 fi
 
 
