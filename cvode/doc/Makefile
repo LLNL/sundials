@@ -14,6 +14,10 @@ doc:
 	cp $(SHARED_DOC)/types.tex .
 	cp $(SHARED_DOC)/bandmat.eps .
 	cp $(SHARED_DOC)/sunorg.eps .
+	cp $(SHARED_DOC)/llnlCoverPage.tex .
+	cp $(SHARED_DOC)/Logo_for_papers.ps .
+	cp $(SHARED_DOC)/Rule_and_address.ps .
+	cp $(SHARED_DOC)/chngpage.sty .
 	latex cv_guide
 	latex cv_guide
 	makeindex -s cv_indx.ist cv_guide
@@ -32,6 +36,7 @@ clean:
 	rm -f sunorg.eps
 	rm -f sun_org.tex
 	rm -f types.tex
+	rm -f llnlCoverPage.tex Logo_for_papers.ps Rule_and_address.ps chngpage.sty
 	rm -f *~ *.aux *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
 #	rm -f cvs_guide.ps cvs_guide.pdf
 

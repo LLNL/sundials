@@ -2,6 +2,12 @@
 
 \usepackage{epsfig, supertabular, makeidx}
 \usepackage{amsmath}
+
+% Packages needed for the cover page
+\usepackage{calc, epsfig, chngpage}
+\input{pstricks}\input{pst-node}\input{llnlCoverPage}
+
+% Package useful for debuging
 %\usepackage{showlabels}
 
 %----- Page formatting
@@ -11,7 +17,9 @@
 \setlength{\textheight}{8.5in}
 
 %----- Date and release info
-\newcommand{\cvsdate}{\date{???? 2003\\Release 2.1}}
+\newcommand{\cvucrl}{123456}
+\newcommand{\cvdate}{May 2003}
+\newcommand{\cvrelease}{Version 2.1}
 
 %----- SUNDIALS MODULES
 \newcommand{\sundials}{{\normalfont\scshape sundials}}
@@ -31,13 +39,14 @@
 \newcommand{\vodpk}{{\normalfont\scshape vodpk}}
 \newcommand{\lsode}{{\normalfont\scshape lsode}}
 
-%----- CVODES COMPONENTS
+%----- CVODE COMPONENTS
 \newcommand{\cvdense}{{\normalfont\scshape cvdense}}
 \newcommand{\cvband}{{\normalfont\scshape cvband}}
 \newcommand{\cvdiag}{{\normalfont\scshape cvdiag}}
 \newcommand{\cvspgmr}{{\normalfont\scshape cvspgmr}}
 \newcommand{\cvbandpre}{{\normalfont\scshape cvbandpre}}
 \newcommand{\cvbbdpre}{{\normalfont\scshape cvbbdpre}}
+\newcommand{\fcvode}{{\normalfont\scshape fcmix}}
 \newcommand{\stald}{{\normalfont\scshape stald}}
 
 %----- SHARED COMPONENTS
@@ -72,16 +81,21 @@
 \newcommand{\rhomax}{\rho_{\max}}
 
 \title{User Documentation for \cvode, \\ 
-An ODE Solver for Serial and Parallel Computers}
-\author{
-Alan C. Hindmarsh \and
-Radu Serban
-}
-\cvsdate
+An ODE Sover for Serial and Parallel Computers \\
+\cvrelease}
+\author{Alan C. Hindmarsh and Radu Serban}
+\date{}
 
 \makeindex
 
 \begin{document}
+
+%Create the LLNL Cover Page
+\makeLLNLCover{\cvucrl}%                              UCRL number
+{User Documentation for {\cvode} \\ {\cvrelease}}%    Title on cover page
+{Alan C. Hindmarsh and Radu Serban}%                  Authors
+{\cvdate}%                                            Date
+{0in}{0in}
 
 % First a title page without page number
 \maketitle\thispagestyle{empty}
@@ -90,40 +104,11 @@ Radu Serban
 {\large\em Center for Applied Scientific Computing} \\
 {\large\em Lawrence Livermore National Laboratory}\\
 \vspace{0.1in}\\
-UCRL-MA-???????%\\
-%July 2002
-% Move to new page and add disclaimer
+UCRL-MA-{\cvucrl}%
+
+% Leave an empty page
 \newpage\thispagestyle{empty}
 \vspace*{1.0in}
-\begin{center}
-\begin{minipage}{4.0in}
-\scriptsize
-\centerline{DISCLAIMER}
-This document was prepared as an account of work sponsored by an
-agency of the United States Government.
-Neither the United States Government nor the University of California
-nor any of their employees, makes any warranty, express or implied, or
-assumes any legal liability or responsibility for the accuracy,
-completeness, or usefulness of any information, apparatus, product, or
-process disclosed, or represents that its use would not infringe
-privately owned rights.
-Reference herein to any specific commercial products, process, or
-service by trade name, trademark, manufacturer, or otherwise, does not
-necessarily constitute or imply its endorsement, recommendation, or
-favoring by the United States Government or the University of
-California.
-The views and opinions of authors expressed herein do not necessarily
-state or reflect those of the United States Government or the
-University of California, and shall not be used for advertising or
-product endorsement purposes.  
-
-\vspace*{0.2in}
-
-Work performed under the auspicies of the U.S. Department of Energy by the 
-University of California Lawrence Livermore National Laboratory under Contract W-7405-Eng-48.
-\par\vspace*{1.0in}
-\end{minipage}
-\end{center}
 
 % Move to next page and start roman numbering
 \newpage\pagestyle{plain}\pagenumbering{roman}
@@ -134,7 +119,7 @@ University of California Lawrence Livermore National Laboratory under Contract W
 \listoffigures
 
 % Leave a blank page to get page numbers right for double printing.
-\newpage\thispagestyle{empty}\vspace*{1in}
+%\newpage\thispagestyle{empty}\vspace*{1in}
 
 % Move to new page and start arabic numbering
 \newpage\pagestyle{plain}\pagenumbering{arabic}
@@ -177,5 +162,9 @@ University of California Lawrence Livermore National Laboratory under Contract W
 % Start appendices
 \appendix
 \include{cv_codes}
+%===============================================================
+% Leave a blank page to get page numbers right for double printing.
+\newpage\thispagestyle{empty}\vspace*{1in}
+\makeLLNLBackCover
 %===============================================================
 \end{document}
