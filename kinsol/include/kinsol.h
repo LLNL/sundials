@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-11-17 00:49:01 $
+ * $Revision: 1.23 $
+ * $Date: 2004-12-06 20:10:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -679,9 +679,9 @@ void KINFree(void *kinmem);
  * -----------------------------------------------------------------
  * kin_lsetup interfaces with the user-supplied pset subroutine (the
  * preconditioner setup routine), and updates relevant variable
- * values (see KINSpgmrSetup). Simply stated, the kin_lsetup routine
- * prepares the linear solver for a subsequent call to the
- * user-supplied kin_lsolve function.
+ * values (see KINSpgmrSetup/KINSpbcgSetup). Simply stated, the
+ * kin_lsetup routine prepares the linear solver for a subsequent
+ * call to the user-supplied kin_lsolve function.
  *
  *  kinmem  pointer to an internal memory block allocated during
  *          prior calls to KINCreate and KINMalloc
@@ -703,7 +703,7 @@ void KINFree(void *kinmem);
  * and must increment the relevant counter variable values in
  * addition to computing certain values used by the global strategy
  * and forcing term routines (see KINInexactNewton, KINLineSearch,
- * KINForcingTerm, and KINSpgmrSolve).
+ * KINForcingTerm, and KINSpgmrSolve/KINSpbcgSolve).
  *
  *  kinmem  pointer to an internal memory block allocated during
  *          prior calls to KINCreate and KINMalloc
@@ -733,7 +733,7 @@ void KINFree(void *kinmem);
  * -----------------------------------------------------------------
  * kin_lfree is called by KINFree and should free (deallocate) all
  * system memory resources allocated for the linear solver module
- * (see KINSpgmrFree).
+ * (see KINSpgmrFree/KINSpbcgFree).
  *
  *  kinmem  pointer to an internal memory block allocated during
  *          prior calls to KINCreate and KINMalloc
