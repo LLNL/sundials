@@ -61,8 +61,8 @@ understand answers to questions like: ``Which parameters are
 most influencial?'', ``How can parameters be adjusted to better 
 match experimental data?'', and ``What is the uncertainty in solutions 
 given uncertainty in data?''  Sensitivity analysis provides 
-information about the relationship of simulation results and model data 
- which can be critcal to answering these questions.  In addition, for 
+information about the relationship between simulation results and model 
+data which can be critcal to answering these questions.  In addition, for 
 a given parameter, sensitivities can be computed in a modest multiple of 
 the computing time of the simulation itself.  
 The SUNDIALS suite is being expanded to 
@@ -70,24 +70,25 @@ include forward and adjoint sensitivity versions of the solvers.
 The first of these, CVODES, is complete.  A brief description of the
 strategy for adding sensitivity analysis in a way that respects the
 user interfaces of the SUNDIALS codes is contained in this paper, and 
-a more thorough description of the CVODES package is contained in a sister 
-paper \cite{SeHi:03}.
+a more thorough description of the CVODES package is contained in a 
+companion paper \cite{SeHi:03}.
 
 The rest of this paper is organized as follows.  In Section 
 \ref{s:basic_solvers} the algorithms contained in the three 
 core SUNDIALS solvers are presented.  
 We have attempted to capture many of the heuristics related to 
 stopping criteria and finite-difference parameter selection
-where appropriate as these items are generally not included in 
-user documentation.  In Section \ref{s:preconditioning}, the
+where appropriate as these items 
+can sometimes affect algorithm performance significantly.
+In Section \ref{s:preconditioning}, the
 preconditioning packages supplied with the SUNDIALS suite are
 described.  Section \ref{s:sensitivity_analysis} overviews
 the CVODES package and strategies for adding sensitivity 
 capabilities to the codes.  Sections \ref{s:organization} and 
 \ref{s:usage} describe the organization of the codes within the 
-suite and the philosophy of the user interface.  Lastly, 
-applications and availability of the codes are given in 
-Sections \ref{s:applications} and \ref{s:availability}.  Some
+suite and the philosophy of the user interface.   
+Availability of the codes is given in 
+Section \ref{s:availability}.  Lastly, some
 concluding remarks and indication of future development
 are contained in the last section.
 
