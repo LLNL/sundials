@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-06-02 23:04:40 $
+ * $Revision: 1.17 $
+ * $Date: 2004-06-09 15:52:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -1555,14 +1555,30 @@ static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
  * The routine KINLineSearch implements the LineSearch algorithm.
  * Its purpose is to find unew = uu + rl * pp in the direction pp
  * from uu so that:
- *                                     t
- *   func(unew) <= func(uu) + alpha * g  (unew - uu) (alpha = 1.e-4)
- *
- *        and
  *                                    t
- *   func(unew) >= func(uu) + beta * g  (unew - uu) (beta = 0.9)
+ *  func(unew) <= func(uu) + alpha * g  (unew - uu) (alpha = 1.e-4)
  *
- *    where 0 < rl <= 1.
+ *    and
+ *                                   t
+ *  func(unew) >= func(uu) + beta * g  (unew - uu) (beta = 0.9)
+ *
+ * where 0 < rlmin <= rl <= rlmax.
+ *
+ * Note:
+ *             mxnewtstep
+ *  rlmax = ----------------   if uu+pp does not violateany constraints
+ *          ||uscale*pp||_L2
+ *
+ *  rlmax = 1   otherwise
+ *
+ *    and
+ *
+ *                 scsteptol
+ *  rlmin = ------------------------
+ *          ||         pp         ||
+ *          || ------------------ ||_L-infinity
+ *          || (uscale + ABS(uu)) ||
+ *
  * -----------------------------------------------------------------
  */
 
