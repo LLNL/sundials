@@ -64,7 +64,18 @@ C. References
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
     accepted, 2004.
 
-D.1. Revision History since release 1.0 (July 2002)
+D.1. Revision History since release 2.1.0 (November 2004)
+---------------------------------------------------------
+
+- New features
+   - added CVSPBCG interface module to allow CVODES to interface with the
+     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
+
+- Changes to user-callable functions
+   - added CVSPBCG module which defines appropriate CVSpbcg* functions to
+     allow CVODES to interface with the shared SPBCG linear solver module.
+
+D.2. Revision History since release 1.0 (July 2002)
 ---------------------------------------------------
 
 - New features
