@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-11-16 22:10:21 $
+ * $Revision: 1.11 $
+ * $Date: 2004-11-24 23:03:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -477,10 +477,10 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
   realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
   realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   realtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
-  int group, ngroups;
+  int group;
   
   N_Vector rtemp, ytemp, yptemp;
-  long int i, j, i1, i2, width;
+  long int i, j, i1, i2, width, ngroups;
   int retval = IDABAND_SUCCESS;
 
   IDAMem IDA_mem;

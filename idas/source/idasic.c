@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-11-05 23:55:11 $
+ * $Revision: 1.10 $
+ * $Date: 2004-11-24 23:03:44 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -405,7 +405,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
 
   /* Compute the norm of the step; return now if this is small. */
   fnorm = IDAWrmsNorm(IDA_mem, delta, ewt, FALSE);
-  if (sysindex == 0) fnorm *= tscale*abs(cj);
+  if (sysindex == 0) fnorm *= tscale*ABS(cj);
   if (fnorm <= epsNewt) return(IDA_SUCCESS);
   fnorm0 = fnorm;
 
@@ -568,7 +568,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
 
   /* Compute the WRMS-norm; rescale if index = 0. */
   *fnorm = IDAWrmsNorm(IDA_mem, delnew, ewt, FALSE);
-  if (sysindex == 0) (*fnorm) *= tscale*abs(cj);
+  if (sysindex == 0) (*fnorm) *= tscale*ABS(cj);
 
   return(IDA_SUCCESS);
 

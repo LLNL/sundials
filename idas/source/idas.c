@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2004-11-23 18:48:22 $
+ * $Revision: 1.35 $
+ * $Date: 2004-11-24 23:03:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3064,7 +3064,8 @@ static int IDAStep(IDAMem IDA_mem)
 
 static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
 {
-  int i, is;
+  long int i;
+  int is;
   realtype temp1, temp2, alpha0, alphas;
   
   /* Set coefficients for the current stepsize h */
@@ -4032,7 +4033,8 @@ static int IDAStgr1TestError(IDAMem IDA_mem, int is, realtype ck,
 
 static void IDARestore(IDAMem IDA_mem, realtype saved_t)
 {
-  int j, is;
+  long int j;
+  int is;
 
   tn = saved_t;
   

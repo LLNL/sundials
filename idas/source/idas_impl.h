@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-11-23 18:48:22 $
+ * $Revision: 1.9 $
+ * $Date: 2004-11-24 23:03:44 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -18,8 +18,8 @@
 extern "C" {
 #endif
 
-#ifndef _idas_impl_h
-#define _idas_impl_h
+#ifndef _IDAS_IMPL_H
+#define _IDAS_IMPL_H
 
 #include <stdio.h>
 
@@ -253,7 +253,7 @@ typedef struct IDAMemRec {
   int ida_maxnef;        /* max number of error test failures                 */
 
   int ida_maxord;        /* max value of method order k:                      */
-  int ida_mxstep;        /* max number of internal steps for one user call    */
+  long int ida_mxstep;   /* max number of internal steps for one user call    */
   realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
 
   int ida_maxcorS;       /* max number of Newton corrections for sensitivity
