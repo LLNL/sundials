@@ -934,7 +934,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 {
   The function \ID{CVodeSetMaxNumSteps} specifies the maximum number
   of steps to be taken by the solver in its attempt to reach 
-  the final time.
+  the next output time.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1350,7 +1350,7 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
   The integration tolerances are initially specified in the call
   to \id{CVodeMalloc} (see \S\ref{sss:cvodemalloc}). This function call is
   needed only if the tolerances are being changed from their values between
-  succesive calls to \id{CVode}.
+  successive calls to \id{CVode}.
 }
 %%
 \index{optional input!solver|)}
@@ -1546,18 +1546,9 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{optional input!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
-The call to \id{CVSpgmr} is used to communicate the type of preconditioning 
-(\id{pretype}) and the maximum dimension of the Krylov subspace to be used
-(\id{maxl}).  The \id{pretype} parameter can be \id{PREC\_NONE},
-\id{PREC\_LEFT}, \id{PREC\_RIGHT}, or \id{PREC\_BOTH}.
-If no preconditioning is desired, pass \id{PREC\_NONE} for \id{pretype}.
-Otherwise, a preconditioner solve function \id{psolve} is required.  
-Regardless of the type of preconditioning, a preconditioner setup function 
-\id{psetup} is sometimes useful, but is {\em not} required. 
-
 If any type of preconditioning is to be done within the {\spgmr} method,
 then the user must supply a preconditioner solve function \id{psolve}
-and specify it through a call to \id{CVSpgmrSetPrecSolveFn}.
+and specify its name through a call to \id{CVSpgmrSetPrecSolveFn}.
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner solve function}
 %%
 The evaluation and preprocessing of any Jacobian-related data needed
@@ -1895,8 +1886,8 @@ The call to the \id{CVodeGetDky} function has the following form:
   The function \ID{CVodeGetDky} computes the \id{k}-th derivative of the \id{y}
   function at time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$
   \id{t} $\le t_n$, $t_n$ denotes the current internal time reached, and $h_u$
-  is the  last internal step size successfully used by the solver.  The 
-  user may request \id{k} $= 0, 1, ..., q_u$, where $q_u$ is the current order. 
+  is the  last internal step size successfully used by the solver.  The user 
+  may request \id{k} $= 0, 1, \ldots, q_u$, where $q_u$ is the current order. 
 }
 {
   \begin{args}[cvode\_mem]
@@ -1928,9 +1919,9 @@ The call to the \id{CVodeGetDky} function has the following form:
 }
 {
   It is only legal to call the function \id{CVodeGetDky} after a 
-  successful return from \id{CVode}. See \id{CVodeGetLastOrder} 
-  and \id{CVodeGetLastStep} in the next section for access to 
-  $q_u$ and $h_u$.
+  successful return from \id{CVode}. See \id{CVodeGetCurrentTime},
+  \id{CVodeGetLastOrder}, and \id{CVodeGetLastStep} in the next section for
+  access to $t_n, $q_u$, and $h_u$, respectively.
 }
 
 %%==============================================================================
