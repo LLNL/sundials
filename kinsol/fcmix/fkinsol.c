@@ -52,7 +52,7 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
     if(iopt[0]>0) KINSetPrintLevel(KIN_mem, (int) iopt[0]);
     if(iopt[1]>0) KINSetNumMaxIters(KIN_mem, iopt[1]);
     if(iopt[2]>0) KINSetNoPrecInit(KIN_mem, TRUE);
-    if(iopt[7]>0) KINSetEtaForm(KIN_mem, (int) iopt[7]);
+    if(iopt[7]>=0) KINSetEtaForm(KIN_mem, (int) iopt[7]);
     if(iopt[8]>0) KINSetNoMinEps(KIN_mem, TRUE);
 
     if(ropt[0]>0.0) KINSetMaxNewtonStep(KIN_mem, ropt[0]);
