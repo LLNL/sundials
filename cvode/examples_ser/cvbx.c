@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-08-25 22:28:21 $
+ * $Revision: 1.13 $
+ * $Date: 2004-08-30 22:56:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -9,7 +9,7 @@
  * Example problem:
  *
  * The following is a simple example problem with a banded Jacobian,
- * with the program for its solution by CVODE/CVODES.
+ * with the program for its solution by CVODE.
  * The problem is the semi-discrete form of the advection-diffusion
  * equation in 2-D:
  *   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2
