@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-06-02 23:07:46 $
+ * $Revision: 1.14 $
+ * $Date: 2004-06-30 17:52:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                 Radu Serban @ LLNL
@@ -299,7 +299,7 @@ int KINSpgmrSetJacData(void *kinmem, void *J_data);
  *                            | storage)
  *                            |
  * KINSpgmrGetRealWorkSpace   | real workspace size (total number
- *                            | of double-sized blocks of memory
+ *                            | of realtype-sized blocks of memory
  *                            | allocated by KINSPGMR for vector
  *                            | storage)
  *                            |

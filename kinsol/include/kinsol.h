@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-06-02 23:07:46 $
+ * $Revision: 1.15 $
+ * $Date: 2004-06-30 17:52:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -615,7 +615,7 @@ enum { SUCCESS = 0, KINSOL_NO_MEM = -1, KINSOL_NO_MALLOC = -2,
  *                           | storage)
  *                           |
  * KINGetRealWorkSpace       | real workspace size (total number of
- *                           | double-sized blocks of memory
+ *                           | realtype-sized blocks of memory
  *                           | allocated by KINSOL for vector
  *                           | storage)
  *                           |
