@@ -23,17 +23,17 @@ methods, based on formulas of the form
  \sum_{i = 0}^{K_1} \alpha_{n,i} y_{n-i} +
      h_n \sum_{i = 0}^{K_2} \beta_{n,i} \dot{y}_{n-i} = 0 \, .
 \end{equation*}
-Here the $y_n$ are computed approximations to $y(t_n)$, and
-$h_n = t_n - t_{n-1}$ is the step size.  The user of CVODE must choose
-appropriately one of two families multistep formulas.  For nonstiff problems,
-CVODE includes the Adams-Moulton formulas, characterized by $K_1 = 1$
-and $K_2 = q$ above, where the order $q$ varies between $1$ and $12$.
-For stiff problems, CVODE includes the Backward Differentiation
-Formulas (BDFs) in so-called fixed-leading coefficient form, given by
-$K_1 = q$ and $K_2 = 0$, with order $q$ varying between $1$ and $5$.
-The coefficients are uniquely determined by the method type, its
-order, the recent history of the step sizes (the last $q$ values),
-and the normalization $\alpha_{n,0} = -1$.  See \cite{ByHi:75} and
+Here the $y_n$ are computed approximations to $y(t_n)$, and $h_n = t_n -
+t_{n-1}$ is the step size.  The user of CVODE must choose appropriately from
+one of two families of multistep formulas.  For nonstiff problems, CVODE
+includes the Adams-Moulton formulas, characterized by $K_1 = 1$ and $K_2 =
+q$ above, where the order $q$ varies between $1$ and $12$.  For stiff
+problems, CVODE includes the Backward Differentiation Formulas (BDFs) in
+so-called fixed-leading coefficient form, given by $K_1 = q$ and $K_2 = 0$,
+with order $q$ varying between $1$ and $5$.  The coefficients are uniquely
+determined by the method type, its order, the recent history of the step
+sizes (the last $q$ values), and the normalization $\alpha_{n,0} = -1$.  See
+\cite{ByHi:75} and
 \cite{JaSD:80}.
 
 % Nonlinear system
@@ -99,7 +99,7 @@ tolerances {\sc atol}$_i$ input by the user, namely
  W_i = \mbox{\sc rtol} \cdot |y^i| + \mbox{\sc atol}_i \, .
 \end{equation}
 Because $W_i$ represents a tolerance in the component $y^i$, a vector
-representing a perturbation in $y$ and having norm is 1 is regarded as
+representing a perturbation in $y$ and having norm of 1 is regarded as
 ``small.''  For brevity, we will usually drop the subscript WRMS on
 norms in what follows.
 
