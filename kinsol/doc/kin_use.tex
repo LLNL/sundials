@@ -132,14 +132,15 @@ provided with {\kinsol}: steps marked with {\p} correspond to
   {\bf Create {\kinsol} object}
 
   Call \id{kin\_mem = KINCreate();} 
-  to create the {\kinsol} memory bloc.
+  to create the {\kinsol} memory block.
   \id{KINCreate} returns a pointer to the {\kinsol} memory structure.
 
 \item
   {\bf Set optional inputs}
 
-  Call \id{KINSet*} routines to change from their default values any
-  optional inputs that control the behavior of {\kinsol}.
+  Call \id{KINSet*} routines to change any
+  optional inputs that control the behavior of {\kinsol} from their default 
+  values.
 
 \item\label{i:kinsol_malloc} 
   {\bf Allocate internal memory}
@@ -203,7 +204,7 @@ provided with {\kinsol}: steps marked with {\p} correspond to
 \section{User-callable functions}\label{s:kinsol_fct_sol}
 
 This section describes the {\kinsol} functions that are called by the
-user to set up and solve a nonl;inear problem. Some of these are required. However,
+user to set up and solve a nonlinear problem. Some of these are required. However,
 starting with \S\ref{ss:optional_input}, the functions listed involve
 optional inputs/outputs or restarting, and those paragraphs can be
 skipped for a casual use of {\kinsol}. In any case, refer to
