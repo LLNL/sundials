@@ -1,10 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-11-04 01:56:11 $
+ * $Revision: 1.4 $
+ * $Date: 2004-12-06 21:31:13 $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
+ *                Aaron Collier @ LLNL
  *  -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -38,7 +38,7 @@ typedef struct {
 
   /* passed by user to KINBBDPrecAlloc, used by pset/psolve functions */
 
-  long int ml, mu;
+  long int mudq, mldq, mukeep, mlkeep;
   KINLocalFn gloc;
   KINCommFn gcomm;
 
@@ -87,9 +87,9 @@ typedef struct {
 
 #define MSGBBD_PDATA_NULL "KINBBDPrecGet*-- KBBDPrecData is NULL. \n\n"
 
-/* KINBBDSpgmr error message */
+/* KINBBDSpgmr/KINBBDSpbcg error message */
 
-#define MSGBBD_NO_PDATA "KINBBDSpgmr-- KBBDPrecData is NULL.\n\n"
+#define MSGBBD_NO_PDATA "KINBBDSpgmr/KINBBDSpbcg-- KBBDPrecData is NULL.\n\n"
 
 #endif
 

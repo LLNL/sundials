@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-11-04 01:56:11 $
+ * $Revision: 1.23 $
+ * $Date: 2004-12-06 21:31:13 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -13,12 +13,12 @@
  *-----------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with KINSol, KINSpgmr and
- * the parallel implementation of NVECTOR.
+ * matrix with banded blocks, for use with KINSol, KINSpgmr/KINSpbcg
+ * and the parallel implementation of NVECTOR.
  *
- * Note: With only one processor in use, a banded matrix results
+ * Note: With only one process, a banded matrix results
  * rather than a b-b-d matrix with banded blocks. Diagonal
- * blocking occurs at the processor level.
+ * blocking occurs at the process level.
  *-----------------------------------------------------------------
  */
 
@@ -27,6 +27,7 @@
 
 #include "iterative.h"
 #include "kinbbdpre_impl.h"
+#include "kinspbcg_impl.h"
 #include "kinspgmr_impl.h"
 #include "sundialsmath.h"
 
@@ -72,14 +73,17 @@ static void KBBDDQJac(KBBDPrecData pdata,
  */
 
 void *KINBBDPrecAlloc(void *kinmem, long int Nlocal, 
-		      long int mu, long int ml,
+		      long int mudq, long int mldq,
+		      long int mukeep, long int mlkeep,
 		      realtype dq_rel_uu, 
 		      KINLocalFn gloc, KINCommFn gcomm)
 {
-  realtype rel_uu;
   KBBDPrecData pdata;
   KINMem kin_mem;
   N_Vector vtemp3;
+  long int muk, mlk, storage_mu;
+
+  pdata = NULL;
 
   if (kinmem == NULL) {
     fprintf(stderr, MSGBBD_KINMEM_NULL);
@@ -103,14 +107,19 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
   /* set pointers to gloc and gcomm and load half-bandwiths */
 
   pdata->kin_mem = kin_mem;
-  pdata->ml = ml;
-  pdata->mu = mu;
   pdata->gloc = gloc;
   pdata->gcomm = gcomm;
- 
+  pdata->mudq = MIN(Nlocal-1, MAX(0, mudq));
+  pdata->mldq = MIN(Nlocal-1, MAX(0, mldq));
+  muk = MIN(Nlocal-1, MAX(0,mukeep));
+  mlk = MIN(Nlocal-1, MAX(0,mlkeep));
+  pdata->mukeep = muk;
+  pdata->mlkeep = mlk;
+
   /* allocate memory for preconditioner matrix */
 
-  pdata->PP = BandAllocMat(Nlocal, mu, ml, mu+ml);
+  storage_mu = MIN(Nlocal-1, muk+mlk);
+  pdata->PP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) {
     free(pdata);
     return(NULL);
@@ -138,10 +147,8 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
 
   /* set rel_uu based on input value dq_rel_uu */
 
-  if (dq_rel_uu > ZERO) rel_uu = dq_rel_uu;
-  else rel_uu = RSqrt(uround);  /* using dq_rel_uu = 0.0 means use default */
-
-  pdata->rel_uu = rel_uu;
+  if (dq_rel_uu > ZERO) pdata->rel_uu = dq_rel_uu;
+  else pdata->rel_uu = RSqrt(uround);  /* using dq_rel_uu = 0.0 means use default */
 
   /* store Nlocal to be used by the preconditioner routines */
 
@@ -149,11 +156,44 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
 
   /* set work space sizes and initialize nge */
 
-  pdata->rpwsize = Nlocal * ((2 * mu) + ml + 1);
-  pdata->ipwsize = Nlocal;
+  pdata->rpwsize = Nlocal * (storage_mu*mlk + 1) + 1;
+  pdata->ipwsize = Nlocal + 1;
   pdata->nge = 0;
 
   return((void *) pdata);
+}
+
+/*
+ *-----------------------------------------------------------------
+ * Function : KINBBDSpbcg
+ *-----------------------------------------------------------------
+ */
+
+int KINBBDSpbcg(void *kinmem, int maxl, void *p_data)
+{
+  KINMem kin_mem;
+  int flag;
+
+  kin_mem = (KINMem) kinmem;
+
+  if (p_data == NULL) {
+    fprintf(errfp, MSGBBD_NO_PDATA);
+    return(KIN_PDATA_NULL);
+  }
+
+  flag = KINSpbcg(kinmem, maxl);
+  if (flag != KINSPBCG_SUCCESS) return(flag);
+
+  flag = KINSpbcgSetPrecData(kinmem, p_data);
+  if (flag != KINSPBCG_SUCCESS) return(flag);
+
+  flag = KINSpbcgSetPrecSetupFn(kinmem, KINBBDPrecSetup);
+  if (flag != KINSPBCG_SUCCESS) return(flag);
+
+  flag = KINSpbcgSetPrecSolveFn(kinmem, KINBBDPrecSolve);
+  if (flag != KINSPBCG_SUCCESS) return(flag);
+
+  return(KINSPBCG_SUCCESS);
 }
 
 /*
@@ -247,6 +287,7 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
   } 
 
   pdata = (KBBDPrecData) p_data;
+
   *ngevalsBBDP = pdata->nge;
 
   return(KIN_SUCCESS);
@@ -265,8 +306,10 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
  */
 
 #define Nlocal (pdata->n_local)
-#define mu     (pdata->mu)
-#define ml     (pdata->ml)
+#define mudq   (pdata->mudq)
+#define mldq   (pdata->mldq)
+#define mukeep (pdata->mukeep)
+#define mlkeep (pdata->mlkeep)
 #define gloc   (pdata->gloc)
 #define gcomm  (pdata->gcomm)
 #define pivots (pdata->pivots)
@@ -298,7 +341,7 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
  * fscale  is the function scaling vector
  *
  * p_data  is a pointer to user data - the same as the p_data
- *         parameter passed to KINSpgmr. For KINBBDPrecSetup,
+ *         parameter passed to KINSpgmr/KINSpbcg. For KINBBDPrecSetup,
  *         this should be of type KBBDData.
  *
  * vtemp1, vtemp2 are pointers to memory allocated for vectors of
@@ -330,7 +373,7 @@ int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
 
   BandZero(PP);
   KBBDDQJac(pdata, uu, uscale, vtemp1, vtemp2, vtemp3);
-  nge += (1 + MIN(ml + mu + 1, Nlocal));
+  nge += (1 + MIN(mldq+mudq+1, Nlocal));
 
   /* do LU factorization of P in place (in PP) */
 
@@ -364,11 +407,11 @@ int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
  *        function scaling matrix
  *
  * p_data is a pointer to user data - the same as the P_data
- *        parameter passed to KINSpgmr. For KINBBDPrecSolve,
+ *        parameter passed to KINSpgmr/KINSpbcg. For KINBBDPrecSolve,
  *        this should be of type KBBDData.
  *
  * vtemp  an N_Vector (temporary storage), usually the scratch
- *        vector vtemp from SPGMR (typical calling routine)
+ *        vector vtemp from SPGMR/SPBCG (typical calling routine)
  *
  * Note: The value returned by the KINBBDPrecSolve function is a
  * flag indicating whether it was successful. Here this value is
@@ -437,13 +480,12 @@ static void KBBDDQJac(KBBDPrecData pdata,
 
   /* call gcomm and gloc to get base value of g(uu) */
 
-  if (gcomm != NULL)
-    gcomm(Nlocal, uu, f_data);
+  if (gcomm != NULL) gcomm(Nlocal, uu, f_data);
   gloc(Nlocal, uu, gu, f_data);
 
   /* set bandwidth and number of column groups for band differencing */
 
-  width = ml + mu + 1;
+  width = mldq + mudq + 1;
   ngroups = MIN(width, Nlocal);
 
   /* loop over groups */
@@ -468,8 +510,8 @@ static void KBBDDQJac(KBBDPrecData pdata,
       col_j = BAND_COL(PP,j);
       inc = rel_uu * MAX(ABS(udata[j]) , (ONE / uscdata[j]));
       inc_inv = ONE / inc;
-      i1 = MAX(0, (j - mu));
-      i2 = MIN((j + ml), (Nlocal - 1));
+      i1 = MAX(0, (j - mukeep));
+      i2 = MIN((j + mlkeep), (Nlocal - 1));
       for (i = i1; i <= i2; i++)
 	BAND_COL_ELEM(col_j, i, j) = inc_inv * (gtempdata[i] - gudata[i]);
     }
