@@ -189,7 +189,7 @@ During the course of integrating the system, IDA computes an estimate
 of the local truncation error LTE at the $n$-th time step, and
 requires this to satisfy the inequality
 \begin{equation}\label{Errtest}
-  \left\| LTE\|_{WRMS} \leq 1 \, .               
+  \| LTE \|_{WRMS} \leq 1 \, .               
 \end{equation}
 Asymptotically, LTE varies as $h^{q+1}$ at stepsize $h$ and order $q$, as
 does the predictor-corrector difference $\Delta_n \equiv y_n-y_{n(0)}$.  
@@ -201,7 +201,7 @@ interpolant over the current step be bounded by 1 in norm.  The
 leading term of the norm of this error is bounded by
 $\bar{C} \|\Delta_n\|$ for another constant $\bar{C}$.  Thus the local
 error test in IDA is
-\begin{equation}\label{lerretest}
+\begin{equation}\label{lerrtest}
    \max\{ |C|, \bar{C} \} \|\Delta_n\| \leq 1 \, .
 \end{equation}
 A user option is available by which the algebraic components of the
@@ -233,7 +233,7 @@ and in fact
 \[ \|h^{q'+1} y^{(q'+1)}\| \approx T(q') \equiv (q'+1) ELTE(q') \, . \]
 
 The step/order selection begins with a test for monotonicity that is
-made even \{em before} the local error test is performed.  Namely,
+made even {\em before} the local error test is performed.  Namely,
 the order is reset to $q' = q-1$ if (a) $q > 2$ and
 $\max\{T(q-1),T(q-2)\} \leq T(q)$, or (b) $q=2$ and $T(1)\leq T(2)/2$;
 otherwise $q' = q$.  Next the local error test (\ref{lerrtest}) is
@@ -243,7 +243,7 @@ asymptotic behavior of $ELTE(q)$, and, with a safety factor, is
 given by
 \[ \eta = h'/h = 0.9/[2 \, ELTE(q)]^{1/(q+1)} \, . \]
 The value of $\eta$ is adjusted so that $0.25 \leq \eta \leq 0.9$
-before setting $h \leftarror h' = \eta h$.  If the local error test
+before setting $h \leftarrow h' = \eta h$.  If the local error test
 fails a second time, IDA uses $\eta = 0.25$, and on the third
 and subsequent failures it uses $q = 1$ and $\eta = 0.25$.  After
 10 failures, IDA returns with a give-up message.
