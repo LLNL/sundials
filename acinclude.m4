@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2004-10-28 22:51:06 $
+# $Revision: 1.6 $
+# $Date: 2004-10-30 00:26:42 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -345,6 +345,9 @@ fi
 AC_DEFUN([SUNDIALS_SET_CC],
 [
 
+# Default is C programming language (initialize language stack)
+AC_LANG([C])
+
 AC_ARG_WITH([],[],[])
 
 # Set floating-point precision: single   [C type 'float']
@@ -495,9 +498,6 @@ fi
 AC_MSG_RESULT([none])
 ])
 
-# Remaining tests pertain to C programming language
-AC_LANG([C])
-
 # Defines STDC_HEADERS if the following header files are found: stdlib.h,
 # stdarg.h, string.h, and float.h
 # We really only need stdlib.h and float.h
@@ -618,6 +618,8 @@ esac
 
 AC_DEFUN([SUNDIALS_SET_F77],
 [
+
+AC_LANG_PUSH([Fortran 77])
 
 F77_OK="yes"
 
@@ -793,6 +795,8 @@ else
 
 fi
 
+AC_LANG_POP([Fortran 77])
+
 ]) dnl END SUNDIALS_SET_F77
 
 #------------------------------------------------------------------
@@ -852,6 +856,8 @@ esac
 
 AC_DEFUN([SUNDIALS_SET_CXX],
 [
+
+AC_LANG_PUSH([C++])
 
 CXX_OK="yes"
 
@@ -926,13 +932,12 @@ else
     CXXFLAGS="${CXXFLAGS} ${USER_CXXFLAGS}"
   fi
 
-  # Remaining test pertains to C++ programming language
-  AC_LANG([C++])
-
   # Check for complex.h header file (required)
   AC_CHECK_HEADER([complex.h])
 
 fi
+
+AC_LANG_POP([C++])
 
 ]) dnl END SUNDIALS_SET_CXX
 
@@ -1229,9 +1234,6 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
     fi
   fi
 
-  # Testing C language program with MPI
-  AC_LANG([C])
-
   AC_MSG_CHECKING([if C compiler can compile MPI programs])
   AC_LINK_IFELSE(
   [AC_LANG_PROGRAM([[#include "mpi.h"]],[[int c; char **v; MPI_Init(&c,&v);]])],
@@ -1392,6 +1394,8 @@ fi
 AC_DEFUN([SUNDIALS_CHECK_F77_WITH_MPI],
 [
 
+AC_LANG_PUSH([Fortran 77])
+
 # Save copies of FFLAGS, LDFLAGS and LIBS (preserve information)
 # Temporarily overwritten so we can test MPI implementation
 SAVED_FFLAGS="${FFLAGS}"
@@ -1482,9 +1486,6 @@ if test "X${F77_OK}" = "Xyes"; then
       fi
     fi
 
-    # Testing Fortran language program with MPI
-    AC_LANG([Fortran 77])
-
     AC_MSG_CHECKING([if Fortran compiler can compile MPI programs])
     AC_LINK_IFELSE(
     [AC_LANG_PROGRAM([],
@@ -1520,6 +1521,8 @@ fi
 FFLAGS="${SAVED_FFLAGS}"
 LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
+
+AC_LANG_POP([Fortran 77])
 
 ]) dnl END SUNDIALS_CHECK_F77_WITH_MPI
 
@@ -1651,6 +1654,8 @@ fi
 AC_DEFUN([SUNDIALS_CHECK_CXX_WITH_MPI],
 [
 
+AC_LANG_PUSH([C++])
+
 # Save copies of CPPFLAGS, LDFLAGS and LIBS
 # Temporarily overwritten so we can test MPI implementation
 SAVED_CPPFLAGS="${CPPFLAGS}"
@@ -1742,9 +1747,6 @@ if test "X${CXX_OK}" = "Xyes"; then
       fi
     fi
 
-    # Testing C++ language program with MPI
-    AC_LANG([C++])
-
     AC_MSG_CHECKING([if C++ compiler can compile MPI programs])
     AC_LINK_IFELSE(
     [AC_LANG_PROGRAM([[#include "mpi.h"]],[[int c; car **v; MPI_Init(&c,&v);]])],
@@ -1776,6 +1778,8 @@ fi
 CPPFLAGS="${SAVED_CPPFLAGS}"
 LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
+
+AC_LANG_POP([C++])
 
 ]) dnl END SUNDIALS_CHECK_CXX_WITH_MPI
 
