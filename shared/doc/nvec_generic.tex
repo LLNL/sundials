@@ -60,7 +60,7 @@ struct _generic_N_Vector_Ops {
 
 The generic {\nvector} module also defines and implements the vector operations 
 acting on \id{N\_Vector}.
-These routines are nothing but wrappers around the vector operations defined by
+These routines are nothing but wrappers for the vector operations defined by
 a particular {\nvector} implementation, which are accessed through the {\em ops}
 field of the \id{N\_Vector} structure. To illustrate this point we
 show below the implementation of a typical vector operation from the
@@ -214,7 +214,7 @@ $y_i = | x_i | , \: i=0,\ldots,n-1$.
 of the components of the \id{N\_Vector} \id{x}:
 $z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$. This routine
 may not check for division by $0$. It should be called only with an 
-\id{x} which is guaranteed to have all non-zero components.
+\id{x} which is guaranteed to have all nonzero components.
 \\
 &\\
 \id{N\_VAddConst} & \id{N\_VAddConst(x, b, z);} \\
@@ -234,7 +234,7 @@ $m = \max_{i} | x_i |$.
 \\
 &\\
 \id{N\_VWrmsNorm} & \id{m = N\_VWrmsNorm(x, w)} \\
-& Returns the weighted root mean square norm of the \id{N\_Vector} \id{x} with
+& Returns the weighted root-mean-square norm of the \id{N\_Vector} \id{x} with
 weight vector \id{w}:
 $m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}$.
 \\
@@ -274,7 +274,7 @@ of the components of the \id{N\_Vector} \id{x}, with prior testing
 for zero values:
 $z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$.
 This routine returns \id{TRUE} if all components of \id{x} are
-non-zero (successful inversion) and returns \id{FALSE} otherwise.  
+nonzero (successful inversion) and returns \id{FALSE} otherwise.  
 \\
 &\\
 \id{N\_VConstrMask} & \id{t = N\_VConstrMask(c, x, m);} \\
