@@ -169,6 +169,10 @@ void *CVadjMalloc(void *cvode_mem, long int steps);
 int CVodeF(void *cvadj_mem, real tout, N_Vector yout, real *t,
            int itask, int *ncheckPtr);
 
+/* CVodeF return values */
+#define CVODEF_MEM_FAIL -10
+/* or any CVode return value */ 
+
 /******************************************************************
  *                                                                *
  * Function : CVodeMallocB                                        *
@@ -184,6 +188,11 @@ int CVodeMallocB(void *cvadj_mem, integer NB, RhsFnB fB,
                  real *reltolB, void *abstolB, void *f_dataB, 
                  FILE *errfpB, boole optInB, 
                  long int ioptB[], real roptB[], M_Env machEnv);
+
+/* CVodeMallocB return values */
+/* SUCCESS=0, defined under CVode return values */
+#define CVBM_NO_MEM   -1
+#define CVBM_MEM_FAIL -2
 
 /******************************************************************
  *                                                                *

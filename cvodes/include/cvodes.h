@@ -350,8 +350,9 @@ void *CVodeMalloc(integer N, RhsFn f, real t0, N_Vector y0,
  *           of abstol and pbar.                                  *
  *                                                                *
  * If successful, CVodeSensMalloc returns SUCCESS. If an          *
- * initialization error occurs, CVodeMalloc prints an error       *
- * message to the file specified by errfp and returns NULL.       *
+ * initialization error occurs, CVodeSensMalloc prints an error   *
+ * message to the file specified by errfp and returns one of      *
+ * the error flags defined below.                                 *
  *                                                                *
  ******************************************************************/
 
