@@ -684,11 +684,13 @@ flag = KINSetPrintLevel(kin\_mem, printfl);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The argument \id{printfl} had an illegal value.
   \end{args}
 }
 {
@@ -744,11 +746,13 @@ flag = KINSetNumMaxIters(kin\_mem, mxiter);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The maximum number of iterations was non-positive.
   \end{args}
 }
 {
@@ -808,11 +812,13 @@ flag = KINSetMaxPrecCalls(kin\_mem, msbpre);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The argument \id{msbpre} was negative.
   \end{args}
 }
 {
@@ -841,11 +847,13 @@ flag = KINSetEtaForm(kin\_mem, etachoice);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The argument \id{etachoice} had an illegal value.
   \end{args}
 }
 {
@@ -871,15 +879,18 @@ flag = KINSetEtaConstValue(kin\_mem, eta);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The argument \id{eta} had anillegal value
   \end{args}
 }
 {
   The default value for \id{eta} is $0.1$.
+  The valid values are $0.0 <$ \id{eta} $\le 1.0$.
 }
 %%
 %%
@@ -903,15 +914,23 @@ flag = KINSetEtaParams(kin\_mem, egamma, ealpha);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    One of the arguments \id{egamma} or \id{ealpha} had an illegal value.
   \end{args}
 }
 {
   The default values for \id{egamma} and \id{ealpha} are $0.9$ and $0.2$, respectively.
+
+  The valid values for \id{ealpha} are $1.0<$ \id{ealpha} $\le 2.0$. 
+  If \id{ealpha} $= 0.0$, then its value is set on $2.0$.
+
+  The valid values for \id{egamma} are $0.0 <$ \id{egamma} $\le1.0$.
+  If \id{egamma} $= 0.0$, then its value is set on $0.9$.
 }
 %%
 %%
@@ -963,11 +982,13 @@ flag = KINSetMAxNewtonStep(kin\_mem, mxnewtstep);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The maximum step was non-positive.
   \end{args}
 }
 {
@@ -996,11 +1017,13 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The realtive error was non-positive.
   \end{args}
 }
 {
@@ -1026,11 +1049,13 @@ flag = KINSetFuncNormTol(kin\_mem, fnormtol);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The tolerance was non-positive.
   \end{args}
 }
 {
@@ -1056,11 +1081,13 @@ flag = KINSetScaledStepTol(kin\_mem, scsteptol);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The tolerance was non-positive.
   \end{args}
 }
 {
@@ -1103,6 +1130,40 @@ flag = KINSetConstraints(kin\_mem, constraints);
 {
   The presence of a non-\id{NULL} constraints vector that is not $0.0$ in
   all components will cause constraint checking to be performed.
+}
+%%
+%%
+\ucfunction{KINSetSysFunc}
+{
+flag = KINSetSysFunc(kin\_mem, func);
+}
+{
+  The function \ID{KINSetSysFunc} specifies the user-provided function
+  that evaluates the nonlinear system functino $F(y)$.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[func] (\id{KINSysFn})
+    user-supplied function taht evaluates $F(y)$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_ILL\_INPUT]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The argument \id{func} was \id{NULL}.
+  \end{args}
+}
+{
+  The nonlinear system function is initially specified through \id{KINMalloc}.
+  \id{KINResetSysFunc} is provided for a user who wishes to solve several 
+  problems of the same size but with different functions.
 }
 %%
 
@@ -1442,19 +1503,20 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{KINGet}
+\ucfunction{KINGetNumFuncEvals}
 {
-  flag = KINGet(kin\_mem, \&);
+  flag = KINGetNumFuncEvals(kin\_mem, \&nfevals);
 }
 {
-  The function \ID{KINGetWorkSpace} returns the
+  The function \ID{KINGetNumFuncEvals} returns the number of evaluations
+  of the system function.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[nfevals] (\id{long int})
+    number of calls to the user-supplied function that evaluates $F(y)$.
   \end{args}
 }
 {
@@ -1469,19 +1531,20 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{KINGet}
+\ucfunction{KINGetNumNonlinSolvIters}
 {
-  flag = KINGet(kin\_mem, \&);
+  flag = KINGetNumNonlinSolvIters(kin\_mem, \&nniters);
 }
 {
-  The function \ID{KINGetWorkSpace} returns the
+  The function \ID{KINGetNumNonlinSolvIters} returns the number
+  of nonlinear iterations.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[nniters] (\id{long int})
+    number of nonlinear iterations.
   \end{args}
 }
 {
@@ -1496,19 +1559,20 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{KINGet}
+\ucfunction{KINGetNumBetaCondFails}
 {
-  flag = KINGet(kin\_mem, \&);
+  flag = KINGetNumBetaCondFails(kin\_mem, \&nbcfails);
 }
 {
-  The function \ID{KINGetWorkSpace} returns the
+  The function \ID{KINGetNumBetaCondFails} returns the number
+  of $\beta$-condition failures.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[nbcfails]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[nbcfails] (\id{long int})
+    number of $\beta$-condition failures.
   \end{args}
 }
 {
@@ -1523,19 +1587,21 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{KINGet}
+\ucfunction{KINGetNumBacktrackOps}
 {
-  flag = KINGet(kin\_mem, \&);
+  flag = KINGetNumBacktrackOps(kin\_mem, \&nbacktr);
 }
 {
-  The function \ID{KINGetWorkSpace} returns the
+  The function \ID{KINGetNumBacktrackOps} returns the number of
+  backtrack operations (step length adjustments) performed by the
+  line search algorithm.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[nbacktr] (\id{long int})
+    number of backtrack operations.
   \end{args}
 }
 {
@@ -1550,19 +1616,20 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{KINGet}
+\ucfunction{KINGetFuncNorm}
 {
-  flag = KINGet(kin\_mem, \&);
+  flag = KINGetfuncNorm(kin\_mem, \&fnorm);
 }
 {
-  The function \ID{KINGetWorkSpace} returns the
+  The function \ID{KINGetFuncNorm} returns the scaled norm of the 
+  nonlinear system function $F(y)$ evaluated at the current iterate.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[fnorm] (\id{realtype})
+    current scaled norm of $F(y)$.
   \end{args}
 }
 {
@@ -1577,19 +1644,20 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{KINGet}
+\ucfunction{KINGetStepLength}
 {
-  flag = KINGet(kin\_mem, \&);
+  flag = KINGetStepLength(kin\_mem, \&steplength);
 }
 {
-  The function \ID{KINGetWorkSpace} returns the
+  The function \ID{KINGetStepLength} returns the scaled norm of
+  the step used during the previous iteration.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[steplength]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[steplength] (\id{realtype})
+    scaled norm of the Newton step.
   \end{args}
 }
 {
