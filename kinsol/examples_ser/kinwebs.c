@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-15 17:28:14 $
+ * $Revision: 1.14.2.1 $
+ * $Date: 2005-01-24 21:44:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -585,6 +585,7 @@ static void FreeUserData(UserData data)
   denfree(acoef);
   free(bcoef);
   free(cox);
+  free(coy);
   N_VDestroy_Serial(data->rates);
   free(data);
 }
