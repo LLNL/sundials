@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-04-29 19:17:05 $
+ * $Revision: 1.4 $
+ * $Date: 2004-05-26 18:37:07 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
  *                 Radu Serban @ LLNL
@@ -19,11 +19,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cvdense.h"
-#include "cvodes.h"
-#include "dense.h"
-#include "sundialstypes.h"
-#include "nvector.h"
+
+#include "cvdense_impl.h"
+#include "cvodes_impl.h"
+
 #include "sundialsmath.h"
 
 
@@ -35,7 +34,7 @@
 
 #define MSG_MEM_FAIL          CVDENSE "A memory request failed.\n\n"
 
-#define MSG_WRONG_NVEC        CVDENSE "Incompatible NVECTOR implementation.\n\n" 
+#define MSG_WRONG_NVEC        CVDENSE "Incompatible NVECTOR implementation.\n\n"
 
 #define MSG_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- Integrator memory is NULL. \n\n"
 
@@ -100,21 +99,23 @@ static void CVDenseDQJac(long int n, DenseMat J, realtype t,
 #define J_data    (cvdense_mem->d_J_data)
 
                   
-/*************** CVDense *********************************************
-
- This routine initializes the memory record and sets various function
- fields specific to the dense linear solver module.  CVDense first
- calls the existing lfree routine if this is not NULL.  Then it sets
- the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
- to be CVDenseInit, CVDenseSetup, CVDenseSolve, and CVDenseFree,
- respectively.  It allocates memory for a structure of type
- CVDenseMemRec and sets the cv_lmem field in (*cvode_mem) to the
- address of this structure.  It sets setupNonNull in (*cvode_mem) to
- TRUE, and the d_jac field to the default CVDenseDQJac.
- Finally, it allocates memory for M, savedJ, and pivots.
- The return value is SUCCESS = 0, or LMEM_FAIL = -1.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDense
+ * -----------------------------------------------------------------
+ * This routine initializes the memory record and sets various function
+ * fields specific to the dense linear solver module.  CVDense first
+ * calls the existing lfree routine if this is not NULL.  Then it sets
+ * the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
+ * to be CVDenseInit, CVDenseSetup, CVDenseSolve, and CVDenseFree,
+ * respectively.  It allocates memory for a structure of type
+ * CVDenseMemRec and sets the cv_lmem field in (*cvode_mem) to the
+ * address of this structure.  It sets setupNonNull in (*cvode_mem) to
+ * TRUE, and the d_jac field to the default CVDenseDQJac.
+ * Finally, it allocates memory for M, savedJ, and pivots.
+ * The return value is SUCCESS = 0, or LMEM_FAIL = -1.
+ * -----------------------------------------------------------------
+ */
 
 int CVDense(void *cvode_mem, long int N)
 {
@@ -189,7 +190,11 @@ int CVDense(void *cvode_mem, long int N)
   return(SUCCESS);
 }
 
-/*************  CVDenseSetJacFn **************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseSetJacFn
+ * -----------------------------------------------------------------
+ */
 
 int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac)
 {
@@ -214,7 +219,11 @@ int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac)
   return(SUCCESS);
 }
 
-/*************** CVDenseSetJacData ***********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseSetJacData
+ * -----------------------------------------------------------------
+ */
 
 int CVDenseSetJacData(void *cvode_mem, void *jac_data)
 {
@@ -239,7 +248,11 @@ int CVDenseSetJacData(void *cvode_mem, void *jac_data)
   return(SUCCESS);
 }
 
-/*************** CVDenseGetIntWorkSpace ******************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseGetIntWorkSpace
+ * -----------------------------------------------------------------
+ */
 
 int CVDenseGetIntWorkSpace(void *cvode_mem, long int *leniwD)
 {
@@ -264,7 +277,11 @@ int CVDenseGetIntWorkSpace(void *cvode_mem, long int *leniwD)
   return(OKAY);
 }
 
-/*************** CVDenseGetRealWorkSpace *****************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseGetRealWorkSpace 
+ * -----------------------------------------------------------------
+ */
 
 int CVDenseGetRealWorkSpace(void *cvode_mem, long int *lenrwD)
 {
@@ -289,7 +306,11 @@ int CVDenseGetRealWorkSpace(void *cvode_mem, long int *lenrwD)
   return(OKAY);
 }
 
-/*************** CVDenseGetNumJacEvals *******************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseGetNumJacEvals
+ * -----------------------------------------------------------------
+ */
 
 int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
 {
@@ -314,7 +335,11 @@ int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
   return(OKAY);
 }
 
-/*************** CVDenseGetNumRhsEvals *******************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseGetNumRhsEvals
+ * -----------------------------------------------------------------
+ */
 
 int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD)
 {
@@ -339,12 +364,14 @@ int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD)
   return(OKAY);
 }
 
-/*************** CVDenseInit *****************************************
-
- This routine does remaining initializations specific to the dense
- linear solver.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseInit
+ * -----------------------------------------------------------------
+ * This routine does remaining initializations specific to the dense
+ * linear solver.
+ * -----------------------------------------------------------------
+ */
 
 static int CVDenseInit(CVodeMem cv_mem)
 {
@@ -364,16 +391,18 @@ static int CVDenseInit(CVodeMem cv_mem)
   return(LINIT_OK);
 }
 
-/*************** CVDenseSetup ****************************************
-
- This routine does the setup operations for the dense linear solver.
- It makes a decision whether or not to call the Jacobian evaluation
- routine based on various state variables, and if not it uses the 
- saved copy.  In any case, it constructs the Newton matrix 
- M = I - gamma*J, updates counters, and calls the dense LU 
- factorization routine.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseSetup
+ * -----------------------------------------------------------------
+ * This routine does the setup operations for the dense linear solver.
+ * It makes a decision whether or not to call the Jacobian evaluation
+ * routine based on various state variables, and if not it uses the 
+ * saved copy.  In any case, it constructs the Newton matrix 
+ * M = I - gamma*J, updates counters, and calls the dense LU 
+ * factorization routine.
+ * -----------------------------------------------------------------
+ */
 
 static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                         N_Vector fpred, booleantype *jcurPtr, 
@@ -420,12 +449,14 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   return(0);
 }
 
-/*************** CVDenseSolve ****************************************
-
- This routine handles the solve operation for the dense linear solver
- by calling the dense backsolve routine.  The returned value is 0.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseSolve
+ * -----------------------------------------------------------------
+ * This routine handles the solve operation for the dense linear solver
+ * by calling the dense backsolve routine.  The returned value is 0.
+ * -----------------------------------------------------------------
+ */
 
 static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                         N_Vector ycur, N_Vector fcur)
@@ -447,11 +478,13 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   return(0);
 }
 
-/*************** CVDenseFree *****************************************
-
- This routine frees memory specific to the dense linear solver.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseFree
+ * -----------------------------------------------------------------
+ * This routine frees memory specific to the dense linear solver.
+ * -----------------------------------------------------------------
+ */
 
 static void CVDenseFree(CVodeMem cv_mem)
 {
@@ -465,18 +498,20 @@ static void CVDenseFree(CVodeMem cv_mem)
   free(cvdense_mem);
 }
 
-/*************** CVDenseDQJac ****************************************
-
- This routine generates a dense difference quotient approximation to
- the Jacobian of f(t,y). It assumes that a dense matrix of type
- DenseMat is stored column-wise, and that elements within each column
- are contiguous. The address of the jth column of J is obtained via
- the macro DENSE_COL and an N_Vector with the jth column as the
- component array is created using N_VMake and N_VData. Finally, the
- actual computation of the jth column of the Jacobian is done with a
- call to N_VLinearSum.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDenseDQJac 
+ * -----------------------------------------------------------------
+ * This routine generates a dense difference quotient approximation to
+ * the Jacobian of f(t,y). It assumes that a dense matrix of type
+ * DenseMat is stored column-wise, and that elements within each column
+ * are contiguous. The address of the jth column of J is obtained via
+ * the macro DENSE_COL and an N_Vector with the jth column as the
+ * component array is created using N_VMake and N_VData. Finally, the
+ * actual computation of the jth column of the Jacobian is done with a
+ * call to N_VLinearSum.
+ * -----------------------------------------------------------------
+ */
  
 static void CVDenseDQJac(long int N, DenseMat J, realtype t, 
                          N_Vector y, N_Vector fy, void *jac_data,
@@ -506,7 +541,8 @@ static void CVDenseDQJac(long int N, DenseMat J, realtype t,
   minInc = (fnorm != ZERO) ?
            (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
 
-  jthCol = N_VMake(DENSE_COL(J,0), nvspec);  /* j loop overwrites this data address */
+  /* j loop overwrites this data address */
+  jthCol = N_VMake(DENSE_COL(J,0), nvspec);
 
   /* This is the only for loop for 0..N-1 in CVODES */
   for (j = 0; j < N; j++) {

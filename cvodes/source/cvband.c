@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-04-29 19:17:05 $
+ * $Revision: 1.4 $
+ * $Date: 2004-05-26 18:37:06 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
  *                 Radu Serban @ LLNL
@@ -19,11 +19,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cvband.h"
-#include "cvodes.h"
-#include "band.h"
-#include "sundialstypes.h"
-#include "nvector.h"
+
+#include "cvband_impl.h"
+#include "cvodes_impl.h"
+
 #include "sundialsmath.h"
 
 /* Error Messages */
@@ -110,29 +109,31 @@ static void CVBandDQJac(long int n, long int mupper, long int mlower,
 #define J_data     (cvband_mem->b_J_data)
 
 
-/*************** CVBand **********************************************
-
- This routine initializes the memory record and sets various function
- fields specific to the band linear solver module.  CVBand first calls
- the existing lfree routine if this is not NULL.  It then sets the
- cv_linit, cv_lsetup, cv_lsolve, and cv_lfree fields in (*cvode_mem)
- to be CVBandInit, CVBandSetup, CVBandSolve, and CVBandFree,
- respectively.  It allocates memory for a structure of type
- CVBandMemRec and sets the cv_lmem field in (*cvode_mem) to the
- address of this structure.  It sets setupNonNull in (*cvode_mem) to be
- TRUE, b_mu to be mupper, b_ml to be mlower, and the b_jac field to be 
- CVBandDQJac.
- Finally, it allocates memory for M, savedJ, and pivot.  The CVBand
- return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
-
- NOTE: The band linear solver assumes a serial implementation
-       of the NVECTOR package. Therefore, CVBand will first 
-       test for compatible a compatible N_Vector internal
-       representation by checking (1) the machine environment
-       ID tag and (2) that the functions N_VGetData, and N_VSetData 
-       are implemented.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBand
+ * -----------------------------------------------------------------
+ * This routine initializes the memory record and sets various function
+ * fields specific to the band linear solver module.  CVBand first calls
+ * the existing lfree routine if this is not NULL.  It then sets the
+ * cv_linit, cv_lsetup, cv_lsolve, and cv_lfree fields in (*cvode_mem)
+ * to be CVBandInit, CVBandSetup, CVBandSolve, and CVBandFree,
+ * respectively.  It allocates memory for a structure of type
+ * CVBandMemRec and sets the cv_lmem field in (*cvode_mem) to the
+ * address of this structure.  It sets setupNonNull in (*cvode_mem) to be
+ * TRUE, b_mu to be mupper, b_ml to be mlower, and the b_jac field to be 
+ * CVBandDQJac.
+ * Finally, it allocates memory for M, savedJ, and pivot.  The CVBand
+ * return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
+ *
+ * NOTE: The band linear solver assumes a serial implementation
+ *       of the NVECTOR package. Therefore, CVBand will first 
+ *       test for compatible a compatible N_Vector internal
+ *       representation by checking (1) the machine environment
+ *       ID tag and (2) that the functions N_VGetData, and N_VSetData 
+ *       are implemented.
+ * -----------------------------------------------------------------
+ */
                   
 int CVBand(void *cvode_mem, long int N,
            long int mupper, long int mlower)
@@ -218,7 +219,11 @@ int CVBand(void *cvode_mem, long int N,
   return(SUCCESS);
 }
 
-/************* CVBandSetJacFn ***************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandSetJacFn
+ * -----------------------------------------------------------------
+ */
 
 int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac)
 {
@@ -243,7 +248,11 @@ int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac)
   return(SUCCESS);
 }
 
-/************* CVBandSetJacData **************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandSetJacData
+ * -----------------------------------------------------------------
+ */
 
 int CVBandSetJacData(void *cvode_mem, void *jac_data)
 {
@@ -268,7 +277,11 @@ int CVBandSetJacData(void *cvode_mem, void *jac_data)
   return(SUCCESS);
 }
 
-/************* CVBandGetIntWorkSpace *********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandGewtIntWorkSpace
+ * -----------------------------------------------------------------
+ */
 
 int CVBandGetIntWorkSpace(void *cvode_mem, long int *leniwB)
 {
@@ -293,7 +306,11 @@ int CVBandGetIntWorkSpace(void *cvode_mem, long int *leniwB)
   return(OKAY);
 }
 
-/************* CVBandGetRealWorkSpace ********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandGetRealWorkSpace
+ * -----------------------------------------------------------------
+ */
 
 int CVBandGetRealWorkSpace(void *cvode_mem, long int *lenrwB)
 {
@@ -318,7 +335,11 @@ int CVBandGetRealWorkSpace(void *cvode_mem, long int *lenrwB)
   return(OKAY);
 }
 
-/************* CVBandGetNumJacEvals **********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandGetNumJacEvals
+ * -----------------------------------------------------------------
+ */
 
 int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
 {
@@ -343,7 +364,11 @@ int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
   return(OKAY);
 }
 
-/************* CVBandGetNumRhsEvals **********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandGetNumRhsEvals
+ * -----------------------------------------------------------------
+ */
 
 int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB)
 {
@@ -368,12 +393,14 @@ int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB)
   return(OKAY);
 }
 
-/*************** CVBandInit ******************************************
-
- This routine does remaining initializations specific to the band
- linear solver.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandInit
+ * -----------------------------------------------------------------
+ * This routine does remaining initializations specific to the band
+ * linear solver.
+ * -----------------------------------------------------------------
+ */
 
 static int CVBandInit(CVodeMem cv_mem)
 {
@@ -393,16 +420,18 @@ static int CVBandInit(CVodeMem cv_mem)
   return(LINIT_OK);
 }
 
-/*************** CVBandSetup *****************************************
-
- This routine does the setup operations for the band linear solver.
- It makes a decision whether or not to call the Jacobian evaluation
- routine based on various state variables, and if not it uses the 
- saved copy.  In any case, it constructs the Newton matrix 
- M = I - gamma*J, updates counters, and calls the band LU 
- factorization routine.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandSetup
+ * -----------------------------------------------------------------
+ * This routine does the setup operations for the band linear solver.
+ * It makes a decision whether or not to call the Jacobian evaluation
+ * routine based on various state variables, and if not it uses the 
+ * saved copy.  In any case, it constructs the Newton matrix 
+ * M = I - gamma*J, updates counters, and calls the band LU 
+ * factorization routine.
+ * -----------------------------------------------------------------
+ */
 
 static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
@@ -449,12 +478,14 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   return(0);
 }
 
-/*************** CVBandSolve *****************************************
-
- This routine handles the solve operation for the band linear solver
- by calling the band backsolve routine.  The return value is 0.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandSolve
+ * -----------------------------------------------------------------
+ * This routine handles the solve operation for the band linear solver
+ * by calling the band backsolve routine.  The return value is 0.
+ * -----------------------------------------------------------------
+ */
 
 static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur)
@@ -476,11 +507,13 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   return(0);
 }
 
-/*************** CVBandFree ******************************************
-
- This routine frees memory specific to the band linear solver.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandFree
+ * -----------------------------------------------------------------
+ * This routine frees memory specific to the band linear solver.
+ * -----------------------------------------------------------------
+ */
 
 static void CVBandFree(CVodeMem cv_mem)
 {
@@ -494,16 +527,18 @@ static void CVBandFree(CVodeMem cv_mem)
   free(cvband_mem);
 }
 
-/*************** CVBandDQJac *****************************************
-
- This routine generates a banded difference quotient approximation to
- the Jacobian of f(t,y).  It assumes that a band matrix of type
- BandMat is stored column-wise, and that elements within each column
- are contiguous. This makes it possible to get the address of a column
- of J via the macro BAND_COL and to write a simple for loop to set
- each of the elements of a column in succession.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandDQJac
+ * -----------------------------------------------------------------
+ * This routine generates a banded difference quotient approximation to
+ * the Jacobian of f(t,y).  It assumes that a band matrix of type
+ * BandMat is stored column-wise, and that elements within each column
+ * are contiguous. This makes it possible to get the address of a column
+ * of J via the macro BAND_COL and to write a simple for loop to set
+ * each of the elements of a column in succession.
+ * -----------------------------------------------------------------
+ */
 
 static void CVBandDQJac(long int N, long int mupper, long int mlower,
                         BandMat J, realtype t,

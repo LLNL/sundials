@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-04-29 19:17:05 $
+ * $Revision: 1.4 $
+ * $Date: 2004-05-26 18:37:07 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
  *                 Radu Serban @ LLNL
@@ -18,10 +18,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "cvdiag.h"
-#include "cvodes.h"
-#include "sundialstypes.h"
-#include "nvector.h"
+
+#include "cvdiag_impl.h"
+#include "cvodes_impl.h"
 
 /* Error Messages */
 
@@ -83,20 +82,22 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define bitcomp   (cvdiag_mem->di_bitcomp)
 #define nfeDI     (cvdiag_mem->di_nfeDI)
 
-/*************** CVDiag **********************************************
-
- This routine initializes the memory record and sets various function
- fields specific to the diagonal linear solver module.  CVDense first
- calls the existing lfree routine if this is not NULL.  Then it sets
- the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
- to be CVDiagInit, CVDiagSetup, CVDiagSolve, and CVDiagFree,
- respectively.  It allocates memory for a structure of type
- CVDiagMemRec and sets the cv_lmem field in (*cvode_mem) to the
- address of this structure.  It sets setupNonNull in (*cvode_mem) to
- TRUE.  Finally, it allocates memory for M, bit, and bitcomp.
- The CVDiag return value is SUCCESS = 0, or LMEM_FAIL = -1.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDiag 
+ * -----------------------------------------------------------------
+ * This routine initializes the memory record and sets various function
+ * fields specific to the diagonal linear solver module.  CVDense first
+ * calls the existing lfree routine if this is not NULL.  Then it sets
+ * the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
+ * to be CVDiagInit, CVDiagSetup, CVDiagSolve, and CVDiagFree,
+ * respectively.  It allocates memory for a structure of type
+ * CVDiagMemRec and sets the cv_lmem field in (*cvode_mem) to the
+ * address of this structure.  It sets setupNonNull in (*cvode_mem) to
+ * TRUE.  Finally, it allocates memory for M, bit, and bitcomp.
+ * The CVDiag return value is SUCCESS = 0, or LMEM_FAIL = -1.
+ * -----------------------------------------------------------------
+ */
   
 int CVDiag(void *cvode_mem)
 {
@@ -155,7 +156,11 @@ int CVDiag(void *cvode_mem)
   return(SUCCESS);
 }
 
-/************* CVDiagGetIntWorkSpace *********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDiagGetIntWorkSpace
+ * -----------------------------------------------------------------
+ */
 
 int CVDiagGetIntWorkSpace(void *cvode_mem, long int *leniwDI)
 {
@@ -173,7 +178,11 @@ int CVDiagGetIntWorkSpace(void *cvode_mem, long int *leniwDI)
   return(OKAY);
 }
 
-/************* CVDiagGetRealWorkSpace ********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDiagGetRealWorkSpace
+ * -----------------------------------------------------------------
+ */
 
 int CVDiagGetRealWorkSpace(void *cvode_mem, long int *lenrwDI)
 {
@@ -191,7 +200,11 @@ int CVDiagGetRealWorkSpace(void *cvode_mem, long int *lenrwDI)
   return(OKAY);
 }
 
-/************* CVDiagGetNumRhsEvals **********************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDiagGetNumRhsEvals
+ * -----------------------------------------------------------------
+ */
 
 int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI)
 {
@@ -216,12 +229,14 @@ int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI)
   return(OKAY);
 }
 
-/*************** CVDiagInit ******************************************
-
- This routine does remaining initializations specific to the diagonal
- linear solver.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDiagInit
+ * -----------------------------------------------------------------
+ * This routine does remaining initializations specific to the diagonal
+ * linear solver.
+ * -----------------------------------------------------------------
+ */
 
 static int CVDiagInit(CVodeMem cv_mem)
 {
@@ -233,13 +248,15 @@ static int CVDiagInit(CVodeMem cv_mem)
   return(LINIT_OK);
 }
 
-/*************** CVDiagSetup *****************************************
-
- This routine does the setup operations for the diagonal linear 
- solver.  It constructs a diagonal approximation to the Newton matrix 
- M = I - gamma*J, updates counters, and inverts M.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDiagSetup
+ * -----------------------------------------------------------------
+ * This routine does the setup operations for the diagonal linear 
+ * solver.  It constructs a diagonal approximation to the Newton matrix 
+ * M = I - gamma*J, updates counters, and inverts M.
+ * -----------------------------------------------------------------
+ */
 
 static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
@@ -288,12 +305,14 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   return(0);
 }
 
-/*************** CVDiagSolve *****************************************
-
- This routine performs the solve operation for the diagonal linear
- solver.  If necessary it first updates gamma in M = I - gamma*J.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDiagSolve
+ * -----------------------------------------------------------------
+ * This routine performs the solve operation for the diagonal linear
+ * solver.  If necessary it first updates gamma in M = I - gamma*J.
+ * -----------------------------------------------------------------
+ */
 
 static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur)
@@ -323,11 +342,13 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   return(0);
 }
 
-/*************** CVDiagFree ******************************************
-
- This routine frees memory specific to the diagonal linear solver.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVDiagFree
+ * -----------------------------------------------------------------
+ * This routine frees memory specific to the diagonal linear solver.
+ * -----------------------------------------------------------------
+ */
 
 static void CVDiagFree(CVodeMem cv_mem)
 {

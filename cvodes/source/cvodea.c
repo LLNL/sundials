@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-04-21 22:27:47 $
+ * $Revision: 1.24 $
+ * $Date: 2004-05-26 18:37:07 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,12 +20,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "cvodea.h"
+#include "cvodea_impl.h"
 #include "sundialsmath.h"
-
-/*=================================================================*/
-/*END               Import Header Files                            */
-/*=================================================================*/
 
 /*=================================================================*/
 /*BEGIN             Macros                                         */
@@ -34,10 +30,6 @@
 /* Macro: loop */
 
 #define loop for(;;)
-
-/*=================================================================*/
-/*END               Macros                                         */
-/*=================================================================*/
 
 /*=================================================================*/
 /*BEGIN             CVODEA Private Constants                       */
@@ -49,10 +41,6 @@
 #define FUZZ_FACTOR RCONST(1000000.0)  /* fuzz factor for CVadjGetY */
 
 /*=================================================================*/
-/*END               CVODEA Private Constants                       */
-/*=================================================================*/
-
-/*=================================================================*/
 /*BEGIN             Error Messages                                 */
 /*=================================================================*/
 
@@ -60,25 +48,6 @@
 #define MSG_CVAM_NO_MEM     CVAM "cvode_mem=NULL illegal.\n\n"
 #define MSG_CVAM_BAD_STEPS  CVAM "steps non-positive illegal.\n\n"
 #define MSG_CVAM_MEM_FAIL   CVAM "a memory request failed.\n\n"
-
-#define CVF                 "CVodeF-- "
-#define MSG_CVODEF_MEM_FAIL CVF "a memory request failed.\n\n"
-
-#define CVBM                "CVodeMallocB/CVodeReInitB-- "
-#define MSG_CVBM_NO_MEM     CVBM "cvadj_mem=NULL illegal.\n\n"
-#define MSG_CVBM_BAD_TB0    CVBM "tB0 out of range.\n\n"
-#define MSG_CVBM_MEM_FAIL   CVBM "a memory request failed.\n\n"
-
-#define CVBQM               "CVodeQuadMallocB-- "
-#define MSG_CVBQM_NO_MEM    CVBQM "cvadj_mem=NULL illegal.\n\n"
-
-#define CVB                 "CVodeB-- "
-#define MSG_CVODEB_FWD      CVB "an error occured during the forward phase.\n\n"
-#define MSG_CVODEB_BCK      CVB "an error occured during the backward phase.\n\n"
-
-/*=================================================================*/
-/*END               Error Messages                                 */
-/*=================================================================*/
 
 /*=================================================================*/
 /*BEGIN             Private Functions Prototypes                   */
@@ -323,6 +292,9 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   /* Initialize nckpnts to ZERO */
   nckpnts = 0;
 
+  /* Initialize backward cvode memory to NULL */
+  ca_mem->cvb_mem = NULL;
+
   return((void *)ca_mem);
 } 
 
@@ -335,8 +307,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   This routine integrates to tout and returns solution into yout.
   In the same time, it stores check point data every 'steps' steps. 
   
-  CVodeF can be called repeatedly by the user. The last tout
-  will be used as the starting time for the backward integration.
+  CVodeF can be called repeatedly by the user.
   
   ncheckPtr points to the number of check points stored so far.
 */
@@ -380,7 +351,7 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
       /* Create a new check point, load it, and append it to the list */
       tmp = CVAckpntNew(cv_mem);
       if (tmp == NULL) {
-        flag = CVODEF_MEM_FAIL;
+        flag = CVADJ_MEM_FAIL;
         break;
       }
       tmp->ck_next = ca_mem->ck_mem;
@@ -424,9 +395,6 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
 
   }
 
-  if (flag == CVODEF_MEM_FAIL) 
-    fprintf(stderr, MSG_CVODEF_MEM_FAIL);
-
   /* Get ncheck from ca_mem */ 
   *ncheckPtr = nckpnts;
 
@@ -447,19 +415,13 @@ int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB)
   CVadjMem ca_mem;
   void *cvode_mem;
 
-  if (cvadj_mem == NULL) {
-    fprintf(stderr, MSG_CVBM_NO_MEM);
-    return(CVBM_NO_MEM);
-  }
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
 
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = CVodeCreate(lmmB, iterB);
 
-  if (cvode_mem == NULL) {
-    fprintf(stderr, MSG_CVBM_MEM_FAIL);
-    return(CVBM_MEM_FAIL);
-  }
+  if (cvode_mem == NULL) return(CVADJ_MEM_FAIL);
 
   ca_mem->cvb_mem = (CVodeMem) cvode_mem;
 
@@ -605,29 +567,25 @@ int CVodeMallocB(void *cvadj_mem, RhsFnB fB,
   void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
-    fprintf(stderr, MSG_CVBM_NO_MEM);
-    return(CVBM_NO_MEM);
-  }
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
 
   ca_mem = (CVadjMem) cvadj_mem;
 
-  if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
-    fprintf(stderr, MSG_CVBM_BAD_TB0);
-    return(CVBM_BAD_TB0);
-  }
+  if ( (tB0 < tinitial) || (tB0 > tfinal) ) return(CVADJ_BAD_TB0);
 
   f_B = fB;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  CVodeSetMaxHnilWarns(cvode_mem, -1);
-  CVodeSetFdata(cvode_mem, cvadj_mem);
-
   flag = CVodeMalloc(cvode_mem, CVArhs, tB0, yB0,
                      itolB, reltolB, abstolB, nvspecB);
 
-  return(flag);
+  if (flag != SUCCESS) return(flag);
+
+  CVodeSetMaxHnilWarns(cvode_mem, -1);
+  CVodeSetFdata(cvode_mem, cvadj_mem);
+
+  return(SUCCESS);
 
 }
 
@@ -641,29 +599,25 @@ int CVodeReInitB(void *cvadj_mem, RhsFnB fB,
   void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
-    fprintf(stderr, MSG_CVBM_NO_MEM);
-    return(CVBM_NO_MEM);
-  }
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
 
   ca_mem = (CVadjMem) cvadj_mem;
 
-  if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
-    fprintf(stderr, MSG_CVBM_BAD_TB0);
-    return(CVBM_BAD_TB0);
-  }
+  if ( (tB0 < tinitial) || (tB0 > tfinal) ) return(CVADJ_BAD_TB0);
 
   f_B  = fB;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  CVodeSetMaxHnilWarns(cvode_mem, -1);
-  CVodeSetFdata(cvode_mem, cvadj_mem);
-
   flag = CVodeReInit(cvode_mem, CVArhs, tB0, yB0,
                      itolB, reltolB, abstolB);
 
-  return(flag);
+  if (flag != SUCCESS) return(flag);
+
+  CVodeSetMaxHnilWarns(cvode_mem, -1);
+  CVodeSetFdata(cvode_mem, cvadj_mem);
+
+  return(SUCCESS);
 
 }
 
@@ -718,10 +672,7 @@ int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, NV_Spec nvspecQB)
   void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
-    fprintf(stderr, MSG_CVBQM_NO_MEM);
-    return(CVBM_NO_MEM);
-  }
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
 
   ca_mem = (CVadjMem) cvadj_mem;
 
@@ -729,9 +680,10 @@ int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, NV_Spec nvspecQB)
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  CVodeSetQuadFdata(cvode_mem, cvadj_mem);
-
   flag = CVodeQuadMalloc(cvode_mem, CVArhsQ, nvspecQB);
+  if (flag != SUCCESS) return(flag);
+
+  flag = CVodeSetQuadFdata(cvode_mem, cvadj_mem);
 
   return(flag);
 
@@ -745,10 +697,7 @@ int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB)
   void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
-    fprintf(stderr, MSG_CVBQM_NO_MEM);
-    return(CVBM_NO_MEM);
-  }
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
 
   ca_mem = (CVadjMem) cvadj_mem;
 
@@ -793,9 +742,11 @@ int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB)
   cvode_mem = (void *) ca_mem->cvb_mem;
 
   flag = CVDenseSetJacData(cvode_mem, cvadj_mem);
-  flag = CVDenseSetJacFn(cvode_mem, CVAdenseJac);
+  if (flag != SUCCESS) return(flag);
 
-  return(flag);
+  CVDenseSetJacFn(cvode_mem, CVAdenseJac);
+
+  return(SUCCESS);
 }
 
 int CVDenseSetJacDataB(void *cvadj_mem, void *jac_dataB)
@@ -841,9 +792,11 @@ int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB)
   cvode_mem = (void *) ca_mem->cvb_mem;
 
   flag = CVBandSetJacData(cvode_mem, cvadj_mem);
-  flag = CVBandSetJacFn(cvode_mem, CVAbandJac);
+  if (flag != SUCCESS) return(flag);
 
-  return(flag);
+  CVBandSetJacFn(cvode_mem, CVAbandJac);
+
+  return(SUCCESS);
 }
 
 int CVBandSetJacDataB(void *cvadj_mem, void *jac_dataB)
@@ -932,9 +885,11 @@ int CVSpgmrSetPrecSetupFnB(void *cvadj_mem, CVSpgmrPrecSetupFnB psetB)
   cvode_mem = (void *) ca_mem->cvb_mem;
 
   flag = CVSpgmrSetPrecData(cvode_mem, cvadj_mem);
-  flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVAspgmrPrecSetup);
+  if (flag != SUCCESS) return(flag);
 
-  return(flag);
+  CVSpgmrSetPrecSetupFn(cvode_mem, CVAspgmrPrecSetup);
+
+  return(SUCCESS);
 }
 
 int CVSpgmrSetPrecSolveFnB(void *cvadj_mem, CVSpgmrPrecSolveFnB psolveB)
@@ -950,9 +905,11 @@ int CVSpgmrSetPrecSolveFnB(void *cvadj_mem, CVSpgmrPrecSolveFnB psolveB)
   cvode_mem = (void *) ca_mem->cvb_mem;
 
   flag = CVSpgmrSetPrecData(cvode_mem, cvadj_mem);
-  flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVAspgmrPrecSolve);
+  if (flag != SUCCESS) return(flag);
 
-  return(flag);
+  CVSpgmrSetPrecSolveFn(cvode_mem, CVAspgmrPrecSolve);
+
+  return(SUCCESS);
 }
 
 int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpgmrJacTimesVecFnB jtimesB)
@@ -968,9 +925,11 @@ int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpgmrJacTimesVecFnB jtimesB)
   cvode_mem = (void *) ca_mem->cvb_mem;
 
   flag = CVSpgmrSetJacData(cvode_mem, cvadj_mem);
-  flag = CVSpgmrSetJacTimesVecFn(cvode_mem, CVAspgmrJacTimesVec);
+  if (flag != SUCCESS) return(flag);
 
-  return(flag);
+  CVSpgmrSetJacTimesVecFn(cvode_mem, CVAspgmrJacTimesVec);
+
+  return(SUCCESS);
 }
 
 int CVSpgmrSetPrecDataB(void *cvadj_mem, void *P_dataB)
@@ -999,7 +958,7 @@ int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB)
 /*----------------------------------------------------------------------*/
 
 int CVBandPrecAllocB(void *cvadj_mem, long int nB, 
-                       long int muB, long int mlB)
+                     long int muB, long int mlB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -1011,7 +970,7 @@ int CVBandPrecAllocB(void *cvadj_mem, long int nB,
 
   bp_dataB = CVBandPrecAlloc(cvode_mem, nB, muB, mlB);
 
-  /* if bp_dataB == NULL, return an error */
+  if (bp_dataB == NULL) return(CVADJ_BP_NULL);
 
   bp_data_B = bp_dataB;
 
@@ -1062,7 +1021,7 @@ int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
                              dqrelyB, 
                              CVAgloc, CVAcfn);
 
-  /* if bbd_dataB == NULL, return an error */
+  if (bbd_dataB == NULL) return(CVADJ_BBD_NULL);
 
   bbd_data_B = bbd_dataB;
 
@@ -1125,10 +1084,11 @@ int CVodeB(void *cvadj_mem, N_Vector yB)
   int flag;
   realtype tB0, t;
   
+  if (cvadj_mem == NULL) return(CVADJ_NO_ADJMEM);
   ca_mem  = (CVadjMem) cvadj_mem;
   ck_mem = ca_mem->ck_mem;
-
   cvb_mem = ca_mem->cvb_mem;
+  if (cvb_mem == NULL) return(CVADJ_NO_BCKMEM);
 
   /* First decide which check points tB0 falls in between */
   tB0 = cvb_mem->cv_tn;
@@ -1140,19 +1100,13 @@ int CVodeB(void *cvadj_mem, N_Vector yB)
        current check point, compute it */
     if (ck_mem != ckpntData) {
       flag = CVAdataStore(ca_mem, ck_mem);
-      if (flag < 0) {
-        fprintf(stderr, MSG_CVODEB_FWD);
-        return(flag);
-      }
+      if (flag != SUCCESS) return(flag);
     }
 
     /* Propagate backward integration to next check point */
     CVodeSetStopTime((void *)cvb_mem, t0_);
     flag = CVode(cvb_mem, t0_, yB, &t, NORMAL_TSTOP);
-    if (flag < 0) {
-      fprintf(stderr, MSG_CVODEB_BCK);
-      return(flag);
-    }
+    if (flag < 0) return(flag);
 
     /* Move check point in linked list to next one */
     ck_mem = next_;
@@ -1583,8 +1537,12 @@ static void CVAdataFree(DtpntMem *dt_mem, long int steps)
 /*------------------    CVAdataStore     --------------------------*/
 /*
   This routine integrates the forward model starting at the check
-  point ck_mem and stores y and yprime at all intermediate 
-  steps. It returns the error flag from CVode.
+  point ck_mem and stores y and yprime at all intermediate steps.
+
+  Return values:
+  SUCCESS
+  CVADJ_REIFWD_FAIL
+  CVADJ_FWD_FAIL
 */
 /*-----------------------------------------------------------------*/
 
@@ -1601,8 +1559,7 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
 
   /* Initialize cv_mem with data from ck_mem */
   flag = CVAckpntGet(cv_mem, ck_mem);
-
-  if (flag != SUCCESS) return(flag);
+  if (flag != SUCCESS) return(CVADJ_REIFWD_FAIL);
 
   /* Set first structure in dt_mem[0] */
   dt_mem[0]->t = t0_;
@@ -1614,9 +1571,10 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
   i = 1;
   do {
     flag = CVode(cv_mem, t1_, dt_mem[i]->y, &t, ONE_STEP);
-    if (flag < 0) return(flag);
+    if (flag < 0) return(CVADJ_FWD_FAIL);
     dt_mem[i]->t = t;
-    CVodeGetDky(cv_mem, t, 1, dt_mem[i]->yd);
+    flag = CVodeGetDky(cv_mem, t, 1, dt_mem[i]->yd);
+    if (flag != OKAY) return(CVADJ_FWD_FAIL);
     i++;
   } while (t<t1_);
 
@@ -1625,7 +1583,7 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
   newData = TRUE;
   np  = i;
 
-  return(flag);
+  return(SUCCESS);
 
 }
 
@@ -1649,11 +1607,15 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
        the first run. */
 
     CVodeSetInitStep(cv_mem, h0u);
-    flag = CVodeReInit(cv_mem, f, t0_, zn_[0], itol, reltol, abstol);
 
-    if(quad_)
+    flag = CVodeReInit(cv_mem, f, t0_, zn_[0], itol, reltol, abstol);
+    if (flag != SUCCESS) return(flag);
+
+    if(quad_) {
       flag = CVodeQuadReInit(cv_mem, fQ);
-    
+      if (flag != SUCCESS) return(flag);
+    }
+
   } else {
     
     qmax = cv_mem->cv_qmax;
@@ -1687,11 +1649,9 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     /* Force a call to setup */
     forceSetup = TRUE;
 
-    flag = SUCCESS;
-
   }
 
-  return(flag);
+  return(SUCCESS);
 }
 
 /*------------------   CVAhermitePrepare --------------------------*/

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-04-29 19:17:05 $
+ * $Revision: 1.6 $
+ * $Date: 2004-05-26 18:37:06 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
  *                 Radu Serban @ LLNL
@@ -20,11 +20,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cvodes.h"
-#include "cvbandpre.h"
-#include "cvspgmr.h"
+
+#include "cvbandpre_impl.h"
+#include "cvodes_impl.h"
+#include "cvspgmr_impl.h"
+
 #include "sundialsmath.h"
-#include "nvector.h"
 
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)
@@ -62,7 +63,11 @@ static void CVBandPDQJac(CVBandPrecData pdata,
 #define nvspec (cv_mem->cv_nvspec)
 #define errfp  (cv_mem->cv_errfp)
 
-/*********************  Malloc, Free, and Get Functions  *******************/
+/*
+ * -----------------------------------------------------------------
+ * Malloc, Free, and Get Functions
+ * -----------------------------------------------------------------
+ */
 
 void *CVBandPrecAlloc(void *cvode_mem, long int N, 
                       long int mu, long int ml)
@@ -216,11 +221,6 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
   return(OKAY);
 }
 
-
-
-/***************** Preconditioner setup and solve functions *******/
-
-
 /* Readability Replacements */
 
 #define N         (pdata->N)
@@ -231,53 +231,56 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
 #define savedP    (pdata->savedP)
 #define nfeBP     (pdata->nfeBP)
 
-/****************** CVBandPrecSetup *******************************
-
-  Together CVBandPrecSetup and CVBandPrecSolve use a banded           
-  difference quotient Jacobian to create a preconditioner.       
-  CVBandPrecSetup calculates a new J, if necessary, then           
-  calculates P = I - gamma*J, and does an LU factorization of P. 
-                                                                 
-  The parameters of CVBandPrecSetup are as follows:                
-                                                                 
-  t       is the current value of the independent variable.      
-                                                                 
-  y       is the current value of the dependent variable vector, 
-            namely the predicted value of y(t).                  
-                                                                 
-  fy      is the vector f(t,y).                                  
-                                                                 
-  jok     is an input flag indicating whether Jacobian-related   
-          data needs to be recomputed, as follows:               
-            jok == FALSE means recompute Jacobian-related data   
-                   from scratch.                                 
-            jok == TRUE  means that Jacobian data from the       
-                   previous PrecSetup call will be reused          
-                   (with the current value of gamma).            
-          A CVBandPrecSetup call with jok == TRUE should only      
-          occur after a call with jok == FALSE.                  
-                                                                 
-  *jcurPtr is a pointer to an output integer flag which is        
-           set by CVBandPrecond as follows:                       
-            *jcurPtr = TRUE if Jacobian data was recomputed.     
-            *jcurPtr = FALSE if Jacobian data was not recomputed,
-                       but saved data was reused.                
-                                                                 
-  gamma   is the scalar appearing in the Newton matrix.          
-                                                                 
-  bp_data is a pointer to preconditoner data - the same as the   
-             bp_data parameter passed to CVSpgmr.                
-                                                                 
-  tmp1, tmp2, and tmp3 are pointers to memory allocated    
-            for vectors of length N for work space.  This        
-            routine uses only tmp1 and tmp2.                 
-                                                                 
-                                                                 
-  The value to be returned by the CVBandPrecSetup function is      
-    0  if successful, or                                         
-    1  if the band factorization failed.                         
-
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandPrecSetup
+ * -----------------------------------------------------------------
+ * Together CVBandPrecSetup and CVBandPrecSolve use a banded           
+ * difference quotient Jacobian to create a preconditioner.       
+ * CVBandPrecSetup calculates a new J, if necessary, then           
+ * calculates P = I - gamma*J, and does an LU factorization of P. 
+ *                                                                 
+ * The parameters of CVBandPrecSetup are as follows:                
+ *                                                                 
+ * t       is the current value of the independent variable.      
+ *                                                                 
+ * y       is the current value of the dependent variable vector, 
+ *           namely the predicted value of y(t).                  
+ *                                                                
+ * fy      is the vector f(t,y).                                  
+ *                                                                
+ * jok     is an input flag indicating whether Jacobian-related   
+ *         data needs to be recomputed, as follows:               
+ *           jok == FALSE means recompute Jacobian-related data   
+ *                  from scratch.                                 
+ *           jok == TRUE  means that Jacobian data from the       
+ *                  previous PrecSetup call will be reused          
+ *                  (with the current value of gamma).            
+ *         A CVBandPrecSetup call with jok == TRUE should only      
+ *         occur after a call with jok == FALSE.                  
+ *                                                                
+ * *jcurPtr is a pointer to an output integer flag which is        
+ *          set by CVBandPrecond as follows:                       
+ *           *jcurPtr = TRUE if Jacobian data was recomputed.     
+ *           *jcurPtr = FALSE if Jacobian data was not recomputed,
+ *                      but saved data was reused.                
+ *                                                                
+ * gamma   is the scalar appearing in the Newton matrix.          
+ *                                                                
+ * bp_data is a pointer to preconditoner data - the same as the   
+ *           bp_data parameter passed to CVSpgmr.                
+ *                                                               
+ * tmp1, tmp2, and tmp3 are pointers to memory allocated    
+ *           for vectors of length N for work space.  This        
+ *           routine uses only tmp1 and tmp2.                 
+ *                                                                
+ *                                                                
+ * The value to be returned by the CVBandPrecSetup function is      
+ *   0  if successful, or                                         
+ *   1  if the band factorization failed.                         
+ *
+ * -----------------------------------------------------------------
+ */
 
 static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
                            booleantype jok, booleantype *jcurPtr, 
@@ -315,24 +318,26 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 }
 
 
-/******************* CVBandPrecSolve ******************************
-
-  CVBandPrecSolve solves a linear system P z = r, where P is the
-  matrix computed by CVBandPrecond.
-
-  The parameters of CVBandPrecSolve used here are as follows:
-
-  r       is the right-hand side vector of the linear system.
-
-  bp_data is a pointer to preconditioner data - the same as the
-           bp_data parameter passed to CVSpgmr.
-
-  z       is the output vector computed by CVBandPrecSolve.
-
-  The value returned by the CVBandPrecSolve function is always 0,
-  indicating success.
- 
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandPrecSolve
+ * -----------------------------------------------------------------
+ * CVBandPrecSolve solves a linear system P z = r, where P is the
+ * matrix computed by CVBandPrecond.
+ *
+ * The parameters of CVBandPrecSolve used here are as follows:
+ *
+ * r       is the right-hand side vector of the linear system.
+ *
+ * bp_data is a pointer to preconditioner data - the same as the
+ *          bp_data parameter passed to CVSpgmr.
+ *
+ * z       is the output vector computed by CVBandPrecSolve.
+ *
+ * The value returned by the CVBandPrecSolve function is always 0,
+ * indicating success.
+ * -----------------------------------------------------------------
+ */ 
 
 static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
                            N_Vector r, N_Vector z, 
@@ -356,16 +361,18 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
   return(0);
 }
 
-/*************** CVBandPDQJac ****************************************
-
- This routine generates a banded difference quotient approximation to
- the Jacobian of f(t,y).  It assumes that a band matrix of type
- BandMat is stored column-wise, and that elements within each column
- are contiguous. This makes it possible to get the address of a column
- of J via the macro BAND_COL and to write a simple for loop to set
- each of the elements of a column in succession.
-
-**********************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * CVBandPDQJac
+ * -----------------------------------------------------------------
+ * This routine generates a banded difference quotient approximation to
+ * the Jacobian of f(t,y).  It assumes that a band matrix of type
+ * BandMat is stored column-wise, and that elements within each column
+ * are contiguous. This makes it possible to get the address of a column
+ * of J via the macro BAND_COL and to write a simple for loop to set
+ * each of the elements of a column in succession.
+ * -----------------------------------------------------------------
+ */
 
 #define ewt    (cv_mem->cv_ewt)
 #define uround (cv_mem->cv_uround)
