@@ -599,18 +599,86 @@ flag = KINSetErrFile(kin\_mem, errfp);
   (except for the case in which the {\kinsol} memory pointer is \id{NULL}).
 }
 %%
-\ucfunction{KINSet}
+%%
+\ucfunction{KINSetInfoFile}
 {
-flag = KINSet(kin\_mem, );
+flag = KINSetInfoFile(kin\_mem, infofp);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetInfoFile} specifies the pointer to the file
+  where all informative messages should be directed.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
+  \item[infofp] (\id{FILE *})
+    pointer to output file.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KIN\_MEM\_NULL]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The default value for \id{infofp} is \id{stderr}.
+}
+%%
+%%
+\ucfunction{KINSetPrintLevel}
+{
+flag = KINSetPrintLevel(kin\_mem, printfl);
+}
+{
+  The function \ID{KINSetPrintLevel} specifies the level of verbosity
+  of the output.
+}
+{
+  \begin{args}[kin\_mem]
+
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+
+  \item[printfl] (\id{int})
+    flag indicating the level of verbosity. Must be one of:
+    
+    \begin{itemize}
+    \item[0]
+      no information displayed.
+      
+    \item[1]
+      for each nonlinear iteration display
+      the following information: the scaled
+      $L_2$ norm of the system function
+      evaluated at the current iterate, the
+      scaled norm of the Newton step (only if
+      using \id{KIN\_INEXACT\_NEWTON}), and the
+      number of function evaluations performed
+      so far.
+      
+    \item[2]
+      display level 1 output and the
+      following values for each iteration:
+      
+      $\|f_{scale} F(y)\|_{L_2}$
+      (only for \id{KIN\_INEXACT\_NEWTON}).
+      
+      $\|f_{scale} |F(y))| \|_{L_\infty}$
+      (for \id{KIN\_INEXACT\_NEWTON} and
+      \id{KIN\_LINESEARCH}).
+      
+    \item[3]
+      display level 2 output plus additional
+      values used by the global strategy
+      (only if using \id{KIN\_LINESEARCH}), and
+      statistical information for the linear
+      solver.
+    \end{itemize}
 
   \end{args}
 }
@@ -623,22 +691,25 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The default value for \id{printfl} is $0$.
+}
+%%
+\ucfunction{KINSetFdata}
+{
+flag = KINSetFdata(kin\_mem, f\_data);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetFdata} specifies the pointer to user-defined memory
+  that is to be passed to the user-supplied function implementing the nonlinear
+  system function.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[f\_data] (\id{void *})
+    pointer ti user-defined memory.
   \end{args}
 }
 {
@@ -650,22 +721,25 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The default value for \id{f\_data} is \id{NULL}.
+}
+%%
+%%
+\ucfunction{KINSetNumMaxIters}
+{
+flag = KINSetNumMaxIters(kin\_mem, mxiter);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetNumMaxIters} specifies the maximum number of 
+  nonlinear iterations allowed.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[mxiter] (\id{long int})
+    maximum number of nonlinear iterations.
   \end{args}
 }
 {
@@ -677,22 +751,26 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The default value for \id{mxiter} is \id{MXITER\_DEFAULT} $=200$.
+}
+%%
+%%
+\ucfunction{KINSetNoPrecInit}
+{
+flag = KINSetNoPrecInit(kin\_mem, noPrecInit);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetNoPrecInit} specifies whether an initial call
+  to the preconditioner setup function should be made or not.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[noPrecInit] (\id{booleantype})
+    flag controlling whether or not an intiial call 
+    to the preconditioner setup functino is made.
   \end{args}
 }
 {
@@ -704,22 +782,28 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The default value for \id{} is \id{FALSE}, meaning that an initial call
+  to the preconditioner setup function will be made.
+}
+%%
+%%
+\ucfunction{KINSetMaxPrecCalls}
+{
+flag = KINSetMaxPrecCalls(kin\_mem, msbpre);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetMaxPrecCalls} specifies the maximum number of 
+  nonlinear iterations that can be performed between calls to the 
+  preconditioner setup function.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[msbpre] (\id{long int})
+    maximum number of nonlinear iterations without a call
+    to the preconditioner setup function.
   \end{args}
 }
 {
@@ -731,22 +815,28 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The default value for \id{msbpre} is \id{MSBPRE} $=10$.
+}
+%%
+%%
+\ucfunction{KINSetEtaForm}
+{
+flag = KINSetEtaForm(kin\_mem, etachoice);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetEtaForm} specifies the method for computing
+  the value of the $\eta$ coefficient used in the calculation of the
+  linear solver convergence tolerance.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[etachoice] (\id{int})
+    flag indicating the method for computing $\eta$. Must be one
+    of \Id{KIN\_ETACHOICE1}, \Id{KIN\_ETACHOICE2}, or \Id{KIN\_ETACONSTANT}
+    (see \S\ref{} for details).
   \end{args}
 }
 {
@@ -758,22 +848,25 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The default value for \id{etachoice} is \id{KIN\_ETACHOICE1}.
+}
+%%
+%%
+\ucfunction{KINSetEtaConstValue}
+{
+flag = KINSetEtaConstValue(kin\_mem, eta);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetEtaConstValue} specifies the constant value
+  for $\eta$ in the case \id{ = KIN\_ETACONSTANT}.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[eta] (\id{realtype})
+    constant value for $\eta$.
   \end{args}
 }
 {
@@ -785,22 +878,27 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The default value for \id{eta} is $0.1$.
+}
+%%
+%%
+\ucfunction{KINSetEtaParams}
+{
+flag = KINSetEtaParams(kin\_mem, egamma, ealpha);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetEtaParams} specifies the parameters $\gamma$ and
+  $\alpha$ in the formula for $\eta$, in the case \id{ = KIN\_ETACHOICE2}.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[egamma] (\id{realtype})
+    value of the $\gamma$ parameter.
+  \item[ealpha] (\id{realtype})
+    value of the $\alpha$ parameter.
   \end{args}
 }
 {
@@ -812,22 +910,25 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The default values for \id{egamma} and \id{ealpha} are $0.9$ and $0.2$, respectively.
+}
+%%
+%%
+\ucfunction{KINSetNoMinEps}
+{
+flag = KINSetNoMinEps(kin\_mem, noMinEps);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetNoMinEps} specifies a flag that controls whether or not
+  the value of $\epsilon$ is bounded below.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[noMinEps] (\id{booleantype})
+    flag controling the bound on $\epsilon$.
   \end{args}
 }
 {
@@ -839,22 +940,25 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The default value for \id{noMinEps} is \id{FALSE}.
+}
+%%
+%%
+\ucfunction{KINSetMaxNewtonStep}
+{
+flag = KINSetMAxNewtonStep(kin\_mem, mxnewtstep);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetMaxNewtonStep} specifies the maximum scaled
+  length of the Newton step.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[mxnewtstep] (\id{realtype})
+    maximum scaled step length.
   \end{args}
 }
 {
@@ -866,22 +970,28 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The default value of \id{mxnewtstep} is $1000 \| y_{scale} y_0 \|_{L_2}$,
+  where $y_0$ is the initial guess.
+}
+%%
+%%
+\ucfunction{KINSetRelErrFunc}
+{
+flag = KINSetRelErrFunc(kin\_mem, relfunc);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetRelErrFunc} specifies the relative error in 
+  computing $F(y)$ used in the difference-quotient appoximation of the
+  Jacobian-vector product.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[relfunc] (\id{realtype})
+    relative error in $F(y)$ for difference-quotient Jacobian-vector
+    product.
   \end{args}
 }
 {
@@ -893,22 +1003,25 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
+{
+  The default value for \id{relfunc} is $\sqrt{\text{uround}}$.
+}
 %%
 %%
-\ucfunction{KINSet}
+\ucfunction{KINSetFuncNormTol}
 {
-flag = KINSet(kin\_mem, );
+flag = KINSetFuncNormTol(kin\_mem, fnormtol);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetFuncNormTol} specifies the scalar used as a stopping
+  tolerance on the scaled norm of the system function $F(y)$.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[fnormtol]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[fnormtol] (\id{realtype})
+    tolerance for stopping based on scaled function norm.
   \end{args}
 }
 {
@@ -920,22 +1033,25 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
+{
+  The default value for \id{fnormtol} is $\sqrt[3]{\text{uround}}$.
+}
 %%
 %%
-\ucfunction{KINSet}
+\ucfunction{KINSetScaledStepTol}
 {
-flag = KINSet(kin\_mem, );
+flag = KINSetScaledStepTol(kin\_mem, scsteptol);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetScaledStepTol} specifies the scalar used
+  as a stopping tolerance on the maximum scaled step length.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[scsteptol]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[scsteptol] (\id{realtype})
+    tolerance for stoppnig based on scaled step length.. 
   \end{args}
 }
 {
@@ -947,22 +1063,32 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
+{
+  The default value for \id{} is $\sqrt[3]{\text{uround}^2}$.
+}
 %%
 %%
-\ucfunction{KINSet}
+\ucfunction{KINSetConstraints}
 {
-flag = KINSet(kin\_mem, );
+flag = KINSetConstraints(kin\_mem, constraints);
 }
 {
-  The function \ID{KINSet}
+  The function \ID{KINSetConstraints} specifies a vector defining
+  inequality constraints for each component of the solution vector $y$.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[constraints]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
+  \item[constraints] (\id{N\_Vector})
+    vector of constraint flags. If \id{constraints[i]} is
+    \begin{itemize}    
+    \item[$0.0$] then no constraint is imposed on $y_i$. 
+    \item[$1.0$] then $y_i$ will be constrained to be $y_i > 0.0$.
+    \item[$-1.0$] then $y_i$ will be constrained to be $y_i < 0.0$.
+    \item[$2.0$] then $y_i$ will be constrained to be $y_i \ge 0.0$.
+    \item[$-2.0$] then $y_i$ will be constrained to be $y_i \le 0.0$.
+    \end{itemize}
   \end{args}
 }
 {
@@ -974,34 +1100,10 @@ flag = KINSet(kin\_mem, );
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSet}
 {
-flag = KINSet(kin\_mem, );
+  The presence of a non-\id{NULL} constraints vector that is not $0.0$ in
+  all components will cause constraint checking to be performed.
 }
-{
-  The function \ID{KINSet}
-}
-{
-  \begin{args}[kin\_mem]
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[] (\id{})
-
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{KIN\_MEM\_NULL}]
-    The \id{kin\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{}
 %%
 
 
