@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8.2.2 $
- * $Date: 2005-04-04 22:33:04 $
+ * $Revision: 1.8.2.3 $
+ * $Date: 2005-04-05 01:49:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -35,7 +35,10 @@ int IDAEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
 
 /* Basic IDA constants */
 
-#define MXORDP1   6     /* max. number of N_Vectors kept in the phi array */
+#define HMAX_INV_DEFAULT RCONST(0.0) /* hmax_inv default value          */
+#define MAXORD_DEFAULT   5           /* maxord default value            */
+#define MXORDP1          6           /* max. number of N_Vectors in phi */
+#define MXSTEP_DEFAULT   500         /* mxstep default value            */
 
 /******************************************************************
  * Types : struct IDAMemRec, IDAMem                               *
@@ -395,9 +398,9 @@ typedef struct IDAMemRec {
 
 #define MSG_IDAS_BAD_MAXORD  "IDASetMaxOrd-- illegal to increase maximum order.\n\n"
 
-#define MSG_IDAS_NEG_MXSTEPS "IDASetMaxNumSteps-- mxsteps <= 0 illegal. \n\n"
+#define MSG_IDAS_NEG_MXSTEPS "IDASetMaxNumSteps-- mxsteps < 0 illegal. \n\n"
 
-#define MSG_IDAS_NEG_HMAX    "IDASetMaxStep-- hmax <= 0 illegal. \n\n"
+#define MSG_IDAS_NEG_HMAX    "IDASetMaxStep-- hmax < 0 illegal. \n\n"
 
 #define MSG_IDAS_NEG_EPCON   "IDASetNonlinConvCoef-- epcon < 0.0 illegal. \n\n"
 

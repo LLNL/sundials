@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38.2.3 $
- * $Date: 2005-04-01 21:43:49 $
+ * $Revision: 1.38.2.4 $
+ * $Date: 2005-04-05 01:49:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -49,16 +49,6 @@
 #define FIVE   RCONST(5.0)   /* real 5.0   */
 #define TWELVE RCONST(12.0)  /* real 12.0  */
 #define HUN    RCONST(100.0) /* real 100.0 */
-
-/*
- * Default Constants
- */
-
-#define HMIN_DEFAULT     ZERO    /* hmin default value     */
-#define HMAX_INV_DEFAULT ZERO    /* hmax_inv default value */
-#define MXHNIL_DEFAULT   10      /* mxhnil default value   */
-#define MXSTEP_DEFAULT   500     /* mxstep default value   */
-
 
 /*
  * Routine-Specific Constants

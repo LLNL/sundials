@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9.2.4 $
- * $Date: 2005-04-01 21:48:19 $
+ * $Revision: 1.9.2.5 $
+ * $Date: 2005-04-05 01:49:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -60,6 +60,11 @@ void CVSensRhs1DQ(int Ns, realtype t,
 #define Q_MAX  ADAMS_Q_MAX  /* max value of q for either lmm      */
 #define L_MAX  (Q_MAX+1)    /* max value of L for either lmm      */
 #define NUM_TESTS    5      /* number of error test quantities    */
+
+#define HMIN_DEFAULT     RCONST(0.0)    /* hmin default value     */
+#define HMAX_INV_DEFAULT RCONST(0.0)    /* hmax_inv default value */
+#define MXHNIL_DEFAULT   10             /* mxhnil default value   */
+#define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
 /*                                                                
  * ifS is the type of the function returning the sensitivity
@@ -470,15 +475,15 @@ typedef struct CVodeMemRec {
 #define MSGCVS_SET_BAD_MAXORD2 "maximum method order.\n\n"
 #define MSGCVS_SET_BAD_MAXORD  MSGCVS_SET_BAD_MAXORD1 MSGCVS_SET_BAD_MAXORD2 
 
-#define MSGCVS_SET_NEG_MXSTEPS "CVodeSetMaxNumSteps-- mxsteps <= 0 illegal.\n\n"
+#define MSGCVS_SET_NEG_MXSTEPS "CVodeSetMaxNumSteps-- mxsteps < 0 illegal.\n\n"
 
 #define MSGCVS_SET_SLDET1 "CVodeSetStabLimDet-- Attempt to use stability "
 #define MSGCVS_SET_SLDET2 "limit detection with the CV_ADAMS method illegal.\n\n"
 #define MSGCVS_SET_SLDET  MSGCVS_SET_SLDET1 MSGCVS_SET_SLDET2
 
-#define MSGCVS_SET_NEG_HMIN "CVodeSetMinStep-- hmin <= 0 illegal.\n\n"
+#define MSGCVS_SET_NEG_HMIN "CVodeSetMinStep-- hmin < 0 illegal.\n\n"
 
-#define MSGCVS_SET_NEG_HMAX "CVodeSetMaxStep-- hmax <= 0 illegal.\n\n"
+#define MSGCVS_SET_NEG_HMAX "CVodeSetMaxStep-- hmax < 0 illegal.\n\n"
 
 #define MSGCVS_SET_BAD_HMM1       "CVodeSetMinStep/CVodeSetMaxStep-- Inconsistent\n"
 #define MSGCVS_SET_BAD_HMM2       "step size limits: hmin > hmax.\n\n"
