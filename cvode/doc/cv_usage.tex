@@ -1364,7 +1364,7 @@ inputs, which are described here. The diagonal linear solver module has no
 optional inputs.
 %%
 
-\vspace{0.1in}\noindent{\bf Dense Linear solver.}
+\noindent\paragraph{\bf Dense Linear solver.}
 \index{optional input!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional input|(}
 The \index{CVDENSE@{\cvdense} linear solver!Jacobian approximation used by}
@@ -1453,7 +1453,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 %%
 %%------------------------------------------------------------------------------
 %%
-\vspace{0.1in}\noindent{\bf Band Linear solver.}
+\noindent\paragraph{\bf Band Linear solver.}
 \index{optional input!band linear solver|(}
 \index{CVBAND@{\cvband} linear solver!optional input|(}
 The \index{CVBAND@{\cvband} linear solver!Jacobian approximation used by}
@@ -1542,7 +1542,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 %%
 %%------------------------------------------------------------------------------
 %%
-\vspace{0.1in}\noindent{\bf SPGMR Linear solver.}
+\noindent\paragraph{\bf SPGMR Linear solver.}
 \index{optional input!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -2622,9 +2622,13 @@ For each of the linear system solver modules, there are various optional
 outputs that describe the performance of the module. The functions available 
 to access these are described below.
 
-\vspace{0.1in}\noindent{\bf Dense Linear solver}
+\noindent\paragraph{\bf Dense Linear solver.}
 \index{optional output!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional output|(}
+The following optional outputs are available from the {\cvdense} module:
+workspace requirements, number of calls to the Jacobian routine, number of 
+calls to the right-hand side routine for finite-difference Jacobian approximation,
+and last return value from a {\cvdense} function.
 %%
 \index{CVDENSE@{\cvdense} linear solver!memory requirements|(} 
 \index{memory requirements!CVDENSE@{\cvdense} linear solver|(}
@@ -2772,9 +2776,13 @@ to access these are described below.
 %
 %-------------------------------------------------------------------------------
 %
-\noindent{\bf Band Linear solver}
+\noindent\paragraph{\bf Band Linear solver.}
 \index{optional output!band linear solver|(}
 \index{CVBAND@{\cvband} linear solver!optional output|(}
+The following optional outputs are available from the {\cvband} module:
+workspace requirements, number of calls to the Jacobian routine, number of 
+calls to the right-hand side routine for finite-difference Jacobian approximation,
+and last return value from a {\cvband} function.
 %%
 \index{CVBAND@{\cvband} linear solver!memory requirements|(} 
 \index{memory requirements!CVBAND@{\cvband} linear solver|(}
@@ -2923,9 +2931,13 @@ to access these are described below.
 %
 %--------------------------------
 %
-\noindent{\bf Diagonal Linear solver.}
+\noindent\paragraph{\bf Diagonal Linear solver.}
 \index{optional output!diagonal linear solver|(}
 \index{CVDIAG@{\cvdiag} linear solver!optional output|(}
+The following optional outputs are available from the {\cvdiag} module:
+workspace requirements, number of calls to the right-hand side routine for 
+finite-difference Jacobian approximation, and last return value from a 
+{\cvdiag} function.
 %%
 \index{CVDIAG@{\cvdiag} linear solver!memory requirements|(} 
 \index{memory requirements!CVDIAG@{\cvdiag} linear solver|(}
@@ -3044,9 +3056,15 @@ to access these are described below.
 %
 %--------------------------------
 %
-\noindent{\bf SPGMR Linear solver.}
+\noindent\paragraph{\bf SPGMR Linear solver.}
 \index{optional output!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|(} 
+The following optional outputs are available from the {\cvspgmr} module:
+workspace requirements, number of linear iterations,
+number of linear convergence failures, number of calls to the preconditioner
+setup and solve routines, number of calls to the Jacobian-vector product routine, number of 
+calls to the right-hand side routine for finite-difference Jacobian-vector product approximation,
+and last return value from a {\cvspgmr} function.
 %%
 \index{CVSPGMR@{\cvspgmr} linear solver!memory requirements|(} 
 \index{memory requirements!CVSPGMR@{\cvspgmr} linear solver|(}
