@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2004-10-18 21:54:26 $
+ * $Revision: 1.33 $
+ * $Date: 2004-10-21 19:26:12 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -594,7 +594,7 @@ int CVodeSetMaxStepB(void *cvadj_mem, realtype hmaxB)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeMallocB(void *cvadj_mem, RhsFnB fB, 
+int CVodeMallocB(void *cvadj_mem, CVRhsFnB fB, 
                  realtype tB0, N_Vector yB0,
                  int itolB, realtype *reltolB, void *abstolB)
 {
@@ -628,7 +628,7 @@ int CVodeMallocB(void *cvadj_mem, RhsFnB fB,
 
 /*-----------------------------------------------------------------*/
 
-int CVodeReInitB(void *cvadj_mem, RhsFnB fB, 
+int CVodeReInitB(void *cvadj_mem, CVRhsFnB fB, 
                  realtype tB0, N_Vector yB0, 
                  int itolB, realtype *reltolB, void *abstolB)
 {
@@ -705,7 +705,7 @@ int CVodeSetQuadTolerancesB(void *cvadj_mem, int itolQB,
 
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, N_Vector yQB0)
+int CVodeQuadMallocB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -730,7 +730,7 @@ int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, N_Vector yQB0)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB, N_Vector yQB0)
+int CVodeQuadReInitB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -1831,7 +1831,7 @@ static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
 
 /*------------------       CVArhs        --------------------------*/
 /*
-  This routine interfaces to the RhsFnB routine provided by
+  This routine interfaces to the CVRhsFnB routine provided by
   the user.
   NOTE: f_data actually contains cvadj_mem
 */
@@ -1859,7 +1859,7 @@ static void CVArhs(realtype t, N_Vector yB,
 
 /*------------------       CVArhsQ       --------------------------*/
 /*
-  This routine interfaces to the QuadRhsFnB routine provided by
+  This routine interfaces to the CVQuadRhsFnB routine provided by
   the user.
   NOTE: fQ_data actually contains cvadj_mem
 */

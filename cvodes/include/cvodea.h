@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-10-13 15:55:13 $
+ * $Revision: 1.26 $
+ * $Date: 2004-10-21 19:26:00 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -13,7 +13,8 @@
  * This is the interface file for the CVODEA adjoint integrator.
  * 
  * Function types:
- *    RhsFnB      
+ *    CVRhsFnB      
+ *    CVQuadRhsFnB
  *    CVDenseJacFnB
  *    CVBandJacFnB 
  *    CVSpgmrPrecSetupFnB
@@ -60,26 +61,26 @@ extern "C" {
 #include "nvector.h"
   
   /*
-   * Type : RhsFnB                                                 
+   * Type : CVRhsFnB                                                 
    *----------------------------------------------------------------
    * The fB function which defines the right hand side of the       
-   * ODE systems to be integrated backwards must have type RhsFnB.  
+   * ODE systems to be integrated backwards must have type CVRhsFnB.  
    */
 
-  typedef void (*RhsFnB)(realtype t, N_Vector y, 
-                         N_Vector yB, N_Vector yBdot, 
-                         void *f_dataB);
+  typedef void (*CVRhsFnB)(realtype t, N_Vector y, 
+                           N_Vector yB, N_Vector yBdot, 
+                           void *f_dataB);
 
   /*
-   * Type : QuadRhsFnB                                              
+   * Type : CVQuadRhsFnB
    *----------------------------------------------------------------
    * The fQB function which defines the quadratures to be integrated
-   * backwards must have type QuadRhsFnB.                           
+   * backwards must have type CVQuadRhsFnB.                           
    */                                                                
 
-  typedef void (*QuadRhsFnB)(realtype t, N_Vector y, 
-                             N_Vector yB, N_Vector qBdot, 
-                             void *fQ_dataB);
+  typedef void (*CVQuadRhsFnB)(realtype t, N_Vector y, 
+                               N_Vector yB, N_Vector qBdot, 
+                               void *fQ_dataB);
 
   /*
    * Type : CVDenseJacFnB                                           
@@ -213,11 +214,11 @@ extern "C" {
   int CVodeSetMinStepB(void *cvadj_mem, realtype hminB);
   int CVodeSetMaxStepB(void *cvadj_mem, realtype hmaxB);
 
-  int CVodeMallocB(void *cvadj_mem, RhsFnB fB, 
+  int CVodeMallocB(void *cvadj_mem, CVRhsFnB fB, 
                    realtype tB0, N_Vector yB0,
                    int itolB, realtype *reltolB, void *abstolB);
 
-  int CVodeReInitB(void *cvadj_mem, RhsFnB fB, 
+  int CVodeReInitB(void *cvadj_mem, CVRhsFnB fB, 
                    realtype tB0, N_Vector yB0,
                    int itolB, realtype *reltolB, void *abstolB);
 
@@ -232,8 +233,8 @@ extern "C" {
   int CVodeSetQuadErrConB(void *cvadj_mem, int errconQB);
   int CVodeSetQuadTolerancesB(void *cvadj_mem, int itolQB, 
                               realtype *reltolQB, void *abstolQB);
-  int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, N_Vector yQB0);
-  int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB, N_Vector yQB0);
+  int CVodeQuadMallocB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
+  int CVodeQuadReInitB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
 
   /*
    *                                                                

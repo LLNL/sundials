@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-05-26 18:37:07 $
+ * $Revision: 1.2 $
+ * $Date: 2004-10-21 19:26:12 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -139,10 +139,10 @@ extern "C" {
     struct DtpntMemRec **dt_mem;
 
     /* Right hand side function (fB) for backward run */
-    RhsFnB ca_fB;
+    CVRhsFnB ca_fB;
 
     /* Right hand side quadrature function (fQB) for backward run */
-    QuadRhsFnB ca_fQB;
+    CVQuadRhsFnB ca_fQB;
 
     /* Dense Jacobian function (djacB) for backward run */
     CVDenseJacFnB ca_djacB;

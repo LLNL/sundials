@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.40 $
- * $Date: 2004-10-14 22:14:29 $
+ * $Revision: 1.41 $
+ * $Date: 2004-10-21 19:26:12 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -1175,7 +1175,7 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0, 
+int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0, 
                 int itol, realtype *reltol, void *abstol)
 {
   CVodeMem cv_mem;
@@ -1340,7 +1340,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0, 
+int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0, 
                 int itol, realtype *reltol, void *abstol)
 {
   CVodeMem cv_mem;
@@ -1472,7 +1472,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn)
+int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn)
 {
   CVodeMem cv_mem;
   int nrt;
@@ -1667,7 +1667,7 @@ int CVodeSetQuadTolerances(void *cvode_mem, int itolQ,
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0)
+int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
 {
   CVodeMem cv_mem;
   booleantype allocOK;
@@ -1723,7 +1723,7 @@ int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0)
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0)
+int CVodeQuadReInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
 {
   CVodeMem cv_mem;
 
@@ -1763,7 +1763,7 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0)
 /*BEGIN        SENSITIVITY OPTIONAL INPUT FUNCTIONS                */
 /*=================================================================*/
 
-int CVodeSetSensRhsFn(void *cvode_mem, SensRhsFn fS)
+int CVodeSetSensRhsFn(void *cvode_mem, CVSensRhsFn fS)
 {
   CVodeMem cv_mem;
 
@@ -1792,7 +1792,7 @@ int CVodeSetSensRhsFn(void *cvode_mem, SensRhsFn fS)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetSensRhs1Fn(void *cvode_mem, SensRhs1Fn fS1)
+int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS1)
 {
   CVodeMem cv_mem;
 

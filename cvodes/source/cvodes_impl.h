@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-10-13 15:55:55 $
+ * $Revision: 1.4 $
+ * $Date: 2004-10-21 19:26:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -46,7 +46,7 @@ extern "C" {
 /*
  * ifS:   Type of the function returning the sensitivity right    
  *        hand side. ifS can be either CV_ALLSENS if the function    
- *        (of type SensRhsFn) returns right hand sides for all    
+ *        (of type CVSensRhsFn) returns right hand sides for all    
  *        sensitivity systems at once, or CV_ONESENS if the function 
  *        (of type SensRhs1Fn) returns the right hand side of one 
  *        sensitivity system at a time.                           
@@ -72,7 +72,7 @@ typedef struct CVodeMemRec {
     Problem Specification Data 
   ----------------------------*/
 
-  RhsFn cv_f;              /* y' = f(t,y(t))                               */
+  CVRhsFn cv_f;            /* y' = f(t,y(t))                               */
   void *cv_f_data;         /* user pointer passed to f                     */
   int cv_lmm;              /* lmm = ADAMS or BDF                           */
   int cv_iter;             /* iter = FUNCTIONAL or NEWTON                  */
@@ -85,7 +85,7 @@ typedef struct CVodeMemRec {
   --------------------------*/
 
   booleantype cv_quad;     /* TRUE if integrating quadratures              */
-  QuadRhsFn cv_fQ;
+  CVQuadRhsFn cv_fQ;
   int cv_itolQ;
   realtype *cv_reltolQ;    /* ptr to relative tolerance for quad           */
   void *cv_abstolQ;        /* ptr to absolute tolerance for quad           */
@@ -98,8 +98,8 @@ typedef struct CVodeMemRec {
 
   booleantype cv_sensi;    /* TRUE if computing sensitivities              */
   int cv_Ns;               /* Number of sensitivities                      */
-  SensRhsFn cv_fS;         /* fS = (df/dy)*yS + (df/dp)                    */
-  SensRhs1Fn cv_fS1;       /* fS1 = (df/dy)*yS_i + (df/dp)                 */
+  CVSensRhsFn cv_fS;       /* fS = (df/dy)*yS + (df/dp)                    */
+  CVSensRhs1Fn cv_fS1;     /* fS1 = (df/dy)*yS_i + (df/dp)                 */
   booleantype cv_fSDQ;
   int cv_ifS;              /* ifS = ALLSENS or ONESENS                     */
   int cv_ism;              /* ism = SIMULTANEOUS or STAGGERED              */
@@ -349,7 +349,7 @@ typedef struct CVodeMemRec {
     Rootfinding Data
   ------------------*/
 
-  RootFn cv_gfun;       /* Function g for roots sought                     */
+  CVRootFn cv_gfun;     /* Function g for roots sought                     */
   int cv_nrtfn;         /* number of components of g                       */
   void *cv_g_data;      /* pointer to user data for g                      */
   int *cv_iroots;       /* int array for root information                  */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2004-10-11 15:51:48 $
+ * $Revision: 1.31 $
+ * $Date: 2004-10-21 19:26:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -134,10 +134,10 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Type : RhsFn                                                   
+ * Type : CVRhsFn                                                   
  * -----------------------------------------------------------------
  * The f function which defines the right hand side of the ODE    
- * system y' = f(t,y) must have type RhsFn.                       
+ * system y' = f(t,y) must have type CVRhsFn.                       
  * f takes as input the independent variable value t, and the     
  * dependent variable vector y.  It stores the result of f(t,y)   
  * in the vector ydot.  The y and ydot arguments are of type      
@@ -147,19 +147,19 @@ extern "C" {
  * parameter set by the user through the CVodeSetFdata routine.   
  * This user-supplied pointer is passed to the user's f function  
  * every time it is called.                                       
- * A RhsFn f does not have a return value.                        
+ * A CVRhsFn f does not have a return value.                        
  * -----------------------------------------------------------------
  */
 
-typedef void (*RhsFn)(realtype t, N_Vector y, 
-                      N_Vector ydot, void *f_data);
+typedef void (*CVRhsFn)(realtype t, N_Vector y, 
+                        N_Vector ydot, void *f_data);
 
 /*
  * -----------------------------------------------------------------
- * Type : RootFn                                                  
+ * Type : CVRootFn                                                  
  * -----------------------------------------------------------------
  * A function g, which defines a set of functions g_i(t,y) whose  
- * roots are sought during the integration, must have type RootFn.
+ * roots are sought during the integration, must have type CVRootFn.
  * The function g takes as input the independent variable value   
  * t, and the dependent variable vector y.  It stores the nrtfn   
  * values g_i(t,y) in the realtype array gout.                    
@@ -167,20 +167,20 @@ typedef void (*RhsFn)(realtype t, N_Vector y,
  * The g_data parameter is the same as that passed by the user    
  * to the CVodeSetGdata routine.  This user-supplied pointer is   
  * passed to the user's g function every time it is called.       
- * A RootFn g does not have a return value.                       
+ * A CVRootFn g does not have a return value.                       
  * -----------------------------------------------------------------
  */
 
-typedef void (*RootFn)(realtype t, N_Vector y, realtype *gout, 
-                       void *g_data);
+typedef void (*CVRootFn)(realtype t, N_Vector y, realtype *gout, 
+                         void *g_data);
 
 /*
  * -----------------------------------------------------------------
- * Type : SensRhsFn                                               
+ * Type : CVSensRhsFn                                               
  * -----------------------------------------------------------------
  * The fS function which defines the right hand side of the       
  * sensitivity ODE systems s' = f_y * s + f_p must have type      
- * SensRhsFn.                                                     
+ * CVSensRhsFn.                                                     
  * fS takes as input the number of sensitivities Ns, the          
  * independent variable value t, the states y and the             
  * corresponding value of f(t,y) in ydot, and the dependent       
@@ -189,23 +189,23 @@ typedef void (*RootFn)(realtype t, N_Vector y, realtype *gout,
  * The fS_data parameter is the same as the fS_data parameter     
  * set by the user through the CVodeSetSensFdata routine and is   
  * passed to the fS function every time it is called.             
- * A SensRhsFn function does not have a return value.             
+ * A CVSensRhsFn function does not have a return value.             
  * -----------------------------------------------------------------
  */
 
-typedef void (*SensRhsFn)(int Ns, realtype t, 
-                          N_Vector y, N_Vector ydot, 
-                          N_Vector *yS, N_Vector *ySdot, 
-                          void *fS_data,  
-                          N_Vector tmp1, N_Vector tmp2);
+typedef void (*CVSensRhsFn)(int Ns, realtype t, 
+                            N_Vector y, N_Vector ydot, 
+                            N_Vector *yS, N_Vector *ySdot, 
+                            void *fS_data,  
+                            N_Vector tmp1, N_Vector tmp2);
 
 /*
  * -----------------------------------------------------------------
- * Type : SensRhs1Fn                                              
+ * Type : CVSensRhs1Fn                                              
  * -----------------------------------------------------------------
  * The fS1 function which defines the right hand side of the i-th 
  * sensitivity ODE system s_i' = f_y * s_i + f_p must have type   
- * SensRhs1Fn.                                                    
+ * CVSensRhs1Fn.                                                    
  * fS1 takes as input the number of sensitivities Ns, the current 
  * sensitivity iS, the independent variable value t, the states y 
  * and the corresponding value of f(t,y) in ydot, and the         
@@ -215,34 +215,34 @@ typedef void (*SensRhsFn)(int Ns, realtype t,
  * The fS_data parameter is the same as the fS_data parameter     
  * set by the user through the CVodeSetSensFdata routine and is   
  * passed to the fS1 function every time it is called.            
- * A SensRhs1Fn function does not have a return value.            
+ * A CVSensRhs1Fn function does not have a return value.            
  * -----------------------------------------------------------------
  */
 
-typedef void (*SensRhs1Fn)(int Ns, realtype t, 
-                           N_Vector y, N_Vector ydot, 
-                           int iS, N_Vector yS, N_Vector ySdot, 
-                           void *fS_data,
-                           N_Vector tmp1, N_Vector tmp2);
+typedef void (*CVSensRhs1Fn)(int Ns, realtype t, 
+                             N_Vector y, N_Vector ydot, 
+                             int iS, N_Vector yS, N_Vector ySdot, 
+                             void *fS_data,
+                             N_Vector tmp1, N_Vector tmp2);
 
 /*
  * -----------------------------------------------------------------
- * Type : QuadRhsFn                                               
+ * Type : CVQuadRhsFn                                               
  * -----------------------------------------------------------------
  * The fQ function which defines the right hand side of the       
- * quadrature equations yQ' = fQ(t,y) must have type QuadRhsFn.   
+ * quadrature equations yQ' = fQ(t,y) must have type CVQuadRhsFn.   
  * fQ takes as input the value of the independent variable t,     
  * the vector of states y and must store the result of fQ in      
  * yQdot. (Allocation of memory for yQdot is handled by CVODES).  
  * The fQ_data parameter is the same as the fQ_data parameter     
  * set by the user through the CVodeSetQuadFdata routine and is   
  * passed to the fQ function every time it is called.             
- * A QuadRhsFn function does not have a return value.             
+ * A CVQuadRhsFn function does not have a return value.             
  * -----------------------------------------------------------------
  */
 
-typedef void (*QuadRhsFn)(realtype t, N_Vector y, N_Vector yQdot, 
-                          void *fQ_data);
+typedef void (*CVQuadRhsFn)(realtype t, N_Vector y, N_Vector yQdot, 
+                            void *fQ_data);
 
 /* 
  * =================================================================
@@ -446,7 +446,7 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
  * -----------------------------------------------------------------
  */
 
-int CVodeMalloc(void *cvode_mem, RhsFn f,
+int CVodeMalloc(void *cvode_mem, CVRhsFn f,
                 realtype t0, N_Vector y0, 
                 int itol, realtype *reltol, void *abstol);
 
@@ -488,7 +488,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f,
  * -----------------------------------------------------------------
  */
 
-int CVodeReInit(void *cvode_mem, RhsFn f,
+int CVodeReInit(void *cvode_mem, CVRhsFn f,
                 realtype t0, N_Vector y0, 
                 int itol, realtype *reltol, void *abstol);
 
@@ -502,7 +502,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f,
  *                                                                
  * cvode_mem = pointer to CVODE memory returned by CVodeCreate.   
  *                                                                
- * g         = name of user-supplied function, of type RootFn,    
+ * g         = name of user-supplied function, of type CVRootFn,    
  *             defining the functions g_i whose roots are sought. 
  *                                                                
  * nrtfn     = number of functions g_i, an int >= 0.              
@@ -577,7 +577,7 @@ int CVodeSetQuadTolerances(void *cvode_mem, int itolQ,
  * -----------------------------------------------------------------
  */
 
-int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0);
+int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0);
     
 /*
  * -----------------------------------------------------------------
@@ -598,7 +598,7 @@ int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0);
  * -----------------------------------------------------------------
  */
 
-int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0);
+int CVodeQuadReInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0);
 
 /*
  * -----------------------------------------------------------------
@@ -667,8 +667,8 @@ int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0);
  * -----------------------------------------------------------------
  */
 
-int CVodeSetSensRhsFn(void *cvode_mem, SensRhsFn fS);
-int CVodeSetSensRhs1Fn(void *cvode_mem, SensRhs1Fn fS);
+int CVodeSetSensRhsFn(void *cvode_mem, CVSensRhsFn fS);
+int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS);
 int CVodeSetSensRho(void *cvode_mem, realtype rho);
 int CVodeSetSensPbar(void *cvode_mem, realtype *pbar);
 int CVodeSetSensFdata(void *cvode_mem, void *fS_data);
