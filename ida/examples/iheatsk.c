@@ -1,7 +1,9 @@
 /***********************************************************************
- * File:       iheatsk.c   
- * Written by: Allan G. Taylor and Alan C. Hindmarsh
- * Version of: 7 February 2000
+ * File       : iheatsk.c   
+ * Written by : Allan G. Taylor and Alan C. Hindmarsh
+ * Version of : 8 March 2002
+ *----------------------------------------------------------------------
+ * Modified by R. Serban to work with new serial nvector (8/3/2002)    
  *----------------------------------------------------------------------
  *
  * Example problem for IDA: 2D heat equation, serial, GMRES.
@@ -27,10 +29,11 @@
  ***********************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include "llnltyps.h"
 #include "llnlmath.h"
-#include "nvector.h"
+#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S   */
 #include "ida.h"
 #include "idaspgmr.h"
 #include "iterativ.h"
@@ -71,9 +74,10 @@ int PSolveHeateq(integer Neq, real tt, N_Vector uu,
 #define TWO   RCONST(2.0)
 #define FOUR  RCONST(4.0)
 
-main()
+int main()
 {
-  integer retval, i, iout, itol, itask;
+  M_Env machEnv;
+  integer retval, iout, itol, itask;
   long int iopt[OPT_SIZE];
   boole optIn;
   real ropt[OPT_SIZE], rtol, atol, t0, t1, tout, tret, umax;
@@ -81,13 +85,16 @@ main()
   UserData data;
   void *mem;
 
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);  
+
   /* Allocate N-vectors and the user data structure. */
 
-  uu = N_VNew(NEQ,NULL); 
-  up = N_VNew(NEQ,NULL);
-  res = N_VNew(NEQ,NULL);
-  constraints = N_VNew(NEQ,NULL);
-  id = N_VNew(NEQ,NULL);
+  uu = N_VNew(NEQ, machEnv); 
+  up = N_VNew(NEQ, machEnv);
+  res = N_VNew(NEQ, machEnv);
+  constraints = N_VNew(NEQ, machEnv);
+  id = N_VNew(NEQ, machEnv);
 
   data = (UserData) malloc(sizeof *data);
 
@@ -97,13 +104,13 @@ main()
   data->mm  = MGRID;
   data->dx = ONE/(MGRID-ONE);
   data->coeff = ONE/(data->dx * data->dx);
-  data->pp = N_VNew(NEQ,NULL);
+  data->pp = N_VNew(NEQ, machEnv);
 
   /* Initialize uu, up, id. */
   SetInitialProfile(data, uu, up, id, res);
 
   /* Set constraints to all 1's for nonnegative solution values. */
-  N_VConst (ONE, constraints);
+  N_VConst(ONE, constraints);
 
   /* Assign various parameters. */
   t0   = ZERO;
@@ -118,19 +125,18 @@ main()
      NULL arguments are errfp and machEnv, respectively. */
 
   mem = IDAMalloc(NEQ, heatres, data , t0, uu, up, itol, &rtol, &atol,
-                  id , constraints , NULL, optIn, iopt, ropt,  NULL);
-
-  mem = (IDAMem)mem;
+                  id , constraints , NULL, optIn, iopt, ropt,  machEnv);
+  /*mem = (IDAMem)mem;*/
   if (mem == NULL) { printf("IDAMalloc failed."); return(1); }
 
   /* Call IDASpgmr to specify the linear solver. */
 
   retval = IDASpgmr(mem, PrecondHeateq, PSolveHeateq,  MODIFIED_GS, 
-                   0, 0, 0., 0., data);
+                    0, 0, 0., 0., data);
   if (retval != SUCCESS) {printf("IDASpgmr failed."); return(1); }
-
+  
   /* Print output heading. */
-
+  
   printf("iheatsk: Heat equation, serial example problem for IDA \n");
   printf("         Discretized heat equation on 2D unit square. \n");
   printf("         Zero boundary conditions,");
@@ -147,28 +153,28 @@ main()
   printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
   umax = N_VMaxNorm(uu);
 
-  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %9.2e  %3d %3d\n",
+  printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld  %9.2e  %3ld %3ld\n",
          t0, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
          iopt[NRE],  ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
 
   /* Loop over output times, call IDASolve, and print results. */
 
   for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
-
+    
     retval = IDASolve(mem, tout, t0, &tret, uu, up, itask);
-
+    
     umax = N_VMaxNorm(uu);
-    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %9.2e  %3d %3d\n",
+    printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld  %9.2e  %3ld %3ld\n",
            tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
            iopt[NRE],  ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
 
-    if (retval < 0) {printf("IDASolve returned %d.\n",retval); return(1); }
+    if (retval < 0) {printf("IDASolve returned %ld.\n",retval); return(1); }
 
     } /* End of tout loop. */
 
   /* Print remaining counters and free memory. */
 
-  printf("\n netf = %d,   ncfn = %d,   ncfl = %d \n", 
+  printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", 
          iopt[NETF], iopt[NCFN], iopt[SPGMR_NCFL]);
 
   IDAFree(mem);
@@ -179,6 +185,9 @@ main()
   N_VFree(res);
   N_VFree(data->pp);
   free(data);
+  M_EnvFree_Serial(machEnv);
+
+  return(0);
 
 } /* End of iheatsk main program. */
 
@@ -187,19 +196,19 @@ main()
  * SetInitialProfile: routine to initialize u, up, and id vectors.       */
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
-                     N_Vector id, N_Vector res)
+                             N_Vector id, N_Vector res)
 {
   integer mm, mm1, i, j, offset, loc;
   real xfact, yfact, *udata, *updata, *iddata;
 
   mm = data->mm;
 
-  udata = N_VDATA(uu);
-  updata = N_VDATA(up);
-  iddata = N_VDATA(id);
+  udata = NV_DATA_S(uu);
+  updata = NV_DATA_S(up);
+  iddata = NV_DATA_S(id);
 
   /* Initialize id to 1's. */
-  N_VConst (ONE, id);
+  N_VConst(ONE, id);
 
   /* Initialize uu on all grid points. */ 
   mm1 = mm - 1;
@@ -212,12 +221,12 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
       udata[loc] = 16. * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
-
+  
   /* Initialize up vector to 0. */
-  N_VConst (ZERO, up);
+  N_VConst(ZERO, up);
 
   /* heatres sets res to negative of ODE RHS values at interior points. */
-  heatres (data->neq, ZERO, uu, up, res, data);
+  heatres(data->neq, ZERO, uu, up, res, data);
 
   /* Copy -res into up to get correct interior initial up values. */
   N_VScale(-ONE, res, up);
@@ -231,9 +240,9 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
         updata[loc] = ZERO; iddata[loc] = ZERO; }
     }
   }
-
+  
   return(SUCCESS);
-
+  
 } /* End of SetInitialProfiles. */
 
 
@@ -249,21 +258,21 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
             N_Vector res, void *rdata)
- {
+{
   integer i, j, offset, loc, mm;
   real *uv, *upv, *resv, coeff;
   UserData data;
-
-  uv = N_VDATA(uu); upv = N_VDATA(up); resv = N_VDATA(res);
+  
+  uv = NV_DATA_S(uu); upv = NV_DATA_S(up); resv = NV_DATA_S(res);
 
   data = (UserData)rdata;
-
+  
   coeff = data->coeff;
   mm    = data->mm;
-
+  
   /* Initialize res to uu, to take care of boundary equations. */
   N_VScale(ONE, uu, res);
-
+  
   /* Loop over interior points; set res = up - (central difference). */
   for (j = 1; j < MGRID-1; j++) {
     offset = mm*j;
@@ -296,30 +305,29 @@ int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
  * pp etc.) are used from the PrecondHeateq argument list.         */
   
 int PrecondHeateq(integer Neq, real tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, real cj,
-                 ResFn res, void *rdata, void *pdata,
-                 N_Vector ewt, N_Vector constraints, real hh, 
-                 real uround, long int *nrePtr,
-                 N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+                  N_Vector up, N_Vector rr, real cj,
+                  ResFn res, void *rdata, void *pdata,
+                  N_Vector ewt, N_Vector constraints, real hh, 
+                  real uround, long int *nrePtr,
+                  N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-
+  
   integer i, j, offset, loc, mm;
   real *ppv, pelinv;
   UserData data;
-
+  
   data = (UserData) rdata;
-  ppv = N_VDATA(data->pp);
+  ppv = NV_DATA_S(data->pp);
   mm = data->mm;
 
-
   /* Initialize the entire vector to 1., then set the interior points to the
-                correct value for preconditioning. */
-
-   N_VConst(ONE,data->pp);
-
+     correct value for preconditioning. */
+  
+  N_VConst(ONE,data->pp);
+  
   /* Compute the inverse of the preconditioner diagonal elements. */
   pelinv = ONE/(cj + FOUR*data->coeff); 
-
+  
   for (j = 1; j < mm-1; j++) {
     offset = mm * j;
     for (i = 1; i < mm-1; i++) {
@@ -327,9 +335,9 @@ int PrecondHeateq(integer Neq, real tt, N_Vector uu,
       ppv[loc] = pelinv;
     }
   }
-
+  
   return(SUCCESS);
-
+  
 } /* End of PrecondHeateq. */
 
 
@@ -338,18 +346,18 @@ int PrecondHeateq(integer Neq, real tt, N_Vector uu,
  * This routine multiplies the input vector rvec by the vector pp *
  * containing the inverse diagonal Jacobian elements (previously  *
  * computed in PrecondHeateq), returning the result in zvec.      */
-  
+
 int PSolveHeateq(integer Neq, real tt, N_Vector uu,
                  N_Vector up, N_Vector rr, real cj, ResFn res, void *rdata,
                  void *pdata, N_Vector ewt, real delta, N_Vector rvec,
                  N_Vector zvec, long int *nrePtr, N_Vector tempv)
- {
+{
   UserData data;
-
+  
   data = (UserData) rdata;
-
+  
   N_VProd(data->pp, rvec, zvec);
-
+  
   return(SUCCESS);
 
 } /* End of PSolveHeateq. */

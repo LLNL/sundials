@@ -1,7 +1,9 @@
 /*************************************************************************
- * File:       iwebsb.c                                                  *
- * Written by: Allan G. Taylor and Alan C. Hindmarsh @ LLNL              *
- * Version of: 10 January 2001                                           *
+ * File       : iwebsb.c                                                 *
+ * Written by : Allan G. Taylor and Alan C. Hindmarsh @ LLNL             *
+ * Version of : 8 March 2002                                             *
+ *-----------------------------------------------------------------------*
+ * Modified by R. Serban to work with new serial nvector (8/3/2002)      *
  *-----------------------------------------------------------------------*
  *
  * Example program for IDA: Food web, serial, band solve IDABAND.
@@ -82,12 +84,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"   /* Definitions of real, integer, boole, TRUE, FALSE.*/
-#include "ida.h"        /* Main IDA header file.                            */
-#include "idaband.h"    /* Use IDABAND linear solver.                       */
-#include "nvector.h"    /* Definitions of type N_Vector, macro N_VDATA.     */
-#include "llnlmath.h"   /* Contains RSqrt and UnitRoundoff routines.        */
-#include "smalldense.h" /* Contains definitions for denalloc routine.       */
+#include "llnltyps.h"        /* Definitions of real, integer, boole, TRUE, FALSE.*/
+#include "ida.h"             /* Main IDA header file.                            */
+#include "idaband.h"         /* Use IDABAND linear solver.                       */
+#include "nvector_serial.h"  /* Definitions of type N_Vector, macro NV_DATA_S.   */
+#include "llnlmath.h"        /* Contains RSqrt and UnitRoundoff routines.        */
+#include "smalldense.h"      /* Contains definitions for denalloc routine.       */
 
 /* Problem Constants. */
 
@@ -126,8 +128,7 @@
    IJ_Vptr(vv,i,j) returns a pointer to the location in vv corresponding to 
    species index is = 0, x-index ix = i, and y-index jy = j.                */
 
-#define IJ_Vptr(vv,i,j)   (&(((vv)->data)[(i)*NUM_SPECIES + (j)*NSMX]))
-
+#define IJ_Vptr(vv,i,j) (&NV_Ith_S(vv, i*NUM_SPECIES + j*NSMX))
 
 /* Type: UserData.  Contains problem constants, etc. */
 
@@ -140,11 +141,11 @@ typedef struct {
 
 /* Prototypes for private Helper Functions. */
 
-static UserData AllocUserData(void);
+static UserData AllocUserData(M_Env machEnv);
 static void InitUserData(UserData webdata);
 static void FreeUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
-			       UserData webdata);
+                               UserData webdata);
 static void PrintOutput(long int iopt[], real ropt[], N_Vector cc, real time,
                         UserData webdata);
 static void PrintFinalStats(long int iopt[]);
@@ -161,9 +162,10 @@ static int resweb(integer Neq, real time, N_Vector cc, N_Vector cp,
 
 /***************************** Main Program ******************************/
 
-main()
+int main()
 { 
-  int iout, flag, retval, i, itol, itask;
+  M_Env machEnv;
+  int iout, flag, retval, itol, itask;
   integer SystemSize, mu, ml;
   long int iopt[OPT_SIZE];
   boole optIn;
@@ -171,28 +173,29 @@ main()
   N_Vector cc, cp, id, res;
   UserData webdata;
   void *mem;
-  IDAMem idamem;
+
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);
 
   /* Set up and load user data block webdata. */
-
   SystemSize = NEQ;
-  webdata = AllocUserData();
+  webdata = AllocUserData(machEnv);
   InitUserData(webdata);
 
   /* Allocate N-vectors and initialize cc, cp, and id.
      The vector res is used temporarily only.           */ 
 
   SystemSize = NEQ;
-  cc  = N_VNew(SystemSize, NULL);
-  cp  = N_VNew(SystemSize, NULL);
-  res = N_VNew(SystemSize, NULL);
-  id  = N_VNew(SystemSize, NULL);
-
+  cc  = N_VNew(SystemSize, machEnv);
+  cp  = N_VNew(SystemSize, machEnv);
+  res = N_VNew(SystemSize, machEnv);
+  id  = N_VNew(SystemSize, machEnv);
+  
   SetInitialProfiles(cc, cp, id, webdata);
   N_VFree(res);
-
+  
   /* Set remaining inputs to IDAMalloc. */
-
+  
   t0 = ZERO;
   itol = SS; rtol = RTOL; atol = ATOL;
   optIn = FALSE;
@@ -200,68 +203,66 @@ main()
   /* Call IDAMalloc to initialize IDA.
   First NULL argument  = constraints vector, not used here.
   Second NULL argument = file pointer for error messages (sent to stdout).
-  Third NULL argument = machEnv, not used in serial version.
-  A pointer to IDA problem memory is returned and stored in idamem.     */
+  A pointer to IDA problem memory is returned and stored in mem.     */
 
   mem = IDAMalloc(SystemSize, resweb, webdata, t0, cc, cp, itol,&rtol,&atol,
-                  id, NULL, NULL, optIn, iopt, ropt, NULL);
-
+                  id, NULL, NULL, optIn, iopt, ropt, machEnv);
   if (mem == NULL) { printf("IDAMalloc failed."); return(1); }
-  idamem = (IDAMem)mem;
-
+  
   /* Call IDABand to specify the IDA linear solver. */
 
   mu = ml = NSMX;
-  retval = IDABand(idamem, mu, ml, NULL, NULL);
-
+  retval = IDABand(mem, mu, ml, NULL, NULL);
+  
   if (retval != 0) {
     printf("IDABand failed, returning %d \n",retval);
     return(1); }
-
+  
   /* Call IDACalcIC (with default options) to correct the initial values. */
-
+  
   tout = 0.001;
-  retval = IDACalcIC (idamem, CALC_YA_YDP_INIT, tout, ZERO, 0,0,0,0, ZERO);
-
+  retval = IDACalcIC(mem, CALC_YA_YDP_INIT, tout, ZERO, 0,0,0,0, ZERO);
+  
   if (retval != SUCCESS) {
     printf("IDACalcIC failed. retval = %d\n",retval);
     return(1); }
-
+  
   /* Print heading, basic parameters, and initial values. */
 
   printf("iwebsb: Predator-prey DAE serial example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     System size: %d\n",SystemSize);
+  printf("     System size: %ld\n",SystemSize);
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
-  printf("Linear solver: IDABAND,  Band parameters mu = %d, ml = %d\n",mu,ml);
+  printf("Linear solver: IDABAND,  Band parameters mu = %ld, ml = %ld\n",mu,ml);
   printf("CalcIC called to correct initial predator concentrations \n\n");
-
+  
   PrintOutput(iopt, ropt, cc, ZERO, webdata);
-
+  
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
-
+  
   itask = NORMAL;
   for (iout = 1; iout <= NOUT; iout++) {
-
+    
     flag = IDASolve(mem, tout, t0, &tret, cc, cp, itask);
-
+    
     if(flag != SUCCESS) { 
       printf("IDA failed, flag = %d.\n", flag); 
       return(flag); }
-
+    
     PrintOutput(iopt, ropt, cc, tret,webdata);
-
+    
     if (iout < 3) tout *= TMULT; else tout += TADD;
-
+    
   } /* End of iout loop. */
-
+  
   /* Print final statistics and free memory. */  
-
+  
   PrintFinalStats(iopt);
   N_VFree(cc); N_VFree(cp); N_VFree(id);
-  IDAFree(idamem);
+  IDAFree(mem);
   FreeUserData(webdata);
+  M_EnvFree_Serial(machEnv);
 
   return(0);
 
@@ -274,14 +275,13 @@ main()
 /*************************************************************************/
 /* AllocUserData: Allocate memory for data structure of type UserData.   */
 
-static UserData AllocUserData(void)
+static UserData AllocUserData(M_Env machEnv)
 {
-  int jx, jy;
   UserData webdata;
 
   webdata = (UserData) malloc(sizeof *webdata);
 
-  webdata->rates = N_VNew(NEQ,NULL);
+  webdata->rates = N_VNew(NEQ, machEnv);
 
   webdata->acoef = denalloc(NUM_SPECIES);
  
@@ -303,7 +303,7 @@ static UserData AllocUserData(void)
 static void InitUserData(UserData webdata)
 {
   int i, j, np;
-  real *a1,*a2, *a3, *a4, *b, dx2, dy2;
+  real *a1,*a2, *a3, *a4, dx2, dy2;
 
   webdata->mx = MX;
   webdata->my = MY;
@@ -316,7 +316,7 @@ static void InitUserData(UserData webdata)
   /* Set up the coefficients a and b, and others found in the equations. */
   np = webdata->np;
   dx2 = (webdata->dx)*(webdata->dx); dy2 = (webdata->dy)*(webdata->dy);
-
+  
   for (i = 0; i < np; i++) {
     a1 = &(acoef[i][np]);
     a2 = &(acoef[i+np][0]);
@@ -329,16 +329,16 @@ static void InitUserData(UserData webdata)
       *a3++ = ZERO;
       *a4++ = ZERO;
     }
-
+    
     /* Reset the diagonal elements of acoef to -AA. */
     acoef[i][i] = -AA; acoef[i+np][i+np] = -AA;
-
+    
     /* Set coefficients for b and diffusion terms. */
     bcoef[i] = BB; bcoef[i+np] = -BB;
     cox[i] = DPREY/dx2; cox[i+np] = DPRED/dx2;
     coy[i] = DPREY/dy2; coy[i+np] = DPRED/dy2;
   }
-
+  
 } /* End of InitUserData */
 
 
@@ -349,7 +349,7 @@ static void FreeUserData(UserData webdata)
 {
   denfree(acoef);
   N_VFree(webdata->rates);
-
+  
   free(webdata);
 }
 
@@ -363,17 +363,17 @@ static void FreeUserData(UserData webdata)
    the predator cp values are set to zero.                               */
 
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
-			       UserData webdata)
+                               UserData webdata)
 {
   integer loc, yloc, is, jx, jy, np;
   real xx, yy, xyfactor, fac;
-  real *ccv, *cpv, *idv, *crate;
-
-  ccv = N_VDATA(cc);
-  cpv = N_VDATA(cp);
-  idv = N_VDATA(id);
+  real *ccv, *cpv, *idv;
+  
+  ccv = NV_DATA_S(cc);
+  cpv = NV_DATA_S(cp);
+  idv = NV_DATA_S(id);
   np = webdata->np;
-
+  
   /* Loop over grid, load cc values and id values. */
   for (jy = 0; jy < MY; jy++) {
     yy = jy * webdata->dy;
@@ -384,30 +384,30 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       xyfactor *= xyfactor;
       loc = yloc + NUM_SPECIES*jx;
       fac = ONE + ALPHA * xx * yy + BETA * sin(FOURPI*xx) * sin(FOURPI*yy);
-
+      
       for (is = 0; is < NUM_SPECIES; is++) {
-	if (is < np) {
-	  ccv[loc+is] = 10. + (real)(is+1) * xyfactor;
-	  idv[loc+is] = ONE;
-	}
-	else {
-	  ccv[loc+is] = 1.0e5;
-	  idv[loc+is] = ZERO;
-	}
+        if (is < np) {
+          ccv[loc+is] = 10. + (real)(is+1) * xyfactor;
+          idv[loc+is] = ONE;
+        }
+        else {
+          ccv[loc+is] = 1.0e5;
+          idv[loc+is] = ZERO;
+        }
       }
     }
   }
-
+  
   /* Set c' for the prey by calling the function Fweb. */
   Fweb(ZERO, cc, cp, webdata);
-
+  
   /* Set c' for predators to 0. */
   for (jy = 0; jy < MY; jy++) {
     yloc = NSMX * jy;
     for (jx = 0; jx < MX; jx++) {
       loc = yloc + NUM_SPECIES * jx;
       for (is = np; is < NUM_SPECIES; is++) {
-	cpv[loc+is] = ZERO;
+        cpv[loc+is] = ZERO;
       }
     }
   }
@@ -424,20 +424,20 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
 static void PrintOutput(long int iopt[], real ropt[], N_Vector cc, real tt,
                         UserData webdata)
 {
-  int is, jx, jy;
-  real  *ct;
-
-  printf("\nTIME t = %e.     NST = %d, k = %d, h = %e\n",
+  int jx, jy;
+  real *ct;
+  
+  printf("\nTIME t = %e.     NST = %ld, k = %ld, h = %e\n",
          tt, iopt[NST], iopt[KUSED], ropt[HUSED]);
-  printf("NRE = %d, NNI = %d, NJE = %d\n", iopt[NRE], iopt[NNI], 
-	 iopt[BAND_NJE]);
-
+  printf("NRE = %ld, NNI = %ld, NJE = %ld\n", iopt[NRE], iopt[NNI], 
+         iopt[BAND_NJE]);
+  
   jx = 0;    jy = 0;    ct = IJ_Vptr(cc,jx,jy);
   printf("At bottom left:  c1, c2 = %e %e \n",   ct[0],ct[1]);
-
+  
   jx = MX-1; jy = MY-1; ct = IJ_Vptr(cc,jx,jy);
   printf("At top right:    c1, c2 = %e %e \n\n", ct[0],ct[1]);
-
+  
 } /* End of PrintOutput. */
 
 
@@ -450,7 +450,7 @@ static void PrintFinalStats(long int iopt[])
   printf("NST  = %5ld     NRE  = %5ld \n", iopt[NST], iopt[NRE]);
   printf("NNI  = %5ld     NJE  = %5ld \n", iopt[NNI], iopt[BAND_NJE]);
   printf("NETF = %5ld     NCFN = %5ld \n", iopt[NETF], iopt[NCFN]);
-
+  
 } /* End of PrintFinalStats. */
 
 
@@ -469,34 +469,34 @@ static int resweb(integer Neq, real tt, N_Vector cc, N_Vector cp,
   integer jx, jy, is, yloc, loc, np;
   real *resv, *cpv;
   UserData webdata;
- 
+  
   webdata = (UserData)rdata;
-
-  cpv = N_VDATA(cp);
-  resv = N_VDATA(res);
+  
+  cpv = NV_DATA_S(cp);
+  resv = NV_DATA_S(res);
   np = webdata->np;
-
+  
   /* Call Fweb to set res to vector of right-hand sides. */
   Fweb(tt, cc, res, webdata);
-
+  
   /* Loop over all grid points, setting residual values appropriately
      for differential or algebraic components.                        */
-
+  
   for (jy = 0; jy < MY; jy++) {
     yloc = NSMX * jy;
     for (jx = 0; jx < MX; jx++) {
       loc = yloc + NUM_SPECIES * jx;
       for (is = 0; is < NUM_SPECIES; is++) {
         if (is < np)
-	  resv[loc+is] = cpv[loc+is] - resv[loc+is];
+          resv[loc+is] = cpv[loc+is] - resv[loc+is];
         else
-	  resv[loc+is] = -resv[loc+is];
+          resv[loc+is] = -resv[loc+is];
       } /* End is (species) loop */
     } /* End of jx loop */
   } /* End of jy loop */
-
+  
   return(0);
-
+  
 }  /* End of residual function resweb. */
 
 
@@ -507,19 +507,19 @@ static int resweb(integer Neq, real tt, N_Vector cc, N_Vector cp,
 /* The interaction term is computed by the function WebRates.            */
 
 static void Fweb(real tcalc, N_Vector cc, N_Vector crate,  
-                UserData webdata)
+                 UserData webdata)
 { 
   integer jx, jy, is, idyu, idyl, idxu, idxl;
   real xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
-
+  
   /* Loop over grid points, evaluate interaction vector (length ns),
      form diffusion difference terms, and load crate.                    */
-
+  
   for (jy = 0; jy < MY; jy++) {
     yy = (webdata->dy) * jy ;
     idyu = (jy!=MY-1) ? NSMX : -NSMX;
     idyl = (jy!= 0  ) ? NSMX : -NSMX;
-
+    
     for (jx = 0; jx < MX; jx++) {
       xx = (webdata->dx) * jx;
       idxu = (jx!= MX-1) ?  NUM_SPECIES : -NUM_SPECIES;
@@ -527,29 +527,29 @@ static void Fweb(real tcalc, N_Vector cc, N_Vector crate,
       cxy = IJ_Vptr(cc,jx,jy);
       ratesxy = IJ_Vptr(webdata->rates,jx,jy);
       cratexy = IJ_Vptr(crate,jx,jy);
-
+      
       /* Get interaction vector at this grid point. */
       WebRates(xx, yy, cxy, ratesxy, webdata);
-
+      
       /* Loop over species, do differencing, load crate segment. */
       for (is = 0; is < NUM_SPECIES; is++) {
-
-	/* Differencing in y. */
-	dcyli = *(cxy+is) - *(cxy - idyl + is) ;
-	dcyui = *(cxy + idyu + is) - *(cxy+is);
-	
-	/* Differencing in x. */
-	dcxli = *(cxy+is) - *(cxy - idxl + is);
-	dcxui = *(cxy + idxu +is) - *(cxy+is);
-
-	/* Compute the crate values at (xx,yy). */
-	cratexy[is] = coy[is] * (dcyui - dcyli) +
-	              cox[is] * (dcxui - dcxli) + ratesxy[is];
-
+        
+        /* Differencing in y. */
+        dcyli = *(cxy+is) - *(cxy - idyl + is) ;
+        dcyui = *(cxy + idyu + is) - *(cxy+is);
+        
+        /* Differencing in x. */
+        dcxli = *(cxy+is) - *(cxy - idxl + is);
+        dcxui = *(cxy + idxu +is) - *(cxy+is);
+        
+        /* Compute the crate values at (xx,yy). */
+        cratexy[is] = coy[is] * (dcyui - dcyli) +
+          cox[is] * (dcxui - dcxli) + ratesxy[is];
+        
       } /* End is loop */
     } /* End of jx loop */
   } /* End of jy loop */
-
+  
 }  /* End of Fweb. */
 
 
@@ -562,15 +562,15 @@ static void WebRates(real xx, real yy, real *cxy, real *ratesxy,
 {
   int is;
   real fac;
-
+  
   for (is = 0; is < NUM_SPECIES; is++)
-       ratesxy[is] = dotprod(NUM_SPECIES, cxy, acoef[is]);
-
+    ratesxy[is] = dotprod(NUM_SPECIES, cxy, acoef[is]);
+  
   fac = ONE + ALPHA*xx*yy + BETA*sin(FOURPI*xx)*sin(FOURPI*yy);
-
+  
   for (is = 0; is < NUM_SPECIES; is++)  
-       ratesxy[is] = cxy[is]*( bcoef[is]*fac + ratesxy[is] );
-
+    ratesxy[is] = cxy[is]*( bcoef[is]*fac + ratesxy[is] );
+  
 } /* End of WebRates. */
 
 
@@ -581,9 +581,9 @@ static real dotprod(integer size, real *x1, real *x2)
 {
   integer i;
   real *xx1, *xx2, temp = ZERO;
-
+  
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
   return(temp);
-
+  
 } /* End of dotprod. */

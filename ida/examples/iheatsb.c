@@ -1,7 +1,9 @@
 /***********************************************************************
- * File:       iheatsb.c   
- * Written by: Allan G. Taylor and Alan C. Hindmarsh
- * Version of: 10 January 2001
+ * File       : iheatsb.c   
+ * Written by : Allan G. Taylor and Alan C. Hindmarsh
+ * Version of : 8 March 2002
+ *----------------------------------------------------------------------
+ * Modified by R. Serban to work with new serial nvector (8/3/2002)
  *----------------------------------------------------------------------
  *
  * Example problem for IDA: 2D heat equation, serial, banded. 
@@ -29,10 +31,11 @@
  ***********************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include "llnltyps.h"
 #include "llnlmath.h"
-#include "nvector.h"
+#include "nvector_serial.h" /* definitions of type N_Vector and macro NV_DATA_S */
 #include "ida.h"
 #include "idaband.h"
 
@@ -59,9 +62,10 @@ int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
 #define TWO   RCONST(2.0)
 #define BVAL  RCONST(0.1)
 
-main()
+int main()
 {
-  integer retval, i,iout, itol, itask, mu, ml;
+  M_Env machEnv;
+  integer retval, iout, itol, itask, mu, ml;
   long int iopt[OPT_SIZE];
   boole optIn;
   real ropt[OPT_SIZE], rtol, atol, t0, t1, tout, tret, umax;
@@ -69,12 +73,15 @@ main()
   UserData data;
   void *mem;
 
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(NEQ);
+
   /* Create vectors uu, up, res, constraints, id. */
-  uu = N_VNew(NEQ,NULL); 
-  up = N_VNew(NEQ,NULL);
-  res = N_VNew(NEQ,NULL);
-  constraints = N_VNew(NEQ,NULL);
-  id = N_VNew(NEQ,NULL);
+  uu = N_VNew(NEQ, machEnv); 
+  up = N_VNew(NEQ, machEnv);
+  res = N_VNew(NEQ, machEnv);
+  constraints = N_VNew(NEQ, machEnv);
+  id = N_VNew(NEQ, machEnv);
 
   /* Create and load problem data block. */
   data = (UserData) malloc(sizeof *data);
@@ -87,7 +94,7 @@ main()
   SetInitialProfile(data, uu, up, id, res);
 
   /* Set constraints to all 1's for nonnegative solution values. */
-  N_VConst (ONE, constraints);
+  N_VConst(ONE, constraints);
 
   /* Set remaining input parameters. */
   t0   = ZERO;
@@ -101,8 +108,7 @@ main()
   /* Call IDAMalloc to initialize solution.
      NULL arguments are errfp and machEnv, respectively. */
   mem = IDAMalloc(NEQ, heatres, data, t0, uu, up, itol, &rtol, &atol,
-                  id, constraints, NULL, optIn, iopt, ropt,  NULL);
-  mem = (IDAMem)mem;
+                  id, constraints, NULL, optIn, iopt, ropt,  machEnv);
   if (mem == NULL) { printf("IDAMalloc failed."); return(1); }
 
 
@@ -134,28 +140,28 @@ main()
   printf("  time       umax     k  nst  nni  nje   nre    h      \n" );
   printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
   umax = N_VMaxNorm(uu);
-
-  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %9.2e \n",
+  
+  printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld  %9.2e \n",
          t0, umax, iopt[KUSED], iopt[NST], iopt[NNI], 
          iopt[BAND_NJE], iopt[NRE], ropt[HUSED]);
 
   /* Loop over output times, call IDASolve, and print results. */
-
+  
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
-
+    
     retval = IDASolve(mem, tout, t0, &tret, uu, up, itask);
-
+    
     umax = N_VMaxNorm(uu);
-    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %9.2e \n",
+    printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld  %9.2e \n",
            tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], 
            iopt[BAND_NJE], iopt[NRE], ropt[HUSED]);
-
+    
     if (retval < 0) { printf("IDASolve failed."); return(1); }
 
   } /* End of tout loop. */
-
+  
   /* Print remaining counters and free memory. */
-  printf("\n netf = %d,   ncfn = %d \n", iopt[NETF], iopt[NCFN]);
+  printf("\n netf = %ld,   ncfn = %ld \n", iopt[NETF], iopt[NCFN]);
 
   IDAFree(mem);
   N_VFree(uu);
@@ -164,6 +170,9 @@ main()
   N_VFree(id);
   N_VFree(res);
   free(data);
+  M_EnvFree_Serial(machEnv);
+
+  return(0);
 
 } /* End of iheatsb main program. */
 
@@ -172,20 +181,20 @@ main()
  * SetInitialProfile: routine to initialize u, up, and id vectors.       */
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
-                     N_Vector id, N_Vector res)
+                             N_Vector id, N_Vector res)
 {
   real xfact, yfact, *udata, *updata, *iddata;
   integer mm, mm1, i, j, offset, loc;
-
+  
   mm = data->mm;
   mm1 = mm - 1;
-
-  udata = N_VDATA(uu);
-  updata = N_VDATA(up);
-  iddata = N_VDATA(id);
+  
+  udata = NV_DATA_S(uu);
+  updata = NV_DATA_S(up);
+  iddata = NV_DATA_S(id);
 
   /* Initialize id to 1's. */
-  N_VConst (ONE, id);
+  N_VConst(ONE, id);
 
   /* Initialize uu on all grid points. */ 
   for (j = 0; j < mm; j++) {
@@ -197,13 +206,13 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
       udata[loc] = 16. * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
-
+  
   /* Initialize up vector to 0. */
-  N_VConst (ZERO, up);
+  N_VConst(ZERO, up);
 
   /* heatres sets res to negative of ODE RHS values at interior points. */
-  heatres (data->neq, ZERO, uu, up, res, data);
-
+  heatres(data->neq, ZERO, uu, up, res, data);
+  
   /* Copy -res into up to get correct interior initial up values. */
   N_VScale(-ONE, res, up);
 
@@ -216,7 +225,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
         udata[loc] = BVAL; updata[loc] = ZERO; iddata[loc] = ZERO; }
     }
   }
-
+  
   return(SUCCESS);
 
 } /* End of SetInitialProfiles */
@@ -231,21 +240,21 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
  * while for each boundary point, it is res_i = u_i.                     */
 
 int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
-              N_Vector resval, void *rdata)
+            N_Vector resval, void *rdata)
 {
   integer mm, i, j, offset, loc;
   real *uv, *upv, *resv, coeff;
   UserData data;
-
-  uv = N_VDATA(uu); upv = N_VDATA(up); resv = N_VDATA(resval);
+  
+  uv = NV_DATA_S(uu); upv = NV_DATA_S(up); resv = NV_DATA_S(resval);
 
   data = (UserData)rdata;
   mm = data->mm;
   coeff = data->coeff;
-
+  
   /* Initialize resval to uu, to take care of boundary equations. */
   N_VScale(ONE, uu, resval);
-
+  
   /* Loop over interior points; set res = up - (central difference). */
   for (j = 1; j < mm-1; j++) {
     offset = mm*j;
@@ -255,7 +264,7 @@ int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
            (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - 4.0*uv[loc]);
     }
   }
-
+  
   return(SUCCESS);
 
 } /* End of residual function heatres. */
