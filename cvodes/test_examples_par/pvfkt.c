@@ -1,10 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-03-30 22:00:38 $
+ * $Revision: 1.2 $
+ * $Date: 2004-05-05 15:26:55 $
  * ----------------------------------------------------------------- 
- * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
- *              Radu Serban @ LLNL
+ * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Parallel CVODES sensitivity test problem.
  * An ODE system is generated from the following 2-species diurnal
@@ -1338,9 +1338,12 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 }
 
 /* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
-     opt == 2 means function allocates memory so check if returned NULL pointer */
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 {
@@ -1351,10 +1354,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
       return(1); }}
 
