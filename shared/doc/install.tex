@@ -57,10 +57,10 @@ generated are listed in Table \ref{t:sundials_files} for reference.
 \item \id{make}
 \item \id{make install}
 \item \id{make examples}
-\item If system storage space conservation is a priority, then issue \\ \\
-\verb+   % make clean+ \hspace{2em} [removes unneeded object files] \\ \\
-and/or \\ \\
-\verb+   % make examples_clean+ \hspace{2em} [deletes example executables] \\ \\
+\item If system storage space conservation is a priority, then issue \\
+\verb+   % make clean+ \hspace{2em} [removes unneeded object files] \\
+and/or \\
+\verb+   % make examples_clean+ \hspace{2em} [deletes example executables] \\
 from a shell command prompt.
 \end{enumerate}
 
@@ -356,12 +356,13 @@ compilaton flag to the list of default flags.
             --with-mpi-libs=-lmpich
 \end{verbatim}
 
-\noindent This example again builds {\sundials} using \id{gcc} as the serial {\C}
-compiler, but the \id{--with-mpicc=no} option explicitly disables the use of the
-corresponding {\mpi} compiler script. Since the \id{--with-mpi-root} option is
-given, the compilation flag \id{-I/usr/apps/mpich/1.2.4/include} is passed to
-\id{gcc} when compiling the {\mpi}-enabled functions. Although the
-\id{--disable-examples} option disables the examples (which means a {\F} compiler
-is not required), the \id{--with-mpi-libs} option is still needed so that the
-configure script can check if \id{gcc} can link with the appropriate {\mpi}
+\noindent This example again builds {\sundials} using \id{gcc} as the serial
+{\C} compiler, but the \id{--with-mpicc=no} option explicitly disables the use
+of the corresponding {\mpi} compiler script. In addition, since the 
+\id{--with-mpi-root} option is given, the compilation flag 
+\id{-I/usr/apps/mpich/1.2.4/include} is passed to \id{gcc} when compiling the
+{\mpi}-enabled functions. Although the \id{--disable-examples} option disables
+the examples (which means a {\F} compiler is not required), the
+\id{--with-mpi-libs} option is still needed so that the configure
+script can check if \id{gcc} can link with the appropriate {\mpi}
 library as \id{-lmpi} is the internal default.
