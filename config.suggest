@@ -46,6 +46,11 @@ echo 'CC=icc CXX=icc F77=ifc --with-ldflags=-L/usr/apps/intel/compiler70/ia32/li
 # Maintained by 
 ;;
 
+casc_li_new_icc_mpich) # Updated CASC Intel Linux, using Intel icc-8.0 and mpich
+echo 'CC=icc CXX=icc F77=ifort --with-ldflags=-L/usr/apps/intel/default/lib --with-mpicc=no --with-mpicxx=no --with-mpif77=no --with-mpi-root=/usr/apps/mpich/default --with-mpi-libs=-lmpich'
+# Maintained by 
+;;
+
 casc_li_pgi41_mpich) # CASC Intel Linux, using PGI 4.1 and mpich
 echo 'CC=pgcc CXX=pgCC F77=pgf77 --with-ldflags=-L/usr/apps/pgi/4.1/linux86/lib --with-mpicc=no --with-mpicxx=no --with-mpif77=no --with-mpi-root=/usr/apps/mpich/1.2.5 --with-mpi-libs=-lmpich'
 # Maintained by
@@ -72,6 +77,10 @@ echo 'CC=gcc CXX=g++ F77=g77 CFLAGS="-g -gdwarf-2 -O2 -mbig-endian -Wall" --with
 ;;
 
 frost_xlc_ibmmpi) # Frost with IBM compilers and IBM-MPI
+echo 'CC=xlc F77=xlf --with-cflags="-qarch=pwr3 -qtune=pwr3 -qmaxmem=8192" --with-fflags="-qarch=pwr3 -qtune=pwr3 -qmaxmem=8192" --with-mpicc=mpcc --with-mpif77=mpxlf --with-f77underscore=none'
+;;
+
+seaborg_xlc_ibmmpi) # Seaborg with IBM compilers and IBM-MPI
 echo 'CC=xlc F77=xlf --with-cflags="-qarch=pwr3 -qtune=pwr3 -qmaxmem=8192" --with-fflags="-qarch=pwr3 -qtune=pwr3 -qmaxmem=8192" --with-mpicc=mpcc --with-mpif77=mpxlf --with-f77underscore=none'
 ;;
 
