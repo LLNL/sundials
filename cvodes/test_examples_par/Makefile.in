@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2004-11-03 23:26:56 $
+# $Revision: 1.4.2.1 $
+# $Date: 2005-03-18 23:26:21 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -36,6 +36,7 @@ MPICC       = @MPICC@
 MPI_INC_DIR = @MPI_INC_DIR@
 MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
 
 COMPILER_PREFIX = @COMPILER_PREFIX@
 LINKER_PREFIX   = @LINKER_PREFIX@
@@ -49,11 +50,11 @@ EXEC_FILES = pvkt pvfkt
 all: $(EXEC_FILES)
 
 pvkt: $(srcdir)/pvkt.c
-	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkt.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkt $(builddir)/pvkt.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkt.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkt $(builddir)/pvkt.o $(MPI_FLAGS) $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 pvfkt: $(srcdir)/pvfkt.c
-	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkt.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvfkt $(builddir)/pvfkt.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkt.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvfkt $(builddir)/pvfkt.o $(MPI_FLAGS) $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 
 clean:
 	rm -rf .libs
