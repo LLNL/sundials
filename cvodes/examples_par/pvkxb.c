@@ -2,7 +2,7 @@
  *                                                                      *
  * File       : pvkxb.c                                                 *
  * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman @ LLNL      *
- * Version of : 26 June 2002                                            *
+ * Version of : 25 March 2003                                           *
  *----------------------------------------------------------------------*
  * Modified by R. Serban to work with new parallel nvector (7/3/2002)   *
  *----------------------------------------------------------------------*
@@ -253,9 +253,9 @@ int main(int argc, char *argv[])
 
     SetInitialProfiles(u, data);
 
-    flag = CVReInit(cvode_mem, f, T0, u, BDF, NEWTON, SS, &reltol,
-                    &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
-    if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
+    flag = CVodeReInit(cvode_mem, f, T0, u, BDF, NEWTON, SS, &reltol,
+                       &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
+    if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
 
     flag = CVReInitBBD(pdata, local_N, mudq, mldq, mukeep, mlkeep, 0.0, 
                        flocal, ucomm, data);

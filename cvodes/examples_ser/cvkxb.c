@@ -2,7 +2,7 @@
  *                                                                      *
  * File: cvkxb.c                                                        *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 26 June 2002                                              *
+ * Version of 25 March 2003                                             *
  *----------------------------------------------------------------------*
  * Modified by R. Serban to work with new serial nvector (7/3/2002)     *
  *----------------------------------------------------------------------*
@@ -199,9 +199,9 @@ int main()
 
     SetInitialProfiles(y, data->dx, data->dz);
 
-    flag = CVReInit(cvode_mem, f, T0, y, BDF, NEWTON, SS, &reltol,
-                    &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
-    if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
+    flag = CVodeReInit(cvode_mem, f, T0, y, BDF, NEWTON, SS, &reltol,
+                       &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
+    if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
 
     flag = CVReInitBandPre(bpdata, NEQ, f, data, mu, ml);
 

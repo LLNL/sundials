@@ -3,7 +3,7 @@
  * File       : pvfkx.c                                                 *
  * Programmers: S. D. Cohen, A. C. Hindmarsh, Radu Serban, and          *
  *              M. R. Wittman @ LLNL                                    *
- * Version of : 27 June 2002                                            *
+ * Version of : 25 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
     if(sensi_meth==STAGGERED1) ifS = ONESENS;
 
     flag = CVodeSensMalloc(cvode_mem,NS,sensi_meth,data->p,pbar,plist,
-                           ifS,NULL,err_con,rhomax,uS,NULL,NULL);
+                           ifS,NULL,err_con,rhomax,uS,NULL,NULL,NULL);
     if (flag != SUCCESS) {
       if (my_pe == 0) printf("CVodeSensMalloc failed, flag=%d\n",flag);
       return(1);

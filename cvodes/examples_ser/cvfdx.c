@@ -3,7 +3,7 @@
  * File       : cvfdx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and Radu Serban      * 
  *              @ LLNL                                                  *
- * Version of : 27 June 2002                                            *
+ * Version of : 25 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the coding           *
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
 
     rhomax = ZERO;
     flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, pbar, plist,
-                           ifS, NULL, err_con, rhomax, yS, NULL, NULL);
+                           ifS, NULL, err_con, rhomax, yS, NULL, NULL, NULL);
     if (flag != SUCCESS) {
       printf("CVodeSensMalloc failed, flag=%d\n",flag);
       return(1);

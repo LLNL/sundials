@@ -2,7 +2,7 @@
  *                                                                      *
  * File       : cvadx.c                                                 *
  * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 23 September 2002                                       *
+ * Version of : 25 March 2003                                           *
  *----------------------------------------------------------------------*
  * Adjoint sensitivity example problem.                                 *
  * The following is a simple example problem, with the coding           *
@@ -245,10 +245,10 @@ int main(int argc, char *argv[])
   Ith(yB,7) = 0.0;
 
   printf("Re-initialize CVODE memory for backward run\n");
-  flag = CVReInitB(cvadj_mem, fB, TB2, yB, BDF, NEWTON, SV, 
-                   &reltolB, abstolB, data, NULL, 
-                   FALSE, NULL, NULL, machEnvB);
-  if (flag != SUCCESS) { printf("CVReInitB failed.\n"); return(1); }
+  flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, BDF, NEWTON, SV, 
+                      &reltolB, abstolB, data, NULL, 
+                      FALSE, NULL, NULL, machEnvB);
+  if (flag != SUCCESS) { printf("CVodeReInitB failed.\n"); return(1); }
 
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB2);
