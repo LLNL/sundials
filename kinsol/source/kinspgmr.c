@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-07-27 23:52:31 $
+ * $Revision: 1.12 $
+ * $Date: 2004-08-17 18:43:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -205,13 +205,13 @@ int KINSpgmr(void *kinmem, int maxl)
 
   /* set default values for the rest of the SPGMR parameters */
 
-  kinspgmr_mem->g_pretype  = NONE;
-  kinspgmr_mem->g_gstype   = MODIFIED_GS;
-  kinspgmr_mem->g_maxlrst  = 0;
-  kinspgmr_mem->g_P_data   = NULL;
-  kinspgmr_mem->g_pset     = NULL;
-  kinspgmr_mem->g_psolve   = NULL;
-  kinspgmr_mem->g_jtimes   = NULL;
+  kinspgmr_mem->g_pretype = NONE;
+  kinspgmr_mem->g_gstype  = MODIFIED_GS;
+  kinspgmr_mem->g_maxlrst = 0;
+  kinspgmr_mem->g_P_data  = NULL;
+  kinspgmr_mem->g_pset    = NULL;
+  kinspgmr_mem->g_psolve  = NULL;
+  kinspgmr_mem->g_jtimes  = NULL;
 
   /* call SpgmrMalloc to allocate workspace for SPGMR */
 
@@ -659,13 +659,13 @@ int KINSpgmrGetNumFuncEvals(void *kinmem, long int *nfevalsSG)
  * -----------------------------------------------------------------
  */
 
-#define maxl (kinspgmr_mem->g_maxl)
+#define maxl    (kinspgmr_mem->g_maxl)
 #define maxlrst (kinspgmr_mem->g_maxlrst)
-#define pset (kinspgmr_mem->g_pset)
-#define psolve (kinspgmr_mem->g_psolve)
-#define P_data (kinspgmr_mem->g_P_data)
-#define jtimes (kinspgmr_mem->g_jtimes)
-#define J_data (kinspgmr_mem->g_J_data)
+#define pset    (kinspgmr_mem->g_pset)
+#define psolve  (kinspgmr_mem->g_psolve)
+#define P_data  (kinspgmr_mem->g_P_data)
+#define jtimes  (kinspgmr_mem->g_jtimes)
+#define J_data  (kinspgmr_mem->g_J_data)
 
 /*
  * -----------------------------------------------------------------
@@ -691,8 +691,10 @@ static int KINSpgmrInit(KINMem kin_mem)
   /* set preconditioner type */
 
   if (psolve != NULL) {
+    precondflag = TRUE;
     pretype = RIGHT;
   } else {
+    precondflag = FALSE;
     pretype = NONE;
   }
   
