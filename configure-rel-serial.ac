@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2004-11-03 23:17:50 $
+# $Revision: 1.7 $
+# $Date: 2004-11-05 02:12:21 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -19,6 +19,9 @@ SUNDIALS_GREETING
 
 # Miscellaneous SUNDIALS initializations
 SUNDIALS_INITIALIZE
+
+# Test enable/disable features
+SUNDIALS_ENABLES
 
 # Set C compilation
 SUNDIALS_SET_CC
