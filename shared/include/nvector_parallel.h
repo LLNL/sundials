@@ -150,7 +150,7 @@ typedef struct _N_VectorParallelContent *N_VectorParallelContent;
  * (2) NVS_MAKE_P, NVS_DISPOSE_P                                *
  *                                                              *
  *     These companion routines are used to create and          *
- *     destroy an array of N_Vectors with component sdata       *
+ *     destroy an array of N_Vectors with component vs_data     *
  *     allocated by the user.                                   *
  *                                                              * 
  *     The call NVS_MAKE_P(vs, vs_data, s_len, machEnv) makes   *
@@ -176,7 +176,7 @@ typedef struct _N_VectorParallelContent *N_VectorParallelContent;
  *     m_cont to be a pointer to the parallel machine           *
  *     environment content structure.                           * 
  *                                                              *
- *     The assignment v_cont = ME_CONTENT_P(machenv) sets       *
+ *     The assignment v_cont = NV_CONTENT_P(v) sets             *
  *     v_cont to be a pointer to the parallel N_Vector content  *
  *     structure.                                               *
  *                                                              *

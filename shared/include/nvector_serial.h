@@ -126,8 +126,8 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  * (2) NVS_MAKE_S, NVS_DISPOSE_S                                *
  *                                                              *
  *     These companion routines are used to create and destroy  *
- *     an array of N_Vectors with component sdata allocated by  *
- *     the user.                                                *
+ *     an array of N_Vectors with component vs_data allocated   *
+ *     by the user.                                             *
  *                                                              *
  *     The call NVS_MAKE_S(vs, vs_data, s_len, machenv) makes   *
  *     vs an array of s_len N_Vectors, each with component      *
@@ -151,7 +151,7 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  *     m_cont to be a pointer to the serial machine             *
  *     environment content structure.                           * 
  *                                                              *
- *     The assignment v_cont = ME_CONTENT_S(machenv) sets       *
+ *     The assignment v_cont = NV_CONTENT_S(v) sets             *
  *     v_cont to be a pointer to the serial N_Vector content    *
  *     structure.                                               *
  *                                                              *
