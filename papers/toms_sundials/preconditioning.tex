@@ -102,7 +102,7 @@ time-dependent PDE system, with the spatial operators suitably
 discretized, yields the ODE system $\dot{y} = f(t,y)$.  Now consider a
 decomposition of the (discretized) spatial domain into $M$
 non-overlapping subdomains.  This decomposition induces a block form
-$y = (y_1,\cdots,y_M)$ for the vector $y$, and similarly for $f$.  We
+$y = (y_1,\ldots,y_M)$ for the vector $y$, and similarly for $f$.  We
 will use this distribution for the solution with CVODE on $M$
 processors.
 
@@ -121,7 +121,7 @@ again exploiting the local spatial coupling, and on processor $m$
 these are computed by a difference quotient scheme.  Then the complete
 preconditioner is given by
 \begin{equation*}
-  P = diag[P_1,\cdots,P_M] \, , \quad 
+  P = diag[P_1,\ldots,P_M] \, , \quad 
   P_m = I_m - \gamma J_m \, . 
 \end{equation*}
 Linear systems $Px = b$ are then solved by banded LU and backsolve
@@ -157,7 +157,7 @@ analogous to that of the CVODE module CVBBDPRE.  Here the problem to
 be solved is $F(u) = 0$, and the preconditioner is constructed by way
 of a function $g \approx F$.  Namely, it is defined as
 \begin{equation*}
-  P = diag[P_1,\cdots,P_M] \, , \quad
+  P = diag[P_1,\ldots,P_M] \, , \quad
   P_m \approx \partial g_m / \partial u_m \, ,
 \end{equation*}
 in terms of the blocks of $g$ and $u$ on processor $m$.  Again, $P_m$
@@ -170,7 +170,7 @@ band-block-diagonal preconditioner module, called IDABBDPRE.  For the
 problem $F(t,y,{\dot y}) = 0$, the preconditioner is defined by way of a
 function $G \approx F$.  Specifically, the preconditioner is
 \begin{equation*}
-  P = diag[P_1,\cdots,P_M] \, ,
+  P = diag[P_1,\ldots,P_M] \, ,
   \quad P_m \approx \partial G_m / \partial y_m
   + \alpha \partial G_m / \partial {\dot y}_m \, . 
 \end{equation*}

@@ -51,7 +51,7 @@ value problems of the form (\ref{ODE}), also provides forward and
 adjoint sensitivity analysis capabilities.
 %
 Here, we assume that the system depends on a vector of parameters,
-$p = [p_1,\cdots,p_{N_p}]$,
+$p = [p_1,\ldots,p_{N_p}]$,
 \begin{equation}\label{e:ODE_with_p}
 \dot{y} = f(t,y,p), \quad y(t_0,p) = y_0(p) \, ,
 \end{equation}
@@ -72,8 +72,8 @@ where $J$ is the system Jacobian defined in (\ref{Newtonmat}).
 %------------------------------------------------------------------
 \subsubsection{Forward Sensitivity}
 CVODES can be used to integrate an extended system 
-$Y = [y,s_1,\cdots,s_{N_s}]$ forward in time, where
-$[s_1,\cdots,s_{N_s}]$ are a subset of the columns of $s$.
+$Y = [y,s_1,\ldots,s_{N_s}]$ forward in time, where
+$[s_1,\ldots,s_{N_s}]$ are a subset of the columns of $s$.
 %
 CVODES provides the following three choices for the sequence in which
 the states and sensitivity variables are advanced in time at each step:
