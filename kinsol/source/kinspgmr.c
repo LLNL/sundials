@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-11-04 01:56:11 $
+ * $Revision: 1.21 $
+ * $Date: 2004-11-04 02:08:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -20,17 +20,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "iterative.h"
 #include "kinsol_impl.h"
 #include "kinspgmr_impl.h"
-#include "nvector.h"
-#include "spgmr.h"
 #include "sundialsmath.h"
-#include "sundialstypes.h"
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
 
 /*
  * -----------------------------------------------------------------

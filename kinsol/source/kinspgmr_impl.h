@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-11-04 01:56:11 $
+ * $Revision: 1.4 $
+ * $Date: 2004-11-04 02:08:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -24,6 +24,7 @@ extern "C" {
 
 #include "kinspgmr.h"
 #include "nvector.h"
+#include "iterative.h"
 #include "spgmr.h"
 #include "sundialstypes.h"
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2004-11-04 01:56:11 $
+ * $Revision: 1.33 $
+ * $Date: 2004-11-04 02:08:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -21,13 +21,7 @@
 #include <stdarg.h>
 
 #include "kinsol_impl.h"
-#include "nvector.h"
 #include "sundialsmath.h"
-#include "sundialstypes.h"
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
 
 /*
  * -----------------------------------------------------------------
@@ -530,7 +524,7 @@ int KINSetRelErrFunc(void *kinmem, realtype relfunc)
   kin_mem = (KINMem) kinmem;
 
   if (relfunc <= ZERO) {
-    fprintf(errfp, MSG_BAD_RELFUNC, relfunc);
+    fprintf(errfp, MSG_BAD_RELFUNC);
     return(KIN_ILL_INPUT);
   }
 
@@ -559,7 +553,7 @@ int KINSetFuncNormTol(void *kinmem, realtype fnormtol)
   kin_mem = (KINMem) kinmem;
 
   if (fnormtol <= ZERO) {
-    fprintf(errfp, MSG_BAD_FNORMTOL, fnormtol);
+    fprintf(errfp, MSG_BAD_FNORMTOL);
     return(KIN_ILL_INPUT);
   }
 
@@ -588,7 +582,7 @@ int KINSetScaledStepTol(void *kinmem, realtype scsteptol)
   kin_mem = (KINMem) kinmem;
 
   if (scsteptol <= ZERO) {
-    fprintf(errfp, MSG_BAD_SCSTEPTOL, scsteptol);
+    fprintf(errfp, MSG_BAD_SCSTEPTOL);
     return(KIN_ILL_INPUT);
   }
 
@@ -1214,7 +1208,7 @@ static int KINSolInit(KINMem kin_mem)
   }
 
   if ((globalstrategy != KIN_INEXACT_NEWTON) && (globalstrategy != KIN_LINESEARCH)) {
-    fprintf(errfp, MSG_BAD_GLSTRAT, globalstrategy, KIN_INEXACT_NEWTON, KIN_LINESEARCH);
+    fprintf(errfp, MSG_BAD_GLSTRAT);
     return(KIN_ILL_INPUT);
   }
 
