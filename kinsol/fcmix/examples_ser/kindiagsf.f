@@ -12,7 +12,6 @@ c     No scaling is done.
 c     An approximate diagonal preconditioner is used.                       
 c     Execute line: kindiagsf                                               
 c   
-
       integer PROBSIZE
       parameter(PROBSIZE=128)
       integer neq, ier, globalstrat
@@ -41,7 +40,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fnvinits(neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
- 1220    format('fnvspecinits failed, ier =',i2)
+ 1220    format('SUNDIALS_ERROR: FNVINITS returned IER =',i2)
          stop
       endif
 
@@ -55,11 +54,20 @@ c * * * * * * * * * * * * * * * * * * * * * *
      &                constr, inopt, iopt, ropt, ier)
       if (ier .ne. 0) then
          write(6,1230) ier
- 1230    format('fkinmalloc failed, ier =',i2)
+ 1230    format('SUNDIALS_ERROR: FKINMALLOC returned IER =',i2)
+         call fnvfrees
          stop
       endif
 
       call fkinspgmr(maxl, maxlrst, ier)
+      if (ier .ne. 0) then
+         write(6,1235) ier
+ 1235    format('SUNDIALS_ERROR: FKINSPGMR returned IER =',i2)
+         call fnvfrees
+         call fkinfree
+         stop
+      endif
+
       call fkinspgmrsetpsol(1, ier)
       call fkinspgmrsetpset(1, ier)
 
@@ -71,6 +79,13 @@ c * * * * * * * * * * * * * * * * * * * * * *
      4       ' globalstrategy = INEXACT_NEWTON'/)
 
       call fkinsol(uu, 0, scale, scale, ier)
+      if (ier .ne. 0) then
+         write(6,1242) ier
+ 1242    format('SUNDIALS_ERROR: FKINSOL returned IER =',i2)
+         call fnvfrees
+         call fkinfree
+         stop
+      endif
 
       write(6,1245) ier
  1245 format(/' fkinsol return code is ',i5)

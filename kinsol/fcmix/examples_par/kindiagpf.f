@@ -44,27 +44,45 @@ c     MPI_COMM_WORLD is used in calls to mpi_comm_size and mpi_comm_rank
 c     to determine the total number of processors and the rank (0 ... size-1) 
 c     number of this process.
       
-      call mpi_init(ierr)
-      
+      call mpi_init(ier)
+      if (ier .ne. 0) then
+         write(6,1210) ier
+ 1210    format('MPI_ERROR: MPI_INIT returned IER =',i2)
+         stop
+      endif
+
       call fnvinitp(nlocal, neq, ier)
       if (ier .ne. 0) then
-         write(6,1220)ier
- 1220    format('fnvinitp failed, ier =',i2)
+         write(6,1220) ier
+ 1220    format('SUNDIALS_ERROR: FNVINITP returned IER =',i2)
+         call mpi_finalize(ier)
          stop
       endif
       
       call mpi_comm_size(MPI_COMM_WORLD,size,ier)
+      if (ier .ne. 0) then
+         write(6,1222) ier
+ 1222    format('MPI_ERROR: MPI_COMM_SIZE returned IER =',i2)
+         call mpi_abort(MPI_COMM_WORLD, 1, ier)
+         stop
+      endif
       
       if (size .ne. 4) then
          write(6,1230)
- 1230    format(/'Number of processors not 4. Set to 4 and try again.')
-         call fnvfreep
+ 1230    format('MPI_ERROR: must use 4 processes')
+         call mpi_finalize(ier)
          stop
       endif
       npes = size
 
       call mpi_comm_rank(MPI_COMM_WORLD, rank, ier)
-      
+      if (ier .ne. 0) then
+         write(6,1224) ier
+ 1224    format('MPI_ERROR: MPI_COMM_RANK returned IER =',i2)
+         call mpi_abort(MPI_COMM_WORLD, 1, ier)
+         stop
+      endif
+
       mype = rank
       baseadd = mype * nlocal 
       
@@ -80,7 +98,8 @@ c     number of this process.
       
       if (ier .ne. 0) then
          write(6,1231)ier
- 1231    format('fkinmalloc failed, ier =',i2)
+ 1231    format('SUNDIALS_ERROR: FKINMALLOC returned IER =',i2)
+         call mpi_abort(MPI_COMM_WORLD, 1, ier)
          stop
       endif
       
@@ -96,6 +115,12 @@ c     number of this process.
      4       ' globalstrategy = INEXACT_NEWTON'/)
 
       call fkinsol(uu, 0, scale, scale, ier)
+      if (ier .ne. 0) then
+         write(6,1242) ier
+ 1242    format('SUNDIALS_ERROR: FKINSOL returned IER =',i2)
+         call mpi_abort(MPI_COMM_WORLD, 1, ier)
+         stop
+      endif
 
       if (mype .eq. 0) write(6,1245)ier
  1245 format(/' fkinsol return code is ',i5)
