@@ -18,10 +18,13 @@ Suite of Nonlinear and Differential/Algebraic Equation Solvers.''
 Attached below, we have reproduced the referees' comments, with our
 responses inserted.
 
-We have made one change to the paper that was not called for by the
-referees: Having recently added a rootfinding feature to CVODE, we
+We have made a few changes to the paper that were not called for by the
+referees.  First, having recently added a rootfinding feature to CVODE, we
 added a short paragraph about this feature at the end of Section 2.1,
-and a few lines in Section 6.  I hope this is acceptable.
+and a few lines in Section 6.  Second, some minor changes in Sections
+????? have been made, to reflect a number of recent changes in the
+design of the NVECTOR module and in names of constants in the user
+interface.  I hope this is acceptable.
 
 
 \closing{Sincerely,}
@@ -97,8 +100,8 @@ elsewhere, references to where the reader can find such
 information should be given.
 
 {\em Response:} A paragraph on the interface design has been added as
-Subsection 5.3, and a note about user-supplied linear solvers
-has been added to ??????.
+Subsection 5.3, and a paragraph about user-supplied linear solvers
+has been added to Subsection 5.1.
 
 
 Heuristics
@@ -386,7 +389,7 @@ General Comments on the Manuscript
 
 This paper provides a comprehensive description of a large software
 modification/development effort involving three codes, CVODE for
-initial value ordinary di erential equations, KINSOL, for nonlinear
+initial value ordinary differential equations, KINSOL, for nonlinear
 algebraic equations, and IDA for systems of differential algebraic
 equations, which are collectively referred to as the SUNDIAL suite. I
 found it very enjoyable to read a paper where lots of detail regarding
