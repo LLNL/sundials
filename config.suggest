@@ -32,7 +32,7 @@ echo 'CC=gcc CXX=g++ F77=g77 --with-cflags=-I/usr/include --with-cxxflags=-I/usr
 ;;
 
 casc_li_gcc_mpich) # CASC Intel Linux, using default gcc-2.96 and mpich
-echo 'CC=gcc CXX=g++ F77=g77 --with-mpicc=no --with-mpicxx=no --with-mpif77=no --with-mpi-root=/usr/apps/mpich/1.2.4 --with-mpi-libs="-lmpich"'
+echo 'CC=gcc CXX=g++ F77=g77 --with-mpicc=no --with-mpicxx=no --with-mpif77=no --with-mpi-root=/usr/apps/mpich/1.2.4 --with-mpi-libs="-lmpich -lpmpich"'
 # Maintained by
 ;;
 
