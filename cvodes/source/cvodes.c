@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.47 $
- * $Date: 2005-01-20 22:34:10 $
+ * $Revision: 1.48 $
+ * $Date: 2005-01-25 18:16:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2631,7 +2631,7 @@ static int CVSensTestTolerances(CVodeMem cv_mem)
   realtype *atolSS;
   N_Vector *atolSV;
 
-  neg_abstol = TRUE;
+  neg_abstol = FALSE;
 
   if (*reltolS<ZERO) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_RELTOLS);
