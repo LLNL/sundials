@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "sundialstypes.h" /* definitions of types realtype and integertype   */
-#include "sundialsmath.h"  /* definition of UnitRoundoff */
+#include "sundialsmath.h"  /* definitions of realtype, integertype, etc.      */
 #include "nvector.h"       /* definitions of type N_Vector and vector macros  */
 #include "fcvode.h"        /* actual function names, prototypes, global vars. */
 #include "cvspgmr.h"       /* CVSpgmr prototype                               */
@@ -54,7 +54,7 @@ int CVPreco(realtype t, N_Vector y, N_Vector fy, booleantype jok,
 
   CVodeGetErrWeights(CV_cvodemem, &ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
-  uround = UnitRoundoff();
+  uround = UNIT_ROUNDOFF;
 
   ydata   = N_VGetData(y);
   fydata  = N_VGetData(fy);

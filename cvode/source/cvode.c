@@ -478,7 +478,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_iter   = iter;
 
   /* Set uround */
-  cv_mem->cv_uround = UnitRoundoff();
+  cv_mem->cv_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
   cv_mem->cv_f_data   = NULL;
