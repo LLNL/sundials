@@ -1,0 +1,78 @@
+% This is a shared SUNDIALS TEX file with description of
+% types used in llntyps.h
+%
+\subsection{Description}
+
+The \ID{sundialstypes.h} file contains the definitions of the types \id{realtype} and
+\id{integertype}. {\sundials} solvers use the type \id{realtype} for all floating point data and
+the type \id{integertype} for all problem size-related data such as the actual
+problem size, the bandwidths in the {\band} solver, and the integers
+stored in the length $N$ pivot arrays in both the {\dense} and {\band} solvers.
+These types make it easy to solve problems of virtually any size
+using single or double precision arithmetic. The type \id{realtype} can be
+\id{double} or \id{float} and the type \id{integertype} can be \id{int} or
+\id{long int}. The default settings are \id{double} and \id{long int}.
+
+\subsection{Changing Type \id{realtype}}
+
+The user can change the precision of the {\sundials} solvers arithmetic from double to single
+by changing the typedef \id{typedef double realtype;} to \id{typedef float realtype;}
+and by changing the definitions
+\id{\#define SUNDIALS\_FLOAT  0} to \id{\#define SUNDIALS\_FLOAT  1}
+and \id{\#define SUNDIALS\_DOUBLE 1} to \id{\#define SUNDIALS\_DOUBLE 0}
+in \id{sundialstypes.h}.
+These macro definitions are used to enable \id{sundiastypes.h} to branch on
+the setting of \id{realtype} at compile time. 
+
+Changing from double precision to single precision arithmetic also
+requires minor changes in the implementation file \id{sundialsmath.c} for
+the {\sundialsmath} module which {\sundials} solvers use. The \id{RPowerR} and
+\id{RSqrt} functions compute a real number raised to a real power and the
+square root of a number, respectively. The default implementation of
+these routines calls standard {\C} math library functions which do double
+precision arithmetic. These implementations should be changed to call
+single precision routines which are available on the user's machine.
+
+Within {\sundials}, real constants are set by way of a macro called
+\Id{RCONST}.  It is this macro that needs the ability to branch on the
+setting for \id{realtype}.  In ANSI {\C}, a floating point constant with no
+suffix is stored as a \id{double}.  Placing the suffix ``F'' at the
+end of a floating point constant makes it a \id{float}. For example,
+\begin{verbatim}
+#define A 1.0
+#define B 1.0F
+\end{verbatim}
+defines \id{A} to be a \id{double} constant 1.0 and \id{B} to be a
+\id{float} constant $1.0$. The macro call \id{RCONST(1.0)}
+expands to \id{1.0} if \id{realtype} is \id{double} and it expands to
+\id{1.0F} if \id{realtype} is \id{float}. {\sundials} uses the \id{RCONST} macro for
+all its floating point constants. 
+
+A user program which uses the type \id{realtype} and the \id{RCONST} macro
+to handle floating point constants is precision-independent except for
+any calls to single or double precision standard math library
+functions.  (Our demonstration programs use \id{realtype} but not
+\id{RCONST}.)  Users can, however, use the type \id{double} or
+\id{float} in their code (assuming the typedef for \id{realtype} matches
+this choice).  Thus, a previously existing piece of ANSI {\C} code can use
+{\sundials} without modifying the codes to use \id{realtype}.
+
+\subsection{Changing Type \id{integertype}}
+
+{\sundials} uses the type \id{integertype} for all quantities related to problem
+size.  On some machines the size of an \id{int} and a \id{long int}
+are the same, but this is not always the case. 
+If \id{int} is sufficiently large on a given machine, and the user wishes
+to make \id{int} the \id{integertype} type, change the typedef
+\id{typedef long int integertype;} to \id{typedef int integertype;}
+and the macro definitions  
+\id{\#define SUNDIALS\_INT 0} to \id{\#define SUNDIALS\_INT 1}
+and
+\id{\#define SUNDIALS\_LONG\_INT 1} to \id{\#define SUNDIALS\_LONG\_INT 0}
+in \id{sundialstypes.h}.
+In terms of the problem size $N$, and the bandwidths \id{ml} and \id{mu} 
+in the case of the band module {\band}, the largest integer that must be 
+accommodated by the \id{integertype} type is $N + $ \id{ml} + \id{mu} in the 
+band case, and $N$ in all other cases. The user can use the type \id{int} 
+or \id{long int} in his/her code instead of \id{integertype} (assuming the 
+typedef for \id{integertype} matches this choice).

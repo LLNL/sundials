@@ -1,0 +1,305 @@
+% This is a shared SUNDIALS TEX file with description of
+% the generic nvector abstraction
+%
+The {\sundials} solvers are written in a data-independent manner. 
+They all operate on generic vectors (of type \Id{N\_Vector}) through a set of
+operations defined by a generic machine environment (of type \Id{M\_Env}). 
+
+The generic \ID{M\_Env} type is a pointer to a structure that has an
+implementation-dependent {\em content} field containing
+all data necessary to generate a new vector in that particular
+implementation, an {\em ops} field pointing to a structure with
+generic vector operations, and a {\em tag} field which is used
+in some compatibility tests within the {\sundials} solvers. 
+The type \id{M\_Env} is defined as
+\begin{verbatim}
+typedef struct _generic_M_Env *M_Env;
+
+struct _generic_M_Env {
+    void *content;
+    struct _generic_N_Vector_Ops *ops;
+    char tag[8];
+};
+\end{verbatim}
+
+The generic \ID{N\_Vector} type is a pointer to a structure that has an 
+implementation-dependent {\em content} field containing the 
+description and actual data of the vector and a {\em menv} field 
+pointing to the \id{M\_Env} structure that was used in constructing the
+vector.
+The type \id{N\_Vector} is defined as
+\begin{verbatim}
+typedef struct _generic_N_Vector *N_Vector;
+
+struct _generic_N_Vector {
+    void *content;
+    struct _generic_M_Env *menv;
+};
+\end{verbatim}
+
+The \id{\_generic\_N\_Vector\_Ops} structure is defined as
+\begin{verbatim}
+struct _generic_N_Vector_Ops {
+    N_Vector    (*nvnew)(integertype, M_Env);
+    N_Vector_S  (*nvnewS)(integertype, integertype, M_Env);
+    void        (*nvfree)(N_Vector);
+    void        (*nvfreeS)(integertype, N_Vector_S);
+    N_Vector    (*nvmake)(integertype, realtype *, M_Env);
+    void        (*nvdispose)(N_Vector);
+    realtype*   (*nvgetdata)(N_Vector);
+    void        (*nvsetdata)(realtype *, N_Vector);
+    void        (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector); 
+    void        (*nvconst)(realtype, N_Vector);
+    void        (*nvprod)(N_Vector, N_Vector, N_Vector);
+    void        (*nvdiv)(N_Vector, N_Vector, N_Vector);
+    void        (*nvscale)(realtype, N_Vector, N_Vector);
+    void        (*nvabs)(N_Vector, N_Vector);
+    void        (*nvinv)(N_Vector, N_Vector);
+    void        (*nvaddconst)(N_Vector, realtype, N_Vector);
+    realtype    (*nvdotprod)(N_Vector, N_Vector);
+    realtype    (*nvmaxnorm)(N_Vector);
+    realtype    (*nvwrmsnorm)(N_Vector, N_Vector);
+    realtype    (*nvmin)(N_Vector);
+    realtype    (*nvwl2norm)(N_Vector, N_Vector);
+    realtype    (*nvl1norm)(N_Vector);
+    void        (*nvonemask)(N_Vector);
+    void        (*nvcompare)(realtype, N_Vector, N_Vector);
+    booleantype (*nvinvtest)(N_Vector, N_Vector);
+    booleantype (*nvconstrprodpos)(N_Vector, N_Vector);
+    booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
+    realtype    (*nvminquotient)(N_Vector, N_Vector);
+    void        (*nvprint)(N_Vector);
+};
+\end{verbatim}
+
+In addition to the above type definitions, the generic {\nvector} module
+also defines and implements the vector kernels acting on \id{N\_Vector}'s.
+These routines are nothing but wrappers around the vector kernels defined by
+a particular {\nvector} implementation, which are accessed through the {\em ops}
+field of the structure pointed to by \id{M\_Env}. To illustrate this point we
+show below the implementation of a typical vector kernel from the
+generic {\nvector} module, namely \id{N\_VScale}, which performs the scaling of a
+vector \id{x} by a scalar \id{c}:
+\begin{verbatim}
+void N_VScale(realtype c, N_Vector x, N_Vector z) 
+{
+   z->menv->ops->nvscale(c, x, z);
+}
+\end{verbatim}
+Table \ref{t:nvecops} contains a complete list of all vector operations defined
+by the generic {\nvector} module.
+
+
+A particular implementaion of the {\nvector} module must:
+\begin{itemize}
+\item specify the {\em content} fields of \id{M\_Env} and \id{N\_Vector};
+\item define and implement the vector kernels. Note that the kernel routine 
+  names should be unique to that implementation in order 
+  to provide the option of using \id{N\_Vector}'s with different 
+  internal representations in the same code;
+\item define and implement user-callable constructor and destructor
+  routines to generate and free a variable of type \id{M\_Env} with
+  the new {\em content} field and with {\em ops} pointing to the
+  new vector kernels.
+\end{itemize}
+We also strongly recommend that the developer of a new 
+{\nvector} implementation provide as many accessor macros 
+as needed for that particular implementation to 
+be used to access different parts in the {\em content} field
+of the newly defined \id{N\_Vector}.
+
+
+
+%---------------------------------------------------------------------------
+% Table of vector kernels
+%---------------------------------------------------------------------------
+\newpage
+\bigskip
+\newlength{\colone}
+\settowidth{\colone}{\id{N\_VConstrProdPos}}
+\newlength{\coltwo}
+\setlength{\coltwo}{\textwidth}
+\addtolength{\coltwo}{-0.5in}
+\addtolength{\coltwo}{-\colone}
+
+\tablecaption{Description of the {\nvector} kernels}\label{t:nvecops}
+\tablefirsthead{\hline {\bf Name} & {\bf Usage and Description} \\ \hline\hline}
+\tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
+           \hline {\bf Name} & {\bf Usage and  Description} \\ \hline\hline}
+\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tablelasttail{\hline}
+\begin{supertabular}{|p{\colone}|p{\coltwo}|}
+%
+\id{N\_VNew} & \id{v = N\_VNew(n, machEnv);} \\ 
+& Returns a new \id{N\_Vector} of length \id{n}. 
+If there is not enough memory for a new \id{N\_Vector}, then \id{N\_VNew} 
+returns \id{NULL}.
+\\
+%
+\id{N\_VNew\_S} & \id{vs = N\_VNew\_S(ns, n, machEnv);} \\
+& Returns an array of \id{ns} new \id{N\_Vector}'s of length \id{n}. 
+The parameter \id{machEnv} is a pointer to machine environment 
+specific information. If there is not enough memory for a new array 
+of \id{N\_Vector}'s or for one of the components, then \id{N\_VNew\_S}
+returns \id{NULL}.
+\\
+%
+\id{N\_VFree} & \id{N\_VFree(v);} \\
+& Frees the \id{N\_Vector} \id{v}. It is illegal to use \id{v} after the call
+to \id{N\_VFree}.
+\\
+%
+\id{N\_VFree\_S} & \id{N\_VFree\_S(ns, vs);} \\
+& Frees the array of \id{ns} \id{N\_Vector}'s \id{vs}.
+It is illegal to use \id{vs} after the call to \id{N\_VFree\_S}.
+\\
+%
+\id{N\_VMake} & \id{v = N\_VMake(n, vdata, machEnv);} \\
+& Creates an \id{N\_Vector} of length \id{n} with component array data 
+\id{vdata} allocated by the user.
+\\
+%
+\id{N\_VDispose} & \id{N\_VDispose(v);} \\
+& Destroys an \id{N\_Vector} created by a previous call to \id{N\_VMake}. 
+It is the user's responsability to free the memory allocated for the data array.
+\\
+%
+\id{N\_VGetData} & \id{vdata = N\_VGetData(v);} \\
+& Returns a pointer to the data component array from the \id{N\_Vector} \id{v}.
+\\
+%
+\id{N\_VSetData} & \id{N\_VSetData(vdata, v);} \\
+& Attaches the data component array \id{vdata} to the \id{N\_Vector} \id{v}.
+\\
+%
+\id{N\_VLinearSum} & \id{N\_VLinearSum(a, x, b, y, z);} \\
+& Performs the operation $z = a x + b y$, where $a$ and $b$ are scalars
+and $x$ and $y$ are \id{N\_Vector}'s:
+$z_i = a x_i + b y_i, \: i=0,1,\ldots,n-1$.
+\\
+%
+\id{N\_VConst} & \id{N\_VConst(c, z);} \\
+& Initializes all components of the \id{N\_Vector} \id{z} to \id{c}:
+$z_i = c,\: i=0,1,\ldots,n-1$ .
+\\
+%
+\id{N\_VProd} & \id{N\_VProd(x, y, z);} \\
+& Sets the \id{N\_Vector} \id{z} to be the component-wise product of the
+\id{N\_Vector}'s \id{x} and \id{y}:
+$z_i = x_i y_i,\: i=0,1,\ldots,n-1$.
+\\
+%
+\id{N\_VDiv} & \id{N\_VDiv(x, y, z);} \\
+& Sets the \id{N\_Vector} \id{z} to be the component-wise ratio of the
+\id{N\_Vector}'s \id{x} and \id{y}:
+$z_i = x_i / y_i,\: i=0,1,\ldots,n-1$. The $y_i$ may not be tested 
+for $0$ values.
+\\
+%
+\id{N\_VScale} & \id{N\_VScale(c, x, z);} \\
+& Scales the \id{N\_Vector} \id{x} by the scalar \id{c} and returns
+the result in \id{z}:
+$z_i = c x_i , \: i=0,1,\ldots,n-1$.
+\\
+%
+\id{N\_VAbs} & \id{N\_VAbs(x, y);} \\
+& Sets the components of the \id{N\_Vector} \id{y} to be the absolute
+values of the components of the \id{N\_Vector} \id{x}:
+$y_i = | x_i | , \: i=0,1,\ldots,n-1$.
+\\
+%
+\id{N\_VInv} & \id{N\_VInv(x, z);} \\
+& Sets the components of the \id{N\_Vector} \id{z} to be the inverses
+of the components of the \id{N\_Vector} \id{x}:
+$z_i = 1.0 /  x_i  , \: i=0,1,\ldots,n-1$. This routine
+may not check for division by $0$. It should be called only with an 
+\id{x} which is guaranteed to have all non-zero components.
+\\
+%
+\id{N\_VAddConst} & \id{N\_VAddConst(x, b, z);} \\
+& Adds the scalar \id{b} to all components of \id{x} and returns the
+result in the \id{N\_Vector} \id{z}:
+$z_i = x_i + b , \: i=0,1,\ldots,n-1$.
+\\
+%
+\id{N\_VDotProd} & \id{d = N\_VDotProd(x, y);} \\
+& Returns the value of the ordinary dot product of \id{x} and \id{y}:
+$d=\sum_{i=0}^{n-1} x_i y_i$.
+\\
+%
+\id{N\_VMaxNorm} & \id{m = N\_VMaxNorm(x);} \\
+& Returns the maximum norm of the \id{N\_Vector} \id{x}:
+$m = \max_{i} | x_i |$.
+\\
+%
+\id{N\_VWrmsNorm} & \id{m = N\_VWrmsNorm(x, w)} \\
+& Returns the weighted root mean square norm of the \id{N\_Vector} \id{x} with
+weight vector \id{w}:
+$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}$.
+\\
+%
+\id{N\_VMin} & \id{m = N\_VMin(x);} \\
+& Returns the smallest element of the \id{N\_Vector} \id{x}:
+$m = \min_i x_i $.
+\\
+%
+\id{N\_VWL2Norm} & \id{m = N\_VWL2Norm(x, w);} \\
+& Returns the weighted Euclidean $\ell_2$ norm of the \id{N\_Vector} \id{x}
+with weight vector \id{w}: 
+$m = \sqrt{\sum_{i=0}^{n-1} (x_i w_i)^2}$.
+\\
+%
+\id{N\_VL1Norm} & \id{m = N\_VL1Norm(x);} \\
+& Returns the $\ell_1$ norm of the \id{N\_Vector} \id{x}:
+$m = \sum_{i=0}^{n-1} | x_i |$.
+\\
+%
+\id{N\_VOneMask} & \id{N\_VOneMask(x);} \\
+& Sets the non-zero components of the \id{N\_Vector} to $1.0$:
+$x_i = 1.0, \: \text{if } \: x_i \ne 0.0, \: i=0,1,\ldots,n-1$.
+\\
+%
+\id{N\_VCompare} & \id{N\_VCompare(c, x, z);} \\
+& Compares the components of the \id{N\_Vector} \id{x} to the scalar
+\id{c} and returns an \id{N\_Vector} \id{z} such that:
+$z_i = 1.0$ if $| x_i | \ge c$ and $z_i = 0.0$ otherwise.
+\\
+%
+\id{N\_VInvTest} & \id{t = N\_VInvTest(x, z);} \\
+& Sets the components of the \id{N\_Vector} \id{z} to be the inverses
+of the components of the \id{N\_Vector} \id{x}:
+$z_i = 1.0 /  x_i  , \: i=0,1,\ldots,n-1$.
+This routine returns \id{TRUE} if all components of \id{x} are
+non-zero (successful inversion) and returns \id{FALSE} otherwise.  
+\\
+%
+\id{N\_VConstrProdPos} & \id{t = N\_VConstrProdPos(c, x);} \\
+& Returns a boolean equal to \id{FALSE} if, for some
+$i=0,1,\ldots,n-1$, 
+$c_i \ne 0.0$ and $x_i c_i \le 0.0$, and \id{TRUE} otherwise.
+This routine is used for constraint checking.
+\\
+%
+\id{N\_VConstrMask} & \id{t = N\_VConstrMask(c, x, m);} \\
+& Performs the following constraint tests:
+$x_i > 0$ if $c_i=2$,
+$x_i \ge 0$ if $c_i=1$,
+$x_i \le 0$ if $c_i=-1$,
+$x_i < 0$ if $c_i=-2$.
+This routine returns \id{FALSE} if any element failed
+the constraint test, \id{TRUE} if all passed.  It also sets a
+mask vector \id{m}, with elements equal to $1.0$ where the
+corresponding constraint test failed, and $0.0$
+where the test passed.
+This routine is used only for constraint checking.
+\\
+%
+\id{N\_VMinQuotient} & \id{minq = N\_VMinQuotient(num, denom);} \\
+& This routine returns the minimum of the quotients obtained   
+by term-wise dividing \id{num[i]} by \id{denom[i]}. 
+A zero element in \id{denom} will be skipped. 
+If no such quotients are found, then the large value $10^{99}$ is returned. 
+\\
+%
+\end{supertabular}
+\bigskip

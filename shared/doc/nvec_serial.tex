@@ -1,0 +1,158 @@
+% This is a shared SUNDIALS TEX file with description of
+% the serial nvector implementation
+%
+The {\nvecs} implementation of the {\nvector} module
+defines the {\em content} field of \id{M\_Env} to be a structure 
+containing the length of the vector:
+\begin{verbatim}
+struct _M_EnvSerialContent {
+    integertype length;
+};
+\end{verbatim}
+The {\em tag} field of \id{M\_Env} is set to \id{serial}.
+The content field of \id{N\_Vector} is defined to be a structure containing
+the length of the vector and a pointer to the beginning of a contiguous data array:
+\begin{verbatim} 
+struct _N_VectorSerialContent {
+    integertype length;
+    realtype    *data;
+};
+\end{verbatim}
+
+The {\nvecs} implementation provides user-callable routines \ID{M\_EnvInit\_Serial} 
+to create a structure of type \id{M\_Env} whose {\em content} field is 
+of type \id{struct \_M\_EnvSerialContent}, and \ID{M\_EnvFree\_Serial} 
+to deallocate the space used by such a structure. 
+
+\noindent The form of the call to \id{M\_EnvInit\_Serial} is
+\begin{verbatim}
+machenv = M_EnvInit_Serial(vec_length);
+\end{verbatim}
+If successful, \id{M\_EnvInit\_Serial} returns a pointer of type
+\id{M\_Env}. This pointer should in turn be passed in any user
+calls to \id{N\_VNew} to create a new \id{N\_Vector} of this type.
+A machine environemnt variable \id{machenv} returned by \id{M\_EnvInit\_Serial}
+can be freed by calling:
+\begin{verbatim}
+M_EnvFree_Serial(machenv);
+\end{verbatim}
+In addition to these two routines, {\nvecs} defines serial implementations of all 
+vector kernels listed in Table \ref{t:nvecops}, as well as the following macros
+that can be used to access the contents of \id{M\_Env} and \id{N\_Vector}
+or to create and destroy \id{N\_Vector}'s with component array data allocated
+by the user. The suffix \id{\_S} in the names denotes serial version.
+\begin{itemize}
+
+\item \ID{ME\_CONTENT\_S}, \ID{NV\_CONTENT\_S}
+
+      These macros give access to the contents of the serial 
+      machine environment and \id{N\_Vector}, respectively.           
+                                                               
+      The assignment \id{m\_cont = ME\_CONTENT\_S(machenv)} sets       
+      \id{m\_cont} to be a pointer to the serial machine             
+      environment content structure (of type \id{struct \_M\_EnvSerialContent}).
+
+      The assignment \id{v\_cont = NV\_CONTENT\_S(v)} sets       
+      \id{v\_cont} to be a pointer to the serial \id{N\_Vector} content    
+      structure of type \id{struct \_N\_VectorSerialContent}.
+
+\item \ID{NV\_DATA\_S}, \ID{NV\_LENGTH\_S}
+
+      These macros give individual access to the parts of    
+      the content of a serial \id{N\_Vector}.                        
+                                                               
+      The assignment \id{v\_data = NV\_DATA\_S(v)} sets \id{v\_data} to be     
+      a pointer to the first component of \id{v}. The assignment    
+      \id{NV\_DATA\_S(v) = v\_data} sets the component array of \id{v} to     
+      be \id{v\_data} by storing the pointer \id{v\_data}.                   
+                                                               
+      The assignment \id{v\_len = NV\_LENGTH\_S(v)} sets \id{v\_len} to be     
+      the length of \id{v}. On the other hand, the call \id{NV\_LENGTH\_S(v) = len\_v} 
+      sets the length of \id{v} to be \id{len\_v}.
+
+\item \ID{NV\_Ith\_S}
+
+      This macro gives access to the individual components of the data
+      array of an \id{N\_Vector}.
+
+      The assignment \id{r = NV\_Ith\_S(v,i)} sets \id{r} to be the value of 
+      the \id{i}-th component of \id{v}. The assignment \id{NV\_Ith\_S(v,i) = r}   
+      sets the value of the \id{i}-th component of \id{v} to be \id{r}.        
+
+\item \ID{NV\_MAKE\_S}, \ID{NV\_DISPOSE\_S}
+
+      These companion macros are used to create and          
+      destroy an \id{N\_Vector} with a component array vdata        
+      allocated by the user.                                   
+                                                               
+      The call \id{NV\_MAKE\_S(v,v\_data,machenv)} makes \id{v} an        
+      \id{N\_Vector} with component array \id{v\_data}. The length of the  
+      array is taken from \id{machenv}.                             
+      \id{NV\_MAKE\_S} stores the pointer \id{v\_data} so that changes      
+      made by the user to the elements of \id{v\_data} are           
+      simultaneously reflected in \id{v}. There is no copying of    
+      elements.                                                
+                                                               
+      The call \id{NV\_DISPOSE\_S(v)} frees all memory associated     
+      with \id{v} except for its component array. This memory was   
+      allocated by the user and, therefore, should be          
+      deallocated by the user.   
+
+\item \ID{NVS\_MAKE\_S}, \ID{NVS\_DISPOSE\_S}
+                             
+      These companion macros are used to create and destroy  
+      an array of \id{N\_Vector}'s with component \id{vs\_data} 
+      (of type \id{realtype **}) allocated by the user.       
+
+                                                               
+      The call \id{NVS\_MAKE\_S(vs,vs\_data,ns,machenv)} makes   
+      \id{vs} an array of \id{ns} \id{N\_Vector}'s, with \id{vs[i]} 
+      having component array \id{vs\_data[i]} and length taken from \id{machenv}.    
+      \id{NVS\_MAKE\_S} stores the pointers \id{vs\_data[i]} so that        
+      changes made by the user to the elements of \id{vs\_data} are  
+      simultaneously reflected in \id{vs}. There is no copying of   
+      elements.                                                
+                                                               
+      The call \id{NVS\_DISPOSE\_S(vs,ns)} frees all memory associated   
+      with \id{vs} except for its components' component array.      
+      This memory was allocated by the user and, therefore,    
+      should be deallocated by the user.                       
+
+\end{itemize}
+
+\noindent {\bf Notes}                                                      
+           
+\begin{itemize}
+                                        
+\item
+  Users who use the make/dispose macros must                 
+  \id{\#include<stdlib.h>} since these macros expand to calls to     
+  \id{malloc} and \id{free}.                                             
+  
+\item
+  When looping over the components of an \id{N\_Vector} \id{v}, it is     
+  more efficient to first obtain the component array via       
+  \id{v\_data = NV\_DATA\_S(v)} and then access \id{v\_data[i]} within the     
+  loop than it is to use \id{NV\_Ith\_S(v,i)} within the loop.        
+                                                               
+  \id{NV\_MAKE\_S} and \id{NV\_DISPOSE\_S} are similar to the \id{N\_VNew} and  
+  \id{N\_VFree} implemented by {\nvecs}, while \id{NVS\_MAKE\_S} and 
+  \id{NVS\_DISPOSE\_S}  are similar to  \id{N\_VNew\_S} and \id{N\_VFree\_S}. 
+  The difference is one of responsibility for component memory     
+  allocation and deallocation. \id{N\_VNew} allocates memory  
+  for the \id{N\_Vector} components and \id{N\_VFree} frees the     
+  component memory allocated by \id{N\_VNew}. For \id{NV\_MAKE\_S}   
+  and \id{NV\_DISPOSE\_S}, the component memory is allocated and      
+  freed by the user of this package. Similar remarks hold for  
+  \id{NVS\_MAKE\_S},  \id{NVS\_DISPOSE\_S} and \id{N\_VNew\_S},              
+  \id{N\_VFree\_S}.                                            
+
+\item
+  To maximize efficiency, vector kernels in the {\nvecs} implementation
+  that have more than one \id{N\_Vector} argument do not check for
+  consistent internal representation of these vectors. It is the user's 
+  responsibility to ensure that such routines are called with \id{N\_Vector}
+  arguments that were all created with the \id{M\_Env} structure returned
+  by \id{M\_EnvInit\_Serial}.
+
+\end{itemize}

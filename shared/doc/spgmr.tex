@@ -1,0 +1,34 @@
+% This is a shared SUNDIALS TEX file with description of
+% the generic spgmr linear solver
+%
+\index{generic linear solvers!SPGMR@{\spgmr}}
+\index{SPGMR@{\spgmr} generic linear solver!description of|(} 
+The {\spgmr} package, in the files \id{spgmr.h} and \id{spgmr.c}, includes an
+implementation of the scaled preconditioned GMRES\index{GMRES method} method.  
+A separate code module, \id{iterativ.h} and \id{iterativ.c}, contains auxiliary
+functions that support {\spgmr}, and also other Krylov solvers to be
+added later.  For full details, including usage instructions, see the
+files \id{spgmr.h} and \id{iterativ.h}.
+\index{SPGMR@{\spgmr} generic linear solver!description of|)}
+ 
+\paragraph{Functions.}
+\index{SPGMR@{\spgmr} generic linear solver!functions|(}
+The following functions are available in the {\spgmr} package:  
+\begin{itemize}
+\item \id{SpgmrMalloc}: allocation of memory for \id{SpgmrSolve};
+\item \id{SpgmrSolve}: solution of $Ax = b$ by the {\spgmr} method;
+\item \id{SpgmrFree}: free memory allocated by \id{SpgmrMalloc}.
+\end{itemize}
+\index{SPGMR@{\spgmr} generic linear solver!functions|)}
+%
+\index{SPGMR@{\spgmr} generic linear solver!support functions|(}
+The following functions are available in the support package 
+\id{iterativ.h} and \id{iterativ.c}:
+\begin{itemize}
+\item \id{ModifiedGS}: performs modified Gram-Schmidt procedure;
+\item \id{ClassicalGS}: performs classical Gram-Schmidt procedure; 
+\item \id{QRfact}: performs QR factorization of Hessenberg matrix;
+\item \id{QRsol}: solves a least squares problem with a Hessenberg
+       matrix factored by \id{QRfact}.
+\end{itemize}
+\index{SPGMR@{\spgmr} generic linear solver!support functions|)}
