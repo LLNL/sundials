@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-07-22 21:25:47 $
+ * $Revision: 1.11 $
+ * $Date: 2004-08-18 20:39:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -35,13 +35,12 @@
 
 #include "sundialstypes.h"   /* definitions of types realtype and             */
                              /* the constant FALSE                            */
-#include "cvode.h"           /* prototypes for CVodeMalloc, CVode, and        */
-                             /* CVodeFree, constants OPT_SIZE, BDF, NEWTON,   */
-                             /* SV, SUCCESS, NST,NFE,NSETUPS, NNI, NCFN, NETF */
-#include "cvdense.h"         /* prototype for CVDense, constant DENSE_NJE     */
+#include "cvode.h"           /* prototypes for CVode*** functions, and        */
+                             /* constants BDF, NEWTON, SV, SUCCESS            */
+#include "cvdense.h"         /* prototype for CVDense                         */
 #include "nvector_serial.h"  /* definitions of type N_Vector and macro        */
-                             /* NV_Ith_S, prototypes for N_VNew, N_VFree      */
-#include "dense.h"           /* definitions of type DenseMat, macro DENSE_ELEM*/
+                             /* NV_Ith_S, prototypes for N_VNew_Serial and    */
+#include "dense.h"           /* N_VDestroy, type DenseMat, macro DENSE_ELEM   */
 
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
@@ -169,7 +168,7 @@ int main()
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
-  /* Set the Jacobian routine */
+  /* Set the Jacobian routine to Jac (user-supplied) */
   flag = CVDenseSetJacFn(cvode_mem, Jac);
   if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
 
@@ -201,9 +200,8 @@ int main()
   /* Print some final statistics */
   PrintFinalStats(cvode_mem);
 
-  /* Free y vector */
+  /* Free y and abstol vectors */
   N_VDestroy(y);
-  /* Free abstol vector */
   N_VDestroy(abstol);
   /* Free integrator memory */
   CVodeFree(cvode_mem);
@@ -218,7 +216,7 @@ int main()
  */
 
 /* 
- * Print some final statistics located in the iopt array 
+ * Get and print some final statistics
  */
 
 static void PrintFinalStats(void *cvode_mem)
