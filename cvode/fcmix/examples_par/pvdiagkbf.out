@@ -41,9 +41,9 @@ Max. absolute error is  0.28E-08
 Final statistics..
  number of steps        =  359     number of f evals.     =  405
  number of prec. setups =   38
- number of prec. evals. =    7     number of prec. solves =   20
- number of nonl. iters. =  402     number of lin. iters.  =  446
- average Krylov subspace dimension (NLI/NNI)  =  1.1095
+ number of prec. evals. =    7     number of prec. solves =  728
+ number of nonl. iters. =  402     number of lin. iters.  =  364
+ average Krylov subspace dimension (NLI/NNI)  =  0.9055
  number of conv. failures..  nonlinear =  0  linear =  0
  number of error test failures =  5
 In CVBBDPRE: real/integer local work space sizes =   20   10
@@ -85,9 +85,9 @@ Max. absolute error is  0.28E-08
 Final statistics..
  number of steps        =  359     number of f evals.     =  405
  number of prec. setups =   38
- number of prec. evals. =    7     number of prec. solves =   20
- number of nonl. iters. =  402     number of lin. iters.  =  446
- average Krylov subspace dimension (NLI/NNI)  =  1.1095
+ number of prec. evals. =    7     number of prec. solves =  728
+ number of nonl. iters. =  402     number of lin. iters.  =  364
+ average Krylov subspace dimension (NLI/NNI)  =  0.9055
  number of conv. failures..  nonlinear =  0  linear =  0
  number of error test failures =  5
 In CVBBDPRE: real/integer local work space sizes =   20   10
