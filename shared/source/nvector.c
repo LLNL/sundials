@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : nvector.c                                       *
  * Programmers   : Radu Serban, LLNL                               *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 26 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -15,20 +15,19 @@
  *                                                                 *
  *******************************************************************/
 
+#include <stdlib.h>
 #include "nvector.h"    /* generic M_Env and N_Vector */
 
-N_Vector N_VNew(integertype n, M_Env machEnv)
+N_Vector N_VNew(M_Env machEnv)
 {
   N_Vector v_new;
-  v_new = machEnv->ops->nvnew(n, machEnv);
+  v_new = machEnv->ops->nvnew(machEnv);
   return(v_new);
 }
 
-N_Vector_S N_VNew_S(integertype ns, integertype n, M_Env machEnv)
+void N_VSpace(M_Env machEnv, long int *lrw, long int *liw)
 {
-  N_Vector_S vs_new;
-  vs_new = machEnv->ops->nvnewS(ns, n, machEnv);
-  return(vs_new);
+  machEnv->ops->nvspace(machEnv, lrw, liw);
 }
 
 void N_VFree(N_Vector v)
@@ -36,15 +35,39 @@ void N_VFree(N_Vector v)
   v->menv->ops->nvfree(v);
 }
 
-void N_VFree_S(integertype ns, N_Vector_S vs) 
+N_Vector_S N_VNew_S(integertype ns, M_Env machEnv)
 {
-  (*vs)->menv->ops->nvfreeS(ns, vs);
+  N_Vector_S vs_new;
+  integertype is, js;
+
+  if (ns <= 0) return(NULL);
+  if (machEnv == NULL) return(NULL);
+  vs_new = (N_Vector_S) malloc(ns * sizeof(N_Vector *));
+
+  for (is=0; is<ns; is++) {
+    vs_new[is] = N_VNew(machEnv);
+    if (vs_new[is] == NULL) {
+      for (js=0; js<is; js++) N_VFree(vs_new[js]);
+      free(vs_new);
+      return(NULL);
+    }
+  }
+
+  return(vs_new);
 }
 
-N_Vector N_VMake(integertype n, realtype *v_data, M_Env machEnv)
+void N_VFree_S(integertype ns, N_Vector_S vs) 
+{
+  integertype is;
+  
+  for (is=0; is<ns; is++) N_VFree(vs[is]);
+  free(vs);
+}
+
+N_Vector N_VMake(realtype *v_data, M_Env machEnv)
 {
   N_Vector v_new;
-  v_new = machEnv->ops->nvmake(n, v_data, machEnv);
+  v_new = machEnv->ops->nvmake(v_data, machEnv);
   return(v_new);
 }
 

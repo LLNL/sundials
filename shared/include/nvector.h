@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : nvector.h                                       *
  * Programmers   : Radu Serban, LLNL                               *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 26 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -67,11 +67,10 @@ typedef N_Vector *N_Vector_S;
 
 /* Structure containing function pointers to vector operations  */  
 struct _generic_N_Vector_Ops {
-  N_Vector    (*nvnew)(integertype, M_Env);
-  N_Vector_S  (*nvnewS)(integertype, integertype, M_Env);
+  N_Vector    (*nvnew)(M_Env);
   void        (*nvfree)(N_Vector);
-  void        (*nvfreeS)(integertype, N_Vector_S);
-  N_Vector    (*nvmake)(integertype, realtype *, M_Env);
+  void        (*nvspace)(M_Env, long int *, long int *);
+  N_Vector    (*nvmake)(realtype *, M_Env);
   void        (*nvdispose)(N_Vector);
   realtype*   (*nvgetdata)(N_Vector);
   void        (*nvsetdata)(realtype *, N_Vector);
@@ -122,28 +121,37 @@ struct _generic_N_Vector {
 
 /*--------------------------------------------------------------*
  * Function : N_VNew                                            *
- * Usage    : v = N_VNew(n, machEnv);                           *
+ * Usage    : v = N_VNew(machEnv);                              *
  *--------------------------------------------------------------*
- * Returns a new N_Vector of length n. The parameter machEnv    *
- * is a pointer to machine environment-specific information.    *
+ * Returns a new N_Vector. The parameter machEnv is a pointer   *
+ * to machine environment-specific information.                 *
  * If there is not enough memory for a new N_Vector, then       *
  * N_VNew returns NULL.                                         *
  *--------------------------------------------------------------*/
   
-N_Vector N_VNew(integertype n, M_Env machEnv);
+N_Vector N_VNew(M_Env machEnv);
+
+/*--------------------------------------------------------------*
+ * Function : N_VSpace                                          *
+ * Usage    : N_VSpace(machEnv, lrw, liw);                      *
+ *--------------------------------------------------------------*
+ * Returns space requirements for one N_Vector (realtype in lrw *
+ * and integertype in liw).                                     *
+ *--------------------------------------------------------------*/
+
+void N_VSpace(M_Env machEnv, long int *lrw, long int *liw);
 
 /*--------------------------------------------------------------*
  * Function : N_VNew_S                                          *
- * Usage    : v = N_VNew_S(ns, n, machEnv);                     *
+ * Usage    : v = N_VNew_S(ns, machEnv);                        *
  *--------------------------------------------------------------*
- * Returns an array of ns new N_Vectors of length n. The        *
- * parameter machEnv is a pointer to machine environment        *
- * specific information.                                        *
+ * Returns an array of ns new N_Vectors. The parameter machEnv  *
+ * is a pointer to machine environment specific information.    *
  * If there is not enough memory for a new array of N_Vectors   *
  * or for one of the components, then N_VNew_S returns NULL.    *
  *--------------------------------------------------------------*/
 
-N_Vector_S N_VNew_S(integertype ns, integertype n, M_Env machEnv);
+N_Vector_S N_VNew_S(integertype ns, M_Env machEnv);
 
 /*--------------------------------------------------------------*
  * Function : N_VFree                                           *
@@ -167,13 +175,13 @@ void N_VFree_S(integertype ns, N_Vector_S vs);
 
 /*--------------------------------------------------------------*
  * Function : N_VMake                                           *
- * Usage    : v = N_VMake(n, v_data, machEnv);                  *
+ * Usage    : v = N_VMake(v_data, machEnv);                     *
  *--------------------------------------------------------------*
  * Creates an N_Vector with component array data allocated by   *
  * the user.                                                    *
  *--------------------------------------------------------------*/
 
-N_Vector N_VMake(integertype n, realtype *v_data, M_Env machEnv);
+N_Vector N_VMake(realtype *v_data, M_Env machEnv);
 
 /*--------------------------------------------------------------*
  * Function : N_VDispose                                        *
