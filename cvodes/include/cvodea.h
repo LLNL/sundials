@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-08-25 16:21:01 $
+ * $Revision: 1.25 $
+ * $Date: 2004-10-13 15:55:13 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -419,22 +419,14 @@ extern "C" {
    *----------------------------------------------------------------
    */
 
-#define CVADJ_NO_ADJMEM   -101
-#define CVADJ_MEM_FAIL    -102
-#define CVADJ_BAD_TB0     -103
-#define CVADJ_NO_BCKMEM   -104
-#define CVADJ_REIFWD_FAIL -105
-#define CVADJ_FWD_FAIL    -106
-#define CVADJ_BAD_ITASK   -107
-#define CVADJ_BAD_TBOUT   -108
-
-
-#define CVADJ_BP_NULL     -1
-#define CVADJ_BBD_NULL    -1
-
-#define CVADJ_GETY_BADT   -1
-
-
+#define CV_ADJMEM_NULL -101
+#define CV_BAD_TB0     -103
+#define CV_BCKMEM_NULL -104
+#define CV_REIFWD_FAIL -105
+#define CV_FWD_FAIL    -106
+#define CV_BAD_ITASK   -107
+#define CV_BAD_TBOUT   -108
+#define CV_GETY_BADT   -109
 
 #endif
 
