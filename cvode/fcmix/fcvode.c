@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2004-11-15 21:50:36 $
+ * $Revision: 1.39 $
+ * $Date: 2004-12-01 18:58:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -151,7 +151,7 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
     itol = CV_SS; 
     atolptr = atol; 
   } else { 
-    if (F2C_atolvec != NULL) {
+    if (F2C_atolvec == NULL) {
       F2C_atolvec = N_VClone(F2C_vec);
       data_F2C_atolvec = N_VGetArrayPointer(F2C_atolvec);
     }
