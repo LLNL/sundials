@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.9 $
-C     $Date: 2004-04-29 22:23:33 $
+C     $Revision: 1.10 $
+C     $Date: 2004-05-14 21:56:12 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -15,18 +15,22 @@ C
 C     on the interval from t = 0.0 to t = 4.e10, with initial
 C     conditions:
 C
-C     y1 = 1.0, y2 = y3 = 0. The problem is stiff.
-C     
-C     The following coding solves this problem with CVODE, using the
-C     Fortran/C interface routine package. This solution uses the BDF
-C     method and user-supplied Jacobian routine, and prints results
-C     at t = .4, 4., ..., 4.e10. It uses ITOL = 2 and ATOL much
-C     smaller for y2 than y1 or y3 because y2 has much smaller values.
-C     At the end of the run, various counters of interest are printed.
+C     y1 = 1.0, y2 = y3 = 0.
+C
+C     The problem is stiff. While integrating the system, we also
+C     use the root finding feature to find the points at which
+C     y1 = 1.e-4 or at which y3 = 0.01. The following coding solves
+C     this problem with CVODE, using the Fortran/C interface routine
+C     package. This solution uses the BDF method and a user-supplied
+C     Jacobian routine, and prints results at t = .4, 4., ..., 4.e10.
+C     It uses ITOL = 2 and ATOL much smaller for y2 than y1 or y3
+C     because y2 has much smaller values. At the end of the run,
+C     various counters of interest are printed.
 C     ----------------------------------------------------------------
 C
       DOUBLE PRECISION RTOL, T, T0, TOUT
       DOUBLE PRECISION Y(3), ATOL(3), ROPT(40)
+      INTEGER IOUT, NOUT, NGE
       INTEGER IOPT(40)
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
      1     LNJE/18/
@@ -46,9 +50,11 @@ C
       INOPT = 0
       TOUT = 0.4D0
       ITASK = 1
+      IOUT = 0
+      NOUT = 12
 C
       WRITE(6,10) NEQ
- 10   FORMAT('Dense example problem: Robertson kinetics, NEQ = ',I2//)
+ 10   FORMAT('Dense example problem: Robertson kinetics, NEQ = ',I2/)
 C
       CALL FNVINITS (NEQ, IER)
       IF (IER .NE. 0) THEN
@@ -66,6 +72,15 @@ C
         STOP
       ENDIF
 C
+      CALL FCVROOTINIT(2, IER)
+      IF (IER .NE. 0) THEN
+         WRITE(6,45) IER
+ 45      FORMAT(///' SUNDIALS_ERROR: FCVROOT returned IER =',I5)
+         CALL FNVFREES
+         CALL FCVFREE
+         STOP
+      ENDIF
+C
       CALL FCVDENSE (NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
@@ -77,43 +92,53 @@ C
 C
       CALL FCVDENSESETJAC(1, IER)
 C
-      DO 70 IOUT = 1,12
+      DO WHILE (IOUT .LT. NOUT)
 C
         CALL FCVODE (TOUT, T, Y, ITASK, IER)
 C
         WRITE(6,50)T,Y(1),Y(2),Y(3)
  50     FORMAT('At t =',D12.4,'   y =',3D14.6)
 C
-        IF (IER .NE. 0) THEN
-          WRITE(6,60) IER
- 60       FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER =',I5)
-          CALL FNVFREES
-          CALL FCVFREE
-          STOP
+        IF (IER .LT. 0) THEN
+           WRITE(6,60) IER
+ 60        FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER =',I5)
+           CALL FNVFREES
+           CALL FCVROOTFREE
+           CALL FCVFREE
+           STOP
         ENDIF
 C
-        TOUT = TOUT*10.0D0
- 70   CONTINUE
+        IF (IER .EQ. 0) THEN
+           TOUT = TOUT*10.0D0
+           IOUT = IOUT+1
+        ENDIF
+C
+      ENDDO
+C
+      CALL FCVROOTOPT(NGE)
 C
       CALL FCVDKY (T, 1, Y, IER)
       IF (IER .NE. 0) THEN
-        WRITE(6,80) IER
- 80     FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER =',I5)
-        CALL FNVFREES
-        CALL FCVFREE
-        STOP
+         WRITE(6,80) IER
+ 80      FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER =',I5)
+         CALL FNVFREES
+         CALL FCVROOTFREE
+         CALL FCVFREE
+         STOP
       ENDIF
       WRITE(6,85)y(1),y(2),y(3)
  85   FORMAT(/'Final value of ydot =',3D11.3)
 C
       WRITE(6,90) IOPT(LNST), IOPT(LNFE), IOPT(LNJE), IOPT(LNSETUP),
-     1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF)
+     1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF), NGE
  90   FORMAT(/'No. steps =',I4,'   No. f-s =',I4,
      1       '   No. J-s =',I4,'   No. LU-s =',I4/
      2       'No. nonlinear iterations =',I4/
      3       'No. nonlinear convergence failures =',I4/
-     4       'No. error test failures =',I4/)
+     4       'No. error test failures =',I4/
+     5       'No. root function evals =',I4)
 C
+      CALL FCVROOTFREE
       CALL FCVFREE
       CALL FNVFREES
 C
@@ -126,6 +151,14 @@ C Fortran routine for right-hand side function.
       YDOT(1) = -.04D0*Y(1) + 1.D4*Y(2)*Y(3)
       YDOT(3) = 3.D7*Y(2)*Y(2)
       YDOT(2) = -YDOT(1) - YDOT(3)
+      RETURN
+      END
+
+      SUBROUTINE FCVROOTFN (T, Y, G)
+C Fortran routine for root finding
+      DOUBLE PRECISION T, Y(*), G(*)
+      G(1) = Y(1) - 1.D-4
+      G(2) = Y(3) - 1.D-2
       RETURN
       END
 
