@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-10-21 20:49:09 $
+ * $Revision: 1.25 $
+ * $Date: 2004-10-26 18:01:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -301,9 +301,9 @@
 #ifndef _FKINSOL_H
 #define _FKINSOL_H
 
-#ifndef _CONFIG_H
-#define _CONFIG_H
-#include <config.h>
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
 #endif
 
 /*

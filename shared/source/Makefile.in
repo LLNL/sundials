@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2004-10-21 21:10:33 $
+# $Revision: 1.7 $
+# $Date: 2004-10-26 18:02:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -38,7 +38,6 @@ CC       = @CC@
 CFLAGS   = @CFLAGS@
 LIBS     = @LIBS@
 
-SUNDIALS_INC_DIR = $(includedir)
 SHARED_INC_DIR   = $(srcdir)/../include
 
 SHARED_LIB       = libsundials_shared.la
@@ -46,7 +45,11 @@ SHARED_LIB_FILES = band.lo dense.lo iterative.lo sundialsmath.lo nvector.lo smal
 
 OBJECT_FILES = band.o dense.o iterative.o sundialsmath.o nvector.o smalldense.o spgmr.o
 
-all: $(SHARED_LIB_FILES)
+all: update $(SHARED_LIB_FILES)
+
+update:
+	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
+	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
 
 install: $(SHARED_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(SHARED_LIB) $(SHARED_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
@@ -59,11 +62,13 @@ install: $(SHARED_LIB_FILES)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/nvector.h $(includedir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/smalldense.h $(includedir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/spgmr.h $(includedir)
+	$(INSTALL_HEADER) $(builddir)/sundials_config.h $(includedir)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(SHARED_LIB)
 	rm -f $(SHARED_LIB_FILES)
 	rm -f $(OBJECT_FILES)
+	rm -f sundials_config.h
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(SHARED_LIB)
@@ -75,23 +80,27 @@ uninstall:
 	rm -f $(includedir)/nvector.h
 	rm -f $(includedir)/smalldense.h
 	rm -f $(includedir)/spgmr.h
+	@if test -f ${includedir}/sundials_config.h ; then \
+	   echo "rm -f $(includedir)/sundials_config.h" ;  \
+	   rm -f $(includedir)/sundials_config.h ;         \
+	 fi
 
 band.lo: $(srcdir)/band.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/band.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/band.c
 dense.lo: $(srcdir)/dense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/dense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/dense.c
 iterative.lo: $(srcdir)/iterative.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/iterative.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/iterative.c
 sundialsmath.lo: $(srcdir)/sundialsmath.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundialsmath.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundialsmath.c
 sundialstypes.lo: $(srcdir)/sundialstypes.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundialstypes.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundialstypes.c
 nvector.lo: $(srcdir)/nvector.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector.c
 smalldense.lo: $(srcdir)/smalldense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/smalldense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/smalldense.c
 spgmr.lo: $(srcdir)/spgmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/spgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/spgmr.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \

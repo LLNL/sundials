@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-10-21 20:55:05 $
+ * $Revision: 1.16 $
+ * $Date: 2004-10-26 18:01:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -281,9 +281,9 @@
 #ifndef _FCVBBD_H
 #define _FCVBBD_H
 
-#ifndef _CONFIG_H
-#define _CONFIG_H
-#include <config.h>
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
 #endif
 
 /* Definitions of interface function names */

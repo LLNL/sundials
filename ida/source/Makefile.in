@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2004-10-21 21:11:40 $
+# $Revision: 1.6 $
+# $Date: 2004-10-26 18:01:37 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,7 +39,6 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-SUNDIALS_INC_DIR = $(includedir)
 SHARED_INC_DIR   = $(srcdir)/../../shared/include
 IDA_INC_DIR      = $(srcdir)/../include
 
@@ -48,7 +47,11 @@ IDA_LIB_FILES = ida.lo idadense.lo idaband.lo idaspgmr.lo idabbdpre.lo
 
 OBJECT_FILES = ida.o idadense.o idaband.o idaspgmr.o idabbdpre.o
 
-all: $(IDA_LIB_FILES)
+all: update $(IDA_LIB_FILES)
+
+update:
+	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
+	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
 
 install: $(IDA_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDA_LIB) $(IDA_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version
@@ -63,6 +66,7 @@ clean:
 	$(LIBTOOL) --mode=clean rm -f $(IDA_LIB)
 	rm -f $(IDA_LIB_FILES)
 	rm -f $(OBJECT_FILES)
+	rm -f sundials_config.h
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDA_LIB)
@@ -73,15 +77,15 @@ uninstall:
 	rm -f $(includedir)/idabbdpre.h
 
 ida.lo: $(srcdir)/ida.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/ida.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/ida.c
 idadense.lo: $(srcdir)/idadense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idadense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idadense.c
 idaband.lo: $(srcdir)/idaband.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idaband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idaband.c
 idaspgmr.lo: $(srcdir)/idaspgmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idaspgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idaspgmr.c
 idabbdpre.lo: $(srcdir)/idabbdpre.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idabbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idabbdpre.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \

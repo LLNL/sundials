@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-10-21 21:54:38 $
+# $Revision: 1.10 $
+# $Date: 2004-10-26 18:02:06 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -38,7 +38,6 @@ CC       = @CC@
 CFLAGS   = @CFLAGS@
 LIBS     = @LIBS@
 
-SUNDIALS_INC_DIR       = $(includedir)
 SHARED_INC_DIR         = $(srcdir)/../shared/include
 NVECTOR_SERIAL_INC_DIR = $(srcdir)
 
@@ -50,7 +49,11 @@ FNVECTOR_SERIAL_LIB_FILES = fnvector_serial.lo
 
 OBJECT_FILES = nvector_serial.o fnvector_serial.o
 
-all: $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
+all: update $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
+
+update:
+	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
+	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
 
 install: $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(NVECTOR_SERIAL_LIB) $(NVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
@@ -62,10 +65,11 @@ install: $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(NVECTOR_SERIAL_LIB)
-	rm -f $(NVECTOER_SERIAL_LIB_FILES)
+	rm -f $(NVECTOR_SERIAL_LIB_FILES)
 	$(LIBTOOL) --mode=clean rm -f $(FNVECTOR_SERIAL_LIB)
 	rm -f $(FNVECTOR_SERIAL_LIB_FILES)
 	rm -f $(OBJECT_FILES)
+	rm -f sundials_config.h
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECTOR_SERIAL_LIB)
@@ -74,9 +78,9 @@ uninstall:
 	rm -f $(includedir)/fnvector_serial.h
 
 nvector_serial.lo: $(srcdir)/nvector_serial.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(NVECTOR_SERIAL_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector_serial.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(NVECTOR_SERIAL_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector_serial.c
 fnvector_serial.lo: $(srcdir)/fnvector_serial.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(NVECTOR_SERIAL_INC_DIR) $(CFLAGS) -c $(srcdir)/fnvector_serial.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(NVECTOR_SERIAL_INC_DIR) $(CFLAGS) -c $(srcdir)/fnvector_serial.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \

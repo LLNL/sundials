@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2004-10-21 21:12:09 $
+# $Revision: 1.6 $
+# $Date: 2004-10-26 18:01:47 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,7 +39,6 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-SUNDIALS_INC_DIR = $(includedir)
 SHARED_INC_DIR   = $(srcdir)/../../shared/include
 KINSOL_INC_DIR   = $(srcdir)/../include
 
@@ -48,7 +47,11 @@ KINSOL_LIB_FILES = kinsol.lo kinspgmr.lo kinbbdpre.lo
 
 OBJECT_FILES = kinsol.o kinspgmr.o kinbbdpre.o
 
-all: $(KINSOL_LIB_FILES)
+all: update $(KINSOL_LIB_FILES)
+
+update:
+	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
+	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
 
 install: $(KINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version
@@ -61,6 +64,7 @@ clean:
 	$(LIBTOOL) --mode=clean rm -f $(KINSOL_LIB)
 	rm -f $(KINSOL_LIB_FILES)
 	rm -f $(OBJECT_FILES)
+	rm -f sundials_config.h
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(KINSOL_LIB)
@@ -69,11 +73,11 @@ uninstall:
 	rm -f $(includedir)/kinbbdpre.h
 
 kinsol.lo: $(srcdir)/kinsol.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol.c
 kinspgmr.lo: $(srcdir)/kinspgmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspgmr.c
 kinbbdpre.lo: $(srcdir)/kinbbdpre.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinbbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinbbdpre.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \

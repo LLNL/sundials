@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-10-21 20:41:04 $
+ * $Revision: 1.9 $
+ * $Date: 2004-10-26 18:02:16 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -45,9 +45,9 @@ extern "C" {
 #ifndef _SUNDIALSTYPES_H
 #define _SUNDIALSTYPES_H
 
-#ifndef _CONFIG_H
-#define _CONFIG_H
-#include <config.h>
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+#include <sundials_config.h>
 #endif
 
 #include <float.h>

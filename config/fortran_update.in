@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2004-10-21 20:36:46 $
+# $Revision: 1.2 $
+# $Date: 2004-10-26 18:02:21 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -61,9 +61,9 @@ F77_KEYWORD_LIST="FLOAT/DBLE/QFLOAT,float/dble/qfloat SIN/DSIN/QSIN,sin/dsin/qsi
 F77_KEYWORD_LIST="${F77_KEYWORD_LIST} EXP/DEXP/QEXP,exp/dexp/qexp"
 F77_KEYWORD_LIST="${F77_KEYWORD_LIST} ABS/DABS/QABS,abs/dabs/qabs"
 F77_KEYWORD_LIST="${F77_KEYWORD_LIST} AMAX1/DMAX1/QMAX1,amax1/dmax1/qmax1"
-TEMP_A=`${FGREP} "#define SIZEOF_INT 4" ${includedir}/config.h`
+TEMP_A=`${FGREP} "#define SIZEOF_INT 4" ${includedir}/sundials_config.h`
 if test "X${TEMP_A}" = "X"; then
-  TEMP_A=`${FGREP} "#define SIZEOF_INT 8" ${includedir}/config.h`
+  TEMP_A=`${FGREP} "#define SIZEOF_INT 8" ${includedir}/sundials_config.h`
   if test "X${TEMP_A}" = "X"; then
     INT_BYTES="4"
   else
@@ -74,9 +74,9 @@ else
 fi
 F77_INT_UPPER="INTEGER\*${INT_BYTES}"
 F77_INT_LOWER="integer\*${INT_BYTES}"
-TEMP_A=`${FGREP} "#define SIZEOF_LONG_INT 4" ${includedir}/config.h`
+TEMP_A=`${FGREP} "#define SIZEOF_LONG_INT 4" ${includedir}/sundials_config.h`
 if test "X${TEMP_A}" = "X"; then
-  TEMP_A=`${FGREP} "#define SIZEOF_LONG_INT 8" ${includedir}/config.h`
+  TEMP_A=`${FGREP} "#define SIZEOF_LONG_INT 8" ${includedir}/sundials_config.h`
   if test "X${TEMP_A}" = "X"; then
     LONG_INT_BYTES="4"
   else
@@ -88,11 +88,11 @@ fi
 F77_LONG_INT_UPPER="INTEGER\*${LONG_INT_BYTES}"
 F77_LONG_INT_LOWER="integer\*${LONG_INT_BYTES}"
 if test "X${F77_FLOAT_TYPE}" = "Xsingle"; then
-  TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 4" ${includedir}/config.h`
+  TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 4" ${includedir}/sundials_config.h`
   if test "X${TEMP_A}" = "X"; then
-    TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 8" ${includedir}/config.h`
+    TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 8" ${includedir}/sundials_config.h`
     if test "X${TEMP_A}" = "X"; then
-      TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 16" ${includedir}/config.h`
+      TEMP_A=`${FGREP} "#define SIZEOF_FLOAT 16" ${includedir}/sundials_config.h`
       if test "X${TEMP_A}" = "X"; then
         FLOAT_BYTES=""
       else
@@ -105,11 +105,11 @@ if test "X${F77_FLOAT_TYPE}" = "Xsingle"; then
     FLOAT_BYTES="4"
   fi
 elif test "X${F77_FLOAT_TYPE}" = "Xdouble"; then
-  TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 4" ${includedir}/config.h`
+  TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 4" ${includedir}/sundials_config.h`
   if test "X${TEMP_A}" = "X"; then
-    TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 8" ${includedir}/config.h`
+    TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 8" ${includedir}/sundials_config.h`
     if test "X${TEMP_A}" = "X"; then
-      TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 16" ${includedir}/config.h`
+      TEMP_A=`${FGREP} "#define SIZEOF_DOUBLE 16" ${includedir}/sundials_config.h`
       if test "X${TEMP_A}" = "X"; then
         FLOAT_BYTES=""
       else
@@ -122,11 +122,11 @@ elif test "X${F77_FLOAT_TYPE}" = "Xdouble"; then
     FLOAT_BYTES="4"
   fi
 elif test "X${F77_FLOAT_TYPE}" = "Xextended"; then
-  TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 4" ${includedir}/config.h`
+  TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 4" ${includedir}/sundials_config.h`
   if test "X${TEMP_A}" = "X"; then
-    TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 8" ${includedir}/config.h`
+    TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 8" ${includedir}/sundials_config.h`
     if test "X${TEMP_A}" = "X"; then
-      TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 16" ${includedir}/config.h`
+      TEMP_A=`${FGREP} "#define SIZEOF_LONG_DOUBLE 16" ${includedir}/sundials_config.h`
       if test "X${TEMP_A}" = "X"; then
         FLOAT_BYTES=""
       else

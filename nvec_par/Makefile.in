@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2004-10-21 21:55:07 $
+# $Revision: 1.9 $
+# $Date: 2004-10-26 18:02:11 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -38,7 +38,6 @@ CPPFLAGS = @CPPFLAGS@
 CFLAGS   = @CFLAGS@
 LIBS     = @LIBS@
 
-SUNDIALS_INC_DIR         = $(includedir)
 MPI_INC_DIR              = @MPI_INC_DIR@
 SHARED_INC_DIR           = $(srcdir)/../shared/include
 NVECTOR_PARALLEL_INC_DIR = $(srcdir)
@@ -51,7 +50,11 @@ FNVECTOR_PARALLEL_LIB_FILES = fnvector_parallel.lo
 
 OBJECT_FILES = nvector_parallel.o fnvector_parallel.o
 
-all: $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
+all: update $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
+
+update:
+	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
+	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
 
 install: $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) -o $(NVECTOR_PARALLEL_LIB) $(NVECTOR_PARALLEL_LIB_FILES) -rpath $(libdir) $(LIBS) $(MPI_LIBS) -avoid-version
@@ -67,6 +70,7 @@ clean:
 	$(LIBTOOL) --mode=clean rm -f $(FNVECTOR_PARALLEL_LIB)
 	rm -f $(FNVECTOR_PARALLEL_LIB_FILES)
 	rm -f $(OBJECT_FILES)
+	rm -f sundials_config.h
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECTOR_PARALLEL_LIB)
@@ -75,9 +79,9 @@ uninstall:
 	rm -f $(includedir)/fnvector_parallel.h
 
 nvector_parallel.lo: $(srcdir)/nvector_parallel.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(NVECTOR_PARALLEL_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector_parallel.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(NVECTOR_PARALLEL_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector_parallel.c
 fnvector_parallel.lo: $(srcdir)/fnvector_parallel.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(SHARED_INC_DIR) -I$(NVECTOR_PARALLEL_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/fnvector_parallel.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(NVECTOR_PARALLEL_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/fnvector_parallel.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \
