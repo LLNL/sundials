@@ -893,6 +893,8 @@ Optional Packages:
   --with-f77underscore[=ARG]
                           specify number of underscores to append to function
                           names (none/one/two) [ARG=one]
+  --with-f77case[=ARG]    specify case of function names (lower/upper)
+                          [ARG=lower]
   --without-cxx           skip C++ support
   --with-cxxflags         add extra C++ compiler flags
 
@@ -3281,6 +3283,23 @@ if test "${with_f77underscore+set}" = set; then
 
 fi;
 
+
+# Check whether --with-f77case or --without-f77case was given.
+if test "${with_f77case+set}" = set; then
+  withval="$with_f77case"
+
+  if test "X${withval}" = "Xupper"; then
+    FCFLAGS="-DSUNDIALS_CASE_UPPER ${FCFLAGS}"
+  elif test "X${withval}" = "Xlower"; then
+    FCFLAGS="-DSUNDIALS_CASE_LOWER ${FCFLAGS}"
+  fi
+
+else
+
+  FCFLAGS="-DSUNDIALS_CASE_LOWER ${FCFLAGS}"
+
+fi;
+
 F77_OK=no
 
 if test "X${F77_ENABLED}" = "Xyes"; then
@@ -3380,7 +3399,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3383:" \
+echo "$as_me:3402:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3604,7 +3623,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3607: \"$ac_link\") >&5
+(eval echo $as_me:3626: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3684,7 +3703,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3687: \"$ac_link\") >&5
+(eval echo $as_me:3706: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS

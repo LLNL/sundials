@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.16 $
-# $Date: 2004-06-21 19:15:29 $
+# $Revision: 1.17 $
+# $Date: 2004-07-26 17:23:05 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # ------------------------------------------------------------------------
@@ -305,6 +305,19 @@ AC_ARG_WITH(f77underscore,
   elif test "X${withval}" = "Xtwo"; then
     FCFLAGS="-DSUNDIALS_UNDERSCORE_TWO"
   fi
+])
+
+AC_ARG_WITH(f77case, 
+[AC_HELP_STRING([--with-f77case[[[[=ARG]]]]   ],[specify case of function names (lower/upper) [ARG=lower]],[])],
+[
+  if test "X${withval}" = "Xupper"; then
+    FCFLAGS="-DSUNDIALS_CASE_UPPER ${FCFLAGS}"
+  elif test "X${withval}" = "Xlower"; then
+    FCFLAGS="-DSUNDIALS_CASE_LOWER ${FCFLAGS}"
+  fi
+],
+[
+  FCFLAGS="-DSUNDIALS_CASE_LOWER ${FCFLAGS}"
 ])
 
 F77_OK=no
