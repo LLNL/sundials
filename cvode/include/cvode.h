@@ -3,7 +3,7 @@
  * File          : cvode.h                                         *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 07 February 2004                                *
+ * Version of    : 27 April 2004                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -113,6 +113,26 @@ enum { NORMAL, ONE_STEP, NORMAL_TSTOP, ONE_STEP_TSTOP}; /* itask */
 typedef void (*RhsFn)(realtype t, N_Vector y, N_Vector ydot, 
                       void *f_data);
  
+/******************************************************************
+ *                                                                *
+ * Type : RootFn                                                  *
+ *----------------------------------------------------------------*
+ * A function g, which defines a set of functions g_i(t,y) whose  *
+ * roots are sought during the integration, must have type RootFn.*
+ * The function g takes as input the independent variable value   *
+ * t, and the dependent variable vector y.  It stores the nrtfn   *
+ * values g_i(t,y) in the realtype array gout.                    *
+ * (Allocation of memory for gout is handled within CVODE.)       *
+ * The g_data parameter is the same as that passed by the user    *
+ * to the CVodeSetGdata routine.  This user-supplied pointer is   *
+ * passed to the user's g function every time it is called.       *
+ * A RootFn g does not have a return value.                       *
+ *                                                                *
+ ******************************************************************/
+
+typedef void (*RootFn)(realtype t, N_Vector y, realtype *gout, 
+                       void *g_data);
+ 
 
 /*================================================================*
  *                                                                *
@@ -164,11 +184,6 @@ int CVodeResetIterType(void *cvode_mem, int iter);
  * Function             |  Optional input / [ default value ]     *
  * -------------------------------------------------------------- *
  *                      |                                         * 
- * CVodeSetFdata        | a pointer to user data that will be     *
- *                      | passed to the user's f function every   *
- *                      | time f is called.                       *
- *                      | [NULL]                                  *
- *                      |                                         * 
  * CVodeSetErrFile      | the file pointer for an error file      *
  *                      | where all CVODE warning and error       *
  *                      | messages will be written. This parameter*
@@ -178,6 +193,16 @@ int CVodeResetIterType(void *cvode_mem, int iter);
  *                      | opened for writing) returned by fopen.  *
  *                      | If not called, then all messages will   *
  *                      | be written to standard output.          *
+ *                      | [NULL]                                  *
+ *                      |                                         * 
+ * CVodeSetFdata        | a pointer to user data that will be     *
+ *                      | passed to the user's f function every   *
+ *                      | time f is called.                       *
+ *                      | [NULL]                                  *
+ *                      |                                         * 
+ * CVodeSetGdata        | a pointer to user data that will be     *
+ *                      | passed to the user's g function every   *
+ *                      | time g is called.                       *
  *                      | [NULL]                                  *
  *                      |                                         * 
  * CVodeSetMaxOrd       | maximum lmm order to be used by the     *
@@ -242,8 +267,9 @@ int CVodeResetIterType(void *cvode_mem, int iter);
  * defined below.                                                 *
  *----------------------------------------------------------------*/
 
-int CVodeSetFdata(void *cvode_mem, void *f_data);
 int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
+int CVodeSetFdata(void *cvode_mem, void *f_data);
+int CVodeSetGdata(void *cvode_mem, void *g_data);
 int CVodeSetMaxOrd(void *cvode_mem, int maxord);
 int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
@@ -352,7 +378,7 @@ enum {CVM_NO_MEM = -1, CVM_MEM_FAIL=-2, CVM_ILL_INPUT = -3};
  *                                                                *
  * The first argument to CVodeReInit is:                          *
  *                                                                *
- * cvode_mem = pointer to CVODE memory returned by CVodeMalloc.   *
+ * cvode_mem = pointer to CVODE memory returned by CVodeCreate.   *
  *                                                                *
  * All the remaining arguments to CVodeReInit have names and      *
  * meanings identical to those of CVodeMalloc.                    *
@@ -372,7 +398,40 @@ int CVodeReInit(void *cvode_mem, RhsFn f,
 /* CVodeReInit return values: */
 /* SUCCESS = 0 */ 
 enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
- 
+
+
+/*----------------------------------------------------------------*
+ * Function : CVodeRootInit                                       *
+ *----------------------------------------------------------------*
+ * CVodeRootInit initializes a rootfinding problem to be solved   *
+ * during the integration of the ODE system.  It must be called   *
+ * after CVodeCreate, and before CVode.  The arguments are:       *
+ *                                                                *
+ * cvode_mem = pointer to CVODE memory returned by CVodeCreate.   *
+ *                                                                *
+ * g         = name of user-supplied function, of type RootFn,    *
+ *             defining the functions g_i whose roots are sought. *
+ *                                                                *
+ * nrtfn     = number of functions g_i, an int >= 0.              *
+ *                                                                *
+ * If a new problem is to be solved with a call to CVodeReInit,   *
+ * where the new problme has no root functions but the prior one  *
+ * did, then call CVodeRootInit with nrtfn = 0.                   *
+ *                                                                *
+ * The return value of CVodeRootInit is SUCCESS = 0 if there were *
+ * no errors; otherwise it is a negative int equal to:            *
+ *   CVRT_NO_MEM     indicating cvode_mem was NULL, or            *
+ *   CVRT_MEM_FAIL   indicating a memory allocation failed.       *
+ *                    (including an attempt to increase maxord).  *
+ * In case of an error return, an error message is also printed.  *
+ *----------------------------------------------------------------*/
+
+int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn);
+/* CVodeRootInit return values: */
+/* SUCCESS = 0 */ 
+enum {CVRT_NO_MEM = -1, CVRT_MEM_FAIL = -2};
+
+
 /******************************************************************
  * Function : CVode                                               *
  *----------------------------------------------------------------*
@@ -389,15 +448,16 @@ enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
  * user is responsible for allocating the memory for this value.  *
  *                                                                *
  * cvode_mem is the pointer to CVODE memory returned by           *
- *              CVodeMalloc.                                      *
+ *              CVodeCreate.                                      *
  *                                                                *
  * tout  is the next time at which a computed solution is desired *
  *                                                                *
  * yout  is the computed solution vector. In NORMAL mode with no  *
- *          errors, yout=y(tout).                                 *
+ *          errors and no roots found, yout = y(tout).            *
  *                                                                *
- * t     is a pointer to a real location. CVode sets (*t) to the  *
- *          time reached by the solver and returns yout=y(*t).    *
+ * tret  is a pointer to a realtype location. CVode sets (*tret)  *
+ *          to the time reached by the solver and returns         *
+ *          yout = y(*tret).                                      *
  *                                                                *
  * itask is NORMAL, ONE_STEP, NORMAL_TSTOP, or ONE_STEP_TSTOP.    *
  *          These four modes are described above.                 *
@@ -405,9 +465,13 @@ enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
  * The return values for CVode are defined later in this file.    *
  * Here is a brief description of each return value:              *
  *                                                                *
- * SUCCESS       : CVode succeeded.                               *
+ * SUCCESS       : CVode succeeded, and no roots were found.      *
  *                                                                *
- * TSTOP_RETURN  : CVode succeded and returned at tstop.          *
+ * ROOT_RETURN   : CVode succeeded, and found one or more roots.  *
+ *                 If nrtfn > 1, call CVodeGetRootInfo to see     *
+ *                 which g_i were found to have a root at (*tret).*
+ *                                                                *
+ * TSTOP_RETURN  : CVode succeeded and returned at tstop.         *
  *                                                                *
  * CVODE_NO_MEM  : The cvode_mem argument was NULL.               *
  *                                                                *
@@ -453,8 +517,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
 
 /* CVode return values */
-enum { SUCCESS=0, TSTOP_RETURN=1, CVODE_NO_MEM=-1, CVODE_NO_MALLOC=-2,
-       ILL_INPUT=-3, TOO_MUCH_WORK=-4, TOO_MUCH_ACC=-5, ERR_FAILURE=-6, 
+enum { SUCCESS=0, TSTOP_RETURN=1, ROOT_RETURN=2,
+       CVODE_NO_MEM=-1, CVODE_NO_MALLOC=-2, ILL_INPUT=-3,
+       TOO_MUCH_WORK=-4, TOO_MUCH_ACC=-5, ERR_FAILURE=-6, 
        CONV_FAILURE=-7, SETUP_FAILURE=-8, SOLVE_FAILURE=-9 };
 
 /*----------------------------------------------------------------*
@@ -534,6 +599,12 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  *       The user need not allocate space for ewt.                *
  * CVodeGetEstLocalErrors returns the vector of estimated local   *
  *       errors. The user need not allocate space for ele.        *
+ * CVodeGetNumGEvals returns the number of calls to the user's    *
+ *       g function (for rootfinding)                             *
+ * CVodeGetRootInfo returns an array of int's showing the indices *
+ *       for which g_i was found to have a root.                  *
+ *       For i = 0 ... nrtfn-1, rootsfound[i] = 1 if g_i has a    *
+ *       root, and = 0 if not.                                    *
  *----------------------------------------------------------------*/
 
 int CVodeGetIntWorkSpace(void *cvode_mem, long int *leniw);
@@ -552,6 +623,8 @@ int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur);
 int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact);
 int CVodeGetErrWeights(void *cvode_mem, N_Vector *eweight);
 int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele);
+int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals);
+int CVodeGetRootInfo(void *cvode_mem, int **rootsfound);
  
 /*----------------------------------------------------------------*
  * As a convenience, the following two functions provide the      *
@@ -809,6 +882,28 @@ typedef struct CVodeMemRec {
   realtype cv_ssdat[6][4];    /* scaled data array for STALD               */
   int cv_nscon;               /* counter for STALD method                  */
   long int cv_nor;            /* counter for number of order reductions    */
+
+  /*----------------
+    Rootfinding Data
+  ------------------*/
+
+  RootFn cv_gfun;       /* Function g for roots sought                     */
+  int cv_nrtfn;         /* number of components of g                       */
+  void *cv_g_data;      /* pointer to user data for g                      */
+  int *cv_iroots;       /* int array for root information                  */
+  realtype cv_tlo;      /* nearest endpoint of interval in root search     */
+  realtype cv_thi;      /* farthest endpoint of interval in root search    */
+  realtype cv_troot;    /* approximate root location                       */
+  realtype *cv_glo;     /* saved array of g values at t = tlo              */
+  realtype *cv_ghi;     /* saved array of g values at t = thi              */
+  realtype *cv_groot;   /* array of g values at t = troot                  */
+  realtype cv_tretlast; /* last value of t returned                        */
+  realtype cv_toutc;    /* copy of tout (if NORMAL mode)                   */
+  realtype cv_ttol;     /* tolerance on root location troot                */
+  int cv_taskc;         /* copy of parameter task                          */
+  int cv_irfnd;         /* flag showing whether last step had a root       */
+  int cv_nge;           /* counter for g evaluations                       */
+
 
 } *CVodeMem;
 
