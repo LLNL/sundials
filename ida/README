@@ -1,15 +1,12 @@
-
-          IDA: Implicit Differential-Algebraic System Solver
-                      Release 2.0, 11 July 2002
-                   Notes on Installation and Usage
-
+                               IDA
+                    Release 2.2.0, November 2004
              Alan C. Hindmarsh, Allan G. Taylor, Radu Serban 
               Center for Applied Scientific Computing, LLNL
 
 
 IDA is a package for the solution of differential-algebraic equation
 (DAE) systems.  It is written in C, but derived from the package DASPK
-[1,2], which is written in FORTRAN. 
+[4,5], which is written in FORTRAN. 
 
 IDA can be used both on serial and parallel (MPI) computers.  The main
 difference is in the NVECTOR module of vector kernels.  The desired
@@ -39,207 +36,45 @@ Several examples problem programs are included, covering both serial
 and parallel cases, both small and large problem sizes, and both
 linear and nonlinear problems.
 
-Using IDA on a different system should require only minor changes to
-the various makefiles, as described below.  In the package supplied
-here, the makefiles are set up for use on the CASC cluster of Sun
-SPARC workstations.  But comments are included to show where changes
-may be needed for other environments.
+The notes below provide the location of documentation, directions for the 
+installation of the IDA package, and relevant references. Following that 
+is a brief history of revisions to the package.
 
-The notes below provide instructions for the installation of the IDA
-package.  In the package supplied, each Makefile is set up so that
-typing 'make' produces instructions for various make operations
-available.  For convenience, we include a brief summary of the usage
-of IDA (without IDABBDPRE), with notes on the locations of full user
-documentation.  Following that is a list of references and a brief
-history of revisions to the package.
+A. Documentation
+----------------
 
-A. Installation Notes for IDA
------------------------------
+/sundials/ida/doc contains PostScript and PDF files for the 
+IDA User Guide (ida_guide.ps and ida_guide.pdf) and the IDA
+Examples (ida_examples.ps and ida_examples.pdf) documents.
 
-1. A tar file such as ida.tar is provided.  (The name depends on what
-   subset of SUNDIALS was downloaded.)  Un-tar this file in a suitable
-   working directory.  This generates a directory called /sundials/
-   there,  with subdirectories /shared/, /ida/, /include/, and /lib/.
+B. Installation
+---------------
 
-2. /sundials/ida/doc/ contains this file, called idareadme, a PostScript
-   file idaudoc.ps and a PDF file idaudoc.pdf for the User Document [3],
-   and a file idaaddenda with corrections to the usage as given in [3].
-
-3. /sundials/shared/ contains files (header and source) that are shared
-   with other members of SUNDIALS.  Installation requires two steps:
-   (a) Typing 'make lib' in /sundials/shared/source/ generates a library
-   file /sundials/shared/lib/libshared.***.a (where *** is a machine-
-   dependent identifier), creates a symbolic link to this library in 
-   /sundials/lib/ and symbolic links to the shared header files in
-   /sundials/include/, and removes the corresponding object files.
-   (b) Type 'make nvecserial' or 'make nvecparallel' (or both) in 
-   /sundials/shared/source/, according to which versions of IDA are
-   being installed.  This generates library files libnvecserial.***.a
-   and libfnvecserial.***.a  and/or libnvecparallel.***.a and 
-   libfnvecparallel.***.a in /sundials/shared/lib/, creates symbolic
-   links to these library files in /sundials/lib/ and symbolic links
-   to the NVECTOR header files in /sundials/include/, and removes the
-   corresponding object files.
-
-4. /sundials/ida/source/ contains the source files for IDA, and a
-   makefile.  Typing 'make lib' there generates a library file
-   /sundials/ida/lib/libida.***.a (where *** is a machine-dependent
-   identifier), creates a symbolic link to this library in /sundials/lib/
-   and symbolic links to the IDA header files in /sundials/include/
-   and removes the corresponding object files.
-
-5. /sundials/ida/include/ contains header files specific to IDA.
-
-6. /sundials/ida/examples/ contains eight example programs and a Makefile.
-   For each example, there is a source file and sample output.  The
-   examples are described briefly below.  In each case, the source file
-   gives details of the problem and the setup for its solution with IDA.
-
-   (a) irobx is a serial program that solves a chemical kinetics problem
-   due to Robertson, with 3 species, two ODEs, and one algebraic equation.
-
-   The following four programs solve a discretized form of the 2D
-   heat equation, in which the boundary conditions form algebraic
-   equations appended to the ODEs for the interior values.
-   (b) iheatsb is a serial program that solves the heat equation using
-   the banded (direct) linear system solver.
-   (c) iheatsk is a serial program for the heat equation using the SPGMR
-   (Krylov iterative) linear system solver with a diagonal preconditioner.
-   (d) iheatpk is a parallel program for the heat equation using the SPGMR
-   (Krylov iterative) linear system solver with a diagonal preconditioner.
-   (e) iheatbbd is a parallel program for the heat equation using the
-   SPGMR (Krylov iterative) linear system solver with the IDABBDPRE
-   (band-block-diagonal) preconditioner module.
-
-   The following three programs solve a discretized 2D food web DAE
-   system of predator-prey type, which poses ODEs for the prey
-   concentrations and quasi-steady equations for the predator
-   concentrations, and both undergo interactions and diffusion.
-   (f) iwebsb is a serial program that solves the food web problem using
-   the banded (direct) linear system solver.
-   (g) iwebpk is a parallel program that solves the food web problem
-   using the SPGMR (Krylov iterative) linear system solver with a
-   block-diagonal preconditioner.
-   (h) iwebbbd is a parallel program that solves the food web problem
-   using the SPGMR (Krylov iterative) linear system solver with the
-   IDABBDPRE (band-block-diagonal) preconditioner module.
-
-   Typing 'make <ex>' in this subdirectory, where <ex> is any of the
-   above eight example names (irobx etc.), finds the required header
-   files etc. and generates the corresponding executable file.  Also
-   included are sample outputs for the examples (with names ending in
-   .out).  Outputs obtained by another user (and run with the same
-   number of processors) should agree with these, possibly with
-   relatively small differences throughout.
-
-
-7. Installing and using IDA in a different environment requires only
-   minor modifications to the various makefiles.  For the compilation
-   of IDA, check the file Makefile in /sundials/ida/source/ and the
-   files Makefile and nvec***.mk in /sundials/shared/source/, and if
-   necessary modify the compiler name and flags, and the path to MPI
-   include files.
-      To run IDA on an application in a different directory location,
-   the makefiles in /sundials/ida/examples/ can be used with minor
-   changes.  In the files idax_ser.mk and idax_par.mk, correct the
-   various paths involved -- the path to the top of the SUNDIALS tree 
-   and the path to MPI include files.  Also check and correct the
-   compiler name and flags.
-
-
-B. Summary of Usage of IDA
---------------------------
-
-The following outline summarizes the sequence of steps in using IDA.
-For the serial version, select steps 0.s, 3.s, and 10.s, and omit steps 
-1 and 2.  For the parallel version, select steps 0.p, 3.p, and 10.p.
-In step 6, use a linear solver consistent with the version of IDA
-(i.e. of NVECTOR) being used (see note above).  In either case, the
-user's program must include the system residual function that defines
-the problem in the form F(t,y,y') = 0, and (optionally) any Jacobian
-or preconditioner routines called for in the options selected.
-
-0.s  #include "nvector_serial.h"
-0.p  #include "nvector_parallel.h"
-
-1.   MPI_Init();   /* if user is using MPI also, aside from IDA */
-
-2.   Set local vector length nloc, the global length (problem size) Neq,
-     and the active set of processors.
-
-3.s  machEnv = M_EnvInit_Serial(Neq); if (machEnv == NULL) return(1);
-3.p  machEnv = M_EnvInit_Parallel(comm, nloc, Neq, &argc, &argv);
-     /* comm = MPI communicator (if set up by user), or
-        comm = MPI_COMM_WORLD (specifying all processors)
-        &argc, &argv = pointers to command line argument count and arrays
-                       (needed if MPI not already initialized)            */
-     if (machEnv == NULL) return(1);
-
-4.   Set up vectors y and yp = y':
-       y = N_VNew(Neq, machEnv);
-       yp = N_VNew(Neq, machEnv);
-     OR use N_VMAKE** macros defined by the current NVECTOR implementation.
-
-5.   idamem = IDAMalloc(Neq, F, ..., machEnv);      /* initializes IDA */
-     if (idamem == NULL) return(1);
-
-6.   Specify choice of linear system solver, with one of the calls:
-       flag = IDADense (idamem, Djac, jdata);  OR
-       flag = IDABand (idamem, mu, ml, Bjac, jdata);  OR
-       flag = IDASpgmr (idamem, Precond, Psolve, ..., pdata);
-     followed by:
-       if (flag != 0) return(1);
-       /* Here jdata and pdata are pointers to user-defined space devoted to
-          Jacobian or preconditioner data. */
-
-7.   ier = IDACalcIC(idamem, icopt, ...)   /* optional call to calculate  */
-     if (ier != SUCCESS) return(1);        /* selected initial conditions */
-
-8.   ier = IDASolve(idamem, tout, tstop, &tret, y, yp, itask);  
-     if (ier < 0) return(1);               /* solve the system,
-                                              in a loop over values of tout */
-
-9.   IDAFree(idamem);               /* Free IDA memory independent of machine */
-
-10.s M_EnvFree_Serial(machEnv);     /* Free machine-dependent data */
-10.p M_EnvFree_Parallel(machEnv);   /* Free machine-dependent data */
-
-
-Usage Notes:
-
-(1) Usage of the band-block-diagonal preconditioner module IDABBDPRE
-    involves a call to IBBDAlloc between steps 5 and 6, and two additional
-    user-supplied routines.
-
-(2) A detailed usage document for IDA is available; see Ref. 3 below,
-    together with the file /doc/idaaddenda.
-
-(3) For further assistance with usage, see the various example programs,
-    which are heavily annotated.
-
-(4) IDA can be called from a C++ application, as there are wrappers around
-    all of the IDA header files which specify C-style naming of functions.
-
-(5) For more information on the NVECTOR modules, including specifications
-    for a user-defined NVECTOR module, see the file nvecreadme in
-    /sundials/shared/doc/ as well as the appropriate header files in
-    /sundials/shared/include/.
-
+For basic installation instructions see /sundials/INSTALL. 
+For complete installation instructions see the "IDA Installation Procedure"
+chapter in the IDA User Guide.
 
 C. References
 -------------
 
-[1]  P. N. Brown, A. C. Hindmarsh, and L. R. Petzold, Using Krylov
-     Methods in the Solution of Large-Scale Differential-Algebraic
-     Systems, SIAM J. Sci. Comp., 15 (1994), pp. 1467-1488.
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for IDA v2.2.0," 
+    LLNL technical report UCRL-MA-xxxxxx, November 2004.
 
-[2]  P. N. Brown, A. C. Hindmarsh, and L. R. Petzold, Consistent
-     Initial Condition Calculation for Differential-Algebraic
-     Systems, SIAM J. Sci. Comp., 19 (1998), pp. 1495-1512.
+[2] A. C. Hindmarsh and R. Serban, "Example Programs for IDA v2.2.0," 
+    LLNL technical report UCRL-MA-xxxxxx, November 2004.
 
-[3]  Alan C. Hindmarsh and Allan G. Taylor, User Documentation for IDA,
-     a Differential-Algebraic Equation Solver for Sequential and Parallel
-     Computers, LLNL Technical Report UCRL-MA-136910, December 1999.
+[3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
+    D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
+    Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
+    accepted, 2004.
+
+[4] P. N. Brown, A. C. Hindmarsh, and L. R. Petzold, Using Krylov Methods 
+    in the Solution of Large-Scale Differential-Algebraic Systems, 
+    SIAM J. Sci. Comp., 15 (1994), pp. 1467-1488.
+
+[5] P. N. Brown, A. C. Hindmarsh, and L. R. Petzold, Consistent Initial 
+    Condition Calculation for Differential-Algebraic Systems, 
+    SIAM J. Sci. Comp., 19 (1998), pp. 1495-1512.
 
 
 D. Revision History (YYYYMMDD)

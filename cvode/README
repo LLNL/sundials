@@ -1,12 +1,10 @@
-                                CVODE
-                       Release 2.0, 24 July 2002
-                   Notes on Installation and Usage
+                              CVODE
+                    Release 2.2.0, November 2002
              Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
               Center for Applied Scientific Computing, LLNL
 
-CVODE [1,2,3,4] is a solver for stiff and nonstiff ODE systems
-(initial value problem) given in explicit form dy/dt = f(t,y).  
-It is written in ANSI standard C.
+CVODE is a solver for stiff and nonstiff ODE systems (initial value problem) 
+given in explicit form dy/dt = f(t,y). It is written in ANSI standard C.
 
 CVODE can be used both on serial and parallel (MPI) computers.  The main
 difference is in the NVECTOR module of vector kernels.  The desired
@@ -35,41 +33,46 @@ and DIfferential/ALgebraic equation Solvers.  This suite consists of
 CVODE, KINSOL, and IDA, and variants of these.  The directory
 structure of the package supplied reflects this family relationship.
 
-In the package supplied, each Makefile is set up so that typing 'make'
-produces instructions for various make operations. The parallel
-version has been tested on a workstation cluster, an IBM-SP, and on
-the LLNL Cray-T3D with two different implementations of the MPI
-library (MPICH and EPCC).  In the package supplied here, the makefiles
-are set up to access a workstation cluster, but with commented lines
-for use on one or more other LLNL systems.  Changes for other
-environments can be made easily.
-
 For use with Fortran applications, a set of Fortran/C interface routines,
 called FCVODE, is also supplied.  These are written in C, but assume that
 the user calling program and all user-supplied routines are in Fortran.
 
-The notes below provide instructions for the installation of the CVODE
-package.  For convenience, we include a brief summary of the usage of
-CVODE (without CVBANDPRE or CVBBDPRE), with notes on the locations of
-full user documentation.  Following that is a list of references and a
-brief history of revisions to the package.
+The notes below provide the location of documentation, directions for the 
+installation of the CVODE package, and relevant references. Following that 
+is a brief history of revisions to the package.
 
+A. Documentation
+----------------
 
-A. Documentation Notes
-----------------------
+/sundials/cvode/doc contains PostScript and PDF files for the 
+CVODE User Guide (cv_guide.ps and cv_guide.pdf) and the CVODE
+Examples (cv_examples.ps and cv_examples.pdf) documents.
 
-   /sundials/cvode/ contains this file, called README.  For the
-   serial version, it contains a PostScript file cvudoc.ps and a PDF
-   file cvudoc.pdf for the serial CVODE user document [1], and a file
-   cvaddenda with corrections to that document.  For the parallel
-   version, this subdirectory contains a PostScript file pvudoc.ps and
-   a PDF file pvudoc.pdf for the user document [3] for PVODE
-   (the former name for the parallel version of CVODE), and a file
-   pvaddenda with corrections to that document.
+B. Installation
+---------------
 
+For basic installation instructions see /sundials/INSTALL. 
+For complete installation instructions see the "CVODE Installation Procedure"
+chapter in the CVODE User Guide.
 
+C. References
+-------------
 
-D.1. Revision History for serial version of CVODE(YYYYMMDD)
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.2.0," 
+    LLLNL technical report UCRL-MA-xxxxxx, November 2004.
+
+[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v2.2.0," 
+    LLNL technical report UCRL-MA-xxxxxx, November 2004.
+
+[3] S.D. Cohen and A.C. Hindmarsh, "CVODE, a Stiff/nonstiff ODE Solver in C,"
+    Computers in Physics, 10(2), pp. 138-143, 1996.
+
+[4] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
+    D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
+    Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
+    accepted, 2004.
+
+D.1 Revision History for serial version of CVODE (YYYYMMDD)
 -----------------------------------------------------------
 
 1993-94   DATE WRITTEN.  First released 2 September 1994.
