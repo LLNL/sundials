@@ -34,7 +34,7 @@ $K_1 = q$ and $K_2 = 0$, with order $q$ varying between $1$ and $5$.
 The coefficients are uniquely determined by the method type, its
 order, the recent history of the stepsizes, and the normalization
 $\alpha_{n,0} = -1$.
-{\sf Add references for Adams-Moulton and BDF (Jackson-Sachs-Davis?)}
+%{\sf Add references for Adams-Moulton and BDF (Jackson-Sachs-Davis?)}
 
 % Nonlinear system
 %-----------------
@@ -42,23 +42,26 @@ For either choice of formula, the nonlinear system
 \begin{equation}\label{NLS}
   G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0 \, ,
 \end{equation}
-where $a_n \equiv \sum_{i>0}(\alpha_{n,i} y_{n-i} + h_n \beta_{n,i} \dot{y}_{n-i})$ 
+where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i})$, 
 must be solved (approximately) at each time step.  For this, CVODE
 offers the choice of either {\em functional iteration}, suitable only
 for nonstiff systems, and various versions of {\em Newton iteration}.
-{\sf Define functional iteration.}
-Functional iteration involves evaluations of $f$ only, while Newton
-iteration requires the solution of linear systems
+Functional iteration, given by
+\[ y_{n(m+1)} = h_n \beta_{n,0} f(t_n,y_{n(m)}) + a_n \, , \]
+involves evaluations of $f$ only.  In contrast, Newton iteration requires
+the solution of linear systems
 \begin{equation}\label{Newtoncorr}
-  M (y_{n(m+1)} - y_{n(m)}) = -G(y_{n(m)}) \, ,
+  M [y_{n(m+1)} - y_{n(m)}] = -G(y_{n(m)}) \, ,
 \end{equation}
 in which
 \begin{equation}\label{Newtonmat} 
-  M \approx I - \gamma J \, , 
+  M \approx I - \gamma J \, ,
   \quad J = \partial f / \partial y \, ,
-  \quad \mbox{and} \quad 
+  \quad \mbox{and} \quad
   \gamma = h_n \beta_{n,0} \, . 
 \end{equation}
+The initial guess for the iteration is a predicted value $y_{n(0)}$
+computed explicitly from the available history data.
 For the Newton corrections, CVODE provides a choice of four methods:
 \begin{itemize}
 \item a dense direct solver (serial version only),
@@ -72,6 +75,19 @@ yields a powerful tool, because it combines established methods for
 stiff integration, nonlinear iteration, and Krylov (linear) iteration
 with a problem-specific treatment of the dominant source of stiffness,
 in the form of the user-supplied preconditioner matrix \cite{BrHi:89}.
+
+% WRMS Norm
+%----------
+In the process of controlling errors at various levels, CVODE uses a
+weighted RMS norm, denoted $\|\cdot\|_{WRMS}$, for all error-like
+quantities.  The weights used are based on the current solution and
+on the relative and absolute tolerances input by the user, namely
+\begin{equation}\label{errwt}
+ W_i = rtol_i |y^i| + atol_i \, .
+\end{equation}
+Because $W_i$ represents a tolerance in the component $y^i$, a vector
+whose norm is 1 is regarded as ``small''.  For brevity, we will
+usually drop the subscript $WRMS$ on norms in what follows.
 
 % Newton iteration
 %-----------------
@@ -89,7 +105,7 @@ update occurs when:
 \item starting the problem,
 \item more than 20 steps have been taken since the last update,
 \item the value $\bar{\gamma}$ of $\gamma$ at the last update
-satisfies $|\gamma/\bar{\gamma} - 1| > 0.3$,  {\sf Give ituition for this 1/3 factor}
+satisfies $|\gamma/\bar{\gamma} - 1| > 0.3$,
 \item a non-fatal convergence failure just occurred, or
 \item an error test failure just occurred.
 \end{itemize}
@@ -103,7 +119,7 @@ the failure.  More generally, the decision is made to re-evaluate $J$
 \item more than 50 steps have been taken since the last evaluation,
 \item a convergence failure occurred with an outdated matrix, and
 the value $\bar{\gamma}$ of $\gamma$ at the last update
-satisfies $|\gamma/\bar{\gamma} - 1| < .2$, or
+satisfies $|\gamma/\bar{\gamma} - 1| < 0.2$, or
 \item a convergence failure occurred that forced a stepsize reduction.
 \end{itemize}
 
@@ -115,11 +131,12 @@ iteration errors from interfering with local error control.  As
 described below, the final computed value $y_n$ will have to satisfy a
 local error test $\| y_n - y_{n(0)} \| \leq \epsilon$.  Here, we want
 to insure that the iteration error $y_n - y_{n(m)}$ is small relative
-to $\epsilon$.
-For this, we also estimate the linear convergence rate constant $R$ as
-follows: We initialize $R$ to 1, and reset $R = 1$ when $M$ or $P$ is
-updated.  After computing a correction $\delta_m = y_{n(m)}-y_{n(m-1)}$,
-we update $R$ if $m > 1$ as
+to $\epsilon$, specifically that it is less than $0.1 \epsilon$.
+(The safety factor $0.1$ can be changed by the user.)  For this, we
+also estimate the linear convergence rate constant $R$ as follows:
+We initialize $R$ to 1, and reset $R = 1$ when $M$ or $P$ is updated.
+After computing a correction $\delta_m = y_{n(m)}-y_{n(m-1)}$, we
+update $R$ if $m > 1$ as
 \begin{equation*}
   R \leftarrow \max\{0.3R , \|\delta_m\| / \|\delta_{m-1}\| \} \, . 
 \end{equation*}
@@ -130,16 +147,15 @@ Now we use the estimate
 \end{equation*}
 Therefore the convergence (stopping) test is 
 \begin{equation*}
-  R \|\delta_m \| < 0.1 \epsilon \, , 
+  R \|\delta_m \| < 0.1 \epsilon \, .
 \end{equation*}
-in which the default factor $0.1$ can be changed by the user. We declare the 
-iteration diverged if any $\|\delta_m\| / \|\delta_{m-1}\| > 2$ after a given 
-number of Newton iterations (the default value of 3 can be changed by the user).  
-If convergence fails with $J$ or $P$ current, we are forced to reduce the stepsize
-$h_n$, and we replace $h_n$ by $h_n/4$.
-The integration is halted after a preset number (default value 10) of convergence 
-failures. The maximum number of allowable convergence failures can be
-changed by the user.
+We allow at most 3 iteratations (but this limit can be changed by the
+user).  We also declare the iteration diverged if any $\|\delta_m\| /
+\|\delta_{m-1}\| > 2$ with $m > 1$. If convergence fails with $J$ or
+$P$ current, we are forced to reduce the stepsize, and we replace
+$h_n$ by $h_n/4$.  The integration is halted after a preset number
+of convergence failures; the default value this limit is 10, 
+but this can be changed by the user.
 
 When SPGMR is used to solve the linear system, its errors must also be
 controlled, and this also involves the local error test constant.  The
@@ -156,19 +172,15 @@ With the direct dense and band methods, the Jacobian may be supplied
 by a user routine, or approximated by difference quotients,
 at the user's option.  In the latter case, we use the usual
 approximation
-\begin{equation*}
-  J_{ij} = [f^i(t,y+\sigma_j e_j) - f^i(t,y)]/\sigma_j \, . 
-\end{equation*}
+\[ J_{ij} = [f^i(t,y+\sigma_j e_j) - f^i(t,y)]/\sigma_j \, . \]
 The increments $\sigma_j$ are given by
-\begin{equation*}
-  \sigma_j = \max \left\{ \sqrt{U} |y^j| , \sigma_0 W_j \right\} \, ,
-\end{equation*}
+\[ \sigma_j = max\left\{\sqrt{U} |y^j| , \sigma_0 W_j \right\} \, , \]
 where $U$ is the unit roundoff, $\sigma_0$ is a dimensionless value,
-and $W_j$ is the error weight for $y^j$ set in terms of input
-tolerances.  In the dense case, this scheme requires $N$ evaluations
-of $f$, one for each column of $J$.  In the band case, the columns
-of $J$ are computed in groups, by the Curtis-Powell-Reid algorithm,
-with a number of $f$ evaluations equal to the bandwidth.
+and $W_j$ is the error weight of Eq. (\ref{errwt}).  In the dense
+case, this scheme requires $N$ evaluations of $f$, one for each column
+of $J$.  In the band case, the columns of $J$ are computed in groups,
+by the Curtis-Powell-Reid algorithm, with a number of $f$ evaluations
+equal to the bandwidth.
 
 In the case of SPGMR, preconditioning may be used on the left, on the
 right, or both, with user-supplied routines for the preconditioning
@@ -176,27 +188,72 @@ setup and solve operations, and optionally also for the matrix-vector
 products $Jv$ required.  If a routine for $Jv$ is not supplied, these
 products are computed as
 \begin{equation}\label{jacobv}
-  Jv = [f(t,y+\sigma v) - f(t,y)]/\sigma \, . 
+Jv = [f(t,y+\sigma v) - f(t,y)]/\sigma \, . 
 \end{equation}
-The increment $\sigma$ is $1/\|v\|_{WRMS}$, where $\|\cdot\|_{WRMS}$
-is the weighted RMS norm involving the error weights $W_j$.
+The increment $\sigma$ is $1/\|v\|$, so that $\sigma v$ has norm 1.
 
 % Error test
 %-----------
-Regardless of the multistep method or nonlinear iteration chosen,
-CVODE integrates the initial value problem with local error control
-and variation of both step size and order.  A weighted root-mean-square
-norm of the estimated local error is made to satisfy a local error test on
-every step, using weights that involve relative and absolute
-tolerances provided by the user.  Based primarily on these estimated
-local errors, at both actual order and contemplated nearby orders, the
-stepsize $h_n$ and the order $q$ are frequently varied, always in an
-attempt to maximize the stepsize, subject to the local error test.
+A critical part of CVODE --- making it an ODE ``solver'' rather than
+just an ODE method, is its control of local error.  At every step, the
+local error is estimated and required to satisfy tolerance conditions,
+and the step is redone with reduced stepsize whenever that error test
+fails.  As with any linear multistep method, the local truncation
+error LTE, at order $q$ and stepsize $h$, satisfies an asymptotic
+relation
+\[ LTE = C h^{q+1} y^{(q+1)} + O(h^{q+2} \]
+for some constant $C$, under mild assumptions on the stepsizes.
+A similar relation holds for the error in the predictor $y_{n(0)}$.
+These are combined to get a relation
+\[ LTE = C' [y_n - y_{n(0)}] + O(h^{q+2} \, . \]
+The local error test is simply $\|LTE\| \leq 1$.  Using the above,
+it is performed on the predictor-corrector difference 
+$\Delta \equiv y_n - y_{n(0)}$ and takes the form
+\[ \|\Delta_n\| \leq \epsilon \equiv 1/|C'| \, . \]
+If this test passes, the step is considered successful.  If it fails,
+the step is rejected and a new stepsize $h'$ is computed based on the
+asymptotic behavior of the local error, namely by the equation
+\[ (h'/h)^{q+1} \|\Delta_n\| = \epsilon/6 \, . \]
+Here 1/6 is a safety factor.  A new attempt at the step is made,
+and the error test repeated.  If it fails three times, the order $q$
+is reset to 1 (if $q > 1$), or the step is restarted from scratch (if
+$q = 1$).  The ratio $h'/h$ is limited below to .2 after two error test
+failures and to .1 after three.  After seven failures, CVODE returns
+to the user with a give-up message.
 
-The algorithmic features of CVODE, as inherited from VODE and
-VODPK, are documented in \cite{BBH:89}, \cite{Byr:92}, and
-\cite{Hin:00}. A full description of the usage of CVODE is given in
-\cite{HiSe:03a}.
+% Step/order control
+%-------------------
+In addition to adjusting the stepsize to meet the local error test,
+CVODE periodically adjusts the order, with the goal of maximizing
+stepsize.  The basic idea is to pick the order $q$ for which a
+polynomial of order $q$ best fits the discrete data involved in the
+multistep method.  However, if either a convergence failure or an
+error test failure occurred on the step just completed, no change in
+stepsize or order is done.  At the current order $q$, selecting a new
+stepsize is done exactly as when the error test fails, giving a
+tentative stepsize ratio
+\[ h'/h = (\epsilon / 6 \|\Delta_n| )^{1/(q+1)} \equiv \eta_q \, . \]
+We consider changing order only after taking $q+1$ steps at order $q$,
+and then consider only orders $q' = q - 1$ (if $q > 1$) or
+$q' = q + 1$ (if $q < 5$).  The local truncation error at order $q'$
+is estimated using the history data.  Then a tentative stepsize ratio
+is computed on the basis that this error, LTE$(q')$, behaves
+asymptotically as $h^{q'+1}$.  With safety factors of 1/6 and
+1/10 respectively, these ratios are:
+\[ h'/h = [1 / 6 \|LTE(q-1)| ]^{1/q} \equiv \eta_{q-1} \]
+and
+\[ h'/h = [1 / 10 \|LTE(q+1)| ]^{1/(q+2)} \equiv \eta_{q+1} \, . \]
+The new order and stepsize are then set according to
+\[ \eta = max\{\eta_{q-1},\eta_q,\eta_{q+1}\} ~,~~ h' = \eta h \, , \]
+with $q'$ set to the index achieving the above maximum.
+However, if we find that $\eta < 1.5$, we do not bother with the
+change.  Also, $h'/h$ is always limited to 10, except on the first
+step, when it is limited to $10^4$.
+
+The various algorithmic features of CVODE described above, as
+inherited from VODE and VODPK, are documented in \cite{BBH:89},
+\cite{Byr:92}, and \cite{Hin:00}.  A full description of the usage
+of CVODE is given in \cite{HiSe:03a}.
 
 % Stability limit detection
 %--------------------------
