@@ -1,0 +1,11 @@
+Update user guide
+
+Add wrappers for BBDPRE in adjoint module
+
+Add wrappers for linear solver reinitialization routines in adjoint module
+
+Add more arguments to CVodeMemExtract, such as estimated
+local errors (which are available in acor and acorS after
+a succesful step)
+
+Update examples in my_* directories to reflect all changes.
