@@ -1,0 +1,85 @@
+#--------------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+#--------------------------------------------------------------------------------------
+# Makefile for SUNDIALS suite
+# @configure_input@
+#--------------------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+@SET_MAKE@
+
+MODULES = @MODULES@
+NVEC_MODULES = @NVEC_MODULES@
+EX_MODULES = @EX_MODULES@
+
+COMPONENTS = $(MODULES) $(NVEC_MODULES)
+EXAMPLES   = $(EX_MODULES)
+
+#--------------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------------
+
+all:
+	@for i in $(COMPONENTS); do  \
+	  if [ -d $$i ]; then        \
+	    echo "Making $$i ...";   \
+	    (cd $$i; ${MAKE});       \
+	    echo "";                 \
+	  fi;                        \
+	done;
+
+install:
+	@for i in $(COMPONENTS); do    \
+	  if [ -d $$i ]; then          \
+	    echo "Installing $$i ..."; \
+	    (cd $$i; ${MAKE} install); \
+	    echo "";                   \
+	  fi;                          \
+	done;
+
+examples:
+	@for i in $(EXAMPLES); do              \
+	  if [ -d $$i ]; then                  \
+	    echo "Making examples in $$i ..."; \
+	    (cd $$i; ${MAKE});                 \
+	    echo "";                           \
+	  fi;                                  \
+	done;
+
+clean:
+	@for i in $(COMPONENTS); do  \
+	  if [ -d $$i ]; then        \
+	    (cd $$i; ${MAKE} clean); \
+	  fi;                        \
+	done;
+
+examples_clean:
+	@for i in $(EXAMPLES); do    \
+	  if [ -d $$i ]; then        \
+	    (cd $$i; ${MAKE} clean); \
+	  fi;                        \
+	done;
+
+distclean: clean examples_clean
+	@for i in $(COMPONENTS); do      \
+	  if [ -d $$i ]; then            \
+	    (cd $$i; rm -f Makefile); \
+	  fi;                            \
+	done;
+	@for i in $(EXAMPLES); do        \
+	  if [ -d $$i ]; then            \
+	    (cd $$i; rm -f Makefile); \
+	  fi;                            \
+	done;
+	rm -f config.log config.status config.cache
+	rm -f Makefile
+
+uninstall:
+	@for i in $(COMPONENTS); do      \
+	  if [ -d $$i ]; then            \
+	    (cd $$i; ${MAKE} uninstall); \
+	  fi;                            \
+	done;

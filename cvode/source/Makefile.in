@@ -1,0 +1,72 @@
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+#--------------------------------------------------------------------------------
+# Makefile for the CVODE package.
+# @configure_input@
+#--------------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# CVODE and SHARED include directories
+SHARED_INC_DIR = ../../shared/include
+CVODE_INC_DIR  = ../include
+
+# CVODE library name
+CVODE_LIB = libcvode.a
+
+# Source and object files
+SRC = cvband.c cvbandpre.c cvdense.c cvdiag.c cvode.c cvspgmr.c cvbbdpre.c
+OBJ = ${SRC:.c=.o}
+
+# Includes
+SHAREDINCLUDE = -I${SHARED_INC_DIR}
+CVODEINCLUDE  = -I${CVODE_INC_DIR}
+INCS =  ${CVODEINCLUDE} ${SHAREDINCLUDE}
+
+# Compiler and compiler options
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: ${OBJ}
+
+install:
+	ar rc ${CVODE_LIB} ${OBJ}
+	cp ${CVODE_LIB} ${libdir}
+	cp ${CVODE_INC_DIR}/cvode.h      ${includedir}
+	cp ${CVODE_INC_DIR}/cvdense.h    ${includedir}
+	cp ${CVODE_INC_DIR}/cvband.h     ${includedir}
+	cp ${CVODE_INC_DIR}/cvdiag.h     ${includedir}
+	cp ${CVODE_INC_DIR}/cvspgmr.h    ${includedir}
+	cp ${CVODE_INC_DIR}/cvbandpre.h  ${includedir}
+	cp ${CVODE_INC_DIR}/cvbbdpre.h   ${includedir}
+
+clean:
+	rm -f ${OBJ}
+	rm -f ${CVODE_LIB}
+
+uninstall:
+	rm -f ${libdir}/${CVODE_LIB}
+	rm -f ${includedir}/cvode.h
+	rm -f ${includedir}/cvdense.h
+	rm -f ${includedir}/cvband.h
+	rm -f ${includedir}/cvdiag.h
+	rm -f ${includedir}/cvspgmr.h
+	rm -f ${includedir}/cvbandpre.h
+	rm -f ${includedir}/cvbbdpre.h
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCS} $*.c
+
+#---End of Makefile---
