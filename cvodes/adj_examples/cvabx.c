@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 
   /* Allocate CVODE memory for backward run */
   printf("\nAllocate CVODE memory for backward run\n");
-  flag = CVodeMallocB(cvadj_mem, NEQ, fB, uB, BDF, NEWTON, SS, 
+  flag = CVodeMallocB(cvadj_mem, NEQ, fB, TOUT, uB, BDF, NEWTON, SS, 
                       &reltolB, &abstolB, data, NULL, 
                       FALSE, NULL, NULL, machEnvB);
   flag = CVBandB(cvadj_mem, MY, MY, JacB, data);

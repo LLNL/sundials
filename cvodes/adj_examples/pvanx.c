@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
   SetICback(uB, my_base);
 
   /* Allocate CVODES memory for the backward integration */
-  flag = CVodeMallocB(cvadj_mem, NEQ+NP, fB, uB, ADAMS, FUNCTIONAL, SS, &reltol, 
+  flag = CVodeMallocB(cvadj_mem, NEQ+NP, fB, TOUT, uB, ADAMS, FUNCTIONAL, SS, &reltol, 
                       &abstol, data, NULL, FALSE, NULL, NULL, machEnvB);
   if (flag != SUCCESS) { 
     if(my_pe == 0) printf("CVodeMallocB failed, flag=%d.\n", flag);

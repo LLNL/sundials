@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
 
   /* Allocate CVODE memory for backward run */
   printf("\nAllocate CVODE memory for backward run\n");
-  flag = CVodeMallocB(cvadj_mem, NEQ, fB, cB, LMM, ITER, ITOL, 
+  flag = CVodeMallocB(cvadj_mem, NEQ, fB, TOUT, cB, LMM, ITER, ITOL, 
                       &reltolB, &abstolB, wdata, ERRFP, 
                       FALSE, ioptB, roptB, machEnvB);
   if (flag != SUCCESS) { printf("CVodeMallocB failed."); return(1); }
