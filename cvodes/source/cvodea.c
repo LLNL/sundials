@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-06-09 18:54:17 $
+ * $Revision: 1.26 $
+ * $Date: 2004-06-18 19:37:30 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1391,7 +1391,7 @@ void CVadjGetCheckPointsList(void *cvadj_mem)
   i = 0;
 
   while (ck_mem != NULL) {
-    printf("Check point %2d  addr: %p  time = [ %5e %5e ]  next: %p\n", 
+    printf("%2d  addr: %p  time = [ %9.3e %9.3e ]  next: %p\n", 
            nckpnts-i, (void *)ck_mem, t0_, t1_, (void *)next_ );
     ck_mem = next_;
     i++;
