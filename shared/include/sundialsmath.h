@@ -64,21 +64,6 @@ extern "C" {
 
 /******************************************************************
  *                                                                *
- * Function : UnitRoundoff                                        *
- * Usage    : realtype uround;                                    *
- *            uround = UnitRoundoff();                            *
- *----------------------------------------------------------------*
- * UnitRoundoff returns the unit roundoff u for real floating     *
- * point arithmetic, where u is defined to be the smallest        *
- * positive real such that 1.0 + u != 1.0.                        *
- *                                                                *
- ******************************************************************/
- 
-realtype UnitRoundoff(void);
-
-
-/******************************************************************
- *                                                                *
  * Function : RPowerI                                             *
  * Usage    : int exponent;                                       *
  *            realtype base, ans;                                 *

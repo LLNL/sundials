@@ -1,8 +1,9 @@
 /*******************************************************************
  *                                                                 *
  * File          : sundialstypes.h                                 *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 June 2002                                    *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 27 January 2004                                 *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -19,21 +20,9 @@
  *                                                                 *
  * The constants SUNDIALS_FLOAT, SUNDIALS_DOUBLE, SUNDIALS_INT,    *
  * SUNDIALS_LONG indicate the underlying types for realtype and    *
- * integertype. They should be set as follows:                     *
+ * integertype. They are set at the configuration stage.           *  
  *                                                                 *
- * (1) #define SUNDIALS_FLOAT 1                                    *
- *     #define SUNDIALS_DOUBLE 0     (real is float)               *
- *                                                                 *
- * (2) #define SUNDIALS_FLOAT 0                                    *
- *     #define SUNDIALS_DOUBLE 1     (real is double)              *
- *                                                                 *
- * (3) #define SUNDIALS_INT 1                                      *
- *     #define SUNDIALS_LONG 0   (integer is int)                  *
- *                                                                 *
- * (4) #define SUNDIALS_INT 0                                      *
- *     #define SUNDIALS_LONG 1   (integer is long int)             *
- *                                                                 *
- * Thus the legal types for realtype are float and double, while   *
+ * The legal types for realtype are float and double, while        *
  * the legal types for integertype are int and long int.           *
  *                                                                 *
  * The macro RCONST gives a user a convenient way to define real   *
@@ -74,6 +63,7 @@ typedef float realtype;
 typedef int integertype;
 #define RCONST(x) x##F
 #define BIG_REAL FLT_MAX
+#define UNIT_ROUNDOFF FLT_EPSILON
 
 #else
 
@@ -81,6 +71,7 @@ typedef double realtype;
 typedef long int integertype;
 #define RCONST(x) x
 #define BIG_REAL DBL_MAX
+#define UNIT_ROUNDOFF DBL_EPSILON
 
 #endif
 

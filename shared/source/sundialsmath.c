@@ -24,24 +24,6 @@
 #define ONE  RCONST(1.0)
 #define TWO  RCONST(2.0)
 
-
-realtype UnitRoundoff(void)
-{
-  realtype u;
-  volatile realtype one_plus_u;
-  
-  u = ONE;
-  one_plus_u = ONE + u;
-  while (one_plus_u != ONE) {
-    u /=  TWO;
-    one_plus_u = ONE + u;
-  }
-  u *=  TWO;
-  
-  return(u);
-}
-
-
 realtype RPowerI(realtype base, int exponent)
 {
   int i, expt;
