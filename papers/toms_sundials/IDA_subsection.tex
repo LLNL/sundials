@@ -47,7 +47,7 @@ the numerical integration.
 % Integration method and nonlinear system
 %----------------------------------------
 The integration method in IDA is variable-order, variable-coefficient
-BDF, in fixed-leading-coefficient form.  {\sf cite a reference here.} 
+BDF, in fixed-leading-coefficient form~\cite{BHP:98}.
 The method order ranges from 1 to 5, with the BDF of order $k$
 given by the multistep formula
 \begin{equation}\label{e:BDF}
@@ -92,15 +92,15 @@ For the SPGMR case, preconditioning is allowed only on the left
 \footnote{Left preconditioning is required to make the norm of the 
 linear residual in the Newton iteration meaningful; in general,
 $\| J \Delta y + G \|$ is meaningless, since the weights used in 
-the WRMS-norm correspond to $y$}, 
-so that GMRES is applied to systems $(P^{-1}J)\Delta y = -P^{-1}F$. 
+the WRMS-norm correspond to $y$.}, 
+so that GMRES is applied to systems $(P^{-1}J)\Delta y = -P^{-1}G$. 
 
 % Newton iteration
 %-----------------
-In the cases of a direct linear solver (dense or band), the nonlinear 
+In the cases of a direct linear solver (dense or banded), the nonlinear 
 iteration (\ref{e:DAE_Newtoncorr}) is a Modified Newton iteration, in
 that the Jacobian $J$ is fixed (and usually out of date), with
-relaxation with respect to $\bar\alpha \neq \alpha$ in $J$. When using
+a coefficient $\bar\alpha$ in place of $\alpha$ in $J$. When using
 SPGMR as the linear solver, the iteration is an Inexact Newton iteration,
 using the current Jacobian (through matrix-free products $Jv$), in 
 which the linear residual $J\Delta y + G$ is nonzero but controlled.
@@ -109,8 +109,8 @@ The Jacobian matrix $J$ (direct cases) or preconditioner matrix $P$
 \begin{itemize}
 \item starting the problem,
 \item the value $\bar\alpha$ at the last update is such that
-  $\alpha / {\bar\alpha} < 3/5$ or $\alpha / {\bar\alpha} > 3/5$, or
-\item a non-fatal convergence failure occured with out of date $J$ or $P$.
+  $\alpha / {\bar\alpha} < 3/5$ or $\alpha / {\bar\alpha} > 5/3$, or
+\item a non-fatal convergence failure occured with out-of-date $J$ or $P$.
 \end{itemize}
 The above strategy balances the high cost of frequent matrix evaluations
 and preprocessing with the slow convergence due to infrequent updates.
@@ -134,7 +134,7 @@ S \| \delta_m \| < 0.33 \, ,
 \end{equation}
 where $S = R/(R-1)$ whenever $m>1$ and $R\le 0.9$. The user has the
 option of changing the constant in the convergence test from its default 
-value of $0.3$.
+value of $0.33$.
 %
 The quantity $S$ is set to $S=20$ initially and whenever $J$ or $P$ is
 updated, and is reset to $S=100$ on a step with $\alpha \neq \bar\alpha$.
@@ -157,6 +157,7 @@ linear iteration errors on the nonlinear and local integration error controls,
 we require the preconditioned linear residual to be small relative to the 
 allowed error in the Newton iteration; i.e., 
 $\| P^{-1}(Jx+G) \| < 0.05 \cdot 0.33$.
+The safety factor $0.05$ can be changed by the user.
 
 % Jacobian DQ approximations
 %---------------------------
@@ -166,8 +167,9 @@ by difference quotients. In the latter case, we use the approximation
 \begin{gather*}
   J_{ij} = [F^i(t,y+\sigma_j e_j,{\dot y}+\alpha\sigma_j e_j) - 
   F^i(t,y,{\dot y})]/\sigma_j \, , \text{ with}\\
-  \sigma_j = \sqrt{U} \max \left\{ |y^j|, 
-    \max \left\{ |h{\dot y}^j|,W_j \right\}\right\} sign(h {\dot y}^j)
+  \sigma_j = \sqrt{U} \max \left\{ 
+    |y^j|, |h{\dot y}^j|,W_j 
+  \right\} sign(h {\dot y}^j)
 \end{gather*}
 where $U$ is the unit roundoff, $h$ is the current stepsize, and $W_j$ is 
 the error weight for $y^j$ set in terms of input tolerances. 
@@ -175,7 +177,7 @@ the error weight for $y^j$ set in terms of input tolerances.
 In the SPGMR case, if a routine for $Jv$ is not supplied, such products are
 approximated with
 \begin{equation*}
-Jv = [F(t,y+\sigma v,{\dot y}+\alpha\sigma v) - F(t,y,{dot y})]/\sigma \, ,
+Jv = [F(t,y+\sigma v,{\dot y}+\alpha\sigma v) - F(t,y,{\dot y})]/\sigma \, ,
 \end{equation*}
 where the increment $\sigma$ is proportional to the square root of the problem 
 dimension $N$ (the default value of $1.0$ for the proportionality constant can 
