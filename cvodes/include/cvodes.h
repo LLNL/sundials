@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-06-09 18:45:14 $
+ * $Revision: 1.27 $
+ * $Date: 2004-07-22 21:16:56 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -423,8 +423,6 @@ enum {CVS_NO_MEM = -1, CVS_ILL_INPUT = -2};
  * abstol  is a pointer to the absolute tolerance scalar or       
  *            an N_Vector of absolute tolerances.                 
  *                                                                
- * nvspec  is a pointer to a vector specification structure       
- *                                                                
  * The parameters itol, reltol, and abstol define a vector of     
  * error weights, ewt, with components                            
  *   ewt[i] = 1/(reltol*abs(y[i]) + abstol)   (if itol = SS), or  
@@ -449,8 +447,7 @@ enum {CVS_NO_MEM = -1, CVS_ILL_INPUT = -2};
 
 int CVodeMalloc(void *cvode_mem, RhsFn f,
                 realtype t0, N_Vector y0, 
-                int itol, realtype *reltol, void *abstol, 
-                NV_Spec nvspec);
+                int itol, realtype *reltol, void *abstol);
 
 /* Error return values for CVodeMalloc */
 /* SUCCESS = 0 */
@@ -580,10 +577,10 @@ int CVodeSetQuadTolerances(void *cvode_mem, int itolQ,
  *                                                                
  * cvode_mem is a pointer to CVODES memory returned by CVodeCreate
  *                                                                
- * fQ        is the user-provided integrand routine.              
+ * fQ    is the user-provided integrand routine.              
  *                                                                
- * nvspecQ   is a pointer to a vector specification structure     
- *           for N_Vectors containing quadrature variables.       
+ * yQ0   is an N_Vector with initial values for quadratures
+ *       (typically yQ0 has all zero components).
  *                                                                
  * If successful, CVodeQuadMalloc returns SUCCESS. If an          
  * initialization error occurs, CVodeQuadMalloc prints an error   
@@ -592,7 +589,7 @@ int CVodeSetQuadTolerances(void *cvode_mem, int itolQ,
  * -----------------------------------------------------------------
  */
 
-int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, NV_Spec nvspecQ);
+int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0);
     
 enum {QCVM_NO_MEM = -1, QCVM_MEM_FAIL = -2};
 
@@ -613,7 +610,7 @@ enum {QCVM_NO_MEM = -1, QCVM_MEM_FAIL = -2};
  * -----------------------------------------------------------------
  */
 
-int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ);
+int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, N_Vector yQ0);
 
 enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2};
 
