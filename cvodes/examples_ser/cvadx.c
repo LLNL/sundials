@@ -102,6 +102,10 @@ static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data, 
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
+/* fQ is of type QuadRhsFn */
+
+static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
+
 /* fB is of type RhsFnB */
 
 static void fB(realtype t, N_Vector y, 
@@ -127,15 +131,15 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
-  NV_Spec nvSpecF, nvSpecB, nvSpecQB;
+  NV_Spec nvSpecF, nvSpecQF, nvSpecB, nvSpecQB;
 
   UserData data;
 
   void *cvadj_mem;
   void *cvode_mem;
 
-  realtype reltol;
-  N_Vector y, abstol;
+  realtype reltol, abstolQ;
+  N_Vector y, q, abstol;
 
   realtype reltolB, abstolB, abstolQB;
   N_Vector yB, qB;
@@ -143,7 +147,7 @@ int main(int argc, char *argv[])
   realtype time;
   int flag, ncheck;
 
-  nvSpecF = nvSpecB = nvSpecQB = NULL;
+  nvSpecF = nvSpecQF = nvSpecB = nvSpecQB = NULL;
   data = NULL;
   cvadj_mem = cvode_mem = NULL;
   y = abstol = yB = qB = NULL;
@@ -169,6 +173,8 @@ int main(int argc, char *argv[])
   /* Initialize serial vector specification for forward integration */
   nvSpecF = NV_SpecInit_Serial(NEQ);
   if (check_flag((void *)nvSpecF, "NV_SpecInit", 0)) return(1);
+  nvSpecQF = NV_SpecInit_Serial(1);
+  if (check_flag((void *)nvSpecQF, "NV_SpecInit", 0)) return(1);
 
   /* Initialize y */
   y = N_VNew(nvSpecF);
@@ -176,6 +182,10 @@ int main(int argc, char *argv[])
   Ith(y,1) = 1.0;
   Ith(y,2) = 0.0;
   Ith(y,3) = 0.0;
+
+  /* Allocate q */
+  q = N_VNew(nvSpecQF);
+  if (check_flag((void *)q, "N_VNew", 0)) return(1);
 
   /* Set the scalar relative tolerance reltol */
   reltol = RTOL;    
@@ -187,20 +197,34 @@ int main(int argc, char *argv[])
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
+  /* Set the scalar absolute tolerance abstolQ */
+  abstolQ = ATOLq;
+
   /* Create and allocate CVODES memory for forward run */
   printf("Create and allocate CVODES memory for forward runs\n");
+
   cvode_mem = CVodeCreate(BDF, NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+
   flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpecF);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
+
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
   flag = CVDenseSetJacFn(cvode_mem, Jac);
   if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
   flag = CVDenseSetJacData(cvode_mem, data);
   if (check_flag(&flag, "CVDenseSetJacData", 1)) return(1);
+
+  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
+  if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
+  flag = CVodeSetQuadFdata(cvode_mem, data);
+  if (check_flag(&flag, "CVodeSetQuadFdata", 1)) return(1);
+  flag = CVodeQuadMalloc(cvode_mem, fQ, SS, &reltol, &abstolQ, nvSpecQF);
+  if (check_flag(&flag, "CVodeQuadMalloc", 1)) return(1);
 
   /* Allocate global memory */
   printf("Allocate global memory\n");
@@ -213,7 +237,10 @@ int main(int argc, char *argv[])
   flag = CVodeF(cvadj_mem, TOUT, y, &time, NORMAL, &ncheck);
   if (check_flag(&flag, "CVodeF", 1)) return(1);
 
-  printf("ncheck = %d\n", ncheck);
+  flag = CVodeGetQuad(cvode_mem, TOUT, q);
+  if (check_flag(&flag, "CVodeGetQuad", 1)) return(1);
+
+  printf("G: %12.4e \n",Ith(q,1));
 
   /* Test check point linked list */
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
@@ -222,7 +249,7 @@ int main(int argc, char *argv[])
   /* Initialize serial nvector specification for backward run */ 
   nvSpecB  = NV_SpecInit_Serial(NEQ);   /* adjoint variables */
   if (check_flag((void *)nvSpecB, "NV_SpecInit", 0)) return(1);
-  nvSpecQB = NV_SpecInit_Serial(NP+1);  /* quadrature variables */
+  nvSpecQB = NV_SpecInit_Serial(NP);    /* quadrature variables */
   if (check_flag((void *)nvSpecQB, "NV_SpecInit", 0)) return(1);
 
   /* Initialize yB */
@@ -235,10 +262,6 @@ int main(int argc, char *argv[])
   /* Initialize qB */
   qB = N_VNew(nvSpecQB);
   if (check_flag((void *)qB, "N_VNew", 0)) return(1);
-  Ith(qB,1) = 0.0;
-  Ith(qB,2) = 0.0;
-  Ith(qB,3) = 0.0;
-  Ith(qB,4) = 0.0;
 
   /* Set the scalar relative tolerance reltolB */
   reltolB = RTOL;               
@@ -250,7 +273,7 @@ int main(int argc, char *argv[])
   abstolQB = ATOLq;
 
   /* Create and allocate CVODES memory for backward run */
-  printf("Create and allocate CVODES memory for backward run\n");
+  printf("\nCreate and allocate CVODES memory for backward run\n");
   flag = CVodeCreateB(cvadj_mem, BDF, NEWTON);
   if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
   flag = CVodeSetFdataB(cvadj_mem, data);
@@ -265,7 +288,7 @@ int main(int argc, char *argv[])
   flag = CVDenseSetJacDataB(cvadj_mem, data);
   if (check_flag(&flag, "CVDenseSetJacDataB", 1)) return(1);
 
-  flag = CVodeSetQuadErrConB(cvadj_mem, FALSE);
+  flag = CVodeSetQuadErrConB(cvadj_mem, TRUE);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
   flag = CVodeSetQuadFdataB(cvadj_mem, data);
   if (check_flag(&flag, "CVodeSetQuadFdataB", 1)) return(1);
@@ -281,25 +304,18 @@ int main(int argc, char *argv[])
   flag = CVodeGetQuadB(cvadj_mem, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
-  printf("\n========================================================\n");
+  printf("--------------------------------------------------------\n");
   printf("tB0:        %12.4e \n",TB1);
-  printf("========================================================\n");
-  printf("G:          %12.4e \n",-Ith(qB,4));
-  printf("Gp:         %12.4e %12.4e %12.4e\n", 
+  printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
-  printf("========================================================\n");
   printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("========================================================\n\n");
+  printf("--------------------------------------------------------\n\n");
 
   /* Reinitialize backward phase (new tB0) */
   Ith(yB,1) = 0.0;
   Ith(yB,2) = 0.0;
   Ith(yB,3) = 0.0;
-  Ith(qB,1) = 0.0;
-  Ith(qB,2) = 0.0;
-  Ith(qB,3) = 0.0;
-  Ith(qB,4) = 0.0;
 
   printf("Re-initialize CVODES memory for backward run\n");
   flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, SS, &reltolB, &abstolB);
@@ -316,26 +332,25 @@ int main(int argc, char *argv[])
   flag = CVodeGetQuadB(cvadj_mem, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
-  printf("\n========================================================\n");
+  printf("--------------------------------------------------------\n");
   printf("tB0:        %12.4e \n",TB2);
-  printf("========================================================\n");
-  printf("G:          %12.4e \n",-Ith(qB,4));
-  printf("Gp:         %12.4e %12.4e %12.4e\n", 
+  printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
-  printf("========================================================\n");
   printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("========================================================\n\n");
+  printf("--------------------------------------------------------\n\n");
 
   /* Free memory */
   printf("Free memory\n\n");
   CVodeFree(cvode_mem);
   N_VFree(abstol);
-  N_VFree(y);
+  N_VFree(y); 
+  N_VFree(q);
   N_VFree(yB);
   N_VFree(qB);
   CVadjFree(cvadj_mem);
   NV_SpecFree_Serial(nvSpecF);
+  NV_SpecFree_Serial(nvSpecQF);
   NV_SpecFree_Serial(nvSpecB);
   NV_SpecFree_Serial(nvSpecQB);
   free(data);
@@ -379,6 +394,14 @@ static void Jac(long int N, DenseMat J, realtype t,
   IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
   IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
                       IJth(J,3,2) = 2*p3*y2;
+}
+
+/* fQ routine. Compute fQ(t,y). */
+static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
+{
+
+  Ith(qdot,1) = Ith(y,3);
+  
 }
  
 /* fB routine. Compute fB(t,y,yB). */
@@ -463,7 +486,6 @@ static void fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_da
   Ith(qBdot,1) = y1*l21;
   Ith(qBdot,2) = - y23*l21;
   Ith(qBdot,3) = y2*y2*l32;
-  Ith(qBdot,4) = y3;
 }
 
 

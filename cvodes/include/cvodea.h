@@ -436,6 +436,12 @@ typedef struct CkpntMemRec {
   /* Nordsieck History Array */
   N_Vector ck_zn[L_MAX];
 
+  /* Nordsieck History Array for quadratures */
+  N_Vector ck_znQ[L_MAX];
+
+  /* Do we need to carry quadratures? */
+  booleantype ck_quad;
+
   /* Was ck_zn[qmax] allocated?
      ck_zqm = 0    - no
      ck_zqm = qmax - yes      */

@@ -179,10 +179,20 @@ static void CVArhsQ(realtype t, N_Vector yB,
 #define f_data     (cv_mem->cv_f_data)
 #define errfp      (cv_mem->cv_errfp)
 #define h0u        (cv_mem->cv_h0u)
+#define quad       (cv_mem->cv_quad)
+#define errconQ    (cv_mem->cv_errconQ)
+#define znQ        (cv_mem->cv_znQ)
+#define itolQ      (cv_mem->cv_itolQ)
+#define reltolQ    (cv_mem->cv_reltolQ)
+#define abstolQ    (cv_mem->cv_abstolQ)
+#define fQ         (cv_mem->cv_fQ)
+#define nvspecQ    (cv_mem->cv_nvspecQ)
 
 #define t0_        (ck_mem->ck_t0)
 #define t1_        (ck_mem->ck_t1)
 #define zn_        (ck_mem->ck_zn)
+#define znQ_       (ck_mem->ck_znQ)
+#define quad_      (ck_mem->ck_quad)
 #define zqm_       (ck_mem->ck_zqm)
 #define nst_       (ck_mem->ck_nst)
 #define q_         (ck_mem->ck_q)
@@ -1288,8 +1298,12 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 
   /* Allocate space for ckdata */
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
+
   zn_[0] = N_VNew(nvspec);
   zn_[1] = N_VNew(nvspec);
+
+  /* Do we need to carry quadratures */
+  quad_ = quad && errconQ;
 
   /* zn_[qmax] was not allocated */
   zqm_ = 0;
@@ -1324,32 +1338,48 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
   if (ck_mem == NULL) return(NULL);
 
-  for (j=0; j<=q; j++) {
-    zn_[j] = N_VNew(nvspec);
-    if(zn_[j] == NULL) {
-      for(jj=0; jj<j; jj++) N_VFree(zn_[jj]);
-      return(NULL);
-    }
-  }
-
-  /* Allocate space for the last zn, if not already at max order
+  /* Test if we need to allocate space for the last zn.
      NOTE: zn(qmax) may be needed for a hot restart, if an order
      increase is deemed necessary at the first step after a check 
      point */
   qmax = cv_mem->cv_qmax;
-  zqm_ = 0;
+  zqm_ = (q < qmax) ? qmax : 0;
+
+  for (j=0; j<=q; j++) {
+    zn_[j] = N_VNew(nvspec);
+    if(zn_[j] == NULL) return(NULL);
+  }
+
   if ( q < qmax) {
     zn_[qmax] = N_VNew(nvspec);
-    if ( zn_[qmax] == NULL ) {
-      for(jj=0; jj<=q; jj++) N_VFree(zn_[jj]);
-      return(NULL);
+    if ( zn_[qmax] == NULL ) return(NULL);
+  }
+
+  /* Test if we need to carry quadratures */
+  quad_ = quad && errconQ;
+
+  if (quad_) {
+    for (j=0; j<=q; j++) {
+      znQ_[j] = N_VNew(nvspecQ);
+      if(znQ_[j] == NULL) return(NULL);
     }
-    zqm_ = qmax;
+
+    if ( q < qmax) {
+      znQ_[qmax] = N_VNew(nvspecQ);
+      if ( znQ_[qmax] == NULL ) return(NULL);
+    }
   }
 
   /* Load check point data from cv_mem */
-  for (j=0; j<=q; j++)         N_VScale(ONE, zn[j], zn_[j]);
-  if ( q < qmax )              N_VScale(ONE, zn[qmax], zn_[qmax]);
+
+  for (j=0; j<=q; j++) N_VScale(ONE, zn[j], zn_[j]);
+  if ( q < qmax ) N_VScale(ONE, zn[qmax], zn_[qmax]);
+
+  if(quad_) {
+    for (j=0; j<=q; j++) N_VScale(ONE, znQ[j], znQ_[j]);
+    if ( q < qmax ) N_VScale(ONE, znQ[qmax], znQ_[qmax]);
+  }
+
   for (j=0; j<=L_MAX; j++)     tau_[j] = tau[j];
   for (j=0; j<=NUM_TESTS; j++) tq_[j] = tq[j];
   for (j=0; j<=q; j++)         l_[j] = l[j];
@@ -1382,15 +1412,29 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
   int j;
 
   if (*ck_memPtr != NULL) {
+
     /* store head of list */
     tmp = *ck_memPtr;
+
     /* move head of list */
     *ck_memPtr = (*ck_memPtr)->ck_next;
-    /* free tmp */
+
+    /* free N_Vectors in tmp */
     for (j=0;j<=tmp->ck_q;j++) N_VFree(tmp->ck_zn[j]);
     if (tmp->ck_zqm != 0) N_VFree(tmp->ck_zn[tmp->ck_zqm]);
+
+    /* free N_Vectors for quadratures in tmp,
+       unless tmp is the check point at t_initial where 
+       znQ_ was not allocated */
+    if(tmp->ck_quad && (tmp->ck_next != NULL)) {
+      for (j=0;j<=tmp->ck_q;j++) N_VFree(tmp->ck_znQ[j]);
+      if (tmp->ck_zqm != 0) N_VFree(tmp->ck_znQ[tmp->ck_zqm]);
+    }
+
     free(tmp);
+
   }
+
 }
 
 /*------------------    CVAdataMalloc    --------------------------*/
@@ -1467,6 +1511,7 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
   N_VScale(ONE, zn_[1], dt_mem[0]->yd);
 
   /* Run CVode to set following structures in dt_mem[i] */
+
   i = 1;
   do {
     flag = CVode(cv_mem, t1_, dt_mem[i]->y, &t, ONE_STEP);
@@ -1506,6 +1551,9 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
 
     CVodeSetInitStep(cv_mem, h0u);
     flag = CVodeReInit(cv_mem, f, t0_, zn_[0], itol, reltol, abstol);
+
+    if(quad_)
+      flag = CVodeQuadReInit(cv_mem, fQ, itolQ, reltolQ, abstolQ);
     
   } else {
     
@@ -1527,8 +1575,12 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     saved_tq5 = saved_tq5_;
     
     /* Copy the arrays from check point data structure */
-    for (j=0; j<=q; j++)         N_VScale(ONE, zn_[j], zn[j]);
-    if ( q < qmax )              N_VScale(ONE, zn_[qmax], zn[qmax]);
+    for (j=0; j<=q; j++) N_VScale(ONE, zn_[j], zn[j]);
+    if ( q < qmax ) N_VScale(ONE, zn_[qmax], zn[qmax]);
+    if(quad_) {
+      for (j=0; j<=q; j++) N_VScale(ONE, znQ_[j], znQ[j]);
+      if ( q < qmax ) N_VScale(ONE, znQ_[qmax], znQ[qmax]);
+    }
     for (j=0; j<=L_MAX; j++)     tau[j] = tau_[j];
     for (j=0; j<=NUM_TESTS; j++) tq[j] = tq_[j];
     for (j=0; j<=q; j++)         l[j] = l_[j];
