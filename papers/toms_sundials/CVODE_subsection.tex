@@ -29,6 +29,7 @@ $K_1 = q$ and $K_2 = 0$, with order $q$ varying between $1$ and $5$.
 The coefficients are uniquely determined by the method type, its
 order, the recent history of the stepsizes, and the normalization
 $\alpha_{n,0} = -1$.
+{\sf Add references for Adams-Moulton and BDF (Jackson-Sachs-Davis?)}
 
 For either choice of formula, the nonlinear system
 \begin{equation}\label{NLS}
@@ -38,6 +39,7 @@ where $a_n \equiv \sum_{i>0}(\alpha_{n,i} y_{n-i} + h_n \beta_{n,i} \dot{y}_{n-i
 must be solved (approximately) at each time step.  For this, CVODE
 offers the choice of either {\em functional iteration}, suitable only
 for nonstiff systems, and various versions of {\em Newton iteration}.
+{\sf Define functional iteration.}
 Functional iteration involves evaluations of $f$ only, while Newton
 iteration requires the solution of linear systems
 \begin{equation}\label{Newtoncorr}
@@ -76,7 +78,7 @@ update occurs when:
 \item starting the problem,
 \item more than 20 steps have been taken since the last update,
 \item the value $\bar{\gamma}$ of $\gamma$ at the last update
-satisfies $|\gamma/\bar{\gamma} - 1| > .3$,
+satisfies $|\gamma/\bar{\gamma} - 1| > 0.3$,  {\sf Give ituition for this 1/3 factor}
 \item a non-fatal convergence failure just occurred, or
 \item an error test failure just occurred.
 \end{itemize}
@@ -100,7 +102,7 @@ iteration errors from interfering with local error control.  As
 described below, the final computed value $y_n$ will have to satisfy a
 local error test $\| y_n - y_{n(0)} \| \leq \epsilon$.  Here, we want
 to insure that the iteration error $y_n - y_{n(m)}$ is small relative
-to $\epsilon$, specifically that it is less that $.1 \epsilon$.
+to $\epsilon$, specifically that it is less than $0.1 \epsilon$.
 For this, we also estimate the linear convergence rate constant $R$ as
 follows: We initialize $R$ to 1, and reset $R = 1$ when $M$ or $P$ is
 updated.  After computing a correction $\delta_m = y_{n(m)}-y_{n(m-1)}$,
@@ -115,6 +117,7 @@ We allow at most 3 Newton iterations, and declare the iteration
 diverged if any $\|\delta_m\| / \|\delta_{m-1}\| > 2$.  If convergence
 fails with $J$ or $P$ current, we are forced to reduce the stepsize
 $h_n$, and we replace $h_n$ by $h_n/4$.
+{\sf Is the three Newton max a changeable param?}
 
 When SPGMR is used to solve the linear system, its errors must also be
 controlled, and this also involves the local error test constant.  The
@@ -123,7 +126,7 @@ approximated by the preconditioned residual vector.  Thus to insure
 (or attempt to insure) that the linear iteration errors do not
 interfere with the nonlinear error and local integration error
 controls, we require that the norm of the preconditioned residual
-in SPGMR is less than $.05 \cdot .1 \epsilon$.
+in SPGMR is less than $0.05(0.1 \epsilon)$.
 
 With the direct dense and band methods, the Jacobian may be supplied
 by a user routine, or approximated by difference quotients,
@@ -154,7 +157,7 @@ is the weighted RMS norm involving the error weights $W_j$.
 Regardless of the multistep method or nonlinear iteration chosen,
 CVODE integrates the initial value problem with local error control
 and variation of both step size and order.  A weighted root-mean-square
-norm of the estimated local is made to satisfy a local error test on
+norm of the estimated local error is made to satisfy a local error test on
 every step, using weights that involve relative and absolute
 tolerances provided by the user.  Based primarily on these estimated
 local errors, at both actual order and contemplated nearby orders, the
