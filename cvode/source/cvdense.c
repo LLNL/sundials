@@ -290,7 +290,7 @@ int CVDenseGetRealWorkSpace(void *cvode_mem, long int *lenrwD)
 
 /*************** CVDenseGetNumJacEvals *******************************/
 
-int CVDenseGetNumJacEvals(void *cvode_mem, int *njevalsD)
+int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
@@ -315,7 +315,7 @@ int CVDenseGetNumJacEvals(void *cvode_mem, int *njevalsD)
 
 /*************** CVDenseGetNumRhsEvals *******************************/
 
-int CVDenseGetNumRhsEvals(void *cvode_mem, int *nfevalsD)
+int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;

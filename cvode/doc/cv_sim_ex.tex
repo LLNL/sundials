@@ -105,10 +105,9 @@ the parts of the program and their interaction with {\cvode}.
 
 Following the initial comment block, this program has a number
 of \id{\#include} lines, which allow access to useful items in {\cvode}
-header files.  The \id{sundialstypes.h} file provides the definitions of the
-types \id{realtype} and \id{integertype} (see \S\ref{s:types} in the user guide for
-details).  For now, it suffices to read \id{realtype} as \id{double} and
-\id{integertype} as \id{long int}.
+header files.  The \id{sundialstypes.h} file provides the definition of the
+type \id{realtype} (see \S\ref{s:types} in the user guide for
+details).  For now, it suffices to read \id{realtype} as \id{double}.
 The \id{cvodes.h} file provides prototypes for the three {\cvode}
 functions to be called (excluding the linear solver selection
 function), and also a number of constants that are to be used in

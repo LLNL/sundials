@@ -193,7 +193,7 @@ int CVDiagGetRealWorkSpace(void *cvode_mem, long int *lenrwDI)
 
 /************* CVDiagGetNumRhsEvals **********************************/
 
-int CVDiagGetNumRhsEvals(void *cvode_mem, int *nfevalsDI)
+int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI)
 {
   CVodeMem cv_mem;
   CVDiagMem cvdiag_mem;

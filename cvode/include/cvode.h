@@ -245,7 +245,7 @@ int CVodeResetIterType(void *cvode_mem, int iter);
 int CVodeSetFdata(void *cvode_mem, void *f_data);
 int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 int CVodeSetMaxOrd(void *cvode_mem, int maxord);
-int CVodeSetMaxNumSteps(void *cvode_mem, int mxsteps);
+int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
 int CVodeSetStabLimDet(void *cvode_mem, booleantype stldet);
 int CVodeSetInitStep(void *cvode_mem, realtype hin);
@@ -538,13 +538,13 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
 
 int CVodeGetIntWorkSpace(void *cvode_mem, long int *leniw);
 int CVodeGetRealWorkSpace(void *cvode_mem, long int *lenrw);
-int CVodeGetNumSteps(void *cvode_mem, int *nsteps);
-int CVodeGetNumRhsEvals(void *cvode_mem, int *nfevals);
-int CVodeGetNumLinSolvSetups(void *cvode_mem, int *nlinsetups);
-int CVodeGetNumErrTestFails(void *cvode_mem, int *netfails);
+int CVodeGetNumSteps(void *cvode_mem, long int *nsteps);
+int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals);
+int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups);
+int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails);
 int CVodeGetLastOrder(void *cvode_mem, int *qlast);
 int CVodeGetCurrentOrder(void *cvode_mem, int *qcur);
-int CVodeGetNumStabLimOrderReds(void *cvode_mem, int *nslred);
+int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred);
 int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused);
 int CVodeGetLastStep(void *cvode_mem, realtype *hlast);
 int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur);
@@ -559,9 +559,10 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele);
  *----------------------------------------------------------------*/
 
 int CVodeGetWorkSpace(void *cvode_mem, long int *leniw, long int *lenrw);
-int CVodeGetIntegratorStats(void *cvode_mem, int *nsteps, int *nfevals, 
-                            int *nlinsetups, int *netfails, int *qlast, 
-                            int *qcur, realtype *hinused, realtype *hlast, 
+int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, 
+                            long int *nfevals, long int *nlinsetups, 
+                            long int *netfails, int *qlast, int *qcur, 
+                            realtype *hinused, realtype *hlast, 
                             realtype *hcur, realtype *tcur);
 
 /*----------------------------------------------------------------*
@@ -578,15 +579,16 @@ int CVodeGetIntegratorStats(void *cvode_mem, int *nsteps, int *nfevals,
  *       convergence failures.                                    *
  *----------------------------------------------------------------*/
 
-int CVodeGetNumNonlinSolvIters(void *cvode_mem, int *nniters);
-int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, int *nncfails);
+int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters);
+int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails);
 
 /*----------------------------------------------------------------*
  * As a convenience, the following function provides the          *
  * optional outputs in a group.                                   *
  *----------------------------------------------------------------*/
 
-int CVodeGetNonlinSolvStats(void *cvode_mem, int *nniters, int *nncfails);
+int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters, 
+                            long int *nncfails);
 
 /* CVodeGet* return values */
 enum { OKAY=0, CVG_NO_MEM=-1, CVG_NO_SLDET=-2, 
@@ -710,14 +712,14 @@ typedef struct CVodeMemRec {
     Limits 
   --------*/
 
-  int cv_qmax;     /* q <= qmax                                          */
-  int cv_mxstep;   /* maximum number of internal steps for one user call */
-  int cv_maxcor;   /* maximum number of corrector iterations for the     */
-                   /* solution of the nonlinear equation                 */
-  int cv_mxhnil;   /* maximum number of warning messages issued to the   */
-                   /* user that t + h == t for the next internal step    */
-  int cv_maxnef;   /* maximum number of error test failures              */
-  int cv_maxncf;   /* maximum number of nonlinear convergence failures   */
+  int cv_qmax;        /* q <= qmax                                          */
+  long int cv_mxstep; /* maximum number of internal steps for one user call */
+  int cv_maxcor;      /* maximum number of corrector iterations for the     */
+                      /* solution of the nonlinear equation                 */
+  int cv_mxhnil;      /* maximum number of warning messages issued to the   */
+                      /* user that t + h == t for the next internal step    */
+  int cv_maxnef;      /* maximum number of error test failures              */
+  int cv_maxncf;      /* maximum number of nonlinear convergence failures   */
 
   realtype cv_hmin;     /* |h| >= hmin       */
   realtype cv_hmax_inv; /* |h| <= 1/hmax_inv */
@@ -727,14 +729,14 @@ typedef struct CVodeMemRec {
     Counters 
   ----------*/
 
-  int cv_nst;              /* number of internal steps taken             */
-  int cv_nfe;              /* number of f calls                          */
-  int cv_ncfn;             /* number of corrector convergence failures   */
-  int cv_netf;             /* number of error test failures              */
-  int cv_nni;              /* number of Newton iterations performed      */
-  int cv_nsetups;          /* number of setup calls                      */
-  int cv_nhnil;            /* number of messages issued to the user that */
-                           /* t + h == t for the next iternal step       */
+  long int cv_nst;              /* number of internal steps taken             */
+  long int cv_nfe;              /* number of f calls                          */
+  long int cv_ncfn;             /* number of corrector convergence failures   */
+  long int cv_netf;             /* number of error test failures              */
+  long int cv_nni;              /* number of Newton iterations performed      */
+  long int cv_nsetups;          /* number of setup calls                      */
+  int cv_nhnil;                 /* number of messages issued to the user that */
+                                /* t + h == t for the next iternal step       */
 
   realtype cv_etaqm1;      /* ratio of new to old h for order q-1        */
   realtype cv_etaq;        /* ratio of new to old h for order q          */
@@ -775,7 +777,7 @@ typedef struct CVodeMemRec {
   --------------*/
 
   int cv_qu;             /* last successful q value used   */
-  int cv_nstlp;          /* step number of last setup call */
+  long int cv_nstlp;          /* step number of last setup call */
   realtype cv_h0u;       /* actual initial stepsize        */
   realtype cv_hu;        /* last successful h value used   */
   realtype cv_saved_tq5; /* saved value of tq[5]           */
@@ -806,7 +808,7 @@ typedef struct CVodeMemRec {
   booleantype cv_sldeton;     /* Is Stability Limit Detection on?          */
   realtype cv_ssdat[6][4];    /* scaled data array for STALD               */
   int cv_nscon;               /* counter for STALD method                  */
-  int cv_nor;                 /* counter for number of order reductions    */
+  long int cv_nor;            /* counter for number of order reductions    */
 
 } *CVodeMem;
 

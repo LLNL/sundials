@@ -186,7 +186,7 @@ int CVBandPrecGetRealWorkSpace(void *bp_data, long int *lenrwBP)
   return(OKAY);
 }
 
-int CVBandPrecGetNumRhsEvals(void *bp_data, int *nfevalsBP)
+int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
 {
   CVBandPrecData pdata;
 

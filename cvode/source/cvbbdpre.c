@@ -217,7 +217,7 @@ int CVBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
   return(OKAY);
 }
 
-int CVBBDPrecGetNumGfnEvals(void *p_data, int *ngevalsBBDP)
+int CVBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 {
   CVBBDPrecData pdata;
 

@@ -94,7 +94,7 @@ typedef struct {
   long int *pivots;
 
   /* Rhs calls */
-  int nfeBP;
+  long int nfeBP;
 
   /* Pointer to cvode_mem */
   CVodeMem cv_mem;
@@ -182,7 +182,7 @@ void CVBandPrecFree(void *bp_data);
 
 int CVBandPrecGetIntWorkSpace(void *bp_data, long int *leniwBP);
 int CVBandPrecGetRealWorkSpace(void *bp_data, long int *lenrwBP);
-int CVBandPrecGetNumRhsEvals(void *bp_data, int *nfevalsBP);
+int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 
 /* Return values for CVBandPrecGet* functions */
 /* OKAY = 0 */

@@ -518,7 +518,7 @@ int CVSpgmrGetRealWorkSpace(void *cvode_mem, long int *lenrwSG)
 
 /*************** CVSpgmrGetNumPrecEvals ******************************/
 
-int CVSpgmrGetNumPrecEvals(void *cvode_mem, int *npevals)
+int CVSpgmrGetNumPrecEvals(void *cvode_mem, long int *npevals)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -543,7 +543,7 @@ int CVSpgmrGetNumPrecEvals(void *cvode_mem, int *npevals)
 
 /*************** CVSpgmrGetNumPrecSolves *****************************/
 
-int CVSpgmrGetNumPrecSolves(void *cvode_mem, int *npsolves)
+int CVSpgmrGetNumPrecSolves(void *cvode_mem, long int *npsolves)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -568,7 +568,7 @@ int CVSpgmrGetNumPrecSolves(void *cvode_mem, int *npsolves)
 
 /*************** CVSpgmrGetNumLinIters *******************************/
 
-int CVSpgmrGetNumLinIters(void *cvode_mem, int *nliters)
+int CVSpgmrGetNumLinIters(void *cvode_mem, long int *nliters)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -593,7 +593,7 @@ int CVSpgmrGetNumLinIters(void *cvode_mem, int *nliters)
 
 /*************** CVSpgmrGetNumConvFails ******************************/
 
-int CVSpgmrGetNumConvFails(void *cvode_mem, int *nlcfails)
+int CVSpgmrGetNumConvFails(void *cvode_mem, long int *nlcfails)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -618,7 +618,7 @@ int CVSpgmrGetNumConvFails(void *cvode_mem, int *nlcfails)
 
 /*************** CVSpgmrGetNumJtimesEvals ****************************/
 
-int CVSpgmrGetNumJtimesEvals(void *cvode_mem, int *njvevals)
+int CVSpgmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -643,7 +643,7 @@ int CVSpgmrGetNumJtimesEvals(void *cvode_mem, int *njvevals)
 
 /*************** CVSpgmrGetNumRhsEvals *******************************/
 
-int CVSpgmrGetNumRhsEvals(void *cvode_mem, int *nfevalsSG)
+int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
