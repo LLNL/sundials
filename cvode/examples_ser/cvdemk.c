@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-11-09 01:20:38 $
+ * $Revision: 1.20 $
+ * $Date: 2004-11-10 01:02:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -178,7 +178,8 @@ static WebData AllocUserData(void);
 static void InitUserData(WebData wdata);
 static void SetGroups(int m, int ng, int jg[], int jig[], int jr[]);
 static void CInit(N_Vector c, WebData wdata);
-static void PrintIntro(int jpre, int gstype);
+static void PrintIntro(void);
+static void PrintHeader(int jpre, int gstype);
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t);
 static void PrintOutput(void *cvode_mem, realtype t);
 static void PrintFinalStats(void *cvode_mem);
@@ -241,7 +242,7 @@ int main()
   mxns = wdata->mxns;
 
   /* Print problem description */
-  PrintIntro(jpre, gstype);
+  PrintIntro();
 
   /* Loop over jpre and gstype (four cases) */
   for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
@@ -249,6 +250,7 @@ int main()
       
       /* Initialize c and print heading */
       CInit(c, wdata);
+      PrintHeader(jpre, gstype);
 
       /* Call CVodeMalloc or CVodeReInit, then CVSpgmr to set up problem */
       
@@ -446,7 +448,7 @@ static void CInit(N_Vector c, WebData wdata)
   }
 }
 
-static void PrintIntro(int jpre, int gstype)
+static void PrintIntro(void)
 {
   printf("\n\nDemonstration program for CVODE - CVSPGMR linear solver\n\n");
   printf("Food web problem with ns species, ns = %d\n", NS);
@@ -484,7 +486,10 @@ static void PrintIntro(int jpre, int gstype)
   printf("  (ngx by ngy, ngx = %d, ngy = %d)\n", NGX, NGY);
   printf("\n\n--------------------------------------------------------------");
   printf("--------------\n");
+}
 
+static void PrintHeader(int jpre, int gstype)
+{
   if(jpre == PREC_LEFT)
     printf("\n\nPreconditioner type is           jpre = %s\n", "PREC_LEFT");
   else

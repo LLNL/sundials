@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-11-08 21:23:05 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-10 01:03:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -276,6 +276,8 @@ static void PrintFinalStats(void *mem)
   int retval;
   long int nst, nni, nje, nre, nreD, netf, ncfn;
 
+  retval = IDAGetNumSteps(mem, &nst);
+  check_flag(&retval, "IDAGetNumSteps", 1);
   retval = IDAGetNumResEvals(mem, &nre);
   check_flag(&retval, "IDAGetNumResEvals", 1);
   retval = IDADenseGetNumJacEvals(mem, &nje);
