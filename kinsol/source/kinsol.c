@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : kinsol.c                                       *
- * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 12 December 2001                               *
+ * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 5 MArch 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the main KINSol solver.    *
  * It is independent of the KINSol linear solver in use.          *
@@ -121,7 +122,7 @@ product endorsement purposes.
 
 #define KINM                "KINMalloc-- "
 
-#define MSG_BAD_NEQ         KINM "N=%d < 1 illegal.\n\n"
+#define MSG_BAD_NEQ         KINM "N=%ld < 1 illegal.\n\n"
 
 
 #define MSG_MEM_FAIL       KINM "A memory request failed.\n\n"
@@ -184,8 +185,7 @@ product endorsement purposes.
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
 
-static boole KINAllocVectors(KINMem kin_mem, integer neq,
-			   void *machEnv);
+static boole KINAllocVectors(KINMem kin_mem, integer neq, M_Env machEnv);
 
 static int KINConstraint( KINMem kin_mem );
 
@@ -286,7 +286,7 @@ static int KINSolInit(void *kinmem, integer Neq,
  
 *****************************************************************/
 
-void *KINMalloc(integer Neq, FILE *msgfp, void *machEnv)
+void *KINMalloc(integer Neq, FILE *msgfp, M_Env machEnv)
  
 {
   boole    allocOK;
@@ -646,7 +646,7 @@ static int KINSolInit(void *kinmem, integer Neq,
                    boole optIn, long int iopt[], real ropt[], void *f_data)
 {
   real fnormp, f1normp, epsmin;
-  int  ret, globalstratret;
+  int  ret, globalstratret = 0;
   boole maxStepTaken, noMinEps;
   N_Vector bb, xx;
 
@@ -675,21 +675,21 @@ static int KINSolInit(void *kinmem, integer Neq,
    /* input errors */
    fprintf(msgfp, " Input errors \n\n");
    return(KINSOL_INPUT_ERROR);
-   }
- else if(ret>0) return(KINSOL_INITIAL_GUESS_OK);
-   /* the initial guess satisfied the system func(uu)=0. , to the 
-      required tolerances  */
-
-
- ret = linit(kin_mem, &setupNonNull);
-
- if (ret!=0) {
-    fprintf(msgfp, MSG_LINIT_FAIL);
-    return(KINSOL_INPUT_ERROR);
  }
-
+ else if(ret>0) return(KINSOL_INITIAL_GUESS_OK);
+ /* the initial guess satisfied the system func(uu)=0. , to the 
+    required tolerances  */
+ 
+ 
+ ret = linit(kin_mem, &setupNonNull);
+ 
+ if (ret!=0) {
+   fprintf(msgfp, MSG_LINIT_FAIL);
+   return(KINSOL_INPUT_ERROR);
+ }
+ 
  /* put in some define's for ease in working with the KINSol mem block */
-
+ 
 #define Neq       (kin_mem->kin_Neq)
 #define func      (kin_mem->kin_func) 
 #define f_data    (kin_mem->kin_f_data)    
@@ -758,11 +758,11 @@ static int KINSolInit(void *kinmem, integer Neq,
 
     if(globalstrategy==INEXACT_NEWTON)
       globalstratret = 
-	KINInexactNewton(kinmem, &fnormp, &f1normp, &maxStepTaken);
+        KINInexactNewton(kinmem, &fnormp, &f1normp, &maxStepTaken);
     else if(globalstrategy==LINESEARCH)
       globalstratret = 
-	KINLineSearch(kinmem, &fnormp, &f1normp, &maxStepTaken);
-
+        KINLineSearch(kinmem, &fnormp, &f1normp, &maxStepTaken);
+    
     /* if too many beta condition failures, stop iteration  */
 
     if(nbcf > MXNBCF){
@@ -881,8 +881,7 @@ void KINFree(void *kinsol_mem)
 
 **********************************************************************/
 
-static boole KINAllocVectors(KINMem kin_mem, integer neq,
-			   void *machEnv)
+static boole KINAllocVectors(KINMem kin_mem, integer neq, M_Env machEnv)
 {
 
   /* Allocate unew, fval, pp, vtemp1 and vtemp2
@@ -1087,7 +1086,7 @@ static int  KINInexactNewton(KINMem kin_mem, real *fnormp, real *f1normp,
 {
  int ret;
  real pnorm, ratio, ratio1;
-
+ 
  *maxStepTaken = FALSE;
  pnorm = N_VWL2Norm(pp,uscale);
  ratio = ONE;
@@ -1096,12 +1095,12 @@ static int  KINInexactNewton(KINMem kin_mem, real *fnormp, real *f1normp,
    N_VScale(ratio,pp,pp);
    pnorm = mxnewtstep;
  }
-
+ 
  stepl = pnorm;
  if(printfl > 0)fprintf(msgfp,
       " ----- in routine KINInexactNewton (pnorm= %12.4e ) -----\n",pnorm);
  /*           check if constraints are active, and 
-	         constrain the step by the constraints*/
+              constrain the step by the constraints*/
  if(constraintsSet){
   loop{
    ret=KINConstraint(kin_mem);  /* NOTE: this routine changes stepl */
@@ -1112,20 +1111,20 @@ static int  KINInexactNewton(KINMem kin_mem, real *fnormp, real *f1normp,
      pnorm = stepl;
 
      if(printfl > 0)fprintf(msgfp,
-      " --- in routine KINInexactNewton (pnorm= %12.4e \n",pnorm);
-
+                            " --- in routine KINInexactNewton (pnorm= %12.4e \n",pnorm);
+     
      if(pnorm <= scsteptol) return(1);
    }
    else
      break;
   }
  }
-
-  /* scale the following two expressions by ratio for 
-        subsequent use in the  KINForcingTerm routine */
-  sfdotJp = sfdotJp * ratio;
-  sJpnorm = sJpnorm * ratio;
-
+ 
+ /* scale the following two expressions by ratio for 
+    subsequent use in the  KINForcingTerm routine */
+ sfdotJp = sfdotJp * ratio;
+ sJpnorm = sJpnorm * ratio;
+ 
  /*  compute the iterate unew !! */
  N_VLinearSum(ONE, uu, ONE, pp,unew);
  func(Neq, unew, fval, f_data);   nfe++;
@@ -1134,6 +1133,7 @@ static int  KINInexactNewton(KINMem kin_mem, real *fnormp, real *f1normp,
  if(printfl > 1) fprintf(msgfp," fnorm (L2) = %20.8e\n", (*fnormp));
  if(pnorm > POINT99 * mxnewtstep ) *maxStepTaken = TRUE; 
  return(0);
+
 }
 
 

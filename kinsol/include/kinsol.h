@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : kinsol.h                                       *
- * Programmers   : Allan G. Taylor and Alan C. Hindmarsh @ LLNL   *
- * Version of    : 17 January 2001                                *
+ * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 5 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the interface file for the main KINSol solver          *
  *                                                                *
@@ -104,7 +105,7 @@ typedef void (*SysFn)(integer Neq, N_Vector uu,
  *                                                                *
  *****************************************************************/
 
-void *KINMalloc(integer Neq, FILE *msgfp, void *machEnv);
+void *KINMalloc(integer Neq, FILE *msgfp, M_Env machEnv);
 
 
 
@@ -457,15 +458,15 @@ enum { INEXACT_NEWTON , LINESEARCH };  /* globalstrategy */
  ******************************************************************/
 
 
- int KINSol(void *kinmem, integer Neq, 
-                   N_Vector uu, SysFn func, int globalstrategy, 
-                   N_Vector uscale, N_Vector fscale,
-                   real fnormtol, real scsteptol, N_Vector constraints, 
-                   boole optIn, long int iopt[], real ropt[], void *f_data);
+int KINSol(void *kinmem, integer Neq, 
+           N_Vector uu, SysFn func, int globalstrategy, 
+           N_Vector uscale, N_Vector fscale,
+           real fnormtol, real scsteptol, N_Vector constraints, 
+           boole optIn, long int iopt[], real ropt[], void *f_data);
 
 
-		      /* KINSol return values */
-
+  /* KINSol return values */
+  
 enum { KINSOL_NO_MEM=-1, KINSOL_INPUT_ERROR=-2, KINSOL_LSOLV_NO_MEM=-3, 
        KINSOL_SUCCESS=1, KINSOL_INITIAL_GUESS_OK=2,KINSOL_STEP_LT_STPTOL=3, 
        KINSOL_LNSRCH_NONCONV=4, KINSOL_MAXITER_REACHED=5, 
@@ -498,10 +499,11 @@ enum { PRINTFL=0 , MXITER, PRECOND_NO_INIT, NNI ,NFE ,NBCF, NBKTRK,
 enum { MXNEWTSTEP=0 , RELFUNC , RELU , FNORM , STEPL,
        ETACONST, ETAGAMMA, ETAALPHA };
 
-enum {ETACHOICE1 = 0, ETACHOICE2, ETACONSTANT}; /* 3 methods to determine eta
-		      check iopt[ETACHOICE] against these three constants
-		      Note that setting ETACHOICE1 to 0 implies that it is
-		      the default , see iopt, ropt conventions */
+enum {ETACHOICE1 = 0, ETACHOICE2, ETACONSTANT}; 
+  /* 3 methods to determine eta
+     check iopt[ETACHOICE] against these three constants
+     Note that setting ETACHOICE1 to 0 implies that it is
+     the default , see iopt, ropt conventions */
 
 /******************************************************************
  *                                                                *
@@ -590,36 +592,36 @@ typedef struct KINMemRec {
  
   /* Linear Solver functions to be called */
 
- int (*kin_linit)(struct KINMemRec *kin_mem, boole *setupNonNull);
+  int (*kin_linit)(struct KINMemRec *kin_mem, boole *setupNonNull);
 
- int (*kin_lsetup)(struct KINMemRec *kin_mem);
+  int (*kin_lsetup)(struct KINMemRec *kin_mem);
 
- int (*kin_lsolve)(struct KINMemRec *kin_mem, N_Vector xx, N_Vector bb, 
-		   real *res_norm );
-
- int (*kin_lfree)(struct KINMemRec *kin_mem);
-
-
+  int (*kin_lsolve)(struct KINMemRec *kin_mem, N_Vector xx, N_Vector bb, 
+                    real *res_norm );
+  
+  int (*kin_lfree)(struct KINMemRec *kin_mem);
+  
+  
   /* Linear Solver specific memory */
-
+  
   void *kin_lmem;           
 
   /* Saved Values */
 
- real kin_fnorm;   /* current value for the norm of func(uu)                 */
- real kin_f1norm;  /* current value for the expression:  fnorm*fnorm/2  
-          NOTE: the value f1normp is computed in KINLineSearch or 
-	  KINInexactNewton and supplied to the calling routine to set 
-	  this value. f1normp remains a variable of scope to KINSol, however */
- real kin_res_norm;  /* current value for the norm of the residual */
+  real kin_fnorm;   /* current value for the norm of func(uu)                 */
+  real kin_f1norm;  /* current value for the expression:  fnorm*fnorm/2  
+                       NOTE: the value f1normp is computed in KINLineSearch or 
+                       KINInexactNewton and supplied to the calling routine to set 
+                       this value. f1normp remains a variable of scope to KINSol, however */
+  real kin_res_norm;  /* current value for the norm of the residual */
 
- real kin_sfdotJp;        /* scaled f value dotted with J p, p the computed
-	     increment in the computed solution. This term is used 
-                  in the global strategy routine and in KINForcingTerm */
+  real kin_sfdotJp;        /* scaled f value dotted with J p, p the computed
+                              increment in the computed solution. This term is used 
+                              in the global strategy routine and in KINForcingTerm */
 
- real kin_sJpnorm;        /* norm of scaled J p, as above, also used in
-			 the KINForcingTerm routine               */
-
+  real kin_sJpnorm;        /* norm of scaled J p, as above, also used in
+                              the KINForcingTerm routine               */
+  
   /* in the above two comments, J is the jacobian matrix evaluated at the
      last iterate u  and p is the current increment from the last iterate u.
      p is in both cases scaled by a factor lambda (rl in KINLineSearch) to 
@@ -630,13 +632,13 @@ typedef struct KINMemRec {
 
 
   /* Message File */
-
+  
   FILE *kin_msgfp;      /* KINSol error, warning and info messages are
-			  sent to msgfp */
+                           sent to msgfp */
 
   /* Pointer to Machine Environment-Specific Information */
-
-  void *kin_machenv;
+  
+  M_Env kin_machenv;
 
 } *KINMem;
 
