@@ -1,5 +1,5 @@
                               CVODE
-                    Release 2.2.0, November 2004
+                    Release 2.2.0, December 2004
              Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -66,21 +66,7 @@ C. References
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
     to appear.
 
-D.1. Revision History since release 2.2.0 (November 2004)
----------------------------------------------------------
-
-- New features
-   - added CVSPBCG interface module to allow CVODE to interface with the
-     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
-
-- Changes to user-callable functions
-   - added CVSPBCG module which defines appropriate CVSpbcg* functions to
-     allow CVODE to interface with the shared SPBCG linear solver module.
-
-- Changes to the FCVODE module
-   - added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
-
-D.2. Revision History since release 2.0 (August 2002)
+D.1. Revision History since release 2.0 (August 2002)
 -----------------------------------------------------
 
 - New features
@@ -140,10 +126,10 @@ D.2. Revision History since release 2.0 (August 2002)
      maxncf, etc.) and rearranged locations in IOPT and ROPT for uniformity.
 
 
-D.3. Summary of previous revisions (YYYYMMDD) (significant revisions only)
+D.2. Summary of previous revisions (YYYYMMDD) (significant revisions only)
 --------------------------------------------------------------------------
 
-D.3.1. Serial version of CVODE (1993 - March 2002)
+D.2.1. Serial version of CVODE (1993 - March 2002)
 --------------------------------------------------
 
 1993-94   DATE WRITTEN.  First released 2 September 1994.
@@ -169,7 +155,7 @@ D.3.1. Serial version of CVODE (1993 - March 2002)
 20020305  Added CVReInitBandPre routine to CVBANDPRE module.
 
 
-D.3.2. Parallel version of CVODE (PVODE)  (July 1995 - March 2002)
+D.2.2. Parallel version of CVODE (PVODE)  (July 1995 - March 2002)
 ------------------------------------------------------------------
 
 19950726  DATE WRITTEN; MPI version of VECTOR module written, creating 
@@ -212,7 +198,7 @@ D.3.2. Parallel version of CVODE (PVODE)  (July 1995 - March 2002)
           to it.  Revised pvkxb and pvidagkbf examples accordingly.
 
 
-D.3.3. Combined CVODE package (March 2002 - July 2002)
+D.2.3. Combined CVODE package (March 2002 - July 2002)
 ------------------------------------------------------
 
 20020313  Modified to work with new NVECTOR abstraction.
