@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : cvdense.h                                      *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 1 March 2002                                   *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 5 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVODE dense linear solver,     *
  * CVDENSE.                                                       *
@@ -168,6 +169,13 @@ typedef void (*CVDenseJacFn)(integer N, DenseMat J, RhsFn f, void *f_data,
  *    SUCCESS   = 0  if successful                                *
  *    LMEM_FAIL = -1 if there was a memory allocation failure     *
  *                                                                *
+ * NOTE: The dense linear solver assumes a serial implementation  *
+ *       of the NVECTOR package. Therefore, CVDense will first    *
+ *       test for a compatible N_Vector internal representation   *
+ *       by checking (1) the machine environment ID tag and       *
+ *       (2) that the functions N_VMake, N_VDispose, N_VGetData,  *
+ *       and N_VSetData are implemented.                          *
+ *                                                                *
  ******************************************************************/
   
 int CVDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data);
@@ -192,6 +200,9 @@ int CVDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data);
  * The return values of CVReInitDense are:                        *
  *   SUCCESS   = 0      if successful, or                         *
  *   LMEM_FAIL = -1     if the cvode_mem argument is NULL         *
+ *                                                                *
+ * NOTE: CVReInitDense performs the same compatibility tests as   *
+ *       CVDense.                                                 *
  *                                                                *
  ******************************************************************/
   
