@@ -1,7 +1,7 @@
 #--------------------------------------------------------------------------------
 # File        : Makefile
 # Programmers : Radu Serban @ LLNL
-# Version of  : 11 March 2002
+# Version of  : 28 August 2002
 #--------------------------------------------------------------------------
 # Makefile for FKINSOL, the Fortran interface package for KINSOL and the
 # associated examples.
@@ -45,9 +45,15 @@ all:
 	@(echo '       make purge     - remove Fortran interface KINSOL library')
 	@(echo)
 	@(echo '       make <ex>      - make example <ex>')
-	@(echo '       make fkinx_ser - make all serial FKINSOL examples')
-	@(echo '       make fkinx_par - make all parallel FKINSOL examples')
-	@(echo '       make examples  - make all FKINSOL examples')
+	@(if test -f fkinx_ser.mk; \
+		then echo '       make fkinx_ser - make all serial FKINSOL examples'; \
+	fi)
+	@(if test -f fkinx_par.mk; \
+		then echo '       make fkinx_par - make all parallel FKINSOL examples'; \
+	fi)
+	@(if (test -f fkinx_ser.mk) && (test -f fkinx_par.mk); \
+		then echo '       make examples  - make all FKINSOL examples'; \
+	fi)
 	@(echo '       make purgex    - remove example executables')
 	@(echo)
 	@(if test -f fkinx_ser.mk; then make -f fkinx_ser.mk; fi)
