@@ -1,9 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : cvode.c                                        *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,*
  *                 and Dan Shumaker @ LLNL                        *
- * Version of    : 15 July 2002                                   *
+ * Version of    : 24 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the main CVODE integrator. *
  * It is independent of the CVODE linear solver in use.           *
@@ -332,13 +332,9 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq, int maxord,
                                   M_Env machEnv);
 static void CVFreeVectors(CVodeMem cv_mem, int maxord);
 
-static booleantype CVEwtSet(CVodeMem cv_mem, realtype *rtol, void *atol,
-                            int tol_type,
-                            N_Vector ycur, integertype neq);
-static booleantype CVEwtSetSS(CVodeMem cv_mem, realtype *rtol, realtype *atol,
-                              N_Vector ycur, integertype neq);
-static booleantype CVEwtSetSV(CVodeMem cv_mem, realtype *rtol, N_Vector atol,
-                              N_Vector ycur, integertype neq);
+static booleantype CVEwtSet(CVodeMem cv_mem, N_Vector ycur);
+static booleantype CVEwtSetSS(CVodeMem cv_mem, N_Vector ycur);
+static booleantype CVEwtSetSV(CVodeMem cv_mem, N_Vector ycur);
 
 static booleantype CVHin(CVodeMem cv_mem, realtype tout);
 static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist);
@@ -597,10 +593,13 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
     free(cv_mem);
     return(NULL);
   }
- 
-  /* Set the ewt vector */
 
-  ewtsetOK = CVEwtSet(cv_mem, reltol, abstol, itol, y0, N);
+  /* Copy tolerances into memory, and set the ewt vector */
+
+  cv_mem->cv_itol = itol;
+  cv_mem->cv_reltol = reltol;      
+  cv_mem->cv_abstol = abstol;
+  ewtsetOK = CVEwtSet(cv_mem, y0);
   if (!ewtsetOK) {
     fprintf(fp, MSG_BAD_EWT);
     CVFreeVectors(cv_mem, maxord);
@@ -610,16 +609,13 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
   
   /* All error checking is complete at this point */
 
-  /* Copy the input parameters into CVODE state */
+  /* Copy the remaining input parameters into CVODE memory */
 
   cv_mem->cv_N = N;
   cv_mem->cv_f = f;
   cv_mem->cv_f_data = f_data;
   cv_mem->cv_lmm = lmm;    
   cv_mem->cv_iter = iter;
-  cv_mem->cv_itol = itol;
-  cv_mem->cv_reltol = reltol;      
-  cv_mem->cv_abstol = abstol;
   cv_mem->cv_optIn = optIn;
   cv_mem->cv_iopt = iopt;
   cv_mem->cv_ropt = ropt;
@@ -738,11 +734,9 @@ int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
              long int iopt[], realtype ropt[], M_Env machEnv) 
 {
   booleantype ioptExists, roptExists, neg_abstol, ewtsetOK;
-  int maxord;
+  int maxord, i,k;
   CVodeMem cv_mem;
   FILE *fp;
-  integertype N;
-  int i,k;
  
   /* Check for legal input parameters */
   
@@ -827,10 +821,12 @@ int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
     return(CVREI_ILL_INPUT);
   }
 
-   /* Set the ewt vector */
+  /* Copy tolerances into memory, and set the ewt vector */
 
-  N = cv_mem->cv_N;
-  ewtsetOK = CVEwtSet(cv_mem, reltol, abstol, itol, y0, N);
+  cv_mem->cv_itol = itol;
+  cv_mem->cv_reltol = reltol;      
+  cv_mem->cv_abstol = abstol;
+  ewtsetOK = CVEwtSet(cv_mem, y0);
   if (!ewtsetOK) {
     fprintf(fp, MSG_BAD_EWT);
     return(CVREI_ILL_INPUT);
@@ -838,15 +834,12 @@ int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   
   /* All error checking is complete at this point */
   
-  /* Copy the input parameters into CVODE state */
+  /* Copy the remaining input parameters into CVODE memory */
 
   cv_mem->cv_f = f;
   cv_mem->cv_f_data = f_data;
   cv_mem->cv_lmm = lmm;    
   cv_mem->cv_iter = iter;
-  cv_mem->cv_itol = itol;
-  cv_mem->cv_reltol = reltol;      
-  cv_mem->cv_abstol = abstol;
   cv_mem->cv_optIn = optIn;
   cv_mem->cv_iopt = iopt;
   cv_mem->cv_ropt = ropt;
@@ -1091,7 +1084,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* Reset and check ewt */
 
     if (nst > 0) {
-      ewtsetOK = CVEwtSet(cv_mem, reltol, abstol, itol, zn[0], N);
+      ewtsetOK = CVEwtSet(cv_mem, zn[0]);
       if (!ewtsetOK) {
         fprintf(errfp, MSG_EWT_NOW_BAD, tn);
         istate = ILL_INPUT;
@@ -1378,9 +1371,9 @@ static void CVFreeVectors(CVodeMem cv_mem, int maxord)
  This routine is responsible for setting the error weight vector ewt,
  according to tol_type, as follows:
 
- (1) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + *atol), i=0,...,neq-1
+ (1) ewt[i] = 1 / (*reltol * ABS(ycur[i]) + *abstol), i=0,...,neq-1
      if tol_type = SS
- (2) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + atol[i]), i=0,...,neq-1
+ (2) ewt[i] = 1 / (*reltol * ABS(ycur[i]) + abstol[i]), i=0,...,neq-1
      if tol_type = SV
 
   CVEwtSet returns TRUE if ewt is successfully set as above to a
@@ -1391,12 +1384,11 @@ static void CVFreeVectors(CVodeMem cv_mem, int maxord)
  
 ***********************************************************************/
 
-static booleantype CVEwtSet(CVodeMem cv_mem, realtype *rtol, void *atol, 
-                            int tol_type, N_Vector ycur, integertype neq)
+static booleantype CVEwtSet(CVodeMem cv_mem, N_Vector ycur)
 {
-  switch(tol_type) {
-  case SS: return(CVEwtSetSS(cv_mem, rtol, (realtype *)atol, ycur, neq));
-  case SV: return(CVEwtSetSV(cv_mem, rtol, (N_Vector)atol, ycur, neq));
+  switch(itol) {
+  case SS: return(CVEwtSetSS(cv_mem, ycur));
+  case SV: return(CVEwtSetSV(cv_mem, ycur));
   }
   return(-99);
 }
@@ -1411,13 +1403,12 @@ static booleantype CVEwtSet(CVodeMem cv_mem, realtype *rtol, void *atol,
 
 ********************************************************************/
 
-static booleantype CVEwtSetSS(CVodeMem cv_mem, realtype *rtol, 
-                              realtype *atol, N_Vector ycur, integertype neq)
+static booleantype CVEwtSetSS(CVodeMem cv_mem, N_Vector ycur)
 {
   realtype rtoli, atoli;
   
-  rtoli = *rtol;
-  atoli = *atol;
+  rtoli = *reltol;
+  atoli = *((realtype *)abstol);
   N_VAbs(ycur, tempv);
   N_VScale(rtoli, tempv, tempv);
   N_VAddConst(tempv, atoli, tempv);
@@ -1436,14 +1427,13 @@ static booleantype CVEwtSetSS(CVodeMem cv_mem, realtype *rtol,
 
 ********************************************************************/
 
-static booleantype CVEwtSetSV(CVodeMem cv_mem, realtype *rtol, 
-                              N_Vector atol, N_Vector ycur, integertype neq)
+static booleantype CVEwtSetSV(CVodeMem cv_mem, N_Vector ycur)
 {
   realtype rtoli;
   
-  rtoli = *rtol;
+  rtoli = *reltol;
   N_VAbs(ycur, tempv);
-  N_VLinearSum(rtoli, tempv, ONE, atol, tempv);
+  N_VLinearSum(rtoli, tempv, ONE, abstol, tempv);
   if (N_VMin(tempv) <= ZERO) return(FALSE);
   N_VInv(tempv, ewt);
   return(TRUE);
