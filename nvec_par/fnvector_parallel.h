@@ -23,24 +23,22 @@ extern "C" {
 #ifndef included_fnvector_parallel_h
 #define included_fnvector_parallel_h
 
-#include "fcmixpar.h" /* Machine specific definitions for Fortran externals */
-
 /* Fortran callable wrappers to NV_SpecInit_Parallel and NV_SpecFree_Parallel */ 
 
-#if (CRAY)
+#if SUNDIALS_UNDERSCORE_NONE
   
-#define F_NVSPECINITP  FNVSPECINITP
-#define F_NVSPECFREEP  FNVSPECFREEP
+#define F_NVSPECINITP  fnvspecinitp
+#define F_NVSPECFREEP  fnvspecfreep
 
-#elif  (UNDERSCORE)
+#elif SUNDIALS_UNDERSCORE_TWO
 
-#define F_NVSPECINITP  fnvspecinitp_
-#define F_NVSPECFREEP  fnvspecfreep_
+#define F_NVSPECINITP  fnvspecinitp__
+#define F_NVSPECFREEP  fnvspecfreep__
 
 #else
 
-#define F_NVSPECINITP  fnvspecinitp
-#define F_NVSPECFREEP  fnvspecfreep
+#define F_NVSPECINITP  fnvspecinitp_
+#define F_NVSPECFREEP  fnvspecfreep_
 
 #endif
 

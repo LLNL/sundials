@@ -23,24 +23,22 @@ extern "C" {
 #ifndef included_fnvector_serial_h
 #define included_fnvector_serial_h
 
-#include "fcmixpar.h" /* Machine specific definitions for Fortran externals */
-
 /* Fortran callable wrappers to NV_SpecInit_Serial and NV_SpecFree_Serial */ 
 
-#if (CRAY)
-  
-#define F_NVSPECINITS  FNVSPECINITS
-#define F_NVSPECFREES  FNVSPECFREES
-
-#elif  (UNDERSCORE)
-
-#define F_NVSPECINITS  fnvspecinits_
-#define F_NVSPECFREES  fnvspecfrees_
-
-#else
+#if SUNDIALS_UNDERSCORE_NONE
 
 #define F_NVSPECINITS  fnvspecinits
 #define F_NVSPECFREES  fnvspecfrees
+
+#elif SUNDIALS_UNDERSCORE_TWO
+
+#define F_NVSPECINITS  fnvspecinits__
+#define F_NVSPECFREES  fnvspecfrees__
+
+#else
+
+#define F_NVSPECINITS  fnvspecinits_
+#define F_NVSPECFREES  fnvspecfrees_
 
 #endif
 
