@@ -1,9 +1,26 @@
+# -----------------------------------------------------------------
+# $Revision: 1.9 $
+# $Date: 2004-10-21 19:04:40 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/cvodes/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for CVODES documents
+# -----------------------------------------------------------------
+
 SHARED_DOC = ../../shared/doc
+
 all:
-	@echo 'Usage: make ug   - compile LaTeX files to generate cvodes user guide'
-	@echo 'Usage: make ex   - compile LaTeX files to generate cvodes examples doc'
-	@echo '       make clean - remove temporary files (*.aux, *.log, etc.)'
-	@echo
+	@echo "Usage:"
+	@echo "  make ug - compile LaTeX files to generate CVODE User's Guide"
+	@echo "  make ex - compile LaTeX files to generate CVODE Examples Guide"
+	@echo "  make clean - remove all files"
+	@echo ""
+
 ug:
 	cp $(SHARED_DOC)/band.tex .
 	cp $(SHARED_DOC)/dense.tex .
@@ -31,6 +48,7 @@ ug:
 	latex cvs_guide
 #	dvips -Ppdf -o cvs_guide.ps cvs_guide
 #	ps2pdf cvs_guide.ps cvs_guide.pdf
+
 ex:
 	cp $(SHARED_DOC)/llnlCoverPage.tex .
 	cp $(SHARED_DOC)/Logo_for_papers.ps .
@@ -44,6 +62,7 @@ ex:
 	latex cvs_examples
 #	dvips -Ppdf -o cvs_examples.ps cvs_examples
 #	ps2pdf cvs_examples.ps cvs_examples.pdf
+
 clean:
 	rm -f bandmat.eps
 	rm -f band.tex
@@ -63,4 +82,3 @@ clean:
 	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
 	rm -f cvs_guide.ps cvs_guide.pdf
 	rm -f cvs_examples.ps cvs_examples.pdf
-

@@ -1,9 +1,26 @@
+# -----------------------------------------------------------------
+# $Revision: 1.4 $
+# $Date: 2004-10-21 19:04:46 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/ida/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for IDA documents
+# -----------------------------------------------------------------
+
 SHARED_DOC = ../../shared/doc
+
 all:
-	@echo 'Usage: make ug   - compile LaTeX files to generate ida user guide'
-	@echo 'Usage: make ex   - compile LaTeX files to generate ida examples doc'
-	@echo '       make clean - remove temporary files (*.aux, *.log, etc.)'
-	@echo
+	@echo "Usage:"
+	@echo "  make ug - compile LaTeX files to generate IDA User's Guide"
+	@echo "  make ex - compile LaTeX files to generate IDA Examples Guide"
+	@echo "  make clean - remove all files"
+	@echo ""
+
 ug:
 	cp $(SHARED_DOC)/band.tex .
 	cp $(SHARED_DOC)/install.tex .
@@ -31,6 +48,7 @@ ug:
 	latex ida_guide
 #	dvips -Ppdf -o ida_guide.ps ida_guide
 #	ps2pdf ida_guide.ps ida_guide.pdf
+
 ex:
 	cp $(SHARED_DOC)/llnlCoverPage.tex .
 	cp $(SHARED_DOC)/Logo_for_papers.ps .
@@ -44,6 +62,7 @@ ex:
 	latex ida_examples
 #	dvips -Ppdf -o ida_examples.ps ida_examples
 #	ps2pdf ida_examples.ps ida_examples.pdf
+
 clean:
 	rm -f bandmat.eps
 	rm -f band.tex
@@ -63,4 +82,3 @@ clean:
 	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
 	rm -f ida_guide.ps ida_guide.pdf
 	rm -f ida_examples.ps ida_examples.pdf
-
