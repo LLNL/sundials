@@ -5234,7 +5234,7 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVDENSESETJAC (FLAG, IER)
 \end{verbatim}
-  with \id{FLAG}$\neq 0$ to specify use of the user-supplied Jacobian approximation.
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian approximation.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
@@ -5284,7 +5284,7 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVBANDSETJAC(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG}$\neq 0$ to specify use of the user-supplied Jacobian approximation.
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian approximation.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
@@ -5338,18 +5338,18 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVSPGMRSETJAC(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG}$\neq 0$ to specify use of the user-supplied Jacobian times
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian times
   vector approximation.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
-  If preconditioning is to be done (\id{IPRETYPE}$\neq 0$), then, following the
+  If preconditioning is to be done (\id{IPRETYPE} $\neq 0$), then, following the
   call to \id{FCVSPGMR}, the user must call
   \index{FCVSPGMRSETPSOL@\texttt{FCVSPGMRSETPSOL}}
 \begin{verbatim}
       CALL FCVSPGMRSETPSOL(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG}$\neq 0$, and the user program must include the following routine
+  with \id{FLAG} $\neq 0$, and the user program must include the following routine
   for solution of the preconditioner linear system:
   \index{FCVPSOL@\texttt{FCVPSOL}}
 \begin{verbatim}
@@ -5378,7 +5378,7 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVSPGMRSETPSET(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG}$\neq 0$.
+  with \id{FLAG} $\neq 0$.
   In this case, the user program must also include
   the following routine for the evaluation and preprocessing of the preconditioner:
   \index{FCVPSET@\texttt{FCVPSET}}
@@ -5633,7 +5633,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \begin{verbatim}
        CALL FCVSPGMRSETJAC(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG}$\neq 0$ 
+  with \id{FLAG} $\neq 0$ 
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
   
 \item \textcolor{gray}{\bf Problem solution}
@@ -5764,7 +5764,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \begin{verbatim}
        CALL FCVSPGMRSETJAC(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG}$\neq 0$ 
+  with \id{FLAG} $\neq 0$ 
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
   
 \item \textcolor{gray}{\bf Problem solution}
