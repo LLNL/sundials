@@ -11,21 +11,23 @@ and the {\nvecs} module (which provides a serial implementation of {\nvector})
 in the solution of a 3-species chemical kinetics problem.
 
 The problem consists of the following three rate equations:
+\vspace*{-.08in}
 \begin{equation}
   \begin{split}
     {\dot y}_1 &= -0.04 \cdot y_1 + 10^4 \cdot y_2 \cdot y_3 \\
-    {\dot y}_2 &=  0.04 \cdot y_1 - 10^4 \cdot y_2 \cdot y_3 - 3 \cdot 10^7 \cdot y_2^2 \\
-    {\dot y}_3 &=  3 \cdot 10^7 \cdot y_2^2 \, ,
+    {\dot y}_2 &=  0.04 \cdot y_1 - 10^4 \cdot y_2 \cdot y_3
+                                  - 3 \cdot 10^7 \cdot y_2^2 \\
+    {\dot y}_3 &=  3 \cdot 10^7 \cdot y_2^2
   \end{split} 
 \end{equation}
-on the interval $t \in [0.0, 4 \cdot 10^{10}]$, with initial conditions
-$y_1(0.0) = 1.0$, $y_2(0.0) = y_3(0.0) = 0.0$.
+on the interval $t \in [0, ~4 \cdot 10^{10}]$, with initial conditions
+$y_1(0) = 1.0$, $y_2(0) = y_3(0) = 0.0$.
 While integrating the system, we also use the rootfinding
 feature to find the points at which $y_1 = 10^{-4}$ or at which
 $y_3 = 0.01$.
 
-For the source listed in Appendix A, we give a rather detailed explanation
-of the parts of the program and their interaction with {\cvode}.
+For the source, listed in Appendix \ref{s:cvdx_c}, we give a rather detailed
+explanation of the parts of the program and their interaction with {\cvode}.
 
 Following the initial comment block, this program has a number
 of \id{\#include} lines, which allow access to useful items in {\cvode}
@@ -76,7 +78,7 @@ variable vector into \id{y} and set the absolute tolerance vector
 
 The calls to \id{N\_VNew\_Serial}, and also later calls to \id{CVode***}
 functions, make use of a private function, \id{check\_flag}, which examines
-the return value and terminates the run if there was a failure.  The
+the return value and prints a message if there was a failure.  The
 \id{check\_flag} function was written to be used for any {\sundials}
 application.
 
@@ -88,7 +90,7 @@ pointer must be passed in the remaining calls to {\cvode} functions.
 
 The call to \id{CVodeMalloc} allocates the solver memory block.
 Its arguments include the name of the {\C} function \id{f} defining the
-right-hand side function $f(t,y)$, and the initial conditions $(t_0,y_0)$.
+right-hand side function $f(t,y)$, and the initial values of $t$ and $y$.
 The argument \id{CV\_SV} specifies a vector of absolute tolerances, and
 this is followed by the address of the relative tolerance \id{reltol}
 and the absolute tolerance vector \id{abstol}.
@@ -97,9 +99,8 @@ See \S\ref{sss:cvodemalloc} for full details of this call.
 The call to \id{CVodeRootInit} specifies that a rootfinding problem
 is to be solved along with the integration of the ODE system, that the
 root functions are specified in the function \id{g}, and that there are
-two such functions.  Specifically, they are set so as to find the points
-where the first and last dependent variables achieve the values $0.0001$
-and $0.01$, respectively.
+two such functions.  Specifically, they are set to $y_1 - 0.0001$ and 
+$y_3 - 0.01$, respectively.
 See \S\ref{ss:root_uc} for a detailed description of this call.
 
 The calls to \id{CVDense} and \id{CVDenseSetJacFn} specify the {\cvdense}
@@ -132,8 +133,8 @@ to free the vectors \id{y} and \id{abstol}, and \id{CVodeFree} to free the
 {\cvode} memory block.
 
 The function \id{PrintFinalStats} used here is actually suitable for
-general use in connection with the use of {\cvode} for any problem with 
-a dense Jacobian.  It calls various \id{CVodeGet***} and \id{CVDenseGet***}
+general use in applications of {\cvode} to any problem with a dense 
+Jacobian.  It calls various \id{CVodeGet***} and \id{CVDenseGet***}
 functions to obtain the relevant counters, and then prints them.
 Specifically, these are: the cumulative number of steps (\id{nst}), 
 the number of \id{f} evaluations (\id{nfe}) (excluding those for
@@ -180,18 +181,20 @@ locations found, first at a root of $g_1$, and then at a root of $g_0$.
 
 \subsection{A banded example: \id{cvbx}}\label{ss:cvbx}
 
-The example program \id{cvbx.c} solves the semi-discretized form
-of the 2-D advection-diffusion equation
+The example program \id{cvbx.c} solves the semi-discretized form of
+the 2-D advection-diffusion equation
+\vspace*{-.1in}
 \begin{equation}
 \label{eq:adeqn}
 \partial v / \partial t = \partial^2 v / \partial x^2
   + .5 \partial v / \partial x + \partial^2 v / \partial y^2
 \end{equation}
 on a rectangle, with zero Dirichlet boundary conditions. The PDE is 
-discretized spatially with standard central finite differences 
-on a (MX+2) $\times$ (MY+2) mesh, giving an ODE system of size MX*MY.  
-The discrete value $v_{ij}$ approximates $v$ at $x = i \Delta x$,
+discretized with standard central finite differences on a 
+(\id{MX}+2) $\times$ (\id{MY}+2) mesh, giving an ODE system of size
+\id{MX*MY}.  The discrete value $v_{ij}$ approximates $v$ at $x = i \Delta x$,
 $y = j \Delta y$. The ODEs are
+\vspace*{-.05in}
 \begin{equation}
 \label{eq:cdiff}
 {{dv_{ij}} \over dt} = f_{ij} =
@@ -199,16 +202,16 @@ $y = j \Delta y$. The ODEs are
        + .5  {{v_{i+1,j} - v_{i-1,j}} \over {2 \Delta x}}
        + {{v_{i,j-1} - 2 v_{ij} + v_{i,j+1}} \over {(\Delta y)^2}},
 \end{equation}
-where $1 \leq i \leq $MX and $1 \leq j \leq $MY.  The boundary
+where $1 \leq i \leq $\id{MX} and $1 \leq j \leq $\id{MY}.  The boundary
 conditions are imposed by taking $v_{ij} = 0$ above if $i = 0$
-or MX$+1$, or if $j = 0$ or MY$+1$. 
-If we set $u_{(j-1)+(i-1)*MY} = v_{ij}$, so that the ODE system is
+or \id{MX}$ + 1$, or if $j = 0$ or \id{MY}$ + 1$. 
+If we set $u_{(j-1)+(i-1)*\id{MY}} = v_{ij}$, so that the ODE system is
 $\dot{u} = f(u)$, then the system Jacobian $J = \partial f / \partial u$ is
 a band matrix with upper and lower half-bandwidths both equal to \id{MY}.
 In the example, we take \id{MX} $= 10$ and \id{MY} $= 5$.
-The source is listed in Appendix B.
+The source is listed in Appendix \ref{s:cvbx_c}.
 
-The \id{cvbx.c} program  (listed in \A\ref{s:cvbx_c}) includes files \id{cvband.h} and
+The \id{cvbx.c} program includes files \id{cvband.h} and
 \id{band.h} in order to use the {\cvband} linear solver. The \id{cvband.h}
 file contains the prototype for the \id{CVBand} routine. The \id{band.h}
 file contains the definition for band matrix type \id{BandMat} and the
@@ -223,26 +226,25 @@ problem constants which include the $x$ and $y$ mesh dimensions, \id{MX} and
 \id{MY}, the number of equations \id{NEQ}, the scalar absolute tolerance
 \id{ATOL}, the initial time \id{T0}, and the initial output time \id{T1}.
 
-Spatial discretization of the partial differential equation naturally
-produces an ODE system in which equations are numbered by mesh
-coordinates $(i,j)$. The user-defined macro \id{IJth} isolates the
-translation for the mathematical two-dimensional index to the
-one-dimensional \id{N\_Vector} index and allows the user to write
-clean, readable code to access components of the dependent variable. 
-The \id{NV\_DATA\_S} macro returns the component array for a given
-\id{N\_Vector}, and this array is passed to \id{IJth} in order to do
-the actual \id{N\_Vector} access.
+Spatial discretization of the PDE naturally produces an ODE system in
+which equations are numbered by mesh coordinates $(i,j)$. The
+user-defined macro \id{IJth} isolates the translation for the
+mathematical two-dimensional index to the one-dimensional
+\id{N\_Vector} index and allows the user to write clean, readable code
+to access components of the dependent variable.  The \id{NV\_DATA\_S}
+macro returns the component array for a given \id{N\_Vector}, and this
+array is passed to \id{IJth} in order to do the actual \id{N\_Vector}
+access.
 
-The type \id{UserData} is a pointer to a structure containing
-problem data that is needed in the \id{f} and \id{Jac} functions.
-This structure is allocated and initialized at the beginning
-of \id{main}. The pointer to this structure, called \id{data},
-is passed to both \id{CVodeSetFData} and \id{CVBandSetJacData},
-and as a result it will be passed back to the \id{f} and \id{Jac}
-functions each time they are called.  (If appropriate, two different
-data structures could be defined and passed to \id{f} and \id{Jac}.)
-The use of the \id{data} pointer eliminates the need for global
-program data.
+The type \id{UserData} is a pointer to a structure containing problem
+data used in the \id{f} and \id{Jac} functions.  This structure is
+allocated and initialized at the beginning of \id{main}. The pointer
+to it, called \id{data}, is passed to both \id{CVodeSetFData} and
+\id{CVBandSetJacData}, and as a result it will be passed back to the
+\id{f} and \id{Jac} functions each time they are called.  (If
+appropriate, two different data structures could be defined and passed
+to \id{f} and \id{Jac}.)  The use of the \id{data} pointer eliminates
+the need for global program data.
 
 The \id{main} program is straightforward.  The \id{CVodeCreate} call
 specifies the \id{CV\_BDF} method with a \id{CV\_NEWTON} iteration. In the
@@ -272,8 +274,8 @@ LU decompositions (\id{nsetups}), \id{f} evaluations for
 difference-quotient Jacobians (\id{nfeB} = 0 here),
 Jacobian evaluations (\id{njeB}), and nonlinear iterations (\id{nni}).
 These optional outputs are described in \S\ref{ss:optional_output}.
-Note that \id{PrintFinalStats} is suitable for general use in connection
-with the use of {\cvode} for any problem with a banded Jacobian.
+Note that \id{PrintFinalStats} is suitable for general use in applications
+of {\cvode} to any problem with a banded Jacobian.
 
 The \id{f} function implements the central difference approximation
 (\ref{eq:cdiff}) with $u$ identically zero on the boundary. 
@@ -288,15 +290,13 @@ combined to form \id{udot}.  Note the extra lines setting out-of-bounds
 values of $u$ to zero.
 
 The \id{Jac} function is an expression of the derivatives
+\vspace*{-.08in}
 \begin{eqnarray*}
 \partial f_{ij} / \partial v_{ij} &=&
          -2 [(\Delta x)^{-2} + (\Delta y)^{-2}] \\
-\partial f_{ij} / \partial v_{i+1,j} &=& (\Delta x)^{-2} 
-                  + .5 (2 \Delta x)^{-1}, ~~~~
-\partial f_{ij} / \partial v_{i-1,j}  =  (\Delta x)^{-2} 
-                  - .5 (2 \Delta x)^{-1} \\
-\partial f_{ij} / \partial v_{i,j+1} &=& (\Delta y)^{-2}, ~~~~
-\partial f_{ij} / \partial v_{i,j-1}  =  (\Delta y)^{-2} ~. 
+\partial f_{ij} / \partial v_{i \pm 1,j} &=& (\Delta x)^{-2} 
+                  \pm .5 (2 \Delta x)^{-1}, ~~~~
+\partial f_{ij} / \partial v_{i,j \pm 1}  =  (\Delta y)^{-2} ~. 
 \end{eqnarray*}
 This function loads the Jacobian by columns, and like \id{f} it
 makes use of the preset coefficients in \id{data}.
@@ -327,111 +327,124 @@ The output generated by \id{cvbx} is shown below.
   fontsize=\small]{../examples_ser/cvbx.out}
 %%
 
-%-----------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
 
 \subsection{A Krylov example: \id{cvkx}}\label{ss:cvkx}
 
-We give here an example that illustrates the use of {\cvode} with the
-Krylov method {\spgmr}, in the {\cvspgmr} module, as the linear system
-solver.
+We give here an example that illustrates the use of {\cvode} with the Krylov
+method {\spgmr}, in the {\cvspgmr} module, as the linear system solver.  
+The source file, \id{cvkx.c}, is listed in Appendix \ref{s:cvkx_c}.
 
-The program listed in \A\ref{s:cvkx_c} solves the semi-discretized form of a pair of
-kinetics-advection-diffusion partial differential equations.  The
-problem is defined on a rectangle, and discretized spatially with
-standard central finite differences on a $10 \times 10$ mesh, giving
-an ODE system of size $200$.
+This program solves the semi-discretized form of a pair of
+kinetics-advection-diffusion partial differential equations,
+corresponding to a simplified ozone transport model.  The problem
+includes nonlinear diurnal kinetics with 2 species, horizontal
+advection and diffusion, and nonuniform vertical diffusion.  The
+spatial domain is a rectangle, and the equations are discretized
+spatially with standard central finite differences on a $10 \times 10$
+mesh, giving an ODE system of size $200$.
 
 Among the initial \id{\#include} lines in this case are lines to
-include \id{iterativ.h}, \id{cvspgmr.h}, and \id{sundialsmath.h}.
-The first two contain constants and function prototypes associated
-with preconditioned Krylov methods, including the values of the
-\id{pretype} argument to \id{CVSpgmr}.  The inclusion
-of \id{sundialsmath.h} is done to access the \id{SQR} macro for the
-square of a \id{realtype} number.
+include \id{cvspgmr.h} and \id{sundialsmath.h}.  The first contains
+constants and function prototypes associated with the {\spgmr} method,
+including the values of the \id{pretype} argument to \id{CVSpgmr}.
+The inclusion of \id{sundialsmath.h} is done to access the \id{SQR}
+macro for the square of a \id{realtype} number.
 
-The \id{main} function calls \id{CVodeCreate} specifying \id{CV\_BDF} and
-\id{CV\_NEWTON}, and \id{CVodeMalloc} with scalar tolerances.  
-%%
-It calls \id{CVSpgmr} specifying the {\cvspgmr} linear solver with left 
-preconditioning and default value (indicated by a zero argument) for 
-\id{maxl}. The Gram-Schmidt orthogonalization is set to \id{MODIFIED\_GS}
-through the function \id{CVSpgmrSetGSType} and
-user-supplied preconditioner setup and solve functions, \id{Precond} and
-\id{PSolve}, are specified through calls to \id{CVSpgmrSetPrecSetupFN}
-and \id{CVSpgmrSetPrecSolveFn}, respectively.
+The \id{main} program calls \id{CVodeCreate} specifying the \id{CV\_BDF} method
+and \id{CV\_NEWTON} iteration, and then calls \id{CVodeMalloc} with scalar
+tolerances.   It calls  \id{CVSpgmr} to specify the {\cvspgmr} linear solver
+with left preconditioning, and the default value (indicated by a zero argument)
+for \id{maxl}.  The Gram-Schmidt orthogonalization is set to \id{MODIFIED\_GS}
+through the function \id{CVSpgmrSetGSType}.  Next, user-supplied preconditioner
+setup and solve functions, \id{Precond} and \id{PSolve}, are specified through
+calls to \id{CVSpgmrSetPrecSetupFn} and \id{CVSpgmrSetPrecSolveFn}, respectively.
 The \id{data} pointer passed to \id{CVSpgmrSetPrecData} is passed to
-\id{Precond} and \id{PSolve} whenever these are called. 
-%%
-See \S\ref{sss:lin_solv_init} and \S\ref{ss:optional_input} in the
-user guide for details on the {\cvspgmr} linear solver.
+\id{Precond} and \id{PSolve} whenever these are called.  See
+\S\ref{sss:lin_solv_init} and \S\ref{ss:optional_input} in the user
+guide for details on these calls.
 
-Then for a sequence of tout values, \id{CVode} is called in the
+Then for a sequence of \id{tout} values, \id{CVode} is called in the
 \id{CV\_NORMAL} mode, sampled output is printed, and the return value is
-tested for error conditions.  Finally, final statistics are printed.  
-These include various counters,
-such as the total number of steps (\id{nst}), \id{f} evaluations
-(\id{nfe}), nonlinear iterations (\id{nni}), and linear iterations
-(\id{nli}), among others.  Also printed are the lengths of the
-problem-dependent real and integer workspaces used by the main
-integrator CVode, denoted \id{lenrw} and \id{leniw}, and those
-used by CVSPGMR, denoted \id{llrw} and \id{lliw}.
+tested for error conditions.  After that, \id{PrintFinalStats} is called
+to get and print final statistics, and memory is freed by calls to
+\id{N\_VDestroy}, \id{FreeUserData}, and \id{CVodeFree}.  The printed
+statistics include various counters, such as the total numbers of steps
+(\id{nst}), of \id{f} evaluations (excluding those for $Jv$ product
+evaluations) (\id{nfe}), of \id{f} evaluations for $Jv$ evaluations (\id{nfel}),
+of nonlinear iterations (\id{nni}), of linear (Krylov) iterations (\id{nli}),
+of preconditioner setups (\id{nsetups}), of preconditioner evaluations
+(\id{npe}), and of preconditioner solves (\id{nps}), among others.  
+Also printed are the lengths of the problem-dependent real and integer
+workspaces used by the main integrator \id{CVode}, denoted \id{lenrw} and
+\id{leniw}, and those used by {\cvspgmr}, denoted \id{llrw} and \id{lliw}.
+All of these optional outputs are described in \S\ref{ss:optional_output}.
+The \id{PrintFinalStats} function is suitable for general use in applications
+of {\cvode} to any problem with the {\spgmr} linear solver.
 
 Mathematically, the dependent variable has three dimensions: species
 number, $x$ mesh point, and $y$ mesh point.  But in {\nvecs}, a vector of
 type \id{N\_Vector} works with a one-dimensional contiguous array of
 data components. The macro \id{IJKth} isolates the translation from
 three dimensions to one. Its use results in clearer code and makes it
-easy to change the underlying layout of the three-dimensional
-data. Here the problem size is $200$, so we use the \id{NV\_DATA\_S}
-macro for efficient \id{N\_Vector} access.  The \id{NV\_DATA\_S} macro
-gives a pointer to the first component of an \id{N\_Vector} which we
-pass to the \id{IJKth} macro to do an \id{N\_Vector} access.
+easy to change the underlying layout of the three-dimensional data. 
+Here the problem size is $200$, so we use the \id{NV\_DATA\_S} macro
+for efficient \id{N\_Vector} access.  The \id{NV\_DATA\_S} macro gives
+a pointer to the first component of an \id{N\_Vector} which we pass to
+the \id{IJKth} macro to do an \id{N\_Vector} access.
 
-The preconditioner is generated and factored in the \id{Precond}
-function and backsolved in the \id{PSolve} function.  
-It is a block-diagonal matrix with $2 \times 2$ blocks that include the
-interaction Jacobian elements and the diagonal contribution of the
-diffusion Jacobian elements.  The block-diagonal part of the Jacobian
-itself, $J_{bd}$, is saved in separate storage each time it is
+The preconditioner used here is the block-diagonal part of the true Newton
+matrix.  It is generated and factored in the \id{Precond} routine and
+backsolved in the \id{PSolve} routine.   Its diagonal blocks are $2 \times 2$
+matrices that include the interaction Jacobian elements and the diagonal
+contribution of the diffusion Jacobian elements.  The block-diagonal part of
+the Jacobian itself, $J_{bd}$, is saved in separate storage each time it is
 generated, on calls to \id{Precond} with \id{jok}\id{ == FALSE}.
 On calls with \id{jok}\id{ == TRUE}, signifying that saved Jacobian data
 can be reused, the preconditioner $P = I - \gamma J_{bd}$ is formed from the
 saved matrix $J_{bd}$ and factored.  (A call to \id{Precond} with
-\id{jok}\id{ == TRUE} can only occur after a call with
-\id{jok}\id{ == FALSE}.) In each case, we set the value of \id{jcur}, i.e.
-\id{*jcurPtr}, to \id{TRUE} when $J_{bd}$ is re-evaluated,
+\id{jok}\id{ == TRUE} can only occur after a prior call with
+\id{jok}\id{ == FALSE}.)  The \id{Precond} routine must also set the value
+of \id{jcur}, i.e. \id{*jcurPtr}, to \id{TRUE} when $J_{bd}$ is re-evaluated,
 and \id{FALSE} otherwise, to inform CVSPGMR of the status of Jacobian data.
+See \S\ref{ss:precondFn} and \S\ref{ss:psolveFn} for detailed descriptions
+of these preconditioner functions.
 
-We need to take a brief detour to explain one last important point about
-the \id{cvkx.c} user program. As documented in \id{dense.h} and \id{band.h},
-the generic {\dense} and {\band} solvers each contain two sets of functions: one
-for large, potentially distributed matrices, and one for small matrices which
-will always reside on a single processor. The ``large'' dense and band
-functions work with the types \id{DenseMat} and \id{BandMat}, respectively.
-The ``small''dense and band functions work with \id{realtype **} as the
-underlying dense and band matrix types. The types \id{DenseMat} and 
-\id{BandMat}, as well as their supporting functions, may be re-implemented
-in order to use this generic {\dense} solver in a distributed-memory
-environment. The {\cvdense} and {\cvband} linear solvers use the types
-\id{DenseMat} and \id{BandMat} for the $N \times N$ dense and band
-Jacobian and Newton matrices, and call the large matrix functions. 
-The small dense and band functions are available for {\cvode} user
-programs, and are documented in \S\ref{ss:dense} and 
-\S\ref{ss:band} of the user guide, respectively.
-In \id{cvkx.c}, each of the blocks of the preconditioner is a 
-$2 \times 2$ dense matrix. Thus the small dense matrix functions
-\id{denalloc}, \id{dencopy}, \id{denscale}, \id{gefa}, \id{gesl}, 
-\id{denaddI}, \id{denfree}, and \id{denfreepiv} are used.
-The macro \id{IJth} defined near the top of the file is used to access 
+We need to take a brief detour to explain one last important aspect of
+the \id{cvkx.c} program.  The generic {\dense} solver contains two
+sets of functions: one for ``large'' matrices and one for ``small''
+matrices.  The large dense functions work with the type \id{DenseMat},
+while the small dense functions work with \id{realtype **} as the
+underlying dense matrix types.  The {\cvdense} linear solver uses the
+type \id{DenseMat} for the $N \times N$ dense Jacobian and Newton
+matrices, and calls the large matrix functions.  But to avoid the
+extra layer of function calls, \id{cvkx.c} uses the small dense
+functions for all operations on the $2 \times 2$ preconditioner blocks.  
+Thus it includes \id{smalldense.h}, and calls the small dense matrix
+functions \id{denalloc}, \id{dencopy}, \id{denscale}, \id{denaddI}, 
+\id{denfree}, \id{denfreepiv}, \id{gefa}, and \id{gesl}.  The macro
+\id{IJth} defined near the top of the file is used to access
 individual elements in each preconditioner block, numbered from $1$.
+The small dense functions are available for {\cvode} user programs
+generally, and are documented in \S\ref{ss:dense}.
+
+In addition to the functions called by {\cvode}, \id{cvkx.c} includes
+definitions of several private functions.  These are: \id{AllocUserData}
+to allocate space for $J_{bd}$, $P$, and the pivot arrays; \id{InitUserData}
+to load problem constants in the \id{data} block; \id{FreeUserData} to free
+that block; \id{SetInitialProfiles} to load the initial values in \id{y}; 
+\id{PrintOutput} to retreive and print selected solution values and
+statistics; \id{PrintFinalStats} to print statistics; and \id{check\_flag}
+to check return values for error conditions.
 
 The output generated by \id{cvkx.c} is shown below.  Note that the
 number of preconditioner evaluations, \id{npe}, is much smaller than
 the number of preconditioner setups, \id{nsetups}, as a result of the
 Jacobian re-use scheme.
+
 %%
-\VerbatimInput[frame=single,framesep=0.1in,label={\tt cvkx} sample output,fontsize=\small]
-{../examples_ser/cvkx.out}
+\VerbatimInput[frame=single,framesep=0.1in,label={\tt cvkx} sample output,
+  fontsize=\small]{../examples_ser/cvkx.out}
 %%
 
-%-----------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
