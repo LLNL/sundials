@@ -92,8 +92,8 @@ v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
 ----------------------------------------------
 
 - Changes to user interface
-   - KINSOL now stores scale vectors through values rather than references.
-   - ...
+   - KINSOL now stores an actual copy of the constraints vector rather than
+     just a pointer
 
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------
