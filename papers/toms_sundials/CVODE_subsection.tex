@@ -280,18 +280,19 @@ of CVODE is given in \cite{HiSe:04cvode}.
 %--------------------------
 There is an important additional part of the CVODE order selection
 algorithm that is not based on local error, but instead provides
-protection against potentially unstable behavior of the BDF methods.
-At order 1 or 2, the BDF method is A-stable.  But at orders 3 to 5 it
-is not, and the region of instability includes a portion of the left
-half-plane that is concentrated near the imaginary axis.  The size of
-that region of instability grows as the order increases from 3 to 5.
-What this means is that when running BDF at these higher orders, if
-an eigenvalue $\lambda$ of the system lies close enough to the
-imaginary axis, the step sizes $h$ for which the method is stable are
-limited (at least according to the linear stability theory) to a set
-that prevents $h\lambda$ from leaving the stability region.  System
-eigenvalues that are likely to cause this instability are ones that
-correspond to weakly damped oscillations, such as might arise from a
+protection against potentially unstable behavior of the BDF
+methods. At order 1 or 2, the BDF method is A-stable.  But at
+orders 3 to 5 it is not, and the region of instability includes a
+portion of the left half-plane that is concentrated near the
+imaginary axis.  The size of that region of instability grows as
+the order increases from 3 to 5. What this means is that when
+running BDF at these higher orders, if an eigenvalue $\lambda$ of
+the system lies close enough to the imaginary axis, the step
+sizes, $h$, for which the method is stable are limited (at least
+according to the linear stability theory) to a set that prevents
+$h\lambda$ from leaving the stability region.  System eigenvalues
+that are likely to cause this instability are ones that correspond
+to weakly damped oscillations, such as might arise from a
 semi-discretized advection-diffusion PDE with advection dominating
 over diffusion.
 
@@ -329,11 +330,12 @@ $t = t_{\mbox{\scriptsize stop}}$.
 
 % Rootfinding
 %------------
-CVODE has been augmented to include a rootfinding feature, whereby the
-roots of a set of user-defined functions $g_i(t,y)$ can be found while
-integrating the initial value problem for $y(t)$.  The algorithm used
-checks for changes in sign in the $g_i$ over each time step, and when
-a sign change is found, it homes in on the root(s) with a weighted
-secant iteration method \cite{HeSh:80}.  (CVODE also checks for exact
-zeros of the $g_i$.)  The iteration stops when the root is bracketed
-within a tolerance that is near the roundoff level of $t$.
+Lastly, CVODE has been augmented to include a rootfinding feature,
+whereby the roots of a set of user-defined functions $g_i(t,y)$
+can be found while integrating the initial value problem for
+$y(t)$.  The algorithm uses checks for changes in sign in the
+$g_i$ over each time step, and when a sign change is found, it
+homes in on the root(s) with a weighted secant iteration method
+\cite{HeSh:80}. (CVODE also checks for exact zeros of the $g_i$.)
+The iteration stops when the root is bracketed within a tolerance
+that is near the roundoff level of $t$.
