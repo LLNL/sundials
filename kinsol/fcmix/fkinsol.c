@@ -2,7 +2,7 @@
  * File          : fkinsol.c                                      *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                             *
- * Version of    : 27 June 2002                                   *
+ * Version of    : 30 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the KINSOL package. See fkinsol.h for usage.                   *
@@ -14,16 +14,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h" /* definitions of types realtype and integertype     */
-#include "nvector.h"       /* definitions of type N_Vector and related routines */
-#include "kinsol.h"        /* KINSOL constants and prototypes                   */
-#include "kinspgmr.h"      /* prototypes of KINSPGMR interface routines         */
-#include "fcmixpar.h"      /* global F2C_machEnv variable                       */
-#include "fkinsol.h"       /* prototypes of interfaces, global variables        */
+#include "sundialstypes.h" /* definitions of types realtype and integertype   */
+#include "nvector.h"       /* def's of type N_Vector and related routines     */
+#include "kinsol.h"        /* KINSOL constants and prototypes                 */
+#include "kinspgmr.h"      /* prototypes of KINSPGMR interface routines       */
+#include "fcmixpar.h"      /* global F2C_machEnv variable                     */
+#include "fkinsol.h"       /* prototypes of interfaces, global variables      */
 
 /**************************************************************************/
 
-/* Prototypes of the Fortran routines */
+/* Prototype of the user-supplied Fortran routine */
 void K_FUN(integertype*, realtype*, realtype*);
 
 /**************************************************************************/
@@ -46,7 +46,7 @@ void F_KINMALLOC(integertype *neq, integertype *ier)
 
 /***************************************************************************/
 
-void F_KINSPGMR00( int *maxl, int *maxlrst, int *msbpre)
+void F_KINSPGMR00(int *maxl, int *maxlrst, int *msbpre, int *ier)
 {
   /* Call KINSpgmr to specify the SPGMR linear solver:
 
@@ -54,15 +54,15 @@ void F_KINSPGMR00( int *maxl, int *maxlrst, int *msbpre)
 
      KIN_kmem is the pointer to the KINSOL memory block
      *maxl       is the maximum Krylov dimension
-     *maxlrst    is the max number of lin solver restarts
+     *maxlrst    is the max number of linear solver restarts
      *msbpre     is the max number of steps calling the preconditioning solver
-                  w/o calling the preconditioner setup routine
+                  without calling the preconditioner setup routine
      NULL        is a pointer to the preconditioner setup interface routine
      NULL        is a pointer to the preconditioner solve interface routine
      NULL        is a pointer to the user ATimes interface routine     
      NULL        is a pointer to the P_data memory structure  */
 
-  KINSpgmr (KIN_kmem, *maxl, *maxlrst, *msbpre, NULL, NULL, NULL, NULL);
+  *ier = KINSpgmr (KIN_kmem, *maxl, *maxlrst, *msbpre, NULL, NULL, NULL, NULL);
 }
 
 /***************************************************************************/
@@ -129,8 +129,9 @@ void F_KINFREE()
 
 /* C function KINfunc acts as an interface between KINSol and the Fortran 
    user-supplied subroutine KFUN.
-   Addresses of Neq, uu and fval are passed to KFUN, using the
-   routine N_VGetData from the NVECTOR module.
+   Addresses of Neq and the data for uu and fval are passed to KFUN,
+   using the routine N_VGetData from the NVECTOR module.
+   The data in the returned N_Vector fval is set using N_VSetData. 
    Auxiliary data is assumed to be communicated by Common. */
 
 void KINfunc(integertype Neq, N_Vector uu, N_Vector fval, void *f_data)

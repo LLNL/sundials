@@ -3,7 +3,7 @@
  * File          : fkinsol.h                                       *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                              *
- * Version of    : 27 June 2002                                    *
+ * Version of    : 30 July 2002                                    *
  *-----------------------------------------------------------------*
  *  This is the header file for the FKINSOL Interface Package      *
  *  See below for usage details                                    *
@@ -14,8 +14,8 @@
 
                   FKINSOL Interface Package
 
- The FKINSOL Interface Package is a package of C functions which support
- the use of the KINSOL solver for the solution of nonlinear systems f(u)=0, 
+ The FKINSOL Interface Package is a package of C functions which support the
+ use of the KINSOL solver for the solution of nonlinear systems f(u) = 0, 
  in a mixed Fortran/C setting.  While KINSOL is written in C, it is assumed 
  here that the user's calling program and user-supplied problem-defining 
  routines are written in Fortran. This package provides the necessary interface
@@ -68,6 +68,10 @@
  given user-callable interface routine, or of a given user-supplied
  function called by an interface function, can be found in the
  documentation on the corresponding function in the KINSOL package.
+
+ The number labels on the instructions below end with s for instructions
+ that apply to the serial version of CVODE only, and end with p for
+ those that apply to the parallel version only.
 
 
  (1) User-supplied system routine: KFUN
@@ -129,38 +133,37 @@
  (4.1) SPGMR treatment of the linear systems.
  For the Scaled Preconditioned GMRES solution of the linear systems,
  the user must make one of the following six setup calls:
-      CALL FKINSPGMR00(MAXL, MAXLRST, MSBPRE)
-         if no preconditioning or user-supplied ATimes routine is to be used;
+      CALL FKINSPGMR00(MAXL, MAXLRST, MSBPRE, IER)
+         if no preconditioning or user-supplied FATIMES routine is to be used;
 
  There are five additional routines that can be called instead of FKINSPGMR00 
- for the cases where preconditioning or user-supplied atimes routines are to be
- specified. Their arguments and call are documented here, but they are to be
- found in files like fkinspgmr01.c
+ for the cases where preconditioning or user-supplied FATIMES routines are to be
+ specified. Their arguments and call lists are documented here, and they are to
+ be found in files fkinspgmr01.c etc.
 
-      CALL FKINSPGMR01(MAXL, MAXLRST, MSBPRE)  if no preconditioning
-          but a user-supplied atimes routine
+      CALL FKINSPGMR01(MAXL, MAXLRST, MSBPRE, IER)  if no preconditioning
+          but a user-supplied FATIMES routine
                                                        
-      CALL FKINSPGMR10(MAXL, MAXLRST, MSBPRE)   if preconditioning is
-         used but no preconditioning setup routine. also, no atimes routine.
+      CALL FKINSPGMR10(MAXL, MAXLRST, MSBPRE, IER)  if preconditioning is used
+          but there is no preconditioning setup routine and no FATIMES routine
 
-      CALL FKINSPGMR11(MAXL, MAXLRST, MSBPRE)  if preconditioning is used but
-         no preconditioning setup routine. A user-supplied atimes routine IS
-         supplied (FATIMES).
+      CALL FKINSPGMR11(MAXL, MAXLRST, MSBPRE, IER)  if preconditioning is used
+          but no precond. setup routine, and a FATIMES routine IS supplied
 
-      CALL FKINSPGMR20(MAXL, MAXLRST, MSBPRE)  if preconditioning is used and
-         a preconditioning setup routine IS used. No user-supplied atimes
-         routine.
+      CALL FKINSPGMR20(MAXL, MAXLRST, MSBPRE, IER)  if preconditioning is used,
+          with a user-supplied precond. setup routine, but no FATIMES routine
 
-      CALL FKINSPGMR21(MAXL, MAXLRST, MSBPRE)  if preconditioning is use dand
-         a precondiioning setup routine IS used. A user-supplied atimes routine
-         is supplied as well.
+      CALL FKINSPGMR21(MAXL, MAXLRST, MSBPRE, IER)  if preconditioning is used,
+          with a user-supplied precond. setup routine and a FATIMES routine
 
- The arguments are:
+ In all of the above routines, the arguments are as follows:
  MAXL     = maximum Krylov subspace dimension; 0 indicates default.
  MAXLRST  = maximum number of linear system restarts; 0 indicates default.
  MSBPRE   = maximum number of preconditioning solve calls without calling the
             preconditioning setup routine; 0 indicates default; applies only
             for FKINSPGMR20 and FKINSPGMR21.
+ IER      = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
+            See printed message for details in case of failure.
 
  In the four cases FKINSPGMR10, FKINSPGMR11, FKINSPGMR20, and FKINSPGMR21,
  the user program must include the following routine for solution of the 
@@ -196,47 +199,74 @@
  On return, set IER = 0 if KPRECO was successful, set IER positive if an error 
  occurred.
 
-
  (5) The solver: FKINSOL
- Carrying out the solving of the nonlinear system is accomplished by making 
- calls as follows:
+ Solving the nonlinear system is accomplished by making the following call:
       CALL FKINSOL (NEQ, UU, GLOBALSTRAT, USCALE, FSCALE, FNORMTOL,
-      SCSTEPTOL, CONSTRAINTS, OPTIN, IOPT,ROPT, IER)
+                    SCSTEPTOL, CONSTRAINTS, INOPT, IOPT, ROPT, IER)
  The arguments are:
  NEQ         = (INTEGER) number of equations (unknowns) in the nonlinear system
- UU          = array containing the initial guess when called, returns 
-               the solution
- GLOBALSTRAT = (INTEGER)a number defining the global strategy choice:
-               0 = InexactNewton, 1 = LineSearch .
+ UU          = array containing the initial guess on input, and the solution
+               on return
+ GLOBALSTRAT = (INTEGER) a number defining the global strategy choice:
+               0 = InexactNewton, 1 = LineSearch
  USCALE      = array of scaling factors for the UU vector
  FSCALE      = array of scaling factors for the FVAL (function) vector
- FNORMTOL    = tolerance on the norm of f(u) to accept convergence.
+ FNORMTOL    = tolerance on the norm of f(u) to accept convergence
  SCSTEPTOL   = tolerance on minimum scaled step size
- CONSTRAINTS = array of constraint values, by element of the solution UU
- OPTIN       = integer used as a flag to indicate whether possible input values
+ CONSTRAINTS = array of constraint values, on components of the solution UU
+ INOPT       = integer used as a flag to indicate whether possible input values
                in IOPT are to be used for input: 0 = NO, 1 = YES.
  IOPT        = array for integer optional inputs and outputs
                (declare as INTEGER*4 or INTEGER*8 according to C type long int)
  ROPT        = array of real optional inputs and outputs
- IER         = INTEGER error flag as returned by KINSOL . See KINSOL documentation
-               for further information.
+ IER         = INTEGER error flag as returned by KINSOL: 1 means success,
+               2 means initial guess satisfies f(u) = 0 (approx.),
+               3 means apparent stalling (small step),
+               a value < 0 or > 3 means other error or failure.
+               See KINSOL documentation for detailed information.
 
  (6) Memory freeing: FKINFREE and FMENVFREES / FMENVFREEP
- To the free the internal memory created by the calls to FMENVINITS
- or FMENVINITP and FKINMALLOC, make the following calls, in this order:
+ To the free the internal memory created by the calls to FKINMALLOC and
+ either FMENVINITS or FMENVINITP, make the following calls, in this order:
       CALL FKINFREE
-      CALL FMENVFREES or CALL FMENVFREEP
+      CALL FMENVFREES (serial case) or CALL FMENVFREEP (parallel case)
 
- * * * - - - * * * - - - * * * - - - * * * - - - * * * - - - * * * - - - * * *
- Informational output:
-     Some of the optional outputs are NFE, NNI, NLI, NPS, NCFL, NPE, stored 
-     in the array iopt at NFE+1, NNI+1, SPGMR_NLI+1, SPGMR_NPS+1, SPGMR_NPE+1, 
-     SPGMR_NPS+1, SPGMR_NCFL+1, respectively. (See the KINSOL and KINSPGMR header
-     files for descriptions and information on other outputs. The +1 on each
-     index is due to the differences in labeling arrays between C and Fortran.)
+ (7) Optional inputs and outputs: IOPT/ROPT
 
+ The optional inputs available by way of IOPT and ROPT have the following
+ names, locations, and descriptions.  For further details see the KINSOL
+ documentation.  A zero value results in the default.
 
-*************************************************************************************/
+ PRINTFL =         IOPT(1) = optional output print flag
+ MXITER  =         IOPT(2) = maximum Newton iterations
+ PRECOND_NO_INIT = IOPT(3) = flag to suppress initial preconditioner setup call
+ ETACHOICE =       IOPT(8) = choice of forcing term (1 = Choice 1, 2 = Choice 2,
+                             3 = constant)
+ NO_MIN_EPS =      IOPT(9) = flag to suppress minimum tolerance (eps)
+ MXNEWTSTEP = ROPT(1) = max size of Newton step
+ RELFUNC =    ROPT(2) = relative error in computing f(u)
+ RELU =       ROTP(3) = control on relative change in components of u per step
+ ETACONST = ROPT(6), ETAGAMMA = ROPT(7), ETAALPHA = ROPT(8): constants in
+            optional choices of forcing terms.
+
+ The optional outputs available by way of IOPT and ROPT have the following
+ names, locations, and descriptions.  For further details see the KINSOL
+ documentation.
+ 
+ NNI  =   IOPT(4) = number of Newton iterations
+ NFE  =   IOPT(5) = number of f evaluations
+ NBCF =   IOPT(6) = number of Linesearch beta condition failures
+ NBKTRK = IOPT(7) = number of Linesearch backtracks
+ FNORM =  ROPT(4) = final scaled norm of f(u)
+ STEPL =  ROPT(5) = scaled last step length
+
+The following optional outputs are specific to the SPGMR module:
+ NLI  = IOPT(11) = number of linear (Krylov) iterations
+ NPE  = IOPT(12) = number of preconditioner evaluations
+ NPS  = IOPT(13) = number of preconditioner solves
+ NCFL = IOPT(14) = number of linear convergence failures
+
+*******************************************************************************/
 
 #ifndef _fkinsol_h
 #define _fkinsol_h
@@ -244,7 +274,7 @@
 #include "fcmixpar.h"
 
 
-/* generic names are translated through the define statements below for a
+/* Generic names are translated through the define statements below for a
   specific platform/compiler */
 
 #if (CRAY)
@@ -300,23 +330,23 @@
 
 #endif
 
+
 /* KINSOL header files  */
 
 #include "sundialstypes.h" /* definitions of types realtype and integertype */
 #include "kinsol.h"        /* definition of type SysFn                      */
 #include "nvector.h"       /* definition of type N_Vector, machEnvType      */
 
+
 /* Prototypes: Functions called by the solver */
 
 void KINfunc(integertype Neq, N_Vector uu, N_Vector fval, void *f_data);
-
 
 int KINPreco(integertype Neq, N_Vector uu, N_Vector uscale, 
              N_Vector fval, N_Vector fscale,
              N_Vector vtemp1, N_Vector vtemp2,
              SysFn func, realtype u_round,
              long int *nfePtr, void *P_data);
-
 
 int KINPSol(integertype Neq, N_Vector uu, N_Vector uscale, 
             N_Vector fval, N_Vector fscale,
@@ -326,6 +356,7 @@ int KINPSol(integertype Neq, N_Vector uu, N_Vector uscale,
 
 int KINUAtimes(void *f_data, N_Vector v, N_Vector z, booleantype *new_uu,
                N_Vector uu);
+
 
 /* Declarations for global variables, shared among various routines */
 
