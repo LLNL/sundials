@@ -1,12 +1,16 @@
-%%===================================================================================
+%%==============================================================================
 \chapter{Using CVODE}\label{s:simulation}
-%%===================================================================================
+%%==============================================================================
 
-This section is concerned with the use of {\cvode} for the integration of IVPs.
-The following subsections treat the header files, the layout of the user's main
-program, description of the {\cvode} user-callable functions, and user-supplied functions. 
-The listings of the sample programs in the companion document \cite{cvode2.1_ex} may also be helpful. 
-Those codes are intended to serve as templates and are included in the {\cvode} package.
+This chapter is concerned with the use of {\cvode} for the integration
+of IVPs.  The following sections treat the header files, the layout of
+the user's main program, description of the {\cvode} user-callable
+functions, and user-supplied functions.  The final section describes
+the Fortran/C interface module, which supports users with applications
+written in Fortran77.  The listings of the sample programs in the
+companion document \cite{cvode2.1_ex} may also be helpful.  Those
+codes are intended to serve as templates and are included in the
+{\cvode} package.
 
 The user should be aware that not all linear solver modules are compatible 
 with all {\nvector} implementations. 
@@ -17,8 +21,41 @@ The following {\cvode} modules can only be used with {\nvecs}:
 {\cvdense}, {\cvband}, and {\cvbandpre}. The preconditioner module {\cvbbdpre}
 can only be used with {\nvecp}. 
 
+%%==============================================================================
+\section{Access to library and header files}\label{ss:file_access}
+%%==============================================================================
+
+At this point, it is assumed that the installation of {\cvode},
+following the procedure described in Chapter \ref{s:install}, has
+been completed successfully.
+
+Regardless of where the user's application program resides, its
+associated compilation and load commands must make reference to the
+appropriate locations for the library and header files required by
+{\cvode}.  In terms of the directory {\em build\_tree} defined in
+Chapter \ref{s:install}, the relevant library files are
+\begin{itemize}
+\item {\em build\_tree}\id{/lib/libcvode.a},
+\item {\em build\_tree}\id{/lib/libfcvode.a},
+\item {\em build\_tree}\id{/lib/libshared.a}, and
+\item {\em build\_tree}\id{/lib/lib*nvec*.a} (up to four files)
+\end{itemize}
+All relevant header files are all located in
+\begin{itemize}
+\item {\em build\_tree}\id{/include}
+\end{itemize}
+
+For an application that contains both a {\cvode} problem (IVP) and a
+{\cvodes} problem (IVP with sensitivity analysis), \index{CVODES}
+references to the library files must be made carefully, because both
+of the associated solver library files contain a user-callable
+function called \Id{CVode}, although the version in {\cvodes} is fully
+compatible with that in {\cvode}.  In this case, the loader command
+must reference {\em build\_tree}\id{/lib/libcvodes.a}, and not 
+{\em build\_tree}\id{/lib/libcvode.a}.
+
 %%===================================================================================
-\section{Data Types}\label{s:types}
+\section{Data types}\label{s:types}
 %%===================================================================================
 \input{types}
 
@@ -40,7 +77,7 @@ which defines the types \id{realtype} and \id{booleantype}
 and the constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file
-(see \S\ref{s:nvector} for details).
+(see Chapter \ref{s:nvector} for details).
 For the two {\nvector} implementations that are included in the {\cvode} package,
 the corresponding header files are:
 %%
@@ -221,7 +258,7 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
   {\bf Get optional outputs}
 
   Call \id{CV*Get*} functions to obtain optional output.
-  See \S\ref{ss:optional_output} for details.
+  See \S\ref{ss:optional_output} and \S\ref{ss:root_uc} for details.
 
 \item
   {\bf Deallocate memory for solution vector}
@@ -394,7 +431,7 @@ as documented below. The first argument passed to these functions is the {\cvode
 memory pointer returned by \id{CVodeCreate}.  A call to one of these
 functions links the main {\cvode} integrator to a linear solver and
 allows the user to specify parameters which are specific to a
-particular solver, such as the bandwidths in the {\cvband} case.
+particular solver, such as the half-bandwidths in the {\cvband} case.
 %%
 The use of each of the linear solvers involves certain constants and possibly 
 some macros, that are likely to be needed in the user code.  These are
@@ -407,7 +444,7 @@ In each case except the diagonal approximation case {\cvdiag}, the linear
 solver module used by {\cvode} is actually built on top of a generic
 linear system solver, which may be of interest in itself.  These
 generic solvers, denoted {\dense}, {\band}, and {\spgmr}, are described
-separately in \S\ref{s:gen_linsolv}.
+separately in Chapter \ref{s:gen_linsolv}.
 \index{CVODE@{\cvode} linear solvers!built on generic solvers|)}
 %%
 %%
@@ -657,7 +694,9 @@ of the IVP.
     \id{CVode} succeeded by reaching the stopping point specified through
     the optional input function \id{CVodeSetStopTime} (see \S\ref{ss:optional_input}).
   \item[\ID{ROOT\_RETURN}]
-    \id{CVode} succeeded and found one or more roots. 
+    \id{CVode} succeeded and found one or more roots.  If \id{nrtfn}
+     $>1$, call \id{CVodeGetRootInfo} to see which $g_i$ were found to
+     have a root 
     See \S\ref{s:using_rootfinding} for more information.
   \item[\ID{CVODE\_NO\_MEM}]
     The \id{cvode\_mem} argument was \id{NULL}.
@@ -667,12 +706,12 @@ of the IVP.
     One of the inputs to \id{CVode} is illegal. This includes the situation where
     a root of one of the root functions was found both at $t_0$ and very near $t_0$.
     It also includes the situation 
-    where a component of the error weight vectors becomes negative during internal 
+    where a component of the error weight vector becomes negative during internal 
     time-stepping. The \id{ILL\_INPUT} flag will also be returned if the linear 
     solver function initialization (called by the user after calling 
     \id{CVodeCreate}) failed to set one of the linear solver-related fields 
     in \id{cvode\_mem} or if the linear solver's initialization function failed. 
-    In any case, the user should see the printed error message for more details.
+    In any case, the user should see the printed error message for details.
   \item[\ID{TOO\_MUCH\_WORK}] 
     The solver took \id{mxstep} internal steps but could not reach tout. 
     The default value for \id{mxstep} is \id{MXSTEP\_DEFAULT = 500}.
@@ -3734,16 +3773,17 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
   Newton iteration. 
 }
 
-%%===================================================================================
+%%==============================================================================
 %%
 \section{Rootfinding}\label{s:using_rootfinding}
 %%
-%%===================================================================================
+%%==============================================================================
 
-While integrating the IVP, {\cvode} has the capability of finding the roots of a set 
-of user-defined functions. This section describes the user-callable functions used
-to initialize and define the root finding problem, as well as the required additional 
-user-supplied functions.
+While integrating the IVP, {\cvode} has the capability of finding the
+roots of a set of user-defined functions. This section describes the
+user-callable functions used to initialize and define the rootfinding
+problem and obtain solution information, and it also describes the
+required additional user-supplied function.
 
 \subsection{User-callable functions for rootfinding}\label{ss:root_uc}
 %%
@@ -3752,13 +3792,13 @@ user-supplied functions.
   flag = CVodeRootInit(cvode\_mem, g, nrtfn);
 }
 {
-  The function \ID{CVodeRootInit} specifies that roots of a set of
+  The function \ID{CVodeRootInit} specifies that the roots of a set of
   functions $g_i(t,y)$ are to be found while the IVP is being solved.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
+    pointer to the {\cvode} memory block returned by \id{CVodeCreate}.
   \item[g] (\id{RootFn})
     is the {\C} function which defines the \id{nrtfn} functions $g_i(t,y)$
     whose roots are sought. See \S\ref{ss:root_us} for details.
@@ -3779,8 +3819,8 @@ user-supplied functions.
 }
 {
   If a new IVP is to be solved with a call to \id{CVodeReInit}, where the new
-  IVP has no rootfinding problem but the prior one did, then call \id{CVodeRootInit}
-  with \id{nrtfn}$=0$.
+  IVP has no rootfinding problem but the prior one did, then call
+  \id{CVodeRootInit} with \id{nrtfn}$=0$.
 }
 %%
 %%
@@ -3832,7 +3872,7 @@ There are two optional output functions associated with rootfinding.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[rootsfound] (\id{int *})
-    pointer to an array of \id{int} of length \id{nrtfn}, showing the
+    an array of \id{int}s of length \id{nrtfn}, showing the
     indices of the user functions $g_i$ found to have a root. 
     For $i=0,\ldots,$\id{nrtfn}$-1$, \id{rootsfound}[$i$]$=1$ if $g_i$
     has a root, and $=0$ if not.
@@ -3855,7 +3895,7 @@ There are two optional output functions associated with rootfinding.
   flag = CVodeGetNumGEvals(cvode\_mem, \&ngevals);
 }
 {
-  The function \ID{CVodeGetNumGEvals} returns the 
+  The function \ID{CVodeGetNumGEvals} returns the cumulative
   number of calls to the user root function $g$.
 }
 {
@@ -3863,7 +3903,7 @@ There are two optional output functions associated with rootfinding.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[ngevals] (\id{long int})
-    number of calls to the user's \id{g} function.
+    number of calls to the user's function \id{g} so far.
   \end{args}
 }
 {
@@ -3901,7 +3941,7 @@ the user must supply a {\C} function of type \id{RootFn}, defined as follows:
   \item[gout]
     is the output array, of length \id{nrtfn}, with components $g_i(t,y)$.
   \item[g\_data]
-    is a pointer to user data - the same as the \Id{g\_data}      
+    is a pointer to user data --- the same as the \Id{g\_data}      
     parameter passed to \id{CVodeSetGdata}.   
   \end{args}
 }
@@ -4456,7 +4496,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item \label{i:bbdpre_init}
   {\bf Initialize the {\cvbbdpre} preconditioner module}
 
-  Specify the upper and lower bandwidths \id{mudq}, \id{mldq} and
+  Specify the upper and lower half-bandwidths \id{mudq}, \id{mldq} and
   \id{mukeep}, \id{mlkeep} and call 
 
    \id{
@@ -4906,7 +4946,7 @@ which are mapped to actual values by a series of definitions in the
 header files \id{fcvode.h} and \id{fcvbbd.h}.  
 Those mapping definitions depend in turn on a pair of parameters, 
 \Id{SUNDIALS\_UNDERSCORE\_NONE} and \Id{SUNDIALS\_UNDERSCORE\_TWO} 
-which can be set when configuring {\sundials} (see \S\ref{s:install}).
+which can be set when configuring {\sundials} (see Chapter \ref{s:install}).
 The names into which the dummy names are mapped have one, two, or no underscore
 appended, depending on these parameters.
 
@@ -4914,11 +4954,11 @@ The user must also ensure that variables in the user {F} code are
 declared in a manner consistent with their counterparts in {\cvode}.
 All real variables must be declared as \id{REAL} or \id{DOUBLE PRECISION},
 depending on whether {\cvode} was built in single or double precision 
-(see \S\ref{s:install}). Moreover, some of the {\F} integer variables
+(see Chapter \ref{s:install}). Moreover, some of the {\F} integer variables
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-{\C} type \id{long int}. This integer variables are: the array
+{\C} type \id{long int}. These integer variables are: the array
 of integer optional inputs and outputs (\id{IOPT}), problem dimensions (\id{NEQ},
-\id{NLOCAL}, \id{NGLOBAL}), and Jacobian bandwidths (\id{MU}, \id{ML},
+\id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU}, \id{ML},
 \id{MUDQ}, and \id{MLDQ}). This is particularly important when using
 {\cvode} and the {\fcvode} package on 64-bit architectures.
 
@@ -5146,7 +5186,7 @@ apply to {\nvecp}.
     \end{args}
   }
   {
-    \id{IER} is a return completion flag.  Values are $0$ for successful return and 
+    ~~\id{IER} is a return completion flag.  Values are $0$ for successful return and 
     $-1$ otherwise. See printed message for details in case of failure.
   }
   {
@@ -5231,8 +5271,8 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVBAND (NEQ, MU, ML, IER)
 \end{verbatim}
-  The arguments are: \id{MU}, the upper bandwidth; \id{ML}, 
-  the lower bandwidth; and \id{IER} an error return flag which can be  
+  The arguments are: \id{MU}, the upper half-bandwidth; \id{ML}, 
+  the lower half-bandwidth; and \id{IER} an error return flag which can be  
   $0$ for success , $-1$ if a memory allocation failure occurred, or $-2$ 
   in case an input has an illegal value.     
   
@@ -5473,14 +5513,25 @@ apply to {\nvecp}.
 The {\fcvroot} interface package allows programs written in {\F} to
 use the rootfinding feature of the {\cvode} solver module.
 %%
-The user-callable functions constituting the {\fcvroot}, with the corresponding
+The user-callable functions in {\fcvroot}, with the corresponding
 {\cvode} functions, are as follows: 
 \begin{itemize}
   \item \id{FCVROOTINIT} interfaces to \id{CVodeRootInit}.
   \item \id{FCVROOTFREE} interfaces to \id{CVodeRootInit}.
 \end{itemize}
 %%
-In order to use the rootfinding feature of the {\cvode} package the user must
+In order to use the rootfinding feature of {\cvode}, the following
+call must be made, after calling \id{FCVMALLOC} but prior to calling
+\id{FCVODE}, to allocate and initialize memory for the \id{FCVROOT} module:
+\begin{verbatim}
+      CALL FCVROOTINIT (NRTFN, IER)
+\end{verbatim}
+The arguments are as follows:
+\id{NRTFN} is the number of root functions.
+\id{IER} is a return completion flag. Its values are $0$ for success, $-1$ 
+if the \id{CVODE} memory was \id{NULL}, and $-2$ if a memory allocation failed.
+
+To specifiy the functions whose roots are to be found, the user must
 define the following routine:
 \begin{verbatim}
       SUBROUTINE FCVROOTFN (T, Y, G)
@@ -5489,30 +5540,21 @@ define the following routine:
 It must set the \id{G} array, of length \id{NRTFN}, with components $g_i(t,y)$,
 as a function of \id{T}$=t$ and the array \id{Y}$=y$.  
 
-After calling \id{FCVMALLOC} but prior to calling \id{FCVODE}, the user must
-allocate and initialize memory for the \id{FCVROOT} module by making the
-following call:
-\begin{verbatim}
-      CALL FCVROOTINIT (NRTFN, IER)
-\end{verbatim}
-The arguments are as follows.
-\id{NRTFN} is the number of root functions.
-\id{IER} is a return completion flag. Values are $0$ for success, $-1$ if the
-\id{cvode} memory was \id{NULL} and $-2$ if a memory allocation failed.
 
-The total number of calls made to the root function \id{FCVROOTFN}, \id{NGE},
-can be obtained from \id{IOPT(25)}.
+The total number of calls made to the root function \id{FCVROOTFN},
+denoted \id{NGE}, can be obtained from \id{IOPT(25)}.
 %%
-If the {\fcvode}/{\cvode} memory block is reinitialized to solve a different
-problem via a call to \id{FCVREINIT}, then the counter variable \id{NGE} is 
-reset to zero.
+If the {\fcvode}/{\cvode} memory block is reinitialized to solve a
+different problem via a call to \id{FCVREINIT}, then the counter
+\id{NGE} is reset to zero.
 
 To free the memory resources allocated by a prior call to \id{FCVROOTINIT} make
 the following call:
 \begin{verbatim}
       CALL FCVROOTFREE
 \end{verbatim}
-See \S\ref{s:using_rootfinding} for additional information.
+See \S\ref{s:using_rootfinding} for additional information on the
+rootfinding feature.
 \index{FCVODE@{\fcvode} interface module!rootfinding|)}
 %%
 %%------------------------------------------------------------------------------
