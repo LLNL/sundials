@@ -1,10 +1,10 @@
 /**************************************************************************
  * File       : cvdemd.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL   *
- * Version of : 11 July 2003                                              *
+ * Version of : 19 February 2004                                          *
  *------------------------------------------------------------------------*
  *                                                                        *
- * Demonstration program for CVODES - direct linear solvers. Two          *
+ * Demonstration program for CVODE/CVODES - direct linear solvers. Two    *
  * separate problems are solved using both the ADAMS and BDF linear       *
  * multistep methods in combination with FUNCTIONAL and NEWTON            *
  * iterations :                                                           *
@@ -24,10 +24,10 @@
  * quotient approximation, (3) diagonal approximation.                    *
  *                                                                        *
  * For each problem, in the series of eight runs, CVodeMalloc is called   *
- * only once, for the first run, whereas CVodeReInit is called for each of*
- * the remaining seven runs.                                              *
+ * only once, for the first run, whereas CVodeReInit is called for each   *
+ * of the remaining seven runs.                                           *
  *                                                                        *
- * Notes.. This program demonstrates the usage of the sequential CVODES   *
+ * Notes.. This program demonstrates the usage of the sequential          *
  * macros NV_Ith_S, NV_DATA_S, DENSE_ELEM, BAND_COL, and BAND_COL_ELEM.   *
  * The NV_Ith_S macro is used to reference the components of an N_Vector. *
  * It works for any size N=NEQ, but due to efficiency concerns it should  *
@@ -51,8 +51,8 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definition for realtype                      */
-#include "cvodes.h"         /* main CVODE header file                       */
+#include "sundialstypes.h"  /* definitions for realtype,                    */
+#include "cvodes.h"         /* main integrator header file                  */
 #include "cvdense.h"        /* use CVDENSE linear solver each internal step */
 #include "cvband.h"         /* use CVBAND linear solver each internal step  */
 #include "cvdiag.h"         /* use CVDIAG linear solver each internal step  */
@@ -107,7 +107,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, long int mu,
                           long int ml);
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero);
 
-/* Functions Called by the CVODE Solver */
+/* Functions Called by the Solver */
 
 static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
@@ -156,10 +156,9 @@ static int Problem1(void)
 
   nvSpec = NV_SpecInit_Serial(P1_NEQ);
   if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-         
+
   y = N_VNew(nvSpec);
   if(check_flag((void *)y, "N_VNew", 0)) return(1);
-
   PrintIntro1();
 
   /* ADAMS formula */
@@ -186,7 +185,7 @@ static int Problem1(void)
       
     flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);
     if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
-      
+
     printf("\n     t           x              xdot         qu     hu \n");
       
     for(iout=1, tout=P1_T1; iout <= P1_NOUT; iout++, tout += P1_DTOUT) {
@@ -239,9 +238,9 @@ static int Problem1(void)
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);
+    flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);     
     if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
-      
+
     printf("\n     t           x              xdot         qu     hu \n");
       
     for(iout=1, tout=P1_T1; iout <= P1_NOUT; iout++, tout += P1_DTOUT) {
@@ -270,8 +269,8 @@ static int Problem1(void)
     PrintFinalStats(cvode_mem, miter, ero);
   }
 
-  N_VFree(y);
   CVodeFree(cvode_mem);
+  N_VFree(y);
   NV_SpecFree_Serial(nvSpec);
 
   return(nerr);
@@ -279,7 +278,7 @@ static int Problem1(void)
 
 static void PrintIntro1(void)
 {
-  printf("Demonstration program for CVODE package - direct linear solvers\n");
+  printf("Demonstration program for CVODE/CVODES package - direct linear solvers\n");
   printf("\n\n");
   
   printf("Problem 1.. Van der Pol oscillator..\n");
@@ -317,11 +316,11 @@ static int Problem2(void)
 {
   NV_Spec nvSpec;
   realtype reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
-  int lmm, miter, flag, temp_flag, iout, nerr=0;
+  int lmm, miter, flag, temp_flag, nerr=0;
   N_Vector y;
   void *cvode_mem;
   booleantype firstrun;
-  int qu;
+  int qu, iout;
   realtype hu;
 
   nvSpec = NULL;
@@ -330,7 +329,7 @@ static int Problem2(void)
 
   nvSpec = NV_SpecInit_Serial(P2_NEQ);
   if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
- 
+
   y = N_VNew(nvSpec);
   if(check_flag((void *)y, "N_VNew", 0)) return(1);
 
@@ -361,7 +360,7 @@ static int Problem2(void)
       
     flag = PrepareNextRun(cvode_mem, lmm, miter, P2_MU, P2_ML);
     if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
-      
+
     printf("\n      t        max.err      qu     hu \n");
       
     for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
@@ -412,10 +411,10 @@ static int Problem2(void)
       flag = CVodeReInit(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
-      
+
     flag = PrepareNextRun(cvode_mem, lmm, miter, P2_MU, P2_ML);
     if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
-      
+
     printf("\n      t        max.err      qu     hu \n");
       
     for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
@@ -442,8 +441,8 @@ static int Problem2(void)
     PrintFinalStats(cvode_mem, miter, ero);
   }
 
-  N_VFree(y);
   CVodeFree(cvode_mem);
+  N_VFree(y);
   NV_SpecFree_Serial(nvSpec);
 
   return(nerr);
@@ -598,16 +597,14 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
       break;    
     }
   }
-	
-  return(flag);  
+
+  return(flag);
 }
 
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
 {
-  long int lenrw, leniw;
-  long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int lenrwL, leniwL;
-  long int nje, nfeL;
+  long int lenrw, leniw, nst, nfe, nsetups, nni, ncfn, netf;
+  long int lenrwL, leniwL, nje, nfeL;
   int flag;
 
   flag = CVodeGetIntWorkSpace(cvode_mem, &leniw);
@@ -677,7 +674,8 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
     printf(" Number of f-s evaluations                = %4ld \n\n", nfeL);
   }
   
-  printf(" Error overrun = %.3f \n", ero); 
+  printf(" Error overrun = %.3f \n", ero);
+  
 }
 
 /* Check function return value...

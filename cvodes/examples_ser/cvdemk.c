@@ -1,9 +1,9 @@
 /*************************************************************************
  * File       : cvdemk.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL  *
- * Version of : 14 July 2003                                             *
+ * Version of : 19 February 2004                                         *
  *-----------------------------------------------------------------------*
- * Demonstration program for CVODES - Krylov linear solver.              *
+ * Demonstration program for CVODE/CVODES - Krylov linear solver.        *
  * ODE system from ns-species interaction PDE in 2 dimensions.           *
  *                                                                       *
  * This program solves a stiff ODE system that arises from a system      *
@@ -44,8 +44,8 @@
  * The PDEs are discretized by central differencing on an MX by MY mesh. *
  * The resulting ODE system is stiff.                                    *
  *                                                                       *
- * The ODE system is solved by CVODES using Newton iteration and the     *
- * CVSPGMR linear solver (scaled preconditioned GMRES).                  *
+ * The ODE system is solved using Newton iteration and the CVSPGMR       *
+ * linear solver (scaled preconditioned GMRES).                          *
  *                                                                       *
  * The preconditioner matrix used is the product of two matrices:        * 
  * (1) A matrix, only defined implicitly, based on a fixed number of     *
@@ -65,8 +65,8 @@
  * A problem description, performance statistics at selected output      *
  * times, and final statistics are written to standard output.           *
  * On the first run, solution values are also printed at output times.   *
- * CVODE error and warning messages are written to standard error, but   *
- * there should be no such messages.                                     *
+ * Error and warning messages are written to standard error, but there   *
+ * should be no such messages.                                           *
  *                                                                       *
  * Note.. This program requires the "small" dense linear solver routines *
  * denalloc, denallocpiv, denaddI, gefa, gesl, denfreepiv and denfree.   *
@@ -85,14 +85,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"   /* definitions for realtype and booleantype       */
-#include "cvodes.h"          /* main CVODE header file                         */
-#include "iterative.h"       /* for types of preconditioning and Gram-Schmidt  */
-#include "cvspgmr.h"         /* use CVSPGMR linear solver each internal step   */
-#include "smalldense.h"      /* use generic DENSE linear solver for "small"    */
-                             /* dense matrix blocks in right preconditioner    */
-#include "nvector_serial.h"  /* contains the definition of type N_Vector       */
-#include "sundialsmath.h"    /* contains RSqrt, SQR functions                  */
+#include "sundialstypes.h"   /* definitions for realtype,                     */
+                             /*  booleantype                                  */
+#include "cvodes.h"          /* main integrator header file                   */
+#include "iterative.h"       /* for types of preconditioning and Gram-Schmidt */
+#include "cvspgmr.h"         /* use CVSPGMR linear solver each internal step  */
+#include "smalldense.h"      /* use generic DENSE linear solver for "small"   */
+                             /* dense matrix blocks in right preconditioner   */
+#include "nvector_serial.h"  /* contains the definition of type N_Vector      */
+#include "sundialsmath.h"    /* contains RSqrt, SQR functions                 */
 
 /* Problem Specification Constants */
 
@@ -155,7 +156,8 @@
 typedef struct {
   realtype   **P[NGRP];
   long int *pivot[NGRP];
-  int ns,  mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
+  int ns, mxns;
+  int mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
   realtype acoef[NS][NS], bcoef[NS], diff[NS];
@@ -189,7 +191,7 @@ static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[],
 static void v_prod(realtype u[], realtype v[], realtype w[], int n);
 static void v_zero(realtype u[], int n);
 
-/* Functions Called By The CVODE Solver */
+/* Functions Called By The Solver */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
@@ -206,7 +208,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
 /* Private function to check function return values */
 
 static int check_flag(void *flagvalue, char *funcname, int opt);
-     
+
 /* Implementation */
 
 int main()
@@ -217,7 +219,8 @@ int main()
   WebData wdata;
   void *cvode_mem;
   booleantype firstrun;
-  int jpre, gstype, iout, flag, ns, mxns;
+  int jpre, gstype, flag;
+  int ns, mxns, iout;
 
   nvSpec = NULL;
   c = NULL;
@@ -256,65 +259,65 @@ int main()
       firstrun = (jpre == LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
         cvode_mem = CVodeCreate(LMM, ITER);
-	if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+        if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
         wdata->cvode_mem = cvode_mem;
 
         flag = CVodeSetErrFile(cvode_mem, ERRFP);
-	if(check_flag(&flag, "CVodeSetErrFile", 1)) return(1);
+        if(check_flag(&flag, "CVodeSetErrFile", 1)) return(1);
 
         flag = CVodeSetFdata(cvode_mem, wdata);
-	if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+        if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
         flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol, nvSpec);
-	if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+        if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
         flag = CVSpgmr(cvode_mem, jpre, MAXL);
-	if(check_flag(&flag, "CVSpgmr", 1)) return(1);
+        if(check_flag(&flag, "CVSpgmr", 1)) return(1);
 
         flag = CVSpgmrSetGSType(cvode_mem, gstype);
-	if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
+        if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
 
         flag = CVSpgmrSetDelt(cvode_mem, DELT);
-	if(check_flag(&flag, "CVSpgmrSetDelt", 1)) return(1);
+        if(check_flag(&flag, "CVSpgmrSetDelt", 1)) return(1);
 
         flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
-	if(check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1)) return(1);
+        if(check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1)) return(1);
 
         flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
-	if(check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1)) return(1);
+        if(check_flag(&flag, "CVSpgmrSetPrecSolvFn", 1)) return(1);
 
         flag = CVSpgmrSetPrecData(cvode_mem, wdata);
-	if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
+        if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
 
       } else {
 
         flag = CVodeReInit(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
-	if(check_flag(&flag, "CVodeReInit", 1)) return(1);
+        if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
         flag = CVSpgmrResetPrecType(cvode_mem, jpre);
-	check_flag(&flag, "CVSpgmrResetPrecType", 1);
-
+        check_flag(&flag, "CVSpgmrResetPrecType", 1);
         flag = CVSpgmrSetGSType(cvode_mem, gstype);
-	if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
-      }
+        if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
 
+      }
+      
       /* Print initial values */
       if (firstrun) PrintAllSpecies(c, ns, mxns, T0);
-
+      
       /* Loop over output points, call CVode, print sample solution values. */
       tout = T1;
       for (iout = 1; iout <= NOUT; iout++) {
         flag = CVode(cvode_mem, tout, c, &t, NORMAL);
-	check_flag(&flag, "CVode", 1);
         PrintOutput(cvode_mem, t);
         if (firstrun && (iout % 3 == 0)) PrintAllSpecies(c, ns, mxns, t);
-        if (flag != SUCCESS) break;
+        if(check_flag(&flag, "CVode", 1)) break;
         if (tout > 0.9) tout += DTOUT; else tout *= TOUT_MULT; 
       }
       
       /* Print final statistics, and loop for next case */
       PrintFinalStats(cvode_mem);
+      
     }
   }
 
@@ -329,9 +332,10 @@ int main()
 
 static WebData AllocUserData(void)
 {
-  int i, ngrp = NGRP, ns = NS;
+  int i, ngrp = NGRP;
+  int ns = NS;
   WebData wdata;
-
+  
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
     (wdata->P)[i] = denalloc(ns);
@@ -345,14 +349,14 @@ static void InitUserData(WebData wdata)
   int i, j, ns;
   realtype *bcoef, *diff, *cox, *coy, dx, dy;
   realtype (*acoef)[NS];
-
+  
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
   diff = wdata->diff;
   cox = wdata->cox;
   coy = wdata->coy;
   ns = wdata->ns = NS;
-
+  
   for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = 0.; }
   for (j = 0; j < NP; j++) {
     for (i = 0; i < NP; i++) {
@@ -406,7 +410,7 @@ static void InitUserData(WebData wdata)
 static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
 {
   int ig, j, len1, mper, ngm1;
-  
+
   mper = m/ng; /* does integer division */
   for (ig=0; ig < ng; ig++) jg[ig] = ig*mper;
   jg[ng] = m;
@@ -423,9 +427,9 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
 /* This routine computes and loads the vector of initial values. */
 static void CInit(N_Vector c, WebData wdata)
 {
-  int i, ici, ioff, iyoff, jx, jy, ns, mxns;
+  int jx, jy, ns, mxns, ioff, iyoff, i, ici;
   realtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
-
+  
   cdata = NV_DATA_S(c);
   ns = wdata->ns;
   mxns = wdata->mxns;
@@ -452,7 +456,7 @@ static void CInit(N_Vector c, WebData wdata)
 
 static void PrintIntro(void)
 {
-  printf("\n\nDemonstration program for CVODE - CVSPGMR linear solver\n\n");
+  printf("\n\nDemonstration program for CVODE/CVODES - CVSPGMR linear solver\n\n");
   printf("Food web problem with ns species, ns = %d\n", NS);
   printf("Predator-prey interaction and diffusion on a 2-D square\n\n");
   printf("Matrix parameters.. a = %.2g   e = %.2g   g = %.2g\n",
@@ -479,9 +483,9 @@ static void PrintIntro(void)
 
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
 {
-  int i, jx, jy;
+  int i, jx ,jy;
   realtype *cdata;
-
+  
   cdata = NV_DATA_S(c);
   printf("c values at t = %g:\n\n", t);
   for (i=1; i <= ns; i++) {
@@ -525,7 +529,7 @@ static void PrintFinalStats(void *cvode_mem)
   long int nli, npe, nps, ncfl, nfeSPGMR;
   int flag;
   realtype avdim;
-
+  
   flag = CVodeGetIntWorkSpace(cvode_mem, &leniw);
   check_flag(&flag, "CVodeGetIntWorkSpace", 1);
   flag = CVodeGetRealWorkSpace(cvode_mem, &lenrw);
@@ -586,13 +590,12 @@ static void PrintFinalStats(void *cvode_mem)
 static void FreeUserData(WebData wdata)
 {
   int i, ngrp;
-  
+
   ngrp = wdata->ngrp;
   for(i=0; i < ngrp; i++) {
     denfree((wdata->P)[i]);
     denfreepiv((wdata->pivot)[i]);
   }
-
   free(wdata);
 }
 
@@ -603,7 +606,7 @@ static void FreeUserData(WebData wdata)
 */
 static void f(realtype t, N_Vector c, N_Vector cdot,void *f_data)
 {
-  int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
+  int i, ic, ici, idxl, idxu, jx, ns, mxns, iyoff, jy, idyu, idyl;
   realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
   realtype *cdata, *cdotdata;
   WebData wdata;
@@ -660,18 +663,18 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
   int i, j, ns;
   realtype fac, *bcoef;
   realtype (*acoef)[NS];
-
+  
   ns = wdata->ns;
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
-
+  
   for (i = 0; i < ns; i++)
     rate[i] = 0.0;
-
+  
   for (j = 0; j < ns; j++) 
     for (i = 0; i < ns; i++) 
       rate[i] += c[j] * acoef[i][j];
-
+  
   fac = 1.0 + ALPH*x*y;
   for (i = 0; i < ns; i++) 
     rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
@@ -759,15 +762,15 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
       }
     }
   }
-
+  
   /* Add identity matrix and do LU decompositions on blocks. */
-
+  
   for (ig = 0; ig < ngrp; ig++) {
     denaddI(P[ig], mp);
     ier = gefa(P[ig], mp, pivot[ig]);
     if (ier != 0) return(1);
   }
-
+  
   *jcurPtr = TRUE;
   return(0);
 }
@@ -854,7 +857,8 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
 */
 static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
 {
-  int i, ic, iter, iyoff, jx, jy, ns, mxns, mx, my, x_loc, y_loc;
+  int jx, jy, mx, my, x_loc, y_loc;
+  int ns, mxns, i, iyoff, ic, iter;
   realtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
   realtype temp, *cox, *coy, *xd, *zd;
   
@@ -1014,10 +1018,11 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
         }
       }
     }
-
+    
     /* Add increment x to z : z <- z+x */
-
+    
     N_VLinearSum(1.0, z, 1.0, x, z);
+    
   }
 }
 

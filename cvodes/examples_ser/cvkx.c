@@ -1,7 +1,7 @@
 /************************************************************************
  * File: cvkx.c                                                         *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
- * Version of : 10 July 2003                                            *
+ * Version of : 19 February 2004                                        *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -19,18 +19,18 @@
  *   0 <= t <= 86400 sec (1 day).                                       *
  * The PDE system is treated by central differences on a uniform        *
  * 10 x 10 mesh, with simple polynomial initial profiles.               *
- * The problem is solved with CVODE, with the BDF/GMRES method (i.e.    *
- * using the CVSPGMR linear solver) and the block-diagonal part of the  *
- * Newton matrix as a left preconditioner. A copy of the block-diagonal *
- * part of the Jacobian is saved and conditionally reused within the    *
- * Precond routine.                                                     *
+ * The problem is solved with CVODE/CVODES, with the BDF/GMRES method   *
+ * (i.e. using the CVSPGMR linear solver) and the block-diagonal part   *
+ * of the Newton matrix as a left preconditioner. A copy of the         *
+ * block-diagonal part of the Jacobian is saved and conditionally       *
+ * reused within the Precond routine.                                   *
  ************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definition of realtype                        */
-#include "cvodes.h"         /* main CVODE header file                         */
+#include "sundialstypes.h"  /* definitions of realtype,                       */
+#include "cvodes.h"         /* main solver header file                        */
 #include "iterative.h"      /* contains the enum for types of preconditioning */
 #include "cvspgmr.h"        /* use CVSPGMR linear solver each internal step   */
 #include "smalldense.h"     /* use generic DENSE solver for preconditioning   */
@@ -118,7 +118,7 @@ static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
 static void PrintOutput(void *cvode_mem, N_Vector y, realtype t);
 static void PrintFinalStats(void *cvode_mem);
 
-/* Functions Called by the CVODE Solver */
+/* Functions Called by the Solver */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
@@ -166,42 +166,37 @@ int main()
   abstol=ATOL; 
   reltol=RTOL;
 
-  /* Call CvodeCreate to create CVODES memory 
+  /* Call CvodeCreate to create the solver memory 
 
      BDF     specifies the Backward Differentiation Formula
      NEWTON  specifies a Newton iteration
 
-     A pointer to CVODES problem memory is returned and stored in cvode_mem. */
-
+     A pointer to the integrator memory is returned and stored in cvode_mem. */
   cvode_mem = CVodeCreate(BDF, NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Set the pointer to user-defined data */
-
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  /* Call CVodeMalloc to initialize CVODES memory: 
+  /* Call CVodeMalloc to initialize the integrator memory: 
 
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      y       is the initial dependent variable vector
      SS      specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances      */
-
   flag = CVodeMalloc(cvode_mem, f, T0, y, SS, &reltol, &abstol, nvSpec);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
-  /* Call CVSpgmr to specify the CVODES linear solver CVSPGMR 
+  /* Call CVSpgmr to specify the linear solver CVSPGMR 
      with left preconditioning and the maximum Krylov dimension maxl */
-
   flag = CVSpgmr(cvode_mem, LEFT, 0);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
 
   /* Set modified Gram-Schmidt orthogonalization, preconditioner 
      setup and solve routines Precond and PSolve, and the pointer 
      to the user-defined block data */
-
   flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
   if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
 
@@ -215,13 +210,11 @@ int main()
   if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
 
   /* In loop over output points, call CVode, print results, test for error */
-
   printf(" \n2-species diurnal advection-diffusion problem\n\n");
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
     flag = CVode(cvode_mem, tout, y, &t, NORMAL);
-    check_flag(&flag, "CVode", 1);
     PrintOutput(cvode_mem, y, t);
-    if (flag != SUCCESS) break;
+    if(check_flag(&flag, "CVode", 1)) break;
   }
 
   PrintFinalStats(cvode_mem);
@@ -393,7 +386,7 @@ static void PrintFinalStats(void *cvode_mem)
   printf("ncfn    = %5ld     ncfl  = %5ld\n\n", ncfn, ncfl);
 }
 
-/***************** Functions Called by the CVODE Solver ******************/
+/***************** Functions Called by the Solver ******************/
 
 /* f routine. Compute f(t,y). */
 
@@ -483,6 +476,7 @@ static void f(realtype t, N_Vector y,N_Vector ydot, void *f_data)
       IJKth(dydata, 2, jx, jz) = vertd2 + hord2 + horad2 + rkin2;
     }
   }
+
 }
 
 /* Preconditioner setup routine. Generate and preprocess P. */
@@ -551,17 +545,17 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy,
     }
     
     *jcurPtr = TRUE;
- 
+    
   }
   
   /* Scale by -gamma */
-
+  
   for (jz=0; jz < MZ; jz++)
     for (jx=0; jx < MX; jx++)
       denscale(-gamma, P[jx][jz], NUM_SPECIES);
-
+  
   /* Add identity matrix and do LU decompositions on blocks in place. */
-
+  
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
       denaddI(P[jx][jz], NUM_SPECIES);
@@ -569,7 +563,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy,
       if (ier != 0) return(1);
     }
   }
-
+  
   return(0);
 }
 

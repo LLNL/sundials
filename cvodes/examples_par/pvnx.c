@@ -2,12 +2,12 @@
  * File       : pvnx.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George Byrne, and    *
  *              Radu Serban @LLNL                                       *
- * Version of : 11 July 2003                                            *
+ * Version of : 19 February 2004                                        *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
- * solution by CVODE.  The problem is the semi-discrete form of the     *
- * advection-diffusion equation in 1-D:                                 *
+ * solution by CVODE/CVODES.  The problem is the semi-discrete form of  *
+ * the advection-diffusion equation in 1-D:                             *
  *   du/dt = d^2 u / dx^2 + .5 du/dx                                    *
  * on the interval 0 <= x <= 2, and the time interval 0 <= t <= 5.      *
  * Homogeneous Dirichlet boundary conditions are posed, and the         *
@@ -30,10 +30,10 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* CVODE header files with a description of contents used here */
+/* Header files with a description of contents used here */
 
-#include "sundialstypes.h"     /* definition of realtype                      */
-#include "cvodes.h"           /* prototypes for CVodeMalloc, CVode, and       */
+#include "sundialstypes.h"     /* definitions of realtype,                    */
+#include "cvodes.h"            /* prototypes for CVodeMalloc, CVode, and      */
                                /* CVodeFree, constants OPT_SIZE, FUNCTIONAL,  */
                                /* ADAMS, SS, SUCCESS, NST,NFE, NNI, NCFN,NETF */
 #include "nvector_parallel.h"  /* definitions of type N_Vector and vector     */
@@ -56,7 +56,7 @@
 
 typedef struct {
   realtype dx, hdcoef, hacoef;
-  long int npes, my_pe;
+  int npes, my_pe;
   MPI_Comm comm;
   realtype z[100];
 } *UserData;
@@ -68,7 +68,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length,
 
 static void PrintFinalStats(void *cvode_mem);
 
-/* Functions Called by the CVODE Solver */
+/* Functions Called by the Solver */
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
   void *cvode_mem;
   int iout, flag, my_pe, npes;
   long int local_N, nperpe, nrem, my_base, nst;
+
   MPI_Comm comm;
 
   nvSpec = NULL;
@@ -132,12 +133,12 @@ int main(int argc, char *argv[])
   SetIC(u, dx, local_N, my_base);  /* Initialize u vector */
 
   /* 
-     Call CVodeCreate to create CVODES memory:
+     Call CVodeCreate to create the solver memory:
      
      ADAMS   specifies the Adams Method
      FUNCTIONAL  specifies functional iteration
 
-     A pointer to CVODES problem memory is returned and stored in cvode_mem.
+     A pointer to the integrator memory is returned and stored in cvode_mem.
   */
 
   cvode_mem = CVodeCreate(ADAMS, FUNCTIONAL);
@@ -147,9 +148,9 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* 
-     Call CVodeMalloc to initialize CVODES memory: 
+     Call CVodeMalloc to initialize the integrator memory: 
 
-     cvode_mem is the pointer to CVODES memory returned by CVodeCreate
+     cvode_mem is the pointer to the integrator memory returned by CVodeCreate
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      u       is the initial dependent variable vector
@@ -186,7 +187,7 @@ int main(int argc, char *argv[])
     PrintFinalStats(cvode_mem);     /* Print some final statistics   */
 
   N_VFree(u);                  /* Free the u vector */
-  CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
+  CVodeFree(cvode_mem);        /* Free the integrator memory */
   free(data);                  /* Free user data */
   NV_SpecFree_Parallel(nvSpec);
 
@@ -219,14 +220,13 @@ static void SetIC(N_Vector u, realtype dx, long int my_length,
   }  
 }
 
-
 /* Print some final statistics located in the iopt array */
 
 static void PrintFinalStats(void *cvode_mem)
 {
   long int nst, nfe, nni, ncfn, netf;
   int flag;
-
+  
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1, 0);
   flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
@@ -243,7 +243,7 @@ static void PrintFinalStats(void *cvode_mem)
   printf("nni = %-6ld  ncfn = %-6ld  netf = %ld\n \n", nni, ncfn, netf);
 }
 
-/***************** Function Called by the CVODE Solver ******************/
+/***************** Function Called by the Solver ***********************/
 
 /* f routine. Compute f(t,u). */
 
