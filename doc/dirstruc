@@ -1,13 +1,11 @@
-Proposed directory structure for PVODE Trio
--------------------------------------------
+Proposed directory structure for SUNDIALS (a.k.a. PVODE Trio)
+-------------------------------------------------------------
 Written 1 December 2000 - Alan
 Modified 27 November 2001 - Alan
 Modified 15 January 2002 - Radu
 Modified 24 January 2002 - Alan
 Modified 7 February 2002 - Alan
-
-
-Current directory structure
+Modified 21 February 2002 - Alan
 
 
 Overall structure:
@@ -75,8 +73,8 @@ lib/
 cvode/ subdirectories for CVODE/PVODE:
 
 doc/
-    cvreadme, cvaddenda
-    pvreadme, pvaddenda
+    cvreadme, cvudoc.tex, overview.ps, cvstruct.ps, bandmat.ps, cvaddenda
+    pvreadme, pvudoc.tex, pvorg.ps, pvaddenda
     stald.doc
 
 include/
@@ -175,7 +173,7 @@ fcmix/
 kinsol/ subdirectories for KINSOL:
 
 doc/
-    kinreadme, kinaddenda
+    kinreadme, kinudoc.tex, kinorg.ps, kinaddenda
 
 include/
     kinsol.h
@@ -250,7 +248,7 @@ fcmix/
 ida/ subdirectories for IDA:
 
 doc/
-    idareadme, idaaddenda
+    idareadme, idaudoc.tex, idaorg.ps, idaaddenda
 
 include/
     ida.h
@@ -346,3 +344,6 @@ Makefile, for installation of packages.
 create tar-files for each individual solver package requested.  At
 present, these are to be executed in the directory above /sundials/.
 
+8) Each solver doc/ subdirectory is to contain, as a minimum, a readme
+summary file, the .tex source file for the solver document, and the
+.ps file for any figures in that document.
