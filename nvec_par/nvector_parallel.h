@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-07-22 22:21:59 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-12 20:09:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -82,6 +82,7 @@ extern "C" {
 struct _N_VectorContent_Parallel {
   long int local_length;         /* local vector length         */
   long int global_length;        /* global vector length        */
+  booleantype own_data;          /* ownership of data           */
   realtype   *data;              /* local data array            */
   MPI_Comm comm;                 /* pointer to MPI communicator */
 };
@@ -108,7 +109,9 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
  *     The assignment v_cont = NV_CONTENT_P(v) sets v_cont to be 
  *     a pointer to the parallel N_Vector content structure.
  *
- * (2) NV_DATA_P, NV_LOCLENGTH_P, NV_GLOBLENGTH_P               
+ * (2) NV_DATA_P, NV_OWN_DATA_P, 
+ *     NV_LOCLENGTH_P, NV_GLOBLENGTH_P,
+ *     NV_COMM_P
  *                                                              
  *     These routines give individual access to the parts of    
  *     the content of a parallel N_Vector.                      
@@ -154,91 +157,121 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
 
 #define NV_GLOBLENGTH_P(v) ( NV_CONTENT_P(v)->global_length )
 
+#define NV_OWN_DATA_P(v)   ( NV_CONTENT_P(v)->own_data )
+
 #define NV_DATA_P(v)       ( NV_CONTENT_P(v)->data )
 
 #define NV_COMM_P(v)       ( NV_CONTENT_P(v)->comm )
 
 #define NV_Ith_P(v,i)      ( NV_DATA_P(v)[i] )
+
 /*
  * -----------------------------------------------------------------
  * PART III: 
  * Functions exported by nvector_parallel
+ * 
+ * CONSTRUCTORS:
+ *    N_VNew_Parallel
+ *    N_VNewEmpty_Parallel
+ *    N_VClone_Parallel
+ *    N_VCloneEmpty_Parallel
+ *    N_VMake_Parallel
+ *    N_VNewVectorArray_Parallel
+ *    N_VNewVectorArrayEmpty_Parallel
+ * DESTRUCTORS:
+ *    N_VDestroy_Parallel
+ *    N_VDestroyVectorArray_Parallel
+ *
  * -----------------------------------------------------------------
  */
 
-/*
+/* -----------------------------------------------------------------
  * N_VNew_Parallel
  * 
  * This function creates and allocates memory for a parallel vector.
+ * It sets own_data=TRUE.
  */
-
 N_Vector N_VNew_Parallel(MPI_Comm comm, 
                          long int local_length,
                          long int global_length);
 
-/*
+/* -----------------------------------------------------------------
  * N_VNewEmpty_Parallel
  *
  * This function creates a new parallel N_Vector with an empty (NULL)
  * data array.
+ * It sets own_data=FALSE.
  */
-
 N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, 
                               long int local_length,
                               long int global_length);
 
-/*
+/* -----------------------------------------------------------------
+ * N_VCloneEmpty_Parallel
+ *
+ * This function creates a new parallel N_Vector with an empty (NULL)
+ * data array using the vector w as a template
+ * It sets own_data=FALSE.
+ */
+N_Vector N_VCloneEmpty_Parallel(N_Vector w);
+
+/* -----------------------------------------------------------------
  * N_VMake_Parallel
  * 
  * This function creates and allocates memory for a parallel vector
  * with user-provided data array.
+ * It sets own_data=FALSE.
  */
-
 N_Vector N_VMake_Parallel(MPI_Comm comm, 
                           long int local_length,
                           long int global_length,
                           realtype *v_data);
 
-/*
+/* -----------------------------------------------------------------
  * N_VNewVectorArray_Parallel
  *
  * This function creates an array of 'count' parallel vectors.
- * This array of N_Vectors can be freed with N_VDestroyVectorArray
- * (defined by the generic nvector module)
  */
-
 N_Vector *N_VNewVectorArray_Parallel(int count, 
                                      MPI_Comm comm, 
                                      long int local_length,
                                      long int global_length);
 
-/*
- * N_VDispose_Parallel
+/* -----------------------------------------------------------------
+ * N_VNewVectorArrayEmpty_Parallel
  *
- * This function frees an N_Vector created with N_VMake_Parallel.
- * Note that deallocation of the 'data' array is the user's
- * responsibility. In other words, N_VDispose_Parallel is identitical
- * to N_VDestroyEmpty_Parallel.
+ * This function creates an array of 'count' parallel vectors each 
+ * with an empty (NULL) data array.
+ * 
  */
+N_Vector *N_VNewVectorArrayEmpty_Parallel(int count, 
+                                          MPI_Comm comm, 
+                                          long int local_length,
+                                          long int global_length);
 
-void N_VDispose_Parallel(N_Vector v);
+/* -----------------------------------------------------------------
+ * N_VDestroyVectorArray_Parallel
+ *
+ * This function frees an array of N_Vector created with 
+ * N_VNewVectorArray_Parallel.
+ */
+void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count);
 
-/*
+/* -----------------------------------------------------------------
  * N_VPrint_Parallel
  * 
  * This function prints the content of a parallel vector to stdout.
  */
-
 void N_VPrint_Parallel(N_Vector v);
 
 /*
+ * -----------------------------------------------------------------
  * Parallel implementations of the vector operations
+ * -----------------------------------------------------------------
  */
 
 N_Vector N_VClone_Parallel(N_Vector w);
 void N_VDestroy_Parallel(N_Vector v);
-N_Vector N_VCloneEmpty_Parallel(N_Vector w);
-void N_VDestroyEmpty_Parallel(N_Vector v);
 void N_VSpace_Parallel(N_Vector v, long int *lrw, long int *liw);
 realtype *N_VGetArrayPointer_Parallel(N_Vector v);
 void N_VSetArrayPointer_Parallel(realtype *v_data, N_Vector v);

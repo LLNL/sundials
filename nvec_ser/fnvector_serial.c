@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-07-22 21:12:43 $
+ * $Revision: 1.6 $
+ * $Date: 2004-10-12 20:09:17 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban, LLNL
  * -----------------------------------------------------------------
@@ -28,7 +28,7 @@ N_Vector F2C_vec;
 
 void FNV_INITS(long int *neq, int *ier)
 {
- F2C_vec = N_VNewEmpty_Serial(*neq);
+ F2C_vec = N_VNew_Serial(*neq);
 
  *ier = (F2C_vec == NULL) ? -1 : 0 ;
 }
@@ -36,6 +36,6 @@ void FNV_INITS(long int *neq, int *ier)
 
 void FNV_FREES()
 {
-  N_VDestroyEmpty_Serial(F2C_vec);
+  N_VDestroy_Serial(F2C_vec);
 }
 

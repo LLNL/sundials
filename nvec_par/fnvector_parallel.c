@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-07-22 21:12:20 $
+ * $Revision: 1.6 $
+ * $Date: 2004-10-12 20:09:46 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban, LLNL
  * -----------------------------------------------------------------
@@ -37,7 +37,7 @@ void FNV_INITP(long int *nlocal, long int *nglobal, int *ier)
      *nlocal  is the local vector length
      *nglobal is the global vector length */
 
-  F2C_vec = N_VNewEmpty_Parallel(MPI_COMM_WORLD, *nlocal, *nglobal);
+  F2C_vec = N_VNew_Parallel(MPI_COMM_WORLD, *nlocal, *nglobal);
 
  *ier = (F2C_vec == NULL) ? -1 : 0 ;
 }
@@ -45,6 +45,6 @@ void FNV_INITP(long int *nlocal, long int *nglobal, int *ier)
 
 void FNV_FREEP()
 {
-  N_VDestroyEmpty_Parallel(F2C_vec);
+  N_VDestroy_Parallel(F2C_vec);
 }
 

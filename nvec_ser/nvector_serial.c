@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-08-17 18:44:38 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-12 20:09:17 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -56,7 +56,9 @@ static void VScaleBy_Serial(realtype a, N_Vector x);
  * -----------------------------------------------------------------
  */
 
-/* Function to create a new empty serial vector */
+/* ----------------------------------------------------------------------------
+ * Function to create a new empty serial vector 
+ */
 
 N_Vector N_VNewEmpty_Serial(long int length)
 {
@@ -74,8 +76,6 @@ N_Vector N_VNewEmpty_Serial(long int length)
 
   ops->nvclone           = N_VClone_Serial;
   ops->nvdestroy         = N_VDestroy_Serial;
-  ops->nvcloneempty      = N_VCloneEmpty_Serial;
-  ops->nvdestroyempty    = N_VDestroyEmpty_Serial;
   ops->nvspace           = N_VSpace_Serial;
   ops->nvgetarraypointer = N_VGetArrayPointer_Serial;
   ops->nvsetarraypointer = N_VSetArrayPointer_Serial;
@@ -104,6 +104,7 @@ N_Vector N_VNewEmpty_Serial(long int length)
   if (content == NULL) {free(ops);free(v);return(NULL);}
 
   content->length = length;
+  content->own_data = FALSE;
   content->data = NULL;
 
   /* Attach content and ops */
@@ -113,7 +114,9 @@ N_Vector N_VNewEmpty_Serial(long int length)
   return(v);
 }
 
-/* Function to create a new serial vector */
+/* ----------------------------------------------------------------------------
+ * Function to create a new serial vector 
+ */
 
 N_Vector N_VNew_Serial(long int length)
 {
@@ -128,9 +131,10 @@ N_Vector N_VNew_Serial(long int length)
 
     /* Allocate memory */
     data = (realtype *) malloc(length * sizeof(realtype));
-    if(data == NULL) {N_VDestroyEmpty_Serial(v);return(NULL);}
+    if(data == NULL) {N_VDestroy_Serial(v);return(NULL);}
 
     /* Attach data */
+    NV_OWN_DATA_S(v) = TRUE;
     NV_DATA_S(v) = data;
 
   }
@@ -138,73 +142,8 @@ N_Vector N_VNew_Serial(long int length)
   return(v);
 }
 
-/* Function to create a serial N_Vector with user data component */
-
-N_Vector N_VMake_Serial(long int length, realtype *v_data)
-{
-  N_Vector v;
-
-  v = N_VNewEmpty_Serial(length);
-  if (v == NULL) return(NULL);
-
-  if (length > 0) {
-    /* Attach data */
-    NV_DATA_S(v) = v_data;
-  }
-
-  return(v);
-}
-
-/* Function to create an array of new serial vectors. */
-
-N_Vector *N_VNewVectorArray_Serial(int count, long int length)
-{
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j=0; j<count; j++) {
-    vs[j] = N_VNew_Serial(length);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
-}
-
-/* Function to free an N_Vector created with N_VMake_Serial */
-
-void N_VDispose_Serial(N_Vector v)
-{
-  N_VDestroyEmpty_Serial(v);
-}
-
-/* Function to print the a serial vector */
- 
-void N_VPrint_Serial(N_Vector x)
-{
-  long int i, N;
-  realtype *xd;
-
-  N  = NV_LENGTH_S(x);
-  xd = NV_DATA_S(x);
-
-  for (i=0; i < N; i++) printf("%11.8g\n", *xd++);
-
-  printf("\n");
-}
-
-
-/*
- * -----------------------------------------------------------------
- * Implementation of vector operations
- * -----------------------------------------------------------------
+/* ----------------------------------------------------------------------------
+ * Function to clone from a template a new vector with empty (NULL) data array
  */
 
 N_Vector N_VCloneEmpty_Serial(N_Vector w)
@@ -225,8 +164,6 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
   
   ops->nvclone           = w->ops->nvclone;
   ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroyempty    = w->ops->nvdestroyempty;
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
@@ -255,6 +192,7 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
   if (content == NULL) {free(ops);free(v);return(NULL);}
 
   content->length = NV_LENGTH_S(w);
+  content->own_data = FALSE;
   content->data = NULL;
 
   /* Attach content and ops */
@@ -263,6 +201,117 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
 
   return(v);
 }
+
+/* ----------------------------------------------------------------------------
+ * Function to create a serial N_Vector with user data component 
+ */
+
+N_Vector N_VMake_Serial(long int length, realtype *v_data)
+{
+  N_Vector v;
+
+  v = N_VNewEmpty_Serial(length);
+  if (v == NULL) return(NULL);
+
+  if (length > 0) {
+    /* Attach data */
+    NV_OWN_DATA_S(v) = FALSE;
+    NV_DATA_S(v) = v_data;
+  }
+
+  return(v);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to create an array of new serial vectors. 
+ */
+
+N_Vector *N_VNewVectorArray_Serial(int count, long int length)
+{
+  N_Vector *vs;
+  int j;
+
+  if (count <= 0) return(NULL);
+
+  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  for (j=0; j<count; j++) {
+    vs[j] = N_VNew_Serial(length);
+    if (vs[j] == NULL) {
+      N_VDestroyVectorArray_Serial(vs, j-1);
+      return(NULL);
+    }
+  }
+
+  return(vs);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to create an array of new serial vectors with NULL data array. 
+ */
+
+N_Vector *N_VNewVectorArrayEmpty_Serial(int count, long int length)
+{
+  N_Vector *vs;
+  int j;
+
+  if (count <= 0) return(NULL);
+
+  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  for (j=0; j<count; j++) {
+    vs[j] = N_VNewEmpty_Serial(length);
+    if (vs[j] == NULL) {
+      N_VDestroyVectorArray_Serial(vs, j-1);
+      return(NULL);
+    }
+  }
+
+  return(vs);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to free an array created with N_VNewVectorArray_Serial
+ */
+
+void N_VDestroyVectorArray_Serial(N_Vector *vs, int count)
+{
+  int j;
+
+  for (j = 0; j < count; j++) N_VDestroy_Serial(vs[j]);
+
+  free(vs);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to print the a serial vector 
+ */
+ 
+void N_VPrint_Serial(N_Vector x)
+{
+  long int i, N;
+  realtype *xd;
+
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+
+  for (i=0; i < N; i++) printf("%11.8g\n", *xd++);
+
+  printf("\n");
+}
+
+
+
+
+
+
+/*
+ * -----------------------------------------------------------------
+ * Implementation of vector operations
+ * -----------------------------------------------------------------
+ */
 
 N_Vector N_VClone_Serial(N_Vector w)
 {
@@ -280,9 +329,10 @@ N_Vector N_VClone_Serial(N_Vector w)
 
     /* Allocate memory */
     data = (realtype *) malloc(length * sizeof(realtype));
-    if(data == NULL) {N_VDestroyEmpty_Serial(v);return(NULL);}
+    if(data == NULL) {N_VDestroy_Serial(v);return(NULL);}
 
     /* Attach data */
+    NV_OWN_DATA_S(v) = TRUE;
     NV_DATA_S(v) = data;
 
   }
@@ -290,17 +340,13 @@ N_Vector N_VClone_Serial(N_Vector w)
   return(v);
 }
 
-void N_VDestroyEmpty_Serial(N_Vector v)
+void N_VDestroy_Serial(N_Vector v)
 {
+  if (NV_OWN_DATA_S(v) == TRUE)
+    free(NV_DATA_S(v));
   free(v->content);
   free(v->ops);
   free(v);
-}
-
-void N_VDestroy_Serial(N_Vector v)
-{
-  free(NV_DATA_S(v));
-  N_VDestroyEmpty_Serial(v);
 }
 
 void N_VSpace_Serial(N_Vector v, long int *lrw, long int *liw)

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-08-17 18:44:24 $
+ * $Revision: 1.14 $
+ * $Date: 2004-10-12 20:09:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -66,7 +66,9 @@ static void VScaleBy_Parallel(realtype a, N_Vector x);
  * -----------------------------------------------------------------
  */
 
-/* Function to create a new parallel vector */
+/* ----------------------------------------------------------------
+ * Function to create a new parallel vector with empty data array
+ */
 
 N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, 
                               long int local_length,
@@ -95,8 +97,6 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
   ops->nvclone           = N_VClone_Parallel;
   ops->nvdestroy         = N_VDestroy_Parallel;
-  ops->nvcloneempty      = N_VCloneEmpty_Parallel;
-  ops->nvdestroyempty    = N_VDestroyEmpty_Parallel;
   ops->nvspace           = N_VSpace_Parallel;
   ops->nvgetarraypointer = N_VGetArrayPointer_Parallel;
   ops->nvsetarraypointer = N_VSetArrayPointer_Parallel;
@@ -128,7 +128,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   content->local_length = local_length;
   content->global_length = global_length;
   content->comm = comm;
-
+  content->own_data = FALSE;
   content->data = NULL;
 
   /* Attach content and ops */
@@ -137,6 +137,10 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
   return(v);
 }
+
+/* ---------------------------------------------------------------- 
+ * Function to create a new parallel vector
+ */
 
 N_Vector N_VNew_Parallel(MPI_Comm comm, 
                          long int local_length,
@@ -153,9 +157,10 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
 
     /* Allocate memory */
     data = (realtype *) malloc(local_length * sizeof(realtype));
-    if(data == NULL) {N_VDestroyEmpty_Parallel(v);return(NULL);}
+    if(data == NULL) {N_VDestroy_Parallel(v);return(NULL);}
 
     /* Attach data */
+    NV_OWN_DATA_P(v) = TRUE;
     NV_DATA_P(v) = data; 
 
   }
@@ -163,78 +168,8 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
   return(v);
 }
 
-/* Function to create a parallel N_Vector with user data component */
-
-N_Vector N_VMake_Parallel(MPI_Comm comm, 
-                          long int local_length,
-                          long int global_length,
-                          realtype *v_data)
-{
-  N_Vector v;
-
-  v = N_VNewEmpty_Parallel(comm, local_length, global_length);
-  if (v == NULL) return(NULL);
-
-  if (local_length > 0) {
-    /* Attach data */
-    NV_DATA_P(v) = v_data;
-  }
-
-  return(v);
-}
-
-/* Function to create an array of new parallel vectors. */
-
-N_Vector *N_VNewVectorArray_Parallel(int count, 
-                                     MPI_Comm comm, 
-                                     long int local_length,
-                                     long int global_length)
-{
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j=0; j<count; j++) {
-    vs[j] = N_VNew_Parallel(comm, local_length, global_length);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
-}
-
-/* Function to deallocate an array created with N_VMake_Parallel */
-
-void N_VDispose_Parallel(N_Vector v)
-{
-  N_VDestroyEmpty_Parallel(v);
-}
-
-/* Function to print a parallel vector */
-
-void N_VPrint_Parallel(N_Vector x)
-{
-  long int i, N;
-  realtype *xd;
-
-  N  = NV_LOCLENGTH_P(x);
-  xd = NV_DATA_P(x);
-
-  for (i=0; i < N; i++) printf("%g\n", *xd++);
-
-  printf("\n");
-}
-
-/*
- * -----------------------------------------------------------------
- * Implementation of vector operations
- * -----------------------------------------------------------------
+/* ----------------------------------------------------------------------------
+ * Function to clone from a template a new vector with empty (NULL) data array
  */
 
 N_Vector N_VCloneEmpty_Parallel(N_Vector w)
@@ -255,8 +190,6 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
   
   ops->nvclone           = w->ops->nvclone;
   ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroyempty    = w->ops->nvdestroyempty;
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
@@ -288,7 +221,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
   content->local_length  = NV_LOCLENGTH_P(w);
   content->global_length = NV_GLOBLENGTH_P(w);
   content->comm = NV_COMM_P(w);
-
+  content->own_data = FALSE;
   content->data = NULL;
 
   /* Attach content and ops */
@@ -297,6 +230,122 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
 
   return(v);
 }
+
+/* ---------------------------------------------------------------- 
+ * Function to create a parallel N_Vector with user data component 
+ */
+
+N_Vector N_VMake_Parallel(MPI_Comm comm, 
+                          long int local_length,
+                          long int global_length,
+                          realtype *v_data)
+{
+  N_Vector v;
+
+  v = N_VNewEmpty_Parallel(comm, local_length, global_length);
+  if (v == NULL) return(NULL);
+
+  if (local_length > 0) {
+    /* Attach data */
+    NV_OWN_DATA_P(v) = FALSE;
+    NV_DATA_P(v) = v_data;
+  }
+
+  return(v);
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to create an array of new parallel vectors. 
+ */
+
+N_Vector *N_VNewVectorArray_Parallel(int count, 
+                                     MPI_Comm comm, 
+                                     long int local_length,
+                                     long int global_length)
+{
+  N_Vector *vs;
+  int j;
+
+  if (count <= 0) return(NULL);
+
+  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  for (j=0; j<count; j++) {
+    vs[j] = N_VNew_Parallel(comm, local_length, global_length);
+    if (vs[j] == NULL) {
+      N_VDestroyVectorArray_Parallel(vs, j-1);
+      return(NULL);
+    }
+  }
+
+  return(vs);
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to create an array of new parallel vectors with empty
+ * (NULL) data array.
+ */
+
+N_Vector *N_VNewVectorArrayEmpty_Parallel(int count, 
+                                          MPI_Comm comm, 
+                                          long int local_length,
+                                          long int global_length)
+{
+  N_Vector *vs;
+  int j;
+
+  if (count <= 0) return(NULL);
+
+  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  for (j=0; j<count; j++) {
+    vs[j] = N_VNewEmpty_Parallel(comm, local_length, global_length);
+    if (vs[j] == NULL) {
+      N_VDestroyVectorArray_Parallel(vs, j-1);
+      return(NULL);
+    }
+  }
+
+  return(vs);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to free an array created with N_VNewVectorArray_Parallel
+ */
+
+void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count)
+{
+  int j;
+
+  for (j = 0; j < count; j++) N_VDestroy_Parallel(vs[j]);
+
+  free(vs);
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to print a parallel vector 
+ */
+
+void N_VPrint_Parallel(N_Vector x)
+{
+  long int i, N;
+  realtype *xd;
+
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+
+  for (i=0; i < N; i++) printf("%g\n", *xd++);
+
+  printf("\n");
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Implementation of vector operations
+ * -----------------------------------------------------------------
+ */
 
 N_Vector N_VClone_Parallel(N_Vector w)
 {
@@ -314,7 +363,7 @@ N_Vector N_VClone_Parallel(N_Vector w)
 
     /* Allocate memory */
     data = (realtype *) malloc(local_length * sizeof(realtype));
-    if(data == NULL) {N_VDestroyEmpty_Parallel(v);return(NULL);}
+    if(data == NULL) {N_VDestroy_Parallel(v);return(NULL);}
 
     /* Attach data */
     NV_DATA_P(v) = data;
@@ -323,17 +372,13 @@ N_Vector N_VClone_Parallel(N_Vector w)
   return(v);
 }
 
-void N_VDestroyEmpty_Parallel(N_Vector v)
+void N_VDestroy_Parallel(N_Vector v)
 {
+  if ( (NV_OWN_DATA_P(v) == TRUE) && (NV_DATA_P(v) != NULL) ) 
+    free(NV_DATA_P(v));
   free(v->content);
   free(v->ops);
   free(v);
-}
-
-void N_VDestroy_Parallel(N_Vector v)
-{
-  if(NV_DATA_P(v) != NULL) free(NV_DATA_P(v));
-  N_VDestroyEmpty_Parallel(v);
 }
 
 void N_VSpace_Parallel(N_Vector v, long int *lrw, long int *liw)

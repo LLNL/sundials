@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-07-26 17:26:53 $
+ * $Revision: 1.9 $
+ * $Date: 2004-10-12 20:09:17 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban, LLNL
  * -----------------------------------------------------------------
@@ -23,7 +23,10 @@ extern "C" {
 #ifndef included_fnvector_serial_h
 #define included_fnvector_serial_h
 
-/* Fortran callable wrappers to NV_SpecInit_Serial and NV_SpecFree_Serial */ 
+/* 
+ * Fortran callable routines to initialize and finalize 
+ * calculations using the serial NVECTOR module.
+ */ 
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-07-26 17:27:04 $
+ * $Revision: 1.8 $
+ * $Date: 2004-10-12 20:09:46 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban, LLNL
  * -----------------------------------------------------------------
@@ -23,7 +23,11 @@ extern "C" {
 #ifndef included_fnvector_parallel_h
 #define included_fnvector_parallel_h
 
-/* Fortran callable wrappers to NV_SpecInit_Parallel and NV_SpecFree_Parallel */ 
+/* 
+ * Fortran callable routines to initialize and finalize 
+ * calculations using the parallel NVECTOR module.
+ */ 
+
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
