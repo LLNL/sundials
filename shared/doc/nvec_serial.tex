@@ -29,7 +29,7 @@ to deallocate the space used by such a structure.
 nvspec = NV_SpecInit_Serial(vec_length);
 \end{verbatim}
 If successful, \id{NV\_SpecInit\_Serial} returns a pointer of type
-\id{NV\_Spec}. This pointer should in turn be passed in any user
+\id{NV\_Spec}. \index{nvSpec@{\tt nvSpec}}This pointer should in turn be passed in any user
 calls to \id{N\_VNew} to create a new \id{N\_Vector} of this type.
 A vector specification object \id{nvspec} returned by \id{NV\_SpecInit\_Serial}
 can be freed by calling:
@@ -103,7 +103,7 @@ by the user. The suffix \id{\_S} in the names denotes serial version.
 \item \ID{NVS\_MAKE\_S}, \ID{NVS\_DISPOSE\_S}
                              
       These companion macros are used to create and destroy  
-      an array of \id{N\_Vector}'s with component \id{vs\_data} 
+      an array of \id{N\_Vector}'s with component array \id{vs\_data} 
       (of type \id{realtype **}) allocated by the user, for use in
       sensitivity calculations.
 

@@ -115,7 +115,7 @@ of the newly defined \id{N\_Vector}.
 %---------------------------------------------------------------------------
 % Table of vector kernels
 %---------------------------------------------------------------------------
-\newpage
+%%\newpage
 \bigskip
 \newlength{\colone}
 \settowidth{\colone}{\id{N\_VConstrProdPos}}
@@ -163,7 +163,7 @@ to \id{N\_VFree}.
 & Frees the array of \id{ns} \id{N\_Vector}'s \id{vs}.
 It is illegal to use \id{vs} after the call to \id{N\_VFree\_S}.
 Note that this routine is common to all {\nvector}
-implementations as it's based on the routine \id{N\_VNew}. A new {\nvector}
+implementations as it is based on the routine \id{N\_VNew}. A new {\nvector}
 implementation need not implement this routine.
 \\
 %
@@ -316,7 +316,9 @@ This routine is used only for constraint checking.
 & This routine returns the minimum of the quotients obtained   
 by term-wise dividing \id{num}$_i$ by \id{denom}$_i$. 
 A zero element in \id{denom} will be skipped. 
-If no such quotients are found, then the large value $10^{99}$ is returned. 
+If no such quotients are found, then the large value 
+\Id{BIG\_REAL} (defined in the header file \id{sundialstypes.h})
+is returned. 
 \\
 %
 \end{supertabular}
