@@ -3,7 +3,7 @@
  * File          : idabbdpre.c                                    *
  * Programmers   : Allan G Taylor, Alan C Hindmarsh, and          *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 3 July 2002                                    *
+ * Version of    : 11 July 2002                                   *
  *----------------------------------------------------------------*
  * This file contains implementations of routines for a           *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -40,7 +40,7 @@ static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq,
                      realtype cj, realtype hh, realtype rel_yy, realtype tt,
                      N_Vector ewt, N_Vector constraints,
                      IDALocalFn glocal, IDACommFn gcomm, BandMat JJ, 
-                     integertype *nginc, void *res_data, N_Vector yy,  
+                     integertype *nginc, void *res_data, N_Vector yy,
                      N_Vector yp, N_Vector gref, N_Vector gtemp, 
                      N_Vector ytemp, N_Vector yptemp);
 
@@ -65,13 +65,12 @@ static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq,
 **********************************************************************/
 
 
-static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq, 
-                     integertype mukeep, integertype mlkeep, 
-                     realtype cj, realtype hh, realtype rel_yy, realtype tt,
-                     N_Vector ewt, N_Vector constraints,
-                     IDALocalFn glocal, IDACommFn gcomm, BandMat JJ, 
-                     integertype *nginc, void *res_data, N_Vector yy, N_Vector yp, 
-                     N_Vector gref, N_Vector gtemp, 
+static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq,
+                     integertype mukeep, integertype mlkeep, realtype cj,
+                     realtype hh, realtype rel_yy, realtype tt, N_Vector ewt,
+                     N_Vector constraints, IDALocalFn glocal, IDACommFn gcomm,
+                     BandMat JJ,integertype *nginc, void *res_data,
+                     N_Vector yy, N_Vector yp, N_Vector gref, N_Vector gtemp,
                      N_Vector ytemp, N_Vector yptemp)
 {
   realtype inc, inc_inv;
@@ -91,7 +90,7 @@ static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq,
   gtempdata = N_VGetData(gtemp);
 
   ewtdata = N_VGetData(ewt);
-  if(constraints != NULL) cnsdata = N_VGetData(constraints);
+  if (constraints != NULL) cnsdata = N_VGetData(constraints);
 
   /* Initialize ytemp and yptemp. */
 
@@ -100,10 +99,10 @@ static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq,
 
   /* Call gcomm and glocal to get base value of G(t,y,y'). */
   retval = gcomm(yy, yp, res_data);
-  if(retval != 0) return(retval);
+  if (retval != 0) return(retval);
 
   retval = glocal(tt, yy, yp, gref, res_data); *nginc = 1;
-  if(retval != 0) return(retval);
+  if (retval != 0) return(retval);
 
   /* Set bandwidth and number of column groups for band differencing. */
   width = mldq + mudq + 1;
@@ -122,14 +121,14 @@ static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq,
          adjustments using ypj and ewtj if this is small, and a further
          adjustment to give it the same sign as hh*ypj. */
       inc = rel_yy*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
-      if(hh*ypj < ZERO) inc = -inc;
+      if (hh*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       
       /* Adjust sign(inc) again if yj has an inequality constraint. */
-      if(constraints != NULL) {
+      if (constraints != NULL) {
         conj = cnsdata[j];
-        if(ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if(ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (ABS(conj) == ONE)      {if ((yj+inc)*conj <  ZERO) inc = -inc;}
+        else if (ABS(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
       }
 
       /* Increment yj and ypj. */
@@ -140,7 +139,7 @@ static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq,
 
     /* Evaluate G with incremented y and yp arguments. */
     retval = glocal(tt, ytemp, yptemp, gtemp, res_data); (*nginc)++;
-    if(retval != 0) return(retval);
+    if (retval != 0) return(retval);
 
     /* Loop over components of the group again; restore ytemp and yptemp. */
     for(j = group-1; j < Nlocal; j += width) {
@@ -150,12 +149,12 @@ static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq,
 
       /* Set increment inc as before .*/
       inc = rel_yy*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
-      if(hh*ypj < ZERO) inc = -inc;
+      if (hh*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
-      if(constraints != NULL) {
+      if (constraints != NULL) {
         conj = cnsdata[j];
-        if(ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if(ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (ABS(conj) == ONE)      {if ((yj+inc)*conj <  ZERO) inc = -inc;}
+        else if (ABS(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
       }
 
       /* Form difference quotients and load into JJ. */
@@ -164,7 +163,7 @@ static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq,
       i1 = MAX(0, j-mukeep);
       i2 = MIN(j+mlkeep, Nlocal-1);
       for(i = i1; i <= i2; i++) BAND_COL_ELEM(col_j,i,j) =
-                                  inc_inv * (gtempdata[i] - grefdata[i]);       
+                                  inc_inv * (gtempdata[i] - grefdata[i]);
     }
   }
   
@@ -179,11 +178,11 @@ static int IBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq,
 #define errfp       (ida_mem->ida_errfp)
 
 
-/***************** User-Callable Functions: malloc and free ******************/
+/*********** User-Callable Functions: malloc, reinit, and free *************/
 
-IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq, 
-                   integertype mukeep, integertype mlkeep, realtype dq_rel_yy, 
-                   IDALocalFn glocal, IDACommFn gcomm, 
+IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
+                   integertype mukeep, integertype mlkeep, realtype dq_rel_yy,
+                   IDALocalFn glocal, IDACommFn gcomm,
                    void *idamem, void *res_data)
 {
   IBBDData P_data;
@@ -194,7 +193,7 @@ IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
 
   ida_mem = (IDAMem)idamem;
 
-  /* Test if the NVECTOR package is compatible with the BLOCK BAND preconditioner  */
+  /* Test if the NVECTOR package is compatible with BLOCK BAND preconditioner */
   if ((strcmp(machenv->tag,"parallel")) || 
       machenv->ops->nvmake    == NULL || 
       machenv->ops->nvdispose == NULL ||
@@ -206,7 +205,7 @@ IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
 
   /* Allocate data memory. */
   P_data = (IBBDData) malloc(sizeof *P_data);
-  if(P_data == NULL) return(NULL);
+  if (P_data == NULL) return(NULL);
 
   /* Set pointers to res_data, glocal, and gcomm; load half-bandwidths. */
   P_data->res_data = res_data;
@@ -224,11 +223,11 @@ IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
 
   /* Allocate memory for preconditioner matrix. */
   P_data->PP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
-  if(P_data->PP == NULL) { free(P_data); return(NULL); }
+  if (P_data->PP == NULL) { free(P_data); return(NULL); }
 
   /* Allocate memory for pivots. */
   P_data->pivots = BandAllocPiv(Nlocal);
-  if(P_data->PP == NULL) {
+  if (P_data->PP == NULL) {
     BandFreeMat(P_data->PP);
     free(P_data);
     return(NULL);
@@ -237,7 +236,7 @@ IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
   /* Allocate tempv4 for use by IBBDDQJac.  Note: Nlocal is a dummy,
      in that ida_machenv parameters are used to determine size. */
   tempv4 = N_VNew(Nlocal, machenv); 
-  if(tempv4 == NULL){
+  if (tempv4 == NULL){
     BandFreeMat(P_data->PP);
     BandFreePiv(P_data->pivots);
     free(P_data);
@@ -246,7 +245,7 @@ IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
   P_data->tempv4 = tempv4;
   
   /* Set rel_yy based on input value dq_rel_yy (0 implies default). */
-  if(dq_rel_yy > ZERO) rel_yy = dq_rel_yy;
+  if (dq_rel_yy > ZERO) rel_yy = dq_rel_yy;
   else                 rel_yy = RSqrt(ida_mem->ida_uround); 
   P_data->rel_yy = rel_yy;
 
@@ -261,9 +260,9 @@ IBBDData IBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
   return(P_data);
 }
 
-int IDAReInitBBD(IBBDData P_data, integertype Nlocal, integertype mudq, integertype mldq,
-                 integertype mukeep, integertype mlkeep, realtype dq_rel_yy, 
-                 IDALocalFn glocal, IDACommFn gcomm, 
+int IDAReInitBBD(IBBDData P_data, integertype Nlocal, integertype mudq,
+                 integertype mldq, integertype mukeep, integertype mlkeep,
+                 realtype dq_rel_yy,  IDALocalFn glocal, IDACommFn gcomm,
                  void *idamem, void *res_data)
 {
   IDAMem ida_mem;
@@ -375,10 +374,10 @@ void IBBDFree(IBBDData P_data)
  ******************************************************************/
 
 
-int IBBDPrecon(integertype Neq, realtype tt, N_Vector yy,
-               N_Vector yp, N_Vector rr, realtype cj, ResFn res, 
-               void *res_data, void *P_data, N_Vector ewt, 
-               N_Vector constraints, realtype hh, realtype uround, long int *nrePtr,
+int IBBDPrecon(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+               N_Vector rr, realtype cj, ResFn res, void *res_data,
+               void *P_data, N_Vector ewt, N_Vector constraints,
+               realtype hh, realtype uround, long int *nrePtr,
                N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   integertype Nlocal, nginc, retfac;
@@ -396,14 +395,14 @@ int IBBDPrecon(integertype Neq, realtype tt, N_Vector yy,
                      ewt, constraints, glocal, gcomm, PP, &nginc, res_data, 
                      yy, yp, tempv1, tempv2, tempv3,tempv4);
   nge += nginc;
-  if(retval<0) return(LSETUP_ERROR_NONRECVR);
-  if(retval>0) return(LSETUP_ERROR_RECVR);
+  if (retval < 0) return(LSETUP_ERROR_NONRECVR);
+  if (retval > 0) return(LSETUP_ERROR_RECVR);
  
   /* Do LU factorization of preconditioner block in place (in PP). */
   retfac = BandFactor(PP, pivots);
 
   /* Return 0 if the LU was complete, or LSETUP_ERROR_RECVR otherwise. */
-  if(retfac > 0) return(LSETUP_ERROR_RECVR);
+  if (retfac > 0) return(LSETUP_ERROR_RECVR);
   return(0);
 }
 
@@ -450,6 +449,3 @@ int IBBDPrecon(integertype Neq, realtype tt, N_Vector yy,
 
   return(0);
 }
-
-
-
