@@ -4,7 +4,7 @@ without modification. Users are still encouraged, however, to carefully read
 this entire section before attempting to install the {\sundials} suite, in case
 non-default choices are desired for compilers, compilation options, or the like.
 In lieu of reading the option list below, the user may invoke the configuration
-script with the help flag to view a complete listing of available options which
+script with the help flag to view a complete listing of available options, which
 may be done by issuing 
 \begin{verbatim}
    % ./configure --help 
@@ -21,7 +21,7 @@ different from the {\em source\_tree}, thus allowing for multiple installations
 of the {\sundials} suite with different configuration options.
 
 Concerning the installation procedure outlined below, after invoking the
-\id{tar} command with the appropriate options the contents of the
+\id{tar} command with the appropriate options, the contents of the
 {\sundials} archive (or the {\em source\_tree}) will be extracted to a
 directory named \id{sundials}. Since the name of the extracted directory
 is not version-specific it is recommended that the user refrain from
@@ -123,7 +123,7 @@ from a shell command prompt to remove unneeded object files.
 
 %%===============================================================================
 
-\section{Configuration options}
+\section{Configuration options}\label{ss:configuration_options}
 
 The installation procedure given above will generally work without modification;
 however, if the system includes multiple {\mpi} implementations, then certain
@@ -152,13 +152,13 @@ options.
   
 \item \id{--includedir=DIR}
   
-  Alternate location for header files.
+  Alternate location for installation of header files.
   
   Default: \id{DIR=PREFIX/include}
   
 \item \id{--libdir=DIR}
   
-  Alternate location for libraries.
+  Alternate location for installation of libraries.
   
   Default: \id{DIR=PREFIX/lib}
 
