@@ -109,7 +109,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
   
   This function creates and allocates memory for a parallel vector.
  
-  Prototype
+  
 
 \begin{verbatim}
 N_Vector N_VNew_Parallel(MPI_Comm comm, 
@@ -123,7 +123,7 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
  
   This function creates a new parallel \id{N\_Vector} with an empty (\id{NULL}) data array.
  
-  Prototype
+  
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, 
@@ -139,7 +139,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   This function creates a new parallel \id{N\_Vector} with an empty (\id{NULL}) data array
   by using an existing \id{N\_Vector} as a template.
  
-  Prototype
+  
 
   \verb|N_Vector N_VCloneEmpty_Parallel(N_Vector w);|
   
@@ -150,7 +150,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   This function creates and allocates memory for a parallel vector
   with user-provided data array.
  
-  Prototype
+  
 
 \begin{verbatim}
 N_Vector N_VMake_Parallel(MPI_Comm comm, 
@@ -193,7 +193,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
  This function frees memory allocated for the array of \id{count} parallel \id{N\_Vector} 
  created with \id{N\_VNewVectorArray\_Parallel} or with \id{N\_VNewVectorArrayEmpty\_Parallel}.
 
- Prototype
+ 
 
  \verb|void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count);|
 
@@ -204,7 +204,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
   
   This function prints the content of a parallel vector to stdout.
  
-  Prototype
+  
   
   \verb|void N_VPrint_Parallel(N_Vector v);|
 
