@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2004-11-06 01:02:08 $
+ * $Revision: 1.30 $
+ * $Date: 2004-12-08 21:57:05 $
  * -----------------------------------------------------------------
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -17,6 +17,9 @@
  *    CVQuadRhsFnB
  *    CVDenseJacFnB
  *    CVBandJacFnB
+ *    CVSpbcgPrecSetupFnB
+ *    CVSpbcgPrecSolveB
+ *    CVSpbcgJacTimesVecFnB
  *    CVSpgmrPrecSetupFnB
  *    CVSpgmrPrecSolveB
  *    CVSpgmrJacTimesVecFnB
@@ -27,11 +30,14 @@
  *    CVodeMallocB
  *    CVDenseB
  *    CVBandB
+ *    CVSpbcgB
  *    CVSpgmrB
  *    CVBandPrecAllocB
+ *    CVBPSpbcgB
  *    CVBPSpgmrB
  *    CVBBDPrecAllocB
  *    CVBBDPrecReInit
+ *    CVBBDSpbcgB
  *    CVBBDSpgmrB
  *    CVodeB
  *    CVadjFree
@@ -56,6 +62,7 @@ extern "C" {
 
 #include "dense.h"
 #include "band.h"
+#include "spbcg.h"
 #include "spgmr.h"
 #include "sundialstypes.h"
 #include "nvector.h"
@@ -118,6 +125,23 @@ typedef void (*CVBandJacFnB)(long int nB, long int mupperB,
 
 /*
  * -----------------------------------------------------------------
+ * Type : CVSpbcgPrecSetupFnB
+ * -----------------------------------------------------------------
+ * A preconditioner setup function precondB for the backward
+ * integration must have the prototype given below.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*CVSpbcgPrecSetupFnB)(realtype t, N_Vector y,
+                                   N_Vector yB, N_Vector fyB,
+                                   booleantype jokB,
+				   booleantype *jcurPtrB, realtype gammaB,
+                                   void *P_dataB,
+                                   N_Vector tmp1B, N_Vector tmp2B,
+                                   N_Vector tmp3B);
+
+/*
+ * -----------------------------------------------------------------
  * Type : CVSpgmrPrecSetupFnB
  * -----------------------------------------------------------------
  * A preconditioner setup function precondB for the backward
@@ -135,6 +159,21 @@ typedef int (*CVSpgmrPrecSetupFnB)(realtype t, N_Vector y,
 
 /*
  * -----------------------------------------------------------------
+ * Type : CVSpbcgPrecSolveFnB
+ * -----------------------------------------------------------------
+ * A preconditioner solve function psolveB for the backward
+ * integration must have the prototype given below.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*CVSpbcgPrecSolveFnB)(realtype t, N_Vector y,
+                                   N_Vector yB, N_Vector fyB,
+                                   N_Vector rB, N_Vector zB,
+                                   realtype gammaB, realtype deltaB,
+                                   int lrB, void *P_dataB, N_Vector tmpB);
+
+/*
+ * -----------------------------------------------------------------
  * Type : CVSpgmrPrecSolveFnB
  * -----------------------------------------------------------------
  * A preconditioner solve function psolveB for the backward
@@ -147,7 +186,20 @@ typedef int (*CVSpgmrPrecSolveFnB)(realtype t, N_Vector y,
                                    N_Vector rB, N_Vector zB,
                                    realtype gammaB, realtype deltaB,
                                    int lrB, void *P_dataB, N_Vector tmpB);
-  
+
+/*
+ * -----------------------------------------------------------------
+ * Type : CVSpbcgJacTimesVecFnB
+ * -----------------------------------------------------------------
+ * A Jacobian times vector function jtimesB for the backward
+ * integration must have the prototype given below.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*CVSpbcgJacTimesVecFnB)(N_Vector vB, N_Vector JvB, realtype t,
+                                     N_Vector y, N_Vector yB, N_Vector fyB,
+                                     void *jac_dataB, N_Vector tmpB);
+
 /*
  * -----------------------------------------------------------------
  * Type : CVSpgmrJacTimesVecFnB
@@ -295,6 +347,25 @@ int CVBandSetJacDataB(void *cvadj_mem, void *jac_dataB);
 
 /*
  * -----------------------------------------------------------------
+ * Function : CVSpbcgB, CVSpbcgSet*B
+ * -----------------------------------------------------------------
+ * CVSpbcgB links the main CVODE integrator with the CVSPBCG
+ * linear solver for the backward integration.
+ * -----------------------------------------------------------------
+ */
+
+int CVSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
+
+int CVSpbcgSetPrecTypeB(void *cvadj_mem, int pretypeB);
+int CVSpbcgSetDeltB(void *cvadj_mem, realtype deltB);
+int CVSpbcgSetPrecSetupFnB(void *cvadj_mem, CVSpbcgPrecSetupFnB psetB);
+int CVSpbcgSetPrecSolveFnB(void *cvadj_mem, CVSpbcgPrecSolveFnB psolveB);
+int CVSpbcgSetJacTimesVecFnB(void *cvadj_mem, CVSpbcgJacTimesVecFnB jtimesB);
+int CVSpbcgSetPrecDataB(void *cvadj_mem, void *P_dataB);
+int CVSpbcgSetJacDataB(void *cvadj_mem, void *jac_dataB);
+
+/*
+ * -----------------------------------------------------------------
  * Function : CVSpgmrB, CVSpgmrSet*B
  * -----------------------------------------------------------------
  * CVSpgmrB links the main CVODE integrator with the CVSPGMR
@@ -305,7 +376,6 @@ int CVBandSetJacDataB(void *cvadj_mem, void *jac_dataB);
 int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
 
 int CVSpgmrSetPrecTypeB(void *cvadj_mem, int pretypeB);
-
 int CVSpgmrSetGSTypeB(void *cvadj_mem, int gstypeB);
 int CVSpgmrSetDeltB(void *cvadj_mem, realtype deltB);
 int CVSpgmrSetPrecSetupFnB(void *cvadj_mem, CVSpgmrPrecSetupFnB psetB);
@@ -316,23 +386,25 @@ int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB);
 
 /*
  * -----------------------------------------------------------------
- * Function: CVBandPrecAllocB, CVBPSpgmrB
+ * Function: CVBandPrecAllocB, CVBPSpgmrB, CVBPSpbcgB
  * -----------------------------------------------------------------
  * CVBandPrecAllocB interfaces to the CVBANDPRE preconditioner for
  * the backward integration. The pointer to the structure
  * returned by this routine should then be used in the call to
- * CVBPSpgmrB which interfaces to CVBPSpgmr.
+ * CVBPSpgmrB/CVBPSpbcgB which interfaces to CVBPSpgmr/CVBPSpbcg.
  * -----------------------------------------------------------------
  */
 
 int CVBandPrecAllocB(void *cvadj_mem, long int nB,
                      long int muB, long int mlB);
 
+int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
 int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
 
 /*
  * -----------------------------------------------------------------
- * Functions: CVBBDPrecAllocB, CVBBDSpgmrB, CVBBDPrecReInit
+ * Functions: CVBBDPrecAllocB, CVBBDSpgmrB, CVBBDSpbcgB,
+ *            CVBBDPrecReInit
  * -----------------------------------------------------------------
  * Interface functions for the BBD preconditioner to be used on
  * the backward phase.
@@ -345,6 +417,7 @@ int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
                     realtype dqrelyB,
                     CVLocalFnB glocB, CVCommFnB cfnB);
 
+int CVBBDSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
 int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
 
 int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,

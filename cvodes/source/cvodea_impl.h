@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-11-06 01:02:03 $
+ * $Revision: 1.4 $
+ * $Date: 2004-12-08 21:57:18 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -27,6 +27,7 @@ extern "C" {
 #include "cvodes_impl.h"
 #include "cvdense_impl.h"
 #include "cvband_impl.h"
+#include "cvspbcg_impl.h"
 #include "cvspgmr_impl.h"
 #include "cvbandpre_impl.h"
 #include "cvbbdpre_impl.h"
@@ -149,11 +150,18 @@ typedef struct CVadjMemRec {
   CVBandJacFnB ca_bjacB;
 
   /* Jac times vec routine (jtimesB) for backward run */
-  CVSpgmrJacTimesVecFnB ca_jtimesB;
+  CVSpbcgJacTimesVecFnB ca_bcgjtimesB;
 
   /* Preconditioner routines (precondB and psolveB) for backward run */
-  CVSpgmrPrecSetupFnB ca_psetB;
-  CVSpgmrPrecSolveFnB ca_psolveB;
+  CVSpbcgPrecSetupFnB ca_bcgpsetB;
+  CVSpbcgPrecSolveFnB ca_bcgpsolveB;
+
+  /* Jac times vec routine (jtimesB) for backward run */
+  CVSpgmrJacTimesVecFnB ca_gjtimesB;
+
+  /* Preconditioner routines (precondB and psolveB) for backward run */
+  CVSpgmrPrecSetupFnB ca_gpsetB;
+  CVSpgmrPrecSolveFnB ca_gpsolveB;
 
   /* BBD user functions (glocB and cfnB) for backward run */
   CVLocalFnB ca_glocB;
@@ -213,7 +221,7 @@ typedef struct CVadjMemRec {
 
 #define _CVAM_          "CVadjMalloc-- "
 #define MSGAM_NO_MEM    _CVAM_ "cvode_mem = NULL illegal.\n\n"
-#define MSGAM_BAD_STEPS _CVAM_ "Steps non-positive illegal.\n\n"
+#define MSGAM_BAD_STEPS _CVAM_ "Steps nonpositive illegal.\n\n"
 #define MSGAM_MEM_FAIL  _CVAM_ "A memory request failed.\n\n"
 
 #endif
