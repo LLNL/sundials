@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-01-24 22:29:12 $
+ * $Revision: 1.12 $
+ * $Date: 2005-03-19 00:10:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,6 +18,10 @@
 
 #ifndef _FNVECTOR_PARALLEL_H
 #define _FNVECTOR_PARALLEL_H
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 #ifndef _SUNDIALS_CONFIG_H
 #define _SUNDIALS_CONFIG_H
@@ -59,6 +63,15 @@
 #define FNV_INITP FNVINITP__
 #define FNV_FREEP FNVFREEP__
 
+#endif
+
+/* Prototypes of exported funcions */
+
+void FNV_INITP(long int *nlocal, long int *nglobal, int *ier);
+void FNV_FREEP(void);
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

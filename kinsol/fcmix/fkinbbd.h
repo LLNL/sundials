@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-01-24 22:29:01 $
+ * $Revision: 1.24 $
+ * $Date: 2005-03-19 00:10:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -261,6 +261,10 @@
 #ifndef _FKINBBD_H
 #define _FKINBBD_H
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /*
  * -----------------------------------------------------------------
  * header files
@@ -350,6 +354,18 @@
 
 /*
  * -----------------------------------------------------------------
+ * Prototypes: exported functions
+ * -----------------------------------------------------------------
+ */
+
+void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier);
+void FKIN_BBDSPBCG(int *maxl, int *ier);
+void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier);
+void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
+void FKIN_BBDFREE(void);
+
+/*
+ * -----------------------------------------------------------------
  * Prototypes: FKINgloc and FKINgcomm
  * -----------------------------------------------------------------
  */
@@ -364,5 +380,9 @@ void FKINgcomm(long int Nloc, N_Vector uu, void *f_data);
  */
 
 void *KBBD_Data;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

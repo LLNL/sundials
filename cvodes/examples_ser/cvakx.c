@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-23 21:35:03 $
+ * $Revision: 1.17 $
+ * $Date: 2005-03-19 00:10:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1221,9 +1221,9 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 #endif
     printf("at\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("  x = %Le\ny = %Le\n", x, y);
+    printf("  x = %Le\n  y = %Le\n", x, y);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("  x = %le\ny = %le\n", x, y);
+    printf("  x = %le\n  y = %le\n", x, y);
 #else
     printf("  x = %e\n  y = %e\n", x, y);
 #endif
@@ -1329,7 +1329,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   /* Check if flag < 0 */
   else if (opt == 1) {
-    errflag = flagvalue;
+    errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
 	      funcname, *errflag);

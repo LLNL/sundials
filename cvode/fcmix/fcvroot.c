@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-21 20:55:05 $
+ * $Revision: 1.12 $
+ * $Date: 2005-03-19 00:10:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -30,7 +30,13 @@
 
 /* Prototype of the Fortran routine */
 
-void FCV_ROOTFN(realtype *, realtype*, realtype*);
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+  extern void FCV_ROOTFN(realtype *, realtype*, realtype*);
+#ifdef __cplusplus
+}
+#endif
 
 /***************************************************************************/
 
@@ -77,3 +83,4 @@ void FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data)
 
   return;
 }
+

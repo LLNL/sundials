@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-12-07 19:46:02 $
+ * $Revision: 1.20 $
+ * $Date: 2005-03-19 00:10:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -35,8 +35,14 @@
 
 /* Prototypes of the Fortran routines */
 
-extern void FCV_GLOCFN(long int*, realtype*, realtype*, realtype*);
-extern void FCV_COMMFN(long int*, realtype*, realtype*);
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+  extern void FCV_GLOCFN(long int*, realtype*, realtype*, realtype*);
+  extern void FCV_COMMFN(long int*, realtype*, realtype*);
+#ifdef __cplusplus
+}
+#endif
 
 /***************************************************************************/
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-11-24 00:20:53 $
+ * $Revision: 1.8 $
+ * $Date: 2005-03-19 00:10:32 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -1413,7 +1413,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 
   /* Check if flag < 0 */
   else if (opt == 1) {
-    errflag = flagvalue;
+    errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
       return(1); }}

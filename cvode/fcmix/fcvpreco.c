@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-12-07 19:46:02 $
+ * $Revision: 1.14 $
+ * $Date: 2005-03-19 00:10:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -30,9 +30,16 @@
 /*********************************************************************/
 
 /* Prototype of the Fortran routine */
-extern void FCV_PSET(realtype*, realtype*, realtype*, booleantype*, 
-		     booleantype*, realtype*, realtype*, realtype*,
-		     realtype*, realtype*, realtype*, int*);
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+  extern void FCV_PSET(realtype*, realtype*, realtype*, booleantype*, 
+                       booleantype*, realtype*, realtype*, realtype*,
+                       realtype*, realtype*, realtype*, int*);
+#ifdef __cplusplus
+}
+#endif
 
 /***************************************************************************/
 

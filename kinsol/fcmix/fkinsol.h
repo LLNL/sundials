@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2005-03-02 17:55:59 $
+ * $Revision: 1.29 $
+ * $Date: 2005-03-19 00:10:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -366,6 +366,10 @@
 #ifndef _FKINSOL_H
 #define _FKINSOL_H
 
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /*
  * -----------------------------------------------------------------
  * header files
@@ -511,6 +515,27 @@
 
 /*
  * -----------------------------------------------------------------
+ * Prototypes : exported functions
+ * -----------------------------------------------------------------
+ */
+
+void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
+		 realtype *constraints, int *optin, long int *iopt,
+		 realtype *ropt, int *ier);
+void FKIN_SPBCG(int *maxl, int *ier);
+void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier);
+void FKIN_SOL(realtype *uu, int *globalstrategy, 
+              realtype *uscale , realtype *fscale, int *ier);
+void FKIN_FREE(void);
+void FKIN_SPBCGSETJAC(int *flag, int *ier);
+void FKIN_SPBCGSETPSET(int *flag, int *ier);
+void FKIN_SPBCGSETPSOL(int *flag, int *ier);
+void FKIN_SPGMRSETJAC(int *flag, int *ier);
+void FKIN_SPGMRSETPSET(int *flag, int *ier);
+void FKIN_SPGMRSETPSOL(int *flag, int *ier);
+
+/*
+ * -----------------------------------------------------------------
  * Prototypes : functions called by the solver
  * -----------------------------------------------------------------
  */
@@ -539,13 +564,14 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
  */
 
 extern N_Vector F2C_vec;
-realtype *data_F2C_vec;
+extern realtype *data_F2C_vec;
+extern void *KIN_mem;
+extern long int *KIN_iopt;
+extern realtype *KIN_ropt;
+extern int KIN_ls;  /* Linear Solver: 1 = SPGMR */
 
-void *KIN_mem;
-long int *KIN_iopt;
-realtype *KIN_ropt;
-
-int KIN_ls;  /* Linear Solver: 1 = SPGMR , 2 = SPBCG */
-enum { KIN_SPGMR = 1 , KIN_SPBCG = 2};
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-12-07 19:46:02 $
+ * $Revision: 1.15 $
+ * $Date: 2005-03-19 00:10:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -28,10 +28,19 @@
 #include "nvector.h"        /* definitions of type N_Vector and vector macros */
 #include "sundialstypes.h"  /* definition of type realtype                    */
 
+/***************************************************************************/
+
 /* Prototype of the Fortran routine */
-extern void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*, 
-		       realtype*, realtype*, realtype*, realtype*,
-		       int*);
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+  extern void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*, 
+                         realtype*, realtype*, realtype*, realtype*,
+                         int*);
+#ifdef __cplusplus
+}
+#endif
 
 /***************************************************************************/
 

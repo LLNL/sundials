@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-21 20:55:05 $
+ * $Revision: 1.10 $
+ * $Date: 2005-03-19 00:10:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,11 +24,20 @@
 #include "nvector.h"        /* definitions of type N_Vector and vector macros */
 #include "sundialstypes.h"  /* definition of type realtype                    */
 
+
+
 /***************************************************************************/
 
 /* Prototype of the Fortran routine */
-extern void FCV_DJAC(long int*, realtype*, realtype*, realtype*, realtype*, 
-		     realtype*, realtype*, realtype*, realtype*, realtype*);
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+  extern void FCV_DJAC(long int*, realtype*, realtype*, realtype*, realtype*, 
+                       realtype*, realtype*, realtype*, realtype*, realtype*);
+#ifdef __cplusplus
+}
+#endif
 
 /***************************************************************************/
 
@@ -69,3 +78,4 @@ void FCVDenseJac(long int N, DenseMat J, realtype t,
   FCV_DJAC(&N, &t, ydata, fydata, jacdata, 
            ewtdata, &h, v1data, v2data, v3data);
 }
+
