@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-11-15 21:26:44 $
+ * $Revision: 1.8 $
+ * $Date: 2004-11-23 18:48:22 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -367,18 +367,21 @@ typedef struct IDAMemRec {
 #define MSG_TIME "at t = %Lg, "
 #define MSG_TIME_H "at t = %Lg and h = %Lg, "
 #define MSG_TIME_INT "t is not between tcur - hu = %Lg and tcur = %Lg.\n\n"
+#define MSG_TIME_TOUT "tout = %Lg"
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
 #define MSG_TIME "at t = %lg, "
 #define MSG_TIME_H "at t = %lg and h = %lg, "
 #define MSG_TIME_INT "t is not between tcur - hu = %lg and tcur = %lg.\n\n"
+#define MSG_TIME_TOUT "tout = %lg"
 
 #else
 
 #define MSG_TIME "at t = %g, "
 #define MSG_TIME_H "at t = %g and h = %g, "
 #define MSG_TIME_INT "t is not between tcur - hu = %g and tcur = %g.\n\n"
+#define MSG_TIME_TOUT "tout = %g"
 
 #endif
 
@@ -488,15 +491,15 @@ typedef struct IDAMemRec {
 
 #define MSG_IDA_NO_MEM     _IDASLV_ "ida_mem = NULL illegal.\n\n"
 
-#define MSG_NO_MALLOC      _IDASLV_ "attempt to call before IDAMalloc. \n\n"
+#define MSG_NO_MALLOC      _IDASLV_ "attempt to call before IDAMalloc.\n\n"
  
 #define MSG_BAD_HINIT      _IDASLV_ "initial step is not towards tout.\n\n"
 
-#define MSG_BAD_TOUT1      _IDASLV_ "trouble interpolating at tout.\n"
+#define MSG_BAD_TOUT1      _IDASLV_ "trouble interpolating at " MSG_TIME_TOUT ".\n"
 #define MSG_BAD_TOUT2      "tout too far back in direction of integration.\n\n"
 #define MSG_BAD_TOUT       MSG_BAD_TOUT1 MSG_BAD_TOUT2
 
-#define MSG_BAD_TSTOP      _IDASLV_ MSG_TIME "tstop is behind. \n\n"
+#define MSG_BAD_TSTOP      _IDASLV_ MSG_TIME "tstop is behind.\n\n"
 
 #define MSG_MAX_STEPS      _IDASLV_ MSG_TIME "maximum number of steps reached.\n\n"
 

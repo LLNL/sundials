@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2004-11-05 23:55:11 $
+ * $Revision: 1.34 $
+ * $Date: 2004-11-23 18:48:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -558,7 +558,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
   }
 
   if ((itol != IDA_SS) && (itol != IDA_SV)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOL, itol, IDA_SS, IDA_SV);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOL);
     return(IDA_ILL_INPUT);
   }
 
@@ -1281,7 +1281,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     hh = hin;
     if ( (hh != ZERO) && ((tout-tn)*hh < ZERO) ) {
-      if(errfp!=NULL) fprintf(errfp, MSG_BAD_HINIT, hh, tout-tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_HINIT);
       return(IDA_ILL_INPUT);
     }
 
@@ -2089,7 +2089,7 @@ static void IDASensFreeVectors(IDAMem IDA_mem)
 int IDAInitialSetup(IDAMem IDA_mem)
 {
   realtype temptest;
-  booleantype allocOK, ewtsetOK, conOK, neg_abstol, tolsetOK;
+  booleantype ewtsetOK, conOK;
   int ier;
   
   /* Test for more vector operations, depending on options */
@@ -2358,6 +2358,8 @@ static int IDASensTestTolerances(IDAMem IDA_mem)
   realtype *atolSS;
   N_Vector *atolSV;  
 
+  neg_abstol = TRUE;
+
   if (*reltolS<ZERO) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOLS);
     return(IDA_ILL_INPUT);
@@ -2390,6 +2392,8 @@ static int IDASensSetTolerances(IDAMem IDA_mem)
   itolS = itol;
 
   reltolS = reltol;
+
+  setOK = FALSE;
 
   if (!atolSallocated) {
     allocOK = IDASensAllocAtol(IDA_mem, &abstolS);
@@ -2591,7 +2595,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( (tn - tout)*hh >= ZERO) {
       ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
       if (ier != IDA_SUCCESS) {
-        if(errfp!=NULL) fprintf(errfp,MSG_BAD_TOUT);
+	if(errfp!=NULL) fprintf(errfp,MSG_BAD_TOUT, tn);
         return(IDA_ILL_INPUT);
       }
       *tret = tretp = tout;
@@ -2611,7 +2615,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
   case IDA_NORMAL_TSTOP:
     /* Test for tn past tstop, tn = tretp, tn past tout, tn near tstop. */
     if ( (tn - tstop)*hh > ZERO) {
-      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
       return(IDA_ILL_INPUT);
     }
     if (tout == tretp) {
@@ -2631,7 +2635,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( ABS(tn - tstop) <= troundoff) {
       ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
       if (ier != IDA_SUCCESS) {
-        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
         return(IDA_ILL_INPUT);
       }
       *tret = tretp = tstop;
@@ -2643,7 +2647,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
   case IDA_ONE_STEP_TSTOP:
     /* Test for tn past tstop, tn past tretp, and tn near tstop. */
     if ( (tn - tstop)*hh > ZERO) {
-      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
       return(IDA_ILL_INPUT);
     }
     if ( (tn - tretp)*hh > ZERO) {
@@ -2655,7 +2659,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( ABS(tn - tstop) <= troundoff) {
       ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
       if (ier != IDA_SUCCESS) {
-        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
         return(IDA_ILL_INPUT);
       }
       *tret = tretp = tstop;
@@ -4524,6 +4528,8 @@ static int IDASensRes(IDAMem IDA_mem, realtype time,
 {
   int ier, is;
 
+  ier = 0;
+
   if (iresS==IDA_ALLSENS) {
     ier = resS(Ns, time, 
                yycur, ypcur, resvalcur, 
@@ -4598,6 +4604,8 @@ int IDASensResDQ(int Ns, realtype t,
                  N_Vector ytemp, N_Vector yptemp, N_Vector restemp)
 {
   int ier, is;
+
+  ier = 0;
   
   for (is=0; is<Ns; is++) {
     ier = IDASensRes1DQ(Ns, t, 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-05 23:55:11 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-23 18:48:22 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -334,7 +334,7 @@ int IDASetTolerances(void *ida_mem,
   IDA_mem = (IDAMem) ida_mem;
 
   if ((itol != IDA_SS) && (itol != IDA_SV)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ITOL, itol, IDA_SS, IDA_SV);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ITOL);
     return(IDA_ILL_INPUT);
   }
 
