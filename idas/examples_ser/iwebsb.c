@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-11-08 21:23:13 $
+ * $Revision: 1.13 $
+ * $Date: 2004-11-15 21:26:48 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -449,6 +449,8 @@ static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol)
   printf("     System size: %ld\n",NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+#elif defined(SUNDIALS_DOUBLE_PRECISION) 
+  printf("Tolerance parameters:  rtol = %lg   atol = %lg\n", rtol, atol);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
@@ -488,6 +490,11 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
          t, c_bl[0], c_tr[1], nst, kused, hused);
   for (i=1;i<NUM_SPECIES;i++)
     printf("         %12.4Le %12.4Le   |\n",c_bl[i],c_tr[i]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION) 
+  printf("%8.2le %12.4le %12.4le   | %3d  %1d %12.4le\n", 
+         t, c_bl[0], c_tr[1], nst, kused, hused);
+  for (i=1;i<NUM_SPECIES;i++)
+    printf("         %12.4le %12.4le   |\n",c_bl[i],c_tr[i]);
 #else
   printf("%8.2e %12.4e %12.4e   | %3d  %1d %12.4e\n", 
          t, c_bl[0], c_tr[1], nst, kused, hused);

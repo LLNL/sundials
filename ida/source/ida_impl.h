@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-11-05 23:35:41 $
+ * $Revision: 1.5 $
+ * $Date: 2004-11-15 21:24:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California  
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
  * This is the header file (private version) for the main IDA solver.
  * -----------------------------------------------------------------
@@ -19,8 +19,8 @@
 extern "C" {
 #endif
 
-#ifndef _ida_impl_h
-#define _ida_impl_h
+#ifndef _IDA_IMPL_H
+#define _IDA_IMPL_H
 
 #include <stdio.h>
 
@@ -203,14 +203,24 @@ typedef struct IDAMemRec {
  *----------------------------------------------------------------
  */
 
-#ifdef SUNDIALS_EXTENDED_PRECISION
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+
 #define MSG_TIME "at t = %Lg, "
 #define MSG_TIME_H "at t = %Lg and h = %Lg, "
 #define MSG_TIME_INT "t is not between tcur - hu = %Lg and tcur = %Lg.\n\n"
+
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+
+#define MSG_TIME "at t = %lg, "
+#define MSG_TIME_H "at t = %lg and h = %lg, "
+#define MSG_TIME_INT "t is not between tcur - hu = %lg and tcur = %lg.\n\n"
+
 #else
+
 #define MSG_TIME "at t = %g, "
 #define MSG_TIME_H "at t = %g and h = %g, "
 #define MSG_TIME_INT "t is not between tcur - hu = %g and tcur = %g.\n\n"
+
 #endif
 
 /* IDACreate error messages */

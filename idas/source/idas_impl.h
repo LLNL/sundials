@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-11-05 23:55:11 $
+ * $Revision: 1.7 $
+ * $Date: 2004-11-15 21:26:44 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -363,13 +363,23 @@ typedef struct IDAMemRec {
  */
 
 #ifdef SUNDIALS_EXTENDED_PRECISION
+
 #define MSG_TIME "at t = %Lg, "
 #define MSG_TIME_H "at t = %Lg and h = %Lg, "
 #define MSG_TIME_INT "t is not between tcur - hu = %Lg and tcur = %Lg.\n\n"
+
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+
+#define MSG_TIME "at t = %lg, "
+#define MSG_TIME_H "at t = %lg and h = %lg, "
+#define MSG_TIME_INT "t is not between tcur - hu = %lg and tcur = %lg.\n\n"
+
 #else
+
 #define MSG_TIME "at t = %g, "
 #define MSG_TIME_H "at t = %g and h = %g, "
 #define MSG_TIME_INT "t is not between tcur - hu = %g and tcur = %g.\n\n"
+
 #endif
 
 /* IDACreate error messages */

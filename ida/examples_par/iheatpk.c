@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-08 21:23:09 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-15 21:25:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -770,6 +770,8 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
   printf("        Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("Tolerance parameters:  rtol = %lg   atol = %lg\n", rtol, atol);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
@@ -822,6 +824,9 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)  
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
+           t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)  
+    printf(" %5.2f %13.5le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2le  %3ld %3ld\n",
            t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
 #else
     printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",

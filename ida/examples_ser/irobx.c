@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-10 01:03:03 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-15 21:24:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -225,6 +225,11 @@ static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
          rtol, atval[0],atval[1],atval[2]);
   printf("Initial conditions y0 = (%Lg %Lg %Lg)\n",
          yval[0], yval[1], yval[2]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("Tolerance parameters:  rtol = %lg   atol = %lg %lg %lg \n",
+         rtol, atval[0],atval[1],atval[2]);
+  printf("Initial conditions y0 = (%lg %lg %lg)\n",
+         yval[0], yval[1], yval[2]);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g %g %g \n",
          rtol, atval[0],atval[1],atval[2]);
@@ -260,6 +265,9 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   check_flag(&retval, "IDAGetLastStep", 1);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%8.2Le %12.4Le %12.4Le %12.4Le | %3d  %1d %12.4Le\n", 
+         t, yval[0], yval[1], yval[2], nst, kused, hused);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%8.2le %12.4le %12.4le %12.4le | %3d  %1d %12.4le\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #else
   printf("%8.2e %12.4e %12.4e %12.4e | %3d  %1d %12.4e\n", 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-05 23:55:11 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-15 21:26:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -405,13 +405,16 @@ void IDAAdjCheckPointsList(void *idaadj_mem)
   i = 0;
 
   while (ck_mem != NULL) {
-    #if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("Check point %2d  addr: %p  time = [ %5Le %5Le ]  next: %p\n", 
            nckpnts-i, (void *)ck_mem, t0_, t1_, (void *)next_ );
-    #else
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    printf("Check point %2d  addr: %p  time = [ %5le %5le ]  next: %p\n", 
+           nckpnts-i, (void *)ck_mem, t0_, t1_, (void *)next_ );
+#else
     printf("Check point %2d  addr: %p  time = [ %5e %5e ]  next: %p\n", 
            nckpnts-i, (void *)ck_mem, t0_, t1_, (void *)next_ );
-    #endif
+#endif
     ck_mem = next_;
     i++;
   }
@@ -1605,13 +1608,16 @@ static int IDAAgetY(void *idaadj_mem, realtype t, N_Vector yy, N_Vector yp)
     }
     else {
       printf("\n TROUBLE IN GETY\n ");
-      #if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION)
       printf("%Lg = ABS(t-dt_mem[0]->t) > troundoff = %Lg  uround = %Lg\n",
              ABS(t-dt_mem[0]->t), troundoff, uround);
-      #else
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+      printf("%lg = ABS(t-dt_mem[0]->t) > troundoff = %lg  uround = %lg\n",
+             ABS(t-dt_mem[0]->t), troundoff, uround);
+#else
       printf("%g = ABS(t-dt_mem[0]->t) > troundoff = %g  uround = %g\n",
              ABS(t-dt_mem[0]->t), troundoff, uround);
-      #endif
+#endif
       return(GETY_BADT);
     }
   }
