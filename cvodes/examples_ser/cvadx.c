@@ -1,49 +1,55 @@
-/************************************************************************
- *                                                                      *
- * File       : cvadx.c                                                 *
- * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 14 July 2003                                            *
- *----------------------------------------------------------------------*
- * Adjoint sensitivity example problem.                                 *
- * The following is a simple example problem, with the coding           *
- * needed for its solution by CVODES.  The problem is from chemical     *
- * kinetics, and consists of the following three rate equations..       *
- *    dy1/dt = -p1*y1 + p2*y2*y3                                        *
- *    dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2                            *
- *    dy3/dt =  p3*(y2)^2                                               *
- * on the interval from t = 0.0 to t = 4.e10, with initial conditions   *
- * y1 = 1.0, y2 = y3 = 0.  The reaction rates are: p1=0.04, p2=1e4, and *
- * p3=3e7.  The problem is stiff.                                       *
- * This program solves the problem with the BDF method, Newton          *
- * iteration with the CVODE dense linear solver, and a user-supplied    *
- * Jacobian routine.                                                    * 
- * It uses a scalar relative tolerance and a vector absolute tolerance. *
- * Output is printed in decades from t = .4 to t = 4.e10.               *
- * Run statistics (optional outputs) are printed at the end.            *
- *                                                                      *
- * Optionally, CVODES can compute sensitivities with respect to the     *
- * problem parameters p1, p2, and p3 of the following quantity:         *
- *   G = int_t0^t1 g(t,p,y) dt                                          *
- * where                                                                *
- *   g(t,p,y) = y3                                                      *
- *                                                                      *
- * The gradient dG/dp is obtained as:                                   *
- *   dG/dp = int_t0^t1 (g_p - lambda^T f_p ) dt - lambda^T(t0)*y0_p     *
- *         = - xi^T(t0) - lambda^T(t0)*y0_p                             *
- * where lambda and xi are solutions of:                                *
- *   d(lambda)/dt = - (f_y)^T * lambda - (g_y)^T                        *
- *   lambda(t1) = 0                                                     *
- * and                                                                  *
- *   d(xi)/dt = - (f_p)^T * lambda + (g_p)^T                            *
- *   xi(t1) = 0                                                         *
- *                                                                      *
- * During the backward integration, CVODES also evaluates G as          *
- *   G = - phi(t0)                                                      *
- * where                                                                *
- *   d(phi)/dt = g(t,y,p)                                               *
- *   phi(t1) = 0                                                        *
- *                                                                      *
- ************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.9 $
+ * $Date: 2004-04-03 00:28:30 $
+ * ----------------------------------------------------------------- 
+ * Programmers   : Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California 
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvodes/LICENSE
+ * -----------------------------------------------------------------
+ * Adjoint sensitivity example problem.
+ * The following is a simple example problem, with the coding
+ * needed for its solution by CVODES.  The problem is from chemical
+ * kinetics, and consists of the following three rate equations.
+ *    dy1/dt = -p1*y1 + p2*y2*y3
+ *    dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2
+ *    dy3/dt =  p3*(y2)^2
+ * on the interval from t = 0.0 to t = 4.e10, with initial conditions
+ * y1 = 1.0, y2 = y3 = 0.  The reaction rates are: p1=0.04, p2=1e4, and
+ * p3=3e7.  The problem is stiff.
+ * This program solves the problem with the BDF method, Newton
+ * iteration with the CVODE dense linear solver, and a user-supplied
+ * Jacobian routine.
+ * It uses a scalar relative tolerance and a vector absolute tolerance.
+ * Output is printed in decades from t = .4 to t = 4.e10.
+ * Run statistics (optional outputs) are printed at the end.
+ * 
+ * Optionally, CVODES can compute sensitivities with respect to the
+ * problem parameters p1, p2, and p3 of the following quantity:
+ *   G = int_t0^t1 g(t,p,y) dt
+ * where
+ *   g(t,p,y) = y3
+ *        
+ * The gradient dG/dp is obtained as:
+ *   dG/dp = int_t0^t1 (g_p - lambda^T f_p ) dt - lambda^T(t0)*y0_p
+ *         = - xi^T(t0) - lambda^T(t0)*y0_p
+ * where lambda and xi are solutions of:
+ *   d(lambda)/dt = - (f_y)^T * lambda - (g_y)^T
+ *   lambda(t1) = 0
+ * and
+ *   d(xi)/dt = - (f_p)^T * lambda + (g_p)^T
+ *   xi(t1) = 0
+ * 
+ * During the backward integration, CVODES also evaluates G as
+ *   G = - phi(t0)
+ * where
+ *   d(phi)/dt = g(t,y,p)
+ *   phi(t1) = 0
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -219,11 +225,13 @@ int main(int argc, char *argv[])
   flag = CVDenseSetJacData(cvode_mem, data);
   if (check_flag(&flag, "CVDenseSetJacData", 1)) return(1);
 
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
-  if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
   flag = CVodeSetQuadFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetQuadFdata", 1)) return(1);
-  flag = CVodeQuadMalloc(cvode_mem, fQ, SS, &reltol, &abstolQ, nvSpecQF);
+  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
+  if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
+  flag = CVodeSetQuadTolerances(cvode_mem, SS, &reltol, &abstolQ); 
+  if (check_flag(&flag, "CVodeSetQuadTolerances", 1)) return(1);
+  flag = CVodeQuadMalloc(cvode_mem, fQ, nvSpecQF);
   if (check_flag(&flag, "CVodeQuadMalloc", 1)) return(1);
 
   /* Allocate global memory */
@@ -288,11 +296,13 @@ int main(int argc, char *argv[])
   flag = CVDenseSetJacDataB(cvadj_mem, data);
   if (check_flag(&flag, "CVDenseSetJacDataB", 1)) return(1);
 
-  flag = CVodeSetQuadErrConB(cvadj_mem, TRUE);
-  if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
   flag = CVodeSetQuadFdataB(cvadj_mem, data);
   if (check_flag(&flag, "CVodeSetQuadFdataB", 1)) return(1);
-  flag = CVodeQuadMallocB(cvadj_mem, fQB, SS, &reltolB, &abstolQB, nvSpecQB);
+  flag = CVodeSetQuadErrConB(cvadj_mem, TRUE);
+  if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
+  flag = CVodeSetQuadTolerancesB(cvadj_mem, SS, &reltolB, &abstolQB); 
+  if (check_flag(&flag, "CVodeSetQuadTolerancesB", 1)) return(1);
+  flag = CVodeQuadMallocB(cvadj_mem, fQB,nvSpecQB);
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
 
   /* Backward Integration */
@@ -320,7 +330,7 @@ int main(int argc, char *argv[])
   printf("Re-initialize CVODES memory for backward run\n");
   flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, SS, &reltolB, &abstolB);
   if (check_flag(&flag, "CVodeReInitB", 1)) return(1);
-  flag = CVodeQuadReInitB(cvadj_mem, fQB, SS, &reltolB, &abstolQB); 
+  flag = CVodeQuadReInitB(cvadj_mem, fQB); 
   if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
 
   /* Backward Integration */
