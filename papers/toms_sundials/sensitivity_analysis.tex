@@ -1,7 +1,7 @@
 \section{Sensitivity Analysis}\label{s:sensitivity_analysis}
 
 Many times, models depend on parameters, either through their defining
-function --- $f(t,y)$ for the ODE in (\ref{ODE}), $F(t,y,y')$ for the DAE
+function --- $f(t,y)$ for the ODE in (\ref{ODE}), $F(t,y,{\dot y})$ for the DAE
 (\ref{e:DAE}), and $F(u)$ for nonlinear systems (\ref{nonlinear_system}) 
 --- or through initial conditions in the case of ODEs and DAEs. 
 In addition to the solution $y$ or $u$, we often want to quantify how 
@@ -32,7 +32,7 @@ solution of which can then be used to evaluate the gradient of the
 output functional with respect to any set of model parameters.
 
 For each of the basic solvers described in \S\ref{s:basic_solvers},
-extensions that are sensitivity enabled are already available (CVODES)
+extensions that are sensitivity-enabled are already available (CVODES)
 or under development (IDAS). If demand merits it, a sensitivity
 enabled extension to the nonlinear solver, KINSOLS, will also be
 developed.
@@ -60,7 +60,7 @@ and we consider a scalar output functional of the form $g(t,y,p)$.
 %
 In addition to $y$ as a function of $t$, we want the gradient 
 $d g / d p  = ({\partial g}/{\partial y}) s + {\partial g}/{\partial p}$, 
-where $s \in R^{N \times N_p}$ is the so-called sensitivity matrix.
+where $s = dy/dp \in R^{N \times N_p}$ is the so-called sensitivity matrix.
 %
 Each column $s_i = d y / d p_i$ of $s$ satisfies the sensitivity ODE
 \begin{equation}\label{e:fwdODE}
@@ -93,12 +93,12 @@ the states and sensitivity variables are advanced in time at each step:
 \end{itemize}
 %
 The matrices in the {\em staggered corrector} methods and all of the 
-block-diagonal matrices in the {\em simultaneous corrector} method are 
-identical to the matrix $M$ in (\ref{Newtonmat}) and 
+diagonal blocks in the {\em simultaneous corrector} method are 
+identical to the matrix $M$ in (\ref{Newtonmat}), and 
 therefore the linear systems corresponding to the sensitivity equations
 are solved using the same preconditioner and/or linear system solver that 
 were specified for the original ODE problem. 
-The sensitivity variables may be suppressed from the step size control
+The sensitivity variables may be suppressed from the stepsize control
 algorithm but they are always included in the nonlinear system convergence
 test.
 
@@ -113,7 +113,7 @@ the machine unit roundoff $U$,
 scale factors $\bar p$ for the problem parameters $p$, 
 and the weighted root-mean-square norm of the sensitivity vector $s_i$.
 %
-Using central finite differences asd an example, the two terms $J s_i$ 
+Using central finite differences as an example, the two terms $J s_i$ 
 and ${\partial f}/{\partial p_i}$ in the right-hand side of (\ref{e:fwdODE}) 
 can be evaluated separately:
 \begin{gather}
@@ -122,7 +122,7 @@ can be evaluated separately:
   {\partial f}/{\partial p_i} \approx \frac{f(t,y,p + \sigma_i e_i)-
     f(t,y,p - \sigma_i e_i)}{2\,\sigma_i} \, , \tag{\ref{e:fd2}'} \\
   \sigma_i = |{\bar p}_i| \sqrt{\max(rtol, U)} \, , \quad
-  \sigma_y = \frac{|{\bar p}_i|}{\max(1/\sigma_i, \|s_i\|_{WRMS})} \, , \nonumber
+  \sigma_y = \frac{1}{\max(1/\sigma_i, \|s_i\|_{WRMS} / |{\bar p}_i|)} \, , \nonumber
 \end{gather}
 simultaneously:
 \begin{gather}
@@ -162,7 +162,7 @@ sensitivity array is given by
   + \int_{t_0}^{t_f} \lambda^T \frac{\partial f}{\partial p} dt + 
   \left. \frac{\partial g}{\partial p} \right|_{t=t_f} \, . 
 \end{equation}
-Other situations, with different forms for the desired sensitvity
+Other situations, with different forms for the desired sensitivity
 information, are covered by different adjoint systems~\cite{CLPS:03}.
 
 For the efficient evaluation of integrals such as the one in (\ref{e:grad_g}),
@@ -173,16 +173,16 @@ of the corresponding variables from the step size control algorithm.
 During the backward integration, we regenerate $y(t)$ values, as needed
 in evaluating the right-hand side of the adjoint system.
 %
-CVODES settles for a compromise storage space - execution time by implementing
-a checkpoint scheme combined with piecewise cubic Hermite interpolation: 
-at the cost of at most one additional forward integration, this approach 
-offers the best possible estimate of memory requirements for adjoint 
-sensitivity analysis.
+CVODES settles for a compromise between storage space and execution time 
+by implementing a checkpoint scheme combined with piecewise cubic Hermite 
+interpolation: at the cost of at most one additional forward integration, 
+this approach offers the best possible estimate of memory requirements for 
+adjoint sensitivity analysis.
 %
 Finally, we note that the adjoint sensitivity module in CVODES provides 
 the infrastructure to integrate backwards in time any ODE terminal-value 
 problem dependent on the solution of the IVP (\ref{e:ODE_with_p}), 
-in particular adjoint systems such as (\ref{e:ODEadj}). In particular, 
+not just adjoint systems such as (\ref{e:ODEadj}). In particular, 
 for ODE systems arising from semi-discretization of time-dependent PDEs, 
 this feature allows for integration of either the discretized adjoint 
 PDE system or the adjoint of the discretized PDE.
@@ -216,7 +216,8 @@ The use of adjoint DAE systems for {\em adjoint sensitivity} analysis is also
 similar to the ODE case. As an example, if $\lambda$ satisfies 
 \begin{equation}\label{e:DAEadj} 
   \frac{d}{dt} \left[ \left( \frac{\partial F}{\partial \dot{y}}\right) ^T \lambda \right] 
-  - \left(\frac{\partial F}{\partial y}\right)^T \lambda = - \frac{\partial g}{\partial y} \, ,
+  - \left(\frac{\partial F}{\partial y}\right)^T \lambda 
+  = - \left( \frac{\partial g}{\partial y}\right)^T \, ,
 \end{equation}
 with appropriate conditions at $t_f$, then the gradient of 
 $G(p) = \int_{t_0}^{t_f} g(t,y,p) dt$ is obtained as
@@ -239,12 +240,12 @@ is stable from the left. To circumvent this problem, for such
 systems IDAS integrates backwards in time the so-called 
 {\em augmented adjoint DAE system} defined as
 \begin{equation} \label{e:DAEadj_augmented}
-\left \{
-\begin{array}{rcl}
-\dot {\bar\lambda} - F_y^T \lambda & = &  -g_y^T \\
-\bar \lambda - F_{\dot y}^T \lambda & = & 0 \, ,
-\end{array}
-\right.
+\begin{split}
+  \dot {\bar\lambda} -  \left(\frac{\partial F}{\partial y}\right)^T \lambda 
+  &  = - \left( \frac{\partial g}{\partial y}\right)^T \\
+  \bar \lambda - \left( \frac{\partial F}{\partial \dot{y}}\right) ^T \lambda 
+  & = 0 \, ,
+\end{split}
 \end{equation}
 which can be shown to preserve stability~\cite{CLPS:03}.
 
