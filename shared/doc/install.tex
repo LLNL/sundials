@@ -71,39 +71,48 @@ from a shell command prompt.
 \caption{{\sundials} libraries and header files}
 \label{t:sundials_files}
 \medskip
-\begin{tabular}{|c|c|c|}\hline
-{\bf CVODE} & {\bf CVODES} & {\bf IDA} \\
+\begin{tabular}{|l|l|l|}\hline
+{\bf MODULE} & {\bf Libraries} & {\bf Header files} \\
 \hline
-\id{libsundials\_cvode.{\em lib}} & \id{libsundials\_cvodes.{\em lib}} & \id{libsundials\_ida.{\em lib}} \\
-\id{libsundials\_fcvode.a} & & \\
+{\shared} &  \id{libsundials\_shared.{\em lib}} & \id{sundialstypes.h} \\
+          &                                     & \id{dense.h}         \\
+          &                                     & \id{smalldense.h}    \\
+          &                                     & \id{band.h}          \\
+          &                                     & \id{spgmr.h}         \\
+          &                                     & \id{iterative.h}     \\
+          &                                     & \id{nvector.h}       \\
 \hline
-\id{cvode.h} & \id{cvodes.h} & \id{ida.h} \\
-\id{cvband.h} & \id{cvodea.h} & \id{idaband.h} \\
-\id{cvbandpre.h} & \id{cvband.h} & \id{idabbdpre.h} \\
-\id{cvbbdpre.h} & \id{cvbandpre.h} & \id{idadense.h} \\
-\id{cvdense.h} & \id{cvbbdpre.h} & \id{idaspgmr.h} \\
-\id{cvdiag.h} & \id{cvdense.h} & \\
-\id{cvspgmr.h} & \id{cvdiag.h} & \\
-& \id{cvspgmr.h} & \\
+{\nvector} & \id{libsundials\_nvecserial.{\em lib}} & \id{nvector\_serial.h} \\
+           & \id{libsundials\_nvecparallel.{\em lib}} & \id{nvector\_parallel.h} \\
+           & \id{libsundials\_fnvecserial.{\em lib}} &  \\
+           & \id{libsundials\_fnvecparallel.{\em lib}} &  \\
 \hline
-\end{tabular}
-
-\medskip
-\begin{tabular}{|c|c|c|}\hline
-{\bf KINSOL} & {\bf NVECTOR} & {\bf SHARED} \\
+{\cvode} & \id{libsundials\_cvode.{\em lib}} & \id{cvode.h} \\
+         &                                   & \id{cvdense.h}  \\
+         &                                   & \id{cvband.h}  \\
+         &                                   & \id{cvdiag.h}  \\
+         &                                   & \id{cvspgmr.h}  \\
+         &                                   & \id{cvbandpre.h}  \\
+         &                                   & \id{cvbbdpre.h}  \\
 \hline
-\id{libsundials\_kinsol.{\em lib}} & \id{libsundials\_nvecserial.{\em lib}} & \id{libsundials\_shared.{\em lib}} \\
-\id{libsundials\_fkinsol.a} & \id{libsundials\_fnvecserial.a} & \\
-& \id{libsundials\_nvecparallel.{\em lib}} & \\
-& \id{libsundials\_fnvecparallel.a} & \\
+{\cvodes} & \id{libsundials\_cvodes.{\em lib}} & \id{cvodes.h} \\
+          &                                    & \id{cvodea.h}  \\
+          &                                    & \id{cvdense.h}  \\
+          &                                    & \id{cvband.h}  \\
+          &                                    & \id{cvdiag.h}  \\
+          &                                    & \id{cvspgmr.h}  \\
+          &                                    & \id{cvbandpre.h}  \\
+          &                                    & \id{cvbbdpre.h}  \\
 \hline
-\id{kinsol.h} & \id{nvector.h} & \id{band.h} \\
-\id{kinbbdpre.h} & \id{nvector\_serial.h} & \id{dense.h} \\
-\id{kinspgmr.h} & \id{fnvector\_serial.h} & \id{iterative.h} \\
-& \id{nvector\_parallel.h} & \id{smalldense.h} \\
-& \id{fnvector\_parallel.h} & \id{spgmr.h} \\
-& & \id{sundialsmath.h} \\
-& & \id{sundialstypes.h} \\
+{\ida} & \id{libsundials\_ida.{\em lib}} & \id{ida.h} \\
+       &                                 & \id{idadense.h}  \\
+       &                                 & \id{idaband.h}  \\
+       &                                 & \id{idaspgmr.h}  \\
+       &                                 & \id{idabbdpre.h}  \\
+\hline
+{\kinsol} & \id{libsundials\_kinsol.{\em lib}} & \id{kinsol.h} \\
+          &                                    & \id{kinspgmr.h}  \\
+          &                                    & \id{kinbbdpre.h}  \\
 \hline
 \end{tabular}
 
@@ -119,10 +128,12 @@ configure script-related options may be used to indicate which {\mpi}
 implementation should be used. Also, if the user wants to use non-default
 language compilers, then, again, the necessary shell environment variables must
 be appropriately redefined.
-
+%%
 The remainder of this section provides explanations of available configure script
 options.
 
+
+\subsection*{General options}
 
 %%
 %% General options
@@ -167,17 +178,10 @@ options.
 \item \id{--disable-}{\em solver}
 
   Although each existing solver module is built by default, support for a
-  given solver can be explicitly disabled using this option. In both of the
-  above, the valid values for {\em solver} are: \id{kinsol}, \id{cvode},
-  \id{cvodes}, and \id{ida}.
+  given solver can be explicitly disabled using this option. 
+  The valid values for {\em solver} are: \id{cvode}, \id{cvodes}, 
+  \id{ida}, and \id{kinsol}.
   
-\item \id{--without-f77}
-
-  Using this option will only prevent the {\F} examples included with the
-  {\kinsol} and {\cvode} solver modules from being built. The {\fkinsol}
-  and {\fcvode} {\F}-{\C} interface modules will be built regardless, if
-  available.
-
 \item \id{--with-cppflags=ARG}
 
   Specify additional {\C} preprocessor flags 
@@ -186,10 +190,6 @@ options.
 \item \id{--with-cflags=ARG}
 
   Specify additional {\C} compilation flags.
-
-\item \id{--with-fflags=ARG}
-
-  Specify additional {\F} compilation flags.
 
 \item \id{--with-ldflags=ARG}
 
@@ -214,7 +214,25 @@ options.
 
 \end{config}
 
-\vspace{0.25in}
+%%
+%% Fortran support
+%%
+
+\subsection*{Options for Fortran support}
+
+\begin{config}
+
+\item \id{--disable-f77}
+
+  Using this option will disable al {\F} support. If {\cvode} and/or {\kinsol}
+  are present the {\fcvode} and {\fkinsol} modules will not be built.
+
+\item \id{--with-fflags=ARG}
+
+  Specify additional {\F} compilation flags.
+
+\end{config}
+
 \noindent The configuration script will attempt to automatically determine the
 function name mangling scheme required by the specified {\F} compiler, but the
 following two options may be used to override the default behavior.
@@ -242,39 +260,13 @@ following two options may be used to override the default behavior.
 
 \end{config}
 
-%%
-%% Environment variables
-%%
-
-\vspace{0.25in}
-\noindent The following environment variables can be locally (re)defined for use during the configuration of {\sundials}. See the next section for illustrations of these.
-
-\begin{config}
-
-\item \id{CC}
-
-\item \id{F77}
-
-  Since the configuration script uses the first {\C} and {\F} compilers found in
-  the current executable search path, then each relevant shell variable (\id{CC}
-  and \id{F77}) must be locally (re)defined in order to use a different compiler. 
-  For example, to use \id{xcc} (executable name of chosen compiler) as the {\C}
-  language compiler, use \id{CC=xcc} in the configure step.
-
-\item \id{CFLAGS}
-
-\item \id{FFLAGS}
-
-  Use these environment variables to override the default {\C} and {\F}
-  compilation flags defined in the \id{sundials/acinclude.m4} script.
-
-\end{config}
 
 %%
 %% Parallel options
 %%
 
-\vspace{0.25in}
+\subsection*{Options for MPI support}
+
 \noindent The following configuration options are only applicable to the parallel {\sundials} packages:
 
 \begin{config}
@@ -320,11 +312,12 @@ following two options may be used to override the default behavior.
 
 \end{config}
 
+
+\subsection*{Options for library support}
 %%
 %% Shared or Static Libraries
 %%
 
-\vspace{0.25in}
 \noindent By default, only static libraries are built, but the following option
 may be used to build shared libraries on supported platforms.
 
@@ -345,11 +338,12 @@ may be used to build shared libraries on supported platforms.
 
 \end{config}
 
+\subsection*{Options for cross-compilation}
+
 %%
 %% Cross-compilation
 %%
 
-\vspace{0.25in}
 \noindent If the {\sundials} suite will be cross-compiled (meaning the build
 procedure will not be completed on the actual destination system, but rather
 on an alternate system with a different architecture) then the following two
@@ -366,6 +360,36 @@ options should be used:
 
   If cross-compiling, then the user must use this option to specify the canonical
   system/platform name for the destination system.
+
+\end{config}
+
+\subsection*{Environment variables}
+
+%%
+%% Environment variables
+%%
+
+\noindent The following environment variables can be locally (re)defined for use 
+during the configuration of {\sundials}. See the next section for illustrations of these.
+
+\begin{config}
+
+\item \id{CC}
+
+\item \id{F77}
+
+  Since the configuration script uses the first {\C} and {\F} compilers found in
+  the current executable search path, then each relevant shell variable (\id{CC}
+  and \id{F77}) must be locally (re)defined in order to use a different compiler. 
+  For example, to use \id{xcc} (executable name of chosen compiler) as the {\C}
+  language compiler, use \id{CC=xcc} in the configure step.
+
+\item \id{CFLAGS}
+
+\item \id{FFLAGS}
+
+  Use these environment variables to override the default {\C} and {\F}
+  compilation flags defined in the \id{sundials/acinclude.m4} script.
 
 \end{config}
 
