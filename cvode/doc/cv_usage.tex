@@ -136,7 +136,7 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
   processors are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
   
 \item
-  {\bf Set intial values}
+  {\bf Set initial values}
  
   To set the vector \id{y0} of initial values, use macros defined by a particular 
   {\nvector} implementation:
@@ -211,6 +211,8 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
   See \S\ref{sss:cvode} for details.
   
 \item
+  {\bf Get optional outputs}
+
   Call \id{CV*Get*} functions to obtain optional output.
   See \S\ref{ss:optional_output} for details.
 
@@ -301,12 +303,12 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
   allocates internal memory, and initializes {\cvode}.
 }
 {
-  \begin{args}[abstol]
+  \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block returned by \id{CVodeCreate}.
   \item[f] (\Id{RhsFn})
     is the {\C} function which computes $f$ in the ODE. This function has the form 
-    \id{f(N, t, y, ydot, f\_data)} (for full details see \S\ref{ss:user_fct_sim}).
+    \id{f(t, y, ydot, f\_data)} (for full details see \S\ref{ss:user_fct_sim}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
@@ -1782,10 +1784,10 @@ The call to the \id{CVodeGetDky} function has the following form:
 %%
 \ucfunction{CVodeGetDky}
 {
-  flag = CVodeDky(cvode\_mem, t, k, dky);
+  flag = CVodeGetDky(cvode\_mem, t, k, dky);
 }
 {
-  The function \ID{CVodeDky} computes the \id{k}-th derivative of the \id{y} function at      
+  The function \ID{CVodeGetDky} computes the \id{k}-th derivative of the \id{y} function at      
   time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$ \id{t} $\le t_n$, 
   $t_n$ denotes the current internal time reached, and $h_u$ is the 
   last internal step size successfully used by the solver. 
@@ -1799,7 +1801,7 @@ The call to the \id{CVodeGetDky} function has the following form:
   \item[t] (\id{realtype})
   \item[k] (\id{int})
   \item[dky] (\id{N\_Vector})
-    The derivative vector is returned in \id{dky}. 
+    vector containing the derivative.
     This vector must be allocated by the caller. 
   \end{args}
 }
@@ -1807,20 +1809,20 @@ The call to the \id{CVodeGetDky} function has the following form:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[DKY\_NO\_MEM] 
   \item[\Id{OKAY}]
-    \id{CVodeDky} succeeded;
+    \id{CVodeGetDky} succeeded.
   \item[\Id{BAD\_K}] 
-    \id{k} is not in the range $0, 1, ..., q_u$;
+    \id{k} is not in the range $0, 1, ..., q_u$.
   \item[\Id{BAD\_T}] 
-    \id{t} is not in the interval $[t_n - h_u , t_n]$;
+    \id{t} is not in the interval $[t_n - h_u , t_n]$.
   \item[\Id{BAD\_DKY}] 
-    the \id{dky} argument was \id{NULL};
+    The \id{dky} argument was \id{NULL}.
   \item[\Id{DKY\_NO\_MEM}] 
-    the \id{cvode\_mem} argument was \id{NULL}.
+    The \id{cvode\_mem} argument was \id{NULL}.
   \end{args}
 
 }
 {
-  It is only legal to call the function \id{CVodeDky} after a 
+  It is only legal to call the function \id{CVodeGetDky} after a 
   successful return from \id{CVode}. See \id{CVodeGetLastOrder} 
   and \id{CVodeGetLastStep} in the next section for access to 
   $q_u$ and $h_u$.
@@ -2458,7 +2460,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    the optional output value has been successfuly set.
+    the optional output values have been successfuly set.
   \item[\Id{CVG\_NO\_MEM}]
     the \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -3257,7 +3259,7 @@ will be reused for the new problem.
   and reinitializes {\cvode}.
 }
 {
-  \begin{args}[abstol]
+  \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[f] (\Id{RhsFn})
@@ -3769,7 +3771,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Initialize vector specification}
 
 \item
-  \textcolor{gray}{\bf Set intial values}
+  \textcolor{gray}{\bf Set initial values}
  
 \item
   \textcolor{gray}{\bf Create {\cvode} object}
@@ -4240,7 +4242,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Initialize vector specification}
 
 \item
-  \textcolor{gray}{\bf Set intial values}
+  \textcolor{gray}{\bf Set initial values}
  
 \item
   \textcolor{gray}{\bf Create {\cvode} object}
