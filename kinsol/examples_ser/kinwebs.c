@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-08 23:25:06 $
+ * $Revision: 1.11 $
+ * $Date: 2004-11-04 20:42:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -80,14 +80,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* def's of realtype and booleantype              */
 #include "kinsol.h"         /* main KINSOL header file                        */
-#include "iterative.h"      /* contains the enum for types of preconditioning */
 #include "kinspgmr.h"       /* use KINSPGMR linear solver                     */
-#include "smalldense.h"     /* use generic DENSE solver for preconditioning   */
+#include "sundialstypes.h"  /* def's of realtype and booleantype              */
 #include "nvector_serial.h" /* definitions of type N_Vector and access macros */
+#include "iterative.h"      /* contains the enum for types of preconditioning */
+#include "smalldense.h"     /* use generic DENSE solver for preconditioning   */
 #include "sundialsmath.h"   /* contains RSqrt routine                         */
-
 
 /* Problem Constants */
 
@@ -117,7 +116,6 @@
 #define PREYIN      RCONST(1.0)    /* initial guess for prey concentrations. */
 #define PREDIN      RCONST(30000.0)/* initial guess for predator concs.      */
 
-
 /* User-defined vector access macro: IJ_Vptr */
 
 /* IJ_Vptr is defined in order to translate from the underlying 3D structure
@@ -141,20 +139,6 @@ typedef struct {
   long int mx, my, ns, np;
 } *UserData;
 
-
-/* Private Helper Functions */
-
-static UserData AllocUserData(void);
-static void InitUserData(UserData data);
-static void FreeUserData(UserData data);
-static void SetInitialProfiles(N_Vector cc, N_Vector sc);
-static void PrintOutput(N_Vector cc);
-static void PrintFinalStats(void *kmem);
-static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
-                    void *f_data);
-static realtype DotProd(long int size, realtype *x1, realtype *x2);
-
-
 /* Functions Called by the KINSOL Solver */
 
 static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
@@ -169,13 +153,26 @@ static int PSolveb(N_Vector cc, N_Vector cscale,
                    N_Vector vv, void *P_data,
                    N_Vector ftem);
 
+/* Private Helper Functions */
 
-/* Private function to check function return values */
-
+static UserData AllocUserData(void);
+static void InitUserData(UserData data);
+static void FreeUserData(UserData data);
+static void SetInitialProfiles(N_Vector cc, N_Vector sc);
+static void PrintHeader(int globalstrategy, int maxl, int maxlrst, 
+                        realtype fnormtol, realtype scsteptol);
+static void PrintOutput(N_Vector cc);
+static void PrintFinalStats(void *kmem);
+static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
+                    void *f_data);
+static realtype DotProd(long int size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
-
-/***************************** Main Program ******************************/
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
 
 int main()
 {
@@ -247,23 +244,8 @@ int main()
   if (check_flag(&flag, "KINSpgmrSetPrecData", 1)) return(1);
 
   /* Print out the problem size, solution parameters, initial guess. */
-  printf("\nPredator-prey test problem --  KINSol (serial version)\n\n");
-  printf("Mesh dimensions = %d X %d\n", MX, MY);
-  printf("Number of species = %d\n", NUM_SPECIES);
-  printf("Total system size = %d\n\n", NEQ);
-  printf("Flag globalstrategy = %d (1 = Inex. Newton, 2 = Linesearch)\n",
-         globalstrategy);
-  printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
-         maxl, maxlrst);
-  printf("Preconditioning uses interaction-only block-diagonal matrix\n");
-  printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
-         fnormtol, scsteptol);
-  printf("Positivity constraints imposed on all components \n");
+  PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol);
 
-  printf("\nInitial profile of concentration\n");
-  printf("At all mesh points:  %g %g %g   %g %g %g\n", PREYIN,PREYIN,PREYIN,
-         PREDIN,PREDIN,PREDIN);
-  
   /* Call KINSol and print output concentration profile */
   flag = KINSol(kmem,           /* KINSol memory block */
                 cc,             /* initial guess on input; solution vector */
@@ -278,219 +260,31 @@ int main()
   /* Print final statistics and free memory */  
   PrintFinalStats(kmem);
 
-  N_VDestroy(cc);
-  N_VDestroy(sc);
-  N_VDestroy(constraints);
+  N_VDestroy_Serial(cc);
+  N_VDestroy_Serial(sc);
+  N_VDestroy_Serial(constraints);
   KINFree(kmem);
   FreeUserData(data);
 
   return(0);
-
-} /* end of main *********************************************************/
-
-
-/*********************** Private Helper Functions ************************/
-
-/* Allocate memory for data structure of type UserData */
-
-static UserData AllocUserData(void)
-{
-  int jx, jy;
-  UserData data;
-
-  data = (UserData) malloc(sizeof *data);
-  
-  for (jx=0; jx < MX; jx++) {
-    for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = denalloc(NUM_SPECIES);
-      (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
-    }
-  }
-  (data->acoef) = denalloc(NUM_SPECIES);
-  (data->bcoef) = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  (data->cox)   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  (data->coy)   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  
-  return(data);
-  
-} /* end of routine AllocUserData ****************************************/
-
+}
 
 /* Readability definitions used in other routines below */
+
 #define acoef  (data->acoef)
 #define bcoef  (data->bcoef)
 #define cox    (data->cox)
 #define coy    (data->coy)
 
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY KINSOL
+ *--------------------------------------------------------------------
+ */
 
-/* Load problem constants in data */
-
-static void InitUserData(UserData data)
-{
-  int i, j, np;
-  realtype *a1,*a2, *a3, *a4, dx2, dy2;
-  
-  data->mx = MX;
-  data->my = MY;
-  data->ns = NUM_SPECIES;
-  data->np = NUM_SPECIES/2;
-  data->ax = AX;
-  data->ay = AY;
-  data->dx = (data->ax)/(MX-1);
-  data->dy = (data->ay)/(MY-1);
-  data->uround = UNIT_ROUNDOFF;
-  data->sqruround = RSqrt(data->uround);
-  
-  /* Set up the coefficients a and b plus others found in the equations */
-  np = data->np;
-
-  dx2=(data->dx)*(data->dx); dy2=(data->dy)*(data->dy);
-
-  for (i = 0; i < np; i++) {
-    a1= &(acoef[i][np]);
-    a2= &(acoef[i+np][0]);
-    a3= &(acoef[i][0]);
-    a4= &(acoef[i+np][np]);
-
-    /*  Fill in the portion of acoef in the four quadrants, row by row */
-    for (j = 0; j < np; j++) {
-      *a1++ =  -GG;
-      *a2++ =   EE;
-      *a3++ = ZERO;
-      *a4++ = ZERO;
-    }
-    
-    /* and then change the diagonal elements of acoef to -AA */
-    acoef[i][i]=-AA;
-    acoef[i+np][i+np] = -AA;
-    
-    bcoef[i] = BB;
-    bcoef[i+np] = -BB;
-    
-    cox[i]=DPREY/dx2;
-    cox[i+np]=DPRED/dx2;
-    
-    coy[i]=DPREY/dy2;
-    coy[i+np]=DPRED/dy2;
-  }
-  
-} /* end of routine InitUserData *****************************************/
-
-/* Free data memory */
-
-static void FreeUserData(UserData data)
-{
-  int jx, jy;
-  
-  for (jx=0; jx < MX; jx++) {
-    for (jy=0; jy < MY; jy++) {
-      denfree((data->P)[jx][jy]);
-      denfreepiv((data->pivot)[jx][jy]);
-    }
-  }
-  
-  denfree(acoef);
-  free(bcoef);
-  free(cox);
-  N_VDestroy(data->rates);
-  free(data);
-  
-} /* end of routine FreeUserData *****************************************/
-
-/* Set initial conditions in cc */
-
-static void SetInitialProfiles(N_Vector cc, N_Vector sc)
-{
-  int i, jx, jy;
-  realtype *cloc, *sloc;
-  realtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
-  
-  /* Initialize arrays ctemp and stemp used in the loading process */
-  for (i = 0; i < NUM_SPECIES/2; i++) {
-    ctemp[i] = PREYIN;
-    stemp[i] = ONE;
-  }
-  for (i = NUM_SPECIES/2; i < NUM_SPECIES; i++) {
-    ctemp[i] = PREDIN;
-    stemp[i] = 0.00001;
-  }
-
-  /* Load initial profiles into cc and sc vector from ctemp and stemp. */
-  for (jy = 0; jy < MY; jy++) {
-    for (jx = 0; jx < MX; jx++) {
-      cloc = IJ_Vptr(cc,jx,jy);
-      sloc = IJ_Vptr(sc,jx,jy);
-      for (i = 0; i < NUM_SPECIES; i++) {
-        cloc[i] = ctemp[i];
-        sloc[i] = stemp[i];
-      }
-    }
-  }
-
-} /* end of routine SetInitialProfiles ***********************************/
-
-/* Print sampled values of current cc */
-
-static void PrintOutput(N_Vector cc)
-{
-  int is, jx, jy;
-  realtype *ct;
-  
-  jy = 0; jx = 0;
-  ct = IJ_Vptr(cc,jx,jy);
-  printf("\nAt bottom left:");
-
-  /* Print out lines with up to 6 values per line */
-  for (is = 0; is < NUM_SPECIES; is++){
-    if ((is%6)*6 == is) printf("\n");
-    printf(" %g",ct[is]);
-  }
-  
-  jy = MY-1; jx = MX-1;
-  ct = IJ_Vptr(cc,jx,jy);
-  printf("\n\nAt top right:");
-
-  /* Print out lines with up to 6 values per line */
-  for (is = 0; is < NUM_SPECIES; is++) {
-    if ((is%6)*6 == is) printf("\n");
-    printf(" %g",ct[is]);
-  }
-  printf("\n\n");
-  
-} /* end of routine PrintOutput ******************************************/
-
-/* Print final statistics contained in iopt */
-
-static void PrintFinalStats(void *kmem)
-{
-  long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
-  int flag;
-  
-  flag = KINGetNumNonlinSolvIters(kmem, &nni);
-  check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
-  flag = KINGetNumFuncEvals(kmem, &nfe);
-  check_flag(&flag, "KINGetNumFuncEvals", 1);
-  flag = KINSpgmrGetNumLinIters(kmem, &nli);
-  check_flag(&flag, "KINSpgmrGetNumLinIters", 1);
-  flag = KINSpgmrGetNumPrecEvals(kmem, &npe);
-  check_flag(&flag, "KINSpgmrGetNumPrecEvals", 1);
-  flag = KINSpgmrGetNumPrecSolves(kmem, &nps);
-  check_flag(&flag, "KINSpgmrGetNumPrecSolves", 1);
-  flag = KINSpgmrGetNumConvFails(kmem, &ncfl);
-  check_flag(&flag, "KINSpgmrGetNumConvFails", 1);
-  flag = KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
-  check_flag(&flag, "KINSpgmrGetNumFuncEvals", 1);
-
-  printf("\nFinal Statistics.. \n\n");
-  printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
-  printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
-  printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);
-  
-} /* end of routine PrintFinalStats **************************************/
-
-/***************** Functions Called by the KINSOL Solver *****************/
-
-/* System function for predator-prey system */
+/* 
+ * System function for predator-prey system 
+ */
 
 static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
 {
@@ -544,11 +338,12 @@ static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
       
     } /* end of jx loop */
     
-  } /* end of jy loop */
-  
-} /* end of routine funcprpr *********************************************/
+  } /* end of jy loop */  
+}
 
-/* Preconditioner setup routine. Generate and preprocess P. */
+/*
+ * Preconditioner setup routine. Generate and preprocess P. 
+ */
 
 static int Precondb(N_Vector cc, N_Vector cscale,
                     N_Vector fval, N_Vector fscale,
@@ -610,11 +405,12 @@ static int Precondb(N_Vector cc, N_Vector cscale,
     
   } /* end of jy loop */
   
-  return(0);
-  
-} /* end of routine Precondbd ********************************************/
+  return(0);  
+}
 
-/* Preconditioner solve routine */
+/*
+ * Preconditioner solve routine 
+ */
 
 static int PSolveb(N_Vector cc, N_Vector cscale, 
                    N_Vector fval, N_Vector fscale, 
@@ -645,10 +441,11 @@ static int PSolveb(N_Vector cc, N_Vector cscale,
   } /* end of jx loop */
   
   return(0);
-  
-} /* end of routine PSolvebd *********************************************/
+}
 
-/* Interaction rate function routine */
+/*
+ * Interaction rate function routine 
+ */
 
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *f_data)
@@ -665,11 +462,12 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
   fac = ONE + ALPHA * xx * yy;
   
   for (i = 0; i < NUM_SPECIES; i++)
-    ratesxy[i] = cxy[i] * ( bcoef[i] * fac + ratesxy[i] );
-  
-} /* end of routine WebRate **********************************************/
+    ratesxy[i] = cxy[i] * ( bcoef[i] * fac + ratesxy[i] );  
+}
 
-/* Dot product routine for realtype arrays */
+/*
+ * Dot product routine for realtype arrays 
+ */
 
 static realtype DotProd(long int size, realtype *x1, realtype *x2)
 {
@@ -678,20 +476,264 @@ static realtype DotProd(long int size, realtype *x1, realtype *x2)
   
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
-  return(temp);
+
+  return(temp);  
+}
+
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+/*
+ * Allocate memory for data structure of type UserData 
+ */
+
+static UserData AllocUserData(void)
+{
+  int jx, jy;
+  UserData data;
+
+  data = (UserData) malloc(sizeof *data);
   
-} /* end of routine DotProd **********************************************/
+  for (jx=0; jx < MX; jx++) {
+    for (jy=0; jy < MY; jy++) {
+      (data->P)[jx][jy] = denalloc(NUM_SPECIES);
+      (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
+    }
+  }
+  acoef = denalloc(NUM_SPECIES);
+  bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+  cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+  coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+  
+  return(data);
+}
 
+/* 
+ * Load problem constants in data 
+ */
 
-/*********************** Private Helper Function ************************/
+static void InitUserData(UserData data)
+{
+  int i, j, np;
+  realtype *a1,*a2, *a3, *a4, dx2, dy2;
+  
+  data->mx = MX;
+  data->my = MY;
+  data->ns = NUM_SPECIES;
+  data->np = NUM_SPECIES/2;
+  data->ax = AX;
+  data->ay = AY;
+  data->dx = (data->ax)/(MX-1);
+  data->dy = (data->ay)/(MY-1);
+  data->uround = UNIT_ROUNDOFF;
+  data->sqruround = RSqrt(data->uround);
+  
+  /* Set up the coefficients a and b plus others found in the equations */
+  np = data->np;
 
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+  dx2=(data->dx)*(data->dx); dy2=(data->dy)*(data->dy);
+
+  for (i = 0; i < np; i++) {
+    a1= &(acoef[i][np]);
+    a2= &(acoef[i+np][0]);
+    a3= &(acoef[i][0]);
+    a4= &(acoef[i+np][np]);
+
+    /*  Fill in the portion of acoef in the four quadrants, row by row */
+    for (j = 0; j < np; j++) {
+      *a1++ =  -GG;
+      *a2++ =   EE;
+      *a3++ = ZERO;
+      *a4++ = ZERO;
+    }
+    
+    /* and then change the diagonal elements of acoef to -AA */
+    acoef[i][i]=-AA;
+    acoef[i+np][i+np] = -AA;
+    
+    bcoef[i] = BB;
+    bcoef[i+np] = -BB;
+    
+    cox[i]=DPREY/dx2;
+    cox[i+np]=DPRED/dx2;
+    
+    coy[i]=DPREY/dy2;
+    coy[i+np]=DPRED/dy2;
+  }  
+}
+
+/* 
+ * Free data memory 
+ */
+
+static void FreeUserData(UserData data)
+{
+  int jx, jy;
+  
+  for (jx=0; jx < MX; jx++) {
+    for (jy=0; jy < MY; jy++) {
+      denfree((data->P)[jx][jy]);
+      denfreepiv((data->pivot)[jx][jy]);
+    }
+  }
+  
+  denfree(acoef);
+  free(bcoef);
+  free(cox);
+  N_VDestroy_Serial(data->rates);
+  free(data);
+}
+
+/* 
+ * Set initial conditions in cc 
+ */
+
+static void SetInitialProfiles(N_Vector cc, N_Vector sc)
+{
+  int i, jx, jy;
+  realtype *cloc, *sloc;
+  realtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
+  
+  /* Initialize arrays ctemp and stemp used in the loading process */
+  for (i = 0; i < NUM_SPECIES/2; i++) {
+    ctemp[i] = PREYIN;
+    stemp[i] = ONE;
+  }
+  for (i = NUM_SPECIES/2; i < NUM_SPECIES; i++) {
+    ctemp[i] = PREDIN;
+    stemp[i] = 0.00001;
+  }
+
+  /* Load initial profiles into cc and sc vector from ctemp and stemp. */
+  for (jy = 0; jy < MY; jy++) {
+    for (jx = 0; jx < MX; jx++) {
+      cloc = IJ_Vptr(cc,jx,jy);
+      sloc = IJ_Vptr(sc,jx,jy);
+      for (i = 0; i < NUM_SPECIES; i++) {
+        cloc[i] = ctemp[i];
+        sloc[i] = stemp[i];
+      }
+    }
+  }
+}
+
+/* 
+ * Print first lines of output (problem description)
+ */
+
+static void PrintHeader(int globalstrategy, int maxl, int maxlrst, 
+                        realtype fnormtol, realtype scsteptol)
+{
+  printf("\nPredator-prey test problem --  KINSol (serial version)\n\n");
+  printf("Mesh dimensions = %d X %d\n", MX, MY);
+  printf("Number of species = %d\n", NUM_SPECIES);
+  printf("Total system size = %d\n\n", NEQ);
+  printf("Flag globalstrategy = %d (1 = Inex. Newton, 2 = Linesearch)\n",
+         globalstrategy);
+  printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
+         maxl, maxlrst);
+  printf("Preconditioning uses interaction-only block-diagonal matrix\n");
+  printf("Positivity constraints imposed on all components \n");
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+  printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",
+         fnormtol, scsteptol);
+#else
+  printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
+         fnormtol, scsteptol);
+#endif
+
+  printf("\nInitial profile of concentration\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+  printf("At all mesh points:  %Lg %Lg %Lg   %Lg %Lg %Lg\n", PREYIN,PREYIN,PREYIN,
+         PREDIN,PREDIN,PREDIN);
+#else  
+  printf("At all mesh points:  %g %g %g   %g %g %g\n", PREYIN,PREYIN,PREYIN,
+         PREDIN,PREDIN,PREDIN);
+#endif
+}
+
+/* 
+ * Print sampled values of current cc 
+ */
+
+static void PrintOutput(N_Vector cc)
+{
+  int is, jx, jy;
+  realtype *ct;
+  
+  jy = 0; jx = 0;
+  ct = IJ_Vptr(cc,jx,jy);
+  printf("\nAt bottom left:");
+
+  /* Print out lines with up to 6 values per line */
+  for (is = 0; is < NUM_SPECIES; is++){
+    if ((is%6)*6 == is) printf("\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf(" %Lg",ct[is]);
+#else
+    printf(" %g",ct[is]);
+#endif
+  }
+  
+  jy = MY-1; jx = MX-1;
+  ct = IJ_Vptr(cc,jx,jy);
+  printf("\n\nAt top right:");
+
+  /* Print out lines with up to 6 values per line */
+  for (is = 0; is < NUM_SPECIES; is++) {
+    if ((is%6)*6 == is) printf("\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf(" %Lg",ct[is]);
+#else
+    printf(" %g",ct[is]);
+#endif
+  }
+  printf("\n\n");
+}
+
+/* 
+ * Print final statistics contained in iopt 
+ */
+
+static void PrintFinalStats(void *kmem)
+{
+  long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
+  int flag;
+  
+  flag = KINGetNumNonlinSolvIters(kmem, &nni);
+  check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
+  flag = KINGetNumFuncEvals(kmem, &nfe);
+  check_flag(&flag, "KINGetNumFuncEvals", 1);
+  flag = KINSpgmrGetNumLinIters(kmem, &nli);
+  check_flag(&flag, "KINSpgmrGetNumLinIters", 1);
+  flag = KINSpgmrGetNumPrecEvals(kmem, &npe);
+  check_flag(&flag, "KINSpgmrGetNumPrecEvals", 1);
+  flag = KINSpgmrGetNumPrecSolves(kmem, &nps);
+  check_flag(&flag, "KINSpgmrGetNumPrecSolves", 1);
+  flag = KINSpgmrGetNumConvFails(kmem, &ncfl);
+  check_flag(&flag, "KINSpgmrGetNumConvFails", 1);
+  flag = KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
+  check_flag(&flag, "KINSpgmrGetNumFuncEvals", 1);
+
+  printf("\nFinal Statistics.. \n\n");
+  printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
+  printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
+  printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);
+  
+}
+
+/*
+ * Check function return value...
+ *    opt == 0 means SUNDIALS function allocates memory so check if
+ *             returned NULL pointer
+ *    opt == 1 means SUNDIALS function returns a flag so check if
+ *             flag >= 0
+ *    opt == 2 means function allocates memory so check if returned
+ *             NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -699,23 +741,30 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
-    return(1); }
+    return(1);
+  }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+      fprintf(stderr,
+              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
 	      funcname, *errflag);
-      return(1); }}
+      return(1); 
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr,
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
-    return(1); }
+    return(1);
+  }
 
   return(0);
 }

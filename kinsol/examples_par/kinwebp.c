@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-08 23:25:12 $
+ * $Revision: 1.11 $
+ * $Date: 2004-11-04 20:42:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -149,6 +149,19 @@ typedef struct {
   MPI_Comm comm;
 } *UserData;
 
+/* Functions Called by the KINSol Solver */
+
+static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
+
+static int Precondbd(N_Vector cc, N_Vector cscale,
+                     N_Vector fval, N_Vector fscale,
+                     void *P_data,
+                     N_Vector vtemp1, N_Vector vtemp2);
+
+static int PSolvebd(N_Vector cc, N_Vector cscale, 
+                    N_Vector fval, N_Vector fscale, 
+                    N_Vector vv, void *P_data,
+                    N_Vector vtemp);
 
 /* Private Helper Functions */
 
@@ -156,6 +169,8 @@ static UserData AllocUserData(void);
 static void InitUserData(long int my_pe, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
+static void PrintHeader(int globalstrategy, int maxl, int maxlrst, 
+                        realtype fnormtol, realtype scsteptol);
 static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc);
 static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
@@ -173,29 +188,13 @@ static void BRecvWait(MPI_Request request[], long int isubx,
                       realtype *buffer);
 static void ccomm(realtype *cdata, UserData data);
 static void fcalcprpr(N_Vector cc, N_Vector fval,void *f_data);
-
-
-/* Functions Called by the KINSol Solver */
-
-static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
-
-static int Precondbd(N_Vector cc, N_Vector cscale,
-                     N_Vector fval, N_Vector fscale,
-                     void *P_data,
-                     N_Vector vtemp1, N_Vector vtemp2);
-
-static int PSolvebd(N_Vector cc, N_Vector cscale, 
-                    N_Vector fval, N_Vector fscale, 
-                    N_Vector vv, void *P_data,
-                    N_Vector vtemp);
-
-
-/* Private function to check function return values */
-
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
-
-/***************************** Main Program ******************************/
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
 
 int main(int argc, char *argv[])
 
@@ -292,26 +291,8 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "KINSpgmrSetPrecData", 1, my_pe)) MPI_Abort(comm, 1);
   
   /* Print out the problem size, solution parameters, initial guess. */
-  if (my_pe == 0) {
-    printf("\nPredator-prey test problem --  KINSol (parallel version)\n\n");
-    
-    printf("Mesh dimensions = %d X %d\n", MX, MY);
-    printf("Number of species = %d\n", NUM_SPECIES);
-    printf("Total system size = %d\n\n", NEQ);
-    printf("Subgrid dimensions = %d X %d\n", MXSUB, MYSUB);
-    printf("Processor array is %d X %d\n\n", NPEX, NPEY);
-    printf("Flag globalstrategy = %d (1 = Inex. Newton, 2 = Linesearch)\n",
-           globalstrategy);
-    printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
-           maxl, maxlrst);
-    printf("Preconditioning uses interaction-only block-diagonal matrix\n");
-    printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
-           fnormtol, scsteptol);
-    
-    printf("\nInitial profile of concentration\n");
-    printf("At all mesh points:  %g %g %g   %g %g %g\n", PREYIN,PREYIN,PREYIN,
-           PREDIN,PREDIN,PREDIN);
-  }
+  if (my_pe == 0) 
+    PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol);
 
   /* Call KINSol and print output concentration profile */
   flag = KINSol(kmem,           /* KINSol memory block */
@@ -321,28 +302,208 @@ int main(int argc, char *argv[])
                 sc);            /* scaling vector for function values fval */
   if (check_flag(&flag, "KINSol", 1, my_pe)) MPI_Abort(comm, 1);
 
-  if (my_pe == 0) printf("\n\n\nComputed equilibrium species concentrations:\n");
-  if (my_pe == 0 || my_pe==npelast) PrintOutput(my_pe, comm, cc);
+  if (my_pe == 0) 
+     printf("\n\n\nComputed equilibrium species concentrations:\n");
+  if (my_pe == 0 || my_pe == npelast) 
+     PrintOutput(my_pe, comm, cc);
 
   /* Print final statistics and free memory */  
-  if (my_pe == 0) PrintFinalStats(kmem);
+  if (my_pe == 0) 
+     PrintFinalStats(kmem);
 
-  N_VDestroy(cc);
-  N_VDestroy(sc);
-  N_VDestroy(constraints);
+  N_VDestroy_Parallel(cc);
+  N_VDestroy_Parallel(sc);
+  N_VDestroy_Parallel(constraints);
   KINFree(kmem);
   FreeUserData(data);
 
   MPI_Finalize();
 
   return(0);
+}
+
+/* Readability definitions used in other routines below */
+
+#define acoef  (data->acoef)
+#define bcoef  (data->bcoef)
+#define cox    (data->cox)
+#define coy    (data->coy)
+
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY KINSOL
+ *--------------------------------------------------------------------
+ */
+
+/*
+ * System function routine.  Evaluate funcprpr(cc).  First call ccomm to do 
+ *  communication of subgrid boundary data into cext.  Then calculate funcprpr
+ *  by a call to fcalcprpr. 
+ */
+
+static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
+{
+  realtype *cdata, *fvdata;
+  UserData data;
   
-} /* end of main *********************************************************/
+  cdata = NV_DATA_P(cc);
+  fvdata = NV_DATA_P(fval);
+  data = (UserData) f_data;
+  
+  /* Call ccomm to do inter-processor communicaiton */
+  ccomm (cdata, data);
 
+  /* Call fcalcprpr to calculate all right-hand sides */
+  fcalcprpr (cc, fval, data); 
+}
 
-/*********************** Private Helper Functions ************************/
+/*
+ * Preconditioner setup routine. Generate and preprocess P. 
+ */
 
-/* Allocate memory for data structure of type UserData */
+static int Precondbd(N_Vector cc, N_Vector cscale,
+                     N_Vector fval, N_Vector fscale,
+                     void *P_data,
+                     N_Vector vtemp1, N_Vector vtemp2)
+{
+  realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
+  realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
+  long int i, j, jx, jy, ret;
+  UserData data;
+  
+  data = (UserData)P_data;
+  delx = data->dx;
+  dely = data->dy;
+  
+  uround = data->uround;
+  sqruround = data->sqruround;
+  fac = N_VWL2Norm(fval, fscale);
+  r0 = THOUSAND * uround * fac * NEQ;
+  if(r0 == ZERO) r0 = ONE;
+  
+  /* Loop over spatial points; get size NUM_SPECIES Jacobian block at each */
+  for (jy = 0; jy < MYSUB; jy++) {
+    yy = dely*(jy + data->isuby * MYSUB);
+    
+    for (jx = 0; jx < MXSUB; jx++) {
+      xx = delx*(jx + data->isubx * MXSUB);
+      Pxy = (data->P)[jx][jy];
+      cxy = IJ_Vptr(cc,jx,jy);
+      scxy= IJ_Vptr(cscale,jx,jy);
+      ratesxy = IJ_Vptr((data->rates),jx,jy);
+
+      /* Compute difference quotients of interaction rate fn. */
+      for (j = 0; j < NUM_SPECIES; j++) {
+        
+        csave = cxy[j];  /* Save the j,jx,jy element of cc */
+        r = MAX(sqruround*ABS(csave), r0/scxy[j]);
+        cxy[j] += r; /* Perturb the j,jx,jy element of cc */
+        fac = ONE/r;
+        
+        WebRate(xx, yy, cxy, perturb_rates, data);
+        
+        /* Restore j,jx,jy element of cc */
+        cxy[j] = csave;
+        
+        /* Load the j-th column of difference quotients */
+        Pxycol = Pxy[j];
+        for (i = 0; i < NUM_SPECIES; i++)
+          Pxycol[i] = (perturb_rates[i] - ratesxy[i]) * fac;
+        
+      } /* end of j loop */
+      
+      /* Do LU decomposition of size NUM_SPECIES preconditioner block */
+      ret = gefa(Pxy, NUM_SPECIES, (data->pivot)[jx][jy]);
+      if (ret != 0) return(1);
+      
+    } /* end of jx loop */
+  } /* end of jy loop */
+  
+  return(0);
+}
+
+/*
+ * Preconditioner solve routine 
+ */
+
+static int PSolvebd(N_Vector cc, N_Vector cscale, 
+                    N_Vector fval, N_Vector fscale, 
+                    N_Vector vv, void *P_data,
+                    N_Vector vtemp)
+{
+  realtype **Pxy, *vxy;
+  long int *piv, jx, jy;
+  UserData data;
+  
+  data = (UserData)P_data;
+  
+  for (jx = 0; jx < MXSUB; jx++) {
+    
+    for (jy = 0; jy < MYSUB; jy++) {
+      
+      /* For each (jx,jy), solve a linear system of size NUM_SPECIES.
+         vxy is the address of the corresponding portion of the vector vv;
+         Pxy is the address of the corresponding block of the matrix P;
+         piv is the address of the corresponding block of the array pivot. */
+      vxy = IJ_Vptr(vv,jx,jy);
+      Pxy = (data->P)[jx][jy];
+      piv = (data->pivot)[jx][jy];
+      gesl (Pxy, NUM_SPECIES, piv, vxy);
+      
+    } /* end of jy loop */
+    
+  } /* end of jx loop */
+  
+  return(0); 
+}
+
+/*
+ * Interaction rate function routine 
+ */
+
+static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
+                    void *f_data)
+{
+  long int i;
+  realtype fac;
+  UserData data;
+  
+  data = (UserData)f_data;
+  
+  for (i = 0; i<NUM_SPECIES; i++)
+    ratesxy[i] = DotProd(NUM_SPECIES, cxy, acoef[i]);
+  
+  fac = ONE + ALPHA * xx * yy;
+  
+  for (i = 0; i < NUM_SPECIES; i++)
+    ratesxy[i] = cxy[i] * ( bcoef[i] * fac + ratesxy[i] );
+  
+}
+
+/*
+ * Dot product routine for realtype arrays 
+ */
+
+static realtype DotProd(long int size, realtype *x1, realtype *x2)
+{
+  long int i;
+  realtype *xx1, *xx2, temp = ZERO;
+  
+  xx1 = x1; xx2 = x2;
+  for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
+  return(temp);
+
+}
+
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+/*
+ * Allocate memory for data structure of type UserData 
+ */
 
 static UserData AllocUserData(void)
 {
@@ -357,22 +518,19 @@ static UserData AllocUserData(void)
       (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
     }
   }
-  (data->acoef) = denalloc(NUM_SPECIES);
-  (data->bcoef) = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  (data->cox)   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  (data->coy)   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+
+  acoef = denalloc(NUM_SPECIES);
+  bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+  cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+  coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   
   return(data);
   
-} /* end of routine AllocUserData ****************************************/
+}
 
-/* Readability definitions used in other routines below */
-#define acoef  (data->acoef)
-#define bcoef  (data->bcoef)
-#define cox    (data->cox)
-#define coy    (data->coy)
-
-/* Load problem constants in data */
+/*
+ * Load problem constants in data 
+ */
 
 static void InitUserData(long int my_pe, MPI_Comm comm, UserData data)
 {
@@ -429,9 +587,11 @@ static void InitUserData(long int my_pe, MPI_Comm comm, UserData data)
     coy[i+np]=DPRED/dy2;
   }
   
-} /* end of routine InitUserData *****************************************/
+}
 
-/* Free data memory */
+/*
+ * Free data memory 
+ */
 
 static void FreeUserData(UserData data)
 {
@@ -446,12 +606,15 @@ static void FreeUserData(UserData data)
 
   denfree(acoef);
   free(bcoef);
-  free(cox); free(coy);
-  N_VDestroy(data->rates);
+  free(cox); 
+  free(coy);
+  N_VDestroy_Parallel(data->rates);
   free(data);  
-} /* end of routine FreeUserData *****************************************/
+}
 
-/* Set initial conditions in cc */
+/*
+ * Set initial conditions in cc 
+ */
 
 static void SetInitialProfiles(N_Vector cc, N_Vector sc)
 {
@@ -480,10 +643,51 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
       }
     }
   }
-  
-} /* end of routine SetInitialProfiles ***********************************/
+}
 
-/* Print sample of current cc values */
+/* 
+ * Print first lines of output (problem description)
+ */
+
+static void PrintHeader(int globalstrategy, int maxl, int maxlrst, 
+                        realtype fnormtol, realtype scsteptol)
+{
+    printf("\nPredator-prey test problem --  KINSol (parallel version)\n\n");
+    
+    printf("Mesh dimensions = %d X %d\n", MX, MY);
+    printf("Number of species = %d\n", NUM_SPECIES);
+    printf("Total system size = %d\n\n", NEQ);
+    printf("Subgrid dimensions = %d X %d\n", MXSUB, MYSUB);
+    printf("Processor array is %d X %d\n\n", NPEX, NPEY);
+    printf("Flag globalstrategy = %d (1 = Inex. Newton, 2 = Linesearch)\n",
+           globalstrategy);
+    printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
+           maxl, maxlrst);
+    printf("Preconditioning uses interaction-only block-diagonal matrix\n");
+
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+  printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",
+         fnormtol, scsteptol);
+#else
+  printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
+         fnormtol, scsteptol);
+#endif
+
+  printf("\nInitial profile of concentration\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION) 
+  printf("At all mesh points:  %Lg %Lg %Lg   %Lg %Lg %Lg\n", 
+         PREYIN,PREYIN,PREYIN,
+         PREDIN,PREDIN,PREDIN);
+#else  
+  printf("At all mesh points:  %g %g %g   %g %g %g\n", 
+         PREYIN,PREYIN,PREYIN,
+         PREDIN,PREDIN,PREDIN);
+#endif
+}
+
+/*
+ * Print sample of current cc values 
+ */
 
 static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc)
 {
@@ -523,11 +727,12 @@ static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc)
       printf(" %g",tempc[is]);
     }
     printf("\n\n");
-  }
-  
-} /* end of routine PrintOutput ******************************************/
+  } 
+}
 
-/* Print final statistics contained in iopt */
+/*
+ * Print final statistics contained in iopt 
+ */
 
 static void PrintFinalStats(void *kmem)
 {
@@ -555,9 +760,11 @@ static void PrintFinalStats(void *kmem)
   printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
   printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);
 
-} /* end of routine PrintFinalStats **************************************/
+}
 
-/* Routine to send boundary data to neighboring PEs */
+/*
+ * Routine to send boundary data to neighboring PEs 
+ */
 
 static void BSend(MPI_Comm comm, long int my_pe, 
                   long int isubx, long int isuby,
@@ -598,15 +805,16 @@ static void BSend(MPI_Comm comm, long int my_pe,
     }
     MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);   
   }
+}
 
-} /* end of routine BSend ************************************************/
-
-/* Routine to start receiving boundary data from neighboring PEs.
-   Notes:
-   1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
-   should be passed to both the BRecvPost and BRecvWait functions, and
-   should not be manipulated between the two calls.
-   2) request should have 4 entries, and should be passed in both calls also. */
+/*
+ * Routine to start receiving boundary data from neighboring PEs.
+ *  Notes:
+ *  1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
+ *     should be passed to both the BRecvPost and BRecvWait functions, and
+ *     should not be manipulated between the two calls.
+ *  2) request should have 4 entries, and should be passed in both calls also. 
+ */
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
                       long int isubx, long int isuby,
@@ -641,15 +849,16 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
     MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
               my_pe+1, 0, comm, &request[3]);
   }
-  
-} /* end of routine BRecvPost ********************************************/
+}
 
-/* Routine to finish receiving boundary data from neighboring PEs.
-   Notes:
-   1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
-   should be passed to both the BRecvPost and BRecvWait functions, and
-   should not be manipulated between the two calls.
-   2) request should have 4 entries, and should be passed in both calls also. */
+/*
+ * Routine to finish receiving boundary data from neighboring PEs.
+ *  Notes:
+ *  1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
+ *     should be passed to both the BRecvPost and BRecvWait functions, and
+ *  should not be manipulated between the two calls.
+ *  2) request should have 4 entries, and should be passed in both calls also. 
+ */
 
 static void BRecvWait(MPI_Request request[], long int isubx,
                       long int isuby, long int dsizex, realtype *cext,
@@ -694,12 +903,13 @@ static void BRecvWait(MPI_Request request[], long int isubx,
       for (i = 0; i < NUM_SPECIES; i++)
         cext[offsetce+i] = bufright[offsetbuf+i];
     }
-  }
-  
-} /* end of routine BRecvWait ********************************************/
+  } 
+}
 
-/* ccomm routine.  This routine performs all communication 
-   between processors of data needed to calculate f. */
+/* 
+ * ccomm routine.  This routine performs all communication 
+ * between processors of data needed to calculate f. 
+ */
 
 static void ccomm(realtype *cdata, UserData data)
 {
@@ -724,9 +934,11 @@ static void ccomm(realtype *cdata, UserData data)
   /* Finish receiving boundary data from neighboring PEs */
   BRecvWait(request, isubx, isuby, nsmxsub, cext, buffer);
   
-} /* end of routine ccomm ************************************************/
+}
 
-/* System function for predator-prey system - calculation part */
+/*
+ * System function for predator-prey system - calculation part 
+ */
 
 static void fcalcprpr(N_Vector cc, N_Vector fval, void *f_data)
 {
@@ -830,175 +1042,17 @@ static void fcalcprpr(N_Vector cc, N_Vector fval, void *f_data)
     } /* end of jx loop */
     
   } /* end of jy loop */
+}
 
-} /* end of routine fcalcprpr ********************************************/
-
-
-/***************** Functions Called by the KINSol Solver *****************/
-
-/* System function routine.  Evaluate funcprpr(cc).  First call ccomm to do 
-   communication of subgrid boundary data into cext.  Then calculate funcprpr
-   by a call to fcalcprpr. */
-
-static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
-{
-  realtype *cdata, *fvdata;
-  UserData data;
-  
-  cdata = NV_DATA_P(cc);
-  fvdata = NV_DATA_P(fval);
-  data = (UserData) f_data;
-  
-  /* Call ccomm to do inter-processor communicaiton */
-  ccomm (cdata, data);
-
-  /* Call fcalcprpr to calculate all right-hand sides */
-  fcalcprpr (cc, fval, data);
-  
-} /* end of routine funcprpr *********************************************/
-
-/* Preconditioner setup routine. Generate and preprocess P. */
-
-static int Precondbd(N_Vector cc, N_Vector cscale,
-                     N_Vector fval, N_Vector fscale,
-                     void *P_data,
-                     N_Vector vtemp1, N_Vector vtemp2)
-{
-  realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
-  realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
-  long int i, j, jx, jy, ret;
-  UserData data;
-  
-  data = (UserData)P_data;
-  delx = data->dx;
-  dely = data->dy;
-  
-  uround = data->uround;
-  sqruround = data->sqruround;
-  fac = N_VWL2Norm(fval, fscale);
-  r0 = THOUSAND * uround * fac * NEQ;
-  if(r0 == ZERO) r0 = ONE;
-  
-  /* Loop over spatial points; get size NUM_SPECIES Jacobian block at each */
-  for (jy = 0; jy < MYSUB; jy++) {
-    yy = dely*(jy + data->isuby * MYSUB);
-    
-    for (jx = 0; jx < MXSUB; jx++) {
-      xx = delx*(jx + data->isubx * MXSUB);
-      Pxy = (data->P)[jx][jy];
-      cxy = IJ_Vptr(cc,jx,jy);
-      scxy= IJ_Vptr(cscale,jx,jy);
-      ratesxy = IJ_Vptr((data->rates),jx,jy);
-
-      /* Compute difference quotients of interaction rate fn. */
-      for (j = 0; j < NUM_SPECIES; j++) {
-        
-        csave = cxy[j];  /* Save the j,jx,jy element of cc */
-        r = MAX(sqruround*ABS(csave), r0/scxy[j]);
-        cxy[j] += r; /* Perturb the j,jx,jy element of cc */
-        fac = ONE/r;
-        
-        WebRate(xx, yy, cxy, perturb_rates, data);
-        
-        /* Restore j,jx,jy element of cc */
-        cxy[j] = csave;
-        
-        /* Load the j-th column of difference quotients */
-        Pxycol = Pxy[j];
-        for (i = 0; i < NUM_SPECIES; i++)
-          Pxycol[i] = (perturb_rates[i] - ratesxy[i]) * fac;
-        
-      } /* end of j loop */
-      
-      /* Do LU decomposition of size NUM_SPECIES preconditioner block */
-      ret = gefa(Pxy, NUM_SPECIES, (data->pivot)[jx][jy]);
-      if (ret != 0) return(1);
-      
-    } /* end of jx loop */
-  } /* end of jy loop */
-  
-  return(0);
-
-} /* end of routine Precondbd ********************************************/
-
-/* Preconditioner solve routine */
-
-static int PSolvebd(N_Vector cc, N_Vector cscale, 
-                    N_Vector fval, N_Vector fscale, 
-                    N_Vector vv, void *P_data,
-                    N_Vector vtemp)
-{
-  realtype **Pxy, *vxy;
-  long int *piv, jx, jy;
-  UserData data;
-  
-  data = (UserData)P_data;
-  
-  for (jx = 0; jx < MXSUB; jx++) {
-    
-    for (jy = 0; jy < MYSUB; jy++) {
-      
-      /* For each (jx,jy), solve a linear system of size NUM_SPECIES.
-         vxy is the address of the corresponding portion of the vector vv;
-         Pxy is the address of the corresponding block of the matrix P;
-         piv is the address of the corresponding block of the array pivot. */
-      vxy = IJ_Vptr(vv,jx,jy);
-      Pxy = (data->P)[jx][jy];
-      piv = (data->pivot)[jx][jy];
-      gesl (Pxy, NUM_SPECIES, piv, vxy);
-      
-    } /* end of jy loop */
-    
-  } /* end of jx loop */
-  
-  return(0);
-  
-} /* end of routine PSolvebd *********************************************/
-
-/* Interaction rate function routine */
-
-static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
-                    void *f_data)
-{
-  long int i;
-  realtype fac;
-  UserData data;
-  
-  data = (UserData)f_data;
-  
-  for (i = 0; i<NUM_SPECIES; i++)
-    ratesxy[i] = DotProd(NUM_SPECIES, cxy, acoef[i]);
-  
-  fac = ONE + ALPHA * xx * yy;
-  
-  for (i = 0; i < NUM_SPECIES; i++)
-    ratesxy[i] = cxy[i] * ( bcoef[i] * fac + ratesxy[i] );
-  
-} /* end of routine WebRate **********************************************/
-
-/* Dot product routine for realtype arrays */
-
-static realtype DotProd(long int size, realtype *x1, realtype *x2)
-{
-  long int i;
-  realtype *xx1, *xx2, temp = ZERO;
-  
-  xx1 = x1; xx2 = x2;
-  for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
-  return(temp);
-
-} /* end of routine DotProd **********************************************/
-
-
-/*********************** Private Helper Function ************************/
-
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ * Check function return value...
+ *    opt == 0 means SUNDIALS function allocates memory so check if
+ *             returned NULL pointer
+ *    opt == 1 means SUNDIALS function returns a flag so check if
+ *             flag >= 0
+ *    opt == 2 means function allocates memory so check if returned
+ *             NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 {
@@ -1006,23 +1060,30 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
-    return(1); }
+    return(1);
+  }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
+      fprintf(stderr, 
+              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
 	      id, funcname, *errflag);
-      return(1); }}
+      return(1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, 
+            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
-    return(1); }
+    return(1); 
+  }
 
   return(0);
 }
