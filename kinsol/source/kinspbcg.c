@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-12-06 20:09:34 $
+ * $Revision: 1.2 $
+ * $Date: 2004-12-07 19:50:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -364,7 +364,7 @@ int KINSpbcgSetJacData(void *kinmem, void *J_data)
  * -----------------------------------------------------------------
  */
 
-int KINSpbcgGetIntWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG)
+int KINSpbcgGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG)
 {
   KINMem kin_mem;
   KINSpbcgMem kinspbcg_mem;
@@ -386,8 +386,8 @@ int KINSpbcgGetIntWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG)
 
   maxl = kinspbcg_mem->b_maxl;
 
-  *lenrwSG = lrw1 * (maxl + 7);
-  *leniwSG = liw1 * (maxl + 7);
+  *lenrwSG = lrw1 * 7;
+  *leniwSG = liw1 * 7;
 
   return(KINSPBCG_SUCCESS);
 }
