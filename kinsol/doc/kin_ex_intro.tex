@@ -10,20 +10,19 @@ package.
 The {\kinsol} distribution contains examples of four types: serial
 {\C} examples, parallel {\C} examples, and serial and parallel {\F}
 examples.  The following lists summarize all of these examples.
-%%
+
 Supplied in the \id{sundials/kinsol/examples\_ser} directory is the
 following serial example (using the {\nvecs} module):
 
 \begin{itemize}
 \item \id{kinwebs}
-  is a demonstration program for {\kinsol} with the Krylov linear solver.
+  is an example program for {\kinsol} with the Krylov linear solver.
 
   This program solves a nonlinear system that arises from a system
   of partial differential equations.  The PDE system is a six-species
   food web population model, with predator-prey interaction and diffusion
   on the unit square in two dimensions.
-
-  The preconditioner matrix is a block-diagonal matrix based on
+  The preconditioner is a block-diagonal matrix based on
   the partial derivatives of the interaction terms only.
 \end{itemize}
 %%
@@ -44,8 +43,8 @@ With the {\fkinsol} module, in the directories
 the {\F}-{\C} interface:
 \begin{itemize}
 \item \id{kindiagsf}
-  solves a nonlinear system of the form $u_i^2 = i^2$
-  using an approximate diagonal preconditioner.
+  is a serial example, which solves a nonlinear system of the form
+  $u_i^2 = i^2$ using an approximate diagonal preconditioner.
 \item \id{kindiagpf}
   is a parallel implementation of \id{kindiagsf}.
 \end{itemize}
@@ -57,7 +56,7 @@ of those examples described below.  We also give our output files for
 each of these examples, but users should be cautioned that their
 results may differ slightly from these.  Differences in solution
 values may differ within the tolerances, and differences in cumulative
-counters, such as numbers of steps or Newton iterations, may differ
+counters, such as numbers of Newton iterations, may differ
 from one machine environment to another by as much as 10\% to 20\%.
 
 In the descriptions below, we make frequent references to the {\kinsol}
