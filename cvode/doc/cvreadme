@@ -1,4 +1,4 @@
-                   CVODE: Version of 1 March 2002
+                   CVODE: Version of 6 March 2002
                    Notes on Installation and Usage
                  Scott D. Cohen and Alan C. Hindmarsh
               Center for Applied Scientific Computing, LLNL
@@ -184,6 +184,8 @@ D. Revision History (YYYYMMDD)
           Corrected usage note on CVReInit in cvode.h.   Revised cvdemd
           and cvdemk to use CVReInitDense, CVReInitBand, CVReInitSpgmr. 
           Revised two relevant usage notes in cvaddenda file.
+20020305  Added CVReInitBandPre routine to CVBANDPRE module.
+          Revised cvkxb example to use CVReInitBandPre.
 
 ......................................................................
 
