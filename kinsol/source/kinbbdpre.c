@@ -3,7 +3,7 @@
  * File          : kinbbdpre.c                                     *
  * Programmers   : Allan G Taylor, Alan C Hindmarsh, and           *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 July 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -104,8 +104,8 @@ KBBDData KBBDAlloc(integertype Nlocal, integertype mu, integertype ml,
 
   /* Allocate vtemp3 for use by KBBDDQJac. */
 
-  vtemp3 = N_VNew(Nlocal, machenv); /* Note: Nlocal here is a dummy; machenv
-                                       parameters are used to determine size. */
+  vtemp3 = N_VNew(machenv);
+
   if (vtemp3 == NULL) {
     free(pdata);
     return(NULL);
@@ -169,9 +169,6 @@ void KBBDFree(KBBDData pdata)
  *                                                                *
  * The parameters of KBBDPrecon are as follows:                   *
  *                                                                *
- * Neq   is the system size and the global length of all vectors. *
- *           (not used)                                           *
- *                                                                *
  * uu      is the current value of the dependent variable vector, *
  *         namely the solutin to func(uu)=0.                      *
  *                                                                *
@@ -205,7 +202,7 @@ void KBBDFree(KBBDData pdata)
  *   > 0 for a recoverable error (step will be retried).          *
  ******************************************************************/
 
-int KBBDPrecon(integertype Neq, N_Vector uu, N_Vector uscale,
+int KBBDPrecon(N_Vector uu, N_Vector uscale,
                N_Vector fval, N_Vector fscale,
                N_Vector vtemp1, N_Vector vtemp2,
                SysFn func, realtype uround,
@@ -245,9 +242,6 @@ int KBBDPrecon(integertype Neq, N_Vector uu, N_Vector uscale,
  *                                                                *
  * The parameters of KBBDPSol are as follows:                     *
  *                                                                *
- * Neq    is the global length of all vector arguments.           *
- *                  (not used)                                    *
- *                                                                *
  * uu     an N_Vector giving the current iterate for the system   *
  *                                                                *
  * uscale an N_Vector giving the diagonal entries                 *
@@ -281,7 +275,7 @@ int KBBDPrecon(integertype Neq, N_Vector uu, N_Vector uscale,
  * always 0, indicating success.                                  *
  ******************************************************************/
 
-int KBBDPSol(integertype Nlocal, N_Vector uu, N_Vector uscale,
+int KBBDPSol(N_Vector uu, N_Vector uscale,
              N_Vector fval, N_Vector fscale,
              N_Vector vtem, N_Vector ftem,
              SysFn func, realtype u_round,

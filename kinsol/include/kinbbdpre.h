@@ -2,7 +2,7 @@
  * File          : kinbbdpre.h                                     *
  * Programmers   : Allan Grant Taylor, Alan C Hindmarsh, and       *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 July 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -255,12 +255,12 @@ void KBBDFree(KBBDData pdata);
 
 /****** Prototypes of functions KBBDPrecon and KBBDPSol *********/
 
-int KBBDPrecon(integertype Neq, N_Vector uu, N_Vector uscale,
+int KBBDPrecon(N_Vector uu, N_Vector uscale,
                N_Vector fval, N_Vector fscale, N_Vector vtemp1, N_Vector vtemp2,
                SysFn func, realtype uround, long int *nfePtr, void *P_data);
 
 
-int KBBDPSol(integertype Nlocal, N_Vector uu, N_Vector uscale,
+int KBBDPSol(N_Vector uu, N_Vector uscale,
              N_Vector fval, N_Vector fscale, N_Vector vtem, N_Vector ftem,
              SysFn func, realtype u_round, long int *nfePtr, void *P_data);
 
