@@ -1,0 +1,180 @@
+Basic Installation
+==================
+
+These are generic installation instructions. For most situations only 
+this procedure will be needed.
+
+The simplest way to build SUNDIALS is to use the `configure' shell script
+which attempts to guess correct values for various system-dependent
+variables and features and find the directories where various system
+headers and libraries are kept.  It then creates a `Makefile' in each
+subdirectory. Running the `make' utility then builds the package for
+your system.
+
+Here's the procedure to build SUNDIALS using `configure' on systems which
+are supported by it.  If this simplified procedure fails, or if you
+are using a platform such as MS-Windows, where `configure' script
+doesn't work, you might need to use various non-default options, and
+maybe perform some of the steps manually.
+
+  1. `cd' to the sundials directory (the directory where this file resides)
+     and type `./configure' to configure the package for your system.  
+     If you're using `csh' on an old version of System V, you might need to 
+     type `sh ./configure' instead to prevent `csh' from trying to execute
+     `configure' itself.
+
+     Running `configure' takes a while.  While running, it prints some
+     messages telling which features it is checking for.
+
+  2. Type `make' to compile all existing modules.
+
+  3. Type `make install' to install the libraries and header files.
+ 
+  4. To compile the example programs for all the existing modules, type
+     'make examples'.
+
+  5. You can remove the libraries and object files from the source code 
+     directories by typing `make clean'.  To remove the example programs 
+     and object files, type 'make examples_clean'. To also remove the
+     files that `configure' created (so you can compile the package for
+     a different kind of computer), type `make distclean'.
+:
+Compiling individual modules
+============================
+
+The procedure described above will build and install all modules that
+are available. Alternatively, each module can be built and installed 
+individually. However, they all depend on the shared module and a 
+vector kernel module (serial or parallel) which must be built  and 
+installed in any case (either before or after building and installing 
+the desired module). As an example, here is the procedure of building \
+the module cvode and its serial examples:
+
+  1. Configure SUNDIALS as before, by typing './configure' in the
+     sundials directory.
+
+  2. 'cd' to the sundials/shared/source directory and type 'make'
+     and then 'make install'.
+
+  3. 'cd' to the sundials/nvec_ser directory and type 'make'
+     and then 'make install'.
+
+  4. 'cd' to the sundials/cvode/source directory and type 'make'
+     and then 'make install'.
+
+  5. To also build the Fortran to C interface (available only 
+     for the cvode and kinsol modules), 'cd' to the 
+     sundials/cvode/fcmix directory and type 'make' and then
+     'make install'.
+
+  6. To build the serial cvode examples, 'cd' to the
+     sundials/cvode/examples_ser directory and type 'make'.
+
+  7. To build the serial cvode fcmix examples, 'cd' to the
+     sundials/cvode/fcmix/examples_ser directory and type 'make'.
+
+
+Installation Names
+==================
+
+By default, 'make install' will install the SUNDIALS libraries in 
+sundials/lib and the header files in sundials/include, where
+sundials is the top SUNDIALS directory (where this file resides).
+You can specify an installation prefix other than 'sundials' by
+giving 'configure' the option '--prefix=PREFIX'
+
+You can specify separate installation prefixes for architecture-specific
+files and architecture-independent files. If you give 'configure' the
+option '--exec-prefix=EPREFIX', the package will use EPATH as the prefix
+for installing libraries. The header files will still use the regular 
+prefix.
+
+You can also specify the directory where libraries should be installed
+by giving 'configure' the option '--libdir=DIR'. Similarly, invoking
+'configure --includedir=DIR' will install header files in DIR.
+
+Run `configure --help' for a list of the directories you can set and 
+what kinds of files go in them.
+
+Compilers and Options
+=====================
+
+Some systems require unusual options for compilation or linking that
+the `configure' script does not know about.  Run `./configure --help'
+for details on some of the pertinent environment variables.
+
+You can give `configure' initial values for these variables by setting 
+them in the environment.  You can do that on the command line like this:
+
+     ./configure CC=gcc CFLAGS=-O2 F77=g77 FFLAGS=-O
+
+Here is a detailed description of the configure options that are
+pertinent to SUNDIALS:
+
+--help
+-h
+     print a summary of the options to `configure', and exit.
+
+--quiet
+--silent
+-q
+     do not print messages saying which checks are being made.  To
+     suppress all normal output, redirect it to `/dev/null' (any error
+     messages will still be shown).
+
+--prefix=PREFIX
+     install architecture-independent files in PREFIX (default value
+     is the current directory). Library files will be installed in
+     PREFIX/lib and header files in PREFIX/include.
+
+--exec-prefix=EPREFIX
+     install architecture-specific files in EPREFIX (default value
+     is PREFIX). Library files will be installed in EPREFIX/lib.
+     Header files will still use the default PREFIX.
+
+--libdir=DIR
+     install libraries in DIR.
+
+--includedir=DIR
+     install header files in DIR.
+
+--with-ARCH=ARG         
+     manually set ARCH to ARG
+--with-CC=ARG           
+     manually set CC to ARG
+
+--with-F77=ARG          
+     manually set F77 to ARG
+
+--with-debug(=ARG)      
+     set compiler debug flags (ARG=yes). CFLAGS and FFLAGS will 
+     contain -g (if ARG=yes) or ARG
+
+--with-CFLAGS=ARG       
+     manually set CFLAGS to ARG
+
+--with-FFLAGS=ARG       
+     manually set FFLAGS to ARG
+
+--with-mpi-include=DIR  
+     mpi.h is in DIR
+
+--with-mpi-libs=LIBS    
+     LIBS is space-separated list of library names needed
+     for MPI, e.g. "nsl socket mpi"
+
+--with-mpi-lib-dirs=DIRS
+     DIRS is space-separated list of directories
+     containing the libraries specified by
+     `--with-mpi-libs', e.g "/usr/lib /usr/local/mpi/lib"
+
+--with-mpi-flags=FLAGS  
+     FLAGS is space-separated list of whatever flags other than 
+     -l and -L are needed to link with mpi libraries
+
+--with-MPICC=ARG        
+     ARG is mpicc or similar MPI C compiling tool
+
+--with-MPIF77=ARG       
+     manually set MPIF77 to ARG
+
