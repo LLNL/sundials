@@ -85,15 +85,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"   /* definitions for realtype, integertype,        */
-                             /*  booleantype                                  */
-#include "cvodes.h"          /* main CVODE header file                        */
+#include "sundialstypes.h"   /* definitions for realtype and booleantype       */
+#include "cvodes.h"          /* main CVODE header file                         */
 #include "iterative.h"        /* for types of preconditioning and Gram-Schmidt */
-#include "cvsspgmr.h"        /* use CVSPGMR linear solver each internal step  */
-#include "smalldense.h"      /* use generic DENSE linear solver for "small"   */
-                             /* dense matrix blocks in right preconditioner   */
-#include "nvector_serial.h"  /* contains the definition of type N_Vector      */
-#include "sundialsmath.h"    /* contains RSqrt, SQR functions                 */
+#include "cvsspgmr.h"        /* use CVSPGMR linear solver each internal step   */
+#include "smalldense.h"      /* use generic DENSE linear solver for "small"    */
+                             /* dense matrix blocks in right preconditioner    */
+#include "nvector_serial.h"  /* contains the definition of type N_Vector       */
+#include "sundialsmath.h"    /* contains RSqrt, SQR functions                  */
 
 /* Problem Specification Constants */
 
@@ -155,7 +154,7 @@
 
 typedef struct {
   realtype   **P[NGRP];
-  integertype *pivot[NGRP];
+  long int *pivot[NGRP];
   int ns,  mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
@@ -203,6 +202,10 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
                   int lr, void *P_data, N_Vector vtemp);
+
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
      
 /* Implementation */
 
@@ -212,16 +215,24 @@ int main()
   realtype abstol=ATOL, reltol=RTOL, t, tout;
   N_Vector c;
   WebData wdata;
-  void *cvode_mem = NULL;
+  void *cvode_mem;
   booleantype firstrun;
   int jpre, gstype, iout, flag, ns, mxns;
 
+  nvSpec = NULL;
+  c = NULL;
+  wdata = NULL;
+  cvode_mem = NULL;
+
   /* Initialize serial vector specification */
   nvSpec = NV_SpecInit_Serial(NEQ);
+  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
 
   /* Initializations */
   c = N_VNew(nvSpec);
+  if(check_flag((void *)c, "N_VNew", 0)) return(1);
   wdata = AllocUserData();
+  if(check_flag((void *)wdata, "AllocUserData", 2)) return(1);
   InitUserData(wdata);
   ns = wdata->ns;
   mxns = wdata->mxns;
@@ -245,54 +256,65 @@ int main()
       firstrun = (jpre == LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
         cvode_mem = CVodeCreate(LMM, ITER);
-        if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+	if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
         wdata->cvode_mem = cvode_mem;
 
         flag = CVodeSetErrFile(cvode_mem, ERRFP);
-        if (flag != SUCCESS) { printf("CVodeSetErrFile failed.\n"); return(1); }
+	if(check_flag(&flag, "CVodeSetErrFile", 1)) return(1);
 
         flag = CVodeSetFdata(cvode_mem, wdata);
-        if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
+	if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
         flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol, nvSpec);
-        if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+	if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
         flag = CVSpgmr(cvode_mem, jpre, MAXL);
-        if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
+	if(check_flag(&flag, "CVSpgmr", 1)) return(1);
 
         flag = CVSpgmrSetGSType(cvode_mem, gstype);
+	if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
+
         flag = CVSpgmrSetDelt(cvode_mem, DELT);
+	if(check_flag(&flag, "CVSpgmrSetDelt", 1)) return(1);
+
         flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
+	if(check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1)) return(1);
+
         flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
+	if(check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1)) return(1);
+
         flag = CVSpgmrSetPrecData(cvode_mem, wdata);
+	if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
 
       } else {
 
         flag = CVodeReInit(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
-        if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
+	if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
         flag = CVSpgmrResetPrecType(cvode_mem, jpre);
-        flag = CVSpgmrSetGSType(cvode_mem, gstype);
+	check_flag(&flag, "CVSpgmrResetPrecType", 1);
 
+        flag = CVSpgmrSetGSType(cvode_mem, gstype);
+	if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
       }
-      
+
       /* Print initial values */
       if (firstrun) PrintAllSpecies(c, ns, mxns, T0);
-      
+
       /* Loop over output points, call CVode, print sample solution values. */
       tout = T1;
       for (iout = 1; iout <= NOUT; iout++) {
         flag = CVode(cvode_mem, tout, c, &t, NORMAL);
+	check_flag(&flag, "CVode", 1);
         PrintOutput(cvode_mem, t);
         if (firstrun && (iout % 3 == 0)) PrintAllSpecies(c, ns, mxns, t);
-        if (flag != SUCCESS) { printf("CVode failed.\n"); break; }
+        if (flag != SUCCESS) break;
         if (tout > 0.9) tout += DTOUT; else tout *= TOUT_MULT; 
       }
       
       /* Print final statistics, and loop for next case */
       PrintFinalStats(cvode_mem);
-      
     }
   }
 
@@ -309,7 +331,7 @@ static WebData AllocUserData(void)
 {
   int i, ngrp = NGRP, ns = NS;
   WebData wdata;
-  
+
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
     (wdata->P)[i] = denalloc(ns);
@@ -323,14 +345,14 @@ static void InitUserData(WebData wdata)
   int i, j, ns;
   realtype *bcoef, *diff, *cox, *coy, dx, dy;
   realtype (*acoef)[NS];
-  
+
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
   diff = wdata->diff;
   cox = wdata->cox;
   coy = wdata->coy;
   ns = wdata->ns = NS;
-  
+
   for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = 0.; }
   for (j = 0; j < NP; j++) {
     for (i = 0; i < NP; i++) {
@@ -403,7 +425,7 @@ static void CInit(N_Vector c, WebData wdata)
 {
   int i, ici, ioff, iyoff, jx, jy, ns, mxns;
   realtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
-  
+
   cdata = NV_DATA_S(c);
   ns = wdata->ns;
   mxns = wdata->mxns;
@@ -459,7 +481,7 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
 {
   int i, jx, jy;
   realtype *cdata;
-  
+
   cdata = NV_DATA_S(c);
   printf("c values at t = %g:\n\n", t);
   for (i=1; i <= ns; i++) {
@@ -476,16 +498,22 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
 
 static void PrintOutput(void *cvode_mem, realtype t)
 {
-  int nst, nfe, nni, qu;
+  long int nst, nfe, nni;
+  int qu, flag;
   realtype hu;
 
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  CVodeGetLastOrder(cvode_mem, &qu);
-  CVodeGetLastStep(cvode_mem, &hu);
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
+  flag = CVodeGetLastOrder(cvode_mem, &qu);
+  check_flag(&flag, "CVodeGetLastOrder", 1);
+  flag = CVodeGetLastStep(cvode_mem, &hu);
+  check_flag(&flag, "CVodeGetLastStep", 1);
 
-  printf("t = %10.2e  nst = %d  nfe = %d  nni = %d", t, nst, nfe, nni);
+  printf("t = %10.2e  nst = %ld  nfe = %ld  nni = %ld", t, nst, nfe, nni);
   printf("  qu = %d  hu = %11.2e\n\n", qu, hu);
 }
 
@@ -493,44 +521,60 @@ static void PrintFinalStats(void *cvode_mem)
 {
   long int lenrw, leniw ;
   long int lenrwSPGMR, leniwSPGMR;
-  int nst, nfe, nsetups, nni, ncfn, netf;
-  int nli, npe, nps, ncfl, nfeSPGMR;
+  long int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nli, npe, nps, ncfl, nfeSPGMR;
+  int flag;
   realtype avdim;
-  
-  CVodeGetIntWorkSpace(cvode_mem, &leniw);
-  CVodeGetRealWorkSpace(cvode_mem, &lenrw);
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  CVodeGetNumErrTestFails(cvode_mem, &netf);
-  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
 
-  CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
-  CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
-  CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  flag = CVodeGetIntWorkSpace(cvode_mem, &leniw);
+  check_flag(&flag, "CVodeGetIntWorkSpace", 1);
+  flag = CVodeGetRealWorkSpace(cvode_mem, &lenrw);
+  check_flag(&flag, "CVodeGetRealWorkSpace", 1);
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+
+  flag = CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
+  check_flag(&flag, "CVSpgmrGetIntWorkSpace", 1);
+  flag = CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
+  check_flag(&flag, "CVSpgmrGetRealWorkSpace", 1);
+  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
+  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
+  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
+  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
+  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
 
   printf("\n\n Final statistics for this run:\n\n");
   printf(" CVode real workspace length           = %4ld \n", lenrw);
   printf(" CVode integer workspace length        = %4ld \n", leniw);
   printf(" CVSPGMR real workspace length         = %4ld \n", lenrwSPGMR);
   printf(" CVSPGMR integer workspace length      = %4ld \n", leniwSPGMR);
-  printf(" Number of steps                       = %4d \n", nst);
-  printf(" Number of f-s                         = %4d \n", nfe);
-  printf(" Number of f-s (SPGMR)                 = %4d \n", nfeSPGMR);
-  printf(" Number of f-s (TOTAL)                 = %4d \n", nfe + nfeSPGMR);
-  printf(" Number of setups                      = %4d \n", nsetups);
-  printf(" Number of nonlinear iterations        = %4d \n", nni);
-  printf(" Number of linear iterations           = %4d \n", nli);
-  printf(" Number of preconditioner evaluations  = %4d \n", npe);
-  printf(" Number of preconditioner solves       = %4d \n", nps);
-  printf(" Number of error test failures         = %4d \n", netf);
-  printf(" Number of nonlinear conv. failures    = %4d \n", ncfn);
-  printf(" Number of linear convergence failures = %4d \n", ncfl);
+  printf(" Number of steps                       = %4ld \n", nst);
+  printf(" Number of f-s                         = %4ld \n", nfe);
+  printf(" Number of f-s (SPGMR)                 = %4ld \n", nfeSPGMR);
+  printf(" Number of f-s (TOTAL)                 = %4ld \n", nfe + nfeSPGMR);
+  printf(" Number of setups                      = %4ld \n", nsetups);
+  printf(" Number of nonlinear iterations        = %4ld \n", nni);
+  printf(" Number of linear iterations           = %4ld \n", nli);
+  printf(" Number of preconditioner evaluations  = %4ld \n", npe);
+  printf(" Number of preconditioner solves       = %4ld \n", nps);
+  printf(" Number of error test failures         = %4ld \n", netf);
+  printf(" Number of nonlinear conv. failures    = %4ld \n", ncfn);
+  printf(" Number of linear convergence failures = %4ld \n", ncfl);
   avdim = (nni > 0) ? ((realtype)nli)/((realtype)nni) : 0.0;
   printf(" Average Krylov subspace dimension     = %.3f \n", avdim);
   printf("\n\n--------------------------------------------------------------");
@@ -548,6 +592,7 @@ static void FreeUserData(WebData wdata)
     denfree((wdata->P)[i]);
     denfreepiv((wdata->pivot)[i]);
   }
+
   free(wdata);
 }
 
@@ -615,18 +660,18 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
   int i, j, ns;
   realtype fac, *bcoef;
   realtype (*acoef)[NS];
-  
+
   ns = wdata->ns;
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
-  
+
   for (i = 0; i < ns; i++)
     rate[i] = 0.0;
-  
+
   for (j = 0; j < ns; j++) 
     for (i = 0; i < ns; i++) 
       rate[i] += c[j] * acoef[i][j];
-  
+
   fac = 1.0 + ALPH*x*y;
   for (i = 0; i < ns; i++) 
     rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
@@ -651,9 +696,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
                    N_Vector vtemp3)
 {
   realtype ***P;
-  integertype **pivot, ier;
+  long int **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp;
+  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp, flag;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
@@ -663,7 +708,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   wdata = (WebData) P_data;
   cvode_mem = wdata->cvode_mem;
   cdata = NV_DATA_S(c);
-  CVodeGetErrWeights(cvode_mem, &rewt);
+  flag = CVodeGetErrWeights(cvode_mem, &rewt);
+  if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
   rewtdata = NV_DATA_S(rewt);
 
   uround = UNIT_ROUNDOFF;
@@ -713,15 +759,15 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
       }
     }
   }
-  
+
   /* Add identity matrix and do LU decompositions on blocks. */
-  
+
   for (ig = 0; ig < ngrp; ig++) {
     denaddI(P[ig], mp);
     ier = gefa(P[ig], mp, pivot[ig]);
     if (ier != 0) return(1);
   }
-  
+
   *jcurPtr = TRUE;
   return(0);
 }
@@ -760,7 +806,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc,
                   int lr, void *P_data, N_Vector vtemp)
 {
   realtype   ***P;
-  integertype **pivot;
+  long int **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
   
@@ -968,11 +1014,10 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
         }
       }
     }
-    
+
     /* Add increment x to z : z <- z+x */
-    
+
     N_VLinearSum(1.0, z, 1.0, x, z);
-    
   }
 }
 
@@ -999,4 +1044,33 @@ static void v_zero(realtype u[], int n)
 {
   int i;  
   for (i=0; i < n; i++) u[i] = 0.0;
+}
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  return(0);
 }

@@ -84,7 +84,7 @@ typedef struct {
 /* Private Helper Functions */
 
 static void WrongArgs(int my_pe, char *argv[]);
-static void SetIC(N_Vector u, realtype dx, integertype my_length, integertype my_base);
+static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base);
 static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u);
 static void PrintOutputS(int my_pe, N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi, 
@@ -94,6 +94,9 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi,
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 /***************************** Main Program ******************************/
 
@@ -105,15 +108,23 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  integertype local_N, nperpe, nrem, my_base;
+  long int local_N, nperpe, nrem, my_base;
 
   realtype *pbar;
   int is, *plist;
-  N_Vector *uS=NULL;
+  N_Vector *uS;
   booleantype sensi=FALSE;
   int sensi_meth=-1, err_con=-1;
 
   MPI_Comm comm;
+
+  nvSpec = NULL;
+  u = NULL;
+  data = NULL;
+  cvode_mem = NULL;
+  pbar = NULL;
+  plist = NULL;
+  uS = NULL;
 
   /* Get processor number, total number of pe's, and my_pe. */
   MPI_Init(&argc, &argv);
@@ -163,68 +174,69 @@ int main(int argc, char *argv[])
 
   /* USER DATA STRUCTURE */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
+  data->p = NULL;
+  if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   data->comm = comm;
   data->npes = npes;
   data->my_pe = my_pe;
   data->p = (realtype *) malloc(NP * sizeof(realtype));
+  if(check_flag((void *)data->p, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   dx = data->dx = XMAX/((realtype)(MX+1));
   data->p[0] = 1.0;
   data->p[1] = 0.5;
 
   /* SET nvSpec BLOCK */
   nvSpec = NV_SpecInit_Parallel(comm, local_N, NEQ, &argc, &argv);
-  if (nvSpec == NULL) return(1);
+  if(nvSpec == NULL) {
+    if(my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
+    MPI_Finalize();
+    return(1); }
 
   /* INITIAL STATES */
   u = N_VNew(nvSpec);                /* Allocate u vector */
+  if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   SetIC(u, dx, local_N, my_base);    /* Initialize u vector */
 
   /* TOLERANCES */
   reltol = 0.0;                /* Set the tolerances */
   abstol = ATOL;
 
-  
-
   /* CVODE_CREATE & CVODE_MALLOC */
   cvode_mem = CVodeCreate(ADAMS, FUNCTIONAL);
-  if (cvode_mem == NULL) { 
-    if (my_pe == 0) printf("CVodeCreate failed.\n"); 
-    return(1); 
-  }
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVodeSetFdata(cvode_mem, data);
-  if (flag != SUCCESS) { 
-    if (my_pe == 0) printf("CVodeSetFdata failed.\n"); 
-    return(1); 
-  }
+  if(check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
-  if (flag != SUCCESS) { 
-    if (my_pe == 0) printf("CVodeMalloc failed.\n"); 
-    return(1); 
-  }
+  if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   if(sensi) {
     pbar  = (realtype *) malloc(NP * sizeof(realtype));
+    if(check_flag((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     pbar[0] = 1.0;
     pbar[1] = 0.5;
     plist = (int *) malloc(NS * sizeof(int));
+    if(check_flag((void *)plist, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 
     uS = N_VNew_S(NS, nvSpec);
+    if(check_flag((void *)uS, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
     for(is=0;is<NS;is++)
       N_VConst(0.0,uS[is]);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
+    if(check_flag(&flag, "CVodeSetSensErrCon", 1, my_pe)) MPI_Abort(comm, 1);
+
     flag = CVodeSetSensRho(cvode_mem, ZERO);
+    if(check_flag(&flag, "CVodeSetSensRho", 1, my_pe)) MPI_Abort(comm, 1);
+
     flag = CVodeSetSensPbar(cvode_mem, pbar);
+    if(check_flag(&flag, "CVodeSetSensPbar", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, plist, uS);
-    if (flag != SUCCESS) { 
-      if (my_pe == 0) printf("CVodeSensMalloc failed, flag=%d\n",flag); 
-      return(1); 
-    }
+    if(check_flag(&flag, "CVodeSensMalloc", 1, my_pe)) MPI_Abort(comm, 1);
   }
 
   /* In loop over output points, call CVode, print results, test for error */
@@ -240,17 +252,11 @@ int main(int argc, char *argv[])
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
 
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
-    if (flag != SUCCESS) { 
-      if (my_pe == 0) printf("CVode failed, flag=%d.\n", flag); 
-      break; 
-    }
+    if(check_flag(&flag, "CVode", 1, my_pe)) break;
     PrintOutput(cvode_mem, my_pe, t, u);
     if (sensi) {
       flag = CVodeGetSens(cvode_mem, t, uS);
-      if (flag != SUCCESS) { 
-        if (my_pe == 0) printf("CVodeSensExtract failed, flag=%d.\n", flag); 
-        break; 
-      }
+      if(check_flag(&flag, "CVodeGetSens", 1, my_pe)) break;
       PrintOutputS(my_pe, uS);
     }
     if (my_pe == 0)
@@ -264,17 +270,18 @@ int main(int argc, char *argv[])
 
   /* Free memory */
   N_VFree(u);                  /* Free the u vector              */
-  if(sensi) N_VFree_S(NS, uS); /* Free the uS vectors            */
+  if (sensi) N_VFree_S(NS, uS); /* Free the uS vectors            */
   free(data->p);               /* Free the p vector              */
   free(data);                  /* Free block of UserData         */
   CVodeFree(cvode_mem);        /* Free the CVODES problem memory */
   NV_SpecFree_Parallel(nvSpec);
+  free(pbar);
+  if(sensi) free(plist);
 
   MPI_Finalize();
 
   return(0);
 }
-
 
 /************************ Private Helper Functions ***********************/
 
@@ -295,11 +302,11 @@ static void WrongArgs(int my_pe, char *argv[])
 /* ======================================================================= */
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, realtype dx, integertype my_length, 
-                  integertype my_base)
+static void SetIC(N_Vector u, realtype dx, long int my_length, 
+                  long int my_base)
 {
   int i;
-  integertype iglobal;
+  long int iglobal;
   realtype x;
   realtype *udata;
 
@@ -320,16 +327,20 @@ static void SetIC(N_Vector u, realtype dx, integertype my_length,
 
 static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
 {
-  int nst, qu;
+  long int nst;
+  int qu, flag;
   realtype hu, umax;
-  
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetLastOrder(cvode_mem, &qu);
-  CVodeGetLastStep(cvode_mem, &hu);
+
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
+  flag = CVodeGetLastOrder(cvode_mem, &qu);
+  check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
+  flag = CVodeGetLastStep(cvode_mem, &hu);
+  check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
 
   umax = N_VMaxNorm(u);
   if (my_pe == 0) {
-    printf("%8.3e %2d  %8.3e %5d\n", t,qu,hu,nst);
+    printf("%8.3e %2d  %8.3e %5ld\n", t,qu,hu,nst);
     printf("                                Solution       ");
     printf("%12.4e \n", umax);
   }  
@@ -363,26 +374,38 @@ static void PrintOutputS(int my_pe, N_Vector *uS)
 static void PrintFinalStats(void *cvode_mem, booleantype sensi, 
                             int sensi_meth, int err_con)
 {
-  int nst;
-  int nfe, nsetups, nni, ncfn, netf;
-  int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int nst;
+  long int nfe, nsetups, nni, ncfn, netf;
+  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  int flag;
 
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  CVodeGetNumErrTestFails(cvode_mem, &netf);
-  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1, 0);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
   if (sensi) {
-    CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
-    CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
-    CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
-    CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
-    CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
-    CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
+    flag = CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
+    check_flag(&flag, "CVodeGetNumSensRhsEvals", 1, 0);
+    flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
+    check_flag(&flag, "CVodeGetNumRhsEvalsSens", 1, 0);
+    flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
+    check_flag(&flag, "CVodeGetNumSensLinSolvSetups", 1, 0);
+    flag = CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
+    check_flag(&flag, "CVodeGetNumSensErrTestFails", 1, 0);
+    flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
+    check_flag(&flag, "CVodeGetNumSensNonlinSolvIters", 1, 0);
+    flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
+    check_flag(&flag, "CVodeGetNumSensNonlinSolvConvFails", 1, 0);
   }
-  
 
   printf("\n\n========================================================");
   printf("\nFinal Statistics");
@@ -402,16 +425,16 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi,
   }
 
   printf("\n\n");
-  printf("nst     = %5d\n\n", nst);
-  printf("nfe     = %5d\n",   nfe);
-  printf("netf    = %5d    nsetups  = %5d\n", netf, nsetups);
-  printf("nni     = %5d    ncfn     = %5d\n", nni, ncfn);
+  printf("nst     = %5ld\n\n", nst);
+  printf("nfe     = %5ld\n",   nfe);
+  printf("netf    = %5ld    nsetups  = %5ld\n", netf, nsetups);
+  printf("nni     = %5ld    ncfn     = %5ld\n", nni, ncfn);
 
   if(sensi) {
     printf("\n");
-    printf("nfSe    = %5d    nfeS     = %5d\n", nfSe, nfeS);
-    printf("netfs   = %5d    nsetupsS = %5d\n", netfS, nsetupsS);
-    printf("nniS    = %5d    ncfnS    = %5d\n", nniS, ncfnS);
+    printf("nfSe    = %5ld    nfeS     = %5ld\n", nfSe, nfeS);
+    printf("netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
+    printf("nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);
   }
 
   printf("========================================================\n");
@@ -487,4 +510,33 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     hadv = horac*(urt - ult);
     dudata[i-1] = hdiff + hadv;
   }
+}
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    return(1); }
+
+  return(0);
 }

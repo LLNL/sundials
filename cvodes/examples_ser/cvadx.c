@@ -53,11 +53,12 @@
 #include "nvector_serial.h"
 #include "dense.h"
 
-
 #define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
 
+
 /* Problem Constants */
+
 #define NEQ      3            /* number of equations                  */
 
 #define RTOL     1e-4         /* scalar relative tolerance            */
@@ -81,28 +82,46 @@
 
 #define ZERO     0.0
 
+
 /* Type : UserData */
+
 typedef struct {
   realtype p[3];
 } *UserData;
 
+
 /* Functions Called by the CVODES Solver */
 
 /* f is of type RhsFn */
+
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+
 /* Jac is of type CVDenseJacFn */
-static void Jac(integertype N, DenseMat J, realtype t,
+
+static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data, 
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
 /* fB is of type RhsFnB */
+
 static void fB(realtype t, N_Vector y, 
                N_Vector yB, N_Vector yBdot, void *f_dataB);
+
 /* JacB is of type CVDenseJacFnB */
-static void JacB(integertype NB, DenseMat JB, realtype t,
+
+static void JacB(long int NB, DenseMat JB, realtype t,
                  N_Vector y, N_Vector yB, N_Vector fyB, void *jac_dataB,
                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+
 /* fQB is of type QuadRhsFnB */
+
 static void fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_dataB);
+
+
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
+
 
 /***************************** Main Program ******************************/
 
@@ -124,6 +143,11 @@ int main(int argc, char *argv[])
   realtype time;
   int flag, ncheck;
 
+  nvSpecF = nvSpecB = nvSpecQB = NULL;
+  data = NULL;
+  cvadj_mem = cvode_mem = NULL;
+  y = abstol = yB = qB = NULL;
+
   /* Print problem description */
   printf("\n\n Adjoint Sensitivity Example for Chemical Kinetics\n");
   printf(" -------------------------------------------------\n\n");
@@ -137,23 +161,28 @@ int main(int argc, char *argv[])
 
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
+  if (check_flag((void *)data, "malloc", 2)) return(1);
   data->p[0] = 0.04;
   data->p[1] = 1.0e4;
   data->p[2] = 3.0e7;
 
   /* Initialize serial vector specification for forward integration */
   nvSpecF = NV_SpecInit_Serial(NEQ);
+  if (check_flag((void *)nvSpecF, "NV_SpecInit", 0)) return(1);
 
   /* Initialize y */
-  y = N_VNew(nvSpecF); 
-  Ith(y,1) = 1.0;                
+  y = N_VNew(nvSpecF);
+  if (check_flag((void *)y, "N_VNew", 0)) return(1);
+  Ith(y,1) = 1.0;
   Ith(y,2) = 0.0;
   Ith(y,3) = 0.0;
 
   /* Set the scalar relative tolerance reltol */
-  reltol = RTOL;               
+  reltol = RTOL;    
+
   /* Set the vector absolute tolerance abstol */
-  abstol = N_VNew(nvSpecF); 
+  abstol = N_VNew(nvSpecF);
+  if (check_flag((void *)abstol, "N_VNew", 0)) return(1);
   Ith(abstol,1) = ATOL1;       
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
@@ -161,43 +190,51 @@ int main(int argc, char *argv[])
   /* Create and allocate CVODES memory for forward run */
   printf("Create and allocate CVODES memory for forward runs\n");
   cvode_mem = CVodeCreate(BDF, NEWTON);
+  if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   flag = CVodeSetFdata(cvode_mem, data);
+  if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
   flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpecF);
+  if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
   flag = CVDense(cvode_mem, NEQ);
+  if (check_flag(&flag, "CVDense", 1)) return(1);
   flag = CVDenseSetJacFn(cvode_mem, Jac);
+  if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
   flag = CVDenseSetJacData(cvode_mem, data);
+  if (check_flag(&flag, "CVDenseSetJacData", 1)) return(1);
 
   /* Allocate global memory */
   printf("Allocate global memory\n");
   cvadj_mem = CVadjMalloc(cvode_mem, STEPS);
-  if (cvadj_mem == NULL) { printf("CVadjMalloc failed.\n"); return(1); }
+  if (check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
 
   /* Perform forward run */
   printf("Forward integration ... ");
   
   flag = CVodeF(cvadj_mem, TOUT, y, &time, NORMAL, &ncheck);
-  if (flag != SUCCESS) { printf("CVodeF failed.\n"); return(1); }
+  if (check_flag(&flag, "CVodeF", 1)) return(1);
 
   printf("ncheck = %d\n", ncheck);
 
   /* Test check point linked list */
-  /*
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
   CVadjGetCheckPointsList(cvadj_mem);
-  */
 
   /* Initialize serial nvector specification for backward run */ 
   nvSpecB  = NV_SpecInit_Serial(NEQ);   /* adjoint variables */
+  if (check_flag((void *)nvSpecB, "NV_SpecInit", 0)) return(1);
   nvSpecQB = NV_SpecInit_Serial(NP+1);  /* quadrature variables */
+  if (check_flag((void *)nvSpecQB, "NV_SpecInit", 0)) return(1);
 
   /* Initialize yB */
   yB = N_VNew(nvSpecB);
+  if (check_flag((void *)yB, "N_VNew", 0)) return(1);
   Ith(yB,1) = 0.0;
   Ith(yB,2) = 0.0;
   Ith(yB,3) = 0.0;
 
   /* Initialize qB */
   qB = N_VNew(nvSpecQB);
+  if (check_flag((void *)qB, "N_VNew", 0)) return(1);
   Ith(qB,1) = 0.0;
   Ith(qB,2) = 0.0;
   Ith(qB,3) = 0.0;
@@ -205,32 +242,44 @@ int main(int argc, char *argv[])
 
   /* Set the scalar relative tolerance reltolB */
   reltolB = RTOL;               
+
   /* Set the scalar absolute tolerance abstolB */
   abstolB = ATOLl;
+
   /* Set the scalar absolute tolerance abstolQB */
   abstolQB = ATOLq;
 
   /* Create and allocate CVODES memory for backward run */
   printf("Create and allocate CVODES memory for backward run\n");
   flag = CVodeCreateB(cvadj_mem, BDF, NEWTON);
+  if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
   flag = CVodeSetFdataB(cvadj_mem, data);
+  if (check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
   flag = CVodeMallocB(cvadj_mem, fB, TB1, yB, SS, &reltolB, &abstolB, nvSpecB);
+  if (check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   flag = CVDenseB(cvadj_mem, NEQ);
+  if (check_flag(&flag, "CVDenseB", 1)) return(1);
   flag = CVDenseSetJacFnB(cvadj_mem, JacB);
+  if (check_flag(&flag, "CVDenseSetJacFnB", 1)) return(1);
   flag = CVDenseSetJacDataB(cvadj_mem, data);
+  if (check_flag(&flag, "CVDenseSetJacDataB", 1)) return(1);
 
   flag = CVodeSetQuadErrConB(cvadj_mem, PARTIAL);
+  if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
   flag = CVodeSetQuadFdataB(cvadj_mem, data);
+  if (check_flag(&flag, "CVodeSetQuadFdataB", 1)) return(1);
   flag = CVodeQuadMallocB(cvadj_mem, fQB, SS, &reltolB, &abstolQB, nvSpecQB);
+  if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
 
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB1);
   flag = CVodeB(cvadj_mem, yB);
-  if (flag < 0) { printf("CVodeB failed.\n"); return(1); }
+  flag -= 1;
+  if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
-  if (flag != SUCCESS) { printf("CVodeGetQuadB failed.\n"); return(1); }
+  if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
   printf("\n========================================================\n");
   printf("tB0:        %12.4e \n",TB1);
@@ -254,15 +303,18 @@ int main(int argc, char *argv[])
 
   printf("Re-initialize CVODES memory for backward run\n");
   flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, SS, &reltolB, &abstolB);
+  if (check_flag(&flag, "CVodeReInitB", 1)) return(1);
   flag = CVodeQuadReInitB(cvadj_mem, fQB, SS, &reltolB, &abstolQB); 
+  if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
 
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB2);
   flag = CVodeB(cvadj_mem, yB);
-  if (flag < 0) { printf("CVodeB failed.\n"); return(1); }
+  flag -= 1;
+  if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
-  if (flag != SUCCESS) { printf("CVodeGetQuadB failed.\n"); return(1); }
+  if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
   printf("\n========================================================\n");
   printf("tB0:        %12.4e \n",TB2);
@@ -292,6 +344,7 @@ int main(int argc, char *argv[])
 
 }
 
+
 /***************** Functions Called by the CVODE Solver ******************/
 
 /* f routine. Compute f(t,y). */
@@ -311,7 +364,7 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 }
 
 /* Jacobian routine. Compute J(t,y). */
-static void Jac(integertype N, DenseMat J, realtype t,
+static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data, 
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -357,12 +410,10 @@ static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_data
   Ith(yBdot,1) = - p1*l21;
   Ith(yBdot,2) = p2*y3*l21 - 2.0*p3*y2*l32;
   Ith(yBdot,3) = p2*y2*l21 - 1.0;
-
-
 }
 
 /* JacB routine. Compute JB(t,y,yB). */
-static void JacB(integertype NB, DenseMat JB, realtype t,
+static void JacB(long int NB, DenseMat JB, realtype t,
                  N_Vector y, N_Vector yB, N_Vector fyB, void *jac_dataB,
                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
@@ -413,4 +464,42 @@ static void fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_da
   Ith(qBdot,2) = - y23*l21;
   Ith(qBdot,3) = y2*y2*l32;
   Ith(qBdot,4) = y3;
+}
+
+
+/*********************** Private Helper Function ************************/
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+	    funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+	      funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+	    funcname);
+    return(1); }
+
+  return(0);
 }

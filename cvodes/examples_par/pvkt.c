@@ -47,7 +47,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definitions of realtype, integertype, booleantype */
+#include "sundialstypes.h"  /* definitions of realtype and booleantype           */
 #include "cvodes.h"         /* main CVODES header file                           */
 #include "iterative.h"      /* contains the enum for types of preconditioning    */
 #include "cvsspgmr.h"       /* use CVSPGMR linear solver each internal step      */
@@ -57,7 +57,6 @@
 #include "mpi.h"
 
 #include <memory.h>
-
 
 /* Problem Constants */
 
@@ -121,7 +120,6 @@
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 
-
 /* User-defined matrix accessor macro: IJth */
 
 /* IJth is defined in order to write code which indexes into small dense
@@ -134,7 +132,6 @@
 
 #define IJth(a,i,j)        (a[j-1][i-1])
 
-
 /* Type : UserData
    contains problem constants, preconditioner blocks, pivot arrays,
    grid constants, and processor indices */
@@ -142,35 +139,34 @@
 typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  integertype *pivot[MXSUB][MYSUB];
-  integertype my_pe, isubx, isuby, nvmxsub, nvmxsub2;
+  long int *pivot[MXSUB][MYSUB];
+  long int my_pe, isubx, isuby, nvmxsub, nvmxsub2;
   MPI_Comm comm;
 } *UserData;
-
 
 /* Private Helper Functions */
 
 static UserData AllocUserData(void);
-static void InitUserData(integertype my_pe, MPI_Comm comm, UserData data);
+static void InitUserData(long int my_pe, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
+static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 #if PRINT_GRIDINFO == 1
-static void PrintGrids(integertype *xpes, integertype *ypes, integertype my_pe, 
+static void PrintGrids(long int *xpes, long int *ypes, long int my_pe, 
                        MPI_Comm comm, N_Vector u);
 static void PrintRow(realtype *row, FILE* f1, FILE* f2);
 #endif
 static void PrintFinalStats(void *cvode_mem);
-static void vprint(integertype mype, realtype v[], integertype N);
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, integertype isuby,
-                  integertype dsizex, integertype dsizey, realtype udata[]);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
-                      integertype isubx, integertype isuby,
-                      integertype dsizex, integertype dsizey,
+static void vprint(long int mype, realtype v[], long int N);
+static void BSend(MPI_Comm comm, long int my_pe, long int isubx, long int isuby,
+                  long int dsizex, long int dsizey, realtype udata[]);
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
+                      long int isubx, long int isuby,
+                      long int dsizex, long int dsizey,
                       realtype uext[], realtype buffer[]);
-static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
-                      integertype dsizex, realtype uext[], realtype buffer[]);
+static void BRecvWait(MPI_Request request[], long int isubx, long int isuby,
+                      long int dsizex, realtype uext[], realtype buffer[]);
 
 /* Functions Called by the CVODE Solver */
 
@@ -185,6 +181,9 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   realtype gamma, realtype delta,
                   int lr, void *P_data, N_Vector vtemp);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 /***************************** Main Program ******************************/
 
@@ -196,7 +195,7 @@ main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag;
-  integertype neq, local_N;
+  long int neq, local_N;
   int  my_pe, npes;
   MPI_Comm comm;
   
@@ -207,6 +206,10 @@ main(int argc, char *argv[])
   /* for output of timestep and grid data */
   FILE *timesteps;
 
+  nvSpec = NULL;
+  u = NULL;
+  data = NULL;
+  cvode_mem = NULL;
 
   /* Set problem size neq */
 
@@ -223,7 +226,8 @@ main(int argc, char *argv[])
 
   if (npes != NPEX*NPEY) {
     if (my_pe == 0)
-      printf("\n npes=%d is not equal to NPEX*NPEY=%d\n", npes,NPEX*NPEY);
+      fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n", npes,NPEX*NPEY);
+    MPI_Finalize();
     return(1);
   }
 
@@ -234,13 +238,19 @@ main(int argc, char *argv[])
   /* Allocate user data block and load it */
 
   data = AllocUserData();
+  if(check_flag((void *)data, "AllocUserData", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, comm, data);
 
   nvSpec = NV_SpecInit_Parallel(comm, local_N, neq, &argc, &argv);
+  if(nvSpec == NULL) {
+    if(my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
+    MPI_Finalize();
+    return(1); }
 
   /* Allocate u, and set initial values and tolerances */
 
   u = N_VNew(nvSpec);
+  if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
@@ -254,11 +264,11 @@ main(int argc, char *argv[])
   */
 
   cvode_mem = CVodeCreate(BDF, NEWTON);
-  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
   flag = CVodeSetFdata(cvode_mem, data);
-  if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
+  if(check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* 
      Call CVodeMalloc to initialize CVODES memory: 
@@ -273,18 +283,21 @@ main(int argc, char *argv[])
   */
 
   flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
-  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+  if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVSpgmr to specify the CVODES linear solver CVSPGMR 
      with left preconditioning and the maximum Krylov dimension maxl */
   flag = CVSpgmr(cvode_mem, LEFT, MAXL);
-  if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
+  if(check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set preconditioner setup and solve routines Precond and PSolve, 
      and the pointer to the user-defined block data */
   flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
+  if(check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1, my_pe)) MPI_Abort(comm, 1);
   flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
+  if(check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1, my_pe)) MPI_Abort(comm, 1);
   flag = CVSpgmrSetPrecData(cvode_mem, data);
+  if(check_flag(&flag, "CVSpgmrSetPrecData", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) {
     printf("MXxMY = %dx%d (%dx%d, %dx%d), PRINT_GRIDINFO = %d, MAXL = %d\n",
@@ -312,16 +325,13 @@ main(int argc, char *argv[])
 
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
-    if (flag != SUCCESS) {
-      if (my_pe == 0) { printf("CVode failed, flag=%d.\n", flag); }
-      break;
-    }
+    if(check_flag(&flag, "CVode", 1, my_pe)) break;
 
     PrintOutput(cvode_mem, my_pe, comm, u, t);
 
 #if PRINT_GRIDINFO == 1
     {
-      integertype xpes[] = {0, 3}, ypes[] = {4, 4};
+      long int xpes[] = {0, 3}, ypes[] = {4, 4};
       
       /* Print both grids to files -
          Use xpes and ypes to specify PE ranges in x and y to print, or
@@ -345,12 +355,6 @@ main(int argc, char *argv[])
 
   if (my_pe == 0) PrintFinalStats(cvode_mem);
 
-  /* Free memory */
-
-  N_VFree(u);
-  FreeUserData(data);
-  CVodeFree(cvode_mem);
-
   /* do timing */
   mpi_time = MPI_Wtime() - mpi_time_start;
   if (my_pe == 0) {
@@ -364,12 +368,16 @@ main(int argc, char *argv[])
     }
   }
 
+  /* Free memory */
+  N_VFree(u);
+  FreeUserData(data);
+  CVodeFree(cvode_mem);
   NV_SpecFree_Parallel(nvSpec);
+
   MPI_Finalize();
 
   return(0);
 }
-
 
 /*********************** Private Helper Functions ************************/
 
@@ -395,9 +403,9 @@ static UserData AllocUserData(void)
 
 /* Load constants in data */
 
-static void InitUserData(integertype my_pe, MPI_Comm comm, UserData data)
+static void InitUserData(long int my_pe, MPI_Comm comm, UserData data)
 {
-  integertype isubx, isuby;
+  long int isubx, isuby;
 
   /* Set problem constants */
   data->om = PI/HALFDAY;
@@ -418,7 +426,6 @@ static void InitUserData(integertype my_pe, MPI_Comm comm, UserData data)
   /* Set the sizes of a boundary x-line in u and uext */
   data->nvmxsub = NVARS*MXSUB;
   data->nvmxsub2 = NVARS*(MXSUB+2);
-
 }
 
 /* Free data memory */
@@ -442,7 +449,7 @@ static void FreeUserData(UserData data)
 
 static void SetInitialProfiles(N_Vector u, UserData data)
 {
-  integertype isubx, isuby, lx, ly, jx, jy, offset;
+  long int isubx, isuby, lx, ly, jx, jy, offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *udata;
 
@@ -481,12 +488,13 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
+static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
-  int nst, qu;
+  long int nst;
+  int qu;
   realtype hu, *udata, tempu[2];
-  integertype npelast, i0, i1;
+  long int npelast, i0, i1;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
@@ -509,7 +517,7 @@ static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
   if (my_pe == 0) {
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
-    printf("t = %.2e   no. steps = %d   order = %d   stepsize = %.2e\n",
+    printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
            t, nst, qu, hu);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", udata[0], udata[1]);
     printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
@@ -521,12 +529,12 @@ static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
 /* If xpes == NULL, print all pe's in the x direction.  Similarly for y.
    If xpes != NULL, print pe's with xpes[0] <= xpe number <= xpes[1].
    Similarly for y. */
-static void PrintGrids(integertype *xpes, integertype *ypes, integertype my_pe,
+static void PrintGrids(long int *xpes, long int *ypes, long int my_pe,
 		       MPI_Comm comm, N_Vector u)
 {
   realtype *udata;
   MPI_Status status;
-  integertype isubx, isuby;
+  long int isubx, isuby;
   FILE *f1, *f2;
   char file1[30], file2[30];
   int rownum;
@@ -540,18 +548,18 @@ static void PrintGrids(integertype *xpes, integertype *ypes, integertype my_pe,
       (ypes == NULL || isuby >= ypes[0] && isuby <= ypes[1])) {
     
     /* make filenames */
-    sprintf(file1,"%s/c1.%d.%d.%d",OUTPUT_PATH,isubx,isuby,called_count);
-    sprintf(file2,"%s/c2.%d.%d.%d",OUTPUT_PATH,isubx,isuby,called_count);
+    sprintf(file1,"%s/c1.%ld.%ld.%d",OUTPUT_PATH,isubx,isuby,called_count);
+    sprintf(file2,"%s/c2.%ld.%ld.%d",OUTPUT_PATH,isubx,isuby,called_count);
     
     /* open files */
     f1 = fopen(file1,"w");
     if (f1 == NULL) {
-      fprintf(stderr,"Error: unable to open file %s\n",file1);
+      fprintf(stderr,"\nFILE_ERROR(%ld): unable to open file %s\n\n", my_pe, file1);
       exit(1);
     }
     f2 = fopen(file2,"w");
     if (f2 == NULL) {
-      fprintf(stderr,"Error: unable to open file %s\n",file2);
+      fprintf(stderr,"\nFILE_ERROR(%ld): unable to open file %s\n\n", my_pe, file2);
       exit(1);
     }
     
@@ -570,15 +578,14 @@ static void PrintGrids(integertype *xpes, integertype *ypes, integertype my_pe,
 
     /* close files */
     if (fclose(f1) == EOF) {
-      fprintf(stderr,"Error closing file %s\n",file1);
+      fprintf(stderr,"\nFILE_ERROR(%ld): error closing file %s\n\n", my_pe, file1);
       exit(1);
     }
     if (fclose(f2) == EOF) {
-      fprintf(stderr,"Error closing file %s\n",file2);
+      fprintf(stderr,"\nFILE_ERROR(%ld): error closing file %s\n\n", my_pe, file2);
       exit(1);
     }
   }
-
 }
 
 /* print one row of a subgrid (i.e. y constant, x changing) */
@@ -604,47 +611,62 @@ static void PrintRow(realtype *row, FILE* f1, FILE* f2)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-    long int lenrw, leniw ;
+  long int lenrw, leniw ;
   long int lenrwSPGMR, leniwSPGMR;
-  int nst, nfe, nsetups, nni, ncfn, netf;
-  int nli, npe, nps, ncfl, nfeSPGMR;
-  
+  long int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nli, npe, nps, ncfl, nfeSPGMR;
+  int flag;
 
-  CVodeGetIntWorkSpace(cvode_mem, &leniw);
-  CVodeGetRealWorkSpace(cvode_mem, &lenrw);
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  CVodeGetNumErrTestFails(cvode_mem, &netf);
-  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  flag = CVodeGetIntWorkSpace(cvode_mem, &leniw);
+  check_flag(&flag, "CVodeGetIntWorkSpace", 1, 0);
+  flag = CVodeGetRealWorkSpace(cvode_mem, &lenrw);
+  check_flag(&flag, "CVodeGetRealWorkSpace", 1, 0);
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1, 0);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
-  CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
-  CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  flag = CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
+  check_flag(&flag, "CVSpgmrGetIntWorkSpace", 1, 0);
+  flag = CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
+  check_flag(&flag, "CVSpgmrGetRealWorkSpace", 1, 0);
+  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpgmrGetNumLinIters", 1, 0);
+  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1, 0);
+  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1, 0);
+  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpgmrGetNumConvFails", 1, 0);
+  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw = %5ld\n", lenrw, leniw);
   printf("llrw    = %5ld     lliw  = %5ld\n", lenrwSPGMR, leniwSPGMR);
-  printf("nst     = %5d\n"                  , nst);
-  printf("nfe     = %5d     nfel  = %5d\n"  , nfe, nfeSPGMR);
-  printf("nni     = %5d     nli   = %5d\n"  , nni, nli);
-  printf("nsetups = %5d     netf  = %5d\n"  , nsetups, netf);
-  printf("npe     = %5d     nps   = %5d\n"  , npe, nps);
-  printf("ncfn    = %5d     ncfl  = %5d\n\n", ncfn, ncfl); 
+  printf("nst     = %5ld\n"                  , nst);
+  printf("nfe     = %5ld     nfel  = %5ld\n"  , nfe, nfeSPGMR);
+  printf("nni     = %5ld     nli   = %5ld\n"  , nni, nli);
+  printf("nsetups = %5ld     netf  = %5ld\n"  , nsetups, netf);
+  printf("npe     = %5ld     nps   = %5ld\n"  , npe, nps);
+  printf("ncfn    = %5ld     ncfl  = %5ld\n\n", ncfn, ncfl); 
 }
 
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, integertype isuby,
-                  integertype dsizex, integertype dsizey, realtype udata[])
+static void BSend(MPI_Comm comm, long int my_pe, long int isubx, long int isuby,
+                  long int dsizex, long int dsizey, realtype udata[])
 {
   int i, ly;
-  integertype offsetu, offsetbuf;
+  long int offsetu, offsetbuf;
   realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
@@ -692,12 +714,12 @@ static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, integerty
    be manipulated between the two calls.
    request should have 4 entries, and should be passed both calls also. */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
-                      integertype isubx, integertype isuby,
-                      integertype dsizex, integertype dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
+                      long int isubx, long int isuby,
+                      long int dsizex, long int dsizey,
                       realtype uext[], realtype buffer[])
 {
-  integertype offsetue;
+  long int offsetue;
   /* have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   
@@ -734,11 +756,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
    be manipulated between the two calls.
    request should have 4 entries, and should be passed both calls also. */
 
-static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
-                      integertype dsizex, realtype uext[], realtype buffer[])
+static void BRecvWait(MPI_Request request[], long int isubx, long int isuby,
+                      long int dsizex, realtype uext[], realtype buffer[])
 {
   int i, ly;
-  integertype dsizex2, offsetue, offsetbuf;
+  long int dsizex2, offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
@@ -780,7 +802,6 @@ static void BRecvWait(MPI_Request request[], integertype isubx, integertype isub
   
 }
 
-
 /***************** Functions Called by the CVODE Solver ******************/
 
 /* f routine. Compute f(t,y). */
@@ -795,7 +816,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   int i, lx, ly, jx, jy;
   UserData data;
   MPI_Comm comm;
-  integertype my_pe, isubx, isuby, nvmxsub, nvmxsub2, nvmysub,
+  long int my_pe, isubx, isuby, nvmxsub, nvmxsub2, nvmysub,
     offsetu, offsetue, offsetbuf;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
   MPI_Request request[4];
@@ -855,7 +876,6 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   
   BRecvWait(request, isubx, isuby, nvmxsub, uext, buffer);
 
-
   /* To facilitate homogeneous Neumann boundary conditions, when this is
   a boundary PE, copy data from the first interior mesh line of u to uext */
 
@@ -888,7 +908,6 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
       for (i = 0; i < NVARS; i++) uext[offsetue+i] = udata[offsetu+i];
     }
   }
-
 
   /* Loop over all grid points in local subgrid */
 
@@ -958,7 +977,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   realtype c1, c2, cydn, cyup, diagd, diag, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
-  integertype nvmxsub, *(*pivot)[MYSUB], ier, offset;
+  long int nvmxsub, *(*pivot)[MYSUB], ier, offset;
   int lx, ly, jx, jy, isubx, isuby;
   realtype *udata, **a, **j;
   UserData data;
@@ -1055,7 +1074,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   int lr, void *P_data, N_Vector vtemp)
 {
   realtype **(*P)[MYSUB];
-  integertype nvmxsub, *(*pivot)[MYSUB];
+  long int nvmxsub, *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
   UserData data;
@@ -1084,4 +1103,31 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   return(0);
 }
 
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
 
+static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    return(1); }
+
+  return(0);
+}

@@ -51,7 +51,7 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definitions for realtype, integertype        */
+#include "sundialstypes.h"  /* definition for realtype                      */
 #include "cvodes.h"         /* main CVODE header file                       */
 #include "cvsdense.h"       /* use CVDENSE linear solver each internal step */
 #include "cvsband.h"        /* use CVBAND linear solver each internal step  */
@@ -103,23 +103,27 @@ static void PrintIntro1(void);
 static int  Problem2(void);
 static void PrintIntro2(void);
 static realtype MaxError(N_Vector y, realtype t);
-static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integertype mu,
-                          integertype ml);
+static int PrepareNextRun(void *cvode_mem, int lmm, int miter, long int mu,
+                          long int ml);
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero);
 
 /* Functions Called by the CVODE Solver */
 
 static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static void Jac1(integertype N, DenseMat J, realtype tn,
+static void Jac1(long int N, DenseMat J, realtype tn,
                  N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static void Jac2(integertype N, integertype mu, integertype ml, BandMat J,
+static void Jac2(long int N, long int mu, long int ml, BandMat J,
                  realtype tn, N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Implementation */
 
@@ -139,22 +143,30 @@ static int Problem1(void)
 {
   NV_Spec nvSpec;
   realtype reltol=RTOL, abstol=ATOL, t, tout, ero, er;
-  int lmm, miter, flag, iout, nerr=0;
+  int lmm, miter, flag, temp_flag, iout, nerr=0;
   N_Vector y;
-  void *cvode_mem = NULL;
+  void *cvode_mem;
   booleantype firstrun;
   int qu;
   realtype hu;
 
+  nvSpec = NULL;
+  y = NULL;
+  cvode_mem = NULL;
+
   nvSpec = NV_SpecInit_Serial(P1_NEQ);
-                            
+  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
+         
   y = N_VNew(nvSpec);
+  if(check_flag((void *)y, "N_VNew", 0)) return(1);
+
   PrintIntro1();
 
   /* ADAMS formula */
   lmm = ADAMS;
 
   cvode_mem = CVodeCreate(lmm, FUNCTIONAL);
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= DIAG; miter++) {
     ero = 0.0;
@@ -164,27 +176,30 @@ static int Problem1(void)
     firstrun = (miter==FUNC);
     if (firstrun) {
       flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol, nvSpec);
-      if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+      if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeResetIterType(cvode_mem, NEWTON);
+      if(check_flag(&flag, "CVodeResetIterType", 1)) ++nerr;
       flag = CVodeReInit(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
-      if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
+      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);     
-    if (flag != SUCCESS) { printf("PrepareNextRun failed."); return(1); }
+    flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);
+    if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
       
     printf("\n     t           x              xdot         qu     hu \n");
       
     for(iout=1, tout=P1_T1; iout <= P1_NOUT; iout++, tout += P1_DTOUT) {
       flag = CVode(cvode_mem, tout, y, &t, NORMAL);
-      CVodeGetLastOrder(cvode_mem, &qu);
-      CVodeGetLastStep(cvode_mem, &hu);
+      check_flag(&flag, "CVode", 1);
+      temp_flag = CVodeGetLastOrder(cvode_mem, &qu);
+      if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
+      temp_flag = CVodeGetLastStep(cvode_mem, &hu);
+      if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
       printf("%10.5f    %12.5e   %12.5e   %2d    %6.4e\n",
              t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
       if (flag != SUCCESS) {
         nerr++;
-        printf("\n\n CVode returned error flag = %d \n\n", flag);
         break;
       }
       if (iout%2 == 0) {
@@ -201,12 +216,12 @@ static int Problem1(void)
   }
 
   CVodeFree(cvode_mem);
-
 
   /* BDF formula */
   lmm = BDF;
 
   cvode_mem = CVodeCreate(lmm, FUNCTIONAL);
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= DIAG; miter++) {
     ero = 0.0;
@@ -216,27 +231,30 @@ static int Problem1(void)
     firstrun = (miter==FUNC);
     if (firstrun) {
       flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol, nvSpec);
-      if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+      if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeResetIterType(cvode_mem, NEWTON);
+      if(check_flag(&flag, "CVodeResetIterType", 1)) ++nerr;
       flag = CVodeReInit(cvode_mem, f1, P1_T0, y, ITOL, &reltol, &abstol);
-      if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
+      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);     
-    if (flag != SUCCESS) { printf("PrepareNextRun failed."); return(1); }
+    flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);
+    if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
       
     printf("\n     t           x              xdot         qu     hu \n");
       
     for(iout=1, tout=P1_T1; iout <= P1_NOUT; iout++, tout += P1_DTOUT) {
       flag = CVode(cvode_mem, tout, y, &t, NORMAL);
-      CVodeGetLastOrder(cvode_mem, &qu);
-      CVodeGetLastStep(cvode_mem, &hu);
+      check_flag(&flag, "CVode", 1);
+      temp_flag = CVodeGetLastOrder(cvode_mem, &qu);
+      if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
+      temp_flag = CVodeGetLastStep(cvode_mem, &hu);
+      if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
       printf("%10.5f    %12.5e   %12.5e   %2d    %6.4e\n",
              t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
       if (flag != SUCCESS) {
         nerr++;
-        printf("\n\n CVode returned error flag = %d \n\n", flag);
         break;
       }
       if (iout%2 == 0) {
@@ -252,12 +270,9 @@ static int Problem1(void)
     PrintFinalStats(cvode_mem, miter, ero);
   }
 
-  CVodeFree(cvode_mem);
-
-
   N_VFree(y);
+  CVodeFree(cvode_mem);
   NV_SpecFree_Serial(nvSpec);
-
 
   return(nerr);
 }
@@ -273,7 +288,6 @@ static void PrintIntro1(void)
 	 P1_NEQ, (ITOL == SS) ? "SS" : "SV", RTOL, ATOL);
 }
 
-
 static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype y0, y1;
@@ -285,7 +299,7 @@ static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   NV_Ith_S(ydot,1) = (1.0 - SQR(y0))* P1_ETA * y1 - y0;
 } 
 
-static void Jac1(integertype N, DenseMat J, realtype tn,
+static void Jac1(long int N, DenseMat J, realtype tn,
                  N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -299,27 +313,34 @@ static void Jac1(integertype N, DenseMat J, realtype tn,
   DENSE_ELEM(J,1,1) = P1_ETA * (1.0 - SQR(y0));
 }
 
-
 static int Problem2(void)
 {
   NV_Spec nvSpec;
   realtype reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
-  int lmm, miter, flag, iout, nerr=0;
+  int lmm, miter, flag, temp_flag, iout, nerr=0;
   N_Vector y;
-  void *cvode_mem = NULL;
+  void *cvode_mem;
   booleantype firstrun;
   int qu;
   realtype hu;
 
+  nvSpec = NULL;
+  y = NULL;
+  cvode_mem = NULL;
+
   nvSpec = NV_SpecInit_Serial(P2_NEQ);
+  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
  
   y = N_VNew(nvSpec);
+  if(check_flag((void *)y, "N_VNew", 0)) return(1);
+
   PrintIntro2();
   
   /* ADAMS formula */
   lmm = ADAMS;
 
   cvode_mem = CVodeCreate(lmm, FUNCTIONAL);
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= BAND_DQ; miter++) {
     if ((miter==DENSE_USER) || (miter==DENSE_DQ)) continue;
@@ -330,27 +351,30 @@ static int Problem2(void)
     firstrun = (miter==FUNC);
     if (firstrun) {
       flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol, nvSpec);
-      if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+      if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeResetIterType(cvode_mem, NEWTON);
+      if(check_flag(&flag, "CVodeResetIterType", 1)) ++nerr;
       flag = CVodeReInit(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
-      if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
+      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, lmm, miter, P2_MU, P2_ML);     
-    if (flag != SUCCESS) { printf("PrepareNextRun failed."); return(1); }
+    flag = PrepareNextRun(cvode_mem, lmm, miter, P2_MU, P2_ML);
+    if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
       
     printf("\n      t        max.err      qu     hu \n");
       
     for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
       flag = CVode(cvode_mem, tout, y, &t, NORMAL);
+      check_flag(&flag, "CVode", 1);
       erm = MaxError(y, t);
-      CVodeGetLastOrder(cvode_mem, &qu);
-      CVodeGetLastStep(cvode_mem, &hu);
+      temp_flag = CVodeGetLastOrder(cvode_mem, &qu);
+      if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
+      temp_flag = CVodeGetLastStep(cvode_mem, &hu);
+      if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
       printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
       if (flag != SUCCESS) {
         nerr++;
-        printf("\n\n CVode returned error flag = %d \n\n", flag);
         break;
       }
       er = erm / abstol;
@@ -365,12 +389,12 @@ static int Problem2(void)
   }
 
   CVodeFree(cvode_mem);
-
 
   /* BDF formula */
   lmm = BDF;
 
   cvode_mem = CVodeCreate(lmm, FUNCTIONAL);
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= BAND_DQ; miter++) {
     if ((miter==DENSE_USER) || (miter==DENSE_DQ)) continue;
@@ -381,27 +405,30 @@ static int Problem2(void)
     firstrun = (miter==FUNC);
     if (firstrun) {
       flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol, nvSpec);
-      if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+      if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
     } else {
       flag = CVodeResetIterType(cvode_mem, NEWTON);
+      if(check_flag(&flag, "CVodeResetIterType", 1)) ++nerr;
       flag = CVodeReInit(cvode_mem, f2, P2_T0, y, ITOL, &reltol, &abstol);
-      if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
+      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, lmm, miter, P2_MU, P2_ML);     
-    if (flag != SUCCESS) { printf("PrepareNextRun failed."); return(1); }
+    flag = PrepareNextRun(cvode_mem, lmm, miter, P2_MU, P2_ML);
+    if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
       
     printf("\n      t        max.err      qu     hu \n");
       
     for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
       flag = CVode(cvode_mem, tout, y, &t, NORMAL);
+      check_flag(&flag, "CVode", 1);
       erm = MaxError(y, t);
-      CVodeGetLastOrder(cvode_mem, &qu);
-      CVodeGetLastStep(cvode_mem, &hu);
+      temp_flag = CVodeGetLastOrder(cvode_mem, &qu);
+      if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
+      temp_flag = CVodeGetLastStep(cvode_mem, &hu);
+      if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
       printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
       if (flag != SUCCESS) {
         nerr++;
-        printf("\n\n CVode returned error flag = %d \n\n", flag);
         break;
       }
       er = erm / abstol;
@@ -415,10 +442,8 @@ static int Problem2(void)
     PrintFinalStats(cvode_mem, miter, ero);
   }
 
-  CVodeFree(cvode_mem);
-
-
   N_VFree(y);
+  CVodeFree(cvode_mem);
   NV_SpecFree_Serial(nvSpec);
 
   return(nerr);
@@ -435,10 +460,9 @@ static void PrintIntro2(void)
          (ITOL == SS) ? "SS" : "SV", RTOL, ATOL);
 }
 
-
 static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
-  integertype i, j, k;
+  long int i, j, k;
   realtype d, *ydata, *dydata;
   
   ydata = NV_DATA_S(y);
@@ -462,11 +486,11 @@ static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   }
 }
 
-static void Jac2(integertype N, integertype mu, integertype ml, BandMat J,
+static void Jac2(long int N, long int mu, long int ml, BandMat J,
                  realtype tn, N_Vector y, N_Vector fy, void *jac_data,
                  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  integertype i, j, k;
+  long int i, j, k;
   realtype *kthCol;
 
   /*
@@ -498,7 +522,7 @@ static void Jac2(integertype N, integertype mu, integertype ml, BandMat J,
 
 static realtype MaxError(N_Vector y, realtype t)
 {
-  integertype i, j, k;
+  long int i, j, k;
   realtype *ydata, er, ex=0.0, yt, maxError=0.0, ifact_inv, jfact_inv=1.0;
   
   if (t == 0.0) return(0.0);
@@ -521,7 +545,7 @@ static realtype MaxError(N_Vector y, realtype t)
 }
 
 static int PrepareNextRun(void *cvode_mem, int lmm, int miter, 
-                          integertype mu, integertype ml)
+                          long int mu, long int ml)
 {
   int flag = SUCCESS;
   
@@ -544,86 +568,143 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
     case DENSE_USER : 
       printf("Dense, User-Supplied Jacobian\n");
       flag = CVDense(cvode_mem, P1_NEQ);
-      CVDenseSetJacFn(cvode_mem, Jac1);      
+      check_flag(&flag, "CVDense", 1);
+      if(flag != SUCCESS) break;
+      flag = CVDenseSetJacFn(cvode_mem, Jac1);
+      check_flag(&flag, "CVDenseSetJacFn", 1);
       break;
     case DENSE_DQ   : 
       printf("Dense, Difference Quotient Jacobian\n");
-      CVDenseSetJacFn(cvode_mem, NULL);
+      flag = CVDenseSetJacFn(cvode_mem, NULL);
+      check_flag(&flag, "CVDenseSetJacFn", 1);
       break;
     case DIAG       : 
       printf("Diagonal Jacobian\n");
       flag = CVDiag(cvode_mem);
+      check_flag(&flag, "CVDiag", 1);
       break;
     case BAND_USER  : 
       printf("Band, User-Supplied Jacobian\n");
       flag = CVBand(cvode_mem, P2_NEQ, mu, ml);
-      CVBandSetJacFn(cvode_mem, Jac2);
+      check_flag(&flag, "CVBand", 1);
+      if(flag != SUCCESS) break;
+      flag = CVBandSetJacFn(cvode_mem, Jac2);
+      check_flag(&flag, "CVBandSetJacFn", 1);
       break;
     case BAND_DQ  :   
       printf("Band, Difference Quotient Jacobian\n");
-      CVBandSetJacFn(cvode_mem, NULL);
+      flag = CVBandSetJacFn(cvode_mem, NULL);
+      check_flag(&flag, "CVBandSetJacFn", 1);
       break;    
     }
-  }							
-  return(flag);
-  
+  }
+	
+  return(flag);  
 }
 
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
 {
   long int lenrw, leniw;
-  int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nst, nfe, nsetups, nni, ncfn, netf;
   long int lenrwL, leniwL;
-  int nje, nfeL;
+  long int nje, nfeL;
+  int flag;
 
-  CVodeGetIntWorkSpace(cvode_mem, &leniw);
-  CVodeGetRealWorkSpace(cvode_mem, &lenrw);
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  CVodeGetNumErrTestFails(cvode_mem, &netf);
-  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  flag = CVodeGetIntWorkSpace(cvode_mem, &leniw);
+  check_flag(&flag, "CVodeGetIntWorkSpace", 1);
+  flag = CVodeGetRealWorkSpace(cvode_mem, &lenrw);
+  check_flag(&flag, "CVodeGetRealWorkSpace", 1);
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
   printf("\n Final statistics for this run..\n\n");
   printf(" CVode real workspace length              = %4ld \n", lenrw);
   printf(" CVode integer workspace length           = %4ld \n", leniw);
-  printf(" Number of steps                          = %4d \n",  nst);
-  printf(" Number of f-s                            = %4d \n",  nfe);
-  printf(" Number of setups                         = %4d \n",  nsetups);
-  printf(" Number of nonlinear iterations           = %4d \n",  nni);
-  printf(" Number of nonlinear convergence failures = %4d \n",  ncfn);
-  printf(" Number of error test failures            = %4d \n\n",netf);
+  printf(" Number of steps                          = %4ld \n",  nst);
+  printf(" Number of f-s                            = %4ld \n",  nfe);
+  printf(" Number of setups                         = %4ld \n",  nsetups);
+  printf(" Number of nonlinear iterations           = %4ld \n",  nni);
+  printf(" Number of nonlinear convergence failures = %4ld \n",  ncfn);
+  printf(" Number of error test failures            = %4ld \n\n",netf);
   
   if (miter != FUNC) {
     switch(miter) {
     case DENSE_USER :
-    case DENSE_DQ   : 
-      CVDenseGetNumJacEvals(cvode_mem, &nje);
-      CVDenseGetNumRhsEvals(cvode_mem, &nfeL);
-      CVDenseGetIntWorkSpace(cvode_mem, &leniwL);
-      CVDenseGetRealWorkSpace(cvode_mem, &lenrwL);
+    case DENSE_DQ   :
+      flag = CVDenseGetNumJacEvals(cvode_mem, &nje);
+      check_flag(&flag, "CVDenseGetNumJacEvals", 1);
+      flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeL);
+      check_flag(&flag, "CVDenseGetNumRhsEvals", 1);
+      flag = CVDenseGetIntWorkSpace(cvode_mem, &leniwL);
+      check_flag(&flag, "CVDenseGetIntWorkSpace", 1);
+      flag = CVDenseGetRealWorkSpace(cvode_mem, &lenrwL);
+      check_flag(&flag, "CVDenseGetRealWorkSpace", 1);
       break;
     case BAND_USER  :
-    case BAND_DQ    : 
-      CVBandGetNumJacEvals(cvode_mem, &nje);
-      CVBandGetNumRhsEvals(cvode_mem, &nfeL);
-      CVBandGetIntWorkSpace(cvode_mem, &leniwL);
-      CVBandGetRealWorkSpace(cvode_mem, &lenrwL);
+    case BAND_DQ    :
+      flag = CVBandGetNumJacEvals(cvode_mem, &nje);
+      check_flag(&flag, "CVBandGetNumJacEvals", 1);
+      flag = CVBandGetNumRhsEvals(cvode_mem, &nfeL);
+      check_flag(&flag, "CVBandGetNumRhsEvals", 1);
+      flag = CVBandGetIntWorkSpace(cvode_mem, &leniwL);
+      check_flag(&flag, "CVBandGetIntWorkSpace", 1);
+      flag = CVBandGetRealWorkSpace(cvode_mem, &lenrwL);
+      check_flag(&flag, "CVBandGetRealWorkSpace", 1);
       break;  
-    case DIAG       : 
+    case DIAG       :
       nje = nsetups;
-      CVDiagGetNumRhsEvals(cvode_mem, &nfeL);
-      CVDiagGetIntWorkSpace(cvode_mem, &leniwL);
-      CVDiagGetRealWorkSpace(cvode_mem, &lenrwL);
+      flag = CVDiagGetNumRhsEvals(cvode_mem, &nfeL);
+      check_flag(&flag, "CVDiagGetNumRhsEvals", 1);
+      flag = CVDiagGetIntWorkSpace(cvode_mem, &leniwL);
+      check_flag(&flag, "CVDiagGetIntWorkSpace", 1);
+      flag = CVDiagGetRealWorkSpace(cvode_mem, &lenrwL);
+      check_flag(&flag, "CVDiagGetRealWorkSpace", 1);
       break;
     }
     printf(" Linear solver real workspace length      = %4ld \n", lenrwL);
     printf(" Linear solver integer workspace length   = %4ld \n", leniwL);
-    printf(" Number of Jacobian evaluations           = %4d  \n", nje);
-    printf(" Number of f-s evaluations                = %4d \n\n", nfeL);
+    printf(" Number of Jacobian evaluations           = %4ld  \n", nje);
+    printf(" Number of f-s evaluations                = %4ld \n\n", nfeL);
   }
   
-  printf(" Error overrun = %.3f \n", ero);
-  
+  printf(" Error overrun = %.3f \n", ero); 
+}
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  return(0);
 }

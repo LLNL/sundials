@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"    /* definitions of realtype, integertype,        */
+#include "sundialstypes.h"    /* definition of realtype                       */
 			      /* booleantype                                  */
 #include "cvodes.h"           /* main CVODE header file                       */
 #include "iterative.h"        /* contains the enum for preconditioning types  */
@@ -89,13 +89,13 @@
 #define MY           (NPEY*MYSUB)   /* MY = number of y mesh points */
                                     /* Spatial mesh is MX by MY */
 
+
 /* CVodeMalloc Constants */
 
 #define RTOL    1.0e-5            /* scalar relative tolerance */
 #define FLOOR   100.0             /* value of C1 or C2 at which tolerances */
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
-
 
 /* User-defined matrix accessor macro: IJth */
 
@@ -109,7 +109,6 @@
 
 #define IJth(a,i,j)        (a[j-1][i-1])
 
-
 /* Type : UserData 
    contains problem constants, preconditioner blocks, pivot arrays, 
    grid constants, and processor indices */
@@ -117,14 +116,14 @@
 typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
-  integertype my_pe, isubx, isuby, nvmxsub, nvmxsub2;
+  long int my_pe, isubx, isuby, nvmxsub, nvmxsub2;
   MPI_Comm comm;
 } *UserData;
 
 typedef struct {
   void *f_data;
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  integertype *pivot[MXSUB][MYSUB];
+  long int *pivot[MXSUB][MYSUB];
 } *PreconData;
 
 
@@ -134,21 +133,22 @@ static PreconData AllocPreconData(UserData data);
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void FreePreconData(PreconData pdata);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
+static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *cvode_mem);
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
-                  integertype isuby, integertype dsizex, integertype dsizey,
+static void BSend(MPI_Comm comm, long int my_pe, long int isubx,
+                  long int isuby, long int dsizex, long int dsizey,
                   realtype udata[]);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
-		      integertype isubx, integertype isuby,
-		      integertype dsizex, integertype dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
+		      long int isubx, long int isuby,
+		      long int dsizex, long int dsizey,
 		      realtype uext[], realtype buffer[]);
-static void BRecvWait(MPI_Request request[], integertype isubx,
-		      integertype isuby, integertype dsizex, realtype uext[],
+static void BRecvWait(MPI_Request request[], long int isubx,
+		      long int isuby, long int dsizex, realtype uext[],
                       realtype buffer[]);
 static void ucomm(realtype t, N_Vector u, UserData data);
 static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data);
+
 
 /* Functions Called by the CVODE Solver */
 
@@ -165,6 +165,11 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   int lr, void *P_data, N_Vector vtemp);
 
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id);
+
+
 /***************************** Main Program ******************************/
 
 int main(int argc, char *argv[])
@@ -176,15 +181,19 @@ int main(int argc, char *argv[])
   PreconData predata;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
-  integertype neq, local_N;
+  long int neq, local_N;
   MPI_Comm comm;
 
-  /* Set problem size neq */
+  nvSpec = NULL;
+  u = NULL;
+  data = NULL;
+  predata = NULL;
+  cvode_mem = NULL;
 
+  /* Set problem size neq */
   neq = NVARS*MX*MY;
 
   /* Get processor number and total number of pe's */
-
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
@@ -192,25 +201,31 @@ int main(int argc, char *argv[])
 
   if (npes != NPEX*NPEY) {
     if (my_pe == 0)
-      printf("\n npes=%d is not equal to NPEX*NPEY=%d\n", npes,NPEX*NPEY);
+      fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n",
+	      npes,NPEX*NPEY);
+    MPI_Finalize();
     return(1);
   }
 
   /* Set local length */
-
   local_N = NVARS*MXSUB*MYSUB;
 
   /* Allocate and load user data block; allocate preconditioner block */
-
   data = (UserData) malloc(sizeof *data);
+  if (check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, comm, data);
   predata = AllocPreconData (data);
+  if (check_flag((void *)predata, "AllocPreconData", 2, my_pe)) MPI_Abort(comm, 1);
 
   nvSpec = NV_SpecInit_Parallel(comm, local_N, neq, &argc, &argv);
+  if (nvSpec == NULL) {
+    if (my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
+    MPI_Finalize();
+    return(1); }
 
   /* Allocate u, and set initial values and tolerances */ 
-
   u = N_VNew(nvSpec);
+  if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
@@ -222,19 +237,12 @@ int main(int argc, char *argv[])
 
      A pointer to CVODES problem memory is returned and stored in cvode_mem.
   */
-
   cvode_mem = CVodeCreate(BDF, NEWTON);
-  if (cvode_mem == NULL) { 
-    if (my_pe == 0) printf("CVodeCreate failed.\n"); 
-    return(1); 
-  }
+  if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
   flag = CVodeSetFdata(cvode_mem, data);
-  if (flag != SUCCESS) { 
-    if (my_pe == 0) printf("CVodeSetFdata failed.\n"); 
-    return(1); 
-  }
+  if (check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
   
   /* 
      Call CVodeMalloc to initialize CVODES memory: 
@@ -247,52 +255,45 @@ int main(int argc, char *argv[])
      &reltol and &abstol are pointers to the scalar tolerances
      nvSpec  is the vector specification object 
   */
-
   flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
-  if (flag != SUCCESS) { 
-    if (my_pe == 0) printf("CVodeMalloc failed.\n"); 
-    return(1); 
-  }
+  if (check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVSpgmr to specify the CVODES linear solver CVSPGMR 
      with left preconditioning and the maximum Krylov dimension maxl */
   flag = CVSpgmr(cvode_mem, LEFT, 0);
-  if (flag != SUCCESS) { 
-    if (my_pe == 0) printf("CVSpgmr failed."); 
-    return(1); 
-  }
+  if (check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set preconditioner setup and solve routines Precond and PSolve, 
      and the pointer to the user-defined block data */
   flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
+  if (check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1, my_pe)) MPI_Abort(comm, 1);
+
   flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
+  if (check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1, my_pe)) MPI_Abort(comm, 1);
+
   flag = CVSpgmrSetPrecData(cvode_mem, predata);
+  if (check_flag(&flag, "CVSpgmrSetPrecData", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0)
     printf("\n2-species diurnal advection-diffusion problem\n\n");
 
   /* In loop over output points, call CVode, print results, test for error */
-
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
-    if (flag != SUCCESS) {
-      if (my_pe == 0) printf("CVode failed, flag=%d.\n", flag);
-      break;
-    }
+    if (check_flag(&flag, "CVode", 1, my_pe)) break;
     PrintOutput(cvode_mem, my_pe, comm, u, t);
   }
 
   /* Print final statistics */  
-
   if (my_pe == 0) PrintFinalStats(cvode_mem);
 
   /* Free memory */
-
   N_VFree(u);
   free(data);
   FreePreconData(predata);
   CVodeFree(cvode_mem);
   NV_SpecFree_Parallel(nvSpec);
+
   MPI_Finalize();
 
   return(0);
@@ -327,7 +328,7 @@ static PreconData AllocPreconData(UserData fdata)
 
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 {
-  integertype isubx, isuby;
+  long int isubx, isuby;
 
   /* Set problem constants */
   data->om = PI/HALFDAY;
@@ -348,7 +349,6 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   /* Set the sizes of a boundary x-line in u and uext */
   data->nvmxsub = NVARS*MXSUB;
   data->nvmxsub2 = NVARS*(MXSUB+2);
-
 }
 
 /* Free preconditioner data memory */
@@ -372,23 +372,20 @@ static void FreePreconData(PreconData pdata)
 
 static void SetInitialProfiles(N_Vector u, UserData data)
 {
-  integertype isubx, isuby, lx, ly, jx, jy, offset;
+  long int isubx, isuby, lx, ly, jx, jy, offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *udata;
 
   /* Set pointer to data array in vector u */
-
   udata = NV_DATA_P(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
-
   dx = data->dx;         dy = data->dy;
   isubx = data->isubx;   isuby = data->isuby;
 
   /* Load initial profiles of c1 and c2 into local u vector.
   Here lx and ly are local mesh point indices on the local subgrid,
   and jx and jy are the global mesh point indices. */
-  
   offset = 0;
   xmid = .5*(XMIN + XMAX);
   ymid = .5*(YMIN + YMAX);
@@ -411,12 +408,13 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
+static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
-  int nst, qu;
+  long int nst;
+  int qu, flag;
   realtype hu, *udata, tempu[2];
-  integertype npelast, i0, i1;
+  long int npelast, i0, i1;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
@@ -439,10 +437,13 @@ static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
   if (my_pe == 0) {
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
-    CVodeGetNumSteps(cvode_mem, &nst);
-    CVodeGetLastOrder(cvode_mem, &qu);
-    CVodeGetLastStep(cvode_mem, &hu);
-    printf("t = %.2e   no. steps = %d   order = %d   stepsize = %.2e\n",
+    flag = CVodeGetNumSteps(cvode_mem, &nst);
+    check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
+    flag = CVodeGetLastOrder(cvode_mem, &qu);
+    check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
+    flag = CVodeGetLastStep(cvode_mem, &hu);
+    check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
+    printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
            t, nst, qu, hu);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", udata[0], udata[1]);
     printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
@@ -453,64 +454,76 @@ static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int lenrw, leniw ;
+  long int lenrw, leniw;
   long int lenrwSPGMR, leniwSPGMR;
-  int nst, nfe, nsetups, nni, ncfn, netf;
-  int nli, npe, nps, ncfl, nfeSPGMR;
-  
+  long int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nli, npe, nps, ncfl, nfeSPGMR;
+  int flag;
 
-  CVodeGetIntWorkSpace(cvode_mem, &leniw);
-  CVodeGetRealWorkSpace(cvode_mem, &lenrw);
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  CVodeGetNumErrTestFails(cvode_mem, &netf);
-  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  flag = CVodeGetIntWorkSpace(cvode_mem, &leniw);
+  check_flag(&flag, "CVodeGetIntWorkSpace", 1, 0);
+  flag = CVodeGetRealWorkSpace(cvode_mem, &lenrw);
+  check_flag(&flag, "CVodeGetRealWorkSpace", 1, 0);
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1, 0);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
-  CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
-  CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  flag = CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
+  check_flag(&flag, "CVSpgmrGetIntWorkSpace", 1, 0);
+  flag = CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
+  check_flag(&flag, "CVSpgmrGetRealWorkSpace", 1, 0);
+  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpgmrGetNumLinIters", 1, 0);
+  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1, 0);
+  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1, 0);
+  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpgmrGetNumConvFails", 1, 0);
+  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw = %5ld\n", lenrw, leniw);
   printf("llrw    = %5ld     lliw  = %5ld\n", lenrwSPGMR, leniwSPGMR);
-  printf("nst     = %5d\n"                  , nst);
-  printf("nfe     = %5d     nfel  = %5d\n"  , nfe, nfeSPGMR);
-  printf("nni     = %5d     nli   = %5d\n"  , nni, nli);
-  printf("nsetups = %5d     netf  = %5d\n"  , nsetups, netf);
-  printf("npe     = %5d     nps   = %5d\n"  , npe, nps);
-  printf("ncfn    = %5d     ncfl  = %5d\n\n", ncfn, ncfl); 
+  printf("nst     = %5ld\n"                  , nst);
+  printf("nfe     = %5ld     nfel  = %5ld\n"  , nfe, nfeSPGMR);
+  printf("nni     = %5ld     nli   = %5ld\n"  , nni, nli);
+  printf("nsetups = %5ld     netf  = %5ld\n"  , nsetups, netf);
+  printf("npe     = %5ld     nps   = %5ld\n"  , npe, nps);
+  printf("ncfn    = %5ld     ncfl  = %5ld\n\n", ncfn, ncfl); 
 }
  
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
-                  integertype isuby, integertype dsizex, integertype dsizey,
+static void BSend(MPI_Comm comm, long int my_pe, long int isubx,
+                  long int isuby, long dsizex, long int dsizey,
                   realtype udata[])
 {
   int i, ly;
-  integertype offsetu, offsetbuf;
+  long int offsetu, offsetbuf;
   realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
-
   if (isuby != 0)
     MPI_Send(&udata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
 
   /* If isuby < NPEY-1, send data from top x-line of u */
-
   if (isuby != NPEY-1) {
     offsetu = (MYSUB-1)*dsizex;
     MPI_Send(&udata[offsetu], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
   }
 
   /* If isubx > 0, send data from left y-line of u (via bufleft) */
-
   if (isubx != 0) {
     for (ly = 0; ly < MYSUB; ly++) {
       offsetbuf = ly*NVARS;
@@ -522,7 +535,6 @@ static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
-
   if (isubx != NPEX-1) {
     for (ly = 0; ly < MYSUB; ly++) {
       offsetbuf = ly*NVARS;
@@ -542,12 +554,13 @@ static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
-		      integertype isubx, integertype isuby,
-		      integertype dsizex, integertype dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
+		      long int isubx, long int isuby,
+		      long int dsizex, long int dsizey,
 		      realtype uext[], realtype buffer[])
 {
-  integertype offsetue;
+  long int offsetue;
+
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
 
@@ -584,12 +597,12 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvWait(MPI_Request request[], integertype isubx,
-		      integertype isuby, integertype dsizex, realtype uext[],
+static void BRecvWait(MPI_Request request[], long int isubx,
+		      long int isuby, long int dsizex, realtype uext[],
                       realtype buffer[])
 {
   int i, ly;
-  integertype dsizex2, offsetue, offsetbuf;
+  long int dsizex2, offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
@@ -639,14 +652,13 @@ static void ucomm(realtype t, N_Vector u, UserData data)
 
   realtype *udata, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
-  integertype my_pe, isubx, isuby, nvmxsub, nvmysub;
+  long int my_pe, isubx, isuby, nvmxsub, nvmysub;
   MPI_Request request[4];
 
   udata = NV_DATA_P(u);
 
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
-
   comm = data->comm;  my_pe = data->my_pe;
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
@@ -654,19 +666,13 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   uext = data->uext;
 
   /* Start receiving boundary data from neighboring PEs */
-
   BRecvPost(comm, request, my_pe, isubx, isuby, nvmxsub, nvmysub, uext, buffer);
 
   /* Send data from boundary of local grid to neighboring PEs */
-
   BSend(comm, my_pe, isubx, isuby, nvmxsub, nvmysub, udata);
 
   /* Finish receiving boundary data from neighboring PEs */
-
   BRecvWait(request, isubx, isuby, nvmxsub, uext, buffer);
-
-
-
 }
 
 /* fcalc routine. Compute f(t,y).  This routine assumes that communication 
@@ -682,16 +688,14 @@ static void fcalc(realtype t, realtype udata[],
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
   int i, lx, ly, jx, jy;
-  integertype isubx, isuby, nvmxsub, nvmxsub2, offsetu, offsetue;
+  long int isubx, isuby, nvmxsub, nvmxsub2, offsetu, offsetue;
 
   /* Get subgrid indices, data sizes, extended work array uext */
-
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub; nvmxsub2 = data->nvmxsub2;
   uext = data->uext;
 
   /* Copy local segment of u vector into the working extended array uext */
-
   offsetu = 0;
   offsetue = nvmxsub2 + NVARS;
   for (ly = 0; ly < MYSUB; ly++) {
@@ -734,7 +738,6 @@ static void fcalc(realtype t, realtype udata[],
   }
 
   /* Make local copies of problem variables, for efficiency */
-
   dely = data->dy;
   verdco = data->vdco;
   hordco  = data->hdco;
@@ -742,7 +745,6 @@ static void fcalc(realtype t, realtype udata[],
 
   /* Set diurnal rate coefficients as functions of t, and save q4 in 
   data block for use by preconditioner evaluation routine */
-
   s = sin((data->om)*t);
   if (s > 0.0) {
     q3 = exp(-A3/s);
@@ -755,13 +757,11 @@ static void fcalc(realtype t, realtype udata[],
 
 
   /* Loop over all grid points in local subgrid */
-
   for (ly = 0; ly < MYSUB; ly++) {
 
     jy = ly + isuby*MYSUB;
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
-
     ydn = YMIN + (jy - .5)*dely;
     yup = ydn + dely;
     cydn = verdco*exp(0.2*ydn);
@@ -771,7 +771,6 @@ static void fcalc(realtype t, realtype udata[],
       jx = lx + isubx*MXSUB;
 
       /* Extract c1 and c2, and set kinetic rate terms */
-
       offsetue = (lx+1)*NVARS + (ly+1)*nvmxsub2;
       c1 = uext[offsetue];
       c2 = uext[offsetue+1];
@@ -783,7 +782,6 @@ static void fcalc(realtype t, realtype udata[],
       rkin2 = qq1 - qq2 - qq4;
 
       /* Set vertical diffusion terms */
-
       c1dn = uext[offsetue-nvmxsub2];
       c2dn = uext[offsetue-nvmxsub2+1];
       c1up = uext[offsetue+nvmxsub2];
@@ -792,7 +790,6 @@ static void fcalc(realtype t, realtype udata[],
       vertd2 = cyup*(c2up - c2) - cydn*(c2 - c2dn);
 
       /* Set horizontal diffusion and advection terms */
-
       c1lt = uext[offsetue-2];
       c2lt = uext[offsetue-1];
       c1rt = uext[offsetue+2];
@@ -803,7 +800,6 @@ static void fcalc(realtype t, realtype udata[],
       horad2 = horaco*(c2rt - c2lt);
 
       /* Load all terms into dudata */
-
       offsetu = lx*NVARS + ly*nvmxsub;
       dudata[offsetu]   = vertd1 + hord1 + horad1 + rkin1; 
       dudata[offsetu+1] = vertd2 + hord2 + horad2 + rkin2;
@@ -827,15 +823,11 @@ static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
   dudata = NV_DATA_P(udot);
   data = (UserData) f_data;
 
-
   /* Call ucomm to do inter-processor communication */
-
   ucomm (t, u, data);
 
   /* Call fcalc to calculate all right-hand sides */
-
   fcalc (t, udata, dudata, data);
-
 }
 
 
@@ -847,7 +839,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
-  integertype nvmxsub, *(*pivot)[MYSUB], ier, offset;
+  long int nvmxsub, *(*pivot)[MYSUB], ier, offset;
   int lx, ly, jx, jy, isubx, isuby;
   realtype *udata, **a, **j;
   PreconData predata;
@@ -855,7 +847,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   /* Make local copies of pointers in P_data, pointer to u's data,
      and PE index pair */
-
   predata = (PreconData) P_data;
   data = (UserData) (predata->f_data);
   P = predata->P;
@@ -868,7 +859,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   if (jok) {
 
   /* jok = TRUE: Copy Jbd to P */
-
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
         dencopy(Jbd[lx][ly], P[lx][ly], NVARS);
@@ -882,7 +872,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* jok = FALSE: Generate Jbd from scratch and copy to P */
 
   /* Make local copies of problem variables, for efficiency */
-
   q4coef = data->q4;
   dely = data->dy;
   verdco = data->vdco;
@@ -890,7 +879,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
      computed on the last f call).  Load into P. */
-
     for (ly = 0; ly < MYSUB; ly++) {
       jy = ly + isuby*MYSUB;
       ydn = YMIN + (jy - .5)*dely;
@@ -918,13 +906,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   }
 
   /* Scale by -gamma */
-
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
         denscale(-gamma, P[lx][ly], NVARS);
 
   /* Add identity matrix and do LU decompositions on blocks in place */
-
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       denaddI(P[lx][ly], NVARS);
@@ -936,7 +922,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   return(0);
 }
 
-
 /* Preconditioner solve routine */
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
@@ -944,14 +929,13 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   int lr, void *P_data, N_Vector vtemp)
 {
   realtype **(*P)[MYSUB];
-  integertype nvmxsub, *(*pivot)[MYSUB];
+  long int nvmxsub, *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
   PreconData predata;
   UserData data;
 
   /* Extract the P and pivot arrays from P_data */
-
   predata = (PreconData) P_data;
   data = (UserData) (predata->f_data);
   P = predata->P;
@@ -960,7 +944,6 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   /* Solve the block-diagonal system Px = r using LU factors stored
      in P and pivot data in pivot, and return the solution in z.
      First copy vector r to z. */
-
   N_VScale(1.0, r, z);
 
   nvmxsub = data->nvmxsub;
@@ -972,6 +955,44 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
       gesl(P[lx][ly], NVARS, pivot[lx][ly], v);
     }
   }
+
+  return(0);
+}
+
+
+/*********************** Private Helper Function ************************/
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+	    id, funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
+	      id, funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+	    id, funcname);
+    return(1); }
 
   return(0);
 }

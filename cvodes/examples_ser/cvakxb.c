@@ -141,7 +141,7 @@
 
 typedef struct {
   realtype   **P[NGRP];
-  integertype *pivot[NGRP];
+  long int *pivot[NGRP];
   int ns,  mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
@@ -153,12 +153,10 @@ typedef struct {
   void *cvode_memF;
 } *WebData;
 
-
 /* Adjoint calculation constants */
 #define NSTEPS 100 /* check points every NSTEPS steps */
 #define ISPEC  6   /* species # in objective */
 /* g = int_x int_y c(ISPEC) dy dx at t = Tfinal */
-
 
 /* Private Helper Functions */
 
@@ -215,6 +213,10 @@ static int PSolveB(realtype t, N_Vector c,
                    realtype gamma, realtype delta, 
                    int lr, void *P_data, N_Vector vtemp);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
+
 /* Implementation */
 
 int main(int argc, char *argv[])
@@ -235,6 +237,11 @@ int main(int argc, char *argv[])
 
   FILE *outfile;
 
+  nvSpecF = nvSpecB = NULL;
+  c = cB = NULL;
+  wdata = NULL;
+  cvode_mem = cvadj_mem = NULL;
+
   /*--------------------*/
   /*----- OPEN FILE ----*/
   /*--------------------*/
@@ -248,6 +255,7 @@ int main(int argc, char *argv[])
   /*--------------------*/
 
   wdata = AllocUserData();
+  if(check_flag((void *)wdata, "AllocUserData", 2)) return(1);
   InitUserData(wdata);
 
   /*--------------------------*/
@@ -256,25 +264,35 @@ int main(int argc, char *argv[])
 
   /* Initialize serial vector specification for forward run */
   nvSpecF = NV_SpecInit_Serial(NEQ);
+  if(check_flag((void *)nvSpecF, "NV_SpecInit", 0)) return(1);
 
   /* Initializations */
   c = N_VNew(nvSpecF);
+  if(check_flag((void *)c, "N_VNew", 0)) return(1);
   CInit(c, wdata);
   PrintAllSpecies(outfile,c,NS,MXNS);
 
   /* Call CVodeCreate/CVodeMalloc for forward run */
   printf("\nCreate and allocate CVODE memory for forward run\n");
   cvode_mem = CVodeCreate(LMM, ITER);
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   wdata->cvode_memF = cvode_mem; /* Used in Precond */
   flag = CVodeSetFdata(cvode_mem, wdata);
+  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
   flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol, nvSpecF);
-  
+  if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+
   /* Call CVSpgmr for forward run */
   flag = CVSpgmr(cvode_mem, LEFT, MAXL);
+  if(check_flag(&flag, "CVSpgmr", 1)) return(1);
   flag = CVSpgmrSetDelt(cvode_mem, DELT);
+  if(check_flag(&flag, "CVSpgmrSetDelt", 1)) return(1);
   flag = CVSpgmrSetPrecData(cvode_mem, wdata);
+  if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
   flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
+  if(check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1)) return(1);
   flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
+  if(check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1)) return(1);
 
   /*------------------------*/
   /*---- ADJOINT MEMORY ----*/
@@ -282,6 +300,7 @@ int main(int argc, char *argv[])
 
   printf("\nAllocate global memory\n");
   cvadj_mem = CVadjMalloc(cvode_mem, NSTEPS);
+  if(check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
   wdata->cvadj_mem = cvadj_mem;
 
   /*---------------------*/
@@ -290,6 +309,7 @@ int main(int argc, char *argv[])
 
   printf("\nForward integration\n");
   flag = CVodeF(cvadj_mem, TOUT, c, &t, NORMAL, &ncheck);
+  if(check_flag(&flag, "CVodeF", 1)) return(1);
 
   printf("\n   g = int_x int_y c%d(Tfinal,x,y) dx dy = %f \n\n", 
          ISPEC, doubleIntgr(c,ISPEC,wdata));
@@ -307,24 +327,34 @@ int main(int argc, char *argv[])
 
   /* Initialize serial vector specification for backward run */
   nvSpecB = NV_SpecInit_Serial(NEQ);
+  if(check_flag((void *)nvSpecB, "NV_SpecInit", 0)) return(1);
 
   /* Allocate cB */
   cB = N_VNew(nvSpecB);
+  if(check_flag((void *)cB, "N_VNew", 0)) return(1);
   /* Initialize cB = 0 */
   CbInit(cB, ISPEC, wdata);
 
   /* Create and allocate CVODES memory for backward run */
   printf("\nCreate and allocate CVODES memory for backward run\n");
   flag = CVodeCreateB(cvadj_mem, LMM, ITER);
+  if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
   flag = CVodeSetFdataB(cvadj_mem, wdata);
+  if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
   flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, ITOL, &reltolB, &abstolB, nvSpecB);
+  if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   /* Call CVSpgmr */
   flag = CVSpgmrB(cvadj_mem, LEFT, MAXL);
+  if(check_flag(&flag, "CVSpgmrB", 1)) return(1);
   flag = CVSpgmrSetDeltB(cvadj_mem, DELT);
+  if(check_flag(&flag, "CVSpgmrSetDeltB", 1)) return(1);
   flag = CVSpgmrSetPrecDataB(cvadj_mem, wdata);
+  if(check_flag(&flag, "CVSpgmrSetPrecDataB", 1)) return(1);
   flag = CVSpgmrSetPrecSetupFnB(cvadj_mem, PrecondB);
+  if(check_flag(&flag, "CVSpgmrSetPrecSetupFnB", 1)) return(1);
   flag = CVSpgmrSetPrecSolveFnB(cvadj_mem, PSolveB);
+  if(check_flag(&flag, "CVSpgmrSetPrecSolveFnB", 1)) return(1);
 
   /*----------------------*/
   /*---- BACKWARD RUN ----*/
@@ -332,6 +362,8 @@ int main(int argc, char *argv[])
 
   printf("\nBackward integration\n");
   flag = CVodeB(cvadj_mem, cB);
+  flag -= 1;
+  if(check_flag(&flag, "CVodeB", 1)) return(1);
 
   PrintAllSpecies(outfile,cB,NS,MXNS);
   printf("\nMu(0,x,y) written to file cvakxb.mu\n\n");
@@ -345,6 +377,7 @@ int main(int argc, char *argv[])
   CVodeFree(cvode_mem);
   CVadjFree(cvadj_mem);
   N_VFree(c);
+  N_VFree(cB);
   FreeUserData(wdata);
   NV_SpecFree_Serial(nvSpecF);
   NV_SpecFree_Serial(nvSpecB);  
@@ -432,7 +465,7 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
 {
   int ig, j, len1, mper, ngm1;
   
-  mper = m/ng; /* does integertype division */
+  mper = m/ng; /* does integer division */
   for (ig=0; ig < ng; ig++) jg[ig] = ig*mper;
   jg[ng] = m;
   
@@ -473,7 +506,6 @@ static void CInit(N_Vector c, WebData wdata)
       }
     }
   }
-
 }
 
 static void CbInit(N_Vector c, int is, WebData wdata)
@@ -639,7 +671,6 @@ static void f(realtype t, N_Vector c, N_Vector cdot, void *f_data)
       }
     }
   }
-
 }
 
 /*
@@ -689,9 +720,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype ***P;
-  integertype **pivot, ier;
+  long int **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp;
+  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp, flag;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   void *cvode_mem;
@@ -700,13 +731,13 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
 
   wdata = (WebData) P_data;
   cvode_mem = wdata->cvode_memF;
-  CVodeGetErrWeights(cvode_mem, &rewt);
+  flag = CVodeGetErrWeights(cvode_mem, &rewt);
+  if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
 
   cdata = NV_DATA_S(c);
   rewtdata = NV_DATA_S(rewt);
 
   uround = UNIT_ROUNDOFF;
-
 
   P = wdata->P;
   pivot = wdata->pivot;
@@ -800,7 +831,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   int lr, void *P_data, N_Vector vtemp)
 {
   realtype   ***P;
-  integertype **pivot;
+  long int **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
@@ -1023,7 +1054,6 @@ static void v_zero(realtype u[], int n)
   for (i=0; i < n; i++) u[i] = 0.0;
 }
 
-
 /*
  This routine computes the right-hand side of the adjoint ODE system and
  returns it in cBdot. The interaction rates are computed by calls to WebRates,
@@ -1120,9 +1150,9 @@ static int PrecondB(realtype t, N_Vector c,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype ***P;
-  integertype **pivot, ier;
+  long int **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp;
+  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp, flag;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   void *cvode_mem;
@@ -1131,7 +1161,9 @@ static int PrecondB(realtype t, N_Vector c,
 
   wdata = (WebData) P_data;
   cvode_mem = CVadjGetCVodeBmem(wdata->cvadj_mem);
-  CVodeGetErrWeights(cvode_mem, &rewt);
+  if(check_flag((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) return(1);
+  flag = CVodeGetErrWeights(cvode_mem, &rewt);
+  if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
 
   cdata = NV_DATA_S(c);
   rewtdata = NV_DATA_S(rewt);
@@ -1196,7 +1228,6 @@ static int PrecondB(realtype t, N_Vector c,
   return(0);
 }
 
-
 static int PSolveB(realtype t, N_Vector c, 
                    N_Vector cB, N_Vector fcB, 
                    N_Vector r, N_Vector z,
@@ -1204,7 +1235,7 @@ static int PSolveB(realtype t, N_Vector c,
                    int lr, void *P_data, N_Vector vtemp)
 {
   realtype ***P;
-  integertype **pivot;
+  long int **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
@@ -1241,3 +1272,31 @@ static int PSolveB(realtype t, N_Vector c,
   return(0);
 }
 
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  return(0);
+}

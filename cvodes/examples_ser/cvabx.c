@@ -82,7 +82,6 @@ typedef struct {
   realtype dx, dy, hdcoef, hacoef, vdcoef;
 } *UserData;
 
-
 /* Private Helper Functions */
 
 static void SetIC(N_Vector u, UserData data);
@@ -92,17 +91,20 @@ static void WriteLambda(N_Vector uB);
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
+static void Jac(long int N, long int mu, long int ml, BandMat J,
                 realtype t, N_Vector u, N_Vector fu, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
 
 static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *f_dataB);
 
-static void JacB(integertype NB, integertype muB, integertype mlB, BandMat JB,
+static void JacB(long int NB, long int muB, long int mlB, BandMat JB,
                  realtype tB, N_Vector u, 
                  N_Vector uB, N_Vector fuB, void *jac_dataB,
                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B); 
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /***************************** Main Program ******************************/
 
@@ -123,12 +125,18 @@ int main(int argc, char *argv[])
   
   int flag, ncheck;
 
+  nvSpecF = nvSpecB = NULL;
+  data = NULL;
+  cvadj_mem = cvode_mem = NULL;
+  u = uB = NULL;
+
   /*--------------------*/
   /*----- USER DATA ----*/
   /*--------------------*/
 
   /* Allocate data memory */
   data = (UserData) malloc(sizeof *data);
+  if(check_flag((void *)data, "malloc", 2)) return(1);
   dx = data->dx = XMAX/(MX+1);     /* Set grid coefficients in data */
   dy = data->dy = YMAX/(MY+1);
   data->hdcoef = 1.0/(dx*dx);
@@ -141,6 +149,7 @@ int main(int argc, char *argv[])
 
   /* Initialize serial vector specification for forward run */
   nvSpecF = NV_SpecInit_Serial(NEQ);
+  if(check_flag((void *)nvSpecF, "NV_SpecInit", 0)) return(1);
 
   /* Set the tolerances */
   reltol = 0.0;
@@ -148,6 +157,8 @@ int main(int argc, char *argv[])
 
   /* Allocate u vector */
   u = N_VNew(nvSpecF);
+  if(check_flag((void *)u, "N_VNew", 0)) return(1);
+
   /* Initialize u vector */
   SetIC(u, data);
 
@@ -156,24 +167,24 @@ int main(int argc, char *argv[])
   printf("\nCreate and allocate CVODES memory for forward runs\n");
 
   cvode_mem = CVodeCreate(BDF, NEWTON);
-  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   flag = CVodeSetFdata(cvode_mem, data);
-  if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
+  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
   flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpecF);
-  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+  if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVBand with  bandwidths ml = mu = MY, */
 
   flag = CVBand(cvode_mem, NEQ, MY, MY);
-  if (flag != SUCCESS) { printf("CVBand failed.\n"); return(1); }
+  if(check_flag(&flag, "CVBand", 1)) return(1);
 
   flag = CVBandSetJacFn(cvode_mem, Jac);
-  if (flag != SUCCESS) { printf("CVBandSetJacFn failed.\n"); return(1); }
+  if(check_flag(&flag, "CVBandSetJacFn", 1)) return(1);
 
   flag = CVBandSetJacData(cvode_mem, data);
-  if (flag != SUCCESS) { printf("CVBandSetJacData failed.\n"); return(1); }
+  if(check_flag(&flag, "CVBandSetJacData", 1)) return(1);
 
   /*------------------------*/
   /*---- ADJOINT MEMORY ----*/
@@ -184,7 +195,7 @@ int main(int argc, char *argv[])
   printf("\nAllocate global memory\n");
 
   cvadj_mem = CVadjMalloc(cvode_mem, NSTEP);
-  if (cvadj_mem == NULL) { printf("CVadjMalloc failed.\n"); return(1); }
+  if(check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
 
   /*---------------------*/
   /*---- FORWARD RUN ----*/
@@ -193,8 +204,8 @@ int main(int argc, char *argv[])
   /* Perform forward run */
   printf("\nForward integration\n");
   flag = CVodeF(cvadj_mem, TOUT, u, &t, NORMAL, &ncheck);
-  if (flag != SUCCESS) { printf("CVodeF failed.\n"); return(1); }
-  
+  if(check_flag(&flag, "CVodeF", 1)) return(1);
+
   /* Test check point linked list */
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
   CVadjGetCheckPointsList(cvadj_mem);
@@ -205,6 +216,7 @@ int main(int argc, char *argv[])
 
   /* Initialize serial vector specification for backward run */
   nvSpecB = NV_SpecInit_Serial(NEQ);
+  if(check_flag((void *)nvSpecB, "NV_SpecInit", 0)) return(1);
 
   /* Set the tolerances */
   reltolB = RTOLB;
@@ -212,6 +224,7 @@ int main(int argc, char *argv[])
 
   /* Allocate uB */
   uB = N_VNew(nvSpecB);
+  if(check_flag((void *)uB, "N_VNew", 0)) return(1);
   /* Initialize uB = 0 */
   N_VConst(0.0, uB);
 
@@ -220,22 +233,22 @@ int main(int argc, char *argv[])
   printf("\nCreate and allocate CVODES memory for backward run\n");
 
   flag = CVodeCreateB(cvadj_mem, BDF, NEWTON);
-  if (flag != SUCCESS) { printf("CVodeCreateB failed.\n"); return(1); }
-  
+  if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
+
   flag = CVodeSetFdataB(cvadj_mem, data);
-  if (flag != SUCCESS) { printf("CVodeSetFdataB failed.\n"); return(1); }
+  if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
 
   flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, SS, &reltolB, &abstolB, nvSpecB);
-  if (flag != SUCCESS) { printf("CVodeMallocB failed.\n"); return(1); }
+  if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   flag = CVBandB(cvadj_mem, NEQ, MY, MY);
-  if (flag != SUCCESS) { printf("CVBandB failed.\n"); return(1); }
+  if(check_flag(&flag, "CVBandB", 1)) return(1);
   
   flag = CVBandSetJacFnB(cvadj_mem, JacB);
-  if (flag != SUCCESS) { printf("CVBandSetJacFnB failed.\n"); return(1); }
+  if(check_flag(&flag, "CVBandSetJacFnB", 1)) return(1);
 
   flag = CVBandSetJacDataB(cvadj_mem, data);
-  if (flag != SUCCESS) { printf("CVBandSetJacDataB failed.\n"); return(1); }
+  if(check_flag(&flag, "CVBandSetJacDataB", 1)) return(1);
 
   /*----------------------*/
   /*---- BACKWARD RUN ----*/
@@ -243,19 +256,20 @@ int main(int argc, char *argv[])
 
   printf("\nBackward integration\n");
   flag = CVodeB(cvadj_mem, uB);
-  if (flag != TSTOP_RETURN) { printf("CVodeB failed.\n"); return(1); }  
-  
+  flag -= 1;
+  if(check_flag(&flag, "CVodeB", 1)) return(1);
+
   WriteLambda(uB);
 
-  N_VFree(u);                  /* Free the u vector */
-  CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
-  free(data);                  /* Free the user data */
+  N_VFree(u);                        /* Free the u vector */
+  N_VFree(uB);                      /* Free the uB vector */
+  CVodeFree(cvode_mem);      /* Free the CVODE problem memory */
+  free(data);                     /* Free the user data */
   NV_SpecFree_Serial(nvSpecF);
   NV_SpecFree_Serial(nvSpecB);
 
   return(0);
 }
-
 
 /************************ Private Helper Functions ***********************/
 
@@ -357,11 +371,11 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
+static void Jac(long int N, long int mu, long int ml, BandMat J,
                 realtype t, N_Vector u, N_Vector fu, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  integertype i, j, k;
+  long int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
 
@@ -442,12 +456,12 @@ static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
   }
 }
 
-static void JacB(integertype NB, integertype muB, integertype mlB, BandMat JB,
+static void JacB(long int NB, long int muB, long int mlB, BandMat JB,
                  realtype tB, N_Vector u, 
                  N_Vector uB, N_Vector fuB, void *jac_dataB,
                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
-  integertype i, j, k;
+  long int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
 
@@ -499,4 +513,33 @@ static void WriteLambda(N_Vector uB)
 
   printf("\nLambda written to file cvabx.lambda\n");
 
+}
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  return(0);
 }
