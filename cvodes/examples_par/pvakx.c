@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-10-21 22:06:27 $
+ * $Revision: 1.6 $
+ * $Date: 2004-10-22 20:56:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -223,6 +223,8 @@ int main(int argc, char *argv[])
 
   int ncheckpnt, flag;
 
+  booleantype output;
+
   /* Initialize MPI and set Ids */
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
@@ -240,6 +242,10 @@ int main(int argc, char *argv[])
               npes_needed, npes);
     MPI_Abort(comm, EXIT_FAILURE);
   }
+
+  /* Test if matlab output is requested */
+  if (argc > 1) output = TRUE;
+  else          output = FALSE;
 
   /* Allocate and set problem data structure */
   d = (ProblemData) malloc(sizeof *d);
@@ -361,8 +367,10 @@ int main(int argc, char *argv[])
   flag = CVodeGetQuadB(cvadj_mem, qB);
 
   /* Process 0 collects the gradient components and prints them */
-  OutputGradient(myId, qB, d);
-  if (myId == 0) printf("Wrote matlab file 'grad.m'.\n");
+  if (output) {
+    OutputGradient(myId, qB, d);
+    if (myId == 0) printf("Wrote matlab file 'grad.m'.\n");
+  }
 
   /* Free memory */
   N_VDestroy_Parallel(y);

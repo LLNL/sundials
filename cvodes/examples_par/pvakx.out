@@ -33,5 +33,3 @@ nni     =    107     nli   =    227
 nsetups =     16     netf  =      0
 npe     =      2     nps   =    330
 ncfn    =      0     ncfl  =      0
-
-Wrote matlab file 'grad.m'.
