@@ -252,7 +252,7 @@ The form of the call to this routine is as follows:
     that \id{p[-j-1]} does not enter $f(t,y,p)$ thus increasing the efficiency of the
     difference quotient approximation routine for sensitivity right-hand side evaluation.
     
-  \item[yS0] (\id{N\_Vector}) 
+  \item[yS0] (\id{N\_Vector *}) 
     a pointer to an array of \id{Ns} vectors containing the initial 
     values of the sensitivities.
 
@@ -315,7 +315,7 @@ The call to the \id{CVodeSensReInit} function has the form:
   \item[plist] (\id{int *}) 
     an array of \id{Ns} nonzero integer flags that specifies the sensitivity parameter.
     
-  \item[yS0] (\id{N\_Vector}) 
+  \item[yS0] (\id{N\_Vector *}) 
     a pointer to an array of \id{Ns} variables of type \id{N\_Vector} containing the 
     initial values of the sensitivities.
 
