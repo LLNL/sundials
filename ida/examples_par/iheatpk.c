@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-22 20:41:26 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-22 20:44:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -160,25 +160,33 @@ int main(int argc, char *argv[])
 
   data = (UserData) malloc(sizeof *data);
   data->pp = NULL;
-  if(check_flag((void *)data, "malloc", 2, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)data, "malloc", 2, thispe)) 
+    MPI_Abort(comm, 1);
 
   uu = N_VNew_Parallel(comm, local_N, Neq);
-  if(check_flag((void *)uu, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)uu, "N_VNew_Parallel", 0, thispe)) 
+    MPI_Abort(comm, 1);
 
   up = N_VNew_Parallel(comm, local_N, Neq);
-  if(check_flag((void *)up, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)up, "N_VNew_Parallel", 0, thispe)) 
+    MPI_Abort(comm, 1);
 
   res = N_VNew_Parallel(comm, local_N, Neq);
-  if(check_flag((void *)res, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)res, "N_VNew_Parallel", 0, thispe)) 
+    MPI_Abort(comm, 1);
 
   constraints = N_VNew_Parallel(comm, local_N, Neq);
-  if(check_flag((void *)constraints, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)constraints, "N_VNew_Parallel", 0, thispe)) 
+    MPI_Abort(comm, 1);
 
   id = N_VNew_Parallel(comm, local_N, Neq);
-  if(check_flag((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)id, "N_VNew_Parallel", 0, thispe)) 
+    MPI_Abort(comm, 1);
 
-  data->pp = N_VNew_Parallel(comm, local_N, Neq); /* An N-vector to hold preconditioner. */
-  if(check_flag((void *)data->pp, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  /* An N-vector to hold preconditioner. */
+  data->pp = N_VNew_Parallel(comm, local_N, Neq);
+  if(check_flag((void *)data->pp, "N_VNew_Parallel", 0, thispe)) 
+    MPI_Abort(comm, 1);
 
   InitUserData(thispe, comm, data);
   
