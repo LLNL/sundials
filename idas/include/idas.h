@@ -1067,18 +1067,18 @@ int IDAGetQuad(void *ida_mem, realtype t, N_Vector yretQ);
  * and statistics related to the integration of quadratures.      *
  * -------------------------------------------------------------- *
  *                                                                * 
- * IDAGetNumQuadRhsEvals returns the number of calls to the       *
+ * IDAGetQuadNumRhsEvals returns the number of calls to the       *
  *      user function rhsQ defining the right hand side of the    *
  *      quadrature variables.                                     *
- * IDAGetNumQuadErrTestFails returns the number of local error    *
+ * IDAGetQuadNumErrTestFails returns the number of local error    *
  *      test failures for quadrature variables.                   *
  * IDAGetQuadErrWeights returns the vector of error weights for   *
  *      the quadrature variables. The user need not allocate      *
  *      space for ewtQ.                                           *
  *----------------------------------------------------------------*/
 
-int IDAGetNumQuadRhsEvals(void *ida_mem, int *nrhsQevals);
-int IDAGetNumQuadErrTestFails(void *ida_mem, int *nQetfails);
+int IDAGetQuadNumRhsEvals(void *ida_mem, int *nrhsQevals);
+int IDAGetQuadNumErrTestFails(void *ida_mem, int *nQetfails);
 int IDAGetQuadErrWeights(void *ida_mem, N_Vector *eQweight);
 
 /*----------------------------------------------------------------*
@@ -1113,24 +1113,24 @@ int IDAGetSens1(void *ida_mem, realtype t, int is,
  * and statistics related to the integration of sensitivities.    *
  * -------------------------------------------------------------- *
  *                                                                * 
- * IDAGetNumSensResEvals returns the number of calls to the       *
+ * IDAGetSensNumResEvals returns the number of calls to the       *
  *     sensitivity residual routine.                              *
  * IDAGetNumResEvalsSens returns the number of calls to the       *
  *     user res routine due to finite difference evaluations of   *
  *     the sensitivity equations.                                 *
- * IDAGetNumSensErrTestFails returns the number of local error    *
+ * IDAGetSensNumErrTestFails returns the number of local error    *
  *     test failures for sensitivity variables.                   *
- * IDAGetNumSensLinSolvSetups returns the number of calls made    *
+ * IDAGetSensNumLinSolvSetups returns the number of calls made    *
  *     to the linear solver's setup routine due to sensitivity    *
  *     computations.                                              *
  * IDAGetSensErrWeights returns the sensitivity error weight      *
  *     vectors. The user need not allocate space for ewtS.        *
  *----------------------------------------------------------------*/
 
-int IDAGetNumSensRhsEvals(void *ida_mem, int *nresSevals);
+int IDAGetSensNumRhsEvals(void *ida_mem, int *nresSevals);
 int IDAGetNumRhsEvalsSens(void *ida_mem, int *nresevalsS);
-int IDAGetNumSensErrTestFails(void *ida_mem, int *nSetfails);
-int IDAGetNumSensLinSolvSetups(void *ida_mem, int *nlinsetupsS);
+int IDAGetSensNumErrTestFails(void *ida_mem, int *nSetfails);
+int IDAGetSensNumLinSolvSetups(void *ida_mem, int *nlinsetupsS);
 int IDAGetSensErrWeights(void *ida_mem, N_Vector_S *eSweight);
 
 /*----------------------------------------------------------------*
@@ -1150,36 +1150,35 @@ int IDAGetSensStats(void *ida_mem, int *nresSevals, int *nresevalsS,
  * and statistics related to the sensitivity nonlinear solver.    *
  * -------------------------------------------------------------- *
  *                                                                * 
- * IDAGetNumSensNonlinSolvIters returns the total number of       *
+ * IDAGetSensNumNonlinSolvIters returns the total number of       *
  *         nonlinear iterations for sensitivity variables.        *
- * IDAGetNumSensNonlinSolvConvFails returns the total number of   *
+ * IDAGetSensNumNonlinSolvConvFails returns the total number of   *
  *         nonlinear convergence failures for sensitivity         *
  *         variables                                              *
- * IDAGetNumStgrSensNonlinSolvIters returns a vector of Ns        *
+ * IDAGetSensNumStgrNonlinSolvIters returns a vector of Ns        *
  *         nonlinear iteration counters for sensitivity variables *
  *         in the STAGGERED1 method.                              *
- * IDAGetNumStgrSensNonlinSolvConvFails returns a vector of Ns    *
+ * IDAGetSensNumStgrNonlinSolvConvFails returns a vector of Ns    *
  *         nonlinear solver convergence failure counters for      *
  *         sensitivity variables in the STAGGERED1 method.        *
  *----------------------------------------------------------------*/
 
-int IDAGetNumSensNonlinSolvIters(void *ida_mem, int *nSniters);
-int IDAGetNumSensNonlinSolvConvFails(void *ida_mem, int *nSncfails);
-int IDAGetNumStgrSensNonlinSolvIters(void *ida_mem, int *nSTGR1niters);
-int IDAGetNumStgrSensNonlinSolvConvFails(void *ida_mem, int *nSTGR1ncfails);
+int IDAGetSensNumNonlinSolvIters(void *ida_mem, int *nSniters);
+int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, int *nSncfails);
+int IDAGetSensNumStgrErrTestFails(void *ida_mem, int *nSTGR1netfails);
+int IDAGetSensNumStgrNonlinSolvIters(void *ida_mem, int *nSTGR1niters);
+int IDAGetSensNumStgrNonlinSolvConvFails(void *ida_mem, int *nSTGR1ncfails);
 
 /*----------------------------------------------------------------*
- * As a convenience, the following two functions provide the      *
+ * As a convenience, the following function provides the          *
  * optional outputs in groups.                                    *
  *----------------------------------------------------------------*/
 
 int IDAGetSensNonlinSolvStats(void *ida_mem, int *nSniters, int *nSncfails);
-int IDAGetStgrSensNonlinSolvStats(void *ida_mem, int *nSTGR1niters, 
-                                    int *nSTGR1ncfails);
 
 /* IDAGet* return values */
 enum { OKAY = 0, IDAG_NO_MEM = -1, BAD_T = -2, BAD_IS = -3,
-       IDAG_NO_QUAD = -4, IDAG_NO_SENS = -5 };
+       IDAG_NO_QUAD = -4, IDAG_NO_SENS = -5, IDAG_NO_STGR1 = -6 };
 
 /*----------------------------------------------------------------*
  * Function : IDAFree                                             *
@@ -1227,17 +1226,17 @@ void IDASensFree(void *ida_mem);
 
 #define MXORDP1 6 /* max. number of vectors kept in the phi array */
 
-/******************************************************************
+/*----------------------------------------------------------------*
  * Types : struct IDAMemRec, IDAMem                               *
  *----------------------------------------------------------------*
  * The type IDAMem is type pointer to struct IDAMemRec. This      *
  * structure contains fields to keep track of problem state.      *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
 typedef struct IDAMemRec {
 
-  realtype ida_uround;    /* machine unit roundoff */
+  realtype ida_uround;               /* machine unit roundoff              */
 
   /*--------------------------
     Problem Specification Data 
@@ -1437,7 +1436,7 @@ typedef struct IDAMemRec {
 
   int ida_nst;           /* number of internal steps taken                    */
 
-  int ida_nre;           /* number of function (res) calls                    */
+  int ida_nre;           /* number of user function calls                     */
   int ida_nrQe;
   int ida_nrSe;
   int ida_nreS;
@@ -1453,6 +1452,7 @@ typedef struct IDAMemRec {
   int ida_netf;          /* number of error test failures                     */
   int ida_netfQ;
   int ida_netfS;
+  int *ida_netfS1;
 
   int ida_nsetups;       /* number of lsetup calls                            */
   int ida_nsetupsS;
@@ -1540,7 +1540,7 @@ typedef struct IDAMemRec {
 } *IDAMem;
 
 
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
  * Communication between user and an IDAS Linear Solver           *
  *----------------------------------------------------------------*
@@ -1562,7 +1562,7 @@ typedef struct IDAMemRec {
 enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
 
 
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
  * Communication between ida.c and an IDA Linear Solver Module    *
  *----------------------------------------------------------------*
@@ -1579,14 +1579,14 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  *     called in IDAS is given below the constant declarations    *
  *     that follow.                                               *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
 /* ida_linit return values */
 
 #define LINIT_OK        0
 #define LINIT_ERR      -1
 
-/*******************************************************************
+/*-----------------------------------------------------------------*
  *                                                                 *
  * int (*ida_linit)(IDAMem IDA_mem);                               *
  *-----------------------------------------------------------------*
@@ -1599,9 +1599,9 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * These constants are defined above. If an error does occur, an   *
  * appropriate message should be sent to (idamem->errfp).          *
  *                                                                 *
- *******************************************************************/
+ *-----------------------------------------------------------------*/
 
-/*******************************************************************
+/*-----------------------------------------------------------------*
  *                                                                 *
  * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,   *
  *                   N_Vector resp,                                *
@@ -1630,9 +1630,9 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * and the negative value LSETUP_ERROR_NONRECVR for an             *
  * unrecoverable error.  The code should include the file ida.h .  *
  *                                                                 *
- *******************************************************************/
+ *-----------------------------------------------------------------*/
 
-/*******************************************************************
+/*-----------------------------------------------------------------*
  *                                                                 *
  * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector ycur,    *
  *                   N_Vector ypcur, N_Vector rescur);             *
@@ -1650,15 +1650,16 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * for an unrecoverable error. Success is indicated by a return    *
  * value SUCCESS = 0. The code should include the file ida.h .     *
  *                                                                 *
- *******************************************************************/
+ *-----------------------------------------------------------------*/
 
-/*******************************************************************
+/*-----------------------------------------------------------------*
  *                                                                 *
  * int (*ida_lsolveS)(IDAMem IDA_mem, N_Vector b, N_Vector ycur,   *
  *                    N_Vector ypcur, N_Vector rescur, int is);    *
- *******************************************************************/
+ *                                                                 *
+ *-----------------------------------------------------------------*/
 
-/*******************************************************************
+/*-----------------------------------------------------------------*
  *                                                                 *
  * int (*ida_lperf)(IDAMem IDA_mem, int perftask);                 *
  *                                                                 *
@@ -1668,9 +1669,9 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * initialization of performance variables is performed, while for *
  * perftask = 1, the performance is evaluated.                     *
  *                                                                 *
- *******************************************************************/
+ *-----------------------------------------------------------------*/
 
-/*******************************************************************
+/*-----------------------------------------------------------------*
  *                                                                 *
  * int (*ida_lfree)(IDAMem IDA_mem);                               *
  *-----------------------------------------------------------------*
@@ -1678,7 +1679,7 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * solver. This routine is called once a problem has been          *
  * completed and the linear solver is no longer needed.            *
  *                                                                 *
- *******************************************************************/
+ *-----------------------------------------------------------------*/
 
 #endif
 

@@ -52,25 +52,29 @@
 
 #define MSG_IDAS_BAD_STEPTOL "IDASetLineSearchOffIC-- steptol < 0.0 illegal.\n\n"
 
-#define MSG_BAD_ITOLQ1      "IDASetQuadTolerances-- itolQ=%d illegal.\n"
-#define MSG_BAD_ITOLQ2      "The legal values are SS=%d and SV=%d.\n\n"
-#define MSG_BAD_ITOLQ       MSG_BAD_ITOLQ1 MSG_BAD_ITOLQ2
+#define MSG_BAD_ITOLQ1       "IDASetQuadTolerances-- itolQ=%d illegal.\n"
+#define MSG_BAD_ITOLQ2       "The legal values are SS=%d and SV=%d.\n\n"
+#define MSG_BAD_ITOLQ        MSG_BAD_ITOLQ1 MSG_BAD_ITOLQ2
 
-#define MSG_BAD_ITOLS1      "IDASetSensTolerances-- itolS=%d illegal.\n"
-#define MSG_BAD_ITOLS2      "The legal values are SS=%d and SV=%d.\n\n"
-#define MSG_BAD_ITOLS       MSG_BAD_ITOLS1 MSG_BAD_ITOLS2
+#define MSG_BAD_ITOLS1       "IDASetSensTolerances-- itolS=%d illegal.\n"
+#define MSG_BAD_ITOLS2       "The legal values are SS=%d and SV=%d.\n\n"
+#define MSG_BAD_ITOLS        MSG_BAD_ITOLS1 MSG_BAD_ITOLS2
 
 /* IDAGet* Error Messages */
 
-#define MSG_IDAG_NO_MEM    "ida_mem=NULL in an IDAGet routine illegal. \n\n"
+#define MSG_IDAG_NO_MEM      "ida_mem=NULL in an IDAGet routine illegal. \n\n"
 
-#define MSG_IDAG_NO_QUAD1  "IDAGetQuad*-- Illegal attempt to call before "
-#define MSG_IDAG_NO_QUAD2  "calling IDAQuadMalloc.\n\n"
-#define MSG_IDAG_NO_QUAD   MSG_IDAG_NO_QUAD1 MSG_IDAG_NO_QUAD2
+#define MSG_IDAG_NO_QUAD1    "IDAGetQuad*-- Illegal attempt to call before "
+#define MSG_IDAG_NO_QUAD2    "calling IDAQuadMalloc.\n\n"
+#define MSG_IDAG_NO_QUAD     MSG_IDAG_NO_QUAD1 MSG_IDAG_NO_QUAD2
 
-#define MSG_IDAG_NO_SENSI1 "IDAGetSens*-- Illegal attempt to call before "
-#define MSG_IDAG_NO_SENSI2 "calling IDASensMalloc.\n\n"
-#define MSG_IDAG_NO_SENSI  MSG_IDAG_NO_SENSI1 MSG_IDAG_NO_SENSI2
+#define MSG_IDAG_NO_SENS1    "IDAGetSens*-- Illegal attempt to call before "
+#define MSG_IDAG_NO_SENS2    "calling IDASensMalloc.\n\n"
+#define MSG_IDAG_NO_SENS     MSG_IDAG_NO_SENS1 MSG_IDAG_NO_SENS2
+
+#define MSG_IDAG_NO_STGR11   "IDAGetSensStgr*-- Illegal attempt to call "
+#define MSG_IDAG_NO_STGR12   "with ism other than STAGGERED1.\n\n"
+#define MSG_IDAG_NO_STGR1    MSG_IDAG_NO_STGR11 MSG_IDAG_NO_STGR12
 
 /*=================================================================*/
 /*END          IDAS Error Messages                                 */
@@ -784,7 +788,22 @@ int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS)
 #define netfQ    (IDA_mem->ida_netfQ)
 #define ewtQ     (IDA_mem->ida_ewtQ)
 
-/*-----------------------------------------------------------------*/
+#define sensi    (IDA_mem->ida_sensi)
+#define ism      (IDA_mem->ida_ism)
+#define ewtS     (IDA_mem->ida_ewtS)
+#define nrSe     (IDA_mem->ida_nrSe)
+#define nreS     (IDA_mem->ida_nreS)
+#define nniS     (IDA_mem->ida_nniS)
+#define ncfnS    (IDA_mem->ida_ncfnS)
+#define netfS    (IDA_mem->ida_netfS)
+#define nsetupsS (IDA_mem->ida_nsetupsS)
+#define netfS1   (IDA_mem->ida_netfS1)
+#define ncfnS1   (IDA_mem->ida_ncfnS1)
+#define nniS1    (IDA_mem->ida_nniS1)
+
+/*=================================================================*/
+/*BEGIN        INTEGRATOR OPTIONAL INPUT FUNCTIONS                 */
+/*=================================================================*/
 
 int IDAGetIntWorkSpace(void *ida_mem, long int *leniw)
 {
@@ -1157,9 +1176,15 @@ int IDAGetNonlinSolvStats(void *ida_mem, int *nniters, int *nncfails)
   return(OKAY);
 }
 
-/*-----------------------------------------------------------------*/
+/*=================================================================*/
+/*END          INTEGRATOR OPTIONAL INPUT FUNCTIONS                 */
+/*=================================================================*/
 
-int IDAGetNumQuadRhsEvals(void *ida_mem, int *nrhsQevals)
+/*=================================================================*/
+/*BEGIN        QUADRATURE OPTIONAL INPUT FUNCTIONS                 */
+/*=================================================================*/
+
+int IDAGetQuadNumRhsEvals(void *ida_mem, int *nrhsQevals)
 {
   IDAMem IDA_mem;
 
@@ -1181,7 +1206,7 @@ int IDAGetNumQuadRhsEvals(void *ida_mem, int *nrhsQevals)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumQuadErrTestFails(void *ida_mem, int *nQetfails)
+int IDAGetQuadNumErrTestFails(void *ida_mem, int *nQetfails)
 {
   IDAMem IDA_mem;
 
@@ -1244,11 +1269,305 @@ int IDAGetQuadStats(void *ida_mem, int *nrhsQevals, int *nQetfails)
   }
 
   *nrhsQevals = nrQe;
-  *nQetfails = netfQ;
+  *nQetfails  = netfQ;
 
   return(OKAY);
 
 }
+
+/*=================================================================*/
+/*END          QUADRATURE OPTIONAL OUTPUT FUNCTIONS                */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        SENSITIVITY OPTIONAL OUTPUT FUNCTIONS               */
+/*=================================================================*/
+
+int IDAGetSensNumRhsEvals(void *ida_mem, int *nresSevals)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  *nresSevals = nrSe;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetNumRhsEvalsSens(void *ida_mem, int *nresevalsS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  *nresevalsS = nreS;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensNumErrTestFails(void *ida_mem, int *nSetfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  *nSetfails = netfS;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensNumLinSolvSetups(void *ida_mem, int *nlinsetupsS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  *nlinsetupsS = nsetupsS;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensErrWeights(void *ida_mem, N_Vector_S *eSweight)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  *eSweight = ewtS;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensStats(void *ida_mem, int *nresSevals, int *nresevalsS, 
+                    int *nSetfails, int *nlinsetupsS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  *nresSevals  = nrSe;
+  *nresevalsS  = nreS;
+  *nSetfails   = netfS;
+  *nlinsetupsS = nsetupsS;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensNumNonlinSolvIters(void *ida_mem, int *nSniters)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  *nSniters = nniS;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, int *nSncfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  *nSncfails = ncfnS;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensNonlinSolvStats(void *ida_mem, int *nSniters, int *nSncfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  *nSniters  = nniS;
+  *nSncfails = ncfnS;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensNumStgrErrTestFails(void *ida_mem, int *nSTGR1etfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  if (ism != STAGGERED1) {
+    fprintf(errfp, MSG_IDAG_NO_STGR1);
+    return (IDAG_NO_STGR1);
+  }
+
+  nSTGR1etfails = netfS1;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensNumStgrNonlinSolvIters(void *ida_mem, int *nSTGR1niters)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  if (ism != STAGGERED1) {
+    fprintf(errfp, MSG_IDAG_NO_STGR1);
+    return (IDAG_NO_STGR1);
+  }
+
+  nSTGR1niters = nniS1;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensNumStgrNonlinSolvConvFails(void *ida_mem, int *nSTGR1ncfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_IDAG_NO_MEM);
+    return (IDAG_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi != TRUE) {
+    fprintf(errfp, MSG_IDAG_NO_SENS);
+    return (IDAG_NO_SENS);
+  }
+
+  if (ism != STAGGERED1) {
+    fprintf(errfp, MSG_IDAG_NO_STGR1);
+    return (IDAG_NO_STGR1);
+  }
+
+  nSTGR1ncfails = ncfnS1;  
+
+  return(OKAY);
+}
+
+/*=================================================================*/
+/*END          SENSITIVITY OPTIONAL OUTPUT FUNCTIONS               */
+/*=================================================================*/
 
 /*=================================================================*/
 /*END          EXPORTED FUNCTIONS IMPLEMENTATION                   */
