@@ -338,7 +338,7 @@ static void WrongArgs(char *name)
 {
     printf("\nUsage: %s [-nosensi] [-sensi sensi_meth err_con]\n",name);
     printf("         sensi_meth = sim, stg, or stg1\n");
-    printf("         err_con    = true or false\n");
+    printf("         err_con    = t or f\n");
     
     exit(0);
 }
