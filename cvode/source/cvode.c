@@ -3,7 +3,7 @@
  * File          : cvode.c                                         *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban, *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 27 April 2004                                   *
+ * Version of    : 28 April 2004                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -51,7 +51,7 @@
 /************************************************************/
 
 #define ZERO   RCONST(0.0)   /* real 0.0   */
-#define TINY RCONST(1.0e-10) /* small number */
+#define TINY   RCONST(1.0e-10) /* small number */
 #define TENTH  RCONST(0.1)   /* real 0.1   */
 #define FOURTH RCONST(0.25)  /* real 0.25  */
 #define HALF   RCONST(0.5)   /* real 0.5   */
@@ -527,7 +527,7 @@ void *CVodeCreate(int lmm, int iter)
   /* No mallocs have been done yet */
   cv_mem->cv_MallocDone     = FALSE;
 
-  /* Return pointer to CVODES memory block */
+  /* Return pointer to CVODE memory block */
   return((void *)cv_mem);
 }
 
@@ -1072,7 +1072,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   
   /* All error checking is complete at this point */
 
-  /* Copy the input parameters into CVODES state */
+  /* Copy the input parameters into CVODE state */
   cv_mem->cv_nvspec = nvspec;
   cv_mem->cv_f  = f;
   cv_mem->cv_tn = t0;
@@ -1548,10 +1548,12 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     N_VScale(h, zn[1], zn[1]);
 
-    ier = CVRcheck1(cv_mem);
-    if (ier != OKAY) {
-      fprintf(errfp, MSG_BAD_INIT_ROOT);
-      return(ILL_INPUT);
+    if (nrtfn > 0) {
+      ier = CVRcheck1(cv_mem);
+      if (ier != OKAY) {
+        fprintf(errfp, MSG_BAD_INIT_ROOT);
+        return(ILL_INPUT);
+      }
     }
 
   } /* end of first call block */
@@ -1615,6 +1617,13 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         return (ILL_INPUT);
       }
       return (SUCCESS);
+    }
+
+    /* In ONE_STEP mode, test if tn was returned */
+    if (task == ONE_STEP && tretlast != tn) {
+      tretlast = *tret = tn;
+      N_VScale(ONE, zn[0], yout);
+      return(SUCCESS);
     }
 
     /* Test for tn at tstop or near tstop */
