@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2004-10-28 00:36:11 $
+# $Revision: 1.6 $
+# $Date: 2004-11-03 23:26:49 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -40,7 +40,7 @@ SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_cvodes -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES   = cvdx cvbx cvkx cvkxb cvdemd cvdemk cvfnx cvfdx cvfkx cvadx cvabx cvakx cvakxb
+EXEC_FILES = cvdx cvbx cvkx cvkxb cvdemd cvdemk cvfnx cvfdx cvfkx cvadx cvabx cvakx cvakxb
 
 all: $(EXEC_FILES)
 

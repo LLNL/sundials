@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2004-10-28 00:36:23 $
+# $Revision: 1.6 $
+# $Date: 2004-11-03 23:27:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -40,7 +40,7 @@ SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_ida -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES   = irobx iheatsb iheatsk iwebsb
+EXEC_FILES = irobx iheatsb iheatsk iwebsb
 
 all: $(EXEC_FILES)
 

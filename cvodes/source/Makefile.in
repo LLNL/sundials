@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.10 $
-# $Date: 2004-10-28 00:35:49 $
+# $Revision: 1.11 $
+# $Date: 2004-11-03 23:27:21 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,8 +39,8 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-SHARED_INC_DIR   = $(srcdir)/../../shared/include
-CVODES_INC_DIR   = $(srcdir)/../include
+SHARED_INC_DIR = $(srcdir)/../../shared/include
+CVODES_INC_DIR = $(srcdir)/../include
 
 CVODES_LIB       = libsundials_cvodes.la
 CVODES_LIB_FILES = cvodes.lo cvodea.lo cvband.lo cvdense.lo cvdiag.lo cvspgmr.lo cvbandpre.lo cvbbdpre.lo
