@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-07-22 21:26:09 $
+ * $Revision: 1.14 $
+ * $Date: 2004-08-25 16:23:47 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
   abstol = ATOL; reltol = RTOL;
 
   /* CVODE_CREATE & CVODE_MALLOC */
-  cvode_mem = CVodeCreate(BDF, NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVodeSetFdata(cvode_mem, data);
@@ -272,11 +272,11 @@ int main(int argc, char *argv[])
   flag = CVodeSetMaxNumSteps(cvode_mem, 2000);
   if (check_flag(&flag, "CVodeSetMaxNumSteps", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
   if (check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* CVSPGMR */
-  flag = CVSpgmr(cvode_mem, LEFT, 0);
+  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if (check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
@@ -320,11 +320,11 @@ int main(int argc, char *argv[])
 
     if(my_pe == 0) {
       printf("Sensitivity: YES ");
-      if(sensi_meth == SIMULTANEOUS)   
+      if(sensi_meth == CV_SIMULTANEOUS)   
         printf("( SIMULTANEOUS +");
       else 
-        if(sensi_meth == STAGGERED) printf("( STAGGERED +");
-        else                        printf("( STAGGERED1 +");   
+        if(sensi_meth == CV_STAGGERED) printf("( STAGGERED +");
+        else                           printf("( STAGGERED1 +");   
       if(err_con) printf(" FULL ERROR CONTROL )");
       else        printf(" PARTIAL ERROR CONTROL )");
     }
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
 
   /* In loop over output points, call CVode, print results, test for error */
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
-    flag = CVode(cvode_mem, tout, u, &t, NORMAL);
+    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if (check_flag(&flag, "CVode", 1, my_pe)) break;
     PrintOutput(cvode_mem, my_pe, comm, t, u);
     if (sensi) {
@@ -402,11 +402,11 @@ static void ProcessArgs(int argc, char *argv[], int my_pe,
       WrongArgs(my_pe, argv[0]);
 
     if (strcmp(argv[2],"sim") == 0)
-      *sensi_meth = SIMULTANEOUS;
+      *sensi_meth = CV_SIMULTANEOUS;
     else if (strcmp(argv[2],"stg") == 0)
-      *sensi_meth = STAGGERED;
+      *sensi_meth = CV_STAGGERED;
     else if (strcmp(argv[2],"stg1") == 0)
-      *sensi_meth = STAGGERED1;
+      *sensi_meth = CV_STAGGERED1;
     else 
       WrongArgs(my_pe, argv[0]);
 

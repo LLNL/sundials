@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-07-22 21:25:59 $
+ * $Revision: 1.9 $
+ * $Date: 2004-08-25 16:23:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -23,9 +23,8 @@
  * Newton iteration with the CVDENSE dense linear solver, and a
  * user-supplied Jacobian routine.
  * It uses a scalar relative tolerance and a vector absolute
- * tolerance. Output is printed in decades from t = .4 to
- * t = 4.e10. Run statistics (optional outputs) are printed at
- * the end.
+ * tolerance. Output is printed in decades from t = .4 to t = 4.e10.
+ * Run statistics (optional outputs) are printed at the end.
  * -----------------------------------------------------------------
  */
 
@@ -33,15 +32,14 @@
 
 /* Header files with a description of contents used in cvdx.c */
 
-#include "sundialstypes.h"   /* definitions of types realtype and             */
-                             /* the constant FALSE                            */
-#include "cvodes.h"          /* prototypes for CVodeMalloc, CVode, and        */
-                             /* CVodeFree, constants OPT_SIZE, BDF, NEWTON,   */
-                             /* SV, SUCCESS, NST,NFE,NSETUPS, NNI, NCFN, NETF */
-#include "cvdense.h"         /* prototype for CVDense, constant DENSE_NJE     */
-#include "nvector_serial.h"  /* definitions of type N_Vector and macro        */
-                             /* NV_Ith_S, prototypes for N_VNew, N_VFree      */
-#include "dense.h"           /* definitions of type DenseMat, macro DENSE_ELEM*/
+#include "sundialstypes.h"   /* definition of type realtype                   */
+#include "cvodes.h"          /* prototypes for CVode*** functions; constants  */
+                             /* CV_BDF, CV_NEWTON, CV_SV, CV_NORMAL,          */
+                             /* CV_SUCCESS, CV_ROOT_RETURN                    */
+#include "cvdense.h"         /* prototype for CVDense                         */
+#include "nvector_serial.h"  /* definitions of type N_Vector, macro NV_Ith_S, */
+                             /* prototypes for N_VNew_Serial and N_VDestroy   */
+#include "dense.h"           /* definition of type DenseMat, macro DENSE_ELEM */
 
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
@@ -99,7 +97,11 @@ static void PrintFinalStats(void *cvode_mem);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 
-/***************************** Main Program ******************************/
+/*
+ *-------------------------------
+ * Main Program
+ *-------------------------------
+ */
 
 int main()
 {
@@ -118,38 +120,43 @@ int main()
   abstol = N_VNew_Serial(NEQ); 
   if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
-  Ith(y,1) = Y1;               /* Initialize y */
+  /* Initialize y */
+  Ith(y,1) = Y1;
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
 
-  reltol = RTOL;               /* Set the scalar relative tolerance */
-  Ith(abstol,1) = ATOL1;       /* Set the vector absolute tolerance */
+  /* Set the scalar relative tolerance */
+  reltol = RTOL;
+  /* Set the vector absolute tolerance */
+  Ith(abstol,1) = ATOL1;
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
   /* 
      Call CVodeCreate to create the solver memory:
-
-     BDF     specifies the Backward Differentiation Formula
-     NEWTON  specifies a Newton iteration
+     
+     CV_BDF     specifies the Backward Differentiation Formula
+     CV_NEWTON  specifies a Newton iteration
 
      A pointer to the integrator problem memory is returned and stored in cvode_mem.
   */
-  cvode_mem = CVodeCreate(BDF, NEWTON);
-  if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  
   /* 
      Call CVodeMalloc to initialize the integrator memory: 
-
+     
      cvode_mem is the pointer to the integrator memory returned by CVodeCreate
-     f       is the user's right hand side function in y'=f(t,y)
-     T0      is the initial time
-     y       is the initial dependent variable vector
-     SV      specifies scalar relative and vector absolute tolerances
-     &reltol is a pointer to the scalar relative tolerance
-     abstol  is the absolute tolerance vector
+     f         is the user's right hand side function in y'=f(t,y)
+     T0        is the initial time
+     y         is the initial dependent variable vector
+     CV_SV     specifies scalar relative and vector absolute tolerances
+     &reltol   is a pointer to the scalar relative tolerance
+     abstol    is the absolute tolerance vector
   */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol);
+
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, &reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
@@ -160,7 +167,7 @@ int main()
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
-  /* Set the Jacobian routine */
+  /* Set the Jacobian routine to Jac (user-supplied) */
   flag = CVDenseSetJacFn(cvode_mem, Jac);
   if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
 
@@ -170,18 +177,18 @@ int main()
 
   iout = 0;  tout = T1;
   for (;;) {
-    flag = CVode(cvode_mem, tout, y, &t, NORMAL);
+    flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
     printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n",
            t, Ith(y,1), Ith(y,2), Ith(y,3));
 
-    if (flag == ROOT_RETURN) {
+    if (flag == CV_ROOT_RETURN) {
       flagr = CVodeGetRootInfo(cvode_mem, &rootsfound);
       check_flag(&flagr, "CVodeGetRootInfo", 1);
       printf("    rootsfound[] = %3d %3d\n",rootsfound[0],rootsfound[1]);
     }
 
     if (check_flag(&flag, "CVode", 1)) break;
-    if (flag == SUCCESS) {
+    if (flag == CV_SUCCESS) {
       iout++;
       tout *= TMULT;
     }
@@ -189,11 +196,11 @@ int main()
     if (iout == NOUT) break;
   }
 
-  PrintFinalStats(cvode_mem);  /* Print some final statistics   */
+  /* Print some final statistics */
+  PrintFinalStats(cvode_mem);
 
-  /* Free y vector */
+  /* Free y and abstol vectors */
   N_VDestroy(y);
-  /* Free abstol vector */
   N_VDestroy(abstol);
   /* Free integrator memory */
   CVodeFree(cvode_mem);
@@ -201,10 +208,68 @@ int main()
   return(0);
 }
 
+/*
+ *-------------------------------
+ * Functions called by the solver
+ *-------------------------------
+ */
 
-/************************ Private Helper Function ************************/
 
-/* Print some final statistics located in the iopt array */
+/*
+ * f routine. Compute function f(t,y). 
+ */
+
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+{
+  realtype y1, y2, y3, yd1, yd3;
+
+  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+
+  yd1 = Ith(ydot,1) = -0.04*y1 + 1e4*y2*y3;
+  yd3 = Ith(ydot,3) = 3e7*y2*y2;
+        Ith(ydot,2) = -yd1 - yd3;
+}
+
+/*
+ * g routine. Compute functions g_i(t,y) for i = 0,1. 
+ */
+
+static void g(realtype t, N_Vector y, realtype *gout, void *g_data)
+{
+  realtype y1, y3;
+
+  y1 = Ith(y,1); y3 = Ith(y,3);
+  gout[0] = y1 - 0.0001;
+  gout[1] = y3 - 0.01;
+}
+
+/*
+ * Jacobian routine. Compute J(t,y) = df/dy. *
+ */
+
+static void Jac(long int N, DenseMat J, realtype t,
+                N_Vector y, N_Vector fy, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  realtype y1, y2, y3;
+
+  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+
+  IJth(J,1,1) = -0.04;  IJth(J,1,2) = 1e4*y3;          IJth(J,1,3) = 1e4*y2;
+  IJth(J,2,1) =  0.04;  IJth(J,2,2) = -1e4*y3-6e7*y2;  IJth(J,2,3) = -1e4*y2;
+                        IJth(J,3,2) = 6e7*y2;
+}
+
+
+/*
+ *-------------------------------
+ * Private helper functions
+ *-------------------------------
+ */
+
+/* 
+ * Get and print some final statistics
+ */
 
 static void PrintFinalStats(void *cvode_mem)
 {
@@ -239,57 +304,15 @@ static void PrintFinalStats(void *cvode_mem)
 	 nni, ncfn, netf, nge);
 }
 
-
-/***************** Functions Called by the Solver ******************/
-
-/* f routine. Compute f(t,y). */
-
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
-{
-  realtype y1, y2, y3, yd1, yd3;
-
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-
-  yd1 = Ith(ydot,1) = -0.04*y1 + 1e4*y2*y3;
-  yd3 = Ith(ydot,3) = 3e7*y2*y2;
-        Ith(ydot,2) = -yd1 - yd3;
-}
-
-/* g routine. Compute g_i(t,y) for i = 0,1. */
-
-static void g(realtype t, N_Vector y, realtype *gout, void *g_data)
-{
-  realtype y1, y3;
-
-  y1 = Ith(y,1); y3 = Ith(y,3);
-  gout[0] = y1 - 0.0001;
-  gout[1] = y3 - 0.01;
-}
-
-/* Jacobian routine. Compute J(t,y). */
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype y1, y2, y3;
-
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-
-  IJth(J,1,1) = -0.04;  IJth(J,1,2) = 1e4*y3;          IJth(J,1,3) = 1e4*y2;
-  IJth(J,2,1) =  0.04;  IJth(J,2,2) = -1e4*y3-6e7*y2;  IJth(J,2,3) = -1e4*y2;
-                        IJth(J,3,2) = 6e7*y2;
-}
-
-
-/************************ Private Helper Function ************************/
-
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {

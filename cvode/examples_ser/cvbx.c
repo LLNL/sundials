@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-07-22 21:25:47 $
+ * $Revision: 1.10 $
+ * $Date: 2004-08-25 16:23:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -35,14 +35,11 @@
 
 /* Header files with a description of contents used in cvbx.c */
 
-#include "sundialstypes.h"  /* definitions of realtype,                       */
-#include "cvode.h"          /* prototypes for CVodeMalloc, CVode, CVodeFree,  */
-                            /* constants OPT_SIZE, BDF, NEWTON, SS, SUCCESS,  */
-                            /* NST, NFE, NSETUPS, NNI, NCFN, NETF             */
-#include "cvband.h"         /* prototype for CVBand, constant BAND_NJE        */
-#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S, */
-                            /* prototypes for N_VNew, N_VFree, N_VMaxNorm     */
-#include "band.h"           /* definitions of type BandMat, macros            */
+#include "sundialstypes.h"
+#include "cvode.h"
+#include "cvband.h"
+#include "nvector_serial.h"
+#include "band.h"
 
 /* Problem Constants */
 
@@ -130,13 +127,13 @@ int main()
   /* 
      Call CvodeCreate to create integrator memory 
 
-     BDF     specifies the Backward Differentiation Formula
-     NEWTON  specifies a Newton iteration
+     CV_BDF     specifies the Backward Differentiation Formula
+     CV_NEWTON  specifies a Newton iteration
 
      A pointer to the integrator problem memory is returned and stored in cvode_mem.  
   */
 
-  cvode_mem = CVodeCreate(BDF, NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* 
@@ -146,12 +143,12 @@ int main()
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      u       is the initial dependent variable vector
-     SS      specifies scalar relative and absolute tolerances
+     CV_SS   specifies scalar relative and absolute tolerances
      &reltol is a pointer to the scalar relative tolerance
      &abstol is a pointer to the scalar absolute tolerance vector
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Set the pointer to user-defined data */
@@ -176,7 +173,7 @@ int main()
   umax = N_VMaxNorm(u);
   printf("At t = %4.2f    max.norm(u) =%14.6e \n", T0,umax);
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    flag = CVode(cvode_mem, tout, u, &t, NORMAL);
+    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if(check_flag(&flag, "CVode", 1)) break;
     umax = N_VMaxNorm(u);
     flag = CVodeGetNumSteps(cvode_mem, &nst);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-07-22 22:52:33 $
+ * $Revision: 1.13 $
+ * $Date: 2004-08-25 16:23:13 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -56,14 +56,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h" /* definitions of realtype,                        */
-#include "cvode.h"         /* main solver header file                         */
-#include "iterative.h"     /* contains the enum for types of preconditioning  */
-#include "cvspgmr.h"       /* use CVSPGMR linear solver                       */
-#include "cvbbdpre.h"      /* band preconditioner function prototypes         */
-#include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P*/
-#include "sundialsmath.h"  /* contains SQR macro                              */
-#include "mpi.h"           /* MPI data types and prototypes                   */
+#include "sundialstypes.h"
+#include "cvode.h"
+#include "cvspgmr.h"
+#include "cvbbdpre.h"
+#include "nvector_parallel.h"
+#include "sundialsmath.h"
+#include "mpi.h"
 
 /* Problem Constants */
 
@@ -207,13 +206,13 @@ int main(int argc, char *argv[])
   /* 
      Call CVodeCreate to create the solver memory:
      
-     BDF     specifies the Backward Differentiation Formula
-     NEWTON  specifies a Newton iteration
+     CV_BDF     specifies the Backward Differentiation Formula
+     CV_NEWTON  specifies a Newton iteration
 
      A pointer to the integrator memory is returned and stored in cvode_mem.
   */
 
-  cvode_mem = CVodeCreate(BDF, NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
@@ -227,11 +226,11 @@ int main(int argc, char *argv[])
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      u       is the initial dependent variable vector
-     SS      specifies scalar relative and absolute tolerances
+     CV_SS   specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate preconditioner block */
@@ -244,7 +243,7 @@ int main(int argc, char *argv[])
   /* Call CVBBDSpgmr to specify the linear solver CVSPGMR 
      with left preconditioning, the maximum Krylov dimension maxl,
      and using the CVBBDPRE preconditioner */
-  flag = CVBBDSpgmr(cvode_mem, LEFT, 0, pdata);
+  flag = CVBBDSpgmr(cvode_mem, PREC_LEFT, 0, pdata);
   if(check_flag(&flag, "CVBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
@@ -258,22 +257,22 @@ int main(int argc, char *argv[])
     printf(" mukeep = %ld,  mlkeep = %ld", mukeep, mlkeep); 
   }
 
-  /* Loop over jpre (= LEFT, RIGHT), and solve the problem */
-  for (jpre = LEFT; jpre <= RIGHT; jpre++) {
+  /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
+  for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
 
   /* On second run, re-initialize u, the integrator, CVBBDPRE, and CVSPGMR */
 
-  if (jpre == RIGHT) {
+  if (jpre == PREC_RIGHT) {
 
     SetInitialProfiles(u, data);
 
-    flag = CVodeReInit(cvode_mem, f, T0, u, SS, &reltol, &abstol);
+    flag = CVodeReInit(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
     if(check_flag(&flag, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVBBDPrecReInit(pdata, mudq, mldq, 0.0, flocal, ucomm);
     if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVSpgmrResetPrecType(cvode_mem, RIGHT);
+    flag = CVSpgmrResetPrecType(cvode_mem, PREC_RIGHT);
     check_flag(&flag, "CVSpgmrResetPrecType", 1, my_pe);
 
     if (my_pe == 0) {
@@ -284,13 +283,13 @@ int main(int argc, char *argv[])
 
   if (my_pe == 0) {
     printf("\n\nPreconditioner type is:  jpre = %s\n\n",
-           (jpre == LEFT) ? "LEFT" : "RIGHT");
+           (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
   }
 
   /* In loop over output points, call CVode, print results, test for error */
 
   for (iout = 1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
-    flag = CVode(cvode_mem, tout, u, &t, NORMAL);
+    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if(check_flag(&flag, "CVode", 1, my_pe)) break;
     PrintOutput(cvode_mem, my_pe, comm, u, t);
   }
@@ -299,10 +298,8 @@ int main(int argc, char *argv[])
 
   if (my_pe == 0) {
     PrintFinalStats(cvode_mem);
-    flag = CVBBDPrecGetIntWorkSpace(pdata, &leniwBBDP);
-    check_flag(&flag, "CVBBDPrecGetIntWorkSpace", 1, my_pe);
-    flag = CVBBDPrecGetRealWorkSpace(pdata, &lenrwBBDP);
-    check_flag(&flag, "CVBBDPrecGetRealWorkSpace", 1, my_pe);
+    flag = CVBBDPrecGetWorkSpace(pdata, &lenrwBBDP, &leniwBBDP);
+    check_flag(&flag, "CVBBDPrecGetWorkSpace", 1, my_pe);
     flag = CVBBDPrecGetNumGfnEvals(pdata, &ngevalsBBDP);
     check_flag(&flag, "CVBBDPrecGetNumGfnEvals", 1, my_pe);
     printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
@@ -449,10 +446,8 @@ static void PrintFinalStats(void *cvode_mem)
   long int nli, npe, nps, ncfl, nfeSPGMR;
   int flag;
 
-  flag = CVodeGetIntWorkSpace(cvode_mem, &leniw);
-  check_flag(&flag, "CVodeGetIntWorkSpace", 1, 0);
-  flag = CVodeGetRealWorkSpace(cvode_mem, &lenrw);
-  check_flag(&flag, "CVodeGetRealWorkSpace", 1, 0);
+  flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
+  check_flag(&flag, "CVodeGetWorkSpace", 1, 0);
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1, 0);
   flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
@@ -466,10 +461,8 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  flag = CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
-  check_flag(&flag, "CVSpgmrGetIntWorkSpace", 1, 0);
-  flag = CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
-  check_flag(&flag, "CVSpgmrGetRealWorkSpace", 1, 0);
+  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
+  check_flag(&flag, "CVSpgmrGetWorkSpace", 1, 0);
   flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
   check_flag(&flag, "CVSpgmrGetNumLinIters", 1, 0);
   flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-07-22 21:25:47 $
+ * $Revision: 1.14 $
+ * $Date: 2004-08-25 16:23:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -93,15 +93,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"   /* definitions for realtype,                     */
-                             /*  booleantype                                  */
-#include "cvode.h"           /* main integrator header file                   */
-#include "iterative.h"       /* for types of preconditioning and Gram-Schmidt */
-#include "cvspgmr.h"         /* use CVSPGMR linear solver each internal step  */
-#include "smalldense.h"      /* use generic DENSE linear solver for "small"   */
-                             /* dense matrix blocks in right preconditioner   */
-#include "nvector_serial.h"  /* contains the definition of type N_Vector      */
-#include "sundialsmath.h"    /* contains RSqrt, SQR functions                 */
+#include "sundialstypes.h"
+#include "cvode.h"
+#include "cvspgmr.h"
+#include "smalldense.h"
+#include "nvector_serial.h"
+#include "sundialsmath.h"
 
 /* Problem Specification Constants */
 
@@ -138,9 +135,9 @@
 #define T0    0.0
 #define RTOL  1e-5
 #define ATOL  1e-5
-#define LMM   BDF
-#define ITER  NEWTON
-#define ITOL  SS
+#define LMM   CV_BDF
+#define ITER  CV_NEWTON
+#define ITOL  CV_SS
 #define ERRFP stderr
 
 /* CVSpgmr Constants */
@@ -246,19 +243,19 @@ int main()
   PrintIntro();
 
   /* Loop over jpre and gstype (four cases) */
-  for (jpre = LEFT; jpre <= RIGHT; jpre++) {
+  for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
     for (gstype = MODIFIED_GS; gstype <= CLASSICAL_GS; gstype++) {
       
       /* Initialize c and print heading */
       CInit(c, wdata);
       printf("\n\nPreconditioner type is           jpre = %s\n",
-             (jpre == LEFT) ? "LEFT" : "RIGHT");
+             (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
       printf("\nGram-Schmidt method type is    gstype = %s\n\n\n",
              (gstype == MODIFIED_GS) ? "MODIFIED_GS" : "CLASSICAL_GS");
       
       /* Call CVodeMalloc or CVodeReInit, then CVSpgmr to set up problem */
       
-      firstrun = (jpre == LEFT) && (gstype == MODIFIED_GS);
+      firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
         cvode_mem = CVodeCreate(LMM, ITER);
         if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -310,7 +307,7 @@ int main()
       /* Loop over output points, call CVode, print sample solution values. */
       tout = T1;
       for (iout = 1; iout <= NOUT; iout++) {
-        flag = CVode(cvode_mem, tout, c, &t, NORMAL);
+        flag = CVode(cvode_mem, tout, c, &t, CV_NORMAL);
         PrintOutput(cvode_mem, t);
         if (firstrun && (iout % 3 == 0)) PrintAllSpecies(c, ns, mxns, t);
         if(check_flag(&flag, "CVode", 1)) break;
@@ -469,7 +466,7 @@ static void PrintIntro(void)
   printf("Mesh dimensions (mx,my) are %d, %d.  ", MX, MY);
   printf("Total system size is neq = %d \n\n", NEQ);
   printf("Tolerances: itol = %s,  reltol = %.2g, abstol = %.2g \n\n",
-         (ITOL == SS) ? "SS" : "SV", RTOL, ATOL);
+         (ITOL == CV_SS) ? "CV_SS" : "CV_SV", RTOL, ATOL);
   
   printf("Preconditioning uses a product of:\n");
   printf("  (1) Gauss-Seidel iterations with ");
@@ -531,10 +528,8 @@ static void PrintFinalStats(void *cvode_mem)
   int flag;
   realtype avdim;
   
-  flag = CVodeGetIntWorkSpace(cvode_mem, &leniw);
-  check_flag(&flag, "CVodeGetIntWorkSpace", 1);
-  flag = CVodeGetRealWorkSpace(cvode_mem, &lenrw);
-  check_flag(&flag, "CVodeGetRealWorkSpace", 1);
+  flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
+  check_flag(&flag, "CVodeGetWorkSpace", 1);
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);
   flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
@@ -548,10 +543,8 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
-  check_flag(&flag, "CVSpgmrGetIntWorkSpace", 1);
-  flag = CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
-  check_flag(&flag, "CVSpgmrGetRealWorkSpace", 1);
+  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
+  check_flag(&flag, "CVSpgmrGetWorkSpace", 1);
   flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
   check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
   flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);

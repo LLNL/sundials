@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-07-22 21:25:56 $
+ * $Revision: 1.9 $
+ * $Date: 2004-08-25 16:23:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -34,15 +34,10 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* Header files with a description of contents used here */
-
-#include "sundialstypes.h"     /* definitions of realtype,                    */
-#include "cvode.h"             /* prototypes for CVodeMalloc, CVode, and      */
-                               /* CVodeFree, constants OPT_SIZE, FUNCTIONAL,  */
-                               /* ADAMS, SS, SUCCESS, NST,NFE, NNI, NCFN,NETF */
-#include "nvector_parallel.h"  /* definitions of type N_Vector and vector     */
-                               /* macros, prototypes for N_Vector functions   */
-#include "mpi.h"               /* for MPI constants and types                 */
+#include "sundialstypes.h"
+#include "cvode.h"
+#include "nvector_parallel.h"
+#include "mpi.h"
 
 /* Problem Constants */
 
@@ -131,13 +126,13 @@ int main(int argc, char *argv[])
   /* 
      Call CVodeCreate to create the solver memory:
      
-     ADAMS   specifies the Adams Method
-     FUNCTIONAL  specifies functional iteration
+     CV_ADAMS   specifies the Adams Method
+     CV_FUNCTIONAL  specifies functional iteration
 
      A pointer to the integrator memory is returned and stored in cvode_mem.
   */
 
-  cvode_mem = CVodeCreate(ADAMS, FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVodeSetFdata(cvode_mem, data);
@@ -150,11 +145,11 @@ int main(int argc, char *argv[])
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      u       is the initial dependent variable vector
-     SS      specifies scalar relative and absolute tolerances
+     CV_SS   specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) {
@@ -169,7 +164,7 @@ int main(int argc, char *argv[])
   /* In loop over output points, call CVode, print results, test for error */
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    flag = CVode(cvode_mem, tout, u, &t, NORMAL);
+    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if(check_flag(&flag, "CVode", 1, my_pe)) break;
     umax = N_VMaxNorm(u);
     flag = CVodeGetNumSteps(cvode_mem, &nst);

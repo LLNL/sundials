@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-07-22 21:25:59 $
+ * $Revision: 1.10 $
+ * $Date: 2004-08-25 16:23:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -163,13 +163,13 @@ int main(int argc, char *argv[])
 
   printf("\nCreate and allocate CVODES memory for forward runs\n");
 
-  cvode_mem = CVodeCreate(BDF, NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVBand with  bandwidths ml = mu = MY, */
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
 
   /* Perform forward run */
   printf("\nForward integration\n");
-  flag = CVodeF(cvadj_mem, TOUT, u, &t, NORMAL, &ncheck);
+  flag = CVodeF(cvadj_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
   if(check_flag(&flag, "CVodeF", 1)) return(1);
 
   /* Test check point linked list */
@@ -225,13 +225,13 @@ int main(int argc, char *argv[])
 
   printf("\nCreate and allocate CVODES memory for backward run\n");
 
-  flag = CVodeCreateB(cvadj_mem, BDF, NEWTON);
+  flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
   if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
 
   flag = CVodeSetFdataB(cvadj_mem, data);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
 
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, SS, &reltolB, &abstolB);
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, CV_SS, &reltolB, &abstolB);
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   flag = CVBandB(cvadj_mem, NEQ, MY, MY);
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
   /*----------------------*/
 
   printf("\nBackward integration\n");
-  flag = CVodeB(cvadj_mem, T0, uB, &t, NORMAL);
+  flag = CVodeB(cvadj_mem, T0, uB, &t, CV_NORMAL);
   if(check_flag(&flag, "CVodeB", 1)) return(1);
 
   WriteLambda(uB);

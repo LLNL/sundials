@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-07-22 21:26:09 $
+ * $Revision: 1.11 $
+ * $Date: 2004-08-25 16:23:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -190,13 +190,13 @@ int main(int argc, char *argv[])
   SetIC(u, dx, local_N, my_base);
 
   /* Allocate CVODES memory for forward integration */
-  cvode_mem = CVodeCreate(ADAMS, FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
   if (check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate combined forward/backward memory */
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
   if (check_flag((void *)cvadj_mem, "CVadjMalloc", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to TOUT and collect check point information */
-  flag = CVodeF(cvadj_mem, TOUT, u, &t, NORMAL, &ncheck);
+  flag = CVodeF(cvadj_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
   if (check_flag(&flag, "CVodeF", 1, my_pe)) MPI_Abort(comm, 1);
 
   if(my_pe == npes) {
@@ -240,15 +240,15 @@ int main(int argc, char *argv[])
   SetICback(uB, my_base);
 
   /* Allocate CVODES memory for the backward integration */
-  flag = CVodeCreateB(cvadj_mem, ADAMS, FUNCTIONAL);
+  flag = CVodeCreateB(cvadj_mem, CV_ADAMS, CV_FUNCTIONAL);
   if (check_flag(&flag, "CVodeCreateB", 1, my_pe)) MPI_Abort(comm, 1);
   flag = CVodeSetFdataB(cvadj_mem, data);
   if (check_flag(&flag, "CVodeSetFdataB", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, SS, &reltol, &abstol);
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, CV_SS, &reltol, &abstol);
   if (check_flag(&flag, "CVodeMallocB", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to T0 */
-  flag = CVodeB(cvadj_mem, T0, uB, &t, NORMAL);
+  flag = CVodeB(cvadj_mem, T0, uB, &t, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1, my_pe)) MPI_Abort(comm, 1);
 
   /*-------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-07-22 21:25:59 $
+ * $Revision: 1.15 $
+ * $Date: 2004-08-25 16:23:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -169,14 +169,14 @@ int main(int argc, char *argv[])
   Ith(abstol,3) = ATOL3;
 
   /* CVODE_CREATE */
-  cvode_mem = CVodeCreate(BDF, NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
   /* CVODE_MALLOC */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, &reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* CVDENSE */
@@ -219,11 +219,11 @@ int main(int argc, char *argv[])
     if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
 
     printf("Sensitivity: YES ");
-    if(sensi_meth == SIMULTANEOUS)   
+    if(sensi_meth == CV_SIMULTANEOUS)   
       printf("( SIMULTANEOUS +");
     else 
-      if(sensi_meth == STAGGERED) printf("( STAGGERED +");
-      else                        printf("( STAGGERED1 +");   
+      if(sensi_meth == CV_STAGGERED) printf("( STAGGERED +");
+      else                           printf("( STAGGERED1 +");   
     if(err_con) printf(" FULL ERROR CONTROL )");
     else        printf(" PARTIAL ERROR CONTROL )");
 
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
   printf("============================\n");
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
-    flag = CVode(cvode_mem, tout, y, &t, NORMAL);
+    flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
     if (check_flag(&flag, "CVode", 1)) break;
     PrintOutput(cvode_mem, t, y);
     if (sensi) {
@@ -310,11 +310,11 @@ static void ProcessArgs(int argc, char *argv[],
       WrongArgs(argv[0]);
 
     if (strcmp(argv[2],"sim") == 0)
-      *sensi_meth = SIMULTANEOUS;
+      *sensi_meth = CV_SIMULTANEOUS;
     else if (strcmp(argv[2],"stg") == 0)
-      *sensi_meth = STAGGERED;
+      *sensi_meth = CV_STAGGERED;
     else if (strcmp(argv[2],"stg1") == 0)
-      *sensi_meth = STAGGERED1;
+      *sensi_meth = CV_STAGGERED1;
     else 
       WrongArgs(argv[0]);
 

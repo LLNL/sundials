@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-07-22 21:25:59 $
+ * $Revision: 1.12 $
+ * $Date: 2004-08-25 16:23:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -120,9 +120,9 @@
 #define T0    0.0
 #define RTOL  1e-5
 #define ATOL  1e-5
-#define LMM   BDF
-#define ITER  NEWTON
-#define ITOL  SS
+#define LMM   CV_BDF
+#define ITER  CV_NEWTON
+#define ITOL  CV_SS
 
 /* CVSpgmr Constants */
 
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVSpgmr for forward run */
-  flag = CVSpgmr(cvode_mem, LEFT, MAXL);
+  flag = CVSpgmr(cvode_mem, PREC_LEFT, MAXL);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
   flag = CVSpgmrSetDelt(cvode_mem, DELT);
   if(check_flag(&flag, "CVSpgmrSetDelt", 1)) return(1);
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
   /*---------------------*/
 
   printf("\nForward integration\n");
-  flag = CVodeF(cvadj_mem, TOUT, c, &t, NORMAL, &ncheck);
+  flag = CVodeF(cvadj_mem, TOUT, c, &t, CV_NORMAL, &ncheck);
   if(check_flag(&flag, "CVodeF", 1)) return(1);
 
   printf("\n   g = int_x int_y c%d(Tfinal,x,y) dx dy = %f \n\n", 
@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   /* Call CVSpgmr */
-  flag = CVSpgmrB(cvadj_mem, LEFT, MAXL);
+  flag = CVSpgmrB(cvadj_mem, PREC_LEFT, MAXL);
   if(check_flag(&flag, "CVSpgmrB", 1)) return(1);
   flag = CVSpgmrSetDeltB(cvadj_mem, DELT);
   if(check_flag(&flag, "CVSpgmrSetDeltB", 1)) return(1);
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
   /*----------------------*/
 
   printf("\nBackward integration\n");
-  flag = CVodeB(cvadj_mem, T0, cB, &t, NORMAL);
+  flag = CVodeB(cvadj_mem, T0, cB, &t, CV_NORMAL);
   if(check_flag(&flag, "CVodeB", 1)) return(1);
 
   PrintAllSpecies(outfile,cB,NS,MXNS);

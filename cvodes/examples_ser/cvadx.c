@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-07-22 21:25:59 $
+ * $Revision: 1.14 $
+ * $Date: 2004-08-25 16:23:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -202,13 +202,13 @@ int main(int argc, char *argv[])
   /* Create and allocate CVODES memory for forward run */
   printf("Create and allocate CVODES memory for forward runs\n");
 
-  cvode_mem = CVodeCreate(BDF, NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, &reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   flag = CVDense(cvode_mem, NEQ);
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeSetQuadFdata", 1)) return(1);
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
-  flag = CVodeSetQuadTolerances(cvode_mem, SS, &reltol, &abstolQ); 
+  flag = CVodeSetQuadTolerances(cvode_mem, CV_SS, &reltol, &abstolQ); 
   if (check_flag(&flag, "CVodeSetQuadTolerances", 1)) return(1);
   flag = CVodeQuadMalloc(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadMalloc", 1)) return(1);
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
   /* Perform forward run */
   printf("Forward integration ... ");
   
-  flag = CVodeF(cvadj_mem, TOUT, y, &time, NORMAL, &ncheck);
+  flag = CVodeF(cvadj_mem, TOUT, y, &time, CV_NORMAL, &ncheck);
   if (check_flag(&flag, "CVodeF", 1)) return(1);
 
   flag = CVodeGetQuad(cvode_mem, TOUT, q);
@@ -272,11 +272,11 @@ int main(int argc, char *argv[])
 
   /* Create and allocate CVODES memory for backward run */
   printf("\nCreate and allocate CVODES memory for backward run\n");
-  flag = CVodeCreateB(cvadj_mem, BDF, NEWTON);
+  flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
   if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
   flag = CVodeSetFdataB(cvadj_mem, data);
   if (check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
-  flag = CVodeMallocB(cvadj_mem, fB, TB1, yB, SS, &reltolB, &abstolB);
+  flag = CVodeMallocB(cvadj_mem, fB, TB1, yB, CV_SS, &reltolB, &abstolB);
   if (check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
   flag = CVDenseB(cvadj_mem, NEQ);
@@ -290,14 +290,14 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeSetQuadFdataB", 1)) return(1);
   flag = CVodeSetQuadErrConB(cvadj_mem, TRUE);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
-  flag = CVodeSetQuadTolerancesB(cvadj_mem, SS, &reltolB, &abstolQB); 
+  flag = CVodeSetQuadTolerancesB(cvadj_mem, CV_SS, &reltolB, &abstolQB); 
   if (check_flag(&flag, "CVodeSetQuadTolerancesB", 1)) return(1);
   flag = CVodeQuadMallocB(cvadj_mem, fQB, qB);
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
 
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB1);
-  flag = CVodeB(cvadj_mem, T0, yB, &time, NORMAL);
+  flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
@@ -321,14 +321,14 @@ int main(int argc, char *argv[])
   Ith(qB,3) = 0.0;
 
   printf("Re-initialize CVODES memory for backward run\n");
-  flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, SS, &reltolB, &abstolB);
+  flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, CV_SS, &reltolB, &abstolB);
   if (check_flag(&flag, "CVodeReInitB", 1)) return(1);
   flag = CVodeQuadReInitB(cvadj_mem, fQB, qB); 
   if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
 
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB2);
-  flag = CVodeB(cvadj_mem, T0, yB, &time, NORMAL);
+  flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);

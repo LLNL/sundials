@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-08-24 22:28:42 $
+ * $Revision: 1.15 $
+ * $Date: 2004-08-25 16:23:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -34,8 +34,8 @@
 
 #include "sundialstypes.h"   /* definition of type realtype                   */
 #include "cvode.h"           /* prototypes for CVode*** functions; constants  */
-                             /* BDF, NEWTON, SV, NORMAL, CV_SUCCESS,          */
-                             /* CV_ROOT_RETURN                                */
+                             /* CV_BDF, CV_NEWTON, CV_SV, CV_NORMAL,          */
+                             /* CV_SUCCESS, CV_ROOT_RETURN                    */
 #include "cvdense.h"         /* prototype for CVDense                         */
 #include "nvector_serial.h"  /* definitions of type N_Vector, macro NV_Ith_S, */
                              /* prototypes for N_VNew_Serial and N_VDestroy   */
@@ -135,13 +135,13 @@ int main()
   /* 
      Call CVodeCreate to create the solver memory:
      
-     BDF     specifies the Backward Differentiation Formula
-     NEWTON  specifies a Newton iteration
+     CV_BDF     specifies the Backward Differentiation Formula
+     CV_NEWTON  specifies a Newton iteration
 
      A pointer to the integrator problem memory is returned and stored in cvode_mem.
   */
 
-  cvode_mem = CVodeCreate(BDF, NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   
   /* 
@@ -151,12 +151,12 @@ int main()
      f         is the user's right hand side function in y'=f(t,y)
      T0        is the initial time
      y         is the initial dependent variable vector
-     SV        specifies scalar relative and vector absolute tolerances
+     CV_SV     specifies scalar relative and vector absolute tolerances
      &reltol   is a pointer to the scalar relative tolerance
      abstol    is the absolute tolerance vector
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, &reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
@@ -177,7 +177,7 @@ int main()
 
   iout = 0;  tout = T1;
   for (;;) {
-    flag = CVode(cvode_mem, tout, y, &t, NORMAL);
+    flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
     printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n",
            t, Ith(y,1), Ith(y,2), Ith(y,3));
 
@@ -246,7 +246,6 @@ static void g(realtype t, N_Vector y, realtype *gout, void *g_data)
 /*
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
-/* 
 
 static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data,

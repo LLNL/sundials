@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-07-29 16:02:25 $
+ * $Revision: 1.4 $
+ * $Date: 2004-08-25 16:23:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -256,7 +256,7 @@ main(int argc, char *argv[])
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
-  cvode_mem = CVodeCreate(BDF, NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVodeSetFdata(cvode_mem, data);
@@ -265,10 +265,10 @@ main(int argc, char *argv[])
   flag = CVodeSetMaxNumSteps(cvode_mem, 10000);
   if (check_flag(&flag, "CVodeSetMaxNumSteps", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVSpgmr(cvode_mem, LEFT, MAXL);
+  flag = CVSpgmr(cvode_mem, PREC_LEFT, MAXL);
   if(check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
@@ -319,11 +319,11 @@ main(int argc, char *argv[])
 
     if(my_pe == 0) {
       printf("Sensitivity: YES ");
-      if(sensi_meth == SIMULTANEOUS)   
+      if(sensi_meth == CV_SIMULTANEOUS)   
         printf("( SIMULTANEOUS +");
       else 
-        if(sensi_meth == STAGGERED) printf("( STAGGERED +");
-        else                        printf("( STAGGERED1 +");   
+        if(sensi_meth == CV_STAGGERED) printf("( STAGGERED +");
+        else                           printf("( STAGGERED1 +");   
       if(err_con) printf(" FULL ERROR CONTROL )");
       else        printf(" PARTIAL ERROR CONTROL )");
     }
@@ -360,7 +360,7 @@ main(int argc, char *argv[])
   /* In loop over output points, call CVode, print results, test for error */
   
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
-    flag = CVode(cvode_mem, tout, u, &t, NORMAL);
+    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if(check_flag(&flag, "CVode", 1, my_pe)) break;
     
     PrintOutput(cvode_mem, my_pe, comm, u, t);
@@ -448,11 +448,11 @@ static void ProcessArgs(int argc, char *argv[], int my_pe,
       WrongArgs(my_pe, argv[0]);
 
     if (strcmp(argv[2],"sim") == 0)
-      *sensi_meth = SIMULTANEOUS;
+      *sensi_meth = CV_SIMULTANEOUS;
     else if (strcmp(argv[2],"stg") == 0)
-      *sensi_meth = STAGGERED;
+      *sensi_meth = CV_STAGGERED;
     else if (strcmp(argv[2],"stg1") == 0)
-      *sensi_meth = STAGGERED1;
+      *sensi_meth = CV_STAGGERED1;
     else 
       WrongArgs(my_pe, argv[0]);
 
@@ -795,10 +795,8 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
   long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
   int flag;
 
-  flag = CVodeGetIntWorkSpace(cvode_mem, &leniw);
-  check_flag(&flag, "CVodeGetIntWorkSpace", 1, 0);
-  flag = CVodeGetRealWorkSpace(cvode_mem, &lenrw);
-  check_flag(&flag, "CVodeGetRealWorkSpace", 1, 0);
+  flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
+  check_flag(&flag, "CVodeGetWorkSpace", 1, 0);
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1, 0);
   flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
@@ -812,10 +810,8 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  flag = CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
-  check_flag(&flag, "CVSpgmrGetIntWorkSpace", 1, 0);
-  flag = CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
-  check_flag(&flag, "CVSpgmrGetRealWorkSpace", 1, 0);
+  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
+  check_flag(&flag, "CVSpgmrGetWorkSpace", 1, 0);
   flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
   check_flag(&flag, "CVSpgmrGetNumLinIters", 1, 0);
   flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
