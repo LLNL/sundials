@@ -28,14 +28,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definitions of realtype, integertype           */
+#include "sundialstypes.h"  /* definitions of realtype,                       */
 #include "cvode.h"          /* main CVODE header file                         */
 #include "iterative.h"      /* contains the enum for types of preconditioning */
 #include "cvspgmr.h"        /* use CVSPGMR linear solver each internal step   */
 #include "cvbandpre.h"      /* band preconditioner function prototypes        */
 #include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S  */
 #include "sundialsmath.h"   /* contains SQR macro                             */
-
 
 /* Problem Constants */
 
@@ -77,7 +76,6 @@
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 #define NEQ     (NUM_SPECIES*MM)  /* NEQ = number of equations */
 
-
 /* User-defined vector and matrix accessor macros: IJKth, IJth */
 
 /* IJKth is defined in order to isolate the translation from the
@@ -98,10 +96,8 @@
    work with matrices stored by column in a 2-dimensional array. In C,
    arrays are indexed starting at 0, not 1. */
 
-
 #define IJKth(vdata,i,j,k) (vdata[i-1 + (j)*NUM_SPECIES + (k)*NSMX])
 #define IJth(a,i,j)        (a[j-1][i-1])
-
 
 /* Type : UserData 
    contains preconditioner blocks, pivot arrays, and problem constants */
@@ -109,7 +105,6 @@
 typedef struct {
   realtype q4, om, dx, dz, hdco, haco, vdco;
 } *UserData;
-
 
 /* Private Helper Functions */
 
@@ -122,6 +117,9 @@ static void PrintFinalStats(void *cvode_mem, void *bpdata);
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /***************************** Main Program ******************************/
 
@@ -133,14 +131,22 @@ int main()
   UserData data;
   void *bpdata;
   void *cvode_mem;
-  int ml, mu, iout, flag, jpre;
+  int flag, ml, mu, iout, jpre;
+
+  nvSpec = NULL;
+  y = NULL;
+  data = NULL;
+  bpdata = cvode_mem = NULL;
 
   /* Initialize serial vector specification object */
   nvSpec = NV_SpecInit_Serial(NEQ);
+  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
 
   /* Allocate and initialize y, and set problem data and tolerances */ 
   y = N_VNew(nvSpec);
+  if(check_flag((void *)y, "N_VNew", 0)) return(1);
   data = (UserData) malloc(sizeof *data);
+  if(check_flag((void *)data, "malloc", 2)) return(1);
   InitUserData(data);
   SetInitialProfiles(y, data->dx, data->dz);
   abstol = ATOL; 
@@ -153,12 +159,12 @@ int main()
 
      A pointer to CVODE problem memory is returned and stored in cvode_mem. */
   cvode_mem = CVodeCreate(BDF, NEWTON);
-  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
-  
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+
   /* Set the pointer to user-defined data */
   flag = CVodeSetFdata(cvode_mem, data);
-  if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
-  
+  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+
   /* Call CVodeMalloc to initialize CVODE memory: 
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
@@ -166,16 +172,17 @@ int main()
      SS      specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances      */
   flag = CVodeMalloc(cvode_mem, f, T0, y, SS, &reltol, &abstol, nvSpec);
-  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+  if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVBandPreAlloc to initialize band preconditioner */
   ml = mu = 2;
   bpdata = CVBandPrecAlloc (cvode_mem, NEQ, mu, ml);
+  if(check_flag((void *)bpdata, "CVBandPrecAlloc", 0)) return(1);
 
   /* Call CVBPSpgmr to specify the CVODE linear solver CVSPGMR 
      with left preconditioning and the maximum Krylov dimension maxl */
   flag = CVBPSpgmr(cvode_mem, LEFT, 0, bpdata);
-  if (flag != SUCCESS) { printf("CVBPSpgmr failed."); return(1); }
+  if(check_flag(&flag, "CVBPSpgmr", 1)) return(1);
 
   printf("2-species diurnal advection-diffusion problem, %d by %d mesh\n",
          MX, MZ);
@@ -193,9 +200,10 @@ int main()
       SetInitialProfiles(y, data->dx, data->dz);
       
       flag = CVodeReInit(cvode_mem, f, T0, y, SS, &reltol, &abstol);
-      if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
-      
+      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
+
       flag = CVSpgmrResetPrecType(cvode_mem, RIGHT);
+      check_flag(&flag, "CVSpgmrResetPrecType", 1);
       
       printf("\n\n-------------------------------------------------------");
       printf("------------\n");
@@ -208,9 +216,9 @@ int main()
     
     for (iout = 1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
       flag = CVode(cvode_mem, tout, y, &t, NORMAL);
+      check_flag(&flag, "CVode", 1);
       PrintOutput(cvode_mem, y, t);
       if (flag != SUCCESS) {
-        printf("CVode failed, flag = %d.\n", flag);
         break;
       }
     }
@@ -220,18 +228,16 @@ int main()
     PrintFinalStats(cvode_mem, bpdata);
     
   } /* End of jpre loop */
-  
-  /* Free memory */  
-  
-  N_VFree(y);
-  free(data);
-  CVBandPrecFree(bpdata);
-  CVodeFree(cvode_mem);
-  NV_SpecFree_Serial(nvSpec);
+
+  /* Free memory */
+  if(y != NULL) N_VFree(y);
+  if(data != NULL) free(data);
+  if(bpdata != NULL) CVBandPrecFree(bpdata);
+  if(cvode_mem != NULL) CVodeFree(cvode_mem);
+  if(nvSpec != NULL) NV_SpecFree_Serial(nvSpec);
 
   return(0);
 }
-
 
 /*********************** Private Helper Functions ************************/
 
@@ -279,17 +285,21 @@ static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
 
 static void PrintOutput(void *cvode_mem, N_Vector y,realtype t)
 {
-  int nst, qu;
+  long int nst;
+  int qu, flag;
   realtype hu, *ydata;
   int mxh = MX/2 - 1, mzh = MZ/2 - 1, mx1 = MX - 1, mz1 = MZ - 1;
 
   ydata = NV_DATA_S(y);
 
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetLastOrder(cvode_mem, &qu);
-  CVodeGetLastStep(cvode_mem, &hu);
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1);
+  flag = CVodeGetLastOrder(cvode_mem, &qu);
+  check_flag(&flag, "CVodeGetLastOrder", 1);
+  flag = CVodeGetLastStep(cvode_mem, &hu);
+  check_flag(&flag, "CVodeGetLastStep", 1);
 
-  printf("t = %.2e   no. steps = %d   order = %d   stepsize = %.2e\n",
+  printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
          t, nst, qu, hu);
   printf("c1 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n",
          IJKth(ydata,1,0,0), IJKth(ydata,1,mxh,mzh), IJKth(ydata,1,mx1,mz1));
@@ -304,45 +314,62 @@ static void PrintFinalStats(void *cvode_mem, void *bpdata)
   long int lenrw, leniw ;
   long int lenrwSPGMR, leniwSPGMR;
   long int lenrwBP, leniwBP;
-  int nst, nfe, nsetups, nni, ncfn, netf;
-  int nli, npe, nps, ncfl, nfeSPGMR;
-  int nfeBP;
+  long int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nli, npe, nps, ncfl, nfeSPGMR;
+  long int nfeBP;
+  int flag;
 
-  CVodeGetIntWorkSpace(cvode_mem, &leniw);
-  CVodeGetRealWorkSpace(cvode_mem, &lenrw);
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  CVodeGetNumErrTestFails(cvode_mem, &netf);
-  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  flag = CVodeGetIntWorkSpace(cvode_mem, &leniw);
+  check_flag(&flag, "CVodeGetIntWorkSpace", 1);
+  flag = CVodeGetRealWorkSpace(cvode_mem, &lenrw);
+  check_flag(&flag, "CVodeGetRealWorkSpace", 1);
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
-  CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
-  CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  flag = CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
+  check_flag(&flag, "CVSpgmrGetIntWorkSpace", 1);
+  flag = CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
+  check_flag(&flag, "CVSpgmrGetRealWorkSpace", 1);
+  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
+  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
+  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
+  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
+  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
 
-  CVBandPrecGetIntWorkSpace(bpdata, &leniwBP);
-  CVBandPrecGetRealWorkSpace(bpdata, &lenrwBP);
-  CVBandPrecGetNumRhsEvals(bpdata, &nfeBP);
-  
+  flag = CVBandPrecGetIntWorkSpace(bpdata, &leniwBP);
+  check_flag(&flag, "CVBandPrecGetIntWorkSpace", 1);
+  flag = CVBandPrecGetRealWorkSpace(bpdata, &lenrwBP);
+  check_flag(&flag, "CVBandPrecGetRealWorkSpace", 1);
+  flag = CVBandPrecGetNumRhsEvals(bpdata, &nfeBP);
+  check_flag(&flag, "CVBandPrecGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw  = %5ld\n", lenrw, leniw);
   printf("llrw    = %5ld     lliw   = %5ld\n", lenrwSPGMR, leniwSPGMR);
   printf("llrw    = %5ld     lliw   = %5ld\n", lenrwBP, leniwBP);
-  printf("nst     = %5d\n"                  , nst);
-  printf("nfe     = %5d     nfetot = %5d\n"  , nfe, nfe+nfeSPGMR+nfeBP);
-  printf("nfeSPGMR= %5d     nfeBP  = %5d\n"  , nfeSPGMR, nfeBP);
-  printf("nni     = %5d     nli    = %5d\n"  , nni, nli);
-  printf("nsetups = %5d     netf   = %5d\n"  , nsetups, netf);
-  printf("npe     = %5d     nps    = %5d\n"  , npe, nps);
-  printf("ncfn    = %5d     ncfl   = %5d\n\n", ncfn, ncfl);
+  printf("nst     = %5ld\n"                  , nst);
+  printf("nfe     = %5ld     nfetot = %5ld\n"  , nfe, nfe+nfeSPGMR+nfeBP);
+  printf("nfeSPGMR= %5ld     nfeBP  = %5ld\n"  , nfeSPGMR, nfeBP);
+  printf("nni     = %5ld     nli    = %5ld\n"  , nni, nli);
+  printf("nsetups = %5ld     netf   = %5ld\n"  , nsetups, netf);
+  printf("npe     = %5ld     nps    = %5ld\n"  , npe, nps);
+  printf("ncfn    = %5ld     ncfl   = %5ld\n\n", ncfn, ncfl);
 }
-
 
 /***************** Functions Called by the CVODE Solver ******************/
 
@@ -355,7 +382,7 @@ static void f(realtype t, N_Vector y, N_Vector ydot,void *f_data)
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, zdn, zup;
   realtype q4coef, delz, verdco, hordco, horaco;
   realtype *ydata, *dydata;
-  int jx, jz, idn, iup, ileft, iright;
+  int idn, iup, ileft, iright, jx, jz;
   UserData data;
 
   data = (UserData) f_data;
@@ -434,4 +461,33 @@ static void f(realtype t, N_Vector y, N_Vector ydot,void *f_data)
       IJKth(dydata, 2, jx, jz) = vertd2 + hord2 + horad2 + rkin2;
     }
   }
+}
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  return(0);
 }

@@ -30,7 +30,7 @@
 
 /* CVODE header files with a description of contents used in cvbx.c */
 
-#include "sundialstypes.h"  /* definitions of realtype, integertype           */
+#include "sundialstypes.h"  /* definitions of realtype,                       */
 #include "cvode.h"          /* prototypes for CVodeMalloc, CVode, CVodeFree,  */
                             /* constants OPT_SIZE, BDF, NEWTON, SS, SUCCESS,  */
                             /* NST, NFE, NSETUPS, NNI, NCFN, NETF             */
@@ -38,7 +38,6 @@
 #include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S, */
                             /* prototypes for N_VNew, N_VFree, N_VMaxNorm     */
 #include "band.h"           /* definitions of type BandMat, macros            */
-
 
 /* Problem Constants */
 
@@ -66,14 +65,12 @@
 
 #define IJth(vdata,i,j) (vdata[(j-1) + (i-1)*MY])
 
-
 /* Type : UserData 
    contains grid constants */
 
 typedef struct {
   realtype dx, dy, hdcoef, hacoef, vdcoef;
 } *UserData;
-
 
 /* Private Helper Functions */
 
@@ -85,10 +82,13 @@ static void PrintFinalStats(void *cvode_mem);
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
+static void Jac(long int N, long int mu, long int ml, BandMat J,
                 realtype t, N_Vector u, N_Vector fu, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
+/* Private function to check function return values */
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /***************************** Main Program ******************************/
 
@@ -99,17 +99,26 @@ int main()
   N_Vector u;
   UserData data;
   void *cvode_mem;
-  int iout, flag, nst;
+  int iout, flag;
+  long int nst;
+
+  nvSpec = NULL;
+  u = NULL;
+  data = NULL;
+  cvode_mem = NULL;
 
   /* Initialize serial vector specification object */
   nvSpec = NV_SpecInit_Serial(NEQ);
+  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
 
   u = N_VNew(nvSpec);    /* Allocate u vector */
+  if(check_flag((void*)u, "N_VNew", 0)) return(1);
 
   reltol = 0.0;           /* Set the tolerances */
   abstol = ATOL;
 
   data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
+  if(check_flag((void *)data, "malloc", 2)) return(1);
   dx = data->dx = XMAX/(MX+1);     /* Set grid coefficients in data */
   dy = data->dy = YMAX/(MY+1);
   data->hdcoef = 1.0/(dx*dx);
@@ -128,7 +137,7 @@ int main()
   */
 
   cvode_mem = CVodeCreate(BDF, NEWTON);
-  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* 
      Call CVodeMalloc to initialize CVODE memory: 
@@ -144,47 +153,47 @@ int main()
   */
 
   flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
-  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+  if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Set the pointer to user-defined data */
   flag = CVodeSetFdata(cvode_mem, data);
-  if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
+  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
   /* Call CVBand to specify the CVODE band linear solver */
   flag = CVBand(cvode_mem, NEQ, MY, MY);
-  if (flag != SUCCESS) { printf("CVBand failed.\n"); return(1); }
+  if(check_flag(&flag, "CVBand", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac and
      the pointer to the user-defined block data. */
   flag = CVBandSetJacFn(cvode_mem, Jac);
-  if (flag != SUCCESS) { printf("CVBandSetJacFn failed.\n"); return(1); }
+  if(check_flag(&flag, "CVBandSetJacFn", 1)) return(1);
   flag = CVBandSetJacData(cvode_mem, data);
-  if (flag != SUCCESS) { printf("CVBandSetJacData failed.\n"); return(1); }
+  if(check_flag(&flag, "CVBandSetJacData", 1)) return(1);
 
   /* In loop over output points, call CVode, print results, test for error */
 
-  printf(" \n2-D advection-diffusion equation, mesh dimensions =%3d %3d\n\n",
+  printf(" \n2-D advection-diffusion equation, mesh dimensions =%3ld %3ld\n\n",
          MX,MY);
   umax = N_VMaxNorm(u);
   printf("At t = %4.2f    max.norm(u) =%14.6e \n", T0,umax);
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
-    if (flag != SUCCESS) { printf("CVode failed, flag=%d.\n", flag); break; }
+    if(check_flag(&flag, "CVode", 1)) break;
     umax = N_VMaxNorm(u);
     flag = CVodeGetNumSteps(cvode_mem, &nst);
-    printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4d \n", t,umax,nst);
+    check_flag(&flag, "CVodeGetNumSteps", 1);
+    printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4ld \n", t,umax,nst);
   }
 
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
-  N_VFree(u);                  /* Free the u vector */
-  CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
-  free(data);                  /* Free the user data */
-  NV_SpecFree_Serial(nvSpec);  /* Free the vector specification memory */
+  if(u != NULL) N_VFree(u);                  /* Free the u vector */
+  if(cvode_mem != NULL) CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
+  if(data != NULL) free(data);                  /* Free the user data */
+  if(nvSpec != NULL) NV_SpecFree_Serial(nvSpec);  /* Free the vector specification memory */
 
   return(0);
 }
-
 
 /************************ Private Helper Functions ***********************/
 
@@ -216,30 +225,37 @@ static void SetIC(N_Vector u, UserData data)
   }  
 }
 
-
 /* Print some final statistics located in the iopt array */
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  int nst, nfe, nsetups, njeB, nfeB, nni, ncfn, netf;
-  
-  CVodeGetNumSteps(cvode_mem, &nst);
-  CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  CVodeGetNumErrTestFails(cvode_mem, &netf);
-  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  int flag;
+  long int nst, nfe, nsetups, netf, nni, ncfn, njeB, nfeB;
 
-  CVBandGetNumJacEvals(cvode_mem, &njeB);
-  CVBandGetNumRhsEvals(cvode_mem, &nfeB);
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  check_flag(&flag, "CVodeGetNumSteps", 1);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+
+  flag = CVBandGetNumJacEvals(cvode_mem, &njeB);
+  check_flag(&flag, "CVBandGetNumJacEvals", 1);
+  flag = CVBandGetNumRhsEvals(cvode_mem, &nfeB);
+  check_flag(&flag, "CVBandGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("nst = %-6d nfe  = %-6d nsetups = %-6d nfeB = %-6d njeB = %d\n",
+  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeB = %-6ld njeB = %ld\n",
 	 nst, nfe, nsetups, nfeB, njeB);
-  printf("nni = %-6d ncfn = %-6d netf = %d\n \n",
+  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",
 	 nni, ncfn, netf);
 }
-
 
 /***************** Functions Called by the CVODE Solver ******************/
 
@@ -286,14 +302,13 @@ static void f(realtype t, N_Vector u,N_Vector udot, void *f_data)
   }
 }
 
-
 /* Jacobian routine. Compute J(t,u). */
 
-static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
+static void Jac(long int N, long int mu, long int ml, BandMat J,
                 realtype t, N_Vector u, N_Vector fu, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  integertype i, j, k;
+  long int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
   
@@ -326,4 +341,33 @@ static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
       if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = verdc;
     }
   }
+}
+
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if flag == SUCCESS
+     opt == 2 means function allocates memory so check if returned NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  /* Check if flag != SUCCESS */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag != SUCCESS) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
+    return(1); }
+
+  return(0);
 }
