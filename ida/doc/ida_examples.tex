@@ -1,0 +1,47 @@
+%\documentclass[11pt]{article}
+\documentclass[11pt]{article}
+
+\usepackage{xr}
+\externaldocument{ida_math}
+\externaldocument{ida_usage}
+\externaldocument{ida_nvec}
+
+\input{ug.tex}
+
+\newcommand{\idaucrl}{000000}
+\newcommand{\idadate}{June 2004}
+\newcommand{\idarelease}{v2.2.0}
+
+\title{Example Programs for {\ida} {\idarelease}}
+\author{
+  Alan C. Hindmarsh and Radu Serban\\
+  {\em Center for Applied Scientific Computing} \\
+  {\em Lawrence Livermore National Laboratory}
+}
+\date{}
+
+\makeindex
+
+\begin{document}
+
+%Create the LLNL Cover Page
+\makeLLNLCover{\idaucrl}%                       UCRL number
+{Example Programs for \\ {\ida} {\idarelease}}% Title on cover page
+{Alan C. Hindmarsh and Radu Serban}%            Authors
+{\idadate}%                                      Date
+{0in}{0in}
+
+\frontex
+
+%===============================================================
+\include{ida_ex_intro}
+\include{ida_ex_serial}
+\include{ida_ex_parallel}
+%===============================================================
+% Start appendices
+\appendix
+\include{ida_ex_codes}
+%===============================================================
+\makeLLNLBackCover
+%===============================================================
+\end{document}
