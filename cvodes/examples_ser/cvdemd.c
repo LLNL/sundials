@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-09 01:20:42 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-09 18:42:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Demonstration program for CVODE - direct linear solvers.
+ * Demonstration program for CVODES - direct linear solvers.
  * Two separate problems are solved using both the CV_ADAMS and CV_BDF
  * linear multistep methods in combination with CV_FUNCTIONAL and
  * CV_NEWTON iterations:
@@ -276,7 +276,7 @@ static int Problem1(void)
 
 static void PrintIntro1(void)
 {
-  printf("Demonstration program for CVODE package - direct linear solvers\n");
+  printf("Demonstration program for CVODES package - direct linear solvers\n");
   printf("\n\n");
   printf("Problem 1: Van der Pol oscillator\n");
   printf(" xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0\n");

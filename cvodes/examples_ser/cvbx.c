@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-11-09 01:20:42 $
+ * $Revision: 1.14 $
+ * $Date: 2004-11-09 18:42:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -9,7 +9,7 @@
  * Example problem:
  *
  * The following is a simple example problem with a banded Jacobian,
- * with the program for its solution by CVODE.
+ * with the program for its solution by CVODES.
  * The problem is the semi-discrete form of the advection-diffusion
  * equation in 2-D:
  *   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2
@@ -334,7 +334,7 @@ static void SetIC(N_Vector u, UserData data)
 
 static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
 {
-  printf("\n2-D Advection-Diffusion Equation -- CVODE (serial version)\n\n");
+  printf("\n2-D Advection-Diffusion Equation -- CVODES (serial version)\n\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
   printf("Total system size = %d\n\n", NEQ);
   printf("Linear solver is CVBAND\n");

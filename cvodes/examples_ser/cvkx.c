@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-09 01:20:42 $
+ * $Revision: 1.15 $
+ * $Date: 2004-11-09 18:42:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -23,7 +23,7 @@
  *   0 <= t <= 86400 sec (1 day).
  * The PDE system is treated by central differences on a uniform
  * 10 x 10 mesh, with simple polynomial initial profiles.
- * The problem is solved with CVODE, with the BDF/GMRES
+ * The problem is solved with CVODES, with the BDF/GMRES
  * method (i.e. using the CVSPGMR linear solver) and the
  * block-diagonal part of the Newton matrix as a left
  * preconditioner. A copy of the block-diagonal part of the

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-08-31 22:55:38 $
+ * $Revision: 1.11 $
+ * $Date: 2004-11-09 18:42:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -34,21 +34,24 @@
 #include <stdlib.h>
 #include <math.h>
 #include "sundialstypes.h"     /* definition of realtype                      */
-#include "cvode.h"             /* prototypes for CVode***, various constants  */
+#include "cvode.h"             /* prototypes for CVode* and various constants */
 #include "nvector_parallel.h"  /* definitions of type N_Vector and vector     */
-                               /* macros, prototypes for N_Vector functions   */
-#include "mpi.h"               /* for MPI constants and types                 */
+                               /* macros, and prototypes for N_Vector         */
+                               /* functions                                   */
+#include "mpi.h"               /* MPI constants and types                     */
 
 /* Problem Constants */
 
-#define XMAX  2.0          /* domain boundary           */
-#define MX    10           /* mesh dimension            */
-#define NEQ   MX           /* number of equations       */
-#define ATOL  1.e-5        /* scalar absolute tolerance */
-#define T0    0.0          /* initial time              */
-#define T1    0.5          /* first output time         */
-#define DTOUT 0.5          /* output time increment     */
-#define NOUT  10           /* number of output times    */
+#define ZERO  RCONST(0.0)
+
+#define XMAX  RCONST(2.0)    /* domain boundary           */
+#define MX    10             /* mesh dimension            */
+#define NEQ   MX             /* number of equations       */
+#define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
+#define T0    ZERO           /* initial time              */
+#define T1    RCONST(0.5)    /* first output time         */
+#define DTOUT RCONST(0.5)    /* output time increment     */
+#define NOUT  10             /* number of output times    */
 
 /* Type : UserData 
    contains grid constants, parallel machine parameters, work array. */
@@ -64,6 +67,10 @@ typedef struct {
 
 static void SetIC(N_Vector u, realtype dx, long int my_length,
                   long int my_base);
+
+static void PrintIntro(int npes);
+
+static void PrintData(realtype t, realtype umax, long int nst);
 
 static void PrintFinalStats(void *cvode_mem);
 
@@ -111,15 +118,15 @@ int main(int argc, char *argv[])
   data->npes = npes;
   data->my_pe = my_pe;
 
-  u = N_VNew_Parallel(comm, local_N, NEQ);    /* Allocate u vector */
+  u = N_VNew_Parallel(comm, local_N, NEQ);  /* Allocate u vector */
   if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
 
-  reltol = 0.0;           /* Set the tolerances */
+  reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
 
-  dx = data->dx = XMAX/((realtype)(MX+1));   /* Set grid coefficients in data */
-  data->hdcoef = 1.0/(dx*dx);
-  data->hacoef = 0.5/(2.0*dx);
+  dx = data->dx = XMAX/((realtype)(MX+1));  /* Set grid coefficients in data */
+  data->hdcoef = RCONST(1.0)/(dx*dx);
+  data->hacoef = RCONST(0.5)/(RCONST(2.0)*dx);
 
   SetIC(u, dx, local_N, my_base);  /* Initialize u vector */
 
@@ -152,14 +159,11 @@ int main(int argc, char *argv[])
   flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
-  if (my_pe == 0) {
-    printf("\n 1-D advection-diffusion equation, mesh size =%3d \n", MX);
-    printf("\n Number of PEs = %3d \n\n",npes); }
+  if (my_pe == 0) PrintIntro(npes);
 
   umax = N_VMaxNorm(u);
 
-  if (my_pe == 0) 
-    printf("At t = %4.2f  max.norm(u) =%14.6e \n", T0,umax);
+  if (my_pe == 0) PrintData(t, umax, 0);
 
   /* In loop over output points, call CVode, print results, test for error */
 
@@ -169,16 +173,15 @@ int main(int argc, char *argv[])
     umax = N_VMaxNorm(u);
     flag = CVodeGetNumSteps(cvode_mem, &nst);
     check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
-    if (my_pe == 0) 
-      printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4ld \n", t,umax,nst);
+    if (my_pe == 0) PrintData(t, umax, nst);
   }
 
   if (my_pe == 0) 
-    PrintFinalStats(cvode_mem);     /* Print some final statistics   */
+    PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
-  N_VDestroy(u);               /* Free the u vector */
-  CVodeFree(cvode_mem);        /* Free the integrator memory */
-  free(data);                  /* Free user data */
+  N_VDestroy_Parallel(u);        /* Free the u vector */
+  CVodeFree(cvode_mem);          /* Free the integrator memory */
+  free(data);                    /* Free user data */
 
   MPI_Finalize();
 
@@ -205,8 +208,32 @@ static void SetIC(N_Vector u, realtype dx, long int my_length,
   for (i=1; i<=my_length; i++) {
     iglobal = my_base + i;
     x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*exp(2.0*x);
+    udata[i-1] = x*(XMAX - x)*exp(RCONST(2.0)*x);
   }  
+}
+
+/* Print problem introduction */
+
+static void PrintIntro(int npes)
+{
+  printf("\n 1-D advection-diffusion equation, mesh size =%3d \n", MX);
+  printf("\n Number of PEs = %3d \n\n", npes);
+
+  return;
+}
+
+/* Print data */
+
+static void PrintData(realtype t, realtype umax, long int nst)
+{
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("At t = %4.2Lf  max.norm(u) =%14.6Le  nst =%4ld \n", t, umax, nst);
+#else
+  printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4ld \n", t, umax, nst);
+#endif
+
+  return;
 }
 
 /* Print some final statistics located in the iopt array */
@@ -227,7 +254,7 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  printf("\nFinal Statistics.. \n\n");
+  printf("\nFinal Statistics: \n\n");
   printf("nst = %-6ld  nfe  = %-6ld  ", nst, nfe);
   printf("nni = %-6ld  ncfn = %-6ld  netf = %ld\n \n", nni, ncfn, netf);
 }
@@ -280,11 +307,11 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   /* Receive needed data from processes before and after current process. */
    if (my_pe != 0)
      MPI_Recv(&z[0], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
-   else z[0] = 0.0;
+   else z[0] = ZERO;
    if (my_pe != last_pe)
      MPI_Recv(&z[my_length+1], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm,
               &status);   
-   else z[my_length + 1] = 0.0;
+   else z[my_length + 1] = ZERO;
 
   /* Loop over all grid points in current process. */
   for (i=1; i<=my_length; i++) {
@@ -295,7 +322,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     urt = z[i+1];
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - 2.0*ui + urt);
+    hdiff = hordc*(ult - RCONST(2.0)*ui + urt);
     hadv = horac*(urt - ult);
     dudata[i-1] = hdiff + hadv;
   }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-10-26 20:47:47 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-09 18:42:41 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -56,37 +56,40 @@
 #include <math.h>
 #include "sundialstypes.h"     /* definition of type realtype                 */
 #include "sundialsmath.h"      /* definition of macro SQR                     */
-#include "cvodes.h"            /* prototypes for CVode***, various constants  */
+#include "cvodes.h"            /* prototypes for CVode* and various constants */
 #include "cvspgmr.h"           /* prototypes and constants for CVSPGMR solver */
 #include "cvbbdpre.h"          /* prototypes for CVBBDPRE module              */
-#include "nvector_parallel.h"  /* definition of type N_Vector, macro NV_DATA_P*/
-#include "mpi.h"               /* for MPI constants and types                 */
+#include "nvector_parallel.h"  /* definition of type N_Vector and macro       */
+                               /* NV_DATA_P                                   */
+#include "mpi.h"               /* MPI constants and types                     */
 
 
 /* Problem Constants */
 
-#define NVARS        2             /* number of species         */
-#define KH           4.0e-6        /* horizontal diffusivity Kh */
-#define VEL          0.001         /* advection velocity V      */
-#define KV0          1.0e-8        /* coefficient in Kv(y)      */
-#define Q1           1.63e-16      /* coefficients q1, q2, c3   */ 
-#define Q2           4.66e-16
-#define C3           3.7e16
-#define A3           22.62         /* coefficient in expression for q3(t) */
-#define A4           7.601         /* coefficient in expression for q4(t) */
-#define C1_SCALE     1.0e6         /* coefficients in initial profiles    */
-#define C2_SCALE     1.0e12
+#define ZERO         RCONST(0.0)
 
-#define T0           0.0           /* initial time */
-#define NOUT         12            /* number of output times */
-#define TWOHR        7200.0        /* number of seconds in two hours  */
-#define HALFDAY      4.32e4        /* number of seconds in a half day */
-#define PI       3.1415926535898   /* pi */ 
+#define NVARS        2                 /* number of species         */
+#define KH           RCONST(4.0e-6)    /* horizontal diffusivity Kh */
+#define VEL          RCONST(0.001)     /* advection velocity V      */
+#define KV0          RCONST(1.0e-8)    /* coefficient in Kv(y)      */
+#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */ 
+#define Q2           RCONST(4.66e-16)
+#define C3           RCONST(3.7e16)
+#define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
+#define A4           RCONST(7.601)     /* coefficient in expression for q4(t) */
+#define C1_SCALE     RCONST(1.0e6)     /* coefficients in initial profiles    */
+#define C2_SCALE     RCONST(1.0e12)
 
-#define XMIN          0.0          /* grid boundaries in x  */
-#define XMAX         20.0           
-#define YMIN         30.0          /* grid boundaries in y  */
-#define YMAX         50.0
+#define T0           ZERO                /* initial time */
+#define NOUT         12                  /* number of output times */
+#define TWOHR        RCONST(7200.0)      /* number of seconds in two hours  */
+#define HALFDAY      RCONST(4.32e4)      /* number of seconds in a half day */
+#define PI       RCONST(3.1415926535898) /* pi */ 
+
+#define XMIN         ZERO                /* grid boundaries in x  */
+#define XMAX         RCONST(20.0)
+#define YMIN         RCONST(30.0)        /* grid boundaries in y  */
+#define YMAX         RCONST(50.0)
 
 #define NPEX         2              /* no. PEs in x direction of PE array */
 #define NPEY         2              /* no. PEs in y direction of PE array */
@@ -99,8 +102,8 @@
                                     /* Spatial mesh is MX by MY */
 /* CVodeMalloc Constants */
 
-#define RTOL    1.0e-5            /* scalar relative tolerance */
-#define FLOOR   100.0             /* value of C1 or C2 at which tolerances */
+#define RTOL    RCONST(1.0e-5)    /* scalar relative tolerance */
+#define FLOOR   RCONST(100.0)     /* value of C1 or C2 at which tolerances */
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 
@@ -121,9 +124,11 @@ typedef struct {
 static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
                          UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
+static void PrintIntro(int npes, long int mudq, long int mldq,
+		       long int mukeep, long int mlkeep);
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
-static void PrintFinalStats(void *cvode_mem);
+static void PrintFinalStats(void *cvode_mem, void *pdata);
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
                   long int dsizex, long int dsizey,
@@ -162,7 +167,6 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   int iout, my_pe, npes, flag, jpre;
-  long int leniwBBDP, lenrwBBDP, ngevalsBBDP;
   long int neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
 
@@ -236,7 +240,7 @@ int main(int argc, char *argv[])
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
   pdata = CVBBDPrecAlloc(cvode_mem, local_N, mudq, mldq, 
-                         mukeep, mlkeep, 0.0, flocal, NULL);
+                         mukeep, mlkeep, ZERO, flocal, NULL);
   if(check_flag((void *)pdata, "CVBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVBBDSpgmr to specify the linear solver CVSPGMR using the
@@ -246,15 +250,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
-  if (my_pe == 0) {
-    printf("2-species diurnal advection-diffusion problem\n");
-    printf("  %d by %d mesh on %d processors\n",MX,MY,npes);
-    printf("  Using CVBBDPRE preconditioner module\n");
-    printf("    Difference-quotient half-bandwidths are");
-    printf(" mudq = %ld,  mldq = %ld\n", mudq, mldq);
-    printf("    Retained band block half-bandwidths are");
-    printf(" mukeep = %ld,  mlkeep = %ld", mukeep, mlkeep); 
-  }
+  if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
 
   /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
   for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
@@ -268,7 +264,7 @@ int main(int argc, char *argv[])
     flag = CVodeReInit(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
     if(check_flag(&flag, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVBBDPrecReInit(pdata, mudq, mldq, 0.0, flocal, NULL);
+    flag = CVBBDPrecReInit(pdata, mudq, mldq, ZERO, flocal, NULL);
     if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVSpgmrSetPrecType(cvode_mem, PREC_RIGHT);
@@ -278,11 +274,13 @@ int main(int argc, char *argv[])
       printf("\n\n-------------------------------------------------------");
       printf("------------\n");
     }
+
   }
+
 
   if (my_pe == 0) {
     printf("\n\nPreconditioner type is:  jpre = %s\n\n",
-           (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
+	   (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
   }
 
   /* In loop over output points, call CVode, print results, test for error */
@@ -295,21 +293,12 @@ int main(int argc, char *argv[])
 
   /* Print final statistics */
 
-  if (my_pe == 0) {
-    PrintFinalStats(cvode_mem);
-    flag = CVBBDPrecGetWorkSpace(pdata, &lenrwBBDP, &leniwBBDP);
-    check_flag(&flag, "CVBBDPrecGetWorkSpace", 1, my_pe);
-    flag = CVBBDPrecGetNumGfnEvals(pdata, &ngevalsBBDP);
-    check_flag(&flag, "CVBBDPrecGetNumGfnEvals", 1, my_pe);
-    printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
-           lenrwBBDP, leniwBBDP);  
-    printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
-  }
+  if (my_pe == 0) PrintFinalStats(cvode_mem, pdata);
 
   } /* End of jpre loop */
 
   /* Free memory */
-  N_VDestroy(u);
+  N_VDestroy_Parallel(u);
   CVBBDPrecFree(pdata);
   free(data);
   CVodeFree(cvode_mem);
@@ -333,8 +322,8 @@ static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
   data->dx = (XMAX-XMIN)/((realtype)(MX-1));
   data->dy = (YMAX-YMIN)/((realtype)(MY-1));
   data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(2.0*data->dx);
-  data->vdco = (1.0/SQR(data->dy))*KV0;
+  data->haco = VEL/(RCONST(2.0)*data->dx);
+  data->vdco = (RCONST(1.0)/SQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -374,23 +363,39 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   and jx and jy are the global mesh point indices. */
 
   offset = 0;
-  xmid = .5*(XMIN + XMAX);
-  ymid = .5*(YMIN + YMAX);
+  xmid = RCONST(0.5)*(XMIN + XMAX);
+  ymid = RCONST(0.5)*(YMIN + YMAX);
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + isuby*MYSUB;
     y = YMIN + jy*dy;
-    cy = SQR(0.1*(y - ymid));
-    cy = 1.0 - cy + 0.5*SQR(cy);
+    cy = SQR(RCONST(0.1)*(y - ymid));
+    cy = RCONST(1.0) - cy + RCONST(0.5)*SQR(cy);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
       x = XMIN + jx*dx;
-      cx = SQR(0.1*(x - xmid));
-      cx = 1.0 - cx + 0.5*SQR(cx);
+      cx = SQR(RCONST(0.1)*(x - xmid));
+      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
       uarray[offset  ] = C1_SCALE*cx*cy; 
       uarray[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;
     }
   }
+}
+
+/* Print problem introduction */
+
+static void PrintIntro(int npes, long int mudq, long int mldq,
+		       long int mukeep, long int mlkeep)
+{
+  printf("\n2-species diurnal advection-diffusion problem\n");
+  printf("  %d by %d mesh on %d processors\n", MX, MY, npes);
+  printf("  Using CVBBDPRE preconditioner module\n");
+  printf("    Difference-quotient half-bandwidths are");
+  printf(" mudq = %ld,  mldq = %ld\n", mudq, mldq);
+  printf("    Retained band block half-bandwidths are");
+  printf(" mukeep = %ld,  mlkeep = %ld", mukeep, mlkeep);
+
+  return;
 }
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
@@ -429,19 +434,27 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
     check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
     flag = CVodeGetLastStep(cvode_mem, &hu);
     check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n",
+           t, nst, qu, hu);
+    printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", uarray[0], uarray[1]);
+    printf("At top right:    c1, c2 = %12.3Le %12.3Le \n\n", tempu[0], tempu[1]);
+#else
     printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
            t, nst, qu, hu);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", uarray[0], uarray[1]);
     printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
+#endif
   }
 }
 
 /* Print final statistics contained in iopt */
 
-static void PrintFinalStats(void *cvode_mem)
+static void PrintFinalStats(void *cvode_mem, void *pdata)
 {
   long int lenrw, leniw ;
   long int lenrwSPGMR, leniwSPGMR;
+  long int lenrwBBDP, leniwBBDP, ngevalsBBDP;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeSPGMR;
   int flag;
@@ -474,7 +487,7 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
   check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1, 0);
 
-  printf("\nFinal Statistics.. \n\n");
+  printf("\nFinal Statistics: \n\n");
   printf("lenrw   = %5ld     leniw = %5ld\n", lenrw, leniw);
   printf("llrw    = %5ld     lliw  = %5ld\n", lenrwSPGMR, leniwSPGMR);
   printf("nst     = %5ld\n"                  , nst);
@@ -482,7 +495,15 @@ static void PrintFinalStats(void *cvode_mem)
   printf("nni     = %5ld     nli   = %5ld\n"  , nni, nli);
   printf("nsetups = %5ld     netf  = %5ld\n"  , nsetups, netf);
   printf("npe     = %5ld     nps   = %5ld\n"  , npe, nps);
-  printf("ncfn    = %5ld     ncfl  = %5ld\n\n", ncfn, ncfl); 
+  printf("ncfn    = %5ld     ncfl  = %5ld\n\n", ncfn, ncfl);
+
+  flag = CVBBDPrecGetWorkSpace(pdata, &lenrwBBDP, &leniwBBDP);
+  check_flag(&flag, "CVBBDPrecGetWorkSpace", 1, 0);
+  flag = CVBBDPrecGetNumGfnEvals(pdata, &ngevalsBBDP);
+  check_flag(&flag, "CVBBDPrecGetNumGfnEvals", 1, 0);
+  printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
+	 lenrwBBDP, leniwBBDP);  
+  printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
 }
  
 /* Routine to send boundary data to neighboring PEs */
@@ -763,19 +784,19 @@ static void flocal(long int Nlocal, realtype t, N_Vector u,
 
   dely = data->dy;
   verdco = data->vdco;
-  hordco  = data->hdco;
-  horaco  = data->haco;
+  hordco = data->hdco;
+  horaco = data->haco;
 
   /* Set diurnal rate coefficients as functions of t, and save q4 in 
   data block for use by preconditioner evaluation routine            */
 
   s = sin((data->om)*t);
-  if (s > 0.0) {
+  if (s > ZERO) {
     q3 = exp(-A3/s);
     q4coef = exp(-A4/s);
   } else {
-    q3 = 0.0;
-    q4coef = 0.0;
+    q3 = ZERO;
+    q4coef = ZERO;
   }
   data->q4 = q4coef;
 
@@ -788,10 +809,10 @@ static void flocal(long int Nlocal, realtype t, N_Vector u,
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
 
-    ydn = YMIN + (jy - .5)*dely;
+    ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(0.2*ydn);
-    cyup = verdco*exp(0.2*yup);
+    cydn = verdco*exp(RCONST(0.2)*ydn);
+    cyup = verdco*exp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
       jx = lx + isubx*MXSUB;
@@ -823,8 +844,8 @@ static void flocal(long int Nlocal, realtype t, N_Vector u,
       c2lt = uext[offsetue-1];
       c1rt = uext[offsetue+2];
       c2rt = uext[offsetue+3];
-      hord1 = hordco*(c1rt - 2.0*c1 + c1lt);
-      hord2 = hordco*(c2rt - 2.0*c2 + c2lt);
+      hord1 = hordco*(c1rt - RCONST(2.0)*c1 + c1lt);
+      hord2 = hordco*(c2rt - RCONST(2.0)*c2 + c2lt);
       horad1 = horaco*(c1rt - c1lt);
       horad2 = horaco*(c2rt - c2lt);
 

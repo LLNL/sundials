@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-08 15:21:28 $
+ * $Revision: 1.12 $
+ * $Date: 2004-11-09 18:42:41 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -51,38 +51,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"     /* defn. of realtype, booleantype, TRUE, FALSE */
+#include "sundialstypes.h"     /* definitions of realtype, booleantype, TRUE, */
+                               /* and FALSE                                   */
 #include "sundialsmath.h"      /* definition of macro SQR                     */
-#include "cvodes.h"            /* prototypes for CVode***, various constants  */
+#include "cvodes.h"            /* prototypes for CVode* and various constants */
 #include "cvspgmr.h"           /* prototypes and constants for CVSPGMR solver */
 #include "smalldense.h"        /* prototypes for small dense matrix functions */
-#include "nvector_parallel.h"  /* definition of type N_Vector, macro NV_DATA_P*/
-#include "mpi.h"               /* for MPI constants and types                 */
+#include "nvector_parallel.h"  /* definition of type N_Vector and macro       */
+                               /* NV_DATA_P                                   */
+#include "mpi.h"               /* MPI constants and types                     */
 
 /* Problem Constants */
 
-#define NVARS        2             /* number of species         */
-#define KH           4.0e-6        /* horizontal diffusivity Kh */
-#define VEL          0.001         /* advection velocity V      */
-#define KV0          1.0e-8        /* coefficient in Kv(y)      */
-#define Q1           1.63e-16      /* coefficients q1, q2, c3   */ 
-#define Q2           4.66e-16
-#define C3           3.7e16
-#define A3           22.62         /* coefficient in expression for q3(t) */
-#define A4           7.601         /* coefficient in expression for q4(t) */
-#define C1_SCALE     1.0e6         /* coefficients in initial profiles    */
-#define C2_SCALE     1.0e12
+#define NVARS        2                    /* number of species         */
+#define KH           RCONST(4.0e-6)       /* horizontal diffusivity Kh */
+#define VEL          RCONST(0.001)        /* advection velocity V      */
+#define KV0          RCONST(1.0e-8)       /* coefficient in Kv(y)      */
+#define Q1           RCONST(1.63e-16)     /* coefficients q1, q2, c3   */ 
+#define Q2           RCONST(4.66e-16)
+#define C3           RCONST(3.7e16)
+#define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
+#define A4           RCONST(7.601)     /* coefficient in expression for q4(t) */
+#define C1_SCALE     RCONST(1.0e6)     /* coefficients in initial profiles    */
+#define C2_SCALE     RCONST(1.0e12)
 
-#define T0           0.0           /* initial time */
-#define NOUT         12            /* number of output times */
-#define TWOHR        7200.0        /* number of seconds in two hours  */
-#define HALFDAY      4.32e4        /* number of seconds in a half day */
-#define PI       3.1415926535898   /* pi */ 
+#define T0           RCONST(0.0)          /* initial time */
+#define NOUT         12                   /* number of output times */
+#define TWOHR        RCONST(7200.0)       /* number of seconds in two hours  */
+#define HALFDAY      RCONST(4.32e4)       /* number of seconds in a half day */
+#define PI       RCONST(3.1415926535898)  /* pi */ 
 
-#define XMIN          0.0          /* grid boundaries in x  */
-#define XMAX         20.0           
-#define YMIN         30.0          /* grid boundaries in y  */
-#define YMAX         50.0
+#define XMIN         RCONST(0.0)          /* grid boundaries in x  */
+#define XMAX         RCONST(20.0)           
+#define YMIN         RCONST(30.0)         /* grid boundaries in y  */
+#define YMAX         RCONST(50.0)
 
 #define NPEX         2              /* no. PEs in x direction of PE array */
 #define NPEY         2              /* no. PEs in y direction of PE array */
@@ -95,8 +97,8 @@
                                     /* Spatial mesh is MX by MY */
 /* CVodeMalloc Constants */
 
-#define RTOL    1.0e-5            /* scalar relative tolerance */
-#define FLOOR   100.0             /* value of C1 or C2 at which tolerances */
+#define RTOL    RCONST(1.0e-5)    /* scalar relative tolerance */
+#define FLOOR   RCONST(100.0)     /* value of C1 or C2 at which tolerances */
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 
@@ -111,7 +113,7 @@
    work with matrices stored by column in a 2-dimensional array. In C,
    arrays are indexed starting at 0, not 1. */
 
-#define IJth(a,i,j)        (a[j-1][i-1])
+#define IJth(a,i,j) (a[j-1][i-1])
 
 /* Type : UserData 
    contains problem constants, preconditioner blocks, pivot arrays, 
@@ -286,7 +288,7 @@ int main(int argc, char *argv[])
   if (my_pe == 0) PrintFinalStats(cvode_mem);
 
   /* Free memory */
-  N_VDestroy(u);
+  N_VDestroy_Parallel(u);
   free(data);
   FreePreconData(predata);
   CVodeFree(cvode_mem);
@@ -332,8 +334,8 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   data->dx = (XMAX-XMIN)/((realtype)(MX-1));
   data->dy = (YMAX-YMIN)/((realtype)(MY-1));
   data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(2.0*data->dx);
-  data->vdco = (1.0/SQR(data->dy))*KV0;
+  data->haco = VEL/(RCONST(2.0)*data->dx);
+  data->vdco = (RCONST(1.0)/SQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -387,18 +389,18 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   Here lx and ly are local mesh point indices on the local subgrid,
   and jx and jy are the global mesh point indices. */
   offset = 0;
-  xmid = .5*(XMIN + XMAX);
-  ymid = .5*(YMIN + YMAX);
+  xmid = RCONST(0.5)*(XMIN + XMAX);
+  ymid = RCONST(0.5)*(YMIN + YMAX);
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + isuby*MYSUB;
     y = YMIN + jy*dy;
-    cy = SQR(0.1*(y - ymid));
-    cy = 1.0 - cy + 0.5*SQR(cy);
+    cy = SQR(RCONST(0.1)*(y - ymid));
+    cy = RCONST(1.0) - cy + RCONST(0.5)*SQR(cy);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
       x = XMIN + jx*dx;
-      cx = SQR(0.1*(x - xmid));
-      cx = 1.0 - cx + 0.5*SQR(cx);
+      cx = SQR(RCONST(0.1)*(x - xmid));
+      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
       udata[offset  ] = C1_SCALE*cx*cy; 
       udata[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;
@@ -488,7 +490,7 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
   check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1, 0);
 
-  printf("\nFinal Statistics.. \n\n");
+  printf("\nFinal Statistics: \n\n");
   printf("lenrw   = %5ld     leniw = %5ld\n", lenrw, leniw);
   printf("llrw    = %5ld     lliw  = %5ld\n", lenrwSPGMR, leniwSPGMR);
   printf("nst     = %5ld\n"                  , nst);
@@ -741,12 +743,12 @@ static void fcalc(realtype t, realtype udata[],
   /* Set diurnal rate coefficients as functions of t, and save q4 in 
   data block for use by preconditioner evaluation routine */
   s = sin((data->om)*t);
-  if (s > 0.0) {
+  if (s > RCONST(0.0)) {
     q3 = exp(-A3/s);
     q4coef = exp(-A4/s);
   } else {
-    q3 = 0.0;
-    q4coef = 0.0;
+    q3 = RCONST(0.0);
+    q4coef = RCONST(0.0);
   }
   data->q4 = q4coef;
 
@@ -756,10 +758,10 @@ static void fcalc(realtype t, realtype udata[],
     jy = ly + isuby*MYSUB;
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
-    ydn = YMIN + (jy - .5)*dely;
+    ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(0.2*ydn);
-    cyup = verdco*exp(0.2*yup);
+    cydn = verdco*exp(RCONST(0.2)*ydn);
+    cyup = verdco*exp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
       jx = lx + isubx*MXSUB;
@@ -772,7 +774,7 @@ static void fcalc(realtype t, realtype udata[],
       qq2 = Q2*c1*c2;
       qq3 = q3*C3;
       qq4 = q4coef*c2;
-      rkin1 = -qq1 - qq2 + 2.0*qq3 + qq4;
+      rkin1 = -qq1 - qq2 + RCONST(2.0)*qq3 + qq4;
       rkin2 = qq1 - qq2 - qq4;
 
       /* Set vertical diffusion terms */
@@ -788,8 +790,8 @@ static void fcalc(realtype t, realtype udata[],
       c2lt = uext[offsetue-1];
       c1rt = uext[offsetue+2];
       c2rt = uext[offsetue+3];
-      hord1 = hordco*(c1rt - 2.0*c1 + c1lt);
-      hord2 = hordco*(c2rt - 2.0*c2 + c2lt);
+      hord1 = hordco*(c1rt - RCONST(2.0)*c1 + c1lt);
+      hord2 = hordco*(c2rt - RCONST(2.0)*c2 + c2lt);
       horad1 = horaco*(c1rt - c1lt);
       horad2 = horaco*(c2rt - c2lt);
 
@@ -873,11 +875,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
      computed on the last f call).  Load into P. */
     for (ly = 0; ly < MYSUB; ly++) {
       jy = ly + isuby*MYSUB;
-      ydn = YMIN + (jy - .5)*dely;
+      ydn = YMIN + (jy - RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*exp(0.2*ydn);
-      cyup = verdco*exp(0.2*yup);
-      diag = -(cydn + cyup + 2.0*hordco);
+      cydn = verdco*exp(RCONST(0.2)*ydn);
+      cyup = verdco*exp(RCONST(0.2)*yup);
+      diag = -(cydn + cyup + RCONST(2.0)*hordco);
       for (lx = 0; lx < MXSUB; lx++) {
         jx = lx + isubx*MXSUB;
         offset = lx*NVARS + ly*nvmxsub;
@@ -936,7 +938,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   /* Solve the block-diagonal system Px = r using LU factors stored
      in P and pivot data in pivot, and return the solution in z.
      First copy vector r to z. */
-  N_VScale(1.0, r, z);
+  N_VScale(RCONST(1.0), r, z);
 
   nvmxsub = data->nvmxsub;
   zdata = NV_DATA_P(z);

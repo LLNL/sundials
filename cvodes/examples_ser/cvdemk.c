@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-09 01:20:42 $
+ * $Revision: 1.17 $
+ * $Date: 2004-11-09 18:42:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * --------------------------------------------------------------------
- * Demonstration program for CVODE - Krylov linear solver.
+ * Demonstration program for CVODES - Krylov linear solver.
  * ODE system from ns-species interaction PDE in 2 dimensions.
  * 
  * This program solves a stiff ODE system that arises from a system
@@ -448,7 +448,7 @@ static void CInit(N_Vector c, WebData wdata)
 
 static void PrintIntro(int jpre, int gstype)
 {
-  printf("\n\nDemonstration program for CVODE - CVSPGMR linear solver\n\n");
+  printf("\n\nDemonstration program for CVODES - CVSPGMR linear solver\n\n");
   printf("Food web problem with ns species, ns = %d\n", NS);
   printf("Predator-prey interaction and diffusion on a 2-D square\n\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
