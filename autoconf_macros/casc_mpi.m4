@@ -31,7 +31,7 @@ dnl **********************************************************************
 AC_DEFUN(CASC_PROG_MPIF77,
 [
    AC_CHECK_PROGS(MPIF77, mpf77 mpxlf mpif77 mpixlf tmf77 hf77)
-   test -z "$MPIF77" && AC_MSG_ERROR([no acceptable mpif77 found in \$PATH])
+   test -z "$MPIF77"
 ])dnl
 
 dnl ***********************************************************************
