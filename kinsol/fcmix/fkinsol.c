@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28.2.1 $
- * $Date: 2005-03-18 23:29:26 $
+ * $Revision: 1.28.2.2 $
+ * $Date: 2005-04-05 19:07:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -94,7 +94,6 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
     return;
   }
 
-
   /* set pointer data_F2C_vec to point to data array from global F2C_vec
      and then overwrite it with the user-supplied constraints */
 
@@ -125,8 +124,14 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 
   *ier = KINMalloc(KIN_mem, FKINfunc, F2C_vec);
 
+  /* reset data pointer */
+
+  N_VSetArrayPointer(data_F2C_vec, F2C_vec);
+
   KIN_iopt = iopt;
   KIN_ropt = ropt;
+
+  return;
 }
 
 /*
@@ -141,6 +146,8 @@ void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
   KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
 
   KIN_ls = KIN_SPGMR;
+
+  return;
 }
 
 /*
@@ -217,6 +224,8 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KIN_iopt[13] = nlcfails;
     KIN_iopt[14] = lsflag;
   }
+
+  return;
 }
 
 /*
@@ -235,6 +244,8 @@ void FKIN_FREE(void)
   /* restore data array in F2C_vec */
 
   N_VSetArrayPointer(data_F2C_vec, F2C_vec);
+
+  return;
 }
 
 
@@ -259,4 +270,6 @@ void FKINfunc(N_Vector uu, N_Vector fval, void *f_data)
   fdata = N_VGetArrayPointer(fval);
 
   FK_FUN(udata, fdata);
+
+  return;
 }
