@@ -1,33 +1,59 @@
 
-Create and allocate CVODE memory for forward run
+Create and allocate CVODES memory for forward run
 
 Allocate global memory
 
 Forward integration
 
-   g = int_x int_y c6(Tfinal,x,y) dx dy = 35988.913248 
+   g = int_x int_y c6(Tfinal,x,y) dx dy = 35988.916057 
 
 
-List of Check Points (ncheck = 8)
-Check point  8  addr: 0x854b678  time = [ 9.283192e+00 1.001068e+01 ]  next: 0x8533d08
-Check point  7  addr: 0x8533d08  time = [ 7.508820e+00 9.283192e+00 ]  next: 0x851c398
-Check point  6  addr: 0x851c398  time = [ 5.734448e+00 7.508820e+00 ]  next: 0x8504a28
-Check point  5  addr: 0x8504a28  time = [ 3.960076e+00 5.734448e+00 ]  next: 0x84ed0b8
-Check point  4  addr: 0x84ed0b8  time = [ 2.185705e+00 3.960076e+00 ]  next: 0x84d5748
-Check point  3  addr: 0x84d5748  time = [ 6.876642e-01 2.185705e+00 ]  next: 0x84b92b0
-Check point  2  addr: 0x84b92b0  time = [ 1.634711e-01 6.876642e-01 ]  next: 0x849ce18
-Check point  1  addr: 0x849ce18  time = [ 4.612282e-05 1.634711e-01 ]  next: 0x80cfc08
-Check point  0  addr: 0x80cfc08  time = [ 0.000000e+00 4.612282e-05 ]  next: (nil)
+List of Check Points (ncheck = 7)
+ 7  addr: 0x8538210  time = [ 8.936e+00 1.001e+01 ]  next: 0x85251f0
+ 6  addr: 0x85251f0  time = [ 4.627e+00 8.936e+00 ]  next: 0x850d640
+ 5  addr: 0x850d640  time = [ 3.109e+00 4.627e+00 ]  next: 0x84f5a90
+ 4  addr: 0x84f5a90  time = [ 1.928e+00 3.109e+00 ]  next: 0x84ddee0
+ 3  addr: 0x84ddee0  time = [ 6.835e-01 1.928e+00 ]  next: 0x84c17a0
+ 2  addr: 0x84c17a0  time = [ 1.635e-01 6.835e-01 ]  next: 0x84a5060
+ 1  addr: 0x84a5060  time = [ 4.612e-05 1.635e-01 ]  next: 0x80d2a00
+ 0  addr: 0x80d2a00  time = [ 0.000e+00 4.612e-05 ]  next: (nil)
 
 Create and allocate CVODES memory for backward run
 
 Backward integration
 
-Mu(0,x,y) written to file cvakxb.mu
+Maximum sensitivity with respect to I.C. of species 1
+  mu max = 5.040959e-04
+at
+  x = 1.000000e+00
+  y = 1.000000e+00
 
-  int_x int_y mu1(0,x,y) dx dy = 0.00049155 
-  int_x int_y mu2(0,x,y) dx dy = 0.000464768 
-  int_x int_y mu3(0,x,y) dx dy = 0.000440231 
-  int_x int_y mu4(0,x,y) dx dy = -4.7628e-13 
-  int_x int_y mu5(0,x,y) dx dy = -4.76279e-13 
-  int_x int_y mu6(0,x,y) dx dy = -4.76353e-13 
+Maximum sensitivity with respect to I.C. of species 2
+  mu max = 4.801667e-04
+at
+  x = 1.000000e+00
+  y = 1.000000e+00
+
+Maximum sensitivity with respect to I.C. of species 3
+  mu max = 4.581267e-04
+at
+  x = 1.000000e+00
+  y = 1.000000e+00
+
+Maximum sensitivity with respect to I.C. of species 4
+  mu max = 1.115565e-12
+at
+  x = 4.210526e-01
+  y = 3.157895e-01
+
+Maximum sensitivity with respect to I.C. of species 5
+  mu max = 1.113765e-12
+at
+  x = 4.210526e-01
+  y = 3.157895e-01
+
+Maximum sensitivity with respect to I.C. of species 6
+  mu max = 8.012807e-12
+at
+  x = 4.736842e-01
+  y = 4.736842e-01

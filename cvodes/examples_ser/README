@@ -1,37 +1,37 @@
 List of serial CVODES examples
 
-1. Simulation
+(1) Simulation
 
-  cvdx  :  dense example
-  cvbx  :  banded example
-  cvkx  :  Krylov example
-  cvkxb :  Krylov example with banded preconditioner
-  cvdemd: demonstration program for direct methods
-  cvdemk: demonstration program for Krylov methods
+  cvdx   : dense example
+  cvbx   : banded example
+  cvkx   : Krylov example
+  cvkxb  : Krylov example with banded preconditioner
+  cvdemd : demonstration program for direct methods
+  cvdemk : demonstration program for Krylov methods
 
-2. Forward sensitivity
+(2) Forward sensitivity
 
-  cvfnx: 1-D advection difusion PDE;
-         Adams with Functional iteration
-  cvfdx: chemical kinetics ODEs;
-         BDF with Newton Dense
-  cvfkx: 2-D 2-species diurnal advection-diffusion PDE;
-         BDF with Newton GMRES
+  cvfnx : 1-D advection difusion PDE -
+          Adams with Functional iteration
+  cvfdx : chemical kinetics ODEs -
+          BDF with Newton Dense
+  cvfkx : 2-D 2-species diurnal advection-diffusion PDE -
+          BDF with Newton GMRES
 
-3. Adjoint sensitivity
+(3) Adjoint sensitivity
 
-  cvadx  : Chemical kinetics; adjoint sensitivity
-  cvabx  : Advection-diffusion; adjoint sensitivity
-  cvakx  : Food web; adjoint sensitivity for G
-  cvakxb : Food web; adjoint sensitivity for g
+  cvadx  : chemical kinetics - adjoint sensitivity
+  cvabx  : advection-diffusion - adjoint sensitivity
+  cvakx  : food web - adjoint sensitivity for G
+  cvakxb : food web - adjoint sensitivity for g
 
 Sample results:
 
   SUNDIALS was built with the following options:
 
-  ./configure CC=gcc F77=g77 --without-mpi
+  ./configure CC=gcc F77=g77
 
   System Architecture: IA-32
   Processor Type: Intel Pentium 4 Xeon DP (i686)
-  Operating System: Red Hat Linux 7.2
-  C/Fortran Compilers: gcc/g77 v2.96 (Red Hat)
+  Operating System: Red Hat Enterprise Linux WS 3
+  C/Fortran Compilers: gcc/g77 v3.2.3-39 (Red Hat)

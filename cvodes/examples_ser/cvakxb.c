@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-09 18:46:07 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-09 23:19:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -92,7 +92,7 @@
 /* Problem Specification Constants */
 
 #define AA    ONE               /* AA = a */
-#define EE    RCONST(1e4)       /* EE = e */
+#define EE    RCONST(1.0e4)     /* EE = e */
 #define GG    RCONST(0.5e-6)    /* GG = g */
 #define BB    ONE               /* BB = b */
 #define DPREY ONE    
@@ -122,8 +122,8 @@
 
 #define NEQ   (NS*MX*MY)
 #define T0    ZERO
-#define RTOL  RCONST(1e-5)
-#define ATOL  RCONST(1e-5)
+#define RTOL  RCONST(1.0e-5)
+#define ATOL  RCONST(1.0e-5)
 
 /* Output Constants */
 
@@ -138,7 +138,7 @@
 typedef struct {
   realtype **P[NGRP];
   long int *pivot[NGRP];
-  int ns,  mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
+  int ns, mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
   realtype acoef[NS][NS], bcoef[NS], diff[NS];
@@ -151,7 +151,7 @@ typedef struct {
 
 /* Adjoint calculation constants */
 /* g = int_x int_y c(ISPEC) dy dx at t = Tfinal */
-#define NSTEPS 300 /* check points every NSTEPS steps */
+#define NSTEPS 100 /* check points every NSTEPS steps */
 #define ISPEC  6   /* species # in objective */
 
 /* Prototypes for user-supplied functions */

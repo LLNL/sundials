@@ -1,9 +1,9 @@
-Demonstration program for CVODE package - direct linear solvers
+Demonstration program for CVODES package - direct linear solvers
 
 
-Problem 1.. Van der Pol oscillator..
+Problem 1: Van der Pol oscillator
  xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0
- neq = 2,  itol = SS,  reltol = 0,  abstol = 1e-06
+ neq = 2,  itol = CV_SS,  reltol = 0,  abstol = 1e-06
 
 -------------------------------------------------------------
 
@@ -16,7 +16,7 @@ Iteration               : FUNCTIONAL
    5.82239    -1.68010e+00    2.91060e-01    4    1.4079e-01
    8.03716     9.57611e-05    3.16900e+00    5    2.0348e-02
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =   34 
  CVode integer workspace length           =   17 
@@ -42,7 +42,7 @@ Linear Solver           : Dense, User-Supplied Jacobian
    5.82239    -1.68010e+00    2.91062e-01    7    1.3038e-01
    8.03716     1.99078e-05    3.16879e+00    7    2.3923e-02
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =   34 
  CVode integer workspace length           =   17 
@@ -73,7 +73,7 @@ Linear Solver           : Dense, Difference Quotient Jacobian
    5.82239    -1.68010e+00    2.91059e-01    6    9.3514e-02
    8.03716    -9.84768e-06    3.16869e+00    6    2.8096e-02
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =   34 
  CVode integer workspace length           =   17 
@@ -104,7 +104,7 @@ Linear Solver           : Diagonal Jacobian
    5.82239    -1.68011e+00    2.91057e-01    5    9.8123e-02
    8.03716    -8.21358e-05    3.16848e+00    6    2.2328e-02
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =   34 
  CVode integer workspace length           =   17 
@@ -134,7 +134,7 @@ Iteration               : FUNCTIONAL
    5.82239    -1.68009e+00    2.91063e-01    5    1.1210e-01
    8.03716     2.20969e-04    3.16937e+00    5    1.4732e-02
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =   20 
  CVode integer workspace length           =   10 
@@ -160,7 +160,7 @@ Linear Solver           : Dense, User-Supplied Jacobian
    5.82239    -1.68010e+00    2.91061e-01    4    1.0146e-01
    8.03716     1.54312e-04    3.16917e+00    4    9.5378e-03
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =   20 
  CVode integer workspace length           =   10 
@@ -191,7 +191,7 @@ Linear Solver           : Dense, Difference Quotient Jacobian
    5.82239    -1.68010e+00    2.91062e-01    5    6.4941e-02
    8.03716     9.61737e-05    3.16899e+00    5    1.5216e-02
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =   20 
  CVode integer workspace length           =   10 
@@ -222,7 +222,7 @@ Linear Solver           : Diagonal Jacobian
    5.82239    -1.68009e+00    2.91063e-01    4    8.1261e-02
    8.03716     1.66644e-04    3.16920e+00    4    1.0547e-02
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =   20 
  CVode integer workspace length           =   10 
@@ -244,11 +244,13 @@ Linear Solver           : Diagonal Jacobian
 -------------------------------------------------------------
 -------------------------------------------------------------
 
-Problem 2.. ydot = A * y, where A is a banded lower
+Problem 2: ydot = A * y, where A is a banded lower
 triangular matrix derived from 2-D advection PDE
 
  neq = 25, ml = 5, mu = 0
- itol = SS, reltol = 0, abstol = 1e-06
+ itol = CV_SS, reltol = 0, abstol = 1e-06
+      t        max.err      qu     hu 
+
 
 -------------------------------------------------------------
 
@@ -262,7 +264,7 @@ Iteration               : FUNCTIONAL
     10.000    9.7711e-07    3     2.8481e-01
    100.000    1.5230e-07    1     6.0816e-01
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =  425 
  CVode integer workspace length           =   17 
@@ -289,7 +291,7 @@ Linear Solver           : Diagonal Jacobian
     10.000    9.7335e-07    4     3.1286e-01
    100.000    8.2265e-10    1     3.9630e+02
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =  425 
  CVode integer workspace length           =   17 
@@ -321,7 +323,7 @@ Linear Solver           : Band, User-Supplied Jacobian
     10.000    6.0790e-07    4     4.7206e-01
    100.000    5.7390e-08    2     1.0750e+01
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =  425 
  CVode integer workspace length           =   17 
@@ -353,7 +355,7 @@ Linear Solver           : Band, Difference Quotient Jacobian
     10.000    3.8507e-07    5     2.6026e-01
    100.000    4.1035e-12    1     6.2591e+01
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =  425 
  CVode integer workspace length           =   17 
@@ -384,7 +386,7 @@ Iteration               : FUNCTIONAL
     10.000    1.2861e-06    5     2.7791e-01
    100.000    1.6770e-08    1     8.7560e-01
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =  250 
  CVode integer workspace length           =   10 
@@ -411,7 +413,7 @@ Linear Solver           : Diagonal Jacobian
     10.000    1.1253e-05    4     9.7523e-02
    100.000    1.1182e-09    1     8.7300e+01
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =  250 
  CVode integer workspace length           =   10 
@@ -443,7 +445,7 @@ Linear Solver           : Band, User-Supplied Jacobian
     10.000    5.4997e-07    5     4.1661e-01
    100.000    1.7764e-09    2     2.9748e+01
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =  250 
  CVode integer workspace length           =   10 
@@ -475,7 +477,7 @@ Linear Solver           : Band, Difference Quotient Jacobian
     10.000    5.2314e-07    5     3.1091e-01
    100.000    1.4380e-09    2     2.1635e+01
 
- Final statistics for this run..
+ Final statistics for this run:
 
  CVode real workspace length              =  250 
  CVode integer workspace length           =   10 
