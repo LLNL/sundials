@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-07-27 23:52:40 $
+ * $Revision: 1.16 $
+ * $Date: 2004-08-18 19:35:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -219,7 +219,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
  *                   LIN_ILL_INPUT
  *
  *   Additionaly, if KINBBDPrecAlloc was not previously called,
- *   KINBBDSpgmr returns BBDP_NO_PDATA (defined below).
+ *   KINBBDSpgmr returns KIN_BBDP_NO_PDATA (defined below).
  * -----------------------------------------------------------------
  */
 
@@ -249,7 +249,7 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 /* return values for KINBBDPrecGet* functions */
 /* Note: OKAY = 0 */
 
-enum { BBDP_NO_PDATA = -11 };
+enum { KIN_BBDP_NO_PDATA = -11 };
 
 /* prototypes for functions KINBBDPrecSetup and KINBBDPrecSolve */
 

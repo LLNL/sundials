@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-07-28 15:27:51 $
+ * $Revision: 1.18 $
+ * $Date: 2004-08-18 19:35:23 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -191,22 +191,22 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
 
   if (p_data == NULL) {
     fprintf(errfp, MSG_NO_PDATA);
-    return(BBDP_NO_PDATA);
+    return(KIN_BBDP_NO_PDATA);
   }
 
   flag = KINSpgmr(kinmem, maxl);
-  if (flag != SUCCESS) return(flag);
+  if (flag != KIN_SUCCESS) return(flag);
 
   flag = KINSpgmrSetPrecData(kinmem, p_data);
-  if (flag != SUCCESS) return(flag);
+  if (flag != KIN_SUCCESS) return(flag);
 
   flag = KINSpgmrSetPrecSetupFn(kinmem, KINBBDPrecSetup);
-  if (flag != SUCCESS) return(flag);
+  if (flag != KIN_SUCCESS) return(flag);
 
   flag = KINSpgmrSetPrecSolveFn(kinmem, KINBBDPrecSolve);
-  if (flag != SUCCESS) return(flag);
+  if (flag != KIN_SUCCESS) return(flag);
 
-  return(SUCCESS);
+  return(KIN_SUCCESS);
 }
 
 /*
@@ -240,13 +240,13 @@ int KINBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP)
 
   if (p_data == NULL) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(BBDP_NO_PDATA);
+    return(KIN_BBDP_NO_PDATA);
   } 
 
   pdata = (KBBDPrecData) p_data;
   *leniwBBDP = pdata->ipwsize;
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 /*
@@ -261,13 +261,13 @@ int KINBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
 
   if (p_data == NULL) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(BBDP_NO_PDATA);
+    return(KIN_BBDP_NO_PDATA);
   } 
 
   pdata = (KBBDPrecData) p_data;
   *lenrwBBDP = pdata->rpwsize;
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 /*
@@ -282,13 +282,13 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 
   if (p_data == NULL) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(BBDP_NO_PDATA);
+    return(KIN_BBDP_NO_PDATA);
   } 
 
   pdata = (KBBDPrecData) p_data;
   *ngevalsBBDP = pdata->nge;
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 /*

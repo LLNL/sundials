@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-08-17 22:42:17 $
+ * $Revision: 1.15 $
+ * $Date: 2004-08-18 19:35:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -179,7 +179,7 @@ int KINSpgmr(void *kinmem, int maxl)
       (vec_tmpl->ops->nvdotprod == NULL) ||
       (vec_tmpl->ops->nvl1norm == NULL)) {
     if (errfp != NULL) fprintf(errfp, MSG_BAD_NVECTOR);
-    return(LIN_ILL_INPUT);
+    return(KIN_LIN_ILL_INPUT);
   }
 
   /* set four main function fields in kin_mem */
@@ -229,7 +229,7 @@ int KINSpgmr(void *kinmem, int maxl)
 
   lmem = kinspgmr_mem;
 
-  return(SUCCESS);
+  return(KIN_SUCCESS);
 }
 
 /*
@@ -247,13 +247,13 @@ int KINSpgmrSetMaxRestarts(void *kinmem, int maxrs)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
@@ -261,11 +261,11 @@ int KINSpgmrSetMaxRestarts(void *kinmem, int maxrs)
 
   if (maxrs < 0) {
     fprintf(errfp, MSG_KINS_NEG_MAXRS);
-    return(LIN_ILL_INPUT);
+    return(KIN_LIN_ILL_INPUT);
   }
   kinspgmr_mem->g_maxlrst = maxrs;
 
-  return(SUCCESS);
+  return(KIN_SUCCESS);
 }
 
 /*
@@ -283,18 +283,18 @@ int KINSpgmrSetPrecSetupFn(void *kinmem, KINSpgmrPrecSetupFn pset)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   kinspgmr_mem->g_pset = pset;
 
-  return(SUCCESS);
+  return(KIN_SUCCESS);
 }
 
 /*
@@ -312,18 +312,18 @@ int KINSpgmrSetPrecSolveFn(void *kinmem, KINSpgmrPrecSolveFn psolve)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   kinspgmr_mem->g_psolve = psolve;
 
-  return(SUCCESS);
+  return(KIN_SUCCESS);
 }
 
 /*
@@ -341,18 +341,18 @@ int KINSpgmrSetPrecData(void *kinmem, void *P_data)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   kinspgmr_mem->g_P_data = P_data;
 
-  return(SUCCESS);
+  return(KIN_SUCCESS);
 }
 
 /*
@@ -370,18 +370,18 @@ int KINSpgmrSetJacTimesVecFn(void *kinmem, KINSpgmrJacTimesVecFn jtimes)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   kinspgmr_mem->g_jtimes = jtimes;
 
-  return(SUCCESS);
+  return(KIN_SUCCESS);
 }
 
 /*
@@ -399,18 +399,18 @@ int KINSpgmrSetJacData(void *kinmem, void *J_data)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   kinspgmr_mem->g_J_data = J_data;
 
-  return(SUCCESS);
+  return(KIN_SUCCESS);
 }
 
 /*
@@ -429,20 +429,20 @@ int KINSpgmrGetIntWorkSpace(void *kinmem, long int *leniwSG)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
   maxl = kinspgmr_mem->g_maxl;
   *leniwSG = liw1 * (maxl + 3);
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 /*
@@ -461,20 +461,20 @@ int KINSpgmrGetRealWorkSpace(void *kinmem, long int *lenrwSG)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
   maxl = kinspgmr_mem->g_maxl;
   *lenrwSG = lrw1 * (maxl + 3) + (maxl * (maxl + 4)) + 1;
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 /*
@@ -492,18 +492,18 @@ int KINSpgmrGetNumPrecEvals(void *kinmem, long int *npevals)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   *npevals = npe;
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 /*
@@ -521,18 +521,18 @@ int KINSpgmrGetNumPrecSolves(void *kinmem, long int *npsolves)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   *npsolves = nps;
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 /*
@@ -550,18 +550,18 @@ int KINSpgmrGetNumLinIters(void *kinmem, long int *nliters)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   *nliters = nli;
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 /*
@@ -579,18 +579,18 @@ int KINSpgmrGetNumConvFails(void *kinmem, long int *nlcfails)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   *nlcfails = ncfl;
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 /*
@@ -608,18 +608,18 @@ int KINSpgmrGetNumJtimesEvals(void *kinmem, long int *njvevals)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   *njvevals = njtimes;
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 /*
@@ -637,18 +637,18 @@ int KINSpgmrGetNumFuncEvals(void *kinmem, long int *nfevalsSG)
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_SETGET_KINMEM_NULL);
-    return(LIN_NO_MEM);
+    return(KIN_LIN_NO_MEM);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
     fprintf(errfp, MSG_SETGET_LMEM_NULL);
-    return(LIN_NO_LMEM);
+    return(KIN_LIN_NO_LMEM);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
   *nfevalsSG = nfeSG;
 
-  return(OKAY);
+  return(KING_OKAY);
 }
 
 

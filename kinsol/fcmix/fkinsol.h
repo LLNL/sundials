@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-07-27 23:52:49 $
+ * $Revision: 1.19 $
+ * $Date: 2004-08-18 19:35:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -445,6 +445,6 @@ long int *KIN_iopt;
 realtype *KIN_ropt;
 
 int KIN_ls;  /* Linear Solver: 1 = SPGMR */
-enum { SPGMR = 1 };
+enum { KIN_SPGMR = 1 };
 
 #endif

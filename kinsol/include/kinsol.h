@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-07-27 23:52:40 $
+ * $Revision: 1.17 $
+ * $Date: 2004-08-18 19:35:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -299,7 +299,7 @@ void *KINCreate(void);
  *                      | [NULL]
  *                      |
  * -----------------------------------------------------------------
- * Note: If successful, these functions return SUCCESS. If an
+ * Note: If successful, these functions return KIN_SUCCESS. If an
  * argument has an illegal value, then an error message is printed
  * to the file specified by errfp and an error code is returned.
  * -----------------------------------------------------------------
@@ -327,9 +327,10 @@ int KINSetConstraints(void *kinmem, N_Vector constraints);
  * KINSet* Return Values
  * -----------------------------------------------------------------
  * The possible return values for the KINSet* subroutines are the
- * following (all but SUCCESS are prefixed by "KINS_"):
+ * following (all but KIN_SUCCESS are prefixed by "KINS_"):
  *
- * SUCCESS : means the associated variable was successfully set [0]
+ * KIN_SUCCESS : means the associated variable was successfully
+ *               set [0]
  *
  * NO_MEM : means a NULL KINSOL memory block pointer was given
  *          (must call the KINCreate and KINMalloc memory
@@ -341,7 +342,7 @@ int KINSetConstraints(void *kinmem, N_Vector constraints);
  */
 
 /* error return values for KINSet* functions */
-/* Note: SUCCESS = 0*/
+/* Note: KIN_SUCCESS = 0 */
 
 enum { KINS_NO_MEM = -1, KINS_ILL_INPUT = -2 };
 
@@ -364,7 +365,7 @@ enum { KINS_NO_MEM = -1, KINS_ILL_INPUT = -2 };
  *  tmpl  implementation-specific template vector (type N_Vector)
  *        (created using either N_VNew_Serial or N_VNew_Parallel)
  *
- * If successful, KINMalloc returns SUCCESS. If an error occurs,
+ * If successful, KINMalloc returns KIN_SUCCESS. If an error occurs,
  * then KINMalloc prints an error message and returns an error
  * code.
  * -----------------------------------------------------------------
@@ -377,10 +378,10 @@ int KINMalloc(void *kinmem, SysFn func, N_Vector tmpl);
  * KINMalloc Return Values
  * -----------------------------------------------------------------
  * The possible return values for the KINMalloc subroutine are the
- * following (all but SUCCESS are prefixed by "KINM_"):
+ * following (all but KIN_SUCCESS are prefixed by "KINM_"):
  *
- * SUCCESS : means the necessary system memory was successfully
- *           allocated [0]
+ * KIN_SUCCESS : means the necessary system memory was successfully
+ *               allocated [0]
  *
  * NO_MEM : means a NULL KINSOL memory block pointer was given
  *          (must call the KINCreate routine before calling
@@ -399,7 +400,7 @@ int KINMalloc(void *kinmem, SysFn func, N_Vector tmpl);
  */
 
 /* error return values for KINMalloc */
-/* Note: SUCCESS = 0 */
+/* Note: KIN_SUCCESS = 0 */
 
 enum { KINM_NO_MEM = -1, KINM_ILL_INPUT = -2, KINM_MEM_FAIL = -3 };
 
@@ -423,9 +424,10 @@ int KINResetSysFunc(void *kinmem, SysFn func);
  * KINResetSysFunc Return Values
  * -----------------------------------------------------------------
  * The possible return values for the KINResetSysFunc subroutine are
- * the following (all but SUCCESS are prefixed by "KINS_"):
+ * the following (all but KIN_SUCCESS are prefixed by "KINS_"):
  *
- * SUCCESS : means the associated variable was successfully set [0]
+ * KIN_SUCCESS : means the associated variable was successfully
+ *               set [0]
  *
  * NO_MEM : means a NULL KINSOL memory block pointer was given
  *          (must call the KINCreate and KINMalloc memory
@@ -482,7 +484,7 @@ int KINResetSysFunc(void *kinmem, SysFn func);
  * Note: The components of vectors u_scale and f_scale should be
  * positive.
  *
- * If successful, KINSol returns a positive value (SUCCESS,
+ * If successful, KINSol returns a positive value (KIN_SUCCESS,
  * KINSOL_INITIAL_GUESS_OK or KINSOL_STEP_LT_STPTOL) and vector uu
  * contains an approximate solution of the given nonlinear system.
  * If an error occurs, then an error message is printed and an
@@ -498,11 +500,11 @@ int KINSol(void *kinmem, N_Vector uu, int strategy,
  * KINSol Return Values
  * -----------------------------------------------------------------
  * The possible return values for the KINSol subroutine are the
- * following (all but SUCCESS are prefixed by "KINSOL_"):
+ * following (all but KIN_SUCCESS are prefixed by "KINSOL_"):
  *
- * SUCCESS : means ||fscale*ABS(func(u))||_L-infinity <= 0.01*fnormtol
- *           and the current iterate uu is probably an approximate
- *           solution of the nonlinear system F(u) = 0 [0]
+ * KIN_SUCCESS : means ||fscale*ABS(func(u))||_L-infinity <= 0.01*fnormtol
+ *               and the current iterate uu is probably an approximate
+ *               solution of the nonlinear system F(u) = 0 [0]
  *
  * INITIAL_GUESS_OK : means the initial user-supplied guess already
  *                    satisfies the stopping criterion given above
@@ -589,9 +591,9 @@ int KINSol(void *kinmem, N_Vector uu, int strategy,
 
 /* KINSol return values */
   
-enum { SUCCESS = 0, KINSOL_NO_MEM = -1, KINSOL_NO_MALLOC = -2,
+enum { KIN_SUCCESS = 0, KINSOL_NO_MEM = -1, KINSOL_NO_MALLOC = -2,
        KINSOL_INPUT_ERROR = -3, KINSOL_LSOLV_NO_MEM = -4,
-       KINSOL_INITIAL_GUESS_OK = 1,KINSOL_STEP_LT_STPTOL = 2,
+       KINSOL_INITIAL_GUESS_OK = 1, KINSOL_STEP_LT_STPTOL = 2,
        KINSOL_LNSRCH_NONCONV = -5, KINSOL_MAXITER_REACHED = -6,
        KINSOL_MXNEWT_5X_EXCEEDED = -7, KINSOL_LINESEARCH_BCFAIL = -8,
        KINSOL_KRYLOV_FAILURE = -9, KINSOL_PRECONDSET_FAILURE = -10,
@@ -666,7 +668,7 @@ int KINGetStepLength(void *kinmem, realtype *steplength);
  * KINGet* Return Values
  * -----------------------------------------------------------------
  * The possible return values for the KINSet* subroutines are the
- * following (NO_MEM is prefixed by "KING_"):
+ * following (prefixed by "KING_"):
  *
  * OKAY : means the information was successfully retrieved [0]
  * 
@@ -678,7 +680,7 @@ int KINGetStepLength(void *kinmem, realtype *steplength);
 
 /* KINGet* return values */
 
-enum { OKAY = 0, KING_NO_MEM = -1 };
+enum { KING_OKAY = 0, KING_NO_MEM = -1 };
 
 /*
  * -----------------------------------------------------------------
@@ -815,23 +817,23 @@ enum { LINIT_OK = 0, LINIT_ERR = -1 };
  * reported by KINSOL subroutines interfacing with the linear
  * solver module are the following:
  *
- * SUCCESS : means the routine exited normally [0]
+ * KIN_SUCCESS : means the routine exited normally [0]
  *
- * LIN_NO_MEM : means a NULL KINSOL memory block pointer was
- *              given (must call KINCreate and KINMalloc prior
- *              to initializing the linear solver module) [-2]
+ * KIN_LIN_NO_MEM : means a NULL KINSOL memory block pointer was
+ *                  given (must call KINCreate and KINMalloc prior
+ *                  to initializing the linear solver module) [-2]
  *
- * LIN_ILL_INPUT : means at least one input parameter was invalid
- *                 (check error message(s)) [-1]
+ * KIN_LIN_ILL_INPUT : means at least one input parameter was
+ *                     invalid (check error message(s)) [-1]
  *
- * LIN_NO_LMEM : means system memory has not yet been allocated for
- *               the linear solver module [-3]
+ * KIN_LIN_NO_LMEM : means system memory has not yet been allocated
+ *                   for the linear solver module [-3]
  * -----------------------------------------------------------------
  */
 
-/* Note: SUCCESS = 0  */
+/* Note: KIN_SUCCESS = 0  */
 
-enum { LIN_ILL_INPUT = -1, LIN_NO_MEM = -2, LIN_NO_LMEM = -3 };
+enum { KIN_LIN_ILL_INPUT = -1, KIN_LIN_NO_MEM = -2, KIN_LIN_NO_LMEM = -3 };
 
 #endif
 

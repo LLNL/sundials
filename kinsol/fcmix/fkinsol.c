@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-07-27 23:52:49 $
+ * $Revision: 1.21 $
+ * $Date: 2004-08-18 19:35:16 $
  * ----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -104,7 +104,7 @@ void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
   *ier = KINSpgmr(KIN_mem, *maxl);
   KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
 
-  KIN_ls = SPGMR;
+  KIN_ls = KIN_SPGMR;
 }
 
 /*
@@ -154,7 +154,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KINGetStepLength(KIN_mem, &KIN_ropt[3]);
 
     switch(KIN_ls) {
-    case SPGMR:
+    case KIN_SPGMR:
       KINSpgmrGetNumLinIters(KIN_mem, &nliters);
       KINSpgmrGetNumPrecEvals(KIN_mem, &npevals);
       KINSpgmrGetNumPrecSolves(KIN_mem, &npsolves);
