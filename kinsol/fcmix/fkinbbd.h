@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2005-03-19 00:10:45 $
+ * $Revision: 1.25 $
+ * $Date: 2005-03-21 23:23:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -358,7 +358,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier);
+void FKIN_BBDINIT(long int *nlocal, long int *mudq, long int *mldq,
+		  long int *mu, long int *ml, int *ier);
 void FKIN_BBDSPBCG(int *maxl, int *ier);
 void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier);
 void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
