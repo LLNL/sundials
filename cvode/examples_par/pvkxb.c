@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-10-11 20:18:03 $
+ * $Revision: 1.16 $
+ * $Date: 2004-10-18 21:53:10 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -148,8 +148,6 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 static void flocal(long int Nlocal, realtype t, N_Vector u,
                    N_Vector udot, void *f_data);
 
-static void ucomm(long int Nlocal, realtype t, N_Vector u, void *f_data);
-
 /* Private function to check function return values */
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
@@ -238,7 +236,7 @@ int main(int argc, char *argv[])
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
   pdata = CVBBDPrecAlloc(cvode_mem, local_N, mudq, mldq, 
-                         mukeep, mlkeep, 0.0, flocal, ucomm);
+                         mukeep, mlkeep, 0.0, flocal, NULL);
   if(check_flag((void *)pdata, "CVBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVBBDSpgmr to specify the linear solver CVSPGMR using the
@@ -270,7 +268,7 @@ int main(int argc, char *argv[])
     flag = CVodeReInit(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
     if(check_flag(&flag, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVBBDPrecReInit(pdata, mudq, mldq, 0.0, flocal, ucomm);
+    flag = CVBBDPrecReInit(pdata, mudq, mldq, 0.0, flocal, NULL);
     if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVSpgmrResetPrecType(cvode_mem, PREC_RIGHT);
@@ -837,13 +835,6 @@ static void flocal(long int Nlocal, realtype t, N_Vector u,
       duarray[offsetu+1] = vertd2 + hord2 + horad2 + rkin2;
     }
   }
-}
-
-/* ucomm routine.  This routine is empty, as communication needed
-   to evaluate flocal has been done in prior call to f */
-
-static void ucomm(long int Nlocal, realtype t, N_Vector u, void *f_data)
-{
 }
 
 /* Check function return value...

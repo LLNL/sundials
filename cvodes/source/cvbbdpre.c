@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-11 15:52:06 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-18 21:55:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a            
  * band-block-diagonal preconditioner, i.e. a block-diagonal       
- * matrix with banded blocks, for use with CVODE, CVSpgmr, and     
+ * matrix with banded blocks, for use with CVODES, CVSpgmr, and     
  * the parallel implementation of NVECTOR.                         
  * -----------------------------------------------------------------
  */
@@ -432,7 +432,8 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
   N_VScale(ONE, y, ytemp);
 
   /* Call cfn and gloc to get base value of g(t,y) */
-  cfn (Nlocal, t, y, f_data);
+  if (cfn != NULL)
+    cfn (Nlocal, t, y, f_data);
   gloc(Nlocal, t, ytemp, gy, f_data);
 
   /* Obtain pointers to the data for various vectors */

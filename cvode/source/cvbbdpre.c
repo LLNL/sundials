@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-10-11 15:51:01 $
+ * $Revision: 1.23 $
+ * $Date: 2004-10-18 21:53:17 $
  * ----------------------------------------------------------------- 
- * Programmers: Michael Wittman, Alan C. Hindmarsh and         
- *              Radu Serban @ LLNL                              
+ * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California .
+ * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvode/LICENSE.
@@ -432,7 +432,8 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
   N_VScale(ONE, y, ytemp);
 
   /* Call cfn and gloc to get base value of g(t,y) */
-  cfn (Nlocal, t, y, f_data);
+  if (cfn != NULL)
+    cfn (Nlocal, t, y, f_data);
   gloc(Nlocal, t, ytemp, gy, f_data);
 
   /* Obtain pointers to the data for various vectors */

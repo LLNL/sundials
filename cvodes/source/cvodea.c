@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2004-10-13 15:56:11 $
+ * $Revision: 1.32 $
+ * $Date: 2004-10-18 21:54:26 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2093,7 +2093,8 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
   } 
 
   /* Call user's adjoint cfnB routine */
-  cfn_B(NlocalB, t, ytmp, yB, f_data_B);
+  if(cfn_B != NULL)
+    cfn_B(NlocalB, t, ytmp, yB, f_data_B);
 
 }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-11 17:00:00 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-18 21:55:24 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -143,7 +143,7 @@ typedef void (*CVLocalFn)(long int Nlocal, realtype t, N_Vector y,
  * -----------------------------------------------------------------
  * Type : CVCommFn                                                
  * -----------------------------------------------------------------
- * The user must supply a function of type CVCommFn which performs
+ * The user may supply a function of type CVCommFn which performs
  * all inter-processor communication necessary to evaluate the    
  * approximate right-hand side function described above.          
  *                                                                
@@ -158,7 +158,9 @@ typedef void (*CVLocalFn)(long int Nlocal, realtype t, N_Vector y,
  *                                                                
  * Each call to the CVCommFn cfn is preceded by a call to the     
  * RhsFn f with the same (t,y) arguments.  Thus cfn can omit any  
- * communications done by f if relevant to the evaluation of g.   
+ * communications done by f if relevant to the evaluation of g.
+ * If all necessary communication was done by f, the user can
+ * pass NULL for cfn in CVBBDPrecAlloc (see below).
  * -----------------------------------------------------------------
  */
 
@@ -259,7 +261,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * the same names and meanings as those of CVBBDPrecAlloc.        
  *                                                                
  * The return value of CVBBDPrecReInit is CV_SUCCESS, indicating 
- * success, or CV_PDATA_NULL id bbd_data was NULL.  
+ * success, or CV_PDATA_NULL if bbd_data was NULL.  
  * -----------------------------------------------------------------
  */
 
