@@ -1,9 +1,9 @@
 /*************************************************************************
  * File        : kinwebp.c                                               *
  * Programmers : Allan G. Taylor and Alan C. Hindmarsh @ LLNL            *
- * Version of  : 27 June 2002                                            *
+ * Version of  : 26 July 2002                                            *
  *-----------------------------------------------------------------------*
- * Modified by R. Serban to work with new parallel nvector (7/3/2002)    *
+ * Modified by R. Serban to work with new parallel NVECTOR 7 March 2002. *
  *-----------------------------------------------------------------------*
  * Example problem for KINSol, parallel machine case.
  * This example solves a nonlinear system that arises from a system of  
@@ -74,14 +74,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"    /* definitions of realtype, integertype, booleantype */
-#include "kinsol.h"           /* main KINSol header file                           */
-#include "iterativ.h"         /* contains the enum for types of preconditioning    */
-#include "kinspgmr.h"         /* use KINSpgmr linear solver                        */
-#include "smalldense.h"       /* use generic DENSE solver for preconditioning      */
-#include "nvector_parallel.h" /* definitions of type N_Vector, and access macros   */
-#include "sundialsmath.h"     /* contains RSqrt and UnitRoundoff routines          */
-#include "mpi.h"              /* MPI include file                                  */
+#include "sundialstypes.h"    /* def's of realtype, integertype, booleantype  */
+#include "kinsol.h"           /* main KINSol header file                      */
+#include "iterativ.h"         /* enum for types of preconditioning            */
+#include "kinspgmr.h"         /* use KINSpgmr linear solver                   */
+#include "smalldense.h"       /* use generic DENSE solver for preconditioning */
+#include "nvector_parallel.h" /* definitions of type N_Vector, access macros  */
+#include "sundialsmath.h"     /* contains RSqrt and UnitRoundoff routines     */
+#include "mpi.h"              /* MPI include file                             */
 
 /* Problem Constants */
 
@@ -90,15 +90,15 @@
 
 #define PI       3.1415926535898   /* pi */ 
 
-#define NPEX        2            /* number of processors in the x-direction */
-#define NPEY        2            /* number of processors in the y-direction */
-#define MXSUB       10           /* MXSUB = number of x mesh points per subgrid */
-#define MYSUB       10           /* MYSUB = number of y mesh points per subgrid */
+#define NPEX        2            /* number of processors in the x-direction  */
+#define NPEY        2            /* number of processors in the y-direction  */
+#define MXSUB       10           /* number of x mesh points per subgrid      */
+#define MYSUB       10           /* number of y mesh points per subgrid      */
 #define MX          (NPEX*MXSUB) /* number of mesh points in the x-direction */
 #define MY          (NPEY*MYSUB) /* number of mesh points in the y-direction */
 #define NSMXSUB     (NUM_SPECIES * MXSUB)
 #define NSMXSUB2    (NUM_SPECIES * (MXSUB+2))
-#define NEQ         (NUM_SPECIES * MX * MY)  /* number of equations in the system */
+#define NEQ         (NUM_SPECIES*MX*MY)  /* number of equations in the system */
 #define AA          RCONST(1.0)    /* value of coefficient AA in above eqns */
 #define EE          RCONST(10000.) /* value of coefficient EE in above eqns */
 #define GG          RCONST(0.5e-6) /* value of coefficient GG in above eqns */
@@ -162,23 +162,25 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
                       integertype isubx, integertype isuby,
                       integertype dsizex, integertype dsizey,
                       realtype *cext, realtype *buffer);
-static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
-                      integertype dsizex, realtype *cext, realtype *buffer);
+static void BRecvWait(MPI_Request request[], integertype isubx,
+                      integertype isuby, integertype dsizex, realtype *cext,
+                      realtype *buffer);
 static void ccomm(integertype Neq, realtype *cdata, UserData data);
-static void fcalcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data);
+static void fcalcprpr(integertype Neq, N_Vector cc, N_Vector fval,void *f_data);
 
 
 /* Functions Called by the KINSol Solver */
 
 static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data);
 
-static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale, N_Vector fval,
-                     N_Vector fscale, N_Vector vtemp1, N_Vector vtemp2, 
-                     SysFn func, realtype uround, long int *nfePtr, void *P_data);
+static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale,
+                     N_Vector fval, N_Vector fscale, N_Vector vtemp1,
+                     N_Vector vtemp2, SysFn func, realtype uround,
+                     long int *nfePtr, void *P_data);
 
 static int PSolvebd(integertype Neq, N_Vector cc, N_Vector cscale,
                     N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
-                    SysFn func, realtype uround, long int *nfePtr, void *P_data);
+                    SysFn func, realtype uround, long int *nfePtr,void *P_data);
 
 
 /***************************** Main Program ******************************/
@@ -187,7 +189,7 @@ int main(int argc, char *argv[])
 
 {
   M_Env machEnv;
-  integertype Neq=NEQ;
+  integertype Neq = NEQ;
   integertype globalstrategy, i, local_N;
   realtype fnormtol, scsteptol, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
@@ -196,8 +198,7 @@ int main(int argc, char *argv[])
   int flag, maxl, maxlrst;
   int my_pe, npes, npelast = NPEX*NPEY-1;
   booleantype optIn;
-  void *mem;
-  KINMem kmem;
+  void *kmem;
   MPI_Comm comm;
 
   /* Get processor number and total number of pe's */
@@ -231,9 +232,9 @@ int main(int argc, char *argv[])
 
   /* Example of changing defaults using iopt */
   optIn = TRUE; 
-  for(i=0;i<KINSOL_IOPT_SIZE;i++) iopt[i]=0; 
-  for(i=0;i<KINSOL_ROPT_SIZE;i++) ropt[i]=ZERO;
-  iopt[MXITER]=250; 
+  for(i=0; i<KINSOL_IOPT_SIZE; i++) iopt[i] = 0; 
+  for(i=0; i<KINSOL_ROPT_SIZE; i++) ropt[i] = ZERO;
+  iopt[MXITER] = 250; 
   
   /* Set global strategy flag */
   globalstrategy = INEXACT_NEWTON;
@@ -253,29 +254,27 @@ int main(int argc, char *argv[])
      Neq      is the number of equations in the system being solved
      NULL     directs error messages to stdout
      machEnv  points to machine environment data
-     A pointer to KINSOL problem memory is returned and stored in kinsol_mem.*/
+     A pointer to KINSOL problem memory is returned and stored in kmem. */
   
-  mem = KINMalloc(Neq, NULL, machEnv);
+  kmem = KINMalloc(Neq, NULL, machEnv);
   
-  if (mem == NULL) {
-    if (my_pe == 0) printf("KINMalloc failed.");
-    return(1);
+  if (kmem == NULL) {
+    if (my_pe == 0) printf("KINMalloc failed."); return(1);
   }
-  kmem = (KINMem)mem;
   
   /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
      routines Precondbd and PSolvebd, and the pointer to the user data block. */
   
   maxl = 20; maxlrst = 2;
   flag = KINSpgmr(kmem,
-                  maxl,      /*  max. dimension of the Krylov subspace in SPGMR */
+                  maxl,      /*  max. dimension of the SPGMR Krylov subspace */
                   maxlrst,   /*  max number of SPGMR restarts */
                   0,         /*  0 forces use of default for msbpre, the max.
                                  number of nonlinear steps between calls to the
                                  preconditioner setup routine */
                   Precondbd, /* user-supplied preconditioner setup routine */
                   PSolvebd,  /* user-supplied preconditioner solve routine */
-                  NULL,      /* user-supplied ATimes routine -- Null here */
+                  NULL,      /* user-supplied ATimes routine -- NULL here */
                   data);     /* pointer to the user-defined data block */
   
   if (flag != 0) {
@@ -311,7 +310,7 @@ int main(int argc, char *argv[])
   
   flag = KINSol(kmem,           /* KINSol memory block */
                 Neq,            /* system size -- number of equations  */
-                cc,             /* solution vector, and initial guess on input */
+                cc,             /* initial guess on input; solution vector */
                 funcprpr,       /* function describing the system equations */
                 globalstrategy, /* global stragegy choice */
                 sc,             /* scaling vector for the variable cc */
@@ -329,7 +328,7 @@ int main(int argc, char *argv[])
     return(flag);
   }
   
-  if (my_pe == 0) printf("\n\n\nComputed equilibrium species concentrations:\n");
+  if (my_pe == 0)printf("\n\n\nComputed equilibrium species concentrations:\n");
   if (my_pe == 0 || my_pe==npelast) PrintOutput(my_pe, comm, cc);
   
   
@@ -513,7 +512,7 @@ static void PrintOutput(integertype my_pe, MPI_Comm comm, N_Vector cc)
 
   ct = NV_DATA_P(cc);
   
-  /* send the cc values (for all species) at the top right mesh point to PE 0 */
+  /* Send the cc values (for all species) at the top right mesh point to PE 0 */
   if(my_pe == npelast){
     i0 = NUM_SPECIES*(MXSUB*MYSUB-1);
     if(npelast!=0)
@@ -527,7 +526,7 @@ static void PrintOutput(integertype my_pe, MPI_Comm comm, N_Vector cc)
   if(my_pe == 0) {
     
     if(npelast != 0)
-      MPI_Recv(&tempc[0],NUM_SPECIES,PVEC_REAL_MPI_TYPE, npelast,0,comm,&status);
+      MPI_Recv(&tempc[0],NUM_SPECIES,PVEC_REAL_MPI_TYPE,npelast,0,comm,&status);
     
     printf("\nAt bottom left:");
     for(is=0;is<NUM_SPECIES;is++){
@@ -609,9 +608,9 @@ static void BSend(MPI_Comm comm, integertype my_pe,
  
 /* Routine to start receiving boundary data from neighboring PEs.
    Notes:
-   1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries, should be
-   passed to both the BRecvPost and BRecvWait functions, and should not
-   be manipulated between the two calls.
+   1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
+   should be passed to both the BRecvPost and BRecvWait functions, and
+   should not be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
@@ -652,13 +651,14 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
 
 /* Routine to finish receiving boundary data from neighboring PEs.
    Notes:
-   1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries, should be
-   passed to both the BRecvPost and BRecvWait functions, and should not
-   be manipulated between the two calls.
+   1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
+   should be passed to both the BRecvPost and BRecvWait functions, and
+   should not be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
-                      integertype dsizex, realtype *cext, realtype *buffer)
+static void BRecvWait(MPI_Request request[], integertype isubx,
+                      integertype isuby, integertype dsizex, realtype *cext,
+                      realtype *buffer)
 {
   int i, ly;
   integertype dsizex2, offsetce, offsetbuf;
@@ -769,8 +769,8 @@ static void fcalcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
     offsetce = offsetce + nsmxsub2;
   }
 
-  /* To facilitate homogeneous Neumann boundary conditions, when this is
-  a boundary PE, copy data from the first interior mesh line of cc to cext */
+  /* To facilitate homogeneous Neumann boundary conditions, when this is a
+  boundary PE, copy data from the first interior mesh line of cc to cext   */
 
   /* If isuby = 0, copy x-line 2 of cc to cext */
   if (isuby == 0) {
@@ -857,8 +857,8 @@ static void fcalcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
 /***************** Functions Called by the KINSol Solver *****************/
 
 
-/* system function routine.  Evaluate funcprpr(cc).  First call ccomm to do 
-   communication of  subgrid boundary data into cext.  Then calculate funcprpr
+/* System function routine.  Evaluate funcprpr(cc).  First call ccomm to do 
+   communication of subgrid boundary data into cext.  Then calculate funcprpr
    by a call to fcalcprpr. */
 
 static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
@@ -887,7 +887,7 @@ static void funcprpr(integertype Neq, N_Vector cc, N_Vector fval, void *f_data)
 static int Precondbd(integertype Neq, N_Vector cc, N_Vector cscale,
                      N_Vector fval, N_Vector fscale,
                      N_Vector vtemp1, N_Vector vtemp2, 
-                     SysFn func, realtype uround, long int *nfePtr, void *P_data)
+                     SysFn func, realtype uround, long int *nfePtr,void *P_data)
 {
   realtype r, r0, sqruround, xx, yy, delx, dely, csave, fac;
   realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
