@@ -3,7 +3,7 @@
  * File          : cvdense.h                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -81,7 +81,7 @@ enum { DENSE_NJE=CVODE_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  * A dense Jacobian approximation function Jac must have the      *
  * prototype given below. Its parameters are:                     *
  *                                                                *
- * N is the length of all vector arguments.                       *
+ * n is the length of all vector arguments.                       *
  *                                                                *
  * J is the dense matrix (of type DenseMat) that will be loaded   *
  * by a CVDenseJacFn with an approximation to the Jacobian matrix *
@@ -90,18 +90,18 @@ enum { DENSE_NJE=CVODE_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  * loaded. Two efficient ways to load J are:                      *
  *                                                                *
  * (1) (with macros - no explicit data structure references)      *
- *     for (j=0; j < N; j++) {                                    *
+ *     for (j=0; j < n; j++) {                                    *
  *       col_j = DENSE_COL(J,j);                                  *
- *       for (i=0; i < N; i++) {                                  *
+ *       for (i=0; i < n; i++) {                                  *
  *         generate J_ij = the (i,j)th Jacobian element           *
  *         col_j[i] = J_ij;                                       *
  *       }                                                        *
  *     }                                                          *
  *                                                                *  
  * (2) (without macros - explicit data structure references)      *
- *     for (j=0; j < N; j++) {                                    *
+ *     for (j=0; j < n; j++) {                                    *
  *       col_j = (J->data)[j];                                    *
- *       for (i=0; i < N; i++) {                                  *
+ *       for (i=0; i < n; i++) {                                  *
  *         generate J_ij = the (i,j)th Jacobian element           *
  *         col_j[i] = J_ij;                                       *
  *       }                                                        *
@@ -110,11 +110,6 @@ enum { DENSE_NJE=CVODE_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  * The DENSE_ELEM(A,i,j) macro is appropriate for use in small    *
  * problems in which efficiency of access is NOT a major concern. *
  *                                                                *
- * f is the right hand side function for the ODE problem.         *
- *                                                                *
- * f_data is a pointer to user data to be passed to f, the same   *
- *        as the F_data parameter passed to CVodeMalloc.          *
- *                                                                *
  * t is the current value of the independent variable.            *
  *                                                                *
  * y is the current value of the dependent variable vector,       *
@@ -122,33 +117,18 @@ enum { DENSE_NJE=CVODE_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  *                                                                *
  * fy is the vector f(t,y).                                       *
  *                                                                *
- * ewt is the error weight vector.                                *
- *                                                                *
- * h is a tentative step size in t.                               *
- *                                                                *
- * uround is the machine unit roundoff.                           *
- *                                                                *
  * jac_data is a pointer to user data - the same as the jac_data  *
  *          parameter passed to CVDense.                          *
  *                                                                *
- * nfePtr is a pointer to the memory location containing the      *
- * CVODE problem data nfe = number of calls to f. The Jacobian    *
- * routine should update this counter by adding on the number     *
- * of f calls made in order to approximate the Jacobian, if any.  *
- * For example, if the routine calls f a total of N times, then   *
- * the update is *nfePtr += N.                                    *
- *                                                                *
- * vtemp1, vtemp2, and vtemp3 are pointers to memory allocated    *
- * for vectors of length N which can be used by a CVDenseJacFn    *
+ * tmp1, tmp2, and tmp3 are pointers to memory allocated for      *
+ * vectors of length N which can be used by a CVDenseJacFn        *
  * as temporary storage or work space.                            *
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVDenseJacFn)(integertype N, DenseMat J, RhsFn f, void *f_data,
-                             realtype t, N_Vector y, N_Vector fy, N_Vector ewt,
-                             realtype h, realtype uround, void *jac_data,
-                             long int *nfePtr, N_Vector vtemp1,
-                             N_Vector vtemp2, N_Vector vtemp3);
+typedef void (*CVDenseJacFn)(integertype n, DenseMat J, realtype t, 
+                             N_Vector y, N_Vector fy, void *jac_data,
+                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
  
  
 /******************************************************************
@@ -160,6 +140,8 @@ typedef void (*CVDenseJacFn)(integertype N, DenseMat J, RhsFn f, void *f_data,
  *                                                                *
  * cvode_mem is the pointer to CVODE memory returned by           *
  *              CVodeMalloc.                                      *
+ *                                                                * 
+ * n is the length of all vector arguments.                       *
  *                                                                *
  * djac is the dense Jacobian approximation routine to be used.   *
  *         A user-supplied djac routine must be of type           *
@@ -183,7 +165,8 @@ typedef void (*CVDenseJacFn)(integertype N, DenseMat J, RhsFn f, void *f_data,
  *                                                                *
  ******************************************************************/
   
-int CVDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data);
+int CVDense(void *cvode_mem, integertype n, 
+            CVDenseJacFn djac, void *jac_data);
 
 
 /******************************************************************

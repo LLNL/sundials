@@ -3,7 +3,7 @@
  * File          : cvdense.c                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -56,19 +56,21 @@
 
 typedef struct {
 
-    CVDenseJacFn d_jac;    /* jac = Jacobian routine to be called    */
+  integertype d_N;       /* problem dimension                      */
 
-    DenseMat d_M;          /* M = I - gamma J, gamma = h / l1        */
-
-    integertype *d_pivots; /* pivots = pivot array for PM = LU       */
-
-    DenseMat d_savedJ;     /* savedJ = old Jacobian                  */
-
-    long int  d_nstlj;     /* nstlj = nst at last Jacobian eval.     */
-    
-    long int d_nje;        /* nje = no. of calls to jac              */
-
-    void *d_J_data;        /* J_data is passed to jac                */
+  CVDenseJacFn d_jac;    /* jac = Jacobian routine to be called    */
+  
+  DenseMat d_M;          /* M = I - gamma J, gamma = h / l1        */
+  
+  integertype *d_pivots; /* pivots = pivot array for PM = LU       */
+  
+  DenseMat d_savedJ;     /* savedJ = old Jacobian                  */
+  
+  long int  d_nstlj;     /* nstlj = nst at last Jacobian eval.     */
+  
+  long int d_nje;        /* nje = no. of calls to jac              */
+  
+  void *d_J_data;        /* J_data is passed to jac                */
 
 } CVDenseMemRec, *CVDenseMem;
 
@@ -86,79 +88,13 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
 
 static void CVDenseFree(CVodeMem cv_mem);
 
-static void CVDenseDQJac(integertype N, DenseMat J, RhsFn f, void *f_data, 
-                         realtype t, N_Vector y, N_Vector fy, N_Vector ewt, 
-                         realtype h, realtype uround, void *jac_data, 
-                         long int *nfePtr, N_Vector vtemp1,
-                         N_Vector vtemp2, N_Vector vtemp3);
-
-
-/*************** CVDenseDQJac ****************************************
-
- This routine generates a dense difference quotient approximation to
- the Jacobian of f(t,y). It assumes that a dense matrix of type
- DenseMat is stored column-wise, and that elements within each column
- are contiguous. The address of the jth column of J is obtained via
- the macro DENSE_COL and an N_Vector with the jth column as the
- component array is created using N_VMake and N_VSetData. Finally, the
- actual computation of the jth column of the Jacobian is done with a
- call to N_VLinearSum.
-
-**********************************************************************/
- 
-static void CVDenseDQJac(integertype N, DenseMat J, RhsFn f, void *f_data, 
-                         realtype tn, N_Vector y, N_Vector fy, N_Vector ewt, 
-                         realtype h, realtype uround, void *jac_data, 
-                         long int *nfePtr, N_Vector vtemp1,
-                         N_Vector vtemp2, N_Vector vtemp3)
-{
-  realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
-  realtype *y_data, *ewt_data;
-  N_Vector ftemp, jthCol;
-  M_Env machEnv;
-  integertype j;
-
-  machEnv = y->menv; /* Get machine environment */
-
-  ftemp = vtemp1; /* Rename work vector for use as f vector value */
-
-  /* Obtain pointers to the data for ewt, y */
-  ewt_data   = N_VGetData(ewt);
-  y_data     = N_VGetData(y);
-
-  /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
-  fnorm = N_VWrmsNorm(fy, ewt);
-  minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
-
-  jthCol = N_VMake(N, y_data, machEnv); /* j loop overwrites this data address */
-
-  /* This is the only for loop for 0..N-1 in CVODE */
-  for (j = 0; j < N; j++) {
-
-    /* Generate the jth col of J(tn,y) */
-    
-    N_VSetData(DENSE_COL(J,j), jthCol);
-    yjsaved = y_data[j];
-    inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
-    y_data[j] += inc;
-    f(N, tn, y, ftemp, f_data);
-    inc_inv = ONE/inc;
-    N_VLinearSum(inc_inv, ftemp, -inc_inv, fy, jthCol);
-    y_data[j] = yjsaved;
-  }
-
-  N_VDispose(jthCol);
-
-  /* Increment counter nfe = *nfePtr */
-  *nfePtr += N;
-}
+static void CVDenseDQJac(integertype n, DenseMat J, realtype t, 
+                         N_Vector y, N_Vector fy, void *jac_data, 
+                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 
 /* Readability Replacements */
 
-#define N         (cv_mem->cv_N)
 #define lmm       (cv_mem->cv_lmm)
 #define f         (cv_mem->cv_f)
 #define f_data    (cv_mem->cv_f_data)
@@ -181,6 +117,7 @@ static void CVDenseDQJac(integertype N, DenseMat J, RhsFn f, void *f_data,
 #define setupNonNull (cv_mem->cv_setupNonNull)
 #define machenv   (cv_mem->cv_machenv)
 
+#define N         (cvdense_mem->d_N)
 #define jac       (cvdense_mem->d_jac)
 #define M         (cvdense_mem->d_M)
 #define pivots    (cvdense_mem->d_pivots)
@@ -216,7 +153,7 @@ static void CVDenseDQJac(integertype N, DenseMat J, RhsFn f, void *f_data,
 
 **********************************************************************/
 
-int CVDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data)
+int CVDense(void *cvode_mem, integertype n, CVDenseJacFn djac, void *jac_data)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
@@ -256,12 +193,16 @@ int CVDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data)
   /* Set Jacobian routine field, J_data, and setupNonNull */
   if (djac == NULL) {
     jac = CVDenseDQJac;
+    J_data = cvode_mem;
   } else {
     jac = djac;
+    J_data = jac_data;
   }
-  J_data = jac_data;
   setupNonNull = TRUE;
   
+  /* Set problem dimension */
+  N = n;
+
   /* Allocate memory for M, savedJ, and pivot array */
   
   M = DenseAllocMat(N);
@@ -329,10 +270,11 @@ int CVReInitDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data)
   /* Set Jacobian routine field, J_data, and setupNonNull */
   if (djac == NULL) {
     jac = CVDenseDQJac;
+    J_data = cvode_mem;
   } else {
     jac = djac;
+    J_data = jac_data;
   }
-  J_data = jac_data;
   setupNonNull = TRUE;
 
   return(SUCCESS);
@@ -404,8 +346,7 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlj = nst;
     *jcurPtr = TRUE;
     DenseZero(M); 
-    jac(N, M, f, f_data, tn, ypred, fpred, ewt, h,
-        uround, J_data, &nfe, vtemp1, vtemp2, vtemp3);
+    jac(N, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
     DenseCopy(M, savedJ);
   }
   
@@ -465,3 +406,66 @@ static void CVDenseFree(CVodeMem cv_mem)
   DenseFreePiv(pivots);
   free(cvdense_mem);
 }
+
+/*************** CVDenseDQJac ****************************************
+
+ This routine generates a dense difference quotient approximation to
+ the Jacobian of f(t,y). It assumes that a dense matrix of type
+ DenseMat is stored column-wise, and that elements within each column
+ are contiguous. The address of the jth column of J is obtained via
+ the macro DENSE_COL and an N_Vector with the jth column as the
+ component array is created using N_VMake and N_VSetData. Finally, the
+ actual computation of the jth column of the Jacobian is done with a
+ call to N_VLinearSum.
+
+**********************************************************************/
+ 
+static void CVDenseDQJac(integertype n, DenseMat J, realtype t, 
+                         N_Vector y, N_Vector fy, void *jac_data, 
+                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
+  realtype *y_data, *ewt_data;
+  N_Vector ftemp, jthCol;
+  integertype j;
+
+  CVodeMem cv_mem;
+
+  /* jac_dat points to cvode_mem */
+  cv_mem = (CVodeMem) jac_data;
+
+  ftemp = tmp1; /* Rename work vector for use as f vector value */
+
+  /* Obtain pointers to the data for ewt, y */
+  ewt_data   = N_VGetData(ewt);
+  y_data     = N_VGetData(y);
+
+  /* Set minimum increment based on uround and norm of f */
+  srur = RSqrt(uround);
+  fnorm = N_VWrmsNorm(fy, ewt);
+  minInc = (fnorm != ZERO) ?
+           (MIN_INC_MULT * ABS(h) * uround * n * fnorm) : ONE;
+
+  jthCol = N_VMake(y_data, machenv); /* j loop overwrites this data address */
+
+  /* This is the only for loop for 0..N-1 in CVODE */
+  for (j = 0; j < n; j++) {
+
+    /* Generate the jth col of J(tn,y) */
+    
+    N_VSetData(DENSE_COL(J,j), jthCol);
+    yjsaved = y_data[j];
+    inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
+    y_data[j] += inc;
+    f(t, y, ftemp, f_data);
+    inc_inv = ONE/inc;
+    N_VLinearSum(inc_inv, ftemp, -inc_inv, fy, jthCol);
+    y_data[j] = yjsaved;
+  }
+
+  N_VDispose(jthCol);
+
+  /* Increment counter nfe = *nfePtr */
+  nfe += n;
+}
+
