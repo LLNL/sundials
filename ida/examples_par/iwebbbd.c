@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-10-22 20:41:26 $
+ * $Revision: 1.15 $
+ * $Date: 2004-10-25 19:47:32 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -152,7 +152,7 @@
  * species index is = 0, x-index ix = i, and y-index jy = j.                
  */
 
-#define IJ_Vptr(vv,i,j) (&NV_Ith_P(vv, i*NUM_SPECIES + j*NSMXSUB ))
+#define IJ_Vptr(vv,i,j) (&NV_Ith_P(vv, (i)*NUM_SPECIES + (j)*NSMXSUB ))
 
 /* Type: UserData.  Contains problem constants, preconditioner data, etc. */
 
@@ -206,7 +206,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector scrtch, UserData webdata);
 
 static void PrintOutput(void *mem, N_Vector cc, realtype time,
-                        UserData webdata, void *P_data,  MPI_Comm comm);
+                        UserData webdata, MPI_Comm comm);
 
 static void PrintFinalStats(void *mem, void *P_data);
 
@@ -346,10 +346,9 @@ int main(int argc, char *argv[])
     printf("  t        bottom-left  top-right");
     printf("    | nst  k      h\n");
     printf("-----------------------------------------------------------\n\n");
-
   }
 
-  PrintOutput(mem, cc, t0, webdata, P_data, comm);
+  PrintOutput(mem, cc, t0, webdata, comm);
 
   /* Call IDA in tout loop, normal mode, and print selected output. */
   
@@ -358,7 +357,7 @@ int main(int argc, char *argv[])
     retval = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
     if(check_flag(&retval, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
     
-    PrintOutput(mem, cc, tret, webdata, P_data, comm);
+    PrintOutput(mem, cc, tret, webdata, comm);
     
     if (iout < 3) tout *= TMULT; 
     else          tout += TADD;
@@ -523,7 +522,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  */
 
 static void PrintOutput(void *mem, N_Vector cc, realtype tt,
-                        UserData webdata, void *P_data, MPI_Comm comm)
+                        UserData webdata, MPI_Comm comm)
 {
   MPI_Status status;
   realtype *cdata, clast[2], hused;
