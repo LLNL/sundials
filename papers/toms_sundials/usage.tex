@@ -1,59 +1,103 @@
 \section{Usage}
 
-Because of space limitations, we will not describe in complete detail
-the user interface for any of the SUNDIALS solvers here.  These are
-given in the documentation that accompanies each solver.  However, in
-order to convey the basic features of these interfaces, we give here a
-summary of the usage of the parallel version of CVODE.  The usage
-of the other solvers is quite similar.
+A brief outline is given for using the serial version of CVODE to solve
+a nonstiff initial-value problem.
+This example conveys the basic elements of including appropriate
+header files; declaring function prototypes and user-supplied data
+structures; creating, manipulating, and freeing N\_Vector and CVODE
+memory; 
+calling CVODE to solve the initial-value problem; etc.
+Complete details and additional examples are in the documentation that
+accompanies each solver in SUNDIALS.
 
-For users accustomed to Fortan ODE solvers, using CVODE is quite
-different, in that one calls several different routines for the
-different parts of the solution process.  The following is a template
-for the usage of parallel CVODE:
+\begin{enumerate}
+\item With a {\bf \#include} statement, the following header files must be
+specified for this example: {\bf ``sundialstypes.h''} for defining
+real, integer and boolean types; {\bf ``nvector\_serial.h''} for
+defining the content and operations that can be performed on vectors
+in a serial machine environment; and, {\bf ``cvode.h''} for defining
+operations involving CVODE memory. Of course, if the solution process
+requires the use of preconditioning and/or linear solver methods then
+the appropriate set of header files must also be added.
 
-\begin{itemize}
+\item In defining a C routine that calculates the derivatives
+$u'=f(t,u)$, the right-hand side function must have the prototype \\
+{\bf static void f(realtype t, N\_Vector u, N\_Vector udot, void
+*f\_data);} \\
+in which {f\_data} is an optional user-defined data structure
+that may be used in calculating the derivative values returned in {udot}.
 
-\item Set local and global vector lengths, and specify active
-processors (MPI communicator)
+\item Within the main program, the user should begin with declarations such as
+\\
+{\bf realtype t;~},{\bf NV\_Spec nvSpec;~}, {\bf N\_Vector u;~}, {\bf
+void *cvode\_mem;~} \\
+for defining the time variable $t$, the vector specification data structure, the
+solution $u$, and a pointer to CVODE memory, respectively.
+Additional declarations may include loop counters or status flags of
+type {int}, absolute and relative ODE error tolerances of type
+{N\_Vector} and/or {realtype}, and user-defined data structures
+for preconditioning and/or evaluating $f(t,u)$.
 
-\item {\tt machEnv =  M\_EnvInit\_Parallel(comm, Nlocal, N, ...)}:
-initialize NVECTOR\_- \newline PARALLEL
+\item The routines {\bf NV\_SpecInit\_Serial} and {\bf N\_VNew} must be called for
+allocating memory for the vector specification data structure (nvSpec)
+and any N\_Vector types such as u.  The argument list and user
+description of each routine is given in the header files
+``nvector\_serial.h'' and ``nvector.h''.
 
-\item Set initial values of $t$ and $y$ (type {\tt N\_Vector})
+\item Before leaving this step, the ODE problem to be solved should be completely
+specified: the initial value for time $t$, initial conditions for $u$,
+absolute and relative error tolerances (atol, rtol), and the next time
+($t_{\rm out}$) at which output is desired.
 
-\item {\tt mem = CVodeMalloc(...)}: initialize CVODE (provide {\tt f},
-method options, tolerances, and allocate internal memory)
+\item The next phase initializes CVODE memory and
+allows the user to set different default values for the solver.
+As described in ``cvode.h'', CVODE memory can be initialized with \\
+{\bf cvode\_mem = CVodeCreate(ADAMS, FUNCTIONAL)}\\
+if we want functional iteration to be used within Adams method for
+solving the nonstiff initial-value problem.
+By default, the maximum order used for the Adams method is 12 but 
+{\bf CVodeSetMaxOrd} can be called to set it to a lower value.
+CVODE contains eight other optional set routines, including
+{\bf CVodeSetFdata} for passing the optional user-defined data
+structure f\_data to the user's f() routine.
+The CVODE memory allocation is finalized with a call such as \\
+{\bf flag = CVodeMalloc(cvode\_mem, f, t0, u, SS, \&rtol, \&atol,
+nvSpec);} \\
+in which $t0$ and $u$ define the initial conditions.
 
-\item {\tt CVSpgmr(...)}: if using Newton iteration, specify SPGMR
-(as linear solver) and routines for preconditioner setup and solve
+\item Although not needed in this example involving functional
+iteration (i.e., no linear systems are solved), typically this step
+involves the specification and attachment of desired preconditioning
+and/or linear solver methods to CVODE memory. To do so, the
+appropriate set of header files need to be specified in Step 1 with
+calls made at this step according to the descriptions provided in
+those header files.
 
-\item {\tt for (tout=...) ier = CVode(...)}: integrate system to
-$t =$ {\tt tout}
+\item At this point, {\bf CVode} can be called to integrate the
+problem in the direction from $t$ to $t_{\rm out}$. The call to the
+integrator includes an option to specify either one-step mode (take
+one step and return) or normal mode (take steps until passing 
+$t_{\rm out}$ and interpolate).
+For the latter, \\
+{\bf flag = CVode(cvode\_mem, tout, u, \&t, NORMAL);} \\
+computes the solution $u$ at time $t_{\rm out}$. Note that to compute
+solutions at additional points in time, the call to CVode can be
+embedded in a for-loop.
 
-\item {\tt CVodeFree}: free CVODE memory
+\item At each output time or before exiting the program, the solution
+and solver statistics can be obtained by using various routines such
+as {\bf CVodeGetNumSteps} to determine the cumulative number of
+internal time steps taken taken by the solver, or {\bf
+CVodeGetNumRhsEvals} to determine the number of calls to the user's
+f() routine. A total of 16 such routines are given in ``cvode.h''.
 
-\item {\tt M\_EnvFree\_Parallel(machEnv)}: free NVECTOR\_PARALLEL memory
+\item The memory allocated in Steps 4--6 can be freed by at least calling
+{\bf CVodeFree(cvode\_mem);~}, {\bf N\_VFree(u);~}, and {\bf
+NV\_SpecFree\_Serial(nvSpec);}. Of course, the user must free other
+allocated memory or user-defined data structures if necessary---and do so in the
+correct order.
 
-\end{itemize}
-
-In addition to the name of the user function defining $f$ and the
-initial conditions, the call to {\tt CVodeMalloc} also specifies the
-ODE method (Adams or BDF), Newton iteration or functional iteration,
-and tolerances.  CVODE controls numerical errors by way of two input
-tolerances:
-\vspace*{-.19in}
-\begin{itemize}
-\item {\tt rtol} = scalar relative tolerance
-\item {\tt atol} = absolute tolerance = scalar or vector
-\end{itemize}
-The resulting error weights ~~{\tt rtol}$|y^i| + ${\tt atol}$^i~~$ are
-used to scale all vectors in the control of the local integration
-error, and are also used to scale the GMRES algoritm.
-
-The call to the integrator {\tt CVode} includes an option to specify
-either the normal mode (take steps until passing {\tt tout} and
-interpolate) or one-step mode (take one step and return).
+\end{enumerate}
 
 
 \section{Fortran Usage}
