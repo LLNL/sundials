@@ -1,0 +1,68 @@
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+#--------------------------------------------------------------------------------
+# Makefile for the IDAS package.
+# @configure_input@
+#--------------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# IDAS and SHARED include directories
+SHARED_INC_DIR = ../../shared/include
+IDAS_INC_DIR  = ../include
+
+# IDAS library name
+IDAS_LIB = libidas.a
+
+# Source and object files
+SRC    = idasband.c idasdense.c idas.c idasspgmr.c idasbbdpre.c
+OBJ = ${SRC:.c=.o}
+
+# Includes
+SHAREDINCLUDE = -I${SHARED_INC_DIR}
+IDASINCLUDE = -I${IDAS_INC_DIR}
+INCS =  ${IDASINCLUDE} ${SHAREDINCLUDE}
+
+# Compiler and compiler options
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: ${OBJ}
+
+install:
+	ar rc ${IDAS_LIB} ${OBJ}
+	cp ${IDAS_LIB} ${libdir}
+	cp ${IDAS_INC_DIR}/idas.h       ${includedir}
+	cp ${IDAS_INC_DIR}/idasdense.h  ${includedir}
+	cp ${IDAS_INC_DIR}/idasband.h   ${includedir}
+	cp ${IDAS_INC_DIR}/idasspgmr.h  ${includedir}
+	cp ${IDAS_INC_DIR}/idasbbdpre.h ${includedir}
+
+clean:
+	rm -f ${OBJ}
+	rm -f ${IDAS_LIB}
+
+uninstall:
+	rm -f ${libdir}/${IDAS_LIB}
+	rm -f ${includedir}/idas.h
+	rm -f ${includedir}/idasdense.h
+	rm -f ${includedir}/idasband.h
+	rm -f ${includedir}/idasspgmr.h
+	rm -f ${includedir}/idasbbdpre.h
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCS} $*.c
+
+#---End of Makefile---
