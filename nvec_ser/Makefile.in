@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2004-10-28 00:35:21 $
+# $Revision: 1.12 $
+# $Date: 2004-10-28 22:51:12 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -38,6 +38,8 @@ CC       = @CC@
 CFLAGS   = @CFLAGS@
 LIBS     = @LIBS@
 
+FCMIX_ENABLED = @FCMIX_ENABLED@
+
 SHARED_INC_DIR         = $(srcdir)/../shared/include
 NVECTOR_SERIAL_INC_DIR = $(srcdir)
 
@@ -46,8 +48,6 @@ NVECTOR_SERIAL_LIB_FILES = nvector_serial.lo
 
 FNVECTOR_SERIAL_LIB       = libsundials_fnvecserial.la
 FNVECTOR_SERIAL_LIB_FILES = fnvector_serial.lo
-
-OBJECT_FILES = nvector_serial.o fnvector_serial.o
 
 all: update $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
 
@@ -59,28 +59,42 @@ install: update $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(NVECTOR_SERIAL_LIB) $(NVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_SERIAL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_SERIAL_INC_DIR)/nvector_serial.h $(includedir)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FNVECTOR_SERIAL_LIB) $(FNVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LIBS) -static -avoid-version
-	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FNVECTOR_SERIAL_LIB) $(libdir)
-	$(INSTALL_HEADER) $(NVECTOR_SERIAL_INC_DIR)/fnvector_serial.h $(includedir)
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                               \
+	   echo "${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECTOR_SERIAL_LIB} ${FNVECTOR_SERIAL_LIB_FILES} -rpath ${libdir} ${LIBS} -static -avoid-version" ; \
+	   ${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECTOR_SERIAL_LIB} ${FNVECTOR_SERIAL_LIB_FILES} -rpath ${libdir} ${LIBS} -static -avoid-version ;        \
+	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_SERIAL_LIB} ${libdir}" ;                                                                     \
+	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_SERIAL_LIB} ${libdir} ;                                                                            \
+	 fi
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(NVECTOR_SERIAL_LIB)
 	rm -f $(NVECTOR_SERIAL_LIB_FILES)
-	$(LIBTOOL) --mode=clean rm -f $(FNVECTOR_SERIAL_LIB)
-	rm -f $(FNVECTOR_SERIAL_LIB_FILES)
-	rm -f $(OBJECT_FILES)
+	rm -f nvector_serial.o
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                      \
+	   echo "${LIBTOOL} --mode=clean rm -f ${FNVECTOR_SERIAL_LIB}" ; \
+	   ${LIBTOOL} --mode=clean rm -f ${FNVECTOR_SERIAL_LIB} ;        \
+	   echo "rm -f ${FNVECTOR_SERIAL_LIB_FILES}" ;                   \
+	   rm -f ${FNVECTOR_SERIAL_LIB_FILES} ;                          \
+	   echo "rm -f fnvector_serial.o" ;                              \
+	   rm -f fnvector_serial.o ;                                     \
+	 fi
 	rm -f sundials_config.h
 
 uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECTOR_SERIAL_LIB)
 	rm -f $(includedir)/nvector_serial.h
-	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FNVECTOR_SERIAL_LIB)
-	rm -f $(includedir)/fnvector_serial.h
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                    \
+	   echo "${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECTOR_SERIAL_LIB}" ; \
+	   ${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECTOR_SERIAL_LIB} ;        \
+	 fi
 
 nvector_serial.lo: $(srcdir)/nvector_serial.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(NVECTOR_SERIAL_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector_serial.c
 fnvector_serial.lo: $(srcdir)/fnvector_serial.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(NVECTOR_SERIAL_INC_DIR) $(CFLAGS) -c $(srcdir)/fnvector_serial.c
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                          \
+	   echo "${LIBTOOL} --mode=compile ${CC} ${CPPFLAGS} -I. -I${SHARED_INC_DIR} -I${NVECTOR_SERIAL_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_serial.c" ; \
+	   ${LIBTOOL} --mode=compile ${CC} ${CPPFLAGS} -I. -I${SHARED_INC_DIR} -I${NVECTOR_SERIAL_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_serial.c ;        \
+	 fi
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2004-10-28 21:09:18 $
+# $Revision: 1.5 $
+# $Date: 2004-10-28 22:51:06 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -26,7 +26,7 @@ Running SUNDIALS Configure Script
 ---------------------------------
 "
 
-])
+]) dnl END SUNDIALS_GREETING
 
 #------------------------------------------------------------------
 # PERFORM INITIALIZATIONS
@@ -105,7 +105,7 @@ else
   FFLAGS_USER_OVERRIDE="yes"
 fi
 
-])
+]) dnl END SUNDIALS_INITIALIZE
 
 #------------------------------------------------------------------
 # FIND ARCHIVER (not used)
@@ -125,7 +125,7 @@ else
   AR="${AR} rc"
 fi
 
-])
+]) dnl END SUNDIALS_CHECK_AR
 
 #------------------------------------------------------------------
 # FIND ARCHIVE INDEX UTILITY (not used)
@@ -143,7 +143,7 @@ if test "X${RANLIB}" = "Xnone"; then
   AC_MSG_WARN([cannot find ranlib])
 fi
 
-])
+]) dnl END SUNDIALS_CHECK_RANLIB
 
 #------------------------------------------------------------------
 # TEST ENABLES
@@ -152,9 +152,8 @@ fi
 AC_DEFUN([SUNDIALS_ENABLES],
 [
 
-# Check if user wants to disable CVODE
-# If not, check if CVODE exists
-
+# Check if user wants to disable CVODE module
+# If not, then make certain source directory actually exists
 AC_ARG_ENABLE(cvode,
 [AC_HELP_STRING([--disable-cvode],[disable configuration of CVODE])],
 [
@@ -170,9 +169,8 @@ else
 fi
 ])
 
-# Check if user wants to disable CVODES
-# If not, check if CVODES exists
-
+# Check if user wants to disable CVODES module
+# If not, then make certain source directory actually exists
 AC_ARG_ENABLE(cvodes,
 [AC_HELP_STRING([--disable-cvodes],[disable configuration of CVODES])],
 [
@@ -188,9 +186,8 @@ else
 fi
 ])
 
-# Check if user wants to disable IDA
-# If not, check if IDA exists
-
+# Check if user wants to disable IDA module
+# If not, then make certain source directory actually exists
 AC_ARG_ENABLE(ida,
 [AC_HELP_STRING([--disable-ida],[disable configuration of IDA])],
 [
@@ -206,9 +203,8 @@ else
 fi
 ])
 
-# Check if user wants to disable KINSOL
-# If not, check if KINSOL exists
-
+# Check if user wants to disable KINSOL MODULE
+# If not, then make certain source directory actually exists
 AC_ARG_ENABLE(kinsol,
 [AC_HELP_STRING([--disable-kinsol],[disable configuration of KINSOL])],
 [
@@ -224,11 +220,8 @@ else
 fi
 ])
 
-# IDAS is disabled here
-
-IDAS_ENABLED="no"
-
-# Check if user wants to disable examples
+# Check if user wants to disable all examples
+# Examples are built by default
 EXAMPLES_ENABLED="yes"
 AC_ARG_ENABLE(examples,
 [AC_HELP_STRING([--disable-examples],[disable configuration of examples])],
@@ -238,38 +231,53 @@ if test "X${enableval}" = "Xno"; then
 fi
 ])
 
-# Check if user wants to disable Fortran
+# Check if user wants to disable Fortran support (FCMIX components)
 F77_ENABLED="yes"
 AC_ARG_ENABLE([f77],
 [AC_HELP_STRING([--disable-f77], [disable Fortran support])],
 [
-  if test "X${enableval}" = "Xno"; then
-    F77_ENABLED="no"
-  fi
+if test "X${enableval}" = "Xno"; then
+  F77_ENABLED="no"
+  FCMIX_ENABLED="no"
+fi
 ],
 [
-  if test "X${CVODE_ENABLED}" = "Xno" && test "X${KINSOL_ENABLED}" = "Xno"; then
+if test "X${CVODE_ENABLED}" = "Xno" && test "X${KINSOL_ENABLED}" = "Xno"; then
+  F77_ENABLED="no"
+  FCMIX_ENABLED="no"
+else
+  if test "X${EXAMPLES_ENABLED}" = "Xno"; then
     F77_ENABLED="no"
-  elif test "X${EXAMPLES_ENABLED}" = "Xno"; then
-    F77_ENABLED="no"
+    FCMIX_ENABLED="yes"
   else
     F77_ENABLED="yes"
+    FCMIX_ENABLED="yes"
   fi
-]
-)
+fi
+])
+
+# Initialize variables that may NOT necessarily be initialized
+# during normal execution
+# Should NOT use uninitialized variables
+CXX_ENABLED="no"
+IDAS_ENABLED="no"
+MPI_ENABLED="no"
+CXX_OK="no"
+F77_OK="no"
+MPI_CXX_COMP_OK="no"
+MPI_F77_COMP_OK="no"
 
 ]) dnl END SUNDIALS_ENABLES
 
 #------------------------------------------------------------------
-# TEST PARALLEL ENABLES
+# TEST MPI ENABLES
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_MPI_ENABLES],
 [
 
-# Check if user wants to disable MPI
-# If not, check if it is needed at all
-
+# Check if user wants to disable support for MPI
+# If not, then make certain source directory actually exists
 AC_ARG_ENABLE([mpi],
 [AC_HELP_STRING([--disable-mpi],[disable MPI support])],
 [
@@ -283,8 +291,7 @@ if test -d ${srcdir}/nvec_par ; then
 else
   MPI_ENABLED="no"
 fi
-]
-)
+])
 
 ]) dnl END SUNDIALS_MPI_ENABLES
 
@@ -295,9 +302,8 @@ fi
 AC_DEFUN([SUNDIALS_DEV_ENABLES],
 [
 
-# Check if user wants to skip C++
-# If not, check if it is needed at all
-
+# Check if user wants to skip C++ checks
+# If not, then make certain source directory actually exists
 AC_ARG_ENABLE([cxx],
 [AC_HELP_STRING([--disable-cxx], [disable C++ support])],
 [
@@ -313,9 +319,8 @@ else
 fi
 ])
 
-# Check if user wants to disable IDAS
-# If not, see if IDAS exists
-
+# Check if user wants to disable IDAS module
+# If not, then make certain source directory actually exists
 AC_ARG_ENABLE(idas,
 [AC_HELP_STRING([--disable-idas],[disable configuration of IDAS])],
 [
@@ -570,7 +575,7 @@ AC_PROG_EGREP
 # Defines FGREP and exports via AC_SUBST - used by FCMIX Makefile's
 AC_PROG_FGREP
 
-])
+]) dnl END SUNDIALS_SET_CC
 
 #------------------------------------------------------------------
 # DEFAULT CFLAGS
@@ -605,7 +610,7 @@ case $host in
 
 esac
 
-])
+]) dnl END SUNDIALS_DEFAULT_CFLAGS
 
 #------------------------------------------------------------------
 # CHECK FORTRAN COMPILER
@@ -624,12 +629,10 @@ F77=""
 # Search for Fortran compiler given by user first
 AC_PROG_F77(${USER_F77} f77 g77)
 
-
 if test "X${F77}" = "X"; then
 
   # If F77="" then issue warning (means did NOT find a valid Fortran compiler)
   # Do NOT abort since Fortran compiler is NOT required
-
   AC_MSG_WARN([cannot find Fortran compiler])
   echo ""
   echo "   Unable to find a functional Fortran compiler."
@@ -734,7 +737,6 @@ else
   # Determine how to properly mangle function names so Fortran subroutines can
   # call C functions included in SUNDIALS libraries
   # Defines C preprocessor macros F77_FUNC and F77_FUNC_
-
   if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
     AC_F77_WRAPPERS
   fi
@@ -789,9 +791,9 @@ else
     fi
   fi
 
-fi dnl END if test "X${F77}" = "X"
+fi
 
-])
+]) dnl END SUNDIALS_SET_F77
 
 #------------------------------------------------------------------
 # DEFAULT FFLAGS
@@ -842,7 +844,7 @@ case $host in
 
 esac
 
-])
+]) dnl END SUNDIALS_DEFAULT_FFLAGS
 
 #------------------------------------------------------------------
 # CHECK C++ COMPILER
@@ -930,9 +932,9 @@ else
   # Check for complex.h header file (required)
   AC_CHECK_HEADER([complex.h])
 
-fi dnl END if test "X${CXX}" = "X"
+fi
 
-])
+]) dnl END SUNDIALS_SET_CXX
 
 #------------------------------------------------------------------
 # DEFAULT CXXFLAGS
@@ -967,7 +969,7 @@ case $host in
 
 esac
 
-])
+]) dnl END SUNDIALS_DEFAULT_CXXFLAGS
 
 #------------------------------------------------------------------
 # CHECK MPI-C COMPILER
@@ -1044,7 +1046,7 @@ else
   SUNDIALS_CHECK_CC_WITH_MPI
 fi
 
-])
+]) dnl END SUNDIALS_SET_MPICC
 
 #------------------------------------------------------------------
 # TEST MPI-C COMPILER
@@ -1132,7 +1134,7 @@ else
 
 fi
 
-])
+]) dnl END SUNDIALS_CHECK_MPICC
 
 #------------------------------------------------------------------
 # TEST C COMPILER WITH MPI
@@ -1258,7 +1260,7 @@ CPPFLAGS="${SAVED_CPPFLAGS}"
 LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
 
-])
+]) dnl END SUNDIALS_CHECK_CC_WITH_MPI
 
 #------------------------------------------------------------------
 # CHECK MPI-F77 COMPILER
@@ -1292,7 +1294,7 @@ else
   SUNDIALS_CHECK_F77_WITH_MPI
 fi
 
-])
+]) dnl END SUNDIALS_SET_MPIF77
 
 #------------------------------------------------------------------
 # TEST MPI-FORTRAN COMPILER
@@ -1381,7 +1383,7 @@ else
 
 fi
 
-])
+]) dnl END SUNDIALS_CHECK_MPIF77
 
 #------------------------------------------------------------------
 # TEST FORTRAN COMPILER WITH MPI
@@ -1519,7 +1521,7 @@ FFLAGS="${SAVED_FFLAGS}"
 LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
 
-])
+]) dnl END SUNDIALS_CHECK_F77_WITH_MPI
 
 #------------------------------------------------------------------
 # CHECK MPI-C++ COMPILER
@@ -1555,7 +1557,7 @@ fi
 
 AC_ARG_WITH([],[     ],[])
 
-])
+]) dnl END SUNDIALS_SET_MPICXX
 
 #------------------------------------------------------------------
 # TEST MPI-C++ COMPILER
@@ -1640,7 +1642,7 @@ else
   MPI_CXX_COMP_OK="no"
 fi
 
-])
+]) dnl END SUNDIALS_CHECK_MPICXX
 
 #------------------------------------------------------------------
 # TEST C++ COMPILER WITH MPI
@@ -1775,7 +1777,7 @@ CPPFLAGS="${SAVED_CPPFLAGS}"
 LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
 
-])
+]) dnl END SUNDIALS_CHECK_CXX_WITH_MPI
 
 #------------------------------------------------------------------
 # ENABLE EXAMPLES
@@ -1786,8 +1788,7 @@ AC_DEFUN([SUNDIALS_ENABLE_EXAMPLES],
 
 # Check libtool settings to determine which compiler and linker commands
 # should be used
-# Must export LIBTOOL_CMD, COMPILER_CMD and LINKER_CMD via AC_SUBST
-
+# Must export LIBTOOL_CMD, COMPILER_PREFIX and LINKER_PREFIX via AC_SUBST
 # If building shared libraries, then use libtool
 if test "X${enable_shared}" = "Xyes"; then
 
@@ -1805,10 +1806,9 @@ else
 fi
 
 # Check if we need to build the Fortran examples
-# Recall F77_ENABLED is set based upon CVODE_ENABLED, KINSOL_ENABLED,
-# and EXAMPLES_ENABLED, so the check here is rather simple:
-#       F77_EXAMPLES = ~F77_ENABLED
-
+# Recall F77_ENABLED is set based upon CVODE_ENABLED and KINSOL_ENABLED,
+# so the check here is rather simple:
+# F77_EXAMPLES = F77_ENABLED
 F77_EXAMPLES="no";
 if test "X${F77_ENABLED}" = "Xyes"; then
   F77_EXAMPLES="yes"
@@ -1904,7 +1904,7 @@ PARALLEL_DEV_C_EXAMPLES="no"
 
 RAN_ENABLE_DEV_EXAMPLES="no"
 
-])
+]) dnl END SUNDIALS_ENABLE_EXAMPLES
 
 #------------------------------------------------------------------
 # ENABLE DEVELOPER EXAMPLES
@@ -1931,10 +1931,10 @@ if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes"; t
 
 fi
 
-])
+]) dnl END SUNDIALS_ENABLE_DEV_EXAMPLES
 
 #------------------------------------------------------------------
-# BUILD MODULE LIST
+# BUILD MODULES LIST
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_BUILD_MODULES_LIST],
@@ -1965,7 +1965,7 @@ if test "X${CVODE_ENABLED}" = "Xyes"; then
   MODULES="${MODULES} cvode/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/source/Makefile"
 
-  if test "X${F77_ENABLED}" = "Xyes"; then
+  if test "X${FCMIX_ENABLED}" = "Xyes"; then
     MODULES="${MODULES} cvode/fcmix"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
   fi
@@ -2057,7 +2057,7 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
   MODULES="${MODULES} kinsol/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/source/Makefile"
 
-  if test "X${F77_ENABLED}" = "Xyes"; then
+  if test "X${FCMIX_ENABLED}" = "Xyes"; then
     MODULES="${MODULES} kinsol/fcmix"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
   fi
@@ -2089,7 +2089,7 @@ if test "X${BUILD_F77_UPDATE_SCRIPT}" = "Xyes"; then
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/fortran_update"
 fi
 
-])
+]) dnl END SUNDIALS_BUILD_MODULES_LIST
 
 #------------------------------------------------------------------
 # DETERMINE INSTALLATION PATH
@@ -2130,7 +2130,7 @@ else
   AS_MKDIR_P(${SUNDIALS_LIB_DIR})
 fi
 
-])
+]) dnl END SUNDIALS_INSTALL_PATH
 
 #------------------------------------------------------------------
 # PRINT STATUS REPORT
@@ -2358,4 +2358,4 @@ Finished SUNDIALS Configure Script
 ----------------------------------
 "
 
-])
+]) dnl END SUNDIALS_REPORT

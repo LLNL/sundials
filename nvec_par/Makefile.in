@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.10 $
-# $Date: 2004-10-28 00:35:24 $
+# $Revision: 1.11 $
+# $Date: 2004-10-28 22:51:18 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -38,6 +38,8 @@ CPPFLAGS = @CPPFLAGS@
 CFLAGS   = @CFLAGS@
 LIBS     = @LIBS@
 
+FCMIX_ENABLED = @FCMIX_ENABLED@
+
 MPI_INC_DIR              = @MPI_INC_DIR@
 SHARED_INC_DIR           = $(srcdir)/../shared/include
 NVECTOR_PARALLEL_INC_DIR = $(srcdir)
@@ -47,8 +49,6 @@ NVECTOR_PARALLEL_LIB_FILES = nvector_parallel.lo
 
 FNVECTOR_PARALLEL_LIB       = libsundials_fnvecparallel.la
 FNVECTOR_PARALLEL_LIB_FILES = fnvector_parallel.lo
-
-OBJECT_FILES = nvector_parallel.o fnvector_parallel.o
 
 all: update $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
 
@@ -60,28 +60,42 @@ install: update $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) -o $(NVECTOR_PARALLEL_LIB) $(NVECTOR_PARALLEL_LIB_FILES) -rpath $(libdir) $(LIBS) $(MPI_LIBS) -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_PARALLEL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_PARALLEL_INC_DIR)/nvector_parallel.h $(includedir)
-	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) -o $(FNVECTOR_PARALLEL_LIB) $(FNVECTOR_PARALLEL_LIB_FILES) -rpath $(libdir) $(LIBS) $(MPI_LIBS) -static -avoid-version
-	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FNVECTOR_PARALLEL_LIB) $(libdir)
-	$(INSTALL_HEADER) $(NVECTOR_PARALLEL_INC_DIR)/fnvector_parallel.h $(includedir)
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                      \
+	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} -o ${FNVECTOR_PARALLEL_LIB} ${FNVECTOR_PARALLEL_LIB_FILES} -rpath ${libdir} ${LIBS} -static -avoid-version" ; \
+	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} -o ${FNVECTOR_PARALLEL_LIB} ${FNVECTOR_PARALLEL_LIB_FILES} -rpath ${libdir} ${LIBS} -static -avoid-version ;        \
+	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_PARALLEL_LIB} ${libdir}" ;                                                                          \
+	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_PARALLEL_LIB} ${libdir} ;                                                                                 \
+	 fi
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(NVECTOR_PARALLEL_LIB)
 	rm -f $(NVECTOR_PARALLEL_LIB_FILES)
-	$(LIBTOOL) --mode=clean rm -f $(FNVECTOR_PARALLEL_LIB)
-	rm -f $(FNVECTOR_PARALLEL_LIB_FILES)
-	rm -f $(OBJECT_FILES)
+	rm -f nvector_parallel.o
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                        \
+	   echo "${LIBTOOL} --mode=clean rm -f ${FNVECTOR_PARALLEL_LIB}" ; \
+	   ${LIBTOOL} --mode=clean rm -f ${FNVECTOR_PARALLEL_LIB} ;        \
+	   echo "rm -f ${FNVECTOR_PARALLEL_LIB_FILES}" ;                   \
+	   rm -f ${FNVECTOR_PARALLEL_LIB_FILES} ;                          \
+	   echo "rm -f fnvector_parallel.o" ;                              \
+	   rm -f fnvector_parallel.o ;                                     \
+	 fi
 	rm -f sundials_config.h
 
 uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECTOR_PARALLEL_LIB)
 	rm -f $(includedir)/nvector_parallel.h
-	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FNVECTOR_PARALLEL_LIB)
-	rm -f $(includedir)/fnvector_parallel.h
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                      \
+	   echo "${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECTOR_PARALLEL_LIB}" ; \
+	   ${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECTOR_PARALLEL_LIB} ;        \
+	 fi
 
 nvector_parallel.lo: $(srcdir)/nvector_parallel.c
 	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(NVECTOR_PARALLEL_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector_parallel.c
 fnvector_parallel.lo: $(srcdir)/fnvector_parallel.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(NVECTOR_PARALLEL_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/fnvector_parallel.c
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                 \
+	   echo "${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} -I. -I${SHARED_INC_DIR} -I${NVECTOR_PARALLEL_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_parallel.c" ; \
+	   ${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} -I. -I${SHARED_INC_DIR} -I${NVECTOR_PARALLEL_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_parallel.c ;        \
+	 fi
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \
