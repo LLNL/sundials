@@ -28,18 +28,17 @@ method was that the matrix-vector multiplies required by the
 Krylov method could effectively be approximated by a finite
 difference of the nonlinear system-defining function, preventing a
 requirement for the formation of the actual Jacobian matrix.
-Significantly less memory was required for solver as a result.  In
-addition, both Newton and Krylov methods are easily implemented in
-parallel.
+Significantly less memory was required for the solver as a result.
 
 In the late 1990's, there was a push at LLNL to rewrite the
 nonlinear solver into {\C} and port it to distributed memory
-parallel machines.  This effort gave rise to the {\kinsol}
-package. {\kinsol} is similar to NKSOL in functionality except
-that it provides for more options in the choice of linear system
-tolerances and has a more modular design providing flexibility for
-future enhancements. \index{KINSOL@{\kinsol}!relationship to
-NKSOL}
+parallel machines.  Both Newton and Krylov methods are easily
+implemented in parallel, and this effort gave rise to the
+{\kinsol} package. {\kinsol} is similar to NKSOL in functionality
+except that it provides for more options in the choice of linear
+system tolerances and has a more modular design providing
+flexibility for future enhancements.
+\index{KINSOL@{\kinsol}!relationship to NKSOL}
 
 \index{KINSOL@{\kinsol}!motivation for writing in C|(} There are
 several motivations for choosing the {\C} language for {\kinsol}.
@@ -53,7 +52,7 @@ potentially greater efficiency of {\C}, and the greater ease of
 interfacing the solver to applications written in extended {\F}.
 \index{KINSOL@{\kinsol}!motivation for writing in C|)}
 
-In the process of translating the NKSOL into {\C}, the overall
+In the process of translating NKSOL into {\C}, the overall
 {\kinsol} organization has been changed considerably. One key
 feature of the {\kinsol} organization is that a separate module
 devoted to vector operations has been created.  This module
@@ -89,14 +88,10 @@ functions.
 
 \section{Reading this User Guide}\label{ss:reading}
 
-This user guide is a combination of general usage instructions and
-specific example programs.  We expect that some readers will want to
-concentrate on the general instructions, while others will refer
-mostly to the examples, and the organization is intended to
-accommodate both styles.
-
 The structure of this document is as follows:
 \begin{itemize}
+\item
+  The next section discusses how to install the \kinsol package.
 \item
   In \S\ref{s:math}, we provide short descriptions of the numerical
   methods implemented by {\kinsol} for the solution of nonlinear systems.
@@ -110,7 +105,7 @@ The structure of this document is as follows:
   user-defined routines for solution of nonlinear systems.
 \item
   Section \ref{s:nvector} gives a brief overview of the generic {\nvector} module
-  shared among the various components of {\sundials}, as well as details on the two {\nvector}
+  shared among the various components of {\sundials}, as well as details of the two {\nvector}
   implementations provided with {\sundials}: a serial implementation
   (\S\ref{ss:nvec_ser}) and a parallel implementation, based on MPI\index{MPI}
   (\S\ref{ss:nvec_par}).
