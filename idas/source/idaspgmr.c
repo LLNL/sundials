@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-10-18 18:37:05 $
+ * $Revision: 1.9 $
+ * $Date: 2004-10-21 18:19:52 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,7 +10,7 @@
  * All rights reserved
  * For details, see sundials/idas/LICENSE
  * -----------------------------------------------------------------
- * This is the implementation file for the IDA Scaled              
+ * This is the implementation file for the IDAS Scaled              
  * Preconditioned GMRES linear solver module, IDASPGMR.            
  * -----------------------------------------------------------------
  */
@@ -376,7 +376,10 @@ int IDASpgmrSetEpsLin(void *ida_mem, realtype eplifac)
     return(IDASPGMR_ILL_INPUT);
   }
 
-  idaspgmr_mem->g_eplifac = eplifac;
+  if (eplifac == 0)
+    idaspgmr_mem->g_eplifac = PT05;
+  else
+    idaspgmr_mem->g_eplifac = eplifac;
 
   return(IDASPGMR_SUCCESS);
 }
@@ -400,7 +403,7 @@ int IDASpgmrSetIncrementFactor(void *ida_mem, realtype dqincfac)
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   /* Check for legal maxrs */
-  if (dqincfac < ZERO) {
+  if (dqincfac <= ZERO) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_DQINCFAC);
     return(IDASPGMR_ILL_INPUT);
   }
