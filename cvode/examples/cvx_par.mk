@@ -77,7 +77,7 @@ pvnx:
 	@rm -f pvnx.o
 
 pvkx: 
-	@echo '...Compile pvbx...'
+	@echo '...Compile pvkx...'
 	@$(CC) $(CFLAGS) -o pvkx pvkx.c -lcvode.$(ARCH) -lnvecparallel.$(ARCH) -lshared.$(ARCH) -lm
 	@rm -f pvkx.o
 
