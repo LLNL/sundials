@@ -1,7 +1,7 @@
 C File: pvdiagkf.f
 C Diagonal ODE example.  Stiff case, with BDF/SPGMR, diagonal precond.
 C Solved with preconditioning on left, then with preconditioning on right.
-C Version of 1 March 2002
+C Version of 27 March 2002
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
@@ -15,7 +15,7 @@ C
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
      1     LNPE/16/, LNLI/17/, LNPS/18/, LNCFL/19/
 C
-      COMMON /PCOM/ ALPHA, MYPE
+      COMMON /PCOM/ ALPHA, MYPE, NLOCAL
 C
 C Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
@@ -73,24 +73,24 @@ C
   16    FORMAT(///'Case 1: preconditioning on left')
         ENDIF
 C
-      CALL FPVINITMPI (NLOCAL, NEQ, IER)
+      CALL FMENVINITP(NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
-  20    FORMAT(///' FPVINITMPI returned IER =',I5)
+  20    FORMAT(///' FMENVINITP returned IER =',I5)
         STOP
         ENDIF
 C
-      CALL FPVMALLOC (NEQ, T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1                INOPT, IOPT, ROPT, IER)
+      CALL FCVMALLOC(NEQ, T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+     1       INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
-  30    FORMAT(///' FPVMALLOC returned IER =',I5)
+  30    FORMAT(///' FCVMALLOC returned IER =',I5)
         STOP
         ENDIF
 C
-      CALL FCVSPGMR10 (IPRE, IGS, 0, 0.0D0, IER)
+      CALL FCVSPGMR10(IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,35) IER
   35    FORMAT(///' FCVSPGMR10 returned IER =',I5)
@@ -101,7 +101,7 @@ C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
       DO 70 IOUT = 1,NOUT
 C
-        CALL FCVODE (TOUT, T, Y, ITASK, IER)
+        CALL FCVODE(TOUT, T, Y, ITASK, IER)
 C
         IF (MYPE .EQ. 0) WRITE(6,40) T,IOPT(LNST),IOPT(LNFE)
   40    FORMAT(/' t =',E10.2,5X,'no. steps =',I5,'   no. f-s =',I5)
@@ -121,8 +121,8 @@ C Get max. absolute error in the local vector.
         ERRI  = Y(I) - EXP(-ALPHA*(MYPE*NLOCAL + I)*T)
   75    ERMAX = MAX(ERMAX,ABS(ERRI))
 C Get global max. error from MPI_REDUCE call.
-      CALL MPI_REDUCE (ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
-     1                 0, MPI_COMM_WORLD, IER)
+      CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
+     1       0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,80) IER
   80    FORMAT(///' MPI_REDUCE returned IER =',I5)
@@ -163,16 +163,16 @@ C
       IF (MYPE .EQ. 0)  WRITE(6,111) 
  111  FORMAT(///'Case 2: preconditioning on right')
 C
-      CALL FPVREINIT (T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1                INOPT, IOPT, ROPT, IER)
+      CALL FCVREINIT(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+     1     INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,130) IER
- 130    FORMAT(///' FPVREINIT returned IER =',I5)
+ 130    FORMAT(///' FCVREINIT returned IER =',I5)
         STOP
         ENDIF
 C
-      CALL FCVREINSPGMR10 (IPRE, IGS, 0, 0.0D0, IER)
+      CALL FCVREINSPGMR10(IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,135) IER
  135    FORMAT(///' FCVSPGMR10 returned IER =',I5)
@@ -183,7 +183,7 @@ C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
       DO 170 IOUT = 1,NOUT
 C
-        CALL FCVODE (TOUT, T, Y, ITASK, IER)
+        CALL FCVODE(TOUT, T, Y, ITASK, IER)
 C
         IF (MYPE .EQ. 0) WRITE(6,40) T,IOPT(LNST),IOPT(LNFE)
 C
@@ -201,8 +201,8 @@ C Get max. absolute error in the local vector.
         ERRI  = Y(I) - EXP(-ALPHA*(MYPE*NLOCAL + I)*T)
  175    ERMAX = MAX(ERMAX,ABS(ERRI))
 C Get global max. error from MPI_REDUCE call.
-      CALL MPI_REDUCE (ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
-     1                 0, MPI_COMM_WORLD, IER)
+      CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
+     1       0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,80) IER
         STOP
@@ -226,7 +226,7 @@ C Print final statistics.
 C
 C Free the memory and finalize MPI.
       CALL FCVFREE
-      CALL FPVFREEMPI
+      CALL FMENVFREEP
       CALL MPI_FINALIZE(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,195) IER
@@ -237,19 +237,19 @@ C
       STOP
       END
 
-      SUBROUTINE PVFUN (NLOC, T, Y, YDOT)
+      SUBROUTINE CVFUN (NEQ, T, Y, YDOT)
 C Routine for right-hand side function f
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       DIMENSION Y(*), YDOT(*)
-      COMMON /PCOM/ ALPHA, MYPE
+      COMMON /PCOM/ ALPHA, MYPE, NLOCAL
 C
-      DO 10 I = 1,NLOC
-  10    YDOT(I) = -ALPHA*(MYPE*NLOC + I)*Y(I)
+      DO 10 I = 1,NLOCAL
+  10    YDOT(I) = -ALPHA*(MYPE*NLOCAL + I)*Y(I)
 C
       RETURN
       END
 
-      SUBROUTINE PVPSOL (NLOC, T, Y, FY, VT, GAMMA, EWT, DELTA, NFE,
+      SUBROUTINE CVPSOL(NEQ, T, Y, FY, VT, GAMMA, EWT, DELTA, NFE,
      1                  R, LR, Z, IER)
 C Routine to solve preconditioner linear system
 C This routine uses a diagonal preconditioner P = I - gamma*J,
@@ -259,14 +259,14 @@ C The vector r is copied to z, and the inverse of P (restricted to the
 C local vector segment) is applied to the vector z.
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       DIMENSION Y(*), R(*), Z(*)
-      COMMON /PCOM/ ALPHA, MYPE
+      COMMON /PCOM/ ALPHA, MYPE, NLOCAL
 C
-      DO 10 I = 1,NLOC
+      DO 10 I = 1,NLOCAL
  10     Z(I) = R(I)
 C
-      IBASE = MYPE*NLOC
+      IBASE = MYPE*NLOCAL
       ISTART = MAX(1, 4 - IBASE)
-      DO 20 I = ISTART,NLOC
+      DO 20 I = ISTART,NLOCAL
         PSUBI = 1.0 + GAMMA*ALPHA*(IBASE + I)
         Z(I) = Z(I)/PSUBI
  20     CONTINUE

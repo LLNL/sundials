@@ -1,6 +1,6 @@
 C File: pvdiagnf.f
 C Diagonal ODE example.  Nonstiff case: alpha = 10/NEQ.
-C Version of 30 July 1999
+C Version of 27 March 2002
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
@@ -12,7 +12,7 @@ C
       DATA ATOL/1.0E-10/, RTOL/1.0E-5/, DTOUT/0.1D0/, NOUT/10/
       DATA LNST/4/, LNFE/5/, LNNI/7/, LNCF/8/, LNETF/9/
 C
-      COMMON /PCOM/ ALPHA, MYPE
+      COMMON /PCOM/ ALPHA, MYPE, NLOCAL
 C
 C Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
@@ -63,20 +63,20 @@ C
   15    FORMAT('Number of processors =',i3)
         ENDIF
 C
-      CALL FPVINITMPI (NLOCAL, NEQ, IER)
+      CALL FMENVINITP(NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
-  20    FORMAT(///' FPVINITMPI returned IER =',I5)
+  20    FORMAT(///' FMENVINITP returned IER =',I5)
         STOP
         ENDIF
 C
-      CALL FPVMALLOC (NEQ, T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1                INOPT, IOPT, ROPT, IER)
+      CALL FCVMALLOC(NEQ, T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+     1       INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
-  30    FORMAT(///' FPVMALLOC returned IER =',I5)
+  30    FORMAT(///' FCVMALLOC returned IER =',I5)
         STOP
         ENDIF
 C
@@ -84,7 +84,7 @@ C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
       DO 70 IOUT = 1,NOUT
 C
-        CALL FCVODE (TOUT, T, Y, ITASK, IER)
+        CALL FCVODE(TOUT, T, Y, ITASK, IER)
 C
         IF (MYPE .EQ. 0) WRITE(6,40) T,IOPT(LNST),IOPT(LNFE)
   40    FORMAT(/' t =',D10.2,5X,'no. steps =',I5,'   no. f-s =',I5)
@@ -130,7 +130,7 @@ C Print final statistics.
 C
 C Free the memory and finalize MPI.
       CALL FCVFREE
-      CALL FPVFREEMPI
+      CALL FMENVFREEP
       CALL MPI_FINALIZE(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,95) IER
@@ -141,14 +141,14 @@ C
       STOP
       END
 
-      SUBROUTINE PVFUN (NLOC, T, Y, YDOT)
+      SUBROUTINE CVFUN(NEQ, T, Y, YDOT)
 C Routine for right-hand side function f
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       DIMENSION Y(*), YDOT(*)
-      COMMON /PCOM/ ALPHA, MYPE
+      COMMON /PCOM/ ALPHA, MYPE, NLOCAL
 C
-      DO 10 I = 1,NLOC
-  10    YDOT(I) = -ALPHA*(MYPE*NLOC + I)*Y(I)
+      DO 10 I = 1,NLOCAL
+  10    YDOT(I) = -ALPHA*(MYPE*NLOCAL + I)*Y(I)
 C
       RETURN
       END
