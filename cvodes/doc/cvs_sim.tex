@@ -104,7 +104,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 %%
 %%
 %%
-\index{User main program}
+\index{User main program!IVP solution}
 \begin{Steps}
   
 \item 
@@ -137,7 +137,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   processors are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
   
 \item
-  {\bf Set intial values}
+  {\bf Set initial values}
  
   To set the vector \id{y0} of initial values, use macros defined by a particular 
   {\nvector} implementation:
@@ -307,7 +307,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[f] (\Id{RhsFn})
     is the {\C} function which computes $f$ in the ODE. This function has the form 
-    \id{f(N, t, y, ydot, f\_data)} (for full details see \S\ref{ss:user_fct_sim}).
+    \id{f(t, y, ydot, f\_data)} (for full details see \S\ref{ss:user_fct_sim}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
@@ -1794,10 +1794,10 @@ The call to the \id{CVodeGetDky} function has the following form:
 %%
 \ucfunction{CVodeGetDky}
 {
-  flag = CVodeDky(cvode\_mem, t, k, dky);
+  flag = CVodeGetDky(cvode\_mem, t, k, dky);
 }
 {
-  The function \ID{CVodeDky} computes the \id{k}-th derivative of the \id{y} function at      
+  The function \ID{CVodeGetDky} computes the \id{k}-th derivative of the \id{y} function at      
   time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$ \id{t} $\le t_n$, 
   $t_n$ denotes the current internal time reached, and $h_u$ is the 
   last internal step size successfully used by the solver. 
@@ -1811,7 +1811,7 @@ The call to the \id{CVodeGetDky} function has the following form:
   \item[t] (\id{realtype})
   \item[k] (\id{int})
   \item[dky] (\id{N\_Vector})
-    The derivative vector is returned in \id{dky}. 
+    vector containing the derivative.
     This vector must be allocated by the caller. 
   \end{args}
 }
@@ -1819,20 +1819,20 @@ The call to the \id{CVodeGetDky} function has the following form:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[DKY\_NO\_MEM] 
   \item[\Id{OKAY}]
-    \id{CVodeDky} succeeded;
+    \id{CVodeGetDky} succeeded.
   \item[\Id{BAD\_K}] 
-    \id{k} is not in the range $0, 1, ..., q_u$;
+    \id{k} is not in the range $0, 1, ..., q_u$.
   \item[\Id{BAD\_T}] 
-    \id{t} is not in the interval $[t_n - h_u , t_n]$;
+    \id{t} is not in the interval $[t_n - h_u , t_n]$.
   \item[\Id{BAD\_DKY}] 
-    the \id{dky} argument was \id{NULL};
+    \id{dky} is \id{NULL}.
   \item[\Id{DKY\_NO\_MEM}] 
-    the \id{cvode\_mem} argument was \id{NULL}.
+    \id{cvode\_mem} is \id{NULL}.
   \end{args}
 
 }
 {
-  It is only legal to call the function \id{CVodeDky} after a 
+  It is only legal to call the function \id{CVodeGetDky} after a 
   successful return from \id{CVode}. See \id{CVodeGetLastOrder} 
   and \id{CVodeGetLastStep} in the next section for access to 
   $q_u$ and $h_u$.
@@ -2470,7 +2470,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    the optional output value has been successfuly set.
+    the optional output values have been successfuly set.
   \item[\Id{CVG\_NO\_MEM}]
     the \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2556,7 +2556,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output values have been successfuly set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -3325,7 +3325,7 @@ that define the preconditioner for use in the {\spgmr} algorithm.
 %%
 \subsection{ODE right-hand side} 
 \label{ss:rhsFn}
-\index{right-hand side function!initial value problem|(}
+\index{right-hand side function!initial value problem}
 The user must provide a function of type \ID{RhsFn} defined as follows:
 \usfunction{RhsFn}
 {
@@ -3352,9 +3352,8 @@ The user must provide a function of type \ID{RhsFn} defined as follows:
   A \id{RhsFn} function type does not have a return value.                        
 }
 {
-Allocation of memory for \id{ydot} is handled within {\cvodes}.
+  Allocation of memory for \id{ydot} is handled within {\cvodes}.
 }
-\index{right-hand side function!initial value problem|)}
 %%
 %%--------------
 %%
@@ -3727,145 +3726,586 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
 \section{Integration of pure quadrature equations}
 %%===================================================================================
 
-Note that if the system of ODEs contains {\em pure quadratures} it is more efficient
-to treat them separately. To do this, exclude them from \id{y0} in the 
-\id{CVodeMalloc} call (as well from within \id{f}) and instead use the following 
-function to initialize quadrature integration with {\cvodes}:
+If the system of ODEs contains {\em pure quadratures} it is more efficient
+to treat them separately, by excluding them from the nonlinear solution stage. 
+To do this, begin by excluding the quadrature variables from the vector \id{y}
+and the quadrature equations from within \id{f}. The following is an overview of 
+the sequence of calls in the user main program in this situation. Steps that are
+unchanged from the user main program presented in \S\ref{ss:skeleton_sim} are 
+grayed-out.
+
+\index{User main program!integration of quadratures}
+\begin{Steps}
+  
+\item 
+  \textcolor{gray}{\bf {\p} Initialize MPI}
+
+\item
+  {\bf Set problem dimensions}
+
+  {\s} Set \id{N}, the problem size $N$ (excluding quadrature variables) 
+  and \id{Nq}, the number of quadrature variables.
+
+  {\p} Set \id{Nlocal}, the local vector length (excluding quadrature variables)
+  and \id{Nqlocal}, the local number of quadrature variables.
+  
+\item
+  {\bf Initialize vector specification}\index{nvSpec@{\tt nvSpec}}
+
+  {\s} \id{nvSpec = }\Id{NV\_SpecInit\_Serial}\id{(N);} and \\
+  \id{nvSpecQ = }\Id{NV\_SpecInit\_Serial}\id{(Nq);}
+
+  {\p} \id{nvSpec = }\Id{NV\_SpecInit\_Parallel}\id{(comm, Nlocal, N, \&argc, \&argv);} and \\
+  \id{nvSpecQ = }\Id{NV\_SpecInit\_Parallel}\id{(comm, Nqlocal, Nq, \&argc, \&argv);}
+  
+\item
+  \textcolor{gray}{\bf Set initial values}
+ 
+\item\label{i:quad_cvode_create}
+  \textcolor{gray}{\bf Create {\cvodes} object}
+
+\item
+  \textcolor{gray}{\bf Set optional inputs}
+
+\item
+  \textcolor{gray}{\bf Allocate internal memory}
+
+\item
+  \textcolor{gray}{\bf Attach linear solver module}
+
+\item
+  \textcolor{gray}{\bf Set linear solver optional inputs}
+
+\item\label{i:quad_optional_inputs}
+  {\bf Set optional inputs for quadrature integration}
+
+  Call \id{CVodeSetQuadErrCon} to indicate whether quadrature variables
+  do or do not participate in the step size control mechanism and
+  \id{CVodeSetQuadFdata} to specify user data required for the evaluation
+  of the quadrature equation right-hand sides. See \S\ref{ss:quad_optional_input}
+  for details.
+
+\item
+  {\bf Initialize quadrature integration}
+
+  Call \id{CVodeQuadMalloc} to specify the quadrature equation right-hand
+  side function and integration tolerances, and to allocate internal
+  memory related to quadrature integration. See \S\ref{ss:quad_malloc}
+  for details.
+
+\item\label{i:quad_cvode_solve}
+  \textcolor{gray}{\bf Advance solution in time}
+
+\item
+  {\bf Extract quadrature variables}
+
+  Call \id{CVodeGetQuad} to obtain the values of the quadrature variables at
+  the current time. See \S\ref{ss:quad_get} for details.
+
+\item
+  \textcolor{gray}{\bf Get optional outputs}
+
+\item
+  {\bf Get quadrature optional outputs}
+
+  Call \id{CVodeGetQuad*} functions to obtain optional output realted to
+  integration of quadratures.
+  See \S\ref{ss:quad_optional_output} for details.
+
+\item
+  {\bf Deallocate memory for solution vector and for the vector of quadrature variables}
+  
+\item
+  {\bf Free solver memory}
+
+\item
+  {\bf Free vector specification memory}
+
+  {\s} \Id{NV\_SpecFree\_Serial}\id{(nvSpec);} 
+  and \id{NV\_SpecFree\_Serial}\id{(nvSpecQ);} 
+
+  {\p} \Id{NV\_SpecFree\_Parallel}\id{(nvSpec);} 
+  and \id{NV\_SpecFree\_Parallel}\id{(nvSpecQ);} 
+
+\item 
+  \textcolor{gray}{\bf {\p} Finalize MPI}
+  
+\end{Steps}
+
+Note that quadrature-related optional inputs (step \ref{i:quad_optional_inputs} above)
+as well as the call to \id{CVodeQuadMalloc} can be made anywhere between steps 
+\ref{i:quad_cvode_create} and \ref{i:quad_cvode_solve}.
 
 %%===================================================================================
 
-\subsection{Quadrature initialization function}\label{sss:cvodequadmalloc}
+\subsection{Quadrature initialization functions}\label{ss:quad_malloc}
 
-The function \ID{CVodeQuadMalloc} activates integration of quadrature equations 
+The function \id{CVodeQuadMalloc} activates integration of quadrature equations 
 and allocates internal memory related to these calculations.
-The form of the call to this function is
-\begin{verbatim}
-ier = CVodeQuadMalloc(cvode_mem, fQ, errconQ, &rtolQ, atolQ, fQ_data, machEnvQ);  
-\end{verbatim}
-where \id{cvode\_mem} is the pointer to the {\cvodes} memory returned by \id{CVodeMalloc}
-and \id{fQ} is a user-provided {\C} function to evaluate the righ-hand side of the
-quadrature equations (for full details, see \S\ref{ss:user_fct_sim}). 
-The flag \id{errconQ} specify whether partial or full error 
-control is to be used. If \id{errconQ = }\Id{FULL} then both state variables and
-quadrature variables are included in the error tests. 
-If \id{errconQ = }\Id{PARTIAL} then the quadrature variables are excluded from the 
-error tests. When full error control is used, \id{\&rtolQ} is the relative tolerance for
-quadrature variables and \id{atolQ} is a pointer to a scalar absolute tolerance for
-quadrature variables (if \id{itol = }\id{SS}) or to a vector of absolute tolerances 
-(if \id{itol = }\id{SV}). The pointer to the user data \id{fQ\_data} is passed
-directly to the user's \id{fQ} function. The final argument, \id{machEnvQ},
-is a pointer to a machine environment structure corresponding to the
-vector of quadrature variables, as obtained from a previous call to an
-\id{M\_EnvInit\_*} function.
+The form of the call to this function is as follows:
+%%
+\ucfunction{CVodeQuadMalloc}
+{
+flag = CVodeQuadMalloc(cvode\_mem, fQ, itolQ, reltolQ, abstolQ, nvSpecQ);
+}
+{
+  The function \ID{CVodeQuadMalloc} provides required problem and solution specifications, 
+  allocates internal memory, and initializes quadraure integration.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block returned by \id{CVodeCreate}.
+  \item[fQ] (\Id{QuadRhsFn})
+    is the {\C} function which computes $fQ$, the right-hand side of the quadrature
+    equations. This function has the form 
+    \id{fQ(t, y, yQdot, fQ\_data)} (for full details see \S\ref{ss:user_fct_quad}).
+  \item[itolQ] (\id{int}) 
+    is either \Id{SS} or \Id{SV}, where \Id{itolQ}$=$\id{SS} indicates scalar relative error 
+    tolerance and scalar absolute error tolerance, while \id{itolQ}$=$\id{SV} indicates scalar
+    relative error tolerance and vector absolute error tolerance. 
+    The latter choice is important when the absolute error tolerance needs to
+    be different for each quadrature variable.
+  \item[reltolQ] (\id{realtype *})
+    \index{tolerances}
+    is a pointer to the relative error tolerance.
+  \item[abstolQ] (\id{void *})
+    is a pointer to the absolute error tolerance.
+  \item[nvSpecQ] (\id{NV\_Spec})
+    is a pointer to the quadrature vector specification structure.
+  \end{args}
+}
+{
+  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  \begin{args}[QCVM\_ILL\_INPUT]
+  \item[\Id{SUCCESS}]
+    The call to \id{CVodeQuadMalloc} was successful.
+  \item[\Id{QCVM\_NO\_MEM}] 
+    The {\cvode} memory block was not initialized through a previous call to \id{CVodeCreate}.
+  \item[\Id{QCVM\_MEM\_FAIL}] 
+    A memory allocation request has failed.
+  \item[\Id{QCVM\_ILL\_INPUT}] 
+    An input argument to \id{CVodeQuadMalloc} has an illegal value.
+  \end{args}
+}
+{
+  If an error occured, \id{CVodeQuadMalloc} also prints an error message to the
+  file specified by the optional input \id{errfp}.
 
-Note that there are no initial values for quadrature variables. The reason for this is 
-that these variables are always $0$ at the initial time and {\cvodes} performs this
-initialization by itself.
-
-The return value \id{ier} of \id{CVodeQuadMalloc} is equal to \id{SUCCESS} if
-there were no errors, or \Id{QCVM\_NO\_MEM} if \id{cvode\_mem} was NULL.  
+  Note that there are no initial values for quadrature variables. The reason for this is 
+  that these variables are always $0.0$ at the initial time and {\cvodes} performs this
+  initialization by itself.
+}
+%%
+The function \id{CVodeQuadReInit}, useful during the solution of a sequence of problems of 
+same size, reinitializes the quadrature related internal memory 
+and must follow a call to \Id{CVodeQuadMalloc} (and maybe a call to \id{CVodeReInit}). 
+The number \id{Nq} of quadratures is assumed to be unchanged since the call to 
+\id{CVodeQuadMalloc}.
+The call to the \id{CVodeQuadReInit} function has the form:
+%%
+\ucfunction{CVodeQuadReInit}
+{
+  flag = CVodeQuadReInit(cvode\_mem, fQ, itolQ, reltolQ, abstolQ);
+}
+{
+  The function \id{CVodeQuadReInit} provides required problem specifications 
+  and reinitializes the quadrature integration.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[fQ] (\Id{RhsFn})
+    is the {\C} function which computes $fQ$, the right-hand side of the quadrature
+    equations.
+  \item[itolQ] (\id{int}) 
+    is either \Id{SS} or \Id{SV} (see \id{CVodeQuadMalloc} above).
+  \item[reltolQ] (\id{realtype *})
+    \index{tolerances}
+    is a pointer to the relative error tolerance.
+  \item[abstolQ] (\id{void *})
+    is a pointer to the absolute error tolerance.
+  \end{args}
+}
+{
+  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  \begin{args}[QCVREI\_ILL\_INPUT]
+  \item[\Id{SUCCESS}]
+    The call to \id{CVodeReInit} was successful.
+  \item[\Id{QCVREI\_NO\_MEM}] 
+    The {\cvode} memory block was not initialized through a 
+    previous call to \id{CVodeCreate}.
+  \item[\Id{QCVREI\_NO\_QUAD}] 
+    Memory space for the quadrature integration was not allocated through a 
+    previous call to \id{CVodeQuadMalloc}.
+  \item[\Id{QCVREI\_ILL\_INPUT}] 
+    An input argument to \id{CVodeQuadReInit} has an illegal value.
+  \end{args}
+}
+{
+  If an error occured, \id{CVodeQuadReInit} also prints an error message to the
+  file specified by the optional input \id{errfp}.
+}
+%%
 
 %%===================================================================================
 
-\subsection{Quadrature extraction function}\label{sss:cvodequadextract}
+\subsection{Quadrature extraction functions}\label{ss:quad_get}
 
 If forward sensitivity computations have been initialized by a call to \id{CVodeQuadMalloc},
 or reinitialized by a call to \id{CVodeQuadReInit}, then {\cvodes} computes both solution
 and quadratures at time \id{t}. However, \id{CVode} will still return only the solution
 $y$ in \id{y}. Solution quadratures can be obtained through the function
-\ID{CVodeQuadExtract}:
-\begin{verbatim}
-ier = CVodeQuadExtract(cvode_mem, t, yQ);
-\end{verbatim}
-Its arguments are as follows:
-\begin{itemize}
-\item \id{cvode\_mem} is the pointer to the memory previously allocated
-  by \id{CVodeMalloc}.
-\item \id{t} specifies the time at which quadrature information is 
-  requested. The time \id{t} must fall within the interval defined by the last 
-  succesful step taken by {\cvodes}.
-\item \id{yQ} must be declared of type \id{N\_Vector}.
-  If successful, \id{CVodeQuadExtract} will load \id{yQ} with the values of the
-  solution quadratures at time \id{t}.
-\end{itemize}
-The return value \id{ier} of \id{CVodeQuadExtract} is equal to: 
-\begin{itemize}
-\item \Id{SUCCESS} if there were no errors; 
-\item \Id{DKY\_NO\_MEM} if \id{cvode\_mem} was NULL;
-\item \Id{DKY\_NO\_QUAD} if quadrature computation was not turned on
-      by a call to \id{CVodeQuadMalloc};
-\item \Id{BAD\_T} if the time \id{t} is not in the allowed range.
-\end{itemize}
-In case of an error return, an error message is also printed.  
-
-%%===================================================================================
-
-\subsection{Interpolated quadrature output function}
-
-The function \ID{CVodeQuadDky} computes the \id{k}-th derivatives of the interpolating 
+%%
+%%
+\ucfunction{CVodeGetQuad}
+{
+  flag = CVodeGetQuad(cvode\_mem, t, yQ);
+}
+{
+  The function \id{CVodeGetQuad} returns the quadrature solution vector after
+  successful return from \id{CVode}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item \id{cvode\_mem} (\id{void *})
+    pointer to the memory previously allocated by \id{CVodeMalloc}.
+  \item \id{t} (\id{realtype})
+    specifies the time at which quadrature information is 
+    requested. The time \id{t} must fall within the interval defined by the last 
+    succesful step taken by {\cvodes}.
+  \item \id{yQ} (\id{N\_Vector})
+    the computed quadrature vector.
+  \end{args}
+}
+{
+  The return value \id{flag} of \id{CVodeGetQuad} is one of:
+  \begin{args}
+  \item \Id{OKAY} 
+    \id{CVodeGetQuad} was successful.
+  \item \Id{CVG\_NO\_MEM} 
+    \id{cvode\_mem} was NULL.
+  \item \Id{CVG\_NO\_QUAD} 
+    Quadrature integration was not initialized.
+  \item \Id{BAD\_DKY} 
+    \id{yQ} is \id{NULL}.
+  \item \Id{BAD\_T} 
+    the time \id{t} is not in the allowed range.
+  \end{args}
+}
+{
+  In case of an error return, an error message is also printed.  
+}
+%%
+%%
+The function \ID{CVodeGetQuadDky} computes the \id{k}-th derivatives of the interpolating 
 polynomials for the quadrature variables at time \id{t}.
-This function is called by \id{CVodeQuadExtract} with \id{k} $= 0$, but may also be called 
+This function is called by \id{CVodeGetQuad} with \id{k} $= 0$, but may also be called 
 directly by the user.
-\begin{verbatim}
-ier = CVodeQuadDky(cvode_mem, t, k, dkyQ)
-\end{verbatim}
-Its arguments and return value are the same as for \id{CVodeDky}.
+%%
+\ucfunction{CVodeGetQuadDky}
+{
+  flag = CVodeGetQuadDky(cvode\_mem, t, k, dkyQ);
+}
+{
+  The function \id{CVodeGetQuadDky} returns derivatives of the quadrature solution 
+  vector after successful return from \id{CVode}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item \id{cvode\_mem} (\id{void *})
+    pointer to the memory previously allocated by \id{CVodeMalloc}.
+  \item \id{t} (\id{realtype})
+    specifies the time at which quadrature information is 
+    requested. The time \id{t} must fall within the interval defined by the last 
+    succesful step taken by {\cvodes}.
+  \item \id{k} (\id{int})
+  \item \id{dkyQ} (\id{N\_Vector})
+    the vector continaing the derivative. This vector must be allocated by the caller. 
+  \end{args}
+}
+{
+  The return value \id{flag} of \id{CVodeGetQuad} is one of:
+  \begin{args}
+  \item \Id{OKAY} 
+    \id{CVodeGetQuadDky} succeeded.
+  \item \Id{CVG\_NO\_MEM} 
+    The pointer to \id{cvode\_mem} was NULL.
+  \item \Id{CVG\_NO\_QUAD} 
+    Quadrature integration was not initialized.
+  \item \Id{BAD\_DKY} 
+    The vector \id{yQ} is \id{NULL}.
+  \item \Id{BAD\_K} 
+    \id{k} is not in the range $0, 1, ..., q_u$.
+  \item \Id{BAD\_T} 
+    The time \id{t} is not in the allowed range.
+  \end{args}
+}
+{
+  In case of an error return, an error message is also printed.  
+}
+%%
+%%
 
 %%===================================================================================
 
-\subsection{Quadrature reinitialization function}\label{sss:cvqreinit}
+\subsection{Optional inputs for quadrature integration}\label{ss:quad_optional_input}
 
-The function \ID{CVodeQuadReInit}, useful during the solution of a sequence of problems of 
-same size, reinitializes the quadrature related internal memory 
-and must follow a call to \Id{CVodeQuadMalloc} (and maybe a call to \id{CVodeReInit}). 
-The number \id{Nq} of quadratures is assumed to be unchanged since the call to 
-\Id{CVodeQuadMalloc}.
+{\cvodes} provides the following two optional input functions:
+%%
+%%
+\ucfunction{CVodeSetQuadErrCon}
+{
+  flag = CVodeSetQuadErrCon(cvode\_mem, errconQ);
+}
+{
+  The function \ID{CVodeQuadErrCon} specifies error control strategy for
+  quadrature variables.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[errconQ] (\id{booleantype})
+    specifies whether quadrature variables are included (\id{TRUE}) or not
+    (\id{FALSE}) in the error control mechanism.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVS\_ILL\_INPUT]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{CVS\_NO\_MEM}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  By default, \id{errconQ} is set to \id{FALSE}. If \id{errconQ}$=$\id{FALSE}, 
+  then the tolerances passed to \id{CVodeQuadMalloc} (and \id{CVodeQuadReInit})
+  are ignored.
+}
+%%
+%%
 
-The call to the \id{CVodeQuadReInit} function has the form
-\begin{verbatim}
-ier = CVodeQuadReInit(cvode_mem, fQ, errconQ, &rtolQ, atolQ, 
-                      fQ_data, machEnvQ);
-\end{verbatim}
-The arguments have names and meanings identical to those of \id{CVodeQuadMalloc}.
+%%
+%%
+\ucfunction{CVodeSetQuadFdata}
+{
+  flag = CVodeSetQuadFdata(cvode\_mem, fQ\_data);
+}
+{
+  The function \ID{CVodeSetQuadFdata} specifies the user data block \Id{fQ\_data}
+  and attaches it to the main {\cvode} memory block.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[fQ\_data] (\id{void *})
+    pointer to the user data.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVS\_ILL\_INPUT]
+  \item[\Id{SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{CVS\_NO\_MEM}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  If \id{fQ\_data} is not specified, a \id{NULL} pointer is
+  passed to all user functions that have it as an argument.
+  Note that \id{fQ\_data} can be the same as the user data
+  pointer \id{f\_data} set through \id{CVodeSetFdata}.
+}
+%%
+%%
 
-The return value \id{ier} of \id{CVodeQuadReInit} is equal to: 
-\begin{itemize}
-\item \Id{SUCCESS} if there were no errors; 
-\item \Id{QCVREI\_NO\_MEM} if \id{cvode\_mem} was NULL;
-\item \Id{QCVREI\_NO\_QUAD} if quadrature computation was not turned on
-      by a call to \id{CVodeQuadMalloc};
-\item \Id{QCVREI\_ILL\_INPUT} if an input argument was illegal;
-\end{itemize}
-In case of an error return, an error message is also printed.  
+%%===================================================================================
 
-\subsection{User-supplied functions for quadrature integration}
+\subsection{Optional outputs for quadrature integration}\label{ss:quad_optional_output}
 
-\index{right-hand side function|quadarture equations|(}
-For integration of quadrature equations, the user must provide a function of
-type \ID{QuadRhsFn} defined by
-\begin{verbatim}
-typedef void (*QuadRhsFn)(realtype t, N_Vector y, N_Vector yQdot, 
-                          void *fQ_data);
-\end{verbatim}
-to compute the right-hand side of these equations.
+{\cvodes} provides the following functions that can be used to obtain solver
+performance information related to quadature integration.
 
-This function takes as input the independent variable value \id{t}
-and the dependent variable vector \id{y}. It must store the
-result of $fQ(t,y)$ in the vector \id{yQdot}. 
-The \id{fQ\_data} parameter is the same as the \id{fQ\_data} parameter passed by 
-the user to the \id{CVodeQuadMalloc} function. This user-supplied pointer is passed to 
-the user's \id{fQ} function every time it is called.
+\ucfunction{CVodeGetQuadNumRhsEvals}
+{
+  flag = CVodeGetQuadNumRhsEvals(cvode\_mem, nfQevals);
+}
+{
+  The function \ID{CVodeGetQuadNumRhsEvals} returns the 
+  number of calls to the user's quadrature right-hand side evaluation function.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[nfQevals] (\id{long int *})
+    number of calls to the user's \id{fQ} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVG\_NO\_QUAD]
+  \item[OKAY] 
+    The optional output value has been successfuly set.
+  \item[\Id{CVG\_NO\_MEM}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVG\_NO\_QUAD}]
+    Quadrature integration has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{CVodeGetQuadNumErrTestFails}
+{
+  flag = CVodeGetQuadNumErrTestFails(cvode\_mem, nQetfails);
+}
+{
+  The function \ID{CVodeGetQuadNumErrTestFails} returns the
+  number of local error test failures due to quadrature variables 
+  that have occurred.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[nQetfails] (\id{long int *})
+    number of error test failures due to quadrature variables.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVG\_NO\_MEM]
+  \item[OKAY] 
+    The optional output value has been successfuly set.
+  \item[\Id{CVG\_NO\_MEM}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVG\_NO\_QUAD}]
+    Quadrature integration has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{CVodeGetQuadErrWeights}
+{
+  flag = CVodeGetQuadErrWeights(cvode\_mem, eQweight);
+}
+{
+  The function \ID{CVodeGetQuadErrWeights} returns the quadrature error weights 
+  at the current time.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[eQweight] (\id{N\_Vector *})
+    quadrature error weights at the current time.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVG\_NO\_MEM]
+  \item[OKAY] 
+    The optional output value has been successfuly set.
+  \item[\Id{CVG\_NO\_MEM}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVG\_NO\_QUAD}]
+    Quadrature integration has not been initialized.
+  \end{args}
+}
+{
+  The user need not allocate space for \id{eQweight} and should not modify
+  any of its components. Note that if quadratures were not included in the
+  error control mechanism (through a call to \id{CVodeSetQuadErrCon} with
+  \id{errconQ}$=$\id{TRUE}), \id{CVodeGetQuadErrWeights} returns
+  \id{eQweights}$=$\id{NULL}.
+}
+%%
+%%
+\ucfunction{CVodeGetQuadStats}
+{
+  flag = CVodeGetQuadStats(cvode\_mem, nfQevals, nQetfails);
+}
+{
+  The function \ID{CVodeGetQuadStats} returns the {\cvode} integrator statistics
+  as a group.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[nfQevals] (\id{long int *})
+    number of calls to the user's \id{fQ} function.
+  \item[nQetfails] (\id{long int *})
+    number of error test failures due to quadrature variables.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVG\_NO\_MEM]
+  \item[OKAY] 
+    the optional output values have been successfuly set.
+  \item[\Id{CVG\_NO\_MEM}]
+    the \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVG\_NO\_QUAD}]
+    Quadrature integration has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
 
-Both \id{y} and \id{yQdot} arguments are of type \id{N\_Vector},
-but they  typically all have different internal representations. It is the user's 
-responsibility to access the vector data consistently (including the use of the 
-correct accessor macros from each {\nvector} implementation). For the sake of 
-computational efficiency, the vector kernels in the two {\nvector} implementations 
-provided with {\cvodes} do not perform any consistency checking for their 
-\id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
+%%===================================================================================
 
-A \id{QuadRhsFn} function type does not have a return value.
-\index{right-hand side function|quadarture equations|)}
+\subsection{User-supplied function for quadrature integration}
+
+\index{right-hand side function!quadrature equations}
+For integration of quadrature equations, the user must provide a function 
+that defines the right-hand side of the quadrature equations. This function
+must be of type \ID{QuadRhsFn} defined as follows:
+\usfunction{QuadRhsFn}
+{
+  typedef void (*QuadRhsFn)(realtype t, N\_Vector y, N\_Vector yQdot, void *fQ\_data);
+}
+{
+  This function computes the quadrature equation right-hand side for a given value
+  of the independent variable $t$ and state vector $y$.
+}
+{
+  \begin{args}[fQ\_data]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[yQdot]
+    is the output vector $fQ(t,y)$.
+  \item[fQ\_data]
+    is a pointer to user data - the same as the \Id{fQ\_data}      
+    parameter passed to \id{CVodeSetQuadFdata}.   
+  \end{args}
+}
+{
+  A \id{QuadRhsFn} function type does not have a return value.                        
+}
+{
+  Allocation of memory for \id{yQdot} is handled within {\cvodes}.
+
+  Both \id{y} and \id{yQdot} arguments are of type \id{N\_Vector},
+  but they  typically all have different internal representations. It is the user's 
+  responsibility to access the vector data consistently (including the use of the 
+  correct accessor macros from each {\nvector} implementation). For the sake of 
+  computational efficiency, the vector kernels in the two {\nvector} implementations 
+  provided with {\cvodes} do not perform any consistency checking for their 
+  \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
+}
+
 
 %%===================================================================================
 %%
@@ -3914,7 +4354,7 @@ of calls in the user main program. Steps that are unchanged from the user main
 program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 %%
 %%
-\index{User main program}
+\index{User main program!CVBANDPRE@{\cvbandpre} usage}
 \begin{Steps}
   
 \item
@@ -3924,7 +4364,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Initialize vector specification}
 
 \item
-  \textcolor{gray}{\bf Set intial values}
+  \textcolor{gray}{\bf Set initial values}
  
 \item
   \textcolor{gray}{\bf Create {\cvodes} object}
@@ -4383,7 +4823,7 @@ of calls in the user main program. Steps that are unchanged from the user main
 program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 %%
 %%
-\index{User main program}
+\index{User main program!CVBBDPRE@{\cvbbdpre} usage}
 \begin{Steps}
 \item 
   \textcolor{gray}{\bf Initialize MPI}
@@ -4395,7 +4835,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Initialize vector specification}
 
 \item
-  \textcolor{gray}{\bf Set intial values}
+  \textcolor{gray}{\bf Set initial values}
  
 \item
   \textcolor{gray}{\bf Create {\cvodes} object}
