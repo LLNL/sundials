@@ -1,6 +1,6 @@
                            SUNDIALS 
                         Shared Module
-                   Release 2.0, December 2004  
+                Release x.x.x, Month YYYY
 
 
 The family of solvers referred to as SUNDIALS consists of solvers CVODE 
@@ -15,17 +15,20 @@ in this module:
 - definitions of SUNDIALS types (realtype, booleantype)
 - common math functions (RpowerI, RPowerR, RSqrt, RAbs,...)
 
+
 A. Documentation
 ----------------
 All shared submodules are fully described in the user documentation for any of 
 the SUNDIALS solvers [1,2,3,4]. PostScript and PDF files for the uer guide for 
 a particular solver are available in the solver's directory.
 
+
 B. Installation
 ---------------
 
 For basic installation instructions see the file /sundials/INSTALL. 
 For complete installation instructions see any of the user guides.
+
 
 C. References
 -------------
@@ -43,8 +46,28 @@ C. References
     Documentation for KINSOL v2.2.0," LLNL technical report UCRL-MA-208116, 
     November 2004.
 
-D.1. Revision history since release 1.0 (July 2002)
----------------------------------------------------
+
+D. Releases
+-----------
+
+v. 2.0.1 - Jan. 2005
+v. 2.0   - Dec. 2004
+v. 1.0   - Jul. 2002 (first SUNDIALS release)
+v. 0.0   - Mar. 2002
+
+
+E. Revision History
+-------------------
+
+v. 2.0 (Dec. 2004) ---> v. 2.0.1 (Jan. 2005)
+--------------------------------------------
+
+- Changes related to the build system
+   - changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+
+v. 1.0 (Jul. 2002) ---> v. 2.0 (Dec. 2004)
+------------------------------------------
 
 - Changes to the generic NVECTOR module
    - removed machEnv, redefined table of vector operations (now contained
@@ -84,8 +107,8 @@ D.1. Revision history since release 1.0 (July 2002)
      values from float.h based on the precision.
    - changed definition of macro RCONST to depend on precision.
 
-D.2. Previous revisions (YYYYMMDD)
-----------------------------------
+v 0.0 (Mar. 2002) ---> v. 1.0 (Jul. 2002)
+-----------------------------------------
 
 20020321  Defined and implemented generic NVECTOR module, and separate serial/
           parallel NVECTOR modules, including serial/parallel F/C interfaces.

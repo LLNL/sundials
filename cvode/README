@@ -1,5 +1,5 @@
                               CVODE
-                    Release 2.2.0, December 2004
+                    Release x.x.x, Month YYYY
              Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -35,6 +35,7 @@ The notes below provide the location of documentation, directions for the
 installation of the CVODE package, and relevant references. Following that 
 is a brief history of revisions to the package.
 
+
 A. Documentation
 ----------------
 
@@ -42,12 +43,14 @@ A. Documentation
 CVODE User Guide (cv_guide.ps and cv_guide.pdf) and the CVODE
 Examples (cv_examples.ps and cv_examples.pdf) documents.
 
+
 B. Installation
 ---------------
 
 For basic installation instructions see the file /sundials/INSTALL. 
 For complete installation instructions see the "CVODE Installation Procedure"
 chapter in the CVODE User Guide.
+
 
 C. References
 -------------
@@ -66,7 +69,22 @@ C. References
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
     to appear.
 
-D.1. Revision History since release 2.2.0 (December 2004)
+
+D. Releases
+-----------
+
+v. 2.2.1       - Jan. 2005
+v. 2.2.0       - Dec. 2004
+v. 2.0         - Jul. 2002 (first SUNDIALS release)
+v. 1.0         - Mar. 2002 (CVODE/PVODE -> combined)
+v. 1.0 (PVODE) - Jul. 1997 (date written)
+v. 1.0 (CVODE) - Sep. 1994 (date written)
+
+
+E. Revision History
+-------------------
+
+v. 2.2.1 (Jan. 2005) ---> 
 ---------------------------------------------------------
 
 - New features
@@ -84,8 +102,15 @@ D.1. Revision History since release 2.2.0 (December 2004)
 - Changes to the FCVODE module
    - added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
 
-D.2. Revision History since release 2.0 (August 2002)
------------------------------------------------------
+v. 2.2.0 (Dec. 2004) ---> v. 2.2.1 (Jan. 2005)
+----------------------------------------------
+
+- Changes related to the build system
+   - changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+
+v. 2.0 (Jul. 2002) ---> v. 2.2.0 (Dec. 2004)
+--------------------------------------------
 
 - New features
    - added option to specify a value of the independent variable (time)
@@ -144,37 +169,21 @@ D.2. Revision History since release 2.0 (August 2002)
      maxncf, etc.) and rearranged locations in IOPT and ROPT for uniformity.
 
 
-D.3. Summary of previous revisions (YYYYMMDD) (significant revisions only)
---------------------------------------------------------------------------
+Summary of previous revisions (YYYYMMDD) (significant revisions only)
+---------------------------------------------------------------------
 
-D.3.1. Serial version of CVODE (1993 - March 2002)
---------------------------------------------------
+Combined CVODE package (Mar. 2002 - Jul. 2002)
+-----------------------------------------------
 
-1993-94   DATE WRITTEN.  First released 2 September 1994.
-19970811  Type names changed to LLNL_FLOAT etc.
-19980120  Name changes: VECTOR to NVECTOR etc.
-19980508  Wrappers on header files for C++ use; type bool changed to boole.
-20000316  SPGMR module modified for correct treatment of scalings.
-          Added CVODE re-initialization routine CVReInit.
-20000323  Added band preconditioner module CVBANDPRE.
-20000719  Fixed memory leak bugs in CVReInit.
-20000808  Fixed bug in N_VMin routine.
-20011114  Added option for stability limit detection algorithm STALD.
-20011115  Reorganized DENSE module, with smalldense.* files separate.
-20011220  Default type 'integer' changed to 'long int' in llnltyps.h.
-20011220  Optional input ropt[HMAX] examined on every call to CVode.
-20011221  Optional input iopt[MXHNIL] = -1 means no t+h=t messages.
-20011228  Added arguments to CVSpgmr: jtimes (user J*v routine), jac_data.
-20020114  Linear solver modules reorganized: linear solver specification
-          routines perform malloc operations and return a completion flag.
-          Re-use of linear solver memory is allowed if linear solver choice
-          and parameters are unchanged.   All examples modified accordingly.
-20020301  Added ReInit routine to CVDENSE, CVBAND, CVSPGMR modules.
-20020305  Added CVReInitBandPre routine to CVBANDPRE module.
+20020313  Modified to work with new NVECTOR abstraction.
+          Changed name PVBBDPRE to CVBBDPRE, etc.
+20020321  Revisions throughout to reflect usage changes for NVECTOR modules.
+          Changed dense/band backsolve argument b type from N_Vector to real*.
+20020328  In FCVODE, added interfaces to dense/band linear solvers.
+20020626  Changed type names real/integer to realtype/integertype.
 
-
-D.3.2. Parallel version of CVODE (PVODE)  (July 1995 - March 2002)
-------------------------------------------------------------------
+PVODE (Jul. 1995 - Mar. 2002)
+-----------------------------
 
 19950726  DATE WRITTEN; MPI version of VECTOR module written, creating 
           MPI_PVODE; makefiles written with defs. specific to IBM-SP.
@@ -215,13 +224,29 @@ D.3.2. Parallel version of CVODE (PVODE)  (July 1995 - March 2002)
 20020306  Added PVReInitBBD routine to PVBBDPRE, and added Fortran interface
           to it.  Revised pvkxb and pvidagkbf examples accordingly.
 
+CVODE (1993 - Mar. 2002)
+------------------------
 
-D.3.3. Combined CVODE package (March 2002 - July 2002)
-------------------------------------------------------
+1993-94   DATE WRITTEN.  First released 2 September 1994.
+19970811  Type names changed to LLNL_FLOAT etc.
+19980120  Name changes: VECTOR to NVECTOR etc.
+19980508  Wrappers on header files for C++ use; type bool changed to boole.
+20000316  SPGMR module modified for correct treatment of scalings.
+          Added CVODE re-initialization routine CVReInit.
+20000323  Added band preconditioner module CVBANDPRE.
+20000719  Fixed memory leak bugs in CVReInit.
+20000808  Fixed bug in N_VMin routine.
+20011114  Added option for stability limit detection algorithm STALD.
+20011115  Reorganized DENSE module, with smalldense.* files separate.
+20011220  Default type 'integer' changed to 'long int' in llnltyps.h.
+20011220  Optional input ropt[HMAX] examined on every call to CVode.
+20011221  Optional input iopt[MXHNIL] = -1 means no t+h=t messages.
+20011228  Added arguments to CVSpgmr: jtimes (user J*v routine), jac_data.
+20020114  Linear solver modules reorganized: linear solver specification
+          routines perform malloc operations and return a completion flag.
+          Re-use of linear solver memory is allowed if linear solver choice
+          and parameters are unchanged.   All examples modified accordingly.
+20020301  Added ReInit routine to CVDENSE, CVBAND, CVSPGMR modules.
+20020305  Added CVReInitBandPre routine to CVBANDPRE module.
 
-20020313  Modified to work with new NVECTOR abstraction.
-          Changed name PVBBDPRE to CVBBDPRE, etc.
-20020321  Revisions throughout to reflect usage changes for NVECTOR modules.
-          Changed dense/band backsolve argument b type from N_Vector to real*.
-20020328  In FCVODE, added interfaces to dense/band linear solvers.
-20020626  Changed type names real/integer to realtype/integertype.
+

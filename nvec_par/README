@@ -1,5 +1,5 @@
                      NVECTOR_PARALLEL
-                Release 2.0, November 2004          
+                Release x.x.x, Month YYYY
 
 MPI parallel implementation of the NVECTOR module for SUNDIALS. 
 
@@ -16,6 +16,7 @@ for N_Vector and N_Vector array.
 NVECTOR_PARALLEL provides implementations for all vector operations defined
 by the generic NVECTOR module in the table of operations.
 
+
 A. Documentation
 ----------------
 
@@ -24,11 +25,13 @@ documentation for any of the SUNDIALS solvers [1,2,3,4]. PostScript
 and PDF files for the user guide for a particular solver are available
 in the solver's directory.
 
+
 B. Installation
 ---------------
 
 For basic installation instructions see /sundials/INSTALL. 
 For complete installation instructions see any of the user guides.
+
 
 C. References
 -------------
@@ -46,8 +49,27 @@ C. References
     Documentation for KINSOL v2.2.0," LLNL technical report UCRL-MA-208116, 
     November 2004.
 
-D.1. Revision history since release 1.0 (July 2002)
----------------------------------------------------
+
+D. Releases
+-----------
+
+v. 2.0.1 - Jan. 2005
+v. 2.0   - Dec. 2004
+v. 1.0   - Jul. 2002 (first SUNDIALS release)
+
+
+E. Revision History
+-------------------
+
+v. 2.0 (Dec. 2004) ---> v. 2.0.1 (Jan. 2005)
+--------------------------------------------
+
+- Changes related to the build system
+   - changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+
+v. 1.0 (Jul. 2002) ---> v. 2.0 (Dec. 2004)
+------------------------------------------
 
 - Revised to correspond to new generic NVECTOR module
   (see sundials/shared/README).

@@ -1,5 +1,5 @@
                              KINSOL
-                      Release 2.2.0, December 2004
+                      Release x.x.x, Month YYYY
             Allan G. Taylor, Alan C. Hindmarsh, Radu Serban
              Center for Applied Scientific Computing, LLNL
 
@@ -37,6 +37,7 @@ The notes below provide the location of documentation, directions for the
 installation of the KINSOL package, and relevant references. Following that 
 is a brief history of revisions to the package.
 
+
 A. Documentation
 ----------------
 
@@ -44,12 +45,14 @@ A. Documentation
 KINSOL User Guide [1] (kin_guide.ps and kin_guide.pdf) and the KINSOL
 Examples [2] (kin_examples.ps and kin_examples.pdf) documents.
 
+
 B. Installation
 ---------------
 
 For basic installation instructions see the file /sundials/INSTALL. 
 For complete installation instructions see the "KINSOL Installation Procedure"
 chapter in the KINSOL User Guide [1].
+
 
 C. References
 -------------
@@ -74,7 +77,20 @@ C. References
     A Nonlinear Solver for Sequential and Parallel Computers," LLNL
     technical report UCRL-ID-131185, July 1998.
 
-D.1. Revision History since release 2.2.0 (December 2004)
+
+D. Releases
+-----------
+
+v. 2.2.1   - Jan. 2005
+v. 2.2.0   - Dec. 2004
+v. 2.0     - Jul. 2002 (first SUNDIALS release)
+v. 1.0     - Aug. 1998 (date written)
+
+
+E. Revision History
+-------------------
+
+v. 2.2.1 (Jan. 2005) ---> 
 ---------------------------------------------------------
 
 - New feature
@@ -108,8 +124,15 @@ D.1. Revision History since release 2.2.0 (December 2004)
      and the retained matrix (mukeep, mlkeep).
    - added support for KINSPBCG/SPBCG (added FKIN*SPBCG* functions).
 
-D.2. Revision History since release 2.0 (July 2002)
----------------------------------------------------
+v. 2.2.0 (Dec. 2004) ---> v. 2.2.1 (Jan. 2005)
+----------------------------------------------
+
+- Changes related to the build system
+   - changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+
+v. 2.0 (Jul. 2002) ---> v. 2.2.0 (Dec. 2004)
+--------------------------------------------
 
 - New feature
    - added option to disable all error messages.
@@ -180,8 +203,10 @@ D.2. Revision History since release 2.0 (July 2002)
    - added new optional inputs and outputs (e.g. last return flag from the
      linear solver, etc.).
 
-D.3. Summary of previous revisions (YYYYMMDD) (significant revisions only)
---------------------------------------------------------------------------
+v. 1.0 (Aug. 1998) ---> v. 2.0 (Jul. 2002)
+------------------------------------------
+
+YYYYMMDD
 
 19980802   DATE WRITTEN - KINSOL released.
 19981203   Implemented serial Fortran/C interface (fkinsols.c).
