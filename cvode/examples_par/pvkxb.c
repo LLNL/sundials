@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-07-22 21:25:56 $
+ * $Revision: 1.12 $
+ * $Date: 2004-07-22 22:52:33 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -234,17 +234,12 @@ int main(int argc, char *argv[])
   flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
-  if(my_pe == 0) printf("BEFORE BBDAlloc\n");
-
-
   /* Allocate preconditioner block */
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
   pdata = CVBBDPrecAlloc(cvode_mem, local_N, mudq, mldq, 
                          mukeep, mlkeep, 0.0, flocal, ucomm);
   if(check_flag((void *)pdata, "CVBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
-
-  if(my_pe == 0) printf("AFTER BBDAlloc\n");
 
   /* Call CVBBDSpgmr to specify the linear solver CVSPGMR 
      with left preconditioning, the maximum Krylov dimension maxl,
