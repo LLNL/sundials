@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39.2.2 $
- * $Date: 2005-04-01 21:49:56 $
+ * $Revision: 1.39.2.3 $
+ * $Date: 2005-04-05 19:30:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -149,6 +149,15 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 
   *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, F2C_vec, itol, *rtol, atolptr);
 
+  /* reset data pointer into F2C_vec */
+  N_VSetArrayPointer(data_F2C_vec, F2C_vec);
+
+  /* destroy F2C_atolvec if allocated */
+  if (F2C_atolvec != NULL) {
+    N_VSetArrayPointer(data_F2C_atolvec, F2C_atolvec);
+    N_VDestroy(F2C_atolvec);
+  }
+
   if(*ier != CV_SUCCESS) {
     *ier = -1;
     return;
@@ -180,10 +189,8 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
     atolptr = (void *) atol; 
     break;
   case 2:
-    if (F2C_atolvec == NULL) {
-      F2C_atolvec = N_VClone(F2C_vec);
-      data_F2C_atolvec = N_VGetArrayPointer(F2C_atolvec);
-    }
+    F2C_atolvec = N_VClone(F2C_vec);
+    data_F2C_atolvec = N_VGetArrayPointer(F2C_atolvec);
     N_VSetArrayPointer(atol, F2C_atolvec);
     itol = CV_SV; 
     atolptr = (void *) F2C_atolvec; 
@@ -221,6 +228,15 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
   }
 
   *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, F2C_vec, itol, *rtol, atolptr);
+
+  /* reset data pointer into F2C_vec */
+  N_VSetArrayPointer(data_F2C_vec, F2C_vec);
+
+  /* destroy F2C_atolvec if allocated */
+  if (F2C_atolvec != NULL) {
+    N_VSetArrayPointer(data_F2C_atolvec, F2C_atolvec);
+    N_VDestroy(F2C_atolvec);
+  }
 
   if (*ier != CV_SUCCESS) {
     *ier = -1;
@@ -415,10 +431,6 @@ void FCV_FREE ()
   /* Restore data array in F2C_vec */
   N_VSetArrayPointer(data_F2C_vec, F2C_vec);
 
-  if (F2C_atolvec != NULL) {
-    N_VSetArrayPointer(data_F2C_atolvec, F2C_atolvec);
-    N_VDestroy(F2C_atolvec);
-  }
 }
 
 /***************************************************************************/
