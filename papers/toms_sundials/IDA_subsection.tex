@@ -17,20 +17,23 @@ are given.  (Often $t$ is time, but it certainly need not be.)
 
 % Initial condition calculation
 %------------------------------
-Prior to integrating a DAE initial-value problem, an important requirement 
-is that the pair of vectors $y_0$ and ${\dot y_0}$ are both initialized to
-satisfy the DAE residual $F(t_0,y_0, {\dot y}_0) = 0$.
-For a class of problems that includes so-called
-semi-explicit index-one systems, IDA provides a routine that computes
-consistent initial conditions from a user's initial guess~\cite{BHP:98}.  
-For this, the user must identify subvectors of $y$
+
+Prior to integrating a DAE initial-value problem, an important
+requirement is that the pair of vectors $y_0$ and ${\dot y_0}$ are
+both initialized to satisfy the DAE residual $F(t_0,y_0, {\dot y}_0)=0$.  
+For a class of problems that includes so-called semi-explicit
+index-one systems \cite{BCP:96}, IDA provides a routine that computes
+consistent initial conditions from a user's initial guess
+~\cite{BHP:98}.  For this, the user must identify subvectors of $y$
 (not necessarily contiguous), denoted $y_d$ and $y_a$, which are its
 differential and algebraic parts, respectively, such that $F$ depends
 on ${\dot y}_d$ but not on any components of ${\dot y}_a$.  The assumption that
 the system is ``index one'' means that for a given $t$ and $y_d$, the
 system $F(t,y,{\dot y}) = 0$ defines $y_a$ uniquely.  In this case, a solver
 within IDA computes $y_a$ and ${\dot y}_d$ at $t = t_0$, given $y_d$ and an
-initial guess for $y_a$.  A second available option with this solver
+initial guess for $y_a$.  
+
+A second available option with this solver
 also computes all of $y(t_0)$ given ${\dot y}(t_0)$; this is intended mainly
 for quasi-steady-state problems, where ${\dot y}(t_0) = 0$ is given.
 In both cases, IDA solves the system $F(t_0,y_0, {\dot y}_0) = 0$ for the
@@ -40,6 +43,7 @@ use of the existing machinery that is to be used for solving the
 linear systems during the integration, in combination with certain
 tricks involving the step size (which is set artificially for this
 calculation).
+
 For problems that do not fall into either of these categories, the
 user is responsible for passing consistent values or risk failure in
 the numerical integration.
@@ -69,9 +73,9 @@ Regardless of the method options, the solution of the nonlinear system
 (\ref{e:DAE_nls}) is accomplished with some form of Newton iteration.
 This leads to a linear system for each Newton correction, of the form
 \begin{equation}\label{e:DAE_Newtoncorr}
-  J [y_{n(m+1)} - y_{n(m)}] = -G(y_{n(m)})  \, , 
+  J [y_{n,m+1} - y_{n,m}] = -G(y_{n,m})  \, , 
 \end{equation}
-where $y_{n(m)}$ is the $m$-th approximation to $y_n$. 
+where $y_{n,m}$ is the $m$-th approximation to $y_n$. 
 %
 Here $J$ is some approximation to the system Jacobian
 \begin{equation}\label{e:DAE_Jacobian}
@@ -89,11 +93,13 @@ The linear systems are solved by one of three methods:
 \item SPGMR = Scaled Preconditioned GMRES, with restarts allowed.
 \end{itemize}
 For the SPGMR case, preconditioning is allowed only on the
-left,\footnote{Left preconditioning is required to make the norm of
-the linear residual in the Newton iteration meaningful; in general,
-$\| J \Delta y + G \|$ is meaningless, since the weights used in 
-the WRMS-norm correspond to $y$.}
-so that GMRES is applied to systems $(P^{-1}J)\Delta y = -P^{-1}G$. 
+left,\footnote{Left preconditioning is required in order to make the
+norm of the (preconditioned) linear residual in the Newton iteration
+meaningful.  Otherwise this WRMS-norm, $\|J\Delta y + G\|$, is meaningless
+in general, because it involves division by weights that correspond to
+$y$, not $G$.  The appropriate scalings for the components of $G$, or
+even their physical units, need not agree with those of $y$.}
+so that GMRES is applied to systems $(P^{-1}J)\Delta y = -P^{-1}G$.
 
 % WRMS Norm
 %----------
@@ -128,13 +134,13 @@ reevaluated from scratch.
 % Newton convergence test
 %------------------------
 Unlike the CVODE/CVODES case, the stopping test for the Newton iteration
-in IDA ensures that the iteration error $y_n - y_{n(m)}$ is small relative
+in IDA ensures that the iteration error $y_n - y_{n,m}$ is small relative
 to $y$ itself. For this, we estimate the linear convergence rate at all 
 iterations $m>1$ as
 \begin{equation*}
-R = \left( \frac{\delta_m}{\delta_1} \right)^{\frac{1}{m-1}} \, , 
+R = ( \|\delta_m\| / \|\delta_1\| )^{\frac{1}{m-1}} \, , 
 \end{equation*}
-where the $\delta_m = y_{n(m)} - y_{n(m-1)}$ is the correction at
+where the $\delta_m = y_{n,m} - y_{n,m-1}$ is the correction at
 iteration $m=1,2,\ldots$. The Newton iteration is halted if $R>0.9$.
 The convergence test at the $m$-th iteration is then
 \begin{equation}\label{e:DAE_nls_test}
@@ -144,8 +150,8 @@ where $S = R/(R-1)$ whenever $m>1$ and $R\le 0.9$. The user has the
 option of changing the constant in the convergence test from its default 
 value of $0.33$.
 %
-The quantity $S$ is set to $S=20$ initially and whenever $J$ or $P$ is
-updated, and it is reset to $S=100$ on a step with $\alpha \neq \bar\alpha$.
+The quantity $S$ is set to $20$ initially and whenever $J$ or $P$ is
+updated, and it is reset to $100$ on a step with $\alpha \neq \bar\alpha$.
 Note that at $m=1$, the convergence test (\ref{e:DAE_nls_test}) uses an old 
 value for $S$. Therefore, at the first Newton iteration, we make an additional
 test and stop the iteration if $\|\delta_1\| < 0.33 \cdot 10^{-4}$
@@ -198,10 +204,10 @@ During the course of integrating the system, IDA computes an estimate
 of the local truncation error LTE at the $n$-th time step, and
 requires this to satisfy the inequality
 \begin{equation*}
-  \| \mbox{LTE} \|_{\mbox{\scriptsize WRMS}} \leq 1 \, .               
+  \| \mbox{LTE} \| \leq 1 \, .               
 \end{equation*}
 Asymptotically, LTE varies as $h^{q+1}$ at step size $h$ and order $q$, as
-does the predictor-corrector difference $\Delta_n \equiv y_n-y_{n(0)}$.  
+does the predictor-corrector difference $\Delta_n \equiv y_n - y_{n,0}$.  
 Thus there is a constant $C$ such that
 \[ \mbox{LTE} = C \Delta_n + O(h^{q+2}) \, , \]
 and so the norm of LTE is estimated as $|C| \cdot \|\Delta_n\|$.
@@ -229,18 +235,18 @@ order is reduced (by the rules given below), or (c) the order reaches
 IDA uses a different set of local error estimates, based on the
 asymptotic behavior of the local error in the case of fixed step sizes.
 At each of the orders $q'$ equal to $q$, $q-1$ (if $q > 1$), $q-2$ (if
-$q > 2$), or $q+1$ (if $q < 5$), there are constants $C(q')$ such that
+$q > 2$), or $q+1$ (if $q < 5$), there are constants $C_{q'}$ such that
 the norm of the local truncation error at order $q'$ satisfies
-\[ \mbox{LTE}(q') = C(q') \| \phi(q'+1) \| + O(h^{q'+2}) \, , \]
+\[ \mbox{LTE}_{q'} = C_{q'} \| \phi(q'+1) \| + O(h^{q'+2}) \, , \]
 where $\phi(k)$ is a modified divided difference of order $k$ that is
 retained by IDA (and behaves asymptotically as $h^k$).
 Thus the local truncation errors are estimated as
-ELTE$(q') = C(q')\|\phi(q'+1)\|$ to select step sizes.  But the choice
+ELTE$_{q'} = C_{q'}\|\phi(q'+1)\|$ to select step sizes.  But the choice
 of order in IDA is based on the requirement that the scaled derivative
 norms, $\|h^k y^{(k)}\|$, are monotonically decreasing with $k$, for
 $k$ near $q$.  These norms are again estimated using the $\phi(k)$,
 and in fact
-\[ \|h^{q'+1} y^{(q'+1)}\| \approx T(q') \equiv (q'+1) \mbox{ELTE}(q') \, . \]
+\[ \|h^{q'+1}y^{(q'+1)}\| \approx T(q')\equiv(q'+1)\mbox{ELTE}_{q'} \, . \]
 The step/order selection begins with a test for monotonicity that is
 made even {\em before} the local error test is performed.  Namely,
 the order is reset to $q' = q-1$ if (a) $q=2$ and $T(1)\leq T(2)/2$,
@@ -248,8 +254,8 @@ or (b) $q > 2$ and $\max\{T(q-1),T(q-2)\} \leq T(q)$; otherwise
 $q' = q$.  Next the local error test (\ref{lerrtest}) is performed,
 and if it fails, the step is redone at order $q\leftarrow q'$ and a
 new step size $h'$.  The latter is based on the $h^{q+1}$ asymptotic
-behavior of $\mbox{ELTE}(q)$, and, with safety factors, is given by
-\[ \eta = h'/h = 0.9/[2 \, \mbox{ELTE}(q)]^{1/(q+1)} \, . \]
+behavior of $\mbox{ELTE}_q$, and, with safety factors, is given by
+\[ \eta = h'/h = 0.9/[2 \, \mbox{ELTE}_q]^{1/(q+1)} \, . \]
 The value of $\eta$ is adjusted so that $0.25 \leq \eta \leq 0.9$
 before setting $h \leftarrow h' = \eta h$.  If the local error test
 fails a second time, IDA uses $\eta = 0.25$, and on the third
@@ -269,7 +275,7 @@ if $T(2) < T(1)/2$.  (b) If $q > 1$ then
 \item leave $q$ unchanged otherwise $[$then $T(q-1) > T(q) \leq T(q+1)]$.
 \end{itemize}
 In any case, the new step size $h'$ is set much as before:
-\[ \eta = h'/h = 1/[2 \, \mbox{ELTE}(q)]^{1/(q+1)} \, . \]
+\[ \eta = h'/h = 1/[2 \, \mbox{ELTE}_q]^{1/(q+1)} \, . \]
 The value of $\eta$ is adjusted such that (a) if $\eta > 2$, $\eta$ is
 reset to 2; (b) if $\eta \leq 1$, $\eta$ is restricted to 
 $0.5 \leq \eta \leq 0.9$; and (c) if $1 < \eta < 2$ we use $\eta = 1$.
