@@ -24,7 +24,7 @@ chain rule of differentiation.
 %
 The {\em adjoint sensitivity} method is more practical than
 the forward approach when the number of parameters is large and
-we need the gradients of only few output functionals.
+when we need the gradients of only few output functionals.
 In this approach, the solution sensitivities need not be computed
 explicitly. Instead, for each output functional of interest, we form
 and solve an additional system, adjoint to the original one, the 
@@ -33,9 +33,8 @@ output functional with respect to any set of model parameters.
 
 For each of the basic solvers described in Section~\ref{s:basic_solvers},
 extensions that are sensitivity-enabled are already available (CVODES)
-or under development (IDAS). If demand merits it, a sensitivity
-enabled extension to the nonlinear solver, KINSOLS, will also be
-developed.
+or under development (IDAS). Current plans include a sensitivity
+enabled extension to the nonlinear solver, KINSOLS.
 The various algorithmic features of CVODES and IDAS are documented 
 in~\cite{CLPS:03}. A detailed description of the CVODES software package 
 is presented in~\cite{SeHi:03}, while full usage description is given
@@ -46,7 +45,7 @@ in~\cite{HiSe:02}.
 
 \subsection{CVODES}\label{ss:cvodes}
 
-CVODES is an extension of CVODE which, besides solving ODE initial
+CVODES is an extension of CVODE that, besides solving ODE initial
 value problems of the form (\ref{ODE}), also provides forward and 
 adjoint sensitivity analysis capabilities.
 %
@@ -81,7 +80,7 @@ the states and sensitivity variables are advanced in time at each step:
 \begin{itemize}
 \item Simultaneous Corrector: the nonlinear system (\ref{NLS}) is solved
   simultaneously for the states and all sensitivity variables~\cite{MaPe:97},
-  using a coefficient matrix for the Newton update which is
+  using a coefficient matrix for the Newton update, which is
   simply the block-diagonal portion of the Newton matrix;
 \item Staggered Corrector 1: the correction stages for the sensitivity 
   variables take place after the states have been corrected and have passed 
@@ -98,16 +97,16 @@ identical to the matrix $M$ in (\ref{Newtonmat}), and
 therefore the linear systems corresponding to the sensitivity equations
 are solved using the same preconditioner and/or linear system solver that 
 were specified for the original ODE problem. 
-The sensitivity variables may be suppressed from the stepsize control
-algorithm but they are always included in the nonlinear system convergence
+The sensitivity variables may be suppressed from the step size control
+algorithm, but they are always included in the nonlinear system convergence
 test.
 
 The right-hand side of the sensitivity equations may be supplied by a 
-user routine, or approximated by difference quotients, at the user's option.
+user routine, or approximated by difference quotients at the user's option.
 In the latter case, CVODES offers both forward and central finite 
 difference approximations. 
 %
-We use increments that take into account several problem-related features;
+We use increments that take into account several problem-related features,
 namely, the relative ODE error tolerance {\sc rtol}, 
 the machine unit roundoff $U$,
 scale factors $\bar p$ for the problem parameters $p$, 
@@ -143,8 +142,9 @@ an adjoint system is then integrated backward, and finally the desired
 sensitivities are obtained from the backward solution. 
 To be specific about how the adjoint approach works, we consider
 the following situation. We assume as before that $f$ and/or $y_0$
-involves the parameter vector $p$, and that there is a
-functional $g(t,y,p)$ for which we desire the gradient $(dg/dp)|_{t=t_{\mbox{\tiny f}}}$, 
+involves the parameter vector $p$ and that there is a
+functional $g(t,y,p)$ for which we desire the 
+gradient $(dg/dp)|_{t=t_{\mbox{\tiny f}}}$ 
 at the final time $t_{\mbox{\scriptsize f}}$.
 We first integrate the original problem (\ref{e:ODE_with_p}) forward 
 from $t_0$ to $t_{\mbox{\scriptsize f}}$. The next step in the procedure is to integrate 
@@ -170,12 +170,12 @@ CVODES allows for special treatment of quadrature equations by excluding them
 from the nonlinear system solution, while allowing for inclusion or exclusion
 of the corresponding variables from the step size control algorithm.
 
-During the backward integration, we regenerate $y(t)$ values, as needed
+During the backward integration, we regenerate $y(t)$ values, as needed,
 in evaluating the right-hand side of the adjoint system.
 %
 CVODES settles for a compromise between storage space and execution time 
 by implementing a checkpoint scheme combined with piecewise cubic Hermite 
-interpolation: at the cost of at most one additional forward integration, 
+interpolation: at the cost of, at most, one additional forward integration, 
 this approach offers the best possible estimate of memory requirements for 
 adjoint sensitivity analysis.
 %
@@ -191,7 +191,7 @@ PDE system or the adjoint of the discretized PDE.
 
 \subsection{IDAS}\label{ss:idas}
 
-IDAS, an extension to IDA with sensitivity analysis capabilities is 
+IDAS, an extension to IDA with sensitivity analysis capabilities, is 
 currently under development and will be soon released as part of SUNDIALS.
 
 {\em Forward sensitivity analysis} for systems of DAEs system is similar to that 
@@ -236,8 +236,8 @@ Hessenberg index-2 DAEs).
 %
 Moreover, for implicit ODEs and index-1 DAEs the adjoint system may not
 be stable to integration from the right, even if the original system (\ref{e:DAE}) 
-is stable from the left. To circumvent this problem, for such
-systems IDAS integrates backwards in time the so-called 
+is stable from the left. To circumvent this problem for such
+systems, IDAS integrates backwards in time the so-called 
 {\em augmented adjoint DAE system} defined as
 \begin{equation} \label{e:DAEadj_augmented}
 \begin{split}

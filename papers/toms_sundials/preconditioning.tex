@@ -15,7 +15,7 @@ captures the dominant numerical feature(s) of the system.
 We have found that the combination of a preconditioner with the
 Newton-Krylov iteration, using even a fairly poor approximation to
 the Jacobian, can be surprisingly superior to using the same matrix
-without Krylov acceleration (i.e. a modified Newton iteration), as
+without Krylov acceleration (i.e., a modified Newton iteration), as
 well as to using the Newton-Krylov method with no preconditioning.
 
 We further exploit this nested iteration setting, and differences in
@@ -84,7 +84,8 @@ beneficial if the cost of evaluating $\tilde{J}$ is significant in
 comparison with the other operations performed on $P$.
 
 With the serial version of CVODE, we supply a preconditioner module
-called CVBANDPRE, whose use is optional.  This computes and solves a
+called CVBANDPRE, whose use is optional.  This preconditioner
+computes and solves a
 banded approximation $P$ to the Newton matrix, computed with
 difference quotient approximations.  The user supplies a pair of lower
 and upper half-bandwidths --- {\tt ml, mu} --- that define the shape of
@@ -96,7 +97,7 @@ approximates $J$ sufficiently well.
 
 Extending this idea to the parallel setting, CVODE also includes a
 module, called CVBBDPRE, that generates a band-block-diagonal
-preconditioner.  It is designed for PDE-based problems, and uses the
+preconditioner.  CVBBDPRE is designed for PDE-based problems and uses the
 idea of domain decomposition, as follows.  Suppose that a
 time-dependent PDE system, with the spatial operators suitably
 discretized, yields the ODE system $\dot{y} = f(t,y)$.  Now consider a
@@ -109,10 +110,10 @@ processors.
 The $m$-th block of $f$, $f_m(t,y)$, depends on both $y_m$ and ghost
 cell data from other blocks $y_{m'}$, typically in a local manner,
 according to the discretized spatial operators.  However, when we
-build the preconditioner $P$, we will ignore that coupling, and
+build the preconditioner $P$, we will ignore that coupling and
 include only the diagonal blocks $\partial f_m / \partial y_m$.  In
 addition, it may be cost-effective to exclude from $P$ some parts of
-the function $f$.  Thus for the computation of these blocks, we
+the function $f$.  Thus, for the computation of these blocks, we
 replace $f$ by a function $g \approx f$ (and $g = f$ is certainly
 allowed).  For example, $g$ may be chosen to have a smaller set of ghost
 cell data than $f$.  In the CVBBDPRE module, the matrix blocks
@@ -137,12 +138,12 @@ communication of data needed to evaluate the $g_m$.  The other routine
 evaluates $g_m$ on processor $m$, assuming that the communication
 routine has already been called.  The banded structure of the problem
 is exploited in two different ways.  First, the user supplies a pair of
-half-bandwidths, {\tt ml} and {\tt mu}, that define the shape of the
+half-bandwidths, {\tt ml} and {\tt mu}, that defines the shape of the
 matrix $J_m$.  But the user also supplies a second pair of
 half-bandwidths, {\tt mldq} and {\tt mudq}, for use in the difference
 quotient scheme, in which $J_m$ is computed by way of 
 {\tt mldq+mudq+2} evaluations of $g_m$.  The values {\tt ml} and {\tt mu} 
-may be smaller than {\tt mldq} and {\tt mudq} giving a tradeoff between
+may be smaller than {\tt mldq} and {\tt mudq}, giving a tradeoff between
 lower matrix costs and slower convergence.  Thus, for example, a matrix 
 based on 5-point coupling in
 2D ({\tt mldq = mudq = } mesh dimension) might be well approximated by
