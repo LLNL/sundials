@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-04-08 21:34:35 $
+ * $Revision: 1.18 $
+ * $Date: 2004-04-28 15:23:16 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -417,8 +417,8 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  * successful call to the linear system solver specification      *
  * routine.                                                       *
  * In addition, IDACalcIC assumes that the vectors y0, yp0, and   *
- * (if relevant) id and constraints that were passed to IDAMalloc *
- * (or IDAReInit) remain unaltered since that call.               *
+ * (if relevant) id and constraints that were set through         *
+ * IDASetConstraints remain unaltered since that call.            *
  *                                                                *
  * The call to IDACalcIC should precede the call(s) to IDASolve   *
  * for the given problem.                                         *  
@@ -428,14 +428,14 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  * A zero value passed for any optional input specifies that the  *
  * default value is to be used.                                   *
  *                                                                *
- * IDA_mem is the pointer to IDA memory returned by IDAMalloc.    *
+ * IDA_mem is the pointer to IDA memory returned by IDACreate.    *
  *                                                                *
  * icopt  is the option of IDACalcIC to be used.                  *
  *        icopt = CALC_YA_YDP_INIT   directs IDACalcIC to compute *
  *                the algebraic components of y and differential  *
  *                components of y', given the differential        *
  *                components of y.  This option requires that the *
- *                N_Vector id was input to IDAMalloc or IDAReInit,*
+ *                N_Vector id was set through a call to IDASetId  *
  *                specifying the differential and algebraic       *
  *                components.                                     *
  *        icopt = CALC_Y_INIT   directs IDACalcIC to compute all  *
@@ -529,7 +529,7 @@ enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
  * responsible for allocating the memory for this value.          *
  *                                                                *
  * IDA_mem is the pointer (void) to IDA memory returned by        *
- *         IDAMalloc.                                             *
+ *         IDACreate.                                             *
  *                                                                *
  * tout    is the next independent variable value at which a      *
  *         computed solution is desired.                          *
@@ -570,7 +570,7 @@ enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
  *                 internal stepping. The ILL_INPUT flag          *
  *                 will also be returned if the linear solver     *
  *                 routine IDA--- (called by the user after       *
- *                 calling IDAMalloc) failed to set one of the    *
+ *                 calling IDACreate) failed to set one of the    *
  *                 linear solver-related fields in IDA_mem or     *
  *                 if the linear solver's init routine failed. In *
  *                 any case, the user should see the printed      *

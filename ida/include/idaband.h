@@ -1,18 +1,21 @@
-/*******************************************************************
- * File          : idaband.h                                       *
- * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 19 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * See sundials/ida/LICENSE or sundials/idas/LICENSE               *
- *-----------------------------------------------------------------*
- * This is the header file for the IDA/IDAS band linear solver     *
- * module, IDABAND. It interfaces between the band module and the  *
- * integrator when a banded linear solver is appropriate.          *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.13 $
+ * $Date: 2004-04-28 15:23:16 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
+ *              Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California  
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/ida/LICENSE
+ * -----------------------------------------------------------------
+ * This is the header file for the IDA/IDAS band linear solver
+ * module, IDABAND. It interfaces between the band module and the
+ * integrator when a banded linear solver is appropriate.
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -121,7 +124,7 @@ typedef int (*IDABandJacFn)(long int Neq, long int mupper,
  * with the IDABAND linear solver module.                         *
  *                                                                *
  * ida_mem is the pointer to the integrator memory returned by    *
- *   IDAMalloc.                                                   *
+ *   IDACreate.                                                   *
  *                                                                *
  * mupper is the upper bandwidth of the banded Jacobian matrix.   *
  *                                                                *
