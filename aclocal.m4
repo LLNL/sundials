@@ -51,6 +51,15 @@ AC_DEFUN(SUNDIALS_PROG_FFLAGS,
 
     ;;
 
+    # Compaq/Tru64
+    alpha*-dec-osf*)
+
+      if test "X${F77}" = "Xf77"; then
+        MY_FFLAGS="-O1"
+      fi
+
+    ;;
+
   esac
 ])
 
