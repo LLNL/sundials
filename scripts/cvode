@@ -49,6 +49,7 @@ tar uf $tarfile $distrobase/cvode/source/cvbbdpre_impl.h
 tar uf $tarfile $distrobase/cvode/fcmix/Makefile.in
 tar uf $tarfile $distrobase/cvode/fcmix/fcvode.h
 tar uf $tarfile $distrobase/cvode/fcmix/fcvode.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvewt.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvpreco.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvpsol.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvjtimes.c
