@@ -26,7 +26,7 @@
  * quotient approximation, (3) diagonal approximation.                    *
  *                                                                        *
  * For each problem, in the series of eight runs, CVodeMalloc is called   *
- * only once, for the first run, whereas CVReInit is called for each of   *
+ * only once, for the first run, whereas CVodeReInit is called for each of*
  * the remaining seven runs.                                              *
  *                                                                        *
  * Notes.. This program demonstrates the usage of the sequential CVODE    *
@@ -170,9 +170,9 @@ static int Problem1(void)
                               &abstol, NULL, ERRFP, OPTIN, iopt, ropt, machEnv);
         if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
       } else {
-        flag = CVReInit(cvode_mem, f1, P1_T0, y, lmm, iter, ITOL, &reltol,
-                        &abstol, NULL, ERRFP, OPTIN, iopt, ropt, machEnv);
-        if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
+        flag = CVodeReInit(cvode_mem, f1, P1_T0, y, lmm, iter, ITOL, &reltol,
+                           &abstol, NULL, ERRFP, OPTIN, iopt, ropt, machEnv);
+        if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
       }
       
       flag = PrepareNextRun(cvode_mem, lmm, miter, 0, 0);     
@@ -280,10 +280,10 @@ static int Problem2(void)
                                 iopt, ropt, machEnv);
         if (cvode_mem == NULL) { printf("CVodeMalloc failed."); continue; }
       } else {
-        flag = CVReInit(cvode_mem, f2, P2_T0, y, lmm, iter, ITOL,
-                        &reltol, &abstol, NULL, ERRFP, OPTIN, 
-                        iopt, ropt, machEnv);
-        if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
+        flag = CVodeReInit(cvode_mem, f2, P2_T0, y, lmm, iter, ITOL,
+                           &reltol, &abstol, NULL, ERRFP, OPTIN, 
+                           iopt, ropt, machEnv);
+        if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
       }
       
       flag = PrepareNextRun(cvode_mem, lmm, miter, P2_MU, P2_ML);

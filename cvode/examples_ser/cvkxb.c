@@ -200,9 +200,9 @@ int main()
 
     SetInitialProfiles(y, data->dx, data->dz);
 
-    flag = CVReInit(cvode_mem, f, T0, y, BDF, NEWTON, SS, &reltol,
-                    &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
-    if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
+    flag = CVodeReInit(cvode_mem, f, T0, y, BDF, NEWTON, SS, &reltol,
+                       &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
+    if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
 
     flag = CVReInitBandPre(bpdata, NEQ, f, data, mu, ml);
 

@@ -61,7 +61,7 @@
  * In each case, both the modified and classical Gram-Schmidt options    *
  * are tested.                                                           *
  * In the series of runs, CVodeMalloc and CVSpgmr are called only for    *
- * the first run, whereas CVReInit and CVReInitSpgmr are called for      *
+ * the first run, whereas CVodeReInit and CVReInitSpgmr are called for   *
  * each of the remaining three runs.                                     *
  *                                                                       *
  * A problem description, performance statistics at selected output      *
@@ -245,7 +245,7 @@ int main()
       printf("\nGram-Schmidt method type is    gstype = %s\n\n\n",
              (gstype == MODIFIED_GS) ? "MODIFIED_GS" : "CLASSICAL_GS");
       
-      /* Call CVodeMalloc or CVReInit, then CVSpgmr to set up problem */
+      /* Call CVodeMalloc or CVodeReInit, then CVSpgmr to set up problem */
       
       firstrun = (jpre == LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
@@ -257,9 +257,9 @@ int main()
                        wdata, NULL, NULL);
         if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
       } else {
-        flag = CVReInit(cvode_mem, f, T0, c, LMM, ITER, ITOL, &reltol,
-                        &abstol, wdata, ERRFP, OPTIN, iopt, ropt, machEnv);
-        if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
+        flag = CVodeReInit(cvode_mem, f, T0, c, LMM, ITER, ITOL, &reltol,
+                           &abstol, wdata, ERRFP, OPTIN, iopt, ropt, machEnv);
+        if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
         flag = CVReInitSpgmr(cvode_mem, jpre, gstype, MAXL, DELT,
                              Precond, PSolve, wdata, NULL, NULL);
         if (flag != SUCCESS) { printf("CVReInitSpgmr failed."); return(1); }
