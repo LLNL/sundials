@@ -903,7 +903,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[mxsteps] (\id{int})
+  \item[mxsteps] (\id{long int})
     maximum allowed number of steps.
   \end{args}
 }
@@ -2005,7 +2005,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nsteps] (\id{int *})
+  \item[nsteps] (\id{long int *})
     number of steps taken by {\cvodes}.
   \end{args}
 }
@@ -2033,7 +2033,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nfevals] (\id{int *})
+  \item[nfevals] (\id{long int *})
     number of calls to the user's \id{f} function.
   \end{args}
 }
@@ -2065,7 +2065,7 @@ These optional output functions are described next.
   \begin{args}[nlinsetups]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nlinsetups] (\id{int *})
+  \item[nlinsetups] (\id{long int *})
     number of calls made to the linear solver setup routine.
   \end{args}
 }
@@ -2093,7 +2093,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[netfails] (\id{int *})
+  \item[netfails] (\id{long int *})
     number of error test failures.
   \end{args}
 }
@@ -2296,7 +2296,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nslred] (\id{int *})
+  \item[nslred] (\id{long int *})
     number of order reductions due to stability limit detection.
   \end{args}
 }
@@ -2422,13 +2422,13 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nsteps] (\id{int *})
+  \item[nsteps] (\id{long int *})
     number of steps taken by {\cvodes}.
-  \item[nfevals] (\id{int *})
+  \item[nfevals] (\id{long int *})
     number of calls to the user's \id{f} function.
-  \item[nlinsetups] (\id{int *})
+  \item[nlinsetups] (\id{long int *})
     number of calls made to the linear solver setup routine.
-  \item[netfails] (\id{int *})
+  \item[netfails] (\id{long int *})
     number of error test failures.
   \item[qlast] (\id{int *})
     method order used on the last internal step.
@@ -2468,7 +2468,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nniters] (\id{int *})
+  \item[nniters] (\id{long int *})
     number of nonlinear iterations performed.
   \end{args}
 }
@@ -2496,7 +2496,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nncfails] (\id{int *})
+  \item[nncfails] (\id{long int *})
     number of nonlinear convergence failures.
   \end{args}
 }
@@ -2524,9 +2524,9 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nniters] (\id{int *})
+  \item[nniters] (\id{long int *})
     number of nonlinear iterations performed.
-  \item[nncfails] (\id{int *})
+  \item[nncfails] (\id{long int *})
     number of nonlinear convergence failures.
   \end{args}
 }
@@ -2638,7 +2638,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[njevalsD] (\id{int *})
+  \item[njevalsD] (\id{long int *})
     the number of calls to the Jacobian function.
   \end{args}
 }
@@ -2669,7 +2669,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nfevalsD] (\id{int *})
+  \item[nfevalsD] (\id{long int *})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -2783,7 +2783,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[njevalsB] (\id{int *})
+  \item[njevalsB] (\id{long int *})
     the number of calls to the Jacobian function.
   \end{args}
 }
@@ -2814,7 +2814,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nfevalsB] (\id{int *})
+  \item[nfevalsB] (\id{long int *})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -3037,7 +3037,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nliters] (\id{int *})
+  \item[nliters] (\id{long int *})
     the current number of linear iterations.
   \end{args}
 }
@@ -3067,7 +3067,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nlcfails] (\id{int *})
+  \item[nlcfails] (\id{long int *})
     the current number of linear convergence failures.
   \end{args}
 }
@@ -3098,7 +3098,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[npevals] (\id{int *})
+  \item[npevals] (\id{long int *})
     the current number of calls to \id{psetup}.
   \end{args}
 }
@@ -3129,7 +3129,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[npsolves] (\id{int *})
+  \item[npsolves] (\id{long int *})
     the current number of calls to \id{psolve}.
   \end{args}
 }
@@ -3160,7 +3160,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[njvevals] (\id{int *})
+  \item[njvevals] (\id{long int *})
     the current number of calls to \id{jtimes}.
   \end{args}
 }
@@ -3191,7 +3191,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nfevalsSG] (\id{int *})
+  \item[nfevalsSG] (\id{long int *})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -4147,7 +4147,7 @@ the {\cvbandpre} module:
   \begin{args}[nfevalsBP]
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
-  \item[nfevalsBP] (\id{int *})
+  \item[nfevalsBP] (\id{long int *})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -4698,7 +4698,7 @@ the {\cvbbdpre} module:
   \begin{args}[ngevalsBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
-  \item[ngevalsBBDP] (\id{int *})
+  \item[ngevalsBBDP] (\id{long int *})
     the number of calls to the user \id{gloc} function.
   \end{args}
 }
