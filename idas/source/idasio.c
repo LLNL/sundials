@@ -40,9 +40,9 @@
 
 #define MSG_IDAS_NEG_HMAX    "IDASetMaxStep-- hmax<=0 illegal. \n\n"
 
-#define MSG_IDAS_NEG_EPCON   "IDASetNlinConvCoef-- epcon < 0.0 illegal. \n\n"
+#define MSG_IDAS_NEG_EPCON   "IDASetNonlinConvCoef-- epcon < 0.0 illegal. \n\n"
 
-#define MSG_IDAS_BAD_EPICCON "IDASetNlinConvCoefIC-- epiccon < 0.0 illegal.\n\n"
+#define MSG_IDAS_BAD_EPICCON "IDASetNonlinConvCoefIC-- epiccon < 0.0 illegal.\n\n"
 
 #define MSG_IDAS_BAD_MAXNH   "IDASetMaxNumStepsIC-- maxnh < 0 illegal.\n\n"
 
@@ -247,7 +247,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetNlinConvCoef(void *ida_mem, realtype epcon)
+int IDASetNonlinConvCoef(void *ida_mem, realtype epcon)
 {
   IDAMem IDA_mem;
 
@@ -384,7 +384,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 /*BEGIN  INITIAL CONDITION CALCULATION OPTIONAL INPUT FUNCTIONS    */
 /*=================================================================*/
 
-int IDASetNlinConvFactorIC(void *ida_mem, realtype epiccon)
+int IDASetNonlinConvFactorIC(void *ida_mem, realtype epiccon)
 {
   IDAMem IDA_mem;
 

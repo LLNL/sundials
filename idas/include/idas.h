@@ -246,7 +246,7 @@ void *IDACreate(void);
  *                      | which the solution is not to proceed.   *
  *                      | [infinity]                              *
  *                      |                                         * 
- * IDASetNlinConvCoef   | Newton convergence test constant        *
+ * IDASetNonlinConvCoef | Newton convergence test constant        *
  *                      | for use during integration.             *
  *                      | [0.33]                                  *
  *                      |                                         * 
@@ -314,7 +314,7 @@ int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
 int IDASetInitStep(void *ida_mem, realtype hin);
 int IDASetMaxStep(void *ida_mem, realtype hmax);
 int IDASetStopTime(void *ida_mem, realtype tstop);
-int IDASetNlinConvCoef(void *ida_mem, realtype epcon);
+int IDASetNonlinConvCoef(void *ida_mem, realtype epcon);
 int IDASetMaxErrTestFails(void *ida_mem, int maxnef);
 int IDASetMaxNonlinIters(void *ida_mem, int maxcor);
 int IDASetMaxConvFails(void *ida_mem, int maxncf);
@@ -674,7 +674,7 @@ enum {SIDAREI_NO_MEM    = -1, SIDAREI_NO_SENSI = -2,
  *                        |                                       * 
  * -------------------------------------------------------------- *
  *                        |                                       * 
- * IDASetNlinConvCoefIC   | positive scalar factor in the Newton  *
+ * IDASetNonlinConvCoefIC | positive scalar factor in the Newton  *
  *                        | convergence test.  This test uses a   *
  *                        | weighted RMS norm (with weights       *
  *                        | defined by the tolerances, as in      *
@@ -711,7 +711,7 @@ enum {SIDAREI_NO_MEM    = -1, SIDAREI_NO_SENSI = -2,
  *                        | [(unit roundoff)^(2/3)                *
  ******************************************************************/
 
-int IDASetNlinConvCoefIC(void *ida_mem, realtype epiccon);
+int IDASetNonlinConvCoefIC(void *ida_mem, realtype epiccon);
 int IDASetMaxNumStepsIC(void *ida_mem, int maxnh);
 int IDASetMaxNumJacsIC(void *ida_mem, int maxnj);
 int IDASetMaxNumItersIC(void *ida_mem, int maxnit);
