@@ -8,7 +8,7 @@ operations defined by the particular {\nvector} implementation.
 
 The generic \ID{N\_Vector} type is a pointer to a structure that has an 
 implementation-dependent {\em content} field containing the 
-description and actual data of the vector and an {\em ops} field 
+description and actual data of the vector, and an {\em ops} field 
 pointing to a structure with generic vector operations.
 The type \id{N\_Vector} is defined as
 %%
@@ -82,13 +82,13 @@ by the generic {\nvector} module.
 
 
 Finally, note that the generic {\nvector} module defines a function \ID{N\_VCloneVectorArray}
-which creates (by cloning) an array of \id{count} \id{N\_Vector} of the same type as an
+which creates (by cloning) an array of \id{count} \id{N\_Vector}'s of the same type as an
 existing \id{N\_Vector}. Its prototype is
 \begin{verbatim}
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
 \end{verbatim}
 and its definition is based on the implementation-specific \id{N\_VClone} operation.
-Such an array \id{vs} of \id{N\_Vector} can be destroyed by calling \ID{N\_VDestroyVectorArray}
+Such an array \id{vs} of \id{N\_Vector}'s can be destroyed by calling \ID{N\_VDestroyVectorArray},
 whose prototype is
 \begin{verbatim}
 void N_VDestroyVectorArray(N_Vector *vs, int count);
@@ -108,9 +108,9 @@ A particular implementation of the {\nvector} module must:
 \item Define and implement user-callable constructor and destructor
   routines to create and free an \id{N\_Vector} with
   the new {\em content} field and with {\em ops} pointing to the
-  new vector kernels.
+  new vector operations.
 \item Optionally, define and implement additional user-callable routines
-  acting on the newly defined \id{N\_Vector} (e.g., a routne to print
+  acting on the newly defined \id{N\_Vector} (e.g., a routine to print
   the content for debugging purposes).
 \item Optionally, provide accessor macros as needed for that particular implementation to 
   be used to access different parts in the {\em content} field of the newly defined \id{N\_Vector}.
@@ -130,7 +130,7 @@ A particular implementation of the {\nvector} module must:
 \addtolength{\coltwo}{-0.5in}
 \addtolength{\coltwo}{-\colone}
 
-\tablecaption{Description of the NVECTOR kernels}\label{t:nvecops}
+\tablecaption{Description of the NVECTOR operations}\label{t:nvecops}
 \tablefirsthead{\hline {\bf Name} & {\bf Usage and Description} \\ \hline\hline}
 \tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
            \hline {\bf Name} & {\bf Usage and  Description} \\ \hline\hline}
@@ -138,8 +138,8 @@ A particular implementation of the {\nvector} module must:
 \tablelasttail{\hline}
 \begin{supertabular}{|p{\colone}|p{\coltwo}|}
 &\\
-\id{N\_VClone} & \id{v = N\_Vclone(w);} \\ 
-& Creates a new \id{N\_Vector} of the same type as an existing vector and sets the
+\id{N\_VClone} & \id{v = N\_VClone(w);} \\ 
+& Creates a new \id{N\_Vector} of the same type as an existing vector \id{w} and sets the
 {\em ops} field.
 It does not copy the vector, but rather allocates storage for the new vector.
 \\
@@ -165,7 +165,7 @@ the banded preconditioners provided with {\sundials}.
 \\
 &\\
 \id{N\_VSetArrayPointer} & \id{N\_VSetArrayPointer(vdata, v);} \\
-& Overwrites the data in an \id{N\_Vector} with a given array to \id{realtype}.
+& Overwrites the data in an \id{N\_Vector} with a given array of \id{realtype}.
 Note that this assumes that the internal data in \id{N\_Vector} is
 a contiguous array of \id{realtype}.
 This routine is only used in the interfaces to the dense linear
