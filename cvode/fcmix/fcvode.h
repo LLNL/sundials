@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2004-10-09 00:16:27 $
+ * $Revision: 1.30 $
+ * $Date: 2004-10-12 20:11:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -32,8 +32,8 @@
  * The user-callable functions, with the corresponding CVODE functions,
  * are as follows:
  * 
- *   FNVINITS and FNVINITP interface to N_VNewEmpty_Serial and
- *               N_VNewEmpty_Parallel, respectively
+ *   FNVINITS and FNVINITP interface to N_VNew_Serial and
+ *               N_VNew_Parallel, respectively
  * 
  *   FCVMALLOC  interfaces to CVodeCreate, CVodeSet*, and CVodeMalloc
  * 
@@ -58,8 +58,8 @@
  * 
  *   FCVFREE    interfaces to CVodeFree
  * 
- *   FNVFREES and FNVFREEP interface to N_VDestroyEmpty_Serial and
- *              N_VDestroyEmpty_Parallel, respectively.
+ *   FNVFREES and FNVFREEP interface to N_VDestroy_Serial and
+ *              N_VDestroy_Parallel, respectively.
  * 
  * The user-supplied functions, each listed with the corresponding interface
  * function which calls it (and its type within CVODE), are as follows:
@@ -563,8 +563,10 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
 
 extern N_Vector F2C_vec;
 
+N_Vector F2C_atolvec;
+realtype *data_F2C_vec, *data_F2C_atolvec;
+
 void *CV_cvodemem;
-N_Vector CV_yvec, CV_atolvec;
 booleantype CV_optin;
 long int *CV_iopt;
 realtype *CV_ropt;
