@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-09-28 16:15:23 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-18 23:43:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -77,6 +77,11 @@ typedef struct {
   realtype *z1, *z2;        /* work space                               */
 } *UserData;
 
+/* Functions Called by the CVODES Solver */
+
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void fB(realtype t, N_Vector u, 
+               N_Vector uB, N_Vector uBdot, void *f_dataB);
 
 /* Private Helper Functions */
 
@@ -84,21 +89,13 @@ static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base)
 static void SetICback(N_Vector uB, long int my_base);
 static realtype Xintgr(realtype *z, long int l, realtype dx);
 static realtype Compute_g(N_Vector u, UserData data);
-
-
-/* Functions Called by the CVODES Solver */
-
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
-static void fB(realtype t, N_Vector u, 
-               N_Vector uB, N_Vector uBdot, void *f_dataB);
-
-
-/* Private function to check function return values */
-
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
-
-/***************************** Main Program ******************************/
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
 
 int main(int argc, char *argv[])
 {
@@ -281,118 +278,28 @@ int main(int argc, char *argv[])
 
   }
 
-  /* Clean-Up */
-  /* Free forward u vector */
-  N_VDestroy(u);
-  /* Free backward uB vector */
-  N_VDestroy(uB);
-  /* Free CVODES memory */
+  /* Free memory */
+  N_VDestroy_Parallel(u);
+  N_VDestroy_Parallel(uB);
   CVodeFree(cvode_mem);  
-  /* Free combined memory */
   CVadjFree(cvadj_mem);
-  /* Free workspace */
   if (my_pe != npes) {
     free(data->z1);
     free(data->z2);
   }
-  /* Free user data */
   free(data);
-  /* Free mu */
   free(mu);
 
-  /* Finalize MPI */
   MPI_Finalize();
 
   return(0);
 }
 
-
-/************************ Private Helper Functions ***********************/
-
-/* Set initial conditions in u vector */
-static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base)
-{
-  int i;
-  long int iglobal;
-  realtype x;
-  realtype *udata;
-
-  /* Set pointer to data array and get local length of u */
-  udata = NV_DATA_P(u);
-  my_length = NV_LOCLENGTH_P(u);
-
-  /* Load initial profile into u vector */
-  for (i=1; i<=my_length; i++) {
-    iglobal = my_base + i;
-    x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*exp(2.0*x);
-  }  
-}
-
-/* Set final conditions in uB vector */
-static void SetICback(N_Vector uB, long int my_base)
-{
-  int i;
-  realtype *uBdata;
-  long int my_length;
-
-  /* Set pointer to data array and get local length of uB */
-  uBdata = NV_DATA_P(uB);
-  my_length = NV_LOCLENGTH_P(uB);
-
-  /* Set adjoint states to 1.0 and quadrature variables to 0.0 */
-  if (my_base == -1) for (i=0; i<my_length; i++) uBdata[i] = 0.0;
-  else               for (i=0; i<my_length; i++) uBdata[i] = 1.0;
-}
-
-/* Compute local value of the space integral int_x z(x) dx */
-static realtype Xintgr(realtype *z, long int l, realtype dx)
-{
-  realtype my_intgr;
-  long int i;
-
-  my_intgr = 0.5*(z[0] + z[l-1]);
-  for (i = 1; i < l-1; i++)
-    my_intgr += z[i]; 
-  my_intgr *= dx;
-
-  return(my_intgr);
-}
-
-/* Compute value of g(u) */
-static realtype Compute_g(N_Vector u, UserData data)
-{
-  realtype intgr, my_intgr, dx, *udata;
-  long int my_length;
-  int npes, my_pe, i;
-  MPI_Status status;
-  MPI_Comm comm;
-
-  /* Extract MPI info. from data */
-  comm = data->comm;
-  npes = data->npes;
-  my_pe = data->my_pe;
-
-  dx = data->dx;
-
-  if (my_pe == npes) {  /* Loop over all other processes and sum */
-    intgr = 0.0;
-    for (i=0; i<npes; i++) {
-      MPI_Recv(&my_intgr, 1, PVEC_REAL_MPI_TYPE, i, 0, comm, &status); 
-      intgr += my_intgr;
-    }
-    return(intgr);
-  } else {              /* Compute local portion of the integral */
-    udata = NV_DATA_P(u);
-    my_length = NV_LOCLENGTH_P(u);
-    my_intgr = Xintgr(udata, my_length, dx);
-    MPI_Send(&my_intgr, 1, PVEC_REAL_MPI_TYPE, npes, 0, comm);
-    return(my_intgr);
-  }
-}
-
-
-/***************** Functions Called by the CVODE Solver ******************/
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY CVODES
+ *--------------------------------------------------------------------
+ */
 
 /* f routine. Compute f(t,u) for forward phase. */
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
@@ -588,16 +495,115 @@ static void fB(realtype t, N_Vector u,
 
 }
 
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
 
-/************************ Private Helper Function ***********************/
+/* 
+ * Set initial conditions in u vector 
+*/
 
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base)
+{
+  int i;
+  long int iglobal;
+  realtype x;
+  realtype *udata;
+
+  /* Set pointer to data array and get local length of u */
+  udata = NV_DATA_P(u);
+  my_length = NV_LOCLENGTH_P(u);
+
+  /* Load initial profile into u vector */
+  for (i=1; i<=my_length; i++) {
+    iglobal = my_base + i;
+    x = iglobal*dx;
+    udata[i-1] = x*(XMAX - x)*exp(2.0*x);
+  }  
+}
+
+/* 
+ * Set final conditions in uB vector 
+*/
+
+static void SetICback(N_Vector uB, long int my_base)
+{
+  int i;
+  realtype *uBdata;
+  long int my_length;
+
+  /* Set pointer to data array and get local length of uB */
+  uBdata = NV_DATA_P(uB);
+  my_length = NV_LOCLENGTH_P(uB);
+
+  /* Set adjoint states to 1.0 and quadrature variables to 0.0 */
+  if (my_base == -1) for (i=0; i<my_length; i++) uBdata[i] = 0.0;
+  else               for (i=0; i<my_length; i++) uBdata[i] = 1.0;
+}
+
+/*
+ * Compute local value of the space integral int_x z(x) dx 
+*/
+
+static realtype Xintgr(realtype *z, long int l, realtype dx)
+{
+  realtype my_intgr;
+  long int i;
+
+  my_intgr = 0.5*(z[0] + z[l-1]);
+  for (i = 1; i < l-1; i++)
+    my_intgr += z[i]; 
+  my_intgr *= dx;
+
+  return(my_intgr);
+}
+
+/*
+ * Compute value of g(u) 
+*/
+
+static realtype Compute_g(N_Vector u, UserData data)
+{
+  realtype intgr, my_intgr, dx, *udata;
+  long int my_length;
+  int npes, my_pe, i;
+  MPI_Status status;
+  MPI_Comm comm;
+
+  /* Extract MPI info. from data */
+  comm = data->comm;
+  npes = data->npes;
+  my_pe = data->my_pe;
+
+  dx = data->dx;
+
+  if (my_pe == npes) {  /* Loop over all other processes and sum */
+    intgr = 0.0;
+    for (i=0; i<npes; i++) {
+      MPI_Recv(&my_intgr, 1, PVEC_REAL_MPI_TYPE, i, 0, comm, &status); 
+      intgr += my_intgr;
+    }
+    return(intgr);
+  } else {              /* Compute local portion of the integral */
+    udata = NV_DATA_P(u);
+    my_length = NV_LOCLENGTH_P(u);
+    my_intgr = Xintgr(udata, my_length, dx);
+    MPI_Send(&my_intgr, 1, PVEC_REAL_MPI_TYPE, npes, 0, comm);
+    return(my_intgr);
+  }
+}
+
+/* 
+ * Check function return value.
+ *    opt == 0 means SUNDIALS function allocates memory so check if
+ *             returned NULL pointer
+ *    opt == 1 means SUNDIALS function returns a flag so check if
+ *             flag >= 0
+ *    opt == 2 means function allocates memory so check if returned
+ *             NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 {

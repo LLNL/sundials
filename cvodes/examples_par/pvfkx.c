@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-10-18 23:32:43 $
+ * $Revision: 1.16 $
+ * $Date: 2004-10-18 23:43:52 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -361,9 +361,9 @@ int main(int argc, char *argv[])
   if (my_pe == 0) PrintFinalStats(cvode_mem, sensi);
 
   /* Free memory */
-  N_VDestroy_Serial(u);
+  N_VDestroy_Parallel(u);
   if (sensi) {
-    N_VDestroyVectorArray_Serial(uS, NS);
+    N_VDestroyVectorArray_Parallel(uS, NS);
     free(plist);
     free(pbar);
   }
