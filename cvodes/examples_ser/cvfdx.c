@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21.2.1 $
- * $Date: 2005-03-17 22:50:46 $
+ * $Revision: 1.21.2.2 $
+ * $Date: 2005-04-01 21:55:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
   N_Vector y, abstol;
   int iout, flag;
 
-  realtype pbar[NP];
-  int is, *plist; 
+  realtype pbar[NS];
+  int is; 
   N_Vector *yS;
   booleantype sensi, err_con;
   int sensi_meth;
@@ -132,7 +132,6 @@ int main(int argc, char *argv[])
   data = NULL;
   y = abstol = NULL;
   yS = NULL;
-  plist = NULL;
 
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
@@ -170,7 +169,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
   /* Allocate space for CVODES */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, &reltol, abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Attach linear solver */
@@ -191,14 +190,13 @@ int main(int argc, char *argv[])
     pbar[0] = data->p[0];
     pbar[1] = data->p[1];
     pbar[2] = data->p[2];
-    plist = (int *) malloc(NS * sizeof(int));
-    if (check_flag((void *)plist, "malloc", 2)) return(1);
-    for (is=0; is<NS; is++) plist[is] = is+1;
 
     yS = N_VNewVectorArray_Serial(NS, NEQ);
     if (check_flag((void *)yS, "N_VNewVectorArray_Serial", 0)) return(1);
-    for (is=0;is<NS;is++)
-      N_VConst(ZERO, yS[is]);
+    for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
+
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, yS);
+    if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
 
     flag = CVodeSetSensRhs1Fn(cvode_mem, fS);
     if (check_flag(&flag, "CVodeSetSensRhs1Fn", 1)) return(1);
@@ -206,11 +204,8 @@ int main(int argc, char *argv[])
     if (check_flag(&flag, "CVodeSetSensFdata", 1)) return(1);
     flag = CVodeSetSensFdata(cvode_mem, data);
     if (check_flag(&flag, "CVodeSetSensFdata", 1)) return(1);
-    flag = CVodeSetSensPbar(cvode_mem, pbar);
-    if (check_flag(&flag, "CVodeSetSensPbar", 1)) return(1);
-
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, plist, yS);
-    if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
+    flag = CVodeSetSensParams(cvode_mem, NULL, pbar, NULL);
+    if (check_flag(&flag, "CVodeSetSensParams", 1)) return(1);
 
     printf("Sensitivity: YES ");
     if(sensi_meth == CV_SIMULTANEOUS)   
@@ -263,7 +258,6 @@ int main(int argc, char *argv[])
   N_VDestroy_Serial(abstol);               /* Free abstol vector */
   if (sensi) {
     N_VDestroyVectorArray_Serial(yS, NS);  /* Free yS vector */
-    free(plist);                           /* Free plist */
   }
   free(data);                              /* Free user data */
   CVodeFree(cvode_mem);                    /* Free CVODES memory */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15.2.1 $
- * $Date: 2005-03-17 22:50:45 $
+ * $Revision: 1.15.2.2 $
+ * $Date: 2005-04-01 21:55:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -159,11 +159,11 @@ int main(void)
      T0      is the initial time
      u       is the initial dependent variable vector
      CV_SS   specifies scalar relative and absolute tolerances
-     &reltol is a pointer to the scalar relative tolerance
-     &abstol is a pointer to the scalar absolute tolerance vector
+     reltol  is the scalar relative tolerance
+     &abstol is a pointer to the scalar absolute tolerance
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Set the pointer to user-defined data */
@@ -334,10 +334,9 @@ static void SetIC(N_Vector u, UserData data)
 
 static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
 {
-  printf("\n2-D Advection-Diffusion Equation -- CVODES (serial version)\n\n");
+  printf("\n2-D Advection-Diffusion Equation\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
-  printf("Total system size = %d\n\n", NEQ);
-  printf("Linear solver is CVBAND\n");
+  printf("Total system size = %d\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n", reltol, abstol);
   printf("At t = %Lg      max.norm(u) =%14.6Le \n", T0, umax);

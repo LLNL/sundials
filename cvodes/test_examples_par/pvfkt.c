@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7.2.1 $
- * $Date: 2005-03-18 23:26:21 $
+ * $Revision: 1.7.2.2 $
+ * $Date: 2005-04-01 21:55:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetMaxNumSteps(cvode_mem, 10000);
   if (check_flag(&flag, "CVodeSetMaxNumSteps", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVSpgmr(cvode_mem, PREC_LEFT, MAXL);
@@ -290,21 +290,22 @@ int main(int argc, char *argv[])
   /* SENSITIVTY */
   if( sensi) {
 
-    pbar = (realtype *) malloc(NP*sizeof(realtype));
-    if (check_flag((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-
-    for (is=0; is<NP; is++) pbar[is] = data->p[is];
-
     plist = (int *) malloc(NS * sizeof(int));
     if (check_flag((void *)plist, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-
     plist[0] = 6;
     plist[1] = 8;
+
+    pbar = (realtype *) malloc(NS*sizeof(realtype));
+    if (check_flag((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    for (is=0; is<NS; is++) pbar[is] = ABS(data->p[plist[is]-1]);
 
     uS = N_VNewVectorArray_Parallel(NS, comm, local_N, neq);
     if (check_flag((void *)uS, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
     for (is = 0; is < NS; is++)
       N_VConst(ZERO,uS[is]);
+
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, uS);
+    if (check_flag(&flag, "CVodeSensMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if (check_flag(&flag, "CVodeSetSensErrCon", 1, my_pe)) MPI_Abort(comm, 1);
@@ -312,11 +313,8 @@ int main(int argc, char *argv[])
     flag = CVodeSetSensRho(cvode_mem, ZERO);
     if (check_flag(&flag, "CVodeSetSensRho", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVodeSetSensPbar(cvode_mem, pbar);
-    if (check_flag(&flag, "CVodeSetSensPbar", 1, my_pe)) MPI_Abort(comm, 1);
-
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, plist, uS);
-    if (check_flag(&flag, "CVodeSensMalloc", 1, my_pe)) MPI_Abort(comm, 1);
+    flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
+    if (check_flag(&flag, "CVodeSetSensParams", 1, my_pe)) MPI_Abort(comm, 1);
 
     if(my_pe == 0) {
       printf("Sensitivity: YES ");

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13.2.1 $
- * $Date: 2005-03-17 22:50:46 $
+ * $Revision: 1.13.2.2 $
+ * $Date: 2005-04-01 21:55:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -115,7 +115,7 @@ int main()
   N_Vector y, abstol;
   void *cvode_mem;
   int flag, flagr, iout;
-  int *rootsfound;
+  int rootsfound[2];
 
   y = abstol = NULL;
   cvode_mem = NULL;
@@ -158,11 +158,11 @@ int main()
      T0        is the initial time
      y         is the initial dependent variable vector
      CV_SV     specifies scalar relative and vector absolute tolerances
-     &reltol   is a pointer to the scalar relative tolerance
+     reltol    is the scalar relative tolerance
      abstol    is the absolute tolerance vector
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, &reltol, abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
@@ -187,7 +187,7 @@ int main()
     PrintOutput(t, Ith(y,1), Ith(y,2), Ith(y,3));
 
     if (flag == CV_ROOT_RETURN) {
-      flagr = CVodeGetRootInfo(cvode_mem, &rootsfound);
+      flagr = CVodeGetRootInfo(cvode_mem, rootsfound);
       check_flag(&flagr, "CVodeGetRootInfo", 1);
       PrintRootInfo(rootsfound[0],rootsfound[1]);
     }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17.2.1 $
- * $Date: 2005-03-17 22:50:46 $
+ * $Revision: 1.17.2.2 $
+ * $Date: 2005-04-01 21:55:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
   /* Allocate CVODES memory */
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
   
   printf("\n1-D advection-diffusion equation, mesh size =%3d\n", MX);
@@ -154,19 +154,21 @@ int main(int argc, char *argv[])
   /* Sensitivity-related settings */
   if(sensi) {
 
-    pbar  = (realtype *) malloc(NP * sizeof(realtype));
-    if(check_flag((void *)pbar, "malloc", 2)) return(1);
-    pbar[0] = RCONST(1.0);
-    pbar[1] = RCONST(0.5);
     plist = (int *) malloc(NS * sizeof(int));
     if(check_flag((void *)plist, "malloc", 2)) return(1);
-    for(is=0; is<NS; is++)
-      plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
+    for(is=0; is<NS; is++) plist[is] = is+1;
+
+    pbar  = (realtype *) malloc(NS * sizeof(realtype));
+    if(check_flag((void *)pbar, "malloc", 2)) return(1);
+    for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]-1];
 
     uS = N_VNewVectorArray_Serial(NS, NEQ);
     if(check_flag((void *)uS, "N_VNew", 0)) return(1);
     for(is=0;is<NS;is++)
       N_VConst(ZERO, uS[is]);
+
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, uS);
+    if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if(check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
@@ -174,11 +176,8 @@ int main(int argc, char *argv[])
     flag = CVodeSetSensRho(cvode_mem, ZERO);
     if(check_flag(&flag, "CVodeSetSensRho", 1)) return(1);
 
-    flag = CVodeSetSensPbar(cvode_mem, pbar);
-    if(check_flag(&flag, "CVodeSetSensPbar", 1)) return(1);
-
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, plist, uS);
-    if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
+    flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
+    if(check_flag(&flag, "CVodeSetSensParams", 1)) return(1);
 
     printf("Sensitivity: YES ");
     if(sensi_meth == CV_SIMULTANEOUS)   
