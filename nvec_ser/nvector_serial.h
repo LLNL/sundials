@@ -48,15 +48,15 @@
  *                                                                 * 
  *******************************************************************/
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #ifndef included_nvector_serial_h
 #define included_nvector_serial_h
 
-#include "nvector.h"  /* Generic M_Env and N_Vector type definitions */
+#include "nvector.h"
 #include "sundialstypes.h"
+
+#ifdef __cplusplus     /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 
 /****************************************************************
@@ -309,9 +309,8 @@ booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m);
 realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom);
 void N_VPrint_Serial(N_Vector x);
 
-
-
-#endif
 #ifdef __cplusplus
 }
+#endif
+
 #endif
