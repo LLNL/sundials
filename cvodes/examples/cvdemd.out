@@ -23,7 +23,7 @@ Iteration               : FUNCTIONAL
  Number of steps                          =  196 
  Number of f-s                            =  390 
  Number of setups                         =    0 
- Number of nonlinear iterations           =    0 
+ Number of nonlinear iterations           =  387 
  Number of nonlinear convergence failures =    0 
  Number of error test failures            =   15 
 
@@ -138,7 +138,7 @@ Iteration               : FUNCTIONAL
  Number of steps                          =  262 
  Number of f-s                            =  497 
  Number of setups                         =    0 
- Number of nonlinear iterations           =    0 
+ Number of nonlinear iterations           =  494 
  Number of nonlinear convergence failures =    0 
  Number of error test failures            =   22 
 
@@ -263,7 +263,7 @@ Iteration               : FUNCTIONAL
  Number of steps                          =  341 
  Number of f-s                            =  601 
  Number of setups                         =    0 
- Number of nonlinear iterations           =    0 
+ Number of nonlinear iterations           =  598 
  Number of nonlinear convergence failures =   79 
  Number of error test failures            =    0 
 
@@ -382,7 +382,7 @@ Iteration               : FUNCTIONAL
  Number of steps                          =  373 
  Number of f-s                            =  688 
  Number of setups                         =    0 
- Number of nonlinear iterations           =    0 
+ Number of nonlinear iterations           =  685 
  Number of nonlinear convergence failures =   55 
  Number of error test failures            =    1 
 
