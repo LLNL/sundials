@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-08 15:28:30 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-26 20:19:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -102,7 +102,7 @@
 #include <math.h>
 #include "sundialstypes.h"     /* Definition of realtype                        */
 #include "iterative.h"         /* Contains the types of preconditioning         */
-#include "idas.h"               /* Main IDA header file                          */
+#include "idas.h"              /* Main IDA header file                          */
 #include "idaspgmr.h"          /* Use IDASPGMR linear solver                    */
 #include "nvector_parallel.h"  /* Definitions of type N_Vector, macro NV_DATA_P */
 #include "sundialsmath.h"      /* Contains RSqrt routine                        */
@@ -152,7 +152,7 @@
    IJ_Vptr(vv,i,j) returns a pointer to the location in vv corresponding to 
    species index is = 0, x-index ix = i, and y-index jy = j.                */
 
-#define IJ_Vptr(vv,i,j) (&NV_Ith_P(vv, i*NUM_SPECIES + j*NSMXSUB ))
+#define IJ_Vptr(vv,i,j) (&NV_Ith_P(vv, (i)*NUM_SPECIES + (j)*NSMXSUB ))
 
 /* Type: UserData.  Contains problem constants, preconditioner data, etc. */
 
@@ -212,20 +212,20 @@ static realtype dotprod(long int size, realtype *x1, realtype *x2);
 
 /* Prototypes for functions called by the IDA Solver. */
 
-static int resweb(realtype time, N_Vector cc, N_Vector cp,
-                  N_Vector resval, void *rdata);
+static int resweb(realtype time, 
+                  N_Vector cc, N_Vector cp, N_Vector resval, 
+                  void *rdata);
 
-static int Precondbd(realtype tt, N_Vector cc,
-                     N_Vector cp, N_Vector rr, 
+static int Precondbd(realtype tt, 
+                     N_Vector cc, N_Vector cp, N_Vector rr, 
                      realtype cj, void *Pdata,
                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-static int PSolvebd(realtype tt, N_Vector cc,
-                 N_Vector cp, N_Vector rr, 
-                 N_Vector rvec, N_Vector zvec,
-                 realtype cj, realtype delta,
-                 void *Pdata, N_Vector tempv);
-
+static int PSolvebd(realtype tt, 
+                    N_Vector cc, N_Vector cp, N_Vector rr, 
+                    N_Vector rvec, N_Vector zvec,
+                    realtype cj, realtype delta, void *Pdata, 
+                    N_Vector tempv);
 
 /* Private function to check function return values */
 
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
   /* On PE 0, print heading, basic parameters, initial values. */
 
   if (thispe == 0) {
-    printf("iwebpk: Predator-prey DAE parallel example problem for IDA \n\n");
+    printf("\niwebpk: Predator-prey DAE parallel example problem for IDA \n\n");
     printf("Number of species ns: %d", NUM_SPECIES);
     printf("     Mesh dimensions: %d x %d", MX, MY);
     printf("     Total system size: %ld\n",SystemSize);
@@ -365,32 +365,42 @@ int main(int argc, char *argv[])
     printf("Preconditioner: block diagonal, block size ns,"); 
     printf(" via difference quotients\n");
     printf("CalcIC called to correct initial predator concentrations \n\n");
+    printf("-----------------------------------------------------------\n");
+    printf("  t        bottom-left  top-right");
+    printf("    | nst  k      h\n");
+    printf("-----------------------------------------------------------\n\n");    
   }
+
   PrintOutput(mem, cc, t0, webdata, comm);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
 
-  itask = IDA_NORMAL;
   for (iout = 1; iout <= NOUT; iout++) {
     
-    flag = IDASolve(mem, tout, &tret, cc, cp, itask);
+    flag = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
     if (check_flag(&flag, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
     PrintOutput(mem, cc, tret, webdata, comm);
     
-    if (iout < 3) tout *= TMULT; else tout += TADD;
+    if (iout < 3) tout *= TMULT; 
+    else          tout += TADD;
     
   } /* End of iout loop. */
   
   /* On PE 0, print final set of statistics. */
-  if (thispe == 0) PrintFinalStats(mem);
-  
+  if (thispe == 0) {
+    printf("-----------------------------------------------------------\n");
+    PrintFinalStats(mem);
+  }
+
   /* Free memory. */
 
-  N_VDestroy(cc);
-  N_VDestroy(cp);
-  N_VDestroy(id);
+  N_VDestroy_Parallel(cc);
+  N_VDestroy_Parallel(cp);
+  N_VDestroy_Parallel(id);
+
   IDAFree(mem);
+
   FreeUserData(webdata);
 
   MPI_Finalize();
@@ -502,7 +512,7 @@ static void FreeUserData(UserData webdata)
   }
 
   denfree(webdata->acoef);
-  N_VDestroy(webdata->rates);
+  N_VDestroy_Parallel(webdata->rates);
   free(webdata);
 
 }
@@ -573,15 +583,14 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
                         UserData webdata, MPI_Comm comm)
 {
   MPI_Status status;
-  long int thispe, npelast, ilast;
   realtype *cdata, clast[2], hused;
-  long int nst, nni, nre, nli, npe, nps, nreS;
-  int kused, flag;
+  long int nst;
+  int i, kused, flag, thispe, npelast, ilast;;
 
   thispe = webdata->thispe; npelast = webdata->npes - 1;
   cdata = NV_DATA_P(cc);
   
-  /* Send c1 and c2 at top right mesh point from PE npes-1 to PE 0. */
+  /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
   if (thispe == npelast) {
     ilast = NUM_SPECIES*MXSUB*MYSUB - 2;
     if (npelast != 0)
@@ -589,10 +598,11 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
     else { clast[0] = cdata[ilast]; clast[1] = cdata[ilast+1]; }
   }
   
-  /* On PE 0, receive c1 and c2 at top right from PE npes - 1.
+  /* On PE 0, receive conc. at top right from PE npes - 1.
      Then print performance data and sampled solution values. */
+  
   if (thispe == 0) {
-
+    
     if (npelast != 0)
       MPI_Recv(&clast[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
     
@@ -600,30 +610,16 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
     check_flag(&flag, "IDAGetLastOrder", 1, thispe);
     flag = IDAGetNumSteps(mem, &nst);
     check_flag(&flag, "IDAGetNumSteps", 1, thispe);
-    flag = IDAGetNumResEvals(mem, &nre);
-    check_flag(&flag, "IDAGetNumResEvals", 1, thispe);
-    flag = IDAGetNumNonlinSolvIters(mem, &nni);
-    check_flag(&flag, "IDAGetNumNonlinSolvIters", 1, thispe);
     flag = IDAGetLastStep(mem, &hused);
     check_flag(&flag, "IDAGetLastStep", 1, thispe);
-    flag = IDASpgmrGetNumLinIters(mem, &nli);
-    check_flag(&flag, "IDASpgmrGetNumLinIters", 1, thispe);
-    flag = IDASpgmrGetNumPrecEvals(mem, &npe);
-    check_flag(&flag, "IDASpgmrGetNumPrecEvals", 1, thispe);
-    flag = IDASpgmrGetNumPrecSolves(mem, &nps);
-    check_flag(&flag, "IDASpgmrGetNumPrecSolves", 1, thispe);
-    flag = IDASpgmrGetNumResEvals(mem, &nreS);
-    check_flag(&flag, "IDASpgmrGetNumResEvals", 1, thispe);
 
-    printf("\nTIME t = %e.     NST = %ld,  k = %d,  h = %e\n",
-           tt, nst, kused, hused);
-    printf("NRE = %ld,  NRE_S = %ld,  NNI = %ld,  NLI = %ld,  NPE = %ld,  NPS = %ld\n",
-           nre, nreS, nni, nli, npe, nps);
-    
-    printf("At bottom left:  c1, c2 = %e %e \n",   cdata[0], cdata[1]);
-    printf("At top right:    c1, c2 = %e %e \n\n", clast[0], clast[1]);
+    printf("%8.2e %12.4e %12.4e   | %3d  %1d %12.4e\n", 
+         tt, cdata[0], clast[0], nst, kused, hused);
+    for (i=1;i<NUM_SPECIES;i++)
+      printf("         %12.4e %12.4e   |\n",cdata[i],clast[i]);
+    printf("\n");
+
   }
-  
 }
 
 /*
@@ -645,6 +641,7 @@ static void PrintFinalStats(void *mem)
   check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1, 0);
   flag = IDAGetNumNonlinSolvIters(mem, &nni);
   check_flag(&flag, "IDAGetNumNonlinSolvIters", 1, 0);
+
   flag = IDASpgmrGetNumConvFails(mem, &ncfl);
   check_flag(&flag, "IDASpgmrGetNumConvFails", 1, 0);
   flag = IDASpgmrGetNumLinIters(mem, &nli);
@@ -657,11 +654,19 @@ static void PrintFinalStats(void *mem)
   check_flag(&flag, "IDASpgmrGetNumResEvals", 1, 0);
 
   printf("\nFinal statistics: \n\n");
-  printf("NST  = %5ld     NRE  = %5ld\n", nst, nre+nreS);
-  printf("NNI  = %5ld     NLI  = %5ld\n", nni, nli);
-  printf("NPE  = %5ld     NPS  = %5ld\n", npe, nps);
-  printf("NETF = %5ld     NCFN = %5ld     NCFL = %5ld\n", netf, ncfn, ncfl);
-  
+
+  printf("Number of steps                    = %ld\n", nst);
+  printf("Number of residual evaluations     = %ld\n", nre+nreS);
+  printf("Number of nonlinear iterations     = %ld\n", nni);
+  printf("Number of error test failures      = %ld\n", netf);
+  printf("Number of nonlinear conv. failures = %ld\n\n", ncfn);
+
+  printf("Number of linear iterations        = %ld\n", nli);
+  printf("Number of linear conv. failures    = %ld\n\n", ncfl);
+
+  printf("Number of preconditioner setups    = %ld\n", npe);
+  printf("Number of preconditioner solves    = %ld\n", nps);
+
 }
 
 /*

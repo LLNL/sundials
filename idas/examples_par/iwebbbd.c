@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-18 22:09:05 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-26 20:19:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -152,7 +152,7 @@
  * species index is = 0, x-index ix = i, and y-index jy = j.                
  */
 
-#define IJ_Vptr(vv,i,j) (&NV_Ith_P(vv, i*NUM_SPECIES + j*NSMXSUB ))
+#define IJ_Vptr(vv,i,j) (&NV_Ith_P(vv, (i)*NUM_SPECIES + (j)*NSMXSUB ))
 
 /* Type: UserData.  Contains problem constants, preconditioner data, etc. */
 
@@ -167,23 +167,21 @@ typedef struct {
   long int n_local;
 } *UserData;
 
-/* Prototypes for private Helper Functions. */
+/* Prototypes for functions called by the IDA Solver. */
 
-static UserData AllocUserData(MPI_Comm comm, long int local_N, 
-                              long int SystemSize);
+static int resweb(realtype tt, 
+                  N_Vector cc, N_Vector cp, N_Vector rr, 
+                  void *res_data);
 
-static void InitUserData(UserData webdata, int thispe, int npes, 
-                         MPI_Comm comm);
+static int reslocal(long int Nlocal, realtype tt, 
+                    N_Vector cc, N_Vector cp, N_Vector res, 
+                    void *res_data);
 
-static void FreeUserData(UserData webdata);
+static int rescomm(long int Nlocal, realtype tt,
+                   N_Vector cc, N_Vector cp, 
+                   void *res_data);
 
-static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
-                               N_Vector scrtch, UserData webdata);
-
-static void PrintOutput(void *mem, N_Vector cc, realtype time,
-                        UserData webdata, void *P_data,  MPI_Comm comm);
-
-static void PrintFinalStats(void *mem, void *P_data);
+/* Prototypes for supporting functions */
 
 static void BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
                   long int dsizex, long int dsizey, realtype carray[]);
@@ -201,27 +199,25 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
 
 static realtype dotprod(long int size, realtype *x1, realtype *x2);
 
+/* Prototypes for private functions */
 
-/* Prototypes for functions called by the IDA Solver. */
+static void InitUserData(UserData webdata, int thispe, int npes, 
+                         MPI_Comm comm);
 
-static int resweb(realtype time, N_Vector cc, N_Vector cp,
-                  N_Vector resval, void *rdata);
+static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
+                               N_Vector scrtch, UserData webdata);
 
-static int reslocal(long int Nlocal, realtype tt, 
-                    N_Vector cc, N_Vector cp, N_Vector res, 
-                    void *rdata);
+static void PrintOutput(void *mem, N_Vector cc, realtype time,
+                        UserData webdata, MPI_Comm comm);
 
-static int rescomm(long int Nlocal, realtype tt,
-                   N_Vector cc, N_Vector cp, void *rdata);
-
-/* Private function to check function return values */
+static void PrintFinalStats(void *mem, void *P_data);
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 /*
- * ---------------------------------
- * Main program
- * ---------------------------------
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
  */
 
 int main(int argc, char *argv[])
@@ -231,7 +227,7 @@ int main(int argc, char *argv[])
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   UserData webdata;
-  int maxl, iout, flag, retval, itol, itask;
+  int maxl, iout, retval;
   void *mem;
   MPI_Comm comm;
   void *P_data;
@@ -249,7 +245,9 @@ int main(int argc, char *argv[])
 
   if (npes != NPEX*NPEY) {
     if (thispe == 0)
-      fprintf(stderr, "\nMPI_ERROR(0): npes = %d not equal to NPEX*NPEY = %d\n", npes, NPEX*NPEY);
+      fprintf(stderr, 
+              "\nMPI_ERROR(0): npes = %d not equal to NPEX*NPEY = %d\n", 
+              npes, NPEX*NPEY);
     MPI_Finalize();
     return(1); 
   }
@@ -261,8 +259,9 @@ int main(int argc, char *argv[])
 
   /* Set up user data block webdata. */
 
-  webdata = AllocUserData(comm, local_N, SystemSize);
-  if(check_flag((void *)webdata, "AllocUserData", 2, thispe)) MPI_Abort(comm, 1);
+  webdata = (UserData) malloc(sizeof *webdata);
+  webdata->rates = N_VNew_Parallel(comm, local_N, SystemSize);
+  webdata->acoef = denalloc(NUM_SPECIES);
 
   InitUserData(webdata, thispe, npes, comm);
   
@@ -283,12 +282,11 @@ int main(int argc, char *argv[])
   
   SetInitialProfiles(cc, cp, id, res, webdata);
   
-  N_VDestroy(res);
+  N_VDestroy_Parallel(res);
   
   /* Set remaining inputs to IDAMalloc. */
   
   t0 = ZERO;
-  itol = IDA_SS; 
   rtol = RTOL; 
   atol = ATOL;
   
@@ -303,7 +301,7 @@ int main(int argc, char *argv[])
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol);
+  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, &rtol, &atol);
   if(check_flag(&retval, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDABBDPrecAlloc to initialize the band-block-diagonal preconditioner.
@@ -313,7 +311,7 @@ int main(int argc, char *argv[])
   mudq = mldq = NSMXSUB;
   mukeep = mlkeep = 2;
   P_data = IDABBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
-                         ZERO, reslocal, NULL);
+                           ZERO, reslocal, NULL);
   if(check_flag((void *)P_data, "IDABBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDABBDSpgmr to specify the IDA linear solver IDASPGMR and specify
@@ -333,7 +331,7 @@ int main(int argc, char *argv[])
   /* On PE 0, print heading, basic parameters, initial values. */
  
   if (thispe == 0) {
-    printf("iwebbbd: Predator-prey DAE parallel example problem for IDA \n\n");
+    printf("\niwebbbd: Predator-prey DAE parallel example problem for IDA \n\n");
     printf("Number of species ns: %d", NUM_SPECIES);
     printf("     Mesh dimensions: %d x %d", MX, MY);
     printf("     Total system size: %ld\n",SystemSize);
@@ -346,60 +344,59 @@ int main(int argc, char *argv[])
     printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
            mudq, mldq, mukeep, mlkeep);
     printf("CalcIC called to correct initial predator concentrations \n\n");
+    printf("-----------------------------------------------------------\n");
+    printf("  t        bottom-left  top-right");
+    printf("    | nst  k      h\n");
+    printf("-----------------------------------------------------------\n\n");
   }
 
-  PrintOutput(mem, cc, t0, webdata, P_data, comm);
+  PrintOutput(mem, cc, t0, webdata, comm);
 
   /* Call IDA in tout loop, normal mode, and print selected output. */
   
-  itask = IDA_NORMAL;
   for (iout = 1; iout <= NOUT; iout++) {
     
-    flag = IDASolve(mem, tout, &tret, cc, cp, itask);
-    if(check_flag(&flag, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
+    retval = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
+    if(check_flag(&retval, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
     
-    PrintOutput(mem, cc, tret, webdata, P_data, comm);
+    PrintOutput(mem, cc, tret, webdata, comm);
     
-    if (iout < 3) tout *= TMULT; else tout += TADD;
+    if (iout < 3) tout *= TMULT; 
+    else          tout += TADD;
 
-  } /* End of iout loop. */
+  }
   
   /* On PE 0, print final set of statistics. */
   
-  if (thispe == 0) PrintFinalStats(mem, P_data);
+  if (thispe == 0) {
+    printf("-----------------------------------------------------------\n");
+    PrintFinalStats(mem, P_data);
+  }
 
   /* Free memory. */
-  N_VDestroy(cc);
-  N_VDestroy(cp);
-  N_VDestroy(id);
+
+  N_VDestroy_Parallel(cc);
+  N_VDestroy_Parallel(cp);
+  N_VDestroy_Parallel(id);
+
   IDABBDPrecFree(P_data);
+
   IDAFree(mem);
-  FreeUserData(webdata);
+
+  denfree(webdata->acoef);
+  N_VDestroy_Parallel(webdata->rates);
+  free(webdata);
 
   MPI_Finalize();
 
   return(0);
-
 }
 
 /*
- * AllocUserData: Allocate memory for data structure of type UserData.   
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
  */
-
-static UserData AllocUserData(MPI_Comm comm, long int local_N, 
-                              long int SystemSize)
-{
-  UserData webdata;
-  
-  webdata = (UserData) malloc(sizeof *webdata);
-  
-  webdata->rates = N_VNew_Parallel(comm, local_N, SystemSize);
-
-  webdata->acoef = denalloc(NUM_SPECIES);
- 
-  return(webdata);
-
-}
 
 /*
  * InitUserData: Load problem constants in webdata (of type UserData).   
@@ -464,18 +461,6 @@ static void InitUserData(UserData webdata, int thispe, int npes,
 }
 
 /*
- * FreeUserData: Free webdata memory.                                    
- */
-
-static void FreeUserData(UserData webdata)
-{
-  denfree(webdata->acoef);
-  N_VDestroy(webdata->rates);
-  free(webdata);
-
-}
-
-/*
  * SetInitialProfiles: Set initial conditions in cc, cp, and id.
  * A polynomial profile is used for the prey cc values, and a constant
  * (1.0e5) is loaded as the initial guess for the predator cc values.
@@ -536,22 +521,20 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * PrintOutput: Print output values at output time t = tt.
  * Selected run statistics are printed.  Then values of c1 and c2
  * are printed for the bottom left and top right grid points only.
- * (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         
  */
 
 static void PrintOutput(void *mem, N_Vector cc, realtype tt,
-                        UserData webdata, void *P_data, MPI_Comm comm)
+                        UserData webdata, MPI_Comm comm)
 {
   MPI_Status status;
-  long int thispe, npelast, ilast;
   realtype *cdata, clast[2], hused;
-  long int nst, nni, nre, nli, npe, nps, nreS, nge;
-  int kused, flag;
+  long int nst;
+  int i, kused, flag, thispe, npelast, ilast;;
 
   thispe = webdata->thispe; npelast = webdata->npes - 1;
   cdata = NV_DATA_P(cc);
   
-  /* Send c1 and c2 at top right mesh point from PE npes-1 to PE 0. */
+  /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
   if (thispe == npelast) {
     ilast = NUM_SPECIES*MXSUB*MYSUB - 2;
     if (npelast != 0)
@@ -559,7 +542,7 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
     else { clast[0] = cdata[ilast]; clast[1] = cdata[ilast+1]; }
   }
   
-  /* On PE 0, receive c1 and c2 at top right from PE npes - 1.
+  /* On PE 0, receive conc. at top right from PE npes - 1.
      Then print performance data and sampled solution values. */
   
   if (thispe == 0) {
@@ -571,30 +554,15 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
     check_flag(&flag, "IDAGetLastOrder", 1, thispe);
     flag = IDAGetNumSteps(mem, &nst);
     check_flag(&flag, "IDAGetNumSteps", 1, thispe);
-    flag = IDAGetNumResEvals(mem, &nre);
-    check_flag(&flag, "IDAGetNumResEvals", 1, thispe);
-    flag = IDAGetNumNonlinSolvIters(mem, &nni);
-    check_flag(&flag, "IDAGetNumNonlinSolvIters", 1, thispe);
     flag = IDAGetLastStep(mem, &hused);
     check_flag(&flag, "IDAGetLastStep", 1, thispe);
-    flag = IDASpgmrGetNumLinIters(mem, &nli);
-    check_flag(&flag, "IDASpgmrGetNumLinIters", 1, thispe);
-    flag = IDASpgmrGetNumPrecEvals(mem, &npe);
-    check_flag(&flag, "IDASpgmrGetNumPrecEvals", 1, thispe);
-    flag = IDASpgmrGetNumPrecSolves(mem, &nps);
-    check_flag(&flag, "IDASpgmrGetNumPrecSolves", 1, thispe);
-    flag = IDASpgmrGetNumResEvals(mem, &nreS);
-    check_flag(&flag, "IDASpgmrGetNumResEvals", 1, thispe);
-    flag = IDABBDPrecGetNumGfnEvals(P_data, &nge);
-    check_flag(&flag, "IDABBDPrecGetNumGfnEvals", 1, thispe);
 
-    printf("\nTIME t = %e.     NST = %ld,  k = %d,  h = %e\n",
-           tt, nst, kused, hused);
-    printf("NRE = %ld,  NRE_S = %ld,  NGE = %ld,  NNI = %ld,  NLI = %ld,  NPE = %ld,  NPS = %ld\n",
-           nre, nreS, nge, nni, nli, npe, nps);
-    
-    printf("At bottom left:  c1, c2 = %e %e \n",   cdata[0], cdata[1]);
-    printf("At top right:    c1, c2 = %e %e \n\n", clast[0], clast[1]);
+    printf("%8.2e %12.4e %12.4e   | %3d  %1d %12.4e\n", 
+         tt, cdata[0], clast[0], nst, kused, hused);
+    for (i=1;i<NUM_SPECIES;i++)
+      printf("         %12.4e %12.4e   |\n",cdata[i],clast[i]);
+    printf("\n");
+
   }
 
 }
@@ -618,6 +586,7 @@ static void PrintFinalStats(void *mem, void *P_data)
   check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1, 0);
   flag = IDAGetNumNonlinSolvIters(mem, &nni);
   check_flag(&flag, "IDAGetNumNonlinSolvIters", 1, 0);
+
   flag = IDASpgmrGetNumConvFails(mem, &ncfl);
   check_flag(&flag, "IDASpgmrGetNumConvFails", 1, 0);
   flag = IDASpgmrGetNumLinIters(mem, &nli);
@@ -628,17 +597,72 @@ static void PrintFinalStats(void *mem, void *P_data)
   check_flag(&flag, "IDASpgmrGetNumPrecSolves", 1, 0);
   flag = IDASpgmrGetNumResEvals(mem, &nreS);
   check_flag(&flag, "IDASpgmrGetNumResEvals", 1, 0);
+
   flag = IDABBDPrecGetNumGfnEvals(P_data, &nge);
   check_flag(&flag, "IDABBDPrecGetNumGfnEvals", 1, 0);
 
   printf("\nFinal statistics: \n\n");
-  printf("NST  = %5ld     NRE  = %5ld     NGE  = %5ld \n", nst, nre+nreS, nge);
-  printf("NNI  = %5ld     NLI  = %5ld\n", nni, nli);
-  printf("NPE  = %5ld     NPS  = %5ld\n", npe, nps);
-  printf("NETF = %5ld     NCFN = %5ld     NCFL = %5ld\n", netf, ncfn, ncfl);
+
+  printf("Number of steps                    = %ld\n", nst);
+  printf("Number of residual evaluations     = %ld\n", nre+nreS);
+  printf("Number of nonlinear iterations     = %ld\n", nni);
+  printf("Number of error test failures      = %ld\n", netf);
+  printf("Number of nonlinear conv. failures = %ld\n\n", ncfn);
+
+  printf("Number of linear iterations        = %ld\n", nli);
+  printf("Number of linear conv. failures    = %ld\n\n", ncfl);
+
+  printf("Number of preconditioner setups    = %ld\n", npe);
+  printf("Number of preconditioner solves    = %ld\n", nps);
+  printf("Number of local residual evals.    = %ld\n", nge);
 
 }
 
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
+
+static int check_flag(void *flagvalue, char *funcname, int opt, int id)
+{
+  int *errflag;
+
+  if (opt == 0 && flagvalue == NULL) {
+    /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
+            id, funcname);
+    return(1); 
+  } else if (opt == 1) {
+    /* Check if flag < 0 */
+    errflag = flagvalue;
+    if (*errflag < 0) {
+      fprintf(stderr, 
+              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", 
+              id, funcname, *errflag);
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) {
+    /* Check if function returned NULL pointer - no memory allocated */
+    fprintf(stderr, 
+            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
+            id, funcname);
+    return(1); 
+  }
+
+  return(0);
+}
+
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY IDA & SUPPORTING FUNCTIONS
+ *--------------------------------------------------------------------
+ */
 
 /*
  * resweb: System residual function for predator-prey system.
@@ -647,25 +671,25 @@ static void PrintFinalStats(void *mem, void *P_data)
  * reslocal, for computation of the residuals on this processor.      
  */
 
-static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
-                  N_Vector res,  void *rdata)
+static int resweb(realtype tt, 
+                  N_Vector cc, N_Vector cp, N_Vector rr, 
+                  void *res_data)
 {
   int retval;
   UserData webdata;
   long int Nlocal;
   
-  webdata = (UserData)rdata;
+  webdata = (UserData) res_data;
   
   Nlocal = webdata->n_local;
 
   /* Call rescomm to do inter-processor communication. */
-  retval = rescomm(Nlocal, tt, cc, cp, webdata);
+  retval = rescomm(Nlocal, tt, cc, cp, res_data);
   
   /* Call reslocal to calculate the local portion of residual vector. */
-  retval = reslocal(Nlocal, tt, cc, cp, res, webdata);
+  retval = reslocal(Nlocal, tt, cc, cp, rr, res_data);
   
   return(0);
-  
 }
 
 /*
@@ -679,7 +703,8 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
  */
 
 static int rescomm(long int Nlocal, realtype tt, 
-                   N_Vector cc, N_Vector cp, void *rdata)
+                   N_Vector cc, N_Vector cp,
+                   void *res_data)
 {
 
   UserData webdata;
@@ -688,15 +713,19 @@ static int rescomm(long int Nlocal, realtype tt,
   MPI_Comm comm;
   MPI_Request request[4];
   
-  webdata = (UserData) rdata;
+  webdata = (UserData) res_data;
   cdata = NV_DATA_P(cc);
   
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */
   
-  comm = webdata->comm;     thispe = webdata->thispe;
-  ixsub = webdata->ixsub;   jysub = webdata->jysub;
+  comm = webdata->comm;     
+  thispe = webdata->thispe;
+
+  ixsub = webdata->ixsub;   
+  jysub = webdata->jysub;
   cext = webdata->cext;
-  nsmxsub = webdata->nsmxsub; nsmysub = (webdata->ns)*(webdata->mysub);
+  nsmxsub = webdata->nsmxsub; 
+  nsmysub = (webdata->ns)*(webdata->mysub);
   
   /* Start receiving boundary data from neighboring PEs. */
 
@@ -712,61 +741,8 @@ static int rescomm(long int Nlocal, realtype tt,
   BRecvWait(request, ixsub, jysub, nsmxsub, cext, buffer);
   
   return(0);
-  
 }
 
-/*
- * BSend: Send boundary data to neighboring PEs.
- * This routine sends components of cc from internal subgrid boundaries
- * to the appropriate neighbor PEs.                                      
- */
- 
-
-static void BSend(MPI_Comm comm, long int my_pe, long int ixsub, long int jysub,
-                  long int dsizex, long int dsizey, realtype cdata[])
-{
-  int i;
-  long int ly, offsetc, offsetbuf;
-  realtype bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
-
-  /* If jysub > 0, send data from bottom x-line of cc. */
-
-  if (jysub != 0)
-    MPI_Send(&cdata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
-
-  /* If jysub < NPEY-1, send data from top x-line of cc. */
-
-  if (jysub != NPEY-1) {
-    offsetc = (MYSUB-1)*dsizex;
-    MPI_Send(&cdata[offsetc], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
-  }
-
-  /* If ixsub > 0, send data from left y-line of cc (via bufleft). */
-
-  if (ixsub != 0) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetbuf = ly*NUM_SPECIES;
-      offsetc = ly*dsizex;
-      for (i = 0; i < NUM_SPECIES; i++)
-        bufleft[offsetbuf+i] = cdata[offsetc+i];
-    }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe-1, 0, comm);   
-  }
-  
-  /* If ixsub < NPEX-1, send data from right y-line of cc (via bufright). */
-  
-  if (ixsub != NPEX-1) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetbuf = ly*NUM_SPECIES;
-      offsetc = offsetbuf*MXSUB + (MXSUB-1)*NUM_SPECIES;
-      for (i = 0; i < NUM_SPECIES; i++)
-        bufright[offsetbuf+i] = cdata[offsetc+i];
-    }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);   
-  }
-
-}
- 
 /*
  * BRecvPost: Start receiving boundary data from neighboring PEs.
  * (1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
@@ -863,6 +839,56 @@ static void BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
   }
 }
 
+/*
+ * BSend: Send boundary data to neighboring PEs.
+ * This routine sends components of cc from internal subgrid boundaries
+ * to the appropriate neighbor PEs.                                      
+ */
+ 
+static void BSend(MPI_Comm comm, long int my_pe, long int ixsub, long int jysub,
+                  long int dsizex, long int dsizey, realtype cdata[])
+{
+  int i;
+  long int ly, offsetc, offsetbuf;
+  realtype bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
+
+  /* If jysub > 0, send data from bottom x-line of cc. */
+
+  if (jysub != 0)
+    MPI_Send(&cdata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
+
+  /* If jysub < NPEY-1, send data from top x-line of cc. */
+
+  if (jysub != NPEY-1) {
+    offsetc = (MYSUB-1)*dsizex;
+    MPI_Send(&cdata[offsetc], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
+  }
+
+  /* If ixsub > 0, send data from left y-line of cc (via bufleft). */
+
+  if (ixsub != 0) {
+    for (ly = 0; ly < MYSUB; ly++) {
+      offsetbuf = ly*NUM_SPECIES;
+      offsetc = ly*dsizex;
+      for (i = 0; i < NUM_SPECIES; i++)
+        bufleft[offsetbuf+i] = cdata[offsetc+i];
+    }
+    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe-1, 0, comm);   
+  }
+  
+  /* If ixsub < NPEX-1, send data from right y-line of cc (via bufright). */
+  
+  if (ixsub != NPEX-1) {
+    for (ly = 0; ly < MYSUB; ly++) {
+      offsetbuf = ly*NUM_SPECIES;
+      offsetc = offsetbuf*MXSUB + (MXSUB-1)*NUM_SPECIES;
+      for (i = 0; i < NUM_SPECIES; i++)
+        bufright[offsetbuf+i] = cdata[offsetc+i];
+    }
+    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);   
+  }
+}
+ 
 /* Define lines are for ease of readability in the following functions. */
 
 #define mxsub      (webdata->mxsub)
@@ -900,15 +926,15 @@ static void BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
  */
 
 static int reslocal(long int Nlocal, realtype tt, 
-                    N_Vector cc, N_Vector cp, N_Vector res,
-                    void *rdata)
+                    N_Vector cc, N_Vector cp, N_Vector rr,
+                    void *res_data)
 {
   realtype *cdata, *ratesxy, *cpxy, *resxy,
     xx, yy, dcyli, dcyui, dcxli, dcxui;
   long int ix, jy, is, i, locc, ylocce, locce;
   UserData webdata;
   
-  webdata = (UserData) rdata;
+  webdata = (UserData) res_data;
   
   /* Get data pointers, subgrid data, array sizes, work array cext. */
   
@@ -957,7 +983,7 @@ static int reslocal(long int Nlocal, realtype tt,
   }
 
   /* Loop over all grid points, setting local array rates to right-hand sides.
-     Then set res values appropriately for prey/predator components of F. */
+     Then set rr values appropriately for prey/predator components of F. */
 
   for (jy = 0; jy < mysub; jy++) {
     ylocce = (jy+1)*nsmxsub2;
@@ -970,7 +996,7 @@ static int reslocal(long int Nlocal, realtype tt,
       ratesxy = IJ_Vptr(rates,ix,jy);
       WebRates(xx, yy, &(cext[locce]), ratesxy, webdata);
 
-      resxy = IJ_Vptr(res,ix,jy); 
+      resxy = IJ_Vptr(rr,ix,jy); 
       cpxy = IJ_Vptr(cp,ix,jy); 
       
       for (is = 0; is < NUM_SPECIES; is++) {
@@ -985,12 +1011,11 @@ static int reslocal(long int Nlocal, realtype tt,
         if (is < np) resxy[is] = cpxy[is] - rhs[is];
         else         resxy[is] =          - rhs[is];
 
-      } /* End of is (species) loop. */
-    } /* End of ix loop. */
-  } /* End of jy loop. */
+      }
+    }
+  }
   
   return(0);
-  
 }
 
 /* 
@@ -1023,48 +1048,11 @@ static realtype dotprod(long int size, realtype *x1, realtype *x2)
   long int i;
   realtype *xx1, *xx2, temp = ZERO;
   
-  xx1 = x1; xx2 = x2;
-  for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
+  xx1 = x1; 
+  xx2 = x2;
+  for (i = 0; i < size; i++) 
+    temp += (*xx1++) * (*xx2++);
+
   return(temp);
-
 }
 
-/*
- * Check function return value...
- *   opt == 0 means SUNDIALS function allocates memory so check if
- *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
- *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
- */
-
-static int check_flag(void *flagvalue, char *funcname, int opt, int id)
-{
-  int *errflag;
-
-  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, 
-            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
-            id, funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
-    errflag = flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, 
-              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", 
-              id, funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, 
-            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
-            id, funcname);
-    return(1); }
-
-  return(0);
-}
