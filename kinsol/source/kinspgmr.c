@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-11-23 18:53:48 $
+ * $Revision: 1.26 $
+ * $Date: 2004-12-02 19:28:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -133,8 +133,8 @@ static void KINSpgmrPrintInfo(KINMem kin_mem, char *funcname, int key,...);
  * SPGMR. In summary, KINSpgmr sets the following fields in the
  * KINSpgmrMemRec structure:
  *
- *  pretype     = PREC_NONE
- *  gstype      = MODIFIED_GS
+ *  g_pretype   = PREC_NONE
+ *  g_gstype    = MODIFIED_GS
  *  g_maxl      = KINSPGMR_MAXL  if maxl <= 0
  *              = maxl           if maxl > 0
  *  g_maxlrst   = 0 (default)
