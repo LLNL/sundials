@@ -75,44 +75,44 @@ from a shell command prompt.
 {\bf Module} & {\bf Libraries} & {\bf Header files} \\
 \hline
 {\shared} &  \id{libsundials\_shared.{\em lib}} & \id{sundialstypes.h} \\
-          &                                     & \id{dense.h}         \\
-          &                                     & \id{smalldense.h}    \\
-          &                                     & \id{band.h}          \\
-          &                                     & \id{spgmr.h}         \\
-          &                                     & \id{iterative.h}     \\
-          &                                     & \id{nvector.h}       \\
+          &                                       & \id{dense.h}         \\
+          &                                       & \id{smalldense.h}    \\
+          &                                       & \id{band.h}          \\
+          &                                       & \id{spgmr.h}         \\
+          &                                       & \id{iterative.h}     \\
+          &                                       & \id{nvector.h}       \\
 \hline
-{\nvector} & \id{libsundials\_nvecserial.{\em lib}} & \id{nvector\_serial.h} \\
+{\nvector} & \id{libsundials\_nvecserial.{\em lib}}   & \id{nvector\_serial.h}   \\
            & \id{libsundials\_nvecparallel.{\em lib}} & \id{nvector\_parallel.h} \\
-           & \id{libsundials\_fnvecserial.{\em lib}} &  \\
-           & \id{libsundials\_fnvecparallel.{\em lib}} &  \\
+           & \id{libsundials\_fnvecserial.a}            &                          \\
+           & \id{libsundials\_fnvecparallel.a}          &                          \\
 \hline
-{\cvode} & \id{libsundials\_cvode.{\em lib}} & \id{cvode.h} \\
-         &                                   & \id{cvdense.h}  \\
-         &                                   & \id{cvband.h}  \\
-         &                                   & \id{cvdiag.h}  \\
-         &                                   & \id{cvspgmr.h}  \\
-         &                                   & \id{cvbandpre.h}  \\
-         &                                   & \id{cvbbdpre.h}  \\
+{\cvode} & \id{libsundials\_cvode.{\em lib}} & \id{cvode.h}     \\
+         & \id{libsundials\_fcvode.a}          & \id{cvdense.h}   \\
+         &                                     & \id{cvband.h}    \\
+         &                                     & \id{cvdiag.h}    \\
+         &                                     & \id{cvspgmr.h}   \\
+         &                                     & \id{cvbandpre.h} \\
+         &                                     & \id{cvbbdpre.h}  \\
 \hline
-{\cvodes} & \id{libsundials\_cvodes.{\em lib}} & \id{cvodes.h} \\
-          &                                    & \id{cvodea.h}  \\
-          &                                    & \id{cvdense.h}  \\
-          &                                    & \id{cvband.h}  \\
-          &                                    & \id{cvdiag.h}  \\
-          &                                    & \id{cvspgmr.h}  \\
-          &                                    & \id{cvbandpre.h}  \\
-          &                                    & \id{cvbbdpre.h}  \\
+{\cvodes} & \id{libsundials\_cvodes.{\em lib}} & \id{cvodes.h}    \\
+          &                                      & \id{cvodea.h}    \\
+          &                                      & \id{cvdense.h}   \\
+          &                                      & \id{cvband.h}    \\
+          &                                      & \id{cvdiag.h}    \\
+          &                                      & \id{cvspgmr.h}   \\
+          &                                      & \id{cvbandpre.h} \\
+          &                                      & \id{cvbbdpre.h}  \\
 \hline
-{\ida} & \id{libsundials\_ida.{\em lib}} & \id{ida.h} \\
-       &                                 & \id{idadense.h}  \\
-       &                                 & \id{idaband.h}  \\
-       &                                 & \id{idaspgmr.h}  \\
-       &                                 & \id{idabbdpre.h}  \\
+{\ida} & \id{libsundials\_ida.{\em lib}} & \id{ida.h}       \\
+       &                                   & \id{idadense.h}  \\
+       &                                   & \id{idaband.h}   \\
+       &                                   & \id{idaspgmr.h}  \\
+       &                                   & \id{idabbdpre.h} \\
 \hline
-{\kinsol} & \id{libsundials\_kinsol.{\em lib}} & \id{kinsol.h} \\
-          &                                    & \id{kinspgmr.h}  \\
-          &                                    & \id{kinbbdpre.h}  \\
+{\kinsol} & \id{libsundials\_kinsol.{\em lib}} & \id{kinsol.h}    \\
+          & \id{libsundials\_fkinsol.a}          & \id{kinspgmr.h}  \\
+          &                                      & \id{kinbbdpre.h} \\
 \hline
 \end{tabular}
 
