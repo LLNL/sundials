@@ -4016,31 +4016,31 @@ directly by the user.
 }
 {
   \begin{args}[cvode\_mem]
-  \item \id{cvode\_mem} (\id{void *})
+  \item[\id{cvode\_mem}] (\id{void *})
     pointer to the memory previously allocated by \id{CVodeMalloc}.
-  \item \id{t} (\id{realtype})
+  \item[\id{t}] (\id{realtype})
     specifies the time at which quadrature information is 
     requested. The time \id{t} must fall within the interval defined by the last 
     succesful step taken by {\cvodes}.
-  \item \id{k} (\id{int})
-  \item \id{dkyQ} (\id{N\_Vector})
+  \item[\id{k}] (\id{int})
+  \item[\id{dkyQ}] (\id{N\_Vector})
     the vector containing the derivative. This vector must be allocated by the user. 
   \end{args}
 }
 {
   The return value \id{flag} of \id{CVodeGetQuadDky} is one of:
   \begin{args}[CVG\_NO\_QUAD]
-  \item \Id{\Id{OKAY}} 
+  \item[\Id{OKAY}]
     \id{CVodeGetQuadDky} succeeded.
-  \item \Id{CVG\_NO\_MEM} 
+  \item[\Id{CVG\_NO\_MEM}]
     The pointer to \id{cvode\_mem} was NULL.
-  \item \Id{CVG\_NO\_QUAD} 
+  \item[\Id{CVG\_NO\_QUAD}] 
     Quadrature integration was not initialized.
-  \item \Id{BAD\_DKY} 
+  \item[\Id{BAD\_DKY}] 
     The vector \id{dkyQ} is \id{NULL}.
-  \item \Id{BAD\_K} 
+  \item[\Id{BAD\_K}]
     \id{k} is not in the range $0, 1, ..., q_u$.
-  \item \Id{BAD\_T} 
+  \item[\Id{BAD\_T}] 
     The time \id{t} is not in the allowed range.
   \end{args}
 }
