@@ -84,7 +84,7 @@ echo 'CC=cc F77=f77 --with-cflags="-arch ev6 -om" --with-fflags="-arch ev6" --wi
 ;;
 
 mcr_icc_mpiicc) # MCR with Intel compilers and Quadrics MPI compiler scripts
-echo 'CC=icc F77=icf --with-mpicc=mpiicc --with-mpif77=mpiifc'
+echo 'CC=icc F77=ifc --with-mpicc=mpiicc --with-mpif77=mpiifc'
 ;;
 
 *) # Bad index or no index given, so provide help message.
