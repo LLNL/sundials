@@ -122,7 +122,7 @@ Under each solver column we give the default value for the optional
 input. Inputs marked with a ``-'' are not applicable to that particular 
 solver. The bottom half of the table lists the various optional 
 outputs that the user can access to monitor solver performance.
-Optional outputs available for a solver are marked with a ``$\surd$''
+Optional outputs available for a solver are marked with a ``$\checkmark$''
 and those not available are marked by a ``-''.
 
 \begin{table}[tp]
@@ -168,27 +168,27 @@ Stopping tolerance on max. scaled step & - & - & $U^{2/3}$ \\
 \hline
 {\bf Optional output} &  &  & \\
 \hline
-Size of workspace allocated by the solver & $\surd$ & $\surd$ & $\surd$ \\
-Cumulative number of internal steps taken & $\surd$ & $\surd$ & - \\
-Number of calls to the user's function & $\surd$ & $\surd$ & $\surd$ \\
-Number of calls to the linear solver's setup routine & $\surd$ & $\surd$ & - \\
-Number of local error test failures that have occurred & $\surd$ & $\surd$ & - \\
-Number of nonlinear solver iterations & $\surd$ & $\surd$ & $\surd$ \\
-Number of nonlinear convergence failures & $\surd$ & $\surd$ & - \\
-Order used during the last step & $\surd$ & $\surd$ & - \\
-Order to be attempted on the next step & $\surd$ & $\surd$ & - \\
-Order reductions due to stability limit detection & $\surd$ & - & - \\
-Actual initial step size used & $\surd$ & $\surd$ & - \\
-Step size used for the last step & $\surd$ & $\surd$ & - \\
-Step size to be attempted on the next step & $\surd$ & $\surd$ & - \\
-Current internal time reached by the solver & $\surd$ & $\surd$ & - \\
-%Suggested factor for tolerance scaling & $\surd$ & - & - \\
-Vector containing the error weights for state variables & $\surd$ & $\surd$ & - \\
-Vector containing the est. local errors & $\surd$ & - & - \\
-Number of backtrack operations during linesearch & - & $\surd$ & $\surd$ \\
-Number of times the $\beta$ condition could not & - & - & $\surd$ \\
-Scaled norm at a given iteration & - & - & $\surd$ \\
-Last step length in the global strategy routine & - & - & $\surd$ \\
+Size of workspace allocated by the solver & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Cumulative number of internal steps taken & $\checkmark$ & $\checkmark$ & - \\
+Number of calls to the user's function & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Number of calls to the linear solver's setup routine & $\checkmark$ & $\checkmark$ & - \\
+Number of local error test failures that have occurred & $\checkmark$ & $\checkmark$ & - \\
+Number of nonlinear solver iterations & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Number of nonlinear convergence failures & $\checkmark$ & $\checkmark$ & - \\
+Order used during the last step & $\checkmark$ & $\checkmark$ & - \\
+Order to be attempted on the next step & $\checkmark$ & $\checkmark$ & - \\
+Order reductions due to stability limit detection & $\checkmark$ & - & - \\
+Actual initial step size used & $\checkmark$ & $\checkmark$ & - \\
+Step size used for the last step & $\checkmark$ & $\checkmark$ & - \\
+Step size to be attempted on the next step & $\checkmark$ & $\checkmark$ & - \\
+Current internal time reached by the solver & $\checkmark$ & $\checkmark$ & - \\
+%Suggested factor for tolerance scaling & $\checkmark$ & - & - \\
+Vector containing the error weights for state variables & $\checkmark$ & $\checkmark$ & - \\
+Vector containing the est. local errors & $\checkmark$ & - & - \\
+Number of backtrack operations during linesearch & - & $\checkmark$ & $\checkmark$ \\
+Number of times the $\beta$ condition could not & - & - & $\checkmark$ \\
+Scaled norm at a given iteration & - & - & $\checkmark$ \\
+Last step length in the global strategy routine & - & - & $\checkmark$ \\
 \hline
 \end{tabular}
 \end{table}
