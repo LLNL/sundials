@@ -2,7 +2,7 @@
  *                                                                      *
  * File: cvdemd.c                                                       *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL             *
- * Version of 9 January 2002                                            *
+ * Version of 28 February 2002                                          *
  *----------------------------------------------------------------------*
  *                                                                      *
  * Demonstration program for CVODE - direct linear solvers. Two         *
@@ -426,7 +426,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integer mu,
                         flag = CVDense(cvode_mem, Jac1, NULL);
 	                break;
       case DENSE_DQ   : printf("Dense, Difference Quotient Jacobian\n");
-	                flag = CVDense(cvode_mem, NULL, NULL);
+	                flag = CVReInitDense(cvode_mem, NULL, NULL);
                         break;
       case DIAG       : printf("Diagonal Jacobian\n");
                         flag = CVDiag(cvode_mem);
@@ -435,7 +435,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, integer mu,
                         flag = CVBand(cvode_mem, mu, ml, Jac2, NULL);
                         break;
       case BAND_DQ  :   printf("Band, Difference Quotient Jacobian\n");
-	                flag = CVBand(cvode_mem, mu, ml, NULL, NULL);
+	                flag = CVReInitBand(cvode_mem, mu, ml, NULL, NULL);
                         break;    
     }
   }							
