@@ -329,6 +329,9 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
 {
   If an error occurred, \id{IDAMalloc} also prints an error message to the
   file specified by the optional input \id{errfp}.
+
+  If \id{IDACalcIC} (see \S\ref{ss:idacalcic}) will be called to compute consistent initial
+  conditions, the vectors \id{y0} and \id{yp0} must remain unaltered until after that call.
 }
 %%
 %%
@@ -629,6 +632,10 @@ for the given problem.
 {
   All failure return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{IDACalcIC} failures.
+
+  After a successful return from \id{IDACalcIC} the pointers to the vectors \id{y0} 
+  and \id{yp0} (passed as arguments to \id{IDAMalloc}) are released and, if so desired,
+  the user can deallocate them.
 }
 
 
