@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-05-26 19:54:10 $
+ * $Revision: 1.19 $
+ * $Date: 2004-07-22 21:14:15 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -325,8 +325,6 @@ enum {CVS_NO_MEM = -1, CVS_ILL_INPUT = -2};
  * abstol  is a pointer to the absolute tolerance scalar or       
  *            an N_Vector of absolute tolerances.                 
  *                                                                
- * nvspec  is a pointer to a vector specification structure       
- *                                                                
  * The parameters itol, reltol, and abstol define a vector of     
  * error weights, ewt, with components                            
  *   ewt[i] = 1/(reltol*abs(y[i]) + abstol)   (if itol = SS), or  
@@ -351,8 +349,7 @@ enum {CVS_NO_MEM = -1, CVS_ILL_INPUT = -2};
 
 int CVodeMalloc(void *cvode_mem, RhsFn f,
                 realtype t0, N_Vector y0, 
-                int itol, realtype *reltol, void *abstol, 
-                NV_Spec nvspec);
+                int itol, realtype *reltol, void *abstol);
 
 /* Error return values for CVodeMalloc */
 /* SUCCESS = 0 */
