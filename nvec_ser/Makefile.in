@@ -71,6 +71,6 @@ uninstall:
 nvector_serial.o : ${srcdir}/nvector_serial.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 fnvector_serial.o : ${srcdir}/fnvector_serial.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS}v-o $@ $<
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS} -o $@ $<
 
 #---End of Makefile---
