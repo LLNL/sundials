@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2004-11-09 16:18:06 $
+# $Revision: 1.6 $
+# $Date: 2004-11-11 02:03:27 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -38,6 +38,7 @@ spgmr.tex \
 sun_org.tex \
 types.tex \
 ug.tex \
+ug_html.tex \
 biblio.bib \
 bandmat.eps \
 sunorg1.eps \
@@ -60,6 +61,7 @@ Logo_for_papers.ps \
 Rule_and_address.ps \
 chngpage.sty \
 ug.tex \
+ug_html.tex \
 biblio.bib
 
 #-------------------------------------------------------------------------------
@@ -80,6 +82,10 @@ ug: 	copy_ug kin_guide.aux
 
 ug_pdf: ug kin_guide.ps
 
+ug_html: ug
+	cp ug_html.tex ug.tex
+	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -local_icons -white kin_guide.tex
+
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
 	cp ${SHARED_DOC}/$${i} . ;\
@@ -97,6 +103,10 @@ kin_guide.ps: kin_guide.dvi
 ex:	copy_ex kin_examples.aux
 
 ex_pdf: ex kin_examples.ps
+
+ex_html: ex
+	cp ug_html.tex ug.tex
+	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -local_icons -white kin_examples.tex
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \
