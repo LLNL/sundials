@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39 $
- * $Date: 2004-10-13 15:55:55 $
+ * $Revision: 1.40 $
+ * $Date: 2004-10-14 22:14:29 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -2806,42 +2806,6 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetIntWorkSpace(void *cvode_mem, long int *leniw)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSG_CVG_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *leniw = liw;
-
-  return(CV_SUCCESS);
-}
-
-/*-----------------------------------------------------------------*/
-
-int CVodeGetRealWorkSpace(void *cvode_mem, long int *lenrw)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSG_CVG_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *lenrw = lrw;
-
-  return(CV_SUCCESS);
-}
-
-/*-----------------------------------------------------------------*/
-
 int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
 {
   CVodeMem cv_mem;
@@ -4323,7 +4287,7 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
 
   /* Update solver workspace lengths */
-  lrw += (qmax + 4)*lrw1Q;
+  lrw += (qmax + 5)*lrw1Q;
   liw += (qmax + 5)*liw1Q;
 
   return(TRUE);
@@ -4448,6 +4412,8 @@ static booleantype CVSensAllocAtol(CVodeMem cv_mem, void **atolSPtr)
     break;
   case CV_SV:
     *atolSPtr = (void *)N_VCloneVectorArray(Ns, tempv);
+    lrw += Ns*lrw1;
+    liw += Ns*liw1;
     break;
   }
   
@@ -4608,8 +4574,8 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
   
   /* Update solver workspace lengths */
-  lrw += (qmax + 4)*Ns*lrw1;
-  liw += (qmax + 4)*Ns*liw1;
+  lrw += (qmax + 5)*Ns*lrw1;
+  liw += (qmax + 5)*Ns*liw1;
   
   return (TRUE);
 }
