@@ -25,6 +25,7 @@ AR = @AR@
 CC       = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS   = @CFLAGS@
+FCFLAGS  = @FCFLAGS@
 
 # SHARED include directory
 SHARED_INC_DIR  = ${srcdir}/../shared/include
@@ -70,6 +71,6 @@ uninstall:
 nvector_serial.o : ${srcdir}/nvector_serial.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 fnvector_serial.o : ${srcdir}/fnvector_serial.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS}v-o $@ $<
 
 #---End of Makefile---

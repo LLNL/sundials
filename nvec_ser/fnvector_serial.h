@@ -25,12 +25,12 @@ extern "C" {
 
 /* Fortran callable wrappers to NV_SpecInit_Serial and NV_SpecFree_Serial */ 
 
-#if SUNDIALS_UNDERSCORE_NONE
+#if defined(SUNDIALS_UNDERSCORE_NONE)
 
 #define F_NVSPECINITS  fnvspecinits
 #define F_NVSPECFREES  fnvspecfrees
 
-#elif SUNDIALS_UNDERSCORE_TWO
+#elif defined(SUNDIALS_UNDERSCORE_TWO)
 
 #define F_NVSPECINITS  fnvspecinits__
 #define F_NVSPECFREES  fnvspecfrees__
