@@ -52,11 +52,12 @@ c2 (bot.left/middle/top rt.) =    3.352e+11     9.108e+11     4.163e+11
 
 Final Statistics.. 
 
-lenrw   =  2000    leniw =    10
-llrw    =  2046    lliw  =    10
-nst     =   508    nfe   =  1325
-nni     =   647    nli   =   675
-nsetups =    85    netf  =    30
-npe     =     9    nps   =  1259
-ncfn    =     0    ncfl  =     0
- 
+lenrw   =  2000     leniw =    10
+llrw    =  2046     lliw  =    10
+nst     =   508
+nfe     =   650     nfel  =   675
+nni     =   647     nli   =   675
+nsetups =    85     netf  =    30
+npe     =     9     nps   =  1259
+ncfn    =     0     ncfl  =     0
+

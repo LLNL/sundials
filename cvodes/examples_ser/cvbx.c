@@ -1,7 +1,7 @@
 /************************************************************************
  * File        : cvbx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
- * Version of : 31 March 2003                                           *
+ * Version of : 10 July 2003                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem with a banded Jacobian,    *
@@ -79,7 +79,7 @@ typedef struct {
 
 static void SetIC(N_Vector u, UserData data);
 
-static void PrintFinalStats(long int iopt[]);
+static void PrintFinalStats(void *cvode_mem);
 
 /* Functions Called by the CVODE Solver */
 
@@ -94,18 +94,17 @@ static void Jac(integertype N, integertype mu, integertype ml, BandMat J,
 
 int main()
 {
-  M_Env machEnv;
-  realtype ropt[OPT_SIZE], dx, dy, reltol, abstol, t, tout, umax;
-  long int iopt[OPT_SIZE];
+  NV_Spec nvSpec;
+  realtype dx, dy, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
   void *cvode_mem;
-  int iout, flag;
+  int iout, flag, nst;
 
-  /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(NEQ);
+  /* Initialize serial vector specification object */
+  nvSpec = NV_SpecInit_Serial(NEQ);
 
-  u = N_VNew(machEnv);    /* Allocate u vector */
+  u = N_VNew(nvSpec);    /* Allocate u vector */
 
   reltol = 0.0;           /* Set the tolerances */
   abstol = ATOL;
@@ -119,31 +118,48 @@ int main()
 
   SetIC(u, data);              /* Initialize u vector */
 
-  /* Call CVodeMalloc to initialize CVODE: 
+  /* 
+     Call CvodeCreate to create CVODES memory 
 
-     f       is the user's right hand side function in u'=f(t,u)
-     T0      is the initial time
-     u       is the initial dependent variable vector
      BDF     specifies the Backward Differentiation Formula
      NEWTON  specifies a Newton iteration
+
+     A pointer to CVODES problem memory is returned and stored in cvode_mem.  
+  */
+
+  cvode_mem = CVodeCreate(BDF, NEWTON);
+  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+
+  /* 
+     Call CVodeMalloc to initialize CVODES memory: 
+
+     cvode_mem is the pointer to CVODES memory returned by CVodeCreate
+     f       is the user's right hand side function in y'=f(t,y)
+     T0      is the initial time
+     u       is the initial dependent variable vector
      SS      specifies scalar relative and absolute tolerances
-     &reltol and &abstol are pointers to the scalar tolerances
-     data    is the pointer to the user-defined block of coefficients
-     FALSE   indicates there are no optional inputs in iopt and ropt
-     iopt    and ropt arrays communicate optional integer and real input/output
+     &reltol is a pointer to the scalar relative tolerance
+     &abstol is a pointer to the scalar absolute tolerance vector
+     nvSpec  is the vector specification object 
+  */
 
-     A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
 
-  cvode_mem = CVodeMalloc(f, T0, u, BDF, NEWTON, SS, &reltol, &abstol,
-                          data, NULL, FALSE, iopt, ropt, machEnv);
-  if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
+  /* Set the pointer to user-defined data */
+  flag = CVodeSetFdata(cvode_mem, data);
+  if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
 
-  /* Call CVBand to specify the CVODE band linear solver with the
-     user-supplied Jacobian routine Jac, bandwidths ml = mu = MY,
-     and the pointer to the user-defined block data. */
-
-  flag = CVBand(cvode_mem, NEQ, MY, MY, Jac, data);
+  /* Call CVBand to specify the CVODE band linear solver */
+  flag = CVBand(cvode_mem, NEQ, MY, MY);
   if (flag != SUCCESS) { printf("CVBand failed.\n"); return(1); }
+
+  /* Set the user-supplied Jacobian routine Jac and
+     the pointer to the user-defined block data. */
+  flag = CVBandSetJacFn(cvode_mem, Jac);
+  if (flag != SUCCESS) { printf("CVBandSetJacFn failed.\n"); return(1); }
+  flag = CVBandSetJacData(cvode_mem, data);
+  if (flag != SUCCESS) { printf("CVBandSetJacData failed.\n"); return(1); }
 
   /* In loop over output points, call CVode, print results, test for error */
 
@@ -153,18 +169,19 @@ int main()
   printf("At t = %4.2f    max.norm(u) =%14.6e \n", T0,umax);
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
-    umax = N_VMaxNorm(u);
-    printf("At t = %4.2f    max.norm(u) =%14.6e   nst =%4ld \n", 
-           t,umax,iopt[NST]);
     if (flag != SUCCESS) { printf("CVode failed, flag=%d.\n", flag); break; }
+    umax = N_VMaxNorm(u);
+    flag = CVodeGetNumSteps(cvode_mem, &nst);
+    printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4d \n", t,umax,nst);
   }
+
+  PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
   N_VFree(u);                  /* Free the u vector */
   CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
   free(data);                  /* Free the user data */
-  M_EnvFree_Serial(machEnv);   /* Free the machine environment memory */
+  NV_SpecFree_Serial(nvSpec);  /* Free the vector specification memory */
 
-  PrintFinalStats(iopt);       /* Print some final statistics   */
   return(0);
 }
 
@@ -202,13 +219,25 @@ static void SetIC(N_Vector u, UserData data)
 
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(long int iopt[])
+static void PrintFinalStats(void *cvode_mem)
 {
+  int nst, nfe, nsetups, njeB, nfeB, nni, ncfn, netf;
+  
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  CVodeGetNumErrTestFails(cvode_mem, &netf);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+
+  CVBandGetNumJacEvals(cvode_mem, &njeB);
+  CVBandGetNumRhsEvals(cvode_mem, &nfeB);
+
   printf("\nFinal Statistics.. \n\n");
-  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n",
-         iopt[NST], iopt[NFE], iopt[NSETUPS], iopt[BAND_NJE]);
-  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",
-         iopt[NNI], iopt[NCFN], iopt[NETF]);
+  printf("nst = %-6d nfe  = %-6d nsetups = %-6d nfeB = %-6d njeB = %d\n",
+	 nst, nfe, nsetups, nfeB, njeB);
+  printf("nni = %-6d ncfn = %-6d netf = %d\n \n",
+	 nni, ncfn, netf);
 }
 
 

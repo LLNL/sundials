@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : fcvode.c                                       *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 30 March 2003                                  *
+ * Version of    : 31 July 2003                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the CVODE package.  See fcvode.h for usage.                    *
@@ -29,91 +29,110 @@
 void FCV_FUN(realtype*, realtype*, realtype*);
 
 /**************************************************************************/
+
 void FCV_MALLOC(realtype *t0, realtype *y0, 
-                integertype *meth, integertype *itmeth, integertype *iatol, 
+                int *meth, int *itmeth, int *iatol, 
                 realtype *rtol, realtype *atol,
-                integertype *optin, long int *iopt, realtype *ropt, int *ier)
+                int *optin, int *iopt, realtype *ropt, int *ier)
 {
   int lmm, iter, itol;
   N_Vector atolvec;
   void *atolptr;
 
-  CV_yvec = N_VMake(y0, F2C_machEnv);
+  CV_yvec = N_VMake(y0, F2C_nvspec);
   lmm = (*meth == 1) ? ADAMS : BDF;
   iter = (*itmeth == 1) ? FUNCTIONAL : NEWTON;
   if (*iatol == 1)
     { itol = SS; atolptr = atol; }
   else
-    { atolvec = N_VMake(atol, F2C_machEnv);
+    { atolvec = N_VMake(atol, F2C_nvspec);
       itol = SV; atolptr = atolvec; }
 
-  /* Call CVodeMalloc to initialize CVODE: 
+  /* Call CVodeCreate, CVodeSet*, and CVodeMalloc to initialize CVODE: 
+     lmm     is the method specifier
+     iter    is the iteration method specifier
      CVf     is the user's right-hand side function in y'=f(t,y)
      *t0     is the initial time
      CV_yvec is the initial dependent variable vector
-     lmm     is the method specifier
-     iter    is the iteration method specifier
      itol    specifies tolerance type
      rtol    is a pointer to the scalar relative tolerance
      atolptr is the absolute tolerance pointer (to scalar or vector)
-     NULL    is the pointer to f_data
-     NULL    is the pointer to the error message file
-     *optin  is the flag indicating optional inputs in iopt and ropt
-     iopt    is an array used to communicate optional integer input and output
-     ropt    is an array used to communicate optional real input and output
-     F2C_machEnv is the pointer to the machine environment block
+     F2C_nvspec is the pointer to the vector specification
 
-     A pointer to CVODE problem memory is returned and stored in CV_cvodemem. */
+     A pointer to CVODE problem memory is createded and stored in CV_cvodemem. */
 
-  CV_cvodemem = CVodeMalloc(CVf, *t0, CV_yvec, lmm, iter, 
-                            itol, rtol, atolptr, NULL, NULL, 
-                            *optin, iopt, ropt, F2C_machEnv);
 
-  *ier = (CV_cvodemem == NULL) ? -1 : 0 ;
+  *ier = 0;
+
+  CV_cvodemem = CVodeCreate(lmm, iter);
+
+  if (CV_cvodemem == NULL) {
+    *ier = -1;
+    return;
+  }
+
+  if (*optin == 1) {
+    if (iopt[0]>0)      CVodeSetMaxOrd(CV_cvodemem, iopt[0]);
+    if (iopt[1]>0)      CVodeSetMaxNumSteps(CV_cvodemem, iopt[1]);
+    if (iopt[2]>0)      CVodeSetMaxHnilWarns(CV_cvodemem, iopt[2]);
+    if (iopt[13]>0)     CVodeSetStabLimDet(CV_cvodemem, TRUE);
+    if (ropt[0] != 0.0) CVodeSetInitStep(CV_cvodemem, ropt[0]);
+    if (ropt[1] > 0.0)  CVodeSetMaxStep(CV_cvodemem, ropt[1]);
+    if (ropt[2] > 0.0)  CVodeSetMinStep(CV_cvodemem, ropt[2]);
+  }
+
+  *ier = CVodeMalloc(CV_cvodemem, CVf, *t0, CV_yvec,
+                     itol, rtol, atolptr, F2C_nvspec);
+
+  CV_iopt = iopt;
+  CV_ropt = ropt;
+
+  return;
+
 }
 
 /***************************************************************************/
 
-void FCV_REINIT(realtype *t0, realtype *y0, integertype *meth,
-                integertype *itmeth, integertype *iatol, realtype *rtol,
-                realtype *atol, integertype *optin, long int *iopt,
+void FCV_REINIT(realtype *t0, realtype *y0, integertype *iatol, realtype *rtol,
+                realtype *atol, integertype *optin, int *iopt,
                 realtype *ropt, int *ier)
 {
-  int lmm, iter, itol;
+  int itol;
   N_Vector atolvec;
   void *atolptr;
 
   N_VSetData(y0, CV_yvec);
-  lmm = (*meth == 1) ? ADAMS : BDF;
-  iter = (*itmeth == 1) ? FUNCTIONAL : NEWTON;
   if (*iatol == 1)
     { itol = SS; atolptr = atol; }
   else
-    { atolvec = N_VMake(atol, F2C_machEnv);
+    { atolvec = N_VMake(atol, F2C_nvspec);
       itol = SV; atolptr = atolvec; }
 
-  /* Call CVReInit to re-initialize CVODE: 
+  /* Call CVodeSet* and CVReInit to re-initialize CVODE: 
      CV_cvodemem is the pointer to the CVODE memory block
      CVf     is the user's right-hand side function in y'=f(t,y)
      *t0     is the initial time
      CV_yvec is the initial dependent variable vector
-     lmm     is the method specifier
-     iter    is the iteration method specifier
      itol    specifies tolerance type
      rtol    is a pointer to the scalar relative tolerance
      atolptr is the absolute tolerance pointer (to scalar or vector)
-     NULL    is the pointer to f_data
-     NULL    is the pointer to the error message file
-     *optin  is the flag indicating optional inputs in iopt and ropt
-     iopt    is an array used to communicate optional integer input and output
-     ropt    is an array used to communicate optional real input and output
-     F2C_machEnv is the pointer to the machine environment block
+     F2C_nvspec is the pointer to the vector specification */
 
-     A pointer to CVODE problem memory is returned and stored in CV_cvodemem. */
+  if (*optin == 1) {
+    if (iopt[0]>0)      CVodeSetMaxOrd(CV_cvodemem, iopt[0]);
+    if (iopt[1]>0)      CVodeSetMaxNumSteps(CV_cvodemem, iopt[1]);
+    if (iopt[2]>0)      CVodeSetMaxHnilWarns(CV_cvodemem, iopt[2]);
+    if (iopt[13]>0)     CVodeSetStabLimDet(CV_cvodemem, TRUE);
+    if (ropt[0] != 0.0) CVodeSetInitStep(CV_cvodemem, ropt[0]);
+    if (ropt[1] > 0.0)  CVodeSetMaxStep(CV_cvodemem, ropt[1]);
+    if (ropt[2] > 0.0)  CVodeSetMinStep(CV_cvodemem, ropt[2]);
+  }  
 
-  *ier = CVodeReInit(CV_cvodemem, CVf, *t0, CV_yvec, lmm, iter, 
-                     itol, rtol, atolptr, NULL, NULL,
-                     *optin, iopt, ropt, F2C_machEnv);
+
+  *ier = CVodeReInit(CV_cvodemem, CVf, *t0, CV_yvec,
+                     itol, rtol, atolptr);
+
+  return;
 }
 
 /***************************************************************************/
@@ -124,107 +143,91 @@ void FCV_DIAG(int *ier)
      CV_cvodemem is the pointer to the CVODE memory block  */
 
   *ier = CVDiag(CV_cvodemem);
+
+  CV_ls = 3;
 }
 
 /***************************************************************************/
 
-void FCV_DENSE0(integertype *neq, int *ier)
+void FCV_DENSE(integertype *neq, int *ier)
 {
   /* Call CVDense:
      *neq        is the problem size
-     CV_cvodemem is the pointer to the CVODE memory block 
-     NULL        is a pointer to the dense Jac routine
-     NULL        is a pointer to jac_data                 */
+     CV_cvodemem is the pointer to the CVODE memory block */
 
-  *ier = CVDense(CV_cvodemem, *neq, NULL, NULL);
+  *ier = CVDense(CV_cvodemem, *neq);
+
+  CV_ls = 1;
 }
 
 /***************************************************************************/
 
-void FCV_REINDENSE0(int *ier)
-{
-  /* Call CVReInitDense:
-     CV_cvodemem is the pointer to the CVODE memory block 
-     NULL        is a pointer to the dense Jac routine
-     NULL        is a pointer to jac_data                 */
-
-  *ier = CVReInitDense(CV_cvodemem, NULL, NULL);
-}
-
-
-/***************************************************************************/
-
-void FCV_BAND0(integertype *neq, integertype *mupper, integertype *mlower, int *ier)
+void FCV_BAND(integertype *neq, integertype *mupper, integertype *mlower, int *ier)
 {
   /* Call CVBand:
      CV_cvodemem is the pointer to the CVODE memory block 
      *neq        is the problem size
      *mupper     is the upper bandwidth
-     *mlower     is the lower bandwidth
-     NULL        is a pointer to the band Jac routine
-     NULL        is a pointer to jac_data                 */
+     *mlower     is the lower bandwidth */
 
-  *ier = CVBand(CV_cvodemem, *neq, *mupper, *mlower, NULL, NULL);
+  *ier = CVBand(CV_cvodemem, *neq, *mupper, *mlower);
+
+  CV_ls = 2;
 }
 
 /***************************************************************************/
 
-void FCV_REINBAND0(integertype *mupper, integertype *mlower, int *ier)
-{
-  /* Call CVReInitBand:
-     CV_cvodemem is the pointer to the CVODE memory block 
-     *mupper     is the upper bandwidth
-     *mlower     is the lower bandwidth
-     NULL        is a pointer to the band Jac routine
-     NULL        is a pointer to jac_data                 */
-
-  *ier = CVReInitBand(CV_cvodemem, *mupper, *mlower, NULL, NULL);
-}
-
-/***************************************************************************/
-
-void FCV_SPGMR00(int *gstype, int *maxl, realtype *delt, int *ier)
+void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
   /* Call CVSpgmr to specify the SPGMR linear solver:
      CV_cvodemem is the pointer to the CVODE memory block
      0           is the preconditioner type (none)
-     *gstype     is the Gram-Schmidt process type
      *maxl       is the maximum Krylov dimension
-     *delt       is the linear convergence tolerance factor
-     NULL        is a pointer to the preconditioner setup routine
-     NULL        is a pointer to the preconditioner solve routine
-     NULL        is the pointer to P_data
-     NULL        is a pointer to the Jtimes routine
-     NULL        is the pointer to J_data                             */
+     *gstype     is the Gram-Schmidt process type
+     *delt       is the linear convergence tolerance factor */
 
-  *ier = CVSpgmr(CV_cvodemem, 0, *gstype, *maxl, *delt, NULL, NULL,
-                 NULL, NULL, NULL);
+  *ier = CVSpgmr(CV_cvodemem, *pretype, *maxl);
+  if (*ier != 0) return;
+
+  *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
+  if (*ier != 0) return;
+
+  *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
+  if (*ier != 0) return;
+
+  CV_ls = 4;
+
 }
 
 /***************************************************************************/
 
-void FCV_REINSPGMR00(int *gstype, int *maxl, realtype *delt, int *ier)
+void FCV_REINSPGMR(int *pretype, int *gstype, realtype *delt, int *ier)
 {
-  /* Call CVReInitSpgmr to specify the SPGMR linear solver:
-     CV_cvodemem is the pointer to the CVODE memory block
-     0           is the preconditioner type (none)
+  /* Call CVSpgmrSet* to specify 
      *gstype     is the Gram-Schmidt process type
-     *maxl       is the maximum Krylov dimension
-     *delt       is the linear convergence tolerance factor
-     NULL        is a pointer to the preconditioner setup routine
-     NULL        is a pointer to the preconditioner solve routine
-     NULL        is the pointer to P_data
-     NULL        is a pointer to the Jtimes routine
-     NULL        is the pointer to J_data                             */
+     *delt       is the linear convergence tolerance factor */
 
-  *ier = CVReInitSpgmr(CV_cvodemem, 0, *gstype, *maxl, *delt, NULL, NULL,
-                       NULL, NULL, NULL);
+  *ier = CVSpgmrSetPrecType(CV_cvodemem, *pretype);
+  if (*ier != 0) return;
+
+  *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
+  if (*ier != 0) return;
+
+  *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
+  if (*ier != 0) return;
+
+  CV_ls = 4;
+
 }
 
 /***************************************************************************/
 
 void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
+  CVodeMem CV_cvmem;
+  realtype h0u;
+  integertype liw, lrw;
+
   /* Call CVode:
      CV_cvodemem is the pointer to the CVODE memory block
      *tout       is the t value where output is desired
@@ -233,8 +236,68 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
      *itask      is the task indicator (NORMAL or ONE_STEP) */
 
   *ier = CVode(CV_cvodemem, *tout, CV_yvec, t, *itask);
-
   y = N_VGetData(CV_yvec);
+
+  /* Load optional outputs in iopt & ropt */
+  if ( (CV_iopt != NULL) && (CV_ropt != NULL) ) {
+
+    CV_cvmem = (CVodeMem) CV_cvodemem;
+
+    CVodeGetIntegratorStats(CV_cvodemem, 
+                            &CV_iopt[3],  /* NST */
+                            &CV_iopt[4],  /* NFE  */ 
+                            &CV_iopt[5],  /* NSETUPS  */ 
+                            &CV_iopt[8],  /* NETF  */ 
+                            &CV_iopt[9],  /* QU  */ 
+                            &CV_iopt[11], /* QCUR  */ 
+                            &h0u,
+                            &CV_ropt[3],  /* HU */ 
+                            &CV_ropt[4],  /* HCUR  */ 
+                            &CV_ropt[5]); /* TCUR  */ 
+    CVodeGetTolScaleFactor(CV_cvodemem, &CV_ropt[6]);
+    CVodeGetNonlinSolvStats(CV_cvodemem,
+                            &CV_iopt[6],  /* NNI */
+                            &CV_iopt[7]); /* NCFN */
+    CVodeGetWorkSpace(CV_cvodemem, &liw, &lrw);
+    CV_iopt[12] = (int) lrw;              /* LENRW */
+    CV_iopt[13] = (int) liw;              /* LENIW */
+    if (CV_cvmem->cv_sldeton)
+      CVodeGetNumStabLimOrderReds(CV_cvodemem, &CV_iopt[14]); /* NOR */
+
+    switch(CV_ls) {
+    case 1:
+      CVDenseGetNumJacEvals(CV_cvodemem, &CV_iopt[15]);   /* NJE */
+      CVDenseGetRealWorkSpace(CV_cvodemem, &lrw); /* LRW */
+      CV_iopt[16] = (int) lrw;
+      CVDenseGetIntWorkSpace(CV_cvodemem, &liw);  /* LIW */
+      CV_iopt[17] = (int) liw;
+      break;
+    case 2:
+      CVBandGetNumJacEvals(CV_cvodemem, &CV_iopt[15]);    /* NJE */
+      CVBandGetRealWorkSpace(CV_cvodemem, &lrw); /* LRW */
+      CV_iopt[16] = (int) lrw;
+      CVBandGetIntWorkSpace(CV_cvodemem, &liw);  /* LIW */
+      CV_iopt[17] = (int) liw;
+      break;
+    case 3:
+      CVDiagGetRealWorkSpace(CV_cvodemem, &lrw); /* LRW */
+      CV_iopt[16] = (int) lrw;
+      CVDiagGetIntWorkSpace(CV_cvodemem, &liw);  /* LIW */
+      CV_iopt[17] = (int) liw;
+      break;
+    case 4:
+      CVSpgmrGetNumPrecEvals(CV_cvodemem, &CV_iopt[15]);  /* NPE */
+      CVSpgmrGetNumLinIters(CV_cvodemem, &CV_iopt[16]);   /* NLI */
+      CVSpgmrGetNumPrecSolves(CV_cvodemem, &CV_iopt[17]); /* NPS */
+      CVSpgmrGetNumConvFails(CV_cvodemem, &CV_iopt[18]);  /* NCFL */
+      CVSpgmrGetRealWorkSpace(CV_cvodemem, &lrw); /* LRW */
+      CV_iopt[19] = (int) lrw;
+      CVSpgmrGetIntWorkSpace(CV_cvodemem, &liw);  /* LIW */
+      CV_iopt[20] = (int) liw;
+      break;
+    }
+
+  }
 
 }
 
@@ -248,7 +311,7 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
      *k          is the derivative order
      CV_yvec     is the N_Vector containing the solution derivative on return */
 
-  *ier = CVodeDky (CV_cvodemem, *t, *k, CV_yvec);
+  *ier = CVodeGetDky(CV_cvodemem, *t, *k, CV_yvec);
 
   dky = N_VGetData(CV_yvec);
 
@@ -283,3 +346,4 @@ void CVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   N_VSetData(dydata, ydot);
 
 }
+

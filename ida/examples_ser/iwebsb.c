@@ -1,7 +1,7 @@
 /*************************************************************************
  * File       : iwebsb.c                                                 *
  * Written by : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL   *
- * Version of : 31 March 2003                                            *
+ * Version of : 23 July 2003                                             *
  *-----------------------------------------------------------------------*
  *
  * Example program for IDA: Food web, serial, band solve IDABAND.
@@ -139,14 +139,14 @@ typedef struct {
 
 /* Prototypes for private Helper Functions. */
 
-static UserData AllocUserData(M_Env machEnv);
+static UserData AllocUserData(NV_Spec nvSpec);
 static void InitUserData(UserData webdata);
 static void FreeUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype time,
+static void PrintOutput(void *mem, N_Vector cc, realtype time,
                         UserData webdata);
-static void PrintFinalStats(long int iopt[]);
+static void PrintFinalStats(void *mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
@@ -162,32 +162,30 @@ static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval,
 
 int main()
 { 
-  M_Env machEnv;
+  void *mem;
+  UserData webdata;
+  NV_Spec nvSpec;
+  N_Vector cc, cp, id, res;
   int iout, flag, retval, itol, itask;
   integertype SystemSize, mu, ml;
-  long int iopt[OPT_SIZE];
-  booleantype optIn;
-  realtype rtol, atol, ropt[OPT_SIZE], t0, tout, tret;
-  N_Vector cc, cp, id, res;
-  UserData webdata;
-  void *mem;
+  realtype rtol, atol, t0, tout, tret;
 
   /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(NEQ);
+  nvSpec = NV_SpecInit_Serial(NEQ);
 
   /* Set up and load user data block webdata. */
   SystemSize = NEQ;
-  webdata = AllocUserData(machEnv);
+  webdata = AllocUserData(nvSpec);
   InitUserData(webdata);
 
   /* Allocate N-vectors and initialize cc, cp, and id.
      The vector res is used temporarily only.           */ 
 
   SystemSize = NEQ;
-  cc  = N_VNew(machEnv);
-  cp  = N_VNew(machEnv);
-  res = N_VNew(machEnv);
-  id  = N_VNew(machEnv);
+  cc  = N_VNew(nvSpec);
+  cp  = N_VNew(nvSpec);
+  res = N_VNew(nvSpec);
+  id  = N_VNew(nvSpec);
   
   SetInitialProfiles(cc, cp, id, webdata);
   N_VFree(res);
@@ -196,34 +194,35 @@ int main()
   
   t0 = ZERO;
   itol = SS; rtol = RTOL; atol = ATOL;
-  optIn = FALSE;
 
-  /* Call IDAMalloc to initialize IDA.
-  First NULL argument  = constraints vector, not used here.
-  Second NULL argument = file pointer for error messages (sent to stdout).
-  A pointer to IDA problem memory is returned and stored in mem.     */
-
-  mem = IDAMalloc(resweb, webdata, t0, cc, cp, itol,&rtol,&atol,
-                  id, NULL, NULL, optIn, iopt, ropt, machEnv);
-  if (mem == NULL) { printf("IDAMalloc failed."); return(1); }
+  /* Call IDACreate and IDAMalloc to initialize IDA. */
   
+  mem = IDACreate();
+  if (mem == NULL) { printf("IDACreate failed."); return(1); }
+  retval = IDASetRdata(mem, webdata);
+  if (retval != SUCCESS) { printf("IDASetRdata failed. "); return(1); }
+  retval = IDASetID(mem, id);
+  if (retval != SUCCESS) { printf("IDASetID failed. "); return(1); }
+  retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol, nvSpec);
+  if (retval != SUCCESS) { printf("IDAMalloc failed. "); return(1); }
+
   /* Call IDABand to specify the IDA linear solver. */
-
   mu = ml = NSMX;
-  retval = IDABand(mem, SystemSize, mu, ml, NULL, NULL);
-  
+  retval = IDABand(mem, SystemSize, mu, ml);
   if (retval != 0) {
     printf("IDABand failed, returning %d \n",retval);
-    return(1); }
+    return(1); 
+  }
   
   /* Call IDACalcIC (with default options) to correct the initial values. */
   
   tout = 0.001;
-  retval = IDACalcIC(mem, CALC_YA_YDP_INIT, tout, ZERO, 0,0,0,0, ZERO);
+  retval = IDACalcIC(mem, CALC_YA_YDP_INIT, tout);
   
   if (retval != SUCCESS) {
     printf("IDACalcIC failed. retval = %d\n",retval);
-    return(1); }
+    return(1); 
+  }
   
   /* Print heading, basic parameters, and initial values. */
 
@@ -235,20 +234,20 @@ int main()
   printf("Linear solver: IDABAND,  Band parameters mu = %ld, ml = %ld\n",mu,ml);
   printf("CalcIC called to correct initial predator concentrations \n\n");
   
-  PrintOutput(iopt, ropt, cc, ZERO, webdata);
+  PrintOutput(mem, cc, ZERO, webdata);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
   
   itask = NORMAL;
   for (iout = 1; iout <= NOUT; iout++) {
     
-    flag = IDASolve(mem, tout, t0, &tret, cc, cp, itask);
+    flag = IDASolve(mem, tout, &tret, cc, cp, itask);
     
     if(flag != SUCCESS) { 
       printf("IDA failed, flag = %d.\n", flag); 
       return(flag); }
     
-    PrintOutput(iopt, ropt, cc, tret,webdata);
+    PrintOutput(mem, cc, tret, webdata);
     
     if (iout < 3) tout *= TMULT; else tout += TADD;
     
@@ -256,11 +255,12 @@ int main()
   
   /* Print final statistics and free memory. */  
   
-  PrintFinalStats(iopt);
+  PrintFinalStats(mem);
+
   N_VFree(cc); N_VFree(cp); N_VFree(id);
   IDAFree(mem);
   FreeUserData(webdata);
-  M_EnvFree_Serial(machEnv);
+  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 
@@ -273,13 +273,13 @@ int main()
 /*************************************************************************/
 /* AllocUserData: Allocate memory for data structure of type UserData.   */
 
-static UserData AllocUserData(M_Env machEnv)
+static UserData AllocUserData(NV_Spec nvSpec)
 {
   UserData webdata;
 
   webdata = (UserData) malloc(sizeof *webdata);
 
-  webdata->rates = N_VNew(machEnv);
+  webdata->rates = N_VNew(nvSpec);
 
   webdata->acoef = denalloc(NUM_SPECIES);
  
@@ -419,16 +419,24 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
    (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         */
 
 
-static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype tt,
+static void PrintOutput(void *mem, N_Vector cc, realtype tt,
                         UserData webdata)
 {
-  int jx, jy;
-  realtype *ct;
+  int jx, jy, kused, nst, nni, nje, nre, nreB;
+  realtype *ct, hused;
   
-  printf("\nTIME t = %e.     NST = %ld, k = %ld, h = %e\n",
-         tt, iopt[NST], iopt[KUSED], ropt[HUSED]);
-  printf("NRE = %ld, NNI = %ld, NJE = %ld\n", iopt[NRE], iopt[NNI], 
-         iopt[BAND_NJE]);
+  IDAGetLastOrder(mem, &kused);
+  IDAGetNumSteps(mem, &nst);
+  IDAGetNumNonlinSolvIters(mem, &nni);
+  IDAGetNumResEvals(mem, &nre);
+  IDAGetLastStep(mem, &hused);
+  IDABandGetNumJacEvals(mem, &nje);
+  IDABandGetNumResEvals(mem, &nreB);
+  
+  printf("\nTIME t = %e.     NST = %d, k = %d, h = %e\n",
+         tt, nst, kused, hused);
+  printf("NRE = %d, NRE_B = %d, NNI = %d, NJE = %d\n", 
+         nre, nreB, nni, nje);
   
   jx = 0;    jy = 0;    ct = IJ_Vptr(cc,jx,jy);
   printf("At bottom left:  c1, c2 = %e %e \n",   ct[0],ct[1]);
@@ -442,12 +450,22 @@ static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype 
 /*************************************************************************/
 /* PrintFinalStats: Print final run data contained in iopt.              */
 
-static void PrintFinalStats(long int iopt[])
+static void PrintFinalStats(void *mem)
 { 
+  int nst, nre, nreB, nni, nje, netf, ncfn;
+
+  IDAGetNumSteps(mem, &nst);
+  IDAGetNumNonlinSolvIters(mem, &nni);
+  IDAGetNumResEvals(mem, &nre);
+  IDAGetNumErrTestFails(mem, &netf);
+  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  IDABandGetNumJacEvals(mem, &nje);
+  IDABandGetNumResEvals(mem, &nreB);
+
   printf("\nFinal run statistics: \n\n");
-  printf("NST  = %5ld     NRE  = %5ld \n", iopt[NST], iopt[NRE]);
-  printf("NNI  = %5ld     NJE  = %5ld \n", iopt[NNI], iopt[BAND_NJE]);
-  printf("NETF = %5ld     NCFN = %5ld \n", iopt[NETF], iopt[NCFN]);
+  printf("NST  = %5d     NRE  = %5d \n", nst, nre+nreB);
+  printf("NNI  = %5d     NJE  = %5d \n", nni, nje);
+  printf("NETF = %5d     NCFN = %5d \n", netf, ncfn);
   
 } /* End of PrintFinalStats. */
 

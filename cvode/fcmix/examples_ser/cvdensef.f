@@ -1,7 +1,7 @@
 C File cvdensef.f
 C
 C FCVODE Example Problem:  Robertson kinetics, dense user Jacobian.
-C Version of 30 March 2003
+C Version of 1 August 2003
 C
 C The following is a simple example problem, with the coding
 C needed for its solution by CVODE.  The problem is from chemical
@@ -44,7 +44,7 @@ C
       WRITE(6,10)NEQ
  10   FORMAT('Dense example problem: Robertson kinetics, NEQ = ',I2//)
 C
-      CALL FMENVINITS(NEQ, IER)
+      CALL FNVSPECINITS(NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
  20     FORMAT(///' FMENVINITS returned IER =',I5)
@@ -59,13 +59,15 @@ C
         STOP
       ENDIF
 C
-      CALL FCVDENSE1(NEQ, IER)
+      CALL FCVDENSE (NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' FCVDENSE1 returned IER =',I5)
+ 40     FORMAT(///' FCVDENSE returned IER =',I5)
         STOP
       ENDIF
 C
+      CALL FCVDENSESETJAC(1, IER)
+
       DO 70 IOUT = 1,12
 C
         CALL FCVODE (TOUT, T, Y, ITASK, IER)
@@ -99,7 +101,7 @@ C
      4       'No. error test failures =',I4/)
 C
       CALL FCVFREE
-      CALL FMENVFREES
+      CALL FNVSPECFREES
 C
       STOP
       END

@@ -2,7 +2,7 @@
  *                                                                      *
  * File       : pvanx.c                                                 *
  * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 30 March 2003                                           *
+ * Version of : 16 July 2003                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -86,24 +86,22 @@ static void fB(realtype t, N_Vector u,
 
 int main(int argc, char *argv[])
 {
-  M_Env machEnvF, machEnvB;
+  NV_Spec nvSpecF, nvSpecB;
 
   UserData data;
 
   void *cvadj_mem;
   void *cvode_mem;
   
-  long int iopt[OPT_SIZE];
-  realtype ropt[OPT_SIZE];
   N_Vector u;
   realtype reltol, abstol;
 
   N_Vector uB;
   realtype *uBdata;
 
-  realtype dx, t, umax, g_val;
+  realtype dx, t, g_val;
   int flag, my_pe, nprocs, npes, ncheck;
-  integertype local_N, nperpe, nrem, my_base, i, iglobal;
+  integertype local_N=0, nperpe, nrem, my_base=0, i, iglobal;
 
   MPI_Comm comm;
 
@@ -141,10 +139,10 @@ int main(int argc, char *argv[])
   /* Make last process inactive for forward phase */
   if (my_pe == npes) local_N = 0;
 
-  /* Initialize machine environment for forward phase */
-  machEnvF = M_EnvInit_Parallel(comm, local_N, NEQ, &argc, &argv);
-  if (machEnvF == NULL) {
-    if(my_pe == 0) printf("M_EnvInit_Parallel failed.\n"); 
+  /* Initialize vector specification for forward phase */
+  nvSpecF = NV_SpecInit_Parallel(comm, local_N, NEQ, &argc, &argv);
+  if (nvSpecF == NULL) {
+    if(my_pe == 0) printf("NV_SpecInit_Parallel failed.\n"); 
     return(1);
   }
 
@@ -153,15 +151,26 @@ int main(int argc, char *argv[])
   abstol = ATOL;
 
   /* Allocate and initialize forward variables */
-  u = N_VNew(machEnvF);
+  u = N_VNew(nvSpecF);
   SetIC(u, dx, local_N, my_base);
 
   /* Allocate CVODES memory for forward integration */
-  cvode_mem = CVodeMalloc(f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
-                          &abstol, data, NULL, FALSE, iopt, ropt, machEnvF);
-  if (cvode_mem == NULL) {
-    if(my_pe == 0) printf("CVodeMalloc failed.\n"); 
-    return(1);
+  cvode_mem = CVodeCreate(ADAMS, FUNCTIONAL);
+  if (cvode_mem == NULL) { 
+    if (my_pe == 0) printf("CVodeCreate failed.\n"); 
+    return(1); 
+  }
+
+  flag = CVodeSetFdata(cvode_mem, data);
+  if (flag != SUCCESS) { 
+    if (my_pe == 0) printf("CVodeSetFdata failed.\n"); 
+    return(1); 
+  }
+
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpecF);
+  if (flag != SUCCESS) { 
+    if (my_pe == 0) printf("CVodeMalloc failed.\n"); 
+    return(1); 
   }
 
   /* Allocate combined forward/backward memory */
@@ -192,20 +201,21 @@ int main(int argc, char *argv[])
   /* Activate last process for integration of the quadrature equations */
   if(my_pe == npes) local_N = NP;
 
-  /* Initialize machine environment for backward phase */
-  machEnvB = M_EnvInit_Parallel(comm, local_N, NEQ+NP, &argc, &argv);
-  if (machEnvB == NULL) {
-    if(my_pe == 0) printf("M_EnvInit_Parallel failed.\n"); 
+  /* Initialize vector specification for backward phase */
+  nvSpecB = NV_SpecInit_Parallel(comm, local_N, NEQ+NP, &argc, &argv);
+  if (nvSpecB == NULL) {
+    if(my_pe == 0) printf("NV_SpecInit_Parallel failed.\n"); 
     return(1);
   }
 
   /* Allocate and initialize backward variables */
-  uB = N_VNew(machEnvB);
+  uB = N_VNew(nvSpecB);
   SetICback(uB, my_base);
 
   /* Allocate CVODES memory for the backward integration */
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, ADAMS, FUNCTIONAL, SS, &reltol, 
-                      &abstol, data, NULL, FALSE, NULL, NULL, machEnvB);
+  flag = CVodeCreateB(cvadj_mem, ADAMS, FUNCTIONAL);
+  flag = CVodeSetFdataB(cvadj_mem, data);
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, SS, &reltol, &abstol, nvSpecB);
   if (flag != SUCCESS) { 
     if(my_pe == 0) printf("CVodeMallocB failed, flag=%d.\n", flag);
     return(1);
@@ -226,7 +236,7 @@ int main(int argc, char *argv[])
   } else {
     for (i=1; i<=local_N; i++) {
       iglobal = my_base + i;
-      printf("    mu(t0)[%2d] = %g\n", iglobal, uBdata[i-1]);
+      printf("    mu(t0)[%2ld] = %g\n", iglobal, uBdata[i-1]);
     }
   }
 
@@ -236,8 +246,8 @@ int main(int argc, char *argv[])
   CVodeFree(cvode_mem);                        /* CVODES memory block   */    
   CVadjFree(cvadj_mem);                        /* combined memory block */
   free(data->z1); free(data->z2); free(data);  /* user data structure   */
-  M_EnvFree_Parallel(machEnvF);                /* forward M_Env         */
-  M_EnvFree_Parallel(machEnvB);                /* backward M_Env        */
+  NV_SpecFree_Parallel(nvSpecF);               /* forward NV_Spec       */
+  NV_SpecFree_Parallel(nvSpecB);               /* backward NV_Spec      */
   
   /* Finalize MPI */
   MPI_Finalize();
@@ -402,7 +412,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 static void fB(realtype t, N_Vector u, 
                N_Vector uB, N_Vector uBdot, void *f_dataB)
 {
-  realtype *uBdata, *duBdata, *udata, *zB;
+  realtype *uBdata, *duBdata, *udata;
   realtype uBLeft, uBRight, uBi, uBlt, uBrt;
   realtype uLeft, uRight, ui, ult, urt;
   realtype dx, hordc, horac, hdiff, hadv;

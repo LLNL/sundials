@@ -2,7 +2,7 @@
  *                                                                         *
  * File        : fkinbbd.h                                                 *
  * Programmers : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL *
- * Version of  : 31 March 2003                                             *
+ * Version of  : 5 August 2003                                             *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -29,14 +29,12 @@
 
  The user-callable functions in this package, with the corresponding
  KINSOL and KINBBDPRE functions, are as follows: 
-   FKINBBDINIT0  interfaces to KBBDAlloc and KINSpgmr, internal FATIMES routine
-   FKINBBDINIT1  interfaces to KBBDAlloc and KINSpgmr, external FATIMES routine
-                 (in the file fkinbbdinit1.c)
-   FKINBBDOPT    accesses optional outputs
-   FKINBBDFREE   interfaces to KBBDFree
+   FKINBBDINIT  interfaces to KBBDPrecAlloc and KINSpgmr
+   FKINBBDOPT   accesses optional outputs
+   FKINBBDFREE  interfaces to KBBDPrecFree
 
  In addition to the Fortran system function KFUN, and optional Jacobian
- vector product routine FATIMES, the following are the user-supplied 
+ vector product routine KJTIMES, the following are the user-supplied 
  functions required by this package, each with the corresponding
  interface function which calls it (and its type within KINBBDPRE):
    KLOCFN is called by the interface function KINgloc of type KINLocalFn
@@ -73,19 +71,19 @@
  the array UU = u.  Here UU and FVAL are distributed vectors, and NEQ is
  the problem dimension.
 
- (2) Optional user-supplied Jacobian-vector product routine: FATIMES
+ (2) Optional user-supplied Jacobian-vector product routine: KJTIMES
  As an option, the user may supply a routine that computes the product
  of the system Jacobian and a given vector.  This has the form
-      SUBROUTINE FATIMES(V, Z, NEWU, UU, IER)
+      SUBROUTINE KJTIMES(V, Z, NEWU, UU, IER)
       DIMENSION V(*), Z(*), UU(*)
  This must set the array Z to the product J*V, where J is the Jacobian
  matrix J = dF/du, and V is a given array.  Here UU is an array containing
  the current value of the unknown vector u.  NEWU is an input integer 
- indicating whether UU has changed since FATIMES was last called 
- (1 = yes, 0 = no).  If FATIMES computes and saves Jacobian data, then 
+ indicating whether UU has changed since KJTIMES was last called 
+ (1 = yes, 0 = no).  If KJTIMES computes and saves Jacobian data, then 
  no such computation is necessary when NEWU = 0.  Here V, Z, and UU are 
  arrays of length NLOC, the local length of all distributed vectors.  
- FATIMES should return IER = 0 if successful, or a nonzero IER otherwise.
+ KJTIMES should return IER = 0 if successful, or a nonzero IER otherwise.
 
  (3) User-supplied routines to define preconditoner: KLOCFN and KCOMMFN
 
@@ -122,11 +120,11 @@
  arguments.  Thus KCOMMFN can omit any communications done by KFUN
  if relevant to the evaluation of g.
 
- (4) Initialization:  FMENVINITP, FKINMALLOC, and FKINBBDINIT0/FKINBBDINIT1.
+ (4) Initialization:  FNVSPECINITP, FKINMALLOC, and FKINBBDINIT.
 
  (4.1) To initialize the parallel machine environment, the user must make 
  the following call:
-       CALL FMENVINITP (NLOCAL, NGLOBAL, IER)
+       CALL FNVSPECINITP (NLOCAL, NGLOBAL, IER)
  The arguments are:
  NLOCAL  = local size of vectors on this processor
  NGLOBAL = the system size, and the global size of vectors (the sum 
@@ -134,25 +132,32 @@
  IER     = return completion flag. Values are 0 = success, -1 = failure.
 
  (4.2) To allocate internal memory for KINSOL, make the following call:
-      CALL FKINMALLOC(IER)
+       CALL FKINMALLOC(MSBPRE, FNORMTOL, SCSTEPTOL, CONSTRAINTS,
+                       OPTIN, IOPT, ROPT, IER)
  The arguments are:
- IER    = return completion flag.  Values are 0 = success, and -1 = failure.
-          See printed message for details in case of failure.
+ MSBPRE      = maximum number of preconditioning solve calls without calling
+               the preconditioning setup routine; 0 indicates default.
+ FNORMTOL    = tolerance on the norm of f(u) to accept convergence
+ SCSTEPTOL   = tolerance on minimum scaled step size
+ CONSTRAINTS = array of constraint values, on components of the solution UU
+ INOPT       = integer used as a flag to indicate whether possible input values
+               in IOPT are to be used for input: 0 = NO, 1 = YES.
+ IOPT        = array for integer optional inputs and outputs
+               (declare as INTEGER*4 or INTEGER*8 according to C type long int)
+ ROPT        = array of real optional inputs and outputs
+ IER         = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
+               See printed message for details in case of failure.
+
 
  (4.3) To specify the SPGMR linear system solver, and to allocate memory 
  and initialize data associated with the SPGMR method and the BBD
  preconditioner, make the following call:
-      CALL FKINBBDINIT0 (NLOCAL, MAXL, MAXLRST, MSBPRE, MU, ML, IER)
- if not supplying a routine FATIMES, or
-      CALL FKINBBDINIT1 (NLOCAL, MAXL, MAXLRST, MSBPRE, MU, ML, IER) 
- if supplying a routine FATIMES for Jacobian-vector products.
+      CALL FKINBBDINIT(NLOCAL, MAXL, MAXLRST, MU, ML, IER)
 
  The arguments are:
  NLOCAL   = local size of vectors on this processor
  MAXL     = maximum Krylov subspace dimension; 0 indicates default.
  MAXLRST  = maximum number of linear solver restarts.
- MSBPRE   = maximum number of preconditioner solve calls without a
-            preconditioner setup call.
  MU, ML   = upper and lower half-bandwidths to be used in the computation
             of the local Jacobian blocks.  These may be smaller than the
             true half-bandwidths of the Jacobian of the local block of g,
@@ -161,24 +166,15 @@
 
  (5) Solver: FKINSOL
  Solving of nonlinear system is accomplished by making the following call:
-      CALL FKINSOL (UU, GLOBALSTRAT, USCALE, FSCALE, FNORMTOL,
-      SCSTEPTOL, CONSTRAINTS, OPTIN, IOPT,ROPT, IER)
+      CALL FKINSOL (UU, GLOBALSTRAT, USCALE, FSCALE, IER)
  The arguments are:
- UU    = array containing the initial guess when called, returns the solution
+ UU          = array containing the initial guess when called, returns the solution
  GLOBALSTRAT = (INTEGER) a number defining the global strategy choice:
-          0 = InexactNewton, 1 = LineSearch .
- USCALE = array of scaling factors for the UU vector
- FSCALE = array of scaling factors for the FVAL (function) vector
- FNORMTOL = tolerance on the norm of f(u) to accept convergence.
- SCSTEPTOL = tolerance on minimum scaled step size
- CONSTRAINTS = array of constraint values, by element of the solution UU
- OPTIN    = integer used as a flag to indicate whether possible input values
-            in IOPT are to be used for input: 0 = NO, 1 = YES.
- IOPT     = array for integer optional inputs and outputs
-            (declare as INTEGER*4 or INTEGER*8 according to C type long int)
- ROPT     = array of real optional inputs and outputs
- IER      = integer error flag as returned by KINSOL . See KINSOL documentation
-            for further information.
+               0 = InexactNewton, 1 = LineSearch .
+ USCALE      = array of scaling factors for the UU vector
+ FSCALE      = array of scaling factors for the FVAL (function) vector
+ IER         = integer error flag as returned by KINSOL . See KINSOL documentation
+               for further information.
 
  (6) Optional outputs: FKINBBDOPT
  In addition to the optional inputs and outputs available with the FKINSOL
@@ -192,13 +188,13 @@
           This size is local to the current processor.
  NGE    = number of g(u) evaluations (calls to KLOCFN) so far.
 
- (7) Memory freeing: FKINBBDFREE, FKINFREE, and FMENVFREEP
+ (7) Memory freeing: FKINBBDFREE, FKINFREE, and FNVSPECFREEP
  To the free the internal memory created by the calls to  
- FKINBBDINIT0/FKINBBDINIT1, FMENVINITP, and FKINMALLOC, make the 
+ FKINBBDINIT, FNVSPECINITP, and FKINMALLOC, make the 
  following calls, in this order:
       CALL FKINBBDFREE
       CALL FKINFREE
-      CALL FMENVFREEP
+      CALL FNVSPECFREEP
 
 *******************************************************************************/
 
@@ -209,8 +205,7 @@
 
 #if (CRAY)
 
-#define F_KINBBDINIT0    FKINBBDINIT0
-#define F_KINBBDINIT1    FKINBBDINIT1
+#define F_KINBBDINIT     FKINBBDINIT
 #define K_COMMFN         KCOMMFN
 #define K_LOCFN          KLOCFN
 #define F_KINBBDOPT      FKINBBDOPT
@@ -219,8 +214,7 @@
 
 #elif  (UNDERSCORE)
 
-#define F_KINBBDINIT0    fkinbbdinit0_
-#define F_KINBBDINIT1    fkinbbdinit1_
+#define F_KINBBDINIT     fkinbbdinit_
 #define K_COMMFN         kcommfn_
 #define K_LOCFN          klocfn_
 #define F_KINBBDOPT      fkinbbdopt_
@@ -228,8 +222,7 @@
 
 #else
 
-#define F_KINBBDINIT0   fkinbbdinit0
-#define F_KINBBDINIT1   fkinbbdinit1
+#define F_KINBBDINIT    fkinbbdinit
 #define K_COMMFN        kcommfn
 #define K_LOCFN         klocfn
 #define F_KINBBDOPT     fkinbbdopt
@@ -248,7 +241,7 @@
 
 void KINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data);
 
-void KINgcomm(integertype Nloc, realtype *uloc, void *f_data);
+void KINgcomm(integertype Nloc, N_Vector uu, void *f_data);
 
 
 /* Declaration for global variable shared among various routines */

@@ -1,7 +1,7 @@
 /************************************************************************
  * File       : cvabx.c                                                 *
  * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 30 March 2003                                           *
+ * Version of : 15 July 2003                                            *
  *----------------------------------------------------------------------*
  * Adjoint sensitivity example problem.                                 *
  * The following is a simple example problem with a banded Jacobian,    *
@@ -108,15 +108,14 @@ static void JacB(integertype NB, integertype muB, integertype mlB, BandMat JB,
 
 int main(int argc, char *argv[])
 {
-  M_Env machEnvF, machEnvB;
+  NV_Spec nvSpecF, nvSpecB;
 
   UserData data;
 
   void *cvadj_mem;
   void *cvode_mem;
 
-  realtype ropt[OPT_SIZE], dx, dy, reltol, abstol, t;
-  long int iopt[OPT_SIZE];
+  realtype dx, dy, reltol, abstol, t;
   N_Vector u;
 
   realtype reltolB, abstolB;
@@ -140,35 +139,52 @@ int main(int argc, char *argv[])
   /*---- ORIGINAL PROBLEM ----*/
   /*--------------------------*/
 
-  /* Initialize serial machine environment for forward run */
-  machEnvF = M_EnvInit_Serial(NEQ);
+  /* Initialize serial vector specification for forward run */
+  nvSpecF = NV_SpecInit_Serial(NEQ);
 
   /* Set the tolerances */
   reltol = 0.0;
   abstol = ATOL;
 
   /* Allocate u vector */
-  u = N_VNew(machEnvF);
+  u = N_VNew(nvSpecF);
   /* Initialize u vector */
   SetIC(u, data);
 
-  /* Allocate CVODE memory for forward run */
-  printf("\nAllocate CVODE memory for forward runs\n");
-  cvode_mem = CVodeMalloc(f, T0, u, BDF, NEWTON, SS, &reltol, &abstol,
-                          data, NULL, FALSE, iopt, ropt, machEnvF);
-  if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
+  /* Create and allocate CVODES memory for forward run */
+
+  printf("\nCreate and allocate CVODES memory for forward runs\n");
+
+  cvode_mem = CVodeCreate(BDF, NEWTON);
+  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+
+  flag = CVodeSetFdata(cvode_mem, data);
+  if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
+
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpecF);
+  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
 
   /* Call CVBand with  bandwidths ml = mu = MY, */
-  flag = CVBand(cvode_mem, NEQ, MY, MY, Jac, data);
+
+  flag = CVBand(cvode_mem, NEQ, MY, MY);
   if (flag != SUCCESS) { printf("CVBand failed.\n"); return(1); }
+
+  flag = CVBandSetJacFn(cvode_mem, Jac);
+  if (flag != SUCCESS) { printf("CVBandSetJacFn failed.\n"); return(1); }
+
+  flag = CVBandSetJacData(cvode_mem, data);
+  if (flag != SUCCESS) { printf("CVBandSetJacData failed.\n"); return(1); }
 
   /*------------------------*/
   /*---- ADJOINT MEMORY ----*/
   /*------------------------*/
 
   /* Allocate global memory */
+
   printf("\nAllocate global memory\n");
+
   cvadj_mem = CVadjMalloc(cvode_mem, NSTEP);
+  if (cvadj_mem == NULL) { printf("CVadjMalloc failed.\n"); return(1); }
 
   /*---------------------*/
   /*---- FORWARD RUN ----*/
@@ -177,48 +193,65 @@ int main(int argc, char *argv[])
   /* Perform forward run */
   printf("\nForward integration\n");
   flag = CVodeF(cvadj_mem, TOUT, u, &t, NORMAL, &ncheck);
-
+  if (flag != SUCCESS) { printf("CVodeF failed.\n"); return(1); }
+  
   /* Test check point linked list */
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
-  CVadjCheckPointsList(cvadj_mem);
+  CVadjGetCheckPointsList(cvadj_mem);
 
   /*-------------------------*/
   /*---- ADJOINT PROBLEM ----*/
   /*-------------------------*/
 
-  /* Initialize serial machine environment for backward run */
-  machEnvB = M_EnvInit_Serial(NEQ);
+  /* Initialize serial vector specification for backward run */
+  nvSpecB = NV_SpecInit_Serial(NEQ);
 
   /* Set the tolerances */
   reltolB = RTOLB;
   abstolB = ATOL;
 
   /* Allocate uB */
-  uB = N_VNew(machEnvB);
+  uB = N_VNew(nvSpecB);
   /* Initialize uB = 0 */
   N_VConst(0.0, uB);
 
-  /* Allocate CVODE memory for backward run */
-  printf("\nAllocate CVODE memory for backward run\n");
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, BDF, NEWTON, SS, 
-                      &reltolB, &abstolB, data, NULL, 
-                      FALSE, NULL, NULL, machEnvB);
-  flag = CVBandB(cvadj_mem, NEQ, MY, MY, JacB, data);
+  /* Create and allocate CVODES memory for backward run */
+
+  printf("\nCreate and allocate CVODES memory for backward run\n");
+
+  flag = CVodeCreateB(cvadj_mem, BDF, NEWTON);
+  if (flag != SUCCESS) { printf("CVodeCreateB failed.\n"); return(1); }
+  
+  flag = CVodeSetFdataB(cvadj_mem, data);
+  if (flag != SUCCESS) { printf("CVodeSetFdataB failed.\n"); return(1); }
+
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, SS, &reltolB, &abstolB, nvSpecB);
+  if (flag != SUCCESS) { printf("CVodeMallocB failed.\n"); return(1); }
+
+  flag = CVBandB(cvadj_mem, NEQ, MY, MY);
   if (flag != SUCCESS) { printf("CVBandB failed.\n"); return(1); }
+  
+  flag = CVBandSetJacFnB(cvadj_mem, JacB);
+  if (flag != SUCCESS) { printf("CVBandSetJacFnB failed.\n"); return(1); }
+
+  flag = CVBandSetJacDataB(cvadj_mem, data);
+  if (flag != SUCCESS) { printf("CVBandSetJacDataB failed.\n"); return(1); }
 
   /*----------------------*/
   /*---- BACKWARD RUN ----*/
   /*----------------------*/
+
   printf("\nBackward integration\n");
   flag = CVodeB(cvadj_mem, uB);
+  if (flag != TSTOP_RETURN) { printf("CVodeB failed.\n"); return(1); }  
   
   WriteLambda(uB);
 
   N_VFree(u);                  /* Free the u vector */
   CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
   free(data);                  /* Free the user data */
-  M_EnvFree_Serial(machEnvF);
-  M_EnvFree_Serial(machEnvB);
+  NV_SpecFree_Serial(nvSpecF);
+  NV_SpecFree_Serial(nvSpecB);
 
   return(0);
 }

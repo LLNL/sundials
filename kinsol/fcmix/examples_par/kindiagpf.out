@@ -5,7 +5,7 @@ Example program kindiagpf
  globalstrategy = INEXACT_NEWTON
 
 
- fkinsol return code is     1
+ fkinsol return code is     0
 
  The resultant values of uu (processor 0) are:
 
@@ -20,4 +20,4 @@ Example program kindiagpf
   29  29.000000  30.000000  31.000000  32.000000
 
 
- nni=   7,  nli=  21,  nfe=  36,  npe=   2,  nps=  28,  ncfl=   0
+ nni=   7,  nli=  21,  nfe=   8,  npe=   2,  nps=  28,  ncfl=   0

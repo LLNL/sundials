@@ -3,7 +3,7 @@
  * File          : idaband.c                                       *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 30 March 2003                                   *
+ * Version of    : 23 July 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -33,19 +33,22 @@
 
 /* Error Messages */
 
-#define IDABAND  "IDABand/IDAReInitBand-- "
+#define IDABAND                "IDABand-- "
 
-#define MSG_IDAMEM_NULL  IDABAND "IDA memory is NULL.\n\n"
+#define MSG_IDAMEM_NULL        IDABAND "IDA memory is NULL.\n\n"
 
-#define MSG_BAD_SIZES_1  IDABAND "Illegal bandwidth parameter(s) "
-#define MSG_BAD_SIZES_2  "mlower = %ld, mupper = %ld.\n"
-#define MSG_BAD_SIZES_3  "Must have 0 <=  mlower, mupper <= N-1 =%ld.\n\n"
-#define MSG_BAD_SIZES    MSG_BAD_SIZES_1 MSG_BAD_SIZES_2 MSG_BAD_SIZES_3
+#define MSG_BAD_SIZES_1        IDABAND "Illegal bandwidth parameter(s) "
+#define MSG_BAD_SIZES_2        "mlower = %ld, mupper = %ld.\n"
+#define MSG_BAD_SIZES_3        "Must have 0 <=  mlower, mupper <= N-1 =%ld.\n\n"
+#define MSG_BAD_SIZES          MSG_BAD_SIZES_1 MSG_BAD_SIZES_2 MSG_BAD_SIZES_3
 
-#define MSG_MEM_FAIL     IDABAND "A memory request failed.\n\n"
+#define MSG_MEM_FAIL           IDABAND "A memory request failed.\n\n"
 
-#define MSG_WRONG_NVEC   IDABAND "Incompatible NVECTOR implementation.\n\n"
+#define MSG_WRONG_NVEC         IDABAND "Incompatible NVECTOR implementation.\n\n"
 
+#define MSG_SETGET_IDAMEM_NULL "IDABandSet*/IDABandGet*-- IDA memory is NULL. \n\n"
+
+#define MSG_SETGET_LMEM_NULL   "IDABandSet*/IDABandGet*-- IDABAND memory is NULL. \n\n"
 /* Constants */
 
 #define ZERO         RCONST(0.0)
@@ -65,11 +68,11 @@
 
 typedef struct {
 
-  integertype b_Neq;    /* Neq = problem size                           */
+  integertype b_neq;        /* Neq = problem size                           */
 
-  IDABandJacFn b_jac;   /* jac = banded Jacobian routine to be called   */
+  IDABandJacFn b_jac;       /* jac = banded Jacobian routine to be called   */
   
-  BandMat b_J;          /* J = dF/dy + cj*dF/dy', banded approximation. */
+  BandMat b_J;              /* J = dF/dy + cj*dF/dy', banded approximation. */
   
   integertype b_mupper;     /* mupper = upper bandwidth of Jacobian matrix. */
   
@@ -78,62 +81,67 @@ typedef struct {
   integertype b_storage_mu; /* storage_mu = upper bandwidth with storage for
                                factoring = min(Neq-1, mupper+mlower).       */
   
-  integertype *b_pivots;    /* pivots = pivot array for PJ = LU        */
+  integertype *b_pivots;    /* pivots = pivot array for PJ = LU             */
   
-  long int b_nje;       /* nje = no. of calls to jac               */
+  int b_nje;                /* nje = no. of calls to jac                    */
   
-  void *b_jdata;        /* jdata = data structure required by jac. */
+  int b_nreB;               /* nreB = no. of calls to res                   */
+
+  void *b_jdata;            /* jdata = data structure required by jac.      */
   
 } IDABandMemRec, *IDABandMem;
 
 
 /* IDABAND linit, lsetup, lsolve, and lfree routines */
  
-static int IDABandInit(IDAMem ida_mem);
+static int IDABandInit(IDAMem IDA_mem);
 
-static int IDABandSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
+static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
                         N_Vector resp, N_Vector tempv1,
                         N_Vector tempv2, N_Vector tempv3);
 
-static int IDABandSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
+static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
                         N_Vector ypcur, N_Vector rescur);
 
-static int IDABandFree(IDAMem ida_mem);
+static int IDABandFree(IDAMem IDA_mem);
 
-static int IDABandDQJac(integertype neq, integertype mupper, integertype mlower,
-                        realtype tt, N_Vector yy, N_Vector yp, realtype cj,
-                        void *jdata, N_Vector resvec, BandMat JJ,
+static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
+                        realtype tt, N_Vector yy, N_Vector yp, realtype c_j,
+                        void *jdata, N_Vector resvec, BandMat Jac,
                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Readability Replacements */
 
-#define res         (ida_mem->ida_res)
-#define rdata       (ida_mem->ida_rdata)
-#define uround      (ida_mem->ida_uround)
-#define tn          (ida_mem->ida_tn)
-#define hh          (ida_mem->ida_hh)
-#define cj          (ida_mem->ida_cj)
-#define cjratio     (ida_mem->ida_cjratio)
-#define ewt         (ida_mem->ida_ewt)
-#define constraints (ida_mem->ida_constraints)
-#define nre         (ida_mem->ida_nre)
-#define errfp       (ida_mem->ida_errfp)
-#define iopt        (ida_mem->ida_iopt)
-#define linit       (ida_mem->ida_linit)
-#define lsetup      (ida_mem->ida_lsetup)
-#define lsolve      (ida_mem->ida_lsolve)
-#define lperf       (ida_mem->ida_lperf)
-#define lfree       (ida_mem->ida_lfree)
-#define lmem        (ida_mem->ida_lmem)
-#define machenv     (ida_mem->ida_machenv)
-#define setupNonNull  (ida_mem->ida_setupNonNull)
+#define res         (IDA_mem->ida_res)
+#define rdata       (IDA_mem->ida_rdata)
+#define uround      (IDA_mem->ida_uround)
+#define tn          (IDA_mem->ida_tn)
+#define hh          (IDA_mem->ida_hh)
+#define cj          (IDA_mem->ida_cj)
+#define cjratio     (IDA_mem->ida_cjratio)
+#define ewt         (IDA_mem->ida_ewt)
+#define constraints (IDA_mem->ida_constraints)
+#define nre         (IDA_mem->ida_nre)
+#define errfp       (IDA_mem->ida_errfp)
+#define iopt        (IDA_mem->ida_iopt)
+#define linit       (IDA_mem->ida_linit)
+#define lsetup      (IDA_mem->ida_lsetup)
+#define lsolve      (IDA_mem->ida_lsolve)
+#define lperf       (IDA_mem->ida_lperf)
+#define lfree       (IDA_mem->ida_lfree)
+#define lmem        (IDA_mem->ida_lmem)
+#define setupNonNull (IDA_mem->ida_setupNonNull)
+#define nvspec      (IDA_mem->ida_nvspec)
 
-#define Neq         (idaband_mem->b_Neq)
+#define neq         (idaband_mem->b_neq)
+#define ml          (idaband_mem->b_mlower)
+#define mu          (idaband_mem->b_mupper)
 #define jac         (idaband_mem->b_jac)
 #define JJ          (idaband_mem->b_J)
 #define storage_mu  (idaband_mem->b_storage_mu)
 #define pivots      (idaband_mem->b_pivots)
 #define nje         (idaband_mem->b_nje)
+#define nreB        (idaband_mem->b_nreB)
 #define jacdata     (idaband_mem->b_jdata)
  
                   
@@ -164,26 +172,26 @@ static int IDABandDQJac(integertype neq, integertype mupper, integertype mlower,
 
 **********************************************************************/
 
-int IDABand(void *IDA_mem, integertype neq, integertype mupper, 
-            integertype mlower, IDABandJacFn bjac, void *jdata)
+int IDABand(void *ida_mem, integertype Neq, 
+            integertype mupper, integertype mlower)
 {
-  IDAMem ida_mem;
+  IDAMem IDA_mem;
   IDABandMem idaband_mem;
   int flag;
 
-  /* Return immediately if IDA_mem is NULL. */
-  ida_mem = (IDAMem) IDA_mem;
+  /* Return immediately if ida_mem is NULL. */
   if (ida_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    fprintf(stdout, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
+  IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
-  if ((strcmp(machenv->tag,"serial")) || 
-      machenv->ops->nvmake    == NULL || 
-      machenv->ops->nvdispose == NULL ||
-      machenv->ops->nvgetdata == NULL || 
-      machenv->ops->nvsetdata == NULL) {
+  if ((strcmp(nvspec->tag,"serial")) || 
+      nvspec->ops->nvmake    == NULL || 
+      nvspec->ops->nvdispose == NULL ||
+      nvspec->ops->nvgetdata == NULL || 
+      nvspec->ops->nvsetdata == NULL) {
     fprintf(errfp, MSG_WRONG_NVEC);
     return(LIN_ILL_INPUT);
   }
@@ -198,24 +206,20 @@ int IDABand(void *IDA_mem, integertype neq, integertype mupper,
   lfree  = IDABandFree;
 
   /* Get memory for IDABandMemRec. */
-  lmem = idaband_mem = (IDABandMem) malloc(sizeof(IDABandMemRec));
+  idaband_mem = (IDABandMem) malloc(sizeof(IDABandMemRec));
   if (idaband_mem == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
 
-  /* Set Jacobian routine field to user's bjac or IDABandDQJac. */
-  if (bjac == NULL) {
-    jac = IDABandDQJac;
-    jacdata = IDA_mem;
-  } else {
-    jac = bjac;
-    jacdata = jdata;
-  }
+  /* Set default Jacobian routine and Jacobian data */
+  jac = IDABandDQJac;
+  jacdata = IDA_mem;
+
   setupNonNull = TRUE;
 
   /* Store problem size */
-  Neq = neq;
+  neq = Neq;
 
   /* Test mlower and mupper for legality and load in memory. */
   if ((mlower < 0) || (mupper < 0) || (mlower >= Neq) || (mupper >= Neq)) {
@@ -240,82 +244,162 @@ int IDABand(void *IDA_mem, integertype neq, integertype mupper,
     BandFreeMat(JJ);
     return(LMEM_FAIL);
   }  
+  
+  /* Attach linear solver memory to IDA memory */
+  lmem = idaband_mem;
 
   return(SUCCESS);
 }
 
+/************* IDABandSetJacFn ***************************************/
 
-/*************** IDAReInitBand****************************************
-
- This routine resets the link between the main IDA module and the
- band linear solver module IDABAND.  No memory freeing or allocation
- operations are done, as the existing linear solver memory is assumed
- sufficient.  All other initializations are the same as in IDABand.
- The return value is SUCCESS=0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
-
-**********************************************************************/
-
-int IDAReInitBand(void *IDA_mem, integertype mupper, integertype mlower,
-                  IDABandJacFn bjac, void *jdata)
+int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac)
 {
-  IDAMem ida_mem;
+  IDAMem IDA_mem;
   IDABandMem idaband_mem;
 
-  /* Return immediately if IDA_mem is NULL. */
-  ida_mem = (IDAMem) IDA_mem;
+  /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
-    return(LMEM_FAIL);
-   }
-
-  /* Test if the NVECTOR package is compatible with the BAND solver */
-  if ((strcmp(machenv->tag,"serial")) || 
-      machenv->ops->nvmake    == NULL || 
-      machenv->ops->nvdispose == NULL ||
-      machenv->ops->nvgetdata == NULL || 
-      machenv->ops->nvsetdata == NULL) {
-    fprintf(errfp, MSG_WRONG_NVEC);
-    return(LIN_ILL_INPUT);
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
   }
+  IDA_mem = (IDAMem) ida_mem;
 
-  /* Set five main function fields in ida_mem. */
-  linit  = IDABandInit;
-  lsetup = IDABandSetup;
-  lsolve = IDABandSolve;
-  lperf  = NULL;
-  lfree  = IDABandFree;
-
-  idaband_mem = lmem;  /* Use existing linear solver memory pointer. */
-
-  /* Set Jacobian routine field to user's bjac or IDABandDQJac. */
-  if (bjac == NULL) {
-    jac = IDABandDQJac;
-    jacdata = IDA_mem;
-  } else {
-    jac = bjac;
-    jacdata = jdata;
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
   }
-  setupNonNull = TRUE;
+  idaband_mem = (IDABandMem) lmem;
 
-  /* Test mlower and mupper for legality and load in memory. */
-  if ((mlower < 0) || (mupper < 0) || (mlower >= Neq) || (mupper >= Neq)) {
-    fprintf(errfp, MSG_BAD_SIZES, mlower, mupper, Neq-1);
-    return(LIN_ILL_INPUT);
-  }
-  idaband_mem->b_mlower = mlower;
-  idaband_mem->b_mupper = mupper;
-     
-  /* Set extended upper half-bandwidth for JJ (required for pivoting). */
-  storage_mu = MIN(Neq-1, mupper + mlower);
+  jac = bjac;
 
   return(SUCCESS);
 }
 
+/************* IDABandSetJacData **************************************/
 
-/* More convenience definitions */
-#define mlower      (idaband_mem->b_mlower)
-#define mupper      (idaband_mem->b_mupper)
+int IDABandSetJacData(void *ida_mem, void *jdata)
+{
+  IDAMem IDA_mem;
+  IDABandMem idaband_mem;
 
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  idaband_mem = (IDABandMem) lmem;
+
+  jacdata = jdata;
+
+  return(SUCCESS);
+}
+
+/************* IDABandGetIntWorkSpace *********************************/
+
+int IDABandGetIntWorkSpace(void *ida_mem, long int *leniwB)
+{
+  IDAMem IDA_mem;
+  IDABandMem idaband_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  idaband_mem = (IDABandMem) lmem;
+
+  *leniwB = neq;
+
+  return(OKAY);
+}
+
+/************* IDABandGetRealWorkSpace ********************************/
+
+int IDABandGetRealWorkSpace(void *ida_mem, long int *lenrwB)
+{
+  IDAMem IDA_mem;
+  IDABandMem idaband_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  idaband_mem = (IDABandMem) lmem;
+
+  *lenrwB = neq*(storage_mu + ml + 1);
+
+  return(OKAY);
+}
+
+/************* IDABandGetNumJacEvals **********************************/
+
+int IDABandGetNumJacEvals(void *ida_mem, int *njevalsB)
+{
+  IDAMem IDA_mem;
+  IDABandMem idaband_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  idaband_mem = (IDABandMem) lmem;
+
+  *njevalsB = nje;
+
+  return(OKAY);
+}
+
+/************* IDABandGetNumResEvals **********************************/
+
+int IDABandGetNumResEvals(void *ida_mem, int *nrevalsB)
+{
+  IDAMem IDA_mem;
+  IDABandMem idaband_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  idaband_mem = (IDABandMem) lmem;
+
+  *nrevalsB = nreB;
+
+  return(OKAY);
+}
 
 /*************** IDABandInit *****************************************
 
@@ -324,20 +408,21 @@ int IDAReInitBand(void *IDA_mem, integertype mupper, integertype mlower,
 
 ***********************************************************************/
 
-static int IDABandInit(IDAMem ida_mem)
+static int IDABandInit(IDAMem IDA_mem)
 {
   IDABandMem idaband_mem;
 
   idaband_mem = (IDABandMem) lmem;
 
-  /* Initialize nje and set workspace lengths. */
-  nje = 0;
-  if (iopt != NULL) {
-    iopt[BAND_NJE] = nje;
-    iopt[BAND_LRW] = Neq*(storage_mu + mlower + 1);
-    iopt[BAND_LIW] = Neq;
+  /* Initialize nje and nreB */
+  nje  = 0;
+  nreB = 0;
+
+  if (jac == NULL) {
+    jac = IDABandDQJac;
+    jacdata = IDA_mem;
   }
-  
+
   return(LINIT_OK);
 }
 
@@ -354,9 +439,9 @@ static int IDABandInit(IDAMem ida_mem)
      LSETUP_ERROR_NONRECVR if the jac routine failed unrecoverably.
 **********************************************************************/
 
-static int IDABandSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
-                         N_Vector resp, N_Vector tempv1, N_Vector tempv2,
-                         N_Vector tempv3)
+static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
+                        N_Vector resp, N_Vector tempv1, N_Vector tempv2,
+                        N_Vector tempv3)
 {
   int retval;
   integertype retfac;
@@ -367,11 +452,9 @@ static int IDABandSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
   /* Increment nje counter. */
   nje++;
 
-  if (iopt != NULL) iopt[BAND_NJE] = nje;
-
   /* Zero out JJ; call Jacobian routine jac; return if it failed. */
   BandZero(JJ);
-  retval = jac(Neq, mupper, mlower, tn, yyp, ypp, cj,
+  retval = jac(neq, mu, ml, tn, yyp, ypp, cj,
                jacdata, resp, JJ, tempv1, tempv2, tempv3);
   if (retval < 0) return(LSETUP_ERROR_NONRECVR);
   if (retval > 0) return(LSETUP_ERROR_RECVR);
@@ -393,8 +476,8 @@ static int IDABandSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
 
 **********************************************************************/
 
-static int IDABandSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
-                         N_Vector ypcur, N_Vector rescur)
+static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector ycur,
+                        N_Vector ypcur, N_Vector rescur)
 {
   IDABandMem idaband_mem;
   realtype *bd;
@@ -419,7 +502,7 @@ static int IDABandSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
 
 **********************************************************************/
 
-static int IDABandFree(IDAMem ida_mem)
+static int IDABandFree(IDAMem IDA_mem)
 {
   IDABandMem idaband_mem;
 
@@ -432,11 +515,6 @@ static int IDABandFree(IDAMem ida_mem)
   return(0);
 
 }
-
-#undef cj
-#undef JJ
-#undef mlower
-#undef mupper
 
 /*************** IDABandDQJac ****************************************
 
@@ -451,9 +529,9 @@ static int IDABandFree(IDAMem ida_mem)
  by the res routine, if any.
 **********************************************************************/
 
-static int IDABandDQJac(integertype neq, integertype mupper, integertype mlower,
-                        realtype tt, N_Vector yy, N_Vector yp, realtype cj,
-                        void *jdata, N_Vector resvec, BandMat JJ,
+static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
+                        realtype tt, N_Vector yy, N_Vector yp, realtype c_j,
+                        void *jdata, N_Vector resvec, BandMat Jac,
                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
@@ -465,10 +543,12 @@ static int IDABandDQJac(integertype neq, integertype mupper, integertype mlower,
   integertype i, j, i1, i2, width;
   int retval = SUCCESS;
 
-  IDAMem ida_mem;
+  IDAMem IDA_mem;
+  IDABandMem idaband_mem;
 
   /* jdata points to IDA_mem */
-  ida_mem = (IDAMem) jdata;
+  IDA_mem = (IDAMem) jdata;
+  idaband_mem = lmem;
 
   rtemp = tempv1; /* Rename work vector for use as the perturbed residual. */
 
@@ -506,7 +586,7 @@ static int IDABandDQJac(integertype neq, integertype mupper, integertype mlower,
 
     /* Increment all yy[j] and yp[j] for j in this group. */
 
-    for (j=group-1; j<neq; j+=width) {
+    for (j=group-1; j<Neq; j+=width) {
         yj = y_data[j];
         ypj = yp_data[j];
         ewtj = ewt_data[j];
@@ -533,19 +613,24 @@ static int IDABandDQJac(integertype neq, integertype mupper, integertype mlower,
     }
 
     /* Call res routine with incremented arguments. */
+    N_VSetData(ytemp_data, ytemp);
+    N_VSetData(yptemp_data, yptemp);
+
     retval = res(tt, ytemp, yptemp, rtemp, rdata);
-    nre++;
+    nreB++;
     if (retval != SUCCESS) break;
+
+    rtemp_data = N_VGetData(rtemp);
 
     /* Loop over the indices j in this group again. */
 
-    for (j=group-1; j<neq; j+=width) {
+    for (j=group-1; j<Neq; j+=width) {
 
       /* Reset ytemp and yptemp components that were perturbed. */
 
       yj = ytemp_data[j]  = y_data[j];
       ypj = yptemp_data[j] = yp_data[j];
-      col_j = BAND_COL(JJ, j);
+      col_j = BAND_COL(Jac, j);
       ewtj = ewt_data[j];
       
       

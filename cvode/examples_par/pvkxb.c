@@ -2,7 +2,7 @@
  * File       : pvkxb.c                                                 *
  * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and        *
  *              Radu Serban  @LLNL                                      *
- * Version of : 30 March 2003                                           *
+ * Version of : 11 July 2003                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -118,9 +118,9 @@ typedef struct {
 
 static void InitUserData(int my_pe, integertype local_N, MPI_Comm comm, UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[],
-                        realtype ropt[], N_Vector u, realtype t);
-static void PrintFinalStats(long int iopt[]);
+static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
+                        N_Vector u, realtype t);
+static void PrintFinalStats(void *cvode_mem);
 static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
                   integertype isuby, integertype dsizex, integertype dsizey,
                   realtype uarray[]);
@@ -142,7 +142,8 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 /* Prototype of functions called by the CVBBDPRE module */
 
-static void flocal(integertype Nlocal, realtype t, realtype uarray[], realtype duarray[],  void *f_data);
+static void flocal(integertype Nlocal, realtype t, N_Vector u,
+                   N_Vector udot, void *f_data);
 
 static void ucomm(integertype Nlocal, realtype t, N_Vector u, void *f_data);
 
@@ -151,14 +152,15 @@ static void ucomm(integertype Nlocal, realtype t, N_Vector u, void *f_data);
 
 int main(int argc, char *argv[])
 {
-  M_Env machEnv;
-  realtype abstol, reltol, t, tout, ropt[OPT_SIZE];
-  long int iopt[OPT_SIZE];
-  N_Vector u;
+  NV_Spec nvSpec;
   UserData data;
-  CVBBDData pdata;
   void *cvode_mem;
+  void *pdata;
+  realtype abstol, reltol, t, tout;
+  N_Vector u;
   int iout, flag, my_pe, npes, jpre;
+  long int leniwBBDP, lenrwBBDP;
+  int ngevalsBBDP;
   integertype neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
 
@@ -180,56 +182,65 @@ int main(int argc, char *argv[])
   /* Set local length */
   local_N = NVARS*MXSUB*MYSUB;
 
-  /* Set machEnv block */
-  machEnv = M_EnvInit_Parallel(comm, local_N, neq, &argc, &argv);
-  if (machEnv == NULL) { printf("M_EnvInit_Parallel failed."); return(1); }
+  nvSpec = NV_SpecInit_Parallel(comm, local_N, neq, &argc, &argv);
 
   /* Allocate and load user data block */
   data = (UserData) malloc(sizeof *data);
   InitUserData(my_pe, local_N, comm, data);
 
   /* Allocate and initialize u, and set tolerances */ 
-  u = N_VNew(machEnv);
+  u = N_VNew(nvSpec);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
-/* Call CVodeMalloc to initialize CVODE: 
-
-     f       is the user's right hand side function in u'=f(t,u)
-     T0      is the initial time
-     u       is the initial dependent variable vector
+  /* 
+     Call CVodeCreate to create CVODE memory:
+     
      BDF     specifies the Backward Differentiation Formula
      NEWTON  specifies a Newton iteration
+
+     A pointer to CVODE problem memory is returned and stored in cvode_mem.
+  */
+
+  cvode_mem = CVodeCreate(BDF, NEWTON);
+  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+
+  /* Set the pointer to user-defined data */
+  flag = CVodeSetFdata(cvode_mem, data);
+  if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
+
+  /* 
+     Call CVodeMalloc to initialize CVODE memory: 
+
+     cvode_mem is the pointer to CVODE memory returned by CVodeCreate
+     f       is the user's right hand side function in y'=f(t,y)
+     T0      is the initial time
+     u       is the initial dependent variable vector
      SS      specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances
-     data    is the pointer to the user-defined data block
-     NULL    is the pointer to the error message file
-     FALSE   indicates there are no optional inputs in iopt and ropt
-     iopt, ropt  communicate optional integer and real input/output
+     nvSpec  is the vector specification object 
+  */
 
-     A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
-
-  cvode_mem = CVodeMalloc(f, T0, u, BDF, NEWTON, SS, &reltol,
-                          &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
-  if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
 
   /* Allocate preconditioner block */
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
-  pdata = CVBBDAlloc(local_N, mudq, mldq, mukeep, mlkeep, 0.0, 
-                     flocal, ucomm, data, cvode_mem);
-  if (pdata == NULL) { printf("CVBBDAlloc failed."); return(1); }
+  pdata = CVBBDPrecAlloc(cvode_mem, local_N, mudq, mldq, 
+                         mukeep, mlkeep, 0.0, flocal, ucomm);
+  if (pdata == NULL) { printf("CVBBDPrecAlloc failed."); return(1); }
 
-  /* Call CVSpgmr to specify the CVODE linear solver CVSPGMR with
-     left preconditioning, modified Gram-Schmidt orthogonalization,
-     default values for the maximum Krylov dimension maxl and the tolerance
-     parameter delt, preconditioner setup and solve routines from the
-     CVBBDPRE module, the pointer to the preconditioner data block, and
-     NULL for theuser jtimes routine and Jacobian data pointer.              */
-
-  flag = CVSpgmr(cvode_mem, LEFT, MODIFIED_GS, 0, 0.0,
-                 CVBBDPrecon, CVBBDPSol, pdata, NULL, NULL);
+  /* Call CVSpgmr to specify the CVODE linear solver CVSPGMR 
+     with left preconditioning and the maximum Krylov dimension maxl */
+  flag = CVSpgmr(cvode_mem, LEFT, 0);
   if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
+
+  /* Set preconditioner setup and solve routines CVBBDPrecSetup and 
+     CVBBDPrecSolve and the pointer to the user-defined block data */
+  flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBBDPrecSetup);
+  flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBBDPrecSolve);
+  flag = CVSpgmrSetPrecData(cvode_mem, pdata);
 
   /* Print heading */
   if (my_pe == 0) {
@@ -252,16 +263,12 @@ int main(int argc, char *argv[])
 
     SetInitialProfiles(u, data);
 
-    flag = CVodeReInit(cvode_mem, f, T0, u, BDF, NEWTON, SS, &reltol,
-                       &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
+    flag = CVodeReInit(cvode_mem, f, T0, u, SS, &reltol, &abstol);
     if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
 
-    flag = CVReInitBBD(pdata, local_N, mudq, mldq, mukeep, mlkeep, 0.0, 
-                       flocal, ucomm, data);
+    flag = CVBBDPrecReInit(pdata, mudq, mldq, 0.0, flocal, ucomm);
 
-    flag = CVReInitSpgmr(cvode_mem, jpre, MODIFIED_GS, 0, 0.0,
-                         CVBBDPrecon, CVBBDPSol, pdata, NULL, NULL);
-    if (flag != SUCCESS) { printf("CVReInitSpgmr failed."); return(1); }
+    flag = CVSpgmrSetPrecType(cvode_mem, RIGHT);
 
     if (my_pe == 0) {
       printf("\n\n-------------------------------------------------------");
@@ -278,7 +285,7 @@ int main(int argc, char *argv[])
 
   for (iout = 1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
-    PrintOutput(my_pe, comm, iopt, ropt, u, t);
+    PrintOutput(cvode_mem, my_pe, comm, u, t);
     if (flag != SUCCESS) {
       if (my_pe == 0) printf("CVode failed, flag =%d.\n", flag);
       break;
@@ -288,10 +295,13 @@ int main(int argc, char *argv[])
   /* Print final statistics */
 
   if (my_pe == 0) {
-    PrintFinalStats(iopt);
+    PrintFinalStats(cvode_mem);
+    CVBBDPrecGetIntWorkSpace(pdata, &leniwBBDP);
+    CVBBDPrecGetRealWorkSpace(pdata, &lenrwBBDP);
+    CVBBDPrecGetNumGfnEvals(pdata, &ngevalsBBDP);
     printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
-           CVBBD_RPWSIZE(pdata), CVBBD_IPWSIZE(pdata) );  
-    printf("             no. flocal evals. = %ld\n",CVBBD_NGE(pdata));
+           lenrwBBDP, leniwBBDP);  
+    printf("             no. flocal evals. = %d\n",ngevalsBBDP);
   }
 
   } /* End of jpre loop */
@@ -299,10 +309,10 @@ int main(int argc, char *argv[])
   /* Free memory */
 
   N_VFree(u);
-  CVBBDFree(pdata);
+  CVBBDPrecFree(pdata);
   free(data);
   CVodeFree(cvode_mem);
-  M_EnvFree_Parallel(machEnv);
+  NV_SpecFree_Parallel(nvSpec);
   MPI_Finalize();
 
   return(0);
@@ -383,10 +393,11 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[], 
-                        realtype ropt[], N_Vector u, realtype t)
+static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm, 
+                        N_Vector u, realtype t)
 {
-  realtype *uarray, tempu[2];
+  int nst, qu;
+  realtype hu, *uarray, tempu[2];
   integertype npelast, i0, i1;
   MPI_Status status;
 
@@ -410,8 +421,11 @@ static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[],
   if (my_pe == 0) {
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
-    printf("t = %.2e   no. steps = %ld   order = %ld   stepsize = %.2e\n",
-           t, iopt[NST], iopt[QU], ropt[HU]);
+    CVodeGetNumSteps(cvode_mem, &nst);
+    CVodeGetLastOrder(cvode_mem, &qu);
+    CVodeGetLastStep(cvode_mem, &hu);
+    printf("t = %.2e   no. steps = %d   order = %d   stepsize = %.2e\n",
+           t, nst, qu, hu);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", uarray[0], uarray[1]);
     printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
   }
@@ -419,16 +433,40 @@ static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[],
 
 /* Print final statistics contained in iopt */
 
-static void PrintFinalStats(long int iopt[])
+static void PrintFinalStats(void *cvode_mem)
 {
-  printf("Final Statistics: \n");
-  printf("lenrw   = %5ld    leniw = %5ld\n", iopt[LENRW], iopt[LENIW]);
-  printf("llrw    = %5ld    lliw  = %5ld\n", iopt[SPGMR_LRW], iopt[SPGMR_LIW]);
-  printf("nst     = %5ld    nfe   = %5ld\n", iopt[NST], iopt[NFE]);
-  printf("nni     = %5ld    nli   = %5ld\n", iopt[NNI], iopt[SPGMR_NLI]);
-  printf("nsetups = %5ld    netf  = %5ld\n", iopt[NSETUPS], iopt[NETF]);
-  printf("npe     = %5ld    nps   = %5ld\n", iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
-  printf("ncfn    = %5ld    ncfl  = %5ld\n", iopt[NCFN], iopt[SPGMR_NCFL]);
+  long int lenrw, leniw ;
+  long int lenrwSPGMR, leniwSPGMR;
+  int nst, nfe, nsetups, nni, ncfn, netf;
+  int nli, npe, nps, ncfl, nfeSPGMR;
+  
+
+  CVodeGetIntWorkSpace(cvode_mem, &leniw);
+  CVodeGetRealWorkSpace(cvode_mem, &lenrw);
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  CVodeGetNumErrTestFails(cvode_mem, &netf);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+
+  CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
+  CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
+  CVSpgmrGetNumLinIters(cvode_mem, &nli);
+  CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
+  CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
+  CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
+  CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+
+  printf("\nFinal Statistics.. \n\n");
+  printf("lenrw   = %5ld     leniw = %5ld\n", lenrw, leniw);
+  printf("llrw    = %5ld     lliw  = %5ld\n", lenrwSPGMR, leniwSPGMR);
+  printf("nst     = %5d\n"                  , nst);
+  printf("nfe     = %5d     nfel  = %5d\n"  , nfe, nfeSPGMR);
+  printf("nni     = %5d     nli   = %5d\n"  , nni, nli);
+  printf("nsetups = %5d     netf  = %5d\n"  , nsetups, netf);
+  printf("npe     = %5d     nps   = %5d\n"  , npe, nps);
+  printf("ncfn    = %5d     ncfl  = %5d\n\n", ncfn, ncfl); 
 }
  
 /* Routine to send boundary data to neighboring PEs */
@@ -619,23 +657,20 @@ static void fucomm(realtype t, N_Vector u, void *f_data)
 /* f routine.  Evaluate f(t,y).  First call fucomm to do communication of 
    subgrid boundary data into uext.  Then calculate f by a call to flocal. */
 
-static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
-  realtype *uarray, *duarray;
+  
   UserData data;
 
-  uarray = NV_DATA_P(u);
-  duarray = NV_DATA_P(udot);
   data = (UserData) f_data;
-
 
   /* Call fucomm to do inter-processor communication */
 
-  fucomm (t, u, data);
+  fucomm (t, u, f_data);
 
   /* Call flocal to calculate all right-hand sides */
 
-  flocal (data->Nlocal, t, uarray, duarray, data);
+  flocal (data->Nlocal, t, u, udot, f_data);
 
 }
 
@@ -646,8 +681,8 @@ static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
    inter-processor communication of data needed to calculate f has already
    been done, and this data is in the work array uext.                    */
 
-static void flocal(integertype Nlocal, realtype t, realtype uarray[],
-                   realtype duarray[], void *f_data)
+static void flocal(integertype Nlocal, realtype t, N_Vector u,
+                   N_Vector udot, void *f_data)
 {
   realtype *uext;
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
@@ -657,6 +692,10 @@ static void flocal(integertype Nlocal, realtype t, realtype uarray[],
   int i, lx, ly, jx, jy;
   integertype isubx, isuby, nvmxsub, nvmxsub2, offsetu, offsetue;
   UserData data;
+  realtype *uarray, *duarray;
+
+  uarray = NV_DATA_P(u);
+  duarray = NV_DATA_P(udot);
 
   /* Get subgrid indices, array sizes, extended work array uext */
 

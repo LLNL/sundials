@@ -1,7 +1,7 @@
 /******************************************************************
- * File          : fcvdense1.c                                    *
+ * File          : fcvdense.c                                     *
  * Programmers   : Radu Serban  and Alan Hindmarsh@ LLNL          *
- * Version of    : 30 March 2003                                  *
+ * Version of    : 1 August 2003                                  *
  *----------------------------------------------------------------*
  *                                                                *
  * Fortran/C interface routines for CVODE/CVDENSE, for the case   *
@@ -24,27 +24,10 @@ void FCV_DJAC(integertype*, realtype*, realtype*, realtype*, realtype*,
 
 /***************************************************************************/
 
-void FCV_DENSE1(integertype *neq, int *ier)
+void FCV_DENSESETJAC(int *flag, int *ier)
 {
-  /* Call CVDense:
-   *neq          is the problem dimension
-     CV_cvodemem is the pointer to the CVODE memory block 
-     CVDenseJac  is a pointer to the dense Jac routine
-     NULL        is a pointer to jac_data                 */
-
-  *ier = CVDense(CV_cvodemem, *neq, CVDenseJac, NULL);
-}
-
-/***************************************************************************/
-
-void FCV_REINDENSE1(int *ier)
-{
-  /* Call CVReInitDense:
-     CV_cvodemem is the pointer to the CVODE memory block 
-     CVDenseJac  is a pointer to the dense Jac routine
-     NULL        is a pointer to jac_data                 */
-
-  *ier = CVReInitDense(CV_cvodemem, CVDenseJac, NULL);
+  if (*flag == 0) CVDenseSetJacFn(CV_cvodemem, NULL);
+  else            CVDenseSetJacFn(CV_cvodemem, CVDenseJac);
 }
 
 /***************************************************************************/

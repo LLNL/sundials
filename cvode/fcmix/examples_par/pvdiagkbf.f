@@ -2,7 +2,7 @@ C File: pvdiagkbf.f
 C Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C Uses FCVODE interfaces and FCVBBD interfaces.
 C Solves problem twice -- with left and right preconditioning.
-C Version of 30 March 2003
+C Version of 1 August 2003
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
@@ -65,7 +65,7 @@ C
      5         'Number of processors = ',I3)
         ENDIF
 C
-      CALL FMENVINITP(NLOCAL, NEQ, IER)
+      CALL FNVSPECINITP(NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
@@ -86,7 +86,7 @@ C
       MLDQ = 0
       MU = 0
       ML = 0
-      CALL FCVBBDIN0(NLOCAL, MUDQ, MLDQ, MU,ML, 0.0D0, 
+      CALL FCVBBDIN (NLOCAL, MUDQ, MLDQ, MU,ML, 0.0D0, 
      1               IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,35) IER
@@ -177,7 +177,7 @@ C Otherwise jump to final block.
         STOP
         ENDIF
       IPRE = 2
-      CALL FCVREINBBD0(NLOCAL, MUDQ, MLDQ, MU,ML, 0.0D0, 
+      CALL FCVREINBBD (NLOCAL, MUDQ, MLDQ, MU,ML, 0.0D0, 
      1                 IPRE,IGS, 0,0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,92) IER
@@ -191,7 +191,7 @@ C
 C Free the memory and finalize MPI.
  99   CALL FCVBBDF
       CALL FCVFREE
-      CALL FMENVFREEP
+      CALL FNVSPECFREEP
       CALL MPI_FINALIZE(IER)
 C
       STOP

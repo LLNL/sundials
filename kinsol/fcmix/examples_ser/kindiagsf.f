@@ -2,7 +2,7 @@
 c   ***************************************************************************
 c   * File        : kindiagsf.f                                               *
 c   * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL    *
-c   * Version of  : 31 MArch 2003                                             *
+c   * Version of  : 5 August 2003                                             *
 c   *   Simple diagonal test with Fortran interface, using user-supplied      *
 c   *   preconditioner setup and solve routines (supplied in Fortran, below). *
 c   *   This example does a basic test of the solver by solving the system    *
@@ -11,8 +11,6 @@ c   *                        f(u) = u(i)^2 - i^2 .                            *
 c   *   No scaling is done.                                                   *
 c   *   An approximate diagonal preconditioner is used.                       *
 c   *   Execute line: kindiagsf                                               *
-c   *-------------------------------------------------------------------------*
-c   * Modified by Radu Serban to work with new serial NVECTOR, 12 March 2002. *
 c   *-------------------------------------------------------------------------*
 
       integer PROBSIZE
@@ -40,25 +38,10 @@ c   *-------------------------------------------------------------------------*
 
 c * * * * * * * * * * * * * * * * * * * * * *
 
-      call fmenvinits(neq, ier)
+      call fnvspecinits(neq, ier)
       if (ier .ne. 0) then
          write(6,1220),ier
- 1220    format('fmenvinits failed, ier =',i2)
-         stop
-      endif
-
-      call fkinmalloc(ier)
-      if (ier .ne. 0) then
-         write(6,1230),ier
- 1230    format('fkinmalloc failed, ier =',i2)
-         stop
-      endif
-
-      call fkinspgmr20(maxl, maxlrst, msbpre, ier)
-
-      if (ier .ne. 0) then
-         write(6,1232)ier
- 1232    format('fkinspgmr20 failed, ier =',i2)
+ 1220    format('fnvspecinits failed, ier =',i2)
          stop
       endif
 
@@ -68,6 +51,18 @@ c * * * * * * * * * * * * * * * * * * * * * *
          constr(i) = 0.0
   20  continue
 
+      call fkinmalloc(msbpre, fnormtol, scsteptol, 
+     &                constr, inopt, iopt, ropt, ier)
+      if (ier .ne. 0) then
+         write(6,1230),ier
+ 1230    format('fkinmalloc failed, ier =',i2)
+         stop
+      endif
+
+      call fkinspgmr(maxl, maxlrst, ier)
+      call fkspgmrsetpsol(1, ier)
+      call fkspgmrsetpreco(1, ier)
+
       write(6,1240)
  1240 format('Example program kindiagsf'/' This fkinsol example code',
      1       ' solves a 128 eqn diagonal algebraic system.'/
@@ -75,8 +70,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
      3       ' interface'/' in a serial environment.'/
      4       ' globalstrategy = INEXACT_NEWTON'/)
 
-      call fkinsol(uu, 0, scale, scale, fnormtol, 
-     1             scsteptol, constr, inopt, iopt, ropt, ier)
+      call fkinsol(uu, 0, scale, scale, ier)
 
       write(6,1245)ier
  1245 format(/' fkinsol return code is ',i5)
@@ -94,7 +88,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
      1       ',  nps=',i4,',  ncfl=',i4)
 
       call fkinfree
-      call fmenvfrees
+      call fnvspecfrees
 
       stop
       end
@@ -122,11 +116,11 @@ c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
       subroutine kpreco(udata, uscale, fdata, fscale, 
-     1                  vtemp1, vtemp2, uround, nfe, ier)
+     1                  vtemp1, vtemp2, ier)
       
-      integer nfe, ier
+      integer ier
       double precision udata(*), uscale(*), fdata(*), fscale(*)
-      double precision vtemp1(*), vtemp2(*), uround
+      double precision vtemp1(*), vtemp2(*)
       
       double precision pp
       common /pcom/ pp(128)
@@ -149,11 +143,11 @@ c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
       subroutine kpsol(udata, uscale, fdata, fscale, 
-     1                 vv, ftem, uround, nfe, ier)
+     1                 vv, ftem, ier)
       
-      integer nfe, ier
+      integer ier
       double precision udata(*), uscale(*), fdata(*), fscale(*)
-      double precision vv(*), ftem(*), uround
+      double precision vv(*), ftem(*)
       
       double precision pp
       common /pcom/ pp(128)

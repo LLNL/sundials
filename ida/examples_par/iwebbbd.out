@@ -10,50 +10,50 @@ CalcIC called to correct initial predator concentrations
 
 
 TIME t = 0.000000e+00.     NST = 0,  k = 0,  h = 1.631027e-08
-NRE = 17,  NGE = 84,  NNI = 3,  NLI = 12,  NPE = 2,  NPS = 17
+NRE = 5,  NRE_S = 12,  NGE = 84,  NNI = 3,  NLI = 12,  NPE = 2,  NPS = 17
 At bottom left:  c1, c2 = 1.000000e+01 9.999900e+04 
 At top right:    c1, c2 = 1.000000e+01 9.994900e+04 
 
 
 TIME t = 1.000000e-03.     NST = 33,  k = 4,  h = 6.012614e-05
-NRE = 100,  NGE = 546,  NNI = 47,  NLI = 51,  NPE = 13,  NPS = 100
+NRE = 49,  NRE_S = 51,  NGE = 546,  NNI = 47,  NLI = 51,  NPE = 13,  NPS = 100
 At bottom left:  c1, c2 = 1.031834e+01 1.031877e+05 
 At top right:    c1, c2 = 1.082687e+01 1.082227e+05 
 
 
-TIME t = 1.000000e-02.     NST = 98,  k = 5,  h = 2.138902e-04
-NRE = 469,  NGE = 588,  NNI = 120,  NLI = 347,  NPE = 14,  NPS = 469
+TIME t = 1.000000e-02.     NST = 98,  k = 5,  h = 2.138895e-04
+NRE = 122,  NRE_S = 347,  NGE = 588,  NNI = 120,  NLI = 347,  NPE = 14,  NPS = 469
 At bottom left:  c1, c2 = 1.618875e+02 1.618890e+06 
 At top right:    c1, c2 = 1.973489e+02 1.973452e+06 
 
 
-TIME t = 1.000000e-01.     NST = 174,  k = 1,  h = 2.464015e-02
-NRE = 823,  NGE = 882,  NNI = 211,  NLI = 610,  NPE = 21,  NPS = 823
+TIME t = 1.000000e-01.     NST = 174,  k = 1,  h = 2.737785e-02
+NRE = 210,  NRE_S = 629,  NGE = 882,  NNI = 208,  NLI = 629,  NPE = 21,  NPS = 839
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 4.000000e-01.     NST = 177,  k = 1,  h = 1.971212e-01
-NRE = 829,  NGE = 1008,  NNI = 215,  NLI = 612,  NPE = 24,  NPS = 829
+TIME t = 4.000000e-01.     NST = 177,  k = 1,  h = 2.190228e-01
+NRE = 214,  NRE_S = 632,  NGE = 1008,  NNI = 212,  NLI = 632,  NPE = 24,  NPS = 846
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 7.000000e-01.     NST = 178,  k = 1,  h = 3.942424e-01
-NRE = 832,  NGE = 1050,  NNI = 217,  NLI = 613,  NPE = 25,  NPS = 832
+TIME t = 7.000000e-01.     NST = 178,  k = 1,  h = 4.380456e-01
+NRE = 215,  NRE_S = 632,  NGE = 1050,  NNI = 213,  NLI = 632,  NPE = 25,  NPS = 847
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 1.000000e+00.     NST = 179,  k = 1,  h = 7.884848e-01
-NRE = 833,  NGE = 1092,  NNI = 218,  NLI = 613,  NPE = 26,  NPS = 833
+TIME t = 1.000000e+00.     NST = 179,  k = 1,  h = 8.760913e-01
+NRE = 217,  NRE_S = 633,  NGE = 1092,  NNI = 215,  NLI = 633,  NPE = 26,  NPS = 850
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
 Final statistics: 
 
-NST  =   179     NRE  =   833     NGE  =  1092 
-NNI  =   218     NLI  =   613
-NPE  =    26     NPS  =   833
+NST  =   179     NRE  =   850     NGE  =  1092 
+NNI  =   215     NLI  =   633
+NPE  =    26     NPS  =   850
 NETF =     1     NCFN =     0     NCFL =     0

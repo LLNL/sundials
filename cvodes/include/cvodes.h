@@ -3,7 +3,7 @@
  * File          : cvodes.h                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 28 March 2003                                   *
+ * Version of    : 06 June 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -21,12 +21,12 @@ extern "C" {
 #ifndef _cvodes_h
 #define _cvodes_h
 
-
 #include <stdio.h>
 #include "sundialstypes.h"
 #include "nvector.h"
 
-/******************************************************************
+
+/*================================================================*
  *                                                                *
  * CVODES is used to solve numerically the ordinary initial value *
  * problem :                                                      *
@@ -41,25 +41,27 @@ extern "C" {
  * parameters in the right hand side f and/or in the initial      *
  * conditions y0.                                                 * 
  *                                                                *
- ******************************************************************/
+ *================================================================*/
 
-/******************************************************************
+
+/*----------------------------------------------------------------*
  *                                                                *
- * Enumerations for inputs to CVodeMalloc, CVodeReInit,           *
- * CVodeSensMalloc, CVodeSensReInit, CvodeQuadMalloc,             *
- * CVodeQuadReInit, and CVode.                                    *
+ * Enumerations for inputs to CVodeCreate, CVodeMalloc,           *
+ * CVodeReInit, CVodeSensMalloc, CVodeSensReInit, CvodeQuadMalloc,*
+ * CVodeQuadReInit, CVodeSet*, and CVode.                         *
+ *                                                                *
  *----------------------------------------------------------------*
  * Symbolic constants for the lmm, iter, and itol input           *
  * parameters to CVodeMalloc and CVodeReInit, as well as the      *
  * input parameter itask to CVode, are given below.               *
  *                                                                *
- * lmm  : The user of the CVODE package specifies whether to use  *
+ * lmm:   The user of the CVODES package specifies whether to use *
  *        the ADAMS or BDF (backward differentiation formula)     *
  *        linear multistep method. The BDF method is recommended  *
  *        for stiff problems, and the ADAMS method is recommended *
  *        for nonstiff problems.                                  *
  *                                                                *
- * iter : At each internal time step, a nonlinear equation must   *
+ * iter:  At each internal time step, a nonlinear equation must   *
  *        be solved. The user can specify either FUNCTIONAL       *
  *        iteration, which does not require linear algebra, or a  *
  *        NEWTON iteration, which requires the solution of linear *
@@ -67,99 +69,114 @@ extern "C" {
  *        CVODE linear solver. NEWTON is recommended in case of   *
  *        stiff problems.                                         *
  *                                                                *
- * itol : This parameter specifies the relative and absolute      *
+ * itol:  This parameter specifies the relative and absolute      *
  *        tolerance types to be used. The SS tolerance type means *
  *        a scalar relative and absolute tolerance, while the SV  *
  *        tolerance type means a scalar relative tolerance and a  *
  *        vector absolute tolerance (a potentially different      *
  *        absolute tolerance for each vector component).          *
  *                                                                *
- * ism  : This parameter specifies the sensitivity corrector type *
+ * itolQ: Same as itol for quadrature variables.                  *
+ *                                                                *
+ * ism:   This parameter specifies the sensitivity corrector type *
  *        to be used. In the SIMULTANEOUS case, the nonlinear     *
  *        systems for states and all sensitivities are solved     *
  *        simultaneously. In the STAGGERED case, the nonlinear    *
  *        system for states is solved first and then, the         *
  *        nonlinear systems for all sensitivities are solved      *
  *        at the same time. Finally, in the STAGGERED1 approach   *     
- *        all nonlinear systems are solved in a sequence. Note    *
- *        that the STAGGERED1 approach can be used only if        *
- *        ifS = ONESENS (see bellow).                             *
+ *        all nonlinear systems are solved in a sequence.         *
  *                                                                *
- * ifS  : This parameter specifies the type of the routine that   *
- *        provides the right hand side of the sensitivity         *
- *        equations. The ALLSENS type means that r.h.s. for all   *
- *        sensitivities are provided simultaneously. In this case *
- *        fS (if provided by the user) must be of type SensRhsFn. *
- *        The ONESENS type means that fS (which, if provided by   *
- *        the user, must be of type SensRhs1Fn) computes r.h.s.   *
- *        one sensitivity at a time. Note that ism = STAGGERED1   *
- *        requires ifS=ONESENS. Either value for ifS is valid     *
- *        for ism=SIMULTANEOUS or STAGGERED.                      *
+ * ifS:   Type of the function returning the sensitivity right    *
+ *        hand side. ifS can be either ALLSENS if the function    *
+ *        (of type SensRhsFn) returns right hand sides for all    *
+ *        sensitivity systems at once, or ONESENS if the function *
+ *        (of type SensRhs1Fn) returns the right hand side of one *
+ *        sensitivity system at a time.                           *
  *                                                                *
- * errcon: This parameter specifies whether sensitivity variables *
- * errconQ (or quadrature variables, for errconQ)                 *
- *         are included in the local error estimation (FULL) or   *
- *         not (PARTIAL). Note that, even with errcon=PARTIAL,    *
- *         sensitivities are included in the convergence test     *
- *         during the nonlinear system solution.                  *
+ * errcon:Error control flag for sensitivity variables. It can be *
+ *        either FULL if the sensitivity variables are to be      *
+ *        considered in the error test, or PARTIAL otherwise.     *
+ *        Note that, in either case, the sensitivity variables    *
+ *        are included in the convergence test.                   *
  *                                                                *
- * itask : The itask input parameter to CVode indicates the job   *
- *         of the solver for the next user step. The NORMAL       *
- *         itask is to have the solver take internal steps until  *
- *         it has reached or just passed the user specified tout  *
- *         parameter. The solver then interpolates in order to    *
- *         return an approximate value of y(tout). The ONE_STEP   *
- *         option tells the solver to just take one internal step *
- *         and return the solution at the point reached by that   *
- *         step.                                                  *
+ * errconQ: same as errcon for quadrature variables.              *
  *                                                                *
- ******************************************************************/
+ * itask: The itask input parameter to CVode indicates the job    *
+ *        of the solver for the next user step. The NORMAL        *
+ *        itask is to have the solver take internal steps until   *
+ *        it has reached or just passed the user specified tout   *
+ *        parameter. The solver then interpolates in order to     *
+ *        return an approximate value of y(tout). The ONE_STEP    *
+ *        option tells the solver to just take one internal step  *
+ *        and return the solution at the point reached by that    *
+ *        step. The NORMAL_TSTOP and ONE_STEP_TSTOP modes are     *
+ *        similar to NORMAL and ONE_STEP, respectively, except    *
+ *        that the integration never proceeds past the value      *
+ *        tstop (specified through the routine CVodeSetStopTime). *
+ *                                                                *
+ *----------------------------------------------------------------*/
 
-enum { ADAMS, BDF };              /* lmm */
+enum { ADAMS, BDF };                                      /* lmm */
 
-enum { FUNCTIONAL, NEWTON };      /* iter */
+enum { FUNCTIONAL, NEWTON };                             /* iter */
 
-enum { SS, SV };                  /* itol */
+enum { SS, SV };                                  /* itol, itolQ */
 
-enum { SIMULTANEOUS, STAGGERED, STAGGERED1 }; /* ism */
+enum { SIMULTANEOUS, STAGGERED, STAGGERED1 };             /* ism */
 
-enum { ALLSENS, ONESENS };        /* ifS */
-    
-enum { FULL, PARTIAL };           /* errcon */
-    
-enum { NORMAL, ONE_STEP };        /* itask */
+enum { NORMAL, ONE_STEP, NORMAL_TSTOP, ONE_STEP_TSTOP}; /* itask */
 
-/******************************************************************
+enum { ALLSENS, ONESENS };                                /* ifS */
+
+enum { FULL, PARTIAL };                       /* errcon, errconQ */
+
+/*================================================================*
+ *                                                                *
+ *              F U N C T I O N   T Y P E S                       *
+ *                                                                *
+ *================================================================*/
+
+/*----------------------------------------------------------------*
  *                                                                *
  * Type : RhsFn                                                   *
  *----------------------------------------------------------------*        
  * The f function which defines the right hand side of the ODE    *
  * system y' = f(t,y) must have type RhsFn.                       *
- * f takes as input the problem size N, the independent variable  *
- * value t, and the dependent variable vector y.  It stores the   * 
- * result of f(t,y) in the vector ydot.  The y and ydot arguments *
- * are of type N_Vector.                                          *
- * (Allocation of memory for ydot is handled within CVODE.)       *
+ * f takes as input the independent variable value t, and the     *
+ * dependent variable vector y.  It stores the result of f(t,y)   *
+ * in the vector ydot.  The y and ydot arguments are of type      *
+ * N_Vector.                                                      *
+ * (Allocation of memory for ydot is handled within CVODES)       *
  * The f_data parameter is the same as the f_data                 *
- * parameter passed by the user to the CVodeMalloc routine. This  *
- * user-supplied pointer is passed to the user's f function       *
+ * parameter set by the user through the CVodeSetFdata routine.   *
+ * This user-supplied pointer is passed to the user's f function  *
  * every time it is called.                                       *
  * A RhsFn f does not have a return value.                        *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
 typedef void (*RhsFn)(realtype t, N_Vector y, 
                       N_Vector ydot, void *f_data);
 
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
  * Type : SensRhsFn                                               *
  *----------------------------------------------------------------*  
  * The fS function which defines the right hand side of the       *
  * sensitivity ODE systems s' = f_y * s + f_p must have type      *
  * SensRhsFn.                                                     *
+ * fS takes as input the number of sensitivities Ns, the          *
+ * independent variable value t, the states y and the             *
+ * corresponding value of f(t,y) in ydot, and the dependent       *
+ * sensitivity vectors yS. It stores the result of fS in ySdot.   *
+ * (Allocation of memory for ySdot is handled within CVODES)      *
+ * The fS_data parameter is the same as the fS_data parameter     *
+ * set by the user through the CVodeSetSensFdata routine and is   *
+ * passed to the fS function every time it is called.             *
+ * A SensRhsFn function does not have a return value.             *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
 typedef void (*SensRhsFn)(integertype Ns, realtype t, 
                           N_Vector y, N_Vector ydot, 
@@ -167,15 +184,25 @@ typedef void (*SensRhsFn)(integertype Ns, realtype t,
                           void *fS_data,  
                           N_Vector tmp1, N_Vector tmp2);
 
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
  * Type : SensRhs1Fn                                              *
  *----------------------------------------------------------------*  
- * The fS function which defines the right hand side of the i-th  *
+ * The fS1 function which defines the right hand side of the i-th *
  * sensitivity ODE system s_i' = f_y * s_i + f_p must have type   *
  * SensRhs1Fn.                                                    *
+ * fS1 takes as input the number of sensitivities Ns, the current *
+ * sensitivity iS, the independent variable value t, the states y *
+ * and the corresponding value of f(t,y) in ydot, and the         *
+ * dependent sensitivity vector yS. It stores the result of fS in *
+ * ySdot.                                                         *
+ * (Allocation of memory for ySdot is handled within CVODES)      *
+ * The fS_data parameter is the same as the fS_data parameter     *
+ * set by the user through the CVodeSetSensFdata routine and is   *
+ * passed to the fS1 function every time it is called.            *
+ * A SensRhs1Fn function does not have a return value.            *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
 typedef void (*SensRhs1Fn)(integertype Ns, realtype t, 
                            N_Vector y, N_Vector ydot, 
@@ -183,30 +210,38 @@ typedef void (*SensRhs1Fn)(integertype Ns, realtype t,
                            void *fS_data,
                            N_Vector tmp1, N_Vector tmp2);
 
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
  * Type : QuadRhsFn                                               *
  *----------------------------------------------------------------*        
  *                                                                *
- * A QuadRhsFn f does not have a return value.                    *
+ * The fQ function which defines the right hand side of the       *
+ * quadrature equations yQ' = fQ(t,y) must have type QuadRhsFn.   *
+ * fQ takes as input the value of the independent variable t,     *
+ * the vector of states y and must store the result of fQ in qdot.*
+ * (Allocation of memory for qdot is handled within CVODES)       *
+ * The fQ_data parameter is the same as the fQ_data parameter     *
+ * set by the user through the CVodeSetQuadFdata routine and is   *
+ * passed to the fQ function every time it is called.             *
+ * A QuadRhsFn function does not have a return value.             *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
 typedef void (*QuadRhsFn)(realtype t, N_Vector y, N_Vector qdot, 
                           void *fQ_data);
 
-/******************************************************************
+/*================================================================*
  *                                                                *
- * Function : CVodeMalloc                                         *
+ *          U S E R - C A L L A B L E   R O U T I N E S           *
+ *                                                                *
+ *================================================================*/
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Function : CVodeCreate                                         *
  *----------------------------------------------------------------*
- * CVodeMalloc allocates and initializes memory for a problem to  *
- * to be solved by CVODE.                                         *
- *                                                                *
- * f       is the right hand side function in y' = f(t,y).        *          
- *                                                                *
- * t0      is the initial value of t.                             *
- *                                                                *
- * y0      is the initial condition vector y(t0).                 *
+ * CVodeCreate creates an internal memory block for a problem to  *
+ * be solved by CVODES.                                           *
  *                                                                *
  * lmm     is the type of linear multistep method to be used.     *
  *            The legal values are ADAMS and BDF (see previous    *
@@ -215,6 +250,124 @@ typedef void (*QuadRhsFn)(realtype t, N_Vector y, N_Vector qdot,
  * iter    is the type of iteration used to solve the nonlinear   *
  *            system that arises during each internal time step.  *
  *            The legal values are FUNCTIONAL and NEWTON.         *
+ *                                                                *
+ * If successful, CVodeCreate returns a pointer to initialized    *
+ * problem memory. This pointer should be passed to CVodeMalloc.  *
+ * If an initialization error occurs, CVodeCreate prints an error *
+ * message to standard err and returns NULL.                      *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+void *CVodeCreate(int lmm, int iter);
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Integrator optional input specification functions              *
+ *----------------------------------------------------------------*
+ * The following functions can be called to set optional inputs   *
+ * to values other than the defaults given below:                 *
+ *                                                                *
+ *                      |                                         * 
+ * Function             |  Optional input / [ default value ]     *
+ *                      |                                         * 
+ * -------------------------------------------------------------- *
+ *                      |                                         * 
+ * CvodeSetIterType     | nonlinear iteration type. The legal     *
+ *                      | values are FUNCTIONAL or NEWTON.        *
+ *                      |                                         *
+ * CVodeSetFdata        | a pointer to user data that will be     *
+ *                      | passed to the user's f function every   *
+ *                      | time f is called.                       *
+ *                      | [NULL]                                  *
+ *                      |                                         * 
+ * CVodeSetErrFile      | the file pointer for an error file      *
+ *                      | where all CVODES warning and error      *
+ *                      | messages will be written. This parameter*
+ *                      | can be stdout (standard output), stderr *
+ *                      | (standard error), a file pointer        *
+ *                      | (corresponding to a user error file     *
+ *                      | opened for writing) returned by fopen.  *
+ *                      | If not called, then all messages will   *
+ *                      | be written to standard output.          *
+ *                      | [NULL]                                  *
+ *                      |                                         * 
+ * CVodeSetMaxOrd       | maximum lmm order to be used by the     *
+ *                      | solver.                                 *
+ *                      | [12 for Adams , 5 for BDF]              * 
+ *                      |                                         * 
+ * CVodeSetMaxNumSteps  | maximum number of internal steps to be  *
+ *                      | taken by the solver in its attempt to   *
+ *                      | reach tout.                             *
+ *                      | [500]                                   *
+ *                      |                                         * 
+ * CVodeSetMaxHnilWarns | maximum number of warning messages      *
+ *                      | issued by the solver that t+h==t on the *
+ *                      | next internal step. A value of -1 means *
+ *                      | no such messages are issued.            *
+ *                      | [10]                                    * 
+ *                      |                                         * 
+ * CVodeSetStabLimDet   | flag to turn on/off stability limit     *
+ *                      | detection (TRUE = on, FALSE = off).     *
+ *                      | When BDF is used and order is 3 or      *
+ *                      | greater, CVsldet is called to detect    *
+ *                      | stability limit.  If limit is detected, *
+ *                      | the order is reduced.                   *
+ *                      | [FALSE]                                 *
+ *                      |                                         * 
+ * CVodeSetInitStep     | initial step size.                      *
+ *                      | [estimated by CVODES]                   * 
+ *                      |                                         * 
+ * CVodeSetMinStep      | minimum absolute value of step size     *
+ *                      | allowed.                                *
+ *                      | [0.0]                                   *
+ *                      |                                         * 
+ * CVodeSetMaxStep      | maximum absolute value of step size     *
+ *                      | allowed.                                *
+ *                      | [infinity]                              *
+ *                      |                                         * 
+ * CVodeSetStopTime     | the independent variable value past     *
+ *                      | which the solution is not to proceed.   *
+ *                      | [infinity]                              *
+ *                      |                                         * 
+ * -------------------------------------------------------------- *
+ *                                                                *
+ * If successful, these functions return SUCCESS. If an argument  *
+ * has an illegal value, they print an error message to the       *
+ * file specified by errfp and return one of the error flags      *  
+ * defined below.                                                 *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int CVodeSetIterType(void *cvode_mem, int iter);
+int CVodeSetFdata(void *cvode_mem, void *f_data);
+int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
+int CVodeSetMaxOrd(void *cvode_mem, int maxord);
+int CVodeSetMaxNumSteps(void *cvode_mem, int mxsteps);
+int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
+int CVodeSetStabLimDet(void *cvode_mem, booleantype stldet);
+int CVodeSetInitStep(void *cvode_mem, realtype hin);
+int CVodeSetMinStep(void *cvode_mem, realtype hmin);
+int CVodeSetMaxStep(void *cvode_mem, realtype hmax);
+int CVodeSetStopTime(void *cvode_mem, realtype tstop);
+
+/* Error return values for CVodeSet* functions */
+/* SUCCESS = 0*/
+enum {CVS_NO_MEM = -1, CVS_ILL_INPUT = -2};
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Function : CVodeMalloc                                         *
+ *----------------------------------------------------------------*
+ * CVodeMalloc allocates and initializes memory for a problem to  *
+ * to be solved by CVODES.                                        *
+ *                                                                *
+ * cvode_mem is pointer to CVODES memory returned by CVodeCreate. *
+ *                                                                *
+ * f       is the right hand side function in y' = f(t,y).        *          
+ *                                                                *
+ * t0      is the initial value of t.                             *
+ *                                                                *
+ * y0      is the initial condition vector y(t0).                 *
  *                                                                *
  * itol    is the type of tolerances to be used.                  *
  *            The legal values are:                               *
@@ -227,6 +380,8 @@ typedef void (*QuadRhsFn)(realtype t, N_Vector y, N_Vector qdot,
  * abstol  is a pointer to the absolute tolerance scalar or       *
  *            an N_Vector of absolute tolerances.                 *
  *                                                                *
+ * nvspec  is a pointer to a vector specification structure       *
+ *                                                                *
  * The parameters itol, reltol, and abstol define a vector of     *
  * error weights, ewt, with components                            *
  *   ewt[i] = 1/(reltol*abs(y[i]) + abstol)   (if itol = SS), or  *
@@ -236,202 +391,36 @@ typedef void (*QuadRhsFn)(realtype t, N_Vector y, N_Vector qdot,
  *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),    *
  * where N is the problem dimension.                              *
  *                                                                *
- * f_data  is a pointer to user data that will be passed to the   *
- *             user's f function every time f is called.          *
- *                                                                *
- * errfp   is the file pointer for an error file where all CVODE  *
- *            warning and error messages will be written. This    *
- *            parameter can be stdout (standard output), stderr   *
- *            (standard error), a file pointer (corresponding to  *
- *            a user error file opened for writing) returned by   *
- *            fopen, or NULL. If the user passes NULL, then all   *
- *            messages will be written to standard output.        *
- *                                                                *
- * optIn   is a flag indicating whether there are any optional    *
- *            inputs from the user in the arrays iopt and ropt.   *
- *            Pass FALSE to indicate no optional inputs and TRUE  *
- *            to indicate that optional inputs are present.       *
- *                                                                *
- * iopt    is the user-allocated array (of size OPT_SIZE given    *
- *            later) that will hold optional integer inputs and   *
- *            outputs.  The user can pass NULL if he/she does not *
- *            wish to use optional integer inputs or outputs.     *
- *            If optIn is TRUE, the user should preset to 0 those *
- *            locations for which default values are to be used.  *
- *                                                                *
- * ropt    is the user-allocated array (of size OPT_SIZE given    *
- *            later) that will hold optional real inputs and      *
- *            outputs.  The user can pass NULL if he/she does not *
- *            wish to use optional real inputs or outputs.        *
- *            If optIn is TRUE, the user should preset to 0.0 the *
- *            locations for which default values are to be used.  *
- *                                                                *
- * machEnv is a pointer to machine environment-specific           *
- *            information.                                        *
- *                                                                *
  * Note: The tolerance values may be changed in between calls to  *
  *       CVode for the same problem. These values refer to        *
  *       (*reltol) and either (*abstol), for a scalar absolute    *
  *       tolerance, or the components of abstol, for a vector     *
  *       absolute tolerance.                                      *
  *                                                                * 
- * If successful, CVodeMalloc returns a pointer to initialized    *
- * problem memory. This pointer should be passed to CVode. If     *
- * an initialization error occurs, CVodeMalloc prints an error    *
- * message to the file specified by errfp and returns NULL.       *
+ * If successful, CVodeMalloc returns SUCCESS. If an argument has *
+ * an illegal value, CVodeMalloc prints an error message to the   *
+ * file specified by errfp and returns one of the error flags     *  
+ * defined below.                                                 *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
-void *CVodeMalloc(RhsFn f, realtype t0, N_Vector y0, 
-                  int lmm, int iter, int itol, realtype *reltol, 
-                  void *abstol, void *f_data, FILE *errfp, 
-                  booleantype optIn, long int iopt[], realtype ropt[],
-                  M_Env machEnv);
- 
- /******************************************************************
- *                                                                *
- * Function : CVodeSensMalloc                                     *
- *----------------------------------------------------------------*
- * CVodeSensMalloc allocates and initializes memory related to    *
- * sensitivity computations.                                      *
- *                                                                *
- * cvode_mem is a pointer to CVODE memory returned by CVodeMalloc.*
- *                                                                *
- * Ns        is the number of sensitivities to be computed        *
- *                                                                *
- * ism       is the type of corrector used in sensitivity         *
- *           analysis. The legal values are: SIMULTANEOUS,        *
- *           STAGGERED, and STAGGERED1 (see previous description) *
- *                                                                *
- * p         is a pointer to problem parameters with respect to   *
- *           which sensitivities may be computed (see description *
- *           of plist below). If the right hand sides of the      *
- *           sensitivity equations are to be evaluated by the     *
- *           difference quotient routines provided with CVODES,   *
- *           then p must also be a field in the user data         *
- *           structure pointed to by f_data.                      *
- *                                                                *
- * pbar      is a pointer to scaling factors used in computing    *
- *           sensitivity absolute tolerances as well as by the    *
- *           CVODES difference quotient routines for sensitivty   *
- *           right hand sides. pbar[i] must give the order of     *
- *           magnitude of parameter p[i]. Typically, if p[i] is   *
- *           nonzero, pbar[i]=p[i].                               *
- *                                                                *
- * plist     is a pointer to a list of parameters with respect to *
- *           which sensitivities are to be computed.              *
- *           If plist[j]=i, then sensitivities with respect to    *
- *           the i-th parameter (i.e. p[i-1]) will be computed.   *
- *           A negative plist entry also indicates that the       *
- *           corresponding parameter affects only the initial     *
- *           conditions of the ODE and not its right hand side.   *
- *                                                                *
- * ifS       is the type of sensitivty right hand side. The legal *
- *           values are ALLSENS and ONESENS (see previous         *
- *           description).                                        *
- *                                                                *
- * fS        is the sensitivity right hand side. If fS=NULL is    *
- *           passed, CVODES will use internal differnce quotient  *
- *           routines to evaluate them.                           *
- *                                                                *
- * errcon    is the type of error control. The legal values are   *
- *           FULL and PARTIAL (see previous description).         *
- *                                                                *
- * rhomax    controls the selection of finite difference schemes  *
- *           used in evaluating the sensitivity right hand sides. *
- *           Its value is ignored if fS!=NULL.                    *
- *                                                                *
- * yS0       is the array of initial condition vectors for        *
- *           sensitivity variables.                               * 
- *                                                                *
- * reltolS   is a pointer to the sensitivity relative tolerance   *
- *           scalar. If reltolS=NULL is passed, CVODES will use   *
- *           reltolS = reltol.                                    * 
- *                                                                *
- * abstolS   is a pointer to the array of sensitivity absolute    *
- *           tolerance scalars or a pointer to the array of       *
- *           N_Vector sensitivity absolute tolerances. If         *
- *           abstolS=NULL is passed, CVODES will allocate space   *
- *           for abstolS (based on the value of itol) and set the *
- *           sensitivity absolute tolerances based on the values  *
- *           of abstol and pbar.                                  *
- *                                                                *
- * fS_data   is a pointer to user data that will be passed to the *
- *           user's fS function every time fS is called.          *
- *                                                                *
- * If successful, CVodeSensMalloc returns SUCCESS. If an          *
- * initialization error occurs, CVodeSensMalloc prints an error   *
- * message to the file specified by errfp and returns one of      *
- * the error flags defined below.                                 *
- *                                                                *
- ******************************************************************/
+int CVodeMalloc(void *cvode_mem, RhsFn f,
+                realtype t0, N_Vector y0, 
+                int itol, realtype *reltol, void *abstol, 
+                NV_Spec nvspec);
 
-int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism, 
-                    realtype *p, realtype *pbar, integertype *plist, 
-                    int ifS, void *fS, int errcon, realtype rhomax, 
-                    N_Vector *yS0, realtype *reltolS, void *abstolS,
-                    void *fS_data);
-    
-/* CVodeSensMalloc return values: */
+/* Error return values for CVodeMalloc */
+/* SUCCESS = 0 */
+enum {CVM_NO_MEM = -1, CVM_MEM_FAIL=-2, CVM_ILL_INPUT = -3};
 
-/* SUCCESS = 0  (Defined under CVode return values, but listed
-                 here also for completeness)                     */
-enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
-
-/******************************************************************
- *                                                                *
- * Function : CVodeQuadMalloc                                     *
- *----------------------------------------------------------------*
- * CVodeQuadMalloc allocates and initializes memory related to    *
- * quadrature integration.                                        *
- *                                                                *
- * cvode_mem is a pointer to CVODE memory returned by CVodeMalloc.*
- *                                                                *
- * fQ        is the user-provided integrand routine.              *
- *                                                                *
- * errconQ   is the type of error control. The legal values are   *
- *           FULL and PARTIAL (see previous description).         *
- *                                                                *
- * reltolQ   is a pointer to the quadrature relative tolerance    *
- *           scalar.                                              *
- *                                                                *
- * abstolQ   is a pointer to the absolute tolerance scalar or     *
- *           an N_Vector of absolute tolerances for quadrature    *
- *           variables.                                           *
- *                                                                *
- * fQ_data   is a pointer to user data that will be passed to the *
- *           user's fQ function every time fQ is called.          *
- *                                                                *
- * machEnvQ  is a pointer to machine environment-specific         *
- *           information for Nvectors containing quadrature       *
- *           variables.                                           *
- *                                                                *
- * If successful, CVodeQuadMalloc returns SUCCESS. If an          *
- * initialization error occurs, CVodeQuadMalloc prints an error   *
- * message to the file specified by errfp and returns one of      *
- * the error flags defined below.                                 *
- *                                                                *
- ******************************************************************/
-
-int CVodeQuadMalloc(void *cvode_mem, 
-                    QuadRhsFn fQ, int errconQ,
-                    realtype *reltolQ, void *abstolQ,
-                    void *fQ_data, M_Env machEnvQ);
-    
-/* CVodeQuadMalloc return values: */
-
-/* SUCCESS = 0  (Defined under CVode return values, but listed
-                 here also for completeness)                     */
-enum {QCVM_NO_MEM = -1, QCVM_ILL_INPUT = -2, QCVM_MEM_FAIL = -3};
-
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
  * Function : CVodeReInit                                         *
  *----------------------------------------------------------------*
  * CVodeReInit re-initializes CVode for the solution of a problem,*
  * where a prior call to CVodeMalloc has been made with the same  *
  * problem size N. CVodeReInit performs the same input checking   *
- * and initializations that CVodeMalloc does (except for N).      *
+ * and initializations that CVodeMalloc does.                     *
  * But it does no memory allocation, assuming that the existing   *
  * internal memory is sufficient for the new problem.             *
  *                                                                *
@@ -447,7 +436,8 @@ enum {QCVM_NO_MEM = -1, QCVM_ILL_INPUT = -2, QCVM_MEM_FAIL = -3};
  * different linear solver is chosen, but may not be otherwise.   *
  * If the same linear solver is chosen, and there are no changes  *
  * in the input parameters to the specification routine, then no  *
- * call to that routine is needed.                                *
+ * call to that routine is needed. Similarly for the optional     *
+ * inputs to the linear solver.                                   *
  * If there are changes in parameters, but they do not increase   *
  * the linear solver memory size, then a call to the corresponding*
  * CVReInit<linsol> routine must made to communicate the new      *
@@ -458,12 +448,10 @@ enum {QCVM_NO_MEM = -1, QCVM_ILL_INPUT = -2, QCVM_MEM_FAIL = -3};
  *                                                                *
  * The first argument to CVodeReInit is:                          *
  *                                                                *
- * cvode_mem = pointer to CVODE memory returned by CVodeMalloc.   *
+ * cvode_mem = pointer to CVODES memory returned by CVodeMalloc.  *
  *                                                                *
  * All the remaining arguments to CVodeReInit have names and      *
- * meanings identical to those of CVodeMalloc.  Note that the     *
- * problem size N is not passed as an argument to CVodeReInit,    *
- * as that is assumed to be unchanged since the CVodeMalloc call. *
+ * meanings identical to those of CVodeMalloc.                    *
  *                                                                *
  * The return value of CVodeReInit is equal to SUCCESS = 0 if     *
  * there were no errors; otherwise it is a negative int equal to: *
@@ -472,28 +460,238 @@ enum {QCVM_NO_MEM = -1, QCVM_ILL_INPUT = -2, QCVM_MEM_FAIL = -3};
  *                    (including an attempt to increase maxord).  *
  * In case of an error return, an error message is also printed.  *
  *                                                                *
- * Note: the reported workspace sizes iopt[LENRW] and iopt[LENIW] *
- * are left unchanged from the values computed by CVodeMalloc, and*
- * so may be larger than would be computed for the new problem.   *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
-int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0, 
-                int lmm, int iter, int itol, realtype *reltol, 
-                void *abstol, void *f_data, FILE *errfp, 
-                booleantype optIn, long int iopt[], 
-                realtype ropt[], M_Env machEnv);
+int CVodeReInit(void *cvode_mem, RhsFn f,
+                realtype t0, N_Vector y0, 
+                int itol, realtype *reltol, void *abstol);
 
-/* CVodeReInit return values: */
+/* Error return values for CVodeReInit */
+/* SUCCESS = 0 */ 
+enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
 
-/* SUCCESS = 0  (Defined under CVode return values, but listed
-                 here also for completeness)                     */
-enum {CVREI_NO_MEM = -1, CVREI_ILL_INPUT = -2};
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Quadrature optional input specification functions              *
+ *----------------------------------------------------------------*
+ * The following functions can be called to set optional inputs   *
+ * to values other than the defaults given below:                 *
+ *                                                                *
+ *                      |                                         * 
+ * Function             |  Optional input / [ default value ]     *
+ *                      |                                         * 
+ * -------------------------------------------------------------- *
+ *                      |                                         *
+ * CVodeSetQuadErrCon   | the type of error control. The legal    *
+ *                      | values are FULL and PARTIAL.            *
+ *                      | [FULL]                                  *
+ *                      |                                         *
+ * CVodeSetQuadFdata    | a pointer to user data that will be     *
+ *                      | passed to the user's fQ function every  *
+ *                      | time fS is called.                      *
+ *                      | [NULL]                                  *
+ *                      |                                         *
+ * -------------------------------------------------------------- *
+ *                                                                *
+ * If successful, these functions return SUCCESS. If an argument  *
+ * has an illegal value, they print an error message to the       *
+ * file specified by errfp and return one of the error flags      *  
+ * defined for the CVodeSet* routines.                            *
+ *                                                                *
+ *----------------------------------------------------------------*/
 
-/******************************************************************
+int CVodeSetQuadErrCon(void *cvode_mem, int errconQ);
+int CVodeSetQuadFdata(void *cvode_mem, void *fQ_data);
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Function : CVodeQuadMalloc                                     *
+ *----------------------------------------------------------------*
+ * CVodeQuadMalloc allocates and initializes memory related to    *
+ * quadrature integration.                                        *
+ *                                                                *
+ * cvode_mem is a pointer to CVODES memory returned by CVodeMalloc*
+ *                                                                *
+ * fQ        is the user-provided integrand routine.              *
+ *                                                                *
+ * itolQ   is the type of tolerances to be used.                  *
+ *            The legal values are:                               *
+ *               SS (scalar relative and absolute  tolerances),   *
+ *               SV (scalar relative tolerance and vector         *
+ *                   absolute tolerance).                         *
+ *                                                                *
+ * reltolQ   is a pointer to the quadrature relative tolerance    *
+ *           scalar.                                              *
+ *                                                                *
+ * abstolQ   is a pointer to the absolute tolerance scalar or     *
+ *           an N_Vector of absolute tolerances for quadrature    *
+ *           variables.                                           *
+ *                                                                *
+ * nvspecQ   is a pointer to a vector specification structure     *
+ *           for N_Vectors containing quadrature variables.       *
+ *                                                                *
+ * If successful, CVodeQuadMalloc returns SUCCESS. If an          *
+ * initialization error occurs, CVodeQuadMalloc prints an error   *
+ * message to the file specified by errfp and returns one of      *
+ * the error flags defined below.                                 *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int CVodeQuadMalloc(void *cvode_mem, QuadRhsFn fQ,
+                    int itolQ, realtype *reltolQ, void *abstolQ,
+                    NV_Spec nvspecQ);
+    
+enum {QCVM_NO_MEM = -1, QCVM_ILL_INPUT = -2, QCVM_MEM_FAIL = -3};
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Function : CVodeQuadReInit                                     *
+ *----------------------------------------------------------------*
+ * CVodeQuadReInit re-initializes CVODE's quadrature related      *
+ * memory for a problem, assuming it has already been allocated   *
+ * in prior calls to CVodeMalloc and CvodeQuadMalloc.             *
+ *                                                                *
+ * All problem specification inputs are checked for errors.       *
+ * The number of quadratures Nq is assumed to be unchanged        *
+ * since the previous call to CVodeQuadMalloc.                    *
+ * If any error occurs during initialization, it is reported to   *
+ * the file whose file pointer is errfp, and one of the error     *
+ * flags defined below is returned.                               *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ,
+                    int itolQ, realtype *reltolQ, void *abstolQ); 
+
+enum {QCVREI_NO_MEM = -1, QCVREI_NO_QUAD = -2, QCVREI_ILL_INPUT = -3};
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Forward sensitivity optional input specification functions     *
+ *----------------------------------------------------------------*
+ * The following functions can be called to set optional inputs   *
+ * to other values than the defaults given below:                 *
+ *                                                                *
+ *                      |                                         * 
+ * Function             |  Optional input / [ default value ]     *
+ *                      |                                         * 
+ * -------------------------------------------------------------- *
+ *                      |                                         *
+ * CVodeSetSensRhsFn    | sensitivity right hand side function.   *
+ *                      | This function must compute right hand   *
+ *                      | sides for all sensitivity equations.    *
+ *                      | [CVODES difference quotient approx.]    *
+ *                      |                                         *
+ * CVodeSetSensRhs1Fn   | the sensitivity right hand side.        *
+ *                      | This function must compute right hand   *
+ *                      | sides for one sensitivity equation at a *
+ *                      | time.                                   *
+ *                      | [CVODES difference quotient approx.]    *
+ *                      |                                         *
+ * CVodeSetSensErrCon   | the type of error control. The legal    *
+ *                      | values are FULL and PARTIAL.            *
+ *                      | [FULL]                                  *
+ *                      |                                         *
+ * CVodeSetSensRho      | controls the selection of finite        *
+ *                      | difference schemes used in evaluating   *
+ *                      | the sensitivity right hand sides.       *
+ *                      | [0.0]                                   *
+ *                      |                                         *
+ * CVodeSetSensPbar     | a pointer to scaling factors used in    *
+ *                      | computing sensitivity absolute          *
+ *                      | tolerances as well as by the CVODES     *
+ *                      | difference quotient routines for        *
+ *                      | sensitivty right hand sides. pbar[i]    *
+ *                      | must give the order of magnitude of     *
+ *                      | parameter p[i]. Typically, if p[i] is   *
+ *                      | nonzero, pbar[i]=p[i].                  *
+ *                      | [NULL]                                  *
+ *                      |                                         *
+ * CVodeSetSensReltol   | a pointer to the sensitivity relative   *
+ *                      | tolerance scalar.                       *
+ *                      | [same as for states]                    *
+ *                      |                                         *
+ * CVodeSetSensAbstol   | a pointer to the array of sensitivity   *
+ *                      | absolute tolerance scalars or a pointer *
+ *                      | to the array of N_Vector sensitivity    *
+ *                      | absolute tolerances.                    *
+ *                      | [estimated by CVODES]                   *
+ *                      |                                         *
+ * CVodeSetSensFdata    | a pointer to user data that will be     *
+ *                      | passed to the user's fS function every  *
+ *                      | time fS is called.                      *
+ *                      | [NULL]                                  *
+ *                      |                                         *
+ * -------------------------------------------------------------- *
+ *                                                                *
+ * If successful, these functions return SUCCESS. If an argument  *
+ * has an illegal value, they print an error message to the       *
+ * file specified by errfp and return one of the error flags      *  
+ * defined for the CVodeSet* routines.                            *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int CVodeSetSensRhsFn(void *cvode_mem, SensRhsFn fS);
+int CVodeSetSensRhs1Fn(void *cvode_mem, SensRhs1Fn fS);
+int CVodeSetSensErrCon(void *cvode_mem, int errconS);
+int CVodeSetSensRho(void *cvode_mem, realtype rho);
+int CVodeSetSensPbar(void *cvode_mem, realtype *pbar);
+int CVodeSetSensReltol(void *cvode_mem, realtype *reltolS);
+int CVodeSetSensAbstol(void *cvode_mem, void *abstolS);
+int CVodeSetSensFdata(void *cvode_mem, void *fS_data);
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Function : CVodeSensMalloc                                     *
+ *----------------------------------------------------------------*
+ * CVodeSensMalloc allocates and initializes memory related to    *
+ * sensitivity computations.                                      *
+ *                                                                *
+ * cvode_mem is a pointer to CVODES memory returned by CVodeMalloc*
+ *                                                                *
+ * Ns        is the number of sensitivities to be computed.       *
+ *                                                                *
+ * ism       is the type of corrector used in sensitivity         *
+ *           analysis. The legal values are: SIMULTANEOUS,        *
+ *           STAGGERED, and STAGGERED1 (see previous description) *
+ *                                                                *
+ * p         is a pointer to problem parameters with respect to   *
+ *           which sensitivities may be computed (see description *
+ *           of plist below). If the right hand sides of the      *
+ *           sensitivity equations are to be evaluated by the     *
+ *           difference quotient routines provided with CVODES,   *
+ *           then p must also be a field in the user data         *
+ *           structure pointed to by f_data.                      *
+ *                                                                *
+ * plist     is a pointer to a list of parameters with respect to *
+ *           which sensitivities are to be computed.              *
+ *           If plist[j]=i, then sensitivities with respect to    *
+ *           the i-th parameter (i.e. p[i-1]) will be computed.   *
+ *           A negative plist entry also indicates that the       *
+ *           corresponding parameter affects only the initial     *
+ *           conditions of the ODE and not its right hand side.   *
+ *                                                                *
+ * yS0       is the array of initial condition vectors for        *
+ *           sensitivity variables.                               * 
+ *                                                                *
+ * If successful, CVodeSensMalloc returns SUCCESS. If an          *
+ * initialization error occurs, CVodeSensMalloc prints an error   *
+ * message to the file specified by errfp and returns one of      *
+ * the error flags defined below.                                 *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism, 
+                    realtype *p, integertype *plist, N_Vector *yS0);
+    
+enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
+
+
+/*----------------------------------------------------------------*
  *                                                                *
  * Function : CVodeSensReInit                                     *
  *----------------------------------------------------------------*
- * CVodeSensReInit re-initializes CVODE's sensitivity related     *
+ * CVodeSensReInit re-initializes CVODES's sensitivity related    *
  * memory for a problem, assuming it has already been allocated   *
  * in prior calls to CVodeMalloc and CvodeSensMalloc.             *
  *                                                                *
@@ -517,51 +715,15 @@ enum {CVREI_NO_MEM = -1, CVREI_ILL_INPUT = -2};
  *   SCVREI_MEM_FAIL  indicating a memory request failed.         *
  * In case of an error return, an error message is also printed.  *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
-int CVodeSensReInit(void *cvode_mem, int ism, 
-                    realtype *p, realtype *pbar, integertype *plist, 
-                    int ifS, void *fS, int errcon, realtype rhomax, 
-                    N_Vector *yS0, realtype *reltolS, void *abstolS,
-                    void *fS_data);
+int CVodeSensReInit(void *cvode_mem, int ism,
+                    realtype *p, integertype *plist, N_Vector *yS0);
   
-/* CVodeSensReInit return values: */
-
-/* SUCCESS = 0  (Defined under CVode return values, but listed
-                 here also for completeness)                     */
 enum {SCVREI_NO_MEM    = -1, SCVREI_NO_SENSI = -2, 
       SCVREI_ILL_INPUT = -3, SCVREI_MEM_FAIL = -4};
 
-/******************************************************************
- *                                                                *
- * Function : CVodeQuadReInit                                     *
- *----------------------------------------------------------------*
- * CVodeQuadReInit re-initializes CVODE's quadrature related      *
- * memory for a problem, assuming it has already been allocated   *
- * in prior calls to CVodeMalloc and CvodeQuadMalloc.             *
- *                                                                *
- * All problem specification inputs are checked for errors.       *
- * The number of quadratures Nq is assumed to be unchanged        *
- * since the previous call to CVodeQuadMalloc.                    *
- * If any error occurs during initialization, it is reported to   *
- * the file whose file pointer is errfp.                          *
- *                                                                *
- * In case of an error return, an error message is also printed.  *
- *                                                                *
- ******************************************************************/
-
-int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, int errconQ,
-                    realtype *reltolQ, void *abstolQ, 
-                    void *fQ_data, M_Env machEnvQ);
-
-/* CVodeQuadReInit return values: */
-
-/* SUCCESS = 0  (Defined under CVode return values, but listed
-                 here also for completeness)                     */
-enum {QCVREI_NO_MEM    = -1, QCVREI_NO_QUAD = -2, 
-      QCVREI_ILL_INPUT = -3};
-
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
  * Function : CVode                                               *
  *----------------------------------------------------------------*
@@ -577,26 +739,29 @@ enum {QCVREI_NO_MEM    = -1, QCVREI_NO_QUAD = -2,
  * case, the time reached by the solver is placed in (*t). The    *
  * user is responsible for allocating the memory for this value.  *
  *                                                                *
- * cvode_mem is the pointer to CVODE memory returned by           *
+ * cvode_mem is the pointer to CVODES memory returned by          *
  *              CVodeMalloc.                                      *
  *                                                                *
- * tout  is the next time at which a computed solution is desired *
+ * tout  is the next time at which a computed solution is desired.*
  *                                                                *
  * yout  is the computed solution vector. In NORMAL mode with no  *
  *          errors, yout=y(tout).                                 *
  *                                                                *
- * t     is a pointer to a real location. CVode sets (*t) to the  *
+ * tret  is a pointer to a real location. CVode sets (*t) to the  *
  *          time reached by the solver and returns yout=y(*t).    *
  *                                                                *
- * itask is either NORMAL or ONE_STEP mode. These two modes have  *
- *          described above.                                      *
+ * itask is NORMAL, ONE_STEP, NORMAL_TSTOP, or ONE_STEP_TSTOP.    *
+ *          These four modes are described above.                 *
  *                                                                *
- * The return values for CVode are defined later in this file.    *
  * Here is a brief description of each return value:              *
  *                                                                *
  * SUCCESS       : CVode succeeded.                               *
  *                                                                *
+ * TSTOP_RETURN  : CVode succeded and returned at tstop.          *
+ *                                                                *
  * CVODE_NO_MEM  : The cvode_mem argument was NULL.               *
+ *                                                                *
+ * CVODE_NO_MALLOC: cvode_mem was not allocated.                  *
  *                                                                *
  * ILL_INPUT     : One of the inputs to CVode is illegal. This    *
  *                 includes the situation when a component of the *
@@ -631,22 +796,21 @@ enum {QCVREI_NO_MEM    = -1, QCVREI_NO_QUAD = -2,
  * SOLVE_FAILURE : The linear solver's solve routine failed in an *
  *                 unrecoverable manner.                          *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
 int CVode(void *cvode_mem, realtype tout, N_Vector yout, 
-          realtype *t, int itask);
+          realtype *tret, int itask);
 
 /* CVode return values */
+enum { SUCCESS=0, TSTOP_RETURN=1, CVODE_NO_MEM=-1, CVODE_NO_MALLOC=-2,
+       ILL_INPUT=-3, TOO_MUCH_WORK=-4, TOO_MUCH_ACC=-5, ERR_FAILURE=-6, 
+       CONV_FAILURE=-7, SETUP_FAILURE=-8, SOLVE_FAILURE=-9 };
 
-enum { SUCCESS=0, TSTOP_RETURN=1, CVODE_NO_MEM=-1, ILL_INPUT=-2, 
-       TOO_MUCH_WORK=-3, TOO_MUCH_ACC=-4, ERR_FAILURE=-5, 
-       CONV_FAILURE=-6, SETUP_FAILURE=-7, SOLVE_FAILURE=-8 };
-
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
- * Function : CVodeDky                                            *
+ * Function : CVodeGetDky                                         *
  *----------------------------------------------------------------*
- * CVodeDky computes the kth derivative of the y function at      *
+ * CVodeGetDky computes the kth derivative of the y function at   *
  * time t, where tn-hu <= t <= tn, tn denotes the current         *
  * internal time reached, and hu is the last internal step size   *
  * successfully used by the solver. The user may request          *
@@ -655,8 +819,8 @@ enum { SUCCESS=0, TSTOP_RETURN=1, CVODE_NO_MEM=-1, ILL_INPUT=-2,
  * allocated by the caller. It is only legal to call this         *
  * function after a successful return from CVode.                 *
  *                                                                *
- * cvode_mem is the pointer to CVODE memory returned by           *
- *              CVodeMalloc.                                      *
+ * cvode_mem is the pointer to CVODES memory returned by          *
+ *              CVodeCreate.                                      *
  *                                                                *
  * t   is the time at which the kth derivative of y is evaluated. *
  *        The legal range for t is [tn-hu,tn] as described above. *
@@ -666,10 +830,10 @@ enum { SUCCESS=0, TSTOP_RETURN=1, CVODE_NO_MEM=-1, ILL_INPUT=-2,
  *                                                                *
  * dky is the output derivative vector [(D_k)y](t).               *
  *                                                                *
- * The return values for CVodeDky are defined later in this file. *
+ * The return values for CVodeGetDky are defined below.           *
  * Here is a brief description of each return value:              *
  *                                                                *
- * OKAY : CVodeDky succeeded.                                     *
+ * OKAY : CVodeGetDky succeeded.                                  *
  *                                                                *
  * BAD_K : k is not in the range 0, 1, ..., qu.                   *
  *                                                                *
@@ -679,19 +843,156 @@ enum { SUCCESS=0, TSTOP_RETURN=1, CVODE_NO_MEM=-1, ILL_INPUT=-2,
  *                                                                *
  * DKY_NO_MEM : The cvode_mem argument was NULL.                  *
  *                                                                * 
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
-int CVodeDky(void *cvode_mem, realtype t, int k, N_Vector dky);
+int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
 
-/* CVodeDky return values */
-
-enum { OKAY=0, BAD_K=-1, BAD_T=-2, BAD_DKY=-3, DKY_NO_MEM=-4 };
- 
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
- * Functions : CVodeSensExtract, CVodeSensDkyAll, CVodeSensDky    *
+ * Integrator optional output extraction functions                *
  *----------------------------------------------------------------*
- * CVodeSensDky computes the kth derivative of the is-th          *
+ *                                                                *
+ * The following functions can be called to get optional outputs  *
+ * and statistics related to the main integrator.                 *
+ * -------------------------------------------------------------- *
+ *                                                                *
+ * CVodeGetIntWorkSpace returns the CVODES integer workspace size *
+ * CVodeGetRealWorkSpace returns the CVODES real workspace size   *
+ * CVodeGetNumSteps returns the cumulative number of internal     *
+ *       steps taken by the solver                                *
+ * CVodeGetNumRhsEvals returns the number of calls to the user's  *
+ *       f function                                               *
+ * CVodeGetNumLinSolvSetups returns the number of calls made to   *
+ *       the linear solver's setup routine                        *
+ * CVodeGetNumErrTestFails returns the number of local error test *
+ *       failures that have occured                               *
+ * CVodeGetLastOrder returns the order used during the last       *
+ *       internal step                                            *
+ * CVodeGetNextOrder returns the order to be used on the next     *
+ *       internal step                                            *
+ * CVodeGetNumStabLimOrderReds returns the number of order        *
+ *       reductions due to stability limit detection              *
+ * CVodeGetActualInitStep returns the actual initial step size    *
+ *       used by CVODES                                           *
+ * CVodeGetLastStep returns the step size for the last internal   *
+ *       step                                                     *
+ * CVodeGetNextStep returns the step size to be attempted on the  *
+ *       next internal step                                       *
+ * CVodeGetCurrentTime returns the current internal time reached  *
+ *       by the solver                                            *
+ * CVodeGetTolScaleFactor returns a suggested factor by which the *
+ *       user's tolerances should be scaled when too much         *
+ *       accuracy has been requested for some internal step       *
+ * CVodeGetErrWeights returns the state error weight vector.      *
+ *       The user need not allocate space for ewt.                *
+ * CVodeGetEstLocalErrors returns the vector of estimated local   *
+ *       errors. The user need not allocate space for ele.        *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int CVodeGetIntWorkSpace(void *cvode_mem, long int *leniw);
+int CVodeGetRealWorkSpace(void *cvode_mem, long int *lenrw);
+int CVodeGetNumSteps(void *cvode_mem, int *nsteps);
+int CVodeGetNumRhsEvals(void *cvode_mem, int *nfevals);
+int CVodeGetNumLinSolvSetups(void *cvode_mem, int *nlinsetups);
+int CVodeGetNumErrTestFails(void *cvode_mem, int *netfails);
+int CVodeGetLastOrder(void *cvode_mem, int *qlast);
+int CVodeGetNextOrder(void *cvode_mem, int *qcur);
+int CVodeGetNumStabLimOrderReds(void *cvode_mem, int *nslred);
+int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused);
+int CVodeGetLastStep(void *cvode_mem, realtype *hlast);
+int CVodeGetNextStep(void *cvode_mem, realtype *hcur);
+int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur);
+int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact);
+int CVodeGetErrWeights(void *cvode_mem, N_Vector *eweight);
+int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele);
+ 
+/*----------------------------------------------------------------*
+ * As a convenience, the following two functions provide the      *
+ * optional outputs in groups.                                    *
+ *----------------------------------------------------------------*/
+
+int CVodeGetWorkSpace(void *cvode_mem, long int *leniw, long int *lenrw);
+int CVodeGetIntegratorStats(void *cvode_mem, int *nsteps, int *nfevals, 
+                            int *nlinsetups, int *netfails, int *qlast, 
+                            int *qcur, realtype *hinused, realtype *hlast, 
+                            realtype *hcur, realtype *tcur);
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Nonlinear solver optional output extraction functions          *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * The following functions can be called to get optional outputs  *
+ * and statistics related to the nonlinear solver.                *
+ * -------------------------------------------------------------- *
+ *                                                                *
+ * CVodeGetNumNonlinSolvIters returns the number of nonlinear     *
+ *       solver iterations performed.                             *
+ * CVodeGetNumNonlinSolvConvFails returns the number of nonlinear *
+ *       convergence failures.                                    *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int CVodeGetNumNonlinSolvIters(void *cvode_mem, int *nniters);
+int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, int *nncfails);
+
+/*----------------------------------------------------------------*
+ * As a convenience, the following function provides the          *
+ * optional outputs in a group.                                   *
+ *----------------------------------------------------------------*/
+
+int CVodeGetNonlinSolvStats(void *cvode_mem, int *nniters, int *nncfails);
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Quadrature integration solution extraction routines            *
+ *----------------------------------------------------------------*
+ * The following functions can be called to obtain the quadrature *
+ * variables after a successful integration step.                 *
+ * If quadratures were not computed, they return DKY_NO_QUAD.     *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int CVodeGetQuad(void *cvode_mem, realtype t, N_Vector yQout);
+int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky);
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Quadrature integration optional output extraction routines     *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * The following functions can be called to get optional outputs  *
+ * and statistics related to the integration of quadratures.      *
+ * -------------------------------------------------------------- *
+ *                                                                * 
+ * CVodeGetNumQuadRhsEvals returns the number of calls to the     *
+ *      user function fQ defining the right hand side of the      *
+ *      quadrature variables.                                     *
+ * CVodeGetNumQuadErrTestFails returns the number of local error  *
+ *      test failures for quadrature variables.                   *
+ * CVodeGetQuadErrWeights returns the vector of error weights for *
+ *      the quadrature variables. The user need not allocate      *
+ *      space for ewtQ.                                           *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int CVodeGetNumQuadRhsEvals(void *cvode_mem, int *nfQevals);
+int CVodeGetNumQuadErrTestFails(void *cvode_mem, int *nQetfails);
+int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector *eQweight);
+
+/*----------------------------------------------------------------*
+ * As a convenience, the following function provides the          *
+ * optional outputs in a group.                                   *
+ *----------------------------------------------------------------*/
+
+int CVodeGetQuadStats(void *cvode_mem, int *nfQevals, int *nQetfails);
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Forward sensitivity solution extraction routines               *
+ *----------------------------------------------------------------*
+ * CVodeGetSensDky computes the kth derivative of the is-th       *
  * sensitivity (is=1, 2, ..., Ns) of the y function at time t,    *
  * where tn-hu <= t <= tn, tn denotes the current internal time   *
  * reached, and hu is the last internal step size successfully    *
@@ -703,297 +1004,165 @@ enum { OKAY=0, BAD_K=-1, BAD_T=-2, BAD_DKY=-3, DKY_NO_MEM=-4 };
  * with sensitivty computations enabled.                          *
  * Arguments have the same meaning as in CVodeDky.                *
  *                                                                * 
- * CVodeSensDkyAll computes the k-th derivative of all            *
+ * CVodeGetSensDkyAll computes the k-th derivative of all         *
  * sensitivities of the y function at time t. It repeatedly calls *
- * CVodeSensDky. The argument dkyA must be a pointer to N_Vector  *
- * and must be allocated by the user to hold at least Ns vectors. *
+ * CVodeGetSensDky. The argument dkyA must be a pointer to        *
+ * N_Vector and must be allocated by the user to hold at least Ns *
+ * vectors.                                                       *
  *                                                                * 
- * CVodeSensExtract returns sensitivities of the y function at    *
- * time t. It calls CVodeSensDkyAll with k=0. The argument ySout  *
- * must be a pointer to N_Vector and must be allocated by the     *
- * user to hold at least Ns vectors.                              *
+ * CVodeGetSens returns sensitivities of the y function at        *
+ * the time t. The argument yS must be a pointer to N_Vector      *
+ * and must be allocated by the user to hold at least Ns vectors. *
  *                                                                *
  * Return values are similar to those of CVodeDky. Additionally,  *
  * CVodeSensDky can return DKY_NO_SENSI if sensitivities were     *
  * not computed and BAD_IS if is < 0 or is >= Ns.                 *
  *                                                                * 
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
-int CVodeSensExtract(void *cvode_mem, realtype t, N_Vector *ySout);
+int CVodeGetSens(void *cvode_mem, realtype t, N_Vector *ySout);
+int CVodeGetSensDky(void *cvode_mem, realtype t, int k, 
+                    integertype is, N_Vector dky);
+int CVodeGetSensDkyAll(void *cvode_mem, realtype t, int k, 
+                       N_Vector *dkyA);
 
-int CVodeSensDkyAll(void *cvode_mem, realtype t, int k, N_Vector *dkyA);
-    
-int CVodeSensDky(void *cvode_mem, realtype t, int k, integertype is, 
-                 N_Vector dky);
-    
-/* Additional CVodeSensExtract/CVodeSensDky output values */
-
-#define DKY_NO_SENSI -5
-#define BAD_IS -6
-
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
- * Functions : CVodeQuadExtract, CVodeQuadDky                     *
+ * Forward sensitivity optional output extraction routines        *
  *----------------------------------------------------------------*
- * Return values are similar to those of CVodeDky. Additionally,  *
- * CVodeQuadDky can return DKY_NO_QUAD if quadratures were not    *
- * computed.                                                      *
+ *                                                                *
+ * The following functions can be called to get optional outputs  *
+ * and statistics related to the integration of sensitivities.    *
+ * -------------------------------------------------------------- *
  *                                                                * 
- ******************************************************************/
-
-int CVodeQuadExtract(void *cvode_mem, realtype t, N_Vector yQout);
-
-int CVodeQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky);
-
-/* Additional CVodeQuadExtract/CVodeQuadDky output values */
-
-#define DKY_NO_QUAD -7
-
-/******************************************************************
+ * CVodeGetNumSensRhsEvals returns the number of calls to the     *
+ *     sensitivity right hand side routine.                       *
+ * CVodeGetNumRhsEvalsSens returns the number of calls to the     *
+ *     user f routine due to finite difference evaluations of the *
+ *     sensitivity equations.                                     *
+ * CVodeGetNumSensErrTestFails returns the number of local error  *
+ *     test failures for sensitivity variables.                   *
+ * CVodeGetNumSensLinSolvSetups returns the number of calls made  *
+ *     to the linear solver's setup routine due to sensitivity    *
+ *     computations.                                              *
+ * CVodeGetSensErrWeights returns the sensitivity error weight    *
+ *     vectors. The user need not allocate space for ewtS.        *
  *                                                                *
- * Function : CVodeGetEwt and CVodeGetEwtS                        *
+ *----------------------------------------------------------------*/
+
+int CVodeGetNumSensRhsEvals(void *cvode_mem, int *nfSevals);
+int CVodeGetNumRhsEvalsSens(void *cvode_mem, int *nfevalsS);
+int CVodeGetNumSensErrTestFails(void *cvode_mem, int *nSetfails);
+int CVodeGetNumSensLinSolvSetups(void *cvode_mem, int *nlinsetupsS);
+int CVodeGetSensErrWeights(void *cvode_mem, N_Vector_S *eSweight);
+
+/*----------------------------------------------------------------*
+ * As a convenience, the following function provides the          *
+ * optional outputs in a group.                                   *
+ *----------------------------------------------------------------*/
+
+int CVodeGetSensStats(void *cvode_mem, int *nfSevals, int *nfevalsS, 
+                      int *nSetfails, int *nlinsetupsS);
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Sensitivity nonlinear solver optional output extraction        *
  *----------------------------------------------------------------*
- * This routines return the weight vectors for states and         *
- * sensitivities in weight and weightS, respectively. They are    *
- * provided for use in user-defined sensitivity right hand side   *
- * routines based on finite differences. Note that the user need  *
- * not allocate space for either weight or weightS.               *
  *                                                                *
- ******************************************************************/
+ * The following functions can be called to get optional outputs  *
+ * and statistics related to the sensitivity nonlinear solver.    *
+ * -------------------------------------------------------------- *
+ *                                                                * 
+ * CVodeGetNumSensNonlinSolvIters returns the total number of     *
+ *         nonlinear iterations for sensitivity variables.        *
+ * CVodeGetNumSensNonlinSolvConvFails returns the total number of *
+ *         nonlinear convergence failures for sensitivity         *
+ *         variables                                              *
+ * CVodeGetNumStgrSensNonlinSolvIters returns a vector of Ns      *
+ *         nonlinear iteration counters for sensitivity variables *
+ *         in the STAGGERED1 method.                              *
+ * CVodeGetNumStgrSensNonlinSolvConvFails returns a vector of Ns  *
+ *         nonlinear solver convergence failure counters for      *
+ *         sensitivity variables in the STAGGERED1 method.        *
+ *----------------------------------------------------------------*/
 
-int CVodeGetEwt(void *cvode_mem, N_Vector weight);
-int CVodeGetEwtS(void *cvode_mem, N_Vector *weightS);
+int CVodeGetNumSensNonlinSolvIters(void *cvode_mem, int *nSniters);
+int CVodeGetNumSensNonlinSolvConvFails(void *cvode_mem, int *nSncfails);
+int CVodeGetNumStgrSensNonlinSolvIters(void *cvode_mem, int *nSTGR1niters);
+int CVodeGetNumStgrSensNonlinSolvConvFails(void *cvode_mem, int *nSTGR1ncfails);
 
-/* CVodeGetEwt/CVodeGetEwtS return values */
+/*----------------------------------------------------------------*
+ * As a convenience, the following two functions provide the      *
+ * optional outputs in groups.                                    *
+ *----------------------------------------------------------------*/
 
-/* OKAY = 0  (Defined under CVodeDky return values but listed 
-              here also for compleetness)                         */
+int CVodeGetSensNonlinSolvStats(void *cvode_mem, int *nSniters, int *nSncfails);
+int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem, int *nSTGR1niters, 
+                                    int *nSTGR1ncfails);
 
-enum {GEWT_NO_MEM=-1};
+/* CVodeGet* return values */
+enum { OKAY=0, CVG_NO_MEM=-1, CVG_NO_SLDET=-2, 
+       BAD_K=-3, BAD_T=-4, BAD_DKY=-5, BAD_IS=-6,
+       CVG_NO_QUAD=-7, CVG_NO_SENS=-8 };
 
-/******************************************************************
- *                                                                *
- * Function : CVodeMemExtract                                     *
- *----------------------------------------------------------------*
- * This routine extracts additional diagnostics information from  *
- * the CVODE memory. Arrays that were allocated by the user are   *
- * loaded with the appropriate information from cvode_mem.        *
- *                                                                *
- * cvode_mem is a pointer to CVODE memory returned by CVodeMalloc.*
- *                                                                *
- * n_niS1    is a vector of Ns nonlinear iteration counters for   *
- *           sensitivity variables in the STAGGERED1 method.      *
- *                                                                *
- * n_cfnS1   is a vector of Ns nonlinear solver convergence       *
- *           failure counters for sensitivity variables in the    *
- *           STAGGERED1 method.                                   *
- *                                                                *
- *                                                                *
- ******************************************************************/
-
-int CVodeMemExtract(void *cvode_mem, 
-                    long int *n_niS1, long int *n_cfnS1);
-
-/* CVodeMemExtract return values */
-
-/* OKAY = 0  (Defined under CVodeDky return values but listed 
-              here also for compleetness)                         */
-
-enum {MEXT_NO_MEM=-1};
-
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
  * Function : CVodeFree                                           *
  *----------------------------------------------------------------*
  * CVodeFree frees the problem memory cvode_mem allocated by      *
  * CVodeMalloc.  Its only argument is the pointer cvode_mem       *
- * returned by CVodeMalloc.                                       *
+ * returned by CVodeCreate.                                       *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
 void CVodeFree(void *cvode_mem);
- 
-/******************************************************************
+
+/*----------------------------------------------------------------*
  *                                                                *
- * Optional Inputs and Outputs                                    *
+ * Function : CVodeQuadFree                                       *
  *----------------------------------------------------------------*
- * The user should declare two arrays for optional input and      *
- * output, an iopt array for optional integer input and output    *
- * and an ropt array for optional real input and output. The      *
- * size of both these arrays should be OPT_SIZE.                  *
- * So the user's declaration should look like:                    *
+ * CVodeQuadFree frees the problem memory in cvode_mem allocated  *
+ * for quadrature integration. Its only argument is the pointer   *
+ * cvode_mem returned by CVodeCreate.                             *
  *                                                                *
- * long int iopt[OPT_SIZE];                                       *
- * realtype ropt[OPT_SIZE];                                       *
- *                                                                *
- * The enumerations below the OPT_SIZE definition                 *
- * are indices into the iopt and ropt arrays. Here is a brief     *
- * description of the contents of these positions:                *
- *                                                                *
- * iopt[MAXORD] : maximum lmm order to be used by the solver.     *
- *                Optional input. (Default = 12 for ADAMS, 5 for  *
- *                BDF).                                           *
- *                                                                *
- * iopt[MXSTEP] : maximum number of internal steps to be taken by *
- *                the solver in its attempt to reach tout.        *
- *                Optional input. (Default = 500).                *
- *                                                                *
- * iopt[MXHNIL] : maximum number of warning messages issued       * 
- *                by the solver that t+h==t on the next internal  *
- *                step. A value of -1 means no such messages are  *
- *                issued.Optional input. (Default = 10).          *
- *                                                                *
- * iopt[NST]    : cumulative number of internal steps taken by    *
- *                the solver (total so far).  Optional output.    *
- *                                                                *
- * iopt[NFE]    : number of calls to the user's f function.       *
- *                Optional output.                                *
- *                                                                *
- * iopt[NSETUPS] : number of calls made to the linear solver's    *
- *                 setup routine. Optional output.                *
- *                                                                *
- * iopt[NNI]     : number of NEWTON iterations performed.         *
- *                 Optional output.                               *
- *                                                                *
- * iopt[NCFN]    : number of nonlinear convergence failures       *
- *                 that have occurred. Optional output.           *
- *                                                                *
- * iopt[NETF]    : number of local error test failures that       *
- *                 have occurred. Optional output.                *
- *                                                                *
- * iopt[QU]      : order used during the last internal step.      *
- *                 Optional output.                               *
- *                                                                *
- * iopt[QCUR]    : order to be used on the next internal step.    *
- *                 Optional output.                               *
- *                                                                *
- * iopt[LENRW]   : size of required CVODE internal real work      *
- *                 space, in realtype words.  Optional output.    *
- *                                                                *
- * iopt[LENIW]   : size of required CVODE internal integer work   *
- *                 space, in integertype words.  Optional output. *
- *                                                                *
- * iopt[SLDET]   : Flag to turn on/off stability limit detection  *
- *                 (1 = on, 0 = off). When BDF is used and order  *
- *                 is 3 or greater, CVsldet is call to detect     *
- *                 stability limit.  If limit is detected, the    *
- *                 order is reduced. Optional input.              *
- *                                                                *
- * iopt[ISTOP]   : Flag to turn on/off testing for tstop (1=on,   *
- *                 0=off). When on, CVODES uses ropt[TSTOP] (see  *
- *                 below) as the value tstop of the independent   *
- *                 variable past which the solution is not to     *
- *                 proceed. Optional input.                       *
- *                                                                *
- * iopt[NOR]     : Number of order reductions due to              *
- *                 stability limit detection.                     *
- *                 Optional output.                               *
- *                                                                *
- * iopt[NFSE]    : number of calls made to the sensitivity        *
- *                 r.h.s. evaluation routine. Optional output.    *
- *                                                                *
- * iopt[NNIS]    : number of Newton iterations performed during   *
- *                 staggered sensitivity corrections (sum over    *
- *                 all sensitivities in the STAGGERED1 case).     *
- *                 Optional output.                               *
- *                                                                *
- * iopt[NCFNS]   : number of nonlinear convergence failures       *
- *                 during the staggered sensitivity corrections   *
- *                 sum over all sensitivities in the STAGGERED1   *
- *                 cse). Optional output.                         *
- *                                                                *
- * iopt[NETFS]   : number of error test failures for sensitivity  *
- *                 variables (staggered approach).                *
- *                 Optional output.                               *
- *                                                                *
- * iopt[NSETUPSS]: number of calls made to the linear solver's    *
- *                 setup routine due only to sensitivities in the *
- *                 staggered approach. Optional output.           *
- *                                                                *
- * iopt[NFQE]    : number of calls made to the quadrature         *
- *                 integrand evaluation routine. Optional output. *
- *                                                                *
- * iopt[NETFQ]   : number of error test failures for quadrature   *
- *                 variables.                                     *
- *                 Optional output.                               *
- *                                                                *
- * ropt[H0]      : initial step size. Optional input.             *
- *                                                                *
- * ropt[HMAX]    : maximum absolute value of step size allowed.   *
- *                 Optional input. (Default is infinity).         *
- *                 Note: If optIn = TRUE, the value of ropt[HMAX] *
- *                 is examined on every call to CVode, and so can *
- *                 be changed between calls.                      *
- *                                                                *
- * ropt[HMIN]    : minimum absolute value of step size allowed.   *
- *                 Optional input. (Default is 0.0).              *
- *                                                                *
- * ropt[TSTOP]   : the independent variable value past which the  *
- *                 solution is not to proceed. Testing for this   *
- *                 condition must be turned on through            *
- *                 iopt[ISTOP] (see above). Optional input.       *
- *                                                                *
- * ropt[H0U]     : actual initial step size used.                 *
- *                 Optional output.                               *
- *                                                                *
- * ropt[HU]      : step size for the last internal step.          *
- *                 Optional output.                               *
- *                                                                *
- * ropt[HCUR]    : step size to be attempted on the next internal *
- *                 step. Optional output.                         *
- *                                                                *
- * ropt[TCUR]    : current internal time reached by the solver.   *
- *                 Optional output.                               *
- *                                                                *
- * ropt[TOLSF]   : a suggested factor by which the user's         *
- *                 tolerances should be scaled when too much      *
- *                 accuracy has been requested for some internal  *
- *                 step. Optional output.                         *
- *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
 
-/* iopt, ropt array sizes */
+void CVodeQuadFree(void *cvode_mem);
 
-#define OPT_SIZE 40
- 
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Function : CVodeSensFree                                       *
+ *----------------------------------------------------------------*
+ * CVodeSensFree frees the problem memory in cvode_mem allocated  *
+ * for sensitivity analysis. Its only argument is the pointer     *
+ * cvode_mem returned by CVodeCreate.                             *
+ *                                                                *
+ *----------------------------------------------------------------*/
 
-/* iopt and ropt offsets                                          *
- * The constants CVODE_IOPT_SIZE and CVODE_ROPT_SIZE are equal to *
- * the number of integer and real optional inputs and outputs     *
- * actually accessed in cvode.c.  The locations beyond these      *
- * values are used by the linear solvers.                         */
+void CVodeSensFree(void *cvode_mem);
 
-#define CVODE_IOPT_SIZE 23
-#define CVODE_ROPT_SIZE  9
+/*================================================================*
+ *                                                                *
+ *   M A I N    I N T E G R A T O R    M E M O R Y    B L O C K   *
+ *                                                                *
+ *================================================================*/
 
-/* iopt indices */
-enum { MAXORD, MXSTEP, MXHNIL,
-       NST, NFE, NSETUPS, NNI, NCFN, NETF, QU, QCUR,
-       LENRW, LENIW, SLDET, ISTOP, NOR, 
-       NFSE, NNIS, NCFNS, NETFS, NSETUPSS, NFQE, NETFQ};
+/* Basic CVODES constants */
 
-/* ropt indices */
-
-enum { H0, HMAX, HMIN, TSTOP, H0U,
-       HU, HCUR, TCUR, TOLSF };
-
-/* Basic CVODE constants */
-
-#define ADAMS_Q_MAX 12       /* max value of q for lmm == ADAMS   */
+#define ADAMS_Q_MAX 12      /* max value of q for lmm == ADAMS    */
 #define BDF_Q_MAX    5      /* max value of q for lmm == BDF      */
 #define Q_MAX  ADAMS_Q_MAX  /* max value of q for either lmm      */
 #define L_MAX  (Q_MAX+1)    /* max value of L for either lmm      */
 #define NUM_TESTS    5      /* number of error test quantities    */
 
-
-/******************************************************************
+/*----------------------------------------------------------------*
  *                                                                *
  * Types : struct CVodeMemRec, CVodeMem                           *
  *----------------------------------------------------------------*
  * The type CVodeMem is type pointer to struct CVodeMemRec. This  *
  * structure contains fields to keep track of problem state.      *
  *                                                                *
- ******************************************************************/
+ *----------------------------------------------------------------*/
   
 typedef struct CVodeMemRec {
     
@@ -1012,6 +1181,18 @@ typedef struct CVodeMemRec {
   void *cv_abstol;         /* ptr to absolute tolerance                    */
 
   /*--------------------------
+    Quadrature Related Data 
+  --------------------------*/
+
+  booleantype cv_quad;     /* TRUE if integrating quadratures              */
+  QuadRhsFn cv_fQ;
+  int cv_itolQ;
+  realtype *cv_reltolQ;    /* ptr to relative tolerance for quad           */
+  void *cv_abstolQ;        /* ptr to absolute tolerance for quad           */
+  int cv_errconQ;
+  void *cv_fQ_data;        /* user pointer passed to fQ                    */
+
+  /*--------------------------
     Sensitivity Related Data 
   --------------------------*/
 
@@ -1019,6 +1200,7 @@ typedef struct CVodeMemRec {
   integertype cv_Ns;       /* Number of sensitivities                      */
   SensRhsFn cv_fS;         /* fS = (df/dy)*yS + (df/dp)                    */
   SensRhs1Fn cv_fS1;       /* fS1 = (df/dy)*yS_i + (df/dp)                 */
+  booleantype cv_fSDQ;
   int cv_ifS;              /* ifS = ALLSENS or ONESENS                     */
   int cv_ism;              /* ism = SIMULTANEOUS or STAGGERED              */
   realtype *cv_p;          /* parameters in f(t,y,p)                       */
@@ -1030,17 +1212,6 @@ typedef struct CVodeMemRec {
                               differences                                  */
   int cv_errcon;           /* errcon = FULL or PARTIAL                     */
   void *cv_fS_data;        /* user pointer passed to fS                    */
-
-  /*--------------------------
-    Quadrature Related Data 
-  --------------------------*/
-
-  booleantype cv_quad;     /* TRUE if integrating quadratures              */
-  QuadRhsFn cv_fQ;
-  realtype *cv_reltolQ;    /* ptr to relative tolerance for quad           */
-  void *cv_abstolQ;        /* ptr to absolute tolerance for quad           */
-  int cv_errconQ;
-  void *cv_fQ_data;        /* user pointer passed to fQ                    */
 
   /*-------------------------
     Nordsieck History Array 
@@ -1057,7 +1228,7 @@ typedef struct CVodeMemRec {
   ---------------------*/
 
   N_Vector cv_ewt;         /* error weight vector                          */
-  N_Vector cv_y;           /* y is used as temporary storage by the solver
+  N_Vector cv_y;           /* y is used as temporary storage by the solver.
                               The memory is provided by the user to CVode 
                               where the vector is named yout.              */
   N_Vector cv_acor;        /* In the context of the solution of the
@@ -1068,26 +1239,25 @@ typedef struct CVodeMemRec {
   N_Vector cv_ftemp;       /* temporary storage vector                     */
 
   /*-----------------------------
+    Quadrature Related Vectors 
+  -----------------------------*/
+
+  N_Vector cv_znQ[L_MAX];  /* Nordsieck arrays for sensitivities           */
+  N_Vector cv_ewtQ;        /* error weight vector for quadratures          */
+  N_Vector cv_yQ;          /* Unlike y, yQ is not allocated by the user    */
+  N_Vector cv_acorQ;       /* acorQ = yQ_n(m) - yQ_n(0)                    */
+  N_Vector cv_tempvQ;      /* temporary storage vector (~ tempv)           */
+
+  /*-----------------------------
     Sensitivity Related Vectors 
   -----------------------------*/
 
   N_Vector *cv_znS[L_MAX]; /* Nordsieck arrays for sensitivities           */
   N_Vector *cv_ewtS;       /* error weight vectors for sensitivities       */
-  N_Vector *cv_yS;         /* Unlike y, this memory is not provided by
-                              the user                                     */
+  N_Vector *cv_yS;         /* Unlike y, yS is not allocated by the user    */
   N_Vector *cv_acorS;      /* acorS = yS_n(m) - yS_n(0)                    */
   N_Vector *cv_tempvS;     /* temporary storage vector (~ tempv)           */
   N_Vector *cv_ftempS;     /* temporary storage vector (~ ftemp)           */
-
-  /*-----------------------------
-    Quadrature Related Vectors 
-  -----------------------------*/
-
-  N_Vector cv_znQ[L_MAX];
-  N_Vector cv_ewtQ;        /* error weight vector for quadratures          */
-  N_Vector cv_yQ;          /*                                              */
-  N_Vector cv_acorQ;       /*                                              */
-  N_Vector cv_tempvQ;      /*                                              */
 
   /*-------------------------------------------------
     Does CVodeSensMalloc allocate additional space?
@@ -1097,6 +1267,12 @@ typedef struct CVodeMemRec {
   booleantype cv_stgr1alloc;     /* Are ncfS1, ncfnS1, and nniS1 allocated 
                                     by CVODES?                             */
 
+  /*-----------------
+    Tstop information
+  -------------------*/
+  booleantype cv_tstopset;
+  realtype cv_tstop;
+
   /*-----------
     Step Data 
   -----------*/
@@ -1104,12 +1280,15 @@ typedef struct CVodeMemRec {
   int cv_q;                /* current order                                */
   int cv_qprime;           /* order to be used on the next step            */ 
                            /* = q-1, q, or q+1                             */
+  int cv_next_q;           /* order to be used on the next step            */
   int cv_qwait;            /* number of internal steps to wait before      */
                            /* considering a change in q                    */
   int cv_L;                /* L = q + 1                                    */
 
+  realtype cv_hin;
   realtype cv_h;           /* current step size                            */
   realtype cv_hprime;      /* step size to be used on the next step        */ 
+  realtype cv_next_h;      /* step size to be used on the next step        */ 
   realtype cv_eta;         /* eta = hprime / h                             */
   realtype cv_hscale;      /* value of h used in zn                        */
   realtype cv_tn;          /* current internal value of t                  */
@@ -1156,30 +1335,29 @@ typedef struct CVodeMemRec {
     Counters 
   ----------*/
 
-  long int cv_nst;         /* number of internal steps taken               */
-  long int cv_nfe;         /* number of f calls                            */
-  long int cv_nfSe;        /* number of fS calls                           */
-  long int cv_nfQe;        /* number of fQ calls                           */
+  int cv_nst;              /* number of internal steps taken               */
+  int cv_nfe;              /* number of f calls                            */
+  int cv_nfSe;             /* number of fS calls                           */
+  int cv_nfQe;             /* number of fQ calls                           */
+  int cv_nfeS;             /* number of f calls from sensi DQ              */
 
-  long int cv_ncfn;        /* number of corrector convergence failures     */
-  long int cv_ncfnS;       /* number of total sensi. corr. conv. failures  */
-  long int *cv_ncfnS1;     /* number of sensi. corrector conv. failures    */
+  int cv_ncfn;             /* number of corrector convergence failures     */
+  int cv_ncfnS;            /* number of total sensi. corr. conv. failures  */
+  int *cv_ncfnS1;          /* number of sensi. corrector conv. failures    */
 
-  long int cv_nni;         /* number of nonlinear iterations performed     */
-  long int cv_nniS;        /* number of total sensi. nonlinear iterations  */
-  long int *cv_nniS1;      /* number of sensi. nonlinear iterations        */
+  int cv_nni;              /* number of nonlinear iterations performed     */
+  int cv_nniS;             /* number of total sensi. nonlinear iterations  */
+  int *cv_nniS1;           /* number of sensi. nonlinear iterations        */
 
-  long int cv_netf;        /* number of error test failures                */
-  long int cv_netfS;       /* number of sensi. error test failures         */
-  long int cv_netfQ;       /* number of quadr. error test failures         */
+  int cv_netf;             /* number of error test failures                */
+  int cv_netfS;            /* number of sensi. error test failures         */
+  int cv_netfQ;            /* number of quadr. error test failures         */
 
-  long int cv_nsetups;     /* number of setup calls                        */
-  long int cv_nsetupss;    /* number of setup calls due to sensitivities   */
+  int cv_nsetups;          /* number of setup calls                        */
+  int cv_nsetupsS;         /* number of setup calls due to sensitivities   */
 
-  int      cv_nhnil;       /* number of messages issued to the user that
+  int cv_nhnil;            /* number of messages issued to the user that
                               t + h == t for the next iternal step         */
-
-  long int cv_nscon;       /* counter for STALD method                     */
 
   /*------------------------------- 
     Space requirements for CVODES 
@@ -1199,8 +1377,6 @@ typedef struct CVodeMemRec {
   realtype cv_etaqm1;      /* ratio of new to old h for order q-1          */
   realtype cv_etaq;        /* ratio of new to old h for order q            */
   realtype cv_etaqp1;      /* ratio of new to old h for order q+1          */
-
-  realtype cv_ssdat[6][4]; /* scaled data array for STALD                  */
 
   /*--------------------
     Linear Solver Data 
@@ -1235,7 +1411,7 @@ typedef struct CVodeMemRec {
   --------------*/
 
   int cv_qu;               /* last successful q value used                 */
-  long int cv_nstlp;       /* step number of last setup call               */
+  int cv_nstlp;            /* step number of last setup call               */
   realtype cv_h0u;         /* actual initial stepsize                      */
   realtype cv_hu;          /* last successful h value used                 */
   realtype cv_saved_tq5;   /* saved value of tq[5]                         */
@@ -1244,22 +1420,14 @@ typedef struct CVodeMemRec {
   realtype cv_tolsf;       /* tolerance scale factor                       */
   booleantype cv_setupNonNull;  /* Does setup do something?                */
 
-  /*----------------------------------------------------------
-    Flags turned ON by SensMalloc and QuadMalloc and read by
-    SensReInit and QuadReInit
-    ---------------------------------------------------------*/
+  /*-------------------------------------------------------------------
+    Flags turned ON by CVodeMalloc, CVodeSensMalloc, and CVodeQuadMalloc 
+    and read by CVodeMalloc, CVodeSensReInit, and CVodeQuadReInit
+    ------------------------------------------------------------------*/
 
+  booleantype cv_MallocDone;
   booleantype cv_sensMallocDone;
   booleantype cv_quadMallocDone;
-
-  /*-----------------------------------------------
-    Arrays for Optional Input and Optional Output 
-  -----------------------------------------------*/
-
-  long int    *cv_iopt;       /* long int optional input, output           */
-  realtype    *cv_ropt;       /* real optional input, output               */
-  booleantype  cv_optIn;      /* flag to indicate optional input 
-                                 (used by adjoint)                         */
 
   /*------------
     Error File 
@@ -1268,88 +1436,108 @@ typedef struct CVodeMemRec {
   FILE *cv_errfp;             /* CVODE error messages are sent to errfp    */
 
   /*-----------------------------------------------------
-    Pointer to Machine Environment-Specific Information 
+    Pointer to the vector specification structure for
+    state N_Vectors
   -----------------------------------------------------*/
 
-  M_Env cv_machenv;
+  NV_Spec cv_nvspec;
 
   /*-----------------------------------------------------
-    Pointer to Machine Environment-Specific Information
-    for Quadrature N_Vectors
+    Pointer to the vector specification structure for 
+    quadrature N_Vectors
   -----------------------------------------------------*/
 
-  M_Env cv_machenvQ;
+  NV_Spec cv_nvspecQ;
 
-  /*----------------------------------------
-    Stability Limit Detection control flag 
-  ----------------------------------------*/
+  /*-------------------------
+    Stability Limit Detection
+  ---------------------------*/
 
   booleantype cv_sldeton;     /* Is Stability Limit Detection on?          */
+  realtype cv_ssdat[6][4];    /* scaled data array for STALD               */
+  int cv_nscon;               /* counter for STALD method                  */
+  int cv_nor;                 /* counter for number of order reductions    */
+
+  /*-------------------------
+    Complex step memory block
+    -------------------------*/
+
+  void *cv_csmem;
 
 } *CVodeMem;
 
 
-/******************************************************************
+/*================================================================*
  *                                                                *
- * Communication between user and a CVODE Linear Solver           *
+ *     I N T E R F A C E   T O    L I N E A R   S O L V E R S     *
+ *                                                                *
+ *================================================================*/
+
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Communication between user and a CVODES Linear Solver          *
  *----------------------------------------------------------------*
- * Return values of the linear solver specification routine.      *
- * The values of these are given in the enum statement below.     *
- * SUCCESS      : The routine was successful.                     *
+ * Return values of the linear solver specification routine       *
+ * and of the linear solver set / get routines:                   *
  *                                                                *
- * LMEM_FAIL    : A memory allocation failed.                     *
+ *    SUCCESS      : The routine was successful.                  *
  *                                                                *
- * LIN_ILL_INPUT: Some input was illegal (see message).           *
+ *    LIN_NO_MEM   : CVODES memory = NULL.                        *
  *                                                                *
- ******************************************************************/
+ *    LMEM_FAIL    : A memory allocation failed.                  *
+ *                                                                *
+ *    LIN_ILL_INPUT: Some input was illegal (see message).        *
+ *                                                                *
+ *    LIN_NO_LMEM  : The linear solver's memory = NULL.           *
+ *                                                                *
+ *----------------------------------------------------------------*/
 
-/* SUCCESS = 0  (Defined under CVode return values, but listed
-                 here also for completeness)                      */
-enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2};
+/* SUCCESS = 0  */
+enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
 
-/*******************************************************************
- *                                                                 *
- * Communication between cvode.c and a CVODE Linear Solver         *
- *-----------------------------------------------------------------*
- * (1) cv_linit return values                                      *
- *                                                                 *
- * LINIT_OK    : The cv_linit routine succeeded.                   *
- *                                                                 *
- * LINIT_ERR   : The cv_linit routine failed. Each linear solver   *
- *               init routine should print an appropriate error    *
- *               message to (cv_mem->errfp).                       *
- *                                                                 *
- * (2) convfail (input to cv_lsetup)                               *
- *                                                                 *
- * NO_FAILURES : Either this is the first cv_setup call for this   *
- *               step, or the local error test failed on the       *
- *               previous attempt at this step (but the Newton     *
- *               iteration converged).                             * 
- *                                                                 *
- * FAIL_BAD_J  : This value is passed to cv_lsetup if              *
- *                                                                 *
- *               (1) The previous Newton corrector iteration       *
- *                   did not converge and the linear solver's      *
- *                   setup routine indicated that its Jacobian-    *
- *                   related data is not current.                  *
- *                                   or                            *
- *               (2) During the previous Newton corrector          *
- *                   iteration, the linear solver's solve routine  *
- *                   failed in a recoverable manner and the        *
- *                   linear solver's setup routine indicated that  *
- *                   its Jacobian-related data is not current.     *
- *                                                                 *
- * FAIL_OTHER  : During the current internal step try, the         *
- *               previous Newton iteration failed to converge      *
- *               even though the linear solver was using current   *
- *               Jacobian-related data.                            *
- *                                                                 *
- * (3) Parameter documentation, as well as a brief description     *
- *     of purpose, for each CVODE linear solver routine to be      *
- *     called in cvode.c is given below the constant declarations  *
- *     that follow.                                                *
- *                                                                 *
- *******************************************************************/
+/*----------------------------------------------------------------*
+ *                                                                *
+ * Communication between CVODES and a CVODE Linear Solver         *
+ *----------------------------------------------------------------*
+ * (1) cv_linit return values                                     *
+ *                                                                *
+ * LINIT_OK    : The cv_linit routine succeeded.                  *
+ *                                                                *
+ * LINIT_ERR   : The cv_linit routine failed. Each linear solver  *
+ *               init routine should print an appropriate error   *
+ *               message to (cv_mem->errfp).                      *
+ *                                                                *
+ * (2) convfail (input to cv_lsetup)                              *
+ *                                                                *
+ * NO_FAILURES : Either this is the first cv_setup call for this  *
+ *               step, or the local error test failed on the      *
+ *               previous attempt at this step (but the Newton    *
+ *               iteration converged).                            * 
+ *                                                                *
+ * FAIL_BAD_J  : This value is passed to cv_lsetup if             *
+ *                                                                *
+ *               (1) The previous Newton corrector iteration      *
+ *                   did not converge and the linear solver's     *
+ *                   setup routine indicated that its Jacobian-   *
+ *                   related data is not current                  *
+ *                                   or                           *
+ *               (2) During the previous Newton corrector         *
+ *                   iteration, the linear solver's solve routine *
+ *                   failed in a recoverable manner and the       *
+ *                   linear solver's setup routine indicated that *
+ *                   its Jacobian-related data is not current.    *
+ *                                                                *
+ * FAIL_OTHER  : During the current internal step try, the        *
+ *               previous Newton iteration failed to converge     *
+ *               even though the linear solver was using current  *
+ *               Jacobian-related data.                           *
+ *                                                                *
+ * (3) Parameter documentation, as well as a brief description    *
+ *     of purpose, for each CVODES linear solver routine to be    *
+ *     called in cvodes.c is given below the constant declarations*
+ *     that follow.                                               *
+ *                                                                *
+ *----------------------------------------------------------------*/
 
 /* cv_linit return values */
 
@@ -1362,101 +1550,100 @@ enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2};
 #define FAIL_BAD_J  1  
 #define FAIL_OTHER  2  
 
+/*----------------------------------------------------------------*
+ *                                                                *
+ * int (*cv_linit)(CVodeMem cv_mem);                              *
+ *----------------------------------------------------------------*
+ * The purpose of cv_linit is to complete initializations for a   *
+ * specific linear solver, such as counters and statistics.       *
+ * An LInitFn should return LINIT_OK (= 0) if it has successfully *
+ * initialized the CVODES linear solver and LINIT_ERR (= -1)      *
+ * otherwise. These constants are defined above.  If an error does*
+ * occur, an appropriate message should be sent to (cv_mem->errfp)*
+ *                                                                *
+ *----------------------------------------------------------------*/
 
-/*******************************************************************
- *                                                                 *
- * int (*cv_linit)(CVodeMem cv_mem);                               *
- *-----------------------------------------------------------------*
- * The purpose of cv_linit is to complete initializations for      *
- * specific linear solver, such as counters and statistics.        *
- * An LInitFn should return LINIT_OK (= 0) if it has successfully  *
- * initialized the CVODE linear solver and LINIT_ERR (= -1)        *
- * otherwise. These constants are defined above.  If an error does *
- * occur, an appropriate message should be sent to (cv_mem->errfp).*
- *                                                                 *
- *******************************************************************/
+/*----------------------------------------------------------------*
+ *                                                                *
+ * int (*cv_lsetup)(CVodeMem cv_mem, int convfail, N_Vector ypred,*
+ *                 N_Vector fpred, booleantype *jcurPtr,          *
+ *                 N_Vector vtemp1, N_Vector vtemp2,              *
+ *                 N_Vector vtemp3);                              *
+ *----------------------------------------------------------------*
+ * The job of cv_lsetup is to prepare the linear solver for       *
+ * subsequent calls to cv_lsolve. It may recompute Jacobian-      *
+ * related data is it deems necessary. Its parameters are as      *
+ * follows:                                                       *
+ *                                                                *
+ * cv_mem - problem memory pointer of type CVodeMem. See the big  *
+ *          typedef earlier in this file.                         *
+ *                                                                *
+ * convfail - a flag to indicate any problem that occurred during *
+ *            the solution of the nonlinear equation on the       *
+ *            current time step for which the linear solver is    *
+ *            being used. This flag can be used to help decide    *
+ *            whether the Jacobian data kept by a CVODES linear   *
+ *            solver needs to be updated or not.                  *
+ *            Its possible values have been documented above.     *
+ *                                                                *
+ * ypred - the predicted y vector for the current CVODES internal *
+ *         step.                                                  *
+ *                                                                *
+ * fpred - f(tn, ypred).                                          *
+ *                                                                *
+ * jcurPtr - a pointer to a boolean to be filled in by cv_lsetup. *
+ *           The function should set *jcurPtr=TRUE if its Jacobian*
+ *           data is current after the call and should set        *
+ *           *jcurPtr=FALSE if its Jacobian data is not current.  *
+ *           Note: If cv_lsetup calls for re-evaluation of        *
+ *           Jacobian data (based on convfail and CVODES state    *
+ *           data), it should return *jcurPtr=TRUE always;        *
+ *           otherwise an infinite loop can result.               *
+ *                                                                *
+ * vtemp1 - temporary N_Vector provided for use by cv_lsetup.     *
+ *                                                                *
+ * vtemp3 - temporary N_Vector provided for use by cv_lsetup.     *
+ *                                                                *
+ * vtemp3 - temporary N_Vector provided for use by cv_lsetup.     *
+ *                                                                *
+ * The cv_lsetup routine should return 0 if successful,           *
+ * a positive value for a recoverable error, and a negative value *
+ * for an unrecoverable error.                                    *
+ *                                                                *
+ *----------------------------------------------------------------*/
 
-/*******************************************************************
- *                                                                 *
- * int (*cv_lsetup)(CVodeMem cv_mem, int convfail, N_Vector ypred, *
- *                 N_Vector fpred, booleantype *jcurPtr,           *
- *                 N_Vector vtemp1, N_Vector vtemp2,               *
- *                 N_Vector vtemp3);                               *
- *-----------------------------------------------------------------*
- * The job of cv_lsetup is to prepare the linear solver for        *
- * subsequent calls to cv_lsolve. It may re-compute Jacobian-      *
- * related data is it deems necessary. Its parameters are as       *
- * follows:                                                        *
- *                                                                 *
- * cv_mem - problem memory pointer of type CVodeMem. See the big   *
- *          typedef earlier in this file.                          *
- *                                                                 *
- * convfail - a flag to indicate any problem that occurred during  *
- *            the solution of the nonlinear equation on the        *
- *            current time step for which the linear solver is     *
- *            being used. This flag can be used to help decide     *
- *            whether the Jacobian data kept by a CVODE linear     *
- *            solver needs to be updated or not.                   *
- *            Its possible values have been documented above.      *
- *                                                                 *
- * ypred - the predicted y vector for the current CVODE internal   *
- *         step.                                                   *
- *                                                                 *
- * fpred - f(tn, ypred).                                           *
- *                                                                 *
- * jcurPtr - a pointer to a boolean to be filled in by cv_lsetup.  *
- *           The function should set *jcurPtr=TRUE if its Jacobian *
- *           data is current after the call and should set         *
- *           *jcurPtr=FALSE if its Jacobian data is not current.   *
- *           Note: If cv_lsetup calls for re-evaluation of         *
- *           Jacobian data (based on convfail and CVODE state      *
- *           data), it should return *jcurPtr=TRUE unconditionally;*
- *           otherwise an infinite loop can result.                *
- *                                                                 *
- * vtemp1 - temporary N_Vector provided for use by cv_lsetup.      *
- *                                                                 *
- * vtemp3 - temporary N_Vector provided for use by cv_lsetup.      *
- *                                                                 *
- * vtemp3 - temporary N_Vector provided for use by cv_lsetup.      *
- *                                                                 *
- * The cv_lsetup routine should return 0 if successful,            *
- * a positive value for a recoverable error, and a negative value  *
- * for an unrecoverable error.                                     *
- *                                                                 *
- *******************************************************************/
+/*----------------------------------------------------------------*
+ *                                                                *
+ * int (*cv_lsolve)(CVodeMem cv_mem, N_Vector b, N_Vector ycur,   *
+ *                  N_Vector fcur);                               *
+ *----------------------------------------------------------------*
+ * cv_lsolve must solve the linear equation P x = b, where        *
+ * P is some approximation to (I - gamma J), J = (df/dy)(tn,ycur) *
+ * and the RHS vector b is input. The N-vector ycur contains      *
+ * the solver's current approximation to y(tn) and the vector     *
+ * fcur contains the N_Vector f(tn,ycur). The solution is to be   *
+ * returned in the vector b. cv_lsolve returns a positive value   *
+ * for a recoverable error and a negative value for an            *
+ * unrecoverable error. Success is indicated by a 0 return value. *
+ *                                                                *
+ *----------------------------------------------------------------*/
 
-/*******************************************************************
- *                                                                 *
- * int (*cv_lsolve)(CVodeMem cv_mem, N_Vector b, N_Vector ycur,    *
- *                  N_Vector fcur);                                *
- *-----------------------------------------------------------------*
- * cv_lsolve must solve the linear equation P x = b, where         *
- * P is some approximation to (I - gamma J), J = (df/dy)(tn,ycur)  *
- * and the RHS vector b is input. The N-vector ycur contains       *
- * the solver's current approximation to y(tn) and the vector      *
- * fcur contains the N-vector f(tn,ycur). The solution is to be    *
- * returned in the vector b. cv_lsolve returns a positive value    *
- * for a recoverable error and a negative value for an             *
- * unrecoverable error. Success is indicated by a 0 return value.  *
- *                                                                 *
- *******************************************************************/
+/*----------------------------------------------------------------*
+ *                                                                *
+ * int (*cv_lsolveS)(CVodeMem cv_mem, N_Vector b, N_Vector ycur,  *
+ *                  N_Vector fcur, integertype is);               *
+ *----------------------------------------------------------------*/
 
-/*******************************************************************
- *                                                                 *
- * int (*cv_lsolveS)(CVodeMem cv_mem, N_Vector b, N_Vector ycur,   *
- *                  N_Vector fcur, integertype is);                *
- *-----------------------------------------------------------------*
- *******************************************************************/
+/*----------------------------------------------------------------*
+ *                                                                *
+ * void (*cv_lfree)(CVodeMem cv_mem);                             *
+ *----------------------------------------------------------------*
+ * cv_lfree should free up any memory allocated by the linear     *
+ * solver. This routine is called once a problem has been         *
+ * completed and the linear solver is no longer needed.           *
+ *                                                                *
+ *----------------------------------------------------------------*/
 
-/*******************************************************************
- *                                                                 *
- * void (*cv_lfree)(CVodeMem cv_mem);                              *
- *-----------------------------------------------------------------*
- * cv_lfree should free up any memory allocated by the linear      *
- * solver. This routine is called once a problem has been          *
- * completed and the linear solver is no longer needed.            *
- *                                                                 *
- *******************************************************************/
 
 #endif
 

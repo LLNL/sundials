@@ -1,7 +1,7 @@
 /******************************************************************
- * File          : fcvband1.c                                     *
+ * File          : fcvband.c                                     *
  * Programmers   : Radu Serban and Alan Hindmarsh @ LLNL          *
- * Version of    : 30 March 2003                                  *
+ * Version of    : 1 August 2003                                  *
  *----------------------------------------------------------------*
  *                                                                *
  * Fortran/C interface routines for CVODE/CVBAND, for the case of *
@@ -23,33 +23,13 @@ void FCV_BJAC(integertype*, integertype*, integertype*, integertype*,
               realtype*, realtype*, realtype*, realtype*,
               realtype*, realtype*, realtype*);
 
-/******************************************************************************/
-
-void FCV_BAND1(integertype *neq, integertype *mupper, integertype *mlower, int *ier)
-{
-  /* Call CVBand:
-     CV_cvodemem is the pointer to the CVODE memory block 
-     *neq        is the problem diemension
-     *mupper     is the upper bandwidth
-     *mlower     is the lower bandwidth
-     CVBandJac   is a pointer to the band Jac routine
-     NULL        is a pointer to jac_data                 */
-
-  *ier = CVBand(CV_cvodemem, *neq, *mupper, *mlower, CVBandJac, NULL);
-}
 
 /***************************************************************************/
 
-void FCV_REINBAND1(integertype *mupper, integertype *mlower, int *ier)
+void FCV_BANDSETJAC(int *flag, int *ier)
 {
-  /* Call CVReInitBand:
-     CV_cvodemem is the pointer to the CVODE memory block 
-     *mupper     is the upper bandwidth
-     *mlower     is the lower bandwidth
-     CVBandJac   is a pointer to the band Jac routine
-     NULL        is a pointer to jac_data                 */
-
-  *ier = CVReInitBand(CV_cvodemem, *mupper, *mlower, CVBandJac, NULL);
+  if (*flag == 0) CVBandSetJacFn(CV_cvodemem, NULL);
+  else            CVBandSetJacFn(CV_cvodemem, CVBandJac);
 }
 
 /***************************************************************************/

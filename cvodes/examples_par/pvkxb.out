@@ -54,14 +54,18 @@ t = 8.64e+04   no. steps = 503   order = 3   stepsize = 4.13e+02
 At bottom left:  c1, c2 =    3.803e-15    3.352e+11 
 At top right:    c1, c2 =   -3.010e-15    4.163e+11 
 
-Final Statistics: 
-lenrw   =  2000    leniw =    20
-llrw    =  2046    lliw  =    20
-nst     =   503    nfe   =  1296
-nni     =   669    nli   =   624
-nsetups =    94    netf  =    38
-npe     =     9    nps   =  1225
-ncfn    =     0    ncfl  =     0
+
+Final Statistics.. 
+
+lenrw   =  2000     leniw =    20
+llrw    =  2046     lliw  =    20
+nst     =   503
+nfe     =   672     nfel  =   624
+nni     =   669     nli   =   624
+nsetups =    94     netf  =    38
+npe     =     9     nps   =  1225
+ncfn    =     0     ncfl  =     0
+
 In CVBBDPRE: real/integer local work space sizes = 600, 50
              no. flocal evals. = 198
 
@@ -119,13 +123,17 @@ t = 8.64e+04   no. steps = 461   order = 5   stepsize = 7.48e+02
 At bottom left:  c1, c2 =   -1.413e-15    3.352e+11 
 At top right:    c1, c2 =   -1.067e-16    4.163e+11 
 
-Final Statistics: 
-lenrw   =  2000    leniw =    20
-llrw    =  2046    lliw  =    20
-nst     =   461    nfe   =  1328
-nni     =   588    nli   =   737
-nsetups =    86    netf  =    27
-npe     =     9    nps   =  1224
-ncfn    =     0    ncfl  =     0
+
+Final Statistics.. 
+
+lenrw   =  2000     leniw =    20
+llrw    =  2046     lliw  =    20
+nst     =   461
+nfe     =   591     nfel  =   737
+nni     =   588     nli   =   737
+nsetups =    86     netf  =    27
+npe     =     9     nps   =  1224
+ncfn    =     0     ncfl  =     0
+
 In CVBBDPRE: real/integer local work space sizes = 600, 50
              no. flocal evals. = 198

@@ -3,15 +3,15 @@
  * File          : cvdiag.c                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 28 March 2003                                   *
+ * Version of    : 31 July 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
+ * For details, see sundials/cvode/LICENSE                        *
  *-----------------------------------------------------------------*
- * This is the implementation file for the CVODE diagonal linear   *
- * solver, CVDIAG.                                                 *
+ * This is the implementation file for the CVODE diagonal linear  *
+ * solver, CVDIAG.                                                *
  *                                                                 *
  *******************************************************************/
 
@@ -23,7 +23,6 @@
 #include "sundialstypes.h"
 #include "nvector.h"
 
-
 /* Error Messages */
 
 #define CVDIAG   "CVDiag-- "
@@ -32,44 +31,22 @@
 
 #define MSG_MEM_FAIL  CVDIAG "A memory request failed.\n\n"
 
+#define MSG_SETGET_CVMEM_NULL "CVDiagGet*-- cvode memory is NULL. \n\n"
+
+#define MSG_SETGET_LMEM_NULL  "CVDiagGet*-- cvdiag memory is NULL. \n\n"
 
 /* Other Constants */
   
 #define FRACT RCONST(0.1)
 #define ONE   RCONST(1.0)
 
-
-/******************************************************************
- *                                                                *           
- * Types : CVDiagMemRec, CVDiagMem                                *
- *----------------------------------------------------------------*
- * The type CVDiagMem is pointer to a CVDiagMemRec. This          *
- * structure contains CVDiag solver-specific data.                *
- *                                                                *
- ******************************************************************/
-
-
-typedef struct {
-
-  realtype di_gammasv; /* gammasv = gamma at the last call to setup */
-                       /* or solve                                  */
-
-  N_Vector di_M;       /* M = (I - gamma J)^{-1} , gamma = h / l1   */
-
-  N_Vector di_bit;     /* temporary storage vector                  */
-
-  N_Vector di_bitcomp; /* temporary storage vector                  */
-
-} CVDiagMemRec, *CVDiagMem;
-
-
 /* CVDIAG linit, lsetup, lsolve, and lfree routines */
 
 static int CVDiagInit(CVodeMem cv_mem);
 
 static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, booleantype *jcurPtr, 
-                       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                       N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+                       N_Vector vtemp2, N_Vector vtemp3);
 
 static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                        N_Vector fcur);
@@ -91,22 +68,20 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define ewt       (cv_mem->cv_ewt)
 #define nfe       (cv_mem->cv_nfe)
 #define errfp     (cv_mem->cv_errfp)
-#define iopt      (cv_mem->cv_iopt)
 #define zn        (cv_mem->cv_zn)
 #define linit     (cv_mem->cv_linit)
 #define lsetup    (cv_mem->cv_lsetup)
 #define lsolve    (cv_mem->cv_lsolve)
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
-#define machenv   (cv_mem->cv_machenv)
+#define nvspec    (cv_mem->cv_nvspec)
 #define setupNonNull   (cv_mem->cv_setupNonNull)
 
 #define gammasv   (cvdiag_mem->di_gammasv)
 #define M         (cvdiag_mem->di_M)
 #define bit       (cvdiag_mem->di_bit)
 #define bitcomp   (cvdiag_mem->di_bitcomp)
-
-
+#define nfeDI     (cvdiag_mem->di_nfeDI)
 
 /*************** CVDiag **********************************************
 
@@ -114,7 +89,7 @@ static void CVDiagFree(CVodeMem cv_mem);
  fields specific to the diagonal linear solver module.  CVDense first
  calls the existing lfree routine if this is not NULL.  Then it sets
  the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
- to be CVDiagInit, CVDiagSetup, CVDiagSolve, and CVDiagFree,
+ to be CVDiagInit, CVDiagSetup, CVDiagSolve, CVDiagSolveS, and CVDiagFree,
  respectively.  It allocates memory for a structure of type
  CVDiagMemRec and sets the cv_lmem field in (*cvode_mem) to the
  address of this structure.  It sets setupNonNull in (*cvode_mem) to
@@ -129,11 +104,11 @@ int CVDiag(void *cvode_mem)
   CVDiagMem cvdiag_mem;
 
   /* Return immediately if cvode_mem is NULL */
-  cv_mem = (CVodeMem) cvode_mem;
-  if (cv_mem == NULL) {              /* CVode reports this error */
-    fprintf(errfp, MSG_CVMEM_NULL);
-    return(LMEM_FAIL);
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_CVMEM_NULL);
+    return(LIN_NO_MEM);
   }
+  cv_mem = (CVodeMem) cvode_mem;
 
   if (lfree !=NULL) lfree(cv_mem);
   
@@ -144,7 +119,7 @@ int CVDiag(void *cvode_mem)
   lfree  = CVDiagFree;
 
   /* Get memory for CVDiagMemRec */
-  lmem = cvdiag_mem = (CVDiagMem) malloc(sizeof(CVDiagMemRec));
+  cvdiag_mem = (CVDiagMem) malloc(sizeof(CVDiagMemRec));
   if (cvdiag_mem == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
@@ -155,18 +130,18 @@ int CVDiag(void *cvode_mem)
 
   /* Allocate memory for M, bit, and bitcomp */
     
-  M = N_VNew(machenv);
+  M = N_VNew(nvspec);
   if (M == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
-  bit = N_VNew(machenv);
+  bit = N_VNew(nvspec);
   if (bit == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(M);
     return(LMEM_FAIL);
   }
-  bitcomp = N_VNew(machenv);
+  bitcomp = N_VNew(nvspec);
   if (bitcomp == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(M);
@@ -174,7 +149,71 @@ int CVDiag(void *cvode_mem)
     return(LMEM_FAIL);
   }
 
+  /* Attach linear solver memory to CVODE memory */
+  lmem = cvdiag_mem;
+
   return(SUCCESS);
+}
+
+/************* CVDiagGetIntWorkSpace *********************************/
+
+int CVDiagGetIntWorkSpace(void *cvode_mem, long int *leniwDI)
+{
+  CVodeMem cv_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *leniwDI = 3*liw1;
+
+  return(OKAY);
+}
+
+/************* CVDiagGetRealWorkSpace ********************************/
+
+int CVDiagGetRealWorkSpace(void *cvode_mem, long int *lenrwDI)
+{
+  CVodeMem cv_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *lenrwDI = 3*lrw1;
+
+  return(OKAY);
+}
+
+/************* CVDiagGetNumRhsEvals **********************************/
+
+int CVDiagGetNumRhsEvals(void *cvode_mem, int *nfevalsDI)
+{
+  CVodeMem cv_mem;
+  CVDiagMem cvdiag_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  cvdiag_mem = (CVDiagMem) lmem;
+
+  *nfevalsDI = nfeDI;
+
+  return(OKAY);
 }
 
 /*************** CVDiagInit ******************************************
@@ -187,14 +226,10 @@ int CVDiag(void *cvode_mem)
 static int CVDiagInit(CVodeMem cv_mem)
 {
   CVDiagMem cvdiag_mem;
+
   cvdiag_mem = (CVDiagMem) lmem;
 
-  /* Set workspace lengths */
-  if (iopt != NULL) {
-    iopt[DIAG_LRW] = 3*lrw1;
-    iopt[DIAG_LIW] = 3*liw1;
-  }
-    
+  nfeDI = 0;
   return(LINIT_OK);
 }
 
@@ -207,8 +242,8 @@ static int CVDiagInit(CVodeMem cv_mem)
 **********************************************************************/
 
 static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, booleantype *jcurPtr, 
-                       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                       N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+                       N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype r;
   N_Vector ftemp, y;
@@ -228,7 +263,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   /* Evaluate f at perturbed y */
   f(tn, y, M, f_data);
-  nfe++;
+  nfeDI++;
 
   /* Construct M = I - gamma*J with J = diag(deltaf_i/deltay_i) */
   N_VLinearSum(ONE, M, -ONE, fpred, M);

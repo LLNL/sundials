@@ -84,11 +84,13 @@ Sensitivity: YES ( STAGGERED + PARTIAL ERROR CONTROL )
 
 nst     =   579
 
-nfe     =  1379    nfSe     =  2832 
-nni     =   797    nniS     =   943 
-ncfn    =     0    ncfnS    =     0 
-netf    =    25    netfS    =     0 
-nsetups =   109    nsetupss =     3 
+nfe     =  1379
+netf    =    25    nsetups  =   109
+nni     =   797    ncfn     =     0
 
-nje     =    11
+nfSe    =  2832    nfeS     =     0
+netfs   =     0    nsetupsS =     3
+nniS    =   943    ncfnS    =     0
+
+njeD    =    11    nfeD     =     0
 ========================================================

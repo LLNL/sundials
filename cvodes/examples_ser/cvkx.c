@@ -1,7 +1,7 @@
 /************************************************************************
  * File: cvkx.c                                                         *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
- * Version of : 30 March 2003                                           *
+ * Version of : 10 July 2003                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -120,9 +120,8 @@ static UserData AllocUserData(void);
 static void InitUserData(UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
-static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y,
-                        realtype t);
-static void PrintFinalStats(long int iopt[]);
+static void PrintOutput(void *cvode_mem, N_Vector y, realtype t);
+static void PrintFinalStats(void *cvode_mem);
 
 /* Functions Called by the CVODE Solver */
 
@@ -130,86 +129,89 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 static int Precond(realtype tn, N_Vector y, N_Vector fy,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
-                   N_Vector ewt, realtype h, realtype uround, long int *nfePtr,
                    void *P_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector y, N_Vector fy,
-                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
-                  long int *nfePtr, N_Vector r, int lr, void *P_data,
-                  N_Vector z);
+                  N_Vector r, N_Vector z,
+                  realtype gamma, realtype delta,
+                  int lr, void *P_data, N_Vector vtemp);
 
 
 /***************************** Main Program ******************************/
 
 int main()
 {
-  M_Env machEnv;
-  realtype abstol, reltol, t, tout, ropt[OPT_SIZE];
-  long int iopt[OPT_SIZE];
+  NV_Spec nvSpec;
+  realtype abstol, reltol, t, tout;
   N_Vector y;
   UserData data;
   void *cvode_mem;
   int iout, flag;
 
-  /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(NEQ);
+  /* Initialize serial vector specification object */
+  nvSpec = NV_SpecInit_Serial(NEQ);
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
-
-  y = N_VNew(machEnv);
+  y = N_VNew(nvSpec);
   data = AllocUserData();
   InitUserData(data);
   SetInitialProfiles(y, data->dx, data->dz);
-  abstol=ATOL; reltol=RTOL;
+  abstol=ATOL; 
+  reltol=RTOL;
 
-  /* Call CVodeMalloc to initialize CVODE: 
+  /* Call CvodeCreate to create CVODES memory 
+
+     BDF     specifies the Backward Differentiation Formula
+     NEWTON  specifies a Newton iteration
+
+     A pointer to CVODES problem memory is returned and stored in cvode_mem. */
+  cvode_mem = CVodeCreate(BDF, NEWTON);
+  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+
+  /* Set the pointer to user-defined data */
+  flag = CVodeSetFdata(cvode_mem, data);
+  if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
+
+  /* Call CVodeMalloc to initialize CVODES memory: 
 
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      y       is the initial dependent variable vector
-     BDF     specifies the Backward Differentiation Formula
-     NEWTON  specifies a Newton iteration
      SS      specifies scalar relative and absolute tolerances
-     &reltol and &abstol are pointers to the scalar tolerances
-     data    is the pointer to the user-defined block of coefficients
-     FALSE   indicates there are no optional inputs in iopt and ropt
-     iopt    and ropt arrays communicate optional integer and real input/output
+     &reltol and &abstol are pointers to the scalar tolerances      */
+  flag = CVodeMalloc(cvode_mem, f, T0, y, SS, &reltol, &abstol, nvSpec);
+  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
 
-     A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
-
-  cvode_mem = CVodeMalloc(f, T0, y, BDF, NEWTON, SS, &reltol,
-                          &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
-  if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
-
-  /* Call CVSpgmr to specify the CVODE linear solver CVSPGMR with
-     left preconditioning, modified Gram-Schmidt orthogonalization,
-     default values for the maximum Krylov dimension maxl and the tolerance
-     parameter delt, preconditioner setup and solve routines Precond and
-     PSolve, the pointer to the user-defined block data, and NULL for the
-     user jtimes routine and Jacobian data pointer.                        */
-
-  flag = CVSpgmr(cvode_mem, LEFT, MODIFIED_GS, 0, 0.0, Precond, PSolve,
-                 data, NULL, NULL);
+  /* Call CVSpgmr to specify the CVODES linear solver CVSPGMR 
+     with left preconditioning and the maximum Krylov dimension maxl */
+  flag = CVSpgmr(cvode_mem, LEFT, 0);
   if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
 
-  /* In loop over output points, call CVode, print results, test for error */
+  /* Set modified Gram-Schmidt orthogonalization, preconditioner 
+     setup and solve routines Precond and PSolve, and the pointer 
+     to the user-defined block data */
+  flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
+  flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
+  flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
+  flag = CVSpgmrSetPrecData(cvode_mem, data);
 
+  /* In loop over output points, call CVode, print results, test for error */
   printf(" \n2-species diurnal advection-diffusion problem\n\n");
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
     flag = CVode(cvode_mem, tout, y, &t, NORMAL);
-    PrintOutput(iopt, ropt, y, t);
+    PrintOutput(cvode_mem, y, t);
     if (flag != SUCCESS) { printf("CVode failed, flag=%d.\n", flag); break; }
   }
 
-  /* Free memory and print final statistics */  
+  PrintFinalStats(cvode_mem);
 
+  /* Free memory */
   N_VFree(y);
   FreeUserData(data);
   CVodeFree(cvode_mem);
-  M_EnvFree_Serial(machEnv);
+  NV_SpecFree_Serial(nvSpec);
 
-  PrintFinalStats(iopt);
   return(0);
 }
 
@@ -295,15 +297,20 @@ static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y,realtype t)
+static void PrintOutput(void *cvode_mem, N_Vector y,realtype t)
 {
-  realtype *ydata;
+  int nst, qu;
+  realtype hu, *ydata;
   int mxh = MX/2 - 1, mzh = MZ/2 - 1, mx1 = MX - 1, mz1 = MZ - 1;
 
   ydata = NV_DATA_S(y);
 
-  printf("t = %.2e   no. steps = %ld   order = %ld   stepsize = %.2e\n",
-         t, iopt[NST], iopt[QU], ropt[HU]);
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetLastOrder(cvode_mem, &qu);
+  CVodeGetLastStep(cvode_mem, &hu);
+
+  printf("t = %.2e   no. steps = %d   order = %d   stepsize = %.2e\n",
+         t, nst, qu, hu);
   printf("c1 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n",
          IJKth(ydata,1,0,0), IJKth(ydata,1,mxh,mzh), IJKth(ydata,1,mx1,mz1));
   printf("c2 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n\n",
@@ -312,16 +319,40 @@ static void PrintOutput(long int iopt[], realtype ropt[], N_Vector y,realtype t)
 
 /* Print final statistics contained in iopt */
 
-static void PrintFinalStats(long int iopt[])
+static void PrintFinalStats(void *cvode_mem)
 {
+  long int lenrw, leniw ;
+  long int lenrwSPGMR, leniwSPGMR;
+  int nst, nfe, nsetups, nni, ncfn, netf;
+  int nli, npe, nps, ncfl, nfeSPGMR;
+  
+
+  CVodeGetIntWorkSpace(cvode_mem, &leniw);
+  CVodeGetRealWorkSpace(cvode_mem, &lenrw);
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  CVodeGetNumErrTestFails(cvode_mem, &netf);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+
+  CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
+  CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
+  CVSpgmrGetNumLinIters(cvode_mem, &nli);
+  CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
+  CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
+  CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
+  CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+
   printf("\nFinal Statistics.. \n\n");
-  printf("lenrw   = %5ld    leniw = %5ld\n", iopt[LENRW], iopt[LENIW]);
-  printf("llrw    = %5ld    lliw  = %5ld\n", iopt[SPGMR_LRW], iopt[SPGMR_LIW]);
-  printf("nst     = %5ld    nfe   = %5ld\n", iopt[NST], iopt[NFE]);
-  printf("nni     = %5ld    nli   = %5ld\n", iopt[NNI], iopt[SPGMR_NLI]);
-  printf("nsetups = %5ld    netf  = %5ld\n", iopt[NSETUPS], iopt[NETF]);
-  printf("npe     = %5ld    nps   = %5ld\n", iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
-  printf("ncfn    = %5ld    ncfl  = %5ld\n \n", iopt[NCFN], iopt[SPGMR_NCFL]);
+  printf("lenrw   = %5ld     leniw = %5ld\n", lenrw, leniw);
+  printf("llrw    = %5ld     lliw  = %5ld\n", lenrwSPGMR, leniwSPGMR);
+  printf("nst     = %5d\n"                  , nst);
+  printf("nfe     = %5d     nfel  = %5d\n"  , nfe, nfeSPGMR);
+  printf("nni     = %5d     nli   = %5d\n"  , nni, nli);
+  printf("nsetups = %5d     netf  = %5d\n"  , nsetups, netf);
+  printf("npe     = %5d     nps   = %5d\n"  , npe, nps);
+  printf("ncfn    = %5d     ncfl  = %5d\n\n", ncfn, ncfl);
 }
 
 
@@ -419,10 +450,8 @@ static void f(realtype t, N_Vector y,N_Vector ydot, void *f_data)
 }
 
 /* Preconditioner setup routine. Generate and preprocess P. */
-
 static int Precond(realtype tn, N_Vector y, N_Vector fy,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
-                   N_Vector ewt, realtype h, realtype uround, long int *nfePtr,
                    void *P_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3)
 {
@@ -510,10 +539,10 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy,
 
 
 /* Preconditioner solve routine */
-
 static int PSolve(realtype tn, N_Vector y, N_Vector fy,
-                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
-                  long int *nfePtr, N_Vector r, int lr, void *P_data,N_Vector z)
+                  N_Vector r, N_Vector z,
+                  realtype gamma, realtype delta,
+                  int lr, void *P_data, N_Vector vtemp)
 {
   realtype **(*P)[MZ];
   integertype *(*pivot)[MZ];

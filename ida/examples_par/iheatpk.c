@@ -1,7 +1,7 @@
 /***********************************************************************
  * File       : iheatpk.c   
  * Written by : Allan G. Taylor Alan C. Hindmarsh, and Radu Serban
- * Version of : 31 MArch 2003
+ * Version of : 23 July 2003
  *----------------------------------------------------------------------
  *
  * Example problem for IDA: 2D heat equation, parallel, GMRES.
@@ -100,34 +100,30 @@ static int BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub
 /* User-supplied preconditioner routines */
 
 int PSolveHeateq(realtype tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, realtype cj, ResFn res, void *rdata,
-                 void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
-                 N_Vector zvec, long int *nrePtr, N_Vector tempv);
-
+                 N_Vector up, N_Vector rr, 
+                 N_Vector rvec, N_Vector zvec,
+                 realtype cj, realtype delta,
+                 void *pdata, N_Vector tempv);
 
 int PrecondHeateq(realtype tt, N_Vector yy,
-                  N_Vector yp, N_Vector rr, realtype cj,
-                  ResFn res, void *rdata, void *pdata,
-                  N_Vector ewt, N_Vector constraints, realtype hh, 
-                  realtype uround, long int *nrePtr,
+                  N_Vector yp, N_Vector rr, 
+                  realtype cj, void *pdata,
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 
 int main(int argc, char *argv[])
 
 {
-  int npes, thispe;
-  integertype retval, i, iout, itol, itask, Neq, local_N;
-  long int iopt[OPT_SIZE];
-  booleantype optIn;
-  realtype ropt[OPT_SIZE], rtol, atol;
-  realtype t0, t1, tout, tret, umax;
+  MPI_Comm comm;
+  NV_Spec nvSpec;
   void *mem;
+  int iout, itol, itask, npes, thispe;
+  integertype Neq, local_N;
+  realtype rtol, atol;
+  realtype t0, t1, tout, tret, umax, hused;
   UserData data;
   N_Vector uu, up, constraints, id, res;
-  MPI_Comm comm;
-  M_Env machEnv;
-
+  int ier, kused, nst, nni, nre, netf, ncfn, ncfl, nli, npe, nps, nreS;
 
   /* Get processor number and total number of pe's. */
   MPI_Init(&argc, &argv);
@@ -145,19 +141,19 @@ int main(int argc, char *argv[])
   local_N = MXSUB*MYSUB;
   Neq     = MX * MY;
   
-  /* Set machEnv block. */
-  machEnv = M_EnvInit_Parallel(comm, local_N, Neq, &argc, &argv);
-  if (machEnv == NULL) return(1);
+  /* Set nvSpec block. */
+  nvSpec = NV_SpecInit_Parallel(comm, local_N, Neq, &argc, &argv);
+  if (nvSpec == NULL) return(1);
   
   /* Allocate and initialize the data structure and N-vectors. */
   data = (UserData) malloc(sizeof *data);
   
-  uu = N_VNew(machEnv); 
-  up = N_VNew(machEnv);
-  res = N_VNew(machEnv);
-  constraints = N_VNew(machEnv);
-  id = N_VNew(machEnv);
-  data->pp = N_VNew(machEnv); /* An N-vector to hold preconditioner. */
+  uu = N_VNew(nvSpec); 
+  up = N_VNew(nvSpec);
+  res = N_VNew(nvSpec);
+  constraints = N_VNew(nvSpec);
+  id = N_VNew(nvSpec);
+  data->pp = N_VNew(nvSpec); /* An N-vector to hold preconditioner. */
   
   InitUserData(thispe, comm, data);
   
@@ -174,27 +170,29 @@ int main(int argc, char *argv[])
   rtol = 0.0;
   atol = 1.e-3;
 
-  /* Set option to suppress error testing of algebraic components. */
-  optIn = TRUE;
-  for (i = 0; i < OPT_SIZE; i++) {iopt[i] = 0; ropt[i] = ZERO; }
-  iopt[SUPPRESSALG] = 1;
 
-  /* Call IDAMalloc to initialize solution.  (NULL argument is errfp.) */
-  itask = NORMAL;
-  mem = IDAMalloc(heatres, data, t0, uu, up, itol, &rtol, &atol,
-                  id, constraints, NULL, optIn, iopt, ropt, machEnv);
+  /* Call IDACreate and IDAMalloc to initialize solution. */
+  mem = IDACreate();
   if (mem == NULL) {
-    if (thispe == 0) printf ("IDAMalloc failed.");
-    return(1); }
+    if (thispe == 0) printf ("IDACreate failed.");
+    return(1); 
+  }
+  ier = IDASetRdata(mem, data);
+  ier = IDASetSuppressAlg(mem, TRUE);
+  ier = IDASetID(mem, id);
+  ier = IDASetConstraints(mem, constraints);
+  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);
   
   /* Call IDASpgmr to specify the linear solver. */
-  retval = IDASpgmr(mem, PrecondHeateq, PSolveHeateq,  MODIFIED_GS, 
-                    0, 0, 0.0, 0.0, data);
-  
-  if (retval != SUCCESS) {
-    if (thispe == 0) printf("IDASpgmr failed, returning %ld.\n",retval);
+  /* Call IDASpgmr to specify the linear solver. */
+  ier = IDASpgmr(mem, 0.0);
+  if (ier != SUCCESS) {
+    if (thispe == 0) printf("IDASpgmr failed, returning %d.\n",ier);
     return(1);
   }
+  ier = IDASpgmrSetPrecSetupFn(mem, PrecondHeateq);
+  ier = IDASpgmrSetPrecSolveFn(mem, PSolveHeateq);
+  ier = IDASpgmrSetPrecData(mem, data);
   
   /* Compute the max norm of uu. */
   umax = N_VMaxNorm(uu);
@@ -212,50 +210,63 @@ int main(int argc, char *argv[])
     printf("        Processor array: %d x %d\n", NPEX, NPEY);
     printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
     printf("Constraints set to force all solution components >= 0. \n");
-    printf("iopt[SUPPRESSALG] = 1 to suppress local error testing on");
-    printf(" all boundary components. \n");
+    printf("SUPPRESSALG = TRUE to suppress local error testing on ");
+    printf("all boundary components. \n");
     printf("Linear solver: IDASPGMR  ");
     printf("Preconditioner: diagonal elements only.\n"); 
-    
+
     /* Print output table heading and initial line of table. */
     printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-    printf("  time     umax       k  nst  nni  nli   nre    h       npe nps\n" );
-    printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
+    printf("  time     umax       k  nst  nni  nli   nre   nreS    h      npe nps\n");
+    printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
 
-    printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld %9.2e  %3ld %3ld\n",
-           t0, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
-           iopt[NRE], ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
+    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d %4d  %9.2e  %3d %3d\n",
+           t0, umax, 0, 0, 0, 0, 0, 0, 0.0, 0, 0);
   }
 
   /* Loop over tout, call IDASolve, print output. */
+  itask = NORMAL;
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
     
-    retval = IDASolve(mem, tout, t0, &tret, uu, up, itask);
+    ier = IDASolve(mem, tout, &tret, uu, up, itask);
     
     umax = N_VMaxNorm(uu);
-    if (thispe == 0) printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld %9.2e  %3ld %3ld\n",
-                     tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
-                     iopt[NRE], ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
-
-    if (retval < 0) {
-      if (thispe == 0) printf("IDASolve returned %ld.\n",retval);
+    if (thispe == 0) {
+      IDAGetLastOrder(mem, &kused);
+      IDAGetNumSteps(mem, &nst);
+      IDAGetNumNonlinSolvIters(mem, &nni);
+      IDAGetNumResEvals(mem, &nre);
+      IDAGetLastStep(mem, &hused);
+      IDASpgmrGetNumLinIters(mem, &nli);
+      IDASpgmrGetNumPrecEvals(mem, &npe);
+      IDASpgmrGetNumPrecSolves(mem, &nps);
+      IDASpgmrGetNumResEvals(mem, &nreS);
+      printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d %4d  %9.2e  %3d %3d\n",
+             tret, umax, kused, nst, nni, nli, nre, nreS, hused, npe, nps);
+    }
+    if (ier < 0) {
+      if (thispe == 0) printf("IDASolve returned %d.\n",ier);
       return(1);
     }
     
   }  /* End of tout loop. */
   
   /* Print remaining counters and free memory. */
-  if (thispe == 0) printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", 
-                          iopt[NETF], iopt[NCFN], iopt[SPGMR_NCFL]);
+  IDAGetNumErrTestFails(mem, &netf);
+  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  IDASpgmrGetNumConvFails(mem, &ncfl);
+  printf("\n netf = %d,   ncfn = %d,   ncfl = %d \n", netf, ncfn, ncfl);
+
+
   IDAFree(mem);
-  N_VFree(uu);
-  N_VFree(up);
-  N_VFree(constraints);
-  N_VFree(id);
-  N_VFree(res);
   N_VFree(data->pp);
   free(data);
-  M_EnvFree_Parallel(machEnv);
+  N_VFree(id);
+  N_VFree(constraints);
+  N_VFree(res);
+  N_VFree(up);
+  N_VFree(uu);
+  NV_SpecFree_Parallel(nvSpec);
   MPI_Finalize();
 
   return(0);
@@ -652,12 +663,9 @@ static int BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub
  * In this instance, only cj and data (user data structure, with   * 
  * pp etc.) are used from the PrecondHeateq argument list.         *
  ******************************************************************/
-  
 int PrecondHeateq(realtype tt, N_Vector yy,
-                  N_Vector yp, N_Vector rr, realtype cj,
-                  ResFn res, void *rdata, void *pdata,
-                  N_Vector ewt, N_Vector constraints, realtype hh, 
-                  realtype uround, long int *nrePtr,
+                  N_Vector yp, N_Vector rr, 
+                  realtype cj, void *pdata,
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *ppv, pelinv;
@@ -707,11 +715,12 @@ int PrecondHeateq(realtype tt, N_Vector yy,
  * This routine multiplies the input vector rvec by the vector pp *
  * containing the inverse diagonal Jacobian elements (previously  *
  * computed in PrecondHeateq), returning the result in zvec.      */
-  
+
 int PSolveHeateq(realtype tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, realtype cj, ResFn res, void *rdata,
-                 void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
-                 N_Vector zvec, long int *nrePtr, N_Vector tempv)
+                 N_Vector up, N_Vector rr, 
+                 N_Vector rvec, N_Vector zvec,
+                 realtype cj, realtype delta,
+                 void *pdata, N_Vector tempv)
 {
   UserData data;
 

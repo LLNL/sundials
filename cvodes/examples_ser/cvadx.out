@@ -12,10 +12,10 @@ Find dG/dp for
      g(t,p,y) = y3
 
 
-Allocate CVODE memory for forward runs
+Create and allocate CVODES memory for forward runs
 Allocate global memory
 Forward integration ... ncheck = 2
-Allocate CVODE memory for backward run
+Create and allocate CVODES memory for backward run
 Integrate backwards from tB0 =   4.0000e+07
 
 ========================================================
@@ -27,7 +27,7 @@ Gp:           1.5153e+06  -6.0162e+00   1.0027e-03
 lambda(t0):   3.9926e+07   3.9926e+07   3.9926e+07
 ========================================================
 
-Re-initialize CVODE memory for backward run
+Re-initialize CVODES memory for backward run
 Integrate backwards from tB0 =   5.0000e+01
 
 ========================================================

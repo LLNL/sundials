@@ -1,7 +1,7 @@
  /************************************************************************
  * File        : kinwebbbd.d                                             *
  * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL  *
- * Version of  : 31 March 2003                                           *
+ * Version of  : 5 August 2003                                           *
  *-----------------------------------------------------------------------*
  * Example problem for KINSol, parallel machine case, BBD preconditioner.
  * This example solves a nonlinear system that arises from a system of  
@@ -147,7 +147,7 @@ static void InitUserData(integertype my_pe, integertype Nlocal, MPI_Comm comm, U
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintOutput(integertype my_pe, MPI_Comm comm, N_Vector cc);
-static void PrintFinalStats(long int *iopt);
+static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
                     void *f_data);
 static realtype DotProd(integertype size, realtype *x1, realtype *x2);
@@ -167,9 +167,10 @@ static void BRecvWait(MPI_Request request[], integertype isubx,
 
 static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
 
-static void ccomm(integertype Nlocal, realtype *cdata, void *data);
+static void ccomm(integertype Nlocal, N_Vector cc, void *data);
+//static void ccomm(integertype Nlocal, realtype *cdata, void *data);
 
-static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval,void *f_data);
+static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval, void *f_data);
 
 
 /***************************** Main Program ******************************/
@@ -177,18 +178,15 @@ static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval,void *f_dat
 int main(int argc, char *argv[])
 
 {
-  M_Env machEnv;
-  integertype globalstrategy, Nlocal;
-  realtype fnormtol, scsteptol, dq_rel_uu, ropt[OPT_SIZE];
-  long int iopt[OPT_SIZE];
-  N_Vector cc, sc, constraints;
+  MPI_Comm comm;
+  NV_Spec nvSpec;
+  void *kmem, *pdata;
   UserData data;
-  KBBDData pdata;
+  N_Vector cc, sc, constraints;
+  integertype globalstrategy, Nlocal;
+  realtype fnormtol, scsteptol, dq_rel_uu;
   int flag, mu, ml, maxl, maxlrst;
   int my_pe, npes, npelast = NPEX*NPEY-1;
-  booleantype optIn = FALSE;
-  void *kmem;
-  MPI_Comm comm;
 
   /* Get processor number and total number of pe's */
 
@@ -208,9 +206,9 @@ int main(int argc, char *argv[])
   /* Set local length */
   Nlocal = NUM_SPECIES*MXSUB*MYSUB;
 
-  /* Set machEnv block */
-  machEnv = M_EnvInit_Parallel(comm, Nlocal, NEQ, &argc, &argv);
-  if (machEnv==NULL) return(1);
+  /* Set nvSpec block */
+  nvSpec = NV_SpecInit_Parallel(comm, Nlocal, NEQ, &argc, &argv);
+  if (nvSpec==NULL) return(1);
 
   /* Allocate and initialize user data block */
   data = AllocUserData();
@@ -220,27 +218,34 @@ int main(int argc, char *argv[])
   globalstrategy = INEXACT_NEWTON;
 
   /* Allocate and initialize vectors */
-  cc = N_VNew(machEnv);
-  sc = N_VNew(machEnv);
-  data->rates = N_VNew(machEnv);
-  constraints = N_VNew(machEnv);
+  cc = N_VNew(nvSpec);
+  sc = N_VNew(nvSpec);
+  data->rates = N_VNew(nvSpec);
+  constraints = N_VNew(nvSpec);
   N_VConst(0.,constraints);
   
   SetInitialProfiles(cc, sc);
 
   fnormtol = FTOL; scsteptol = STOL;
 
-  /* Call KINMalloc to initialize KINSOL: 
-     Neq      is the number of equations in the system being solved
-     NULL     directs error messages to stdout
-     machEnv  points to machine environment data
+  /* Call KINCreate/KINMalloc to initialize KINSOL: 
+     nvSpec  points to machine environment data
      A pointer to KINSOL problem memory is returned and stored in kmem. */
-  
-  kmem = KINMalloc(NULL, machEnv);
-  
+  kmem = KINCreate();
   if (kmem == NULL) {
-    if (my_pe == 0) printf("KINMalloc failed."); return(1);
+    if (my_pe == 0) printf("KINCreate failed."); 
+    return(1); 
   }
+  flag = KINMalloc(kmem, funcprpr, nvSpec);
+  if (flag != SUCCESS) { 
+    if (my_pe == 0) printf("KINMalloc failed."); 
+    return(1); 
+  }
+
+  flag = KINSetFdata(kmem, data);
+  flag = KINSetConstraints(kmem, constraints);
+  flag = KINSetFuncNormTol(kmem, fnormtol);
+  flag = KINSetScaledStepTol(kmem, scsteptol);
   
   /* Call KBBDAlloc to initialize and allocate memory for the band-block-
      diagonal preconditioner, and specify the local and communication
@@ -248,32 +253,26 @@ int main(int argc, char *argv[])
   
   dq_rel_uu = ZERO;
   mu = ml = 2*NUM_SPECIES - 1;
-  
-  pdata = KBBDAlloc(Nlocal, mu, ml, dq_rel_uu, fcalcprpr, ccomm, data, kmem);
+
+  pdata = KBBDPrecAlloc(kmem, Nlocal, mu, ml, dq_rel_uu, fcalcprpr, ccomm);
   if (pdata == NULL) {
-    if (my_pe == 0) printf("KBBDAlloc failed \n"); return(1);
+    if (my_pe == 0) printf("KBBDPrecAlloc failed \n"); return(1);
   }
 
   /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
-     routines KBBDPrecon and KBBDPSol, and pointer to preconditioner data. */
+     routines KBBDPrecSetup and KBBDPrecSolve, and pointer to preconditioner data. */
   maxl = 20; maxlrst = 2;
-  flag = KINSpgmr(kmem,
-                  maxl,       /*  max. dimension of the SPGMR Krylov subspace */
-                  maxlrst,    /*  max number of SPGMR restarts */
-                  0,          /*  0 forces use of default for msbpre, the max.
-                                  number of nonlinear steps between calls to the
-                                  preconditioner setup routine */
-                  KBBDPrecon, /* Band-Block-Diagonal precond. setup routine */
-                  KBBDPSol,   /* Band-Block-Diagonal precond. solve routine */
-                  NULL,       /* user-supplied ATimes routine -- NULL here */
-                  pdata);     /* pointer to the preconditioner data block */
-  
+  flag = KINSpgmr(kmem, maxl);
   if (flag != 0) {
     if (my_pe == 0) printf("KINSpgmr failed, returning %d \n",flag);
     return(1);
   }
-  
-  
+
+  flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
+  flag = KINSpgmrSetPrecSetupFn(kmem, KBBDPrecSetup);
+  flag = KINSpgmrSetPrecSolveFn(kmem, KBBDPrecSolve);
+  flag = KINSpgmrSetPrecData(kmem, pdata);
+
   /* Print out the problem size, solution parameters, initial guess. */
   
   if (my_pe == 0) {
@@ -281,7 +280,7 @@ int main(int argc, char *argv[])
     
     printf("Mesh dimensions = %d X %d\n", MX, MY);
     printf("Number of species = %d\n", NUM_SPECIES);
-    printf("Total system size = %ld\n\n", NEQ);
+    printf("Total system size = %d\n\n", NEQ);
     printf("Subgrid dimensions = %d X %d\n", MXSUB, MYSUB);
     printf("Processor array is %d X %d\n\n", NPEX, NPEY);
     printf("Flag globalstrategy = %ld (0 = Inex. Newton, 1 = Linesearch)\n",
@@ -303,40 +302,30 @@ int main(int argc, char *argv[])
   
   flag = KINSol(kmem,           /* KINSol memory block */
                 cc,             /* initial guesss on input; solution vector */
-                funcprpr,       /* function describing the system equations */
                 globalstrategy, /* global stragegy choice */
                 sc,             /* scaling vector, for the variable cc */
-                sc,             /* scaling vector for function values fval */
-                fnormtol,       /* tolerance on fnorm funcprpr(cc) for sol'n */
-                scsteptol,      /* step size tolerance */
-                constraints,    /* constraints vector  */
-                optIn,          /* optional inputs flat: TRUE or FALSE */
-                iopt,           /* integer optional input array */
-                ropt,           /* real optional input array */
-                data);          /* pointer to user data */
+                sc);            /* scaling vector for function values fval */
   
-  if (flag != KINSOL_SUCCESS) { 
-    if (my_pe == 0) {
+  if (flag != SUCCESS) { 
+    if (my_pe == 0)
       printf("KINSol failed, returning %d.\n", flag);
-      printf("nli = %ld   nni= %ld \n",iopt[SPGMR_NLI],iopt[NNI]);
-    }
     return(flag);
   }
 
-  if (my_pe == 0)printf("\n\n\nComputed equilibrium species concentrations:\n");
+  if (my_pe == 0) printf("\n\n\nComputed equilibrium species concentrations:\n");
   if (my_pe == 0 || my_pe==npelast) PrintOutput(my_pe, comm, cc);
   
   /* Print final statistics and free memory */
   
-  if (my_pe == 0) PrintFinalStats(iopt);
+  if (my_pe == 0) PrintFinalStats(kmem);
   
   N_VFree(cc);
   N_VFree(sc);
   N_VFree(constraints);
-  KBBDFree(pdata);
+  KBBDPrecFree(pdata);
   KINFree(kmem);
   FreeUserData(data);
-  M_EnvFree_Parallel(machEnv);
+  NV_SpecFree_Parallel(nvSpec);
 
   MPI_Finalize();
 
@@ -526,12 +515,24 @@ static void PrintOutput(integertype my_pe, MPI_Comm comm, N_Vector cc)
 
 /* Print final statistics contained in iopt */
 
-static void PrintFinalStats(long int *iopt)
+static void PrintFinalStats(void *kmem)
 {
+  int nni, nfe;
+  int nli, npe, nps, ncfl, nfeSG;
+  
+  KINGetNumNonlinSolvIters(kmem, &nni);
+  KINGetNumFuncEvals(kmem, &nfe);
+
+  KINSpgmrGetNumLinIters(kmem, &nli);
+  KINSpgmrGetNumPrecEvals(kmem, &npe);
+  KINSpgmrGetNumPrecSolves(kmem, &nps);
+  KINSpgmrGetNumConvFails(kmem, &ncfl);
+  KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
+
   printf("\nFinal Statistics.. \n\n");
-  printf("nni    = %5ld    nli   = %5ld\n", iopt[NNI], iopt[SPGMR_NLI]);
-  printf("nfe    = %5ld    npe   = %5ld\n", iopt[NFE], iopt[SPGMR_NPE]);
-  printf("nps    = %5ld    ncfl  = %5ld\n", iopt[SPGMR_NPS], iopt[SPGMR_NCFL]);
+  printf("nni    = %5d    nli   = %5d\n", nni, nli);
+  printf("nfe    = %5d    nfeSG = %5d\n", nfe, nfeSG);
+  printf("nps    = %5d    npe   = %5d     ncfl  = %5d\n", nps, npe, ncfl);
   
 } /* end of routine PrintFinalStats **************************************/
 
@@ -689,22 +690,24 @@ static void BRecvWait(MPI_Request request[], integertype isubx,
 /* ccomm routine.  This routine performs all communication 
    between processors of data needed to calculate f. */
 
-static void ccomm(integertype Nlocal, realtype *cdata, void *userdata)
+static void ccomm(integertype Nlocal, N_Vector cc, void *userdata)
 {
 
-  realtype *cext, buffer[2*NUM_SPECIES*MYSUB];
+  realtype *cdata, *cext, buffer[2*NUM_SPECIES*MYSUB];
   UserData data;
   MPI_Comm comm;
   integertype my_pe, isubx, isuby, nsmxsub, nsmysub;
   MPI_Request request[4];
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array cext */
-  data = (UserData)userdata;
+  data = (UserData) userdata;
   comm = data->comm;  my_pe = data->my_pe;
   isubx = data->isubx;   isuby = data->isuby;
   nsmxsub = data->nsmxsub;
   nsmysub = NUM_SPECIES*MYSUB;
   cext = data->cext;
+
+  cdata = NV_DATA_P(cc);
 
   /* Start receiving boundary data from neighboring PEs */
 
@@ -842,17 +845,13 @@ static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval, void *f_da
 
 static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
 {
-  realtype *cdata, *fvdata;
   UserData data;
 
-  cdata = NV_DATA_P(cc);
-  fvdata = NV_DATA_P(fval);
   data = (UserData) f_data;
-
 
   /* Call ccomm to do inter-processor communicaiton */
 
-  ccomm (data->Nlocal, cdata, data);
+  ccomm (data->Nlocal, cc, data);
 
   /* Call fcalcprpr to calculate all right-hand sides */
   

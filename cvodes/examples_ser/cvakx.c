@@ -2,7 +2,7 @@
  *                                                                       *
  * File       : cvakx.c                                                  *
  * Programmers: Radu Serban @ LLNL                                       *
- * Version of : 30 March 2003                                            * 
+ * Version of : 15 July 2003                                             * 
  *-----------------------------------------------------------------------*
  *                                                                       *
  * This program solves a stiff ODE system that arises from a system      *
@@ -129,8 +129,6 @@
 #define LMM   BDF
 #define ITER  NEWTON
 #define ITOL  SS
-#define ERRFP stderr
-#define OPTIN FALSE
 
 /* CVSpgmr Constants */
 
@@ -157,6 +155,8 @@ typedef struct {
   realtype cox[NS], coy[NS], dx, dy, srur;
   realtype fsave[NEQ];
   realtype fBsave[NEQ];
+  void *cvadj_mem;
+  void *cvode_memF;
 } *WebData;
 
 
@@ -195,48 +195,47 @@ static void v_zero(realtype u[], int n);
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static int Precond(realtype tn, N_Vector c, N_Vector fc,
-                   booleantype jok, booleantype *jcurPtr, realtype gamma, 
-                   N_Vector ewt, realtype h,
-                   realtype uround, long int *nfePtr, void *P_data,
+static int Precond(realtype t, N_Vector c, N_Vector fc,
+                   booleantype jok, booleantype *jcurPtr, 
+                   realtype gamma, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int PSolve(realtype tn, N_Vector c, N_Vector fc,
-                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
-                  long int *nfePtr, N_Vector r, int lr, void *P_data,
-                  N_Vector z);
+static int PSolve(realtype t, N_Vector c, N_Vector fc,
+                  N_Vector r, N_Vector z,
+                  realtype gamma, realtype delta,
+                  int lr, void *P_data, N_Vector vtemp);
 
 static void fB(realtype t, N_Vector c, N_Vector cB, 
                N_Vector cBdot, void *f_data);
 
-static int PrecondB(realtype t, N_Vector c, N_Vector cB, 
-                    N_Vector fcB, booleantype jok, booleantype *jcurPtr, 
-                    realtype gamma, N_Vector rewt, realtype h,
-                    realtype uround, long int *nfePtr, void *P_data,
+static int PrecondB(realtype t, N_Vector c, 
+                    N_Vector cB, N_Vector fcB, booleantype jok, 
+                    booleantype *jcurPtr, realtype gamma,
+                    void *P_data,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int PSolveB(realtype tn, N_Vector c, N_Vector cB, N_Vector fcB, 
-                   N_Vector vtemp, realtype gamma, N_Vector rewt, realtype delta, 
-                   long int *nfePtr, N_Vector r, int lr, void *P_data, N_Vector z);     
+static int PSolveB(realtype t, N_Vector c, 
+                   N_Vector cB, N_Vector fcB, 
+                   N_Vector r, N_Vector z,
+                   realtype gamma, realtype delta, 
+                   int lr, void *P_data, N_Vector vtemp);
 
 /* Implementation */
 
 int main(int argc, char *argv[])
 {
-  M_Env machEnvF, machEnvB;
+  NV_Spec nvSpecF, nvSpecB;
 
-  realtype ropt[OPT_SIZE], abstol=ATOL, reltol=RTOL, t;
-  long int iopt[OPT_SIZE]; 
+  realtype abstol=ATOL, reltol=RTOL, t;
   N_Vector c;
   WebData wdata;
   void *cvode_mem;
-  int jpre=LEFT, gstype=MODIFIED_GS, iout, flag;
+  int iout, flag;
 
   void *cvadj_mem;
   int ncheck;
   
-  long int ioptB[OPT_SIZE];
-  realtype roptB[OPT_SIZE], reltolB=RTOL, abstolB=ATOL;
+  realtype reltolB=RTOL, abstolB=ATOL;
   N_Vector cB;
 
   FILE *outfile;
@@ -260,25 +259,27 @@ int main(int argc, char *argv[])
   /*---- ORIGINAL PROBLEM ----*/
   /*--------------------------*/
 
-  /* Initialize serial machine environment for forward run */
-  machEnvF = M_EnvInit_Serial(NEQ+1);
+  /* Initialize serial vector specification for forward run */
+  nvSpecF = NV_SpecInit_Serial(NEQ+1);
 
   /* Initializations */
-  c = N_VNew(machEnvF);
+  c = N_VNew(nvSpecF);
   CInit(c, wdata);
   PrintAllSpecies(outfile,c,NS,MXNS);
 
-  /* Call CVodeMalloc for forward run */
-  printf("\nAllocate CVODE memory for forward run\n");
-  cvode_mem = CVodeMalloc(f, T0, c, LMM, ITER, ITOL, &reltol,
-                          &abstol, wdata, ERRFP, OPTIN, iopt, ropt, machEnvF);
-  if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
+  /* Call CVodeCreate/CVodeMalloc for forward run */
+  printf("\nCreate and allocate CVODE memory for forward run\n");
+  cvode_mem = CVodeCreate(LMM, ITER);
+  wdata->cvode_memF = cvode_mem; /* Used in Precond */
+  flag = CVodeSetFdata(cvode_mem, wdata);
+  flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol, nvSpecF);
   
   /* Call CVSpgmr for forward run */
-  flag = CVSpgmr(cvode_mem, jpre, gstype, MAXL, DELT, 
-                 Precond, PSolve, wdata, 
-                 NULL, NULL);
-  if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
+  flag = CVSpgmr(cvode_mem, LEFT, MAXL);
+  flag = CVSpgmrSetDelt(cvode_mem, DELT);
+  flag = CVSpgmrSetPrecData(cvode_mem, wdata);
+  flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
+  flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
 
   /*------------------------*/
   /*---- ADJOINT MEMORY ----*/
@@ -286,6 +287,7 @@ int main(int argc, char *argv[])
 
   printf("\nAllocate global memory\n");
   cvadj_mem = CVadjMalloc(cvode_mem, NSTEPS);
+  wdata->cvadj_mem = cvadj_mem;
 
   /*---------------------*/
   /*---- FORWARD RUN ----*/
@@ -293,7 +295,6 @@ int main(int argc, char *argv[])
 
   printf("\nForward integration\n");
   flag = CVodeF(cvadj_mem, TOUT, c, &t, NORMAL, &ncheck);
-  if (flag != SUCCESS) { printf("CVode failed.\n"); return(1); }
 
   printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %f \n\n", 
          ISPEC, NV_DATA_S(c)[NEQ]);
@@ -303,33 +304,32 @@ int main(int argc, char *argv[])
   /*-------------------------*/
 
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
-  CVadjCheckPointsList(cvadj_mem);
+  CVadjGetCheckPointsList(cvadj_mem);
 
   /*-------------------------*/
   /*---- ADJOINT PROBLEM ----*/
   /*-------------------------*/
 
-  /* Initialize serial machine environment for backward run */
-  machEnvB = M_EnvInit_Serial(NEQ);
+  /* Initialize serial vector specification for backward run */
+  nvSpecB = NV_SpecInit_Serial(NEQ);
 
   /* Allocate cB */
-  cB = N_VNew(machEnvB);
+  cB = N_VNew(nvSpecB);
   /* Initialize cB = 0 */
   N_VConst(0.0, cB);
 
-  /* Allocate CVODE memory for backward run */
-  printf("\nAllocate CVODE memory for backward run\n");
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, LMM, ITER, ITOL, 
-                      &reltolB, &abstolB, wdata, ERRFP, 
-                      FALSE, ioptB, roptB, machEnvB);
-  if (flag != SUCCESS) { printf("CVodeMallocB failed."); return(1); }
+  /* Create and allocate CVODES memory for backward run */
+  printf("\nCreate and allocate CVODES memory for backward run\n");
+  flag = CVodeCreateB(cvadj_mem, LMM, ITER);
+  flag = CVodeSetFdataB(cvadj_mem, wdata);
+  flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, ITOL, &reltolB, &abstolB, nvSpecB);
 
   /* Call CVSpgmr */
-
-  flag = CVSpgmrB(cvadj_mem, jpre, gstype, MAXL, DELT, 
-                  PrecondB, PSolveB, wdata, 
-                  NULL, NULL);
-  if (flag != SUCCESS) { printf("CVSpgmrB failed."); return(1); }
+  flag = CVSpgmrB(cvadj_mem, LEFT, MAXL);
+  flag = CVSpgmrSetDeltB(cvadj_mem, DELT);
+  flag = CVSpgmrSetPrecDataB(cvadj_mem, wdata);
+  flag = CVSpgmrSetPrecSetupFnB(cvadj_mem, PrecondB);
+  flag = CVSpgmrSetPrecSolveFnB(cvadj_mem, PSolveB);
 
   /*----------------------*/
   /*---- BACKWARD RUN ----*/
@@ -348,10 +348,11 @@ int main(int argc, char *argv[])
 
   /* Free all memory */
   CVodeFree(cvode_mem);
+  CVadjFree(cvadj_mem);
   N_VFree(c);
   FreeUserData(wdata);
-  M_EnvFree_Serial(machEnvF);
-  M_EnvFree_Serial(machEnvB);
+  NV_SpecFree_Serial(nvSpecF);
+  NV_SpecFree_Serial(nvSpecB);
 
   return(0);
 }
@@ -670,10 +671,9 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
  of a block-diagonal preconditioner. The blocks are of size mp, and
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */ 
-static int Precond(realtype t, N_Vector c, N_Vector fc, 
+static int Precond(realtype t, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, N_Vector rewt, realtype h,
-                   realtype uround, long int *nfePtr, void *P_data,
+                   realtype gamma, void *P_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   integertype N;
@@ -681,13 +681,20 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   integertype **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp;
-  realtype fac, r, r0, save, srur;
+  realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
+  void *cvode_mem;
   WebData wdata;
+  N_Vector rewt;
 
   wdata = (WebData) P_data;
+  cvode_mem = wdata->cvode_memF;
+  CVodeGetErrWeights(cvode_mem, &rewt);
+
   cdata = NV_DATA_S(c);
   rewtdata = NV_DATA_S(rewt);
+
+  uround = UnitRoundoff();
 
   P = wdata->P;
   pivot = wdata->pivot;
@@ -776,10 +783,10 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
  Then it computes ((I - gamma*Jr)-inverse)*z, using LU factors of the
  blocks in P, and pivot information in pivot, and returns the result in z.
 */
-static int PSolve(realtype tn, N_Vector c, N_Vector fc, 
-                  N_Vector vtemp, realtype gamma, N_Vector rewt, 
-                  realtype delta, long int *nfePtr,
-                  N_Vector r, int lr, void *P_data, N_Vector z)
+static int PSolve(realtype t, N_Vector c, N_Vector fc,
+                  N_Vector r, N_Vector z,
+                  realtype gamma, realtype delta,
+                  int lr, void *P_data, N_Vector vtemp)
 {
   realtype   ***P;
   integertype **pivot;
@@ -1108,11 +1115,10 @@ static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype
 
 }
 
-
-static int PrecondB(realtype t, N_Vector c, N_Vector cB, 
-                    N_Vector fcB, booleantype jok, booleantype *jcurPtr, 
-                    realtype gamma, N_Vector rewt, realtype h,
-                    realtype uround, long int *nfePtr, void *P_data,
+static int PrecondB(realtype t, N_Vector c, 
+                    N_Vector cB, N_Vector fcB, booleantype jok, 
+                    booleantype *jcurPtr, realtype gamma,
+                    void *P_data,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   integertype N;
@@ -1120,13 +1126,20 @@ static int PrecondB(realtype t, N_Vector c, N_Vector cB,
   integertype **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp;
-  realtype fac, r, r0, save, srur;
+  realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
+  void *cvode_mem;
   WebData wdata;
+  N_Vector rewt;
 
   wdata = (WebData) P_data;
+  cvode_mem = CVadjGetCVodeBmem(wdata->cvadj_mem);
+  CVodeGetErrWeights(cvode_mem, &rewt);
+
   cdata = NV_DATA_S(c);
   rewtdata = NV_DATA_S(rewt);
+
+  uround = UnitRoundoff();
 
   P = wdata->P;
   pivot = wdata->pivot;
@@ -1145,7 +1158,6 @@ static int PrecondB(realtype t, N_Vector c, N_Vector cB,
      r0 is a minimum increment factor for the difference quotient. */
 
   f1 = NV_DATA_S(vtemp1);
-
   fac = N_VWrmsNorm (fcB, rewt);
   N = NEQ;
   r0 = 1000.0*ABS(gamma)*uround*N*fac;
@@ -1187,11 +1199,11 @@ static int PrecondB(realtype t, N_Vector c, N_Vector cB,
   return(0);
 }
 
-
-static int PSolveB(realtype tn, N_Vector c, N_Vector cB, 
-                   N_Vector fcB, N_Vector vtemp, realtype gamma, 
-                   N_Vector rewt, realtype delta, long int *nfePtr, 
-                   N_Vector r, int lr, void *P_data, N_Vector z)
+static int PSolveB(realtype t, N_Vector c, 
+                   N_Vector cB, N_Vector fcB, 
+                   N_Vector r, N_Vector z,
+                   realtype gamma, realtype delta, 
+                   int lr, void *P_data, N_Vector vtemp)
 {
   realtype   ***P;
   integertype **pivot;

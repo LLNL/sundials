@@ -55,7 +55,8 @@ Linear Solver           : Dense, User-Supplied Jacobian
 
  Linear solver real workspace length      =    8 
  Linear solver integer workspace length   =    2 
- Number of Jacobian evaluations           =    5 
+ Number of Jacobian evaluations           =    5  
+ Number of f-s evaluations                =    0 
 
  Error overrun = 19.908 
 
@@ -77,7 +78,7 @@ Linear Solver           : Dense, Difference Quotient Jacobian
  CVode real workspace length              =   34 
  CVode integer workspace length           =   17 
  Number of steps                          =  195 
- Number of f-s                            =  275 
+ Number of f-s                            =  267 
  Number of setups                         =   34 
  Number of nonlinear iterations           =  264 
  Number of nonlinear convergence failures =    0 
@@ -85,7 +86,8 @@ Linear Solver           : Dense, Difference Quotient Jacobian
 
  Linear solver real workspace length      =    8 
  Linear solver integer workspace length   =    2 
- Number of Jacobian evaluations           =    4 
+ Number of Jacobian evaluations           =    4  
+ Number of f-s evaluations                =    8 
 
  Error overrun = 22.805 
 
@@ -107,7 +109,7 @@ Linear Solver           : Diagonal Jacobian
  CVode real workspace length              =   34 
  CVode integer workspace length           =   17 
  Number of steps                          =  241 
- Number of f-s                            =  381 
+ Number of f-s                            =  339 
  Number of setups                         =   42 
  Number of nonlinear iterations           =  336 
  Number of nonlinear convergence failures =    0 
@@ -115,7 +117,8 @@ Linear Solver           : Diagonal Jacobian
 
  Linear solver real workspace length      =    6 
  Linear solver integer workspace length   =    3 
- Number of Jacobian evaluations           =   42 
+ Number of Jacobian evaluations           =   42  
+ Number of f-s evaluations                =   42 
 
  Error overrun = 82.136 
 
@@ -133,8 +136,8 @@ Iteration               : FUNCTIONAL
 
  Final statistics for this run..
 
- CVode real workspace length              =   34 
- CVode integer workspace length           =   17 
+ CVode real workspace length              =   20 
+ CVode integer workspace length           =   10 
  Number of steps                          =  262 
  Number of f-s                            =  497 
  Number of setups                         =    0 
@@ -159,8 +162,8 @@ Linear Solver           : Dense, User-Supplied Jacobian
 
  Final statistics for this run..
 
- CVode real workspace length              =   34 
- CVode integer workspace length           =   17 
+ CVode real workspace length              =   20 
+ CVode integer workspace length           =   10 
  Number of steps                          =  265 
  Number of f-s                            =  357 
  Number of setups                         =   40 
@@ -170,7 +173,8 @@ Linear Solver           : Dense, User-Supplied Jacobian
 
  Linear solver real workspace length      =    8 
  Linear solver integer workspace length   =    2 
- Number of Jacobian evaluations           =    5 
+ Number of Jacobian evaluations           =    5  
+ Number of f-s evaluations                =    0 
 
  Error overrun = 154.312 
 
@@ -189,10 +193,10 @@ Linear Solver           : Dense, Difference Quotient Jacobian
 
  Final statistics for this run..
 
- CVode real workspace length              =   34 
- CVode integer workspace length           =   17 
+ CVode real workspace length              =   20 
+ CVode integer workspace length           =   10 
  Number of steps                          =  276 
- Number of f-s                            =  378 
+ Number of f-s                            =  366 
  Number of setups                         =   40 
  Number of nonlinear iterations           =  363 
  Number of nonlinear convergence failures =    0 
@@ -200,7 +204,8 @@ Linear Solver           : Dense, Difference Quotient Jacobian
 
  Linear solver real workspace length      =    8 
  Linear solver integer workspace length   =    2 
- Number of Jacobian evaluations           =    6 
+ Number of Jacobian evaluations           =    6  
+ Number of f-s evaluations                =   12 
 
  Error overrun = 96.174 
 
@@ -219,10 +224,10 @@ Linear Solver           : Diagonal Jacobian
 
  Final statistics for this run..
 
- CVode real workspace length              =   34 
- CVode integer workspace length           =   17 
+ CVode real workspace length              =   20 
+ CVode integer workspace length           =   10 
  Number of steps                          =  266 
- Number of f-s                            =  398 
+ Number of f-s                            =  359 
  Number of setups                         =   39 
  Number of nonlinear iterations           =  356 
  Number of nonlinear convergence failures =    0 
@@ -230,7 +235,8 @@ Linear Solver           : Diagonal Jacobian
 
  Linear solver real workspace length      =    6 
  Linear solver integer workspace length   =    3 
- Number of Jacobian evaluations           =   39 
+ Number of Jacobian evaluations           =   39  
+ Number of f-s evaluations                =   39 
 
  Error overrun = 166.644 
 
@@ -288,7 +294,7 @@ Linear Solver           : Diagonal Jacobian
  CVode real workspace length              =  425 
  CVode integer workspace length           =   17 
  Number of steps                          =  154 
- Number of f-s                            =  251 
+ Number of f-s                            =  218 
  Number of setups                         =   33 
  Number of nonlinear iterations           =  215 
  Number of nonlinear convergence failures =    0 
@@ -296,7 +302,8 @@ Linear Solver           : Diagonal Jacobian
 
  Linear solver real workspace length      =   75 
  Linear solver integer workspace length   =    3 
- Number of Jacobian evaluations           =   33 
+ Number of Jacobian evaluations           =   33  
+ Number of f-s evaluations                =   33 
 
  Error overrun = 4.233 
 
@@ -327,7 +334,8 @@ Linear Solver           : Band, User-Supplied Jacobian
 
  Linear solver real workspace length      =  425 
  Linear solver integer workspace length   =   25 
- Number of Jacobian evaluations           =    3 
+ Number of Jacobian evaluations           =    3  
+ Number of f-s evaluations                =    0 
 
  Error overrun = 0.608 
 
@@ -350,7 +358,7 @@ Linear Solver           : Band, Difference Quotient Jacobian
  CVode real workspace length              =  425 
  CVode integer workspace length           =   17 
  Number of steps                          =  124 
- Number of f-s                            =  159 
+ Number of f-s                            =  141 
  Number of setups                         =   24 
  Number of nonlinear iterations           =  138 
  Number of nonlinear convergence failures =    0 
@@ -358,7 +366,8 @@ Linear Solver           : Band, Difference Quotient Jacobian
 
  Linear solver real workspace length      =  425 
  Linear solver integer workspace length   =   25 
- Number of Jacobian evaluations           =    3 
+ Number of Jacobian evaluations           =    3  
+ Number of f-s evaluations                =   18 
 
  Error overrun = 0.733 
 
@@ -377,8 +386,8 @@ Iteration               : FUNCTIONAL
 
  Final statistics for this run..
 
- CVode real workspace length              =  425 
- CVode integer workspace length           =   17 
+ CVode real workspace length              =  250 
+ CVode integer workspace length           =   10 
  Number of steps                          =  377 
  Number of f-s                            =  697 
  Number of setups                         =    0 
@@ -404,10 +413,10 @@ Linear Solver           : Diagonal Jacobian
 
  Final statistics for this run..
 
- CVode real workspace length              =  425 
- CVode integer workspace length           =   17 
+ CVode real workspace length              =  250 
+ CVode integer workspace length           =   10 
  Number of steps                          =  202 
- Number of f-s                            =  377 
+ Number of f-s                            =  314 
  Number of setups                         =   63 
  Number of nonlinear iterations           =  311 
  Number of nonlinear convergence failures =    5 
@@ -415,7 +424,8 @@ Linear Solver           : Diagonal Jacobian
 
  Linear solver real workspace length      =   75 
  Linear solver integer workspace length   =    3 
- Number of Jacobian evaluations           =   63 
+ Number of Jacobian evaluations           =   63  
+ Number of f-s evaluations                =   63 
 
  Error overrun = 11.253 
 
@@ -435,8 +445,8 @@ Linear Solver           : Band, User-Supplied Jacobian
 
  Final statistics for this run..
 
- CVode real workspace length              =  425 
- CVode integer workspace length           =   17 
+ CVode real workspace length              =  250 
+ CVode integer workspace length           =   10 
  Number of steps                          =  119 
  Number of f-s                            =  143 
  Number of setups                         =   25 
@@ -446,7 +456,8 @@ Linear Solver           : Band, User-Supplied Jacobian
 
  Linear solver real workspace length      =  425 
  Linear solver integer workspace length   =   25 
- Number of Jacobian evaluations           =    3 
+ Number of Jacobian evaluations           =    3  
+ Number of f-s evaluations                =    0 
 
  Error overrun = 5.278 
 
@@ -466,10 +477,10 @@ Linear Solver           : Band, Difference Quotient Jacobian
 
  Final statistics for this run..
 
- CVode real workspace length              =  425 
- CVode integer workspace length           =   17 
+ CVode real workspace length              =  250 
+ CVode integer workspace length           =   10 
  Number of steps                          =  121 
- Number of f-s                            =  162 
+ Number of f-s                            =  144 
  Number of setups                         =   24 
  Number of nonlinear iterations           =  141 
  Number of nonlinear convergence failures =    0 
@@ -477,7 +488,8 @@ Linear Solver           : Band, Difference Quotient Jacobian
 
  Linear solver real workspace length      =  425 
  Linear solver integer workspace length   =   25 
- Number of Jacobian evaluations           =    3 
+ Number of Jacobian evaluations           =    3  
+ Number of f-s evaluations                =   18 
 
  Error overrun = 5.997 
 

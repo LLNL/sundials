@@ -1,7 +1,7 @@
 Band example problem: Advection-diffusion, NEQ = 50
 
 
- At t =  0.00   max.norm(u) =  0.895472E+02
+ At t = -1.99   max.norm(u) =  0.895472E+02
  At t =  0.10   max.norm(u) =  0.413289E+01   NST =  85
  At t =  0.20   max.norm(u) =  0.103929E+01   NST = 103
  At t =  0.30   max.norm(u) =  0.297983E+00   NST = 113

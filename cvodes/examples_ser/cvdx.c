@@ -1,7 +1,7 @@
 /************************************************************************
  * File       : cvdx.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
- * Version of : 31 March 2003                                           *
+ * Version of : 10 July 2003                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the coding           *
@@ -72,7 +72,7 @@
 
 /* Private Helper Function */
 
-static void PrintFinalStats(long int iopt[]);
+static void PrintFinalStats(void *cvode_mem);
 
 /* Functions Called by the CVODE Solver */
 
@@ -87,18 +87,17 @@ static void Jac(integertype N, DenseMat J, realtype t,
 
 int main()
 {
-  M_Env machEnv;
-  realtype ropt[OPT_SIZE], reltol, t, tout;
-  long int iopt[OPT_SIZE];
+  NV_Spec nvSpec;
+  realtype reltol, t, tout;
   N_Vector y, abstol;
   void *cvode_mem;
   int iout, flag;
 
-  /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(NEQ);
+  /* Initialize serial vector specification object */
+  nvSpec = NV_SpecInit_Serial(NEQ);
 
-  y = N_VNew(machEnv);    /* Allocate y, abstol vectors */
-  abstol = N_VNew(machEnv); 
+  y = N_VNew(nvSpec);    /* Allocate y, abstol vectors */
+  abstol = N_VNew(nvSpec); 
 
   Ith(y,1) = Y1;               /* Initialize y */
   Ith(y,2) = Y2;
@@ -109,31 +108,42 @@ int main()
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
-  /* Call CVodeMalloc to initialize CVODE: 
+  /* 
+     Call CVodeCreate to create CVODES memory:
 
+     BDF     specifies the Backward Differentiation Formula
+     NEWTON  specifies a Newton iteration
+
+     A pointer to CVODES problem memory is returned and stored in cvode_mem.
+  */
+  
+  cvode_mem = CVodeCreate(BDF, NEWTON);
+  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+
+  /* 
+     Call CVodeMalloc to initialize CVODES memory: 
+
+     cvode_mem is the pointer to CVODES memory returned by CVodeCreate
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      y       is the initial dependent variable vector
-     BDF     specifies the Backward Differentiation Formula
-     NEWTON  specifies a Newton iteration
      SV      specifies scalar relative and vector absolute tolerances
      &reltol is a pointer to the scalar relative tolerance
      abstol  is the absolute tolerance vector
-     FALSE   indicates there are no optional inputs in iopt and ropt
-     iopt    is an array used to communicate optional integer input and output
-     ropt    is an array used to communicate optional real input and output
+     nvSpec  is the vector specification object 
+  */
 
-     A pointer to CVODE problem memory is returned and stored in cvode_mem. */
+  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpec);
+  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
 
-  cvode_mem = CVodeMalloc(f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
-                          NULL, NULL, FALSE, iopt, ropt, machEnv);
-  if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
+  /* Call CVDense to specify the CVODE dense linear solver */
 
-  /* Call CVDense to specify the CVODE dense linear solver with the
-     user-supplied Jacobian routine Jac. */
-
-  flag = CVDense(cvode_mem, NEQ, Jac, NULL);
+  flag = CVDense(cvode_mem, NEQ);
   if (flag != SUCCESS) { printf("CVDense failed.\n"); return(1); }
+
+  /* Set the Jacobian routine */
+  flag = CVDenseSetJacFn(cvode_mem, Jac);
+  if (flag != SUCCESS) { printf("CVDenseSetJacFn failed.\n"); return(1); }
 
   /* In loop over output points, call CVode, print results, test for error */
 
@@ -145,12 +155,13 @@ int main()
     if (flag != SUCCESS) { printf("CVode failed, flag=%d.\n", flag); break; }
   }
 
+  PrintFinalStats(cvode_mem);  /* Print some final statistics   */
+
   N_VFree(y);                  /* Free the y and abstol vectors */
   N_VFree(abstol);   
   CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
-  M_EnvFree_Serial(machEnv);   /* Free the machine environment memory */
+  NV_SpecFree_Serial(nvSpec);  /* Free the vector specification memory */
 
-  PrintFinalStats(iopt);       /* Print some final statistics   */
   return(0);
 }
 
@@ -159,13 +170,25 @@ int main()
 
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(long int iopt[])
+static void PrintFinalStats(void *cvode_mem)
 {
+  int nst, nfe, nsetups, njeD, nfeD, nni, ncfn, netf;
+  
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  CVodeGetNumErrTestFails(cvode_mem, &netf);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+
+  CVDenseGetNumJacEvals(cvode_mem, &njeD);
+  CVDenseGetNumRhsEvals(cvode_mem, &nfeD);
+
   printf("\nFinal Statistics.. \n\n");
-  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n",
-	 iopt[NST], iopt[NFE], iopt[NSETUPS], iopt[DENSE_NJE]);
-  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",
-	 iopt[NNI], iopt[NCFN], iopt[NETF]);
+  printf("nst = %-6d nfe  = %-6d nsetups = %-6d nfeD = %-6d njeD = %d\n",
+	 nst, nfe, nsetups, nfeD, njeD);
+  printf("nni = %-6d ncfn = %-6d netf = %d\n \n",
+	 nni, ncfn, netf);
 }
 
 

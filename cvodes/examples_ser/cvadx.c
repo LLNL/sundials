@@ -2,7 +2,7 @@
  *                                                                      *
  * File       : cvadx.c                                                 *
  * Programmers: Radu Serban @ LLNL                                      *
- * Version of : 30 March 2003                                           *
+ * Version of : 14 July 2003                                            *
  *----------------------------------------------------------------------*
  * Adjoint sensitivity example problem.                                 *
  * The following is a simple example problem, with the coding           *
@@ -108,7 +108,7 @@ static void fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_da
 
 int main(int argc, char *argv[])
 {
-  M_Env machEnvF, machEnvB, machEnvQB;
+  NV_Spec nvSpecF, nvSpecB, nvSpecQB;
 
   UserData data;
 
@@ -141,11 +141,11 @@ int main(int argc, char *argv[])
   data->p[1] = 1.0e4;
   data->p[2] = 3.0e7;
 
-  /* Initialize serial machine environment for forward integration */
-  machEnvF = M_EnvInit_Serial(NEQ);
+  /* Initialize serial vector specification for forward integration */
+  nvSpecF = NV_SpecInit_Serial(NEQ);
 
   /* Initialize y */
-  y = N_VNew(machEnvF); 
+  y = N_VNew(nvSpecF); 
   Ith(y,1) = 1.0;                
   Ith(y,2) = 0.0;
   Ith(y,3) = 0.0;
@@ -153,17 +153,19 @@ int main(int argc, char *argv[])
   /* Set the scalar relative tolerance reltol */
   reltol = RTOL;               
   /* Set the vector absolute tolerance abstol */
-  abstol = N_VNew(machEnvF); 
+  abstol = N_VNew(nvSpecF); 
   Ith(abstol,1) = ATOL1;       
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
-  /* Allocate CVODE memory for forward run */
-  printf("Allocate CVODE memory for forward runs\n");
-  cvode_mem = CVodeMalloc(f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
-                          data, NULL, FALSE, NULL, NULL, machEnvF);
-  flag = CVDense(cvode_mem, NEQ, Jac, data);
-  if (flag != SUCCESS) { printf("CVDense failed.\n"); return(1); }
+  /* Create and allocate CVODES memory for forward run */
+  printf("Create and allocate CVODES memory for forward runs\n");
+  cvode_mem = CVodeCreate(BDF, NEWTON);
+  flag = CVodeSetFdata(cvode_mem, data);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpecF);
+  flag = CVDense(cvode_mem, NEQ);
+  flag = CVDenseSetJacFn(cvode_mem, Jac);
+  flag = CVDenseSetJacData(cvode_mem, data);
 
   /* Allocate global memory */
   printf("Allocate global memory\n");
@@ -181,21 +183,21 @@ int main(int argc, char *argv[])
   /* Test check point linked list */
   /*
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
-  CVadjCheckPointsList(cvadj_mem);
+  CVadjGetCheckPointsList(cvadj_mem);
   */
 
-  /* Initialize serial machine environment for backward run */ 
-  machEnvB  = M_EnvInit_Serial(NEQ);   /* adjoint variables */
-  machEnvQB = M_EnvInit_Serial(NP+1);  /* quadrature variables */
+  /* Initialize serial nvector specification for backward run */ 
+  nvSpecB  = NV_SpecInit_Serial(NEQ);   /* adjoint variables */
+  nvSpecQB = NV_SpecInit_Serial(NP+1);  /* quadrature variables */
 
   /* Initialize yB */
-  yB = N_VNew(machEnvB);
+  yB = N_VNew(nvSpecB);
   Ith(yB,1) = 0.0;
   Ith(yB,2) = 0.0;
   Ith(yB,3) = 0.0;
 
   /* Initialize qB */
-  qB = N_VNew(machEnvQB);
+  qB = N_VNew(nvSpecQB);
   Ith(qB,1) = 0.0;
   Ith(qB,2) = 0.0;
   Ith(qB,3) = 0.0;
@@ -208,27 +210,27 @@ int main(int argc, char *argv[])
   /* Set the scalar absolute tolerance abstolQB */
   abstolQB = ATOLq;
 
-  /* Allocate CVODE memory for backward run */
-  printf("Allocate CVODE memory for backward run\n");
-  flag = CVodeMallocB(cvadj_mem, fB, TB1, yB, BDF, NEWTON, SS, 
-                      &reltolB, &abstolB, data, NULL, 
-                      FALSE, NULL, NULL, machEnvB);
-  if (flag != SUCCESS) { printf("CVodeMallocB failed.\n"); return(1); }
+  /* Create and allocate CVODES memory for backward run */
+  printf("Create and allocate CVODES memory for backward run\n");
+  flag = CVodeCreateB(cvadj_mem, BDF, NEWTON);
+  flag = CVodeSetFdataB(cvadj_mem, data);
+  flag = CVodeMallocB(cvadj_mem, fB, TB1, yB, SS, &reltolB, &abstolB, nvSpecB);
 
-  flag = CVDenseB(cvadj_mem, NEQ, JacB, data);
-  if (flag != SUCCESS) { printf("CVDenseB failed.\n"); return(1); }
+  flag = CVDenseB(cvadj_mem, NEQ);
+  flag = CVDenseSetJacFnB(cvadj_mem, JacB);
+  flag = CVDenseSetJacDataB(cvadj_mem, data);
 
-  flag = CVodeQuadMallocB(cvadj_mem, fQB, PARTIAL, &reltolB, &abstolQB,
-                          data, machEnvQB);
-  if (flag != SUCCESS) { printf("CVodeQuadMallocB failed.\n"); return(1); }
+  flag = CVodeSetQuadErrConB(cvadj_mem, PARTIAL);
+  flag = CVodeSetQuadFdataB(cvadj_mem, data);
+  flag = CVodeQuadMallocB(cvadj_mem, fQB, SS, &reltolB, &abstolQB, nvSpecQB);
 
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB1);
   flag = CVodeB(cvadj_mem, yB);
   if (flag < 0) { printf("CVodeB failed.\n"); return(1); }
 
-  flag = CVodeQuadExtractB(cvadj_mem, qB);
-  if (flag != SUCCESS) { printf("CVodeQuadExtractB failed.\n"); return(1); }
+  flag = CVodeGetQuadB(cvadj_mem, qB);
+  if (flag != SUCCESS) { printf("CVodeGetQuadB failed.\n"); return(1); }
 
   printf("\n========================================================\n");
   printf("tB0:        %12.4e \n",TB1);
@@ -250,23 +252,17 @@ int main(int argc, char *argv[])
   Ith(qB,3) = 0.0;
   Ith(qB,4) = 0.0;
 
-  printf("Re-initialize CVODE memory for backward run\n");
-  flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, BDF, NEWTON, SS, 
-                      &reltolB, &abstolB, data, NULL, 
-                      FALSE, NULL, NULL, machEnvB);
-  if (flag != SUCCESS) { printf("CVodeReInitB failed.\n"); return(1); }
-
-  flag = CVodeQuadReInitB(cvadj_mem, fQB, PARTIAL, &reltolB, &abstolQB, 
-                          data, machEnvQB);
-  if (flag != SUCCESS) { printf("CVodeQuadReInitB failed.\n"); return(1); }
+  printf("Re-initialize CVODES memory for backward run\n");
+  flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, SS, &reltolB, &abstolB);
+  flag = CVodeQuadReInitB(cvadj_mem, fQB, SS, &reltolB, &abstolQB); 
 
   /* Backward Integration */
   printf("Integrate backwards from tB0 = %12.4e\n", TB2);
   flag = CVodeB(cvadj_mem, yB);
   if (flag < 0) { printf("CVodeB failed.\n"); return(1); }
 
-  flag = CVodeQuadExtractB(cvadj_mem, qB);
-  if (flag != SUCCESS) { printf("CVodeQuadExtractB failed.\n"); return(1); }
+  flag = CVodeGetQuadB(cvadj_mem, qB);
+  if (flag != SUCCESS) { printf("CVodeGetQuadB failed.\n"); return(1); }
 
   printf("\n========================================================\n");
   printf("tB0:        %12.4e \n",TB2);
@@ -287,9 +283,9 @@ int main(int argc, char *argv[])
   N_VFree(yB);
   N_VFree(qB);
   CVadjFree(cvadj_mem);
-  M_EnvFree_Serial(machEnvF);
-  M_EnvFree_Serial(machEnvB);
-  M_EnvFree_Serial(machEnvQB);
+  NV_SpecFree_Serial(nvSpecF);
+  NV_SpecFree_Serial(nvSpecB);
+  NV_SpecFree_Serial(nvSpecQB);
   free(data);
 
   return(0);

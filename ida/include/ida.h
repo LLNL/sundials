@@ -1,9 +1,8 @@
 /*******************************************************************
- *                                                                 *
  * File          : ida.h                                           *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 31 March 2003                                   *
+ * Version of    : 17 July 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -37,7 +36,6 @@ extern "C" {
  ******************************************************************/
 
 /******************************************************************
- *                                                                *
  * Type : ResFn                                                   *
  *----------------------------------------------------------------*        
  * The F function which defines the DAE system   F(t,y,y')=0      *
@@ -67,82 +65,170 @@ extern "C" {
 typedef int (*ResFn)(realtype tres, N_Vector yy, N_Vector yp, 
                      N_Vector resval, void *rdata);
  
-
-/******************************************************************
- *                                                                *
- * Enumerations for inputs to IDAMalloc, IDAReInit, and IDASolve. *
+/*----------------------------------------------------------------*
+ * Inputs to IDAMalloc, IDAReInit, IDACalcIC, and IDASolve.       *
  *----------------------------------------------------------------*/
-/* iopt indices */
 
-enum { MAXORD, MXSTEP, SUPPRESSALG ,
-       NST, NRE, NNI, NCFN, NETF, NSETUPS, KUSED, KNEXT,
-       LENRW, LENIW, NBACKTR };
+/* itol */
+enum { SS, SV };
 
-/* ropt indices */
+/* itask */
+enum { NORMAL, ONE_STEP, NORMAL_TSTOP, ONE_STEP_TSTOP };
 
-enum { HINIT, HMAX, NCONFAC, HMIN, 
-       HUSED, HNEXT, TNOW, TOLSF };
+/* icopt */
+enum { CALC_YA_YDP_INIT = 1 , CALC_Y_INIT = 2 };
 
-
-enum { SS, SV };               /* itol */
-
-enum { NORMAL, ONE_STEP, NORMAL_TSTOP, ONE_STEP_TSTOP }; /* itask */
-
-
-
-/* Enumerations for res, lsetup and lsolve return values */
+/*----------------------------------------------------------------*
+ * Enumerations for res, lsetup and lsolve return values          *
+ *----------------------------------------------------------------*/
 
 enum {SUCCESS               = 0,
       RES_ERROR_RECVR       = 1, RES_ERROR_NONRECVR      = -1,
       LSETUP_ERROR_RECVR    = 2, LSETUP_ERROR_NONRECVR   = -2,
       LSOLVE_ERROR_RECVR    = 3, LSOLVE_ERROR_NONRECVR   = -3};
 
-
-/* IDAReInit return values: */
-
-/* SUCCESS = 0  (Defined above but listed here also for completeness) */
-enum {IDAREI_NO_MEM = -1, IDAREI_ILL_INPUT = -2};
- 
-
-/* IDACalcIC icopt values  */
-
-enum { CALC_YA_YDP_INIT = 1 , CALC_Y_INIT = 2 };
-
-
-/* IDACalcIC return values */
-
-/* The following three values are IDASolve return values, repeated
-   here for convenience. 
-       SETUP_FAILURE=-7,  SOLVE_FAILURE=-8,  RES_NONRECOV_ERR=-11  */
-
-enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
-       IC_LINIT_FAIL =     -22,   IC_BAD_EWT =         -23,
-       IC_FIRST_RES_FAIL = -24,   IC_NO_RECOVERY =     -25,
-       IC_FAILED_CONSTR =  -26,   IC_FAILED_LINESRCH = -27,
-       IC_CONV_FAILURE =   -28 };
-
-
-/* IDASolve return values */
-
-enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
-       IDA_NO_MEM=-1,       ILL_INPUT=-2,          TOO_MUCH_WORK=-3,      
-       TOO_MUCH_ACC=-4,     ERR_FAILURE=-5,        CONV_FAILURE=-6,       
-       SETUP_FAILURE=-7,    SOLVE_FAILURE=-8,      CONSTR_FAILURE=-9,     
-       REP_RES_REC_ERR=-10, RES_NONRECOV_ERR=-11 };
-
- 
-/******************************************************************
+/*================================================================*
  *                                                                *
+ *          U S E R - C A L L A B L E   R O U T I N E S           *
+ *                                                                *
+ *================================================================*/
+
+/*----------------------------------------------------------------*
+ * Function : IDACreate                                           *
+ *----------------------------------------------------------------*
+ * IDACreate creates an internal memory block for a problem to    *
+ * be solved by IDA.                                              *
+ *                                                                *
+ * If successful, IDACreate returns a pointer to initialized      *
+ * problem memory. This pointer should be passed to IDAMalloc.    *
+ * If an initialization error occurs, IDACreate prints an error   *
+ * message to standard err and returns NULL.                      *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+void *IDACreate(void);
+
+/*----------------------------------------------------------------*
+ * Integrator optional input specification functions              *
+ *----------------------------------------------------------------*
+ * The following functions can be called to set optional inputs   *
+ * to values other than the defaults given below:                 *
+ *                                                                *
+ *                      |                                         * 
+ * Function             |  Optional input / [ default value ]     *
+ *                      |                                         * 
+ * -------------------------------------------------------------- *
+ *                      |                                         * 
+ * IDASetRdata          | a pointer to user data that will be     *
+ *                      | passed to the user's res function every *
+ *                      | time res is called.                     *
+ *                      | [NULL]                                  *
+ *                      |                                         * 
+ * IDASetErrFile        | the file pointer for an error file      *
+ *                      | where all IDA warning and error         *
+ *                      | messages will be written. This parameter*
+ *                      | can be stdout (standard output), stderr *
+ *                      | (standard error), a file pointer        *
+ *                      | (corresponding to a user error file     *
+ *                      | opened for writing) returned by fopen.  *
+ *                      | If not called, then all messages will   *
+ *                      | be written to standard output.          *
+ *                      | [NULL]                                  *
+ *                      |                                         * 
+ * IDASetMaxOrd         | maximum lmm order to be used by the     *
+ *                      | solver.                                 *
+ *                      | [5 (BDF)]                               * 
+ *                      |                                         * 
+ * IDASetMaxNumSteps    | maximum number of internal steps to be  *
+ *                      | taken by the solver in its attempt to   *
+ *                      | reach tout.                             *
+ *                      | [500]                                   *
+ *                      |                                         * 
+ * IDASetInitStep       | initial step size.                      *
+ *                      | [estimated by IDA]                      * 
+ *                      |                                         * 
+ * IDASetMaxStep        | maximum absolute value of step size     *
+ *                      | allowed.                                *
+ *                      | [infinity]                              *
+ *                      |                                         * 
+ * IDASetStopTime       | the independent variable value past     *
+ *                      | which the solution is not to proceed.   *
+ *                      | [infinity]                              *
+ *                      |                                         * 
+ * IDASetNlinConvFactor | factor in nonlinear convergence test    *
+ *                      | for use during integration.             *
+ *                      | [1.0]                                   *
+ *                      |                                         * 
+ * IDASetSuppressAlg    | flag to indicate whether or not to      *
+ *                      | suppress algebraic variables in the     *
+ *                      | local error tests:                      *
+ *                      | FALSE = do not suppress;                * 
+ *                      | TRUE = do suppress;                     *
+ *                      | [FALSE]                                 *
+ *                      | NOTE: if suppressed algebraic variables *
+ *                      | is selected, the nvector 'id' must be   *
+ *                      | supplied for identification of those    *
+ *                      | algebraic components (see IDASetID).    *
+ *                      |                                         * 
+ * IDASetID             | an N_Vector, which states a given       *
+ *                      | element to be either algebraic or       *
+ *                      | differential.                           *
+ *                      | A value of 1.0 indicates a differential *
+ *                      | variable while a 0.0 indicates an       *
+ *                      | algebraic variable. 'id' is required    *
+ *                      | if optional input SUPPRESSALG is set,   *
+ *                      | or if IDACalcIC is to be called with    *
+ *                      | icopt = CALC_YA_YDP_INIT.               *
+ *                      |                                         *
+ * IDASetConstraints    | an N_Vector defining inequality         *
+ *                      | constraints for each component of the   *
+ *                      | solution vector y. If a given element   *
+ *                      | of this vector has values +2 or -2,     *
+ *                      | then the corresponding component of y   *
+ *                      | will be constrained to be > 0.0 or      *
+ *                      | <0.0, respectively, while if it is +1   *
+ *                      | or -1, the y component is constrained   *
+ *                      | to be >= 0.0 or <= 0.0, respectively.   *
+ *                      | If a component of constraints is 0.0,   *
+ *                      | then no constraint is imposed on the    *
+ *                      | corresponding component of y.           *
+ *                      | The presence of a non-NULL constraints  *
+ *                      | vector that is not 0.0 (ZERO) in all    *
+ *                      | components will cause constraint        *
+ *                      | checking to be performed.               *
+ *                      |                                         *
+ * -------------------------------------------------------------- *
+ *                                                                *
+ * If successful, these functions return SUCCESS. If an argument  *
+ * has an illegal value, they print an error message to the       *
+ * file specified by errfp and return one of the error flags      *  
+ * defined below.                                                 *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int IDASetRdata(void *ida_mem, void *rdata);
+int IDASetErrFile(void *ida_mem, FILE *errfp);
+int IDASetMaxOrd(void *ida_mem, int maxord);
+int IDASetMaxNumSteps(void *ida_mem, int mxsteps);
+int IDASetInitStep(void *ida_mem, realtype hin);
+int IDASetMaxStep(void *ida_mem, realtype hmax);
+int IDASetStopTime(void *ida_mem, realtype tstop);
+int IDASetNlinConvFactor(void *ida_mem, realtype nconfac);
+int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
+int IDASetID(void *ida_mem, N_Vector id);
+int IDASetConstraints(void *ida_mem, N_Vector constraints);
+
+/* Error return values for IDASet* functions */
+/* SUCCESS = 0*/
+enum {IDAS_NO_MEM = -1, IDAS_ILL_INPUT = -2};
+
+/******************************************************************
  * Function : IDAMalloc                                           *
  *----------------------------------------------------------------*
  * IDAMalloc allocates and initializes memory for a problem to    *
  * to be solved by IDA.                                           *
  *                                                                *
  * res     is the residual function F in F(t,y,y') = 0.           *          
- *                                                                *
- * rdata   is the data memory block (supplied by user) for res.   *
- *         It is passed as a void pointer and is to be cast before*
- *         use in res.                                            *
  *                                                                *
  * t0      is the initial value of t, the independent variable.   *
  *                                                                *
@@ -171,57 +257,7 @@ enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
  *         current approximate solution.  See the routine         *
  *         N_VWrmsNorm for the norm used in this error test.      *
  *                                                                *
- * id      is an N_Vector, required conditionally, which states a *
- *         given element to be either algebraic or differential.  *
- *         A value of 1.0 indicates a differential variable while *
- *         a 0.0 indicates an algebraic variable. 'id' is required*
- *         if optional input SUPPRESSALG is set, or if IDACalcIC  *
- *         is to be called with icopt = CALC_YA_YDP_INIT.         *
- *         Otherwise, 'id' may be NULL.                           *
- *                                                                *
- * constraints  is an N_Vector defining inequality constraints    *
- *         for each component of the solution vector y. If a given*
- *         element of this vector has values +2 or -2, then the   *
- *         corresponding component of y will be constrained to be *
- *         > 0.0 or < 0.0, respectively, while if it is +1 or -1, *
- *         the y component is constrained to be >= 0.0 or <= 0.0, *
- *         respectively. If a component of constraints is 0.0,    *
- *         then no constraint is imposed on the corresponding     *
- *         component of y. The presence of a non-NULL constraints *
- *         vector that is not 0.0 (ZERO) in all components will   *
- *         cause constraint checking to be performed.             *
- *                                                                *
- * errfp   is the file pointer for an error file where all IDA    *
- *            warning and error messages will be written. This    *
- *            parameter can be stdout (standard output), stderr   *
- *            (standard error), a file pointer (corresponding to  *
- *            a user error file opened for writing) returned by   *
- *            fopen, or NULL. If the user passes NULL, then all   *
- *            messages will be written to standard output.        *
- *                                                                *
- * optIn   is a flag (booleantype) indicating whether there are   *
- *            any optional inputs from the user in the arrays     *
- *            iopt and iopt.                                      *
- *            Pass FALSE to indicate no optional inputs and TRUE  *
- *            to indicate that optional inputs are present.       *
- *                                                                *
- * iopt    is the user-allocated array (of size OPT_SIZE given    *
- *            later) that will hold optional integer inputs and   *
- *            outputs.  The user can pass NULL if he/she does not *
- *            wish to use optional integer inputs or outputs.     *
- *            If optIn is TRUE, the user should preset to 0 those *
- *            locations for which default values are to be used.  *
- *                                                                *
- * ropt    is the user-allocated array (of size OPT_SIZE given    *
- *            later) that will hold optional real inputs and      *
- *            outputs.  The user can pass NULL if he/she does not *
- *            wish to use optional real inputs or outputs.        *
- *            If optIn is TRUE, the user should preset to 0.0 the *
- *            locations for which default values are to be used.  *
- *                                                                *
- * machEnv is a pointer to a block of machine environment-specific*
- *            information.  You may pass NULL for this argument   *
- *            in a serial computer environment.                   *
+ * nvspec  is a pointer to a vector specification structure       * 
  *                                                                *
  * Note: The tolerance values may be changed in between calls to  *
  *       IDASolve for the same problem. These values refer to     *
@@ -229,27 +265,29 @@ enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
  *       tolerance, or the components of atol, for a vector       *
  *       absolute tolerance.                                      *
  *                                                                * 
- * If successful, IDAMalloc returns a pointer to initialized      *
- * problem memory. This pointer should be passed to IDA. If       *
- * an initialization error occurs, IDAMalloc prints an error      *
- * message to the file specified by errfp and returns NULL.       *
+ * If successful, IDAMalloc returns SUCCESS.                      *
+ * If an initialization error occurs, IDAMalloc prints an error   *
+ * message to the file specified by errfp and returns one of the  *
+ * error flags defined below.                                     *
  *                                                                *
  ******************************************************************/
 
-void *IDAMalloc(ResFn res, void *rdata, realtype t0, N_Vector y0, 
-                N_Vector yp0, int itol, realtype *rtol, void *atol,
-                N_Vector id, N_Vector constraints, FILE *errfp, 
-                booleantype optIn, long int iopt[], realtype ropt[], 
-                M_Env machEnv);
+int IDAMalloc(void *ida_mem, ResFn res,
+              realtype t0, N_Vector y0, N_Vector yp0, 
+              int itol, realtype *rtol, void *atol,
+              NV_Spec nvspec);
+
+/* Error return values for IDAMalloc */
+/* SUCCESS = 0 */
+enum {IDAM_NO_MEM = -1, IDAM_MEM_FAIL=-2, IDAM_ILL_INPUT = -2};
 
 /******************************************************************
- *                                                                *
  * Function : IDAReInit                                           *
  *----------------------------------------------------------------*
  * IDAReInit re-initializes IDA for the solution of a problem,    *
- * where a prior call to IDAMalloc has been made with the same    *
- * problem size Neq.  IDAReInit performs the same input checking  *
- * and initializations that IDAMalloc does (except for Neq).      *
+ * where a prior call to IDAMalloc has been made.                 *
+ * IDAReInit performs the same input checking and initializations *
+ * that IDAMalloc does (except for Neq).                          *
  * But it does no memory allocation, assuming that the existing   *
  * internal memory is sufficient for the new problem.             *
  *                                                                *
@@ -264,138 +302,90 @@ void *IDAMalloc(ResFn res, void *rdata, realtype t0, N_Vector y0,
  * is chosen, but may not be otherwise.  If the same linear solver*
  * is chosen, and there are no changes in its input parameters,   *
  * then no call to that routine is needed.                        *
- * If there are changes in parameters, but they do not increase   *
- * the linear solver memory size, then a call to the corresponding*
- * IDAReInit<linsol> routine must made to communicate the new     *
- * parameters; in that case the linear solver memory is reused.   *
- * If the parameter changes do increase the linear solver memory  *
- * size, then the main linear solver specification routine must be*
- * called.  See the linear solver documentation for full details. *
  *                                                                *
  * The first argument to IDAReInit is:                            *
  *                                                                *
- * ida_mem = pointer to IDA memory returned by IDAMalloc.         *
+ * ida_mem = pointer to IDA memory returned by IDACreate.         *
  *                                                                *
  * All the remaining arguments to IDAReInit have names and        *
- * meanings identical to those of IDAMalloc.  Note that the       *
- * problem size Neq is not passed as an argument to IDAReInit,    *
- * as that is assumed to be unchanged since the IDAMalloc call.   *
+ * meanings identical to those of IDAMalloc.                      *
  *                                                                *
  * The return value of IDAReInit is equal to SUCCESS = 0 if there *
  * were no errors; otherwise it is a negative int equal to:       *
  *   IDAREI_NO_MEM     indicating ida_mem was NULL, or            *
+ *   IDAREI_NO_MALLOC  indicating that ida_mem was not allocated. *
  *   IDAREI_ILL_INPUT  indicating an input argument was illegal   *
  *                     (including an attempt to increase maxord). *
  * In case of an error return, an error message is also printed.  *
  *                                                                *
- * Note: the reported workspace sizes iopt[LENRW] and iopt[LENIW] *
- * are left unchanged from the values computed by IDAMalloc, and  *
- * so may be larger than would be computed for the new problem.   *
  ******************************************************************/
 
-int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
-              N_Vector y0, N_Vector yp0, int itol, realtype *rtol, 
-              void *atol, N_Vector id, N_Vector constraints, 
-              FILE *errfp, booleantype optIn, long int iopt[], 
-              realtype ropt[], void *machEnv);
+int IDAReInit(void *ida_mem, ResFn res,
+              realtype t0, N_Vector y0, N_Vector yp0,
+              int itol, realtype *rtol, void *atol);
  
-/******************************************************************
- *                                                                *
- * Optional Inputs and Outputs                                    *
+/* Error return values for IDAReInit */
+/* SUCCESS = 0 */ 
+enum {IDAREI_NO_MEM = -1, IDAREI_NO_MALLOC = -2, IDAREI_ILL_INPUT = -3};
+
+/*----------------------------------------------------------------*
+ * Initial Conditions optional input specification functions      *
  *----------------------------------------------------------------*
- * The user should declare two arrays for optional inputs to      *
- * IDAMalloc and IDAReInit, and optional outputs from IDACalcIC   *
- * and IDASolve:                                                  *
- *   a long int array iopt for optional integer input/output, and *
- *   a realtype array ropt for optional real input/output.        *
- * The size of both these arrays should be OPT_SIZE.              *
- * So the user's declaration should look like:                    *
- *   long int iopt[OPT_SIZE];                                     *
- *   realtype ropt[OPT_SIZE];                                     *
+ * The following functions can be called to set optional inputs   *
+ * to control the initial conditions calculations.                *
  *                                                                *
- * The enumerations listed earlier are indices into the           * 
- * iopt and ropt arrays. Here is a brief description of the       *
- * contents of these positions:                                   *
- *                                                                *
- * iopt[MAXORD] : maximum order to be used by the solver.         *
- *                Optional input. (Default = 5)                   *
- *                                                                *
- * iopt[MXSTEP] : maximum number of internal steps to be taken by *
- *                the solver in its attempt to reach tout.        *
- *                Optional input. (Default = 500).                *
- *                                                                *
- * iopt[SUPPRESSALG]: flag to indicate whether or not to suppress *
- *                algebraic variables in the local error tests:   *
- *                0 = do not suppress ; 1 = do suppress;          *
- *                the default is 0.  Optional input.              *      
- *                NOTE: if suppressed algebraic variables is      * 
- *                selected, the nvector 'id' must be supplied for *
- *                identification of those algebraic components.   *
- *                                                                *
- * iopt[NST]    : cumulative number of internal steps taken by    *
- *                the solver (total so far).  Optional output.    *
- *                                                                *
- * iopt[NRE]    : number of calls to the user's residual function.*
- *                Optional output.                                *
- *                                                                *
- * iopt[NNI]     : number of Newton iterations performed.         *
- *                 Optional output.                               *
- *                                                                *
- * iopt[NCFN]    : number of nonlinear convergence failures       *
- *                 that have occurred. Optional output.           *
- *                                                                *
- * iopt[NETF]    : number of local error test failures that       *
- *                 have occurred. Optional output.                *
- *                                                                *
- * iopt[NSETUPS] : number of calls to lsetup routine.             *
- *                                                                *
- * iopt[NBACKTR] : number of backtrack operations done in the     *
- *                 linesearch algorithm in IDACalcIC.             *
- *                                                                *
- * iopt[KUSED]   : order used during the last internal step.      *
- *                 Optional output.                               *
- *                                                                *
- * iopt[KNEXT]   : order to be used on the next internal step.    *
- *                 Optional output.                               *
- *                                                                *
- * iopt[LENRW]   : size of required IDA internal real work        *
- *                 space, in realtype words.  Optional output.    *
- *                                                                *
- * iopt[LENIW]   : size of required IDA internal integer work     *
- *                 space, in integertype words.  Optional output. *
- *                                                                *
- * ropt[HINIT]   : initial step size. Optional input.             *
- *                                                                *
- * ropt[HMAX]    : maximum absolute value of step size allowed.   *
- *                 Optional input. (Default is infinity).         *
- *                                                                *
- * ropt[NCONFAC] : factor in nonlinear convergence test for use   *
- *                 during integration.  Optional input.           *
- *                 The default value is 1.                        *
- *                                                                *
- * ropt[HUSED]   : step size for the last internal integration    *
- *                 step (if from IDASolve), or the last value of  *
- *                 the artificial step size h (if from IDACalcIC).*
- *                 Optional output.                               *
- *                                                                *
- * ropt[HNEXT]   : step size to be attempted on the next internal *
- *                 step. Optional output.                         *
- *                                                                *
- * ropt[TNOW]    : current internal independent variable value    *
- *                 reached by the solver.  Optional output.       *
- *                                                                *
- * ropt[TOLSF]   : a suggested factor by which the user's         *
- *                 tolerances should be scaled when too much      *
- *                 accuracy has been requested for some internal  *
- *                 step. Optional output.                         *
+ *                        |                                       * 
+ * Function               |  Optional input / [ default value ]   *
+ *                        |                                       * 
+ * -------------------------------------------------------------- *
+ *                        |                                       * 
+ * IDASetNlinConvFactorIC | positive scalar factor in the Newton  *
+ *                        | convergence test.  This test uses a   *
+ *                        | weighted RMS norm (with weights       *
+ *                        | defined by the tolerances, as in      *
+ *                        | IDASolve).  For new initial value     *
+ *                        | vectors y and y' to be accepted, the  *
+ *                        | norm of J-inverse F(t0,y,y') is       *
+ *                        | required to be less than epicfac*0.33,*
+ *                        | where J is the system Jacobian.       *
+ *                        | [0.01]                                * 
+ *                        |                                       * 
+ * IDASetMaxNumStepsIC    | maximum number of values of h allowed *
+ *                        | when icopt = CALC_YA_YDP_INIT, where  *
+ *                        | h appears in the system Jacobian,     *
+ *                        | J = dF/dy + (1/h)dF/dy'.              *
+ *                        | [5]                                   *
+ *                        |                                       * 
+ * IDASetMaxNumJacsIC     | maximum number of values of the       *
+ *                        | approximate Jacobian or preconditioner*
+ *                        | allowed, when the Newton iterations   *
+ *                        | appear to be slowly converging.       *
+ *                        | [4]                                   * 
+ *                        |                                       * 
+ * IDASetMaxNumItersIC    | maximum number of Newton iterations   *
+ *                        | allowed in any one attempt to solve   *
+ *                        | the IC problem.                       *
+ *                        | [10]                                  *
+ *                        |                                       * 
+ * IDASetLineSearchOffIC  | a boolean flag to turn off the        *
+ *                        | linesearch algorithm.                 *
+ *                        | [FALSE]                               *
+ *                        |                                       * 
+ * IDASetStepToleranceIC  | positive lower bound on the norm of   *
+ *                        | a Newton step.                        *
+ *                        | [(unit roundoff)^(2/3)                *
  *                                                                *
  ******************************************************************/
 
+int IDASetNlinConvFactorIC(void *ida_mem, realtype epicfac);
+int IDASetMaxNumStepsIC(void *ida_mem, int maxnh);
+int IDASetMaxNumJacsIC(void *ida_mem, int maxnj);
+int IDASetMaxNumItersIC(void *ida_mem, int maxnit);
+int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff);
+int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
 
 /******************************************************************
- *                                                                *
  * Function : IDACalcIC                                           *
- *                                                                *
  *----------------------------------------------------------------*
  * IDACalcIC calculates corrected initial conditions for the DAE  *
  * system for a class of index-one problems of semi-implicit form.*
@@ -408,7 +398,7 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
  * A call to IDACalcIC must be preceded by a successful call to   *
  * IDAMalloc or IDAReInit for the given DAE problem, and by a     *
  * successful call to the linear system solver specification      *
- * routine, or corresponding reinitialization routine.            *
+ * routine.                                                       *
  * In addition, IDACalcIC assumes that the vectors y0, yp0, and   *
  * (if relevant) id and constraints that were passed to IDAMalloc *
  * (or IDAReInit) remain unaltered since that call.               *
@@ -438,35 +428,6 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
  *        requested (from IDASolve).  (This is needed here to     *
  *        determine the direction of integration and rough scale  *
  *        in the independent variable t.                          *
- *                                                                *
- * epicfac is a positive scalar factor in the Newton convergence  *
- *        test.  This test uses a weighted RMS norm (with weights *
- *        defined by the tolerances, as in IDASolve).  For new    *
- *        initial value vectors y and y' to be accepted, the norm *
- *        of J-inverse F(t0,y,y') is required to be less than     *
- *        epicfac*0.33, where J is the system Jacobian.           *
- *        The default is epicfac = .01, specified by passing 0.   *
- *                                                                *
- * maxnh  is the maximum number of values of h allowed in the     *
- *        algorithm for icopt = CALC_YA_YDP_INIT, where h appears *
- *        in the system Jacobian, J = dF/dy + (1/h)dF/dy'.        *
- *        The default is maxnh = 5, specified by passing 0.       *
- *                                                                *
- * maxnj  is the maximum number of values of the approximate      *
- *        Jacobian or preconditioner allowed, when the Newton     *
- *        iterations appear to be slowly converging.              *
- *        The default is maxnj = 4, specified by passing 0.       *
- *                                                                *
- * maxnit is the maximum number of Newton iterations allowed in   *
- *        any one attempt to solve the IC problem.                *
- *        The default is maxnit = 10, specified by passing 0.     *
- *                                                                *
- * lsoff  is an integer flag to turn off the linesearch algorithm *
- *        (lsoff = 1). The default is lsoff = 0 (linesearch done).*
- *                                                                *
- * steptol is a positive lower bound on the norm of a Newton step.*
- *        The default value is steptol = (unit roundoff)^(2/3),   *
- *        specified by passing 0.                                 *
  *                                                                *
  *                                                                *
  * IDACalcIC returns an int flag.  Its symbolic values and their  *
@@ -517,35 +478,23 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
  * IC_CONV_FAILURE     IDACalcIC failed to get convergence of the *
  *                     Newton iterations.                         *
  *                                                                *
- *                                                                *
- * The following optional outputs provided by IDACalcIC are       *
- * available in the iopt and ropt arrays.  In addition, these     *
- * arrays contain optional outputs from the linear solver.        *
- * All of the cumulative counters in iopt are accumulated over    *
- * both the IDACalcIC call and the subsequent calls to IDASolve.  *
- *                                                                *
- * iopt[NRE]     = number of calls to the user residual function. *
- *                                                                *
- * iopt[NNI]     = number of Newton iterations performed.         *
- *                                                                *
- * iopt[NCFN]    = number of nonlinear convergence failures.      *
- *                                                                *
- * iopt[NSETUPS] = number of calls to linear solver setup routine.*
- *                                                                *
- * iopt[NBACKTR] = number of backtracks in Linesearch algorithm.  *
- *                                                                *
- * ropt[HUSED]   = value of h last used in the system Jacobian J  *
- *                 if icopt = CALC_YA_YDP_INIT.                   *
- *                                                                *
  ******************************************************************/
 
-int IDACalcIC (void *ida_mem, int icopt, realtype tout1, 
-               realtype epicfac, int maxnh, int maxnj, 
-               int maxnit, int lsoff, realtype steptol);
+int IDACalcIC (void *ida_mem, int icopt, realtype tout1); 
 
+/* IDACalcIC return values */
+
+/* The following three values are IDASolve return values, repeated
+   here for convenience. 
+       SETUP_FAILURE=-7,  SOLVE_FAILURE=-8,  RES_NONRECOV_ERR=-11  */
+
+enum { IC_IDA_NO_MEM =     -20,   IC_ILL_INPUT =       -21,
+       IC_LINIT_FAIL =     -22,   IC_BAD_EWT =         -23,
+       IC_FIRST_RES_FAIL = -24,   IC_NO_RECOVERY =     -25,
+       IC_FAILED_CONSTR =  -26,   IC_FAILED_LINESRCH = -27,
+       IC_CONV_FAILURE =   -28,   IC_NO_MALLOC =       -28  };
 
 /******************************************************************
- *                                                                *
  * Function : IDASolve                                            *
  *----------------------------------------------------------------*
  * IDASolve integrates the DAE over an interval in t, the         *
@@ -560,20 +509,13 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1,
  * determine the direction of integration and the rough scale of  *
  * the problem. In either case, the independent variable value    *
  * reached by the solver is placed in (*tret). The user is        * 
- * responsible for allocating the memory for this value. There are*
- * two other itask options: NORMAL_TSTOP and ONE_STEP_TSTOP. Each *
- * option acts as described above with the exception that the     *
- * solution does not go past the independent variable value tstop.*
+ * responsible for allocating the memory for this value.          *
  *                                                                *
  * IDA_mem is the pointer (void) to IDA memory returned by        *
  *         IDAMalloc.                                             *
  *                                                                *
  * tout    is the next independent variable value at which a      *
  *         computed solution is desired.                          *
- *                                                                *
- * tstop   is the (optional) independent variable value past which*
- *         the solution is not to proceed (see itask options).    *
- *         Ignored if itask is NORMAL or ONE_STEP.                *
  *                                                                *
  * *tret   is the actual independent variable value corresponding *
  *         to the solution vector yret.                           *
@@ -649,30 +591,140 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1,
  *                                                                *
  ******************************************************************/
 
-
-int IDASolve(void *ida_mem, realtype tout, realtype tstop, realtype *tret,
+int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask);
 
-/******************************************************************
- *                                                                *
- * Function : IDAGetEwt                                           *
+/* IDASolve return values */
+
+enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
+       IDA_NO_MEM=-1,       NO_MALLOC=-2,          ILL_INPUT=-3,
+       TOO_MUCH_WORK=-4,    TOO_MUCH_ACC=-5,       ERR_FAILURE=-6,
+       CONV_FAILURE=-7,     SETUP_FAILURE=-8,      SOLVE_FAILURE=-9,
+       CONSTR_FAILURE=-10,  REP_RES_REC_ERR=-11,   RES_NONRECOV_ERR=-12 };
+
+/*----------------------------------------------------------------*
+ * Function: IDAGetSolution                                       *
  *----------------------------------------------------------------*
- * This routine returns the weight vectors for states in weight   *
- * It is provided for use in user-defined Jacobian routines       *
- * routines based on finite differences. Note that the user need  *
- * not allocate space for weight.                                 *
+ *                                                                *
+ * This routine evaluates y(t) and y'(t) as the value and         *
+ * derivative of the interpolating polynomial at the independent  *
+ * variable t, and stores the results in the vectors yret and     *
+ * ypret.  It uses the current independent variable value, tn,    *
+ * and the method order last used, kused. This function is        *
+ * called by IDASolve with t = tout, t = tn, or t = tstop.        *
+ *                                                                *
+ * If kused = 0 (no step has been taken), or if t = tn, then the  *
+ * order used here is taken to be 1, giving yret = phi[0],        *
+ * ypret = phi[1]/psi[0].                                         *
+ *                                                                *
+ * The return values are:                                         *
+ *  OKAY  if t is legal, or                                       *
+ *  BAD_T if t is not within the interval of the last step taken. *
  *                                                                *
  ******************************************************************/
 
-int IDAGetEwt(void *ida_mem, N_Vector weight);
- 
-/* IDAGetEwt return values */
+int IDAGetSolution(void *ida_mem, realtype t, 
+                   N_Vector yret, N_Vector ypret);
 
-/* SUCCESS = 0  */
-enum {GEWT_NO_MEM=-1};
+/*----------------------------------------------------------------*
+ * Integrator optional output extraction functions                *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * The following functions can be called to get optional outputs  *
+ * and statistics related to the main integrator.                 *
+ * -------------------------------------------------------------- *
+ *                                                                *
+ * IDAGetIntWorkSpace returns the IDA integer workspace size      *
+ * IDAGetRealWorkSpace returns the IDA real workspace size        *
+ * IDAGetNumSteps returns the cumulative number of internal       *
+ *       steps taken by the solver                                *
+ * IDAGetNumRhsEvals returns the number of calls to the user's    *
+ *       res function                                             *
+ * IDAGetNumLinSolvSetups returns the number of calls made to     *
+ *       the linear solver's setup routine                        *
+ * IDAGetNumErrTestFails returns the number of local error test   *
+ *       failures that have occured                               *
+ * IDAGetNumBacktrackOps returns the number of backtrack          *
+ *       operations done in the linesearch algorithm in IDACalcIC *
+ * IDAGetLastOrder returns the order used during the last         *
+ *       internal step                                            *
+ * IDAGetNextOrder returns the order to be used on the next       *
+ *       internal step                                            *
+ * IDAGetActualInitStep returns the actual initial step size      *
+ *       used by IDA                                              *
+ * IDAGetLastStep returns the step size for the last internal     *
+ *       step (if from IDASolve), or the last value of the        *
+ *       artificial step size h (if from IDACalcIC)               *
+ * IDAGetNextStep returns the step size to be attempted on the    *
+ *       next internal step                                       *
+ * IDAGetCurrentTime returns the current internal time reached    *
+ *       by the solver                                            *
+ * IDAGetTolScaleFactor returns a suggested factor by which the   *
+ *       user's tolerances should be scaled when too much         *
+ *       accuracy has been requested for some internal step       *
+ * IDAGetErrWeights returns the state error weight vector.        *
+ *       The user need not allocate space for ewt.                *
+ * IDAGetEstLocalErrors returns the vector of estimated local     *
+ *       errors. The user need not allocate space for ele.        *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int IDAGetIntWorkSpace(void *ida_mem, long int *leniw);
+int IDAGetRealWorkSpace(void *ida_mem, long int *lenrw);
+int IDAGetNumSteps(void *ida_mem, int *nsteps);
+int IDAGetNumResEvals(void *ida_mem, int *nrevals);
+int IDAGetNumLinSolvSetups(void *ida_mem, int *nlinsetups);
+int IDAGetNumErrTestFails(void *ida_mem, int *netfails);
+int IDAGetNumBacktrackOps(void *ida_mem, int *nbacktr);
+int IDAGetLastOrder(void *ida_mem, int *klast);
+int IDAGetNextOrder(void *ida_mem, int *kcur);
+int IDAGetActualInitStep(void *ida_mem, realtype *hinused);
+int IDAGetLastStep(void *ida_mem, realtype *hlast);
+int IDAGetNextStep(void *ida_mem, realtype *hcur);
+int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
+int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
+int IDAGetErrWeights(void *ida_mem, N_Vector *eweight);
+
+/*----------------------------------------------------------------*
+ * As a convenience, the following two functions provide the      *
+ * optional outputs in groups.                                    *
+ *----------------------------------------------------------------*/
+
+int IDAGetWorkSpace(void *ida_mem, long int *leniw, long int *lenrw);
+int IDAGetIntegratorStats(void *ida_mem, int *nsteps, int *nrevals, 
+                          int *nlinsetups, int *netfails,
+                          int *qlast, int *qcur, realtype *hlast, 
+                          realtype *hcur, realtype *tcur);
+
+/*----------------------------------------------------------------*
+ * Nonlinear solver optional output extraction functions          *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * The following functions can be called to get optional outputs  *
+ * and statistics related to the nonlinear solver.                *
+ * -------------------------------------------------------------- *
+ *                                                                *
+ * IDAGetNumNonlinSolvIters returns the number of nonlinear       *
+ *       solver iterations performed.                             *
+ * IDAGetNumNonlinSolvConvFails returns the number of nonlinear   *
+ *       convergence failures.                                    *
+ *                                                                *
+ *----------------------------------------------------------------*/
+
+int IDAGetNumNonlinSolvIters(void *ida_mem, int *nniters);
+int IDAGetNumNonlinSolvConvFails(void *ida_mem, int *nncfails);
+
+/*----------------------------------------------------------------*
+ * As a convenience, the following function provides the          *
+ * optional outputs in a group.                                   *
+ *----------------------------------------------------------------*/
+
+int IDAGetNonlinSolvStats(void *ida_mem, int *nniters, int *nncfails);
+
+/* IDAGet* return values */
+enum { OKAY=0, IDAG_NO_MEM=-1, BAD_T=-2 };
 
 /******************************************************************
- *                                                                *
  * Function : IDAFree                                             *
  *----------------------------------------------------------------*
  * IDAFree frees the problem memory IDA_mem allocated by          *
@@ -684,28 +736,12 @@ enum {GEWT_NO_MEM=-1};
 void IDAFree(void *ida_mem);
 
 
-/* iopt, ropt array sizes */
-
-#define OPT_SIZE 40
- 
-
-/* iopt and ropt offsets                                          *
- * The constants IDA_IOPT_SIZE and IDA_ROPT_SIZE are equal to     *
- * the number of integer and real optional inputs and outputs     *
- * actually accessed in ida.c.  The locations beyond these        *
- * values are used by the linear solvers.                         */
-
-#define IDA_IOPT_SIZE 14
-#define IDA_ROPT_SIZE 8
-
-
 /* Basic IDA constants */
 
 #define MXORDP1       6     /* max value 'small' dimension for 
                                phi array size   (other dimension is Neq)  */
 
 /******************************************************************
- *                                                                *
  * Types : struct IDAMemRec, IDAMem                               *
  *----------------------------------------------------------------*
  * The type IDAMem is type pointer to struct IDAMemRec. This      *
@@ -719,11 +755,11 @@ typedef struct IDAMemRec {
 
   /* Problem Specification Data */
 
-  ResFn    ida_res;                  /* F(t,y(t),y'(t))=0; the function F  */
-  void    *ida_rdata;                /* user pointer passed to res         */
-  int      ida_itol;                 /* itol = SS or SV                    */
-  realtype    *ida_rtol;             /* ptr to relative tolerance          */
-  void    *ida_atol;                 /* ptr to absolute tolerance          */  
+  ResFn          ida_res;            /* F(t,y(t),y'(t))=0; the function F  */
+  void          *ida_rdata;          /* user pointer passed to res         */
+  int            ida_itol;           /* itol = SS or SV                    */
+  realtype      *ida_rtol;           /* ptr to relative tolerance          */
+  void          *ida_atol;           /* ptr to absolute tolerance          */  
   booleantype    ida_setupNonNull;   /* Does setup do something?           */
   booleantype    ida_constraintsSet; /* constraints vector present: 
                                         do constraints calc                */
@@ -732,49 +768,53 @@ typedef struct IDAMemRec {
 
   /* Divided differences array and associated minor arrays */
 
-  N_Vector ida_phi[MXORDP1];
-           /* phi = Neq x (maxord+1) array of divided differences */
+  N_Vector ida_phi[MXORDP1];   /* phi = (maxord+1) arrays of divided differences */
 
-  realtype ida_psi[MXORDP1];   /* differences in t (sums of recent step sizes) */
-  realtype ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values     */
-  realtype ida_beta[MXORDP1]; 
-                            /* ratios of current to previous product of psi's  */
-  realtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial*/
-  realtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values             */
+  realtype ida_psi[MXORDP1];   /* differences in t (sums of recent step sizes)   */
+  realtype ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values       */
+  realtype ida_beta[MXORDP1];  /* ratios of current to previous product of psi's */
+  realtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
+  realtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
 
   /* Vectors of length Neq */
 
-  N_Vector ida_ewt;         /* error weight vector                        */
-  N_Vector ida_mskewt;      /* masked error weight vector (uses ID)       */
-  N_Vector ida_y0;          /* initial y vector (user-supplied)           */
-  N_Vector ida_yp0;         /* initial y' vector (user-supplied)          */
-  N_Vector ida_yy;          /* work space for y vector (= user's yret)    */
-  N_Vector ida_yp;          /* work space for y' vector (= user's ypret)  */
-  N_Vector ida_delta;       /* residual vector                            */
-  N_Vector ida_id;          /* bit vector for diff./algebraic components  */
-  N_Vector ida_constraints; /* vector of inequality constraint options    */
-  N_Vector ida_savres;      /* saved residual vector (= tempv1)           */
-  N_Vector ida_ee;          /* accumulated corrections to y               */
-  N_Vector ida_mm;          /* mask vector in constraints tests (= tempv2)*/
-  N_Vector ida_tempv1;      /* work space vector                          */
-  N_Vector ida_tempv2;      /* work space vector                          */
-  N_Vector ida_ynew;     /* work vector for y in IDACalcIC (= tempv2)     */
-  N_Vector ida_ypnew;    /* work vector for yp in IDACalcIC (= ee)        */
-  N_Vector ida_delnew;   /* work vector for delta in IDACalcIC (= phi[2]) */
-  N_Vector ida_dtemp;    /* work vector in IDACalcIC (= phi[3])           */
+  N_Vector ida_ewt;         /* error weight vector                           */
+  N_Vector ida_mskewt;      /* masked error weight vector (uses ID)          */
+  N_Vector ida_y0;          /* initial y vector (user-supplied)              */
+  N_Vector ida_yp0;         /* initial y' vector (user-supplied)             */
+  N_Vector ida_yy;          /* work space for y vector (= user's yret)       */
+  N_Vector ida_yp;          /* work space for y' vector (= user's ypret)     */
+  N_Vector ida_delta;       /* residual vector                               */
+  N_Vector ida_id;          /* bit vector for diff./algebraic components     */
+  N_Vector ida_constraints; /* vector of inequality constraint options       */
+  N_Vector ida_savres;      /* saved residual vector (= tempv1)              */
+  N_Vector ida_ee;          /* accumulated corrections to y                  */
+  N_Vector ida_mm;          /* mask vector in constraints tests (= tempv2)   */
+  N_Vector ida_tempv1;      /* work space vector                             */
+  N_Vector ida_tempv2;      /* work space vector                             */
+  N_Vector ida_ynew;        /* work vector for y in IDACalcIC (= tempv2)     */
+  N_Vector ida_ypnew;       /* work vector for yp in IDACalcIC (= ee)        */
+  N_Vector ida_delnew;      /* work vector for delta in IDACalcIC (= phi[2]) */
+  N_Vector ida_dtemp;       /* work vector in IDACalcIC (= phi[3])           */
 
-/* Scalars for use by IDACalcIC*/
+  /* Scalars for use by IDACalcIC*/
 
-  int ida_icopt;        /* IC calculation user option                   */
-  int ida_lsoff;        /* IC calculation linesearch turnoff option     */
-  int ida_maxnj;        /* max. number of J tries in IC calculation     */
-  int ida_maxnit;       /* max. number of Netwon iterations in IC calc. */
-  int ida_nbacktr;      /* number of IC linesearch backtrack operations */
-  int ida_sysindex;     /* computed system index (0 or 1)               */
-  realtype ida_epsic;   /* IC nonlinear convergence test constant       */
-  realtype ida_steptol; /* minimum Newton step size in IC calculation   */
-  realtype ida_tscale;  /* time scale factor = abs(tout1 - t0)          */
+  int ida_icopt;            /* IC calculation user option                    */
+  booleantype ida_lsoff;    /* IC calculation linesearch turnoff option      */
+  int ida_maxnh;            /* max. number of h tries in IC calculation      */
+  int ida_maxnj;            /* max. number of J tries in IC calculation      */
+  int ida_maxnit;           /* max. number of Netwon iterations in IC calc.  */
+  int ida_nbacktr;          /* number of IC linesearch backtrack operations  */
+  int ida_sysindex;         /* computed system index (0 or 1)                */
+  realtype ida_epicfac;     /* IC nonlinear convergence test constant        */
+  realtype ida_steptol;     /* minimum Newton step size in IC calculation    */
+  realtype ida_tscale;      /* time scale factor = abs(tout1 - t0)           */
 
+  /*-----------------
+    Tstop information
+  -------------------*/
+  booleantype ida_istop;
+  realtype ida_tstop;
 
   /* Step Data */
 
@@ -784,6 +824,8 @@ typedef struct IDAMemRec {
   int ida_phase;     /* flag to trigger step doubling in first few steps  */
   int ida_ns;        /* counts steps at fixed stepsize and order          */
 
+  realtype ida_hin;      /* initial step                                      */
+  realtype ida_h0u;      /* actual initial stepsize                           */
   realtype ida_hh;       /* current step size h                               */
   realtype ida_hused;    /* step size used on last successful step            */
   realtype ida_rr;       /* rr = hnext / hused                                */
@@ -798,38 +840,40 @@ typedef struct IDAMemRec {
   realtype ida_nconfac;  /* optional factor in Newton covergence test constant*/
   realtype ida_toldel;   /* tolerance in direct test on Newton corrections    */
 
-
  /* Limits */
 
-  int ida_maxord;        /* max value of method order k:                    */
-  int ida_mxstep;        /* max number of internal steps for one user call  */
-  realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)  */
+  int ida_maxord;        /* max value of method order k:                      */
+  int ida_mxstep;        /* max number of internal steps for one user call    */
+  realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
 
   /* Counters */
 
-  long int ida_nst;     /* number of internal steps taken             */
-  long int ida_nre;     /* number of function (res) calls             */
-  long int ida_ncfn;    /* number of corrector convergence failures   */
-  long int ida_netf;    /* number of error test failures              */
-  long int ida_nni;     /* number of Newton iterations performed      */
-  long int ida_nsetups; /* number of lsetup calls                     */
+  long int ida_nst;      /* number of internal steps taken                    */
+  long int ida_nre;      /* number of function (res) calls                    */
+  long int ida_ncfn;     /* number of corrector convergence failures          */
+  long int ida_netf;     /* number of error test failures                     */
+  long int ida_nni;      /* number of Newton iterations performed             */
+  long int ida_nsetups;  /* number of lsetup calls                            */
 
   /* Space requirements for IDA */
 
-  long int ida_lrw1;    /* no. of realtype words in 1 N_Vector            */ 
-  long int ida_liw1;    /* no. of integertype words in 1 N_Vector         */ 
-  long int ida_lrw;     /* number of realtype words in IDA work vectors   */
-  long int ida_liw;     /* no. of integertype words in IDA work vectors   */
+  long int ida_lrw1;     /* no. of realtype words in 1 N_Vector               */
+  long int ida_liw1;     /* no. of integertype words in 1 N_Vector            */
+  long int ida_lrw;      /* number of realtype words in IDA work vectors      */
+  long int ida_liw;      /* no. of integertype words in IDA work vectors      */
 
-  /* Saved Values */
+  realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
-  realtype ida_tolsf;        /* tolerance scale factor         */
+  FILE *ida_errfp;               /* IDA error messages are sent to errfp    */
 
-  /* Arrays for Optional Input and Optional Output */
+  /* Flags to verify correct calling sequence */
 
-  long int *ida_iopt;  /* long int optional input, output */
-  realtype *ida_ropt;  /* real optional input, output     */
+  booleantype ida_SetupDone;     /* set to FALSE by IDAMalloc and IDAReInit */
+                                 /* set to TRUE by IDACalcIC or IDASolve    */
 
+  booleantype ida_MallocDone;    /* set to FALSE by IDACreate               */
+                                 /* set to TRUE by IDAMAlloc                */
+                                 /* tested by IDAReInit and IDASolve        */
 
   /* Linear Solver Data */
 
@@ -857,13 +901,9 @@ typedef struct IDAMemRec {
   booleantype ida_linitOK;
 
 
-  /* Error File */
+  /* Pointer to Vector Sepcification Information   */
 
-  FILE *ida_errfp;      /* IDA error messages are sent to errfp */
-
-  /* Pointer to Machine Environment-Specific Information   */
-
-  M_Env ida_machenv;
+  NV_Spec ida_nvspec;
 
 } *IDAMem;
 
@@ -876,14 +916,18 @@ typedef struct IDAMemRec {
  * The values of these are given in the enum statement below.     *
  * SUCCESS      : The routine was successful.                     *
  *                                                                *
+ * LIN_NO_MEM   : IDA memory = NULL.                              *
+ *                                                                *
  * LMEM_FAIL    : A memory allocation failed.                     *
  *                                                                *
  * LIN_ILL_INPUT: Some input was illegal (see message).           *
  *                                                                *
+ * LIN_NO_LMEM  : The linear solver's memory = NULL.              *
+ *                                                                *
  ******************************************************************/
 
 /* SUCCESS = 0  (defined above but listed here for completeness)  */
-enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2};
+enum {LMEM_FAIL = -1, LIN_ILL_INPUT = -2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
 
 
 /******************************************************************

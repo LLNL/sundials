@@ -1,7 +1,7 @@
 /**********************************************************************
  * File          : fcvjtimes.c                                        *
  * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL           *
- * Version of    : 30 March 2003                                      *
+ * Version of    : 1 August 2003                                      *
  *--------------------------------------------------------------------*
  * This C function CVJtimes is to interface between the CVSPGMR module*
  * and the user-supplied Jacobian-times-vector routine CVJTIMES.      *
@@ -21,6 +21,14 @@ void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*,
 
 /***************************************************************************/
 
+void FCV_SPGMRSETJAC(int *flag, int *ier)
+{
+  if (*flag == 0) CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL);
+  else            CVSpgmrSetJacTimesVecFn(CV_cvodemem, CVJtimes);
+}
+
+/***************************************************************************/
+
 /* C function  CVJtimes to interface between CVODE and  user-supplied
    Fortran routine CVJTIMES for Jacobian*vector product.
    Addresses of v, Jv, t, y, fy, vnrm, ewt, h, uround, ytemp, and
@@ -34,7 +42,7 @@ int CVJtimes(N_Vector v, N_Vector Jv, realtype t,
              void *jac_data, N_Vector work)
 {
 
-  realtype *vdata, *Jvdata, *ydata, *fydata, *ewtdata, *wkdata;
+  realtype *vdata, *Jvdata, *ydata, *fydata, *wkdata;
   int ier = 0;
 
   vdata = N_VGetData(v);

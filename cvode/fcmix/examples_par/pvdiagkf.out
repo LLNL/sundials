@@ -12,32 +12,32 @@ Number of processors =  4
 
 Case 1: preconditioning on left
 
- t =  0.10E+00     no. steps =  221   no. f-s =  626
+ t =  0.10E+00     no. steps =  221   no. f-s =  400
 
- t =  0.20E+00     no. steps =  265   no. f-s =  722
+ t =  0.20E+00     no. steps =  265   no. f-s =  452
 
- t =  0.30E+00     no. steps =  290   no. f-s =  776
+ t =  0.30E+00     no. steps =  290   no. f-s =  481
 
- t =  0.40E+00     no. steps =  306   no. f-s =  814
+ t =  0.40E+00     no. steps =  306   no. f-s =  500
 
- t =  0.50E+00     no. steps =  319   no. f-s =  845
+ t =  0.50E+00     no. steps =  319   no. f-s =  517
 
- t =  0.60E+00     no. steps =  329   no. f-s =  866
+ t =  0.60E+00     no. steps =  329   no. f-s =  528
 
- t =  0.70E+00     no. steps =  339   no. f-s =  886
+ t =  0.70E+00     no. steps =  339   no. f-s =  538
 
- t =  0.80E+00     no. steps =  346   no. f-s =  903
+ t =  0.80E+00     no. steps =  346   no. f-s =  548
 
- t =  0.90E+00     no. steps =  351   no. f-s =  917
+ t =  0.90E+00     no. steps =  351   no. f-s =  555
 
- t =  0.10E+01     no. steps =  355   no. f-s =  930
+ t =  0.10E+01     no. steps =  355   no. f-s =  563
 
 
 Max. absolute error is  0.15E-07
 
 
  Final statistics..
- number of steps        =  355     number of f evals.     =  930
+ number of steps        =  355     number of f evals.     =  563
  number of prec. setups =    0
  number of prec. evals. =    0     number of prec. solves =  727
  number of nonl. iters. =  560     number of lin. iters.  =  367
@@ -49,32 +49,32 @@ Max. absolute error is  0.15E-07
 
 Case 2: preconditioning on right
 
- t =  0.10E+00     no. steps =  221   no. f-s =  626
+ t =  0.10E+00     no. steps =  221   no. f-s =  400
 
- t =  0.20E+00     no. steps =  265   no. f-s =  722
+ t =  0.20E+00     no. steps =  265   no. f-s =  452
 
- t =  0.30E+00     no. steps =  290   no. f-s =  776
+ t =  0.30E+00     no. steps =  290   no. f-s =  481
 
- t =  0.40E+00     no. steps =  306   no. f-s =  814
+ t =  0.40E+00     no. steps =  306   no. f-s =  500
 
- t =  0.50E+00     no. steps =  319   no. f-s =  845
+ t =  0.50E+00     no. steps =  319   no. f-s =  517
 
- t =  0.60E+00     no. steps =  329   no. f-s =  866
+ t =  0.60E+00     no. steps =  329   no. f-s =  528
 
- t =  0.70E+00     no. steps =  339   no. f-s =  886
+ t =  0.70E+00     no. steps =  339   no. f-s =  538
 
- t =  0.80E+00     no. steps =  345   no. f-s =  901
+ t =  0.80E+00     no. steps =  345   no. f-s =  547
 
- t =  0.90E+00     no. steps =  352   no. f-s =  915
+ t =  0.90E+00     no. steps =  352   no. f-s =  554
 
- t =  0.10E+01     no. steps =  358   no. f-s =  927
+ t =  0.10E+01     no. steps =  358   no. f-s =  560
 
 
 Max. absolute error is  0.21E-08
 
 
  Final statistics..
- number of steps        =  358     number of f evals.     =  927
+ number of steps        =  358     number of f evals.     =  560
  number of prec. setups =    0
  number of prec. evals. =    0     number of prec. solves =  730
  number of nonl. iters. =  557     number of lin. iters.  =  367

@@ -1,8 +1,9 @@
 /*******************************************************************
  *                                                                 *
  * File          : kinspgmr.h                                      *
- * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 31 March 2003                                   *
+ * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 4 August 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -24,7 +25,7 @@ extern "C" {
 #define _kinspgmr_h
 
 #include <stdio.h>
-#include "kinsol.h"   /*  for KINSOL_IOPT_SIZE, etc.  */
+#include "kinsol.h"
 #include "spgmr.h"
 #include "sundialstypes.h"
 #include "nvector.h"
@@ -32,41 +33,13 @@ extern "C" {
  
 /******************************************************************
  *                                                                *
- * KINSpgmr solver statistics indices                             *
- *----------------------------------------------------------------*
- * The following enumeration gives a symbolic name to each        *
- * KINSpgmr-specific statistic. The symbolic names are used as    *
- * indices into the iopt and ropt arrays and values of both       *
- * arrays are set in this module.                                 *
- *                                                                *
- * The KINSpgmr statistics are:                                   *
- *                                                                *
- * iopt[SPGMR_NLI]  (output) number of linear iterations.         *
- *                                                                *
- * iopt[SPGMR_NPE]  (output) number of preconditioner evaluations *
- *                                                                *
- * iopt[SPGMR_NPS]  (output) number of calls made to user's psolve*
- *                    function                                    *
- *                                                                *
- * iopt[SPGMR_NCFL] (output) number of linear convergence failures*
- *                                                                *
- ******************************************************************/
- 
-enum { SPGMR_NLI=KINSOL_IOPT_SIZE, SPGMR_NPE, SPGMR_NPS, SPGMR_NCFL };
-
-
-/******************************************************************
- *                                                                *
  * KINSpgmr solver constants                                      *
  *----------------------------------------------------------------*
  * KINSPGMR_MAXL    : default value for the maximum Krylov        *
  *                   dimension is MIN(N, KINSPGMR_MAXL)           *
- * KINSPGMR_MSBPRE  : maximum number of steps between             *
- *                   preconditioner evaluations                   *
  ******************************************************************/
 
 #define KINSPGMR_MAXL    10
-#define KINSPGMR_MSBPRE  10 
 
 /* Constants for error returns from KINSpgmr. */
 
@@ -77,43 +50,43 @@ enum { SPGMR_NLI=KINSOL_IOPT_SIZE, SPGMR_NPE, SPGMR_NPS, SPGMR_NCFL };
  
 /******************************************************************
  *                                                                *           
- * Type : KINSpgmrPrecondFn                                       *
+ * Type : KINSpgmrPrecSetupFn                                     *
  *----------------------------------------------------------------*
- * The user-supplied preconditioner setup function precondset and *
- * the user-supplied preconditioner solve function precondsolve   *
+ * The user-supplied preconditioner setup function PrecSetup and  *
+ * the user-supplied preconditioner solve function PrecSolve      *
  * together must define the right preconditoner matrix P chosen   *
  * so as to provide an easier system for the Krylov solver        *
- * to solve. precondset is called to provide any matrix data      *
- * required by the subsequent call(s) to precondsolve. The data is*
+ * to solve. PrecSetup is called to provide any matrix data       *
+ * required by the subsequent call(s) to PrecSolve. The data is   *
  * stored in the memory allocated to P_data and the structuring of*
  * that memory is up to the user.     More specifically,          *
- * the user-supplied preconditioner setup function precondset     *
+ * the user-supplied preconditioner setup function PrecSetup      *
  * is to evaluate and preprocess any Jacobian-related data        *
- * needed by the preconditioner solve function precondsolve.      *
+ * needed by the preconditioner solve function PrecSolve.         *
  * This might include forming a crude approximate Jacobian,       *
  * and performing an LU factorization on the resulting            *
  * approximation to J.  This function will not be called in       *
- * advance of every call to precondsolve, but instead will be     *
+ * advance of every call to PrecSolve, but instead will be        *
  * called only as often as necessary to achieve convergence       *
- * within the Newton iteration in KINSol.  If the precondsolve    *
- * function needs no preparation, the precondset function can be  *
+ * within the Newton iteration in KINSol.  If the PrecSolve       *
+ * function needs no preparation, the PrecSetup function can be   *
  * NULL.                                                          *
  *                                                                *
- * precondset should not modify the contents of the arrays        *
+ * PrecSetup should not modify the contents of the arrays         *
  * uu or fval as those arrays are used elsewhere in the           *
  * iteration process.                                             *
  *                                                                *
- * Each call to the precondset function is preceded by a call to  *
- * the system function func. Thus the precondset function can use *
+ * Each call to the PrecSetup function is preceded by a call to   *
+ * the system function func. Thus the PrecSetup function can use  *
  * any auxiliary data that is computed by the func function and   *
- * saved in a way accessible to precondset.                       *
+ * saved in a way accessible to PrecSetup.                        *
  *                                                                *
- * The two scaling arrays, fscale and uscale, and unit roundoff   *
- * uround are provided to the precondset function for possible use*
- * in approximating Jacobian data, e.g. by difference quotients.  *
+ * The two scaling arrays, fscale and uscale, are provided to the *
+ * PrecSetup function for possible use in approximating Jacobian  *
+ * data, e.g. by difference quotients.                            *
  * These arrays should also not be altered                        *
  *                                                                *
- * A function precondset must have the prototype given below.     *
+ * A function PrecSetup must have the prototype given below.      *
  * Its parameters are as follows:                                 *
  *                                                                *
  * uu      an N_Vector giving the current iterate for the system. *
@@ -126,28 +99,14 @@ enum { SPGMR_NLI=KINSOL_IOPT_SIZE, SPGMR_NPE, SPGMR_NPS, SPGMR_NCFL };
  * fscale  an N_Vector giving the diagonal entries of the func-   *
  *         scaling matrix.                                        *
  *                                                                *
- * vtemp1, vtemp2  two N_Vector temporaries for use by preconset  *
- *                                                                *
- * func    the function func defines the system being solved:     *
- *         func(uu) = 0., and its name is passed initially to     *
- *         KINSol in the call to KINMalloc                        *
- *                                                                *
- * uround  is the machine unit roundoff.                          *
- *                                                                *
- * nfePtr  is a pointer to the memory location containing the     *
- *           KINSol problem data nfe = number of calls to func.   *
- *           The precondset routine should update this counter by *
- *           adding on the number of func calls made in order to  *
- *           approximate the Jacobian, if any.  For example, if   *
- *           the routine calls func a total of W times, then the  *
- *           update is *nfePtr += W.                              *
- *                                                                *
  * P_data is a pointer to user data - the same as the P_data      *
  *           parameter passed to KINSpgmr.                        *
  *                                                                *
+ * vtemp1, vtemp2  two N_Vector temporaries for use by preconset  *
+ *                                                                *
  *                                                                *
  * Returned value:                                                *
- * The value to be returned by the precondset function is a flag  *
+ * The value to be returned by the PrecSetup function is a flag   *
  * indicating whether it was successful.  This value should be    *
  *   0  if successful,                                            *
  *   1  if failure, in which case KINSol stops                    *
@@ -155,26 +114,25 @@ enum { SPGMR_NLI=KINSOL_IOPT_SIZE, SPGMR_NPE, SPGMR_NPS, SPGMR_NCFL };
  *                                                                *
  ******************************************************************/
 
-typedef int (*KINSpgmrPrecondFn)(N_Vector uu, N_Vector uscale ,
-                                 N_Vector fval, N_Vector fscale,
-                                 N_Vector vtemp1, N_Vector vtemp2,
-                                 SysFn func, realtype uround,
-                                 long int *nfePtr, void *P_data);
+typedef int (*KINSpgmrPrecSetupFn)(N_Vector uu, N_Vector uscale,
+                                   N_Vector fval, N_Vector fscale,
+                                   void *P_data,
+                                   N_Vector vtemp1, N_Vector vtemp2);
 
 
 /******************************************************************
  *                                                                *           
- * Type : KINSpgmrPrecondSolveFn                                  *
+ * Type : KINSpgmrPrecSolveFn                                     *
  *----------------------------------------------------------------*
- * The user-supplied preconditioner solve function precondsolve   *
+ * The user-supplied preconditioner solve function PrecSolve      *
  * is to solve a linear system P x = r in which the matrix P is   *
  * the (right) preconditioner matrix P.                           *
  *                                                                *
- * precondset should not modify the contents of the iterate       *
+ * PrecSetup should not modify the contents of the iterate        *
  * array uu  or the current function value array  fval as those   *
  * are used elsewhere in the iteration process.                   *
  *                                                                *
- * A function precondsolve must have the prototype given below.   *
+ * A function PrecSolve must have the prototype given below.      *
  * Its parameters are as follows:                                 *
  *                                                                *
  * uu      an N_Vector giving the current iterate for the system. *
@@ -190,69 +148,53 @@ typedef int (*KINSpgmrPrecondFn)(N_Vector uu, N_Vector uscale ,
  * vv      an N_Vector to hold the RHS vector r on input and      *
  *         the result vector x on return                          *
  *                                                                *
- * ftem    an N_Vector work space.                                *
- *                                                                *
- * func    the function func defines the system being solved:     *
- *         func(uu) = 0.                                          *
- *                                                                *
- * uround  is the machine unit roundoff.                          *
- *                                                                *
- * nfePtr is a pointer to the memory location containing the      *
- *          KINSol problem data nfe = number of calls to func. The*
- *          precondsolve routine should update this counter by    *
- *          adding  on the number of func calls made in order to  *
- *          carry out the solution, if any.  For example, if the  *
- *          routine calls func a total of W times, then the update*
- *          is  *nfePtr += W.                                     *
- *                                                                *
  * P_data is a pointer to user data - the same as the P_data      *
  *          parameter passed to KINSpgmr.                         *
  *                                                                *
+ * vtemp   an N_Vector work space.                                *
+ *                                                                *
  * Returned value:                                                *
- * The value to be returned by the precondsolve function is a flag*
+ * The value to be returned by the PrecSolve function is a flag   *
  * indicating whether it was successful.  This value should be    *
  *   0 if successful,                                             *
  *   1 if failure, in which case KINSol stops                     *
  *                                                                *
  ******************************************************************/
   
-typedef int (*KINSpgmrPrecondSolveFn)(N_Vector uu, N_Vector uscale, 
-                                      N_Vector fval, N_Vector fscale, 
-                                      N_Vector vv, N_Vector ftem,
-                                      SysFn func, realtype u_round,
-                                      long int *nfePtr, void *P_data);
-
+typedef int (*KINSpgmrPrecSolveFn)(N_Vector uu, N_Vector uscale, 
+                                   N_Vector fval, N_Vector fscale, 
+                                   N_Vector vv, void *P_data,
+                                   N_Vector vtemp);
 
 /********************************************************************
  *                                                                  *
- * type : KINSpgmruserAtimesFn                                      *
+ * type : KINSpgmrJacTimesVecFn                                     *
  *                                                                  *
- *    The user-supplied A times v routine (optional) where A is the *
+ *    The user-supplied J times v routine (optional) where J is the *
  *    Jacobian matrix dF/du, or an approximation to it, and v is a  *
- *    given  vector.  This routine computes the product z = J v.    *
+ *    given  vector.  This routine computes the product Jv = J*v.   *
  *    It should return 0 if successful and a nonzero int otherwise. *
- *                                                                  *
- *   f_data is a pointer to the structure used to handle data for   *
- *     the user-supplied system function and also to contain data   *
- *     for evaluation of the jacobian of func                       *
  *                                                                  *
  *   v is the N_Vector to be multiplied by J                        *
  *     (preconditioned and unscaled as received)                    *
  *                                                                  *
- *   z is the N_Vector resulting from the application of J to v     *
+ *   Jv is the N_Vector resulting from the application of J to v    *
  *                                                                  * 
+ *   uu  is the N_Vector equal to the current iterate u             *
+ *                                                                  *
  *   new_uu   is an input flag indicating whether or not the uu     *
  *     vector has been changed since the last call to this function.*
  *     If this function computes and saves Jacobian data, then      *
  *     this computation can be skipped if new_uu = FALSE.           *
  *                                                                  *
- *   uu  is the N_Vector equal to the current iterate u             *
+ *   J_data is a pointer to the structure used to handle data for   *
+ *     the evaluation of the jacobian of func                       *
  *                                                                  *
  ********************************************************************/
 
-typedef int (*KINSpgmruserAtimesFn)(void *f_data, N_Vector v, 
-                                    N_Vector z, booleantype *new_uu, 
-                                    N_Vector uu);
+typedef int (*KINSpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv,
+                                     N_Vector uu, booleantype *new_uu, 
+                                     void *J_data);
   
  
 /******************************************************************
@@ -268,59 +210,132 @@ typedef int (*KINSpgmruserAtimesFn)(void *f_data, N_Vector v,
  *                                  KINSpgmrSolve                 *
  *                                              KINSpgmrFree      *
  *                                                                *
- * kin_mem is the pointer to KINSol memory returned by            *
- *             KINSolMalloc.                                      *
+ * kinmem  is the pointer to KINSol memory returned by            *
+ *             KINCreate.                                         *
  *                                                                *
  * maxl      is the maximum Krylov dimension. This is an          *
  *             optional input to the KINSpgmr solver. Pass 0 to   *
  *             use the default value MIN(Neq, KINSPGMR_MAXL=10).  *
  *                                                                *
- * maxlrst   is the maximum number of linear solver restarts      *
- *            allowed. Values outside the range 0 to 2*Neq/maxl   *
- *            will be restricted to that range. 0, meaning no     *
- *            restarts, is a safe starting value.                 *
- *                                                                *
- * msbpre    is the maximum number of steps calling the solver    *
- *           precondsolve without calling the preconditioner      *
- *           precondset. (The default is KINSPGMR_MSBPRE = 10)    *
- *                                                                *
- * precondset  is the user's preconditioner routine. It is used to*
- *             evaluate and preprocess any Jacobian-related data  *
- *             needed by the precondsolve routine.  See the       *
- *             documentation for the type KINSpgmrPrecondFn for   *
- *             full details.  Pass NULL if no such setup of       *
- *             Jacobian data is required.  A precond routine is   *
- *             NOT required, but rather provided when needed by   *
- *             user's precondsolve routine                        *
- *                                                                *
- * precondsolve  is the user's preconditioner solve routine. It   *
- *             is used to solve Px=b, where P is a preconditioner *
- *             matrix.  See the documentation for the type        *
- *             KINSpgmrPrecondSolveFn for full details.  The only *
- *              case in which psolve is allowed to be NULL is when*
- *             no preconditioning is to be done. The NULL is taken*
- *             as a flag that preconditioning is not desired.     *
- *                                                                *
- * userAtimes  is an optional routine supplied by the user to     *
- *             perform the matrix-vector multiply J v, where J is *
- *             an approximate Jacobian matrix for that iteration. *
- *             Enter NULL if no such routine is required. If one  *
- *             is supplied, conforming to the definitions given   *
- *             in this file, enter its function name.             *
- *                                                                *
- * P_data      is a pointer to user preconditioner data. This     *
- *             pointer is passed to precondset and precondsolve   *
- *             every time these routines are called.              *
- *                                                                *
  * KINSpgmr returns an int equal to one of the following:         *
  *      SUCCESS, KIN_MEM_NULL, KINSPGMR_MEM_FAIL, SPGMR_MEM_FAIL  *
  *                                                                *
  ******************************************************************/
-  
-int KINSpgmr(void *kin_mem, int maxl, int maxlrst, int msbpre,
-             KINSpgmrPrecondFn precondset, KINSpgmrPrecondSolveFn precondsolve,
-             KINSpgmruserAtimesFn userAtimes, void *P_data);
-  
+
+int KINSpgmr(void *kinmem,  int maxl);
+
+/******************************************************************
+ * Optional inputs to the KINSPGMR linear solver                  *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * KINSpgmrSetMaxRestarts specifies the maximum number of restarts*
+ *           to be used in the GMRES algorithm.  maxrs must be a  *
+ *           non-negative integer.  Pass 0 to specify no restarts.*
+ *           Default is 0.                                        *
+ * KINSpgmrSetPrecSetupFn specifies the PrecSetup function.       *
+ *           Default is NULL.                                     *
+ * KINSpgmrSetPrecSolveFn specifies the PrecSolve function.       *
+ *           Default is NULL.                                     *
+ * KINSpgmrSetPrecData specifies a pointer to user preconditioner *
+ *           data. This pointer is passed to PrecSetup and        *
+ *           PrecSolve every time these routines are called.      *
+ *           Default is NULL.                                     *
+ * KINSpgmrSetJacTimesVecFn specifies the jtimes function.        *
+ *           Default is to use an internal finite difference      *
+ *           approximation routine.                               *
+ * KINSpgmrSetJAcData specifies a pointer to user Jac times vec   *
+ *           data. This pointer is passed to jtimes every time    *
+ *           this routine is called.                              *
+ *           Default is NULL.                                     *
+ *                                                                *
+ ******************************************************************/
+
+int KINSpgmrSetMaxRestarts(void *kinmem, int maxrs);
+int KINSpgmrSetPrecSetupFn(void *kinmem, KINSpgmrPrecSetupFn pset);
+int KINSpgmrSetPrecSolveFn(void *kinmem, KINSpgmrPrecSolveFn psolve);
+int KINSpgmrSetPrecData(void *kinmem, void *P_data);
+int KINSpgmrSetJacTimesVecFn(void *kinmem, KINSpgmrJacTimesVecFn jtimes);
+int KINSpgmrSetJacData(void *kinmem, void *J_data);
+
+/******************************************************************
+ * Optional outputs from the KINSPGMR linear solver               *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * KINSpgmrGetIntWorkSpace returns the integer workspace used by  *
+ *     KINSPGMR.                                                  *
+ * KINSpgmrGetRealWorkSpace returns the real workspace used by    *
+ *     KINSPGMR.                                                  *
+ * KINSpgmrGetNumPrecEvals returns the number of preconditioner   *
+ *     evaluations, i.e. the number of calls made to PrecSetup    *
+ *     with jok==FALSE.                                           *
+ * KINSpgmrGetNumPrecSolves returns the number of calls made to   *
+ *     PrecSolve.                                                 *
+ * KINSpgmrGetNumLinIters returns the number of linear iterations.*
+ * KINSpgmrGetNumConvFails returns the number of linear           *
+ *     convergence failures.                                      *
+ * KINSpgmrGetNumJtimesEvals returns the number of calls to jtimes*
+ * KINSpgmrGetNumFuncEvals returns the number of calls to the user*
+ *     res routine due to finite difference Jacobian times vector *
+ *     evaluation.                                                *
+ *                                                                *
+ ******************************************************************/
+
+int KINSpgmrGetIntWorkSpace(void *kinmem, long int *leniwSG);
+int KINSpgmrGetRealWorkSpace(void *kinmem, long int *lenrwSG);
+int KINSpgmrGetNumPrecEvals(void *kinmem, int *npevals);
+int KINSpgmrGetNumPrecSolves(void *kinmem, int *npsolves);
+int KINSpgmrGetNumLinIters(void *kinmem, int *nliters);
+int KINSpgmrGetNumConvFails(void *kinmem, int *nlcfails);
+int KINSpgmrGetNumJtimesEvals(void *kinmem, int *njvevals);
+int KINSpgmrGetNumFuncEvals(void *kinmem, int *nfevalsSG); 
+
+/******************************************************************
+ *                                                                *           
+ * Types : KINSpgmrMemRec, KINSpgmrMem                            *
+ *----------------------------------------------------------------*
+ * The type KINSpgmrMem is pointer to a KINSpgmrMemRec. This      *
+ * structure contains KINSpgmr solver-specific data.              *
+ *                                                                *
+ ******************************************************************/
+
+typedef struct {
+
+  int  g_maxl;        /* maxl = maximum dimension of the Krylov space   */     
+  int  g_pretype;     /* preconditioning type--for Spgmr call           */
+  int  g_gstype;      /* gram schmidt type --  for Spgmr call           */
+  booleantype g_new_uu;  /* flag that a new uu has been created--
+                            indicating that a call to generate a new
+                            user-supplied Jacobian is required */
+  int g_maxlrst;      /* max number of linear solver restarts allowed;
+                         default is zero  */
+  int g_nli;          /* nli = total number of linear iterations        */
+  int g_npe;          /* npe = total number of precondset calls         */
+  int g_nps;          /* nps = total number of psolve calls             */
+  int g_ncfl;         /* ncfl = total number of convergence failures    */
+
+  int g_nfeSG;        /* nfeSG = total number of calls to func          */    
+  int g_njtimes;      /* njtimes = total number of calls to jtimes      */
+
+  KINSpgmrPrecSetupFn g_pset; 
+                      /* PrecSetup = user-supplied routine to
+                         compute a preconditioner                       */
+
+  KINSpgmrPrecSolveFn g_psolve; 
+                      /* PrecSolve = user-supplied routine to 
+                         solve preconditioner linear system             */ 
+
+  KINSpgmrJacTimesVecFn g_jtimes;
+                      /* jtimes = user-supplied routine to optionally
+                         compute the product J v as required by Spgmr   */ 
+
+  void *g_P_data;     /* P_data is a memory block passed to psolve and pset */
+  void *g_J_data;     /* J_data is a memory block passed to jtimes */
+
+  SpgmrMem g_spgmr_mem;  /* spgmr_mem is memory used by the generic Spgmr solver */
+
+} KINSpgmrMemRec, *KINSpgmrMem;
+
+
 #endif
 #ifdef __cplusplus
 }

@@ -3,7 +3,7 @@
  * File          : cvsband.h                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban  @ LLNL                             *
- * Version of    : 28 March 2003                                   *
+ * Version of    : 11 June 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -27,41 +27,15 @@ extern "C" {
 #ifndef _cvsband_h
 #define _cvsband_h
 
-
 #include <stdio.h>
 #include "cvodes.h"
 #include "sundialstypes.h"
 #include "band.h"
 #include "nvector.h"
-
  
 /******************************************************************
  *                                                                *
- * CVBAND solver statistics indices                               *
- *----------------------------------------------------------------*
- * The following enumeration gives a symbolic name to each        *
- * CVBAND statistic. The symbolic names are used as indices into  *
- * the iopt and ropt arrays passed to CVodeMalloc.                *
- * The CVBAND statistics are:                                     *
- *                                                                *
- * iopt[BAND_NJE] : number of Jacobian evaluations, i.e. of       *
- *                  calls made to the band Jacobian routine       *
- *                  (default or user-supplied).                   *
- *                                                                *
- * iopt[BAND_LRW] : size (in realtype words) of real workspace    *
- *                  matrices and vectors used by this solver.     *
- *                                                                *
- * iopt[BAND_LIW] : size (in integertype words) of integer        *
- *                  workspace vectors used by this solver.        *
- *                                                                *
- ******************************************************************/
- 
-enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
-
-
-/******************************************************************
- *                                                                *
- * CVBAND solver constants                                        *
+ * CVSBAND solver constants                                       *
  *----------------------------------------------------------------*
  * CVB_MSBJ  : maximum number of steps between band Jacobian      *
  *             evaluations                                        *
@@ -74,7 +48,6 @@ enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
 #define CVB_MSBJ  50  
 
 #define CVB_DGMAX RCONST(0.2)  
-
  
 /******************************************************************
  *                                                                *           
@@ -147,7 +120,7 @@ enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVBandJacFn)(integertype n, integertype mupper, 
+typedef void (*CVBandJacFn)(integertype N, integertype mupper, 
                             integertype mlower, BandMat J, realtype t, 
                             N_Vector y, N_Vector fy, void *jac_data,
                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -158,26 +131,18 @@ typedef void (*CVBandJacFn)(integertype n, integertype mupper,
  * Function : CVBand                                              *
  *----------------------------------------------------------------*
  * A call to the CVBand function links the main CVODE integrator  *
- * with the CVBAND linear solver.                                 *
+ * with the CVSBAND linear solver.                                *
  *                                                                *
- * cvode_mem is the pointer to CVODE memory returned by           *
- *              CVodeMalloc.                                      *
+ * cvode_mem is the pointer to CVODES memory returned by          *
+ *              CVodeCreate.                                      *
+ *                                                                *
+ * N is the size of the ODE system.                               *
  *                                                                *
  * mupper is the upper bandwidth of the band Jacobian             *
  *           approximation.                                       *
  *                                                                *
  * mlower is the lower bandwidth of the band Jacobian             *
  *           approximation.                                       *
- *                                                                *
- *                                                                *
- * bjac is the band Jacobian approximation routine to be used.    *
- *           A user-supplied bjac routine must be of type         *
- *           CVBandJacFn. Pass NULL for bjac to use the default   *
- *           difference quotient routine CVBandDQJac supplied     *
- *           with this solver.                                    *
- *                                                                *
- * jac_data is a pointer to user data which is passed to the      *
- *           bjac routine every time it is called.                *
  *                                                                *
  * The return values of CVBand are:                               *
  *   SUCCESS       = 0  if successful                             *
@@ -186,42 +151,83 @@ typedef void (*CVBandJacFn)(integertype n, integertype mupper,
  *                                                                *
  ******************************************************************/
 
-int CVBand(void *cvode_mem, integertype n, 
-           integertype mupper, integertype mlower,
-           CVBandJacFn bjac, void *jac_data);
-
+int CVBand(void *cvode_mem, integertype N, 
+           integertype mupper, integertype mlower);
 
 /******************************************************************
- *                                                                *
- * Function : CVReInitBand                                        *
+ * Optional inputs to the CVSBAND linear solver                   *
  *----------------------------------------------------------------*
- * A call to the CVReInitBand function resets the link between    *
- * the main CVODE integrator and the CVBAND linear solver.        *
- * After solving one problem using CVBAND, call CVReInit and then *
- * CVReInitBand to solve another problem of the same size, if     *
- * there is a change in the CVBand parameters bjac or jac_data,   *
- * but no change in mupper or mlower.  If there is a change in    *
- * mupper or mlower, then CVBand must be called again, and the    *
- * linear solver memory will be reallocated.                      *
- * If there is no change in parameters, it is not necessary to    *
- * call either CVReInitBand or CVBand for the new problem.        *
  *                                                                *
- * All arguments to CVReInitBand have the same names and meanings *
- * as those of CVBand.  The cvode_mem argument must be identical  *
- * to its value in the previous CVBand call.                      *
- *                                                                *
- * The return values of CVReInitBand are:                         *
- *   SUCCESS   = 0      if successful                             *
- *   LMEM_FAIL = -1     if the cvode_mem argument is NULL         *
- *   LIN_ILL_INPUT = -2 if there was illegal input.               *
- *                                                                *
- * NOTE: CVReInitBand performs the same compatibility tests as    *
- *       CVBand.                                                  *
+ * CVBandSetJacFn specifies the dense Jacobian approximation      *
+ *         routine to be used. A user-supplied djac routine must  *
+ *         be of type CVBandJacFn.                                *
+ *         By default, a difference quotient routine CVBandDQJac, *
+ *         supplied with this solver is used.                     *
+ * CVBandSetJacData specifies a pointer to user data which is     *
+ *         passed to the bjac routine every time it is called.    *
  *                                                                *
  ******************************************************************/
 
-int CVReInitBand (void *cvode_mem, integertype mupper, integertype mlower,
-                  CVBandJacFn bjac, void *jac_data);
+int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac);
+int CVBandSetJacData(void *cvode_mem, void *jac_data);
+
+/******************************************************************
+ * Optional outputs from the CVSBAND linear solver                *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * CVBandGetIntWorkSpace returns the integer workspace used by    *
+ *     CVSBAND.                                                   *
+ * CVBandGetRealWorkSpace returns the real workspace used by      *
+ *     CVSBAND.                                                   *
+ * CVBandGetNumJacEvals returns the number of calls made to the   *
+ *     Jacobian evaluation routine bjac.                          *
+ * CVBandGetNumRhsEvals returns the number of calls to the user   *
+ *     f routine due to finite difference Jacobian evaluation.    *
+ *                                                                *
+ ******************************************************************/
+
+int CVBandGetIntWorkSpace(void *cvode_mem, long int *leniwB);
+int CVBandGetRealWorkSpace(void *cvode_mem, long int *lenrwB);
+int CVBandGetNumJacEvals(void *cvode_mem, int *njevalsB);
+int CVBandGetNumRhsEvals(void *cvode_mem, int *nfevalsB);
+
+
+/******************************************************************
+ *                                                                *           
+ * Types : CVBandMemRec, CVBandMem                                *
+ *----------------------------------------------------------------*
+ * The type CVBandMem is pointer to a CVBandMemRec. This          *
+ * structure contains CVBand solver-specific data.                *
+ *                                                                *
+ ******************************************************************/
+
+typedef struct {
+
+  integertype b_n;        /* N = problem dimension                    */
+
+  CVBandJacFn b_jac;      /* jac = Jacobian routine to be called      */
+
+  integertype b_ml;       /* b_ml = lower bandwidth of savedJ         */
+  
+  integertype b_mu;       /* b_mu = upper bandwidth of savedJ         */ 
+  
+  integertype b_storage_mu; /* upper bandwith of M = MIN(N-1,b_mu+b_ml) */
+  
+  BandMat b_M;            /* M = I - gamma J, gamma = h / l1          */
+  
+  integertype *b_pivots;  /* pivots = pivot array for PM = LU         */
+  
+  BandMat b_savedJ;       /* savedJ = old Jacobian                    */
+  
+  int b_nstlj;            /* nstlj = nst at last Jacobian eval.       */
+  
+  int b_nje;              /* nje = no. of calls to jac                */
+  
+  int b_nfeB;             /* nfeB = no. of calls to f               */
+
+  void *b_J_data;         /* J_data is passed to jac                  */
+  
+} CVBandMemRec, *CVBandMem;
 
 
 #endif

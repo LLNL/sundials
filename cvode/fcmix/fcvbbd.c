@@ -1,7 +1,7 @@
 /****************************************************************************
  * File         : fcvbbd.c                                                  *
  * Programmers  : Alan C. Hindmarsh and Radu Serban @ LLNL                  * 
- * Version of   : 30 March 2003                                             *
+ * Version of   : 31 July 2003                                              *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
@@ -34,22 +34,21 @@ void FCV_COMMFN(integertype*, realtype*, realtype*);
 
 /***************************************************************************/
 
-void FCV_BBDIN0(integertype *Nloc, integertype *mudq, integertype *mldq, 
-                integertype *mu, integertype *ml, realtype* dqrely,
-                int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
+void FCV_BBDIN(integertype *Nloc, integertype *mudq, integertype *mldq, 
+               integertype *mu, integertype *ml, realtype* dqrely,
+               int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
 
-  /* First call CVBBDAlloc to initialize CVBBDPRE module:
+  /* First call CVBBDPrecAlloc to initialize CVBBDPRE module:
      *Nloc       is the local vector size
      *mudq,*mldq are the half-bandwidths for computing preconditioner blocks
      *mu, *ml    are the half-bandwidths of the retained preconditioner blocks
      *dqrely     is the difference quotient relative increment factor
      CVgloc      is a pointer to the CVLocalFn function
-     CVcfn       is a pointer to the CVCommFn function
-     NULL        is the pointer to f_data                             */
+     CVcfn       is a pointer to the CVCommFn function */
 
-  CVBBD_Data = CVBBDAlloc (*Nloc, *mudq, *mldq, *mu, *ml, *dqrely, 
-                           CVgloc, CVcfn, NULL, CV_cvodemem);
+  CVBBD_Data = CVBBDPrecAlloc(CV_cvodemem, *Nloc, *mudq, *mldq, *mu, *ml, 
+                              *dqrely, CVgloc, CVcfn);
   if (CVBBD_Data == NULL) { *ier = -1; return; }
 
   /* Call CVSpgmr to specify the SPGMR linear solver:
@@ -60,51 +59,59 @@ void FCV_BBDIN0(integertype *Nloc, integertype *mudq, integertype *mldq,
      *delt       is the linear convergence tolerance factor
      CVBBDPrecon is a pointer to the preconditioner setup routine
      CVBBDPSol   is a pointer to the preconditioner solve routine
-     CVBBD_Data  is the pointer to P_data
-     NULL        is a pointer to the Jtimes routine
-     NULL        is the pointer to jac_data                               */
+     CVBBD_Data  is the pointer to P_data */
 
-  *ier = CVSpgmr (CV_cvodemem, *pretype, *gstype, *maxl, *delt, 
-                  CVBBDPrecon, CVBBDPSol, CVBBD_Data, NULL, NULL);
+  *ier = CVSpgmr(CV_cvodemem, *pretype, *maxl);
+  if (*ier != 0) return;
+
+  *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
+  if (*ier != 0) return;
+
+  *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
+  if (*ier != 0) return;
+
+  *ier = CVSpgmrSetPrecSetupFn(CV_cvodemem, CVBBDPrecSetup);
+  if (*ier != 0) return;
+
+  *ier = CVSpgmrSetPrecSolveFn(CV_cvodemem, CVBBDPrecSolve);
+  if (*ier != 0) return;
+
+  *ier = CVSpgmrSetPrecData(CV_cvodemem, CVBBD_Data);
+  if (*ier != 0) return;
 
 }
 
 /***************************************************************************/
 
-void FCV_REINBBD0(integertype *Nloc, integertype *mudq, integertype *mldq, 
-                  integertype *mu, integertype *ml,
-                  realtype* dqrely, int *pretype, int *gstype, int *maxl,
-                  realtype *delt, int *ier)
+void FCV_REINBBD(integertype *Nloc, integertype *mudq, integertype *mldq, 
+                 realtype* dqrely, int *pretype, int *gstype,
+                 realtype *delt, int *ier)
 {
   int flag;
 
   /* First call CVReInitBBD to re-initialize CVBBDPRE module:
      CVBBD_Data  is the pointer to P_data
-     *Nloc       is the local vector size
      *mudq,*mldq are the half-bandwidths for computing preconditioner blocks
-     *mu, *ml    are the half-bandwidths of the retained preconditioner blocks
      *dqrely     is the difference quotient relative increment factor
      CVgloc      is a pointer to the CVLocalFn function
-     CVcfn       is a pointer to the CVCommFn function
-     NULL        is the pointer to f_data                             */
+     CVcfn       is a pointer to the CVCommFn function */
 
-  flag = CVReInitBBD(CVBBD_Data, *Nloc, *mudq, *mldq, *mu, *ml,
-                     *dqrely, CVgloc, CVcfn, NULL);
+  flag = CVBBDPrecReInit(CVBBD_Data, *mudq, *mldq,
+                         *dqrely, CVgloc, CVcfn);
 
-  /* Call CVReInitSpgmr to re-initialize the SPGMR linear solver:
-     CV_cvodemem is the pointer to the CVODE memory block
+  /* Call CVSetSpgmr* to re-initialize the SPGMR linear solver:
      *pretype    is the preconditioner type
      *gstype     is the Gram-Schmidt process type
-     *maxl       is the maximum Krylov dimension
-     *delt       is the linear convergence tolerance factor
-     CVBBDPrecon is a pointer to the preconditioner setup routine
-     CVBBDPSol   is a pointer to the preconditioner solve routine
-     CVBBD_Data  is the pointer to P_data
-     NULL        is a pointer to the Jtimes routine
-     NULL        is the pointer to jac_data                               */
+     *delt       is the linear convergence tolerance factor */
+   
+  *ier = CVSpgmrSetPrecType(CV_cvodemem, *pretype);
+  if (*ier != 0) return;
 
-  *ier = CVReInitSpgmr(CV_cvodemem, *pretype, *gstype, *maxl, *delt, 
-                       CVBBDPrecon, CVBBDPSol, CVBBD_Data, NULL, NULL);
+  *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
+  if (*ier != 0) return;
+
+  *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
+  if (*ier != 0) return;
 
 }
 
@@ -113,11 +120,17 @@ void FCV_REINBBD0(integertype *Nloc, integertype *mudq, integertype *mldq,
 /* C function CVgloc to interface between CVBBDPRE module and a Fortran 
    subroutine CVLOCFN. */
 
-void CVgloc(integertype Nloc, realtype t, realtype *yloc, realtype *gloc,
+void CVgloc(integertype Nloc, realtype t, N_Vector yloc, N_Vector gloc,
             void *f_data)
 {
+  realtype *yloc_data, *gloc_data;
+  
+  yloc_data = N_VGetData(yloc);
+  gloc_data = N_VGetData(gloc);
 
-  FCV_GLOCFN(&Nloc, &t, yloc, gloc);
+  FCV_GLOCFN(&Nloc, &t, yloc_data, gloc_data);
+
+  N_VSetData(gloc_data, gloc);
 
 }
 
@@ -144,22 +157,21 @@ void CVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data)
 
 /* C function FCVBBDOPT to access optional outputs from CVBBD_Data */
 
-void FCV_BBDOPT(integertype *lenrpw, integertype *lenipw, integertype *nge)
+void FCV_BBDOPT(integertype *lenrpw, integertype *lenipw, int *nge)
 {
-  CVBBDData pdata;
-  pdata = (CVBBDData)(CVBBD_Data);
-  *lenrpw = CVBBD_RPWSIZE(pdata);
-  *lenipw = CVBBD_IPWSIZE(pdata);
-  *nge = CVBBD_NGE(pdata);
+  CVBBDPrecGetIntWorkSpace(CVBBD_Data, lenipw);
+  CVBBDPrecGetRealWorkSpace(CVBBD_Data, lenrpw);
+  CVBBDPrecGetNumGfnEvals(CVBBD_Data, nge);
+
 }
 
 
 /***************************************************************************/
 
-/* C function FCVBBDF to interface to CVBBDFree, to free memory 
-   created by CVBBDAlloc */
+/* C function FCVBBDF to interface to CVBBDPrecFree, to free memory 
+   created by CVBBDPrecAlloc */
 
 void FCV_BBDF ()
 {
-  CVBBDFree(CVBBD_Data);
+  CVBBDPrecFree(CVBBD_Data);
 }

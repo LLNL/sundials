@@ -1,7 +1,7 @@
 C File cvkryf.f
 C
 C FCVODE Example Problem: 2D kinetics-transport, precond. Krylov solver. 
-C Version of 30 March 2003
+C Version of 1 August 2003
 C
 C An ODE system is generated from the following 2-species diurnal
 C kinetics advection-diffusion PDE system in 2 space dimensions:
@@ -31,7 +31,7 @@ C MESHX and MESHY, for consistency with the output statements below.
       INTEGER*4 IOPT(40)
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
      1     JPRETYPE/1/, IGSTYPE/0/, MAXL/0/, DELT/0.0D0/
-      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
+      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/,
      1     LQ/11/, LH/5/, LNPE/16/, LNLI/17/, LNPS/18/, LNCFL/19/
       INTEGER NEQ
       COMMON /PBDIM/ NEQ
@@ -54,7 +54,7 @@ C
       WRITE(6,10)NEQ
  10   FORMAT('Krylov example problem: Kinetics-transport, NEQ = ',I4/)
 C
-      CALL FMENVINITS(NEQ, IER)
+      CALL FNVSPECINITS(NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
  20     FORMAT(///' FMENVINITS returned IER =',I5)
@@ -69,12 +69,15 @@ C
         STOP
         ENDIF
 C
-      CALL FCVSPGMR20 (JPRETYPE, IGSTYPE, MAXL, DELT, IER)
+      CALL FCVSPGMR (JPRETYPE, IGSTYPE, MAXL, DELT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' FCVSPGMR20 returned IER =',I5)
+ 40     FORMAT(///' FCVSPGMR returned IER =',I5)
         STOP
       ENDIF
+
+      CALL FCVSPGMRSETPSOL (1, IER)
+      CALL FCVSPGMRSETPRECO (1, IER)
 C
 C Loop over output points, call FCVODE, print sample solution values.
       TOUT = TWOHR
@@ -120,7 +123,7 @@ C Print final statistics.
      6 ' number of conv. failures..  nonlinear =',I3,'  linear =',I3)
 C
       CALL FCVFREE
-      CALL FMENVFREES
+      CALL FNVSPECFREES
 C
       STOP
       END
@@ -238,7 +241,7 @@ C Load all terms into YDOT.
       END
 
       SUBROUTINE CVPRECO (T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UR,
-     1                    NFE, V1, V2, V3, IER)
+     1                    V1, V2, V3, IER)
 C Routine to set and preprocess block-diagonal preconditioner.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
       DOUBLE PRECISION T, Y(2,*), GAMMA
@@ -295,7 +298,7 @@ C
       RETURN
       END
 
-      SUBROUTINE CVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, DELTA, NFE,
+      SUBROUTINE CVPSOL (T, Y, FY, VTEMP, GAMMA, EWT, DELTA,
      1                   R, LR, Z, IER)
 C Routine to solve preconditioner linear system.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.

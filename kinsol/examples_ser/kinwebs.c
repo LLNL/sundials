@@ -1,7 +1,7 @@
 /*************************************************************************
  * File        : kinwebs.c                                               *
  * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL  *
- * Version of  : 31 March 2003                                           *
+ * Version of  : 5 August 2003                                           *
  *-----------------------------------------------------------------------*
  * Example problem for KINSol, serial machine version.
  * This example solves a nonlinear system that arises from a system of  
@@ -137,7 +137,7 @@ static void InitUserData(UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintOutput(N_Vector cc);
-static void PrintFinalStats(long int iopt[]);
+static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *f_data);
 static realtype DotProd(integertype size, realtype *x1, realtype *x2);
@@ -147,86 +147,81 @@ static realtype DotProd(integertype size, realtype *x1, realtype *x2);
 
 static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
 
-static int Precondbd(N_Vector cc, N_Vector cscale,
-                     N_Vector fval, N_Vector fscale, N_Vector vtemp1,
-                     N_Vector vtemp2, SysFn func, realtype uround,
-                     long int *nfePtr, void *P_data);
+static int Precondb(N_Vector cc, N_Vector cscale,
+                    N_Vector fval, N_Vector fscale,
+                    void *P_data,
+                    N_Vector vtemp1, N_Vector vtemp2);
 
-static int PSolvebd(N_Vector cc, N_Vector cscale,
-                    N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
-                    SysFn func, realtype uround, long int *nfePtr,void *P_data);
-
+static int PSolveb(N_Vector cc, N_Vector cscale, 
+                   N_Vector fval, N_Vector fscale, 
+                   N_Vector vv, void *P_data,
+                   N_Vector ftem);
 
 /***************************** Main Program ******************************/
 
 int main()
 {
-  M_Env machEnv;
+  NV_Spec nvSpec;
   integertype globalstrategy;
-  realtype fnormtol, scsteptol, ropt[OPT_SIZE];
-  long int iopt[OPT_SIZE];
+  realtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
   UserData data;
   int flag, maxl, maxlrst;
-  booleantype optIn;
   void *kmem;
 
   /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(NEQ);
+  nvSpec = NV_SpecInit_Serial(NEQ);
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
-  optIn = FALSE;
 
   globalstrategy = INEXACT_NEWTON;
 
   data = AllocUserData();
   InitUserData(data);
 
-  cc = N_VNew(machEnv);
-  sc = N_VNew(machEnv);
-  data->rates= N_VNew(machEnv);
+  cc = N_VNew(nvSpec);
+  sc = N_VNew(nvSpec);
+  data->rates= N_VNew(nvSpec);
 
-  constraints = N_VNew(machEnv);
+  constraints = N_VNew(nvSpec);
   N_VConst(1.0,constraints);
   
   SetInitialProfiles(cc, sc);
 
   fnormtol=FTOL; scsteptol=STOL;
 
-  /* Call KINMalloc to initialize KINSOL: 
-     NULL     directs error messages to stdout
-     machEnv  the machEnv pointer used in the serial version
+  /* Call KINCreate/KINMalloc to initialize KINSOL: 
+     nvSpec is the nvSpec pointer used in the serial version
      A pointer to KINSOL problem memory is returned and stored in kmem. */
 
-  kmem = KINMalloc(NULL, machEnv);
-  if (kmem == NULL) { printf("KINMalloc failed."); return(1); }
+  kmem = KINCreate();
+  if (kmem == NULL) { printf("KINCreate failed."); return(1); }
+  flag = KINMalloc(kmem, funcprpr, nvSpec);
+  if (flag != SUCCESS) { printf("KINMalloc failed."); return(1); }
+
+  flag = KINSetFdata(kmem, data);
+  flag = KINSetConstraints(kmem, constraints);
+  flag = KINSetFuncNormTol(kmem, fnormtol);
+  flag = KINSetScaledStepTol(kmem, scsteptol);
 
   /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
      routines Precondbd and PSolvebd, and the pointer to the user block data. */
 
   maxl = 15; maxlrst = 2;
-  flag = KINSpgmr(kmem,
-                  maxl,      /*  max. dimension of the SPGMR Krylov subspace */
-                  maxlrst,   /*  max number of SPGMR restarts */
-                  0,         /*  0 forces use of default for msbpre, the max.
-                                 number of nonlinear steps between calls to the
-                                 preconditioner setup routine */
-                  Precondbd, /* user-supplied preconditioner setup routine */
-                  PSolvebd,  /* user-supplied preconditioner solve routine */
-                  NULL,      /* user-supplied ATimes routine -- Null here */
-                  data);     /* pointer to the user-defined data block */
-  
-  if (flag != 0) {
-    printf("KINSpgmr call failed, returning %d \n",flag);
-    return(1);
-  }
+  flag = KINSpgmr(kmem, maxl);
+  if (flag != 0) { printf("KINSpgmr call failed, returning %d \n",flag); return(1); }
+
+  flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
+  flag = KINSpgmrSetPrecSetupFn(kmem, Precondb);
+  flag = KINSpgmrSetPrecSolveFn(kmem, PSolveb);
+  flag = KINSpgmrSetPrecData(kmem, data);
 
   /* Print out the problem size, solution parameters, initial guess. */
 
   printf("\nPredator-prey test problem --  KINSol (serial version)\n\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
   printf("Number of species = %d\n", NUM_SPECIES);
-  printf("Total system size = %ld\n\n", NEQ);
+  printf("Total system size = %d\n\n", NEQ);
   printf("Flag globalstrategy = %ld (0 = Inex. Newton, 1 = Linesearch)\n",
          globalstrategy);
   printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
@@ -244,19 +239,11 @@ int main()
 
   flag = KINSol(kmem,           /* KINSol memory block */
                 cc,             /* initial guess on input; solution vector */
-                funcprpr,       /* function describing the system equations */
                 globalstrategy, /* global stragegy choice */
                 sc,             /* scaling vector, for the variable cc */
-                sc,             /* scaling vector for function values fval */
-                fnormtol,       /* tolerance on norm of scaled function value */
-                scsteptol,      /* step size tolerance */
-                constraints,    /* constraints vector  */
-                optIn,          /* optional inputs flag: TRUE or FALSE */
-                iopt,           /* integer optional input array */
-                ropt,           /* real optional input array */
-                data);          /* pointer to user data */
+                sc);            /* scaling vector for function values fval */
   
-  if (flag != KINSOL_SUCCESS) { 
+  if (flag != SUCCESS) { 
     printf("KINSOL failed, returning %d.\n", flag); 
     return(flag); }
   
@@ -266,14 +253,14 @@ int main()
 
   /* Print final statistics and free memory */  
 
-  PrintFinalStats(iopt);
+  PrintFinalStats(kmem);
 
   N_VFree(cc);
   N_VFree(sc);
   N_VFree(constraints);
   KINFree(kmem);
   FreeUserData(data);
-  M_EnvFree_Serial(machEnv);
+  NV_SpecFree_Serial(nvSpec);
 
   return(0);
 
@@ -454,12 +441,24 @@ static void PrintOutput(N_Vector cc)
 
 /* Print final statistics contained in iopt */
 
-static void PrintFinalStats(long int iopt[])
+static void PrintFinalStats(void *kmem)
 {
+  int nni, nfe;
+  int nli, npe, nps, ncfl, nfeSG;
+  
+  KINGetNumNonlinSolvIters(kmem, &nni);
+  KINGetNumFuncEvals(kmem, &nfe);
+
+  KINSpgmrGetNumLinIters(kmem, &nli);
+  KINSpgmrGetNumPrecEvals(kmem, &npe);
+  KINSpgmrGetNumPrecSolves(kmem, &nps);
+  KINSpgmrGetNumConvFails(kmem, &ncfl);
+  KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
+
   printf("\nFinal Statistics.. \n\n");
-  printf("nni    = %5ld    nli   = %5ld\n", iopt[NNI], iopt[SPGMR_NLI]);
-  printf("nfe    = %5ld    npe   = %5ld\n", iopt[NFE], iopt[SPGMR_NPE]);
-  printf("nps    = %5ld    ncfl  = %5ld\n", iopt[SPGMR_NPS], iopt[SPGMR_NCFL]);
+  printf("nni    = %5d    nli   = %5d\n", nni, nli);
+  printf("nfe    = %5d    nfeSG = %5d\n", nfe, nfeSG);
+  printf("nps    = %5d    npe   = %5d     ncfl  = %5d\n", nps, npe, ncfl);
   
 } /* end of routine PrintFinalStats **************************************/
 
@@ -526,13 +525,12 @@ static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
 
 
 /* Preconditioner setup routine. Generate and preprocess P. */
-
-static int Precondbd(N_Vector cc, N_Vector cscale,
-                     N_Vector fval, N_Vector fscale,
-                     N_Vector vtemp1, N_Vector vtemp2, 
-                     SysFn func, realtype uround, long int *nfePtr,void *P_data)
+static int Precondb(N_Vector cc, N_Vector cscale,
+                    N_Vector fval, N_Vector fscale,
+                    void *P_data,
+                    N_Vector vtemp1, N_Vector vtemp2)
 {
-  realtype r, r0, sqruround, xx, yy, delx, dely, csave, fac;
+  realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
   realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
   integertype i, j, jx, jy, ret;
   UserData data;
@@ -541,6 +539,7 @@ static int Precondbd(N_Vector cc, N_Vector cscale,
   delx = data->dx;
   dely = data->dy;
   
+  uround = data->uround;
   sqruround = data->sqruround;
   fac = N_VWL2Norm(fval, fscale);
   r0 = THOUSAND * uround * fac * NEQ;
@@ -596,9 +595,10 @@ static int Precondbd(N_Vector cc, N_Vector cscale,
 
 /* Preconditioner solve routine */
 
-static int PSolvebd(N_Vector cc, N_Vector cscale,
-                    N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
-                    SysFn func, realtype uround, long int *nfePtr, void *P_data)
+static int PSolveb(N_Vector cc, N_Vector cscale, 
+                   N_Vector fval, N_Vector fscale, 
+                   N_Vector vv, void *P_data,
+                   N_Vector ftem)
 {
   realtype **Pxy, *vxy;
   integertype *piv, jx, jy;

@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : cvodea.c                                        *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 31 March 2003                                   *
+ * Version of    : 14 July 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -91,15 +91,14 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem);
 static CkpntMem CVAckpntNew(CVodeMem cv_mem);
 static void CVAckpntDelete(CkpntMem *ck_memPtr);
 
-static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, long int steps);
-static void CVAdataFree(DtpntMem *dt_mem, long int steps);
+static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, int steps);
+static void CVAdataFree(DtpntMem *dt_mem, int steps);
 
 static int  CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem);
 static int  CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem); 
-static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, 
-                              long int i);
+static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, int i);
 static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
-                                  long int i, realtype t, N_Vector y);
+                                  int i, realtype t, N_Vector y);
 
 static void CVArhs(realtype t, N_Vector yB, 
                    N_Vector yBdot, void *passed_data);
@@ -110,22 +109,18 @@ static void CVAbandJac(integertype nB, integertype mupperB,
                        integertype mlowerB, BandMat JB, realtype t, 
                        N_Vector yB, N_Vector fyB, void *cvadj_mem, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-static int CVAspgmrPrecond(realtype t, N_Vector yB, 
-                           N_Vector fyB, booleantype jokB, 
-                           booleantype *jcurPtrB, realtype gammaB,
-                           N_Vector ewtB, realtype hB, realtype uroundB,
-                           long int *nfePtrB, void *cvadj_mem,
-                           N_Vector vtemp1B, N_Vector vtemp2B,
-                           N_Vector vtemp3B);
-static int CVAspgmrPsolve(realtype t, N_Vector yB, 
-                          N_Vector fyB, N_Vector vtempB, 
-                          realtype gammaB, N_Vector ewtB,
-                          realtype deltaB, long int *nfePtrB, 
-                          N_Vector rB, int lrB, void *cvadj_mem, 
-                          N_Vector zB);
-static int CVAspgmrJtimes(N_Vector vB, N_Vector JvB, realtype t, 
-                          N_Vector yB, N_Vector fyB, 
-                          void *cvadj_mem, N_Vector workB);
+static int CVAspgmrPrecSetup(realtype t, N_Vector yB, 
+                             N_Vector fyB, booleantype jokB, 
+                             booleantype *jcurPtrB, realtype gammaB,
+                             void *cvadj_mem,
+                             N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+static int CVAspgmrPrecSolve(realtype t, N_Vector yB, N_Vector fyB,
+                             N_Vector rB, N_Vector zB,
+                             realtype gammaB, realtype deltaB,
+                             int lrB, void *cvadj_mem, N_Vector tmpB);
+static int CVAspgmrJacTimesVec(N_Vector vB, N_Vector JvB, realtype t, 
+                               N_Vector yB, N_Vector fyB, 
+                               void *cvadj_mem, N_Vector tmpB);
 static void CVArhsQ(realtype t, N_Vector yB, 
                     N_Vector qBdot, void *passed_data);
 /*=================================================================*/
@@ -152,13 +147,11 @@ static void CVArhsQ(realtype t, N_Vector yB,
 #define f_data_B   (ca_mem->ca_f_dataB)
 #define djac_B     (ca_mem->ca_djacB)
 #define bjac_B     (ca_mem->ca_bjacB)
-#define precond_B  (ca_mem->ca_precondB)
+#define pset_B     (ca_mem->ca_psetB)
 #define psolve_B   (ca_mem->ca_psolveB)
 #define jtimes_B   (ca_mem->ca_jtimesB)
 #define jac_data_B (ca_mem->ca_jac_dataB)
 #define P_data_B   (ca_mem->ca_P_dataB)
-#define ioptBalloc (ca_mem->ca_ioptBalloc)
-#define roptBalloc (ca_mem->ca_roptBalloc)
 #define fQ_B       (ca_mem->ca_fQB)
 #define fQ_data_B  (ca_mem->ca_fQ_dataB)
 #define t_for_quad (ca_mem->ca_t_for_quad)
@@ -181,7 +174,7 @@ static void CVArhsQ(realtype t, N_Vector yB,
 #define l          (cv_mem->cv_l)
 #define saved_tq5  (cv_mem->cv_saved_tq5)
 #define forceSetup (cv_mem->cv_forceSetup)
-#define machenv    (cv_mem->cv_machenv)
+#define nvspec     (cv_mem->cv_nvspec)
 #define f          (cv_mem->cv_f)
 #define lmm        (cv_mem->cv_lmm)
 #define iter       (cv_mem->cv_iter)
@@ -190,17 +183,7 @@ static void CVArhsQ(realtype t, N_Vector yB,
 #define abstol     (cv_mem->cv_abstol)
 #define f_data     (cv_mem->cv_f_data)
 #define errfp      (cv_mem->cv_errfp)
-#define optIn      (cv_mem->cv_optIn)
-#define iopt       (cv_mem->cv_iopt) 
-#define ropt       (cv_mem->cv_ropt) 
 #define h0u        (cv_mem->cv_h0u)
-
-#define machenv_B  (cvb_mem->cv_machenv)
-#define optIn_B    (cvb_mem->cv_iopt)
-#define iopt_B     (cvb_mem->cv_iopt)
-#define ropt_B     (cvb_mem->cv_ropt)
-#define errconQ_B  (cvb_mem->cv_errconQ)
-#define machenvQ_B (cvb_mem->cv_machenvQ)
 
 #define t0_        (ck_mem->ck_t0)
 #define t1_        (ck_mem->ck_t1)
@@ -237,7 +220,7 @@ static void CVArhsQ(realtype t, N_Vector yB,
 */
 /*-----------------------------------------------------------------*/
 
-void *CVadjMalloc(void *cvode_mem, long int steps)
+void *CVadjMalloc(void *cvode_mem, int steps)
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
@@ -281,7 +264,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   }
 
   /* Workspace memory */
-  Y0 = N_VNew(machenv);
+  Y0 = N_VNew(nvspec);
   if (Y0 == NULL) {
     CVAdataFree(ca_mem->dt_mem, nsteps);
     CVAckpntDelete(&(ca_mem->ck_mem));
@@ -290,7 +273,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     return(NULL);
   }
 
-  Y1 = N_VNew(machenv);
+  Y1 = N_VNew(nvspec);
   if (Y1 == NULL) {
     N_VFree(Y0);
     CVAdataFree(ca_mem->dt_mem, nsteps);
@@ -300,7 +283,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
     return(NULL);
   }
 
-  ytmp = N_VNew(machenv);
+  ytmp = N_VNew(nvspec);
   if (ytmp == NULL) {
     N_VFree(Y0);
     N_VFree(Y1);
@@ -394,7 +377,7 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
       /* Load next point in dt_mem */
       dt_mem[nst%nsteps]->t = *t;
       N_VScale(ONE, yout, dt_mem[nst%nsteps]->y);
-      CVodeDky(cv_mem, *t, 1, dt_mem[nst%nsteps]->yd);
+      CVodeGetDky(cv_mem, *t, 1, dt_mem[nst%nsteps]->yd);
 
     }
 
@@ -414,7 +397,7 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
        then break from the loop */
     if ( (itask == NORMAL) && (*t >= tout) ) {
       *t = tout;
-      CVodeDky(cv_mem, tout, 0, yout);
+      CVodeGetDky(cv_mem, tout, 0, yout);
       break;
     }
 
@@ -435,29 +418,13 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
 
 }
 
-/*------------------    CVodeMallocB     --------------------------*/
-/*
-  CVodeMallocB allocates memory for the backward run.            
-  It is essentailly a call to CVodeMalloc but with some          
-  particularizations for backward integration:                   
-    - it takes as an argument a pointer to the adjoint memory    
-      structure and sets the cvode memory for the backward run   
-      as a field of this structure.
-    - the routine that provides the ODE right hand side is of a  
-      different type (it also gets the solution of the forward   
-      integration at the current time).    
-*/
+/*-- CVodeCreateB, CVodeSet*B, CVodeMallocB, and CVodeReInitB -----*/
 /*-----------------------------------------------------------------*/
 
-int CVodeMallocB(void *cvadj_mem, RhsFnB fB, 
-                 realtype tB0, N_Vector yB0, int lmmB, int iterB, int itolB, 
-                 realtype *reltolB, void *abstolB, void *f_dataB, 
-                 FILE *errfpB, booleantype optInB, 
-                 long int ioptB[], realtype roptB[], M_Env machEnvB)
+int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
-  int j;
 
   if (cvadj_mem == NULL) {
     fprintf(stdout, MSG_CVBM_NO_MEM);
@@ -466,43 +433,7 @@ int CVodeMallocB(void *cvadj_mem, RhsFnB fB,
 
   ca_mem = (CVadjMem) cvadj_mem;
 
-  if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
-    fprintf(stdout, MSG_CVBM_BAD_TB0);
-    return(CVBM_BAD_TB0);
-  }
-
-  if (ioptB == NULL) {
-    ioptB = (long int *)malloc(OPT_SIZE*sizeof(long int));
-    if (ioptB == NULL) {
-      fprintf(stdout, MSG_CVBM_MEM_FAIL);
-      return(CVBM_MEM_FAIL);
-    }
-    ioptBalloc = TRUE;
-  } else {
-    ioptBalloc = FALSE;
-  }
-  if (roptB == NULL) {
-    roptB = (realtype *)malloc(OPT_SIZE*sizeof(realtype));
-    if (roptB == NULL) {
-      fprintf(stdout, MSG_CVBM_MEM_FAIL);
-      return(CVBM_MEM_FAIL);
-    }
-    roptBalloc = TRUE;
-  } else {
-    roptBalloc = FALSE;
-  }
-  if (optInB == FALSE)
-    for (j=0; j<OPT_SIZE; j++) {
-      ioptB[j] = 0;
-      roptB[j] = 0.0;
-    }
-  optInB = TRUE;
-  ioptB[MXHNIL] = -1;
-  ioptB[ISTOP]  =  1;
-
-  cvode_mem = CVodeMalloc(CVArhs, tB0, yB0, lmmB, iterB, 
-                          itolB, reltolB, abstolB, cvadj_mem,
-                          errfpB, optInB, ioptB, roptB, machEnvB);
+  cvode_mem = CVodeCreate(lmmB, iterB);
 
   if (cvode_mem == NULL) {
     fprintf(stdout, MSG_CVBM_MEM_FAIL);
@@ -511,31 +442,147 @@ int CVodeMallocB(void *cvadj_mem, RhsFnB fB,
 
   ca_mem->cvb_mem = (CVodeMem) cvode_mem;
 
-  f_B      = fB;
-  f_data_B = f_dataB;
-
   return(SUCCESS);
 
 }
 
-/*------------------    CVodeReInitB     --------------------------*/
-/*
-  CVodeReInitB reinitializes the backward problem for a new 
-  integration using the same forward solution and hence check 
-  points. It sets a new final time and final conditions for the 
-  backward problem.
-*/
 /*-----------------------------------------------------------------*/
 
-int CVodeReInitB(void *cvadj_mem, RhsFnB fB, 
-                 realtype tB0, N_Vector yB0, int lmmB, int iterB, int itolB, 
-                 realtype *reltolB, void *abstolB, void *f_dataB, 
-                 FILE *errfpB, booleantype optInB, 
-                 long int ioptB[], realtype roptB[], M_Env machEnvB)
+int CVodeSetIterTypeB(void *cvadj_mem, int iterB)
 {
   CVadjMem ca_mem;
-  CVodeMem cvb_mem;
-  int flag, j;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetIterType(cvode_mem, iterB);
+  
+  return(flag);
+}
+
+int CVodeSetFdataB(void *cvadj_mem, void *f_dataB)
+{
+  CVadjMem ca_mem;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  f_data_B = f_dataB;
+
+  return(SUCCESS);
+}
+
+int CVodeSetErrFileB(void *cvadj_mem, FILE *errfpB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetErrFile(cvode_mem, errfpB);
+
+  return(flag);
+}
+
+int CVodeSetMaxOrdB(void *cvadj_mem, int maxordB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetMaxOrd(cvode_mem, maxordB);
+
+  return(flag);
+}
+
+
+int CVodeSetMaxNumStepsB(void *cvadj_mem, int mxstepsB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetMaxNumSteps(cvode_mem, mxstepsB);
+
+  return(flag);
+}
+
+int CVodeSetStabLimDetB(void *cvadj_mem, booleantype stldetB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetStabLimDet(cvode_mem, stldetB);
+
+  return(flag);
+}
+
+int CVodeSetInitStepB(void *cvadj_mem, realtype hinB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetInitStep(cvode_mem, hinB);
+
+  return(flag);
+}
+
+int CVodeSetMinStepB(void *cvadj_mem, realtype hminB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetMinStep(cvode_mem, hminB);
+
+  return(flag);
+}
+
+int CVodeSetMaxStepB(void *cvadj_mem, realtype hmaxB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetMaxStep(cvode_mem, hmaxB);
+
+  return(flag);
+}
+
+
+/*-----------------------------------------------------------------*/
+
+int CVodeMallocB(void *cvadj_mem, RhsFnB fB, 
+                 realtype tB0, N_Vector yB0,
+                 int itolB, realtype *reltolB, void *abstolB, 
+                 NV_Spec nvspecB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
 
   if (cvadj_mem == NULL) {
     fprintf(stdout, MSG_CVBM_NO_MEM);
@@ -549,64 +596,92 @@ int CVodeReInitB(void *cvadj_mem, RhsFnB fB,
     return(CVBM_BAD_TB0);
   }
 
-  if (ioptB == NULL) {
-    ioptB = (long int *)malloc(OPT_SIZE*sizeof(long int));
-    if (ioptB == NULL) {
-      fprintf(stdout, MSG_CVBM_MEM_FAIL);
-      return(CVBM_MEM_FAIL);
-    }
-    ioptBalloc = TRUE;
-  } else {
-    ioptBalloc = FALSE;
-  }
-  if (roptB == NULL) {
-    roptB = (realtype *)malloc(OPT_SIZE*sizeof(realtype));
-    if (roptB == NULL) {
-      fprintf(stdout, MSG_CVBM_MEM_FAIL);
-      return(CVBM_MEM_FAIL);
-    }
-    roptBalloc = TRUE;
-  } else {
-    roptBalloc = FALSE;
-  }
-  if (optInB == FALSE)
-    for (j=0; j<OPT_SIZE; j++) {
-      ioptB[j] = 0;
-      roptB[j] = 0.0;
-    }
-  optInB = TRUE;
-  ioptB[MXHNIL] = -1;
-  ioptB[ISTOP]  =  1;
+  f_B = fB;
 
-  cvb_mem = ca_mem->cvb_mem;
+  cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVodeReInit(cvb_mem, CVArhs, tB0, yB0, lmmB, iterB,
-                     itolB, reltolB, abstolB, cvadj_mem,
-                     errfpB, optInB, ioptB, roptB, machEnvB);
-  if (flag != SUCCESS)
-    return(flag);
+  CVodeSetMaxHnilWarns(cvode_mem, -1);
+  CVodeSetFdata(cvode_mem, cvadj_mem);
 
-  f_B      = fB;
-  f_data_B = f_dataB;
+  flag = CVodeMalloc(cvode_mem, CVArhs, tB0, yB0,
+                     itolB, reltolB, abstolB, nvspecB);
 
-  return(SUCCESS);
+  return(flag);
 
 }
 
-/*------------------    CVodeQuadMallocB --------------------------*/
-/*
-  CVodeQuadMallocB initializes quadrature computation during
-  hte backward integration phase
-*/
+/*-----------------------------------------------------------------*/
+
+int CVodeReInitB(void *cvadj_mem, RhsFnB fB, 
+                 realtype tB0, N_Vector yB0, 
+                 int itolB, realtype *reltolB, void *abstolB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) {
+    fprintf(stdout, MSG_CVBM_NO_MEM);
+    return(CVBM_NO_MEM);
+  }
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
+    fprintf(stdout, MSG_CVBM_BAD_TB0);
+    return(CVBM_BAD_TB0);
+  }
+
+  f_B  = fB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  CVodeSetMaxHnilWarns(cvode_mem, -1);
+  CVodeSetFdata(cvode_mem, cvadj_mem);
+
+  flag = CVodeReInit(cvode_mem, CVArhs, tB0, yB0,
+                     itolB, reltolB, abstolB);
+
+  return(flag);
+
+}
+
+/*-- CVodeSetQuad*B, CVodeQuadMallocB, and CVodeQuadReInitB -------*/
+/*-----------------------------------------------------------------*/
+
+int CVodeSetQuadErrConB(void *cvadj_mem, int errconQB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetQuadErrCon(cvode_mem, errconQB);
+
+  return(flag);
+}
+
+int CVodeSetQuadFdataB(void *cvadj_mem, void *fQ_dataB)
+{
+  CVadjMem ca_mem;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  fQ_data_B = fQ_dataB;
+
+  return(SUCCESS);
+}
+
 /*-----------------------------------------------------------------*/
 
 int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB,
-                     int errconQB, realtype *reltolQB, void *abstolQB,
-                     void *fQ_dataB, M_Env machEnvQB)
+                     int itolQB, realtype *reltolQB, void *abstolQB,
+                     NV_Spec nvspecQB)
 {
   CVadjMem ca_mem;
-  CVodeMem cvb_mem;
-  FILE *fp;
+  void *cvode_mem;
   int flag;
 
   if (cvadj_mem == NULL) {
@@ -615,41 +690,27 @@ int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB,
   }
 
   ca_mem = (CVadjMem) cvadj_mem;
-  cvb_mem = ca_mem->cvb_mem;
-  fp = cvb_mem->cv_errfp;
-
-  /* Check if errcon is legal */
-  if ((errconQB!=FULL) && (errconQB!=PARTIAL)) {
-    fprintf(fp, MSG_BAD_ECONQB,errconQB,FULL,PARTIAL);
-    return (CVBM_ILL_INPUT);
-  }
-
-  flag = CVodeQuadMalloc(cvb_mem, CVArhsQ, errconQB, 
-                         reltolQB, abstolQB, cvadj_mem, machEnvQB);
-
-  if (flag != SUCCESS)
-    return(flag);
 
   fQ_B = fQB;
-  fQ_data_B = fQ_dataB;
 
-  return(SUCCESS);
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  CVodeSetQuadFdata(cvode_mem, cvadj_mem);
+
+  flag = CVodeQuadMalloc(cvode_mem, CVArhsQ, 
+                         itolQB, reltolQB, abstolQB, nvspecQB);
+
+  return(flag);
+
 }
 
-/*------------------    CVodeQuadReInitB --------------------------*/
-/*
-  CVodeQuadReInitB re-initializes quadrature computation during
-  the backward integration phase
-*/
 /*-----------------------------------------------------------------*/
 
 int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB,
-                     int errconQB, realtype *reltolQB, void *abstolQB,
-                     void *fQ_dataB, M_Env machEnvQB)
+                     int itolQB, realtype *reltolQB, void *abstolQB)
 {
   CVadjMem ca_mem;
-  CVodeMem cvb_mem;
-  FILE *fp;
+  void *cvode_mem;
   int flag;
 
   if (cvadj_mem == NULL) {
@@ -658,194 +719,296 @@ int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB,
   }
 
   ca_mem = (CVadjMem) cvadj_mem;
-  cvb_mem = ca_mem->cvb_mem;
-  fp = cvb_mem->cv_errfp;
-
-  /* Check if errcon is legal */
-  if ((errconQB!=FULL) && (errconQB!=PARTIAL)) {
-    fprintf(fp, MSG_BAD_ECONQB,errconQB,FULL,PARTIAL);
-    return (CVBM_ILL_INPUT);
-  }
-
-  flag = CVodeQuadReInit(cvb_mem, CVArhsQ, errconQB, 
-                         reltolQB, abstolQB, 
-                         cvadj_mem, machEnvQB);
-
-  if (flag != SUCCESS)
-    return(flag);
 
   fQ_B = fQB;
-  fQ_data_B = fQ_dataB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVodeQuadReInit(cvode_mem, CVArhsQ, itolQB, reltolQB, abstolQB);
+
+  return(flag);
+
+}
+
+/*---------  CVDenseB and CVdenseSet*B    -------------------------*/
+/*-----------------------------------------------------------------*/
+
+int CVDenseB(void *cvadj_mem, integertype nB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVDense(cvode_mem, nB);
+
+  return(flag);
+}
+
+int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  djac_B     = djacB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVDenseSetJacData(cvode_mem, cvadj_mem);
+  flag = CVDenseSetJacFn(cvode_mem, CVAdenseJac);
+
+  return(flag);
+}
+
+int CVDenseSetJacDataB(void *cvadj_mem, void *jac_dataB)
+{
+  CVadjMem ca_mem;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  jac_data_B = jac_dataB;
 
   return(SUCCESS);
 }
 
-/*------------------    CVDenseB         --------------------------*/
-/*
-  CVDenseB links the main CVODE integrator with the CVDENSE
-  linear solver for the backward integration.
-*/
-/*-----------------------------------------------------------------*/
-
-int CVDenseB(void *cvadj_mem, integertype nB, CVDenseJacFnB djacB, void *jac_dataB)
-{
-  CVadjMem ca_mem;
-  CVodeMem cvb_mem;
-  int flag;
-
-  ca_mem = (CVadjMem) cvadj_mem;
-  cvb_mem = ca_mem->cvb_mem;
-  
-  if (djacB == NULL) {
-    flag = CVDense(cvb_mem, nB, NULL, NULL);
-  } else {
-    flag = CVDense(cvb_mem, nB, CVAdenseJac, cvadj_mem);
-    djac_B     = djacB;
-    jac_data_B = jac_dataB;
-  }
-
-  return(flag);
-}
-
-/*------------------     CVBandB         --------------------------*/
-/*
-  CVBandB links the main CVODE integrator with the CVBAND
-  linear solver for the backward integration.
-*/
+/*-----------  CVBandB and CVBandSet*B      -----------------------*/
 /*-----------------------------------------------------------------*/
 
 int CVBandB(void *cvadj_mem, integertype nB, 
-            integertype mupperB, integertype mlowerB,
-            CVBandJacFnB bjacB, void *jac_dataB)
+            integertype mupperB, integertype mlowerB)
 {
   CVadjMem ca_mem;
-  CVodeMem cvb_mem;
+  void *cvode_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
-  cvb_mem = ca_mem->cvb_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
   
-  if (bjacB == NULL) {
-    flag = CVBand(cvb_mem, nB, mupperB, mlowerB, NULL, NULL);
-  } else {
-    flag = CVBand(cvb_mem, nB, mupperB, mlowerB, CVAbandJac, cvadj_mem);
-    bjac_B     = bjacB;
-    jac_data_B = jac_dataB;
-  }
+  flag = CVBand(cvode_mem, nB, mupperB, mlowerB);
 
   return(flag);
 }
 
-/*------------------   CVBandPreAllocB   --------------------------*/
-/*
-  CVBandPreAllocB interfaces to the CVBandPre preconditioner 
-  for the backward integration. The pointer to the CVBandPreData
-  structure returned by this routine can then be used together
-  with the functions CVBandPrecond and CVBandPSolve in a call 
-  to CVSpgmrB. 
-*/
-/*-----------------------------------------------------------------*/
-
-CVBandPreData CVBandPreAllocB(void *cvadj_mem, integertype nB, 
-                              integertype muB, integertype mlB)
+int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB)
 {
   CVadjMem ca_mem;
-  CVodeMem cvb_mem;
-  CVBandPreData bpdata;
+  void *cvode_mem;
+  int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
-  cvb_mem = ca_mem->cvb_mem;
 
-  bpdata = CVBandPreAlloc(nB, CVArhs, cvadj_mem, muB, mlB, cvb_mem);
-  return(bpdata);
-}
+  bjac_B     = bjacB;
 
-/*------------------    CVBandPrecondB   --------------------------*/
-/*-----------------------------------------------------------------*/
+  cvode_mem = (void *) ca_mem->cvb_mem;
 
-int CVBandPrecondB(realtype t, N_Vector y, 
-                   N_Vector yB, N_Vector fyB, booleantype jokB, 
-                   booleantype *jcurPtrB, realtype gammaB,
-                   N_Vector ewtB, realtype hB, realtype uroundB,
-                   long int *nfePtrB, void *P_dataB,
-                   N_Vector vtemp1B, N_Vector vtemp2B,
-                   N_Vector vtemp3B)
-{
-  int flag;
-  flag = CVBandPrecond(t, yB, fyB, jokB, jcurPtrB, gammaB,
-                       ewtB, hB, uroundB, nfePtrB, P_dataB,
-                       vtemp1B, vtemp2B, vtemp3B);
+  flag = CVBandSetJacData(cvode_mem, cvadj_mem);
+  flag = CVBandSetJacFn(cvode_mem, CVAbandJac);
+
   return(flag);
 }
 
-/*------------------     CVBandPSolveB   --------------------------*/
-/*-----------------------------------------------------------------*/
-
-int CVBandPSolveB(realtype t, N_Vector y, 
-                  N_Vector yB, N_Vector fyB, 
-                  N_Vector vtempB,  realtype gammaB, 
-                  N_Vector ewtB, realtype deltaB, 
-                  long int *nfePtrB, N_Vector rB, 
-                  int lrB, void *P_dataB, N_Vector zB)
-{
-  int flag;
-  flag = CVBandPSolve(t, yB, fyB, vtempB, gammaB, ewtB, 
-                      deltaB, nfePtrB, rB, lrB, P_dataB, zB);
-  return(flag);
-}
-
-/*------------------   CVSpgmrB          --------------------------*/
-/*
-  CVSpgmrB links the main CVODE integrator with the CVSPGMR
-  linear solver for the backward integration.
-*/
-/*-----------------------------------------------------------------*/
-
-int CVSpgmrB(void *cvadj_mem, int pretypeB, int gstypeB, 
-             int maxlB, realtype deltB, CVSpgmrPrecondFnB precondB, 
-             CVSpgmrPSolveFnB psolveB, void *P_dataB,
-             CVSpgmrJtimesFnB jtimesB, void *jac_dataB)
-{
+int CVBandSetJacDataB(void *cvadj_mem, void *jac_dataB)
+{ 
   CVadjMem ca_mem;
-  CVodeMem cvb_mem;
-  int flag;
- 
-  CVSpgmrPrecondFn my_precond;
-  CVSpgmrPSolveFn  my_psolve;
-  CVSpgmrJtimesFn  my_jtimes;
 
   ca_mem = (CVadjMem) cvadj_mem;
-  cvb_mem = ca_mem->cvb_mem;
 
-  if (precondB == NULL) {
-    my_precond = NULL;
-  } else {
-    my_precond = CVAspgmrPrecond;
-    precond_B  = precondB;
-  }
-
-  if (psolveB == NULL) {
-    my_psolve = NULL;
-  } else {
-    my_psolve = CVAspgmrPsolve;
-    psolve_B  = psolveB;
-  }
-
-  if (jtimesB == NULL) {
-    my_jtimes = NULL;
-  } else {
-    my_jtimes = CVAspgmrJtimes;
-    jtimes_B  = jtimesB;
-  }
-
-  flag = CVSpgmr(cvb_mem, pretypeB, gstypeB, maxlB, deltB,
-                 my_precond, my_psolve, cvadj_mem, my_jtimes, cvadj_mem);
-
-  P_data_B   = P_dataB;
   jac_data_B = jac_dataB;
 
-  return(flag);
+  return(SUCCESS);
+}
 
+/*------------   CVSpgmrB and CVSpgmrSet*B    ---------------------*/
+/*-----------------------------------------------------------------*/
+int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVSpgmr(cvode_mem, pretypeB, maxlB);
+
+  return(flag);
+}
+
+int CVSpgmrSetPrecTypeB(void *cvadj_mem, int pretypeB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpgmrSetPrecType(cvode_mem,pretypeB);
+
+  return(flag);
+}
+
+int CVSpgmrSetGSTypeB(void *cvadj_mem, int gstypeB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpgmrSetGSType(cvode_mem,gstypeB);
+
+  return(flag);
+}
+
+int CVSpgmrSetDeltB(void *cvadj_mem, realtype deltB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpgmrSetDelt(cvode_mem,deltB);
+
+  return(flag);
+}
+
+int CVSpgmrSetPrecSetupFnB(void *cvadj_mem, CVSpgmrPrecSetupFnB psetB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  pset_B = psetB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpgmrSetPrecData(cvode_mem, cvadj_mem);
+  flag = CVSpgmrSetPrecSetupFn(cvode_mem,CVAspgmrPrecSetup);
+
+  return(flag);
+}
+
+int CVSpgmrSetPrecSolveFnB(void *cvadj_mem, CVSpgmrPrecSolveFnB psolveB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  psolve_B = psolveB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpgmrSetPrecData(cvode_mem, cvadj_mem);
+  flag = CVSpgmrSetPrecSolveFn(cvode_mem,CVAspgmrPrecSolve);
+
+  return(flag);
+}
+
+int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpgmrJacTimesVecFnB jtimesB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  jtimes_B = jtimesB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpgmrSetJacData(cvode_mem, cvadj_mem);
+  flag = CVSpgmrSetJacTimesVecFn(cvode_mem,CVAspgmrJacTimesVec);
+
+  return(flag);
+}
+
+int CVSpgmrSetPrecDataB(void *cvadj_mem, void *P_dataB)
+{
+  CVadjMem ca_mem;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  P_data_B = P_dataB;
+
+  return(SUCCESS);
+}
+
+int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB)
+{
+  CVadjMem ca_mem;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  jac_data_B = jac_dataB;
+
+  return(SUCCESS);
+}
+
+/*- CVBandPrecAllocB,CVBandPrecFreeB,CVBandPrecSetupB,CVBandPrecSolveB -*/
+/*----------------------------------------------------------------------*/
+
+void *CVBandPrecAllocB(void *cvadj_mem, integertype nB, 
+                       integertype muB, integertype mlB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  void *bp_data;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  bp_data = CVBandPrecAlloc(cvode_mem, nB, muB, mlB);
+
+  return(bp_data);
+}
+
+/*-----------------------------------------------------------------*/
+
+int CVBandPrecSetupB(realtype t, N_Vector y, 
+                     N_Vector yB, N_Vector fyB, booleantype jokB, 
+                     booleantype *jcurPtrB, realtype gammaB,
+                     void *bp_dataB,
+                     N_Vector tmp1B, N_Vector tmp2B,
+                     N_Vector tmp3B)
+{
+  int flag;
+  flag = CVBandPrecSetup(t, yB, fyB, jokB, jcurPtrB, gammaB,
+                         bp_dataB, tmp1B, tmp2B, tmp3B);
+  return(flag);
+}
+
+/*-----------------------------------------------------------------*/
+
+int CVBandPrecSolveB(realtype t, N_Vector y, 
+                     N_Vector yB, N_Vector fyB, 
+                     N_Vector rB, N_Vector zB,
+                     realtype gammaB, realtype deltaB, 
+                     int lrB, void *bp_dataB, N_Vector tmpB)
+{
+  int flag;
+  flag = CVBandPrecSolve(t, yB, fyB, rB, zB, gammaB,
+                         deltaB, lrB, bp_dataB, tmpB);
+  return(flag);
 }
 
 /*------------------     CVodeB          --------------------------*/
@@ -868,6 +1031,7 @@ int CVodeB(void *cvadj_mem, N_Vector yB)
   
   ca_mem  = (CVadjMem) cvadj_mem;
   ck_mem = ca_mem->ck_mem;
+
   cvb_mem = ca_mem->cvb_mem;
 
   /* First decide which check points tB0 falls in between */
@@ -887,8 +1051,8 @@ int CVodeB(void *cvadj_mem, N_Vector yB)
     }
 
     /* Propagate backward integration to next check point */
-    ropt_B[TSTOP] = t0_;
-    flag = CVode(cvb_mem, t0_, yB, &t, NORMAL);
+    CVodeSetStopTime((void *)cvb_mem, t0_);
+    flag = CVode(cvb_mem, t0_, yB, &t, NORMAL_TSTOP);
     if (flag < 0) {
       fprintf(stdout, MSG_CVODEB_BCK);
       return(flag);
@@ -905,22 +1069,19 @@ int CVodeB(void *cvadj_mem, N_Vector yB)
 
 }
 
-/*------------------  CVodeQuadExtractB  --------------------------*/
-/*
-  This routine extracts values of the quadrature variables
-*/
+/*------------------  CVodeGetQuadB  ------------------------------*/
 /*-----------------------------------------------------------------*/
 
-int CVodeQuadExtractB(void *cvadj_mem, N_Vector qB)
+int CVodeGetQuadB(void *cvadj_mem, N_Vector qB)
 {
   CVadjMem ca_mem;
-  CVodeMem cvb_mem;
+  void *cvode_mem;
   int flag;
   
   ca_mem  = (CVadjMem) cvadj_mem;
-  cvb_mem = ca_mem->cvb_mem;
+  cvode_mem = (void *) ca_mem->cvb_mem;
   
-  flag = CVodeQuadExtract(cvb_mem, t_for_quad, qB);
+  flag = CVodeGetQuad(cvode_mem, t_for_quad, qB);
 
   return(flag);
 }
@@ -955,16 +1116,32 @@ void CVadjFree(void *cvadj_mem)
   N_VFree(Y1);
   N_VFree(ytmp);
 
-  /* Free CVODE memory for backward run */
-  if(ioptBalloc) 
-    free(ca_mem->cvb_mem->cv_iopt);
-  if(roptBalloc)
-    free(ca_mem->cvb_mem->cv_ropt);
+  /* Free CVODES memory for backward run */
   CVodeFree(ca_mem->cvb_mem);
 
   /* Free CVODEA memory */
   free(ca_mem);
 
+}
+
+/*------------------  CVadjGetCVodeBmem  --------------------------*/
+/*
+  CVadjGetCVodeBmem returns a (void *) pointer to the CVODES     
+  memory allocated for the backward problem. This pointer can    
+  then be used to call any of the CVodeGet* CVODES routines to  
+  extract optional output for the backward integration phase.
+*/
+/*-----------------------------------------------------------------*/
+
+void *CVadjGetCVodeBmem(void *cvadj_mem)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  
+  ca_mem  = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  return(cvode_mem);
 }
 
 /*------------------     CVAdjGetY       --------------------------*/
@@ -983,8 +1160,8 @@ int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
 {
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
-  static long int i;
-  long int inew;
+  static int i;
+  int inew;
   booleantype to_left, to_right;
   realtype troundoff;
 
@@ -1046,14 +1223,14 @@ int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
 
 }
 
-/*------------------  CVAdjCheckPointsList ------------------------*/
+/*------------------  CVAdjGetCheckPointsList ---------------------*/
 /*
   This routine lists the linked list of check point structures.
   For debugging....
 */
 /*-----------------------------------------------------------------*/
 
-void CVadjCheckPointsList(void *cvadj_mem)
+void CVadjGetCheckPointsList(void *cvadj_mem)
 {
   CVadjMem ca_mem;
   CkpntMem ck_mem;
@@ -1075,7 +1252,7 @@ void CVadjCheckPointsList(void *cvadj_mem)
 
 }
 
-/*------------------   CVAdjDataExtract  --------------------------*/
+/*------------------   CVAdjGetStoredData  ------------------------*/
 /*
   This routine returns the solution stored in the data structure
   at the 'which' data point.
@@ -1083,8 +1260,8 @@ void CVadjCheckPointsList(void *cvadj_mem)
 */
 /*-----------------------------------------------------------------*/
 
-void CVadjDataExtract(void *cvadj_mem, long int which, 
-                      realtype *t, N_Vector yout, N_Vector ydout)
+void CVadjGetStoredData(void *cvadj_mem, int which, 
+                        realtype *t, N_Vector yout, N_Vector ydout)
 {
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
@@ -1123,8 +1300,8 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 
   /* Allocate space for ckdata */
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
-  zn_[0] = N_VNew(machenv);
-  zn_[1] = N_VNew(machenv);
+  zn_[0] = N_VNew(nvspec);
+  zn_[1] = N_VNew(nvspec);
 
   /* Load ckdata from cv_mem */
   N_VScale(ONE, zn[0], zn_[0]);
@@ -1156,7 +1333,7 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
   if (ck_mem == NULL) return(NULL);
 
   for (j=0; j<=q; j++) {
-    zn_[j] = N_VNew(machenv);
+    zn_[j] = N_VNew(nvspec);
     if(zn_[j] == NULL) {
       for(jj=0; jj<j; jj++) N_VFree(zn_[jj]);
       return(NULL);
@@ -1216,17 +1393,17 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
 */
 /*-----------------------------------------------------------------*/
 
-static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, long int steps)
+static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, int steps)
 {
   DtpntMem *dt_mem;
-  long int i;
+  int i;
 
   dt_mem = (DtpntMem *)malloc((steps+1)*sizeof(struct DtpntMemRec *));
 
   for (i=0; i<=steps; i++) {
     dt_mem[i] = (DtpntMem)malloc(sizeof(struct DtpntMemRec));
-    dt_mem[i]->y  = N_VNew(machenv);
-    dt_mem[i]->yd = N_VNew(machenv);
+    dt_mem[i]->y  = N_VNew(nvspec);
+    dt_mem[i]->yd = N_VNew(nvspec);
   } 
 
   return(dt_mem);
@@ -1239,9 +1416,9 @@ static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, long int steps)
 */
 /*-----------------------------------------------------------------*/
 
-static void CVAdataFree(DtpntMem *dt_mem, long int steps)
+static void CVAdataFree(DtpntMem *dt_mem, int steps)
 {
-  long int i;
+  int i;
 
   for (i=0; i<=steps; i++) {
     N_VFree(dt_mem[i]->y);
@@ -1264,8 +1441,7 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
   CVodeMem cv_mem;
   DtpntMem *dt_mem;
   realtype t;
-  long int i;
-  int flag;
+  int i, flag;
 
   cv_mem = ca_mem->cv_mem;
   dt_mem = ca_mem->dt_mem;
@@ -1284,7 +1460,7 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
     flag = CVode(cv_mem, t1_, dt_mem[i]->y, &t, ONE_STEP);
     if (flag < 0) return(flag);
     dt_mem[i]->t = t;
-    CVodeDky(cv_mem, t, 1, dt_mem[i]->yd);
+    CVodeGetDky(cv_mem, t, 1, dt_mem[i]->yd);
     i++;
   } while (t<t1_);
 
@@ -1314,20 +1490,8 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
        but make sure we use the same initial stepsize as on 
        the first run. */
 
-    if (iopt == NULL)
-      iopt = (long int *)malloc(OPT_SIZE*sizeof(long int));
-    if (ropt == NULL)
-      ropt = (realtype *)malloc(OPT_SIZE*sizeof(realtype));
-    if (optIn == FALSE)
-      for (j=0; j<OPT_SIZE; j++) {
-        iopt[j] = 0;
-        ropt[j] = 0.0;
-      }
-    optIn = TRUE;
-    ropt[H0] = h0u;
-    CVodeReInit(cv_mem, f, t0_, zn_[0],
-                lmm, iter, itol, reltol, abstol,
-                f_data, errfp, optIn, iopt, ropt, machenv);
+    CVodeSetInitStep(cv_mem, h0u);
+    CVodeReInit(cv_mem, f, t0_, zn_[0], itol, reltol, abstol);
     
   } else {
 
@@ -1367,8 +1531,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
 */
 /*-----------------------------------------------------------------*/
 
-static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, 
-                              long int i)
+static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, int i)
 {
   realtype t0, t1; 
   N_Vector y0, y1, yd0, yd1;
@@ -1396,7 +1559,7 @@ static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem,
 /*-----------------------------------------------------------------*/
 
 static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
-                                  long int i, realtype t, N_Vector y)
+                                  int i, realtype t, N_Vector y)
 {
   realtype t0, t1;
   N_Vector y0, yd0;
@@ -1535,20 +1698,18 @@ static void CVAbandJac(integertype nB, integertype mupperB,
 
 }
 
-/*------------------   CVAspgmrPrecond   --------------------------*/
+/*------------------   CVAspgmrPrecSetup   ------------------------*/
 /*
-  This routine interfaces to the CVSpgmrPrecondFnB routine 
+  This routine interfaces to the CVSpgmrPrecSetupFnB routine 
   provided by the user.
 */
 /*-----------------------------------------------------------------*/
 
-static int CVAspgmrPrecond(realtype t, N_Vector yB, 
-                           N_Vector fyB, booleantype jokB, 
-                           booleantype *jcurPtrB, realtype gammaB,
-                           N_Vector ewtB, realtype hB, realtype uroundB,
-                           long int *nfePtrB, void *cvadj_mem,
-                           N_Vector vtemp1B, N_Vector vtemp2B,
-                           N_Vector vtemp3B)
+static int CVAspgmrPrecSetup(realtype t, N_Vector yB, 
+                             N_Vector fyB, booleantype jokB, 
+                             booleantype *jcurPtrB, realtype gammaB,
+                             void *cvadj_mem,
+                             N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   CVadjMem ca_mem;
   int flag;
@@ -1563,25 +1724,23 @@ static int CVAspgmrPrecond(realtype t, N_Vector yB,
   } 
 
   /* Call user's adjoint precondB routine */
-  flag = precond_B(t, ytmp, yB, fyB, jokB, jcurPtrB, gammaB, ewtB, hB, 
-                   uroundB, nfePtrB, P_data_B, vtemp1B, vtemp2B, vtemp3B);
+  flag = pset_B(t, ytmp, yB, fyB, jokB, jcurPtrB, gammaB,
+                P_data_B, tmp1B, tmp2B, tmp3B);
 
   return(flag);
 }
 
-/*------------------   CVAspgmrPSolve    --------------------------*/
+/*----------------   CVAspgmrPrecSolve    -------------------------*/
 /*
-  This routine interfaces to the CVSpgmrPsolveFnB routine 
+  This routine interfaces to the CVSpgmrPrecSolveFnB routine 
   provided by the user.
 */
 /*-----------------------------------------------------------------*/
 
-static int CVAspgmrPsolve(realtype t, N_Vector yB, 
-                          N_Vector fyB, N_Vector vtempB, 
-                          realtype gammaB, N_Vector ewtB,
-                          realtype deltaB, long int *nfePtrB, 
-                          N_Vector rB, int lrB, void *cvadj_mem, 
-                          N_Vector zB)
+static int CVAspgmrPrecSolve(realtype t, N_Vector yB, N_Vector fyB,
+                             N_Vector rB, N_Vector zB,
+                             realtype gammaB, realtype deltaB,
+                             int lrB, void *cvadj_mem, N_Vector tmpB)
 {
   CVadjMem ca_mem;
   int flag;
@@ -1596,22 +1755,22 @@ static int CVAspgmrPsolve(realtype t, N_Vector yB,
   } 
 
   /* Call user's adjoint psolveB routine */
-  flag = psolve_B(t, ytmp, yB, fyB, vtempB, gammaB, ewtB, deltaB, 
-                  nfePtrB, rB, lrB, P_data_B, zB);
+  flag = psolve_B(t, ytmp, yB, fyB, rB, zB, gammaB, deltaB, 
+                  lrB, P_data_B, tmpB);
 
   return(flag);
 }
 
-/*------------------   CVAspgmrJtimes    --------------------------*/
+/*------------------   CVAspgmrJacTimesVec    ---------------------*/
 /*
-  This routine interfaces to the CVSpgmrJtimesFnB routine 
+  This routine interfaces to the CVSpgmrJacTimesVecFnB routine 
   provided by the user.
 */
 /*-----------------------------------------------------------------*/
 
-static int CVAspgmrJtimes(N_Vector vB, N_Vector JvB, realtype t, 
-                          N_Vector yB, N_Vector fyB, 
-                          void *cvadj_mem, N_Vector workB)
+static int CVAspgmrJacTimesVec(N_Vector vB, N_Vector JvB, realtype t, 
+                               N_Vector yB, N_Vector fyB, 
+                               void *cvadj_mem, N_Vector tmpB)
 {
   CVadjMem ca_mem;
   int flag;
@@ -1626,7 +1785,7 @@ static int CVAspgmrJtimes(N_Vector vB, N_Vector JvB, realtype t,
   } 
 
   /* Call user's adjoint jtimesB routine */
-  flag = jtimes_B(vB, JvB, t, ytmp, yB, fyB, jac_data_B, workB);
+  flag = jtimes_B(vB, JvB, t, ytmp, yB, fyB, jac_data_B, tmpB);
 
   return(flag);
 }

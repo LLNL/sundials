@@ -3,7 +3,7 @@
  * File          : fkinsol.h                                       *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                              *
- * Version of    : 30 July 2002                                    *
+ * Version of    : 5 August 2003                                   *
  *-----------------------------------------------------------------*
  *  This is the header file for the FKINSOL Interface Package      *
  *  See below for usage details                                    *
@@ -23,8 +23,8 @@
 
  The user-callable functions, with the corresponding KINSOL functions,
  are as follows:
-  FMENVINITS and FMENVINITP interface to M_EnvInit_Serial and
-       M_EnvInitParallel (defined by nvector_serial
+  FNVSPECINITS and FNVSPECINITP interface to NV_SpecInit_Serial and
+       NV_SpecInitParallel (defined by nvector_serial
        and nvector_parallel, respectively)
   FKINMALLOC  interfaces to KINMalloc 
   FKINSPGMR00, FKINSPGMR10, FKINSPGMR20, FKINSPGMR01, FKINSPGMR11, and
@@ -33,17 +33,17 @@
        these are in separate files.
   FKINSOL   interfaces to KINSol
   FKINFREE  interfaces to KINFree
-  FMENVFREES and FMENVFREEP interface to M_EnvFree_Serial and
-       M_EnvFree_parallel(defined by nvector_serial
+  FNVSPECFREES and FNVSPECFREEP interface to NV_SpecFree_Serial and
+       NV_SpecFree_parallel(defined by nvector_serial
        and nvector_parallel, respectively)
 
  The user-supplied functions, each with the corresponding interface function
  which calls it (and its type within KINSOL), are as follows:
   KFUN   is called by the interface function KINfunc of type SysFn
-  FATIMES is called by the interface function KINUAtimes of type
-          KINSpgmruserAtimesFn
-  KPSOL  is called by the interface function KINPSol of type KINSpgmrSolveFn
-  KPRECO is called by the interface function KINPreco of type KINSpgmrPrecondFn
+  FJTIMES is called by the interface function KINJtimes of type
+          KINSpgmrJacTimesVecFn
+  KPSOL  is called by the interface function KINPSol of type KINSpgmrPrecSolveFn
+  KPRECO is called by the interface function KINPreco of type KINSpgmrPrecSetupFn
  In contrast to the case of direct use of KINSOL, the names of all 
  user-supplied routines here are fixed, in order to maximize portability for
  the resulting mixed-language program.
@@ -83,33 +83,33 @@
  which are distributed vectors in the parallel case, and NEQ is the
  problem size.
 
- (2) Optional user-supplied Jacobian-vector product routine: FATIMES
+ (2) Optional user-supplied Jacobian-vector product routine: KJTIMES
  As an option, the user may supply a routine that computes the product
  of the system Jacobian and a given vector.  This has the form
-      SUBROUTINE FATIMES(V, Z, NEWU, UU, IER)
+      SUBROUTINE KJTIMES(V, Z, NEWU, UU, IER)
       DIMENSION V(*), Z(*), UU(*)
  This must set the array Z to the product J*V, where J is the Jacobian
  matrix J = df/du, and V is a given array.  Here UU is an array containing
  the current value of the unknown vector u.  NEWU is an input integer 
- indicating whether UU has changed since FATIMES was last called 
- (1 = yes, 0 = no).  If FATIMES computes and saves Jacobian data, then 
+ indicating whether UU has changed since KJTIMES was last called 
+ (1 = yes, 0 = no).  If KJTIMES computes and saves Jacobian data, then 
  no such computation is necessary when NEWU = 0.  Here V, Z, and UU are 
  arrays of length NEQ, the problem size, or the local length of all 
- distributed vectors in the parallel case.  FATIMES should return IER = 0 
+ distributed vectors in the parallel case.  KJTIMES should return IER = 0 
  if successful, or a nonzero IER otherwise.
 
- (3) Initialization:  FMENVINITS / FMENVINITP and FKINMALLOC
+ (3) Initialization:  FNVSPECINITS / FNVSPECINITP and FKINMALLOC
 
  (3.1s) To initialize the serial machine environment, the user must make
  the following call:
-       CALL FMENVINITS (NEQ, IER)
+       CALL FNVSPECINITS (NEQ, IER)
  The arguments are:
  NEQ     = size of vectors
  IER     = return completion flag. Values are 0 = success, -1 = failure.
 
  (3.1p) To initialize the parallel machine environment, the user must make 
  the following call:
-       CALL FMENVINITP (NLOCAL, NGLOBAL, IER)
+       CALL FNVSPECINITP (NLOCAL, NGLOBAL, IER)
  The arguments are:
  NLOCAL  = local size of vectors on this processor
  NGLOBAL = the system size, and the global size of vectors (the sum 
@@ -118,10 +118,21 @@
 
  (3.2) To set various problem and solution parameters and allocate
  internal memory, make the following call:
-       CALL FKINMALLOC(IER)
+       CALL FKINMALLOC(MSBPRE, FNORMTOL, SCSTEPTOL, CONSTRAINTS,
+                       OPTIN, IOPT, ROPT, IER)
  The arguments are:
- IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
-          See printed message for details in case of failure.
+ MSBPRE      = maximum number of preconditioning solve calls without calling
+               the preconditioning setup routine; 0 indicates default.
+ FNORMTOL    = tolerance on the norm of f(u) to accept convergence
+ SCSTEPTOL   = tolerance on minimum scaled step size
+ CONSTRAINTS = array of constraint values, on components of the solution UU
+ INOPT       = integer used as a flag to indicate whether possible input values
+               in IOPT are to be used for input: 0 = NO, 1 = YES.
+ IOPT        = array for integer optional inputs and outputs
+               (declare as INTEGER*4 or INTEGER*8 according to C type long int)
+ ROPT        = array of real optional inputs and outputs
+ IER         = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
+               See printed message for details in case of failure.
 
  (4) Specification of linear system solution method.
  The solution method in KINSOL involves the solution of linear systems 
@@ -131,60 +142,44 @@
 
  (4.1) SPGMR treatment of the linear systems.
  For the Scaled Preconditioned GMRES solution of the linear systems,
- the user must make one of the following six setup calls:
-      CALL FKINSPGMR00(MAXL, MAXLRST, MSBPRE, IER)
-         if no preconditioning or user-supplied FATIMES routine is to be used;
+ the user must make the call:
+      CALL FKINSPGMR(MAXL, MAXLRST, IER)
 
- There are five additional routines that can be called instead of FKINSPGMR00 
- for the cases where preconditioning or user-supplied FATIMES routines are to be
- specified. Their arguments and call lists are documented here, and they are to
- be found in files fkinspgmr01.c etc.
-
-      CALL FKINSPGMR01(MAXL, MAXLRST, MSBPRE, IER)  if no preconditioning
-          but a user-supplied FATIMES routine
-                                                       
-      CALL FKINSPGMR10(MAXL, MAXLRST, MSBPRE, IER)  if preconditioning is used
-          but there is no preconditioning setup routine and no FATIMES routine
-
-      CALL FKINSPGMR11(MAXL, MAXLRST, MSBPRE, IER)  if preconditioning is used
-          but no precond. setup routine, and a FATIMES routine IS supplied
-
-      CALL FKINSPGMR20(MAXL, MAXLRST, MSBPRE, IER)  if preconditioning is used,
-          with a user-supplied precond. setup routine, but no FATIMES routine
-
-      CALL FKINSPGMR21(MAXL, MAXLRST, MSBPRE, IER)  if preconditioning is used,
-          with a user-supplied precond. setup routine and a FATIMES routine
-
- In all of the above routines, the arguments are as follows:
+ In the above routine, the arguments are as follows:
  MAXL     = maximum Krylov subspace dimension; 0 indicates default.
  MAXLRST  = maximum number of linear system restarts; 0 indicates default.
- MSBPRE   = maximum number of preconditioning solve calls without calling the
-            preconditioning setup routine; 0 indicates default; applies only
-            for FKINSPGMR20 and FKINSPGMR21.
  IER      = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
             See printed message for details in case of failure.
 
- In the four cases FKINSPGMR10, FKINSPGMR11, FKINSPGMR20, and FKINSPGMR21,
- the user program must include the following routine for solution of the 
- preconditioner linear system:
+ If the user program includes the KJTIMES routine for the evaluation of the 
+ Jacobian vector product, the following call must be made
+      CALL FKSPGMRSETJAC(FLAG, IER)
+ The argument FLAG=0 specifies using the internal finite differences
+ approximation to the Jacobian vector product, while FLAG=1 specifies that 
+ KJTIMES is provided.
 
-      SUBROUTINE KPSOL (UU, USCALE, FVAL, FSCALE, VTEM, FTEM, 
-                        UROUND, NFE, IER)
+ Usage of the user-supplied routine KPSOL for solution of the preconditioner 
+ linear system is specified by calling
+      CALL FKSPGMRSETPSOL(FLAG, IER)
+ where FLAG=0 indicates no KPSOL (default) and FLAG=1 specifies using KPSOL.
+ The user-supplied routine KPSOL must be of the form:
+
+      SUBROUTINE KPSOL (UU, USCALE, FVAL, FSCALE, VTEM, FTEM, IER)
       DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEM(*), FTEM(*)
 
- Typically this routine will use only NEQ, UU, FVAL, VTEM and FTEM.
+ Typically this routine will use only UU, FVAL, VTEM and FTEM.
  It must solve the preconditioner linear system Pz = r, where r = VTEM is 
  input, and store the solution z in VTEM as well.  Here P is the right 
  preconditioner. If scaling is being used, the routine supplied must also 
  account for scaling on either coordinate or function value.
- NEQ is the (global) problem size.
 
- In the two cases FKINSPGMR20 and FKINSPGMR21, the user program must also 
- include the following routine for the evaluation and preprocessing of the 
- preconditioner:
+ Usage of the user-supplied routine KPRECO for construction of the preconditioner 
+ is specified by calling
+      CALL FKSPGMRSETPPRECO(FLAG, IER)
+ where FLAG=0 indicates no KPRECO (default) and FLAG=1 specifies using KPRECO.
+ The user-supplied routine KPRECO must be of the form:
 
-      SUBROUTINE KPRECO (UU, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2,
-                         UROUND, NFE, IER)
+      SUBROUTINE KPRECO (UU, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2, IER)
       DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEMP1(*), VTEMP2(*)
 
  It must perform any evaluation of Jacobian-related data and preprocessing 
@@ -200,8 +195,7 @@
 
  (5) The solver: FKINSOL
  Solving the nonlinear system is accomplished by making the following call:
-      CALL FKINSOL (UU, GLOBALSTRAT, USCALE, FSCALE, FNORMTOL,
-                    SCSTEPTOL, CONSTRAINTS, INOPT, IOPT, ROPT, IER)
+      CALL FKINSOL (UU, GLOBALSTRAT, USCALE, FSCALE, IER)
  The arguments are:
  UU          = array containing the initial guess on input, and the solution
                on return
@@ -209,25 +203,17 @@
                0 = InexactNewton, 1 = LineSearch
  USCALE      = array of scaling factors for the UU vector
  FSCALE      = array of scaling factors for the FVAL (function) vector
- FNORMTOL    = tolerance on the norm of f(u) to accept convergence
- SCSTEPTOL   = tolerance on minimum scaled step size
- CONSTRAINTS = array of constraint values, on components of the solution UU
- INOPT       = integer used as a flag to indicate whether possible input values
-               in IOPT are to be used for input: 0 = NO, 1 = YES.
- IOPT        = array for integer optional inputs and outputs
-               (declare as INTEGER*4 or INTEGER*8 according to C type long int)
- ROPT        = array of real optional inputs and outputs
  IER         = INTEGER error flag as returned by KINSOL: 1 means success,
                2 means initial guess satisfies f(u) = 0 (approx.),
                3 means apparent stalling (small step),
                a value < 0 or > 3 means other error or failure.
                See KINSOL documentation for detailed information.
 
- (6) Memory freeing: FKINFREE and FMENVFREES / FMENVFREEP
+ (6) Memory freeing: FKINFREE and FNVSPECFREES / FNVSPECFREEP
  To the free the internal memory created by the calls to FKINMALLOC and
- either FMENVINITS or FMENVINITP, make the following calls, in this order:
+ either FNVSPECINITS or FNVSPECINITP, make the following calls, in this order:
       CALL FKINFREE
-      CALL FMENVFREES (serial case) or CALL FMENVFREEP (parallel case)
+      CALL FNVSPECFREES (serial case) or CALL FNVSPECFREEP (parallel case)
 
  (7) Optional inputs and outputs: IOPT/ROPT
 
@@ -277,54 +263,45 @@ The following optional outputs are specific to the SPGMR module:
 
 #if (CRAY)
 
-#define K_PRECO        KPRECO
-#define K_PSOL         KPSOL
-#define F_KINMALLOC    FKINMALLOC
-#define F_KINSPGMR00   FKINSPGMR00
-#define F_KINSPGMR01   FKINSPGMR01
-#define F_KINSPGMR10   FKINSPGMR10
-#define F_KINSPGMR11   FKINSPGMR11
-#define F_KINSPGMR20   FKINSPGMR20
-#define F_KINSPGMR21   FKINSPGMR21
-#define F_KINSOL       FKINSOL
-#define F_KINFREE      FKINFREE
-#define K_FUN          KFUN
-#define F_ATIMES       FATIMES
-#define F_DQJAC        FDQJAC
+#define F_KINMALLOC      FKINMALLOC
+#define F_KINSPGMR       FKINSPGMR
+#define F_KSPGMRSETJAC   FCVSPGMRSETJAC
+#define F_KSPGMRSETPSOL  FKSPGMRSETPSOL
+#define F_KSPGMRSETPRECO FKSPGMRSETPRECO
+#define F_KINSOL         FKINSOL
+#define F_KINFREE        FKINFREE
+#define K_FUN            KFUN
+#define K_PRECO          KPRECO
+#define K_PSOL           KPSOL
+#define K_JTIMES         KJTIMES
 
 #elif  (UNDERSCORE)
 
-#define  K_PRECO       kpreco_
-#define  K_PSOL        kpsol_
-#define  F_KINMALLOC   fkinmalloc_
-#define  F_KINSPGMR00  fkinspgmr00_
-#define  F_KINSPGMR01  fkinspgmr01_
-#define  F_KINSPGMR10  fkinspgmr10_
-#define  F_KINSPGMR11  fkinspgmr11_
-#define  F_KINSPGMR20  fkinspgmr20_
-#define  F_KINSPGMR21  fkinspgmr21_
-#define  F_KINSOL      fkinsol_
-#define  F_KINFREE     fkinfree_
-#define  K_FUN         kfun_
-#define  F_ATIMES      fatimes_
-#define  F_DQJAC       fdqjac_
+#define F_KINMALLOC      fkinmalloc_
+#define F_KINSPGMR       fkinspgmr_
+#define F_KSPGMRSETJAC   fkspgmrsetjac_
+#define F_KSPGMRSETPSOL  fkspgmrsetpsol_
+#define F_KSPGMRSETPRECO fkspgmrsetpreco_
+#define F_KINSOL         fkinsol_
+#define F_KINFREE        fkinfree_
+#define K_FUN            kfun_
+#define K_PRECO          kpreco_
+#define K_PSOL           kpsol_
+#define K_JTIMES         kjtimes_
 
 #else
 
-#define  K_PRECO       kpreco
-#define  K_PSOL        kpsol
-#define  F_KINMALLOC   fkinmalloc
-#define  F_KINSPGMR00  fkinspgmr00
-#define  F_KINSPGMR01  fkinspgmr01
-#define  F_KINSPGMR10  fkinspmgr10
-#define  F_KINSPGMR11  fkinspgmr11
-#define  F_KINSPGMR20  fkinspgmr20
-#define  F_KINSPGMR21  fkinspgmr21
-#define  F_KINSOL      fkinsol
-#define  F_KINFREE     fkinfree
-#define  K_FUN         kfun
-#define  F_ATIMES      fatimes
-#define  F_DQJAC       fdqjac
+#define F_KINMALLOC      fkinmalloc
+#define F_KINSPGMR       fkinspgmr
+#define F_KSPGMRSETJAC   fkspgmrsetjac
+#define F_KSPGMRSETPSOL  fkspgmrsetpsol
+#define F_KSPGMRSETPRECO fkspgmrsetpreco
+#define F_KINSOL         fkinsol
+#define F_KINFREE        fkinfree
+#define K_FUN            kfun
+#define K_PRECO          kpreco
+#define K_PSOL           kpsol
+#define K_JTIMES         kjtimes
 
 #endif
 
@@ -340,24 +317,25 @@ The following optional outputs are specific to the SPGMR module:
 
 void KINfunc(N_Vector uu, N_Vector fval, void *f_data);
 
-int KINPreco(N_Vector uu, N_Vector uscale, 
+int KINPreco(N_Vector uu, N_Vector uscale,
              N_Vector fval, N_Vector fscale,
-             N_Vector vtemp1, N_Vector vtemp2,
-             SysFn func, realtype u_round,
-             long int *nfePtr, void *P_data);
+             void *P_data,
+             N_Vector vtemp1, N_Vector vtemp2);
 
 int KINPSol(N_Vector uu, N_Vector uscale, 
-            N_Vector fval, N_Vector fscale,
-            N_Vector vtem, N_Vector ftem,
-            SysFn func, realtype u_round,
-            long int *nfePtr, void *P_data);
+            N_Vector fval, N_Vector fscale, 
+            N_Vector vv, void *P_data,
+            N_Vector vtemp);
 
-int KINUAtimes(void *f_data, N_Vector v, N_Vector z, booleantype *new_uu,
-               N_Vector uu);
+int KINJtimes(N_Vector v, N_Vector Jv,
+              N_Vector uu, booleantype *new_uu, 
+              void *J_data);
 
 
 /* Declarations for global variables, shared among various routines */
 
-void *KIN_kmem;
+void *KIN_mem;
+int *KIN_iopt;
+realtype *KIN_ropt;
 
 #endif

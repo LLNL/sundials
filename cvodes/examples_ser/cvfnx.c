@@ -3,7 +3,7 @@
  * File       : cvfnx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne, and *
  *              Radu Serban @ LLNL                                      *
- * Version of : 30 March 2003                                           *
+ * Version of : 11 July 2003                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -77,13 +77,11 @@ typedef struct {
 
 static void WrongArgs(char *argv[]);
 static void SetIC(N_Vector u, realtype dx);
-static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector u);
+static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
-static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
-                            long int iopt[]);
+static void PrintFinalStats(void *cvode_mem, booleantype sensi, int sensi_meth, int err_con);
 
 /* Functions Called by the CVODES Solver */
-
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 
@@ -91,19 +89,18 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 int main(int argc, char *argv[])
 {
-  M_Env machEnv;
-  realtype ropt[OPT_SIZE], dx, reltol, abstol, t, tout;
-  long int iopt[OPT_SIZE];
-  N_Vector u;
-  UserData data;
+  NV_Spec nvSpec;
   void *cvode_mem;
+  UserData data;
+  realtype dx, reltol, abstol, t, tout;
+  N_Vector u;
   int iout, flag;
 
-  realtype *pbar, rhomax;
+  realtype *pbar;
   integertype is, *plist;
-  N_Vector *uS;
-  booleantype sensi;
-  int sensi_meth, err_con, ifS;
+  N_Vector *uS=NULL;
+  booleantype sensi=FALSE;
+  int sensi_meth=-1, err_con=-1;
 
   /* Process arguments */
   if (argc < 2)
@@ -139,8 +136,8 @@ int main(int argc, char *argv[])
 
   }
 
-  /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(NEQ);  
+  /* Initialize serial vector specification */
+  nvSpec = NV_SpecInit_Serial(NEQ);
 
   /* USER DATA STRUCTURE */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
@@ -150,21 +147,24 @@ int main(int argc, char *argv[])
   data->p[1] = 0.5;
 
   /* INITIAL STATES */
-  u = N_VNew(machEnv);    /* Allocate u vector */
+  u = N_VNew(nvSpec);    /* Allocate u vector */
   SetIC(u, dx);           /* Initialize u vector */
 
   /* TOLERANCES */
   reltol = 0.0;                /* Set the tolerances */
   abstol = ATOL;
 
-  /* CVODE_MALLOC */
-  cvode_mem = CVodeMalloc(f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
-                          &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
-  if (cvode_mem == NULL) { 
-    printf("CVodeMalloc failed.\n");
-    return(1);
-  }
+  /* CVODE_CREATE */
+  cvode_mem = CVodeCreate(ADAMS, FUNCTIONAL);
+  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
 
+  flag = CVodeSetFdata(cvode_mem, data);
+  if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
+
+  /* CVODE_MALLOC */
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+  
   /* SENSITIVTY */
   if(sensi) {
     pbar  = (realtype *) malloc(NP * sizeof(realtype));
@@ -174,19 +174,16 @@ int main(int argc, char *argv[])
     for(is=0; is<NS; is++)
       plist[is] = is+1; /* sensitivity w.r.t. i-th parameter */
 
-    uS = N_VNew_S(NS, machEnv);
+    uS = N_VNew_S(NS, nvSpec);
     for(is=0;is<NS;is++)
       N_VConst(0.0, uS[is]);
 
-    rhomax = ZERO;
-    ifS = ALLSENS;
-    if(sensi_meth==STAGGERED1) ifS = ONESENS;
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, pbar, plist,
-                           ifS, NULL, err_con, rhomax, uS, NULL, NULL, NULL);
-    if (flag != SUCCESS) {
-      printf("CVodeSensMalloc failed, flag=%d\n",flag);
-      return(1);
-    }
+    flag = CVodeSetSensErrCon(cvode_mem, err_con);
+    flag = CVodeSetSensRho(cvode_mem, ZERO);
+    flag = CVodeSetSensPbar(cvode_mem, pbar);
+
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, plist, uS);
+    if (flag != SUCCESS) { printf("CVodeSensMalloc failed, flag=%d\n",flag); return(1); }
   }
 
   /* In loop over output points, call CVode, print results, test for error */
@@ -202,28 +199,25 @@ int main(int argc, char *argv[])
       printf("CVode failed, flag=%d.\n", flag); 
       break; 
     }
-    PrintOutput(iopt, ropt, t, u);
+    PrintOutput(cvode_mem, t, u);
     if (sensi) {
-      flag = CVodeSensExtract(cvode_mem, t, uS);
-      if (flag != SUCCESS) { 
-        printf("CVodeSensExtract failed, flag=%d.\n", flag); 
-        break; 
-      }
+      flag = CVodeGetSens(cvode_mem, t, uS);
+      if (flag != OKAY) { printf("CVodeGetSens failed, flag=%d.\n", flag); break; }
       PrintOutputS(uS);
     } 
     printf("------------------------------------------------------------\n");
   }
 
   /* Print final statistics */
-  PrintFinalStats(sensi,sensi_meth,err_con,iopt);
+  PrintFinalStats(cvode_mem, sensi,sensi_meth,err_con);
 
   /* Free memory */
-  N_VFree(u);                  /* Free the u vector             */
-  if(sensi) N_VFree_S(NS, uS); /* Free the uS vectors           */
-  free(data->p);               /* Free the p vector             */
-  free(data);                  /* Free block of UserData        */
+  N_VFree(u);                  /* Free the u vector              */
+  if(sensi) N_VFree_S(NS, uS); /* Free the uS vectors            */
+  free(data->p);               /* Free the p vector              */
+  free(data);                  /* Free block of UserData         */
   CVodeFree(cvode_mem);        /* Free the CVODES problem memory */
-  M_EnvFree_Serial(machEnv);   /* Free the machine environment memory */
+  NV_SpecFree_Serial(nvSpec);  /* Free the vector specification  */
 
   return(0);
 }
@@ -265,10 +259,16 @@ static void SetIC(N_Vector u, realtype dx)
 /* ======================================================================= */
 /* Print current t, step count, order, stepsize, and max norm of solution  */
 
-static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector u)
+static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
 {
+  int nst, qu;
+  realtype hu;
   
-  printf("%8.3e %2ld  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetLastOrder(cvode_mem, &qu);
+  CVodeGetLastStep(cvode_mem, &hu);
+
+  printf("%8.3e %2d  %8.3e %5d\n", t, qu, hu ,nst);
   printf("                                Solution       ");
   printf("%12.4e \n", N_VMaxNorm(u));
   
@@ -289,9 +289,27 @@ static void PrintOutputS(N_Vector *uS)
 /* ======================================================================= */
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
-                            long int iopt[])
+static void PrintFinalStats(void *cvode_mem, booleantype sensi, int sensi_meth, int err_con)
 {
+  int nst;
+  int nfe, nsetups, nni, ncfn, netf;
+  int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  CVodeGetNumErrTestFails(cvode_mem, &netf);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+
+  if (sensi) {
+    CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
+    CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
+    CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
+    CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
+    CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
+    CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
+  }
 
   printf("\n\n========================================================");
   printf("\nFinal Statistics");
@@ -303,7 +321,7 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con,
       printf("( SIMULTANEOUS +");
     else 
       if(sensi_meth == STAGGERED) printf("( STAGGERED +");
-      else                        printf("( STAGGERED1 +");                      
+      else                        printf("( STAGGERED1 +");   
     if(err_con == FULL) printf(" FULL ERROR CONTROL )");
     else                printf(" PARTIAL ERROR CONTROL )");
   } else {
@@ -311,18 +329,20 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con,
   }
 
   printf("\n\n");
-  /*
-  printf("lenrw   = %5ld    leniw = %5ld\n", iopt[LENRW], iopt[LENIW]);
-  printf("llrw    = %5ld    lliw  = %5ld\n", iopt[SPGMR_LRW], iopt[SPGMR_LIW]);
-  */
-  printf("nst     = %5ld                \n\n", iopt[NST]);
-  printf("nfe     = %5ld    nfSe  = %5ld  \n", iopt[NFE],  iopt[NFSE]);
-  printf("nni     = %5ld    nniS  = %5ld  \n", iopt[NNI],  iopt[NNIS]);
-  printf("ncfn    = %5ld    ncfnS = %5ld  \n", iopt[NCFN], iopt[NCFNS]);
-  printf("netf    = %5ld    netfS = %5ld\n\n", iopt[NETF], iopt[NETFS]);
-  printf("nsetups = %5ld                  \n", iopt[NSETUPS]);
+  printf("nst     = %5d\n\n", nst);
+  printf("nfe     = %5d\n",   nfe);
+  printf("netf    = %5d    nsetups  = %5d\n", netf, nsetups);
+  printf("nni     = %5d    ncfn     = %5d\n", nni, ncfn);
+
+  if(sensi) {
+    printf("\n");
+    printf("nfSe    = %5d    nfeS     = %5d\n", nfSe, nfeS);
+    printf("netfs   = %5d    nsetupsS = %5d\n", netfS, nsetupsS);
+    printf("nniS    = %5d    ncfnS    = %5d\n", nniS, ncfnS);
+  }
 
   printf("========================================================\n");
+
 
 }
 

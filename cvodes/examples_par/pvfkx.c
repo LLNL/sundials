@@ -3,7 +3,7 @@
  * File       : pvfkx.c                                                 *
  * Programmers: S. D. Cohen, A. C. Hindmarsh, Radu Serban, and          *
  *              M. R. Wittman @ LLNL                                    *
- * Version of : 30 March 2003                                           *
+ * Version of : 14 July 2003                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -149,11 +149,11 @@ static PreconData AllocPreconData(UserData data);
 static void InitUserData(integertype my_pe, MPI_Comm comm, UserData data);
 static void FreePreconData(PreconData pdata);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[],
-                        realtype ropt[], realtype t, N_Vector u);
+static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
+                        realtype t, N_Vector u);
 static void PrintOutputS(integertype my_pe, MPI_Comm comm, N_Vector *uS);
-static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
-                            long int iopt[]);
+static void PrintFinalStats(void *cvode_mem, booleantype sensi, 
+                            int sensi_meth, int err_con);
 static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, 
                   integertype isuby, integertype dsizex, 
                   integertype dsizey, realtype udata[]);
@@ -170,22 +170,22 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
-                   realtype uround, long int *nfePtr, void *P_data,
+static int Precond(realtype tn, N_Vector u, N_Vector fu,
+                   booleantype jok, booleantype *jcurPtr, 
+                   realtype gamma, void *P_data, 
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-static int PSolve(realtype tn, N_Vector u, N_Vector fu, N_Vector vtemp,
-                  realtype gamma, N_Vector ewt, realtype delta, long int *nfePtr,
-                  N_Vector r, int lr, void *P_data, N_Vector z);
+static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
+                  N_Vector r, N_Vector z, 
+                  realtype gamma, realtype delta,
+                  int lr, void *P_data, N_Vector vtemp);
 
 /***************************** Main Program ******************************/
 
 int main(int argc, char *argv[])
 {
-  M_Env machEnv;
-  realtype abstol, reltol, t, tout, ropt[OPT_SIZE];
-  long int iopt[OPT_SIZE];
+  NV_Spec nvSpec;
+  realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
   PreconData predata;
@@ -194,11 +194,11 @@ int main(int argc, char *argv[])
   integertype neq, local_N;
   MPI_Comm comm;
 
-  realtype *pbar, rhomax;
+  realtype *pbar;
   integertype is, *plist;
-  N_Vector *uS;
-  booleantype sensi;
-  int sensi_meth, err_con, ifS;
+  N_Vector *uS=NULL;
+  booleantype sensi=FALSE;
+  int sensi_meth=-1, err_con=-1;
 
   /* Set problem size neq */
   neq = NVARS*MX*MY;
@@ -258,33 +258,48 @@ int main(int argc, char *argv[])
   InitUserData(my_pe, comm, data);
   predata = AllocPreconData (data);
 
-  /* Set machEnv block */
-  machEnv = M_EnvInit_Parallel(comm, local_N, neq, &argc, &argv);
-  if (machEnv == NULL) return(1);
+  nvSpec = NV_SpecInit_Parallel(comm, local_N, neq, &argc, &argv);
 
   /* Allocate u, and set initial values and tolerances */ 
-  u = N_VNew(machEnv);
+  u = N_VNew(nvSpec);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
-  for (is=0; is<OPT_SIZE; is++) {
-    iopt[is] = 0;
-    ropt[is] = 0.0;
-  }
-  iopt[MXSTEP] = 2000;
+  /* CVODE_CREATE & CVODE_MALLOC */
 
-  /* CVODE_MALLOC */
-  cvode_mem = CVodeMalloc(f, T0, u, BDF, NEWTON, SS, &reltol,
-                          &abstol, data, NULL, TRUE, iopt, ropt, machEnv);
-  if (cvode_mem == NULL) {
-    printf("CVodeMalloc failed.");
-    return(1);
+  cvode_mem = CVodeCreate(BDF, NEWTON);
+  if (cvode_mem == NULL) { 
+    if (my_pe == 0) printf("CVodeCreate failed.\n"); 
+    return(1); 
+  }
+
+  flag = CVodeSetFdata(cvode_mem, data);
+  if (flag != SUCCESS) { 
+    if (my_pe == 0) printf("CVodeSetFdata failed.\n"); 
+    return(1); 
+  }
+
+  flag = CVodeSetMaxNumSteps(cvode_mem, 2000);
+  if (flag != SUCCESS) { 
+    if (my_pe == 0) printf("CVodeSetMaxNumSteps failed.\n"); 
+    return(1); 
+  }
+
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  if (flag != SUCCESS) { 
+    if (my_pe == 0) printf("CVodeMalloc failed.\n"); 
+    return(1); 
   }
 
   /* CVSPGMR */
-  flag = CVSpgmr(cvode_mem, LEFT, MODIFIED_GS, 0, 0.0, Precond, PSolve, 
-                 predata, NULL, NULL);
-  if (flag != SUCCESS) { printf("CVSpgmr failed.\n"); return(1); }
+  flag = CVSpgmr(cvode_mem, LEFT, 0);
+  if (flag != SUCCESS) { 
+    if (my_pe == 0) printf("CVSpgmr failed."); 
+    return(1); 
+  }
+  flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
+  flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
+  flag = CVSpgmrSetPrecData(cvode_mem, predata);
 
   /* SENSITIVTY */
   if(sensi) {
@@ -293,16 +308,15 @@ int main(int argc, char *argv[])
     plist = (integertype *) malloc(NS * sizeof(integertype));
     for(is=0; is<NS; is++) plist[is] = is+1;
 
-    uS = N_VNew_S(NS, machEnv);
+    uS = N_VNew_S(NS, nvSpec);
     for(is=0;is<NS;is++)
       N_VConst(ZERO,uS[is]);
 
-    rhomax = ZERO;
-    ifS = ALLSENS;
-    if(sensi_meth==STAGGERED1) ifS = ONESENS;
+    flag = CVodeSetSensErrCon(cvode_mem, err_con);
+    flag = CVodeSetSensRho(cvode_mem, ZERO);
+    flag = CVodeSetSensPbar(cvode_mem, pbar);
 
-    flag = CVodeSensMalloc(cvode_mem,NS,sensi_meth,data->p,pbar,plist,
-                           ifS,NULL,err_con,rhomax,uS,NULL,NULL,NULL);
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, plist, uS);
     if (flag != SUCCESS) {
       if (my_pe == 0) printf("CVodeSensMalloc failed, flag=%d\n",flag);
       return(1);
@@ -323,9 +337,9 @@ int main(int argc, char *argv[])
       if (my_pe == 0) printf("CVode failed, flag=%d.\n", flag);
       break;
     }
-    PrintOutput(my_pe, comm, iopt, ropt, t, u);
+    PrintOutput(cvode_mem, my_pe, comm, t, u);
     if (sensi) {
-      flag = CVodeSensExtract(cvode_mem, t, uS);
+      flag = CVodeGetSens(cvode_mem, t, uS);
       if (flag != SUCCESS) { 
         printf("CVodeSensExtract failed, flag=%d.\n", flag); 
         break; 
@@ -337,7 +351,7 @@ int main(int argc, char *argv[])
   }
 
   /* Print final statistics */  
-  if (my_pe == 0) PrintFinalStats(sensi,sensi_meth,err_con,iopt);
+  if (my_pe == 0) PrintFinalStats(cvode_mem, sensi,sensi_meth,err_con);
 
   /* Free memory */
   N_VFree(u);
@@ -347,7 +361,7 @@ int main(int argc, char *argv[])
   free(data);
   FreePreconData(predata);
   CVodeFree(cvode_mem);
-  M_EnvFree_Parallel(machEnv);
+  NV_SpecFree_Parallel(nvSpec);
   MPI_Finalize();
 
   return(0);
@@ -494,10 +508,11 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 /* ======================================================================= */
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[], 
-                        realtype ropt[], realtype t, N_Vector u)
+static void PrintOutput(void *cvode_mem, integertype my_pe, MPI_Comm comm,
+                        realtype t, N_Vector u)
 {
-  realtype *udata, tempu[2];
+  int nst, qu;
+  realtype hu, *udata, tempu[2];
   integertype npelast, i0, i1;
   MPI_Status status;
 
@@ -521,8 +536,10 @@ static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[],
   if (my_pe == 0) {
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
-
-    printf("%8.3e %2ld  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
+    CVodeGetNumSteps(cvode_mem, &nst);
+    CVodeGetLastOrder(cvode_mem, &qu);
+    CVodeGetLastStep(cvode_mem, &hu);
+    printf("%8.3e %2d  %8.3e %5d\n", t,qu,hu,nst);
     printf("                                Solution       ");
     printf("%12.4e %12.4e \n", udata[0], tempu[0]); 
     printf("                                               ");
@@ -592,8 +609,29 @@ static void PrintOutputS(integertype my_pe, MPI_Comm comm, N_Vector *uS)
 /* ======================================================================= */
 /* Print final statistics contained in iopt */
 
-static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, long int iopt[])
+static void PrintFinalStats(void *cvode_mem, booleantype sensi, 
+                            int sensi_meth, int err_con)
 {
+  int nst;
+  int nfe, nsetups, nni, ncfn, netf;
+  int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  CVodeGetNumErrTestFails(cvode_mem, &netf);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+
+  if (sensi) {
+    CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
+    CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
+    CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
+    CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
+    CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
+    CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
+  }
+  
 
   printf("\n\n========================================================");
   printf("\nFinal Statistics");
@@ -613,17 +651,19 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, long
   }
 
   printf("\n\n");
-  printf("nst     = %5ld \n\n", iopt[NST]);
-  printf("nfe     = %5ld  nfSe     = %5ld \n",  iopt[NFE],      iopt[NFSE]);
-  printf("nni     = %5ld  nniS     = %5ld \n",  iopt[NNI],      iopt[NNIS]);
-  printf("ncfn    = %5ld  ncfnS    = %5ld \n",  iopt[NCFN],     iopt[NCFNS]);
-  printf("netf    = %5ld  netfS    = %5ld \n",  iopt[NETF],     iopt[NETFS]);
-  printf("nsetups = %5ld  nsetupss = %5ld \n\n",iopt[NSETUPS],  iopt[NSETUPSS]);
-  printf("nli     = %5ld  ncfl     = %5ld \n",  iopt[SPGMR_NLI],iopt[SPGMR_NCFL]);
-  printf("npe     = %5ld  nps      = %5ld \n",  iopt[SPGMR_NPE],iopt[SPGMR_NPS]);
+  printf("nst     = %5d\n\n", nst);
+  printf("nfe     = %5d\n",   nfe);
+  printf("netf    = %5d    nsetups  = %5d\n", netf, nsetups);
+  printf("nni     = %5d    ncfn     = %5d\n", nni, ncfn);
+
+  if(sensi) {
+    printf("\n");
+    printf("nfSe    = %5d    nfeS     = %5d\n", nfSe, nfeS);
+    printf("netfs   = %5d    nsetupsS = %5d\n", netfS, nsetupsS);
+    printf("nniS    = %5d    ncfnS    = %5d\n", nniS, ncfnS);
+  }
 
   printf("========================================================\n");
-
 }
 
 /* ======================================================================= */
@@ -959,10 +999,9 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 /* ======================================================================= */
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(realtype tn, N_Vector u, N_Vector fu, 
+static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, N_Vector ewt, realtype h,
-                   realtype uround, long int *nfePtr, void *P_data,
+                   realtype gamma, void *P_data, 
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
@@ -1060,9 +1099,9 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 /* Preconditioner solve routine */
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
-                  N_Vector vtemp, realtype gamma, N_Vector ewt, 
-                  realtype delta, long int *nfePtr,
-                  N_Vector r, int lr, void *P_data, N_Vector z)
+                  N_Vector r, N_Vector z, 
+                  realtype gamma, realtype delta,
+                  int lr, void *P_data, N_Vector vtemp)
 {
   realtype **(*P)[MYSUB];
   integertype nvmxsub, *(*pivot)[MYSUB];

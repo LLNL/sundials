@@ -1,9 +1,9 @@
 /*******************************************************************
  *                                                                 *
  * File          : cvdense.c                                       *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 31 March 2003                                   *
+ * Version of    : 31 July 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -14,7 +14,6 @@
  * solver, CVDENSE.                                                *
  *                                                                 *
  *******************************************************************/
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,13 +28,17 @@
 
 /* Error Messages */
 
-#define CVDENSE  "CVDense/CVReInitDense-- "
+#define CVDENSE               "CVDense-- "
 
-#define MSG_CVMEM_NULL  CVDENSE "CVode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL        CVDENSE "cvode Memory is NULL.\n\n"
 
-#define MSG_MEM_FAIL    CVDENSE "A memory request failed.\n\n"
+#define MSG_MEM_FAIL          CVDENSE "A memory request failed.\n\n"
 
-#define MSG_WRONG_NVEC  CVDENSE "Incompatible NVECTOR implementation.\n\n" 
+#define MSG_WRONG_NVEC        CVDENSE "Incompatible NVECTOR implementation.\n\n" 
+
+#define MSG_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- cvode memory is NULL. \n\n"
+
+#define MSG_SETGET_LMEM_NULL  "CVDenseSet*/CVDenseGet*-- cvdense memory is NULL. \n\n"
 
 /* Other Constants */
 
@@ -44,54 +47,24 @@
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
 
-
-/******************************************************************
- *                                                                *           
- * Types : CVDenseMemRec, CVDenseMem                              *
- *----------------------------------------------------------------*
- * The type CVDenseMem is pointer to a CVDenseMemRec. This        *
- * structure contains CVDense solver-specific data.               *
- *                                                                *
- ******************************************************************/
-
-typedef struct {
-
-  integertype d_N;       /* problem dimension                      */
-
-  CVDenseJacFn d_jac;    /* jac = Jacobian routine to be called    */
-  
-  DenseMat d_M;          /* M = I - gamma J, gamma = h / l1        */
-  
-  integertype *d_pivots; /* pivots = pivot array for PM = LU       */
-  
-  DenseMat d_savedJ;     /* savedJ = old Jacobian                  */
-  
-  long int  d_nstlj;     /* nstlj = nst at last Jacobian eval.     */
-  
-  long int d_nje;        /* nje = no. of calls to jac              */
-  
-  void *d_J_data;        /* J_data is passed to jac                */
-
-} CVDenseMemRec, *CVDenseMem;
-
-
-/* CVDENSE linit, lsetup, lsolve, lfree, and DQJac routines */
+/* CVDENSE linit, lsetup, lsolve, and lfree routines */
  
 static int CVDenseInit(CVodeMem cv_mem);
 
 static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
-                        N_Vector vtemp2, N_Vector vtemp3);
+                        N_Vector fpred, booleantype *jcurPtr, 
+                        N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                         N_Vector fcur);
 
 static void CVDenseFree(CVodeMem cv_mem);
 
-static void CVDenseDQJac(integertype n, DenseMat J, realtype t, 
-                         N_Vector y, N_Vector fy, void *jac_data, 
-                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+/* CVDENSE DQJac routine */
 
+static void CVDenseDQJac(integertype n, DenseMat J, realtype t, 
+                         N_Vector y, N_Vector fy, void *jac_data,
+                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Readability Replacements */
 
@@ -106,24 +79,23 @@ static void CVDenseDQJac(integertype n, DenseMat J, realtype t,
 #define gammap    (cv_mem->cv_gammap)
 #define gamrat    (cv_mem->cv_gamrat)
 #define ewt       (cv_mem->cv_ewt)
-#define nfe       (cv_mem->cv_nfe)
 #define errfp     (cv_mem->cv_errfp)
-#define iopt      (cv_mem->cv_iopt)
 #define linit     (cv_mem->cv_linit)
 #define lsetup    (cv_mem->cv_lsetup)
 #define lsolve    (cv_mem->cv_lsolve)
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
 #define setupNonNull (cv_mem->cv_setupNonNull)
-#define machenv   (cv_mem->cv_machenv)
+#define nvspec    (cv_mem->cv_nvspec)
 
-#define N         (cvdense_mem->d_N)
+#define n         (cvdense_mem->d_n)
 #define jac       (cvdense_mem->d_jac)
 #define M         (cvdense_mem->d_M)
 #define pivots    (cvdense_mem->d_pivots)
 #define savedJ    (cvdense_mem->d_savedJ)
 #define nstlj     (cvdense_mem->d_nstlj)
 #define nje       (cvdense_mem->d_nje)
+#define nfeD      (cvdense_mem->d_nfeD)
 #define J_data    (cvdense_mem->d_J_data)
 
                   
@@ -133,76 +105,62 @@ static void CVDenseDQJac(integertype n, DenseMat J, realtype t,
  fields specific to the dense linear solver module.  CVDense first
  calls the existing lfree routine if this is not NULL.  Then it sets
  the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
- to be CVDenseInit, CVDenseSetup, CVDenseSolve, and CVDenseFree,
+ to be CVDenseInit, CVDenseSetup, CVDenseSolve, CVDenseSolveS, and CVDenseFree,
  respectively.  It allocates memory for a structure of type
  CVDenseMemRec and sets the cv_lmem field in (*cvode_mem) to the
  address of this structure.  It sets setupNonNull in (*cvode_mem) to
- TRUE, the d_J_data field in CVDenseMemRec to be the input
- parameter jac_data, and the d_jac field to be:
-   (1) the input parameter djac if djac != NULL or                
-   (2) CVDenseDQJac if djac == NULL.                             
+ TRUE, and the d_jac field to the default CVDenseDQJac.
  Finally, it allocates memory for M, savedJ, and pivots.
  The return value is SUCCESS = 0, or LMEM_FAIL = -1.
 
- NOTE: The dense linear solver assumes a serial implementation
-       of the NVECTOR package. Therefore, CVDense will first 
-       test for compatible a compatible N_Vector internal
-       representation by checking (1) the machine environment
-       ID tag and (2) that the functions N_VMake, N_VDispose,
-       N_VGetData, and N_VSetData are implemented.
-
 **********************************************************************/
 
-int CVDense(void *cvode_mem, integertype n, CVDenseJacFn djac, void *jac_data)
+int CVDense(void *cvode_mem, integertype N)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
 
   /* Return immediately if cvode_mem is NULL */
-  cv_mem = (CVodeMem) cvode_mem;
-  if (cv_mem == NULL) {                   /* CVode reports this error */
-    fprintf(errfp, MSG_CVMEM_NULL);
-    return(LMEM_FAIL);
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_CVMEM_NULL);
+    return(LIN_NO_MEM);
   }
+  cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
-  if ((strcmp(machenv->tag,"serial")) || 
-      machenv->ops->nvmake    == NULL || 
-      machenv->ops->nvdispose == NULL ||
-      machenv->ops->nvgetdata == NULL || 
-      machenv->ops->nvsetdata == NULL) {
+  if ((strcmp(nvspec->tag,"serial")) || 
+      nvspec->ops->nvmake    == NULL || 
+      nvspec->ops->nvdispose == NULL ||
+      nvspec->ops->nvgetdata == NULL || 
+      nvspec->ops->nvsetdata == NULL) {
     fprintf(errfp, MSG_WRONG_NVEC);
-    return(LMEM_FAIL);
+    return(LIN_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(cv_mem);
 
-  /* Set four main function fields in cv_mem */
+  /* Set five main function fields in cv_mem */
   linit  = CVDenseInit;
   lsetup = CVDenseSetup;
   lsolve = CVDenseSolve;
   lfree  = CVDenseFree;
 
   /* Get memory for CVDenseMemRec */
-  lmem = cvdense_mem = (CVDenseMem) malloc(sizeof(CVDenseMemRec));
+  cvdense_mem = (CVDenseMem) malloc(sizeof(CVDenseMemRec));
   if (cvdense_mem == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
 
-  /* Set Jacobian routine field, J_data, and setupNonNull */
-  if (djac == NULL) {
-    jac = CVDenseDQJac;
-    J_data = cvode_mem;
-  } else {
-    jac = djac;
-    J_data = jac_data;
-  }
-  setupNonNull = TRUE;
-  
-  /* Set problem dimension */
-  N = n;
+  /* Set default Jacobian routine and Jacobian data */
+  jac = CVDenseDQJac;
+  J_data = cvode_mem;
 
+  setupNonNull = TRUE;
+
+  /* Set problem dimension */
+  n = N;
+  
   /* Allocate memory for M, savedJ, and pivot array */
   
   M = DenseAllocMat(N);
@@ -224,60 +182,160 @@ int CVDense(void *cvode_mem, integertype n, CVDenseJacFn djac, void *jac_data)
     return(LMEM_FAIL);
   }
 
+  /* Attach linear solver memory to CVODE memory */
+  lmem = cvdense_mem;
+
   return(SUCCESS);
 }
 
-/*************** CVReInitDense****************************************
+/*************  CVDenseSetJacFn **************************************/
 
- This routine resets the link between the main CVODE module and the
- dense linear solver module CVDENSE.  No memory freeing or allocation
- operations are done, as the existing linear solver memory is assumed
- sufficient.  All other initializations are the same as in CVDense.
- The return value is SUCCESS = 0, or LMEM_FAIL = -1.
-
-**********************************************************************/
-
-int CVReInitDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data)
+int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
 
   /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    return(LIN_NO_MEM);
+  }
   cv_mem = (CVodeMem) cvode_mem;
-  if (cv_mem == NULL) {                   /* CVode reports this error */
-    fprintf(errfp, MSG_CVMEM_NULL);
-    return(LMEM_FAIL);
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
   }
+  cvdense_mem = (CVDenseMem) lmem;
 
-  /* Test if the NVECTOR package is compatible with the DENSE solver */
-  if ((strcmp(machenv->tag,"serial")) || 
-      machenv->ops->nvmake    == NULL || 
-      machenv->ops->nvdispose == NULL ||
-      machenv->ops->nvgetdata == NULL || 
-      machenv->ops->nvsetdata == NULL) {
-    fprintf(errfp, MSG_WRONG_NVEC);
-    return(LMEM_FAIL);
-  }
-
-  cvdense_mem = lmem;   /* Use existing linear solver memory pointer */
-
-  /* Set four main function fields in cv_mem */
-  linit  = CVDenseInit;
-  lsetup = CVDenseSetup;
-  lsolve = CVDenseSolve;
-  lfree  = CVDenseFree;
-
-  /* Set Jacobian routine field, J_data, and setupNonNull */
-  if (djac == NULL) {
-    jac = CVDenseDQJac;
-    J_data = cvode_mem;
-  } else {
-    jac = djac;
-    J_data = jac_data;
-  }
-  setupNonNull = TRUE;
+  jac = djac;
 
   return(SUCCESS);
+}
+
+/*************** CVDenseSetJacData ***********************************/
+
+int CVDenseSetJacData(void *cvode_mem, void *jac_data)
+{
+  CVodeMem cv_mem;
+  CVDenseMem cvdense_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  cvdense_mem = (CVDenseMem) lmem;
+
+  J_data = jac_data;
+
+  return(SUCCESS);
+}
+
+/*************** CVDenseGetIntWorkSpace ******************************/
+
+int CVDenseGetIntWorkSpace(void *cvode_mem, long int *leniwD)
+{
+  CVodeMem cv_mem;
+  CVDenseMem cvdense_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  cvdense_mem = (CVDenseMem) lmem;
+
+  *leniwD = n;
+
+  return(OKAY);
+}
+
+/*************** CVDenseGetRealWorkSpace *****************************/
+
+int CVDenseGetRealWorkSpace(void *cvode_mem, long int *lenrwD)
+{
+  CVodeMem cv_mem;
+  CVDenseMem cvdense_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  cvdense_mem = (CVDenseMem) lmem;
+
+  *lenrwD = 2*n*n;
+
+  return(OKAY);
+}
+
+/*************** CVDenseGetNumJacEvals *******************************/
+
+int CVDenseGetNumJacEvals(void *cvode_mem, int *njevalsD)
+{
+  CVodeMem cv_mem;
+  CVDenseMem cvdense_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  cvdense_mem = (CVDenseMem) lmem;
+
+  *njevalsD = nje;
+
+  return(OKAY);
+}
+
+/*************** CVDenseGetNumRhsEvals *******************************/
+
+int CVDenseGetNumRhsEvals(void *cvode_mem, int *nfevalsD)
+{
+  CVodeMem cv_mem;
+  CVDenseMem cvdense_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_SETGET_CVMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  cvdense_mem = (CVDenseMem) lmem;
+
+  *nfevalsD = nfeD;
+
+  return(OKAY);
 }
 
 /*************** CVDenseInit *****************************************
@@ -290,18 +348,18 @@ int CVReInitDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data)
 static int CVDenseInit(CVodeMem cv_mem)
 {
   CVDenseMem cvdense_mem;
+
   cvdense_mem = (CVDenseMem) lmem;
   
-  /* Initialize nje and nstlj, and set workspace lengths */
-   
-  nje = 0;
-  if (iopt != NULL) {
-   iopt[DENSE_NJE] = nje;
-   iopt[DENSE_LRW] = 2*N*N;
-   iopt[DENSE_LIW] = N;
-  }
+  nje   = 0;
+  nfeD  = 0;
   nstlj = 0;
   
+  if (jac == NULL) {
+    jac = CVDenseDQJac;
+    J_data = cv_mem;
+  }
+
   return(LINIT_OK);
 }
 
@@ -342,11 +400,10 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   } else {
     /* If jok = FALSE, call jac routine for new J value */
     nje++;
-    if (iopt != NULL) iopt[DENSE_NJE] = nje;
     nstlj = nst;
     *jcurPtr = TRUE;
     DenseZero(M); 
-    jac(N, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
+    jac(n, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
     DenseCopy(M, savedJ);
   }
   
@@ -374,7 +431,7 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
 {
   CVDenseMem cvdense_mem;
   realtype *bd;
-  
+
   cvdense_mem = (CVDenseMem) lmem;
   
   bd = N_VGetData(b);
@@ -414,14 +471,14 @@ static void CVDenseFree(CVodeMem cv_mem)
  DenseMat is stored column-wise, and that elements within each column
  are contiguous. The address of the jth column of J is obtained via
  the macro DENSE_COL and an N_Vector with the jth column as the
- component array is created using N_VMake and N_VSetData. Finally, the
+ component array is created using N_VMake and N_VData. Finally, the
  actual computation of the jth column of the Jacobian is done with a
  call to N_VLinearSum.
 
 **********************************************************************/
  
-static void CVDenseDQJac(integertype n, DenseMat J, realtype t, 
-                         N_Vector y, N_Vector fy, void *jac_data, 
+static void CVDenseDQJac(integertype N, DenseMat J, realtype t, 
+                         N_Vector y, N_Vector fy, void *jac_data,
                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
@@ -430,9 +487,11 @@ static void CVDenseDQJac(integertype n, DenseMat J, realtype t,
   integertype j;
 
   CVodeMem cv_mem;
+  CVDenseMem  cvdense_mem;
 
-  /* jac_dat points to cvode_mem */
+  /* jac_data points to cvode_mem */
   cv_mem = (CVodeMem) jac_data;
+  cvdense_mem = (CVDenseMem) lmem;
 
   ftemp = tmp1; /* Rename work vector for use as f vector value */
 
@@ -444,12 +503,12 @@ static void CVDenseDQJac(integertype n, DenseMat J, realtype t,
   srur = RSqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * n * fnorm) : ONE;
+           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
 
-  jthCol = N_VMake(y_data, machenv); /* j loop overwrites this data address */
+  jthCol = N_VMake(DENSE_COL(J,0), nvspec);  /* j loop overwrites this data address */
 
   /* This is the only for loop for 0..N-1 in CVODE */
-  for (j = 0; j < n; j++) {
+  for (j = 0; j < N; j++) {
 
     /* Generate the jth col of J(tn,y) */
     
@@ -457,15 +516,19 @@ static void CVDenseDQJac(integertype n, DenseMat J, realtype t,
     yjsaved = y_data[j];
     inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
-    f(t, y, ftemp, f_data);
+    N_VSetData(y_data, y);
+    f(tn, y, ftemp, f_data);
     inc_inv = ONE/inc;
     N_VLinearSum(inc_inv, ftemp, -inc_inv, fy, jthCol);
+    DENSE_COL(J,j) = N_VGetData(jthCol);
     y_data[j] = yjsaved;
   }
 
+  N_VSetData(y_data, y);
+
   N_VDispose(jthCol);
 
-  /* Increment counter nfe = *nfePtr */
-  nfe += n;
+  /* Increment counter nfeD */
+  nfeD += N;
 }
 

@@ -52,11 +52,12 @@ At top right:    c1, c2 =   -3.675e-13    4.163e+11
 
 Final Statistics.. 
 
-lenrw   =  2000    leniw =    20
-llrw    =  2046    lliw  =    20
-nst     =   499    nfe   =  1277
-nni     =   645    nli   =   629
-nsetups =    89    netf  =    32
-npe     =     9    nps   =  1216
-ncfn    =     0    ncfl  =     1
- 
+lenrw   =  2000     leniw =    20
+llrw    =  2046     lliw  =    20
+nst     =   499
+nfe     =   648     nfel  =   629
+nni     =   645     nli   =   629
+nsetups =    89     netf  =    32
+npe     =     9     nps   =  1216
+ncfn    =     0     ncfl  =     1
+

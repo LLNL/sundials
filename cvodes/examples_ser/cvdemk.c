@@ -1,9 +1,9 @@
 /*************************************************************************
  * File       : cvdemk.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL  *
- * Version of : 30 March 2003                                            *
+ * Version of : 14 July 2003                                             *
  *-----------------------------------------------------------------------*
- * Demonstration program for CVODE - Krylov linear solver.               *
+ * Demonstration program for CVODES - Krylov linear solver.              *
  * ODE system from ns-species interaction PDE in 2 dimensions.           *
  *                                                                       *
  * This program solves a stiff ODE system that arises from a system      *
@@ -44,7 +44,7 @@
  * The PDEs are discretized by central differencing on an MX by MY mesh. *
  * The resulting ODE system is stiff.                                    *
  *                                                                       *
- * The ODE system is solved by CVODE using Newton iteration and the      *
+ * The ODE system is solved by CVODES using Newton iteration and the     *
  * CVSPGMR linear solver (scaled preconditioned GMRES).                  *
  *                                                                       *
  * The preconditioner matrix used is the product of two matrices:        * 
@@ -134,7 +134,6 @@
 #define ITER  NEWTON
 #define ITOL  SS
 #define ERRFP stderr
-#define OPTIN FALSE
 
 /* CVSpgmr Constants */
 
@@ -163,6 +162,7 @@ typedef struct {
   realtype acoef[NS][NS], bcoef[NS], diff[NS];
   realtype cox[NS], coy[NS], dx, dy, srur;
   realtype fsave[NEQ];
+  void *cvode_mem;
 } *WebData;
 
 /* Private Helper Functions */
@@ -173,8 +173,8 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[]);
 static void CInit(N_Vector c, WebData wdata);
 static void PrintIntro(void);
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t);
-static void PrintOutput(realtype t, long int iopt[], realtype ropt[]);
-static void PrintFinalStats(long int iopt[]);
+static void PrintOutput(void *cvode_mem, realtype t);
+static void PrintFinalStats(void *cvode_mem);
 static void FreeUserData(WebData wdata);
 static void WebRates(realtype x, realtype y, realtype t, realtype c[],
 		     realtype rate[], WebData wdata);
@@ -196,33 +196,31 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 static int Precond(realtype tn, N_Vector c, N_Vector fc,
 		   booleantype jok, booleantype *jcurPtr, realtype gamma,
-		   N_Vector ewt, realtype h, realtype uround, long int *nfePtr,
 		   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector c, N_Vector fc,
-		  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
-		  long int *nfePtr, N_Vector r, int lr, void *P_data,
-		  N_Vector z);
+                  N_Vector r, N_Vector z,
+                  realtype gamma, realtype delta,
+                  int lr, void *P_data, N_Vector vtemp);
      
 /* Implementation */
 
 int main()
 {
-  M_Env machEnv;
-  realtype ropt[OPT_SIZE], abstol=ATOL, reltol=RTOL, t, tout;
-  long int iopt[OPT_SIZE]; 
+  NV_Spec nvSpec;
+  realtype abstol=ATOL, reltol=RTOL, t, tout;
   N_Vector c;
   WebData wdata;
   void *cvode_mem = NULL;
   booleantype firstrun;
   int jpre, gstype, iout, flag, ns, mxns;
 
-  /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(NEQ);
+  /* Initialize serial vector specification */
+  nvSpec = NV_SpecInit_Serial(NEQ);
 
   /* Initializations */
-  c = N_VNew(machEnv);
+  c = N_VNew(nvSpec);
   wdata = AllocUserData();
   InitUserData(wdata);
   ns = wdata->ns;
@@ -246,20 +244,37 @@ int main()
       
       firstrun = (jpre == LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
-        cvode_mem = CVodeMalloc(f, T0, c, LMM, ITER, ITOL, &reltol,
-                                &abstol, wdata, ERRFP, OPTIN, iopt, ropt,
-                                machEnv);
-        if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
-        flag = CVSpgmr(cvode_mem, jpre, gstype, MAXL, DELT, Precond, PSolve,
-                       wdata, NULL, NULL);
+        cvode_mem = CVodeCreate(LMM, ITER);
+        if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+
+        wdata->cvode_mem = cvode_mem;
+
+        flag = CVodeSetErrFile(cvode_mem, ERRFP);
+        if (flag != SUCCESS) { printf("CVodeSetErrFile failed.\n"); return(1); }
+
+        flag = CVodeSetFdata(cvode_mem, wdata);
+        if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
+
+        flag = CVodeMalloc(cvode_mem, f, T0, c, ITOL, &reltol, &abstol, nvSpec);
+        if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
+
+        flag = CVSpgmr(cvode_mem, jpre, MAXL);
         if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
+
+        flag = CVSpgmrSetGSType(cvode_mem, gstype);
+        flag = CVSpgmrSetDelt(cvode_mem, DELT);
+        flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
+        flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
+        flag = CVSpgmrSetPrecData(cvode_mem, wdata);
+
       } else {
-        flag = CVodeReInit(cvode_mem, f, T0, c, LMM, ITER, ITOL, &reltol,
-                           &abstol, wdata, ERRFP, OPTIN, iopt, ropt, machEnv);
+
+        flag = CVodeReInit(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
         if (flag != SUCCESS) { printf("CVodeReInit failed."); return(1); }
-        flag = CVReInitSpgmr(cvode_mem, jpre, gstype, MAXL, DELT,
-                             Precond, PSolve, wdata, NULL, NULL);
-        if (flag != SUCCESS) { printf("CVReInitSpgmr failed."); return(1); }
+
+        flag = CVSpgmrSetPrecType(cvode_mem, jpre);
+        flag = CVSpgmrSetGSType(cvode_mem, gstype);
+
       }
       
       /* Print initial values */
@@ -269,14 +284,14 @@ int main()
       tout = T1;
       for (iout = 1; iout <= NOUT; iout++) {
         flag = CVode(cvode_mem, tout, c, &t, NORMAL);
-        PrintOutput(t, iopt, ropt);
+        PrintOutput(cvode_mem, t);
         if (firstrun && (iout % 3 == 0)) PrintAllSpecies(c, ns, mxns, t);
         if (flag != SUCCESS) { printf("CVode failed.\n"); break; }
         if (tout > 0.9) tout += DTOUT; else tout *= TOUT_MULT; 
       }
       
       /* Print final statistics, and loop for next case */
-      PrintFinalStats(iopt);
+      PrintFinalStats(cvode_mem);
       
     }
   }
@@ -284,7 +299,7 @@ int main()
   /* Free all memory */
   CVodeFree(cvode_mem);
   N_VFree(c);
-  M_EnvFree_Serial(machEnv);
+  NV_SpecFree_Serial(nvSpec);
   FreeUserData(wdata);
 
   return(0);
@@ -459,34 +474,63 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
   }
 }
 
-static void PrintOutput(realtype t, long int iopt[], realtype ropt[])
+static void PrintOutput(void *cvode_mem, realtype t)
 {
-  printf("t = %10.2e  nst = %ld  nfe = %ld  nni = %ld", t, iopt[NST],
-         iopt[NFE], iopt[NNI]);
-  printf("  qu = %ld  hu = %11.2e\n\n", iopt[QU], ropt[HU]);
+  int nst, nfe, nni, qu;
+  realtype hu;
+
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  CVodeGetLastOrder(cvode_mem, &qu);
+  CVodeGetLastStep(cvode_mem, &hu);
+
+  printf("t = %10.2e  nst = %d  nfe = %d  nni = %d", t, nst, nfe, nni);
+  printf("  qu = %d  hu = %11.2e\n\n", qu, hu);
 }
 
-static void PrintFinalStats(long int iopt[])
+static void PrintFinalStats(void *cvode_mem)
 {
-  long int nni, nli;
+  long int lenrw, leniw ;
+  long int lenrwSPGMR, leniwSPGMR;
+  int nst, nfe, nsetups, nni, ncfn, netf;
+  int nli, npe, nps, ncfl, nfeSPGMR;
   realtype avdim;
   
+  CVodeGetIntWorkSpace(cvode_mem, &leniw);
+  CVodeGetRealWorkSpace(cvode_mem, &lenrw);
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  CVodeGetNumErrTestFails(cvode_mem, &netf);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+
+  CVSpgmrGetIntWorkSpace(cvode_mem, &leniwSPGMR);
+  CVSpgmrGetRealWorkSpace(cvode_mem, &lenrwSPGMR);
+  CVSpgmrGetNumLinIters(cvode_mem, &nli);
+  CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
+  CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
+  CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
+  CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+
   printf("\n\n Final statistics for this run:\n\n");
-  printf(" CVode real workspace length           = %4ld \n", iopt[LENRW]);
-  printf(" CVode integer workspace length        = %4ld \n", iopt[LENIW]);
-  printf(" CVSPGMR real workspace length         = %4ld \n", iopt[SPGMR_LRW]);
-  printf(" CVSPGMR integer workspace length      = %4ld \n", iopt[SPGMR_LIW]);
-  printf(" Number of steps                       = %4ld \n", iopt[NST]);
-  printf(" Number of f-s                         = %4ld \n", iopt[NFE]);
-  printf(" Number of setups                      = %4ld \n", iopt[NSETUPS]);
-  printf(" Number of nonlinear iterations        = %4ld \n", nni = iopt[NNI]);
-  printf(" Number of linear iterations           = %4ld \n", 
-         nli = iopt[SPGMR_NLI]);
-  printf(" Number of preconditioner evaluations  = %4ld \n", iopt[SPGMR_NPE]);
-  printf(" Number of preconditioner solves       = %4ld \n", iopt[SPGMR_NPS]);
-  printf(" Number of error test failures         = %4ld \n", iopt[NETF]);
-  printf(" Number of nonlinear conv. failures    = %4ld \n", iopt[NCFN]);
-  printf(" Number of linear convergence failures = %4ld \n", iopt[SPGMR_NCFL]);
+  printf(" CVode real workspace length           = %4ld \n", lenrw);
+  printf(" CVode integer workspace length        = %4ld \n", leniw);
+  printf(" CVSPGMR real workspace length         = %4ld \n", lenrwSPGMR);
+  printf(" CVSPGMR integer workspace length      = %4ld \n", leniwSPGMR);
+  printf(" Number of steps                       = %4d \n", nst);
+  printf(" Number of f-s                         = %4d \n", nfe);
+  printf(" Number of f-s (SPGMR)                 = %4d \n", nfeSPGMR);
+  printf(" Number of f-s (TOTAL)                 = %4d \n", nfe + nfeSPGMR);
+  printf(" Number of setups                      = %4d \n", nsetups);
+  printf(" Number of nonlinear iterations        = %4d \n", nni);
+  printf(" Number of linear iterations           = %4d \n", nli);
+  printf(" Number of preconditioner evaluations  = %4d \n", npe);
+  printf(" Number of preconditioner solves       = %4d \n", nps);
+  printf(" Number of error test failures         = %4d \n", netf);
+  printf(" Number of nonlinear conv. failures    = %4d \n", ncfn);
+  printf(" Number of linear convergence failures = %4d \n", ncfl);
   avdim = (nni > 0) ? ((realtype)nli)/((realtype)nni) : 0.0;
   printf(" Average Krylov subspace dimension     = %.3f \n", avdim);
   printf("\n\n--------------------------------------------------------------");
@@ -602,22 +646,28 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */ 
 static int Precond(realtype t, N_Vector c, N_Vector fc,
-                booleantype jok, booleantype *jcurPtr, realtype gamma,
-                N_Vector rewt, realtype h, realtype uround, long int *nfePtr,
-                void *P_data, N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+		   booleantype jok, booleantype *jcurPtr, realtype gamma,
+		   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   N_Vector vtemp3)
 {
   realtype ***P;
   integertype **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp;
-  realtype fac, r, r0, save, srur;
+  realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
+  void *cvode_mem;
+  N_Vector rewt;
   
   wdata = (WebData) P_data;
+  cvode_mem = wdata->cvode_mem;
   cdata = NV_DATA_S(c);
+  CVodeGetErrWeights(cvode_mem, &rewt);
   rewtdata = NV_DATA_S(rewt);
-  
+
+  uround = UnitRoundoff();
+
   P = wdata->P;
   pivot = wdata->pivot;
   jxr = wdata->jxr;
@@ -705,9 +755,9 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
   blocks in P, and pivot information in pivot, and returns the result in z.
 */
 static int PSolve(realtype tn, N_Vector c, N_Vector fc,
-                  N_Vector vtemp, realtype gamma, N_Vector rewt,
-                  realtype delta, long int *nfePtr, N_Vector r, int lr,
-                  void *P_data, N_Vector z)
+                  N_Vector r, N_Vector z,
+                  realtype gamma, realtype delta,
+                  int lr, void *P_data, N_Vector vtemp)
 {
   realtype   ***P;
   integertype **pivot;

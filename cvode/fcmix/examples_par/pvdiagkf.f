@@ -1,7 +1,7 @@
 C File: pvdiagkf.f
 C Diagonal ODE example.  Stiff case, with BDF/SPGMR, diagonal precond.
 C Solved with preconditioning on left, then with preconditioning on right.
-C Version of 30 March 2003
+C Version of 1 August 2003
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
@@ -72,7 +72,7 @@ C
   16    FORMAT(///'Case 1: preconditioning on left')
         ENDIF
 C
-      CALL FMENVINITP(NLOCAL, NEQ, IER)
+      CALL FNVSPECINITP(NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
@@ -89,13 +89,15 @@ C
         STOP
         ENDIF
 C
-      CALL FCVSPGMR10(IPRE, IGS, 0, 0.0D0, IER)
+      CALL FCVSPGMR (IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,35) IER
   35    FORMAT(///' FCVSPGMR10 returned IER =',I5)
         STOP
         ENDIF
 C
+        CALL FCVSPGMRSETPSOL (1, IER)
+
 C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
       DO 70 IOUT = 1,NOUT
@@ -162,7 +164,7 @@ C
       IF (MYPE .EQ. 0)  WRITE(6,111) 
  111  FORMAT(///'Case 2: preconditioning on right')
 C
-      CALL FCVREINIT(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVREINIT(T, Y, IATOL, RTOL, ATOL,
      1               INOPT, IOPT, ROPT, IER)
 C
       IF (IER .NE. 0) THEN
@@ -170,13 +172,9 @@ C
  130    FORMAT(///' FCVREINIT returned IER =',I5)
         STOP
         ENDIF
-C
-      CALL FCVREINSPGMR10(IPRE, IGS, 0, 0.0D0, IER)
-      IF (IER .NE. 0) THEN
-        WRITE(6,135) IER
- 135    FORMAT(///' FCVREINSPGMR10 returned IER =',I5)
-        STOP
-        ENDIF
+
+        CALL FCVREINSPGMR (IPRE, IGS, 0.0D0, IER)
+
 C
 C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
@@ -225,7 +223,7 @@ C Print final statistics.
 C
 C Free the memory and finalize MPI.
       CALL FCVFREE
-      CALL FMENVFREEP
+      CALL FNVSPECFREEP
       CALL MPI_FINALIZE(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,195) IER
@@ -248,7 +246,7 @@ C
       RETURN
       END
 
-      SUBROUTINE CVPSOL(T, Y, FY, VT, GAMMA, EWT, DELTA, NFE,
+      SUBROUTINE CVPSOL(T, Y, FY, VT, GAMMA, EWT, DELTA,
      1                  R, LR, Z, IER)
 C Routine to solve preconditioner linear system
 C This routine uses a diagonal preconditioner P = I - gamma*J,

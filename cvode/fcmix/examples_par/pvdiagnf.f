@@ -1,6 +1,6 @@
 C File: pvdiagnf.f
 C Diagonal ODE example.  Nonstiff case: alpha = 10/NEQ.
-C Version of 30 March 2003
+C Version of 1 August 2003
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
@@ -63,7 +63,7 @@ C
   15    FORMAT('Number of processors =',i3)
         ENDIF
 C
-      CALL FMENVINITP(NLOCAL, NEQ, IER)
+      CALL FNVSPECINITP(NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
@@ -130,7 +130,7 @@ C Print final statistics.
 C
 C Free the memory and finalize MPI.
       CALL FCVFREE
-      CALL FMENVFREEP
+      CALL FNVSPECFREEP
       CALL MPI_FINALIZE(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,95) IER

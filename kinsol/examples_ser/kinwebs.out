@@ -28,5 +28,5 @@ At top right:
 Final Statistics.. 
 
 nni    =     9    nli   =   352
-nfe    =   371    npe   =     1
-nps    =   361    ncfl  =     7
+nfe    =    10    nfeSG =   361
+nps    =   361    npe   =     1     ncfl  =     7

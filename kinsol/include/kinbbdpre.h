@@ -2,7 +2,7 @@
  * File          : kinbbdpre.h                                     *
  * Programmers   : Allan Grant Taylor, Alan C Hindmarsh, and       *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 31 March 2003                                   *
+ * Version of    : 4 August 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -31,24 +31,27 @@
  *   #include "nvector_parallel.h"                                 *
  *   #include "kinbbdpre.h"                                        *
  *   ...                                                           *
- *   KBBDData p_data;                                              *
+ *   void *p_data;                                                 *
  *   ...                                                           *
- *   machEnv = M_EnvInit_Parallel(...);                            *
+ *   nvSpec = NV_SpecInit_Parallel(...);                           *
  *   ...                                                           *
- *   kin_mem = KINMalloc(...);                                     *
+ *   kin_mem = KINCreate(...);                                     *
+ *   KINMalloc(kin_mem,...);                                       *
  *   ...                                                           *
- *   p_data = KBBDAlloc(Nlocal, mu, ml, ...);                      *
+ *   p_data = KBBDPrecAlloc(Nlocal, mu, ml, ...);                  *
  *   ...                                                           *
- *   KINSpgmr(kin_mem, pretype, gstype, maxl, KBBDPrecon,          *
- *           KBBDPSol, p_data);                                    *
+ *   flag = KINSpgmr(kin_mem, maxl);                               *
+ *   flag = KINSpgmrSetPrecSetupFn(kin_mem, KBBDPrecSetup);        *
+ *   flag = KINSpgmrSetPrecSolveFn(kin_mem, KBBDPrecSolve);        *
+ *   flag = KINSpgmrSetPrecData(kin_mem, p_data);                  *
  *   ...                                                           *
  *   KINSol(...);                                                  *
  *   ...                                                           *
- *   KBBDFree(p_data);                                             *
+ *   KBBDPrecFree(p_data);                                         *
  *   ...                                                           *
  *   KINFree(...);                                                 *
  *   ...                                                           *
- *   M_EnvFree_Parallel(machEnv);                                  *
+ *   NV_SpecFree_Parallel(nvSpec);                                 *
  *                                                                 *
  *                                                                 *
  * The user-supplied routines required are:                        *
@@ -66,23 +69,23 @@
  * 1) This header file is included by the user for the definition  *
  *    of the KBBDData type and for needed function prototypes.     *
  *                                                                 *
- * 2) The KBBDAlloc call includes half-bandwiths mu and ml to be   *
- *    used in the approximate Jacobian.  They need not be the true *
- *    half-bandwidths of the Jacobian of the local block of g,     *
+ * 2) The KBBDPrecAlloc call includes half-bandwiths mu and ml to  *
+ *    be used in the approximate Jacobian.  They need not be the   *
+ *    true half-bandwidths of the Jacobian of the local block of g,*
  *    when smaller values may provide a greater efficiency.        *
  *    Also, mu and ml need not be the same on every processor.     *
  *                                                                 *
  * 3) The actual name of the user's f function is passed to        *
  *    KINMalloc, and the names of the user's glocal and gcomm      *
- *    functions are passed to KBBDAlloc.                           *
+ *    functions are passed to KBBDPrecAlloc.                       *
  *                                                                 *
  * 4) The pointer to the user-defined data block f_data, which is  *
- *    passed to KINMalloc, is also passed to KBBDAlloc, and        *
+ *    passed to KINMalloc, is also passed to KBBDPrecAlloc, and    *
  *    is available to the user in glocal and gcomm.                *
  *                                                                 *
- * 5) The two functions KBBDPrecon and KBBDPSol are never called   *
- *    by the user explicitly; their names are simply passed to     *
- *    KINSpgmr as in the above.                                    *
+ * 5) The two functions KBBDPrecSetup and KBBDPrecSolve are never  *
+ *    called by the user explicitly; their names are simply passed *
+ *    to KINSpgmr as in the above.                                 *
  *                                                                 *
  * 6) Optional outputs specific to this module are available by    *
  *    way of macros listed below.  These include work space sizes  *
@@ -113,7 +116,7 @@ extern "C" {
  * evaluate the approximate system function described above.      *
  *                                                                *
  * This function takes as input the local vector size Nlocal,     *
- * the solution array udata, and a pointer to the user-defined    *
+ * the solution vector u, and a pointer to the user-defined       *
  * data block f_data.                                             *
  * The f_data parameter is the same as that passed by the user to *
  * the KINMalloc routine.  The KINCommFn gcomm is expected to save*
@@ -126,8 +129,7 @@ extern "C" {
  * relevant to the evaluation of the local function gloc.         *
  ******************************************************************/
 
-typedef void (*KINCommFn)(integertype Nlocal, realtype *udata, 
-                          void *f_data);
+typedef void (*KINCommFn)(integertype Nlocal, N_Vector u, void *f_data);
 
 /******************************************************************
  * Type : KINLocalFn                                              *
@@ -157,8 +159,7 @@ typedef void (*KINLocalFn)(integertype Nlocal, N_Vector uu,
 
 typedef struct {
 
-  /* passed by user to KBBDAlloc, used by Precond/Psolve functions: */
-  void *f_data;
+  /* passed by user to KBBDPrecAlloc, used by Precond/Psolve functions: */
   integertype ml, mu;
   KINLocalFn gloc;
   KINCommFn gcomm;
@@ -166,14 +167,14 @@ typedef struct {
   /* relative error for the Jacobian DQ routine */
   realtype rel_uu;
 
-  /* allocated for use by KBBDPrecon */
+  /* allocated for use by KBBDPrecSetup */
   N_Vector vtemp3;
 
-  /* set by KBBDPrecon and used by KBBDPSol: */
+  /* set by KBBDPrecSetup and used by KBBDPrecSolve: */
   BandMat PP;
   integertype *pivots;
 
-  /* set by KBBDAlloc and used by KBBDPrecon: */
+  /* set by KBBDPrecAlloc and used by KBBDPrecSetup: */
   integertype n_local;
 
   /* available for optional output: */
@@ -181,36 +182,20 @@ typedef struct {
   integertype ipwsize;
   integertype nge;
 
-} *KBBDData;
+  /* Pointer to KINSOL memory */
+  KINMem kin_mem;
 
-
-/*************** Macros for optional outputs **********************
- *                                                                *
- * KBBD_RPWSIZE(pdata) returns the size of the real work space,   *
- * in realtype words, used by this preconditioner module.         *
- * This size is local to the current processor.                   *
- *                                                                *
- * KBBD_IPWSIZE(pdata) returns the size of the integer work space,*
- * in integertype words, used by this preconditioner module.      *
- * This size is local to the current processor.                   *
- *                                                                *
- * KBBD_NGE(pdata) returns the number of g(u) evaluations,        *
- * i.e. the number of calls to the gloc function, so far.         *
- ******************************************************************/
-
-#define KBBD_RPWSIZE(pdata) (pdata->rpwsize)
-#define KBBD_IPWSIZE(pdata) (pdata->ipwsize)
-#define KBBD_NGE(pdata) (pdata->nge)
+} *KBBDPrecData;
 
 
 /******************************************************************
- * Function : KBBDAlloc                                           *
+ * Function : KBBDPrecAlloc                                       *
  *----------------------------------------------------------------*
- * KBBDAlloc allocates and initializes a KBBDData structure       *
- * to be passed to KINSpgmr (and subsequently used by KBBDPrecon  *
- * and KBBDPSol).                                                 *
+ * KBBDPrecAlloc allocates and initializes a KBBDData structure   *
+ * to be passed to KINSpgmr (and then used by KBBDPrecSetup and   *
+ * KBBDPrecSolve).                                                *
  *                                                                *
- * The parameters of KBBDAlloc are as follows:                    *
+ * The parameters of KBBDPrecAlloc are as follows:                *
  *                                                                *
  * Nlocal  is the length of the local block of the vectors u etc. *
  *         on the current processor.                              *
@@ -234,35 +219,49 @@ typedef struct {
  *                                                                *
  * f_data  is a pointer to the optional user data block.          *
  *                                                                *
- * KBBDAlloc returns the storage allocated (type KBBDData),       *
+ * KBBDPrecAlloc returns the storage allocated,                   *
  * or NULL if the request for storage cannot be satisfied.        *
  ******************************************************************/
 
-KBBDData KBBDAlloc(integertype Nlocal, integertype mu, integertype ml,
-                   realtype dq_rel_uu, KINLocalFn gloc, KINCommFn gcomm,
-                   void *f_data, void *kinmem);
-
+void *KBBDPrecAlloc(void *kinmem, integertype Nlocal, 
+                    integertype mu, integertype ml,
+                    realtype dq_rel_uu, 
+                    KINLocalFn gloc, KINCommFn gcomm);
 
 /******************************************************************
- * Function : KBBDFree                                            *
+ * Function : KBBDPrecFree                                        *
  *----------------------------------------------------------------*
- * KBBDFree frees the memory block p_data allocated by the call   *
- * to KBBDAlloc.                                                  *
+ * KBBDPrecFree frees the memory block p_data allocated by the    *
+ * call to KBBDPrecAlloc.                                         *
  ******************************************************************/
 
-void KBBDFree(KBBDData pdata);
+void KBBDPrecFree(void *p_data);
 
+/******************************************************************
+ * Function : KBBDPrecGet*                                        *
+ *----------------------------------------------------------------*
+ *                                                                *
+ ******************************************************************/
 
-/****** Prototypes of functions KBBDPrecon and KBBDPSol *********/
+int KBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP);
+int KBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP);
+int KBBDPrecGetNumGfnEvals(void *p_data, int *ngevalsBBDP);
 
-int KBBDPrecon(N_Vector uu, N_Vector uscale,
-               N_Vector fval, N_Vector fscale, N_Vector vtemp1, N_Vector vtemp2,
-               SysFn func, realtype uround, long int *nfePtr, void *P_data);
+/* Return values for KBBDPrecGet* functions */
+/* OKAY = 0 */
+enum { BBDP_NO_PDATA = -1 };
 
+/****** Prototypes of functions KBBDPrecSetup and KBBDPrecSolve *********/
 
-int KBBDPSol(N_Vector uu, N_Vector uscale,
-             N_Vector fval, N_Vector fscale, N_Vector vtem, N_Vector ftem,
-             SysFn func, realtype u_round, long int *nfePtr, void *P_data);
+int KBBDPrecSetup(N_Vector uu, N_Vector uscale,
+                  N_Vector fval, N_Vector fscale, 
+                  void *p_data,
+                  N_Vector vtemp1, N_Vector vtemp2);
+
+int KBBDPrecSolve(N_Vector uu, N_Vector uscale,
+                  N_Vector fval, N_Vector fscale, 
+                  N_Vector vv, void *p_data,
+                  N_Vector vtemp);
 
 #endif
 #ifdef __cplusplus

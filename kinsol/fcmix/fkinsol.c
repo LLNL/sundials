@@ -2,7 +2,7 @@
  * File          : fkinsol.c                                      *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
  *                 Radu Serban @ LLNL                             *
- * Version of    : 31 March 2003                                  *
+ * Version of    : 5 August 2003                                  *
  *----------------------------------------------------------------*
  * This is the implementation file for the Fortran interface to   *
  * the KINSOL package. See fkinsol.h for usage.                   *
@@ -18,7 +18,7 @@
 #include "nvector.h"       /* def's of type N_Vector and related routines     */
 #include "kinsol.h"        /* KINSOL constants and prototypes                 */
 #include "kinspgmr.h"      /* prototypes of KINSPGMR interface routines       */
-#include "fcmixpar.h"      /* global F2C_machEnv variable                     */
+#include "fcmixpar.h"      /* global F2C_nvspec variable                     */
 #include "fkinsol.h"       /* prototypes of interfaces, global variables      */
 
 /**************************************************************************/
@@ -28,88 +28,89 @@ void K_FUN(realtype*, realtype*);
 
 /**************************************************************************/
 
-void F_KINMALLOC(integertype *ier)
+void F_KINMALLOC(int *msbpre, realtype *fnormtol, realtype *scsteptol,
+                 realtype *constraints, int *optin, int *iopt, realtype *ropt,
+                 integertype *ier)
 {
+  N_Vector constr_vec;
 
-  /* Call KINMalloc to initialize memory for KINSOL: 
-     NULL    is the pointer to the error message file
-     F2C_machEnv is the pointer to the machine environment block
+  KIN_mem = KINCreate();
 
-     A pointer to KINSOL problem memory is returned and stored in KIN_kmem. */
+  if (KIN_mem == NULL) {
+    *ier = -1;
+    return;
+  }
 
-  KIN_kmem = KINMalloc(NULL, F2C_machEnv);
+  constr_vec = N_VMake(constraints, F2C_nvspec);
 
-  *ier = (KIN_kmem == NULL) ? -1 : 0 ;
+  KINSetMaxPrecCalls(KIN_mem, *msbpre);
+  KINSetFuncNormTol(KIN_mem, *fnormtol);
+  KINSetScaledStepTol(KIN_mem, *scsteptol);
+  KINSetConstraints(KIN_mem, constr_vec);
+
+  if (*optin == 1) {
+
+    if(iopt[0]>0) KINSetPrintLevel(KIN_mem, iopt[0]);
+    if(iopt[1]>0) KINSetNumMaxIters(KIN_mem, iopt[1]);
+    if(iopt[2]>0) KINSetNoPrecInit(KIN_mem, TRUE);
+    if(iopt[7]>0) KINSetEtaForm(KIN_mem, iopt[7]);
+    if(iopt[8]>0) KINSetNoMinEps(KIN_mem, TRUE);
+
+    if(ropt[0]>0.0) KINSetMaxNewtonStep(KIN_mem, ropt[0]);
+    if(ropt[1]>0.0) KINSetRelErrFunc(KIN_mem, ropt[1]);
+    if(ropt[2]>0.0) KINSetMaxSolUpdate(KIN_mem, ropt[2]);
+    if(ropt[5]>0.0) KINSetEtaConstValue(KIN_mem, ropt[5]);
+    if(ropt[6]>0.0 || ropt[7]>0.0) 
+      KINSetEtaParams(KIN_mem, ropt[6], ropt[7]);
+  }
+
+  *ier = KINMalloc(KIN_mem, KINfunc, F2C_nvspec);
+
+  KIN_iopt = iopt;
+  KIN_ropt = ropt;
 }
 
 
 /***************************************************************************/
 
-void F_KINSPGMR00(int *maxl, int *maxlrst, int *msbpre, int *ier)
+void F_KINSPGMR(int *maxl, int *maxlrst, int *ier)
 {
-  /* Call KINSpgmr to specify the SPGMR linear solver:
-
-     This is the base case: no preconditioning routines and no user ATimes rtn.
-
-     KIN_kmem is the pointer to the KINSOL memory block
-     *maxl       is the maximum Krylov dimension
-     *maxlrst    is the max number of linear solver restarts
-     *msbpre     is the max number of steps calling the preconditioning solver
-                  without calling the preconditioner setup routine
-     NULL        is a pointer to the preconditioner setup interface routine
-     NULL        is a pointer to the preconditioner solve interface routine
-     NULL        is a pointer to the user ATimes interface routine     
-     NULL        is a pointer to the P_data memory structure  */
-
-  *ier = KINSpgmr (KIN_kmem, *maxl, *maxlrst, *msbpre, NULL, NULL, NULL, NULL);
+  *ier = KINSpgmr(KIN_mem, *maxl);
+  KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
 }
 
 /***************************************************************************/
 
 void F_KINSOL(realtype *uu, int *globalstrategy, 
-              realtype *uscale , realtype *fscale, realtype *fnormtol, 
-              realtype *scsteptol, realtype *constraints, int *inopt, 
-              long int *iopt, realtype *ropt, int *ier)
+              realtype *uscale , realtype *fscale, int *ier)
 
 { 
-  N_Vector uuvec, uscalevec, fscalevec, constraintsvec;
-  booleantype binopt;
+  N_Vector uuvec, uscalevec, fscalevec;
 
-  binopt = *inopt;
+  uuvec     = N_VMake(uu, F2C_nvspec);
+  uscalevec = N_VMake(uscale, F2C_nvspec);
+  fscalevec = N_VMake(fscale, F2C_nvspec);
 
-  uuvec          = N_VMake(uu, F2C_machEnv);
-  uscalevec      = N_VMake(uscale, F2C_machEnv);
-  fscalevec      = N_VMake(fscale, F2C_machEnv);
-  constraintsvec = N_VMake(constraints, F2C_machEnv);
+  *ier = KINSol(KIN_mem, uuvec, *globalstrategy, uscalevec, fscalevec);
 
-  /* Call KINSol:
-
-  KIN_kmem is the pointer to the KINSOL memory block
-  uuvec is the N_Vector containing the solution found by KINSol
-  KINfunc   is the standard interface function to the user-supplied KFUN
-  globalstragegy is an integer defining the global strategy choice
-  uscalevec is the N_Vector containing the u scaling 
-  fscalevec is the N_Vector containing the f scaling
-  fnormtol is the real value of fnormtol (stopping tolerance)
-  scsteptol is the real value of scsteptol (scaled step tolerance)
-  constraintsvec is the N_Vector containing the constraints
-  inopt is the flag indicating whether or not the ropt/iopt arrays are
-  to be used as input parameters
-  iopt  is the array of integer user input/output
-  ropt  is the array of real  user input/output
-  NULL is the pointer to f_data
-  
-  */
-
-  *ier = KINSol(KIN_kmem, uuvec, KINfunc, *globalstrategy, 
-                uscalevec, fscalevec, *fnormtol, *scsteptol,
-                constraintsvec, binopt, iopt, ropt, NULL);
-  
   N_VDispose(uuvec);
   N_VDispose(uscalevec);
   N_VDispose(fscalevec);
-  N_VDispose(constraintsvec);
 
+  /* Load optional outputs in iopt & ropt */
+  if ( (KIN_iopt != NULL) && (KIN_ropt != NULL) ) {
+    KINGetNumNonlinSolvIters(KIN_mem, &KIN_iopt[3]);
+    KINGetNumFuncEvals(KIN_mem, &KIN_iopt[4]);
+    KINGetNumBetaCondFails(KIN_mem, &KIN_iopt[5]);
+    KINGetNumBacktrackOps(KIN_mem, &KIN_iopt[6]);
+    KINGetFuncNorm(KIN_mem, &KIN_ropt[3]);
+    KINGetStepLength(KIN_mem, &KIN_ropt[4]);
+    
+    KINSpgmrGetNumLinIters(KIN_mem, &KIN_iopt[10]);
+    KINSpgmrGetNumPrecEvals(KIN_mem, &KIN_iopt[11]);
+    KINSpgmrGetNumPrecSolves(KIN_mem, &KIN_iopt[12]);
+    KINSpgmrGetNumConvFails(KIN_mem, &KIN_iopt[13]);
+  }
 }
 
 /***************************************************************************/
@@ -117,9 +118,9 @@ void F_KINSOL(realtype *uu, int *globalstrategy,
 void F_KINFREE()
 {
   /* Call KINFree:
-     KIN_kmem is the pointer to the KINSOL memory block */
+     KIN_mem is the pointer to the KINSOL memory block */
 
-  KINFree(KIN_kmem);
+  KINFree(KIN_mem);
 }
 
 /***************************************************************************/
@@ -135,8 +136,6 @@ void F_KINFREE()
 void KINfunc(N_Vector uu, N_Vector fval, void *f_data)
 {
   realtype *udata, *fdata;
-
-  /* NOTE: f_data is not passed to KFUN... it is NULL */
 
   udata = N_VGetData(uu);
   fdata = N_VGetData(fval);

@@ -23,9 +23,7 @@ KINSOL_INC_DIR  = ../include
 FKINSOL_LIB = libfkinsol.a
 
 # Source and object files
-SRC = fkinsol.c fkinspgmr01.c fkinspgmr10.c fkinspgmr11.c \
-      fkinspgmr20.c fkinspgmr21.c fkinpreco.c fkinpsol.c \
-      fkinuatimes.c fkinbbd.c fkinbbdinit1.c
+SRC = fkinsol.c fkinpreco.c fkinpsol.c fkinjtimes.c fkinbbd.c
 
 OBJ = ${SRC:.c=.o}
 

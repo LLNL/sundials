@@ -1,7 +1,7 @@
 /*************************************************************************
  * File       : iwebpk.c                                                 *
  * Written by : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL   *
- * Version of : 31 March 2003                                            *
+ * Version of : 23 July 2003                                             *
  *-----------------------------------------------------------------------*
  *
  * Example program for IDA: Food web, parallel, GMRES, user preconditioner.
@@ -156,12 +156,13 @@ typedef struct {
   N_Vector rates;
   realtype **PP[MXSUB][MYSUB];
   integertype *pivot[MXSUB][MYSUB];
+  void *ida_mem;
 } *UserData;
 
 
 /* Prototypes for private Helper Functions. */
 
-static UserData AllocUserData(M_Env machEnv);
+static UserData AllocUserData(NV_Spec nvSpec);
 
 static void InitUserData(UserData webdata, int thispe, int npes, 
                          MPI_Comm comm);
@@ -171,10 +172,10 @@ static void FreeUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector scrtch, UserData webdata);
 
-static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype time,
+static void PrintOutput(void *mem, N_Vector cc, realtype time,
                         UserData webdata, MPI_Comm comm);
 
-static void PrintFinalStats(long int iopt[]);
+static void PrintFinalStats(void *mem);
 
 static int rescomm(N_Vector cc, N_Vector cp, void *rdata);
 
@@ -203,18 +204,16 @@ static realtype dotprod(integertype size, realtype *x1, realtype *x2);
 static int resweb(realtype time, N_Vector cc, N_Vector cp,
                   N_Vector resval, void *rdata);
 
-static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
-                     N_Vector rr, realtype cj, ResFn res,  void *rdata,
-                     void *Pdata, N_Vector ewt, N_Vector constraints,
-                     realtype hh, realtype uround, long int *nrePtr, 
+static int Precondbd(realtype tt, N_Vector cc,
+                     N_Vector cp, N_Vector rr, 
+                     realtype cj, void *Pdata,
                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-static int PSolvebd(realtype tt, N_Vector cc, N_Vector cp,
-                    N_Vector rr, realtype cj, ResFn res, void *rdata,
-                    void *Pdata, N_Vector ewt, realtype delta,
-                    N_Vector rvec, N_Vector zvec,
-                    long int *nfePtr, N_Vector tempv);
-
+static int PSolvebd(realtype tt, N_Vector cc,
+                 N_Vector cp, N_Vector rr, 
+                 N_Vector rvec, N_Vector zvec,
+                 realtype cj, realtype delta,
+                 void *Pdata, N_Vector tempv);
 
 /***************************** Main Program *******************************/
 
@@ -222,15 +221,14 @@ int main(int argc, char *argv[])
 {
   int thispe, npes;
   integertype SystemSize, local_N;
-  realtype rtol, atol, ropt[OPT_SIZE], t0, tout, tret;
-  long int iopt[OPT_SIZE];
+  realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   UserData webdata;
   int maxl, iout, flag, retval, itol, itask;
   booleantype optIn;
   void *mem;
   MPI_Comm comm;
-  M_Env machEnv;
+  NV_Spec nvSpec;
   
   /* Set communicator, and get processor number and total number of PE's. */
 
@@ -249,23 +247,23 @@ int main(int argc, char *argv[])
   local_N = MXSUB*MYSUB*NUM_SPECIES;
   SystemSize = NEQ;
   
-  /* Set machEnv block. */
+  /* Set nvSpec block. */
   
-  machEnv = M_EnvInit_Parallel(comm, local_N, SystemSize, &argc, &argv);
-  if (machEnv == NULL) return(1);
+  nvSpec = NV_SpecInit_Parallel(comm, local_N, SystemSize, &argc, &argv);
+  if (nvSpec == NULL) return(1);
   
   /* Set up user data block webdata. */
   
-  webdata = AllocUserData(machEnv);
+  webdata = AllocUserData(nvSpec);
   InitUserData(webdata, thispe, npes, comm);
   
   /* Create needed vectors, and load initial values.
      The vector res is used temporarily only.        */
   
-  cc  = N_VNew(machEnv);
-  cp  = N_VNew(machEnv);
-  res = N_VNew(machEnv);
-  id  = N_VNew(machEnv);
+  cc  = N_VNew(nvSpec);
+  cp  = N_VNew(nvSpec);
+  res = N_VNew(nvSpec);
+  id  = N_VNew(nvSpec);
   
   SetInitialProfiles(cc, cp, id, res, webdata);
   
@@ -277,35 +275,40 @@ int main(int argc, char *argv[])
   itol = SS; rtol = RTOL; atol = ATOL;
   optIn = FALSE;
   
-  /* Call IDAMalloc to initialize IDA.
+  /* Call IDACreate and IDAMalloc to initialize IDA.
      First NULL argument  = constraints vector, not used here.
      Second NULL argument = file pointer for error messages (sent to stdout).
      A pointer to IDA problem memory is returned and stored in idamem.      */
   
-  mem = IDAMalloc(resweb, webdata, t0, cc, cp, itol,&rtol,&atol,
-                  id, NULL, NULL, optIn, iopt, ropt, machEnv);
-  
+  mem = IDACreate();
   if (mem == NULL) {
-    if (thispe == 0) printf("IDAMalloc failed.");
+    if (thispe == 0) printf ("IDACreate failed.");
     return(1); 
   }
-  
+  retval = IDASetRdata(mem, webdata);
+  retval = IDASetID(mem, id);
+  retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol, nvSpec);
+
+  webdata->ida_mem = mem;
+
   /* Call IDASpgmr to specify the IDA linear solver IDASPGMR and specify
      the preconditioner routines supplied (Precondbd and PSolvebd).
      Optional input maxl (max. Krylov subspace dim.) is set to 10.   */
   
   maxl = 10;
-  retval = IDASpgmr(mem, Precondbd, PSolvebd, MODIFIED_GS,
-                    maxl, 0, ZERO, ZERO, webdata);
-  
+  retval = IDASpgmr(mem, maxl);
   if (retval != 0) {
     if (thispe == 0) printf("IDASpgmr call failed, returning %d \n",retval);
-    return(1); }
+    return(1); 
+  }
+  retval = IDASpgmrSetPrecSetupFn(mem, Precondbd);
+  retval = IDASpgmrSetPrecSolveFn(mem, PSolvebd);
+  retval = IDASpgmrSetPrecData(mem, webdata);
   
   /* Call IDACalcIC (with default options) to correct the initial values. */
   
   tout = 0.001;
-  retval = IDACalcIC(mem, CALC_YA_YDP_INIT, tout, ZERO, 0,0,0,0, ZERO);
+  retval = IDACalcIC(mem, CALC_YA_YDP_INIT, tout);
   
   if (retval != SUCCESS) {
     if (thispe == 0) printf("IDACalcIC failed. retval = %d\n",retval);
@@ -327,20 +330,20 @@ int main(int argc, char *argv[])
     printf(" via difference quotients\n");
     printf("CalcIC called to correct initial predator concentrations \n\n");
   }
-  PrintOutput(iopt, ropt, cc, t0, webdata, comm);
+  PrintOutput(mem, cc, t0, webdata, comm);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
   
   itask = NORMAL;
   for (iout = 1; iout <= NOUT; iout++) {
     
-    flag = IDASolve(mem, tout, t0, &tret, cc, cp, itask);
+    flag = IDASolve(mem, tout, &tret, cc, cp, itask);
     
     if (flag != SUCCESS) { 
       if (thispe == 0) printf("IDA failed, flag =%d.\n", flag); 
       return(flag); }
     
-    PrintOutput(iopt, ropt, cc, tret, webdata, comm);
+    PrintOutput(mem, cc, tret, webdata, comm);
     
     if (iout < 3) tout *= TMULT; else tout += TADD;
     
@@ -348,14 +351,14 @@ int main(int argc, char *argv[])
   
   /* On PE 0, print final set of statistics. */
   
-  if (thispe == 0) PrintFinalStats(iopt);
+  if (thispe == 0) PrintFinalStats(mem);
   
   /* Free memory. */
   
   N_VFree(cc); N_VFree(cp); N_VFree(id);
   IDAFree(mem);
   FreeUserData(webdata);
-  M_EnvFree_Parallel(machEnv);
+  NV_SpecFree_Parallel(nvSpec);
   MPI_Finalize();
   
   return(0);
@@ -369,14 +372,14 @@ int main(int argc, char *argv[])
 /*************************************************************************/
 /* AllocUserData: Allocate memory for data structure of type UserData.   */
 
-static UserData AllocUserData(M_Env machEnv)
+static UserData AllocUserData(NV_Spec nvSpec)
 {
   integertype ix, jy;
   UserData webdata;
   
   webdata = (UserData) malloc(sizeof *webdata);
   
-  webdata->rates = N_VNew(machEnv);
+  webdata->rates = N_VNew(nvSpec);
   
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
@@ -536,13 +539,14 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
    are printed for the bottom left and top right grid points only.
    (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         */
 
-static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype tt,
+static void PrintOutput(void *mem, N_Vector cc, realtype tt,
                         UserData webdata, MPI_Comm comm)
 {
   MPI_Status status;
   integertype thispe, npelast, ilast;
-  realtype *cdata, clast[2];
-  
+  realtype *cdata, clast[2], hused;
+  int kused, nst, nni, nre, nli, npe, nps, nreS;
+
   thispe = webdata->thispe; npelast = webdata->npes - 1;
   cdata = NV_DATA_P(cc);
   
@@ -562,10 +566,20 @@ static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype 
     if (npelast != 0)
       MPI_Recv(&clast[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
     
-    printf("\nTIME t = %e.     NST = %ld,  k = %ld,  h = %e\n",
-           tt, iopt[NST], iopt[KUSED], ropt[HUSED]);
-    printf("NRE = %ld,  NNI = %ld,  NLI = %ld,  NPE = %ld,  NPS = %ld\n",  iopt[NRE],
-           iopt[NNI], iopt[SPGMR_NLI], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
+    IDAGetLastOrder(mem, &kused);
+    IDAGetNumSteps(mem, &nst);
+    IDAGetNumResEvals(mem, &nre);
+    IDAGetNumNonlinSolvIters(mem, &nni);
+    IDAGetLastStep(mem, &hused);
+    IDASpgmrGetNumLinIters(mem, &nli);
+    IDASpgmrGetNumPrecEvals(mem, &npe);
+    IDASpgmrGetNumPrecSolves(mem, &nps);
+    IDASpgmrGetNumResEvals(mem, &nreS);
+
+    printf("\nTIME t = %e.     NST = %d,  k = %d,  h = %e\n",
+           tt, nst, kused, hused);
+    printf("NRE = %d,  NRE_S = %d,  NNI = %d,  NLI = %d,  NPE = %d,  NPS = %d\n",
+           nre, nreS, nni, nli, npe, nps);
     
     printf("At bottom left:  c1, c2 = %e %e \n",   cdata[0], cdata[1]);
     printf("At top right:    c1, c2 = %e %e \n\n", clast[0], clast[1]);
@@ -577,14 +591,26 @@ static void PrintOutput(long int iopt[], realtype ropt[], N_Vector cc, realtype 
 /*************************************************************************/
 /* PrintFinalStats: Print final run data contained in iopt.              */
 
-static void PrintFinalStats(long int iopt[])
+static void PrintFinalStats(void *mem)
 {
+int nst, nre, nreS, netf, ncfn, nni, ncfl, nli, npe, nps;
+
+  IDAGetNumSteps(mem, &nst);
+  IDAGetNumResEvals(mem, &nre);
+  IDAGetNumErrTestFails(mem, &netf);
+  IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  IDAGetNumNonlinSolvIters(mem, &nni);
+  IDASpgmrGetNumConvFails(mem, &ncfl);
+  IDASpgmrGetNumLinIters(mem, &nli);
+  IDASpgmrGetNumPrecEvals(mem, &npe);
+  IDASpgmrGetNumPrecSolves(mem, &nps);
+  IDASpgmrGetNumResEvals(mem, &nreS);
+
   printf("\nFinal statistics: \n\n");
-  printf("NST  = %5ld     NRE  = %5ld\n", iopt[NST], iopt[NRE]);
-  printf("NNI  = %5ld     NLI  = %5ld\n", iopt[NNI], iopt[SPGMR_NLI]);
-  printf("NPE  = %5ld     NPS  = %5ld\n", iopt[SPGMR_NPE],iopt[SPGMR_NPS]);
-  printf("NETF = %5ld     NCFN = %5ld     NCFL = %5ld\n",
-         iopt[NETF], iopt[NCFN], iopt[SPGMR_NCFL]);
+  printf("NST  = %5d     NRE  = %5d\n", nst, nre+nreS);
+  printf("NNI  = %5d     NLI  = %5d\n", nni, nli);
+  printf("NPE  = %5d     NPS  = %5d\n", npe, nps);
+  printf("NETF = %5d     NCFN = %5d     NCFL = %5d\n", netf, ncfn, ncfl);
   
 } /* End of PrintFinalStats. */
 
@@ -985,21 +1011,28 @@ static realtype dotprod(integertype size, realtype *x1, realtype *x2)
    The base value of R are taken from webdata->rates, as set by webres.
    Each block is LU-factored, for later solution of the linear systems.  */
 
-static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
-                     N_Vector rr, realtype cj, ResFn res,  void *rdata,
-                     void *Pdata, N_Vector ewt, N_Vector constraints,
-                     realtype hh, realtype uround, long int *nrePtr, 
+static int Precondbd(realtype tt, N_Vector cc,
+                     N_Vector cp, N_Vector rr, 
+                     realtype cj, void *Pdata,
                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
-
 {
+  realtype uround;
   realtype xx, yy, *cxy, *ewtxy, cctemp, **Pxy, *ratesxy, *Pxycol, *cpxy;
   realtype inc, sqru, fac, perturb_rates[NUM_SPECIES];
   integertype is, js, ix, jy, ret;
   UserData webdata;
+  void *mem;
+  N_Vector ewt;
+  realtype hh;
 
   webdata = (UserData)Pdata;
+  uround = UnitRoundoff();
   sqru = RSqrt(uround); 
   
+  mem = webdata->ida_mem;
+  IDAGetErrWeights(mem, &ewt);
+  IDAGetNextStep(mem, &hh);
+
   for (jy = 0; jy < mysub; jy++) {
     yy = (jy + jysub*mysub)*dy;
 
@@ -1049,11 +1082,11 @@ static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
    This routine applies the LU factorization of the blocks of the
    preconditioner PP, to compute the solution of PP * zvec = rvec.       */
 
-static int PSolvebd(realtype tt, N_Vector cc, N_Vector cp,
-                    N_Vector rr, realtype cj,ResFn res, void *rdata,
-                    void *Pdata, N_Vector ewt, realtype delta,
-                    N_Vector rvec, N_Vector zvec,
-                    long int *nfePtr, N_Vector tempv)
+static int PSolvebd(realtype tt, N_Vector cc,
+                 N_Vector cp, N_Vector rr, 
+                 N_Vector rvec, N_Vector zvec,
+                 realtype cj, realtype delta,
+                 void *Pdata, N_Vector tempv)
 {
   realtype **Pxy, *zxy;
   integertype *pivot, ix, jy;

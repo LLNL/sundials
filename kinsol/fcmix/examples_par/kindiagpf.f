@@ -2,7 +2,7 @@
 c   ***************************************************************************
 c   * File        : kindiagpf.f                                               *
 c   * Programmers : Allan G. Taylor, Alan C. Hindmarsh, Radu Serban @ LLNL    *
-c   * Version of  : 31 March 2003                                             *
+c   * Version of  : 5 August 2003                                             *
 c   *   Simple diagonal test with Fortran interface, using user-supplied      *
 c   *   preconditioner setup and solve routines (supplied in Fortran, below). *
 c   *   This example does a basic test of the solver by solving the system    *
@@ -49,10 +49,10 @@ c     number of this process.
       
       call mpi_init(ierr)
       
-      call fmenvinitp(nlocal, neq, ier)
+      call fnvspecinitp(nlocal, neq, ier)
       if (ier .ne. 0) then
          write(6,1220),ier
- 1220    format('fmenvinitp failed, ier =',i2)
+ 1220    format('fnvspecinitp failed, ier =',i2)
          stop
       endif
       
@@ -61,7 +61,7 @@ c     number of this process.
       if (size .ne. 4) then
          write(6,1230)
  1230    format(/'Number of processors not 4. Set to 4 and try again.')
-         call fmenvfreep
+         call fnvspecfreep
          stop
       endif
       npes = size
@@ -71,7 +71,15 @@ c     number of this process.
       mype = rank
       baseadd = mype * nlocal 
       
-      call fkinmalloc(ier)
+      do 20 ii = 1,nlocal
+         i = ii + baseadd
+         uu(ii) = 2.0*i
+         scale(ii) = 1.0
+         constr(ii) = 0.0
+ 20   continue
+      
+      call fkinmalloc(msbpre, fnormtol, scsteptol, 
+     &                constr, inopt, iopt, ropt, ier)
       
       if (ier .ne. 0) then
          write(6,1231)ier
@@ -79,13 +87,9 @@ c     number of this process.
          stop
       endif
       
-      call fkinspgmr20(maxl, maxlrst, msbpre, ier)
-
-      if (ier .ne. 0) then
-         write(6,1232)ier
- 1232    format('fkinspgmr20 failed, ier =',i2)
-         stop
-      endif
+      call fkinspgmr(maxl, maxlrst, ier)
+      call fkspgmrsetpsol(1, ier)
+      call fkspgmrsetpreco(1, ier)
       
       if(mype .eq. 0)write(6,1240)
  1240 format('Example program kindiagpf'/' This fkinsol example code',
@@ -94,15 +98,7 @@ c     number of this process.
      3       ' interface'/' in a parallel environment.'/
      4       ' globalstrategy = INEXACT_NEWTON'/)
 
-      do 20 ii = 1,nlocal
-         i = ii + baseadd
-         uu(ii) = 2.0*i
-         scale(ii) = 1.0
-         constr(ii) = 0.0
- 20   continue
-      
-      call fkinsol(uu, 0, scale, scale, fnormtol, 
-     1             scsteptol, constr, inopt, iopt, ropt, ier)
+      call fkinsol(uu, 0, scale, scale, ier)
 
       if (mype .eq. 0) write(6,1245)ier
  1245 format(/' fkinsol return code is ',i5)
@@ -122,7 +118,7 @@ c     number of this process.
      1       ',  nps=',i4,',  ncfl=',i4)
 
       call fkinfree
-      call fmenvfreep
+      call fnvspecfreep
       
 c     An explicit call to mpi_finalize (Fortran binding) is required by 
 c     the constructs used in fkinsol. 
@@ -158,11 +154,11 @@ c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
       subroutine kpreco(udata, uscale, fdata, fscale, 
-     1                  vtemp1, vtemp2, uround, nfe, ier)
+     1                  vtemp1, vtemp2, ier)
       
-      integer nfe, ier
+      integer ier
       double precision udata(*), uscale(*), fdata(*), fscale(*)
-      double precision vtemp1(*), vtemp2(*), uround
+      double precision vtemp1(*), vtemp2(*)
       
       parameter(localsize=32)
       double precision pp
@@ -184,11 +180,11 @@ c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
       subroutine kpsol(udata, uscale, fdata, fscale, 
-     1                 vv, ftem, uround, nfe, ier)
+     1                 vv, ftem, ier)
       
-      integer nfe, ier
+      integer ier
       double precision udata(*), uscale(*), fdata(*), fscale(*)
-      double precision vv(*), ftem(*), uround
+      double precision vv(*), ftem(*)
       
       parameter(localsize=32)
       double precision pp

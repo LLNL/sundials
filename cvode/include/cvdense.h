@@ -3,7 +3,7 @@
  * File          : cvdense.h                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 31 March 2003                                   *
+ * Version of    : 11 June 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -25,41 +25,15 @@ extern "C" {
 #ifndef _cvdense_h
 #define _cvdense_h
 
-
 #include <stdio.h>
 #include "cvode.h"
 #include "sundialstypes.h"
 #include "dense.h"
 #include "nvector.h"
 
- 
 /******************************************************************
  *                                                                *
- * CVDENSE solver statistics indices                              *
- *----------------------------------------------------------------*
- * The following enumeration gives a symbolic name to each        *
- * CVDENSE statistic. The symbolic names are used as indices into *
- * the iopt and ropt arrays passed to CVodeMalloc.                *
- * The CVDENSE statistics are:                                    *
- *                                                                *
- * iopt[DENSE_NJE] : number of Jacobian evaluations, i.e. of      *
- *                   calls made to the dense Jacobian routine     *
- *                   (default or user-supplied).                  *
- *                                                                *
- * iopt[DENSE_LRW] : size (in realtype words) of real workspace   *
- *                   matrices and vectors used by this solver.    *
- *                                                                *
- * iopt[DENSE_LIW] : size (in integertype words) of integer       *
- *                   workspace vectors used by this solver.       *
- *                                                                *
- ******************************************************************/
- 
-enum { DENSE_NJE=CVODE_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
-
-
-/******************************************************************
- *                                                                *
- * CVDENSE solver constants                                       *
+ * CVSDENSE solver constants                                      *
  *----------------------------------------------------------------*
  * CVD_MSBJ  : maximum number of steps between dense Jacobian     *
  *             evaluations                                        *
@@ -72,7 +46,6 @@ enum { DENSE_NJE=CVODE_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
 #define CVD_MSBJ  50   
 
 #define CVD_DGMAX RCONST(0.2)  
-
  
 /******************************************************************
  *                                                                *           
@@ -81,7 +54,7 @@ enum { DENSE_NJE=CVODE_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  * A dense Jacobian approximation function Jac must have the      *
  * prototype given below. Its parameters are:                     *
  *                                                                *
- * n is the length of all vector arguments.                       *
+ * N is the length of all vector arguments.                       *
  *                                                                *
  * J is the dense matrix (of type DenseMat) that will be loaded   *
  * by a CVDenseJacFn with an approximation to the Jacobian matrix *
@@ -126,7 +99,7 @@ enum { DENSE_NJE=CVODE_IOPT_SIZE, DENSE_LRW, DENSE_LIW };
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVDenseJacFn)(integertype n, DenseMat J, realtype t, 
+typedef void (*CVDenseJacFn)(integertype N, DenseMat J, realtype t, 
                              N_Vector y, N_Vector fy, void *jac_data,
                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
  
@@ -138,64 +111,86 @@ typedef void (*CVDenseJacFn)(integertype n, DenseMat J, realtype t,
  * A call to the CVDense function links the main CVODE integrator *
  * with the CVDENSE linear solver.                                *
  *                                                                *
- * cvode_mem is the pointer to CVODE memory returned by           *
- *              CVodeMalloc.                                      *
- *                                                                * 
- * n is the length of all vector arguments.                       *
+ * cvode_mem is the pointer to CVODES memory returned by          *
+ *              CVodeCreate.                                      *
  *                                                                *
- * djac is the dense Jacobian approximation routine to be used.   *
- *         A user-supplied djac routine must be of type           *
- *         CVDenseJacFn. Pass NULL for djac to use the default    *
- *         difference quotient routine CVDenseDQJac supplied      *
- *         with this solver.                                      *
- *                                                                *
- * jac_data is a pointer to user data which is passed to the      *
- *         djac routine every time it is called.                  *
+ * N is the size of the ODE system.                               *
  *                                                                *
  * The return values of CVDense are:                              *
  *    SUCCESS   = 0  if successful                                *
  *    LMEM_FAIL = -1 if there was a memory allocation failure     *
  *                                                                *
- * NOTE: The dense linear solver assumes a serial implementation  *
- *       of the NVECTOR package. Therefore, CVDense will first    *
- *       test for a compatible N_Vector internal representation   *
- *       by checking (1) the machine environment ID tag and       *
- *       (2) that the functions N_VMake, N_VDispose, N_VGetData,  *
- *       and N_VSetData are implemented.                          *
- *                                                                *
  ******************************************************************/
   
-int CVDense(void *cvode_mem, integertype n, 
-            CVDenseJacFn djac, void *jac_data);
-
+int CVDense(void *cvode_mem, integertype N); 
 
 /******************************************************************
- *                                                                *
- * Function : CVReInitDense                                       *
+ * Optional inputs to the CVDENSE linear solver                   *
  *----------------------------------------------------------------*
- * A call to the CVReInitDense function resets the link between   *
- * the main CVODE integrator and the CVDENSE linear solver.       *
- * After solving one problem using CVDENSE, call CVReInit and then*
- * CVReInitDense to solve another problem of the same size, if    *
- * there is a change in the CVDense parameters djac or jac_data.  *
- * If there is no change in parameters, it is not necessary to    *
- * call either CVReInitDense or CVDense for the new problem.      *
  *                                                                *
- * All arguments to CVReInitDense have the same names and meanings*
- * as those of CVDense.  The cvode_mem argument must be identical *
- * to its value in the previous CVDense call.                     *
- *                                                                *
- * The return values of CVReInitDense are:                        *
- *   SUCCESS   = 0      if successful, or                         *
- *   LMEM_FAIL = -1     if the cvode_mem argument is NULL         *
- *                                                                *
- * NOTE: CVReInitDense performs the same compatibility tests as   *
- *       CVDense.                                                 *
+ * CVDenseSetJacFn specifies the dense Jacobian approximation     *
+ *         routine to be used. A user-supplied djac routine must  *
+ *         be of type CVDenseJacFn.                               *
+ *         By default, a difference quotient routine CVDenseDQJac,*
+ *         supplied with this solver is used.                     *
+ * CVDenseSetJacData specifies a pointer to user data which is    *
+ *         passed to the djac routine every time it is called.    *
  *                                                                *
  ******************************************************************/
-  
-int CVReInitDense(void *cvode_mem, CVDenseJacFn djac, void *jac_data);
 
+int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac);
+int CVDenseSetJacData(void *cvode_mem, void *jac_data);
+
+/******************************************************************
+ * Optional outputs from the CVDENSE linear solver                *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * CVDenseGetIntWorkSpace returns the integer workspace used by   *
+ *     CVDENSE.                                                   *
+ * CVDenseGetRealWorkSpace returns the real workspace used by     *
+ *     CVDENSE.                                                   *
+ * CVDenseGetNumJacEvals returns the number of calls made to the  *
+ *     Jacobian evaluation routine djac.                          *
+ * CVDenseGetNumRhsEvals returns the number of calls to the user  *
+ *     f routine due to finite difference Jacobian evaluation.    *
+ *                                                                *
+ ******************************************************************/
+
+int CVDenseGetIntWorkSpace(void *cvode_mem, long int *leniwD);
+int CVDenseGetRealWorkSpace(void *cvode_mem, long int *lenrwD);
+int CVDenseGetNumJacEvals(void *cvode_mem, int *njevalsD);
+int CVDenseGetNumRhsEvals(void *cvode_mem, int *nfevalsD);
+
+/******************************************************************
+ *                                                                *           
+ * Types : CVDenseMemRec, CVDenseMem                              *
+ *----------------------------------------------------------------*
+ * The type CVDenseMem is pointer to a CVDenseMemRec. This        *
+ * structure contains CVDense solver-specific data.               *
+ *                                                                *
+ ******************************************************************/
+
+typedef struct {
+
+  integertype d_n;    /* problem dimension                      */
+
+  CVDenseJacFn d_jac; /* jac = Jacobian routine to be called    */
+
+  DenseMat d_M;       /* M = I - gamma J, gamma = h / l1        */
+  
+  integertype *d_pivots;  /* pivots = pivot array for PM = LU   */
+  
+  DenseMat d_savedJ;  /* savedJ = old Jacobian                  */
+  
+  int  d_nstlj;       /* nstlj = nst at last Jacobian eval.     */
+  
+  int d_nje;          /* nje = no. of calls to jac              */
+
+  int d_nfeD;         /* nfeD = no. of calls to f               */
+  
+  void *d_J_data;     /* J_data is passed to jac                */
+  
+} CVDenseMemRec, *CVDenseMem;
 
 #endif
 

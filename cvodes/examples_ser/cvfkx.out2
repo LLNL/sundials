@@ -130,14 +130,16 @@
 Final Statistics
 Sensitivity: YES ( STAGGERED + PARTIAL ERROR CONTROL )
 
-nst     =   437 
+nst     =   437
 
-nfe     =  5051  nfSe     =   549 
-nni     =   532  nniS     =   548 
-ncfn    =     0  ncfnS    =     0 
-netf    =    18  netfS    =     0 
-nsetups =    59  nsetupss =     0 
+nfe     =   972
+netf    =    18    nsetups  =    59
+nni     =   532    ncfn     =     0
 
-nli     =  1883  ncfl     =     0 
-npe     =     8  nps      =  3276 
+nfSe    =  1098    nfeS     =  2196
+netfs   =     0    nsetupsS =     0
+nniS    =   548    ncfnS    =     0
+
+nli     =  1883    ncfl     =     0
+npe     =     8    nps      =  3276
 ========================================================

@@ -2,7 +2,7 @@
  *                                                                          *
  * File         : fkinbbd.c                                                 *
  * Programmers  : Allan G Taylor, Alan C. Hindmarsh, and Radu Serban @ LLNL * 
- * Version of   : 29 July 2002                                              *
+ * Version of   : 5 August 2003                                             *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
@@ -10,8 +10,7 @@
  * KINBBDPRE module and user-supplied Fortran routines. Generic names are   *
  * used (e.g. K_COMMFN, see fcmixpar.h). The routines here call the         *
  * generically named routines and provide a standard interface to the C code*
- * of the KINBBDPRE package.  The routine F_KINBBDINIT0 has a counterpart   *
- * F_KINBBDINIT1 in a separate file: fkinbbdinit1.c .                       *
+ * of the KINBBDPRE package.                                                *
  *                                                                          *
  ***************************************************************************/
 
@@ -35,35 +34,18 @@ void K_COMMFN(integertype*, realtype*);
 
 /***************************************************************************/
 
-void F_KINBBDINIT0(integertype *nlocal, int *maxl, int *maxlrst, int *msbpre,
-                   integertype *mu, integertype *ml, int *ier)
+void F_KINBBDINIT(integertype *nlocal, int *maxl, int *maxlrst,
+                  integertype *mu, integertype *ml, int *ier)
 {
-  /* First call KBBDAlloc to initialize KINBBDPRE module:
-     *nlocal       is the local vector size
-     *mu, *ml      are the half-bandwidths for the preconditioner blocks
-     0.0           is the value for dq_rel_uu -- 0.0 triggers the default
-     KINgloc       is a pointer to the KINLocalFn function
-     KINgcomm      is a pointer to the KINCommFn function
-     NULL          is the pointer to f_data.  NULL is used here since handling
-                   of local data in the func routines is done only in Fortran */
 
-  KBBD_Data = KBBDAlloc(*nlocal, *mu, *ml, 0.0, KINgloc, KINgcomm, NULL,
-                        KIN_kmem);
+  KBBD_Data = KBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, 0.0, KINgloc, KINgcomm);
   if (KBBD_Data == NULL) { *ier = -1; return; }
 
-  /* Call KINSpgmr to specify the SPGMR linear solver:
-     KIN_kmem    is the pointer to the KINSOL memory block
-     *maxl       is the maximum Krylov dimension
-     *maxlrst    is the max number of linear solver restarts
-     *msbpre     is the max number of steps w/o calling the precond setup fcn
-     KBBDPrecon  is a pointer to the preconditioner setup routine
-     KBBDPSol    is a pointer to the preconditioner solve routine
-     KBBD_Data   is the pointer to P_data                                  */
-
-  KINSpgmr(KIN_kmem, *maxl, *maxlrst, *msbpre,
-           KBBDPrecon, KBBDPSol, NULL, KBBD_Data);
-
-  *ier = 0;
+  *ier = KINSpgmr(KIN_mem, *maxl);
+  KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
+  KINSpgmrSetPrecSetupFn(KIN_mem, KBBDPrecSetup);
+  KINSpgmrSetPrecSolveFn(KIN_mem, KBBDPrecSolve);
+  KINSpgmrSetPrecData(KIN_mem, KBBD_Data);
 }
 
 /***************************************************************************/
@@ -90,9 +72,12 @@ void KINgloc(integertype Nloc, N_Vector uu, N_Vector gval, void *f_data)
    subroutine KCOMMFN. */
 
 
-void KINgcomm(integertype Nloc, realtype *uloc, void *f_data)
+void KINgcomm(integertype Nloc, N_Vector uu, void *f_data)
 {
+  realtype *uloc;
 
+  uloc = N_VGetData(uu);
+  
   K_COMMFN(&Nloc, uloc);
 
 }
@@ -101,13 +86,11 @@ void KINgcomm(integertype Nloc, realtype *uloc, void *f_data)
 
 /* C function FKINBBDOPT to access optional outputs from KBBD_Data */
 
-void F_KINBBDOPT(integertype *lenrpw, integertype *lenipw, integertype *nge)
+void F_KINBBDOPT(integertype *lenrpw, integertype *lenipw, int *nge)
 {
-  KBBDData pdata;
-  pdata = (KBBDData)(KBBD_Data);
-  *lenrpw = KBBD_RPWSIZE(pdata);
-  *lenipw = KBBD_IPWSIZE(pdata);
-  *nge = KBBD_NGE(pdata);
+  KBBDPrecGetIntWorkSpace(KBBD_Data, lenipw);
+  KBBDPrecGetRealWorkSpace(KBBD_Data, lenrpw);
+  KBBDPrecGetNumGfnEvals(KBBD_Data, nge);
 }
 
 
@@ -118,7 +101,7 @@ void F_KINBBDOPT(integertype *lenrpw, integertype *lenipw, integertype *nge)
 
 void F_KINBBDFREE()
 {
-  KBBDFree(KBBD_Data);
+  KBBDPrecFree(KBBD_Data);
 }
 
 

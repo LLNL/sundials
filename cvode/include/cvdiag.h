@@ -3,7 +3,7 @@
  * File          : cvdiag.h                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 28 March 2003                                   *
+ * Version of    : 31 July 2002                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -13,8 +13,8 @@
  * This is the header file for the CVODE diagonal linear solver,   *
  * CVDIAG.                                                         *
  *                                                                 *
- * Note: The type integer must be large enough to store the value  *
- * of the linear system size N.                                    *
+ * Note: The type integertype must be large enough to store the    *
+ * value of the linear system size N.                              * 
  *                                                                 *
  *******************************************************************/
 
@@ -34,37 +34,13 @@ extern "C" {
  
 /******************************************************************
  *                                                                *
- * CVDIAG solver statistics indices                               *
- *----------------------------------------------------------------*
- * The following enumeration gives a symbolic name to each        *
- * CVDIAG statistic. The symbolic names are used as indices into  *
- * the iopt and ropt arrays passed to CVodeMalloc.                *
- * The CVDIAG statistics are:                                     *
- *                                                                *
- * iopt[DIAG_LRW] : size (in realtype words) of real workspace    *
- *                  vectors used by this solver.                  *
- *                                                                *
- * iopt[DIAG_LIW] : size (in integertype words) of integer        *
- *                  workspace vectors used by this solver.        *
- *                                                                *
- * The number of diagonal approximate Jacobians formed is equal   *
- * to the number of CVDiagSetup calls. This number is available   *
- * in cv_iopt[NSETUPS].                                           *
- *                                                                *
- ******************************************************************/
- 
-enum { DIAG_LRW=CVODE_IOPT_SIZE, DIAG_LIW };
-
- 
-/******************************************************************
- *                                                                *
  * Function : CVDiag                                              *
  *----------------------------------------------------------------*
  * A call to the CVDiag function links the main CVODE integrator  *
  * with the CVDIAG linear solver.                                 *
  *                                                                *
  * cvode_mem is the pointer to CVODE memory returned by           *
- *              CVodeMalloc.                                      *
+ *              CVodeCreate.                                      *
  *                                                                *
  * The return values of CVDiag are:                               *
  *    SUCCESS   = 0  if successful                                *
@@ -73,6 +49,52 @@ enum { DIAG_LRW=CVODE_IOPT_SIZE, DIAG_LIW };
  ******************************************************************/
 
 int CVDiag(void *cvode_mem);
+
+/******************************************************************
+ * Optional outputs from the CVDIAG linear solver                 *
+ *----------------------------------------------------------------*
+ *                                                                *
+ * CVDiagGetIntWorkSpace returns the integer workspace used by    *
+ *     CVDIAG.                                                    *
+ * CVDiagGetRealWorkSpace returns the real workspace used by      *
+ *     CVDIAG.                                                    *
+ * CVDiagGetNumRhsEvals returns the number of calls to the user   *
+ *     f routine due to finite difference Jacobian evaluation.    *
+ * Note: the number of diagonal approximate Jacobians formed is   *
+ * equal to the number of CVDiagSetup calls.                      *
+ * This number is available through CVodeGetNumLinSolvSetups.     *
+ *                                                                *
+ ******************************************************************/
+
+int CVDiagGetIntWorkSpace(void *cvode_mem, long int *leniwDI);
+int CVDiagGetRealWorkSpace(void *cvode_mem, long int *lenrwDI);
+int CVDiagGetNumRhsEvals(void *cvode_mem, int *nfevalsDI);
+
+
+/******************************************************************
+ *                                                                *           
+ * Types : CVDiagMemRec, CVDiagMem                                *
+ *----------------------------------------------------------------*
+ * The type CVDiagMem is pointer to a CVDiagMemRec. This          *
+ * structure contains CVDiag solver-specific data.                *
+ *                                                                *
+ ******************************************************************/
+
+typedef struct {
+
+  realtype di_gammasv; /* gammasv = gamma at the last call to setup */
+                       /* or solve                                  */
+
+  N_Vector di_M;       /* M = (I - gamma J)^{-1} , gamma = h / l1   */
+
+  N_Vector di_bit;     /* temporary storage vector                  */
+
+  N_Vector di_bitcomp; /* temporary storage vector                  */
+
+  int di_nfeDI;        /* no. of calls to f                         */
+
+} CVDiagMemRec, *CVDiagMem;
+
  
 #endif
 

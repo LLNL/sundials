@@ -2,7 +2,7 @@
  * File       : pvnx.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, George Byrne, and    *
  *              Radu Serban @LLNL                                       *
- * Version of : 30 March 2003                                           *
+ * Version of : 11 July 2003                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the program for its  *
@@ -33,7 +33,7 @@
 /* CVODE header files with a description of contents used here */
 
 #include "sundialstypes.h"     /* definitions of realtype, integertype        */
-#include "cvode.h"            /* prototypes for CVodeMalloc, CVode, and      */
+#include "cvode.h"             /* prototypes for CVodeMalloc, CVode, and      */
                                /* CVodeFree, constants OPT_SIZE, FUNCTIONAL,  */
                                /* ADAMS, SS, SUCCESS, NST,NFE, NNI, NCFN,NETF */
 #include "nvector_parallel.h"  /* definitions of type N_Vector and vector     */
@@ -69,7 +69,7 @@ typedef struct {
 static void SetIC(N_Vector u, realtype dx, integertype my_length,
                   integertype my_base);
 
-static void PrintFinalStats(long int iopt[]);
+static void PrintFinalStats(void *cvode_mem);
 
 /* Functions Called by the CVODE Solver */
 
@@ -80,13 +80,12 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 int main(int argc, char *argv[])
 {
-  M_Env machEnv;
-  realtype ropt[OPT_SIZE], dx, reltol, abstol, t, tout, umax;
-  long int iopt[OPT_SIZE];
+  NV_Spec nvSpec;
+  realtype dx, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
   void *cvode_mem;
-  int iout, flag, my_pe, npes;
+  int iout, flag, my_pe, npes, nst;
   integertype local_N, nperpe, nrem, my_base;
 
   MPI_Comm comm;
@@ -109,12 +108,9 @@ int main(int argc, char *argv[])
   data->npes = npes;
   data->my_pe = my_pe;
 
-  /* Set machEnv block. */
+  nvSpec = NV_SpecInit_Parallel(comm, local_N, NEQ, &argc, &argv);
 
-  machEnv = M_EnvInit_Parallel(comm, local_N, NEQ, &argc, &argv);
-  if (machEnv == NULL) return(1);
-
-  u = N_VNew(machEnv);    /* Allocate u vector */
+  u = N_VNew(nvSpec);    /* Allocate u vector */
 
   reltol = 0.0;           /* Set the tolerances */
   abstol = ATOL;
@@ -125,25 +121,44 @@ int main(int argc, char *argv[])
 
   SetIC(u, dx, local_N, my_base);  /* Initialize u vector */
 
-
-  /* Call CVodeMalloc to initialize CVODE: 
-
-     f       is the user's right hand side function in u'=f(t,u)
-     T0      is the initial time
-     u       is the initial dependent variable vector
+  /* 
+     Call CVodeCreate to create CVODE memory:
+     
      ADAMS   specifies the Adams Method
      FUNCTIONAL  specifies functional iteration
+
+     A pointer to CVODE problem memory is returned and stored in cvode_mem.
+  */
+
+  cvode_mem = CVodeCreate(ADAMS, FUNCTIONAL);
+  if (cvode_mem == NULL) { 
+    if (my_pe == 0) printf("CVodeCreate failed.\n"); 
+    return(1); 
+  }
+
+  flag = CVodeSetFdata(cvode_mem, data);
+  if (flag != SUCCESS) { 
+    if (my_pe == 0) printf("CVodeSetFdata failed.\n"); 
+    return(1); 
+  }
+
+  /* 
+     Call CVodeMalloc to initialize CVODE memory: 
+
+     cvode_mem is the pointer to CVODE memory returned by CVodeCreate
+     f       is the user's right hand side function in y'=f(t,y)
+     T0      is the initial time
+     u       is the initial dependent variable vector
      SS      specifies scalar relative and absolute tolerances
      &reltol and &abstol are pointers to the scalar tolerances
-     data    is the pointer to the user-defined block of coefficients
-     FALSE   indicates there are no optional inputs in iopt and ropt
-     iopt and ropt arrays communicate optional integer and real input/output
+     nvSpec  is the vector specification object 
+  */
 
-     A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
-
-  cvode_mem = CVodeMalloc(f, T0, u, ADAMS, FUNCTIONAL, SS, &reltol,
-                          &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
-  if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  if (flag != SUCCESS) { 
+    if (my_pe == 0) printf("CVodeMalloc failed.\n"); 
+    return(1); 
+  }
 
   if (my_pe == 0) {
     printf("\n 1-D advection-diffusion equation, mesh size =%3d \n", MX);
@@ -158,20 +173,23 @@ int main(int argc, char *argv[])
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
+    if (flag != SUCCESS) { 
+      if (my_pe == 0) printf("CVode failed, flag=%d.\n", flag); 
+      break; 
+    }
     umax = N_VMaxNorm(u);
+    flag = CVodeGetNumSteps(cvode_mem, &nst);
     if (my_pe == 0) 
-      printf("At t = %4.2f    max.norm(u) =%14.6e   nst =%4ld \n", 
-            t,umax,iopt[NST]);
-    if (flag != SUCCESS) { printf("CVode failed, flag=%d.\n", flag); break; }
+      printf("At t = %4.2f  max.norm(u) =%14.6e  nst =%4d \n", t,umax,nst);
   }
+
+  if (my_pe == 0) 
+    PrintFinalStats(cvode_mem);     /* Print some final statistics   */
 
   N_VFree(u);                  /* Free the u vector */
   CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
   free(data);                  /* Free user data */
-  if (my_pe == 0) 
-    PrintFinalStats(iopt);     /* Print some final statistics   */
-
-  M_EnvFree_Parallel(machEnv);
+  NV_SpecFree_Parallel(nvSpec);
   MPI_Finalize();
 
   return(0);
@@ -205,12 +223,19 @@ static void SetIC(N_Vector u, realtype dx, integertype my_length,
 
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(long int iopt[])
+static void PrintFinalStats(void *cvode_mem)
 {
+  int nst, nfe, nni, ncfn, netf;
+  
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  CVodeGetNumErrTestFails(cvode_mem, &netf);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+
   printf("\nFinal Statistics.. \n\n");
-  printf("nst = %-6ld  nfe  = %-6ld  ", iopt[NST], iopt[NFE]);
-  printf("nni = %-6ld  ncfn = %-6ld  netf = %ld\n \n",
-	 iopt[NNI], iopt[NCFN], iopt[NETF]);
+  printf("nst = %-6d  nfe  = %-6d  ", nst, nfe);
+  printf("nni = %-6d  ncfn = %-6d  netf = %d\n \n", nni, ncfn, netf);
 }
 
 
@@ -218,7 +243,7 @@ static void PrintFinalStats(long int iopt[])
 
 /* f routine. Compute f(t,u). */
 
-static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;

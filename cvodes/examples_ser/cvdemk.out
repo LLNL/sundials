@@ -78,11 +78,11 @@ Species 6
 10        11.0066   12.2649   12.2649   11.0066   10        
 10        10        10        10        10        10        
 
-t =   1.00e-08  nst = 3  nfe = 12  nni = 6  qu = 2  hu =    1.76e-08
+t =   1.00e-08  nst = 3  nfe = 9  nni = 6  qu = 2  hu =    1.76e-08
 
-t =   1.00e-07  nst = 7  nfe = 20  nni = 10  qu = 2  hu =    4.78e-08
+t =   1.00e-07  nst = 7  nfe = 13  nni = 10  qu = 2  hu =    4.78e-08
 
-t =   1.00e-06  nst = 15  nfe = 38  nni = 20  qu = 3  hu =    1.50e-07
+t =   1.00e-06  nst = 15  nfe = 23  nni = 20  qu = 3  hu =    1.50e-07
 
 c values at t = 1e-06:
 
@@ -134,11 +134,11 @@ Species 6
 13.499    15.0082   16.9357   16.9357   15.0082   13.499    
 13.499    13.499    13.499    13.499    13.499    13.499    
 
-t =   1.00e-05  nst = 34  nfe = 80  nni = 43  qu = 5  hu =    6.11e-07
+t =   1.00e-05  nst = 34  nfe = 46  nni = 43  qu = 5  hu =    6.11e-07
 
-t =   1.00e-04  nst = 116  nfe = 257  nni = 133  qu = 5  hu =    5.51e-06
+t =   1.00e-04  nst = 116  nfe = 136  nni = 133  qu = 5  hu =    5.51e-06
 
-t =   1.00e-03  nst = 135  nfe = 295  nni = 152  qu = 2  hu =    3.53e-04
+t =   1.00e-03  nst = 135  nfe = 155  nni = 152  qu = 2  hu =    3.53e-04
 
 c values at t = 0.001:
 
@@ -190,11 +190,11 @@ Species 6
 297691    307208    319252    319264    307244    297749    
 297229    297691    298276    298276    297692    297231    
 
-t =   1.00e-02  nst = 143  nfe = 313  nni = 162  qu = 3  hu =    1.37e-03
+t =   1.00e-02  nst = 143  nfe = 165  nni = 162  qu = 3  hu =    1.37e-03
 
-t =   1.00e-01  nst = 165  nfe = 364  nni = 187  qu = 5  hu =    6.02e-03
+t =   1.00e-01  nst = 165  nfe = 190  nni = 187  qu = 5  hu =    6.02e-03
 
-t =   1.00e+00  nst = 235  nfe = 557  nni = 261  qu = 4  hu =    2.49e-02
+t =   1.00e+00  nst = 235  nfe = 264  nni = 261  qu = 4  hu =    2.49e-02
 
 c values at t = 1:
 
@@ -246,11 +246,11 @@ Species 6
 46877.1   47001.6   47286.6   47627.5   47914.5   48040.8   
 46782.3   46877.1   47109     47390.2   47623.3   47718.9   
 
-t =   2.00e+00  nst = 272  nfe = 672  nni = 301  qu = 3  hu =    3.80e-02
+t =   2.00e+00  nst = 272  nfe = 304  nni = 301  qu = 3  hu =    3.80e-02
 
-t =   3.00e+00  nst = 288  nfe = 726  nni = 318  qu = 3  hu =    6.57e-02
+t =   3.00e+00  nst = 288  nfe = 321  nni = 318  qu = 3  hu =    6.57e-02
 
-t =   4.00e+00  nst = 303  nfe = 775  nni = 334  qu = 3  hu =    6.57e-02
+t =   4.00e+00  nst = 303  nfe = 337  nni = 334  qu = 3  hu =    6.57e-02
 
 c values at t = 4:
 
@@ -302,11 +302,11 @@ Species 6
 35185.6   35283.9   35510.5   35782     36010.6   36110.2   
 35109.8   35185.6   35371.5   35597.4   35784.2   35860.9   
 
-t =   5.00e+00  nst = 318  nfe = 826  nni = 350  qu = 3  hu =    6.57e-02
+t =   5.00e+00  nst = 318  nfe = 353  nni = 350  qu = 3  hu =    6.57e-02
 
-t =   6.00e+00  nst = 332  nfe = 873  nni = 364  qu = 2  hu =    1.19e-01
+t =   6.00e+00  nst = 332  nfe = 367  nni = 364  qu = 2  hu =    1.19e-01
 
-t =   7.00e+00  nst = 338  nfe = 893  nni = 370  qu = 2  hu =    1.88e-01
+t =   7.00e+00  nst = 338  nfe = 373  nni = 370  qu = 2  hu =    1.88e-01
 
 c values at t = 7:
 
@@ -358,11 +358,11 @@ Species 6
 34983.1   35081.1   35306.4   35577     35804     35903.7   
 34907.8   34983.1   35168.3   35392.8   35579.2   35655     
 
-t =   8.00e+00  nst = 342  nfe = 910  nni = 375  qu = 2  hu =    3.20e-01
+t =   8.00e+00  nst = 342  nfe = 378  nni = 375  qu = 2  hu =    3.20e-01
 
-t =   9.00e+00  nst = 345  nfe = 923  nni = 378  qu = 2  hu =    3.20e-01
+t =   9.00e+00  nst = 345  nfe = 381  nni = 378  qu = 2  hu =    3.20e-01
 
-t =   1.00e+01  nst = 348  nfe = 934  nni = 381  qu = 2  hu =    3.20e-01
+t =   1.00e+01  nst = 348  nfe = 384  nni = 381  qu = 2  hu =    3.20e-01
 
 c values at t = 10:
 
@@ -423,7 +423,9 @@ Species 6
  CVSPGMR real workspace length         = 2206 
  CVSPGMR integer workspace length      =   10 
  Number of steps                       =  348 
- Number of f-s                         =  934 
+ Number of f-s                         =  384 
+ Number of f-s (SPGMR)                 =  550 
+ Number of f-s (TOTAL)                 =  934 
  Number of setups                      =   44 
  Number of nonlinear iterations        =  381 
  Number of linear iterations           =  550 
@@ -444,41 +446,41 @@ Preconditioner type is           jpre = LEFT
 Gram-Schmidt method type is    gstype = CLASSICAL_GS
 
 
-t =   1.00e-08  nst = 3  nfe = 12  nni = 6  qu = 2  hu =    1.76e-08
+t =   1.00e-08  nst = 3  nfe = 9  nni = 6  qu = 2  hu =    1.76e-08
 
-t =   1.00e-07  nst = 7  nfe = 20  nni = 10  qu = 2  hu =    4.78e-08
+t =   1.00e-07  nst = 7  nfe = 13  nni = 10  qu = 2  hu =    4.78e-08
 
-t =   1.00e-06  nst = 15  nfe = 38  nni = 20  qu = 3  hu =    1.50e-07
+t =   1.00e-06  nst = 15  nfe = 23  nni = 20  qu = 3  hu =    1.50e-07
 
-t =   1.00e-05  nst = 34  nfe = 80  nni = 43  qu = 5  hu =    6.11e-07
+t =   1.00e-05  nst = 34  nfe = 46  nni = 43  qu = 5  hu =    6.11e-07
 
-t =   1.00e-04  nst = 116  nfe = 257  nni = 133  qu = 5  hu =    5.51e-06
+t =   1.00e-04  nst = 116  nfe = 136  nni = 133  qu = 5  hu =    5.51e-06
 
-t =   1.00e-03  nst = 135  nfe = 295  nni = 152  qu = 2  hu =    3.53e-04
+t =   1.00e-03  nst = 135  nfe = 155  nni = 152  qu = 2  hu =    3.53e-04
 
-t =   1.00e-02  nst = 143  nfe = 313  nni = 162  qu = 3  hu =    1.37e-03
+t =   1.00e-02  nst = 143  nfe = 165  nni = 162  qu = 3  hu =    1.37e-03
 
-t =   1.00e-01  nst = 165  nfe = 364  nni = 187  qu = 5  hu =    6.02e-03
+t =   1.00e-01  nst = 165  nfe = 190  nni = 187  qu = 5  hu =    6.02e-03
 
-t =   1.00e+00  nst = 235  nfe = 557  nni = 261  qu = 4  hu =    2.49e-02
+t =   1.00e+00  nst = 235  nfe = 264  nni = 261  qu = 4  hu =    2.49e-02
 
-t =   2.00e+00  nst = 272  nfe = 672  nni = 301  qu = 3  hu =    3.81e-02
+t =   2.00e+00  nst = 272  nfe = 304  nni = 301  qu = 3  hu =    3.81e-02
 
-t =   3.00e+00  nst = 288  nfe = 727  nni = 318  qu = 3  hu =    6.60e-02
+t =   3.00e+00  nst = 288  nfe = 321  nni = 318  qu = 3  hu =    6.60e-02
 
-t =   4.00e+00  nst = 303  nfe = 777  nni = 333  qu = 3  hu =    6.60e-02
+t =   4.00e+00  nst = 303  nfe = 336  nni = 333  qu = 3  hu =    6.60e-02
 
-t =   5.00e+00  nst = 313  nfe = 814  nni = 345  qu = 3  hu =    1.25e-01
+t =   5.00e+00  nst = 313  nfe = 348  nni = 345  qu = 3  hu =    1.25e-01
 
-t =   6.00e+00  nst = 321  nfe = 846  nni = 353  qu = 3  hu =    1.25e-01
+t =   6.00e+00  nst = 321  nfe = 356  nni = 353  qu = 3  hu =    1.25e-01
 
-t =   7.00e+00  nst = 329  nfe = 876  nni = 361  qu = 3  hu =    1.25e-01
+t =   7.00e+00  nst = 329  nfe = 364  nni = 361  qu = 3  hu =    1.25e-01
 
-t =   8.00e+00  nst = 337  nfe = 908  nni = 370  qu = 3  hu =    1.25e-01
+t =   8.00e+00  nst = 337  nfe = 373  nni = 370  qu = 3  hu =    1.25e-01
 
-t =   9.00e+00  nst = 345  nfe = 939  nni = 378  qu = 3  hu =    1.25e-01
+t =   9.00e+00  nst = 345  nfe = 381  nni = 378  qu = 3  hu =    1.25e-01
 
-t =   1.00e+01  nst = 353  nfe = 971  nni = 387  qu = 3  hu =    1.25e-01
+t =   1.00e+01  nst = 353  nfe = 390  nni = 387  qu = 3  hu =    1.25e-01
 
 
 
@@ -489,7 +491,9 @@ t =   1.00e+01  nst = 353  nfe = 971  nni = 387  qu = 3  hu =    1.25e-01
  CVSPGMR real workspace length         = 2206 
  CVSPGMR integer workspace length      =   10 
  Number of steps                       =  353 
- Number of f-s                         =  971 
+ Number of f-s                         =  390 
+ Number of f-s (SPGMR)                 =  581 
+ Number of f-s (TOTAL)                 =  971 
  Number of setups                      =   43 
  Number of nonlinear iterations        =  387 
  Number of linear iterations           =  581 
@@ -510,41 +514,41 @@ Preconditioner type is           jpre = RIGHT
 Gram-Schmidt method type is    gstype = MODIFIED_GS
 
 
-t =   1.00e-08  nst = 3  nfe = 12  nni = 6  qu = 2  hu =    1.76e-08
+t =   1.00e-08  nst = 3  nfe = 9  nni = 6  qu = 2  hu =    1.76e-08
 
-t =   1.00e-07  nst = 7  nfe = 20  nni = 10  qu = 2  hu =    4.78e-08
+t =   1.00e-07  nst = 7  nfe = 13  nni = 10  qu = 2  hu =    4.78e-08
 
-t =   1.00e-06  nst = 15  nfe = 38  nni = 20  qu = 3  hu =    1.50e-07
+t =   1.00e-06  nst = 15  nfe = 23  nni = 20  qu = 3  hu =    1.50e-07
 
-t =   1.00e-05  nst = 34  nfe = 80  nni = 43  qu = 5  hu =    6.11e-07
+t =   1.00e-05  nst = 34  nfe = 46  nni = 43  qu = 5  hu =    6.11e-07
 
-t =   1.00e-04  nst = 118  nfe = 257  nni = 134  qu = 5  hu =    6.64e-06
+t =   1.00e-04  nst = 118  nfe = 137  nni = 134  qu = 5  hu =    6.64e-06
 
-t =   1.00e-03  nst = 138  nfe = 314  nni = 159  qu = 2  hu =    4.17e-04
+t =   1.00e-03  nst = 138  nfe = 162  nni = 159  qu = 2  hu =    4.17e-04
 
-t =   1.00e-02  nst = 146  nfe = 335  nni = 170  qu = 3  hu =    1.64e-03
+t =   1.00e-02  nst = 146  nfe = 173  nni = 170  qu = 3  hu =    1.64e-03
 
-t =   1.00e-01  nst = 169  nfe = 388  nni = 196  qu = 5  hu =    9.35e-03
+t =   1.00e-01  nst = 169  nfe = 199  nni = 196  qu = 5  hu =    9.35e-03
 
-t =   1.00e+00  nst = 207  nfe = 544  nni = 243  qu = 5  hu =    5.18e-02
+t =   1.00e+00  nst = 207  nfe = 246  nni = 243  qu = 5  hu =    5.18e-02
 
-t =   2.00e+00  nst = 219  nfe = 616  nni = 259  qu = 5  hu =    1.25e-01
+t =   2.00e+00  nst = 219  nfe = 262  nni = 259  qu = 5  hu =    1.25e-01
 
-t =   3.00e+00  nst = 227  nfe = 664  nni = 267  qu = 5  hu =    1.25e-01
+t =   3.00e+00  nst = 227  nfe = 270  nni = 267  qu = 5  hu =    1.25e-01
 
-t =   4.00e+00  nst = 233  nfe = 705  nni = 274  qu = 4  hu =    2.00e-01
+t =   4.00e+00  nst = 233  nfe = 277  nni = 274  qu = 4  hu =    2.00e-01
 
-t =   5.00e+00  nst = 238  nfe = 735  nni = 279  qu = 4  hu =    2.00e-01
+t =   5.00e+00  nst = 238  nfe = 282  nni = 279  qu = 4  hu =    2.00e-01
 
-t =   6.00e+00  nst = 244  nfe = 791  nni = 289  qu = 4  hu =    1.24e-01
+t =   6.00e+00  nst = 244  nfe = 292  nni = 289  qu = 4  hu =    1.24e-01
 
-t =   7.00e+00  nst = 249  nfe = 821  nni = 294  qu = 3  hu =    2.73e-01
+t =   7.00e+00  nst = 249  nfe = 297  nni = 294  qu = 3  hu =    2.73e-01
 
-t =   8.00e+00  nst = 252  nfe = 839  nni = 297  qu = 3  hu =    4.10e-01
+t =   8.00e+00  nst = 252  nfe = 300  nni = 297  qu = 3  hu =    4.10e-01
 
-t =   9.00e+00  nst = 255  nfe = 857  nni = 300  qu = 3  hu =    6.18e-01
+t =   9.00e+00  nst = 255  nfe = 303  nni = 300  qu = 3  hu =    6.18e-01
 
-t =   1.00e+01  nst = 259  nfe = 905  nni = 308  qu = 2  hu =    3.08e-01
+t =   1.00e+01  nst = 259  nfe = 311  nni = 308  qu = 2  hu =    3.08e-01
 
 
 
@@ -555,7 +559,9 @@ t =   1.00e+01  nst = 259  nfe = 905  nni = 308  qu = 2  hu =    3.08e-01
  CVSPGMR real workspace length         = 2206 
  CVSPGMR integer workspace length      =   10 
  Number of steps                       =  259 
- Number of f-s                         =  905 
+ Number of f-s                         =  311 
+ Number of f-s (SPGMR)                 =  594 
+ Number of f-s (TOTAL)                 =  905 
  Number of setups                      =   50 
  Number of nonlinear iterations        =  308 
  Number of linear iterations           =  594 
@@ -576,41 +582,41 @@ Preconditioner type is           jpre = RIGHT
 Gram-Schmidt method type is    gstype = CLASSICAL_GS
 
 
-t =   1.00e-08  nst = 3  nfe = 12  nni = 6  qu = 2  hu =    1.76e-08
+t =   1.00e-08  nst = 3  nfe = 9  nni = 6  qu = 2  hu =    1.76e-08
 
-t =   1.00e-07  nst = 7  nfe = 20  nni = 10  qu = 2  hu =    4.78e-08
+t =   1.00e-07  nst = 7  nfe = 13  nni = 10  qu = 2  hu =    4.78e-08
 
-t =   1.00e-06  nst = 15  nfe = 38  nni = 20  qu = 3  hu =    1.50e-07
+t =   1.00e-06  nst = 15  nfe = 23  nni = 20  qu = 3  hu =    1.50e-07
 
-t =   1.00e-05  nst = 34  nfe = 80  nni = 43  qu = 5  hu =    6.11e-07
+t =   1.00e-05  nst = 34  nfe = 46  nni = 43  qu = 5  hu =    6.11e-07
 
-t =   1.00e-04  nst = 118  nfe = 257  nni = 134  qu = 5  hu =    6.64e-06
+t =   1.00e-04  nst = 118  nfe = 137  nni = 134  qu = 5  hu =    6.64e-06
 
-t =   1.00e-03  nst = 138  nfe = 314  nni = 159  qu = 2  hu =    4.17e-04
+t =   1.00e-03  nst = 138  nfe = 162  nni = 159  qu = 2  hu =    4.17e-04
 
-t =   1.00e-02  nst = 146  nfe = 335  nni = 170  qu = 3  hu =    1.64e-03
+t =   1.00e-02  nst = 146  nfe = 173  nni = 170  qu = 3  hu =    1.64e-03
 
-t =   1.00e-01  nst = 169  nfe = 388  nni = 196  qu = 5  hu =    9.35e-03
+t =   1.00e-01  nst = 169  nfe = 199  nni = 196  qu = 5  hu =    9.35e-03
 
-t =   1.00e+00  nst = 207  nfe = 544  nni = 243  qu = 5  hu =    5.17e-02
+t =   1.00e+00  nst = 207  nfe = 246  nni = 243  qu = 5  hu =    5.17e-02
 
-t =   2.00e+00  nst = 219  nfe = 617  nni = 259  qu = 5  hu =    1.21e-01
+t =   2.00e+00  nst = 219  nfe = 262  nni = 259  qu = 5  hu =    1.21e-01
 
-t =   3.00e+00  nst = 227  nfe = 665  nni = 267  qu = 5  hu =    1.21e-01
+t =   3.00e+00  nst = 227  nfe = 270  nni = 267  qu = 5  hu =    1.21e-01
 
-t =   4.00e+00  nst = 234  nfe = 707  nni = 274  qu = 4  hu =    1.90e-01
+t =   4.00e+00  nst = 234  nfe = 277  nni = 274  qu = 4  hu =    1.90e-01
 
-t =   5.00e+00  nst = 239  nfe = 737  nni = 279  qu = 4  hu =    1.90e-01
+t =   5.00e+00  nst = 239  nfe = 282  nni = 279  qu = 4  hu =    1.90e-01
 
-t =   6.00e+00  nst = 243  nfe = 761  nni = 283  qu = 4  hu =    3.01e-01
+t =   6.00e+00  nst = 243  nfe = 286  nni = 283  qu = 4  hu =    3.01e-01
 
-t =   7.00e+00  nst = 247  nfe = 785  nni = 287  qu = 4  hu =    3.01e-01
+t =   7.00e+00  nst = 247  nfe = 290  nni = 287  qu = 4  hu =    3.01e-01
 
-t =   8.00e+00  nst = 250  nfe = 803  nni = 290  qu = 4  hu =    3.01e-01
+t =   8.00e+00  nst = 250  nfe = 293  nni = 290  qu = 4  hu =    3.01e-01
 
-t =   9.00e+00  nst = 256  nfe = 860  nni = 300  qu = 3  hu =    1.48e-01
+t =   9.00e+00  nst = 256  nfe = 303  nni = 300  qu = 3  hu =    1.48e-01
 
-t =   1.00e+01  nst = 261  nfe = 895  nni = 306  qu = 2  hu =    2.81e-01
+t =   1.00e+01  nst = 261  nfe = 309  nni = 306  qu = 2  hu =    2.81e-01
 
 
 
@@ -621,7 +627,9 @@ t =   1.00e+01  nst = 261  nfe = 895  nni = 306  qu = 2  hu =    2.81e-01
  CVSPGMR real workspace length         = 2206 
  CVSPGMR integer workspace length      =   10 
  Number of steps                       =  261 
- Number of f-s                         =  895 
+ Number of f-s                         =  309 
+ Number of f-s (SPGMR)                 =  586 
+ Number of f-s (TOTAL)                 =  895 
  Number of setups                      =   45 
  Number of nonlinear iterations        =  306 
  Number of linear iterations           =  586 

@@ -23,9 +23,8 @@ CVODE_INC_DIR  = ../include
 FCVODE_LIB = libfcvode.a
 
 # Source and object files
-SRC = fcvode.c fcvpreco.c fcvpsol.c fcvjtimes.c fcvbbd.c fcvbbdin1.c \
-      fcvdense1.c fcvband1.c \
-      fcvspgmr01.c fcvspgmr11.c fcvspgmr21.c fcvspgmr10.c fcvspgmr20.c
+SRC = fcvode.c fcvdense.c fcvband.c fcvjtimes.c \
+      fcvpsol.c fcvpreco.c fcvbbd.c
 
 OBJ = ${SRC:.c=.o}
 

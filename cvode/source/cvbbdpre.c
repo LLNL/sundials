@@ -1,20 +1,18 @@
 /*******************************************************************
- *                                                                 *
- * File          : cvbbdpre.c                                      *
+ * File          : cvbbdpre.c                                     *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 28 March 2003                                   *
+ * Version of    : 31 July 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
+ * For details, see sundials/cvode/LICENSE                        *
  *-----------------------------------------------------------------*
  * This file contains implementations of routines for a            *
  * band-block-diagonal preconditioner, i.e. a block-diagonal       *
  * matrix with banded blocks, for use with CVODE, CVSpgmr, and     *
  * the parallel implementation of NVECTOR.                         *
- *                                                                 *
  *******************************************************************/
 
 #include <stdio.h>
@@ -32,137 +30,53 @@
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 
-
 /* Error Messages */
 #define CVBBDALLOC     "CVBBDAlloc-- "
-#define MSG_CVMEM_NULL CVBBDALLOC "CVode Memory is NULL.\n\n"
+#define MSG_CVMEM_NULL CVBBDALLOC "CVODE Memory is NULL.\n\n"
 #define MSG_WRONG_NVEC CVBBDALLOC "Incompatible NVECTOR implementation.\n\n"
+#define MSG_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL. \n\n"
 
 /* Prototype for difference quotient Jacobian calculation routine */
-
-static void CVBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq, 
-                       integertype mukeep, integertype mlkeep, realtype rely,
-                       CVLocalFn gloc, CVCommFn cfn, BandMat J, void *f_data,
-                       realtype t, N_Vector y, N_Vector ewt, realtype h, 
-                       realtype uround, N_Vector gy, N_Vector gtemp, 
-                       N_Vector ytemp);
-
-
-/*************** CVBBDDQJac *****************************************
-
- This routine generates a banded difference quotient approximation to
- the local block of the Jacobian of g(t,y).  It assumes that a band 
- matrix of type BandMat is stored columnwise, and that elements within
- each column are contiguous.  All matrix elements are generated as
- difference quotients, by way of calls to the user routine gloc.
- By virtue of the band structure, the number of these calls is
- bandwidth + 1, where bandwidth = mldq + mudq + 1.
- But the band matrix kept has bandwidth = mlkeep + mukeep + 1.
- This routine also assumes that the local elements of a vector are
- stored contiguously.
-
-**********************************************************************/
-
-static void CVBBDDQJac(integertype Nlocal, integertype mudq, integertype mldq, 
-                       integertype mukeep, integertype mlkeep, realtype rely,
-                       CVLocalFn gloc, CVCommFn cfn, BandMat J,
-                       void *f_data, realtype t, N_Vector y,
-                       N_Vector ewt, realtype h, realtype uround,
-                       N_Vector gy, N_Vector gtemp, N_Vector ytemp)
-{
-  realtype    gnorm, minInc, inc, inc_inv;
-  integertype group, i, j, width, ngroups, i1, i2;
-  realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
-
-  /* Obtain pointers to the data for all vectors */
-  y_data     = N_VGetData(y);
-  ewt_data   = N_VGetData(ewt);
-  gy_data    = N_VGetData(gy);
-  gtemp_data = N_VGetData(gtemp);
-  ytemp_data = N_VGetData(ytemp);
-
-  /* Load ytemp with y = predicted solution vector */
-  N_VScale(ONE, y, ytemp);
-
-  /* Call cfn and gloc to get base value of g(t,y) */
-  cfn (Nlocal, t, y, f_data);
-  gloc(Nlocal, t, ytemp_data, gy_data, f_data);
-
-  /* Set minimum increment based on uround and norm of g */
-  gnorm = N_VWrmsNorm(gy, ewt);
-  minInc = (gnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * Nlocal * gnorm) : ONE;
-
-  /* Set bandwidth and number of column groups for band differencing */
-  width = mldq + mudq + 1;
-  ngroups = MIN(width, Nlocal);
-
-  /* Loop over groups */  
-  for (group=1; group <= ngroups; group++) {
-    
-    /* Increment all y_j in group */
-    for(j=group-1; j < Nlocal; j+=width) {
-      inc = MAX(rely*ABS(y_data[j]), minInc/ewt_data[j]);
-      ytemp_data[j] += inc;
-    }
-
-    /* Evaluate g with incremented y */
-    gloc(Nlocal, t, ytemp_data, gtemp_data, f_data);
-
-    /* Restore ytemp, then form and load difference quotients */
-    for (j=group-1; j < Nlocal; j+=width) {
-      ytemp_data[j] = y_data[j];
-      col_j = BAND_COL(J,j);
-      inc = MAX(rely*ABS(y_data[j]), minInc/ewt_data[j]);
-      inc_inv = ONE/inc;
-      i1 = MAX(0, j-mukeep);
-      i2 = MIN(j+mlkeep, Nlocal-1);
-      for (i=i1; i <= i2; i++)
-        BAND_COL_ELEM(col_j,i,j) =
-          inc_inv * (gtemp_data[i] - gy_data[i]);
-    }
-  }
-}
+static void CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
+                       N_Vector y, N_Vector gy, 
+                       N_Vector ytemp, N_Vector gtemp);
 
 /*****************************************************************************/
 
 /* Redability replacements */
-#define machenv  (cv_mem->cv_machenv)
-#define errfp    (cv_mem->cv_errfp)
+#define nvspec (cv_mem->cv_nvspec)
+#define errfp  (cv_mem->cv_errfp)
+#define uround (cv_mem->cv_uround)
 
 /*********** User-Callable Functions: malloc, reinit, and free ***************/
 
-CVBBDData CVBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
-                     integertype mukeep, integertype mlkeep, realtype dqrely, 
-                     CVLocalFn gloc, CVCommFn cfn, void *f_data,
-                     void *cvode_mem)
+void *CVBBDPrecAlloc(void *cvode_mem, integertype Nlocal, 
+                     integertype mudq, integertype mldq,
+                     integertype mukeep, integertype mlkeep, 
+                     realtype dqrely, 
+                     CVLocalFn gloc, CVCommFn cfn)
 {
   CVodeMem cv_mem;
-  CVBBDData pdata;
+  CVBBDPrecData pdata;
   integertype muk, mlk, storage_mu;
 
-  cv_mem = (CVodeMem) cvode_mem;
   if (cvode_mem == NULL) {
-    fprintf(errfp, MSG_CVMEM_NULL);
+    fprintf(stdout, MSG_CVMEM_NULL);
     return(NULL);
   }
+  cv_mem = (CVodeMem) cvode_mem;
 
-  /* Test if the NVECTOR package is compatible with the BAND preconditioner */
-  if ((strcmp(machenv->tag,"parallel")) || 
-      machenv->ops->nvmake    == NULL || 
-      machenv->ops->nvdispose == NULL ||
-      machenv->ops->nvgetdata == NULL || 
-      machenv->ops->nvsetdata == NULL) {
+  /* Test if the NVECTOR package is compatible with the BLOCK BAND preconditioner */
+  if (nvspec->ops->nvgetdata == NULL || nvspec->ops->nvsetdata == NULL) {
     fprintf(errfp, MSG_WRONG_NVEC);
     return(NULL);
   }
 
-
-  pdata = (CVBBDData) malloc(sizeof *pdata);  /* Allocate data memory */
+  pdata = (CVBBDPrecData) malloc(sizeof *pdata);  /* Allocate data memory */
   if (pdata == NULL) return(NULL);
 
-  /* Set pointers to f_data, gloc, and cfn; load half-bandwidths */
-  pdata->f_data = f_data;
+  /* Set pointers to gloc and cfn; load half-bandwidths */
+  pdata->cv_mem = cv_mem;
   pdata->gloc = gloc;
   pdata->cfn = cfn;
   pdata->mudq = MIN( Nlocal-1, MAX(0,mudq) );
@@ -194,9 +108,9 @@ CVBBDData CVBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
   }
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(UnitRoundoff());
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(uround);
 
-  /* Store Nlocal to be used in CVBBDPrecon */
+  /* Store Nlocal to be used in CVBBDPrecSetup */
   pdata->n_local = Nlocal;
 
   /* Set work space sizes and initialize nge */
@@ -204,56 +118,104 @@ CVBBDData CVBBDAlloc(integertype Nlocal, integertype mudq, integertype mldq,
   pdata->ipwsize = Nlocal;
   pdata->nge = 0;
 
-  return(pdata);
+  return((void *)pdata);
 }
 
-int CVReInitBBD(CVBBDData pdata, integertype Nlocal, integertype mudq, 
-                integertype mldq, integertype mukeep, integertype mlkeep, 
-                realtype dqrely, CVLocalFn gloc, CVCommFn cfn, void *f_data)
+int CVBBDPrecReInit(void *p_data, 
+                    integertype mudq, integertype mldq, 
+                    realtype dqrely, 
+                    CVLocalFn gloc, CVCommFn cfn)
 {
-  integertype muk, mlk, storage_mu;
+  CVBBDPrecData pdata;
+  CVodeMem cv_mem;
+  integertype Nlocal;
 
-  /* Set pointers to f_data, gloc, and cfn; load half-bandwidths */
-  pdata->f_data = f_data;
+  pdata = (CVBBDPrecData) p_data;
+  cv_mem = pdata->cv_mem;
+
+  /* Set pointers to gloc and cfn; load half-bandwidths */
   pdata->gloc = gloc;
   pdata->cfn = cfn;
+  Nlocal = pdata->n_local;
   pdata->mudq = MIN( Nlocal-1, MAX(0,mudq) );
   pdata->mldq = MIN( Nlocal-1, MAX(0,mldq) );
-  muk = MIN( Nlocal-1, MAX(0,mukeep) );
-  mlk = MIN( Nlocal-1, MAX(0,mlkeep) );
-  pdata->mukeep = muk;
-  pdata->mlkeep = mlk;
-  storage_mu = MIN(Nlocal-1, muk + mlk);
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(UnitRoundoff());
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(uround);
 
-  /* Store Nlocal to be used in CVBBDPrecon */
-  pdata->n_local = Nlocal;
-
-  /* Set work space sizes and initialize nge */
-  pdata->rpwsize = Nlocal*(muk + 2*mlk + storage_mu + 2);
-  pdata->ipwsize = Nlocal;
+  /* Re-initialize nge */
   pdata->nge = 0;
 
   return(0);
 }
 
-void CVBBDFree(CVBBDData pdata)
+void CVBBDPrecFree(void *p_data)
 {
-  BandFreeMat(pdata->savedJ);
-  BandFreeMat(pdata->savedP);
-  BandFreePiv(pdata->pivots);
-  free(pdata);
+  CVBBDPrecData pdata;
+  
+  if ( p_data != NULL ) {
+    pdata = (CVBBDPrecData) p_data;
+    BandFreeMat(pdata->savedJ);
+    BandFreeMat(pdata->savedP);
+    BandFreePiv(pdata->pivots);
+    free(pdata);
+  }
 }
 
+int CVBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP)
+{
+  CVBBDPrecData pdata;
+
+  if ( p_data == NULL ) {
+    fprintf(stdout, MSG_PDATA_NULL);
+    return(BBDP_NO_PDATA);
+  } 
+
+  pdata = (CVBBDPrecData) p_data;
+
+  *leniwBBDP = pdata->ipwsize;
+
+  return(OKAY);
+}
+
+int CVBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
+{
+  CVBBDPrecData pdata;
+
+  if ( p_data == NULL ) {
+    fprintf(stdout, MSG_PDATA_NULL);
+    return(BBDP_NO_PDATA);
+  } 
+
+  pdata = (CVBBDPrecData) p_data;
+
+  *lenrwBBDP = pdata->rpwsize;
+
+  return(OKAY);
+}
+
+int CVBBDPrecGetNumGfnEvals(void *p_data, int *ngevalsBBDP)
+{
+  CVBBDPrecData pdata;
+
+  if ( p_data == NULL ) {
+    fprintf(stdout, MSG_PDATA_NULL);
+    return(BBDP_NO_PDATA);
+  } 
+
+  pdata = (CVBBDPrecData) p_data;
+
+  *ngevalsBBDP = pdata->nge;
+
+  return(OKAY);
+}
 
 /***************** Preconditioner setup and solve Functions ****************/
  
 
 /* Readability Replacements */
 
-#define f_data    (pdata->f_data)
+#define Nlocal    (pdata->n_local)
 #define mudq      (pdata->mudq)
 #define mldq      (pdata->mldq)
 #define mukeep    (pdata->mukeep)
@@ -268,17 +230,17 @@ void CVBBDFree(CVBBDData pdata)
 
 
 /******************************************************************
- * Function : CVBBDPrecon                                         *
+ * Function : CVBBDPrecSetup                                      *
  *----------------------------------------------------------------*
- * CVBBDPrecon generates and factors a banded block of the        *
+ * CVBBDPrecSetup generates and factors a banded block of the     *
  * preconditioner matrix on each processor, via calls to the      *
  * user-supplied gloc and cfn functions. It uses difference       *
  * quotient approximations to the Jacobian elements.              *
  *                                                                *
- * CVBBDPrecon calculates a new J, if necessary, then calculates  *
+ * CVBBDPrecSetup calculates a new J,if necessary, then calculates*
  * P = I - gamma*J, and does an LU factorization of P.            *
  *                                                                *
- * The parameters of CVBBDPrecon used here are as follows:        *
+ * The parameters of CVBBDPrecSetup used here are as follows:     *
  *                                                                *
  * t       is the current value of the independent variable.      *
  *                                                                *
@@ -305,42 +267,30 @@ void CVBBDFree(CVBBDData pdata)
  *                                                                *
  * gamma   is the scalar appearing in the Newton matrix.          *
  *                                                                *
- * ewt     is the error weight vector.                            *
- *                                                                *
- * h       is a tentative step size in t.                         *
- *                                                                *
- * uround  is the machine unit roundoff.                          *
- *                                                                *
- * nfePtr  is a pointer to the memory location containing the     *
- *           CVODE counter nfe = number of calls to f. Not used.  *
- *                                                                *
- * P_data  is a pointer to user data - the same as the P_data     *
+ * p_data  is a pointer to user data - the same as the P_data     *
  *           parameter passed to CVSpgmr. For CVBBDPrecon, this   *
  *           should be of type CVBBDData.                         *
  *                                                                *
- * vtemp1, vtemp2, and vtemp3 are pointers to memory allocated    *
- *           for vectors of length N which are be used by         *
- *           CVBBDPrecon as temporary storage or work space.      *
+ * tmp1, tmp2, and tmp3 are pointers to memory allocated          *
+ *           for NVectors which are be used by CVBBDPrecSetup     *
+ *           as temporary storage or work space.                  *
  *                                                                *
  *                                                                *
  * Return value:                                                  *
- * The value returned by this CVBBDPrecon function is the int     *
+ * The value returned by this CVBBDPrecSetup function is the int  *
  *   0  if successful,                                            *
  *   1  for a recoverable error (step will be retried).           *
  ******************************************************************/
 
-int CVBBDPrecon(realtype t, N_Vector y, N_Vector fy,
-                booleantype jok, booleantype *jcurPtr, realtype gamma, 
-                N_Vector ewt, realtype h, realtype uround, 
-                long int *nfePtr, void *P_data,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
+                   booleantype jok, booleantype *jcurPtr, 
+                   realtype gamma, void *p_data, 
+                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  integertype Nlocal, ier;
-  CVBBDData pdata;
+  integertype ier;
+  CVBBDPrecData pdata;
 
-  pdata = (CVBBDData)P_data;
-
-  Nlocal = pdata->n_local;
+  pdata = (CVBBDPrecData) p_data;
 
   if (jok) {
     /* If jok = TRUE, use saved copy of J */
@@ -350,8 +300,7 @@ int CVBBDPrecon(realtype t, N_Vector y, N_Vector fy,
     /* Otherwise call CVBBDDQJac for new J value */
     *jcurPtr = TRUE;
     BandZero(savedJ);
-    CVBBDDQJac(Nlocal, mudq, mldq, mukeep, mlkeep, dqrely, gloc, cfn, savedJ,
-               f_data, t, y, ewt, h, uround, vtemp1, vtemp2, vtemp3);
+    CVBBDDQJac(pdata, t, y, tmp1, tmp2, tmp3);
     nge += 1 + MIN(mldq + mudq + 1, Nlocal);
     BandCopy(savedJ, savedP, mukeep, mlkeep);
   }
@@ -370,34 +319,34 @@ int CVBBDPrecon(realtype t, N_Vector y, N_Vector fy,
 
 
 /******************************************************************
- * Function : CVBBDPSol                                           *
+ * Function : CVBBDPrecSolve                                      *
  *----------------------------------------------------------------*
- * CVBBDPSol solves a linear system P z = r, with the band-block- *
- * diagonal preconditioner matrix P generated and factored by     *
- * CVBBDPrecon.                                                   *
+ * CVBBDPrecSolve solves a linear system P z = r, with the        *
+ * band-block-diagonal preconditioner matrix P generated and      *
+ * factored by CVBBDPrecSetup.                                    *
  *                                                                *
- * The parameters of CVBBDPSol used here are as follows:          *
+ * The parameters of CVBBDPrecSolve used here are as follows:     *
  *                                                                *
  * r      is the right-hand side vector of the linear system.     *
  *                                                                *
  * P_data is a pointer to the preconditioner data returned by     *
- *        CVBBDAlloc.                                             *
+ *        CVBBDPrecAlloc.                                         *
  *                                                                *
- * z      is the output vector computed by CVBBDPSol.             *
+ * z      is the output vector computed by CVBBDPrecSolve.        *
  *                                                                *
- * The value returned by the CVBBDPSol function is always 0,      *
+ * The value returned by the CVBBDPrecSolve function is always 0, *
  * indicating success.                                            *
  ******************************************************************/
 
-int CVBBDPSol(realtype t, N_Vector y, N_Vector fy,
-              N_Vector vtemp, realtype gamma, N_Vector ewt,
-              realtype delta, long int *nfePtr, N_Vector r,
-              int lr, void *P_data, N_Vector z)
+int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
+                   N_Vector r, N_Vector z, 
+                   realtype gamma, realtype delta,
+                   int lr, void *p_data, N_Vector tmp)
 {
-  CVBBDData pdata;
+  CVBBDPrecData pdata;
   realtype *zd;
 
-  pdata = (CVBBDData)P_data;
+  pdata = (CVBBDPrecData) p_data;
 
   /* Copy r to z, then do backsolve and return */
   N_VScale(ONE, r, z);
@@ -408,3 +357,86 @@ int CVBBDPSol(realtype t, N_Vector y, N_Vector fy,
 
   return(0);
 }
+
+
+/*************** CVBBDDQJac *****************************************
+
+ This routine generates a banded difference quotient approximation to
+ the local block of the Jacobian of g(t,y).  It assumes that a band 
+ matrix of type BandMat is stored columnwise, and that elements within
+ each column are contiguous.  All matrix elements are generated as
+ difference quotients, by way of calls to the user routine gloc.
+ By virtue of the band structure, the number of these calls is
+ bandwidth + 1, where bandwidth = mldq + mudq + 1.
+ But the band matrix kept has bandwidth = mlkeep + mukeep + 1.
+ This routine also assumes that the local elements of a vector are
+ stored contiguously.
+
+**********************************************************************/
+
+#define ewt    (cv_mem->cv_ewt)
+#define h      (cv_mem->cv_h)
+#define f_data (cv_mem->cv_f_data)
+
+static void CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
+                       N_Vector y, N_Vector gy, 
+                       N_Vector ytemp, N_Vector gtemp)
+{
+  CVodeMem cv_mem;
+  realtype    gnorm, minInc, inc, inc_inv;
+  integertype group, i, j, width, ngroups, i1, i2;
+  realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
+
+  cv_mem = pdata->cv_mem;
+
+  /* Obtain pointers to the data for the y and ewt vectors */
+  y_data     = N_VGetData(y);
+  ewt_data   = N_VGetData(ewt);
+
+  /* Load ytemp with y = predicted solution vector */
+  N_VScale(ONE, y, ytemp);
+  ytemp_data = N_VGetData(ytemp);
+
+  /* Call cfn and gloc to get base value of g(t,y) */
+  cfn (Nlocal, t, y, f_data);
+  gloc(Nlocal, t, ytemp, gy, f_data);
+  gy_data    = N_VGetData(gy);
+
+  /* Set minimum increment based on uround and norm of g */
+  gnorm = N_VWrmsNorm(gy, ewt);
+  minInc = (gnorm != ZERO) ?
+           (MIN_INC_MULT * ABS(h) * uround * Nlocal * gnorm) : ONE;
+
+  /* Set bandwidth and number of column groups for band differencing */
+  width = mldq + mudq + 1;
+  ngroups = MIN(width, Nlocal);
+
+  /* Loop over groups */  
+  for (group=1; group <= ngroups; group++) {
+    
+    /* Increment all y_j in group */
+    for(j=group-1; j < Nlocal; j+=width) {
+      inc = MAX(dqrely*ABS(y_data[j]), minInc/ewt_data[j]);
+      ytemp_data[j] += inc;
+    }
+
+    /* Evaluate g with incremented y */
+    N_VSetData(ytemp_data, ytemp);
+    gloc(Nlocal, t, ytemp, gtemp, f_data);
+    gtemp_data = N_VGetData(gtemp);
+
+    /* Restore ytemp, then form and load difference quotients */
+    for (j=group-1; j < Nlocal; j+=width) {
+      ytemp_data[j] = y_data[j];
+      col_j = BAND_COL(savedJ,j);
+      inc = MAX(dqrely*ABS(y_data[j]), minInc/ewt_data[j]);
+      inc_inv = ONE/inc;
+      i1 = MAX(0, j-mukeep);
+      i2 = MIN(j+mlkeep, Nlocal-1);
+      for (i=i1; i <= i2; i++)
+        BAND_COL_ELEM(col_j,i,j) =
+          inc_inv * (gtemp_data[i] - gy_data[i]);
+    }
+  }
+}
+

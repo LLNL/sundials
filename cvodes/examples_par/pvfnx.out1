@@ -62,12 +62,13 @@
 Final Statistics
 Sensitivity: YES ( SIMULTANEOUS + FULL ERROR CONTROL )
 
-nst     =   787                
+nst     =   787
 
-nfe     =  6865    nfSe  =  1373  
-nni     =  1370    nniS  =     0  
-ncfn    =   123    ncfnS =     0  
-netf    =     1    netfS =     0
+nfe     =  1373
+netf    =     1    nsetups  =     0
+nni     =  1370    ncfn     =   123
 
-nsetups =     0                  
+nfSe    =  2746    nfeS     =  5492
+netfs   =     0    nsetupsS =     0
+nniS    =     0    ncfnS    =     0
 ========================================================

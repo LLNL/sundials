@@ -1,7 +1,7 @@
 /***************************************************************************
  * File        : fcvbbd.h                                                  *
  * Programmers : Alan C. Hindmarsh and Radu Serban @ LLNL                  *
- * Version of  : 30 March 2003                                             *
+ * Version of  : 2 August 2003                                             *
  *-------------------------------------------------------------------------*
  *                                                                         *
  * This is the Fortran interface include file for the BBD preconditioner   *
@@ -29,10 +29,10 @@ problem-defining routines are written in Fortran.
 
 The user-callable functions in this package, with the corresponding
 CVODE and CVBBDPRE functions, are as follows: 
-  FCVBBDIN0 and FCVBBDIN1  interface to CVBBDAlloc and CVSpgmr 
-  FCVREINBBD0 and FCVREINBBD1 interface to CVReInitBBD and CVREInitSpgmr 
+  FCVBBDIN interfaces to CVBBDPrecAlloc and CVSpgmr 
+  FCVREINBBD interfaces to CVBBDPrecReInit
   FCVBBDOPT accesses optional outputs
-  FCVBBDF   interfaces to CVBBDFree
+  FCVBBDF   interfaces to CVBBDPrecFree
 
 In addition to the Fortran right-hand side function CVFUN, the
 user-supplied functions used by this package, are listed below,
@@ -126,11 +126,11 @@ compute the product vector Jv, where the vector v is stored in V, and store
 the product in FJV.  On return, set IER = 0 if CVJTIMES was successful,
 and nonzero otherwise.
 
-(4) Initialization:  FMENVINITP, FCVMALLOC, FCVBBDIN0/FCVBBDIN1.
+(4) Initialization:  FNVSPECINITP, FCVMALLOC, FCVBBDIN.
 
-(4.1) To initialize the parallel machine environment, the user must make 
+(4.1) To initialize the parallel vector specification, the user must make 
 the following call:
-       CALL FMENVINITP (NLOCAL, NGLOBAL, IER)
+       CALL FNVSPECINITP (NLOCAL, NGLOBAL, IER)
 The arguments are:
 NLOCAL  = local size of vectors on this processor
 NGLOBAL = the system size, and the global size of vectors (the sum 
@@ -169,15 +169,11 @@ IER    = return completion flag.  Values are 0 = success, and -1 = failure.
 
 (4.3) To specify the SPGMR linear system solver, and to allocate memory 
 and initialize data associated with the SPGMR method and the CVBBDPRE
-preconditioner, make one of the following calls:
-      CALL FCVBBDIN0 (NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IPRETYPE, IGSTYPE,
-     1                MAXL, DELT, IER)
-if CVJTIMES is not supplied, or
-      CALL FCVBBDIN1 (NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IPRETYPE, IGSTYPE,
-     1                MAXL, DELT, IER)
-if CVJTIMES is supplied.
+preconditioner, make the following call:
+      CALL FCVBBDIN(NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IPRETYPE, IGSTYPE,
+     1              MAXL, DELT, IER)
 
-In either case, the arguments are:
+The arguments are:
 NLOCAL    = local size of vectors on this processor
 MUDQ,MLDQ = upper and lower half-bandwidths to be used in the computation
             of the local Jacobian blocks by difference quotients.
@@ -196,7 +192,13 @@ DELT      = linear convergence tolerance factor; 0.0 indicates default.
 IER       = return completion flag.  Values are 0 = success, -1 = memory
             failure, -2 = illegal input.
 
-(5) Re-initialization: FCVREINIT, FCVREINBBD0 / FCVREINBBD1
+(4.4) To specify whether GMRES should use the supplied CVJTIMES or the 
+internal finite difference approximation, make the call
+       CALL FCVSPGMRSETJAC(FLAG, IER)
+where FLAG=0 for finite differences approxaimtion or
+      FLAG=1 to use the supplied routine CVJTIMES
+
+(5) Re-initialization: FCVREINIT, FCVREINBBD
 If a sequence of problems of the same size is being solved using the SPGMR
 linear solver in combination with the CVBBDPRE preconditioner, then the
 CVODE package can be re-initialized for the second and subsequent problems
@@ -209,18 +211,14 @@ except that NEQ has been omitted from the argument list (being unchanged
 for the new problem).  FCVREINIT performs the same initializations as
 FCVMALLOC, but does no memory allocation, using instead the existing
 internal memory created by the previous FCVMALLOC call.
-     Following the call to FCVREINIT, a call to either FCVBBDIN0 or FCVBBDIN1
-may or may not be needed.  First, if the choice between these two options is
-the same and the input arguments are the same, no FCVBBDIN* call is needed.
-If a different choice of options is desired, or there is a change in input
-arguments other than MU, ML or MAXL, then the user program should call one
-of the routines FCVREINBBD0 or FCVREINBBD1.  This reinitializes the SPGMR
-linear solver, but without reallocating its memory.  The arguments of each
-FCVREINBBD* routine have the same names and meanings as the corresponding
-FCVBBDIN* routine.  Finally, if the value of MU, ML, or MAXL is being
-changed, then a call to FCVBBDIN0 or FCVBBDIN1 must be made, where again a
-different choice of that routine is allowed; in this case the SPGMR memory
-is reallocated.
+Following the call to FCVREINIT, a call to FCVBBDIN may or may not be needed.
+If the input arguments are the same, no FCVBBDIN call is needed.
+If there is a change in input arguments other than MU, ML or MAXL, then 
+the user program should call FCVREINBBD.  This reinitializes the SPGMR
+linear solver, but without reallocating its memory.  The arguments of the
+FCVREINBBD routine have the same names and meanings as FCVBBDIN.  
+Finally, if the value of MU, ML, or MAXL is being changed, then a call to 
+FCVBBDIN must be made; in this case the SPGMR memory is reallocated.
 
 (6) The integrator: FCVODE
 Carrying out the integration is accomplished by making calls as follows:
@@ -257,12 +255,12 @@ T   = value of t at which solution derivative is desired
 K   = derivative order (0 .le. K .le. QU)
 DKY = array containing computed K-th derivative of y on return
 
-(9) Memory freeing: FCVBBDF, FCVFREE, and FMENVFREEP
-  To the free the internal memory created by the calls to FMENVINITP,
+(9) Memory freeing: FCVBBDF, FCVFREE, and FNVSPECFREEP
+  To the free the internal memory created by the calls to FNVSPECINITP,
 FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
       CALL FCVBBDF
       CALL FCVFREE
-      CALL FMENVFREEP
+      CALL FNVSPECFREEP
 
 ****************************************************************************/
 
@@ -272,10 +270,8 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 
 #if (CRAY)
 
-#define FCV_BBDIN0    FCVBBDIN0
-#define FCV_BBDIN1    FCVBBDIN1
-#define FCV_REINBBD0  FCVREINBBD0
-#define FCV_REINBBD1  FCVREINBBD1
+#define FCV_BBDIN     FCVBBDIN
+#define FCV_REINBBD   FCVREINBBD
 #define FCV_BBDOPT    FCVBBDOPT
 #define FCV_BBDF      FCVBBDF
 #define FCV_GLOCFN    CVLOCFN
@@ -283,10 +279,8 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 
 #elif (UNDERSCORE)
 
-#define FCV_BBDIN0    fcvbbdin0_
-#define FCV_BBDIN1    fcvbbdin1_
-#define FCV_REINBBD0  fcvreinbbd0_
-#define FCV_REINBBD1  fcvreinbbd1_
+#define FCV_BBDIN     fcvbbdin_
+#define FCV_REINBBD   fcvreinbbd_
 #define FCV_BBDOPT    fcvbbdopt_
 #define FCV_BBDF      fcvbbdf_
 #define FCV_GLOCFN    cvlocfn_
@@ -294,10 +288,8 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 
 #else
 
-#define FCV_BBDIN0    fcvbbdin0
-#define FCV_BBDIN1    fcvbbdin1
-#define FCV_REINBBD0  fcvreinbbd0
-#define FCV_REINBBD1  fcvreinbbd1
+#define FCV_BBDIN     fcvbbdin
+#define FCV_REINBBD   fcvreinbbd
 #define FCV_BBDOPT    fcvbbdopt
 #define FCV_BBDF      fcvbbdf
 #define FCV_GLOCFN    cvlocfn
@@ -314,7 +306,7 @@ FCVMALLOC, and FCVBBDIN0 / FCVBBDIN1, make the following calls, in this order:
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
-void CVgloc(integertype Nloc, realtype t, realtype *yloc, realtype *gloc,
+void CVgloc(integertype Nloc, realtype t, N_Vector yloc, N_Vector gloc,
             void *f_data);
 
 void CVcfn(integertype Nloc, realtype t, N_Vector y, void *f_data);

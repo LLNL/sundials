@@ -1,8 +1,9 @@
 /*******************************************************************
  *                                                                 *
  * File          : kinspgmr.c                                      *
- * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 31 March 2003                                   *
+ * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 4 August 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -28,9 +29,17 @@
 
 /* Error Messages */
 
-#define KINSPGMR_MAIN  "KINSpgmr-- "
+#define KINSPGMR      "KINSpgmr-- "
 
-#define MSG_MEM_FAIL    KINSPGMR_MAIN "A memory request failed.\n\n"
+#define MSG_KINMEM_NULL KINSPGMR "KINSOL memory is NULL.\n\n"
+
+#define MSG_MEM_FAIL    KINSPGMR "A memory request failed.\n\n"
+
+#define MSG_SETGET_KINMEM_NULL "KINSpgmrSet*/KINSpgmrGet*-- KIN memory is NULL. \n\n"
+
+#define MSG_SETGET_LMEM_NULL   "KINSpgmrSet*/KINSpgmrGet*-- KINSPGMR memory is NULL. \n\n"
+
+#define MSG_KINS_NEG_MAXRS     "KINSpgmrSetMaxRestarts-- maxrs<0 illegal. \n\n"
 
 /* Other Constants */
 
@@ -38,54 +47,9 @@
 #define ONE  RCONST(1.0)
 #define TWO  RCONST(2.0)
 
-/******************************************************************
- *                                                                *           
- * Types : KINSpgmrMemRec, KINSpgmrMem                            *
- *----------------------------------------------------------------*
- * The type KINSpgmrMem is pointer to a KINSpgmrMemRec. This      *
- * structure contains KINSpgmr solver-specific data.              *
- *                                                                *
- ******************************************************************/
-
-typedef struct {
-
-  int  g_maxl;        /* maxl = maximum dimension of the Krylov space   */     
-  int  g_pretype;     /* preconditioning type--for Spgmr call           */
-  int  g_gstype;      /* gram schmidt type --  for Spgmr call           */
-  booleantype g_new_uu;  /* flag that a new uu has been created--
-                            indicating that a call to generate a new
-                            user-supplied Jacobian is required */
-  int g_maxlrst;      /* max number of linear solver restarts allowed;
-                         default is zero  */
-  long int g_nli;     /* nli = total number of linear iterations        */
-  long int g_npe;     /* npe = total number of precondset calls         */
-  long int g_nps;     /* nps = total number of psolve calls             */
-  long int g_ncfl;    /* ncfl = total number of convergence failures    */
-
-  KINSpgmrPrecondFn g_precond; 
-                      /* precondset = user-supplied routine to
-                         compute a preconditioner                       */
-
-  KINSpgmrPrecondSolveFn g_psolve; 
-                      /* psolve = user-supplied routine to 
-                         solve preconditioner linear system             */ 
-
-  KINSpgmruserAtimesFn g_userAtimes;
-                      /* userAtimes = user-supplied routine to optionally
-                         compute the product J v as required by Spgmr   */ 
-
-  void *g_P_data;     /* P_data is a memory block passed to psolve 
-                         and precondset through KINSpgmr                */
-  SpgmrMem g_spgmr_mem;  
-                      /* spgmr_mem is memory used by the        
-                         generic Spgmr solver                           */
-
-} KINSpgmrMemRec, *KINSpgmrMem;
-
-
 /* KINSpgmr linit, lsetup, lsolve, and lfree routines */
 
-static int KINSpgmrInit(KINMem kin_mem, booleantype *setupNonNull);
+static int KINSpgmrInit(KINMem kin_mem);
 
 static int KINSpgmrSetup(KINMem kin_mem);
 
@@ -98,41 +62,58 @@ static int KINSpgmrFree(KINMem kin_mem);
 
 static int KINSpgmrAtimes(void *kinsol_mem, N_Vector v, N_Vector z);
 
-static int KINSpgmrAtimesDQ(void *kinsol_mem, N_Vector v, N_Vector z);
-
 static int KINSpgmrPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lr);
+
+/* Difference quotient approximation for Jac times vector */
+
+static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
+                            N_Vector u, booleantype *new_u, 
+                            void *jac_data);
 
 
 /* Readability Replacements */
 
-#define uround  (kin_mem->kin_uround)
-#define nfe     (kin_mem->kin_nfe)
-#define nni     (kin_mem->kin_nni)
-#define nnilpre (kin_mem->kin_nnilpre)
-#define func    (kin_mem->kin_func)
-#define f_data  (kin_mem->kin_f_data)
-#define msgfp   (kin_mem->kin_msgfp)
-#define printfl (kin_mem->kin_printfl)
-#define iopt    (kin_mem->kin_iopt)
-#define linit   (kin_mem->kin_linit)
-#define lsetup  (kin_mem->kin_lsetup)
-#define lsolve  (kin_mem->kin_lsolve)
-#define lfree   (kin_mem->kin_lfree)
-#define lmem    (kin_mem->kin_lmem)
-#define machenv (kin_mem->kin_machenv)
-#define uu      (kin_mem->kin_uu)
-#define fval    (kin_mem->kin_fval)
-#define uscale  (kin_mem->kin_uscale)
-#define fscale  (kin_mem->kin_fscale)
+#define lrw1         (kin_mem->kin_lrw1)
+#define liw1         (kin_mem->kin_liw1)
+#define uround       (kin_mem->kin_uround)
+#define nfe          (kin_mem->kin_nfe)
+#define nni          (kin_mem->kin_nni)
+#define nnilpre      (kin_mem->kin_nnilpre)
+#define func         (kin_mem->kin_func)
+#define f_data       (kin_mem->kin_f_data)
+#define printfl      (kin_mem->kin_printfl)
+#define linit        (kin_mem->kin_linit)
+#define lsetup       (kin_mem->kin_lsetup)
+#define lsolve       (kin_mem->kin_lsolve)
+#define lfree        (kin_mem->kin_lfree)
+#define lmem         (kin_mem->kin_lmem)
+#define uu           (kin_mem->kin_uu)
+#define fval         (kin_mem->kin_fval)
+#define uscale       (kin_mem->kin_uscale)
+#define fscale       (kin_mem->kin_fscale)
 #define sqrt_relfunc (kin_mem->kin_sqrt_relfunc)
-#define precondflag (kin_mem->kin_precondflag)
+#define precondflag  (kin_mem->kin_precondflag)
+#define precondcurrent (kin_mem->kin_precondcurrent)
+#define eps          (kin_mem->kin_eps)
+#define sJpnorm      (kin_mem->kin_sJpnorm)
+#define sfdotJp      (kin_mem->kin_sfdotJp)
+#define errfp        (kin_mem->kin_errfp)
+#define setupNonNull (kin_mem->kin_setupNonNull)
+#define vtemp1       (kin_mem->kin_vtemp1)
+#define vtemp2       (kin_mem->kin_vtemp2)
+#define nvspec       (kin_mem->kin_nvspec)
 
-#define spgmr_mem (kinspgmr_mem->g_spgmr_mem)
+#define pretype (kinspgmr_mem->g_pretype)
+#define gstype  (kinspgmr_mem->g_gstype)
 #define nli     (kinspgmr_mem->g_nli)
 #define npe     (kinspgmr_mem->g_npe)
 #define nps     (kinspgmr_mem->g_nps)
 #define ncfl    (kinspgmr_mem->g_ncfl)
+#define njtimes (kinspgmr_mem->g_njtimes)
+#define nfeSG   (kinspgmr_mem->g_nfeSG)
+#define new_uu  (kinspgmr_mem->g_new_uu)
 
+#define spgmr_mem (kinspgmr_mem->g_spgmr_mem)
 
 /*************** KINSpgmr *********************************************
 
@@ -161,19 +142,17 @@ static int KINSpgmrPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lr);
 
 **********************************************************************/
 
-int KINSpgmr(void *kinsol_mem, int maxl, int maxlrst, int msbpre,
-             KINSpgmrPrecondFn precondset, KINSpgmrPrecondSolveFn psolve,
-             KINSpgmruserAtimesFn userAtimes, void *P_data)
+int KINSpgmr(void *kinmem, int maxl)
 {
   KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
+  int maxl1;
 
-  kin_mem = (KINMem)kinsol_mem;
-
-  if (kin_mem == NULL){
-     fprintf(msgfp, MSG_MEM_FAIL);
+  if (kinmem == NULL){
+     fprintf(stdout, MSG_KINMEM_NULL);
      return(KIN_MEM_NULL);  
   }
+  kin_mem = (KINMem) kinmem;
 
   /* Set four main function fields in kin_mem */
   linit  = KINSpgmrInit; 
@@ -181,69 +160,415 @@ int KINSpgmr(void *kinsol_mem, int maxl, int maxlrst, int msbpre,
   lsolve = KINSpgmrSolve;
   lfree  = KINSpgmrFree;
 
-
   /* Get memory for KINSpgmrMemRec */
-  lmem = kinspgmr_mem = (KINSpgmrMem) malloc(sizeof(KINSpgmrMemRec));
+  kinspgmr_mem = (KINSpgmrMem) malloc(sizeof(KINSpgmrMemRec));
   if (kinspgmr_mem == NULL){
-     fprintf(msgfp, MSG_MEM_FAIL);
+     fprintf(errfp, MSG_MEM_FAIL);
      return(KINSPGMR_MEM_FAIL);  
   }
 
-  /*  Set Spgmr parameters appropriately for this package. The only choices
-      with repect to preconditioning are NONE or RIGHT. The other options are 
-      not available as they were with CVODE/PVODE, where pretype and gstype 
-      were inputs to CVSpgmr. Here, the choice of NONE or RIGHT is implied 
-      by the  'NULL'ness of the pointer to the psolve routine.              */
+  /* Set SPGMR parameters that were passed in call sequence */
+  maxl1 = (maxl <= 0) ? KINSPGMR_MAXL : maxl;
+  kinspgmr_mem->g_maxl = maxl1;  
 
-  if(psolve == NULL){
-    precondflag = FALSE;
-    kinspgmr_mem->g_pretype = NONE;
-    }
-  else{
-    precondflag = TRUE;
-    kinspgmr_mem->g_pretype = RIGHT;
-    }
-
-  kinspgmr_mem->g_gstype  = MODIFIED_GS;
-
-  /* Set Spgmr parameters that have been passed in call sequence */
-  kinspgmr_mem->g_maxl = (maxl<= 0) ? KINSPGMR_MAXL : maxl;
-  kinspgmr_mem->g_maxlrst = (maxlrst<=0) ? 0 : maxlrst;
-  kinspgmr_mem->g_P_data  = P_data;
-  kinspgmr_mem->g_precond = precondset;
-  kinspgmr_mem->g_psolve  = psolve;
-  kinspgmr_mem->g_userAtimes = userAtimes;
-
-
-  /*  This sets a variable in the main memory block for use in controlling
-      the calling of the preconditioner. It is set to either the default 
-      KINSPGMR_SBPRE or the user supplied value msbpre.                  */
-  kin_mem->kin_msbpre  = (msbpre<=0) ? KINSPGMR_MSBPRE : msbpre ;
+  /* Set default values for the rest of the Spgmr parameters */
+  kinspgmr_mem->g_pretype  = NONE;
+  kinspgmr_mem->g_gstype   = MODIFIED_GS;
+  kinspgmr_mem->g_maxlrst  = 0;
+  kinspgmr_mem->g_P_data   = NULL;
+  kinspgmr_mem->g_pset     = NULL;
+  kinspgmr_mem->g_psolve   = NULL;
+  kinspgmr_mem->g_jtimes   = NULL;
 
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
-  spgmr_mem = SpgmrMalloc(kinspgmr_mem->g_maxl, machenv);
-
+  spgmr_mem = SpgmrMalloc(maxl1, nvspec);
   if (spgmr_mem == NULL) {
-    fprintf(msgfp, MSG_MEM_FAIL);
+    fprintf(errfp, MSG_MEM_FAIL);
     lmem = NULL; /* Set lmem to NULL and free that memory, as a flag to a
                     later inadvertent KINSol call, that SpgmrMalloc failed. */
     free(lmem);
     return(SPGMR_MEM_FAIL);
   }
 
+  /* Attach linear solver memory to KINSOL memory */
+  lmem = kinspgmr_mem;
 
-  return(0);
+  return(SUCCESS);
+}
+
+/**********************************************************************/
+
+int KINSpgmrSetMaxRestarts(void *kinmem, int maxrs)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  /* Check for legal maxrs */
+  if (maxrs < 0) {
+    fprintf(errfp, MSG_KINS_NEG_MAXRS);
+    return(LIN_ILL_INPUT);
+  }
+
+  kinspgmr_mem->g_maxlrst = maxrs;
+
+  return(SUCCESS);
+}
+
+
+/**********************************************************************/
+
+int KINSpgmrSetPrecSetupFn(void *kinmem, KINSpgmrPrecSetupFn pset)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  kinspgmr_mem->g_pset = pset;
+
+  return(SUCCESS);
+}
+
+/**********************************************************************/
+
+int KINSpgmrSetPrecSolveFn(void *kinmem, KINSpgmrPrecSolveFn psolve)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  kinspgmr_mem->g_psolve = psolve;
+
+  return(SUCCESS);
+}
+
+/**********************************************************************/
+
+int KINSpgmrSetPrecData(void *kinmem, void *P_data)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  kinspgmr_mem->g_P_data = P_data;
+
+  return(SUCCESS);
+}
+
+/**********************************************************************/
+
+int KINSpgmrSetJacTimesVecFn(void *kinmem, KINSpgmrJacTimesVecFn jtimes)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  kinspgmr_mem->g_jtimes = jtimes;
+
+  return(SUCCESS);
+}
+
+/**********************************************************************/
+
+int KINSpgmrSetJacData(void *kinmem, void *J_data)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  kinspgmr_mem->g_J_data = J_data;
+
+  return(SUCCESS);
+}
+
+/**********************************************************************/
+
+int KINSpgmrGetIntWorkSpace(void *kinmem, long int *leniwSG)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+  int maxl;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  maxl = kinspgmr_mem->g_maxl;
+  *leniwSG = liw1*(maxl+3);
+
+  return(OKAY);
+}
+
+/**********************************************************************/
+
+int KINSpgmrGetRealWorkSpace(void *kinmem, long int *lenrwSG)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+  int maxl;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  maxl = kinspgmr_mem->g_maxl;
+  *lenrwSG = lrw1*(maxl+3) + maxl*(maxl+4) + 1;
+
+  return(OKAY);
+}
+
+/**********************************************************************/
+
+int KINSpgmrGetNumPrecEvals(void *kinmem, int *npevals)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  *npevals = npe;
+
+  return(OKAY);
+}
+
+/**********************************************************************/
+
+int KINSpgmrGetNumPrecSolves(void *kinmem, int *npsolves)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  *npsolves = nps;
+
+  return(OKAY);
+}
+
+/**********************************************************************/
+
+int KINSpgmrGetNumLinIters(void *kinmem, int *nliters)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  *nliters = nli;
+
+  return(OKAY);
+}
+
+/**********************************************************************/
+
+int KINSpgmrGetNumConvFails(void *kinmem, int *nlcfails)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  *nlcfails = ncfl;
+
+  return(OKAY);
+}
+
+/**********************************************************************/
+
+int KINSpgmrGetNumJtimesEvals(void *kinmem, int *njvevals)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  *njvevals = njtimes;
+
+  return(OKAY);
+}
+
+/**********************************************************************/
+
+int KINSpgmrGetNumFuncEvals(void *kinmem, int *nfevalsSG)
+{
+  KINMem kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    fprintf(stdout, MSG_SETGET_KINMEM_NULL);
+    return(LIN_NO_MEM);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    return(LIN_NO_LMEM);
+  }
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  *nfevalsSG = nfeSG;
+
+  return(OKAY);
 }
 
 
 /* Additional readability Replacements */
-#define pretype    (kinspgmr_mem->g_pretype)
-#define gstype     (kinspgmr_mem->g_gstype)
-#define psolve     (kinspgmr_mem->g_psolve)
-#define precondset (kinspgmr_mem->g_precond)
-#define P_data     (kinspgmr_mem->g_P_data)
-#define userAtimes (kinspgmr_mem->g_userAtimes)
+
 #define maxl       (kinspgmr_mem->g_maxl)
+#define maxlrst    (kinspgmr_mem->g_maxlrst)
+
+#define pset       (kinspgmr_mem->g_pset)
+#define psolve     (kinspgmr_mem->g_psolve)
+#define P_data     (kinspgmr_mem->g_P_data)
+
+#define jtimes     (kinspgmr_mem->g_jtimes)
+#define J_data     (kinspgmr_mem->g_J_data)
 
 /*************** KINSpgmrInit *****************************************
 
@@ -252,39 +577,36 @@ int KINSpgmr(void *kinsol_mem, int maxl, int maxlrst, int msbpre,
 
 **********************************************************************/
 
-static int KINSpgmrInit(KINMem kin_mem, booleantype *setupNonNull)
+static int KINSpgmrInit(KINMem kin_mem)
 {
   KINSpgmrMem kinspgmr_mem;
 
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
 
-  /* Initialize counters, and set workspace lengths */
+  /* Initialize counters */
 
   npe = nli = nps = ncfl = 0;
-    
+  njtimes = nfeSG = 0;
 
-  if (iopt != NULL) {
-    iopt[SPGMR_NPE] = npe;
-    iopt[SPGMR_NLI] = nli;
-    iopt[SPGMR_NPS] = nps;
-    iopt[SPGMR_NCFL] = ncfl;
+  /* Set preconditioner type */
+  if (psolve != NULL) {
+    pretype = RIGHT;
+  } else {
+    pretype = NONE;
   }
+  
+  /* Set setupNonNull to TRUE iff there is preconditioning with setup */
+  setupNonNull = (psolve != NULL) && (pset != NULL);
 
-
-  /* Set setupNonNull to TRUE iff there is preconditioning:       */
-  /* (pretype != NONE) and there is a preconditioning setup phase */
-  /* (precond != NULL)                                            */
-
-  *setupNonNull = ( (kinspgmr_mem->g_pretype  != NONE) && 
-                    (kinspgmr_mem->g_precond  != NULL ) );
+  /* If jtimes is NULL at this time, set it to DQ */
+  if (jtimes == NULL) {
+    jtimes = KINSpgmrDQJtimes;
+    J_data = kin_mem;
+  }
 
   return(LINIT_OK);
 }
-
-#define vtemp1  (kin_mem->kin_vtemp1)
-#define vtemp2  (kin_mem->kin_vtemp2)
-#define precondcurrent (kin_mem->kin_precondcurrent)
 
 /*************** KINSpgmrSetup ****************************************
 
@@ -300,29 +622,17 @@ static int KINSpgmrSetup(KINMem kin_mem)
 
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
-  /* Call precondset routine */
-  ret = precondset(uu, uscale, fval, fscale, vtemp1, vtemp2, func, 
-                   uround, &nfe, P_data);
+  /* Call pset routine */
+  ret = pset(uu, uscale, fval, fscale, P_data, vtemp1, vtemp2); 
 
   if(ret != 0) return(1);
   npe++;
   nnilpre = nni; 
   precondcurrent = TRUE; 
 
-  /* Set npe, and return the same value ret that precondset returned */
-  if (iopt != NULL) iopt[SPGMR_NPE] = npe;
+  /* Return the same value ret that precondset returned */
   return(0);
 }
-
-
-/*   More readability constants defined  */
-
-#define eps            (kin_mem->kin_eps)
-#define ioptExists     (kin_mem->kin_ioptExists)
-#define maxlinrestarts (kinspgmr_mem->g_maxlrst)
-#define sJpnorm        (kin_mem->kin_sJpnorm)
-#define sfdotJp        (kin_mem->kin_sfdotJp)
-
 
 /*************** KINSpgmrSolve ****************************************
 
@@ -353,27 +663,20 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
  
   N_VConst(ZERO, xx);
 
-  kinspgmr_mem->g_new_uu = TRUE;  /* set flag required for user Jacobian rtn */
+  new_uu = TRUE;  /* set flag required for user Jacobian rtn */
 
   /* Call SpgmrSolve  */
   ret = SpgmrSolve(spgmr_mem, kin_mem, xx, bb, pretype, gstype, eps, 
-                   maxlinrestarts, kin_mem, fscale, fscale, KINSpgmrAtimes,
+                   maxlrst, kin_mem, fscale, fscale, KINSpgmrAtimes,
                    KINSpgmrPSolve, res_norm, &nli_inc, &nps_inc);
   /* Increment counters nli, nps, and ncfl 
      (nni is updated in the KINSol main iteration loop) */
   nli += nli_inc;
   nps += nps_inc;
 
-  if (printfl == 3) fprintf(msgfp,"KINSpgmrSolve: nli_inc=%d\n",nli_inc);
+  if (printfl == 3) fprintf(errfp,"KINSpgmrSolve: nli_inc=%d\n",nli_inc);
 
-  if (ioptExists) {
-    iopt[SPGMR_NLI] = nli;
-    iopt[SPGMR_NPS] = nps;
-  }  
-  if (ret != 0) { 
-    ncfl++;
-    if (ioptExists) iopt[SPGMR_NCFL] = ncfl;
-  }
+  if (ret != 0) ncfl++;
 
   /* Compute the terms sJpnorm and sfdotJp for use in the global strategy
      routines and in KINForcingTerm.  Both of these terms are subsequently
@@ -391,7 +694,7 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   N_VProd(bb, fscale, bb);
   sfdotJp = N_VDotProd(fval, bb);
 
-  if (printfl > TWO) fprintf(msgfp,
+  if (printfl > TWO) fprintf(errfp,
      "linear (Krylov step) residual norm=%12.3g  eps=%12.3g\n",*res_norm, eps);
 
   /* Set return value to appropriate values */
@@ -437,77 +740,16 @@ static int KINSpgmrAtimes(void *kinsol_mem, N_Vector v, N_Vector z)
 {
   KINMem   kin_mem;
   KINSpgmrMem kinspgmr_mem;
-  integertype ret;
-  KINSpgmruserAtimesFn patimes;
+  int ret;
 
   kin_mem = (KINMem) kinsol_mem;
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
-  patimes = kinspgmr_mem->g_userAtimes;
+  ret = jtimes(v, z, uu, &new_uu, J_data);
+  njtimes++;
 
-  if(patimes == NULL)
-    ret = KINSpgmrAtimesDQ(kinsol_mem, v,z);
-  else 
-    ret = (*userAtimes)((kin_mem->kin_f_data), v, z, 
-                        &(kinspgmr_mem->g_new_uu),uu);
-  
   return(ret);
 }
-/*************** KINSpgmrAtimesDQ *************************************
-
- This routine generates the matrix-vector product 
-                       z = J * v 
- by using a difference quotient approximation.  The approximation is 
- J * v = [func(uu + sigma*v) - func(uu)]/sigma.  Here sigma is based on
- the dot products (uscale*uu, uscale*v) and (uscale*v, uscale*v),
- the L1Norm(uscale*v), and on sqrt_relfunc (the square root of the
- relative error in the function).  Note that v in the argument list
- has already been both preconditioned and unscaled.
-
-**********************************************************************/
-
-static int KINSpgmrAtimesDQ(void *kinsol_mem, N_Vector v, N_Vector z)
-{
-  realtype sigma, sigma_inv;
-  realtype sutsv, sq1norm, sign, vtv;
-  KINMem   kin_mem;
-  KINSpgmrMem kinspgmr_mem;
-
-  kin_mem = (KINMem) kinsol_mem;
-  kinspgmr_mem = (KINSpgmrMem) lmem;
-
-  /* Scale the vector v , put Du*v into vtemp1. */
-  N_VProd(v, uscale, vtemp1);
-  /*  Scale uu and put into z, used as a temporary. */
-  N_VProd(uu, uscale, z);
-
-  /* Compute dot product (Du*u).(Du*v). */
-  sutsv = N_VDotProd(z, vtemp1);
-
-  /* Compute dot product (Du*v).(Du*v). */
-  vtv = N_VDotProd(vtemp1, vtemp1);
-
-  sq1norm = N_VL1Norm(vtemp1);
-
-  sign = (sutsv >= ZERO) ? ONE : -ONE ;
- 
-  /*  This expression for sigma is from p. 469, Brown and Saad paper. */
-  sigma = sign*sqrt_relfunc*MAX(ABS(sutsv),sq1norm)/vtv; 
-
-  sigma_inv = ONE/sigma;
-
-  /*  Compute the u-prime at which to evaluate the function func. */
-  N_VLinearSum(ONE, uu, sigma, v, vtemp1);
- 
-  /*  Call the system function to calc func(uu+sigma*v).  */
-  func(vtemp1, vtemp2, f_data);    nfe++;
-
-  /*  Finish the computation of the difference quotient. */
-  N_VLinearSum(sigma_inv, vtemp2, -sigma_inv, fval, z);
-
-  return(0);
-}
-
 /*************** KINSpgmrPSolve ***************************************
 
  This routine interfaces between the generic SpgmrSolve routine and
@@ -533,10 +775,70 @@ static int KINSpgmrPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lrdummy)
               z returns with the solution */
   N_VScale(ONE, r, z);
 
-  ret = psolve(uu, uscale, fval, fscale, z, vtemp1, func, uround,
-               &nfe, P_data);
+  ret = psolve(uu, uscale, fval, fscale, z, P_data, vtemp1);
   
   /* This call is counted in nps within the KINSpgmrSolve routine */
 
   return(ret);     
 }
+
+/*************** KINSpgmrDQJtimes *************************************
+
+ This routine generates the matrix-vector product 
+                       z = J * v 
+ by using a difference quotient approximation.  The approximation is 
+ J * v = [func(uu + sigma*v) - func(uu)]/sigma.  Here sigma is based on
+ the dot products (uscale*uu, uscale*v) and (uscale*v, uscale*v),
+ the L1Norm(uscale*v), and on sqrt_relfunc (the square root of the
+ relative error in the function).  Note that v in the argument list
+ has already been both preconditioned and unscaled.
+
+**********************************************************************/
+
+static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
+                            N_Vector u, booleantype *new_u, 
+                            void *jac_data)
+{
+  KINMem   kin_mem;
+  KINSpgmrMem kinspgmr_mem;
+  realtype sigma, sigma_inv;
+  realtype sutsv, sq1norm, sign, vtv;
+
+  /* jac_data is kin_mem */
+
+  kin_mem = (KINMem) jac_data;
+  kinspgmr_mem = (KINSpgmrMem) lmem;
+
+  /* Scale the vector v , put Du*v into vtemp1. */
+  N_VProd(v, uscale, vtemp1);
+  /*  Scale u and put into Jv, used as a temporary. */
+  N_VProd(u, uscale, Jv);
+
+  /* Compute dot product (Du*u).(Du*v). */
+  sutsv = N_VDotProd(Jv, vtemp1);
+
+  /* Compute dot product (Du*v).(Du*v). */
+  vtv = N_VDotProd(vtemp1, vtemp1);
+
+  sq1norm = N_VL1Norm(vtemp1);
+
+  sign = (sutsv >= ZERO) ? ONE : -ONE ;
+ 
+  /*  This expression for sigma is from p. 469, Brown and Saad paper. */
+  sigma = sign*sqrt_relfunc*MAX(ABS(sutsv),sq1norm)/vtv; 
+
+  sigma_inv = ONE/sigma;
+
+  /*  Compute the u-prime at which to evaluate the function func. */
+  N_VLinearSum(ONE, u, sigma, v, vtemp1);
+ 
+  /*  Call the system function to calc func(u+sigma*v).  */
+  func(vtemp1, vtemp2, f_data);    
+  nfeSG++;
+
+  /*  Finish the computation of the difference quotient. */
+  N_VLinearSum(sigma_inv, vtemp2, -sigma_inv, fval, Jv);
+
+  return(0);
+}
+

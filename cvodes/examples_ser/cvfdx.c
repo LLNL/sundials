@@ -3,7 +3,7 @@
  * File       : cvfdx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and Radu Serban      * 
  *              @ LLNL                                                  *
- * Version of : 30 March 2003                                           *
+ * Version of : 11 July 2003                                            *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the coding           *
@@ -55,7 +55,6 @@
                              /* prototypes for N_VNew, N_VFree                    */
 #include "dense.h"           /* definitions of type DenseMat, macro DENSE_ELEM    */
 
-
 #define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
 
@@ -86,8 +85,8 @@ typedef struct {
 /* Private Helper Function */
 
 static void WrongArgs(char *argv[]);
-static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, long int iopt[]);
-static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector u);
+static void PrintFinalStats(void *cvode_mem, booleantype sensi, int sensi_meth, int err_con);
+static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
 
 /* Functions Called by the CVODES Solver */
@@ -106,19 +105,18 @@ static void fS(integertype Ns, realtype t, N_Vector y, N_Vector ydot,
 
 int main(int argc, char *argv[])
 {
-  M_Env machEnv;
-  UserData data;
-  realtype ropt[OPT_SIZE], reltol, t, tout;
-  long int iopt[OPT_SIZE];
-  N_Vector y, abstol;
+  NV_Spec nvSpec;
   void *cvode_mem;
+  UserData data;
+  realtype reltol, t, tout;
+  N_Vector y, abstol;
   int iout, flag;
 
-  realtype pbar[NP], rhomax;
+  realtype pbar[NP];
   integertype is, *plist; 
-  N_Vector *yS;
-  booleantype sensi;
-  int sensi_meth, err_con, ifS;
+  N_Vector *yS=NULL;
+  booleantype sensi=FALSE;
+  int sensi_meth=-1, err_con=-1;
 
   /* Process arguments */
   if (argc < 2)
@@ -154,8 +152,8 @@ int main(int argc, char *argv[])
 
   }
 
-  /* Initialize serial machine environment */
-  machEnv = M_EnvInit_Serial(NEQ);
+  /* Initialize serial vector specification */
+  nvSpec = NV_SpecInit_Serial(NEQ);
 
   /* USER DATA STRUCTURE */
   data = (UserData) malloc(sizeof *data);
@@ -164,8 +162,8 @@ int main(int argc, char *argv[])
   data->p[2] = 3.0e7;
 
   /* INITIAL STATES */
-  y = N_VNew(machEnv);
-  abstol = N_VNew(machEnv);
+  y = N_VNew(nvSpec);
+  abstol = N_VNew(nvSpec);
 
   /* Initialize y */
   Ith(y,1) = Y1;
@@ -180,17 +178,26 @@ int main(int argc, char *argv[])
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
+  /* CVODE_CREATE */
+  cvode_mem = CVodeCreate(BDF, NEWTON);
+  if (cvode_mem == NULL) { printf("CVodeCreate failed.\n"); return(1); }
+
+  flag = CVodeSetFdata(cvode_mem, data);
+  if (flag != SUCCESS) { printf("CVodeSetFdata failed.\n"); return(1); }
+
   /* CVODE_MALLOC */
-  cvode_mem = CVodeMalloc(f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
-                          data, NULL, FALSE, iopt, ropt, machEnv);
-  if (cvode_mem == NULL) { 
-    printf("CVodeMalloc failed.\n"); 
-    return(1); 
-  }
+  flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpec);
+  if (flag != SUCCESS) { printf("CVodeMalloc failed.\n"); return(1); }
 
   /* CVDENSE */
-  flag = CVDense(cvode_mem, NEQ, Jac, data);
+  flag = CVDense(cvode_mem, NEQ);
   if (flag != SUCCESS) { printf("CVDense failed.\n"); return(1); }
+
+  flag = CVDenseSetJacFn(cvode_mem, Jac);
+  if (flag != SUCCESS) { printf("CVDenseSetJacFn failed.\n"); return(1); }
+
+  flag = CVDenseSetJacData(cvode_mem, data);
+  if (flag != SUCCESS) { printf("CVDenseSetJacData failed.\n"); return(1); }
 
   /* SENSITIVITY */
   if(sensi) {
@@ -200,18 +207,17 @@ int main(int argc, char *argv[])
     plist = (integertype *) malloc(NS * sizeof(integertype));
     for(is=0;is<NS;is++) plist[is] = is+1;
 
-    yS = N_VNew_S(NS, machEnv);
+    yS = N_VNew_S(NS, nvSpec);
     for(is=0;is<NS;is++)
       N_VConst(0.0, yS[is]);
 
-    ifS = ONESENS;
-    rhomax = ZERO; /* ignored, since we provide the sensitivity rhs */
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, pbar, plist,
-                           ifS, (void *)fS, err_con, rhomax, yS, NULL, NULL, data);
-    if (flag != SUCCESS) {
-      printf("CVodeSensMalloc failed, flag=%d\n",flag);
-      return(1);
-    }
+    flag = CVodeSetSensRhs1Fn(cvode_mem, fS);
+    flag = CVodeSetSensErrCon(cvode_mem, err_con);
+    flag = CVodeSetSensFdata(cvode_mem, data);
+    flag = CVodeSetSensPbar(cvode_mem, pbar);
+
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, plist, yS);
+    if (flag != SUCCESS) { printf("CVodeSensMalloc failed, flag=%d\n",flag); return(1); }
   }
   
   /* In loop over output points, call CVode, print results, test for error */
@@ -230,13 +236,10 @@ int main(int argc, char *argv[])
       printf("CVode failed, flag=%d.\n", flag); 
       break; 
     }
-    PrintOutput(iopt, ropt, t, y);
+    PrintOutput(cvode_mem, t, y);
     if (sensi) {
-      flag = CVodeSensExtract(cvode_mem, t, yS);
-      if (flag != SUCCESS) { 
-        printf("CVodeSensExtract failed, flag=%d.\n", flag); 
-        break; 
-      }
+      flag = CVodeGetSens(cvode_mem, t, yS);
+      if (flag != OKAY) { printf("CVodeGetSens failed, flag=%d.\n", flag); break; }
       PrintOutputS(yS);
     } 
     printf("-------------------------------------------------");
@@ -244,7 +247,7 @@ int main(int argc, char *argv[])
   }
 
   /* Print final statistics */
-  PrintFinalStats(sensi,sensi_meth,err_con,iopt);
+  PrintFinalStats(cvode_mem, sensi,sensi_meth,err_con);
 
   /* Free memory */
   N_VFree(y);                  /* Free the y and abstol vectors       */
@@ -252,7 +255,7 @@ int main(int argc, char *argv[])
   if(sensi) N_VFree_S(NS, yS); /* Free the yS vectors                 */
   free(data);                  /* Free user data                      */
   CVodeFree(cvode_mem);        /* Free the CVODES problem memory      */
-  M_EnvFree_Serial(machEnv);   /* Free the machine environment memory */
+  NV_SpecFree_Serial(nvSpec);  /* Free the vector specification       */
 
   return(0);
 }
@@ -275,14 +278,18 @@ static void WrongArgs(char *argv[])
 /* ======================================================================= */
 /* Print current t, step count, order, stepsize, and solution  */
 
-static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector u)
+static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
 {
-
-  realtype *udata;
+  int nst, qu;
+  realtype hu, *udata;
   
   udata = NV_DATA_S(u);
 
-  printf("%8.3e %2ld  %8.3e %5ld\n", t,iopt[QU],ropt[HU],iopt[NST]);
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetLastOrder(cvode_mem, &qu);
+  CVodeGetLastStep(cvode_mem, &hu);
+
+  printf("%8.3e %2d  %8.3e %5d\n", t, qu, hu, nst);
   printf("                                Solution       ");
   printf("%12.4e %12.4e %12.4e \n", udata[0], udata[1], udata[2]);
   
@@ -312,9 +319,31 @@ static void PrintOutputS(N_Vector *uS)
 /* ======================================================================= */
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
-                            long int iopt[])
+static void PrintFinalStats(void *cvode_mem, booleantype sensi, int sensi_meth, int err_con)
 {
+  int nst;
+  int nfe, nsetups, nni, ncfn, netf;
+  int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  int njeD, nfeD;
+
+  CVodeGetNumSteps(cvode_mem, &nst);
+  CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  CVodeGetNumErrTestFails(cvode_mem, &netf);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+
+  if (sensi) {
+    CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
+    CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
+    CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
+    CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
+    CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
+    CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
+  }
+
+  CVDenseGetNumJacEvals(cvode_mem, &njeD);
+  CVDenseGetNumRhsEvals(cvode_mem, &nfeD);
 
   printf("\n\n========================================================");
   printf("\nFinal Statistics");
@@ -334,13 +363,19 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con,
   }
 
   printf("\n\n");
-  printf("nst     = %5ld\n\n", iopt[NST]);
-  printf("nfe     = %5ld    nfSe     = %5ld \n",   iopt[NFE],     iopt[NFSE]);
-  printf("nni     = %5ld    nniS     = %5ld \n",   iopt[NNI],     iopt[NNIS]);
-  printf("ncfn    = %5ld    ncfnS    = %5ld \n",   iopt[NCFN],    iopt[NCFNS]);
-  printf("netf    = %5ld    netfS    = %5ld \n",   iopt[NETF],    iopt[NETFS]);
-  printf("nsetups = %5ld    nsetupss = %5ld \n\n", iopt[NSETUPS], iopt[NSETUPSS]);
-  printf("nje     = %5ld\n", iopt[DENSE_NJE]);
+  printf("nst     = %5d\n\n", nst);
+  printf("nfe     = %5d\n",   nfe);
+  printf("netf    = %5d    nsetups  = %5d\n", netf, nsetups);
+  printf("nni     = %5d    ncfn     = %5d\n", nni, ncfn);
+
+  if(sensi) {
+    printf("\n");
+    printf("nfSe    = %5d    nfeS     = %5d\n", nfSe, nfeS);
+    printf("netfs   = %5d    nsetupsS = %5d\n", netfS, nsetupsS);
+    printf("nniS    = %5d    ncfnS    = %5d\n", nniS, ncfnS);
+  }
+  printf("\n");
+  printf("njeD    = %5d    nfeD     = %5d\n", njeD, nfeD);
 
   printf("========================================================\n");
 
