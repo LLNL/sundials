@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2004-10-08 23:42:50 $
+ * $Revision: 1.34 $
+ * $Date: 2004-10-21 19:09:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -954,7 +954,7 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0, 
+int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0, 
                 int itol, realtype *reltol, void *abstol)
 {
   CVodeMem cv_mem;
@@ -1121,7 +1121,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0, 
+int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0, 
                 int itol, realtype *reltol, void *abstol)
 {
   CVodeMem cv_mem;
@@ -1254,7 +1254,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn)
+int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn)
 {
   CVodeMem cv_mem;
   int nrt;

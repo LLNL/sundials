@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-09-29 21:55:36 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-21 19:09:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -30,7 +30,7 @@ void FCV_ROOTFN(realtype *, realtype*, realtype*);
 
 void FCV_ROOTINIT(int *nrtfn, int *ier)
 {
-  *ier = CVodeRootInit(CV_cvodemem, (RootFn) FCVrootfunc, *nrtfn);
+  *ier = CVodeRootInit(CV_cvodemem, (CVRootFn) FCVrootfunc, *nrtfn);
   CV_nrtfn = *nrtfn;
 
   return;

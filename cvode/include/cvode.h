@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-10-11 15:50:40 $
+ * $Revision: 1.24 $
+ * $Date: 2004-10-21 19:09:13 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -109,10 +109,10 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Type : RhsFn                                                   
+ * Type : CVRhsFn                                                   
  * -----------------------------------------------------------------
  * The f function which defines the right hand side of the ODE    
- * system y' = f(t,y) must have type RhsFn.                       
+ * system y' = f(t,y) must have type CVRhsFn.                       
  * f takes as input the independent variable value t, and the     
  * dependent variable vector y.  It stores the result of f(t,y)   
  * in the vector ydot.  The y and ydot arguments are of type      
@@ -122,19 +122,19 @@ extern "C" {
  * parameter set by the user through the CVodeSetFdata routine.   
  * This user-supplied pointer is passed to the user's f function  
  * every time it is called.                                       
- * A RhsFn f does not have a return value.                        
+ * A CVRhsFn f does not have a return value.                        
  * -----------------------------------------------------------------
  */
 
-typedef void (*RhsFn)(realtype t, N_Vector y, 
-                      N_Vector ydot, void *f_data);
+typedef void (*CVRhsFn)(realtype t, N_Vector y, 
+                        N_Vector ydot, void *f_data);
 
 /*
  * -----------------------------------------------------------------
- * Type : RootFn                                                  
+ * Type : CVRootFn                                                  
  * -----------------------------------------------------------------
  * A function g, which defines a set of functions g_i(t,y) whose  
- * roots are sought during the integration, must have type RootFn.
+ * roots are sought during the integration, must have type CVRootFn.
  * The function g takes as input the independent variable value   
  * t, and the dependent variable vector y.  It stores the nrtfn   
  * values g_i(t,y) in the realtype array gout.                    
@@ -142,12 +142,12 @@ typedef void (*RhsFn)(realtype t, N_Vector y,
  * The g_data parameter is the same as that passed by the user    
  * to the CVodeSetGdata routine.  This user-supplied pointer is   
  * passed to the user's g function every time it is called.       
- * A RootFn g does not have a return value.                       
+ * A CVRootFn g does not have a return value.                       
  * -----------------------------------------------------------------
  */
 
-typedef void (*RootFn)(realtype t, N_Vector y, realtype *gout, 
-                       void *g_data);
+typedef void (*CVRootFn)(realtype t, N_Vector y, realtype *gout, 
+                         void *g_data);
 
 
 /* 
@@ -353,7 +353,7 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
  * -----------------------------------------------------------------
  */
 
-int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
+int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
                 int itol, realtype *reltol, void *abstol);
 
 /*
@@ -390,7 +390,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
  * -----------------------------------------------------------------
  */
 
-int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
+int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
                 int itol, realtype *reltol, void *abstol);
 
 /*
@@ -403,7 +403,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
  *                                                                
  * cvode_mem = pointer to CVODE memory returned by CVodeCreate.   
  *                                                                
- * g         = name of user-supplied function, of type RootFn,    
+ * g         = name of user-supplied function, of type CVRootFn,    
  *             defining the functions g_i whose roots are sought. 
  *                                                                
  * nrtfn     = number of functions g_i, an int >= 0.              
@@ -422,7 +422,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
  * -----------------------------------------------------------------
  */
 
-int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn);
+int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn);
 
 /*
  * -----------------------------------------------------------------

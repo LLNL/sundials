@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-07-22 21:20:39 $
+ * $Revision: 1.3 $
+ * $Date: 2004-10-21 19:09:23 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -60,7 +60,7 @@ typedef struct CVodeMemRec {
     Problem Specification Data 
   ----------------------------*/
 
-  RhsFn cv_f;          /* y' = f(t,y(t))              */
+  CVRhsFn cv_f;        /* y' = f(t,y(t))              */
   void *cv_f_data;     /* user pointer passed to f    */
   int cv_lmm;          /* lmm = ADAMS or BDF          */
   int cv_iter;         /* iter = FUNCTIONAL or NEWTON */
@@ -233,7 +233,7 @@ typedef struct CVodeMemRec {
     Rootfinding Data
   ------------------*/
 
-  RootFn cv_gfun;       /* Function g for roots sought                     */
+  CVRootFn cv_gfun;     /* Function g for roots sought                     */
   int cv_nrtfn;         /* number of components of g                       */
   void *cv_g_data;      /* pointer to user data for g                      */
   int *cv_iroots;       /* int array for root information                  */

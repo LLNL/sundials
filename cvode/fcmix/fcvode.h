@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2004-10-12 21:07:09 $
+ * $Revision: 1.32 $
+ * $Date: 2004-10-21 19:09:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -63,7 +63,7 @@
  * 
  * The user-supplied functions, each listed with the corresponding interface
  * function which calls it (and its type within CVODE), are as follows:
- *   FCVFUN    is called by the interface function FCVf of type RhsFn
+ *   FCVFUN    is called by the interface function FCVf of type CVRhsFn
  *   FCVDJAC   is called by the interface fn. FCVDenseJac of type CVDenseJacFn
  *   FCVBJAC   is called by the interface fn. FCVBandJac of type CVBandJacFn
  *   FCVPSOL   is called by the interface fn. FCVPSol of type CVSpgmrPrecSolveFn
