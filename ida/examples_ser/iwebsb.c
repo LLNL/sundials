@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-10-25 19:46:23 $
+ * $Revision: 1.13 $
+ * $Date: 2004-10-25 22:08:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -90,7 +90,6 @@
 #include "ida.h"             /* Main header file                              */
 #include "idaband.h"         /* Use IDABAND linear solver                     */
 #include "nvector_serial.h"  /* Definitions of type N_Vector, macro NV_DATA_S */
-#include "sundialsmath.h"    /* Contains RSqrt routine                        */
 #include "smalldense.h"      /* Contains definitions for denalloc routine     */
 
 /* Problem Constants. */
@@ -152,7 +151,7 @@ static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval,
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintOutput(void *mem, N_Vector c, realtype t, UserData webdata);
+static void PrintOutput(void *mem, N_Vector c, realtype t);
 static void PrintFinalStats(void *mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
@@ -246,7 +245,7 @@ int main()
   printf("    | nst  k      h\n");
   printf("-----------------------------------------------------------\n\n");
   
-  PrintOutput(mem, cc, ZERO, webdata);
+  PrintOutput(mem, cc, ZERO);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
   
@@ -255,7 +254,7 @@ int main()
     retval = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
     if(check_flag(&retval, "IDASolve", 1)) return(retval);
     
-    PrintOutput(mem, cc, tret, webdata);
+    PrintOutput(mem, cc, tret);
     
     if (iout < 3) tout *= TMULT; else tout += TADD;
     
@@ -455,7 +454,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * are printed for the bottom left and top right grid points only.  
  */
 
-static void PrintOutput(void *mem, N_Vector c, realtype t, UserData webdata)
+static void PrintOutput(void *mem, N_Vector c, realtype t)
 {
   int i, kused, flag;
   long int nst;
