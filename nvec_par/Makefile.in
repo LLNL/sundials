@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2004-10-21 21:10:43 $
+# $Revision: 1.8 $
+# $Date: 2004-10-21 21:55:07 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -57,7 +57,7 @@ install: $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) -o $(NVECTOR_PARALLEL_LIB) $(NVECTOR_PARALLEL_LIB_FILES) -rpath $(libdir) $(LIBS) $(MPI_LIBS) -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_PARALLEL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_PARALLEL_INC_DIR)/nvector_parallel.h $(includedir)
-	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) -o $(FNVECTOR_PARALLEL_LIB) $(FNVECTOR_PARALLEL_LIB_FILES) -rpath $(libdir) $(LIBS) $(MPI_LIBS) -avoid-version
+	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) -o $(FNVECTOR_PARALLEL_LIB) $(FNVECTOR_PARALLEL_LIB_FILES) -rpath $(libdir) $(LIBS) $(MPI_LIBS) -static -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FNVECTOR_PARALLEL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_PARALLEL_INC_DIR)/fnvector_parallel.h $(includedir)
 
