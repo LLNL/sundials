@@ -17,19 +17,19 @@ following:
 
 \item VODE: a solver for ODE initial value problems for stiff/nonstiff
 systems, with direct solution of linear systems, by Brown, Byrne, and
-Hindmarsh \cite{VODE}.
+Hindmarsh \cite{BBH:89}.
 
 \item VODPK: a variant of VODE with preconditioned Krylov (GMRES
 iteration) solution of the linear systems in place of direct methods,
-by Brown, Byrne, and Hindmarsh \cite{VODPK}.
+by Brown, Byrne, and Hindmarsh \cite{Byr:92}.
 
 \item NKSOL: a Newton-Krylov (GMRES) solver for nonlinear algebraic
-systems, by Brown and Saad \cite{NKSOL}.
+systems, by Brown and Saad \cite{BrSa:90}.
 
 \item DASPK: a solver for differential-algebraic equation (DAE)
 systems (a variant of DASSL) with both direct and preconditioned
 Krylov solution methods for the linear systems, by Brown, Hindmarsh,
-and Petzold \cite{DASPK}.
+and Petzold \cite{BHP:94}.
 
 \end{itemize}
 
@@ -44,8 +44,8 @@ Starting in 1993, the push to solve large systems in parallel
 motivated work to write or rewrite solvers in C.  The first result of
 that effort was CVODE.  This was a rewrite in ANSI standard C of the
 VODE and VODPK solvers combined, for serial machines
-\cite{CVUdoc,CVODE}.  The next result of this effort was PVODE, a
-parallel extension of CVODE \cite{PVUdoc,PVODE}.
+\cite{CoHi:94,CoHi:96}.  The next result of this effort was PVODE, a
+parallel extension of CVODE \cite{ByHi:98,ByHi:99}.
 
 Similar rewrites of NKSOL and DASPK were then done, using the same
 general design as CVODE and PVODE.  The resulting solvers are called

@@ -24,7 +24,7 @@ with initial values $s_i(t_0) = \partial y_0 / \partial p_i$.
 
 A code called {\bf SensPVODE}, by Lee, Hindmarsh, and Brown, was
 written as an extension of the parallel version of CVODE for this
-situation \cite{SensPV}.  It integrates the extended ODE system for
+situation \cite{LHB:00}.  It integrates the extended ODE system for
 $Y = (y,w_1,\cdots,w_m)$, where $w_i = \bar{p}_i s_i$ and $\bar{p}_i$
 is a scale factor for $p_i$ (it may equal $p_i$ if this is nonzero).
 
@@ -94,7 +94,7 @@ sensitivity vectors $s_i$,
           J = \partial F / \partial u ~. \]
 
 A code called {\bf SensKINSOL}, by Grant, Hindmarsh, and Taylor
-\cite{SensKIN} solves for $u$ (if not done already by KINSOL), then
+\cite{GHT:03} solves for $u$ (if not done already by KINSOL), then
 solves linear systems for the scaled sensitivities $w_i = \bar{p}_i s_i$.
 
 

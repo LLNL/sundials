@@ -3,7 +3,7 @@
 KINSOL solves nonlinear algebraic systems, which we write as
 \[ F(u) = 0,~~ F:R^N \rightarrow R^N, \]
 given an initial guess $u_0$.  It is a rewrite in C of the Fortran
-code NKSOL of Brown and Saad \cite{NKSOL}.
+code NKSOL of Brown and Saad \cite{BrSa:90}.
 
 The method used by KINSOL is Inexact Newton iteration.  The Newton
 correction equation $J \Delta u_n = -F(u_n)$ is solved only
@@ -40,7 +40,7 @@ in which the norms are scaled using $D_S$.  There are three choices
 for the ``forcing term'' $\eta_k$:
 \vspace*{-.19in}
 \begin{itemize}
-\item two choices of Eisenstat and Walker \cite{EiWa96}; the default
+\item two choices of Eisenstat and Walker \cite{EiWa:96}; the default
 is ``Choice 1''.
 \item  $\eta_k$ = constant
 \end{itemize}

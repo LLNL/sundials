@@ -5,7 +5,7 @@ IDA solves the  Initial Value Problem for DAE systems, which we write as
    \mbox{with} ~~ F:R \times R^N \times R^N \rightarrow R^N ~,~~~
    \mbox{given} ~~ y_0, y'_0 ~\mbox{at}~ t = t_0 ~. \]
 IDA is a rewrite in C of the Fortran solver DASPK by Brown, Hindmarsh,
-and Petzold \cite{DASPK}.
+and Petzold \cite{BHP:94}.
 
 The integration method in IDA is variable-order variable-coefficient
 BDF, in fixed-leading-coefficient form.  The method is implicit, and
@@ -40,7 +40,7 @@ values in $y_0, y'_0$ may or may not be consistent with the given
 system $F = 0$.  But for integration to succeed, these vectors must
 be consistent (or very close to consistent).
 
-IDA provides an optional user-callable routine \cite{DASPKIC} which
+IDA provides an optional user-callable routine \cite{BHP:98} which
 solves for consistent initial values, for two classes of problems:
 \vspace*{-.19in}
 \begin{itemize}
