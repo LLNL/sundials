@@ -34,7 +34,7 @@
 
 /* Error messages */
 
-#define IDABBDALLOC      "IDABBDAlloc-- "
+#define IDABBDALLOC      "IBBDPrecAlloc-- "
 #define MSG_IDAMEM_NULL  IDABBDALLOC "IDA Memory is NULL.\n\n"
 #define MSG_WRONG_NVEC   IDABBDALLOC "Incompatible NVECTOR implementation.\n\n"
 #define MSG_PDATA_NULL   "IBBDPrecGet*-- BBDPrecData is NULL. \n\n"
@@ -234,7 +234,7 @@ int IBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
   return(OKAY);
 }
 
-int IBBDPrecGetNumGfnEvals(void *p_data, int *ngevalsBBDP)
+int IBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 {
   IBBDPrecData pdata;
 

@@ -169,8 +169,8 @@ int IDADenseSetJacData(void *ida_mem, void *jdata);
 
 int IDADenseGetIntWorkSpace(void *ida_mem, long int *leniwD);
 int IDADenseGetRealWorkSpace(void *ida_mem, long int *lenrwD);
-int IDADenseGetNumJacEvals(void *ida_mem, int *njevalsD);
-int IDADenseGetNumResEvals(void *ida_mem, int *nrevalsD);
+int IDADenseGetNumJacEvals(void *ida_mem, long int *njevalsD);
+int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsD);
 
 /******************************************************************
  *                                                                *           
@@ -191,9 +191,9 @@ typedef struct {
   
   long int *d_pivots;    /* pivots = pivot array for PJ = LU     */
   
-  int d_nje;             /* nje = no. of calls to jac            */
+  long int d_nje;        /* nje = no. of calls to jac            */
   
-  int d_nreD;            /* nreD = no. of calls to res due to 
+  long int d_nreD;       /* nreD = no. of calls to res due to 
                             difference quotient Jacobian evaluation */
 
   void *d_jdata;         /* jdata is passed to jac               */

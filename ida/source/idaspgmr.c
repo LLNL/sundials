@@ -581,7 +581,7 @@ int IDASpgmrGetRealWorkSpace(void *ida_mem, long int *lenrwSG)
 
 /*************** IDASpgmrGetNumPrecEvals ******************************/
 
-int IDASpgmrGetNumPrecEvals(void *ida_mem, int *npevals)
+int IDASpgmrGetNumPrecEvals(void *ida_mem, long int *npevals)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -606,7 +606,7 @@ int IDASpgmrGetNumPrecEvals(void *ida_mem, int *npevals)
 
 /*************** IDASpgmrGetNumPrecSolves *****************************/
 
-int IDASpgmrGetNumPrecSolves(void *ida_mem, int *npsolves)
+int IDASpgmrGetNumPrecSolves(void *ida_mem, long int *npsolves)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -631,7 +631,7 @@ int IDASpgmrGetNumPrecSolves(void *ida_mem, int *npsolves)
 
 /*************** IDASpgmrGetNumLinIters *******************************/
 
-int IDASpgmrGetNumLinIters(void *ida_mem, int *nliters)
+int IDASpgmrGetNumLinIters(void *ida_mem, long int *nliters)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -656,7 +656,7 @@ int IDASpgmrGetNumLinIters(void *ida_mem, int *nliters)
 
 /*************** IDASpgmrGetNumConvFails ******************************/
 
-int IDASpgmrGetNumConvFails(void *ida_mem, int *nlcfails)
+int IDASpgmrGetNumConvFails(void *ida_mem, long int *nlcfails)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -681,7 +681,7 @@ int IDASpgmrGetNumConvFails(void *ida_mem, int *nlcfails)
 
 /*************** IDASpgmrGetNumJtimesEvals ****************************/
 
-int IDASpgmrGetNumJtimesEvals(void *ida_mem, int *njvevals)
+int IDASpgmrGetNumJtimesEvals(void *ida_mem, long int *njvevals)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -706,7 +706,7 @@ int IDASpgmrGetNumJtimesEvals(void *ida_mem, int *njvevals)
 
 /*************** IDASpgmrGetNumResEvals *******************************/
 
-int IDASpgmrGetNumResEvals(void *ida_mem, int *nrevalsSG)
+int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;

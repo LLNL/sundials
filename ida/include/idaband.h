@@ -182,8 +182,8 @@ int IDABandSetJacData(void *ida_mem, void *jdata);
 
 int IDABandGetIntWorkSpace(void *ida_mem, long int *leniwB);
 int IDABandGetRealWorkSpace(void *ida_mem, long int *lenrwB);
-int IDABandGetNumJacEvals(void *ida_mem, int *njevalsB);
-int IDABandGetNumResEvals(void *ida_mem, int *nrevalsB);
+int IDABandGetNumJacEvals(void *ida_mem, long int *njevalsB);
+int IDABandGetNumResEvals(void *ida_mem, long int *nrevalsB);
 
 /******************************************************************
  *                                                                *           
@@ -211,9 +211,9 @@ typedef struct {
   
   long int *b_pivots;       /* pivots = pivot array for PJ = LU             */
   
-  int b_nje;                /* nje = no. of calls to jac                    */
+  long int b_nje;           /* nje = no. of calls to jac                    */
   
-  int b_nreB;               /* nreB = no. of calls to res due to 
+  long int b_nreB;          /* nreB = no. of calls to res due to 
                                difference quotient Jacobian evaluation      */
 
   void *b_jdata;            /* jdata = data structure required by jac.      */

@@ -290,7 +290,7 @@ int IDADenseGetRealWorkSpace(void *ida_mem, long int *lenrwD)
 
 /*************** IDADenseGetNumJacEvals *******************************/
 
-int IDADenseGetNumJacEvals(void *ida_mem, int *njevalsD)
+int IDADenseGetNumJacEvals(void *ida_mem, long int *njevalsD)
 {
   IDAMem IDA_mem;
   IDADenseMem idadense_mem;
@@ -315,7 +315,7 @@ int IDADenseGetNumJacEvals(void *ida_mem, int *njevalsD)
 
 /*************** IDADenseGetNumResEvals *******************************/
 
-int IDADenseGetNumResEvals(void *ida_mem, int *nrevalsD)
+int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsD)
 {
   IDAMem IDA_mem;
   IDADenseMem idadense_mem;

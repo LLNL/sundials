@@ -599,7 +599,7 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetMaxNumSteps(void *ida_mem, int mxsteps)
+int IDASetMaxNumSteps(void *ida_mem, long int mxsteps)
 {
   IDAMem IDA_mem;
 
@@ -1503,7 +1503,8 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
-  int nstloc, sflag, istate, ier;
+  long int nstloc;
+  int sflag, istate, ier;
   realtype tdist, troundoff, ypnorm, rh, nrm;
   booleantype istop, ewtsetOK;
   IDAMem IDA_mem;
@@ -1794,7 +1795,7 @@ int IDAGetRealWorkSpace(void *ida_mem, long int *lenrw)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumSteps(void *ida_mem, int *nsteps)
+int IDAGetNumSteps(void *ida_mem, long int *nsteps)
 {
   IDAMem IDA_mem;
 
@@ -1812,7 +1813,7 @@ int IDAGetNumSteps(void *ida_mem, int *nsteps)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumResEvals(void *ida_mem, int *nrevals)
+int IDAGetNumResEvals(void *ida_mem, long int *nrevals)
 {
   IDAMem IDA_mem;
 
@@ -1830,7 +1831,7 @@ int IDAGetNumResEvals(void *ida_mem, int *nrevals)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumLinSolvSetups(void *ida_mem, int *nlinsetups)
+int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups)
 {
   IDAMem IDA_mem;
 
@@ -1848,7 +1849,7 @@ int IDAGetNumLinSolvSetups(void *ida_mem, int *nlinsetups)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumErrTestFails(void *ida_mem, int *netfails)
+int IDAGetNumErrTestFails(void *ida_mem, long int *netfails)
 {
   IDAMem IDA_mem;
 
@@ -1866,7 +1867,7 @@ int IDAGetNumErrTestFails(void *ida_mem, int *netfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumBacktrackOps(void *ida_mem, int *nbacktracks)
+int IDAGetNumBacktrackOps(void *ida_mem, long int *nbacktracks)
 {
   IDAMem IDA_mem;
 
@@ -2028,7 +2029,7 @@ int IDAGetErrWeights(void *ida_mem, N_Vector *eweight)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetWorkSpace(void *ida_mem,long int *leniw, long int *lenrw)
+int IDAGetWorkSpace(void *ida_mem, long int *leniw, long int *lenrw)
 {
   IDAMem IDA_mem;
 
@@ -2047,8 +2048,8 @@ int IDAGetWorkSpace(void *ida_mem,long int *leniw, long int *lenrw)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetIntegratorStats(void *ida_mem, int *nsteps, int *nrevals, 
-                          int *nlinsetups, int *netfails,
+int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals, 
+                          long int *nlinsetups, long int *netfails,
                           int *klast, int *kcur, realtype *hlast, 
                           realtype *hcur, realtype *tcur)
 {
@@ -2076,7 +2077,7 @@ int IDAGetIntegratorStats(void *ida_mem, int *nsteps, int *nrevals,
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumNonlinSolvIters(void *ida_mem, int *nniters)
+int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 {
   IDAMem IDA_mem;
 
@@ -2094,7 +2095,7 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, int *nniters)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumNonlinSolvConvFails(void *ida_mem, int *nncfails)
+int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
 {
   IDAMem IDA_mem;
 
@@ -2112,7 +2113,7 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, int *nncfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNonlinSolvStats(void *ida_mem, int *nniters, int *nncfails)
+int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 {
   IDAMem IDA_mem;
 
@@ -3127,10 +3128,10 @@ static int IDAStep(IDAMem IDA_mem)
     nflag = IDAnls(IDA_mem);
 
     if(nflag == SUCCESS) nflag=IDATestError(IDA_mem, &ck, &est,
-                                             &terk, &terkm1, &erkm1);
+                                            &terk, &terkm1, &erkm1);
 
     if(nflag != SUCCESS) kflag=IDAHandleNFlag(IDA_mem, nflag, saved_t, 
-                                                &ncf, &nef, &est);
+                                              &ncf, &nef, &est);
     if (kflag == PREDICT_AGAIN) continue;
     else if(kflag == SUCCESS) break;
     else return(kflag);
@@ -3450,7 +3451,7 @@ static int IDANewtonIter(IDAMem IDA_mem)
 ******************************************************************/
 
 static int IDATestError(IDAMem IDA_mem, realtype *ck, realtype *est,
-                         realtype *terk, realtype *terkm1, realtype *erkm1)
+                        realtype *terk, realtype *terkm1, realtype *erkm1)
 {
   int retval;
   realtype enorm;

@@ -189,7 +189,7 @@ typedef struct {
   /* available for optional output: */
   long int rpwsize;
   long int ipwsize;
-  int nge;
+  long int nge;
 
   /* Pointer to ida_mem */
   IDAMem IDA_mem;
@@ -319,7 +319,7 @@ void IBBDPrecFree(void *p_data);
 
 int IBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP);
 int IBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP);
-int IBBDPrecGetNumGfnEvals(void *p_data, int *ngevalsBBDP);
+int IBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 
 /* Return values for IBBDPrecGet* functions */
 /* OKAY = 0 */
