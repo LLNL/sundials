@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-10-18 23:19:56 $
+ * $Revision: 1.17 $
+ * $Date: 2004-10-18 23:49:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Serial(y);                    /* Free y vector */
   N_VDestroy_Serial(abstol);               /* Free abstol vector */
   if (sensi) {
-    N_VDestroyVectorArray_serial(yS, NS);  /* Free yS vector */
+    N_VDestroyVectorArray_Serial(yS, NS);  /* Free yS vector */
     free(plist);                           /* Free plist */
   }
   free(data);                              /* Free user data */
