@@ -58,7 +58,11 @@ preconditioned GMRES, a Krylov subpsace method.  For the latter, two
 preconditioner modules are also included, one for use on serial
 computers, and one for parallel.  All of these are virtually identical
 to the corresponding modules for CVODE, which are described in detail
-in ~\cite{HBGLSSW:04}.
+in ~\cite{HBGLSSW:04}.  In addition, the user of CVODES may supply
+his/her own linear solver module, following specifications given in
+the user documentation.  Thus an existing linear system solver can be
+incorporated by providing short interface routines between CVODES
+and the linear system solver.
 
 All state information used by CVODES to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
