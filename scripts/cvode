@@ -37,9 +37,12 @@ tar uf $tarfile $distrobase/cvode/fcmix/fcvpsol.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvjtimes.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvband.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvdense.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvbp.h
+tar uf $tarfile $distrobase/cvode/fcmix/fcvbp.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvbbd.h
 tar uf $tarfile $distrobase/cvode/fcmix/fcvbbd.c
 
+tar uf $tarfile $distrobase/cvode/examples_ser/README
 tar uf $tarfile $distrobase/cvode/examples_ser/Makefile.in
 tar uf $tarfile $distrobase/cvode/examples_ser/cvdx.c
 tar uf $tarfile $distrobase/cvode/examples_ser/cvdx.out
@@ -54,6 +57,7 @@ tar uf $tarfile $distrobase/cvode/examples_ser/cvdemd.out
 tar uf $tarfile $distrobase/cvode/examples_ser/cvdemk.c
 tar uf $tarfile $distrobase/cvode/examples_ser/cvdemk.out
 
+tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/README
 tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/Makefile.in
 tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvdensef.f
 tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvdensef.out
@@ -64,6 +68,7 @@ tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkryf.out
 
 if [ $par = "T" ]
 then
+    tar uf $tarfile $distrobase/cvode/examples_par/README
     tar uf $tarfile $distrobase/cvode/examples_par/Makefile.in
     tar uf $tarfile $distrobase/cvode/examples_par/pvnx.c
     tar uf $tarfile $distrobase/cvode/examples_par/pvnx.out
@@ -72,6 +77,7 @@ then
     tar uf $tarfile $distrobase/cvode/examples_par/pvkxb.c
     tar uf $tarfile $distrobase/cvode/examples_par/pvkxb.out
 
+    tar uf $tarfile $distrobase/cvode/fcmix/examples_par/README
     tar uf $tarfile $distrobase/cvode/fcmix/examples_par/Makefile.in
     tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagnf.f
     tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagnf.out

@@ -14,24 +14,26 @@ tar uf $tarfile $distrobase/cvodes/doc/cvsreadme
 
 tar uf $tarfile $distrobase/cvodes/include/cvodes.h
 tar uf $tarfile $distrobase/cvodes/include/cvodea.h
-tar uf $tarfile $distrobase/cvodes/include/cvsdense.h
-tar uf $tarfile $distrobase/cvodes/include/cvsband.h
-tar uf $tarfile $distrobase/cvodes/include/cvsdiag.h
-tar uf $tarfile $distrobase/cvodes/include/cvsspgmr.h
-tar uf $tarfile $distrobase/cvodes/include/cvsbandpre.h
-tar uf $tarfile $distrobase/cvodes/include/cvsbbdpre.h
+tar uf $tarfile $distrobase/cvodes/include/cvdense.h
+tar uf $tarfile $distrobase/cvodes/include/cvband.h
+tar uf $tarfile $distrobase/cvodes/include/cvdiag.h
+tar uf $tarfile $distrobase/cvodes/include/cvspgmr.h
+tar uf $tarfile $distrobase/cvodes/include/cvbandpre.h
+tar uf $tarfile $distrobase/cvodes/include/cvbbdpre.h
 
 tar uf $tarfile $distrobase/cvodes/source/Makefile.in
 tar uf $tarfile $distrobase/cvodes/source/cvodes.c
 tar uf $tarfile $distrobase/cvodes/source/cvodea.c
-tar uf $tarfile $distrobase/cvodes/source/cvsdense.c
-tar uf $tarfile $distrobase/cvodes/source/cvsband.c
-tar uf $tarfile $distrobase/cvodes/source/cvsdiag.c
-tar uf $tarfile $distrobase/cvodes/source/cvsspgmr.c
-tar uf $tarfile $distrobase/cvodes/source/cvsbandpre.c
-tar uf $tarfile $distrobase/cvodes/source/cvsbbdpre.c
+tar uf $tarfile $distrobase/cvodes/source/cvdense.c
+tar uf $tarfile $distrobase/cvodes/source/cvband.c
+tar uf $tarfile $distrobase/cvodes/source/cvdiag.c
+tar uf $tarfile $distrobase/cvodes/source/cvspgmr.c
+tar uf $tarfile $distrobase/cvodes/source/cvbandpre.c
+tar uf $tarfile $distrobase/cvodes/source/cvbbdpre.c
 
+tar uf $tarfile $distrobase/cvodes/examples_ser/README
 tar uf $tarfile $distrobase/cvodes/examples_ser/Makefile.in
+
 tar uf $tarfile $distrobase/cvodes/examples_ser/cvdx.c
 tar uf $tarfile $distrobase/cvodes/examples_ser/cvdx.out
 tar uf $tarfile $distrobase/cvodes/examples_ser/cvbx.c
@@ -67,7 +69,9 @@ tar uf $tarfile $distrobase/cvodes/examples_ser/cvakxb.out
 
 if [ $par = "T" ]
 then
+    tar uf $tarfile $distrobase/cvodes/examples_par/README
     tar uf $tarfile $distrobase/cvodes/examples_par/Makefile.in
+
     tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.c
     tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.out
     tar uf $tarfile $distrobase/cvodes/examples_par/pvkx.c

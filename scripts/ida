@@ -25,6 +25,7 @@ tar uf $tarfile $distrobase/ida/source/idaband.c
 tar uf $tarfile $distrobase/ida/source/idaspgmr.c
 tar uf $tarfile $distrobase/ida/source/idabbdpre.c
 
+tar uf $tarfile $distrobase/ida/examples_ser/README
 tar uf $tarfile $distrobase/ida/examples_ser/Makefile.in
 tar uf $tarfile $distrobase/ida/examples_ser/irobx.c
 tar uf $tarfile $distrobase/ida/examples_ser/irobx.out
@@ -37,6 +38,7 @@ tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.out
 
 if [ $par = "T" ]
 then
+    tar uf $tarfile $distrobase/ida/examples_par/README
     tar uf $tarfile $distrobase/ida/examples_par/Makefile.in
     tar uf $tarfile $distrobase/ida/examples_par/iheatpk.c
     tar uf $tarfile $distrobase/ida/examples_par/iheatpk.out

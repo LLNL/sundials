@@ -41,15 +41,19 @@ function create_file
     what=$1
     par=$2
 
+    cd ..
+
     if [ $par = "F" ];   then
+        autoconf -f -o configure configure-rel-serial.ac
         tail="_ser.tar"
     else
+        autoconf -f -o configure configure-rel-full.ac
         tail=".tar"
     fi
 
     tarfile=$distrodir$what$tail
 
-    cd ../..
+    cd ..
 
     echo "Generate $distrobase distribution tar-file $tarfile"
 
