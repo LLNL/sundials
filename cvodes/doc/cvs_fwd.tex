@@ -882,7 +882,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 %%
 \ucfunction{CVodeGetNumSensRhsEvals}
 {
-  flag = CVodeGetNumSensRhsEvals(cvode\_mem, nfSevals);
+  flag = CVodeGetNumSensRhsEvals(cvode\_mem, \&nfSevals);
 }
 {
   The function \ID{CVodeGetNumSensRhsEvals} returns the number of calls to the sensitivity
@@ -892,14 +892,14 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nfSevals] (\id{long int *})
+  \item[nfSevals] (\id{long int})
     number of calls to the sensitivity right-hand side function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -919,7 +919,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 %%
 \ucfunction{CVodeGetNumRhsEvalsSens}
 {
-  flag = CVodeGetNumRhsEvalsSens(cvode\_mem, nfevalsS);
+  flag = CVodeGetNumRhsEvalsSens(cvode\_mem, \&nfevalsS);
 }
 {
   The function \ID{CVodeGetNumRhsEvalsSEns} returns the number of calls to the
@@ -930,14 +930,14 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nfevalsS] (\id{long int *})
+  \item[nfevalsS] (\id{long int})
     number of calls to the user right-hand side function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -953,7 +953,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 %%
 \ucfunction{CVodeGetNumSensErrTestFails}
 {
-  flag = CVodeGetNumSensErrTestFails(cvode\_mem, nSetfails);
+  flag = CVodeGetNumSensErrTestFails(cvode\_mem, \&nSetfails);
 }
 {
   The function \ID{CVodeGetNumSensErrTestFails} returns the number of local
@@ -963,14 +963,14 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nSetfails] (\id{long int *})
+  \item[nSetfails] (\id{long int})
     number of error test failures.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -988,7 +988,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 %%
 \ucfunction{CVodeGetNumSensLinSolvSetups}
 {
-  flag = CVodeGetNumSensLinSolvSetups(cvode\_mem, nlinsetupsS);
+  flag = CVodeGetNumSensLinSolvSetups(cvode\_mem, \&nlinsetupsS);
 }
 {
   The function \ID{CVodeGetNumSensLinSolvSetups} returns the number of calls
@@ -998,14 +998,14 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nlinsetupsS] (\id{long int *})
+  \item[nlinsetupsS] (\id{long int})
     number of calls to the linear solver setup function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1024,8 +1024,8 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 \ucfunction{CVodeGetSensStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
-    flag = CVodeGetSensStats(&cvode\_mem, nfSevals, nfevalsS, \\
-                             &nSetfails, nlinsetupsS);
+    flag = CVodeGetSensStats(&cvode\_mem, \&nfSevals, \&nfevalsS, \\
+                             &\&nSetfails, \&nlinsetupsS);
   \end{tabular}
 }
 {
@@ -1036,20 +1036,20 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nfSevals] (\id{long int *})
+  \item[nfSevals] (\id{long int})
     number of calls to the sensitivity right-hand side function.
-  \item[nfevalsS] (\id{long int *})
+  \item[nfevalsS] (\id{long int})
     number of calls to the user right-hand side function.
-  \item[nSetfails] (\id{long int *})
+  \item[nSetfails] (\id{long int})
     number of error test failures.
-  \item[nlinsetupsS] (\id{long int *})
+  \item[nlinsetupsS] (\id{long int})
     number of calls to the linear solver setup function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1062,7 +1062,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 %%
 \ucfunction{CVodeGetSensErrWeights}
 {
-  flag = CVodeGetSensErrWeights(cvode\_mem, eSweight);
+  flag = CVodeGetSensErrWeights(cvode\_mem, \&eSweight);
 }
 {
   The function \ID{CVodeGetSensErrWeights} returns the sensitivity error weights at the
@@ -1073,14 +1073,14 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[eSweight] (\id{N\_Vector\_S *})
+  \item[eSweight] (\id{N\_Vector\_S})
     pointer to the array of error weight vectors.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1096,7 +1096,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 %%
 \ucfunction{CVodeGetNumSensNonlinSolvIters}
 {
-  flag = CVodeGetNumSensNonlinSolvIters(cvode\_mem, nSniters);
+  flag = CVodeGetNumSensNonlinSolvIters(cvode\_mem, \&nSniters);
 }
 {
   The function \ID{CVodeGetNumSensNonlinSolvIters} returns the
@@ -1107,14 +1107,14 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nSniters] (\id{long int *})
+  \item[nSniters] (\id{long int})
     number of nonlinear iterations performed.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1136,7 +1136,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 %%
 \ucfunction{CVodeGetNumSensNonlinSolvConvFails}
 {
-  flag = CVodeGetNumSensNonlinSolvConvFails(cvode\_mem, nSncfails);
+  flag = CVodeGetNumSensNonlinSolvConvFails(cvode\_mem, \&nSncfails);
 }
 {
   The function \ID{CVodeGetNumSensNonlinSolvConvFails} returns the
@@ -1147,14 +1147,14 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nSncfails] (\id{long int *})
+  \item[nSncfails] (\id{long int})
     number of nonlinear convergence failures.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1176,7 +1176,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 %%
 \ucfunction{CVodeGetSensNonlinSolvStats}
 {
-  flag = CVodeGetSensNonlinSolvStats(cvode\_mem, nSniters, nSncfails);
+  flag = CVodeGetSensNonlinSolvStats(cvode\_mem, \&nSniters, \&nSncfails);
 }
 {
   The function \ID{CVodeGetSensNonlinSolvStats} returns the sensitivity-related
@@ -1186,16 +1186,16 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[nSniters] (\id{long int *})
+  \item[nSniters] (\id{long int})
     number of nonlinear iterations performed.
-  \item[nSncfails] (\id{long int *})
+  \item[nSncfails] (\id{long int})
     number of nonlinear convergence failures.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1227,7 +1227,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1262,7 +1262,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1302,7 +1302,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SENS]
-  \item[OKAY] 
+  \item[\Id{OKAY}] 
     The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
