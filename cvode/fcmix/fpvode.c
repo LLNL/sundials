@@ -1,5 +1,5 @@
 /* File fpvode.c:  Fortran/C and C/Fortran interface routines for PVODE
-   Version of 11 January 2002 */
+   Version of 1 March 2002 */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -142,6 +142,26 @@ void FCV_SPGMR00 (int *gstype, int *maxl, real *delt, int *ier)
      NULL        is the pointer to J_data                             */
 
   *ier = CVSpgmr (CV_cvodemem, 0, *gstype, *maxl, *delt, NULL, NULL,
+                  NULL, NULL, NULL);
+}
+
+/***************************************************************************/
+
+void FCV_REINSPGMR00 (int *gstype, int *maxl, real *delt, int *ier)
+{
+  /* Call CVReInitSpgmr to specify the SPGMR linear solver:
+     CV_cvodemem is the pointer to the CVODE memory block
+     0           is the preconditioner type (none)
+     *gstype     is the Gram-Schmidt process type
+     *maxl       is the maximum Krylov dimension
+     *delt       is the linear convergence tolerance factor
+     NULL        is a pointer to the preconditioner setup routine
+     NULL        is a pointer to the preconditioner solve routine
+     NULL        is the pointer to P_data
+     NULL        is a pointer to the Jtimes routine
+     NULL        is the pointer to J_data                             */
+
+  *ier = CVReInitSpgmr (CV_cvodemem, 0, *gstype, *maxl, *delt, NULL, NULL,
                   NULL, NULL, NULL);
 }
 

@@ -1,5 +1,5 @@
 /* File fpvode.h: Header file for the FPVODE Interface Package
-   Version of 11 January 2002 */
+   Version of 1 March 2002 */
 
 #ifndef _fpvode_h
 #define _fpvode_h
@@ -20,7 +20,9 @@ are as follows:
   FPVMALLOC  interfaces to CVodeMalloc
   FPVREINIT  interfaces to CVReInit
   FCVDIAG    interfaces to CVDiag
-  FCVSPGMR00, FCVSPGMR01, FCVSPGMR10, FCVSPGMR11, FCVSPGMR20, and FCVSPGMR21
+  FCVSPGMR00, FCVSPGMR01, FCVSPGMR10, FCVSPGMR11, FCVSPGMR20, FCVSPGMR21,
+    FCVREINSPGMR00, FCVREINSPGMR01, FCVREINSPGMR10, FCVREINSPGMR11,
+    FCVREINSPGMR20, FCVREINSPGMR21,
              interface to CVSpgmr for the various options
   FCVODE     interfaces to CVode
   FCVDKY     interfaces to CVodeDky
@@ -134,8 +136,9 @@ The arguments have the same names and meanings as those of FPVMALLOC,
 except that NEQ has been omitted from the argument list (being unchanged
 for the new problem).  FPVREINIT performs the same initializations as
 FPVMALLOC, but does no memory allocation, using instead the existing
-internal memory created by the previous FPVMALLOC call.  However, the 
-call to specify the linear system solution method must still be made.
+internal memory created by the previous FPVMALLOC call.  The call to
+specify the linear system solution method may or may not be needed;
+see paragraph (4.2) below.
 
 (4) Specification of linear system solution method.
 In the case of a stiff system, the implicit BDF method involves the solution
@@ -212,6 +215,20 @@ occurred.
 LRW, and LIW, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
 manual for descriptions.)
 
+     If a sequence of problems is being solved using the SPGMR linear solver,
+then following the call to FPVREINIT, a call to the FCVSPGMR* routine may or
+may not be needed.  First, if the choice among the six SPGMR options is the
+same and the input arguments are the same, no FCVSPGMR* call is needed.
+If a different choice of options is desired, or there is a change in input
+arguments other than MAXL, then the user program should call one of the
+routines FCVREINSPGMR00, FCVREINSPGMR01, FCVREINSPGMR10, FCVREINSPGMR11,
+FCVREINSPGMR20, or FCVREINSPGMR21.  In this case, the FCVREINSPGMR routine
+reinitializes the SPGMR linear solver, but without reallocating its memory.
+The arguments of each FCVREINSPGMR routine have the same names and meanings
+as the corresponding FCVSPGMR routine.  Finally, if the value of MAXL is
+being changed, then a call to one of the six FCVSPGMR* routines must be made,
+where again a different choice of that routine is allowed.  
+
 (5) The integrator: FCVODE
 Carrying out the integration is accomplished by making calls as follows:
       CALL FCVODE (TOUT, T, Y, ITASK, IER)
@@ -258,6 +275,12 @@ FPVMALLOC, make the following calls, in this order:
 #define FCV_SPGMR01 FCVSPGMR01
 #define FCV_SPGMR11 FCVSPGMR11
 #define FCV_SPGMR21 FCVSPGMR21
+#define FCV_REINSPGMR00 FCVREINSPGMR00
+#define FCV_REINSPGMR10 FCVREINSPGMR10
+#define FCV_REINSPGMR20 FCVREINSPGMR20
+#define FCV_REINSPGMR01 FCVREINSPGMR01
+#define FCV_REINSPGMR11 FCVREINSPGMR11
+#define FCV_REINSPGMR21 FCVREINSPGMR21
 #define FCV_CVODE   FCVODE
 #define FCV_DKY     FCVDKY
 #define FCV_FREE    FCVFREE
@@ -279,6 +302,12 @@ FPVMALLOC, make the following calls, in this order:
 #define FCV_SPGMR01 fcvspgmr01_
 #define FCV_SPGMR11 fcvspgmr11_
 #define FCV_SPGMR21 fcvspgmr21_
+#define FCV_REINSPGMR00 fcvreinspgmr00_
+#define FCV_REINSPGMR10 fcvreinspgmr10_
+#define FCV_REINSPGMR20 fcvreinspgmr20_
+#define FCV_REINSPGMR01 fcvreinspgmr01_
+#define FCV_REINSPGMR11 fcvreinspgmr11_
+#define FCV_REINSPGMR21 fcvreinspgmr21_
 #define FCV_CVODE   fcvode_
 #define FCV_DKY     fcvdky_
 #define FCV_FREE    fcvfree_
@@ -300,6 +329,12 @@ FPVMALLOC, make the following calls, in this order:
 #define FCV_SPGMR01 fcvspgmr01
 #define FCV_SPGMR11 fcvspgmr11
 #define FCV_SPGMR21 fcvspgmr21
+#define FCV_REINSPGMR00 fcvreinspgmr00
+#define FCV_REINSPGMR10 fcvreinspgmr10 
+#define FCV_REINSPGMR20 fcvreinspgmr20 
+#define FCV_REINSPGMR01 fcvreinspgmr01 
+#define FCV_REINSPGMR11 fcvreinspgmr11 
+#define FCV_REINSPGMR21 fcvreinspgmr21 
 #define FCV_CVODE   fcvode
 #define FCV_DKY     fcvdky
 #define FCV_FREE    fcvfree
