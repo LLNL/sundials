@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2004-04-29 15:04:15 $
+ * $Revision: 1.28 $
+ * $Date: 2004-04-30 14:38:21 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -2294,7 +2294,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if(errfp!=NULL) fprintf(errfp, MSG_TRET_NULL);
     return (ILL_INPUT);
   }
-  *tret = tn;
+  tretlast = *tret = tn;
 
   /* Check for valid itask */
   if ((itask != NORMAL)       && 
@@ -2458,7 +2458,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     /* In NORMAL mode, test if tout was reached */
     if ( (task == NORMAL) && ((tn-tout)*h >= ZERO) ) {
-      *tret = tout;
+      tretlast = *tret = tout;
       ier =  CVodeGetDky(cv_mem, tout, 0, yout);
       if (ier != OKAY) {
         if(errfp!=NULL) fprintf(errfp, MSG_BAD_TOUT, tout);
@@ -2484,7 +2484,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
           if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
           return (ILL_INPUT);
         }
-        *tret = tstop;
+        tretlast = *tret = tstop;
         return (TSTOP_RETURN);
       }
       
@@ -2528,7 +2528,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         if(!ewtQsetOK) if(errfp!=NULL) fprintf(errfp, MSG_EWTQ_NOW_BAD, tn);
 
         istate = ILL_INPUT;
-        *tret = tn;
+        tretlast = *tret = tn;
         N_VScale(ONE, zn[0], yout);
         break;
 
@@ -2541,7 +2541,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (nstloc >= mxstep) {
       if(errfp!=NULL) fprintf(errfp, MSG_MAX_STEPS, tn, mxstep, tout);
       istate = TOO_MUCH_WORK;
-      *tret = tn;
+      tretlast = *tret = tn;
       N_VScale(ONE, zn[0], yout);
       break;
     }
@@ -2560,7 +2560,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (tolsf > ONE) {
       if(errfp!=NULL) fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
       istate = TOO_MUCH_ACC;
-      *tret = tn;
+      tretlast = *tret = tn;
       N_VScale(ONE, zn[0], yout);
       tolsf *= TWO;
       break;
@@ -2582,7 +2582,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
    
     if (kflag != SUCCESS_STEP) {
       istate = CVHandleFailure(cv_mem, kflag);
-      *tret = tn;
+      tretlast = *tret = tn;
       N_VScale(ONE, zn[0], yout);
       break;
     }
@@ -2609,7 +2609,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
       if ( ABS(tn - tstop) <= troundoff) {
         (void) CVodeGetDky(cv_mem, tstop, 0, yout);
-        *tret = tstop;
+        tretlast = *tret = tstop;
         istate = TSTOP_RETURN;
         break;
       }
@@ -2625,7 +2625,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     
     if (task == ONE_STEP) {
       istate = SUCCESS;
-      *tret = tn;
+      tretlast = *tret = tn;
       N_VScale(ONE, zn[0], yout);
       next_q = qprime;
       next_h = hprime;
@@ -2636,7 +2636,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     if ((tn-tout)*h >= ZERO) {
       istate = SUCCESS;
-      *tret = tout;
+      tretlast = *tret = tout;
       (void) CVodeGetDky(cv_mem, tout, 0, yout);
       next_q = qprime;
       next_h = hprime;
